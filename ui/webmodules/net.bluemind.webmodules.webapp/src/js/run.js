@@ -8,8 +8,12 @@ import router from "@bluemind/router";
 import store from "@bluemind/store";
 import Vue from "vue";
 import VueI18n from "vue-i18n";
+import VueBus from "@bluemind/vue-bus";
+import VueSockjsPlugin from "@bluemind/vue-sockjs";
 
 Vue.use(VueI18n);
+Vue.use(VueBus, { store });
+Vue.use(VueSockjsPlugin, {url: '/eventbus/', VueBus});
 
 injector.register({
     provide: "UserSession",
@@ -25,6 +29,12 @@ injector.register({
         firstDayOfWeek: firstDayOfWeek // FIXME : use user settings instead
     }
 });
+
+injector.register({
+    provide: "GlobalEventBus",
+    use: VueBus
+});
+
 
 sync(store, router);
 extend(router, store);

@@ -1,0 +1,17 @@
+{
+    "name": "@bluemind/vue-bus",
+    "description": "Global bus used by external components to trigger actions to Vue/Vuex",
+    "version": "4.1.0",
+    "license": "GPL-3.0",
+    "author": "Blue Mind SAS",
+    "main": "src/index.js",
+    "module": "src/index.js",
+    "devDependencies": {
+        "@bluemind/conf": "^4.1.0",
+        "@vue/test-utils": "^1.0.0-beta.25"
+    },
+    "scripts": {
+        "build": "",
+        "test": "jest --config node_modules/@bluemind/conf/jest.config.js"
+    }
+}

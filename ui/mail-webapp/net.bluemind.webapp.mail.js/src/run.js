@@ -9,7 +9,6 @@ import router from "@bluemind/router";
 import store from "@bluemind/store";
 import Vue from "vue";
 
-
 registerAPIClients();
 registerStores();
 

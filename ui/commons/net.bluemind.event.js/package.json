@@ -1,0 +1,16 @@
+{
+    "name": "@bluemind/event",
+    "description": "Bluemind package for events utils and classes",
+    "version": "4.1.0",
+    "license": "GPL-3.0",
+    "author": "Blue Mind SAS",
+    "main": "src/index.js",
+    "module": "src/index.js",
+    "devDependencies": {
+        "@bluemind/conf": "^4.1.0",
+        "@vue/test-utils": "^1.0.0-beta.25"
+    },
+    "scripts": {
+        "test": "jest --json --config node_modules/@bluemind/conf/jest.config.js"
+    }
+}
