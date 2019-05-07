@@ -340,7 +340,18 @@ net.bluemind.calendar.navigation.NavigationPresenter.prototype.showView_ = funct
     return this.ctx.service('folders').getFoldersRemote(null, view['value']['calendars']);
   }, null, this).then(function(folders) {
     return this.ctx.service('calendarsMgmt').setCalendars(folders);
-  }, null, this).then(function() {
+  }, function(e) {
+    var validFolders = [];
+    var futures = goog.array.map(lview['value']['calendars'], function(c) {
+      return this.ctx.service('folders').getFoldersRemote(null, new Array(c)).then(function(f) {
+        validFolders.push(f);
+      }, function(error) {
+      }, this);
+    }, this);
+    return goog.Promise.all(futures).then(function(e) {
+      return this.ctx.service('calendarsMgmt').setCalendars(validFolders);
+    }, null, this);
+  }, this).then(function() {
     if (this.ctx.online) {
       var viewType = lview['value']['type'];
       if (viewType == 'DAY') {
