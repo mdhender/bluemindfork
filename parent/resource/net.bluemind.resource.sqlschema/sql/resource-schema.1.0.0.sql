@@ -4,6 +4,7 @@ create table t_resource_type (
   id   varchar(255) NOT NULL,
   resource_container_id   int4 references t_container(id),
   label text NOT NULL,
+  templates hstore,
    PRIMARY KEY(id, resource_container_id)
 );
 
