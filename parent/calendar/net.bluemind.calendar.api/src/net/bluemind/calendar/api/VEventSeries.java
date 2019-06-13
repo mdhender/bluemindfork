@@ -91,4 +91,15 @@ public class VEventSeries {
 		return main != null ? main : occurrences.get(0);
 	}
 
+	public List<VEvent> flatten() {
+		final List<VEvent> evts = new ArrayList<>();
+		if (this.main != null) {
+			evts.add(this.main);
+		}
+		this.occurrences.forEach(occurrence -> {
+			evts.add(occurrence);
+		});
+		return evts;
+	}
+
 }
