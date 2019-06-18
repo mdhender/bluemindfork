@@ -86,6 +86,15 @@
 					<rt:CustomPropertyContainer ui:field="customPropContainer"></rt:CustomPropertyContainer>
 				</td>
 			</tr>
+			<tr class="setting">
+				<td class="label" >
+					<ui:msg key="template">Template</ui:msg>
+				</td>
+				<td class="form">
+					<p align="justify" style="width:32.7rem;"><i><ui:msg key="templateInfo">Template info</ui:msg></i></p>
+					<rt:TemplateContainer ui:field="templateContainer"></rt:TemplateContainer>
+				</td>
+			</tr>
 
 		</table>
 

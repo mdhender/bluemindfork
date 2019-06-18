@@ -34,6 +34,7 @@ import com.google.gwt.user.client.ui.Image;
 
 import net.bluemind.core.commons.gwt.GwtSerDerUtils;
 import net.bluemind.core.commons.gwt.JsMapStringJsObject;
+import net.bluemind.core.commons.gwt.JsMapStringString;
 import net.bluemind.gwtconsoleapp.base.editor.WidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.CompositeGwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
@@ -67,6 +68,9 @@ public class ResourceTypeGeneralEditor extends CompositeGwtWidgetElement {
 
 	private String imageUuid;
 
+	@UiField
+	TemplateContainer templateContainer;
+
 	protected ResourceTypeGeneralEditor() {
 		HTMLPanel panel = uiBinder.createAndBindUi(this);
 		icon.getElement().getStyle().setCursor(Cursor.POINTER);
@@ -92,6 +96,8 @@ public class ResourceTypeGeneralEditor extends CompositeGwtWidgetElement {
 				new ResourceTypeDescriptorPropertyGwtSerDer()).deserialize(new JSONArray(rt.getProperties().cast()));
 
 		customPropContainer.setProperties(properties);
+
+		templateContainer.setTemplates(rt.getTemplates().asMap());
 	}
 
 	@Override
@@ -112,6 +118,8 @@ public class ResourceTypeGeneralEditor extends CompositeGwtWidgetElement {
 		if (imageUuid != null) {
 			map.putString("resourceTypeIcon", imageUuid);
 		}
+
+		rt.setTemplates(JsMapStringString.create(templateContainer.getTemplates()));
 
 	}
 
