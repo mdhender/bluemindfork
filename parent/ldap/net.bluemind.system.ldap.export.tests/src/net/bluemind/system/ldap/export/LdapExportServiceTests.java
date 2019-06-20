@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.system.ldap.export.internal;
+package net.bluemind.system.ldap.export;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -72,8 +72,10 @@ import net.bluemind.node.api.NodeActivator;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
-import net.bluemind.system.ldap.export.internal.objects.DomainDirectoryGroup;
-import net.bluemind.system.ldap.export.internal.objects.DomainDirectoryUser;
+import net.bluemind.system.ldap.export.LdapExportService;
+import net.bluemind.system.ldap.export.LdapHelper;
+import net.bluemind.system.ldap.export.objects.DomainDirectoryGroup;
+import net.bluemind.system.ldap.export.objects.DomainDirectoryUser;
 import net.bluemind.system.ldap.export.verticle.LdapExportVerticle;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;

@@ -36,12 +36,12 @@ import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.Server;
 import net.bluemind.server.hook.DefaultServerHook;
-import net.bluemind.system.ldap.export.internal.LdapExportService;
-import net.bluemind.system.ldap.export.internal.LdapHelper;
-import net.bluemind.system.ldap.export.internal.conf.DebSlapdConfig;
-import net.bluemind.system.ldap.export.internal.conf.RhSlapdConfig;
-import net.bluemind.system.ldap.export.internal.objects.DirectoryRoot;
-import net.bluemind.system.ldap.export.internal.objects.DomainDirectoryRoot;
+import net.bluemind.system.ldap.export.LdapExportService;
+import net.bluemind.system.ldap.export.LdapHelper;
+import net.bluemind.system.ldap.export.conf.DebSlapdConfig;
+import net.bluemind.system.ldap.export.conf.RhSlapdConfig;
+import net.bluemind.system.ldap.export.objects.DirectoryRoot;
+import net.bluemind.system.ldap.export.objects.DomainDirectoryRoot;
 
 public class LdapServerHook extends DefaultServerHook {
 	private static final Logger logger = LoggerFactory.getLogger(LdapServerHook.class);

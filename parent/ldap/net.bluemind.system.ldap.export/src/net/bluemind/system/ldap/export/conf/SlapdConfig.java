@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.system.ldap.export.internal.conf;
+package net.bluemind.system.ldap.export.conf;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

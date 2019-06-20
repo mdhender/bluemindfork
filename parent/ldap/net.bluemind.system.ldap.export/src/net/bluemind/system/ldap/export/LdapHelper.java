@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.system.ldap.export.internal;
+package net.bluemind.system.ldap.export;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +55,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.lib.ldap.LdapConProxy;
 import net.bluemind.server.api.Server;
-import net.bluemind.system.ldap.export.internal.objects.DomainDirectoryRoot;
+import net.bluemind.system.ldap.export.objects.DomainDirectoryRoot;
 
 public class LdapHelper {
 	private static final Logger logger = LoggerFactory.getLogger(LdapHelper.class);

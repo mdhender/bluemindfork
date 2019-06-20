@@ -25,3 +25,8 @@ Require-Bundle: net.bluemind.system.domaintemplate;bundle-version="4.1.0",
  net.bluemind.metrics.registry,
  net.bluemind.system.schemaupgrader,
  net.bluemind.network.utils
+Export-Package: net.bluemind.system.ldap.export,
+ net.bluemind.system.ldap.export.conf,
+ net.bluemind.system.ldap.export.hook,
+ net.bluemind.system.ldap.export.objects,
+ net.bluemind.system.ldap.export.verticle

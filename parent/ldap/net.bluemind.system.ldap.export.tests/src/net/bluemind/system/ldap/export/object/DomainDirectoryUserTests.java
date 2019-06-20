@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.system.ldap.export.internal.object;
+package net.bluemind.system.ldap.export.object;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -42,10 +42,10 @@ import net.bluemind.addressbook.api.VCard.Parameter;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
-import net.bluemind.system.ldap.export.internal.objects.DomainDirectoryUser;
+import net.bluemind.system.ldap.export.objects.DomainDirectoryUser;
 import net.bluemind.user.api.User;
 
-public class DomainDirectoryUserTest {
+public class DomainDirectoryUserTests {
 	@Test
 	public void testUser_getDn() {
 		ItemValue<Domain> domain = getTestDomain();
@@ -189,7 +189,7 @@ public class DomainDirectoryUserTest {
 
 		ModifyRequest modificationRequest = ddu.getModifyRequest(currentEntry);
 		assertEquals("cn=dntoupdate", modificationRequest.getName().getName());
-		assertEquals(DomainDirectoryUser.ldapAttrsStringsValues.size(), modificationRequest.getModifications().size());
+		assertEquals(24, modificationRequest.getModifications().size());
 	}
 
 	private ItemValue<Domain> getTestDomain() {

@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.system.ldap.export.internal;
+package net.bluemind.system.ldap.export;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -65,12 +65,12 @@ import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.ldap.export.hook.LdapServerHook;
-import net.bluemind.system.ldap.export.internal.objects.DomainDirectoryGroup;
-import net.bluemind.system.ldap.export.internal.objects.DomainDirectoryGroup.MembersList;
-import net.bluemind.system.ldap.export.internal.objects.DomainDirectoryGroups;
-import net.bluemind.system.ldap.export.internal.objects.DomainDirectoryRoot;
-import net.bluemind.system.ldap.export.internal.objects.DomainDirectoryUser;
-import net.bluemind.system.ldap.export.internal.objects.DomainDirectoryUsers;
+import net.bluemind.system.ldap.export.objects.DomainDirectoryGroup;
+import net.bluemind.system.ldap.export.objects.DomainDirectoryGroups;
+import net.bluemind.system.ldap.export.objects.DomainDirectoryRoot;
+import net.bluemind.system.ldap.export.objects.DomainDirectoryUser;
+import net.bluemind.system.ldap.export.objects.DomainDirectoryUsers;
+import net.bluemind.system.ldap.export.objects.DomainDirectoryGroup.MembersList;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 

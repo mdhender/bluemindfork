@@ -15,26 +15,27 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.system.ldap.export.internal.conf;
+package net.bluemind.system.ldap.export.conf;
 
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.server.api.Server;
 
-public class DebSlapdConfig extends SlapdConfig {
-	public DebSlapdConfig(ItemValue<Server> server) {
+public class RhSlapdConfig extends SlapdConfig {
+	public RhSlapdConfig(ItemValue<Server> server) {
 		super(server);
 
-		confPath = "/etc/ldap/slapd.d";
-		schemaPath = "/etc/ldap/schema";
-		varRunPath = "/var/run/slapd";
-		usrLibPath = "/usr/lib/ldap";
+		confPath = "/etc/openldap/slapd.d";
+		schemaPath = "/etc/openldap/schema";
+		varRunPath = "/var/run/openldap";
+		usrLibPath = "/usr/lib64/openldap";
 
-		sasl2Path = "/etc/ldap/sasl2";
+		sasl2Path = "/usr/lib64/sasl2";
 
-		slapdDefaultPath = "/etc/default/slapd";
-		slapdDefaultTemplate = "slapd.default.debian";
+		slapdDefaultPath = "/etc/sysconfig/slapd";
+		slapdDefaultTemplate = "slapd.default.redhat";
 
-		owner = "openldap";
-		group = "openldap";
+		owner = "ldap";
+		group = "ldap";
 	}
+
 }

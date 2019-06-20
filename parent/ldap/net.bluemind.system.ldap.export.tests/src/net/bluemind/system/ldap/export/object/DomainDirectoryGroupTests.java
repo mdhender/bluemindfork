@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.system.ldap.export.internal.object;
+package net.bluemind.system.ldap.export.object;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -39,10 +39,10 @@ import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.group.api.Group;
-import net.bluemind.system.ldap.export.internal.objects.DomainDirectoryGroup;
-import net.bluemind.system.ldap.export.internal.objects.DomainDirectoryGroup.MembersList;
+import net.bluemind.system.ldap.export.objects.DomainDirectoryGroup;
+import net.bluemind.system.ldap.export.objects.DomainDirectoryGroup.MembersList;
 
-public class DomainDirectoryGroupTest {
+public class DomainDirectoryGroupTests {
 	@Test
 	public void testGroup_getDn() {
 		ItemValue<Domain> domain = getTestDomain();

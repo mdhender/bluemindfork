@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.system.ldap.export.internal.objects;
+package net.bluemind.system.ldap.export.objects;
 
 import java.util.ArrayList;
 import java.util.Iterator;

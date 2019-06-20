@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.system.ldap.export.internal.objects;
+package net.bluemind.system.ldap.export.objects;
 
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -25,13 +25,13 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
 
-public class DomainDirectoryGroups extends LdapObjects {
+public class DomainDirectoryUsers extends LdapObjects {
 	private static final String RDN_ATTRIBUTE = "ou";
-	private static final String RDN_VALUE = "groups";
+	private static final String RDN_VALUE = "users";
 
 	private final ItemValue<Domain> domain;
 
-	public DomainDirectoryGroups(ItemValue<Domain> domain) {
+	public DomainDirectoryUsers(ItemValue<Domain> domain) {
 		this.domain = domain;
 	}
 
@@ -41,7 +41,7 @@ public class DomainDirectoryGroups extends LdapObjects {
 
 		try {
 			ldapEntry = new DefaultEntry(getDn(), "objectclass: organizationalUnit", "ou: " + RDN_VALUE,
-					"description: " + domain.value.name + " domain groups");
+					"description: " + domain.value.name + " domain users");
 		} catch (LdapException e) {
 			throw new ServerFault("Fail to manage LDAP dn: " + getDn(), e);
 		}

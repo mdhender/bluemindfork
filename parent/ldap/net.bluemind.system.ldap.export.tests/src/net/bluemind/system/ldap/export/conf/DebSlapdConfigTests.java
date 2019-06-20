@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.system.ldap.export.internal.conf;
+package net.bluemind.system.ldap.export.conf;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -49,7 +49,8 @@ import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
-import net.bluemind.system.ldap.export.internal.LdapHelper;
+import net.bluemind.system.ldap.export.LdapHelper;
+import net.bluemind.system.ldap.export.conf.DebSlapdConfig;
 
 public class DebSlapdConfigTests {
 	private String ldapRoleServerIp = new BmConfIni().get("bluemind/ldap");

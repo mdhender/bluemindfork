@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.system.ldap.export.internal.object;
+package net.bluemind.system.ldap.export.object;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -30,7 +30,7 @@ import org.apache.directory.api.ldap.model.message.ModifyRequestImpl;
 import org.junit.Test;
 
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.system.ldap.export.internal.objects.LdapObjects;
+import net.bluemind.system.ldap.export.objects.LdapObjects;
 
 public class LdapObjectsTest extends LdapObjects {
 	@Test
