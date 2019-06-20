@@ -164,6 +164,10 @@ public class DomainDirectoryUserTests {
 		assertEquals(1, attrs.size());
 		assertEquals("{SASL}login@domain.tld", attrs.get(0));
 
+		attrs = getAttributeValues(entry, "audio");
+		assertEquals(1, attrs.size());
+		assertEquals("11119999", attrs.get(0));
+
 		attrs = getAttributeValues(entry, "employeeType");
 		assertEquals(0, attrs.size());
 

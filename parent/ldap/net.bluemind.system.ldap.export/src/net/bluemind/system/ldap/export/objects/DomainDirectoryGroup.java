@@ -18,8 +18,11 @@
 package net.bluemind.system.ldap.export.objects;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -37,6 +40,8 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.group.api.Group;
+import net.bluemind.system.ldap.export.Activator;
+import net.bluemind.system.ldap.export.enhancer.IEntityEnhancer;
 
 public class DomainDirectoryGroup extends LdapObjects {
 	private static final String RDN_ATTRIBUTE = "cn";
@@ -103,6 +108,16 @@ public class DomainDirectoryGroup extends LdapObjects {
 			if (!members.memberUid.isEmpty()) {
 				ldapEntry.add("memberUid", members.memberUid.toArray(new String[members.memberUid.size()]));
 			}
+
+			for (IEntityEnhancer entityEnhancer : Activator.getEntityEnhancerHooks()) {
+				Entry enhancedEntry = entityEnhancer.enhanceGroup(domain, group, ldapEntry);
+				if (enhancedEntry != null) {
+					ldapEntry = enhancedEntry;
+				}
+			}
+
+			ldapEntry.removeAttributes("bmUid");
+			ldapEntry.add("bmUid", group.uid);
 		} catch (LdapException e) {
 			throw new ServerFault("Fail to manage group: " + getDn(), e);
 		}
@@ -117,11 +132,17 @@ public class DomainDirectoryGroup extends LdapObjects {
 
 		Entry entry = getLdapEntry();
 
-		for (String attr : ldapAttrsStringsValues) {
+		for (String attr : Stream.concat(ldapAttrsStringsValues.stream(), getEnhancerAttributeList().stream())
+				.collect(Collectors.toList())) {
 			modifyRequest = updateLdapAttribute(modifyRequest, currentEntry, entry, attr);
 		}
 
 		return modifyRequest;
+	}
+
+	private Collection<String> getEnhancerAttributeList() {
+		return Activator.getEntityEnhancerHooks().stream().map(IEntityEnhancer::groupEnhancerAttributes)
+				.filter(Objects::nonNull).flatMap(List::stream).collect(Collectors.toList());
 	}
 
 	public List<String> getRemovedMembersUid(Entry entry) {

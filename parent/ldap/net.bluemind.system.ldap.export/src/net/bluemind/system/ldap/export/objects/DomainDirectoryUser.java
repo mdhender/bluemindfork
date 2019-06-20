@@ -20,8 +20,10 @@ package net.bluemind.system.ldap.export.objects;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -38,6 +40,8 @@ import net.bluemind.addressbook.api.VCard.Parameter;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.system.ldap.export.Activator;
+import net.bluemind.system.ldap.export.enhancer.IEntityEnhancer;
 import net.bluemind.user.api.User;
 
 public class DomainDirectoryUser extends LdapObjects {
@@ -210,13 +214,22 @@ public class DomainDirectoryUser extends LdapObjects {
 
 		try {
 			ldapEntry = new DefaultEntry(getDn(), "objectclass: inetOrgPerson", "objectclass: bmUser");
-			ldapEntry.add("bmUid", user.uid);
 
 			initIdentity(ldapEntry);
 			initEmail(ldapEntry);
 			initPhone(ldapEntry);
 			initAddress(ldapEntry);
 			initPassword(ldapEntry);
+
+			for (IEntityEnhancer entityEnhancer : Activator.getEntityEnhancerHooks()) {
+				Entry enhancedEntry = entityEnhancer.enhanceUser(domain, user, ldapEntry);
+				if (enhancedEntry != null) {
+					ldapEntry = enhancedEntry;
+				}
+			}
+
+			ldapEntry.removeAttributes("bmUid");
+			ldapEntry.add("bmUid", user.uid);
 		} catch (LdapException e) {
 			throw new ServerFault("Fail to manage user: " + getDn(), e);
 		}
@@ -296,10 +309,16 @@ public class DomainDirectoryUser extends LdapObjects {
 
 		Entry entry = getLdapEntry();
 
-		for (String attr : ldapAttrsStringsValues) {
+		for (String attr : Stream.concat(ldapAttrsStringsValues.stream(), getEnhancerAttributeList().stream())
+				.collect(Collectors.toList())) {
 			modifyRequest = updateLdapAttribute(modifyRequest, currentEntry, entry, attr);
 		}
 
 		return modifyRequest;
+	}
+
+	private List<String> getEnhancerAttributeList() {
+		return Activator.getEntityEnhancerHooks().stream().map(IEntityEnhancer::userEnhancerAttributes)
+				.filter(Objects::nonNull).flatMap(List::stream).collect(Collectors.toList());
 	}
 }

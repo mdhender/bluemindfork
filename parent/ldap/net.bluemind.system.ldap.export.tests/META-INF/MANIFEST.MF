@@ -1,12 +1,12 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.system.ldap.export.tests
-Bundle-SymbolicName: net.bluemind.system.ldap.export.tests
+Bundle-SymbolicName: net.bluemind.system.ldap.export.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: bluemind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: net.bluemind.pool,
- org.junit,
+Require-Bundle: org.junit,
+ net.bluemind.pool,
  net.bluemind.node.client,
  net.bluemind.core.jdbc.testshelper,
  net.bluemind.tests.defaultdata,

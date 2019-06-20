@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension-point id="net.bluemind.system.ldap.export.entityenhancer" name="entityenhancer" schema="schema/net.bluemind.system.ldap.export.entityenhancer.exsd"/>
    <extension
          point="net.bluemind.system.domaintemplate">
       <domain-template-extension
@@ -28,5 +29,4 @@
             code="net.bluemind.system.ldap.export.upgrader.AddBmUuidIndex">
       </java>
    </extension>
-
 </plugin>
