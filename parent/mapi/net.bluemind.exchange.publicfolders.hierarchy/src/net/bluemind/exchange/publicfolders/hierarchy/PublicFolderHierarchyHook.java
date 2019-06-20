@@ -17,29 +17,50 @@
   */
 package net.bluemind.exchange.publicfolders.hierarchy;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vertx.java.core.json.JsonArray;
+import org.vertx.java.core.json.JsonObject;
 
+import com.google.common.collect.Sets;
 import com.netflix.spectator.api.Counter;
 import com.netflix.spectator.api.Registry;
 
 import net.bluemind.addressbook.api.IAddressBookUids;
+import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.internal.IInternalContainersFlatHierarchy;
+import net.bluemind.core.container.hooks.IAclHook;
 import net.bluemind.core.container.hooks.IContainersHook;
 import net.bluemind.core.container.model.ContainerDescriptor;
+import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.model.acl.AccessControlEntry;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.DirEntryQuery;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.exchange.publicfolders.common.PublicFolders;
+import net.bluemind.group.api.IGroup;
+import net.bluemind.hornetq.client.Topic;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 
-public class PublicFolderHierarchyHook implements IContainersHook {
+public class PublicFolderHierarchyHook implements IContainersHook, IAclHook {
 
 	private static final Logger logger = LoggerFactory.getLogger(PublicFolderHierarchyHook.class);
 	private final Registry reg;
@@ -151,13 +172,65 @@ public class PublicFolderHierarchyHook implements IContainersHook {
 	@Override
 	public void onContainerSubscriptionsChanged(BmContext ctx, ContainerDescriptor cd, List<String> subs,
 			List<String> unsubs) throws ServerFault {
-		// ok
-
 	}
 
 	@Override
 	public void onContainerOfflineSyncStatusChanged(BmContext ctx, ContainerDescriptor cd, String subject) {
-		// ok
+
+	}
+
+	@Override
+	public void onAclChanged(BmContext ctx, ContainerDescriptor cd, List<AccessControlEntry> previous,
+			List<AccessControlEntry> current) {
+		hierarchyOp(ctx, cd, hier -> {
+
+			IDirectory dir = ctx.su().provider().instance(IDirectory.class, cd.domainUid);
+
+			Set<AccessControlEntry> concernedSubjects = Sets.symmetricDifference(new HashSet<>(previous),
+					new HashSet<>(current));
+
+			Map<Boolean, List<AccessControlEntry>> partitioned = concernedSubjects.stream()
+					.collect(Collectors.partitioningBy(s -> previous.contains(s)));
+
+			Set<String> added = expand(dir, cd.domainUid,
+					partitioned.get(Boolean.FALSE).stream().map(entry -> entry.subject).collect(Collectors.toList()));
+			Set<String> removed = expand(dir, cd.domainUid,
+					partitioned.get(Boolean.TRUE).stream().map(entry -> entry.subject).collect(Collectors.toList()));
+
+			Set<String> subjects = Stream.concat(added.stream().map(subject -> subject + "," + "ADD"),
+					removed.stream().map(subject -> subject + "," + "REMOVE")).collect(Collectors.toSet());
+
+			JsonObject notif = new JsonObject() //
+					.putArray("subjects", new JsonArray(new ArrayList<>(subjects))) //
+					.putString("domain", cd.domainUid) //
+					.putString("uid", cd.uid);
+
+			VertxPlatform.eventBus().publish(Topic.MAPI_PF_ACL_UPDATE, notif);
+		});
+	}
+
+	private Set<String> expand(IDirectory dir, String domain, List<String> subject) {
+		if (subject.isEmpty()) {
+			return Collections.emptySet();
+		}
+		ListResult<ItemValue<DirEntry>> search = dir
+				.search(DirEntryQuery.filterEntryUid(subject.toArray(new String[0])));
+		return search.values.stream().flatMap(collectMembers(domain)).collect(Collectors.toSet());
+	}
+
+	private Function<ItemValue<DirEntry>, Stream<String>> collectMembers(String domain) {
+		return dirEntry -> {
+			Set<String> members = new HashSet<>();
+			if (dirEntry.value.kind != Kind.GROUP) {
+				members.add(dirEntry.uid);
+			} else {
+				IGroup groupService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+						.instance(IGroup.class, domain);
+				members.addAll(groupService.getExpandedUserMembers(dirEntry.uid).stream().map(m -> m.uid)
+						.collect(Collectors.toSet()));
+			}
+			return Stream.of(members.toArray(new String[0]));
+		};
 	}
 
 }

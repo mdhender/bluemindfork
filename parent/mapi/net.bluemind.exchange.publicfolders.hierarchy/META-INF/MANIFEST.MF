@@ -15,6 +15,9 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.domain.hook,
  net.bluemind.directory.service,
  net.bluemind.core.task.spi,
- net.bluemind.metrics.registry
+ net.bluemind.metrics.registry,
+ net.bluemind.backend.mail.replica.api,
+ net.bluemind.hornetq.client,
+ net.bluemind.group.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.exchange.publicfolders.hierarchy

@@ -90,6 +90,11 @@ public class ItemNotificationVerticle extends BusModBase {
 			eb.registerHandler(Topic.MAPI_DELEGATION_NOTIFICATIONS, (Message<JsonObject> msg) -> {
 				dioProducer.send(msg.body());
 			});
+
+			final Producer pfAclUpdateProducer = MQ.registerProducer(Topic.MAPI_PF_ACL_UPDATE);
+			eb.registerHandler(Topic.MAPI_PF_ACL_UPDATE, (Message<JsonObject> msg) -> {
+				pfAclUpdateProducer.send(msg.body());
+			});
 		});
 
 	}

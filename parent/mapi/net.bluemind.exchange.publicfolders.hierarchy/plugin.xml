@@ -19,5 +19,11 @@
             factory="net.bluemind.exchange.publicfolders.hierarchy.PublicFolderHierarchyRepair$Factory">
       </repairSupport>
    </extension>
+   <extension
+         point="net.bluemind.core.container.hooks.aclhook">
+      <acl_hook
+            impl="net.bluemind.exchange.publicfolders.hierarchy.PublicFolderHierarchyHook">
+      </acl_hook>
+   </extension>
 
 </plugin>

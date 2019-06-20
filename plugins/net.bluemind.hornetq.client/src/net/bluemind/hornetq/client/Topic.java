@@ -43,6 +43,7 @@ public final class Topic {
 	public static final String MAPI_ITEM_NOTIFICATIONS = "mapi.item.notifications";
 	public static final String MAPI_HIERARCHY_NOTIFICATIONS = "mapi.hierarchy.notifications";
 	public static final String MAPI_DELEGATION_NOTIFICATIONS = "mapi.delegation.notifications";
+	public static final String MAPI_PF_ACL_UPDATE = "mapi.pf.acls.changed";
 
 	public static final String UI_RESOURCES_NOTIFICATIONS = "bm.ui.resources.notifications";
 
