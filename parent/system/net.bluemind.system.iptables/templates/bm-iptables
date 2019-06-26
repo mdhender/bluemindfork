@@ -29,7 +29,6 @@ check_debian_jessie() {
     if [ -e "/etc/debian_version" ] \
     	&& [[ "$(cat /etc/debian_version)" == "8."* ]]; then
             return 0
-        fi
     fi
     
     return 1
