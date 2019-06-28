@@ -19,11 +19,13 @@
 package net.bluemind.addressbook.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Test;
 
@@ -35,6 +37,7 @@ import net.bluemind.addressbook.api.VCard.Communications.Tel;
 import net.bluemind.addressbook.api.VCard.DeliveryAddressing;
 import net.bluemind.addressbook.api.VCard.DeliveryAddressing.Address;
 import net.bluemind.addressbook.api.VCard.Explanatory.Url;
+import net.bluemind.addressbook.api.VCard.Organizational.Member;
 import net.bluemind.addressbook.api.VCard.Parameter;
 import net.bluemind.addressbook.service.internal.VCardSanitizer;
 import net.bluemind.core.api.fault.ServerFault;
@@ -49,7 +52,7 @@ public class BasicVCardSanitizerTest {
 		card.organizational.org.company = null;
 
 		try {
-			getSanitizer().sanitize(card);
+			getSanitizer().sanitize(card, Optional.empty());
 		} catch (ServerFault e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -67,7 +70,7 @@ public class BasicVCardSanitizerTest {
 		card.organizational.org.company = company;
 
 		try {
-			getSanitizer().sanitize(card);
+			getSanitizer().sanitize(card, Optional.empty());
 		} catch (ServerFault e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -89,7 +92,7 @@ public class BasicVCardSanitizerTest {
 		card.communications.emails = emails;
 
 		try {
-			getSanitizer().sanitize(card);
+			getSanitizer().sanitize(card, Optional.empty());
 		} catch (ServerFault e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -97,6 +100,54 @@ public class BasicVCardSanitizerTest {
 
 		assertEquals(email, card.identification.formatedName.value);
 
+	}
+
+	@Test
+	public void testSanitizerShouldInsertMissingContainerUid() {
+		String email = "test@test.com";
+		VCard card = defaultVCard();
+		card.identification.name.givenNames = null;
+		card.identification.name.familyNames = null;
+		card.organizational.org.company = null;
+		card.organizational.member = new ArrayList<VCard.Organizational.Member>();
+		VCard.Organizational.Member m = new VCard.Organizational.Member();
+		m.commonName = "air conditioning";
+		m.mailto = "killmy@planet.org";
+		m.itemUid = "1234";
+		VCard.Organizational.Member m2 = new VCard.Organizational.Member();
+		m2.commonName = "wind";
+		m2.mailto = "wind@ofchange.org";
+		m2.itemUid = "4321";
+		m2.containerUid = "alreadythere";
+		VCard.Organizational.Member m3 = new VCard.Organizational.Member();
+		m2.commonName = "ext";
+		m2.mailto = "ext@ofchange.org";
+		card.organizational.member.add(m);
+		card.organizational.member.add(m2);
+		card.organizational.member.add(m3);
+
+		List<Email> emails = new ArrayList<>();
+		emails.add(Email.create(email));
+		card.communications.emails = emails;
+
+		try {
+			getSanitizer().sanitize(card, Optional.of("mycontainer"));
+		} catch (ServerFault e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
+
+		assertEquals(3, card.organizational.member.size());
+
+		for (Member member : card.organizational.member) {
+			if (member.itemUid == null) {
+				assertNull(member.containerUid);
+			} else if (member.itemUid.equals("1234")) {
+				assertEquals("mycontainer", member.containerUid);
+			} else if (member.itemUid.equals("4321")) {
+				assertEquals("alreadythere", member.containerUid);
+			}
+		}
 	}
 
 	@Test
@@ -133,7 +184,7 @@ public class BasicVCardSanitizerTest {
 		card.communications.langs = Arrays.asList(lang1, lang2);
 
 		try {
-			getSanitizer().sanitize(card);
+			getSanitizer().sanitize(card, Optional.empty());
 		} catch (ServerFault e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -232,7 +283,7 @@ public class BasicVCardSanitizerTest {
 		card.communications.langs = Arrays.asList(lang1, lang2);
 
 		try {
-			getSanitizer().sanitize(card);
+			getSanitizer().sanitize(card, Optional.empty());
 		} catch (ServerFault e) {
 			e.printStackTrace();
 			fail(e.getMessage());

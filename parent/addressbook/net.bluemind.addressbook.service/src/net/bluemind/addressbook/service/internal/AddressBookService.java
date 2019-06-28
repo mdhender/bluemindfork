@@ -21,6 +21,7 @@ package net.bluemind.addressbook.service.internal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -147,9 +148,14 @@ public class AddressBookService implements IInCoreAddressBook {
 		return Ack.create(version);
 	}
 
+	@SuppressWarnings("serial")
 	private long doCreate(String uid, Long internalId, VCard card, byte[] photo) throws ServerFault {
 		// ext point sanitizer
-		extSanitizer.create(card);
+		extSanitizer.create(card, new HashMap<String, String>() {
+			{
+				put("containerUid", container.uid);
+			}
+		});
 
 		extValidator.create(card, ImmutableMap.of("containerUid", container.uid));
 
@@ -240,6 +246,7 @@ public class AddressBookService implements IInCoreAddressBook {
 	 * @return
 	 * @throws ServerFault
 	 */
+	@SuppressWarnings("serial")
 	private Updated doUpdate(String givenUid, Long itemId, VCard card, byte[] photo) throws ServerFault {
 
 		ItemValue<VCard> previousItemValue = itemId == null ? storeService.get(givenUid, null)
@@ -256,8 +263,11 @@ public class AddressBookService implements IInCoreAddressBook {
 				: getDisplayName(card).equals(getDisplayName(previousItemValue.value));
 		boolean directoryValueChanged = !displayNameEquals || !emailEquals;
 
-		// ext point sanitizer
-		extSanitizer.update(previousItemValue.value, card);
+		extSanitizer.update(previousItemValue.value, card, new HashMap<String, String>() {
+			{
+				put("containerUid", container.uid);
+			}
+		});
 
 		extValidator.update(previousItemValue.value, card, ImmutableMap.of("containerUid", container.uid));
 
