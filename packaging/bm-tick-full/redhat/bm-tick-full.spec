@@ -6,7 +6,7 @@ Group:              Applications/messaging
 URL:                http://www.bluemind.net/
 ExcludeArch:        s390 s390x
 Summary:            BlueMind TICK stack
-Requires:           bm-node = %{version}-%{release}, bm-tick-node = %{version}-%{release}, bm-chronograf = 1.6.2.bm2~224d2b158, bm-kapacitor = 1.5.2.bm1~b76a788b, bm-influxdb = 1.6.6.bm1~5610cb9d4
+Requires:           bm-node = %{version}-%{release}, bm-tick-node = %{version}-%{release}, bm-chronograf = 1.7.12.bm1~81b47b2c2, bm-kapacitor = 1.5.3.bm2~8ce0726f, bm-influxdb = 1.7.7.bm2~6d19fef88
 
 %description
 Installs TICK stack for BlueMind
