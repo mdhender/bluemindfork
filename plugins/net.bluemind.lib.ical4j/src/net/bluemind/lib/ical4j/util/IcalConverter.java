@@ -18,7 +18,10 @@
  */
 package net.bluemind.lib.ical4j.util;
 
-import org.joda.time.DateTimeZone;
+import java.time.DateTimeException;
+import java.time.Instant;
+import java.time.ZoneId;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,11 +85,11 @@ public class IcalConverter {
 		}
 
 		try {
-			DateTimeZone.forID(id);
+			ZoneId.of(id);
 			return id;
-		} catch (IllegalArgumentException e) {
+		} catch (DateTimeException e) {
 			logger.error("unknow timezone {}", property);
-			return DateTimeZone.forOffsetMillis(timeZone.getOffset(date.getTime())).getID();
+			return ZoneId.from(Instant.ofEpochMilli(timeZone.getOffset(date.getTime()))).getId();
 		}
 	}
 
@@ -113,8 +116,8 @@ public class IcalConverter {
 			}
 
 			try {
-				DateTimeZone.forID(timezone);
-			} catch (IllegalArgumentException e) {
+				ZoneId.of(timezone);
+			} catch (DateTimeException e) {
 				logger.error("unknow timezone {}", timezone, e);
 			}
 		}

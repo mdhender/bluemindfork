@@ -23,14 +23,15 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -262,13 +263,13 @@ public class IcsHookTests {
 
 	private ItemValue<VEventSeries> defaultVEvent(String title) {
 		VEvent event = new VEvent();
-		DateTimeZone tz = DateTimeZone.forID("Europe/Paris");
+		ZoneId tz = ZoneId.of("Europe/Paris");
 
 		long now = System.currentTimeMillis();
 		long start = now + (1000 * 60 * 60);
-		DateTime temp = new DateTime(start, tz);
+		ZonedDateTime temp = ZonedDateTime.ofInstant(Instant.ofEpochMilli(start), tz);
 		event.dtstart = BmDateTimeWrapper.create(temp, Precision.DateTime);
-		temp = new DateTime(start + (1000 * 60 * 60), tz);
+		temp = ZonedDateTime.ofInstant(Instant.ofEpochMilli(start + (1000 * 60 * 60)), tz);
 		event.dtend = BmDateTimeWrapper.create(temp, Precision.DateTime);
 		event.summary = title + "-" + System.currentTimeMillis();
 		event.location = "Toulouse";
@@ -451,13 +452,13 @@ public class IcsHookTests {
 	}
 
 	private VEventOccurrence createSimpleOccur(VEvent event) {
-		BmDateTime recurId = BmDateTimeWrapper.create(new BmDateTimeWrapper(event.dtstart).toJodaTime().plusDays(1),
+		BmDateTime recurId = BmDateTimeWrapper.create(new BmDateTimeWrapper(event.dtstart).toDateTime().plusDays(1),
 				Precision.DateTime);
 		VEventOccurrence occurr = VEventOccurrence.fromEvent(event, recurId);
 		occurr.dtstart = BmDateTimeWrapper
-				.create(new BmDateTimeWrapper(event.dtstart).toJodaTime().plusDays(1).plusHours(1), Precision.DateTime);
+				.create(new BmDateTimeWrapper(event.dtstart).toDateTime().plusDays(1).plusHours(1), Precision.DateTime);
 		occurr.dtend = BmDateTimeWrapper
-				.create(new BmDateTimeWrapper(event.dtend).toJodaTime().plusDays(1).plusHours(1), Precision.DateTime);
+				.create(new BmDateTimeWrapper(event.dtend).toDateTime().plusDays(1).plusHours(1), Precision.DateTime);
 		return occurr;
 	}
 

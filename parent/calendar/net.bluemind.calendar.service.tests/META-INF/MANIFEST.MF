@@ -8,7 +8,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.junit,
  net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
  net.bluemind.core.context;bundle-version="1.0.0",
- net.bluemind.lib.jodatime;bundle-version="1.0.0",
  net.bluemind.core.elasticsearch.testshelper;bundle-version="1.0.0",
  net.bluemind.server.service;bundle-version="1.0.0",
  net.bluemind.server.api;bundle-version="1.0.0",

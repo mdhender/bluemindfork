@@ -29,6 +29,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,8 +48,6 @@ import org.apache.james.mime4j.dom.Multipart;
 import org.apache.james.mime4j.dom.TextBody;
 import org.apache.james.mime4j.dom.address.Address;
 import org.apache.james.mime4j.dom.field.ContentTypeField;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -120,7 +121,6 @@ public class IcsHookTests {
 	private Container userContainer;
 	private User user1;
 	private User user2;
-	private User user3;
 	protected MailboxStoreService mailboxStore;
 	private ContainerUserStoreService userStoreService;
 
@@ -179,8 +179,6 @@ public class IcsHookTests {
 		user1 = user1Item.value;
 		ItemValue<User> user2Item = createTestUSer(dataLocation, "u2");
 		user2 = user2Item.value;
-		ItemValue<User> user3Item = createTestUSer(dataLocation, "u3");
-		user3 = user3Item.value;
 	}
 
 	private ItemValue<User> createTestUSer(ItemValue<Server> dataLocation, String login)
@@ -229,13 +227,13 @@ public class IcsHookTests {
 
 	private ItemValue<VEventSeries> defaultVEvent(String title) {
 		VEvent event = new VEvent();
-		DateTimeZone tz = DateTimeZone.forID("Europe/Paris");
+		ZoneId tz = ZoneId.of("Europe/Paris");
 
 		long now = NOW;
 		long start = now + (1000 * 60 * 60);
-		DateTime temp = new DateTime(start, tz);
+		ZonedDateTime temp = ZonedDateTime.ofInstant(Instant.ofEpochMilli(start), tz);
 		event.dtstart = BmDateTimeWrapper.create(temp, Precision.DateTime);
-		temp = new DateTime(start + (1000 * 60 * 60), tz);
+		temp = ZonedDateTime.ofInstant(Instant.ofEpochMilli(start + (1000 * 60 * 60)), tz);
 		event.dtend = BmDateTimeWrapper.create(temp, Precision.DateTime);
 		event.summary = title;
 		event.location = "Toulouse";
@@ -625,7 +623,7 @@ public class IcsHookTests {
 
 		VEvent updated = event.value.main.copy();
 		Set<net.bluemind.core.api.date.BmDateTime> exdate = new HashSet<>(1);
-		exdate.add(BmDateTimeWrapper.create(new DateTime(), Precision.Date));
+		exdate.add(BmDateTimeWrapper.create(ZonedDateTime.now(), Precision.Date));
 		updated.exdate = exdate;
 		VEventSeries updatedSeries = new VEventSeries();
 		updatedSeries.main = updated;
@@ -831,7 +829,7 @@ public class IcsHookTests {
 		ItemValue<VEventSeries> event = defaultVEventWithAttendeeAndSimpleRecur("invite", "u2", "u2@test.lan");
 		ItemValue<VEventSeries> newEvent = defaultVEventWithAttendeeAndSimpleRecur("invite", "u2", "u2@test.lan");
 		newEvent.value.main.exdate = ImmutableSet.of(BmDateTimeWrapper.create(
-				new BmDateTimeWrapper(newEvent.value.main.dtstart).toJodaTime().plusDays(1), Precision.DateTime));
+				new BmDateTimeWrapper(newEvent.value.main.dtstart).toDateTime().plusDays(1), Precision.DateTime));
 		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
 		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), "test.lan");
 		eventSanitizer.sanitize(event.value);
@@ -1146,7 +1144,6 @@ public class IcsHookTests {
 		Message m = tm.message;
 		assertTrue(m.getSubject().contains(event.value.main.summary));
 
-		String ics = getIcsPartAsText(m);
 		String method = getIcsPartMethod(m);
 		assertEquals("CANCEL", method);
 	}
@@ -1954,13 +1951,13 @@ public class IcsHookTests {
 	}
 
 	private VEventOccurrence createSimpleOccur(VEvent event) {
-		BmDateTime recurId = BmDateTimeWrapper.create(new BmDateTimeWrapper(event.dtstart).toJodaTime().plusDays(1),
+		BmDateTime recurId = BmDateTimeWrapper.create(new BmDateTimeWrapper(event.dtstart).toDateTime().plusDays(1),
 				Precision.DateTime);
 		VEventOccurrence occurr = VEventOccurrence.fromEvent(event, recurId);
 		occurr.dtstart = BmDateTimeWrapper
-				.create(new BmDateTimeWrapper(event.dtstart).toJodaTime().plusDays(1).plusHours(1), Precision.DateTime);
+				.create(new BmDateTimeWrapper(event.dtstart).toDateTime().plusDays(1).plusHours(1), Precision.DateTime);
 		occurr.dtend = BmDateTimeWrapper
-				.create(new BmDateTimeWrapper(event.dtend).toJodaTime().plusDays(1).plusHours(1), Precision.DateTime);
+				.create(new BmDateTimeWrapper(event.dtend).toDateTime().plusDays(1).plusHours(1), Precision.DateTime);
 		return occurr;
 	}
 

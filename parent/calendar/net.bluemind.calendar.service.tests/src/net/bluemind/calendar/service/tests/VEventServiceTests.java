@@ -27,14 +27,14 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +48,7 @@ import net.bluemind.core.api.ImportStats;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTime.Precision;
+import net.bluemind.core.api.date.BmDateTimeHelper;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -81,6 +82,8 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		return GenericStream.simpleValue(ics, s -> s.getBytes());
 	}
 
+	ZoneId hoChiMinhTz = ZoneId.of("Asia/Ho_Chi_Minh");
+
 	@Test
 	public void testExportOne() throws ServerFault {
 		VEventSeries vevent = defaultVEvent();
@@ -95,33 +98,32 @@ public class VEventServiceTests extends AbstractCalendarTests {
 				"jane.bang@domain.lan");
 		vevent.main.attendees.add(jane);
 
-		DateTimeZone tz = DateTimeZone.forID("Asia/Ho_Chi_Minh");
-
-		vevent.main.dtstart = time(new DateTime(1983, 2, 13, 2, 0, 0, tz));
+		vevent.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(1983, 2, 13, 2, 0, 0, 0, tz));
 		vevent.main.summary = "testExport à 4€";
 		vevent.main.alarm = new ArrayList<>(1);
 
 		vevent.main.alarm.add(ICalendarElement.VAlarm.create(Action.Email, -600, "alarm", 30, 0, "yaaaaay"));
 
 		Set<net.bluemind.core.api.date.BmDateTime> exdate = new HashSet<>(3);
-		DateTime exDate = new DateTime(1983, 2, 13, 10, 0, 0, tz);
-		exdate.add(time(exDate));
-		DateTime exDate2 = new DateTime(2012, 3, 31, 8, 30, 0, tz);
-		exdate.add(time(exDate2));
-		DateTime exDate3 = new DateTime(2014, 7, 14, 1, 2, 3, tz);
-		exdate.add(time(exDate3));
+		ZonedDateTime exDate = ZonedDateTime.of(1983, 2, 13, 10, 0, 0, 0, hoChiMinhTz);
+		exdate.add(BmDateTimeHelper.time(exDate));
+		ZonedDateTime exDate2 = ZonedDateTime.of(2012, 3, 31, 8, 30, 0, 0, hoChiMinhTz);
+		exdate.add(BmDateTimeHelper.time(exDate2));
+		ZonedDateTime exDate3 = ZonedDateTime.of(2014, 7, 14, 1, 2, 3, 0, hoChiMinhTz);
+		exdate.add(BmDateTimeHelper.time(exDate3));
 
 		// add duplicate
-		exdate.add(time(exDate3));
-		exdate.add(time(new DateTime(2014, 7, 14, 1, 2, 3, tz)));
+		exdate.add(BmDateTimeHelper.time(exDate3));
+		ZonedDateTime exDate4 = ZonedDateTime.of(2014, 7, 14, 1, 2, 3, 0, hoChiMinhTz);
+		exdate.add(BmDateTimeHelper.time(exDate4));
 
 		vevent.main.exdate = exdate;
 
 		// RDATES
 		Set<net.bluemind.core.api.date.BmDateTime> rdates = new HashSet<>(2);
-		BmDateTime rdate = time(new DateTime(1983, 2, 13, 13, 0, 0, tz));
+		BmDateTime rdate = BmDateTimeHelper.time(ZonedDateTime.of(1983, 2, 13, 13, 0, 0, 0, hoChiMinhTz));
 		rdates.add(rdate);
-		BmDateTime rdate2 = time(new DateTime(1983, 2, 22, 13, 0, 0, tz));
+		BmDateTime rdate2 = BmDateTimeHelper.time(ZonedDateTime.of(1983, 2, 22, 13, 0, 0, 0, hoChiMinhTz));
 		rdates.add(rdate2);
 		// add twice
 		rdates.add(rdate2);
@@ -131,7 +133,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = VEvent.RRule.Frequency.WEEKLY;
 		rrule.interval = 2;
-		rrule.until = time(new DateTime(2022, 12, 25, 13, 30, 0, tz));
+		rrule.until = BmDateTimeHelper.time(ZonedDateTime.of(2022, 12, 25, 13, 30, 0, 0, hoChiMinhTz));
 
 		rrule.bySecond = Arrays.asList(10, 20);
 
@@ -238,9 +240,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 				"john.bang@domain.lan");
 		vevent.main.attendees.add(john);
 
-		DateTimeZone tz = DateTimeZone.forID("Asia/Ho_Chi_Minh");
-
-		vevent.main.dtstart = time(new DateTime(1983, 2, 13, 2, 0, 0, tz));
+		vevent.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(1983, 2, 13, 2, 0, 0, 0, tz));
 		vevent.main.summary = "testExportMultipleVAlarm";
 		vevent.main.alarm = new ArrayList<>(1);
 
@@ -284,8 +284,8 @@ public class VEventServiceTests extends AbstractCalendarTests {
 	@Test
 	public void testExportMonthlyByDay() throws ServerFault {
 		VEventSeries event = defaultVEvent();
-		event.main.dtstart = time(new DateTime(2010, 2, 4, 17, 0, 0));
-		event.main.dtend = time(new DateTime(2010, 2, 4, 18, 0, 0));
+		event.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2010, 2, 4, 17, 0, 0, 0, defaultTz));
+		event.main.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2010, 2, 4, 18, 0, 0, 0, defaultTz));
 
 		// Every _1st_ thurday
 		VEvent.RRule rrule = new VEvent.RRule();
@@ -304,8 +304,8 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertTrue(export.contains("RRULE:FREQ=MONTHLY;INTERVAL=1;BYDAY=1TH"));
 
 		event = defaultVEvent();
-		event.main.dtstart = time(new DateTime(2010, 2, 4, 17, 0, 0));
-		event.main.dtend = time(new DateTime(2010, 2, 4, 18, 0, 0));
+		event.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2010, 2, 4, 17, 0, 0, 0, defaultTz));
+		event.main.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2010, 2, 4, 18, 0, 0, 0, defaultTz));
 
 		// Every _LAST_ monday
 		rrule = new VEvent.RRule();
@@ -328,9 +328,9 @@ public class VEventServiceTests extends AbstractCalendarTests {
 	public void testExportAll() throws ServerFault {
 		VEventSeries vevent1 = defaultVEvent();
 		vevent1.main.summary = "Event 1";
-		DateTimeZone tz = DateTimeZone.forID("Europe/Paris");
 
-		vevent1.main.dtstart = BmDateTimeWrapper.create(new DateTime(2005, 1, 1, 5, 0, 0, tz), Precision.DateTime);
+		vevent1.main.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2005, 1, 1, 5, 0, 0, 0, tz),
+				Precision.DateTime);
 		vevent1.main.priority = 2;
 		vevent1.main.description = "yé 1 €uro";
 		vevent1.main.location = "Là";
@@ -340,7 +340,8 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		VEventSeries vevent2 = defaultVEvent();
 		vevent2.main.summary = "Event 2";
 		// DTSTART;TZID=Europe/Paris:19860616T000000"
-		vevent2.main.dtstart = BmDateTimeWrapper.create(new DateTime(2011, 6, 16, 0, 0, 0, tz), Precision.DateTime);
+		vevent2.main.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2011, 6, 16, 0, 0, 0, 0, tz),
+				Precision.DateTime);
 		vevent2.main.alarm = new ArrayList<ICalendarElement.VAlarm>(1);
 		ICalendarElement.VAlarm alarm = ICalendarElement.VAlarm.create(-600);
 		vevent2.main.alarm.add(alarm);
@@ -442,12 +443,12 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		VEvent vevent = item.value.occurrences.get(0);
 		assertNotNull(vevent);
 
-		DateTimeZone tz = DateTimeZone.forID("Pacific/Noumea");
-		DateTime dtstart = new DateTime(1983, 2, 13, 2, 0, 0, tz);
+		ZoneId tz = ZoneId.of("Pacific/Noumea");
+		ZonedDateTime dtstart = ZonedDateTime.of(1983, 2, 13, 2, 0, 0, 0, tz);
 
-		assertEquals(dtstart.getMillis(), new BmDateTimeWrapper(vevent.dtstart).toUTCTimestamp());
+		assertEquals(dtstart.toInstant().toEpochMilli(), new BmDateTimeWrapper(vevent.dtstart).toUTCTimestamp());
 		assertEquals("Pacific/Noumea", vevent.timezone());
-		assertEquals(dtstart, new BmDateTimeWrapper(vevent.dtstart).toJodaTime());
+		assertEquals(dtstart, new BmDateTimeWrapper(vevent.dtstart).toDateTime());
 
 		assertEquals("TestSimpleImport", vevent.summary);
 		assertEquals(VEvent.Classification.Public, vevent.classification);
@@ -548,15 +549,15 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertTrue(janeFound);
 
 		assertEquals(3, vevent.exdate.size());
-		DateTime expectedExDate1 = new DateTime(1983, 2, 13, 10, 0, 0, DateTimeZone.UTC);
-		DateTime expectedExDate2 = new DateTime(2012, 3, 31, 8, 30, 0, DateTimeZone.UTC);
-		DateTime expectedExDate3 = new DateTime(2014, 7, 14, 1, 2, 3, DateTimeZone.UTC);
+		ZonedDateTime expectedExDate1 = ZonedDateTime.of(1983, 2, 13, 10, 0, 0, 0, utcTz);
+		ZonedDateTime expectedExDate2 = ZonedDateTime.of(2012, 3, 31, 8, 30, 0, 0, utcTz);
+		ZonedDateTime expectedExDate3 = ZonedDateTime.of(2014, 7, 14, 1, 2, 3, 0, utcTz);
 
 		boolean date1Found = false;
 		boolean date2Found = false;
 		boolean date3Found = false;
 		for (net.bluemind.core.api.date.BmDateTime d : vevent.exdate) {
-			DateTime exdate = new BmDateTimeWrapper(d).toJodaTime();
+			ZonedDateTime exdate = new BmDateTimeWrapper(d).toDateTime();
 			if (exdate.isEqual(expectedExDate1)) {
 				date1Found = true;
 			} else if (exdate.isEqual(expectedExDate2)) {
@@ -570,13 +571,12 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertTrue(date3Found);
 
 		assertEquals(2, vevent.rdate.size());
-		DateTimeZone tz = DateTimeZone.forID("Asia/Ho_Chi_Minh");
-		DateTime expectedRDate1 = new DateTime(1983, 2, 13, 13, 0, 0, tz);
-		DateTime expectedRDate2 = new DateTime(1983, 2, 22, 13, 0, 0, tz);
+		ZonedDateTime expectedRDate1 = ZonedDateTime.of(1983, 2, 13, 13, 0, 0, 0, hoChiMinhTz);
+		ZonedDateTime expectedRDate2 = ZonedDateTime.of(1983, 2, 22, 13, 0, 0, 0, hoChiMinhTz);
 		boolean rDate1Found = false;
 		boolean rDate2Found = false;
 		for (net.bluemind.core.api.date.BmDateTime d : vevent.rdate) {
-			DateTime rdate = new BmDateTimeWrapper(d).toJodaTime();
+			ZonedDateTime rdate = new BmDateTimeWrapper(d).toDateTime();
 			if (rdate.isEqual(expectedRDate1)) {
 				rDate1Found = true;
 			} else if (rdate.isEqual(expectedRDate2)) {
@@ -587,12 +587,12 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertTrue(rDate2Found);
 
 		assertNotNull(vevent.rrule);
-		DateTime until = new DateTime(2022, 12, 25, 13, 30, 0);
+		ZonedDateTime until = ZonedDateTime.of(2022, 12, 25, 13, 30, 0, 0, defaultTz);
 		VEvent.RRule rrule = vevent.rrule;
 		assertEquals(VEvent.RRule.Frequency.WEEKLY, rrule.frequency);
 		assertNull(rrule.count);
 		assertEquals(2, rrule.interval.intValue());
-		assertTrue(until.isEqual(new BmDateTimeWrapper(rrule.until).toJodaTime()));
+		assertTrue(until.isEqual(new BmDateTimeWrapper(rrule.until).toDateTime()));
 
 		assertNotNull(rrule.bySecond);
 		assertEquals(2, rrule.bySecond.size());
@@ -664,20 +664,17 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertEquals("[Compta] - Envoi factures Redmine", event.summary);
 		assertEquals(VEvent.RRule.Frequency.WEEKLY, event.rrule.frequency);
 		assertEquals(2, event.rrule.interval.intValue());
-		assertEquals(new DateTime(2013, 7, 1, 11, 15, 0, DateTimeZone.forID("Europe/Paris")),
-				new BmDateTimeWrapper(event.dtstart).toJodaTime());
-		assertEquals(new DateTime(2013, 7, 1, 12, 15, 0, DateTimeZone.forID("Europe/Paris")),
-				new BmDateTimeWrapper(event.dtend).toJodaTime());
+		assertEquals(ZonedDateTime.of(2013, 7, 1, 11, 15, 0, 0, tz), new BmDateTimeWrapper(event.dtstart).toDateTime());
+		assertEquals(ZonedDateTime.of(2013, 7, 1, 12, 15, 0, 0, tz), new BmDateTimeWrapper(event.dtend).toDateTime());
 
 		item = getCalendarService(userSecurityContext, userCalendarContainer)
 				.getComplete("6d987654321321654987158ZAEZAEZAE");
 		event = item.value.main;
 		assertEquals("[RH] - Relancer John Lennon", event.summary);
-		assertEquals(new DateTime(2013, 10, 21, 14, 0, 0, DateTimeZone.forID("Europe/Paris")),
-				new BmDateTimeWrapper(event.dtstart).toJodaTime());
+		assertEquals(ZonedDateTime.of(2013, 10, 21, 14, 0, 0, 0, tz),
+				new BmDateTimeWrapper(event.dtstart).toDateTime());
 		assertEquals("Europe/Paris", event.dtstart.timezone);
-		assertEquals(new DateTime(2013, 10, 21, 15, 0, 0, DateTimeZone.forID("Europe/Paris")),
-				new BmDateTimeWrapper(event.dtend).toJodaTime());
+		assertEquals(ZonedDateTime.of(2013, 10, 21, 15, 0, 0, 0, tz), new BmDateTimeWrapper(event.dtend).toDateTime());
 	}
 
 	@Test
@@ -707,10 +704,8 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertEquals("[YAY] Updated!", event.summary);
 		assertEquals(VEvent.RRule.Frequency.DAILY, event.rrule.frequency);
 		assertEquals(1, event.rrule.interval.intValue());
-		assertEquals(new DateTime(2013, 7, 1, 12, 0, 0, DateTimeZone.forID("Europe/Paris")),
-				new BmDateTimeWrapper(event.dtstart).toJodaTime());
-		assertEquals(new DateTime(2013, 7, 1, 12, 15, 0, DateTimeZone.forID("Europe/Paris")),
-				new BmDateTimeWrapper(event.dtend).toJodaTime());
+		assertEquals(ZonedDateTime.of(2013, 7, 1, 12, 0, 0, 0, tz), new BmDateTimeWrapper(event.dtstart).toDateTime());
+		assertEquals(ZonedDateTime.of(2013, 7, 1, 12, 15, 0, 0, tz), new BmDateTimeWrapper(event.dtend).toDateTime());
 	}
 
 	@Test
@@ -729,8 +724,8 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertEquals("Robin", event.summary);
 		assertEquals("335-7600", event.description);
 		assertEquals("At this place", event.location);
-		assertTrue(new DateTime(2010, 9, 24, 19, 0, 0, DateTimeZone.forID("UTC"))
-				.isEqual(new BmDateTimeWrapper(event.dtstart).toJodaTime()));
+		assertTrue(ZonedDateTime.of(2010, 9, 24, 19, 0, 0, 0, utcTz)
+				.isEqual(new BmDateTimeWrapper(event.dtstart).toDateTime()));
 	}
 
 	@Test
@@ -759,8 +754,8 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertEquals("test", event.summary);
 		assertEquals("C'est batte", event.description);
 		assertEquals("Torronto", event.location);
-		assertEquals(new DateTime(2010, 3, 13, 11, 30, 0, DateTimeZone.forID("America/Toronto")),
-				new BmDateTimeWrapper(event.dtstart).toJodaTime());
+		assertEquals(ZonedDateTime.of(2010, 3, 13, 11, 30, 0, 0, ZoneId.of("America/Toronto")),
+				new BmDateTimeWrapper(event.dtstart).toDateTime());
 
 		item = getCalendarService(userSecurityContext, userCalendarContainer).getComplete(
 				"040000008200E00074C5B7101A82E0080000000000FD15D8F2E4CC010000000000000000100000004D88FD3F9CD43D45A4E29A017CEC6706");
@@ -793,8 +788,8 @@ public class VEventServiceTests extends AbstractCalendarTests {
 				"040000008200E00074C5B7101A82E0080000000020E6BE25176BCD01000000000000000010000000AC9273385C95F54C9F9C4831A068C8D4");
 		VEvent event = item.value.main;
 		assertEquals("Electronic Reliability Estimation: How reliable are the results?", event.summary);
-		assertEquals(new DateTime(2012, 9, 25, 14, 50, 0, DateTimeZone.forID("Etc/UTC")).getMillis(),
-				new BmDateTimeWrapper(event.dtstart).toJodaTime().getMillis());
+		assertEquals(ZonedDateTime.of(2012, 9, 25, 14, 50, 0, 0, ZoneId.of("Etc/UTC")).toInstant().toEpochMilli(),
+				new BmDateTimeWrapper(event.dtstart).toDateTime().toInstant().toEpochMilli());
 	}
 
 	@Test
@@ -825,14 +820,14 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertEquals("<div>Grades 1-5</div>", event.description);
 		assertEquals("LS multi-purpose room", event.location);
 		assertEquals("UTC", event.dtstart.timezone);
-		assertEquals(new DateTime(2013, 4, 29, 16, 45, 0, DateTimeZone.forID("Etc/UTC")).getMillis(),
-				new BmDateTimeWrapper(event.dtstart).toJodaTime().getMillis());
+		assertEquals(ZonedDateTime.of(2013, 4, 29, 16, 45, 0, 0, ZoneId.of("Etc/UTC")).toInstant().toEpochMilli(),
+				new BmDateTimeWrapper(event.dtstart).toDateTime().toInstant().toEpochMilli());
 
 		item = getCalendarService(userSecurityContext, userCalendarContainer)
 				.getComplete("Icalff9bb2a513c75f5f09f31b83a3a4ac63");
 		event = item.value.main;
-		assertEquals(new DateTime(2012, 6, 28, 15, 0, 0, DateTimeZone.forID("Australia/Sydney")),
-				new BmDateTimeWrapper(event.dtstart).toJodaTime());
+		assertEquals(ZonedDateTime.of(2012, 6, 28, 15, 0, 0, 0, ZoneId.of("Australia/Sydney")),
+				new BmDateTimeWrapper(event.dtstart).toDateTime());
 	}
 
 	@Test
@@ -849,8 +844,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 				.getComplete("0987654Z567890ZFAFZFAFZAFAZ");
 		VEvent event = item.value.main;
 		assertEquals("anniv john bang", event.summary);
-		assertEquals(new DateTime(2007, 3, 2, 8, 0, 0, DateTimeZone.forID("Europe/Paris")),
-				new BmDateTimeWrapper(event.dtstart).toJodaTime());
+		assertEquals(ZonedDateTime.of(2007, 3, 2, 8, 0, 0, 0, tz), new BmDateTimeWrapper(event.dtstart).toDateTime());
 	}
 
 	@Test
@@ -925,26 +919,26 @@ public class VEventServiceTests extends AbstractCalendarTests {
 	public void testExportImport() throws ServerFault {
 		VEventSeries vevent = defaultVEvent();
 		vevent.main.summary = "Yummy yummy";
-		vevent.main.dtstart = time(new DateTime(1998, 7, 12, 22, 30, 0, DateTimeZone.forID("Europe/Paris")));
+		vevent.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(1998, 7, 12, 22, 30, 0, 0, tz));
 		vevent.main.priority = 7;
 		vevent.main.alarm = new ArrayList<ICalendarElement.VAlarm>(1);
 		ICalendarElement.VAlarm alarm = ICalendarElement.VAlarm.create(-600);
 		vevent.main.alarm.add(alarm);
 
 		Set<net.bluemind.core.api.date.BmDateTime> exdate = new HashSet<>(3);
-		DateTime exDate = new DateTime(1983, 2, 13, 10, 0, 0, DateTimeZone.forID("Europe/Paris"));
-		exdate.add(time(exDate));
-		DateTime exDate2 = new DateTime(2012, 3, 31, 8, 30, 0, DateTimeZone.forID("Europe/Paris"));
-		exdate.add(time(exDate2));
-		DateTime exDate3 = new DateTime(2014, 7, 14, 1, 2, 3, DateTimeZone.forID("Europe/Paris"));
-		exdate.add(time(exDate3));
+		ZonedDateTime exDate = ZonedDateTime.of(1983, 2, 13, 10, 0, 0, 0, tz);
+		exdate.add(BmDateTimeHelper.time(exDate));
+		ZonedDateTime exDate2 = ZonedDateTime.of(2012, 3, 31, 8, 30, 0, 0, tz);
+		exdate.add(BmDateTimeHelper.time(exDate2));
+		ZonedDateTime exDate3 = ZonedDateTime.of(2014, 7, 14, 1, 2, 3, 0, tz);
+		exdate.add(BmDateTimeHelper.time(exDate3));
 		vevent.main.exdate = exdate;
 
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = VEvent.RRule.Frequency.WEEKLY;
 		rrule.interval = 2;
 		// UNTIL is UTC date
-		rrule.until = time(new DateTime(2022, 12, 25, 14, 30, 0, DateTimeZone.forID("UTC")));
+		rrule.until = BmDateTimeHelper.time(ZonedDateTime.of(2022, 12, 25, 14, 30, 0, 0, ZoneId.of("UTC")));
 		vevent.main.rrule = rrule;
 
 		String uid = "test_" + System.nanoTime();
@@ -982,13 +976,13 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		boolean exDate3Found = false;
 
 		for (net.bluemind.core.api.date.BmDateTime expected : yummy.exdate) {
-			if (new BmDateTimeWrapper(expected).toJodaTime().equals(exDate)) {
+			if (new BmDateTimeWrapper(expected).toDateTime().equals(exDate)) {
 				exDate1Found = true;
 			}
-			if (new BmDateTimeWrapper(expected).toJodaTime().equals(exDate2)) {
+			if (new BmDateTimeWrapper(expected).toDateTime().equals(exDate2)) {
 				exDate2Found = true;
 			}
-			if (new BmDateTimeWrapper(expected).toJodaTime().equals(exDate3)) {
+			if (new BmDateTimeWrapper(expected).toDateTime().equals(exDate3)) {
 				exDate3Found = true;
 			}
 		}
@@ -1048,8 +1042,8 @@ public class VEventServiceTests extends AbstractCalendarTests {
 
 		VEvent event = item.value.main;
 		assertEquals("Réunion Formation", event.summary);
-		assertEquals(new DateTime(2013, 2, 13, 14, 0, 0, DateTimeZone.forID("CET")),
-				new BmDateTimeWrapper(event.dtstart).toJodaTime());
+		assertEquals(ZonedDateTime.of(2013, 2, 13, 14, 0, 0, 0, ZoneId.of("CET")),
+				new BmDateTimeWrapper(event.dtstart).toDateTime());
 	}
 
 	@Test
@@ -1067,10 +1061,8 @@ public class VEventServiceTests extends AbstractCalendarTests {
 
 		VEvent event = item.value.main;
 		assertEquals("RPM", event.summary);
-		assertEquals(new DateTime(2011, 4, 11, 12, 0, 0, DateTimeZone.forID("Europe/Paris")),
-				new BmDateTimeWrapper(event.dtstart).toJodaTime());
-		assertEquals(new DateTime(2011, 4, 11, 14, 0, 0, DateTimeZone.forID("Europe/Paris")),
-				new BmDateTimeWrapper(event.dtend).toJodaTime());
+		assertEquals(ZonedDateTime.of(2011, 4, 11, 12, 0, 0, 0, tz), new BmDateTimeWrapper(event.dtstart).toDateTime());
+		assertEquals(ZonedDateTime.of(2011, 4, 11, 14, 0, 0, 0, tz), new BmDateTimeWrapper(event.dtend).toDateTime());
 	}
 
 	@Test
@@ -1087,8 +1079,8 @@ public class VEventServiceTests extends AbstractCalendarTests {
 				.getComplete("h2p562nvgt1ksuejet19d82d28@google.com");
 		VEvent event = item.value.main;
 		assertEquals("test", event.summary);
-		assertEquals(new DateTime(2013, 7, 17, 8, 0, 0, DateTimeZone.forID("Etc/UTC")).getMillis(),
-				new BmDateTimeWrapper(event.dtstart).toJodaTime().getMillis());
+		assertEquals(ZonedDateTime.of(2013, 7, 17, 8, 0, 0, 0, ZoneId.of("Etc/UTC")).toInstant().toEpochMilli(),
+				new BmDateTimeWrapper(event.dtstart).toDateTime().toInstant().toEpochMilli());
 
 		// Update
 		// FIXME fail because olditem.updated != null
@@ -1105,8 +1097,8 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertNotNull(item);
 		event = item.value.main;
 		assertEquals("w00t", event.summary);
-		assertEquals(new DateTime(2013, 7, 17, 18, 0, 0, DateTimeZone.forID("Etc/UTC")).getMillis(),
-				new BmDateTimeWrapper(event.dtstart).toJodaTime().getMillis());
+		assertEquals(ZonedDateTime.of(2013, 7, 17, 18, 0, 0, 0, ZoneId.of("Etc/UTC")).toInstant().toEpochMilli(),
+				new BmDateTimeWrapper(event.dtstart).toDateTime().toInstant().toEpochMilli());
 	}
 
 	@Test

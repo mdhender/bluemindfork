@@ -19,12 +19,12 @@
 package net.bluemind.eas.endpoint.tests;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.joda.time.DateTime;
 import org.vertx.java.core.buffer.Buffer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -264,7 +264,7 @@ public class SyncEndpointMeetingRequestTests extends AbstractEndpointTest {
 
 	private void createEvent(String uid, boolean rrule) throws ServerFault {
 		VEvent event = new VEvent();
-		event.dtstart = BmDateTimeWrapper.create(new DateTime(), Precision.DateTime);
+		event.dtstart = BmDateTimeWrapper.create(ZonedDateTime.now(), Precision.DateTime);
 		event.summary = "Piscine";
 		event.location = "Toulouse";
 		event.description = "Lorem ipsum";

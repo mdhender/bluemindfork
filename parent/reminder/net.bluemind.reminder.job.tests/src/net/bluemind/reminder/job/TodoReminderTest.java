@@ -25,6 +25,8 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -33,8 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -161,8 +161,8 @@ public class TodoReminderTest {
 	protected ItemValue<VTodo> defaultVTodo() {
 
 		VTodo todo = new VTodo();
-		DateTimeZone tz = DateTimeZone.UTC;
-		DateTime temp = new DateTime(2024, 12, 28, 0, 0, 0, tz);
+		ZoneId tz = ZoneId.of("UTC");
+		ZonedDateTime temp = ZonedDateTime.of(2024, 12, 28, 0, 0, 0, 0, tz);
 		todo.dtstart = BmDateTimeWrapper.create(temp, Precision.DateTime);
 		todo.due = BmDateTimeWrapper.create(temp.plusMonths(1), Precision.DateTime);
 		todo.summary = "Test Todo";

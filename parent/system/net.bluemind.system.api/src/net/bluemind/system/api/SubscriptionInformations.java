@@ -18,8 +18,8 @@
  */
 package net.bluemind.system.api;
 
+import java.time.LocalDate;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import net.bluemind.core.api.BMApi;
@@ -49,8 +49,8 @@ public class SubscriptionInformations {
 	public String dealer;
 	public String distributor;
 	public Kind kind;
-	public Date starts;
-	public Date ends;
+	public LocalDate starts;
+	public LocalDate ends;
 	public boolean valid;
 	public String pubKeyFingerprint;
 	public boolean validProvider = false;

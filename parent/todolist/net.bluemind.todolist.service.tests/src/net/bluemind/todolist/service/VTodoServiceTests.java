@@ -27,14 +27,14 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.Test;
 import org.vertx.java.core.Vertx;
 
@@ -107,8 +107,7 @@ public class VTodoServiceTests extends AbstractServiceTests {
 	@Test
 	public void exportDtStart() throws ServerFault, IOException, ParserException {
 		VTodo todo = defaultVTodo();
-		DateTimeZone tz = DateTimeZone.UTC;
-		todo.dtstart = BmDateTimeWrapper.create(new DateTime(2015, 12, 25, 0, 0, 0, tz), Precision.DateTime);
+		todo.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2015, 12, 25, 0, 0, 0, 0, utcTz), Precision.DateTime);
 		Calendar todolist = export(todo);
 		assertEquals(1, todolist.getComponents().size());
 		VToDo vtodo = (VToDo) todolist.getComponent(Component.VTODO);
@@ -118,8 +117,7 @@ public class VTodoServiceTests extends AbstractServiceTests {
 	@Test
 	public void exportDue() throws ServerFault, IOException, ParserException {
 		VTodo todo = defaultVTodo();
-		DateTimeZone tz = DateTimeZone.UTC;
-		todo.due = BmDateTimeWrapper.create(new DateTime(2015, 12, 26, 0, 0, 0, tz), Precision.DateTime);
+		todo.due = BmDateTimeWrapper.create(ZonedDateTime.of(2015, 12, 26, 0, 0, 0, 0, utcTz), Precision.DateTime);
 		Calendar todolist = export(todo);
 		assertEquals(1, todolist.getComponents().size());
 		VToDo vtodo = (VToDo) todolist.getComponent(Component.VTODO);
@@ -330,7 +328,7 @@ public class VTodoServiceTests extends AbstractServiceTests {
 		VTodo todo = defaultVTodo();
 		Set<net.bluemind.core.api.date.BmDateTime> exdate = new HashSet<>(1);
 		BmDateTime expected = BmDateTimeWrapper
-				.create(new DateTime(2015, 7, 6, 17, 0, 0, DateTimeZone.forID("Europe/London")), Precision.DateTime);
+				.create(ZonedDateTime.of(2015, 7, 6, 17, 0, 0, 0, ZoneId.of("Europe/London")), Precision.DateTime);
 		exdate.add(expected);
 		todo.exdate = exdate;
 		Calendar todolist = export(todo);
@@ -359,7 +357,7 @@ public class VTodoServiceTests extends AbstractServiceTests {
 		VTodo todo = defaultVTodo();
 		Set<net.bluemind.core.api.date.BmDateTime> rdate = new HashSet<>(1);
 		BmDateTime expected = BmDateTimeWrapper
-				.create(new DateTime(2015, 7, 6, 16, 0, 0, DateTimeZone.forID("Europe/London")), Precision.DateTime);
+				.create(ZonedDateTime.of(2015, 7, 6, 16, 0, 0, 0, ZoneId.of("Europe/London")), Precision.DateTime);
 		rdate.add(expected);
 		todo.rdate = rdate;
 		Calendar todolist = export(todo);
@@ -410,10 +408,10 @@ public class VTodoServiceTests extends AbstractServiceTests {
 	@Test
 	public void exportCompleted() throws ServerFault, IOException, ParserException {
 		VTodo todo = defaultVTodo();
-		DateTimeZone tz = DateTimeZone.UTC;
-		todo.dtstart = BmDateTimeWrapper.create(new DateTime(2015, 12, 30, 0, 0, 0, tz), Precision.DateTime);
+		todo.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2015, 12, 30, 0, 0, 0, 0, utcTz), Precision.DateTime);
 		todo.status = ICalendarElement.Status.Completed;
-		todo.completed = BmDateTimeWrapper.create(new DateTime(2015, 12, 31, 0, 0, 0, tz), Precision.DateTime);
+		todo.completed = BmDateTimeWrapper.create(ZonedDateTime.of(2015, 12, 31, 0, 0, 0, 0, utcTz),
+				Precision.DateTime);
 		Calendar todolist = export(todo);
 		assertEquals(1, todolist.getComponents().size());
 		VToDo vtodo = (VToDo) todolist.getComponent(Component.VTODO);
@@ -464,9 +462,9 @@ public class VTodoServiceTests extends AbstractServiceTests {
 		assertTrue(jane);
 		assertEquals(0, vtodo.value.percent.intValue());
 		assertEquals(3, vtodo.value.priority.intValue());
-		assertEquals(BmDateTimeWrapper.create(new DateTime(2024, 12, 28, 0, 0, 0, DateTimeZone.forID("Europe/London")),
+		assertEquals(BmDateTimeWrapper.create(ZonedDateTime.of(2024, 12, 28, 0, 0, 0, 0, ZoneId.of("Europe/London")),
 				Precision.DateTime), vtodo.value.dtstart);
-		assertEquals(BmDateTimeWrapper.create(new DateTime(2025, 1, 28, 0, 0, 0, DateTimeZone.forID("Europe/London")),
+		assertEquals(BmDateTimeWrapper.create(ZonedDateTime.of(2025, 1, 28, 0, 0, 0, 0, ZoneId.of("Europe/London")),
 				Precision.DateTime), vtodo.value.due);
 	}
 
@@ -497,8 +495,8 @@ public class VTodoServiceTests extends AbstractServiceTests {
 		assertNotNull(vtodo);
 		assertEquals(1, vtodo.value.exdate.size());
 
-		assertEquals(BmDateTimeWrapper.create(new DateTime(2015, 7, 6, 16, 0, 0, DateTimeZone.forID("Europe/Paris")),
-				Precision.DateTime), vtodo.value.exdate.iterator().next());
+		assertEquals(BmDateTimeWrapper.create(ZonedDateTime.of(2015, 7, 6, 16, 0, 0, 0, tz), Precision.DateTime),
+				vtodo.value.exdate.iterator().next());
 	}
 
 	private void wait(TaskRef taskRef) throws Exception {
@@ -525,8 +523,8 @@ public class VTodoServiceTests extends AbstractServiceTests {
 		assertNotNull(vtodo);
 		assertEquals(1, vtodo.value.rdate.size());
 
-		assertEquals(BmDateTimeWrapper.create(new DateTime(2015, 7, 6, 16, 0, 0, DateTimeZone.forID("Europe/Paris")),
-				Precision.DateTime), vtodo.value.rdate.iterator().next());
+		assertEquals(BmDateTimeWrapper.create(ZonedDateTime.of(2015, 7, 6, 16, 0, 0, 0, tz), Precision.DateTime),
+				vtodo.value.rdate.iterator().next());
 	}
 
 	@Test

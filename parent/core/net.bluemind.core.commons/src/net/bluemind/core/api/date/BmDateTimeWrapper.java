@@ -157,6 +157,14 @@ public class BmDateTimeWrapper {
 		return BmDateTimeWrapper.create(dateTime.toString(), dateTime.getZone().getID(), precision);
 	}
 
+	public static BmDateTime create(ZonedDateTime dateTime, Precision precision) {
+		return BmDateTimeWrapper.create(dateTime.toOffsetDateTime().toString(), dateTime.getZone().getId(), precision);
+	}
+
+	public static BmDateTime create(java.time.LocalDateTime dateTime, Precision precision) {
+		return BmDateTimeWrapper.create(dateTime.toString(), ZoneId.of("UTC").getId(), precision);
+	}
+
 	/**
 	 * Create a new BmDateTime using {@link BmDateTime#timezone},
 	 * {@link BmDateTime#precision} and timestamp.

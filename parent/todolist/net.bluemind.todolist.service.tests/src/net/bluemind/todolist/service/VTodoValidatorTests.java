@@ -21,7 +21,8 @@ package net.bluemind.todolist.service;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
+
 import org.junit.Test;
 
 import net.bluemind.core.api.date.BmDateTime.Precision;
@@ -59,7 +60,7 @@ public class VTodoValidatorTests {
 		assertNull(err);
 
 		// dtstart != null
-		vtodo.dtstart = BmDateTimeWrapper.create(new DateTime(), Precision.DateTime);
+		vtodo.dtstart = BmDateTimeWrapper.create(ZonedDateTime.now(), Precision.DateTime);
 		err = null;
 		try {
 			validator.validate(vtodo);

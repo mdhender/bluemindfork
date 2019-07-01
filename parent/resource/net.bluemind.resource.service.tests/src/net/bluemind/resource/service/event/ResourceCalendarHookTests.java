@@ -23,6 +23,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.SQLException;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,8 +35,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
-import org.joda.time.DateTimeZone;
-import org.joda.time.LocalTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -629,8 +630,6 @@ public class ResourceCalendarHookTests {
 
 	private VEventSeries defaultVEvent(String title) {
 		VEvent event = new VEvent();
-		DateTimeZone tz = DateTimeZone.forID("Europe/Paris");
-
 		event.dtstart = BmDateTimeWrapper.create("2017-05-23T11:37:14Z");
 		event.dtend = BmDateTimeWrapper.create("2017-05-23T12:37:14Z");
 		event.summary = title + "-" + System.currentTimeMillis();
@@ -684,9 +683,9 @@ public class ResourceCalendarHookTests {
 
 	private void setUnavailabilitySettings(String resourceId, List<Day> wd, int ds, int de) {
 		CalendarSettingsData s = new CalendarSettingsData();
-		s.dayStart = new LocalTime(ds, 0).getMillisOfDay();
-		s.dayEnd = new LocalTime(de, 0).getMillisOfDay();
-		s.timezoneId = DateTimeZone.UTC.getID();
+		s.dayStart = LocalTime.of(ds, 0).get(ChronoField.MILLI_OF_DAY);
+		s.dayEnd = LocalTime.of(de, 0).get(ChronoField.MILLI_OF_DAY);
+		s.timezoneId = ZoneId.of("UTC").getId();
 		s.minDuration = 5;
 		s.workingDays = wd;
 

@@ -22,6 +22,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -89,8 +93,6 @@ public class FileSystemFileHostingServiceTests {
 	@Before
 	public void setup() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
-
-		
 
 		final CountDownLatch latch = new CountDownLatch(1);
 		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
@@ -423,7 +425,7 @@ public class FileSystemFileHostingServiceTests {
 		String id = ID.extract(publicLink.url);
 
 		assertNotNull(publicLink.expirationDate);
-		assertEquals(expirationDate, new DateTime(publicLink.expirationDate, DateTimeZone.UTC).toString());
+		assertEquals(expirationDate, ZonedDateTime.parse(publicLink.expirationDate.toString()).toString());
 
 		service.getSharedFile(id);
 	}
@@ -713,6 +715,23 @@ public class FileSystemFileHostingServiceTests {
 			return this;
 		}
 
+	}
+
+	public static void main(String[] args) {
+		long ts = DateTime.now().withZoneRetainFields(DateTimeZone.UTC).getMillis();
+		long tsJavaTime = ZonedDateTime.now().withZoneSameLocal(ZoneId.of("UTC")).toInstant().toEpochMilli();
+		System.out.println(ts);
+		System.out.println(tsJavaTime);
+
+		String javaTime = ZonedDateTime.now().format(DateTimeFormatter.ofPattern("EE, dd MMM YYYY HH:mm:ss"));
+		String dateTime = new DateTime().toString("EE, dd MMM YYYY HH:mm:ss");
+		System.out.println(javaTime.equals(dateTime));
+
+		Date dateFromJavaTime = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
+		Date d = org.joda.time.LocalDate.now().toDate();
+		System.out.println(dateFromJavaTime.equals(d));
+
+		// LocalTime.ofNanoOfDay((long) config.dayStart);
 	}
 
 }

@@ -26,19 +26,19 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.Test;
 
 import net.bluemind.calendar.api.CalendarDescriptor;
 import net.bluemind.calendar.api.CalendarSettingsData;
 import net.bluemind.calendar.api.CalendarSettingsData.Day;
-import net.bluemind.calendar.api.IFreebusyUids;
 import net.bluemind.calendar.api.ICalendarSettings;
 import net.bluemind.calendar.api.ICalendarsMgmt;
 import net.bluemind.calendar.api.IFreebusyMgmt;
+import net.bluemind.calendar.api.IFreebusyUids;
 import net.bluemind.calendar.api.IVFreebusy;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventSeries;
@@ -49,6 +49,7 @@ import net.bluemind.calendar.api.VFreebusyQuery;
 import net.bluemind.calendar.service.AbstractCalendarTests;
 import net.bluemind.calendar.service.internal.VFreebusyService;
 import net.bluemind.core.api.date.BmDateTime.Precision;
+import net.bluemind.core.api.date.BmDateTimeHelper;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -64,28 +65,30 @@ import net.bluemind.core.tests.BmTestContext;
 
 public class VFreebusyServiceTests extends AbstractCalendarTests {
 
+	ZoneId tz = ZoneId.of("UTC");
+	ZoneId defaultTz = ZoneId.systemDefault();
+
 	@Test
 	public void testGetAsString() throws ServerFault {
 		VEventSeries vevent = defaultVEvent();
-		vevent.main.dtstart = BmDateTimeWrapper.create(new DateTime(2014, 1, 1, 10, 0, 0, DateTimeZone.UTC),
+		vevent.main.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 1, 1, 10, 0, 0, 0, tz),
 				Precision.DateTime);
-		vevent.main.dtend = BmDateTimeWrapper.create(new DateTime(2014, 1, 1, 12, 0, 0, DateTimeZone.UTC),
-				Precision.DateTime);
+		vevent.main.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 1, 1, 12, 0, 0, 0, tz), Precision.DateTime);
 
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = VEvent.RRule.Frequency.MONTHLY;
 		rrule.interval = 1;
-		rrule.until = time(new DateTime(2022, 12, 31, 0, 0, 0));
+		rrule.until = BmDateTimeHelper.time(ZonedDateTime.of(2022, 12, 31, 12, 0, 0, 0, defaultTz));
 		vevent.main.rrule = rrule;
 
 		String uid = "test_" + System.nanoTime();
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, vevent, sendNotifications);
 
-		DateTime dtstart = new DateTime(2014, 1, 1, 0, 0, 0, DateTimeZone.UTC);
-		DateTime dtend = new DateTime(2014, 12, 31, 0, 0, 0, DateTimeZone.UTC);
+		ZonedDateTime dtstart = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, tz);
+		ZonedDateTime dtend = ZonedDateTime.of(2014, 12, 31, 0, 0, 0, 0, tz);
 
-		String vfreebusy = getVFreebusyService(userSecurityContext, userFreebusyContainer)
-				.getAsString(VFreebusyQuery.create(time(dtstart, false), time(dtend, false)));
+		String vfreebusy = getVFreebusyService(userSecurityContext, userFreebusyContainer).getAsString(
+				VFreebusyQuery.create(BmDateTimeHelper.time(dtstart, false), BmDateTimeHelper.time(dtend, false)));
 		assertTrue(vfreebusy.contains("BEGIN:VFREEBUSY"));
 		assertTrue(vfreebusy.contains("DTSTAMP:"));
 		assertTrue(vfreebusy.contains("DTSTART:20140101T000000"));
@@ -107,11 +110,11 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 
 	@Test
 	public void testOutOfOffice() throws ServerFault, IOException {
-		DateTime dtstart = new DateTime(2016, 6, 6, 0, 0, 0, DateTimeZone.UTC);
-		DateTime dtend = new DateTime(2016, 6, 13, 0, 0, 0, DateTimeZone.UTC);
+		ZonedDateTime dtstart = ZonedDateTime.of(2016, 6, 6, 0, 0, 0, 0, tz);
+		ZonedDateTime dtend = ZonedDateTime.of(2016, 6, 13, 0, 0, 0, 0, tz);
 
-		String vfreebusy = getVFreebusyService(userSecurityContext, userFreebusyContainer)
-				.getAsString(VFreebusyQuery.create(time(dtstart, false), time(dtend, false)));
+		String vfreebusy = getVFreebusyService(userSecurityContext, userFreebusyContainer).getAsString(
+				VFreebusyQuery.create(BmDateTimeHelper.time(dtstart, false), BmDateTimeHelper.time(dtend, false)));
 
 		assertTrue(vfreebusy.contains("BEGIN:VCALENDAR"));
 		assertTrue(vfreebusy.contains("BEGIN:VFREEBUSY"));
@@ -152,27 +155,27 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 	@Test
 	public void testGet() throws ServerFault {
 		VEventSeries vevent = defaultVEvent();
-		vevent.main.dtstart = time(new DateTime(2014, 1, 1, 10, 0, 0));
-		vevent.main.dtend = time(new DateTime(2014, 1, 1, 12, 0, 0));
+		vevent.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2014, 1, 1, 10, 0, 0, 0, defaultTz));
+		vevent.main.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2014, 1, 1, 12, 0, 0, 0, defaultTz));
 
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = VEvent.RRule.Frequency.MONTHLY;
 		rrule.interval = 1;
-		rrule.until = time(new DateTime(2022, 12, 31, 0, 0, 0));
+		rrule.until = BmDateTimeHelper.time(ZonedDateTime.of(2022, 12, 31, 0, 0, 0, 0, defaultTz));
 		vevent.main.rrule = rrule;
 
 		String uid = "test_" + System.nanoTime();
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, vevent, sendNotifications);
 
-		DateTime dtstart = new DateTime(2014, 1, 1, 0, 0, 0);
-		DateTime dtend = new DateTime(2014, 12, 31, 0, 0, 0);
+		ZonedDateTime dtstart = ZonedDateTime.of(2014, 1, 0, 0, 0, 0, 0, defaultTz);
+		ZonedDateTime dtend = ZonedDateTime.of(2014, 12, 31, 0, 0, 0, 0, defaultTz);
 
 		VFreebusy freebusy = getVFreebusyService(userSecurityContext, userFreebusyContainer)
-				.get(VFreebusyQuery.create(time(dtstart, false), time(dtend, false)));
+				.get(VFreebusyQuery.create(BmDateTimeHelper.time(dtstart, false), BmDateTimeHelper.time(dtend, false)));
 
 		assertNotNull(freebusy);
-		assertEquals(dtstart, new BmDateTimeWrapper(freebusy.dtstart).toJodaTime());
-		assertEquals(dtend, new BmDateTimeWrapper(freebusy.dtend).toJodaTime());
+		assertEquals(dtstart, new BmDateTimeWrapper(freebusy.dtstart).toDateTime());
+		assertEquals(dtend, new BmDateTimeWrapper(freebusy.dtend).toDateTime());
 		assertEquals(636, freebusy.slots.size());
 
 		int i = 0;
@@ -188,13 +191,13 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 	@Test
 	public void testGetUsingExclusions() throws ServerFault {
 		VEventSeries vevent = defaultVEvent();
-		vevent.main.dtstart = time(new DateTime(2014, 1, 1, 10, 0, 0));
-		vevent.main.dtend = time(new DateTime(2014, 1, 1, 12, 0, 0));
+		vevent.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2014, 1, 1, 10, 0, 0, 0, defaultTz));
+		vevent.main.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2014, 1, 1, 12, 0, 0, 0, defaultTz));
 
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = VEvent.RRule.Frequency.MONTHLY;
 		rrule.interval = 1;
-		rrule.until = time(new DateTime(2022, 12, 31, 0, 0, 0));
+		rrule.until = BmDateTimeHelper.time(ZonedDateTime.of(2022, 12, 31, 0, 0, 0, 0, defaultTz));
 		vevent.main.rrule = rrule;
 
 		String uid = "test_" + System.nanoTime();
@@ -204,16 +207,17 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid2, vevent, sendNotifications);
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid3, vevent, sendNotifications);
 
-		DateTime dtstart = new DateTime(2014, 1, 1, 0, 0, 0);
-		DateTime dtend = new DateTime(2014, 12, 31, 0, 0, 0);
+		ZonedDateTime dtstart = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, defaultTz);
+		ZonedDateTime dtend = ZonedDateTime.of(2014, 12, 31, 0, 0, 0, 0, defaultTz);
 
-		VFreebusyQuery query = VFreebusyQuery.create(time(dtstart, false), time(dtend, false));
+		VFreebusyQuery query = VFreebusyQuery.create(BmDateTimeHelper.time(dtstart, false),
+				BmDateTimeHelper.time(dtend, false));
 		query.excludedEvents = Arrays.asList(uid2);
 		VFreebusy freebusy = getVFreebusyService(userSecurityContext, userFreebusyContainer).get(query);
 
 		assertNotNull(freebusy);
-		assertEquals(dtstart, new BmDateTimeWrapper(freebusy.dtstart).toJodaTime());
-		assertEquals(dtend, new BmDateTimeWrapper(freebusy.dtend).toJodaTime());
+		assertEquals(dtstart, new BmDateTimeWrapper(freebusy.dtstart).toDateTime());
+		assertEquals(dtend, new BmDateTimeWrapper(freebusy.dtend).toDateTime());
 		assertEquals(648, freebusy.slots.size());
 
 		int i = 0;
@@ -236,15 +240,14 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 		assertNotNull(cal);
 
 		VEventSeries vevent = defaultVEvent();
-		vevent.main.dtstart = BmDateTimeWrapper.create(new DateTime(2014, 1, 1, 10, 0, 0, DateTimeZone.UTC),
+		vevent.main.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 1, 1, 10, 0, 0, 0, tz),
 				Precision.DateTime);
-		vevent.main.dtend = BmDateTimeWrapper.create(new DateTime(2014, 1, 1, 12, 0, 0, DateTimeZone.UTC),
-				Precision.DateTime);
+		vevent.main.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 1, 1, 12, 0, 0, 0, tz), Precision.DateTime);
 
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = VEvent.RRule.Frequency.MONTHLY;
 		rrule.interval = 1;
-		rrule.until = time(new DateTime(2022, 12, 31, 0, 0, 0));
+		rrule.until = BmDateTimeHelper.time(ZonedDateTime.of(2022, 12, 31, 0, 0, 0, 0, defaultTz));
 		vevent.main.rrule = rrule;
 
 		ContainerStore containerStore = new ContainerStore(testContext, dataDataSource, SecurityContext.SYSTEM);
@@ -252,11 +255,11 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 		String uid = "test_" + System.nanoTime();
 		getCalendarService(userSecurityContext, calContainer).create(uid, vevent, sendNotifications);
 
-		DateTime dtstart = new DateTime(2014, 1, 1, 0, 0, 0, DateTimeZone.UTC);
-		DateTime dtend = new DateTime(2014, 12, 31, 0, 0, 0, DateTimeZone.UTC);
+		ZonedDateTime dtstart = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, tz);
+		ZonedDateTime dtend = ZonedDateTime.of(2014, 12, 31, 0, 0, 0, 0, tz);
 
-		String vfreebusy = getVFreebusyService(userSecurityContext, userFreebusyContainer)
-				.getAsString(VFreebusyQuery.create(time(dtstart, false), time(dtend, false)));
+		String vfreebusy = getVFreebusyService(userSecurityContext, userFreebusyContainer).getAsString(
+				VFreebusyQuery.create(BmDateTimeHelper.time(dtstart, false), BmDateTimeHelper.time(dtend, false)));
 
 		// no BUSY but BUSY-UNAVAILABLE
 		assertFalse(vfreebusy.contains("FBTYPE=BUSY:"));
@@ -269,8 +272,8 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 		// unknown calendar
 		fbmgmt.add("dead-calendar");
 
-		vfreebusy = getVFreebusyService(userSecurityContext, userFreebusyContainer)
-				.getAsString(VFreebusyQuery.create(time(dtstart, false), time(dtend, false)));
+		vfreebusy = getVFreebusyService(userSecurityContext, userFreebusyContainer).getAsString(
+				VFreebusyQuery.create(BmDateTimeHelper.time(dtstart, false), BmDateTimeHelper.time(dtend, false)));
 		assertTrue(vfreebusy.contains("BEGIN:VFREEBUSY"));
 		assertTrue(vfreebusy.contains("DTSTAMP:"));
 		assertTrue(vfreebusy.contains("DTSTART:20140101T000000"));
@@ -292,15 +295,15 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 
 	@Test
 	public void testAcl() throws Exception {
-		DateTime dtstart = new DateTime(2014, 1, 1, 0, 0, 0, DateTimeZone.UTC);
-		DateTime dtend = new DateTime(2014, 12, 31, 0, 0, 0, DateTimeZone.UTC);
-		String vfreebusy = getVFreebusyService(userSecurityContext, userFreebusyContainer)
-				.getAsString(VFreebusyQuery.create(time(dtstart, false), time(dtend, false)));
+		ZonedDateTime dtstart = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, tz);
+		ZonedDateTime dtend = ZonedDateTime.of(2014, 12, 31, 0, 0, 0, 0, tz);
+		String vfreebusy = getVFreebusyService(userSecurityContext, userFreebusyContainer).getAsString(
+				VFreebusyQuery.create(BmDateTimeHelper.time(dtstart, false), BmDateTimeHelper.time(dtend, false)));
 		assertNotNull(vfreebusy);
 
 		try {
-			vfreebusy = getVFreebusyService(attendee1SecurityContext, userFreebusyContainer)
-					.getAsString(VFreebusyQuery.create(time(dtstart, false), time(dtend, false)));
+			vfreebusy = getVFreebusyService(attendee1SecurityContext, userFreebusyContainer).getAsString(
+					VFreebusyQuery.create(BmDateTimeHelper.time(dtstart, false), BmDateTimeHelper.time(dtend, false)));
 			fail();
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
@@ -311,8 +314,8 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 		aclStore.store(userFreebusyContainer,
 				Arrays.asList(AccessControlEntry.create(attendee1SecurityContext.getSubject(), Verb.Read)));
 
-		vfreebusy = getVFreebusyService(attendee1SecurityContext, userFreebusyContainer)
-				.getAsString(VFreebusyQuery.create(time(dtstart, false), time(dtend, false)));
+		vfreebusy = getVFreebusyService(attendee1SecurityContext, userFreebusyContainer).getAsString(
+				VFreebusyQuery.create(BmDateTimeHelper.time(dtstart, false), BmDateTimeHelper.time(dtend, false)));
 		assertNotNull(vfreebusy);
 	}
 
@@ -323,8 +326,8 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 
 		VEventSeries vevent = defaultVEvent();
 		vevent.main.categories.clear();
-		vevent.main.dtstart = time(new DateTime(2014, 1, 1, 10, 0, 0));
-		vevent.main.dtend = time(new DateTime(2014, 1, 1, 12, 0, 0));
+		vevent.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2014, 1, 1, 10, 0, 0, 0, defaultTz));
+		vevent.main.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2014, 1, 1, 12, 0, 0, 0, defaultTz));
 
 		VEvent.Attendee att = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.Chair,
 				VEvent.ParticipationStatus.Declined, true, "", "", "",
@@ -362,8 +365,8 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 
 		VEventSeries vevent = defaultVEvent();
 		vevent.main.categories.clear();
-		vevent.main.dtstart = time(new DateTime(2014, 1, 1, 10, 0, 0));
-		vevent.main.dtend = time(new DateTime(2014, 1, 1, 12, 0, 0));
+		vevent.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2014, 1, 1, 10, 0, 0, 0, defaultTz));
+		vevent.main.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2014, 1, 1, 12, 0, 0, 0, defaultTz));
 
 		VEvent.Attendee att = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.Chair,
 				VEvent.ParticipationStatus.Tentative, true, "", "", "",
@@ -402,8 +405,8 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 
 		VEventSeries vevent = defaultVEvent();
 		vevent.main.categories.clear();
-		vevent.main.dtstart = time(new DateTime(2014, 1, 1, 10, 0, 0));
-		vevent.main.dtend = time(new DateTime(2014, 1, 1, 12, 0, 0));
+		vevent.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2014, 1, 1, 10, 0, 0, 0, defaultTz));
+		vevent.main.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2014, 1, 1, 12, 0, 0, 0, defaultTz));
 
 		VEvent.Attendee att = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.Chair,
 				VEvent.ParticipationStatus.NeedsAction, true, "", "", "",
@@ -438,27 +441,27 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 	@Test
 	public void testGetShouldPreferContainerSettingsOverUserSettings() throws ServerFault {
 		VEventSeries vevent = defaultVEvent();
-		vevent.main.dtstart = time(new DateTime(2014, 1, 1, 10, 0, 0));
-		vevent.main.dtend = time(new DateTime(2014, 1, 1, 12, 0, 0));
+		vevent.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2014, 1, 1, 10, 0, 0, 0, defaultTz));
+		vevent.main.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2014, 1, 1, 12, 0, 0, 0, defaultTz));
 
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = VEvent.RRule.Frequency.MONTHLY;
 		rrule.interval = 1;
-		rrule.until = time(new DateTime(2022, 12, 31, 0, 0, 0));
+		rrule.until = BmDateTimeHelper.time(ZonedDateTime.of(2022, 12, 31, 0, 0, 0, 0, defaultTz));
 		vevent.main.rrule = rrule;
 
 		String uid = "test_" + System.nanoTime();
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, vevent, sendNotifications);
 
-		DateTime dtstart = new DateTime(2014, 1, 1, 0, 0, 0);
+		ZonedDateTime dtstart = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, defaultTz);
 		// DTend is exclusive so the time slot is exactly 52 weeks
-		DateTime dtend = new DateTime(2014, 12, 31, 0, 0, 0);
+		ZonedDateTime dtend = ZonedDateTime.of(2014, 12, 31, 0, 0, 0, 0, defaultTz);
 
 		VFreebusy freebusy = getVFreebusyService(userSecurityContext, userFreebusyContainer)
-				.get(VFreebusyQuery.create(time(dtstart, false), time(dtend, false)));
+				.get(VFreebusyQuery.create(BmDateTimeHelper.time(dtstart, false), BmDateTimeHelper.time(dtend, false)));
 
-		assertEquals(dtstart, new BmDateTimeWrapper(freebusy.dtstart).toJodaTime());
-		assertEquals(dtend, new BmDateTimeWrapper(freebusy.dtend).toJodaTime());
+		assertEquals(dtstart, new BmDateTimeWrapper(freebusy.dtstart).toDateTime());
+		assertEquals(dtend, new BmDateTimeWrapper(freebusy.dtend).toDateTime());
 		// 2 busy-unavailable slot by work week day + 1 busy-unavalable by
 		// week-end day + 1 busy per month
 		// 52 * 5 * 2 + 52 * 2 + 12
@@ -475,7 +478,7 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 		settingsService.set(settings);
 
 		freebusy = getVFreebusyService(userSecurityContext, userFreebusyContainer)
-				.get(VFreebusyQuery.create(time(dtstart, false), time(dtend, false)));
+				.get(VFreebusyQuery.create(BmDateTimeHelper.time(dtstart, false), BmDateTimeHelper.time(dtend, false)));
 		// 2 busy-unavailable slot by work week day + 1 busy-unavalable by
 		// week-end day + 1 busy per month
 		// 52 * 2 * 2 + 52 * 5 + 12
@@ -500,8 +503,8 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 	 */
 	@Test
 	public void testFreebusyAccessOnDefaultAgendaShare() throws ServerFault, SQLException {
-		final DateTime dtstart = new DateTime(2014, 1, 1, 0, 0, 0);
-		final DateTime dtend = new DateTime(2014, 12, 31, 0, 0, 0);
+		final ZonedDateTime dtstart = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, defaultTz);
+		final ZonedDateTime dtend = ZonedDateTime.of(2014, 12, 31, 0, 0, 0, 0, defaultTz);
 
 		// attendee1 has not read access on testUser freebusy (see @Before
 		// AbstractCalendarTests#beforeBefore)
@@ -510,8 +513,8 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 		// should raise an error
 		Exception exception = null;
 		try {
-			getVFreebusyService(attendee1SecurityContext, userFreebusyContainer)
-					.get(VFreebusyQuery.create(time(dtstart, false), time(dtend, false)));
+			getVFreebusyService(attendee1SecurityContext, userFreebusyContainer).get(
+					VFreebusyQuery.create(BmDateTimeHelper.time(dtstart, false), BmDateTimeHelper.time(dtend, false)));
 		} catch (Exception e) {
 			exception = e;
 		}
@@ -524,7 +527,7 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 		aclStoreData.store(userCalendarContainer,
 				Arrays.asList(AccessControlEntry.create(attendee1SecurityContext.getSubject(), Verb.Read)));
 		VFreebusy freebusy = getVFreebusyService(attendee1SecurityContext, userFreebusyContainer)
-				.get(VFreebusyQuery.create(time(dtstart, false), time(dtend, false)));
+				.get(VFreebusyQuery.create(BmDateTimeHelper.time(dtstart, false), BmDateTimeHelper.time(dtend, false)));
 		assertNotNull(freebusy);
 		assertTrue(!freebusy.slots.isEmpty());
 	}

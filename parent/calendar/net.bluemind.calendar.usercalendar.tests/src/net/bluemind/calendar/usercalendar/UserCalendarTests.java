@@ -25,6 +25,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,8 +34,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,8 +55,7 @@ import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.service.internal.UserCalendarService;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.ListResult;
-import net.bluemind.core.api.date.BmDateTime.Precision;
-import net.bluemind.core.api.date.BmDateTimeWrapper;
+import net.bluemind.core.api.date.BmDateTimeHelper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
@@ -343,8 +342,8 @@ public class UserCalendarTests {
 		series.icsUid = UUID.randomUUID().toString();
 
 		VEvent event = new VEvent();
-		DateTimeZone tz = DateTimeZone.forID("Asia/Ho_Chi_Minh");
-		event.dtstart = time(new DateTime(2022, 2, 13, 1, 0, 0, tz));
+
+		event.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 13, 1, 0, 0, 0, ZoneId.of("Asia/Ho_Chi_Minh")));
 		event.summary = "event " + System.currentTimeMillis();
 		event.location = "Toulouse";
 		event.description = "Lorem ipsum";
@@ -362,19 +361,5 @@ public class UserCalendarTests {
 		event.categories = new ArrayList<TagRef>();
 		series.main = event;
 		return series;
-	}
-
-	protected net.bluemind.core.api.date.BmDateTime time(DateTime dateTime) {
-		return time(dateTime, true);
-	}
-
-	protected net.bluemind.core.api.date.BmDateTime time(DateTime dateTime, boolean autoDate) {
-		if (autoDate && dateTime.getZone().equals(DateTimeZone.getDefault()) && dateTime.getHourOfDay() == 0
-				&& dateTime.getMinuteOfHour() == 0 && dateTime.getSecondOfMinute() == 0) {
-			long ts = dateTime.withZoneRetainFields(DateTimeZone.UTC).getMillis();
-			return BmDateTimeWrapper.fromTimestamp(ts, dateTime.getZone().getID(), Precision.Date);
-		} else {
-			return BmDateTimeWrapper.create(dateTime, Precision.DateTime);
-		}
 	}
 }

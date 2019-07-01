@@ -20,14 +20,14 @@ package net.bluemind.directory.service.xfer.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -198,8 +198,7 @@ public class TodolistXferTests {
 
 		VTodo todo = new VTodo();
 		todo.uid = UUID.randomUUID().toString();
-		DateTimeZone tz = DateTimeZone.UTC;
-		DateTime temp = new DateTime(2024, 12, 28, 0, 0, 0, tz);
+		ZonedDateTime temp = ZonedDateTime.of(2024, 12, 28, 0, 0, 0, 0, ZoneId.of("UTC"));
 		todo.dtstart = BmDateTimeWrapper.create(temp, Precision.DateTime);
 		todo.due = BmDateTimeWrapper.create(temp.plusMonths(1), Precision.DateTime);
 		todo.summary = "Test Todo";

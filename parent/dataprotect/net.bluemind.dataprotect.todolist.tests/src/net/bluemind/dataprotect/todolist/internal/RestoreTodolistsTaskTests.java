@@ -23,6 +23,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,8 +32,6 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -217,8 +217,7 @@ public class RestoreTodolistsTaskTests {
 
 	@Test
 	public void testRestoreDefaultTodoList() throws Exception {
-		ITodoList list = testContext.provider().instance(ITodoList.class,
-				ITodoUids.defaultUserTodoList(changUid));
+		ITodoList list = testContext.provider().instance(ITodoList.class, ITodoUids.defaultUserTodoList(changUid));
 		list.create("test1", defaultValue());
 		list.create("test2", defaultValue());
 		list.create("test3", defaultValue());
@@ -252,11 +251,10 @@ public class RestoreTodolistsTaskTests {
 	}
 
 	protected VTodo defaultValue() {
-
 		VTodo todo = new VTodo();
 		todo.uid = UUID.randomUUID().toString();
-		DateTimeZone tz = DateTimeZone.UTC;
-		DateTime temp = new DateTime(2024, 12, 28, 0, 0, 0, tz);
+
+		ZonedDateTime temp = ZonedDateTime.of(2024, 12, 28, 0, 0, 0, 0, ZoneId.of("UTC"));
 		todo.dtstart = BmDateTimeWrapper.create(temp, Precision.DateTime);
 		todo.due = BmDateTimeWrapper.create(temp.plusMonths(1), Precision.DateTime);
 		todo.summary = "Test Todo";

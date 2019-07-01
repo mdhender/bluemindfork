@@ -19,6 +19,9 @@
 package net.bluemind.eas.backend.bm.mail;
 
 import java.io.InputStream;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -32,7 +35,6 @@ import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.address.Mailbox;
 import org.apache.james.mime4j.message.MessageServiceFactoryImpl;
 import org.apache.james.mime4j.parser.MimeStreamParser;
-import org.joda.time.DateTime;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
@@ -112,7 +114,8 @@ public class MailBackend extends CoreConnect {
 			return new Changes();
 		}
 
-		final Optional<DateTime> filteredDate = (state.version == 0 || hasFilterTypeChanged) ? Optional.of(state.date)
+		final Optional<ZonedDateTime> filteredDate = (state.version == 0 || hasFilterTypeChanged)
+				? Optional.of(state.date)
 				: Optional.empty();
 
 		MailFolder folder = storage.getMailFolder(bs, collectionId);
@@ -133,7 +136,7 @@ public class MailBackend extends CoreConnect {
 				changes.items.add(ic);
 			});
 		} else {
-			DateTime deliveredAfter = filteredDate.get();
+			ZonedDateTime deliveredAfter = filteredDate.get();
 			List<List<ItemVersion>> createdParts = Lists.partition(changeset.created, 250);
 			boolean stopLoading = false;
 			int addedToSync = 0;
@@ -145,7 +148,8 @@ public class MailBackend extends CoreConnect {
 						.multipleById(slice.stream().map(v -> v.id).collect(Collectors.toList()));
 				for (ItemValue<MailboxItem> item : items) {
 					if (item != null && item.value != null) {
-						if (deliveredAfter.isBefore(item.value.body.date.getTime())) {
+						if (deliveredAfter.isBefore(ZonedDateTime.ofInstant(
+								Instant.ofEpochMilli(item.value.body.date.getTime()), ZoneId.systemDefault()))) {
 							ItemChangeReference ic = new ItemChangeReference(ItemDataType.EMAIL);
 							ic.setServerId(CollectionItem.of(collectionId, Long.valueOf(item.internalId).toString()));
 							ic.setChangeType(ChangeType.ADD);

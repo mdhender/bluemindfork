@@ -26,6 +26,8 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -38,8 +40,6 @@ import java.util.TimeZone;
 
 import org.apache.james.mime4j.dom.TextBody;
 import org.apache.james.mime4j.message.BodyPart;
-import org.joda.time.DateTimeZone;
-import org.joda.time.LocalDate;
 import org.junit.Test;
 
 import com.google.common.io.ByteStreams;
@@ -200,8 +200,8 @@ public class CalendarMailHelperTest {
 		VEvent vevent = defaultVEvent();
 		// timestamp is not set after deserialization
 		Map<String, Object> data = new CalendarMailHelper().extractVEventDataToMap(vevent, vevent.alarm.get(0));
-		assertEquals(new LocalDate(2022, 2, 13).toDateTimeAtStartOfDay().getMillis(),
-				((Date) data.get("datebegin")).getTime());
+		ZonedDateTime temp = ZonedDateTime.of(2022, 2, 13, 0, 0, 0, 0, ZoneId.systemDefault());
+		assertEquals(temp.toInstant().toEpochMilli(), ((Date) data.get("datebegin")).getTime());
 	}
 
 	@Test
@@ -268,8 +268,9 @@ public class CalendarMailHelperTest {
 
 	private VEvent defaultVEvent() {
 		VEvent vevent = new VEvent();
-		DateTimeZone tz = DateTimeZone.forID("Asia/Ho_Chi_Minh");
-		vevent.dtstart = BmDateTimeWrapper.create(new org.joda.time.DateTime(2022, 2, 13, 0, 0, 0, tz), Precision.Date);
+		ZoneId tz = ZoneId.of("UTC");
+
+		vevent.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 13, 1, 0, 0, 0, tz), Precision.Date);
 		vevent.location = "Toulouse";
 		vevent.description = "Lorem ipsum";
 		vevent.transparency = VEvent.Transparency.Opaque;
@@ -297,24 +298,24 @@ public class CalendarMailHelperTest {
 		vevent.alarm.add(ICalendarElement.VAlarm.create(-60, "il va falloir y aller!"));
 
 		Set<BmDateTime> exdate = new HashSet<BmDateTime>(3);
-		org.joda.time.DateTime exDate = new org.joda.time.DateTime(1983, 2, 13, 10, 0, 0, tz);
+		ZonedDateTime exDate = ZonedDateTime.of(1983, 2, 13, 10, 0, 0, 0, tz);
 		exdate.add(BmDateTimeWrapper.create(exDate, Precision.DateTime));
-		org.joda.time.DateTime exDate2 = new org.joda.time.DateTime(2012, 3, 31, 8, 30, 0, tz);
+		ZonedDateTime exDate2 = ZonedDateTime.of(2012, 3, 31, 8, 30, 0, 0, tz);
 		exdate.add(BmDateTimeWrapper.create(exDate2, Precision.DateTime));
-		org.joda.time.DateTime exDate3 = new org.joda.time.DateTime(2014, 7, 14, 1, 2, 3, tz);
+		ZonedDateTime exDate3 = ZonedDateTime.of(2014, 7, 14, 1, 2, 3, 0, tz);
 		exdate.add(BmDateTimeWrapper.create(exDate3, Precision.DateTime));
 
 		// add duplicate
 		exdate.add(BmDateTimeWrapper.create(exDate3, Precision.DateTime));
-		exdate.add(BmDateTimeWrapper.create(new org.joda.time.DateTime(2014, 7, 14, 1, 2, 3, tz), Precision.DateTime));
+		ZonedDateTime exDate4 = ZonedDateTime.of(2014, 7, 14, 1, 2, 3, 0, tz);
+		exdate.add(BmDateTimeWrapper.create(exDate4, Precision.DateTime));
 
 		vevent.exdate = exdate;
 
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = VEvent.RRule.Frequency.WEEKLY;
 		rrule.interval = 2;
-		rrule.until = BmDateTimeWrapper.create(new org.joda.time.DateTime(2022, 12, 25, 13, 30, 0, tz),
-				Precision.DateTime);
+		rrule.until = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 12, 25, 13, 30, 0, 0, tz), Precision.DateTime);
 
 		rrule.bySecond = Arrays.asList(10, 20);
 

@@ -6,12 +6,13 @@ package net.bluemind.calendar.hook.ics;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -45,54 +46,64 @@ public class VEventUtilTest {
 		old = simpleVEvent();
 		updated = simpleVEvent();
 	}
+
 	@Test
 	public void testSimpleEventNotChanged() {
 		assertFalse(VEventUtil.eventChanged(old, updated));
 	}
+
 	@Test
 	public void testDTStartChanged() {
 		updated.dtstart = date(30 * 60 * 1000);
 		assertTrue(VEventUtil.eventChanged(old, updated));
 	}
+
 	@Test
 	public void testDTEndChanged() {
 		updated.dtend = date(30 * 60 * 1000);
 		assertTrue(VEventUtil.eventChanged(old, updated));
 	}
+
 	@Test
 	public void testSummaryChanged() {
 		updated.summary = "Updated";
 		assertTrue(VEventUtil.eventChanged(old, updated));
 	}
+
 	@Test
 	public void testLocationChanged() {
 		updated.location = "Frouzins";
 		assertTrue(VEventUtil.eventChanged(old, updated));
 	}
+
 	@Test
 	public void testDescriptionChanged() {
 		updated.description = "Dolor sit amet";
 		assertTrue(VEventUtil.eventChanged(old, updated));
 	}
+
 	@Test
 	public void testPriorityChanged() {
 		updated.priority = 2;
 		assertTrue(VEventUtil.eventChanged(old, updated));
 	}
+
 	@Test
 	public void testTransparencyNotChanged() {
 		updated.transparency = Transparency.Transparent;
 		assertTrue(VEventUtil.eventChanged(old, updated));
 	}
+
 	@Test
 	public void testClassificationChanged() {
 		updated.classification = Classification.Private;
 		assertTrue(VEventUtil.eventChanged(old, updated));
 	}
+
 	@Test
 	public void testOnwerChanged() {
 		// Owner changed not handled by VEventUtil.eventChanged.
-		
+
 		setOwner(updated);
 //		assertTrue(VEventUtil.eventChanged(old, updated));
 		setOwner(old);
@@ -101,6 +112,7 @@ public class VEventUtilTest {
 //		assertTrue(VEventUtil.eventChanged(old, updated));
 //		setOwner(updated);
 	}
+
 	@Test
 	public void testAttendeesChanged() {
 		// Attendees changed not handled by VEventUtil.eventChanged.
@@ -114,6 +126,7 @@ public class VEventUtilTest {
 //		assertTrue(VEventUtil.eventChanged(old, updated));
 //		setAttendees(updated);
 	}
+
 	@Test
 	public void testCategoriesChanged() {
 		// Categories changed not handled by VEventUtil.eventChanged.
@@ -128,6 +141,7 @@ public class VEventUtilTest {
 //		assertTrue(VEventUtil.eventChanged(old, updated));
 //		setCategories(updated);
 	}
+
 	@Test
 	public void testRDateChanged() {
 		// RDate changed not handled by VEventUtil.eventChanged.
@@ -139,6 +153,7 @@ public class VEventUtilTest {
 //		assertTrue(VEventUtil.eventChanged(old, updated));
 //		setRDate(updated);
 	}
+
 	@Test
 	public void testRRuleChanged() {
 		setRRule(updated);
@@ -155,6 +170,7 @@ public class VEventUtilTest {
 		assertTrue(VEventUtil.eventChanged(old, updated));
 		setRRule(updated);
 	}
+
 	@Test
 	public void testExdateChanged() {
 		// ExDate changed not handled by VEventUtil.eventChanged.
@@ -206,17 +222,17 @@ public class VEventUtilTest {
 
 	private void setCategories(VEvent event) {
 		TagRef tag1 = new TagRef();
-		tag1.containerUid = "container1" ;
+		tag1.containerUid = "container1";
 		tag1.itemUid = "item1";
 		TagRef tag2 = new TagRef();
-		tag2.containerUid = "container2" ;
+		tag2.containerUid = "container2";
 		tag2.itemUid = "item2";
 		event.categories = Arrays.asList(tag1, tag2);
 	}
 
 	private BmDateTime date(long delta) {
-		DateTimeZone tz = DateTimeZone.forID("Europe/Paris");
-		DateTime date = new DateTime(NOW + delta, tz);
+		ZoneId tz = ZoneId.of("Europe/Paris");
+		ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochMilli(NOW + delta), tz);
 		return BmDateTimeWrapper.create(date, Precision.DateTime);
 	}
 

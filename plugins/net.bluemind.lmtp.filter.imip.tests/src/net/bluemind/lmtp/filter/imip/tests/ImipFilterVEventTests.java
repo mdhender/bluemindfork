@@ -26,6 +26,8 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,8 +36,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 import org.apache.james.mime4j.stream.Field;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -112,6 +112,8 @@ public class ImipFilterVEventTests {
 	private ItemValue<Mailbox> user1Mailbox;
 	private ICalendar user1Calendar;
 	private ItemValue<Domain> domain;
+	private ZoneId defaultTz = ZoneId.systemDefault();
+	private ZoneId utcTz = ZoneId.of("UTC");
 
 	@Rule
 	public final TestName name = new TestName();
@@ -373,7 +375,8 @@ public class ImipFilterVEventTests {
 
 		assertEquals(1, master.value.occurrences.size());
 
-		master.value.main.dtstart = BmDateTimeWrapper.create(new DateTime(2021, 2, 13, 0, 0, 0), Precision.DateTime);
+		master.value.main.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2021, 2, 13, 0, 0, 0, 0, defaultTz),
+				Precision.DateTime);
 		imip.iCalendarElements = Arrays.asList(master.value.main);
 
 		System.out.println(JdbcActivator.getInstance().getSchemaName());
@@ -400,7 +403,8 @@ public class ImipFilterVEventTests {
 
 		assertEquals(1, master.value.occurrences.size());
 
-		master.value.main.dtend = BmDateTimeWrapper.create(new DateTime(2028, 2, 13, 0, 0, 0), Precision.DateTime);
+		master.value.main.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2028, 2, 13, 0, 0, 0, 0, defaultTz),
+				Precision.DateTime);
 		imip.iCalendarElements = Arrays.asList(master.value.main);
 
 		handler.handle(imip, recipient, domain, user1Mailbox);
@@ -889,10 +893,9 @@ public class ImipFilterVEventTests {
 		ItemValue<VEvent> event = defaultVEvent();
 		IMIPInfos imip = imip(ITIPMethod.REQUEST, defaultExternalSenderVCard(), event.uid);
 
-		event.value.dtstart = BmDateTimeWrapper.create(new DateTime(2022, 2, 13, 0, 0, 0, DateTimeZone.UTC),
+		event.value.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 13, 0, 0, 0, 0, utcTz),
 				Precision.Date);
-		event.value.dtend = BmDateTimeWrapper.create(new DateTime(2022, 2, 14, 0, 0, 0, DateTimeZone.UTC),
-				Precision.Date);
+		event.value.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 14, 0, 0, 0, 0, utcTz), Precision.Date);
 		RRule daily = new RRule();
 		daily.frequency = Frequency.DAILY;
 		event.value.rrule = daily;
@@ -911,11 +914,9 @@ public class ImipFilterVEventTests {
 
 		// Create Exception on first occurrence
 		VEventOccurrence exception = VEventOccurrence.fromEvent(evt.value.main.copy(),
-				BmDateTimeWrapper.create(new DateTime(2022, 2, 13, 0, 0, 0, DateTimeZone.UTC), Precision.Date));
-		exception.dtstart = BmDateTimeWrapper.create(new DateTime(2022, 2, 13, 0, 0, 0, DateTimeZone.UTC),
-				Precision.Date);
-		exception.dtend = BmDateTimeWrapper.create(new DateTime(2022, 2, 14, 0, 0, 0, DateTimeZone.UTC),
-				Precision.Date);
+				BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 13, 0, 0, 0, 0, utcTz), Precision.Date));
+		exception.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 13, 0, 0, 0, 0, utcTz), Precision.Date);
+		exception.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 14, 0, 0, 0, 0, utcTz), Precision.Date);
 
 		exception.attendees = new ArrayList<>();
 		VEvent.Attendee org = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.Chair,
@@ -953,10 +954,11 @@ public class ImipFilterVEventTests {
 
 		ItemValue<VEvent> event = defaultVEvent();
 		IMIPInfos imip = imip(ITIPMethod.REQUEST, defaultExternalSenderVCard(), event.uid);
-		DateTimeZone tz = DateTimeZone.forID("Europe/Paris");
+		ZoneId tz = ZoneId.of("Europe/Paris");
 
-		event.value.dtstart = BmDateTimeWrapper.create(new DateTime(2022, 2, 13, 3, 0, 0, tz), Precision.DateTime);
-		event.value.dtend = BmDateTimeWrapper.create(new DateTime(2022, 2, 13, 4, 0, 0, tz), Precision.DateTime);
+		event.value.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 13, 3, 0, 0, 0, tz),
+				Precision.DateTime);
+		event.value.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 13, 4, 0, 0, 0, tz), Precision.DateTime);
 		RRule daily = new RRule();
 		daily.frequency = Frequency.DAILY;
 		event.value.rrule = daily;
@@ -975,9 +977,9 @@ public class ImipFilterVEventTests {
 
 		// Create Exception with a a recuri id at 00:00:00 instead of 03:00:00
 		VEventOccurrence exception = VEventOccurrence.fromEvent(evt.value.main.copy(),
-				BmDateTimeWrapper.create(new DateTime(2022, 2, 16, 0, 0, 0, tz), Precision.DateTime));
-		exception.dtstart = BmDateTimeWrapper.create(new DateTime(2022, 2, 16, 3, 0, 0, tz), Precision.DateTime);
-		exception.dtend = BmDateTimeWrapper.create(new DateTime(2022, 2, 16, 4, 0, 0, tz), Precision.DateTime);
+				BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 16, 0, 0, 0, 0, tz), Precision.DateTime));
+		exception.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 16, 3, 0, 0, 0, tz), Precision.DateTime);
+		exception.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 16, 4, 0, 0, 0, tz), Precision.DateTime);
 
 		exception.attendees = new ArrayList<>();
 		VEvent.Attendee org = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.Chair,
@@ -1075,9 +1077,9 @@ public class ImipFilterVEventTests {
 
 	private ItemValue<VEvent> defaultVEvent(String uid) {
 		VEvent event = new VEvent();
-		DateTimeZone tz = DateTimeZone.forID("Asia/Ho_Chi_Minh");
-		event.dtstart = BmDateTimeWrapper.create(new DateTime(2022, 2, 13, 0, 0, 0, tz), Precision.DateTime);
-		event.dtend = BmDateTimeWrapper.create(new DateTime(2022, 2, 13, 2, 0, 0, tz), Precision.DateTime);
+		ZoneId tz = ZoneId.of("Asia/Ho_Chi_Minh");
+		event.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 13, 0, 0, 0, 0, tz), Precision.DateTime);
+		event.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 13, 2, 0, 0, 0, tz), Precision.DateTime);
 		event.summary = "event " + uid;
 		event.location = "Toulouse";
 		event.description = "Lorem ipsum";
@@ -1353,10 +1355,11 @@ public class ImipFilterVEventTests {
 	public void testReplyHandler_ExternalAttendeeReplyOccurrenceUtcReccurId() {
 		ItemValue<VEvent> event = defaultVEvent();
 
-		DateTimeZone tz = DateTimeZone.forID("Europe/Paris");
+		ZoneId tz = ZoneId.of("Europe/Paris");
 
-		event.value.dtstart = BmDateTimeWrapper.create(new DateTime(2022, 2, 13, 3, 0, 0, tz), Precision.DateTime);
-		event.value.dtend = BmDateTimeWrapper.create(new DateTime(2022, 2, 13, 4, 0, 0, tz), Precision.DateTime);
+		event.value.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 13, 3, 0, 0, 0, tz),
+				Precision.DateTime);
+		event.value.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 13, 4, 0, 0, 0, tz), Precision.DateTime);
 		RRule daily = new RRule();
 		daily.frequency = Frequency.DAILY;
 		event.value.rrule = daily;
@@ -1369,9 +1372,10 @@ public class ImipFilterVEventTests {
 
 		// exception on 1st occurrence
 		VEventOccurrence exception = VEventOccurrence.fromEvent(event.value.copy(),
-				BmDateTimeWrapper.create(new DateTime(2022, 2, 13, 3, 0, 0, tz), Precision.DateTime));
-		exception.dtstart = BmDateTimeWrapper.create(new DateTime(2022, 2, 13, 15, 0, 0, tz), Precision.DateTime);
-		exception.dtend = BmDateTimeWrapper.create(new DateTime(2022, 2, 13, 16, 0, 0, tz), Precision.DateTime);
+				BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 13, 3, 0, 0, 0, tz), Precision.DateTime));
+		exception.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 13, 15, 0, 0, 0, tz),
+				Precision.DateTime);
+		exception.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 13, 16, 0, 0, 0, tz), Precision.DateTime);
 		exception.attendees = event.value.attendees;
 
 		VEventSeries series = new VEventSeries();
@@ -1385,7 +1389,7 @@ public class ImipFilterVEventTests {
 		assertNotNull(evt);
 
 		IMIPInfos imip = imip(ITIPMethod.REPLY, defaultExternalSenderVCard(), event.uid);
-		exception.recurid = BmDateTimeWrapper.create(new DateTime(2022, 2, 13, 2, 0, 0, DateTimeZone.UTC),
+		exception.recurid = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 13, 2, 0, 0, 0, utcTz),
 				Precision.DateTime);
 		ext = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.Chair,
 				VEvent.ParticipationStatus.Accepted, true, "", "", "", "external", "", "", null,
@@ -1416,10 +1420,11 @@ public class ImipFilterVEventTests {
 	public void testReplyHandler_ExternalAttendeeReplyOccurrenceExcoticTzReccurId() {
 		ItemValue<VEvent> event = defaultVEvent();
 
-		DateTimeZone tz = DateTimeZone.forID("Europe/Paris");
+		ZoneId tz = ZoneId.of("Europe/Paris");
 
-		event.value.dtstart = BmDateTimeWrapper.create(new DateTime(2022, 2, 13, 3, 0, 0, tz), Precision.DateTime);
-		event.value.dtend = BmDateTimeWrapper.create(new DateTime(2022, 2, 13, 4, 0, 0, tz), Precision.DateTime);
+		event.value.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 13, 3, 0, 0, 0, tz),
+				Precision.DateTime);
+		event.value.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 13, 4, 0, 0, 0, tz), Precision.DateTime);
 		RRule daily = new RRule();
 		daily.frequency = Frequency.DAILY;
 		event.value.rrule = daily;
@@ -1432,9 +1437,10 @@ public class ImipFilterVEventTests {
 
 		// exception on 1st occurrence
 		VEventOccurrence exception = VEventOccurrence.fromEvent(event.value.copy(),
-				BmDateTimeWrapper.create(new DateTime(2022, 2, 13, 3, 0, 0, tz), Precision.DateTime));
-		exception.dtstart = BmDateTimeWrapper.create(new DateTime(2022, 2, 13, 15, 0, 0, tz), Precision.DateTime);
-		exception.dtend = BmDateTimeWrapper.create(new DateTime(2022, 2, 13, 16, 0, 0, tz), Precision.DateTime);
+				BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 13, 3, 0, 0, 0, tz), Precision.DateTime));
+		exception.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 13, 15, 0, 0, 0, tz),
+				Precision.DateTime);
+		exception.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 13, 16, 0, 0, 0, tz), Precision.DateTime);
 		exception.attendees = event.value.attendees;
 
 		VEventSeries series = new VEventSeries();
@@ -1449,7 +1455,7 @@ public class ImipFilterVEventTests {
 
 		IMIPInfos imip = imip(ITIPMethod.REPLY, defaultExternalSenderVCard(), event.uid);
 		exception.recurid = BmDateTimeWrapper
-				.create(new DateTime(2022, 2, 13, 9, 0, 0, DateTimeZone.forID("Asia/Ho_Chi_Minh")), Precision.DateTime);
+				.create(ZonedDateTime.of(2022, 2, 13, 9, 0, 0, 0, ZoneId.of("Asia/Ho_Chi_Minh")), Precision.DateTime);
 		ext = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.Chair,
 				VEvent.ParticipationStatus.Accepted, true, "", "", "", "external", "", "", null,
 				"external@ext-domain.lan");
@@ -1479,8 +1485,10 @@ public class ImipFilterVEventTests {
 	public void testReplyHandler_ExternalAttendeeReplyOccurrenceAllDayReccurId() {
 		ItemValue<VEvent> event = defaultVEvent();
 
-		event.value.dtstart = BmDateTimeWrapper.create(new DateTime(2022, 2, 13, 0, 0, 0), Precision.Date);
-		event.value.dtend = BmDateTimeWrapper.create(new DateTime(2022, 2, 14, 0, 0, 0), Precision.Date);
+		event.value.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 13, 0, 0, 0, 0, defaultTz),
+				Precision.Date);
+		event.value.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 14, 0, 0, 0, 0, defaultTz),
+				Precision.Date);
 		RRule daily = new RRule();
 		daily.frequency = Frequency.DAILY;
 		event.value.rrule = daily;
@@ -1493,9 +1501,11 @@ public class ImipFilterVEventTests {
 
 		// exception on 1st occurrence
 		VEventOccurrence exception = VEventOccurrence.fromEvent(event.value.copy(),
-				BmDateTimeWrapper.create(new DateTime(2022, 2, 13, 0, 0, 0), Precision.Date));
-		exception.dtstart = BmDateTimeWrapper.create(new DateTime(2022, 2, 14, 0, 0, 0), Precision.Date);
-		exception.dtend = BmDateTimeWrapper.create(new DateTime(2022, 2, 15, 0, 0, 0), Precision.Date);
+				BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 13, 0, 0, 0, 0, defaultTz), Precision.Date));
+		exception.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 14, 0, 0, 0, 0, defaultTz),
+				Precision.Date);
+		exception.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 15, 0, 0, 0, 0, defaultTz),
+				Precision.Date);
 		exception.attendees = event.value.attendees;
 
 		VEventSeries series = new VEventSeries();
@@ -1509,7 +1519,8 @@ public class ImipFilterVEventTests {
 		assertNotNull(evt);
 
 		IMIPInfos imip = imip(ITIPMethod.REPLY, defaultExternalSenderVCard(), event.uid);
-		exception.recurid = BmDateTimeWrapper.create(new DateTime(2022, 2, 13, 0, 0, 0), Precision.Date);
+		exception.recurid = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 13, 0, 0, 0, 0, defaultTz),
+				Precision.Date);
 		ext = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.Chair,
 				VEvent.ParticipationStatus.Accepted, true, "", "", "", "external", "", "", null,
 				"external@ext-domain.lan");

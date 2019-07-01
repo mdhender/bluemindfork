@@ -26,6 +26,8 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -33,8 +35,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +45,7 @@ import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.job.CalendarAlarmSupport;
 import net.bluemind.core.api.date.BmDateTime;
-import net.bluemind.core.api.date.BmDateTime.Precision;
+import net.bluemind.core.api.date.BmDateTimeHelper;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
@@ -84,6 +84,7 @@ public class CalendarReminderTest {
 		BmDateTime expected = BmDateTimeWrapper.fromTimestamp(
 				new BmDateTimeWrapper(vevent.dtstart).toUTCTimestamp() + (alarm.trigger * 1000),
 				vevent.dtstart.timezone);
+
 		try {
 			// Initialize static prop CalendarAlarmSupport.day to expected
 			// value, to prevent
@@ -193,8 +194,8 @@ public class CalendarReminderTest {
 	protected ItemValue<VEvent> defaultVEvent() {
 
 		VEvent event = new VEvent();
-		DateTimeZone tz = DateTimeZone.forID("Asia/Ho_Chi_Minh");
-		event.dtstart = time(new DateTime(2022, 2, 13, 1, 0, 0, tz));
+		// DateTimeZone tz = DateTimeZone.forID("Asia/Ho_Chi_Minh");
+		event.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 13, 1, 0, 0, 0, ZoneId.of("UTC")));
 		event.summary = "event 324532532523523";
 		event.location = "Toulouse";
 		event.description = "Lorem ipsum";
@@ -324,19 +325,5 @@ public class CalendarReminderTest {
 		desc.settings = new HashMap<>();
 		descriptors.add(desc);
 		return descriptors;
-	}
-
-	protected net.bluemind.core.api.date.BmDateTime time(DateTime dateTime) {
-		return time(dateTime, true);
-	}
-
-	protected net.bluemind.core.api.date.BmDateTime time(DateTime dateTime, boolean autoDate) {
-		if (autoDate && dateTime.getZone().equals(DateTimeZone.getDefault()) && dateTime.getHourOfDay() == 0
-				&& dateTime.getMinuteOfHour() == 0 && dateTime.getSecondOfMinute() == 0) {
-			long ts = dateTime.withZoneRetainFields(DateTimeZone.UTC).getMillis();
-			return BmDateTimeWrapper.fromTimestamp(ts, dateTime.getZone().getID(), Precision.Date);
-		} else {
-			return BmDateTimeWrapper.create(dateTime, Precision.DateTime);
-		}
 	}
 }

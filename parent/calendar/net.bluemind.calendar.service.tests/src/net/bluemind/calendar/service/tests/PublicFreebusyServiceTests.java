@@ -23,10 +23,9 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.Days;
 import org.junit.Test;
 
 import net.bluemind.calendar.api.IPublicFreebusy;
@@ -39,6 +38,7 @@ import net.bluemind.calendar.api.VFreebusyQuery;
 import net.bluemind.calendar.service.AbstractCalendarTests;
 import net.bluemind.calendar.service.internal.PublicFreebusyService;
 import net.bluemind.core.api.date.BmDateTime.Precision;
+import net.bluemind.core.api.date.BmDateTimeHelper;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
@@ -60,13 +60,13 @@ public class PublicFreebusyServiceTests extends AbstractCalendarTests {
 	@Test
 	public void testSimple() throws ServerFault, IOException, ParserException {
 		VEventSeries vevent = defaultVEvent();
-		vevent.main.dtstart = time(DateTime.now().minusMonths(3).minusDays(2));
-		vevent.main.dtend = time(DateTime.now().minusMonths(3).minusDays(2).plusHours(1));
+		vevent.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.now().minusMonths(3).minusDays(2));
+		vevent.main.dtend = BmDateTimeHelper.time(ZonedDateTime.now().minusMonths(3).minusDays(2).plusHours(1));
 
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = VEvent.RRule.Frequency.MONTHLY;
 		rrule.interval = 1;
-		rrule.until = time(DateTime.now().plusYears(10));
+		rrule.until = BmDateTimeHelper.time(ZonedDateTime.now().plusYears(10));
 		vevent.main.rrule = rrule;
 
 		String uid = "test_" + System.nanoTime();
@@ -105,23 +105,22 @@ public class PublicFreebusyServiceTests extends AbstractCalendarTests {
 	public void testGet() throws ServerFault {
 		VEventSeries vevent = defaultVEvent();
 
-		DateTimeZone tz = DateTimeZone.forID("Europe/Paris");
-		vevent.main.dtstart = time(new DateTime(2017, 2, 13, 8, 0, 0, tz));
-		vevent.main.dtend = time(new DateTime(2017, 2, 13, 10, 0, 0, tz));
+		vevent.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2017, 2, 13, 8, 0, 0, 0, tz));
+		vevent.main.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2017, 2, 13, 10, 0, 0, 0, tz));
 
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = VEvent.RRule.Frequency.DAILY;
 		rrule.interval = 1;
-		rrule.until = time(DateTime.now().plusYears(10));
+		rrule.until = BmDateTimeHelper.time(ZonedDateTime.now().plusYears(10));
 		vevent.main.rrule = rrule;
 
 		String uid = "test_" + System.nanoTime();
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, vevent, sendNotifications);
 
-		DateTime start = new DateTime(2017, 2, 13, 0, 0, 0, tz);
-		DateTime end = new DateTime(2017, 2, 18, 0, 0, 0, tz);
+		ZonedDateTime start = ZonedDateTime.of(2017, 2, 13, 0, 0, 0, 0, tz);
+		ZonedDateTime end = ZonedDateTime.of(2017, 2, 18, 0, 0, 0, 0, tz);
 
-		int days = Days.daysBetween(start, end).getDays();
+		int days = (int) ChronoUnit.DAYS.between(start, end);
 
 		VFreebusyQuery query = VFreebusyQuery.create(BmDateTimeWrapper.create(start, Precision.DateTime),
 				BmDateTimeWrapper.create(end, Precision.DateTime));
@@ -146,20 +145,20 @@ public class PublicFreebusyServiceTests extends AbstractCalendarTests {
 	@Test
 	public void testGetAstString() throws ServerFault, IOException, ParserException {
 		VEventSeries vevent = defaultVEvent();
-		vevent.main.dtstart = time(DateTime.now().minusMonths(3).minusDays(2));
-		vevent.main.dtend = time(DateTime.now().minusMonths(3).minusDays(2).plusHours(1));
+		vevent.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.now().minusMonths(3).minusDays(2));
+		vevent.main.dtend = BmDateTimeHelper.time(ZonedDateTime.now().minusMonths(3).minusDays(2).plusHours(1));
 
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = VEvent.RRule.Frequency.MONTHLY;
 		rrule.interval = 1;
-		rrule.until = time(DateTime.now().plusYears(10));
+		rrule.until = BmDateTimeHelper.time(ZonedDateTime.now().plusYears(10));
 		vevent.main.rrule = rrule;
 
 		String uid = "test_" + System.nanoTime();
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, vevent, sendNotifications);
 
-		DateTime start = DateTime.now().minusMonths(3);
-		DateTime end = DateTime.now().plusMonths(3);
+		ZonedDateTime start = ZonedDateTime.now().minusMonths(3);
+		ZonedDateTime end = ZonedDateTime.now().plusMonths(3);
 
 		VFreebusyQuery query = VFreebusyQuery.create(BmDateTimeWrapper.create(start, Precision.DateTime),
 				BmDateTimeWrapper.create(end, Precision.DateTime));

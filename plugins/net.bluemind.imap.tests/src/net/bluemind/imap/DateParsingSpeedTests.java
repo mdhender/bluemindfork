@@ -20,11 +20,10 @@ package net.bluemind.imap;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Locale;
-
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import junit.framework.TestCase;
 import net.bluemind.imap.impl.DecoderUtils;
@@ -52,15 +51,15 @@ public class DateParsingSpeedTests extends TestCase {
 		System.out.println(getName() + " Done in " + time + "ms.");
 	}
 
-	public void testJoda() {
-		DateTimeFormatter df = DateTimeFormat.forPattern("dd-MMM-yyyy HH:mm:ss Z");
+	public void testJavaTime() {
+		DateTimeFormatter df = DateTimeFormatter.ofPattern("dd-MMM-yyyy HH:mm:ss Z");
 		df = df.withLocale(Locale.US);
 		String d = "22-Mar-2010 14:26:18 +0100";
 
 		long time = System.currentTimeMillis();
 		for (int i = 0; i < CNT; i++) {
 			try {
-				Date result = df.parseDateTime(d.trim()).toDate();
+				Date result = Date.from(ZonedDateTime.parse(d.trim(), df).toInstant());
 				assertNotNull(result);
 			} catch (Exception e) {
 				fail();
@@ -97,10 +96,10 @@ public class DateParsingSpeedTests extends TestCase {
 	}
 
 	public void testEquals() throws ParseException, DecodingException {
-		DateTimeFormatter df = DateTimeFormat.forPattern("dd-MMM-yyyy HH:mm:ss Z");
+		DateTimeFormatter df = DateTimeFormatter.ofPattern("dd-MMM-yyyy HH:mm:ss Z");
 		df = df.withLocale(Locale.US);
 		String d = " 5-Apr-2012 10:54:38 +0200";
-		Date joda = df.parseDateTime(d.trim()).toDate();
+		Date joda = Date.from(ZonedDateTime.parse(d.trim(), df).toInstant());
 		SimpleDateFormat jdkDf = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss Z", Locale.US);
 		Date jdk = jdkDf.parse(d);
 

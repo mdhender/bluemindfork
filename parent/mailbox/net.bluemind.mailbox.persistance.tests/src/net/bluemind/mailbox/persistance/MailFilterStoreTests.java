@@ -24,12 +24,14 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-import org.joda.time.LocalDate;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -137,6 +139,10 @@ public class MailFilterStoreTests {
 				new BmDateTimeWrapper(updated.vacation.end).toDateTime().toInstant());
 	}
 
+	private static Date d1 = Date.from(LocalDate.of(2020, 02, 01).atStartOfDay(ZoneId.systemDefault()).toInstant());
+	private static Date d2 = Date.from(LocalDate.of(2020, 02, 02).atStartOfDay(ZoneId.systemDefault()).toInstant());
+	private static Date d3 = Date.from(LocalDate.of(2020, 02, 22).atStartOfDay(ZoneId.systemDefault()).toInstant());
+
 	@Test
 	public void testOneDayVacation() throws SQLException {
 		itemStore.create(Item.create(uid, null));
@@ -158,19 +164,18 @@ public class MailFilterStoreTests {
 		// activate filter
 		mailfilterStore.markOutOfOffice(item, true);
 
-		List<String> res = mailfilterStore.findOutOfOffice(LocalDate.parse("2020-02-01").toDate());
+		List<String> res = mailfilterStore.findOutOfOffice(d1);
 		// should return 0 because already activate
 		assertEquals(0, res.size());
 
-		res = mailfilterStore.findInOfOffice(LocalDate.parse("2020-02-01").toDate());
+		res = mailfilterStore.findInOfOffice(d1);
 		// should return 0 because nothing to do
 		assertEquals(0, res.size());
-
-		res = mailfilterStore.findInOfOffice(LocalDate.parse("2020-02-02").toDate());
+		res = mailfilterStore.findInOfOffice(d2);
 		// should return 1, need to deactivate
 		assertEquals(1, res.size());
 
-		res = mailfilterStore.findOutOfOffice(LocalDate.parse("2020-02-02").toDate());
+		res = mailfilterStore.findOutOfOffice(d2);
 		// should return 0 because nothing to do
 		assertEquals(0, res.size());
 	}
@@ -194,34 +199,34 @@ public class MailFilterStoreTests {
 		mailfilterStore.set(item, filter);
 
 		filter = mailfilterStore.get(item);
-		List<String> res = mailfilterStore.findOutOfOffice(LocalDate.parse("2020-02-02").toDate());
+		List<String> res = mailfilterStore.findOutOfOffice(d2);
 		assertEquals(1, res.size());
 		assertEquals(uid, res.get(0));
 
-		res = mailfilterStore.findOutOfOffice(LocalDate.parse("2020-02-22").toDate());
+		res = mailfilterStore.findOutOfOffice(d3);
 		assertEquals(0, res.size());
 
 		mailfilterStore.markOutOfOffice(item, true);
-		res = mailfilterStore.findOutOfOffice(LocalDate.parse("2020-02-02").toDate());
+		res = mailfilterStore.findOutOfOffice(d2);
 		assertEquals(0, res.size());
 
-		res = mailfilterStore.findInOfOffice(LocalDate.parse("2020-02-02").toDate());
+		res = mailfilterStore.findInOfOffice(d2);
 		assertEquals(0, res.size());
 
-		res = mailfilterStore.findInOfOffice(LocalDate.parse("2020-02-22").toDate());
+		res = mailfilterStore.findInOfOffice(d3);
 		assertEquals(1, res.size());
 
 		mailfilterStore.markOutOfOffice(item, false);
-		res = mailfilterStore.findOutOfOffice(LocalDate.parse("2020-02-02").toDate());
+		res = mailfilterStore.findOutOfOffice(d2);
 		assertEquals(1, res.size());
-		res = mailfilterStore.findInOfOffice(LocalDate.parse("2020-02-22").toDate());
+		res = mailfilterStore.findInOfOffice(d3);
 		assertEquals(0, res.size());
 
 		filter.vacation.enabled = false;
 		filter.vacation.start = new BmDateTime("2020-02-01", null, Precision.Date);
 		filter.vacation.end = new BmDateTime("2020-02-21", null, Precision.Date);
 		mailfilterStore.set(item, filter);
-		res = mailfilterStore.findOutOfOffice(LocalDate.parse("2020-02-02").toDate());
+		res = mailfilterStore.findOutOfOffice(d2);
 		assertEquals(0, res.size());
 	}
 

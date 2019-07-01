@@ -19,6 +19,9 @@
 package net.bluemind.eas.endpoint.tests;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -30,8 +33,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.xml.transform.TransformerException;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.vertx.java.core.buffer.Buffer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -375,7 +376,7 @@ public class SyncEndpointTests extends AbstractEndpointTest {
 		// Create 12 events
 		for (int i = 0; i < PAGE_SIZE + (PAGE_SIZE / 2); i++) {
 			VEvent event = new VEvent();
-			event.dtstart = BmDateTimeWrapper.create(new DateTime(), Precision.DateTime);
+			event.dtstart = BmDateTimeWrapper.create(ZonedDateTime.now(), Precision.DateTime);
 			event.summary = "Piscine";
 			event.description = "w00t";
 			event.transparency = VEvent.Transparency.Opaque;
@@ -399,7 +400,7 @@ public class SyncEndpointTests extends AbstractEndpointTest {
 		// Decline 2 events
 		for (int i = 0; i < 2; i++) {
 			VEvent event = new VEvent();
-			event.dtstart = BmDateTimeWrapper.create(new DateTime(), Precision.DateTime);
+			event.dtstart = BmDateTimeWrapper.create(ZonedDateTime.now(), Precision.DateTime);
 			event.summary = "Piscine";
 			event.description = "w00t";
 			event.transparency = VEvent.Transparency.Opaque;
@@ -423,7 +424,7 @@ public class SyncEndpointTests extends AbstractEndpointTest {
 		// Delete 2 events
 		for (int i = 0; i < 2; i++) {
 			VEvent event = new VEvent();
-			event.dtstart = BmDateTimeWrapper.create(new DateTime(), Precision.DateTime);
+			event.dtstart = BmDateTimeWrapper.create(ZonedDateTime.now(), Precision.DateTime);
 			event.summary = "Piscine";
 			event.description = "w00t";
 			event.transparency = VEvent.Transparency.Opaque;
@@ -595,7 +596,9 @@ public class SyncEndpointTests extends AbstractEndpointTest {
 		c.add(Calendar.SECOND, -3600);
 
 		VEvent event = new VEvent();
-		event.dtstart = BmDateTimeWrapper.create(new DateTime(c.getTime()), Precision.DateTime);
+		ZonedDateTime temp = ZonedDateTime.ofInstant(Instant.ofEpochMilli(c.getTime().getTime()),
+				ZoneId.systemDefault());
+		event.dtstart = BmDateTimeWrapper.create(temp, Precision.DateTime);
 		event.summary = "Piscine";
 		event.location = "Toulouse";
 		event.description = "Lorem ipsum";
@@ -618,7 +621,9 @@ public class SyncEndpointTests extends AbstractEndpointTest {
 		event.rrule = new RRule();
 		c = Calendar.getInstance();
 		c.set(2022, 1, 1, 7, 0, 0);
-		event.rrule.until = BmDateTimeWrapper.create(new DateTime(c.getTime()), Precision.DateTime);
+		ZonedDateTime tempDate = ZonedDateTime.ofInstant(Instant.ofEpochMilli(c.getTime().getTime()),
+				ZoneId.systemDefault());
+		event.rrule.until = BmDateTimeWrapper.create(tempDate, Precision.DateTime);
 		event.rrule.byDay = Arrays.asList(WeekDay.TU, WeekDay.WE);
 		event.rrule.frequency = Frequency.WEEKLY;
 		event.rrule.interval = 1;
@@ -733,7 +738,9 @@ public class SyncEndpointTests extends AbstractEndpointTest {
 		c.add(Calendar.SECOND, -3600);
 
 		VEvent event = new VEvent();
-		event.dtstart = BmDateTimeWrapper.create(new DateTime(c.getTime()), Precision.DateTime);
+		ZonedDateTime temp = ZonedDateTime.ofInstant(Instant.ofEpochMilli(c.getTime().getTime()),
+				ZoneId.systemDefault());
+		event.dtstart = BmDateTimeWrapper.create(temp, Precision.DateTime);
 		event.summary = "Piscine";
 		event.location = "Toulouse";
 		event.description = "Lorem ipsum";
@@ -1298,11 +1305,8 @@ public class SyncEndpointTests extends AbstractEndpointTest {
 	}
 
 	private VTodo defaultVTodo(int priority) {
-
 		VTodo todo = new VTodo();
-		DateTimeZone tz = DateTimeZone.UTC;
-
-		DateTime temp = new DateTime(0, tz);
+		ZonedDateTime temp = ZonedDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneId.of("UTC"));
 		todo.dtstart = BmDateTimeWrapper.create(temp.plusDays(1), Precision.Date);
 		todo.due = BmDateTimeWrapper.create(temp.plusDays(3), Precision.Date);
 		todo.summary = "todo-" + System.currentTimeMillis();

@@ -28,8 +28,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TimeZone;
 
-import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,7 +52,7 @@ public class MyNetworksSanitizorTests {
 
 	@Before
 	public void beforeBefore() throws Exception {
-		DateTimeZone.setDefault(DateTimeZone.UTC);
+		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
 

@@ -24,14 +24,14 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.Test;
 
 import net.bluemind.calendar.api.ICalendarUids;
@@ -47,6 +47,7 @@ import net.bluemind.calendar.pdf.internal.PrintCalendarList;
 import net.bluemind.calendar.pdf.internal.PrintCalendarMonth;
 import net.bluemind.calendar.pdf.internal.PrintContext;
 import net.bluemind.core.api.date.BmDateTime.Precision;
+import net.bluemind.core.api.date.BmDateTimeHelper;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemContainerValue;
@@ -77,13 +78,16 @@ public class PrintTest {
 		CalInfo cal = defaultCalendar();
 		VEvent event = defaultVEvent();
 		event.summary = "printSimpleEvent";
-		event.dtstart = time(new DateTime(2014, 2, 13, 8, 0, 0, DateTimeZone.forID("Europe/Paris")));
-		event.dtend = time(new DateTime(2014, 2, 13, 10, 0, 0, DateTimeZone.forID("Europe/Paris")));
+
+		event.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2014, 2, 13, 8, 0, 0, 0, ZoneId.of("Europe/Paris")));
+		event.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2014, 2, 13, 10, 0, 0, 0, ZoneId.of("Europe/Paris")));
 		String uid = "test_" + System.nanoTime();
 
 		PrintOptions options = new PrintOptions();
-		options.dateBegin = BmDateTimeWrapper.create(new DateTime(2014, 2, 10, 0, 0, 0), Precision.Date);
-		options.dateEnd = BmDateTimeWrapper.create(new DateTime(2014, 2, 17, 0, 0, 0), Precision.Date);
+		options.dateBegin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 10, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
+		options.dateEnd = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 17, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
 		options.calendars.add(CalendarMetadata.create(cal.uid, "#3D99FF"));
 		options.format = PrintFormat.SVG;
 
@@ -136,19 +140,21 @@ public class PrintTest {
 		CalInfo cal = defaultCalendar();
 		VEvent event = defaultVEvent();
 		event.summary = "e1";
-		event.dtstart = time(new DateTime(2014, 2, 13, 10, 0, 0, DateTimeZone.UTC));
-		event.dtend = time(new DateTime(2014, 2, 13, 12, 0, 0, DateTimeZone.UTC));
+		event.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2014, 2, 13, 10, 0, 0, 0, ZoneId.of("UTC")));
+		event.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2014, 2, 13, 12, 0, 0, 0, ZoneId.of("UTC")));
 		String uid = "test_" + System.nanoTime();
 
 		VEvent event2 = defaultVEvent();
 		event2.summary = "e2";
-		event2.dtstart = time(new DateTime(2014, 2, 13, 11, 0, 0, DateTimeZone.UTC));
-		event2.dtend = time(new DateTime(2014, 2, 13, 12, 0, 0, DateTimeZone.UTC));
+		event2.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2014, 2, 13, 11, 0, 0, 0, ZoneId.of("UTC")));
+		event2.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2014, 2, 13, 12, 0, 0, 0, ZoneId.of("UTC")));
 		String uid2 = "test_" + System.nanoTime();
 
 		PrintOptions options = new PrintOptions();
-		options.dateBegin = BmDateTimeWrapper.create(new DateTime(2014, 2, 10, 0, 0, 0), Precision.Date);
-		options.dateEnd = BmDateTimeWrapper.create(new DateTime(2014, 2, 17, 0, 0, 0), Precision.Date);
+		options.dateBegin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 10, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
+		options.dateEnd = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 17, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
 		options.calendars.add(CalendarMetadata.create(cal.uid, "#3D99FF"));
 
 		options.format = PrintFormat.SVG;
@@ -178,14 +184,18 @@ public class PrintTest {
 
 		VEvent event = defaultVEvent();
 		event.summary = "testAllDayEvent";
-		event.dtstart = BmDateTimeWrapper.create(new DateTime(2014, 2, 13, 0, 0, 0), Precision.Date);
-		event.dtend = BmDateTimeWrapper.create(new DateTime(2014, 2, 14, 0, 0, 0), Precision.Date);
+		event.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 13, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
+		event.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 14, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
 
 		String uid = "test_" + System.nanoTime();
 
 		PrintOptions options = new PrintOptions();
-		options.dateBegin = BmDateTimeWrapper.create(new DateTime(2014, 2, 10, 0, 0, 0), Precision.Date);
-		options.dateEnd = BmDateTimeWrapper.create(new DateTime(2014, 2, 17, 0, 0, 0), Precision.Date);
+		options.dateBegin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 10, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
+		options.dateEnd = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 17, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
 		options.calendars.add(CalendarMetadata.create(cal.uid, "#3D99FF"));
 
 		options.format = PrintFormat.SVG;
@@ -213,13 +223,17 @@ public class PrintTest {
 
 		VEvent event = defaultVEvent();
 		event.summary = "testTwoDaysEvent";
-		event.dtstart = BmDateTimeWrapper.create(new DateTime(2014, 2, 13, 0, 0, 0), Precision.Date);
-		event.dtend = BmDateTimeWrapper.create(new DateTime(2014, 2, 15, 0, 0, 0), Precision.Date);
+		event.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 13, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
+		event.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 15, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
 		String uid = "test_" + System.nanoTime();
 
 		PrintOptions options = new PrintOptions();
-		options.dateBegin = BmDateTimeWrapper.create(new DateTime(2014, 2, 10, 0, 0, 0), Precision.Date);
-		options.dateEnd = BmDateTimeWrapper.create(new DateTime(2014, 2, 17, 0, 0, 0), Precision.Date);
+		options.dateBegin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 10, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
+		options.dateEnd = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 17, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
 		options.calendars.add(CalendarMetadata.create(cal.uid, "#3D99FF"));
 
 		options.format = PrintFormat.SVG;
@@ -248,14 +262,18 @@ public class PrintTest {
 
 		VEvent event = defaultVEvent();
 		event.summary = "testSundayMondayEvent";
-		event.dtstart = BmDateTimeWrapper.create(new DateTime(2016, 3, 6, 0, 0, 0), Precision.Date);
-		event.dtend = BmDateTimeWrapper.create(new DateTime(2016, 3, 8, 0, 0, 0), Precision.Date);
+		event.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2016, 3, 6, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
+		event.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2016, 3, 8, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
 		String uid = "test_" + System.nanoTime();
 
 		// part1
 		PrintOptions options = new PrintOptions();
-		options.dateBegin = BmDateTimeWrapper.create(new DateTime(2016, 2, 29, 0, 0, 0), Precision.Date);
-		options.dateEnd = BmDateTimeWrapper.create(new DateTime(2016, 3, 7, 0, 0, 0), Precision.Date);
+		options.dateBegin = BmDateTimeWrapper.create(ZonedDateTime.of(2016, 2, 29, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
+		options.dateEnd = BmDateTimeWrapper.create(ZonedDateTime.of(2016, 3, 7, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
 		options.calendars.add(CalendarMetadata.create(cal.uid, "#3D99FF"));
 		options.format = PrintFormat.SVG;
 
@@ -279,8 +297,10 @@ public class PrintTest {
 		// part2
 
 		options = new PrintOptions();
-		options.dateBegin = BmDateTimeWrapper.create(new DateTime(2016, 3, 7, 0, 0, 0), Precision.Date);
-		options.dateEnd = BmDateTimeWrapper.create(new DateTime(2016, 3, 14, 0, 0, 0), Precision.Date);
+		options.dateBegin = BmDateTimeWrapper.create(ZonedDateTime.of(2016, 3, 7, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
+		options.dateEnd = BmDateTimeWrapper.create(ZonedDateTime.of(2016, 3, 14, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
 		options.calendars.add(CalendarMetadata.create(cal.uid, "#3D99FF"));
 		options.format = PrintFormat.SVG;
 
@@ -306,55 +326,65 @@ public class PrintTest {
 
 		VEvent event = defaultVEvent();
 		event.summary = "testMonth";
-		event.dtstart = BmDateTimeWrapper.create(new DateTime(2016, 3, 6, 0, 0, 0), Precision.Date);
-		event.dtend = BmDateTimeWrapper.create(new DateTime(2016, 3, 8, 0, 0, 0), Precision.Date);
+		event.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2016, 3, 6, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
+		event.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 3, 8, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
 		String uid = "test_" + System.nanoTime();
 
 		VEvent event2 = defaultVEvent();
 		event2.summary = "testMonth2";
-		event2.dtstart = BmDateTimeWrapper.create(new DateTime(2016, 3, 12, 0, 0, 0), Precision.Date);
-		event2.dtend = BmDateTimeWrapper.create(new DateTime(2016, 3, 13, 0, 0, 0), Precision.Date);
+		event2.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2016, 3, 12, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
+		event2.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2016, 3, 13, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
 		String uid2 = "test_" + System.nanoTime();
 
 		VEvent event3 = defaultVEvent();
 		event3.summary = "testMonth3";
-		event3.dtstart = BmDateTimeWrapper
-				.create(new DateTime(2016, 3, 18, 12, 0, 0, DateTimeZone.forID("Europe/Paris")), Precision.DateTime);
-		event3.dtend = BmDateTimeWrapper.create(new DateTime(2016, 3, 18, 14, 0, 0, DateTimeZone.forID("Europe/Paris")),
+		event3.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2016, 3, 18, 12, 0, 0, 0, ZoneId.of("Europe/Paris")),
+				Precision.DateTime);
+		event3.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2016, 3, 18, 14, 0, 0, 0, ZoneId.of("Europe/Paris")),
 				Precision.DateTime);
 		String uid3 = "test_" + System.nanoTime();
 
 		VEvent event4 = defaultVEvent();
 		event4.summary = "testMonth4";
-		event4.dtstart = BmDateTimeWrapper.create(new DateTime(2016, 3, 21, 0, 0, 0), Precision.Date);
-		event4.dtend = BmDateTimeWrapper.create(new DateTime(2016, 4, 8, 0, 0, 0), Precision.Date);
+		event4.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2016, 3, 21, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
+		event4.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2016, 4, 8, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
 		String uid4 = "test_" + System.nanoTime();
 
 		VEvent event5 = defaultVEvent();
 		event5.summary = "testMonth5";
-		event5.dtstart = BmDateTimeWrapper.create(new DateTime(2016, 3, 31, 0, 0, 0), Precision.Date);
-		event5.dtend = BmDateTimeWrapper.create(new DateTime(2016, 4, 1, 0, 0, 0), Precision.Date);
+		event5.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2016, 3, 31, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
+		event5.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2016, 4, 1, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
 		String uid5 = "test_" + System.nanoTime();
 
 		VEvent event6 = defaultVEvent();
 		event6.summary = "testMonth6";
-		event6.dtstart = BmDateTimeWrapper.create(new DateTime(2016, 4, 10, 0, 0, 0), Precision.Date);
-		event6.dtend = BmDateTimeWrapper.create(new DateTime(2016, 4, 11, 0, 0, 0), Precision.Date);
+		event6.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2016, 4, 10, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
+		event6.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2016, 4, 11, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
 		String uid6 = "test_" + System.nanoTime();
 
 		VEvent event7 = defaultVEvent();
 		event7.summary = "testMonth7";
-		event7.dtstart = BmDateTimeWrapper
-				.create(new DateTime(2016, 3, 20, 16, 0, 0, DateTimeZone.forID("Europe/Paris")), Precision.DateTime);
-		event7.dtend = BmDateTimeWrapper.create(new DateTime(2016, 3, 20, 18, 0, 0, DateTimeZone.forID("Europe/Paris")),
+		event7.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2016, 3, 20, 16, 0, 0, 0, ZoneId.of("Europe/Paris")),
+				Precision.DateTime);
+		event7.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2016, 3, 20, 18, 0, 0, 0, ZoneId.of("Europe/Paris")),
 				Precision.DateTime);
 		String uid7 = "test_" + System.nanoTime();
 
 		PrintOptions options = new PrintOptions();
 		options.dateBegin = BmDateTimeWrapper
-				.create(new DateTime(2016, 2, 29, 0, 0, 0, DateTimeZone.forID("Europe/Paris")), Precision.Date);
-		options.dateEnd = BmDateTimeWrapper
-				.create(new DateTime(2016, 4, 11, 0, 0, 0, DateTimeZone.forID("Europe/Paris")), Precision.Date);
+				.create(ZonedDateTime.of(2016, 2, 29, 0, 0, 0, 0, ZoneId.of("Europe/Paris")), Precision.Date);
+		options.dateEnd = BmDateTimeWrapper.create(ZonedDateTime.of(2016, 4, 11, 0, 0, 0, 0, ZoneId.of("Europe/Paris")),
+				Precision.Date);
 		options.calendars.add(CalendarMetadata.create(cal.uid, "#3D99FF"));
 
 		options.format = PrintFormat.SVG;
@@ -394,30 +424,36 @@ public class PrintTest {
 
 		VEvent event = defaultVEvent();
 		event.summary = "testList1";
-		event.dtstart = BmDateTimeWrapper.create(new DateTime(2016, 3, 6, 0, 0, 0), Precision.Date);
-		event.dtend = BmDateTimeWrapper.create(new DateTime(2016, 3, 8, 0, 0, 0), Precision.Date);
+		event.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2016, 3, 6, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
+		event.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2016, 3, 8, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
 		event.attendees.get(0).uri = "test"; // uri = calInfo uid
 		String uid = "test_" + System.nanoTime();
 
 		VEvent event2 = defaultVEvent();
 		event2.summary = "testList2";
-		event2.dtstart = BmDateTimeWrapper.create(new DateTime(2016, 3, 12, 0, 0, 0), Precision.Date);
-		event2.dtend = BmDateTimeWrapper.create(new DateTime(2016, 3, 13, 0, 0, 0), Precision.Date);
+		event2.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2016, 3, 12, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
+		event2.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2016, 3, 13, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
 		event2.attendees.get(0).uri = "test";
 		String uid2 = "test_" + System.nanoTime();
 
 		VEvent event3 = defaultVEvent();
 		event3.summary = "testList3";
-		event3.dtstart = BmDateTimeWrapper.create(new DateTime(2016, 3, 18, 12, 0, 0), Precision.DateTime);
-		event3.dtend = BmDateTimeWrapper.create(new DateTime(2016, 3, 18, 14, 0, 0), Precision.DateTime);
+		event3.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2016, 3, 18, 12, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.DateTime);
+		event3.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2016, 3, 18, 14, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.DateTime);
 		event3.attendees.get(0).uri = "test2";
 		String uid3 = "test_" + System.nanoTime();
 
 		PrintOptions options = new PrintOptions();
 		options.dateBegin = BmDateTimeWrapper
-				.create(new DateTime(2016, 2, 29, 0, 0, 0, DateTimeZone.forID("Europe/Paris")), Precision.Date);
-		options.dateEnd = BmDateTimeWrapper
-				.create(new DateTime(2016, 4, 11, 0, 0, 0, DateTimeZone.forID("Europe/Paris")), Precision.Date);
+				.create(ZonedDateTime.of(2016, 2, 29, 0, 0, 0, 0, ZoneId.of("Europe/Paris")), Precision.Date);
+		options.dateEnd = BmDateTimeWrapper.create(ZonedDateTime.of(2016, 4, 11, 0, 0, 0, 0, ZoneId.of("Europe/Paris")),
+				Precision.Date);
 		options.calendars.add(CalendarMetadata.create(cal.uid, "#3D99FF"));
 		options.calendars.add(CalendarMetadata.create(otherCal.uid, "#FFA53D"));
 
@@ -538,8 +574,8 @@ public class PrintTest {
 
 		final VEvent event = this.defaultVEvent();
 		event.summary = "MerguezParty";
-		event.dtstart = time(new DateTime(2014, 2, 13, 8, 0, 0, DateTimeZone.forID("Europe/Paris")));
-		event.dtend = time(new DateTime(2014, 2, 13, 10, 0, 0, DateTimeZone.forID("Europe/Paris")));
+		event.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2014, 2, 13, 8, 0, 0, 0, ZoneId.of("Europe/Paris")));
+		event.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2014, 2, 13, 10, 0, 0, 0, ZoneId.of("Europe/Paris")));
 		final List<VEvent.Attendee> attendees = new ArrayList<>(2);
 		final VEvent.Attendee totoMatic = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.Chair,
 				VEvent.ParticipationStatus.Declined, true, "", "", "", "printMe",
@@ -552,8 +588,10 @@ public class PrintTest {
 		event.attendees = attendees;
 
 		final PrintOptions options = new PrintOptions();
-		options.dateBegin = BmDateTimeWrapper.create(new DateTime(2014, 2, 10, 0, 0, 0), Precision.Date);
-		options.dateEnd = BmDateTimeWrapper.create(new DateTime(2014, 2, 17, 0, 0, 0), Precision.Date);
+		options.dateBegin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 10, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
+		options.dateEnd = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 17, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
 		options.calendars.add(CalendarMetadata.create(johnDoeDefaultCal.uid, "#3D99FF"));
 		options.calendars.add(CalendarMetadata.create(totoMaticDefaultCal.uid, "#0099FF"));
 		options.calendars.add(CalendarMetadata.create(duncanMacLeodDefaultCal.uid, "#FF99FF"));
@@ -580,8 +618,8 @@ public class PrintTest {
 	 */
 	protected VEvent defaultVEvent() {
 		VEvent event = new VEvent();
-		DateTimeZone tz = DateTimeZone.forID("Asia/Ho_Chi_Minh");
-		event.dtstart = time(new DateTime(2022, 2, 13, 1, 0, 0, tz));
+		ZoneId tz = ZoneId.of("Asia/Ho_Chi_Minh");
+		event.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 13, 1, 0, 0, 0, tz));
 		event.summary = "event " + System.currentTimeMillis();
 		event.location = "Toulouse";
 		event.description = "Lorem ipsum";
@@ -605,19 +643,5 @@ public class PrintTest {
 		// event.categories.add(tagRef2);
 
 		return event;
-	}
-
-	protected net.bluemind.core.api.date.BmDateTime time(DateTime dateTime) {
-		return time(dateTime, true);
-	}
-
-	protected net.bluemind.core.api.date.BmDateTime time(DateTime dateTime, boolean autoDate) {
-		if (autoDate && dateTime.getZone().equals(DateTimeZone.getDefault()) && dateTime.getHourOfDay() == 0
-				&& dateTime.getMinuteOfHour() == 0 && dateTime.getSecondOfMinute() == 0) {
-			long ts = dateTime.withZoneRetainFields(DateTimeZone.UTC).getMillis();
-			return BmDateTimeWrapper.fromTimestamp(ts, dateTime.getZone().getID(), Precision.Date);
-		} else {
-			return BmDateTimeWrapper.create(dateTime, Precision.DateTime);
-		}
 	}
 }

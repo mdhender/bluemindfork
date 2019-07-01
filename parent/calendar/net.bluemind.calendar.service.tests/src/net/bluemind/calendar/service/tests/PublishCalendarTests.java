@@ -24,13 +24,13 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 import javax.sql.DataSource;
 
-import org.joda.time.DateTime;
 import org.junit.Test;
 
 import net.bluemind.calendar.api.IPublishCalendar;
@@ -38,6 +38,7 @@ import net.bluemind.calendar.api.PublishMode;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.service.AbstractCalendarTests;
 import net.bluemind.calendar.service.internal.PublishCalendarService;
+import net.bluemind.core.api.date.BmDateTimeHelper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistance.DataSourceRouter;
@@ -176,8 +177,8 @@ public class PublishCalendarTests extends AbstractCalendarTests {
 		event.main.summary = "wOOt";
 		event.main.location = "BlueMind";
 		event.main.description = "bla bla";
-		event.main.dtstart = time(new DateTime(2017, 2, 4, 17, 0, 0));
-		event.main.dtend = time(new DateTime(2017, 2, 4, 18, 0, 0));
+		event.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2017, 2, 4, 17, 0, 0, 0, defaultTz));
+		event.main.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2017, 2, 4, 18, 0, 0, 0, defaultTz));
 		getCalendarService(userSecurityContext, userCalendarContainer).create(UUID.randomUUID().toString(), event,
 				sendNotifications);
 
@@ -186,8 +187,8 @@ public class PublishCalendarTests extends AbstractCalendarTests {
 		event.main.summary = "top secret";
 		event.main.location = "xxx";
 		event.main.description = "aaa";
-		event.main.dtstart = time(new DateTime(2017, 2, 4, 17, 0, 0));
-		event.main.dtend = time(new DateTime(2017, 2, 4, 18, 0, 0));
+		event.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2017, 2, 4, 17, 0, 0, 0, defaultTz));
+		event.main.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2017, 2, 4, 18, 0, 0, 0, defaultTz));
 		getCalendarService(userSecurityContext, userCalendarContainer).create(UUID.randomUUID().toString(), event,
 				sendNotifications);
 

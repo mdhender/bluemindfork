@@ -18,7 +18,9 @@
  */
 package net.bluemind.eas.dto.sync;
 
-import org.joda.time.DateTime;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import net.bluemind.eas.dto.type.ItemDataType;
 
@@ -27,13 +29,13 @@ import net.bluemind.eas.dto.type.ItemDataType;
  */
 public class SyncState {
 
-	public DateTime date;
+	public ZonedDateTime date;
 	public ItemDataType type;
 	public long version;
 	public long subscriptionVersion;
 
 	public SyncState() {
-		date = new DateTime(0);
+		date = ZonedDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneId.systemDefault());
 	}
 
 	@Override

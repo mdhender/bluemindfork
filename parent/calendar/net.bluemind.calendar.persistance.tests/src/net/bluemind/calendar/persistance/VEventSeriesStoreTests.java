@@ -26,6 +26,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -35,8 +37,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,7 +69,6 @@ public class VEventSeriesStoreTests {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
-		
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 
 		ContainerStore containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
@@ -99,8 +98,11 @@ public class VEventSeriesStoreTests {
 	@Test
 	public void testStoreRetrieveAndUpdate() throws SQLException {
 		ItemValue<VEventSeries> event = defaultVEvent();
-		event.value.main.dtstart = BmDateTimeWrapper.create(new DateTime(2014, 6, 24, 10, 0, 0), Precision.DateTime);
-		event.value.main.dtend = BmDateTimeWrapper.create(new DateTime(2014, 6, 24, 11, 0, 0), Precision.DateTime);
+
+		event.value.main.dtstart = BmDateTimeWrapper
+				.create(ZonedDateTime.of(2014, 6, 24, 10, 0, 0, 0, ZoneId.of("UTC")), Precision.DateTime);
+		event.value.main.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 6, 24, 10, 0, 0, 0, ZoneId.of("UTC")),
+				Precision.DateTime);
 
 		itemStore.create(Item.create(event.uid, UUID.randomUUID().toString()));
 
@@ -129,13 +131,15 @@ public class VEventSeriesStoreTests {
 		evt.main.alarm = new ArrayList<ICalendarElement.VAlarm>(1);
 		evt.main.alarm.add(ICalendarElement.VAlarm.create(Action.Email, -600, "alarm desc", 15, 1, "w00t"));
 
-		evt.main.dtstart = BmDateTimeWrapper.create(new DateTime(2014, 6, 24, 13, 0, 0), Precision.DateTime);
-		evt.main.dtend = BmDateTimeWrapper.create(new DateTime(2014, 6, 24, 14, 0, 0), Precision.DateTime);
+		evt.main.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 6, 24, 13, 0, 0, 0, ZoneId.of("UTC")),
+				Precision.DateTime);
+		evt.main.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 6, 24, 14, 0, 0, 0, ZoneId.of("UTC")),
+				Precision.DateTime);
 
 		evt.main.organizer.uri = UUID.randomUUID().toString();
 
 		Set<net.bluemind.core.api.date.BmDateTime> exdate = new HashSet<>(1);
-		DateTime exDate = new DateTime(2014, 2, 13, 0, 0, 0);
+		ZonedDateTime exDate = ZonedDateTime.of(2014, 2, 13, 0, 0, 0, 0, ZoneId.of("UTC"));
 		exdate.add(BmDateTimeWrapper.create(exDate, Precision.DateTime));
 		evt.main.exdate = exdate;
 
@@ -169,7 +173,8 @@ public class VEventSeriesStoreTests {
 
 		assertEquals(evt.main.organizer.uri, updated.main.organizer.uri);
 		assertEquals(1, updated.main.exdate.size());
-		assertEquals(exDate.getMillis(), new BmDateTimeWrapper(updated.main.exdate.iterator().next()).toUTCTimestamp());
+		assertEquals(exDate.toInstant().toEpochMilli(),
+				new BmDateTimeWrapper(updated.main.exdate.iterator().next()).toUTCTimestamp());
 		assertNull(updated.main.rrule);
 		assertEquals(3, updated.main.attendees.size());
 	}
@@ -266,18 +271,19 @@ public class VEventSeriesStoreTests {
 		ItemValue<VEventSeries> event = defaultVEvent();
 
 		Set<net.bluemind.core.api.date.BmDateTime> exdate = new HashSet<>();
-		DateTime exDate = new DateTime(1983, 2, 13, 22, 0, 0);
+		ZonedDateTime exDate = ZonedDateTime.of(1983, 2, 13, 22, 0, 0, 0, ZoneId.of("UTC"));
 		exdate.add(BmDateTimeWrapper.create(exDate, Precision.DateTime));
 
-		DateTime exDate2 = new DateTime(2012, 3, 31, 2, 0, 0);
+		ZonedDateTime exDate2 = ZonedDateTime.of(2012, 3, 31, 2, 0, 0, 0, ZoneId.of("UTC"));
 		exdate.add(BmDateTimeWrapper.create(exDate2, Precision.DateTime));
 
-		DateTime exDate3 = new DateTime(2014, 7, 14, 0, 30, 0);
+		ZonedDateTime exDate3 = ZonedDateTime.of(2014, 7, 14, 0, 30, 0, 0, ZoneId.of("UTC"));
 		exdate.add(BmDateTimeWrapper.create(exDate3, Precision.DateTime));
 
 		// add duplicate
 		exdate.add(BmDateTimeWrapper.create(exDate3, Precision.DateTime));
-		exdate.add(BmDateTimeWrapper.create(new DateTime(2014, 7, 14, 0, 30, 0), Precision.DateTime));
+		exdate.add(BmDateTimeWrapper.create(ZonedDateTime.of(2014, 7, 14, 0, 30, 0, 0, ZoneId.of("UTC")),
+				Precision.DateTime));
 
 		event.value.main.exdate = exdate;
 
@@ -323,7 +329,8 @@ public class VEventSeriesStoreTests {
 		evt = vEventStore.get(item);
 		assertNotNull(evt);
 		assertEquals(1, evt.main.exdate.size());
-		assertEquals(exDate.getMillis(), new BmDateTimeWrapper(evt.main.exdate.iterator().next()).toUTCTimestamp());
+		assertEquals(exDate.toInstant().toEpochMilli(),
+				new BmDateTimeWrapper(evt.main.exdate.iterator().next()).toUTCTimestamp());
 
 	}
 
@@ -401,7 +408,8 @@ public class VEventSeriesStoreTests {
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = VEvent.RRule.Frequency.WEEKLY;
 		rrule.interval = 1;
-		DateTime until = new DateTime(2022, 2, 13, 12, 30, 30);
+
+		ZonedDateTime until = ZonedDateTime.of(2022, 2, 13, 12, 30, 30, 0, ZoneId.of("UTC"));
 		rrule.until = BmDateTimeWrapper.create(until, Precision.DateTime);
 
 		rrule.bySecond = Arrays.asList(10, 20);
@@ -441,7 +449,7 @@ public class VEventSeriesStoreTests {
 		assertEquals(rrule.frequency, evt.main.rrule.frequency);
 		assertEquals(rrule.interval, evt.main.rrule.interval);
 		assertNull(rrule.count);
-		assertEquals(until.getMillis(), new BmDateTimeWrapper(evt.main.rrule.until).toUTCTimestamp());
+		assertEquals(until.toInstant().toEpochMilli(), new BmDateTimeWrapper(evt.main.rrule.until).toUTCTimestamp());
 
 		assertNotNull(rrule.bySecond);
 		assertEquals(2, rrule.bySecond.size());
@@ -544,8 +552,9 @@ public class VEventSeriesStoreTests {
 	public void testCustomProperties() throws SQLException {
 		ItemValue<VEventSeries> event = defaultVEvent();
 
-		DateTimeZone tz = DateTimeZone.forID("Asia/Ho_Chi_Minh");
-		event.value.main.dtstart = BmDateTimeWrapper.create(new DateTime(1983, 2, 13, 2, 0, 0, tz), Precision.DateTime);
+		ZoneId tz = ZoneId.of("Asia/Ho_Chi_Minh");
+		event.value.main.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(1983, 2, 13, 2, 0, 0, 0, tz),
+				Precision.DateTime);
 
 		Map<String, String> properties = new HashMap<String, String>();
 		properties.put("wat", "da funk");
@@ -667,18 +676,19 @@ public class VEventSeriesStoreTests {
 		ItemValue<VEventSeries> event = defaultVEvent();
 
 		Set<net.bluemind.core.api.date.BmDateTime> rdate = new HashSet<>();
-		DateTime rDate = new DateTime(1983, 2, 13, 22, 0, 0);
+		ZonedDateTime rDate = ZonedDateTime.of(1983, 2, 13, 22, 0, 0, 0, ZoneId.of("UTC"));
 		rdate.add(BmDateTimeWrapper.create(rDate, Precision.DateTime));
 
-		DateTime rDate2 = new DateTime(2012, 3, 31, 2, 0, 0);
+		ZonedDateTime rDate2 = ZonedDateTime.of(2012, 3, 31, 2, 0, 0, 0, ZoneId.of("UTC"));
 		rdate.add(BmDateTimeWrapper.create(rDate2, Precision.DateTime));
 
-		DateTime rDate3 = new DateTime(2014, 7, 14, 0, 30, 0);
+		ZonedDateTime rDate3 = ZonedDateTime.of(2014, 7, 14, 0, 30, 0, 0, ZoneId.of("UTC"));
 		rdate.add(BmDateTimeWrapper.create(rDate3, Precision.DateTime));
 
 		// add duplicate
 		rdate.add(BmDateTimeWrapper.create(rDate3, Precision.DateTime));
-		rdate.add(BmDateTimeWrapper.create(new DateTime(2014, 7, 14, 0, 30, 0), Precision.DateTime));
+		rdate.add(BmDateTimeWrapper.create(ZonedDateTime.of(2014, 7, 14, 0, 30, 0, 0, ZoneId.of("UTC")),
+				Precision.DateTime));
 
 		event.value.main.rdate = rdate;
 
@@ -724,7 +734,8 @@ public class VEventSeriesStoreTests {
 		evt = vEventStore.get(item);
 		assertNotNull(evt);
 		assertEquals(1, evt.main.rdate.size());
-		assertEquals(rDate.getMillis(), new BmDateTimeWrapper(evt.main.rdate.iterator().next()).toUTCTimestamp());
+		assertEquals(rDate.toInstant().toEpochMilli(),
+				new BmDateTimeWrapper(evt.main.rdate.iterator().next()).toUTCTimestamp());
 	}
 
 	private VEventSeries createAndGet(ItemValue<VEventSeries> event) {
@@ -748,12 +759,15 @@ public class VEventSeriesStoreTests {
 	public void testStoreAndRetrieveWithUid() throws SQLException {
 		ItemValue<VEventSeries> event = defaultVEvent();
 		VEventOccurrence rec1 = getRecurringEvent();
-		rec1.recurid = BmDateTimeWrapper.create(new DateTime(2011, 2, 13, 2, 0, 0), Precision.DateTime);
+		rec1.recurid = BmDateTimeWrapper.create(ZonedDateTime.of(2011, 2, 13, 2, 0, 0, 0, ZoneId.of("UTC")),
+				Precision.DateTime);
 		VEventOccurrence rec2 = getRecurringEvent();
-		rec2.recurid = BmDateTimeWrapper.create(new DateTime(2012, 2, 13, 2, 0, 0), Precision.DateTime);
+		rec2.recurid = BmDateTimeWrapper.create(ZonedDateTime.of(2012, 2, 13, 2, 0, 0, 0, ZoneId.of("UTC")),
+				Precision.DateTime);
 		event.value.occurrences = Arrays.asList(rec1, rec2);
 
-		event.value.main.dtstart = BmDateTimeWrapper.create(new DateTime(2010, 2, 13, 2, 0, 0), Precision.DateTime);
+		event.value.main.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2010, 2, 13, 2, 0, 0, 0, ZoneId.of("UTC")),
+				Precision.DateTime);
 
 		itemStore.create(Item.create(event.uid, UUID.randomUUID().toString()));
 
@@ -792,12 +806,15 @@ public class VEventSeriesStoreTests {
 	public void testStoreAndRetrieveMultipleWithUid() throws SQLException {
 		ItemValue<VEventSeries> event = defaultVEvent();
 		event.value.main.summary = "I am event 1";
-		event.value.main.dtstart = BmDateTimeWrapper.create(new DateTime(2010, 2, 13, 2, 0, 0), Precision.DateTime);
+		ZonedDateTime date1 = ZonedDateTime.of(2010, 2, 13, 2, 0, 0, 0, ZoneId.of("UTC"));
+		event.value.main.dtstart = BmDateTimeWrapper.create(date1, Precision.DateTime);
 		VEventOccurrence rec1 = getRecurringEvent();
 		rec1.summary = "exception event 1";
-		rec1.recurid = BmDateTimeWrapper.create(new DateTime(2011, 2, 13, 2, 0, 0), Precision.DateTime);
+		ZonedDateTime date2 = ZonedDateTime.of(2011, 2, 13, 2, 0, 0, 0, ZoneId.of("UTC"));
+		rec1.recurid = BmDateTimeWrapper.create(date2, Precision.DateTime);
 		VEventOccurrence rec2 = getRecurringEvent();
-		rec2.recurid = BmDateTimeWrapper.create(new DateTime(2012, 2, 13, 2, 0, 0), Precision.DateTime);
+		ZonedDateTime date3 = ZonedDateTime.of(2012, 2, 13, 2, 0, 0, 0, ZoneId.of("UTC"));
+		rec2.recurid = BmDateTimeWrapper.create(date3, Precision.DateTime);
 		rec2.summary = "exception event 1";
 		event.value.occurrences = Arrays.asList(rec1, rec2);
 		itemStore.create(Item.create(event.uid, null));
@@ -809,16 +826,16 @@ public class VEventSeriesStoreTests {
 		assertEquals(2, evts.get(0).occurrences.size());
 		ItemValue<VEventSeries> event2 = defaultVEvent();
 		event2.value.main.summary = "I am event 2";
-		event2.value.main.dtstart = BmDateTimeWrapper.create(new DateTime(2010, 2, 13, 2, 0, 0), Precision.DateTime);
+		event2.value.main.dtstart = BmDateTimeWrapper.create(date1, Precision.DateTime);
 		VEventOccurrence rec21 = getRecurringEvent();
 		rec21.summary = "exception event 2";
-		rec21.recurid = BmDateTimeWrapper.create(new DateTime(2011, 2, 13, 2, 0, 0), Precision.DateTime);
+		rec21.recurid = BmDateTimeWrapper.create(date2, Precision.DateTime);
 		VEventOccurrence rec22 = getRecurringEvent();
 		rec22.summary = "exception event 2";
-		rec22.recurid = BmDateTimeWrapper.create(new DateTime(2012, 2, 13, 2, 0, 0), Precision.DateTime);
+		rec22.recurid = BmDateTimeWrapper.create(date3, Precision.DateTime);
 		VEventOccurrence rec23 = getRecurringEvent();
 		rec23.summary = "exception event 2";
-		rec23.recurid = BmDateTimeWrapper.create(new DateTime(2012, 2, 13, 2, 0, 0), Precision.DateTime);
+		rec23.recurid = BmDateTimeWrapper.create(date3, Precision.DateTime);
 		event2.value.occurrences = Arrays.asList(rec21, rec22, rec23);
 		itemStore.create(Item.create(event2.uid, null));
 		Item item2 = itemStore.get(event2.uid);
@@ -868,7 +885,7 @@ public class VEventSeriesStoreTests {
 	private ItemValue<VEventSeries> defaultVEvent() {
 		VEventSeries series = new VEventSeries();
 		VEvent event = new VEvent();
-		event.dtstart = BmDateTimeWrapper.create(new DateTime(), Precision.DateTime);
+		event.dtstart = BmDateTimeWrapper.create(ZonedDateTime.now(), Precision.DateTime);
 		event.summary = "event " + System.currentTimeMillis();
 		event.location = "Toulouse";
 		event.description = "Lorem ipsum";
@@ -902,7 +919,7 @@ public class VEventSeriesStoreTests {
 
 	private VEventOccurrence getRecurringEvent() {
 		VEventOccurrence eventR = new VEventOccurrence();
-		eventR.dtstart = BmDateTimeWrapper.create(new DateTime(), Precision.DateTime);
+		eventR.dtstart = BmDateTimeWrapper.create(ZonedDateTime.now(), Precision.DateTime);
 		eventR.summary = "event " + System.currentTimeMillis();
 		eventR.location = "Toulouse";
 		eventR.description = "Lorem ipsum";
@@ -929,7 +946,8 @@ public class VEventSeriesStoreTests {
 
 		eventR.attendees = attendees;
 
-		eventR.recurid = BmDateTimeWrapper.create(new DateTime(1983, 2, 13, 0, 0, 0), Precision.DateTime);
+		eventR.recurid = BmDateTimeWrapper.create(ZonedDateTime.of(1983, 2, 13, 0, 0, 0, 0, ZoneId.of("UTC")),
+				Precision.DateTime);
 		return eventR;
 	}
 

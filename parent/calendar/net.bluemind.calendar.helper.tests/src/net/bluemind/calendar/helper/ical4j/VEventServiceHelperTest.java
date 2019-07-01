@@ -27,6 +27,9 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -34,8 +37,6 @@ import java.util.Set;
 import java.util.TimeZone;
 
 import org.apache.commons.io.IOUtils;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.Test;
 
 import net.bluemind.calendar.api.VEvent;
@@ -80,12 +81,10 @@ public class VEventServiceHelperTest {
 
 		ItemValue<VEventSeries> event = events.get(0);
 
-		System.out.println(DateTimeZone.forID("Etc/GMT+11"));
 		// Etc/GMT+11:20160401T180000
-		DateTime dtstart = new DateTime(2016, 4, 1, 18, 0, 0, DateTimeZone.forID("Etc/GMT+11"));
-		System.out.println(dtstart);
-		System.out.println(event.value.main.dtstart);
-		assertEquals(dtstart.getMillis(), new BmDateTimeWrapper(event.value.main.dtstart).toUTCTimestamp());
+		ZonedDateTime dtstart = ZonedDateTime.of(2016, 4, 1, 18, 0, 0, 0, ZoneId.of("Etc/GMT+11"));
+		assertEquals(dtstart.toInstant().toEpochMilli(),
+				new BmDateTimeWrapper(event.value.main.dtstart).toUTCTimestamp());
 	}
 
 	@Test
@@ -99,12 +98,14 @@ public class VEventServiceHelperTest {
 
 		ItemValue<VEventSeries> event = events.get(0);
 		System.err.println(event.value.main.dtstart);
-		DateTime dtstart = new DateTime(2016, 4, 1, 18, 0, 0, DateTimeZone.forID("Etc/GMT+4"));
-		assertEquals(dtstart.getMillis(), new BmDateTimeWrapper(event.value.main.dtstart).toUTCTimestamp());
+		ZonedDateTime dtstart = ZonedDateTime.of(2016, 4, 1, 18, 0, 0, 0, ZoneId.of("Etc/GMT+4"));
+		assertEquals(dtstart.toInstant().toEpochMilli(),
+				new BmDateTimeWrapper(event.value.main.dtstart).toUTCTimestamp());
 		event = events.get(1);
 		System.err.println(event.value.main.dtstart);
-		dtstart = new DateTime(2016, 12, 1, 18, 0, 0, DateTimeZone.forID("Etc/GMT+5"));
-		assertEquals(dtstart.getMillis(), new BmDateTimeWrapper(event.value.main.dtstart).toUTCTimestamp());
+		dtstart = ZonedDateTime.of(2016, 12, 1, 18, 0, 0, 0, ZoneId.of("Etc/GMT+5"));
+		assertEquals(dtstart.toInstant().toEpochMilli(),
+				new BmDateTimeWrapper(event.value.main.dtstart).toUTCTimestamp());
 	}
 
 	@Test
@@ -128,10 +129,9 @@ public class VEventServiceHelperTest {
 
 		// X-WR-TIMEZONE:Europe/Paris
 		// 20150610T193000
-		DateTime dtstart = new DateTime(2015, 6, 10, 19, 30, 0, DateTimeZone.forID("Europe/Paris"));
-		System.out.println(dtstart);
-		System.out.println(event.value.main.dtstart);
-		assertEquals(dtstart.getMillis(), new BmDateTimeWrapper(event.value.main.dtstart).toUTCTimestamp());
+		ZonedDateTime dtstart = ZonedDateTime.of(2015, 6, 10, 19, 30, 0, 0, ZoneId.of("Europe/Paris"));
+		assertEquals(dtstart.toInstant().toEpochMilli(),
+				new BmDateTimeWrapper(event.value.main.dtstart).toUTCTimestamp());
 	}
 
 	@Test
@@ -146,10 +146,11 @@ public class VEventServiceHelperTest {
 
 		ItemValue<VEventSeries> event = events.get(0);
 
-		DateTime dtstart = new DateTime(1983, 2, 13, 2, 0, 0, DateTimeZone.forID("Europe/Paris"));
+		ZonedDateTime dtstart = ZonedDateTime.of(1983, 2, 13, 2, 0, 0, 0, ZoneId.of("Europe/Paris"));
 
 		assertEquals("Europe/Paris", event.value.main.dtstart.timezone);
-		assertEquals(dtstart.getMillis(), new BmDateTimeWrapper(event.value.main.dtstart).toUTCTimestamp());
+		assertEquals(dtstart.toInstant().toEpochMilli(),
+				new BmDateTimeWrapper(event.value.main.dtstart).toUTCTimestamp());
 		assertNull(event.value.main.dtend);
 
 		assertEquals("ced586fb-836c-462b-91d8-2c6bae2cd6ad", event.uid);
@@ -198,16 +199,16 @@ public class VEventServiceHelperTest {
 
 		assertEquals(3, event.value.main.exdate.size());
 
-		DateTime expectedExDate1 = new DateTime(1983, 2, 13, 10, 0, 0, DateTimeZone.getDefault());
-		DateTime expectedExDate2 = new DateTime(2012, 3, 31, 8, 30, 0, DateTimeZone.getDefault());
-		DateTime expectedExDate3 = new DateTime(2014, 7, 14, 1, 2, 3, DateTimeZone.getDefault());
+		ZonedDateTime expectedExDate1 = ZonedDateTime.of(1983, 2, 13, 10, 0, 0, 0, ZoneId.systemDefault());
+		ZonedDateTime expectedExDate2 = ZonedDateTime.of(2012, 3, 31, 8, 30, 0, 0, ZoneId.systemDefault());
+		ZonedDateTime expectedExDate3 = ZonedDateTime.of(2014, 7, 14, 1, 2, 3, 0, ZoneId.systemDefault());
 
 		boolean date1Found = false;
 		boolean date2Found = false;
 		boolean date3Found = false;
 		for (net.bluemind.core.api.date.BmDateTime d : event.value.main.exdate) {
 
-			DateTime exdate = new BmDateTimeWrapper(d).toJodaTime();
+			ZonedDateTime exdate = new BmDateTimeWrapper(d).toDateTime();
 			if (exdate.isEqual(expectedExDate1)) {
 				date1Found = true;
 			} else if (exdate.isEqual(expectedExDate2)) {
@@ -221,12 +222,12 @@ public class VEventServiceHelperTest {
 		assertTrue(date3Found);
 
 		assertNotNull(event.value.main.rrule);
-		DateTime until = new DateTime(2022, 12, 25, 13, 30, 0, DateTimeZone.UTC);
+		ZonedDateTime until = ZonedDateTime.of(2022, 12, 25, 13, 30, 0, 0, ZoneId.of("UTC"));
 		VEvent.RRule rrule = event.value.main.rrule;
 		assertEquals(VEvent.RRule.Frequency.WEEKLY, rrule.frequency);
 		assertNull(rrule.count);
 		assertEquals(2, rrule.interval.intValue());
-		assertEquals(until, new BmDateTimeWrapper(rrule.until).toJodaTime());
+		assertEquals(until.toOffsetDateTime(), new BmDateTimeWrapper(rrule.until).toDateTime());
 
 		assertNotNull(rrule.bySecond);
 		assertEquals(2, rrule.bySecond.size());
@@ -311,13 +312,13 @@ public class VEventServiceHelperTest {
 		VEventSeries series = new VEventSeries();
 		VEvent event = new VEvent();
 		series.main = event;
-		DateTimeZone tz = DateTimeZone.forID("Europe/Paris");
+		ZoneId tz = ZoneId.of("Europe/Paris");
 
 		long now = System.currentTimeMillis();
 		long start = now + (1000 * 60 * 60);
-		DateTime temp = new DateTime(start, tz);
+		ZonedDateTime temp = ZonedDateTime.ofInstant(Instant.ofEpochMilli(start), tz);
 		event.dtstart = BmDateTimeWrapper.create(temp, Precision.DateTime);
-		temp = new DateTime(start + (1000 * 60 * 60), tz);
+		temp = ZonedDateTime.ofInstant(Instant.ofEpochMilli(start + (1000 * 60 * 60)), tz);
 		event.dtend = BmDateTimeWrapper.create(temp, Precision.DateTime);
 		event.summary = "notePropagation-" + System.currentTimeMillis();
 		event.location = "Toulouse";

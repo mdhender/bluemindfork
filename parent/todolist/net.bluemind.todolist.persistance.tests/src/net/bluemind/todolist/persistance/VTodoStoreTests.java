@@ -26,6 +26,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -34,8 +36,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,12 +61,12 @@ public class VTodoStoreTests {
 	private static Logger logger = LoggerFactory.getLogger(VTodoStoreTests.class);
 	private VTodoStore vTodoStore;
 	private ItemStore itemStore;
+	private ZoneId defaultTz = ZoneId.systemDefault();
 
 	@Before
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
-		
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 
 		ContainerStore containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
@@ -131,8 +131,9 @@ public class VTodoStoreTests {
 	@Test
 	public void testStoreRetrieveAndUpdate() throws SQLException {
 		VTodo todo = defaultVTodo();
-		todo.dtstart = BmDateTimeWrapper.create(new DateTime(2014, 6, 24, 10, 0, 0), Precision.DateTime);
-		todo.due = BmDateTimeWrapper.create(new DateTime(2014, 6, 24, 11, 0, 0), Precision.DateTime);
+		todo.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 6, 24, 10, 0, 0, 0, defaultTz),
+				Precision.DateTime);
+		todo.due = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 6, 24, 11, 0, 0, 0, defaultTz), Precision.DateTime);
 
 		String uid = "test_" + System.nanoTime();
 		itemStore.create(Item.create(uid, UUID.randomUUID().toString()));
@@ -164,11 +165,13 @@ public class VTodoStoreTests {
 		td.alarm = new ArrayList<ICalendarElement.VAlarm>(1);
 		td.alarm.add(ICalendarElement.VAlarm.create(Action.Email, -60, "alarm desc", 15, 1, "w00t"));
 
-		td.dtstart = BmDateTimeWrapper.create(new DateTime(2014, 6, 24, 13, 0, 0), Precision.DateTime);
-		td.due = BmDateTimeWrapper.create(new DateTime(2014, 6, 24, 14, 0, 0), Precision.DateTime);
+		td.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 6, 24, 13, 0, 0, 0, defaultTz),
+				Precision.DateTime);
+		td.due = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 6, 24, 14, 0, 0, 0, defaultTz), Precision.DateTime);
 		td.percent = 100;
 		td.status = Status.Completed;
-		td.completed = BmDateTimeWrapper.create(new DateTime(2014, 6, 22, 14, 0, 0), Precision.DateTime);
+		td.completed = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 6, 22, 14, 0, 0, 0, defaultTz),
+				Precision.DateTime);
 		td.organizer.uri = UUID.randomUUID().toString();
 
 		List<VTodo.Attendee> attendees = new ArrayList<>(1);
@@ -254,7 +257,7 @@ public class VTodoStoreTests {
 		VTodo.RRule rrule = new VTodo.RRule();
 		rrule.frequency = VTodo.RRule.Frequency.WEEKLY;
 		rrule.interval = 1;
-		DateTime until = new DateTime(2022, 2, 13, 12, 30, 30);
+		ZonedDateTime until = ZonedDateTime.of(2022, 2, 13, 12, 30, 30, 0, defaultTz);
 		rrule.until = BmDateTimeWrapper.create(until, Precision.DateTime);
 
 		rrule.bySecond = Arrays.asList(10, 20);
@@ -295,7 +298,7 @@ public class VTodoStoreTests {
 		assertEquals(rrule.frequency, td.rrule.frequency);
 		assertEquals(rrule.interval, td.rrule.interval);
 		assertNull(rrule.count);
-		assertEquals(until.getMillis(), new BmDateTimeWrapper(td.rrule.until).toUTCTimestamp());
+		assertEquals(until.toInstant().toEpochMilli(), new BmDateTimeWrapper(td.rrule.until).toUTCTimestamp());
 
 		assertNotNull(rrule.bySecond);
 		assertEquals(2, rrule.bySecond.size());
@@ -350,18 +353,19 @@ public class VTodoStoreTests {
 		VTodo todo = defaultVTodo();
 
 		Set<BmDateTime> exdate = new HashSet<>();
-		DateTime exDate = new DateTime(1983, 2, 13, 22, 0, 0);
+
+		ZonedDateTime exDate = ZonedDateTime.of(1983, 2, 13, 22, 0, 0, 0, defaultTz);
 		exdate.add(BmDateTimeWrapper.create(exDate, Precision.DateTime));
 
-		DateTime exDate2 = new DateTime(2012, 3, 31, 2, 0, 0);
+		ZonedDateTime exDate2 = ZonedDateTime.of(2012, 3, 31, 2, 0, 0, 0, defaultTz);
 		exdate.add(BmDateTimeWrapper.create(exDate2, Precision.DateTime));
 
-		DateTime exDate3 = new DateTime(2014, 7, 14, 0, 30, 0);
+		ZonedDateTime exDate3 = ZonedDateTime.of(2014, 7, 14, 0, 30, 0, 0, defaultTz);
 		exdate.add(BmDateTimeWrapper.create(exDate3, Precision.DateTime));
 
 		// add duplicate
 		exdate.add(BmDateTimeWrapper.create(exDate3, Precision.DateTime));
-		exdate.add(BmDateTimeWrapper.create(new DateTime(2014, 7, 14, 0, 30, 0), Precision.DateTime));
+		exdate.add(BmDateTimeWrapper.create(ZonedDateTime.of(2014, 7, 14, 0, 30, 0, 0, defaultTz), Precision.DateTime));
 
 		todo.exdate = exdate;
 
@@ -379,11 +383,11 @@ public class VTodoStoreTests {
 		boolean foundExdate3 = false;
 
 		for (net.bluemind.core.api.date.BmDateTime date : td.exdate) {
-			if (new BmDateTimeWrapper(date).toJodaTime().equals(exDate)) {
+			if (new BmDateTimeWrapper(date).toDateTime().equals(exDate)) {
 				foundExdate1 = true;
-			} else if (new BmDateTimeWrapper(date).toJodaTime().equals(exDate2)) {
+			} else if (new BmDateTimeWrapper(date).toDateTime().equals(exDate2)) {
 				foundExdate2 = true;
-			} else if (new BmDateTimeWrapper(date).toJodaTime().equals(exDate3)) {
+			} else if (new BmDateTimeWrapper(date).toDateTime().equals(exDate3)) {
 				foundExdate3 = true;
 			}
 		}
@@ -401,7 +405,7 @@ public class VTodoStoreTests {
 		td = vTodoStore.get(item);
 		assertNotNull(td);
 		assertEquals(1, td.exdate.size());
-		assertEquals(exDate, new BmDateTimeWrapper(td.exdate.iterator().next()).toJodaTime());
+		assertEquals(exDate, new BmDateTimeWrapper(td.exdate.iterator().next()).toDateTime());
 
 	}
 
@@ -593,19 +597,19 @@ public class VTodoStoreTests {
 	public void testRDate() throws SQLException {
 		VTodo vtodo = defaultVTodo();
 
-		Set<net.bluemind.core.api.date.BmDateTime> rdate = new HashSet<>();
-		DateTime rDate = new DateTime(1983, 2, 13, 22, 0, 0);
+		Set<BmDateTime> rdate = new HashSet<>();
+		ZonedDateTime rDate = ZonedDateTime.of(1983, 2, 13, 22, 0, 0, 0, defaultTz);
 		rdate.add(BmDateTimeWrapper.create(rDate, Precision.DateTime));
 
-		DateTime rDate2 = new DateTime(2012, 3, 31, 2, 0, 0);
+		ZonedDateTime rDate2 = ZonedDateTime.of(2012, 3, 31, 2, 0, 0, 0, defaultTz);
 		rdate.add(BmDateTimeWrapper.create(rDate2, Precision.DateTime));
 
-		DateTime rDate3 = new DateTime(2014, 7, 14, 0, 30, 0);
+		ZonedDateTime rDate3 = ZonedDateTime.of(2014, 7, 14, 0, 30, 0, 0, defaultTz);
 		rdate.add(BmDateTimeWrapper.create(rDate3, Precision.DateTime));
 
 		// add duplicate
 		rdate.add(BmDateTimeWrapper.create(rDate3, Precision.DateTime));
-		rdate.add(BmDateTimeWrapper.create(new DateTime(2014, 7, 14, 0, 30, 0), Precision.DateTime));
+		rdate.add(BmDateTimeWrapper.create(ZonedDateTime.of(2014, 7, 14, 0, 30, 0, 0, defaultTz), Precision.DateTime));
 
 		vtodo.rdate = rdate;
 
@@ -652,14 +656,16 @@ public class VTodoStoreTests {
 		todo = vTodoStore.get(item);
 		assertNotNull(todo);
 		assertEquals(1, todo.rdate.size());
-		assertEquals(rDate.getMillis(), new BmDateTimeWrapper(todo.rdate.iterator().next()).toUTCTimestamp());
+		assertEquals(rDate.toInstant().toEpochMilli(),
+				new BmDateTimeWrapper(todo.rdate.iterator().next()).toUTCTimestamp());
 	}
 
 	@Test
 	public void testGetReminder() throws SQLException {
 
 		// FIXME do more tests on this method
-		vTodoStore.getReminder(BmDateTimeWrapper.create(new DateTime(1983, 2, 13, 22, 0, 0), Precision.DateTime));
+		vTodoStore.getReminder(
+				BmDateTimeWrapper.create(ZonedDateTime.of(1983, 2, 13, 22, 0, 0, 0, defaultTz), Precision.DateTime));
 
 	}
 
@@ -683,7 +689,7 @@ public class VTodoStoreTests {
 	private VTodo defaultVTodo() {
 		VTodo todo = new VTodo();
 		todo.uid = UUID.randomUUID().toString();
-		DateTime now = new DateTime(DateTimeZone.UTC);
+		ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
 		todo.dtstart = BmDateTimeWrapper.create(now, Precision.DateTime);
 		todo.due = BmDateTimeWrapper.create(now.plusMonths(1), Precision.DateTime);
 		todo.summary = "Todo " + System.currentTimeMillis();

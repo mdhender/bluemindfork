@@ -39,6 +39,8 @@ package net.bluemind.hsm.service.tests;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -48,7 +50,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.stream.RawField;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -171,7 +172,7 @@ public class DemoteCommand extends AbstractHSMCommand {
 			// Replace old mail
 			FlagsList fl = summary.getFlags();
 			fl.add(Flag.BMARCHIVED);
-			String dateTime = new DateTime().toString("EE, dd MMM YYYY HH:mm:ss");
+			String dateTime = ZonedDateTime.now().format(DateTimeFormatter.ofPattern("EE, dd MMM YYYY HH:mm:ss"));
 			int newUid = replace(msg, fl, hsmId, dateTime, id);
 			if (newUid < 0) {
 				throw new IOException("Failed to demote");

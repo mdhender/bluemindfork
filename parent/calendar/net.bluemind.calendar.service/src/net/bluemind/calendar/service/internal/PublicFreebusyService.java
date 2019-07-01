@@ -18,7 +18,7 @@
  */
 package net.bluemind.calendar.service.internal;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import net.bluemind.calendar.api.IFreebusyUids;
 import net.bluemind.calendar.api.IPublicFreebusy;
@@ -48,12 +48,13 @@ public class PublicFreebusyService implements IPublicFreebusy {
 
 	@Override
 	public String simple(String email, String callerUserUid, String callerDomain) throws ServerFault {
-		DateTime start = DateTime.now().minusMonths(1);
-		DateTime end = DateTime.now().plusMonths(2);
+		ZonedDateTime start = ZonedDateTime.now().minusMonths(1);
+		ZonedDateTime end = ZonedDateTime.now().plusMonths(2);
 
 		return getAsString(email, callerUserUid, callerDomain,
-				VFreebusyQuery.create(BmDateTimeWrapper.fromTimestamp(start.getMillis(), null, Precision.Date),
-						BmDateTimeWrapper.fromTimestamp(end.getMillis(), null, Precision.Date)));
+				VFreebusyQuery.create(
+						BmDateTimeWrapper.fromTimestamp(start.toInstant().toEpochMilli(), null, Precision.Date),
+						BmDateTimeWrapper.fromTimestamp(end.toInstant().toEpochMilli(), null, Precision.Date)));
 	}
 
 	private ItemValue<DirEntry> getDirEntry(String email) throws ServerFault {

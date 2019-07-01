@@ -20,8 +20,9 @@ package net.bluemind.webmodules.calendar.handlers;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Handler;
@@ -63,7 +64,7 @@ public class ExportICSHandler implements Handler<HttpServerRequest>, NeedVertx {
 		IVEventPromise ivep = clientProvider.instance(IVEventPromise.class, container);
 
 		icp.get(container).thenCombine(ivep.exportAll(), (containerDescriptor, ics) -> {
-			String date = new DateTime().toString("yyyy-MM-dd-HHmm");
+			String date = ZonedDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HHmm"));
 			String filename = String.format("%s-bluemind-export-%s.ics", containerDescriptor.name, date);
 
 			HttpServerResponse resp = request.response();

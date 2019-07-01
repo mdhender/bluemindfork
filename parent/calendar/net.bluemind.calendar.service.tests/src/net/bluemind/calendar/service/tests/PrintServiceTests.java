@@ -19,8 +19,8 @@
 package net.bluemind.calendar.service.tests;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 
-import org.joda.time.DateTime;
 import org.junit.Test;
 
 import net.bluemind.calendar.api.IPrint;
@@ -33,6 +33,7 @@ import net.bluemind.calendar.pdf.internal.PrintCalendar;
 import net.bluemind.calendar.service.AbstractCalendarTests;
 import net.bluemind.calendar.service.internal.PrintService;
 import net.bluemind.core.api.date.BmDateTime.Precision;
+import net.bluemind.core.api.date.BmDateTimeHelper;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
@@ -43,8 +44,10 @@ public class PrintServiceTests extends AbstractCalendarTests {
 	@Test
 	public void tesGeneratePdf() throws ServerFault, IOException {
 		PrintOptions options = new PrintOptions();
-		options.dateBegin = BmDateTimeWrapper.create(new DateTime(2014, 2, 10, 0, 0, 0), Precision.Date);
-		options.dateEnd = BmDateTimeWrapper.create(new DateTime(2014, 2, 17, 0, 0, 0), Precision.Date);
+		options.dateBegin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 10, 0, 0, 0, 0, utcTz),
+				Precision.Date);
+		options.dateEnd = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 17, 0, 0, 0, 0, utcTz),
+				Precision.Date);
 		options.calendars.add(CalendarMetadata.create(userCalendarContainer.uid, "#3D99FF"));
 
 		options.format = PrintFormat.PDF;
@@ -55,13 +58,15 @@ public class PrintServiceTests extends AbstractCalendarTests {
 	public void testPrintList() throws ServerFault, IOException {
 		VEventSeries event = defaultVEvent();
 		event.main.summary = "printSimpleEvent";
-		event.main.dtstart = time(new DateTime(2014, 2, 13, 8, 0, 0));
-		event.main.dtend = time(new DateTime(2014, 2, 13, 10, 0, 0));
+		event.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2014, 2, 13, 8, 0, 0, 0, utcTz));
+		event.main.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2014, 2, 13, 10, 0, 0, 0, utcTz));
 		String uid = "test_" + System.nanoTime();
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
 		PrintOptions options = new PrintOptions();
-		options.dateBegin = BmDateTimeWrapper.create(new DateTime(2014, 2, 10, 0, 0, 0), Precision.Date);
-		options.dateEnd = BmDateTimeWrapper.create(new DateTime(2014, 2, 17, 0, 0, 0), Precision.Date);
+		options.dateBegin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 10, 0, 0, 0, 0, utcTz),
+				Precision.Date);
+		options.dateEnd = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 17, 0, 0, 0, 0, utcTz),
+				Precision.Date);
 		options.calendars.add(CalendarMetadata.create(userCalendarContainer.uid, "#3D99FF"));
 
 		options.view = PrintView.AGENDA;
@@ -72,8 +77,10 @@ public class PrintServiceTests extends AbstractCalendarTests {
 	@Test
 	public void tesGeneratePng() throws ServerFault, IOException {
 		PrintOptions options = new PrintOptions();
-		options.dateBegin = BmDateTimeWrapper.create(new DateTime(2014, 2, 10, 0, 0, 0), Precision.Date);
-		options.dateEnd = BmDateTimeWrapper.create(new DateTime(2014, 2, 17, 0, 0, 0), Precision.Date);
+		options.dateBegin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 10, 0, 0, 0, 0, utcTz),
+				Precision.Date);
+		options.dateEnd = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 17, 0, 0, 0, 0, utcTz),
+				Precision.Date);
 		options.calendars.add(CalendarMetadata.create(userCalendarContainer.uid, "#3D99FF"));
 
 		options.format = PrintFormat.PNG;

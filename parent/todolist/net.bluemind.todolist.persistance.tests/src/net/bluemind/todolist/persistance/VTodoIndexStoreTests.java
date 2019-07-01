@@ -23,6 +23,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.SQLException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.UUID;
 
@@ -30,7 +32,6 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,6 +56,7 @@ public class VTodoIndexStoreTests {
 	private Container container;
 	private ItemStore itemStore;
 	private VTodoIndexStore indexStore;
+	private ZoneId defaultTz = ZoneId.systemDefault();
 
 	@Before
 	public void before() throws Exception {
@@ -285,16 +287,16 @@ public class VTodoIndexStoreTests {
 	@Test
 	public void testSearchByDateInterval() throws SQLException {
 		VTodo todo = defaultVTodo();
-		todo.dtstart = BmDateTimeWrapper.create(new DateTime(1979, 2, 13, 0, 0, 0), Precision.Date);
-		todo.due = BmDateTimeWrapper.create(new DateTime(1979, 2, 15, 0, 0, 0), Precision.Date);
+		todo.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(1979, 2, 13, 0, 0, 0, 0, defaultTz), Precision.Date);
+		todo.due = BmDateTimeWrapper.create(ZonedDateTime.of(1979, 2, 15, 0, 0, 0, 0, defaultTz), Precision.Date);
 		String uid = "test_" + System.nanoTime();
 		Item item = Item.create(uid, UUID.randomUUID().toString());
 		itemStore.create(item);
 		indexStore.create(item.uid, todo);
 		indexStore.refresh();
 
-		DateTime from = new DateTime(1979, 2, 1, 0, 0, 0);
-		DateTime to = new DateTime(1979, 3, 1, 0, 0, 0);
+		ZonedDateTime from = ZonedDateTime.of(1979, 2, 1, 0, 0, 0, 0, defaultTz);
+		ZonedDateTime to = ZonedDateTime.of(1979, 3, 1, 0, 0, 0, 0, defaultTz);
 		VTodoQuery query = VTodoQuery.create(BmDateTimeWrapper.create(from, Precision.Date),
 				BmDateTimeWrapper.create(to, Precision.Date));
 		ListResult<String> res = indexStore.search(query);
@@ -302,8 +304,8 @@ public class VTodoIndexStoreTests {
 		assertEquals(uid, res.values.get(0));
 		// create an todo not in search range
 		VTodo todo2 = defaultVTodo();
-		todo2.dtstart = BmDateTimeWrapper.create(new DateTime(1976, 6, 16, 0, 0, 0), Precision.Date);
-		todo2.due = BmDateTimeWrapper.create(new DateTime(1976, 2, 15, 0, 0, 0), Precision.Date);
+		todo2.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(1976, 6, 16, 0, 0, 0, 0, defaultTz), Precision.Date);
+		todo2.due = BmDateTimeWrapper.create(ZonedDateTime.of(1976, 2, 15, 0, 0, 0, 0, defaultTz), Precision.Date);
 
 		String uid2 = "test_" + System.nanoTime();
 		Item item2 = Item.create(uid2, UUID.randomUUID().toString());
@@ -317,7 +319,7 @@ public class VTodoIndexStoreTests {
 
 		// create an todo in search range
 		VTodo todo3 = defaultVTodo();
-		todo3.due = BmDateTimeWrapper.create(new DateTime(1979, 2, 22, 0, 0, 0), Precision.Date);
+		todo3.due = BmDateTimeWrapper.create(ZonedDateTime.of(1979, 2, 22, 0, 0, 0, 0, defaultTz), Precision.Date);
 		String uid3 = "test_" + System.nanoTime();
 		Item item3 = Item.create(uid3, UUID.randomUUID().toString());
 		itemStore.create(item3);
@@ -345,11 +347,11 @@ public class VTodoIndexStoreTests {
 	@Test
 	public void testSearchRRule() throws SQLException {
 		VTodo todo = defaultVTodo();
-		todo.dtstart = BmDateTimeWrapper.create(new DateTime(1979, 2, 13, 0, 0, 0), Precision.Date);
+		todo.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(1979, 2, 13, 0, 0, 0, 0, defaultTz), Precision.Date);
 
 		VTodo.RRule rrule = new VTodo.RRule();
 		rrule.frequency = VTodo.RRule.Frequency.YEARLY;
-		rrule.until = BmDateTimeWrapper.create(new DateTime(2079, 2, 13, 0, 0, 0), Precision.Date);
+		rrule.until = BmDateTimeWrapper.create(ZonedDateTime.of(2079, 2, 13, 0, 0, 0, 0, defaultTz), Precision.Date);
 
 		todo.rrule = rrule;
 
@@ -363,23 +365,23 @@ public class VTodoIndexStoreTests {
 				.search(VTodoQuery.create("value.rrule.until.iso8601:" + "\"" + rrule.until.iso8601 + "\""));
 		assertEquals(1, res.values.size());
 
-		DateTime from = new DateTime(1979, 2, 12, 0, 0, 0);
-		DateTime to = new DateTime(1979, 2, 14, 0, 0, 0);
+		ZonedDateTime from = ZonedDateTime.of(1979, 2, 12, 0, 0, 0, 0, defaultTz);
+		ZonedDateTime to = ZonedDateTime.of(1979, 2, 14, 0, 0, 0, 0, defaultTz);
 		VTodoQuery query = VTodoQuery.create(BmDateTimeWrapper.create(from, Precision.Date),
 				BmDateTimeWrapper.create(to, Precision.Date));
 		res = indexStore.search(query);
 		assertEquals(1, res.values.size());
 		assertEquals(uid, res.values.get(0));
 
-		from = new DateTime(1979, 2, 14, 0, 0, 0);
-		to = new DateTime(1979, 2, 15, 0, 0, 0);
+		from = ZonedDateTime.of(1979, 2, 14, 0, 0, 0, 0, defaultTz);
+		to = ZonedDateTime.of(1979, 2, 15, 0, 0, 0, 0, defaultTz);
 		query = VTodoQuery.create(BmDateTimeWrapper.create(from, Precision.Date),
 				BmDateTimeWrapper.create(to, Precision.Date));
 		res = indexStore.search(query);
 		assertEquals(1, res.values.size()); // not 0 because of rrule.until
 
-		from = new DateTime(2014, 2, 12, 0, 0, 0);
-		to = new DateTime(2014, 2, 14, 0, 0, 0);
+		from = ZonedDateTime.of(2014, 2, 12, 0, 0, 0, 0, defaultTz);
+		to = ZonedDateTime.of(2014, 2, 14, 0, 0, 0, 0, defaultTz);
 		query = VTodoQuery.create(BmDateTimeWrapper.create(from, Precision.Date),
 				BmDateTimeWrapper.create(to, Precision.Date));
 		res = indexStore.search(query);
@@ -390,7 +392,7 @@ public class VTodoIndexStoreTests {
 	private VTodo defaultVTodo() {
 		VTodo todo = new VTodo();
 		todo.uid = UUID.randomUUID().toString();
-		DateTime now = new DateTime();
+		ZonedDateTime now = ZonedDateTime.now(defaultTz);
 		todo.dtstart = BmDateTimeWrapper.create(now, Precision.DateTime);
 		todo.due = BmDateTimeWrapper.create(now.plusMonths(1), Precision.DateTime);
 		todo.summary = "Todo " + System.currentTimeMillis();
