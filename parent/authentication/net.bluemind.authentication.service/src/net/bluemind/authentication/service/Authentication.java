@@ -260,7 +260,6 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 
 		String domainPart = splitted.hasNext() ? splitted.next() : "global.virt";
 		boolean isStandardDomain = !domainPart.equals("global.virt");
-
 		ServerSideServiceProvider sp = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		IDomains domainService = sp.instance(IDomains.class);
 		ItemValue<Domain> theDomain = domainService.findByNameOrAliases(domainPart);

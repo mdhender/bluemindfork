@@ -102,6 +102,8 @@ public class MessageBody {
 		@JsonInclude(Include.NON_NULL)
 		public DispositionType dispositionType;
 
+		public byte[] content;
+
 		public static Part create(String file, String mime, String addr) {
 			Part p = new Part();
 			p.mime = mime;
