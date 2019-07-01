@@ -64,6 +64,10 @@ public class JdbcActivator implements BundleActivator {
 		return dataSource;
 	}
 
+	public Map<String, DataSource> getMailboxDataSource() {
+		return mailboxDataSource;
+	}
+
 	public void setDataSource(DataSource dataSource) {
 		this.dataSource = dataSource;
 		ServerSideServiceProvider.defaultDataSource = dataSource;

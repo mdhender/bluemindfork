@@ -24,7 +24,10 @@ Require-Bundle: org.eclipse.core.runtime,
  io.netty,
  com.ning.async-http-client,
  net.bluemind.network.utils,
- net.bluemind.network.topology
+ net.bluemind.network.topology,
+ net.bluemind.core.jdbc;bundle-version="4.1.0",
+ com.netflix.spectator.api,
+ net.bluemind.metrics.registry
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.metrics.core
 Bundle-ActivationPolicy: lazy
