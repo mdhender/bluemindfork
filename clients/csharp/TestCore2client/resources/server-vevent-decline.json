@@ -1,0 +1,50 @@
+﻿{  
+   "uid":"0f758ca3-d017-4eee-b7fb-ea6b00b08de6",
+   "dtstart":{  
+      "iso8601":"2016-11-08T13:30:00.000+01:00",
+      "timezone":"Europe/Paris",
+      "precision":"DateTime"
+   },
+   "summary":"declien �a bitch",
+   "classification":"Public",
+   "location":null,
+   "description":"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2//EN\">\r\n<HTML>\r\n<HEAD>\r\n<META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=iso-8859-1\">\r\n<META NAME=\"Generator\" CONTENT=\"MS Exchange Server version 14.02.5004.000\">\r\n<TITLE>declien �a bitch</TITLE>\r\n</HEAD>\r\n<BODY>\r\n<!-- Converted from text/rtf format -->\r\n\r\n<P DIR=LTR><SPAN LANG=\"fr\"><FONT FACE=\"Calibri\">Dsdsd</FONT></SPAN></P>\r\n\r\n<P DIR=LTR><SPAN LANG=\"fr\"><FONT FACE=\"Calibri\">Dsmdkspd</FONT></SPAN></P>\r\n\r\n<P DIR=LTR><SPAN LANG=\"fr\"><FONT FACE=\"Calibri\">Dmsjdms</FONT></SPAN></P>\r\n\r\n<P DIR=LTR><SPAN LANG=\"fr\"><FONT FACE=\"Calibri\">mldkmskds</FONT></SPAN><SPAN LANG=\"fr\"></SPAN></P>\r\n\r\n</BODY>\r\n</HTML>",
+   "priority":5,
+   "alarm":null,
+   "status":"Confirmed",
+   "attendees":[  
+      {  
+         "cutype":"Individual",
+         "role":"RequiredParticipant",
+         "partStatus":"NeedsAction",
+         "rsvp":true,
+         "commonName":"nico1 nico1",
+         "dir":"bm://bm.lan/users/7344C748-10D2-4D26-A97D-F107914ADF56",
+         "mailto":"nico1@bm.lan",
+         "internal":true
+      }
+   ],
+   "organizer":{  
+      "uri":null,
+      "commonName":"bob1 bob1",
+      "mailto":"bob1@bm.lan",
+      "dir":"bm://bm.lan/users/9CCFE25C-0C5F-44B5-8668-8EC8BF982CCA"
+   },
+   "categories":[  
+
+   ],
+   "exdate":null,
+   "rdate":null,
+   "rrule":null,
+   "recurid":null,
+   "url":null,
+   "dtend":{  
+      "iso8601":"2016-11-08T14:00:00.000+01:00",
+      "timezone":"Europe/Paris",
+      "precision":"DateTime"
+   },
+   "transparency":"Opaque",
+   "properties":{  
+
+   }
+}

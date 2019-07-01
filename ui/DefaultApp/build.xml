@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="default-app-gwt" default="dist" basedir=".">
+	<property name="closure-compiler.dir" value="${basedir}/../JSCommon/closure-compiler" />
+	<property name="closure-library.dir" value="${basedir}/../JSCommon/closure-library" />
+	<property name="build.dir" value="${basedir}/build" />
+
+	<echo>Initializing project variables</echo>
+	<tstamp />
+
+	<echo>Loading ${user.name}.build.properties if exist, else gwt=/usr/share/bj-gwt</echo>
+
+	<property name="module" value="net.bluemind.defaultapp.DefaultApp" />
+
+	<property file="${user.name}.build.properties" />
+	<property name="gwt" value="/usr/share/bj-gwt/" />
+	<property name="style" value="OBF" />
+	<property name="draft" value="" />
+	<echo>Using ${gwt}</echo>
+	<echo>Using draft: ${draft}</echo>
+	<echo>Using style: ${style}</echo>
+
+	<path id="project.class.path">
+		<pathelement location="war/WEB-INF/classes" />
+		<pathelement location="${gwt}/gwt-user.jar" />
+		<fileset dir="${gwt}" includes="gwt-dev*.jar" />
+		<fileset dir="war/WEB-INF/lib" includes="**/*.jar" />
+		<pathelement location="${gwt}/validation-api-1.0.0.GA.jar" />
+		<pathelement location="${gwt}/validation-api-1.0.0.GA-sources.jar" />
+	</path>
+
+	<target name="javac" description="Compile java source">
+		<mkdir dir="war/WEB-INF/classes" />
+		<javac srcdir="tmpsrc" includes="**" encoding="utf-8" includeantruntime="false" destdir="war/WEB-INF/classes" source="1.5" target="1.5" nowarn="true" debug="true" debuglevel="lines,vars,source">
+			<classpath refid="project.class.path" />
+		</javac>
+		<copy todir="war/WEB-INF/classes">
+			<fileset dir="tmpsrc" excludes="**/*.java" />
+		</copy>
+	</target>
+
+
+	<target name="dist" depends="javac">
+		<echo>Preparing distribution of ${ant.project.name}</echo>
+
+		<echo>Running GWT compiler...</echo>
+
+		<java failonerror="true" classname="com.google.gwt.dev.Compiler" fork="true">
+
+			<classpath>
+				<pathelement location="tmpsrc" />
+				<path refid="project.class.path" />
+			</classpath>
+
+
+			<jvmarg value="-Xmx512M" />
+			<jvmarg value="-Xss2M" />
+
+			<arg value="-XdisableClassMetadata" />
+
+			<arg value="-extra" />
+			<arg value="extra" />
+
+			<arg value="-XdisableCastChecking" />
+			<arg value="-XenableClosureCompiler" />
+			<arg value="-optimize" />
+			<arg value="9" />
+
+			<!--
+	    <arg value="-style"/>
+	    <arg value="DETAILED"/>
+	    <arg value="-draftCompile"/>
+	    <arg value="-logLevel" />
+	    <arg value="DEBUG" />
+	    <arg value="-soyc" />
+	    <arg value="-gen" />
+	    <arg value="tmp-gwtgen" />
+	    <arg value="-XdisableCastChecking">
+	-->
+			<arg value="-localWorkers" />
+			<arg value="3" />
+			<arg value="${module}" />
+		</java>
+
+		<copy todir="dist">
+			<fileset dir="war" />
+		</copy>
+
+	</target>
+
+
+
+	<target name="clean">
+		<echo>Cleaning...</echo>
+		<delete dir="dist" failonerror="false" />
+		<delete dir="war/WEB-INF/classes" failonerror="false" />
+		<delete dir="war/defaultapp" failonerror="false" />
+	</target>
+
+</project>
+

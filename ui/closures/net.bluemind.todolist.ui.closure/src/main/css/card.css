@@ -1,0 +1,60 @@
+/******************************************************************************
+ *                          TASK CARD 
+ *****************************************************************************/
+.task-card .header {
+  min-height: 80px;
+  background-color: #f5f5f5;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.task-card .header .halflings.uni-fire.high:before {
+  color: red;
+}
+
+.task-card .header .halflings.uni-fire.normal:before {
+  color: green;
+}
+
+.task-card .header .halflings.uni-fire.low:before {
+  color: gray;
+}
+
+.task-card .header h1 {
+  padding: 0;
+  margin: 2px 0;
+  font-size: 150%;
+  display: inline;
+}
+
+.task-card .header .completed {
+  color: green;
+  font-weight: bold;
+}
+
+.task-card .header .due {
+  color: red;
+  font-weight: bold;
+}
+
+.task-card .header .box {
+  border: 1px solid;
+  background: #fff;
+  padding: 1px 10px;
+  font-size: 100%;
+  margin-left: 10px;
+}
+
+.task-card .header {
+  overflow: hidden;
+  zoom: 1;
+  line-height: 2em;
+}
+
+.task-card .header .progress div {
+  line-height: 1.5em;
+  font-weight: bold;
+  text-transform: capitalize;
+  white-space: nowrap;
+  padding-left: 3px;
+}

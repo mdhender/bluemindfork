@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to="net.bluemind.ui.adminconsole.ldap.importation">
+	
+	<inherits name="net.bluemind.ui.adminconsole.ldap.importation.Ldap" /><source path='' />
+	
+	<!-- Internationalization support. -->
+	<extend-property name="locale" values="en" />
+	<extend-property name="locale" values="fr" />
+	<extend-property name="locale" values="sk" />
+	<extend-property name="locale" values="es" />
+	<extend-property name="locale" values="pl" />
+	<extend-property name="locale" values="de" />
+	<extend-property name="locale" values="it" />
+	<extend-property name="locale" values="zh" />
+	<extend-property name="locale" values="hu" />
+	<set-property-fallback name="locale" value="en" />
+
+</module>

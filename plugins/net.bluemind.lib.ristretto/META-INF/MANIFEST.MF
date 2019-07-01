@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.lib.ristretto
+Bundle-SymbolicName: net.bluemind.lib.ristretto
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Export-Package: org.columba.ristretto.coder,
+ org.columba.ristretto.composer;uses:="org.columba.ristretto.message",
+ org.columba.ristretto.io,
+ org.columba.ristretto.message;uses:="org.columba.ristretto.io",
+ org.columba.ristretto.parser;uses:="org.columba.ristretto.message",
+ org.columba.ristretto.smtp;uses:="org.columba.ristretto.message,org.columba.ristretto.auth",
+ org.columba.ristretto.smtp.parser;uses:="org.columba.ristretto.smtp",
+ org.columba.ristretto.ssl;uses:="javax.net.ssl"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.slf4j;bundle-version="1.0.0"

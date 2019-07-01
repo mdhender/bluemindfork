@@ -1,0 +1,368 @@
+{
+	"id": 7,
+	"cells": [
+		{
+			"i": "1d677ea8-0088-4345-bba8-e3f2d9278551",
+			"x": 0,
+			"y": 0,
+			"w": 4,
+			"h": 4,
+			"name": "Message downloads per minute",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(last(\"count\"), 1m) AS \"dl_rpm\" FROM \"telegraf\".\"autogen\".\"bm-mapi.activity.contentsDownload.createdOrUpdated\" WHERE time > :dashboardTime: GROUP BY time(:interval:) FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {
+							
+						},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"count\"), 1m) AS \"dl_rpm\" FROM \"telegraf\".\"autogen\".\"bm-mapi.activity.contentsDownload.createdOrUpdated\" WHERE time > :dashboardTime: GROUP BY time(:interval:) FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "/chronograf/v1/sources/0"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d3fe8bc1-eb6d-44b1-9fbf-f18edb599faa",
+					"type": "scale",
+					"hex": "#31C0F6",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				},
+				{
+					"id": "78594059-c951-4650-8194-8fda4e390684",
+					"type": "scale",
+					"hex": "#A500A5",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				},
+				{
+					"id": "0e2f769d-3b1e-4409-8964-6a2f0279787d",
+					"type": "scale",
+					"hex": "#FF7E27",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				}
+			],
+			"legend": {
+				
+			},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"links": {
+				"self": "/chronograf/v1/dashboards/7/cells/1d677ea8-0088-4345-bba8-e3f2d9278551"
+			}
+		},
+		{
+			"i": "921ae8cf-aafa-4f19-94bf-01a32c61e473",
+			"x": 4,
+			"y": 0,
+			"w": 4,
+			"h": 4,
+			"name": "Hierarchy downloads count",
+			"queries": [
+				{
+					"query": "SELECT non_negative_difference(last(\"count\")) AS \"hier_dls\" FROM \"telegraf\".\"autogen\".\"bm-mapi.activity.hierarchyDownload.elapsed\" WHERE time > :dashboardTime: GROUP BY time(:interval:) FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {
+							
+						},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_difference(last(\"count\")) AS \"hier_dls\" FROM \"telegraf\".\"autogen\".\"bm-mapi.activity.hierarchyDownload.elapsed\" WHERE time > :dashboardTime: GROUP BY time(:interval:) FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "/chronograf/v1/sources/0"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d3fe8bc1-eb6d-44b1-9fbf-f18edb599faa",
+					"type": "scale",
+					"hex": "#31C0F6",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				},
+				{
+					"id": "78594059-c951-4650-8194-8fda4e390684",
+					"type": "scale",
+					"hex": "#A500A5",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				},
+				{
+					"id": "0e2f769d-3b1e-4409-8964-6a2f0279787d",
+					"type": "scale",
+					"hex": "#FF7E27",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				}
+			],
+			"legend": {
+				
+			},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"links": {
+				"self": "/chronograf/v1/dashboards/7/cells/921ae8cf-aafa-4f19-94bf-01a32c61e473"
+			}
+		},
+		{
+			"i": "b5401718-03a0-4b3e-b066-6fba5f7d3bf3",
+			"x": 8,
+			"y": 0,
+			"w": 4,
+			"h": 4,
+			"name": "Requests per minute",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(last(\"count\"), 1m) AS \"mean_count\" FROM \"telegraf\".\"autogen\".\"bm-mapi.requestCount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"status\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {
+							
+						},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"count\"), 1m) AS \"mean_count\" FROM \"telegraf\".\"autogen\".\"bm-mapi.requestCount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"status\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "/chronograf/v1/sources/0"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "6f8f2065-56c6-413a-b86e-38d8a4c449ab",
+					"type": "scale",
+					"hex": "#31C0F6",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				},
+				{
+					"id": "1141b9da-85ba-4cb9-be1e-bb00df8db033",
+					"type": "scale",
+					"hex": "#A500A5",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				},
+				{
+					"id": "2e2a7339-ddc8-4128-9e4d-e78c68ebedf5",
+					"type": "scale",
+					"hex": "#FF7E27",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				}
+			],
+			"legend": {
+				
+			},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"links": {
+				"self": "/chronograf/v1/dashboards/7/cells/b5401718-03a0-4b3e-b066-6fba5f7d3bf3"
+			}
+		}
+	],
+	"templates": [],
+	"name": "MAPI Insights",
+	"organization": "default",
+	"links": {
+		"self": "/chronograf/v1/dashboards/7",
+		"cells": "/chronograf/v1/dashboards/7/cells",
+		"templates": "/chronograf/v1/dashboards/7/templates"
+	}
+}
+

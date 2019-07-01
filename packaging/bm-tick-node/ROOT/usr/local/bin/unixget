@@ -1,0 +1,10 @@
+#!/bin/bash
+
+sock=$1
+url_path=$2
+
+test -e $sock || {
+exit 0
+}
+
+exec /usr/local/bin/unixget-impl $sock $url_path

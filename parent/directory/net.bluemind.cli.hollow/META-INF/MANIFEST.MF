@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.cli.hollow
+Bundle-SymbolicName: net.bluemind.cli.hollow;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.cli.hollow.CliHollowActivator
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.cli.cmd.api,
+ net.bluemind.directory.hollow.datamodel.consumer;bundle-version="4.1.0",
+ net.bluemind.cli.utils;bundle-version="4.1.0",
+ com.google.guava
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.cli.hollow
+Bundle-ActivationPolicy: lazy

@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.calendar.hook
+Bundle-SymbolicName: net.bluemind.calendar.hook;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.lib.vertx;bundle-version="1.0.0",
+ net.bluemind.slf4j;bundle-version="1.0.0",
+ net.bluemind.eclipse.common;bundle-version="1.0.0",
+ net.bluemind.calendar.api;bundle-version="1.0.0",
+ net.bluemind.core.context;bundle-version="1.0.0",
+ net.bluemind.core.container.persistance;bundle-version="1.0.0",
+ net.bluemind.core.rest;bundle-version="1.0.0"
+Export-Package: net.bluemind.calendar.hook,
+ net.bluemind.calendar.hook.internal
+Eclipse-RegisterBuddy: net.bluemind.lib.vertx

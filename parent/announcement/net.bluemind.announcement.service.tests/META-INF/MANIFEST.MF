@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.announcement.service.tests
+Bundle-SymbolicName: net.bluemind.announcement.service.tests;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.bluemind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.junit,
+ net.bluemind.announcement.api,
+ net.bluemind.core.rest,
+ net.bluemind.core.commons;bundle-version="4.1.0",
+ net.bluemind.core.rest.http,
+ net.bluemind.core.jdbc.testshelper,
+ com.google.guava;bundle-version="19.0.0",
+ net.bluemind.announcement.service;bundle-version="4.1.0",
+ net.bluemind.core.rest.http.vertx;bundle-version="4.1.0",
+ net.bluemind.announcement.provider;bundle-version="4.1.0"

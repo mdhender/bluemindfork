@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.lib.jta
+Bundle-SymbolicName: net.bluemind.lib.jta
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.lib.jta.Activator
+Bundle-Vendor: blue-mind.net
+Require-Bundle: org.eclipse.core.runtime
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: lib/jta-spec1_0_1.jar,
+ .
+Export-Package: javax.transaction,
+ javax.transaction.xa

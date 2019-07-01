@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<multistatus xmlns='DAV:'>
+  <response>
+    <href>/addressbooks/__uids__/EB397106-443A-47BE-9CA5-558037E137BF/addressbook/883284437a4c85dabe8b0219c899f120.vcf</href>
+    <propstat>
+      <prop>
+        <getetag>"9f42650a4d50c1ad3a73fdd112347608"</getetag>
+        <address-data xmlns='urn:ietf:params:xml:ns:carddav'><![CDATA[BEGIN:VCARD
+VERSION:3.0
+PRODID:-//Apple Inc.//AddressBook 8.0//EN
+UID:aafada98-1bfc-48a9-baca-26167eefe3ec
+FN:Restaurants
+N:Restaurants;;;;
+REV:20140117T085010Z
+X-ADDRESSBOOKSERVER-KIND:group
+END:VCARD
+]]></address-data>
+      </prop>
+      <status>HTTP/1.1 200 OK</status>
+    </propstat>
+  </response>
+</multistatus>

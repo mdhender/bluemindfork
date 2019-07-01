@@ -1,0 +1,1 @@
+${user} has shared an addressbook with you

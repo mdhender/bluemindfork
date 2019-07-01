@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.cti.backend">
+      <cti-backend
+            backend="net.bluemind.xivo.core.XivoCTIBackend"></cti-backend>
+   </extension>
+
+</plugin>

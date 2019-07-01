@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+  <appender name="AUDIT" class="ch.qos.logback.classic.sift.SiftingAppender">
+    <!-- in the absence of the class attribute, it is assumed that the
+         desired discriminator type is
+         ch.qos.logback.classic.sift.MDCBasedDiscriminator -->
+    <discriminator>
+      <key>object</key>
+      <defaultValue>unknown</defaultValue>
+    </discriminator>
+    <sift>
+      <appender name="FILE-${object}" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/var/log/bm/audit/audit-${object}.log</file>
+	<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+	  <maxIndex>10</maxIndex>
+	  <FileNamePattern>/var/log/bm/audit/audit-${object}.log.%i.gz</FileNamePattern>
+	</rollingPolicy>
+	<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+	  <MaxFileSize>5000KB</MaxFileSize>
+	</triggeringPolicy>
+        <encoder>
+          <pattern>%d %p - %m\n</pattern>
+        </encoder>
+      </appender>
+    </sift>
+  </appender>
+
+
+        <logger name="net.bluemind.core.auditlog.appender.slf4j.Slf4jAuditLog" level="INFO" additivity="false">
+		<appender-ref ref="AUDIT" />
+	</logger>
+</configuration>

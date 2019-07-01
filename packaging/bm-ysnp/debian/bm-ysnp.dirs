@@ -1,0 +1,5 @@
+usr/share
+var/log/bm-ysnp
+etc/bm-ysnp
+var/lib/bm-ysnp
+var/run/saslauthd

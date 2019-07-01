@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<forwards>
+	<forward path="/settings" target="locator://bm/settings:8080/settings">
+		<auth kind="CORE2" />
+		<whitelist>
+			<wl uri="/download/updateRdf" />
+			<wl uri="/download/updateJson" />
+			<wl uri="/download/tbird.xpi" />
+			<wl uri="/download/outlookx86" />
+			<wl uri="/download/outlookx64" />
+		</whitelist>
+	</forward>
+</forwards>

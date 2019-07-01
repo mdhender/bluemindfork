@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/preferences/preferences.css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/messenger.css"?>
+<?xml-stylesheet href="chrome://messenger/content/bindings.css" type="text/css"?>
+
+<?xml-stylesheet href="chrome://bm/skin/style.css" type="text/css"?>
+<!DOCTYPE window SYSTEM "chrome://bm/locale/bm.dtd">
+
+<!-- TB >= 67 copy of pur XUL bmPreferences.xul -->
+<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+            xmlns:html="http://www.w3.org/1999/xhtml"
+            id="bmprefs"
+            title="&bm.preferences.tab.label;"
+            onload="gBMPreferences.init();">
+        <groupbox>
+            <hbox class="groupbox-title">
+                <label class="header" value="&bm.preferences.server.label;"/>
+            </hbox>
+            <hbox align="center">
+                <label value="&bm.preferences.server.address.label;"/>
+                <textbox id="bmserver" flex="1" class="uri-element"/>
+                <button label="&bm.preferences.server.button.label;" oncommand="gBMPreferences.promptUsernameAndPassword();"/>
+            </hbox>
+        </groupbox>
+        <groupbox>
+            <hbox class="groupbox-title">
+                <label class="header" value="&bm.preferences.calendar.label;"/>
+            </hbox>
+            <hbox align="center">
+                <label value="&bm.preferences.calendar.calendar.label;"/>
+                <spacer flex="1"/>
+                <button label="&bm.preferences.calendar.button.label;" oncommand="gBMPreferences.openCalendarPrefDialog();"/>
+            </hbox>
+        </groupbox>
+        <groupbox>
+            <hbox class="groupbox-title">
+                <label class="header" value="&bm.preferences.im.label;"/>
+            </hbox>
+            <hbox align="center">
+                <label value="&bm.preferences.im.add.label;"/>
+                <spacer flex="1"/>
+                <button label="&bm.preferences.im.button.add.label;" oncommand="gBMPreferences.addXMPPAccount();"/>
+            </hbox>
+        </groupbox>
+        <groupbox>
+            <hbox class="groupbox-title">
+                <label class="header" value="&bm.preferences.mail.label;"/>
+            </hbox>
+            <hbox align="center">
+                <label value="&bm.preferences.mail.vacation.label;"/>
+                <spacer flex="1"/>
+                <button label="&bm.preferences.mail.button.vacation.label;" oncommand="gBMPreferences.openVacationDialog();"/>
+            </hbox>
+        </groupbox>
+        <groupbox>
+            <hbox class="groupbox-title">
+                <label class="header" value="&bm.preferences.log.label;"/>
+            </hbox>
+            <hbox align="center">
+                <checkbox id="bm-checkbox-debug"
+                     label="&bm.preferences.log.pref.label;"
+                     onclick="gBMPreferences.toggleDebug();"/>
+                <spacer flex="1"/>
+                <button id="bm-button-showlog"
+                        label="&bm.preferences.showlog.button.label;"
+                        tooltiptext="&bm.preferences.showlog.button.tooltiptext;"
+                        oncommand="gBMPreferences.showLog();" align="right"/>
+            </hbox>
+        </groupbox>
+	    <hbox align="left">
+	      <button id="bm-button-reset"
+		      label="&bm.preferences.reset.button.label;"
+		      tooltiptext="&bm.preferences.reset.button.tooltiptext;"
+		      oncommand="gBMPreferences.reset();"/>
+	      <button id="bm-button-import"
+		      label="&bm.preferences.import.button.label;"
+		      tooltiptext="&bm.preferences.import.button.tooltiptext;"
+		      oncommand="gBMPreferences.importCollected();"/>
+	    </hbox>
+    <script type="application/javascript" src="chrome://messenger/content/sanitize.js"/>
+    <script type="application/javascript" src="chrome://bm/content/preferences/bmPreferences.js"/>
+</dialog>

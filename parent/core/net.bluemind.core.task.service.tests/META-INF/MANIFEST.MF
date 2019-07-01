@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests
+Bundle-SymbolicName: net.bluemind.core.task.service.tests
+Bundle-Version: 4.1.0.qualifier
+Require-Bundle: net.bluemind.core.jdbc;bundle-version="1.0.0",
+ org.junit,
+ net.bluemind.slf4j;bundle-version="1.0.0",
+ net.bluemind.core.rest.http,
+ net.bluemind.core.sessions;bundle-version="1.0.0",
+ net.bluemind.core.task.service,
+ net.bluemind.core.rest.http.vertx;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

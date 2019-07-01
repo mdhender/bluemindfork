@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.lib.jodatime
+Bundle-SymbolicName: net.bluemind.lib.jodatime
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.lib.jodatime.Activator
+Require-Bundle: org.eclipse.core.runtime,
+ joda-time;bundle-version="2.8.0";visibility:=reexport
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Vendor: blue-mind.net
+Bundle-ClassPath: .

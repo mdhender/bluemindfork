@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.backend.cyrus.replication.server.storage">
+      <storage
+            factory="net.bluemind.backend.cyrus.replication.storage.core.CoreStorageBackend$InCoreDirectLinkFactory" priority="2">
+      </storage>
+      <storage
+            factory="net.bluemind.backend.cyrus.replication.storage.core.CoreStorageBackend$HttpLinkFactory" priority="1">
+      </storage>
+   </extension>
+
+</plugin>

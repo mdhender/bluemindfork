@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<forwards>
+	<forward path="/import" target="locator://bm/import:8080/import">
+		<auth kind="NONE" />
+		<whitelist>
+			<wl uri="/csv" />
+		</whitelist>
+	</forward>
+</forwards>

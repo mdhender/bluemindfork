@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.mailbox.storage" name="mailboxStorage" schema="schema/net.bluemind.mailbox.storage.exsd"/>
+   <extension-point id="net.bluemind.mailbox.storage.hook" name="mailboxStorageHook" schema="schema/net.bluemind.mailbox.storage.hook.exsd"/>
+   
+   <extension
+         point="net.bluemind.core.rest.apiEndpoint">
+      <endpoint
+            api="net.bluemind.mailbox.api.IMailboxes">
+      </endpoint>
+      <endpoint
+            api="net.bluemind.mailbox.api.IMailboxAclUids"
+             inline="true">
+      </endpoint>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.serviceFactory">
+      <serviceFactory
+            class="net.bluemind.mailbox.service.MailboxesServiceFactory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.mailbox.service.MailboxMgmtServiceFactory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.mailbox.service.InCoreMailboxesServiceFactory">
+      </serviceFactory>
+   </extension>
+   <extension
+         point="net.bluemind.core.validatorfactory">
+      <validatorfactory
+            implementation="net.bluemind.mailbox.service.internal.MailFilterValidatorFactory">
+      </validatorfactory>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.apiEndpoint">
+      <endpoint
+            api="net.bluemind.mailbox.api.IMailboxMgmt">
+      </endpoint>
+   </extension>
+   
+   
+   <extension
+         point="net.bluemind.core.container.hooks.aclhook">
+      <acl_hook
+            impl="net.bluemind.mailbox.service.internal.MailboxAutoSubscribeAclHook">
+      </acl_hook>
+   </extension>
+      <extension
+            point="net.bluemind.core.rest.eventBusAccessRule">
+         <access-rule
+               class="net.bluemind.mailbox.service.MailboxEventBusAccessRule">
+         </access-rule>
+      </extension>
+      <extension
+            point="net.bluemind.core.caches.registry.registration">
+         <reg
+               impl="net.bluemind.mailbox.service.cache.UnreadMessagesCacheRegistry">
+         </reg>
+      </extension>
+      <extension
+            point="net.bluemind.mailmessage.mailtip">
+         <evaluation
+               impl="net.bluemind.mailbox.service.mailtip.OverQuotaMailTipEvaluation">
+         </evaluation>
+      </extension>
+      <extension
+            point="net.bluemind.mailmessage.mailtip">
+         <evaluation
+               impl="net.bluemind.mailbox.service.mailtip.OOFMailTipEvaluation">
+         </evaluation>
+      </extension>
+      <extension
+            point="net.bluemind.directory.repairSupport">
+         <repairSupport
+               factory="net.bluemind.mailbox.service.internal.repair.MailboxRepairSupport$Factory">
+         </repairSupport>
+      </extension>
+</plugin>

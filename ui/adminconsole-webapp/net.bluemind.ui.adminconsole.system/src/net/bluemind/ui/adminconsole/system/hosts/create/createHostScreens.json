@@ -1,0 +1,29 @@
+[
+	{
+		"contributedElementId": null,
+		"contributedAttribute": null,
+		"contribution": 
+		{
+			"id": "qcHost",
+			"type": "bm.ac.QCreateHostScreen",
+			"overlay": true,
+			"sizehint": 
+			{
+				"width": 450,
+				"height": 430
+			},
+
+			"modelHandlers": 
+			[
+				{
+					"type": "bm.ac.QCreateHostModelHandler"
+				}
+			],
+
+			"content": 
+			{
+				"type": "bm.ac.QCreateHostWidget"
+			}
+		}
+	}
+]

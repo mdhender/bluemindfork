@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.backend.cyrus.bmgroups.GroupProtocoleVerticleFactory">
+      </verticle>
+   </extension>
+   <extension
+         point="net.bluemind.hornetq.forwardToVertx">
+      <vertx-forwarder
+            class="net.bluemind.backend.cyrus.bmgroups.internal.UserChangedMessageForwarder">
+      </vertx-forwarder>
+   </extension>
+
+</plugin>

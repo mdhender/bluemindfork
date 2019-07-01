@@ -1,0 +1,21 @@
+Source: cmdtest
+Maintainer: Lars Wirzenius <liw@liw.fi>
+Section: python
+Priority: optional
+Standards-Version: 3.9.3
+Build-Depends: debhelper (>= 7.3.8), python-all (>= 2.6.5),
+    python-cliapp, python-ttystatus
+X-Python-Version: >= 2.6
+
+Package: cmdtest
+Architecture: all
+Depends: ${python:Depends}, ${misc:Depends}, python (>= 2.6), python-cliapp,
+    python-ttystatus
+Description: blackbox testing of Unix command line programs
+ cmdtest black box tests Unix command line tools. Roughly, it is given a
+ a script, its input files, and its expected output files. cmdtest runs
+ the script, and checks the output is as expected.
+ .
+ cmdtest is aimed specifically at testing non-interactive Unix command
+ line programs, and tries to make that as easy as possible.
+Homepage: http://liw.fi/cmdtest/

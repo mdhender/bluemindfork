@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+
+	<!-- Specify the paths for translatable code -->
+	<source path='api' >
+		<exclude name="date/BmDateTimeWrapper.java"/>
+		<exclude name="date/BmDateTimeValidator.java"/>
+		<exclude name="CommonsActivator.java"/>
+		<exclude name="Regex.java"/>
+		<exclude name="ParametersValidator.java"/>
+	</source>
+	<source path='utils' >
+		<include name="**/GUID.java"/>
+		<include name="**/UIDGenerator.java"/>
+	</source>
+</module>

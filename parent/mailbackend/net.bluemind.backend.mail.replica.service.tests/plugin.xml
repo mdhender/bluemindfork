@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.content.analysis.analyzer">
+      <analyzer
+            impl="net.bluemind.backend.mail.replica.service.tests.analysis.DummyAnalyzer"
+            priority="1">
+      </analyzer>
+   </extension>
+   <extension
+         point="net.bluemind.core.sendmail.mailer">
+        <mailer
+         	impl="net.bluemind.backend.mail.replica.service.tests.FakeSendmail"
+         	priority="2" >
+         </mailer>      
+   </extension>
+
+</plugin>

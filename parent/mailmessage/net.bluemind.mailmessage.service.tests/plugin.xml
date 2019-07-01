@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.mailmessage.mailtip">
+      <evaluation
+            impl="net.bluemind.mailmessage.service.handlers.ForMessageMailTipHandlerTip1">
+      </evaluation>
+   </extension>
+   <extension
+         point="net.bluemind.mailmessage.mailtip">
+      <evaluation
+            impl="net.bluemind.mailmessage.service.handlers.ForRecipient1MailTipHandlerTip1">
+      </evaluation>
+   </extension>
+   <extension
+         point="net.bluemind.mailmessage.mailtip">
+      <evaluation
+            impl="net.bluemind.mailmessage.service.handlers.ForRecipient1MailTipHandlerTip2">
+      </evaluation>
+   </extension>
+   <extension
+         point="net.bluemind.mailmessage.mailtip">
+      <evaluation
+            impl="net.bluemind.mailmessage.service.handlers.ForRecipient2MailTipHandlerTip1">
+      </evaluation>
+   </extension>
+
+</plugin>

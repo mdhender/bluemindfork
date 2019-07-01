@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.exchange.mapi.sqlschema
+Bundle-SymbolicName: net.bluemind.exchange.mapi.sqlschema;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: blue-mind.net
+Require-Bundle: net.bluemind.core.sqlschema,
+ net.bluemind.core.container.sqlschema,
+ net.bluemind.system.schemaupgrader
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

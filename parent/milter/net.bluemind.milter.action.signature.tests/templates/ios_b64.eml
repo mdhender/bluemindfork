@@ -1,0 +1,23 @@
+Return-Path: <thomas.fricker@bluemind.net>
+Received: from bm-prod.blue-mind.net (localhost.localdomain [127.0.0.1])
+	 by bm-prod with LMTPA;
+	 Fri, 22 Sep 2017 16:36:11 +0200
+X-Sieve: CMU Sieve 2.4
+Received: from /192.168.231.2 (LHLO bm-prod.blue-mind.net) by unknown with
+ LMTP; 9/22/17 2:36 PM
+Received: from [127.0.1.1] (unknown [192.168.231.2])
+	by bm-prod.blue-mind.net (Postfix) with ESMTP id 7502F401D0
+	for <thomas.fricker@bluemind.net>; Fri, 22 Sep 2017 16:36:11 +0200 (CEST)
+Content-Type: text/plain;
+	charset=utf-8
+Content-Transfer-Encoding: base64
+Subject: Test
+From: Thomas Fricker <thomas.fricker@bluemind.net>
+Message-Id: <513A5559-03C3-4F76-93F1-461C3CBDB921@bluemind.net>
+Date: Fri, 22 Sep 2017 16:35:42 +0200
+To: thomas.fricker@bluemind.net
+Mime-Version: 1.0 (1.0)
+
+VGVzdCBjb3Vjb3UNCg0KRW52b3nDqSBhdmVjIG1lcyBkb2lndHMgZGVwdWlzIG1vbiBpUGFkDQpZ
+ZWFoIHllYWg=
+

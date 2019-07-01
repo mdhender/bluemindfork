@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<fragment>
+   <extension
+         point="net.bluemind.role.provider">
+      <roles-provider
+            class="net.bluemind.role.service.tests.TestRolesProvider">
+      </roles-provider>
+   </extension>
+   <extension
+         point="net.bluemind.role.verifier">
+      <verifier
+            impl="net.bluemind.role.service.tests.TestRolesVerifier">
+      </verifier>
+   </extension> s
+
+</fragment>

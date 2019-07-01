@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.authentication.provider.loginvalidation">
+      <validation_listener
+            impl="net.bluemind.core.password.bruteforce.Fail2Ban">
+      </validation_listener>
+   </extension>
+   <extension
+         point="net.bluemind.authentication.provider.authprovider">
+      <auth_provider
+            impl="net.bluemind.core.password.bruteforce.Fail2Ban">
+      </auth_provider>
+   </extension>
+
+</plugin>

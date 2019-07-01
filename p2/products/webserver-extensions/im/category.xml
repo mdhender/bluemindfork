@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <bundle id="net.bluemind.ui.instantmessaging" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.core.commons.gwt" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.addressbook.api.gwt" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.authentication.api.gwt" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.directory.api.gwt" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.group.api.gwt" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.im.api.gwt" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.addressbook.api" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.authentication.api" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.directory.api" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.group.api" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.im.api" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.ui.gwtcommon.forms" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.ui.gwtcommon.icons" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.core.container.api" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.core.container.api.gwt" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.restbus.api.gwt" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.cti.api" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.cti.api.gwt" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.announcement.api" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.announcement.api.closure" version="4.1.0.qualifier"/>
+</site>

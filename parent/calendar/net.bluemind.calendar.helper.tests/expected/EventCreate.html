@@ -1,0 +1,156 @@
+<html>
+<head>
+  <style type="text/css">
+
+body {
+  background: #F8F8F8;
+  color: #666;
+  padding: 15px;
+  font-size: small;
+  font-family: arial, sans-serif;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  border: 1px solid #CCC;
+  background: #FFF;
+  width: 100%;
+  margin-top: 10px;
+}
+
+
+/** Header */
+
+h1 {
+  display: inline;
+}
+
+h1.info {
+ color: #049cdb;
+}
+
+h1.update {
+  color: orange;
+}
+
+h1.cancel {
+  color: red;
+}
+
+h1.accepted {
+  color: green;
+}
+
+h1.declined {
+  color:red;
+}
+
+/** Detail */
+
+h2 {
+  text-align:center;
+}
+
+.updated {
+  color: orange;
+  font-size: 80%;
+  font-style: italic;
+}
+
+.key {
+   text-align: right;
+   vertical-align: top;
+   padding-right: 15px;
+   color: #CCC;
+   font-style: italic;
+}
+
+.value {
+  color:#666;
+}
+
+.date {
+  color: #2D2D2D;
+  font-weight:bold;
+  font-size: medium;
+}
+
+.tz {
+  font-size: smaller;
+  font-style: italic;
+  font-weight: normal;
+}
+
+.attendees {
+  list-style-type: none;
+  padding: 0px;
+  margin: 0px;
+}
+
+.note {
+  padding: 5px;
+  border: 1px solid #C6EDF9;
+  background: #DDF4FB;
+}
+
+.at {
+   text-align: right;
+   vertical-align: top;
+   padding-right: 5px;
+   color: #CCC;
+   font-style: italic;
+   font-size: 90%;
+}
+
+</style></head>
+<body><h1 class="info">
+  Organizer vous invite à une réunion
+</h1>
+<table>
+  <tr>
+    <td colspan="2"><h2>testExtractBody </h2></td>
+  </tr>
+  <tr>
+    <td class="key">Quand</td>
+    <td class="value">
+          le <span class="date">dim., février 13, 2022</span>
+    </td>
+  </tr>
+  <tr>
+    <td class="key"></td>
+    <td class="value">
+	        Toutes les 2 semaines, le 
+		         lundi
+		         mardi
+		         jeudi
+		         vendredi
+    </td>
+  </tr>
+    <tr>
+      <td class="key">Où</td>
+      <td class="value">Toulouse </td>
+    </tr>
+  <tr>
+    <td class="key">Organisateur</td><td class="value">Organizer</td>
+  </tr>
+  <tr>
+    <td class="key">Participants</td>
+    <td class="value">
+      <ul class="attendees">
+          <li>John Bang</li>
+          <li>Jane Bang</li>
+      </ul>
+    </td>
+  </tr>
+    <tr>
+      <td class="key">Description</td>
+      <td class="value">Lorem ipsum </td>
+    </tr>
+  <tr>
+    <td colspan="2"><h2>&nbsp;</h2></td>
+  </tr>
+</table>
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<forwards>
+	<forward path="/login" target="http://localhost:8079/login">
+		<auth kind="CORE2" />
+	</forward>
+</forwards>

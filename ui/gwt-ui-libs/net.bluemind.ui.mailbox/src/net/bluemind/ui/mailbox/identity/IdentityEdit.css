@@ -1,0 +1,49 @@
+.identities {
+	width: 100%;
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+.identities tr:HOVER {
+	background: #F8F8F8;
+}
+
+.identities tr.current:HOVER {
+	background: #EEE;
+}
+
+.name {
+	width: 20%;
+}
+
+.action {
+	width: 7%;
+}
+
+.actionCell {
+	text-align: center;
+}
+
+.identity {
+	height: 2em;
+	cursor: pointer;
+}
+
+.current {
+	background: #EEE;
+	font-weight: bold;
+}
+
+.headers {
+	font-weight: bold;
+	background: #F8F8F8;
+	border-bottom: 1px solid #CCC;
+}
+
+.label {
+	padding-right: 10px;
+}
+
+.value {
+	font-weight: bold;
+}

@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.authentication.mgmt.api
+Bundle-SymbolicName: net.bluemind.authentication.mgmt.api
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Automatic-Module-Name: net.bluemind.authentication.mgmt.api
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.core.commons
+Export-Package: net.bluemind.authentication.mgmt.api

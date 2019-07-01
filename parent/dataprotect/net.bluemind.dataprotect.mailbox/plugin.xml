@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.dataprotect.service.restoreaction">
+      <restore_action
+            impl="net.bluemind.dataprotect.mailbox.MailshareRestoreActionProvider">
+      </restore_action>
+   </extension>
+   <extension
+         point="net.bluemind.dataprotect.service.restoreaction">
+      <restore_action
+            impl="net.bluemind.dataprotect.mailbox.UserRestoreActionProvider">
+      </restore_action>
+   </extension>
+
+</plugin>

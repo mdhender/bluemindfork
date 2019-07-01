@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <bundle id="net.bluemind.cti.api" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.cti.core" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.cti.backend" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.cti.service" version="4.1.0.qualifier"/>
+</site>

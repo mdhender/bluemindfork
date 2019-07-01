@@ -1,0 +1,15 @@
+{namespace net.bluemind.mvp.logo.template.logo}
+
+/**
+ * @param image logo path or data-url
+ * @param version Bluemind version
+ */
+{template .main}
+  	<a href="#">
+  		<img
+  		src="{$image}"
+  		alt="{msg meaning="logo.title" desc="Bluemind logo title"}BlueMind - (Version {$version}){/msg}"
+  		title="{msg meaning="logo.title" desc="Bluemind logo title"}BlueMind - (Version {$version}){/msg}"
+  		/>
+  	</a>
+{/template}

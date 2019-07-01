@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.elasticsearch.schema">
+      <schema
+            count="25"
+            index="mailspool"
+            schema="mailspool.json"
+            schemamatcher="net.bluemind.index.mail.MailspoolSchemaMatcher">
+      </schema>
+   </extension>
+   <extension
+         point="net.bluemind.elasticsearch.schema">
+      <schema
+            count="1"
+            index="mailspool_pending"
+            schema="mailspool_pending.json">
+      </schema>
+   </extension>
+   <extension
+         point="net.bluemind.mailbox.hook">
+      <hook
+            class="net.bluemind.index.mail.ESMailboxHook">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.backend.mail.replica.indexing.indexer">
+      <indexer
+            factory="net.bluemind.index.ElasticSearchRecordIndexerFactory">
+      </indexer>
+   </extension>
+   <extension
+         point="net.bluemind.mailindex.hook">
+      <hook
+            impl="net.bluemind.index.mail.RandomizedIndexSelectionPolicy"
+            priority="1">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.index.ExpungeVerticleFactory">
+      </verticle>
+   </extension>
+
+</plugin>

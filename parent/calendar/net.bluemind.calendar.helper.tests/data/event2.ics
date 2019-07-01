@@ -1,0 +1,32 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//AgendaDuLibre.org
+X-WR-CALNAME:Agenda du Libre
+X-WR-TIMEZONE:Europe/Paris
+CALSCALE:GREGORIAN
+X-WR-CALDESC:L&#39;Agenda du Libre
+BEGIN:VEVENT
+DTSTART:20150527T193000
+DTEND:20150527T223000
+UID:8696@agendadulibre.org
+SUMMARY:Rencontre Logiciels Libres
+URL:http://www.agendadulibre.org/events/8696
+DESCRIPTION: L’association Toulibre organise une rencontre autour des Logiciels Libres le mercredi 27 mai\, de 19h30 à 22h30 au Centre Culturel Bellegarde\, 17 rue Bellegarde à Toulouse.
+ Pendant toute la soirée\, venez poser vos questions au sujet du Logiciel Libre et trouver de l’aide pour installer ou utiliser des Logiciels Libres sur votre ordinateur. Pour cela\, vous pouvez si besoin apporter votre ordinateur\, un accès Internet est disponible sur place. Dans l’idéal\, si vous venez avec votre ordinateur\, essayez de nous prévenir par courrier électronique à contact at toulibre.org en décrivant vos besoins ou votre problème\, de manière à ce que nous amenions les Logiciels Libres nécessaires voire à ce que nous fassions quelques recherches préalables pour mieux vous répondre.
+ À 20 heures aura lieu une présentation dont le thème sera défini ultérieurement.
+ Entrée Libre.Tout Public.
+LOCATION:Toulouse
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20150610T193000
+DTEND:20150610T223000
+UID:8697@agendadulibre.org
+SUMMARY:Rencontre Logiciels Libres
+URL:http://www.agendadulibre.org/events/8697
+DESCRIPTION: L’association Toulibre organise une rencontre autour des Logiciels Libres le mercredi 10 juin\, de 19h30 à 22h30 au Centre Culturel Bellegarde\, 17 rue Bellegarde à Toulouse.
+ Pendant toute la soirée\, venez poser vos questions au sujet du Logiciel Libre et trouver de l’aide pour installer ou utiliser des Logiciels Libres sur votre ordinateur. Pour cela\, vous pouvez si besoin apporter votre ordinateur\, un accès Internet est disponible sur place. Dans l’idéal\, si vous venez avec votre ordinateur\, essayez de nous prévenir par courrier électronique à contact at toulibre.org en décrivant vos besoins ou votre problème\, de manière à ce que nous amenions les Logiciels Libres nécessaires voire à ce que nous fassions quelques recherches préalables pour mieux vous répondre.
+ À 20 heures aura lieu une présentation dont le thème sera défini ultérieurement.
+ Entrée Libre. Tout Public.
+LOCATION:Centre Culturel Bellegarde\, Toulouse
+END:VEVENT
+END:VCALENDAR

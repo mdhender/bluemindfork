@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.backend.cyrus.replication.protocol
+Bundle-SymbolicName: net.bluemind.backend.cyrus.replication.protocol
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.backend.cyrus.replication.protocol.ReplicationProtocolActivator
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ io.vertx.core,
+ slf4j.api,
+ com.google.guava
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.backend.cyrus.replication.protocol
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.backend.cyrus.replication.protocol.dto,
+ net.bluemind.backend.cyrus.replication.protocol.parsing

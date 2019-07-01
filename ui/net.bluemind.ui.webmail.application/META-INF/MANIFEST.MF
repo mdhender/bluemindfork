@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.ui.webmail.application
+Bundle-SymbolicName: net.bluemind.ui.webmail.application;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Closure-Bundle-Type: Application
+Closure-Inputs: net/bluemind/ui/banner/widget/UnseenMails.js
+Web-Resources: web-resources
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Localization: OSGI-INF/l10n/bundle
+Require-Bundle: net.bluemind.commons.ui.closure;bundle-version="1.0.0",
+ net.bluemind.webmodule;bundle-version="1.0.0",
+ net.bluemind.mailbox.api.closure;bundle-version="1.0.0",
+ net.bluemind.ui.banner;bundle-version="1.0.0",
+ net.bluemind.container.closure;bundle-version="4.1.0"
+Bundle-ClassPath: js.jar, .
+Automatic-Module-Name: net.bluemind.ui.webmail.application

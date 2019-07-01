@@ -1,0 +1,50 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	xmlns:cm="urn:import:net.bluemind.ui.gwtuser.client"
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:common="urn:import:net.bluemind.ui.common.client.forms">
+
+	<ui:style>
+	.actionBar {
+		padding: 5px;
+		background: #F8F8F8;
+	}
+	</ui:style>
+
+	<ui:with
+		type="net.bluemind.ui.gwtuser.client.l10n.CalendarManagementConstants"
+		field="c" />
+
+	<g:HTMLPanel>
+
+		<g:Label text="{c.newCalendar}" styleName="subSectionTitle"></g:Label>
+		<table class="formContainer">
+			<tr class="setting">
+				<td class="label">
+					<g:Label text="{c.calendarType}"></g:Label>
+				</td>
+				<td class="form">
+
+					<g:ListBox ui:field="calendarType"></g:ListBox>
+				</td>
+			</tr>
+		</table>
+
+		<g:HTMLPanel ui:field="newCalendarPanel">
+		</g:HTMLPanel>
+
+		<g:HTMLPanel>
+			<g:HTMLPanel styleName="{style.actionBar}">
+				<g:SubmitButton ui:field="addCalendar" text="{c.addCalendar}"
+					styleName="button"></g:SubmitButton>
+			</g:HTMLPanel>
+		</g:HTMLPanel>
+
+		<g:Label text="{c.calendars}" styleName="subSectionTitle"></g:Label>
+		<g:FlexTable ui:field="table">
+		</g:FlexTable>
+
+	</g:HTMLPanel>
+
+</ui:UiBinder>

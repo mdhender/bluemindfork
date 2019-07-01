@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<multistatus xmlns='DAV:'>
+  <response>
+    <href>/calendars/__uids__/A211480B-0708-4022-A2BC-90D8B3506DFC/calendar/701149D1-232C-462B-BFC1-DEAC5A43F5A2.ics</href>
+    <propstat>
+      <prop>
+        <getcontenttype>text/calendar;charset=utf-8</getcontenttype>
+        <getetag>"17d10c836cd702a8a7ded089f20de272"</getetag>
+      </prop>
+      <status>HTTP/1.1 200 OK</status>
+    </propstat>
+  </response>
+  <sync-token>data:,6_52</sync-token>
+</multistatus>

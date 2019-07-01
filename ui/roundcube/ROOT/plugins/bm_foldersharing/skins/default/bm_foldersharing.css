@@ -1,0 +1,15 @@
+div.fs-toolbar {
+  margin: 8px;
+  padding: 5px;
+  background: #EBEBEB;
+  border: 1px solid #BFBFBF;
+}
+
+div.fs-toolbar table.headers-table td {
+  border: none;
+}
+
+a.highlight {
+  font-weight: bold;
+  text-decoration: none;
+}

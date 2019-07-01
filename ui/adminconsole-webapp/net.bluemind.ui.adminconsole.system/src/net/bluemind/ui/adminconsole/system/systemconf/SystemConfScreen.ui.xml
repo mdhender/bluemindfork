@@ -1,0 +1,27 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:bj="urn:import:net.bluemind.ui.admin.client" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui" xmlns:common="urn:import:net.bluemind.ui.common.client.forms">
+
+	<g:DockLayoutPanel unit='EM'>
+
+		<g:north size="2">
+			<g:Label ui:field="errorLabel" />
+		</g:north>
+
+
+		<g:center>
+			<g:SimplePanel ui:field="center"></g:SimplePanel>
+		</g:center>
+
+		<g:south size="4">
+			<f:CrudActionBar ui:field="actionBar" />
+		</g:south>
+
+
+	</g:DockLayoutPanel>
+
+
+</ui:UiBinder>

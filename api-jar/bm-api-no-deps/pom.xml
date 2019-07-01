@@ -1,0 +1,409 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>net.bluemind.bm-api-no-deps</artifactId>
+	<packaging>jar</packaging>
+
+	<parent>
+		<groupId>net.bluemind</groupId>
+		<artifactId>net.bluemind.api-jar</artifactId>
+		<version>4.1.0-SNAPSHOT</version>
+	</parent>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>2.4.3</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<filters>
+
+								<filter>
+									<artifact>net.bluemind:*</artifact>
+									<excludes>
+										<exclude>generated/</exclude>
+										<exclude>model.json</exclude>
+										<exclude>schema/</exclude>
+										<exclude>plugin.xml</exclude>
+										<exclude>data/</exclude>
+										<exclude>README</exclude>
+										<exclude>data/</exclude>
+										<exclude>logback.xml</exclude>
+									</excludes>
+								</filter>
+							</filters>
+							<transformers>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<manifestEntries>
+										<Bundle-Version>${project.version}</Bundle-Version>
+									</manifestEntries>
+								</transformer>
+							</transformers>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<!-- BM 3-party dependencies -->
+		<dependency>
+			<groupId>javax.ws.rs</groupId>
+			<artifactId>javax.ws.rs-api</artifactId>
+			<version>2.0.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>24.1-jre</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.6</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.vertx</groupId>
+			<artifactId>vertx-core</artifactId>
+			<version>2.1.6-bm16</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jul-to-slf4j</artifactId>
+			<version>1.7.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>1.7.12</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.ning</groupId>
+			<artifactId>async-http-client</artifactId>
+			<version>1.9.36</version>
+		</dependency>
+
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+			<version>2.8.2</version>
+		</dependency>
+		<!-- Client -->
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.core.rest</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.core.rest.http</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.core.commons</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.utils</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.common.reflect</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.slf4j</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<!-- API -->
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.addressbook.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.addressbook.ldap.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.announcement.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.attachment.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.authentication.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.authentication.mgmt.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.backend.mail.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.calendar.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.core.container.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.core.task.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.cti.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.customproperties.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.dataprotect.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.device.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.directory.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.document.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.documentfolder.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.domain.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.eas.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.exchange.mapi.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.externaluser.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.filehosting.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.group.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.hsm.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.icalendar.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.im.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.mailbox.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.mailbox.identity.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.mailflow.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.mailflow.common.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.mailmessage.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.mailshare.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.metrics.alerts.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.monitoring.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.node.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.resource.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.role.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.scheduledjob.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.server.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.system.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.system.ldap.importation.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.tag.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.todolist.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.user.api</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+
+	</dependencies>
+
+</project>

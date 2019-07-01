@@ -1,0 +1,109 @@
+.conversation {
+
+}
+
+.msgContainer {
+	background: #F8F8F8;
+	border-left: 1px solid #EEE;
+}
+
+.composer {
+	border-left: 1px solid #EEE;
+	border-top: 1px solid #EEE;
+	background: #FFF;
+	padding: 3px;
+}
+
+.composer textarea {
+	resize: none;
+	border: none;
+	height: 100%;
+	width: 100%;
+	margin: 0px;
+	padding: 0px;
+	outline: none;
+}
+
+.composer textarea:focus {
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+}
+
+.composer.disabled,.composer textarea[disabled] {
+	background: #EEE;
+	color: #666;
+}
+
+.composer .toolbar {
+	width: 100%;
+	background: #EEE;
+}
+
+.composer .toolbar img {
+	opacity: 0.5;
+	cursor: pointer;
+}
+
+.composer .toolbar img:hover {
+	opacity: 1;
+}
+
+.roomOccupants {
+	background: #EEE;
+}
+
+.roomOccupants table {
+	background: #FFF;
+	border: 1px solid #CCC;
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+.roomOccupants div {
+	display: inline-block;
+}
+
+.error {
+	color: #b94a48;
+	margin-bottom: 2px;
+	padding: 2px 4px;
+	font-size: smaller;
+}
+
+.info {
+	color: #CCC;
+	margin-bottom: 2px;
+	padding: 2px 4px;
+	font-size: smaller;
+}
+
+.me {
+	color: #666;
+	margin-bottom: 2px;
+	padding: 2px 4px;
+	font-style: italic;
+}
+
+.invite {
+	border: none;
+	cursor: pointer;
+	opacity: 0.4;
+	margin: 8px;
+}
+
+.invite:hover {
+	opacity: 1;
+}
+
+.notifyNewMessage {
+	position: absolute;
+	font-weight: bold;
+	bottom: 0px;
+	width: 100%;
+	background: #FF8700;
+	color: #FFF;
+	padding: 1px 0px;
+	text-align: center;
+	cursor: pointer;
+}

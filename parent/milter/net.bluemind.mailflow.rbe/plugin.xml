@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.milter.rulefactory" name="rule_factory" schema="schema/net.bluemind.milter.rulefactory.exsd"/>
+</plugin>

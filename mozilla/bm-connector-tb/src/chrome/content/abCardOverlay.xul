@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?xml-stylesheet href="chrome://bm/skin/style.css" type="text/css"?>
+<!DOCTYPE overlay SYSTEM "chrome://bm/locale/bm.dtd">
+
+<!--extend http://mxr.mozilla.org/comm-release/source/mail/components/addrbook/content/abCardOverlay.xul-->
+<overlay id="bm-abCardOverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <script type="application/x-javascript" src="chrome://bm/content/abCardOverlay.js" />
+
+    <tabs id="abTabs">
+        <tab id="debugTabButton" label="Debug" accesskey="D"/>
+    </tabs>
+    <tabpanels id="abTabPanels" flex="1">
+        <vbox id="abBmDebugTab" >
+            <button id="bmShowDebug" label="Show all props" oncommand="ShowProps();"/>
+            <textbox id="bmProps" multiline="true" value="" flex="1"/>
+        </vbox>
+    </tabpanels>
+       
+    <vbox id="editcard">
+        <hbox id="bmAlertLocalCard" hidden="true">
+            <label id="bmAlert" class="red" value="&bm.card.alert.local;" />
+            <label id="bmOfList" value="" />
+        </hbox>
+        <hbox id="bmInError" hidden="true">
+            <label id="bmError" class="red" value="" />
+        </hbox>
+    </vbox>
+</overlay>

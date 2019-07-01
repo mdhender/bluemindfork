@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.cti.service
+Bundle-SymbolicName: net.bluemind.cti.service;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: blue-mind.net
+Require-Bundle: net.bluemind.core.commons,
+ net.bluemind.cti.api;bundle-version="1.0.0",
+ net.bluemind.core.rest;bundle-version="1.0.0",
+ slf4j.api;bundle-version="1.7.5",
+ net.bluemind.cti.backend,
+ net.bluemind.user.api,
+ net.bluemind.core.container.api,
+ net.bluemind.domain.api,
+ net.bluemind.config,
+ org.eclipse.osgi,
+ net.bluemind.hornetq.client,
+ com.google.guava,
+ net.bluemind.lib.vertx
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: net.bluemind.cti.service.CTIActivator
+

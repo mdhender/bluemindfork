@@ -1,0 +1,30 @@
+.reminder > div {
+  margin-bottom: 2px;
+}
+
+.reminder input{
+  width: 7em;
+}
+
+.reminder .goog-select {
+  min-width: 7em;
+  margin: 0 5px;
+}
+
+.reminder .goog-flat-button {
+  font-size: small;
+  display: none;
+  border: none;
+  color: #ccc;
+}
+
+.reminder > div:hover .goog-flat-button   {
+  display: inline-block;
+}
+
+
+.reminder > div:hover .goog-flat-button-hover   {
+  display: inline-block;
+  color: #333;
+}
+

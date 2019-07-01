@@ -1,0 +1,42 @@
+One overquota recipient
+
+220 bm1604 server ready
+LHLO gmail.com
+250-bm1604
+250-8BITMIME
+250-ENHANCEDSTATUSCODES
+250-PIPELINING
+250-SIZE
+250-AUTH EXTERNAL
+250 IGNOREQUOTA
+MAIL FROM:<roberto@gmail.com>
+250 2.1.0 ok
+RCPT TO:<admin@vagrant.vmw>
+452 4.2.2 Over quota SESSIONID=<cyrus-31599-1484156389-1>
+DATA
+503 5.5.1 No recipients
+
+One recipient is valid & not overquota
+
+220 bm1604 server ready
+LHLO gmail.com
+250-bm1604
+250-8BITMIME
+250-ENHANCEDSTATUSCODES
+250-PIPELINING
+250-SIZE
+250-AUTH EXTERNAL
+250 IGNOREQUOTA
+MAIL FROM:<tcataldo@gmail.com>
+250 2.1.0 ok
+RCPT TO:<tom@vagrant.vmw>
+250 2.1.5 ok
+RCPT TO:<admin@vagrant.vmw>
+452 4.2.2 Over quota SESSIONID=<cyrus-29089-1484156689-1>
+DATA
+354 go ahead
+From: tcataldo@gmail.com
+.
+250 2.1.5 Ok SESSIONID=<cyrus-29089-1484156689-1> [vagrant.vmw!user.tom () 1]
+
+

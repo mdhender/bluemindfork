@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>adminconsole</artifactId>
+	<packaging>pom</packaging>
+	<parent>
+		<groupId>net.bluemind</groupId>
+		<artifactId>ui</artifactId>
+		<version>4.1.0-SNAPSHOT</version>
+	</parent>
+	<modules>
+		<module>net.bluemind.ui.adminconsole.base</module>
+		<module>net.bluemind.ui.adminconsole.main</module>
+		<module>net.bluemind.ui.adminconsole.directory</module>
+		<module>net.bluemind.ui.adminconsole.dataprotect</module>
+		<module>net.bluemind.ui.adminconsole.system</module>
+		<module>net.bluemind.ui.adminconsole.security</module>
+		<module>net.bluemind.ui.adminconsole.progress</module>
+		<module>net.bluemind.ui.adminconsole.jobs</module>
+		<module>net.bluemind.ui.adminconsole.ldap.importation</module>
+		<module>net.bluemind.ui.adminconsole.filehosting.settings</module>
+		<module>net.bluemind.ui.adminconsole.monitoring</module>
+		<module>net.bluemind.ui.adminconsole.ldap.export</module>
+		<module>net.bluemind.ui.adminconsole.cti</module>
+	</modules>
+
+</project>

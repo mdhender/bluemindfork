@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.core.rest.apiEndpoint">
+      <endpoint
+            api="net.bluemind.resource.api.IResources">
+      </endpoint>
+      <endpoint
+            api="net.bluemind.resource.api.type.IResourceTypes">
+      </endpoint>
+      <endpoint
+            api="net.bluemind.resource.api.type.IResourceTypeUids"
+             inline="true">
+      </endpoint>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.serviceFactory">
+      <serviceFactory
+            class="net.bluemind.resource.service.ResourcesServiceFactory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.resource.service.ResourceTypesServiceFactory">
+      </serviceFactory>
+   </extension>
+   <extension
+         point="net.bluemind.domain.domainHook">
+      <hook
+            class="net.bluemind.resource.service.internal.ResourcesContainerDomainHook">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.core.sanitizerfactory">
+      <sanitizerfactory
+            implementation="net.bluemind.resource.service.internal.ResourceTypeSanitizer$ResourceTypeSanitizerFactory"></sanitizerfactory>
+   </extension>
+   <extension
+         point="net.bluemind.directory.handler">
+      <handler
+            class="net.bluemind.resource.service.internal.ResourceDirHandler">
+      </handler>
+   </extension>
+    <extension
+         point="net.bluemind.calendar.hook">
+      <hook
+            impl="net.bluemind.resource.service.event.ResourceCalendarHook">
+      </hook>
+   </extension>
+   
+
+</plugin>

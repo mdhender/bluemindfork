@@ -1,0 +1,143 @@
+{namespace net.bluemind.contact.vcards.templates}
+
+
+/**
+ * Import form dialog
+ */
+{template .dialogImport}
+  <form  enctype="multipart/form-data" method="post" action="contact/bmc">
+    <input type='file' name='vcs'/>
+  </form>
+{/template}
+
+/**
+ * VCARD Import in progress dialog
+ */
+{template .progressImport}
+  <div class={css status}></div>
+  <div class="{css progress} {css striped} {css active}">
+    <div class="{css bar}"></div>
+  <div>
+{/template}
+
+
+/**
+ * Entry Template
+ * @param tags 
+ * @param kind 
+ * @param photo
+ * @param name
+ * @param phone
+ * @param callto
+ * @param email 
+ * @param mailto
+ */
+{template .vcard}
+  {if $tags and length($tags) == 1}
+    {call .tag}
+      {param tag: $tags[0] /}
+    {/call}
+  {elseif $tags and length($tags) > 1}
+    {call .tags}
+      {param tags: $tags /}
+    {/call}
+  {/if}
+  {if $photo}
+  	<img class="{css picture}" src="{$photo}" alt="" />
+  {else}
+  	{if $kind == 'group'}
+  		<i class="fa fa-lg fa-users"></i>
+  	{else}
+  		<i class="fa fa-lg fa-user"></i>
+  	{/if}
+  {/if}	
+  <h2 class="vcard-title" title="{$name}">{$name}</h2>
+  {call .phone}
+    {param phone: $phone /}
+    {param callto: $callto /}
+  {/call}
+  {call .email} 
+    {param email: $email /}
+    {param mailto: $mailto /}
+  {/call}
+{/template}
+
+/**
+ * A textual information
+ * @param phone Information content
+ * @param callto Information content
+ */
+{template .phone}
+  {if $phone}
+    <div class="{css info}" title="{$callto}">
+      <a href='tel:{$callto}'>{$phone}<i class="fa fa-phone phone"></i></a>
+    </div>
+  {/if}
+{/template}
+
+/**
+ * A textual information
+ * @param email Information content
+ * @param mailto Information content
+ */
+{template .email}
+  {if $mailto}
+    <div class="{css info}" title="{$email}">
+      <a href='mailto:{$mailto}'>{if $email}{$email}{/if}<i class="fa fa-paper-plane envelope"></i></a>
+    </div>
+  {/if}
+{/template}
+
+/**
+ * Letter separator template
+ * @param letter
+ */
+{template .section}
+  <h1 class="{css section}">{$letter}</h1>
+{/template}
+
+
+
+/**
+ * Display on tag
+ * @param tag Information content
+ */
+{template .tag}
+  <div class="{css tag}" title="{$tag.label}" style="background-color: #{$tag.color};"></div>
+{/template}
+
+
+/**
+ * Display multiple tags
+ * @param tags Information content
+ */
+{template .tags}
+  <div class="{css tag} {css multi}" title="
+  {foreach $tag in $tags}
+    {$tag.label}
+    {if not isLast($tag)} 
+      ,{sp} 
+    {/if}
+  {/foreach}
+  "
+  style="
+    border-left-color: #{$tags[0].color};
+    border-right-color: #{$tags[1].color};
+   "></div>
+{/template}
+
+/**
+ * Display multiple tags
+ * @param content Information content
+ */
+{template .separator}
+  <h1>{$content}</h1>
+{/template}
+
+
+/**
+ * Loading 
+ */
+{template .temporary}
+  <div class="{css loading}"><img src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA=="  alt="{msg meaning="contact.msg.loading.entry" desc="Loading image alt text"}Loading entry data...{/msg}" /></div>
+{/template}

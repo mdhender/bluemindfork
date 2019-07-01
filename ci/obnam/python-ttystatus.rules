@@ -1,0 +1,8 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@ --buildsystem=python_distutils
+
+override_dh_auto_clean:
+	$(MAKE) clean
+	rm -f python-build-stamp-*

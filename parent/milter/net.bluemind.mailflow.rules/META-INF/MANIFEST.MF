@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.mailflow.rules
+Bundle-SymbolicName: net.bluemind.mailflow.rules;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.bluemind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.locator.client,
+ net.bluemind.config,
+ net.bluemind.user.api,
+ net.bluemind.core.rest.http,
+ net.bluemind.hornetq.client;bundle-version="4.1.0",
+ net.bluemind.mailflow.api,
+ net.bluemind.mailflow.rbe,
+ net.bluemind.domain.api,
+ net.bluemind.mailflow.common.api;bundle-version="4.1.0",
+ slf4j.api,
+ com.google.guava,
+ net.bluemind.directory.api,
+ net.bluemind.group.api
+Export-Package: net.bluemind.mailflow.rules
+

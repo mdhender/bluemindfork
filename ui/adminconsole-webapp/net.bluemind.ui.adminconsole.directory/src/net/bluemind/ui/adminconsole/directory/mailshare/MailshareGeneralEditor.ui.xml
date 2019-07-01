@@ -1,0 +1,136 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:bj="urn:import:net.bluemind.ui.admin.client" xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui"
+	xmlns:common="urn:import:net.bluemind.ui.common.client.forms" xmlns:ff="urn:import:net.bluemind.ui.admin.client.forms"
+	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:mail="urn:import:net.bluemind.ui.mailbox.backend">
+
+	<ui:style>
+	#editMailshareTitle {
+		font-size: medium;
+		margin: 0;
+	}
+	
+	#editMailshareTitle div {
+		display: inline;
+	}
+	
+	.logo {
+		vertical-align: middle;
+	}
+	
+	.errorLabel {
+		color: red;
+		font-weight: bold;
+		padding: 3px;
+	}
+	
+	.topRight {
+		position: absolute;
+		top: 10px;
+		right: 10px;
+	}
+	
+	.fs {
+		border: none;
+		margin-left: 20px;
+	}
+	
+	.fs legend {
+		font-weight: bold;
+		margin-left: -20px;
+	}
+	
+	.tdContent {
+		padding: 2px 6px;
+	}
+	
+	.label {
+		text-align: right;
+		color: #666;
+	}
+	</ui:style>
+
+	<ui:with field="mc"
+		type="net.bluemind.ui.adminconsole.directory.mailshare.l10n.MailshareConstants" />
+		
+	<ui:with field="uc"
+		type="net.bluemind.ui.adminconsole.directory.user.l10n.UserConstants" />
+
+	<g:HTMLPanel>
+		<table class="formContainer">
+
+			<common:StringEdit ui:field="name" titleText="{mc.name}"
+				maxLength="64" mandatory="true" readOnly="true" />
+
+			<f:DelegationEdit ui:field="delegation" titleText="{mc.delegation}"
+				maxLength="32" mandatory="false" kind="MAILSHARE" />
+
+			<ff:QuotaEdit ui:field="quota" titleText="{mc.quota}"
+				mandatory="false" showQuota="true" />
+			<tr class="setting">
+				<td class="label">
+				</td>
+				<td style="form">
+					<g:CheckBox ui:field="hidden">
+						<ui:msg ui:name="text" key="hideFromGal">Hide from Blue Mind
+							address
+							lists</ui:msg>
+					</g:CheckBox>
+				</td>
+			</tr>
+
+			<tr class="setting">
+				<td class="label">
+					<g:Label text="{mc.routing}" />
+				</td>
+				<td class="form">
+					<g:ListBox ui:field="routing">
+						<g:item value="internal">
+							<ui:text from="{mc.routingInternal}" />
+						</g:item>
+						<g:item value="external">
+							<ui:text from="{mc.routingExternal}" />
+						</g:item>
+						<g:item value="none">
+							<ui:text from="{mc.routingNone}" />
+						</g:item>
+					</g:ListBox>
+				</td>
+			</tr>
+
+		</table>
+		<g:HTMLPanel ui:field="mailPanel">
+
+			<table class="formContainer">
+
+				<tr class="setting">
+					<td class="label">
+						<g:Label text="{mc.mail}"></g:Label>
+					</td>
+					<td class="form">
+						<f:MailAddressTableEditor ui:field="mailTable"
+							size="-1" hasImplicitEmail="false" />
+					</td>
+				</tr>
+
+
+				<tr class="setting">
+					<td class="label">
+						<g:Label text="{uc.mailBackend}"></g:Label>
+					</td>
+					<td class="form">
+						<mail:MailBackendServerEdit ui:field="mailBackend"
+										tagFilter="mail/imap" />
+					</td>
+				</tr>
+
+			</table>
+		</g:HTMLPanel>
+
+
+	</g:HTMLPanel>
+
+</ui:UiBinder>

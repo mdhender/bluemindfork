@@ -1,0 +1,38 @@
+.account_tbl_row {
+	padding-left:40px;
+	padding-left:30px;
+	background-color:#f8f8f8;
+}
+
+.account_tbl_col_logo {
+	width: 100px;
+	background-color:#f8f8f8;	
+}
+
+.systemIcon {
+	max-height: 40px;
+	max-width: 100px;
+	border-radius: 3px;
+	border : 2px solid #CCC;
+	padding: 2px;
+	vertical-align: middle;
+}
+
+.account_tbl_col_trash {
+	width: 45px;
+	background-color:#f8f8f8;
+}
+
+.account_tbl_button {
+	width: 80px;
+	padding-left:40px;
+	padding-left:30px;
+	background-color:#f8f8f8;
+}
+
+.account_tbl_row_identifier {
+	width:200px;
+	padding-left:40px;
+	padding-left:30px;
+	background-color:#f8f8f8;
+}

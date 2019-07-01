@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.restclient.api.closure
+Bundle-SymbolicName: net.bluemind.restclient.api.closure;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Closure-Bundle-Type: Library
+Bundle-ClassPath: js.jar, externs.jar
+Web-Dependencies: net.bluemind.restlcient.closure
+Automatic-Module-Name: net.bluemind.restclient.api.closure

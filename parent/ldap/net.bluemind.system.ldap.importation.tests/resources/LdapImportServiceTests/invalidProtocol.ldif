@@ -1,0 +1,6 @@
+dn: dc=invalidProtocol,dc=local
+objectClass: organization
+objectClass: top
+objectClass: dcObject
+dc: invalidProtocol
+o: Test DC

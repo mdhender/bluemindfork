@@ -1,0 +1,15 @@
+[
+{
+  "contributedElementId" : null,
+  "contributedAttribute" : null,
+  "contribution" : {
+    "id" : "progress",
+    "type" : "bm.ac.Progress",
+    "overlay": true,
+	"sizehint":	{
+	  "width": 700,
+	  "height": 320
+	}
+  }
+}
+]

@@ -1,0 +1,5 @@
+coreUrl=http://localhost:8085/services
+login=admin@blue-mind.loc
+pass=admin
+iterations=10
+

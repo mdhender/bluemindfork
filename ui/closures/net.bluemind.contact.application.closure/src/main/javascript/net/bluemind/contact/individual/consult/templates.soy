@@ -1,0 +1,261 @@
+{namespace net.bluemind.contact.individual.consult.templates}
+
+/*
+ * BEGIN LICENSE
+ * Copyright © Blue Mind SAS, 2012-2016
+ *
+ * This file is part of BlueMind. BlueMind is a messaging and collaborative
+ * solution.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of either the GNU Affero General Public License as
+ * published by the Free Software Foundation (version 3 of the License).
+ *
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See LICENSE.txt
+ * END LICENSE
+ */
+
+/**
+ * Contact details
+ * @param contact Contact data
+ */
+{template .card}
+  <div class="{css header}">
+    <div class="card-photo">
+    {if $contact.photo}
+  	  <img src="{$contact.photo}" alt="" />
+	  {else}
+	  {if $contact.kind == 'group'}
+	  <i class="fa fa-5x fa-users"></i>aa
+	  {else}
+	  <i class="fa fa-5x fa-user"></i>
+	  {/if}
+    {/if}
+    </div>
+    <h1>{$contact.name}
+    </h1>
+    <span class="{css container}">{$contact.container.name}</span>
+    {if ($contact.company)}
+      <div>{$contact.company}</div>
+    {/if}
+    {if ($contact.title)}
+        <div>{$contact.title}</div>
+    {/if}
+    {if ($contact.division)}
+        <div>{$contact.division}</div>
+    {/if}
+    {if ($contact.department)}
+        <div>{$contact.department}</div>
+    {/if}
+    <div style="clear: both;"></div>
+  </div>
+  <div class="{css main}">
+    {if $contact.categories}
+      <div>
+        <span>{msg meaning="general.tags" desc="Folder entry tag label"}Tags{/msg}</span>
+        <ul class="{css bm-tagbox-bullets}">
+        {foreach $category in $contact.categories}
+          {call .category}
+            {param category: $category /}
+          {/call}
+        {/foreach}
+        </ul>
+      </div>
+    {/if}
+    {foreach $tel in $contact.tels }
+      {call .tel}
+        {param tel: $tel /}
+      {/call}
+    {/foreach}
+    {foreach $email in $contact.emails}
+      {call .email}
+        {param email: $email /}
+      {/call}
+    {/foreach}
+    {foreach $address in $contact.addresses}
+      {call .address}
+        {param address: $address /}
+      {/call}
+    {/foreach}
+    {foreach $url in $contact.urls}
+      {call .url}
+        {param url: $url /}
+      {/call}
+    {/foreach}
+    {foreach $impp in $contact.impps}
+      {call .impp}
+        {param impp: $impp /}
+      {/call}
+    {/foreach}
+    {if $contact.birthday}
+      <div>
+        <span>{msg meaning="contact.vcard.birthday" desc="Birthday contact field label"}Birthday{/msg}</span>
+        <div>{$contact.birthday}</div>
+      </div>
+    {/if}
+    {if $contact.anniversary}
+      <div>
+        <span>{msg meaning="contact.vcard.anniversary" desc="Anniversary contact field label"}Anniversary{/msg}</span>
+        <div>{$contact.anniversary}</div>
+      </div>
+    {/if}
+    {if $contact.manager}
+      <div>
+        <span>{msg meaning="contact.vcard.manager" desc="Manager contact field label"}Manager{/msg}</span>
+        <div>{$contact.manager}</div>
+      </div>
+    {/if}
+    {if $contact.assistant}
+      <div>
+        <span>{msg meaning="contact.vcard.assistant" desc="Assistant contact field label"}Assistant{/msg}</span>
+        <div>{$contact.assistant}</div>
+      </div>
+    {/if}
+    {if $contact.spouse}
+      <div>
+        <span>{msg meaning="contact.vcard.spouse" desc="Spouse contact field label"}Spouse{/msg}</span>
+        <div>{$contact.spouse}</div>
+      </div>
+    {/if}
+    {if $contact.note}
+    <div>
+      <span>{msg meaning="contact.vcard.note" desc="Note contact field label"}Note{/msg}</span>
+      <div>{$contact.note |noAutoescape}</div>
+    </div>
+    {/if}
+  </div>
+{/template}
+
+/**
+ * Fullname
+ * @param fullname Information content
+ */
+{template .fullname}
+  {if ($fullname.prefix)}
+  	{$fullname.prefix}{sp}
+  {/if}
+  {if ($fullname.firstnames)}
+  	{$fullname.firstnames}{sp}
+  {/if}
+  {if ($fullname.lastnames)}
+  	{$fullname.lastnames}{sp}
+  {/if}
+  {if ($fullname.suffixes)}
+  	{$fullname.suffixes}{sp}
+  {/if}
+  {if ($fullname.additionalNames)}
+  	({$fullname.additionalNames})
+  {/if}
+{/template}
+
+/**
+ * A phone information
+ * @param tel Information content
+ */
+{template .tel}
+  <div>
+    <span>{$tel.i18n}</span>
+    <div>
+      <a href='tel:{$tel.value}'>{$tel.value}</a>
+      <a href='tel:{$tel.value}'><i class="fa fa-phone phone"></i></a>
+    </div>
+  </div>
+{/template}
+
+/**
+ * An email information
+ * @param email The email
+ */
+{template .email}
+  <div>
+    {if $email.isDefault}
+    <span>{msg meaning="contact.vcard.defaultemail" desc="Default contact e-mail"}Default e-mail{/msg}</span>
+    {else}
+    <span>{$email.i18n}</span>
+    {/if}
+    <div>
+      <a href='mailto:{$email.value}'>{$email.value}</a>
+      <a href='mailto:{$email.value}'><i class="fa fa-paper-plane envelope"></i></a>
+     </div>
+  </div>
+{/template}
+
+/**
+ * A link information
+ * @param url The link
+ */
+{template .url}
+  <div>
+    <span>{$url.i18n}</span>
+    <div>
+      <a href="{$url.value}" target="_blank" title="{$url.value}">{$url.value}</a>
+      <a href='{$url.value}' target="_blank" ><img src='images/link.png' alt='' /></a>
+    </div>
+  </div>
+{/template}
+
+/**
+ * A Insant Messaging information
+ * @param impp IM protocol
+ */
+{template .impp}
+  <div>
+    <span>{$impp.i18n}</span>
+    <a href="{$impp.value}" target="_blank" title="{$impp.value}">{$impp.value}</a>
+  </div>
+{/template}
+
+/**
+ * A address information
+ * @param address Information content
+ */
+{template .address}
+  <div>
+    <span>{$address.i18n}</span>
+    <div>
+    {if ($address.value.label)}
+      {$address.value.label}<br />
+    {/if}
+    {if ($address.value.street)}
+      {$address.value.street}<br />
+    {/if}
+    {if ($address.value.extentedaddress)}
+      {$address.value.extentedaddress}<br />
+    {/if}
+    {if ($address.value.pobox)}
+      {$address.value.pobox}<br />
+    {/if}
+    {if ($address.value.postalcode)}
+      {$address.value.postalcode}
+    {/if}
+    {if ($address.value.locality)}
+      {$address.value.locality}
+    {/if}
+    {if ($address.value.postalcode) or ($address.value.locality)}
+      <br />
+    {/if}
+    {if ($address.value.region)}
+      {$address.value.region}
+    {/if}
+    {if ($address.value.country)}
+      {$address.value.country}
+    {/if}
+    </div>
+  </div>
+{/template}
+
+/**
+ * A tag information
+ * @param category Information content
+ */
+{template .category}
+  <li  class="{css bm-tagbox-bullets}" title="{$category.label}">
+    <span class="{css bm-tagbox-bullet-color}" style="background-color: #{$category.color};"></span>
+    {$category.label}
+  </li>
+{/template}

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.core.sendmail.mailer" name="mailer" schema="schema/net.bluemind.mailer.exsd"/>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.core.sendmail.SendMailVerticleFactory">
+      </verticle>
+   </extension>
+   <extension
+         point="net.bluemind.core.sendmail.mailer">
+         <mailer
+         	impl="net.bluemind.core.sendmail.Sendmail"
+         	priority="1" >
+         </mailer>
+   </extension>
+
+</plugin>

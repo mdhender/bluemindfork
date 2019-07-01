@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+	<extension-point id="net.bluemind.elasticsearch.initializer" name="initializer" schema="schema/net.bluemind.elasticsearch.initializer.exsd"/>
+
+   <extension
+         point="net.bluemind.server.hook.serverhook">
+      <hook
+            impl="net.bluemind.elasticsearch.initializer.ElasticSearchServerHook">
+      </hook>
+   </extension>
+
+</plugin>

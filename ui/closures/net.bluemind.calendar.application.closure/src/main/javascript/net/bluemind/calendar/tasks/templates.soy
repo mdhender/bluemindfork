@@ -1,0 +1,25 @@
+{namespace net.bluemind.calendar.tasks.templates}
+
+
+/**
+ * Entry item
+ * @param title
+ */
+{template .sectionView}
+	<div>
+		<h4 class="tasks-section">{$title}</h4>
+	</div>
+{/template}
+
+/**
+ * Entry item
+ * @param task
+ */
+{template .taskView}
+	<div class="todolist-entry">
+		<input type="checkbox" class="td-status" {if $task.status == 'Completed'}checked{/if}/>
+		<div class="todolist-color" style="background-color: {$task.color}" > &nbsp;</div>
+		<div class="td-summary  {if $task.status == 'Completed'}status-completed{/if}"> {$task.summary}</div>
+		<a href="#" class="td-delete">Delete</a>
+	</div>
+{/template}

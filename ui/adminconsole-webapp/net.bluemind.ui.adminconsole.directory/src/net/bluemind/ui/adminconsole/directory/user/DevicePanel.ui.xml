@@ -1,0 +1,15 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'>
+
+	<ui:with field="uc"
+		type="net.bluemind.ui.adminconsole.directory.user.l10n.UserConstants" />
+
+	<g:FlowPanel>
+		<g:Label styleName="sectionTitle" text="{uc.mobileDevices}"></g:Label>
+		<g:FlexTable ui:field="deviceList"></g:FlexTable>
+		<g:Anchor ui:field="refreshList" text="{uc.refreshDevicesList}"></g:Anchor>
+	</g:FlowPanel>
+
+</ui:UiBinder>

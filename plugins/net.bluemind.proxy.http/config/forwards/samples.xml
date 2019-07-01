@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<forwards>
+	<forward path="/samples" target="http://127.0.0.1:8080/samples">
+		<auth kind="NONE" />
+	</forward>
+</forwards>

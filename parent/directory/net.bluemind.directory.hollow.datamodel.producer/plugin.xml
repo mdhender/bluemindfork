@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.directory.hollow.datamodel.producer.DirectorySerializationVerticle$DirectorySerializationVerticleFactory">
+      </verticle>
+   </extension>
+   
+   <extension
+         point="net.bluemind.domain.domainHook">
+      <hook
+            class="net.bluemind.directory.hollow.datamodel.producer.DirectorySerializationDomainHook">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.core.data.serializer">
+      <serializer
+            impl="net.bluemind.directory.hollow.datamodel.producer.DirectorySerializerFactory"
+            set="directory">
+      </serializer>
+   </extension>
+   <extension
+         point="net.bluemind.core.caches.registry.registration">
+      <reg
+            impl="net.bluemind.directory.hollow.datamodel.producer.Serializers$Reg">
+      </reg>
+      <reg
+            impl="net.bluemind.directory.hollow.datamodel.producer.impl.DomainVersions$Reg">
+      </reg>
+   </extension>
+
+</plugin>

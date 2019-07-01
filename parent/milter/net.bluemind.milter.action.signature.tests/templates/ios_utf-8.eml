@@ -1,0 +1,22 @@
+Return-Path: <david.phan@bluemind.net>
+Received: from bm-prod.blue-mind.net (localhost.localdomain [127.0.0.1])
+	 by bm-prod with LMTPA;
+	 Mon, 25 Sep 2017 15:21:28 +0200
+X-Sieve: CMU Sieve 2.4
+Received: from /192.168.231.2 (LHLO bm-prod.blue-mind.net) by unknown with
+ LMTP; 9/25/17 1:21 PM
+Received: from [127.0.1.1] (unknown [192.168.231.2])
+	by bm-prod.blue-mind.net (Postfix) with ESMTP id D7ABD4006B
+	for <thomas.fricker@bluemind.net>; Mon, 25 Sep 2017 15:21:28 +0200 (CEST)
+Content-Type: text/plain;
+	charset=utf-8
+Content-Transfer-Encoding: base64
+Subject: Test
+From: David Phan <david.phan@bluemind.net>
+Message-Id: <27381F9B-1262-4BAF-973A-D1D86E3E71BC@bluemind.net>
+Date: Mon, 25 Sep 2017 15:21:01 +0200
+To: thomas.fricker@bluemind.net
+Mime-Version: 1.0 (1.0)
+
+w4kgNOKCrA0KDQpFbnZvecOpIGF2ZWMgbWVzIGRvaWd0cyBkZXB1aXMgbW9uIGlQYWQNClllYWgg
+eWVhaA==

@@ -1,0 +1,12 @@
+{  
+   "addons":{  
+      "bm-connector-tb@blue-mind.net":{  
+         "updates":[  
+            {  
+               "version":"${version}",
+               "update_link":"${url}"
+            }
+         ]
+      }
+   }
+}

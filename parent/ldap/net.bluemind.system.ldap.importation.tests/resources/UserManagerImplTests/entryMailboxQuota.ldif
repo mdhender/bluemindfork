@@ -1,0 +1,50 @@
+dn: uid=user00,dc=local
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+objectClass: qmailUser
+uid: user00
+sn: Nom00
+cn: Prenom00 Nom00
+givenName: Prenom00
+mail: user00@domain.tld
+mailQuotaSize: 2048
+
+dn: uid=user01,dc=local
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+objectClass: qmailUser
+uid: user00
+sn: Nom00
+cn: Prenom00 Nom00
+givenName: Prenom00
+mail: user00@domain.tld
+mailQuota: 4096
+
+dn: uid=user02,dc=local
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+objectClass: qmailUser
+uid: user00
+sn: Nom00
+cn: Prenom00 Nom00
+givenName: Prenom00
+mail: user00@domain.tld
+mailQuota: 5368709120
+
+dn: uid=user03,dc=local
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+objectClass: qmailUser
+uid: user00
+sn: Nom00
+cn: Prenom00 Nom00
+givenName: Prenom00
+mail: user00@domain.tld

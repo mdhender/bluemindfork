@@ -1,0 +1,9 @@
+#!/bin/bash
+
+tick_conf=/usr/share/bm-tick-config
+chmod +x /usr/local/bin/unixget
+chmod +x /usr/local/bin/unixget-impl
+
+cp ${tick_conf}/bm-telegraf.conf /etc/telegraf/telegraf.d/
+
+invoke-rc.d telegraf restart 0>/dev/null 1>/dev/null 2>/dev/null 3>/dev/null || true

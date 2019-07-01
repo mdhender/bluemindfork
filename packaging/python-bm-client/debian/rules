@@ -1,0 +1,16 @@
+#!/usr/bin/make -f
+
+
+include /usr/share/python/python.mk
+
+
+export DH_VERBOSE = 1
+
+export PYBUILD_NAME = netbluemind
+
+%:
+	dh $@ --with python2
+
+override_dh_auto_configure:
+	mv ROOT/* .
+	dh_auto_configure

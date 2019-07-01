@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?xml-stylesheet href="chrome://bm/skin/style.css" type="text/css"?>
+<!DOCTYPE overlay SYSTEM "chrome://bm/locale/bm.dtd">
+
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <prefwindow id="MailPreferences">
+        <prefpane id="paneBM"
+                  label="&bm.preferences.tab.label;"
+                  src="chrome://bm/content/preferences/bmPreferences.xul"/>
+    </prefwindow>
+</overlay>

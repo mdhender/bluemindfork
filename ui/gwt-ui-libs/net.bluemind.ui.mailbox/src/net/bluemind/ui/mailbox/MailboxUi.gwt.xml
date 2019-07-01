@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+	<source path='identity' />
+	<source path='filter' />
+	<source path='vacation' />
+	<source path='sharing' />
+	<source path='backend' />
+	<source path='l10n' />
+	<inherits name="net.bluemind.mailbox.MailboxApi" />
+	<inherits name="net.bluemind.user.UserApi" />
+	<inherits name="net.bluemind.mailmessage.MailmessageApi" />
+</module>

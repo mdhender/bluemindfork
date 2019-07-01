@@ -1,0 +1,72 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+
+	<ui:with type="net.bluemind.ui.settings.client.about.AboutResources"
+		field="res" />
+
+	<ui:style>
+		.panel {
+			width: 50em;
+			height: 330px;
+			border: 1px solid #9db0bf;
+			outline: none;
+			-moz-box-shadow: 0px 5px 80px #555;
+			-webkit-box-shadow: 0px 5px 80px #555;
+			box-shadow: 0px 5px 80px #555;
+			background: #ffffff url("background.png") no-repeat right bottom;
+			z-index: 1000;
+		}
+		
+		.closeButton {
+			float: right;
+			margin: 10px;
+			cursor: pointer;
+		}
+		
+		.body {
+			padding: 15px;
+		}
+		
+		.footer {
+			text-align: center;
+		}
+		
+		.copyright {
+			display: inline;
+			padding: 0px 5px;
+		}
+		
+		.website {
+			padding: 0px 5px;
+		}
+	</ui:style>
+<g:FocusPanel ui:field="root">
+	<g:DockLayoutPanel unit="PX" styleName="{style.panel}">
+
+		<g:north size="90">
+			<g:FlowPanel>
+				<g:Image ui:field="close" resource="{res.cross}" styleName="{style.closeButton}"></g:Image>
+				<g:Image resource="{res.logo}"></g:Image>
+			</g:FlowPanel>
+		</g:north>
+
+		<g:center>
+			<g:FlowPanel ui:field="infosPanel" styleName="{style.body}">
+				<g:Label ui:field="version"></g:Label>
+			</g:FlowPanel>
+		</g:center>
+
+		<g:south size="30">
+			<g:FlowPanel styleName="{style.footer}">
+				<g:Label ui:field="copyright" styleName="{style.copyright}"></g:Label>
+				<g:Anchor target="_blank" href="https://www.bluemind.net"
+					styleName="{style.website}">https://www.bluemind.net</g:Anchor>
+			</g:FlowPanel>
+		</g:south>
+
+	</g:DockLayoutPanel>
+</g:FocusPanel>
+
+</ui:UiBinder>
+

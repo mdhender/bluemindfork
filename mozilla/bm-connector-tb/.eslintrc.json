@@ -1,0 +1,19 @@
+{
+    "env": {
+        "es6": true,
+        "node": true,
+        "commonjs": true
+    },
+    "extends": "eslint:recommended",
+    "rules": {
+        "no-undef": 1,
+        "no-unused-vars": 1
+    },
+    "globals": {
+        "document": true,
+        "window": true,
+        "Components": true,
+        "Services": true,
+        "XPCOMUtils": true
+    }
+}

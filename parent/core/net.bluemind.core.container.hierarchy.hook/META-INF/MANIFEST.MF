@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.core.container.hierarchy.hook
+Bundle-SymbolicName: net.bluemind.core.container.hierarchy.hook;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ slf4j.api;bundle-version="1.7.5",
+ net.bluemind.core.container.hooks,
+ net.bluemind.core.container.api;bundle-version="4.1.0",
+ net.bluemind.core.rest,
+ net.bluemind.directory.api,
+ com.google.guava
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: net.bluemind.core.container.hierarchy.hook

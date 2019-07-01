@@ -1,0 +1,12 @@
+test-classes
+dist/
+extra/
+www-test/
+gwt-unitCache/
+war/WEB-INF/classes/
+war/defaultapp/
+war/WEB-INF/deploy/
+build
+bm-compiled.js
+
+/bin/

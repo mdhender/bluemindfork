@@ -1,0 +1,14 @@
+#!/usr/bin/make -f
+
+include /usr/share/cdbs/1/rules/debhelper.mk
+
+JAVA_HOME := /usr/lib/jvm/bm-jdk
+# Do not generate crappy dependencies for unused libs
+DEB_DH_SHLIBDEPS_ARGS_bm-core := "-Xlib"
+
+build:
+	
+
+install/bm-plugin-webserver-filehosting::
+	cp -rf ${CURDIR}/ROOT/* ${CURDIR}/debian/bm-plugin-webserver-filehosting
+

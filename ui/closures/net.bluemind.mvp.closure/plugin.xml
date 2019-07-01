@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.mvp.logo" name="Logo extensions" schema="schema/net.bluemind.mvp.logo.exsd"/>
+   <extension
+         point="net.bluemind.extensions">
+      <export-extension-point
+            id="net.bluemind.mvp.logo">
+      </export-extension-point>
+   </extension>
+
+</plugin>

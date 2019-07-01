@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.jdbc.driver.pgsql
+Bundle-SymbolicName: net.bluemind.jdbc.driver.pgsql;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: blue-mind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ClassPath: .
+Fragment-Host: com.zaxxer.HikariCP;bundle-version="3.3.1.bm1"
+Require-Bundle: org.postgresql.jdbc42;bundle-version="42.0.0";visibility:=reexport
+Eclipse-RegisterBuddy: com.zaxxer.HikariCP
+

@@ -1,0 +1,13 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+
+	<g:FlowPanel>
+		<g:FlowPanel ui:field="form" />
+		<g:FlowPanel ui:field="footer">
+			<g:Button ui:field="submit" styleName="button primary" />
+			<g:Button ui:field="cancel" styleName="button" />
+		</g:FlowPanel>
+	</g:FlowPanel>
+
+</ui:UiBinder>

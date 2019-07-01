@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.exchange.mapi.persistence.tests
+Bundle-SymbolicName: net.bluemind.exchange.mapi.persistence.tests
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.exchange.mapi.persistence.tests.Activator
+Bundle-Vendor: blue-mind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.core.jdbc.testshelper;bundle-version="4.1.0",
+ org.junit,
+ net.bluemind.core.context,
+ net.bluemind.core.container.persistance,
+ net.bluemind.exchange.mapi.api,
+ net.bluemind.exchange.mapi.persistence,
+ io.vertx.core
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy

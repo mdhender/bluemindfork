@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.xivo.core
+Bundle-SymbolicName: net.bluemind.xivo.core;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: blue-mind.net
+Require-Bundle: net.bluemind.core.commons,
+ net.bluemind.xivo.client,
+ slf4j.api;bundle-version="1.7.5",
+ net.bluemind.xivo.common,
+ net.bluemind.cti.backend;bundle-version="1.0.0",
+ net.bluemind.locator.client,
+ io.vertx.core,
+ com.google.guava;bundle-version="19.0.0",
+ net.bluemind.user.api,
+ net.bluemind.core.container.api,
+ net.bluemind.cti.api
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<A:expand-property xmlns:A="DAV:">
+  <A:property name="group-member-set" namespace="DAV:">
+    <A:property name="email-address-set" namespace="http://calendarserver.org/ns/"/>
+    <A:property name="calendar-user-address-set" namespace="urn:ietf:params:xml:ns:caldav"/>
+    <A:property name="displayname" namespace="DAV:"/>
+  </A:property>
+</A:expand-property>

@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.core.sanitizer.tests
+Bundle-SymbolicName: net.bluemind.core.sanitizer.tests;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.junit,
+ net.bluemind.core.commons;bundle-version="1.0.0",
+ net.bluemind.core.sanitizer;bundle-version="1.0.0",
+ net.bluemind.user.api,
+ net.bluemind.calendar.api,
+ net.bluemind.core.rest,
+ net.bluemind.core.context,
+ net.bluemind.core.tests.testshelper

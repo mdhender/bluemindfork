@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.slf4j
+Bundle-SymbolicName: net.bluemind.slf4j
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: blue-mind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ClassPath: .
+Require-Bundle: slf4j.api;bundle-version="1.7.25";visibility:=reexport,
+ ch.qos.logback.classic;bundle-version="1.2.3";visibility:=reexport,
+ ch.qos.logback.core;bundle-version="1.2.3";visibility:=reexport,
+ jcl.over.slf4j;bundle-version="1.7.25";visibility:=reexport,
+ jul.to.slf4j;bundle-version="1.7.25";visibility:=reexport
+Automatic-Module-Name: net.bluemind.slf4j
+

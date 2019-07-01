@@ -1,0 +1,29 @@
+
+.multientryfield {
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  width: 424px;
+  line-height: 18px;
+}
+
+.multientryfield-field {
+  background-color: #fff;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+  border: 0;
+  margin: 1px 0;
+  resize: none;
+  width: 100%;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  outline: none;
+  vertical-align: middle;
+}
+
+.multientryfield .cartouchebox {
+  position: absolute;
+  height: 0px;
+}

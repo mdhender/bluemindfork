@@ -1,0 +1,61 @@
+BLUEMIND_INSTALLER_LOG="/tmp/"${BLUEMIND_INSTALLER}".log"
+
+display_welcome() {
+    clear
+    echo "#############################" 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
+    echo "#          "${txt_warning}"          #" 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
+    echo "#############################" 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
+    echo -en "\n"${txt_warning_log}"\n"${txt_confirm_continue}" "
+    continue_response=$(read_stdin y)
+    
+    case ${continue_response} in
+      [${continue_letters}])
+        echo "Accepting and continue: "${continue_response} >> ${BLUEMIND_INSTALLER_LOG}
+        ;;
+      *)
+        echo "Stopping: \""${continue_response}"\"" >> ${BLUEMIND_INSTALLER_LOG}
+        exit 1
+        ;;
+    esac
+
+    clear
+    echo "########################################" 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
+    echo -e "# "${txt_welcome} 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
+    echo -e "# "`date` 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
+    echo -e "########################################\n" 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
+}
+
+display_success() {
+    bluemindUrl="https://"`hostname -f`"/setup/"
+    clear
+    echo "########################################" 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
+    printf "${txt_install_success}\n" ${bluemindUrl} 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
+    echo "########################################" 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
+    FAILURE=0
+}
+
+display_error() {
+    msg=$1
+    shift
+    printf "${txt_error}: ${msg}\n" $* 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
+}
+
+display_action() {
+    echo -n -e $*": " 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
+}
+
+display_action_ok() {
+    echo -e "done." 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
+}
+
+display_message() {
+    msg=$1
+    shift
+    printf "${msg}\n" $* 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
+}
+
+source ./lang/en_US.UTF-8
+
+if [ -e "./lang/"${LANG} ]; then
+    source ./lang/${LANG}
+fi

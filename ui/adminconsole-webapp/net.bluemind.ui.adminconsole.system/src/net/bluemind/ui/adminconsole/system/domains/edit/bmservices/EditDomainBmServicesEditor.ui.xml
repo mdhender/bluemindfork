@@ -1,0 +1,116 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:bj="urn:import:net.bluemind.ui.admin.client" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui" xmlns:common="urn:import:net.bluemind.ui.common.client.forms">
+
+	<ui:with field="c"
+		type="net.bluemind.ui.adminconsole.system.domains.l10n.DomainConstants" />
+
+
+	<g:HTMLPanel>
+		<f:FieldSetPanel name="{c.bmServicesTab}" />
+		<table border="0">
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.coreServer}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:ListBox multipleSelect="false" ui:field="coreServer"></g:ListBox>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.ssoProxy}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:ListBox multipleSelect="false" ui:field="ssoProxy"></g:ListBox>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.xmppServer}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:ListBox multipleSelect="false" ui:field="xmppServer"></g:ListBox>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.adminConsole}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:ListBox multipleSelect="false" ui:field="adminConsole"></g:ListBox>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.calendarApplication}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:ListBox multipleSelect="false" ui:field="calendarApplication"></g:ListBox>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.webmailApplication}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:ListBox multipleSelect="false" ui:field="webmailApplication"></g:ListBox>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.contactApplication}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:ListBox multipleSelect="false" ui:field="contactApplication"></g:ListBox>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.settingsApplication}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:ListBox multipleSelect="false" ui:field="settingsApplication"></g:ListBox>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.defaultAppRedirector}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:ListBox multipleSelect="false" ui:field="defaultAppRedirector"></g:ListBox>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.reverseProxy}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:ListBox multipleSelect="false" ui:field="reverseProxy"></g:ListBox>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.database}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:ListBox multipleSelect="false" ui:field="database"></g:ListBox>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.fileHostingServer}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:ListBox multipleSelect="false" ui:field="filehosting"></g:ListBox>
+				</td>
+			</tr>
+		</table>
+
+
+	</g:HTMLPanel>
+
+</ui:UiBinder>

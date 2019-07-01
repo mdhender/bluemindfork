@@ -1,0 +1,27 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>net.bluemind</groupId>
+		<artifactId>net.bluemind.corev2</artifactId>
+		<version>4.1.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>net.bluemind.user.plugins</artifactId>
+	<packaging>pom</packaging>
+	<modules>
+		<module>net.bluemind.user.api</module>
+		<module>net.bluemind.user.sqlschema</module>
+		<module>net.bluemind.user.persistance</module>
+		<module>net.bluemind.user.persistance.tests</module>
+		<module>net.bluemind.user.service</module>
+		<module>net.bluemind.user.service.tests</module>
+		<module>net.bluemind.user.hook</module>
+		<module>net.bluemind.user.hook.tests</module>
+		<module>net.bluemind.user.accounts.service</module>
+		<module>net.bluemind.user.accounts.service.tests</module>
+		<module>net.bluemind.user.accounts.persistence</module>
+		<module>net.bluemind.user.accounts.persistence.tests</module>
+		<module>net.bluemind.user.accounts.sqlschema</module>
+	</modules>
+
+</project>

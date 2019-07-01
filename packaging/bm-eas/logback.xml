@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+  <appender name="ALL" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
+    <File>/var/log/bm-eas/eas.log</File>
+    <encoder>
+      <pattern>%d [%thread] %c{1} %p - %m\n</pattern>
+    </encoder>
+    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+      <maxIndex>5</maxIndex>
+      <FileNamePattern>/var/log/bm-eas/eas.log.%i.gz</FileNamePattern>
+    </rollingPolicy>
+    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+      <MaxFileSize>50000KB</MaxFileSize>
+    </triggeringPolicy>
+  </appender>
+  
+  <appender name="ASYNC_ALL" class="ch.qos.logback.classic.AsyncAppender">
+    <queueSize>500</queueSize>
+    <discardingThreshold>0</discardingThreshold>
+    <appender-ref ref="ALL" />
+  </appender>
+
+  <appender name="REQUESTS" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
+    <File>/var/log/bm-eas/requests.log</File>
+    <encoder>
+      <pattern>%d [%thread] %c{1} %p - %m\n</pattern>
+    </encoder>
+    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+      <maxIndex>5</maxIndex>
+      <FileNamePattern>/var/log/bm-eas/requests.log.%i.gz</FileNamePattern>
+    </rollingPolicy>
+    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+      <MaxFileSize>50000KB</MaxFileSize>
+    </triggeringPolicy>
+  </appender>
+
+  <appender name="SIFT" class="ch.qos.logback.classic.sift.SiftingAppender">
+    <!-- in the absence of the class attribute, it is assumed that the
+         desired discriminator type is
+         ch.qos.logback.classic.sift.MDCBasedDiscriminator -->
+    <discriminator>
+      <key>user</key>
+      <defaultValue>anonymous</defaultValue>
+    </discriminator>
+    <sift>
+      <appender name="FILE-${user}" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/var/log/bm-eas/user-eas-${user}.log</file>
+	<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+	  <maxIndex>10</maxIndex>
+	  <FileNamePattern>/var/log/bm-eas/user-eas-${user}.log.%i.gz</FileNamePattern>
+	</rollingPolicy>
+	<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+	  <MaxFileSize>5000KB</MaxFileSize>
+	</triggeringPolicy>
+        <encoder>
+          <pattern>%d [%thread] %c{1} %p - %m\n</pattern>
+        </encoder>
+      </appender>
+    </sift>
+  </appender>
+  
+  <appender name="ASYNC_SIFT" class="ch.qos.logback.classic.AsyncAppender">
+    <queueSize>500</queueSize>
+    <discardingThreshold>0</discardingThreshold>
+    <appender-ref ref="SIFT" />
+  </appender>
+
+  <logger name="org.apache.directory.shared.asn1.ber" level="ERROR">
+    <appender-ref ref="ALL"/>
+  </logger>
+  <logger name="net.bluemind.vertx.common.request.impl.WrappedResponse" level="INFO" additivity="true">
+    <appender-ref ref="REQUESTS"/>
+  </logger>
+  
+  <root level="INFO">
+    <appender-ref ref="ASYNC_ALL"/>
+    <appender-ref ref="ASYNC_SIFT"/>
+  </root>
+  
+</configuration>

@@ -1,0 +1,60 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:bj="urn:import:net.bluemind.ui.admin.client" xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui"
+	xmlns:common="urn:import:net.bluemind.ui.common.client.forms"
+	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'>
+
+
+	<ui:style>
+		.mandatory {
+			color: #24638f;
+			font-weight: bold;
+		}
+		.logo {
+			vertical-align: middle;
+		}
+		.topRight {
+			position: absolute;
+			top: 10px;
+			right: 10px;
+		}
+		.extUserHidden {
+			height: 50px;
+		}
+	</ui:style>
+
+	<ui:with field="euc"
+		type="net.bluemind.ui.adminconsole.directory.externaluser.l10n.ExternalUserConstants" />
+
+
+	<g:HTMLPanel styleName="modal-dialog-content">
+		<g:Label ui:field="errorLabel" styleName="modal-dialog-error" />
+		<table>
+				
+			<f:DelegationEdit ui:field="delegation" titleText="{euc.delegation}" maxLength="32" mandatory="false"  kind="EXTERNALUSER" />
+			
+			<tr class="setting">
+				<td class="label"> <g:Label text="{euc.firstName}"/> </td>
+				<td><g:TextBox ui:field="firstName" /></td>
+			</tr>
+			
+			<tr class="setting {style.mandatory}">
+				<td class="label"> <g:Label text="{euc.lastName} *"/> </td>
+				<td><g:TextBox ui:field="lastName" /></td>
+			</tr>
+			
+			<tr class="setting {style.mandatory}">
+				<td class="label"><g:Label text="{euc.email} *"/></td>
+				<td><g:TextBox ui:field="email" /></td>
+			</tr>
+			
+			<tr class="setting {style.extUserHidden}">
+				<td><g:CheckBox ui:field="hidden" checked="true" text="{euc.hideFromGal}"></g:CheckBox></td>
+			</tr>
+			
+		</table>		
+	</g:HTMLPanel>
+
+</ui:UiBinder>

@@ -1,0 +1,76 @@
+﻿{  
+   "alarm":[  
+
+   ],
+   "attendees":[  
+      {  
+         "commonName":"John Roberts",
+         "cutype":"Individual",
+         "delFrom":null,
+         "delTo":null,
+         "dir":null,
+         "internal":false,
+         "lang":null,
+         "mailto":"jr@bm.lan",
+         "member":null,
+         "partStatus":"NeedsAction",
+         "responseComment":null,
+         "role":"RequiredParticipant",
+         "rsvp":true,
+         "sentBy":null,
+         "uri":null
+      },
+      {  
+         "commonName":"Nicolas Lascombes",
+         "cutype":"Individual",
+         "delFrom":null,
+         "delTo":null,
+         "dir":null,
+         "internal":false,
+         "lang":null,
+         "mailto":"nico@bm.lan",
+         "member":null,
+         "partStatus":"Accepted",
+         "responseComment":null,
+         "role":"RequiredParticipant",
+         "rsvp":true,
+         "sentBy":null,
+         "uri":null
+      }
+   ],
+   "categories":[  
+
+   ],
+   "classification":"Public",
+   "description":null,
+   "dtstart":{  
+      "iso8601":"2016-10-30T09:00:00.000+01:00",
+      "precision":"DateTime",
+      "timezone":"Europe\/Paris"
+   },
+   "exdate":null,
+   "location":null,
+   "organizer":{  
+      "commonName":null,
+      "dir":null,
+      "mailto":"bob@bm.lan",
+      "uri":null
+   },
+   "priority":5,
+   "rdate":null,
+   "recurid":null,
+   "rrule":null,
+   "status":"Confirmed",
+   "summary":"zdz",
+   "uid":"bc0c3627-898f-44c9-88b4-5b321e528b0e",
+   "url":null,
+   "dtend":{  
+      "iso8601":"2016-10-30T11:00:00.000+01:00",
+      "precision":"DateTime",
+      "timezone":"Europe\/Paris"
+   },
+   "properties":{  
+
+   },
+   "transparency":"Opaque"
+}

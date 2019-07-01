@@ -1,0 +1,49 @@
+# pour régénérer le report
+
+curl -X REPORT -k -v -H 'Content-Type: text/xml' \
+-d@./plugins/net.bluemind.dav.server/wiresharks/report_principal-property-search_req.txt \
+https://tom:xxx@mav.buffy.vmw:8443/principals
+
+Test avec bm-dav dans eclipse:
+curl -X REPORT -v -H 'Content-Type: text/xml' -d@./plugins/net.bluemind.dav.server/wiresharks/report_principal-property-search_req.txt http://admin%40buffy.vmw:admin@localhost:8086/dav/principals/
+
+
+< HTTP/1.1 207 Multi-Status
+< Accept-Ranges: bytes
+< Vary: accept-encoding
+< DAV: 1, access-control, calendar-access, calendar-schedule, calendar-auto-schedule, calendar-availability, inbox-availability, calendar-proxy, calendarserver-private-events, calendarserver-private-comments, calendarserver-sharing, calendarserver-sharing-no-scheduling, calendar-query-extended, calendar-default-alarms, calendar-managed-attachments, calendarserver-partstat-changes, extended-mkcol, calendarserver-principal-property-search, calendarserver-principal-search, calendarserver-home-sync
+< Content-Type: text/xml
+< Date: Sun, 15 Dec 2013 10:56:48 GMT
+< Server: Twisted/12.2.0 TwistedWeb/9.0.0
+< Content-Length: 1386
+< Strict-Transport-Security: max-age=604800
+< Connection: close
+
+<?xml version='1.0' encoding='UTF-8'?>
+<multistatus xmlns='DAV:'>
+  <response>
+    <href>/principals/__uids__/E0959178-994D-43A5-B098-AC32418C61C1/</href>
+    <propstat>
+      <prop>
+        <last-name xmlns='http://calendarserver.org/ns/'>Baudracco</last-name>
+        <displayname>Pierre Baudracco</displayname>
+        <email-address-set xmlns='http://calendarserver.org/ns/'>
+          <email-address>pierre@buffy.vmw</email-address>
+        </email-address-set>
+        <principal-URL>
+          <href>/principals/__uids__/E0959178-994D-43A5-B098-AC32418C61C1/</href>
+        </principal-URL>
+        <calendar-user-address-set xmlns='urn:ietf:params:xml:ns:caldav'>
+          <href xmlns='DAV:'>/principals/__uids__/E0959178-994D-43A5-B098-AC32418C61C1/</href>
+          <href xmlns='DAV:'>/principals/users/pierre/</href>
+          <href xmlns='DAV:'>mailto:pierre@buffy.vmw</href>
+          <href xmlns='DAV:'>urn:uuid:E0959178-994D-43A5-B098-AC32418C61C1</href>
+        </calendar-user-address-set>
+        <record-type xmlns='http://calendarserver.org/ns/'>users</record-type>
+        <calendar-user-type xmlns='urn:ietf:params:xml:ns:caldav'>INDIVIDUAL</calendar-user-type>
+        <first-name xmlns='http://calendarserver.org/ns/'>Pierre</first-name>
+      </prop>
+      <status>HTTP/1.1 200 OK</status>
+    </propstat>
+  </response>
+</multistatus>

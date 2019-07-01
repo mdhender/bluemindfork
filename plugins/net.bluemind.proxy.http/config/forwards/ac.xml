@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<forwards>
+	<forward path="/adminconsole" target="locator://bm/ac:8080/adminconsole" role="hasAdminConsole">
+		<auth kind="CORE2" />
+		<whitelist>
+			<wl uri="/favicon.ico" />
+			<wl uri="/fetchDocument" />
+		</whitelist>
+
+	</forward>
+</forwards>

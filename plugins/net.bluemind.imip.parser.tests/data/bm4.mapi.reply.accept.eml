@@ -1,0 +1,74 @@
+Return-Path: <lucie.takvorian@bluemind.net>
+Received: from bm-prod.blue-mind.net (localhost.localdomain [127.0.0.1])
+	 by bm-prod with LMTPA;
+	 Thu, 28 Feb 2019 10:45:34 +0100
+X-Cyrus-Session-Id: cyrus-19577-1551347134-1-2320798626115016212
+X-Sieve: CMU Sieve 3.0
+Received: from /192.168.231.2 (LHLO bm-prod.blue-mind.net) by unknown with
+ LMTP; 2/28/19 9:45 AM
+Received: from [127.0.1.1] (unknown [192.168.231.2])
+	(Authenticated sender: lucie.takvorian@blue-mind.net)
+	by bm-prod.blue-mind.net (Postfix) with ESMTPSA id CDF0F804A2
+	for <kevin.ladier@bluemind.net>; Thu, 28 Feb 2019 10:45:34 +0100 (CET)
+MIME-Version: 1.0
+Subject: =?ISO-8859-1?Q?Accept=E9e=A0:_d=E9mo_blandine?=
+Date: Thu, 28 Feb 2019 09:45:16 +0000
+X-BM-Mapi-Version: 4.1.40684
+Message-ID: <Mime4j.12.a903a6707f21a6f1.169337eabe4@mapi.bluemind.net>
+From: Lucie Takvorian <lucie.takvorian@bluemind.net>
+Sender: lucie.takvorian@bluemind.net
+To: =?ISO-8859-1?Q?K=E9vin_Ladier?= <kevin.ladier@bluemind.net>
+Content-Type: multipart/related;
+ boundary="-=Part.13.ca35a035ece8436b.169337eabe9.71824b29d85a3ba4=-"
+X-Bm-Milter-Handled: 7f5a8ece-b56f-4745-981a-9465f0fa5d66
+X-Bm-Transport-Timestamp: 1551347134901
+
+---=Part.13.ca35a035ece8436b.169337eabe9.71824b29d85a3ba4=-
+Content-Type: text/html; charset=UTF-8
+
+<div class=WordSection1><p class=MsoNormal>Je teste les réponses outlook&nbsp;!<o:p></o:p></p></div>
+---=Part.13.ca35a035ece8436b.169337eabe9.71824b29d85a3ba4=-
+Content-Type: text/calendar; charset=UTF-8; method=REPLY
+Content-Disposition: attachment; filename=reply.ics
+
+BEGIN:VCALENDAR
+PRODID:-//BlueMind//BlueMind Calendar//FR
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:REPLY
+BEGIN:VEVENT
+DTSTAMP:20190228T094533Z
+UID:a0bd6c5b-dc96-49a0-ae45-089843c839df
+DTSTART;TZID=Europe/Paris:20190228T111000
+SUMMARY:démo blandine
+DESCRIPTION:Je teste les réponses outlook !
+X-ALT-DESC;FMTTYPE=text/html:<html>\n<body><div class=WordSection1><p class=MsoNormal>Je teste les réponses outlook&nbsp\;!<o:p></o:p></p></div></body>\n</html>
+VERSION:2.0
+DTEND;TZID=Europe/Paris:20190228T113000
+X-MICROSOFT-DISALLOW-COUNTER:TRUE
+X-MOZ-LASTACK:20190228T094533Z
+ATTENDEE;PARTSTAT=ACCEPTED;DIR="bm://blue-mind.net/users/55EB4C80-7260-4737-B2B9-25F157F4F5C1":MAILTO:lucie.takvorian@blue-mind.net
+END:VEVENT
+BEGIN:VTIMEZONE
+TZID:Europe/Paris
+TZURL:http://tzurl.org/zoneinfo-outlook/Europe/Paris
+X-LIC-LOCATION:Europe/Paris
+BEGIN:DAYLIGHT
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+TZNAME:CEST
+DTSTART:19700329T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+TZNAME:CET
+DTSTART:19701025T030000
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+END:STANDARD
+END:VTIMEZONE
+END:VCALENDAR
+
+---=Part.13.ca35a035ece8436b.169337eabe9.71824b29d85a3ba4=---
+

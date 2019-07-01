@@ -1,0 +1,199 @@
+{
+	"settings": {
+		"index": {
+			"number_of_shards": 1,
+			"number_of_replicas": 0,
+			"analysis": {
+				"analyzer": {
+					"default": {
+						"tokenizer": "standard",
+						"filter": [
+							"icu_folding",
+							"elision",
+							"bm_world_delimiter"
+						],
+						"char_filter": [
+							"html_strip"
+						]
+					}
+				},
+				"filter": {
+					"bm_world_delimiter": {
+						"type": "word_delimiter",
+						"catenate_all": true,
+						"split_on_case_change": false
+					}
+				}
+			}
+		}
+	},
+	"mappings": {
+		"recordOrBody": {
+			"_source": {
+				"enabled": true
+			},
+			"properties": {
+				"body_msg_link": {
+					"type": "join",
+					"relations": {
+						"body": "record"
+					}
+				},
+				"parentId": {
+					"type": "keyword",
+					"store": true
+				},
+				"content": {
+					"type": "text",
+					"norms": false
+				},
+				"preview": {
+					"type": "text",
+					"index": false,
+					"store": true
+				},
+				"subject": {
+					"type": "text",
+					"norms": false,
+					"store": true
+				},
+				"subject_kw": {
+					"type": "keyword",
+					"store": false
+				},
+				"date": {
+					"type": "date",
+					"store": true
+				},
+				"owner": {
+					"type": "keyword",
+					"store": false
+				},
+				"content-type": {
+					"type": "keyword",
+					"index": false,
+					"store": true
+				},
+				"uid": {
+					"type": "integer",
+					"store": true
+				},
+				"itemId": {
+					"type": "integer",
+					"store": true
+				},
+				"size": {
+					"type": "integer",
+					"store": true
+				},
+				"in": {
+					"type": "keyword",
+					"store": false
+				},
+				"is": {
+					"type": "keyword",
+					"store": true,
+					"norms": false
+				},
+				"has": {
+					"type": "keyword",
+					"store": true
+				},
+				"filename": {
+					"type": "text",
+					"store": false,
+					"norms": false
+				},
+				"from": {
+					"type": "text",
+					"store": false,
+					"norms": false
+				},
+				"to": {
+					"type": "text",
+					"store": false,
+					"norms": false
+				},
+				"cc": {
+					"type": "text",
+					"store": false,
+					"norms": false
+				},
+				"with": {
+					"type": "text",
+					"store": false,
+					"norms": false
+				},
+				"id": {
+					"type": "keyword",
+					"store": true
+				},
+				"headers": {
+					"properties": {
+						"from": {
+							"type": "keyword",
+							"store": true
+						},
+						"to": {
+							"type": "keyword",
+							"store": true
+						},
+						"cc": {
+							"type": "keyword",
+							"store": true
+						},
+						"reply-to": {
+							"type": "keyword",
+							"index": false,
+							"store": true
+						},
+						"list-post": {
+							"type": "keyword",
+							"index": false,
+							"store": true
+						},
+						"disposition-notification-to": {
+							"type": "keyword",
+							"index": false,
+							"store": true
+						},
+						"x-bm_hsm_id": {
+							"type": "keyword",
+							"store": true
+						},
+						"x-bm-event": {
+							"type": "keyword",
+							"index": false,
+							"store": true
+						},
+						"x-bm-resourcebooking": {
+							"type": "keyword",
+							"index": false,
+							"store": true
+						},
+						"x-bm-foldersharing": {
+							"type": "keyword",
+							"index": false,
+							"store": true
+						},
+						"x-bm-folderuid": {
+							"type": "keyword",
+							"index": false,
+							"store": true
+						},
+						"x-bm-foldertype": {
+							"type": "keyword",
+							"index": false,
+							"store": true
+						},
+						"x-priority": {
+							"type": "keyword",
+							"index": false,
+							"store": true
+						}
+					}
+				}
+			}
+		}
+	}
+}

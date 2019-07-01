@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>net.bluemind.ui.adminconsole.main</artifactId>
+	<packaging>eclipse-plugin</packaging>
+	<parent>
+		<version>4.1.0-SNAPSHOT</version>
+		<groupId>net.bluemind</groupId>
+		<artifactId>adminconsole</artifactId>
+	</parent>
+
+	<properties>
+		<adminconsole.module>net.bluemind.ui.admin.AdminConsole</adminconsole.module>
+	</properties>
+	<profiles>
+		<profile>
+			<id>i18n</id>
+			<properties>
+				<adminconsole.module>net.bluemind.ui.admin.AdminConsoleI18n</adminconsole.module>
+			</properties>
+
+		</profile>
+	</profiles>
+	<build>
+		<sourceDirectory>src</sourceDirectory>
+		<plugins>
+
+			<plugin>
+				<artifactId>maven-clean-plugin</artifactId>
+				<configuration>
+					<filesets>
+						<fileset>
+							<directory>web-resources/net.bluemind.ui.adminconsole.main</directory>
+							<includes>
+								<include>**/*</include>
+							</includes>
+						</fileset>
+						<!-- old path -->
+						<fileset>
+							<directory>web-resources/adminconsole</directory>
+							<includes>
+								<include>**/*</include>
+							</includes>
+						</fileset>
+					</filesets>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>gwt-maven-plugin</artifactId>
+				<inherited>true</inherited>
+				<configuration>
+					<module>${adminconsole.module}</module>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

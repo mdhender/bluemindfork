@@ -1,0 +1,99 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:j="urn:import:net.bluemind.ui.adminconsole.jobs">
+	<ui:style>
+		.ib {
+			display: inline-block;
+		}
+	</ui:style>
+
+	<ui:with type="net.bluemind.ui.adminconsole.jobs.JobTexts"
+		field="jt"></ui:with>
+
+	<ui:with type="net.bluemind.ui.adminconsole.jobs.RadioGroup"
+		field="group" />
+
+	<g:HTMLPanel>
+		<table style="table-layout: fixed; width: 100%;">
+			<tr style="vertical-align: top;">
+				<td style="width: 150px;">
+					<g:RadioButton ui:field="periodicMin" name="{group.id}"
+						text="{jt.periodicMinRecKind}" />
+					<br />
+					<g:RadioButton ui:field="periodicHour" name="{group.id}"
+						text="{jt.periodicHourRecKind}" />
+					<br />
+					<g:RadioButton ui:field="daily" name="{group.id}"
+						text="{jt.dailyRecKind}" />
+				</td>
+				<td style="border-left: 2px dotted #666; padding-left: 10px;">
+
+					<g:HTMLPanel ui:field="periodicMinForm">
+						<table class="formContainer">
+							<tr class="setting">
+								<td class="label">
+									<g:Label text="{jt.every}" />
+								</td>
+								<td class="form">
+									<j:StringListBox ui:field="perMinFreq"
+										styleName="{style.ib}" width="4em" />
+									<g:Label text="{jt.minutes}" styleName="{style.ib}" />
+								</td>
+							</tr>
+						</table>
+					</g:HTMLPanel>
+					<g:HTMLPanel ui:field="periodicHourForm" visible="false">
+						<table class="formContainer">
+							<tr class="setting">
+								<td class="label">
+									<g:Label text="{jt.every}" />
+								</td>
+								<td class="form">
+									<j:StringListBox ui:field="perHourFreq"
+										styleName="{style.ib}" width="4em" />
+									<g:Label text="{jt.hours}" styleName="{style.ib}" />
+								</td>
+							</tr>
+						</table>
+					</g:HTMLPanel>
+					<g:HTMLPanel ui:field="dailyForm" visible="false">
+						<table class="formContainer">
+							<tr class="setting">
+								<td class="label">
+									<g:Label text="{jt.every}" />
+								</td>
+								<td class="form">
+									<g:CheckBox ui:field="dayMon" text="{jt.dayMondayOneLetter}" />
+									<g:CheckBox ui:field="dayTue" text="{jt.dayTuesdayOneLetter}" />
+									<g:CheckBox ui:field="dayWed" text="{jt.dayWednesdayOneLetter}" />
+									<g:CheckBox ui:field="dayThu" text="{jt.dayThursdayOneLetter}" />
+									<g:CheckBox ui:field="dayFri" text="{jt.dayFridayOneLetter}" />
+									<g:CheckBox ui:field="daySat" text="{jt.daySaturdayOneLetter}" />
+									<g:CheckBox ui:field="daySun" text="{jt.daySundayOneLetter}" />
+								</td>
+							</tr>
+							<tr class="setting">
+								<td class="label">
+									<g:Label text="{jt.atTime}" />
+								</td>
+								<td class="form">
+									<g:TextBox ui:field="dayHour" width="2em" />
+									:
+									<g:TextBox ui:field="dayMinutes" width="2em" />
+								</td>
+							</tr>
+							<tr class="setting">
+								<td class="label">
+								</td>
+								<td class="form">
+									<g:Label text="{jt.gmtWarning}" />
+								</td>
+							</tr>
+						</table>
+					</g:HTMLPanel>
+				</td>
+			</tr>
+		</table>
+	</g:HTMLPanel>
+
+</ui:UiBinder>

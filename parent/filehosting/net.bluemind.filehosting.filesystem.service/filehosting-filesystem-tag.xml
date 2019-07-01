@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This file describes BM Domains configuration. -->
+<domainTemplate>
+	<hostTags>
+		<kind id="bm">
+			<tag value="filehosting/data" multival="false" mandatory="false" autoAssign="false">
+				<desc lang="fr">Fichiers de Filehosting</desc>
+				<desc lang="en">Filehosting data</desc>
+			</tag>
+		</kind>
+	</hostTags>
+</domainTemplate>

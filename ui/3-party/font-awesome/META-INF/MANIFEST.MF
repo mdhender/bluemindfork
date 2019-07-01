@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: font-awesome
+Bundle-SymbolicName: font-awesome;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Closure-Bundle-Type: Library
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Web-Resources: web-resources
+Bundle-ClassPath: .
+Require-Bundle: net.bluemind.webmodule;bundle-version="4.1.0"

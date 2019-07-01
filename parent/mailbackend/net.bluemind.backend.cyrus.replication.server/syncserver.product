@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="sync_server" uid="sync_server" id="net.bluemind.backend.cyrus.replication.server.sync_server" application="net.bluemind.backend.cyrus.replication.server.syncserver" version="3.1.0.qualifier" useFeatures="false" includeLaunchers="true">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <vmArgs>-Dosgi.noShutdown=true -Djava.net.preferIPv4Stack=true -Djava.awt.headless=true -Xmx1G -XX:+UseG1GC -XX:MaxGCPauseMillis=500 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/Users/tom
+      </vmArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
+   </launcherArgs>
+
+   <launcher name="sync_server">
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+   </vm>
+
+   <plugins>
+      <plugin id="ch.qos.logback.classic"/>
+      <plugin id="ch.qos.logback.core"/>
+      <plugin id="com.fasterxml.jackson.core.jackson-annotations"/>
+      <plugin id="com.fasterxml.jackson.core.jackson-core"/>
+      <plugin id="com.fasterxml.jackson.core.jackson-databind"/>
+      <plugin id="com.google.guava"/>
+      <plugin id="com.ning.async-http-client"/>
+      <plugin id="io.netty"/>
+      <plugin id="io.vertx.core"/>
+      <plugin id="io.vertx.platform"/>
+      <plugin id="javax.ws.rs"/>
+      <plugin id="javax.xml"/>
+      <plugin id="jcl.over.slf4j"/>
+      <plugin id="joda-time"/>
+      <plugin id="jul.to.slf4j"/>
+      <plugin id="net.bluemind.addressbook.api"/>
+      <plugin id="net.bluemind.authentication.api"/>
+      <plugin id="net.bluemind.backend.cyrus.replication.server"/>
+      <plugin id="net.bluemind.backend.mail.api"/>
+      <plugin id="net.bluemind.backend.mail.replica.api"/>
+      <plugin id="net.bluemind.common.reflect"/>
+      <plugin id="net.bluemind.config"/>
+      <plugin id="net.bluemind.core.commons"/>
+      <plugin id="net.bluemind.core.container.api"/>
+      <plugin id="net.bluemind.core.context"/>
+      <plugin id="net.bluemind.core.rest"/>
+      <plugin id="net.bluemind.core.rest.common"/>
+      <plugin id="net.bluemind.core.rest.http"/>
+      <plugin id="net.bluemind.core.sessions"/>
+      <plugin id="net.bluemind.core.task.api"/>
+      <plugin id="net.bluemind.directory.api"/>
+      <plugin id="net.bluemind.eclipse.common"/>
+      <plugin id="net.bluemind.group.api"/>
+      <plugin id="net.bluemind.hornetq.client"/>
+      <plugin id="net.bluemind.lib.jackson"/>
+      <plugin id="net.bluemind.lib.jodatime"/>
+      <plugin id="net.bluemind.lib.jta"/>
+      <plugin id="net.bluemind.lib.vertx"/>
+      <plugin id="net.bluemind.locator.client"/>
+      <plugin id="net.bluemind.locator.vertxclient"/>
+      <plugin id="net.bluemind.mailbox.api"/>
+      <plugin id="net.bluemind.mailbox.identity.api"/>
+      <plugin id="net.bluemind.offline.api"/>
+      <plugin id="net.bluemind.server.api"/>
+      <plugin id="net.bluemind.slf4j"/>
+      <plugin id="net.bluemind.slf4j.configuration" fragment="true"/>
+      <plugin id="net.bluemind.system.api"/>
+      <plugin id="net.bluemind.tag.api"/>
+      <plugin id="net.bluemind.user.api"/>
+      <plugin id="net.bluemind.utils"/>
+      <plugin id="org.apache.commons.codec"/>
+      <plugin id="org.apache.commons.lang"/>
+      <plugin id="org.eclipse.core.contenttype"/>
+      <plugin id="org.eclipse.core.jobs"/>
+      <plugin id="org.eclipse.core.runtime"/>
+      <plugin id="org.eclipse.equinox.app"/>
+      <plugin id="org.eclipse.equinox.common"/>
+      <plugin id="org.eclipse.equinox.preferences"/>
+      <plugin id="org.eclipse.equinox.region" fragment="true"/>
+      <plugin id="org.eclipse.equinox.registry"/>
+      <plugin id="org.eclipse.osgi"/>
+      <plugin id="org.eclipse.osgi.compatibility.state" fragment="true"/>
+      <plugin id="org.eclipse.update.configurator"/>
+      <plugin id="org.hornetq.all"/>
+      <plugin id="org.jboss.logging.jboss-logging"/>
+      <plugin id="org.jboss.netty"/>
+      <plugin id="slf4j.api"/>
+   </plugins>
+
+
+</product>

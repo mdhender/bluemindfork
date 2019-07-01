@@ -1,0 +1,243 @@
+
+div.tr_bubble {
+  position: absolute;
+  background-color: #e0ecff;
+  border: 1px solid #99c0ff;
+  border-radius: 2px;
+  -moz-border-radius: 2px;
+  -webkit-border-radius: 2px;
+  font-size: 83%;
+  padding: 2px 19px 6px 6px;
+  white-space: nowrap;
+}
+
+
+.fontcolorbutton {
+	border-bottom: 1px solid !important;
+    padding-bottom: 2px;
+}
+
+.codebutton {
+	width: 4em !important;
+}
+
+.tr_bubble_link {
+  color: #00c;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 100%;
+}
+
+.tr_bubble .tr_option-link,
+.tr_bubble #tr_delete-image,
+.tr_bubble #tr_module-options-link {
+  font-size: 83%;
+}
+
+.tr_bubble_closebox {
+  position: absolute;
+  cursor: default;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAMAAAC67D+PAAAAAXNSR0IArs4c6QAAAnlQTFRFpqamz8/P5OTkra2tmJiYhYqN7u7uw8PDmJiY7Ozs0tLSWVlZq6urV1dXppAMsYtXFSKFmzAAK0l/Kmebra2tiS45liGDm0OaZDLP7IkC31QIFqqaLZloqqoH1q4AWo6Hh4pRdTUAjmyKcSCBcIOnPiJ3iAwRjkQAhw9PG3U8I2F8n3AAqloAV5oDOYINLWbPp3By3kR5JH9jZXSGMjMxRV6Ftbe0c3RyIiIi1t7npK/JqZnA1aaLz6SnfMMkXz+X2d3M59zPtmMNQoWhrSJzlUSkyNCR2MOG134akk0Vu52Dt9SKwpzJnrrElsi7zaqFOZlcyo2v5nOXpbkn0JkPYozZWL+xZayJRLFQjb85vb9NQ6WGm8Kkri0qWactqpGojJeklqG7h6qmqKd5xaiCyFYbtk9bxEKt5+a18ueyzJmY88264tXV2tPf0dfZ0N3d3beMwdHyuebgwtzH157L0eax0b04lZnOpciRwJOR9sfY4sffz8LwxNDe+9y0Oz+u2WZouOaytHGzkWPY8cK/8aY939KY6H5JU2yl3sJAAAEAmJiYd3l2DwDNmKCoVGiv6soAWVlZbG1r6+3qTMoU8PLvRKsYury57fL15LkEO0QfSLcZM3LpZmhlgq31js54TcMa+94A9/n22dvYi43VU43r/+vunJ6bra+s4ePfirdy6OjsO0lPLjsm3+TmgYOAtJwAXV5c0NHbi5vH29jcmqXMYWEMmcSf5/D43OT6zTE04u79ZKsAUFJPCZcUZG97YXuwhYqN2Nf8UVfOgJEH/v/8uMz/7u7upaekhartyszJ0tXRYo2ymLPKxdn/zMzMZ4fwi42K////2NqnMAAAAAF0Uk5TAEDm2GYAAAABYktHRACIBR1IAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH2wgYCTYjNVqpdQAAACRJREFUCNdjYEAC3d1wshtEdsMEuqEsCJsBnYlQgKQNyTA4AACrMhW5aLzwgQAAAABJRU5ErkJggg==) top left no-repeat;
+  padding: 0;
+  margin: 0;
+  width: 10px;
+  height: 10px;
+  top: 3px;
+  right: 5px;
+}
+
+div.tr_bubble_panel {
+  padding: 2px 0 1px;
+}
+
+div.tr_bubble_panel_title {
+  display: none;
+}
+
+div.tr_multi_bubble div.tr_bubble_panel_title {
+  margin-right: 1px;
+  display: block;
+  float: left;
+  width: 50px;
+}
+
+div.tr_multi_bubble div.tr_bubble_panel {
+  padding: 2px 0 1px;
+  margin-right: 50px;
+}
+
+/* Common base style for all icons. */
+.tr-icon {
+  width: 12px;
+  height: 12px;
+  margin: 5px 5px;
+  border: none;
+  vertical-align: middle;
+}
+
+/* Font name. */
+.tr-fontName .goog-button-base-content {
+  color: #246;
+  width: 16ex;
+  height: 16px;
+  overflow: hidden;
+}
+
+/* Font size. */
+.tr-fontSize .goog-button-base-content {
+  color: #246;
+  width: 10ex;
+  height: 16px;
+  overflow: hidden;
+}
+
+/* Edit HTML */
+.tr-editHtml {
+  color: #009;
+}
+
+.tr-undo{background-position:-5px -5px; width: 16px;}
+.tr-redo{background-position:-31px -5px; width: 16px;}
+.tr-removeFormat{background-position:-57px -5px; width: 16px;}
+.tr-foreColor{background-position:-82px -5px; width: 14px;}
+.tr-fontSize{background-position:-106px -5px;width: 14px;}
+.tr-outdent{background-position:-130px -5px;}
+.tr-indent{background-position:-153px -5px;}
+.tr-underline{background-position:-176px -5px;}
+.tr-strikeThrough{background-position:-196px -5px;}
+.tr-link{background-position:-216px -5px;}
+.tr-justifyRight{background-position:-236px -5px;}
+.tr-justifyLeft{background-position:-258px -5px;}
+.tr-justifyFull{background-position:-280px -5px;}
+.tr-justifyCenter{background-position:-302px -5px;}
+.tr-italic{background-position:-324px -5px;}
+.tr-insertUnorderedList{background-position:-341px -5px;}
+.tr-insertOrderedList{background-position:-363px -5px;}
+.tr-image{background-position:-385px -5px;}
+.tr-fontName{background-position:-407px -5px;}
+.tr-bold{background-position:-429px -5px;}
+.tr-blockquote{background-position:-448px -5px;}
+.tr-backColor{background-position:-470px -5px;}
+
+.goog-flat-menu-button {
+  border: 1px solid transparent;
+  color: #333;
+  cursor: pointer;
+  font: normal 95%;
+  list-style: none;
+  margin: 0 2px;
+  outline: none;
+  padding: 1px 4px;
+  position: relative;
+  text-decoration: none;
+  vertical-align: middle;
+}
+
+.goog-flat-menu-button-disabled  {
+  color: #999;
+  cursor: default;
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+  /* filter: alpha(opacity=5); */
+  -khtml-opacity: 0.5;
+  -moz-opacity: 0.5;
+  opacity: 0.5;  
+}
+
+.goog-flat-menu-button-hover {
+  border: 1px solid #ccc;
+  border-color: #9cf #69e #69e #7af !important; /* Hover border wins. */
+}
+
+.goog-flat-menu-button-active {
+  background-color: #bbb;
+  background-position: bottom left;
+}
+
+.goog-flat-menu-button-focused {
+  border-color: #bbb;
+}
+
+.goog-flat-menu-button-caption {
+  padding-right: 10px;
+  vertical-align: top;
+}
+
+.goog-flat-menu-button-dropdown {
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAFCAYAAACJmvbYAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3QUdCRM33mR6cQAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAA/SURBVAjXYzRwL/nPgAMwLZ2YhVVi6cQsBkYGBgaGqzfu/Y/On4Yioa2hxAgXuHrj3n8D95L/V2/cw24NugQAItQYt4vpL6kAAAAASUVORK5CYII=) no-repeat 50% 7px;
+  position: absolute;
+  right: 2px;
+  top: 0;
+  vertical-align: top;
+  width: 7px;
+}
+
+.goog-flat-button {
+  position: relative;
+  border-radius: 2px;
+  -moz-border-radius: 2px;
+  -webkit-border-radius: 2px;  
+  -webkit-user-select: none;
+  background: none;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 1px;
+  padding: 0;
+  height: 24px;
+  color: #444;
+  line-height: 24px;
+  list-style: none;
+  font-size: 11px;
+  font-weight: bold;
+  text-decoration: none;
+  vertical-align: middle;
+  cursor: pointer;
+  outline: none;
+  -moz-outline: none;
+
+}
+
+/* State: disabled. */
+.goog-flat-button-disabled {
+  color: #888;
+  cursor: default;
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+  /* filter: alpha(opacity=5); */
+  -khtml-opacity: 0.5;
+  -moz-opacity: 0.5;
+  opacity: 0.5;
+}
+
+/* State: hover. */
+.goog-flat-button-hover {
+  -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.1);
+  -moz-box-shadow: 0 1px 1px rgba(0,0,0,.1);
+  box-shadow: 0 1px 1px rgba(0,0,0,.1);
+  border-color: #c6c6c6!important;
+  color: #222;
+  padding: 0;
+}
+
+/* State: active, selected, checked. */
+.goog-flat-button-active,
+.goog-flat-button-selected,
+.goog-flat-button-checked {
+  border-color: #c6c6c6!important;  
+  color: #5b4169;
+  background-color: #ccc;
+}
+
+/* State: focused. */
+.goog-flat-button-focused {
+  border-color: #5b4169;
+}
+
+/* Pill (collapsed border) styles. */
+.goog-flat-button-collapse-right {
+  margin-right: 0;
+}
+
+.goog-flat-button-collapse-left {
+  margin-left: 0;
+  border-left: none;
+}
+

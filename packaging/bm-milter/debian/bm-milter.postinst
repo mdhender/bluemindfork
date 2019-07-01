@@ -1,0 +1,33 @@
+#!/bin/bash
+#BEGIN LICENSE
+#
+# Copyright © Blue Mind SAS, 2012
+#
+# This file is part of BlueMind. BlueMind is a messaging and collaborative
+# solution.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of either the GNU Affero General Public License as
+# published by the Free Software Foundation (version 3 of the License).
+#
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+#
+#END LICENSE
+
+# Force startup link install
+update-rc.d -f bm-milter remove > /dev/null 2>&1
+
+# Needed for wheezy support
+if [ ! -x "/usr/bin/deb-systemd-helper" ]; then
+deb-systemd-helper() {
+    echo "Systemd disabled, manage systemv only!"
+}
+fi
+
+#DEBHELPER#
+
+exit 0

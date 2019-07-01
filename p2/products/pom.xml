@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>net.bluemind.products</artifactId>
+	<packaging>pom</packaging>
+	<parent>
+		<groupId>net.bluemind</groupId>
+		<artifactId>p2</artifactId>
+		<version>4.1.0-SNAPSHOT</version>
+	</parent>
+	<modules>
+		<module>core</module>
+		<module>hps</module>
+		<module>hps-extensions</module>
+		<module>lmtpd</module>
+		<module>locator</module>
+		<module>milter</module>
+		<module>node</module>
+		<module>pimp</module>
+		<module>cli</module>
+		<module>push</module>
+		<module>tika</module>
+		<module>xivobridge</module>
+		<module>xmpp</module>
+		<module>ysnp</module>
+		<module>webserver</module>
+		<module>webserver-extensions</module>
+		<module>bm-connector-tbird</module>
+		<module>core-extensions</module>
+	</modules>
+</project>

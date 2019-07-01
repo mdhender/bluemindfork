@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module
+            index="index.html"
+            root="/cal">
+
+		<handler class="net.bluemind.webmodules.calendar.handlers.CalendarAppCacheHandler"
+			path="calendar.appcache">
+			</handler>
+         <handler
+               class="net.bluemind.webmodules.calendar.handlers.CalendarHandler"
+               path="index.html">
+         </handler>
+         
+         <handler
+               class="net.bluemind.webmodules.calendar.handlers.CalendarJspHandler"
+               path="Calendar.jsp">
+         </handler>
+
+         <handler
+               class="net.bluemind.webmodules.calendar.handlers.CalendarOfflineHandler"
+               path="index-offline.html">
+         </handler>
+
+         <handler
+               class="net.bluemind.webmodules.calendar.handlers.ImportICSHandler"
+               path="calendar/import">
+         </handler>
+         <web-resource
+               bundle="calendar">
+         </web-resource>
+         <handler
+               class="net.bluemind.webmodules.calendar.handlers.ExportICSHandler"
+               path="calendar/export">
+         </handler>
+         <handler
+               class="net.bluemind.webmodules.calendar.handlers.PrintCalendarHandler"
+               path="calendar/print">
+         </handler>
+         <handler
+               class="net.bluemind.webmodule.server.handlers.LogHandler"
+               path="log">
+         </handler>
+      </web-module>
+      
+   </extension>
+
+   <extension
+         point="net.bluemind.ui.commons.banner">
+      <banner-entry
+            cssIcon="fa fa-lg fa-calendar"
+            description="%banner-entry.description"
+            name="%banner-entry.name"
+            offline="true"
+            priority="98"
+            role="hasCalendar"
+            root="/cal/">
+      </banner-entry>
+   </extension>
+   <extension
+         point="net.bluemind.webmodule.server">
+      <web-filter
+            class="net.bluemind.webmodules.calendar.filters.PublishCalendarFilter">
+      </web-filter>
+   </extension>
+
+</plugin>

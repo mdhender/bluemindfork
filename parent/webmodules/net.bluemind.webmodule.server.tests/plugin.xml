@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module
+            index="index.html"
+            root="/tests">
+         <handler
+               class="net.bluemind.webmodule.server.testswebmodule.ThrowExceptionHandler"
+               path="throw"></handler>
+         <handler
+               class="net.bluemind.webmodule.server.testswebmodule.ThrowInRequestHandlingContextHandler"
+               path="throwIn">
+         </handler>
+         <web-resource
+               bundle="net.bluemind.webmodule.server.tests">
+         </web-resource>
+      </web-module>
+   </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.webmodule.server.WebModuleServerVerticleFactory">
+      </verticle>
+      <verticle
+            impl="net.bluemind.webmodule.server.tests.SimpleTestVerticleFactory">
+      </verticle>
+   </extension>
+
+</plugin>

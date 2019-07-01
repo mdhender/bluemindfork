@@ -1,0 +1,36 @@
+#!/bin/bash
+#BEGIN LICENSE
+#
+# Copyright © Blue Mind SAS, 2012
+#
+# This file is part of BlueMind. BlueMind is a messaging and collaborative
+# solution.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of either the GNU Affero General Public License as
+# published by the Free Software Foundation (version 3 of the License).
+#
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+#
+#END LICENSE
+
+
+set -e
+
+# Source debconf library.
+. /usr/share/debconf/confmodule
+
+# If saslauthd is installed, ensure that it doesn't start
+if [ -e /etc/default/saslauthd ]; then
+    sed -i -e 's/^START=.*$/START=no/' /etc/default/saslauthd
+    invoke-rc.d saslauthd stop 0>/dev/null 1>/dev/null 2>/dev/null 3>/dev/null || true
+fi
+
+#DEBHELPER#
+
+exit 0
+

@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.icalendar.api
+Bundle-SymbolicName: net.bluemind.icalendar.api
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: net.bluemind.icalendar.api
+Require-Bundle: net.bluemind.core.commons,
+ net.bluemind.slf4j,
+ net.bluemind.tag.api,
+ net.bluemind.lib.ical4j,
+ net.bluemind.lib.jodatime;bundle-version="1.0.0",
+ net.bluemind.neko.common,
+ com.fasterxml.jackson.core.jackson-core;bundle-version="2.4.1";visibility:=reexport,
+ com.fasterxml.jackson.core.jackson-annotations;bundle-version="2.4.1"

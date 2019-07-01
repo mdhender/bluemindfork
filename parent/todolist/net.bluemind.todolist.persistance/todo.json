@@ -1,0 +1,80 @@
+{
+	"settings": {
+		"index": {
+		    "number_of_shards": 1,
+		    "number_of_replicas": 0
+		}
+	},
+	"mappings": {
+		"vtodo": {
+			"properties": {
+				"containerUid": {
+					"type": "keyword"
+				},
+				"uid": {
+					"type": "keyword",
+					"store": true
+				},
+				"value": {
+					"properties": {
+					    "uid": {
+							"type": "keyword"
+						},
+						"due": {
+							"properties": {
+								"timestamp": {
+									"type": "date",
+									"format": "dateOptionalTime"
+								}
+							}
+						},
+						"dtstart": {
+							"properties": {
+								"timestamp": {
+									"type": "date",
+									"format": "dateOptionalTime"
+								}
+							}
+						},
+						"exdate": {
+							"properties": {
+								"timestamp": {
+									"type": "date",
+									"format": "dateOptionalTime"
+								}
+							}
+						},
+						"recurid": {
+							"properties": {
+								"timestamp": {
+									"type": "date",
+									"format": "dateOptionalTime"
+								}
+							}
+						},
+						"completed": {
+							"properties": {
+								"timestamp": {
+									"type": "date",
+									"format": "dateOptionalTime"
+								}
+							}
+						},
+						"rrule": {
+							"properties": {
+								"until": {
+									"properties": {
+										"timestamp": {
+											"type": "date",
+											"format": "dateOptionalTime"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

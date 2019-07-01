@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.core.serialization
+Bundle-SymbolicName: net.bluemind.core.serialization;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ClassPath: .
+X-BM-Version: 4.0-alpha1
+Bundle-ActivationPolicy: lazy
+Require-Bundle: com.netflix.hollow,
+ io.vertx.core,
+ net.bluemind.hornetq.client,
+ org.eclipse.osgi,
+ net.bluemind.core.rest.http.vertx,
+ net.bluemind.lib.vertx,
+ slf4j.api,
+ net.bluemind.core.rest,
+ net.bluemind.eclipse.common
+Export-Package: net.bluemind.core.serialization
+Bundle-Activator: net.bluemind.core.serialization.Activator
+Automatic-Module-Name: net.bluemind.core.serialization
+

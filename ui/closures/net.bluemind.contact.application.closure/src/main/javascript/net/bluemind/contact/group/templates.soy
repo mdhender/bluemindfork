@@ -1,0 +1,51 @@
+{namespace net.bluemind.contact.group.templates}
+
+
+/*
+ * BEGIN LICENSE
+ * Copyright © Blue Mind SAS, 2012-2016
+ *
+ * This file is part of BlueMind. BlueMind is a messaging and collaborative
+ * solution.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of either the GNU Affero General Public License as
+ * published by the Free Software Foundation (version 3 of the License).
+ *
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See LICENSE.txt
+ * END LICENSE
+ */
+ 
+/**
+ * Member data
+ * @param member Entry data.
+ */
+{template .member}
+  <table>
+    <tr>
+      <td  class='{css member-goto}' style='width:30px'>
+      </td>
+      <td style='width:20px;'>
+      </td>
+      <td>{$member.name}</td>
+     <td>
+     {if $member.email}
+       <a href='mailto:{$member.email}'>{$member.email}</a>
+     {/if}
+     </td>
+    </tr>
+  </table>
+{/template}
+
+
+/**
+ * picture 
+ */
+{template .picture}
+	<i class="fa fa-lg fa-user"></i>  
+{/template}

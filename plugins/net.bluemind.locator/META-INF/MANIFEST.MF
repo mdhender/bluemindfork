@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.locator
+Bundle-SymbolicName: net.bluemind.locator;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.locator.Activator
+Bundle-Vendor: blue-mind.net
+Require-Bundle: net.bluemind.slf4j,
+ net.bluemind.lib.vertx;bundle-version="1.0.0",
+ net.bluemind.pool;bundle-version="1.0.0",
+ net.bluemind.core.jdbc;bundle-version="4.1.0",
+ net.bluemind.metrics.registry;bundle-version="4.1.0",
+ net.bluemind.systemd.notify
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Eclipse-RegisterBuddy: net.bluemind.lib.vertx
+Export-Package: net.bluemind.locator.impl

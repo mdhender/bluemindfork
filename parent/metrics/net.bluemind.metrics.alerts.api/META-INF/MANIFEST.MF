@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.metrics.alerts.api
+Bundle-SymbolicName: net.bluemind.metrics.alerts.api;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.core.commons,
+ net.bluemind.core.rest,
+ net.bluemind.core.task.api
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.metrics.alerts.api
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.metrics.alerts.api

@@ -1,0 +1,85 @@
+{namespace bluemind.calendar.notification.template}
+
+/**
+ * Simple notification
+ */
+{template .simple}
+  <span id="notificationMessage" class="{css msg}"></span>
+{/template}
+
+/**
+ * Event created notification
+ */
+{template .eventCreated}
+  {msg desc="notification event created"}Event created{/msg}
+{/template}
+
+/**
+ * Event updated notification
+ */
+{template .eventUpdated}
+  {msg desc="notification event updated"}Event updated{/msg}
+{/template}
+
+/**
+ * Event deleted notification
+ */
+{template .eventDeleted}
+  {msg desc="notification event deleted"}Event deleted{/msg}
+{/template}
+
+/**
+ * Search: Empty query
+ */
+{template .eventInvalidQuery}
+  {msg desc="notification event invalid query"}Invalid query{/msg}
+{/template}
+
+
+/**
+ * Participation changed notification
+ */
+{template .participationChanged}
+  {msg desc="notification for participation changed"}Participation changed{/msg}
+{/template}
+
+/**
+ * view saved
+ */
+{template .viewSaved}
+  {msg desc="notification view saved"}View saved.{/msg}
+{/template}
+
+/**
+ * view removed
+ */
+{template .viewRemoved}
+  {msg desc="notification view removed"}View removed.{/msg}
+{/template}
+
+
+/**
+ * ICS import ok
+ * @param result Events count
+ */
+{template .importOk}
+  {if $result['uids'].length > 1 and $result['uids'].length == $result['total']}
+    {msg desc="Ics import success"}{$result['uids'].length} events succesfully imported.{/msg}
+  {elseif $result['uids'].length == 1 and $result['uids'].length == $result['total']}
+    {msg desc="Ics import success"}The event have been succesfully imported.{/msg}
+  {elseif $result['uids'].length > 1}
+    {msg desc="Ics import success"}{$result['uids'].length} / {$result['total']} events succesfully imported.{/msg}
+  {elseif $result['uids'].length == 1}
+    {msg desc="Ics import success"}1 / {$result['total']} event succesfully imported.{/msg}
+  {else}
+    {call .importKo /}
+  {/if}
+{/template}
+
+/**
+ * ICS import ko
+ */
+{template .importKo}
+  {msg desc="Ics import error"}Fail to import ICS.{/msg}
+{/template}
+

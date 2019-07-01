@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.backend.cyrus.replication.server.storage" name="storage" schema="schema/net.bluemind.backend.cyrus.replication.server.storage.exsd"/>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.backend.cyrus.replication.server.SyncServerVerticleFactory">
+      </verticle>
+      <verticle
+            impl="net.bluemind.backend.cyrus.replication.server.metrics.MetricVerticle$Factory">
+      </verticle>
+   </extension>
+   <extension
+         id="syncserver"
+         name="Sync Server"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            thread="main"
+            visible="true">
+         <run
+               class="net.bluemind.backend.cyrus.replication.server.SyncServerStarter">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="sync_server"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="net.bluemind.backend.cyrus.replication.server.syncserver"
+            name="sync_server">
+         <property
+               name="appName"
+               value="sync_server">
+         </property>
+      </product>
+   </extension>
+
+</plugin>

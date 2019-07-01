@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<title>${msg("login.welcome")}</title>
+		<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<link rel="stylesheet" href="screen.css" type="text/css" />
+		<link rel="stylesheet" href="style/customstyle.css" type="text/css" />
+		${cssRuntime}
+	</head>
+	<body>
+		<div id="header">
+			<img id="logo" src="images/logo-bluemind.png" alt="BlueMind" />
+			<img id="orangePeel" src="40_orange.png" alt="" />
+		</div>
+		<#if authErrorMsg??>
+		<div id="error">${authErrorMsg}</div>
+		</#if>
+		<form action="/login/${actionPath}" method="post">
+			<img src="compte_orange.png" alt="user" />
+			<label for="login">${msg('login.login')}</label>
+			<#if defaultDomain??>
+				<div class="default-domain">
+					<input type="text" name="login" value="${userLogin?html}" autofocus="true" autocapitalize="none" autocorrect="off" placeholder="${msg('login.login')}" />
+					<div title="@{defaultDomain}">@${defaultDomain}</div>
+					<input type="hidden" name="domain" value="${defaultDomain?html}"/>
+				</div>
+			<#else>
+				<input type="text" name="login" id="login" value="${userLogin?html}" autofocus="true" autocapitalize="none" autocorrect="off" placeholder="${msg('login.login')}" />
+			</#if>
+			<label for="password">${msg('login.password')}</label>
+			<input type="password" name="password" autocomplete="off" />
+			<div class='privacy'>
+				<input type="radio" name="priv" value="priv" id="private"  <#if priv = "true">checked="checked"</#if> />
+	  			<label title="${msg('login.privateTitle')}" for="private"></label>
+	  			<label title="${msg('login.privateTitle')}" for="private">${msg('login.private')}</label>
+	  			<br />
+	  			<input type="radio" name="priv" value="public" id="public"  <#if priv = "false">checked="checked"</#if> />
+	  			<label title="${msg('login.publicTitle')}" for="public"></label>
+	  			<label title="${msg('login.publicTitle')}" for="public">${msg('login.public')}</label>
+	  		</div>
+			<input type="hidden" name="askedUri" value="${askedUri?html}" />
+			<input type="hidden" name="csrfToken" value="${csrfToken}"/>
+			<input type="submit" name="submit" id="submit" value="${msg("login.connect")}" />
+		</form>
+		<img id="bottomLogo" src="logo-bluemind-small.png" alt="BlueMind" />
+		<span id="version" title="Build : ${buildVersion}">${bmVersion}</span>
+		${jsRuntime}
+	</body>
+
+</html>

@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.addressbook.ldap.api
+Bundle-SymbolicName: net.bluemind.addressbook.ldap.api
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.bluemind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.core.commons
+Export-Package: net.bluemind.addressbook.ldap.api,
+ net.bluemind.addressbook.ldap.api.fault

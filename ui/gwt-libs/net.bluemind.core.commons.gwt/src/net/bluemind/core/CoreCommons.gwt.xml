@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+	<inherits name="com.google.gwt.json.JSON"/>
+	
+  <inherits name="com.google.gwt.emul.EmulationCompletableFuture" />
+	<!-- Specify the paths for translatable code -->
+	<source path='api' />
+	<source path='commons' />
+	<source path='context' />
+</module>

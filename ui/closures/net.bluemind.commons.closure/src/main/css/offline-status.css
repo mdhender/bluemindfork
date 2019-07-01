@@ -1,0 +1,25 @@
+
+.offline-status {
+  background-repeat: no-repeat;
+  background-position: left center;
+  padding: 1px 0 1px 18px;
+  cursor:pointer;
+}
+
+.offline-status.online {
+  background-image: url(../images/online.png);
+  background-position: 0px 1px;
+}
+
+.offline-status.offline {
+  background-image: url(../images/online.png);
+  background-position: 0px -16px;
+}
+
+.offline-status.syncing {
+  background-image: url(../images/syncing.png);
+}
+
+.offline-status.error {
+  background-image: url(../images/offline.png);
+}

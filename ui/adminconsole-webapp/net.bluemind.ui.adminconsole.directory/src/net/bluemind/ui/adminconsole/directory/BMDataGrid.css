@@ -1,0 +1,12 @@
+.dataGridHeader,.dataGridFooter {
+	background: #dbe2ea !important;
+	border: none !important;
+	padding: 10px 2px !important;
+	color: #24638F !important;
+	text-shadow: #FFF 1px 1px 0 !important;
+}
+
+.dataGridCell {
+	padding: 0px !important;
+	overflow: hidden;
+}

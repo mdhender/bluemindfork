@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>net.bluemind.mozilla.tbird</artifactId>
+	<packaging>pom</packaging>
+
+	<parent>
+		<groupId>net.bluemind</groupId>
+		<artifactId>net.bluemind.parent</artifactId>
+		<version>4.1.0-SNAPSHOT</version>
+	</parent>
+
+	<dependencies>
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.core.api.mozjs</artifactId>
+			<version>4.1.0-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.8</version>
+				<executions>
+					<execution>
+						<id>attach-artifact</id>
+						<phase>package</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<copy todir="${project.build.directory}/tbird" failonerror="no">
+									<fileset dir="bm-connector-tb/src">
+										<exclude name="**/.gitignore" />
+									</fileset>
+								</copy>
+								<!-- unzip generated client -->
+								<unzip
+									dest="${project.build.directory}/tbird/chrome/content/core2/client/">
+									<fileset dir="${project.build.directory}/dependency">
+										<include name="**/net.bluemind.core.api.mozjs*.jar" />
+									</fileset>
+									<patternset>
+                    <include name="**/*.js" />
+									</patternset>
+									<mapper type="flatten" />
+								</unzip>
+								<copy todir="${project.build.directory}/tbird" failonerror="no">
+									<fileset dir="bm-connector-tb/src">
+										<exclude name="**/.gitignore" />
+									</fileset>
+								</copy>
+
+								<replace file="${project.build.directory}/tbird/install.rdf">
+									<replacetoken>1.0.0-dev</replacetoken>
+									<replacevalue>${project.version}</replacevalue>
+								</replace>
+								
+								<replace file="${project.build.directory}/tbird/manifest.json">
+									<replacetoken>1.0.0-dev</replacetoken>
+									<replacevalue>${project.version}</replacevalue>
+								</replace>
+
+								<zip destfile="${project.build.directory}/bm-connector-tb.xpi"
+									basedir="${project.build.directory}/tbird" update="true" />
+								<attachartifact file="${project.build.directory}/bm-connector-tb.xpi"
+									type="xpi" />
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

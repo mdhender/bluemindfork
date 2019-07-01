@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module
+            index="index.html"
+            root="/contact">
+
+		<handler class="net.bluemind.webmodules.contact.handlers.ContactAppCacheHandler"
+			path="contact.appcache">
+			</handler>
+         <handler
+               class="net.bluemind.webmodules.contact.handlers.ContactHandler"
+               path="index.html">
+         </handler>
+         <handler
+               class="net.bluemind.webmodules.contact.handlers.ContactJspHandler"
+               path="Contact.jsp">
+         </handler>
+         
+         <handler
+               class="net.bluemind.webmodules.contact.handlers.ContactOfflineHandler"
+               path="index-offline.html">
+         </handler>
+         <handler
+               class="net.bluemind.webmodule.server.handlers.LogHandler"
+               path="log">
+         </handler>
+
+         <handler
+               class="net.bluemind.webmodules.contact.handlers.ImportVCardHandler"
+               path="import-vcard">
+         </handler>
+         <handler
+               class="net.bluemind.webmodules.contact.handlers.ExportVCardHandler"
+               path="export-vcard">
+         </handler>
+
+         <web-resource
+               bundle="contact">               
+         </web-resource>
+         
+      </web-module>
+   </extension>
+   <extension
+         point="net.bluemind.ui.commons.banner">
+      <banner-entry
+            cssIcon="fa fa-lg fa-user"
+            description="%banner-entry.description"
+            name="%banner-entry.name"
+            offline="true"
+            priority="99"
+            role="hasMail"
+            root="/contact/">
+      </banner-entry>
+   </extension>
+
+</plugin>

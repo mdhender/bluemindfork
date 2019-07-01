@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.todolist.hook" name="hooks" schema="schema/net.bluemind.todolist.hook.exsd"/>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.todolist.hook.internal.TodoListHookVerticleFactory">
+      </verticle>
+   </extension>
+
+</plugin>

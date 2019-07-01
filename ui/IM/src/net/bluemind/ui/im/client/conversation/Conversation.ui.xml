@@ -1,0 +1,29 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'>
+
+	<g:DockLayoutPanel ui:field="dlp">
+
+		<g:center>
+			<g:HeaderPanel>
+				<g:FlowPanel ui:field="roomOccupants" />
+				
+				<g:FlowPanel height="100%">
+					<g:ScrollPanel ui:field="container" height="100%">
+						<g:FlowPanel ui:field="conversationPanel" />
+					</g:ScrollPanel>
+					<g:Label ui:field="notifyNewMessage" />
+				</g:FlowPanel>
+			</g:HeaderPanel>
+		</g:center>
+
+		<g:south size="60">
+			<g:FlowPanel ui:field="composer">
+				<g:FlowPanel ui:field="toolbar" />
+				<g:TextArea ui:field="input" />
+			</g:FlowPanel>
+		</g:south>
+		
+	</g:DockLayoutPanel>
+</ui:UiBinder> 

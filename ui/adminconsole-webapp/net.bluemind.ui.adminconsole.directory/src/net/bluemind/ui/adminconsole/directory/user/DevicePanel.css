@@ -1,0 +1,39 @@
+.container {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+.header {
+	background: #F8F8F8;
+	border-bottom: 1px solid #CCC;
+	font-weight: bold;
+}
+
+.row {
+	height: 40px;
+	border-bottom: 1px solid #CCC;
+}
+
+.inactive {
+	color: #CCC;
+}
+
+.icon {
+	cursor: pointer;
+	padding: 0 1em;
+}
+
+.partnership {
+	text-align: center;
+}
+
+.action {
+	padding: 0 1em;
+}
+
+a.refreshList {
+	color: blue;
+	text-decoration: underline;
+	padding: 3px 0px;
+	cursor: pointer;
+}

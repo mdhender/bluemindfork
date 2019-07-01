@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.dataprotect.service.backupworker">
+      <backup_worker
+            impl="net.bluemind.dataprotect.config.ConfigWorker">
+      </backup_worker>
+   </extension>
+
+</plugin>

@@ -1,0 +1,138 @@
+# On success, at the end INSTALLER_VERSION and OS_VERSION equal to one of those values
+REDHAT7="redhat-7"
+UBUNTU_TRUSTY="ubuntu-trusty"
+UBUNTU_XENIAL="ubuntu-xenial"
+UBUNTU_BIONIC="ubuntu-bionic"
+DEBIAN_WHEEZY="debian-wheezy"
+DEBIAN_JESSIE="debian-jessie"
+DEBIAN_STRETCH="debian-stretch"
+
+check_redhat7() {
+    if [  -e /etc/system-release ]; then
+        release=`cat /etc/system-release`
+        
+        if [[ "${release}" == *"release 7."* ]]; then
+            return 0
+        fi
+    fi
+    
+    return 1
+}
+
+check_ubuntu() {
+    if [ -e "/etc/lsb-release" ]; then
+        source /etc/lsb-release
+        if [ "${DISTRIB_RELEASE}" == $1 ]; then
+            return 0
+        fi
+    fi
+    
+    return 1
+}
+
+check_debian_wheezy() {
+    if [ -e "/etc/debian_version" ]; then
+        release=`cat /etc/debian_version`
+        if [[ "${release}" == *"7."* ]]; then
+            return 0
+        fi
+    fi
+    
+    return 1
+}
+
+check_debian_jessie() {
+    if [ -e "/etc/debian_version" ]; then
+        release=`cat /etc/debian_version`
+        if [[ "${release}" == *"8."* ]]; then
+            return 0
+        fi
+    fi
+    
+    return 1
+}
+
+check_debian_stretch() {
+    if [ -e "/etc/debian_version" ]; then
+        release=`cat /etc/debian_version`
+        if [[ "${release}" == *"9."* ]]; then
+            return 0
+        fi
+    fi
+    
+    return 1
+}
+
+detect_os() {
+    if [ -e "./rhel7" ]; then
+        INSTALLER_VERSION=${REDHAT7}
+        if check_redhat7; then
+            OS_VERSION=${INSTALLER_VERSION}
+            source "./include/os-redhat-base"
+        fi
+    fi
+
+    if [ -e "./trusty" ]; then
+        INSTALLER_VERSION=${UBUNTU_TRUSTY}
+        if check_ubuntu "14.04"; then
+            OS_VERSION=${INSTALLER_VERSION}
+            source "./include/os-debian-squeeze-base"
+        fi
+    fi
+
+    if [ -e "./xenial" ]; then
+        INSTALLER_VERSION=${UBUNTU_XENIAL}
+        if check_ubuntu "16.04"; then
+            OS_VERSION=${INSTALLER_VERSION}
+            source "./include/os-debian-squeeze-base"
+        fi
+    fi
+    
+    if [ -e "./bionic" ]; then
+        INSTALLER_VERSION=${UBUNTU_BIONIC}
+        if check_ubuntu "18.04"; then
+            OS_VERSION=${INSTALLER_VERSION}
+            source "./include/os-debian-squeeze-base"
+        fi
+    fi
+
+    if [ -e "./wheezy" ]; then
+        INSTALLER_VERSION=${DEBIAN_WHEEZY}
+        if check_debian_wheezy; then
+            OS_VERSION=${INSTALLER_VERSION}
+            source "./include/os-debian-squeeze-base"
+        fi
+    fi
+
+    if [ -e "./jessie" ]; then
+        INSTALLER_VERSION=${DEBIAN_JESSIE}
+        if check_debian_jessie; then
+            OS_VERSION=${INSTALLER_VERSION}
+            source "./include/os-debian-squeeze-base"
+        fi
+    fi
+    
+    if [ -e "./stretch" ]; then
+        INSTALLER_VERSION=${DEBIAN_STRETCH}
+        if check_debian_stretch; then
+            OS_VERSION=${INSTALLER_VERSION}
+            source "./include/os-debian-squeeze-base"
+        fi
+    fi
+
+    if [ -z ${OS_VERSION} ]; then
+        display_error "${txt_os_not_supported}" ${INSTALLER_VERSION}
+        exit 1
+    else
+        display_message "${txt_os}" ${OS_VERSION_CN}
+    fi
+}
+
+read_stdin() {
+    if [ ! -z ${interactive} ]; then
+        echo $1
+    else
+        read response
+        echo $response
+    fi
+}

@@ -1,0 +1,28 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests
+Bundle-SymbolicName: net.bluemind.calendar.usercalendar.tests;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Fragment-Host: net.bluemind.calendar.usercalendar
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.junit,
+ net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
+ net.bluemind.core.context;bundle-version="1.0.0",
+ net.bluemind.core.container.persistance;bundle-version="1.0.0",
+ net.bluemind.server.api,
+ net.bluemind.user.persistance,
+ net.bluemind.server.service,
+ net.bluemind.addressbook.api,
+ net.bluemind.user.service,
+ net.bluemind.config,
+ net.bluemind.core.elasticsearch.testshelper,
+ net.bluemind.tests.defaultdata,
+ net.bluemind.addressbook.domainbook;bundle-version="1.0.0",
+ net.bluemind.mailbox.service;bundle-version="1.0.0",
+ net.bluemind.domain.api;bundle-version="1.0.0",
+ net.bluemind.hsm.service;bundle-version="4.1.0",
+ net.bluemind.server.hook,
+ net.bluemind.core.tests.testshelper,
+ net.bluemind.core.task.service;bundle-version="4.1.0"
+
+

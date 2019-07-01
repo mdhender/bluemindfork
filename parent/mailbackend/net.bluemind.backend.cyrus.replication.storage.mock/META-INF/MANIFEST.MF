@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.backend.cyrus.replication.storage.mock
+Bundle-SymbolicName: net.bluemind.backend.cyrus.replication.storage.mock;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.backend.cyrus.replication.server,
+ io.vertx.core,
+ net.bluemind.core.rest.http,
+ net.bluemind.backend.mail.replica.api;bundle-version="4.1.0",
+ slf4j.api,
+ net.bluemind.backend.cyrus.partitions
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.backend.cyrus.replication.storage.mock
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.backend.cyrus.replication.storage.mock

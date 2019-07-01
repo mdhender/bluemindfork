@@ -1,0 +1,47 @@
++-------------------------------------------------------------------------+
+|
+|  Author:    Karl McMurdo (user xrxca on roundcubeforum.net)
+|  Plugin:    compose_newwindow
+|  Version:   3.00 (20110822)
+|  Purpose:   Enable compose/reply/forward in new window 
+|  URL:       http://github.com/xrxca/cnw
+|  Copyright: (c) 2010-2011 Karl McMurdo
+|
++-------------------------------------------------------------------------+
+
+compose_newwindow changes the behavior of the default compose / reply /
+forward buttons in the main mail list so that they open the new message in 
+a separate window (or tab depending on your browser settings)
+
+The compose window is also slightly modified (using a css file) to hide
+the main toolbar and move the rest of the items up accordingly.
+
+Note: in order for this to work properly you may have to disable the
+popup blocker in your browser for the webmail site.
+
+If you are using a custom skin the plugin will look in the 
+plugins/compose_newwindow/skins directory for corresponding
+subdirectories and use the file compose.css from that directory
+if found.
+
+Installation
+------------
+Add the plugin to your config/main.inc.php
+
+Configuration
+-------------
+The plugins default options can be set by copying the config.in.php.dist
+file to config.inc.php in the plugin directory and editing the file.
+
+ChangeLog:
+20110822 - Updates to handle roundcube 6 beta changes to addressbook
+           and built in foward as attachment option.
+           Changes to old forward as Attachment plugin handling code.
+           Updates to handling of contextmenu plugin handling.
+           Incorporate changes from myroundcube.
+           Change to default  options file to hopefully fix issues 
+           where it wasn't possible to turn the option off in settings.
+
+ToDo: 
+- Get message list to reload in main window on send to show changed flags.
+- Possibly display the message send results popup in the Main Window.

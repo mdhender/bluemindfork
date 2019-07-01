@@ -1,0 +1,12 @@
+.container {
+	margin-bottom: 5px;
+	border-bottom: 1px solid #F8F8F8;
+}
+
+.container:hover {
+	background: #F8F8F8;
+}
+
+.trash {
+	padding-left: 30px;
+}

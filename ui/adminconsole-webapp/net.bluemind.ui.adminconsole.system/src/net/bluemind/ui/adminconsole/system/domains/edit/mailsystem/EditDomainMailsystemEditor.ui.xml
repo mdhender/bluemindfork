@@ -1,0 +1,87 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:bj="urn:import:net.bluemind.ui.admin.client" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui" xmlns:common="urn:import:net.bluemind.ui.common.client.forms"
+	xmlns:admin="urn:import:net.bluemind.ui.admin.client.forms">
+
+	<ui:with field="c"
+		type="net.bluemind.ui.adminconsole.system.domains.l10n.DomainConstants" />
+
+
+	<g:HTMLPanel>
+		<f:FieldSetPanel name="{c.mailSystemInfo}" />
+		<table border="0">
+			<tr>
+				<td style='width:250px'>
+					<g:Label text="{c.internalMailServer}:"></g:Label>
+				</td>
+				<td style='width:350px'>
+					<g:ListBox multipleSelect="true" ui:field="internalMailServer"></g:ListBox>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px'>
+					<g:Label text="{c.mailRelay}:"></g:Label>
+				</td>
+				<td style='width:350px'>
+					<g:ListBox multipleSelect="true" ui:field="mailRelay"></g:ListBox>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px'>
+					<g:Label text="{c.mailboxStorageServer}:"></g:Label>
+				</td>
+				<td style='width:350px'>
+					<g:ListBox multipleSelect="true" ui:field="mailboxStorageServer"></g:ListBox>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px'>
+					<g:Label text="{c.mailboxConnectionServer}:"></g:Label>
+				</td>
+				<td style='width:350px'>
+					<g:ListBox multipleSelect="true" ui:field="mailboxConnectionServer"></g:ListBox>
+				</td>
+			</tr>
+		</table>
+		<f:FieldSetPanel name="{c.mailStorage}" />
+		<table border="0">
+			<tr>
+				<td style="width:250px"></td>
+				<td />
+				<td />
+			</tr>
+			<admin:QuotaEdit titleText="Maximum user quota"
+				mandatory="false" showQuota="false" ui:field="maxUserQuota" />
+			<admin:QuotaEdit titleText="Default user quota"
+				mandatory="false" showQuota="false" ui:field="defaultUserQuota" />
+			<admin:QuotaEdit titleText="Maximum mailshare quota"
+				mandatory="false" showQuota="false" ui:field="maxPublicFolderQuota" />
+			<admin:QuotaEdit titleText="Default mailshare quota"
+				mandatory="false" showQuota="false" ui:field="defaultPublicFolderQuota" />
+		</table>
+		<f:FieldSetPanel name="{c.mailRouting}" />
+		<table border="0">
+			<tr>
+				<td style='width:250px'>
+					<g:Label text="{c.relayforSplittedDomains}:"></g:Label>
+				</td>
+				<td style='width:350px'>
+					<g:TextBox width="350px" ui:field="relayforSplittedDomains"></g:TextBox>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px'>
+					<g:Label text="{c.forwardUnknownEmails}:"></g:Label>
+				</td>
+				<td style='width:350px'>
+					<g:CheckBox ui:field="forwardUnknownEmails"></g:CheckBox>
+				</td>
+			</tr>
+		</table>
+
+	</g:HTMLPanel>
+
+</ui:UiBinder>

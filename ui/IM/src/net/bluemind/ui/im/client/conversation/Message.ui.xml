@@ -1,0 +1,31 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:bm="urn:import:net.bluemind.ui.im.client">
+
+	<g:HTMLPanel>
+		<table>
+			<tr>
+				<td>
+					<bm:Photo ui:field="photo" />
+				</td>
+				<td>
+					<g:HTMLPanel ui:field="arrowOutline">
+						<g:HTMLPanel ui:field="arrow" />
+					</g:HTMLPanel>
+				</td>
+				<td width="100%">
+					<g:FlowPanel ui:field="bubble">
+						<g:HTMLPanel ui:field="msgContainer" />
+						<g:HTMLPanel ui:field="footer">
+							<g:Label ui:field="from" />
+							<g:Label ui:field="date" />
+						</g:HTMLPanel>
+					</g:FlowPanel>
+				</td>
+			</tr>
+		</table>
+	</g:HTMLPanel>
+
+</ui:UiBinder>

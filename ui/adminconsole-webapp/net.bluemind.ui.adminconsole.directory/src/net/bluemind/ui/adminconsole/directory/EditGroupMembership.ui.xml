@@ -1,0 +1,44 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:f="urn:import:net.bluemind.ui.adminconsole.directory" xmlns:common="urn:import:net.bluemind.ui.common.client.forms">
+
+	<ui:with field="uc"
+		type="net.bluemind.ui.adminconsole.directory.user.l10n.UserConstants" />
+
+	<g:DockLayoutPanel unit="EM">
+
+		<g:north size="4">
+			<g:HTMLPanel>
+				<div class="modal-dialog-title">
+					<h1>
+						<g:Label text="{uc.editGroupMembership}"></g:Label>
+					</h1>
+				</div>
+			</g:HTMLPanel>
+		</g:north>
+
+		<g:center>
+			<g:ScrollPanel>
+				<g:HTMLPanel>
+					<table class="formContainer">
+						<f:MyGroupsEntityEdit ui:field="gEdit"
+							titleText="{uc.groups}" multival="true" />
+					</table>
+				</g:HTMLPanel>
+			</g:ScrollPanel>
+		</g:center>
+
+
+		<g:south size="4">
+			<g:FlowPanel styleName="modal-dialog-buttons">
+				<common:DoneCancelActionBar ui:field="actionBar"></common:DoneCancelActionBar>
+			</g:FlowPanel>
+		</g:south>
+
+	</g:DockLayoutPanel>
+
+
+</ui:UiBinder>

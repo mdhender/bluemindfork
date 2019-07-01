@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.directory.hollow.datamodel.consumer.tests
+Bundle-SymbolicName: net.bluemind.directory.hollow.datamodel.consumer.tests;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.junit,
+ com.netflix.hollow,
+ net.bluemind.core.serialization,
+ net.bluemind.directory.hollow.datamodel,
+ net.bluemind.directory.hollow.datamodel.consumer
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.directory.hollow.datamodel.consumer.tests

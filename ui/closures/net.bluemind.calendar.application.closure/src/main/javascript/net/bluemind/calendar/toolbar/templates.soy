@@ -1,0 +1,145 @@
+{namespace net.bluemind.calendar.toolbar.templates}
+
+/**
+ * print dialog
+ */
+{template .printDialog}
+<div class="{css modal-dialog}">
+  <div class="{css modal-dialog-title}">
+    <span class="{css modal-dialog-title-text}">{msg meaning="calendar.toolbar.print.asPDF" desc="print as pdf tooltip"}Print as PDF{/msg}</span>
+    <span class="{css modal-dialog-title-close}"></span>
+  </div>
+  <div class="{css modal-dialog-content}">
+    <div id="print-preview-container" class="{css print-preview}">
+      <img class="{css print-preview-image}" />
+    </div>
+    <form id="bm-ui-form-print-preview">
+      <table>
+        <tr>
+          <td>{msg meaning="calendar.toolbar.print.orientation" desc="print orientation"}Orientation{/msg}</td>
+          <td>
+            <select name="sel-print-orientation" class="{css sel-print-orientation}">
+              <option value="auto" selected="selected">{msg meaning="calendar.toolbar.print.orientation.auto" desc="orientation auto"}Auto{/msg}</option>
+              <option value="portrait">{msg meaning="calendar.toolbar.print.orientation.portrait" desc="orientation portrait"}Portrait{/msg}</option>
+              <option value="landscape">{msg meaning="calendar.toolbar.print.orientation.landscape" desc="orientation landscape"}Landscape{/msg}</option>
+            </select>
+          </td>
+        </tr>
+        <tr id="bm-ui-form-print-detail">
+          <td></td>
+          <td><input class="{css bm-ui-form-radio} {css cb-print-details}" type="checkbox" name="cb-print-details" value="on" checked="false"/>
+          <label class="{css radio-label}" for="cb-print-details">{msg meaning="calendar.toolbar.print.showDetails" desc="show details"}Show details{/msg}</label></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><input class="{css bm-ui-form-radio} {css cb-print-bw}" type="checkbox" name="cb-print-bw" value="on" checked="false"/>
+          <label class="{css radio-label}" for="cb-print-bw">{msg meaning="calendar.toolbar.print.blackNwhite" desc="black and white"}Black and white{/msg}</label></td>
+        </tr>
+      </table>
+    </form>
+  </div>
+  <div class="{css modal-dialog-buttons}">
+    <button type="submit" name="save-pdf" class="{css goog-button-base} {css goog-primaryactionbutton} {css save-pdf-btn-export}">{msg meaning="general.save" desc="save button"}Save{/msg}</button>
+    <button name="cancel" class="{css goog-button-base}">{msg meaning="general.cancel" desc="button cancel"}Cancel{/msg}</button>
+  </div>
+  <span tabindex="0"></span>
+</div>
+{/template}
+
+
+/**
+ * ICS Export dialog
+ * @param calendars Target calendars
+ */
+{template .icsExportDialog}
+<div class="{css modal-dialog}">
+  <div class="{css modal-dialog-title}">
+    <span class="{css modal-dialog-title-text}">{msg meaning="calendar.toolbar.export" desc="ics export"}ICS Export{/msg}</span>
+    <span class="{css modal-dialog-title-close}"></span>
+  </div>
+  <form id="svd-form" class="{css svd-form}" autocomplete="off" onsubmit="return false;">
+    <div class="{css modal-dialog-content}">
+      <h3>
+        {msg meaning="general.calendar" desc="calendar"}Calendar : {/msg}
+        <select name='calendar' id='export-calendar-select'>
+        {foreach $calendar in $calendars}
+          {if $calendar.isDefault}
+            <option selected='selected' value='{$calendar.id}'>{$calendar.label}</option>
+          {else}
+            <option value='{$calendar.id}'>{$calendar.label}</option>
+          {/if}
+        {/foreach}
+        </select>
+      </h3>
+      <div style="display:none">
+      <input class="{css bm-ui-form-radio}" type="radio" id="radio-export-all" name="radio-export" value="all" checked="true"/>
+      <label class="{css radio-label}" for="radio-export-all">{msg meaning="calendar.toolbar.all" desc="ics export all"}All events{/msg}</label>
+      <br />
+      <input class="{css bm-ui-form-radio}" type="radio" id="radio-export-date" name="radio-export" value="date"/>
+      <label class="{css radio-label}" for="radio-export-date">{msg meaning="calendar.toolbar.export.prior" desc="ics export prior to date"}All events prior to{/msg}</label>&nbsp;
+      <input id="bm-ui-ics-export-date" class="{css bm-mini}" name="export-date" type="text" value="" />
+      </div>
+    </div>
+    <div class="{css modal-dialog-buttons}">
+      <button id="ics-export-btn-export" type="submit" name="export" class="{css goog-button-base} {css goog-primaryactionbutton}">{msg meaning="general.export" desc="export button"}Export{/msg}</button>
+      <button name="cancel" class="{css goog-button-base}">{msg meaning="general.cancel" desc="button cancel"}Cancel{/msg}</button>
+    </div>
+  </form>
+  <span tabindex="0"></span>
+</div>
+{/template}
+
+/**
+ * ICS Calendar select
+ * @param calendars Target calendars
+ */
+{template .icsCalendarSelect}
+  {foreach $calendar in $calendars}
+    {if $calendar.isDefault}
+      <option selected='selected' value='{$calendar.id}'>{$calendar.label}</option>
+    {else}
+      <option value='{$calendar.id}'>{$calendar.label}</option>
+    {/if}
+  {/foreach}
+{/template}
+
+/**
+ * ICS Import dialog
+ * @param calendars Target calendars
+ */
+{template .icsImportDialog}
+    <table>
+      <tr>
+        <th><label>{msg meaning="calendar.toolbar.import" desc="ICS import input label"}ICS file{/msg}</label></th>
+        <td>
+        	<form  enctype="multipart/form-data" method="post" action="calendar/import">
+        	<input type='file' name='ics'/>
+        </td>
+      </tr>
+      <tr>
+        <th><label>{msg meaning="general.calendars" desc="calendars"}Calendars{/msg}</label></th>
+        <td>
+          <select name='calendar' id='import-calendar-select'>
+          {foreach $calendar in $calendars}
+            {if $calendar.isDefault}
+              <option selected='selected' value='{$calendar.id}'>{$calendar.label}</option>
+            {else}
+              <option value='{$calendar.id}'>{$calendar.label}</option>
+            {/if}
+          {/foreach}
+          </select>
+        </td>
+      </tr>
+    </table>
+{/template}
+
+
+/**
+ * ICS Import in progress dialog
+ */
+{template .icsImportInProgressDialog}
+  <div id="ics-progress-dialog-status"/>
+  <div class="{css progress} {css progress-striped} {css active}">
+    <div class="{css bar}"></div>
+  <div>
+{/template}

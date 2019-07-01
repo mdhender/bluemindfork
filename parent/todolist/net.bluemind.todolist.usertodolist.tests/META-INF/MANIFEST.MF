@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests
+Bundle-SymbolicName: net.bluemind.todolist.usertodolist.tests
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.junit,
+ net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
+ net.bluemind.core.container.persistance,
+ net.bluemind.core.container.service;bundle-version="1.0.0",
+ net.bluemind.core.rest.http.vertx;bundle-version="1.0.0",
+ net.bluemind.core.tests.testshelper,
+ org.eclipse.core.runtime;bundle-version="3.7.0",
+ net.bluemind.todolist.service;bundle-version="4.1.0",
+ net.bluemind.core.elasticsearch.testshelper,
+ net.bluemind.server.api,
+ net.bluemind.tests.defaultdata,
+ net.bluemind.config,
+ net.bluemind.user.persistance,
+ net.bluemind.directory.persistance,
+ net.bluemind.user.persistance,
+ net.bluemind.todolist.usertodolist,
+ net.bluemind.todolist.api
+
+

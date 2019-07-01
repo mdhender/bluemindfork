@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: net.bluemind.webmodule.uploadhandler;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.lib.vertx,
+ net.bluemind.slf4j,
+ org.eclipse.osgi,
+ net.bluemind.webmodule.server;bundle-version="1.0.0",
+ net.bluemind.webmodule;bundle-version="1.0.0",
+ net.bluemind.utils,
+ net.bluemind.core.commons
+Bundle-ClassPath: .
+Export-Package: net.bluemind.webmodule.uploadhandler
+Automatic-Module-Name: net.bluemind.webmodule.uploadhandler

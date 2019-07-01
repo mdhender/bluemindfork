@@ -1,0 +1,1175 @@
+{namespace bluemind.calendar.event.template}
+
+/**
+ * Event base bubble template
+ */
+{template .bubble}
+<div class="{css eb}">
+  <div class="{css eb-arrow-border}"></div>
+  <div class="{css eb-arrow}"></div>
+  <div class="{css eb-inner}">
+    <a class="{css eb-close}" href="javascript:void(0)"></a>
+    <div class="{css eb-title}"></div>
+    <div class="{css eb-content}"></div>
+  </div>
+</div>
+{/template}
+
+/**
+ * Event quick create form  template
+ * @param title Event title.
+ * @param calendar Event calendar.
+ * @param calendars Appointable calendars.
+ */
+{template .quickCreateForm}
+<div id="ecb-form-notification" class="{css form-notification} {css warn}">{msg desc="event occurs in the past"}The event occurs in the past{/msg}</div>
+<form  id="ecb-form" class="{css ecb-form}" autocomplete="off" onsubmit="return false;">
+
+  <div class="{css eb-root}">
+    <table class="{css eb-table}" cellpadding="0" cellspacing="0">
+      <tbody>
+        <tr>
+          <th>{msg desc="event title label"}Title{/msg}:</th>
+          <td><input type="text" name="ecb-title" id="ecb-title" value="{$title}" maxlength="255" /></td>
+        </tr>
+        <tr>
+          <th>{msg desc="calendar"}Calendar{/msg}:</th>
+          <td>
+            <select id="ecb-calendar" class="{css ecb-calendar}">
+            {foreach $cal in $calendars}
+              {if $cal.id_ == $calendar} 
+                <option value="{$cal.id_}" selected="true">{$cal.label_}</option>
+              {else}
+                <option value="{$cal.id_}" >{$cal.label_}</option>
+              {/if}
+            {/foreach}
+            </select>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="{css eb-buttons}">
+    <table>
+      <tbody>
+        <tr>
+          <td>
+            <input id="ecb-btn-create" class="{css goog-button-base} {css goog-primaryactionbutton}" type="submit" value="{msg desc="new event button"}New event{/msg}" />
+          </td>
+          <td class="{css btn-detail}">
+            <a href="javascript:void(0)" id="eb-btn-event-new-screen" class="{css cb-link}">
+              {msg desc="update event link"}Modify details{/msg} »
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</form>
+{/template}
+
+/**
+ * Event consult popup
+ * @param title Event title.
+ * @param owner Event owner.
+ * @param location Event location.
+ * @param isMeeting Event is a meeting.
+ * @param attendees Event attendees.
+ * @param participation Attendee participation.
+ * @param writable Participation can be updated.
+ * @param pub is event public
+ * @param showCustomNoteOptions show custom note option if i'm not the owner.
+ * @param privacy event privacy.
+ * @param isAttend is user attend to event
+ * @param calendar calendar label
+ */
+{template .consultEvent}
+  <div class="{css eb-root}">
+    <table class="{css eb-table}" cellpadding="0" cellspacing="0">
+      <tbody>
+        {if $privacy and not $isAttend}
+          <tr>
+            <th>{msg desc="event title label"}Title{/msg}:</th>
+            <td>{msg desc="Private state for event privacy"}Private{/msg}</td>
+          </tr>
+          <tr>
+            <th>{msg desc="organizer"}Organizer{/msg}:</th>
+            <td>{$owner}</td>
+          </tr>
+        {else}
+          <tr>
+            <th>{msg desc="event title label"}Title{/msg}:</th>
+            <td>{$title}</td>
+          </tr>
+
+          {if $owner}
+            <tr>
+              <th>{msg desc="organizer"}Organizer{/msg}:</th>
+              <td>{$owner}</td>
+            </tr>
+          {/if}
+
+          {if $calendar}
+            <tr>
+              <th>{msg desc="calendar"}Calendar{/msg}:</th>
+              <td>{$calendar}</td>
+            </tr>
+          {/if}
+
+          {if $location}
+            <tr>
+              <th>{msg desc="event location label"}Location{/msg}:</th>
+              <td>{$location}</td>
+            </tr>
+          {/if}
+
+          {if $isMeeting}
+            <tr>
+              <th class="{css attendees-label}">{msg desc="attendees"}Attendees{/msg}:</th>
+              <td>
+                {call .bubbleAttendeesList}
+                  {param attendees : $attendees /}
+                {/call}
+              </td>
+            </tr>
+          {/if}
+
+          {if $writable }
+            {call .bubbleParticipationQuickLinks}
+              {param participation : $participation /}
+              {param type : 'consult' /}
+              {param showCustomNoteOptions: $showCustomNoteOptions /}
+            {/call}
+          {/if}
+        {/if}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="{css eb-buttons}">
+    <table>
+      <tbody>
+        <tr>
+          <td>
+            {if $writable }
+              <input id="ecb-btn-delete" class="{css goog-button-base} {css dangerousactionbutton}" type="button" value="{msg desc="delete event button"}Delete event{/msg}" />
+            {/if}
+          </td>
+          <td class="{css btn-detail}">
+            {if $pub or ($isAttend and $writable)}
+              <a href="javascript:void(0);" id="eb-btn-event-consult-screen">
+                {msg desc="event detail"}Detail{/msg} »
+              </a>
+            {/if}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+{/template}
+
+/**
+ * Event update popup
+ * @param title Event title.
+ * @param location Event location.
+ * @param owner Event owner display name.
+ * @param isMeeting Event is a meeting.
+ * @param attendees Event attendees.
+ * @param participation Attendee participation.
+ * @param writable Participation can be updated.
+ * @param showCustomNoteOptions show custom note option if i'm not the owner.
+ */
+{template .updateEvent}
+  <form  id="ecb-update-form" class="{css ecb-form}" autocomplete="off" onsubmit="return false;">
+
+    <div class="{css eb-root}">
+      <table class="{css eb-table}" cellpadding="0" cellspacing="0">
+        <tbody>
+          <tr>
+            <th>{msg desc="event title label"}Title{/msg}:</th>
+            <td>
+              <input type="text" id="ecb-update-title" value="{$title}" />
+              <input type="submit" class="{css goog-button-base}" id="eb-btn-update" value="{msg desc="save button"}Save{/msg}" style="visibility:hidden;"/>
+            </td>
+          </tr>
+
+          {if $owner}
+            <tr>
+              <th>{msg desc="organizer"}Organizer{/msg}:</th>
+              <td>{$owner}</td>
+            </tr>
+          {/if}
+
+          {if $location}
+            <tr>
+              <th>{msg desc="event location label"}Location{/msg}:</th>
+              <td>{$location}</td>
+            </tr>
+          {/if}
+
+          {if $isMeeting}
+            <tr>
+              <th class="{css attendees-label}">{msg desc="attendees"}Attendees{/msg}:</th>
+              <td>
+                {call .bubbleAttendeesList}
+                  {param attendees : $attendees /}
+                {/call}
+              </td>
+            </tr>
+          {/if}
+
+          {if $writable}
+            {call .bubbleParticipationQuickLinks}
+              {param participation : $participation /}
+              {param type : 'update' /}
+              {param showCustomNoteOptions: $showCustomNoteOptions /}
+            {/call}
+          {/if}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="{css eb-buttons}">
+      <table>
+        <tbody>
+          <tr>
+            <td>
+              <input id="eb-btn-delete" class="{css goog-button-base} {css dangerousactionbutton}" type="button" value="{msg desc="delete event button"}Delete event{/msg}" />
+            </td>
+            <td class="{css btn-detail}">
+              <a href="javascript:void(0)" id="eb-btn-event-update-screen" class="{css cb-link}">
+                {msg desc="update event link"}Modify details{/msg} »
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </form>
+{/template}
+
+/**
+ * Attendees
+ * @param attendees attendees list.
+ */
+{template .bubbleAttendeesList}
+  <div class="{css bubble-attendees-container}">
+    <ul class="{css attendees}">
+    {foreach $attendee in $attendees}
+      {if $attendee['participation'] == 'DECLINED'}
+        <li class="{css declined}" title="{$attendee['displayName']}{if $attendee['email']}<{$attendee['email']}>{/if}">
+      {elseif $attendee['participation'] == 'NEEDS-ACTION'}
+        <li class="{css needsaction}" title="{$attendee['displayName']}{if $attendee['email']}<{$attendee['email']}>{/if}">
+      {else}
+        <li class="{css accepted}" title="{$attendee['displayName']}{if $attendee['email']}<{$attendee['email']}>{/if}">
+      {/if}
+      {if $attendee['displayName']}
+        {$attendee['displayName']}
+      {else}
+        {$attendee['email']}
+      {/if}
+      </span>
+    {/foreach}
+    </ul>
+  </div>
+{/template}
+
+/**
+ * Participation quick links
+ * @param participation Attendee participation.
+ * @param type bubble type
+ * @param showCustomNoteOptions show custom note option if i'm not the owner.
+ */
+{template .bubbleParticipationQuickLinks}
+  <tr>
+    <th>{msg desc="Participation"}Participation{/msg}:</th>
+    <td>
+
+      <span class="{css ecb-form-participation}">
+        {if $showCustomNoteOptions}
+          <button id="eb-btn-event-{$type}-partstat-accepted" class="{css goog-button-base} {css goog-button-base-first} {css split-left}" {if $participation == 'ACCEPTED'}disabled="true"{/if}>
+          {msg desc="yes"}Yes{/msg}
+          </button>
+          <button id="eb-btn-accepted-menu" class="{css goog-button-base} {css goog-button-base-last} {css split-right}" {if $participation == 'ACCEPTED'}disabled="true"{/if}>&#x25BC;</button>
+          <div id="partstat-accepted-menu" class="{css goog-menu}" style="display:none">
+            <div id="eb-btn-event-accepted-edit-notification" class="{css goog-menuitem}">{msg desc="add a note before sending"}Add a note to the response before sending{/msg}</div>
+            <div id="eb-btn-event-accepted-default-notification" class="{css goog-menuitem}">{msg desc="send the response now"}Send the response now{/msg}</div>
+            <div id="eb-btn-event-accepted-no-notification" class="{css goog-menuitem}">{msg desc="send the response now"}Do not send a response{/msg}</div>
+          </div>
+        {else}
+        <button id="eb-btn-event-{$type}-partstat-accepted" class="{css goog-button-base}" {if $participation == 'ACCEPTED'}disabled="true"{/if}>
+          {msg desc="yes"}Yes{/msg}
+        </button>
+        {/if}
+      </span>
+
+      <span class="{css ecb-form-participation}">
+        {if $showCustomNoteOptions}
+        <button id="eb-btn-event-{$type}-partstat-needs-action" class="{css goog-button-base} {css goog-button-base-first} {css split-left}" {if $participation == 'NEEDS-ACTION'}disabled="true"{/if}>
+          {msg desc="Button to set participation to 'needs action'"}Maybe{/msg}
+        </button>
+        <button id="eb-btn-needs-action-menu" class="{css goog-button-base} {css goog-button-base-last} {css split-right}" {if $participation == 'NEEDS-ACTION'}disabled="true"{/if}>&#x25BC;</button>
+        <div id="partstat-needs-action-menu" class="{css goog-menu}" style="display:none">
+          <div id="eb-btn-event-needs-action-edit-notification" class="{css goog-menuitem}">{msg desc="add a note before sending"}Add a note to the response before sending{/msg}</div>
+          <div id="eb-btn-event-needs-action-default-notification" class="{css goog-menuitem}">{msg desc="send the response now"}Send the response now{/msg}</div>
+          <div id="eb-btn-event-needs-action-no-notification" class="{css goog-menuitem}">{msg desc="send the response now"}Do not send a response{/msg}</div>
+        </div>
+        {else}
+        <button id="eb-btn-event-{$type}-partstat-needs-action" class="{css goog-button-base}" {if $participation == 'NEEDS-ACTION'}disabled="true"{/if}>
+          {msg desc="Button to set participation to 'needs action'"}Maybe{/msg}
+        </button>
+        {/if}
+      </span>
+
+      <span class="{css ecb-form-participation}">
+        {if $showCustomNoteOptions}
+        <button id="eb-btn-event-{$type}-partstat-declined" class="{css goog-button-base} {css goog-button-base-first} {css split-left}" {if $participation == 'DECLINED'}disabled="true"{/if}>
+          {msg desc="no"}No{/msg}
+        </button>
+        <button id="eb-btn-declined-menu" class="{css goog-button-base} {css goog-button-base-last} {css split-right}" {if $participation == 'DECLINED'}disabled="true"{/if}>&#x25BC;</button>
+        <div id="partstat-declined-menu" class="{css goog-menu}" style="display:none">
+          <div id="eb-btn-event-decline-edit-notification" class="{css goog-menuitem}">{msg desc="add a note before sending"}Add a note to the response before sending{/msg}</div>
+          <div id="eb-btn-event-decline-default-notification" class="{css goog-menuitem}">{msg desc="send the response now"}Send the response now{/msg}</div>
+          <div id="eb-btn-event-decline-no-notification" class="{css goog-menuitem}">{msg desc="send the response now"}Do not send a response{/msg}</div>
+        </div>
+        {else}
+        <button id="eb-btn-event-{$type}-partstat-declined" class="{css goog-button-base}" {if $participation == 'DECLINED'}disabled="true"{/if}>
+          {msg desc="no"}No{/msg}
+        </button>
+        {/if}
+      </span>
+
+    </td>
+  </tr>
+{/template}
+
+/**
+ * Dialog: Event delete
+ */
+{template .deleteDialog}
+<div class="{css modal-dialog}">
+  <div class="{css modal-dialog-title}">
+    <span class="{css modal-dialog-title-text}">{msg desc="delete dialog title"}Delete event{/msg}</span>
+    <span class="{css modal-dialog-title-close}"></span>
+  </div>
+  <div class="{css modal-dialog-content}">{msg desc="delete dialog content"}Would you like to delete this event?{/msg}</div>
+  <div class="{css modal-dialog-buttons}">
+    <button id="dd-btn-ok" name="ok" class="{css goog-button-base}">{msg desc="yes"}Yes{/msg}</button>
+    <button name="cancel" class="{css goog-button-base}">{msg desc="no"}No{/msg}</button>
+  </div>
+  <span tabindex="0"></span>
+</div>
+{/template}
+
+/**
+ * Dialog: Decline a meeting silently 
+ * @param warning Show warning
+ */
+{template .declineMeetingDialog}
+<div class="{css modal-dialog}">
+  <div class="{css modal-dialog-title}">
+    <span class="{css modal-dialog-title-text}">{msg desc="decline meeting dialog title"}Decline this meeting{/msg}</span>
+    <span class="{css modal-dialog-title-close}"></span>
+  </div>
+  <div class="{css modal-dialog-content}">
+    {msg desc="decline meeting dialog content"}Would you like to decline this event without notifying the organizer?{/msg}
+    {if $warning}
+    <div class="{css msg-warning}"> 
+      {msg desc="meeting part update warning"}WARNING: It will affect all the series. Would you like to continue?{/msg}
+    </div>
+    {/if}
+  </div>
+  <div class="{css modal-dialog-buttons}">
+    <button id="dm-btn-ok" name="ok" class="{css goog-button-base}">{msg desc="yes"}Yes{/msg}</button>
+    <button name="cancel" class="{css goog-button-base}">{msg desc="no"}No{/msg}</button>
+  </div>
+  <span tabindex="0"></span>
+</div>
+{/template}
+
+/**
+ * Dialog: send invitations dialog 
+ */
+{template .sendInvitationsDialog}
+<div class="{css modal-dialog}">
+  <div class="{css modal-dialog-title}">
+    <span class="{css modal-dialog-title-text}">{msg desc="send invitations dialog title"}Send invitations?{/msg}</span>
+    <span class="{css modal-dialog-title-close}"></span>
+  </div>
+  <div class="{css modal-dialog-content}">{msg desc="send invitations dialog content"}Would you like to send invitations to attendees?{/msg}</div>
+  <div class="{css modal-dialog-buttons}">
+    <button id="sid-btn-send" name="send" class="{css goog-button-base}">{msg desc="button send"}Send{/msg}</button>
+    <button id="sid-btn-donotsend" name="send" class="{css goog-button-base}">{msg desc="do not send"}Do not send{/msg}</button>
+    <button name="cancel" class="{css goog-button-base}">{msg desc="button cancel"}Cancel{/msg}</button>
+  </div>
+  <span tabindex="0"></span>
+</div>
+{/template}
+
+/**
+ * Dialog: send invitations dialog 
+ */
+{template .sendUpdateDialog}
+<div class="{css modal-dialog}">
+  <div class="{css modal-dialog-title}">
+    <span class="{css modal-dialog-title-text}">{msg desc="send update dialog title"}Send notification?{/msg}</span>
+    <span class="{css modal-dialog-title-close}"></span>
+  </div>
+  <div class="{css modal-dialog-content}">{msg desc="send update dialog content"}Would you like to notify attendees of your changes?{/msg}</div>
+  <div class="{css modal-dialog-buttons}">
+    <button id="sud-btn-send" name="send" class="{css goog-button-base}">{msg desc="button send"}Send{/msg}</button>
+    <button id="sud-btn-donotsend" name="send" class="{css goog-button-base}">{msg desc="do not send"}Do not send{/msg}</button>
+    <button name="cancel" class="{css goog-button-base}">{msg desc="button cancel"}Cancel{/msg}</button>
+  </div>
+  <span tabindex="0"></span>
+</div>
+{/template}
+
+
+/**
+ * Dialog: Recurring event delete
+ */
+{template .recurringDeleteDialog}
+<div class="{css modal-dialog} {css recurring}">
+  <div class="{css modal-dialog-title}">
+    <span class="{css modal-dialog-title-text}">{msg desc="delete dialog title"}Delete recurring event{/msg}</span>
+    <span class="{css modal-dialog-title-close}"></span>
+  </div>
+  <div class="{css modal-dialog-content}">{msg desc="delete recurring dialog content"}Would you like to delete only this event, all events in the series or this and all future events in the series?{/msg}
+    <table>
+      <tr>
+        <td><button id="rdd-btn-this-instance" class="{css goog-button-base}">{msg desc="button only this instance"}Only this instance{/msg}</button></td>
+        <td>{msg desc="all other events in the series will be retained"}All other events in the series will be retained.{/msg}</td>
+      </tr>
+      <tr>
+        <td><button id="rdd-btn-all-the-following" class="{css goog-button-base}">{msg desc="button delete all the following"}All the following{/msg}</button></td>
+        <td>{msg desc="this and all the following events will be deleted"}This and all the following events will be deleted.{/msg}</td>
+      </tr>
+      <tr>
+        <td><button id="rdd-btn-delete-serie" class="{css goog-button-base}">{msg desc="button delete serie"}All events in the series{/msg}</button></td>
+        <td>{msg desc="all events in the series will be deleted"}All events in the series will be deleted.{/msg}</td>
+      </tr>
+    </table>
+  </div>
+  <div class="{css modal-dialog-buttons}">
+    <button name="cancel" class="{css goog-button-base}">{msg desc="button cancel"}Cancel{/msg}</button>
+  </div>
+  <span tabindex="0"></span>
+</div>
+{/template}
+
+/**
+ * Dialog: Recurring event update
+ */
+{template .recurringUpdateDialog}
+<div class="{css modal-dialog} {css recurring}">
+  <div class="{css modal-dialog-title}">
+    <span class="{css modal-dialog-title-text}">{msg desc="update dialog title"}Update recurring event{/msg}</span>
+    <span class="{css modal-dialog-title-close}"></span>
+  </div>
+  <div class="{css modal-dialog-content}">{msg desc="update recurring dialog content"}Would you like to change only this event, all events in the series, or this and all following events in the series?{/msg}
+    <table>
+      <tr>
+        <td><button id="rud-btn-this-instance" class="{css goog-button-base}">{msg desc="button only this instance"}Only this instance{/msg}</button></td>
+        <td>{msg desc="all other events in the series will remain the same"}All other events in the series will remain the same.{/msg}</td>
+      </tr>
+      <tr>
+        <td><button id="rud-btn-all-the-following" class="{css goog-button-base}">{msg desc="button update all the following"}All the following{/msg}</button></td>
+        <td>{msg desc="this and all the following events will be changed"}This and all the following events will be changed.{/msg}</td>
+      </tr>
+      <tr id="rud-tr-update-serie">
+        <td><button id="rud-btn-update-serie" class="{css goog-button-base}">{msg desc="button update serie"}All events in the series{/msg}</button></td>
+        <td>{msg desc="all events in the series will be changed"}All events in the series will be changed.{/msg}</td>
+      </tr>
+    </table>
+  </div>
+  <div class="{css modal-dialog-buttons}">
+    <button name="cancel" class="{css goog-button-base}">{msg desc="button cancel"}Cancel{/msg}</button>
+  </div>
+  <span tabindex="0"></span>
+</div>
+{/template}
+
+/**
+ * Dialog: Recurring event form
+ */
+{template .recurringFormDialog}
+<div class="{css modal-dialog} {css recurring}">
+  <div class="{css modal-dialog-title}">
+    <span class="{css modal-dialog-title-text}">{msg desc="update dialog title"}Update recurring event{/msg}</span>
+    <span class="{css modal-dialog-title-close}"></span>
+  </div>
+  <div class="{css modal-dialog-content}">{msg desc="update recurring dialog content"}Would you like to change only this event or all events in the series ?{/msg}
+    <table>
+      <tr>
+        <td><button id="rfd-btn-this-instance" class="{css goog-button-base}">{msg desc="button only this instance"}Only this instance{/msg}</button></td>
+        <td>{msg desc="all other events in the series will remain the same"}All other events in the series will remain the same.{/msg}</td>
+      </tr>
+      <tr>
+        <td><button id="rfd-btn-update-serie" class="{css goog-button-base}">{msg desc="button update serie"}All events in the series{/msg}</button></td>
+        <td>{msg desc="all events in the series will be changed"}All events in the series will be changed.{/msg}</td>
+      </tr>
+    </table>
+  </div>
+  <div class="{css modal-dialog-buttons}">
+    <button name="cancel" class="{css goog-button-base}">{msg desc="button cancel"}Cancel{/msg}</button>
+  </div>
+  <span tabindex="0"></span>
+</div>
+{/template}
+
+/**
+ * Dialog: update partstat msg
+ */
+{template .partStatNotificationDialog}
+<div class="{css modal-dialog}">
+  <div class="{css modal-dialog-title}">
+    <span class="{css modal-dialog-title-text}">{msg desc="add a note to the response"}Add a note to the response{/msg}</span>
+    <span class="{css modal-dialog-title-close}"></span>
+  </div>
+  <div class="{css modal-dialog-content}">
+    {msg desc="note"}Note{/msg}:
+    <textarea id="part-stat-note" class="{css edit-notification}" rows="5" maxlength="500"></textarea>
+  </div>
+  <div class="{css modal-dialog-buttons}">
+    <button id="psn-btn-send" name="send" class="{css goog-button-base} {css goog-primaryactionbutton}">{msg desc="button send"}Send{/msg}</button>
+    <button name="cancel" class="{css goog-button-base}">{msg desc="button cancel"}Cancel{/msg}</button>
+  </div>
+  <span tabindex="0"></span>
+</div>
+{/template}
+
+/**
+ * Event list
+ */
+{template .list}
+  <div id="gridContainer" class="{css gridContainer}">
+    <table id="list" class="{css event-list}">
+      <tbody id="events-list">
+      </tbody>
+    </table>
+  </div>
+{/template}
+
+/**
+ * Empty list
+ */
+{template .emptyResultList}
+  <div id="gridContainer">
+    <div class="{css emptyListMsg}">{msg desc="empty result list"}No events matched your search.{/msg}</div>
+  </div>
+{/template}
+
+/**
+ * event consult screen 
+ * @param title Event title.
+ * @param owner Event owner.
+ * @param location Event location.
+ * @param allday Event is allday.
+ * @param date Event date.
+ * @param calendar Event calendar.
+ * @param desc Event desc.
+ * @param attendees Event attendees.
+ * @param reminder Event reminder.
+ * @param repeat Event recurrency.
+ * @param tags Event tags
+ * @param sid sid.
+ */
+{template .consultScreen}
+  <div id="gridContainer">
+    <div class="{css selectable}">
+      <div class="{css ecs-title}">{$title}</div>
+      <div class="{css ecs-date}">
+      {if $allday}
+        {msg desc="event allday label"}All day{/msg}
+      {else}
+        {$date}
+      {/if}
+      </div>
+      {if $repeat['kind'] != 'none'}
+        <div class="{css ecs-repeat}">
+        {if $repeat['freq'] == 1}
+          {switch $repeat['kind']}
+            {case 'daily'}
+              {msg desc="Event will repeat on a day based period"}Daily{/msg}
+            {case 'weekly'}
+              {msg desc="Event will repeat on a week based period"}Weekly{/msg},&nbsp;
+              {msg desc="weekly repeat, days of week"}on {$repeat['days']}{/msg}
+            {case 'monthly', 'monthlybydate', 'monthlybyday'}
+              {msg desc="Event will repeat on a month based period"}Monthly{/msg}
+            {case 'yearly'}
+              {msg desc="Event will repeat on a year based period"}Yearly{/msg}
+            {default}
+              What ??
+          {/switch} 
+        {else}
+          {switch $repeat['kind']}
+            {case 'daily'}
+              {msg desc="Event will repeat every x days"}Every {$repeat['freq']} days{/msg}
+            {case 'weekly'}
+              {msg desc="Event will repeat every x weeks"}Every {$repeat['freq']} weeks{/msg},&nbsp;
+              {msg desc="weekly repeat, days of week"}on {$repeat['days']}{/msg}
+            {case 'monthly', 'monthlybydate', 'monthlybyday'}
+              {msg desc="Event will repeat every x months"}Every {$repeat['freq']} months{/msg}
+            {case 'yearly'}
+              {msg desc="Event will repeat every x years"}Every {$repeat['freq']} years{/msg}
+            {default}
+              What ??
+          {/switch} 
+        {/if} 
+        {if $repeat['end']}
+          ,&nbsp;{msg desc="Label for event repeat end"}until{/msg}&nbsp;{$repeat['end']}
+        {/if}
+        </div>
+      {/if}
+      <table class="{css detail-container}">
+        <tr>
+          <td class="{css main-content}">
+            <div id="ecs" class="{css ecs}">
+              <div class="{css ecs-detail}">
+                {if $owner != ''}
+                    <div class="{css detailLabel}">{msg desc="organizer"}Organizer{/msg}</div>
+                    <div class="{css detailValue}">{$owner}</div>
+                {/if}
+                {if $location}
+                  <div class="{css detailLabel}">{msg desc="event location label"}Location{/msg}</div>
+                  <div class="{css detailValue}">{$location}</div>
+                {/if}
+                <div class="{css detailLabel}">{msg desc="calendar"}Calendar{/msg}</div>
+                <div class="{css detailValue}">{$calendar}</div>
+
+                {if length($tags) > 0}
+                  <div class="{css detailLabel}">{msg desc="event tag label"}Tags{/msg}</div>
+                  <div class="{css detailValue}">
+                  {foreach $tag in $tags}
+                    <div class="{css tag-bullet}" title="{$tag.label}"><span style="background-color:#{$tag.color}"></span>{$tag.label}</div>
+                  {/foreach}
+                  </div>
+                {/if}
+
+                {if $desc}
+                  <div class="{css detailLabel}">{msg desc="event desc label"}Description{/msg}</div>
+                  <div class="{css detailValue}">{$desc |noAutoescape}</div>
+                {/if}
+
+                {if $reminder}
+                  <div class="{css detailLabel}">{msg desc="event reminder label"}Reminder{/msg}</div>
+                  <div class="{css detailValue}">
+                    <form id="bm-ui-consult-form">
+                      <div class="{css bm-ui-form-inline}" id="bm-ui-consult-reminder-block">
+                        <input class="{css bm-mini}" type="text" id="bm-ui-consult-reminder" name="reminderduration" value="{$reminder.duration}"/>
+                        <select name="reminderunit" id="bm-ui-consult-reminder-unit" class="{css bm-small}">
+                          <option value="1"{if $reminder.unit == 'seconds'} selected="true"{/if}>{msg desc="Selector for reminder unit : seconds"}seconds{/msg}</option>
+                          <option value="60"{if $reminder.unit == 'minutes'} selected="true"{/if}>{msg desc="Selector for reminder unit : mintues"}minutes{/msg}</option>
+                          <option value="3600"{if $reminder.unit == 'hours'} selected="true"{/if}>{msg desc="Selector for reminder unit : hours"}hours{/msg}</option>
+                          <option value="86400"{if $reminder.unit == 'days'} selected="true"{/if}>{msg desc="Selector for reminder unit : days"}days{/msg}</option>
+                        </select>
+                        &nbsp;<span class="{css remove}" id="bm-ui-consult-no-reminder"></span>
+                      </div>
+                      <div class="{css bm-ui-form-inline}" id="bm-ui-consult-no-reminder-block">
+                        <input type="button" class="{css goog-button-base}" id="bm-ui-consult-add-reminder" value="{msg desc="Button to add a reminder"}Add a reminder{/msg}" />
+                      </div>
+                    </form>
+                  </div>
+                {/if}
+              </div>
+            </div>
+          </td>
+          <td class="{css attendees}">
+            <div class="{css ecs-attendees}">
+              <table id="ecs-t-attendees" class="{css ecs-t-attendees}">
+                <tr>
+                  <td>
+                    <div class="{css bm-ui-form-entry} {css bm-clearfix} {css bm-ui-form-role-legend-container}">
+                      <div><div class="{css bm-ui-form-role-legend} {css bm-ui-form-role-opt}">&nbsp;</div><span>{msg desc="attendee part role optional"}Participation optional{/msg}</span></div>
+                      <div><div class="{css bm-ui-form-role-legend} {css bm-ui-form-role-req}">&nbsp;</div><span>{msg desc="attendee part role required"}Participation required{/msg}</span></div>
+                    </div>
+                  </td>
+                </tr>
+                {foreach $attendee in $attendees}
+                  <tr>
+                    <td class="$attendee['participation']"> // FIXME: class (david)
+                      <div class="{css bm-ui-form-attendee-entry}">
+                        {if $attendee['role'] == 'OPT'}
+                          <div class="{css bm-ui-form-role} {css bm-ui-form-role-opt}">&nbsp;</div>
+                        {else}
+                          <div class="{css bm-ui-form-role} {css bm-ui-form-role-req}">&nbsp;</div>
+                        {/if}
+
+                        {call bluemind.calendar.template.calendarPicture}
+                          {param picture: $attendee['picture'] /}
+                          {param sid: $sid /}
+                          {param type: $attendee['type'] /}
+                        {/call}
+                        {if $attendee['participation'] == 'DECLINED'}
+                          <span class="{css declined}" title="{$attendee['displayName']}{if $attendee['email']}<{$attendee['email']}>{/if}">{$attendee['displayName']}</span>
+                        {elseif $attendee['participation'] == 'NEEDS-ACTION'}
+                          <span class="{css needsaction}" title="{$attendee['displayName']}{if $attendee['email']}<{$attendee['email']}>{/if}">{$attendee['displayName']}</span>
+                        {else}
+                          <span class="{css accepted}" title="{$attendee['displayName']}{if $attendee['email']}<{$attendee['email']}>{/if}">{$attendee['displayName']}</span>
+                        {/if}
+                      </div>
+                    </td>
+                  </tr>
+                {/foreach}
+              </table>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+{/template}
+
+/**
+ * Dialog: online/offline
+ */
+{template .connectionStatus}
+<div class="{css modal-dialog}">
+  <div class="{css modal-dialog-title}">
+    <span class="{css modal-dialog-title-text}">
+      {msg desc="connection status dialog title"}Connection mode{/msg}
+    </span>
+    <span class="{css modal-dialog-title-close}"></span>
+  </div>
+    <div id="connectionStatusContent" class="{css modal-dialog-content}">
+    </div>
+  <div class="{css modal-dialog-buttons}">
+    <button id="cs-btn-yes" name="yes" class="{css goog-button-base} {css goog-primaryactionbutton}">{msg desc="yes"}Yes{/msg}</button>
+    <button name="no" class="{css goog-button-base}">{msg desc="no"}No{/msg}</button>
+  </div>
+  <span tabindex="0"></span>
+</div>
+{/template}
+
+/**
+ * go offline? display warning
+ */
+{template .goOffline}
+  {msg desc="connection status dialog go offline content"}You are currently online. Would you like to switch offline?{/msg}
+  <div class="{css msg-warning}">
+    {msg desc="connection status dialog go offline content warn"}You'll work offline. All your changes will be synced  next time you log in.{/msg}
+  </div>
+{/template}
+
+/**
+ * go online?
+ */
+{template .goOnline}
+  {msg desc="connection status dialog go online content"}You are currently offline. Would you like to switch online?{/msg}
+{/template}
+
+/**
+ * Dialog: Delete view
+ */
+{template .deleteViewDialog}
+<div class="{css modal-dialog}">
+  <div class="{css modal-dialog-title}">
+    <span class="{css modal-dialog-title-text}">{msg desc="delete view dialog title"}Delete this view{/msg}</span>
+    <span class="{css modal-dialog-title-close}"></span>
+  </div>
+  <div class="{css modal-dialog-content}">{msg desc="delete view dialog content"}Would you like to delete this view?{/msg}</div>
+  <div class="{css modal-dialog-buttons}">
+    <button id="dvd-btn-ok" name="ok" class="{css goog-button-base} {css goog-primaryactionbutton}">{msg desc="yes"}Yes{/msg}</button>
+    <button name="cancel" class="{css goog-button-base}">{msg desc="no"}No{/msg}</button>
+  </div>
+  <span tabindex="0"></span>
+</div>
+{/template}
+
+/**
+ * Dialog: Save view
+ */
+{template .saveViewDialog}
+<div class="{css modal-dialog}">
+  <div class="{css modal-dialog-title}">
+    <span class="{css modal-dialog-title-text}">{msg desc="save view dialog title"}Save this view{/msg}</span>
+    <span class="{css modal-dialog-title-close}"></span>
+  </div>
+  <form id="svd-form" class="{css svd-form}" autocomplete="off" onsubmit="return false;">
+    <div class="{css modal-dialog-content}">
+      {msg desc="label label"}Label{/msg}:
+      <span id="save-dialog-view-title"></span>
+    </div>
+    <div class="{css modal-dialog-buttons}">
+      <button id="avd-btn-save" type="submit" name="save" class="{css goog-button-base} {css goog-primaryactionbutton}">{msg desc="save button"}Save{/msg}</button>
+      <button name="cancel" class="{css goog-button-base}">{msg desc="button cancel"}Cancel{/msg}</button>
+    </div>
+  </form>
+  <span tabindex="0"></span>
+</div>
+{/template}
+
+/**
+ * Dialog: Confirm override view
+ */
+{template .overrideViewDialog}
+<div class="{css modal-dialog}">
+  <div class="{css modal-dialog-title}">
+    <span class="{css modal-dialog-title-text}">{msg desc="update existing view dialog title"}Update existing view{/msg}</span>
+    <span class="{css modal-dialog-title-close}"></span>
+  </div>
+  <div class="{css modal-dialog-content}" id="view-override-label"></div>
+  <div class="{css modal-dialog-buttons}">
+    <button id="view-override-btn-ok" name="ok" class="{css goog-button-base} {css goog-primaryactionbutton}">{msg desc="yes"}Yes{/msg}</button>
+    <button id="view-override-btn-cancel" name="cancel" class="{css goog-button-base}">{msg desc="no"}No{/msg}</button>
+  </div>
+  <span tabindex="0"></span>
+</div>
+{/template}
+
+/**
+ * ICS Export dialog
+ */
+{template .icsExportDialog}
+<div class="{css modal-dialog}">
+  <div class="{css modal-dialog-title}">
+    <span class="{css modal-dialog-title-text}">{msg desc="ics export"}ICS Export{/msg}</span>
+    <span class="{css modal-dialog-title-close}"></span>
+  </div>
+  <form id="svd-form" class="{css svd-form}" autocomplete="off" onsubmit="return false;">
+    <div class="{css modal-dialog-content}">
+      <input class="{css bm-ui-form-radio}" type="radio" id="radio-export-all" name="radio-export" value="all" checked="true"/>
+      <label class="{css radio-label}" for="radio-export-all">{msg desc="ics export all"}All my events{/msg}</label>
+      <br />
+      <input class="{css bm-ui-form-radio}" type="radio" id="radio-export-date" name="radio-export" value="date"/>
+      <label class="{css radio-label}" for="radio-export-date">{msg desc="ics export prior to date"}All my events prior to{/msg}</label>&nbsp;
+      <input id="bm-ui-ics-export-date" class="{css bm-mini}" name="export-date" type="text" value="" />
+    </div>
+    <div class="{css modal-dialog-buttons}">
+      <button id="ics-export-btn-export" type="submit" name="export" class="{css goog-button-base} {css goog-primaryactionbutton}">{msg desc="export button"}Export{/msg}</button>
+      <button name="cancel" class="{css goog-button-base}">{msg desc="button cancel"}Cancel{/msg}</button>
+    </div>
+  </form>
+  <span tabindex="0"></span>
+</div>
+{/template}
+
+
+/**
+ * ICS Import dialog
+ * @param calendars Target calendars
+ * @param my Current user calendar
+ */
+{template .icsImportDialog}
+  <form  enctype="multipart/form-data" method="post" action="calendar/import">
+    <table>
+      <tr>
+        <th><label>{msg desc="ICS import input label"}ICS file{/msg}</label></th>
+        <td><input type='file' name='ics'/></td>
+      </tr>
+      <tr>
+        <th><label>{msg desc="calendars"}Calendars{/msg}</label></th>
+        <td> 
+          <select name='calendar'>
+          {foreach $calendar in $calendars}
+            {if $calendar.id == $my.id}
+              <option selected='selected' value='{$calendar.id}'>{$calendar.label}</option>
+            {else}
+              <option value='{$calendar.id}'>{$calendar.label}</option>
+            {/if}
+          {ifempty}
+            <option value='{$my.id}>{$my.label}</option>
+          {/foreach}
+          </select>
+        </td>
+      </tr>
+    </table>
+  </form>
+{/template}
+
+
+/**
+ * ICS Import in progress dialog
+ */
+{template .icsImportInProgressDialog}
+  <div id="ics-progress-dialog-status"/>
+  <div class="{css progress} {css progress-striped} {css active}">
+    <div class="{css bar}"></div>
+  <div>
+{/template}
+
+/**
+ * print dialog
+ */
+{template .printDialog}
+<div class="{css modal-dialog}">
+  <div class="{css modal-dialog-title}">
+    <span class="{css modal-dialog-title-text}">{msg desc="print as pdf tooltip"}Print as PDF{/msg}</span>
+    <span class="{css modal-dialog-title-close}"></span>
+  </div>
+  <div class="{css modal-dialog-content}">
+    {msg desc="print calendar preview"}Print calendar preview{/msg}
+    <div id="print-preview-container" class="{css print-preview}">
+      <img id="print-preview" />
+    </div>
+    <form id="bm-ui-form-print-preview">
+      <table>
+        <tr>
+          <td>{msg desc="print orientation"}Orientation{/msg}</td>
+          <td>
+            <select name="sel-print-orientation" id="sel-print-orientation">
+              <option value="auto" selected="selected">{msg desc="orientation auto"}Auto{/msg}</option>
+              <option value="portrait">{msg desc="orientation portrait"}Portrait{/msg}</option>
+              <option value="landscape">{msg desc="orientation landscape"}Landscape{/msg}</option>
+            </select>
+          </td>
+        </tr>
+        <tr id="bm-ui-form-print-detail">
+          <td></td>
+          <td><input class="{css bm-ui-form-radio}" type="checkbox" id="cb-print-details" name="cb-print-details" value="on" checked="false"/>
+          <label class="{css radio-label}" for="cb-print-details">{msg desc="show details"}Show details{/msg}</label></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><input class="{css bm-ui-form-radio}" type="checkbox" id="cb-print-bw" name="cb-print-bw" value="on" checked="false"/>
+          <label class="{css radio-label}" for="cb-print-bw">{msg desc="black and white"}Black and white{/msg}</label></td>
+        </tr>
+      </table>
+    </form>
+  </div>
+  <div class="{css modal-dialog-buttons}">
+    <button id="save-pdf-btn-export" type="submit" name="save-pdf" class="{css goog-button-base} {css goog-primaryactionbutton}">{msg desc="save button"}Save{/msg}</button>
+    <button name="cancel" class="{css goog-button-base}">{msg desc="button cancel"}Cancel{/msg}</button>
+  </div>
+  <span tabindex="0"></span>
+</div>
+{/template}
+
+/**
+ * Resource booking warning 
+ */
+{template .resourceBookingWarning}
+<div class="{css modal-dialog}">
+  <div class="{css modal-dialog-title}">
+    <span class="{css modal-dialog-title-text}">
+      {msg desc="resource booking warning"}Warning: resource booking{/msg}
+    </span>
+    <span class="{css modal-dialog-title-close}"></span>
+  </div>
+  <div class="{css modal-dialog-content}">
+    {msg desc="resource booking criteria warning"}Resource booking criteria does not match:{/msg}
+  </div>
+  <div id="resource-booking-warning-content" class="{css modal-dialog-content}"></div>
+  <div class="{css modal-dialog-content}">
+    {msg desc="resource booking warning confirm"}Do you want to book those resources anyway?{/msg}
+  </div>
+  <div class="{css modal-dialog-buttons}">
+    <button id="rbw-btn-yes" name="yes" class="{css goog-button-base} {css goog-primaryactionbutton}">{msg desc="yes"}Yes{/msg}</button>
+    <button name="no" class="{css goog-button-base}">{msg desc="no"}No{/msg}</button>
+  </div>
+  <span tabindex="0"></span>
+</div>
+
+{/template}
+
+/**
+ * out of working hours
+ * @param resources resources list
+ */
+{template .resourceBookingWarningOutOfWorkingHours}
+  {msg desc="out of working hours resource booking"}Out of working hours booking:{/msg}
+  <div id="outOfWorkingHoursResource" class="{css msg-warning}">
+    <ul>
+    {foreach $r in $resources}
+      <li>{$r['displayName']}</li>
+    {/foreach} 
+    </ul>
+  </div>
+{/template}
+
+/**
+ * min duration
+ * @param resources resources list
+ */
+{template .resourceBookingWarningMinDuration}
+  {msg desc="min booking duration"}Booking duration:{/msg}
+  <div id="minDurationResource" class="{css msg-warning}">
+    <ul>
+    {foreach $r in $resources}
+      <li>
+        {$r['displayName']} 
+        {if $r['minDuration'] == 3600}
+          &nbsp;({msg desc="min booking duration"}Miminal booking duration:{/msg}&nbsp;{msg desc="res min duration one hour"}One hour{/msg})
+        {elseif $r['minDuration'] == 7200}
+          &nbsp;({msg desc="min booking duration"}Miminal booking duration:{/msg}&nbsp;{msg desc="res min duration two hours"}Two hours{/msg})
+        {elseif $r['minDuration'] == 43200}
+          &nbsp;({msg desc="min booking duration"}Miminal booking duration:{/msg}&nbsp;{msg desc="res min duration half a day"}Half a day{/msg})
+        {elseif $r['minDuration'] == 86400}
+          &nbsp;({msg desc="min booking duration"}Miminal booking duration:{/msg}&nbsp;{msg desc="res min duration a day"}One day{/msg})
+        {else}
+        
+        {/if}
+      </li>
+    {/foreach}
+    </ul>
+  </div>
+{/template}
+
+/**
+ * Event detail.
+ * @param id event id.
+ * @param calendar event calendar.
+ * @param title event title.
+ * @param location event location.
+ * @param description event description.
+ * @param attendees event attendees.
+ * @param owner event owner.
+ * @param repeat event recurrency.
+ * @param isMeeting event is a meeting.
+ */
+{template .detail}
+  <div id="event-detail-header-{$id}-{$calendar}" class="{css event-detail-zippy}">
+    <p class="{css detail-title}">
+      {if $isMeeting}
+        <img src="themes/default/images/meeting_dark.png" />
+      {/if}   
+      {if $repeat['kind'] != 'none'}
+        <img src="themes/default/images/repeat_dark.png" />
+      {/if}      
+      {$title}
+    </p>
+    <div id="event-detail-content-{$id}-{$calendar}">
+      <table class="{css event-full-detail}">
+        {if $owner != ''}
+          <tr>
+            <td>{msg desc="organizer"}Organizer{/msg}</td>
+            <td>{$owner}</td>
+          </tr>
+        {/if}
+
+        {if $location != ''}
+          <tr>
+            <td>{msg desc="event location label"}Location{/msg}</td>
+            <td>{$location}</td>
+          </tr>
+        {/if}
+        {if $description != ''}
+          <tr>
+            <td>{msg desc="event desc label"}Description{/msg}</td>
+            <td>
+            <div class="{css description}">{$description |noAutoescape}</div>
+            </td>
+          </tr>
+        {/if}
+        {if $repeat['kind'] != 'none'}
+          <tr>
+            <td>{msg desc="Event form repeation panel"}Repeat{/msg}</td>
+            <td>
+              {if $repeat['freq'] == 1}
+                {switch $repeat['kind']}
+                  {case 'daily'}
+                    {msg desc="Event will repeat on a day based period"}Daily{/msg}
+                  {case 'weekly'}
+                    {msg desc="Event will repeat on a week based period"}Weekly{/msg},&nbsp;
+                    {msg desc="weekly repeat, days of week"}on {$repeat['days']}{/msg}
+                  {case 'monthly', 'monthlybydate', 'monthlybyday'}
+                    {msg desc="Event will repeat on a month based period"}Monthly{/msg}
+                  {case 'yearly'}
+                    {msg desc="Event will repeat on a year based period"}Yearly{/msg}
+                  {default}
+                    What ??
+                {/switch} 
+              {else}
+                {switch $repeat['kind']}
+                  {case 'daily'}
+                    {msg desc="Event will repeat every x days"}Every {$repeat['freq']} days{/msg}
+                  {case 'weekly'}
+                    {msg desc="Event will repeat every x weeks"}Every {$repeat['freq']} weeks{/msg},&nbsp;
+                    {msg desc="weekly repeat, days of week"}on {$repeat['days']}{/msg}
+                  {case 'monthly', 'monthlybydate', 'monthlybyday'}
+                    {msg desc="Event will repeat every x months"}Every {$repeat['freq']} months{/msg}
+                  {case 'yearly'}
+                    {msg desc="Event will repeat every x years"}Every {$repeat['freq']} years{/msg}
+                  {default}
+                    What ??
+                {/switch} 
+              {/if} 
+              {if $repeat['end']}
+                ,&nbsp;{msg desc="Label for event repeat end"}until{/msg}&nbsp;{$repeat['end']}
+              {/if}
+            </td>
+          </tr>
+        {/if}
+        <tr>
+          <td>{msg desc="attendees"}Attendees{/msg}</td>
+          <td>
+            {call .bubbleAttendeesList}
+              {param attendees : $attendees /}
+            {/call}
+          </td>
+        <tr>
+      </table>
+    </div>
+  </div>
+{/template}
+
+/**
+ * Dialog: sync failure
+ */
+{template .syncFailure}
+<div class="{css modal-dialog}">
+  <div class="{css modal-dialog-title}">
+    <span class="{css modal-dialog-title-text}">
+      {msg desc="synchronization failure dialog title"}Synchronization failure{/msg}
+    </span>
+  </div>
+  <div id="connectionStatusContent" class="{css modal-dialog-content}">
+    {msg desc="synchronization failure dialog content"}An error occurs while data synchronization. BlueMind Calendar needs to be reloaded{/msg}
+  </div>
+  <div class="{css modal-dialog-buttons}">
+    <button id="sf-btn-yes" name="yes" class="{css goog-button-base} {css goog-primaryactionbutton}">{msg desc="reload"}Reload{/msg}</button>
+  </div>
+</div>
+{/template}
+
+
+/**
+ * Dialog: Update recurring part warning 
+ */
+{template .updateReccurringPartWarningDialog}
+<div class="{css modal-dialog}">
+  <div class="{css modal-dialog-title}">
+    <span class="{css modal-dialog-title-text}">{msg desc="warning"}Warning{/msg}</span>
+    <span class="{css modal-dialog-title-close}"></span>
+  </div>
+  <div class="{css modal-dialog-content}">
+    <div class="{css msg-warning}">
+      {msg desc="meeting part update warning"}WARNING: It will affect all the series. Would you like to continue?{/msg}
+    </div>
+  </div>
+  <div class="{css modal-dialog-buttons}">
+    <button id="warning-btn-yes" name="ok" class="{css goog-button-base}">{msg desc="yes"}Yes{/msg}</button>
+    <button name="cancel" class="{css goog-button-base}">{msg desc="no"}No{/msg}</button>
+  </div>
+  <span tabindex="0"></span>
+</div>
+{/template}
+
+
+/**
+ * Dialog: leave form warning dialog 
+ */
+{template .leaveFormWarningDialog}
+<div class="{css modal-dialog}">
+  <div class="{css modal-dialog-title}">
+    <span class="{css modal-dialog-title-text}">{msg desc="warning"}Warning{/msg}</span>
+    <span class="{css modal-dialog-title-close}"></span>
+  </div>
+  <div class="{css modal-dialog-content}">
+    {msg desc="leave form warning dialog content"}Are you sure you want to leave this form?{/msg}
+    <div class="{css msg-warning}">
+      {msg desc="leave form warning"}WARNING: Changes will not be saved. Would you like to continue?{/msg}
+    </div>
+  </div>
+  <div class="{css modal-dialog-buttons}">
+    <button id="lfw-btn-yes" name="ok" class="{css goog-button-base}">{msg desc="yes"}Yes{/msg}</button>
+    <button name="cancel" class="{css goog-button-base}">{msg desc="no"}No{/msg}</button>
+  </div>
+  <span tabindex="0"></span>
+</div>
+{/template}
+

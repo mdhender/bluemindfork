@@ -1,0 +1,27 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<properties>
+		<ldap.version>1.0.0-M30</ldap.version>
+	</properties>
+
+	<parent>
+		<groupId>net.bluemind</groupId>
+		<artifactId>net.bluemind.corev2</artifactId>
+		<version>4.1.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>net.bluemind.ldap.plugins</artifactId>
+	<packaging>pom</packaging>
+	<modules>
+		<module>net.bluemind.system.ldap.importation.api</module>
+		<module>net.bluemind.system.importation.commons</module>
+		<module>net.bluemind.system.importation.commons.tests</module>
+		<module>net.bluemind.system.ldap.importation</module>
+		<module>net.bluemind.system.ldap.importation.tests</module>
+		<module>net.bluemind.system.ldap.export</module>
+		<module>net.bluemind.system.ldap.export.tests</module>
+		<module>net.bluemind.system.ldap.tests.helpers</module>
+		<module>net.bluemind.system.ldap.importation.tests.enhancer</module>
+	</modules>
+</project>

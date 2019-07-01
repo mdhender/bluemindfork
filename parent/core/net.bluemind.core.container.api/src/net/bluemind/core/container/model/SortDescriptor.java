@@ -1,0 +1,46 @@
+/* BEGIN LICENSE
+ * Copyright © Blue Mind SAS, 2012-2018
+ *
+ * This file is part of Blue Mind. Blue Mind is a messaging and collaborative
+ * solution.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of either the GNU Affero General Public License as
+ * published by the Free Software Foundation (version 3 of the License)
+ * or the CeCILL as published by CeCILL.info (version 2 of the License).
+ *
+ * There are special exceptions to the terms and conditions of the
+ * licenses as they are applied to this program. See LICENSE.txt in
+ * the directory of this program distribution.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See LICENSE.txt
+ * END LICENSE
+ */
+package net.bluemind.core.container.model;
+
+import java.util.Collections;
+import java.util.List;
+
+import net.bluemind.core.api.BMApi;
+
+@BMApi(version = "3")
+public class SortDescriptor {
+
+	@BMApi(version = "3")
+	public static enum Direction {
+		Asc, Desc;
+	}
+
+	@BMApi(version = "3")
+	public static class Field {
+		public String column;
+		public Direction dir;
+	}
+
+	public List<Field> fields = Collections.emptyList();
+
+}

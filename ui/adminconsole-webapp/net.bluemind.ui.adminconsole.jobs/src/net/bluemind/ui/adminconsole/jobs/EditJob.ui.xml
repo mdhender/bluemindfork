@@ -1,0 +1,174 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:bj="urn:import:net.bluemind.ui.admin.client" xmlns:f="urn:import:net.bluemind.ui.admin.client.forms"
+	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	 xmlns:common="urn:import:net.bluemind.ui.common.client.forms" xmlns:j="urn:import:net.bluemind.ui.adminconsole.jobs" xmlns:b="urn:import:net.bluemind.ui.adminconsole.base.ui">
+
+
+	<ui:style>
+		.logo {
+			vertical-align: middle;
+		}
+		
+		.errorLabel {
+			color: red;
+			font-weight: bold;
+			padding: 3px;
+		}
+		
+		.ta {
+			height: 100%;
+			width: 300px;
+			padding-left: 10px;
+		}
+		
+		h1 {
+			font-size: medium;
+			color: #444;
+		}
+		
+		.rightPanel {
+			position: absolute;
+			right: 10px;
+			width: 100px;
+		}
+		
+		.formLabel {
+			vertical-align: top;
+			padding-top: 5px;
+		}
+		
+		#editJobTitle {
+			font-size: medium;
+			margin: 0px;
+		}
+		
+		#editJobTitle div {
+			display: inline;
+		}
+		
+		.filtersContainer {
+			float: right;
+		}
+		
+		.execToolbar {
+			padding-left: 3px;
+			padding-top: 3px;
+		}
+	</ui:style>
+
+	<ui:with field="jt" type="net.bluemind.ui.adminconsole.jobs.JobTexts" />
+
+	<g:DockLayoutPanel unit='EM'>
+		<g:north size="2.5">
+			<g:HTMLPanel>
+				<div>
+					<h1 id="editJobTitle">
+						<i class="fa fa-2x fa-clock-o"></i>
+						<g:Label ui:field="title" />
+					</h1>
+				</div>
+			</g:HTMLPanel>
+		</g:north>
+		<g:north size="2">
+			<g:Label ui:field="errorLabel" styleName="{style.errorLabel}" />
+		</g:north>
+
+		<g:center>
+			<g:TabLayoutPanel ui:field="tabPanel" barUnit="PX"
+				barHeight="25" width="100%">
+				<g:tab>
+					<g:customHeader>
+						<g:Label text="{jt.generalTab}" />
+					</g:customHeader>
+
+					<g:HTMLPanel>
+						<g:ScrollPanel height="100%">
+							<g:HTMLPanel>
+
+								<g:Label text="{jt.generalTab}" styleName="sectionTitle"></g:Label>
+
+								<table class="formContainer">
+
+									<common:StringEdit ui:field="jid" titleText="{jt.jobId}"
+										maxLength="255" mandatory="true" readOnly="true" />
+
+									<f:TextEdit ui:field="desc" titleText="{jt.description}"
+										mandatory="true" readOnly="true" />
+								</table>
+
+								<g:Label text="{jt.report}" styleName="sectionTitle"></g:Label>
+								<table class="formContainer">
+									<tr class="setting">
+										<td class="label">
+											<g:Label text="{jt.reportEnable}"></g:Label>
+										</td>
+										<td style="form">
+											<g:CheckBox ui:field="reportEnable">
+											</g:CheckBox>
+										</td>
+									</tr>
+									<common:StringEdit ui:field="reportRecipients"
+										titleText="{jt.reportRecipients}" maxLength="255" mandatory="false"
+										readOnly="false" />
+
+								</table>
+							</g:HTMLPanel>
+						</g:ScrollPanel>
+					</g:HTMLPanel>
+				</g:tab>
+
+
+				<g:tab>
+					<g:customHeader>
+						<g:Label text="{jt.planification}" />
+					</g:customHeader>
+
+					<g:HTMLPanel>
+						<g:ScrollPanel height="100%">
+							<g:HTMLPanel ui:field="plansPanel">
+
+							</g:HTMLPanel>
+						</g:ScrollPanel>
+					</g:HTMLPanel>
+				</g:tab>
+
+				<g:tab>
+					<g:customHeader>
+						<g:Label text="{jt.lastExecs}" />
+					</g:customHeader>
+
+					<g:DockLayoutPanel unit='EM' ui:field="execDlp">
+
+						<g:north size="2.5">
+							<g:FlowPanel styleName="{style.execToolbar}">
+								<j:StatusFilter ui:field="statusFilter"
+									styleName="{style.filtersContainer}" />
+
+								<g:FlowPanel>
+									<g:Button ui:field="deleteExecutions" text="{jt.removeExecs}"
+										enabled="false" styleName="button dangerHighVoltage" />
+								</g:FlowPanel>
+							</g:FlowPanel>
+						</g:north>
+
+						<g:center>
+							<j:JobExecutionsGrid ui:field="execGrid" />
+						</g:center>
+
+					</g:DockLayoutPanel>
+				</g:tab>
+
+			</g:TabLayoutPanel>
+
+		</g:center>
+
+		<g:south size="4">
+			<b:CrudActionBar ui:field="actionBar" />
+		</g:south>
+
+	</g:DockLayoutPanel>
+
+</ui:UiBinder>

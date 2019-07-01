@@ -1,0 +1,223 @@
+/** COLORS */
+.c0 {
+	color: #7097F5;
+	border-color: #7097F5;
+}
+
+.cc0 {
+	border-color: #7097F5 #7097F5 transparent transparent;
+}
+
+.c1 {
+	color: #F59B4C;
+	border-color: #F59B4C;
+}
+
+.cc1 {
+	border-color: #F59B4C #F59B4C transparent transparent;
+}
+
+.c2 {
+	color: #2FD997;
+	border-color: #2FD997;
+}
+
+.c3 {
+	color: #E75757;
+	border-color: #E75757;
+}
+
+.c4 {
+	color: #BB6EE4;
+	border-color: #BB6EE4;
+}
+
+.c5 {
+	color: #A3A3A4;
+	border-color: #A3A3A4;
+}
+
+.c6 {
+	color: #3E52C6;
+	border-color: #3E52C6;
+}
+
+.c7 {
+	color: #B8784E;
+	border-color: #B8784E;
+}
+
+.c8 {
+	color: #578E83;
+	border-color: #578E83;
+}
+
+.c9 {
+	color: #ecaecc;
+	border-color: #ecaecc;
+}
+
+.c10 {
+	color: #B936C3;
+	border-color: #B936C3;
+}
+
+.c11 {
+	color: #A29C9F;
+	border-color: #A29C9F;
+}
+
+.c12 {
+	color: #81B4E9;
+	border-color: #81B4E9;
+}
+
+.c13 {
+	color: #FCAA0B;
+	border-color: #FCAA0B;
+}
+
+.c14 {
+	color: #5AD442;
+	border-color: #5AD442;
+}
+
+.c15 {
+	color: #FC7438;
+	border-color: #FC7438;
+}
+
+.c16 {
+	color: #D688DB;
+	border-color: #D688DB;
+}
+
+.c17 {
+	color: #C1B281;
+	border-color: #C1B281;
+}
+
+/** MENUBAR */
+.gwt-MenuBar {
+	cursor: default;
+}
+
+.gwt-MenuBar .gwt-MenuItem {
+	cursor: default;
+}
+
+.gwt-MenuBar .gwt-MenuItem-selected {
+	background: #E0EDFE;
+}
+
+.gwt-MenuBar-vertical {
+	background: white;
+	border: 1px solid #EEE;
+	-moz-box-shadow: 0 2px 10px #555;
+	-webkit-box-shadow: 0 2px 10px #555;
+	box-shadow: 0 2px 10px #555;
+}
+
+.gwt-MenuBar-vertical table {
+	border-collapse: collapse;
+}
+
+.gwt-MenuBar-vertical .gwt-MenuItem {
+	padding: 6px;
+}
+
+.gwt-MenuBar-vertical .gwt-MenuItemSeparator {
+	
+}
+
+.gwt-MenuBar-vertical .gwt-MenuItemSeparator .menuSeparatorInner {
+	border-top: 1px solid #666;
+}
+
+.gwt-MenuBar-vertical .subMenuIcon {
+	padding-right: 4px;
+}
+
+.gwt-MenuBar-vertical .subMenuIcon-selected {
+	background: #E0EDFE;
+}
+
+/** TAB LAYOUT*/
+.horizontalTabLayoutPanel {
+	height: 100%;
+}
+
+.horizontalTabLayoutPanel .horizontalTabLayoutPanelTabs {
+	width: 100%;
+	height: 100%;
+	background-color: #FFF;
+	table-layout: fixed;
+	border-spacing: 0px;
+	border-collapse: collapse;
+	border-bottom: 2px solid #049cdb; /** FF8700 is a nice orange*/
+}
+
+.horizontalTabLayoutPanel .horizontalTabLayoutPanelTabs td {
+	padding: 0px;
+	border-right: 1px solid #049cdb;
+}
+
+.horizontalTabLayoutPanelTab {
+	background-color: #FFF;
+	border-spacing: 0;
+	border-collapse: collapse;
+	display: block;
+	color: #666;
+	width: 100%;
+	cursor: pointer;
+	padding: 10px 0px 9px 0px;
+}
+
+.horizontalTabLayoutPanelTab:hover {
+	
+}
+
+.horizontalTabLayoutPanelTab-selected {
+	background-color: #049cdb !important; /** FF8700 is a nice orange*/
+	color: #FFF !important;
+}
+
+.unreadCount {
+	padding: 0px 2px;
+	display: inline-block;
+	color: #FFF;
+	font-size: 70%;
+	background-color: #049cdb; /** FF8700 is a nice orange*/
+	border-radius: 10px;
+	vertical-align: top;
+}
+
+.horizontalTabLayoutPanelTab-selected .unreadCount {
+	color: #049cdb !important; /** FF8700 is a nice orange*/
+	background-color: #FFF !important;
+}
+
+.gwt-DisclosurePanel {
+	width: 100%;
+	margin-bottom: 10px;
+}
+
+.gwt-DisclosurePanel-open .header, .gwt-DisclosurePanel-closed .header {
+	color: #666;
+	font-weight: bold;
+	text-decoration: none;
+	padding: 4px;
+	background: #EEE;
+}
+
+.add-invitee-sign {
+	vertical-align: super;
+    margin-right: 5px;
+    margin-left: 3px;
+}
+
+.star-small {
+    float: right;
+    margin-right: 10px;
+    margin-top: 2px;
+}

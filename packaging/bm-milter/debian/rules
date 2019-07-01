@@ -1,0 +1,15 @@
+#!/usr/bin/make -f
+
+
+
+include /usr/share/cdbs/1/rules/debhelper.mk
+
+JAVA_HOME := /usr/lib/jvm/bm-jdk
+
+DEB_UPDATE_RCD_PARAMS_bm-milter := "defaults 63 01"
+
+build:
+	
+
+install/bm-milter::
+	cp -rf ${CURDIR}/ROOT/* ${CURDIR}/debian/bm-milter

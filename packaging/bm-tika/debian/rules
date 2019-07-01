@@ -1,0 +1,16 @@
+#!/usr/bin/make -f
+
+
+
+include /usr/share/cdbs/1/rules/debhelper.mk
+
+JAVA_HOME := /usr/lib/jvm/bm-jdk
+
+DEB_UPDATE_RCD_PARAMS_bm-tika := "defaults 63 01"
+
+build:
+	
+
+install/bm-tika::
+	cp -rf ${CURDIR}/ROOT/* ${CURDIR}/debian/bm-tika
+	chmod +x ${CURDIR}/debian/bm-tika/usr/share/bm-tika/bin/*.sh

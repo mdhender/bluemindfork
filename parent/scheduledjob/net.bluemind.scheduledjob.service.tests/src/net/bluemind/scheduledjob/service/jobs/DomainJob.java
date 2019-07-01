@@ -1,0 +1,89 @@
+/* BEGIN LICENSE
+ * Copyright © Blue Mind SAS, 2012-2016
+ *
+ * This file is part of BlueMind. BlueMind is a messaging and collaborative
+ * solution.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of either the GNU Affero General Public License as
+ * published by the Free Software Foundation (version 3 of the License).
+ *
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See LICENSE.txt
+ * END LICENSE
+ */
+package net.bluemind.scheduledjob.service.jobs;
+
+import java.util.Collections;
+import java.util.Date;
+import java.util.Set;
+
+import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.scheduledjob.api.JobExitStatus;
+import net.bluemind.scheduledjob.api.JobKind;
+import net.bluemind.scheduledjob.scheduler.IScheduledJob;
+import net.bluemind.scheduledjob.scheduler.IScheduledJobRunId;
+import net.bluemind.scheduledjob.scheduler.IScheduler;
+
+public class DomainJob implements IScheduledJob {
+
+	@Override
+	public void tick(IScheduler sched, boolean plannedExecution, String domainName, Date startDate) throws ServerFault {
+		IScheduledJobRunId rid = sched.requestSlot(domainName, this, startDate);
+
+		sched.info(rid, "en", "w00t w00t DomainJob");
+		sleep();
+
+		for (int i = 0; i <= 99; i++) {
+			sched.reportProgress(rid, i);
+			sleep();
+		}
+
+		sched.info(rid, "en", "log à 4€");
+		sleep();
+
+		sched.warn(rid, "en", "WAT?");
+		sleep();
+
+		sched.finish(rid, JobExitStatus.SUCCESS);
+	}
+
+	private void sleep() {
+		try {
+			Thread.sleep(50);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public JobKind getType() {
+		return JobKind.MULTIDOMAIN;
+	}
+
+	@Override
+	public String getDescription(String locale) {
+		return "DomainJob description";
+	}
+
+	@Override
+	public String getJobId() {
+		return "DomainJob";
+	}
+
+	@Override
+	public Set<String> getLockedResources() {
+		return Collections.emptySet();
+	}
+
+	@Override
+	public boolean supportsScheduling() {
+		return true;
+	}
+
+}

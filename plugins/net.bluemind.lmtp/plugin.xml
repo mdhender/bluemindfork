@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.lmtp.lmtpbackendfactory" name="lmtpbackendfactory" schema="schema/net.bluemind.lmtp.lmtpbackendfactory.exsd"/>
+   <extension-point id="net.bluemind.lmtp.lmtpfilterfactory" name="lmtpfilterfactory" schema="schema/net.bluemind.lmtp.lmtpfilterfactory.exsd"/>
+   <extension-point id="net.bluemind.lmtp.deliverydoneaction" name="deliverydoneaction" schema="schema/net.bluemind.lmtp.deliverydoneaction.exsd"/>
+   <extension
+         id="id1"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            thread="main"
+            visible="true">
+         <run
+               class="net.bluemind.lmtp.LMTPDaemon">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="lmtpd"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="net.bluemind.lmtp.id1"
+            name="lmtpd">
+         <property
+               name="appName"
+               value="lmtpd">
+         </property>
+      </product>
+   </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.lmtp.LmtpProxyVerticleFactory">
+      </verticle>
+      <verticle
+            impl="net.bluemind.lmtp.LmtpFiltersVerticleFactory">
+      </verticle>
+      <verticle
+            impl="net.bluemind.lmtp.LmtpDoneActionVerticleFactory">
+      </verticle>
+   </extension>
+   <extension
+         point="net.bluemind.system.state">
+      <state-listener
+            class="net.bluemind.lmtp.impl.CoreStateListener"></state-listener>
+   </extension>
+
+</plugin>

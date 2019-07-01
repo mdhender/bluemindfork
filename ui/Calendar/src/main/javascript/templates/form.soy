@@ -1,0 +1,16 @@
+{namespace bluemind.ui.form.template}
+
+/**
+ * Text editor
+ * @param id Input field id.
+ * @param label Label for the text editor.
+ * @param name Field name.
+ * @param size Textual description of field size (small, medium...).
+ */
+{template .textEditor}
+  <label for="{$id}">{$label}</label>
+  <div class="{css bm-ui-form-input}">
+    <input class="bm-ui-form-{$size}" id="{$id}" name="{$name}" type="text" /> // FIXME: class (david)
+  </div>
+{/template}
+

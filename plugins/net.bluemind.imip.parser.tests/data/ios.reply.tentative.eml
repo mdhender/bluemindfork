@@ -1,0 +1,74 @@
+Return-Path: <admin@willow.vmw>
+Received: from willow.vmw ([172.16.45.135])
+	 by bjday (Cyrus v2.4.16-Debian-2.4.16-1hudson92) with LMTPA;
+	 Sun, 27 May 2012 20:44:25 +0200
+X-Sieve: CMU Sieve 2.4
+Received: from 172.16.45.135 (LHLO bjday.willow.vmw) (172.16.45.135) by
+ unknown with LMTP; 5/27/12 6:44 PM
+Received: from [192.168.0.13] (unknown [172.16.45.1])
+	by bjday.willow.vmw (Postfix) with ESMTP id 37FEC5BAB
+	for <tom@willow.vmw>; Sun, 27 May 2012 20:44:25 +0200 (CEST)
+Message-Id: <F49E72C1-2168-43F3-94BE-C46E9EAFE8F9@willow.vmw>
+Content-Type: multipart/alternative; boundary="k4S+SglA5zM1SDsfVhO0gOht0mSLr6lm8nLAALKLIoI="
+Date: Sun, 27 May 2012 20:44:24 +0200
+Subject: =?utf-8?Q?Peut-=C3=AAtre=C2=A0:_A_"tentative"?=
+Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0 (1.0)
+To: tom <tom@willow.vmw>
+From: admin@willow.vmw
+
+
+--k4S+SglA5zM1SDsfVhO0gOht0mSLr6lm8nLAALKLIoI=
+Content-Type: text/plain;	charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+
+
+
+--k4S+SglA5zM1SDsfVhO0gOht0mSLr6lm8nLAALKLIoI=
+Content-Type: text/calendar;	charset=utf-8;	name=meeting.ics;	method=REPLY
+Content-Transfer-Encoding: quoted-printable
+
+BEGIN:VCALENDAR
+CALSCALE:GREGORIAN
+METHOD:REPLY
+PRODID:-//Apple Inc.//iPhone 3.0//EN
+VERSION:2.0
+BEGIN:VTIMEZONE
+TZID:Europe/Berlin
+BEGIN:DAYLIGHT
+DTSTART:20120325T020000
+RRULE:FREQ=3DYEARLY;BYMONTH=3D3;BYDAY=3D-1SU
+TZNAME:CEST
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+END:DAYLIGHT
+BEGIN:STANDARD
+DTSTART:20121028T030000
+RRULE:FREQ=3DYEARLY;BYMONTH=3D10;BYDAY=3D-1SU
+TZNAME:CET
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+ATTENDEE;CN=3D"admin SetupWizard";CUTYPE=3DINDIVIDUAL;PARTSTAT=3DTENTATIVE=
+;ROL
+ E=3DREQ-PARTICIPANT:mailto:admin@willow.vmw
+CREATED:20120527T184350Z
+DTEND;TZID=3DEurope/Berlin:20120528T120000
+DTSTAMP:20120527T184357Z
+DTSTART;TZID=3DEurope/Berlin:20120528T110000
+LAST-MODIFIED:20120527T184357Z
+ORGANIZER;CN=3D"tom":mailto:tom@willow.vmw
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:A "tentative"
+TRANSP:OPAQUE
+UID:5b596379
+END:VEVENT
+END:VCALENDAR
+
+
+--k4S+SglA5zM1SDsfVhO0gOht0mSLr6lm8nLAALKLIoI=--
+

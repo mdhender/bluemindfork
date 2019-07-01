@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <bundle id="net.bluemind.system.domaintemplate" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.server.api" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.slf4j" version="4.1.0.qualifier"/>
+   <bundle id="org.freemarker.freemarker"/>
+   <bundle id="net.bluemind.node.api" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.core.container.api" version="4.1.0.qualifier"/>
+   <bundle id="org.apache.directory.api.all"/>
+   <bundle id="net.bluemind.core.rest" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.server.hook" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.authentication.api" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.config" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.system.ldap.export" version="4.1.0.qualifier"/>
+   <bundle id="org.apache.commons.collections"/>
+   <bundle id="net.bluemind.directory.api"/>
+</site>

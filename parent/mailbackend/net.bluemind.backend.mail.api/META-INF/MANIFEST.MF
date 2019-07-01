@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.backend.mail.api
+Bundle-SymbolicName: net.bluemind.backend.mail.api
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: net.bluemind.core.container.api,
+ com.google.guava,
+ com.fasterxml.jackson.core.jackson-annotations
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.backend.mail.api,
+ net.bluemind.backend.mail.api.events,
+ net.bluemind.backend.mail.api.utils
+Automatic-Module-Name: net.bluemind.backend.mail.api

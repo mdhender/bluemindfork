@@ -1,0 +1,18 @@
+Source: bluemind
+Section: net
+Priority: optional
+Maintainer: BlueMind Team <team@blue-mind.net>
+Standards-Version: 3.9.1
+
+Package: bm-tick-node
+Architecture: amd64
+Depends: bm-telegraf (= 1.7.4.bm1-1), bm-metrics-agent
+Description: BlueMind TICK stack
+ Installs TICK monitoring stack for BlueMind
+
+Package: telegraf
+Architecture: all
+Priority: extra
+Section: oldlibs
+Description: transitional package
+ This is a transitional package. It can safely be removed.

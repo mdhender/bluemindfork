@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.webstatics
+Bundle-SymbolicName: net.bluemind.webmodules.launcher;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Require-Bundle: org.eclipse.equinox.app,
+ net.bluemind.lib.vertx,
+ org.eclipse.equinox.registry,
+ org.eclipse.core.runtime;bundle-version="3.7.0",
+ net.bluemind.webmodule.server;bundle-version="1.0.0",
+ net.bluemind.systemd.notify
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+

@@ -1,0 +1,18 @@
+Source: python-cliapp
+Maintainer: Lars Wirzenius <liw@liw.fi>
+Section: python
+Priority: optional
+Standards-Version: 3.9.2
+Build-Depends: debhelper (>= 7.3.8), python (>= 2.6.5), 
+    python-coverage-test-runner, python-sphinx
+X-Python-Version: >= 2.6
+
+Package: python-cliapp
+Architecture: all
+Depends: ${python:Depends}, ${misc:Depends}, python (>= 2.6), libjs-jquery
+Description: Python framework for Unix command line programs
+ cliapp makes it easier to write typical Unix command line programs,
+ by taking care of the common tasks they need to do, such as
+ parsing the command line, reading configuration files, setting
+ up logging, iterating over lines of input files, and so on.
+Homepage: http://liw.fi/cliapp/

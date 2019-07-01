@@ -1,0 +1,13 @@
+[Unit]
+Description=BM PIMP
+Before=bm-nginx.service bm-php-fpm.service bm-cyrus-imapd.service postgresql.service bm-node.service bm-locator.service bm-core.service
+
+[Service]
+Type=oneshot
+ExecStart=/etc/init.d/bm-pimp start
+RemainAfterExit=yes
+# 0 is the same as infinity, but "infinity" needs systemd 229
+TimeoutStartSec=1h
+
+[Install]
+WantedBy=multi-user.target

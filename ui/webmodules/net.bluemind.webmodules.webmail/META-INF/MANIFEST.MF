@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.webmodules.webmail
+Bundle-SymbolicName: net.bluemind.webmodules.webmail;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.ui.webmail.application;bundle-version="1.0.0",
+ net.bluemind.webmodule;bundle-version="1.0.0",
+ net.bluemind.ui.banner.standalone.closure;bundle-version="1.0.0",
+ net.bluemind.commons.ui.closure;bundle-version="1.0.0",
+ net.bluemind.ui.resources;bundle-version="4.1.0",
+ net.bluemind.webmodule.server;bundle-version="4.1.0"
+Web-Resources: web-resources

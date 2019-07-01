@@ -1,0 +1,19 @@
+Source: bluemind
+Section: net
+Priority: optional
+Maintainer: Blue Mind Team <team@blue-mind.net>
+Standards-Version: 3.9.1
+
+Package: bm-ysnp
+Architecture: amd64
+Depends: bm-jdk (= 8u212-bluemind29), bm-conf (= ${binary:Version})
+Description: BlueMind saslauthd
+ BlueMind java based saslauthd replacement
+
+Package: ysnp
+Depends: bm-ysnp, ${misc:Depends}
+Architecture: all
+Priority: extra
+Section: oldlibs
+Description: transitional package
+ This is a transitional package. It can safely be removed.

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.filehosting.service">
+      <service
+            api="net.bluemind.filehosting.filesystem.service.internal.FileSystemFileHostingService"></service>
+   </extension>
+   <extension
+         point="net.bluemind.dataprotect.service.backupworker">
+      <backup_worker
+            impl="net.bluemind.filehosting.filesystem.service.internal.dataprotect.FileHostingBackupWorker">
+      </backup_worker>
+   </extension>
+   <extension
+         point="net.bluemind.dataprotect.service.restoreaction">
+      <restore_action
+            impl="net.bluemind.filehosting.filesystem.service.internal.dataprotect.FileHostingRestoreProvider">
+      </restore_action>
+   </extension>
+   <extension
+         point="net.bluemind.system.domaintemplate">
+      <domain-template-extension
+            document="filehosting-filesystem-tag.xml">
+      </domain-template-extension>
+   </extension>
+
+</plugin>

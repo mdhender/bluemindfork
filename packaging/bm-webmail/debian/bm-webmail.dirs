@@ -1,0 +1,4 @@
+usr/share/bm-webmail
+var/log/bm-webmail
+etc/bm-webmail
+etc/nginx/sites-available

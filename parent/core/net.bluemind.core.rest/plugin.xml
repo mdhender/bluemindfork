@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.core.rest.apiEndpoint" name="apiEndpoint" schema="schema/net.bluemind.core.rest.apiEndpoint.exsd"/>
+   <extension-point id="net.bluemind.core.rest.serviceFactory" name="serviceFactory" schema="schema/net.bluemind.core.rest.serviceFactory.exsd"/>
+   <extension-point id="net.bluemind.core.rest.eventBusAccessRule" name="eventBusAccessRule" schema="schema/net.bluemind.core.rest.eventBusAccessRule.exsd"/>
+   <extension-point id="net.bluemind.core.rest.filter" name="filter" schema="schema/net.bluemind.core.rest.filter.exsd"/>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.core.rest.vertx.RestBusVerticleFactory">
+      </verticle>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.filter">
+      <filter
+            class="net.bluemind.core.rest.base.BmApiVersionFilter">
+      </filter>
+      <filter
+            class="net.bluemind.core.rest.filter.CallLoggerFilter">
+      </filter>
+   </extension>
+
+</plugin>

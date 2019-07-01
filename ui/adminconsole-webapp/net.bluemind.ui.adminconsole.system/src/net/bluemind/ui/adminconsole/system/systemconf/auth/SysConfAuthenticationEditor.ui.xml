@@ -1,0 +1,81 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:bj="urn:import:net.bluemind.ui.admin.client" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui" xmlns:common="urn:import:net.bluemind.ui.common.client.forms">
+
+	<ui:with field="c"
+		type="net.bluemind.ui.adminconsole.system.systemconf.auth.l10n.SysConfAuthConstants" />
+
+	<g:HTMLPanel>
+		<g:ScrollPanel height="100%">
+			<g:HTMLPanel>
+
+				<table class="formContainer">
+					<f:FieldSetPanel name="{c.defaultDomain}">
+						<common:TrPanel styleName="setting" ui:field="defautlDomain" />
+						<g:HTMLPanel>
+
+							<table class="formContainer">
+								<tr>
+									<td class="label">
+										<g:Label text="{c.domainList}"></g:Label>
+									</td>
+									<td>
+										<g:ListBox ui:field="domainList" title="{c.domainList}" />
+									</td>
+								</tr>
+							</table>
+						</g:HTMLPanel>
+					</f:FieldSetPanel>
+
+
+
+					<f:FieldSetPanel name="{c.authTypeChoice}">
+						<common:TrPanel styleName="setting" ui:field="choicePanel" />
+					</f:FieldSetPanel>
+
+					<g:HTMLPanel ui:field="casAuthParams">
+						<f:FieldSetPanel name="{c.authParameters}">
+							<common:StringEdit ui:field="casUrl" mandatory="true"
+								titleText="{c.casUrl}" readOnly="false" />
+							<g:Label text="{c.casDomain}:"></g:Label>
+							<g:ListBox ui:field="casDomain" title="{c.casDomain}" />
+						</f:FieldSetPanel>
+					</g:HTMLPanel>
+
+					<g:HTMLPanel ui:field="krbAuthParams">
+						<f:FieldSetPanel name="{c.authParameters}">
+							<common:StringEdit ui:field="krbAdDomain"
+								titleText="{c.krbAdDomain}" mandatory="true" readOnly="false" />
+							<common:StringEdit ui:field="krbAdIp"
+								titleText="{c.krbAdIp}" mandatory="true" readOnly="false" />
+							<g:Label text="{c.krbDomain}:"></g:Label>
+							<g:ListBox ui:field="krbDomain" title="{c.krbDomain}" />
+						</f:FieldSetPanel>
+
+						<g:FormPanel ui:field="keyUploadForm">
+							<g:HTMLPanel>
+								<table class="formContainer">
+									<tr>
+										<td class="label">
+											<g:Label text="{c.krbKeyUpload}" />
+										</td>
+										<td class="label">
+											<g:CheckBox ui:field="keyFilePresent" />
+											<g:FileUpload ui:field="keyUpload" title="File"
+												name="file" />
+										</td>
+									</tr>
+								</table>
+							</g:HTMLPanel>
+						</g:FormPanel>
+					</g:HTMLPanel>
+				</table>
+
+			</g:HTMLPanel>
+		</g:ScrollPanel>
+	</g:HTMLPanel>
+
+</ui:UiBinder>

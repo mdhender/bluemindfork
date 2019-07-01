@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.core.caches.registry.registration" name="registration" schema="schema/net.bluemind.core.caches.registry.registration.exsd"/>
+
+   <extension
+         point="net.bluemind.core.rest.serviceFactory">
+      <serviceFactory
+            class="net.bluemind.core.caches.registry.CacheRegistry$Factory">
+      </serviceFactory>
+   </extension>
+</plugin>
+   

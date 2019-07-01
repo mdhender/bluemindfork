@@ -1,0 +1,1 @@
+${user} vous a partagé un carnet d'adresses

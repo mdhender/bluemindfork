@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Persistance SQL Schema
+Bundle-SymbolicName: net.bluemind.directory.sqlschema;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Require-Bundle: net.bluemind.core.sqlschema;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

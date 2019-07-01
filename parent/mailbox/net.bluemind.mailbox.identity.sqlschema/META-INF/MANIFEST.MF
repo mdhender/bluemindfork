@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.mailbox.identity.sqlschema
+Bundle-SymbolicName: net.bluemind.mailbox.identity.sqlschema;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Require-Bundle: net.bluemind.core.container.sqlschema,
+ net.bluemind.core.sqlschema,
+ net.bluemind.mailbox.sqlschema;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Vendor: blue-mind.net

@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.todolist.ui.closure
+Bundle-SymbolicName: net.bluemind.todolist.ui.closure;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Closure-Bundle-Type: Library
+Bundle-ClassPath: css.jar,
+ js.jar,
+ .
+Automatic-Module-Name: net.bluemind.todolist.ui.closure

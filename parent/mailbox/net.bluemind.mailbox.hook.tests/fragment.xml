@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<fragment>
+   <extension
+         point="net.bluemind.mailbox.hook">
+      <hook
+            class="net.bluemind.mailbox.hook.TestHook">
+      </hook>
+   </extension>
+
+</fragment>

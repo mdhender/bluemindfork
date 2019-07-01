@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.system.iptables.mq
+Bundle-SymbolicName: net.bluemind.system.iptables.mq;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.core.commons,
+ net.bluemind.system.api,
+ slf4j.api,
+ net.bluemind.lib.vertx,
+ net.bluemind.system.iptables,
+ net.bluemind.server.hook,
+ net.bluemind.core.rest,
+ net.bluemind.core.task.service;bundle-version="4.1.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

@@ -1,0 +1,100 @@
+#!/bin/bash
+
+help() {
+    echo "Usage: $0 <privateKeyFile> <certificateFile> <caCertificateFile>"
+    echo -e "\tprivateKeyFile: my private key"
+    echo -e "\tcertificateFile: my certificate file"
+    echo -e "\tcaCertificateFile: my CA certificate file"
+    echo "Note: read BM howto change my certificate first !"
+    exit 1
+}
+
+displayWarning() {
+    echo "WARNING: all BM services will be restarted !"
+    echo "Note: read BM howto change my certificate first !"
+    echo -n "Do you really want to continu (y/N): "
+    read response
+
+    if [ "${response}" == "" ]; then
+        response="n"
+    fi
+
+    if [ ${response} != "y" -a ${response} != "Y" ]; then
+        echo "abording!"
+        exit
+    fi
+}
+
+bmCertFile="/etc/ssl/certs/bm_cert.pem"
+bmCaCertFile="/var/lib/bm-ca/cacert.pem"
+
+if [ $# -ne 3 ]; then
+    help
+fi
+
+paramPrivateKeyFile=$1
+paramCertificateFile=$2
+paramCaCertificateFile=$3
+
+if [ ! -f ${paramPrivateKeyFile} ]; then
+    help
+fi
+
+if [ ! -f ${paramCertificateFile} ]; then
+    help
+fi
+
+if [ ! -f ${paramCaCertificateFile} ]; then
+    help
+fi
+
+displayWarning
+
+rnd=${RANDOM}
+newBmCertFile="/tmp/bm_cert.pem-"${rnd}
+newBmCaCertFile="/tmp/cacert.pem-"${rnd}
+
+# Clean cert file
+openssl x509 -in ${paramCertificateFile} -text -out ${newBmCertFile}
+if [ $? -ne 0 ]; then
+    echo "Invalid certificate file: "${paramCertificateFile}
+    exit 1
+fi
+
+# Clean and decrypt private key
+echo "Enter your private key password if needed..."
+openssl rsa -in ${paramPrivateKeyFile} >> ${newBmCertFile}
+if [ $? -ne 0 ]; then
+    echo "Invalid private key password or key file: "${paramPrivateKeyFile}
+    exit 1
+fi
+
+# Clean CA cert file
+sed -e 's/\x0D$//' ${paramCaCertificateFile} | sed -ne '/^-----BEGIN CERTIFICATE-----$/,/^-----END CERTIFICATE-----$/p' > ${newBmCaCertFile}
+openssl x509 -in ${newBmCaCertFile} > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+    echo "Invalid CA certificate file: "${paramCaCertificateFile}
+    exit 1
+fi
+
+# Add CA cert to certificate file
+cat ${newBmCaCertFile} >> ${newBmCertFile}
+
+# Backup current BM certificates
+backupDir="/etc/bm-ca/backup-"`date "+%Y%m%d-%k%M%S"`
+mkdir -p ${backupDir}
+cp ${bmCertFile} ${backupDir}
+cp ${bmCaCertFile} ${backupDir}
+
+# Replace BM certificates
+mv ${newBmCertFile} ${bmCertFile}
+mv ${newBmCaCertFile} ${bmCaCertFile}
+
+if [ -f /usr/share/bm-ips/pem_to_jks ]; then
+    /usr/share/bm-ips/pem_to_jks
+    service bm-ips restart
+fi
+
+# Restart BM services
+service nginx restart
+bmctl restart

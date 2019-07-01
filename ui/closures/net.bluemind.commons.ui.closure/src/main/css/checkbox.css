@@ -1,0 +1,42 @@
+.goog-checkbox {
+	/*
+  display: -moz-inline-box;
+  display: inline-block;
+  font-size: 1px;  
+  height: 11px;
+  margin: 0 4px 0 1px;
+  vertical-align: text-bottom;
+  
+  */
+  width: 13px;
+  margin-left: 2px;
+  display: inline-block;
+  font: normal normal normal 17px/1 FontAwesome;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 13px;
+  vertical-align: -15%;
+}
+
+.goog-checkbox:before {
+  content: "\f096";
+}
+
+.goog-checkbox-checked:before {
+  content: "\f046";  	
+}
+
+.goog-checkbox-undetermined:before {
+  content: "\f14a";
+  color: #ccc;
+}
+
+.goog-checkbox-unchecked:before {
+  content: "\f096";
+}
+
+.goog-checkbox.goog-checkbox-disabled:before {
+  content: "\f0c8";
+  color: lightgray;
+}

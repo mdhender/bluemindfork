@@ -1,0 +1,27 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>bm-plugin-admin-console-filehosting-settings</artifactId>
+	<packaging>bm-service-extension</packaging>
+	<properties>
+		<service.name>bm-webserver</service.name>
+		<shortDescription>BlueMind Admin Console Filehosting plugin</shortDescription>
+		<description>Admin Console web interface for the BlueMind Filehosting plugin</description>
+	</properties>
+	<parent>
+		<groupId>net.bluemind</groupId>
+		<artifactId>net.bluemind.packaging</artifactId>
+		<version>4.1.0-SNAPSHOT</version>
+	</parent>
+
+	<dependencies>
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.p2.we.adminconsole-filehosting</artifactId>
+			<version>${project.version}</version>
+			<type>zip</type>
+		</dependency>
+	</dependencies>
+</project>
+

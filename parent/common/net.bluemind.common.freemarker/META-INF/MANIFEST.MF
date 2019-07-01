@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.common.freemarker
+Bundle-SymbolicName: net.bluemind.common.freemarker
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
+ org.freemarker.freemarker;visibility:=reexport,
+ slf4j.api;bundle-version="1.7.5"
+Export-Package: net.bluemind.common.freemarker
+

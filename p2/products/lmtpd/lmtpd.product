@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="lmtpd" uid="lmtpd" id="net.bluemind.lmtp.lmtpd" application="net.bluemind.lmtp.id1" version="4.1.0.qualifier" useFeatures="false" includeLaunchers="true">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <programArgs>-consoleLog -debug
+      </programArgs>
+      <vmArgs>-Dosgi.noShutdown=true
+      </vmArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
+   </launcherArgs>
+
+   <launcher name="lmtpd">
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+   </vm>
+
+   <plugins>
+      <plugin id="backport-util-concurrent"/>
+      <plugin id="ch.qos.logback.classic"/>
+      <plugin id="ch.qos.logback.core"/>
+      <plugin id="com.beetstra.jutf7"/>
+      <plugin id="com.fasterxml.jackson.core.jackson-annotations"/>
+      <plugin id="com.fasterxml.jackson.core.jackson-core"/>
+      <plugin id="com.fasterxml.jackson.core.jackson-databind"/>
+      <plugin id="com.google.guava"/>
+      <plugin id="com.hazelcast"/>
+      <plugin id="com.hazelcast.client" fragment="true"/>
+      <plugin id="com.netflix.spectator.api"/>
+      <plugin id="com.ning.async-http-client"/>
+      <plugin id="com.sun.mail.javax.mail"/>
+      <plugin id="io.netty"/>
+      <plugin id="io.vertx.core"/>
+      <plugin id="io.vertx.platform"/>
+      <plugin id="javax.validation.api"/>
+      <plugin id="javax.ws.rs"/>
+      <plugin id="javax.xml"/>
+      <plugin id="jcl.over.slf4j"/>
+      <plugin id="joda-time"/>
+      <plugin id="jul.to.slf4j"/>
+      <plugin id="net.bluemind.addressbook.api"/>
+      <plugin id="net.bluemind.authentication.api"/>
+      <plugin id="net.bluemind.calendar.api"/>
+      <plugin id="net.bluemind.calendar.helper"/>
+      <plugin id="net.bluemind.calendar.occurrence"/>
+      <plugin id="net.bluemind.common.freemarker"/>
+      <plugin id="net.bluemind.common.io"/>
+      <plugin id="net.bluemind.common.reflect"/>
+      <plugin id="net.bluemind.config"/>
+      <plugin id="net.bluemind.core.commons"/>
+      <plugin id="net.bluemind.core.container.api"/>
+      <plugin id="net.bluemind.core.context"/>
+      <plugin id="net.bluemind.core.rest"/>
+      <plugin id="net.bluemind.core.rest.common"/>
+      <plugin id="net.bluemind.core.rest.http"/>
+      <plugin id="net.bluemind.core.sendmail"/>
+      <plugin id="net.bluemind.core.sessions"/>
+      <plugin id="net.bluemind.core.task.api"/>
+      <plugin id="net.bluemind.directory.api"/>
+      <plugin id="net.bluemind.domain.api"/>
+      <plugin id="net.bluemind.eclipse.common"/>
+      <plugin id="net.bluemind.elastic.client"/>
+      <plugin id="net.bluemind.exchange.mapi.lmtp.filter"/>
+      <plugin id="net.bluemind.group.api"/>
+      <plugin id="net.bluemind.hornetq.client"/>
+      <plugin id="net.bluemind.hsm.api"/>
+      <plugin id="net.bluemind.icalendar.api"/>
+      <plugin id="net.bluemind.icalendar.parser"/>
+      <plugin id="net.bluemind.imip.parser"/>
+      <plugin id="net.bluemind.lib.ical4j"/>
+      <plugin id="net.bluemind.lib.jackson"/>
+      <plugin id="net.bluemind.lib.jodatime"/>
+      <plugin id="net.bluemind.lib.jta"/>
+      <plugin id="net.bluemind.lib.jutf7"/>
+      <plugin id="net.bluemind.lib.ristretto"/>
+      <plugin id="net.bluemind.lib.vertx"/>
+      <plugin id="net.bluemind.lmtp"/>
+      <plugin id="net.bluemind.lmtp.filter.imip"/>
+      <plugin id="net.bluemind.locator.client"/>
+      <plugin id="net.bluemind.locator.vertxclient"/>
+      <plugin id="net.bluemind.mailbox.api"/>
+      <plugin id="net.bluemind.mailbox.identity.api"/>
+      <plugin id="net.bluemind.mailshare.api"/>
+      <plugin id="net.bluemind.metrics.registry"/>
+      <plugin id="net.bluemind.metrics.transport"/>
+      <plugin id="net.bluemind.mime4j.common"/>
+      <plugin id="net.bluemind.neko.common"/>
+      <plugin id="net.bluemind.network.topology.consumer"/>
+      <plugin id="net.bluemind.node.api"/>
+      <plugin id="net.bluemind.node.client"/>
+      <plugin id="net.bluemind.node.shared"/>
+      <plugin id="net.bluemind.osgi.log"/>
+      <plugin id="net.bluemind.reminder.mail"/>
+      <plugin id="net.bluemind.resource.api"/>
+      <plugin id="net.bluemind.resource.lmtp.filter"/>
+      <plugin id="net.bluemind.server.api"/>
+      <plugin id="net.bluemind.slf4j"/>
+      <plugin id="net.bluemind.slf4j.configuration" fragment="true"/>
+      <plugin id="net.bluemind.system.api"/>
+      <plugin id="net.bluemind.system.stateobserver"/>
+      <plugin id="net.bluemind.systemd.notify"/>
+      <plugin id="net.bluemind.tag.api"/>
+      <plugin id="net.bluemind.todolist.api"/>
+      <plugin id="net.bluemind.user.api"/>
+      <plugin id="net.bluemind.utils"/>
+      <plugin id="net.freeutils.tnef"/>
+      <plugin id="net.java.dev.jna"/>
+      <plugin id="net.sourceforge.nekohtml"/>
+      <plugin id="org.apache.commons.codec"/>
+      <plugin id="org.apache.commons.lang"/>
+      <plugin id="org.apache.james.apache-mime4j-core"/>
+      <plugin id="org.apache.james.apache-mime4j-dom"/>
+      <plugin id="org.apache.james.apache-mime4j-storage"/>
+      <plugin id="org.apache.xerces"/>
+      <plugin id="org.apache.xml.resolver"/>
+      <plugin id="org.apache.xml.serializer"/>
+      <plugin id="org.eclipse.core.contenttype"/>
+      <plugin id="org.eclipse.core.jobs"/>
+      <plugin id="org.eclipse.core.runtime"/>
+      <plugin id="org.eclipse.equinox.app"/>
+      <plugin id="org.eclipse.equinox.common"/>
+      <plugin id="org.eclipse.equinox.ds"/>
+      <plugin id="org.eclipse.equinox.preferences"/>
+      <plugin id="org.eclipse.equinox.registry"/>
+      <plugin id="org.eclipse.equinox.util"/>
+      <plugin id="org.eclipse.osgi"/>
+      <plugin id="org.eclipse.osgi.services"/>
+      <plugin id="org.eclipse.update.configurator"/>
+      <plugin id="org.freemarker.freemarker"/>
+      <plugin id="org.jboss.logging.jboss-logging"/>
+      <plugin id="org.jboss.netty"/>
+      <plugin id="org.mnode.ical4j"/>
+      <plugin id="org.mnode.ical4j.vcard"/>
+      <plugin id="org.mnode.ical4j.zoneinfo-outlook"/>
+      <plugin id="slf4j.api"/>
+   </plugins>
+
+   <configurations>
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
+      <property name="osgi.configuration.area" value="/var/lib/bm-lmtpd/" />
+      <property name="osgi.noShutdown" value="true" />
+   </configurations>
+
+</product>

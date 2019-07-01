@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <bundle id="net.bluemind.chooser.application.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.authentication.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.chooser.application.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.commons.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.extensions.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.mvp.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.webmodules.chooser" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.filehosting.ui.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.filehosting.api.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.announcement.api" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.announcement.api.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.filehosting.api" version="4.1.0.qualifier"/>
+</site>

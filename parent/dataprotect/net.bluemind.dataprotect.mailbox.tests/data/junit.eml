@@ -1,0 +1,69 @@
+Return-Path: <jenkins@blue-mind.net>
+Received: from bm-prod.blue-mind.loc (localhost.localdomain [127.0.0.1])
+	 by bm-prod with LMTPA;
+	 Tue, 09 Jun 2015 11:27:43 +0200
+X-Sieve: CMU Sieve 2.4
+Received: from /192.168.231.2 (LHLO bm-prod.blue-mind.loc) by unknown with
+ LMTP; 6/9/15 9:27 AM
+Received: from jenkins.blue-mind.loc (jenkins.blue-mind.loc [192.168.231.49])
+	by bm-prod.blue-mind.loc (Postfix) with ESMTP id 6C48B46127;
+	Tue,  9 Jun 2015 11:27:43 +0200 (CEST)
+Date: Tue, 9 Jun 2015 11:28:37 +0200 (CEST)
+From: jenkins@blue-mind.net
+Reply-To: jenkins@blue-mind.net
+To: dominique.eav@blue-mind.net, david.phan@blue-mind.net, 
+	laurent.belmonte@blue-mind.net, mehdi.rande@blue-mind.net, 
+	thomas.cataldo@blue-mind.net, anthony.prades@blue-mind.net, 
+	nicolas.lascombes@blue-mind.net, thomas.fricker@blue-mind.net
+Message-ID: <1447006524.151.1433842117796.JavaMail.tomcat7@jenkins>
+In-Reply-To: <1275459462.149.1433839263685.JavaMail.tomcat7@jenkins>
+References: <1275459462.149.1433839263685.JavaMail.tomcat7@jenkins>
+Subject: build 3.1.2225 - Still Unstable (master) (26 test failures)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_150_1245363398.1433842117790"
+X-Jenkins-Job: bm-unit-tests
+X-Jenkins-Result: UNSTABLE
+List-ID: Build Notifications <jenkins@blue-mind.net>
+Precedence: bulk
+
+------=_Part_150_1245363398.1433842117790
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<body><h3>GENERAL INFO</h3><ul><li>BUILD UNSTABLE</li><li>Build URL: <a hre=
+f=3D"http://jenkins.blue-mind.loc:8080/jenkins/job/bm-unit-tests/919/">http=
+://jenkins.blue-mind.loc:8080/jenkins/job/bm-unit-tests/919/</a></li><li>Pr=
+oject: bm-unit-tests</li><li>Date of build: Tue, 09 Jun 2015 10:41:31 +0200=
+</li><li>Build duration: 47 min</li></ul><h3>UPSTREAM CHANGES</h3><ul><li>B=
+M-5163 Fix: search all folders</li></ul><h3>JUNIT FAILURES</h3><ul><li>net.=
+bluemind.backend.cyrus.ServerHookTests.testOnServerAssigned</li><li>net.blu=
+emind.calendar.helper.CalendarMailHelperTests.testExtractAlertBody</li><li>=
+net.bluemind.calendar.helper.CalendarMailHelperTests.testExtractInvitationB=
+ody</li><li>net.bluemind.calendar.service.http.tests.HttpVEventServiceTests=
+.testExportAll</li><li>net.bluemind.calendar.service.http.tests.HttpVEventS=
+erviceTests.testImport</li><li>net.bluemind.calendar.service.http.tests.Htt=
+pVEventServiceTests.testImportBug4923</li><li>net.bluemind.calendar.service=
+.http.tests.HttpVEventServiceTests.testImportLotus</li><li>net.bluemind.cal=
+endar.service.http.tests.HttpVFreebusyServiceTests.testGetAsString</li><li>=
+net.bluemind.calendar.service.tests.VEventServiceTests.testExportAll</li><l=
+i>net.bluemind.calendar.service.tests.VEventServiceTests.testImport</li><li=
+>net.bluemind.calendar.service.tests.VEventServiceTests.testImportBug4923</=
+li><li>net.bluemind.calendar.service.tests.VEventServiceTests.testImportLot=
+us</li><li>net.bluemind.calendar.service.tests.VFreebusyServiceTests.testGe=
+tAsString</li><li>net.bluemind.customproperties.service.tests.CustomPropert=
+iesHttpTests.testGetCustomProps</li><li>net.bluemind.customproperties.servi=
+ce.tests.CustomPropertiesTests.testGetCustomProps</li><li>net.bluemind.dire=
+ctory.service.DirectoryTests.testDelete</li><li>net.bluemind.domain.service=
+.DomainsServiceTests.testDelete</li><li>net.bluemind.group.service.tests.Gr=
+oupServiceHttpTests.testCreateNullGroup</li><li>net.bluemind.group.service.=
+tests.GroupServiceTests.testCreateNullGroup</li><li>net.bluemind.imap.BodyS=
+tructureParserTests.testInfinitLoop</li><li>net.bluemind.server.service.Bra=
+ndNewServerTests.testInitBrandNew</li><li>net.bluemind.system.ldap.importat=
+ion.hooks.ImportLdapJobTests.scanError</li><li>net.bluemind.system.ldap.imp=
+ortation.internal.tools.UserManagerTests.entryToUserEmailsDomainAlias</li><=
+li>net.bluemind.system.ldap.importation.internal.tools.UserManagerTests.ent=
+ryToUserEmailsExternalFirst</li><li>net.bluemind.system.ldap.importation.in=
+ternal.tools.UserManagerTests.entryToUserEmailsExternalOnly</li><li>net.blu=
+emind.user.service.UserDomainHookTests.testOnDeleted</li></ul></body>
+------=_Part_150_1245363398.1433842117790--

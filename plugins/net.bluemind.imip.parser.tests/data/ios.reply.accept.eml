@@ -1,0 +1,76 @@
+Return-Path: <admin@willow.vmw>
+Received: from willow.vmw ([172.16.45.135])
+	 by bjday (Cyrus v2.4.16-Debian-2.4.16-1hudson92) with LMTPA;
+	 Fri, 25 May 2012 17:51:07 +0200
+X-Sieve: CMU Sieve 2.4
+Received: from 172.16.45.135 (LHLO bjday.willow.vmw) (172.16.45.135) by
+ unknown with LMTP; 5/25/12 3:51 PM
+Received: from [192.168.0.13] (unknown [172.16.45.1])
+	by bjday.willow.vmw (Postfix) with ESMTP id E778A3138
+	for <tom@willow.vmw>; Fri, 25 May 2012 17:51:06 +0200 (CEST)
+Message-Id: <F063B888-54E6-46D7-973C-736F35ABA259@willow.vmw>
+Content-Type: multipart/alternative; boundary="inmMF5egUAVFdah03uNS+9oSAcDUTrBGslDrXjZbr14="
+Date: Fri, 25 May 2012 17:51:06 +0200
+Subject: =?utf-8?Q?Accept=C3=A9e=C2=A0:_Avec_admin_+_contact_externe?=
+Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0 (1.0)
+To: tom <tom@willow.vmw>
+From: admin@willow.vmw
+
+
+--inmMF5egUAVFdah03uNS+9oSAcDUTrBGslDrXjZbr14=
+Content-Type: text/plain;	charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+Annotation
+
+
+
+--inmMF5egUAVFdah03uNS+9oSAcDUTrBGslDrXjZbr14=
+Content-Type: text/calendar;	charset=utf-8;	name=meeting.ics;	method=REPLY
+Content-Transfer-Encoding: quoted-printable
+
+BEGIN:VCALENDAR
+CALSCALE:GREGORIAN
+METHOD:REPLY
+PRODID:-//Apple Inc.//iPhone 3.0//EN
+VERSION:2.0
+BEGIN:VTIMEZONE
+TZID:Europe/Berlin
+BEGIN:DAYLIGHT
+DTSTART:20120325T020000
+RRULE:FREQ=3DYEARLY;BYMONTH=3D3;BYDAY=3D-1SU
+TZNAME:CEST
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+END:DAYLIGHT
+BEGIN:STANDARD
+DTSTART:20121028T030000
+RRULE:FREQ=3DYEARLY;BYMONTH=3D10;BYDAY=3D-1SU
+TZNAME:CET
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+ATTENDEE;CN=3D"admin SetupWizard";CUTYPE=3DINDIVIDUAL;PARTSTAT=3DACCEPTED;=
+ROLE
+ =3DREQ-PARTICIPANT:mailto:admin@willow.vmw
+CREATED:20120525T154238Z
+DTEND;TZID=3DEurope/Berlin:20120529T133000
+DTSTAMP:20120525T154122Z
+DTSTART;TZID=3DEurope/Berlin:20120529T093000
+LAST-MODIFIED:20120525T154122Z
+ORGANIZER;CN=3D"tom":mailto:tom@willow.vmw
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:Avec admin + contact externe
+TRANSP:OPAQUE
+UID:b84ce20
+X-CALENDARSERVER-PRIVATE-COMMENT:Annotation\n
+END:VEVENT
+END:VCALENDAR
+
+
+--inmMF5egUAVFdah03uNS+9oSAcDUTrBGslDrXjZbr14=--
+

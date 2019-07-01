@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.ui.settings.downloads" name="%extension-point.name" schema="schema/net.bluemind.ui.settings.downloads.exsd"/>
+  
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module-provider
+            module="/settings">
+         
+
+         <web-resource
+               bundle="net.bluemind.ui.settings.downloads">
+                        </web-resource>
+
+         <js
+               path="js/compile/net.bluemind.ui.settings.downloads.js"
+               translation="true">
+         </js>
+         <css
+               path="css/net.bluemind.ui.settings.downloads.css">
+         </css>
+
+      </web-module-provider>
+   </extension>
+   <extension
+         point="net.bluemind.ui.settings.menusContributor">
+      <contributor
+            function="gwtSettingsDownloadsMenusContributor">
+      </contributor>
+   </extension>
+   <extension
+         point="net.bluemind.ui.settings.screensContributor">
+      <contributor
+            function="gwtSettingsDownloadsScreensContributor">
+      </contributor>
+   </extension>
+   <extension
+         point="net.bluemind.extensions">
+      <export-extension-point
+            id="net.bluemind.ui.settings.downloads"
+            module="/settings">
+      </export-extension-point>
+   </extension>
+    
+
+</plugin>

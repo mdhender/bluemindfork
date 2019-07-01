@@ -1,0 +1,23 @@
+{
+  "manifest_version": 2,
+  "name": "BlueMind Connector",
+  "description": "BlueMind Connector (1.0.0-dev)",
+  "version": "1.0.0-dev",
+  "author": "BlueMind",
+  "legacy": {
+    "options" : {
+    "page" : "chrome://bm/content/preferences/bmPrefWindow.xul",
+    "open_in_tab" : false
+    }
+  },
+  "applications": {
+    "gecko": {
+      "id": "bm-connector-tb@blue-mind.net",
+      "strict_min_version": "65.0",
+      "update_url": "https://forge.blue-mind.net/mozilla/update.json"
+    }
+  },
+  "icons": {
+    "48": "skin/BM_Icone01_48.png"
+  }
+}

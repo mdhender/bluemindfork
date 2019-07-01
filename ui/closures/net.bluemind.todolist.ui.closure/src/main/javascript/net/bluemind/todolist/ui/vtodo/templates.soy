@@ -1,0 +1,135 @@
+{namespace net.bluemind.todolist.ui.vtodo.templates}
+
+/**
+ * BEGIN LICENSE
+ * Copyright © Blue Mind SAS, 2012-2016
+ *
+ * This file is part of BlueMind. BlueMind is a messaging and collaborative
+ * solution.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of either the GNU Affero General Public License as
+ * published by the Free Software Foundation (version 3 of the License).
+ *
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * END LICENSE
+ */
+
+/**
+ * Task
+ * @param task Task data
+ */
+{template .card}
+  <div class="{css header}">
+    {call .priority}
+      {param priority: $task.priority /}
+    {/call}
+    <h1>
+      {$task.summary}
+    </h1>
+    <span class="{css info}"> ({$task.containerName})</span>
+    {call .date}
+      {param due: $task.due /}
+      {param completed: $task.completed /}
+      {param status: $task.status /}
+    {/call}
+    <br />
+    {if $task.start}
+      {let $taskStart : $task.start /}
+      <div><em>{msg meaning="task.started" desc="Task start date"}Started on {$taskStart}{/msg}</em></div>
+    {/if}
+    {if $task.tags and $task.tags.length > 0}
+      <div class="">
+        <span class="{css label}">{msg meaning="general.tags" desc="Folder entry tag label"}Tags{/msg}</span>
+        <ul class="{css bm-tagbox-bullets}">
+        {foreach $tag in $task.tags}
+          {call .tag}
+            {param tag: $tag /}
+          {/call}
+        {/foreach}
+        </ul>
+      </div>
+    {/if}
+    <div>
+      {call .percent}
+        {param status: $task.status /}
+        {param percent: $task.percent /}
+      {/call}
+    </div>
+    {if $task.location}
+      <div class="{css entry}">
+        <span class="{css label}">{msg meaning="task.location" desc="Task location label"}Location{/msg}</span>
+        <div">{$task.location}</div>
+      </div>
+    {/if}
+  </div>
+    {if $task.description}
+     <div class="{css entry}">
+       <div>{$task.description |noAutoescape}</div>
+      </div>
+    {/if}
+  </div>
+
+  /* this.addReminderField_('reminder', bm.task.ui.TaskForm.MSG_REMINDER); */
+
+{/template}
+
+
+/**
+ * A tag information
+ * @param tag Information content
+ */
+{template .tag}
+  <li  class="{css bm-tagbox-bullets}" title="{$tag['label']}">
+    <span class="{css bm-tagbox-bullet-color}" style="background-color: #{$tag['color']};"></span>
+    {$tag['label']}
+  </li>
+{/template}
+
+/**
+ * TODO: Move logic in the presenter.
+ * Display date
+ * @param due Due date
+ * @param completed Completed date
+ * @param status Completion status
+ */
+{template .date}
+  {if $status == 'completed' }
+     <span class='{css box} {css success}'>{msg meaning="task.completed" desc="Display task completion in title"}Completed{/msg}</span>
+  {elseif $completed }
+    <span class='{css box} {css success}'>{msg meaning="task.completedOn" desc="Display task completion in title"}Completed on {$completed}{/msg}</span>
+  {elseif $due }
+    <span class='{css box} {css error}'>{msg meaning="task.dueOn" desc="Display task due in title"}Due on {$due}{/msg}</span>
+  {/if}
+{/template}
+
+/**
+ * TODO: Move logic in the presenter.
+ * Display priority as image
+ * @param priority
+ */
+{template .priority}
+  <span class="{css halflings} {css uni-fire} {$priority}" title="{msg meaning="task.priority" desc="Priority image title"}Priority : {$priority}{/msg}">&nbsp;</span>
+{/template}
+
+/**
+ * TODO: Move logic in the presenter.
+ * Display percent barr
+ * @param status
+ * @param percent
+ */
+{template .percent}
+  {if $percent > 0}
+    <div class="{css percent} {css progress}">
+    {if $status == 'completed' }
+      <div class="{css bar-success}" style="width: {$percent}%;">{$percent}%</div>
+    {else}
+      <div class="{css bar}" style="width: {$percent}%;">{$percent}%</div>
+    {/if}
+    </div>
+  {/if}
+{/template}

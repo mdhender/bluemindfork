@@ -1,0 +1,57 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	xmlns:cm="urn:import:net.bluemind.ui.settings.addressbook.management"
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:common="urn:import:net.bluemind.ui.common.client.forms">
+
+	<ui:style>
+		.actionBar {
+			padding: 5px;
+			background: #F8F8F8;
+		}
+	</ui:style>
+
+	<ui:with
+		type="net.bluemind.ui.settings.addressbook.management.BookManagementConstants"
+		field="c" />
+
+	<g:HTMLPanel>
+
+		<g:Label text="{c.newBook}" styleName="sectionTitle"></g:Label>
+
+			<g:HTMLPanel>
+				<table class="formContainer">
+					<tr class="setting">
+						<td class="label">
+							<g:Label text="{c.label}"></g:Label>
+						</td>
+						<td class="form">
+							<g:TextBox name="label"  ui:field="label"></g:TextBox>
+							<g:Hidden ui:field="ownerId" name="ownerId"></g:Hidden>
+							<g:Hidden ui:field="domainId" name="domainId"></g:Hidden>							
+						</td>
+					</tr>
+					<tr class="setting">
+						<td class="label">
+							<g:Label text="{c.vcf}"></g:Label>
+						</td>
+						<td class="form">
+							<g:FormPanel ui:field="uploadForm">
+							<g:FileUpload ui:field="vcf" title="VCF" name="vcf"></g:FileUpload>
+							</g:FormPanel>
+						</td>
+					</tr>					
+				</table>
+				<g:HTMLPanel styleName="{style.actionBar}">
+					<g:SubmitButton ui:field="addBook" text="{c.addBook}" styleName="button"></g:SubmitButton>
+				</g:HTMLPanel>
+			</g:HTMLPanel>
+
+		<g:Label text="{c.books}" styleName="sectionTitle"></g:Label>
+		<g:FlexTable ui:field="table">
+		</g:FlexTable>
+
+	</g:HTMLPanel>
+
+</ui:UiBinder>

@@ -1,0 +1,12 @@
+*.suo
+*.sdf
+*.opensdf
+*.user
+App.config
+app.config
+obj/
+bin/
+Debug/
+_ReSharper.*/
+Release/
+generated

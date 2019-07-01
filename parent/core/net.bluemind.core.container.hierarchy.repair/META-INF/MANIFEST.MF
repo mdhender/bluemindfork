@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.core.container.hierarchy.repair
+Bundle-SymbolicName: net.bluemind.core.container.hierarchy.repair;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.core.container.hierarchy.repair.Activator
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.directory.service,
+ slf4j.api,
+ net.bluemind.directory.api,
+ net.bluemind.core.task.service
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.core.container.hierarchy.repair
+Bundle-ActivationPolicy: lazy

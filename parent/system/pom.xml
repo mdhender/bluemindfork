@@ -1,0 +1,40 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>net.bluemind</groupId>
+		<artifactId>net.bluemind.corev2</artifactId>
+		<version>4.1.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>net.bluemind.system.plugins</artifactId>
+	<packaging>pom</packaging>
+	<modules>
+	        <module>net.bluemind.network.utils</module>
+		<module>net.bluemind.system.sqlschema</module>
+		<module>net.bluemind.system.api</module>
+		<module>net.bluemind.system.domaintemplate</module>
+		<module>net.bluemind.system.subscriptionprovider</module>
+		<module>net.bluemind.system.persistance</module>
+		<module>net.bluemind.system.persistance.tests</module>
+		<module>net.bluemind.system.schemaupgrader</module>
+		<module>net.bluemind.system.schemaupgrader.tests</module>
+		<module>net.bluemind.system.hook</module>
+		<module>net.bluemind.system.config</module>
+		<module>net.bluemind.system.auth</module>
+		<module>net.bluemind.system.auth.tests</module>
+		<module>net.bluemind.system.service</module>
+		<module>net.bluemind.system.service.tests</module>
+		<module>net.bluemind.system.webmail</module>
+		<module>net.bluemind.system.state</module>
+		<module>net.bluemind.system.config.tests</module>
+		<module>net.bluemind.system.iptables</module>
+		<module>net.bluemind.system.iptables.mq</module>
+		<module>net.bluemind.system.iptables.tests</module>
+		<module>net.bluemind.system.stateobserver</module>
+		<module>net.bluemind.system.stateobserver.testhelper</module>
+		<module>net.bluemind.system.pg</module>
+		<module>net.bluemind.system.pg.tests</module>
+		<module>net.bluemind.system.helper</module>
+	</modules>
+
+</project>

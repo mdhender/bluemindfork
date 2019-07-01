@@ -1,0 +1,21 @@
+.grid {
+	
+}
+
+.selected {
+	background:
+		url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAICAYAAADA+m62AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3QUdCyIPM78RMwAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAABCSURBVBjTY2DAD/5DMQMjPkWfvv5iYGBgYODjZsOpEEURAwMDIyOSFTAbMBRhlcCmCJkBV4xNETZ3/UdyBsHgwAoA+18g4IlQWLcAAAAASUVORK5CYII=)
+		no-repeat center;
+}
+
+.defaultDot {
+	border-width: 2px !important;
+	width: 12px !important;
+	height: 12px !important;
+	border-color: #333 !important;
+}
+
+.dot:hover, .defaultDot:hover {
+	border-color: #000 !important;
+	cursor: pointer;
+}

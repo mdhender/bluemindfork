@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?xml-stylesheet href="chrome://bm/skin/style.css" type="text/css"?>
+<!DOCTYPE overlay SYSTEM "chrome://bm/locale/bm.dtd">
+
+<overlay id="bm-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script type="application/x-javascript" src="chrome://bm/content/messengerOverlay.js" />
+  <statusbarpanel id="bm-sync-status"
+                  label=""
+                  tooltiptext=""/>
+  <toolbarpalette id="MailToolbarPalette">
+    <toolbarbutton id="bm-button-open-calendar"
+                   class="toolbarbutton-1"
+                   label="&bm.button.open.calendar.label;"
+                   tooltiptext="&bm.button.open.calendar.tooltiptext;"
+                   oncommand="gBMOverlay.openBmApp('/cal', false);"/>
+    <toolbarbutton id="bm-button-open-todolist"
+                   class="toolbarbutton-1"
+                   label="&bm.button.open.todolist.label;"
+                   tooltiptext="&bm.button.open.todolist.tooltiptext;"
+                   oncommand="gBMOverlay.openBmApp('/task', false);"/>
+    <toolbarbutton id="bm-button-sync"
+                   class="toolbarbutton-1"
+                   label="&bm.button.sync.label;"
+                   tooltiptext="&bm.button.sync.tooltiptext;"
+                   oncommand="gBMOverlay.doSync();"/>
+  </toolbarpalette>
+  <menupopup id="taskPopup">
+    <menu label="BlueMind"
+          class="menu-iconic"
+          image="chrome://bm/skin/BM_Icone01_16.png">
+      <menupopup>
+        <menuitem id="bm-button-sync-menu"
+                  label="&bm.button.sync.label;"
+                  oncommand="gBMOverlay.doSync();"/>
+        <menuitem id="bm-button-open-calendar-menu"
+                  label="&bm.button.open.calendar.label;"
+                  oncommand="gBMOverlay.openBmApp('/cal', false);"/>
+        <menuitem id="bm-button-open-todolist-menu"
+                  label="&bm.button.open.todolist.label;"
+                  oncommand="gBMOverlay.openBmApp('/task', false);"/>
+      </menupopup>
+    </menu>
+  </menupopup>
+</overlay>

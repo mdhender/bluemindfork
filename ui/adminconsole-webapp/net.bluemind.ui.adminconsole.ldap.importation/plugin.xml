@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.ui.adminconsole.screenContributor">
+      <contributor
+            function="NetBluemindUiAdminconsoleDomainLdapScreenContributor">
+      </contributor>
+   </extension>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module-provider
+            module="/adminconsole">
+         <js
+               async-loading="true"
+               path="net.bluemind.ui.adminconsole.ldap.importation/net.bluemind.ui.adminconsole.ldap.importation.nocache.js">
+         </js>
+         <web-resource
+               bundle="net.bluemind.ui.adminconsole.ldap.importation">
+         </web-resource>
+      </web-module-provider>
+   </extension>
+
+</plugin>

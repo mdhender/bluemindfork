@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.core.rest.apiEndpoint">
+      <endpoint
+            api="net.bluemind.group.api.IGroup">
+      </endpoint>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.serviceFactory">
+      <serviceFactory
+            class="net.bluemind.group.service.GroupServiceFactory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.group.service.InCoreGroupServiceFactory">
+      </serviceFactory>
+   </extension>
+   <extension
+         point="net.bluemind.directory.handler">
+      <handler
+            class="net.bluemind.group.service.internal.GroupDirEntryHandler"></handler>
+   </extension>
+   <extension
+         point="net.bluemind.user.hook.userhook">
+      <hook
+            impl="net.bluemind.group.service.internal.UserInGroupHook">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.core.sanitizerfactory">
+      <sanitizerfactory
+            implementation="net.bluemind.group.service.internal.GroupSearchQuerySanitizer$Factory"></sanitizerfactory>
+   </extension>
+
+</plugin>

@@ -1,0 +1,37 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:bj="urn:import:net.bluemind.ui.admin.client" xmlns:f="urn:import:net.bluemind.ui.admin.client.forms"
+	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:j="urn:import:net.bluemind.ui.adminconsole.jobs">
+
+
+	<ui:style>
+		.filtersContainer {
+			float: right;
+		}
+	</ui:style>
+
+	<ui:with field="jt" type="net.bluemind.ui.adminconsole.jobs.JobTexts" />
+
+	<g:DockLayoutPanel unit='EM'>
+
+		<g:north size="2.5">
+			<g:FlowPanel>
+				<j:StatusFilter ui:field="statusFilter" styleName="{style.filtersContainer}"/>
+
+				<g:FlowPanel>
+					<g:Button ui:field="startJobs" text="{jt.startNow}" enabled="false"
+						styleName="button primary" />
+				</g:FlowPanel>
+			</g:FlowPanel>
+		</g:north>
+
+		<g:center>
+			<j:JobsGrid ui:field="grid" />
+		</g:center>
+
+	</g:DockLayoutPanel>
+
+</ui:UiBinder>

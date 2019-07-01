@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Item Services
+Bundle-SymbolicName: net.bluemind.core.container.api;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Export-Package: net.bluemind.core.container.api,
+ net.bluemind.core.container.api.internal,
+ net.bluemind.core.container.model,
+ net.bluemind.core.container.model.acl
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.core.commons;visibility:=reexport,
+ net.bluemind.core.task.api;visibility:=reexport,
+ javax.validation.api
+

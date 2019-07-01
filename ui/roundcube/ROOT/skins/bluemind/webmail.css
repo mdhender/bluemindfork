@@ -1,0 +1,70 @@
+body {
+  font-family: arial, sans-serif;
+  font-size:small;
+  color: #333;
+  margin: 0;
+}
+
+
+#notificationContainer {
+  vertical-align: top;
+  margin-right: -1px;
+  margin-left: 2px;
+  padding-right: 0px;
+}
+
+
+#unreadMail {
+    -moz-user-select: none;
+    background: none repeat scroll 0 0 #666666;
+    border: 1px solid #CCCCCC;
+    border-radius: 3px 3px 3px 3px;
+    color: #FFFFFF;
+    cursor: pointer;
+    font-weight: bold;
+    padding: 1px 2px 0 3px;
+}
+
+#header {
+  background-color: #fff;
+}
+
+a.goog-primaryactionbutton.compose {
+  width: 180px;
+  line-height: 2em;
+  margin: 8px 18px 6px;  
+}
+
+#messagetoolbar .delete {
+  float: right;
+}
+
+
+/** IM bubble **/
+.blink {
+	-webkit-animation: blink 1s infinite;
+	-moz-animation: blink 1s infinite;
+	-o-animation: blink 1s infinite;
+	animation: blink 1s infinite;
+}
+
+@-webkit-keyframes blink {
+  0%   { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@-moz-keyframes blink {
+  0%   { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@-o-keyframes blink {
+  0%   { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes blink {
+  0%   { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}

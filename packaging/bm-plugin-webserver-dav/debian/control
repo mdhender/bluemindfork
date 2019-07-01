@@ -1,0 +1,18 @@
+Source: bluemind
+Section: net
+Priority: optional
+Maintainer: Blue Mind Team <team@blue-mind.net>
+Standards-Version: 3.9.1
+
+Package: bm-plugin-webserver-dav
+Architecture: amd64
+Depends: bm-webserver (= ${binary:Version})
+Description: BlueMind CalDAV and CardDAV server
+
+Package: bm-dav
+Depends: bm-plugin-webserver-dav, ${misc:Depends}
+Architecture: all
+Priority: extra
+Section: oldlibs
+Description: transitional package
+ This is a transitional package. It can safely be removed.

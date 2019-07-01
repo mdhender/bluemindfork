@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to='net.bluemind.ui.adminconsole.main'>
+
+	<!-- Inherit the core Web Toolkit stuff. -->
+	<inherits name='com.google.gwt.user.User' />
+	<inherits name="com.google.gwt.i18n.I18N" />
+	<inherits name="com.google.gwt.http.HTTP" />
+	<inherits name="com.google.gwt.xml.XML" />
+	<inherits name='com.google.gwt.user.User' />
+	<inherits name="com.google.gwt.i18n.I18N" />
+	<inherits name="net.bluemind.core.CommonsApi" />
+	<inherits name="net.bluemind.core.CoreApi" />
+	<inherits name="net.bluemind.eas.EasApi" />
+	<inherits name="net.bluemind.backend.mail.MailApi" />
+	<inherits name="net.bluemind.ui.adminconsole.AdminConsoleBase" />
+	<inherits name="net.bluemind.ui.common.CommonIcons" />
+	<inherits name="net.bluemind.ui.common.client.CommonForms" />
+	<inherits name="net.bluemind.authentication.AuthenticationApi" />
+	<inherits name="net.bluemind.ui.extensions.GWTExtensions" />
+	<inherits name="net.bluemind.domain.DomainApi" />
+	<inherits name="net.bluemind.gwtconsoleapp.base.Notification" />
+	<inherits name="net.bluemind.gwtconsoleapp.base.Eventbus" />
+	<inherits name="net.bluemind.gwtconsoleapp.base.LifeCycle" />
+	<inherits name="net.bluemind.ui.adminconsole.dataprotect.Dataprotect" />
+	<inherits name="net.bluemind.ui.adminconsole.security.Security" />
+	<inherits name="net.bluemind.ui.adminconsole.directory.Directory" />
+	<inherits name="net.bluemind.ui.adminconsole.progress.Progress" />
+	<inherits name="net.bluemind.ui.adminconsole.system.System" />
+	<inherits name="net.bluemind.ui.adminconsole.jobs.Jobs" />
+
+
+	<!-- Other module inherits -->
+
+	<!-- Specify the app entry point class. -->
+	<entry-point class='net.bluemind.ui.admin.client.AdminConsole' />
+
+	<!-- Specify the paths for translatable code -->
+	<source path='client' />
+
+	<set-configuration-property name="UiBinder.useSafeHtmlTemplates"
+		value="true" />
+
+	<!-- Internationalization support. -->
+	<extend-property name="locale" values="en" />
+	<set-property-fallback name="locale" value="en" />
+
+	<set-property name="user.agent" value="gecko1_8" />
+	<extend-property name="user.agent" values="safari" />
+	<extend-property name="user.agent" values="ie10" />
+
+	<!-- Internationalization support. -->
+	<extend-property name="locale" values="en" />
+	<extend-property name="locale" values="fr" />
+	<set-property-fallback name="locale" value="en" />
+	<collapse-all-properties />
+	<add-linker name="xsiframe" />
+	<!-- <set-configuration-property name="devModeRedirectEnabled" value="true" 
+		/> <set-property name="compiler.useSourceMaps" value="true" /> -->
+</module>

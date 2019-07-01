@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.ui.resources
+Bundle-SymbolicName: net.bluemind.ui.resources;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.bluemind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.webmodule;bundle-version="4.1.0"
+Bundle-ClassPath: .
+Web-Resources: web-resources
+Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: net.bluemind.ui.resources

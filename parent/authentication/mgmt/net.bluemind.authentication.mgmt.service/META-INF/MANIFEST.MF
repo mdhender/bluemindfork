@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.authentication.mgmt.service
+Bundle-SymbolicName: net.bluemind.authentication.mgmt.service;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Automatic-Module-Name: net.bluemind.authentication.mgmt.service
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.authentication.mgmt.api,
+ net.bluemind.core.rest,
+ net.bluemind.slf4j,
+ net.bluemind.core.container.service,
+ net.bluemind.role.api,
+ net.bluemind.user.api,
+ net.bluemind.core.sessions,
+ com.google.guava;bundle-version="19.0.0"

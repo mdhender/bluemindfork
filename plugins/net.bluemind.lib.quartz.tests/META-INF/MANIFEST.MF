@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.lib.quartz.tests
+Bundle-SymbolicName: net.bluemind.lib.quartz.tests
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.lib.quartz.tests.Activator
+Bundle-Vendor: http://www.blue-mind.net
+Require-Bundle: org.eclipse.core.runtime,
+ org.junit;bundle-version="3.8.2",
+ org.quartz-scheduler.quartz;bundle-version="2.1.5"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy

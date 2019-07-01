@@ -1,0 +1,55 @@
+.mailContact {
+	max-width: 356px;
+	margin-left: 20px;
+	margin-top: 20px;
+}
+
+.mailContact tr tr td:first-child {
+	width: 20px;
+}
+
+.mailContact tr tr td:nth-child\(2\) {
+	width: 306px;
+	max-width: 306px;
+}
+
+.mailContact tr tr td:last-child {
+	width: 30px;
+	line: right;
+}
+
+.mailContact tr tr td:last-child div {
+	cursors: pointer;
+}
+
+.mailContact input {
+	width: 312px;
+}
+
+.mailContact tr tr td {
+	line-height: 2.5em;
+	padding-left: 3px;
+}
+
+.mailContact tr tr td:nth-child\(2\) div {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.mailContact tr tr:hover {
+	background-color: LightBlue;
+}
+
+.mailContact tr:last-child tr td {
+	padding-top: 15px;
+}
+
+.mailContact tr:last-child tr:hover {
+	background-color: inherit;
+}
+
+.mailContact tr td tr td:last-child div {
+	cursor: pointer;
+	overflow: visible;
+	text-overflow: clip;
+}

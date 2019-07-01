@@ -1,0 +1,71 @@
+#!/bin/bash
+### BEGIN INIT INFO
+# Provides:          hudson-slave
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      1
+# Short-Description: hudson slave
+# Description:       hudson slave
+### END INIT INFO
+
+. /lib/lsb/init-functions
+
+export JAVA_HOME=/usr/lib/jvm/java-6-sun
+export PATH=/usr/bin:/bin:/sbin:/usr/sbin
+
+NODE=`hostname -f`
+HUDSON=http://hudson.buffy.kvm:8080/hudson
+
+function pid_of_hudson() {
+   ps auxwww | grep java | grep hudson | grep -v grep | awk '{ print $2 }'
+}
+
+function start() {
+    log_daemon_msg "Starting hudson-slave" "java"
+    java -jar /root/slave.jar \
+	-jnlpUrl ${HUDSON}/computer/${NODE}/slave-agent.jnlp \
+	2>/var/log/hudson-error.log >/var/log/hudson.log &
+    sleep 1
+    pid_of_hudson > /dev/null
+    log_end_msg $?
+}
+
+function stop() {
+    log_daemon_msg "Stopping hudson-slave" "java"
+    pid=`pid_of_hudson`
+    test -n "$pid" && kill $pid
+    log_end_msg $?
+}
+
+function status() {
+        pid=`pid_of_hudson`
+        if [ -n "$pid" ]; then
+                echo "hudson (pid $pid) is running..."
+                return 0
+        fi
+        echo "hudson is stopped"
+        return 3
+}
+
+#Switch on called
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  status)
+        status
+        ;;
+  restart)
+        stop
+        start
+        ;;
+  *)
+        echo $"Usage: $0 (start|stop|restart|status}"
+        exit 1
+esac
+
+exit $RETVAL

@@ -1,0 +1,9 @@
+.labelMandatory {
+	color: #24638F;
+	font-weight: bold;
+}
+
+.inputMandatory {
+	border-color: #24638F;
+	border-width: 1px;
+}

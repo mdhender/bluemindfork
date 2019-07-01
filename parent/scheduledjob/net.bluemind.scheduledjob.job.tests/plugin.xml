@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.scheduledjob.scheduler.job">
+      <scheduledjob_provider
+            implementation="net.bluemind.scheduledjob.DummyJob1">
+      </scheduledjob_provider>
+   </extension>
+   <extension
+         point="net.bluemind.scheduledjob.scheduler.job">
+      <scheduledjob_provider
+            implementation="net.bluemind.scheduledjob.DummyJob2">
+      </scheduledjob_provider>
+   </extension>
+   <extension
+         point="net.bluemind.scheduledjob.scheduler.job">
+      <scheduledjob_provider
+            implementation="net.bluemind.scheduledjob.LockingJob1">
+      </scheduledjob_provider>
+   </extension>
+   <extension
+         point="net.bluemind.scheduledjob.scheduler.job">
+      <scheduledjob_provider
+            implementation="net.bluemind.scheduledjob.LockingJob2">
+      </scheduledjob_provider>
+   </extension>
+    <extension
+         point="net.bluemind.scheduledjob.scheduler.job">
+      <scheduledjob_provider
+            implementation="net.bluemind.scheduledjob.LockingJob3">
+      </scheduledjob_provider>
+   </extension>
+</plugin>

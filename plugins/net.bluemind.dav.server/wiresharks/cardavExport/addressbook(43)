@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<multistatus xmlns='DAV:'>
+  <response>
+    <href>/addressbooks/__uids__/EB397106-443A-47BE-9CA5-558037E137BF/addressbook/048f4abee23ce6b684c2302f0ab90c13.vcf</href>
+    <propstat>
+      <prop>
+        <getetag>"0f25564a3b3a52f96293d746bedc01b8"</getetag>
+      </prop>
+      <status>HTTP/1.1 200 OK</status>
+    </propstat>
+  </response>
+  <sync-token>data:,1_6</sync-token>
+</multistatus>

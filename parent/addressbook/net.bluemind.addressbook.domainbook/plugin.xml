@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.addressbook.domainbook.hook" name="hook" schema="schema/net.bluemind.addressbook.domainbook.exsd"/>
+
+   <extension
+         point="net.bluemind.domain.domainHook">
+      <hook
+            class="net.bluemind.addressbook.domainbook.internal.DomainHook">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.addressbook.domainbook.verticle.DomainBookVerticleFactory">
+      </verticle>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.serviceFactory">
+      <serviceFactory
+            class="net.bluemind.addressbook.domainbook.internal.DomainAddressBookService$Factory"></serviceFactory>
+   </extension>
+</plugin>

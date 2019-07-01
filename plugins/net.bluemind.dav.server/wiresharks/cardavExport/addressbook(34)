@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<B:addressbook-multiget xmlns:B="urn:ietf:params:xml:ns:carddav">
+  <A:prop xmlns:A="DAV:">
+    <A:getetag/>
+    <B:address-data/>
+  </A:prop>
+  <A:href xmlns:A="DAV:">/addressbooks/__uids__/EB397106-443A-47BE-9CA5-558037E137BF/addressbook/883284437a4c85dabe8b0219c899f120.vcf</A:href>
+</B:addressbook-multiget>

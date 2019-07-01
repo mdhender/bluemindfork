@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module-provider
+            module="*">
+         <web-resource
+               bundle="net.bluemind.ui.resources">
+         </web-resource>
+         <css
+               path="style/customstyle.css">
+         </css>
+         <handler
+               class="net.bluemind.ui.dynresources.LogoHandler"
+               path="images/logo-bluemind.png">
+         </handler>
+         <handler
+               class="net.bluemind.ui.dynresources.CustomStyleHandler"
+               path="style/customstyle.css">
+         </handler>
+      </web-module-provider>
+   </extension>
+   <extension
+         point="net.bluemind.hornetq.forwardToVertx">
+      <vertx-forwarder
+            class="net.bluemind.ui.dynresources.BmUiResourcesMessageForwarder">
+      </vertx-forwarder>
+   </extension>
+   <extension
+         point="net.bluemind.system.state">
+      <state-listener
+            class="net.bluemind.ui.dynresources.LogoCoreListener">
+      </state-listener>
+   </extension>
+
+</plugin>

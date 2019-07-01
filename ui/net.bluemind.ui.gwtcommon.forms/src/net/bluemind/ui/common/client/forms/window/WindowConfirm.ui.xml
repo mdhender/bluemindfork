@@ -1,0 +1,29 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+
+	<g:DockLayoutPanel unit="PX" styleName="modalPanel"
+		height="150px" ui:field="dlp">
+
+		<g:north size="40">
+			<g:Label ui:field="headerMsg" styleName="modalHeader" />
+		</g:north>
+
+		<g:center>
+			<g:FlowPanel styleName="modalContent">
+				<g:HTMLPanel>
+					<g:HTML ui:field="contentMsg"/>
+				</g:HTMLPanel>
+			</g:FlowPanel>
+		</g:center>
+
+		<g:south size="40">
+			<g:FlowPanel styleName="modalButton">
+				<g:Button ui:field="ok" styleName="button primary" text="Ok" />
+				<g:Button ui:field="cancel" styleName="button" text="Cancel" />
+			</g:FlowPanel>
+		</g:south>
+
+	</g:DockLayoutPanel>
+
+</ui:UiBinder>

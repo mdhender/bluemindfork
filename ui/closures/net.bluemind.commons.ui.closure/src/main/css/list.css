@@ -1,0 +1,91 @@
+.bm-list {
+  overflow-y: auto;
+  overflow-x: hidden;
+  outline: none;
+  border-color: #EEE;
+  border-style: solid;
+  border-width: 1px 1px 0px 1px;
+  max-height: none !important;
+  position: relative;
+}
+
+.bm-listitem-base:first-child {
+  border-top: none;
+}
+
+.bm-listitem-base {
+  outline: none;
+  font-weight: bold;
+  list-style: none;
+  padding: 8px 0 8px 6px;
+  white-space: nowrap;
+  border-color: #EEE;
+  border-style: solid;
+  border-width: 0 0 1px 0;
+  cursor: default;
+  background: #FFF;
+  color: #666;
+  text-transform: none;
+  font-style: normal;
+}
+
+.bm-listitem-base-disabled .bm-listitem-base-content {
+  color: #ccc !important;
+}
+
+.bm-listitem-base-hover {
+  background-color: #e6f3f8;
+  cursor: pointer;
+}
+
+.bm-listitem-base-hover img.envelope {
+  display:block;
+}
+
+.bm-listitem-base-hover img.phone {
+  display:block;
+}
+
+.bm-listitem-base-selected {
+  background-color: #c4e0ec;
+}
+
+.bm-sublist .fa {
+  font-size: 80%;
+}
+
+.bm-sublist.bm-listitem-base {
+  font-weight: normal;
+  white-space: nowrap;
+  cursor: default;
+  background: #FFF;
+  padding: 0 0 0 0;
+  border-width: 0;
+}
+
+.bm-sublist .bm-sublist-caption {
+  font-size: 85%;
+  text-transform: uppercase;
+  font-style: italic;
+  color: #00008b;
+  margin-left: 4px;
+  cursor: pointer;
+}
+
+.bm-sublist .bm-sublist-caption:before {
+  color: #00008b;
+  font-size: 0.8em;
+  line-height: 1.4em;  
+}
+
+.bm-sublist-caption.halflings {
+  padding-left : 15px;
+}
+
+.bm-sublist .bm-listitem-base {
+  padding-left: 15px;
+}
+
+.warning.bm-sublist .bm-sublist-caption {
+  color: #8b0000;
+}

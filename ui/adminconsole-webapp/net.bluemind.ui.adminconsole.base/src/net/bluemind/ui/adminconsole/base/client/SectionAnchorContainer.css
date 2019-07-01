@@ -1,0 +1,18 @@
+.anchorContainer {
+  width: 100%;
+  border-bottom: 1px solid #CCC;
+  border-collapse:collapse;
+}
+.anchor {
+  text-align:left;
+  width:100%;	
+}
+.active {
+	background-color: #AEDEF2;
+}
+.menuiconInactive {
+	color: grey;
+}
+.menuiconActive {
+	color: black;
+}

@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.webmodule.server.tests
+Bundle-SymbolicName: net.bluemind.webmodule.server.tests;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.webmodule.server;bundle-version="4.1.0",
+ io.vertx.core;bundle-version="2.1.6",
+ com.google.guava,
+ net.bluemind.lib.vertx,
+ org.junit,
+ com.ning.async-http-client;bundle-version="1.9.26"
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: net.bluemind.webmodule.server.tests.Activator
+Web-Resources: web-resources
+

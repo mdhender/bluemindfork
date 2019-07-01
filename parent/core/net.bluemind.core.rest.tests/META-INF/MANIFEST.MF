@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Rest Tests
+Bundle-SymbolicName: net.bluemind.core.rest.tests;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Require-Bundle: org.junit,
+ net.bluemind.core.rest.tests.services;bundle-version="1.0.0",
+ net.bluemind.core.rest;bundle-version="1.0.0",
+ net.bluemind.core.commons;bundle-version="1.0.0",
+ com.google.guava;bundle-version="19.0.0",
+ net.bluemind.core.context;bundle-version="1.0.0",
+ org.objenesis;bundle-version="1.0.0",
+ org.mockito.mockito-core;bundle-version="1.10.17"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

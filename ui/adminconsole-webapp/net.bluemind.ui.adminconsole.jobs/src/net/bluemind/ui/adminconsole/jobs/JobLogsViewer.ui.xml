@@ -1,0 +1,60 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' 
+	xmlns:f="urn:import:net.bluemind.ui.common.client.forms" xmlns:jobs="urn:import:net.bluemind.ui.adminconsole.jobs">
+
+	<ui:style>
+		.logOutput {
+			margin: 5px;
+			overflow-x: hidden;
+			overflow-y: scroll;
+			height: 75%;
+		}
+		
+		.filtersContainer {
+			float: right;
+		}
+		
+		.execToolbar {
+			padding-left: 3px;
+			padding-top: 3px;
+		}
+		
+		.container {
+			position: relative;
+			top: 0px;
+			bottom: 0px;
+		}
+	</ui:style>
+
+	<ui:with field="jt" type="net.bluemind.ui.adminconsole.jobs.JobTexts" />
+
+	<g:DockLayoutPanel unit='EM'>
+
+		<g:north size="2.5">
+			<g:FlowPanel styleName="{style.execToolbar}">
+				<jobs:SeverityFilter ui:field="severityFilter"
+					styleName="{style.filtersContainer}" />
+				<g:FlowPanel>
+					<g:Label></g:Label>
+				</g:FlowPanel>
+			</g:FlowPanel>
+		</g:north>
+
+		<g:center>
+			<g:HTMLPanel styleName="{style.container}">
+				<f:ProgressBar ui:field="progress" />
+				<g:SimplePanel ui:field="taskOutput" styleName="{style.logOutput}" />
+			</g:HTMLPanel>
+		</g:center>
+
+		<g:south size="4">
+			<g:FlowPanel styleName="modal-dialog-buttons">
+				<g:Button ui:field="close" text="{jt.close}" styleName="button" />
+			</g:FlowPanel>
+		</g:south>
+
+	</g:DockLayoutPanel>
+
+</ui:UiBinder>

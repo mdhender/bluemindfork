@@ -1,0 +1,563 @@
+/**
+ * BEGIN LICENSE
+ * Copyright © Blue Mind SAS, 2012-2016
+ *
+ * This file is part of BlueMind. BlueMind is a messaging and collaborative
+ * solution.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of either the GNU Affero General Public License as
+ * published by the Free Software Foundation (version 3 of the License).
+ *
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See LICENSE.txt
+ * END LICENSE
+ */
+
+/** @import url(normalize.css); */
+
+html, body {
+  height: 100%;
+}
+/******************************************************************************
+ *                          HEADER
+ *****************************************************************************/
+.search {
+  display: inline-block;
+}
+
+.goog-combo-button {
+  width: 180px;
+  margin: 8px 18px 6px;
+}
+
+.goog-combo-button .goog-button-base {
+  line-height: 2em;
+}
+
+.goog-combo-button .goog-button-base .goog-menu-button-dropdown {
+  line-height: 1em;
+}
+
+.search input {
+  width: 418px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.search .goog-button {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left: 0;
+}
+/******************************************************************************
+ *                          LEFT MENU
+ *****************************************************************************/
+
+#navigation {
+  position: absolute;
+  margin-top: 2px;
+  margin-left: 5px;
+  width: 206px;
+}
+
+#navigation .goog-combo-button {
+  margin-bottom: 4px;
+  width: 100%;  
+}
+
+#sub-navigation {
+  position: absolute;
+  width: 260px;
+  left: 216px;
+  /*height: 90%;*/
+}
+
+
+#sub-navigation .list {
+  width: 100%;
+}
+
+#sub-navigation .goog-toolbar .goog-control {
+  margin: 0;
+  padding: 0 0 0 1em;
+  font-size: 100%;
+  height: 2.2em;
+  line-height: 2.2em;
+  text-transform: uppercase;
+}
+
+#sub-navigation .goog-toolbar {
+  background: transparent;
+  border: none;
+  padding: 0 0 2px;
+}
+
+#sub-navigation .goog-toolbar .goog-button-base {
+  float: right;
+  margin: 2px;
+}
+
+/******************************************************************************
+ *                          MAIN BODY
+ *****************************************************************************/
+
+#main {
+  margin-top: 2px;
+  margin-left: 483px;
+  background: center no-repeat;
+  min-height: 80%;
+}
+
+#main > div {
+  background-color: #fff;
+  overflow: auto;
+  min-height: 400px;
+  position: relative;
+}
+
+#main .empty p {
+  text-align: center;
+  margin: 0px;
+  padding: 10px 0px;
+}
+
+#main .goog-toolbar {
+  background: transparent;
+  margin: 0;
+  padding: 2px;
+  font-size: 100%;
+  outline: none;
+  border: none;
+}
+
+#main .goog-toolbar .goog-button-base {
+  margin-left: 3px;
+}
+
+#main .goog-toolbar .dangerousactionbutton {
+  float: right;
+}
+
+/******************************************************************************
+ *                          VCARD LIST
+ *****************************************************************************/
+.iscroll {
+  width: 100%;
+  min-height: 420px;
+}
+
+.iscroll-content {
+  box-sizing: border-box;
+  padding-left: 20px;
+}
+
+
+.iscroll-item:first-child {
+  box-shadow: 0 3px 5px -3px #666;
+  position: relative;
+  z-index: 1;
+}
+
+
+.iscroll-item {
+  padding: 0;
+  min-height: 49px !important;
+}
+
+.iscroll-item.not-synchronized {
+  background-image: linear-gradient(135deg,rgba(0,0,0,.1) 25%,transparent 25%,transparent 50%,rgba(0,0,0,.1) 50%,rgba(0,0,0,.1) 75%,transparent 75%,transparent);
+  /* @alternate */ background-image: -webkit-linear-gradient(135deg,rgba(0,0,0,.1) 25%,transparent 25%,transparent 50%,rgba(0,0,0,.1) 50%,rgba(0,0,0,.1) 75%,transparent 75%,transparent);
+  /* @alternate */ background-image: -o-linear-gradient(135deg,rgba(0,0,0,.1) 25%,transparent 25%,transparent 50%,rgba(0,0,0,.1) 50%,rgba(0,0,0,.1) 75%,transparent 75%,transparent);
+  -webkit-background-size: 49px 49px;
+  background-size: 49px 49px;
+}
+
+.iscroll-item > div {
+  padding: 4px 0 4px 6px
+}
+
+.iscroll-item > h1.section {
+  line-height: 49px;
+  height: 49px;
+  color: #000;
+  font-size: 130%;
+  background-color: #eee;
+  margin: 0;
+  padding-left: 7px;
+}
+
+.scroll-title {
+  font-size: 70%;
+}
+
+.iscroll-item h2 {
+  font-size: 100%;
+  margin: 0 0 0 31px;
+  text-overflow: ellipsis;
+}
+
+.iscroll-item .info {
+  padding: 0 0 0 31px;
+  font-size: 85%;
+  color: #AAA;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  position: relative;
+}
+
+.iscroll-item .tag {
+  float: right;
+  width: 11px;
+  height: 11px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  margin-right: 3px;
+}
+
+
+.iscroll-item .tag.multi {
+  border-top: 0;
+  border-bottom: 0;
+  border-left: 6px solid #ccc;
+  border-right: 6px solid #000;
+  width: 1px;
+}
+
+.iscroll-item img.picture {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+}
+
+.iscroll-item i {
+  position: absolute;
+}
+
+i.envelope {
+  color: #aaa;
+}   
+
+.iscroll-item i.envelope, .iscroll-item i.phone {
+  right: 5px;
+  display: none;
+}
+
+.iscroll-item a:link, .iscroll-item a:visited, .iscroll-item a {
+  color: #AAA;
+  text-decoration: none;
+}
+
+.iscroll-item-hover i.envelope, .iscroll-item-hover i.phone {
+  display:inline-block;
+}
+
+
+.vcard-cutin {
+  background: none repeat scroll 0 0 #eee;
+  box-shadow: 1px 0 8px -2px #CCC;
+  margin: 0;
+  outline: none;
+  padding: 0;
+  position: absolute;
+  border-color: #CCCCCC;
+  border-image: none;
+  border-style: solid;
+  border-width: 1px 0;  
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  z-index: 1;
+  min-height: 420px;
+  width: 20px;
+}
+
+.vcard-cutin .goog-menuitem {
+  padding: 0 0.25em;
+  height: 3.7%;
+  cursor: pointer;
+  color: #666;
+}
+
+.vcard-cutin .goog-menuitem-disabled {
+  cursor: default;
+}
+
+.vcard-cutin .goog-menuitem-highlight, .vcard-cutin .goog-menuitem:hover {
+  background-color: #eee;
+  border: none;  
+}
+
+.vcard-cutin .goog-menuitem:hover {
+  color: #049cdb;
+}
+
+.vcard-cutin .goog-menuitem.goog-menuitem-highlight .goog-menuitem-content {
+  color: #000;
+  font-size: 150%;
+  margin: -2px 0 0 -3px;
+  position: absolute;  
+  width: 100%;
+}
+
+.vcard-cutin .goog-menuitem-content {
+  font: inherit;
+  color: inherit;
+  font-weight: bolder;
+  font-size: 85%;
+  text-align: center;
+}
+
+/******************************************************************************
+ *                        INDIVIDUAL VCARD  FORM
+ *****************************************************************************/
+ #main div.goog-control.notification {
+  height: 18px;
+  text-align: center;
+  margin-bottom: 1px;
+  padding-top: 2px;
+  font-weight: bold;
+}
+
+#main form.vcard .goog-link-button {
+  margin: 10px 14em;
+}
+
+.field-fullname .goog-flat-button{
+  margin-left: 3px;
+  font-size: large;
+  padding: 2px;
+}
+
+.field-address .goog-flat-button{
+  margin-left: 3px;
+  padding: 2px;
+}
+
+.field-base.field-coordinate {
+  flex-flow: column nowrap;
+  align-items: stretch;
+}
+
+.field-coordinate .field-base {
+  flex: 1 1 auto;
+}
+
+.field-coordinate .field-base-field input, .field-coordinate .field-base-field textarea, .goog-textarea {
+  width: 90%;
+  max-width: 30em;
+}
+
+.field-coordinate .field-base-field input[type=text] {
+  border-color: transparent;
+  background-color: transparent;
+}
+ 
+.field-coordinate .field-base-field input[type=text]:hover,
+.field-coordinate .field-base-field input[type=text]:focus {
+  border-color: #ccc;
+  background-color: #fff;
+}
+
+/******************************************************************************
+ *                      INDIVIDUAL VCARD CONSULT
+ *****************************************************************************/
+ 
+.vcard-consult > div > div {
+  overflow: hidden;
+  zoom: 1;
+  line-height: 2em;
+}
+
+.vcard-consult > div > div > span {
+  float: left;
+  text-align: right;
+  width: 135px;
+  color: #AAA;
+}
+
+.vcard-consult > div > div > div, .vcard-consult > div > div > a, .vcard-consult > div > div > ul {
+  margin: 0 0 0 140px;
+  display: block;
+}
+
+.vcard-consult .header {
+  background-color: #eee;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.vcard-consult .header a {
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.vcard-consult .header h1 {
+  padding: 0;
+  margin: 2px 0;
+  font-size: 150%;
+}
+
+.vcard-consult .header > div > div{
+  line-height: 1.5em;
+}
+
+.vcard-consult .header > span.container {
+  border:1px solid #C4E0EC;
+  background: #e6f3f8;
+  padding: 1px 10px;
+  font-size: 80%;
+}
+
+.vcard-consult .main > div > div {
+  font-weight: bold;
+}
+
+.vcard-consult .main > div > div a {
+  margin-right: 0.5em;
+}
+
+.vcard .header {
+  background-color: #eee;
+  padding: 10px;
+  margin-bottom: 10px;
+
+}
+
+.vcard .header > div.container {
+  border:1px solid #C4E0EC;
+  background: #e6f3f8;
+  padding: 1px 10px;
+  font-size: 80%;
+  display: inline;
+}
+
+
+.field-photo, .card-photo {
+	margin-right: 25px;
+	float: left;
+  height: 97px;
+  font-size: 1.5em;
+  overflow: visible!important;
+}
+
+.card-photo img {
+  min-width: 50px;
+  min-height: 50px;
+  max-width: 96px;
+  max-height: 96px;
+  border: 1px solid #ccc;
+}
+
+/******************************************************************************
+ *                        GROUP VCARD 
+ *****************************************************************************/
+ .member-goto > .goog-flat-button {
+  width: 15px;
+}
+/******************************************************************************
+ *                        GROUP VCARD  FORM
+ *****************************************************************************/
+#main form.vcard .goog-link-button {
+  margin: 10px 14em;
+}
+
+.field-fullname .goog-flat-button{
+  margin-left: 3px;
+  font-size: large;
+  padding: 2px;
+}
+
+.field-address .goog-flat-button{
+  margin-left: 3px;
+  padding: 2px;
+}
+
+.field-members > input {
+  width: 325px;
+  margin: 10px;
+}
+
+.field-members .goog-container > .goog-control {
+  white-space: nowrap;
+  border-color: #eee;
+  border-style: solid;
+  border-width: 0 0 1px;
+  cursor: default;
+}
+
+.field-members .goog-container > .goog-control:nth-child(2n+1) {
+  background-color: #f9f9f9;
+}
+
+.field-members .goog-container > .goog-control:nth-child(2n) {
+  background-color: #ffffff;
+}
+
+.field-members .goog-container > .goog-control > div {
+  padding: 8px;
+  line-height: 26px;
+  text-align: left;
+  vertical-align: top;
+  display: table-cell;
+}
+
+.field-members .goog-container > .goog-control table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+
+.field-members .goog-container > .goog-control > .goog-inline-block {
+  width: 30px;
+}
+
+.group .field-richtext .field-base-field .bm-richtext {
+  height: 100px;
+}
+
+/******************************************************************************
+ *                      GROUP VCARD CONSULT
+ *****************************************************************************/
+ 
+ 
+.ac-row {
+  clear: both;
+  font-weight: normal !important;
+  min-height: 24px;
+}
+
+.ac-row h2 {
+  font-size: 100%;
+  margin: 0 0 0 31px;
+}
+
+.ac-row span {
+  font-size: 85%;
+  padding: 0 0 0 31px;
+  color: #aaa;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  position: relative;
+}
+
+.ac-row img {
+  position: absolute;
+}
+
+i.coordinate-icon {
+	color: black;
+	margin: 0 10px;
+}
+
+.vcard-title {
+	width: 190px;
+    white-space: normal;
+}
+

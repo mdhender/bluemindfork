@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.ui.adminconsole.cti
+Bundle-SymbolicName: net.bluemind.ui.adminconsole.cti;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: blue-mind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Web-Resources: web-resources
+Require-Bundle: net.bluemind.ui.adminconsole.base;bundle-version="4.1.0",
+ net.bluemind.gwtconsoleapp.base,
+ com.google.gwt.user;resolution:=optional,
+ net.bluemind.core.commons.gwt,
+ net.bluemind.ui.adminconsole.system,
+ net.bluemind.domain.api.gwt,
+ net.bluemind.webmodule;bundle-version="4.1.0",
+ net.bluemind.role.api
+Automatic-Module-Name: net.bluemind.ui.adminconsole.cti
+

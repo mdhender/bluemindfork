@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.monitoring.provider" name="provider" schema="schema/net.bluemind.monitoring.exsd"/>
+   <extension
+         point="net.bluemind.core.rest.apiEndpoint">
+      <endpoint
+            api="net.bluemind.monitoring.api.IMonitoring">
+      </endpoint>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.serviceFactory">
+      <serviceFactory
+            class="net.bluemind.monitoring.service.MonitoringServiceFactory">
+      </serviceFactory>
+   </extension>
+   <extension
+         point="net.bluemind.role.provider">
+      <roles-provider
+            class="net.bluemind.monitoring.service.MonitoringRolesProvider">
+      </roles-provider>
+   </extension>
+
+</plugin>

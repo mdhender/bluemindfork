@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.system.importation.commons.tests
+Bundle-SymbolicName: net.bluemind.system.importation.commons.tests;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Fragment-Host: net.bluemind.system.importation.commons
+Require-Bundle: org.junit;bundle-version="4.12.0",
+ net.bluemind.pool,
+ net.bluemind.system.ldap.tests.helpers,
+ net.bluemind.core.jdbc.testshelper,
+ net.bluemind.tests.defaultdata,
+ org.apache.commons.collections

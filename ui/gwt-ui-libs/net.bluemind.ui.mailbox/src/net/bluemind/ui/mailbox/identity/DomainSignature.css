@@ -1,0 +1,14 @@
+.domainSig {
+	font-size: 1.1em;
+	padding: 15px;
+	margin-top: 10px;
+	border: 1px solid #CCC;
+}
+
+.domainSigTitle {
+	padding-bottom: 25px;
+}
+
+.spacerCell {
+	height: 20px;
+}

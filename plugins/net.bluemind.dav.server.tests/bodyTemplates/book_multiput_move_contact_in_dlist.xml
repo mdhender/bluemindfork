@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<D:multiput xmlns:D="http://me.com/_namespace/">
+	<D:resource>
+		<A:href xmlns:A="DAV:">${listHref}</A:href>
+		<D:if-match>
+			<A:getetag xmlns:A="DAV:">_NO_ETAG_</A:getetag>
+		</D:if-match>
+		<A:set xmlns:A="DAV:">
+			<A:prop>
+				<B:address-data xmlns:B="urn:ietf:params:xml:ns:carddav"><![CDATA[BEGIN:VCARD
+VERSION:3.0
+PRODID:-//Apple Inc.//AddressBook 8.0//EN
+N:dlist${listUuid}
+FN:dlist${listUuid}
+X-ADDRESSBOOKSERVER-KIND:group
+X-ADDRESSBOOKSERVER-MEMBER:urn:uuid:${uuid}
+REV:2014-03-05T14:02:07Z
+UID:${listUuid}
+END:VCARD
+]]></B:address-data>
+			</A:prop>
+		</A:set>
+	</D:resource>
+</D:multiput>

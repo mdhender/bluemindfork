@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.eas.client.tests
+Bundle-SymbolicName: net.bluemind.eas.client.tests
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: blue-mind.net
+Require-Bundle: org.eclipse.core.runtime,
+ org.junit;bundle-version="3.8.2",
+ net.bluemind.lib.vertx,
+ net.bluemind.eas,
+ com.google.guava;bundle-version="19.0.0",
+ io.netty,
+ net.bluemind.eas.wbxml;bundle-version="1.0.0",
+ net.bluemind.eas.utils;bundle-version="1.0.0",
+ net.bluemind.eas.client;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy

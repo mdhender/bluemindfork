@@ -1,0 +1,26 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:e="urn:import:net.bluemind.ui.editor.client">
+	
+	<ui:with
+		type="net.bluemind.ui.mailbox.identity.IdentityConstants"
+		field="c" />
+
+	<g:HTMLPanel>
+
+		<g:Label text="{c.myIdentities}" styleName="sectionTitle"></g:Label>
+		<g:Label text="{c.noIdentityFound}" ui:field="noIdentity"></g:Label>
+		
+		<br></br>
+
+		<g:FlexTable ui:field="table">
+		</g:FlexTable>
+
+		<g:FlowPanel>
+			<g:Button ui:field="add" styleName="button secondary " text="{c.add}" />
+		</g:FlowPanel>
+	</g:HTMLPanel>
+
+</ui:UiBinder>

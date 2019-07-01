@@ -1,0 +1,131 @@
+/**
+ * Roundcube webmail styles for the Settings section
+ *
+ * Copyright (c) 2012, The Roundcube Dev Team
+ * Screendesign by FLINT / Büro für Gestaltung, bueroflint.com
+ *
+ * The contents are subject to the Creative Commons Attribution-ShareAlike
+ * License. It is allowed to copy, distribute, transmit and to adapt the work
+ * by keeping credits to the original autors in the README file.
+ * See http://creativecommons.org/licenses/by-sa/3.0/ for details.
+ *
+ * $Id$
+ */
+
+
+#sections-table .fa:before,
+#settings-tabs .fa:before {
+  padding-right: 5px;
+}
+
+#settings-sections {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 220px;
+	bottom: 0;
+}
+
+#pluginbody,
+#settings-right {
+	position: absolute;
+	top: 0;
+	left: 232px;
+	right: 0;
+	bottom: 0;
+}
+
+#sectionslist {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 260px;
+	bottom: 0;
+}
+
+#preferences-box {
+	position: absolute;
+	top: 0;
+	left: 272px;
+	right: 0;
+	bottom: 0;
+}
+
+#preferences-frame {
+	border: 0;
+}
+
+#sections-table tbody td.section,
+#settings-sections span.listitem a,
+#settings-sections span.tablink a {
+	padding-left: 10px;
+}
+
+#folderslist,
+#identitieslist {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 260px;
+	bottom: 0;
+}
+
+#identities-table {
+	width: 100%;
+	table-layout: fixed;
+}
+
+#identities-table tbody td.mail {
+	width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+#folder-details,
+#identity-details {
+	position: absolute;
+	top: 0;
+	left: 272px;
+	right: 0;
+	bottom: 0;
+}
+
+#subscription-table {
+	table-layout: fixed;
+}
+
+#subscription-table tr.root td {
+	font-size: 5%;
+	height: 5px;
+	padding: 2px;
+}
+
+#subscription-table td.name {
+	width: 85%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+#subscription-table td.subscribed {
+	min-width: 30px;
+	padding: 3px 12px 3px 3px;
+	text-align: right;
+}
+
+#pluginlist td.version {
+	width: 5em;
+}
+
+.webkit #pluginlist td.version {
+	width: 6em;
+}
+
+#pluginlist td.license,
+#pluginlist td.source {
+	width: 8em;
+}
+
+.webkit #pluginlist td.license,
+.webkit #pluginlist td.source {
+	width: 9em;
+}

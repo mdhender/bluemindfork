@@ -1,0 +1,6 @@
+deploy.sh
+.gwt
+*.ow
+generated
+WEB-INF
+

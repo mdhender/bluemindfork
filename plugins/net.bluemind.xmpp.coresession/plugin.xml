@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.xmpp.coresession.XmppSessionVerticleFactory">
+      </verticle>
+      <verticle
+            impl="net.bluemind.xmpp.coresession.XmppSessionsVerticleFactory">
+      </verticle>
+   </extension>
+   <extension
+         point="net.bluemind.user.hook.userhook">
+      <hook
+            impl="net.bluemind.xmpp.coresession.internal.RosterItemUserHook"></hook>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.eventBusAccessRule">
+      <access-rule
+            class="net.bluemind.xmpp.coresession.XmppEventAccessBusRule">
+      </access-rule>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.eventBusAccessRule">
+      <access-rule
+            class="net.bluemind.xmpp.coresession.XivoEventAccessBusRule">
+      </access-rule>
+   </extension>
+
+</plugin>

@@ -1,0 +1,7 @@
+domain=blue-mind.loc
+xmpp.server=localhost
+start.server=false
+jid1=admin
+pass1=admin
+jid2=psi
+pass2=psi

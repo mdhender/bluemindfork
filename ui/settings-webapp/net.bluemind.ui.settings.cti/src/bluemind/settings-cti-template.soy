@@ -1,0 +1,56 @@
+{namespace net.bluemind.ui.settings.cti.template}
+
+/**
+ * Main
+ */
+{template .main}
+	<table class="formContainer">
+		<tr>
+			<td class="label">{msg desc="Update my phone status when I am not available in IM" meaning="update.phone.not.available"}Update my phone status when I am not available in IM{/msg}</td>
+   			<td class="form">
+   				<table><colgroup><col></colgroup><tbody>
+   					<tr><td><span class="gwt-RadioButton">
+   						<input type="radio" name="im_set_phone_presence" value="no" id="cti-im-phone-presence-no" >
+   						<label for="cti-im-phone-presence-no">{msg desc="Do nothing" meaning="update.donothing"}Do nothing{/msg}</label></span>
+   					</td></tr>
+   					<tr><td><span class="gwt-RadioButton">
+   						<input type="radio" name="im_set_phone_presence" value="dnd" id="cti-im-phone-presence-dnd">
+   						<label for="cti-im-phone-presence-dnd">{msg desc="Responder" meaning="update.responder"}Responder{/msg}</label></span></td></tr>
+   					<tr><td><span class="gwt-RadioButton">
+   						<input type="radio" name="im_set_phone_presence" value="fwd" id="cti-im-phone-presence-fwd">
+   						<label for="cti-im-phone-presence-fwd">{msg desc="Forward" meaning="update.forward"}Forward{/msg}</label></span></td>
+   						<td><input type="text" class="gwt-TextBox {css phone-fwd}" style="width: 10em;" id="cti-im-phone-presence-fwd-to">
+   					</td></tr>
+   			    </tbody></table>
+   			</td>
+   		</tr>
+   </table>
+{/template}
+
+
+/**
+ * Calendar
+ */
+{template .calendar}
+	<table class="formContainer">
+		<tr>
+			<td class="label">{msg desc="Update my phone status when I attend a meeting" meaning="update.phone.meeting"}Update my phone status when I attend a meeting{/msg}</td>
+   			<td class="form">
+   				<table><colgroup><col></colgroup><tbody>
+   					<tr><td><span class="gwt-RadioButton">
+   						<input type="radio" name="cal_set_phone_presence" value="no" id="cti-phone-presence-no" >
+   						<label for="cti-phone-presence-no">{msg desc="Do nothing" meaning="update.donothing"}Do nothing{/msg}</label></span>
+   					</td></tr>
+   					<tr><td><span class="gwt-RadioButton">
+   						<input type="radio" name="cal_set_phone_presence" value="dnd" id="cti-phone-presence-dnd">
+   						<label for="cti-phone-presence-dnd">{msg desc="Responder" meaning="update.responder"}Responder{/msg}</label></span></td></tr>
+   					<tr><td><span class="gwt-RadioButton">
+   						<input type="radio" name="cal_set_phone_presence" value="fwd" id="cti-phone-presence-fwd">
+   						<label for="cti-phone-presence-fwd">{msg desc="Forward" meaning="update.forward"}Forward{/msg}</label></span></td>
+   						<td><input type="text" class="gwt-TextBox {css phone-fwd}" style="width: 10em;" id="cti-phone-presence-fwd-to">
+   					</td></tr>
+   			    </tbody></table>
+   			</td>
+   		</tr>
+   </table>
+{/template}

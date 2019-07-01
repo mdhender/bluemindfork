@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.ui.settings.downloads">
+      <download
+            description="%download.description.0"
+            role="hasTbird"
+            section="downloads"
+            title="%download.title.0"
+            url="/settings/settings/download/tbird.xpi">
+      </download>
+   </extension>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module-provider
+            module="/settings">
+         <web-resource
+               bundle="net.bluemind.ui.settings.downloads.tbird">
+         </web-resource>
+         <handler
+               class="net.bluemind.ui.settings.downloads.tbird.TBirdDownloadHandler"
+               path="settings/download/tbird.xpi">
+         </handler>
+         <handler
+         class="net.bluemind.ui.settings.downloads.tbird.TBirdUpdateRdf"
+               path="settings/download/updateRdf">
+         </handler>
+         <handler
+         class="net.bluemind.ui.settings.downloads.tbird.TBirdUpdateJson"
+               path="settings/download/updateJson">
+         </handler>
+      </web-module-provider>
+   </extension>
+  
+  
+   
+
+</plugin>

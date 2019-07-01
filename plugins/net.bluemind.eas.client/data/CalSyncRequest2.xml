@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Sync xmlns:AirSyncBase="pouic">
+<Collections>
+<Collection>
+<SyncKey>FILL_ME</SyncKey>
+<CollectionId>1</CollectionId>
+<DeletesAsMoves/>
+<GetChanges/>
+<WindowSize>50</WindowSize>
+</Collection>
+</Collections>
+</Sync>
+

@@ -1,0 +1,158 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:f="urn:import:net.bluemind.ui.common.client.forms" xmlns:sieve="urn:import:net.bluemind.ui.mailbox.filter"
+	xmlns:fwd="urn:import:net.bluemind.ui.mailbox.filter.multipleforward"
+	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'>
+
+	<ui:style>
+	.content {
+		padding: 10px;
+	}
+	
+	.formContainer {
+		
+	}
+	
+	.formContainer table {
+		display: table-cell;
+		border-collapse: collapse;
+		border-spacing: 0;
+		vertical-align: top;
+		padding: 20px;
+	}
+	
+	.input {
+		width: 100%;
+	}
+	</ui:style>
+
+	<ui:with type="net.bluemind.ui.mailbox.filter.SieveConstants"
+		field="c" />
+
+	<g:DockLayoutPanel unit="PX">
+
+		<g:center>
+
+			<g:ScrollPanel styleName="{style.content}" ui:field="content">
+
+				<g:HTMLPanel styleName="{style.formContainer}">
+					<g:Label text="{c.newFilter}" styleName="sectionTitle"
+						ui:field="filterFormTitle"></g:Label>
+					<table class="sieveForm">
+						<tr>
+							<td>
+								<g:Label text="{c.from}"></g:Label>
+							</td>
+							<td>
+
+								<sieve:SieveRuleMatchListBox
+									ui:field="fromMatchType" styleName="{style.input}">
+								</sieve:SieveRuleMatchListBox>
+
+							</td>
+							<td colspan="2">
+								<g:TextBox ui:field="from" styleName="{style.input}"></g:TextBox>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<g:Label text="{c.to}"></g:Label>
+							</td>
+							<td>
+								<sieve:SieveRuleMatchListBox
+									ui:field="toMatchType" styleName="{style.input}">
+								</sieve:SieveRuleMatchListBox>
+							</td>
+							<td colspan="2">
+								<g:TextBox ui:field="to" styleName="{style.input}"></g:TextBox>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<g:Label text="{c.subject}"></g:Label>
+							</td>
+							<td>
+								<sieve:SieveRuleMatchListBox
+									ui:field="subjectMatchType" styleName="{style.input}">
+								</sieve:SieveRuleMatchListBox>
+							</td>
+							<td colspan="2">
+								<g:TextBox ui:field="subject" styleName="{style.input}"></g:TextBox>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<g:Label text="{c.body}"></g:Label>
+							</td>
+							<td>
+								<sieve:SieveRuleMatchListBox
+									ui:field="bodyMatchType" styleName="{style.input}">
+								</sieve:SieveRuleMatchListBox>
+							</td>
+							<td colspan="2">
+								<g:TextBox ui:field="body" styleName="{style.input}"></g:TextBox>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<g:Label text="{c.header}"></g:Label>
+							</td>
+							<td>
+								<g:TextBox ui:field="header"></g:TextBox>
+							</td>
+							<td>
+								<sieve:SieveRuleMatchListBox
+									ui:field="headerMatchType" styleName="{style.input}" allRules="true">
+								</sieve:SieveRuleMatchListBox>
+							</td>
+							<td>
+								<g:TextBox ui:field="headerValue" styleName="{style.input}"></g:TextBox>
+							</td>
+						</tr>
+					</table>
+
+					<table>
+						<tr>
+							<td>
+								<g:CheckBox ui:field="cbMarkAsRead" text="{c.markAsRead}"></g:CheckBox>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<g:CheckBox ui:field="cbMarkAsImportant" text="{c.markAsImportant}"></g:CheckBox>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<g:CheckBox ui:field="cbDiscard" text="{c.discard}"></g:CheckBox>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<g:CheckBox ui:field="cbMoveTo" text="{c.moveTo}"></g:CheckBox>
+								<g:ListBox width="230px" ui:field="moveTo"></g:ListBox>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<g:CheckBox ui:field="cbForwardTo" text="{c.forwardTo}"></g:CheckBox>
+								<fwd:MultipleForward width="230px" ui:field="forwardTo"></fwd:MultipleForward>
+								<g:ListBox ui:field="lbForwardToLocalCopy"></g:ListBox>
+							</td>
+						</tr>
+					</table>
+				</g:HTMLPanel>
+			</g:ScrollPanel>
+		</g:center>
+
+		<g:south size="40">
+			<g:FlowPanel styleName="modal-dialog-buttons">
+				<f:DoneCancelActionBar ui:field="actionBar" />
+			</g:FlowPanel>
+		</g:south>
+
+	</g:DockLayoutPanel>
+
+</ui:UiBinder>

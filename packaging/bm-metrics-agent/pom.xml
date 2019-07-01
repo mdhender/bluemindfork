@@ -1,0 +1,50 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>bm-metrics-agent</artifactId>
+  <packaging>bm-package</packaging>
+  <parent>
+    <groupId>net.bluemind</groupId>
+    <artifactId>net.bluemind.packaging</artifactId>
+    <version>4.1.0-SNAPSHOT</version>
+  </parent>
+
+  <dependencies>
+    <dependency>
+      <groupId>net.bluemind.metrics</groupId>
+      <artifactId>agent</artifactId>
+      <version>${bm.metrics.agent}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.bluemind.metrics</groupId>
+      <artifactId>agent-dependencies</artifactId>
+      <version>${bm.metrics.agent}</version>
+    </dependency>
+  </dependencies>
+  
+  
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>prepare-package</phase>
+            <configuration>
+              <tasks>
+                <copy file="${basedir}/target/dependency/agent-${bm.metrics.agent}.jar" tofile="${basedir}/target/packaging/ROOT/var/lib/bm-metrics-agent/bm-metrics-agent.jar"/>
+                <copy file="${basedir}/target/dependency/agent-dependencies-${bm.metrics.agent}.jar" tofile="${basedir}/target/packaging/ROOT/var/lib/bm-metrics-agent/agent-dependencies.jar"/>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
+

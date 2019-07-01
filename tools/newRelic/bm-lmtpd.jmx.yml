@@ -1,0 +1,12 @@
+name: lmtpd-jmx
+version: 1.0
+enabled: true
+jmx:
+  - object_name: net.bluemind.lmtpd:name=failedDeliveries,type=DeliveryStats
+    metrics:
+      - attribute: value
+        type: monotonically_increasing
+  - object_name: net.bluemind.lmtpd:name=successfulDeliveries,type=DeliveryStats
+    metrics:
+      - attribute: value
+        type: monotonically_increasing

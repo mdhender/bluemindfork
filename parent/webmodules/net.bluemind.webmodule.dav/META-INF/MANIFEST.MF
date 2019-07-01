@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.webmodule.dav
+Bundle-SymbolicName: net.bluemind.webmodule.dav;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.webmodule.dav.Activator
+Bundle-Vendor: blue-mind.net
+Require-Bundle: org.eclipse.core.runtime,
+ io.vertx.core,
+ net.bluemind.dav.server,
+ slf4j.api,
+ net.bluemind.webmodule,
+ net.bluemind.webmodule.server
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy

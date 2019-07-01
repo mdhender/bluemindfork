@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.metrics.core.tickTemplateProvider" name="tickTemplateProvider" schema="schema/net.bluemind.metrics.core.tickTemplateProvider.exsd"/>
+   <extension-point id="net.bluemind.metrics.core.tickDashboardProvider" name="tickDashboardProvider" schema="schema/net.bluemind.metrics.core.tickDashboardProvider.exsd"/>
+   <extension-point id="net.bluemind.metrics.core.tickInputConfigurator" name="tickInputConfigurator" schema="schema/net.bluemind.metrics.core.tickInputConfigurator.exsd"/>
+   <extension
+         point="net.bluemind.system.domaintemplate">
+      <domain-template-extension
+            document="influxdb-tag.xml">
+      </domain-template-extension>
+   </extension>
+   <extension
+         point="net.bluemind.server.hook.serverhook">
+      <hook
+            impl="net.bluemind.metrics.core.InfluxTagHandler">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.server.hook.serverhook">
+      <hook
+            impl="net.bluemind.metrics.core.ElasticsearchTagHandler">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.server.hook.serverhook">
+      <hook
+            impl="net.bluemind.metrics.core.CyrusTagHandler">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.server.hook.serverhook">
+      <hook
+            impl="net.bluemind.metrics.core.MemCachedTagHandler">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.server.hook.serverhook">
+      <hook
+            impl="net.bluemind.metrics.core.NginxTagHandler">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.server.hook.serverhook">
+      <hook
+            impl="net.bluemind.metrics.core.OpenldapTagHandler">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.server.hook.serverhook">
+      <hook
+            impl="net.bluemind.metrics.core.PostfixTagHandler">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.server.hook.serverhook">
+      <hook
+            impl="net.bluemind.metrics.core.PostgresqlTagHandler">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.server.hook.serverhook">
+      <hook
+            impl="net.bluemind.metrics.core.PostgresqlDataTagHandler">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.server.hook.serverhook">
+      <hook
+            impl="net.bluemind.metrics.core.PhpfpmTagHandler">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.system.schemaupgrader.javacode">
+      <java
+            code="net.bluemind.metrics.core.UpgradeExistingTags">
+      </java>
+   </extension>
+   <extension
+         point="net.bluemind.system.schemaupgrader.javacode">
+      <java
+            code="net.bluemind.metrics.core.UpgradeDataFormat">
+      </java>
+   </extension>
+   
+   <extension
+         point="net.bluemind.core.rest.apiEndpoint">
+      <endpoint
+            api="net.bluemind.metrics.alerts.api.IAlerts">
+      </endpoint>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.apiEndpoint">
+      <endpoint
+            api="net.bluemind.metrics.alerts.api.ITickConfiguration">
+      </endpoint>
+   </extension>
+   
+   <extension
+         point="net.bluemind.core.rest.serviceFactory">
+      <serviceFactory
+            class="net.bluemind.metrics.core.service.AlertsServiceFactory">
+      </serviceFactory>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.serviceFactory">
+      <serviceFactory
+            class="net.bluemind.metrics.core.service.TickConfigurationServiceFactory">
+      </serviceFactory>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.serviceFactory">
+      <serviceFactory
+            class="net.bluemind.metrics.core.service.InCoreTickConfigurationServiceFactory">
+      </serviceFactory>
+   </extension>
+   <extension
+       point="net.bluemind.lib.vertx.verticles">
+     <verticle
+         impl="net.bluemind.metrics.core.healing.SafeRestartOnHprofVerticle$Factory">
+     </verticle>
+   </extension>
+   <extension
+       point="net.bluemind.lib.vertx.verticles">
+     <verticle
+         impl="net.bluemind.metrics.core.service.AlertsVerticle$Factory">
+     </verticle>
+   </extension>
+   <extension
+       point="net.bluemind.lib.vertx.verticles">
+     <verticle
+         impl="net.bluemind.metrics.core.service.DashboardsVerticle$Factory">
+     </verticle>
+   </extension>
+   <extension
+         point="net.bluemind.metrics.core.tickTemplateProvider">
+         <tick_template_provider impl="net.bluemind.metrics.core.tick.scripts.MemcachedEvictions">
+         </tick_template_provider>
+         <tick_template_provider impl="net.bluemind.metrics.core.tick.scripts.ServiceHprofs">
+         </tick_template_provider>
+         <tick_template_provider impl="net.bluemind.metrics.core.tick.scripts.ImapConnectionsLimit">
+         </tick_template_provider>
+         <tick_template_provider impl="net.bluemind.metrics.core.tick.scripts.PostfixQueueSize">
+         </tick_template_provider>
+         <tick_template_provider impl="net.bluemind.metrics.core.tick.scripts.DiskSpace">
+         </tick_template_provider>
+         <tick_template_provider impl="net.bluemind.metrics.core.tick.scripts.StateHeartbeats">
+         </tick_template_provider>
+         <tick_template_provider
+               impl="net.bluemind.metrics.core.tick.scripts.MailspoolWorstResponseTime">
+         </tick_template_provider>
+   </extension>
+   <extension
+         point="net.bluemind.metrics.core.tickDashboardProvider">
+     <tick_dashboard_provider impl="net.bluemind.metrics.core.tick.dashboards.MailInsightsDashboard">
+     </tick_dashboard_provider>
+     <tick_dashboard_provider impl="net.bluemind.metrics.core.tick.dashboards.HazelcastClusterDashboard">
+     </tick_dashboard_provider>
+     <tick_dashboard_provider impl="net.bluemind.metrics.core.tick.dashboards.JvmMemoryDashboard">
+     </tick_dashboard_provider>
+     <tick_dashboard_provider impl="net.bluemind.metrics.core.tick.dashboards.MonitoringSystemDashboard">
+     </tick_dashboard_provider>
+     <tick_dashboard_provider impl="net.bluemind.metrics.core.tick.dashboards.VMwareGuestsDashboard">
+     </tick_dashboard_provider>
+     <tick_dashboard_provider
+           impl="net.bluemind.metrics.core.tick.dashboards.MailspoolIndexDashboard">
+     </tick_dashboard_provider>
+     <tick_dashboard_provider
+           impl="net.bluemind.metrics.core.tick.dashboards.MAPIDashboard">
+     </tick_dashboard_provider>
+     
+   </extension>
+   <extension
+         point="net.bluemind.metrics.core.tickInputConfigurator">
+      <tick_input_configurator
+            impl="net.bluemind.metrics.core.CyrusTagHandler"/>
+      <tick_input_configurator
+            impl="net.bluemind.metrics.core.ElasticsearchTagHandler"/>
+      <tick_input_configurator
+            impl="net.bluemind.metrics.core.InfluxTagHandler"/>
+      <tick_input_configurator
+            impl="net.bluemind.metrics.core.MemCachedTagHandler"/>
+      <tick_input_configurator
+            impl="net.bluemind.metrics.core.NginxTagHandler"/>
+      <tick_input_configurator
+            impl="net.bluemind.metrics.core.OpenldapTagHandler"/>
+      <tick_input_configurator
+            impl="net.bluemind.metrics.core.PhpfpmTagHandler"/>
+      <tick_input_configurator
+            impl="net.bluemind.metrics.core.PostfixTagHandler"/>
+      <tick_input_configurator
+            impl="net.bluemind.metrics.core.PostgresqlTagHandler"/>
+      <tick_input_configurator
+            impl="net.bluemind.metrics.core.PostgresqlDataTagHandler"/>
+   </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.metrics.core.healing.MailspoolWorstResponseTimeVerticle$Factory">
+      </verticle>
+   </extension>
+   
+</plugin>

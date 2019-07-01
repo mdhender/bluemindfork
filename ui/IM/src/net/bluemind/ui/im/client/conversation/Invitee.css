@@ -1,0 +1,32 @@
+.occupant {
+	background: #F8F8F8;
+	border: 1px solid #CCC;
+	margin: 0px 2px;
+	border-spacing: 0;
+	border-collapse: collapse;
+	font-size: smaller;
+	display: inline-block;
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+}
+
+.occupant img {
+	vertical-align: middle;
+}
+
+.occupant div {
+	display: table-cell;
+	vertical-align: middle;
+}
+
+.occupant:hover .remove {
+	visibility: visible;
+}
+
+.remove {
+	visibility: hidden;
+	cursor: pointer;
+	margin: 0px 2px;
+	opacity: 0.5;
+}

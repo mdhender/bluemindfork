@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.core.container.hooks.aclhook" name="aclhook" schema="schema/net.bluemind.core.container.hooks.aclhook.exsd"/>
+   <extension-point id="net.bluemind.core.container.hooks.container" name="container" schema="schema/net.bluemind.core.container.hooks.container.exsd"/>
+
+</plugin>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+	<inherits name='net.bluemind.core.container.ContainerApi'/>
+	<inherits name='net.bluemind.core.container.ContainerModel'/>
+	<inherits name='net.bluemind.directory.DirectoryApi'/>
+	<inherits name='net.bluemind.authentication.AuthenticationApi'/>
+	<inherits name='net.bluemind.domain.DomainApi'/>
+	<inherits name="net.bluemind.gwtconsoleapp.base.Handler" />
+	<!-- Specify the paths for translatable code -->
+	<source path='forms' />
+	<source path='errors' />
+</module>

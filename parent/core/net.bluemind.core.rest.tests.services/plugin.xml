@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+<extension
+         point="net.bluemind.core.rest.apiEndpoint">
+      
+      <endpoint
+            api="net.bluemind.core.rest.tests.services.IRestTestService">
+      </endpoint>
+      
+      <endpoint
+            api="net.bluemind.core.rest.tests.services.IRestPathTestService">
+      </endpoint>
+      <endpoint
+            api="net.bluemind.core.rest.tests.services.IRestStreamTestService">
+      </endpoint>
+      <endpoint
+            api="net.bluemind.core.rest.tests.services.IRestSecuredTestService">
+      </endpoint>
+      
+   </extension>
+<extension
+      point="net.bluemind.core.rest.serviceFactory">
+   <serviceFactory
+         class="net.bluemind.core.rest.tests.services.factory.RestStreamServiceFactory">
+   </serviceFactory>
+   <serviceFactory
+         class="net.bluemind.core.rest.tests.services.factory.RestTestServiceFactory">
+   </serviceFactory>
+   <serviceFactory
+         class="net.bluemind.core.rest.tests.services.factory.RestPathTestServiceFactory">
+   </serviceFactory>
+   <serviceFactory
+         class="net.bluemind.core.rest.tests.services.factory.RestSecuredTestServiceFactory">
+   </serviceFactory>
+</extension>
+
+</plugin>

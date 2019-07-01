@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.mailshare.api
+Bundle-SymbolicName: net.bluemind.mailshare.api;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
+ net.bluemind.core.container.api;bundle-version="1.0.0",
+ net.bluemind.server.api;bundle-version="1.0.0",
+ net.bluemind.mailbox.api,
+ net.bluemind.directory.api;visibility:=reexport,
+ net.bluemind.addressbook.api
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: net.bluemind.mailshare.api

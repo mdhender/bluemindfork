@@ -1,0 +1,59 @@
+{namespace net.bluemind.contact.group.edit.templates}
+
+
+/*
+ * BEGIN LICENSE
+ * Copyright © Blue Mind SAS, 2012-2016
+ *
+ * This file is part of BlueMind. BlueMind is a messaging and collaborative
+ * solution.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of either the GNU Affero General Public License as
+ * published by the Free Software Foundation (version 3 of the License).
+ *
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See LICENSE.txt
+ * END LICENSE
+ */
+ 
+
+/**
+ * picture 
+ */
+{template .picture}
+	<img class="{css picture}" src="images/nopicture_small.png" />  
+{/template}
+
+/**
+ * Entry item
+ * @param entry Entry data.
+ */
+{template .ac}
+	{if $entry.photo}
+  	  <img src="{$entry.photo}" alt="" />
+	  {else}
+	  {if $entry.kind == 'group'}
+	  <i class="fa fa-lg fa-users"></i>
+	  {else}
+	  <i class="fa fa-lg fa-user"></i>
+	  {/if}
+    {/if}
+  	<h2>{$entry.name}</h2>
+  	<h2>{$entry.containerName}</h2>
+	{if $entry.email}
+		<span>{$entry.email}</span>
+	{/if}
+{/template}
+
+/**
+ * Entry item
+ * @param name Entry name
+ */
+{template .create}
+	{msg meaning="contact.msg.contact.create" desc="Create a new contact"}Create new member '{$name}'...{/msg}
+{/template}

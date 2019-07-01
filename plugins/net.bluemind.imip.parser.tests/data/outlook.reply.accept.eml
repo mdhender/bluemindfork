@@ -1,0 +1,89 @@
+Return-Path: <admin@willow.vmw>
+Received: from willow.vmw ([172.16.45.135])
+	 by bjday (Cyrus v2.4.16-Debian-2.4.16-1hudson92) with LMTPA;
+	 Fri, 25 May 2012 18:49:10 +0200
+X-Sieve: CMU Sieve 2.4
+Received: from 172.16.45.135 (LHLO bjday.willow.vmw) (172.16.45.135) by
+ unknown with LMTP; 5/25/12 4:49 PM
+Received: from [172.16.45.1] (unknown [172.16.45.1])
+	by bjday.willow.vmw (Postfix) with ESMTP id A7E2EEA9
+	for <tom@willow.vmw>; Fri, 25 May 2012 18:49:09 +0200 (CEST)
+User-Agent: Microsoft-MacOutlook/14.2.1.120420
+Date: Fri, 25 May 2012 18:49:08 +0200
+Subject: Accepted: Invitation: Avec admin + contact externe
+From: Thomas Cataldo <admin@willow.vmw>
+To: <tom@willow.vmw>
+Message-ID: <CBE584A3.3CE%admin@willow.vmw>
+Thread-Topic: Invitation: Avec admin + contact externe
+Mime-version: 1.0
+Content-type: multipart/alternative;
+	boundary="B_3420816549_13153092"
+
+> This message is in MIME format. Since your mail reader does not understand
+this format, some or all of this message may not be legible.
+
+--B_3420816549_13153092
+Content-type: text/html;
+	charset="UTF-8"
+Content-transfer-encoding: quoted-printable
+
+<html><head></head><body style=3D"word-wrap: break-word; -webkit-nbsp-mode: s=
+pace; -webkit-line-break: after-white-space; color: rgb(0, 0, 0); font-size:=
+ 14px; font-family: Calibri, sans-serif; "><div>Je viens, et je valide avec =
+outlook (mac)</div><div><br></div></body></html>
+
+--B_3420816549_13153092
+Content-Type: text/calendar;method=REPLY;
+	charset="US-ASCII";name="meeting.ics"
+Content-transfer-encoding: 7bit
+
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Microsoft Corporation//Outlook for Mac MIMEDIR//EN
+METHOD:REPLY
+BEGIN:VTIMEZONE
+TZID:Sarajevo, Skopje, Warsaw, Zagreb
+X-ENTOURAGE-TZID:12
+X-ENTOURAGE-CFTIMEZONE:Europe/Warsaw
+BEGIN:DAYLIGHT
+TZNAME:Daylight
+RRULE:FREQ=YEARLY;INTERVAL=1;BYDAY=-1SU;BYMONTH=3
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+DTSTART:20120325T020000
+END:DAYLIGHT
+BEGIN:STANDARD
+TZNAME:Standard
+RRULE:FREQ=YEARLY;INTERVAL=1;BYDAY=-1SU;BYMONTH=10
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+DTSTART:20121028T030000
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:f1394aba7ca8b9474af204a4d88934b7c7aa2191
+X-ENTOURAGE_UUID:E74BAB5D-2719-482D-AE72-A032F32583AB
+DTSTAMP:20120525T154121Z
+DTSTART;TZID="Sarajevo, Skopje, Warsaw, Zagreb":20120529T093000
+DTEND;TZID="Sarajevo, Skopje, Warsaw, Zagreb":20120529T133000
+SUMMARY:Avec admin + contact externe
+ORGANIZER:MAILTO:tom@willow.vmw
+SEQUENCE:0
+ATTENDEE;ROLE=OPT-PARTICIPANT;RSVP=FALSE;CN="Thomas
+  Cataldo";PARTSTAT=ACCEPTED:MAILTO:admin@willow.vmw
+X-MICROSOFT-CDO-BUSYSTATUS:BUSY
+X-MICROSOFT-CDO-ALLDAYEVENT:FALSE
+X-MICROSOFT-CDO-INSTTYPE:0
+X-MICROSOFT-CDO-REPLYTIME:20120525T164800Z
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:REMINDER
+TRIGGER;RELATED=START:-PT00H15M00S
+END:VALARM
+END:VEVENT
+END:VCALENDAR
+
+
+--B_3420816549_13153092--
+
+

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.user.hook.userhook">
+      <hook
+            impl="net.bluemind.todolist.usertodolist.UserTodoListHook">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.core.container.repair">
+      <repair
+            impl="net.bluemind.todolist.usertodolist.UserTodoRepair">
+      </repair>
+   </extension>
+
+</plugin>

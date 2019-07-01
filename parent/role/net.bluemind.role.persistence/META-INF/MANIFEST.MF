@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.role.persistence
+Bundle-SymbolicName: net.bluemind.role.persistence
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.role.sqlschema;bundle-version="1.0.0",
+ net.bluemind.core.container.persistance;bundle-version="1.0.0",
+ net.bluemind.core.jdbc;bundle-version="1.0.0"
+Export-Package: net.bluemind.role.persistence

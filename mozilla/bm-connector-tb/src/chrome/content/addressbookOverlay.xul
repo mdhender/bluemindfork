@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?xml-stylesheet href="chrome://bm/skin/style.css" type="text/css"?>
+<!DOCTYPE overlay SYSTEM "chrome://bm/locale/bm.dtd">
+
+<overlay id="bm-addressbookOverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script type="application/x-javascript" src="chrome://bm/content/addressbookOverlay.js" />
+  <statusbarpanel id="bm-sync-status"
+                  label=""
+                  tooltiptext=""/>
+  <toolbarpalette id="AddressBookToolbarPalette">
+    <toolbarbutton id="bm-button-sync"
+                   class="toolbarbutton-1"
+                   label="&bm.button.sync.label;"
+                   tooltiptext="&bm.button.sync.tooltiptext;"
+                   oncommand="gBMAbOverlay.doSync();"/>
+  </toolbarpalette>
+  <menupopup id="taskPopup">
+    <menu label="BlueMind"
+          class="menu-iconic"
+          image="chrome://bm/skin/BM_Icone01_16.png">
+      <menupopup>
+        <menuitem id="bm-button-sync-menu"
+                  label="&bm.button.sync.label;"
+                  oncommand="gBMAbOverlay.doSync();"/>
+      </menupopup>
+    </menu>
+  </menupopup>
+  <vbox id="CardViewInnerBox">
+    <label id="bmError"
+           insertafter="CardTitle"
+           class="red"
+           value=""
+           hidden="true"/>
+  </vbox>
+</overlay>

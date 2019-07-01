@@ -1,0 +1,146 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:f="urn:import:net.bluemind.ui.admin.client.forms"
+	xmlns:ff="urn:import:net.bluemind.ui.adminconsole.base.ui"
+	xmlns:common="urn:import:net.bluemind.ui.common.client.forms"
+	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:mail="urn:import:net.bluemind.ui.mailbox.backend"
+	xmlns:d="urn:import:net.bluemind.ui.admin.client.forms.det">
+
+	<ui:style>
+		#editGroupTitle {
+			font-size: medium;
+			margin: 0;
+		}
+		
+		#editGroupTitle div {
+			display: inline;
+		}
+		
+		.logo {
+			vertical-align: middle;
+		}
+		
+		.errorLabel {
+			color: red;
+			font-weight: bold;
+			padding: 3px;
+		}
+		
+		.arrow {
+			padding: 5px 10px 4px 10px !important;
+		}
+		
+		.container {
+			padding: 5px;
+		}
+		
+		.flowPanel {
+			display: inline-block;
+			height: 100%;
+			vertical-align: top;
+		}
+		
+		.btnContainerTop {
+			vertical-align: bottom;
+			padding-bottom: 10px;
+		}
+		
+		.btnContainerBottom {
+			vertical-align: top;
+			padding-top: 10px;
+		}
+		
+		.dgContainer {
+			width: 45%;
+		}
+		
+		.fake {
+			visibility: hidden;
+		}
+		
+		.title {
+			text-align: left;
+			display: table;
+			width: 100%;
+			margin: 0px;
+		}
+		
+		.filterContainer {
+			text-align: left;
+			padding: 5px;
+			margin: 5px 0px;
+			background: #F8F8F8;
+		}
+		
+		.panel {
+			height: 100%;
+		}
+			
+		.mailBackend {
+			margin-top: 10px;
+			margin-bottom: 10px;
+		}
+		
+		.mailBackendLabel {
+			margin-top: 10px;
+			margin-right: 10px;
+			padding-top: 5px;
+		}
+	</ui:style>
+
+		<ui:with field="uc"
+		type="net.bluemind.ui.adminconsole.directory.user.l10n.UserConstants" />
+	
+	
+	<ui:with field="mc"
+		type="net.bluemind.ui.adminconsole.directory.group.l10n.GroupConstants" />
+
+						<g:HTMLPanel>
+							<table class="formContainer">
+
+							    <tr class="setting">
+									<td colspan="2" class="form">
+										<g:ListBox ui:field="messaging"
+											visibleItemCount="1"/>
+									</td>
+									<td></td>
+								</tr>
+								
+								<tr class="setting">
+								<td>
+									<g:HTMLPanel ui:field="mailBackendPanel">
+										<g:HorizontalPanel>
+											<g:Label text="{uc.mailBackend}" styleName="{style.mailBackendLabel}"></g:Label>
+											<mail:MailBackendServerEdit ui:field="mailBackend"
+										tagFilter="mail/imap" styleName="{style.mailBackend}" />
+										</g:HorizontalPanel>
+									</g:HTMLPanel>
+									</td>
+								</tr>
+								
+								<tr class="setting">
+									<td class="label">
+										<g:Label ui:field="emailLabel" text="{mc.mail}"></g:Label>
+									</td>
+									<td class="form">
+										<ff:MailAddressTableEditor ui:field="mailTable"
+											size="-1" hasImplicitEmail="false" />
+									</td>
+									<td></td>
+								</tr>
+								
+								
+								<tr class="setting">
+									<td colspan="2" style="form">
+										<g:CheckBox ui:field="archiveMail">
+											<ui:msg ui:name="text" key="enableArchiveMail">
+												keep a copy of received messages
+											</ui:msg>
+										</g:CheckBox>
+									</td>
+								</tr>
+							</table>
+						</g:HTMLPanel>
+</ui:UiBinder>

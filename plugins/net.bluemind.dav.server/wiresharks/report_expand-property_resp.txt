@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<multistatus xmlns='DAV:'>
+  <response>
+    <href>/principals/__uids__/A211480B-0708-4022-A2BC-90D8B3506DFC/</href>
+    <propstat>
+      <prop>
+        <calendar-proxy-read-for xmlns='http://calendarserver.org/ns/'/>
+        <calendar-proxy-write-for xmlns='http://calendarserver.org/ns/'>
+          <response xmlns='DAV:'>
+            <href>/principals/__uids__/4D9A5909-FBBB-4B66-A496-C624B5418EE2/</href>
+            <propstat>
+              <prop>
+                <displayname>Appart de Paris</displayname>
+                <calendar-user-address-set xmlns='urn:ietf:params:xml:ns:caldav'>
+                  <href xmlns='DAV:'>/principals/__uids__/4D9A5909-FBBB-4B66-A496-C624B5418EE2/</href>
+                  <href xmlns='DAV:'>/principals/locations/4D9A5909-FBBB-4B66-A496-C624B5418EE2/</href>
+                  <href xmlns='DAV:'>urn:uuid:4D9A5909-FBBB-4B66-A496-C624B5418EE2</href>
+                </calendar-user-address-set>
+                <email-address-set xmlns='http://calendarserver.org/ns/'/>
+              </prop>
+              <status>HTTP/1.1 200 OK</status>
+            </propstat>
+          </response>
+          <response xmlns='DAV:'>
+            <href>/principals/__uids__/4B13E815-707E-4C3F-9B4C-46EB864CD8F4/</href>
+            <propstat>
+              <prop>
+                <displayname>Tv full-hd de Paris</displayname>
+                <calendar-user-address-set xmlns='urn:ietf:params:xml:ns:caldav'>
+                  <href xmlns='DAV:'>/principals/__uids__/4B13E815-707E-4C3F-9B4C-46EB864CD8F4/</href>
+                  <href xmlns='DAV:'>/principals/resources/4B13E815-707E-4C3F-9B4C-46EB864CD8F4/</href>
+                  <href xmlns='DAV:'>urn:uuid:4B13E815-707E-4C3F-9B4C-46EB864CD8F4</href>
+                </calendar-user-address-set>
+                <email-address-set xmlns='http://calendarserver.org/ns/'/>
+              </prop>
+              <status>HTTP/1.1 200 OK</status>
+            </propstat>
+          </response>
+        </calendar-proxy-write-for>
+      </prop>
+      <status>HTTP/1.1 200 OK</status>
+    </propstat>
+  </response>
+</multistatus>

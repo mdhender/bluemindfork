@@ -1,0 +1,19 @@
+Source: bluemind
+Section: net
+Priority: optional
+Maintainer: Blue Mind Team <team@blue-mind.net>
+Standards-Version: 3.9.1
+
+Package: bm-webserver
+Architecture: amd64
+Depends: bm-jdk (= 8u212-bluemind29), bm-conf (= ${binary:Version}), bm-nginx (= 1.14.0-bluemind79), bm-client-access (= ${binary:Version})
+Description: BlueMind web server
+ BlueMind web server
+
+Package: bm-tomcat
+Depends: bm-webserver, ${misc:Depends}
+Architecture: all
+Priority: extra
+Section: oldlibs
+Description: transitional package
+ This is a transitional package. It can safely be removed.

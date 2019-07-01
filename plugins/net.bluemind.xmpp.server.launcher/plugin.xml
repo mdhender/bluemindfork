@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="tigase"
+         name="tigase"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            thread="main"
+            visible="true">
+         <run
+               class="net.bluemind.xmpp.server.launcher.TigaseLauncher">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="xmpp"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="net.bluemind.xmpp.server.launcher.tigase"
+            name="xmpp">
+         <property
+               name="appName"
+               value="xmpp">
+         </property>
+      </product>
+   </extension>
+
+</plugin>

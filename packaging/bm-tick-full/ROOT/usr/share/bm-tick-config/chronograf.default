@@ -1,0 +1,5 @@
+INFLUXDB_USERNAME=root
+INFLUXDB_PASSWORD=root
+KAPACITOR_USERNAME=root
+KAPACITOR_PASSWORD=root
+CHRONOGRAF_OPTS="--basepath=/tick --influxdb-url=http://127.0.0.1:8086 --kapacitor-url=http://127.0.0.1:9092"

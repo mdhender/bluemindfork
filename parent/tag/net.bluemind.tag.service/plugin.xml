@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.tag.eventConsumer" name="eventConsumer" schema="schema/net.bluemind.tag.eventConsumer.exsd"/>
+   <extension
+         point="net.bluemind.core.rest.apiEndpoint">
+         <endpoint
+               api="net.bluemind.tag.api.ITags">
+         </endpoint>
+         <endpoint
+               api="net.bluemind.tag.api.ITagUids" 
+               inline="true">
+          </endpoint>      
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.serviceFactory">
+      <serviceFactory
+            class="net.bluemind.tag.service.TagsFactory">
+      </serviceFactory>
+   </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.tag.service.TagEventVerticleFactory">
+      </verticle>
+   </extension>
+   <extension
+         point="net.bluemind.core.container.sharding.sharded">
+      <container
+            type="tags">
+      </container>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.serviceFactory">
+      <serviceFactory
+            class="net.bluemind.tag.service.InCoreTagRefFactory">
+      </serviceFactory>
+   </extension>
+</plugin>

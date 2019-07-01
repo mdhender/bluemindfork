@@ -1,0 +1,9 @@
+[
+	{ 
+ 		"name":"bluemind/ldap"
+ 	},{
+ 	"name":"bluemind/elasticsearch-tests"
+ 	},{ 
+ 		"name":"bluemind/postgres-tests"
+	}
+]

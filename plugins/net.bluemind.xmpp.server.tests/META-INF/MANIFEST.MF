@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.tigase.tests
+Bundle-SymbolicName: net.bluemind.xmpp.server.tests
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.xmpp.server.tests.Activator
+Bundle-Vendor: blue-mind.net
+Require-Bundle: org.eclipse.core.runtime,
+ org.junit;bundle-version="3.8.2",
+ net.bluemind.xmpp.server;bundle-version="1.0.0",
+ net.bluemind.utils
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: lib/smack.jar,
+ lib/smackx.jar,
+ .

@@ -1,0 +1,68 @@
+.hPanel {
+	padding: 3px;
+}
+
+.btn {
+	cursor: pointer;
+	display: inline-block;
+	background-color: #e6e6e6;
+	background-repeat: no-repeat;
+	background-image: -webkit-gradient(linear, literal("0 0"), literal("0 100%"), from(#ffffff), color-stop(0.25, #ffffff), to(#e6e6e6));
+	background-image: -webkit-linear-gradient(#ffffff, #ffffff 0.25, #e6e6e6);
+	background-image: -moz-linear-gradient(#ffffff, literal("#ffffff 0.25"), #e6e6e6);
+	background-image: -ms-linear-gradient(#ffffff, literal("#ffffff 0.25"), #e6e6e6);
+	background-image: -o-linear-gradient(#ffffff, literal("#ffffff 0.25"), #e6e6e6);
+	background-image: linear-gradient(#ffffff, literal("#ffffff 0.25"), #e6e6e6);
+	padding: 4px 14px;
+	text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+	color: #333;
+	font-size: 13px;
+	line-height: 18px;
+	border: 1px solid #ccc;
+	border-bottom-color: #bbb;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	-webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px
+		rgba(0, 0, 0, 0.05);
+	-moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px
+		rgba(0, 0, 0, 0.05);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px
+		rgba(0, 0, 0, 0.05);
+	-webkit-transition: 0.1s linear all;
+	-moz-transition: 0.1s linear all;
+	transition: 0.1s linear all;
+	margin-right: 10px;
+}
+
+.btn:hover {
+	background-position: 0 -15px;
+	color: #333;
+	text-decoration: none;
+}
+
+.primaryAction {
+	color: white;
+	background-color: #0064cd;
+	background-repeat: repeat-x;
+	background-image: -khtml-gradient(linear, left top, left bottom, from(#049cdb),
+		to(#0064cd) );
+	background-image: -moz-linear-gradient(#049cdb, #0064cd);
+	background-image: -ms-linear-gradient(#049cdb, #0064cd);
+	background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #049cdb),
+		color-stop(100%, #0064cd) );
+	background-image: -webkit-linear-gradient(#049cdb, #0064cd);
+	background-image: -o-linear-gradient(#049cdb, #0064cd);
+	background-image: linear-gradient(#049cdb, #0064cd);
+	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+	border-color: #0064cd #0064cd #003f81;
+	border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+}
+
+.primaryAction:hover {
+	color: white;
+}
+
+.stdAction {
+	
+}

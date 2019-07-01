@@ -1,0 +1,35 @@
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="=_e1a53cfeb87dae68df85ab082fd1a29d"
+Date: Thu, 14 Mar 2019 15:07:40 +0100
+From: admin admin <admin@bm.lan>
+To: admin admin <admin@bm.lan>
+Subject: OnePlaceHolder
+Message-ID: <6efc725a3b6abad9a5791ba09bcfcc0b@bm.lan>
+X-Sender: admin@bm.lan
+User-Agent: Roundcube Webmail/0.8.5
+
+--=_e1a53cfeb87dae68df85ab082fd1a29d
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+
+TextBefore 
+--X-BM-SIGNATURE-- 
+TextMiddle
+--X-BM-SIGNATURE-- 
+
+TextAfter 
+--=_e1a53cfeb87dae68df85ab082fd1a29d
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/html; charset=UTF-8
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN">
+<html><body>
+<p>HTMLBefore</p>
+<p>--X-BM-SIGNATURE--</p>
+<p>HTMLMiddle</p>
+<p>--X-BM-SIGNATURE--</p>
+<p>HTMLAfter</p>
+</body></html>
+
+--=_e1a53cfeb87dae68df85ab082fd1a29d--

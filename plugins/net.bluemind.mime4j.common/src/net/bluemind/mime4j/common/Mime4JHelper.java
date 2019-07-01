@@ -1,0 +1,382 @@
+/* BEGIN LICENSE
+ * Copyright © Blue Mind SAS, 2012-2016
+ *
+ * This file is part of BlueMind. BlueMind is a messaging and collaborative
+ * solution.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of either the GNU Affero General Public License as
+ * published by the Free Software Foundation (version 3 of the License).
+ *
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See LICENSE.txt
+ * END LICENSE
+ */
+package net.bluemind.mime4j.common;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.apache.james.mime4j.codec.DecodeMonitor;
+import org.apache.james.mime4j.dom.BinaryBody;
+import org.apache.james.mime4j.dom.Body;
+import org.apache.james.mime4j.dom.Entity;
+import org.apache.james.mime4j.dom.Message;
+import org.apache.james.mime4j.dom.MessageBuilder;
+import org.apache.james.mime4j.dom.MessageServiceFactory;
+import org.apache.james.mime4j.dom.MessageWriter;
+import org.apache.james.mime4j.dom.Multipart;
+import org.apache.james.mime4j.dom.SingleBody;
+import org.apache.james.mime4j.dom.address.Mailbox;
+import org.apache.james.mime4j.field.LenientFieldParser;
+import org.apache.james.mime4j.message.BasicBodyFactory;
+import org.apache.james.mime4j.message.BodyFactory;
+import org.apache.james.mime4j.message.BodyPart;
+import org.apache.james.mime4j.message.DefaultBodyDescriptorBuilder;
+import org.apache.james.mime4j.message.MessageImpl;
+import org.apache.james.mime4j.parser.ContentHandler;
+import org.apache.james.mime4j.parser.MimeStreamParser;
+import org.apache.james.mime4j.stream.BodyDescriptorBuilder;
+import org.apache.james.mime4j.stream.MimeConfig;
+import org.apache.james.mime4j.stream.MimeTokenStream;
+import org.apache.james.mime4j.stream.RecursionMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.io.ByteSource;
+
+import net.bluemind.common.io.FileBackedOutputStream;
+import net.bluemind.mime4j.common.OffloadedBodyFactory.SizedBody;
+import net.bluemind.mime4j.common.rewriters.impl.DontTouchHandler;
+import net.bluemind.mime4j.common.rewriters.impl.XmlSafeEntityBuilder;
+import net.bluemind.utils.FBOSInput;
+
+public class Mime4JHelper {
+	private static final String TMP_PREFIX = System.getProperty("net.bluemind.property.product", "unknown-jvm") + "-"
+			+ Mime4JHelper.class.getName();
+
+	public static final String M_ALTERNATIVE = "multipart/alternative";
+	public static final String M_SIGNED = "multipart/signed";
+	public static final String M_ENCRYPTED = "multipart/encrypted";
+	public static final String M_MIXED = "multipart/mixed";
+	public static final String M_RELATED = "multipart/related";
+	public static final String M_RELATIVE = "multipart/relative";
+	public static final String TEXT_PLAIN = "text/plain";
+	public static final String TEXT_CALENDAR = "text/calendar";
+	public static final String TEXT_HTML = "text/html";
+
+	private static final Logger logger = LoggerFactory.getLogger(Mime4JHelper.class);
+
+	public static List<AddressableEntity> expandParts(List<Entity> parts) {
+		if (parts.isEmpty()) {
+			return new LinkedList<>();
+		}
+
+		if (parts.get(0).getParent() != null && M_ALTERNATIVE.equals(parts.get(0).getParent().getMimeType())) {
+			Entity mpartRelated = null;
+			int idx = 0;
+			for (Entity part : parts) {
+				if (M_MIXED.equals(part.getMimeType()) || M_RELATED.equals(part.getMimeType())
+						|| M_RELATIVE.equals(part.getMimeType())) {
+					mpartRelated = part;
+				} else {
+					idx++;
+				}
+			}
+			if (mpartRelated != null) {
+				return expandParts(Arrays.asList(mpartRelated), "", idx);
+			}
+			List<AddressableEntity> altParts = expandAlternative(parts, "");
+			return altParts;
+		} else if (parts.get(0).getParent() != null && M_SIGNED.equals(parts.get(0).getParent().getMimeType())) {
+			return expandAlternative(parts, "");
+		}
+
+		return expandParts(parts, "", 0);
+
+	}
+
+	private static List<AddressableEntity> expandParts(List<Entity> parts, String curAddr, int depth) {
+		List<AddressableEntity> ret = new LinkedList<AddressableEntity>();
+		int idx = 1;
+		for (Entity e : parts) {
+			String mime = e.getMimeType();
+			boolean mp = e.isMultipart();
+			boolean alternative = M_ALTERNATIVE.equals(mime);
+			boolean related = M_RELATED.equals(mime);
+			boolean relative = M_RELATIVE.equals(mime);
+
+			if (alternative) {
+				BodyPart bp = (BodyPart) e;
+				Multipart mpart = (Multipart) bp.getBody();
+				List<Entity> altParts = mpart.getBodyParts();
+				List<AddressableEntity> chosen = expandAlternative(altParts, curAddr + (depth + 1) + ".");
+				ret.addAll(chosen);
+			} else if (mp || related || relative) {
+				BodyPart bp = (BodyPart) e;
+				Multipart mpart = (Multipart) bp.getBody();
+				ret.addAll(expandParts(mpart.getBodyParts(), curAddr + (depth + 1) + ".", depth + 1));
+			} else {
+				AddressableEntity ae = new AddressableEntity(e, curAddr + idx);
+				ret.add(ae);
+			}
+			idx++;
+		}
+
+		if (logger.isDebugEnabled()) {
+			for (AddressableEntity ae : ret) {
+				logger.debug("{} {}", ae.getMimeAddress(), ae.getMimeType());
+			}
+		}
+
+		return ret;
+	}
+
+	private static List<AddressableEntity> expandAlternative(List<Entity> altParts, String curAddr) {
+		List<AddressableEntity> ret = new ArrayList<AddressableEntity>();
+		int depth = 1;
+		for (Entity part : altParts) {
+			String addr = curAddr + depth;
+			if (part.isMultipart()) {
+				BodyPart bp = (BodyPart) part;
+				Multipart mpart = (Multipart) bp.getBody();
+				List<Entity> parts = mpart.getBodyParts();
+				ret.addAll(expandAlternative(parts, curAddr + depth + "."));
+			} else {
+				AddressableEntity alt = new AddressableEntity(part, addr);
+				ret.add(alt);
+			}
+			depth++;
+		}
+		return ret;
+	}
+
+	public static long getPartLength(AddressableEntity ae) throws IOException {
+		if (!(ae.getBody() instanceof SingleBody)) {
+			logger.warn("getPartLength called on " + ae.getBody().getClass().getCanonicalName());
+			return 0;
+		}
+
+		if (ae.getBody() instanceof OffloadedBodyFactory.SizedBody) {
+			return ((SizedBody) ae.getBody()).size();
+		}
+
+		final SingleBody body = (SingleBody) ae.getBody();
+
+		ByteSource is = new ByteSource() {
+
+			@Override
+			public InputStream openStream() throws IOException {
+				return body.getInputStream();
+			}
+		};
+		return is.size();
+	}
+
+	/**
+	 * Returns a copy of the message without its binary parts
+	 * 
+	 * @param mm
+	 * @return
+	 */
+	public static Message stripAttachments(Message mm) {
+		logger.info("Stripping attachments...");
+		Message copy = mm;
+		try {
+			MessageBuilder builder = MessageServiceFactory.newInstance().newMessageBuilder();
+			copy = builder.newMessage(mm);
+			Body cb = copy.getBody();
+			if (copy.isMultipart()) {
+				Multipart mp = (Multipart) cb;
+				List<Entity> parts = mp.getBodyParts();
+				int idx = 0;
+				List<Integer> toRemove = new ArrayList<Integer>(parts.size());
+				for (Entity e : parts) {
+					Body pb = e.getBody();
+					if (pb instanceof BinaryBody) {
+						toRemove.add(idx);
+					} else {
+						logger.warn(" ***** not binary " + e.getClass().getCanonicalName());
+					}
+					idx++;
+				}
+				for (int rm : toRemove) {
+					mp.removeBodyPart(rm);
+				}
+			} else if (cb instanceof BinaryBody) {
+				copy.setBody(emptyTextBody());
+			} else {
+				logger.info("Not multipart & not SingleBody, keeping everything");
+			}
+		} catch (Exception e1) {
+			logger.error("Error while removing attachments", e1);
+		}
+		return copy;
+	}
+
+	private static Body emptyTextBody() {
+		return new BasicBodyFactory().textBody("");
+	}
+
+	public static IMailRewriter untouched(Mailbox from) {
+		logger.info("*** Pristine stream with custom from: " + from);
+		MessageImpl message = new MessageImpl();
+		BodyFactory bf = new BasicBodyFactory();
+		DontTouchHandler dth = new DontTouchHandler(message, bf, from);
+		return dth;
+	}
+
+	/**
+	 * Parses the given mime stream and rewrites parts encoding to quoted-printable
+	 * & base64. The resulting message is safe to include in utf-8 encoded XML.
+	 * 
+	 * @param in
+	 * @return a message without xml-unsafe characters
+	 */
+	public static Message makeUtf8Compatible(InputStream in) {
+		logger.info("*** Rewriting message parts to make them UTF-8 compatible");
+		MessageImpl message = new MessageImpl();
+		BodyFactory bf = new BasicBodyFactory();
+		return parse(in, message, new XmlSafeEntityBuilder(message, bf));
+	}
+
+	public static void serializeBody(Body toDump, OutputStream out) {
+		try {
+			MessageWriter writer = MessageServiceFactory.newInstance().newMessageWriter();
+			writer.writeBody(toDump, out);
+		} catch (Exception e) {
+			logger.error("Message serialization failed: " + e.getMessage(), e);
+		} finally {
+			try {
+				out.close();
+			} catch (IOException e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
+	}
+
+	public static void serialize(Message toDump, OutputStream out) {
+		try {
+			MessageWriter writer = MessageServiceFactory.newInstance().newMessageWriter();
+			writer.writeMessage(toDump, out);
+		} catch (Exception e) {
+			logger.error("Message serialization failed: " + e.getMessage(), e);
+		} finally {
+			try {
+				out.close();
+			} catch (IOException e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
+	}
+
+	public static Message parse(byte[] messageData) {
+		return parse(new ByteArrayInputStream(messageData));
+	}
+
+	public static Message parse(InputStream in) {
+		return parse(in, new OffloadedBodyFactory());
+	}
+
+	public static Message parse(InputStream in, BodyFactory bf) {
+		MessageImpl message = new MessageImpl();
+		return parse(in, message, new DefaultEntityBuilder(message, bf));
+	}
+
+	private static Message parse(InputStream in, MessageImpl message, ContentHandler ch) {
+		MimeStreamParser parser = parser();
+		parser.setContentHandler(ch);
+		try {
+			parser.parse(in);
+		} catch (Exception e) {
+			logger.error("error rewriting the email", e);
+		}
+		return message;
+	}
+
+	public static MimeStreamParser parser() {
+		MimeConfig cfg = new MimeConfig();
+		cfg.setMaxHeaderLen(-1);
+		cfg.setMaxHeaderCount(-1);
+		cfg.setMalformedHeaderStartsBody(false);
+		cfg.setMaxLineLen(-1);
+		DecodeMonitor mon = DecodeMonitor.SILENT;
+		BodyDescriptorBuilder bdb = new DefaultBodyDescriptorBuilder(null, LenientFieldParser.getParser(), mon);
+
+		MimeTokenStream tokenStream = new MimeTokenStream(cfg, mon, bdb);
+		tokenStream.setRecursionMode(RecursionMode.M_NO_RECURSE);
+		MimeStreamParser parser = new MimeStreamParser(tokenStream);
+
+		parser.setContentDecoding(true);
+		return parser;
+	}
+
+	public static boolean isAttachment(Entity e) {
+		return (e.getDispositionType() != null && "attachment".equals(e.getDispositionType()))
+				|| (e.getBody() instanceof BinaryBody);
+	}
+
+	public static class SizedStream {
+		public InputStream input;
+		public int size;
+	}
+
+	public static SizedStream asSizedStream(Message msg) throws IOException {
+		FileBackedOutputStream fbos = new FileBackedOutputStream(32768, TMP_PREFIX);
+		serialize(msg, fbos);
+		SizedStream ks = new SizedStream();
+		ks.input = FBOSInput.from(fbos);
+		ks.size = (int) fbos.asByteSource().size();
+		return ks;
+	}
+
+	public static InputStream asStream(Message msg) throws IOException {
+		return asSizedStream(msg).input;
+	}
+
+	/**
+	 * This one will NOT chose only one between multipart/alternative parts
+	 * 
+	 * @param parts
+	 * @return
+	 */
+	public static List<AddressableEntity> expandTree(List<Entity> parts) {
+		if (parts.isEmpty()) {
+			return new LinkedList<>();
+		}
+		return expandTree(parts, "", 0);
+	}
+
+	private static List<AddressableEntity> expandTree(List<Entity> parts, String curAddr, int depth) {
+		List<AddressableEntity> ret = new LinkedList<AddressableEntity>();
+		int idx = 1;
+		for (Entity e : parts) {
+			String mime = e.getMimeType();
+			boolean mp = e.isMultipart();
+			boolean related = M_RELATED.equals(mime);
+			boolean relative = M_RELATIVE.equals(mime);
+
+			if (mp || related || relative) {
+				BodyPart bp = (BodyPart) e;
+				Multipart mpart = (Multipart) bp.getBody();
+				ret.addAll(expandParts(mpart.getBodyParts(), curAddr + (depth + 1) + ".", depth + 1));
+			} else {
+				AddressableEntity ae = new AddressableEntity(e, curAddr + idx);
+				ret.add(ae);
+			}
+			idx++;
+		}
+		return ret;
+	}
+
+}

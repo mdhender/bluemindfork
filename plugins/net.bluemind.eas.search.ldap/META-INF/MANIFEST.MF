@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.eas.search.ldap
+Bundle-SymbolicName: net.bluemind.eas.search.ldap;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.eas.search.ldap.Activator
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.eas.utils;bundle-version="1.0.0",
+ net.bluemind.eas;bundle-version="1.0.0",
+ net.bluemind.eas.dto,
+ net.bluemind.slf4j;bundle-version="1.0.0"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Vendor: blue-mind.net

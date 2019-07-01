@@ -1,0 +1,21 @@
+[Unit]
+Description=BlueMing TIKA Server.
+Before=runlevel2.target runlevel3.target runlevel4.target runlevel5.target shutdown.target
+After=systemd-journald-dev-log.socket network-online.target
+Wants=network-online.target
+Conflicts=shutdown.target
+ConditionPathExists=!/etc/bm/bm-tika.disabled
+
+[Service]
+Type=notify
+WorkingDirectory=/var/log
+TimeoutStartSec=90s
+GuessMainPID=no
+RemainAfterExit=no
+SuccessExitStatus=129 143
+Environment=JAVA_HOME=/usr/lib/jvm/bm-jdk
+ExecStart=/usr/share/bm-tika/bm-tika /var/run/bm-tika.pid
+Restart=on-watchdog
+
+[Install]
+WantedBy=multi-user.target

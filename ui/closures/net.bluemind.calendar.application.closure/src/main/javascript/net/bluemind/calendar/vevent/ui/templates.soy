@@ -1,0 +1,15 @@
+{namespace net.bluemind.calendar.vevent.ui.templates}
+
+/**
+ * event details popup
+ * @param events Event data.
+ */
+{template .details}
+  <ul class="fb-detail">
+  {foreach $event in $events}
+    <li>{$event.formattedDate} : <b>{$event.value.main.summary}</b></li>
+  {/foreach}
+  </ul>
+{/template}
+
+

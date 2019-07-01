@@ -1,0 +1,19 @@
+Package: *
+Pin: origin ""
+Pin-Priority: 990
+
+Package: *
+Pin: origin "pkg.blue-mind.net"
+Pin-Priority: 996
+
+Package: *
+Pin: origin "bm.blue-mind.net"
+Pin-Priority: 997
+
+Package: *
+Pin: origin "pkg.bluemind.net"
+Pin-Priority: 998
+
+Package: *
+Pin: origin "bm.bluemind.net"
+Pin-Priority: 999

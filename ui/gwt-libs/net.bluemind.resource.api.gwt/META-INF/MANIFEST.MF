@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests
+Bundle-SymbolicName: net.bluemind.resource.api.gwt;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="4.1.0";visibility:=reexport,
+ com.google.gwt.user;resolution:=optional,
+ net.bluemind.resource.api;bundle-version="4.1.0";visibility:=reexport,
+ net.bluemind.core.container.api.gwt;bundle-version="4.1.0";visibility:=reexport,
+ net.bluemind.restbus.api.gwt;bundle-version="4.1.0";visibility:=reexport,
+ net.bluemind.directory.api.gwt;bundle-version="4.1.0";visibility:=reexport
+Export-Package: net.bluemind.resource.api.gwt.endpoint,
+ net.bluemind.resource.api.gwt.js,
+ net.bluemind.resource.api.gwt.serder,
+ net.bluemind.resource.api.type.gwt.endpoint,
+ net.bluemind.resource.api.type.gwt.js,
+ net.bluemind.resource.api.type.gwt.serder
+Automatic-Module-Name: net.bluemind.resource.api.gwt
+

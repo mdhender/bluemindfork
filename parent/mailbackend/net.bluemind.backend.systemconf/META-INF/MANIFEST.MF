@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.backend.systemconf
+Bundle-SymbolicName: net.bluemind.backend.systemconf;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.slf4j;bundle-version="1.0.0",
+ net.bluemind.eclipse.common;bundle-version="1.0.0",
+ net.bluemind.core.commons;bundle-version="1.0.0",
+ com.google.guava;bundle-version="19.0.0",
+ net.bluemind.system.api;bundle-version="1.0.0",
+ net.bluemind.system.hook;bundle-version="1.0.0",
+ net.bluemind.server.api,
+ net.bluemind.core.rest,
+ net.bluemind.core.container.api,
+ net.bluemind.server.hook

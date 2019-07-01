@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<multistatus xmlns='DAV:'>
+  <response>
+    <href>/principals/__uids__/EB397106-443A-47BE-9CA5-558037E137BF/</href>
+    <propstat>
+      <prop>
+        <addressbook-home-set xmlns='urn:ietf:params:xml:ns:carddav'>
+          <href xmlns='DAV:'>/addressbooks/__uids__/EB397106-443A-47BE-9CA5-558037E137BF/</href>
+        </addressbook-home-set>
+        <displayname>Admin</displayname>
+        <email-address-set xmlns='http://calendarserver.org/ns/'/>
+        <principal-collection-set>
+          <href>/principals/</href>
+        </principal-collection-set>
+        <principal-URL>
+          <href>/principals/__uids__/EB397106-443A-47BE-9CA5-558037E137BF/</href>
+        </principal-URL>
+        <resource-id>
+          <href>urn:uuid:EB397106-443A-47BE-9CA5-558037E137BF</href>
+        </resource-id>
+        <supported-report-set>
+          <supported-report>
+            <report>
+              <acl-principal-prop-set/>
+            </report>
+          </supported-report>
+          <supported-report>
+            <report>
+              <principal-match/>
+            </report>
+          </supported-report>
+          <supported-report>
+            <report>
+              <principal-property-search/>
+            </report>
+          </supported-report>
+          <supported-report>
+            <report>
+              <expand-property/>
+            </report>
+          </supported-report>
+          <supported-report>
+            <report>
+              <calendarserver-principal-search xmlns='http://calendarserver.org/ns/'/>
+            </report>
+          </supported-report>
+        </supported-report-set>
+      </prop>
+      <status>HTTP/1.1 200 OK</status>
+    </propstat>
+  </response>
+</multistatus>

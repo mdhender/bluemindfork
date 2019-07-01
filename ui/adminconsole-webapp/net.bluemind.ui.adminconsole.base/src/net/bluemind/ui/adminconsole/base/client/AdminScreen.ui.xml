@@ -1,0 +1,50 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:bm="urn:import:net.bluemind.ui.adminconsole.base.client"
+	xmlns:c="urn:import:net.bluemind.ui.adminconsole.base.client" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'>
+
+	<ui:style>
+	.breadcrumb {
+		overflow: hidden;
+		height: 2em;
+		line-height: 1em;
+	}
+	
+	.fr {
+		float: right;
+		margin: 5px;
+	}
+	
+	.dockLayoutPanel>div {
+		overflow: visible !important;
+	}
+	</ui:style>
+
+	<ui:with type="net.bluemind.ui.adminconsole.base.client.AdminIcons" field="ai" />
+	<ui:with
+		type="net.bluemind.ui.adminconsole.base.client.AdminScreen.AdminScreenConstants"
+		field="asc" />
+
+	<g:DockLayoutPanel unit='EM' addStyleNames="{style.dockLayoutPanel}">
+
+		<g:north size="6">
+			<g:HTMLPanel>
+				<c:Banner ui:field="banner"></c:Banner>
+				<g:ListBox ui:field="domainSelector" visible="false"
+					styleName="{style.fr}" />
+				<bm:BreadCrumb ui:field="bc" styleName="{style.breadcrumb}" />
+			</g:HTMLPanel>
+		</g:north>
+
+		<g:west size="16">
+			<g:FlowPanel ui:field="westPanel" />
+		</g:west>
+
+		<g:center>
+			<g:DeckLayoutPanel ui:field="centerPanel" />
+		</g:center>
+
+	</g:DockLayoutPanel>
+
+</ui:UiBinder>

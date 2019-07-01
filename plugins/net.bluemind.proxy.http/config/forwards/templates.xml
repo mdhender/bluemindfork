@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<forwards>
+	<forward path="/templates" target="http://localhost:8079/templates">
+		<auth kind="NONE" />
+	</forward>
+</forwards>

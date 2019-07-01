@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.metrics.registry
+Bundle-SymbolicName: net.bluemind.metrics.registry;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: slf4j.api;bundle-version="1.7.5",
+ org.eclipse.core.runtime,
+ com.netflix.spectator.api;bundle-version="0.62.0";visibility:=reexport,
+ com.fasterxml.jackson.core.jackson-core;bundle-version="2.4.1",
+ com.fasterxml.jackson.core.jackson-databind;bundle-version="2.4.1"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.metrics.registry
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.metrics.registry
+Bundle-ClassPath: lib/netty-all-4.1.25.Final.jar,
+ .

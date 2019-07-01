@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module
+            root="/im">
+         <css
+               path="IM.css">
+         </css>
+         <css
+               path="net.bluemind.ui.instantmessaging/common.css">
+         </css>
+         <js
+               async-loading="true"
+               path="net.bluemind.ui.instantmessaging/net.bluemind.ui.instantmessaging.nocache.js"></js>
+         <handler
+               class="net.bluemind.ui.im.server.IMIndexHandler"
+               path="index.html">
+         </handler>
+         <web-resource
+               bundle="net.bluemind.ui.instantmessaging">
+         </web-resource>
+      </web-module>
+   </extension>
+
+</plugin>

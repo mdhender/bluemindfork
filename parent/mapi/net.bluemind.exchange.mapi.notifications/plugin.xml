@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.exchange.mapi.notifications.ItemNotificationVerticle$Factory">
+      </verticle>
+      <verticle
+            impl="net.bluemind.exchange.mapi.notifications.MailboxEventsConsumer$Factory">
+      </verticle>
+      <verticle
+            impl="net.bluemind.exchange.mapi.notifications.HierarchyEventsConsumer$Factory">
+      </verticle>
+   </extension>
+   <extension
+         point="net.bluemind.calendar.hook">
+      <hook
+            impl="net.bluemind.exchange.mapi.notifications.VEventConsumer">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.addressbook.hook">
+      <hook
+            impl="net.bluemind.exchange.mapi.notifications.VCardConsumer">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.todolist.hook">
+      <hook
+            impl="net.bluemind.exchange.mapi.notifications.VTodoConsumer">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.eventBusAccessRule">
+      <access-rule
+            class="net.bluemind.exchange.mapi.notifications.MapiItemNotificationAccessRule">
+      </access-rule>
+   </extension>
+   <extension
+         point="net.bluemind.core.container.hooks.aclhook">
+      <acl_hook
+            impl="net.bluemind.exchange.mapi.notifications.DelegationEventsConsumer">
+      </acl_hook>
+   </extension>
+
+</plugin>

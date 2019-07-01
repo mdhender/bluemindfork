@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.core.data.serializer" name="serializer" schema="schema/net.bluemind.core.data.serializer.exsd"/>
+   <extension
+         point="net.bluemind.core.rest.http.vertx.httpRoute">
+      <route
+            handler="net.bluemind.core.serialization.http.HollowDataHandler"
+            path="/serdata/:set/:subset/:version/:kind">
+      </route>
+   </extension>
+
+</plugin>

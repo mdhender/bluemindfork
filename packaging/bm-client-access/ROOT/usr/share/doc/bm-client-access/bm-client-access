@@ -1,0 +1,346 @@
+# Blue Mind client access proxy
+server {
+  listen   80 default_server;
+  include /etc/nginx/bm-servername.conf;
+  include /etc/nginx/bm-externalurl.conf;
+
+  location / {
+    return 301 https://$bmexternalurl/$request_uri;
+  }
+
+  location /nginx_status {
+    stub_status on;
+    access_log off;
+    allow 127.0.0.1;
+    deny all;
+  }
+}
+
+upstream hps {
+  ip_hash;
+  server 127.0.0.1:8079;
+}
+
+upstream dav {
+  ip_hash;
+  server 127.0.0.1:8080;
+}
+
+upstream webserver {
+  ip_hash;
+  server 127.0.0.1:8080;
+}
+
+upstream core {
+  ip_hash;
+  server 127.0.0.1:8090;
+}
+
+upstream mapi {
+  ip_hash;
+  include /etc/bm-mapi/bm-upstream-mapi.conf;
+}
+
+upstream eas {
+  ip_hash;
+  include /etc/bm-eas/bm-upstream-eas.conf;
+}
+
+
+server {
+  listen   443 default_server;
+  include /etc/nginx/bm-servername.conf;
+  include /etc/nginx/bm-externalurl.conf;
+
+  ssl  on;
+  ssl_certificate  /etc/ssl/certs/bm_cert.pem;
+  ssl_certificate_key  /etc/ssl/certs/bm_cert.pem;
+  
+  ssl_session_timeout  5m;
+  # use bettercrypto.org recommanded settings
+  ssl_prefer_server_ciphers on;
+  ssl_protocols TLSv1.2;
+  ssl_ciphers 'EDH+CAMELLIA:EDH+aRSA:EECDH+aRSA+AESGCM:EECDH+aRSA+SHA384:EECDH+aRSA+SHA256:EECDH:+CAMELLIA256:+AES256:+CAMELLIA128:+AES128:+SSLv3:!aNULL:!eNULL:!LOW:!3DES:!MD5:!EXP:!PSK:!DSS:!RC4:!SEED:!ECDSA:CAMELLIA256-SHA:AES256-SHA:CAMELLIA128-SHA:AES128-SHA';
+  ssl_dhparam /etc/nginx/bm_dhparam.pem;
+
+  add_header Strict-Transport-Security max-age=15768000; # six months
+  add_header X-Frame-Options SAMEORIGIN;
+  add_header X-Content-Type-Options nosniff;
+  add_header 'Referrer-Policy' 'strict-origin-when-cross-origin';
+  add_header X-XSS-Protection "1; mode=block";
+  error_page 403 /errors-pages/403.html;
+  error_page 404 /errors-pages/404.html;
+  error_page 500 /errors-pages/500.html;
+  error_page 502 /errors-pages/502.html;
+  error_page 503 /errors-pages/maintenance.html;
+  error_page 504 /errors-pages/504.html;
+  proxy_set_header        X-Real-IP       $remote_addr;
+  proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+
+  location / {
+    if ($request_uri ~ ^/errors-pages) {
+      break;
+    }
+
+    proxy_intercept_errors on;
+    proxy_pass http://hps/;
+  }
+
+  location /errors-pages {
+    alias /usr/share/bm-client-access/errors-pages;
+  }
+
+  location /templates/ {
+    proxy_pass http://hps/templates/;
+    proxy_intercept_errors on;
+  }
+
+  location /webmail/images/ {
+    gzip             on;
+    gzip_min_length  1000;
+    gzip_proxied     any;
+    gzip_types       text/plain application/xml text/css text/javascript application/javascript text/json application/json;
+    gzip_comp_level 9;
+    proxy_pass http://webserver/webmail/images/;
+    proxy_intercept_errors on;
+  }
+
+  location /webmail/plugins/bm_webmail/ {
+    gzip             on;
+    gzip_min_length  1000;
+    gzip_proxied     any;
+    gzip_types       text/plain application/xml text/css text/javascript application/javascript text/json application/json;
+    gzip_comp_level 9;
+    proxy_pass http://webserver/webmail/;
+    proxy_intercept_errors on;
+  }
+
+  location /webmail/ {
+    include /etc/bm-webmail/nginx-webmail.conf;
+    proxy_pass http://hps/webmail/;
+    proxy_intercept_errors on;
+  }
+
+  location /adminconsole/ {
+    gzip             on;
+    gzip_min_length  1000;
+    gzip_proxied     any;
+    gzip_types       text/plain application/xml text/css text/javascript application/javascript text/json application/json;
+    gzip_comp_level 9;
+
+    proxy_pass http://hps/adminconsole/;
+    client_max_body_size 10m;	
+    proxy_intercept_errors on;
+  }
+
+  location /setup/ {
+    auth_basic            "Blue Mind Setup";
+    auth_basic_user_file  /etc/nginx/sw.htpasswd;
+    proxy_pass http://127.0.0.1:8080/setup/;
+    proxy_intercept_errors on;
+    error_page 401 /errors-pages/401.html;
+  }
+
+  location /bm-push {
+    proxy_pass http://127.0.0.1:8080/bm-push;
+  }
+  
+  location /input/ {
+    proxy_pass http://127.0.0.1:8080/input/;
+  }
+
+  location /eventbus {
+    proxy_pass http://127.0.0.1:8090/eventbus;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";    
+  }
+
+  location /Autodiscover {
+     proxy_pass http://mapi/autodiscover;
+     proxy_http_version 1.1;
+  }
+
+  location /autodiscover {
+     proxy_pass http://mapi/autodiscover;
+     proxy_http_version 1.1;
+  }
+
+  location /ews {
+     proxy_pass http://mapi/ews;
+     proxy_http_version 1.1;
+  }
+
+  location /EWS {
+     proxy_pass http://mapi/ews;
+     proxy_http_version 1.1;
+  }
+
+  location /OAB {
+     proxy_pass http://mapi/OAB;
+     proxy_http_version 1.1;
+  }
+
+  location /app_marketplace {
+     proxy_pass http://mapi/app_marketplace;
+     proxy_http_version 1.1;
+  }
+
+  location /mapi {
+     proxy_pass http://mapi/mapi;
+     proxy_http_version 1.1;
+  }
+
+  location /Microsoft-Server-ActiveSync {
+    include /etc/bm-eas/bm-eas-nginx.conf;
+    proxy_pass http://eas/Microsoft-Server-ActiveSync;
+    proxy_read_timeout 1200s;
+    proxy_pass_header Server;
+    proxy_http_version 1.1;
+  }
+
+  location /.well-known/caldav {
+    proxy_pass http://dav/.well-known/caldav;
+  }
+
+  location /.well-known/carddav {
+    proxy_pass http://dav/.well-known/carddav;
+  }
+
+  location /dav {
+    proxy_pass http://dav/dav;
+    proxy_http_version 1.1;
+    client_max_body_size 10m;
+  }
+
+  location /cal/ {
+    gzip             on;
+    gzip_min_length  1000;
+    gzip_proxied     any;
+    gzip_types       text/plain application/xml text/css text/javascript application/javascript text/json application/json;
+    gzip_comp_level 9;
+
+    if ($request_method = PROPFIND) {
+       return 400;
+    }
+
+    proxy_pass http://hps/cal/;
+    client_max_body_size 20m;
+    proxy_intercept_errors on;
+  }
+
+  location /contact/ {
+    gzip             on;
+    gzip_min_length  1000;
+    gzip_proxied     any;
+    gzip_types       text/plain application/xml text/css text/javascript application/javascript text/json application/json;
+    gzip_comp_level 9;
+
+    proxy_pass http://hps/contact/;
+    client_max_body_size 10m;	
+    proxy_intercept_errors on;
+  }
+
+  location /settings/ {
+    gzip             on;
+    gzip_min_length  1000;
+    gzip_proxied     any;
+    gzip_types       text/plain application/xml text/css text/javascript application/javascript text/json application/json;
+    gzip_comp_level 9;
+    
+    proxy_pass http://hps/settings/;
+    proxy_intercept_errors on;
+  }
+
+  location /im/ {
+    gzip             on;
+    gzip_min_length  1000;
+    gzip_proxied     any;
+    gzip_types       text/plain application/xml text/css text/javascript application/javascript text/json application/json;
+    gzip_comp_level 9;
+
+    proxy_pass http://hps/im/;
+    proxy_intercept_errors on;
+  }
+  
+  location /task/ {
+    gzip             on;
+    gzip_min_length  1000;
+    gzip_proxied     any;
+    gzip_types       text/plain application/xml text/css text/javascript application/javascript text/json application/json;
+    gzip_comp_level 9;
+
+    proxy_pass http://hps/task/;
+    proxy_intercept_errors on;
+  }
+
+  
+  location /chooser/ {
+    gzip             on;
+    gzip_min_length  1000;
+    gzip_proxied     any;
+    gzip_types       text/plain application/xml text/css text/javascript application/javascript text/json application/json;
+    gzip_comp_level 9;
+
+    proxy_pass http://hps/chooser/;
+    proxy_intercept_errors on;
+  }
+
+  # core json-rpc
+  location /api/ {
+    gzip             on;
+    gzip_min_length  1000;
+    gzip_proxied     any;
+    gzip_types       text/plain application/xml text/css text/javascript application/javascript text/json application/json;
+    gzip_comp_level 9;
+
+    proxy_pass http://core$request_uri;
+    proxy_http_version 1.1;
+    client_max_body_size 10m;
+    proxy_buffering off;
+  }
+  
+  location /api/filehosting/ {
+    include /etc/bm-webmail/bm-filehosting.conf;
+    proxy_pass http://core$request_uri;
+    proxy_http_version 1.1;
+    proxy_buffering off;
+  }
+  
+  location /api/attachment/ {
+    include /etc/bm-webmail/bm-filehosting.conf;
+    proxy_pass http://core$request_uri;
+    proxy_http_version 1.1;
+    proxy_buffering off;
+  }
+
+  location /fh/ {
+    proxy_pass http://127.0.0.1:8080/fh/;
+    proxy_http_version 1.1;
+    proxy_buffering off;
+  }
+
+  location /docs/ {
+    gzip             on;
+    gzip_min_length  1000;
+    gzip_proxied     any;
+    gzip_types       text/plain application/xml text/css text/javascript application/javascript text/json application/json;
+    gzip_comp_level 9;
+
+    proxy_pass http://hps/docs/;
+    client_max_body_size 10m;	
+    proxy_intercept_errors on;
+  }
+
+  location ~ ^/calendar/publish/ {
+    proxy_pass http://webserver/cal$request_uri;                                                                                                                                                                                        
+    proxy_http_version 1.1;
+  }
+
+  location /native {
+    return 301 https://$bmexternalurl/login/native;
+  }
+
+  # Must be the last directive
+  include /etc/nginx/bm-local.d/*.conf;
+}

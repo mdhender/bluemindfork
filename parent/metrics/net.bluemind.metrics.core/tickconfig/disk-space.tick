@@ -1,0 +1,77 @@
+var datalocation string
+
+var bmProduct string
+
+var alertsEndPoint string
+
+var name string
+
+var device string
+
+var db = 'telegraf'
+
+var rp = 'autogen'
+
+var measurement = 'disk'
+
+var groupBy = []
+
+var whereFilter = lambda: ("device" == device) AND ("datalocation" == datalocation)
+
+var idVar = name
+
+var message = 'Less than 1 Go left on device'
+
+var idTag = 'alertID'
+
+var levelTag = 'level'
+
+var messageField = 'message'
+
+var durationField = 'duration'
+
+var outputDB = 'chronograf'
+
+var outputRP = 'autogen'
+
+var outputMeasurement = 'alerts'
+
+var triggerType = 'threshold'
+
+var crit = 1073741824
+
+var data = stream
+    |from()
+        .database(db)
+        .retentionPolicy(rp)
+        .measurement(measurement)
+        .groupBy(groupBy)
+        .where(whereFilter)
+    |eval(lambda: "free")
+        .as('value')
+
+var trigger = data
+    |alert()
+        .crit(lambda: "value" < crit)
+        .message(message)
+        .id(idVar)
+        .idTag(idTag)
+        .levelTag(levelTag)
+        .messageField(messageField)
+        .durationField(durationField)
+        .stateChangesOnly()
+
+trigger
+    |eval(lambda: float("value"))
+        .as('value')
+        .keep()
+    |influxDBOut()
+        .create()
+        .database(outputDB)
+        .retentionPolicy(outputRP)
+        .measurement(outputMeasurement)
+        .tag('alertName', name)
+        .tag('triggerType', triggerType)
+
+trigger
+    |httpOut('output')

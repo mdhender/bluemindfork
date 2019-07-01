@@ -1,0 +1,163 @@
+#!/bin/bash
+#BEGIN LICENSE
+#
+# Copyright © Blue Mind SAS, 2012
+#
+# This file is part of BlueMind. BlueMind is a messaging and collaborative
+# solution.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of either the GNU Affero General Public License as
+# published by the Free Software Foundation (version 3 of the License).
+#
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+#
+#END LICENSE
+
+JAVA_HOME=/usr/lib/jvm/bm-jdk
+jps=$JAVA_HOME/bin/jps
+jmap=$JAVA_HOME/bin/jmap
+
+function product() {
+  srv=$1
+  op=$2
+
+  service $srv $op > /dev/null 2>&1
+  ret=$?
+
+  return $ret
+}
+
+start_bm() {
+  echo "Start BlueMind Services"
+  product bm-locator start
+  sleep 1
+  product bm-core start
+  ret=$?
+  sleep 5
+  product bm-ysnp start
+  product bm-elasticsearch start
+  sleep 1
+  product bm-lmtpd start
+  sleep 1
+  product bm-hps start
+  product bm-eas start
+  product bm-tika start
+  product bm-webserver start
+  product bm-xmpp start
+  product bm-cyrus-imapd start
+  product bm-milter start
+  product bm-mapi start
+  product bm-php-fpm start
+  return $ret
+}
+
+stop_bm() {
+  echo "Stop BlueMind Services"
+  product bm-mapi stop
+  product bm-eas stop
+  product bm-milter stop
+  product bm-tika stop
+  product bm-hps stop
+  product bm-xmpp stop
+  product bm-webserver stop
+  product bm-core stop
+  ret=$?
+  product bm-locator stop
+  product bm-lmtpd stop
+  product bm-elasticsearch stop
+  product bm-ysnp stop
+  product bm-cyrus-imapd stop
+  product bm-php-fpm stop
+  return $ret
+}
+
+function memory_report() {
+  total_mem=0
+  for i in `$jps -q`; do
+    used=`$jmap -histo $i 2>&1 | grep '^Total' | awk '{print $3}'`
+    if [[ $used =~ ^-?[0-9]+$ ]]; then
+      total_mem=$(($total_mem + $used))
+      echo "Memory used for $i: $used"
+    fi
+  done
+  mega=$(($total_mem / 1024 / 1024))
+  echo "Total Blue Mind JVM memory: $total_mem ($mega MB)"
+}
+
+function status_bm() {
+  product bm-core status
+}
+
+function bm_all_status() {
+  show_status bm-locator
+  show_status bm-core
+  show_status bm-elasticsearch
+  show_status bm-tika
+  show_status bm-lmtpd
+  show_status bm-cyrus-imapd
+  show_status bm-webserver
+  show_status bm-php-fpm
+  show_status bm-xmpp
+  show_status bm-milter
+  show_status bm-ysnp
+  show_status bm-eas
+  show_status bm-hps
+  show_status bm-mapi
+}
+
+function show_status() {
+  product $1 status > /dev/null 2>&1
+  ret=$?
+  case "${ret}" in
+  0)
+      echo "BlueMind $1 is running."
+    ;;
+  *)
+    echo "BlueMind $1 is down."
+    ;;
+  esac
+}
+
+help() {
+  echo "Usage: "$0" [start|stop|status|reload|restart|all_status|memory]"
+  echo -e "\tstart: start Blue Mind services"
+  echo -e "\tstop: stop Blue Mind services"
+  echo -e "\tstatus: display Blue Mind core service status"
+  echo -e "\treload|restart: restart Blue Mind services"
+  echo -e "\tall_status: Check all Blue Mind services status"
+  echo -e "\tmemory: display Blue Mind memory usage"
+}
+
+case "$1" in
+  start)
+      start_bm
+      ;;
+  stop)
+      stop_bm
+      ;;
+  status)
+      status_bm
+      ;;
+  all_status)
+      bm_all_status
+      ;;
+  reload)
+      stop_bm
+      start_bm
+      ;;
+  restart)
+      stop_bm
+      start_bm
+      ;;
+  memory)
+      memory_report
+      ;;
+  *)
+      help
+      ;;
+esac

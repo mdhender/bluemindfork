@@ -1,0 +1,33 @@
+{
+	"settings": {
+		"index": {
+		    "number_of_shards": 1,
+		    "number_of_replicas": 0
+		}
+	},
+	"mappings": {
+		"im": {
+			"properties": {
+				"id": {
+					"type": "keyword"
+				},
+				"from": {
+					"type": "keyword",
+					"store":true
+				},
+				"to": {
+					"type": "keyword",
+					"store":true
+				},
+				"message": {
+					"type": "text",
+					"store": true
+				},
+				"timecreate": {
+					"type": "long",
+					"store": true
+				}
+			}
+		}
+	}
+}

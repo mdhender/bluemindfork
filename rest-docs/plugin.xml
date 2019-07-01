@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module
+            index="index.html"
+            root="/docs">
+         <web-resource
+               bundle="net.bluemind.core.docs"
+               preload="false">               
+         </web-resource>
+         <web-resource
+               bundle="net.bluemind.commons.ui.closure">
+         </web-resource>
+         <handler
+               class="net.bluemind.core.docs.DocsIndexHandler"
+               path="index.html">
+         </handler>
+         
+      </web-module>
+   </extension>
+   <extension
+         point="net.bluemind.ui.commons.banner">
+      <banner-entry
+            cssIcon="fa fa-lg fa-book"
+            description="Api Docs"
+            name="Api Docs"
+            root="/docs/"
+            priority="1"
+            role="apiDocs">
+      </banner-entry>
+   </extension>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module-provider
+            module="/docs">
+         <web-resource
+               bundle="net.bluemind.ui.banner.standalone.closure">
+         </web-resource>
+         <css
+               path="css/net.bluemind.ui.banner.standalone.closure.css">
+         </css>
+         <js
+               path="js/compile/net.bluemind.ui.banner.standalone.closure.js"
+               translation="true">
+         </js>
+      </web-module-provider>
+   </extension>
+
+</plugin>

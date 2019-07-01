@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.addressbook.ldap.adapter.tests
+Bundle-SymbolicName: net.bluemind.addressbook.ldap.adapter.tests
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.bluemind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.junit,
+ net.bluemind.utils,
+ org.apache.directory.api.all,
+ net.bluemind.addressbook.ldap.adapter,
+ net.bluemind.addressbook.api,
+ org.apache.commons.collections;bundle-version="3.2.2",
+ net.bluemind.addressbook.ldap.api

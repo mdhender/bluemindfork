@@ -1,0 +1,528 @@
+Return-Path: <rkidai@mairie-saint-ouen.fr>
+Received: from mairie-saint-ouen.fr (bm-prod.blue-mind.loc [192.168.231.2])
+	 by bm-prod (Cyrus v2.4.16-Debian-2.4.16-1hudson92) with LMTPA;
+	 Fri, 10 Aug 2012 12:42:21 +0200
+X-Sieve: CMU Sieve 2.4
+Received: from 192.168.231.1 (LHLO mail-relay.blue-mind.loc) (192.168.231.1)
+ by unknown with LMTP; 8/10/12 10:42 AM
+Received: from h17.altospam.com (h17.altospam.com [93.93.45.222])
+	by mail-relay.blue-mind.loc (Postfix) with ESMTP id 89E288094
+	for <thomas.cataldo@blue-mind.fr>; Fri, 10 Aug 2012 13:31:39 +0200 (CEST)
+Received: from extranet.mairie-saint-ouen.fr ([62.39.144.38] helo=srvastaro01.mairie-saint-ouen.fr)
+	by h17.altospam.com with esmtp (Altospam)
+	id 1SzmfV-000266-IL 
+	for thomas.cataldo@blue-mind.fr; Fri, 10 Aug 2012 12:42:20 +0200
+Received: from [10.2.0.156] (port=57530 helo=domino.mairie-saint-ouen.fr)
+	by srvastaro01.mairie-saint-ouen.fr with esmtp (Exim 4.76)
+	(envelope-from <rkidai@mairie-saint-ouen.fr>)
+	id 1SzmfT-0002wQ-2E; Fri, 10 Aug 2012 12:42:11 +0200
+X-CTCH-RefID: str=0001.0A090209.5024E583.0065,ss=1,re=0.000,fgs=0
+X-Notes-Item: 1;
+ name=$publicaccess
+X-Notes-Item: CN=Rachid KIDAI/O=Mairie-Saint-Ouen;
+ name=$AltPrincipal
+X-Notes-Item: 1;
+ name=$SMTPKeepNotesItems
+X-Notes-Item: 1;
+ name=WebDateTimeInit
+X-Notes-Item: Meeting;
+ name=$IconSwitcher
+X-Notes-Item: 1;
+ name=Alarms
+X-Notes-Item: Tue, 14 Aug 2012 12:00:00 +0200;
+ type=400; name=$NoPurge
+X-Notes-Item: =?UTF-8?B?U2VuZFtEb21pbm9dIGJ5IE5vdGVzIG9uIFJhY2hpZCBLSURBSShSZWxlYXNl?=
+ =?UTF-8?B?IDguNXxEZWNlbWJlciAwNSwgMjAwOCkgYXQgMTAvMDgvMjAxMiAxMjo0Mjo=?=
+ =?UTF-8?B?MTA=?=,
+	=?UTF-8?B?UHJlcGFyZVRvU2VuZFtEb21pbm9dIGJ5IE5vdGVzIG9uIFJhY2hpZA==?=
+ =?UTF-8?B?IEtJREFJKFJlbGVhc2UgOC41fERlY2VtYmVyIDA1LCAyMDA4KSBhdCAxMC8=?=
+ =?UTF-8?B?MDgvMjAxMiAxMjo0MjoxMA==?=,
+	=?UTF-8?B?Q1MgTm90aWNlIGNvbnZlcnRlZCB0byBpQ2FsZW5kYXIgZm9ybWF0Ww==?=
+ =?UTF-8?B?RG9taW5vXSBieSBOb3RlcyBvbiBSYWNoaWQgS0lEQUkoUmVsZWFzZSA4LjV8?=
+ =?UTF-8?B?RGVjZW1iZXIgMDUsIDIwMDgpIGF0IDEwLzA4LzIwMTIgMTI6NDI6MTE=?=;
+ type=501; name=$CSTrack
+X-Notes-Item: rackid11@mairie-saint-ouen.fr,
+	rkidai@gmail.com,
+	thomas.cataldo@blue-mind.fr;
+ type=501; flags=44; name=RequiredAttendees
+X-Notes-Item: rackid11@mairie-saint-ouen.fr,
+	rkidai@gmail.com,
+	thomas.cataldo@blue-mind.fr;
+ type=501; flags=44; name=AltRequiredNames
+X-Notes-Item: .,
+	.,
+	.;
+ type=501; flags=44; name=INetRequiredNames
+X-Notes-Item: .,
+	.,
+	.;
+ type=501; flags=44; name=StorageRequiredNames
+X-Notes-Item: Fri, 10 Aug 2012 12:42:10 +0200;
+ type=400; name=OriginalModTime
+To: rackid11@mairie-saint-ouen.fr,
+	rkidai@gmail.com,
+	thomas.cataldo@blue-mind.fr
+X-Notes-Item: en;
+ name=$NameLanguageTags
+X-Notes-Item: ;
+ flags=45; name=INetCopyTo
+X-Notes-Item: ;
+ flags=44; name=INetBlindCopyTo
+X-Notes-Item: rackid11@mairie-saint-ouen.fr,
+	rkidai@gmail.com,
+	thomas.cataldo@blue-mind.fr;
+ type=501; flags=45; name=AltSendTo
+X-Notes-Item: ;
+ flags=45; name=AltCopyTo
+X-Notes-Item: ;
+ flags=44; name=AltBlindCopyTo
+X-Notes-Item: .,
+	.,
+	.;
+ type=501; name=$StorageTo
+X-Notes-Item: ;
+ name=$StorageCc
+X-Notes-Item: ;
+ name=$StorageBcc
+X-Notes-Item: 2097154;
+ name=MIMEMailHeaderCharset
+X-Notes-Item: 1;
+ name=$HFFlags
+X-Notes-Item: stdNotesLtr0;
+ name=Logo
+X-Notes-Item: fr;
+ name=$FromPreferredLanguage
+X-Notes-Item: 7F96A3;
+ name=$BorderColor
+X-Notes-Item: Description;
+ name=$TableSwitcher
+X-Notes-Item: CN=Rachid KIDAI/O=Mairie-Saint-Ouen;
+ flags=44; name=AltChair
+X-Notes-Item: ;
+ flags=44; name=OnlinePlace
+X-Notes-Item: 0;
+ name=IsBroadcast
+X-Notes-Item: 3;
+ name=$ExpandGroups
+X-Notes-Item: ;
+ name=Sign
+X-Notes-Item: ;
+ name=ConferenceCallInfo
+MIME-Version: 1.0
+X-Notes-Item: Memo;
+ name=Form
+X-Notes-Item: 1;
+ name=$NoteContainsIcal
+X-Notes-Item: 1;
+ name=SchedulerSwitcher
+X-KeepSent: 359CF5F8:4C3771EE-C1257A56:003ACB62;
+ type=4; name=$KeepSent
+X-Mailer: Lotus Notes Release 8.5 December 05, 2008
+Message-ID: <OF359CF5F8.4C3771EE-ONC1257A56.003ACB62-C1257A56.003ACB5F@mairie-saint-ouen.fr>
+From: Rachid KIDAI <rkidai@mairie-saint-ouen.fr>
+Date: Fri, 10 Aug 2012 12:42:11 +0200
+X-Notes-Item: 0;
+ name=Encrypt
+X-Notes-Item: ;
+ type=501; flags=44; name=$UpdatedBy
+X-Notes-Item: mairie-saint-ouen.fr;
+ name=FromDomain
+X-Notes-Item: 25;
+ type=300; name=$Hops
+X-Notes-Item: 1;
+ name=$NoteHasNativeMIME
+X-Notes-Item: CN=Rachid KIDAI/O=Mairie-Saint-Ouen;
+ name=OriginalFrom
+X-MIMETrack: Serialize by Router on Domino/Mairie-Saint-Ouen(Release 8.5|December 05, 2008) at
+ 10/08/2012 12:42:11,
+	Serialize complete at 10/08/2012 12:42:11
+Subject: =?ISO-8859-1?Q?Invitation_=3A_test_agenda_BM_=2814_Ao=FBt_11=3A00_CEDT=29?=
+Content-Type: multipart/mixed; boundary="=_mixed 354EFA3054F1F02FC1257A56003AB3AD_="
+X-ALTOSPAM: h17.altospam.com
+
+Message en plusieurs parties au format MIME
+--=_mixed 354EFA3054F1F02FC1257A56003AB3AD_=
+Content-Type: multipart/related; boundary="=_related 354EFA3054F1F02FC1257A56003AB3AD_="
+
+
+--=_related 354EFA3054F1F02FC1257A56003AB3AD_=
+Content-Type: multipart/alternative; boundary="=_alternative 354EFA3054F1F02FC1257A56003AB3AD_="
+
+
+--=_alternative 354EFA3054F1F02FC1257A56003AB3AD_=
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+
+                                                                      =20
+               Invitation : test agenda BM                            =20
+                                                                      =20
+               14/08/2012 -                                           =20
+                                                                      =20
+                                                                      =20
+                                                                      =20
+               Organisateur :                                         =20
+                         Rachid KIDAI/Mairie-Saint-Ouen               =20
+               Envoy=E9 par=A0:                                       =20
+                         Rachid_KIDAI/Mairie-Saint-Ouen%MAIRIE-SAINT-OUEN
+                                                                      =20
+                                                                      =20
+                                                                      =20
+                                                                      =20
+                                                                      =20
+                                                                      =20
+                                                                      =20
+
+
+
+                                                                      =20
+                                                                      =20
+                                                                      =20
+                                                                      =20
+  Rachid_KIDAI                                                        =20
+                       Rachid KIDAIvous a invit=E9 =E0 une r=E9union=2E  V=
+ous
+                       n'avez pas encore r=E9pondu=2E                   =
+=20
+                                                                      =20
+                                                                      =20
+                                                                      =20
+                                                                      =20
+                                                                      =20
+                                                                      =20
+                                                                      =20
+                                                                      =20
+                                                                      =20
+                                                                      =20
+                                                                      =20
+                                                                      =20
+  Requis :                                                            =20
+               rackid11@mairie-saint-ouen=2Efr, rkidai@gmail=2Ecom,       =
+=20
+               thomas=2Ecataldo@blue-mind=2Efr                            =
+=20
+                                                                      =20
+                                                                      =20
+
+
+                                                                      =20
+                                                                      =20
+                                                                      =20
+                                                                      =20
+                                                                      =20
+                                                                      =20
+                                                                      =20
+                                                                      =20
+
+
+--=_alternative 354EFA3054F1F02FC1257A56003AB3AD_=
+Content-Type: text/html; charset=ISO-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+<html><body>
+<p>
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0">
+<tr valign=3D"top"><td width=3D"1%"><img width=3D"101" height=3D"1" src=3D=
+"cid:1__=3D4EBBF0C5DFA9353D8f9e8a93df938690918c4EB@" border=3D"0" alt=3D"">=
+<br>
+
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0">
+<tr valign=3D"top"><td width=3D"100%"><img src=3D"cid:2__=3D4EBBF0C5DFA935=
+3D8f9e8a93df938690918c4EB@" width=3D"65" height=3D"65"></td></tr>
+</table>
+</td><td width=3D"100%"><img width=3D"1" height=3D"1" src=3D"cid:1__=3D4EB=
+BF0C5DFA9353D8f9e8a93df938690918c4EB@" border=3D"0" alt=3D""><br>
+<b><font size=3D"4">Invitation : test agenda BM</font></b>
+<table id=3D"NoticeTable" width=3D"100%" border=3D"0" cellspacing=3D"0" ce=
+llpadding=3D"0">
+<tr valign=3D"top"><td width=3D"1%" valign=3D"middle"><img width=3D"639" h=
+eight=3D"1" src=3D"cid:1__=3D4EBBF0C5DFA9353D8f9e8a93df938690918c4EB@" bord=
+er=3D"0" alt=3D""><br>
+<b>14/08/2012</b> - </td><td width=3D"1%" valign=3D"middle"><img width=3D"=
+72" height=3D"1" src=3D"cid:1__=3D4EBBF0C5DFA9353D8f9e8a93df938690918c4EB@"=
+ border=3D"0" alt=3D""><br>
+</td><td width=3D"100%" valign=3D"middle"><img width=3D"1" height=3D"1" sr=
+c=3D"cid:1__=3D4EBBF0C5DFA9353D8f9e8a93df938690918c4EB@" border=3D"0" alt=
+=3D""><br>
+</td></tr>
+</table>
+
+<table id=3D"NoticeTable3" width=3D"100%" border=3D"0" cellspacing=3D"0" c=
+ellpadding=3D"0">
+<tr valign=3D"top"><td id=3D"NoticeTable3_a" width=3D"1%" valign=3D"middle=
+"><img width=3D"80" height=3D"1" src=3D"cid:1__=3D4EBBF0C5DFA9353D8f9e8a93d=
+f938690918c4EB@" border=3D"0" alt=3D""><br>
+<font size=3D"2" color=3D"#929292">Organisateur :</font></td><td id=3D"Not=
+iceTable3_b" width=3D"1%" valign=3D"middle"><img width=3D"655" height=3D"1"=
+ src=3D"cid:1__=3D4EBBF0C5DFA9353D8f9e8a93df938690918c4EB@" border=3D"0" al=
+t=3D""><br>
+<b><font color=3D"#e26200">Rachid KIDAI/Mairie-Saint-Ouen</font></b></td><=
+/tr>
+
+<tr valign=3D"top"><td id=3D"NoticeTable3_c" width=3D"1%"><img width=3D"80=
+" height=3D"1" src=3D"cid:1__=3D4EBBF0C5DFA9353D8f9e8a93df938690918c4EB@" b=
+order=3D"0" alt=3D""><br>
+<font size=3D"2" color=3D"#929292">Envoy=E9 par=A0:</font></td><td id=3D"N=
+oticeTable3_d" width=3D"1%"><img width=3D"655" height=3D"1" src=3D"cid:1__=
+=3D4EBBF0C5DFA9353D8f9e8a93df938690918c4EB@" border=3D"0" alt=3D""><br>
+<b><font color=3D"#e26200">Rachid_KIDAI/Mairie-Saint-Ouen%MAIRIE-SAINT-OUE=
+N</font></b></td></tr>
+</table>
+<br>
+<font size=3D"2">Aucune information sur l'emplacement</font></td></tr>
+</table>
+
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0">
+<tr valign=3D"top"><td width=3D"100%">
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0">
+<tr valign=3D"top"><td width=3D"100%" bgcolor=3D"#EBECED" valign=3D"middle=
+">
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0">
+<tr valign=3D"top"><td width=3D"1%"><img width=3D"159" height=3D"1" src=3D=
+"cid:1__=3D4EBBF0C5DFA9353D8f9e8a93df938690918c4EB@" border=3D"0" alt=3D"">=
+<br>
+<b><font size=3D"2">Rachid_KIDAI</font></b></td><td width=3D"100%"><img wi=
+dth=3D"1" height=3D"1" src=3D"cid:1__=3D4EBBF0C5DFA9353D8f9e8a93df938690918=
+c4EB@" border=3D"0" alt=3D""><br>
+<font size=3D"2">Rachid KIDAIvous a invit=E9 =E0 une r=E9union=2E  Vous n'=
+avez pas encore r=E9pondu=2E</font></td></tr>
+</table>
+
+<table id=3D"ShowComments" width=3D"100%" border=3D"0" cellspacing=3D"0" c=
+ellpadding=3D"0">
+<tr valign=3D"top"><td width=3D"100%">
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0">
+<tr valign=3D"top"><td width=3D"0%"><img width=3D"1" height=3D"1" src=3D"c=
+id:1__=3D4EBBF0C5DFA9353D8f9e8a93df938690918c4EB@" border=3D"0" alt=3D""></=
+td><td width=3D"100%"><img width=3D"1" height=3D"1" src=3D"cid:1__=3D4EBBF0=
+C5DFA9353D8f9e8a93df938690918c4EB@" border=3D"0" alt=3D""><br>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</td></tr>
+
+<tr valign=3D"top"><td width=3D"100%">
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0">
+<tr valign=3D"top"><td width=3D"100%" bgcolor=3D"#FFFFFF">
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0">
+<tr valign=3D"top"><td width=3D"1%" valign=3D"middle"><img width=3D"101" h=
+eight=3D"1" src=3D"cid:1__=3D4EBBF0C5DFA9353D8f9e8a93df938690918c4EB@" bord=
+er=3D"0" alt=3D""><br>
+<font size=3D"2" color=3D"#616161">Requis :</font></td><td width=3D"100%" =
+valign=3D"middle"><img width=3D"1" height=3D"1" src=3D"cid:1__=3D4EBBF0C5DF=
+A9353D8f9e8a93df938690918c4EB@" border=3D"0" alt=3D""><br>
+<font size=3D"2">rackid11@mairie-saint-ouen=2Efr, rkidai@gmail=2Ecom, thom=
+as=2Ecataldo@blue-mind=2Efr</font></td></tr>
+</table>
+</td></tr>
+</table>
+</td></tr>
+</table>
+
+<table id=3D"ShowDescription" width=3D"100%" border=3D"0" cellspacing=3D"0=
+" cellpadding=3D"0">
+<tr valign=3D"top"><td width=3D"100%">
+<table id=3D"Description" width=3D"100%" border=3D"0" cellspacing=3D"0" ce=
+llpadding=3D"0"><tbody title=3D"Description">
+<tr class=3D"domino_tablabel"><th scope=3D"rowgroup" colspan=3D"1">Descrip=
+tion</th></tr>
+
+<tr valign=3D"top"><td width=3D"100%" bgcolor=3D"#E7E9F0" valign=3D"middle=
+">
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0">
+<tr valign=3D"top"><td width=3D"100%" bgcolor=3D"#FFFFFF">
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0">
+<tr valign=3D"top"><td width=3D"100%"><img width=3D"1" height=3D"1" src=3D=
+"cid:1__=3D4EBBF0C5DFA9353D8f9e8a93df938690918c4EB@" border=3D"0" alt=3D"">=
+</td></tr>
+</table>
+</td></tr>
+</table>
+</td></tr>
+</tbody></table>
+</td></tr>
+</table>
+</body></html>
+
+--=_alternative 354EFA3054F1F02FC1257A56003AB3AD_=
+Content-Type: text/calendar; method="REQUEST"; charset="UTF-8"
+
+BEGIN:VCALENDAR
+X-LOTUS-CHARSET:UTF-8
+VERSION:2.0
+PRODID:-//Lotus Development Corporation//NONSGML Notes 8.5//EN
+METHOD:REQUEST
+BEGIN:VTIMEZONE
+TZID:Romance
+BEGIN:STANDARD
+DTSTART:19501029T020000
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+RRULE:FREQ=YEARLY;BYMINUTE=0;BYHOUR=2;BYDAY=-1SU;BYMONTH=10
+END:STANDARD
+BEGIN:DAYLIGHT
+DTSTART:19500326T020000
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+RRULE:FREQ=YEARLY;BYMINUTE=0;BYHOUR=2;BYDAY=-1SU;BYMONTH=3
+END:DAYLIGHT
+END:VTIMEZONE
+BEGIN:VEVENT
+DTSTART;TZID="Romance":20120814T110000
+DTEND;TZID="Romance":20120814T120000
+TRANSP:OPAQUE
+DTSTAMP:20120810T104210Z
+SEQUENCE:0
+ATTENDEE;ROLE=CHAIR;PARTSTAT=ACCEPTED
+ ;CN="Rachid KIDAI/Mairie-Saint-Ouen";RSVP=FALSE
+ :mailto:rkidai@mairie-saint-ouen.fr
+ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE
+ :mailto:rackid11@mairie-saint-ouen.fr
+ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE
+ :mailto:rkidai@gmail.com
+ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE
+ :mailto:thomas.cataldo@blue-mind.fr
+CLASS:PUBLIC
+SUMMARY:test agenda BM
+ORGANIZER;CN="Rachid KIDAI/Mairie-Saint-Ouen"
+ :mailto:rkidai@mairie-saint-ouen.fr
+UID:354EFA3054F1F02FC1257A56003AB3AD-Lotus_Notes_Generated
+X-LOTUS-BROADCAST:FALSE
+X-LOTUS-UPDATE-SEQ:1
+X-LOTUS-UPDATE-WISL:$S:1;$L:1;$B:1;$R:1;$E:1;$W:1;$O:1;$M:1
+X-LOTUS-NOTESVERSION:2
+X-LOTUS-NOTICETYPE:I
+X-LOTUS-APPTTYPE:3
+X-LOTUS-CHILD_UID:354EFA3054F1F02FC1257A56003AB3AD
+END:VEVENT
+END:VCALENDAR
+
+--=_alternative 354EFA3054F1F02FC1257A56003AB3AD_=--
+
+--=_related 354EFA3054F1F02FC1257A56003AB3AD_=
+Content-Type: image/gif; name=ecblank.gif
+Content-Disposition: inline; filename=ecblank.gif
+Content-ID: <1__=4EBBF0C5DFA9353D8f9e8a93df938690918c4EB@>
+Content-Transfer-Encoding: base64
+
+R0lGODlhEAABAIAAAAAAAP///yH5BAEAAAEALAAAAAAQAAEAAAIEjI8ZBQA7
+
+--=_related 354EFA3054F1F02FC1257A56003AB3AD_=
+Content-Type: image/gif; name=pic05097.gif
+Content-Disposition: inline; filename=pic05097.gif
+Content-ID: <2__=4EBBF0C5DFA9353D8f9e8a93df938690918c4EB@>
+Content-Transfer-Encoding: base64
+
+R0lGODlhQQBBAPf/AJrmYcfGxZuamJPjWPvKYcnGwtHPy+nn5Pm2TcG9uf//mczJxfrGXPvRabq2
+sZaEPNXU1GiWQjt4Dp/paaLqbPzZca2EWLXZmo3aVf3pgUSODsr1qtbV0YK6V5XYZPzWbaKionid
+SKyMadnZ2Vy0G+bm5b26tOLi4a14NcTupLy4sv71j8SXZv7wifvOZbKyst/d2vzcdJLRZfrCWf/4
+kv72kPq+VF10HHm7SLd/Qv/8ltvZ1rq6ura2ttLQzmZmZsXCvbezruTj4mKUPP3ietjX1dXTz8vJ
+xvrAV/zgefzedvm7UePh3/rEWuHf3f3mf/3heq52OUKKDpjLcqV7OLKvq6J7NrJ6PfrIXlmuGqWd
+lc/8rv7+/s/Pz/X19e/v7/T09Ozs7Ovr6/Pz8/Hx8enp6ejo6Pb29u7u7u3t7fDw8Pf39/z8/Pj4
++Pn5+fr6+qenp7J2NYzfTqqqqpznZajtdafsc6TrcP///8CQSPr2k8+pW+LMdLd/O8qhVPHlhuzd
+gLyHQv3lft3DbfXujdCyY9m7Z/3kfb+8tvb19eLLs/3ngKioqP7thurp5/n4+Nzb2amSeufl4/vM
+Y8TAu8fEv//7lfr6+ff39v3shcvLy/Py8ezr6fT08+fUevHw7/vQZ/3rhPzfePr28v7viIrcTa9+
+SpXeX/Xu5sqhdP7uh+7t676+vo6aZbKRbI+GNr68uOno6K6sqM7Lx9DNyda8nkmOFq+DUl+NMn1q
+VpbTaYKZJsfyp8rjl6bqc+fUwPzYcIaGhofWS5DLWfq8U97d3K6bh6mPcurq6bSWdfvUa6DCht/P
+vXp6epOAbGSKHoPHRn3HRYvPWoWib2ChMIWHPK95OHSPQYOkSoayRv3je7u4s6DlbZGRkc36raC+
+i8K/umesHuzk2/7zjMWYTpe8e6KCMJCXYZ19Ni1dCW6NON3DprF5O6arbbePTNXOxmWcN8S9tIuZ
+Qp6JT5DWW5rjY/Dv7XOtSfv7+/39/fLy8urq6oiIiNTRzp6env///yH5BAEAAP8ALAAAAABBAEEA
+AAj/AP8JHEiwoMGDCBMqXMjwH6o4qBpKnEiR4Lo4x8ZU3MjxIItAprp0HMlxVBxAcargI8lSoqI8
+CvJEItOypsJUgxQMsgDBps+CJgk1IBTHwcqfP1/WQFBDpj6kP1MZEoVAlCGeUH3m+NMEQZM/7Hgc
+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
+
+--=_related 354EFA3054F1F02FC1257A56003AB3AD_=
+Content-Type: text/html; charset=ISO-8859-1
+Content-Disposition: inline
+Content-ID: <FFFF__=4EBBF0C5DFA9353D8f9e8a93df938690918c4EB@>
+Content-Transfer-Encoding: quoted-printable
+
+<html><body></body></html>
+--=_related 354EFA3054F1F02FC1257A56003AB3AD_=--
+
+--=_mixed 354EFA3054F1F02FC1257A56003AB3AD_=
+Content-Type: application/octet-stream; charset="UTF-8"; name="c124211.ics"
+Content-Disposition: attachment; filename="c124211.ics"
+
+BEGIN:VCALENDAR
+X-LOTUS-CHARSET:UTF-8
+VERSION:2.0
+PRODID:-//Lotus Development Corporation//NONSGML Notes 8.5//EN
+METHOD:REQUEST
+BEGIN:VTIMEZONE
+TZID:Romance
+BEGIN:STANDARD
+DTSTART:19501029T020000
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+RRULE:FREQ=YEARLY;BYMINUTE=0;BYHOUR=2;BYDAY=-1SU;BYMONTH=10
+END:STANDARD
+BEGIN:DAYLIGHT
+DTSTART:19500326T020000
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+RRULE:FREQ=YEARLY;BYMINUTE=0;BYHOUR=2;BYDAY=-1SU;BYMONTH=3
+END:DAYLIGHT
+END:VTIMEZONE
+BEGIN:VEVENT
+DTSTART;TZID="Romance":20120814T110000
+DTEND;TZID="Romance":20120814T120000
+TRANSP:OPAQUE
+DTSTAMP:20120810T104210Z
+SEQUENCE:0
+ATTENDEE;ROLE=CHAIR;PARTSTAT=ACCEPTED
+ ;CN="Rachid KIDAI/Mairie-Saint-Ouen";RSVP=FALSE
+ :mailto:rkidai@mairie-saint-ouen.fr
+ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE
+ :mailto:rackid11@mairie-saint-ouen.fr
+ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE
+ :mailto:rkidai@gmail.com
+ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE
+ :mailto:thomas.cataldo@blue-mind.fr
+CLASS:PUBLIC
+SUMMARY:test agenda BM
+ORGANIZER;CN="Rachid KIDAI/Mairie-Saint-Ouen"
+ :mailto:rkidai@mairie-saint-ouen.fr
+UID:354EFA3054F1F02FC1257A56003AB3AD-Lotus_Notes_Generated
+X-LOTUS-BROADCAST:FALSE
+X-LOTUS-UPDATE-SEQ:1
+X-LOTUS-UPDATE-WISL:$S:1;$L:1;$B:1;$R:1;$E:1;$W:1;$O:1;$M:1
+X-LOTUS-NOTESVERSION:2
+X-LOTUS-NOTICETYPE:I
+X-LOTUS-APPTTYPE:3
+X-LOTUS-CHILD_UID:354EFA3054F1F02FC1257A56003AB3AD
+END:VEVENT
+END:VCALENDAR
+
+--=_mixed 354EFA3054F1F02FC1257A56003AB3AD_=--
+

@@ -1,0 +1,191 @@
+/* BEGIN LICENSE
+  * Copyright © Blue Mind SAS, 2012-2016
+  *
+  * This file is part of BlueMind. BlueMind is a messaging and collaborative
+  * solution.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of either the GNU Affero General Public License as
+  * published by the Free Software Foundation (version 3 of the License).
+  *
+  *
+  * This program is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  *
+  * See LICENSE.txt
+  * END LICENSE
+  */
+package net.bluemind.calendar.service.tests;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.vertx.java.core.AsyncResult;
+import org.vertx.java.core.Handler;
+
+import com.google.common.util.concurrent.SettableFuture;
+
+import net.bluemind.calendar.api.IFreebusyUids;
+import net.bluemind.calendar.api.IFreebusyMgmt;
+import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.Container;
+import net.bluemind.core.container.model.acl.AccessControlEntry;
+import net.bluemind.core.container.model.acl.Verb;
+import net.bluemind.core.container.persistance.AclStore;
+import net.bluemind.core.container.persistance.ContainerStore;
+import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.jdbc.JdbcTestHelper;
+import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.sessions.Sessions;
+import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.tests.defaultdata.PopulateHelper;
+import net.bluemind.user.persistance.UserSubscriptionStore;
+
+public class FreebusyMgmtTests {
+
+	protected SecurityContext defaultSecurityContext;
+	protected SecurityContext anotherSecurityContext;
+	protected Container container;
+
+	@Before
+	public void before() throws Exception {
+		JdbcTestHelper.getInstance().beforeTest();
+		
+
+		final SettableFuture<Void> future = SettableFuture.<Void>create();
+		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
+
+			@Override
+			public void handle(AsyncResult<Void> event) {
+				future.set(null);
+			}
+		};
+		VertxPlatform.spawnVerticles(done);
+		future.get();
+
+		PopulateHelper.initGlobalVirt();
+
+		PopulateHelper.addDomain("bm.lan");
+		defaultSecurityContext = new SecurityContext("testUser", "test", Arrays.<String>asList(),
+				Arrays.<String>asList(), "bm.lan");
+
+		Sessions.get().put(defaultSecurityContext.getSessionId(), defaultSecurityContext);
+
+		ContainerStore containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+				defaultSecurityContext);
+
+		AclStore aclStore = new AclStore(JdbcTestHelper.getInstance().getDataSource());
+
+		container = Container.create(UUID.randomUUID().toString(), IFreebusyUids.TYPE, "fb container",
+				defaultSecurityContext.getSubject(), "bm.lan", true);
+		container = containerStore.create(container);
+		assertNotNull(container);
+
+		aclStore.store(container,
+				Arrays.asList(AccessControlEntry.create(defaultSecurityContext.getSubject(), Verb.All)));
+
+		UserSubscriptionStore userSubscriptionStore = new UserSubscriptionStore(SecurityContext.SYSTEM,
+				JdbcTestHelper.getInstance().getDataSource(), containerStore.get("bm.lan"));
+
+		userSubscriptionStore.subscribe(defaultSecurityContext.getSubject(), container);
+
+		anotherSecurityContext = new SecurityContext(UUID.randomUUID().toString(), "another", Arrays.<String>asList(),
+				Arrays.<String>asList(), "bm.lan");
+
+		Sessions.get().put(anotherSecurityContext.getSessionId(), anotherSecurityContext);
+
+	}
+
+	@After
+	public void after() throws Exception {
+		JdbcTestHelper.getInstance().afterTest();
+	}
+
+	@Test
+	public void testFreebusyMgmt() throws Exception {
+		IFreebusyMgmt service = getService(defaultSecurityContext);
+
+		List<String> calendars = service.get();
+		assertTrue(calendars.isEmpty());
+
+		service.add("this-is-calendar");
+		calendars = service.get();
+		assertEquals(1, calendars.size());
+		assertTrue(calendars.contains("this-is-calendar"));
+
+		service.add("this-is-calendar2");
+		service.add("this-is-calendar3");
+		calendars = service.get();
+		assertEquals(3, calendars.size());
+		assertTrue(calendars.contains("this-is-calendar"));
+		assertTrue(calendars.contains("this-is-calendar2"));
+		assertTrue(calendars.contains("this-is-calendar3"));
+
+		service.remove("this-is-calendar");
+		calendars = service.get();
+		assertEquals(2, calendars.size());
+		assertTrue(calendars.contains("this-is-calendar2"));
+		assertTrue(calendars.contains("this-is-calendar3"));
+
+		service.remove("this-is-wtf");
+		calendars = service.get();
+		assertEquals(2, calendars.size());
+		assertTrue(calendars.contains("this-is-calendar2"));
+		assertTrue(calendars.contains("this-is-calendar3"));
+
+		calendars.clear();
+		calendars.add("this");
+		calendars.add("is");
+		calendars.add("calendar");
+		service.set(calendars);
+		calendars = service.get();
+		assertEquals(3, calendars.size());
+		assertTrue(calendars.contains("this"));
+		assertTrue(calendars.contains("is"));
+		assertTrue(calendars.contains("calendar"));
+
+		service = getService(anotherSecurityContext);
+		try {
+			service.get();
+			fail();
+		} catch (Exception e) {
+
+		}
+
+		try {
+			service.add("bla");
+			fail();
+		} catch (Exception e) {
+
+		}
+
+		try {
+			service.remove("blabla");
+			fail();
+		} catch (Exception e) {
+
+		}
+
+		try {
+			service.set(calendars);
+			fail();
+		} catch (Exception e) {
+
+		}
+	}
+
+	public IFreebusyMgmt getService(SecurityContext sc) throws ServerFault {
+		return ServerSideServiceProvider.getProvider(sc).instance(IFreebusyMgmt.class, container.uid);
+	}
+
+}

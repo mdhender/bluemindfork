@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.backend.cyrus.partitions
+Bundle-SymbolicName: net.bluemind.backend.cyrus.partitions
+Bundle-Version: 4.1.0.qualifier
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.core.container.api;bundle-version="4.1.0",
+ net.bluemind.server.api;bundle-version="4.1.0",
+ com.google.guava,
+ net.bluemind.mailbox.api,
+ net.bluemind.backend.mail.replica.api;bundle-version="4.1.0",
+ slf4j.api
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.backend.cyrus.partitions
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.backend.cyrus.partitions

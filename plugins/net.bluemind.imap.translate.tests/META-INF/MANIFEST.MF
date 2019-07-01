@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.imap.translate.tests
+Bundle-SymbolicName: net.bluemind.imap.translate.tests
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: blue-mind.net
+Fragment-Host: net.bluemind.imap.translate
+Require-Bundle: org.eclipse.core.runtime,
+ org.junit
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy

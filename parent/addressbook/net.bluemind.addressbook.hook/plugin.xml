@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.addressbook.hook" name="hooks" schema="schema/net.bluemind.addressbook.hook.exsd"/>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.addressbook.hook.internal.AddressBookVerticleFactory">
+      </verticle>
+   </extension>
+
+</plugin>

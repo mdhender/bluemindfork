@@ -1,0 +1,53 @@
+#!/bin/sh
+#BEGIN LICENSE
+#
+# Copyright © Blue Mind SAS, 2012-2016
+#
+# This file is part of BlueMind. BlueMind is a messaging and collaborative
+# solution.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of either the GNU Affero General Public License as
+# published by the Free Software Foundation (version 3 of the License).
+#
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# See LICENSE.txt
+
+set -e
+#set -x
+
+# Source debconf library.
+. /usr/share/debconf/confmodule
+
+FULL_NAME=`/bin/hostname -f`
+
+is_initial_configuration() { 
+  # Check if this is the initial configuration and not an upgrade of an 
+  # existing configuration 
+  # Usage: if is_initial_configuration "$@"; then ... fi from top level 
+
+  # Plain installation 
+  if [ "$1" = configure ] && [ -z "$2" ]; then 
+    return 0 
+  fi 
+  # Configuration via dpkg-reconfigure 
+  if [ "$1" = reconfigure ] || [ "$DEBCONF_RECONFIGURE" ]; then 
+    return 0 
+  fi 
+  return 1 
+}
+
+if is_initial_configuration "$@"; then
+    echo -n "Add user postfix to sasl group... "
+    usermod -a -G sasl postfix
+    service postfix restart
+    echo "done"
+fi
+
+
+
+exit 0

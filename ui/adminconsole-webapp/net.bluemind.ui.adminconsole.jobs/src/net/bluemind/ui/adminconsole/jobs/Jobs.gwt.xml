@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+	<inherits name="com.google.gwt.json.JSON"/>
+	<inherits name="com.google.gwt.i18n.I18N" />
+	<inherits name="net.bluemind.domain.DomainApi"/>
+	<inherits name="net.bluemind.scheduledjob.ScheduledjobApi"/>
+	<inherits name="net.bluemind.core.task.TaskApi"/>
+	<source path='' />
+
+</module>

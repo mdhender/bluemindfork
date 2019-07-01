@@ -1,0 +1,33 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+
+	<ui:with type="net.bluemind.ui.im.client.IMConstants" field="msg" />
+
+	<g:DockLayoutPanel unit="PX" styleName="modalPanel"
+		height="150px">
+
+		<g:north size="40">
+			<g:Label ui:field="text" styleName="modalHeader"
+				text="{msg.newInvitationPopupHeader}" />
+		</g:north>
+
+		<g:center>
+			<g:FormPanel ui:field="form" action="#">
+				<g:FlowPanel styleName="modalContent">
+					<g:Label ui:field="reason" text="{msg.newInvitationPopupContent}" />
+				</g:FlowPanel>
+			</g:FormPanel>
+		</g:center>
+
+		<g:south size="40">
+			<g:FlowPanel styleName="modalButton">
+				<g:Button ui:field="join" styleName="button primary" text="{msg.joinButton}" />
+				<g:Button ui:field="decline" styleName="button"
+					text="{msg.declineButton}" />
+			</g:FlowPanel>
+		</g:south>
+
+	</g:DockLayoutPanel>
+
+</ui:UiBinder>

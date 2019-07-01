@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="coreLauncher"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            thread="main"
+            visible="true">
+         <run
+               class="net.bluemind.application.launcher.ApplicationLauncher">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="bmProduct"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="net.bluemind.application.launcher.coreLauncher"
+            name="bluemind product">
+         <property
+               name="appName"
+               value="bluemind product">
+         </property>
+      </product>
+   </extension>
+   <extension
+         id="core"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="net.bluemind.application.launcher.coreLauncher"
+            name="bluemind.core">
+         <property
+               name="appName"
+               value="bluemind.core">
+         </property>
+      </product>
+   </extension>
+
+</plugin>

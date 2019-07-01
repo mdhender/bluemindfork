@@ -1,0 +1,51 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:ldap="urn:import:net.bluemind.ui.adminconsole.filehosting.settings"
+	xmlns:bj="urn:import:net.bluemind.ui.admin.client" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui">
+
+	<ui:with field="c"
+		type="net.bluemind.ui.adminconsole.filehosting.settings.l10n.FileHosting" />
+
+	<g:HTMLPanel>
+		<g:Label styleName="red" text="{c.noImplFound}:" ui:field="noImplWarning"></g:Label>
+		
+		<f:FieldSetPanel name="{c.settings}" />
+		
+		<table border="0" style="margin-bottom: 25px">
+			<tr>
+				<td style='width:250px'>
+					<g:Label text="{c.retentionTime}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:IntegerBox width="100px" ui:field="retentionTime" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.autoDetachmentLimit}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:IntegerBox width="100px" ui:field="autoDetachmentLimit" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.detachedAttachmentSizeLimit}:"></g:Label>
+				</td>
+				<td style='width400px'>
+					<g:IntegerBox width="100px" ui:field="detachedAttachmentSizeLimit" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.backupFileHostingData}:" ui:field="backupFileHostingDataLabel"></g:Label>
+				</td>
+				<td style='width400px'>
+					<g:CheckBox width="100px" ui:field="backupFileHostingData" />
+				</td>
+			</tr>
+		</table>
+	</g:HTMLPanel>
+</ui:UiBinder>

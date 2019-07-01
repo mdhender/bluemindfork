@@ -1,0 +1,12 @@
+Source: bluemind
+Section: net
+Priority: optional
+Maintainer: BlueMind Team <team@blue-mind.net>
+Standards-Version: 3.9.1
+
+Package: bm-connector-thunderbird
+Architecture: all
+Pre-Depends: debconf
+Description: Blue Mind Thunderbird connector
+ Blue Mind Thunderbird connector
+

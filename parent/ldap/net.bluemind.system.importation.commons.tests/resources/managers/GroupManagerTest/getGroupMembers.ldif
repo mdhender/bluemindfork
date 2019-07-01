@@ -1,0 +1,11 @@
+dn: cn=grptest00,dc=local
+objectClass: qmailGroup
+objectClass: inetLocalMailRecipient
+objectClass: bmGroup
+objectClass: top
+objectClass: posixGroup
+cn: grptest00
+gidNumber: 10000
+description: Test group 00
+member: member1
+member: member2

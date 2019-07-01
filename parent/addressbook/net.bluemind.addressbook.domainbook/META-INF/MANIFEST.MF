@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Services
+Bundle-SymbolicName: net.bluemind.addressbook.domainbook;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.addressbook.api;bundle-version="1.0.0",
+ net.bluemind.core.container.service;bundle-version="1.0.0",
+ net.bluemind.core.container.api;bundle-version="1.0.0",
+ net.bluemind.core.rest;bundle-version="1.0.0",
+ net.bluemind.core.rest.http;bundle-version="1.0.0",
+ com.google.guava;bundle-version="19.0.0",
+ net.bluemind.slf4j;bundle-version="1.0.0",
+ net.bluemind.core.context,
+ net.bluemind.domain.api;bundle-version="1.0.0",
+ net.bluemind.domain.hook;bundle-version="1.0.0",
+ net.bluemind.core.container.persistance,
+ net.bluemind.directory.api,
+ net.bluemind.core.jdbc,
+ net.bluemind.eclipse.common
+Export-Package: net.bluemind.addressbook.domainbook,
+ net.bluemind.addressbook.domainbook.verticle
+

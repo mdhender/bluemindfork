@@ -1,0 +1,13 @@
+Source: bluemind
+Section: net
+Priority: optional
+Maintainer: BlueMind Team <team@blue-mind.net>
+Standards-Version: 3.9.1
+
+Package: bm-ldap-role
+Architecture: amd64
+Depends: bm-conf (= ${binary:Version}), bm-node (= ${binary:Version}), slapd (>= 2.4), ldap-utils (>= 2.4), bm-ysnp (= ${binary:Version})
+Description: BlueMind directory export
+ Install and configure needed LDAP services to BlueMind directory export plug-in
+ .
+ This package must be install on servers which will be LDAP master for BlueMind domains

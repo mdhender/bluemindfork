@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.core.jdbc.schema">
+      <schema
+            name="systemconf-schema"
+            resource="sql/systemconf-schema.1.0.0.sql">
+      </schema>
+   </extension>
+   <extension
+         point="net.bluemind.core.jdbc.schema">
+      <schema
+            name="schemaversion-schema"
+            resource="sql/schemaversion-schema.1.0.0.sql">
+      </schema>
+   </extension>
+
+</plugin>

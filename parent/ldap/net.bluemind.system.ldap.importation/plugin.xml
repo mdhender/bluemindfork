@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.system.ldap.importation.entityenhancer" name="entityenhancer" schema="schema/net.bluemind.system.ldap.importation.entityenhancer.exsd"/>
+   <extension-point id="net.bluemind.system.ldap.importation.scannerenhancer" name="scannerenhancer" schema="schema/net.bluemind.system.ldap.importation.scannerenhancer.exsd"/>
+
+   <extension
+         point="net.bluemind.authentication.provider.authprovider">
+      <auth_provider
+            impl="net.bluemind.system.ldap.importation.hooks.ImportLdapAuthenticationService">
+      </auth_provider>
+   </extension>
+   <extension
+         point="net.bluemind.authentication.provider.loginvalidation">
+      <validation_listener
+            impl="net.bluemind.system.ldap.importation.hooks.ImportLdapLoginValidation">
+      </validation_listener>
+   </extension>
+   <extension
+         point="net.bluemind.scheduledjob.scheduler.job">
+      <scheduledjob_provider
+            implementation="net.bluemind.system.ldap.importation.hooks.ImportLdapJob">
+      </scheduledjob_provider>
+   </extension>
+   <extension
+         point="net.bluemind.core.sanitizerfactory">
+      <sanitizerfactory
+            implementation="net.bluemind.system.ldap.importation.hooks.DomainSanitizerFactory">
+      </sanitizerfactory>
+   </extension>
+   <extension
+         point="net.bluemind.core.validatorfactory">
+      <validatorfactory
+            implementation="net.bluemind.system.ldap.importation.hooks.DomainValidatorFactory">
+      </validatorfactory>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.apiEndpoint">
+      <endpoint
+            api="net.bluemind.system.ldap.importation.api.ILdapImport">
+      </endpoint>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.serviceFactory">
+      <serviceFactory
+            class="net.bluemind.system.ldap.importation.LdapImportServiceFactory">
+      </serviceFactory>
+   </extension>
+   <extension
+         point="net.bluemind.system.schemaupgrader.javacode">
+      <java
+            code="net.bluemind.system.ldap.importation.upg.UpgradeExtId">
+      </java>
+   </extension>
+   <extension
+         point="net.bluemind.user.passwordupdater">
+      <password_updater
+            impl="net.bluemind.system.ldap.importation.hooks.LdapPasswordUpdater"
+            priority="100">
+      </password_updater>
+   </extension>
+
+</plugin>

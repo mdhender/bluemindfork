@@ -1,0 +1,47 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	xmlns:ou="urn:import:net.bluemind.ui.adminconsole.directory.ou"
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'>
+
+	<ui:style>
+	.filtersContainer {
+		float: right;
+	}
+	</ui:style>
+
+	<ui:with field="ou"
+		type="net.bluemind.ui.adminconsole.directory.ou.l10n.OrgUnitConstants" />
+
+	<g:DockLayoutPanel unit="PX">
+
+		<g:north size="30">
+
+			<g:FlowPanel>
+
+				<g:FlowPanel styleName="{style.filtersContainer}">
+					<g:TextBox ui:field="search" styleName="button-last" />
+				</g:FlowPanel>
+
+				<g:FlowPanel>
+
+					<g:Button ui:field="newButton" enabled="true" styleName="button primary"
+						text="{ou.qc}" />
+
+					<g:Button ui:field="deleteButton" enabled="false"
+						styleName="button dangerHighVoltage" text="{ou.delete}" />
+
+				</g:FlowPanel>
+
+			</g:FlowPanel>
+
+		</g:north>
+
+		<g:center>
+			<ou:OrgUnitGrid ui:field="grid" />
+		</g:center>
+
+	</g:DockLayoutPanel>
+
+</ui:UiBinder>

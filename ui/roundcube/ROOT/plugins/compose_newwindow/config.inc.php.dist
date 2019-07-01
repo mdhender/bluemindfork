@@ -1,0 +1,15 @@
+<?php
+
+// The following are default settings that can be modified by the user
+
+// Enable Compose in New Window
+$rcmail_config['cnw_enabled'] = true;
+
+// Hide the main toolbar in all compose windows.
+$rcmail_config['cnw_hidebar'] = true;
+
+// Options that the user can change (drop the 'cnw_' from the above options)
+// (if not in the list the default set above is used)
+$rcmail_config['cnw_useredits'] = array('enabled', 'hidebar');
+
+?>

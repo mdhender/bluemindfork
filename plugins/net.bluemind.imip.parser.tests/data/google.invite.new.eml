@@ -1,0 +1,209 @@
+Return-Path: <3MK7ETwgJDiMSB9S9KCNFL9HK.BNLSGNL9R.B9S9KCNAKTD-LHMC.MDS@calendar-server.bounces.google.com>
+Received: from calendar-server.bounces.google.com (bm-prod.blue-mind.loc [192.168.231.2])
+	 by bm-prod (Cyrus v2.4.16-Debian-2.4.16-1hudson92) with LMTPA;
+	 Tue, 29 May 2012 13:08:42 +0200
+X-Sieve: CMU Sieve 2.4
+Received: from 192.168.231.1 (LHLO mail-relay.blue-mind.loc) (192.168.231.1)
+ by unknown with LMTP; 5/29/12 11:08 AM
+Received: from h17.altospam.com (h17.altospam.com [93.93.45.222])
+	by mail-relay.blue-mind.loc (Postfix) with ESMTP id 7DE7F850A
+	for <thomas.cataldo@blue-mind.net>; Tue, 29 May 2012 14:02:39 +0200 (CEST)
+Received: from mail-ee0-f74.google.com ([74.125.83.74])
+	by h17.altospam.com with esmtp (Altospam)
+	id 1SZKHx-0005XI-IL 
+	for thomas.cataldo@blue-mind.net; Tue, 29 May 2012 13:08:42 +0200
+Received: by eeit10 with SMTP id t10so254533eei.5
+        for <thomas.cataldo@blue-mind.net>; Tue, 29 May 2012 04:08:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20120113;
+        h=mime-version:reply-to:sender:auto-submitted:message-id:date:subject
+         :from:to:cc:content-type;
+        bh=cVqaJHW3xJS71KAVmAyqbhbRMUgCgcxqW+/k3fp2+kY=;
+        b=RwConED7W5AnvGz2djazhJ6Y5lmjA/x01V5yY1hroN3FfSVctCoB+uxmDo6+51qodW
+         nlmCDxTnp4wE11G0OCY9vdXQ4Lo91ERjF8/OYiqEGSS94/yjNDMjv9RojU9BDNUYLND4
+         Y95g10ap45jizEzViLf5noMuEy7apjUAi3iliGeczQNTXTc6A0EotSYZA+SOTnQ0pW3f
+         FQhBo2QhLsK0xDNImiXVH0NAhEOsy+9IzIewQ98eRgQKclPJuoDwyC6oAGcpROKIZDS5
+         WTqrTJxZJRJEOPTvVzJyz+9BghAP8twcXTpiGwoqlNlcHdcqIZFOu8NZT3p4G7ji/CmC
+         /H4Q==
+MIME-Version: 1.0
+Received: by 10.216.194.221 with SMTP id m71mr1547733wen.2.1338289712932; Tue,
+ 29 May 2012 04:08:32 -0700 (PDT)
+Reply-To: Thomas Cataldo <tcataldo@gmail.com>
+Sender: Google Calendar <calendar-notification@google.com>
+Auto-Submitted: auto-generated
+Message-ID: <0016e6dbe8abf227b704c12ada59@google.com>
+Date: Tue, 29 May 2012 11:08:32 +0000
+From: Thomas Cataldo <tcataldo@gmail.com>
+To: "tom@bluejob.fr" <tom@bluejob.fr>
+Cc: "thomas.cataldo@blue-mind.net" <thomas.cataldo@blue-mind.net>
+Subject: Invitation: Demain avec tom@bm @ Wed May 30 11:00 - 14:00 (thomas.cataldo@blue-mind.net)
+Content-Type: multipart/mixed; boundary=0016e6dbe8abf227a204c12ada58
+X-ALTOSPAM: h17.altospam.com
+
+--0016e6dbe8abf227a204c12ada58
+Content-Type: multipart/alternative; boundary=0016e6dbe8abf2279a04c12ada56
+
+--0016e6dbe8abf2279a04c12ada56
+Content-Type: text/plain; charset=windows-1252; format=flowed; delsp=yes
+Content-Transfer-Encoding: base64
+
+WW91IGhhdmUgYmVlbiBpbnZpdGVkIHRvIHRoZSBmb2xsb3dpbmcgZXZlbnQuDQoNClRpdGxlOiBE
+ZW1haW4gYXZlYyB0b21AYm0NCldoZW46IFdlZCBNYXkgMzAgMTE6MDAgliAxNDowMCBQYXJpcw0K
+Q2FsZW5kYXI6IHRob21hcy5jYXRhbGRvQGJsdWUtbWluZC5uZXQNCldobzoNCiAgICAgKiBUaG9t
+YXMgQ2F0YWxkbyAtIG9yZ2FuaXplcg0KICAgICAqIHRvbUBibHVlam9iLmZyDQogICAgICogdGhv
+bWFzLmNhdGFsZG9AYmx1ZS1taW5kLm5ldCAtIG9wdGlvbmFsDQoNCllvdXIgYXR0ZW5kYW5jZSBp
+cyBvcHRpb25hbC4NCg0KRXZlbnQgZGV0YWlsczogIA0KaHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9j
+YWxlbmRhci9ldmVudD9hY3Rpb249VklFVyZlaWQ9WXpjM2RUVnlabll4YlRkeWNIVnFZMmxqY0ds
+dFptbHdNV2NnZEdodmJXRnpMbU5oZEdGc1pHOUFZbXgxWlMxdGFXNWtMbTVsZEEmdG9rPU1UZ2pk
+R05oZEdGc1pHOUFaMjFoYVd3dVkyOXRORE5qWkdFeFpETXhOamRsWkdFMVlUazFPRGxsTUdZeVpH
+UmxPVEptWkdKa01XVXlOR0ZtT0EmY3R6PUV1cm9wZS9QYXJpcyZobD1lbg0KDQpJbnZpdGF0aW9u
+IGZyb20gR29vZ2xlIENhbGVuZGFyOiBodHRwczovL3d3dy5nb29nbGUuY29tL2NhbGVuZGFyLw0K
+DQpZb3UgYXJlIHJlY2VpdmluZyB0aGlzIGNvdXJ0ZXN5IGVtYWlsIGF0IHRoZSBhY2NvdW50ICAN
+CnRob21hcy5jYXRhbGRvQGJsdWUtbWluZC5uZXQgYmVjYXVzZSB5b3UgYXJlIGFuIGF0dGVuZGVl
+IG9mIHRoaXMgZXZlbnQuDQoNClRvIHN0b3AgcmVjZWl2aW5nIGZ1dHVyZSBub3RpZmljYXRpb25z
+IGZvciB0aGlzIGV2ZW50LCBkZWNsaW5lIHRoaXMgZXZlbnQuICANCkFsdGVybmF0aXZlbHkgeW91
+IGNhbiBzaWduIHVwIGZvciBhIEdvb2dsZSBhY2NvdW50IGF0ICANCmh0dHBzOi8vd3d3Lmdvb2ds
+ZS5jb20vY2FsZW5kYXIvIGFuZCBjb250cm9sIHlvdXIgbm90aWZpY2F0aW9uIHNldHRpbmdzIGZv
+ciAgDQp5b3VyIGVudGlyZSBjYWxlbmRhci4NCg==
+--0016e6dbe8abf2279a04c12ada56
+Content-Type: text/html; charset=windows-1252
+Content-Transfer-Encoding: quoted-printable
+
+<div style=3D""><table cellspacing=3D"0" cellpadding=3D"8" border=3D"0" sum=
+mary=3D"" style=3D"width:100%;font-family:Arial,Sans-serif;border:1px Solid=
+ #ccc;border-width:1px 2px 2px 1px;background-color:#fff;"><tr><td><div sty=
+le=3D"padding:2px"><div style=3D"float:right;font-weight:bold;font-size:13p=
+x"> <a href=3D"https://www.google.com/calendar/event?action=3DVIEW&amp;eid=
+=3DYzc3dTVyZnYxbTdycHVqY2ljcGltZmlwMWcgdGhvbWFzLmNhdGFsZG9AYmx1ZS1taW5kLm5l=
+dA&amp;tok=3DMTgjdGNhdGFsZG9AZ21haWwuY29tNDNjZGExZDMxNjdlZGE1YTk1ODllMGYyZG=
+RlOTJmZGJkMWUyNGFmOA&amp;ctz=3DEurope/Paris&amp;hl=3Den" style=3D"color:#20=
+c;white-space:nowrap">more details &raquo;</a><br></div><h3 style=3D"paddin=
+g:0 0 6px 0;margin:0;font-family:Arial,Sans-serif;font-size:16px;font-weigh=
+t:bold;color:#222">Demain avec tom@bm</h3><table cellpadding=3D"0" cellspac=
+ing=3D"0" border=3D"0" summary=3D"Event details"><tr><td style=3D"padding:0=
+ 1em 10px 0;font-family:Arial,Sans-serif;font-size:13px;color:#888;white-sp=
+ace:nowrap" valign=3D"top"><div><i style=3D"font-style:normal">When</i></di=
+v></td><td style=3D"padding-bottom:10px;font-family:Arial,Sans-serif;font-s=
+ize:13px;color:#222" valign=3D"top">Wed May 30 11:00 =96 14:00 <span style=
+=3D"color:#888">Paris</span></td></tr><tr><td style=3D"padding:0 1em 10px 0=
+;font-family:Arial,Sans-serif;font-size:13px;color:#888;white-space:nowrap"=
+ valign=3D"top"><div><i style=3D"font-style:normal">Calendar</i></div></td>=
+<td style=3D"padding-bottom:10px;font-family:Arial,Sans-serif;font-size:13p=
+x;color:#222" valign=3D"top">thomas.cataldo@blue-mind.net</td></tr><tr><td =
+style=3D"padding:0 1em 10px 0;font-family:Arial,Sans-serif;font-size:13px;c=
+olor:#888;white-space:nowrap" valign=3D"top"><div><i style=3D"font-style:no=
+rmal">Who</i></div></td><td style=3D"padding-bottom:10px;font-family:Arial,=
+Sans-serif;font-size:13px;color:#222" valign=3D"top"><table cellspacing=3D"=
+0" cellpadding=3D"0"><tr><td style=3D"padding-right:10px;font-family:Arial,=
+Sans-serif;font-size:13px;color:#222"><span style=3D"font-family:Courier Ne=
+w,monospace">&#x2022;</span></td><td style=3D"padding-right:10px;font-famil=
+y:Arial,Sans-serif;font-size:13px;color:#222"><div><div style=3D"margin:0 0=
+ 0.3em 0">Thomas Cataldo<span style=3D"font-size:11px;color:#888"> - organi=
+zer</span></div></div></td></tr><tr><td style=3D"padding-right:10px;font-fa=
+mily:Arial,Sans-serif;font-size:13px;color:#222"><span style=3D"font-family=
+:Courier New,monospace">&#x2022;</span></td><td style=3D"padding-right:10px=
+;font-family:Arial,Sans-serif;font-size:13px;color:#222"><div><div style=3D=
+"margin:0 0 0.3em 0">tom@bluejob.fr</div></div></td></tr><tr><td style=3D"p=
+adding-right:10px;font-family:Arial,Sans-serif;font-size:13px;color:#222"><=
+span style=3D"font-family:Courier New,monospace">&#x2022;</span></td><td st=
+yle=3D"padding-right:10px;font-family:Arial,Sans-serif;font-size:13px;color=
+:#222"><div><div style=3D"margin:0 0 0.3em 0">thomas.cataldo@blue-mind.net<=
+span style=3D"font-size:11px;color:#888"> - optional</span></div></div></td=
+></tr></table></td></tr></table></div><div style=3D"font-family:Arial,Sans-=
+serif;font-size:13px;padding-bottom:10px">Your attendance is <span style=3D=
+"font-weight:bold">optional</span>.</div><p style=3D"color:#222;font-size:1=
+3px;margin:0"><span style=3D"color:#888">Going?&nbsp;&nbsp;&nbsp;</span><wb=
+r><strong><a href=3D"https://www.google.com/calendar/event?action=3DRESPOND=
+&amp;eid=3DYzc3dTVyZnYxbTdycHVqY2ljcGltZmlwMWcgdGhvbWFzLmNhdGFsZG9AYmx1ZS1t=
+aW5kLm5ldA&amp;rst=3D1&amp;tok=3DMTgjdGNhdGFsZG9AZ21haWwuY29tNDNjZGExZDMxNj=
+dlZGE1YTk1ODllMGYyZGRlOTJmZGJkMWUyNGFmOA&amp;ctz=3DEurope/Paris&amp;hl=3Den=
+" style=3D"color:#20c;white-space:nowrap">Yes</a><span style=3D"margin:0 0.=
+4em;font-weight:normal"> - </span><a href=3D"https://www.google.com/calenda=
+r/event?action=3DRESPOND&amp;eid=3DYzc3dTVyZnYxbTdycHVqY2ljcGltZmlwMWcgdGhv=
+bWFzLmNhdGFsZG9AYmx1ZS1taW5kLm5ldA&amp;rst=3D3&amp;tok=3DMTgjdGNhdGFsZG9AZ2=
+1haWwuY29tNDNjZGExZDMxNjdlZGE1YTk1ODllMGYyZGRlOTJmZGJkMWUyNGFmOA&amp;ctz=3D=
+Europe/Paris&amp;hl=3Den" style=3D"color:#20c;white-space:nowrap">Maybe</a>=
+<span style=3D"margin:0 0.4em;font-weight:normal"> - </span><a href=3D"http=
+s://www.google.com/calendar/event?action=3DRESPOND&amp;eid=3DYzc3dTVyZnYxbT=
+dycHVqY2ljcGltZmlwMWcgdGhvbWFzLmNhdGFsZG9AYmx1ZS1taW5kLm5ldA&amp;rst=3D2&am=
+p;tok=3DMTgjdGNhdGFsZG9AZ21haWwuY29tNDNjZGExZDMxNjdlZGE1YTk1ODllMGYyZGRlOTJ=
+mZGJkMWUyNGFmOA&amp;ctz=3DEurope/Paris&amp;hl=3Den" style=3D"color:#20c;whi=
+te-space:nowrap">No</a></strong>&nbsp;&nbsp;&nbsp;&nbsp;<wbr><a href=3D"htt=
+ps://www.google.com/calendar/event?action=3DVIEW&amp;eid=3DYzc3dTVyZnYxbTdy=
+cHVqY2ljcGltZmlwMWcgdGhvbWFzLmNhdGFsZG9AYmx1ZS1taW5kLm5ldA&amp;tok=3DMTgjdG=
+NhdGFsZG9AZ21haWwuY29tNDNjZGExZDMxNjdlZGE1YTk1ODllMGYyZGRlOTJmZGJkMWUyNGFmO=
+A&amp;ctz=3DEurope/Paris&amp;hl=3Den" style=3D"color:#20c;white-space:nowra=
+p">more options &raquo;</a></p></td></tr><tr><td style=3D"background-color:=
+#f6f6f6;color:#888;border-top:1px Solid #ccc;font-family:Arial,Sans-serif;f=
+ont-size:11px"><p>Invitation from <a href=3D"https://www.google.com/calenda=
+r/" target=3D"_blank" style=3D"">Google Calendar</a></p><p>You are receivin=
+g this courtesy email at the account thomas.cataldo@blue-mind.net because y=
+ou are an attendee of this event.</p><p>To stop receiving future notificati=
+ons for this event, decline this event. Alternatively you can sign up for a=
+ Google account at https://www.google.com/calendar/ and control your notifi=
+cation settings for your entire calendar.</p></td></tr></table></div>
+--0016e6dbe8abf2279a04c12ada56
+Content-Type: text/calendar; charset=UTF-8; method=REQUEST
+Content-Transfer-Encoding: 7bit
+
+BEGIN:VCALENDAR
+PRODID:-//Google Inc//Google Calendar 70.9054//EN
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:REQUEST
+BEGIN:VEVENT
+DTSTART:20120530T090000Z
+DTEND:20120530T120000Z
+DTSTAMP:20120529T110832Z
+ORGANIZER;CN=Thomas Cataldo:mailto:tcataldo@gmail.com
+UID:c77u5rfv1m7rpujcicpimfip1g@google.com
+ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=OPT-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=
+ TRUE;CN=thomas.cataldo@blue-mind.net;X-NUM-GUESTS=0:mailto:thomas.cataldo@b
+ lue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=TRUE
+ ;CN=Thomas Cataldo;X-NUM-GUESTS=0:mailto:tcataldo@gmail.com
+ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=
+ TRUE;CN=tom@bluejob.fr;X-NUM-GUESTS=0:mailto:tom@bluejob.fr
+CREATED:20120529T110832Z
+DESCRIPTION:View your event at http://www.google.com/calendar/event?action=
+ VIEW&eid=Yzc3dTVyZnYxbTdycHVqY2ljcGltZmlwMWcgdGhvbWFzLmNhdGFsZG9AYmx1ZS1taW
+ 5kLm5ldA&tok=MTgjdGNhdGFsZG9AZ21haWwuY29tNDNjZGExZDMxNjdlZGE1YTk1ODllMGYyZG
+ RlOTJmZGJkMWUyNGFmOA&ctz=Europe/Paris&hl=en.
+LAST-MODIFIED:20120529T110832Z
+LOCATION:
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:Demain avec tom@bm
+TRANSP:OPAQUE
+END:VEVENT
+END:VCALENDAR
+
+--0016e6dbe8abf2279a04c12ada56--
+--0016e6dbe8abf227a204c12ada58
+Content-Type: application/ics; name="invite.ics"
+Content-Disposition: attachment; filename="invite.ics"
+Content-Transfer-Encoding: base64
+
+QkVHSU46VkNBTEVOREFSDQpQUk9ESUQ6LS8vR29vZ2xlIEluYy8vR29vZ2xlIENhbGVuZGFyIDcw
+LjkwNTQvL0VODQpWRVJTSU9OOjIuMA0KQ0FMU0NBTEU6R1JFR09SSUFODQpNRVRIT0Q6UkVRVUVT
+VA0KQkVHSU46VkVWRU5UDQpEVFNUQVJUOjIwMTIwNTMwVDA5MDAwMFoNCkRURU5EOjIwMTIwNTMw
+VDEyMDAwMFoNCkRUU1RBTVA6MjAxMjA1MjlUMTEwODMyWg0KT1JHQU5JWkVSO0NOPVRob21hcyBD
+YXRhbGRvOm1haWx0bzp0Y2F0YWxkb0BnbWFpbC5jb20NClVJRDpjNzd1NXJmdjFtN3JwdWpjaWNw
+aW1maXAxZ0Bnb29nbGUuY29tDQpBVFRFTkRFRTtDVVRZUEU9SU5ESVZJRFVBTDtST0xFPU9QVC1Q
+QVJUSUNJUEFOVDtQQVJUU1RBVD1ORUVEUy1BQ1RJT047UlNWUD0NCiBUUlVFO0NOPXRob21hcy5j
+YXRhbGRvQGJsdWUtbWluZC5uZXQ7WC1OVU0tR1VFU1RTPTA6bWFpbHRvOnRob21hcy5jYXRhbGRv
+QGINCiBsdWUtbWluZC5uZXQNCkFUVEVOREVFO0NVVFlQRT1JTkRJVklEVUFMO1JPTEU9UkVRLVBB
+UlRJQ0lQQU5UO1BBUlRTVEFUPUFDQ0VQVEVEO1JTVlA9VFJVRQ0KIDtDTj1UaG9tYXMgQ2F0YWxk
+bztYLU5VTS1HVUVTVFM9MDptYWlsdG86dGNhdGFsZG9AZ21haWwuY29tDQpBVFRFTkRFRTtDVVRZ
+UEU9SU5ESVZJRFVBTDtST0xFPVJFUS1QQVJUSUNJUEFOVDtQQVJUU1RBVD1ORUVEUy1BQ1RJT047
+UlNWUD0NCiBUUlVFO0NOPXRvbUBibHVlam9iLmZyO1gtTlVNLUdVRVNUUz0wOm1haWx0bzp0b21A
+Ymx1ZWpvYi5mcg0KQ1JFQVRFRDoyMDEyMDUyOVQxMTA4MzJaDQpERVNDUklQVElPTjpWaWV3IHlv
+dXIgZXZlbnQgYXQgaHR0cDovL3d3dy5nb29nbGUuY29tL2NhbGVuZGFyL2V2ZW50P2FjdGlvbj0N
+CiBWSUVXJmVpZD1ZemMzZFRWeVpuWXhiVGR5Y0hWcVkybGpjR2x0Wm1sd01XY2dkR2h2YldGekxt
+TmhkR0ZzWkc5QVlteDFaUzF0YVcNCiA1a0xtNWxkQSZ0b2s9TVRnamRHTmhkR0ZzWkc5QVoyMWhh
+V3d1WTI5dE5ETmpaR0V4WkRNeE5qZGxaR0UxWVRrMU9EbGxNR1l5WkcNCiBSbE9USm1aR0prTVdV
+eU5HRm1PQSZjdHo9RXVyb3BlL1BhcmlzJmhsPWVuLg0KTEFTVC1NT0RJRklFRDoyMDEyMDUyOVQx
+MTA4MzJaDQpMT0NBVElPTjoNClNFUVVFTkNFOjANClNUQVRVUzpDT05GSVJNRUQNClNVTU1BUlk6
+RGVtYWluIGF2ZWMgdG9tQGJtDQpUUkFOU1A6T1BBUVVFDQpFTkQ6VkVWRU5UDQpFTkQ6VkNBTEVO
+REFSDQo=
+--0016e6dbe8abf227a204c12ada58--

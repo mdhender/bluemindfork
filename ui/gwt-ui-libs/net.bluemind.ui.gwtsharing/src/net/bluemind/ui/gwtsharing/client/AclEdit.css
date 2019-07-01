@@ -1,0 +1,52 @@
+table.aclContainer {
+	width: 100%;
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+table.aclContainer tr {
+	border-bottom: 1px solid #CCC;
+}
+
+table.aclContainer tr:hover {
+	background-color: #eee;
+}
+
+table.aclContainer td.name {
+	width: 375px;
+}
+
+table.aclContainer td.name div {
+	width: 375px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.trash {
+	padding-right: 15px;
+}
+
+.info {
+	background: #F6F6F5;
+	padding: 10px;
+	margin: 15px;
+	border: 1px solid #CCC;
+	display: block;
+}
+
+
+.warningIcon {
+	cursor: pointer;
+	color: orange;
+}
+
+.warningDialogContent {
+	padding: 8px;
+	margin: 8px;
+	border: 1px solid #fbc7c6;
+	background: #fddfde;
+}
+
+.warning {
+	width: 40px;
+}

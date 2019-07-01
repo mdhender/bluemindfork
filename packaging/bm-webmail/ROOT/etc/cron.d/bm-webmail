@@ -1,0 +1,1 @@
+0 2 * * * root [ -d /usr/share/bm-webmail/temp/ ] && find /usr/share/bm-webmail/temp -type f -ctime +2 -exec rm -f {} \;

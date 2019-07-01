@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <bundle id="net.bluemind.ui.webmail.application" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.webmodules.webmail" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.mailbox.api.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.webmail.banner.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.ui.banner" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.commons.ui.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.announcement.api" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.announcement.api.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.restclient.api.closure" version="4.1.0.qualifier"/>
+</site>

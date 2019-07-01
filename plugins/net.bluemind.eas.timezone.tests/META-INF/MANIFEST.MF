@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.eas.timezone.tests
+Bundle-SymbolicName: net.bluemind.eas.timezone.tests
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.eas.timezone.tests.Activator
+Bundle-Vendor: blue-mind.net
+Require-Bundle: org.eclipse.core.runtime,
+ org.junit,
+ net.bluemind.eas.timezone,
+ net.bluemind.lib.vertx
+Bundle-ActivationPolicy: lazy

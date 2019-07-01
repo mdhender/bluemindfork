@@ -1,0 +1,15 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+	xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:bm="urn:import:net.bluemind.ui.im.client">
+
+	<g:FlowPanel>
+		<g:SimplePanel>
+			<bm:Photo ui:field="photo"></bm:Photo>
+		</g:SimplePanel>
+		<g:Label ui:field="label"></g:Label>
+		<g:SimplePanel>
+			<g:Label ui:field="remove" />
+		</g:SimplePanel>
+	</g:FlowPanel>
+
+</ui:UiBinder>

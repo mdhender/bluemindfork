@@ -1,0 +1,59 @@
+Return-Path: <david@bm.lan>
+Received: from bionic.bm.lan (localhost.localdomain [127.0.0.1])
+	 by bionic with LMTPA;
+	 Wed, 10 Apr 2019 10:00:52 +0000
+X-Cyrus-Session-Id: cyrus-35778-1554890452-2-15751953108581710977
+X-Sieve: CMU Sieve 3.0
+Received: from /192.168.30.129 (LHLO bionic.bm.lan) by unknown with LMTP;
+ 4/10/19 10:00 AM
+Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
+	by bionic.bm.lan (Postfix) with ESMTP id A415480399
+	for <david@bm.lan>; Wed, 10 Apr 2019 10:00:52 +0000 (UTC)
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="=_d666dfca7f2c78348fb2e03ddd1e785b"
+Date: Wed, 10 Apr 2019 12:00:52 +0200
+From: David Phan <david@bm.lan>
+To: David Phan <david@bm.lan>
+Subject: avec une pj
+Message-ID: <fbce0302a6a58f6b680609c956c528fb@bm.lan>
+X-Sender: david@bm.lan
+User-Agent: Roundcube Webmail/0.8.5
+X-Bm-Milter-Handled: 0741655b-ec8a-4111-8f82-cf2e575593ee
+X-Bm-Transport-Timestamp: 1554890452678
+
+--=_d666dfca7f2c78348fb2e03ddd1e785b
+Content-Type: multipart/alternative;
+ boundary="=_54e5258bf1dac08ad46d0669715f9e7c"
+
+--=_54e5258bf1dac08ad46d0669715f9e7c
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+
+my body is a wonderland 
+
+  
+--=_54e5258bf1dac08ad46d0669715f9e7c
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/html; charset=UTF-8
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN">
+<html><body>
+<p><span style=3D"font-family: Arial;">my body is a wonderland</span></p>
+<p>&nbsp;</p>
+<div>&nbsp;</div>
+</body></html>
+
+--=_54e5258bf1dac08ad46d0669715f9e7c--
+
+--=_d666dfca7f2c78348fb2e03ddd1e785b
+Content-Transfer-Encoding: base64
+Content-Type: text/plain;
+ name=pj.txt
+Content-Disposition: attachment;
+ filename=pj.txt;
+ size=15
+
+bmVpbiBuZWluIG5laW4K
+--=_d666dfca7f2c78348fb2e03ddd1e785b--
+

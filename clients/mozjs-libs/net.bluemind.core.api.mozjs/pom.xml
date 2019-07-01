@@ -1,0 +1,65 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>net.bluemind.core.api.mozjs</artifactId>
+	<packaging>eclipse-plugin</packaging>
+
+	<parent>
+		<groupId>net.bluemind</groupId>
+		<artifactId>bm-mozjs-client</artifactId>
+		<version>4.1.0-SNAPSHOT</version>
+	</parent>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>net.bluemind</groupId>
+				<artifactId>net.bluemind.codegen.moz.js</artifactId>
+				<configuration>
+					<apiName>net.bluemind.core.api</apiName>
+					<apiNames>
+						<apiName>net.bluemind.core.commons</apiName>
+						<apiName>net.bluemind.addressbook.api</apiName>
+						<apiName>net.bluemind.authentication.api</apiName>
+						<apiName>net.bluemind.calendar.api</apiName>
+						<apiName>net.bluemind.core.container.api</apiName>
+						<apiName>net.bluemind.core.task.api</apiName>
+						<apiName>net.bluemind.cti.api</apiName>
+						<apiName>net.bluemind.customproperties.api</apiName>
+						<apiName>net.bluemind.dataprotect.api</apiName>
+						<apiName>net.bluemind.device.api</apiName>
+						<apiName>net.bluemind.directory.api</apiName>
+						<apiName>net.bluemind.document.api</apiName>
+						<apiName>net.bluemind.documentfolder.api</apiName>
+						<apiName>net.bluemind.domain.api</apiName>
+						<apiName>net.bluemind.eas.api</apiName>
+						<apiName>net.bluemind.filehosting.api</apiName>
+						<apiName>net.bluemind.group.api</apiName>
+						<apiName>net.bluemind.hsm.api</apiName>
+						<apiName>net.bluemind.icalendar.api</apiName>
+						<apiName>net.bluemind.im.api</apiName>
+						<apiName>net.bluemind.mailbox.api</apiName>
+						<apiName>net.bluemind.mailbox.identity.api</apiName>
+						<apiName>net.bluemind.mailshare.api</apiName>
+						<apiName>net.bluemind.resource.api</apiName>
+						<apiName>net.bluemind.role.api</apiName>
+						<apiName>net.bluemind.scheduledjob.api</apiName>
+						<apiName>net.bluemind.server.api</apiName>
+						<apiName>net.bluemind.system.api</apiName>
+						<apiName>net.bluemind.tag.api</apiName>
+						<apiName>net.bluemind.todolist.api</apiName>
+						<apiName>net.bluemind.user.api</apiName>
+						<apiName>net.bluemind.mailmessage.api</apiName>
+					</apiNames>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>mozjs-gen</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

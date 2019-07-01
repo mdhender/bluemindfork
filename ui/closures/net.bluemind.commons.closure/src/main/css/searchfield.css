@@ -1,0 +1,69 @@
+
+.multientryfield {
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  width: 424px;
+  line-height: 18px;
+}
+
+.multientryfield-field {
+  background-color: #fff;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+  border: 0;
+  margin: 1px 0;
+  resize: none;
+  width: 100%;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  outline: none;
+  vertical-align: middle;
+}
+
+.multientryfield .cartouchebox {
+  position: absolute;
+  height: 0px;
+}
+.cartoucheboxitem.searchitem {
+  padding-left: 0;
+}
+
+.cartoucheboxitem.searchitem .goog-flat-menu-button {
+  padding: 0 0 0 4px;
+  border: none;
+  border-right: 1px solid #999;
+  background-color: #eee;
+  vertical-align: baseline;
+  margin: 0 4px 0 0;
+}
+
+.cartoucheboxitem.searchitem .goog-flat-menu-button-caption {
+  padding-right: 6px;
+  vertical-align: initial;
+}
+
+.cartoucheboxitem.searchitem .goog-flat-menu-button-hover:hover, .cartoucheboxitem.searchitem .goog-flat-menu-button-hover:active, .cartoucheboxitem.searchitem .goog-flat-menu-button-hover:focus {
+  border-color: #999 !important;
+}
+
+.cartoucheboxitem.searchitem.cartoucheboxitem-selected .goog-flat-menu-button {
+  background-color: transparent;
+}
+
+
+.cartoucheboxitem.searchitem.cartoucheboxitem-empty .goog-flat-menu-button {
+  margin: 0;
+  border: none;
+}
+
+.multientryfield .ac-renderer {
+  width: 100%;
+  margin-top: 3px;
+}
+
+.bm-searchfield {
+  width: 625px;
+}

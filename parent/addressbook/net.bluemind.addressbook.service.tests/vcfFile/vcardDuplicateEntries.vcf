@@ -1,0 +1,13 @@
+BEGIN:VCARD
+VERSION:3.0
+FN:David Phan
+N:Phan;David;;;
+EMAIL;TYPE=INTERNET:david.phan@dom.lan
+END:VCARD
+BEGIN:VCARD
+VERSION:3.0
+FN:David Phan
+N:Phan;David;;;
+EMAIL;TYPE=INTERNET:david.phan@dom.lan
+EMAIL;TYPE=INTERNET:david.phan.work@dom.lan
+END:VCARD

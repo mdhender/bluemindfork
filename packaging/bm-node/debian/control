@@ -1,0 +1,19 @@
+Source: bluemind
+Section: net
+Priority: optional
+Maintainer: Blue Mind Team <team@blue-mind.net>
+Standards-Version: 3.9.1
+
+Package: bm-node
+Architecture: amd64
+Depends: bm-jdk (= 8u212-bluemind29), tar, gzip, bzip2, rsync, bm-conf (= ${binary:Version}), bm-pimp (= ${binary:Version}), iptables, sudo, apt-transport-https, bm-maintenance-tools (= ${binary:Version}), bm-cli (= ${binary:Version})
+Description: BlueMind Node Daemon
+ BlueMind Node handles all the remote tasks for BlueMind Core
+
+Package: bm-mq
+Depends: bm-node, ${misc:Depends}
+Architecture: all
+Priority: extra
+Section: oldlibs
+Description: transitional package
+ This is a transitional package. It can safely be removed.

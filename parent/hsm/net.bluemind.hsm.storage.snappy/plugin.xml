@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.hsm.storage">
+      <hsm_store
+            implementation="net.bluemind.hsm.storage.impl.SnappyStore">
+      </hsm_store>
+   </extension>
+   <extension
+         point="net.bluemind.dataprotect.service.backupworker">
+      <backup_worker
+            impl="net.bluemind.hsm.storage.snappy.SnappyWorker">
+      </backup_worker>
+   </extension>
+
+</plugin>

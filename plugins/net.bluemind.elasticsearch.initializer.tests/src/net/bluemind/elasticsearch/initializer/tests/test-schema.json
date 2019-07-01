@@ -1,0 +1,10 @@
+{
+	"properties": {
+               "test1": {
+                  "type": "string"
+                  },
+               "test2": {
+                  "type": "string"
+               }
+        }
+}

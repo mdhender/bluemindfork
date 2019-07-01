@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.tracing
+Bundle-SymbolicName: net.bluemind.tracing;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.tracing.impl.TracerActivator
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ slf4j.api;bundle-version="1.7.25",
+ io.opentracing.api;bundle-version="0.31.0";visibility:=reexport,
+ io.opentracing.util;bundle-version="0.31.0";visibility:=reexport,
+ net.bluemind.opentracing.jaeger;bundle-version="0.31.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.tracing
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.tracing

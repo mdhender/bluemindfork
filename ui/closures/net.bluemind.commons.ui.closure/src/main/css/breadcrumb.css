@@ -1,0 +1,20 @@
+.breadcrumb {
+	line-height: 2.5em;
+    padding-left: 1em;
+}
+
+
+.breadcrumb-separator {	
+  padding: 0 11px;
+  font-size: 0.7em;
+  vertical-align: middle;
+  color: #333;
+}
+
+.breadcrumb-item {
+	font-weight: bold;
+}
+
+.breadcrumb-item.goog-link-button-disabled {
+	color: #333;
+}

@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<multistatus xmlns='DAV:'>
+  <response>
+    <href>/addressbooks/__uids__/EB397106-443A-47BE-9CA5-558037E137BF/addressbook/6e91d27d0611f3da44603e25b6bca695.vcf</href>
+    <propstat>
+      <prop>
+        <getetag>"f3f717a5ea40a5a75c10ba965670fe0c"</getetag>
+        <address-data xmlns='urn:ietf:params:xml:ns:carddav'><![CDATA[BEGIN:VCARD
+VERSION:3.0
+PRODID:-//Apple Inc.//AddressBook 8.0//EN
+UID:97ba270c-f052-497a-91f2-f256ad924122
+FN:Fournisseurs
+N:Fournisseurs;;;;
+REV:20140117T085242Z
+X-ADDRESSBOOKSERVER-KIND:group
+END:VCARD
+]]></address-data>
+      </prop>
+      <status>HTTP/1.1 200 OK</status>
+    </propstat>
+  </response>
+</multistatus>

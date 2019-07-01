@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<forwards>
+	<forward path="/contact" target="locator://bm/contact:8080/contact" role="hasMail">
+		<auth kind="CORE2" />
+		<whitelist>
+			<wl uri="/favicon.ico" />
+		</whitelist>
+	</forward>
+</forwards>

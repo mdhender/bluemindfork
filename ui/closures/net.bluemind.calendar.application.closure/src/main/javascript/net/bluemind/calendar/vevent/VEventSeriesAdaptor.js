@@ -1,0 +1,359 @@
+goog.provide("net.bluemind.calendar.vevent.VEventSeriesAdaptor");
+
+/**
+ * Adaptor for VEventSeries BM-Core JSON to and from view model
+ * 
+ * @param {net.bluemind.mvp.ApplicationContext} ctx
+ * @constructor
+ *
+ */
+/**
+ * @author mehdi
+ *
+ */
+net.bluemind.calendar.vevent.VEventSeriesAdaptor = function(ctx) {
+  this.ctx_ = ctx;
+  this.veventAdaptor_ = new net.bluemind.calendar.vevent.VEventAdaptor(ctx);
+
+};
+
+/**
+ * @type {net.bluemind.mvp.ApplicationContext}
+ * @private
+ */
+net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.ctx_;
+
+/**
+ * @type {net.bluemind.calendar.vevent.VEventAdaptor}
+ * @private
+ */
+net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.veventAdaptor_;
+
+/**
+ * Adapt a VEventSeries from BM-Core JSON to a object usable by views
+ * 
+ * @param {Object} vseries VEventSeries json
+ * @param {Object} calendar Calendar model view
+ * @return {Object} Adapted VEventSeries for usage in the view.
+ */
+net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.toModelView = function(vseries, calendar) {
+  var value = vseries['value'];
+
+  var model = {};
+  model.old = value;
+  model.type = 'vevent';
+
+  model.uid = vseries['uid'];
+  model.calendar = vseries['container'];
+  model.states = {};
+  model = this.setStates_(model, calendar);
+
+  model.main = this.veventToModelView(vseries['value']['main'], calendar, model);
+  model.occurrences = goog.array.map(vseries['value']['occurrences'], function(occurrence) {
+    return this.veventToModelView(occurrence, calendar, model);
+  }, this);
+  model.flat = goog.array.clone(model.occurrences);
+  if (goog.isDefAndNotNull(model.main)) {
+    model.flat.unshift(model.main);
+  }
+
+  return model;
+};
+
+/**
+ * 
+ * @param vevent
+ * @param calendar
+ * @param vseries
+ * @returns
+ */
+net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.veventToModelView = function(vevent, calendar, vseries) {
+  if (vevent != null) {
+    var model = this.veventAdaptor_.toModelView(vevent, calendar);
+    model.uid = vseries.uid;
+    model.calendar = vseries.calendar;
+    model.type = vseries.type;
+    return model;
+  } else {
+    return null;
+  }
+}
+
+/**
+ * 
+ * @param recurrence
+ * @param vseries
+ * @returns
+ */
+net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.getOccurrence = function(recurrence, vseries) {
+  if (recurrence != null && goog.isString(recurrence)) {
+    return goog.array.find(vseries.occurrences, function(occurrence) {
+      return this.ctx_.helper('date').fromIsoString(recurrence).getTime() == occurrence.recurrenceId.getTime();
+    }, this);
+  } else if (recurrence != null && goog.isDateLike(recurrence)) {
+    return goog.array.find(vseries.occurrences, function(occurrence) {
+      return occurrence.recurrenceId.getTime() == recurrence.getTime();
+    }, this);
+  }
+  return vseries.main;
+};
+
+/**
+ * 
+ * @param recurrence
+ * @param vseries
+ * @returns
+ */
+net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.getRawOccurrence = function(recurrence, vseries) {
+  if (recurrence != null && goog.isDateLike(recurrence)) {
+    return goog.array.find(vseries['value']['occurrences'], function(occurrence) {
+      return this.ctx_.helper('date').create(occurrence['recurid']).getTime() == recurrence.getTime();
+    }, this);
+  } else if (recurrence != null && goog.isString(recurrence)) {
+    return goog.array.find(vseries['value']['occurrences'], function(occurrence) {
+      return occurrence['recurid']['iso8601'] == recurrence;
+    }, this);
+  }
+  return vseries['value']['main'];
+};
+
+/**
+ * 
+ * @param recurrence
+ * @param vseries
+ * @returns
+ */
+net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.addExdate = function(exdate, vseries) {
+  vseries['value']['main']['exdate'] = vseries['value']['main']['exdate'] || [];
+  vseries['value']['main']['exdate'].push(exdate);
+  this.deleteRawOccurrences(exdate, vseries);
+};
+
+/**
+ * 
+ * @param recurrence
+ * @param vseries
+ * @returns
+ */
+net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.deleteRawOccurrences = function(exdates, vseries) {
+  exdates = goog.isArray(exdates) ? exdates : [ exdates ];
+  vseries['value']['occurrences'] = goog.array.filter(vseries['value']['occurrences'], function(occurrence) {
+    return !goog.array.some(exdates, function(exdate) {
+      return exdate['iso8601'] == occurrence['recurid']['iso8601'];
+    })
+  })
+};
+
+/**
+ * Test if the modification needs to send a notification or not
+ * 
+ * @param {Object=} remote Stored version of the vseries
+ * @param {Object} modified Modified version of the vevent
+ * @return {boolean} Is notification needed
+ */
+net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.isPublicChanges = function(remote, modified) {
+  var vevent = null;
+  if (remote) {
+    vevent = this.getRawOccurrence(modified.recurrenceId, remote) || remote['value']['main'];
+  }
+  return this.veventAdaptor_.isPublicChanges(remote, vevent, modified);
+};
+
+/**
+ * Set or update states depending on model data.
+ * 
+ * @private
+ * @param {Object} model
+ * @param {Object} calendar Calendar model view
+ * @return {Object} updated model
+ */
+net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.setStates_ = function(model, calendar) {
+  model.states.defaultCalendar = calendar.states.defaultCalendar;
+  return model;
+};
+
+
+/**
+ *
+ */
+net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.adaptUntil = function(dtstart, until) {
+  return this.veventAdaptor_.adaptUntil(dtstart, until)
+};
+
+/**
+ * Set or update states depending on model data.
+ * 
+ * @private
+ * @param {Object} model
+ * @param {Object} calendar Calendar model view
+ * @return {Object} updated model
+ */
+net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.updateVEventStates = function(vevent, calendar) {
+  this.veventAdaptor_.updateStates(vevent, calendar);
+};
+
+/**
+ * Set or update states depending on model data.
+ * 
+ * @private
+ * @param {Object} model Vevent model view
+ * @param {Object} opt_vseries VSeries model
+ * @return {Object} updated vseries
+ */
+net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.fromVEventModelView = function(model, opt_vseries) {
+  var vseries = opt_vseries || this.newVSeries(model.calendar, model.summary, model.uid);
+  var vevent = this.getRawOccurrence(model.recurrenceId, vseries);
+  var updated = this.veventAdaptor_.fromModelView(model);
+  if (model.states.main) {
+    this.propagateChanges_(vseries, updated);
+    vseries['value']['main'] = updated;
+  } else {
+    updated['rrule'] = null;
+    updated['exdate'] = null;
+    updated['rdate'] = null;
+    this.deleteRawOccurrences(updated['recurid'], vseries);
+    vseries['value']['occurrences'].push(updated);
+  }
+  return vseries;
+};
+
+
+/**
+ * Set or update states depending on model data.
+ * 
+ * @private
+ * @param {Object} model Vevent model view
+ * @param {Object} vseries VSeries model
+ * @return {Object} updated vseries
+ */
+net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.newVSeries = function(container, name, opt_uid) {
+  return {
+    'container' : container,
+    'uid' : opt_uid || net.bluemind.mvp.UID.generate(),
+    'name' : name,
+    'value' : {
+      'icsUid' : net.bluemind.mvp.UID.generate(),
+      'main' : null,
+      'occurrences' : []
+    }
+  }
+};
+
+/**
+ * adjust recurring event exceptions
+ * 
+ * @param {Object=} old event model
+ * @param {Object} new event model
+ * @return {boolean} recurring event exception
+ */
+net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.propagateChanges_ = function(vseries, vevent) {
+  var old = vseries['value']['main']
+  if (!old) {
+    return;
+  }
+  if (this.recurrenceHasChanged(vevent, old)) {
+    vevent['exdate'] = [];
+    vseries['value']['occurrences'] = [];
+  } else {
+    //FIXME : Recurrence : If until has change, only occurrence after until should be deleted.
+    this.deleteRawOccurrences(vevent['exdate'], vseries);
+  }
+  goog.array.forEach(vseries['value']['occurrences'], function(occurrence) {
+    this.propagateInException_(vevent, old, occurrence)
+  }, this)
+};
+
+net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.propagateInException_ = function(vevent, old, exception) {
+
+  exception['location'] = this.adjustEventValues_(old['location'], vevent['location'], exception['location']);
+  exception['summary'] = this.adjustEventValues_(old['summary'], vevent['summary'], exception['summary']);
+  exception['classification'] = this.adjustEventValues_(old['classification'], vevent['classification'],
+      exception['classification']);
+  exception['organizer'] = this.adjustEventValues_(old['organizer'], vevent['organizer'], exception['organizer']);
+  exception['description'] = this.adjustEventValues_(old['description'], vevent['description'],
+      exception['description']);
+  exception['categories'] = this.adjustArrayValues_(old['categories'], vevent['categories'], exception['categories']);
+  exception['attendees'] = this.adjustArrayValues_(old['attendees'], vevent['attendees'], exception['attendees'],
+      function(a, b) {
+        return (!!a['mailto'] && a['mailto'] == b['mailto']) || !!a['dir'] && a['dir'] == b['dir'] || !!a['uri']
+            && a['uri'] == b['uri'];
+      });
+
+  return exception;
+}
+
+/**
+ * @private
+ */
+net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.adjustEventValues_ = function(oldValue, newValue,
+    exceptionValue) {
+
+  if (oldValue === newValue) {
+    // value not modified
+    return exceptionValue;
+  }
+
+  if (oldValue !== exceptionValue) {
+    // value has already been modified in exception, don't overwrite
+    return exceptionValue;
+  }
+
+  // updating value
+  return newValue;
+
+}
+
+/**
+ * @private
+ * @param {Array.<*>} oldValue Old array value
+ * @param {Array.<*>} newValue New array value
+ * @param {Array.<*>} exceptionValue Exception array value
+ * @return {Array.<*>} Modified exception array value
+ */
+net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.adjustArrayValues_ = function(oldValue, newValue,
+    exceptionValue, opt_compare) {
+  var compare = opt_compare || goog.array.defaultCompareEquality;
+  oldValue = oldValue || [];
+  newValue = newValue || [];
+  exceptionValue = exceptionValue || [];
+
+  goog.array.forEach(newValue, function(obj) {
+    var equalObj = goog.partial(compare, obj)
+    if (goog.array.findIndex(oldValue, equalObj) < 0 && goog.array.findIndex(exceptionValue, equalObj) < 0) {
+      exceptionValue.push(obj);
+    }
+  });
+  goog.array.filter(oldValue, function(obj) {
+    var equalObj = goog.partial(compare, obj)
+    if (goog.array.findIndex(newValue, equalObj) < 0) {
+      goog.array.removeIf(exceptionValue, equalObj);
+    }
+  });
+  return exceptionValue;
+}
+
+/**
+ * @param {Object<string, string>} vevent New vevent version
+ * @param {Object<string, string>} old Old vevent version
+ */
+net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.recurrenceHasChanged = function(vevent, old) {
+  var equalFn = function(a, b) {
+    if (!goog.isDefAndNotNull(a) && !goog.isDefAndNotNull(b)) {
+      return true;
+    }
+    if (!goog.isObject(a) || !goog.isObject(b)) {
+      return a === b;
+    }
+    var equal = goog.object.every(a, function(v, k) {
+      return (k in b || v === null) && equalFn(v, b[k]);
+    }) ;
+    equal = equal && goog.object.every(b, function(v, k) {
+      return k in a || !goog.isDefAndNotNull(v) || goog.array.isEmpty(v);
+    });
+    return equal;
+  };
+  var reset = !equalFn(vevent['dtstart'], old['dtstart']);
+  reset = reset | !equalFn(vevent['dtend'], old['dtend']);
+  reset = reset | !equalFn(vevent['rrule'], old['rrule']);
+  return reset;
+}

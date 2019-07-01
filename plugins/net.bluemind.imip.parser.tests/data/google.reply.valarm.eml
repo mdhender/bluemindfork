@@ -1,0 +1,191 @@
+Return-Path: <3fE43UAYKDn0nbsjfhjtzofu.pshtzmwbjo.hbsdjbcmvf-njoe.ofu@calendar-server.bounces.google.com>
+Received: from calendar-server.bounces.google.com (bm-prod.blue-mind.loc [192.168.231.2])
+	 by bm-prod (Cyrus v2.4.16-Debian-2.4.16-1hudson93) with LMTPA;
+	 Fri, 24 Aug 2012 11:51:03 +0200
+X-Sieve: CMU Sieve 2.4
+Received: from 192.168.231.1 (LHLO mail-relay.blue-mind.loc) (192.168.231.1)
+ by unknown with LMTP; 8/24/12 9:51 AM
+Received: from h17.altospam.com (h17.altospam.com [93.93.45.222])
+	by mail-relay.blue-mind.loc (Postfix) with ESMTP id 6257C80AD
+	for <sylvain.garcia@blue-mind.net>; Fri, 24 Aug 2012 12:39:27 +0200 (CEST)
+Received: from mail-lb0-f202.google.com ([209.85.217.202])
+	by h17.altospam.com with esmtp (Altospam)
+	id 1T4qXV-0000vB-0Q 
+	for sylvain.garcia@blue-mind.net; Fri, 24 Aug 2012 11:51:01 +0200
+Received: by lbbge1 with SMTP id ge1so85161lbb.5
+        for <sylvain.garcia@blue-mind.net>; Fri, 24 Aug 2012 02:50:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20120113;
+        h=mime-version:reply-to:sender:auto-submitted:message-id:date:subject
+         :from:to:content-type;
+        bh=9DzKR0B1XE/TDe8UZkSmHeHXo0ie1yaWuvmgvGPJywc=;
+        b=ehvnFWB3udE/0BSSK4KvO+M0akVDflnfsTCQuINczh2jtVPgN5xgVD/eOY2sDKBxiC
+         ac5IzDtC1iWRIJl+61DJhP5L0d6gsSGV9NZqsKx18cdvm2XX0AyTDmjuM9CoqnhVJAtB
+         apn2h1lsrjKk71PO698fUfzARV1X42gBY904xCpRT/hTxZvTXrG1/1Bs/PkCFOGgnwKo
+         hjyTfkOmQP40wTYJ44ifnBWN1iXsXYJrnlvukgKuAa3wQIkxzhvtJMxfsPChsMiKbFoW
+         tD8GWMARBbuhH62vIBlJ6lJ8WumqkG0493J2pEKFU9Dll7A4JuKw2Cr2yaXsa+6bZBWs
+         vmpQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20120113;
+        h=mime-version:reply-to:sender:auto-submitted:message-id:date:subject
+         :from:to:content-type:x-gm-message-state;
+        bh=9DzKR0B1XE/TDe8UZkSmHeHXo0ie1yaWuvmgvGPJywc=;
+        b=kLCBR6GdGJhIy1V9HfGgMx1OblBM7qdevO/r21ddaVmYCGFfrb8EhEJ95loP3yCrjj
+         V97hZHBSpKTmtOKk9HSbggqCfY0KpjJtsdDBZ/iJqWjVoFCzBw6d9yLzic6DLA0Vx0IR
+         lLbrKWvEZxrQROI/zFDmf+Y9I+7pX/YkCKmB8ZM/4XQnGHWCTx937KzlSgo9MmqWIHzj
+         HORy7H1Ik1sBEpS1kZNYcX6eA52zXD5NgVFdfc3wGkWt1Z5h5SSnFavGWDUU2tThOs/P
+         MG1Ftfz9R1m+l56lJZegR7Pp+LhJNmK5vcWYILmv12QVoPgu0iZ13TH1lsTVBijGi965
+         WJIg==
+MIME-Version: 1.0
+Received: by 10.14.194.132 with SMTP id m4mr3862164een.0.1345801852075; Fri,
+ 24 Aug 2012 02:50:52 -0700 (PDT)
+Reply-To: marie garcia <marieg@isynet.org>
+Sender: Google Agenda <calendar-notification@google.com>
+Auto-Submitted: auto-generated
+Message-ID: <047d7b34356454be6104c7ffe911@google.com>
+Date: Fri, 24 Aug 2012 09:50:52 +0000
+From: marie garcia <marieg@isynet.org>
+To: Sylvain Garcia <sylvain.garcia@blue-mind.net>
+X-Gm-Message-State: ALoCoQkdnCRD7VAlLCaFA5vip5GAKC2BoOahcmdq/mEsn14nnTSXa/qcoZtuYb2xJhj4qrrC7eJl
+Subject: =?ISO-8859-1?Q?Accept=E9=3A_d=E9placement_chgers_=2D_lun=2E_27_ao=FBt_2012_=28?=
+	=?ISO-8859-1?Q?Sylvain_Garcia=29?=
+Content-Type: multipart/mixed; boundary=047d7b34356454be5504c7ffe910
+X-ALTOSPAM: h17.altospam.com
+
+--047d7b34356454be5504c7ffe910
+Content-Type: multipart/alternative; boundary=047d7b34356454be4e04c7ffe90e
+
+--047d7b34356454be4e04c7ffe90e
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed; delsp=yes
+Content-Transfer-Encoding: base64
+
+bWFyaWUgZ2FyY2lhIGEgYWNjZXB06SBsJ2ludml0YXRpb24uDQoNClRpdHJlIDogZOlwbGFjZW1l
+bnQgY2hnZXJzDQpEYXRloDogbHVuLiAyNyBhb/t0IDIwMTINCkFnZW5kYaA6IFN5bHZhaW4gR2Fy
+Y2lhDQpQYXJ0aWNpcGFudHOgOg0KICAgICAqIFN5bHZhaW4gR2FyY2lhLSBvcmdhbmlzYXRldXIN
+CiAgICAgKiBtYXJpZSBnYXJjaWEtIGNy6WF0ZXVyDQoNCg0KSW52aXRhdGlvbiBkZSBHb29nbGWg
+QWdlbmRhoDogaHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9jYWxlbmRhci8NCg0KVm91cyByZWNldmV6
+IGNlIG1lc3NhZ2Ug4CBsJ2FkcmVzc2Ugc3lsdmFpbi5nYXJjaWFAYmx1ZS1taW5kLm5ldCwgY2Fy
+IHZvdXMgIA0KcGFydGljaXBleiDgIGNldCDpduluZW1lbnQuDQoNClBvdXIgbmUgcGx1cyByZWNl
+dm9pciBkZSBub3RpZmljYXRpb25zIHBvdXIgY2V0IOl26W5lbWVudCDgIGwnYXZlbmlyLCAgDQpy
+ZWZ1c2V6IGNldCDpduluZW1lbnQuIFZvdXMgYXZleiDpZ2FsZW1lbnQgbGEgcG9zc2liaWxpdOkg
+ZGUgY3LpZXIgdW4gIA0KY29tcHRlIEdvb2dsZSBzdXIgbGEgcGFnZSBodHRwczovL3d3dy5nb29n
+bGUuY29tL2NhbGVuZGFyLyBldCBkZSBk6WZpbmlyICANCnZvdXMtbeptZSBsZXMgcGFyYW3odHJl
+cyBkZSBub3RpZmljYXRpb24gcG91ciBsJ2ludOlncmFsaXTpIGRlIHZvdHJlIGFnZW5kYS4NCg==
+
+--047d7b34356454be4e04c7ffe90e
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<div style=3D""><table cellspacing=3D"0" cellpadding=3D"8" border=3D"0" sum=
+mary=3D"" style=3D"width:100%;font-family:Arial,Sans-serif;border:1px Solid=
+ #ccc;border-width:1px 2px 2px 1px;background-color:#fff;"><tr><td><div sty=
+le=3D"padding:6px 10px;margin:0 0 4px 0;font-family:Arial,Sans-serif;font-s=
+ize:13px;line-height:1=2E4;border:1px Solid #ccc;background:#ffc;color:#222=
+"><strong>marie garcia a accept=E9 l'invitation=2E</strong></div><div style=
+=3D"padding:2px"><h3 style=3D"padding:0 0 6px 0;margin:0;font-family:Arial,=
+Sans-serif;font-size:16px;font-weight:bold;color:#222">d=E9placement chgers=
+</h3><table cellpadding=3D"0" cellspacing=3D"0" border=3D"0" summary=3D"D=
+=E9tails sur l'=E9v=E9nement"><tr><td style=3D"padding:0 1em 10px 0;font-fa=
+mily:Arial,Sans-serif;font-size:13px;color:#888;white-space:nowrap" valign=
+=3D"top"><div><i style=3D"font-style:normal">Date</i></div></td><td style=
+=3D"padding-bottom:10px;font-family:Arial,Sans-serif;font-size:13px;color:#=
+222" valign=3D"top">lun=2E 27 ao=FBt 2012</td></tr><tr><td style=3D"padding=
+:0 1em 10px 0;font-family:Arial,Sans-serif;font-size:13px;color:#888;white-=
+space:nowrap" valign=3D"top"><div><i style=3D"font-style:normal">Agenda</i>=
+</div></td><td style=3D"padding-bottom:10px;font-family:Arial,Sans-serif;fo=
+nt-size:13px;color:#222" valign=3D"top">Sylvain Garcia</td></tr><tr><td sty=
+le=3D"padding:0 1em 10px 0;font-family:Arial,Sans-serif;font-size:13px;colo=
+r:#888;white-space:nowrap" valign=3D"top"><div><i style=3D"font-style:norma=
+l">Participants</i></div></td><td style=3D"padding-bottom:10px;font-family:=
+Arial,Sans-serif;font-size:13px;color:#222" valign=3D"top"><table cellspaci=
+ng=3D"0" cellpadding=3D"0"><tr><td style=3D"padding-right:10px;font-family:=
+Arial,Sans-serif;font-size:13px;color:#222"><span style=3D"font-family:Cour=
+ier New,monospace">&#x2022;</span></td><td style=3D"padding-right:10px;font=
+-family:Arial,Sans-serif;font-size:13px;color:#222"><div><div style=3D"marg=
+in:0 0 0=2E3em 0">Sylvain Garcia<span style=3D"font-size:11px;color:#888">-=
+ organisateur</span></div></div></td></tr><tr><td style=3D"padding-right:10=
+px;font-family:Arial,Sans-serif;font-size:13px;color:#222"><span style=3D"f=
+ont-family:Courier New,monospace">&#x2022;</span></td><td style=3D"padding-=
+right:10px;font-family:Arial,Sans-serif;font-size:13px;color:#222"><div><di=
+v style=3D"margin:0 0 0=2E3em 0">marie garcia<span style=3D"font-size:11px;=
+color:#888">- cr=E9ateur</span></div></div></td></tr></table></td></tr></ta=
+ble></div></td></tr><tr><td style=3D"background-color:#f6f6f6;color:#888;bo=
+rder-top:1px Solid #ccc;font-family:Arial,Sans-serif;font-size:11px"><p>Inv=
+itation de <a href=3D"https://www=2Egoogle=2Ecom/calendar/" target=3D"_blan=
+k" style=3D"">Google=A0Agenda</a></p><p>Vous recevez ce message =E0 l'adres=
+se sylvain=2Egarcia@blue-mind=2Enet, car vous participez =E0 cet =E9v=E9nem=
+ent=2E</p><p>Pour ne plus recevoir de notifications pour cet =E9v=E9nement =
+=E0 l'avenir, refusez cet =E9v=E9nement=2E Vous avez =E9galement la possibi=
+lit=E9 de cr=E9er un compte Google sur la page https://www=2Egoogle=2Ecom/c=
+alendar/ et de d=E9finir vous-m=EAme les param=E8tres de notification pour =
+l'int=E9gralit=E9 de votre agenda=2E</p></td></tr></table></div>
+--047d7b34356454be4e04c7ffe90e
+Content-Type: text/calendar; charset=UTF-8; method=REPLY
+Content-Transfer-Encoding: quoted-printable
+
+BEGIN:VCALENDAR
+PRODID:-//Google Inc//Google Calendar 70=2E9054//EN
+VERSION:2=2E0
+CALSCALE:GREGORIAN
+METHOD:REPLY
+BEGIN:VEVENT
+DTSTART;VALUE=3DDATE:20120827
+DTEND;VALUE=3DDATE:20120828
+DTSTAMP:20120824T095052Z
+ORGANIZER;CN=3DSylvain Garcia:mailto:sylvain=2Egarcia@blue-mind=2Enet
+UID:e76b4686c75efde6b17ea24cb98c8d59dca65063
+ATTENDEE;CUTYPE=3DINDIVIDUAL;ROLE=3DREQ-PARTICIPANT;PARTSTAT=3DACCEPTED;CN=
+=3Dmarie=20
+ garcia;X-NUM-GUESTS=3D0:mailto:marieg@isynet=2Eorg
+CREATED:20120824T080801Z
+DESCRIPTION:
+LAST-MODIFIED:20120824T095051Z
+LOCATION:
+SEQUENCE:1
+STATUS:CONFIRMED
+SUMMARY:d=C3=A9placement chgers
+TRANSP:TRANSPARENT
+CATEGORIES:http://schemas=2Egoogle=2Ecom/g/2005#event
+BEGIN:VALARM
+ACTION:EMAIL
+DESCRIPTION:This is an event reminder
+SUMMARY:Alarm notification
+ATTENDEE:mailto:sylvain=2Egarcia@blue-mind=2Enet
+TRIGGER;VALUE=3DDATE-TIME:20120826T165000Z
+END:VALARM
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:This is an event reminder
+TRIGGER;VALUE=3DDATE-TIME:20120826T165000Z
+END:VALARM
+END:VEVENT
+END:VCALENDAR
+
+--047d7b34356454be4e04c7ffe90e--
+
+--047d7b34356454be5504c7ffe910
+Content-Type: application/ics; name="invite.ics"
+Content-Disposition: attachment; filename="invite.ics"
+Content-Transfer-Encoding: base64
+
+QkVHSU46VkNBTEVOREFSDQpQUk9ESUQ6LS8vR29vZ2xlIEluYy8vR29vZ2xlIENhbGVuZGFyIDcw
+LjkwNTQvL0VODQpWRVJTSU9OOjIuMA0KQ0FMU0NBTEU6R1JFR09SSUFODQpNRVRIT0Q6UkVQTFkN
+CkJFR0lOOlZFVkVOVA0KRFRTVEFSVDtWQUxVRT1EQVRFOjIwMTIwODI3DQpEVEVORDtWQUxVRT1E
+QVRFOjIwMTIwODI4DQpEVFNUQU1QOjIwMTIwODI0VDA5NTA1MloNCk9SR0FOSVpFUjtDTj1TeWx2
+YWluIEdhcmNpYTptYWlsdG86c3lsdmFpbi5nYXJjaWFAYmx1ZS1taW5kLm5ldA0KVUlEOmU3NmI0
+Njg2Yzc1ZWZkZTZiMTdlYTI0Y2I5OGM4ZDU5ZGNhNjUwNjMNCkFUVEVOREVFO0NVVFlQRT1JTkRJ
+VklEVUFMO1JPTEU9UkVRLVBBUlRJQ0lQQU5UO1BBUlRTVEFUPUFDQ0VQVEVEO0NOPW1hcmllIA0K
+IGdhcmNpYTtYLU5VTS1HVUVTVFM9MDptYWlsdG86bWFyaWVnQGlzeW5ldC5vcmcNCkNSRUFURUQ6
+MjAxMjA4MjRUMDgwODAxWg0KREVTQ1JJUFRJT046DQpMQVNULU1PRElGSUVEOjIwMTIwODI0VDA5
+NTA1MVoNCkxPQ0FUSU9OOg0KU0VRVUVOQ0U6MQ0KU1RBVFVTOkNPTkZJUk1FRA0KU1VNTUFSWTpk
+w6lwbGFjZW1lbnQgY2hnZXJzDQpUUkFOU1A6VFJBTlNQQVJFTlQNCkNBVEVHT1JJRVM6aHR0cDov
+L3NjaGVtYXMuZ29vZ2xlLmNvbS9nLzIwMDUjZXZlbnQNCkJFR0lOOlZBTEFSTQ0KQUNUSU9OOkVN
+QUlMDQpERVNDUklQVElPTjpUaGlzIGlzIGFuIGV2ZW50IHJlbWluZGVyDQpTVU1NQVJZOkFsYXJt
+IG5vdGlmaWNhdGlvbg0KQVRURU5ERUU6bWFpbHRvOnN5bHZhaW4uZ2FyY2lhQGJsdWUtbWluZC5u
+ZXQNClRSSUdHRVI7VkFMVUU9REFURS1USU1FOjIwMTIwODI2VDE2NTAwMFoNCkVORDpWQUxBUk0N
+CkJFR0lOOlZBTEFSTQ0KQUNUSU9OOkRJU1BMQVkNCkRFU0NSSVBUSU9OOlRoaXMgaXMgYW4gZXZl
+bnQgcmVtaW5kZXINClRSSUdHRVI7VkFMVUU9REFURS1USU1FOjIwMTIwODI2VDE2NTAwMFoNCkVO
+RDpWQUxBUk0NCkVORDpWRVZFTlQNCkVORDpWQ0FMRU5EQVINCg==
+
+--047d7b34356454be5504c7ffe910--
+

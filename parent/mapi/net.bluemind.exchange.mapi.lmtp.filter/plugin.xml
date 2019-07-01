@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.lmtp.lmtpfilterfactory">
+      <lmtp_filter_factory
+            implementation="net.bluemind.exchange.mapi.lmtp.filter.MapiFilterFactory">
+      </lmtp_filter_factory>
+   </extension>
+
+</plugin>

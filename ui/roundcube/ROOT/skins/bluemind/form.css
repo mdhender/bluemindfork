@@ -1,0 +1,203 @@
+/**
+ * BEGIN LICENSE
+ * Copyright © Blue Mind SAS, 2012
+ *
+ * This file is part of BlueMind. BlueMind is a messaging and collaborative
+ * solution.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of either the GNU Affero General Public License as
+ * published by the Free Software Foundation (version 3 of the License).
+ *
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * END LICENSE
+ */
+
+input, textarea, keygen, select, button, isindex {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+form .field-base {
+  overflow: hidden;
+}
+
+form .field-base-label {
+  color: #777;
+  float: left;
+  text-align: right;
+  width: 130px;
+}
+
+form .field-text label.field-base-label span, form .field-textarea label.field-base-label span, form .field-datepicker label.field-base-label span{
+  margin-top: 4px;
+  display: inline-block;
+}
+
+form .field-base-field {
+  margin-left: 150px;
+  display: block;
+}
+
+form .field-base-label select{
+  min-width: 90px;
+}
+
+form .field-base-field input, form .field-base-field textarea {
+  width: 210px;
+}
+
+form .header {
+  background-color: #F5F5F5;
+  padding: 10px;
+}
+
+form .header a {
+  font-weight: bold;
+  text-decoration: none;
+}
+
+form .header .field-header {
+  padding: 0;
+  margin: 2px 0;
+  font-size: 150%;
+}
+
+form .header .field-base-field {
+  line-height: 1.5em;
+}
+
+form .header .field-base-field {
+  margin: 0;
+}
+
+form .box {
+}
+
+form .box .field-base-field {
+  margin: 0;
+}
+
+form .box .field-base-label {
+  float: none;
+  width: auto;
+  font-weight: bold;
+}
+
+form .main .field-base-field {
+  font-weight: bold;
+}
+
+.contact .main a {
+  text-decoration: none;
+}
+
+
+input, textarea, select{
+  border: 1px solid #CCC;
+  border-radius:3px;
+  -moz-border-radius:3px;
+  -webkit-border-radius:3px;
+  color: #333;
+  background: #FFF;
+  outline:none;
+}
+
+input.error, .error input {
+  background-color: #FDDFDE;
+  border-color: #FBC7C6;  
+}
+
+input:focus, textarea:focus {
+  outline: 0;
+  border-color: rgba(82, 168, 236, 0.8);
+  -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 8px rgba(82, 168, 236, 0.6);
+  -moz-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 8px rgba(82, 168, 236, 0.6);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 8px rgba(82, 168, 236, 0.6);
+}
+
+input[type=button] {
+  user-select: none;
+}
+
+input[type=checkbox], input[type=radio] {
+  padding: 0px;
+}
+
+:-moz-placeholder {
+  color: #bfbfbf;
+}
+::-webkit-input-placeholder {
+  color: #bfbfbf;
+}
+
+form .main .field-base a {
+  outline: none;
+  margin-left: 0.5em;
+}
+
+
+form .main .field-base .field-base-trash {
+  display: none;
+}
+
+form .main .field-base:hover .field-base-trash {
+  display: inline;
+}
+
+form .main .field-base:focus .field-base-trash {
+  display: inline;
+}
+
+form .main .field-base:hover .full-address-edit {
+  display: inline;
+}
+
+form .main .field-base:focus .full-address-edit {
+  display: inline;
+}
+
+form .main .field-base-trash {
+  outline: none;
+  cursor: pointer;
+  margin-left: 1em;
+  margin-top: -8px;  
+}
+
+form .main .field-base-trash-lid {
+  position: absolute;
+  -webkit-transform-origin: -7% 100%;
+  -moz-transform-origin: -7% 100%;
+  transform-origin: -7% 100%;
+  height: 4px;
+  width: 11px;
+  cursor: pointer;
+  background: url(../images/trash.png) 0px 1px no-repeat;
+  margin-top: 3px;  
+}
+
+form .main .field-base-trash-can {
+  position: absolute;
+  height: 10px;
+  width: 11px;
+  margin-top: 7px;
+  cursor: pointer;
+  background: url(../images/trash.png) -0px -3px no-repeat;
+}
+
+form .main .field-base-trash:focus> .field-base-trash-lid,form .main .field-base-trash:hover> .field-base-trash-lid {
+  -webkit-transition: -webkit-transform 200ms;
+  -webkit-transform: rotate(-45deg);
+  transition: transform 200ms;
+  -moz-transition: -moz-transform 200ms;
+  -moz-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+}
+
+div.modal-dialog-content form .field-base-label {
+  padding-top: 4px;
+}

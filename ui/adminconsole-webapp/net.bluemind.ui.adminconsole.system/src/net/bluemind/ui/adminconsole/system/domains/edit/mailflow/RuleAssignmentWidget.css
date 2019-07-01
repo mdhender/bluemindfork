@@ -1,0 +1,44 @@
+.tree {
+	margin-top: 8px;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #24638F;
+    font-size: 1.1em;
+    cursor: pointer;
+}
+
+.widget {
+	border-bottom: 1px solid #24638F;
+	margin-bottom: 4px;
+	padding-bottom: 12px;
+	margin-top: 8px;
+}
+
+.grid {
+	width: 100%;
+	color: #777;
+}
+
+.rowBottom {
+	border-bottom: 1px solid #F8F8F8;
+}
+
+.actionTitle {
+	border-bottom: 1px solid #F8F8F8;
+	color: #24638F;
+}
+
+.description {
+	width : 85%;
+}
+
+.descriptionArea {
+	width : 450px;
+}
+
+.ruleConfig {
+	margin-top: 8px;
+    margin-bottom: 8px;
+    border: 1px solid #F8F8F8;
+    width: 100%;
+}

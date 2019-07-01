@@ -1,0 +1,32 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>net.bluemind</groupId>
+		<artifactId>net.bluemind.corev2</artifactId>
+		<version>4.1.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>net.bluemind.cli.plugins</artifactId>
+	<packaging>pom</packaging>
+	<modules>
+		<module>net.bluemind.cli.cmd.api</module>
+		<module>net.bluemind.cli.calendar</module>
+		<module>net.bluemind.cli.contact</module>
+		<module>net.bluemind.cli.launcher</module>
+		<module>net.bluemind.cli.utils</module>
+		<module>net.bluemind.cli.metrics</module>
+		<module>net.bluemind.cli.mail</module>
+		<module>net.bluemind.cli.metrics.tests</module>
+		<module>net.bluemind.cli.directory.common</module>
+                <module>net.bluemind.cli.adm</module>
+		<module>net.bluemind.cli.index</module>
+		<module>net.bluemind.cli.node</module>
+		<module>net.bluemind.cli.hz</module>
+		<module>net.bluemind.cli.integration.tests</module>
+		<module>net.bluemind.cli.user</module>
+		<module>net.bluemind.cli.todolist</module>
+		<module>net.bluemind.cli.inject.imap</module>
+		<module>net.bluemind.cli.inject.imap.tests</module>
+	</modules>
+
+</project>

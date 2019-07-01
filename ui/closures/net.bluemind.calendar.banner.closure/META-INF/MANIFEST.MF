@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.calendar.banner.closure
+Bundle-SymbolicName: net.bluemind.calendar.banner.closure;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: blue-mind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Closure-Bundle-Type: Application
+Closure-Inputs: net/bluemind/calendar/banner/CalendarBanner.js
+Require-Bundle: net.bluemind.container.closure;bundle-version="1.0.0",
+ net.bluemind.calendar.api.closure;bundle-version="1.0.0",
+ net.bluemind.core.container.api.closure;bundle-version="1.0.0",
+ net.bluemind.webmodule;bundle-version="1.0.0",
+ net.bluemind.ui.banner;bundle-version="1.0.0"
+Web-Resources: web-resources
+Bundle-ClassPath: js.jar, .

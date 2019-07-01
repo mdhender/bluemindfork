@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<fragment>
+   <extension
+         point="net.bluemind.eas.protocol">
+      <protocol
+            impl="net.bluemind.eas.protocol.tests.BrokenParserProtocol">
+      </protocol>
+      <protocol
+            impl="net.bluemind.eas.protocol.tests.BrokenExecutorProtocol">
+      </protocol>
+      <protocol
+            impl="net.bluemind.eas.protocol.tests.BrokenWriterProtocol">
+      </protocol>
+   </extension>
+
+</fragment>

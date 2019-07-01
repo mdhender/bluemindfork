@@ -1,0 +1,600 @@
+/* BEGIN LICENSE
+  * Copyright © Blue Mind SAS, 2012-2018
+  *
+  * This file is part of BlueMind. BlueMind is a messaging and collaborative
+  * solution.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of either the GNU Affero General Public License as
+  * published by the Free Software Foundation (version 3 of the License).
+  *
+  * This program is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  *
+  * See LICENSE.txt
+  * END LICENSE
+  */
+package net.bluemind.system.importation.commons.scanner;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+
+import org.apache.directory.api.ldap.codec.decorators.SearchResultEntryDecorator;
+import org.apache.directory.api.ldap.model.cursor.CursorException;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
+import org.apache.directory.api.ldap.model.message.MessageTypeEnum;
+import org.apache.directory.api.ldap.model.message.Response;
+import org.apache.directory.api.ldap.model.message.SearchResultEntry;
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Sets;
+import com.google.common.collect.Sets.SetView;
+
+import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.domain.api.Domain;
+import net.bluemind.group.api.Group;
+import net.bluemind.group.api.Member;
+import net.bluemind.lib.ldap.LdapConProxy;
+import net.bluemind.mailbox.api.MailFilter;
+import net.bluemind.system.importation.commons.CoreServices;
+import net.bluemind.system.importation.commons.ICoreServices;
+import net.bluemind.system.importation.commons.Parameters;
+import net.bluemind.system.importation.commons.UuidMapper;
+import net.bluemind.system.importation.commons.enhancer.IScannerEnhancer;
+import net.bluemind.system.importation.commons.managers.GroupManager;
+import net.bluemind.system.importation.commons.managers.UserManager;
+import net.bluemind.system.importation.i18n.Messages;
+import net.bluemind.system.importation.search.LdapSearchCursor;
+import net.bluemind.user.api.User;
+
+public abstract class Scanner {
+	private static final Logger logger = LoggerFactory.getLogger(Scanner.class);
+
+	protected final ImportLogger importLogger;
+	protected final ItemValue<Domain> domain;
+	protected final ICoreServices coreService;
+	protected LdapConProxy ldapCon;
+
+	protected Optional<Set<UuidMapper>> splitGroupMembers;
+
+	protected Scanner(ImportLogger importLogger, ItemValue<Domain> domain) {
+		this.importLogger = importLogger;
+		this.domain = domain;
+		this.coreService = CoreServices.build(domain.uid);
+	}
+
+	protected Scanner(ImportLogger importLogger, ICoreServices coreService, ItemValue<Domain> domain) {
+		this.importLogger = importLogger;
+		this.domain = domain;
+		this.coreService = coreService;
+	}
+
+	/**
+	 * Scan directory for updated entries since lastUpdate (Incremental mode)
+	 * 
+	 * @param lastUpdate
+	 */
+	public void scan() {
+		if (getParameter().lastUpdate.isPresent()) {
+			logger.info("Incremental {} scan for: {}, modified since: {}", getKind(), getParameter(),
+					getParameter().lastUpdate.get());
+		} else {
+			logger.info("Global {} scan for: {}", getKind(), getParameter());
+		}
+
+		logger.info("Import {} directory using scanner: {}", getKind(), this.getClass().getSimpleName());
+		importLogger.info(Messages.importWithScanner(getKind(), this.getClass().getSimpleName()));
+
+		try {
+			logger.info("Doing before import operations from {}", getKind());
+			beforeImport();
+
+			ldapCon = getConnection();
+
+			splitGroupMembers = getSplitGroupMembers();
+			getRelayMailboxGroupDn();
+
+			logger.info("Suspend users from BM which are removed in {}", getKind());
+			deletedUsers();
+
+			logger.info("Deleting groups from BM which are removed in {}", getKind());
+			deletedGroups();
+
+			logger.info("Updating or creating BM users from {}", getKind());
+			scanUsers();
+
+			logger.info("Updating or creating BM groups from {}", getKind());
+			scanGroups();
+
+			logger.info("Doing after import operations from {}", getKind());
+			afterImport();
+		} catch (ServerFault sf) {
+			importLogger.reportException(sf);
+			throw sf;
+		} finally {
+			if (ldapCon != null) {
+				try {
+					ldapCon.close();
+				} catch (IOException e) {
+					logger.warn("Closing directory connexion failed!", e);
+				}
+			}
+
+			importLogger.info(coreService.getUserStats());
+			importLogger.info(coreService.getGroupStats());
+			importLogger.logStatus();
+		}
+	}
+
+	protected abstract void getRelayMailboxGroupDn();
+
+	protected abstract Optional<Set<UuidMapper>> getSplitGroupMembers();
+
+	protected abstract String getKind();
+
+	protected abstract Parameters getParameter();
+
+	protected abstract LdapConProxy getConnection();
+
+	protected abstract Optional<UuidMapper> getUuidMapperFromExtId(String externalId);
+
+	protected abstract Set<UuidMapper> uuidMapperFromExtIds(List<String> importedUsersExtId);
+
+	protected abstract Optional<UuidMapper> getUuidMapperFromEntry(Entry entry);
+
+	protected abstract Optional<UserManager> getUserManager(Entry entry);
+
+	protected abstract Optional<GroupManager> getGroupManager(Entry entry);
+
+	protected abstract String getGroupMembersAttributeName();
+
+	protected abstract boolean doNotImportUser(Entry entry);
+
+	protected abstract boolean doNotImportGroup(Entry entry);
+
+	protected abstract LdapSearchCursor allUsersFromDirectory() throws LdapException;
+
+	protected abstract LdapSearchCursor allGroupsFromDirectory() throws LdapException;
+
+	protected abstract LdapSearchCursor usersDnByLastModification(Optional<String> lastUpdate) throws LdapException;
+
+	protected abstract LdapSearchCursor groupsDnByLastModification(Optional<String> lastUpdate) throws LdapException;
+
+	protected abstract LdapSearchCursor getUserFromDn(Dn dn) throws LdapException;
+
+	protected abstract LdapSearchCursor getGroupFromDn(Dn dn) throws LdapException;
+
+	protected abstract void manageUserGroups(UserManager userManager);
+
+	protected abstract Optional<Dn> getMemberDnFromLogin(String userLogin);
+
+	protected abstract List<IScannerEnhancer> getScannerEnhancerHooks();
+
+	private void deletedUsers() {
+		Set<UuidMapper> bmUsersUuid = uuidMapperFromExtIds(coreService.getImportedUsersExtId());
+
+		Set<UuidMapper> adUsersUuid = new HashSet<>();
+		try (LdapSearchCursor cursor = allUsersFromDirectory()) {
+			while (cursor.next()) {
+				Response response = cursor.get();
+				if (response.getType() != MessageTypeEnum.SEARCH_RESULT_ENTRY) {
+					continue;
+				}
+
+				Entry entry = ((SearchResultEntryDecorator) response).getEntry();
+				getUuidMapperFromEntry(entry).ifPresent(adUsersUuid::add);
+			}
+		} catch (LdapException | CursorException e) {
+			throw new ServerFault(e);
+		}
+
+		SetView<UuidMapper> deletedUsersUuid = Sets.difference(bmUsersUuid, adUsersUuid);
+
+		for (UuidMapper deletedUserUuid : deletedUsersUuid) {
+			try {
+				ItemValue<User> user = coreService.getUserByExtId(deletedUserUuid.getExtId());
+
+				if (user != null) {
+					importLogger.info(Messages.suspendUser(user));
+					coreService.suspendUser(user);
+				} else {
+					importLogger.warning(Messages.suspendedUserNotFound(deletedUserUuid.getExtId()));
+				}
+			} catch (ServerFault e) {
+				importLogger.error(Messages.suspendingBMUserFailed(deletedUserUuid.getExtId(), e));
+			}
+		}
+	}
+
+	private void deletedGroups() {
+		Set<UuidMapper> bmGroupsUuid = uuidMapperFromExtIds(coreService.getImportedGroupsExtId());
+
+		Set<UuidMapper> adGroupsUuid = new HashSet<>();
+		try (LdapSearchCursor cursor = allGroupsFromDirectory()) {
+			while (cursor.next()) {
+				Response response = cursor.get();
+				if (response.getType() != MessageTypeEnum.SEARCH_RESULT_ENTRY) {
+					continue;
+				}
+
+				Entry entry = ((SearchResultEntryDecorator) response).getEntry();
+				getUuidMapperFromEntry(entry).ifPresent(adGroupsUuid::add);
+			}
+		} catch (LdapException | CursorException e) {
+			throw new ServerFault(e);
+		}
+
+		SetView<UuidMapper> deletedGroupsUuid = Sets.difference(bmGroupsUuid, adGroupsUuid);
+
+		for (UuidMapper deletedGroupUuid : deletedGroupsUuid) {
+			try {
+				ItemValue<Group> group = coreService.getGroupByExtId(deletedGroupUuid.getExtId());
+
+				if (group != null) {
+					importLogger.info(Messages.deleteGroup(group));
+					coreService.deleteGroup(group.uid);
+				} else {
+					importLogger.warning(Messages.deletedGroupNotFound(deletedGroupUuid.getExtId()));
+				}
+			} catch (ServerFault sf) {
+				importLogger.error(Messages.failedToDeleteGroup(deletedGroupUuid.getExtId(), sf));
+			}
+		}
+	}
+
+	private void scanGroups() {
+		List<Dn> entriesDn = new LinkedList<>();
+		try (LdapSearchCursor cursor = groupsDnByLastModification(getParameter().lastUpdate)) {
+			while (cursor.next()) {
+				Response response = cursor.get();
+				if (response.getType() != MessageTypeEnum.SEARCH_RESULT_ENTRY) {
+					continue;
+				}
+
+				entriesDn.add(((SearchResultEntry) response).getObjectName());
+			}
+		} catch (CursorException | LdapException e) {
+			throw new ServerFault(e);
+		}
+
+		List<GroupManager> groupEntries = new ArrayList<>();
+		for (Dn entryDn : entriesDn) {
+			Entry entry = null;
+			try {
+				entry = ldapCon.lookup(entryDn, "*", "+", "modifyTimestamp",
+						getParameter().ldapDirectory.extIdAttribute);
+			} catch (LdapException le) {
+				logger.error(String.format("%s: %s", entryDn.getName(), le.getMessage()), le);
+				importLogger.error(Messages.failedLookupEntryDn(entryDn, le));
+				continue;
+			}
+
+			logger.info("Managing Ldap group: {}", entry.getDn().getName());
+
+			getGroupManager(entry).ifPresent(groupManager -> applyGroupManagerUpdates(groupManager, groupEntries));
+		}
+
+		groupEntries.forEach(this::manageGroupMembers);
+	}
+
+	private void applyGroupManagerUpdates(GroupManager groupManager, List<GroupManager> groupEntries) {
+		try {
+			ItemValue<Group> currentGroup = coreService.getGroupByExtId(groupManager.getExternalId(importLogger));
+			groupManager.update(importLogger, currentGroup);
+
+			if (currentGroup == null) {
+				importLogger.info(Messages.createGroup(groupManager.group.value.name));
+				coreService.createGroup(groupManager.group);
+			} else {
+				importLogger.info(Messages.updateGroup(groupManager.group.value.name));
+				coreService.updateGroup(groupManager.group);
+			}
+
+			groupEntries.add(groupManager);
+		} catch (Exception e) {
+			logger.error("Fail to manage group: " + groupManager.entry.getDn().getName(), e);
+			importLogger.error(Messages.failedToManageBMGroup(groupManager.entry, e));
+		}
+	}
+
+	private void manageGroupMembers(GroupManager groupManager) {
+		// Getting BM group users members
+		Set<Member> bmGroupMembers = new HashSet<>(coreService.getGroupMembers(groupManager.group.uid));
+
+		// Getting LDAP group users members
+		Set<Member> ldapGroupMembers = getGroupMembers(groupManager);
+
+		SetView<Member> membersToRemove = Sets.difference(bmGroupMembers, ldapGroupMembers);
+		if (!membersToRemove.isEmpty()) {
+			coreService.removeMembers(groupManager.group.uid, new ArrayList<>(membersToRemove));
+		}
+
+		SetView<Member> membersToAdd = Sets.difference(ldapGroupMembers, bmGroupMembers);
+		if (!membersToAdd.isEmpty()) {
+			coreService.addMembers(groupManager.group.uid, new ArrayList<>(membersToAdd));
+		}
+	}
+
+	private Set<Member> getGroupMembers(GroupManager groupManager) {
+		Set<String> groupMembers = groupManager.getGroupMembers(getGroupMembersAttributeName());
+
+		Set<Member> members = new HashSet<>();
+
+		for (String groupMember : groupMembers) {
+			Optional<Dn> memberDn = getMemberDn(groupMember);
+			if (!memberDn.isPresent()) {
+				importLogger.info(Messages.groupMemberNotFound(groupMember));
+				continue;
+			}
+
+			Optional<Member> member = getUserMember(groupManager, memberDn.get());
+			if (member.isPresent()) {
+				members.add(member.get());
+			} else {
+				member = getGroupMember(groupManager, memberDn.get());
+				if (member.isPresent()) {
+					members.add(member.get());
+				} else {
+					importLogger.info(Messages.groupMemberNotFound(groupMember));
+				}
+			}
+		}
+
+		return members;
+	}
+
+	/**
+	 * Convert groupMember to DN. Search for user DN using groupMember as login if
+	 * groupMember is not a valid DN.
+	 * 
+	 * @param groupMember valid DN or user login
+	 * @return
+	 */
+	protected Optional<Dn> getMemberDn(String groupMember) {
+		try {
+			return Optional.of(new Dn(groupMember));
+		} catch (LdapInvalidDnException e) {
+			return getMemberDnFromLogin(groupMember);
+		}
+	}
+
+	protected Optional<UuidMapper> getUserUuidMapper(Dn userDn) {
+		Entry entry = null;
+
+		try (LdapSearchCursor cursor = getUserFromDn(userDn)) {
+			if (!cursor.next()) {
+				return Optional.empty();
+			}
+
+			entry = cursor.getEntry();
+
+			if (doNotImportUser(entry)) {
+				return Optional.empty();
+			}
+		} catch (Exception e) {
+			throw new ServerFault(e);
+		}
+
+		return getUuidMapperFromEntry(entry);
+	}
+
+	private Optional<Member> getUserMember(GroupManager groupManager, Dn userDn) {
+		Optional<UuidMapper> uuidMapper = getUserUuidMapper(userDn);
+		if (!uuidMapper.isPresent()) {
+			return Optional.empty();
+		}
+
+		ItemValue<User> itemUser = coreService.getUserByExtId(uuidMapper.get().getExtId());
+		if (itemUser == null) {
+			importLogger.info(Messages.failedToFindUserByExtId(groupManager.group, uuidMapper.get().getExtId()));
+			return Optional.empty();
+		}
+
+		Member member = new Member();
+		member.uid = itemUser.uid;
+		member.type = Member.Type.user;
+
+		return Optional.of(member);
+	}
+
+	private Optional<Member> getGroupMember(GroupManager groupManager, Dn groupDn) {
+		Entry entry = null;
+		try (LdapSearchCursor cursor = getGroupFromDn(groupDn)) {
+			if (!cursor.next()) {
+				return Optional.empty();
+			}
+
+			entry = cursor.getEntry();
+
+			if (doNotImportGroup(entry)) {
+				return Optional.empty();
+			}
+		} catch (Exception e) {
+			throw new ServerFault(e);
+		}
+
+		Optional<UuidMapper> uuidMapper = getUuidMapperFromEntry(entry);
+		if (!uuidMapper.isPresent()) {
+			return Optional.empty();
+		}
+
+		ItemValue<Group> itemGroup = coreService.getGroupByExtId(uuidMapper.get().getExtId());
+		if (itemGroup == null) {
+			importLogger.info(Messages.failedToFindGroupByExtId(groupManager.group, uuidMapper.get().getExtId()));
+			return Optional.empty();
+		}
+
+		Member member = new Member();
+		member.uid = itemGroup.uid;
+		member.type = Member.Type.group;
+
+		return Optional.of(member);
+	}
+
+	private void scanUsers() {
+		List<Dn> entriesDn = new LinkedList<>();
+		try (LdapSearchCursor cursor = usersDnByLastModification(getParameter().lastUpdate)) {
+			while (cursor.next()) {
+				Response response = cursor.get();
+				if (response.getType() != MessageTypeEnum.SEARCH_RESULT_ENTRY) {
+					continue;
+				}
+
+				entriesDn.add(((SearchResultEntry) response).getObjectName());
+			}
+		} catch (CursorException | LdapException e) {
+			throw new ServerFault(e);
+		}
+
+		for (Dn entryDn : entriesDn) {
+			Entry entry = null;
+			try {
+				entry = ldapCon.lookup(entryDn, "*", "+", getParameter().ldapDirectory.extIdAttribute,
+						"modifyTimestamp");
+			} catch (LdapException le) {
+				logger.error(entryDn.getName() + ": " + le.getMessage(), le);
+				importLogger.error(Messages.failedLookupEntryDn(entryDn, le));
+				continue;
+			}
+
+			logger.info("Managing Ldap user: {}", entry.getDn().getName());
+
+			getUserManager(entry).ifPresent(this::applyUserManagerUpdates);
+		}
+	}
+
+	private void applyUserManagerUpdates(UserManager userManager) {
+		try {
+			ItemValue<User> userItem = coreService.getUserByExtId(userManager.getExternalId(importLogger));
+			MailFilter userMailFilter = null;
+			if (userItem != null) {
+				userMailFilter = coreService.getMailboxFilter(userItem.uid);
+			}
+
+			userManager.update(importLogger, userItem, userMailFilter);
+
+			if (userManager.create) {
+				importLogger.info(Messages.createUser(userManager.user.value.login));
+				coreService.createUser(userManager.user);
+			} else {
+				importLogger.info(Messages.updateUser(userManager.user.value.login));
+				coreService.updateUser(userManager.user);
+			}
+
+			if (userManager.userPhoto != null) {
+				coreService.userSetPhoto(userManager.user.uid, userManager.userPhoto);
+			} else {
+				coreService.userDeletePhoto(userManager.user.uid);
+			}
+
+			userManager.getUpdatedMailFilter().ifPresent(mf -> coreService.setMailboxFilter(userManager.user.uid, mf));
+
+			if (userManager.mailboxQuota != null) {
+				coreService.setMailboxQuota(userManager.user.uid, userManager.mailboxQuota);
+			}
+
+			manageUserGroups(userManager);
+		} catch (Exception e) {
+			logger.error(String.format("Error on managing user DN: %s", userManager.entry.getDn().getName()), e);
+			importLogger.error(Messages.manageUserFailed(userManager.entry, e));
+		}
+	}
+
+	private void beforeImport() {
+		List<IScannerEnhancer> hooks = getScannerEnhancerHooks();
+
+		if (hooks.isEmpty()) {
+			return;
+		}
+
+		importLogger.info(Messages.beforeImport(getKind()));
+
+		long timeBefore = System.currentTimeMillis();
+		// Use dedicated directory connection for before hook as connection parameters
+		// may be altered by hook.
+		try (LdapConProxy ldapCon = getConnection()) {
+			for (IScannerEnhancer iee : hooks) {
+				iee.beforeImport(importLogger.withoutStatus(), getParameter(), domain, ldapCon);
+			}
+		} catch (IOException e) {
+			logger.warn("Closing directory connexion failed!", e);
+		}
+
+		importLogger.info(Messages.beforeEndImport(getKind(), System.currentTimeMillis() - timeBefore));
+	}
+
+	private void afterImport() {
+		List<IScannerEnhancer> hooks = getScannerEnhancerHooks();
+
+		if (hooks.isEmpty()) {
+			return;
+		}
+
+		importLogger.info(Messages.afterImport(getKind()));
+		long timeBefore = System.currentTimeMillis();
+		for (IScannerEnhancer iee : getScannerEnhancerHooks()) {
+			iee.afterImport(importLogger.withoutStatus(), getParameter(), domain, ldapCon);
+		}
+
+		importLogger.info(Messages.afterEndImport(getKind(), System.currentTimeMillis() - timeBefore));
+	}
+
+	// TODO: must not be static
+	public static void manageUserGroups(LdapConnection ldapCon, ICoreServices coreService, UserManager userManager,
+			Function<String, Optional<? extends UuidMapper>> getUuidMapperFromExtId) throws ServerFault {
+		// Getting BM user groups members
+		List<ItemValue<Group>> userGroups;
+		userGroups = new LinkedList<>(coreService.memberOf(userManager.user.uid));
+
+		// Getting user groups member of list from directory
+		List<? extends UuidMapper> directoryUserGroupsUuids = userManager.getUserGroupsMemberGuid(ldapCon);
+
+		Member userAsMember = new Member();
+		userAsMember.type = Member.Type.user;
+		userAsMember.uid = userManager.user.uid;
+
+		// Remove user from BM group if user is no more directory member
+		// and store other group GUID
+		// Ignore users with null or empty extId
+		ArrayList<UuidMapper> userGroupsUuids = new ArrayList<>();
+		for (ItemValue<Group> userGroup : userGroups) {
+			Optional<? extends UuidMapper> uuidMapper = getUuidMapperFromExtId.apply(userGroup.externalId);
+			if (!uuidMapper.isPresent()) {
+				continue;
+			}
+
+			if (directoryUserGroupsUuids.contains(uuidMapper.get())) {
+				userGroupsUuids.add(uuidMapper.get());
+			} else {
+				coreService.removeMembers(userGroup.uid, Arrays.asList(userAsMember));
+			}
+		}
+
+		// Add user to BM group if user is a directory member and not already a
+		// BM member
+		for (UuidMapper adUserGroupUuid : directoryUserGroupsUuids) {
+			if (!userGroupsUuids.contains(adUserGroupUuid)) {
+				ItemValue<Group> groupMemberOf = coreService.getGroupByExtId(adUserGroupUuid.getExtId());
+				if (groupMemberOf == null) {
+					continue;
+				}
+
+				coreService.addMembers(groupMemberOf.uid, Arrays.asList(userAsMember));
+			}
+		}
+	}
+}

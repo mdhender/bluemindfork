@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.databases.utils
+Bundle-SymbolicName: net.bluemind.databases.utils;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Closure-Bundle-Type: Application
+Closure-Inputs: run.js
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.mvp.closure;bundle-version="1.0.0",
+ net.bluemind.commons.closure;bundle-version="1.0.0",
+ net.bluemind.authentication.closure;bundle-version="1.0.0",
+ net.bluemind.folder.closure;bundle-version="1.0.0",
+ net.bluemind.tag.closure;bundle-version="1.0.0",
+ net.bluemind.addressbook.closure;bundle-version="1.0.0",
+ net.bluemind.todolist.closure;bundle-version="1.0.0",
+ net.bluemind.calendar.closure;bundle-version="1.0.0"
+Web-Resources: web-resources
+Bundle-ClassPath: css.jar, js.jar, .

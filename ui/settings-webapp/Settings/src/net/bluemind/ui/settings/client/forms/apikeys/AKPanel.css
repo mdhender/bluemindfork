@@ -1,0 +1,24 @@
+table.container {
+	width: 100%;
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+table.container tr {
+	border-bottom: 1px solid #CCC;
+}
+
+.item td {
+	height: 30px;
+	padding: 5px;
+}
+
+.sid {
+	font-weight: bold;
+	padding: 2px 0px;
+}
+
+.dn {
+	font-style: italic;
+	padding: 2px 0px;
+}

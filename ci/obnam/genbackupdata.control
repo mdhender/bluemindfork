@@ -1,0 +1,22 @@
+Source: genbackupdata
+Maintainer: Lars Wirzenius <liw@liw.fi>
+Section: devel
+Priority: optional
+Standards-Version: 3.9.2
+Build-Depends: debhelper (>= 7.3.8), python (>= 2.6.5),
+    python-ttystatus, python-cliapp
+X-Python-Version: >= 2.6
+
+Package: genbackupdata
+Architecture: all
+Depends: ${python:Depends}, ${misc:Depends}, python-cliapp (>= 0.9),
+    python-ttystatus
+Homepage: http://braawi.org/genbackupdata/
+Description: generate test data sets for backup software
+ genbackupdata creates or modifies directory trees in ways that simulate
+ real filesystems sufficiently well for performance testing of backup
+ software. For example, it can create files that are a mix of small text
+ files and big binary files, with the binary files containing random
+ binary junk which compresses badly. This can then be backed up, and
+ later the directory tree can be changed by creating new files, modifying
+ files, or deleting or renaming files. The backup can then be run again.

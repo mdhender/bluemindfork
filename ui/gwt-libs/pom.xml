@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>gwt-libs</artifactId>
+	<packaging>pom</packaging>
+	<parent>
+		<groupId>net.bluemind</groupId>
+		<artifactId>ui</artifactId>
+		<version>4.1.0-SNAPSHOT</version>
+	</parent>
+	<modules>
+		<module>net.bluemind.core.commons.gwt</module>
+		<module>net.bluemind.core.container.api.gwt</module>
+		<module>net.bluemind.core.task.api.gwt</module>
+		<module>net.bluemind.tag.api.gwt</module>
+		<module>net.bluemind.hsm.api.gwt</module>
+		<module>net.bluemind.mailflow.common.api.gwt</module>
+		<module>net.bluemind.mailflow.api.gwt</module>
+		<module>net.bluemind.addressbook.api.gwt</module>
+		<module>net.bluemind.addressbook.ldap.api.gwt</module>
+		<module>net.bluemind.calendar.api.gwt</module>
+		<module>net.bluemind.icalendar.api.gwt</module>
+		<module>net.bluemind.server.api.gwt</module>
+		<module>net.bluemind.group.api.gwt</module>
+		<module>net.bluemind.user.api.gwt</module>
+		<module>net.bluemind.mailbox.api.gwt</module>
+		<module>net.bluemind.mailbox.identity.api.gwt</module>
+		<module>net.bluemind.im.api.gwt</module>
+		<module>net.bluemind.directory.api.gwt</module>
+		<module>net.bluemind.system.api.gwt</module>
+		<module>net.bluemind.authentication.api.gwt</module>
+		<module>net.bluemind.ui.extensions.gwt</module>
+		<module>net.bluemind.domain.api.gwt</module>
+		<module>net.bluemind.dataprotect.api.gwt</module>
+		<module>net.bluemind.mailshare.api.gwt</module>
+		<module>net.bluemind.device.api.gwt</module>
+		<module>net.bluemind.scheduledjob.api.gwt</module>
+		<module>net.bluemind.resource.api.gwt</module>
+		<module>net.bluemind.todolist.api.gwt</module>
+		<module>net.bluemind.role.api.gwt</module>
+		<module>net.bluemind.system.ldap.importation.api.gwt</module>
+		<module>net.bluemind.restbus.api.gwt</module>
+		<module>net.bluemind.cti.api.gwt</module>
+		<module>net.bluemind.filehosting.api.gwt</module>
+		<module>net.bluemind.mailmessage.api.gwt</module>
+		<module>net.bluemind.eas.api.gwt</module>
+		<module>net.bluemind.backend.mail.api.gwt</module>
+		<module>net.bluemind.monitoring.api.gwt</module>
+        <module>net.bluemind.externaluser.api.gwt</module>
+	</modules>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-packaging-plugin</artifactId>
+					<configuration>
+						<additionalFileSets>
+							<fileSet>
+								<directory>${basedir}/generated/</directory>
+								<includes>
+									<include>**/*</include>
+								</includes>
+							</fileSet>
+
+							<fileSet>
+								<directory>${basedir}/src/</directory>
+								<includes>
+									<include>**/*</include>
+								</includes>
+							</fileSet>
+						</additionalFileSets>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+</project>

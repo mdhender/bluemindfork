@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.mailflow.api.gwt
+Bundle-SymbolicName: net.bluemind.mailflow.api.gwt;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="4.1.0";visibility:=reexport,
+ net.bluemind.core.container.api.gwt;bundle-version="4.1.0";visibility:=reexport,
+ com.google.gwt.user;resolution:=optional,
+ net.bluemind.restbus.api.gwt;bundle-version="4.1.0";visibility:=reexport,
+ net.bluemind.mailflow.api;bundle-version="4.1.0";visibility:=reexport,
+ net.bluemind.mailflow.common.api.gwt;visibility:=reexport
+Export-Package: net.bluemind.mailflow.api.gwt.js,
+ net.bluemind.mailflow.api.gwt.endpoint,
+ net.bluemind.mailflow.api.gwt.serder,
+ net.bluemind.mailflow
+Automatic-Module-Name: net.bluemind.mailflow.api.gwt
+

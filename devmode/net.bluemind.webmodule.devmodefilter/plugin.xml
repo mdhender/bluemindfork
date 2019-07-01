@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.webmodule.server">
+      <web-filter
+            class="net.bluemind.webmodule.devmodefilter.DevModeForwardFilter">
+      </web-filter>
+      <web-filter
+            class="net.bluemind.webmodule.devmodefilter.DevModeApiFilter">
+      </web-filter>
+   </extension>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module
+            index="index.html"
+            root="dev">
+      </web-module>
+   </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.webmodule.devmodefilter.PortsForward$Factory">
+      </verticle>
+      <verticle
+            impl="net.bluemind.webmodule.devmodefilter.DevModeStateVerticle$Factory">
+      </verticle>
+   </extension>
+
+</plugin>

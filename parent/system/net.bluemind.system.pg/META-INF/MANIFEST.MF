@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.system.pg
+Bundle-SymbolicName: net.bluemind.system.pg;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.core.task.service,
+ net.bluemind.core.jdbc;bundle-version="4.1.0",
+ net.bluemind.core.rest,
+ slf4j.api;bundle-version="1.7.5",
+ net.bluemind.core.container.service;bundle-version="4.1.0",
+ net.bluemind.role.api;bundle-version="4.1.0",
+ net.bluemind.server.hook,
+ net.bluemind.config,
+ net.bluemind.node.api
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.system.pg
+

@@ -1,0 +1,24 @@
+.active {
+	color: #AEDEF2 !important;
+	background: #AEDEF2;
+}
+
+.sAnchor {
+	color: #205780;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+.sAnchor:hover {
+	text-decoration: underline;
+	color: #205780;
+}
+
+.disabled {
+	color: #CCC !important;
+	cursor: default;
+}
+
+.disabled:hover {
+	text-decoration: none !important;
+}

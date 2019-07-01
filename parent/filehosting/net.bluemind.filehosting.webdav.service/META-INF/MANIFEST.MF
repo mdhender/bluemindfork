@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.filehosting.webdav.service
+Bundle-SymbolicName: net.bluemind.filehosting.webdav.service;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: com.github.lookfirst.sardine;bundle-version="5.8.0",
+ net.bluemind.utils,
+ net.bluemind.core.commons;bundle-version="1.0.0",
+ net.bluemind.filehosting.api,
+ net.bluemind.filehosting.service,
+ net.bluemind.slf4j,
+ net.bluemind.core.rest,
+ net.bluemind.core.context,
+ io.vertx.core,
+ net.bluemind.user.api,
+ net.bluemind.system.api,
+ slf4j.api
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.filehosting.webdav.service
+

@@ -1,0 +1,5 @@
+#Eclipse Product File
+#Fri May 16 14:59:43 CEST 2014
+version=1.0.0.b12165
+name=hps
+id=net.bluemind.proxy.http.launcher.hps

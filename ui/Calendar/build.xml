@@ -1,0 +1,215 @@
+<?xml version="1.0"?>
+<project name="calendar" default="buildjs">
+	<property name="closure-compiler.dir" value="${basedir}/../JSCommon/closure-compiler" />
+	<property name="closure-library.dir" value="${basedir}/../JSCommon/closure-library" />
+	<property name="closure-templates.dir" value="${basedir}/../JSCommon/closure-templates" />
+	<property name="closure-stylesheets.dir" value="${basedir}/../JSCommon/closure-stylesheets" />
+	<property name="closure-templates-msg-extractor.dir" value="${basedir}/../JSCommon/closure-templates-msg-extractor" />
+	<property name="relief-library.dir" value="${basedir}/../closures/relief" />
+	<property name="ydn-db.dir" value="${basedir}/../closures/ydn-db" />
+	<property name="ydn-base.dir" value="${basedir}/../closures/ydn-base" />
+	<property name="bluemind-library.dir" value="${basedir}/../closures/net.bluemind.commons.closure" />
+	<property name="build.dir" value="${basedir}/build" />
+	<property name="compilation-level" value="ADVANCED_OPTIMIZATIONS" />
+	<property name="apos" value="'" />
+	<property name="locales" value="en,fr,sk,es,pl,de,it,zh,hu"/>
+
+	<macrodef name="extract-messages">
+		<attribute name="outputFile" />
+		<element name="inputfiles" />
+		<sequential>
+			<java jar="${closure-templates-msg-extractor.dir}/SoyMsgExtractor.jar" fork="true" failonerror="true" logError="true">
+				<arg line='--outputFile "@{outputFile}"' />
+				<inputfiles />
+			</java>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="template-compile">
+		<attribute name="messageFilePathFormat" />
+		<attribute name="outputPathFormat" />
+		<element name="inputfiles" />
+		<sequential>
+			<java jar="${closure-templates.dir}/SoyToJsSrcCompiler.jar" fork="true" failonerror="true" logError="true">
+				<arg line='--locales "${locales}"' />
+				<arg line='--messageFilePathFormat "@{messageFilePathFormat}"' />
+				<arg line='--outputPathFormat "@{outputPathFormat}"' />
+				<arg line="--shouldProvideRequireSoyNamespaces" />
+				<arg line="--cssHandlingScheme GOOG" />
+				<inputfiles />
+			</java>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="css-compile">
+		<attribute name="outputFile" />
+		<attribute name="outputRenamingMap" />
+		<element name="inputfiles" />
+		<sequential>
+			<java jar="${closure-stylesheets.dir}/closure-stylesheets.jar" fork="true" failonerror="true" logError="true">
+				<arg line='-o "@{outputFile}"' />
+				<arg line="--allowed-non-standard-function progid:DXImageTransform.Microsoft.gradient" />
+				<arg line="--allowed-non-standard-function color-stop" />
+				<arg line="--allowed-non-standard-function filter" />
+				<arg line="--allowed-non-standard-function -moz-radial-gradient" />
+				<arg line="--allow-unrecognized-properties" />
+				<arg line="--output-renaming-map-format CLOSURE_COMPILED" />
+				<arg line="--rename CLOSURE" />
+				<arg line='--output-renaming-map "@{outputRenamingMap}"' />
+				<inputfiles />
+			</java>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="closure-compile">
+		<attribute name="lang" />
+		<sequential>
+			<exec executable="python" failonerror="true" logError="true">
+				<arg value="${closure-library.dir}/closure/bin/build/closurebuilder.py" />
+				<arg line='--root="${closure-library.dir}"' />
+				<arg line='--input="${basedir}/war/scripts/bluemind/bluemind.js"' />
+				<arg line='--output_file "${build.dir}/bm-compiled_@{lang}.js"' />
+				<arg line='--namespace="bluemind"' />
+				<arg line='--output_mode="compiled"' />
+				<arg line='--compiler_jar="${closure-compiler.dir}/compiler.jar"' />
+				<arg line='--compiler_flags="--compilation_level=${compilation-level}"' />
+				<arg line='--compiler_flags="--define=goog.LOCALE=${apos}@{lang}${apos}"' />
+				<arg line='--compiler_flags="--define=goog.DEBUG=false"' />
+				<arg line='--compiler_flags="--define=goog.debug.LOGGING_ENABLED=true"' />                                
+				<arg line='--compiler_flags="--js=${basedir}/war/scripts/map.js"' />
+				<arg line='--root="${basedir}/war/scripts/bluemind/"' />
+				<arg line='-f "--externs=${ydn-base.dir}/src/main/externs/browser.js"' />
+				<arg line='--root="${relief-library.dir}/src/main/javascript"' />
+				<arg line='--root="${ydn-db.dir}/src/main/javascript"' />
+				<arg line='--root="${ydn-base.dir}/src/main/javascript"' />
+				<arg line='--root="${bluemind-library.dir}/src/main/javascript"' />
+				<arg line='--root="${closure-templates.dir}"' />
+				<arg line='--root="${build.dir}/templates/@{lang}"' />
+				<arg line='--compiler_flags="--output_wrapper=${outputwrapper}"' />
+			</exec>
+			<copy file="${build.dir}/bm-compiled_@{lang}.js" todir="${basedir}/war/scripts/" />
+		</sequential>
+	</macrodef>
+
+	<target name="clean" description="deletes all files created by this script">
+		<delete dir="dist" failonerror="false" />
+		<delete dir="war/calendar" failonerror="false" />
+	</target>
+
+	<target name="cleanjs" description="deletes all files created by this script">
+		<delete dir="${build.dir}" failonerror="false" />
+	</target>
+
+	<target name="templates" description="generates templates">
+		<fileset dir="${bluemind-library.dir}" id="common-soy-files" includes="**/*.soy" />
+		<pathconvert property="common-input" refid="common-soy-files" pathsep=" " />
+		<mkdir dir="${build.dir}/templates" />
+		<template-compile messageFilePathFormat="${basedir}/war/lang/{LOCALE}.xlf" outputPathFormat="${build.dir}/templates/{LOCALE}/{INPUT_FILE_NAME_NO_EXT}.js">
+			<inputfiles>
+				<arg line='"${basedir}/war/themes/default/templates/calendar.soy"' />
+				<arg line='"${basedir}/war/themes/default/templates/event.soy"' />
+				<arg line='"${basedir}/war/themes/default/templates/pending.soy"' />
+				<arg line='"${basedir}/war/themes/default/templates/notification.soy"' />
+				<arg line='"${basedir}/war/themes/default/templates/form.soy"' />
+				<arg line='"${basedir}/war/themes/default/templates/i18n.soy"' />
+				<arg line='"${relief-library.dir}/src/main/soy/handlers.soy"' />
+				<arg line='${common-input}' />
+			</inputfiles>
+		</template-compile>
+	</target>
+
+	<target name="css" description="compile css">
+		<fileset dir="${basedir}/war/themes/default/css/" id="gss-files" includes="**/*.css" excludes="style.css" />
+		<pathconvert property="gss-input" refid="gss-files" pathsep=" " />
+		<css-compile outputFile="${basedir}/war/themes/default/css/style.css" outputRenamingMap="${basedir}/war/scripts/map.js">
+			<inputfiles>
+				<arg line='${gss-input}' />
+			</inputfiles>
+		</css-compile>
+	</target>
+
+	<target name="compile" depends="templates" description="generates compiled JS">
+		<mkdir dir="${build.dir}" />
+		<closure-compile lang="fr" />
+		<closure-compile lang="en" />
+		<closure-compile lang="sk" />
+		<closure-compile lang="es" />
+		<closure-compile lang="pl" />
+		<closure-compile lang="de" />
+		<closure-compile lang="it" />
+		<closure-compile lang="zh" />
+		<closure-compile lang="hu" />
+	</target>
+
+	<target name="extract-messages" description="extract template messages">
+		<mkdir dir="${basedir}/war/lang/" />
+		<extract-messages outputFile="${basedir}/war/lang/en.xlf">
+			<inputfiles>
+				<arg line='"${basedir}/war/themes/default/templates/calendar.soy"' />
+				<arg line='"${basedir}/war/themes/default/templates/event.soy"' />
+				<arg line='"${basedir}/war/themes/default/templates/pending.soy"' />
+				<arg line='"${basedir}/war/themes/default/templates/notification.soy"' />
+				<arg line='"${basedir}/war/themes/default/templates/form.soy"' />
+				<arg line='"${basedir}/war/themes/default/templates/i18n.soy"' />
+				<arg line='"${relief-library.dir}/src/main/soy/handlers.soy"' />
+			</inputfiles>
+		</extract-messages>
+	</target>
+
+	<target name="build" depends="css,cleanjs,compile" />
+
+	<target name="buildjs" depends="build" />
+
+	<tstamp />
+
+	<property name="module" value="net.bluemind.ui.calendar.Calendar" />
+	<property file="${user.name}.build.properties" />
+	<property name="gwt" value="/usr/share/bj-gwt/" />
+
+	<path id="project.class.path">
+		<pathelement location="war/WEB-INF/classes" />
+		<pathelement location="${gwt}/gwt-user.jar" />
+		<fileset dir="${gwt}" includes="gwt-dev*.jar" />
+		<fileset dir="war/WEB-INF/lib" includes="**/*.jar" />
+		<pathelement location="${gwt}/validation-api-1.0.0.GA.jar" />
+		<pathelement location="${gwt}/validation-api-1.0.0.GA-sources.jar" />
+	</path>
+
+	<target name="javac" description="Compile java source">
+		<mkdir dir="war/WEB-INF/classes" />
+		<javac srcdir="tmpsrc" includes="**" encoding="utf-8" includeantruntime="false" destdir="war/WEB-INF/classes" source="1.5" target="1.5" nowarn="true" debug="true" debuglevel="lines,vars,source">
+			<classpath refid="project.class.path" />
+		</javac>
+		<copy todir="war/WEB-INF/classes">
+			<fileset dir="tmpsrc" excludes="**/*.java" />
+		</copy>
+	</target>
+
+	<target name="dist" depends="buildjs,javac">
+		<echo>Preparing distribution of ${ant.project.name}</echo>
+		<echo>Running GWT compiler...</echo>
+		<java failonerror="true" classname="com.google.gwt.dev.Compiler" fork="true">
+			<classpath>
+				<pathelement location="tmpsrc" />
+				<path refid="project.class.path" />
+			</classpath>
+			<jvmarg value="-Xmx512M" />
+			<jvmarg value="-Xss2M" />
+			<arg value="-XdisableClassMetadata" />
+			<arg value="-extra" />
+			<arg value="extra" />
+			<arg value="-localWorkers" />
+			<arg value="3" />
+			<arg value="${module}" />
+		</java>
+		<copy todir="dist">
+			<fileset dir="war">
+				<exclude name="**/lang/**" />
+				<exclude name="**/scripts/bluemind/**" />
+				<exclude name="**/themes/default/templates/**" />
+				<exclude name="Calendar-dev.jsp" />
+			</fileset>
+		</copy>
+	</target>
+
+</project>

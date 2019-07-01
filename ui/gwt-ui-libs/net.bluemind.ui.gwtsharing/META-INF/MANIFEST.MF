@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: GWT Sharing api
+Bundle-SymbolicName: net.bluemind.ui.gwtsharing;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.ui.gwtcommon.icons;bundle-version="4.1.0";visibility:=reexport,
+ net.bluemind.tag.api.gwt;bundle-version="4.1.0";visibility:=reexport,
+ net.bluemind.core.container.api.gwt;bundle-version="4.1.0";visibility:=reexport,
+ net.bluemind.core.container.api;bundle-version="4.1.0",
+ net.bluemind.core.commons.gwt;bundle-version="4.1.0";visibility:=reexport,
+ net.bluemind.directory.api.gwt;bundle-version="4.1.0";visibility:=reexport,
+ net.bluemind.domain.api,
+ com.google.gwt.user;resolution:=optional,
+ net.bluemind.gwtconsoleapp.base;bundle-version="4.1.0";visibility:=reexport,
+ net.bluemind.ui.gwtcommon.forms;visibility:=reexport,
+ net.bluemind.ui.gwtcommon.editor;visibility:=reexport,
+ net.bluemind.calendar.api.gwt
+Export-Package: net.bluemind.ui.gwtsharing.client
+Automatic-Module-Name: net.bluemind.ui.gwtsharing

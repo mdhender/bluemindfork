@@ -1,0 +1,2 @@
+# Use an alternative log4j configuration file
+LOGBACK_PROPS_FILE=/etc/bm-lmtpd/bm-lmtpd.logback.xml

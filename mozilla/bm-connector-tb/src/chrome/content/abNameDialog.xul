@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?xml-stylesheet href="chrome://bm/skin/style.css" type="text/css"?>
+<!DOCTYPE overlay SYSTEM "chrome://bm/locale/bm.dtd">
+
+<overlay id="bm-abNameDialog" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <script type="application/x-javascript" src="chrome://bm/content/abNameDialog.js" />
+    <hbox align="left">
+        <label id="sharedBy" value="" flex="1"/>
+    </hbox>
+    <hbox align="left">
+        <checkbox id="local" label="&bm.abnamedialog.local;" checked="false" flex="1"/>
+    </hbox>
+</overlay>

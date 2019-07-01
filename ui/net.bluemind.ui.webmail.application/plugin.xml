@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.ui.commons.banner">
+      <banner-entry
+            cssIcon="fa fa-lg fa-paper-plane"
+            description="%banner-entry.description"
+            name="%banner-entry.name"
+            offline="false"
+            priority="100"
+            role="hasMail"
+            root="/webmail/">
+      </banner-entry>
+   </extension>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module-provider
+            module="/webmail">
+         <js path="js/compile/net.bluemind.ui.webmail.application.js" />
+         <web-resource
+               bundle="net.bluemind.ui.webmail.application">
+         </web-resource>
+         <css
+               path="css/net.bluemind.ui.webmail.application.css">
+         </css>
+      </web-module-provider>
+   </extension>
+</plugin>

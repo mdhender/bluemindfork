@@ -1,0 +1,58 @@
+Cyrus 3.0:
+
+git clone https://github.com/cyrusimap/cyrus-imapd.git
+
+apt-get install build-essential autoconf automake libtool pkg-config bison flex valgrind
+
+apt-get install libjansson-dev libxml2-dev libsqlite3-dev libical-dev \
+libsasl2-dev libssl-dev libopendkim-dev libcunit1-dev libpcre3-dev uuid-dev \
+libxapian-1.3-dev libnghttp2-dev \
+python-sphinx python-sphinxcontrib.seqdiag python-sphinxcontrib.programoutput \
+icu-devtools liblmdb-dev
+
+cpan install Pod::POM::View::Restructured 
+
+autoreconf -i -s
+
+./configure CFLAGS="-W -Wno-unused-parameter -g -O0 -Wall -Wextra -Werror -fPIC" \
+--prefix=/usr/lib/cyrus \
+--includedir=/usr/include/bm-cyrus --mandir=/usr/share/man \
+--datadir=/usr/share/bm-cyrus --sysconfdir=/etc \
+--sharedstatedir=/usr/share/bm-cyrus \
+--localstatedir=/var/lib/cyrus \
+--mandir=/usr/share/man \
+--with-lock=fcntl \
+--with-perl=/usr/bin/perl \
+--with-openssl=/usr \
+--enable-murder --disable-nntp \
+--with-sasl=/usr \
+--enable-idled \
+--with-cyrus-user=cyrus --with-cyrus-group=mail \
+--with-com_err="" \
+--with-pidfile=/var/run/bm-cyrus.pid \
+--with-syslogfacility=MAIL \
+--enable-replication --disable-squat --with-lmdb \
+--enable-event-notification --enable-http --disable-objectstore --enable-backup
+
+
+Conf imapd :
+sync_log: 1
+sync_log_channels: eclipse
+eclipse_sync_host: host.vagrant.vmw
+eclipse_sync_port: 2500
+eclipse_sync_authname: admin0
+eclipse_sync_password: admin
+eclipse_sync_realm: eclipse_replication
+
+
+Conf cyrus.conf
+SERVICES {
+   syncserver cmd="/usr/lib/cyrus/libexec/sync_server" proto="tcp4" listen="2500" prefork=1
+}
+
+Run:
+
+/usr/lib/cyrus/sbin/sync_client -n eclipse -o -u tom@ex2016.vmw
+
+   
+

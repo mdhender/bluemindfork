@@ -1,0 +1,25 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:common="urn:import:net.bluemind.ui.common.client.forms"
+	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'>
+
+	<ui:with field="c"
+		type="net.bluemind.ui.gwtaddressbook.client.bytype.internal.InternalAddressbookConstants" />
+
+	<g:HTMLPanel>
+		<table class="formContainer">
+			<tr class="setting">
+				<td class="label">
+					<g:Label text="{c.label}"></g:Label>
+				</td>
+				<td class="form">
+					<g:TextBox name="label" ui:field="label"></g:TextBox>
+				</td>
+			</tr>
+		</table>
+
+	</g:HTMLPanel>
+
+</ui:UiBinder>

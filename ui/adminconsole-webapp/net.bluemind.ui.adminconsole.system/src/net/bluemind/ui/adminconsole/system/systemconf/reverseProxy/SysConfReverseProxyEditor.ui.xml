@@ -1,0 +1,40 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:bj="urn:import:net.bluemind.ui.admin.client" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui" xmlns:common="urn:import:net.bluemind.ui.common.client.forms">
+
+	<ui:with field="c"
+		type="net.bluemind.ui.adminconsole.system.systemconf.reverseProxy.l10n.SysConfReverseProxyConstants" />
+
+
+	<g:HTMLPanel>
+		<f:FieldSetPanel name="{c.nginx}" />
+		<table border="0">
+			<tr>
+				<td style='width:300px'>
+					<g:Label text="{c.swPassword}:"></g:Label>
+				</td>
+				<td style='width:200px'>
+					<input type="text" style="display:none" />
+					<input type="password" style="display:none" />
+					<g:PasswordTextBox ui:field="swPassword" />
+				</td>
+			</tr>
+
+
+			<tr>
+				<td style='width:300px'>
+					<g:Label text="worker_connections"></g:Label>
+				</td>
+				<td style='width:200px'>
+					<g:IntegerBox ui:field="workerConnections"></g:IntegerBox>
+				</td>
+			</tr>
+
+		</table>
+
+	</g:HTMLPanel>
+
+</ui:UiBinder> 

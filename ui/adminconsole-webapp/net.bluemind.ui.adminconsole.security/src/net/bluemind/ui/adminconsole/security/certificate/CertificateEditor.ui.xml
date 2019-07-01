@@ -1,0 +1,83 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:common="urn:import:net.bluemind.ui.common.client.forms"
+	xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui">
+
+	<ui:with field="c"
+		type="net.bluemind.ui.adminconsole.security.certificate.l10n.CertificateEditorConstants" />
+
+	<g:DockLayoutPanel unit='EM'>
+		<g:north size="5">
+			<g:HTMLPanel>
+				<g:Label text="{c.title}" styleName="sectionTitle"></g:Label>
+			</g:HTMLPanel>
+		</g:north>
+
+		<g:center>
+			<g:HTMLPanel ui:field="center">
+				<g:ScrollPanel height="100%" ui:field="toolsScroll">
+				<g:HTMLPanel>
+					<g:FormPanel ui:field="caUploadForm">
+							<g:HTMLPanel>
+								<table class="formContainer">
+									<tr>
+										<td class="label">
+											<g:Label text="{c.caUpload}" />
+										</td>
+										<td>
+											<g:CheckBox ui:field="caFilePresent"></g:CheckBox>
+										</td>
+										<td class="form">
+											<g:FileUpload ui:field="caFileUpload" title="File" name="file" />
+										</td>
+									</tr>
+								</table>
+							</g:HTMLPanel>
+						</g:FormPanel>
+						<g:FormPanel ui:field="certUploadForm">
+							<g:HTMLPanel>
+								<table class="formContainer">
+									<tr>
+										<td class="label">
+											<g:Label text="{c.certUpload}" />
+										</td>
+										<td>
+											<g:CheckBox ui:field="certFilePresent"></g:CheckBox>
+										</td>
+										<td class="form">
+											<g:FileUpload ui:field="certFileUpload" title="File" name="file" />
+										</td>
+									</tr>
+								</table>
+							</g:HTMLPanel>
+						</g:FormPanel>
+						<g:FormPanel ui:field="keyUploadForm">
+							<g:HTMLPanel>
+								<table class="formContainer">
+									<tr>
+										<td class="label">
+											<g:Label text="{c.keyUpload}" />
+										</td>
+										<td>
+											<g:CheckBox ui:field="keyFilePresent"></g:CheckBox>
+										</td>
+										<td class="form">
+											<g:FileUpload ui:field="keyFileUpload" title="File" name="file" />
+										</td>
+									</tr>
+								</table>
+							</g:HTMLPanel>
+						</g:FormPanel>
+						</g:HTMLPanel>
+				</g:ScrollPanel>
+			</g:HTMLPanel>
+		</g:center>
+		
+		
+		<g:south size="4">
+			<f:CrudActionBar ui:field="actionBar" />
+		</g:south>
+	</g:DockLayoutPanel>
+</ui:UiBinder>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.ui.adminconsole.menusContributor">
+      <contributor
+            function="NetBluemindUiAdminconsoleMonitoringContributor">
+      </contributor>
+   </extension>
+   
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module-provider
+            module="/adminconsole">
+         <web-resource
+               bundle="net.bluemind.ui.adminconsole.monitoring">
+         </web-resource>
+         <js
+               async-loading="true"
+               path="net.bluemind.ui.adminconsole.monitoring/net.bluemind.ui.adminconsole.monitoring.nocache.js">
+         </js>
+      </web-module-provider>
+   </extension>
+   <extension
+         point="net.bluemind.ui.adminconsole.screenContributor">
+      <contributor
+            function="NetBluemindUiAdminconsoleMonitoringScreensContributor">
+      </contributor>
+   </extension>
+   
+</plugin>

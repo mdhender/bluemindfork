@@ -1,0 +1,81 @@
+.entry,.offline {
+	cursor: pointer;
+	outline: none;
+	padding: 4px 0px 2px 4px;
+	border-bottom: 1px solid #EEE;
+	-moz-transition: background-color 200ms;
+	-webkit-transition: background-color 200ms;
+	-o-transition: background-color 200ms;
+	transition: background-color 200ms;
+}
+
+.entry:hover {
+	background-color: #049cdb;
+}
+
+.entry:hover .displayName {
+	color: #FFF;
+}
+
+.offline {
+	cursor: pointer;
+}
+
+.photoContainer {
+	display: inline;
+}
+
+.infos {
+	display: inline-block;
+	padding-left: 3px;
+}
+
+.displayName,.statusLabel {
+	color: #666;
+}
+
+.offline .displayName,.offline .statusLabel {
+	color: #CCC;
+	font-weight: normal;
+	overflow: hidden;
+}
+
+.statusLabel {
+	font-size: 80%;
+	font-style: italic;
+	display: inline-block;
+	padding-left: 3px;
+}
+
+.statusUnknownLabel {
+	color: blue !important;
+}
+
+.statusUnknownLabel:hover {
+	text-decoration: underline;
+}
+
+.entry img,.offline img {
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	outline: none;
+	border: 1px solid #CCC;
+	vertical-align:top;
+}
+
+.offline img {
+	opacity: .4;
+}
+
+.action {
+	border: none !important;
+	position: absolute;
+	left: 189px;
+	visibility: hidden;
+}
+
+.entry:hover .action,.offline:hover .action {
+	visibility: visible;
+	cursor: pointer;
+}

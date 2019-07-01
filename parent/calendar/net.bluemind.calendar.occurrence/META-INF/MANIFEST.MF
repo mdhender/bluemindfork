@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.calendar.occurrence
+Bundle-SymbolicName: net.bluemind.calendar.occurrence;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Require-Bundle: net.bluemind.calendar.api,
+ net.bluemind.core.commons,
+ net.bluemind.calendar.helper,
+ org.mnode.ical4j,
+ net.bluemind.lib.ical4j,
+ net.bluemind.icalendar.parser;bundle-version="4.1.0",
+ net.bluemind.core.container.api;bundle-version="4.1.0",
+ com.google.guava
+Export-Package: net.bluemind.calendar.occurrence
+Automatic-Module-Name: net.bluemind.calendar.occurrence

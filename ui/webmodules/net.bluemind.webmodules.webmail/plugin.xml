@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module
+            root="/webmail">
+         <web-resource
+               bundle="net.bluemind.commons.ui.closure">
+         </web-resource>
+
+         <web-resource
+               bundle="net.bluemind.webmodules.webmail">
+         </web-resource>
+         <web-resource
+               bundle="net.bluemind.ui.resources">
+         </web-resource>
+
+         <js
+               path="js/net.bluemind.webmodules.webmail.js">
+         </js>
+         <handler
+               class="net.bluemind.webmodule.server.handlers.LogHandler"
+               path="log">
+         </handler>
+      </web-module>
+      
+      <web-module-provider
+            module="/webmail">
+            <web-resource
+               bundle="net.bluemind.ui.banner.standalone.closure">
+         </web-resource>
+         
+         <js
+               path="js/compile/net.bluemind.ui.banner.standalone.closure.js"
+               translation="true">
+         </js>
+         
+         <css
+               path="css/net.bluemind.ui.banner.standalone.closure.css">
+         </css>
+      </web-module-provider>
+   </extension>
+
+</plugin>

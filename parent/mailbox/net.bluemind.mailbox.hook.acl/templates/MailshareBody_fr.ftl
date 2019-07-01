@@ -1,0 +1,1 @@
+${user} vous a partagé la boîte aux lettres partagée "${entity}".

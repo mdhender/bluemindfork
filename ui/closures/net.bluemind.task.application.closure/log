@@ -1,0 +1,1508 @@
+/usr/lib/jvm/jdk-8-oracle-x64/bin/java -Xmx2g -classpath /home/laurentb/tools/mvn/boot/plexus-classworlds-2.5.1.jar -Dclassworlds.conf=/home/laurentb/tools/mvn/bin/m2.conf -Dmaven.home=/home/laurentb/tools/mvn org.codehaus.plexus.classworlds.launcher.Launcher -P dev-mode clean install
+[INFO] Scanning for projects...
+[INFO] Computing target platform for MavenProject: net.bluemind:net.bluemind.task.application.closure:3.1.0-SNAPSHOT @ /home/laurentb/git/bm/open/ui/closures/net.bluemind.task.application.closure/pom.xml
+[INFO] Adding repository http://forge.blue-mind.net/staging/p2/dependencies/163
+[INFO] Resolving dependencies of MavenProject: net.bluemind:net.bluemind.task.application.closure:3.1.0-SNAPSHOT @ /home/laurentb/git/bm/open/ui/closures/net.bluemind.task.application.closure/pom.xml
+[WARNING] The following locally built units have been used to resolve project dependencies:
+[WARNING]   net.bluemind.ui.banner/3.1.0.201605241456
+[WARNING]   net.bluemind.user.api/3.1.0.201605251506
+[WARNING]   net.bluemind.core.context/3.1.0.201605251506
+[WARNING]   net.bluemind.container.closure/3.1.0.201605241456
+[WARNING]   net.bluemind.mvp.closure/3.1.0.201605241456
+[WARNING]   net.bluemind.server.api/3.1.0.201605251506
+[WARNING]   net.bluemind.webmodule/3.1.0.201605251506
+[WARNING]   net.bluemind.group.api/3.1.0.201605251506
+[WARNING]   net.bluemind.lib.jackson/3.1.0.201605251506
+[WARNING]   net.bluemind.core.task.api/3.1.0.201605251506
+[WARNING]   net.bluemind.todolist.closure/3.1.0.201605241456
+[WARNING]   net.bluemind.core.task.api.closure/3.1.0.201605241456
+[WARNING]   net.bluemind.tag.closure/3.1.0.201605241456
+[WARNING]   net.bluemind.history.ui.closure/3.1.0.201605241456
+[WARNING]   net.bluemind.folder.api.closure/3.1.0.201605241456
+[WARNING]   ydn-base/3.1.0.201605241526
+[WARNING]   net.bluemind.extensions.closure/3.1.0.201605241456
+[WARNING]   net.bluemind.mailbox.identity.api/3.1.0.201605251506
+[WARNING]   ydn-db/3.1.0.201605241526
+[WARNING]   net.bluemind.icalendar.api/3.1.0.201605251506
+[WARNING]   net.bluemind.neko.common/3.1.0.201605251506
+[WARNING]   net.bluemind.core.commons/3.1.0.201605251506
+[WARNING]   net.bluemind.folder.api/3.1.0.201605251506
+[WARNING]   net.bluemind.slf4j/3.1.0.201605251506
+[WARNING]   net.bluemind.core.container.api.closure/3.1.0.201605241456
+[WARNING]   net.bluemind.persistance.closure/3.1.0.201605241456
+[WARNING]   net.bluemind.core.container.api/3.1.0.201605251506
+[WARNING]   net.bluemind.mailbox.api/3.1.0.201605251506
+[WARNING]   net.bluemind.lib.jodatime/3.1.0.201605251506
+[WARNING]   net.bluemind.lib.ical4j/3.1.0.201605251506
+[WARNING]   relief/3.1.0.201605241526
+[WARNING]   net.bluemind.folder.closure/3.1.0.201605241456
+[WARNING]   net.bluemind.core.rest/3.1.0.201605251506
+[WARNING]   net.bluemind.cti.api.closure/3.1.0.201605241456
+[WARNING]   net.bluemind.eclipse.common/3.1.0.201605251506
+[WARNING]   net.bluemind.directory.api.closure/3.1.0.201605241456
+[WARNING]   net.bluemind.commons.closure/3.1.0.201605241456
+[WARNING]   net.bluemind.cti.api/3.1.0.201605251506
+[WARNING]   net.bluemind.authentication.closure/3.1.0.201605241456
+[WARNING]   net.bluemind.common.reflect/3.1.0.201605251506
+[WARNING]   net.bluemind.vertx.closure/3.1.0.201605241456
+[WARNING]   font-awesome/3.1.0.201604151249
+[WARNING]   net.bluemind.todolist.api/3.1.0.201605251506
+[WARNING]   net.bluemind.directory.api/3.1.0.201605251506
+[WARNING]   net.bluemind.tag.api/3.1.0.201605251506
+[WARNING]   net.bluemind.lib.vertx/3.1.0.201605251506
+[WARNING]   net.bluemind.addressbook.api/3.1.0.201605251506
+[WARNING]   net.bluemind.todolist.ui.closure/3.1.0.201605241456
+[WARNING]   net.bluemind.vertx.api.closure/3.1.0.201605241456
+[WARNING]   net.bluemind.commons.ui.closure/3.1.0.201605241456
+[WARNING]   net.bluemind.todolist.api.closure/3.1.0.201605241456
+[WARNING]   net.bluemind.tag.api.closure/3.1.0.201605241456
+[INFO] Resolving class path of MavenProject: net.bluemind:net.bluemind.task.application.closure:3.1.0-SNAPSHOT @ /home/laurentb/git/bm/open/ui/closures/net.bluemind.task.application.closure/pom.xml
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building net.bluemind.task.application.closure 3.1.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- maven-clean-plugin:2.6.1:clean (default-clean) @ net.bluemind.task.application.closure ---
+[INFO] Deleting /home/laurentb/git/bm/open/ui/closures/net.bluemind.task.application.closure/target
+[INFO] 
+[INFO] --- tycho-packaging-plugin:0.23.1:build-qualifier (default-build-qualifier) @ net.bluemind.task.application.closure ---
+[INFO] The project's OSGi version is 3.1.0.201605271434
+[INFO] 
+[INFO] --- tycho-packaging-plugin:0.23.1:validate-id (default-validate-id) @ net.bluemind.task.application.closure ---
+[INFO] 
+[INFO] --- tycho-packaging-plugin:0.23.1:validate-version (default-validate-version) @ net.bluemind.task.application.closure ---
+[INFO] 
+[INFO] --- maven-resources-plugin:2.4.3:resources (default-resources) @ net.bluemind.task.application.closure ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /home/laurentb/git/bm/open/ui/closures/net.bluemind.task.application.closure/src/main/resources
+[INFO] 
+[INFO] --- tycho-compiler-plugin:0.23.1:compile (default-compile) @ net.bluemind.task.application.closure ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- bm-plovr-maven-plugin:1.0.0-SNAPSHOT:plovr-compile (default) @ net.bluemind.task.application.closure ---
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/.cache/tycho/net.bluemind.mvp.closure-3.1.0-SNAPSHOT.jar/js.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/net/bluemind/net.bluemind.mvp.closure/3.1.0-SNAPSHOT/net.bluemind.mvp.closure-3.1.0-SNAPSHOT.jar
+[INFO] found closure CSS into /home/laurentb/.m2/repository/.cache/tycho/net.bluemind.commons.ui.closure-3.1.0-SNAPSHOT.jar/css.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/net/bluemind/net.bluemind.commons.ui.closure/3.1.0-SNAPSHOT/net.bluemind.commons.ui.closure-3.1.0-SNAPSHOT.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/.cache/tycho/net.bluemind.commons.ui.closure-3.1.0-SNAPSHOT.jar/js.jar
+[INFO] found closure LANG into /home/laurentb/.m2/repository/.cache/tycho/net.bluemind.commons.closure-3.1.0-SNAPSHOT.jar/lang.jar
+[INFO] found closure CSS into /home/laurentb/.m2/repository/.cache/tycho/net.bluemind.commons.closure-3.1.0-SNAPSHOT.jar/css.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/.cache/tycho/net.bluemind.commons.closure-3.1.0-SNAPSHOT.jar/js.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/net/bluemind/net.bluemind.commons.closure/3.1.0-SNAPSHOT/net.bluemind.commons.closure-3.1.0-SNAPSHOT.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/.cache/tycho/ydn-base-3.1.0-SNAPSHOT.jar/js.jar
+[INFO] found closure EXTERNS into /home/laurentb/.m2/repository/.cache/tycho/ydn-base-3.1.0-SNAPSHOT.jar/externs.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/yathit/ydn-base/3.1.0-SNAPSHOT/ydn-base-3.1.0-SNAPSHOT.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/.cache/tycho/ydn-db-3.1.0-SNAPSHOT.jar/js.jar
+[INFO] found closure EXTERNS into /home/laurentb/.m2/repository/.cache/tycho/ydn-db-3.1.0-SNAPSHOT.jar/externs.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/yathit/ydn-db/3.1.0-SNAPSHOT/ydn-db-3.1.0-SNAPSHOT.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/.cache/tycho/relief-3.1.0-SNAPSHOT.jar/js.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/net/bluemind/relief/3.1.0-SNAPSHOT/relief-3.1.0-SNAPSHOT.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/.cache/tycho/net.bluemind.vertx.api.closure-3.1.0-SNAPSHOT.jar/js.jar
+[INFO] found closure EXTERNS into /home/laurentb/.m2/repository/.cache/tycho/net.bluemind.vertx.api.closure-3.1.0-SNAPSHOT.jar/externs.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/.cache/tycho/net.bluemind.vertx.closure-3.1.0-SNAPSHOT.jar/js.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/.cache/tycho/net.bluemind.extensions.closure-3.1.0-SNAPSHOT.jar/js.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/net/bluemind/net.bluemind.extensions.closure/3.1.0-SNAPSHOT/net.bluemind.extensions.closure-3.1.0-SNAPSHOT.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/.cache/tycho/net.bluemind.core.task.api.closure-3.1.0-SNAPSHOT.jar/js.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/net/bluemind/net.bluemind.authentication.closure/3.1.0-SNAPSHOT/net.bluemind.authentication.closure-3.1.0-SNAPSHOT.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/.cache/tycho/net.bluemind.authentication.closure-3.1.0-SNAPSHOT.jar/js.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/.cache/tycho/net.bluemind.container.closure-3.1.0-SNAPSHOT.jar/js.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/net/bluemind/net.bluemind.container.closure/3.1.0-SNAPSHOT/net.bluemind.container.closure-3.1.0-SNAPSHOT.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/.cache/tycho/net.bluemind.core.container.api.closure-3.1.0-SNAPSHOT.jar/js.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/.cache/tycho/net.bluemind.tag.closure-3.1.0-SNAPSHOT.jar/js.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/net/bluemind/net.bluemind.tag.closure/3.1.0-SNAPSHOT/net.bluemind.tag.closure-3.1.0-SNAPSHOT.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/.cache/tycho/net.bluemind.tag.api.closure-3.1.0-SNAPSHOT.jar/js.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/net/bluemind/net.bluemind.tag.api.closure/3.1.0-SNAPSHOT/net.bluemind.tag.api.closure-3.1.0-SNAPSHOT.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/.cache/tycho/net.bluemind.persistance.closure-3.1.0-SNAPSHOT.jar/js.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/net/bluemind/net.bluemind.persistance.closure/3.1.0-SNAPSHOT/net.bluemind.persistance.closure-3.1.0-SNAPSHOT.jar
+[INFO] found closure CSS into /home/laurentb/.m2/repository/.cache/tycho/net.bluemind.ui.banner-3.1.0-SNAPSHOT.jar/css.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/net/bluemind/net.bluemind.ui.banner/3.1.0-SNAPSHOT/net.bluemind.ui.banner-3.1.0-SNAPSHOT.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/.cache/tycho/net.bluemind.ui.banner-3.1.0-SNAPSHOT.jar/js.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/.cache/tycho/net.bluemind.todolist.closure-3.1.0-SNAPSHOT.jar/js.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/net/bluemind/net.bluemind.todolist.closure/3.1.0-SNAPSHOT/net.bluemind.todolist.closure-3.1.0-SNAPSHOT.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/.cache/tycho/net.bluemind.todolist.api.closure-3.1.0-SNAPSHOT.jar/js.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/.cache/tycho/net.bluemind.folder.closure-3.1.0-SNAPSHOT.jar/js.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/net/bluemind/net.bluemind.folder.closure/3.1.0-SNAPSHOT/net.bluemind.folder.closure-3.1.0-SNAPSHOT.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/.cache/tycho/net.bluemind.folder.api.closure-3.1.0-SNAPSHOT.jar/js.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/.cache/tycho/net.bluemind.directory.api.closure-3.1.0-SNAPSHOT.jar/js.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/.cache/tycho/net.bluemind.cti.api.closure-3.1.0-SNAPSHOT.jar/js.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/net/bluemind/font-awesome/3.1.0-SNAPSHOT/font-awesome-3.1.0-SNAPSHOT.jar
+[INFO] found closure CSS into /home/laurentb/.m2/repository/.cache/tycho/net.bluemind.todolist.ui.closure-3.1.0-SNAPSHOT.jar/css.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/.cache/tycho/net.bluemind.todolist.ui.closure-3.1.0-SNAPSHOT.jar/js.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/net/bluemind/net.bluemind.todolist.ui.closure/3.1.0-SNAPSHOT/net.bluemind.todolist.ui.closure-3.1.0-SNAPSHOT.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/.cache/tycho/net.bluemind.history.ui.closure-3.1.0-SNAPSHOT.jar/js.jar
+[INFO] found closure CLOSURE into /home/laurentb/.m2/repository/net/bluemind/net.bluemind.history.ui.closure/3.1.0-SNAPSHOT/net.bluemind.history.ui.closure-3.1.0-SNAPSHOT.jar
+compiling lang en
+loading properties /home/laurentb/git/bm/open/ui/closures/net.bluemind.task.application.closure/target/deps/net.bluemind.todolist.closure-CLOSURE/lang_en.properties
+add message meaning tasks.status.cancelled message (Cancelled) parts ([Cancelled]) , placeolder ([])
+add message meaning tasks.classification.private message (Private) parts ([Private]) , placeolder ([])
+add message meaning tasks.priority.medium message (Medium) parts ([Medium]) , placeolder ([])
+add message meaning tasks.classification.confidential message (Confidential) parts ([Confidential]) , placeolder ([])
+add message meaning tasks.priority.low message (Low) parts ([Low]) , placeolder ([])
+add message meaning tasks.classification.public message (Public) parts ([Public]) , placeolder ([])
+add message meaning tasks.status.inProgress message (In progress) parts ([In progress]) , placeolder ([])
+add message meaning tasks.status.needsAction message (Not started) parts ([Not started]) , placeolder ([])
+add message meaning tasks.priority.high message (High) parts ([High]) , placeolder ([])
+add message meaning tasks.status.completed message (Completed) parts ([Completed]) , placeolder ([])
+loading properties /home/laurentb/git/bm/open/ui/closures/net.bluemind.task.application.closure/target/deps/net.bluemind.todolist.ui.closure-CLOSURE/todolistui_en.properties
+add message meaning ask.completedOn message (Completed on {$completed}) parts ([Completed on , {$completed}]) , placeolder ([completed])
+add message meaning task.dueOn message (Due on {$due}) parts ([Due on , {$due}]) , placeolder ([due])
+add message meaning task.started message (Started on {$task.start}) parts ([Started on , {$task.start}]) , placeolder ([task.start])
+add message meaning task.location message (Location) parts ([Location]) , placeolder ([])
+add message meaning task.priority message (Priority : {$priority}) parts ([Priority : , {$priority}]) , placeolder ([priority])
+add message meaning task.completed message (Completed) parts ([Completed]) , placeolder ([])
+loading properties /home/laurentb/git/bm/open/ui/closures/net.bluemind.task.application.closure/target/deps/net.bluemind.commons.ui.closure-CLOSURE/lang_en.properties
+add message meaning general.logout message (Logout) parts ([Logout]) , placeolder ([])
+add message meaning general.reminder.add message (Add reminder) parts ([Add reminder]) , placeolder ([])
+add message meaning offline.status.info message (You'll work offline. All your changes will be synced  next time you log in.) parts ([You'll work offline. All your changes will be synced  next time you log in.]) , placeolder ([])
+add message meaning commons.time.days message (days) parts ([days]) , placeolder ([])
+add message meaning commons.reminder.notificationPopup message (Notification Popup) parts ([Notification Popup]) , placeolder ([])
+add message meaning commons.reminder.compatibleClientWarning message (A compatible client must be running at reminder time) parts ([A compatible client must be running at reminder time]) , placeolder ([])
+add message meaning commons.time.hours message (hours) parts ([hours]) , placeolder ([])
+add message meaning general.other message (Other) parts ([Other]) , placeolder ([])
+add message meaning commons.add message (Add...) parts ([Add...]) , placeolder ([])
+add message meaning offline.status.dialog.goOffline message (You are currently online. Would you like to switch offline?) parts ([You are currently online. Would you like to switch offline?]) , placeolder ([])
+add message meaning general.sharedBy message (Shared by) parts ([Shared by]) , placeolder ([])
+add message meaning offline.status.dialog.stayOffline message (Server is currently unavailable. Would you like to stay offline even if the server become available?) parts ([Server is currently unavailable. Would you like to stay offline even if the server become available?]) , placeolder ([])
+add message meaning commons.addReminder message (Add a reminder) parts ([Add a reminder]) , placeolder ([])
+add message meaning commons.reminder.byEmail message (By E-Mail) parts ([By E-Mail]) , placeolder ([])
+add message meaning commons.time.seconds message (seconds) parts ([seconds]) , placeolder ([])
+add message meaning user.avatar message (User avatar) parts ([User avatar]) , placeolder ([])
+add message meaning offline.status.dialog.goOnline message (You are currently offline. Would you like to switch online?) parts ([You are currently offline. Would you like to switch online?]) , placeolder ([])
+add message meaning commons.time.minutes message (minutes) parts ([minutes]) , placeolder ([])
+loading properties /home/laurentb/git/bm/open/ui/closures/net.bluemind.task.application.closure/target/deps/net.bluemind.mvp.closure-CLOSURE/lang_en.properties
+add message meaning logo.title message (BlueMind - {$application} (Version {$version}) ) parts ([BlueMind - , {$application},  (Version , {$version}, ) ]) , placeolder ([application, version])
+loading properties /home/laurentb/git/bm/open/ui/closures/net.bluemind.task.application.closure/src/main/lang/lang_en.properties
+add message meaning general.history message (History) parts ([History]) , placeolder ([])
+add message meaning tasks.todolist.removeDialog.content message (Would you like to remove the selected todolist?) parts ([Would you like to remove the selected todolist?]) , placeolder ([])
+add message meaning tasks.totolist.thisMonth message (This month) parts ([This month]) , placeolder ([])
+add message meaning general.move message (Move to...) parts ([Move to...]) , placeolder ([])
+add message meaning general.save message (Save) parts ([Save]) , placeolder ([])
+add message meaning task.completed message (Completed) parts ([Completed]) , placeolder ([])
+add message meaning tasks.totolist.noDueDate message (No due date) parts ([No due date]) , placeolder ([])
+add message meaning tasks.totolist.thisWeek message (This week) parts ([This week]) , placeolder ([])
+add message meaning tasks.totolist.yesterday message (Yesterday) parts ([Yesterday]) , placeolder ([])
+add message meaning tasks.totolist.today message (Today) parts ([Today]) , placeolder ([])
+add message meaning tasks.todolist.renameDialog.button message (Rename) parts ([Rename]) , placeolder ([])
+add message meaning general.tags message (Tags) parts ([Tags]) , placeolder ([])
+add message meaning general.rename message (Rename) parts ([Rename]) , placeolder ([])
+add message meaning general.remove message (Remove) parts ([Remove]) , placeolder ([])
+add message meaning tasks.totolist.completed message (Completed) parts ([Completed]) , placeolder ([])
+add message meaning task.dueOn message (Due on ) parts ([Due on ]) , placeolder ([])
+add message meaning tasks.create.newTask message (New task) parts ([New task]) , placeolder ([])
+add message meaning tasks.todolist.removeDialog.button message (Remove) parts ([Remove]) , placeolder ([])
+add message meaning task.completedOn message (Completed on ) parts ([Completed on ]) , placeolder ([])
+add message meaning tasks.todolist.renameDialog.title message (Rename Todolist) parts ([Rename Todolist]) , placeolder ([])
+add message meaning general.delete message (Delete) parts ([Delete]) , placeolder ([])
+add message meaning tasks.totolist.late message (Late) parts ([Late]) , placeolder ([])
+add message meaning tasks.totolists.sharedLists message (Shared lists) parts ([Shared lists]) , placeolder ([])
+add message meaning tasks.totolist.tomorrow message (Tomorrow) parts ([Tomorrow]) , placeolder ([])
+add message meaning tasks.totolist.later message (Later) parts ([Later]) , placeolder ([])
+add message meaning tasks.todolist.removeDialog.title message (Remove Todolist) parts ([Remove Todolist]) , placeolder ([])
+add message meaning tasks.ical.export message (Export to iCal) parts ([Export to iCal]) , placeolder ([])
+add message meaning general.copy message (Copy to...) parts ([Copy to...]) , placeolder ([])
+add message meaning tasks.todolist.renameDialog.content message (Enter new todolist name) parts ([Enter new todolist name]) , placeolder ([])
+add message meaning tasks.ical.import message (Import from iCal) parts ([Import from iCal]) , placeolder ([])
+add message meaning general.selectFile message (Select file) parts ([Select file]) , placeolder ([])
+add message meaning task.started message (Started on ) parts ([Started on ]) , placeolder ([])
+add message meaning general.import message (Import) parts ([Import]) , placeolder ([])
+add message meaning tasks.totolists.myLists message (My lists) parts ([My lists]) , placeolder ([])
+add message meaning task.location message (Location) parts ([Location]) , placeolder ([])
+add message meaning task.priority message (Priority : ) parts ([Priority : ]) , placeolder ([])
+compiling lang en
+loading properties /home/laurentb/git/bm/open/ui/closures/net.bluemind.task.application.closure/target/deps/net.bluemind.todolist.closure-CLOSURE/lang_en.properties
+add message meaning tasks.status.cancelled message (Cancelled) parts ([Cancelled]) , placeolder ([])
+add message meaning tasks.classification.private message (Private) parts ([Private]) , placeolder ([])
+add message meaning tasks.priority.medium message (Medium) parts ([Medium]) , placeolder ([])
+add message meaning tasks.classification.confidential message (Confidential) parts ([Confidential]) , placeolder ([])
+add message meaning tasks.priority.low message (Low) parts ([Low]) , placeolder ([])
+add message meaning tasks.classification.public message (Public) parts ([Public]) , placeolder ([])
+add message meaning tasks.status.inProgress message (In progress) parts ([In progress]) , placeolder ([])
+add message meaning tasks.status.needsAction message (Not started) parts ([Not started]) , placeolder ([])
+add message meaning tasks.priority.high message (High) parts ([High]) , placeolder ([])
+add message meaning tasks.status.completed message (Completed) parts ([Completed]) , placeolder ([])
+loading properties /home/laurentb/git/bm/open/ui/closures/net.bluemind.task.application.closure/target/deps/net.bluemind.todolist.ui.closure-CLOSURE/todolistui_en.properties
+add message meaning ask.completedOn message (Completed on {$completed}) parts ([Completed on , {$completed}]) , placeolder ([completed])
+add message meaning task.dueOn message (Due on {$due}) parts ([Due on , {$due}]) , placeolder ([due])
+add message meaning task.started message (Started on {$task.start}) parts ([Started on , {$task.start}]) , placeolder ([task.start])
+add message meaning task.location message (Location) parts ([Location]) , placeolder ([])
+add message meaning task.priority message (Priority : {$priority}) parts ([Priority : , {$priority}]) , placeolder ([priority])
+add message meaning task.completed message (Completed) parts ([Completed]) , placeolder ([])
+loading properties /home/laurentb/git/bm/open/ui/closures/net.bluemind.task.application.closure/target/deps/net.bluemind.commons.ui.closure-CLOSURE/lang_en.properties
+add message meaning general.logout message (Logout) parts ([Logout]) , placeolder ([])
+add message meaning general.reminder.add message (Add reminder) parts ([Add reminder]) , placeolder ([])
+add message meaning offline.status.info message (You'll work offline. All your changes will be synced  next time you log in.) parts ([You'll work offline. All your changes will be synced  next time you log in.]) , placeolder ([])
+add message meaning commons.time.days message (days) parts ([days]) , placeolder ([])
+add message meaning commons.reminder.notificationPopup message (Notification Popup) parts ([Notification Popup]) , placeolder ([])
+add message meaning commons.reminder.compatibleClientWarning message (A compatible client must be running at reminder time) parts ([A compatible client must be running at reminder time]) , placeolder ([])
+add message meaning commons.time.hours message (hours) parts ([hours]) , placeolder ([])
+add message meaning general.other message (Other) parts ([Other]) , placeolder ([])
+add message meaning commons.add message (Add...) parts ([Add...]) , placeolder ([])
+add message meaning offline.status.dialog.goOffline message (You are currently online. Would you like to switch offline?) parts ([You are currently online. Would you like to switch offline?]) , placeolder ([])
+add message meaning general.sharedBy message (Shared by) parts ([Shared by]) , placeolder ([])
+add message meaning offline.status.dialog.stayOffline message (Server is currently unavailable. Would you like to stay offline even if the server become available?) parts ([Server is currently unavailable. Would you like to stay offline even if the server become available?]) , placeolder ([])
+add message meaning commons.addReminder message (Add a reminder) parts ([Add a reminder]) , placeolder ([])
+add message meaning commons.reminder.byEmail message (By E-Mail) parts ([By E-Mail]) , placeolder ([])
+add message meaning commons.time.seconds message (seconds) parts ([seconds]) , placeolder ([])
+add message meaning user.avatar message (User avatar) parts ([User avatar]) , placeolder ([])
+add message meaning offline.status.dialog.goOnline message (You are currently offline. Would you like to switch online?) parts ([You are currently offline. Would you like to switch online?]) , placeolder ([])
+add message meaning commons.time.minutes message (minutes) parts ([minutes]) , placeolder ([])
+loading properties /home/laurentb/git/bm/open/ui/closures/net.bluemind.task.application.closure/target/deps/net.bluemind.mvp.closure-CLOSURE/lang_en.properties
+add message meaning logo.title message (BlueMind - {$application} (Version {$version}) ) parts ([BlueMind - , {$application},  (Version , {$version}, ) ]) , placeolder ([application, version])
+loading properties /home/laurentb/git/bm/open/ui/closures/net.bluemind.task.application.closure/src/main/lang/lang_en.properties
+add message meaning general.history message (History) parts ([History]) , placeolder ([])
+add message meaning tasks.todolist.removeDialog.content message (Would you like to remove the selected todolist?) parts ([Would you like to remove the selected todolist?]) , placeolder ([])
+add message meaning tasks.totolist.thisMonth message (This month) parts ([This month]) , placeolder ([])
+add message meaning general.move message (Move to...) parts ([Move to...]) , placeolder ([])
+add message meaning general.save message (Save) parts ([Save]) , placeolder ([])
+add message meaning task.completed message (Completed) parts ([Completed]) , placeolder ([])
+add message meaning tasks.totolist.noDueDate message (No due date) parts ([No due date]) , placeolder ([])
+add message meaning tasks.totolist.thisWeek message (This week) parts ([This week]) , placeolder ([])
+add message meaning tasks.totolist.yesterday message (Yesterday) parts ([Yesterday]) , placeolder ([])
+add message meaning tasks.totolist.today message (Today) parts ([Today]) , placeolder ([])
+add message meaning tasks.todolist.renameDialog.button message (Rename) parts ([Rename]) , placeolder ([])
+add message meaning general.tags message (Tags) parts ([Tags]) , placeolder ([])
+add message meaning general.rename message (Rename) parts ([Rename]) , placeolder ([])
+add message meaning general.remove message (Remove) parts ([Remove]) , placeolder ([])
+add message meaning tasks.totolist.completed message (Completed) parts ([Completed]) , placeolder ([])
+add message meaning task.dueOn message (Due on ) parts ([Due on ]) , placeolder ([])
+add message meaning tasks.create.newTask message (New task) parts ([New task]) , placeolder ([])
+add message meaning tasks.todolist.removeDialog.button message (Remove) parts ([Remove]) , placeolder ([])
+add message meaning task.completedOn message (Completed on ) parts ([Completed on ]) , placeolder ([])
+add message meaning tasks.todolist.renameDialog.title message (Rename Todolist) parts ([Rename Todolist]) , placeolder ([])
+add message meaning general.delete message (Delete) parts ([Delete]) , placeolder ([])
+add message meaning tasks.totolist.late message (Late) parts ([Late]) , placeolder ([])
+add message meaning tasks.totolists.sharedLists message (Shared lists) parts ([Shared lists]) , placeolder ([])
+add message meaning tasks.totolist.tomorrow message (Tomorrow) parts ([Tomorrow]) , placeolder ([])
+add message meaning tasks.totolist.later message (Later) parts ([Later]) , placeolder ([])
+add message meaning tasks.todolist.removeDialog.title message (Remove Todolist) parts ([Remove Todolist]) , placeolder ([])
+add message meaning tasks.ical.export message (Export to iCal) parts ([Export to iCal]) , placeolder ([])
+add message meaning general.copy message (Copy to...) parts ([Copy to...]) , placeolder ([])
+add message meaning tasks.todolist.renameDialog.content message (Enter new todolist name) parts ([Enter new todolist name]) , placeolder ([])
+add message meaning tasks.ical.import message (Import from iCal) parts ([Import from iCal]) , placeolder ([])
+add message meaning general.selectFile message (Select file) parts ([Select file]) , placeolder ([])
+add message meaning task.started message (Started on ) parts ([Started on ]) , placeolder ([])
+add message meaning general.import message (Import) parts ([Import]) , placeolder ([])
+add message meaning tasks.totolists.myLists message (My lists) parts ([My lists]) , placeolder ([])
+add message meaning task.location message (Location) parts ([Location]) , placeolder ([])
+add message meaning task.priority message (Priority : ) parts ([Priority : ]) , placeolder ([])
+place ref monthName
+place ref yearNum
+native meaning month.and.year message ({$monthName} {$yearNum})
+no message, use from source month.and.year
+message for month.and.year local ({$monthName} {$yearNum}, parts :[{$monthName},  , {$yearNum}] placeholder [monthName, yearNum]) l ({$monthName} {$yearNum})
+native meaning time.am message (am)
+no message, use from source time.am
+message for time.am local (am, parts :[am] placeholder []) l (am)
+native meaning time.pm message (pm)
+no message, use from source time.pm
+message for time.pm local (pm, parts :[pm] placeholder []) l (pm)
+message for user.avatar local (User avatar, parts :[User avatar] placeholder []) l (null)
+message for general.logout local (Logout, parts :[Logout] placeholder []) l (null)
+message for offline.status.dialog.goOffline local (You are currently online. Would you like to switch offline?, parts :[You are currently online. Would you like to switch offline?] placeholder []) l (null)
+message for offline.status.info local (You'll work offline. All your changes will be synced  next time you log in., parts :[You'll work offline. All your changes will be synced  next time you log in.] placeholder []) l (null)
+message for offline.status.dialog.stayOffline local (Server is currently unavailable. Would you like to stay offline even if the server become available?, parts :[Server is currently unavailable. Would you like to stay offline even if the server become available?] placeholder []) l (null)
+message for offline.status.info local (You'll work offline. All your changes will be synced  next time you log in., parts :[You'll work offline. All your changes will be synced  next time you log in.] placeholder []) l (null)
+message for offline.status.dialog.goOnline local (You are currently offline. Would you like to switch online?, parts :[You are currently offline. Would you like to switch online?] placeholder []) l (null)
+native meaning dialog.ok. message (OK)
+no message, use from source dialog.ok.
+message for dialog.ok. local (OK, parts :[OK] placeholder []) l (OK)
+native meaning dialog.cancel. message (Cancel)
+no message, use from source dialog.cancel.
+message for dialog.cancel. local (Cancel, parts :[Cancel] placeholder []) l (Cancel)
+native meaning dialog.yes. message (Yes)
+no message, use from source dialog.yes.
+message for dialog.yes. local (Yes, parts :[Yes] placeholder []) l (Yes)
+native meaning dialog.no. message (No)
+no message, use from source dialog.no.
+message for dialog.no. local (No, parts :[No] placeholder []) l (No)
+native meaning dialog.save. message (Save)
+no message, use from source dialog.save.
+message for dialog.save. local (Save, parts :[Save] placeholder []) l (Save)
+native meaning dialog.continue. message (Continue)
+no message, use from source dialog.continue.
+message for dialog.continue. local (Continue, parts :[Continue] placeholder []) l (Continue)
+native meaning goog.ui.dialog.close. message (Close)
+no message, use from source goog.ui.dialog.close.
+message for goog.ui.dialog.close. local (Close, parts :[Close] placeholder []) l (Close)
+message for logo.title local (BlueMind - {$application} (Version {$version}) , parts :[BlueMind - , {$application},  (Version , {$version}, ) ] placeholder [application, version]) l (null)
+message for logo.title local (BlueMind - {$application} (Version {$version}) , parts :[BlueMind - , {$application},  (Version , {$version}, ) ] placeholder [application, version]) l (null)
+message for tasks.create.newTask local (New task, parts :[New task] placeholder []) l (null)
+native meaning calendar.ics.ko message (Fail to import ICS.)
+no message, use from source calendar.ics.ko
+message for calendar.ics.ko local (Fail to import ICS., parts :[Fail to import ICS.] placeholder []) l (Fail to import ICS.)
+place ref ok
+native meaning ics.all message ({$ok} events succesfully imported.)
+no message, use from source ics.all
+message for ics.all local ({$ok} events succesfully imported., parts :[{$ok},  events succesfully imported.] placeholder [ok]) l ({$ok} events succesfully imported.)
+native meaning ics.only message (The event have been succesfully imported.)
+no message, use from source ics.only
+message for ics.only local (The event have been succesfully imported., parts :[The event have been succesfully imported.] placeholder []) l (The event have been succesfully imported.)
+place ref ok
+place ref all
+native meaning ics.some message ({$ok} / {$all} events succesfully imported.)
+no message, use from source ics.some
+message for ics.some local ({$ok} / {$all} events succesfully imported., parts :[{$ok},  / , {$all},  events succesfully imported.] placeholder [all, ok]) l ({$ok} / {$all} events succesfully imported.)
+place ref all
+native meaning ics.one message (1 / {$all} event succesfully imported.)
+no message, use from source ics.one
+message for ics.one local (1 / {$all} event succesfully imported., parts :[1 / , {$all},  event succesfully imported.] placeholder [all]) l (1 / {$all} event succesfully imported.)
+message for tasks.ical.export local (Export to iCal, parts :[Export to iCal] placeholder []) l (null)
+message for tasks.ical.import local (Import from iCal, parts :[Import from iCal] placeholder []) l (null)
+message for general.rename local (Rename, parts :[Rename] placeholder []) l (null)
+message for general.remove local (Remove, parts :[Remove] placeholder []) l (null)
+message for general.selectFile local (Select file, parts :[Select file] placeholder []) l (null)
+message for general.import local (Import, parts :[Import] placeholder []) l (null)
+message for tasks.todolist.renameDialog.title local (Rename Todolist, parts :[Rename Todolist] placeholder []) l (null)
+message for tasks.todolist.renameDialog.content local (Enter new todolist name, parts :[Enter new todolist name] placeholder []) l (null)
+message for tasks.todolist.renameDialog.button local (Rename, parts :[Rename] placeholder []) l (null)
+message for tasks.todolist.removeDialog.title local (Remove Todolist, parts :[Remove Todolist] placeholder []) l (null)
+message for tasks.todolist.removeDialog.content local (Would you like to remove the selected todolist?, parts :[Would you like to remove the selected todolist?] placeholder []) l (null)
+message for tasks.todolist.removeDialog.button local (Remove, parts :[Remove] placeholder []) l (null)
+native meaning contact.vcf.import.progress message (Import in progress...)
+no message, use from source contact.vcf.import.progress
+message for contact.vcf.import.progress local (Import in progress..., parts :[Import in progress...] placeholder []) l (Import in progress...)
+message for general.rename local (Rename, parts :[Rename] placeholder []) l (null)
+message for general.remove local (Remove, parts :[Remove] placeholder []) l (null)
+native meaning task.ics.ko message (Fail to import ICS. (VTODO))
+no message, use from source task.ics.ko
+message for task.ics.ko local (Fail to import ICS. (VTODO), parts :[Fail to import ICS. (VTODO)] placeholder []) l (Fail to import ICS. (VTODO))
+place ref ok
+native meaning task.ics.success.all message ({$ok} tasks succesfully imported.)
+no message, use from source task.ics.success.all
+message for task.ics.success.all local ({$ok} tasks succesfully imported., parts :[{$ok},  tasks succesfully imported.] placeholder [ok]) l ({$ok} tasks succesfully imported.)
+native meaning task.ics.success.one message (The task have been succesfully imported.)
+no message, use from source task.ics.success.one
+message for task.ics.success.one local (The task have been succesfully imported., parts :[The task have been succesfully imported.] placeholder []) l (The task have been succesfully imported.)
+place ref ok
+place ref all
+native meaning task.ics.success.some message ({$ok} / {$all} tasks succesfully imported.)
+no message, use from source task.ics.success.some
+message for task.ics.success.some local ({$ok} / {$all} tasks succesfully imported., parts :[{$ok},  / , {$all},  tasks succesfully imported.] placeholder [all, ok]) l ({$ok} / {$all} tasks succesfully imported.)
+place ref all
+native meaning task.ics.success.oneInMany message (1 / {$all} tasks succesfully imported.)
+no message, use from source task.ics.success.oneInMany
+message for task.ics.success.oneInMany local (1 / {$all} tasks succesfully imported., parts :[1 / , {$all},  tasks succesfully imported.] placeholder [all]) l (1 / {$all} tasks succesfully imported.)
+message for tasks.totolist.completed local (Completed, parts :[Completed] placeholder []) l (null)
+message for tasks.totolist.late local (Late, parts :[Late] placeholder []) l (null)
+message for tasks.totolist.noDueDate local (No due date, parts :[No due date] placeholder []) l (null)
+message for tasks.totolist.today local (Today, parts :[Today] placeholder []) l (null)
+message for tasks.totolist.tomorrow local (Tomorrow, parts :[Tomorrow] placeholder []) l (null)
+message for tasks.totolist.thisWeek local (This week, parts :[This week] placeholder []) l (null)
+message for tasks.totolist.thisMonth local (This month, parts :[This month] placeholder []) l (null)
+message for tasks.totolist.later local (Later, parts :[Later] placeholder []) l (null)
+message for tasks.totolist.yesterday local (Yesterday, parts :[Yesterday] placeholder []) l (null)
+message for commons.add local (Add..., parts :[Add...] placeholder []) l (null)
+message for tasks.totolists.myLists local (My lists, parts :[My lists] placeholder []) l (null)
+message for tasks.totolists.sharedLists local (Shared lists, parts :[Shared lists] placeholder []) l (null)
+message for general.sharedBy local (Shared by, parts :[Shared by] placeholder []) l (null)
+place ref message
+native meaning task.todolists.loadingError message (Error during Todo lists loading: {$message})
+no message, use from source task.todolists.loadingError
+message for task.todolists.loadingError local (Error during Todo lists loading: {$message}, parts :[Error during Todo lists loading: , {$message}] placeholder [message]) l (Error during Todo lists loading: {$message})
+place ref message
+native meaning generic.loadingError message (Error during loading: {$message})
+no message, use from source generic.loadingError
+message for generic.loadingError local (Error during loading: {$message}, parts :[Error during loading: , {$message}] placeholder [message]) l (Error during loading: {$message})
+place ref message
+native meaning generic.createError message (Error during creation: {$message})
+no message, use from source generic.createError
+message for generic.createError local (Error during creation: {$message}, parts :[Error during creation: , {$message}] placeholder [message]) l (Error during creation: {$message})
+native meaning contact.create.success message (Task saved)
+no message, use from source contact.create.success
+message for contact.create.success local (Task saved, parts :[Task saved] placeholder []) l (Task saved)
+no message, use from source generic.createError
+message for generic.createError local (Error during creation: {$message}, parts :[Error during creation: , {$message}] placeholder [message]) l (Error during creation: {$message})
+native meaning contact.update.success message (Task saved)
+no message, use from source contact.update.success
+message for contact.update.success local (Task saved, parts :[Task saved] placeholder []) l (Task saved)
+place ref message
+native meaning generic.deleteError message (Error during delete: {$message})
+no message, use from source generic.deleteError
+message for generic.deleteError local (Error during delete: {$message}, parts :[Error during delete: , {$message}] placeholder [message]) l (Error during delete: {$message})
+native meaning contact.delete.success message (Task deleted)
+no message, use from source contact.delete.success
+message for contact.delete.success local (Task deleted, parts :[Task deleted] placeholder []) l (Task deleted)
+place ref message
+native meaning contact.move.error message (Error during move: {$message})
+no message, use from source contact.move.error
+message for contact.move.error local (Error during move: {$message}, parts :[Error during move: , {$message}] placeholder [message]) l (Error during move: {$message})
+native meaning contact.move.success message (Task moved)
+no message, use from source contact.move.success
+message for contact.move.success local (Task moved, parts :[Task moved] placeholder []) l (Task moved)
+no message, use from source contact.move.error
+message for contact.move.error local (Error during move: {$message}, parts :[Error during move: , {$message}] placeholder [message]) l (Error during move: {$message})
+no message, use from source contact.move.success
+message for contact.move.success local (Task moved, parts :[Task moved] placeholder []) l (Task moved)
+message for task.started local (Started on , parts :[Started on ] placeholder []) l (null)
+message for general.tags local (Tags, parts :[Tags] placeholder []) l (null)
+message for task.location local (Location, parts :[Location] placeholder []) l (null)
+message for task.completed local (Completed, parts :[Completed] placeholder []) l (null)
+message for task.completedOn local (Completed on , parts :[Completed on ] placeholder []) l (null)
+message for task.dueOn local (Due on , parts :[Due on ] placeholder []) l (null)
+message for task.priority local (Priority : , parts :[Priority : ] placeholder []) l (null)
+message for general.copy local (Copy to..., parts :[Copy to...] placeholder []) l (null)
+message for tasks.priority.low local (Low, parts :[Low] placeholder []) l (null)
+message for tasks.priority.medium local (Medium, parts :[Medium] placeholder []) l (null)
+message for tasks.priority.high local (High, parts :[High] placeholder []) l (null)
+message for tasks.status.needsAction local (Not started, parts :[Not started] placeholder []) l (null)
+message for tasks.status.completed local (Completed, parts :[Completed] placeholder []) l (null)
+message for tasks.status.inProgress local (In progress, parts :[In progress] placeholder []) l (null)
+message for tasks.status.cancelled local (Cancelled, parts :[Cancelled] placeholder []) l (null)
+native meaning datepicker.today.button.label message (Today)
+no message, use from source datepicker.today.button.label
+message for datepicker.today.button.label local (Today, parts :[Today] placeholder []) l (Today)
+native meaning datepicker.none message (None)
+no message, use from source datepicker.none
+message for datepicker.none local (None, parts :[None] placeholder []) l (None)
+native meaning editor.messages.link message (Link)
+no message, use from source editor.messages.link
+message for editor.messages.link local (Link, parts :[Link] placeholder []) l (Link)
+native meaning editor.messages.link.edit message (Edit Link)
+no message, use from source editor.messages.link.edit
+message for editor.messages.link.edit local (Edit Link, parts :[Edit Link] placeholder []) l (Edit Link)
+native meaning editor.messages.textToDisplay message (Text to display:)
+no message, use from source editor.messages.textToDisplay
+message for editor.messages.textToDisplay local (Text to display:, parts :[Text to display:] placeholder []) l (Text to display:)
+native meaning editor.messages.link.to message (Link to:)
+no message, use from source editor.messages.link.to
+message for editor.messages.link.to local (Link to:, parts :[Link to:] placeholder []) l (Link to:)
+native meaning editor.messages.webAddress message (Web address)
+no message, use from source editor.messages.webAddress
+message for editor.messages.webAddress local (Web address, parts :[Web address] placeholder []) l (Web address)
+native meaning editor.messages.link.external message (Link to a page or file somewhere else on the web)
+no message, use from source editor.messages.link.external
+message for editor.messages.link.external local (Link to a page or file somewhere else on the web, parts :[Link to a page or file somewhere else on the web] placeholder []) l (Link to a page or file somewhere else on the web)
+native meaning editor.messages.link.test message (Test this link)
+no message, use from source editor.messages.link.test
+message for editor.messages.link.test local (Test this link, parts :[Test this link] placeholder []) l (Test this link)
+native meaning editor.messages.link.shouldGo.url message (To what URL should this link go?)
+no message, use from source editor.messages.link.shouldGo.url
+message for editor.messages.link.shouldGo.url local (To what URL should this link go?, parts :[To what URL should this link go?] placeholder []) l (To what URL should this link go?)
+native meaning editor.messages.link.email message (Email address)
+no message, use from source editor.messages.link.email
+message for editor.messages.link.email local (Email address, parts :[Email address] placeholder []) l (Email address)
+native meaning editor.messages.link.email.info message (Link to an email address)
+no message, use from source editor.messages.link.email.info
+message for editor.messages.link.email.info local (Link to an email address, parts :[Link to an email address] placeholder []) l (Link to an email address)
+native meaning editor.messages.invalidEmail message (Invalid email address)
+no message, use from source editor.messages.invalidEmail
+message for editor.messages.invalidEmail local (Invalid email address, parts :[Invalid email address] placeholder []) l (Invalid email address)
+native meaning editor.messages.link.shouldGo.email message (To what email address should this link?)
+no message, use from source editor.messages.link.shouldGo.email
+message for editor.messages.link.shouldGo.email local (To what email address should this link?, parts :[To what email address should this link?] placeholder []) l (To what email address should this link?)
+native meaning editor.messages.fontSize.small message (Small)
+no message, use from source editor.messages.fontSize.small
+message for editor.messages.fontSize.small local (Small, parts :[Small] placeholder []) l (Small)
+native meaning editor.messages.fontSize.normal message (Normal)
+no message, use from source editor.messages.fontSize.normal
+message for editor.messages.fontSize.normal local (Normal, parts :[Normal] placeholder []) l (Normal)
+native meaning editor.messages.fontSize.large message (Large)
+no message, use from source editor.messages.fontSize.large
+message for editor.messages.fontSize.large local (Large, parts :[Large] placeholder []) l (Large)
+native meaning editor.messages.fontSize.huge message (Huge)
+no message, use from source editor.messages.fontSize.huge
+message for editor.messages.fontSize.huge local (Huge, parts :[Huge] placeholder []) l (Huge)
+native meaning editor.messages.fontFamily.normal message (Normal)
+no message, use from source editor.messages.fontFamily.normal
+message for editor.messages.fontFamily.normal local (Normal, parts :[Normal] placeholder []) l (Normal)
+native meaning editor.messages.fontFamily.serif message (Normal / serif)
+no message, use from source editor.messages.fontFamily.serif
+message for editor.messages.fontFamily.serif local (Normal / serif, parts :[Normal / serif] placeholder []) l (Normal / serif)
+native meaning editor.messages.format.heading message (Heading)
+no message, use from source editor.messages.format.heading
+message for editor.messages.format.heading local (Heading, parts :[Heading] placeholder []) l (Heading)
+native meaning editor.messages.format.subheading message (Subheading)
+no message, use from source editor.messages.format.subheading
+message for editor.messages.format.subheading local (Subheading, parts :[Subheading] placeholder []) l (Subheading)
+native meaning editor.messages.format.minorHeading message (Minor heading)
+no message, use from source editor.messages.format.minorHeading
+message for editor.messages.format.minorHeading local (Minor heading, parts :[Minor heading] placeholder []) l (Minor heading)
+native meaning editor.messages.format.normal message (Normal)
+no message, use from source editor.messages.format.normal
+message for editor.messages.format.normal local (Normal, parts :[Normal] placeholder []) l (Normal)
+native meaning editor.messages.format.block.title message (Format)
+no message, use from source editor.messages.format.block.title
+message for editor.messages.format.block.title local (Format, parts :[Format] placeholder []) l (Format)
+native meaning editor.messages.format.block.info message (Format)
+no message, use from source editor.messages.format.block.info
+message for editor.messages.format.block.info local (Format, parts :[Format] placeholder []) l (Format)
+native meaning editor.messages.undo message (Undo)
+no message, use from source editor.messages.undo
+message for editor.messages.undo local (Undo, parts :[Undo] placeholder []) l (Undo)
+native meaning editor.messages.redo message (Redo)
+no message, use from source editor.messages.redo
+message for editor.messages.redo local (Redo, parts :[Redo] placeholder []) l (Redo)
+native meaning editor.messages.font message (Font)
+no message, use from source editor.messages.font
+message for editor.messages.font local (Font, parts :[Font] placeholder []) l (Font)
+native meaning editor.messages.fontSize message (Font size)
+no message, use from source editor.messages.fontSize
+message for editor.messages.fontSize local (Font size, parts :[Font size] placeholder []) l (Font size)
+native meaning editor.messages.textColor message (Text color)
+no message, use from source editor.messages.textColor
+message for editor.messages.textColor local (Text color, parts :[Text color] placeholder []) l (Text color)
+native meaning editor.messages.bold message (Bold)
+no message, use from source editor.messages.bold
+message for editor.messages.bold local (Bold, parts :[Bold] placeholder []) l (Bold)
+native meaning editor.messages.italic message (Italic)
+no message, use from source editor.messages.italic
+message for editor.messages.italic local (Italic, parts :[Italic] placeholder []) l (Italic)
+native meaning editor.messages.underline message (Underline)
+no message, use from source editor.messages.underline
+message for editor.messages.underline local (Underline, parts :[Underline] placeholder []) l (Underline)
+native meaning editor.messages.backgroundColor message (Text background color)
+no message, use from source editor.messages.backgroundColor
+message for editor.messages.backgroundColor local (Text background color, parts :[Text background color] placeholder []) l (Text background color)
+native meaning editor.messages.link.addRemove message (Add or remove link)
+no message, use from source editor.messages.link.addRemove
+message for editor.messages.link.addRemove local (Add or remove link, parts :[Add or remove link] placeholder []) l (Add or remove link)
+native meaning editor.messages.list.ordered message (Numbered list)
+no message, use from source editor.messages.list.ordered
+message for editor.messages.list.ordered local (Numbered list, parts :[Numbered list] placeholder []) l (Numbered list)
+native meaning editor.messages.list.unordered message (Bullet list)
+no message, use from source editor.messages.list.unordered
+message for editor.messages.list.unordered local (Bullet list, parts :[Bullet list] placeholder []) l (Bullet list)
+native meaning editor.messages.indent.decrease message (Decrease indent)
+no message, use from source editor.messages.indent.decrease
+message for editor.messages.indent.decrease local (Decrease indent, parts :[Decrease indent] placeholder []) l (Decrease indent)
+native meaning editor.messages.indent.increase message (Increase indent)
+no message, use from source editor.messages.indent.increase
+message for editor.messages.indent.increase local (Increase indent, parts :[Increase indent] placeholder []) l (Increase indent)
+native meaning editor.messages.align.left message (Align left)
+no message, use from source editor.messages.align.left
+message for editor.messages.align.left local (Align left, parts :[Align left] placeholder []) l (Align left)
+native meaning editor.messages.align.center message (Align center)
+no message, use from source editor.messages.align.center
+message for editor.messages.align.center local (Align center, parts :[Align center] placeholder []) l (Align center)
+native meaning editor.messages.align.right message (Align right)
+no message, use from source editor.messages.align.right
+message for editor.messages.align.right local (Align right, parts :[Align right] placeholder []) l (Align right)
+native meaning editor.messages.align.justify message (Justify)
+no message, use from source editor.messages.align.justify
+message for editor.messages.align.justify local (Justify, parts :[Justify] placeholder []) l (Justify)
+native meaning editor.messages.format.remove message (Remove formatting)
+no message, use from source editor.messages.format.remove
+message for editor.messages.format.remove local (Remove formatting, parts :[Remove formatting] placeholder []) l (Remove formatting)
+native meaning editor.messages.image.insert message (Insert image)
+no message, use from source editor.messages.image.insert
+message for editor.messages.image.insert local (Insert image, parts :[Insert image] placeholder []) l (Insert image)
+native meaning editor.messages.strikestrought message (Strikethrough)
+no message, use from source editor.messages.strikestrought
+message for editor.messages.strikestrought local (Strikethrough, parts :[Strikethrough] placeholder []) l (Strikethrough)
+native meaning editor.messages.direction.leftToRight message (Left-to-right)
+no message, use from source editor.messages.direction.leftToRight
+message for editor.messages.direction.leftToRight local (Left-to-right, parts :[Left-to-right] placeholder []) l (Left-to-right)
+native meaning editor.messages.diurection.rightToLeft message (Right-to-left)
+no message, use from source editor.messages.diurection.rightToLeft
+message for editor.messages.diurection.rightToLeft local (Right-to-left, parts :[Right-to-left] placeholder []) l (Right-to-left)
+native meaning editor.messages.quote message (Quote)
+no message, use from source editor.messages.quote
+message for editor.messages.quote local (Quote, parts :[Quote] placeholder []) l (Quote)
+native meaning editor.messages.html message (Edit HTML source)
+no message, use from source editor.messages.html
+message for editor.messages.html local (Edit HTML source, parts :[Edit HTML source] placeholder []) l (Edit HTML source)
+native meaning editor.messages.subscript message (Subscript)
+no message, use from source editor.messages.subscript
+message for editor.messages.subscript local (Subscript, parts :[Subscript] placeholder []) l (Subscript)
+native meaning editor.messages.superscript message (Superscript)
+no message, use from source editor.messages.superscript
+message for editor.messages.superscript local (Superscript, parts :[Superscript] placeholder []) l (Superscript)
+native meaning editor.messages.html.info message (HTML)
+no message, use from source editor.messages.html.info
+message for editor.messages.html.info local (HTML, parts :[HTML] placeholder []) l (HTML)
+native meaning editor.messages.link.goTo message (Go to link:)
+no message, use from source editor.messages.link.goTo
+message for editor.messages.link.goTo local (Go to link:, parts :[Go to link:] placeholder []) l (Go to link:)
+native meaning editor.messages.bubble.change message (Change)
+no message, use from source editor.messages.bubble.change
+message for editor.messages.bubble.change local (Change, parts :[Change] placeholder []) l (Change)
+native meaning editor.messages.bubble.remove message (Remove)
+no message, use from source editor.messages.bubble.remove
+message for editor.messages.bubble.remove local (Remove, parts :[Remove] placeholder []) l (Remove)
+native meaning editor.messages.bubble.image message (Image)
+no message, use from source editor.messages.bubble.image
+message for editor.messages.bubble.image local (Image, parts :[Image] placeholder []) l (Image)
+native meaning editor.messages.bubble.invalidUrl message (Invalid URL)
+no message, use from source editor.messages.bubble.invalidUrl
+message for editor.messages.bubble.invalidUrl local (Invalid URL, parts :[Invalid URL] placeholder []) l (Invalid URL)
+native meaning editor.messages.link.unsafe message (This link cannot be tested.)
+no message, use from source editor.messages.link.unsafe
+message for editor.messages.link.unsafe local (This link cannot be tested., parts :[This link cannot be tested.] placeholder []) l (This link cannot be tested.)
+native meaning editor.messages.cancel message (Cancel)
+no message, use from source editor.messages.cancel
+message for editor.messages.cancel local (Cancel, parts :[Cancel] placeholder []) l (Cancel)
+native meaning editor.messages.ok message (Ok)
+no message, use from source editor.messages.ok
+message for editor.messages.ok local (Ok, parts :[Ok] placeholder []) l (Ok)
+native meaning editor.messages.image.edit message (Edit Image)
+no message, use from source editor.messages.image.edit
+message for editor.messages.image.edit local (Edit Image, parts :[Edit Image] placeholder []) l (Edit Image)
+native meaning editor.messages.image.source message (Image source:)
+no message, use from source editor.messages.image.source
+message for editor.messages.image.source local (Image source:, parts :[Image source:] placeholder []) l (Image source:)
+native meaning editor.messages.image.url message (From an URL)
+no message, use from source editor.messages.image.url
+message for editor.messages.image.url local (From an URL, parts :[From an URL] placeholder []) l (From an URL)
+native meaning editor.messages.image.external message (Link an image from a web server.)
+no message, use from source editor.messages.image.external
+message for editor.messages.image.external local (Link an image from a web server., parts :[Link an image from a web server.] placeholder []) l (Link an image from a web server.)
+native meaning editor.messages.image.local message (Image from my computer.)
+no message, use from source editor.messages.image.local
+message for editor.messages.image.local local (Image from my computer., parts :[Image from my computer.] placeholder []) l (Image from my computer.)
+native meaning editor.messages.image.upload message (Upload an image from the local disk. Fit for image smaller than 10 KB.)
+no message, use from source editor.messages.image.upload
+message for editor.messages.image.upload local (Upload an image from the local disk. Fit for image smaller than 10 KB., parts :[Upload an image from the local disk. Fit for image smaller than 10 KB.] placeholder []) l (Upload an image from the local disk. Fit for image smaller than 10 KB.)
+native meaning link.caption message (Link)
+no message, use from source link.caption
+message for link.caption local (Link, parts :[Link] placeholder []) l (Link)
+native meaning edit.link message (Edit Link)
+no message, use from source edit.link
+message for edit.link local (Edit Link, parts :[Edit Link] placeholder []) l (Edit Link)
+native meaning text.to.display message (Text to display:)
+no message, use from source text.to.display
+message for text.to.display local (Text to display:, parts :[Text to display:] placeholder []) l (Text to display:)
+native meaning link.to message (Link to:)
+no message, use from source link.to
+message for link.to local (Link to:, parts :[Link to:] placeholder []) l (Link to:)
+native meaning on.the.web message (Web address)
+no message, use from source on.the.web
+message for on.the.web local (Web address, parts :[Web address] placeholder []) l (Web address)
+native meaning on.the.web.tip message (Link to a page or file somewhere else on the web)
+no message, use from source on.the.web.tip
+message for on.the.web.tip local (Link to a page or file somewhere else on the web, parts :[Link to a page or file somewhere else on the web] placeholder []) l (Link to a page or file somewhere else on the web)
+native meaning test.this.link message (Test this link)
+no message, use from source test.this.link
+message for test.this.link local (Test this link, parts :[Test this link] placeholder []) l (Test this link)
+place ref startBold
+place ref endBold
+place ref searchEngineLink
+place ref endLink
+native meaning tr.link.explanation message ({$startBold}Not sure what to put in the box?{$endBold} First, find the page on the web that you want to link to. (A {$searchEngineLink}search engine{$endLink} might be useful.) Then, copy the web address from the box in your browser's address bar, and paste it into the box above.)
+no message, use from source tr.link.explanation
+message for tr.link.explanation local ({$startBold}Not sure what to put in the box?{$endBold} First, find the page on the web that you want to link to. (A {$searchEngineLink}search engine{$endLink} might be useful.) Then, copy the web address from the box in your browser's address bar, and paste it into the box above., parts :[{$startBold}, Not sure what to put in the box?, {$endBold},  First, find the page on the web that you want to link to. (A , {$searchEngineLink}, search engine, {$endLink},  might be useful.) Then, copy the web address from the box in your browser's address bar, and paste it into the box above.] placeholder [startBold, endLink, endBold, searchEngineLink]) l ({$startBold}Not sure what to put in the box?{$endBold} First, find the page on the web that you want to link to. (A {$searchEngineLink}search engine{$endLink} might be useful.) Then, copy the web address from the box in your browser's address bar, and paste it into the box above.)
+native meaning what.url message (To what URL should this link go?)
+no message, use from source what.url
+message for what.url local (To what URL should this link go?, parts :[To what URL should this link go?] placeholder []) l (To what URL should this link go?)
+native meaning email.address message (Email address)
+no message, use from source email.address
+message for email.address local (Email address, parts :[Email address] placeholder []) l (Email address)
+native meaning email.address.tip message (Link to an email address)
+no message, use from source email.address.tip
+message for email.address.tip local (Link to an email address, parts :[Link to an email address] placeholder []) l (Link to an email address)
+native meaning invalid.email message (Invalid email address)
+no message, use from source invalid.email
+message for invalid.email local (Invalid email address, parts :[Invalid email address] placeholder []) l (Invalid email address)
+native meaning what.email message (To what email address should this link?)
+no message, use from source what.email
+message for what.email local (To what email address should this link?, parts :[To what email address should this link?] placeholder []) l (To what email address should this link?)
+place ref preb
+place ref postb
+native meaning email.explanation message ({$preb}Be careful.{$postb} Remember that any time you include an email address on a web page, nasty spammers can find it too.)
+no message, use from source email.explanation
+message for email.explanation local ({$preb}Be careful.{$postb} Remember that any time you include an email address on a web page, nasty spammers can find it too., parts :[{$preb}, Be careful., {$postb},  Remember that any time you include an email address on a web page, nasty spammers can find it too.] placeholder [preb, postb]) l ({$preb}Be careful.{$postb} Remember that any time you include an email address on a web page, nasty spammers can find it too.)
+native meaning open.in.new.window message (Open this link in a new window)
+no message, use from source open.in.new.window
+message for open.in.new.window local (Open this link in a new window, parts :[Open this link in a new window] placeholder []) l (Open this link in a new window)
+native meaning image.caption message (Image)
+no message, use from source image.caption
+message for image.caption local (Image, parts :[Image] placeholder []) l (Image)
+native meaning editor.messages.image.dialog.external.title message (What's the URL of the image?)
+no message, use from source editor.messages.image.dialog.external.title
+message for editor.messages.image.dialog.external.title local (What's the URL of the image?, parts :[What's the URL of the image?] placeholder []) l (What's the URL of the image?)
+native meaning editor.messages.image.dialog.local.title message (Select the image to upload)
+no message, use from source editor.messages.image.dialog.local.title
+message for editor.messages.image.dialog.local.title local (Select the image to upload, parts :[Select the image to upload] placeholder []) l (Select the image to upload)
+native meaning tr.dialog.ok message (OK)
+no message, use from source tr.dialog.ok
+message for tr.dialog.ok local (OK, parts :[OK] placeholder []) l (OK)
+native meaning tr.dialog.cancel message (Cancel)
+no message, use from source tr.dialog.cancel
+message for tr.dialog.cancel local (Cancel, parts :[Cancel] placeholder []) l (Cancel)
+message for commons.addReminder local (Add a reminder, parts :[Add a reminder] placeholder []) l (null)
+message for commons.addReminder local (Add a reminder, parts :[Add a reminder] placeholder []) l (null)
+message for commons.time.seconds local (seconds, parts :[seconds] placeholder []) l (null)
+message for commons.time.minutes local (minutes, parts :[minutes] placeholder []) l (null)
+message for commons.time.hours local (hours, parts :[hours] placeholder []) l (null)
+message for commons.time.days local (days, parts :[days] placeholder []) l (null)
+message for commons.reminder.byEmail local (By E-Mail, parts :[By E-Mail] placeholder []) l (null)
+message for commons.reminder.notificationPopup local (Notification Popup, parts :[Notification Popup] placeholder []) l (null)
+message for commons.reminder.compatibleClientWarning local (A compatible client must be running at reminder time, parts :[A compatible client must be running at reminder time] placeholder []) l (null)
+message for general.other local (Other, parts :[Other] placeholder []) l (null)
+native meaning tag.select message (Select a tag...)
+no message, use from source tag.select
+message for tag.select local (Select a tag..., parts :[Select a tag...] placeholder []) l (Select a tag...)
+native meaning tag.create message (Create tag)
+no message, use from source tag.create
+message for tag.create local (Create tag, parts :[Create tag] placeholder []) l (Create tag)
+native meaning tasks.form.summary message (Summary)
+no message, use from source tasks.form.summary
+message for tasks.form.summary local (Summary, parts :[Summary] placeholder []) l (Summary)
+native meaning tasks.form.dtstart message (Date start)
+no message, use from source tasks.form.dtstart
+message for tasks.form.dtstart local (Date start, parts :[Date start] placeholder []) l (Date start)
+native meaning tasks.form.dueDate message (Due date)
+no message, use from source tasks.form.dueDate
+message for tasks.form.dueDate local (Due date, parts :[Due date] placeholder []) l (Due date)
+native meaning tasks.form.priority message (Priority)
+no message, use from source tasks.form.priority
+message for tasks.form.priority local (Priority, parts :[Priority] placeholder []) l (Priority)
+native meaning tasks.form.state message (State)
+no message, use from source tasks.form.state
+message for tasks.form.state local (State, parts :[State] placeholder []) l (State)
+native meaning tasks.form.percentCompleted message (% Complete)
+no message, use from source tasks.form.percentCompleted
+message for tasks.form.percentCompleted local (% Complete, parts :[% Complete] placeholder []) l (% Complete)
+native meaning tasks.form.completionDate message (Completion date)
+no message, use from source tasks.form.completionDate
+message for tasks.form.completionDate local (Completion date, parts :[Completion date] placeholder []) l (Completion date)
+native meaning tasks.form.location message (Location)
+no message, use from source tasks.form.location
+message for tasks.form.location local (Location, parts :[Location] placeholder []) l (Location)
+native meaning tasks.form.tag message (Tag)
+no message, use from source tasks.form.tag
+message for tasks.form.tag local (Tag, parts :[Tag] placeholder []) l (Tag)
+native meaning tasks.form.description message (Description)
+no message, use from source tasks.form.description
+message for tasks.form.description local (Description, parts :[Description] placeholder []) l (Description)
+native meaning tasks.form.reminder message (Reminder)
+no message, use from source tasks.form.reminder
+message for tasks.form.reminder local (Reminder, parts :[Reminder] placeholder []) l (Reminder)
+native meaning history.date message (Date)
+no message, use from source history.date
+message for history.date local (Date, parts :[Date] placeholder []) l (Date)
+native meaning history.type message (Type)
+no message, use from source history.type
+message for history.type local (Type, parts :[Type] placeholder []) l (Type)
+native meaning history.author message (Author)
+no message, use from source history.author
+message for history.author local (Author, parts :[Author] placeholder []) l (Author)
+native meaning history.origin message (Origin)
+no message, use from source history.origin
+message for history.origin local (Origin, parts :[Origin] placeholder []) l (Origin)
+native meaning history.created message (Created)
+no message, use from source history.created
+message for history.created local (Created, parts :[Created] placeholder []) l (Created)
+native meaning history.updated message (Updated)
+no message, use from source history.updated
+message for history.updated local (Updated, parts :[Updated] placeholder []) l (Updated)
+native meaning history.deleted message (Deleted)
+no message, use from source history.deleted
+message for history.deleted local (Deleted, parts :[Deleted] placeholder []) l (Deleted)
+message for general.history local (History, parts :[History] placeholder []) l (null)
+message for general.save local (Save, parts :[Save] placeholder []) l (null)
+native meaning general.markAsDone message (Mark as done)
+no message, use from source general.markAsDone
+message for general.markAsDone local (Mark as done, parts :[Mark as done] placeholder []) l (Mark as done)
+message for general.history local (History, parts :[History] placeholder []) l (null)
+message for general.copy local (Copy to..., parts :[Copy to...] placeholder []) l (null)
+message for general.move local (Move to..., parts :[Move to...] placeholder []) l (null)
+message for general.delete local (Delete, parts :[Delete] placeholder []) l (null)
+place ref message
+native meaning general.error.synchronization message (Synchronization failed : '{$message}')
+no message, use from source general.error.synchronization
+message for general.error.synchronization local (Synchronization failed : '{$message}', parts :[Synchronization failed : ', {$message}, '] placeholder [message]) l (Synchronization failed : '{$message}')
+native meaning general.error.synchronization.unkown message (Synchronization failed, a new attempt will be made later. Please contact support if this error persists.)
+no message, use from source general.error.synchronization.unkown
+message for general.error.synchronization.unkown local (Synchronization failed, a new attempt will be made later. Please contact support if this error persists., parts :[Synchronization failed, a new attempt will be made later. Please contact support if this error persists.] placeholder []) l (Synchronization failed, a new attempt will be made later. Please contact support if this error persists.)
+native meaning general.notice.notSynchronized message (Not all modifications are synchronized with the server yet.)
+no message, use from source general.notice.notSynchronized
+message for general.notice.notSynchronized local (Not all modifications are synchronized with the server yet., parts :[Not all modifications are synchronized with the server yet.] placeholder []) l (Not all modifications are synchronized with the server yet.)
+native meaning tasks.formError.summary message (Summary is empty)
+no message, use from source tasks.formError.summary
+message for tasks.formError.summary local (Summary is empty, parts :[Summary is empty] placeholder []) l (Summary is empty)
+compiling lang fr
+loading properties /home/laurentb/git/bm/open/ui/closures/net.bluemind.task.application.closure/target/deps/net.bluemind.mvp.closure-CLOSURE/lang_fr.properties
+loading properties /home/laurentb/git/bm/open/ui/closures/net.bluemind.task.application.closure/src/main/lang/lang_fr.properties
+add message meaning tasks.form.description message (Description) parts ([Description]) , placeolder ([])
+add message meaning general.history message (Historique) parts ([Historique]) , placeolder ([])
+add message meaning tasks.todolist.removeDialog.content message (Voulez-vous supprimer la liste selectionnée ?) parts ([Voulez-vous supprimer la liste selectionnée ?]) , placeolder ([])
+add message meaning tasks.totolist.thisMonth message (Ce mois) parts ([Ce mois]) , placeolder ([])
+add message meaning tasks.form.completionDate message (Terminée le) parts ([Terminée le]) , placeolder ([])
+add message meaning general.move message (Déplacer vers) parts ([Déplacer vers]) , placeolder ([])
+add message meaning tasks.form.dtstart message (Date de début) parts ([Date de début]) , placeolder ([])
+add message meaning tasks.form.state message (État) parts ([État]) , placeolder ([])
+add message meaning general.save message (Enregistrer) parts ([Enregistrer]) , placeolder ([])
+add message meaning tasks.form.percentCompleted message (Avancement (%)) parts ([Avancement (%)]) , placeolder ([])
+add message meaning tasks.form.reminder message (Alarme) parts ([Alarme]) , placeolder ([])
+add message meaning task.completed message (Terminée) parts ([Terminée]) , placeolder ([])
+add message meaning tasks.totolist.noDueDate message (Sans date d'échéance) parts ([Sans date d'échéance]) , placeolder ([])
+add message meaning tasks.form.dueDate message (Échéance le) parts ([Échéance le]) , placeolder ([])
+add message meaning tasks.totolist.thisWeek message (Cette semaine) parts ([Cette semaine]) , placeolder ([])
+add message meaning tasks.totolist.yesterday message (Hier) parts ([Hier]) , placeolder ([])
+add message meaning tasks.totolist.today message (Aujourd'hui) parts ([Aujourd'hui]) , placeolder ([])
+add message meaning tasks.todolist.renameDialog.button message (Renommer) parts ([Renommer]) , placeolder ([])
+add message meaning general.tags message (Étiquettes) parts ([Étiquettes]) , placeolder ([])
+add message meaning general.rename message (Renommer) parts ([Renommer]) , placeolder ([])
+add message meaning tasks.form.summary message (Titre) parts ([Titre]) , placeolder ([])
+add message meaning general.remove message (Supprimer) parts ([Supprimer]) , placeolder ([])
+add message meaning tasks.totolist.completed message (Terminées) parts ([Terminées]) , placeolder ([])
+add message meaning task.dueOn message (Echéance ) parts ([Echéance ]) , placeolder ([])
+add message meaning tasks.form.location message (Lieu) parts ([Lieu]) , placeolder ([])
+add message meaning tasks.create.newTask message (Nouvelle Tâche) parts ([Nouvelle Tâche]) , placeolder ([])
+add message meaning tasks.form.priority message (Priorité) parts ([Priorité]) , placeolder ([])
+add message meaning tasks.todolist.removeDialog.button message (Supprimer) parts ([Supprimer]) , placeolder ([])
+add message meaning task.completedOn message (Terminée le ) parts ([Terminée le ]) , placeolder ([])
+add message meaning tasks.todolist.renameDialog.title message (Renommer la liste) parts ([Renommer la liste]) , placeolder ([])
+add message meaning general.delete message (Supprimer) parts ([Supprimer]) , placeolder ([])
+add message meaning tasks.totolist.late message (En retard) parts ([En retard]) , placeolder ([])
+add message meaning tasks.totolists.sharedLists message (Listes partagées) parts ([Listes partagées]) , placeolder ([])
+add message meaning tasks.totolist.tomorrow message (Demain) parts ([Demain]) , placeolder ([])
+add message meaning tasks.totolist.later message (Plus tard) parts ([Plus tard]) , placeolder ([])
+add message meaning tasks.ical.export message (Exporter au format iCal) parts ([Exporter au format iCal]) , placeolder ([])
+add message meaning tasks.todolist.removeDialog.title message (Supprimer la liste) parts ([Supprimer la liste]) , placeolder ([])
+add message meaning tasks.form.tag message (Étiquette) parts ([Étiquette]) , placeolder ([])
+add message meaning general.copy message (Copier vers) parts ([Copier vers]) , placeolder ([])
+add message meaning tasks.todolist.renameDialog.content message (Entrer le nom de la liste) parts ([Entrer le nom de la liste]) , placeolder ([])
+add message meaning tasks.ical.import message (Importer au format iCal) parts ([Importer au format iCal]) , placeolder ([])
+add message meaning general.selectFile message (Sélectionner un fichier) parts ([Sélectionner un fichier]) , placeolder ([])
+add message meaning task.started message (Commencée le ) parts ([Commencée le ]) , placeolder ([])
+add message meaning general.import message (Importer) parts ([Importer]) , placeolder ([])
+add message meaning tasks.totolists.myLists message (Mes listes) parts ([Mes listes]) , placeolder ([])
+add message meaning general.markAsDone message (Marquer comme terminée) parts ([Marquer comme terminée]) , placeolder ([])
+add message meaning task.location message (Lieu) parts ([Lieu]) , placeolder ([])
+add message meaning task.priority message (Priorité : ) parts ([Priorité : ]) , placeolder ([])
+loading properties /home/laurentb/git/bm/open/ui/closures/net.bluemind.task.application.closure/target/deps/net.bluemind.commons.ui.closure-CLOSURE/lang_fr.properties
+add message meaning commons.add message (Ajouter...) parts ([Ajouter...]) , placeolder ([])
+add message meaning general.logout message (Se déconnecter) parts ([Se déconnecter]) , placeolder ([])
+add message meaning commons.time.minutes message (minutes) parts ([minutes]) , placeolder ([])
+add message meaning commons.time.hours message (heures) parts ([heures]) , placeolder ([])
+add message meaning user.avatar message (Photo de l'utilisateur) parts ([Photo de l'utilisateur]) , placeolder ([])
+add message meaning commons.addReminder message (Ajouter une alerte) parts ([Ajouter une alerte]) , placeolder ([])
+add message meaning offline.status.dialog.goOffline message (Vous êtes actuellement en ligne. Voulez-vous passer hors ligne ?) parts ([Vous êtes actuellement en ligne. Voulez-vous passer hors ligne ?]) , placeolder ([])
+add message meaning commons.time.days message (jours) parts ([jours]) , placeolder ([])
+add message meaning offline.status.dialog.stayOffline message (Le serveur est actuellement injoignable. Voulez vous rester hors ligne si le serveur est de nouveau joignable ?) parts ([Le serveur est actuellement injoignable. Voulez vous rester hors ligne si le serveur est de nouveau joignable ?]) , placeolder ([])
+add message meaning general.sharedBy message (Partagé par ) parts ([Partagé par ]) , placeolder ([])
+add message meaning general.other message (Autre) parts ([Autre]) , placeolder ([])
+add message meaning commons.time.seconds message (secondes) parts ([secondes]) , placeolder ([])
+add message meaning offline.status.dialog.goOnline message (Vous êtes actuellement hors ligne. Voulez-vous passer en ligne ?) parts ([Vous êtes actuellement hors ligne. Voulez-vous passer en ligne ?]) , placeolder ([])
+loading properties /home/laurentb/git/bm/open/ui/closures/net.bluemind.task.application.closure/target/deps/net.bluemind.todolist.closure-CLOSURE/lang_fr.properties
+add message meaning tasks.status.cancelled message (Annulée) parts ([Annulée]) , placeolder ([])
+add message meaning tasks.classification.private message (Privée) parts ([Privée]) , placeolder ([])
+add message meaning tasks.priority.medium message (Moyenne) parts ([Moyenne]) , placeolder ([])
+add message meaning tasks.classification.confidential message (Confidentiel) parts ([Confidentiel]) , placeolder ([])
+add message meaning tasks.priority.low message (Basse) parts ([Basse]) , placeolder ([])
+add message meaning tasks.classification.public message (Public) parts ([Public]) , placeolder ([])
+add message meaning tasks.status.inProgress message (En cours) parts ([En cours]) , placeolder ([])
+add message meaning tasks.status.needsAction message (Non démarrée) parts ([Non démarrée]) , placeolder ([])
+add message meaning tasks.priority.high message (Haute) parts ([Haute]) , placeolder ([])
+add message meaning tasks.status.completed message (Terminée) parts ([Terminée]) , placeolder ([])
+loading properties /home/laurentb/git/bm/open/ui/closures/net.bluemind.task.application.closure/target/deps/net.bluemind.todolist.ui.closure-CLOSURE/todolistui_fr.properties
+add message meaning ask.completedOn message (Completée le {$completed}) parts ([Completée le , {$completed}]) , placeolder ([completed])
+add message meaning task.dueOn message (Dû pour le {$due}) parts ([Dû pour le , {$due}]) , placeolder ([due])
+add message meaning task.started message (Commencée le {$task.start}) parts ([Commencée le , {$task.start}]) , placeolder ([task.start])
+add message meaning task.location message (Lieu) parts ([Lieu]) , placeolder ([])
+add message meaning task.priority message (Priorité : {$priority}) parts ([Priorité : , {$priority}]) , placeolder ([priority])
+add message meaning task.completed message (Completée) parts ([Completée]) , placeolder ([])
+compiling lang fr
+loading properties /home/laurentb/git/bm/open/ui/closures/net.bluemind.task.application.closure/target/deps/net.bluemind.mvp.closure-CLOSURE/lang_fr.properties
+loading properties /home/laurentb/git/bm/open/ui/closures/net.bluemind.task.application.closure/src/main/lang/lang_fr.properties
+add message meaning tasks.form.description message (Description) parts ([Description]) , placeolder ([])
+add message meaning general.history message (Historique) parts ([Historique]) , placeolder ([])
+add message meaning tasks.todolist.removeDialog.content message (Voulez-vous supprimer la liste selectionnée ?) parts ([Voulez-vous supprimer la liste selectionnée ?]) , placeolder ([])
+add message meaning tasks.totolist.thisMonth message (Ce mois) parts ([Ce mois]) , placeolder ([])
+add message meaning tasks.form.completionDate message (Terminée le) parts ([Terminée le]) , placeolder ([])
+add message meaning general.move message (Déplacer vers) parts ([Déplacer vers]) , placeolder ([])
+add message meaning tasks.form.dtstart message (Date de début) parts ([Date de début]) , placeolder ([])
+add message meaning tasks.form.state message (État) parts ([État]) , placeolder ([])
+add message meaning general.save message (Enregistrer) parts ([Enregistrer]) , placeolder ([])
+add message meaning tasks.form.percentCompleted message (Avancement (%)) parts ([Avancement (%)]) , placeolder ([])
+add message meaning tasks.form.reminder message (Alarme) parts ([Alarme]) , placeolder ([])
+add message meaning task.completed message (Terminée) parts ([Terminée]) , placeolder ([])
+add message meaning tasks.totolist.noDueDate message (Sans date d'échéance) parts ([Sans date d'échéance]) , placeolder ([])
+add message meaning tasks.form.dueDate message (Échéance le) parts ([Échéance le]) , placeolder ([])
+add message meaning tasks.totolist.thisWeek message (Cette semaine) parts ([Cette semaine]) , placeolder ([])
+add message meaning tasks.totolist.yesterday message (Hier) parts ([Hier]) , placeolder ([])
+add message meaning tasks.totolist.today message (Aujourd'hui) parts ([Aujourd'hui]) , placeolder ([])
+add message meaning tasks.todolist.renameDialog.button message (Renommer) parts ([Renommer]) , placeolder ([])
+add message meaning general.tags message (Étiquettes) parts ([Étiquettes]) , placeolder ([])
+add message meaning general.rename message (Renommer) parts ([Renommer]) , placeolder ([])
+add message meaning tasks.form.summary message (Titre) parts ([Titre]) , placeolder ([])
+add message meaning general.remove message (Supprimer) parts ([Supprimer]) , placeolder ([])
+add message meaning tasks.totolist.completed message (Terminées) parts ([Terminées]) , placeolder ([])
+add message meaning task.dueOn message (Echéance ) parts ([Echéance ]) , placeolder ([])
+add message meaning tasks.form.location message (Lieu) parts ([Lieu]) , placeolder ([])
+add message meaning tasks.create.newTask message (Nouvelle Tâche) parts ([Nouvelle Tâche]) , placeolder ([])
+add message meaning tasks.form.priority message (Priorité) parts ([Priorité]) , placeolder ([])
+add message meaning tasks.todolist.removeDialog.button message (Supprimer) parts ([Supprimer]) , placeolder ([])
+add message meaning task.completedOn message (Terminée le ) parts ([Terminée le ]) , placeolder ([])
+add message meaning tasks.todolist.renameDialog.title message (Renommer la liste) parts ([Renommer la liste]) , placeolder ([])
+add message meaning general.delete message (Supprimer) parts ([Supprimer]) , placeolder ([])
+add message meaning tasks.totolist.late message (En retard) parts ([En retard]) , placeolder ([])
+add message meaning tasks.totolists.sharedLists message (Listes partagées) parts ([Listes partagées]) , placeolder ([])
+add message meaning tasks.totolist.tomorrow message (Demain) parts ([Demain]) , placeolder ([])
+add message meaning tasks.totolist.later message (Plus tard) parts ([Plus tard]) , placeolder ([])
+add message meaning tasks.ical.export message (Exporter au format iCal) parts ([Exporter au format iCal]) , placeolder ([])
+add message meaning tasks.todolist.removeDialog.title message (Supprimer la liste) parts ([Supprimer la liste]) , placeolder ([])
+add message meaning tasks.form.tag message (Étiquette) parts ([Étiquette]) , placeolder ([])
+add message meaning general.copy message (Copier vers) parts ([Copier vers]) , placeolder ([])
+add message meaning tasks.todolist.renameDialog.content message (Entrer le nom de la liste) parts ([Entrer le nom de la liste]) , placeolder ([])
+add message meaning tasks.ical.import message (Importer au format iCal) parts ([Importer au format iCal]) , placeolder ([])
+add message meaning general.selectFile message (Sélectionner un fichier) parts ([Sélectionner un fichier]) , placeolder ([])
+add message meaning task.started message (Commencée le ) parts ([Commencée le ]) , placeolder ([])
+add message meaning general.import message (Importer) parts ([Importer]) , placeolder ([])
+add message meaning tasks.totolists.myLists message (Mes listes) parts ([Mes listes]) , placeolder ([])
+add message meaning general.markAsDone message (Marquer comme terminée) parts ([Marquer comme terminée]) , placeolder ([])
+add message meaning task.location message (Lieu) parts ([Lieu]) , placeolder ([])
+add message meaning task.priority message (Priorité : ) parts ([Priorité : ]) , placeolder ([])
+loading properties /home/laurentb/git/bm/open/ui/closures/net.bluemind.task.application.closure/target/deps/net.bluemind.commons.ui.closure-CLOSURE/lang_fr.properties
+add message meaning commons.add message (Ajouter...) parts ([Ajouter...]) , placeolder ([])
+add message meaning general.logout message (Se déconnecter) parts ([Se déconnecter]) , placeolder ([])
+add message meaning commons.time.minutes message (minutes) parts ([minutes]) , placeolder ([])
+add message meaning commons.time.hours message (heures) parts ([heures]) , placeolder ([])
+add message meaning user.avatar message (Photo de l'utilisateur) parts ([Photo de l'utilisateur]) , placeolder ([])
+add message meaning commons.addReminder message (Ajouter une alerte) parts ([Ajouter une alerte]) , placeolder ([])
+add message meaning offline.status.dialog.goOffline message (Vous êtes actuellement en ligne. Voulez-vous passer hors ligne ?) parts ([Vous êtes actuellement en ligne. Voulez-vous passer hors ligne ?]) , placeolder ([])
+add message meaning commons.time.days message (jours) parts ([jours]) , placeolder ([])
+add message meaning offline.status.dialog.stayOffline message (Le serveur est actuellement injoignable. Voulez vous rester hors ligne si le serveur est de nouveau joignable ?) parts ([Le serveur est actuellement injoignable. Voulez vous rester hors ligne si le serveur est de nouveau joignable ?]) , placeolder ([])
+add message meaning general.sharedBy message (Partagé par ) parts ([Partagé par ]) , placeolder ([])
+add message meaning general.other message (Autre) parts ([Autre]) , placeolder ([])
+add message meaning commons.time.seconds message (secondes) parts ([secondes]) , placeolder ([])
+add message meaning offline.status.dialog.goOnline message (Vous êtes actuellement hors ligne. Voulez-vous passer en ligne ?) parts ([Vous êtes actuellement hors ligne. Voulez-vous passer en ligne ?]) , placeolder ([])
+loading properties /home/laurentb/git/bm/open/ui/closures/net.bluemind.task.application.closure/target/deps/net.bluemind.todolist.closure-CLOSURE/lang_fr.properties
+add message meaning tasks.status.cancelled message (Annulée) parts ([Annulée]) , placeolder ([])
+add message meaning tasks.classification.private message (Privée) parts ([Privée]) , placeolder ([])
+add message meaning tasks.priority.medium message (Moyenne) parts ([Moyenne]) , placeolder ([])
+add message meaning tasks.classification.confidential message (Confidentiel) parts ([Confidentiel]) , placeolder ([])
+add message meaning tasks.priority.low message (Basse) parts ([Basse]) , placeolder ([])
+add message meaning tasks.classification.public message (Public) parts ([Public]) , placeolder ([])
+add message meaning tasks.status.inProgress message (En cours) parts ([En cours]) , placeolder ([])
+add message meaning tasks.status.needsAction message (Non démarrée) parts ([Non démarrée]) , placeolder ([])
+add message meaning tasks.priority.high message (Haute) parts ([Haute]) , placeolder ([])
+add message meaning tasks.status.completed message (Terminée) parts ([Terminée]) , placeolder ([])
+loading properties /home/laurentb/git/bm/open/ui/closures/net.bluemind.task.application.closure/target/deps/net.bluemind.todolist.ui.closure-CLOSURE/todolistui_fr.properties
+add message meaning ask.completedOn message (Completée le {$completed}) parts ([Completée le , {$completed}]) , placeolder ([completed])
+add message meaning task.dueOn message (Dû pour le {$due}) parts ([Dû pour le , {$due}]) , placeolder ([due])
+add message meaning task.started message (Commencée le {$task.start}) parts ([Commencée le , {$task.start}]) , placeolder ([task.start])
+add message meaning task.location message (Lieu) parts ([Lieu]) , placeolder ([])
+add message meaning task.priority message (Priorité : {$priority}) parts ([Priorité : , {$priority}]) , placeolder ([priority])
+add message meaning task.completed message (Completée) parts ([Completée]) , placeolder ([])
+place ref monthName
+place ref yearNum
+native meaning month.and.year message ({$monthName} {$yearNum})
+no message, use from source month.and.year
+message for month.and.year local ({$monthName} {$yearNum}, parts :[{$monthName},  , {$yearNum}] placeholder [monthName, yearNum]) l ({$monthName} {$yearNum})
+native meaning time.am message (am)
+no message, use from source time.am
+message for time.am local (am, parts :[am] placeholder []) l (am)
+native meaning time.pm message (pm)
+no message, use from source time.pm
+message for time.pm local (pm, parts :[pm] placeholder []) l (pm)
+message for user.avatar local (Photo de l'utilisateur, parts :[Photo de l'utilisateur] placeholder []) l (null)
+message for general.logout local (Se déconnecter, parts :[Se déconnecter] placeholder []) l (null)
+message for offline.status.dialog.goOffline local (Vous êtes actuellement en ligne. Voulez-vous passer hors ligne ?, parts :[Vous êtes actuellement en ligne. Voulez-vous passer hors ligne ?] placeholder []) l (null)
+native meaning offline.status.info message (You'll work offline. All your changes will be synced  next time you log in.)
+no message, use from source offline.status.info
+message for offline.status.info local (You'll work offline. All your changes will be synced  next time you log in., parts :[You'll work offline. All your changes will be synced  next time you log in.] placeholder []) l (You'll work offline. All your changes will be synced  next time you log in.)
+message for offline.status.dialog.stayOffline local (Le serveur est actuellement injoignable. Voulez vous rester hors ligne si le serveur est de nouveau joignable ?, parts :[Le serveur est actuellement injoignable. Voulez vous rester hors ligne si le serveur est de nouveau joignable ?] placeholder []) l (null)
+no message, use from source offline.status.info
+message for offline.status.info local (You'll work offline. All your changes will be synced  next time you log in., parts :[You'll work offline. All your changes will be synced  next time you log in.] placeholder []) l (You'll work offline. All your changes will be synced  next time you log in.)
+message for offline.status.dialog.goOnline local (Vous êtes actuellement hors ligne. Voulez-vous passer en ligne ?, parts :[Vous êtes actuellement hors ligne. Voulez-vous passer en ligne ?] placeholder []) l (null)
+native meaning dialog.ok. message (OK)
+no message, use from source dialog.ok.
+message for dialog.ok. local (OK, parts :[OK] placeholder []) l (OK)
+native meaning dialog.cancel. message (Cancel)
+no message, use from source dialog.cancel.
+message for dialog.cancel. local (Cancel, parts :[Cancel] placeholder []) l (Cancel)
+native meaning dialog.yes. message (Yes)
+no message, use from source dialog.yes.
+message for dialog.yes. local (Yes, parts :[Yes] placeholder []) l (Yes)
+native meaning dialog.no. message (No)
+no message, use from source dialog.no.
+message for dialog.no. local (No, parts :[No] placeholder []) l (No)
+native meaning dialog.save. message (Save)
+no message, use from source dialog.save.
+message for dialog.save. local (Save, parts :[Save] placeholder []) l (Save)
+native meaning dialog.continue. message (Continue)
+no message, use from source dialog.continue.
+message for dialog.continue. local (Continue, parts :[Continue] placeholder []) l (Continue)
+native meaning goog.ui.dialog.close. message (Close)
+no message, use from source goog.ui.dialog.close.
+message for goog.ui.dialog.close. local (Close, parts :[Close] placeholder []) l (Close)
+place ref application
+place ref version
+native meaning logo.title message (BlueMind - {$application} (Version {$version}))
+no message, use from source logo.title
+message for logo.title local (BlueMind - {$application} (Version {$version}), parts :[BlueMind - , {$application},  (Version , {$version}, )] placeholder [application, version]) l (BlueMind - {$application} (Version {$version}))
+no message, use from source logo.title
+message for logo.title local (BlueMind - {$application} (Version {$version}), parts :[BlueMind - , {$application},  (Version , {$version}, )] placeholder [application, version]) l (BlueMind - {$application} (Version {$version}))
+message for tasks.create.newTask local (Nouvelle Tâche, parts :[Nouvelle Tâche] placeholder []) l (null)
+native meaning calendar.ics.ko message (Fail to import ICS.)
+no message, use from source calendar.ics.ko
+message for calendar.ics.ko local (Fail to import ICS., parts :[Fail to import ICS.] placeholder []) l (Fail to import ICS.)
+place ref ok
+native meaning ics.all message ({$ok} events succesfully imported.)
+no message, use from source ics.all
+message for ics.all local ({$ok} events succesfully imported., parts :[{$ok},  events succesfully imported.] placeholder [ok]) l ({$ok} events succesfully imported.)
+native meaning ics.only message (The event have been succesfully imported.)
+no message, use from source ics.only
+message for ics.only local (The event have been succesfully imported., parts :[The event have been succesfully imported.] placeholder []) l (The event have been succesfully imported.)
+place ref ok
+place ref all
+native meaning ics.some message ({$ok} / {$all} events succesfully imported.)
+no message, use from source ics.some
+message for ics.some local ({$ok} / {$all} events succesfully imported., parts :[{$ok},  / , {$all},  events succesfully imported.] placeholder [all, ok]) l ({$ok} / {$all} events succesfully imported.)
+place ref all
+native meaning ics.one message (1 / {$all} event succesfully imported.)
+no message, use from source ics.one
+message for ics.one local (1 / {$all} event succesfully imported., parts :[1 / , {$all},  event succesfully imported.] placeholder [all]) l (1 / {$all} event succesfully imported.)
+message for tasks.ical.export local (Exporter au format iCal, parts :[Exporter au format iCal] placeholder []) l (null)
+message for tasks.ical.import local (Importer au format iCal, parts :[Importer au format iCal] placeholder []) l (null)
+message for general.rename local (Renommer, parts :[Renommer] placeholder []) l (null)
+message for general.remove local (Supprimer, parts :[Supprimer] placeholder []) l (null)
+message for general.selectFile local (Sélectionner un fichier, parts :[Sélectionner un fichier] placeholder []) l (null)
+message for general.import local (Importer, parts :[Importer] placeholder []) l (null)
+message for tasks.todolist.renameDialog.title local (Renommer la liste, parts :[Renommer la liste] placeholder []) l (null)
+message for tasks.todolist.renameDialog.content local (Entrer le nom de la liste, parts :[Entrer le nom de la liste] placeholder []) l (null)
+message for tasks.todolist.renameDialog.button local (Renommer, parts :[Renommer] placeholder []) l (null)
+message for tasks.todolist.removeDialog.title local (Supprimer la liste, parts :[Supprimer la liste] placeholder []) l (null)
+message for tasks.todolist.removeDialog.content local (Voulez-vous supprimer la liste selectionnée ?, parts :[Voulez-vous supprimer la liste selectionnée ?] placeholder []) l (null)
+message for tasks.todolist.removeDialog.button local (Supprimer, parts :[Supprimer] placeholder []) l (null)
+native meaning contact.vcf.import.progress message (Import in progress...)
+no message, use from source contact.vcf.import.progress
+message for contact.vcf.import.progress local (Import in progress..., parts :[Import in progress...] placeholder []) l (Import in progress...)
+message for general.rename local (Renommer, parts :[Renommer] placeholder []) l (null)
+message for general.remove local (Supprimer, parts :[Supprimer] placeholder []) l (null)
+native meaning task.ics.ko message (Fail to import ICS. (VTODO))
+no message, use from source task.ics.ko
+message for task.ics.ko local (Fail to import ICS. (VTODO), parts :[Fail to import ICS. (VTODO)] placeholder []) l (Fail to import ICS. (VTODO))
+place ref ok
+native meaning task.ics.success.all message ({$ok} tasks succesfully imported.)
+no message, use from source task.ics.success.all
+message for task.ics.success.all local ({$ok} tasks succesfully imported., parts :[{$ok},  tasks succesfully imported.] placeholder [ok]) l ({$ok} tasks succesfully imported.)
+native meaning task.ics.success.one message (The task have been succesfully imported.)
+no message, use from source task.ics.success.one
+message for task.ics.success.one local (The task have been succesfully imported., parts :[The task have been succesfully imported.] placeholder []) l (The task have been succesfully imported.)
+place ref ok
+place ref all
+native meaning task.ics.success.some message ({$ok} / {$all} tasks succesfully imported.)
+no message, use from source task.ics.success.some
+message for task.ics.success.some local ({$ok} / {$all} tasks succesfully imported., parts :[{$ok},  / , {$all},  tasks succesfully imported.] placeholder [all, ok]) l ({$ok} / {$all} tasks succesfully imported.)
+place ref all
+native meaning task.ics.success.oneInMany message (1 / {$all} tasks succesfully imported.)
+no message, use from source task.ics.success.oneInMany
+message for task.ics.success.oneInMany local (1 / {$all} tasks succesfully imported., parts :[1 / , {$all},  tasks succesfully imported.] placeholder [all]) l (1 / {$all} tasks succesfully imported.)
+message for tasks.totolist.completed local (Terminées, parts :[Terminées] placeholder []) l (null)
+message for tasks.totolist.late local (En retard, parts :[En retard] placeholder []) l (null)
+message for tasks.totolist.noDueDate local (Sans date d'échéance, parts :[Sans date d'échéance] placeholder []) l (null)
+message for tasks.totolist.today local (Aujourd'hui, parts :[Aujourd'hui] placeholder []) l (null)
+message for tasks.totolist.tomorrow local (Demain, parts :[Demain] placeholder []) l (null)
+message for tasks.totolist.thisWeek local (Cette semaine, parts :[Cette semaine] placeholder []) l (null)
+message for tasks.totolist.thisMonth local (Ce mois, parts :[Ce mois] placeholder []) l (null)
+message for tasks.totolist.later local (Plus tard, parts :[Plus tard] placeholder []) l (null)
+message for tasks.totolist.yesterday local (Hier, parts :[Hier] placeholder []) l (null)
+message for commons.add local (Ajouter..., parts :[Ajouter...] placeholder []) l (null)
+message for tasks.totolists.myLists local (Mes listes, parts :[Mes listes] placeholder []) l (null)
+message for tasks.totolists.sharedLists local (Listes partagées, parts :[Listes partagées] placeholder []) l (null)
+message for general.sharedBy local (Partagé par , parts :[Partagé par ] placeholder []) l (null)
+place ref message
+native meaning task.todolists.loadingError message (Error during Todo lists loading: {$message})
+no message, use from source task.todolists.loadingError
+message for task.todolists.loadingError local (Error during Todo lists loading: {$message}, parts :[Error during Todo lists loading: , {$message}] placeholder [message]) l (Error during Todo lists loading: {$message})
+place ref message
+native meaning generic.loadingError message (Error during loading: {$message})
+no message, use from source generic.loadingError
+message for generic.loadingError local (Error during loading: {$message}, parts :[Error during loading: , {$message}] placeholder [message]) l (Error during loading: {$message})
+place ref message
+native meaning generic.createError message (Error during creation: {$message})
+no message, use from source generic.createError
+message for generic.createError local (Error during creation: {$message}, parts :[Error during creation: , {$message}] placeholder [message]) l (Error during creation: {$message})
+native meaning contact.create.success message (Task saved)
+no message, use from source contact.create.success
+message for contact.create.success local (Task saved, parts :[Task saved] placeholder []) l (Task saved)
+no message, use from source generic.createError
+message for generic.createError local (Error during creation: {$message}, parts :[Error during creation: , {$message}] placeholder [message]) l (Error during creation: {$message})
+native meaning contact.update.success message (Task saved)
+no message, use from source contact.update.success
+message for contact.update.success local (Task saved, parts :[Task saved] placeholder []) l (Task saved)
+place ref message
+native meaning generic.deleteError message (Error during delete: {$message})
+no message, use from source generic.deleteError
+message for generic.deleteError local (Error during delete: {$message}, parts :[Error during delete: , {$message}] placeholder [message]) l (Error during delete: {$message})
+native meaning contact.delete.success message (Task deleted)
+no message, use from source contact.delete.success
+message for contact.delete.success local (Task deleted, parts :[Task deleted] placeholder []) l (Task deleted)
+place ref message
+native meaning contact.move.error message (Error during move: {$message})
+no message, use from source contact.move.error
+message for contact.move.error local (Error during move: {$message}, parts :[Error during move: , {$message}] placeholder [message]) l (Error during move: {$message})
+native meaning contact.move.success message (Task moved)
+no message, use from source contact.move.success
+message for contact.move.success local (Task moved, parts :[Task moved] placeholder []) l (Task moved)
+no message, use from source contact.move.error
+message for contact.move.error local (Error during move: {$message}, parts :[Error during move: , {$message}] placeholder [message]) l (Error during move: {$message})
+no message, use from source contact.move.success
+message for contact.move.success local (Task moved, parts :[Task moved] placeholder []) l (Task moved)
+message for task.started local (Commencée le {$task.start}, parts :[Commencée le , {$task.start}] placeholder [task.start]) l (null)
+message for general.tags local (Étiquettes, parts :[Étiquettes] placeholder []) l (null)
+message for task.location local (Lieu, parts :[Lieu] placeholder []) l (null)
+message for task.completed local (Completée, parts :[Completée] placeholder []) l (null)
+message for task.completedOn local (Terminée le , parts :[Terminée le ] placeholder []) l (null)
+message for task.dueOn local (Dû pour le {$due}, parts :[Dû pour le , {$due}] placeholder [due]) l (null)
+message for task.priority local (Priorité : {$priority}, parts :[Priorité : , {$priority}] placeholder [priority]) l (null)
+message for general.copy local (Copier vers, parts :[Copier vers] placeholder []) l (null)
+message for tasks.priority.low local (Basse, parts :[Basse] placeholder []) l (null)
+message for tasks.priority.medium local (Moyenne, parts :[Moyenne] placeholder []) l (null)
+message for tasks.priority.high local (Haute, parts :[Haute] placeholder []) l (null)
+message for tasks.status.needsAction local (Non démarrée, parts :[Non démarrée] placeholder []) l (null)
+message for tasks.status.completed local (Terminée, parts :[Terminée] placeholder []) l (null)
+message for tasks.status.inProgress local (En cours, parts :[En cours] placeholder []) l (null)
+message for tasks.status.cancelled local (Annulée, parts :[Annulée] placeholder []) l (null)
+native meaning datepicker.today.button.label message (Today)
+no message, use from source datepicker.today.button.label
+message for datepicker.today.button.label local (Today, parts :[Today] placeholder []) l (Today)
+native meaning datepicker.none message (None)
+no message, use from source datepicker.none
+message for datepicker.none local (None, parts :[None] placeholder []) l (None)
+native meaning editor.messages.link message (Link)
+no message, use from source editor.messages.link
+message for editor.messages.link local (Link, parts :[Link] placeholder []) l (Link)
+native meaning editor.messages.link.edit message (Edit Link)
+no message, use from source editor.messages.link.edit
+message for editor.messages.link.edit local (Edit Link, parts :[Edit Link] placeholder []) l (Edit Link)
+native meaning editor.messages.textToDisplay message (Text to display:)
+no message, use from source editor.messages.textToDisplay
+message for editor.messages.textToDisplay local (Text to display:, parts :[Text to display:] placeholder []) l (Text to display:)
+native meaning editor.messages.link.to message (Link to:)
+no message, use from source editor.messages.link.to
+message for editor.messages.link.to local (Link to:, parts :[Link to:] placeholder []) l (Link to:)
+native meaning editor.messages.webAddress message (Web address)
+no message, use from source editor.messages.webAddress
+message for editor.messages.webAddress local (Web address, parts :[Web address] placeholder []) l (Web address)
+native meaning editor.messages.link.external message (Link to a page or file somewhere else on the web)
+no message, use from source editor.messages.link.external
+message for editor.messages.link.external local (Link to a page or file somewhere else on the web, parts :[Link to a page or file somewhere else on the web] placeholder []) l (Link to a page or file somewhere else on the web)
+native meaning editor.messages.link.test message (Test this link)
+no message, use from source editor.messages.link.test
+message for editor.messages.link.test local (Test this link, parts :[Test this link] placeholder []) l (Test this link)
+native meaning editor.messages.link.shouldGo.url message (To what URL should this link go?)
+no message, use from source editor.messages.link.shouldGo.url
+message for editor.messages.link.shouldGo.url local (To what URL should this link go?, parts :[To what URL should this link go?] placeholder []) l (To what URL should this link go?)
+native meaning editor.messages.link.email message (Email address)
+no message, use from source editor.messages.link.email
+message for editor.messages.link.email local (Email address, parts :[Email address] placeholder []) l (Email address)
+native meaning editor.messages.link.email.info message (Link to an email address)
+no message, use from source editor.messages.link.email.info
+message for editor.messages.link.email.info local (Link to an email address, parts :[Link to an email address] placeholder []) l (Link to an email address)
+native meaning editor.messages.invalidEmail message (Invalid email address)
+no message, use from source editor.messages.invalidEmail
+message for editor.messages.invalidEmail local (Invalid email address, parts :[Invalid email address] placeholder []) l (Invalid email address)
+native meaning editor.messages.link.shouldGo.email message (To what email address should this link?)
+no message, use from source editor.messages.link.shouldGo.email
+message for editor.messages.link.shouldGo.email local (To what email address should this link?, parts :[To what email address should this link?] placeholder []) l (To what email address should this link?)
+native meaning editor.messages.fontSize.small message (Small)
+no message, use from source editor.messages.fontSize.small
+message for editor.messages.fontSize.small local (Small, parts :[Small] placeholder []) l (Small)
+native meaning editor.messages.fontSize.normal message (Normal)
+no message, use from source editor.messages.fontSize.normal
+message for editor.messages.fontSize.normal local (Normal, parts :[Normal] placeholder []) l (Normal)
+native meaning editor.messages.fontSize.large message (Large)
+no message, use from source editor.messages.fontSize.large
+message for editor.messages.fontSize.large local (Large, parts :[Large] placeholder []) l (Large)
+native meaning editor.messages.fontSize.huge message (Huge)
+no message, use from source editor.messages.fontSize.huge
+message for editor.messages.fontSize.huge local (Huge, parts :[Huge] placeholder []) l (Huge)
+native meaning editor.messages.fontFamily.normal message (Normal)
+no message, use from source editor.messages.fontFamily.normal
+message for editor.messages.fontFamily.normal local (Normal, parts :[Normal] placeholder []) l (Normal)
+native meaning editor.messages.fontFamily.serif message (Normal / serif)
+no message, use from source editor.messages.fontFamily.serif
+message for editor.messages.fontFamily.serif local (Normal / serif, parts :[Normal / serif] placeholder []) l (Normal / serif)
+native meaning editor.messages.format.heading message (Heading)
+no message, use from source editor.messages.format.heading
+message for editor.messages.format.heading local (Heading, parts :[Heading] placeholder []) l (Heading)
+native meaning editor.messages.format.subheading message (Subheading)
+no message, use from source editor.messages.format.subheading
+message for editor.messages.format.subheading local (Subheading, parts :[Subheading] placeholder []) l (Subheading)
+native meaning editor.messages.format.minorHeading message (Minor heading)
+no message, use from source editor.messages.format.minorHeading
+message for editor.messages.format.minorHeading local (Minor heading, parts :[Minor heading] placeholder []) l (Minor heading)
+native meaning editor.messages.format.normal message (Normal)
+no message, use from source editor.messages.format.normal
+message for editor.messages.format.normal local (Normal, parts :[Normal] placeholder []) l (Normal)
+native meaning editor.messages.format.block.title message (Format)
+no message, use from source editor.messages.format.block.title
+message for editor.messages.format.block.title local (Format, parts :[Format] placeholder []) l (Format)
+native meaning editor.messages.format.block.info message (Format)
+no message, use from source editor.messages.format.block.info
+message for editor.messages.format.block.info local (Format, parts :[Format] placeholder []) l (Format)
+native meaning editor.messages.undo message (Undo)
+no message, use from source editor.messages.undo
+message for editor.messages.undo local (Undo, parts :[Undo] placeholder []) l (Undo)
+native meaning editor.messages.redo message (Redo)
+no message, use from source editor.messages.redo
+message for editor.messages.redo local (Redo, parts :[Redo] placeholder []) l (Redo)
+native meaning editor.messages.font message (Font)
+no message, use from source editor.messages.font
+message for editor.messages.font local (Font, parts :[Font] placeholder []) l (Font)
+native meaning editor.messages.fontSize message (Font size)
+no message, use from source editor.messages.fontSize
+message for editor.messages.fontSize local (Font size, parts :[Font size] placeholder []) l (Font size)
+native meaning editor.messages.textColor message (Text color)
+no message, use from source editor.messages.textColor
+message for editor.messages.textColor local (Text color, parts :[Text color] placeholder []) l (Text color)
+native meaning editor.messages.bold message (Bold)
+no message, use from source editor.messages.bold
+message for editor.messages.bold local (Bold, parts :[Bold] placeholder []) l (Bold)
+native meaning editor.messages.italic message (Italic)
+no message, use from source editor.messages.italic
+message for editor.messages.italic local (Italic, parts :[Italic] placeholder []) l (Italic)
+native meaning editor.messages.underline message (Underline)
+no message, use from source editor.messages.underline
+message for editor.messages.underline local (Underline, parts :[Underline] placeholder []) l (Underline)
+native meaning editor.messages.backgroundColor message (Text background color)
+no message, use from source editor.messages.backgroundColor
+message for editor.messages.backgroundColor local (Text background color, parts :[Text background color] placeholder []) l (Text background color)
+native meaning editor.messages.link.addRemove message (Add or remove link)
+no message, use from source editor.messages.link.addRemove
+message for editor.messages.link.addRemove local (Add or remove link, parts :[Add or remove link] placeholder []) l (Add or remove link)
+native meaning editor.messages.list.ordered message (Numbered list)
+no message, use from source editor.messages.list.ordered
+message for editor.messages.list.ordered local (Numbered list, parts :[Numbered list] placeholder []) l (Numbered list)
+native meaning editor.messages.list.unordered message (Bullet list)
+no message, use from source editor.messages.list.unordered
+message for editor.messages.list.unordered local (Bullet list, parts :[Bullet list] placeholder []) l (Bullet list)
+native meaning editor.messages.indent.decrease message (Decrease indent)
+no message, use from source editor.messages.indent.decrease
+message for editor.messages.indent.decrease local (Decrease indent, parts :[Decrease indent] placeholder []) l (Decrease indent)
+native meaning editor.messages.indent.increase message (Increase indent)
+no message, use from source editor.messages.indent.increase
+message for editor.messages.indent.increase local (Increase indent, parts :[Increase indent] placeholder []) l (Increase indent)
+native meaning editor.messages.align.left message (Align left)
+no message, use from source editor.messages.align.left
+message for editor.messages.align.left local (Align left, parts :[Align left] placeholder []) l (Align left)
+native meaning editor.messages.align.center message (Align center)
+no message, use from source editor.messages.align.center
+message for editor.messages.align.center local (Align center, parts :[Align center] placeholder []) l (Align center)
+native meaning editor.messages.align.right message (Align right)
+no message, use from source editor.messages.align.right
+message for editor.messages.align.right local (Align right, parts :[Align right] placeholder []) l (Align right)
+native meaning editor.messages.align.justify message (Justify)
+no message, use from source editor.messages.align.justify
+message for editor.messages.align.justify local (Justify, parts :[Justify] placeholder []) l (Justify)
+native meaning editor.messages.format.remove message (Remove formatting)
+no message, use from source editor.messages.format.remove
+message for editor.messages.format.remove local (Remove formatting, parts :[Remove formatting] placeholder []) l (Remove formatting)
+native meaning editor.messages.image.insert message (Insert image)
+no message, use from source editor.messages.image.insert
+message for editor.messages.image.insert local (Insert image, parts :[Insert image] placeholder []) l (Insert image)
+native meaning editor.messages.strikestrought message (Strikethrough)
+no message, use from source editor.messages.strikestrought
+message for editor.messages.strikestrought local (Strikethrough, parts :[Strikethrough] placeholder []) l (Strikethrough)
+native meaning editor.messages.direction.leftToRight message (Left-to-right)
+no message, use from source editor.messages.direction.leftToRight
+message for editor.messages.direction.leftToRight local (Left-to-right, parts :[Left-to-right] placeholder []) l (Left-to-right)
+native meaning editor.messages.diurection.rightToLeft message (Right-to-left)
+no message, use from source editor.messages.diurection.rightToLeft
+message for editor.messages.diurection.rightToLeft local (Right-to-left, parts :[Right-to-left] placeholder []) l (Right-to-left)
+native meaning editor.messages.quote message (Quote)
+no message, use from source editor.messages.quote
+message for editor.messages.quote local (Quote, parts :[Quote] placeholder []) l (Quote)
+native meaning editor.messages.html message (Edit HTML source)
+no message, use from source editor.messages.html
+message for editor.messages.html local (Edit HTML source, parts :[Edit HTML source] placeholder []) l (Edit HTML source)
+native meaning editor.messages.subscript message (Subscript)
+no message, use from source editor.messages.subscript
+message for editor.messages.subscript local (Subscript, parts :[Subscript] placeholder []) l (Subscript)
+native meaning editor.messages.superscript message (Superscript)
+no message, use from source editor.messages.superscript
+message for editor.messages.superscript local (Superscript, parts :[Superscript] placeholder []) l (Superscript)
+native meaning editor.messages.html.info message (HTML)
+no message, use from source editor.messages.html.info
+message for editor.messages.html.info local (HTML, parts :[HTML] placeholder []) l (HTML)
+native meaning editor.messages.link.goTo message (Go to link:)
+no message, use from source editor.messages.link.goTo
+message for editor.messages.link.goTo local (Go to link:, parts :[Go to link:] placeholder []) l (Go to link:)
+native meaning editor.messages.bubble.change message (Change)
+no message, use from source editor.messages.bubble.change
+message for editor.messages.bubble.change local (Change, parts :[Change] placeholder []) l (Change)
+native meaning editor.messages.bubble.remove message (Remove)
+no message, use from source editor.messages.bubble.remove
+message for editor.messages.bubble.remove local (Remove, parts :[Remove] placeholder []) l (Remove)
+native meaning editor.messages.bubble.image message (Image)
+no message, use from source editor.messages.bubble.image
+message for editor.messages.bubble.image local (Image, parts :[Image] placeholder []) l (Image)
+native meaning editor.messages.bubble.invalidUrl message (Invalid URL)
+no message, use from source editor.messages.bubble.invalidUrl
+message for editor.messages.bubble.invalidUrl local (Invalid URL, parts :[Invalid URL] placeholder []) l (Invalid URL)
+native meaning editor.messages.link.unsafe message (This link cannot be tested.)
+no message, use from source editor.messages.link.unsafe
+message for editor.messages.link.unsafe local (This link cannot be tested., parts :[This link cannot be tested.] placeholder []) l (This link cannot be tested.)
+native meaning editor.messages.cancel message (Cancel)
+no message, use from source editor.messages.cancel
+message for editor.messages.cancel local (Cancel, parts :[Cancel] placeholder []) l (Cancel)
+native meaning editor.messages.ok message (Ok)
+no message, use from source editor.messages.ok
+message for editor.messages.ok local (Ok, parts :[Ok] placeholder []) l (Ok)
+native meaning editor.messages.image.edit message (Edit Image)
+no message, use from source editor.messages.image.edit
+message for editor.messages.image.edit local (Edit Image, parts :[Edit Image] placeholder []) l (Edit Image)
+native meaning editor.messages.image.source message (Image source:)
+no message, use from source editor.messages.image.source
+message for editor.messages.image.source local (Image source:, parts :[Image source:] placeholder []) l (Image source:)
+native meaning editor.messages.image.url message (From an URL)
+no message, use from source editor.messages.image.url
+message for editor.messages.image.url local (From an URL, parts :[From an URL] placeholder []) l (From an URL)
+native meaning editor.messages.image.external message (Link an image from a web server.)
+no message, use from source editor.messages.image.external
+message for editor.messages.image.external local (Link an image from a web server., parts :[Link an image from a web server.] placeholder []) l (Link an image from a web server.)
+native meaning editor.messages.image.local message (Image from my computer.)
+no message, use from source editor.messages.image.local
+message for editor.messages.image.local local (Image from my computer., parts :[Image from my computer.] placeholder []) l (Image from my computer.)
+native meaning editor.messages.image.upload message (Upload an image from the local disk. Fit for image smaller than 10 KB.)
+no message, use from source editor.messages.image.upload
+message for editor.messages.image.upload local (Upload an image from the local disk. Fit for image smaller than 10 KB., parts :[Upload an image from the local disk. Fit for image smaller than 10 KB.] placeholder []) l (Upload an image from the local disk. Fit for image smaller than 10 KB.)
+native meaning link.caption message (Link)
+no message, use from source link.caption
+message for link.caption local (Link, parts :[Link] placeholder []) l (Link)
+native meaning edit.link message (Edit Link)
+no message, use from source edit.link
+message for edit.link local (Edit Link, parts :[Edit Link] placeholder []) l (Edit Link)
+native meaning text.to.display message (Text to display:)
+no message, use from source text.to.display
+message for text.to.display local (Text to display:, parts :[Text to display:] placeholder []) l (Text to display:)
+native meaning link.to message (Link to:)
+no message, use from source link.to
+message for link.to local (Link to:, parts :[Link to:] placeholder []) l (Link to:)
+native meaning on.the.web message (Web address)
+no message, use from source on.the.web
+message for on.the.web local (Web address, parts :[Web address] placeholder []) l (Web address)
+native meaning on.the.web.tip message (Link to a page or file somewhere else on the web)
+no message, use from source on.the.web.tip
+message for on.the.web.tip local (Link to a page or file somewhere else on the web, parts :[Link to a page or file somewhere else on the web] placeholder []) l (Link to a page or file somewhere else on the web)
+native meaning test.this.link message (Test this link)
+no message, use from source test.this.link
+message for test.this.link local (Test this link, parts :[Test this link] placeholder []) l (Test this link)
+place ref startBold
+place ref endBold
+place ref searchEngineLink
+place ref endLink
+native meaning tr.link.explanation message ({$startBold}Not sure what to put in the box?{$endBold} First, find the page on the web that you want to link to. (A {$searchEngineLink}search engine{$endLink} might be useful.) Then, copy the web address from the box in your browser's address bar, and paste it into the box above.)
+no message, use from source tr.link.explanation
+message for tr.link.explanation local ({$startBold}Not sure what to put in the box?{$endBold} First, find the page on the web that you want to link to. (A {$searchEngineLink}search engine{$endLink} might be useful.) Then, copy the web address from the box in your browser's address bar, and paste it into the box above., parts :[{$startBold}, Not sure what to put in the box?, {$endBold},  First, find the page on the web that you want to link to. (A , {$searchEngineLink}, search engine, {$endLink},  might be useful.) Then, copy the web address from the box in your browser's address bar, and paste it into the box above.] placeholder [startBold, endLink, endBold, searchEngineLink]) l ({$startBold}Not sure what to put in the box?{$endBold} First, find the page on the web that you want to link to. (A {$searchEngineLink}search engine{$endLink} might be useful.) Then, copy the web address from the box in your browser's address bar, and paste it into the box above.)
+native meaning what.url message (To what URL should this link go?)
+no message, use from source what.url
+message for what.url local (To what URL should this link go?, parts :[To what URL should this link go?] placeholder []) l (To what URL should this link go?)
+native meaning email.address message (Email address)
+no message, use from source email.address
+message for email.address local (Email address, parts :[Email address] placeholder []) l (Email address)
+native meaning email.address.tip message (Link to an email address)
+no message, use from source email.address.tip
+message for email.address.tip local (Link to an email address, parts :[Link to an email address] placeholder []) l (Link to an email address)
+native meaning invalid.email message (Invalid email address)
+no message, use from source invalid.email
+message for invalid.email local (Invalid email address, parts :[Invalid email address] placeholder []) l (Invalid email address)
+native meaning what.email message (To what email address should this link?)
+no message, use from source what.email
+message for what.email local (To what email address should this link?, parts :[To what email address should this link?] placeholder []) l (To what email address should this link?)
+place ref preb
+place ref postb
+native meaning email.explanation message ({$preb}Be careful.{$postb} Remember that any time you include an email address on a web page, nasty spammers can find it too.)
+no message, use from source email.explanation
+message for email.explanation local ({$preb}Be careful.{$postb} Remember that any time you include an email address on a web page, nasty spammers can find it too., parts :[{$preb}, Be careful., {$postb},  Remember that any time you include an email address on a web page, nasty spammers can find it too.] placeholder [preb, postb]) l ({$preb}Be careful.{$postb} Remember that any time you include an email address on a web page, nasty spammers can find it too.)
+native meaning open.in.new.window message (Open this link in a new window)
+no message, use from source open.in.new.window
+message for open.in.new.window local (Open this link in a new window, parts :[Open this link in a new window] placeholder []) l (Open this link in a new window)
+native meaning image.caption message (Image)
+no message, use from source image.caption
+message for image.caption local (Image, parts :[Image] placeholder []) l (Image)
+native meaning editor.messages.image.dialog.external.title message (What's the URL of the image?)
+no message, use from source editor.messages.image.dialog.external.title
+message for editor.messages.image.dialog.external.title local (What's the URL of the image?, parts :[What's the URL of the image?] placeholder []) l (What's the URL of the image?)
+native meaning editor.messages.image.dialog.local.title message (Select the image to upload)
+no message, use from source editor.messages.image.dialog.local.title
+message for editor.messages.image.dialog.local.title local (Select the image to upload, parts :[Select the image to upload] placeholder []) l (Select the image to upload)
+native meaning tr.dialog.ok message (OK)
+no message, use from source tr.dialog.ok
+message for tr.dialog.ok local (OK, parts :[OK] placeholder []) l (OK)
+native meaning tr.dialog.cancel message (Cancel)
+no message, use from source tr.dialog.cancel
+message for tr.dialog.cancel local (Cancel, parts :[Cancel] placeholder []) l (Cancel)
+message for commons.addReminder local (Ajouter une alerte, parts :[Ajouter une alerte] placeholder []) l (null)
+message for commons.addReminder local (Ajouter une alerte, parts :[Ajouter une alerte] placeholder []) l (null)
+message for commons.time.seconds local (secondes, parts :[secondes] placeholder []) l (null)
+message for commons.time.minutes local (minutes, parts :[minutes] placeholder []) l (null)
+message for commons.time.hours local (heures, parts :[heures] placeholder []) l (null)
+message for commons.time.days local (jours, parts :[jours] placeholder []) l (null)
+native meaning commons.reminder.byEmail message (By E-Mail)
+no message, use from source commons.reminder.byEmail
+message for commons.reminder.byEmail local (By E-Mail, parts :[By E-Mail] placeholder []) l (By E-Mail)
+native meaning commons.reminder.notificationPopup message (Notification Popup)
+no message, use from source commons.reminder.notificationPopup
+message for commons.reminder.notificationPopup local (Notification Popup, parts :[Notification Popup] placeholder []) l (Notification Popup)
+native meaning commons.reminder.compatibleClientWarning message (A compatible client must be running at reminder time)
+no message, use from source commons.reminder.compatibleClientWarning
+message for commons.reminder.compatibleClientWarning local (A compatible client must be running at reminder time, parts :[A compatible client must be running at reminder time] placeholder []) l (A compatible client must be running at reminder time)
+message for general.other local (Autre, parts :[Autre] placeholder []) l (null)
+native meaning tag.select message (Select a tag...)
+no message, use from source tag.select
+message for tag.select local (Select a tag..., parts :[Select a tag...] placeholder []) l (Select a tag...)
+native meaning tag.create message (Create tag)
+no message, use from source tag.create
+message for tag.create local (Create tag, parts :[Create tag] placeholder []) l (Create tag)
+message for tasks.form.summary local (Titre, parts :[Titre] placeholder []) l (null)
+message for tasks.form.dtstart local (Date de début, parts :[Date de début] placeholder []) l (null)
+message for tasks.form.dueDate local (Échéance le, parts :[Échéance le] placeholder []) l (null)
+message for tasks.form.priority local (Priorité, parts :[Priorité] placeholder []) l (null)
+message for tasks.form.state local (État, parts :[État] placeholder []) l (null)
+message for tasks.form.percentCompleted local (Avancement (%), parts :[Avancement (%)] placeholder []) l (null)
+message for tasks.form.completionDate local (Terminée le, parts :[Terminée le] placeholder []) l (null)
+message for tasks.form.location local (Lieu, parts :[Lieu] placeholder []) l (null)
+message for tasks.form.tag local (Étiquette, parts :[Étiquette] placeholder []) l (null)
+message for tasks.form.description local (Description, parts :[Description] placeholder []) l (null)
+message for tasks.form.reminder local (Alarme, parts :[Alarme] placeholder []) l (null)
+native meaning history.date message (Date)
+no message, use from source history.date
+message for history.date local (Date, parts :[Date] placeholder []) l (Date)
+native meaning history.type message (Type)
+no message, use from source history.type
+message for history.type local (Type, parts :[Type] placeholder []) l (Type)
+native meaning history.author message (Author)
+no message, use from source history.author
+message for history.author local (Author, parts :[Author] placeholder []) l (Author)
+native meaning history.origin message (Origin)
+no message, use from source history.origin
+message for history.origin local (Origin, parts :[Origin] placeholder []) l (Origin)
+native meaning history.created message (Created)
+no message, use from source history.created
+message for history.created local (Created, parts :[Created] placeholder []) l (Created)
+native meaning history.updated message (Updated)
+no message, use from source history.updated
+message for history.updated local (Updated, parts :[Updated] placeholder []) l (Updated)
+native meaning history.deleted message (Deleted)
+no message, use from source history.deleted
+message for history.deleted local (Deleted, parts :[Deleted] placeholder []) l (Deleted)
+message for general.history local (Historique, parts :[Historique] placeholder []) l (null)
+message for general.save local (Enregistrer, parts :[Enregistrer] placeholder []) l (null)
+message for general.markAsDone local (Marquer comme terminée, parts :[Marquer comme terminée] placeholder []) l (null)
+message for general.history local (Historique, parts :[Historique] placeholder []) l (null)
+message for general.copy local (Copier vers, parts :[Copier vers] placeholder []) l (null)
+message for general.move local (Déplacer vers, parts :[Déplacer vers] placeholder []) l (null)
+message for general.delete local (Supprimer, parts :[Supprimer] placeholder []) l (null)
+place ref message
+native meaning general.error.synchronization message (Synchronization failed : '{$message}')
+no message, use from source general.error.synchronization
+message for general.error.synchronization local (Synchronization failed : '{$message}', parts :[Synchronization failed : ', {$message}, '] placeholder [message]) l (Synchronization failed : '{$message}')
+native meaning general.error.synchronization.unkown message (Synchronization failed, a new attempt will be made later. Please contact support if this error persists.)
+no message, use from source general.error.synchronization.unkown
+message for general.error.synchronization.unkown local (Synchronization failed, a new attempt will be made later. Please contact support if this error persists., parts :[Synchronization failed, a new attempt will be made later. Please contact support if this error persists.] placeholder []) l (Synchronization failed, a new attempt will be made later. Please contact support if this error persists.)
+native meaning general.notice.notSynchronized message (Not all modifications are synchronized with the server yet.)
+no message, use from source general.notice.notSynchronized
+message for general.notice.notSynchronized local (Not all modifications are synchronized with the server yet., parts :[Not all modifications are synchronized with the server yet.] placeholder []) l (Not all modifications are synchronized with the server yet.)
+native meaning tasks.formError.summary message (Summary is empty)
+no message, use from source tasks.formError.summary
+message for tasks.formError.summary local (Summary is empty, parts :[Summary is empty] placeholder []) l (Summary is empty)
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 55.817 s
+[INFO] Finished at: 2016-05-27T16:34:59+02:00
+[INFO] Final Memory: 71M/910M
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal net.bluemind:bm-plovr-maven-plugin:1.0.0-SNAPSHOT:plovr-compile (default) on project net.bluemind.task.application.closure: compilation error -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException

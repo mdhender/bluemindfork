@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+	<source path='client' />
+	<inherits name="net.bluemind.core.CommonsApi" />
+	<inherits name="net.bluemind.core.CoreApi" />
+	<inherits name="net.bluemind.core.task.TaskApi" />
+	<inherits name="net.bluemind.ui.extensions.GWTExtensions" />
+	<inherits name="net.bluemind.gwtconsoleapp.base.Notification" />
+	<inherits name="net.bluemind.gwtconsoleapp.base.Eventbus" />
+
+	<inherits name="net.bluemind.calendar.CalendarApi" />
+	<inherits name="net.bluemind.core.container.ContainerApi" />	
+	<inherits name="net.bluemind.ui.common.client.CommonForms" />
+	<inherits name="net.bluemind.ui.gwttask.GwtTaskUi"/>
+	
+</module>

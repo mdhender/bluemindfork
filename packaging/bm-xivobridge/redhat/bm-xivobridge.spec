@@ -1,0 +1,60 @@
+Summary:            BlueMind XiVO bridge server
+Name:               bm-xivobridge
+Version:            %{_bmrelease}
+Release:            0
+License:            GNU Affero General Public License v3
+Group:              Applications/messaging
+URL:                http://www.bluemind.net/
+ExcludeArch:        s390 s390x
+Requires(post):     systemd systemd-sysv
+Requires:           bm-jdk = 8u212-bluemind29, bm-conf = %{version}-%{release}
+Requires(post):     /bin/bash, initscripts
+
+%description
+BlueMind XiVO bridge sends cti events to BlueMind components
+
+%define __jar_repack 0
+
+%install
+cp -a %{_rootdir}/* %{buildroot}
+
+mkdir -p %{buildroot}%{_initrddir}
+cp /sources/stretch/bm-xivobridge.init %{buildroot}%{_initrddir}/bm-xivobridge
+
+mkdir -p %{buildroot}%{_unitdir}
+install -m 644 /sources/stretch/bm-xivobridge.service %{buildroot}%{_unitdir}
+
+%files
+%attr(0755, root, root) %{_initrddir}/bm-xivobridge
+%exclude %dir /usr
+%exclude %dir /usr/lib
+%exclude %dir /usr/lib/systemd
+%exclude %dir %{_unitdir}
+/*
+
+%pre
+if [ $1 -gt 1 ]; then
+    # Upgrade
+    systemctl stop bm-xivobridge
+fi
+
+%post -p /bin/bash
+systemctl daemon-reload
+systemctl enable bm-xivobridge
+
+if [ $1 -eq 1 ]; then
+    # Installation
+    systemctl start bm-xivobridge
+fi
+
+%preun
+if [ $1 -eq 0 ]; then
+    # Uninstall
+    systemctl stop bm-xivobridge
+fi
+
+%postun
+if [ $1 -eq 1 ]; then
+    # Upgrade
+    systemctl start bm-xivobridge
+fi

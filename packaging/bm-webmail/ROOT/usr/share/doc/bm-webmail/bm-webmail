@@ -1,0 +1,33 @@
+upstream php5-fpm-sock {
+    server 127.0.0.1:9000;
+}
+
+server {
+  listen   81;
+
+  error_log /var/log/nginx/webmail.log info;
+
+  location /webmail {
+    alias /usr/share/bm-webmail;
+    index index.php;
+    client_max_body_size 0;   
+  }
+
+  location /webmail/bluemind_sso_logout {
+    return 302 /webmail/?_task=logout;
+  }
+
+  location ~ ^/webmail(.*\.php) {
+    #try_files $uri =404;
+    allow all;
+    include fastcgi_params;
+    fastcgi_index index.php;
+    fastcgi_pass php5-fpm-sock;
+    fastcgi_param SCRIPT_FILENAME /usr/share/bm-webmail$1;
+    fastcgi_param QUERY_STRING $query_string;
+    fastcgi_param PHP_VALUE "include_path=/usr/share/bm-webmail/bm_libs";
+    fastcgi_intercept_errors off;
+    #fastcgi_read_timeout 14s;
+    client_max_body_size 0;   
+  }
+}

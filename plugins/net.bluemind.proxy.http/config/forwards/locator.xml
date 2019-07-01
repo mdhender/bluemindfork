@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<forwards>
+	<forward path="/location" target="http://localhost:8084/location">
+		<auth kind="NONE" />
+		<whitelist>
+			<wl uri="/location" />
+		</whitelist>
+	</forward>
+</forwards>

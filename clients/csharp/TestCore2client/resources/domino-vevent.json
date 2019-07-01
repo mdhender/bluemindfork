@@ -1,0 +1,53 @@
+{
+   "value":{
+      "uid":"EEAB96F39FAD8EFBC1257CAE0057A092",
+      "dtstart":{
+         "iso8601":"2014-04-03T01:00:00.000-01:00",
+         "timezone":"-01:00",
+         "precision":"DateTime"
+      },
+      "dtend":{
+         "iso8601":"2014-04-03T01:00:00.000-01:00",
+         "timezone":"-01:00",
+         "precision":"DateTime"
+      },
+      "summary":"The remindser",
+      "classification":"Public",
+      "transparency":"Opaque",
+      "description":"<font face=\"Default Sans Serif,Verdana,Arial,Helvetica,sans-serif\" size=\"2\"></font>",
+      "location":null,
+      "priority":null,
+      "alarm":5,
+      "status":null,
+      "attendees":[
+         {
+            "role":"Chair",
+            "partStatus":"Accepted",
+            "commonName":"Doe John",
+            "mailto":"jdoe@bluemind.loc",
+            "uri":"calendar:Default:user_jdoe",
+            "internal":true
+         }
+      ],
+      "organizer":{
+         "uri":"calendar:Default:user_jdoe",
+         "commonName":"Doe John",
+         "mailto":"jdoe@bluemind.loc"
+      },
+      "exdate":null,
+      "categories":null,
+      "rrule":null,
+      "recurid":null,
+      "properties":{
+
+      }
+   },
+   "uid":"EEAB96F39FAD8EFBC1257CAE0057A092",
+   "version":1329,
+   "displayName":"The remindser",
+   "externalId":null,
+   "createdBy":"admin0_global.virt",
+   "updatedBy":"admin0_global.virt",
+   "created":"2015-06-16",
+   "updated":"2015-06-16"
+}

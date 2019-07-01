@@ -1,0 +1,70 @@
+////////////////////////////////////////////////////////////////////////////////
+BlueMind LICENSE
+////////////////////////////////////////////////////////////////////////////////
+
+URI: http://www.blue-mind.net/licenses
+
+//========================================//
+// English version (French version below) //
+//========================================//
+
+BlueMind is free software, licensed under the terms of the GNU Affero General Public License as published by the Free 
+Software Foundation, version 3 of the License.  You can redistribute it and/or modify since you respect the terms of 
+this License.
+
+Moreover, parts of the software owned by the companie Blue Mind are cumulativly licensed under the terms of the CeCILL
+as published on CeCILL.info -- version 2 of the License -- with the following exception:
+
+	Notwithstanding any other provision of this License, if you modify the Software, your Modified Software must
+	prominently offer all users interacting with it remotely through a computer network (if your version supports 
+	such interaction) an opportunity to receive the Source Code of your Modified Software by providing access to
+	the Source Code from a network server at no charge, through some standard or customary means of facilitating
+	copying of software.
+
+You can redistribute and/or modify them since you respect the terms of at least one of these licenses (either GNU
+Affero GPL v3 or CeCILL v2).
+
+You should have received a copy of the GNU Affero General Public License and the CeCILL along with BlueMind. If not,
+see : <http://www.gnu.org/licenses/> and <http://www.cecill.info/licences.en.html>.
+
+Finally, BlueMind is made using those external components and libraries. They are listed at the end of this file.
+
+//================//
+// French version //
+//================//
+
+BlueMind est un logiciel libre, diffusé selon les termes de la GNU Affero General Public License telle que 
+publiée par la Free Software Foundation dans sa version 3. Vous ne pouvez le redistribuer ou le modifier que si vous
+respectez les termes de cette licence.
+
+Néanmoins, les parties du logiciel appartenant à Blue Mind sont cumulativement mise à disposition selon les termes 
+de la licence CeCILL telle que publiée sur Cecill.info dans sa version 2 -- avec l'exception suivante :
+
+	Nonobstant toute autre provision de la Licence, si vous modifiez le Logiciel, votre Logiciel Modifié doit offrir 
+	de façon proéminente pour tous les utilisateurs interagissant à distance via le réseau (si votre version supporte 
+	une telle interaction) une possibilité de recevoir le Code Source de votre Logiciel Modifié en fournissant un 
+	accés au Code Source par un serveur réseau sans frais supplémentaire, au travers de moyens standards ou habituels 
+	facilitant la copie de logiciel. 
+
+Vous ne pouvez redistribuer ou modifier ces fichiers que si vous respectez les termes de l'une au moins des deux 
+licences (GNU Affero General Public License v3 ou CeCILL v2).
+
+Vous devriez avoir reçu une copie de la GNU Affero General Public License et la licence CeCILL avec le logiciel BlueMind.
+Si n'est pas le cas, vous les trouverez sur : <http://www.gnu.org/licenses/> et <http://www.cecill.info/licences.fr.html>.
+
+Enfin, BlueMind utilise des composants et bibliothèques externes. Ils sont listés à la fin de ce fichier.
+
+//===========================================================================//
+
+External components, libraries and icons:
+
+- RoundCube : roundcube.net (GNU GPL v3 + exception)
+- Glyphish : http://glyphish.com/ (Glyphish Pro)
+- Closure library (Apache 2.0)
+- GWT (Apache 2.0)
+- o-push : http://code.google.com/p/o-push/ (GPLv3)
+- ydn-db : https://bitbucket.org/ytkyaw/ydn-db/overview (Apache 2.0)
+- relief : http://code.google.com/p/relief/ (Apache 2.0)
+- ...
+Some other Open Source components have been used in parts or modified.
+Among those : iCal4j, netty, obm-sync, tigase, elasticsearch, guava, vert.x

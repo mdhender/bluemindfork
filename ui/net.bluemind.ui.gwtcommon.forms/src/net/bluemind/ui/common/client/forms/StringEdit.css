@@ -1,0 +1,23 @@
+.flowPanel {
+}
+
+.flowPanel td {
+	padding: 2px 6px;
+}
+
+.textInput input {
+	width:100%;
+}
+
+.inputTitle {
+	text-align:right;
+	color: #666;
+}
+
+.vaTop {
+	vertical-align: top;
+}
+
+.mandatory {
+	
+}

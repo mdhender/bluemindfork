@@ -1,0 +1,137 @@
+Return-Path: <mrobert@infhotep.com>
+Received: from infhotep.com (vmbluemind.stouen.local [10.2.200.58])
+	 by vmbluemind (Cyrus v2.4.16-Debian-2.4.16-1hudson7190) with LMTPA;
+	 Tue, 18 Dec 2012 10:05:20 +0100
+X-Sieve: CMU Sieve 2.4
+Received: from vmbluemind.stouen.local (LHLO vmbluemind.stouen.local)
+ (10.2.200.58) by unknown with LMTP; 12/18/12 9:05 AM
+Received: from srvastaro01.mairie-saint-ouen.fr (vmfwall01.stouen.local [10.255.255.254])
+	by vmbluemind.stouen.local (Postfix) with ESMTPS id 73903240063
+	for <rkidai@mairie-saint-ouen.fr>; Tue, 18 Dec 2012 10:05:20 +0100 (CET)
+Received: from mail-oa0-f44.google.com ([209.85.219.44]:41156)
+	by srvastaro01.mairie-saint-ouen.fr with esmtps (TLSv1:RC4-SHA:128)
+	(Exim 4.76)
+	(envelope-from <mrobert@infhotep.com>)
+	id 1Tkt6z-00034n-33
+	for rkidai@mairie-saint-ouen.fr; Tue, 18 Dec 2012 10:05:18 +0100
+Received: by mail-oa0-f44.google.com with SMTP id n5so350310oag.3
+        for <rkidai@mairie-saint-ouen.fr>; Tue, 18 Dec 2012 01:05:16 -0800 (PST)
+X-CTCH-RefID: str=0001.0A0B020C.50D031CE.001D,ss=1,re=0.000,fgs=0
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20120113;
+        h=from:mime-version:x-mailer:thread-index:date:message-id:subject:cc
+         :content-type:content-transfer-encoding:x-gm-message-state;
+        bh=fGZaTdp1f1cSBiCDQKc52ACIWu47KZBmA8bKSF0PmLQ=;
+        b=N4dRcldMd0HWBV+Fq6x7HHz7hzFz4BrKoD3g6MyeRgeHHGWOzzrbFVB/mmZBX11d8p
+         wbj/1flBWrirGhKHd0O/P/baV2x7slufInTC1y/nEqbHlqpbNfYeJyeI0kP1uU4cBSe7
+         bTkVN5q+RkSXA3VMSgvrGZTF+vvUhaQdRfwyPEIAK/dJAUOZP5iIiPh1jdpMwuSVBCM6
+         ryd+Y9W6I9vyQdLfTzlxuvQ1sxGIBek3o1+fEgC86N40A9FN0rzhHdl4MEszYGj2Dd+L
+         U9Sdpy6ATF3g9w4pasn3slRAK+Ft9cV5nCS3zzrwUMvvYQTm/qurgRadM404vPxjoHQh
+         6sqw==
+Received: by 10.60.22.7 with SMTP id z7mr913999oee.113.1355821027378; Tue, 18
+ Dec 2012 00:57:07 -0800 (PST)
+From: Marion ROBERT <mrobert@infhotep.com>
+MIME-Version: 1.0
+X-Mailer: Microsoft Outlook 14.0
+Thread-Index: Ac3cUZFZpUz291/BTWqo42RI7wt70QArA27Q
+Date: Tue, 18 Dec 2012 09:57:05 +0100
+Message-ID: <17ffb3667a8e6cfff5f2abf0be1fffd0@mail.gmail.com>
+Subject: =?ISO-8859-1?Q?Entretien_Angelie_Delay_=2F_Infhotep_=2D_Proc=E9dures_org?=
+	=?ISO-8859-1?Q?anigramme?=
+Cc: Rachid KIDAI <rkidai@mairie-saint-ouen.fr>
+X-Gm-Message-State: ALoCoQl6WtB62ovWh15KBeNP81IXlwaWzPkKzoSymXEwSubORwZgEeNvxPQIIU1C+nTst4LJnY5f
+Content-Type: multipart/alternative;
+ boundary="-=Part.7.c8a50bfd9404468a.13bad429696.61f34e3201e21681=-"
+X-BM-Event:
+ 040000008200E00074C5B7101A82E00800000000206A4EEA59DCCD01000000000000000010000000AAA0FD7CFF3E614A8420F4F30FA333D5
+
+---=Part.7.c8a50bfd9404468a.13bad429696.61f34e3201e21681=-
+Content-Type: text/html
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+<META NAME="Generator" CONTENT="MS Exchange Server version 14.02.5004.000">
+<TITLE></TITLE>
+</HEAD>
+<BODY>
+<!-- Converted from text/rtf format -->
+
+<P DIR=LTR><SPAN LANG="fr"></SPAN></P>
+
+</BODY>
+</HTML>
+---=Part.7.c8a50bfd9404468a.13bad429696.61f34e3201e21681=-
+Content-Type: text/calendar; charset=utf-8; method=REQUEST
+Content-Transfer-Encoding: quoted-printable
+
+BEGIN:VCALENDAR
+PRODID:-//Microsoft Corporation//Outlook 14=2E0 MIMEDIR//EN
+VERSION:2=2E0
+METHOD:REQUEST
+X-MS-OLK-FORCEINSPECTOROPEN:TRUE
+BEGIN:VTIMEZONE
+TZID:Romance Standard Time
+BEGIN:STANDARD
+DTSTART:16011028T030000
+RRULE:FREQ=3DYEARLY;BYDAY=3D-1SU;BYMONTH=3D10
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+END:STANDARD
+BEGIN:DAYLIGHT
+DTSTART:16010325T020000
+RRULE:FREQ=3DYEARLY;BYDAY=3D-1SU;BYMONTH=3D3
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+END:DAYLIGHT
+END:VTIMEZONE
+BEGIN:VEVENT
+ATTENDEE;CN=3D"Rachid KIDAI";ROLE=3DOPT-PARTICIPANT;RSVP=3DTRUE:mailto:rki=
+dai@mai
+	rie-saint-ouen=2Efr
+ATTENDEE;CN=3Dadelay@mairie-saint-ouen=2Efr:invalid:nomail
+CLASS:PUBLIC
+CREATED:20121218T085651Z
+DESCRIPTION:\n
+DTEND;TZID=3D"Romance Standard Time":20130109T121500
+DTSTAMP:20121218T085651Z
+DTSTART;TZID=3D"Romance Standard Time":20130109T104500
+LAST-MODIFIED:20121218T085705Z
+LOCATION:Saint Ouen - Bureau DRH
+ORGANIZER;CN=3D"Marion ROBERT":mailto:mrobert@infhotep=2Ecom
+PRIORITY:5
+SEQUENCE:1
+SUMMARY;LANGUAGE=3Dfr:Entretien Angelie Delay  / Infhotep - Proc=C3=A9dure=
+s organ
+	igramme
+TRANSP:OPAQUE
+UID:040000008200E00074C5B7101A82E00800000000206A4EEA59DCCD0100000000000000=
+0
+	010000000AAA0FD7CFF3E614A8420F4F30FA333D5
+X-ALT-DESC;FMTTYPE=3Dtext/html:<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3=
+=2E2//E
+	N">\n<HTML>\n<HEAD>\n<META NAME=3D"Generator" CONTENT=3D"MS Exchange Serv=
+er ve
+	rsion 14=2E02=2E5004=2E000">\n<TITLE></TITLE>\n</HEAD>\n<BODY>\n<!-- Conv=
+erted f
+	rom text/rtf format -->\n\n<P DIR=3DLTR><SPAN LANG=3D"fr"></SPAN></P>\n\n=
+</BOD
+	Y>\n</HTML>
+X-MICROSOFT-CDO-BUSYSTATUS:TENTATIVE
+X-MICROSOFT-CDO-IMPORTANCE:1
+X-MICROSOFT-CDO-INTENDEDSTATUS:BUSY
+X-MICROSOFT-DISALLOW-COUNTER:FALSE
+X-MS-OLK-APPTLASTSEQUENCE:1
+X-MS-OLK-APPTSEQTIME:20121213T163055Z
+X-MS-OLK-AUTOSTARTCHECK:FALSE
+X-MS-OLK-CONFTYPE:0
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:Reminder
+END:VALARM
+END:VEVENT
+END:VCALENDAR
+
+---=Part.7.c8a50bfd9404468a.13bad429696.61f34e3201e21681=---
+

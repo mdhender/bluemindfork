@@ -1,0 +1,76 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:bj="urn:import:net.bluemind.ui.admin.client" xmlns:a="urn:import:net.bluemind.ui.adminconsole.base.ui"
+	xmlns:r="urn:import:net.bluemind.ui.adminconsole.directory.resource"
+	xmlns:f="urn:import:net.bluemind.ui.admin.client.forms" xmlns:common="urn:import:net.bluemind.ui.common.client.forms"
+	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'>
+
+	<ui:style>
+	.mandatory {
+		color: #24638f;
+		font-weight: bold;
+	}
+	.mailBackendLabel {
+		margin-right: 5px;
+		padding-top: 10px;
+	}
+	
+	.mailBackend {
+		width: 150px;
+		margin-top: 5px;
+		margin-bottom: 30px;
+	}
+	</ui:style>
+
+	<ui:with field="uc"
+		type="net.bluemind.ui.adminconsole.directory.user.l10n.UserConstants" />
+		
+	<ui:with field="mc"
+		type="net.bluemind.ui.adminconsole.directory.resource.l10n.ResourceConstants" />
+
+	<g:HTMLPanel styleName="modal-dialog-content">
+		<g:Label ui:field="errorLabel" styleName="modal-dialog-error" />
+		<table>
+			<a:DelegationEdit ui:field="delegation" titleText="{mc.delegation}"
+				maxLength="32" mandatory="false" kind="RESOURCE" />
+			<common:StringEdit ui:field="name" titleText="{mc.name}"
+				maxLength="4096" mandatory="true" />
+
+			<r:ResourceTypeCombo ui:field="type" titleText="{mc.type}" />
+			
+			<tr>
+				<td>
+					<g:HTMLPanel ui:field="mailBackendPanel">
+						<g:Label text="{uc.mailBackend}" styleName="{style.mailBackendLabel}"></g:Label>
+						<g:ListBox ui:field="mailBackend" styleName="{style.mailBackend}" />
+					</g:HTMLPanel>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="{style.mandatory}">
+					<g:Label text="{mc.mail} *"></g:Label>
+				</td>
+				<td>
+					<a:MailAddressTableEditor ui:field="mailTable"
+						size="1" hasImplicitEmail="false" />
+				</td>
+				<td></td>
+			</tr>
+
+			<f:TextEdit ui:field="desc" titleText="{mc.description}"
+				mandatory="false" />
+			<tr>
+				<td>
+					<g:Label text="{mc.managers}" />
+				</td>
+				<td>
+					<a:UserOrGroupEntityEdit ui:field="ugEdit"
+						titleText="{mc.managers}" multival="true" />
+				</td>
+			</tr>
+		</table>
+	</g:HTMLPanel>
+</ui:UiBinder>

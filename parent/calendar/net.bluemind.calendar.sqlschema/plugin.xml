@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.core.jdbc.schema">
+      <schema
+            name="vevent-schema"
+            resource="sql/vevent-schema.1.0.0.sql">
+         <compose
+               id="item-store">
+         </compose>
+         <compose
+               id="datetime">
+         </compose>
+         <compose
+               id="icalendar-schema">
+         </compose>
+      </schema>
+   </extension>
+   <extension
+         point="net.bluemind.core.jdbc.schema">
+      <schema
+            name="calendarview-schema"
+            resource="sql/calendarview-schema.1.0.0.sql">
+         <compose
+               id="item-store">
+         </compose>
+      </schema>
+   </extension>
+   <extension
+         point="net.bluemind.core.jdbc.schema">
+      <schema
+            name="freebusy-schema"
+            resource="sql/freebusy-schema.1.0.0.sql">
+      </schema>
+   </extension>
+
+</plugin>

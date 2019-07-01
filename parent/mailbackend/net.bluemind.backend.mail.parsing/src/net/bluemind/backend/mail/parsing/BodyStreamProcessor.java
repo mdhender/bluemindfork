@@ -1,0 +1,476 @@
+/* BEGIN LICENSE
+  * Copyright © Blue Mind SAS, 2012-2017
+  *
+  * This file is part of BlueMind. BlueMind is a messaging and collaborative
+  * solution.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of either the GNU Affero General Public License as
+  * published by the Free Software Foundation (version 3 of the License).
+  *
+  * This program is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  *
+  * See LICENSE.txt
+  * END LICENSE
+  */
+package net.bluemind.backend.mail.parsing;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.StandardCharsets;
+import java.nio.charset.UnsupportedCharsetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import org.apache.james.mime4j.dom.Body;
+import org.apache.james.mime4j.dom.Entity;
+import org.apache.james.mime4j.dom.Message;
+import org.apache.james.mime4j.dom.Multipart;
+import org.apache.james.mime4j.dom.SingleBody;
+import org.apache.james.mime4j.dom.TextBody;
+import org.apache.james.mime4j.dom.address.Address;
+import org.apache.james.mime4j.dom.address.AddressList;
+import org.apache.james.mime4j.dom.address.Mailbox;
+import org.apache.james.mime4j.dom.address.MailboxList;
+import org.apache.james.mime4j.dom.field.ContentTypeField;
+import org.apache.james.mime4j.dom.field.FieldName;
+import org.apache.james.mime4j.stream.Field;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
+import com.google.common.collect.Sets;
+import com.google.common.io.CharStreams;
+
+import net.bluemind.backend.mail.api.DispositionType;
+import net.bluemind.backend.mail.api.MessageBody;
+import net.bluemind.backend.mail.api.MessageBody.Part;
+import net.bluemind.backend.mail.api.MessageBody.Recipient;
+import net.bluemind.backend.mail.api.MessageBody.RecipientKind;
+import net.bluemind.backend.mail.replica.api.MailApiHeaders;
+import net.bluemind.content.analysis.ContentAnalyzerFactory;
+import net.bluemind.core.api.Stream;
+import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.mime4j.common.AddressableEntity;
+import net.bluemind.mime4j.common.Mime4JHelper;
+import net.bluemind.mime4j.common.OffloadedBodyFactory;
+import net.bluemind.mime4j.common.OffloadedBodyFactory.SizedBody;
+import net.bluemind.neko.common.NekoHelper;
+
+public class BodyStreamProcessor {
+
+	private static final Logger logger = LoggerFactory.getLogger(BodyStreamProcessor.class);
+
+	// copied from UidFetchCommand
+	private static final Set<String> fromSummaryClass = Sets.newHashSet("DATE", "FROM", "TO", "CC", "SUBJECT",
+			"CONTENT-TYPE", "REPLY-TO", "LIST-POST", "DISPOSITION-NOTIFICATION-TO", "X-PRIORITY", "X-BM_HSM_ID",
+			"X-BM_HSM_DATETIME", "X-BM-EVENT", "X-BM-RESOURCEBOOKING", "X-BM-FOLDERSHARING", "X-ASTERISK-CALLERID");
+
+	private static final Set<String> fromMailApi = Sets.newHashSet(MailApiHeaders.ALL);
+
+	private static Set<String> toDrop = Sets.newHashSet("from", "to", "cc", "date", "received", "x-received", "subject",
+			"content-type", "mime-version", "dkim-signature", "x-google-dkim-signature", "arc-seal", "message-id",
+			"references", "arc-message-signature", "arc-authentication-results", "received-spf", "return-path",
+			"x-sieve");
+
+	private static Set<String> whiteList = buildWhiteList();
+
+	/**
+	 * The version of the DB body this {@link BodyStreamProcessor} produces from an
+	 * IMAP message.
+	 */
+	public static final int BODY_VERSION;
+
+	static {
+		// initialization in a separate static bloc enables tests to modify this final
+		// field using reflection
+		BODY_VERSION = 3;
+	}
+
+	private static Set<String> buildWhiteList() {
+		Set<String> white = new HashSet<>();
+		fromSummaryClass.forEach(s -> white.add(s.toLowerCase()));
+		fromMailApi.forEach(s -> white.add(s.toLowerCase()));
+		white.removeAll(toDrop);
+		return ImmutableSet.copyOf(white);
+	}
+
+	public static CompletableFuture<MessageBodyData> processBody(Stream eml) {
+		return EZInputStreamAdapter.consume(eml, emlInput -> {
+			logger.debug("Consuming wrapped stream {}", emlInput);
+			long time = System.currentTimeMillis();
+			MessageBody mb = new MessageBody();
+			mb.bodyVersion = BODY_VERSION;
+			Message parsed = Mime4JHelper.parse(emlInput, new OffloadedBodyFactory());
+			String subject = parsed.getSubject();
+			if (subject != null) {
+				mb.subject = subject.replace("\u0000", "");
+			}
+			mb.date = parsed.getDate();
+			mb.size = (int) emlInput.getCount();
+			Multimap<String, String> mmapHeaders = MultimapBuilder.hashKeys().linkedListValues().build();
+			parsed.getHeader().forEach(field -> mmapHeaders.put(field.getName(), field.getBody()));
+			mb.headers = processHeaders(mmapHeaders);
+			mb.messageId = parsed.getMessageId();
+			mb.references = processReferences(mmapHeaders);
+
+			processRecipients(mb, parsed);
+
+			if (logger.isDebugEnabled()) {
+				logger.debug("Got {} unique header(s)", mb.headers.size());
+			}
+			List<String> filenames = new ArrayList<>();
+			StringBuilder bodyTxt = new StringBuilder();
+			if (!parsed.isMultipart()) {
+				Part p = new Part();
+				p.mime = parsed.getMimeType();
+				p.address = "1";
+				p.size = mb.size;
+				mb.structure = p;
+				p.charset = parsed.getCharset();
+				p.encoding = parsed.getContentTransferEncoding();
+			} else {
+				Multipart mpBody = (Multipart) parsed.getBody();
+				processMultipart(mb, mpBody, filenames, bodyTxt);
+			}
+			String extractedBody = extractBody(parsed);
+			bodyTxt.append(extractedBody);
+			mb.preview = extractedBody.substring(0, Math.min(160, extractedBody.length()));
+
+			List<String> with = new LinkedList<>();
+			if (parsed.getFrom() != null && !parsed.getFrom().isEmpty()) {
+				with.add(toString(parsed.getFrom().get(0)));
+			}
+			with.addAll(toString(parsed.getTo()));
+			with.addAll(toString(parsed.getCc()));
+
+			parsed.dispose();
+			mb.structure.size = mb.size;
+			time = System.currentTimeMillis() - time;
+			if (time > 10) {
+				logger.info("Body processed in {}ms.", time);
+			}
+
+			MessageBodyData bodyData = new MessageBodyData(mb, bodyTxt.toString(), filenames, with,
+					mapHeaders(mb.headers));
+			logger.debug("Processed {}", bodyData);
+			return bodyData;
+		});
+	}
+
+	private static List<String> processReferences(Multimap<String, String> mmapHeaders) {
+		for (String headerName : mmapHeaders.keySet()) {
+			if (headerName.toLowerCase().equals("references")) {
+				return Arrays.asList(mmapHeaders.get(headerName).iterator().next().split(" "));
+			}
+		}
+		return null;
+	}
+
+	private static String toString(Mailbox m) {
+		StringBuilder sb = new StringBuilder();
+		if (m.getName() != null) {
+			sb.append(m.getName());
+			sb.append(" ");
+		}
+		sb.append(m.getAddress());
+		return sb.toString();
+	}
+
+	private static List<String> toString(AddressList to) {
+		if (to == null) {
+			return Lists.newArrayList();
+		}
+		ArrayList<String> r = new ArrayList<>(to.size());
+		for (Address a : to) {
+			if (a instanceof Mailbox) {
+				r.add(toString((Mailbox) a));
+			}
+		}
+		return r;
+	}
+
+	private static Map<String, String> mapHeaders(List<net.bluemind.backend.mail.api.MessageBody.Header> headers) {
+		return headers.stream().collect(Collectors.toMap(h -> h.name.toLowerCase(), h -> h.values.get(0), (u, v) -> v));
+	}
+
+	public static class MessageBodyData {
+		public final MessageBody body;
+		public final String text;
+		public final List<String> filenames;
+		public final List<String> with;
+		public final Map<String, String> headers;
+
+		public MessageBodyData(MessageBody body, String text, List<String> filenames, List<String> with,
+				Map<String, String> headers) {
+			this.body = body;
+			this.text = text;
+			this.filenames = filenames;
+			this.with = with;
+			this.headers = headers;
+		}
+
+		public String toString() {
+			return MoreObjects.toStringHelper(MessageBodyData.class)//
+					.add("body", body)//
+					.add("with", with)//
+					.add("headers", headers)//
+					.add("filenames", filenames)//
+					.add("textSize", Strings.nullToEmpty(text).length())//
+					.toString();
+		}
+	}
+
+	private static String extractBody(Message message) {
+		Body body = message.getBody();
+
+		if (body instanceof Multipart) {
+			Multipart mp = (Multipart) body;
+			List<AddressableEntity> parts = Mime4JHelper.expandParts(mp.getBodyParts());
+			String html = null;
+
+			for (AddressableEntity ae : parts) {
+				String mime = ae.getMimeType();
+				if (Mime4JHelper.TEXT_PLAIN.equals(mime) && !Mime4JHelper.isAttachment(ae)) {
+					return NekoHelper.trimWhiteSpace(getBodyContent(ae)).trim();
+				} else if (html == null && Mime4JHelper.TEXT_HTML.equals(mime) && !Mime4JHelper.isAttachment(ae)) {
+					html = getBodyContent(ae);
+				}
+			}
+			if (html != null) {
+				return NekoHelper.flatCompactRawText(html);
+			}
+
+		} else {
+			if (body instanceof TextBody) {
+				return NekoHelper.flatCompactRawText(getBodyContent(message));
+			}
+		}
+
+		return "";
+	}
+
+	private static String getBodyContent(Entity e) {
+		String encoding = "UTF-8";
+		Field field = e.getHeader().getField("Content-Type");
+		if (null != field) {
+			ContentTypeField ctField = (ContentTypeField) field;
+			String cs = ctField.getCharset();
+			if (null != cs) {
+				encoding = cs;
+			}
+		}
+
+		Charset charset = null;
+		try {
+			charset = Charset.forName(encoding);
+		} catch (UnsupportedCharsetException | IllegalCharsetNameException ex) {
+			logger.warn("**** unsupported charset: {}", encoding);
+			charset = StandardCharsets.UTF_8;
+		}
+
+		TextBody tb = (TextBody) e.getBody();
+		String partContent = null;
+		try (InputStream in = tb.getInputStream()) {
+			partContent = CharStreams.toString(new InputStreamReader(in, charset));
+		} catch (IOException io) {
+			throw new ServerFault(io);
+		}
+		return partContent;
+	}
+
+	private static void processRecipients(MessageBody mb, Message parsed) {
+		List<Recipient> output = new LinkedList<>();
+		addRecips(output, MessageBody.RecipientKind.Originator, parsed.getFrom());
+		addRecips(output, MessageBody.RecipientKind.Sender, parsed.getSender());
+		addRecips(output, MessageBody.RecipientKind.Primary, parsed.getTo());
+		addRecips(output, MessageBody.RecipientKind.CarbonCopy, parsed.getCc());
+		addRecips(output, MessageBody.RecipientKind.BlindCarbonCopy, parsed.getBcc());
+		logger.debug("Parsed {} recipient(s)", output.size());
+		mb.recipients = output;
+	}
+
+	private static void addRecips(List<Recipient> output, RecipientKind kind, MailboxList mailboxes) {
+		if (mailboxes == null) {
+			return;
+		}
+		mailboxes.forEach(mailbox -> {
+			Recipient recip = Recipient.create(kind, mailbox.getName(), mailbox.getAddress());
+			output.add(recip);
+		});
+	}
+
+	private static void addRecips(List<Recipient> output, RecipientKind kind, Mailbox mailbox) {
+		if (mailbox == null) {
+			return;
+		}
+		Recipient recip = Recipient.create(kind, mailbox.getName(), mailbox.getAddress());
+		output.add(recip);
+	}
+
+	private static void addRecips(List<Recipient> output, RecipientKind kind, AddressList mailboxes) {
+		if (mailboxes == null) {
+			return;
+		}
+		addRecips(output, kind, mailboxes.flatten());
+	}
+
+	private static void processMultipart(MessageBody mb, Multipart mpBody, List<String> filenames,
+			StringBuilder bodyTxt) {
+		Part root = new Part();
+		root.mime = "multipart/" + mpBody.getSubType();
+		root.address = "TEXT";
+		List<Entity> subParts = mpBody.getBodyParts();
+		int idx = 1;
+		for (Entity sub : subParts) {
+			Part child = subPart(root, idx++, sub, filenames, bodyTxt);
+			root.children.add(child);
+		}
+		mb.structure = root;
+	}
+
+	private static Part subPart(Part parent, int i, Entity sub, List<String> filenames, StringBuilder bodyTxt) {
+		String curAddr = "TEXT".equals(parent.address) ? "" + i : parent.address + "." + i;
+		Part p = new Part();
+		p.address = curAddr;
+		p.mime = sub.getMimeType();
+
+		sub.getHeader().forEach(e -> {
+			if (FieldName.CONTENT_ID.equalsIgnoreCase(e.getName())) {
+				p.contentId = Strings.emptyToNull(e.getBody());
+			}
+		});
+
+		if (sub.isMultipart()) {
+			Multipart mult = (Multipart) sub.getBody();
+			List<Entity> subParts = mult.getBodyParts();
+			int idx = 1;
+			for (Entity subsub : subParts) {
+				Part child = subPart(p, idx++, subsub, filenames, bodyTxt);
+				p.children.add(child);
+			}
+		} else if (sub.getBody() instanceof SingleBody) {
+			Multimap<String, String> mmapHeaders = MultimapBuilder.hashKeys().linkedListValues().build();
+			sub.getHeader().forEach(field -> mmapHeaders.put(field.getName(), field.getBody()));
+			p.headers = processHeaders(mmapHeaders);
+
+			// fix fetch filename
+			p.fileName = AddressableEntity.getFileName(sub);
+			if (p.fileName != null) {
+				filenames.add(p.fileName);
+				indexAttachment(sub, bodyTxt);
+			}
+
+			p.charset = sub.getCharset();
+			p.encoding = sub.getContentTransferEncoding();
+			SizedBody sized = (SizedBody) sub.getBody();
+			p.size = sized.size();
+
+			p.dispositionType = DispositionType.valueOfNullSafeIgnoreCase(sub.getDispositionType());
+
+			// Apple Mail sends PDFs as inline stuff
+			// --Apple-Mail=_597C093C-5BA5-4C97-8C3A-FE774541930B
+			// Content-Disposition: inline; filename="Pack Sponsor - Red Hat Forum Paris
+			// 2019.pdf"
+			// Content-Type: application/pdf; x-unix-mode=0644; name="Pack Sponsor - Red Hat
+			// Forum Paris 2019.pdf"
+			// Content-Transfer-Encoding: base64
+			if (p.dispositionType == DispositionType.INLINE && p.contentId == null && p.fileName != null) {
+				p.dispositionType = DispositionType.ATTACHMENT;
+			}
+			if ("multipart/report".equals(parent.mime) && p.dispositionType == null && p.fileName == null) {
+				handleReportPart(sub, filenames, bodyTxt, p);
+			}
+		} else {
+			logger.warn("Don't know how to process {}", p.mime);
+		}
+		return p;
+	}
+
+	private static void handleReportPart(Entity sub, List<String> filenames, StringBuilder bodyTxt, Part part) {
+		Field field = sub.getHeader().getField("Content-Type");
+		if (null != field) {
+			ContentTypeField ctField = (ContentTypeField) field;
+			String mimeType = ctField.getMimeType();
+			switch (mimeType) {
+			case "message/delivery-status":
+				part.dispositionType = DispositionType.ATTACHMENT;
+				part.fileName = "details.txt";
+				break;
+			case "text/rfc822-headers":
+				part.dispositionType = DispositionType.ATTACHMENT;
+				part.fileName = "Undelivred Message Headers.txt";
+				break;
+			case ContentTypeField.TYPE_MESSAGE_RFC822:
+				part.dispositionType = DispositionType.ATTACHMENT;
+				part.fileName = "Forwarded message.eml";
+				break;
+			}
+
+			if (part.fileName != null) {
+				filenames.add(part.fileName);
+				indexAttachment(sub, bodyTxt);
+			}
+		}
+	}
+
+	private static void indexAttachment(Entity ae, StringBuilder bodyTxt) {
+		try {
+			SingleBody body = (SingleBody) ae.getBody();
+			InputStream in = body.getInputStream();
+			if (canAnalyzeAttachment(ae)) {
+				ContentAnalyzerFactory.get().ifPresent(analyzer -> {
+					CompletableFuture<Optional<String>> ret = analyzer.extractText(in);
+					try {
+						Optional<String> extractedText = ret.get(5, TimeUnit.SECONDS);
+						extractedText.ifPresent(content -> bodyTxt.append(" " + content + " "));
+					} catch (Exception e) {
+
+					}
+				});
+			}
+		} catch (Exception e) {
+			logger.warn("Cannot retrieve attachment part", e);
+		}
+	}
+
+	private static boolean canAnalyzeAttachment(Entity ae) {
+		String mimeType = ae.getMimeType();
+		if (mimeType != null) {
+			return !(mimeType.startsWith("image/") || mimeType.startsWith("audio/") || mimeType.startsWith("video/"));
+		}
+
+		return true;
+	}
+
+	private static List<net.bluemind.backend.mail.api.MessageBody.Header> processHeaders(
+			Multimap<String, String> mmapHeaders) {
+		List<MessageBody.Header> headers = new LinkedList<>();
+		for (String h : mmapHeaders.keySet()) {
+			if (whiteList.contains(h.toLowerCase())) {
+				headers.add(MessageBody.Header.create(h, mmapHeaders.get(h)));
+			}
+		}
+		return headers;
+	}
+
+}

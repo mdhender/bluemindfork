@@ -1,0 +1,47 @@
+.item {
+	border: 1px solid #CCC;
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	background-color: #DAE3E8;
+	margin-bottom: 10px;
+}
+
+.container {
+	vertical-align: top;
+	padding: 10px;
+	background-color: #FFF;
+}
+
+.body {
+	border-top: 1px solid #CCC;
+}
+
+.head {
+	background-color: #DAE3E8;
+}
+
+.head img {
+	vertical-align: middle;
+}
+
+.head div {
+	font-weight: bold;
+	font-size: 150%;
+	display: inline;
+	vertical-align: middle;
+	color: #333;
+	padding-left: 10px;
+}
+
+.link {
+	font-weight: bold;
+}
+
+.linkContainer {
+	padding: 5px;
+}
+
+.desc {
+	
+}

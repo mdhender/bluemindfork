@@ -1,0 +1,5 @@
+#Eclipse Product File
+#Tue May 13 10:52:11 CEST 2014
+version=1.0.0.b12154
+name=bluejob.core
+id=net.bluemind.core.launcher.core

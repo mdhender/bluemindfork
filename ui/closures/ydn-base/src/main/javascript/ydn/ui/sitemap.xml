@@ -1,0 +1,2027 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
+    <url>
+        <loc>/api/ydn/api/app.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.api.App</title>
+    </url>
+    <url>
+        <loc>/api/ydn/api/user-assess.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.api.UserAssess</title>
+    </url>
+    <url>
+        <loc>/api/ydn/api/user.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.api.User</title>
+    </url>
+    <url>
+        <loc>/api/ydn/crm/inj/app.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.crm.inj.App</title>
+    </url>
+    <url>
+        <loc>/api/ydn/crm/inj/context.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.crm.inj.Context</title>
+    </url>
+    <url>
+        <loc>/api/ydn/crm/sugarcrm/model/field.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.crm.su.model.Field</title>
+    </url>
+    <url>
+        <loc>/api/ydn/crm/sugarcrm/model/group.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.crm.su.model.Group</title>
+    </url>
+    <url>
+        <loc>/api/ydn/crm/sugarcrm/model/record.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.crm.su.model.Record</title>
+    </url>
+    <url>
+        <loc>/api/ydn/crm/sugarcrm/model/sugarcrm.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.crm.su.model.SugarCrm</title>
+    </url>
+    <url>
+        <loc>/api/ydn/crm/sugarcrm/record.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.crm.su.Record</title>
+    </url>
+    <url>
+        <loc>/api/ydn/crm/sugarcrm/schema.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.crm.su.Schema</title>
+    </url>
+    <url>
+        <loc>/api/ydn/crm/sugarcrm/ui/events.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.crm.su.ui.events</title>
+    </url>
+    <url>
+        <loc>/api/ydn/crm/sugarcrm/ui/record/record.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.crm.su.ui.record.Record</title>
+    </url>
+    <url>
+        <loc>/api/ydn/crm/sugarcrm/ui/simple-sugar-panel.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.crm.su.ui.SimpleSugarPanel</title>
+    </url>
+    <url>
+        <loc>/api/ydn/db/events.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>YDN-DB - ydn.db.events</title>
+    </url>
+    <url>
+        <loc>/api/ydn/db/icursor.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Interface ydn.db.ICursor</title>
+    </url>
+    <url>
+        <loc>/api/ydn/db/</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.db</title>
+    </url>
+    <url>
+        <loc>/api/ydn/db/iterator.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.db.Iterator</title>
+    </url>
+    <url>
+        <loc>/api/ydn/db/key.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.db.Key</title>
+    </url>
+    <url>
+        <loc>/api/ydn/db/keyrange.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.db.KeyRange</title>
+    </url>
+    <url>
+        <loc>/api/ydn/db/query.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.db.Query</title>
+    </url>
+    <url>
+        <loc>/api/ydn/db/request.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.db.Request</title>
+    </url>
+    <url>
+        <loc>/api/ydn/db/schema.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.db.schema</title>
+    </url>
+    <url>
+        <loc>/api/ydn/db/solver.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.db.Solver</title>
+    </url>
+    <url>
+        <loc>/api/ydn/db/storage.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.db.Storage</title>
+    </url>
+    <url>
+        <loc>/api/ydn/db/streamer.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.db.Streamer</title>
+    </url>
+    <url>
+        <loc>/api/ydn/debug.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.debug</title>
+    </url>
+    <url>
+        <loc>/api/ydn/gdata/entry.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.gdata.Entry</title>
+    </url>
+    <url>
+        <loc>/api/ydn/gdata/feed.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.gdata.Feed</title>
+    </url>
+    <url>
+        <loc>/api/ydn/gdata/m8/contact-entry.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.gdata.m8.ContactEntry</title>
+    </url>
+    <url>
+        <loc>/api/ydn/gdata/m8/group-entry.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.gdata.m8.GroupEntry</title>
+    </url>
+    <url>
+        <loc>/api/ydn/geohash.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Namespace ydn.geohash</title>
+    </url>
+    <url>
+        <loc>/api/ydn/http/callback-result.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.http.CallbackResult</title>
+    </url>
+    <url>
+        <loc>/api/ydn/http/itransport.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.http.ITransport</title>
+    </url>
+    <url>
+        <loc>/api/ydn/math-expression.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Namespace ydn.math.Expression</title>
+    </url>
+    <url>
+        <loc>/crm-in-inbox/sugarcrm/</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Yathit CRMinInbox - SugarCRM for Gmail</title>
+    </url>
+    <url>
+        <loc>/crm-in-inbox/sugarcrm/pricing.html</loc>
+        <lastmod>2014-09-06T12:07:52+08:00</lastmod>
+        <title>Yathit CRMinInbox - SugarCRM for Gmail</title>
+    </url>
+    <url>
+        <loc>/crm-in-inbox/sugarcrm/user-guide/</loc>
+        <lastmod>2014-09-08T22:02:10+08:00</lastmod>
+        <title>Getting started</title>
+    </url>
+    <url>
+        <loc>/crm-in-inbox/sugarcrm/user-guide/setup/connecting-to-sugarcrm.html</loc>
+        <lastmod>2014-09-08T22:08:07+08:00</lastmod>
+        <title>Connecting to SugarCRM</title>
+    </url>
+    <url>
+        <loc>/crm-in-inbox/sugarcrm/user-guide/setup/google-setup.html</loc>
+        <lastmod>2014-09-08T22:08:07+08:00</lastmod>
+        <title>Google services setup</title>
+    </url>
+    <url>
+        <loc>/crm-in-inbox/sugarcrm/user-guide/setup/</loc>
+        <lastmod>2014-09-08T22:05:41+08:00</lastmod>
+        <title>Setup</title>
+    </url>
+    <url>
+        <loc>/crm-in-inbox/sugarcrm/user-guide/setup/installing-chrome-extension.html</loc>
+        <lastmod>2014-09-08T22:08:07+08:00</lastmod>
+        <title>Installing Chrome Extension</title>
+    </url>
+    <url>
+        <loc>/crm-in-inbox/sugarcrm/user-guide/using-sidebar/activity-feed.html</loc>
+        <lastmod>2014-09-08T22:11:09+08:00</lastmod>
+        <title>Activity feeds</title>
+    </url>
+    <url>
+        <loc>/crm-in-inbox/sugarcrm/user-guide/using-sidebar/creating-records.html</loc>
+        <lastmod>2014-09-08T22:10:10+08:00</lastmod>
+        <title>Creating records</title>
+    </url>
+    <url>
+        <loc>/crm-in-inbox/sugarcrm/user-guide/using-sidebar/editing-records.html</loc>
+        <lastmod>2014-09-08T22:10:42+08:00</lastmod>
+        <title>Editing records</title>
+    </url>
+    <url>
+        <loc>/crm-in-inbox/sugarcrm/user-guide/using-sidebar/</loc>
+        <lastmod>2014-09-08T22:09:33+08:00</lastmod>
+        <title>Using Sidebar Panel</title>
+    </url>
+    <url>
+        <loc>/crm-in-inbox/sugarcrm/user-guide/using-sidebar/searching-records.html</loc>
+        <lastmod>2014-09-08T22:09:33+08:00</lastmod>
+        <title>Searching records</title>
+    </url>
+    <url>
+        <loc>/fundamentals/device-access/click-to-call/click-to-call.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Click to call</title>
+    </url>
+    <url>
+        <loc>/fundamentals/device-access/click-to-call/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Click to call</title>
+    </url>
+    <url>
+        <loc>/fundamentals/device-access/device-orientation/dev-motion.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Device motion</title>
+    </url>
+    <url>
+        <loc>/fundamentals/device-access/device-orientation/dev-orientation.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Device orientation</title>
+    </url>
+    <url>
+        <loc>/fundamentals/device-access/device-orientation/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Device orientation</title>
+    </url>
+    <url>
+        <loc>/fundamentals/device-access/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Device Access</title>
+    </url>
+    <url>
+        <loc>/fundamentals/device-access/user-location/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>User location</title>
+    </url>
+    <url>
+        <loc>/fundamentals/device-access/user-location/monitor-location.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Monitor the user&apos;s location</title>
+    </url>
+    <url>
+        <loc>/fundamentals/device-access/user-location/obtain-location.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Obtain the user&apos;s current location</title>
+    </url>
+    <url>
+        <loc>/fundamentals/device-access/user-location/user-consent.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Getting the user to consent to location sharing</title>
+    </url>
+    <url>
+        <loc>/fundamentals/getting-started/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Get Started</title>
+    </url>
+    <url>
+        <loc>/fundamentals/getting-started/web-starter-kit/development-phases.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Development Phases</title>
+    </url>
+    <url>
+        <loc>/fundamentals/getting-started/web-starter-kit/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Start Your Site with Web Starter Kit</title>
+    </url>
+    <url>
+        <loc>/fundamentals/getting-started/web-starter-kit/setting-up.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Set Up Web Starter Kit</title>
+    </url>
+    <url>
+        <loc>/fundamentals/getting-started/web-starter-kit/using-styleguide.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>How to Use the Style Guide</title>
+    </url>
+    <url>
+        <loc>/fundamentals/getting-started/your-first-multi-screen-site/content.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Create Your Content and Structure</title>
+    </url>
+    <url>
+        <loc>/fundamentals/getting-started/your-first-multi-screen-site/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Your First Multi-device Site</title>
+    </url>
+    <url>
+        <loc>/fundamentals/getting-started/your-first-multi-screen-site/responsive.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Make It Responsive</title>
+    </url>
+    <url>
+        <loc>/fundamentals/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Web Fundamentals</title>
+    </url>
+    <url>
+        <loc>/fundamentals/input/form/choose-the-best-input-type.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Choose the best input type</title>
+    </url>
+    <url>
+        <loc>/fundamentals/input/form/design-efficient-forms.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Design efficient forms</title>
+    </url>
+    <url>
+        <loc>/fundamentals/input/form/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Create Amazing Forms</title>
+    </url>
+    <url>
+        <loc>/fundamentals/input/form/label-and-name-inputs.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Label and name inputs properly</title>
+    </url>
+    <url>
+        <loc>/fundamentals/input/form/provide-real-time-validation.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Provide real-time validation</title>
+    </url>
+    <url>
+        <loc>/fundamentals/input/form/use-request-auto-complete.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Simplify checkout with requestAutocomplete API</title>
+    </url>
+    <url>
+        <loc>/fundamentals/input/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Forms and User Input</title>
+    </url>
+    <url>
+        <loc>/fundamentals/input/touch/activestates/</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Stateful Elements Respond to Touch</title>
+    </url>
+    <url>
+        <loc>/fundamentals/input/touch/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Add Touch to Your Site</title>
+    </url>
+    <url>
+        <loc>/fundamentals/input/touch/touchevents/</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Implement Custom Gestures</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Multi-Device Layouts</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/navigation-patterns/appbar/</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>App Bar</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/navigation-patterns/bottombar/</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Bottom Bar</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/navigation-patterns/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Navigation and Action Patterns</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/navigation-patterns/navigationdrawer/</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Navigation Drawer</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/navigation-patterns/tabbar/</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Tab Bar</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/principles/cta-front-and-center.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Keep Calls To Action Front and Center</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/principles/easy-to-home.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Make It Easy To Get To The Home Page</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/principles/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Home Page and Navigation Principles</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/principles/menus-short.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Keep Menus Short and Sweet</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/principles/promos.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Don&apos;t let promotions steal the show</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/principles/single-browser.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Keep users in a single browser window</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/rwd-fundamentals/how-to-choose-breakpoints.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>How to choose breakpoints</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/rwd-fundamentals/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Responsive Web Design Basics</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/rwd-fundamentals/set-the-viewport.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Set the viewport</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/rwd-fundamentals/size-content-to-the-viewport.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Size content to the viewport</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/rwd-fundamentals/use-media-queries.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Use CSS media queries for responsiveness</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/rwd-patterns/column-drop.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Column Drop</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/rwd-patterns/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Responsive Web Design Patterns</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/rwd-patterns/layout-shifter.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Layout shifter</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/rwd-patterns/mostly-fluid.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Mostly fluid</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/rwd-patterns/off-canvas.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Off canvas</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/rwd-patterns/tiny-tweaks.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Tiny tweaks</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/ui-elements/</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>UI Elements</title>
+    </url>
+    <url>
+        <loc>/fundamentals/look-and-feel/animations/animating-between-views.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Animating Between Views</title>
+    </url>
+    <url>
+        <loc>/fundamentals/look-and-feel/animations/animating-modal-views.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Animating Modal Views</title>
+    </url>
+    <url>
+        <loc>/fundamentals/look-and-feel/animations/animations-and-performance.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Animations and Performance</title>
+    </url>
+    <url>
+        <loc>/fundamentals/look-and-feel/animations/asymmetric-animation-timing.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Asymmetric Animation Timing</title>
+    </url>
+    <url>
+        <loc>/fundamentals/look-and-feel/animations/choosing-the-right-easing.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Choosing the Right Easing</title>
+    </url>
+    <url>
+        <loc>/fundamentals/look-and-feel/animations/css-vs-javascript.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>CSS vs JavaScript Animations</title>
+    </url>
+    <url>
+        <loc>/fundamentals/look-and-feel/animations/custom-easing.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Custom Easing</title>
+    </url>
+    <url>
+        <loc>/fundamentals/look-and-feel/animations/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Animations</title>
+    </url>
+    <url>
+        <loc>/fundamentals/look-and-feel/animations/the-basics-of-easing.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>The Basics of Easing</title>
+    </url>
+    <url>
+        <loc>/fundamentals/look-and-feel/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Look and Feel</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/audio/</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Audio</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/images/avoid-images-completely.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Avoid images completely</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/images/images-in-css.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Images in CSS</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/images/images-in-markup.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Images in Markup</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/images/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Images</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/images/optimize-images-for-performance.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Optimize images for performance</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/images/use-icons.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Use SVG for icons</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Images, Audio and Video</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/video/accessibility-matters.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Accessibility matters</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/video/add-a-video.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Add a video</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/video/customize-the-video-player.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Customize the video player</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/video/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Video</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/video/provide-alternatives-for-legacy-platforms.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Provide alternatives for legacy platforms</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/video/quick-reference.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Quick Reference</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/video/size-videos-correctly.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Size videos correctly</title>
+    </url>
+    <url>
+        <loc>/fundamentals/monetization/ads/customize-ads.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Customize Your Ads</title>
+    </url>
+    <url>
+        <loc>/fundamentals/monetization/ads/how-ads-work.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>How Ads Work</title>
+    </url>
+    <url>
+        <loc>/fundamentals/monetization/ads/include-ads.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Include AdSense Ads on Your Site</title>
+    </url>
+    <url>
+        <loc>/fundamentals/monetization/ads/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Ads</title>
+    </url>
+    <url>
+        <loc>/fundamentals/monetization/ads/optimize-ads.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Optimize Your Ads</title>
+    </url>
+    <url>
+        <loc>/fundamentals/monetization/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Monetization</title>
+    </url>
+    <url>
+        <loc>/fundamentals/monetization/principles/explore.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Let Users Explore Before They Commit</title>
+    </url>
+    <url>
+        <loc>/fundamentals/monetization/principles/finish-on-another-device.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Make It Easy To Finish On Another Device</title>
+    </url>
+    <url>
+        <loc>/fundamentals/monetization/principles/guest.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Let Users Purchase As A Guest</title>
+    </url>
+    <url>
+        <loc>/fundamentals/monetization/principles/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Key Principles</title>
+    </url>
+    <url>
+        <loc>/fundamentals/monetization/principles/use-existing-data.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Use Existing Information To Maximize Convenience</title>
+    </url>
+    <url>
+        <loc>
+            /fundamentals/performance/critical-rendering-path/adding-interactivity-with-javascript.html
+        </loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Adding Interactivity with JavaScript</title>
+    </url>
+    <url>
+        <loc>/fundamentals/performance/critical-rendering-path/analyzing-crp.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Analyzing Critical Rendering Path Performance</title>
+    </url>
+    <url>
+        <loc>
+            /fundamentals/performance/critical-rendering-path/constructing-the-object-model.html
+        </loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Constructing the Object Model</title>
+    </url>
+    <url>
+        <loc>/fundamentals/performance/critical-rendering-path/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Critical Rendering Path</title>
+    </url>
+    <url>
+        <loc>/fundamentals/performance/critical-rendering-path/measure-crp.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Measuring the Critical Rendering Path with Navigation Timing</title>
+    </url>
+    <url>
+        <loc>
+            /fundamentals/performance/critical-rendering-path/optimizing-critical-rendering-path.html
+        </loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Optimizing the Critical Rendering Path</title>
+    </url>
+    <url>
+        <loc>
+            /fundamentals/performance/critical-rendering-path/page-speed-rules-and-recommendations.html
+        </loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>PageSpeed Rules and Recommendations</title>
+    </url>
+    <url>
+        <loc>/fundamentals/performance/critical-rendering-path/render-blocking-css.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Render Blocking CSS</title>
+    </url>
+    <url>
+        <loc>/fundamentals/performance/critical-rendering-path/render-tree-construction.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Render-tree construction, Layout, and Paint</title>
+    </url>
+    <url>
+        <loc>/fundamentals/performance/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Optimizing Performance</title>
+    </url>
+    <url>
+        <loc>/fundamentals/performance/measuring-performance/</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Measuring performance</title>
+    </url>
+    <url>
+        <loc>
+            /fundamentals/performance/optimizing-content-efficiency/eliminate-downloads.html
+        </loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Eliminating unnecessary downloads</title>
+    </url>
+    <url>
+        <loc>/fundamentals/performance/optimizing-content-efficiency/http-caching.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>HTTP caching</title>
+    </url>
+    <url>
+        <loc>/fundamentals/performance/optimizing-content-efficiency/image-optimization.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Image optimization</title>
+    </url>
+    <url>
+        <loc>/fundamentals/performance/optimizing-content-efficiency/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Optimizing Content Efficiency</title>
+    </url>
+    <url>
+        <loc>
+            /fundamentals/performance/optimizing-content-efficiency/optimize-encoding-and-transfer.html
+        </loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Optimizing encoding and transfer size of text-based assets</title>
+    </url>
+    <url>
+        <loc>/fundamentals/performance/optimizing-interactivity/</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Optimizing interactivity</title>
+    </url>
+    <url>
+        <loc>/fundamentals/performance/optimizing-networking/</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Optimizing networking</title>
+    </url>
+    <url>
+        <loc>/fundamentals/principles/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Principles of Site Design</title>
+    </url>
+    <url>
+        <loc>/fundamentals/principles/research-study.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>About the Research Study</title>
+    </url>
+    <url>
+        <loc>/fundamentals/principles/site-search.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Site Search</title>
+    </url>
+    <url>
+        <loc>/fundamentals/resources/contributors/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Contributors</title>
+    </url>
+    <url>
+        <loc>/fundamentals/resources/example-article/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Article Example</title>
+    </url>
+    <url>
+        <loc>/fundamentals/resources/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Resources</title>
+    </url>
+    <url>
+        <loc>/fundamentals/resources/markdown-guide/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Markdown Guide</title>
+    </url>
+    <url>
+        <loc>/fundamentals/resources/samples/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Samples</title>
+    </url>
+    <url>
+        <loc>/fundamentals/resources/styleguide/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Visual Style Guide</title>
+    </url>
+    <url>
+        <loc>/fundamentals/resources/written-guide/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Written Style Guide</title>
+    </url>
+    <url>
+        <loc>/fundamentals/sitemap.xml</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title/>
+    </url>
+    <url>
+        <loc>/fundamentals/spotlights/example-showcase/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Showcase example</title>
+    </url>
+    <url>
+        <loc>/fundamentals/spotlights/example-spotlight/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Spotlight example</title>
+    </url>
+    <url>
+        <loc>/fundamentals/spotlights/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Showcases</title>
+    </url>
+    <url>
+        <loc>/fundamentals/spotlights/kinlan.co.uk.html</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>kinlan.co.uk</title>
+    </url>
+    <url>
+        <loc>/fundamentals/spotlights/listing/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Showcase example</title>
+    </url>
+    <url>
+        <loc>/fundamentals/spotlights/news-google-com.html</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>news.google.com</title>
+    </url>
+    <url>
+        <loc>/fundamentals/spotlights/paul.kinlan.me.html</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>paul.kinlan.me</title>
+    </url>
+    <url>
+        <loc>/fundamentals/spotlights/www.google.com.html</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>www.google.com</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/build/build_process.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>What Is a Build Process</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/build/build_site.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Build Site with Web Starter Kit</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/build/deploy.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Build &amp; Deploy</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/build/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Build Your Site</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/build/use_devtools.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Debug with Chrome DevTools</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Multi-Device Tools</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/setup/devtools.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Set Up Developer Tools</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/setup/editor.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Choose a Good Editor</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/setup/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Set Up Environment</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/setup/setup_kit.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Set Up Web Starter Kit</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/test/cloud.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Cloud Testing</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/test/device.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Real Device Testing</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/test/emulator.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Use DevTools Emulation</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/test/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Types of Testing</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/test/simulator.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Simulator Testing</title>
+    </url>
+    <url>
+        <loc>/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Yathit | Home page</title>
+    </url>
+    <url>
+        <loc>/starter-kit/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Web Starter Kit</title>
+    </url>
+    <url>
+        <loc>/ydn-db/blog/debugging.html</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Debugging</title>
+    </url>
+    <url>
+        <loc>/ydn-db/blog/limitation.html</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Supported browsers and their limitation</title>
+    </url>
+    <url>
+        <loc>/ydn-db/blog/synchronization.html</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Synchronization</title>
+    </url>
+    <url>
+        <loc>/ydn-db/downloads.html</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>YDN javascript library</title>
+    </url>
+    <url>
+        <loc>/ydn-db/example/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>YDN-DB demo apps</title>
+    </url>
+    <url>
+        <loc>/ydn-db/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>YDN-DB javascript library</title>
+    </url>
+    <url>
+        <loc>/ydn-db/user-guide/full-text-search.html</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Full text search</title>
+    </url>
+    <url>
+        <loc>/ydn-db/user-guide/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Getting started</title>
+    </url>
+    <url>
+        <loc>/ydn-db/user-guide/nosql-query.html</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Query</title>
+    </url>
+    <url>
+        <loc>/ydn-db/user-guide/sql-query.html</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Getting started with YDN-DB</title>
+    </url>
+    <url>
+        <loc>/api/ydn/api/app.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.api.App</title>
+    </url>
+    <url>
+        <loc>/api/ydn/api/user-assess.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.api.UserAssess</title>
+    </url>
+    <url>
+        <loc>/api/ydn/api/user.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.api.User</title>
+    </url>
+    <url>
+        <loc>/api/ydn/crm/inj/app.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.crm.inj.App</title>
+    </url>
+    <url>
+        <loc>/api/ydn/crm/inj/context.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.crm.inj.Context</title>
+    </url>
+    <url>
+        <loc>/api/ydn/crm/sugarcrm/model/field.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.crm.su.model.Field</title>
+    </url>
+    <url>
+        <loc>/api/ydn/crm/sugarcrm/model/group.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.crm.su.model.Group</title>
+    </url>
+    <url>
+        <loc>/api/ydn/crm/sugarcrm/model/record.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.crm.su.model.Record</title>
+    </url>
+    <url>
+        <loc>/api/ydn/crm/sugarcrm/model/sugarcrm.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.crm.su.model.SugarCrm</title>
+    </url>
+    <url>
+        <loc>/api/ydn/crm/sugarcrm/record.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.crm.su.Record</title>
+    </url>
+    <url>
+        <loc>/api/ydn/crm/sugarcrm/schema.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.crm.su.Schema</title>
+    </url>
+    <url>
+        <loc>/api/ydn/crm/sugarcrm/ui/events.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.crm.su.ui.events</title>
+    </url>
+    <url>
+        <loc>/api/ydn/crm/sugarcrm/ui/record/record.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.crm.su.ui.record.Record</title>
+    </url>
+    <url>
+        <loc>/api/ydn/crm/sugarcrm/ui/simple-sugar-panel.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.crm.su.ui.SimpleSugarPanel</title>
+    </url>
+    <url>
+        <loc>/api/ydn/db/events.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>YDN-DB - ydn.db.events</title>
+    </url>
+    <url>
+        <loc>/api/ydn/db/icursor.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Interface ydn.db.ICursor</title>
+    </url>
+    <url>
+        <loc>/api/ydn/db/</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.db</title>
+    </url>
+    <url>
+        <loc>/api/ydn/db/iterator.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.db.Iterator</title>
+    </url>
+    <url>
+        <loc>/api/ydn/db/key.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.db.Key</title>
+    </url>
+    <url>
+        <loc>/api/ydn/db/keyrange.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.db.KeyRange</title>
+    </url>
+    <url>
+        <loc>/api/ydn/db/query.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.db.Query</title>
+    </url>
+    <url>
+        <loc>/api/ydn/db/request.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.db.Request</title>
+    </url>
+    <url>
+        <loc>/api/ydn/db/schema.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.db.schema</title>
+    </url>
+    <url>
+        <loc>/api/ydn/db/solver.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.db.Solver</title>
+    </url>
+    <url>
+        <loc>/api/ydn/db/storage.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.db.Storage</title>
+    </url>
+    <url>
+        <loc>/api/ydn/db/streamer.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.db.Streamer</title>
+    </url>
+    <url>
+        <loc>/api/ydn/debug.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.debug</title>
+    </url>
+    <url>
+        <loc>/api/ydn/gdata/entry.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.gdata.Entry</title>
+    </url>
+    <url>
+        <loc>/api/ydn/gdata/feed.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.gdata.Feed</title>
+    </url>
+    <url>
+        <loc>/api/ydn/gdata/m8/contact-entry.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.gdata.m8.ContactEntry</title>
+    </url>
+    <url>
+        <loc>/api/ydn/gdata/m8/group-entry.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.gdata.m8.GroupEntry</title>
+    </url>
+    <url>
+        <loc>/api/ydn/geohash.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Namespace ydn.geohash</title>
+    </url>
+    <url>
+        <loc>/api/ydn/http/callback-result.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.http.CallbackResult</title>
+    </url>
+    <url>
+        <loc>/api/ydn/http/itransport.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Class ydn.http.ITransport</title>
+    </url>
+    <url>
+        <loc>/api/ydn/math-expression.html</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Namespace ydn.math.Expression</title>
+    </url>
+    <url>
+        <loc>/crm-in-inbox/sugarcrm/</loc>
+        <lastmod>2014-09-08T19:41:42+08:00</lastmod>
+        <title>Yathit CRMinInbox - SugarCRM for Gmail</title>
+    </url>
+    <url>
+        <loc>/crm-in-inbox/sugarcrm/pricing.html</loc>
+        <lastmod>2014-09-06T12:07:52+08:00</lastmod>
+        <title>Yathit CRMinInbox - SugarCRM for Gmail</title>
+    </url>
+    <url>
+        <loc>/crm-in-inbox/sugarcrm/user-guide/</loc>
+        <lastmod>2014-09-08T22:02:10+08:00</lastmod>
+        <title>Getting started</title>
+    </url>
+    <url>
+        <loc>/crm-in-inbox/sugarcrm/user-guide/setup/connecting-to-sugarcrm.html</loc>
+        <lastmod>2014-09-08T22:08:07+08:00</lastmod>
+        <title>Connecting to SugarCRM</title>
+    </url>
+    <url>
+        <loc>/crm-in-inbox/sugarcrm/user-guide/setup/google-setup.html</loc>
+        <lastmod>2014-09-08T22:08:07+08:00</lastmod>
+        <title>Google services setup</title>
+    </url>
+    <url>
+        <loc>/crm-in-inbox/sugarcrm/user-guide/setup/</loc>
+        <lastmod>2014-09-08T22:05:41+08:00</lastmod>
+        <title>Setup</title>
+    </url>
+    <url>
+        <loc>/crm-in-inbox/sugarcrm/user-guide/setup/installing-chrome-extension.html</loc>
+        <lastmod>2014-09-08T22:08:07+08:00</lastmod>
+        <title>Installing Chrome Extension</title>
+    </url>
+    <url>
+        <loc>/crm-in-inbox/sugarcrm/user-guide/using-sidebar/activity-feed.html</loc>
+        <lastmod>2014-09-08T22:11:09+08:00</lastmod>
+        <title>Activity feeds</title>
+    </url>
+    <url>
+        <loc>/crm-in-inbox/sugarcrm/user-guide/using-sidebar/creating-records.html</loc>
+        <lastmod>2014-09-08T22:10:10+08:00</lastmod>
+        <title>Creating records</title>
+    </url>
+    <url>
+        <loc>/crm-in-inbox/sugarcrm/user-guide/using-sidebar/editing-records.html</loc>
+        <lastmod>2014-09-08T22:10:42+08:00</lastmod>
+        <title>Editing records</title>
+    </url>
+    <url>
+        <loc>/crm-in-inbox/sugarcrm/user-guide/using-sidebar/</loc>
+        <lastmod>2014-09-08T22:09:33+08:00</lastmod>
+        <title>Using Sidebar Panel</title>
+    </url>
+    <url>
+        <loc>/crm-in-inbox/sugarcrm/user-guide/using-sidebar/searching-records.html</loc>
+        <lastmod>2014-09-08T22:09:33+08:00</lastmod>
+        <title>Searching records</title>
+    </url>
+    <url>
+        <loc>/fundamentals/device-access/click-to-call/click-to-call.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Click to call</title>
+    </url>
+    <url>
+        <loc>/fundamentals/device-access/click-to-call/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Click to call</title>
+    </url>
+    <url>
+        <loc>/fundamentals/device-access/device-orientation/dev-motion.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Device motion</title>
+    </url>
+    <url>
+        <loc>/fundamentals/device-access/device-orientation/dev-orientation.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Device orientation</title>
+    </url>
+    <url>
+        <loc>/fundamentals/device-access/device-orientation/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Device orientation</title>
+    </url>
+    <url>
+        <loc>/fundamentals/device-access/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Device Access</title>
+    </url>
+    <url>
+        <loc>/fundamentals/device-access/user-location/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>User location</title>
+    </url>
+    <url>
+        <loc>/fundamentals/device-access/user-location/monitor-location.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Monitor the user&apos;s location</title>
+    </url>
+    <url>
+        <loc>/fundamentals/device-access/user-location/obtain-location.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Obtain the user&apos;s current location</title>
+    </url>
+    <url>
+        <loc>/fundamentals/device-access/user-location/user-consent.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Getting the user to consent to location sharing</title>
+    </url>
+    <url>
+        <loc>/fundamentals/getting-started/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Get Started</title>
+    </url>
+    <url>
+        <loc>/fundamentals/getting-started/web-starter-kit/development-phases.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Development Phases</title>
+    </url>
+    <url>
+        <loc>/fundamentals/getting-started/web-starter-kit/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Start Your Site with Web Starter Kit</title>
+    </url>
+    <url>
+        <loc>/fundamentals/getting-started/web-starter-kit/setting-up.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Set Up Web Starter Kit</title>
+    </url>
+    <url>
+        <loc>/fundamentals/getting-started/web-starter-kit/using-styleguide.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>How to Use the Style Guide</title>
+    </url>
+    <url>
+        <loc>/fundamentals/getting-started/your-first-multi-screen-site/content.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Create Your Content and Structure</title>
+    </url>
+    <url>
+        <loc>/fundamentals/getting-started/your-first-multi-screen-site/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Your First Multi-device Site</title>
+    </url>
+    <url>
+        <loc>/fundamentals/getting-started/your-first-multi-screen-site/responsive.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Make It Responsive</title>
+    </url>
+    <url>
+        <loc>/fundamentals/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Web Fundamentals</title>
+    </url>
+    <url>
+        <loc>/fundamentals/input/form/choose-the-best-input-type.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Choose the best input type</title>
+    </url>
+    <url>
+        <loc>/fundamentals/input/form/design-efficient-forms.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Design efficient forms</title>
+    </url>
+    <url>
+        <loc>/fundamentals/input/form/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Create Amazing Forms</title>
+    </url>
+    <url>
+        <loc>/fundamentals/input/form/label-and-name-inputs.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Label and name inputs properly</title>
+    </url>
+    <url>
+        <loc>/fundamentals/input/form/provide-real-time-validation.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Provide real-time validation</title>
+    </url>
+    <url>
+        <loc>/fundamentals/input/form/use-request-auto-complete.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Simplify checkout with requestAutocomplete API</title>
+    </url>
+    <url>
+        <loc>/fundamentals/input/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Forms and User Input</title>
+    </url>
+    <url>
+        <loc>/fundamentals/input/touch/activestates/</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Stateful Elements Respond to Touch</title>
+    </url>
+    <url>
+        <loc>/fundamentals/input/touch/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Add Touch to Your Site</title>
+    </url>
+    <url>
+        <loc>/fundamentals/input/touch/touchevents/</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Implement Custom Gestures</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Multi-Device Layouts</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/navigation-patterns/appbar/</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>App Bar</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/navigation-patterns/bottombar/</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Bottom Bar</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/navigation-patterns/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Navigation and Action Patterns</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/navigation-patterns/navigationdrawer/</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Navigation Drawer</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/navigation-patterns/tabbar/</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Tab Bar</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/principles/cta-front-and-center.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Keep Calls To Action Front and Center</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/principles/easy-to-home.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Make It Easy To Get To The Home Page</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/principles/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Home Page and Navigation Principles</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/principles/menus-short.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Keep Menus Short and Sweet</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/principles/promos.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Don&apos;t let promotions steal the show</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/principles/single-browser.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Keep users in a single browser window</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/rwd-fundamentals/how-to-choose-breakpoints.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>How to choose breakpoints</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/rwd-fundamentals/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Responsive Web Design Basics</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/rwd-fundamentals/set-the-viewport.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Set the viewport</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/rwd-fundamentals/size-content-to-the-viewport.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Size content to the viewport</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/rwd-fundamentals/use-media-queries.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Use CSS media queries for responsiveness</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/rwd-patterns/column-drop.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Column Drop</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/rwd-patterns/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Responsive Web Design Patterns</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/rwd-patterns/layout-shifter.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Layout shifter</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/rwd-patterns/mostly-fluid.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Mostly fluid</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/rwd-patterns/off-canvas.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Off canvas</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/rwd-patterns/tiny-tweaks.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Tiny tweaks</title>
+    </url>
+    <url>
+        <loc>/fundamentals/layouts/ui-elements/</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>UI Elements</title>
+    </url>
+    <url>
+        <loc>/fundamentals/look-and-feel/animations/animating-between-views.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Animating Between Views</title>
+    </url>
+    <url>
+        <loc>/fundamentals/look-and-feel/animations/animating-modal-views.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Animating Modal Views</title>
+    </url>
+    <url>
+        <loc>/fundamentals/look-and-feel/animations/animations-and-performance.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Animations and Performance</title>
+    </url>
+    <url>
+        <loc>/fundamentals/look-and-feel/animations/asymmetric-animation-timing.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Asymmetric Animation Timing</title>
+    </url>
+    <url>
+        <loc>/fundamentals/look-and-feel/animations/choosing-the-right-easing.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Choosing the Right Easing</title>
+    </url>
+    <url>
+        <loc>/fundamentals/look-and-feel/animations/css-vs-javascript.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>CSS vs JavaScript Animations</title>
+    </url>
+    <url>
+        <loc>/fundamentals/look-and-feel/animations/custom-easing.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Custom Easing</title>
+    </url>
+    <url>
+        <loc>/fundamentals/look-and-feel/animations/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Animations</title>
+    </url>
+    <url>
+        <loc>/fundamentals/look-and-feel/animations/the-basics-of-easing.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>The Basics of Easing</title>
+    </url>
+    <url>
+        <loc>/fundamentals/look-and-feel/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Look and Feel</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/audio/</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Audio</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/images/avoid-images-completely.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Avoid images completely</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/images/images-in-css.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Images in CSS</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/images/images-in-markup.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Images in Markup</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/images/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Images</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/images/optimize-images-for-performance.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Optimize images for performance</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/images/use-icons.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Use SVG for icons</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Images, Audio and Video</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/video/accessibility-matters.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Accessibility matters</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/video/add-a-video.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Add a video</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/video/customize-the-video-player.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Customize the video player</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/video/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Video</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/video/provide-alternatives-for-legacy-platforms.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Provide alternatives for legacy platforms</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/video/quick-reference.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Quick Reference</title>
+    </url>
+    <url>
+        <loc>/fundamentals/media/video/size-videos-correctly.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Size videos correctly</title>
+    </url>
+    <url>
+        <loc>/fundamentals/monetization/ads/customize-ads.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Customize Your Ads</title>
+    </url>
+    <url>
+        <loc>/fundamentals/monetization/ads/how-ads-work.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>How Ads Work</title>
+    </url>
+    <url>
+        <loc>/fundamentals/monetization/ads/include-ads.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Include AdSense Ads on Your Site</title>
+    </url>
+    <url>
+        <loc>/fundamentals/monetization/ads/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Ads</title>
+    </url>
+    <url>
+        <loc>/fundamentals/monetization/ads/optimize-ads.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Optimize Your Ads</title>
+    </url>
+    <url>
+        <loc>/fundamentals/monetization/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Monetization</title>
+    </url>
+    <url>
+        <loc>/fundamentals/monetization/principles/explore.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Let Users Explore Before They Commit</title>
+    </url>
+    <url>
+        <loc>/fundamentals/monetization/principles/finish-on-another-device.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Make It Easy To Finish On Another Device</title>
+    </url>
+    <url>
+        <loc>/fundamentals/monetization/principles/guest.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Let Users Purchase As A Guest</title>
+    </url>
+    <url>
+        <loc>/fundamentals/monetization/principles/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Key Principles</title>
+    </url>
+    <url>
+        <loc>/fundamentals/monetization/principles/use-existing-data.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Use Existing Information To Maximize Convenience</title>
+    </url>
+    <url>
+        <loc>
+            /fundamentals/performance/critical-rendering-path/adding-interactivity-with-javascript.html
+        </loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Adding Interactivity with JavaScript</title>
+    </url>
+    <url>
+        <loc>/fundamentals/performance/critical-rendering-path/analyzing-crp.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Analyzing Critical Rendering Path Performance</title>
+    </url>
+    <url>
+        <loc>
+            /fundamentals/performance/critical-rendering-path/constructing-the-object-model.html
+        </loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Constructing the Object Model</title>
+    </url>
+    <url>
+        <loc>/fundamentals/performance/critical-rendering-path/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Critical Rendering Path</title>
+    </url>
+    <url>
+        <loc>/fundamentals/performance/critical-rendering-path/measure-crp.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Measuring the Critical Rendering Path with Navigation Timing</title>
+    </url>
+    <url>
+        <loc>
+            /fundamentals/performance/critical-rendering-path/optimizing-critical-rendering-path.html
+        </loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Optimizing the Critical Rendering Path</title>
+    </url>
+    <url>
+        <loc>
+            /fundamentals/performance/critical-rendering-path/page-speed-rules-and-recommendations.html
+        </loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>PageSpeed Rules and Recommendations</title>
+    </url>
+    <url>
+        <loc>/fundamentals/performance/critical-rendering-path/render-blocking-css.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Render Blocking CSS</title>
+    </url>
+    <url>
+        <loc>/fundamentals/performance/critical-rendering-path/render-tree-construction.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Render-tree construction, Layout, and Paint</title>
+    </url>
+    <url>
+        <loc>/fundamentals/performance/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Optimizing Performance</title>
+    </url>
+    <url>
+        <loc>/fundamentals/performance/measuring-performance/</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Measuring performance</title>
+    </url>
+    <url>
+        <loc>
+            /fundamentals/performance/optimizing-content-efficiency/eliminate-downloads.html
+        </loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Eliminating unnecessary downloads</title>
+    </url>
+    <url>
+        <loc>/fundamentals/performance/optimizing-content-efficiency/http-caching.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>HTTP caching</title>
+    </url>
+    <url>
+        <loc>/fundamentals/performance/optimizing-content-efficiency/image-optimization.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Image optimization</title>
+    </url>
+    <url>
+        <loc>/fundamentals/performance/optimizing-content-efficiency/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Optimizing Content Efficiency</title>
+    </url>
+    <url>
+        <loc>
+            /fundamentals/performance/optimizing-content-efficiency/optimize-encoding-and-transfer.html
+        </loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Optimizing encoding and transfer size of text-based assets</title>
+    </url>
+    <url>
+        <loc>/fundamentals/performance/optimizing-interactivity/</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Optimizing interactivity</title>
+    </url>
+    <url>
+        <loc>/fundamentals/performance/optimizing-networking/</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Optimizing networking</title>
+    </url>
+    <url>
+        <loc>/fundamentals/principles/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Principles of Site Design</title>
+    </url>
+    <url>
+        <loc>/fundamentals/principles/research-study.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>About the Research Study</title>
+    </url>
+    <url>
+        <loc>/fundamentals/principles/site-search.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Site Search</title>
+    </url>
+    <url>
+        <loc>/fundamentals/resources/contributors/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Contributors</title>
+    </url>
+    <url>
+        <loc>/fundamentals/resources/example-article/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Article Example</title>
+    </url>
+    <url>
+        <loc>/fundamentals/resources/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Resources</title>
+    </url>
+    <url>
+        <loc>/fundamentals/resources/markdown-guide/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Markdown Guide</title>
+    </url>
+    <url>
+        <loc>/fundamentals/resources/samples/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Samples</title>
+    </url>
+    <url>
+        <loc>/fundamentals/resources/styleguide/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Visual Style Guide</title>
+    </url>
+    <url>
+        <loc>/fundamentals/resources/written-guide/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Written Style Guide</title>
+    </url>
+    <url>
+        <loc>/fundamentals/sitemap.xml</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title/>
+    </url>
+    <url>
+        <loc>/fundamentals/spotlights/example-showcase/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Showcase example</title>
+    </url>
+    <url>
+        <loc>/fundamentals/spotlights/example-spotlight/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Spotlight example</title>
+    </url>
+    <url>
+        <loc>/fundamentals/spotlights/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Showcases</title>
+    </url>
+    <url>
+        <loc>/fundamentals/spotlights/kinlan.co.uk.html</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>kinlan.co.uk</title>
+    </url>
+    <url>
+        <loc>/fundamentals/spotlights/listing/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Showcase example</title>
+    </url>
+    <url>
+        <loc>/fundamentals/spotlights/news-google-com.html</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>news.google.com</title>
+    </url>
+    <url>
+        <loc>/fundamentals/spotlights/paul.kinlan.me.html</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>paul.kinlan.me</title>
+    </url>
+    <url>
+        <loc>/fundamentals/spotlights/www.google.com.html</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>www.google.com</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/build/build_process.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>What Is a Build Process</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/build/build_site.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Build Site with Web Starter Kit</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/build/deploy.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Build &amp; Deploy</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/build/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Build Your Site</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/build/use_devtools.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Debug with Chrome DevTools</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Multi-Device Tools</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/setup/devtools.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Set Up Developer Tools</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/setup/editor.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Choose a Good Editor</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/setup/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Set Up Environment</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/setup/setup_kit.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Set Up Web Starter Kit</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/test/cloud.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Cloud Testing</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/test/device.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Real Device Testing</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/test/emulator.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Use DevTools Emulation</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/test/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Types of Testing</title>
+    </url>
+    <url>
+        <loc>/fundamentals/tools/test/simulator.html</loc>
+        <lastmod>2014-09-07T17:50:26+08:00</lastmod>
+        <title>Simulator Testing</title>
+    </url>
+    <url>
+        <loc>/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Yathit | Home page</title>
+    </url>
+    <url>
+        <loc>/starter-kit/</loc>
+        <lastmod>2014-09-04T16:13:51+08:00</lastmod>
+        <title>Web Starter Kit</title>
+    </url>
+    <url>
+        <loc>/ydn-db/blog/debugging.html</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Debugging</title>
+    </url>
+    <url>
+        <loc>/ydn-db/blog/limitation.html</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Supported browsers and their limitation</title>
+    </url>
+    <url>
+        <loc>/ydn-db/blog/synchronization.html</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Synchronization</title>
+    </url>
+    <url>
+        <loc>/ydn-db/downloads.html</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>YDN javascript library</title>
+    </url>
+    <url>
+        <loc>/ydn-db/example/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>YDN-DB demo apps</title>
+    </url>
+    <url>
+        <loc>/ydn-db/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>YDN-DB javascript library</title>
+    </url>
+    <url>
+        <loc>/ydn-db/user-guide/full-text-search.html</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Full text search</title>
+    </url>
+    <url>
+        <loc>/ydn-db/user-guide/</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Getting started</title>
+    </url>
+    <url>
+        <loc>/ydn-db/user-guide/nosql-query.html</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Query</title>
+    </url>
+    <url>
+        <loc>/ydn-db/user-guide/sql-query.html</loc>
+        <lastmod>2014-09-08T08:15:06+08:00</lastmod>
+        <title>Getting started with YDN-DB</title>
+    </url>
+</urlset>

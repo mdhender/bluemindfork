@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.core.container.hooks.container">
+      <hook
+            impl="net.bluemind.exchange.publicfolders.hierarchy.PublicFolderHierarchyHook">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.domain.domainHook">
+      <hook
+            class="net.bluemind.exchange.publicfolders.hierarchy.DomainPublicFolderHierarchyHook">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.directory.repairSupport">
+      <repairSupport
+            factory="net.bluemind.exchange.publicfolders.hierarchy.PublicFolderHierarchyRepair$Factory">
+      </repairSupport>
+   </extension>
+
+</plugin>

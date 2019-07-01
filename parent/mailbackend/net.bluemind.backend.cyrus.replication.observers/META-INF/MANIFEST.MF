@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.backend.cyrus.replication.observers
+Bundle-SymbolicName: net.bluemind.backend.cyrus.replication.observers;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ io.vertx.core,
+ net.bluemind.eclipse.common
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.backend.cyrus.replication.observers
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.backend.cyrus.replication.observers

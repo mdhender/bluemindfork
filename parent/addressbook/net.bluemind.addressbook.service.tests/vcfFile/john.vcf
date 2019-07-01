@@ -1,0 +1,10 @@
+BEGIN:VCARD
+VERSION:3.0
+FN:John Bang
+N:Bang;John;;;
+EMAIL;TYPE=INTERNET:john.john@aa.com
+TEL;TYPE=CELL:0607080910
+ORG:BlueMind
+ROLE:CEO
+TITLE:this is title
+END:VCARD

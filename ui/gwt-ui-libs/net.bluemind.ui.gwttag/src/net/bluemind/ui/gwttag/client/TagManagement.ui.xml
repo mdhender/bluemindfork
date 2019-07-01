@@ -1,0 +1,53 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	xmlns:b="urn:import:net.bluemind.ui.common.client.forms"
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:common="urn:import:net.bluemind.ui.common.client.forms">
+
+	<ui:style>
+		.actionBar {
+			padding: 5px;
+			background: #F8F8F8;
+		}
+	</ui:style>
+
+	<ui:with
+		type="net.bluemind.ui.gwttag.client.l10n.TagManagementConstants"
+		field="c" />
+
+	<g:HTMLPanel>
+
+		<g:Label text="{c.newTag}" styleName="sectionTitle"></g:Label>
+
+			<g:HTMLPanel>
+				<table class="formContainer">
+					<tr class="setting">
+						<td class="label">
+							<g:Label text="{c.label}"></g:Label>
+						</td>
+						<td class="form">
+							<g:TextBox name="label"  ui:field="label"></g:TextBox>
+						</td>
+					</tr>
+					<tr class="setting">
+						<td class="label">
+							<g:Label text="{c.color}"></g:Label>
+						</td>
+						<td class="form">
+							<b:ColorBox ui:field="color"></b:ColorBox>
+						</td>
+					</tr>
+				</table>
+				<g:HTMLPanel styleName="{style.actionBar}">
+					<g:Button ui:field="addTag" text="{c.addTag}" styleName="button"></g:Button>
+				</g:HTMLPanel>
+			</g:HTMLPanel>
+
+		<g:Label text="{c.tags}" styleName="sectionTitle"></g:Label>
+		<g:FlexTable ui:field="table">
+		</g:FlexTable>
+
+	</g:HTMLPanel>
+
+</ui:UiBinder>

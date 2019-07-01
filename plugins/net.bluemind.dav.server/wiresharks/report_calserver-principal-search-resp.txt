@@ -1,0 +1,173 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<multistatus xmlns='DAV:'>
+  <response>
+    <href>/principals/__uids__/FFFFEEEE-DDDD-CCCC-BBBB-AAAA000000E7/</href>
+    <propstat>
+      <prop>
+        <principal-URL>
+          <href>/principals/__uids__/FFFFEEEE-DDDD-CCCC-BBBB-AAAA000000E7/</href>
+        </principal-URL>
+        <email-address-set xmlns='http://calendarserver.org/ns/'/>
+        <record-type xmlns='http://calendarserver.org/ns/'>users</record-type>
+        <calendar-user-type xmlns='urn:ietf:params:xml:ns:caldav'>INDIVIDUAL</calendar-user-type>
+        <displayname>Open Directory Kerberos Admin Service</displayname>
+        <calendar-user-address-set xmlns='urn:ietf:params:xml:ns:caldav'>
+          <href xmlns='DAV:'>/principals/__uids__/FFFFEEEE-DDDD-CCCC-BBBB-AAAA000000E7/</href>
+          <href xmlns='DAV:'>/principals/users/_krb_kadmin/</href>
+          <href xmlns='DAV:'>urn:uuid:FFFFEEEE-DDDD-CCCC-BBBB-AAAA000000E7</href>
+        </calendar-user-address-set>
+      </prop>
+      <status>HTTP/1.1 200 OK</status>
+    </propstat>
+    <propstat>
+      <prop>
+        <first-name xmlns='http://calendarserver.org/ns/'/>
+        <last-name xmlns='http://calendarserver.org/ns/'/>
+      </prop>
+      <status>HTTP/1.1 404 Not Found</status>
+    </propstat>
+  </response>
+  <response>
+    <href>/principals/__uids__/ABCDEFAB-CDEF-ABCD-EFAB-CDEF00000051/</href>
+    <propstat>
+      <prop>
+        <principal-URL>
+          <href>/principals/__uids__/ABCDEFAB-CDEF-ABCD-EFAB-CDEF00000051/</href>
+        </principal-URL>
+        <email-address-set xmlns='http://calendarserver.org/ns/'/>
+        <record-type xmlns='http://calendarserver.org/ns/'>groups</record-type>
+        <displayname>App Server Admins</displayname>
+      </prop>
+      <status>HTTP/1.1 200 OK</status>
+    </propstat>
+    <propstat>
+      <prop>
+        <calendar-user-type xmlns='urn:ietf:params:xml:ns:caldav'/>
+        <calendar-user-address-set xmlns='urn:ietf:params:xml:ns:caldav'/>
+      </prop>
+      <status>HTTP/1.1 404 Not Found</status>
+    </propstat>
+  </response>
+  <response>
+    <href>/principals/__uids__/ABCDEFAB-CDEF-ABCD-EFAB-CDEF00000050/</href>
+    <propstat>
+      <prop>
+        <principal-URL>
+          <href>/principals/__uids__/ABCDEFAB-CDEF-ABCD-EFAB-CDEF00000050/</href>
+        </principal-URL>
+        <email-address-set xmlns='http://calendarserver.org/ns/'/>
+        <record-type xmlns='http://calendarserver.org/ns/'>groups</record-type>
+        <displayname>Administrators</displayname>
+      </prop>
+      <status>HTTP/1.1 200 OK</status>
+    </propstat>
+    <propstat>
+      <prop>
+        <calendar-user-type xmlns='urn:ietf:params:xml:ns:caldav'/>
+        <calendar-user-address-set xmlns='urn:ietf:params:xml:ns:caldav'/>
+      </prop>
+      <status>HTTP/1.1 404 Not Found</status>
+    </propstat>
+  </response>
+  <response>
+    <href>/principals/__uids__/FFFFEEEE-DDDD-CCCC-BBBB-AAAA000000DA/</href>
+    <propstat>
+      <prop>
+        <principal-URL>
+          <href>/principals/__uids__/FFFFEEEE-DDDD-CCCC-BBBB-AAAA000000DA/</href>
+        </principal-URL>
+        <email-address-set xmlns='http://calendarserver.org/ns/'/>
+        <record-type xmlns='http://calendarserver.org/ns/'>users</record-type>
+        <calendar-user-type xmlns='urn:ietf:params:xml:ns:caldav'>INDIVIDUAL</calendar-user-type>
+        <displayname>Kerberos Admin Service</displayname>
+        <calendar-user-address-set xmlns='urn:ietf:params:xml:ns:caldav'>
+          <href xmlns='DAV:'>/principals/__uids__/FFFFEEEE-DDDD-CCCC-BBBB-AAAA000000DA/</href>
+          <href xmlns='DAV:'>/principals/users/_kadmin_admin/</href>
+          <href xmlns='DAV:'>urn:uuid:FFFFEEEE-DDDD-CCCC-BBBB-AAAA000000DA</href>
+        </calendar-user-address-set>
+      </prop>
+      <status>HTTP/1.1 200 OK</status>
+    </propstat>
+    <propstat>
+      <prop>
+        <first-name xmlns='http://calendarserver.org/ns/'/>
+        <last-name xmlns='http://calendarserver.org/ns/'/>
+      </prop>
+      <status>HTTP/1.1 404 Not Found</status>
+    </propstat>
+  </response>
+  <response>
+    <href>/principals/__uids__/FFFFEEEE-DDDD-CCCC-BBBB-AAAA000000DB/</href>
+    <propstat>
+      <prop>
+        <principal-URL>
+          <href>/principals/__uids__/FFFFEEEE-DDDD-CCCC-BBBB-AAAA000000DB/</href>
+        </principal-URL>
+        <email-address-set xmlns='http://calendarserver.org/ns/'/>
+        <record-type xmlns='http://calendarserver.org/ns/'>users</record-type>
+        <calendar-user-type xmlns='urn:ietf:params:xml:ns:caldav'>INDIVIDUAL</calendar-user-type>
+        <displayname>Kerberos Change Password Service</displayname>
+        <calendar-user-address-set xmlns='urn:ietf:params:xml:ns:caldav'>
+          <href xmlns='DAV:'>/principals/__uids__/FFFFEEEE-DDDD-CCCC-BBBB-AAAA000000DB/</href>
+          <href xmlns='DAV:'>/principals/users/_kadmin_changepw/</href>
+          <href xmlns='DAV:'>urn:uuid:FFFFEEEE-DDDD-CCCC-BBBB-AAAA000000DB</href>
+        </calendar-user-address-set>
+      </prop>
+      <status>HTTP/1.1 200 OK</status>
+    </propstat>
+    <propstat>
+      <prop>
+        <first-name xmlns='http://calendarserver.org/ns/'/>
+        <last-name xmlns='http://calendarserver.org/ns/'/>
+      </prop>
+      <status>HTTP/1.1 404 Not Found</status>
+    </propstat>
+  </response>
+  <response>
+    <href>/principals/__uids__/ABCDEFAB-CDEF-ABCD-EFAB-CDEF00000062/</href>
+    <propstat>
+      <prop>
+        <principal-URL>
+          <href>/principals/__uids__/ABCDEFAB-CDEF-ABCD-EFAB-CDEF00000062/</href>
+        </principal-URL>
+        <email-address-set xmlns='http://calendarserver.org/ns/'/>
+        <record-type xmlns='http://calendarserver.org/ns/'>groups</record-type>
+        <displayname>Print Administrators</displayname>
+      </prop>
+      <status>HTTP/1.1 200 OK</status>
+    </propstat>
+    <propstat>
+      <prop>
+        <calendar-user-type xmlns='urn:ietf:params:xml:ns:caldav'/>
+        <calendar-user-address-set xmlns='urn:ietf:params:xml:ns:caldav'/>
+      </prop>
+      <status>HTTP/1.1 404 Not Found</status>
+    </propstat>
+  </response>
+  <response>
+    <href>/principals/__uids__/EB397106-443A-47BE-9CA5-558037E137BF/</href>
+    <propstat>
+      <prop>
+        <principal-URL>
+          <href>/principals/__uids__/EB397106-443A-47BE-9CA5-558037E137BF/</href>
+        </principal-URL>
+        <email-address-set xmlns='http://calendarserver.org/ns/'/>
+        <record-type xmlns='http://calendarserver.org/ns/'>users</record-type>
+        <calendar-user-type xmlns='urn:ietf:params:xml:ns:caldav'>INDIVIDUAL</calendar-user-type>
+        <displayname>Admin</displayname>
+        <calendar-user-address-set xmlns='urn:ietf:params:xml:ns:caldav'>
+          <href xmlns='DAV:'>/principals/__uids__/EB397106-443A-47BE-9CA5-558037E137BF/</href>
+          <href xmlns='DAV:'>/principals/users/admin/</href>
+          <href xmlns='DAV:'>urn:uuid:EB397106-443A-47BE-9CA5-558037E137BF</href>
+        </calendar-user-address-set>
+      </prop>
+      <status>HTTP/1.1 200 OK</status>
+    </propstat>
+    <propstat>
+      <prop>
+        <first-name xmlns='http://calendarserver.org/ns/'/>
+        <last-name xmlns='http://calendarserver.org/ns/'/>
+      </prop>
+      <status>HTTP/1.1 404 Not Found</status>
+    </propstat>
+  </response>

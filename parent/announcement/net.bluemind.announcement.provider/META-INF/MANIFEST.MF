@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.announcement.provider
+Bundle-SymbolicName: net.bluemind.announcement.provider;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.bluemind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.core.commons,
+ net.bluemind.announcement.api,
+ net.bluemind.core.context
+Export-Package: net.bluemind.announcement.provider

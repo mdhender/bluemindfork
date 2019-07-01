@@ -1,0 +1,51 @@
+////////////////////////////////////////////////////////////////////////////////
+BlueMind LICENSE
+////////////////////////////////////////////////////////////////////////////////
+
+URI: http://www.bluemind.net/licenses-3.5+
+
+//========================================//
+// English version (French version below) //
+//========================================//
+
+BlueMind is free software, licensed under the terms of the GNU Affero General Public License as published by the Free 
+Software Foundation, version 3 of the License.  You can redistribute it and/or modify since you respect the terms of 
+this License.
+
+You can redistribute and/or modify them since you respect the terms of the license.
+
+You should have received a copy of the GNU Affero General Public License along with BlueMind. If not,
+see : <http://www.gnu.org/licenses/>.
+
+Finally, BlueMind is made using those external components and libraries. They are listed at the end of this file.
+
+//================//
+// French version //
+//================//
+
+BlueMind est un logiciel libre, diffusé selon les termes de la GNU Affero General Public License telle que 
+publiée par la Free Software Foundation dans sa version 3. Vous ne pouvez le redistribuer ou le modifier que si vous
+respectez les termes de cette licence.
+
+Vous ne pouvez redistribuer ou modifier ces fichiers que si vous respectez les termes de la licence.
+
+Vous devriez avoir reçu une copie de la GNU Affero General Public License avec le logiciel BlueMind.
+Si n'est pas le cas, vous les trouverez sur : <http://www.gnu.org/licenses/>.
+
+Enfin, BlueMind utilise des composants et bibliothèques externes. Ils sont listés à la fin de ce fichier.
+
+//===========================================================================//
+
+External components, libraries and icons:
+
+- RoundCube : roundcube.net (GNU GPL v3 + exception)
+- Closure library (Apache 2.0)
+- GWT (Apache 2.0)
+- o-push : http://code.google.com/p/o-push/ (AGPLv3)
+- ydn-db : https://bitbucket.org/ytkyaw/ydn-db/overview (Apache 2.0)
+- relief : http://code.google.com/p/relief/ (Apache 2.0)
+- ...
+Some other Open Source components have been used in parts or modified.
+Among those : iCal4j, netty, tigase, elasticsearch, guava, vert.x,...
+
+

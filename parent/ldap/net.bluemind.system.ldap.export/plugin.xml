@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.system.domaintemplate">
+      <domain-template-extension
+            document="data/directory-master-tag.xml">
+      </domain-template-extension>
+   </extension>
+   <extension
+         point="net.bluemind.server.hook.serverhook">
+      <hook
+            impl="net.bluemind.system.ldap.export.hook.LdapServerHook">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.system.ldap.export.verticle.LdapExportVerticleFactory">
+      </verticle>
+   </extension>
+   <extension
+         point="net.bluemind.system.schemaupgrader.javacode">
+      <java
+            code="net.bluemind.system.ldap.export.upgrader.EnableMonitorDatabase">
+      </java>
+      <java
+            code="net.bluemind.system.ldap.export.upgrader.AddBmUuidIndex">
+      </java>
+   </extension>
+
+</plugin>

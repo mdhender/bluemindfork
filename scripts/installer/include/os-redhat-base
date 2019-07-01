@@ -1,0 +1,139 @@
+OS_VERSION_CN=${OS_VERSION}
+CENTOS=0
+if [ -e /etc/centos-release ]; then
+  CENTOS=1
+
+  OS_VERSION_CN="centos-6"
+
+  if [ ${OS_VERSION} == ${REDHAT7} ]; then
+    OS_VERSION_CN="centos-7"
+  fi
+fi
+
+YUM_SOURCE_FILE="/etc/yum.repos.d/bm.repo"
+
+if [ ${OS_VERSION} == ${REDHAT7} ]; then
+    RH_EPEL_RPM="https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
+fi
+
+disableFirewall() {
+  display_action ${txt_rh_disable_iptables}
+  systemctl -q stop firewalld 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
+  systemctl -q disable firewalld 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
+  display_action_ok
+}
+
+install_prepare_system() {
+  disableFirewall
+
+  selinux_config="/etc/selinux/config"
+  selinux_sys_config="/etc/sysconfig/selinux"
+
+  if [ -e ${selinux_config} ]; then
+    source ${selinux_config}
+  elif [ -e ${selinux_sys_config} ]; then
+    source ${selinux_sys_config}
+  fi
+
+  if [ ${SELINUX} != "disabled" ]; then
+    display_action ${txt_rh_disable_selinux}
+
+    if [ -e ${selinux_config} ]; then
+      sed -i -e 's/^SELINUX=.\+$/SELINUX=disabled/' ${selinux_config}
+    fi
+
+    if [ -e ${selinux_sys_config} ]; then
+      sed -i -e 's/^SELINUX=.\+$/SELINUX=disabled/' ${selinux_sys_config}
+    fi
+
+    display_action_ok
+
+    display_message "${txt_must_restart}"
+    display_action ${txt_allow_reboot}
+    response=$(read_stdin n)
+
+    case ${response} in
+      [${continue_letters}])
+        reboot
+        exit 0
+        ;;
+      *)
+        exit 0
+        ;;
+    esac
+  fi
+}
+
+os_sanity_install() {
+  rpm -qa | grep bm-installation-wizard > /dev/null 2>&1
+  if [ $? -eq 0 ]; then
+    display_error "${txt_upgrade_unavailable}"
+    exit 1
+  fi
+  
+  rpm -qa | grep bm-setup-wizard > /dev/null 2>&1
+  if [ $? -eq 0 ]; then
+    display_error "${txt_upgrade_unavailable}"
+    exit 1
+  fi
+}
+
+install_local_repository() {
+    display_action ${txt_install_local_repo}" "${INSTALL_PKGS_TO}
+    cp -a ${PKGS} ${INSTALL_PKGS_TO}
+    
+    cat > ${YUM_SOURCE_FILE} << EOF
+[bm]
+name=BlueMind Packages
+baseurl=file://${INSTALL_PKGS_TO}
+failovermethod=priority
+enabled=1
+gpgcheck=0
+EOF
+    display_action_ok
+}
+
+configureRepo() {
+  display_action ${txt_rh_install_epel}
+  yum -y install yum-utils
+  rpm -Uvh ${RH_EPEL_RPM}
+  yum-config-manager --setopt "epel.exclude=nginx" --save 2>&1 > /dev/null
+
+  if [ ${CENTOS} -eq 1 ]; then
+    return;
+  fi
+
+  # RedHat (not CentOS) specific repo configuration
+  optionalChannelName="rhel-7-server-optional-rpms"
+  yum-config-manager --setopt ${optionalChannelName}.enabled=1 --save 2>&1 > /dev/null
+
+  display_action_ok
+}
+
+install_bluemind-full() {
+  display_action ${txt_rh_upgrade}
+  yum clean all 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
+  yum -y upgrade 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
+  display_action_ok
+
+  configureRepo
+  
+  yum clean all 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
+  yum -y makecache 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
+  if [ $? -ne 0 ]; then
+    display_error "${txt_fail_to_install}"
+    exit 1
+  fi
+  
+  yum -y install bm-full \
+    bm-plugin-webserver-filehosting \
+    bm-plugin-admin-console-filehosting-settings \
+    bm-plugin-core-filehosting-filesystem \
+    bm-connector-thunderbird 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
+
+  if [ $? -ne 0 ]; then
+    display_error "${txt_fail_to_install}"
+    exit 1
+  fi
+  yum clean all 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
+}

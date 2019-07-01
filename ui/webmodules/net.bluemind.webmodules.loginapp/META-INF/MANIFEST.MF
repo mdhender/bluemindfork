@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Login App
+Bundle-SymbolicName: net.bluemind.webmodules.loginapp;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Web-Resources: web-resources
+Require-Bundle: net.bluemind.webmodule.server;bundle-version="1.0.0",
+ io.netty;bundle-version="4.0.33",
+ io.vertx.core;bundle-version="2.1.6",
+ slf4j.api;bundle-version="1.7.5",
+ net.bluemind.proxy.http;bundle-version="1.0.0",
+ org.freemarker.freemarker;bundle-version="2.3.20",
+ net.bluemind.core.commons,
+ net.bluemind.utils,
+ net.bluemind.core.rest.http,
+ net.bluemind.locator.vertxclient,
+ net.bluemind.config,
+ net.bluemind.system.api,
+ net.bluemind.ui.resources;bundle-version="1.0.0",
+ net.bluemind.metrics.registry
+Bundle-Localization: OSGI-INF/l10n/bundle

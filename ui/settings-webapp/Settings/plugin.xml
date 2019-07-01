@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module
+            index="index.html"
+            root="/settings">
+         <web-resource
+               bundle="net.bluemind.ui.settings">
+         </web-resource>
+         <handler
+               class="net.bluemind.ui.settings.server.SettingsHandler"
+               path="index.html"></handler>
+    
+         <js
+               async-loading="true"
+               path="net.bluemind.ui.settings/net.bluemind.ui.settings.nocache.js">
+         </js>
+         <web-resource
+               bundle="net.bluemind.commons.ui.closure">
+         </web-resource>
+         <web-resource
+               bundle="net.bluemind.bannerstandalone.closure">
+         </web-resource>
+         <css
+               path="Settings.css">
+         </css>
+         <css
+               path="net.bluemind.ui.settings/common.css">
+         </css>
+         <css
+               path="net.bluemind.ui.settings/bubble.css">
+         </css>
+    
+      </web-module>
+   </extension>
+
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module-provider
+            module="/settings">
+         
+
+         <web-resource
+               bundle="net.bluemind.ui.banner.standalone.closure">
+         </web-resource>
+
+         <css
+               path="css/net.bluemind.ui.banner.standalone.closure.css">
+         </css>
+         <js
+               path="js/compile/net.bluemind.ui.banner.standalone.closure.js"
+               translation="true">
+         </js>
+
+      </web-module-provider>
+   </extension>
+   
+    <extension
+         point="net.bluemind.webmodule">
+      <web-module-provider
+            module="/settings">
+         <web-resource
+               bundle="net.bluemind.ui.editor.standalone.closure">
+         </web-resource>
+
+         <css
+               path="css/net.bluemind.ui.editor.standalone.closure.css">
+         </css>
+         <js
+               path="js/compile/net.bluemind.ui.editor.standalone.closure.js">
+         </js>
+         
+      </web-module-provider>
+   </extension>
+
+   <extension
+         point="net.bluemind.ui.settings.screensContributor">
+      <contributor
+            function="gwtSettingsMainScreensContributor">
+      </contributor>
+   </extension>
+   <extension
+         point="net.bluemind.ui.settings.menusContributor">
+      <contributor
+            function="gwtSettingsMainMenusContributor">
+      </contributor>
+   </extension>
+
+
+</plugin>

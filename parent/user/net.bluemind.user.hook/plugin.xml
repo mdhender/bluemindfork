@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.user.hook.userhook" name="userhook" schema="schema/net.bluemind.user.hook.userhook.exsd"/>
+   <extension-point id="net.bluemind.user.hook.passwordvalidatorfactory" name="passwordvalidatorfactory" schema="schema/net.bluemind.user.hook.passwordvalidatorfactory.exsd"/>
+</plugin>

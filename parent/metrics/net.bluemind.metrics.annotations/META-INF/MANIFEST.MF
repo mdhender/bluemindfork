@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.metrics.annotations
+Bundle-SymbolicName: net.bluemind.metrics.annotations
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.metrics.annotations.Activator
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ io.vertx.core,
+ net.bluemind.lib.vertx
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.metrics.annotations
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.metrics.annotations

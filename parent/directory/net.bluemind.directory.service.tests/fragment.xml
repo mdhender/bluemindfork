@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<fragment>
+   <extension
+         point="net.bluemind.directory.repairSupport">
+      <repairSupport
+            factory="net.bluemind.directory.service.DirEntryRepairSupportsTests$FakeTestRepairSupport$FakeFactory">
+      </repairSupport>
+   </extension>
+
+</fragment>

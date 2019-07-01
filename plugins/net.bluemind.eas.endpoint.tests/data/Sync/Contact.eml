@@ -1,0 +1,50 @@
+Return-Path: <www-data@www.blue-mind.net>
+Received: from bm-prod.blue-mind.loc (localhost.localdomain [127.0.0.1])
+	 by bm-prod with LMTPA;
+	 Fri, 06 Nov 2015 11:59:44 +0100
+X-Sieve: CMU Sieve 2.4
+Received: from /192.168.231.2 (LHLO bm-prod.blue-mind.loc) by unknown with
+ LMTP; 11/6/15 10:59 AM
+Received: from smtp.blue-mind.net (unknown [192.168.231.1])
+	by bm-prod.blue-mind.loc (Postfix) with ESMTP id 00E95401B0
+	for <david.phan@blue-mind.net>; Fri,  6 Nov 2015 11:59:44 +0100 (CET)
+Received: from h17.altospam.com (h17.altospam.com [93.93.45.222])
+	by smtp.blue-mind.net (Postfix) with ESMTPS id 06FB08063
+	for <david.phan@blue-mind.net>; Fri,  6 Nov 2015 11:59:34 +0100 (CET)
+Received: from smtp.blue-mind.net ([93.93.41.59] helo=www.blue-mind.net)
+	by h17.altospam.com with esmtp (Altospam)
+	id 1ZuejO-0005lW-RS 
+	for david.phan@blue-mind.net; Fri, 06 Nov 2015 11:59:33 +0100
+Received: by www.blue-mind.net (Postfix, from userid 33)
+	id B78D19786; Fri,  6 Nov 2015 11:58:54 +0100 (CET)
+To: david.phan@blue-mind.net
+X-PHP-Originating-Script: 33:envoyer_mail.php
+From: contact@blue-mind.net (contact at blue-mind.net)
+Reply-To: contact@blue-mind.net (contact at blue-mind.net)
+Message-Id: <726473580_dd6f33192bdc23b1eb225bc24bb09be3@blue-mind.net>
+MIME-Version: 1.0
+Date: Fri,  6 Nov 2015 11:58:54 +0100 (CET)
+Subject: Contact
+Content-Type: text/plain;charset="utf-8";
+Content-Transfer-Encoding: 8bit
+X-ALTOSPAM-STATUT: senderok mailok serverok senderwt
+X-ALTOSPAM-HOST: h17.altospam.com
+
+
+Merci de votre message, nous vous répondrons dans les plus bref délais.
+
+L’équipe de Blue-Mind
+Reply sent on  6 November 2015
+From page  http://blue-mind.net/'/nous-contacter/'
+
+Nom : DAVID 
+Prénom : PHAN 
+Fonction :  
+Société : BlueMind 
+Code postal : 31670 
+Country : France 
+Email : david.phan@blue-mind.net 
+Téléphone : 113 
+Besoin : Information partenariat 
+Nombre d’utilisateurs envisagés : 100000 
+Votre message : blabla

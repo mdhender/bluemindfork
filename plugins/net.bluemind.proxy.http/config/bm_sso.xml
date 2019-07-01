@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<bm_sso port="8079">
+	<cookie_prefix value="bmsso_" />
+
+	<forwards definitions="config/forwards">
+	</forwards>
+
+	<templates path="templates" url="/templates"/>
+
+</bm_sso>

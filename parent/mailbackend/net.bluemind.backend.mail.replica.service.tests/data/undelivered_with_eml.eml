@@ -1,0 +1,103 @@
+Return-Path: <>
+Received: from bm-prod.blue-mind.net (localhost.localdomain [127.0.0.1])
+	 by bm-prod with LMTPA;
+	 Thu, 25 Apr 2019 14:54:23 +0200
+X-Cyrus-Session-Id: cyrus-9147-1556196863-2-7412746249741888751
+X-Sieve: CMU Sieve 3.0
+Received: from /192.168.231.2 (LHLO bm-prod.blue-mind.net) by unknown with
+ LMTP; 4/25/19 12:54 PM
+Received: from smtp.bluemind.net (unknown [192.168.231.1])
+	by bm-prod.blue-mind.net (Postfix) with ESMTPS id 12CE380289
+	for <nicolasl@blue-mind.net>; Thu, 25 Apr 2019 14:54:23 +0200 (CEST)
+Received: by smtp.bluemind.net (Postfix)
+	id 05F4180FD; Thu, 25 Apr 2019 14:54:23 +0200 (CEST)
+Date: Thu, 25 Apr 2019 14:54:23 +0200 (CEST)
+From: MAILER-DAEMON@smtp.bluemind.net (Mail Delivery System)
+Subject: Undelivered Mail Returned to Sender
+To: nicolas.lascombes@bluemind.net
+Auto-Submitted: auto-replied
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=delivery-status;
+	boundary="EC1E580EC.1556196863/smtp.bluemind.net"
+Content-Transfer-Encoding: 8bit
+Message-Id: <20190425125423.05F4180FD@smtp.bluemind.net>
+X-Bm-Milter-Handled: ef495ca3-cce7-46cd-ba4d-cb681f78e432
+X-Bm-Transport-Timestamp: 1556196863080
+
+This is a MIME-encapsulated message.
+
+--EC1E580EC.1556196863/smtp.bluemind.net
+Content-Description: Notification
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+This is the mail system at host smtp.bluemind.net.
+
+I'm sorry to have to inform you that your message could not
+be delivered to one or more recipients. It's attached below.
+
+For further assistance, please send mail to postmaster.
+
+If you do so, please include this problem report. You can
+delete your own text from the attached returned message.
+
+                   The mail system
+
+<meregue@dsdsds.df>: Host or domain name not found. Name service error for
+    name=dsdsds.df type=AAAA: Host not found
+
+--EC1E580EC.1556196863/smtp.bluemind.net
+Content-Description: Delivery report
+Content-Type: message/delivery-status
+
+Reporting-MTA: dns; smtp.bluemind.net
+X-Postfix-Queue-ID: EC1E580EC
+X-Postfix-Sender: rfc822; nicolas.lascombes@bluemind.net
+Arrival-Date: Thu, 25 Apr 2019 14:54:22 +0200 (CEST)
+
+Final-Recipient: rfc822; meregue@dsdsds.df
+Original-Recipient: rfc822;meregue@dsdsds.df
+Action: failed
+Status: 5.4.4
+Diagnostic-Code: X-Postfix; Host or domain name not found. Name service error
+    for name=dsdsds.df type=AAAA: Host not found
+
+--EC1E580EC.1556196863/smtp.bluemind.net
+Content-Description: Undelivered Message
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 8bit
+
+Return-Path: <nicolas.lascombes@bluemind.net>
+Received: from [192.168.31.143] (unknown [192.168.31.143])
+	(Authenticated sender: nicolas.lascombes@bluemind.net)
+	by smtp.bluemind.net (Postfix) with ESMTPSA id EC1E580EC
+	for <meregue@dsdsds.df>; Thu, 25 Apr 2019 14:54:22 +0200 (CEST)
+To: meregue@dsdsds.df
+From: Nicolas Lascombes <nicolas.lascombes@bluemind.net>
+Subject: ff
+Message-ID: <a570077c-7b29-63b2-b3b6-f7906ab1886a@bluemind.net>
+Date: Thu, 25 Apr 2019 14:54:22 +0200
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Firefox/60.0 Thunderbird/60.6.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Language: fr
+X-BM-Disclaimer: Yes
+X-Bm-Milter-Handled: 563b1c0d-0d6b-4a37-acfc-1d4ca9daaac4
+X-Bm-Transport-Timestamp: 1556196862976
+
+fff
+
+
+
+Nicolas Lascombes
+Ingénieur R&D 
+
+
+BlueMind
++33 (0)5 81 91 55 60
+Hotel des Télécoms, 40 rue du village d'entreprises
+31670 Labège, France
+www.bluemind.net / https://blog.bluemind.net/fr/
+
+--EC1E580EC.1556196863/smtp.bluemind.net--

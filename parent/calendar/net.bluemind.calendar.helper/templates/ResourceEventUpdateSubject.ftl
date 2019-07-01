@@ -1,0 +1,1 @@
+${msg("resourceBookingUpdatedSubject",title)}

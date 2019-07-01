@@ -1,0 +1,248 @@
+Return-Path: <david.phan@bm.lan>
+Received: from trusty.bm.lan (localhost [127.0.0.1])
+	 by trusty with LMTPA;
+	 Thu, 29 Oct 2015 07:49:12 +0100
+X-Sieve: CMU Sieve 2.4
+Received: from /192.168.253.150 (LHLO trusty.bm.lan) by unknown with LMTP;
+ 10/29/15 6:49 AM
+Received: from [127.0.1.1] (unknown [192.168.253.150])
+	by trusty.bm.lan (Postfix) with ESMTP id 9FE3140DAD
+	for <test@bm.lan>; Thu, 29 Oct 2015 07:49:12 +0100 (CET)
+MIME-Version: 1.0
+Date: Thu, 29 Oct 2015 06:49:12 +0000
+Subject: Invitation: pot
+Sender: David Phan <david.phan@bm.lan>
+From: David Phan <david.phan@bm.lan>
+To: David Phan <david.phan@bm.lan>, test test <test@bm.lan>
+Content-Type: multipart/mixed;
+ boundary="-=Part.1.38eb2388b2ff1beb.150b25b800e.1eeb26ce44c3eb4f=-"
+Message-Id: <20151029064912.9FE3140DAD@trusty.bm.lan>
+X-BM-Event: c71ba9e6307521d92a6c2bc5ee0441bf897165cf
+
+---=Part.1.38eb2388b2ff1beb.150b25b800e.1eeb26ce44c3eb4f=-
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="-=Part.0.85fb4478f2862854.150b25b800d.98c9e818ab7b2264=-"
+
+---=Part.0.85fb4478f2862854.150b25b800d.98c9e818ab7b2264=-
+Content-Type: text/html; charset=UTF-8;
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+  <style type=3D"text/css">
+
+body {
+  background: #F8F8F8;
+  color: #666;
+  padding: 15px;
+  font-size: small;
+  font-family: arial, sans-serif;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  border: 1px solid #CCC;
+  background: #FFF;
+  width: 100%;
+  margin-top: 10px;
+}
+
+
+/** Header */
+
+h1 {
+  display: inline;
+}
+
+h1=2Einfo {
+ color: #049cdb;
+}
+
+h1=2Eupdate {
+  color: orange;
+}
+
+h1=2Ecancel {
+  color: red;
+}
+
+h1=2Eaccepted {
+  color: green;
+}
+
+h1=2Edeclined {
+  color:red;
+}
+
+/** Detail */
+
+h2 {
+	text-align:center;
+}
+
+=2Eupdated {
+  color: orange;
+  font-size: 80%;
+  font-style: italic;
+}
+
+=2Ekey {
+   text-align: right;
+   vertical-align: top;
+   padding-right: 15px;
+   color: #CCC;
+   font-style: italic;
+}
+
+=2Evalue {
+  color:#666;
+}
+
+=2Edate {
+  color: #2D2D2D;
+  font-weight:bold;
+  font-size: medium;
+}
+
+=2Etz {
+  font-size: smaller;
+  font-style: italic;
+  font-weight: normal;
+}
+
+=2Eattendees {
+  list-style-type: none;
+  padding: 0px;
+  margin: 0px;
+}
+
+=2Enote {
+  padding: 4px;
+  margin: 4px;
+  border: 1px solid #C6EDF9;
+  background: #DDF4FB;
+}
+
+=2Eat {
+   text-align: right;
+   vertical-align: top;
+   padding-right: 5px;
+   color: #CCC;
+   font-style: italic;
+   font-size: 90%;
+}
+</style></head>
+<body><h1 class=3D"info">
+  David Phan vous invite =C3=A0 une r=C3=A9union
+</h1>
+<table>
+  <tr>
+    <td colspan=3D"2"><h2>pot </h2></td>
+  </tr>
+  <tr>
+    <td class=3D"key">Quand</td>
+    <td class=3D"value">
+          le <span class=3D"date">samedi 31 octobre 2015</span><br />
+          de <span class=3D"date">13:00</span> =C3=A0 <span class=3D"date"=
+>13:30</span>
+
+    </td>
+  </tr>
+  <tr>
+    <td class=3D"key">Organisateur</td><td class=3D"value">David Phan</td>
+  </tr>
+  <tr>
+    <td class=3D"key">Participants</td>
+    <td class=3D"value">
+      <ul class=3D"attendees">
+          <li>David Phan</li>
+          <li>test test</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td colspan=3D"2"><h2>&nbsp;</h2></td>
+  </tr>
+</table>
+</body>
+</html>
+---=Part.0.85fb4478f2862854.150b25b800d.98c9e818ab7b2264=-
+Content-Type: text/calendar; charset=UTF-8; method=REQUEST
+Content-Transfer-Encoding: 8bit
+
+BEGIN:VCALENDAR
+PRODID:-//Blue Mind//Blue Mind Calendar//FR
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:REQUEST
+BEGIN:VTIMEZONE
+TZID:Europe/Paris
+TZURL:http://tzurl.org/zoneinfo-outlook/Europe/Paris
+X-LIC-LOCATION:Europe/Paris
+BEGIN:DAYLIGHT
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+TZNAME:CEST
+DTSTART:19700329T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+TZNAME:CET
+DTSTART:19701025T030000
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+DTSTAMP:20151029T064912Z
+SEQUENCE:0
+UID:c71ba9e6307521d92a6c2bc5ee0441bf897165cf
+ATTENDEE;CUTYPE=INDIVIDUAL;PARTSTAT=ACCEPTED;RSVP=FALSE;CN=David Phan;ROLE=CHAIR:mailto:david.phan@bm.lan
+ATTENDEE;CUTYPE=INDIVIDUAL;PARTSTAT=NEEDS-ACTION;RSVP=TRUE;CN=test test;ROLE=REQ-PARTICIPANT:mailto:test@bm.lan
+DTSTART;TZID=Europe/Paris:20151031T130000
+DTEND;TZID=Europe/Paris:20151031T133000
+TRANSP:OPAQUE
+ORGANIZER;CN=David Phan:mailto:david.phan@bm.lan
+PRIORITY:5
+CLASS:PUBLIC
+SUMMARY:pot
+X-MOZ-LASTACK:20151029T064912Z
+X-MICROSOFT-DISALLOW-COUNTER:TRUE
+X-MICROSOFT-CDO-BUSYSTATUS:BUSY
+END:VEVENT
+END:VCALENDAR
+
+---=Part.0.85fb4478f2862854.150b25b800d.98c9e818ab7b2264=---
+
+---=Part.1.38eb2388b2ff1beb.150b25b800e.1eeb26ce44c3eb4f=-
+Content-Type: application/ics; name="event.ics"
+Content-Disposition: attachment; filename="event.ics"
+Content-Transfer-Encoding: base64
+
+QkVHSU46VkNBTEVOREFSDQpQUk9ESUQ6LS8vQmx1ZSBNaW5kLy9CbHVlIE1pbmQgQ2FsZW5kYXIv
+L0ZSDQpWRVJTSU9OOjIuMA0KQ0FMU0NBTEU6R1JFR09SSUFODQpNRVRIT0Q6UkVRVUVTVA0KQkVH
+SU46VlRJTUVaT05FDQpUWklEOkV1cm9wZS9QYXJpcw0KVFpVUkw6aHR0cDovL3R6dXJsLm9yZy96
+b25laW5mby1vdXRsb29rL0V1cm9wZS9QYXJpcw0KWC1MSUMtTE9DQVRJT046RXVyb3BlL1Bhcmlz
+DQpCRUdJTjpEQVlMSUdIVA0KVFpPRkZTRVRGUk9NOiswMTAwDQpUWk9GRlNFVFRPOiswMjAwDQpU
+Wk5BTUU6Q0VTVA0KRFRTVEFSVDoxOTcwMDMyOVQwMjAwMDANClJSVUxFOkZSRVE9WUVBUkxZO0JZ
+TU9OVEg9MztCWURBWT0tMVNVDQpFTkQ6REFZTElHSFQNCkJFR0lOOlNUQU5EQVJEDQpUWk9GRlNF
+VEZST006KzAyMDANClRaT0ZGU0VUVE86KzAxMDANClRaTkFNRTpDRVQNCkRUU1RBUlQ6MTk3MDEw
+MjVUMDMwMDAwDQpSUlVMRTpGUkVRPVlFQVJMWTtCWU1PTlRIPTEwO0JZREFZPS0xU1UNCkVORDpT
+VEFOREFSRA0KRU5EOlZUSU1FWk9ORQ0KQkVHSU46VkVWRU5UDQpEVFNUQU1QOjIwMTUxMDI5VDA2
+NDkxMloNClNFUVVFTkNFOjANClVJRDpjNzFiYTllNjMwNzUyMWQ5MmE2YzJiYzVlZTA0NDFiZjg5
+NzE2NWNmDQpBVFRFTkRFRTtDVVRZUEU9SU5ESVZJRFVBTDtQQVJUU1RBVD1BQ0NFUFRFRDtSU1ZQ
+PUZBTFNFO0NOPURhdmlkIFBoYW47Uk9MRT1DSEFJUjptYWlsdG86ZGF2aWQucGhhbkBibS5sYW4N
+CkFUVEVOREVFO0NVVFlQRT1JTkRJVklEVUFMO1BBUlRTVEFUPU5FRURTLUFDVElPTjtSU1ZQPVRS
+VUU7Q049dGVzdCB0ZXN0O1JPTEU9UkVRLVBBUlRJQ0lQQU5UOm1haWx0bzp0ZXN0QGJtLmxhbg0K
+RFRTVEFSVDtUWklEPUV1cm9wZS9QYXJpczoyMDE1MTAzMVQxMzAwMDANCkRURU5EO1RaSUQ9RXVy
+b3BlL1BhcmlzOjIwMTUxMDMxVDEzMzAwMA0KVFJBTlNQOk9QQVFVRQ0KT1JHQU5JWkVSO0NOPURh
+dmlkIFBoYW46bWFpbHRvOmRhdmlkLnBoYW5AYm0ubGFuDQpQUklPUklUWTo1DQpDTEFTUzpQVUJM
+SUMNClNVTU1BUlk6cG90DQpYLU1PWi1MQVNUQUNLOjIwMTUxMDI5VDA2NDkxMloNClgtTUlDUk9T
+T0ZULURJU0FMTE9XLUNPVU5URVI6VFJVRQ0KWC1NSUNST1NPRlQtQ0RPLUJVU1lTVEFUVVM6QlVT
+WQ0KRU5EOlZFVkVOVA0KRU5EOlZDQUxFTkRBUg0K
+
+---=Part.1.38eb2388b2ff1beb.150b25b800e.1eeb26ce44c3eb4f=---
+

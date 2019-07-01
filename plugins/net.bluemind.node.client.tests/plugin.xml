@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="nodetests"
+         name="NodeClient tests"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            thread="main"
+            visible="true">
+         <run
+               class="net.bluemind.node.client.tests.NCTRunner">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="nctrunner"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="net.bluemind.node.client.tests.nodetests"
+            name="nctrunner">
+         <property
+               name="appName"
+               value="nctrunner">
+         </property>
+      </product>
+   </extension>
+
+</plugin>

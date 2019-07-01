@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.scheduledjob.scheduler.job">
+      <scheduledjob_provider
+            implementation="net.bluemind.scheduledjob.service.jobs.DomainJob">
+      </scheduledjob_provider>
+      <scheduledjob_provider
+            implementation="net.bluemind.scheduledjob.service.jobs.GlobalJob">
+      </scheduledjob_provider>
+   </extension>
+</plugin>

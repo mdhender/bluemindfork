@@ -1,0 +1,25 @@
+.panel {
+	border-right: 1px solid #EEE;
+	background-color: #F8F8F8;
+}
+
+.panel button {
+	width: 100%;
+}
+
+.actions {
+	padding: 2px 3px 0px 3px;
+	border-top: 1px solid #F8F8F8;
+	border-bottom: 1px solid #EEE;
+	background-color: #F8F8F8;
+}
+
+.connectionErr {
+	background-color: red;
+	color: #FFF;
+	font-weight: bold;
+}
+
+.connectionErr div {
+	padding: 3px;
+}

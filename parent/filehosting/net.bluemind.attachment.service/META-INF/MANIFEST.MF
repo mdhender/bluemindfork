@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.attachment.service
+Bundle-SymbolicName: net.bluemind.attachment.service;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
+ net.bluemind.attachment.api,
+ net.bluemind.core.rest,
+ net.bluemind.filehosting.api,
+ net.bluemind.filehosting.service;bundle-version="4.1.0",
+ net.bluemind.filehosting.filesystem.sqlschema;bundle-version="4.1.0",
+ slf4j.api,
+ net.bluemind.system.api,
+ net.bluemind.domain.api

@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.directory.hollow.datamodel
+Bundle-SymbolicName: net.bluemind.directory.hollow.datamodel
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.directory.hollow.datamodel.Activator
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ com.netflix.hollow;bundle-version="3.0.1"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.directory.hollow.datamodel
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.directory.hollow.datamodel

@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.eas.api
+Bundle-SymbolicName: net.bluemind.eas.api
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.core.commons,
+ net.bluemind.lib.jodatime,
+ net.bluemind.core.container.api;bundle-version="1.0.0",
+ net.bluemind.lib.jackson
+Export-Package: net.bluemind.eas.api

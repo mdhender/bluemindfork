@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module >
+	<source path='client' />
+	<inherits name="net.bluemind.gwtconsoleapp.base.Editor"/>
+	<inherits name="net.bluemind.core.CommonsApi" />
+	<inherits name="net.bluemind.core.CoreApi" />
+	<inherits name="net.bluemind.ui.common.CommonIcons" />
+	<inherits name="net.bluemind.ui.common.client.CommonForms" />
+	<inherits name="net.bluemind.tag.TagApi" />
+</module>

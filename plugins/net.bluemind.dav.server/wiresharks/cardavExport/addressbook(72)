@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<multistatus xmlns='DAV:'>
+  <response>
+    <href>/addressbooks/__uids__/EB397106-443A-47BE-9CA5-558037E137BF/addressbook/883284437a4c85dabe8b0219c899f120.vcf</href>
+    <propstat>
+      <prop>
+        <getetag>"d9137a2e8fc87fbff6a74a4fb778cd5d"</getetag>
+      </prop>
+      <status>HTTP/1.1 200 OK</status>
+    </propstat>
+  </response>
+  <response>
+    <href>/addressbooks/__uids__/EB397106-443A-47BE-9CA5-558037E137BF/addressbook/c26de140d46250814e0461935c2de4e4.vcf</href>
+    <propstat>
+      <prop>
+        <getetag>"2127608d6835953e8d1f58b0d0776c21"</getetag>
+      </prop>
+      <status>HTTP/1.1 200 OK</status>
+    </propstat>
+  </response>
+  <sync-token>data:,1_10</sync-token>
+</multistatus>

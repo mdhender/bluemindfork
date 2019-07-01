@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.core.rest.http.vertx
+Bundle-SymbolicName: net.bluemind.core.rest.http.vertx;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.slf4j;bundle-version="1.0.0",
+ net.bluemind.lib.vertx;bundle-version="1.0.0",
+ net.bluemind.core.rest;bundle-version="1.0.0",
+ net.bluemind.core.sessions;bundle-version="1.0.0",
+ net.bluemind.core.context;bundle-version="1.0.0",
+ com.google.guava;bundle-version="19.0.0",
+ net.bluemind.core.commons;bundle-version="1.0.0",
+ net.bluemind.lib.jackson
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Eclipse-RegisterBuddy: net.bluemind.lib.vertx
+Export-Package: net.bluemind.core.rest.http.vertx

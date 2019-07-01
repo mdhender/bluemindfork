@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.eas.verticle
+Bundle-SymbolicName: net.bluemind.eas.verticle;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.bluemind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.lib.vertx,
+ net.bluemind.slf4j;bundle-version="4.1.0",
+ net.bluemind.hornetq.client,
+ net.bluemind.calendar.hook,
+ net.bluemind.addressbook.api,
+ net.bluemind.todolist.hook

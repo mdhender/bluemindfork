@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This file describes BM Domains configuration. -->
+<domainTemplate>
+	<hostTags>
+		<kind id="directory">
+		    <desc lang="fr">Annuaire LDAP</desc>
+		    <desc lang="en">LDAP directory</desc>
+			<tag value="directory/bm-master" multival="false" mandatory="false" autoAssign="false">
+				<desc lang="fr">Annuaire LDAP maître généré par BlueMind</desc>
+				<desc lang="en">LDAP master directory created by BlueMind</desc>
+			</tag>
+		</kind>
+	</hostTags>
+</domainTemplate>

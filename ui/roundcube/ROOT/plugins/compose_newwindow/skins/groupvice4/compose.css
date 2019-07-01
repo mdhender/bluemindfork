@@ -1,0 +1,22 @@
+/***** compose_newwindow | modifications to compose window *****/
+
+/* Hide the main taskbar */
+#taskbar,
+#header,
+#headertab1,
+#headertab2,
+#headertab3 {
+  display: none;
+}
+
+/* adjust container positions */
+#messagetoolbar,
+#compose-container {
+  margin-top: -55px;
+}
+#compose-attachments {
+  margin-top: -75px;
+}
+#messagetoolbar {
+  margin-left: -170px;
+}

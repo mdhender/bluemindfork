@@ -1,0 +1,48 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:f="urn:import:net.bluemind.ui.common.client.forms"
+	xmlns:h="urn:import:net.bluemind.ui.adminconsole.base.ui" xmlns:d="urn:import:net.bluemind.ui.adminconsole.dataprotect">
+
+	<ui:style>
+		.title {
+			margin-top: 0px;
+		}
+		
+		.actionBar {
+			position: absolute;
+			left: 0;
+			bottom: 0;
+			right: 0;
+			height: 4em;
+		}
+	</ui:style>
+
+	<ui:with field="txt"
+		type="net.bluemind.ui.adminconsole.dataprotect.l10n.DPTexts" />
+		
+	<g:HTMLPanel>
+		<h:FieldSetPanel name="{txt.retPolicyTitle}" />
+		
+		<g:Label text="{txt.retPolicyDesc}" />
+		
+		<table border="0" style="margin-top:15px">
+				<f:IntTextEdit ui:field="daily" titleText="{txt.retDaily}"
+				maxLength="8" mandatory="true" readOnly="false" />
+		</table>
+		<h:FieldSetPanel name="{txt.backup}" />
+		<table border="0">
+				<tr>
+					<td style="color: #24638f; font-weight: bold"><g:Label text="{txt.backupEmails}"/></td>
+					<td style="padding-left:15px"><g:CheckBox ui:field="backupMails" /></td>
+				</tr>
+		</table>
+	
+    	<div class="{style.actionBar}">
+			<d:CrudActionBar ui:field="actionBar" />
+		</div>
+
+	</g:HTMLPanel>
+
+</ui:UiBinder>

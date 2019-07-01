@@ -1,0 +1,37 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:common="urn:import:net.bluemind.ui.common.client.forms"
+	xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui">
+
+	<ui:with field="c"
+		type="net.bluemind.ui.adminconsole.security.iptables.l10n.IpTablesEditorConstants" />
+
+	<g:DockLayoutPanel unit='EM'>
+		<g:north size="5">
+			<g:HTMLPanel>
+				<g:Label text="{c.title}" styleName="sectionTitle"></g:Label>
+			</g:HTMLPanel>
+		</g:north>
+
+		<g:center>
+			<g:HTMLPanel ui:field="center">
+				<g:ScrollPanel height="100%" ui:field="toolsScroll">
+					<g:HTMLPanel ui:field="toolsPanel">
+						<table class="formContainer">
+							<common:StringEdit ui:field="additionalIPs"
+							titleText="{c.additionalIPs}" maxLength="255" mandatory="false"
+							readOnly="false" />
+						</table>
+					</g:HTMLPanel>
+				</g:ScrollPanel>
+			</g:HTMLPanel>
+		</g:center>
+		
+		
+		<g:south size="4">
+			<f:CrudActionBar ui:field="actionBar" />
+		</g:south>
+	</g:DockLayoutPanel>
+</ui:UiBinder>

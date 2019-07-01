@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module
+            index="index.html"
+            root="/task">
+
+		<handler class="net.bluemind.webmodules.calendar.handlers.TodolistAppCacheHandler"
+			path="task.appcache">
+			</handler>
+         <handler
+               class="net.bluemind.webmodules.calendar.handlers.TodolistHandler"
+               path="index.html">
+         </handler>
+         
+         <handler
+               class="net.bluemind.webmodules.calendar.handlers.TodolistOfflineHandler"
+               path="index-offline.html">
+         </handler>
+
+
+         <handler
+               class="net.bluemind.webmodules.calendar.handlers.ImportVTodoHandler"
+               path="import-vtodo">
+         </handler>
+         <handler
+               class="net.bluemind.webmodules.calendar.handlers.ExportVTodoHandler"
+               path="export-vtodo">
+         </handler>
+         <handler
+               class="net.bluemind.webmodule.server.handlers.LogHandler"
+               path="log">
+         </handler>
+
+         <web-resource
+               bundle="net.bluemind.task.application.closure">
+         </web-resource>
+         
+      </web-module>
+   </extension>
+
+   <extension
+         point="net.bluemind.ui.commons.banner">
+      <banner-entry
+            cssIcon="fa fa-lg fa-calendar-check-o"
+            description="%banner-entry.description"
+            name="%banner-entry.name"
+            offline="true"
+            priority="97"
+            role="hasCalendar"
+            root="/task/">
+      </banner-entry>
+   </extension>
+
+</plugin>

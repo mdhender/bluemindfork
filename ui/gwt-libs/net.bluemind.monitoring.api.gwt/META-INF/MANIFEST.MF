@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.monitoring.api.gwt
+Bundle-SymbolicName: net.bluemind.monitoring.api.gwt;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="1.0.0";visibility:=reexport,
+ com.google.gwt.user;resolution:=optional,
+ net.bluemind.monitoring.api;visibility:=reexport,
+ net.bluemind.server.api;visibility:=reexport,
+ net.bluemind.server.api.gwt;bundle-version="1.0.0";visibility:=reexport
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: net.bluemind.monitoring.api.gwt.endpoint

@@ -1,0 +1,57 @@
+smtpd_banner = $myhostname ESMTP $mail_name (BlueMind)
+biff = no
+
+append_dot_mydomain = no
+
+# Uncomment the next line to generate "delayed mail" warnings
+#delay_warning_time = 4h
+
+myhostname = ${myHostname}
+myorigin = $myhostname
+
+relayhost = 
+
+# Liste des bases d'alias consultées par l'agent de livraison 'local'
+alias_maps = hash:/etc/aliases
+# Listes des base d'alias mise à jour par 'newaliases'
+alias_database = hash:/etc/aliases
+local_recipient_maps = $alias_maps
+
+mydestination = localhost, $myhostname
+mynetworks = ${myNetworks}
+message_size_limit = ${messageSizeLimit}
+mailbox_size_limit = ${messageSizeLimit}
+
+virtual_transport = error:mailbox does not exist
+virtual_mailbox_domains = hash:/etc/postfix/virtual_domains
+virtual_mailbox_maps = hash:/etc/postfix/virtual_mailbox
+virtual_alias_maps = hash:/etc/postfix/virtual_alias
+transport_maps = hash:/etc/postfix/transport, hash:/etc/postfix/master_relay_transport
+
+recipient_delimiter = +
+
+# SMTP/TLS
+smtp_tls_security_level = may
+smtp_tls_mandatory_protocols = !SSLv2,!SSLv3
+
+smtpd_tls_security_level=may
+smtpd_tls_cert_file=/etc/ssl/certs/bm_cert.pem
+smtpd_tls_key_file=/etc/ssl/certs/bm_cert.pem
+smtpd_tls_CAfile=/var/lib/bm-ca/cacert.pem
+smtpd_tls_mandatory_protocols=!SSLv2,!SSLv3
+
+# SMTP authentication
+smtpd_sasl_auth_enable=yes
+broken_sasl_auth_clients=yes
+smtpd_sasl_security_options=noanonymous
+smtpd_recipient_restrictions=permit_sasl_authenticated,permit_mynetworks,reject_unauth_destination
+smtpd_sasl_authenticated_header=yes
+
+smtpd_sender_restrictions = check_sender_access tcp:127.0.0.1:25250
+
+# Misc
+disable_vrfy_command=yes
+
+#Milter
+smtpd_milters = inet:127.0.0.1:2500
+non_smtpd_milters = inet:127.0.0.1:2500

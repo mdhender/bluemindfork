@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>net.bluemind.products.core-extensions</artifactId>
+	<packaging>pom</packaging>
+	<parent>
+		<groupId>net.bluemind</groupId>
+		<artifactId>net.bluemind.products</artifactId>
+		<version>4.1.0-SNAPSHOT</version>
+	</parent>
+	<modules>
+		<module>ldap-import</module>
+		<module>cti</module>
+		<module>xivo</module>
+		<module>filehosting-filesystem</module>
+		<module>mapi-support</module>
+		<module>password-bruteforce</module>
+		<module>password-sizestrength</module>
+		<module>monitoring</module>
+		<module>ldap-export</module>
+	</modules>
+</project>

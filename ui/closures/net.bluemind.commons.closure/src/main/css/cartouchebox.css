@@ -1,0 +1,59 @@
+.cartouchebox {
+  padding: 0;
+  margin: 0 2px 0 2px;
+  display: inline;
+  background-color: #fff;
+  outline: none;
+}
+
+.cartouchebox-vertical > li {
+  display: inline-block;
+}
+
+.cartoucheboxitem {
+  background: #eee;
+  border: 1px solid #ccc;
+  padding: 0 14px 0 4px;  
+  margin: 1px 2px 0 0;
+  border-radius: 2px;
+  min-width: 14px;
+  max-width: 200px;
+  white-space: nowrap;
+  position: relative;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  vertical-align: middle;
+}
+
+.cartoucheboxitem.cartoucheboxitem-empty {
+  padding-right: 10px;
+}
+
+
+.cartoucheboxitem.cartoucheboxitem-readonly {
+  padding-right: 4px;
+}
+
+.cartoucheboxitem-readonly.cartoucheboxitem-empty {
+  padding-right: 0 !important;
+}
+
+.cartoucheboxitem-selected {
+  background-color: #c4e0ec !important;
+}
+
+
+.cartoucheboxitem .goog-flat-button {
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAMAAAC67D+PAAAAAXNSR0IArs4c6QAAAnlQTFRFpqamz8/P5OTkra2tmJiYhYqN7u7uw8PDmJiY7Ozs0tLSWVlZq6urV1dXppAMsYtXFSKFmzAAK0l/Kmebra2tiS45liGDm0OaZDLP7IkC31QIFqqaLZloqqoH1q4AWo6Hh4pRdTUAjmyKcSCBcIOnPiJ3iAwRjkQAhw9PG3U8I2F8n3AAqloAV5oDOYINLWbPp3By3kR5JH9jZXSGMjMxRV6Ftbe0c3RyIiIi1t7npK/JqZnA1aaLz6SnfMMkXz+X2d3M59zPtmMNQoWhrSJzlUSkyNCR2MOG134akk0Vu52Dt9SKwpzJnrrElsi7zaqFOZlcyo2v5nOXpbkn0JkPYozZWL+xZayJRLFQjb85vb9NQ6WGm8Kkri0qWactqpGojJeklqG7h6qmqKd5xaiCyFYbtk9bxEKt5+a18ueyzJmY88264tXV2tPf0dfZ0N3d3beMwdHyuebgwtzH157L0eax0b04lZnOpciRwJOR9sfY4sffz8LwxNDe+9y0Oz+u2WZouOaytHGzkWPY8cK/8aY939KY6H5JU2yl3sJAAAEAmJiYd3l2DwDNmKCoVGiv6soAWVlZbG1r6+3qTMoU8PLvRKsYury57fL15LkEO0QfSLcZM3LpZmhlgq31js54TcMa+94A9/n22dvYi43VU43r/+vunJ6bra+s4ePfirdy6OjsO0lPLjsm3+TmgYOAtJwAXV5c0NHbi5vH29jcmqXMYWEMmcSf5/D43OT6zTE04u79ZKsAUFJPCZcUZG97YXuwhYqN2Nf8UVfOgJEH/v/8uMz/7u7upaekhartyszJ0tXRYo2ymLPKxdn/zMzMZ4fwi42K////2NqnMAAAAAF0Uk5TAEDm2GYAAAABYktHRACIBR1IAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH2wgYCTYjNVqpdQAAACRJREFUCNdjYEAC3d1wshtEdsMEuqEsCJsBnYlQgKQNyTA4AACrMhW5aLzwgQAAAABJRU5ErkJggg==) center no-repeat;
+  width: 10px;
+  height: 100%;
+  border: none;
+  border-left: 1px solid #ccc;
+  border-radius: 0;
+  position: absolute;
+  right: 0;
+}
+
+.cartoucheboxitem .goog-flat-button-hover {
+  background-color: #e6f3f8;
+}

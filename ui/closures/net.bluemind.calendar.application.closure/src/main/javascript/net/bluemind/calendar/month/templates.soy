@@ -1,0 +1,101 @@
+{namespace net.bluemind.calendar.month.templates}
+
+/**
+ * Days view
+ */
+{template .main}
+  <div class="{css month-head}">
+    <table>
+      <tbody>
+      	<tr></tr>
+      <tbody>
+    </table>
+  </div>
+  <div class="{css month-grid}">
+    <table>
+      <tbody>
+      <tr>
+        <th>
+          <table></table>
+        </th> 
+        <td>
+          <div id="monthContainer" />
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+{/template}
+
+
+/**
+ * Event
+ * @param summary Event title.
+ * @param formatted Event formatted time
+ * @param states Event states.
+ * @param left Event left extension.
+ * @param right Event right extension.
+ * @param location event location.
+ * @param tags Event tags
+ */
+{template .eventpart}
+  {if not $states.busy}
+    <div class="{css transparent-marker}"></div>
+  {/if}
+  {if $right}
+    <div class="{css extension} {css FR}">
+      <div class="{css extension-right}"></div>
+    </div>
+  {else}
+    <div class="{css extension} {css FR} {css no-extention}">
+      <div class="{css extension-right}"></div>
+    </div>
+  {/if}
+  {if $left}
+    <div class="{css extension} {css FL}">
+      <div class="{css extension-left}"></div>
+    </div>
+  {else}
+    <div class="{css extension} {css FL} {css no-extention}">
+      <div class="{css extension-left}"></div>
+    </div>
+  {/if}
+  <div class="{css icon-container}">
+  {if length($tags) > 0}
+    <div class="{css tag-mark}" title="
+    {foreach $tag in $tags}
+      {$tag.label}{if not isLast($tag)},{sp}{/if}
+    {/foreach}
+    " style="
+    {if length($tags) > 1}
+      border-left-color: #{$tags[0].color};
+      border-right-color: #{$tags[1].color};
+      width: 1px;
+      border-width: 0 7px;
+    {else}
+      background-color:#{$tags[0].color}
+    {/if}
+     "></div>
+  {/if}
+  {if $states.repeat}
+    <span class="{css fa} {css fa-repeat}"></span>
+  {/if}
+  {if $states.private_}
+    <span class="{css fa} {css fa-lock}"></span>
+  {/if}
+  {if $states.meeting}
+    <span class="{css fa} {css fa-users}"></span>    
+  {/if}
+  </div>
+  <dl>
+    <dt class="{css ev-header}" style="display:none;"></dt>
+    <dd>
+        <span class="{css ev-content}">
+        {$formatted.tstart} {$summary}
+        </span>
+        {if $location != '' and isNonnull($location) }
+          <span class="{css ev-location}">, {$location}</span>
+        {/if}
+    </dd>
+  </dl>
+{/template}

@@ -1,0 +1,286 @@
+.goog-trash-button {
+  outline: none;
+  cursor: pointer;
+  height: 21px;
+  vertical-align: bottom !important;
+}
+.goog-trash-button-lid {
+  position: absolute;
+  -webkit-transform-origin: 0% 100%;
+  -moz-transform-origin: 0% 100%;
+  transform-origin: 0% 100%;
+  cursor: pointer;
+  clip: rect(auto,auto,4px,auto);
+  margin-top: -1px;
+  height: 5px;
+}
+.goog-trash-button-can {
+  position: absolute;
+  cursor: pointer;
+  clip: rect(3px,auto,auto,auto);
+}
+.goog-trash-button .fa-lg {
+  line-height: 1em;
+}
+.goog-trash-button-focus .goog-trash-button-lid, .goog-trash-button-hover>.goog-trash-button-lid {
+  -webkit-transition: -webkit-transform 200ms;
+  -webkit-transform: rotate(-45deg);
+  transition: transform 200ms;
+  -moz-transition: -moz-transform 200ms;
+  -moz-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+}
+
+
+.errorMsg {
+	color: #953B39;
+}
+
+.spinner {
+	color: #FFF;
+	font-size: 70%;
+	background: red;
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	padding: 2px 4px;
+}
+
+.notification {
+	position: absolute;
+	height: 0px;
+	width: 100%;
+	top: 0;
+	text-align: center;
+}
+
+.msg {
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	font-weight: bold;
+	background: #FFF;
+	padding: 4px 14px;
+	font-size: 90%;
+	-moz-box-shadow: 1px 1px 10px #555;
+	-webkit-box-shadow: 1px 1px 10px #555;
+	box-shadow: 1px 1px 10px #555;
+	display: inline;
+}
+
+.progress {
+	border: 1px solid #C6EDF9;
+	background: #DDF4FB;
+}
+
+.ok {
+	border: 1px solid #ffe475;
+	background: #fef7cb;
+}
+
+.error {
+	border: 1px solid #AE4848;
+	background: #D86363;
+	color: #620606;
+}
+
+.visible { /* 	display: block;
+	z-index: 20000; */
+	
+}
+
+.sidebar {
+	color: #24638f;
+	width: 100%;
+	border-collapse: collapse;
+	height: 0;
+}
+
+.clickable {
+	cursor: pointer;
+}
+
+.fakeapp {
+	height: 20px;
+}
+
+.app {
+	height: 25px;
+	border-bottom: 1px solid #F8F8F8;
+}
+
+.appAnchor {
+	margin-left: 10px;
+}
+
+.selected {
+	font-weight: bold;
+}
+
+.appPanel {
+	height: 100%;
+}
+
+.actionBar {
+	background: #dae3e8;
+	padding: 5px;
+}
+
+.gwt-DateBox input {
+	width: 8em;
+}
+
+.dateBoxFormatError {
+	background: #ffcccc;
+}
+
+.dateBoxPopup {
+	
+}
+
+.back {
+	font-weight: bold;
+	cursor: pointer;
+	padding-right: 20px;
+}
+
+.thisIsScroll {
+	border: none;
+	overflow-x: hidden;
+	overflow-y: auto !important;
+	padding: 6px;
+}
+
+.settingsOverlay {
+	position: absolute;
+	background-color: #FFF;
+	background-image: -webkit-gradient(radial, center center, 30, center center, 800, from(#F8F8F8
+		), to(#000) );
+	background: -moz-radial-gradient(#F8F8F8, #000);
+	background-repeat: no-repeat;
+	top: 0;
+	left: 0;
+	opacity: 0.5;
+	z-index: 100;
+}
+
+.progress {
+	height: 100%;
+	width: 100%;
+	overflow: hidden;
+	background-color: #f7f7f7;
+	background-image: -moz-linear-gradient(top, #f5f5f5, #f9f9f9);
+	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#f5f5f5),
+		to(#f9f9f9) );
+	background-image: -webkit-linear-gradient(top, #f5f5f5, #f9f9f9);
+	background-image: -o-linear-gradient(top, #f5f5f5, #f9f9f9);
+	background-image: linear-gradient(to bottom, #f5f5f5, #f9f9f9);
+	background-repeat: repeat-x;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	-webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+	-moz-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+	box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.progress .bar {
+	float: left;
+	width: 100%;
+	height: 100%;
+	font-size: 12px;
+	color: #ffffff;
+	text-align: center;
+	text-shadow: 0 -1 px 0 rgba(0, 0, 0, 0 .25);
+	background-color: #0e90d2;
+	background-image: -moz-linear-gradient(top, #149bdf, #0480be);
+	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#149bdf),
+		to(#0480be) );
+	background-image: -webkit-linear-gradient(top, #149bdf, #0480be);
+	background-image: -o-linear-gradient(top, #149bdf, #0480be);
+	background-image: linear-gradient(to bottom, #149bdf, #0480be);
+	background-repeat: repeat-x;
+	-webkit-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+	-moz-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+	box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.progress-striped .bar {
+	background-color: #149bdf;
+	background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(0.25, rgba(255, 255,
+		255, 0.15) ), color-stop(0.25, transparent),
+		color-stop(0.5, transparent),
+		color-stop(0.5, rgba(255, 255, 255, 0.15) ),
+		color-stop(0.75, rgba(255, 255, 255, 0.15) ),
+		color-stop(0.75, transparent), to(transparent) );
+	background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.15)
+		25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%,
+		rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent );
+	background-image: -moz-linear-gradient(45deg, rgba(255, 255, 255, 0.15)
+		25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%,
+		rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent );
+	background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, 0.15)
+		25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%,
+		rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent );
+	background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%,
+		transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%,
+		rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent );
+	-webkit-background-size: 40px 40px;
+	-moz-background-size: 40px 40px;
+	-o-background-size: 40px 40px;
+	background-size: 40px 40px;
+}
+
+.progress.active .bar {
+	-webkit-animation: progress-bar-stripes 2s linear infinite;
+	-moz-animation: progress-bar-stripes 2s linear infinite;
+	-ms-animation: progress-bar-stripes 2s linear infinite;
+	-o-animation: progress-bar-stripes 2s linear infinite;
+	animation: progress-bar-stripes 2s linear infinite;
+}
+
+.gwt-SuggestBoxPopup {
+	margin-left: 0px;
+	z-index: 11000;
+	overflow: scroll !important;
+    max-height: 250px;
+}
+
+@-webkit-keyframes progress-bar-stripes {
+  from {
+    background-position: 40px 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+@-moz-keyframes progress-bar-stripes {
+  from {
+    background-position: 40px 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+@-ms-keyframes progress-bar-stripes {
+  from {
+    background-position: 40px 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+@-o-keyframes progress-bar-stripes {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 40px 0;
+  }
+}

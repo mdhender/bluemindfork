@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests
+Bundle-SymbolicName: net.bluemind.filehosting.api.gwt;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="4.1.0";visibility:=reexport,
+ net.bluemind.filehosting.api;bundle-version="4.1.0";visibility:=reexport,
+ com.google.gwt.user;resolution:=optional,
+ net.bluemind.restbus.api.gwt;bundle-version="4.1.0";visibility:=reexport
+Export-Package: net.bluemind.filehosting.api.gwt.endpoint,
+ net.bluemind.filehosting.api.gwt.js,
+ net.bluemind.filehosting.api.gwt.serder
+

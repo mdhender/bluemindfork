@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.user.hook.userhook">
+      <hook
+            impl="net.bluemind.tag.hooks.UserTagHook">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.domain.domainHook">
+      <hook
+            class="net.bluemind.tag.hooks.DomainTagHook">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.core.container.repair">
+      <repair
+            impl="net.bluemind.tag.hooks.UserTagRepair">
+      </repair>
+   </extension>
+
+</plugin>

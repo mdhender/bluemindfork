@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module
+            index="index.html"
+            root="/samples">
+
+
+
+         <web-resource
+               bundle="net.bluemind.webmodules.sample">               
+         </web-resource>
+         <handler
+               class="net.bluemind.webmodules.sample.handlers.UploadThruHpsHandler"
+               path="upload"></handler>
+         
+      </web-module>
+   </extension>
+
+</plugin>

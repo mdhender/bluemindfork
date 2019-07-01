@@ -1,0 +1,95 @@
+/*
+ * Copyright 2009 The Closure Library Authors. All Rights Reserved.
+ *
+ * Use of this source code is governed by the Apache License, Version 2.0.
+ * See the COPYING file for details.
+ */
+
+/*
+ * Cross-browser implementation of the "display: inline-block" CSS property.
+ * See http://www.w3.org/TR/CSS21/visuren.html#propdef-display for details.
+ * Tested on IE 6 & 7, FF 1.5 & 2.0, Safari 2 & 3, Webkit, and Opera 9.
+ *
+ * @author attila@google.com (Attila Bodis)
+ */
+
+/*
+ * Default rule; only Safari, Webkit, and Opera handle it without hacks.
+ */
+.goog-inline-block {
+  position: relative;
+  display: -moz-inline-box; /* Ignored by FF3 and later. */
+  display: inline-block;
+}
+
+/*
+ * Pre-IE7 IE hack.  On IE, "display: inline-block" only gives the element
+ * layout, but doesn't give it inline behavior.  Subsequently setting display
+ * to inline does the trick.
+ */
+* html .goog-inline-block {
+  display: inline;
+}
+
+/*
+ * IE7-only hack.  On IE, "display: inline-block" only gives the element
+ * layout, but doesn't give it inline behavior.  Subsequently setting display
+ * to inline does the trick.
+ */
+*:first-child+html .goog-inline-block {
+  display: inline;
+}
+
+
+.notice {
+  color: #3a87ad;
+  background-color: #d9edf7;
+}
+
+.warn {
+  background: #fad163;
+  color: #A37905;
+}
+
+.error {
+  color: #b94a48;
+  background-color: #FDDFDE;
+}
+
+
+/**
+ * Overlay
+ */
+.modalOverlay {
+	position: absolute;
+	background-color: #FFF;
+	background-image: -webkit-gradient(radial, center center, 30, center center, 800, from(#F8F8F8
+		), to(#000) );
+	background: -moz-radial-gradient(#F8F8F8, #000);
+	background-repeat: no-repeat;
+	top: 0;
+	left: 0;
+	opacity: 0.5;
+	z-index: 100;
+	padding: 2px;
+}
+
+/**
+ * Dialog box
+ */
+.dialog {
+	/*position: absolute;*/
+	background-color: #FFF;
+	border: 1px solid #666;
+	font-family: arial, sans-serif;
+	color: #000;
+	outline: none;
+	-moz-box-shadow: 0px 5px 80px #555;
+	-webkit-box-shadow: 0px 5px 80px #555;
+	box-shadow: 0px 5px 80px #555;
+	padding: 4px;
+}
+
+.gwt-DialogBox {
+	z-index: 1000;
+}

@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>Grafana test</title>
+    
+    
+    <script type="text/javascript" src="http://influxdb.org/javascripts/vendor/jquery.js"></script>
+    <script type="text/javascript" src="http://influxdb.org/javascripts/vendor/d3.v3.js"></script>
+    <script type="text/javascript" src="http://influxdb.org/javascripts/vendor/rickshaw.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://influxdb.org/stylesheets/vendor/rickshaw.css">
+    <script type="text/javascript" src="http://get.influxdb.org/influxdb-latest.js"></script>
+    
+    
+    <style type="text/css">
+      #chart_container {
+      position: relative;
+      font-family: Arial, Helvetica, sans-serif;
+      margin-top: 20px;
+      }
+      #chart {
+      position: absolute;
+      left: 30px;
+      }
+      #y_axis {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 30px;
+      }
+      #y_axis > svg {  
+      padding-bottom: 20px;
+      }
+      .x_tick {
+      bottom: -15px !important;
+      }
+    </style>
+    
+
+
+    <script type="text/javascript">//<![CDATA[ 
+window.onload=function(){
+$(function() {
+  var influxdb = new InfluxDB({host: "prec.willow.vmw", port: 9086, username: "root", password: "root", database: "bm" });
+  console.log("influxdb: " + JSON.stringify(influxdb));
+
+function getAllMethods(object) {
+    return Object.getOwnPropertyNames(object).filter(function(property) {
+        return typeof object[property] == 'function';
+    });
+}
+
+  influxdb.query("SELECT sum(overhead) FROM ips.imap.timings WHERE time > now() - 15d GROUP BY time(1h);", function(points) {
+
+    console.log(typeof points)
+    console.log(JSON.stringify(points))
+    var data = new Array();
+    points.map(function(p) {
+      p["points"].map(function(point) {
+        var ret = { x: point.time / 1000, y: point.sum };
+        console.log(" * return " + JSON.stringify(ret) +" FROM "+ JSON.stringify(p));
+        data.push(ret);
+        return ret;
+      });
+    });
+    data.reverse();
+    console.log("Data: " + JSON.stringify(data));
+
+    var graph = new Rickshaw.Graph({
+      element: document.querySelector("#chart"),
+      width: 640,
+      height: 180,
+      renderer: 'line',
+      series: [{ data: data, color: 'steelblue' }]
+    });
+
+    var xAxis = new Rickshaw.Graph.Axis.Time({ graph: graph });
+    var yAxis = new Rickshaw.Graph.Axis.Y({
+      graph: graph,
+      orientation: 'left',
+      element: document.getElementById('y_axis')
+    });
+
+    xAxis.render();
+    yAxis.render();
+    graph.render();
+  });
+});
+
+}//]]>  
+
+    </script>
+
+  </head>
+
+  <body>
+
+    <div id="chart_container">
+      <div id="y_axis"></div>
+      <div id="x_axis"></div>
+      <div id="chart"></div>
+    </div>
+
+  </body>
+
+</html>
