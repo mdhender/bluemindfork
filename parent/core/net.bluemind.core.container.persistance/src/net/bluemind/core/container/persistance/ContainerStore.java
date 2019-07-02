@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -340,9 +341,24 @@ public class ContainerStore extends JdbcAbstractStore {
 		delete("delete from t_container_location where container_uid  = ? ", new Object[] { container.uid });
 	}
 
-	public String getContainerLocation(String containerUid) throws SQLException {
-		return unique("select location from t_container_location where container_uid = ?", StringCreator.FIRST,
-				Collections.emptyList(), new Object[] { containerUid });
+	/**
+	 * Returns null if the container location is unknown, or an optional if the
+	 * location is known.
+	 * 
+	 * @param containerUid
+	 * @return
+	 * @throws SQLException
+	 */
+	public Optional<String> getContainerLocation(String containerUid) throws SQLException {
+		String ret = unique("select coalesce(location, 'DIR') from t_container_location where container_uid = ?",
+				StringCreator.FIRST, Collections.emptyList(), new Object[] { containerUid });
+		if (ret == null) {
+			return null;
+		} else if ("DIR".equals(ret)) {
+			return Optional.empty();
+		} else {
+			return Optional.of(ret);
+		}
 	}
 
 }

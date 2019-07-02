@@ -20,6 +20,7 @@ package net.bluemind.core.container.persistance;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.sql.DataSource;
@@ -36,54 +37,46 @@ import net.bluemind.core.rest.BmContext;
 public class DataSourceRouter {
 
 	private static final Logger logger = LoggerFactory.getLogger(DataSourceRouter.class);
-	private static final Cache<String, String> cache = CacheBuilder.newBuilder().build();
+	private static final Cache<String, Optional<String>> cache = CacheBuilder.newBuilder().build();
 
 	public static DataSource get(BmContext context, String containerUid) {
 
-		String loc = cache.getIfPresent(containerUid);
+		Optional<String> loc = cache.getIfPresent(containerUid);
 		if (loc == null) {
 			ContainerStore directoryContainerStore = new ContainerStore(context, context.getDataSource(),
 					context.getSecurityContext());
 			try {
 				loc = directoryContainerStore.getContainerLocation(containerUid);
+				if (loc != null) {
+					cache.put(containerUid, loc);
+				}
 			} catch (SQLException e) {
 				throw ServerFault.sqlFault(e);
 			}
-			if (loc != null) {
-				cache.put(containerUid, loc);
-				if (logger.isDebugEnabled()) {
-					logger.debug("Fetch DataSource for container {}: {}", containerUid, loc);
-				}
-			}
 		}
-
-		if (loc != null) {
-			return context.getMailboxDataSource(loc);
+		if (logger.isDebugEnabled()) {
+			logger.debug("{} for {}", loc, containerUid);
 		}
-
-		return context.getDataSource();
+		return loc == null ? context.getDataSource()
+				: loc.map(l -> context.getMailboxDataSource(l)).orElse(context.getDataSource());
 	}
 
 	public static String location(BmContext context, String containerUid) {
 
-		String loc = cache.getIfPresent(containerUid);
+		Optional<String> loc = cache.getIfPresent(containerUid);
 		if (loc == null) {
 			ContainerStore directoryContainerStore = new ContainerStore(context, context.getDataSource(),
 					context.getSecurityContext());
 			try {
 				loc = directoryContainerStore.getContainerLocation(containerUid);
+				if (loc != null) {
+					cache.put(containerUid, loc);
+				}
 			} catch (SQLException e) {
 				throw ServerFault.sqlFault(e);
 			}
-			if (loc != null) {
-				cache.put(containerUid, loc);
-				if (logger.isDebugEnabled()) {
-					logger.debug("Fetch DataSource for container {}: {}", containerUid, loc);
-				}
-			}
 		}
-
-		return loc;
+		return loc == null ? null : loc.orElse(null);
 	}
 
 	public static Collection<DataSource> getAll(BmContext context) {
