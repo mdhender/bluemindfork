@@ -342,7 +342,7 @@ public class CalendarMailHelperTest {
 
 		// FIXME: does not seem to be important for this test
 		// vevent.recurid = BmDateTimeWrapper.create(new
-		// org.joda.time.DateTime(1983, 2, 13, 0, 0, 0, tz), Precision.Date);
+		// ZonedDateTime.of(1983, 2, 13, 0, 0, 0, tz), Precision.Date);
 
 		return vevent;
 	}

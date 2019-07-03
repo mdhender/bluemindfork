@@ -24,9 +24,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.time.ZoneId;
 import java.util.Date;
 
-import org.joda.time.DateTimeZone;
 import org.junit.Test;
 
 import net.bluemind.core.api.date.BmDateTime.Precision;
@@ -202,7 +202,7 @@ public class BmDateTimeTest {
 		validator.validate(dt);
 
 		assertEquals(BmDateTime.Precision.DateTime, dt.precision);
-		assertEquals(DateTimeZone.UTC.getID(), dt.timezone);
+		assertEquals(ZoneId.of("UTC").getId(), dt.timezone);
 		assertEquals("2015-05-28T12:00:00.000Z", dt.iso8601);
 
 	}
@@ -327,7 +327,7 @@ public class BmDateTimeTest {
 	public void testCreatingLocalDateShouldRemoveTimeIfPresent() {
 		String iso8601 = "2015-05-29T00:00:00.000+11:00";
 
-		BmDateTime dt = BmDateTimeWrapper.create(iso8601, DateTimeZone.getDefault().getID(), Precision.Date);
+		BmDateTime dt = BmDateTimeWrapper.create(iso8601, ZoneId.systemDefault().getId(), Precision.Date);
 		validator.validate(dt);
 
 		assertEquals("2015-05-28", dt.iso8601);
@@ -401,7 +401,7 @@ public class BmDateTimeTest {
 	public void testMillisValidation() {
 		String iso8601 = "20130717T080000Z";
 
-		BmDateTime dt = BmDateTimeWrapper.create(iso8601, DateTimeZone.UTC.getID());
+		BmDateTime dt = BmDateTimeWrapper.create(iso8601, ZoneId.of("UTC").getId());
 		validator.validate(dt);
 
 		assertTrue(dt.iso8601.startsWith("2013-07-17T"));
@@ -425,10 +425,10 @@ public class BmDateTimeTest {
 		assertTrue(!dt.isBefore(dt.bmDateTime));
 		dt.toString();
 		dt.toIso8601();
-		dt.toJodaTime();
+		dt.toDateTime();
 		dt.toUTCTimestamp();
-		dt.toTimestamp(DateTimeZone.UTC.getID());
-		dt.withTimeZone(DateTimeZone.UTC.getID());
+		dt.toTimestamp(ZoneId.of("UTC").getId());
+		dt.withTimeZone(ZoneId.of("UTC").getId());
 	}
 
 	@Test
@@ -444,10 +444,10 @@ public class BmDateTimeTest {
 		assertTrue(!dt.isBefore(dt.bmDateTime));
 		dt.toString();
 		dt.toIso8601();
-		dt.toJodaTime();
+		dt.toDateTime();
 		dt.toUTCTimestamp();
-		dt.toTimestamp(DateTimeZone.UTC.getID());
-		dt.withTimeZone(DateTimeZone.UTC.getID());
+		dt.toTimestamp(ZoneId.of("UTC").getId());
+		dt.withTimeZone(ZoneId.of("UTC").getId());
 	}
 
 	@Test

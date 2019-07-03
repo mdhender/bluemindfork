@@ -65,7 +65,6 @@
 		<module>net.bluemind.lib.ical4j</module>
 		<module>net.bluemind.lib.jackson</module>
 		<module>net.bluemind.lib.javax.mail.tests</module>
-		<module>net.bluemind.lib.jodatime</module>
 		<module>net.bluemind.lib.jta</module>
 		<module>net.bluemind.lib.jutf7</module>
 		<module>net.bluemind.lib.ldap.tests</module>

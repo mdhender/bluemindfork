@@ -64,7 +64,6 @@
       <plugin id="net.bluemind.lib.freemarker"/>
       <plugin id="net.bluemind.lib.guava"/>
       <plugin id="net.bluemind.lib.jackson"/>
-      <plugin id="net.bluemind.lib.jodatime"/>
       <plugin id="net.bluemind.lib.jta"/>
       <plugin id="net.bluemind.lib.netty"/>
       <plugin id="net.bluemind.lib.vertx"/>

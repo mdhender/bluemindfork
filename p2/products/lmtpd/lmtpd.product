@@ -45,7 +45,6 @@
       <plugin id="javax.ws.rs"/>
       <plugin id="javax.xml"/>
       <plugin id="jcl.over.slf4j"/>
-      <plugin id="joda-time"/>
       <plugin id="jul.to.slf4j"/>
       <plugin id="net.bluemind.addressbook.api"/>
       <plugin id="net.bluemind.authentication.api"/>
@@ -78,7 +77,6 @@
       <plugin id="net.bluemind.imip.parser"/>
       <plugin id="net.bluemind.lib.ical4j"/>
       <plugin id="net.bluemind.lib.jackson"/>
-      <plugin id="net.bluemind.lib.jodatime"/>
       <plugin id="net.bluemind.lib.jta"/>
       <plugin id="net.bluemind.lib.jutf7"/>
       <plugin id="net.bluemind.lib.ristretto"/>

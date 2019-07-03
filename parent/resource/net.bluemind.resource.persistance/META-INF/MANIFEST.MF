@@ -5,7 +5,6 @@ Bundle-SymbolicName: net.bluemind.resource.persistance;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Require-Bundle: net.bluemind.core.jdbc;bundle-version="1.0.0",
  net.bluemind.slf4j;bundle-version="1.0.0",
- net.bluemind.lib.jodatime,
  net.bluemind.lib.vertx;bundle-version="1.0.0",
  net.bluemind.core.context;bundle-version="1.0.0",
  net.bluemind.core.commons;bundle-version="1.0.0",

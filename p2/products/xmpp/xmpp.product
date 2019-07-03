@@ -39,7 +39,6 @@
       <plugin id="javax.validation.api"/>
       <plugin id="javax.ws.rs"/>
       <plugin id="jcl.over.slf4j"/>
-      <plugin id="joda-time"/>
       <plugin id="jul.to.slf4j"/>
       <plugin id="net.bluemind.addressbook.api"/>
       <plugin id="net.bluemind.authentication.api"/>
@@ -63,7 +62,6 @@
       <plugin id="net.bluemind.im.api"/>
       <plugin id="net.bluemind.lib.elasticsearch"/>
       <plugin id="net.bluemind.lib.jackson"/>
-      <plugin id="net.bluemind.lib.jodatime"/>
       <plugin id="net.bluemind.lib.jta"/>
       <plugin id="net.bluemind.lib.vertx"/>
       <plugin id="net.bluemind.locator.client"/>

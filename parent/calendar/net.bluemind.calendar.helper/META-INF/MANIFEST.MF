@@ -8,7 +8,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.freemarker.freemarker;bundle-version="2.3.20",
  net.bluemind.slf4j,
  net.bluemind.calendar.api,
- net.bluemind.lib.jodatime,
  net.bluemind.lib.ical4j,
  net.bluemind.tag.api,
  net.bluemind.core.commons,

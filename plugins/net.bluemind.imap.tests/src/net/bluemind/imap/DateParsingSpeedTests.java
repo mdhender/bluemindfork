@@ -99,11 +99,11 @@ public class DateParsingSpeedTests extends TestCase {
 		DateTimeFormatter df = DateTimeFormatter.ofPattern("dd-MMM-yyyy HH:mm:ss Z");
 		df = df.withLocale(Locale.US);
 		String d = " 5-Apr-2012 10:54:38 +0200";
-		Date joda = Date.from(ZonedDateTime.parse(d.trim(), df).toInstant());
+		Date date = Date.from(ZonedDateTime.parse(d.trim(), df).toInstant());
 		SimpleDateFormat jdkDf = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss Z", Locale.US);
 		Date jdk = jdkDf.parse(d);
 
-		assertEquals(jdk, joda);
+		assertEquals(jdk, date);
 		Date james = DecoderUtils.decodeDateTime(d);
 		System.out.println("james: " + james);
 		assertEquals(jdk, james);

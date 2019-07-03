@@ -40,9 +40,9 @@ public class OutlookInviteTest extends IMIPTestCase {
 		ICalendarElement elem = infos.iCalendarElements.get(0);
 		assertEquals("test tâche", elem.summary);
 		assertNotNull(elem.dtstart);
-		assertEquals(2015, new BmDateTimeWrapper(elem.dtstart).toJodaTime().getYear());
-		assertEquals(22, new BmDateTimeWrapper(elem.dtstart).toJodaTime().getDayOfMonth());
-		assertEquals(7, new BmDateTimeWrapper(elem.dtstart).toJodaTime().getMonthOfYear());
+		assertEquals(2015, new BmDateTimeWrapper(elem.dtstart).toDateTime().getYear());
+		assertEquals(22, new BmDateTimeWrapper(elem.dtstart).toDateTime().getDayOfMonth());
+		assertEquals(7, new BmDateTimeWrapper(elem.dtstart).toDateTime().getMonth());
 
 	}
 

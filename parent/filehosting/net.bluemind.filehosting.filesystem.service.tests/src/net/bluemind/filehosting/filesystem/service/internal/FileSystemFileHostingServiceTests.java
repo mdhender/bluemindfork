@@ -22,10 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -36,8 +33,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -715,23 +710,6 @@ public class FileSystemFileHostingServiceTests {
 			return this;
 		}
 
-	}
-
-	public static void main(String[] args) {
-		long ts = DateTime.now().withZoneRetainFields(DateTimeZone.UTC).getMillis();
-		long tsJavaTime = ZonedDateTime.now().withZoneSameLocal(ZoneId.of("UTC")).toInstant().toEpochMilli();
-		System.out.println(ts);
-		System.out.println(tsJavaTime);
-
-		String javaTime = ZonedDateTime.now().format(DateTimeFormatter.ofPattern("EE, dd MMM YYYY HH:mm:ss"));
-		String dateTime = new DateTime().toString("EE, dd MMM YYYY HH:mm:ss");
-		System.out.println(javaTime.equals(dateTime));
-
-		Date dateFromJavaTime = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
-		Date d = org.joda.time.LocalDate.now().toDate();
-		System.out.println(dateFromJavaTime.equals(d));
-
-		// LocalTime.ofNanoOfDay((long) config.dayStart);
 	}
 
 }
