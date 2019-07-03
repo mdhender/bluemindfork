@@ -1,0 +1,177 @@
+/* BEGIN LICENSE
+  * Copyright © Blue Mind SAS, 2012-2017
+  *
+  * This file is part of BlueMind. BlueMind is a messaging and collaborative
+  * solution.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of either the GNU Affero General Public License as
+  * published by the Free Software Foundation (version 3 of the License).
+  *
+  * This program is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  *
+  * See LICENSE.txt
+  * END LICENSE
+  */
+package net.bluemind.backend.mail.replica.service.internal;
+
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalCause;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
+
+import net.bluemind.authentication.api.AuthUser;
+import net.bluemind.authentication.api.IAuthentication;
+import net.bluemind.backend.cyrus.partitions.CyrusPartition;
+import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.IServiceProvider;
+import net.bluemind.imap.StoreClient;
+import net.bluemind.imap.vertx.VXStoreClient;
+import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.Server;
+
+public class ImapContext {
+	private static final Logger logger = LoggerFactory.getLogger(ImapContext.class);
+	public final String latd;
+	public final String server;
+	private final String sid;
+	public final String partition;
+	private Optional<PoolableStoreClient> imapClient = Optional.empty();
+
+	protected static final Cache<String, ImapContext> sidToCtxCache = createCache();
+
+	public final AuthUser user;
+
+	private static final Cache<String, ImapContext> createCache() {
+		Cache<String, ImapContext> ret = CacheBuilder.newBuilder() //
+				.expireAfterAccess(5, TimeUnit.MINUTES) //
+				.removalListener(new RemovalListener<String, ImapContext>() {
+
+					@Override
+					public void onRemoval(RemovalNotification<String, ImapContext> notification) {
+						if (notification.getCause() == RemovalCause.EXPIRED) {
+							ImapContext ctx = notification.getValue();
+							ctx.imapClient.ifPresent(psc -> {
+								logger.info("Closing underlying imap connection for {}", notification.getKey());
+								psc.closeImpl();
+								ctx.imapClient = Optional.empty();
+							});
+						}
+					}
+
+				}) //
+				.recordStats()//
+				.build();
+		VertxPlatform.getVertx().setPeriodic(30000, tid -> ret.cleanUp());
+		VertxPlatform.getVertx().setPeriodic(TimeUnit.MINUTES.toMillis(5), tid -> {
+			logger.info("ImapContext CACHE: {}", ret.stats());
+		});
+		return ret;
+	}
+
+	private ImapContext(String latd, String partition, String imapSrv, String sid, AuthUser user) {
+		this.partition = partition;
+		this.latd = latd;
+		this.server = imapSrv;
+		this.sid = sid;
+		this.user = user;
+	}
+
+	private static class PoolableStoreClient extends StoreClient {
+
+		public final VXStoreClient fastFetch;
+
+		public PoolableStoreClient(String hostname, int port, String login, String password) {
+			super(hostname, port, login, password);
+			logger.info("Creating vertx imap client...");
+			this.fastFetch = VXStoreClient.create(hostname, port, login, password);
+		}
+
+		public void close() {
+
+		}
+
+		public void closeImpl() {
+			fastFetch.close();
+			super.close();
+		}
+
+	}
+
+	private PoolableStoreClient imapAsUser() {
+		if (imapClient.isPresent() && !imapClient.get().fastFetch.isClosed()) {
+			return imapClient.get();
+		} else {
+			logger.info("Start IMAP init for {}", latd);
+			PoolableStoreClient sc = new PoolableStoreClient(server, 1143, latd, sid);
+			CompletableFuture<Optional<PoolableStoreClient>> prom = sc.fastFetch.login()
+					.thenApply(resp -> Optional.of(sc));
+			boolean minaClientOk = sc.login();
+			try {
+				imapClient = prom.get(10, TimeUnit.SECONDS);
+				if (!minaClientOk) {
+					sc.closeImpl();
+					throw new ServerFault("Failed to establish both imap connections .");
+				}
+				logger.info("Imap init of both clients is complete for {}.", latd);
+			} catch (Exception e) {
+				sc.closeImpl();
+				throw new ServerFault(e);
+			}
+			return sc;
+		}
+	}
+
+	@FunctionalInterface
+	public static interface ImapClientConsumer<T> {
+		T accept(StoreClient sc, VXStoreClient fast) throws Exception;
+	}
+
+	public synchronized <T> T withImapClient(ImapClientConsumer<T> cons) {
+		try (PoolableStoreClient sc = imapAsUser()) {
+			return cons.accept(sc, sc.fastFetch);
+		} catch (ServerFault sf) {
+			throw sf;
+		} catch (Exception e) {
+			throw new ServerFault(e);
+		}
+	}
+
+	public static ImapContext of(BmContext context) {
+		String key = context.getSecurityContext().getSessionId();
+		ImapContext imapCtx = sidToCtxCache.getIfPresent(key);
+		if (imapCtx == null) {
+			logger.warn("ImapContext cache miss for key {}", key);
+			IServiceProvider srvProv = context.provider();
+			IAuthentication authApi = srvProv.instance(IAuthentication.class);
+			AuthUser curUser = authApi.getCurrentUser();
+			if (curUser != null && curUser.value != null) {
+				String latd = curUser.value.login + "@" + curUser.domainUid;
+				String partition = CyrusPartition.forServerAndDomain(curUser.value.dataLocation,
+						curUser.domainUid).name;
+
+				ItemValue<Server> imap = Topology.get().datalocation(curUser.value.dataLocation);
+				String imapSrv = imap.value.address();
+				imapCtx = new ImapContext(latd, partition, imapSrv, key, curUser);
+				sidToCtxCache.put(key, imapCtx);
+			} else {
+				throw new ServerFault("This is intended for users with a mailbox");
+			}
+		}
+		return imapCtx;
+	}
+
+}

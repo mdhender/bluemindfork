@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Context
+Bundle-SymbolicName: net.bluemind.core.commons;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Export-Package: net.bluemind.core.api,
+ net.bluemind.core.api.date,
+ net.bluemind.core.api.fault,
+ net.bluemind.core.api.report,
+ net.bluemind.core.email,
+ net.bluemind.core.utils
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.lib.jackson;bundle-version="1.0.0",
+ io.netty;bundle-version="4.0.33";visibility:=reexport,
+ javax.ws.rs;bundle-version="2.0.1";visibility:=reexport,
+ org.eclipse.osgi,
+ slf4j.api;bundle-version="1.7.5",
+ org.apache.commons.lang,
+ net.bluemind.lib.jodatime;visibility:=reexport,
+ net.bluemind.common.io;bundle-version="4.1.0"
+Bundle-ClassPath: .
+X-BM-Version: 4.0.6
+Bundle-Activator: net.bluemind.core.api.CommonsActivator
+Bundle-ActivationPolicy: lazy
+

@@ -1,0 +1,1 @@
+${user} vous a partagé une boîte aux lettres partagée

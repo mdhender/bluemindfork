@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Settings xmlns="Settings">
+	<UserInformation>
+		<Get/>
+	</UserInformation>
+	<DeviceInformation>
+		<Set>
+			<Model>Custom Phone - 5.0.0 - API 21 - 768x1280</Model>
+			<IMEI>000000000000000</IMEI>
+			<FriendlyName>Custom Phone - 5.0.0 - API 21 - 768x1280</FriendlyName>
+			<OS>Android 5.0</OS>
+			<PhoneNumber>15555215554</PhoneNumber>
+			<UserAgent>Android/5.0-EAS-2.0</UserAgent>
+			<MobileOperator>Android (310260)</MobileOperator>
+		</Set>
+	</DeviceInformation>
+</Settings>

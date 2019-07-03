@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="mocklmtp"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            thread="main"
+            visible="true">
+         <run
+               class="net.bluemind.lmtp.testhelper.server.MockLmtpApplication">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="mocklmtp"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="net.bluemind.lmtp.testhelper.mocklmtp"
+            name="mocklmtp">
+         <property
+               name="appName"
+               value="mocklmtp">
+         </property>
+      </product>
+   </extension>
+
+</plugin>

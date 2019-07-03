@@ -1,0 +1,15 @@
+#!/usr/bin/make -f
+
+
+
+include /usr/share/cdbs/1/rules/debhelper.mk
+
+JAVA_HOME := /usr/lib/jvm/bm-jdk
+
+DEB_UPDATE_RCD_PARAMS_bm-pimp := "defaults 58 01"
+
+build:
+	
+
+install/bm-pimp::
+	cp -rf ${CURDIR}/ROOT/* ${CURDIR}/debian/bm-pimp

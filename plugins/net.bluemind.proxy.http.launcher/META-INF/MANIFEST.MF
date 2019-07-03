@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.proxy.http.launcher
+Bundle-SymbolicName: net.bluemind.proxy.http.launcher;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.proxy.http.launcher.Activator
+Bundle-Vendor: www.blue-mind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.proxy.http;bundle-version="1.0.0",
+ net.bluemind.slf4j;bundle-version="1.0.0",
+ net.bluemind.systemd.notify
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy

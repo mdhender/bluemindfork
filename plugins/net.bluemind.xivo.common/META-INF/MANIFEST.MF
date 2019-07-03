@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.xivo.common
+Bundle-SymbolicName: net.bluemind.xivo.common
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.xivo.common.Activator
+Bundle-Vendor: blue-mind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.slf4j;bundle-version="1.0.0",
+ com.google.guava;bundle-version="19.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.xivo.common

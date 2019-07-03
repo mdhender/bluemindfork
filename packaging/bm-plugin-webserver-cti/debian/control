@@ -1,0 +1,11 @@
+Source: bluemind
+Section: net
+Priority: optional
+Maintainer: Blue Mind Team <team@blue-mind.net>
+Standards-Version: 3.9.1
+
+Package: bm-plugin-webserver-cti
+Architecture: amd64
+Depends: bm-webserver (= ${binary:Version})
+Description: Computer telephony integration for BlueMind 
+ 

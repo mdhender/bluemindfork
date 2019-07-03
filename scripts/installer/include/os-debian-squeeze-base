@@ -1,0 +1,87 @@
+OS_VERSION_CN=${OS_VERSION}
+
+APT_SOURCE_FILE="/etc/apt/sources.list.d/bm.list"
+APT_BM_CONF="/etc/apt/preferences.d/bm"
+
+install_prepare_system() {
+    if [ ${OS_VERSION} -eq ${UBUNTU_BIONIC} ]; then
+        add-apt-repository universe | tee -a ${BLUEMIND_INSTALLER_LOG}
+    fi
+
+    return
+}
+
+os_sanity_install() {
+    fuser /var/lib/dpkg/lock > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        display_error "${txt_dpkg_already_running}"
+        exit 1
+    fi
+
+    dpkg -l | grep bm-installation-wizard > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        display_error "${txt_upgrade_unavailable}"
+        exit 1
+    fi
+    
+    dpkg -l | grep bm-setup-wizard > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        display_error "${txt_upgrade_unavailable}"
+        exit 1
+    fi
+    
+    apt-get -y install aptitude debconf 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
+    if [ $? -ne 0 ]; then
+        display_error "${txt_fail_to_install_needed_pkgs}"
+        exit 1
+    fi
+}
+
+install_local_repository() {
+    display_action ${txt_install_local_repo}" "${INSTALL_PKGS_TO}
+    cp -a ${PKGS} ${INSTALL_PKGS_TO} | tee -a ${BLUEMIND_INSTALLER_LOG}
+    
+    cat > ${APT_SOURCE_FILE} << EOF
+deb file://${INSTALL_PKGS_TO} ./
+EOF
+
+	if [ -e ${INSTALL_PKGS_TO}/bluemind-deb.asc ]; then
+		cat ${INSTALL_PKGS_TO}/bluemind-deb.asc | apt-key add -
+	fi
+
+    cat > ${APT_BM_CONF} <<EOF
+Package: *
+Pin: origin ""
+Pin-Priority: 990
+
+Package: *
+Pin: origin "pkg.bluemind.net"
+Pin-Priority: 999
+EOF
+    display_action_ok
+}
+
+install_bluemind-full() {
+    debconf-set-selections <<EOF
+postfix	postfix/main_mailer_type	select	No configuration
+EOF
+
+    aptitude -y update 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
+    if [ $? -ne 0 ]; then
+        display_error "${txt_fail_to_install}"
+        exit 1
+    fi
+    
+    aptitude -y --allow-untrusted full-upgrade 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
+    aptitude -y --allow-untrusted install bm-full \
+        postfix \
+        bm-plugin-webserver-filehosting \
+        bm-plugin-admin-console-filehosting-settings \
+        bm-plugin-core-filehosting-filesystem \
+        bm-connector-thunderbird 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
+
+    if [ $? -ne 0 ]; then
+        display_error "${txt_fail_to_install}"
+        exit 1
+    fi
+}

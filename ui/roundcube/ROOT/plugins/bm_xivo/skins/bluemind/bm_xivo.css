@@ -1,0 +1,12 @@
+.cti-toolbar a.callto span.inner {
+  background: url('phone.png') no-repeat center center;
+  width: 15px;
+  height: 15px;
+}
+
+div.cti-toolbar {
+  margin: 8px;
+  padding: 5px;
+  background: #EBEBEB;
+  border: 1px solid #BFBFBF;
+}

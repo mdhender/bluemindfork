@@ -1,0 +1,46 @@
+From: Marie-Pierre Girard <mpgirard@free.fr>
+To: Tetco Tetco <T.Tetco@nantes.cci.fr>, CentreInfo-recettes
+	<centreinfo-recettes@nantes.cci.fr>
+Sender: "mpgirard.44@gmail.com" <mpgirard.44@gmail.com>
+Date: Thu, 13 Oct 2011 14:08:30 +0200
+Subject: =?utf-8?B?dGVzdCBleGNoYW5nZSBmb3JtYXTDqQ==?=
+Thread-Topic: =?utf-8?B?dGVzdCBleGNoYW5nZSBmb3JtYXTDqQ==?=
+Thread-Index: AcyJoMt25NcF5DJHR5Skiqv24XLa/w==
+Message-ID:
+ <CAD9dB2b2aYh_RcHvKgd2T=oES+OyVuNTMU3MafDT7oo4vz5wQw@mail.gmail.com>
+Accept-Language: fr-FR
+Content-Language: fr-FR
+X-MS-Exchange-Organization-AuthAs: Anonymous
+X-MS-Exchange-Organization-AuthSource: Hermes.cci44.local
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+x-proofpoint-virus-version: vendor=fsecure
+ engine=2.50.10432:5.4.6813,1.0.211,0.0.0000
+ definitions=2011-10-13_03:2011-10-13,2011-10-13,1970-01-01 signatures=0
+x-proofpoint-spam-details: rule=notspam policy=default score=1 spamscore=1
+ ipscore=0 suspectscore=1 phishscore=0 bulkscore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx engine=6.0.2-1012030000
+ definitions=main-1110130090
+dkim-signature: v=1; a=rsa-sha256; c=relaxed/relaxed;        d=gmail.com;
+ s=gamma;
+        h=mime-version:sender:date:x-google-sender-auth:message-id:subject
+         :from:to:content-type;
+        bh=RgpBf8hqMtXFKpVfpNwreefafA07DaKBnxf2+swUtfI=;
+        b=Dy56t9Q0j211TxJxmAq9MH2oMxEDFbLJT2Z2VZCoXy/2X1micKVUNDe5ILhPhSzrtq
+         om1OuU9Odg86F1gTpnjIe+stFWvcsYi/TIW0wHDSpGpl3HBUySBr7ufRZB4zmdIh03DC
+         pOCiF2jeMEn//H/Vujnu97/RNCEylDz65tUFk=
+x-google-sender-auth: D5n3ZIXe9o5Obx0OgVsNA5dpMaA
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+
+DQoNCjxwIGNsYXNzPSJNc29Ob3JtYWwiPkNlIHRleHRlIGVzdCBmb3JtYXTDqSA6IDwvcD4NCg0K
+PHVsIHR5cGU9ImRpc2MiPjxsaSBjbGFzcz0iTXNvTm9ybWFsIiBzdHlsZT0ibXNvLW1hcmdpbi10
+b3AtYWx0OmF1dG87bXNvLW1hcmdpbi1ib3R0b20tYWx0OmF1dG87DQogICAgIG1zby1saXN0Omww
+IGxldmVsMSBsZm8xO3RhYi1zdG9wczpsaXN0IDM2LjBwdCI+bGlnbmUgMTwvbGk+PGxpIGNsYXNz
+PSJNc29Ob3JtYWwiIHN0eWxlPSJtc28tbWFyZ2luLXRvcC1hbHQ6YXV0bzttc28tbWFyZ2luLWJv
+dHRvbS1hbHQ6YXV0bzsNCiAgICAgbXNvLWxpc3Q6bDAgbGV2ZWwxIGxmbzE7dGFiLXN0b3BzOmxp
+c3QgMzYuMHB0Ij5saWduZSAyPC9saT48bGkgY2xhc3M9Ik1zb05vcm1hbCIgc3R5bGU9Im1zby1t
+YXJnaW4tdG9wLWFsdDphdXRvO21zby1tYXJnaW4tYm90dG9tLWFsdDphdXRvOw0KICAgICBtc28t
+bGlzdDpsMCBsZXZlbDEgbGZvMTt0YWItc3RvcHM6bGlzdCAzNi4wcHQiPmxpZ25lIDM8L2xpPjwv
+dWw+DQoNCg=="

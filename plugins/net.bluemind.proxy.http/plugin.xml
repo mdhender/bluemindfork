@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.proxy.http.authprovider" name="authprovider" schema="schema/net.bluemind.proxy.http.authprovider.exsd"/>
+   <extension-point id="net.bluemind.proxy.http.authenforcer" name="authenforcer" schema="schema/net.bluemind.proxy.http.authenforcer.exsd"/>
+   <extension-point id="net.bluemind.proxy.http.forward" name="forward" schema="schema/net.bluemind.proxy.http.forward.exsd"/>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.proxy.http.impl.vertx.ProxyVerticleFactory">
+      </verticle>
+   </extension>
+   <extension
+         point="net.bluemind.proxy.http.authprovider">
+      <auth_provider
+            implementation="net.bluemind.proxy.http.impl.vertx.NoneAuthProviderFactory">
+      </auth_provider>
+   </extension>
+   <extension
+         point="net.bluemind.system.state">
+      <state-listener
+            class="net.bluemind.proxy.http.impl.vertx.HpsCoreListener">
+      </state-listener>
+   </extension>
+</plugin>

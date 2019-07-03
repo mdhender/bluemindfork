@@ -1,0 +1,30 @@
+/***** compose_newwindow | modifications to compose window *****/
+
+/* Hide the header (logo) */
+#header {
+  display: none;
+}
+
+/* Hide the main taskbar */
+#taskbar {
+   display: none;
+}
+
+#mainscreen {
+top: 10px;
+}
+
+.goog-primaryactionbutton.send {
+  width: 100%;	
+}
+
+.minwidth {
+  min-width: 1000px;
+}
+/* adjust container positions */
+#messagetoolbar,
+#compose-container,
+#compose-attachments {
+}
+#messagetoolbar {
+}

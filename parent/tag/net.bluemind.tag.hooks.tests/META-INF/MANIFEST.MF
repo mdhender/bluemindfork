@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests
+Bundle-SymbolicName: net.bluemind.tag.hooks.tests;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Fragment-Host: net.bluemind.tag.hooks
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.junit,
+ net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
+ net.bluemind.core.context;bundle-version="1.0.0",
+ net.bluemind.core.tests.testshelper;bundle-version="1.0.0",
+ net.bluemind.core.sessions,
+ net.bluemind.core.container.persistance;bundle-version="1.0.0",
+ net.bluemind.core.container.service;bundle-version="1.0.0",
+ org.eclipse.core.runtime;bundle-version="3.7.0",
+ net.bluemind.directory.service;bundle-version="4.1.0",
+ net.bluemind.tests.defaultdata,
+ net.bluemind.tag.persistance,
+ net.bluemind.user.service
+
+

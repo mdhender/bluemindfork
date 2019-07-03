@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.network.topology.consumer
+Bundle-SymbolicName: net.bluemind.network.topology.consumer;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.hornetq.client,
+ net.bluemind.core.container.api;bundle-version="4.1.0",
+ net.bluemind.server.api;bundle-version="4.1.0",
+ slf4j.api,
+ net.bluemind.network.topology,
+ io.vertx.platform,
+ net.bluemind.lib.vertx
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.network.topology.consumer
+Bundle-ActivationPolicy: lazy

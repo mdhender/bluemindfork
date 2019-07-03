@@ -1,0 +1,60 @@
+#searchfilter {
+  left: 895px !important;
+}
+#quicksearchbar {
+  width: 675px !important;
+}
+
+#quicksearchbar input {
+  padding: 3px 60px 3px 3px !important;
+}
+
+#searchreset {
+  top: 3px!important;
+  right: 0px!important;
+}
+
+#quicksearchbar > form > div {
+  width: 625px;
+  z-index: 10;
+}
+
+#quicksearchbar div.bm-searchfield {
+  height: 22px;
+  min-height: 22px;
+  overflow-y: auto;
+} 
+
+#quicksearchbar div.bm-searchfield:hover {
+  height: auto;
+  max-height: 64px;
+  overflow-y: auto;
+  background: #fff;
+} 
+
+
+#quicksearchbar  div.bm-searchfield ul {
+  height: 0px;
+} 
+
+#searchhelp {
+  position: absolute;
+  right: 26px;
+  padding: 3px 2px 4px 6px;
+  border-style: solid;
+  border-color: #ccc;
+  border-width: 1px 1px 1px 0px;
+  border-radius: 3px;
+  background-color: #eee;
+}
+
+#searchhelp > a {
+  background: #bbb;
+  border-radius: 8px;
+  width: 16px;
+  text-decoration: inherit;
+  text-align: center;
+  font-weight: bold;
+  color: white;
+  display: block;
+}

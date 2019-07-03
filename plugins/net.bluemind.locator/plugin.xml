@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="app"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            thread="any">
+         <run
+               class="net.bluemind.locator.LocatorService">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="locator"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="net.bluemind.locator.app"
+            name="bm-locator">
+         <property
+               name="appName"
+               value="bm-locator">
+         </property>
+      </product>
+   </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.locator.LocatorVerticleFactory">
+      </verticle>
+   </extension>
+
+</plugin>

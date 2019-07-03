@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This file describes BM Domains configuration. -->
+<domainTemplate>
+	<hostTags>
+		<kind id="bm">
+			<tag value="metrics/influxdb" multival="false" mandatory="false" autoAssign="false">
+				<desc lang="fr">Base de métriques (influxdb)</desc>
+				<desc lang="en">Metrics database</desc>
+			</tag>
+		</kind>
+	</hostTags>
+</domainTemplate>

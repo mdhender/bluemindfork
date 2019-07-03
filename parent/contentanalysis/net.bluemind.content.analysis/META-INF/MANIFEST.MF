@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.content.analysis
+Bundle-SymbolicName: net.bluemind.content.analysis;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
+ org.eclipse.osgi,
+ net.bluemind.eclipse.common,
+ slf4j.api
+Export-Package: net.bluemind.content.analysis
+Bundle-Activator: net.bluemind.content.analysis.ContentAnalyzerFactory
+Bundle-ActivationPolicy: lazy
+

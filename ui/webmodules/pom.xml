@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>net.bluemind.ui.webmodules</artifactId>
+	<packaging>pom</packaging>
+	<parent>
+		<version>4.1.0-SNAPSHOT</version>
+		<groupId>net.bluemind</groupId>
+		<artifactId>ui</artifactId>
+	</parent>
+	<modules>
+		<module>net.bluemind.webmodules.sample</module>
+		<module>net.bluemind.webmodules.contact</module>
+		<module>net.bluemind.webmodules.calendar</module>
+		<module>net.bluemind.webmodules.chooser</module>
+		<module>net.bluemind.webmodules.todolist</module>
+		<module>net.bluemind.webmodules.vue</module>
+		<module>net.bluemind.webmodules.webmail</module>
+		<module>net.bluemind.webmodules.webapp</module>
+		<module>net.bluemind.webmodules.loginapp</module>
+		<module>net.bluemind.ui.metrics.application</module>
+	</modules>
+</project>

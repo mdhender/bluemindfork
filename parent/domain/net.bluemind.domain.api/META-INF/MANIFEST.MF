@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.domain.api
+Bundle-SymbolicName: net.bluemind.domain.api
+Bundle-Version: 4.1.0.qualifier
+Export-Package: net.bluemind.domain.api
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.core.commons,
+ net.bluemind.core.container.api;visibility:=reexport,
+ net.bluemind.core.task.api

@@ -1,0 +1,29 @@
+.mandatory {
+	
+}
+
+.container {
+	margin-bottom: 4px;
+}
+
+input.textBox {
+	vertical-align: middle;
+	border-left: none;
+	border-radius: 0px 3px 3px 0px;
+	margin: 0px;
+}
+
+.prependedText {
+	vertical-align: middle;
+	background-color: whiteSmoke;
+	color: #666;
+	border: 1px solid #CCC;
+	border-radius: 3px 0px 0px 3px;
+	padding: 4px 4px 5px 4px;
+	display: inline;
+}
+
+img.flag {
+	vertical-align: middle;
+	padding-top: 1px;
+}

@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.config.testfragment
+Bundle-SymbolicName: net.bluemind.config.testfragment
+Bundle-Version: 4.1.0.qualifier
+Fragment-Host: net.bluemind.config;bundle-version="4.1.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Eclipse-PatchFragment: true
+Bundle-ClassPath: net.bluemind.config.jar
+Export-Package: net.bluemind.config
+Automatic-Module-Name: net.bluemind.config.testfragment

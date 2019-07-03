@@ -1,0 +1,9 @@
+{
+    "name": "@bluemind/alert.store",
+    "description": "Bluemind alert module : Vuex model",
+    "version": "4.1.0",
+    "license": "GPL-3.0",
+    "author": "Blue Mind SAS",
+    "main": "src/index.js",
+    "module": "src/index.js"
+}

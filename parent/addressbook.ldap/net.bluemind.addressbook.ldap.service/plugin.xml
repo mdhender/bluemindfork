@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.core.rest.serviceFactory">
+      <serviceFactory
+            class="net.bluemind.addressbook.ldap.service.LdapAddressBookServiceFactory"></serviceFactory>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.apiEndpoint">
+      <endpoint
+            api="net.bluemind.addressbook.ldap.api.ILdapAddressBook">
+      </endpoint>
+   </extension>
+   <extension
+         point="net.bluemind.core.validatorfactory">
+      <validatorfactory
+            implementation="net.bluemind.addressbook.ldap.service.internal.LdapAddressbookValidator$Factory">
+      </validatorfactory>
+   </extension>
+
+</plugin>

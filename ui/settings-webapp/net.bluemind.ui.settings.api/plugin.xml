@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.ui.settings.menusContributor" name="menus" schema="schema/net.bluemind.ui.settings.menusContributor.exsd"/>
+   <extension-point id="net.bluemind.ui.settings.screensContributor" name="screens" schema="schema/net.bluemind.ui.settings.screensContributor.exsd"/>
+   <extension
+         point="net.bluemind.extensions">
+      <export-extension-point
+            id="net.bluemind.ui.settings.menusContributor" module="/settings">
+      </export-extension-point>
+      
+      <export-extension-point
+            id="net.bluemind.ui.settings.screensContributor" module="/settings">
+      </export-extension-point>
+   </extension>
+</plugin>

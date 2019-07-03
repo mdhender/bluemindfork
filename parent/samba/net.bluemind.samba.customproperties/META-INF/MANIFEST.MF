@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.samba.customproperties
+Bundle-SymbolicName: net.bluemind.samba.customproperties;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.domain.api;bundle-version="1.0.0",
+ net.bluemind.user.api;bundle-version="1.0.0",
+ net.bluemind.group.api;bundle-version="1.0.0",
+ net.bluemind.customproperties.api;bundle-version="1.0.0"

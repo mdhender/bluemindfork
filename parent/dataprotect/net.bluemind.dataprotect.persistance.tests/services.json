@@ -1,0 +1,10 @@
+[
+    { 
+      "name":"bluemind/node-tests",
+      "volumes":[ { "localPath":"/var/backups/bluemind", "containerPath":"/var/backups/bluemind" },
+                  { "localPath":"/var/spool/bm-hollowed", "containerPath":"/var/spool/bm-hollowed" } ] 
+    },
+    { 
+ 	"name":"bluemind/postgres-tests" 
+    }
+]

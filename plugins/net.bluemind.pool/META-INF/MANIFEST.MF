@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.pool
+Bundle-SymbolicName: net.bluemind.pool;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.utils;bundle-version="1.0.0";visibility:=reexport,
+ org.eclipse.core.runtime;bundle-version="3.5.0";visibility:=reexport,
+ net.bluemind.slf4j;bundle-version="1.0.0",
+ net.bluemind.config,
+ net.bluemind.core.commons;bundle-version="1.0.0",
+ net.bluemind.eclipse.common,
+ com.zaxxer.HikariCP,
+ org.postgresql.jdbc42;bundle-version="42.0.0"
+Bundle-Activator: net.bluemind.pool.BMPoolActivator
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.pool;uses:="org.eclipse.core.runtime,javax.transaction,org.osgi.framework",
+ net.bluemind.pool.impl
+Bundle-ClassPath: patch.jar, .
+Eclipse-ExtensibleAPI: true
+Automatic-Module-Name: net.bluemind.pool

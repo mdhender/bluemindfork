@@ -1,0 +1,220 @@
+Return-Path: <manuel.guilley@bluemind.net>
+Received: from bm-prod.blue-mind.net (localhost.localdomain [127.0.0.1])
+	 by bm-prod with LMTPA;
+	 Wed, 14 Mar 2018 15:03:49 +0100
+X-Sieve: CMU Sieve 2.4
+Received: from /192.168.231.2 (LHLO bm-prod.blue-mind.net) by unknown with
+ LMTP; 3/14/18 2:03 PM
+Received: from smtp.blue-mind.net (unknown [192.168.231.1])
+	by bm-prod.blue-mind.net (Postfix) with ESMTPS id 8643E52D59
+	for <manuel.guilley@blue-mind.net>; Wed, 14 Mar 2018 15:03:49 +0100 (CET)
+Received: from mac-manu.local.mail (LPuteaux-657-1-19-150.w193-248.abo.wanadoo.fr [193.248.62.150])
+	(Authenticated sender: manuel.guilley@bluemind.net)
+	by smtp.blue-mind.net (Postfix) with ESMTPSA id B55B48161
+	for <manuel.guilley@blue-mind.net>; Wed, 14 Mar 2018 15:03:42 +0100 (CET)
+Date: Wed, 14 Mar 2018 15:03:37 +0100
+From: Manuel GUILLEY <manuel.guilley@bluemind.net>
+To: manuel.guilley@blue-mind.net
+Message-ID: <etPan.5aa92bb9.5ea10841.6dae@bluemind.net>
+Subject: TEST signature du message
+X-Mailer: Airmail (467)
+MIME-Version: 1.0
+Content-Type: multipart/encrypted; boundary="EA523C86-364B-4C24-B503-E4E01B23985C"; protocol="application/pkcs7-signature"; micalg=sha1
+
+--EA523C86-364B-4C24-B503-E4E01B23985C
+Content-Type: multipart/alternative; boundary="5aa92bb9_3cfddff4_6dae"
+
+--5aa92bb9_3cfddff4_6dae
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+Ceci est un test de signature du message=2E
+
+=E2=80=94
+Manuel GUILLEY
+Support int=C3=A9gration
+Bluemind
+https://www=2Ebluemind=2Enet/=C2=A0|=C2=A0https://blog=2Ebluemind=2Enet/fr=
+/
+
+
+
+Mail interne de Manuel Guilley ( / ) en interne   signature ajout=C3=A9e u=
+niquement sur les =C3=A9mails internes
+--5aa92bb9_3cfddff4_6dae
+Content-Type: multipart/related;
+ boundary="-=Part.4b.3a214543fdcf6153.16224d2e14f.5524d49e54411250=-"
+
+---=Part.4b.3a214543fdcf6153.16224d2e14f.5524d49e54411250=-
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+<html>
+ <head>
+  <style>body{font-family:Helvetica,Arial;font-size:13px}</s=
+tyle>
+ </head>
+ <body style=3D"word-wrap: break-word; -webkit-nbsp-mode: sp=
+ace; line-break: after-white-space;">
+  <div id=3D"bloop_customfont" style=
+=3D"font-family:Helvetica,Arial;font-size:13px; color: rgba(0,0,0,1=2E0); m=
+argin: 0px; line-height: auto;">
+   Ceci est un test de signature du messag=
+e=2E
+  </div>
+  <br>
+  <div id=3D"bloop_sign_1521036134821219072" class=3D"=
+bloop_sign"> 
+   <title></title> =E2=80=94
+   <div>
+    Manuel GUILLEY 
+   =
+</div> 
+   <div>
+    Support int=C3=A9gration 
+   </div> 
+   <font color=3D=
+" #0080ff" size=3D"3"> <b>Bluemind</b> </font> 
+   <div>
+    <a href=3D"htt=
+ps://www=2Ebluemind=2Enet/"> https://www=2Ebluemind=2Enet/</a>&nbsp;|&nbsp;=
+
+    <a href=3D"https://blog=2Ebluemind=2Enet/fr/">https://blog=2Ebluemind=
+=2Enet/fr/</a>
+   </div>
+   <div>
+    <br>
+   </div> 
+  </div>
+  <br>
+  <di=
+v>   
+   <div>
+     -- 
+    <br> 
+    <a href=3D"http://www=2Eblue-mind=2En=
+et" rel=3D"noopener noreferrer" target=3D"_blank"> <img style=3D"float: rig=
+ht;" src=3D"cid:bm-disclaimer-0=2Epng@0"></a> 
+    <div style=3D"text-align=
+: left;">
+      Manuel Guilley - Dept : / 
+    </div> 
+    <div style=3D"te=
+xt-align: left;"> 
+     <pre style=3D"margin-top: 0px; margin-bottom: 0px; =
+padding: 0px; font-size: 12px; color: #888888; background-color: #FFFFFF; w=
+hite-space: pre-wrap ;">T=C3=A9l : <a style=3D"color: #0186BA;" href=3D"tel=
+:" rel=3D"noopener noreferrer" target=3D"_blank"></a> - Port: <a style=3D"c=
+olor: #0186BA;" href=3D"tel:" rel=3D"noopener noreferrer" target=3D"_blank"=
+></a></pre> 
+    </div> 
+    <div style=3D"text-align: left;">
+      BlueMi=
+nd La messagerie collaborative Nouvelle G=C3=A9n=C3=A9ration --- Signature =
+automatique pour l'interne 
+    </div> 
+   </div>  
+  </div>
+ </body>
+</htm=
+l>
+---=Part.4b.3a214543fdcf6153.16224d2e14f.5524d49e54411250=-
+Content-Type: image/png; charset=utf-8; name="bm-disclaimer-0.png"
+Content-Transfer-Encoding: base64
+Content-ID: <bm-disclaimer-0.png@0>
+Content-Disposition: inline; filename="bm-disclaimer-0.png"
+Content-Description: bm-disclaimer-0.png
+
+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
+JQAAAABJRU5ErkJggg==
+
+---=Part.4b.3a214543fdcf6153.16224d2e14f.5524d49e54411250=---
+
+--5aa92bb9_3cfddff4_6dae--
+
+--EA523C86-364B-4C24-B503-E4E01B23985C
+Content-Type: application/pkcs7-signature; name="smime.p7s";
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIFRjCCBUIw
+ggQqoAMCAQICEQCT7ng0qQ4r880cbT+aTspfMA0GCSqGSIb3DQEBCwUAMIGXMQswCQYDVQQGEwJH
+QjEbMBkGA1UECBMSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYDVQQHEwdTYWxmb3JkMRowGAYDVQQK
+ExFDT01PRE8gQ0EgTGltaXRlZDE9MDsGA1UEAxM0Q09NT0RPIFJTQSBDbGllbnQgQXV0aGVudGlj
+YXRpb24gYW5kIFNlY3VyZSBFbWFpbCBDQTAeFw0xODAzMTQwMDAwMDBaFw0xOTAzMTQyMzU5NTla
+MCwxKjAoBgkqhkiG9w0BCQEWG21hbnVlbC5ndWlsbGV5QGJsdWVtaW5kLm5ldDCCASIwDQYJKoZI
+hvcNAQEBBQADggEPADCCAQoCggEBAPK9kzL0hXwvc8js0vgLvCVjeX7Ut4JjfyDz0YrWVg+DusBv
+J0ypvu4WLhej7rd5D1lZOvCjSa0rkGI0sdqnbf8fBwK2dtncix5AymOSimlwVsBl9E7Xqhn3ThHv
+OmqPuoI1vul7YRINSKm4mebM4xGwZAYyGeJpxjKZEzUiP7k9f0yF5v+SRdjGZWbTRFcAI6x+JCsq
+iNPnQgO56UfwvcJPuFnDvDnQ3qYphCOCr/N8n9XyyY3/vIVLF7uFUlth9+8jG2jnNQFRsgC/HWEn
+g5TXDUJ5ArR+P2g1dBkcvyWE4uoIKad+lIkKFXu9pI8fctefqupdPjF6B1NB5IVAqU8CAwEAAaOC
+AfEwggHtMB8GA1UdIwQYMBaAFIKvbIz4xf6WYXzoHz0rcUhexIvAMB0GA1UdDgQWBBSZWunjJ1Vm
+gWszTtdXZTN79x3VHjAOBgNVHQ8BAf8EBAMCBaAwDAYDVR0TAQH/BAIwADAgBgNVHSUEGTAXBggr
+BgEFBQcDBAYLKwYBBAGyMQEDBQIwEQYJYIZIAYb4QgEBBAQDAgUgMEYGA1UdIAQ/MD0wOwYMKwYB
+BAGyMQECAQEBMCswKQYIKwYBBQUHAgEWHWh0dHBzOi8vc2VjdXJlLmNvbW9kby5uZXQvQ1BTMFoG
+A1UdHwRTMFEwT6BNoEuGSWh0dHA6Ly9jcmwuY29tb2RvY2EuY29tL0NPTU9ET1JTQUNsaWVudEF1
+dGhlbnRpY2F0aW9uYW5kU2VjdXJlRW1haWxDQS5jcmwwgYsGCCsGAQUFBwEBBH8wfTBVBggrBgEF
+BQcwAoZJaHR0cDovL2NydC5jb21vZG9jYS5jb20vQ09NT0RPUlNBQ2xpZW50QXV0aGVudGljYXRp
+b25hbmRTZWN1cmVFbWFpbENBLmNydDAkBggrBgEFBQcwAYYYaHR0cDovL29jc3AuY29tb2RvY2Eu
+Y29tMCYGA1UdEQQfMB2BG21hbnVlbC5ndWlsbGV5QGJsdWVtaW5kLm5ldDANBgkqhkiG9w0BAQsF
+AAOCAQEAKNcQ9K5JkyV3EThcVEH5ziHwCksaqRq+kMmkuzN3Gjh+o6tdr7JRTsgt2HRrylyaMT5j
+8nA7biZ7zx5GkldqNI5JwmFJ1CJl7O9kfzo5Yj0x3Hz1Vpw6H/vQESuM8vSJrM2hnlOwVx8HOYOJ
+G6gqAqW79ruFJneWpCnaXB1W9EzX2wYZOEVhH5YgQksRloKkM6OlYa0nyoPEx3wIvMIAyGpvemr6
+g5bdlSJ9O35jcgj6nzQm1jBVqVNajkyGi6Rigc9wMBWMfQq+5kbBVPz82Wc0dlKJNQyX/16BIDE3
+Qxb6oKSU46RyRmHXyzsvpnySuBXD9vBZP/o5b3lWeD+IVDGCAngwggJ0AgEBMIGtMIGXMQswCQYD
+VQQGEwJHQjEbMBkGA1UECBMSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYDVQQHEwdTYWxmb3JkMRow
+GAYDVQQKExFDT01PRE8gQ0EgTGltaXRlZDE9MDsGA1UEAxM0Q09NT0RPIFJTQSBDbGllbnQgQXV0
+aGVudGljYXRpb24gYW5kIFNlY3VyZSBFbWFpbCBDQQIRAJPueDSpDivzzRxtP5pOyl8wCQYFKw4D
+AhoFAKCBoDAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMCMGCSqGSIb3DQEJBDEWBBSvGhssD1DU
+07bPgelctrfFC72ODjBfBgkqhkiG9w0BCQ8xUjBQMAsGCWCGSAFlAwQBAjAKBggqhkiG9w0DBzAO
+BggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAwBwYFKw4DAgcwDQYIKoZIhvcNAwICASgwDQYJ
+KoZIhvcNAQEBBQAEggEAC4eCocfF+8tv057cWd1w8X9ZqSpdwaY2sWT7NKbLa1y92kkhPR5K5aXS
+WfVPlpPjtviJQFlOvoZYKuaqAA8cO0bJHpiBoG7bN0hutsBRj6YyGYd4lOFYb2Z1tx9T5zPX6CDR
+60sJ1fj0Ik6j7Hk0nkYBSATBTDVJzazWg2sDnow/mbq6YDSi/JJKCYJPcTQqhJjAxnFyzai7ktEI
+tsSJkuo/Ao4PVDh85D0y8Dpm6jk1/oSNDoCNtqrSAWKxeE0HGKkPfj1QrfDn9m2eYhZxHp7Dnyzf
+ZvTWJ7PBcAgbNMmy/rkJmLMG2TH/9a5cnSLIxr3qGo2VI5vjYQING7Nu4gAAAAAAAA==
+
+--EA523C86-364B-4C24-B503-E4E01B23985C--

@@ -1,0 +1,6 @@
+dn: dc=testRole,dc=local
+objectClass: organization
+objectClass: top
+objectClass: dcObject
+dc: testRole
+o: Test DC

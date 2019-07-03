@@ -1,0 +1,22 @@
+{
+    "name": "@bluemind/backend.mail.store",
+    "description": "Bluemind Mail's backend module : Vuex model",
+    "version": "4.1.0",
+    "license": "GPL-3.0",
+    "author": "Blue Mind SAS",
+    "main": "src/index.js",
+    "module": "src/index.js",
+    "dependencies": {
+        "@bluemind/email": "^4.1.0",
+        "@bluemind/inject": "^4.1.0",
+        "lodash.findlast": "^4.6.0",
+        "lodash.isequal": "^4.5.0",
+        "uuid": "^3.3.2"
+    },
+    "devDependencies": {
+        "@bluemind/conf": "^4.1.0"
+    },
+    "scripts": {
+        "test": "jest --config node_modules/@bluemind/conf/jest.config.js"
+    }
+}

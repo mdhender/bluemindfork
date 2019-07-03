@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+  <appender name="R" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <File>/var/log/bm-webserver/webserver.log</File>
+    <encoder>
+      <pattern>%d [%thread] %c{1} %p - %m\n</pattern>
+    </encoder>
+    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+      <maxIndex>5</maxIndex>
+      <FileNamePattern>/var/log/bm-webserver/webserver.log.%i.gz</FileNamePattern>
+    </rollingPolicy>
+    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+      <MaxFileSize>30000KB</MaxFileSize>
+    </triggeringPolicy>
+  </appender>
+
+  <root level="INFO">
+    <appender-ref ref="R"/>
+  </root>
+
+	<!-- log DAV -->
+	<appender name="DAV"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>/var/log/bm-webserver/dav.log</File>
+		<encoder>
+			<pattern>%d [%thread] %c{1} %p - %m\n</pattern>
+		</encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<maxIndex>20</maxIndex>
+			<FileNamePattern>/var/log/bm-webserver/dav.log.%i.gz</FileNamePattern>
+		</rollingPolicy>
+		<triggeringPolicy
+			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<MaxFileSize>60000KB</MaxFileSize>
+		</triggeringPolicy>
+	</appender>
+	<logger name="net.bluemind.dav.server" level="INFO" additivity="false">
+		<appender-ref ref="DAV" />
+	</logger>
+
+
+	<!-- log /setup -->
+	<appender name="setup"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>/var/log/bm-webserver/setup.log</File>
+		<encoder>
+			<pattern>%d [%thread] %c{1} %p - %m\n</pattern>
+		</encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<maxIndex>20</maxIndex>
+			<FileNamePattern>/var/log/bm-webserver/setup.log.%i.gz</FileNamePattern>
+		</rollingPolicy>
+		<triggeringPolicy
+			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<MaxFileSize>60000KB</MaxFileSize>
+		</triggeringPolicy>
+	</appender>
+	<logger name="net.bluemind.sw.server" level="INFO" additivity="false">
+		<appender-ref ref="setup" />
+	</logger>
+
+        <!-- log js exceptions -->
+	<appender name="jslog"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>/var/log/bm-webserver/js-errors.log</File>
+		<encoder>
+			<pattern>%d [%p - %m\n</pattern>
+		</encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<maxIndex>20</maxIndex>
+			<FileNamePattern>/var/log/bm-webserver/js-errors.log.%i.gz</FileNamePattern>
+		</rollingPolicy>
+		<triggeringPolicy
+			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<MaxFileSize>60000KB</MaxFileSize>
+		</triggeringPolicy>
+	</appender>
+	<logger name="net.bluemind.webmodule.server.handlers.LogHandler" level="INFO" additivity="false">
+		<appender-ref ref="jslog" />
+	</logger>
+</configuration>

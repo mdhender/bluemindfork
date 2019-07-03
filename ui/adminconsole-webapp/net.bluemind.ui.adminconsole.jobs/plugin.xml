@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.ui.adminconsole.screenContributor">
+      <contributor
+            function="NetBluemindUiAdminconsoleJobsScreensContributor">
+      </contributor>
+   </extension>
+   <extension
+         point="net.bluemind.ui.adminconsole.menusContributor">
+      <contributor
+            function="NetBluemindUiAdminconsoleJobsMenuContributor">
+      </contributor>
+   </extension>
+
+</plugin>

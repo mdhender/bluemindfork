@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.webmail.banner.closure
+Bundle-SymbolicName: net.bluemind.webmail.banner.closure;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: blue-mind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Closure-Bundle-Type: Application
+Closure-Inputs: net/bluemind/webmail/banner/WebmailBanner.js
+Require-Bundle: net.bluemind.webmodule;bundle-version="1.0.0",
+ net.bluemind.mailbox.api.closure;bundle-version="1.0.0",
+ net.bluemind.ui.banner;bundle-version="1.0.0"
+Web-Resources: web-resources
+Bundle-ClassPath: js.jar, .

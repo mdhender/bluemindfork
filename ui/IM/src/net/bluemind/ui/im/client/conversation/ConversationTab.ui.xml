@@ -1,0 +1,14 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'>
+
+	<g:FlowPanel>
+		<g:FlowPanel ui:field="closeBtnContainer">
+			<g:Label ui:field="unreadCount" />
+			<g:Label ui:field="closeBtn" />
+		</g:FlowPanel>
+		<g:Label ui:field="displayName" />
+	</g:FlowPanel>
+
+</ui:UiBinder>

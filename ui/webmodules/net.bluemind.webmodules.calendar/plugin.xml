@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module
+            index="index.html"
+            root="/cal">
+
+		<handler class="net.bluemind.webmodules.calendar.handlers.CalendarAppCacheHandler"
+			path="calendar.appcache">
+			</handler>
+         <handler
+               class="net.bluemind.webmodules.calendar.handlers.CalendarHandler"
+               path="index.html">
+         </handler>
+         
+         <handler
+               class="net.bluemind.webmodules.calendar.handlers.CalendarJspHandler"
+               path="Calendar.jsp">
+         </handler>
+
+         <handler
+               class="net.bluemind.webmodules.calendar.handlers.CalendarOfflineHandler"
+               path="index-offline.html">
+         </handler>
+
+         <handler
+               class="net.bluemind.webmodules.calendar.handlers.ImportICSHandler"
+               path="calendar/import">
+         </handler>
+         <web-resource
+               bundle="calendar">
+         </web-resource>
+         <handler
+               class="net.bluemind.webmodules.calendar.handlers.ExportICSHandler"
+               path="calendar/export">
+         </handler>
+         <handler
+               class="net.bluemind.webmodules.calendar.handlers.PrintCalendarHandler"
+               path="calendar/print">
+         </handler>
+         <handler
+               class="net.bluemind.webmodule.server.handlers.LogHandler"
+               path="log">
+         </handler>
+      </web-module>
+      
+   </extension>
+
+   <extension
+         point="net.bluemind.ui.commons.banner">
+      <banner-entry
+            cssIcon="fa fa-lg fa-calendar"
+            description="%banner-entry.description"
+            name="%banner-entry.name"
+            offline="true"
+            priority="98"
+            role="hasCalendar"
+            root="/cal/">
+      </banner-entry>
+   </extension>
+   <extension
+         point="net.bluemind.webmodule.server">
+      <web-filter
+            class="net.bluemind.webmodules.calendar.filters.PublishCalendarFilter">
+      </web-filter>
+   </extension>
+   <extension
+         point="net.bluemind.banner">
+      <application
+            description="%banner-entry.description"
+            href="/cal/"
+            name="%banner-entry.name"
+            order="98"
+            role="hasCalendar">
+         <icon-svg>
+        <![CDATA[
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 6H2V18H19V6Z" fill="#00AAEB" />
+            <path d="M19 19H2V20H19V19Z" fill="#00AAEB" />
+            <path d="M8.04 15.43C7.41 15.43 6.78 15.32 6.19 15.1L6.37 14.41C6.93 14.58 7.39 14.67 8.03 14.67C9.13 14.67 9.8 14.17 9.8 13.43C9.8 12.76 9.28 12.25 8.18 12.25H7.06V11.54H8.15C9.03 11.54 9.51 11.07 9.51 10.45C9.51 9.81001 8.92 9.42001 8 9.42001C7.5 9.42001 7 9.51001 6.49 9.66001L6.32 8.98001C6.85 8.78001 7.46 8.67001 8.04 8.67001C9.44 8.67001 10.38 9.35001 10.38 10.39C10.38 10.93 10.07 11.51 9.43 11.84C10.21 12.08 10.7 12.73 10.7 13.47C10.7 14.54 9.69 15.43 8.04 15.43Z" fill="#0A2A86" />
+            <path d="M13.25 15.32V9.51999L11.5 9.83999L11.37 9.14999L13.25 8.76999H14.13V15.33H13.25V15.32Z" fill="#0A2A86" />
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M6 4C6.55228 4 7 3.55228 7 3H14C14 3.55228 14.4477 4 15 4C15.5523 4 16 3.55228 16 3H19V6H2V3H5C5 3.55228 5.44772 4 6 4Z" fill="#00CBFF" />
+        </svg>
+]]>
+         </icon-svg>
+      </application>
+   </extension>
+
+</plugin>

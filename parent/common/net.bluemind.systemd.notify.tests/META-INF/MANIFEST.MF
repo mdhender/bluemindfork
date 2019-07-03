@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.systemd.notify.tests
+Bundle-SymbolicName: net.bluemind.systemd.notify.tests
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.systemd.notify.Activator
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.systemd.notify;bundle-version="3.1.0",
+ org.junit;bundle-version="4.12.0",
+ net.bluemind.vertx.testhelper
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.systemd.notify.tests
+Bundle-ActivationPolicy: lazy

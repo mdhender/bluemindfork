@@ -1,0 +1,643 @@
+/* BEGIN LICENSE
+ * Copyright © Blue Mind SAS, 2012-2016
+ *
+ * This file is part of BlueMind. BlueMind is a messaging and collaborative
+ * solution.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of either the GNU Affero General Public License as
+ * published by the Free Software Foundation (version 3 of the License).
+ *
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See LICENSE.txt
+ * END LICENSE
+ */
+package net.bluemind.domain.service;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.concurrent.CountDownLatch;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.vertx.java.core.AsyncResult;
+import org.vertx.java.core.Handler;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
+import net.bluemind.core.api.fault.ErrorCode;
+import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.Container;
+import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.persistance.ContainerStore;
+import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
+import net.bluemind.core.jdbc.JdbcActivator;
+import net.bluemind.core.jdbc.JdbcTestHelper;
+import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.sessions.Sessions;
+import net.bluemind.core.task.api.ITask;
+import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.tests.BmTestContext;
+import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.IDomains;
+import net.bluemind.domain.service.internal.DomainStoreService;
+import net.bluemind.domain.service.tests.FakeDomainHook;
+import net.bluemind.group.api.IGroup;
+import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.role.api.BasicRoles;
+import net.bluemind.server.api.Server;
+import net.bluemind.tests.defaultdata.PopulateHelper;
+import net.bluemind.user.api.User;
+
+public class DomainsServiceTests {
+
+	private Container domainsContainer;
+	private BmContext testContext;
+	private DomainStoreService storeService;
+
+	@Before
+	public void before() throws Exception {
+		JdbcTestHelper.getInstance().beforeTest();
+
+		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
+		ElasticsearchTestHelper.getInstance().beforeTest();
+
+		testContext = new BmTestContext(SecurityContext.SYSTEM);
+
+		ContainerStore containerStore = new ContainerStore(testContext, JdbcTestHelper.getInstance().getDataSource(),
+				SecurityContext.SYSTEM);
+
+		Server esServer = new Server();
+		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
+		esServer.tags = Lists.newArrayList("bm/es");
+
+		PopulateHelper.initGlobalVirt(esServer);
+		domainsContainer = containerStore.get(DomainsContainerIdentifier.getIdentifier());
+		assertNotNull(domainsContainer);
+
+		storeService = new DomainStoreService(JdbcActivator.getInstance().getDataSource(), SecurityContext.SYSTEM,
+				domainsContainer);
+		final CountDownLatch launched = new CountDownLatch(1);
+		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
+			@Override
+			public void handle(AsyncResult<Void> event) {
+				launched.countDown();
+			}
+		});
+		launched.await();
+
+		FakeDomainHook.initFlags();
+	}
+
+	@After
+	public void after() throws Exception {
+		JdbcTestHelper.getInstance().afterTest();
+	}
+
+	@Test
+	public void testCreate() throws ServerFault {
+		IDomains domains = getService();
+		Domain d = new Domain();
+		d.name = "test.lan";
+		d.label = "label";
+		d.description = "desc";
+		d.aliases = Collections.emptySet();
+		domains.create("test.lan", d);
+
+		DomainStoreService domainStoreService = new DomainStoreService(JdbcTestHelper.getInstance().getDataSource(),
+				SecurityContext.SYSTEM, domainsContainer);
+		assertNotNull(domainStoreService.get("test.lan", null));
+
+		assertTrue(FakeDomainHook.created);
+
+		// by default, we create 2 groups
+		IGroup groups = testContext.provider().instance(IGroup.class, "test.lan");
+		assertEquals(2, groups.allUids().size());
+	}
+
+	@Test
+	public void testCreateAlreadyExists() throws ServerFault {
+		IDomains domains = getService();
+		Domain d = new Domain();
+		d.name = "test.lan";
+		d.label = "label";
+		d.description = "desc";
+		d.aliases = Collections.emptySet();
+		domains.create("test.lan", d);
+
+		try {
+			domains.create("test.lan", d);
+			fail();
+		} catch (ServerFault e) {
+
+		}
+	}
+
+	@Test
+	public void testCreateRight() throws ServerFault {
+
+		SecurityContext testSC = new SecurityContext("admSess", "admTest", Collections.<String>emptyList(),
+				Arrays.asList(SecurityContext.ROLE_ADMIN), "test2.lan");
+		Sessions.get().put("admSess", testSC);
+		Domain d = new Domain();
+		d.name = "test2.lan";
+		d.label = "label";
+		d.description = "desc";
+		d.aliases = Collections.emptySet();
+		try {
+			getService(testSC).create("test2.lan", d);
+			fail();
+		} catch (ServerFault e) {
+			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
+		}
+
+	}
+
+	@Test
+	public void testUpdate() throws ServerFault {
+		IDomains domains = getService();
+		Domain testDomain = domain("test" + System.currentTimeMillis() + ".lan");
+		domains.create(testDomain.name, testDomain);
+
+		domains.update(testDomain.name, testDomain);
+
+		assertTrue(FakeDomainHook.updated);
+
+		SecurityContext testSC = new SecurityContext("admSess", "admTest", Collections.<String>emptyList(),
+				Arrays.asList(BasicRoles.ROLE_MANAGE_DOMAIN), testDomain.name);
+		Sessions.get().put("admSess", testSC);
+		getService(testSC).update(testDomain.name, testDomain);
+	}
+
+	@Test
+	public void testUpdateNotFound() throws ServerFault {
+		IDomains domains = getService();
+		Domain testDomain = domain("test" + System.currentTimeMillis() + ".lan");
+		try {
+			domains.update(testDomain.name, testDomain);
+			fail("should fail because domain doesnt exists");
+		} catch (ServerFault e) {
+			assertEquals(ErrorCode.NOT_FOUND, e.getCode());
+		}
+	}
+
+	@Test
+	public void testUpdateNameChange() throws ServerFault {
+		IDomains domains = getService();
+		Domain testDomain = domain("test" + System.currentTimeMillis() + ".lan");
+		domains.create(testDomain.name, testDomain);
+
+		try {
+			domains.update(testDomain.name, domain("test" + System.currentTimeMillis() + ".lan"));
+			fail("should fail because we cannot change domain name");
+		} catch (ServerFault e) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, e.getCode());
+		}
+	}
+
+	@Test
+	public void testUpdateGlobalFlag() throws ServerFault {
+		IDomains domains = getService();
+		Domain testDomain = domain("test" + System.currentTimeMillis() + ".lan");
+		domains.create(testDomain.name, testDomain);
+		testDomain.global = !testDomain.global;
+		try {
+			domains.update(testDomain.name, testDomain);
+			fail("should fail because we cannot change domain global flag");
+		} catch (ServerFault e) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, e.getCode());
+		}
+	}
+
+	@Test
+	public void testUpdateAliasesChanged() throws ServerFault {
+		IDomains domains = getService();
+		Domain testDomain = domain("test" + System.currentTimeMillis() + ".lan");
+		domains.create(testDomain.name, testDomain);
+		testDomain.aliases = new HashSet<>(Arrays.asList("test.lan"));
+		try {
+			domains.update(testDomain.name, testDomain);
+			fail("should fail because we cannot change domain global flag");
+		} catch (ServerFault e) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, e.getCode());
+		}
+	}
+
+	@Test
+	public void testDelete() throws ServerFault {
+		Domain d = createDomain("test" + System.currentTimeMillis() + ".lan");
+
+		try {
+			getService().delete(d.name);
+			fail("should fail");
+		} catch (ServerFault e) {
+			// cant delete doamin because we need to delete dir entries
+			// (addressbook)
+		}
+
+		// need to delete addressbook
+		TaskRef taskRef = getService().deleteDomainItems(d.name);
+
+		ITask task = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ITask.class,
+				"" + taskRef.id);
+		while (!task.status().state.ended) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+			}
+		}
+
+		assertTrue(task.status().state.succeed);
+
+		// now we can delete domain
+		getService().delete(d.name);
+	}
+
+	@Test
+	public void testDeleteNonExistant() throws ServerFault {
+		try {
+			getService().delete("fakeUid");
+		} catch (ServerFault e) {
+			assertEquals(ErrorCode.NOT_FOUND, e.getCode());
+		}
+
+	}
+
+	@Test
+	public void testSetAliases() throws ServerFault {
+		IDomains domains = getService();
+		Domain testDomain = createDomain("test" + System.currentTimeMillis() + ".lan");
+
+		TaskRef taskRef = domains.setAliases(testDomain.name, new HashSet<String>(Arrays.asList("test.lan")));
+
+		ITask task = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ITask.class,
+				"" + taskRef.id);
+
+		while (!task.status().state.ended) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+			}
+		}
+		assertTrue(task.status().state.succeed);
+
+		assertTrue(FakeDomainHook.aliasesUpdated);
+	}
+
+	@Test
+	public void testSetAliasesDomainNotFound() throws ServerFault {
+		IDomains domains = getService();
+		try {
+			domains.setAliases("fakeDomainUid", new HashSet<String>());
+			fail("should fail because domain doesnt exists");
+		} catch (ServerFault e) {
+			assertEquals(ErrorCode.NOT_FOUND, e.getCode());
+		}
+	}
+
+	@Test
+	// FIXME: BM-14722
+	public void testCanSetAliasesWhenConflict() throws Exception {
+		String domainAlias = "newalias.tld";
+
+		// create domain
+		String domainUid = "test" + System.currentTimeMillis() + ".lan";
+		PopulateHelper.createTestDomain(domainUid);
+
+		// create an external user which use domain alias not yet created
+		String leftPart = "whatever";
+		PopulateHelper.addExternalUser(domainUid, leftPart + "@" + domainAlias, "externaluser");
+
+		// create a user with all_alias
+		User user = PopulateHelper.getUser(leftPart, domainUid, Routing.none);
+		user.emails.forEach(email -> email.allAliases = true);
+		PopulateHelper.addUser(domainUid, user);
+
+		// try to add alias to domain
+		getService().setAliases(domainUid, Sets.newHashSet(domainAlias));
+
+//		try {
+//			
+//			fail("should fail because an external user using this alias exists");
+//		} catch (ServerFault e) {
+//			assertEquals(ErrorCode.INVALID_PARAMETER, e.getCode());
+//		}
+	}
+
+	@Test
+	public void testCustomProperties() throws ServerFault {
+		IDomains domains = getService();
+		Domain d = new Domain();
+		d.name = "test.lan";
+		d.label = "label";
+		d.description = "desc";
+		d.aliases = Collections.emptySet();
+		domains.create("test.lan", d);
+
+		ItemValue<Domain> created = domains.get("test.lan");
+		assertEquals(0, created.value.properties.size());
+
+		d.properties = new HashMap<String, String>();
+		domains.update("test.lan", d);
+		created = domains.get("test.lan");
+		assertEquals(0, created.value.properties.size());
+
+		d.properties.put("blue", "mind");
+		domains.update("test.lan", d);
+		created = domains.get("test.lan");
+		assertEquals(1, created.value.properties.size());
+		assertEquals("mind", created.value.properties.get("blue"));
+	}
+
+	private Domain domain(String name) {
+		Domain d = new Domain();
+		d.name = name;
+		d.label = name;
+		d.description = "desc";
+		d.aliases = Collections.emptySet();
+		return d;
+	}
+
+	private Domain createDomain(String name) throws ServerFault {
+		Domain d = domain(name);
+		getService().create(d.name, d);
+		return d;
+	}
+
+	private IDomains getService() throws ServerFault {
+		return ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class);
+	}
+
+	private IDomains getService(SecurityContext sc) throws ServerFault {
+		return ServerSideServiceProvider.getProvider(sc).instance(IDomains.class);
+	}
+
+	@Test
+	public void testCreateDomainNameIsAliasOnAnotherDomain() throws ServerFault {
+		IDomains domains = getService();
+		Domain d = new Domain();
+		d.name = "test.lan";
+		d.label = "label";
+		d.description = "desc";
+		d.aliases = new HashSet<String>(Arrays.asList("test2.lan"));
+		domains.create("test.lan", d);
+
+		Domain d2 = new Domain();
+		d2.name = "test2.lan";
+		d2.label = "label";
+		d2.description = "desc";
+		d2.aliases = Collections.emptySet();
+
+		try {
+			domains.create("test2.lan", d2);
+			fail();
+		} catch (ServerFault e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
+	@Test
+	public void testCreateDomainAliasIsNameOnAnotherDomain() throws ServerFault {
+		IDomains domains = getService();
+		Domain d = new Domain();
+		d.name = "test.lan";
+		d.label = "label";
+		d.description = "desc";
+		d.aliases = Collections.emptySet();
+		domains.create("test.lan", d);
+
+		Domain d2 = new Domain();
+		d2.name = "test2.lan";
+		d2.label = "label";
+		d2.description = "desc";
+		d2.aliases = new HashSet<String>(Arrays.asList("test.lan"));
+
+		try {
+			domains.create("test2.lan", d2);
+			fail();
+		} catch (ServerFault e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
+	@Test
+	public void testCreateDomainAliasIsAliasOnAnotherDomain() throws ServerFault {
+		IDomains domains = getService();
+		Domain d = new Domain();
+		d.name = "test.lan";
+		d.label = "label";
+		d.description = "desc";
+		d.aliases = new HashSet<String>(Arrays.asList("test2.lan"));
+		domains.create("test.lan", d);
+
+		Domain d2 = new Domain();
+		d2.name = "test3.lan";
+		d2.label = "label";
+		d2.description = "desc";
+		d2.aliases = new HashSet<String>(Arrays.asList("test2.lan"));
+
+		try {
+			domains.create("test3.lan", d2);
+			fail();
+		} catch (ServerFault e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
+	@Test
+	public void testUpdateDomainAliasIsNameOnAnotherDomain() throws ServerFault {
+		IDomains domains = getService();
+		Domain d = new Domain();
+		d.name = "test.lan";
+		d.label = "label";
+		d.description = "desc";
+		d.aliases = Collections.emptySet();
+		domains.create("test.lan", d);
+
+		Domain d2 = new Domain();
+		d2.name = "test2.lan";
+		d2.label = "label";
+		d2.description = "desc";
+		d2.aliases = Collections.emptySet();
+		domains.create("test2.lan", d2);
+
+		d2.aliases = new HashSet<String>(Arrays.asList("test.lan"));
+		try {
+			domains.update(d2.name, d2);
+			fail();
+		} catch (ServerFault e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
+	@Test
+	public void testUpdateDomainAliasIsAliasOnAnotherDomain() throws ServerFault {
+		IDomains domains = getService();
+		Domain d = new Domain();
+		d.name = "test.lan";
+		d.label = "label";
+		d.description = "desc";
+		d.aliases = new HashSet<String>(Arrays.asList("test3.lan"));
+		domains.create("test.lan", d);
+
+		Domain d2 = new Domain();
+		d2.name = "test2.lan";
+		d2.label = "label";
+		d2.description = "desc";
+		d2.aliases = Collections.emptySet();
+		domains.create("test2.lan", d2);
+
+		d2.aliases = new HashSet<String>(Arrays.asList("test3.lan"));
+		try {
+			domains.update(d2.name, d2);
+			fail();
+		} catch (ServerFault e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
+	@Test
+	public void testAddAliasIsNameOnAnotherDomain() throws ServerFault {
+		IDomains domains = getService();
+		Domain d = new Domain();
+		d.name = "test.lan";
+		d.label = "label";
+		d.description = "desc";
+		d.aliases = Collections.emptySet();
+		domains.create("test.lan", d);
+
+		Domain d2 = new Domain();
+		d2.name = "test2.lan";
+		d2.label = "label";
+		d2.description = "desc";
+		d2.aliases = Collections.emptySet();
+		domains.create("test2.lan", d2);
+
+		try {
+			domains.setAliases(d2.name, new HashSet<>(Arrays.asList("test.lan")));
+			fail();
+		} catch (ServerFault e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
+	@Test
+	public void testAddAliasIsAliasOnAnotherDomain() throws ServerFault {
+		IDomains domains = getService();
+		Domain d = new Domain();
+		d.name = "test.lan";
+		d.label = "label";
+		d.description = "desc";
+		d.aliases = new HashSet<>(Arrays.asList("test3.lan"));
+		domains.create("test.lan", d);
+
+		Domain d2 = new Domain();
+		d2.name = "test2.lan";
+		d2.label = "label";
+		d2.description = "desc";
+		d2.aliases = Collections.emptySet();
+		domains.create("test2.lan", d2);
+
+		try {
+			domains.setAliases(d2.name, new HashSet<>(Arrays.asList("test3.lan")));
+			fail();
+		} catch (ServerFault e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
+	@Test
+	public void testGetDomain() throws ServerFault {
+		Domain d = new Domain();
+		d.name = "bm.lan";
+		d.label = "label";
+		d.description = "desc";
+		d.aliases = new HashSet<>(Arrays.asList("test3.lan"));
+		storeService.create("bm.lan", "bm.lan", d);
+
+		assertNotNull(getService().get("bm.lan"));
+		assertNull(getService().get("fake.lan"));
+		// get do not search in aliases
+		assertNull(getService().get("test3.lan"));
+
+		SecurityContext notSameDomainSC = BmTestContext
+				.contextWithSession("notSameDomain" + System.currentTimeMillis(), "nosamedom@fake.lan", "fake.lan")
+				.getSecurityContext();
+
+		SecurityContext sameDomainSC = BmTestContext
+				.contextWithSession("sameDomain" + System.currentTimeMillis(), "samedom@bm.lan", "bm.lan")
+				.getSecurityContext();
+
+		try {
+			getService(notSameDomainSC).get("bm.lan");
+			fail("should not be able to retrieve this domain");
+		} catch (ServerFault e) {
+			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
+		}
+
+		try {
+			getService(sameDomainSC).get("bm.lan");
+		} catch (ServerFault e) {
+			fail("should be able to retrieve this domain");
+		}
+	}
+
+	@Test
+	public void testFindByNameOrAliases() throws ServerFault {
+		Domain d = new Domain();
+		d.name = "bm.lan";
+		d.label = "label";
+		d.description = "desc";
+		d.aliases = new HashSet<>(Arrays.asList("test3.lan"));
+		storeService.create("bm.lan", "bm.lan", d);
+
+		assertNotNull(getService().findByNameOrAliases("bm.lan"));
+		assertNotNull(getService().findByNameOrAliases("test3.lan"));
+		assertNull(getService().findByNameOrAliases("fake.lan"));
+
+		SecurityContext notSameDomainSC = BmTestContext
+				.contextWithSession("notSameDomain" + System.currentTimeMillis(), "nosamedom@fake.lan", "fake.lan")
+				.getSecurityContext();
+
+		SecurityContext sameDomainSC = BmTestContext
+				.contextWithSession("sameDomain" + System.currentTimeMillis(), "samedom@bm.lan", "bm.lan")
+				.getSecurityContext();
+
+		try {
+			getService(SecurityContext.ANONYMOUS).findByNameOrAliases("test3.lan");
+			fail("should not be able to retrieve this domain");
+		} catch (ServerFault e) {
+			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
+		}
+
+		try {
+			getService(notSameDomainSC).findByNameOrAliases("test3.lan");
+			fail("should not be able to retrieve this domain");
+		} catch (ServerFault e) {
+			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
+		}
+
+		try {
+			getService(sameDomainSC).findByNameOrAliases("test3.lan");
+		} catch (ServerFault e) {
+			fail("should be able to retrieve this domain");
+		}
+	}
+}

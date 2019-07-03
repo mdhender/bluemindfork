@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: net.bluemind.webmodule.filehostinghandler;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.lib.vertx,
+ net.bluemind.slf4j,
+ org.eclipse.osgi,
+ net.bluemind.webmodule;bundle-version="1.0.0",
+ net.bluemind.utils,
+ net.bluemind.core.commons,
+ net.bluemind.filehosting.api,
+ net.bluemind.core.rest.http,
+ net.bluemind.locator.vertxclient,
+ net.bluemind.webmodule.server
+Bundle-ClassPath: .
+Export-Package: net.bluemind.webmodule.filehostinghandler
+

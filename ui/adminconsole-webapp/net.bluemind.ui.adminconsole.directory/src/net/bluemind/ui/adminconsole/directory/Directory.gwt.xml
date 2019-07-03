@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+	<inherits name="com.google.gwt.json.JSON"/>
+	<inherits name="net.bluemind.directory.DirectoryApi"/>
+	<inherits name="net.bluemind.mailshare.MailshareApi"/>
+	<inherits name="net.bluemind.resource.ResourceApi"/>
+	<inherits name="net.bluemind.device.DeviceApi"/>
+	<inherits name="net.bluemind.calendar.CalendarApi"/>
+	<inherits name="net.bluemind.externaluser.ExternaluserApi"/>
+	<inherits name="net.bluemind.gwtconsoleapp.base.Menus"/>
+	<inherits name="net.bluemind.gwtconsoleapp.base.Editor"/>
+	<inherits name="net.bluemind.gwtconsoleapp.base.I18n"/>
+	<inherits name="net.bluemind.ui.settings.SettingsGeneral"/>
+	<inherits name="net.bluemind.ui.settings.SettingsMail"/>
+	<inherits name="net.bluemind.ui.settings.SettingsCalendar"/>
+	<inherits name="net.bluemind.ui.settings.SettingsAddressBook"/>
+	<inherits name="net.bluemind.ui.mailbox.MailboxUi"/>
+	<inherits name="net.bluemind.ui.domain.DomainUi"/>
+	<inherits name="net.bluemind.ui.gwtsharing.GwtSharingUi"/>
+	<inherits name="net.bluemind.ui.gwtuser.GwtUserUi"/>
+	<inherits name="net.bluemind.ui.gwtrole.GwtRoleUi"/>
+	<inherits name="net.bluemind.ui.imageupload.ImageUpload"/>
+	<inherits name="net.bluemind.ui.adminconsole.AdminConsoleBase"/>
+	<source path='' >
+		<exclude name="**/server/**"/>
+	</source>
+</module>

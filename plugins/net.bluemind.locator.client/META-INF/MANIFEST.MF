@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.locator.client
+Bundle-SymbolicName: net.bluemind.locator.client;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: blue-mind.net
+Require-Bundle: com.ning.async-http-client;bundle-version="1.9.26",
+ org.eclipse.core.runtime,
+ net.bluemind.slf4j;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.locator.client;uses:="org.eclipse.core.runtime,org.osgi.framework,com.ning.http.client"

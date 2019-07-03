@@ -1,0 +1,14 @@
+{
+    "name": "@bluemind/store",
+    "description": "Bluemind package to export global Vuex store",
+    "version": "4.1.0",
+    "license": "GPL-3.0",
+    "author": "Blue Mind SAS",
+    "main": "src/index.js",
+    "module": "src/index.js",
+    "scripts": {},
+    "dependencies": {
+        "@bluemind/global": "^4.1.0"
+    },
+    "peerDependencies": {}
+}

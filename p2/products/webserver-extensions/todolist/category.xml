@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <bundle id="net.bluemind.authentication.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.commons.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.commons.ui.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.container.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.core.container.api.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.cti.api" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.cti.api.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.directory.api.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.extensions.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.folder.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.mvp.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.persistance.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.tag.api.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.tag.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.task.application.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.todolist.api.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.todolist.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.todolist.ui.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.ui.banner" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.webmodules.todolist" version="4.1.0.qualifier"/>
+   <bundle id="relief" version="4.1.0.qualifier"/>
+   <bundle id="ydn-base" version="4.1.0.qualifier"/>
+   <bundle id="ydn-db" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.history.ui.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.announcement.api" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.announcement.api.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.restclient.api.closure" version="4.1.0.qualifier"/>
+</site>

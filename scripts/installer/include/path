@@ -1,0 +1,4 @@
+FAILURE=1
+ARCHIVE_PKGS_PATH="bluemind-pkgs"
+PKGS="../"${ARCHIVE_PKGS_PATH}
+INSTALL_PKGS_TO="/var/spool/bluemind-pkgs"

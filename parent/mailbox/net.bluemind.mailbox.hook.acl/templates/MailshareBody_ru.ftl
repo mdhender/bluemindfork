@@ -1,0 +1,1 @@
+${user} has shared the mailshare "${entity}" with you.

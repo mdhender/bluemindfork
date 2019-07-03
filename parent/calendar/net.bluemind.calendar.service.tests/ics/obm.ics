@@ -1,0 +1,1637 @@
+BEGIN:VCALENDAR
+PRODID:-//Aliasource Groupe LINAGORA//OBM Calendar 2.4.0//FR
+CALSCALE:GREGORIAN
+X-OBM-TIME:1348489551
+VERSION:2.0
+METHOD:PUBLISH
+BEGIN:VEVENT
+CREATED:20100307T100232Z
+LAST-MODIFIED:20100307T100232Z
+DTSTART;TZID=Europe/Berlin:20100307T080000
+DURATION:PT1H
+TRANSP:OPAQUE
+SEQUENCE:0
+SUMMARY:gf
+DESCRIPTION:
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:dfg
+CATEGORIES:Sylvie : a confirmer
+X-OBM-COLOR:
+UID:OBM-2.2.19-f28114d4b018d8fcd269-dfcc160002ca5871c05be4f4d5987ac5a91bf1
+ bf37a8f19b1e7f2630cc836580e9bda6cdd66d7f88ef70@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= compta-1;PARTSTAT=NEEDS-ACTION;X-OBM-ID=26:
+ MAILTO:noreply@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= compta-2;PARTSTAT=NEEDS-ACTION;X-OBM-ID=27:
+ MAILTO:noreply@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN=HANNAY Albert;PARTSTAT=NEEDS-ACTION;X-OBM-ID
+ =57:MAILTO:noreply@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122554Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20100312T213957Z
+LAST-MODIFIED:20100312T213957Z
+DTSTART;TZID=America/New_York:20100309T103000
+DURATION:PT1H
+TRANSP:OPAQUE
+SEQUENCE:0
+SUMMARY:dfdfd
+DESCRIPTION:
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:
+CATEGORIES:
+X-OBM-COLOR:
+UID:OBM-2.2.19-f28114d4b018d8fcd269-ad3a2c84553a8211b02300f77c8553af0d92a1
+ 6f69aebb06b29b283a4bfaea9e7311471b1b9c6932bcde@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122554Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20100308T025715Z
+LAST-MODIFIED:20100314T135319Z
+DTSTART;TZID=Europe/Berlin:20100310T093000
+DURATION:PT4H
+TRANSP:OPAQUE
+SEQUENCE:0
+SUMMARY:berere
+DESCRIPTION:
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:
+CATEGORIES:Commercial
+X-OBM-COLOR:
+UID:OBM-2.2.19-f28114d4b018d8fcd269-95a4f422026520f2d1971f32804c6cf01940e6
+ 2e883b92d647d5607e1ba779782c902bfb426d5339a0e0@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122554Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20100308T075533Z
+LAST-MODIFIED:20100308T075620Z
+DTSTART;TZID=Europe/Berlin:20100311T130000
+DURATION:PT1H
+TRANSP:OPAQUE
+SEQUENCE:0
+SUMMARY:adasdasd
+DESCRIPTION:
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:
+CATEGORIES:
+X-OBM-COLOR:
+UID:OBM-2.2.19-f28114d4b018d8fcd269-6e68429eb1236ae2a9e5552e27ad52bc02444d
+ 3fe535f179a6ffb1dd88aea6aa8eecc1ba6ef5f7fade98@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= not-3;PARTSTAT=NEEDS-ACTION;X-OBM-ID=22:MAI
+ LTO:noreply@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN=Roger Hannin;PARTSTAT=NEEDS-ACTION;X-OBM-ID=
+ 56:MAILTO:rhan@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN=HANNAY Albert;PARTSTAT=NEEDS-ACTION;X-OBM-ID
+ =57:MAILTO:noreply@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122554Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20100309T160646Z
+LAST-MODIFIED:20110318T100036Z
+DTSTART;TZID=America/Toronto:20100313T113000
+DURATION:P1W4DT7H
+TRANSP:OPAQUE
+SEQUENCE:0
+SUMMARY:test
+DESCRIPTION:C'est batte
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:Torronto
+CATEGORIES:
+X-OBM-COLOR:
+UID:OBM-2.2.19-f28114d4b018d8fcd269-b35fa558525c03c17edb103cbf2a8994ce3638
+ATTENDEE;CUTYPE=INDIVIDUAL;CN=Testi Test;PARTSTAT=NEEDS-ACTION;X-OBM-ID=5:
+ MAILTO:test12@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= not-1;PARTSTAT=NEEDS-ACTION;X-OBM-ID=20:MAI
+ LTO:noreply@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= not-2;PARTSTAT=NEEDS-ACTION;X-OBM-ID=21:MAI
+ LTO:noreply@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= not-3;PARTSTAT=NEEDS-ACTION;X-OBM-ID=22:MAI
+ LTO:noreply@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= sec-1;PARTSTAT=NEEDS-ACTION;X-OBM-ID=23:MAI
+ LTO:noreply@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= sec-2;PARTSTAT=NEEDS-ACTION;X-OBM-ID=24:MAI
+ LTO:noreply@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= sec-3;PARTSTAT=NEEDS-ACTION;X-OBM-ID=25:MAI
+ LTO:noreply@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= compta-1;PARTSTAT=NEEDS-ACTION;X-OBM-ID=26:
+ MAILTO:noreply@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= compta-2;PARTSTAT=NEEDS-ACTION;X-OBM-ID=27:
+ MAILTO:noreply@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN=A D;PARTSTAT=NEEDS-ACTION;X-OBM-ID=31:MAILTO
+ :noreply@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN=alexandre dumas;PARTSTAT=NEEDS-ACTION;X-OBM-
+ ID=48:MAILTO:noreply@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN=directeur a nous recteur;PARTSTAT=NEEDS-ACTI
+ ON;X-OBM-ID=49:MAILTO:noreply@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN=Roger Hannin;PARTSTAT=NEEDS-ACTION;X-OBM-ID=
+ 56:MAILTO:rhan@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN=HANNAY Albert;PARTSTAT=NEEDS-ACTION;X-OBM-ID
+ =57:MAILTO:noreply@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN=Yann Yann;PARTSTAT=NEEDS-ACTION;X-OBM-ID=60:
+ MAILTO:noreply@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+ATTENDEE;CUTYPE=RESOURCE;CN=SALLE&;PARTSTAT=ACCEPTED;X-OBM-ID=20:MAILTO:no
+ reply@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN=Erwan Le Gall;PARTSTAT=DECLINED;X-OBM-ID=3:M
+ AILTO:user1@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= Editor;PARTSTAT=DECLINED;X-OBM-ID=6:MAILTO:
+ noreply@fake.blue-mind.net
+DTSTAMP:20120924T122554Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120322T133021Z
+LAST-MODIFIED:20120924T122551Z
+DTSTART;TZID=Etc/GMT:20111011T083000
+DURATION:PT1H
+TRANSP:OPAQUE
+SEQUENCE:0
+SUMMARY:You are registered for the training session: Alfresco Swift
+DESCRIPTION:Hello Imène BEN TAMANSOURT\,\n\nYour registration for the foll
+ owing training session is accepted:\n\nTopic: Alfresco Swift\nHost: Harind
+ er Sunder\nDate: Tuesday 11 October 2011\nTime: 9:30\, West Africa Time (W
+ est Africa\, GMT+01:00)\nRegistration ID: 797165\nSession number: 841 234 
+ 120\nSession password: document\n\n---------------------------------------
+ ----------------\nTo join the training session\n--------------------------
+ -----------------------------\n1. Go to https://alfresco-events.webex.com/
+ alfresco-events/k2/j.php?ED=167964647&UID=1254359827&rid=1&HMAC=930009bea1
+ 09bacf1efbb09e49043018a12550a8&RT=NyMxNDM%3D\n2. Enter your name and email
+  address (or registration ID).\n3. Enter the session password: document\n4
+ . Click "Join Now".\n5. Follow the instructions that appear on your screen
+ .\n\nTo view in other time zones or languages\, please click the link\nhtt
+ ps://alfresco-events.webex.com/alfresco-events/k2/j.php?ED=167964647&UID=1
+ 254359827&rid=1&HMAC=930009bea109bacf1efbb09e49043018a12550a8&ORT=NyMxNDM%
+ 3D\n\n\n-------------------------------------------------------\nTo join t
+ he session by phone only \n-----------------------------------------------
+ --------\nTo receive a call back\, provide your phone number when you join
+  the training session\, or call the number below and enter the access code
+ .\nCall-in toll-free number (UK):0800-051-3810 \nCall-in toll number (UK):
+ +44-20-310-64804\nGlobal call-in numbers: https://alfresco-events.webex.co
+ m/alfresco-events/globalcallin.php?serviceType=TC&ED=167964647&tollFree=1\
+ nShow toll-free dialing restrictions: http://www.webex.com/pdf/tollfree_re
+ strictions.pdf\nAccess code: 841 234 120\n\n------------------------------
+ -------------------------\nFor assistance\n-------------------------------
+ ------------------------\nYou can contact Harinder Sunder at:\nharinder.su
+ nder@fake5.blue-mind.net\n\n\nTo add this session to your calendar program (for e
+ xample Microsoft Outlook)\, click this link:\nhttps://alfresco-events.webe
+ x.com/alfresco-events/k2/j.php?AT=down&ED=167964647&EF=MRC&UUID=1254359827
+ &SHA2=Y4wesgm7sQEENO5J6MU2BmTxaqImeeBNLQBgXQlIV0M%3D&RT=NyMxNDM%3D\n\n\n\n
+ \n\n\nhttp://www.webex.com\n\nIMPORTANT NOTICE: This WebEx service include
+ s a feature that allows audio and any documents and other materials exchan
+ ged or viewed during the session to be recorded. By joining this session\,
+  you automatically consent to such recordings. If you do not consent to th
+ e recording\, discuss your concerns with the meeting host prior to the sta
+ rt of the recording or do not join the session. Please note that any such 
+ recordings may be subject to discovery in the event of litigation.\n
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:https://alfresco-events.webex.com/alfresco-events
+CATEGORIES:
+X-OBM-COLOR:
+UID:WEBEX-TRAINING CENTER-7.0391690-167964647
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:harinder.sunder@fake5.blue-mind.net
+DTSTAMP:20120924T122556Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120322T133018Z
+LAST-MODIFIED:20120924T122551Z
+DTSTART;TZID=Etc/GMT:20111011T153000
+DURATION:PT30M
+TRANSP:OPAQUE
+SEQUENCE:0
+SUMMARY:Imen Ben Tamansourt - Retour sur l'entretien annuel
+DESCRIPTION:
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:Zembra
+CATEGORIES:
+X-OBM-COLOR:
+UID:040000008200E00074C5B7101A82E0080000000090F6D3581785CC0100000000000000
+ 0010000000459D918CF2C1D24883B3389A53884478
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:IBenTamansourt@fake6.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:ibentamansourt@fake2.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:fbelhadjali@fake2.blue-mind.net
+DTSTAMP:20120924T122556Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20111116T115323Z
+LAST-MODIFIED:20111116T115323Z
+DTSTART;TZID=Europe/Madrid:20111115T100000
+DURATION:PT4H45M
+TRANSP:OPAQUE
+SEQUENCE:0
+SUMMARY:Proba gawrona
+DESCRIPTION:
+CLASS:PUBLIC
+PRIORITY:1
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:
+CATEGORIES:
+X-OBM-COLOR:
+RECURRENCE-ID:20111115T070000Z
+UID:62b6fc35963912c9529ce2be241bfcf2da595a4147f86379cb8fa48a94fd1136234df6
+ cb6d592effe7cefa5b1c5a6e3e72d7e01e30394a0866e238bb3967df173a176c75e7f06288
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122556Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120322T133032Z
+LAST-MODIFIED:20120924T122551Z
+DTSTART;TZID=Etc/GMT:20111115T160000
+DURATION:PT1H
+TRANSP:OPAQUE
+SEQUENCE:0
+SUMMARY:You are registered for the training session: Document Viewing\, An
+ notation\, Streaming & Redaction in Alfresco DM\, Alfresco Share & Alfresc
+ o Workflow
+DESCRIPTION:Hello Imne BEN TAMANSOURT\,\n\nYour registration for the follo
+ wing training session is accepted:\n\nTopic: Document Viewing\, Annotation
+ \, Streaming & Redaction in Alfresco DM\, Alfresco Share & Alfresco Workfl
+ ow\nHost: Joe Tong\nDate: Tuesday 15 November 2011\nTime: 17:00\, Europe T
+ ime (Paris\, GMT+01:00)\nRegistration ID: 571278\nSession number: 840 336 
+ 852\nSession password: alfresco\n\n---------------------------------------
+ ----------------\nTo join the training session\n--------------------------
+ -----------------------------\n1. Go to https://alfresco-events.webex.com/
+ alfresco-events/k2/j.php?ED=183881337&UID=1259303592&rid=1&HMAC=47e39dfd4f
+ ab493905d480eb85f72eecc61519b7&RT=NyMyMw%3D%3D\n2. Enter your name and ema
+ il address (or registration ID).\n3. Enter the session password: alfresco\
+ n4. Click "Join Now".\n5. Follow the instructions that appear on your scre
+ en.\n\nTo view in other time zones or languages\, please click the link\nh
+ ttps://alfresco-events.webex.com/alfresco-events/k2/j.php?ED=183881337&UID
+ =1259303592&rid=1&HMAC=47e39dfd4fab493905d480eb85f72eecc61519b7&ORT=NyMyMw
+ %3D%3D\n\n\n-------------------------------------------------------\nTo jo
+ in the session by phone only \n-------------------------------------------
+ ------------\nTo receive a call back\, provide your phone number when you 
+ join the training session\, or call the number below and enter the access 
+ code.\nCall-in toll-free number (UK):0800-051-3810 \nCall-in toll number (
+ UK):+44-20-310-64804\nGlobal call-in numbers: https://alfresco-events.webe
+ x.com/alfresco-events/globalcallin.php?serviceType=TC&ED=183881337&tollFre
+ e=1\nShow toll-free dialing restrictions: http://www.webex.com/pdf/tollfre
+ e_restrictions.pdf\nAccess code: 840 336 852\n\n--------------------------
+ -----------------------------\nFor assistance\n---------------------------
+ ----------------------------\nYou can contact Joe Tong at:\njoe.tong@alfre
+ sco.com\n\n\nTo add this session to your calendar program (for example Mic
+ rosoft Outlook)\, click this link:\nhttps://alfresco-events.webex.com/alfr
+ esco-events/k2/j.php?AT=down&ED=183881337&EF=MRC&UUID=1259303592&SHA2=Pa3q
+ kGIrfWLvETIjMmVbbaZYj2y-CVUV-jo9Y2vYUc4%3D&RT=NyMyMw%3D%3D\n\n\n\n\n\n\nht
+ tp://www.webex.com\n\nIMPORTANT NOTICE: This WebEx service includes a feat
+ ure that allows audio and any documents and other materials exchanged or v
+ iewed during the session to be recorded. By joining this session\, you aut
+ omatically consent to such recordings. If you do not consent to the record
+ ing\, discuss your concerns with the meeting host prior to the start of th
+ e recording or do not join the session. Please note that any such recordin
+ gs may be subject to discovery in the event of litigation.\n
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:https://alfresco-events.webex.com/alfresco-events
+CATEGORIES:
+X-OBM-COLOR:
+UID:WEBEX-TRAINING CENTER-7.0391690-183881337
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:joe.tong@fake5.blue-mind.net
+DTSTAMP:20120924T122556Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20111122T071347Z
+LAST-MODIFIED:20111122T071414Z
+DTSTART;TZID=Europe/Paris:20111122T103000
+DURATION:PT2H30M
+TRANSP:OPAQUE
+SEQUENCE:0
+SUMMARY:s
+DESCRIPTION:
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:
+CATEGORIES:
+X-OBM-COLOR:
+UID:62b6fc35963912c9529ce2be6b3cfff25466057e57a686d663d5cc22d7f7e17c234df6
+ cb6d592effe7cefa5b1c5a6e3e72d7e01ed644c124f19d4c5c17de8ffe258f496f9509d516
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122556Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120322T133021Z
+LAST-MODIFIED:20120924T122551Z
+DTSTART;TZID=Etc/GMT:20111123T080000
+DURATION:PT3H
+TRANSP:OPAQUE
+SEQUENCE:0
+SUMMARY:Démonstration ONJ
+DESCRIPTION:
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:ONJ
+CATEGORIES:
+X-OBM-COLOR:
+UID:040000008200E00074C5B7101A82E0080000000020299394BEA2CC0100000000000000
+ 0010000000A8261DFF618A4D45ADBEB5FEA464D5EC
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:ibentamansourt@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:fbelhadjali@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mmhiri@fake3.blue-mind.net
+DTSTAMP:20120924T122556Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120322T133027Z
+LAST-MODIFIED:20120924T122551Z
+DTSTART;TZID=Etc/GMT:20111124T150000
+DURATION:PT1H
+TRANSP:OPAQUE
+SEQUENCE:0
+SUMMARY:[GED IP-TECH]: Revue de l'IHM - interface utilisateur-
+DESCRIPTION:\n
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:Djerba
+CATEGORIES:
+X-OBM-COLOR:
+UID:040000008200E00074C5B7101A82E00800000000804F7EC38A9FCC0100000000000000
+ 0010000000BB828A814FE92F46B0C8324F260A21DE
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:MOuederni@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:ibentamansourt@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:fbelhadjali@fake3.blue-mind.net
+DTSTAMP:20120924T122556Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120322T133020Z
+LAST-MODIFIED:20120924T122551Z
+DTSTART;TZID=Etc/GMT:20111124T160000
+DURATION:PT1H
+TRANSP:OPAQUE
+SEQUENCE:0
+SUMMARY:[Indexo4Alfresco] Démonstration
+DESCRIPTION:\n
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:Djerba
+CATEGORIES:
+X-OBM-COLOR:
+UID:040000008200E00074C5B7101A82E0080000000050B260B68C9FCC0100000000000000
+ 00100000008AD5FCA5C11AF243974C0A0FD3556228
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:selkafsi@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mmhiri@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:hdouss@fake2.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mouederni@fake2.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mouederni@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:ibentamansourt@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:fbelhadjali@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:HDouss@fake6.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:MMHIRI@fake6.blue-mind.net
+DTSTAMP:20120924T122556Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20111129T145011Z
+LAST-MODIFIED:20111129T145012Z
+DTSTART;TZID=Europe/Paris:20111130T080000
+DURATION:PT4H45M
+TRANSP:OPAQUE
+SEQUENCE:0
+SUMMARY:Proba gawrona
+DESCRIPTION:
+CLASS:PUBLIC
+PRIORITY:1
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:
+CATEGORIES:
+X-OBM-COLOR:
+RECURRENCE-ID:20111129T070000Z
+UID:62b6fc35963912c9529ce2bef196a1a34ecc80447e19b6585d77f781bbd96cde234df6
+ cb6d592effe7cefa5b1c5a6e3e72d7e01efb59a28d152d415f9a98fa9a58532060dcdd0157
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122556Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20111129T145013Z
+LAST-MODIFIED:20111129T145013Z
+DTSTART;TZID=Europe/Paris:20111201T080000
+DURATION:PT4H45M
+TRANSP:OPAQUE
+SEQUENCE:0
+SUMMARY:Proba gawrona
+DESCRIPTION:
+CLASS:PUBLIC
+PRIORITY:1
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:
+CATEGORIES:
+X-OBM-COLOR:
+RECURRENCE-ID:20111201T070000Z
+UID:62b6fc35963912c9529ce2be22862df43a7160c9dda24dcb0ee82fa12630afbe234df6
+ cb6d592effe7cefa5b1c5a6e3e72d7e01e7f0cf4c76b18183bc4bccd07d13807ea616acdd8
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122556Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120322T133021Z
+LAST-MODIFIED:20120924T122551Z
+DTSTART;TZID=Etc/GMT:20111206T130000
+DURATION:PT2H30M
+TRANSP:OPAQUE
+SEQUENCE:0
+SUMMARY:TELEC // Démarrage du projet
+DESCRIPTION:
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:Locaux de Telec
+CATEGORIES:
+X-OBM-COLOR:
+UID:040000008200E00074C5B7101A82E00800000000C0D7501E01B1CC0100000000000000
+ 0010000000CC39FBE80CB7B849A9E79D65EAB4F538
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:selkafsi@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:ibentamansourt@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:fbelhadjali@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mmhiri@fake3.blue-mind.net
+DTSTAMP:20120924T122556Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120322T133032Z
+LAST-MODIFIED:20120924T122551Z
+DTSTART;TZID=Etc/GMT:20111213T130000
+DURATION:PT4H
+TRANSP:OPAQUE
+SEQUENCE:0
+SUMMARY:Réunion CNRPS: DPA
+DESCRIPTION:\n
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:Locaux DPA Jean Jaures
+CATEGORIES:
+X-OBM-COLOR:
+UID:040000008200E00074C5B7101A82E00800000000A0E691EC52B6CC0100000000000000
+ 0010000000136AB1B0F40ED34B9DCB269F2F10031A
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122556Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120322T133032Z
+LAST-MODIFIED:20120924T122551Z
+DTSTART;TZID=Etc/GMT:20111216T080000
+DURATION:PT3H
+TRANSP:OPAQUE
+SEQUENCE:0
+SUMMARY:[TELEC] Conception fonctionnelle
+DESCRIPTION:\n
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:Locaux AYD
+CATEGORIES:
+X-OBM-COLOR:
+UID:040000008200E00074C5B7101A82E00800000000A078A08F6ABACC0100000000000000
+ 0010000000856BD8DF00B7E64B9B5C53A326BDDBA1
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122556Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120322T133032Z
+LAST-MODIFIED:20120924T122551Z
+DTSTART;TZID=Etc/GMT:20111219T130000
+DURATION:PT1H
+TRANSP:OPAQUE
+SEQUENCE:0
+SUMMARY:[ATLAS] Revu des specs de la GED
+DESCRIPTION:\n\n_____________________________________________\nDe : rania.
+ zgollibelhaj@fake7.blue-mind.net [mailto:rania.zgollibelhaj@fake7.blue-mind.net] \nEnvoy
+ é : mercredi 14 décembre 2011 14:47\nÀ : fateh belhadj ali\nCc : jean dura
+ nd\nObjet : Fonctionnalités de la GED\n\n\n Fateh\,\n\n Tu trouvears ci-jo
+ int une étude préliminaire des fonctionnalités de la  GED.\n Je suis à ta 
+ disposition pour en discuter.\n\n Bien cordialement\n\n Rania ZGOLLI BELHA
+ J\n Program Manager\n KPMG\n\n\n
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:IP-Tech
+CATEGORIES:
+X-OBM-COLOR:
+UID:040000008200E00074C5B7101A82E0080000000010262F022ABECC0100000000000000
+ 0010000000CE115EF73E336A408792A1F4DC36FF88
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:ibentamansourt@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:bomrani@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:rania.zgollibelhaj@fake7.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:fbelhadjali@fake3.blue-mind.net
+DTSTAMP:20120924T122556Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120322T133019Z
+LAST-MODIFIED:20120924T122551Z
+DTSTART;TZID=Etc/GMT:20111220T083000
+DURATION:PT2H30M
+TRANSP:OPAQUE
+SEQUENCE:0
+SUMMARY:Installation v. de base + Initiation
+DESCRIPTION:
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:Min. Intérieur - DGI - Bouchoucha
+CATEGORIES:
+X-OBM-COLOR:
+UID:040000008200E00074C5B7101A82E00800000000C03E19EC53B6CC0100000000000000
+ 001000000037C6129FF6CAB64CA23B425E9F1D813F
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:selkafsi@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:ibentamansourt@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:fbelhadjali@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mmhiri@fake3.blue-mind.net
+DTSTAMP:20120924T122556Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120322T133025Z
+LAST-MODIFIED:20120924T122551Z
+DTSTART;TZID=Etc/GMT:20120113T133000
+DURATION:PT1H30M
+TRANSP:OPAQUE
+SEQUENCE:0
+SUMMARY:[MTH+IBT] Hatem WALID [Admin R&S]
+DESCRIPTION:<<...>> <<...>> \n\n
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:Zembra
+CATEGORIES:
+X-OBM-COLOR:
+UID:040000008200E00074C5B7101A82E00800000000F013DF9286D0CC0100000000000000
+ 0010000000FAE8C3A3E7AF3E46A9E9186FE665A5E2
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:ibentamansourt@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:fbelhadjali@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mouederni@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mthabet@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:fmezghich@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mbenhassine@fake3.blue-mind.net
+DTSTAMP:20120924T122556Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120322T133024Z
+LAST-MODIFIED:20120924T122551Z
+DTSTART;TZID=Etc/GMT:20120203T143000
+DURATION:PT1H30M
+TRANSP:OPAQUE
+SEQUENCE:0
+SUMMARY:Etude de cas Drupal: Autoforfait.com
+DESCRIPTION:
+CLASS:PUBLIC
+PRIORITY:1
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:Skype / Teamviewer
+CATEGORIES:
+X-OBM-COLOR:
+UID:040000008200E00074C5B7101A82E0080000000020B01F3CD4E0CC0100000000000000
+ 0010000000FFB266EE7A6F7A4CB3E6296E8B991CDF
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:ibentamansourt@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:fbelhadjali@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:jfrenault@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:flo.schuss@fake8.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:herve@fake9.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mmhiri@fake3.blue-mind.net
+DTSTAMP:20120924T122556Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120322T133019Z
+LAST-MODIFIED:20120924T122551Z
+DTSTART;TZID=Etc/GMT:20120208T153000
+DURATION:PT1H30M
+TRANSP:OPAQUE
+SEQUENCE:0
+SUMMARY:Réunion de mise au point
+DESCRIPTION:Lors de cette réunion\, l’équipe de développement responsable 
+ de la démonstration de SharePoint présentera les différents travaux qu’ell
+ e a réalisé et fournira les éléments de démo à l’ingénieur avant-ventes.\n
+ \n
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:Karkenah
+CATEGORIES:
+X-OBM-COLOR:
+UID:040000008200E00074C5B7101A82E00800000000600460FD42E6CC0100000000000000
+ 0010000000F65C572C07BDB04A8A4F143987DAB7C4
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:ibentamansourt@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:srahmouni@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mmhiri@fake4.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:sghanmi@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:selkafsi@fake3.blue-mind.net
+DTSTAMP:20120924T122556Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120214T171028Z
+LAST-MODIFIED:20120918T114051Z
+DTSTART;TZID=Europe/Paris:20120216T083000
+DURATION:PT4H45M
+TRANSP:OPAQUE
+SEQUENCE:69
+SUMMARY:Proba gawrona
+DESCRIPTION:
+CLASS:PUBLIC
+PRIORITY:1
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:
+CATEGORIES:
+X-OBM-COLOR:
+RECURRENCE-ID:20120215T080000Z
+UID:62b6fc35963912c9529ce2be5f4d16143141b3295fb1cd0d3bd09ec5fbebc500234df6
+ cb6d592effe7cefa5b1c5a6e3e72d7e01e195637d37074d6c761c7a80a0b7c07d2a014bd27
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122556Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120322T133020Z
+LAST-MODIFIED:20120924T122551Z
+DTSTART;TZID=Etc/GMT:20120217T090000
+DURATION:PT2H
+TRANSP:OPAQUE
+SEQUENCE:0
+SUMMARY:[CNRPS] VAlidation Integration BO
+DESCRIPTION:\n
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:Menzeh 6
+CATEGORIES:
+X-OBM-COLOR:
+UID:040000008200E00074C5B7101A82E00800000000C0832DF7CDEBCC0100000000000000
+ 0010000000804B2D506C9EF64D93830E135F35D8CF
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122556Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120322T133022Z
+LAST-MODIFIED:20120924T122551Z
+DTSTART;TZID=Etc/GMT:20120217T163000
+DURATION:PT30M
+TRANSP:TRANSPARENT
+SEQUENCE:0
+SUMMARY:Annulé: Réunion de mise au point
+DESCRIPTION:Durant cette réunion\, nous allons voir l’avancement de la pré
+ paration de la démonstration SharePoint\, et faire dérouler un scénario.\n
+ \n
+CLASS:PUBLIC
+PRIORITY:1
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:Zembra
+CATEGORIES:
+X-OBM-COLOR:
+UID:<
+ 0010000000A2C176C1FA96EF4B9BD8EB749DDC2C5F
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:ibentamansourt@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:srahmouni@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:sghanmi@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:fbelhadjali@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:sales@fake4.blue-mind.net
+DTSTAMP:20120924T122556Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120404T141615Z
+LAST-MODIFIED:20120918T114051Z
+DTSTART;TZID=America/Costa_Rica:20120419T000000
+DURATION:PT4H
+TRANSP:OPAQUE
+SEQUENCE:69
+SUMMARY:Proba gawrona
+DESCRIPTION:
+CLASS:PUBLIC
+PRIORITY:1
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:
+CATEGORIES:
+X-OBM-COLOR:
+RECURRENCE-ID:20120419T070000Z
+UID:62b6fc35963912c9529ce2be5f4d16143141b3295fb1cd0d3bd09ec5fbebc500234df6
+ cb6d592effe7cefa5b1c5a6e3e72d7e01e195637d37074d6c761c7a80a0b7c07d2a014bd27
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122557Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120417T153657Z
+LAST-MODIFIED:20120921T134705Z
+DTSTART;TZID=Europe/Paris:20120419T130000
+DURATION:PT2H
+TRANSP:OPAQUE
+SEQUENCE:50
+SUMMARY:[AYD - GED] Comité Produit
+DESCRIPTION:Fréquence : Mensuelle. Chaque premier vendredi du mois.\n\nObj
+ ectifs de la réunion :\n\n-       Validation des fonctionnalités\n\n-     
+   Validation de l’architecture technique\n\n-       Suivi et validation du
+  planning \n\n-       Echange sur n’importe quel autre sujet en relation a
+ vec le produit en dehors des trois points précédents\n\nIl y aura un ordre
+  du jour pour chaque réunion qui sera proposé par mail assez en avance (3 
+ jours) par Hamdi et Imen. Les autres participants rajouteront avant la réu
+ nion des points à l’ordre du jour s’ils le souhaitent.\n\nUn compte rendu 
+ sera rédigé et partagé après chaque réunion par Imen\, Hamdi ou Mahmoud.\n
+ \nVos remarques seront les bienvenues.\n\n
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:Zembra
+CATEGORIES:
+X-OBM-COLOR:
+RECURRENCE-ID:20120420T133000Z
+UID:040000008200E00074C5B7101A82E0080000000000FD15D8F2E4CC0100000000000000
+ 00100000004D88FD3F9CD43D45A4E29A017CEC6706
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:ibentamansourt@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:fbelhadjali@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mmhiri@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mouederni@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:hdouss@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122557Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120418T090629Z
+LAST-MODIFIED:20120921T134600Z
+DTSTART;TZID=Europe/Paris:20120419T190000
+DURATION:PT4H
+TRANSP:OPAQUE
+SEQUENCE:22
+SUMMARY:essai
+DESCRIPTION:
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:
+CATEGORIES:Reunion
+X-OBM-COLOR:
+RECURRENCE-ID:20120419T170000Z
+UID:62b6fc35963912c9529ce2be5ce0e138b66b677c7429b7f0cbcc88eb4525d3fd234df6
+ cb6d592effe7cefa5b1c5a6e3e72d7e01e5d3afba9357daa7ff43d7e5d7db1fcc53c1305c7
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122557Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120726T090410Z
+LAST-MODIFIED:20120726T090440Z
+DTSTART;TZID=Europe/Paris:20120503T083000
+DURATION:PT5H30M
+TRANSP:OPAQUE
+SEQUENCE:1
+SUMMARY:essai meeting
+DESCRIPTION:
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=6;CN= Editor:MAILTO:noreply@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:
+CATEGORIES:
+X-OBM-COLOR:
+UID:62b6fc35963912c9529ce2bef60e404c9f25a683abcf6cf2a9ed604410663315234df6
+ cb6d592effe7cefa5b1c5a6e3e72d7e01e578bf727431827ab493ffe1431274a20f6aee932
+ATTENDEE;CUTYPE=INDIVIDUAL;CN=Céline Zapolsky;PARTSTAT=NEEDS-ACTION;X-OBM-
+ ID=4:MAILTO:user2@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN=Testi Test;PARTSTAT=NEEDS-ACTION;X-OBM-ID=5:
+ MAILTO:test12@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= not-1;PARTSTAT=NEEDS-ACTION;X-OBM-ID=20:MAI
+ LTO:noreply@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= compta-1;PARTSTAT=NEEDS-ACTION;X-OBM-ID=26:
+ MAILTO:noreply@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= compta-2;PARTSTAT=NEEDS-ACTION;X-OBM-ID=27:
+ MAILTO:noreply@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN=A D;PARTSTAT=NEEDS-ACTION;X-OBM-ID=31:MAILTO
+ :noreply@fake.blue-mind.net
+ATTENDEE;CUTYPE=RESOURCE;CN=307;PARTSTAT=NEEDS-ACTION;X-OBM-ID=93:MAILTO:n
+ oreply@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= Editor;PARTSTAT=ACCEPTED;X-OBM-ID=6:MAILTO:
+ noreply@fake.blue-mind.net
+ATTENDEE;CUTYPE=RESOURCE;CN=VL N°1;PARTSTAT=ACCEPTED;X-OBM-ID=137:MAILTO:n
+ oreply@fake.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN=Erwan Le Gall;PARTSTAT=DECLINED;X-OBM-ID=3:M
+ AILTO:user1@fake.blue-mind.net
+DTSTAMP:20120924T122557Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120508T130056Z
+LAST-MODIFIED:20120921T134705Z
+DTSTART;TZID=Europe/Istanbul:20120518T130000
+DURATION:PT4H30M
+TRANSP:OPAQUE
+SEQUENCE:50
+SUMMARY:[AYD - GED] Comité Produit
+DESCRIPTION:Fréquence : Mensuelle. Chaque premier vendredi du mois.\n\nObj
+ ectifs de la réunion :\n\n-       Validation des fonctionnalités\n\n-     
+   Validation de l’architecture technique\n\n-       Suivi et validation du
+  planning \n\n-       Echange sur n’importe quel autre sujet en relation a
+ vec le produit en dehors des trois points précédents\n\nIl y aura un ordre
+  du jour pour chaque réunion qui sera proposé par mail assez en avance (3 
+ jours) par Hamdi et Imen. Les autres participants rajouteront avant la réu
+ nion des points à l’ordre du jour s’ils le souhaitent.\n\nUn compte rendu 
+ sera rédigé et partagé après chaque réunion par Imen\, Hamdi ou Mahmoud.\n
+ \nVos remarques seront les bienvenues.\n\n
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:Zembra
+CATEGORIES:
+X-OBM-COLOR:
+RECURRENCE-ID:20120518T133000Z
+UID:040000008200E00074C5B7101A82E0080000000000FD15D8F2E4CC0100000000000000
+ 00100000004D88FD3F9CD43D45A4E29A017CEC6706
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:ibentamansourt@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:fbelhadjali@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mmhiri@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mouederni@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:hdouss@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122557Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120626T160351Z
+LAST-MODIFIED:20120921T134705Z
+DTSTART;TZID=Europe/Paris:20120629T100000
+DURATION:PT2H
+TRANSP:OPAQUE
+SEQUENCE:50
+SUMMARY:[AYD - GED] Comité Produit
+DESCRIPTION:Fréquence : Mensuelle. Chaque premier vendredi du mois.\n\nObj
+ ectifs de la réunion :\n\n-       Validation des fonctionnalités\n\n-     
+   Validation de l’architecture technique\n\n-       Suivi et validation du
+  planning \n\n-       Echange sur n’importe quel autre sujet en relation a
+ vec le produit en dehors des trois points précédents\n\nIl y aura un ordre
+  du jour pour chaque réunion qui sera proposé par mail assez en avance (3 
+ jours) par Hamdi et Imen. Les autres participants rajouteront avant la réu
+ nion des points à l’ordre du jour s’ils le souhaitent.\n\nUn compte rendu 
+ sera rédigé et partagé après chaque réunion par Imen\, Hamdi ou Mahmoud.\n
+ \nVos remarques seront les bienvenues.\n\n
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:Zembra
+CATEGORIES:
+X-OBM-COLOR:
+RECURRENCE-ID:20120629T133000Z
+UID:040000008200E00074C5B7101A82E0080000000000FD15D8F2E4CC0100000000000000
+ 00100000004D88FD3F9CD43D45A4E29A017CEC6706
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:ibentamansourt@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:fbelhadjali@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mmhiri@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mouederni@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:hdouss@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122557Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120701T220902Z
+LAST-MODIFIED:20120921T134705Z
+DTSTART;TZID=Europe/Paris:20120706T113000
+DURATION:PT2H
+TRANSP:OPAQUE
+SEQUENCE:50
+SUMMARY:[AYD - GED] Comité Produit
+DESCRIPTION:Fréquence : Mensuelle. Chaque premier vendredi du mois.\n\nObj
+ ectifs de la réunion :\n\n-       Validation des fonctionnalités\n\n-     
+   Validation de l’architecture technique\n\n-       Suivi et validation du
+  planning \n\n-       Echange sur n’importe quel autre sujet en relation a
+ vec le produit en dehors des trois points précédents\n\nIl y aura un ordre
+  du jour pour chaque réunion qui sera proposé par mail assez en avance (3 
+ jours) par Hamdi et Imen. Les autres participants rajouteront avant la réu
+ nion des points à l’ordre du jour s’ils le souhaitent.\n\nUn compte rendu 
+ sera rédigé et partagé après chaque réunion par Imen\, Hamdi ou Mahmoud.\n
+ \nVos remarques seront les bienvenues.\n\n
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:Zembra
+CATEGORIES:
+X-OBM-COLOR:
+RECURRENCE-ID:20120706T133000Z
+UID:040000008200E00074C5B7101A82E0080000000000FD15D8F2E4CC0100000000000000
+ 00100000004D88FD3F9CD43D45A4E29A017CEC6706
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:ibentamansourt@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:fbelhadjali@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mmhiri@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mouederni@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:hdouss@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122557Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120718T122334Z
+LAST-MODIFIED:20120921T134705Z
+DTSTART;TZID=Europe/Amsterdam:20120720T143000
+DURATION:PT2H
+TRANSP:OPAQUE
+SEQUENCE:50
+SUMMARY:[AYD - GED] Comité Produit
+DESCRIPTION:Fréquence : Mensuelle. Chaque premier vendredi du mois.\n\nObj
+ ectifs de la réunion :\n\n-       Validation des fonctionnalités\n\n-     
+   Validation de l’architecture technique\n\n-       Suivi et validation du
+  planning \n\n-       Echange sur n’importe quel autre sujet en relation a
+ vec le produit en dehors des trois points précédents\n\nIl y aura un ordre
+  du jour pour chaque réunion qui sera proposé par mail assez en avance (3 
+ jours) par Hamdi et Imen. Les autres participants rajouteront avant la réu
+ nion des points à l’ordre du jour s’ils le souhaitent.\n\nUn compte rendu 
+ sera rédigé et partagé après chaque réunion par Imen\, Hamdi ou Mahmoud.\n
+ \nVos remarques seront les bienvenues.\n\n
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:Zembra
+CATEGORIES:
+X-OBM-COLOR:
+RECURRENCE-ID:20120720T133000Z
+UID:040000008200E00074C5B7101A82E0080000000000FD15D8F2E4CC0100000000000000
+ 00100000004D88FD3F9CD43D45A4E29A017CEC6706
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:ibentamansourt@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:fbelhadjali@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mmhiri@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mouederni@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:hdouss@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122557Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120723T145419Z
+LAST-MODIFIED:20120921T134705Z
+DTSTART;TZID=Europe/London:20120726T110000
+DURATION:PT3H
+TRANSP:OPAQUE
+SEQUENCE:50
+SUMMARY:[AYD - GED] Comité Produit
+DESCRIPTION:Fréquence : Mensuelle. Chaque premier vendredi du mois.\n\nObj
+ ectifs de la réunion :\n\n-       Validation des fonctionnalités\n\n-     
+   Validation de l’architecture technique\n\n-       Suivi et validation du
+  planning \n\n-       Echange sur n’importe quel autre sujet en relation a
+ vec le produit en dehors des trois points précédents\n\nIl y aura un ordre
+  du jour pour chaque réunion qui sera proposé par mail assez en avance (3 
+ jours) par Hamdi et Imen. Les autres participants rajouteront avant la réu
+ nion des points à l’ordre du jour s’ils le souhaitent.\n\nUn compte rendu 
+ sera rédigé et partagé après chaque réunion par Imen\, Hamdi ou Mahmoud.\n
+ \nVos remarques seront les bienvenues.\n\n
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:Zembra
+CATEGORIES:
+X-OBM-COLOR:
+RECURRENCE-ID:20120727T133000Z
+UID:040000008200E00074C5B7101A82E0080000000000FD15D8F2E4CC0100000000000000
+ 00100000004D88FD3F9CD43D45A4E29A017CEC6706
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:ibentamansourt@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:fbelhadjali@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mmhiri@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mouederni@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:hdouss@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122557Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120813T102904Z
+LAST-MODIFIED:20120921T134705Z
+DTSTART;TZID=Europe/Paris:20120814T100000
+DURATION:PT2H
+TRANSP:OPAQUE
+SEQUENCE:50
+SUMMARY:[AYD - GED] Comité Produit
+DESCRIPTION:Fréquence : Mensuelle. Chaque premier vendredi du mois.\n\nObj
+ ectifs de la réunion :\n\n-       Validation des fonctionnalités\n\n-     
+   Validation de l’architecture technique\n\n-       Suivi et validation du
+  planning \n\n-       Echange sur n’importe quel autre sujet en relation a
+ vec le produit en dehors des trois points précédents\n\nIl y aura un ordre
+  du jour pour chaque réunion qui sera proposé par mail assez en avance (3 
+ jours) par Hamdi et Imen. Les autres participants rajouteront avant la réu
+ nion des points à l’ordre du jour s’ils le souhaitent.\n\nUn compte rendu 
+ sera rédigé et partagé après chaque réunion par Imen\, Hamdi ou Mahmoud.\n
+ \nVos remarques seront les bienvenues.\n\n
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:Zembra
+CATEGORIES:
+X-OBM-COLOR:
+RECURRENCE-ID:20120817T133000Z
+UID:040000008200E00074C5B7101A82E0080000000000FD15D8F2E4CC0100000000000000
+ 00100000004D88FD3F9CD43D45A4E29A017CEC6706
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:ibentamansourt@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:fbelhadjali@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mmhiri@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mouederni@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:hdouss@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122557Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120813T102912Z
+LAST-MODIFIED:20120921T134705Z
+DTSTART;TZID=Europe/Paris:20120817T153000
+DURATION:PT2H
+TRANSP:OPAQUE
+SEQUENCE:50
+SUMMARY:[AYD - GED] Comité Produit
+DESCRIPTION:Fréquence : Mensuelle. Chaque premier vendredi du mois.\n\nObj
+ ectifs de la réunion :\n\n-       Validation des fonctionnalités\n\n-     
+   Validation de l’architecture technique\n\n-       Suivi et validation du
+  planning \n\n-       Echange sur n’importe quel autre sujet en relation a
+ vec le produit en dehors des trois points précédents\n\nIl y aura un ordre
+  du jour pour chaque réunion qui sera proposé par mail assez en avance (3 
+ jours) par Hamdi et Imen. Les autres participants rajouteront avant la réu
+ nion des points à l’ordre du jour s’ils le souhaitent.\n\nUn compte rendu 
+ sera rédigé et partagé après chaque réunion par Imen\, Hamdi ou Mahmoud.\n
+ \nVos remarques seront les bienvenues.\n\n
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:Zembra
+CATEGORIES:
+X-OBM-COLOR:
+UID:040000008200E00074C5B7101A82E0080000000000FD15D8F2E4CC0100000000000000
+ 00100000004D88FD3F9CD43D45A4E29A017CEC6706
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:ibentamansourt@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:fbelhadjali@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mmhiri@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mouederni@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:hdouss@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122557Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120822T145007Z
+LAST-MODIFIED:20120921T134705Z
+DTSTART;TZID=US/Pacific:20120824T033000
+DURATION:PT2H
+TRANSP:OPAQUE
+SEQUENCE:50
+SUMMARY:[AYD - GED] Comité Produit
+DESCRIPTION:Fréquence : Mensuelle. Chaque premier vendredi du mois.\n\nObj
+ ectifs de la réunion :\n\n-       Validation des fonctionnalités\n\n-     
+   Validation de l’architecture technique\n\n-       Suivi et validation du
+  planning \n\n-       Echange sur n’importe quel autre sujet en relation a
+ vec le produit en dehors des trois points précédents\n\nIl y aura un ordre
+  du jour pour chaque réunion qui sera proposé par mail assez en avance (3 
+ jours) par Hamdi et Imen. Les autres participants rajouteront avant la réu
+ nion des points à l’ordre du jour s’ils le souhaitent.\n\nUn compte rendu 
+ sera rédigé et partagé après chaque réunion par Imen\, Hamdi ou Mahmoud.\n
+ \nVos remarques seront les bienvenues.\n\n
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:Zembra
+CATEGORIES:
+X-OBM-COLOR:
+RECURRENCE-ID:20120824T133000Z
+UID:040000008200E00074C5B7101A82E0080000000000FD15D8F2E4CC0100000000000000
+ 00100000004D88FD3F9CD43D45A4E29A017CEC6706
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:ibentamansourt@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:fbelhadjali@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mmhiri@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mouederni@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:hdouss@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122557Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120828T090542Z
+LAST-MODIFIED:20120921T134705Z
+DTSTART;TZID=Europe/Paris:20120828T041000
+DURATION:PT5H
+TRANSP:OPAQUE
+SEQUENCE:50
+SUMMARY:[AYD - GED] Comité Produit
+DESCRIPTION:Fréquence : Mensuelle. Chaque premier vendredi du mois.\n\nObj
+ ectifs de la réunion :\n\n-       Validation des fonctionnalités\n\n-     
+   Validation de l’architecture technique\n\n-       Suivi et validation du
+  planning \n\n-       Echange sur n’importe quel autre sujet en relation a
+ vec le produit en dehors des trois points précédents\n\nIl y aura un ordre
+  du jour pour chaque réunion qui sera proposé par mail assez en avance (3 
+ jours) par Hamdi et Imen. Les autres participants rajouteront avant la réu
+ nion des points à l’ordre du jour s’ils le souhaitent.\n\nUn compte rendu 
+ sera rédigé et partagé après chaque réunion par Imen\, Hamdi ou Mahmoud.\n
+ \nVos remarques seront les bienvenues.\n\n
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:Zembra
+CATEGORIES:
+X-OBM-COLOR:
+RECURRENCE-ID:20120831T133000Z
+UID:040000008200E00074C5B7101A82E0080000000000FD15D8F2E4CC0100000000000000
+ 00100000004D88FD3F9CD43D45A4E29A017CEC6706
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:ibentamansourt@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:fbelhadjali@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mmhiri@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mouederni@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:hdouss@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122557Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120830T085856Z
+LAST-MODIFIED:20120830T085856Z
+DTSTART;TZID=Europe/Paris:20120901T100000
+DURATION:PT15M
+TRANSP:OPAQUE
+SEQUENCE:0
+SUMMARY:Test meeting
+DESCRIPTION:
+CLASS:PUBLIC
+PRIORITY:9
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:here
+CATEGORIES:Commercial
+X-OBM-COLOR:
+X-OBM-ALERT;X-OBM-ID=2:1800
+BEGIN:VALARM
+TRIGGER:P1800S
+ACTION:display
+DESCRIPTION:Test meeting
+END:VALARM
+UID:62b6fc35963912c9529ce2be6a90eae70d1e596ccb15a5f79ceb22f1384e0d6f234df6
+ cb6d592effe7cefa5b1c5a6e3e72d7e01e218c0c6ca8029a617e1e3553aded567c6ec5e78a
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122557Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120727T132353Z
+LAST-MODIFIED:20120918T114051Z
+DTSTART;TZID=Europe/London:20120903T083000
+DURATION:PT4H45M
+TRANSP:OPAQUE
+SEQUENCE:69
+SUMMARY:Proba gawrona
+DESCRIPTION:
+CLASS:PUBLIC
+PRIORITY:1
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:
+CATEGORIES:
+X-OBM-COLOR:
+RECURRENCE-ID:20120904T070000Z
+UID:62b6fc35963912c9529ce2be5f4d16143141b3295fb1cd0d3bd09ec5fbebc500234df6
+ cb6d592effe7cefa5b1c5a6e3e72d7e01e195637d37074d6c761c7a80a0b7c07d2a014bd27
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122557Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120727T132354Z
+LAST-MODIFIED:20120918T114051Z
+DTSTART;TZID=Europe/London:20120905T041000
+DURATION:PT4H45M
+TRANSP:OPAQUE
+SEQUENCE:69
+SUMMARY:Proba gawrona
+DESCRIPTION:
+CLASS:PUBLIC
+PRIORITY:1
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:
+CATEGORIES:
+X-OBM-COLOR:
+UID:62b6fc35963912c9529ce2be5f4d16143141b3295fb1cd0d3bd09ec5fbebc500234df6
+ cb6d592effe7cefa5b1c5a6e3e72d7e01e195637d37074d6c761c7a80a0b7c07d2a014bd27
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122557Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120904T184438Z
+LAST-MODIFIED:20120904T184439Z
+DTSTART;VALUE=DATE:20120908
+DTEND;VALUE=DATE:20120910
+TRANSP:OPAQUE
+X-OBM-ALL-DAY:1
+SEQUENCE:13
+SUMMARY:fff
+DESCRIPTION:
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:
+CATEGORIES:
+X-OBM-COLOR:
+RECURRENCE-ID:20120908T220000Z
+UID:62b6fc35963912c9529ce2bea764b80d9ead4185e9484905ea770d8699cbe605234df6
+ cb6d592effe7cefa5b1c5a6e3e72d7e01e0e301d3c4d2697e51a252bc165a356c326e1acf6
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122557Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120910T070037Z
+LAST-MODIFIED:20120921T134705Z
+DTSTART;TZID=Europe/Paris:20120913T110000
+DURATION:PT2H
+TRANSP:OPAQUE
+SEQUENCE:50
+SUMMARY:[AYD - GED] Comité Produit
+DESCRIPTION:Fréquence : Mensuelle. Chaque premier vendredi du mois.\n\nObj
+ ectifs de la réunion :\n\n-       Validation des fonctionnalités\n\n-     
+   Validation de l’architecture technique\n\n-       Suivi et validation du
+  planning \n\n-       Echange sur n’importe quel autre sujet en relation a
+ vec le produit en dehors des trois points précédents\n\nIl y aura un ordre
+  du jour pour chaque réunion qui sera proposé par mail assez en avance (3 
+ jours) par Hamdi et Imen. Les autres participants rajouteront avant la réu
+ nion des points à l’ordre du jour s’ils le souhaitent.\n\nUn compte rendu 
+ sera rédigé et partagé après chaque réunion par Imen\, Hamdi ou Mahmoud.\n
+ \nVos remarques seront les bienvenues.\n\n
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:Zembra
+CATEGORIES:
+X-OBM-COLOR:
+RECURRENCE-ID:20120914T143000Z
+UID:040000008200E00074C5B7101A82E0080000000000FD15D8F2E4CC0100000000000000
+ 00100000004D88FD3F9CD43D45A4E29A017CEC6706
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:ibentamansourt@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:fbelhadjali@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mmhiri@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mouederni@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:hdouss@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122557Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120911T172647Z
+LAST-MODIFIED:20120921T134600Z
+DTSTART;TZID=GB:20120913T180000
+DURATION:PT1H
+TRANSP:OPAQUE
+SEQUENCE:22
+SUMMARY:essai
+DESCRIPTION:
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:
+CATEGORIES:Reunion
+X-OBM-COLOR:
+RECURRENCE-ID:20120906T170000Z
+UID:62b6fc35963912c9529ce2be5ce0e138b66b677c7429b7f0cbcc88eb4525d3fd234df6
+ cb6d592effe7cefa5b1c5a6e3e72d7e01e5d3afba9357daa7ff43d7e5d7db1fcc53c1305c7
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122557Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120910T070033Z
+LAST-MODIFIED:20120921T134705Z
+DTSTART;TZID=Europe/Paris:20120914T163000
+DURATION:PT2H
+TRANSP:OPAQUE
+SEQUENCE:50
+SUMMARY:[AYD - GED] Comité Produit
+DESCRIPTION:Fréquence : Mensuelle. Chaque premier vendredi du mois.\n\nObj
+ ectifs de la réunion :\n\n-       Validation des fonctionnalités\n\n-     
+   Validation de l’architecture technique\n\n-       Suivi et validation du
+  planning \n\n-       Echange sur n’importe quel autre sujet en relation a
+ vec le produit en dehors des trois points précédents\n\nIl y aura un ordre
+  du jour pour chaque réunion qui sera proposé par mail assez en avance (3 
+ jours) par Hamdi et Imen. Les autres participants rajouteront avant la réu
+ nion des points à l’ordre du jour s’ils le souhaitent.\n\nUn compte rendu 
+ sera rédigé et partagé après chaque réunion par Imen\, Hamdi ou Mahmoud.\n
+ \nVos remarques seront les bienvenues.\n\n
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:Zembra
+CATEGORIES:
+X-OBM-COLOR:
+RECURRENCE-ID:20120914T133000Z
+UID:040000008200E00074C5B7101A82E0080000000000FD15D8F2E4CC0100000000000000
+ 00100000004D88FD3F9CD43D45A4E29A017CEC6706
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:ibentamansourt@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:fbelhadjali@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mmhiri@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mouederni@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:hdouss@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122557Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120921T134559Z
+LAST-MODIFIED:20120921T134600Z
+DTSTART;TZID=Europe/Paris:20120919T063000
+DURATION:PT1H
+TRANSP:OPAQUE
+SEQUENCE:22
+SUMMARY:essai
+DESCRIPTION:
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:
+CATEGORIES:Reunion
+X-OBM-COLOR:
+RECURRENCE-ID:20120919T170000Z
+UID:62b6fc35963912c9529ce2be5ce0e138b66b677c7429b7f0cbcc88eb4525d3fd234df6
+ cb6d592effe7cefa5b1c5a6e3e72d7e01e5d3afba9357daa7ff43d7e5d7db1fcc53c1305c7
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122557Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120919T093527Z
+LAST-MODIFIED:20120919T093534Z
+DTSTART;TZID=Asia/Calcutta:20120920T084000
+DURATION:PT1H
+TRANSP:OPAQUE
+SEQUENCE:1
+SUMMARY:essai
+DESCRIPTION:
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:
+CATEGORIES:RDV
+X-OBM-COLOR:
+UID:62b6fc35963912c9529ce2be206dc89d7c635dfb3bf413928f7c8ff0a127ea9d234df6
+ cb6d592effe7cefa5b1c5a6e3e72d7e01ee641b6b0706b11991b9ef20be5ac42819732ddcf
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+ATTENDEE;CUTYPE=RESOURCE;CN=clio blanche;PARTSTAT=ACCEPTED;X-OBM-ID=115:MA
+ ILTO:noreply@fake.blue-mind.net
+DTSTAMP:20120924T122557Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120921T134709Z
+LAST-MODIFIED:20120921T134719Z
+DTSTART;TZID=Europe/Paris:20120921T093000
+DURATION:PT3H30M
+TRANSP:OPAQUE
+SEQUENCE:2
+SUMMARY:fzafza
+DESCRIPTION:
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:
+CATEGORIES:
+X-OBM-COLOR:
+UID:62b6fc35963912c9529ce2be3345b47c86552eeae06ad73b43059e2eb1f162cf234df6
+ cb6d592effe7cefa5b1c5a6e3e72d7e01eab2a61ec5279d431abfd85d894e4d359698275c5
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122557Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120921T134737Z
+LAST-MODIFIED:20120921T134757Z
+DTSTART;TZID=Europe/Paris:20120921T100000
+DURATION:PT4H30M
+TRANSP:OPAQUE
+SEQUENCE:7
+SUMMARY:fazeaz
+DESCRIPTION:
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:
+CATEGORIES:
+X-OBM-COLOR:
+UID:62b6fc35963912c9529ce2be1c8a57a2c4e0e4ae73fb894f3ae3b6f7930d4b04234df6
+ cb6d592effe7cefa5b1c5a6e3e72d7e01e1f1d6aea0b5ad0d1d94f931044e8f6be9686a63c
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122557Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120917T092422Z
+LAST-MODIFIED:20120921T134705Z
+DTSTART;TZID=GMT:20120921T113000
+DURATION:PT1H
+TRANSP:OPAQUE
+SEQUENCE:50
+SUMMARY:[AYD - GED] Comité Produit
+DESCRIPTION:Fréquence : Mensuelle. Chaque premier vendredi du mois.\n\nObj
+ ectifs de la réunion :\n\n-       Validation des fonctionnalités\n\n-     
+   Validation de l’architecture technique\n\n-       Suivi et validation du
+  planning \n\n-       Echange sur n’importe quel autre sujet en relation a
+ vec le produit en dehors des trois points précédents\n\nIl y aura un ordre
+  du jour pour chaque réunion qui sera proposé par mail assez en avance (3 
+ jours) par Hamdi et Imen. Les autres participants rajouteront avant la réu
+ nion des points à l’ordre du jour s’ils le souhaitent.\n\nUn compte rendu 
+ sera rédigé et partagé après chaque réunion par Imen\, Hamdi ou Mahmoud.\n
+ \nVos remarques seront les bienvenues.\n\n
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:Zembra
+CATEGORIES:
+X-OBM-COLOR:
+RECURRENCE-ID:20120921T133000Z
+UID:040000008200E00074C5B7101A82E0080000000000FD15D8F2E4CC0100000000000000
+ 00100000004D88FD3F9CD43D45A4E29A017CEC6706
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:ibentamansourt@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:fbelhadjali@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mmhiri@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mouederni@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:hdouss@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122557Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20101229T041831Z
+LAST-MODIFIED:20120918T114051Z
+DTSTART;TZID=Etc/GMT-5:20110104T120000
+DURATION:PT4H45M
+TRANSP:OPAQUE
+SEQUENCE:69
+SUMMARY:Proba gawrona
+DESCRIPTION:
+CLASS:PUBLIC
+PRIORITY:1
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:
+CATEGORIES:
+X-OBM-COLOR:
+UID:62b6fc35963912c9529ce2be5f4d16143141b3295fb1cd0d3bd09ec5fbebc500234df6
+ cb6d592effe7cefa5b1c5a6e3e72d7e01e195637d37074d6c761c7a80a0b7c07d2a014bd27
+RRULE:INTERVAL=1;FREQ=MONTHLY
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+EXDATE;TZID=Etc/GMT-5:20110414T120000
+DTSTAMP:20120924T122557Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120322T133033Z
+LAST-MODIFIED:20120921T134705Z
+DTSTART;TZID=Etc/GMT:20120203T133000
+DURATION:PT2H
+TRANSP:OPAQUE
+SEQUENCE:50
+SUMMARY:[AYD - GED] Comité Produit
+DESCRIPTION:Fréquence : Mensuelle. Chaque premier vendredi du mois.\n\nObj
+ ectifs de la réunion :\n\n-       Validation des fonctionnalités\n\n-     
+   Validation de l’architecture technique\n\n-       Suivi et validation du
+  planning \n\n-       Echange sur n’importe quel autre sujet en relation a
+ vec le produit en dehors des trois points précédents\n\nIl y aura un ordre
+  du jour pour chaque réunion qui sera proposé par mail assez en avance (3 
+ jours) par Hamdi et Imen. Les autres participants rajouteront avant la réu
+ nion des points à l’ordre du jour s’ils le souhaitent.\n\nUn compte rendu 
+ sera rédigé et partagé après chaque réunion par Imen\, Hamdi ou Mahmoud.\n
+ \nVos remarques seront les bienvenues.\n\n
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:Zembra
+CATEGORIES:
+X-OBM-COLOR:
+UID:040000008200E00074C5B7101A82E0080000000000FD15D8F2E4CC0100000000000000
+ 00100000004D88FD3F9CD43D45A4E29A017CEC6706
+RRULE:INTERVAL=1;FREQ=WEEKLY;BYDAY=FR
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:ibentamansourt@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:fbelhadjali@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mmhiri@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:mouederni@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL:MAILTO:hdouss@fake3.blue-mind.net
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+DTSTAMP:20120924T122557Z
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20120521T112201Z
+LAST-MODIFIED:20120924T122535Z
+DTSTART;VALUE=DATE:20120524
+DTEND;VALUE=DATE:20120526
+TRANSP:TRANSPARENT
+X-OBM-ALL-DAY:1
+SEQUENCE:13
+SUMMARY:Recurring event
+DESCRIPTION:
+CLASS:PUBLIC
+PRIORITY:5
+ORGANIZER;X-OBM-ID=2;CN= admin:MAILTO:admin@fake.blue-mind.net
+X-OBM-DOMAIN:
+LOCATION:
+CATEGORIES:
+X-OBM-COLOR:
+X-OBM-ALERT;X-OBM-ID=2:1800
+BEGIN:VALARM
+TRIGGER:P1800S
+ACTION:display
+DESCRIPTION:Recurring event
+END:VALARM
+UID:FFb6fc35963912c9529ce2bea764b80d9ead4185e9484905ea770d8699cbe605234df6
+ cb6d592effe7cefa5b1c5a6e3e72d7e01e0e301d3c4d2697e51a252bc165a356c326e1acf6
+RRULE:INTERVAL=1;FREQ=DAILY
+ATTENDEE;CUTYPE=INDIVIDUAL;CN= admin;PARTSTAT=ACCEPTED;X-OBM-ID=2:MAILTO:a
+ dmin@fake.blue-mind.net
+EXDATE;TZID=Europe/Berlin:20120625T010000
+DTSTAMP:20120924T122557Z
+END:VEVENT
+END:VCALENDAR

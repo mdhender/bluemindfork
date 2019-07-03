@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.ui.commons.banner">
+      <banner-entry
+            cssIcon="fa fa-lg fa-bar-chart"
+            description="%tick.description"
+            name="%tick.label"
+            newTab="true"
+            offline="false"
+            priority="256"
+            role="bmMonitoring"
+            root="/tick/">
+      </banner-entry>
+   </extension>
+   <extension
+         point="net.bluemind.banner">
+      <application
+            description="%tick.description"
+            href="/tick/"
+            name="%tick.label"
+            order="256"
+            role="bmMonitoring">
+      </application>
+   </extension>
+
+</plugin>

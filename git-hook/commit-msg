@@ -1,0 +1,13 @@
+#!/bin/sh
+#
+# Pre-commit hook to check the presence of a Jira issue ref.
+#
+
+test "" != "$(grep -E '^(\[.*\])?\s*[A-Z]+-[0-9]+' "$1")" || {
+        echo >&2 "CHECK FAIL: commit message is missing Jira issue number (which should "
+        echo >&2 "stand at line start or right after a [component] tag)."
+        echo >&2 "You may bypass this check with option --no-verify.\n"
+        echo >&2 "Your commit message was saved in .git/COMMIT_EDITMSG."
+        exit 1
+}
+

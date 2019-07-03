@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="pimpmyram"
+         name="Pimp My RAM"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            thread="main"
+            visible="true">
+         <run
+               class="net.bluemind.pimp.PimpMyRam">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="pimpmyram"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="net.bluemind.pimp.pimpmyram"
+            name="Pimp My RAM">
+         <property
+               name="appName"
+               value="Pimp My RAM">
+         </property>
+      </product>
+   </extension>
+
+</plugin>

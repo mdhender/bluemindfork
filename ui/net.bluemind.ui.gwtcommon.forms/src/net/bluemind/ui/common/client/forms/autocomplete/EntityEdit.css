@@ -1,0 +1,62 @@
+.textInput {
+	border: none;
+	padding: 0;
+	margin: 0;
+}
+
+.valuesPanel {
+	border: 1px solid #CCC;
+	padding: 3px;
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+}
+
+.valuesPanel div {
+	display: inline-block;
+}
+
+.valuesPanel input {
+	border: none;
+	outline: none;
+}
+
+.inputTitle {
+	text-align: right;
+	color: #666;
+	white-space: nowrap;
+}
+
+.labelMandatory {
+	color: #24638F;
+	font-weight: bold;
+}
+
+.inputMandatory {
+	border-color: #24638F;
+	border-width: 1px;
+}
+
+.selectedEntity {
+	background-color: #99CCFF;
+	border-radius: 2px;
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 2px;
+	display: inline-block;
+	margin: 2px;
+	padding: 2px;
+	border: 1px solid #666;
+}
+
+.selectedEntity div {
+	display: inline-block;
+}
+
+.deleteSelected {
+	border-right: 1px solid #666;
+	cursor: pointer;
+	margin-right: 2px;
+	font-weight: bold;
+	color: #666;
+}
+

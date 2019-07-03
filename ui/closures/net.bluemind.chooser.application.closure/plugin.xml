@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module-provider
+            module="/chooser">
+         <web-resource
+               bundle="net.bluemind.chooser.application.closure">
+         </web-resource>
+         <css
+               path="css/net.bluemind.chooser.application.closure.css">
+         </css>
+         <js
+               path="js/compile/net.bluemind.chooser.application.closure.js"
+               translation="true">
+         </js>
+         <web-resource
+               bundle="net.bluemind.commons.ui.closure">
+         </web-resource>
+      </web-module-provider>
+   </extension>
+
+</plugin>

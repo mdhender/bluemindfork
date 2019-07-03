@@ -1,0 +1,45 @@
+﻿{
+   "alarm":[
+
+   ],
+   "attendees":[
+
+   ],
+   "categories":[
+
+   ],
+   "classification":"Public",
+   "description":"<!DOCTYPE HTML PUBLIC \"-\/\/W3C\/\/DTD HTML 3.2\/\/EN\">\u000d\u000a<HTML>\u000d\u000a<HEAD>\u000d\u000a<META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text\/html; charset=iso-8859-1\">\u000d\u000a<META NAME=\"Generator\" CONTENT=\"MS Exchange Server version 08.00.0681.000\">\u000d\u000a<TITLE>ddd<\/TITLE>\u000d\u000a<\/HEAD>\u000d\u000a<BODY>\u000d\u000a<!-- Converted from text\/rtf format -->\u000d\u000a\u000d\u000a<P DIR=LTR><SPAN LANG=\"fr\"><\/SPAN><\/P>\u000d\u000a\u000d\u000a<\/BODY>\u000d\u000a<\/HTML>",
+   "dtstart":{
+      "iso8601":"2016-03-09T11:30:00.000+01:00",
+      "precision":"DateTime",
+      "timezone":"Europe\/Paris"
+   },
+   "exdate":null,
+   "location":null,
+   "organizer":{
+      "commonName":null,
+      "dir":null,
+      "mailto":null,
+      "uri":null
+   },
+   "priority":null,
+   "rdate":[
+
+   ],
+   "recurid":null,
+   "rrule":null,
+   "status":"Confirmed",
+   "summary":"ddd",
+   "uid":"8859bf0c-2fe2-4a74-8d81-97a8da854f93",
+   "url":null,
+   "dtend":{
+      "iso8601":"2016-03-09T12:00:00.000+01:00",
+      "precision":"DateTime",
+      "timezone":"Europe\/Paris"
+   },
+   "properties":{
+
+   },
+   "transparency":"Opaque"
+}

@@ -1,0 +1,24 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>net.bluemind</groupId>
+		<artifactId>net.bluemind.corev2</artifactId>
+		<version>4.1.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>net.bluemind.authentication.plugins</artifactId>
+	<packaging>pom</packaging>
+	<modules>
+		<module>mgmt</module>
+		<module>net.bluemind.authentication.api</module>
+		<module>net.bluemind.authentication.handler</module>
+		<module>net.bluemind.authentication.handler.tests</module>
+		<module>net.bluemind.authentication.persistence</module>
+		<module>net.bluemind.authentication.persistence.tests</module>
+		<module>net.bluemind.authentication.service</module>
+		<module>net.bluemind.authentication.provider</module>
+		<module>net.bluemind.authentication.service.tests</module>
+		<module>net.bluemind.authentication.sqlschema</module>
+	</modules>
+
+</project>

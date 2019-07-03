@@ -1,0 +1,71 @@
+.bg {
+	background-image: url(background.png);
+	background-position: right bottom;
+	background-repeat: no-repeat;
+	height: 100%;
+}
+
+.imageContainer {
+	vertical-align: top;
+	text-align: right;
+}
+
+.screensList {
+	list-style-image: url("bullet.png");
+	padding: 0px;
+}
+
+.screensList li {
+	padding: 0px 0px 4px 0px;
+}
+
+.screensList a {
+	color: #205780;
+	text-decoration: none;
+}
+
+.screensList a:hover {
+	text-decoration: underline;
+	color: #205780;
+}
+
+.sAnchor {
+	font-size: x-large;
+	color: #205780;
+	text-decoration: none;
+	font-weight: bold;
+	text-shadow: 0px 1px #CCC;
+}
+
+.sAnchor:hover {
+	text-decoration: underline;
+	color: #205780;
+}
+
+.subSectionContainer {
+	width: 100%;
+	min-width: 400px;
+	padding-right: 2em;
+	border-collapse: separate;
+}
+
+.sectionBlock {
+	position: absolute;
+	top: -1em;
+}
+
+.subSectionBlock {
+	background-image: url("sub_section_block.png");
+	background-position: right top;
+	background-repeat: no-repeat;
+	padding: 2em 0em 1em 2em;
+}
+
+.disabled {
+	color: #CCC !important;
+	cursor: default;
+}
+
+.disabled:hover {
+	text-decoration: none !important;
+}

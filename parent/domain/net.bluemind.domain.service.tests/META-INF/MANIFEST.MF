@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests
+Bundle-SymbolicName: net.bluemind.domain.service.tests;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Fragment-Host: net.bluemind.domain.service
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.junit,
+ net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
+ net.bluemind.core.context;bundle-version="1.0.0",
+ net.bluemind.lib.jodatime;bundle-version="1.0.0",
+ net.bluemind.core.sessions,
+ net.bluemind.core.rest.http.vertx;bundle-version="1.0.0",
+ net.bluemind.tests.defaultdata,
+ net.bluemind.addressbook.domainbook;bundle-version="1.0.0",
+ net.bluemind.core.elasticsearch.testshelper,
+ net.bluemind.group.service;bundle-version="1.0.0",
+ net.bluemind.core.tests.testshelper,
+ net.bluemind.user.service,
+ net.bluemind.resource.service;bundle-version="4.1.0",
+ net.bluemind.system.api
+
+

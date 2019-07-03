@@ -1,0 +1,135 @@
+/* BEGIN LICENSE
+ * Copyright © Blue Mind SAS, 2012-2018
+ *
+ * This file is part of BlueMind. BlueMind is a messaging and collaborative
+ * solution.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of either the GNU Affero General Public License as
+ * published by the Free Software Foundation (version 3 of the License).
+ *
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See LICENSE.txt
+ * END LICENSE
+ */
+package net.bluemind.addressbook.userbook;
+
+import java.util.Arrays;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import net.bluemind.addressbook.api.AddressBookDescriptor;
+import net.bluemind.addressbook.api.IAddressBookUids;
+import net.bluemind.addressbook.api.IAddressBooksMgmt;
+import net.bluemind.core.api.report.DiagnosticReport;
+import net.bluemind.core.container.api.ContainerSubscription;
+import net.bluemind.core.container.api.IContainerManagement;
+import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.model.acl.AccessControlEntry;
+import net.bluemind.core.container.model.acl.Verb;
+import net.bluemind.core.container.repair.ContainerRepairOp;
+import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.task.service.IServerTaskMonitor;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
+import net.bluemind.directory.api.DirEntry;
+import net.bluemind.user.api.IUser;
+import net.bluemind.user.api.IUserSubscription;
+import net.bluemind.user.api.User;
+
+public class UserAddressbookRepair implements ContainerRepairOp {
+
+	private static final Logger logger = LoggerFactory.getLogger(UserAddressbookRepair.class);
+
+	@Override
+	public void check(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
+		ItemValue<User> user = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IUser.class, domainUid).getComplete(entry.entryUid);
+
+		verifyDefaultContainer(domainUid, user, report, monitor, () -> {
+			monitor.log("Default addressbook of user " + user.uid + " is missing");
+			logger.info("Default addressbook of user {} is missing", user.uid);
+		});
+
+		verifyCollectedContactsContainer(domainUid, user, report, monitor, () -> {
+			monitor.log("Collected contacts container of user " + user.uid + " is missing");
+			logger.info("Collected contacts container of user {} is missing", user.uid);
+		});
+
+	}
+
+	@Override
+	public void repair(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
+		ItemValue<User> user = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IUser.class, domainUid).getComplete(entry.entryUid);
+
+		verifyDefaultContainer(domainUid, user, report, monitor, () -> {
+			monitor.log("Repairing addressbook of user " + user.uid);
+			logger.info("Repairing addressbook of user {}", user.uid);
+
+			createAddressbook(domainUid, entry, user, "$$mycontacts$$", getDefaultContainerUid(entry.entryUid));
+
+		});
+
+		verifyCollectedContactsContainer(domainUid, user, report, monitor, () -> {
+			monitor.log("Repairing collected contacts of user " + user.uid);
+			logger.info("Repairing collected contacts of user {}", user.uid);
+
+			createAddressbook(domainUid, entry, user, "$$collected_contacts$$",
+					getCollectedContactsContainerUid(entry.entryUid));
+
+		});
+
+	}
+
+	private void createAddressbook(String domainUid, DirEntry entry, ItemValue<User> user, String name,
+			String container) {
+
+		AddressBookDescriptor contactsBookDescriptor = AddressBookDescriptor.create(name, user.uid, domainUid);
+
+		IAddressBooksMgmt abMgmt = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IAddressBooksMgmt.class);
+		abMgmt.create(container, contactsBookDescriptor, true);
+
+		IContainerManagement manager = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IContainerManagement.class, container);
+		manager.setAccessControlList(Arrays.asList(AccessControlEntry.create(user.uid, Verb.Write)));
+
+		IUserSubscription userSubService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IUserSubscription.class, domainUid);
+		userSubService.subscribe(user.uid, Arrays.asList(ContainerSubscription.create(container, true)));
+	}
+
+	private void verifyDefaultContainer(String domainUid, ItemValue<User> user, DiagnosticReport report,
+			IServerTaskMonitor monitor, Runnable maintenance) {
+
+		String containerUid = getDefaultContainerUid(user.uid);
+		verifyContainer(domainUid, report, monitor, maintenance, containerUid);
+	}
+
+	private void verifyCollectedContactsContainer(String domainUid, ItemValue<User> user, DiagnosticReport report,
+			IServerTaskMonitor monitor, Runnable maintenance) {
+
+		String containerUid = getCollectedContactsContainerUid(user.uid);
+		verifyContainer(domainUid, report, monitor, maintenance, containerUid);
+	}
+
+	private String getDefaultContainerUid(String userUid) {
+		return IAddressBookUids.defaultUserAddressbook(userUid);
+	}
+
+	private String getCollectedContactsContainerUid(String userUid) {
+		return IAddressBookUids.collectedContactsUserAddressbook(userUid);
+	}
+
+	@Override
+	public Kind supportedKind() {
+		return Kind.USER;
+	}
+
+}

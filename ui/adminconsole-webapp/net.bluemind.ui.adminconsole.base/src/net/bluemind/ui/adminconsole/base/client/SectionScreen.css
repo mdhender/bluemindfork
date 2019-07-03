@@ -1,0 +1,67 @@
+.bg {
+    background-image: url(background.png);
+    background-position: right bottom;
+    background-repeat: no-repeat;
+    height:100%;
+}
+
+.vPanel {
+	padding-left: 60px;
+	position: relative;
+	margin-bottom: 15px;
+	border-collapse: separate;
+}
+
+.image {
+	position: absolute;
+	top: 0px;
+	left: 5px;
+}
+
+.sTitle h2 {
+	margin-top: 0px;
+	margin-bottom: 0px;
+	color: #205780;
+}
+
+.links {
+	padding-left: 0px;
+	margin-top: 0px;
+}
+
+.links a {
+	color: #205780;
+	text-decoration: none;
+}
+
+.links a:hover {
+	color: #205780;
+	text-decoration: underline;
+}
+
+.links li {
+	width: auto;
+	margin: 0 auto;
+	display: inline;
+	padding-left: 1em;
+	background: transparent url(pipe.png) no-repeat 0 0em;
+}
+
+.links li.first {
+	padding-left: 0;
+	background: none;
+}
+
+.links li.last {
+	padding-right: 0;
+}
+
+.disabled {
+	color: #CCC !important;
+	cursor: default;
+}
+
+.disabled:hover {
+	text-decoration: none !important;
+}
+

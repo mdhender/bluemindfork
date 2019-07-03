@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="SettingsLauncher" id="net.bluemind.webmodules.launcher.webLauncher" application="net.bluemind.webmodules.launcher.webLauncher" version="1.0.0.qualifier" useFeatures="false" includeLaunchers="true">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <programArgs>-clean -consoleLog -debug
+      </programArgs>
+      <vmArgs>-Dosgi.noShutdown=true -Duser.timezone=GMT -Djava.security.egd=file:/dev/urandom -Djava.awt.headless=true -Xmx2048m
+      </vmArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
+   </launcherArgs>
+
+   <windowImages/>
+
+   <launcher>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+   </vm>
+
+   <plugins>
+      <plugin id="com.fasterxml.jackson.core.jackson-annotations"/>
+      <plugin id="com.fasterxml.jackson.core.jackson-core"/>
+      <plugin id="com.fasterxml.jackson.core.jackson-databind"/>
+      <plugin id="com.google.gwt.servlet"/>
+      <plugin id="com.google.gwt.user"/>
+      <plugin id="io.netty"/>
+      <plugin id="javax.servlet"/>
+      <plugin id="net.bluemind.addressbook.api"/>
+      <plugin id="net.bluemind.addressbook.api.gwt"/>
+      <plugin id="net.bluemind.authentication.api"/>
+      <plugin id="net.bluemind.authentication.api.gwt"/>
+      <plugin id="net.bluemind.authentication.closure"/>
+      <plugin id="net.bluemind.commons.closure"/>
+      <plugin id="net.bluemind.commons.ui.closure"/>
+      <plugin id="net.bluemind.core.api.custom"/>
+      <plugin id="net.bluemind.core.commons"/>
+      <plugin id="net.bluemind.core.commons.gwt"/>
+      <plugin id="net.bluemind.core.container.api"/>
+      <plugin id="net.bluemind.core.container.api.gwt"/>
+      <plugin id="net.bluemind.core.context"/>
+      <plugin id="net.bluemind.core.task.api"/>
+      <plugin id="net.bluemind.core.task.api.gwt"/>
+      <plugin id="net.bluemind.eclipse.common"/>
+      <plugin id="net.bluemind.extensions.closure"/>
+      <plugin id="net.bluemind.folder.api"/>
+      <plugin id="net.bluemind.folder.api.gwt"/>
+      <plugin id="net.bluemind.group.api"/>
+      <plugin id="net.bluemind.group.api.gwt"/>
+      <plugin id="net.bluemind.lib.freemarker"/>
+      <plugin id="net.bluemind.lib.guava"/>
+      <plugin id="net.bluemind.lib.jackson"/>
+      <plugin id="net.bluemind.lib.jodatime"/>
+      <plugin id="net.bluemind.lib.jta"/>
+      <plugin id="net.bluemind.lib.vertx"/>
+      <plugin id="net.bluemind.mailbox.api"/>
+      <plugin id="net.bluemind.mailbox.api.gwt"/>
+      <plugin id="net.bluemind.mailbox.identity.api"/>
+      <plugin id="net.bluemind.mailbox.identity.api.gwt"/>
+      <plugin id="net.bluemind.mailflow.api"/>
+      <plugin id="net.bluemind.mailflow.api.gwt"/>
+      <plugin id="net.bluemind.mailflow.common.api"/>
+      <plugin id="net.bluemind.mailflow.common.api.gwt"/>
+      <plugin id="net.bluemind.mailmessage.api"/>
+      <plugin id="net.bluemind.mailmessage.api.gwt"/>
+      <plugin id="net.bluemind.mvp.closure"/>
+      <plugin id="net.bluemind.server.api"/>
+      <plugin id="net.bluemind.server.api.gwt"/>
+      <plugin id="net.bluemind.slf4j"/>
+      <plugin id="net.bluemind.system.api"/>
+      <plugin id="net.bluemind.system.api.gwt"/>
+      <plugin id="net.bluemind.tag.api"/>
+      <plugin id="net.bluemind.tag.api.gwt"/>
+      <plugin id="net.bluemind.ui.banner.standalone.closure"/>
+      <plugin id="net.bluemind.ui.editor.standalone.closure"/>
+      <plugin id="net.bluemind.ui.extensions.gwt"/>
+      <plugin id="net.bluemind.ui.gwtcommon.editor"/>
+      <plugin id="net.bluemind.ui.gwtcommon.forms"/>
+      <plugin id="net.bluemind.ui.gwtcommon.icons"/>
+      <plugin id="net.bluemind.ui.settings"/>
+      <plugin id="net.bluemind.ui.settings.addressbook"/>
+      <plugin id="net.bluemind.ui.settings.api"/>
+      <plugin id="net.bluemind.ui.settings.calendar"/>
+      <plugin id="net.bluemind.ui.settings.mail"/>
+      <plugin id="net.bluemind.user.api"/>
+      <plugin id="net.bluemind.user.api.gwt"/>
+      <plugin id="net.bluemind.utils"/>
+      <plugin id="net.bluemind.webmodule"/>
+      <plugin id="net.bluemind.webmodule.gwtserver"/>
+      <plugin id="net.bluemind.webmodule.server"/>
+      <plugin id="net.bluemind.webmodules.launcher"/>
+      <plugin id="org.apache.commons.codec"/>
+      <plugin id="org.apache.mime4j"/>
+      <plugin id="org.eclipse.core.contenttype"/>
+      <plugin id="org.eclipse.core.jobs"/>
+      <plugin id="org.eclipse.core.runtime"/>
+      <plugin id="org.eclipse.core.runtime.compatibility.registry" fragment="true"/>
+      <plugin id="org.eclipse.equinox.app"/>
+      <plugin id="org.eclipse.equinox.common"/>
+      <plugin id="org.eclipse.equinox.preferences"/>
+      <plugin id="org.eclipse.equinox.registry"/>
+      <plugin id="org.eclipse.osgi"/>
+      <plugin id="relief"/>
+      <plugin id="ydn-base"/>
+      <plugin id="ydn-db"/>
+   </plugins>
+
+
+</product>

@@ -1,0 +1,10 @@
+[{ 
+ 	"name":"bluemind/postgres-tests"
+},{
+ 	"name":"bluemind/smtp-role"
+},{
+ 	"name":"bluemind/smtp-role",
+	"bindName":"bluemind/smtp-edge-role"
+},{
+        "name":"bluemind/elasticsearch-tests"
+}]

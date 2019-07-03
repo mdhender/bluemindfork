@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.mailflow.rules_extensions" name="rules_extensions" schema="schema/net.bluemind.mailflow.rules_extensions.exsd"/>
+   <extension-point id="net.bluemind.mailflow.actions_extensions" name="action_extensions" schema="schema/net.bluemind.mailflow.actions_extensions.exsd"/>
+   <extension
+         point="net.bluemind.core.rest.serviceFactory">
+      <serviceFactory
+            class="net.bluemind.mailflow.service.MailFlowServiceFactory">
+      </serviceFactory>
+   </extension>
+   <extension
+         point="net.bluemind.core.validatorfactory">
+      <validatorfactory
+            implementation="net.bluemind.mailflow.service.internal.MailflowValidatorFactory">
+      </validatorfactory>
+   </extension>
+   <extension
+         point="net.bluemind.domain.domainHook">
+      <hook
+            class="net.bluemind.mailflow.service.MailflowDomainHook">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.core.sanitizerfactory">
+      <sanitizerfactory
+            implementation="net.bluemind.mailflow.service.internal.MailflowSanitizerFactory">
+      </sanitizerfactory>
+   </extension>
+   
+</plugin>

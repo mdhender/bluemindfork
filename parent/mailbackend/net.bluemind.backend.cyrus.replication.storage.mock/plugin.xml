@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.backend.cyrus.replication.server.storage">
+      <storage
+            factory="net.bluemind.backend.cyrus.replication.storage.mock.MockStorageLinkFactory"
+            priority="10">
+      </storage>
+   </extension>
+
+</plugin>

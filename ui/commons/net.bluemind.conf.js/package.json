@@ -1,0 +1,8 @@
+{
+    "name": "@bluemind/conf",
+    "version": "4.1.0",
+    "description": "Bluemind configuration files for front-end development",
+    "author": "Blue Mind SAS",
+    "license": "GPLv3",
+    "publishConfig": {"registry":"https://forge.bluemind.net/nexus/repository/bm-npm/"}
+}

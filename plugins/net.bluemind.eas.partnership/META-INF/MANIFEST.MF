@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.eas.partnership
+Bundle-SymbolicName: net.bluemind.eas.partnership;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.eas.partnership.Activator
+Bundle-Vendor: blue-mind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.eas.dto;bundle-version="1.0.0",
+ net.bluemind.eas.utils;bundle-version="1.0.0",
+ net.bluemind.lib.vertx,
+ net.bluemind.slf4j;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.eas.partnership

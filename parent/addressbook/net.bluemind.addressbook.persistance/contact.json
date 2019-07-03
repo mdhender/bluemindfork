@@ -1,0 +1,181 @@
+{
+	"settings": {
+		"index": {
+			"number_of_shards": 1,
+		    "number_of_replicas": 0,
+			"analysis": {
+				"char_filter": {
+					"phone_mapping": {
+						"type": "mapping",
+						"mappings": [
+							"\\u0020=>\\u0000",
+							"-=>\\u0000",
+							",=>\\u0000"
+						]
+					}
+				},
+				"filter": {
+					"ngram_filter": {
+						"type": "edge_ngram",
+						"min_gram": 1,
+						"max_gram": 20
+					},
+					"email": {
+						"type": "pattern_capture",
+						"preserve_original": true,
+						"patterns": [
+							"([^@]*@(.*))"
+						]
+					},
+					"email_length": {
+						"type":"truncate",
+						"length":20
+					},
+					"phone": {
+						"type": "word_delimiter",
+						"generate_word_parts": false,
+						"generate_number_parts": false,
+						"catenate_words": false,
+						"catenate_numbers": true,
+						"split_on_case_change": false,
+						"split_on_numerics": false,
+						"stem_english_possessive": false
+					}
+				},
+				"analyzer": {
+					"default": {
+						"type": "custom",
+						"tokenizer": "standard",
+						"filter": [
+							"icu_folding",
+							"ngram_filter"
+						]
+					},
+					"default_search": {
+						"type": "custom",
+						"tokenizer": "standard",
+						"filter": [
+							"icu_folding"
+						]
+					},
+					"email_search": {
+						"type": "custom",
+						"tokenizer": "whitespace",
+						"filter": [
+							"email_length",
+							"lowercase"
+						]
+					},
+					"email_index": {
+						"type": "custom",
+						"tokenizer": "whitespace",
+						"filter": [
+							"email",
+							"email_length",
+							"ngram_filter",
+							"lowercase"
+						]
+					},
+					"phone_search": {
+						"type": "custom",
+						"char_filter": [
+							"phone_mapping"
+						],
+						"tokenizer": "whitespace",
+						"filter": [
+							"trim",
+							"phone"
+						]
+					},
+					"phone_index": {
+						"type": "custom",
+						"tokenizer": "whitespace",
+						"char_filter": [
+							"phone_mapping"
+						],
+						"filter": [
+							"phone",
+							"ngram_filter"
+						]
+					},
+					"sort_index": {
+						"type": "custom",
+						"tokenizer": "keyword",
+						"filter": [
+							"uppercase"
+						]
+					}
+				}
+			}
+		}
+	},
+	"mappings": {
+		"vcard": {
+			"properties": {
+				"containerUid": {
+					"type": "keyword",
+					"store": true
+				},
+				"uid": {
+					"type": "keyword",
+					"store": true
+				},
+				"sortName": {
+					"type": "keyword",
+					"store": true
+				},
+				"displayName": {
+					"type": "text",
+					"analyzer": "sort_index",
+					"search_analyzer": "default_search"
+				},
+				"value": {
+					"properties": {
+						"communications": {
+							"properties": {
+								"emails": {
+									"properties": {
+										"parameters": {
+											"properties": {
+												"label": {
+													"type": "keyword"
+												},
+												"value": {
+													"type": "keyword"
+												}
+											}
+										},
+										"value": {
+											"type": "text",
+											"analyzer": "email_index",
+											"search_analyzer": "email_search"
+										}
+									}
+								},
+								"tels": {
+									"properties": {
+										"parameters": {
+											"properties": {
+												"label": {
+													"type": "keyword"
+												},
+												"value": {
+													"type": "keyword"
+												}
+											}
+										},
+										"value": {
+											"type": "text",
+											"analyzer": "phone_index",
+											"search_analyzer": "phone_search"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

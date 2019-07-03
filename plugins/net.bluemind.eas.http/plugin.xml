@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.eas.http.endpoint" name="endpoint" schema="schema/net.bluemind.eas.http.endpoint.exsd"/>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.eas.http.internal.EASVerticleFactory">
+      </verticle>
+   </extension>
+   <extension
+         point="net.bluemind.system.state">
+      <state-listener
+            class="net.bluemind.eas.http.internal.CoreStateListener">
+      </state-listener>
+   </extension>
+
+</plugin>

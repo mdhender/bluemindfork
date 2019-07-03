@@ -1,0 +1,669 @@
+/*
+ * BEGIN LICENSE
+
+ * Copyright © Blue Mind SAS, 2012-2016
+ *
+ * This file is part of BlueMind. BlueMind is a messaging and collaborative
+ * solution.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of either the GNU Affero General Public License as
+ * published by the Free Software Foundation (version 3 of the License).
+ *
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See LICENSE.txt
+ * END LICENSE
+ */
+
+{namespace net.bluemind.calendar.vevent.templates}
+
+
+/**
+ * Event form
+ * @param calendars Appointable calendars.
+ * @param defaultCalendar default calendar.
+ * @param longweekdays English weekdays fullname
+ * @param narrowweekdays Translated weekdays shortname
+ * @param event Event data
+ */
+{template .form}
+  {if $event.states.error and $event.error.message}
+    <div class="{css form-notification} {css error}">{msg desc="Synchronisation error"}Synchronization failed : {/msg}{$event.error.message}</div>  
+  {elseif $event.states.error}
+    <div class="{css form-notification} {css error}">{msg desc="Unknown synchronisation error"}Synchronization failed , a new attempt will be made later. Please contact support if this error persists.{/msg}</div>
+  {elseif not $event.states.synced}
+      <div class="{css form-notification} {css notice}">{msg desc="Pending synchronisation"}Not all modifications are synchronized with the server yet.{/msg}</div>
+  {/if}
+  <form class="{css bm-ui-form}" id="bm-ui-form">
+    <div id="bm-ui-form-fieldset-attendees-container" rowspan="3" class="{css bm-ui-form-fieldset-attendees-container}">
+      <fieldset id="bm-ui-form-fieldset-attendees">
+        <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+          <input type="text" label="{msg meaning="calendar.event.addAttendee" desc="Add an attendee to the event"}Add an attendee ...{/msg}" name="" value="" class="{css bm-ui-form-attendee-input}"/>
+        </div>
+        <div class="{css bm-ui-form-entry} {css bm-clearfix} {css bm-ui-form-role-legend-container}">
+          <div><div class="{css bm-ui-form-role-legend} {css fa} {css fa-plus-circle}">&nbsp;</div><span>{msg meaning="calendar.event.participationOptional" desc="attendee part role optional"}Participation optional{/msg}</span></div>
+          <div><div class="{css bm-ui-form-role-legend} {css fa} {css fa-exclamation-circle}">&nbsp;</div><span>{msg meaning="calendar.event.participationRequired" desc="attendee part role required"}Participation required{/msg}</span></div>
+        </div>
+        <div class="{css bm-ui-form-entry} {css bm-clearfix} {css bm-ui-form-attendee}" >
+        </div>
+      </fieldset>
+    </div>
+
+    <div id="bm-ui-mainform">
+    <table>
+      <tr>
+        <td>
+          <div>
+            <span id="bm-ui-form-notification-popup-btn" class="{css form-notification-btn}"></span>
+            <div id="bm-ui-form-notification" class="{css form-notification}"></div>
+          </div>
+          <div id="bm-ui-form-notification-popup" class="{css popup}"></div>
+          <fieldset id="bm-ui-form-fieldset-main">
+            <div class="{css event-infos-container}">
+
+            </div>
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+              <label for="bm-ui-form-title">{msg meaning="calendar.event.title" desc="event title label"}Title{/msg}</label>
+              <div class="{css bm-ui-form-input}">
+                <input id="bm-ui-form-title" name="title" type="text" value="" />
+              </div>
+            </div>
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+              <label for="bm-ui-form-datebegin">{msg meaning="calendar.event.date" desc="event date label"}Date{/msg}</label>
+              <div class="{css bm-ui-form-input}">
+                <div class="{css bm-ui-form-inline}">
+                  <input id="bm-ui-form-datebegin" class="{css bm-mini} {css _dstart}" name="datebegin" type="text" value="" />
+                  <div id="bm-ui-form-timebegin" class="{css bm-mini} {css bm-ui-form-inline} {css _tstart}"></div>
+                  <label for="bm-ui-form-dateend">{msg meaning="calendar.event.dateEnd" desc="event date range separator"}to{/msg}</label>
+                  <input id="bm-ui-form-dateend" class="{css bm-mini} {css _dend}" name="dateend" type="text" value="" />
+                  <div id="bm-ui-form-timeend" class="{css bm-mini} {css bm-ui-form-inline} {css _tend}"></div>
+                </div>
+              </div>
+            </div>
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}" id="bm-ui-form-allday-block" class="{css bm-ui-form-allday-block}">
+              <div class="{css bm-ui-form-input}">
+                <ul class="{css bm-ui-form-inline}">
+                  <li>
+                    <label class="{css bm-ui-form-prepend}" for="bm-ui-form-allday">
+                      <input class="{css bm-ui-form-checkbox}" type="checkbox" id="bm-ui-form-allday" name="allday" />
+                    </label>
+                    <label class="{css bm-ui-form-append}" for="bm-ui-form-allday">{msg meaning="calendar.event.allDay" desc="event allday label"}All day{/msg}</label>
+                  </li>
+              </div>
+            </div>
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+              <div id="bm-ui-form-repeat-sentence" class="{css bm-ui-form-input} {css bm-ui-form-repeat-sentence}">
+              </div>
+            </div>
+          </fieldset>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <div class="{css goog-tab-bar} {css goog-tab-bar-top} {css _details}">
+            <div id='bm-ui-form-tab-details' class="{css goog-tab} {css goog-tab-selected}">{msg meaning="calendar.event.tabs.details" desc="Event form information panel"}Informations{/msg}</div>
+            <div id='bm-ui-form-tab-repeat' class="{css goog-tab}">{msg meaning="calendar.event.tabs.repeat" desc="Event form repeation panel"}Repeat{/msg}</div>
+            <div id='bm-ui-form-tab-freebusy' class="{css goog-tab}">{msg meaning="calendar.event.tabs.findAtime" desc="Event form freebusy panel"}Find a time{/msg}</div>
+          </div>
+        </td>
+      </tr>
+      <tr style="height:100%;">
+        <td>
+          <fieldset id="bm-ui-form-fieldset-details" class="{css goog-tab-content}">
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+              <label for="bm-ui-form-location">{msg meaning="calendar.event.location" desc="event location label"}Location{/msg}</label>
+              <div class="{css bm-ui-form-input}">
+                <input type="text" name="location" id="bm-ui-form-location" value="" />
+              </div>
+            </div>
+
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+              <label for="bm-ui-form-url">{msg meaning="calendar.event.url" desc="event url label"}URL{/msg}</label>
+              <div class="{css bm-ui-form-input}">
+                <input type="text" name="url" id="bm-ui-form-url" value="" />
+                <a href="#" target="_blank" id="bm-ui-form-vevent-url"><i class="{css coordinate-icon} {css goog-button-icon} {css fa} {css fa-globe}"></i></a>
+              </div>
+            </div>
+
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+              {if $defaultCalendar}
+              	<label id="owner-label" for="bm-ui-form-owner">{msg meaning="calendar.event.organizer" desc="organizer"}Organizer{/msg}</label>
+			  {else}
+			  	<label id="owner-label" for="bm-ui-form-owner">{msg meaning="calendar.event.agenda" desc="organizer"}Calendar{/msg}</label>
+			  {/if}
+              <div class="{css bm-ui-form-input}">
+                <select id="bm-ui-form-owner" name="calendar">
+                {foreach $calendar in $calendars}
+                  <option value="{$calendar.uid}">{$calendar.name}</option>
+                {/foreach}
+                </select>
+                <h4 id="bm-ui-form-owner-ro"></h4>
+              </div>
+            </div>
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+              <label for="bm-ui-form-tag">{msg meaning="general.tags" desc="event title label"}Tag{/msg}</label>
+              <div class="{css bm-ui-form-input} {css bm-ui-form-tag} {css _tags}">
+              </div>
+            </div>
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+              <label for="bm-ui-form-description">{msg meaning="calendar.event.description" desc="event description label"}Description{/msg}</label>
+              <div class="{css bm-ui-form-input}">
+                <div id="bm-ui-form-description"></div>
+              </div>
+            </div>
+            <div class="{css bm-ui-form-entry} {css bm-clearfix} bm-ui-form-reminder">
+              <label for="bm-ui-form-reminder">{msg meaning="calendar.event.reminder" desc="event reminder label"}Reminder{/msg}</label>
+              <div class="{css bm-ui-form-input}">
+              	<div class="{css bm-ui-form-inline} {css bm-ui-form-reminder-block}" id="bm-ui-form-reminder-block">
+                </div>
+                <div class="{css bm-ui-form-inline}" id="bm-ui-form-no-reminder-block">
+                  <div class="goog-inline-block goog-link-button" role="button" id="bm-ui-form-add-reminder" style="-webkit-user-select: none;" tabindex="0">{msg meaning="calendar.event.addReminder" desc="Button to add a reminder"}Add a reminder{/msg}</div>
+                </div>
+              </div>
+            </div>
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+              <label for="bm-ui-form-opacity">{msg meaning="calendar.event.occupation.label" desc="event opacity label"}Show me as{/msg}</label>
+              <div class="{css bm-ui-form-input}">
+                <ul class="{css bm-ui-form-inline}">
+                  <li>
+                    <input class="{css bm-ui-form-radio}" type="radio" checked="true" id="bm-ui-form-opacity-busy" name="opacity" value="OPAQUE" />
+                    <label for="bm-ui-form-opacity-busy">{msg meaning="calendar.event.occupation.busy" desc="Busy state for event opacity"}Busy{/msg}</label>
+                  </li>
+                  <li>
+                    <input class="{css bm-ui-form-radio}" type="radio" id="bm-ui-form-opacity-free" name="opacity" value="TRANSPARENT" />
+                    <label for="bm-ui-form-opacity-free">{msg meaning="calendar.event.occupation.available" desc="Free state for event opacity"}Available{/msg}</label>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+              <label for="bm-ui-form-privacy">{msg meaning="calendar.event.privacy.label" desc="event privacy label"}Privacy{/msg}</label>
+              <div class="{css bm-ui-form-input}">
+                <ul class="{css bm-ui-form-inline}">
+                  <li>
+                    <input class="{css bm-ui-form-radio}" type="radio" id="bm-ui-form-privacy-private" name="privacy" value="private" />
+                    <label for="bm-ui-form-privacy-private">{msg meaning="calendar.event.privacy.private" desc="Private state for event privacy"}Private{/msg}</label>
+                  </li>
+                  <li>
+                    <input class="{css bm-ui-form-radio}" type="radio" checked="true" id="bm-ui-form-privacy-public" name="privacy" value="public" />
+                    <label for="bm-ui-form-privacy-public">{msg meaning="calendar.event.privacy.public" desc="Public state for event privacy"}Public{/msg}</label>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset id="bm-ui-form-fieldset-repeat" class="{css goog-tab-content}" style='display: none'>
+          <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+            <label for="bm-ui-form-repeat">{msg meaning="calendar.event.repeat.label" desc="Event repeat kind selection label"}Repeat{/msg}</label>
+            <div class="{css bm-ui-form-input}">
+              <select name="repeat" id="bm-ui-form-repeat">
+                <option value="NONE">{msg meaning="calendar.event.repeat.none" desc="No repeteation for this event"}None{/msg}</option>
+                <option value="DAILY">{msg meaning="calendar.event.repeat.daily" desc="Event will repeat on a day based period"}Daily{/msg}</option>
+                <option value="WEEKLY">{msg meaning="calendar.event.repeat.weekly" desc="Event will repeat on a week based period"}Weekly{/msg}</option>
+                <option value="MONTHLY">{msg meaning="calendar.event.repeat.monthly" desc="Event will repeat on a month based period"}Monthly{/msg}</option>
+                <option value="YEARLY">{msg meaning="calendar.event.repeat.yearly" desc="Event will repeat on a year based period"}Yearly{/msg}</option>
+              </select>
+            </div>
+          </div>
+          <div class="{css bm-ui-form-entry} {css bm-clearfix}" id="bm-ui-form-fieldset-period-block">
+            <label for="bm-ui-form-repeat-periodicity">{msg meaning="calendar.event.periodicity.label" desc="Event repeat periodicity"}Repeat every{/msg}</label>
+            <div class="{css bm-ui-form-input}">
+              <input type="text" class="{css bm-mini-mini}" name="repeat-periodicity" id="bm-ui-form-repeat-periodicity" value="1" />
+            </div>
+          </div>
+          <div class="{css bm-ui-form-entry} {css bm-clearfix}" id="bm-ui-form-repeat-by-block">
+            <label for="bm-ui-form-repeat-by">{msg meaning="calendar.event.periodicity.monthlyLabel" desc="Wich kind of monthly repeat is the event"}Repeat by{/msg}</label>
+            <div class="{css bm-ui-form-input}">
+              <div class="{css bm-ui-form-inline}">
+                <input class="{css bm-ui-form-radio}" type="radio" checked="true" id="bm-ui-form-repeat-by-date" name="repeat-by" value="bydate" />
+                <label for="bm-ui-form-repeat-by-date">{msg meaning="calendar.event.periodicity.dayOfMonth" desc="Label for by date event repeat kind"}day of month{/msg}</label>
+                <input class="{css bm-ui-form-radio}" type="radio" id="bm-ui-form-repeat-by-day" name="repeat-by" value="byday"/>
+                <label for="bm-ui-form-repeat-by-day">{msg meaning="calendar.event.periodicity.dayOfWeek" desc="Label for by day event repeat kind"}day of week{/msg}</label>
+              </div>
+            </div>
+          </div>
+          <div class="{css bm-ui-form-entry} {css bm-clearfix}" id="bm-ui-form-repeat-days-block" class="{css bm-ui-form-repeat-days-block}">
+            <label for="bm-ui-form-repeat-days">{msg meaning="calendar.event.periodicity.weeklyLabel" desc="On which day a weekly event will occur"}Repeat on{/msg}</label>
+            <div class="{css bm-ui-form-inline}">
+              <div class="{css bm-ui-form-input}" id="bm-ui-form-repeat-days-container">
+                {for $day in range(7)}
+                <label for="bm-ui-form-repeat-days-{$longweekdays[$day]}" class="{css bm-ui-form-prepend}">
+                  <input class="{css bm-ui-form-checkbox}" type="checkbox" id="bm-ui-form-repeat-days-{$longweekdays[$day]}" name="{$longweekdays[$day]}"/>
+                </label>
+                <label class="{css bm-ui-form-append}" for="bm-ui-form-repeat-days-{$longweekdays[$day]}">{$narrowweekdays[$day]}</label></span>
+                {/for}
+              </div>
+            </div>
+          </div>
+          <div class="{css bm-ui-form-entry} {css bm-clearfix}"  id="bm-ui-form-fieldset-end-block">
+            <label for="bm-ui-form-repeat-end-never">{msg meaning="calendar.event.periodicity.end.label" desc="Label for event repeat end selection"}Ends{/msg}</label>
+            <div class="{css bm-ui-form-input}">
+              <div class="{css bm-ui-form-inline}">
+                <table class="{css bm-ui-form-repetition}">
+                <tr>
+                  <td><input class="{css bm-ui-form-radio}" type="radio" checked="true" id="bm-ui-form-repeat-end-never" name="repeat-end" value="never"/></td>
+                  <td colspan="2"><label for="bm-ui-form-repeat-end-never">{msg meaning="calendar.event.periodicity.end.never" desc="Label for event repeat never end selection"}Never{/msg}</label></td>
+                </tr>
+                <tr>
+                  <td><input class="{css bm-ui-form-radio}" type="radio" id="bm-ui-form-repeat-end-on" name="repeat-end" value="on"/></td>
+                  <td><label for="bm-ui-form-repeat-end-on">{msg meaning="calendar.event.periodicity.end.on" desc="Label for event repeat ends on selection"}On{/msg}</label></td>
+                  <td><input type="text" name="repeat-end-date" id="bm-ui-form-repeat-end-date" class="{css bm-mini} {css _until}" value="" /></td>
+                </tr>
+                <tr>
+                  <td><input class="{css bm-ui-form-radio}" type="radio" id="bm-ui-form-repeat-count" name="repeat-end" value="count"/></td>
+                  <td><label for="bm-ui-form-repeat-count">{msg meaning="general.after" desc="After"}After{/msg}</label></td>
+                  <td>
+                    <input type="text" class="{css bm-mini-mini} {css _count}" name="repeat-count-value" id="bm-ui-form-repeat-count-value" value="" />
+                    <label for="bm-ui-form-repeat-count">{msg meaning="general.occurrences" desc="Occurrences"}occurrences{/msg}</label>
+                  </td>
+                </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+          </fieldset>
+          <fieldset id="bm-ui-form-fieldset-freebusy" class="{css goog-tab-content} {css fiedset-content}" style="display: none">
+            <div id="freebusy-root-panel" class={css freebusy-root-panel}>
+              <table class="{css freebusy-root-table}">
+                <tr>
+                  <td colspan="2">
+                    <div id="freebusy-north-toolbar" class="{css freebusy-toolbar}"></div>
+                  </td>
+                </tr>
+                <tr height="100%">
+                  <td class="{css freebusy-root-table-sidebar}">
+                    <div id="freebusy-sidebar" class="{css freebusy-sidebar}">
+                      <table id="freebusy-attendees-container" class="{css fb-attendees-container}">
+                        <tbody id="freebusy-attendees-container-tbody">
+                          <tr><td class="{css empty}"></td></tr>
+                          <tr><td class="{css empty}"></td></tr>
+                          <tr id="empty-all-attendees" class="{css empty-all-attendees}"><td></td></tr>
+                        </tbody>
+                        <tfoot>
+                          <tr><td class="{css empty}"></td></tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  </td>
+                  <td class="{css freebusy-root-table-timeline}">
+                    <div id="freebusy-container" class="{css freebusy-container}">
+                      <div id="fb-dummy-event" class="{css fb-dummy-event}">
+                        <div id="fb-dummy-event-resizer-begin" class="{css fb-dummy-event-resizer} {css fb-dummy-event-resizer-begin}"></div>
+                        <div id="fb-dummy-event-resizer-end" class="{css fb-dummy-event-resizer} {css fb-dummy-event-resizer-end}"></div>
+                      </div>
+                      <table id="freebusy-data-container" class="{css freebusy} {css fb-timeline-container}">
+                        <tbody id="freebusy-timeline-container">
+                        </tbody>
+                      </table>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="2">
+                    <div id="legend-container" class="{css legend-container}">
+                      <div class="{css legend}">
+                        <div class="{css outOfWorkFreeBusy}"></div>
+                         <span>{msg meaning="calendar.event.freeBusy.outOfWork" desc="out of work"}Out of work{/msg}</span>
+                      </div>
+                      <div class="{css legend}">
+                        <div class="{css Busy}"></div>
+                        <span>{msg meaning="calendar.event.freeBusy.busy" desc="Busy state for event opacity"}Busy{/msg}</span>
+                      </div>
+                      <div class="{css legend}">
+                        <div class="{css NotAvailable}"></div>
+                        <span>{msg meaning="calendar.event.freeBusy.noInformation" desc="freebusy no information"}No information{/msg}</span>
+                      </div>
+                    </div>
+                    <div id="freebusy-south-toolbar" class="{css freebusy-toolbar}"></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </fieldset>
+        </td>
+      </tr>
+    </table>
+    </div>
+  </form>
+{/template}
+
+
+/**
+ * Event repeat properties as a sentence
+ * @param rrule Event repeat properties.
+ * @param? error Error message
+ */
+{template .rrule}
+  <strong>{msg meaning="calendar.event.repeat.repeatLabel" desc="Repeat sentence prefix"}Repeat : {/msg}</strong>
+    {if $error}
+    <span class="{css error}">{$error}</span>
+    {else}
+      {let $rrulebydate : $rrule.bydate /}
+      {let $rrulebyday : $rrule.byday /}
+      {if $rrule.interval == 1}
+        {switch $rrule.freq }
+          {case 'DAILY'}
+            {msg meaning="calendar.event.repeat.daily" desc="Event will repeat on a day based period"}Daily{/msg}
+          {case 'WEEKLY'}
+            {msg meaning="calendar.event.repeat.weekly" desc="Event will repeat on a week based period"}Weekly{/msg},&nbsp;
+            {if $rrulebyday.length == 7}
+            	{msg meaning="calendar.event.repeat.weekly.onEveryDay" desc="weekly repeat, days of week"}on every day{/msg}
+            {else}
+            	{msg meaning="calendar.event.repeat.weekly.onDayOfWeek" desc="weekly repeat, days of week"}on {$rrulebyday}{/msg}
+            {/if}
+          {case 'MONTHLY'}
+            {msg meaning="calendar.event.repeat.monthly.everyMonth" desc="Event will repeat on a month based period"}Every month, {/msg}
+            {if $rrulebyday.length > 0}
+            	{call .position  data="$rrulebyday[0]" /}
+            {else}
+            	{msg meaning="calendar.event.repeat.monthly.onDayOfMonth" desc="Repeat on nth day of month"}on day {$rrulebydate}{/msg}
+            {/if}
+          {case 'YEARLY'}
+            {msg meaning="calendar.event.repeat.yearly.everyYear" desc="Event will repeat on a year based period"}Every year, {/msg}
+            {if $rrulebyday.length > 0}
+            	{call .position  data="$rrulebyday[0]" /}
+            {else}
+            	{msg meaning="calendar.event.repeat.yearly.onDayOfYear" desc="Repeat on a day of year"} on {$rrulebydate}{/msg}
+            {/if}
+          {default}
+            What ??
+        {/switch}
+      {else}
+        {let $rruleinterval: $rrule.interval /}
+        {switch $rrule.freq }
+          {case 'DAILY'}
+            {msg meaning="calendar.event.repeat.daily.everyXdays" desc="Event will repeat every x days"}Every {$rruleinterval} days{/msg}
+          {case 'WEEKLY'}
+            {msg meaning="calendar.event.repeat.weekly.everyXweeks" desc="Event will repeat every x weeks"}Every {$rruleinterval} weeks{/msg},&nbsp;
+            {if $rrulebyday.length == 7}
+            	{msg meaning="calendar.event.repeat.weekly.onEveryDay" desc="weekly repeat, days of week"}on every day{/msg}
+            {else}
+            	{msg meaning="calendar.event.repeat.weekly.onDayOfWeek" desc="weekly repeat, days of week"}on {$rrulebyday}{/msg}
+            {/if}
+          {case 'MONTHLY'}
+            {msg meaning="calendar.event.repeat.monthly.everyXmonths" desc="Event will repeat every x months"}Every {$rruleinterval} months, {/msg}
+            {if $rrulebyday.length > 0}
+            	{call .position  data="$rrulebyday[0]" /}
+            {else}
+            	{msg meaning="calendar.event.repeat.monthly.onDayOfMonth" desc="Repeat on nth day of month"}on day {$rrulebydate}{/msg}
+            {/if}
+          {case 'YEARLY'}
+            {msg meaning="calendar.event.repeat.yearly.everyXyears" desc="Event will repeat every x years"}Every {$rruleinterval} years, {/msg}
+            {if $rrulebyday.length > 0}
+            	{call .position  data="$rrulebyday[0]" /}
+            {else}
+            	{msg meaning="calendar.event.repeat.yearly.onDayOfYear" desc="Repeat on a day of year"} on {$rrulebydate}{/msg}
+            {/if}
+          {default}
+            What ??
+        {/switch}
+      {/if}
+      {if isNonnull($rrule.until)}
+        ,&nbsp;{msg meaning="calendar.event.repeat.until" desc="Label for repeat end"}until{/msg}&nbsp;{$rrule.until}
+      {/if}
+      {if isNonnull($rrule.count)}
+        ,&nbsp;{$rrule.count}&nbsp;{msg meaning="calendar.event.repeat.times" desc="Label for repeat count"}times{/msg}
+      {/if}
+      
+    {/if}
+{/template}
+
+/**
+ * @param offset Position
+ * @param day Day
+ * @param month Month
+ */
+{template .position}
+  {if $month}
+	{switch $offset}
+		 {case 1}
+		 	{msg meaning="calendar.event.position.dayOfMonth.first" desc="Repeat first day of week of the month"}on the first {$day} of {$month}{/msg}
+		 {case 2}
+		 	{msg meaning="calendar.event.position.dayOfMonth.second" desc="Repeat Second day of week of the month"}on the second {$day} of {$month}{/msg}
+		 {case 3}
+		 	{msg meaning="calendar.event.position.dayOfMonth.third" desc="Repeat Third day of week of the month"}on the third {$day} of {$month}{/msg}
+		 {case 4}
+		 	{msg meaning="calendar.event.position.dayOfMonth.fourth" desc="Repeat Fourth day of week of the month"}on the fourth {$day} of {$month}{/msg}
+		 {case 5}
+		 	{msg meaning="calendar.event.position.dayOfMonth.last" desc="Repeat Last day of week of the month"}on the last {$day} of {$month}{/msg}
+		 {case -1}
+		 	{msg meaning="calendar.event.position.dayOfMonth.last" desc="Repeat Last day of week of the month"}on the last {$day} of {$month}{/msg}
+	{/switch}
+  {else}
+	{switch $offset}
+		 {case 1}
+		 	{msg meaning="calendar.event.position.dayOfWeek.first" desc="Repeat first day of week"}on the first {$day}{/msg}
+		 {case 2}
+		 	{msg meaning="calendar.event.position.dayOfWeek.second" desc="Repeat Second day of week"}on the second {$day}{/msg}
+		 {case 3}
+		 	{msg meaning="calendar.event.position.dayOfWeek.third" desc="Repeat Third day of week"}on the third {$day}{/msg}
+		 {case 4}
+		 	{msg meaning="calendar.event.position.dayOfWeek.fourth" desc="Repeat Fourth day of week"}on the fourth {$day}{/msg}
+		 {case 5}
+		 	{msg meaning="calendar.event.position.dayOfWeek.last" desc="Repeat Last day of week"}on the last {$day}{/msg}
+		 {case -1}
+		 	{msg meaning="calendar.event.position.dayOfWeek.last" desc="Repeat Last day of week"}on the last {$day}{/msg}
+	{/switch}
+  {/if}
+{/template}
+
+/**
+ * event consult screen
+ * @param event Event data.
+ * @param formatedDtstart
+ * @param calendar
+ */
+{template .card}
+  <div id="gridContainer">
+    <div class="{css selectable}">
+      <div class="{css ecs-title}">{$event.summary}</div>
+      <div class="{css ecs-date}">{$formatedDtstart}</div>
+      {if isNonnull($event.rrule) and isNonnull($event.rrule.freq)}
+        {let $rrulebyday: $event.rrule.byday /}
+        <div class="{css ecs-repeat}">
+        {if $event.rrule.interval == 1 or $event.rrule.interval == undefined }
+          {switch $event.rrule.freq}
+            {case 'DAILY'}
+              {msg meaning="calendar.event.repeat.daily" desc="Event will repeat on a day based period"}Daily{/msg}
+            {case 'WEEKLY'}
+              {msg meaning="calendar.event.repeat.weekly" desc="Event will repeat on a week based period"}Weekly{/msg},&nbsp;
+              {msg meaning="calendar.event.repeat.weekly.onDay" desc="weekly repeat, days of week"}on {$rrulebyday}{/msg}
+            {case 'MONTHLY'}
+              {msg meaning="calendar.event.repeat.monthly" desc="Event will repeat on a month based period"}Monthly{/msg}
+            {case 'YEARLY'}
+              {msg meaning="calendar.event.repeat.yearly" desc="Event will repeat on a year based period"}Yearly{/msg}
+            {default}
+              What ??
+          {/switch}
+        {else}
+          {let $rruleinterval: $event.rrule.interval /}
+          {switch $event.rrule.freq}
+            {case 'DAILY'}
+              {msg meaning="calendar.event.repeat.daily.everyXdays" desc="Event will repeat every x days"}Every {$rruleinterval} days{/msg}
+            {case 'WEEKLY'}
+              {msg meaning="calendar.event.repeat.weekly.everyXweeks" desc="Event will repeat every x weeks"}Every {$rruleinterval} weeks{/msg},&nbsp;
+              {msg meaning="calendar.event.repeat.weekly.onDayOfWeek" desc="weekly repeat, days of week"}on {$rrulebyday}{/msg}
+            {case 'MONTHLY'}
+              {msg meaning="calendar.event.repeat.monthly.everyXmonths" desc="Event will repeat every x months"}Every {$rruleinterval} months{/msg}
+            {case 'YEARLY'}
+              {msg meaning="calendar.event.repeat.yearly.everyXyears" desc="Event will repeat every x years"}Every {$rruleinterval} years{/msg}
+            {default}
+              What ??
+          {/switch}
+        {/if}
+      	{if isNonnull($event.rrule.until)}
+        	,&nbsp;{msg meaning="calendar.event.repeat.until" desc="Label for repeat end"}until{/msg}&nbsp;{$event.rrule.until}
+        {/if}
+        {if isNonnull($event.rrule.count)}
+          ,&nbsp;{$event.rrule.count}&nbsp;{msg meaning="calendar.event.repeat.times" desc="Label for repeat count"}times{/msg}
+        {/if}
+        </div>
+      {/if}
+      <table class="{css detail-container}">
+        <tr>
+          <td class="{css main-content}">
+            <div id="ecs" class="{css ecs}">
+              <div class="{css ecs-detail}">
+                {if $event.organizer }
+                    <div class="{css detailLabel}">{msg meaning="calendar.event.organizer" desc="organizer"}Organizer{/msg}</div>
+                    <div class="{css detailValue}">{$event.organizer['commonName']}</div>
+                {/if}
+                {if $event.location}
+                  <div class="{css detailLabel}">{msg meaning="calendar.event.location" desc="event location label"}Location{/msg}</div>
+                  <div class="{css detailValue}">{$event.location}</div>
+                {/if}
+                <div class="{css detailLabel}">{msg meaning="general.calendar" desc="calendar"}Calendar{/msg}</div>
+                <div class="{css detailValue}">{$calendar.name}</div>
+
+                {if length($event.tags) > 0}
+                  <div class="{css detailLabel}">{msg meaning="general.tags" desc="event tag label"}Tags{/msg}</div>
+                  <div class="{css detailValue}">
+                  {foreach $tag in $event.tags}
+                    <div class="{css tag-bullet}" title="{$tag.label}"><span style="background-color:#{$tag.color}"></span>{$tag.label}</div>
+                  {/foreach}
+                  </div>
+                {/if}
+
+                {if $event.description}
+                  <div class="{css detailLabel}">{msg meaning="calendar.event.description" desc="event desc label"}Description{/msg}</div>
+                  <div class="{css detailValue}">{$event.description |noAutoescape}</div>
+                {/if}
+              </div>
+            </div>
+          </td>
+          <td class="{css attendees}">
+            <table id="ecs-t-attendees" class="{css ecs-t-attendees}">
+              <tr>
+                <td>
+                  <div class="{css bm-ui-form-entry} {css bm-clearfix} {css bm-ui-form-role-legend-container}">
+                    <div><div class="{css bm-ui-form-role-legend} {css fa} {css fa-plus-circle}">&nbsp;</div><span>{msg meaning="calendar.event.participationOptional" desc="attendee part role optional"}Participation optional{/msg}</span></div>
+                    <div><div class="{css bm-ui-form-role-legend} {css fa} {css fa-exclamation-circle}">&nbsp;</div><span>{msg meaning="calendar.event.participationRequired" desc="attendee part role required"}Participation required{/msg}</span></div>
+                  </div>
+                </td>
+              </tr>
+            </table>
+            <div class="{css ecs-attendees}">
+              {foreach $attendee in $event.attendees}
+                {call .attendee}
+                	{param attendee: $attendee /}
+                {/call}
+              {/foreach}
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+{/template}
+
+/**
+ * @param attendee
+ */
+{template .attendee}
+
+  <div class="{css bm-ui-form-attendee-entry}">
+    <div class="{css bm-ui-form-remove} {css fa} {css fa-close}">&nbsp;</div>
+    {if $attendee['role'] == 'OptionalParticipant'}
+      <div class="{css bm-ui-form-role} {css fa} {css fa-plus-circle}">&nbsp;</div>
+    {else}
+      <div class="{css bm-ui-form-role} {css fa} {css fa-exclamation-circle}">&nbsp;</div>
+    {/if}
+    {if isNonnull($attendee['icon'])}  
+	    <img src="{$attendee['icon']}" alt="" />
+	  {else}
+	    <i class="fa fa-user" style="padding-right:5px"></i>
+	  {/if}
+    
+    {if $attendee['partStatus'] == 'Declined'}
+      <span class="{css declined}" title="{$attendee['commonName']}{if $attendee['mailto']}<{$attendee['mailto']}>{/if}{if $attendee['responseComment']}&#13;{$attendee['responseComment'] |escapeHtmlAttribute}{/if}">
+      	{$attendee['commonName']} {if $attendee['mailto']}<{$attendee['mailto']}>{/if}
+      </span>
+    {elseif $attendee['partStatus'] == 'Accepted'}
+      <span class="{css accepted}" title="{$attendee['commonName']}{if $attendee['mailto']}<{$attendee['mailto']}>{/if}{if $attendee['responseComment']}&#13;{$attendee['responseComment'] |escapeHtmlAttribute}{/if}">
+      	{$attendee['commonName']} {if $attendee['mailto']}<{$attendee['mailto']}>{/if}
+      </span>
+    {else}
+      <span class="{css needsaction}" title="{$attendee['commonName']}{if $attendee['mailto']}<{$attendee['mailto'] |escapeHtmlAttribute}>{/if}{if $attendee['responseComment']}&#13;{$attendee['responseComment'] |escapeHtmlAttribute}{/if}">
+      	{$attendee['commonName']} {if $attendee['mailto']}<{$attendee['mailto']}>{/if}
+      </span>
+    {/if}    
+    <input type='hidden' value='{$attendee['uri']}' name='attendees' />
+  </div>
+{/template}
+
+
+/**
+ * Entry item
+ * @param entry Entry data.
+ */
+{template .attendeerow}
+ 	{if isNonnull($entry['icon'])}
+  	  <img src="{$entry.icon}" alt="" />
+  {elseif $entry['cutype'] == 'Group'}
+	    <i class="fa fa-users"  style="float:left"></i>
+  {elseif $entry['cutype'] == 'Resource'}
+      <i class="fa fa-2x fa-briefcase" style="float:left"></i>
+  {else}
+	    <i class="fa fa-2x fa-user" style="float:left"></i>
+	{/if}
+  <h2>
+  "{$entry['commonName']}"&nbsp;
+  
+  {if $entry['cutype'] == 'Group'}
+   ({$entry['memberCount']})&nbsp;
+  {/if}
+  
+  {if $entry['mailto']}
+    &lt;{$entry['mailto']}&gt;
+  {/if}
+  </h2>
+  
+{/template}
+
+
+/**
+ * Entry item
+ * @param entry Entry data.
+ */
+{template .acAttendeeRow}
+ 	{if isNonnull($entry['icon'])}
+    <img src="{$entry.icon}" alt="" />
+  {elseif $entry['cutype'] == 'Group'}
+    <i class="fa fa-users"  style="float:left"></i>
+  {elseif $entry['cutype'] == 'Resource'}
+    <i class="fa fa-2x fa-briefcase" style="float:left"></i>
+  {else}
+    <i class="fa fa-2x fa-user" style="float:left"></i>
+	{/if}
+
+  <h2>
+  "{$entry['commonName']}"&nbsp;
+  
+  {if $entry['cutype'] == 'Group'}
+   ({$entry['memberCount']})&nbsp;
+  {/if}
+  
+  {if $entry['mailto']}
+    &lt;{$entry['mailto']}&gt;
+  {/if}
+  </h2>
+  
+{/template}
+
+
+/**
+ * Entry picture
+ * @param url
+ */
+{template .picture}
+  {if $url }
+  	<img src="{$url}" class="{css picture}"/>
+  {else}
+  <img class="{css picture}" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAHzAAAB8wBK+h4IgAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAKMSURBVEiJtVXBShtRFD33vfvuZKItY9WEQBEtuEgWIoWi6N6VH+BX+BFu3fQD1K0rdxZciSio0FVdzEaCoaAm0TSQtE2N8b0ujGIkMxFCzm7uveedd+69M0NbW1tflVLfMQBYa7+wMebH8vLyt0EI7O7uChtjxPO8oUEIeJ5n2BgjrVarp8Dm5ub48fFxxjlHs7OzpdXV1WIvjlJKWCklSqlkXOHa2tqn/f39z0/PhUIBl5eX4fr6ethTgJnFWhvrIAzDnO/78jKWz+ezzWbzJzO7KJ6IGGZmUUpFCpydnQ01m81x3/dfp7yDg4OPS0tLv2IdEFGsg9vb2w+JREK65Wq12oi19i6Kq7UWZmYTNwMR8UWkq0AikfDjuFprw1prcc5FOkin0ywiXrfc2NgYx3GVUsIAPCKKLJqensbk5OTd1dXVu5fxIAj+zc/P3wOI5BLRY4ucc7FrOjU11by5uelo08TERK0Xj5kNE1Gsg3ahb4zpaJOI+L14RCQMIHYGAKCUShpjOhwQkf8GnrDW2kTdJJ/P+0dHR6OFQmHYGNORu7i4SG1sbAwvLi5WcrncnwiNx0/F616GYZg8OTkZub6+9gFAa92VXSwWZWdnJzg8PLybm5urzszM/FZKvXRgmIgE7U1oNBpqe3s7XS6XPQBg5rgOPKNarXp7e3vvT09P71dWVkpBELSeBZRSBgABwPn5ebJSqQxH3bgX6vW6CcNwdGFhod4OERORB8ADAGutz8xdX6q3wlqbBGDbDlpPLTIAQEQJrXVfAlrrBwCufd5fBiAAkgCQzWYplUrd9yMQBIFGe6ZE1GKl1LOAiCCTyfRzfgeIqNGxRQNAnUul0oNzLvKn0Q/K5bL7D9ddzgDKtkW0AAAAAElFTkSuQmCC" />
+  {/if}
+{/template}
+

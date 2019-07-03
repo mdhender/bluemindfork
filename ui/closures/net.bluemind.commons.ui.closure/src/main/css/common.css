@@ -1,0 +1,110 @@
+/**
+ * BEGIN LICENSE
+ * Copyright © Blue Mind SAS, 2012-2016
+ *
+ * This file is part of BlueMind. BlueMind is a messaging and collaborative
+ * solution.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of either the GNU Affero General Public License as
+ * published by the Free Software Foundation (version 3 of the License).
+ *
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See LICENSE.txt
+ * END LICENSE
+ */
+
+body {
+  font-family: arial, sans-serif;
+  font-size:small;
+  color: #666;
+  margin: 0;
+}
+
+img {
+  border: none;
+}
+
+a,
+a:link,
+a:visited  {
+  color: #205780;
+}
+
+input, textarea, select{
+  border: 1px solid #CCC;
+  border-radius:3px;
+  -moz-border-radius:3px;
+  -webkit-border-radius:3px;
+  color: #333;
+  background: #FFF;
+  outline:none;
+  font-size: 100%;
+  font-family: inherit;
+}
+
+input {
+  padding: 3px 2px 4px;
+}
+
+input[type=button] {
+  user-select: none;
+}
+
+input[type=checkbox], input[type=radio] {
+  padding: 0px;
+}
+
+:-moz-placeholder {
+  color: #bfbfbf;
+}
+::-webkit-input-placeholder {
+  color: #bfbfbf;
+}
+
+.success {
+  color: #468847;
+  border-color: #468847;
+}
+
+.info {
+  color: #3a87ad;
+  border-color: #3a87ad;
+}
+
+.error {
+  color: #b94a48;
+  border-color: #b94a48;
+}
+
+
+/** https://gist.github.com/nyamsprod/4461835 **/
+
+.kitt,
+.kitt div {
+	padding:0; 
+	height:2em;
+	box-shadow:inset 0 0 .125em #ccc; 
+	border-radius:.3em; 
+}
+
+.kitt {
+  position: absolute;
+  top: 30%;
+  left: 15%;
+  width: 70%;
+  background-color:#f1f1f1;
+}
+
+/* First Method Specifics */
+.kitt div {
+	width:30%; /* according to its parent container width */
+	animation:loading 1s ease-in-out infinite alternate; /* the preferred timing-function is ease-in-out */
+	background-color:#00aaeb;
+}
+
+

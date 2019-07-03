@@ -1,0 +1,22 @@
+{
+    "name": "@bluemind/webapp.mail",
+    "version": "4.1.0",
+    "description": "Bluemind MailApp",
+    "author": "Blue Mind SAS",
+    "main": "src/run.js",
+    "license": "GPLv3",
+    "dependencies": {
+        "@bluemind/backend.mail.api": "^4.1.0",
+        "@bluemind/inject": "^4.1.0",
+        "@bluemind/router": "^4.1.0",
+        "@bluemind/store": "^4.1.0",
+        "@bluemind/webapp.mail.ui.vuejs": "^4.1.0"
+    },
+    "devDependencies": {
+        "@bluemind/conf": "^4.1.0"
+    },
+    "scripts": {
+        "build": "webpack --env production --progress --profile --colors",
+        "dev": "webpack-dev-server --env development --progress --colors"
+    }
+}

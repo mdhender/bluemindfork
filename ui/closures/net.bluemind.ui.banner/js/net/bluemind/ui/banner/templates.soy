@@ -1,0 +1,124 @@
+{namespace net.bluemind.ui.banner.templates}
+
+/**
+ * BEGIN LICENSE
+ * Copyright © Blue Mind SAS, 2012-2016
+ *
+ * This file is part of BlueMind. BlueMind is a messaging and collaborative
+ * solution.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of either the GNU Affero General Public License as
+ * published by the Free Software Foundation (version 3 of the License).
+ *
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See LICENSE.txt
+ * END LICENSE
+ */
+
+/**
+ * Display a banner menu entry
+ * @param entry banner entery
+ * @param selected is entry selected
+ */
+{template .bannerEntry}
+	<a href='{$entry['root']}' target="{if $entry['newTab']}_blank{/if}">
+ 	  <span class="application-icon {$entry['cssIcon']}" ></span>
+      {$entry['name']}
+      {if $selected}
+        <sup class="{if $entry.pendingActions == 0}{css empty}{/if}">{$entry.pendingActions}</sup>
+      {else}
+        <sup class="{if $entry.pendingActions == 0}{css empty}{/if}">{$entry.pendingActions}</sup>
+      {/if}
+	</a>
+{/template}
+
+/**
+ * 
+ */
+{template .sync}
+		<div class="{css bar}"></div>
+{/template}
+	
+/**
+ *
+ * @param user user
+ */
+{template .userInfo}
+	<img src="/api/users/{$user.domainUid}/{$user.uid}/icon" title="{msg meaning="user.avatar" desc="Default user avatar"}User avatar{/msg}" style="cursor:pointer;">
+    <span title="{$user.displayName}">{$user.displayName}</span>
+	<div class="{css status-caption}"></div>
+{/template}
+/**
+ *
+ */
+{template .anonymous}
+	<img src="" title="{msg meaning="user.avatar" desc="Default user avatar"}User avatar{/msg}" style="cursor:pointer;">
+    <span></span>
+	<div class="{css status-caption}"></div>
+{/template}
+/**
+ *
+ * 
+ */
+{template .settings}
+<span class="{css fa} {css fa-cog} {css goog-menuitem-icon}" > </span>
+ <a href="#" class="{css settings-link}">{msg meaning="general.settings" desc="Settings link"}My account{/msg}
+{/template}
+
+
+/**
+*/
+{template .logout}
+ <span class="{css fa} {css fa-power-off} {css goog-menuitem-icon}"> </span>{msg meaning="general.logout" desc="Logout link in banner"}logout{/msg}
+{/template}
+
+/**
+*/
+{template .syncing}
+ <span class="{css fa} {css fa-plane} {css goog-menuitem-icon}"> </span>{msg meaning="general.syncing" desc="Syncing"}synchonrisation in progress...{/msg}
+{/template}
+
+/**
+ * Offline status warning when going offline
+ */
+{template .offline}
+  {msg meaning="offline.status.dialog.goOffline" desc="connection status dialog go offline content"}You are currently online. Would you like to switch offline?{/msg}
+  <div class="{css warning}">
+    {msg meaning="offline.status.info" desc="connection status dialog go offline content warn"}You'll work offline. All your changes will be synced  next time you log in.{/msg}
+  </div>
+{/template}
+
+/**
+ * Offline status warning when going offline
+ */
+{template .error}
+  {msg meaning="offline.status.dialog.stayOffline" desc="connection status dialog stay offline content"}Server is currently unavailable. Would you like to stay offline even if the server become available?{/msg}
+  <div class="{css warning}">
+    {msg meaning="offline.status.info" desc="connection status dialog go offline content warn"}You'll work offline. All your changes will be synced  next time you log in.{/msg}
+  </div>
+{/template}
+
+/**
+ * Offline status dialog when going online
+ */
+{template .online}
+  {msg meaning="offline.status.dialog.goOnline" desc="connection status dialog go online content"}You are currently offline. Would you like to switch online?{/msg}
+{/template}
+
+/**
+ * @param src
+ * @param brandVersion
+ * @param version
+ */
+{template .logo}
+  <div class="bmLogoSlide"><span class="version">{$brandVersion}</span></div>
+	<a href="#">	<img src="{$src}"
+	alt="{msg meaning="logo.info" desc="bluemind version"}BlueMind - {$brandVersion} (Version {$version}){/msg}"
+	title="{msg meaning="logo.info" desc="bluemind version"}BlueMind - {$brandVersion} (Version {$version}){/msg}"/></a>
+{/template}
+

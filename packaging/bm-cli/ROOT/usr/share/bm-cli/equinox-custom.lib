@@ -1,0 +1,122 @@
+# Utility functions to run equinox based applications
+#BEGIN LICENSE
+#
+# Copyright © Blue Mind SAS, 2012-2016
+#
+# This file is part of BlueMind. BlueMind is a messaging and collaborative
+# solution.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of either the GNU Affero General Public License as
+# published by the Free Software Foundation (version 3 of the License).
+#
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# See LICENSE.txt
+
+# without the X server dependency of eclipse generated launchers
+#
+export LANG="en_US.UTF-8"
+export LC_TYPE="en_US.UTF-8"
+export LC_ALL=$LANG
+
+if [ $# -lt 1 ] || [ $# -gt 2 ]; then
+     echo "usage: . $0 <product-name> (<pid-file>)"
+     exit 1
+fi
+
+product=$1
+PIDFILE=$2
+
+MEM=${DEFAULT_MEM:-256}
+JVM_EXT_OPTS=""
+if [ -d /etc/bm/default -a -f "/etc/bm/default/${product}.ini" ]; then
+   source /etc/bm/default/${product}.ini
+fi
+if [ -d /etc/bm/local -a -f "/etc/bm/local/${product}.ini" ]; then
+   source /etc/bm/local/${product}.ini
+fi
+
+if [ -d /etc/bm/local -a -f "/etc/bm/local/${product}.log.xml" ]; then
+   JVM_OPTS="${JVM_OPTS} -Dlogback.configurationFile=/etc/bm/local/${product}.log.xml"
+elif [ -d /usr/share/bm-conf/logs/ -a -f "/usr/share/bm-conf/logs/${product}.log.xml" ]; then
+   JVM_OPTS="${JVM_OPTS} -Dlogback.configurationFile=/usr/share/bm-conf/logs/${product}.log.xml"
+fi
+
+rm -rf /usr/share/${product}/plugins
+mkdir -p /usr/share/${product}/plugins
+
+if [ -e /usr/share/${product}/extensions ]; then
+    find /usr/share/${product}/extensions -name '*.jar' -exec ln -f {} /usr/share/${product}/plugins \;
+fi
+
+find /usr/share/${product}/main -name '*.jar' -exec ln -f {} /usr/share/${product}/plugins \;
+
+PRODUCT_WORK_DIR=/var/lib/${product}/work
+mkdir -p ${PRODUCT_WORK_DIR}
+JVM_OPTS="${JVM_OPTS} -Dio.netty.native.workdir=${PRODUCT_WORK_DIR}"
+
+# set DMEM to -Xmx if DMEM not set or invalid
+numberRe='^[0-9]+$'
+if [ -z ${DMEM} ] || ! [[ ${DMEM} =~ ${numberRe} ]]; then
+    DMEM=$MEM
+fi
+
+JVM_OPTS="${JVM_OPTS} -server -Xms${MEM}m -Xmx${MEM}m -Xss${THREAD_STACK:-256k}"
+JVM_OPTS="${JVM_OPTS} -XX:+UseCompressedOops"
+JVM_OPTS="${JVM_OPTS} -XX:MaxDirectMemorySize=${DMEM}m"
+
+# G1 stuff
+JVM_OPTS="${JVM_OPTS} -XX:+UseG1GC"
+JVM_OPTS="${JVM_OPTS} -XX:MaxGCPauseMillis=500"
+
+if [ "x${OOM}" = "x" ]; then
+    JVM_OPTS="${JVM_OPTS} -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/var/log"
+else
+    JVM_OPTS="${JVM_OPTS} ${OOM}"
+fi
+JVM_OPTS="${JVM_OPTS} -Djava.net.preferIPv4Stack=true"
+JVM_OPTS="${JVM_OPTS} -Dnet.bluemind.property.product=${product}"
+JVM_OPTS="${BM_JVM_CUSTOM_OPTS} ${JVM_OPTS} "
+
+
+epackage=org.eclipse.equinox.launcher
+equinox_main_class=${epackage}.Main
+
+function bm_equinox_run_appid() {
+    test $# -ge 2 || {
+        bm_equinox_usage
+        exit 1
+    }
+    test -d $1 || {
+        bm_equinox_usage
+        exit 1
+    }
+    app_install_dir="$1"
+    appid_to_run="$2"
+    shift 2
+
+    bm_equinox_get_jar ${app_install_dir}
+    
+    test -f ${equinox_jar} || {
+        echo "equinox jar not found (${equinox_jar})."
+        exit 1
+    }
+
+    $JAVA_HOME/bin/java ${JVM_OPTS} ${JVM_EXT_OPTS} \
+        -Djava.awt.headless=true -Duser.timezone=GMT \
+        -cp ${equinox_jar} ${equinox_main_class} \
+        -application $appid_to_run "$@"
+}
+
+function bm_equinox_get_jar() {
+    equinox_jar=`find ${1}/plugins -name ${epackage}'_*.jar'`
+    return 0
+}
+
+function bm_equinox_usage() {
+	echo "usage: <platform base dir> <equinox appid>"
+}

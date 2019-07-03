@@ -1,0 +1,1 @@
+${user} has shared a todolist with you

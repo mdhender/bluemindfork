@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.core.jdbc.schema">
+      <schema
+            name="vtodo-schema"
+            resource="sql/vtodo-schema.1.0.0.sql">
+         <compose
+               id="item-store">
+         </compose>
+         <compose
+               id="datetime">
+         </compose>
+         <compose
+               id="icalendar-schema">
+         </compose>
+      </schema>
+   </extension>
+
+</plugin>

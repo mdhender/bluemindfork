@@ -1,0 +1,8 @@
+dn: uid=user00,dc=local
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+uid: user00
+cn: Prenom00 Nom00
+sn: TOREMOVE

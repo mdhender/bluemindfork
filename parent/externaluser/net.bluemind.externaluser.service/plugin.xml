@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.core.rest.apiEndpoint">
+      <endpoint
+            api="net.bluemind.externaluser.api.IExternalUser">
+      </endpoint>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.serviceFactory">
+      <serviceFactory
+            class="net.bluemind.externaluser.service.ExternalUserServiceFactory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.externaluser.service.InCoreExternalUserServiceFactory">
+      </serviceFactory>
+   </extension>
+   <extension
+         point="net.bluemind.directory.handler">
+      <handler
+            class="net.bluemind.externaluser.service.internal.ExternalUserDirEntryHandler"></handler>
+   </extension>
+   <extension
+         point="net.bluemind.core.sanitizerfactory">
+      <sanitizerfactory
+            implementation="net.bluemind.externaluser.service.internal.ExternalUserSanitizerFactory">
+      </sanitizerfactory>
+   </extension>
+</plugin>

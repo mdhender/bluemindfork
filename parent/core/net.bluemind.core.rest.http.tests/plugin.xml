@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.core.rest.http.vertx.httpRoute">
+      <route
+            handler="net.bluemind.core.rest.http.TestHttpHandler"
+            path="/route-test/binded">
+      </route>
+   </extension>
+</plugin>

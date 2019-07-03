@@ -1,0 +1,10 @@
+{
+    "common.send": "Envoyer",
+    "common.to": "À",
+    "common.cc" : "Cc",
+    "common.bcc" : "Cci",
+    "common.save": "Enregistrer",
+    "common.delete": "Supprimer",
+    "common.attachments": "1 pièce jointe | {count} pièces jointes",
+    "common.save_all": "Tout enregistrer"
+}

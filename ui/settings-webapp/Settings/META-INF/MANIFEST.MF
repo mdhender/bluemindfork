@@ -1,0 +1,37 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Settings ui
+Bundle-SymbolicName: net.bluemind.ui.settings;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Web-Resources: web-resources
+Bundle-Localization: OSGI-INF/l10n/bundle
+Require-Bundle: net.bluemind.commons.ui.closure;bundle-version="4.1.0",
+ net.bluemind.webmodule;bundle-version="4.1.0",
+ net.bluemind.ui.banner.standalone.closure;bundle-version="4.1.0",
+ net.bluemind.webmodule.server;bundle-version="4.1.0",
+ org.freemarker.freemarker;bundle-version="2.3.20",
+ net.bluemind.lib.vertx;bundle-version="4.1.0",
+ net.bluemind.system.api.gwt;bundle-version="4.1.0",
+ net.bluemind.core.commons,
+ net.bluemind.authentication.api.gwt;bundle-version="4.1.0",
+ net.bluemind.ui.gwtcommon.icons;bundle-version="4.1.0",
+ net.bluemind.core.context,
+ net.bluemind.core.commons.gwt;bundle-version="4.1.0",
+ net.bluemind.ui.extensions.gwt;bundle-version="4.1.0",
+ net.bluemind.ui.gwtcommon.forms;bundle-version="4.1.0",
+ net.bluemind.core.container.api;bundle-version="4.1.0",
+ net.bluemind.ui.settings.mail;bundle-version="4.1.0",
+ net.bluemind.ui.settings.addressbook;bundle-version="4.1.0",
+ net.bluemind.ui.settings.calendar;bundle-version="4.1.0",
+ net.bluemind.user.api.gwt;bundle-version="4.1.0",
+ net.bluemind.tag.api.gwt;bundle-version="4.1.0",
+ com.google.gwt.user;resolution:=optional,
+ net.bluemind.ui.settings.task;bundle-version="4.1.0",
+ net.bluemind.ui.settings.general,
+ net.bluemind.gwtconsoleapp.base,
+ net.bluemind.role.api;bundle-version="4.1.0",
+ net.bluemind.role.api.gwt;bundle-version="4.1.0",
+ net.bluemind.mailshare.api.gwt;bundle-version="4.1.0"
+Automatic-Module-Name: net.bluemind.ui.settings
+

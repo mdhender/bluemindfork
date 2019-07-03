@@ -1,0 +1,7 @@
+test-classes
+gwt-unitCache/
+war/WEB-INF/deploy/
+war/push/
+dist/
+extra/
+/bin/

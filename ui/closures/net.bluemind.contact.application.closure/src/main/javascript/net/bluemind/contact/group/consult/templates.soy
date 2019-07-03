@@ -1,0 +1,190 @@
+{namespace net.bluemind.contact.group.consult.templates}
+
+/*
+ * BEGIN LICENSE
+ * Copyright © Blue Mind SAS, 2012-2016
+ *
+ * This file is part of BlueMind. BlueMind is a messaging and collaborative
+ * solution.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of either the GNU Affero General Public License as
+ * published by the Free Software Foundation (version 3 of the License).
+ *
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See LICENSE.txt
+ * END LICENSE
+ */
+
+/**
+ * Contact details
+ * @param contact Contact data
+ */
+{template .card}
+  <div class="{css header}">
+    <h1>
+    {$contact.name}
+    </h1>
+    <span class="{css container}">{$contact.container.name}</span>
+  </div>
+  <div class="{css main}">
+    {if $contact.categories}
+      <div>
+        <span>{msg meaning="general.tags" desc="Folder entry tag label"}Tags{/msg}</span>
+        <ul {css bm-tagbox-bullets}">
+        {foreach $category in $contact.categories}
+          {call .category}
+            {param category: $category /}
+          {/call}
+        {/foreach}
+        </ul>
+      </div>
+    {/if}
+    {foreach $email in $contact.emails}
+      {call .email}
+        {param email: $email /}
+      {/call}
+    {/foreach}
+
+    {call .members}
+      {param members: $contact.members /}
+    {/call}
+
+    {if $contact.birthday}
+      <div>
+        <span>{msg meaning="contact.vcard.birthday" desc="Birthday contact field label"}Birthday{/msg}</span>
+        <div>{$contact.birthday}</div>
+      </div>
+    {/if}
+    {if $contact.anniversary}
+      <div>
+        <span>{msg meaning="contact.vcard.anniversary" desc="Anniversary contact field label"}Anniversary{/msg}</span>
+        <div>{$contact.anniversary}</div>
+      </div>
+    {/if}
+    {if $contact.manager}
+      <div>
+        <span>{msg meaning="contact.vcard.manager" desc="Manager contact field label"}Manager{/msg}</span>
+        <div>{$contact.manager}</div>
+      </div>
+    {/if}
+    {if $contact.assistant}
+      <div>
+        <span>{msg meaning="contact.vcard.assistant" desc="Assistant contact field label"}Assistant{/msg}</span>
+        <div>{$contact.assistant}</div>
+      </div>
+    {/if}
+    {if $contact.spouse}
+      <div>
+        <span>{msg meaning="contact.vcard.spouse" desc="Spouse contact field label"}Spouse{/msg}</span>
+        <div>{$contact.spouse}</div>
+      </div>
+    {/if}
+    {if $contact.note}
+    <div>
+      <span>{msg meaning="contact.vcard.note" desc="Note contact field label"}Note{/msg}</span>
+      <div>{$contact.note |noAutoescape}</div>
+    </div>
+    {/if}
+  </div>
+{/template}
+
+/**
+ * Fullname
+ * @param fullname Information content
+ */
+{template .fullname}
+  {if ($fullname.prefix)}
+  	{$fullname.prefix}{sp}
+  {/if}
+  {if ($fullname.firstnames)}
+  	{$fullname.firstnames}{sp}
+  {/if}
+  {if ($fullname.lastnames)}
+  	{$fullname.lastnames}{sp}
+  {/if}
+  {if ($fullname.suffixes)}
+  	{$fullname.suffixes}{sp}
+  {/if}
+  {if ($fullname.additionalNames)}
+  	({$fullname.additionalNames})
+  {/if}
+{/template}
+
+/**
+ * An email information
+ * @param email The email
+ */
+{template .email}
+  <div>
+    {if $email.isDefault}
+    <span>{msg meaning="contact.vcard.defaultemail" desc="Default contact e-mail"}Default e-mail{/msg}</span>
+    {else}
+    <span>{$email.i18n}</span>
+    {/if}
+    <div>
+      <a href='mailto:{$email.value}'>{$email.value}</a>
+      <a href='mailto:{$email.value}'><i class="fa fa-paper-plane envelope"></i></a>
+     </div>
+  </div>
+{/template}
+
+/**
+ * A address information
+ * @param members Information content
+ */
+{template .members}
+ <table class='{css dlist-table} {css table} {css table-striped} {css table-hover}'>
+    <thead>
+      <tr>
+        <th style='width:30px'></th>
+        <th style='width:60px'></th>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+    {foreach $entry in $members}
+      <tr id="entry-{$entry.id}">
+        <td>
+           <!-- FIXME: link to member -->
+        </td>
+        <td>
+          {call .picture}
+          	{param entry: $entry /}
+          {/call}
+        </td>
+        <td>{$entry['name']}</td>
+        <td>
+        {if $entry['email']}
+           <a href='mailto:{$entry.email}'>{$entry.email}</a>
+        {/if}
+        </td>
+      </tr>
+    {/foreach}
+    </tbody>
+  </table>
+{/template}
+
+/**
+ * Entry picture
+ * @param entry member
+ */
+{template .picture}
+  <img class="{css picture}" src="{$entry.photo}" />
+{/template}
+
+/**
+ * A tag information
+ * @param category Information content
+ */
+{template .category}
+  <li  class="{css bm-tagbox-bullets}" title="{$category.label}">
+    <span class="{css bm-tagbox-bullet-color}" style="background-color: #{$category.color};"></span>
+    {$category.label}
+  </li>
+{/template}

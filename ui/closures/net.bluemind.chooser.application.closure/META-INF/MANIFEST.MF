@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.chooser.application.closure
+Bundle-SymbolicName: net.bluemind.chooser.application.closure;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Closure-Bundle-Type: Application
+Closure-Inputs: run.js
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.mvp.closure;bundle-version="4.1.0",
+ net.bluemind.commons.closure;bundle-version="4.1.0",
+ net.bluemind.authentication.closure;bundle-version="4.1.0",
+ net.bluemind.webmodule;bundle-version="4.1.0",
+ font-awesome;bundle-version="4.1.0",
+ net.bluemind.filehosting.ui.closure;bundle-version="4.1.0",
+ net.bluemind.cti.api.closure;bundle-version="4.1.0",
+ net.bluemind.commons.ui.closure;bundle-version="4.1.0",
+ net.bluemind.filehosting.api.closure;bundle-version="1.0.0"
+Web-Resources: web-resources
+Bundle-ClassPath: css.jar, js.jar, .
+Automatic-Module-Name: net.bluemind.chooser.application.closure

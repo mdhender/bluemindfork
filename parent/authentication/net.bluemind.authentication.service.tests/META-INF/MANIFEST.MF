@@ -1,0 +1,26 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Rest Http Tests
+Bundle-SymbolicName: net.bluemind.authentication.service.tests;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Require-Bundle: org.junit,
+ com.ning.async-http-client;bundle-version="1.9.26",
+ net.bluemind.core.rest.http;bundle-version="1.0.0",
+ com.google.guava;bundle-version="19.0.0",
+ net.bluemind.core.jdbc,
+ net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
+ net.bluemind.addressbook.api,
+ net.bluemind.tests.defaultdata,
+ net.bluemind.core.elasticsearch.testshelper,
+ net.bluemind.core.rest.http.vertx;bundle-version="1.0.0",
+ net.bluemind.addressbook.domainbook;bundle-version="1.0.0",
+ net.bluemind.mailbox.service;bundle-version="1.0.0",
+ net.bluemind.config,
+ net.bluemind.user.api,
+ net.bluemind.authentication.service,
+ net.bluemind.system.service;bundle-version="4.1.0",
+ net.bluemind.system.state,
+ net.bluemind.role.api
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: net.bluemind.core.container.model,
+ net.bluemind.server.api

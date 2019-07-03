@@ -1,0 +1,58 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:a="urn:import:net.bluemind.ui.common.client.forms.acl"
+	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'>
+
+	<ui:style>
+	.container {
+		margin-bottom: 40px;
+	}
+	
+	.autocompleteContainer {
+		padding: 5px;
+		background: #F8F8F8;
+	}
+	
+	.autocompleteContainer input {
+		width: 20em;
+	}
+	</ui:style>
+	<ui:with type="net.bluemind.ui.common.client.forms.acl.AclConstants"
+		field="c" />
+
+	<g:HTMLPanel>
+		<g:FlowPanel ui:field="publicComboContainer" styleName="{style.container}">
+			<g:Label text="{c.aclPublic}" styleName="subSectionTitle"></g:Label>
+		</g:FlowPanel>
+
+		<g:Label text="{c.aclSpecific}" styleName="subSectionTitle"></g:Label>
+
+		<g:FlowPanel styleName="{style.autocompleteContainer}">
+			<a:AclAutoComplete ui:field="autocomplete" />
+		</g:FlowPanel>
+
+		<g:Label text="{c.noSharing}" ui:field="noSharing"></g:Label>
+
+		<g:FlexTable ui:field="table">
+		</g:FlexTable>
+
+		<g:FlowPanel ui:field="externalContainer" styleName="{style.container}"
+			visible="false">
+			<g:Label text="{c.externalSharing}" styleName="subSectionTitle"></g:Label>
+
+			<g:FlowPanel ui:field="publicAddressContainer">
+				<g:Label text="{c.publicAddress}" styleName="subSubSectionTitle"></g:Label>
+			</g:FlowPanel>
+
+			<g:FlowPanel ui:field="privateAddressContainer">
+				<g:Label text="{c.privateAddress}" styleName="subSubSectionTitle"></g:Label>
+			</g:FlowPanel>
+
+		</g:FlowPanel>
+
+
+	</g:HTMLPanel>
+
+
+</ui:UiBinder>

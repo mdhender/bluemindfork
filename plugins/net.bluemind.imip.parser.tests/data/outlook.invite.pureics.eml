@@ -1,0 +1,85 @@
+Return-Path: <sylvain.garcia@blue-mind.net>
+Received: from blue-mind.net (bm-prod.blue-mind.loc [192.168.231.2])
+	 by bm-prod (Cyrus v2.4.16-Debian-2.4.16-1hudson6703) with LMTPA;
+	 Wed, 24 Oct 2012 09:46:02 +0200
+X-Sieve: CMU Sieve 2.4
+Received: from 192.168.231.1 (LHLO mail-relay.blue-mind.loc) (192.168.231.1)
+ by unknown with LMTP; 10/24/12 7:46 AM
+Received: from pandaw7 (unknown [192.168.1.62])
+	by mail-relay.blue-mind.loc (Postfix) with ESMTPA id 4E2AA80AB;
+	Wed, 24 Oct 2012 10:30:30 +0200 (CEST)
+From: "Sylvain Garcia" <sylvain.garcia@blue-mind.net>
+To: <david.phan@blue-mind.net>,
+	"'Thomas Cataldo'" <thomas.cataldo@blue-mind.net>
+Subject: Rdv depuis OTK 2010
+Date: Wed, 24 Oct 2012 09:45:59 +0200
+Message-ID: <0f3001cdb1bb$9d036ae0$d70a40a0$@blue-mind.net>
+MIME-Version: 1.0
+Content-Type: text/calendar; method=REQUEST;
+	charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-Mailer: Microsoft Outlook 14.0
+Thread-Index: Ac2xu47/BDNmQOn/RxC5SJDbXLcvNwAAAx7w
+Content-Language: fr
+
+BEGIN:VCALENDAR
+PRODID:-//Microsoft Corporation//Outlook 14.0 MIMEDIR//EN
+VERSION:2.0
+METHOD:REQUEST
+X-MS-OLK-FORCEINSPECTOROPEN:TRUE
+BEGIN:VTIMEZONE
+TZID:Romance Standard Time
+BEGIN:STANDARD
+DTSTART:16011028T030000
+RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=10
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+END:STANDARD
+BEGIN:DAYLIGHT
+DTSTART:16010325T020000
+RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=3
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+END:DAYLIGHT
+END:VTIMEZONE
+BEGIN:VEVENT
+ATTENDEE;CN=david.phan@blue-mind.net;RSVP=TRUE:mailto:david.phan@blue-mind.
+	net
+ATTENDEE;CN="'Thomas Cataldo (thomas.cataldo@blue-mind.net)'";RSVP=TRUE:mai
+	lto:thomas.cataldo@blue-mind.net
+CLASS:PUBLIC
+CREATED:20121024T074558Z
+DESCRIPTION:Ceci est une description\n
+DTEND;TZID="Romance Standard Time":20121024T003000
+DTSTAMP:20121024T074558Z
+DTSTART;TZID="Romance Standard Time":20121024T000000
+LAST-MODIFIED:20121024T074558Z
+LOCATION:Labège
+ORGANIZER;CN="Sylvain Garcia":mailto:sylvain.garcia@blue-mind.net
+PRIORITY:5
+SEQUENCE:0
+SUMMARY;LANGUAGE=fr:Rdv depuis OTK 2010
+TRANSP:OPAQUE
+UID:040000008200E00074C5B7101A82E00800000000C0DB025FCCB1CD01000000000000000
+	01000000072FF529313A7EF4BAB4F711E6967F2CE
+X-ALT-DESC;FMTTYPE=text/html:<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//E
+	N">\n<HTML>\n<HEAD>\n<META NAME="Generator" CONTENT="MS Exchange Server ve
+	rsion 14.02.5004.000">\n<TITLE></TITLE>\n</HEAD>\n<BODY>\n<!-- Converted f
+	rom text/rtf format -->\n\n<P DIR=LTR><SPAN LANG="fr"><FONT FACE="Calibri"
+	>Ceci est une description</FONT></SPAN><SPAN LANG="fr"></SPAN></P>\n\n</BO
+	DY>\n</HTML>
+X-MICROSOFT-CDO-BUSYSTATUS:TENTATIVE
+X-MICROSOFT-CDO-IMPORTANCE:1
+X-MICROSOFT-CDO-INTENDEDSTATUS:BUSY
+X-MICROSOFT-DISALLOW-COUNTER:FALSE
+X-MS-OLK-AUTOSTARTCHECK:FALSE
+X-MS-OLK-CONFTYPE:0
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:Reminder
+END:VALARM
+END:VEVENT
+END:VCALENDAR
+
+

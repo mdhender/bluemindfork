@@ -1,0 +1,119 @@
+Return-Path: <tcataldo+caf_=thomas.cataldo=blue-mind.net@gmail.com>
+Received: from gmail.com (bm-prod.blue-mind.loc [192.168.231.2])
+	 by bm-prod (Cyrus v2.4.16-Debian-2.4.16-1hudson92) with LMTPA;
+	 Thu, 26 Jul 2012 17:31:53 +0200
+X-Sieve: CMU Sieve 2.4
+Received: from 192.168.231.1 (LHLO mail-relay.blue-mind.loc) (192.168.231.1)
+ by unknown with LMTP; 7/26/12 3:31 PM
+Received: from h17.altospam.com (h17.altospam.com [93.93.45.222])
+	by mail-relay.blue-mind.loc (Postfix) with ESMTP id 573528355
+	for <thomas.cataldo@blue-mind.net>; Thu, 26 Jul 2012 18:22:08 +0200 (CEST)
+Received: from mail-wi0-f182.google.com ([209.85.212.182])
+	by h17.altospam.com with esmtp (Altospam)
+	id 1SuQ2S-0008TH-Ib 
+	for thomas.cataldo@blue-mind.net; Thu, 26 Jul 2012 17:31:52 +0200
+Received: by wibhq12 with SMTP id hq12so1630297wib.11
+        for <thomas.cataldo@blue-mind.net>; Thu, 26 Jul 2012 08:31:44 -0700 (PDT)
+Received: by 10.216.132.25 with SMTP id n25mr13696437wei.25.1343316704250;
+        Thu, 26 Jul 2012 08:31:44 -0700 (PDT)
+X-Forwarded-To: thomas.cataldo@blue-mind.net
+X-Forwarded-For: tcataldo@gmail.com thomas.cataldo@blue-mind.net
+Delivered-To: tcataldo@gmail.com
+Received: by 10.180.88.66 with SMTP id be2csp26914wib;
+        Thu, 26 Jul 2012 08:31:43 -0700 (PDT)
+Received: by 10.216.135.147 with SMTP id u19mr14350549wei.12.1343316703769;
+        Thu, 26 Jul 2012 08:31:43 -0700 (PDT)
+Received: from m1.hisi.fr (m1.hisi.fr. [84.246.104.17])
+        by mx.google.com with ESMTPS id h18si11434855wiw.39.2012.07.26.08.31.43
+        (version=TLSv1/SSLv3 cipher=OTHER);
+        Thu, 26 Jul 2012 08:31:43 -0700 (PDT)
+Received-SPF: pass (google.com: domain of js.alet@e-deal.com designates 84.246.104.17 as permitted sender) client-ip=84.246.104.17;
+Authentication-Results: mx.google.com; spf=pass (google.com: domain of js.alet@e-deal.com designates 84.246.104.17 as permitted sender) smtp.mail=js.alet@e-deal.com
+From: =?utf-8?B?SmVhbi1Tw6liYXN0aWVuIEFMRVQ=?= <js.alet@e-deal.com>
+To: edeal-r&d <edeal-r&d@e-deal.com>
+Date: Thu, 26 Jul 2012 17:32:33 +0200
+Thread-Topic: Process Support => brainstorming
+Thread-Index: Ac1rQ6mr+0snidmCRQWuBoaM0iZ7NQAADaEg
+Message-ID: <747793AC722E0A4FB40F138D5BBAE0A2158127F068@edeal-xcg3.e-deal.com>
+Accept-Language: fr-FR
+Content-Language: fr-FR
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+acceptlanguage: fr-FR
+MIME-Version: 1.0
+X-Auto-Response-Suppress: DR, OOF, AutoReply
+X-smtpf-Report: sid=o6PHVP041220361100; tid=o6PHVP0412203611ev; client=lan,relay,no_ptr; mail=; rcpt=; nrcpt=1:0; fails=0
+X-Hisi-MailScanner-Information: 
+X-Hisi-MailScanner-ID: q6QFVPZ8014435
+X-Hisi-MailScanner: Found to be clean
+X-Hisi-MailScanner-From: js.alet@e-deal.com
+Subject: Process Support => brainstorming
+Content-Type: multipart/alternative;
+	boundary="_000_747793AC722E0A4FB40F138D5BBAE0A2158127F068edealxcg3edea_"
+X-ALTOSPAM: h17.altospam.com
+
+--_000_747793AC722E0A4FB40F138D5BBAE0A2158127F068edealxcg3edea_
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+
+UsOpdW5pb24gZGUgYnJhaW5zdG9ybWluZyB2aXNhbnQgw6AgYW3DqWxpb3JlciBub3RyZSBwcm9j
+ZXNzIHN1cHBvcnQNCkplIHZpZW5kcmFpcyBhdmVjIGRlcyBpZMOpZXMsIMOgIGRpc2N1dGVy4oCm
+DQpTaSB2b3VzIGF2ZXogZGVzIGlkw6llcyAoY2VydGFpbnMgbeKAmW9udCBkw6lqw6AgZW52b3nD
+qSBkZXMgY2hvc2VzKSwgbuKAmWjDqXNpdGV6IHBhcyDDoCBsZXMgbWV0dHJlIHN1ciBwYXBpZXIs
+IGFmaW4gZOKAmWFsaW1lbnRlciBjZXR0ZSBkaXNjdXNzaW9u4oCmDQoNCg==
+
+--_000_747793AC722E0A4FB40F138D5BBAE0A2158127F068edealxcg3edea_
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: base64
+
+PGh0bWw+DQo8aGVhZD4NCjxtZXRhIGh0dHAtZXF1aXY9IkNvbnRlbnQtVHlwZSIgY29udGVudD0i
+dGV4dC9odG1sOyBjaGFyc2V0PXV0Zi04Ij4NCjxtZXRhIG5hbWU9IkdlbmVyYXRvciIgY29udGVu
+dD0iTWljcm9zb2Z0IEV4Y2hhbmdlIFNlcnZlciI+DQo8IS0tIGNvbnZlcnRlZCBmcm9tIHJ0ZiAt
+LT4NCjxzdHlsZT48IS0tIC5FbWFpbFF1b3RlIHsgbWFyZ2luLWxlZnQ6IDFwdDsgcGFkZGluZy1s
+ZWZ0OiA0cHQ7IGJvcmRlci1sZWZ0OiAjODAwMDAwIDJweCBzb2xpZDsgfSAtLT48L3N0eWxlPg0K
+PC9oZWFkPg0KPGJvZHk+DQo8Zm9udCBmYWNlPSJDYWxpYnJpLCBzYW5zLXNlcmlmIiBzaXplPSIy
+Ij4NCjxkaXY+UsOpdW5pb24gZGUgYnJhaW5zdG9ybWluZyB2aXNhbnQgw6AgYW3DqWxpb3JlciBu
+b3RyZSBwcm9jZXNzIHN1cHBvcnQ8L2Rpdj4NCjxkaXY+SmUgdmllbmRyYWlzIGF2ZWMgZGVzIGlk
+w6llcywgw6AgZGlzY3V0ZXLigKY8L2Rpdj4NCjxkaXY+U2kgdm91cyBhdmV6IGRlcyBpZMOpZXMg
+KGNlcnRhaW5zIG3igJlvbnQgZMOpasOgIGVudm95w6kgZGVzIGNob3NlcyksIG7igJlow6lzaXRl
+eiBwYXMgw6AgbGVzIG1ldHRyZSBzdXIgcGFwaWVyLCBhZmluIGTigJlhbGltZW50ZXIgY2V0dGUg
+ZGlzY3Vzc2lvbuKApjwvZGl2Pg0KPGRpdj4mbmJzcDs8L2Rpdj4NCjwvZm9udD4NCjwvYm9keT4N
+CjwvaHRtbD4NCg==
+
+--_000_747793AC722E0A4FB40F138D5BBAE0A2158127F068edealxcg3edea_
+Content-Type: text/calendar; charset="utf-8"; method=REQUEST
+Content-Transfer-Encoding: base64
+
+QkVHSU46VkNBTEVOREFSDQpNRVRIT0Q6UkVRVUVTVA0KUFJPRElEOk1pY3Jvc29mdCBFeGNoYW5n
+ZSBTZXJ2ZXIgMjAwNw0KVkVSU0lPTjoyLjANCkJFR0lOOlZUSU1FWk9ORQ0KVFpJRDpSb21hbmNl
+IFN0YW5kYXJkIFRpbWUNCkJFR0lOOlNUQU5EQVJEDQpEVFNUQVJUOjE2MDEwMTAxVDAzMDAwMA0K
+VFpPRkZTRVRGUk9NOiswMjAwDQpUWk9GRlNFVFRPOiswMTAwDQpSUlVMRTpGUkVRPVlFQVJMWTtJ
+TlRFUlZBTD0xO0JZREFZPS0xU1U7QllNT05USD0xMA0KRU5EOlNUQU5EQVJEDQpCRUdJTjpEQVlM
+SUdIVA0KRFRTVEFSVDoxNjAxMDEwMVQwMjAwMDANClRaT0ZGU0VURlJPTTorMDEwMA0KVFpPRkZT
+RVRUTzorMDIwMA0KUlJVTEU6RlJFUT1ZRUFSTFk7SU5URVJWQUw9MTtCWURBWT0tMVNVO0JZTU9O
+VEg9Mw0KRU5EOkRBWUxJR0hUDQpFTkQ6VlRJTUVaT05FDQpCRUdJTjpWRVZFTlQNCk9SR0FOSVpF
+UjtDTj1KZWFuLVPDqWJhc3RpZW4gQUxFVDpNQUlMVE86anMuYWxldEBlLWRlYWwuY29tDQpBVFRF
+TkRFRTtST0xFPVJFUS1QQVJUSUNJUEFOVDtQQVJUU1RBVD1ORUVEUy1BQ1RJT047UlNWUD1UUlVF
+O0NOPWVkZWFsLXImZDoNCiBNQUlMVE86ZWRlYWwtciZkQGUtZGVhbC5jb20NCkRFU0NSSVBUSU9O
+O0xBTkdVQUdFPWZyLUZSOlLDqXVuaW9uIGRlIGJyYWluc3Rvcm1pbmcgdmlzYW50IMOgIGFtw6ls
+aW9yZXIgbg0KIG90cmUgcHJvY2VzcyBzdXBwb3J0XG5KZSB2aWVuZHJhaXMgYXZlYyBkZXMgaWTD
+qWVzXCwgw6AgZGlzY3V0ZXLigKZcblNpIHZvDQogdXMgYXZleiBkZXMgaWTDqWVzIChjZXJ0YWlu
+cyBt4oCZb250IGTDqWrDoCBlbnZvecOpIGRlcyBjaG9zZXMpXCwgbuKAmWjDqXMNCiBpdGV6IHBh
+cyDDoCBsZXMgbWV0dHJlIHN1ciBwYXBpZXJcLCBhZmluIGTigJlhbGltZW50ZXIgY2V0dGUgZGlz
+Y3Vzc2lvbuKApg0KIFxuXG4NClNVTU1BUlk7TEFOR1VBR0U9ZnItRlI6UHJvY2VzcyBTdXBwb3J0
+ID0+IGJyYWluc3Rvcm1pbmcNCkRUU1RBUlQ7VFpJRD1Sb21hbmNlIFN0YW5kYXJkIFRpbWU6MjAx
+MjA4MDZUMTQwMDAwDQpEVEVORDtUWklEPVJvbWFuY2UgU3RhbmRhcmQgVGltZToyMDEyMDgwNlQx
+NTAwMDANClVJRDowNDAwMDAwMDgyMDBFMDAwNzRDNUI3MTAxQTgyRTAwODAwMDAwMDAwNDA3RUI5
+QTM1NDZCQ0QwMTAwMDAwMDAwMDAwMDAwMA0KIDAxMDAwMDAwMDM3OENDRThDQUMwRTg5NERBRjZF
+Q0M3QzJDOTVBOEJCDQpDTEFTUzpQVUJMSUMNClBSSU9SSVRZOjUNCkRUU1RBTVA6MjAxMjA3MjZU
+MTUzMjMzWg0KVFJBTlNQOk9QQVFVRQ0KU1RBVFVTOkNPTkZJUk1FRA0KU0VRVUVOQ0U6MA0KTE9D
+QVRJT047TEFOR1VBR0U9ZnItRlI6DQpYLU1JQ1JPU09GVC1DRE8tQVBQVC1TRVFVRU5DRTowDQpY
+LU1JQ1JPU09GVC1DRE8tT1dORVJBUFBUSUQ6LTE0MDg3MTcxNg0KWC1NSUNST1NPRlQtQ0RPLUJV
+U1lTVEFUVVM6VEVOVEFUSVZFDQpYLU1JQ1JPU09GVC1DRE8tSU5URU5ERURTVEFUVVM6QlVTWQ0K
+WC1NSUNST1NPRlQtQ0RPLUFMTERBWUVWRU5UOkZBTFNFDQpYLU1JQ1JPU09GVC1DRE8tSU1QT1JU
+QU5DRToxDQpYLU1JQ1JPU09GVC1DRE8tSU5TVFRZUEU6MA0KQkVHSU46VkFMQVJNDQpBQ1RJT046
+RElTUExBWQ0KREVTQ1JJUFRJT046UkVNSU5ERVINClRSSUdHRVI7UkVMQVRFRD1TVEFSVDotUFQx
+NU0NCkVORDpWQUxBUk0NCkVORDpWRVZFTlQNCkVORDpWQ0FMRU5EQVINCg==
+
+--_000_747793AC722E0A4FB40F138D5BBAE0A2158127F068edealxcg3edea_--
+

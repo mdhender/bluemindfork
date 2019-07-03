@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.addressbook.ldap.api.gwt
+Bundle-SymbolicName: net.bluemind.addressbook.ldap.api.gwt
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.bluemind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.addressbook.ldap.api;bundle-version="4.1.0";visibility:=reexport,
+ net.bluemind.core.commons.gwt;bundle-version="4.1.0",
+ com.google.gwt.user;bundle-version="2.8.0";resolution:=optional,
+ net.bluemind.restbus.api.gwt;bundle-version="4.1.0"
+Export-Package: net.bluemind.addressbook.ldap.api.fault.gwt.js,
+ net.bluemind.addressbook.ldap.api.fault.gwt.serder,
+ net.bluemind.addressbook.ldap.api.gwt.endpoint,
+ net.bluemind.addressbook.ldap.api.gwt.js,
+ net.bluemind.addressbook.ldap.api.gwt.serder
+Automatic-Module-Name: net.bluemind.addressbook.ldap.api.gwt

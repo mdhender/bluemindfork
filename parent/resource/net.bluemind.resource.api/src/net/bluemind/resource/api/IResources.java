@@ -1,0 +1,146 @@
+/* BEGIN LICENSE
+ * Copyright © Blue Mind SAS, 2012-2016
+ *
+ * This file is part of BlueMind. BlueMind is a messaging and collaborative
+ * solution.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of either the GNU Affero General Public License as
+ * published by the Free Software Foundation (version 3 of the License).
+ *
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See LICENSE.txt
+ * END LICENSE
+ */
+package net.bluemind.resource.api;
+
+import java.util.List;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+
+import net.bluemind.core.api.BMApi;
+import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.task.api.TaskRef;
+
+/**
+ * Resources API. Resources are used, for example, to create an entity like a
+ * vehicle, a meeting room, a video-projector, etc. They can be categorized by
+ * type.
+ * 
+ * Once created, you can invite a resource to a calendar event. It simply means
+ * the resource is booked during the time of the event.
+ * 
+ * Resource are part of a domain (and only one).
+ */
+@BMApi(version = "3")
+@Path("/resources/{domainUid}")
+public interface IResources {
+
+	/**
+	 * Creates a {@link ResourceDescriptor}.
+	 * 
+	 * @param uid                { @link ResourceDescriptor } unique id
+	 * @param resourceDescriptor { {@link ResourceDescriptor }
+	 * @throws ServerFault standard error object
+	 */
+	@PUT
+	@Path("{uid}")
+	public void create(@PathParam("uid") String uid, ResourceDescriptor resourceDescriptor) throws ServerFault;
+
+	/**
+	 * Modify an existing {@link ResourceDescriptor}.
+	 * 
+	 * @param uid                { @link ResourceDescriptor } unique id
+	 * @param resourceDescriptor updated { {@link ResourceDescriptor }
+	 * @throws ServerFault standard error object
+	 */
+	@POST
+	@Path("{uid}")
+	public void update(@PathParam("uid") String uid, ResourceDescriptor resourceDescriptor) throws ServerFault;
+
+	/**
+	 * Delete an existing {@link ResourceDescriptor}.
+	 * 
+	 * @param uid { @link ResourceDescriptor } unique id
+	 * @throws ServerFault standard error object
+	 */
+	@DELETE
+	@Path("{uid}")
+	public TaskRef delete(@PathParam("uid") String uid) throws ServerFault;
+
+	/**
+	 * Fetch an existing {@link ResourceDescriptor} by its unique id.
+	 * 
+	 * @param uid { @link ResourceDescriptor } unique id
+	 * @return {@link ResourceDescriptor}, or null if the {@link ResourceDescriptor}
+	 *         does not exist
+	 * @throws ServerFault standard error object
+	 */
+	@GET
+	@Path("{uid}")
+	public ResourceDescriptor get(@PathParam("uid") String uid) throws ServerFault;
+
+	/**
+	 * Fetch a {@link ResourceDescriptor} icon.
+	 * 
+	 * @param uid { @link ResourceDescriptor } unique id
+	 * @return icon binary data (png format) or null if the
+	 *         {@link ResourceDescriptor} does not exist
+	 * @throws ServerFault standard error object
+	 */
+	@GET
+	@Path("{uid}/icon")
+	@Produces("image/png")
+	public byte[] getIcon(@PathParam("uid") String uid) throws ServerFault;
+
+	/**
+	 * Set a {@link ResourceDescriptor} icon.
+	 * 
+	 * @param uid  { @link ResourceDescriptor } unique id
+	 * @param icon icon binary data (png format)
+	 * @throws ServerFault standard error object
+	 */
+	@POST
+	@Path("{uid}/icon")
+	@Consumes("image/png")
+	public void setIcon(@PathParam("uid") String uid, byte[] icon) throws ServerFault;
+
+	/**
+	 * Fetch an existing {@link ResourceDescriptor} by its email.
+	 * 
+	 * @param email { @link ResourceDescriptor } email
+	 * @return {@link ResourceDescriptor}
+	 *         {@link net.bluemind.core.container.api.ItemValue}, or null if the
+	 *         {@link ResourceDescriptor} does not exist
+	 * @throws ServerFault standard error object
+	 */
+	@GET
+	@Path("byEmail/{email}")
+	public ItemValue<ResourceDescriptor> byEmail(@PathParam("email") String email) throws ServerFault;
+
+	/**
+	 * List all {@link ResourceDescriptor} by type.
+	 * 
+	 * @param typeUid { @link net.bluemind.resource.api.type.ResourceType } unique
+	 *                id
+	 * @return list of {@link ResourceDescriptor} uids or null if the type does not
+	 *         exists or if there are no {@link ResourceDescriptor} matching.
+	 * @throws ServerFault standard error object
+	 */
+	@GET
+	@Path("byType/{type}")
+	public List<String> byType(@PathParam("type") String typeUid) throws ServerFault;
+
+}

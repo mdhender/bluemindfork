@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+	<inherits name="com.google.gwt.json.JSON" />
+	<inherits name="net.bluemind.gwtconsoleapp.base.Menus" />
+	<inherits name="net.bluemind.gwtconsoleapp.base.Editor" />
+	<inherits name="net.bluemind.gwtconsoleapp.base.Handler" />
+	<inherits name="net.bluemind.hsm.HsmApi" />
+	<inherits name="net.bluemind.mailflow.MailflowApi" />
+	<inherits name="net.bluemind.system.SystemApi" />
+	<inherits name="net.bluemind.server.ServerApi"/>
+	<source path='' />
+</module>

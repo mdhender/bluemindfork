@@ -1,0 +1,56 @@
+{namespace net.bluemind.ui.form.templates}
+
+/*
+ * BEGIN LICENSE
+ * Copyright © Blue Mind SAS, 2012-2016
+ *
+ * This file is part of BlueMind. BlueMind is a messaging and collaborative
+ * solution.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of either the GNU Affero General Public License as
+ * published by the Free Software Foundation (version 3 of the License).
+ *
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * END LICENSE
+ */
+
+/**
+ * Standard field decorator
+ */
+{template .field}
+    <span class="{css field-base-label}"></span>
+    <div class="{css field-base-field}"></div>
+{/template}
+
+/**
+ * 
+ */
+{template .photo}
+	<img src="images/nopicture.png" alt="Photo" />
+{/template}
+
+/**
+ * form notification
+ * @param css css name
+ * @param msg
+ */
+{template .formNotification}
+  <div class="{$css}">{$msg}</div>
+{/template}
+
+
+/**
+ * form notification
+ */
+{template .notification}
+  <div>
+    <span id="bm-ui-form-notification-popup-btn" class="{css form-notification-btn}"></span>
+    <div id="bm-ui-form-notification" class="{css form-notification}"></div>
+  </div>
+  <div id="bm-ui-form-notification-popup" class="{css popup}"></div>
+{/template}

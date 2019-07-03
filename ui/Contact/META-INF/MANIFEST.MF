@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: contact
+Bundle-SymbolicName: contact;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Closure-Bundle-Type: Application
+Closure-Inputs: bluemind/run.js
+Require-Bundle: net.bluemind.webmodule;bundle-version="1.0.0",
+ net.bluemind.contact.application.closure;bundle-version="1.0.0",
+ net.bluemind.ui.imageupload.standalone;bundle-version="1.0.0"
+Web-Resources: web-resources
+Bundle-ClassPath: js.jar,
+ .

@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.core.task.api.closure
+Bundle-SymbolicName: net.bluemind.core.task.api.closure;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Closure-Bundle-Type: Library
+Require-Bundle: relief;bundle-version="1.0.0",
+ net.bluemind.core.task.api;bundle-version="1.0.0",
+ net.bluemind.commons.closure;bundle-version="1.0.0"
+Bundle-ClassPath: js.jar

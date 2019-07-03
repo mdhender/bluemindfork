@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>ui</artifactId>
+	<packaging>pom</packaging>
+
+	<parent>
+		<groupId>net.bluemind</groupId>
+		<artifactId>net.bluemind.parent</artifactId>
+		<version>4.1.0-SNAPSHOT</version>
+	</parent>
+	<modules>
+		<module>gwt-libs</module>
+		<module>3-party</module>
+		<module>gwt-ui-libs</module>
+		<module>net.bluemind.ui.gwtcommon.icons</module>
+		<module>net.bluemind.ui.gwtcommon.editor</module>
+		<module>net.bluemind.ui.gwtcommon.forms</module>
+		<module>net.bluemind.ui.resources</module>
+		<module>net.bluemind.ui.dynresources</module>
+		<!--module>GWTCommon</module-->
+		<module>closures</module>
+		<module>Contact</module>
+		<module>Calendar</module>
+		<module>Push</module>
+		<module>DefaultApp</module>
+		<module>IM</module>
+		<module>webmodules</module>
+		<module>roundcube</module>
+		<module>net.bluemind.ui.webmail.application</module>
+		<module>adminconsole-webapp</module>
+		<module>net.bluemind.gwtconsoleapp.base</module>
+		<module>settings-webapp</module>
+		<module>mail-webapp</module>
+	</modules>
+</project>

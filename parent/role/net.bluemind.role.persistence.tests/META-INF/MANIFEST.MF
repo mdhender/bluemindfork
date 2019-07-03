@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.role.persistence.tests
+Bundle-SymbolicName: net.bluemind.role.persistence.tests;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Fragment-Host: net.bluemind.role.persistence
+Require-Bundle: org.junit,
+ net.bluemind.core.context,
+ net.bluemind.core.jdbc.testshelper
+

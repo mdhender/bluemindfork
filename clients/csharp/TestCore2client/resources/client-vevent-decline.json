@@ -1,0 +1,59 @@
+﻿{  
+   "alarm":[  
+
+   ],
+   "attendees":[  
+      {  
+         "commonName":"nico1 nico1",
+         "cutype":"Individual",
+         "delFrom":null,
+         "delTo":null,
+         "dir":null,
+         "internal":false,
+         "lang":null,
+         "mailto":"nico1@bm.lan",
+         "member":null,
+         "partStatus":"Declined",
+         "responseComment":null,
+         "role":"RequiredParticipant",
+         "rsvp":true,
+         "sentBy":null,
+         "uri":null
+      }
+   ],
+   "categories":[  
+
+   ],
+   "classification":"Public",
+   "description":"<!DOCTYPE HTML PUBLIC \"-\/\/W3C\/\/DTD HTML 3.2\/\/EN\">\u000d\u000a<HTML>\u000d\u000a<HEAD>\u000d\u000a<META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text\/html; charset=iso-8859-1\">\u000d\u000a<META NAME=\"Generator\" CONTENT=\"MS Exchange Server version 14.02.5004.000\">\u000d\u000a<TITLE>declien �a bitch<\/TITLE>\u000d\u000a<\/HEAD>\u000d\u000a<BODY>\u000d\u000a<!-- Converted from text\/rtf format -->\u000d\u000a\u000d\u000a<P ALIGN=LEFT><FONT SIZE=2 FACE=\"Calibri\">Dsdsd<\/FONT><\/P>\u000d\u000a\u000d\u000a<P ALIGN=LEFT><FONT SIZE=2 FACE=\"Calibri\">&nbsp;Dsmdkspd<\/FONT><\/P>\u000d\u000a\u000d\u000a<P ALIGN=LEFT><FONT SIZE=2 FACE=\"Calibri\">&nbsp;Dmsjdms<\/FONT><\/P>\u000d\u000a\u000d\u000a<P ALIGN=LEFT><FONT SIZE=2 FACE=\"Calibri\">&nbsp;mldkmskds<\/FONT><\/P>\u000d\u000a\u000d\u000a<\/BODY>\u000d\u000a<\/HTML>",
+   "dtstart":{  
+      "iso8601":"2016-11-08T13:30:00.000+01:00",
+      "precision":"DateTime",
+      "timezone":"Europe\/Paris"
+   },
+   "exdate":null,
+   "location":null,
+   "organizer":{  
+      "commonName":null,
+      "dir":null,
+      "mailto":"bob1@bm.lan",
+      "uri":null
+   },
+   "priority":5,
+   "rdate":null,
+   "recurid":null,
+   "rrule":null,
+   "status":"Confirmed",
+   "summary":"declien �a bitch",
+   "uid":"0f758ca3-d017-4eee-b7fb-ea6b00b08de6",
+   "url":null,
+   "dtend":{  
+      "iso8601":"2016-11-08T14:00:00.000+01:00",
+      "precision":"DateTime",
+      "timezone":"Europe\/Paris"
+   },
+   "properties":{  
+
+   },
+   "transparency":"Opaque"
+}

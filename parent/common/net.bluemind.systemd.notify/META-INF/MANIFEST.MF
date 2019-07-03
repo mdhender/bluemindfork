@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.systemd.notify
+Bundle-SymbolicName: net.bluemind.systemd.notify;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.systemd.notify.Activator
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ slf4j.api,
+ net.java.dev.jna,
+ net.bluemind.lib.vertx,
+ com.google.guava
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.systemd.notify
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.systemd.notify

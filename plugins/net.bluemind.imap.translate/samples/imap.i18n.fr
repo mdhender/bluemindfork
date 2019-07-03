@@ -1,0 +1,3 @@
+Sent=Ce que je dis
+Trash=La poubelle
+

@@ -1,0 +1,17 @@
+#!/usr/bin/make -f
+
+
+include /usr/share/cdbs/1/rules/debhelper.mk
+
+JAVA_HOME := /usr/lib/jvm/bm-jdk
+
+DEB_UPDATE_RCD_PARAMS_bm-node := "defaults 60 01"
+
+build:
+	
+
+install/bm-node::
+	cp -rf ${CURDIR}/ROOT/* ${CURDIR}/debian/bm-node
+	chmod +x ${CURDIR}/debian/bm-node/usr/share/bm-node/rsync-backup.sh
+	chmod +x ${CURDIR}/debian/bm-node/usr/share/bm-node/bm-pra-restore.py
+

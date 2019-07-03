@@ -1,0 +1,153 @@
+#!/bin/bash
+# pidfile: /var/run/bm-xivobridge.pid
+#
+### BEGIN INIT INFO
+# Provides: bm-xivobridge
+# Required-Start: $syslog $network
+# Required-Stop: $syslog $network
+# Should-Start: bm-core
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: BM xivobridge Server.
+# Description: init system for Blue Mind bm-xivobridge.
+### END INIT INFO
+
+# Debian, Ubuntu
+[ -f /lib/init/vars.sh ] && source /lib/init/vars.sh
+[ -f /lib/lsb/init-functions ] && source /lib/lsb/init-functions
+# RedHat, CentOS
+[ -f /etc/init.d/functions ] && source /etc/init.d/functions
+
+if [ "$VERBOSE" == "yes" ]; then
+        set -x
+fi
+
+
+BM_SERVICE="Blue Mind xivobridge"
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+export JAVA_HOME=`/usr/bin/bm_java_home`
+PATH=$JAVA_HOME/bin:$PATH
+
+test -f $JAVA_HOME/bin/java || {
+    echo "JDK not found in JAVA_HOME: $JAVA_HOME"
+    exit 1
+}
+
+
+bmxivobridge_pidfile=/var/run/bm-xivobridge.pid
+bmxivobridge_home=/usr/share/bm-xivobridge
+bmxivobridge_logs=/var/log/bm-xivobridge/xivobridge.log
+jps=$JAVA_HOME/bin/jps
+
+bm-xivobridge_running() {
+    retry=1
+    [ ! -z $1 ] && retry=$1
+
+    count=0
+    while [ -z ${bmxivobridge_pid} ] && [ ${count} -lt ${retry} ]; do
+        [ ${count} -ne 0 ] && sleep 0.5
+        count=$((${count}+1))
+        bmxivobridge_pid=$(jps -ml | grep bluemind.xivo.bridge | cut -d ' ' -f1)
+    done
+
+    ret=1
+    if [ ! -z ${bmxivobridge_pid} ]; then
+        kill -0 ${bmxivobridge_pid} >/dev/null 2>&1
+        ret=$?
+    fi
+
+    if [ ${ret} -ne 0 ]; then
+        rm -f ${bmxivobridge_pidfile} > /dev/null 2>&1 || true
+    fi
+
+    return ${ret}
+}
+
+start_bm-xivobridge() {
+    bm-xivobridge_running && {
+        echo "${BM_SERVICE} Server already running."
+        return 0
+    }
+
+    echo -n "Starting server "${BM_SERVICE}
+    (
+        ${bmxivobridge_home}/bm-xivobridge ${bmxivobridge_pidfile} 0>/dev/null 1>/dev/null 2>/dev/null 3>/dev/null
+        exit $?
+    ) > /dev/null 2>&1
+    ret=$?
+    if [ ${ret} -ne 0 ]; then
+        echo ": fail"
+        return ${ret}
+    fi
+    
+    bm-xivobridge_running 5
+    running=$?
+    if [ ${running} -eq 0 ]; then
+        echo " (PID: "${bmxivobridge_pid}"): done"
+    else
+        echo ": fail"
+    fi
+
+    return ${running}
+}
+
+stop_bm-xivobridge() {
+    bm-xivobridge_running || {
+        echo "${BM_SERVICE} Server not running."
+        return 0
+    }
+
+    kill -TERM ${bmxivobridge_pid}
+
+    echo -n "Waiting for ${BM_SERVICE} Server shutdown."
+    count=0
+    while bm-xivobridge_running; do
+        echo -n "."
+        sleep 0.5
+        count=$((${count}+1))
+
+        if [ ${count} -gt 10 ]; then
+          kill -9 ${bmxivobridge_pid} || true
+          break
+        fi
+    done
+    
+    rm -f ${bmxivobridge_pidfile}
+    unset bmxivobridge_pid
+    echo ""
+}
+
+status_bm-xivobridge() {
+    bm-xivobridge_running || {
+        echo "${BM_SERVICE} Server not running."
+        return 3
+    }
+    
+    return 0
+}
+
+case "$1" in
+    start)
+        start_bm-xivobridge
+        ret=$?
+        ;;
+    stop)
+        stop_bm-xivobridge
+        ret=$?
+        ;;
+    status)
+        status_bm-xivobridge
+        ret=$?
+        ;;
+    restart)
+        stop_bm-xivobridge
+        ret=$?
+        if [ ${ret} -eq 0 ]; then
+            start_bm-xivobridge
+            ret=$?
+        fi
+        ;;
+esac
+
+exit $ret

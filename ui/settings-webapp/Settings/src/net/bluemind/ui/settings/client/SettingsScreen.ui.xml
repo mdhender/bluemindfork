@@ -1,0 +1,44 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	xmlns:c="urn:import:net.bluemind.ui.settings.client"
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'>
+
+	<ui:style>
+	.logo {
+		vertical-align: top;
+		cursor: pointer;
+		display: table-cell;
+		margin-left: 5px;
+	}
+	.dockLayoutPanel > div {
+        overflow: visible !important;
+    }
+	</ui:style>
+
+	<ui:with type="net.bluemind.ui.common.client.icon.CommonIcons"
+		field="ai" />
+
+	<g:DockLayoutPanel unit='PX' height="100%"  addStyleNames="{style.dockLayoutPanel}">
+
+		<g:north size="97">
+			<g:HTMLPanel>
+				<c:Banner></c:Banner>
+			</g:HTMLPanel>
+		</g:north>
+
+		<g:west size="206">
+			<g:FlexTable ui:field="sidebar"></g:FlexTable>
+		</g:west>
+
+		<g:center>
+			<g:FlowPanel ui:field="apps" height="100%"></g:FlowPanel>
+		</g:center>
+
+		<g:south size="40">
+			<g:SimplePanel ui:field="south" />
+		</g:south>
+
+	</g:DockLayoutPanel>
+
+</ui:UiBinder>

@@ -1,0 +1,11 @@
+--- a/program/steps/mail/compose.inc.old	2015-08-13 15:51:35.414283663 +0200
++++ b/program/steps/mail/compose.inc	2015-08-13 16:07:40.020148068 +0200
+@@ -312,7 +312,7 @@
+       }
+     }
+     // reply to yourself
+-    else if ($compose_mode == RCUBE_COMPOSE_REPLY && $MESSAGE->headers->from == $ident['ident']) {
++    else if (($compose_mode == RCUBE_COMPOSE_REPLY || $compose_mode == RCUBE_COMPOSE_FORWARD) && ($MESSAGE->headers->from == $ident['ident'] || rcube_mime::decode_mime_string($MESSAGE->headers->from) == $ident['ident'])) {;
+       $from_idx = $idx;
+       break;
+     }

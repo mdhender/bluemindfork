@@ -1,0 +1,13 @@
+Source: bluemind
+Section: net
+Priority: optional
+Maintainer: BlueMind Team <team@blue-mind.net>
+Standards-Version: 3.9.1
+X-Python-Version: >= 2.6
+Build-Depends: debhelper (>= 9), dh-python, python-setuptools
+
+Package: python-bm-client
+Architecture: all
+Depends: ${python:Depends}, ${misc:Depends}, python-enum34, python-requests
+Description: BlueMind python client
+ BlueMind python client

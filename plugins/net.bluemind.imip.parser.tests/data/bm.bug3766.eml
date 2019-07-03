@@ -1,0 +1,180 @@
+Return-Path: <exa-networks.co.uk@exa-networks.co.uk>
+Received: from exa-networks.co.uk (bluemind.exa.net.uk [82.219.13.108])
+	 by bluemind (Cyrus v2.4.16-Debian-2.4.16-1hudson7628) with LMTPA;
+	 Mon, 04 Feb 2013 09:51:59 +0000
+X-Sieve: CMU Sieve 2.4
+Received: from bluemind.exa.net.uk (LHLO bluemind.exa.net.uk)
+ (82.219.13.108) by unknown with LMTP; 2/4/13 9:51 AM
+Received: from out-11.mail.exa.net.uk (out-11.mail.exa.net.uk [82.219.4.139])
+	by bluemind.exa.net.uk (Postfix) with ESMTPS id 9422B1120CE9
+	for <thomas.mangin@exa.net.uk>; Mon,  4 Feb 2013 09:51:59 +0000 (GMT)
+Received: from fs-3.mail.exa.net.uk (fs-3.mail.exa.net.uk [82.219.5.243])
+	by out-11.mail.exa.net.uk (ExaSMTPD) with SMTP id 6AA8AA0055
+	for <thomas.mangin@exa.net.uk>; Mon,  4 Feb 2013 09:51:59 +0000 (GMT)
+Received: (qmail 32134 invoked by uid 3246); 4 Feb 2013 09:51:59 +0000
+Reply-To: sylvain.garcia@blue-mind.net
+Received: (qmail 32107 invoked from network); 4 Feb 2013 09:51:58 +0000
+Received: from unknown (HELO scanner-7.tcm.exa.net.uk) (82.219.5.151)
+  by fs-3.mail.exa.net.uk with SMTP; 4 Feb 2013 09:51:58 +0000
+X-Spam-Flag: NO
+X-Spam-Score: 0.873
+X-Spam-Level: 
+X-Spam-Status: No, score=0.873 tagged_above=-100 required=5
+	tests=[BAYES_00=-1.9, HTML_MESSAGE=0.001, MPART_ALT_DIFF=0.79,
+	RDNS_DYNAMIC=0.982, RELAYED_BY_DIALUP=1] autolearn=no
+Received: from mx-1.mail.exa.net.uk (mx-1.mail.exa.net.uk [82.219.5.9])
+	by scanner-7.tcm.exa.net.uk (ExaSMTPD) with ESMTP id D15C42000B2
+	for <thomas.mangin@exa-networks.co.uk>; Mon,  4 Feb 2013 09:51:57 +0000 (GMT)
+Received: from bm-prod.blue-mind.loc (fs-93-93-44-229.fullsave.info [93.93.44.229])
+	by mx-1.mail.exa.net.uk (ExaSMTPD) with ESMTP id B29B58006F
+	for <thomas.mangin@exa-networks.co.uk>; Mon,  4 Feb 2013 09:51:56 +0000 (GMT)
+MIME-Version: 1.0
+Date: Mon, 4 Feb 2013 09:51:56 +0000
+Subject: point BM /exa-etwork
+Sender: Sylvain Garcia <sylvain.garcia@blue-mind.net>
+From: Sylvain Garcia <sylvain.garcia@blue-mind.net>
+To: thomas mangin <thomas.mangin@exa-networks.co.uk>
+Content-Type: multipart/mixed;
+ boundary="-=Part.17.b01fe845585761bb.13ca49e7fe4.9a0a90e571faae1d=-"
+Message-Id: <20130204095156.7631D1CE140@bm-prod.blue-mind.loc>
+X-BM-Event: f25c32c7e698d7d8c3d3a25809653f68bdbe6173
+
+---=Part.17.b01fe845585761bb.13ca49e7fe4.9a0a90e571faae1d=-
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="-=Part.16.11c76f4ff3b3a56c.13ca49e7fe4.77bb7c2a4ea5388=-"
+
+---=Part.16.11c76f4ff3b3a56c.13ca49e7fe4.77bb7c2a4ea5388=-
+Content-Type: text/html; charset=UTF-8;
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+  <style type=3D"text/css">
+
+h1=2Eupdate {
+  color: orange;
+}
+
+h1=2Ecancel {
+  color:red;
+}
+
+=2Eupdated {
+  color: orange;
+  font-size: 80%;
+  font-style: italic;
+}
+
+=2Ekey {
+  color: #666;
+   text-align: right;
+   vertical-align: top;
+}
+
+=2Evalue {
+}
+
+=2Eattendees {
+  list-style-type: none;
+  padding: 0px;
+  margin: 0px;
+}
+
+=2Enote {
+  padding: 4px;
+  margin: 4px;
+  border: 1px solid #C6EDF9;
+  background: #DDF4FB;
+}
+</style></head>
+<body><h1 class=3D"update">=C3=89v=C3=A9nement mis =C3=A0 jour</h1>
+<table>
+  <tr>
+    <td class=3D"key">Titre</td>
+    <td class=3D"value">point BM /exa-etwork </td>
+  </tr>
+  <tr>
+    <td class=3D"key">Quand</td>
+    <td class=3D"value">
+        2013-02-05 10:30 - 2013-02-05 11:30, Heure d'Europe centrale
+        <i class=3D"updated">(mis =C3=A0 jour)</i>
+    </td>
+  </tr>
+  <tr>
+    <td class=3D"key">O=C3=B9</td>
+    <td class=3D"value"> </td>
+  </tr>
+  <tr>
+    <td class=3D"key">Organisateur</td><td class=3D"value">Sylvain Garcia<=
+/td>
+  </tr>
+  <tr>
+    <td class=3D"key">Participants</td>
+    <td class=3D"value">
+      <ul class=3D"attendees">
+          <li>Sylvain Garcia</li>
+          <li>thomas mangin (thomas=2Emangin@exa-networks=2Eco=2Euk)</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td class=3D"key">Description</td>
+    <td class=3D"value"> </td>
+  </tr>
+</table>
+</body>
+</html>
+---=Part.16.11c76f4ff3b3a56c.13ca49e7fe4.77bb7c2a4ea5388=-
+Content-Type: text/calendar; charset=UTF-8; method=REQUEST
+Content-Transfer-Encoding: quoted-printable
+
+BEGIN:VCALENDAR
+PRODID:-//Blue Mind//Blue Mind Calendar//FR
+VERSION:2=2E0
+CALSCALE:GREGORIAN
+METHOD:REQUEST
+BEGIN:VEVENT
+DTSTAMP:20130204T095156Z
+SEQUENCE:1
+UID:f25c32c7e698d7d8c3d3a25809653f68bdbe6173
+ATTENDEE;CUTYPE=3DINDIVIDUAL;PARTSTAT=3DACCEPTED;RSVP=3DTRUE;CN=3DSylvain =
+Garcia;ROLE=3DCHAIR:mailto:sylvain=2Egarcia@blue-mind=2Enet
+ATTENDEE;CUTYPE=3DINDIVIDUAL;PARTSTAT=3DNEEDS-ACTION;RSVP=3DTRUE;CN=3Dthom=
+as mangin;ROLE=3DREQ-PARTICIPANT:mailto:thomas=2Emangin@exa-networks=2Eco=
+=2Euk
+DTSTART:20130205T093000Z
+DTEND:20130205T103000Z
+TRANSP:OPAQUE
+ORGANIZER;CN=3DSylvain Garcia:mailto:sylvain=2Egarcia@blue-mind=2Enet
+PRIORITY:5
+CLASS:PUBLIC
+SUMMARY:point BM /exa-etwork
+X-MOZ-LASTACK:20130204T095156Z
+END:VEVENT
+END:VCALENDAR
+
+---=Part.16.11c76f4ff3b3a56c.13ca49e7fe4.77bb7c2a4ea5388=---
+
+---=Part.17.b01fe845585761bb.13ca49e7fe4.9a0a90e571faae1d=-
+Content-Type: application/ics; name="event.ics"
+Content-Disposition: attachment; filename="event.ics"
+Content-Transfer-Encoding: base64
+
+QkVHSU46VkNBTEVOREFSDQpQUk9ESUQ6LS8vQmx1ZSBNaW5kLy9CbHVlIE1pbmQgQ2FsZW5kYXIv
+L0ZSDQpWRVJTSU9OOjIuMA0KQ0FMU0NBTEU6R1JFR09SSUFODQpNRVRIT0Q6UkVRVUVTVA0KQkVH
+SU46VkVWRU5UDQpEVFNUQU1QOjIwMTMwMjA0VDA5NTE1NloNClNFUVVFTkNFOjENClVJRDpmMjVj
+MzJjN2U2OThkN2Q4YzNkM2EyNTgwOTY1M2Y2OGJkYmU2MTczDQpBVFRFTkRFRTtDVVRZUEU9SU5E
+SVZJRFVBTDtQQVJUU1RBVD1BQ0NFUFRFRDtSU1ZQPVRSVUU7Q049U3lsdmFpbiBHYXJjaWE7Uk9M
+RT1DSEFJUjptYWlsdG86c3lsdmFpbi5nYXJjaWFAYmx1ZS1taW5kLm5ldA0KQVRURU5ERUU7Q1VU
+WVBFPUlORElWSURVQUw7UEFSVFNUQVQ9TkVFRFMtQUNUSU9OO1JTVlA9VFJVRTtDTj10aG9tYXMg
+bWFuZ2luO1JPTEU9UkVRLVBBUlRJQ0lQQU5UOm1haWx0bzp0aG9tYXMubWFuZ2luQGV4YS1uZXR3
+b3Jrcy5jby51aw0KRFRTVEFSVDoyMDEzMDIwNVQwOTMwMDBaDQpEVEVORDoyMDEzMDIwNVQxMDMw
+MDBaDQpUUkFOU1A6T1BBUVVFDQpPUkdBTklaRVI7Q049U3lsdmFpbiBHYXJjaWE6bWFpbHRvOnN5
+bHZhaW4uZ2FyY2lhQGJsdWUtbWluZC5uZXQNClBSSU9SSVRZOjUNCkNMQVNTOlBVQkxJQw0KU1VN
+TUFSWTpwb2ludCBCTSAvZXhhLWV0d29yaw0KWC1NT1otTEFTVEFDSzoyMDEzMDIwNFQwOTUxNTZa
+DQpFTkQ6VkVWRU5UDQpFTkQ6VkNBTEVOREFSDQo=
+
+---=Part.17.b01fe845585761bb.13ca49e7fe4.9a0a90e571faae1d=---
+
+

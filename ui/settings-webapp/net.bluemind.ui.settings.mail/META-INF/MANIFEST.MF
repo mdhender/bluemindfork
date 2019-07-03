@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: GWT common api
+Bundle-SymbolicName: net.bluemind.ui.settings.mail;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: com.google.gwt.user;resolution:=optional,
+ net.bluemind.mailbox.api.gwt;bundle-version="1.0.0";visibility:=reexport,
+ net.bluemind.ui.gwtcommon.forms;visibility:=reexport,
+ net.bluemind.ui.gwtcommon.icons;visibility:=reexport,
+ net.bluemind.ui.gwtcommon.editor;bundle-version="1.0.0";visibility:=reexport,
+ net.bluemind.mailbox.identity.api;bundle-version="1.0.0";visibility:=reexport,
+ net.bluemind.mailbox.identity.api.gwt;bundle-version="1.0.0";visibility:=reexport,
+ net.bluemind.user.api.gwt;bundle-version="1.0.0";visibility:=reexport,
+ net.bluemind.core.context,
+ net.bluemind.core.commons,
+ net.bluemind.core.container.api.gwt;bundle-version="1.0.0";visibility:=reexport,
+ net.bluemind.core.commons.gwt,
+ net.bluemind.ui.mailbox;visibility:=reexport,
+ net.bluemind.ui.gwtuser;visibility:=reexport,
+ net.bluemind.role.api,
+ net.bluemind.gwtconsoleapp.base;visibility:=reexport,
+ net.bluemind.ui.settings.api;bundle-version="1.0.0";visibility:=reexport
+Export-Package: net.bluemind.ui.settings.mail
+Automatic-Module-Name: net.bluemind.ui.settings.mail

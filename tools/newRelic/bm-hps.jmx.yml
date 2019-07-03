@@ -1,0 +1,8 @@
+name: hps-jmx
+version: 1.0
+enabled: true
+jmx:
+  - object_name: net.bluemind.hps:name=*,type=*
+    metrics:
+      - attribute: value
+        type: monotonically_increasing

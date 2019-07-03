@@ -1,0 +1,76 @@
+var datalocation string
+
+var bmProduct string
+
+var alertsEndPoint string
+
+var name string
+
+var db = 'telegraf'
+
+var rp = 'autogen'
+
+var measurement = bmProduct + '.heartbeat.receiver.age'
+
+var groupBy = []
+
+var whereFilter = lambda: ("datalocation" == datalocation)
+
+var idVar = name
+
+var message = bmProduct + ' heartbeats are slow'
+
+var idTag = 'alertID'
+
+var levelTag = 'level'
+
+var messageField = 'message'
+
+var durationField = 'duration'
+
+var outputDB = 'chronograf'
+
+var outputRP = 'autogen'
+
+var outputMeasurement = 'alerts'
+
+var triggerType = 'threshold'
+
+var crit = 4000
+
+var data = stream
+    |from()
+        .database(db)
+        .retentionPolicy(rp)
+        .measurement(measurement)
+        .groupBy(groupBy)
+        .where(whereFilter)
+    |eval(lambda: "value")
+        .as('value')
+
+var trigger = data
+    |alert()
+        .warn(lambda: "value" > crit)
+        .stateChangesOnly()
+        .message(message)
+        .id(idVar)
+        .idTag(idTag)
+        .levelTag(levelTag)
+        .messageField(messageField)
+        .durationField(durationField)
+        .post(alertsEndPoint)
+
+trigger
+    |eval(lambda: float("value"))
+        .as('value')
+        .keep()
+    |influxDBOut()
+        .create()
+        .database(outputDB)
+        .retentionPolicy(outputRP)
+        .measurement(outputMeasurement)
+        .tag('alertName', name)
+        .tag('triggerType', triggerType)
+
+trigger
+    |httpOut('output')

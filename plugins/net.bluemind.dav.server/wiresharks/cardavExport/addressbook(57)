@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<D:multiput xmlns:D="http://me.com/_namespace/">
+  <D:resource>
+    <A:href xmlns:A="DAV:">/addressbooks/__uids__/EB397106-443A-47BE-9CA5-558037E137BF/addressbook/6e91d27d0611f3da44603e25b6bca695.vcf</A:href>
+    <D:if-match>
+      <A:getetag xmlns:A="DAV:">"b857e01312e91fbe79a345d8622f01ca"</A:getetag>
+    </D:if-match>
+    <A:set xmlns:A="DAV:">
+      <A:prop>
+        <B:address-data xmlns:B="urn:ietf:params:xml:ns:carddav"><![CDATA[BEGIN:VCARD
+VERSION:3.0
+PRODID:-//Apple Inc.//AddressBook 8.0//EN
+N:Fournisseurs
+FN:Fournisseurs
+X-ADDRESSBOOKSERVER-KIND:group
+REV:2014-01-17T08:52:42Z
+UID:97ba270c-f052-497a-91f2-f256ad924122
+END:VCARD
+]]></B:address-data>
+      </A:prop>
+    </A:set>
+  </D:resource>
+</D:multiput>

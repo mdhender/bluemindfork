@@ -1,0 +1,91 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:bj="urn:import:net.bluemind.ui.admin.client" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui" xmlns:common="urn:import:net.bluemind.ui.common.client.forms">
+
+	<ui:with field="c"
+		type="net.bluemind.ui.adminconsole.system.systemconf.mail.l10n.SysConfMailConstants" />
+
+
+	<g:HTMLPanel>
+		<f:FieldSetPanel name="{c.postfix}" />
+		<table border="0">
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.mynetworks}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:TextBox width="400px" ui:field="myNetworks" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.messagesizelimit}:"></g:Label>
+				</td>
+				<td style='width400px'>
+					<g:IntegerBox width="400px" ui:field="maxMailSize" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.relayhost}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:TextBox width="400px" ui:field="relayHost" />
+				</td>
+			</tr>
+		</table>
+
+		<f:FieldSetPanel name="{c.cyrus}" />
+		<table border="0">
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.cyrusMaxChild}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:IntegerBox width="400px" ui:field="cyrusMaxChild" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.cyrusRetention}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:IntegerBox width="400px" ui:field="cyrusRetentionTime" />
+				</td>
+			</tr>
+		</table>
+		
+		<f:FieldSetPanel name="{c.archive}" />
+		<table border="0">
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.archiveEnabled}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:CheckBox width="400px" ui:field="archiveEnabled" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.archiveDays}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:IntegerBox width="400px" ui:field="archiveDays" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.archiveSizeThreshold}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:IntegerBox width="400px" ui:field="archiveSizeThreshold" />
+				</td>
+			</tr>
+		</table>
+		
+	</g:HTMLPanel>
+
+</ui:UiBinder>

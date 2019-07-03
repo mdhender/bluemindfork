@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<D:multiput xmlns:D="http://me.com/_namespace/">
+  <D:resource>
+    <A:set xmlns:A="DAV:">
+      <A:prop>
+        <B:address-data xmlns:B="urn:ietf:params:xml:ns:carddav"><![CDATA[BEGIN:VCARD
+VERSION:3.0
+PRODID:-//Apple Inc.//Mac OS X 10.9.1//EN
+N:;Ghys;;;
+FN:Ghys
+REV:2014-01-17T08:50:36Z
+UID:49f859ee-758b-408d-b7c3-5ac1ba71988a
+END:VCARD
+]]></B:address-data>
+      </A:prop>
+    </A:set>
+  </D:resource>
+  <D:resource>
+    <A:href xmlns:A="DAV:">/addressbooks/__uids__/EB397106-443A-47BE-9CA5-558037E137BF/addressbook/883284437a4c85dabe8b0219c899f120.vcf</A:href>
+    <D:if-match>
+      <A:getetag xmlns:A="DAV:">"9f42650a4d50c1ad3a73fdd112347608"</A:getetag>
+    </D:if-match>
+    <A:set xmlns:A="DAV:">
+      <A:prop>
+        <B:address-data xmlns:B="urn:ietf:params:xml:ns:carddav"><![CDATA[BEGIN:VCARD
+VERSION:3.0
+PRODID:-//Apple Inc.//AddressBook 8.0//EN
+N:Restaurants
+FN:Restaurants
+X-ADDRESSBOOKSERVER-KIND:group
+X-ADDRESSBOOKSERVER-MEMBER:urn:uuid:49f859ee-758b-408d-b7c3-5ac1ba71988a
+REV:2014-01-17T08:50:36Z
+UID:aafada98-1bfc-48a9-baca-26167eefe3ec
+END:VCARD
+]]></B:address-data>
+      </A:prop>
+    </A:set>
+  </D:resource>
+</D:multiput>

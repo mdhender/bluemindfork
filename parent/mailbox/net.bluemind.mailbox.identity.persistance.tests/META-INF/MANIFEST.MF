@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.mailbox.identity.persistance.tests
+Bundle-SymbolicName: net.bluemind.mailbox.identity.persistance.tests
+Bundle-Version: 4.1.0.qualifier
+Fragment-Host: net.bluemind.mailbox.identity.persistance
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.core.jdbc.testshelper,
+ org.junit,
+ net.bluemind.core.context,
+ net.bluemind.core.rest,
+ net.bluemind.config,
+ net.bluemind.mailbox.persistance,
+ net.bluemind.user.persistance
+Import-Package: net.bluemind.user.api

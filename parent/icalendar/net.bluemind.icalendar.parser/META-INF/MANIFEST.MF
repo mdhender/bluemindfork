@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.icalendar.parser
+Bundle-SymbolicName: net.bluemind.icalendar.parser
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.calendar.api,
+ org.mnode.ical4j,
+ net.bluemind.tag.api,
+ net.bluemind.neko.common,
+ net.bluemind.icalendar.api,
+ slf4j.api,
+ net.bluemind.lib.ical4j,
+ net.bluemind.core.container.api;bundle-version="4.1.0",
+ org.apache.commons.lang
+Export-Package: net.bluemind.icalendar.parser

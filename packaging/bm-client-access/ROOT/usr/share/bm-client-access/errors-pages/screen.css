@@ -1,0 +1,128 @@
+@charset "UTF-8";
+
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+html {
+  color: #fff;
+  font-family: arial, sans-serif;
+  font-size: 14px;
+}
+
+body {
+  background-image: url('background.png');
+  background-repeat: no-repeat;
+  background-position: top;
+  background-color: #00407E;
+  text-align: center;
+}
+
+#header {
+  background-image: url('compte.png');
+  direction: ltr;
+  height: 161px;
+  background-repeat: no-repeat;
+  background-position: bottom;
+  margin: 1px 0px 20px 1px;
+  line-height: 161px;
+}
+
+div.message {
+  vertical-align: middle;
+  margin: auto;
+  text-align: center;
+  box-shadow: 0 0 31px rgba(0,0,0,.2);
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 525px;
+  position: relative;
+  left: 50%;
+  margin-left: -262px;
+  border: 3px solid rgba(255, 255, 255, 0.4);
+  transition: margin .2s linear;
+  margin-top: 1;
+}
+
+.subheader {
+  font-size: 30px;
+  line-height: 36px;
+  color: #ccc;
+}
+
+.hr {
+  height: 1px;
+  background-color: #ddd;
+  width: 60%;
+  max-width: 250px;
+  margin: 25px auto;
+}
+
+.context {
+  font-size: 18px;
+  line-height: 27px;
+  color: #bbb;
+}
+
+.subcontext {
+  font-size: 18px;
+  line-height: 27px;
+  color: #999;
+  font-size: 12px;
+}
+
+button {
+  color: #fff;
+  background-color: rgb(11, 199, 238);
+  border: none;
+  outline: none;
+  cursor: pointer;
+  font-family: arial, sans-serif;
+  border-radius: 3px;
+  padding: 2px;
+  text-decoration: none;
+  overflow: hidden;
+  white-space: nowrap; 
+}
+
+button:hover,  button:active,  button:focus {
+  background-color:#31b0d5;
+}
+
+button:active:focus, button:active:hover {
+  background-color:#269abc;
+}
+
+button.disabled {
+  background: #e6e6e6 url(spinner.gif) no-repeat center;
+  background-color:#e6e6e6 !important;
+  text-indent: 300px;
+}
+
+button.big {
+  text-transform: uppercase;
+  font-size: 21px;
+  margin: 14px auto 5px;
+  display: block;
+  border-radius: 5px;
+  padding: 11px 0 13px;
+  width: 245px;
+  letter-spacing: 3px;
+}
+
+a {
+  text-decoration: none;
+  color: #ccc;
+}
+a:hover, a:active, a:focus {
+  text-decoration: underline;
+}
+
+.logo {
+  margin-top: 10px;
+}
+
+

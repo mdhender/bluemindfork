@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.calendar.closure
+Bundle-SymbolicName: net.bluemind.calendar.closure
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: blue-mind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ClassPath: js.jar
+Closure-Bundle-Type: Library
+Require-Bundle: net.bluemind.container.closure;bundle-version="1.0.0",
+ net.bluemind.calendar.api.closure;bundle-version="1.0.0",
+ net.bluemind.core.container.api.closure;bundle-version="1.0.0"

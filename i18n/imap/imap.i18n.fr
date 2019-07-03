@@ -1,0 +1,9 @@
+{
+	"Sent" : "Éléments envoyés",
+	"Trash" : "Éléments supprimés",
+	"Junk" : "Courrier indésirable",
+	"Drafts" : "Brouillons",
+	"Outbox" : "Boîte d'envoi",
+	"Dossiers partagés" : "Dossiers partagés",
+	"Autres utilisateurs" : "Autres utilisateurs"
+}

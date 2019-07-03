@@ -1,0 +1,22 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:s="urn:import:net.bluemind.ui.mailbox.filter"
+	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'>
+
+	<ui:with type="net.bluemind.ui.mailbox.filter.SieveConstants"
+		field="c" />
+
+	<g:HTMLPanel>
+		<g:Label text="{c.myFilters}" styleName="sectionTitle"></g:Label>
+		<g:Label text="{c.noFilterFound}" ui:field="noFilter"></g:Label>
+
+		<g:FlexTable ui:field="filters" />
+
+		<g:FlowPanel>
+			<g:Button ui:field="addFilter" styleName="button secondary "
+				text="{c.addFilterBtn}" />
+		</g:FlowPanel>
+	</g:HTMLPanel>
+
+</ui:UiBinder>

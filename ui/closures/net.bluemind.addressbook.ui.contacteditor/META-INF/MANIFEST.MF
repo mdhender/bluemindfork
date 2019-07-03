@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.addressbook.ui.contacteditor
+Bundle-SymbolicName: net.bluemind.addressbook.ui.contacteditor;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Closure-Bundle-Type: Application
+Closure-Inputs: run.js
+Require-Bundle: net.bluemind.contact.application.closure;bundle-version="1.0.0"
+Web-Resources: web-resources
+Bundle-Localization: OSGI-INF/l10n/bundle
+Bundle-ClassPath: js.jar,
+ css.jar, .
+Automatic-Module-Name: net.bluemind.addressbook.ui.contacteditor

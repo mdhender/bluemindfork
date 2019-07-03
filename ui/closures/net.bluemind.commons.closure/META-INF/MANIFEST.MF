@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests
+Bundle-SymbolicName: net.bluemind.commons.closure;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Closure-Bundle-Type: Library
+Require-Bundle: ydn-base;bundle-version="1.0.0",
+ ydn-db;bundle-version="1.0.0",
+ relief;bundle-version="1.0.0",
+ net.bluemind.restclient.api.closure;bundle-version="4.1.0"
+Bundle-ClassPath: lang.jar, css.jar, js.jar,
+ .
+Automatic-Module-Name: net.bluemind.commons.closure

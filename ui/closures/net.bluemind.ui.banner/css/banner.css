@@ -1,0 +1,365 @@
+.banner {
+  background: #2B2B2B;
+  height: 40px;
+  color: #FFF;
+  position: relative;
+}
+
+/** APPLICATIONS */
+
+.banner div.applications {
+  line-height: 40px;
+}
+
+.banner div.applications > div {
+  display: inline-block;
+  padding: 0 6px 0 18px;
+  font-size: 100%;
+}
+
+.banner div.applications > div.selected {
+  background-color: transparent;
+  float: none;
+  height: 40px;
+  border-bottom: 3px solid #00aaeb;
+  box-sizing: border-box;
+}
+
+.banner div.selected a, .banner div.selected a:link, .banner div.selected a:visited {
+  color: #fff;
+}
+
+.banner a, .banner a:link, .banner a:visited {
+  text-decoration:none;
+  color: #999;
+}
+
+.banner a:hover {
+  color: #fff;
+  cursor: pointer;
+}
+
+.banner .applications .application-icon {
+  margin-right: 5px;
+}
+
+
+.banner .applications sup {
+  color:#fff;
+  border:1px solid #c64209;
+  background: #f97729;
+  border-radius:6px;
+  -moz-border-radius: 6px;
+  -webkit-border-radius: 6px;
+  padding: 0px 3px;
+  font-size:70%;
+}
+
+.banner .applications sup.empty {
+  visibility: hidden;
+}
+
+/** LOGO */
+
+.bmLogoSlide {
+  display: none;
+}
+
+.banner .logo {
+	height: 40px;
+  line-height: 40px;
+	width: 150px;
+	margin: 0;
+	float: left;
+  text-align: right;
+  background-color: #002F6B;
+}
+
+.banner .logo img {
+	max-height: 40px;
+	max-width: 150px;
+}
+
+/** WIDGETS */
+
+.bm-widgets {
+  float: right;
+  line-height: 40px;
+}
+
+.bm-widget:last-child {
+  border: none;
+}
+
+.bm-widget {
+  display: inline-block;
+  padding: 0 0.7em;
+  font-size: 100%;
+  line-height: 1.3em;
+  border-right: 1px solid #666;
+  outline: none;
+}
+
+/** USER */
+
+.banner .bm-user {
+  width: 180px;
+  cursor: pointer;
+  float: right;
+  outline: none;
+  line-height: 40px;
+  height: 40px;
+  text-align: center;
+
+}
+
+.banner .bm-user img {
+  vertical-align: middle;
+  width: 22px;
+  height: 22px;
+  margin: -4px 10px 0 0;
+  background-color: #fff;
+  float: left;
+}
+
+.banner .bm-user .goog-menu-button-caption {
+  line-height: 1em;
+  height: 1em;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+.banner .bm-user .goog-menu-button-caption span {
+ display: inline-block;
+ max-width: 125px;
+ overflow: hidden;
+ text-overflow: ellipsis;
+ white-space: nowrap;
+}
+
+.banner .bm-user .goog-menu-button-caption .status-caption {
+  visibility: hidden;
+}
+
+.banner .progress {
+  display: none;
+  height: 4px;
+  position: absolute;
+  width: 180px;
+  right: 0px;
+  bottom: 0;
+  margin-bottom: 0px;
+  background-image: none;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.banner .bar {
+  background-color: #b7e4fb;
+  background-image: none;
+}
+
+
+.banner .logout {
+  margin:0 5px;
+}
+
+.banner .goog-menu {
+  box-shadow: 0 0 5px #555;
+  border-width: 0;
+/*   border-top: 1px solid #fff;
+  border-left: 1px solid #333;
+  border-bottom: 1px solid #333; */
+  width: 180px;
+}
+
+.banner .goog-menuitem {
+  padding-right: 0;
+  text-overflow: ellipsis;
+}
+
+/** USER.ONLINE */
+.banner .bm-user.online {
+  background: #00aaeb;
+}
+.banner .bm-user.online .goog-menu-button-caption .status-caption {
+  color: #00aaeb;
+}
+
+/** USER.OFFLINE */
+.banner .bm-user.offline {
+  background: #808080;
+}
+.banner .bm-user.offline .goog-menu-button-caption .status-caption {
+  color: #808080;
+}
+/** USER.SYNCING */
+.banner .bm-user.syncing {
+  background: #00aaeb;
+}
+.banner .bm-user.syncing .goog-menu-button-caption .status-caption {
+  color: #00aaeb;
+  position: relative;
+  z-index: 25000;
+}
+.banner .syncing.progress {
+  display: block;
+}
+
+/** USER.OPEN */
+.banner .bm-user.goog-menu-button-open {
+  background-color: #fff !important;
+  color: #333;
+  position:relative;
+  z-index: 20001;
+}
+
+.banner .bm-user.goog-menu-button-open .goog-menu-button-caption .progress {
+  visibility: hidden !important;
+}
+
+.banner .bm-user.goog-menu-button-open .goog-menu-button-caption .status-caption {
+  visibility: visible;
+}
+
+
+.banner .bm-user .goog-menu-button-dropdown {
+  line-height: 1em;
+}
+
+/** PENDING */
+
+.banner .unread-mails {
+    -moz-user-select: none;
+    border: 1px solid #CCCCCC;
+    border-radius: 3px 3px 3px 3px;
+    color: #FFFFFF;
+    cursor: pointer;
+    font-weight: bold;
+    padding: 1px 2px 0 3px;
+}
+
+.banner .unread-mails-bg-empty {
+	background: none repeat scroll 0 0 #666666;
+}
+
+.banner .unread-mails-bg-present {
+	background: none repeat scroll 0 0 #f54a46;
+}
+
+/** NOTIFICATIONS */
+
+.banner .notification {
+	position: absolute;
+	height: 0;
+	width: 100%;
+	top: 0;
+        left: 0;
+	text-align: center;
+	font-size: 14px;
+}
+
+.notificationMsg {
+	-webkit-border-bottom-right-radius: 2px;
+	-webkit-border-bottom-left-radius: 2px;
+	-moz-border-radius-bottomright: 2px;
+	-moz-border-radius-bottomleft: 2px;
+	border-bottom-right-radius: 2px;
+	border-bottom-left-radius: 2px;
+	font-weight: normal;
+	padding: 3px;
+	font-size: 90%;
+	display: table;
+	min-width: 15em;
+	margin: auto;
+}
+
+.notificationMsg>.msg-error {
+	border: 1px solid #AE4848;
+	background: #D86363;
+	color: #620606;
+}
+
+.notificationMsg>.msg-warning {
+	background: #F4EAC6;
+	color: #9D7A36;
+	border: 1px solid #D1B75B;
+}
+
+.notificationMsg>.msg-info {
+	border: 1px solid #5AC062;
+	background: #8EE194;
+	color: #1E8826;
+}
+
+/** APPLICATION MESSAGES */
+
+.banner .bannerMessageContainer {
+    text-align: center;
+    position: absolute;
+    top: 40px;
+    left: 0px;
+    width: 100%;
+    outline: none!important;
+    z-index: 1000;
+}
+
+.bannerClose {
+  cursor: pointer;
+  color: black;
+  float: right;
+  padding: 10px;
+  position: absolute;
+  right:0;
+}
+
+.bannerMsg {
+  font-weight: bold;
+}
+
+.bannerMsg div {
+    display: flex;
+    vertical-align: middle;
+    text-align: center;
+    height: 50px;
+    align-items: center;
+    justify-content: center;
+    padding: 0px 20px;
+}
+
+.bannerMsg>.msg-error {
+  border: 1px solid #AE4848;
+  background: #D86363;
+  color: #620606;
+}
+
+.bannerMsg>.msg-error>.bannerMsgLink {
+  color: #620606!important;
+  text-decoration: underline;
+}
+
+.bannerMsg>.msg-warn {
+  background: #F4EAC6;
+  color: #9D7A36;
+  border: 1px solid #D1B75B;
+}
+
+.bannerMsg>.msg-warn>.bannerMsgLink {
+  color: #9D7A36!important;
+  text-decoration: underline;
+}
+
+.bannerMsg>.msg-info {
+  border: 1px solid #C6EDF9;
+  background: #DDF4FB;
+  color: #107998;
+}
+
+.bannerMsg>.msg-info>.bannerMsgLink {
+  color: #107998!important;
+  text-decoration: underline;
+}
+
+.settings-link {
+  color: #000!important;
+}

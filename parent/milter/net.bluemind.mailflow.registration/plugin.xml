@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.mailflow.rules_extensions">
+      <rule
+            description="Rule matches against all input values"
+            ruleIdentifier="MatchAlwaysRule">
+      </rule>
+   </extension>
+   <extension
+         point="net.bluemind.mailflow.rules_extensions">
+      <rule
+            description="Rule matches against sender in given OU"
+            ruleIdentifier="SenderInOuRule">
+      </rule>
+   </extension>
+   
+   <extension
+         point="net.bluemind.mailflow.rules_extensions">
+      <rule
+            ruleIdentifier="AndRule"
+            description="Rule evaluating all children using an AND criteria">
+      </rule>
+   </extension>
+   
+   <extension
+         point="net.bluemind.mailflow.rules_extensions">
+      <rule
+            ruleIdentifier="OrRule"
+            description="Rule evaluating all children using an OR criteria">
+      </rule>
+   </extension>
+   
+   <extension
+         point="net.bluemind.mailflow.rules_extensions">
+      <rule
+            ruleIdentifier="NotRule"
+            description="Rule evaluating all children using an NOT criteria">
+      </rule>
+   </extension>
+   
+   <extension
+         point="net.bluemind.mailflow.rules_extensions">
+      <rule
+            ruleIdentifier="XorRule"
+            description="Rule evaluating all children using an XOR criteria">
+      </rule>
+   </extension>
+   
+   
+   <extension
+         point="net.bluemind.mailflow.rules_extensions">
+      <rule
+            ruleIdentifier="RecipientIsInternalRule"
+            description="Rule matches if all recipients are internal">
+      </rule>
+   </extension>
+   
+   <extension
+         point="net.bluemind.mailflow.rules_extensions">
+      <rule
+            ruleIdentifier="RecipientIsExternalRule"
+            description="Rule matches if one of the recipients are external">
+      </rule>
+   </extension>
+   
+   <extension
+         point="net.bluemind.mailflow.actions_extensions">
+      <action
+            actionContext="signature"
+            actionIdentifier="AddSignatureAction"
+            description="Adds a signature"></action>
+   </extension>
+   <extension
+         point="net.bluemind.mailflow.rules_extensions">
+      <rule
+            description="Rule matches against sender in given group"
+            ruleIdentifier="SenderInGroupRule">
+      </rule>
+   </extension>
+   <extension
+         point="net.bluemind.mailflow.rules_extensions">
+      <rule
+            description="Rule matches against mail is sent after a given date"
+            ruleIdentifier="SendDateIsAfter">
+      </rule>
+   </extension>
+   <extension
+         point="net.bluemind.mailflow.rules_extensions">
+      <rule
+            description="Rule matches against mail is sent strictly before a given date"
+            ruleIdentifier="SendDateIsBefore">
+      </rule>
+   </extension>
+  
+</plugin>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="cli"
+         name="BlueMind Command Line Interface"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            thread="main"
+            visible="true">
+         <run
+               class="net.bluemind.cli.launcher.CLIEntryPoint">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="bmcli"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="net.bluemind.cli.launcher.cli"
+            name="BlueMind Command Line Interface">
+         <property
+               name="appName"
+               value="BlueMind Command Line Interface">
+         </property>
+      </product>
+   </extension>
+   <extension
+         point="net.bluemind.cli.cmd.api.cmdlet">
+      <registration
+            impl="net.bluemind.cli.launcher.CliHelp$Reg">
+      </registration>
+   </extension>
+
+</plugin>

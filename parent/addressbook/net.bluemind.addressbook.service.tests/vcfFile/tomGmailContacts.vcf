@@ -1,0 +1,35 @@
+BEGIN:VCARD
+VERSION:3.0
+FN:testbluemind number1
+N:number1;testbluemind;;;
+EMAIL;TYPE=INTERNET;TYPE=WORK:bm.num@bm.nete
+TEL;TYPE=WORK:+983739837887
+TEL;TYPE=CELL:+284849 9489
+ADR;TYPE=WORK:with a PO Box;and Neighborhood;this is a street;this is City;
+ with province;1233346;Pakistan
+ORG:Blue mind with
+TITLE:codeur
+END:VCARD
+BEGIN:VCARD
+VERSION:3.0
+FN:testrobert arthur
+N:arthur;testrobert;;;
+EMAIL;TYPE=INTERNET;TYPE=WORK:robert@acme.gt
+TEL;TYPE=WORK:+3349691 28585
+TEL;TYPE=CELL:+2346.67.77
+ADR;TYPE=WORK:;;57 avenue de chez moi 22357 picmousse;;;;
+ORG:ACME
+TITLE:Ingénieur
+NOTE:this is a note\n
+END:VCARD
+BEGIN:VCARD
+VERSION:3.0
+FN:testrobin des bois
+N:bois;testrobin;des;;
+item1.EMAIL;TYPE=INTERNET:robindesbois@tto.de
+item1.X-ABLabel:emailof mywife
+TEL;TYPE=MAIN:45 56 867 234
+TEL;TYPE=CELL:12 09 434
+ORG:nocompanyforme
+NOTE:this is a note of robin des bois
+END:VCARD

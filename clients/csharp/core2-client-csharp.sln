@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "core2client", "core2client\core2client.csproj", "{95833076-3FE8-4AFA-8C88-B13DCA344025}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestCore2client", "TestCore2client\TestCore2client.csproj", "{BF49DBE9-B106-4F17-8E7F-F51FDD14A321}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D8AC0B2E-EB84-4C46-BD4E-A80A76DD221C}"
+	ProjectSection(SolutionItems) = preProject
+		core2-client-csharp.vsmdi = core2-client-csharp.vsmdi
+		Local.testsettings = Local.testsettings
+		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = core2-client-csharp.vsmdi
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{95833076-3FE8-4AFA-8C88-B13DCA344025}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95833076-3FE8-4AFA-8C88-B13DCA344025}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95833076-3FE8-4AFA-8C88-B13DCA344025}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95833076-3FE8-4AFA-8C88-B13DCA344025}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF49DBE9-B106-4F17-8E7F-F51FDD14A321}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF49DBE9-B106-4F17-8E7F-F51FDD14A321}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF49DBE9-B106-4F17-8E7F-F51FDD14A321}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF49DBE9-B106-4F17-8E7F-F51FDD14A321}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

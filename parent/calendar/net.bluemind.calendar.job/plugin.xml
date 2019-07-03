@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.scheduledjob.scheduler.job">
+      <scheduledjob_provider
+            implementation="net.bluemind.calendar.job.CalendarIndexJob">
+      </scheduledjob_provider>
+      <scheduledjob_provider
+            implementation="net.bluemind.calendar.job.ExternalCalendarSyncJob">
+      </scheduledjob_provider>
+   </extension>
+   <extension
+         point="net.bluemind.reminder.job">
+      <job_provider
+            implementation="net.bluemind.calendar.job.CalendarAlarmSupport">
+      </job_provider>
+   </extension>
+
+</plugin>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   
+   <extension
+         point="net.bluemind.dataprotect.service.restoreaction">
+      <restore_action
+            impl="net.bluemind.dataprotect.addressbook.RestoreUserAddressbooks">
+      </restore_action>
+      <restore_action
+            impl="net.bluemind.dataprotect.addressbook.SendUserBooksVCF">
+      </restore_action>
+   </extension>
+   
+</plugin>

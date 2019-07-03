@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module-provider
+            module="/cal">
+         <web-resource
+               bundle="calendar">
+         </web-resource>
+         <css
+               path="css/calendar.css">
+         </css>
+         <js
+               path="js/compile/calendar.js"
+               translation="true">
+         </js>
+         <web-resource
+               bundle="net.bluemind.commons.ui.closure">
+         </web-resource>
+      </web-module-provider>
+   </extension>
+
+</plugin>

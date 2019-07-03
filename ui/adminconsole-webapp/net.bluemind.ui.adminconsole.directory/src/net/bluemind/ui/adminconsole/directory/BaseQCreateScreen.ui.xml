@@ -1,0 +1,99 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:bj="urn:import:net.bluemind.ui.admin.client" xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui"
+	xmlns:common="urn:import:net.bluemind.ui.common.client.forms"
+	xmlns:domain="urn:import:net.bluemind.ui.domain.client"
+	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:d="urn:import:net.bluemind.ui.adminconsole.directory">
+
+
+	<ui:style>
+	.logo {
+		vertical-align: middle;
+	}
+	
+	.clear {
+		clear: both;
+	}
+	
+	#newuser {
+		float: left;
+		width: 300px;
+	}
+	
+	#domain {
+		float: left;
+		margin-top: 10px;
+	}
+	
+	.fr {
+		float: right;
+		margin-bottom: 5px;
+		margin-right: 5px;
+	}
+	
+	.dl {
+		float: left;
+		width: 225px;
+	}
+	
+	.dr {
+		float: right;
+		margin-right: 10px;
+	}
+	
+	.displayname {
+		clear: both;
+		margin-bottom: 5px;
+	}
+	
+	.center {
+		margin-left: 10px;
+	}
+	
+	.profile {
+		margin-right: 5px;
+	}
+	
+	#profilepanel {
+		margin-top: 5px;
+		margin-bottom: 5px;
+	}
+	
+	.labelMandatory {
+		color: #24638F;
+		font-weight: bold;
+	}
+	</ui:style>
+
+	<g:DockLayoutPanel unit="EM">
+		<g:north size="4">
+			<g:HTMLPanel>
+				<div class="modal-dialog-title">
+					<h1>
+						<g:Label ui:field="icon" />
+						<span ui:field="title"></span>
+					</h1>
+				</div>
+			</g:HTMLPanel>
+		</g:north>
+
+		<g:center>
+			<g:HTMLPanel>
+				<g:Label ui:field="errorLabel" styleName="modal-dialog-error" />
+				<g:HTMLPanel ui:field="center"></g:HTMLPanel>
+			</g:HTMLPanel>
+		</g:center>
+
+		<g:south size="3">
+			<g:FlowPanel styleName="modal-dialog-buttons">
+				<f:QuickCreateActionBar ui:field="actionBar" />
+			</g:FlowPanel>
+		</g:south>
+
+	</g:DockLayoutPanel>
+
+
+</ui:UiBinder>

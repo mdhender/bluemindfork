@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.ui.commons.banner" name="uiBanner" schema="schema/net.bluemind.ui.commons.banner.exsd"/>
+   <extension-point id="net.bluemind.ui.commons.banner.widget" name="uiWidget" schema="schema/net.bluemind.ui.commons.banner.widget.exsd"/>
+   <extension-point id="net.bluemind.ui.commons.banner.pendingActions" name="pending actions" schema="schema/net.bluemind.ui.commons.banner.pendingActions.exsd"/>
+   <extension
+         point="net.bluemind.extensions">
+      <export-extension-point
+            id="net.bluemind.ui.commons.banner">
+      </export-extension-point>
+      <export-extension-point
+            id="net.bluemind.ui.commons.banner.widget">
+      </export-extension-point>
+      <export-extension-point
+            id="net.bluemind.ui.commons.banner.pendingActions">
+      </export-extension-point>
+   </extension>
+
+</plugin>

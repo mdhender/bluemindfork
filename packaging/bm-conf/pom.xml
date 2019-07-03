@@ -1,0 +1,49 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>bm-conf</artifactId>
+	<packaging>bm-package</packaging>
+	<parent>
+		<groupId>net.bluemind</groupId>
+		<artifactId>net.bluemind.packaging</artifactId>
+		<version>4.1.0-SNAPSHOT</version>
+	</parent>
+	<dependencies>
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.i18n.imap</artifactId>
+			<version>${project.version}</version>
+			<type>zip</type>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>prepare-package</phase>
+						<configuration>
+							<tasks>
+								<echo>deploy imap i18n into /usr/share/bm-conf/i18n</echo>
+								<mkdir dir="${basedir}/target/packaging/ROOT/usr/share/bm-conf/i18n/"/>
+								<unzip dest="${basedir}/target/packaging/ROOT/usr/share/bm-conf/i18n/">
+									<fileset dir="${basedir}/target/dependency">
+										<include name="net.bluemind.i18n.imap*.zip" />
+									</fileset>
+								</unzip>
+							</tasks>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+

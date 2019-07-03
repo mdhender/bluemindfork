@@ -1,0 +1,51 @@
+{namespace net.bluemind.ui.settings.downloads.template}
+
+/**
+ * Main
+ */
+{template .i18nDownloads}
+	{msg desc="Downloads" meaning="settings.downloads.title"}Downloads{/msg}
+{/template}
+
+/**
+ * 
+ */
+{template .i18nConnectors}
+	{msg desc="Connectors" meaning="settings.connectors"}Connectors{/msg}
+{/template}
+
+/**
+ * 
+ */
+{template .i18nDocs}
+	{msg desc="Docs"  meaning="settings.docs"}Docs{/msg}
+{/template}
+
+/** 
+ * @param extensions exts
+ * @param section section id
+  */
+{template .downloads}
+	<div>
+	{foreach $ext in $extensions}
+		{if $section == $ext['section']}
+			<div class="{css item}">
+				<div class="{css container} {css head}">
+					<div>{$ext['title']}</div>
+				</div>
+				
+				<div class="{css container} {css body}">
+					<div class="{css linkContainer}">
+					<a class="{css link}" href="{$ext['url'] }">
+						{msg desc="Download" meaning="settings.downloads.downloadLink"}Download {/msg}
+					</a>
+					</div>
+					<div class="{css desc}">
+					{$ext['description']}
+					</div>
+				</div>	
+			</div>
+		{/if}
+	{/foreach}
+	</div>
+{/template}

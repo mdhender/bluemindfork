@@ -1,0 +1,1277 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://dublincore.org/documents/2008/08/04/dc-html/">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="robots" content="index,follow" />
+    <meta name="creator" content="rfcmarkup version 1.104" />
+    <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/" />
+<meta name="DC.Identifier" content="urn:ietf:id:daboo-calendar-availability" />
+<meta name="DC.Description.Abstract" content="This document specifies a new iCalendar calendar component that" />
+<meta name="DC.Creator" content="Daboo, Cyrus" />
+<meta name="DC.Creator" content="Douglass, Mike" />
+<meta name="DC.Date.Issued" content="2012-09-27" />
+<meta name="DC.Title" content="Calendar Availability" />
+
+    <link rel="icon" href="/images/id.png" type="image/png" />
+    <link rel="shortcut icon" href="/images/id.png" type="image/png" />
+    <title>draft-daboo-calendar-availability-03 - Calendar Availability</title>
+    
+    
+    <style type="text/css">
+	body {
+	    margin: 0px 8px;
+            font-size: 1em;
+	}
+        h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+	    font-weight: bold;
+            line-height: 0pt;
+            display: inline;
+            white-space: pre;
+            font-family: monospace;
+            font-size: 1em;
+	    font-weight: bold;
+        }
+        pre {
+            font-size: 1em;
+            margin-top: 0px;
+            margin-bottom: 0px;
+        }
+	.pre {
+	    white-space: pre;
+	    font-family: monospace;
+	}
+	.header{
+	    font-weight: bold;
+	}
+        .newpage {
+            page-break-before: always;
+        }
+        .invisible {
+            text-decoration: none;
+            color: white;
+        }
+        a.selflink {
+          color: black;
+          text-decoration: none;
+        }
+        @media print {
+            body {
+                font-family: monospace;
+                font-size: 10.5pt;
+            }
+            h1, h2, h3, h4, h5, h6 {
+                font-size: 1em;
+            }
+        
+            a:link, a:visited {
+                color: inherit;
+                text-decoration: none;
+            }
+            .noprint {
+                display: none;
+            }
+        }
+	@media screen {
+	    .grey, .grey a:link, .grey a:visited {
+		color: #777;
+	    }
+            .docinfo {
+                background-color: #EEE;
+            }
+            .top {
+                border-top: 7px solid #EEE;
+            }
+            .bgwhite  { background-color: white; }
+            .bgred    { background-color: #F44; }
+            .bggrey   { background-color: #666; }
+            .bgbrown  { background-color: #840; }            
+            .bgorange { background-color: #FA0; }
+            .bgyellow { background-color: #EE0; }
+            .bgmagenta{ background-color: #F4F; }
+            .bgblue   { background-color: #66F; }
+            .bgcyan   { background-color: #4DD; }
+            .bggreen  { background-color: #4F4; }
+
+            .legend   { font-size: 90%; }
+            .cplate   { font-size: 70%; border: solid grey 1px; }
+	}
+    </style>
+    <!--[if IE]>
+    <style>
+    body {
+       font-size: 13px;
+       margin: 10px 10px;
+    }
+    </style>
+    <![endif]-->
+
+    <script type="text/javascript"><!--
+    function addHeaderTags() {
+	var spans = document.getElementsByTagName("span");
+	for (var i=0; i < spans.length; i++) {
+	    var elem = spans[i];
+	    if (elem) {
+		var level = elem.getAttribute("class");
+                if (level == "h1" || level == "h2" || level == "h3" || level == "h4" || level == "h5" || level == "h6") {
+                    elem.innerHTML = "<"+level+">"+elem.innerHTML+"</"+level+">";		
+                }
+	    }
+	}
+    }
+    var legend_html = "Colour legend:<br />      <table>         <tr><td>Unknown:</td>                   <td><span class='cplate bgwhite'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Draft:</td>                     <td><span class='cplate bgred'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Informational:</td>             <td><span class='cplate bgorange'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Experimental:</td>              <td><span class='cplate bgyellow'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Best Common Practice:</td>      <td><span class='cplate bgmagenta'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Proposed Standard:</td>         <td><span class='cplate bgblue'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Draft Standard (old designation):</td> <td><span class='cplate bgcyan'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Internet Standard:</td>         <td><span class='cplate bggreen'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Historic:</td>                  <td><span class='cplate bggrey'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>         <tr><td>Obsolete:</td>                  <td><span class='cplate bgbrown'>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>     </table>";
+    function showElem(id) {
+        var elem = document.getElementById(id);
+        elem.innerHTML = eval(id+"_html");
+        elem.style.visibility='visible';
+    }
+    function hideElem(id) {
+        var elem = document.getElementById(id);
+        elem.style.visibility='hidden';        
+        elem.innerHTML = "";
+    }
+    // -->
+    </script>
+</head>
+<body onload="addHeaderTags()">
+   <div style="height: 13px;">
+      <div onmouseover="this.style.cursor='pointer';"
+         onclick="showElem('legend');"
+         onmouseout="hideElem('legend')"
+	 style="height: 6px; position: absolute;"
+         class="pre noprint docinfo bgred"
+         title="Click for colour legend." >                                                                        </div>
+      <div id="legend"
+           class="docinfo noprint pre legend"
+           style="position:absolute; top: 4px; left: 4ex; visibility:hidden; background-color: white; padding: 4px 9px 5px 7px; border: solid #345 1px; "
+           onmouseover="showElem('legend');"
+           onmouseout="hideElem('legend');">
+      </div>
+   </div>
+<span class="pre noprint docinfo top">[<a href="../html/" title="Document search and retrieval page">Docs</a>] [<a href="http://tools.ietf.org/id/draft-daboo-calendar-availability-03.txt" title="Plaintext version of this document">txt</a>|<a href="/pdf/draft-daboo-calendar-availability-03.txt" title="PDF version of this document">pdf</a>|<a href="/id/draft-daboo-calendar-availability-03.xml" title="XML source for this document">xml</a>|<a href="/id/draft-daboo-calendar-availability-03.html" title="HTML version of this document, from XML2RFC">html</a>] [<a href='https://datatracker.ietf.org/doc/draft-daboo-calendar-availability' title='IESG Datatracker information for this document'>Tracker</a>] [<a href="mailto:draft-daboo-calendar-availability@tools.ietf.org?subject=draft-daboo-calendar-availability%20" title="Send email to the document authors">Email</a>] [<a href="/rfcdiff?difftype=--hwdiff&amp;url2=draft-daboo-calendar-availability-03.txt" title="Inline diff (wdiff)">Diff1</a>] [<a href="/rfcdiff?url2=draft-daboo-calendar-availability-03.txt" title="Side-by-side diff">Diff2</a>] [<a href="/idnits?url=http://tools.ietf.org/id/draft-daboo-calendar-availability-03.txt" title="Run an idnits check of this document">Nits</a>]      </span><br />
+<span class="pre noprint docinfo">                                                                        </span><br />
+<span class="pre noprint docinfo">Versions: <a href="./draft-daboo-calendar-availability-00">00</a> <a href="./draft-daboo-calendar-availability-01">01</a> <a href="./draft-daboo-calendar-availability-02">02</a> <a href="./draft-daboo-calendar-availability-03">03</a>                                                   </span><br />
+<span class="pre noprint docinfo">                                                                        </span><br />
+<pre>
+Network Working Group                                           C. Daboo
+Internet-Draft                                                     Apple
+Intended status: Standards Track                             M. Douglass
+Expires: March 31, 2013                                              RPI
+                                                      September 27, 2012
+
+
+                         <span class="h1">Calendar Availability</span>
+                  <span class="h1">draft-daboo-calendar-availability-03</span>
+
+Abstract
+
+   This document specifies a new iCalendar calendar component that
+   allows the publication of available and unavailable time periods
+   associated with a calendar user.  This component can be used in
+   standard iCalendar free-busy lookups, including iTIP free-busy
+   requests, to generate repeating blocks of available or busy time with
+   exceptions as needed.
+
+   This document also defines extensions to CalDAV calendar-access and
+   calendar-auto-schedule which specify how this new calendar component
+   should be used when doing free-busy time evaluation in CalDAV.
+
+Editorial Note (To be removed by RFC Editor before publication)
+
+   Discussion of this specification is taking place on the mailing list
+   <a href="http://lists.osafoundation.org/mailman/listinfo/ietf-caldav">http://lists.osafoundation.org/mailman/listinfo/ietf-caldav</a> .
+
+Status of this Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of <a href="./bcp78">BCP 78</a> and <a href="./bcp79">BCP 79</a>.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at <a href="http://datatracker.ietf.org/drafts/current/">http://datatracker.ietf.org/drafts/current/</a>.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on March 31, 2013.
+
+Copyright Notice
+
+   Copyright (c) 2012 IETF Trust and the persons identified as the
+
+
+
+<span class="grey">Daboo &amp; Douglass         Expires March 31, 2013                 [Page 1]</span>
+</pre><!--NewPage--><pre class='newpage'><a name="page-2" id="page-2" href="#page-2" class="invisible"> </a>
+<span class="grey">Internet-Draft            Calendar Availability           September 2012</span>
+
+
+   document authors.  All rights reserved.
+
+   This document is subject to <a href="./bcp78">BCP 78</a> and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (<a href="http://trustee.ietf.org/license-info">http://trustee.ietf.org/license-info</a>) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.  Code Components extracted from this document must
+   include Simplified BSD License text as described in <a href="#section-4">Section 4</a>.e of
+   the Trust Legal Provisions and are provided without warranty as
+   described in the Simplified BSD License.
+
+
+Table of Contents
+
+   <a href="#section-1">1</a>.  Introduction . . . . . . . . . . . . . . . . . . . . . . . . .  <a href="#page-3">3</a>
+   <a href="#section-2">2</a>.  Conventions Used in This Document  . . . . . . . . . . . . . .  <a href="#page-3">3</a>
+   <a href="#section-3">3</a>.  iCalendar Extensions . . . . . . . . . . . . . . . . . . . . .  <a href="#page-4">4</a>
+     <a href="#section-3.1">3.1</a>.  Vavailability Component  . . . . . . . . . . . . . . . . .  <a href="#page-4">4</a>
+     <a href="#section-3.2">3.2</a>.  Busy Time Type . . . . . . . . . . . . . . . . . . . . . .  <a href="#page-9">9</a>
+   <a href="#section-4">4</a>.  Combining Vavailability components . . . . . . . . . . . . . .  <a href="#page-9">9</a>
+   <a href="#section-5">5</a>.  Calculating Free-Busy Time . . . . . . . . . . . . . . . . . . <a href="#page-10">10</a>
+     <a href="#section-5.1">5.1</a>.  Examples . . . . . . . . . . . . . . . . . . . . . . . . . <a href="#page-11">11</a>
+   <a href="#section-6">6</a>.  CalDAV Extensions  . . . . . . . . . . . . . . . . . . . . . . <a href="#page-12">12</a>
+     <a href="#section-6.1">6.1</a>.  CalDAV Requirements Overview . . . . . . . . . . . . . . . <a href="#page-12">12</a>
+     <a href="#section-6.2">6.2</a>.  New features in CalDAV . . . . . . . . . . . . . . . . . . <a href="#page-13">13</a>
+   <a href="#section-7">7</a>.  Security Considerations  . . . . . . . . . . . . . . . . . . . <a href="#page-16">16</a>
+   <a href="#section-8">8</a>.  IANA Considerations  . . . . . . . . . . . . . . . . . . . . . <a href="#page-16">16</a>
+     <a href="#section-8.1">8.1</a>.  Component Registrations  . . . . . . . . . . . . . . . . . <a href="#page-16">16</a>
+     <a href="#section-8.2">8.2</a>.  Property Registrations . . . . . . . . . . . . . . . . . . <a href="#page-16">16</a>
+   <a href="#section-9">9</a>.  Acknowledgments  . . . . . . . . . . . . . . . . . . . . . . . <a href="#page-16">16</a>
+   <a href="#section-10">10</a>. Normative References . . . . . . . . . . . . . . . . . . . . . <a href="#page-16">16</a>
+   <a href="#appendix-A">Appendix A</a>.  Example Calendar #1 . . . . . . . . . . . . . . . . . <a href="#page-17">17</a>
+   <a href="#appendix-B">Appendix B</a>.  Change History (To be removed by RFC Editor
+                before publication) . . . . . . . . . . . . . . . . . <a href="#page-19">19</a>
+   Authors' Addresses . . . . . . . . . . . . . . . . . . . . . . . . <a href="#page-19">19</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="grey">Daboo &amp; Douglass         Expires March 31, 2013                 [Page 2]</span>
+</pre><!--NewPage--><pre class='newpage'><a name="page-3" id="page-3" href="#page-3" class="invisible"> </a>
+<span class="grey">Internet-Draft            Calendar Availability           September 2012</span>
+
+
+<span class="h2"><a class="selflink" name="section-1" href="#section-1">1</a>.  Introduction</span>
+
+   Often calendar users have regular periods of time when they are
+   either available to be scheduled or always unavailable.  For example,
+   an office worker will often wish to only appear free to their work
+   colleagues during normal 'office hours' (e.g., Monday through Friday,
+   9 am through 5 pm).  Or, a university professor may only be available
+   to students during a set period of time (e.g., Thursday afternoons, 2
+   pm through 5 pm during term time only).  Ideally users should be able
+   to specify such periods directly via their calendar user agent, and
+   have them automatically considered as part of the normal free-busy
+   lookup for that user.  In addition it should be possible to present
+   different periods of available time depending on which user is making
+   the request.
+
+   iCalendar [<a href="./rfc5545" title="&quot;Internet Calendaring and Scheduling Core Object Specification (iCalendar)&quot;">RFC5545</a>] defines a "VFREEBUSY" component that can be used
+   to represent fixed busy time periods, but it does does not provide a
+   way to specify a repeating period of available or unavailable time.
+   Since repeating patterns are often the case, "VFREEBUSY" components
+   are not sufficient to solve this problem.
+
+   This specification defines a new type of iCalendar calendar component
+   that can be used to publish user availability.
+
+   CalDAV [<a href="./rfc4791" title="&quot;Calendaring Extensions to WebDAV (CalDAV)&quot;">RFC4791</a>] provides a way for calendar users to access and
+   manage calendar data and exchange this data via scheduling
+   operations.  As part of this the, CalDAV calendar-access [<a href="./rfc4791" title="&quot;Calendaring Extensions to WebDAV (CalDAV)&quot;">RFC4791</a>]
+   feature provides a CALDAV:free-busy-query REPORT that returns free-
+   busy information for a calendar collection or hierarchy of calendar
+   collections.  Also, the CalDAV calendar-auto-schedule [<a href="./rfc6638" title="&quot;Scheduling Extensions to CalDAV&quot;">RFC6638</a>]
+   feature allows free-busy information for a calendar user to be
+   determined.  Both of these operations involve examining user
+   calendars for events that 'block time', with the blocked out periods
+   being returned in a "VFREEBUSY" component.
+
+   This specification extends the CalDAV calendar-access and CalDAV
+   calendar-auto-schedule features to allow the new iCalendar
+   availability components to be stored and manipulated, and to allow
+   free-busy lookups to use the information from any such components, if
+   present.
+
+
+<span class="h2"><a class="selflink" name="section-2" href="#section-2">2</a>.  Conventions Used in This Document</span>
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in
+   [<a href="./rfc2119" title="S.">RFC2119</a>] .
+
+
+
+<span class="grey">Daboo &amp; Douglass         Expires March 31, 2013                 [Page 3]</span>
+</pre><!--NewPage--><pre class='newpage'><a name="page-4" id="page-4" href="#page-4" class="invisible"> </a>
+<span class="grey">Internet-Draft            Calendar Availability           September 2012</span>
+
+
+   When XML element types in the namespaces "DAV:" and
+   "urn:ietf:params:xml:ns:caldav" are referenced in this document
+   outside of the context of an XML fragment, the string "DAV:" and
+   "CALDAV:" will be prefixed to the element type names respectively.
+
+
+<span class="h2"><a class="selflink" name="section-3" href="#section-3">3</a>.  iCalendar Extensions</span>
+
+   This specification adds a new "VAVAILABILITY" calendar component to
+   iCalendar.  The "VAVAILABILITY" component is itself a container for
+   new "AVAILABLE" sub-components.
+
+   The purpose of the "VAVAILABILITY" calendar component is to provide a
+   grouping of available time information over a specific range of time.
+   Within that there are specific time ranges that are marked as
+   available via a set of "AVAILABLE" calendar sub-components.  Together
+   these can be used to specify available time that can repeat over set
+   periods of time, and which can vary over time.
+
+<span class="h3"><a class="selflink" name="section-3.1" href="#section-3.1">3.1</a>.  Vavailability Component</span>
+
+   Component Name:  VAVAILABILITY
+
+   Purpose:  Provide a grouping of component properties that describe
+      the availability associated with a calendar user.
+
+   Format Definition:  A "VAVAILABILITY" calendar component is defined
+      by the following notation:
+
+          availabilityc  = "BEGIN" ":" "VAVAILABILITY" CRLF
+                           availabilityprop *availablec
+                           "END" ":" "VAVAILABILITY" CRLF
+
+          availabilityprop  = *(
+                            ;
+                            ; the following are REQUIRED,
+                            ; but MUST NOT occur more than once
+                            ;
+                            dtstamp / uid
+                            ;
+                            ; the following are OPTIONAL,
+                            ; but MUST NOT occur more than once
+                            ;
+                            busytype / class / created / description /
+                            dtstart / last-mod / organizer / priority /
+                            seq / summary / url /
+                            ;
+                            ; either 'dtend' or 'duration' MAY appear
+
+
+
+<span class="grey">Daboo &amp; Douglass         Expires March 31, 2013                 [Page 4]</span>
+</pre><!--NewPage--><pre class='newpage'><a name="page-5" id="page-5" href="#page-5" class="invisible"> </a>
+<span class="grey">Internet-Draft            Calendar Availability           September 2012</span>
+
+
+                            ; once, but 'dtend' and 'duration' MUST
+                            ; NOT occur in the same 'availabilityprop'.
+                            ;
+                            dtend / duration /
+                            ;
+                            ; the following are OPTIONAL,
+                            ; and MAY occur more than once
+                            ;
+                            categories / comment / contact /
+                            x-prop / iana-prop
+                            ;
+                            )
+
+          availablec  = "BEGIN" ":" "AVAILABLE" CRLF
+                        availableprop
+                        "END" ":" "AVAILABLE" CRLF
+
+          availableprop  = *(
+                         ;
+                         ; the following are REQUIRED,
+                         ; but MUST NOT occur more than once
+                         ;
+                         dtstamp / dtstart / uid /
+                         ;
+                         ; either 'dtend' or 'duration' MAY appear
+                         ; once, but 'dtend' and 'duration' MUST NOT
+                         ; occur in the same 'availableprop'.
+                         ; 'duration' MUST NOT be present if 'dtstart'
+                         ; is not present
+                         ;
+                         dtend / duration /
+                         ;
+                         ; the following are OPTIONAL,
+                         ; but MUST NOT occur more than once
+                         ;
+                         created / description / geo / last-mod /
+                         location / recurid / rrule / summary /
+                         ;
+                         ; the following are OPTIONAL,
+                         ; and MAY occur more than once
+                         ;
+                         categories / comment / contact / exdate /
+                         rdate / x-prop / iana-prop
+
+                         )
+
+
+
+
+
+
+<span class="grey">Daboo &amp; Douglass         Expires March 31, 2013                 [Page 5]</span>
+</pre><!--NewPage--><pre class='newpage'><a name="page-6" id="page-6" href="#page-6" class="invisible"> </a>
+<span class="grey">Internet-Draft            Calendar Availability           September 2012</span>
+
+
+   Description:  A "VAVAILABILITY" component indicates a period of time
+      within which availability information is provided.  A
+      "VAVAILABILITY" component can specify a start time and an end time
+      or duration.  If "DTSTART" is not present, then the start time is
+      unbounded.  If "DTEND" or "DURATION" are not present, then the end
+      time is unbounded.  Within the specified time period, availability
+      defaults to a free-busy type of "BUSY-UNAVAILABLE", except for any
+      time periods corresponding to "AVAILABLE" sub-components.
+
+      "AVAILABLE" sub-components are used to indicate periods of free
+      time within the time range of the enclosing "VAVAILABILITY"
+      component.  "AVAILABLE" sub-components MAY include recurrence
+      properties to specify recurring periods of time, which may be
+      overridden using normal recurrence behavior (i.e., use of the
+      "RECURRENCE-ID" property).
+
+      If specified, the "DTSTART" and "DTEND" properties in
+      "VAVAILABILITY" components and "AVAILABLE" sub-components MUST be
+      "DATE-TIME" values specified as either date with UTC time or date
+      with local time and a time zone reference.
+
+      If any property with a "DATE-TIME" value is present in a
+      "VAVAILABILITY" component or any of its "AVAILABLE" sub-
+      components, and that property includes a "TZID" parameter, then
+      the iCalendar object containing the "VAVAILABILITY" component MUST
+      contain "VTIMEZONE" components corresponding to each unique "TZID"
+      parameter value.
+
+      When used to publish available time, the "ORGANIZER" property
+      specifies the calendar user associated with the published
+      available time.
+
+      If the "PRIORITY" property is specified in "VAVAILABILITY"
+      components it is useed to determine how that component is combined
+      with other "VAVAILABILITY" components.  See <a href="#section-4">Section 4</a>
+
+      Other calendar properties specified in "VAVAILABILITY" or
+      "AVAILABLE" components are considered attributes of the marked
+      block of time.  Their usage is application specific.  For example,
+      the "LOCATION" property may be used to indicate that a person is
+      available in one location for part of the week and another
+      location for another part.
+
+   Example:  The following is an example of a "VAVAILABILITY" calendar
+      component used to represent the availability of a user always
+      available Monday through Friday, 9:00 AM to 5:00 PM in the
+      America/Montreal time zone:
+
+
+
+
+<span class="grey">Daboo &amp; Douglass         Expires March 31, 2013                 [Page 6]</span>
+</pre><!--NewPage--><pre class='newpage'><a name="page-7" id="page-7" href="#page-7" class="invisible"> </a>
+<span class="grey">Internet-Draft            Calendar Availability           September 2012</span>
+
+
+        BEGIN:VAVAILABILITY
+        ORGANIZER:mailto:bernard@example.com
+        UID:20111005T133225Z-00001@example.com
+        DTSTAMP:20111005T133225Z
+        BEGIN:AVAILABLE
+        UID:20111005T133225Z-00001-A@example.com
+        SUMMARY:Monday to Friday from 9:00 to 17:00
+        DTSTART;TZID=America/Montreal:20111002T090000
+        DTEND;TZID=America/Montreal:20111002T170000
+        RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR
+        END:AVAILABLE
+        END:VAVAILABILITY
+
+      The following is an example of a "VAVAILABILITY" calendar
+      component used to represent the availability of a user available
+      Monday through Thursday, 9:00 AM to 5:00 PM, and Friday 9:00 AM to
+      12:00 PM in the America/Montreal time zone between October 2nd and
+      December 2nd 2011:
+
+        BEGIN:VAVAILABILITY
+        ORGANIZER:mailto:bernard@example.com
+        UID:20111005T133225Z-00001@example.com
+        DTSTAMP:20111005T133225Z
+        DTSTART;TZID=America/Montreal:20111002T000000
+        DTEND;TZID=America/Montreal:20111202T000000
+        BEGIN:AVAILABLE
+        UID:20111005T133225Z-00001-A@example.com
+        SUMMARY:Monday to Thursday from 9:00 to 17:00
+        DTSTART;TZID=America/Montreal:20111002T090000
+        DTEND;TZID=America/Montreal:20111002T170000
+        RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH
+        END:AVAILABLE
+        BEGIN:AVAILABLE
+        UID:20111005T133225Z-00001-B@example.com
+        SUMMARY:Friday from 9:00 to 12:00
+        DTSTART;TZID=America/Montreal:20111006T090000
+        DTEND;TZID=America/Montreal:20111006T120000
+        RRULE:FREQ=WEEKLY
+        END:AVAILABLE
+        END:VAVAILABILITY
+
+      The following is an example of three "VAVAILABILITY" calendar
+      components used to represent the availability of a traveling
+      worker: Monday through Friday, 9:00 AM to 5:00 PM each day.
+      However, for three weeks the calendar user is working in Montreal,
+      then one week in Los Angeles, then back to Montreal.  Note that
+      each overall period is covered by separate "VAVAILABILITY"
+      components.  The last of these has no DTEND so continues on "for
+
+
+
+<span class="grey">Daboo &amp; Douglass         Expires March 31, 2013                 [Page 7]</span>
+</pre><!--NewPage--><pre class='newpage'><a name="page-8" id="page-8" href="#page-8" class="invisible"> </a>
+<span class="grey">Internet-Draft            Calendar Availability           September 2012</span>
+
+
+      ever".  This example shows how "blocks" of available time can be
+      represented.
+
+        BEGIN:VAVAILABILITY
+        ORGANIZER:mailto:bernard@example.com
+        UID:20111005T133225Z-00001@example.com
+        DTSTAMP:20111005T133225Z
+        DTSTART;TZID=America/Montreal:20111002T000000
+        DTEND;TZID=America/Montreal:20111023T030000
+        BEGIN:AVAILABLE
+        UID:20111005T133225Z-00001-A@example.com
+        SUMMARY:Monday to Friday from 9:00 to 17:00
+        DTSTART;TZID=America/Montreal:20111002T090000
+        DTEND;TZID=America/Montreal:20111002T170000
+        RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR
+        END:AVAILABLE
+        END:VAVAILABILITY
+        BEGIN:VAVAILABILITY
+        ORGANIZER:mailto:bernard@example.com
+        UID:20111005T133225Z-00001@example.com
+        DTSTAMP:20111005T133225Z
+        DTSTART;TZID=America/Los_Angeles:20111023T000000
+        DTEND;TZID=America/Los_Angeles:20111030T000000
+        BEGIN:AVAILABLE
+        UID:20111005T133225Z-00001-A@example.com
+        SUMMARY:Monday to Friday from 9:00 to 17:00
+        DTSTART;TZID=America/Los_Angeles:20111023T090000
+        DTEND;TZID=America/Los_Angeles:20111023T170000
+        RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR
+        END:AVAILABLE
+        END:VAVAILABILITY
+        BEGIN:VAVAILABILITY
+        ORGANIZER:mailto:bernard@example.com
+        UID:20111005T133225Z-00001@example.com
+        DTSTAMP:20111005T133225Z
+        DTSTART;TZID=America/Montreal:20111030T030000
+        BEGIN:AVAILABLE
+        UID:20111005T133225Z-00001-A@example.com
+        SUMMARY:Monday to Friday from 9:00 to 17:00
+        DTSTART;TZID=America/Montreal:20111030T090000
+        DTEND;TZID=America/Montreal:20111030T170000
+        RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR
+        END:AVAILABLE
+        END:VAVAILABILITY
+
+
+
+
+
+
+
+<span class="grey">Daboo &amp; Douglass         Expires March 31, 2013                 [Page 8]</span>
+</pre><!--NewPage--><pre class='newpage'><a name="page-9" id="page-9" href="#page-9" class="invisible"> </a>
+<span class="grey">Internet-Draft            Calendar Availability           September 2012</span>
+
+
+<span class="h3"><a class="selflink" name="section-3.2" href="#section-3.2">3.2</a>.  Busy Time Type</span>
+
+   Property Name:  BUSYTYPE
+
+   Purpose:  This property specifies the default busy time type.
+
+   Value Type:  TEXT
+
+   Property Parameters:  IANA and non-standard property parameters can
+      be specified on this property.
+
+   Conformance:  This property can be specified within "VAVAILABILITY"
+      calendar components.
+
+   Format Definition:  This property is defined by the following
+      notation:
+
+        busytype      = "BUSYTYPE" busytypeparam ":" busytypevalue CRLF
+
+        busytypeparam = *(";" other-param)
+
+        busytypevalue = "BUSY" / "BUSY-UNAVAILABLE" /
+                        "BUSY-TENTATIVE" / iana-token / x-name
+                        ; Default is "BUSY-UNAVAILABLE".
+
+   Description:  This property is used to specify the default busy time
+      type.  The values correspond to those used by the "FBTYPE"
+      parameter used on a "FREEBUSY" property, with the exception that
+      the "FREE" value is not used in this property.  If not specified
+      on a component that allows this property, the default is "BUSY-
+      UNAVAILABLE".
+
+   Example:  The following is an example of this property:
+
+        BUSYTYPE:BUSY
+
+
+<span class="h2"><a class="selflink" name="section-4" href="#section-4">4</a>.  Combining Vavailability components</span>
+
+   The Vavailability component allows a calendar user to describe their
+   availability over extended periods of time through the use of
+   recurrence patterns.  This availability may be relatively constant
+   from year to year.
+
+   However, there is usually some degree of irregularity, as people take
+   vacations or perhaps spend a few weeks at a different office.  For
+   that period of time there can be a need to redefine their
+   availability.
+
+
+
+<span class="grey">Daboo &amp; Douglass         Expires March 31, 2013                 [Page 9]</span>
+</pre><!--NewPage--><pre class='newpage'><a name="page-10" id="page-10" href="#page-10" class="invisible"> </a>
+<span class="grey">Internet-Draft            Calendar Availability           September 2012</span>
+
+
+   Rather than modify their existing vavailability the "PRIORITY"
+   property allows new vavailability components to be provided which
+   override others of lower ordinal priority.  Note that iCalendar
+   [<a href="./rfc5545" title="&quot;Internet Calendaring and Scheduling Core Object Specification (iCalendar)&quot;">RFC5545</a>] defines the "PRIORITY" property such that a value of 0 is
+   undefined, 1 is the highest priority and 9 is the lowest.
+
+   When combining vavailability components, an absence of a "PRIORITY"
+   property or a value of 0 implies the lowest level of priority.  If
+   two or more vavailability components have the same PRIORITY value,
+   then their AVAILABILITY components which fall within the date range
+   of interest are combined.  It is up to the creator of such components
+   to ensure that combining them produes a consistent and expected
+   result.
+
+   To calculate the available time, order the intersecting
+   "VAVAILABILITY" components by priority, those with no "PRIORITY" or a
+   priority value of 0 first, then in decreasing order of the "PRIORITY"
+   value.
+
+   Step through the resulting list of "VAVAILABILITY" components.  For
+   each, the time range covered by the "VAVAILABILITY" component is set
+   to busy and then portions of it defined by the "AVAILABLE" components
+   in the "VAVAILABILITY" component are set to free.
+
+   Note that, if any VAVAILABILITY component completely covers the date
+   range of inteest, then any lower priority VAVAILABILITY components
+   may be ignored.
+
+
+<span class="h2"><a class="selflink" name="section-5" href="#section-5">5</a>.  Calculating Free-Busy Time</span>
+
+   This section describes how free-busy time information for a calendar
+   user is calculated in the presence of "VAVAILABILITY" calendar
+   components.
+
+   An iCalendar "VFREEBUSY" component is used to convey "rolled-up"
+   free-busy time information for a calendar user.  This can be
+   generated as the result of an iTIP free-busy [<a href="./rfc5546" title="&quot;iCalendar Transport-Independent Interoperability Protocol (iTIP)&quot;">RFC5546</a>] request or
+   through some other mechanism (e.g., a CalDAV calendar-access CALDAV:
+   free-busy-query REPORT).
+
+   When one or more "VAVAILABILITY" components are present and intersect
+   the time-range for the free-busy request, first available time is
+   calculated, as outlined in <a href="#section-4">Section 4</a>.  Once that is done, regular
+   "VEVENT" and "VFREEBUSY" components can be "overlaid" in the usual
+   way to block out additional time.
+
+   An example procedure for this is as follows:
+
+
+
+<span class="grey">Daboo &amp; Douglass         Expires March 31, 2013                [Page 10]</span>
+</pre><!--NewPage--><pre class='newpage'><a name="page-11" id="page-11" href="#page-11" class="invisible"> </a>
+<span class="grey">Internet-Draft            Calendar Availability           September 2012</span>
+
+
+   1.  Initially mark the entire period of the free-busy request as
+       free.
+
+   2.  For each "VAVAILABILITY" component ordered by PRIORITY:
+
+       1.  Determine if the "VAVAILABILITY" intersects the time-range of
+           the free-busy request.  If not ignore it.
+
+       2.  Determine if the "VAVAILABILITY" is completely overridden by
+           a higher priority component.  If so ignore it.
+
+       3.  For the time period covered by the "VAVAILABILITY" component,
+           mark time in the free-busy request result set as busy, using
+           the busy time type derived from the "BUSYTYPE" property in
+           the "VAVAILABILITY" component.
+
+   3.  For each remaining "VAVAILABILITY" component in the same order:
+
+       1.  For each "AVAILABLE" component in the "VAVAILABILITY"
+           component:
+
+           1.  Expand all recurring instances, taking into account
+               overridden instances, ignoring instances or parts of
+               instances that fall outside of the free-busy request
+               time-range or the time period specified by the
+               "VAVAILABILITY" component.
+
+           2.  For each instance, mark the corresponding time in the
+               free-busy request result set as free.
+
+   4.  For each "VEVENT" or "VFREEBUSY" component apply normal free-busy
+       processing within the free-busy request time-range.
+
+<span class="h3"><a class="selflink" name="section-5.1" href="#section-5.1">5.1</a>.  Examples</span>
+
+   In the examples below a table is used to represent time slots for the
+   period of a free-busy request.  Each time slot is two hours long.
+   The column header represents the hours from midnight local time.
+   Each row below the column headers represents a step in the free-busy
+   result set determination, following the procedure outlined above.
+
+   Each cell in the rows below the column header contains a single
+   character that represents the free-busy type for the corresponding
+   time period at the end of the process step represented by the row.
+   The characters in the row are:
+
+
+
+
+
+
+<span class="grey">Daboo &amp; Douglass         Expires March 31, 2013                [Page 11]</span>
+</pre><!--NewPage--><pre class='newpage'><a name="page-12" id="page-12" href="#page-12" class="invisible"> </a>
+<span class="grey">Internet-Draft            Calendar Availability           September 2012</span>
+
+
+     +-----------+--------------------------------------------------+
+     | Character | Meaning                                          |
+     +-----------+--------------------------------------------------+
+     | F         | Represents "FREE" time in that slot.             |
+     | B         | Represents "BUSY" time in that slot.             |
+     | U         | Represents "BUSY-UNAVAILABLE" time in that slot. |
+     | T         | Represents "BUSY-TENTATIVE" time in that slot.   |
+     +-----------+--------------------------------------------------+
+
+<span class="h4"><a class="selflink" name="section-5.1.1" href="#section-5.1.1">5.1.1</a>.  Simple Example</span>
+
+   A free-busy request for Monday, 6th November 2011, midnight to
+   midnight in the America/Montreal timezone.
+
+   The user's calendar is as shown in <a href="#appendix-A">Appendix A</a> .  This includes one
+   "VAVAILABILITY" component giving available time within the requested
+   time-range of 8:00 AM to 6:00 PM, together with one "VEVENT"
+   component representing a two hour meeting starting at 12:00 PM.
+
+   +------+----+----+----+----+----+----+----+----+----+----+----+----+
+   | Step |  0 |  2 |  4 |  6 |  8 | 10 | 12 | 14 | 16 | 18 | 20 | 22 |
+   +------+----+----+----+----+----+----+----+----+----+----+----+----+
+   | 1.   | F  | F  | F  | F  | F  | F  | F  | F  | F  | F  | F  | F  |
+   | 2.   | U  | U  | U  | U  | U  | U  | U  | U  | U  | U  | U  | U  |
+   | 3.   | U  | U  | U  | U  | F  | F  | F  | F  | F  | U  | U  | U  |
+   | 4.   | U  | U  | U  | U  | F  | F  | B  | F  | F  | U  | U  | U  |
+   +------+----+----+----+----+----+----+----+----+----+----+----+----+
+
+<span class="h4"><a class="selflink" name="section-5.1.2" href="#section-5.1.2">5.1.2</a>.  TBD</span>
+
+   More examples here../not sure what though.
+
+
+<span class="h2"><a class="selflink" name="section-6" href="#section-6">6</a>.  CalDAV Extensions</span>
+
+<span class="h3"><a class="selflink" name="section-6.1" href="#section-6.1">6.1</a>.  CalDAV Requirements Overview</span>
+
+   This section lists what functionality is required of a CalDAV server
+   which supports this extension.  A server:
+
+   o  MUST support "VAVAILABILITY" components in a calendar collection
+      resource if the CALDAV calendar-access feature is supported, which
+      includes advertising it in CALDAV;supported-calendar-component-set
+      properties on calendars;
+
+   o  MUST support CALDAV:free-busy-query REPORTs that aggregate the
+      information in any "VAVAILABILITY" components in the calendar
+      collections targeted by the request;
+
+
+
+<span class="grey">Daboo &amp; Douglass         Expires March 31, 2013                [Page 12]</span>
+</pre><!--NewPage--><pre class='newpage'><a name="page-13" id="page-13" href="#page-13" class="invisible"> </a>
+<span class="grey">Internet-Draft            Calendar Availability           September 2012</span>
+
+
+   o  MUST support "VAVAILABILITY" components stored in a CALDAV:
+      calendar-availability WebDAV property on a CALDAV scheduling inbox
+      collection if the CALDAV calendar-auto-schedule feature is
+      supported;
+
+   o  MUST support iTIP [<a href="./rfc5546" title="&quot;iCalendar Transport-Independent Interoperability Protocol (iTIP)&quot;">RFC5546</a>] free-busy requests that aggregate the
+      information in any "VAVAILABILITY" components in calendar
+      collections that contribute to free-busy, or in any
+      "VAVAILABILITY" components stored in the CALDAV:calendar-
+      availability in the CALDAV scheduling inbox collection of the
+      calendar user targeted by the iTIP free-busy request, if the
+      CalDAV calendar-auto-schedule feature is available.
+
+<span class="h3"><a class="selflink" name="section-6.2" href="#section-6.2">6.2</a>.  New features in CalDAV</span>
+
+<span class="h4"><a class="selflink" name="section-6.2.1" href="#section-6.2.1">6.2.1</a>.  Calendar Availability Support</span>
+
+   A server supporting the features described in this document MUST
+   include "calendar-availability" as a field in the DAV response header
+   from an OPTIONS request on any resource that supports any calendar
+   properties, reports, method, or privilege.  A value of "calendar-
+   availability" in the DAV response header MUST indicate that the
+   server supports all MUST level requirements specified in this
+   document.
+
+<span class="h5"><a class="selflink" name="section-6.2.1.1" href="#section-6.2.1.1">6.2.1.1</a>.  Example: Using OPTIONS for the Discovery of Calendar</span>
+<span class="h5">          Availability Support</span>
+
+   &gt;&gt; Request &lt;&lt;
+
+      OPTIONS /home/bernard/calendars/ HTTP/1.1
+      Host: cal.example.com
+
+   &gt;&gt; Response &lt;&lt;
+
+      HTTP/1.1 200 OK
+      Allow: OPTIONS, GET, HEAD, POST, PUT, DELETE, TRACE, COPY, MOVE
+      Allow: PROPFIND, PROPPATCH, LOCK, UNLOCK, REPORT, ACL
+      DAV: 1, 2, 3, access-control, calendar-access,
+       calendar-availability
+      Date: Fri, 11 Nov 2005 09:32:12 GMT
+      Content-Length: 0
+
+   In this example, the OPTIONS method returns the value "calendar-
+   availability" in the DAV response header to indicate that the
+   collection "/home/bernard/calendars/" supports the new features
+   defined in this specification.
+
+
+
+
+<span class="grey">Daboo &amp; Douglass         Expires March 31, 2013                [Page 13]</span>
+</pre><!--NewPage--><pre class='newpage'><a name="page-14" id="page-14" href="#page-14" class="invisible"> </a>
+<span class="grey">Internet-Draft            Calendar Availability           September 2012</span>
+
+
+<span class="h4"><a class="selflink" name="section-6.2.2" href="#section-6.2.2">6.2.2</a>.  CALDAV:free-busy-query REPORT</span>
+
+   A CALDAV:free-busy-query REPORT can be executed on a calendar
+   collection that contains iCalendar "VAVAILABILITY" components.  When
+   that is done, the server MUST aggregate the information in any
+   "VAVAILABILITY" components when generating the free-busy response, as
+   described in <a href="#section-5">Section 5</a> .
+
+<span class="h4"><a class="selflink" name="section-6.2.3" href="#section-6.2.3">6.2.3</a>.  CALDAV:calendar-availability Property</span>
+
+   Name:  calendar-availability
+
+   Namespace:  urn:ietf:params:xml:ns:caldav
+
+   Purpose:  Defines a "VAVAILABILITY" component that will be used in
+      calculating free-busy time when an iTIP free-busy request is
+      targeted at the calendar user who owns the Inbox.
+
+   Conformance:  This property MAY be protected and SHOULD NOT be
+      returned by a PROPFIND DAV:allprop request.  Support for this
+      property is REQUIRED.  The value of this property MUST be a valid
+      iCalendar object containing "VAVAILABILITY" components and
+      "VTIMEZONE" components (if required) only.
+
+   Description:  This property allows a user to specify their
+      availability by including "VAVAILABILITY" components in the value
+      of this property.  If present, the server MUST use these
+      "VAVAILABILITY" components when determining free-busy information
+      as part of an iTIP free-busy request being handled by the server.
+
+   Definition:
+
+      &lt;!ELEMENT calendar-availability (#PCDATA) &gt;
+      ; Data value MUST be iCalendar object containing
+      ; "VAVAILABILITY" or "VTIMEZONE" components.
+
+   Example:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="grey">Daboo &amp; Douglass         Expires March 31, 2013                [Page 14]</span>
+</pre><!--NewPage--><pre class='newpage'><a name="page-15" id="page-15" href="#page-15" class="invisible"> </a>
+<span class="grey">Internet-Draft            Calendar Availability           September 2012</span>
+
+
+       &lt;C:calendar-availability xmlns:D="DAV:"
+          xmlns:C="urn:ietf:params:xml:ns:caldav"
+       &gt;BEGIN:VCALENDAR
+       CALSCALE:GREGORIAN
+       PRODID:-//example.com//iCalendar 2.0//EN
+       VERSION:2.0
+       BEGIN:VTIMEZONE
+       LAST-MODIFIED:20040110T032845Z
+       TZID:America/Montreal
+       BEGIN:DAYLIGHT
+       DTSTART:20000404T020000
+       RRULE:FREQ=YEARLY;BYDAY=1SU;BYMONTH=4
+       TZNAME:EDT
+       TZOFFSETFROM:-0500
+       TZOFFSETTO:-0400
+       END:DAYLIGHT
+       BEGIN:STANDARD
+       DTSTART:20001026T020000
+       RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=10
+       TZNAME:EST
+       TZOFFSETFROM:-0400
+       TZOFFSETTO:-0500
+       END:STANDARD
+       END:VTIMEZONE
+       BEGIN:VAVAILABILITY
+       UID:20111005T133225Z-00001@example.com
+       DTSTAMP:20111005T133225Z
+       DTSTART;TZID=America/Montreal:20111002T000000
+       BEGIN:AVAILABLE
+       UID:20111005T133225Z-00001-A@example.com
+       SUMMARY:Monday to Friday from 9:00 to 18:00
+       DTSTART;TZID=America/Montreal:20111002T090000
+       DTEND;TZID=America/Montreal:20111002T180000
+       RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR
+       END:AVAILABLE
+       END:VAVAILABILITY
+       END:VCALENDAR
+       &lt;/C:calendar-availability&gt;
+
+<span class="h4"><a class="selflink" name="section-6.2.4" href="#section-6.2.4">6.2.4</a>.  iTIP free-busy requests</span>
+
+   The [<a href="./rfc6638" title="&quot;Scheduling Extensions to CalDAV&quot;">RFC6638</a>] processing of an iTIP free-busy request targeted at the
+   owner of the CALDAV:schedule-inbox will include free-busy information
+   derived from "VAVAILABILITY" components in any calendar collection
+   targeted during the request, as described in <a href="#section-5">Section 5</a> .  In
+   addition, any "VAVAILABILITY" components specified in the CALDAV:
+   calendar-availability property on the owner's Inbox, MUST be included
+   in the free-busy calculation.
+
+
+
+<span class="grey">Daboo &amp; Douglass         Expires March 31, 2013                [Page 15]</span>
+</pre><!--NewPage--><pre class='newpage'><a name="page-16" id="page-16" href="#page-16" class="invisible"> </a>
+<span class="grey">Internet-Draft            Calendar Availability           September 2012</span>
+
+
+<span class="h2"><a class="selflink" name="section-7" href="#section-7">7</a>.  Security Considerations</span>
+
+   Free-busy information generated from "VAVAILABILITY" components MUST
+   NOT include information other than busy or free time periods.  In
+   particular, user specified property values such as "SUMMARY" and
+   "DESCRIPTION" MUST NOT be copied into the free-busy result data.
+
+   Beyond this, this specification does not add any additional security
+   issues that are not already present in [<a href="./rfc5545" title="&quot;Internet Calendaring and Scheduling Core Object Specification (iCalendar)&quot;">RFC5545</a>] and [<a href="./rfc5546" title="&quot;iCalendar Transport-Independent Interoperability Protocol (iTIP)&quot;">RFC5546</a>] .
+
+
+<span class="h2"><a class="selflink" name="section-8" href="#section-8">8</a>.  IANA Considerations</span>
+
+<span class="h3"><a class="selflink" name="section-8.1" href="#section-8.1">8.1</a>.  Component Registrations</span>
+
+   This documents defines the following new iCalendar components to be
+   added to the registry defined in <a href="./rfc5545#section-8.2.2">Section&nbsp;8.2.2 of [RFC5545]</a> :
+
+            +---------------+---------+----------------------+
+            | Component     | Status  | Reference            |
+            +---------------+---------+----------------------+
+            | VAVAILABILITY | Current | RFCXXXX, <a href="#section-3.1">Section 3.1</a> |
+            | AVAILABLE     | Current | RFCXXXX, <a href="#section-3.1">Section 3.1</a> |
+            +---------------+---------+----------------------+
+
+<span class="h3"><a class="selflink" name="section-8.2" href="#section-8.2">8.2</a>.  Property Registrations</span>
+
+   This documents defines the following new iCalendar properties to be
+   added to the registry defined in <a href="./rfc5545#section-8.2.3">Section&nbsp;8.2.3 of [RFC5545]</a> :
+
+               +----------+---------+----------------------+
+               | Property | Status  | Reference            |
+               +----------+---------+----------------------+
+               | BUSYTYPE | Current | RFCXXXX, <a href="#section-3.2">Section 3.2</a> |
+               +----------+---------+----------------------+
+
+
+<span class="h2"><a class="selflink" name="section-9" href="#section-9">9</a>.  Acknowledgments</span>
+
+   Thanks to the following for providing feedback: Toby Considine and
+   Dave Thewlis.  Particular thanks go to Bernard Desruisseaux.  This
+   specification came about via discussions at the Calendaring and
+   Scheduling Consortium.
+
+
+<span class="h2"><a class="selflink" name="section-10" href="#section-10">10</a>.  Normative References</span>
+
+   [<a name="ref-RFC2119" id="ref-RFC2119">RFC2119</a>]  Bradner, S., "Key words for use in RFCs to Indicate
+
+
+
+<span class="grey">Daboo &amp; Douglass         Expires March 31, 2013                [Page 16]</span>
+</pre><!--NewPage--><pre class='newpage'><a name="page-17" id="page-17" href="#page-17" class="invisible"> </a>
+<span class="grey">Internet-Draft            Calendar Availability           September 2012</span>
+
+
+              Requirement Levels", <a href="./bcp14">BCP 14</a>, <a href="./rfc2119">RFC 2119</a>, March 1997.
+
+   [<a name="ref-RFC4791" id="ref-RFC4791">RFC4791</a>]  Daboo, C., Desruisseaux, B., and L. Dusseault,
+              "Calendaring Extensions to WebDAV (CalDAV)", <a href="./rfc4791">RFC 4791</a>,
+              March 2007.
+
+   [<a name="ref-RFC5545" id="ref-RFC5545">RFC5545</a>]  Desruisseaux, B., "Internet Calendaring and Scheduling
+              Core Object Specification (iCalendar)", <a href="./rfc5545">RFC 5545</a>,
+              September 2009.
+
+   [<a name="ref-RFC5546" id="ref-RFC5546">RFC5546</a>]  Daboo, C., "iCalendar Transport-Independent
+              Interoperability Protocol (iTIP)", <a href="./rfc5546">RFC 5546</a>,
+              December 2009.
+
+   [<a name="ref-RFC6638" id="ref-RFC6638">RFC6638</a>]  Daboo, C. and B. Desruisseaux, "Scheduling Extensions to
+              CalDAV", <a href="./rfc6638">RFC 6638</a>, June 2012.
+
+
+<span class="h2"><a class="selflink" name="appendix-A" href="#appendix-A">Appendix A</a>.  Example Calendar #1</span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="grey">Daboo &amp; Douglass         Expires March 31, 2013                [Page 17]</span>
+</pre><!--NewPage--><pre class='newpage'><a name="page-18" id="page-18" href="#page-18" class="invisible"> </a>
+<span class="grey">Internet-Draft            Calendar Availability           September 2012</span>
+
+
+   iCalendar object
+
+       BEGIN:VCALENDAR
+       CALSCALE:GREGORIAN
+       PRODID:-//example.com//iCalendar 2.0//EN
+       VERSION:2.0
+       BEGIN:VTIMEZONE
+       LAST-MODIFIED:20040110T032845Z
+       TZID:America/Montreal
+       BEGIN:DAYLIGHT
+       DTSTART:20000404T020000
+       RRULE:FREQ=YEARLY;BYDAY=1SU;BYMONTH=4
+       TZNAME:EDT
+       TZOFFSETFROM:-0500
+       TZOFFSETTO:-0400
+       END:DAYLIGHT
+       BEGIN:STANDARD
+       DTSTART:20001026T020000
+       RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=10
+       TZNAME:EST
+       TZOFFSETFROM:-0400
+       TZOFFSETTO:-0500
+       END:STANDARD
+       END:VTIMEZONE
+       BEGIN:VEVENT
+       DTSTAMP:20111113T044111Z
+       DTSTART;TZID=America/Montreal:20111106T120000
+       DURATION:PT1H
+       SUMMARY:Meeting
+       UID:60A48841ECB90F3F215FE3D2@example.com
+       END:VEVENT
+       BEGIN:VAVAILABILITY
+       UID:20111005T133225Z-00001@example.com
+       DTSTAMP:20111005T133225Z
+       DTSTART;TZID=America/Montreal:20111002T000000
+       BEGIN:AVAILABLE
+       UID:20111005T133225Z-00001-A@example.com
+       SUMMARY:Monday to Friday from 9:00 to 18:00
+       DTSTART;TZID=America/Montreal:20111002T090000
+       DTEND;TZID=America/Montreal:20111002T180000
+       RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR
+       END:AVAILABLE
+       END:VAVAILABILITY
+       END:VCALENDAR
+
+
+
+
+
+
+
+<span class="grey">Daboo &amp; Douglass         Expires March 31, 2013                [Page 18]</span>
+</pre><!--NewPage--><pre class='newpage'><a name="page-19" id="page-19" href="#page-19" class="invisible"> </a>
+<span class="grey">Internet-Draft            Calendar Availability           September 2012</span>
+
+
+<span class="h2"><a class="selflink" name="appendix-B" href="#appendix-B">Appendix B</a>.  Change History (To be removed by RFC Editor before</span>
+             publication)
+
+   Changes in -03:
+
+   1.  Switch authors.
+
+   2.  CalDAV scheduling is now <a href="./rfc6638">rfc6638</a>.
+
+   3.  List priority as a vavailability property and define its use.
+
+   Changes in -02:
+
+   1.  Updated to 5545/5546 references.
+
+   2.  Fixed some examples.
+
+   3.  Added some more properties to the components
+
+   4.  Fixed text that said dtstart was required in VAVAILABILITY
+
+   Changes in -01:
+
+   1.  Allow property on Inbox for caldav-schedule.
+
+   2.  Clarify that DURATION can only be present in VAVAILABILITY if
+       DTSTART is also present, and DTEND is not.
+
+   3.  Updated references.
+
+   4.  Added templates.
+
+
+Authors' Addresses
+
+   Cyrus Daboo
+   Apple Inc.
+   1 Infinite Loop
+   Cupertino, CA  95014
+   USA
+
+   Email: cyrus@daboo.name
+   URI:   <a href="http://www.apple.com/">http://www.apple.com/</a>
+
+
+
+
+
+
+
+
+<span class="grey">Daboo &amp; Douglass         Expires March 31, 2013                [Page 19]</span>
+</pre><!--NewPage--><pre class='newpage'><a name="page-20" id="page-20" href="#page-20" class="invisible"> </a>
+<span class="grey">Internet-Draft            Calendar Availability           September 2012</span>
+
+
+   Michael Douglass
+   Rensselaer Polytechnic Institute
+   110 8th Street
+   Troy, NY  12180
+   USA
+
+   Email: douglm@rpi.edu
+   URI:   <a href="http://www.rpi.edu/">http://www.rpi.edu/</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Daboo &amp; Douglass         Expires March 31, 2013                [Page 20]
+
+</pre><br />
+<span class="noprint"><small><small>Html markup produced by rfcmarkup 1.104, available from
+<a href="http://tools.ietf.org/tools/rfcmarkup/">http://tools.ietf.org/tools/rfcmarkup/</a>
+</small></small></span>
+</body></html>

@@ -1,0 +1,44 @@
+.iscroll {
+  position: relative;
+  border: 1px solid #ccc;
+  height: 200px;
+  box-sizing: border-box;
+  overflow: hidden;
+  outline: none;
+background: #eee;
+}
+
+.iscroll-view {
+  overflow-y: auto;
+  max-height: 100%;
+}
+
+.iscroll-content {
+  position: absolute;
+  width: 100%;
+  top: 0;
+}
+
+.iscroll-item {
+  min-height: 10px;
+  list-style: none;
+  white-space: nowrap;
+  border-color: #eee;
+  border-style: solid;
+  border-width: 0 0 1px;
+  cursor: default;
+  background: #fff;
+}
+
+.iscroll-item:first-child {
+  border-top: none;
+}
+
+.iscroll-item-hover {
+  background-color: #e6f3f8;
+  cursor: pointer;
+}
+
+.iscroll-item-selected {
+  background-color: #c4e0ec;
+}

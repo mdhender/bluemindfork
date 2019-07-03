@@ -1,0 +1,12 @@
+Source: bluemind
+Section: net
+Priority: optional
+Maintainer: BlueMind Team <team@blue-mind.net>
+Standards-Version: 3.9.1
+
+Package: bm-settings
+Architecture: amd64
+Depends: bm-webserver (= ${binary:Version})
+Suggests: bm-connector-thunderbird (= ${binary:Version})
+Description: BlueMind settings application
+ BlueMind settings application

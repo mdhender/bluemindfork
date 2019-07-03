@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<forwards>
+	<forward path="/docs" target="locator://bm/core:8080/docs" role="apiDocs">
+		<auth kind="CORE2" />
+		<whitelist>
+			<wl uri="/favicon.ico" />
+		</whitelist>
+	</forward>
+</forwards>

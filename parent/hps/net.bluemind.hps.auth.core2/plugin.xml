@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.proxy.http.authprovider">
+      <auth_provider
+            implementation="net.bluemind.hps.auth.core2.C2ProviderFactory">
+      </auth_provider>
+   </extension>
+   <extension
+         point="net.bluemind.hornetq.forwardToVertx">
+      <vertx-forwarder
+            class="net.bluemind.hps.auth.core2.ForwardSessionMessages">
+      </vertx-forwarder>
+   </extension>
+
+</plugin>

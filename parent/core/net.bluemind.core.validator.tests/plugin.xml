@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.core.validatorfactory">
+      <validatorfactory
+            implementation="net.bluemind.core.validator.tests.CalledValidatorFactory">
+      </validatorfactory>
+   </extension>
+   <extension
+         point="net.bluemind.core.validatorfactory">
+      <validatorfactory
+            implementation="net.bluemind.core.validator.tests.DontCallValidatorFactory">
+      </validatorfactory>
+   </extension>
+
+</plugin>

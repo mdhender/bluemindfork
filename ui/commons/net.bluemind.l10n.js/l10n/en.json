@@ -1,0 +1,10 @@
+{
+    "common.send" : "Send",
+    "common.to": "To",
+    "common.cc" : "Cc",
+    "common.bcc" : "Bcc",
+    "common.save": "Save",
+    "common.delete": "Delete",
+    "common.attachments": "1 attachment | {count} attachments",
+    "common.save_all": "Save all"
+}

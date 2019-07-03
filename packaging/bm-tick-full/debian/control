@@ -1,0 +1,32 @@
+Source: bluemind
+Section: net
+Priority: optional
+Maintainer: BlueMind Team <team@blue-mind.net>
+Standards-Version: 3.9.1
+
+Package: bm-tick-full
+Architecture: amd64
+Depends: bm-node (= ${binary:Version}), bm-tick-node (= ${binary:Version}), bm-chronograf (= 1.6.2.bm2~224d2b158), bm-kapacitor (= 1.5.2.bm1~b76a788b), bm-influxdb (= 1.6.6.bm1~5610cb9d4)
+Description: BlueMind TICK stack
+ Installs TICK monitoring stack for BlueMind
+
+Package: influxdb
+Architecture: all
+Priority: extra
+Section: oldlibs
+Description: transitional package
+ This is a transitional package. It can safely be removed.
+
+Package: chronograf
+Architecture: all
+Priority: extra
+Section: oldlibs
+Description: transitional package
+ This is a transitional package. It can safely be removed.
+
+Package: kapacitor
+Architecture: all
+Priority: extra
+Section: oldlibs
+Description: transitional package
+ This is a transitional package. It can safely be removed.

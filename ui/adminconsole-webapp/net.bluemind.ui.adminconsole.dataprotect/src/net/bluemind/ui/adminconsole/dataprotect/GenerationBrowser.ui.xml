@@ -1,0 +1,72 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:f="urn:import:net.bluemind.ui.common.client.forms" xmlns:d="urn:import:net.bluemind.ui.adminconsole.dataprotect">
+
+	<ui:style>
+		.toolbar {
+			margin-top: 0px;
+			border-bottom: 1px solid #f8f8f8;
+			padding-bottom: 5px;
+		}
+		
+		.toolbar>div {
+			display: inline-block;
+		}
+		
+		.searchForm {
+				
+		}
+		
+		.genInfos {
+			
+		}
+		
+		.genDiv {
+			position: absolute;
+			top: 70px;
+			bottom: 0px;
+			right: 0px;
+			left: 0px;
+		}
+	</ui:style>
+
+	<ui:with field="txt"
+		type="net.bluemind.ui.adminconsole.dataprotect.l10n.DPTexts" />
+
+	<g:HTMLPanel height="100%">
+		<div class="{style.toolbar}">
+			<div>
+				<g:PushButton ui:field="back" styleName="button fa fa-lg fa-chevron-left">
+				</g:PushButton>
+			</div>
+			<g:FlowPanel styleName="{style.searchForm}">
+				<g:ToggleButton ui:field="domainsToggle" styleName="button button-first fa fa-lg fa-home">
+				</g:ToggleButton>
+				<g:ToggleButton ui:field="usersToggle" styleName="button button-middle fa fa-lg fa-user">
+				</g:ToggleButton>
+				<g:ToggleButton ui:field="mailsharesToggle"
+					styleName="button button-middle fa fa-lg fa-inbox">
+				</g:ToggleButton>
+				<g:ToggleButton ui:field="ouToggle"
+					styleName="button button-middle fa fa-lg fa-sitemap">
+				</g:ToggleButton>
+				<g:TextBox ui:field="searchQuery" styleName="button-middle"/>
+				<g:PushButton ui:field="find" styleName="button fa fa-lg fa-search">
+				</g:PushButton>
+			</g:FlowPanel>
+		</div>
+
+		<div class="{style.genInfos}">
+			<g:Label ui:field="genInfos" />
+		</div>
+
+		<div class="{style.genDiv}">
+		<d:RestorablesTable ui:field="restorables">
+		</d:RestorablesTable>
+		</div>
+
+	</g:HTMLPanel>
+
+</ui:UiBinder>

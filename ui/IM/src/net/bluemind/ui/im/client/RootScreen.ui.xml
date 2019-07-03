@@ -1,0 +1,22 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:im="urn:import:net.bluemind.ui.im.client.leftpanel">
+
+	<ui:with type="net.bluemind.ui.im.client.IMConstants" field="msg" />
+
+	<g:DockLayoutPanel>
+		<g:west size="220">
+			<im:LeftPanel ui:field="leftPanel" />
+		</g:west>
+
+		<g:center>
+			<g:FlowPanel>
+				<g:SimplePanel ui:field="conversationsContainer"
+					height="100%" />
+			</g:FlowPanel>
+		</g:center>
+	</g:DockLayoutPanel>
+
+</ui:UiBinder>

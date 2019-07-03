@@ -1,0 +1,37 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+xmlns:g="urn:import:com.google.gwt.user.client.ui"
+xmlns:f="urn:import:com.google.gwt.dom.client">
+
+
+<ui:style>
+
+	.quota-progress {
+	 width: 300px;   
+	 border: 1px solid black;
+	 position: relative;
+	 padding: 3px;
+	}
+	
+	.quota-percent {
+	 position: absolute;   
+	 left: 35%;
+	}
+	
+	.quota-bar {
+	 height: 20px;
+}
+
+</ui:style>
+
+<g:HTMLPanel>
+
+	<div class="{style.quota-progress}">
+    	<g:Label styleName="{style.quota-percent}" ui:field="used"/>
+    	<g:HTMLPanel styleName="{style.quota-bar}" ui:field="usedBar">  </g:HTMLPanel>
+	</div>
+
+</g:HTMLPanel>
+	
+
+</ui:UiBinder>

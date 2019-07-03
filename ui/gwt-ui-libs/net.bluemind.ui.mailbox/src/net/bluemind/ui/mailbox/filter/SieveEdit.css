@@ -1,0 +1,57 @@
+.filters {
+	width: 100%;
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+.filters tr:hover {
+	background: #F8F8F8;
+}
+
+.criteria {
+	width: 40%;
+}
+
+.action {
+	width: 40%;
+}
+
+.headers {
+	font-weight: bold;
+	background: #F8F8F8;
+	border-bottom: 1px solid #CCC;
+}
+
+.filter {
+	border-bottom: 1px solid #CCC;
+}
+
+.filterCriteria {
+	border-collapse: collapse;
+	border-spacing: 0;
+	margin: 10px 0px;
+}
+
+.label {
+	padding-right: 10px;
+}
+
+.value {
+	font-weight: bold;
+}
+
+.columnActive {
+	width: 4em;
+}
+
+.columnUpdate {
+	width: 2em;
+}
+
+.columnMove {
+	width: 4em;
+}
+
+.columnTrash {
+	width: 2em;
+}

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.ysnp.credentialvalidatorfactory" name="credentialvalidatorfactory" schema="schema/net.bluemind.ysnp.credentialvalidatorfactory.exsd"/>
+   <extension
+         id="ysnp"
+         name="YSNPDaemon"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            thread="main"
+            visible="true">
+         <run
+               class="net.bluemind.ysnp.YSNPDaemon">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="ysnp"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="net.bluemind.ysnp.ysnp"
+            name="YSNP saslauthd replacement">
+         <property
+               name="appName"
+               value="YSNP saslauthd replacement">
+         </property>
+      </product>
+   </extension>
+
+</plugin>

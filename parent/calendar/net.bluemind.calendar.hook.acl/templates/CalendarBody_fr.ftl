@@ -1,0 +1,1 @@
+${user} vous a partagé le calendrier "${entity}".

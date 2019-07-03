@@ -1,0 +1,41 @@
+{namespace net.bluemind.calendar.templates}
+
+/**
+ * @param calInfo 
+ */
+{template .calendarStyle}
+
+
+.calendar{$calInfo.uid} {lb}
+  color: {$calInfo.textColor};
+  border: 1px solid {$calInfo.colorDarkerDarker};
+  background: {$calInfo.color};
+  background-image: linear-gradient(to bottom, {$calInfo.color}, {$calInfo.colorDarker});
+  /* @alternate */ background-image: -khtml-gradient(linear, left top, left bottom, from({$calInfo.color}), to({$calInfo.colorDarker}));
+  /* @alternate */ background-image: -moz-linear-gradient(top, {$calInfo.color}, {$calInfo.colorDarker});
+  /* @alternate */ background-image: -ms-linear-gradient(top, {$calInfo.color}, {$calInfo.colorDarker});
+  /* @alternate */ background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, {$calInfo.color}), color-stop(100%, {$calInfo.colorDarker}));
+  /* @alternate */ background-image: -webkit-linear-gradient(top, {$calInfo.color}, {$calInfo.colorDarker});
+  /* @alternate */ background-image: -o-linear-gradient(top, {$calInfo.color}, {$calInfo.colorDarker});
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='{$calInfo.color}', endColorstr='{$calInfo.colorDarker}', GradientType=0);
+{rb}
+
+
+.calendar{$calInfo.uid} dt {lb}
+  border-bottom: 1px solid {$calInfo.colorDarkerDarker};
+{rb}
+
+.calendar{$calInfo.uid} dd {lb}
+  border-top: 1px solid {$calInfo.colorLighter};
+{rb}
+
+.calendar{$calInfo.uid}.inday {lb}
+  background: transparent; 
+  border: none;
+  background-image: none;
+  filter: "progid:DXImageTransform.Microsoft.gradient(enabled=false)";
+  color: {$calInfo.color} !important;
+  font-weight: bold;
+{rb}
+
+{/template}

@@ -1,0 +1,17 @@
+table.container {
+	width: 100%;
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+table.container tr {
+	border-bottom: 1px solid #CCC;
+}
+
+table.container tr:hover {
+	background: #F8F8F8;
+}
+
+.item td {
+	height: 30px;
+}

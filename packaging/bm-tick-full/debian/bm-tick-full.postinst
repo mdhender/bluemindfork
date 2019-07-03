@@ -1,0 +1,10 @@
+#!/bin/bash
+
+tick_conf=/usr/share/bm-tick-config
+
+cp ${tick_conf}/chronograf.default /etc/default/chronograf
+
+invoke-rc.d bm-nginx restart 0>/dev/null 1>/dev/null 2>/dev/null 3>/dev/null || true
+invoke-rc.d influxdb restart 0>/dev/null 1>/dev/null 2>/dev/null 3>/dev/null || true
+invoke-rc.d kapacitor restart 0>/dev/null 1>/dev/null 2>/dev/null 3>/dev/null || true
+invoke-rc.d chronograf restart 0>/dev/null 1>/dev/null 2>/dev/null 3>/dev/null || true

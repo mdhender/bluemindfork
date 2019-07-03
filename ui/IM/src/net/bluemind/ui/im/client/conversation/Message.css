@@ -1,0 +1,97 @@
+.container {
+	padding: 5px 14px;
+}
+
+.container table {
+	border-spacing: 0;
+	border-collapse: collapse;
+}
+
+.container table td {
+	vertical-align: top;
+	padding: 0px;
+}
+
+.msg {
+	color: #666;
+	font-size: small;
+}
+
+.unread {
+	background-color: #F2F8FD !important;
+	border-color: #B1D4F1 !important;
+}
+
+.avatar {
+	border: 1px solid;
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+}
+
+.arrowOutline {
+	float: left;
+	display: inline-block;
+	vertical-align: top;
+	border-style: solid;
+	border-width: 1px 8px 8px 0;
+	border-color: #CCC #CCC transparent transparent;
+	margin-top: 12px;
+	width: 0px;
+	height: 0px;
+}
+
+.arrowOutlineUnread {
+	border-color: #B1D4F1 #B1D4F1 transparent transparent;
+}
+
+.arrow {
+	border-style: solid;
+	border-width: 0 10px 10px 2px;
+	border-color: transparent #FFF transparent transparent;
+}
+
+.arrowUnread {
+	border-color: transparent #F2F8FD transparent transparent;
+}
+
+.bubble {
+	padding: 2px 4px;
+	box-shadow: 2px 2px 4px #CCC;
+	-moz-box-shadow: 2px 2px 4px #CCC;
+	background: #FFF;
+	border: 1px solid #CCC;
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+}
+
+.footer {
+	direction: rtl;
+}
+
+.from {
+	display: inline;
+	font-size: 80%;
+	font-style: italic;
+}
+
+.date {
+	color: #CCC;
+	font-size: 80%;
+	display: inline;
+	font-style: italic;
+	padding-left: 2px;
+}
+
+.downlight {
+	background-color: #F8F8F8 !important;
+}
+
+.arrowOutlineDownlight {
+	border-color: #CCC #CCC transparent transparent;
+}
+
+.arrowDownlight {
+	border-color: transparent #F8F8F8 transparent transparent;
+}

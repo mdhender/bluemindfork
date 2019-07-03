@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.addressbook.job
+Bundle-SymbolicName: net.bluemind.addressbook.job;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.scheduledjob.scheduler,
+ net.bluemind.scheduledjob.api,
+ net.bluemind.core.commons;bundle-version="1.0.0",
+ net.bluemind.slf4j;bundle-version="1.0.0",
+ net.bluemind.addressbook.api,
+ net.bluemind.core.context,
+ net.bluemind.core.rest,
+ net.bluemind.addressbook.service,
+ net.bluemind.core.task.api

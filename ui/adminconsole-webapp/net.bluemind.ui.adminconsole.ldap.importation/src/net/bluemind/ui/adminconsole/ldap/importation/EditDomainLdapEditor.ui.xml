@@ -1,0 +1,136 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:ldap="urn:import:net.bluemind.ui.adminconsole.ldap.importation"
+	xmlns:bj="urn:import:net.bluemind.ui.admin.client" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui">
+
+	<ui:with field="c"
+		type="net.bluemind.ui.adminconsole.ldap.importation.l10n.Ldap" />
+
+	<g:HTMLPanel>
+		<f:FieldSetPanel name="{c.ldap}" />
+		<table border="0" style="margin-bottom: 25px">
+			<tr>
+				<td style='width:250px'>
+					<g:Label text="{c.ldapEnableImport}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:CheckBox width="400px" ui:field="ldapImportEnabled" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px'>
+					<g:Label text="{c.ldapHostname}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:TextBox width="400px" enabled="false" ui:field="ldapHostname" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px'>
+					<g:Label text="{c.ldapProtocol}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:ListBox enabled="false" ui:field="ldapProtocol">
+						<g:item value="plain">PLAIN</g:item>
+						<g:item value="tls">TLS</g:item>
+						<g:item value="tlsAllCert" >TLS/<ui:text from="{c.allCertificate}"/></g:item>
+						<g:item value="ssl">SSL</g:item>
+						<g:item value="sslAllCert">SSL/<ui:text from="{c.allCertificate}"/></g:item>
+					</g:ListBox>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px'>
+					<g:Label text="{c.ldapBaseDn}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:TextBox width="400px" enabled="false" ui:field="ldapBaseDn" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px'>
+					<g:Label text="{c.ldapLoginDn}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:TextBox width="400px" enabled="false" ui:field="ldapLoginDn" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px'>
+					<g:Label text="{c.ldapLoginPw}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:PasswordTextBox width="400px" enabled="false" ui:field="ldapLoginPw" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px'>
+					<g:Label text="{c.ldapUserFilter}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:TextBox width="400px" enabled="false" ui:field="ldapUserFilter" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px'>
+					<g:Label text="{c.ldapGroupFilter}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:TextBox width="400px" enabled="false" ui:field="ldapGroupFilter" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px'>
+					<g:Label text="{c.ldapExternalId}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:TextBox width="400px" enabled="false" ui:field="ldapExternalId" />
+				</td>
+			</tr>
+			<tr>
+				<td/>
+				<td>
+					<g:Button enabled="false" text="{c.ldapConnTest}" ui:field="ldapConnTest"></g:Button>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px'>
+					<g:Label text="{c.ldapSplitDomainGroup}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:TextBox width="400px" enabled="false" ui:field="ldapSplitDomainGroup" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px'>
+					<g:Label text="{c.lastSuccessfulSync}:" ></g:Label>
+				</td>
+				<td style='width:400px'>
+					<ldap:JobStatusPanel ui:field="lastSyncSuccessful" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px'>
+					<g:Label text="{c.lastSyncStatus}:" ></g:Label>
+				</td>
+				<td style='width:400px'>
+					<ldap:JobStatusPanel ui:field="lastSyncStatus" />
+				</td>
+			</tr>
+			<tr>
+				<td/>
+				<td>
+					<g:Button enabled="false" text="{c.ldapStartIncremental}" ui:field="ldapStartIncremental" />
+				</td>
+			</tr>
+			<tr>
+				<td/>
+				<td>
+					<g:Button enabled="false" text="{c.ldapStartGlobal}" ui:field="ldapStartGlobal" />
+				</td>
+			</tr>
+		</table>
+	</g:HTMLPanel>
+</ui:UiBinder>

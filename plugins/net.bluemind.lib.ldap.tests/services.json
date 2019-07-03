@@ -1,0 +1,8 @@
+[
+	{
+ 		"name":"bluemind/samba4-import"
+	},
+	{
+ 		"name":"bluemind/ldap"
+	}
+]

@@ -1,0 +1,20 @@
+.tab {
+	padding: 0px 4px;
+}
+
+.tab div.displayName {
+	white-space: nowrap;
+}
+
+.closeBtnContainer {
+	float: right;
+}
+
+.closeBtn {
+	opacity: .7;
+	visibility: hidden;
+}
+
+.tab:hover .closeBtn {
+	visibility: visible;
+}

@@ -1,0 +1,19 @@
+[Unit]
+Description=LSB: BM locator Server.
+Before=bm-eas.service bm-hps.service bm-lmtpd.service bm-ysnp.service bm-milter.service bm-webserver.service bm-ips.service bm-xmpp.service bm-elasticsearch.service bm-tika.service runlevel2.target runlevel3.target runlevel4.target runlevel5.target shutdown.target
+After=systemd-journald-dev-log.socket network-online.target postgresql.service
+Wants=network-online.target
+Conflicts=shutdown.target
+ConditionPathExists=!/etc/bm/bm-locator.disabled
+
+[Service]
+Type=notify
+WorkingDirectory=/var/log
+TimeoutStartSec=90s
+GuessMainPID=no
+RemainAfterExit=no
+SuccessExitStatus=129 143
+Environment=JAVA_HOME=/usr/lib/jvm/bm-jdk
+ExecStart=/usr/share/bm-locator/bm-locator /var/run/bm-locator.pid
+[Install]
+WantedBy=multi-user.target

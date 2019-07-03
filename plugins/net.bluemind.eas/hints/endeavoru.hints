@@ -1,0 +1,3 @@
+# endeavoru is the device family for HTC One X < 4.2
+hint.multiCalendars=false
+hint.brokenEntitiesInPreview=true

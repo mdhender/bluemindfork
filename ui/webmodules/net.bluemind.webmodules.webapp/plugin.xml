@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.webapp" name="application" schema="schema/net.bluemind.webapp.exsd"/>
+   <extension-point id="net.bluemind.banner" name="banner" schema="schema/net.bluemind.banner.exsd"/>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module
+            root="/webapp"
+            index="index.html">
+
+         <handler
+               class="net.bluemind.webmodules.webapp.handlers.WebAppHandler"
+               path="index.html">
+         </handler>
+         <web-resource
+               bundle="net.bluemind.webmodules.webapp">
+         </web-resource>
+         <js
+               async-loading="false"
+               path="js/compile/net.bluemind.webmodules.webapp.js"
+               translation="false">
+         </js>
+
+      </web-module>
+      
+   </extension>
+   <extension
+         point="net.bluemind.extensions">
+      <export-extension-point
+            id="net.bluemind.webapp">
+      </export-extension-point>
+      <export-extension-point
+            id="net.bluemind.banner">
+      </export-extension-point>
+   </extension>
+
+</plugin>

@@ -1,0 +1,89 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:e="urn:import:net.bluemind.ui.editor.client">
+
+	<ui:style>
+	table.formContainer {
+		min-width: 490px;
+		border-collapse: collapse;
+		margin-bottom: 10px;
+	}
+	
+	.input {
+		width: 100%;
+	}
+	
+	.formContainer select {
+		width: 360px;
+	}
+	</ui:style>
+
+	<ui:with type="net.bluemind.ui.mailbox.identity.IdentityConstants"
+		field="c" />
+
+	<g:HTMLPanel>
+
+		<g:HTMLPanel styleName="{style.formContainer}">
+			<table class="formContainer">
+				<tr>
+					<td class="label">
+						<g:Label text="{c.displayname}" />
+					</td>
+					<td class="form">
+						<g:TextBox ui:field="displayname" styleName="{style.input}"></g:TextBox>
+					</td>
+				</tr>
+				<tr>
+					<td class="label">
+						<g:Label text="{c.name}" />
+					</td>
+					<td class="form">
+						<g:TextBox ui:field="name" styleName="{style.input}"></g:TextBox>
+					</td>
+				</tr>
+				<tr>
+					<td class="label">
+						<g:Label text="{c.email}" />
+					</td>
+					<td class="form">
+						<g:ListBox ui:field="emails" styleName="{style.input}" />
+						<g:TextBox ui:field="email" styleName="{style.input}"></g:TextBox>						
+					</td>
+				</tr>
+				<tr>
+					<td class="label">
+					</td>
+					<td class="form">
+						<g:CheckBox ui:field="unrestricted" ui:text="{c.unrestrictedSender}"
+							checked="false" />
+					</td>
+				</tr>
+				<tr>
+					<td class="label">
+					</td>
+					<td class="form">
+						<g:CheckBox ui:field="format" ui:text="{c.sigHTML}"
+							checked="true" />
+					</td>
+				</tr>
+				<tr>
+					<td class="label">
+					</td>
+					<td class="form">
+						<g:CheckBox ui:field="sent" ui:text="" checked="true" />
+					</td>
+				</tr>
+			</table>
+			<table class="formContainer">
+				<tr>
+					<td>
+						<e:Editor ui:field="sigContent" width="100%" />
+					</td>
+				</tr>
+			</table>
+		</g:HTMLPanel>
+	</g:HTMLPanel>
+
+</ui:UiBinder>

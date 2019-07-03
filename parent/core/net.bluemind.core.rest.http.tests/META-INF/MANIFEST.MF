@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Rest Http Tests
+Bundle-SymbolicName: net.bluemind.core.rest.http.tests;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Require-Bundle: org.junit,
+ com.ning.async-http-client;bundle-version="1.9.26",
+ net.bluemind.core.rest.tests.services;bundle-version="1.0.0",
+ net.bluemind.core.rest.http.vertx;bundle-version="1.0.0",
+ net.bluemind.core.rest.http,
+ net.bluemind.core.sessions;bundle-version="1.0.0",
+ net.bluemind.core.context;bundle-version="1.0.0",
+ com.google.guava,
+ net.bluemind.core.commons;bundle-version="4.1.0",
+ org.eclipse.core.runtime;bundle-version="3.12.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

@@ -1,0 +1,21 @@
+{namespace bluemind.ui.editor.imagedialog.template}
+
+/**
+ * Form to build an image from an url
+ */
+{template .onTheWeb}
+  <h3>{msg meaning="editor.messages.image.dialog.external.title" desc="Image on the web form title"}What's the URL of the image?{/msg}</h3>
+  <form>
+    <input type='url' class='{css imagedialog-input}' style='width:99%;' />
+  </form>
+{/template}
+
+/**
+ * Form to build an inline image from a file
+ */
+{template .inline}
+  <h3>{msg meaning="editor.messages.image.dialog.local.title" desc="Select the image to upload"}Select the image to upload{/msg}</h3>
+  <form enctype="multipart/form-data" method="post" >
+    <input name='image-file' type='file' class='{css imagedialog-input}' style='width:99%;' />
+  </form>
+{/template}

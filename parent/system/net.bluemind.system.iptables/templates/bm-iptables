@@ -1,0 +1,144 @@
+#!/bin/bash
+#
+### BEGIN INIT INFO
+# Provides: bm-iptables
+# Required-Start: $syslog $network
+# Required-Stop: $syslog $network
+# Should-Start: bm-core
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: BM iptables rules.
+# Description: init system for BlueMind iptables rules.
+### END INIT INFO
+
+test -f ~/core.debug && exit 0
+
+# Debian/Ubuntu
+[ -f /lib/init/vars.sh ] && source /lib/init/vars.sh
+[ -f /lib/lsb/init-functions ] && source /lib/lsb/init-functions
+# RH
+[ ! -f /lib/lsb/init-functions ] && [ -f /etc/init.d/functions ] && source /etc/init.d/functions
+
+[ -d /run/systemd/system ] && systemctl is-active --quiet firewalld && sleep 3
+
+if [ "$VERBOSE" == "yes" ]; then
+    set -x
+fi
+
+check_debian_jessie() {
+    if [ -e "/etc/debian_version" ] \
+    	&& [[ "$(cat /etc/debian_version)" == "8."* ]]; then
+            return 0
+        fi
+    fi
+    
+    return 1
+}
+
+BM_SERVICE="BlueMind iptables rules"
+
+cyrus="24 1110 1143 2000 2502"
+lmtp="2400"
+milter="2500"
+xmpp="5280 5290"
+pg="5432"
+hazelcast="5701 5702:5715"
+node="8022"
+hps="8079"
+webserver="8080"
+eas="8082"
+locator="8084"
+core="8090"
+tika="8087"
+influxdb="8086"
+chronograph="8888"
+kapacitor="9092"
+es="9200 9300"
+memcache="11211"
+
+timeout="-w 10"
+if check_debian_jessie; then
+	timeout="-w"
+fi
+
+bmPorts="${r"${cyrus}"} \
+	 ${r"${lmtp}"} \
+	 ${r"${milter}"} \
+	 ${r"${xmpp}"} \
+	 ${r"${pg}"} \
+	 ${r"${hazelcast}"} \
+	 ${r"${node}"} \
+	 ${r"${hps}"} \
+	 ${r"${webserver}"} \
+	 ${r"${eas}"} \
+	 ${r"${locator}"} \
+	 ${r"${core}"} \
+	 ${r"${tika}"} \
+	 ${r"${influxdb}"} \
+	 ${r"${chronograph}"} \
+	 ${r"${kapacitor}"} \
+	 ${r"${es}"} \
+	 ${r"${memcache}"}"
+
+bmHosts="${bmHostsAddresses?join(" ")}"
+bmHostChain="bmhosts"
+bmPortChain="bmports"
+
+stop_bm-iptables() {
+	echo -n "Removing BM iptables rules..."
+	
+	iptables ${r"${timeout}"} -L -v -n|grep ${r"${bmPortChain}"} 2>&1 > /dev/null
+	alreadyLoaded=$?
+	
+	if [ ${r"${alreadyLoaded}"} -eq 0 ]; then
+	        # Flushing BlueMind rules
+	        iptables ${r"${timeout}"} -D INPUT -j ${r"${bmHostChain}"}
+	
+	        iptables ${r"${timeout}"} -F ${r"${bmHostChain}"}
+	        iptables ${r"${timeout}"} -F ${r"${bmPortChain}"}
+	        iptables ${r"${timeout}"} -X ${r"${bmHostChain}"}
+	        iptables ${r"${timeout}"} -X ${r"${bmPortChain}"}
+	fi
+	
+	echo " done."
+}
+
+start_bm-iptables() {
+	echo -n "Adding BM iptables rules..."
+
+	# Fill filter
+	iptables ${r"${timeout}"} -N ${r"${bmPortChain}"}
+	for bmPort in ${r"${bmPorts}"}; do
+	        iptables ${r"${timeout}"} -A ${r"${bmPortChain}"} -p tcp --dport ${r"${bmPort}"} -j DROP
+	        iptables ${r"${timeout}"} -A ${r"${bmPortChain}"} -p udp --dport ${r"${bmPort}"} -j DROP
+	done
+	iptables ${r"${timeout}"} -A ${r"${bmPortChain}"} -j RETURN
+	
+	iptables ${r"${timeout}"} -N ${r"${bmHostChain}"}
+	iptables ${r"${timeout}"} -A ${r"${bmHostChain}"} -i lo -j ACCEPT
+	for bmHost in ${r"${bmHosts}"}; do
+	        iptables ${r"${timeout}"} -A ${r"${bmHostChain}"} -s ${r"${bmHost}"} -j ACCEPT
+	done
+	iptables ${r"${timeout}"} -A ${r"${bmHostChain}"} -m state --state NEW -j ${r"${bmPortChain}"}
+	
+	iptables ${r"${timeout}"} -I INPUT 1 -j ${r"${bmHostChain}"}
+	
+	echo " done."
+}
+
+case "$1" in
+    start)
+    	stop_bm-iptables
+        start_bm-iptables
+        ;;
+    
+    stop)
+        stop_bm-iptables
+        ;;
+    restart)
+        stop_bm-iptables
+        start_bm-iptables
+        ;;
+esac
+
+exit 0

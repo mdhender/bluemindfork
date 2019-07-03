@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<C:calendarserver-principal-search xmlns:C="http://calendarserver.org/ns/" context="attendee">
+  <C:search-token>tom</C:search-token>
+  <A:prop xmlns:A="DAV:">
+    <C:record-type/>
+    <A:displayname/>
+    <C:last-name/>
+    <B:calendar-user-address-set xmlns:B="urn:ietf:params:xml:ns:caldav"/>
+    <C:email-address-set/>
+    <A:principal-URL/>
+    <C:first-name/>
+    <B:calendar-user-type xmlns:B="urn:ietf:params:xml:ns:caldav"/>
+  </A:prop>
+</C:calendarserver-principal-search>

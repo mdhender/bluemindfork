@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.node.api
+Bundle-SymbolicName: net.bluemind.node.api;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.node.api.NodeActivator
+Bundle-Vendor: blue-mind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.core.commons;bundle-version="1.0.0";visibility:=reexport,
+ net.bluemind.core.task.api,
+ net.bluemind.slf4j;bundle-version="1.0.0",
+ net.bluemind.eclipse.common,
+ net.bluemind.node.shared;visibility:=reexport
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.node.api
+Automatic-Module-Name: net.bluemind.node.api

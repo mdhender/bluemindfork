@@ -1,0 +1,170 @@
+Return-Path: <david@bj.lan>
+Received: from bj.lan ([172.16.50.128])
+	 by bj (Cyrus v2.4.16-Debian-2.4.16-1hudson92) with LMTPA;
+	 Tue, 29 May 2012 18:05:22 +0200
+X-Sieve: CMU Sieve 2.4
+Received: from 172.16.50.128 (LHLO bj.lan) (172.16.50.128) by unknown with
+ LMTP; 5/29/12 4:05 PM
+Received: from [127.0.1.1] (unknown [172.16.50.1])
+	by bj.lan (Postfix) with ESMTP id 32EA9243DB
+	for <nico@bj.lan>; Tue, 29 May 2012 18:05:22 +0200 (CEST)
+Date: Tue, 29 May 2012 16:17:03 +0000
+Subject: Invitation: Test ICS Blue Mind
+Sender: David Phan <david@bj.lan>
+From: david <david@bj.lan>
+To: Lascombes Nicolas <nico@bj.lan>
+Content-Type: multipart/mixed;
+ boundary="-=Part.1d.e167f6dbdd05c67c.1379962e30b.b842fa61caa66f7a=-"
+Message-ID: <cmu-lmtpd-17286-1338307522-0@bj>
+
+---=Part.1d.e167f6dbdd05c67c.1379962e30b.b842fa61caa66f7a=-
+Content-Type: multipart/alternative;
+ boundary="-=Part.1c.9bd4c989f5096eb2.1379962e30b.79f000ddb5bab533=-"
+
+---=Part.1c.9bd4c989f5096eb2.1379962e30b.79f000ddb5bab533=-
+Content-Type: text/html; charset=UTF-8;
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+  <style type=3D"text/css">
+
+h1=2Eupdate {
+  color: orange;
+}=
+
+
+h1=2Ecancel {
+  color:red;
+}
+
+=2Eupdated {
+  color: orange;
+  font-size: =
+80%;
+  font-style: italic;
+}
+
+=2Ekey {
+  color: #666;
+   text-align: right;=
+
+   vertical-align: top;  
+}
+
+=2Evalue {
+}
+
+=2Eattendees {
+  list-style-typ=
+e: none;
+  padding: 0px;
+  margin: 0px;
+}
+
+=2Enote {
+  padding: 4px;
+  marg=
+in: 4px;
+  border: 1px solid #C6EDF9;
+  background: #DDF4FB;
+}
+</style></he=
+ad>
+<body><h1>Nouvel =C3=A9v=C3=A9nement</h1>
+<table>
+  <tr>
+    <td class=
+=3D"key">Titre</td>
+    <td class=3D"value">Test ICS Blue Mind </td>
+  </tr=
+>
+  <tr>
+    <td class=3D"key">Quand</td>
+    <td class=3D"value">2012-05-3=
+0 16:00 - 2012-05-30 19:30, Heure d'Europe centrale
+      
+    </td>
+  </tr=
+>
+  <tr>
+    <td class=3D"key">O=C3=B9</td>
+    <td class=3D"value">le lieu=
+ du rdv </td>
+  </tr>
+  <tr>
+    <td class=3D"key">Organisateur</td><td cla=
+ss=3D"value">David Phan</td>
+  </tr>
+  <tr>
+    <td class=3D"key">Participa=
+nts</td>
+    <td class=3D"value">
+      <ul class=3D"attendees">
+          =
+<li>David Phan</li>
+          <li>Nicolas Lascombes</li>
+      </ul>
+    </=
+td>
+  </tr>
+  <tr>
+    <td class=3D"key">Description</td>
+    <td class=3D"=
+value">Ceci est une invitation envoy=C3=A9e depuis Blue Mind </td>
+  </tr>
+=
+</table>
+</body>
+</html>
+---=Part.1c.9bd4c989f5096eb2.1379962e30b.79f000ddb5bab533=-
+Content-Type: text/calendar; charset=UTF-8; method=REQUEST
+Content-Transfer-Encoding: 7bit
+
+BEGIN:VCALENDAR
+PRODID:-//Blue Mind//Blue Mind Calendar//FR
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:REQUEST
+BEGIN:VTODO
+DTSTAMP:20120529T161703Z
+SEQUENCE:0
+UID:8ec4680fa0dda2d7202d704faa58ce25cac58670
+ATTENDEE;CUTYPE=INDIVIDUAL;PARTSTAT=ACCEPTED;RSVP=TRUE;CN=David Phan;ROLE=CHAIR:mailto:david@bj.lan
+ATTENDEE;CUTYPE=INDIVIDUAL;PARTSTAT=ACCEPTED;RSVP=TRUE;CN=Nicolas Lascombes;ROLE=REQ-PARTICIPANT:mailto:nico@bj.lan
+DTSTART:20120530T140000Z
+DTEND:20120530T173000Z
+DESCRIPTION:Ceci est une invitation envoyée depuis Blue Mind
+LOCATION:le lieu du rdv
+TRANSP:OPAQUE
+ORGANIZER;CN=David Phan:mailto:david@bj.lan
+PRIORITY:5
+CLASS:PUBLIC
+SUMMARY:Test ICS Blue Mind
+X-MOZ-LASTACK:20120529T161703Z
+END:VTODO
+END:VCALENDAR
+
+---=Part.1c.9bd4c989f5096eb2.1379962e30b.79f000ddb5bab533=---
+
+---=Part.1d.e167f6dbdd05c67c.1379962e30b.b842fa61caa66f7a=-
+Content-Type: application/ics; name="event.ics"
+Content-Disposition: attachment; filename="event.ics"
+Content-Transfer-Encoding: base64
+
+QkVHSU46VkNBTEVOREFSDQpQUk9ESUQ6LS8vQmx1ZSBNaW5kLy9CbHVlIE1pbmQgQ2FsZW5kYXIv
+L0ZSDQpWRVJTSU9OOjIuMA0KQ0FMU0NBTEU6R1JFR09SSUFODQpNRVRIT0Q6UkVRVUVTVA0KQkVH
+SU46VkVWRU5UDQpEVFNUQU1QOjIwMTIwNTI5VDE2MTcwM1oNClNFUVVFTkNFOjANClVJRDo4ZWM0
+NjgwZmEwZGRhMmQ3MjAyZDcwNGZhYTU4Y2UyNWNhYzU4NjcwDQpBVFRFTkRFRTtDVVRZUEU9SU5E
+SVZJRFVBTDtQQVJUU1RBVD1BQ0NFUFRFRDtSU1ZQPVRSVUU7Q049RGF2aWQgUGhhbjtST0xFPUNI
+QUlSOm1haWx0bzpkYXZpZEBiai5sYW4NCkFUVEVOREVFO0NVVFlQRT1JTkRJVklEVUFMO1BBUlRT
+VEFUPUFDQ0VQVEVEO1JTVlA9VFJVRTtDTj1OaWNvbGFzIExhc2NvbWJlcztST0xFPVJFUS1QQVJU
+SUNJUEFOVDptYWlsdG86bmljb0Biai5sYW4NCkRUU1RBUlQ6MjAxMjA1MzBUMTQwMDAwWg0KRFRF
+TkQ6MjAxMjA1MzBUMTczMDAwWg0KREVTQ1JJUFRJT046Q2VjaSBlc3QgdW5lIGludml0YXRpb24g
+ZW52b3nDqWUgZGVwdWlzIEJsdWUgTWluZA0KTE9DQVRJT046bGUgbGlldSBkdSByZHYNClRSQU5T
+UDpPUEFRVUUNCk9SR0FOSVpFUjtDTj1EYXZpZCBQaGFuOm1haWx0bzpkYXZpZEBiai5sYW4NClBS
+SU9SSVRZOjUNCkNMQVNTOlBVQkxJQw0KU1VNTUFSWTpUZXN0IElDUyBCbHVlIE1pbmQNClgtTU9a
+LUxBU1RBQ0s6MjAxMjA1MjlUMTYxNzAzWg0KRU5EOlZFVkVOVA0KRU5EOlZDQUxFTkRBUg0K
+
+---=Part.1d.e167f6dbdd05c67c.1379962e30b.b842fa61caa66f7a=---
+

@@ -1,0 +1,8 @@
+#signaturepreview {
+  background-color: #fff;
+  width: calc(100% - 185px);
+  min-height: 80px;
+  max-height: 120px;
+  overflow: auto;
+  padding: 5px;
+}

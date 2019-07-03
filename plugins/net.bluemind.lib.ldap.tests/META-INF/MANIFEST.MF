@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.lib.ldap.tests
+Bundle-SymbolicName: net.bluemind.lib.ldap.tests
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: blue-mind.net
+Require-Bundle: org.eclipse.core.runtime,
+ org.junit;bundle-version="3.8.2",
+ net.bluemind.lib.ldap,
+ net.bluemind.pool,
+ org.apache.mina.core;bundle-version="2.0.7",
+ net.bluemind.system.ldap.tests.helpers
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Import-Package: org.apache.commons.codec.binary,
+ org.apache.directory.api.ldap.model.message,
+ org.apache.directory.ldap.client.api

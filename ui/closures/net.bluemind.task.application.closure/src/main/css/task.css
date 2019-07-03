@@ -1,0 +1,215 @@
+/**
+ * BEGIN LICENSE
+ * Copyright © Blue Mind SAS, 2012-2016
+ *
+ * This file is part of BlueMind. BlueMind is a messaging and collaborative
+ * solution.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of either the GNU Affero General Public License as
+ * published by the Free Software Foundation (version 3 of the License).
+ *
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See LICENSE.txt
+ * END LICENSE
+ */
+
+/** @import url(normalize.css); */
+
+html, body {
+  height: 100%;
+}
+/******************************************************************************
+ *                          HEADER
+ *****************************************************************************/
+.search .bm-searchfield {
+  height: 22px;
+  min-height: 22px;
+  overflow-y: auto;
+  margin-top: 17px;
+}
+
+/******************************************************************************
+ *                          CREATE BUTTON
+ *****************************************************************************/
+#header .add-todo {	
+	width: 180px;
+	line-height: 2em;
+	margin: 8px 18px 6px;
+}
+
+/******************************************************************************
+ *                          LEFT MENU
+ *****************************************************************************/
+
+#navigation {
+  position: absolute;
+  margin-top: 2px;
+  margin-left: 5px;
+  width: 206px;
+}
+
+
+#sub-navigation {
+  background-color: #f7f7f7;
+  position: absolute;
+  width: 260px;
+  left: 216px;
+  /* height: 90%; */
+}
+
+
+#sub-navigation .list {
+  width: 100%;
+}
+
+#sub-navigation .goog-toolbar .goog-control {
+  background-color: #fff;
+  margin: 0;
+  padding: 0 0 0 1em;
+  font-size: 100%;
+  height: 2.2em;
+  line-height: 2.2em;
+  text-transform: uppercase;
+}
+
+#sub-navigation span {
+  position: absolute;
+}
+
+#sub-navigation .goog-toolbar {
+  background: transparent;
+  border: none;
+  padding: 0 0 2px;
+}
+
+#sub-navigation .goog-toolbar .goog-button-base {
+  float: right;
+  margin: 2px;
+}
+
+/******************************************************************************
+ *                          MAIN BODY
+ *****************************************************************************/
+
+#main {
+  margin-top: 2px;
+  margin-left: 483px;
+  background: center no-repeat;
+  min-height: 80%;
+}
+
+#main > div {
+	background-color: #fff;
+    min-height: 100%;
+}
+
+#main .empty p {
+  text-align: center;
+  margin: 0px;
+  padding: 10px 0px;
+}
+
+#main .goog-toolbar {
+  background: transparent;
+  margin: 0;
+  padding: 2px;
+  font-size: 100%;
+  outline: none;
+  border: none;
+}
+
+#main .goog-toolbar .goog-button-base {
+  margin-right: 3px;
+}
+
+#main .goog-toolbar .dangerousactionbutton {
+  float: right;
+}
+
+/******************************************************************************
+ *                          TASK LIST
+ *****************************************************************************/
+
+.task-listtask {
+  clear: both;
+  font-weight: normal !important;
+  min-height: 3.5em;
+  box-sizing: border-box
+}
+
+.task-listtask.not-synchronized {
+  background-image: linear-gradient(135deg,rgba(0,0,0,.1) 25%,transparent 25%,transparent 50%,rgba(0,0,0,.1) 50%,rgba(0,0,0,.1) 75%,transparent 75%,transparent);
+  /* @alternate */ background-image: -webkit-linear-gradient(135deg,rgba(0,0,0,.1) 25%,transparent 25%,transparent 50%,rgba(0,0,0,.1) 50%,rgba(0,0,0,.1) 75%,transparent 75%,transparent);
+  /* @alternate */ background-image: -o-linear-gradient(135deg,rgba(0,0,0,.1) 25%,transparent 25%,transparent 50%,rgba(0,0,0,.1) 50%,rgba(0,0,0,.1) 75%,transparent 75%,transparent);
+  -webkit-background-size: 3.5em 3.5em;
+  background-size: 3.5em 3.5em;
+}
+
+.task-listtask h2 {
+  margin: 0 0 0 0;
+  font-size: 100%;
+  width: 190px;
+  white-space: normal;
+}
+
+.task-listtask .date {
+  margin: 0 0 0 0;
+  font-size: 85%;
+  color: #AAA;
+  clear: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.task-listtask .tag {
+  float: right;
+  width: 11px;
+  height: 11px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  margin-right: 3px;
+}
+
+.task-listtask .tag.multi {
+  border-top: 0;
+  border-bottom: 0;
+  border-left: 6px solid #ccc;
+  border-right: 6px solid #000;
+  width: 1px;
+}
+
+.task-listtask .goog-flat-button {
+  float: right;
+}
+
+.warning .task-listtask .date {
+  color: red;
+}
+
+.task-headerbg {
+  background-color: #eee;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.markAsDone {
+	cursor : pointer;	
+    position: relative !important;
+    vertical-align: top;
+}
+
+/******************************************************************************
+ *                          TASK FORM
+ *****************************************************************************/
+ #main div.goog-control.notification {
+  height: 18px;
+  text-align: center;
+  margin-bottom: 1px;
+  padding-top: 2px;
+  font-weight: bold;
+}

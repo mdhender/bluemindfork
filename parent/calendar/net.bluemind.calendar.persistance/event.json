@@ -1,0 +1,151 @@
+{
+	"settings": {
+		"index": {
+			"number_of_shards": 1,
+		    "number_of_replicas": 0,
+			"analysis": {
+				"filter": {
+					"ngram_filter": {
+						"type": "edge_ngram",
+						"min_gram": 1,
+						"max_gram": 20
+					}
+				},
+				"analyzer": {
+					"default": {
+						"type": "custom",
+						"tokenizer": "standard",
+						"filter": [
+							"icu_folding",
+							"ngram_filter"
+						]
+					},
+					"default_search": {
+						"type": "custom",
+						"tokenizer": "standard",
+						"filter": [
+							"icu_folding"
+						]
+					}
+				}
+			}
+		}
+	},
+	"mappings": {
+		"vevent": {
+			"properties": {
+				"containerUid": {
+					"type": "keyword",
+					"index":true
+				},
+				"uid": {
+					"type": "keyword",
+					"store": true
+				},
+				"value": {
+					"properties": {
+						"uid": {
+							"type": "keyword"
+						},
+						"dtend": {
+							"properties": {
+								"timezone": {
+									"type":"keyword"
+								},
+								"iso8601": {
+									"type": "date",
+									"format": "strict_date_optional_time"
+								}
+							}
+						},
+						"dtstart": {
+							"properties": {
+								"timezone": {
+									"type":"keyword"
+								},
+								"iso8601": {
+									"type": "date",
+									"format": "strict_date_optional_time"
+								}
+							}
+						},
+						"exdate": {
+							"properties": {
+								"timezone": {
+									"type":"keyword"
+								},
+								"iso8601": {
+									"type": "date",
+									"format": "date_optional_time"
+								}
+							}
+						},
+						"recurid": {
+							"properties": {
+								"timezone": {
+									"type":"keyword",
+									"index": true
+								},
+								"iso8601": {
+									"type": "date",
+									"format": "strict_date_optional_time"
+								}
+							}
+						},
+						"rrule": {
+							"properties": {
+								"until": {
+									"properties": {
+										"timezone": {
+											"type":"keyword"
+										},
+										"iso8601": {
+											"type": "date",
+											"format": "strict_date_optional_time"
+										}
+									}
+								}
+							}
+						},
+						"attendees": {
+							"type": "nested",
+							"properties": {
+								"dir": {
+									"type": "keyword"
+								},
+								"uri": {
+									"type": "keyword"
+								},
+								"partStatus": {
+									"type": "keyword"
+								}
+							}
+						},
+						"status": {
+							"type": "keyword"
+						},
+						"transparency": {
+							"type": "keyword"
+						},
+						"organizer": {
+							"properties": {
+								"commonName": {
+									"type": "text"
+								},
+								"dir": {
+									"type": "keyword"
+								},
+								"mailto": {
+									"type": "text"
+								}
+							}
+						},
+						"classification": {
+							"type": "keyword"
+						}
+					}
+				}
+			}
+		}
+	}
+}

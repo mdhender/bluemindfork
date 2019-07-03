@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <bundle id="net.bluemind.ui.adminconsole.ldap.importation" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.system.ldap.importation.api" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.system.ldap.importation.api.gwt" version="4.1.0.qualifier"/>
+</site>

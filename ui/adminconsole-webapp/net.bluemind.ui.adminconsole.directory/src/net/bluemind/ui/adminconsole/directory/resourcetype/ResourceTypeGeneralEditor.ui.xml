@@ -1,0 +1,93 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:bj="urn:import:net.bluemind.ui.admin.client" xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui"
+	xmlns:common="urn:import:net.bluemind.ui.common.client.forms" xmlns:ff="urn:import:net.bluemind.ui.admin.client.forms"
+	xmlns:rt="urn:import:net.bluemind.ui.adminconsole.directory.resourcetype"
+	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'>
+
+	<ui:style>
+
+	.imageOutline {
+	    border-style: outset;
+	}
+
+	.logo {
+		vertical-align: middle;
+	}
+	
+	.errorLabel {
+		color: red;
+		font-weight: bold;
+		padding: 3px;
+	}
+	
+	.ta {
+		height: 100%;
+		width: 300px;
+		padding-left: 10px;
+	}
+	
+	h1 {
+		font-size: medium;
+		color: #444;
+	}
+	
+	.rightPanel {
+		position: absolute;
+		right: 10px;
+		width: 100px;
+	}
+	
+	.formLabel {
+		vertical-align: top;
+		padding-top: 5px;
+	}
+	
+	h1 div {
+		display: inline;
+	}
+	
+	#editResourceTypeTitle {
+		font-size: medium;
+		margin: 0;
+	}
+	
+	#editResourceTypeTitle div {
+		display: inline;
+	}
+	</ui:style>
+
+	<ui:with field="cn"
+		type="net.bluemind.ui.adminconsole.directory.resourcetype.l10n.ResourceTypeConstants" />
+	<g:HTMLPanel>
+		<table class="formContainer">
+
+			<common:StringEdit ui:field="label" titleText="{cn.label}"
+				mandatory="true" />
+
+			<tr class="setting">
+				<td class="{style.formLabel}">
+					<ui:msg key="resourceTypeDefaultIcon">Default icon</ui:msg>
+				</td>
+				<td class="form">
+					<g:Image ui:field="icon" width="100px" height="100px" styleName="{style.imageOutline}"/>
+				</td>
+				<td>
+					<g:Image ui:field="rtIcon" />
+				</td>
+			</tr>
+			<tr class="setting">
+				<td class="label">
+					<ui:msg key="customProperties">Custom properties</ui:msg>
+				</td>
+				<td class="form">
+					<rt:CustomPropertyContainer ui:field="customPropContainer"></rt:CustomPropertyContainer>
+				</td>
+			</tr>
+
+		</table>
+
+	</g:HTMLPanel>
+</ui:UiBinder>

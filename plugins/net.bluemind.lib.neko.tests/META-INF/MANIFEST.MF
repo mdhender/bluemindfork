@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.lib.neko.tests
+Bundle-SymbolicName: net.bluemind.lib.neko.tests
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.lib.neko.tests.Activator
+Bundle-Vendor: blue-mind.net
+Require-Bundle: org.eclipse.core.runtime,
+ org.junit;bundle-version="3.8.2",
+ net.sourceforge.nekohtml;bundle-version="1.9.16",
+ org.apache.xerces;bundle-version="2.9.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy

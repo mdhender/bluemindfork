@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+ xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+  <Description about="urn:mozilla:install-manifest">
+    <em:id>bm-connector-tb@blue-mind.net</em:id>
+    <em:localized>
+     <Description>
+      <em:locale>fr</em:locale>
+      <em:name>Connecteur BlueMind</em:name>
+      <em:description>Connecteur BlueMind (1.0.0-dev)</em:description>
+     </Description>
+    </em:localized>
+    <em:name>BlueMind Connector</em:name>
+    <em:description>BlueMind Connector (1.0.0-dev)</em:description>
+    <em:version>1.0.0-dev</em:version>
+    <em:creator>BlueMind</em:creator>
+    <em:optionsURL>chrome://bm/content/openPrefTab.xul</em:optionsURL>
+    <em:iconURL>chrome://bm/skin/BM_Icone01_48.png</em:iconURL>
+    <em:unpack>true</em:unpack>
+    <em:type>2</em:type>
+    <em:updateURL>https://forge.blue-mind.net/mozilla/update.rdf</em:updateURL>
+    <em:targetApplication>
+      <!-- Thunderbird -->
+      <Description>
+        <em:id>{3550f703-e582-4d05-9a08-453d09bdfdc6}</em:id> 
+        <em:minVersion>10.0</em:minVersion>
+        <em:maxVersion>100.*</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+  </Description>
+</RDF>

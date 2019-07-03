@@ -1,0 +1,125 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:bj="urn:import:net.bluemind.ui.admin.client" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:mc="urn:import:net.bluemind.ui.adminconsole.monitoring.widgets"
+	xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui" xmlns:common="urn:import:net.bluemind.ui.common.client.forms">
+
+	<ui:style>
+	.title {
+		font-weight: bold;
+	}
+	
+	.checkboxLabel {
+		vertical-align: middle;
+	}
+	
+	.borderPanel {
+		padding-left: 10px;
+		padding-right: 10px;
+	}
+	
+	.filterCheckBox {
+		margin: 10px;
+	}
+	
+	.panel {
+		margin: 5px;
+	}
+	
+	.filtersContainer {
+		float: right;
+	}
+	
+	.filter-button {
+		line-height: 15px;
+	}
+	</ui:style>
+
+
+	<ui:with field="c"
+		type="net.bluemind.ui.adminconsole.monitoring.l10n.ScreensConstants" />
+
+	<g:DockLayoutPanel unit="PX">
+		<g:north size="210">
+			<g:VerticalPanel width="100%">
+				<g:HorizontalPanel width="100%">
+					<g:VerticalPanel>
+						<g:VerticalPanel>
+							<g:Button ui:field="update" styleName="button fa fa-lg fa-refresh"
+								width="100px"></g:Button>
+							<g:VerticalPanel>
+								<g:Label styleName="{style.title}" text="{c.updateDateTimeLabel}"></g:Label>
+								<g:Label ui:field="updateDateTime"></g:Label>
+							</g:VerticalPanel>
+							<g:VerticalPanel>
+								<g:Label styleName="{style.title}" text="WebSocket"></g:Label>
+								<g:Label ui:field="webSocketStatus"></g:Label>
+							</g:VerticalPanel>
+						</g:VerticalPanel>
+					</g:VerticalPanel>
+
+
+					<g:VerticalPanel styleName="{style.borderPanel}"
+						height="100%">
+						<g:Label styleName="{style.title}" text="{c.generalInfoLabel}"></g:Label>
+						<g:Label ui:field="userCount"></g:Label>
+						<g:Label ui:field="groupCount"></g:Label>
+						<g:Label ui:field="phoneCount"></g:Label>
+						<g:Label ui:field="subscriptionExpDate"></g:Label>
+						<g:Label ui:field="bmVersion"></g:Label>
+					</g:VerticalPanel>
+
+					<g:VerticalPanel styleName="{style.borderPanel}"
+						height="100%">
+						<g:Label styleName="{style.title}" text="{c.cpuInfoLabel}"></g:Label>
+						<g:Label ui:field="cpu"></g:Label>
+						<g:Label styleName="{style.title}" text="{c.memInfoLabel}"></g:Label>
+						<g:Label ui:field="ram"></g:Label>
+						<g:Label styleName="{style.title}" text="{c.disksInfoLabel}"></g:Label>
+						<g:Grid ui:field="disks"></g:Grid>
+					</g:VerticalPanel>
+
+				</g:HorizontalPanel>
+
+			</g:VerticalPanel>
+		</g:north>
+
+		<g:center>
+			<g:DockLayoutPanel unit="PX">
+				<g:north size="30">
+					<g:FlowPanel>
+						<g:FlowPanel styleName="{style.filtersContainer}">
+							<g:ToggleButton ui:field="koFilter" title="{c.koFilter}"
+								styleName="button button-first {style.filter-button}">
+								<g:upFace>
+									<ui:text from="{c.koFilter}" />
+								</g:upFace>
+							</g:ToggleButton>
+
+							<g:ToggleButton ui:field="warningFilter" title="{c.warningFilter}"
+								styleName=" button button-middle {style.filter-button}">
+								<g:upFace>
+									<ui:text from="{c.warningFilter}" />
+								</g:upFace>
+							</g:ToggleButton>
+
+							<g:ToggleButton ui:field="okFilter" title="{c.okFilter}"
+								styleName=" button button-last {style.filter-button}">
+								<g:upFace>
+									<ui:text from="{c.okFilter}" />
+								</g:upFace>
+							</g:ToggleButton>
+						</g:FlowPanel>
+					</g:FlowPanel>
+				</g:north>
+				<g:center>
+					<g:ResizeLayoutPanel>
+						<mc:MessagesListBoxWidget ui:field="listBox" />
+					</g:ResizeLayoutPanel>
+				</g:center>
+			</g:DockLayoutPanel>
+		</g:center>
+	</g:DockLayoutPanel>
+</ui:UiBinder>

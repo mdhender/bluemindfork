@@ -1,0 +1,48 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:im="urn:import:net.bluemind.ui.im.client.leftpanel" xmlns:bm="urn:import:net.bluemind.ui.common.client.forms">
+
+	<ui:with type="net.bluemind.ui.im.client.IMConstants" field="msg" />
+
+	<g:DockLayoutPanel>
+		<g:north size="66">
+			<g:FlowPanel>
+				<im:Header ui:field="header" />
+				<g:SimplePanel ui:field="actions" />
+			</g:FlowPanel>
+		</g:north>
+
+		<g:center>
+			<g:FlowPanel>
+				<g:Label ui:field="errMsg" />
+
+				<g:ScrollPanel height="100%">
+					<g:FlowPanel>
+						<g:DisclosurePanel ui:field="favoriteContainer">
+							<g:customHeader size="24">
+								<g:Label text="{msg.favorites}" />
+							</g:customHeader>
+							<g:ScrollPanel>
+								<im:ContactList ui:field="favorite" />
+							</g:ScrollPanel>
+						</g:DisclosurePanel>
+
+						<g:DisclosurePanel ui:field="notInListContainer">
+							<g:customHeader size="24">
+								<g:Label text="{msg.notInList}" />
+							</g:customHeader>
+							<g:ScrollPanel>
+								<im:ContactList ui:field="notInList" />
+							</g:ScrollPanel>
+						</g:DisclosurePanel>
+					</g:FlowPanel>
+				</g:ScrollPanel>
+
+			</g:FlowPanel>
+		</g:center>
+
+	</g:DockLayoutPanel>
+
+</ui:UiBinder>

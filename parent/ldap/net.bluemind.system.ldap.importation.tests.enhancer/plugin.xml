@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.system.ldap.importation.entityenhancer">
+      <hook
+            impl="net.bluemind.system.ldap.importation.tests.enhancer.EntityEnhancerHook"></hook>
+   </extension>
+   <extension
+         point="net.bluemind.system.ldap.importation.scannerenhancer">
+      <hook
+            impl="net.bluemind.system.ldap.importation.tests.enhancer.ScannerEnhancerHook">
+      </hook>
+   </extension>
+
+</plugin>

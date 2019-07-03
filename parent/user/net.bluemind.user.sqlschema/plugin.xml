@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.core.jdbc.schema">
+      <schema
+            name="user-schema"
+            resource="sql/user-schema.1.0.0.sql">
+         <compose
+               id="item-store">
+         </compose>
+      </schema>
+      <schema
+            name="user-identity"
+            resource="sql/user-identity-schema.1.0.0.sql">
+         <compose
+               id="user-schema">
+         </compose>
+         <compose
+               id="mbox-identity">
+         </compose>
+      </schema>
+      <schema
+            name="user-container_sub"
+            resource="sql/user-container-sub-schema.1.0.0.sql">
+      </schema>
+   </extension>
+
+</plugin>

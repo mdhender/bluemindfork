@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<multistatus xmlns='DAV:'>
+  <response>
+    <href>/addressbooks/__uids__/EB397106-443A-47BE-9CA5-558037E137BF/addressbook/883284437a4c85dabe8b0219c899f120.vcf</href>
+    <propstat>
+      <prop>
+        <getetag>"99efcfa604d738db64a79271d308658f"</getetag>
+        <uid xmlns='http://calendarserver.org/ns/'>aafada98-1bfc-48a9-baca-26167eefe3ec</uid>
+      </prop>
+      <status>HTTP/1.1 200 OK</status>
+    </propstat>
+  </response>
+</multistatus>

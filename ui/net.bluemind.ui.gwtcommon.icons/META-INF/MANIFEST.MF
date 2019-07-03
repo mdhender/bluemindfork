@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: GWT common api
+Bundle-SymbolicName: net.bluemind.ui.gwtcommon.icons;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: com.google.gwt.user;resolution:=optional
+Export-Package: net.bluemind.ui.common,
+ net.bluemind.ui.common.client,
+ net.bluemind.ui.common.client.icon,
+ net.bluemind.ui.common.client.icon.famfamfam,
+ net.bluemind.ui.common.client.ui,
+ net.bluemind.ui.common.pub,
+ net.bluemind.ui.common.pub.fonts
+Automatic-Module-Name: net.bluemind.ui.gwtcommon.icons
+

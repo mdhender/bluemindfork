@@ -1,0 +1,221 @@
+/**
+ * BEGIN LICENSE
+ * Copyright © Blue Mind SAS, 2012-2016
+ *
+ * This file is part of BlueMind. BlueMind is a messaging and collaborative
+ * solution.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of either the GNU Affero General Public License as
+ * published by the Free Software Foundation (version 3 of the License).
+ *
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See LICENSE.txt
+ * END LICENSE
+ */
+
+.field-base {
+  padding: 3px 0;
+  line-height: 20px;
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  align-content: flex-start;
+  justify-content: flex-start;
+  
+}
+
+.field-base-label {
+  color: #333;
+  text-align: right;
+  flex: 0 1 13em;
+  padding-right: 1em;
+}
+
+.field-base-field {
+  flex: 1 1;  
+}
+
+.field-base-label > .goog-inline-block {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/**
+ * SPECIAL CSS
+ */
+ /* big */
+.field-base.big {
+  font-size: large; 	
+}
+/* no label */
+.field-base.no-label .field-base-label {
+  display: none;
+}
+
+/**
+ * TEXT FIELD
+ */
+.field-text .field-base-field input, .field-text .field-base-field textarea {
+  width: 90%;
+  max-width: 30em;
+}
+
+.field-text.inline .field-base-field input {
+  width: 7em;
+}
+/**
+ * SELECT FIELD
+ */
+.field-select .field-base-field .goog-menu-button {
+  min-width: 12em;
+}
+
+/**
+ * DATE FIELD
+ */
+.field-date .field-base-field input{
+  width: 7em;
+}
+/**
+ * Photo FIELD
+ */
+.field-photo img {
+  min-width: 50px;
+  min-height: 50px;
+  max-width: 96px;
+  max-height: 96px;
+  border: 1px solid #ccc;
+}
+
+
+/**
+ * TAG FIELD
+ */
+.field-tag .field-base-field input {
+  width: 90%;
+  max-width: 30em;
+  box-sizing: border-box;
+}
+
+.field-tag .field-base-field ul {
+  padding: 0;
+  margin: 1px 2px;
+  display: inline;
+  position: absolute;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  line-height: 18px;
+  width: 80%;
+  max-width: 29em;  
+  cursor: text;
+  
+}
+
+.field-tag .field-base-field ul > li {
+  display: inline-block;
+  background: #eee;
+  border: 1px solid #ccc;
+  padding: 0 14px 0 14px;  
+  margin: 1px 2px 0 0;
+  border-radius: 2px;
+  min-width: 14px;
+  max-width: 200px;
+  white-space: nowrap;
+  position: relative;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  vertical-align: middle;
+  cursor: pointer;
+  
+}
+
+.field-tag .field-base-field ul > li span {
+  display: inline-block;
+  position: absolute;
+  height: 100%;
+  line-height: 18px;
+}
+
+.field-tag .field-base-field ul > li span.fa {
+  background-color: #fff;
+  border-left: 1px solid #ccc;
+  border-right: none;
+  right: 0;
+  border-radius: 0 1px 1px 0;
+  height: 100%;
+  color: #999;
+}
+
+
+.field-tag .field-base-field ul > li span:first-child  {
+  display: inline-block;
+  border-right: 1px solid #ccc;
+  padding: 0 2px;
+  left: 0;
+  width: 1ex;
+  border-radius: 1px 0 0 1px;
+}
+
+.field-tag.field-base-disabled .goog-combobox, .field-tag.field-base-disabled .fa-close {
+  visibility: hidden;
+}
+
+.field-tag.field-base-disabled ul, .field-tag.field-base-disabled ul > li {
+  cursor: default;
+  outline: none;
+}
+/**
+ * RICH TEXT FIELD
+ */
+
+.field-richtext {
+  padding-right: 20px;
+}
+.field-richtext .field-base-field .goog-toolbar {
+
+}
+
+.field-richtext .field-base-field .bm-richtext {
+  border: 1px solid #CCCCCC;
+  font-weight: normal;
+  height: 200px;
+  overflow: auto;
+  user-select: text;
+  -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -o-user-select: text;
+  word-break: break-word;
+}
+
+.field-richtext .field-base-field textarea {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  border-radius: 0;
+  margin: 0;
+}
+
+/**
+ * ENTITY FORM. DISPLAYED AS A CARD UNTIL THE FOCUS IS TAKEN.
+ */
+ 
+ .field-date .field-base-field input[type=text],
+ .field-text .field-base-field input[type=text] {
+   border-color: transparent;
+   background-color: transparent;
+ }
+ 
+ .field-date .field-base-field input[type=text]:hover,
+ .field-date .field-base-field input[type=text]:focus, 
+ .field-text .field-base-field input[type=text]:hover,
+ .field-text .field-base-field input[type=text]:focus {
+   border-color: #ccc;
+   background-color: #fff;
+ }

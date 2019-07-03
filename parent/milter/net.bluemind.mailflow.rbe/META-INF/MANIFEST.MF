@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.mailflow.rbe
+Bundle-SymbolicName: net.bluemind.mailflow.rbe;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.bluemind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.mailflow.api,
+ slf4j.api,
+ net.bluemind.core.rest,
+ net.bluemind.eclipse.common,
+ net.bluemind.mailflow.common.api;bundle-version="4.1.0",
+ net.bluemind.core.container.api;bundle-version="4.1.0",
+ net.bluemind.domain.api;bundle-version="4.1.0"
+Export-Package: net.bluemind.mailflow.rbe

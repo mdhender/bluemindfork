@@ -1,0 +1,168 @@
+BMCYRUS="3.0.8-bluemind170"
+
+BMES="6.4.3-bluemind74"
+
+BMJDK="8u212-bluemind29"
+BMSNZIP="1.0.4-bluemind4"
+BMNGINX="1.14.0-bluemind79"
+BMPHP="5.6.40-bluemind79"
+BMPHPMEMCACHE="3.0.8-bluemind79"
+
+BMPOSTGRESQL="11.3-bluemind99"
+
+# tick
+TELEGRAF="1.7.4.bm1-1"
+KAPACITOR="1.5.2.bm1~b76a788b"
+CHRONOGRAF="1.6.2.bm2~224d2b158"
+INFLUXDB="1.6.6.bm1~5610cb9d4"
+
+
+PGKEYRING="2018.2"
+PG_JESSIE="11.3-1.pgdg80+1"
+PGCOMMON_JESSIE="201.pgdg80+1"
+PG_STRETCH="11.3-1.pgdg90+1"
+PGCOMMON_STRETCH="201.pgdg90+1"
+PG_BUSTER="11.3-1.pgdg100+1"
+PGCOMMON_BUSTER="201.pgdg100+1"
+PG_XENIAL="11.3-1.pgdg16.04+1"
+PGCOMMON_XENIAL="201.pgdg16.04+1"
+PG_BIONIC="11.3-1.pgdg18.04+1"
+PGCOMMON_BIONIC="201.pgdg18.04+1"
+PG_RHEL7="11.3-1PGDG.rhel7"
+
+# Cyrus
+BMCYRUSDEB="bm-cyrus-imapd=${BMCYRUS} \
+			bm-imap-i18n=${BMCYRUS} \
+			cyrus-common-2.4=${BMCYRUS} \
+			cyrus-common=${BMCYRUS}"
+BMCYRUSRPM="bm-cyrus-imapd=${BMCYRUS}"
+
+# tick
+BMTICKDEB="bm-telegraf=${TELEGRAF} \
+           bm-kapacitor=${KAPACITOR} \
+           bm-chronograf=${CHRONOGRAF} \
+           bm-influxdb=${INFLUXDB}"
+BMTICKRPM="bm-telegraf=${TELEGRAF} \
+           bm-kapacitor=${KAPACITOR} \
+           bm-chronograf=${CHRONOGRAF} \
+           bm-influxdb=${INFLUXDB}"
+
+# ES
+BMESDEB="bm-elasticsearch=${BMES}"
+BMESRPM="bm-elasticsearch=${BMES}"
+
+# JDK
+BMJDKDEB="bm-jdk=${BMJDK}"
+BMJDKRPM="bm-jdk=${BMJDK}"
+
+# SNZIP
+BMSNZIPDEB="bm-maintenance-snzip=${BMSNZIP}"
+BMSNZIPRPM="bm-maintenance-snzip=${BMSNZIP}"
+
+# NGinx
+BMNGINXDEB="bm-nginx=${BMNGINX} \
+			nginx-common=${BMNGINX} \
+			nginx-extras=${BMNGINX} \
+			nginx-full=${BMNGINX} \
+			nginx-light=${BMNGINX} \
+			nginx-naxsi=${BMNGINX} \
+			nginx=${BMNGINX}"
+BMNGINXRPM="bm-nginx=${BMNGINX}"
+
+# PHP
+BMPHPDEB="bm-php=${BMPHP} \
+			php5-cli=${BMPHP} \
+			php5-fpm=${BMPHP} \
+			php5-memcache=${BMPHPMEMCACHE} \
+			php5-readline=${BMPHP}"
+BMPHPRPM="bm-php=${BMPHP}"
+
+BMPHPMEMCACHEDEB="bm-php-memcache=${BMPHPMEMCACHE}"
+BMPHPMEMCACHERPM="bm-php-memcache=${BMPHPMEMCACHE}"
+
+# PostgreSQL
+BMPOSTGRESQLDEB="bm-postgresql=${BMPOSTGRESQL}"
+BMPOSTGRESQLRPM="bm-postgresql=${BMPOSTGRESQL} \
+				bm-storage=${BMPOSTGRESQL}"
+
+PGKEYRINGDEB="pgdg-keyring=${PGKEYRING}"
+
+PGDEB_JESSIE="postgresql-11=${PG_JESSIE} \
+		postgresql-client-11=${PG_JESSIE} \
+		postgresql-contrib-11=${PG_JESSIE} \
+		postgresql-server-dev-11=${PG_JESSIE} \
+		libpq5=${PG_JESSIE} \
+		libpq-dev=${PG_JESSIE}"
+PGCOMMONDEB_JESSIE="postgresql-client-common=${PGCOMMON_JESSIE} \
+		postgresql-common=${PGCOMMON_JESSIE}"
+
+PGDEB_STRETCH="postgresql-11=${PG_STRETCH} \
+		postgresql-client-11=${PG_STRETCH} \
+		postgresql-contrib-11=${PG_STRETCH} \
+		postgresql-server-dev-11=${PG_STRETCH} \
+		libpq5=${PG_STRETCH} \
+		libpq-dev=${PG_STRETCH} \
+		libllvm6.0"
+PGCOMMONDEB_STRETCH="postgresql-client-common=${PGCOMMON_STRETCH} \
+		postgresql-common=${PGCOMMON_STRETCH}"
+
+PGDEB_BUSTER="postgresql-11=${PG_BUSTER} \
+		postgresql-client-11=${PG_BUSTER} \
+		postgresql-contrib-11=${PG_BUSTER} \
+		postgresql-server-dev-11=${PG_BUSTER} \
+		libpq5=${PG_BUSTER} \
+		libpq-dev=${PG_BUSTER} \
+		libllvm6.0"
+PGCOMMONDEB_BUSTER="postgresql-client-common=${PGCOMMON_BUSTER} \
+		postgresql-common=${PGCOMMON_BUSTER}"
+
+PGDEB_XENIAL="postgresql-11=${PG_XENIAL} \
+		postgresql-client-11=${PG_XENIAL} \
+		postgresql-contrib-11=${PG_XENIAL} \
+		postgresql-server-dev-11=${PG_XENIAL} \
+		libpq5=${PG_XENIAL} \
+		libpq-dev=${PG_XENIAL}"
+PGCOMMONDEB_XENIAL="postgresql-client-common=${PGCOMMON_XENIAL} \
+		postgresql-common=${PGCOMMON_XENIAL}"
+
+PGDEB_BIONIC="postgresql-11=${PG_BIONIC} \
+		postgresql-client-11=${PG_BIONIC} \
+		postgresql-contrib-11=${PG_BIONIC} \
+		postgresql-server-dev-11=${PG_BIONIC} \
+		libpq5=${PG_BIONIC} \
+		libpq-dev=${PG_BIONIC}"
+PGCOMMONDEB_BIONIC="postgresql-client-common=${PGCOMMON_BIONIC} \
+		postgresql-common=${PGCOMMON_BIONIC}"
+
+PGRPM_RHEL7="postgresql11=${PG_RHEL7} \
+		postgresql11-contrib=${PG_RHEL7} \
+		postgresql11-devel=${PG_RHEL7} \
+		postgresql11-libs=${PG_RHEL7} \
+		postgresql11-server=${PG_RHEL7}"
+
+# Distribution
+DEB_DISTRIBUTION="JESSIE STRETCH BUSTER XENIAL BIONIC"
+
+DEB="${BMCYRUSDEB} \
+		${BMESDEB} \
+		${BMTICKDEB} \
+		${BMJDKDEB} \
+		${BMSNZIPDEB} \
+		${BMNGINXDEB} \
+		${BMPHPDEB} ${BMPHPMEMCACHEDEB} \
+		${BMPOSTGRESQLDEB} ${PGKEYRINGDEB}"
+
+for debDist in ${DEB_DISTRIBUTION}; do
+	PGDEB="PGDEB_"${debDist}
+	PGCOMMONDEB="PGCOMMONDEB_"${debDist}
+	declare "${debDist}=${DEB} ${!PGDEB} ${!PGCOMMONDEB}"
+done
+
+RHEL7="${BMCYRUSRPM} \
+		${BMESRPM} \
+		${BMTICKRPM} \
+		${BMJDKRPM} \
+		${BMSNZIPRPM} \
+		${BMNGINXRPM} \
+		${BMPHPRPM} ${BMPHPMEMCACHERPM} \
+		${BMPOSTGRESQLRPM} ${PGRPM_RHEL7}"

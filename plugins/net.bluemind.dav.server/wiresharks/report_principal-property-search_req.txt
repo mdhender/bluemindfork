@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<A:principal-property-search xmlns:A="DAV:" test="anyof">
+  <A:property-search>
+    <A:prop>
+      <B:first-name xmlns:B="http://calendarserver.org/ns/"/>
+    </A:prop>
+    <A:match match-type="starts-with">pie</A:match>
+  </A:property-search>
+  <A:property-search>
+    <A:prop>
+      <B:last-name xmlns:B="http://calendarserver.org/ns/"/>
+    </A:prop>
+    <A:match match-type="starts-with">pie</A:match>
+  </A:property-search>
+  <A:property-search>
+    <A:prop>
+      <B:email-address-set xmlns:B="http://calendarserver.org/ns/"/>
+    </A:prop>
+    <A:match match-type="starts-with">pie</A:match>
+  </A:property-search>
+  <A:property-search>
+    <A:prop>
+      <A:displayname/>
+    </A:prop>
+    <A:match match-type="starts-with">pie</A:match>
+  </A:property-search>
+  <A:prop>
+    <B:last-name xmlns:B="http://calendarserver.org/ns/"/>
+    <A:displayname/>
+    <B:email-address-set xmlns:B="http://calendarserver.org/ns/"/>
+    <A:principal-URL/>
+    <C:calendar-user-address-set xmlns:C="urn:ietf:params:xml:ns:caldav"/>
+    <B:record-type xmlns:B="http://calendarserver.org/ns/"/>
+    <C:calendar-user-type xmlns:C="urn:ietf:params:xml:ns:caldav"/>
+    <B:first-name xmlns:B="http://calendarserver.org/ns/"/>
+  </A:prop>
+</A:principal-property-search>

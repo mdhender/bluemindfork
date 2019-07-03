@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemOperations xmlns:airsync="AirSync"
+	xmlns:airsyncbase="AirSyncBase" xmlns="ItemOperations">
+	<Fetch>
+		<Store>Mailbox</Store>
+		<airsyncbase:FileReference>${inboxId}_${mailUid}_2.3_aW1hZ2UvanBlZw==_YmFzZTY0</airsyncbase:FileReference>
+	</Fetch>
+	<Fetch>
+		<Store>Mailbox</Store>
+		<airsyncbase:FileReference>${inboxId}_${mailUid}_2.3_aW1hZ2UvanBlZw==_YmFzZTY0</airsyncbase:FileReference>
+	</Fetch>
+	<Fetch>
+		<Store>Mailbox</Store>
+		<airsyncbase:FileReference>${inboxId}_${mailUid}_2.3_aW1hZ2UvanBlZw==_YmFzZTY0</airsyncbase:FileReference>
+	</Fetch>
+	<Fetch>
+		<Store>Mailbox</Store>
+		<airsyncbase:FileReference>${inboxId}_${mailUid}_2.3_aW1hZ2UvanBlZw==_YmFzZTY0</airsyncbase:FileReference>
+	</Fetch>
+	<Fetch>
+		<Store>Mailbox</Store>
+		<airsyncbase:FileReference>${inboxId}_${mailUid}_2.3_aW1hZ2UvanBlZw==_YmFzZTY0</airsyncbase:FileReference>
+	</Fetch>
+
+	<Fetch>
+		<Store>Mailbox</Store>
+		<airsyncbase:FileReference>${inboxId}_${mailUid}_2.3_aW1hZ2UvanBlZw==_YmFzZTY0</airsyncbase:FileReference>
+	</Fetch>
+	<Fetch>
+		<Store>Mailbox</Store>
+		<airsyncbase:FileReference>${inboxId}_${mailUid}_2.3_aW1hZ2UvanBlZw==_YmFzZTY0</airsyncbase:FileReference>
+	</Fetch>
+	<Fetch>
+		<Store>Mailbox</Store>
+		<airsyncbase:FileReference>${inboxId}_${mailUid}_2.3_aW1hZ2UvanBlZw==_YmFzZTY0</airsyncbase:FileReference>
+	</Fetch>
+	<Fetch>
+		<Store>Mailbox</Store>
+		<airsyncbase:FileReference>${inboxId}_${mailUid}_2.3_aW1hZ2UvanBlZw==_YmFzZTY0</airsyncbase:FileReference>
+	</Fetch>
+	<Fetch>
+		<Store>Mailbox</Store>
+		<airsyncbase:FileReference>${inboxId}_${mailUid}_2.3_aW1hZ2UvanBlZw==_YmFzZTY0</airsyncbase:FileReference>
+	</Fetch>
+
+	<Fetch>
+		<Store>Mailbox</Store>
+		<airsyncbase:FileReference>${inboxId}_${mailUid}_2.3_aW1hZ2UvanBlZw==_YmFzZTY0</airsyncbase:FileReference>
+	</Fetch>
+	<Fetch>
+		<Store>Mailbox</Store>
+		<airsyncbase:FileReference>${inboxId}_${mailUid}_2.3_aW1hZ2UvanBlZw==_YmFzZTY0</airsyncbase:FileReference>
+	</Fetch>
+	<Fetch>
+		<Store>Mailbox</Store>
+		<airsyncbase:FileReference>${inboxId}_${mailUid}_2.3_aW1hZ2UvanBlZw==_YmFzZTY0</airsyncbase:FileReference>
+	</Fetch>
+	<Fetch>
+		<Store>Mailbox</Store>
+		<airsyncbase:FileReference>${inboxId}_${mailUid}_2.3_aW1hZ2UvanBlZw==_YmFzZTY0</airsyncbase:FileReference>
+	</Fetch>
+	<Fetch>
+		<Store>Mailbox</Store>
+		<airsyncbase:FileReference>${inboxId}_${mailUid}_2.3_aW1hZ2UvanBlZw==_YmFzZTY0</airsyncbase:FileReference>
+	</Fetch>
+
+
+</ItemOperations>

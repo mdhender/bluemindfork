@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="xmpp" uid="xmpp" id="net.bluemind.xmpp.server.launcher.xmpp" application="net.bluemind.xmpp.server.launcher.tigase" version="4.1.0.qualifier" useFeatures="false" includeLaunchers="true">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <vmArgs>-Dosgi.noShutdown=true -Djava.security.egd=file:/dev/urandom -Djava.net.preferIPv4Stack=true
+      </vmArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
+   </launcherArgs>
+
+   <launcher name="xmpp">
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+   </vm>
+
+   <plugins>
+      <plugin id="ch.qos.logback.classic"/>
+      <plugin id="ch.qos.logback.core"/>
+      <plugin id="com.fasterxml.jackson.core.jackson-annotations"/>
+      <plugin id="com.fasterxml.jackson.core.jackson-core"/>
+      <plugin id="com.fasterxml.jackson.core.jackson-databind"/>
+      <plugin id="com.google.guava"/>
+      <plugin id="com.hazelcast"/>
+      <plugin id="com.hazelcast.client" fragment="true"/>
+      <plugin id="com.netflix.spectator.api"/>
+      <plugin id="com.ning.async-http-client"/>
+      <plugin id="io.netty"/>
+      <plugin id="io.vertx.core"/>
+      <plugin id="io.vertx.platform"/>
+      <plugin id="javax.validation.api"/>
+      <plugin id="javax.ws.rs"/>
+      <plugin id="jcl.over.slf4j"/>
+      <plugin id="joda-time"/>
+      <plugin id="jul.to.slf4j"/>
+      <plugin id="net.bluemind.addressbook.api"/>
+      <plugin id="net.bluemind.authentication.api"/>
+      <plugin id="net.bluemind.common.io"/>
+      <plugin id="net.bluemind.common.reflect"/>
+      <plugin id="net.bluemind.config"/>
+      <plugin id="net.bluemind.core.commons"/>
+      <plugin id="net.bluemind.core.container.api"/>
+      <plugin id="net.bluemind.core.context"/>
+      <plugin id="net.bluemind.core.rest"/>
+      <plugin id="net.bluemind.core.rest.common"/>
+      <plugin id="net.bluemind.core.rest.http"/>
+      <plugin id="net.bluemind.core.sessions"/>
+      <plugin id="net.bluemind.core.task.api"/>
+      <plugin id="net.bluemind.directory.api"/>
+      <plugin id="net.bluemind.domain.api"/>
+      <plugin id="net.bluemind.eclipse.common"/>
+      <plugin id="net.bluemind.elastic.client"/>
+      <plugin id="net.bluemind.group.api"/>
+      <plugin id="net.bluemind.hornetq.client"/>
+      <plugin id="net.bluemind.im.api"/>
+      <plugin id="net.bluemind.lib.elasticsearch"/>
+      <plugin id="net.bluemind.lib.jackson"/>
+      <plugin id="net.bluemind.lib.jodatime"/>
+      <plugin id="net.bluemind.lib.jta"/>
+      <plugin id="net.bluemind.lib.vertx"/>
+      <plugin id="net.bluemind.locator.client"/>
+      <plugin id="net.bluemind.locator.vertxclient"/>
+      <plugin id="net.bluemind.mailbox.api"/>
+      <plugin id="net.bluemind.mailbox.identity.api"/>
+      <plugin id="net.bluemind.metrics.registry"/>
+      <plugin id="net.bluemind.network.topology.consumer"/>
+      <plugin id="net.bluemind.network.utils"/>
+      <plugin id="net.bluemind.osgi.log"/>
+      <plugin id="net.bluemind.server.api"/>
+      <plugin id="net.bluemind.slf4j"/>
+      <plugin id="net.bluemind.slf4j.configuration" fragment="true"/>
+      <plugin id="net.bluemind.system.api"/>
+      <plugin id="net.bluemind.system.stateobserver"/>
+      <plugin id="net.bluemind.systemd.notify"/>
+      <plugin id="net.bluemind.tag.api"/>
+      <plugin id="net.bluemind.user.api"/>
+      <plugin id="net.bluemind.utils"/>
+      <plugin id="net.bluemind.xmpp.server"/>
+      <plugin id="net.bluemind.xmpp.server.launcher"/>
+      <plugin id="net.java.dev.jna"/>
+      <plugin id="org.apache.commons.codec"/>
+      <plugin id="org.apache.commons.lang"/>
+      <plugin id="org.eclipse.core.contenttype"/>
+      <plugin id="org.eclipse.core.jobs"/>
+      <plugin id="org.eclipse.core.runtime"/>
+      <plugin id="org.eclipse.equinox.app"/>
+      <plugin id="org.eclipse.equinox.common"/>
+      <plugin id="org.eclipse.equinox.preferences"/>
+      <plugin id="org.eclipse.equinox.registry"/>
+      <plugin id="org.eclipse.osgi"/>
+      <plugin id="org.eclipse.osgi.services"/>
+      <plugin id="org.eclipse.update.configurator"/>
+      <plugin id="org.jboss.netty"/>
+      <plugin id="slf4j.api"/>
+      <plugin id="tigase-server"/>
+      <plugin id="tigase.extras"/>
+      <plugin id="tigase.muc"/>
+      <plugin id="tigase.pubsub"/>
+   </plugins>
+
+   <configurations>
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
+      <property name="osgi.configuration.area" value="/var/lib/bm-xmpp/" />
+      <property name="osgi.noShutdown" value="true" />
+   </configurations>
+
+</product>

@@ -1,0 +1,67 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:f="urn:import:net.bluemind.ui.common.client.forms" xmlns:common="urn:import:net.bluemind.ui.common.client.forms">
+
+	<ui:style>
+	.inline {
+		display: inline-block;
+	}
+	
+	.warn {
+		border: 1px solid #fbc7c6;
+		background: #fddfde;
+		padding: 20px;
+	}
+	</ui:style>
+
+	<ui:with field="c"
+		type="net.bluemind.ui.adminconsole.system.subscription.l10n.SubscriptionConstants" />
+
+
+	<g:DockLayoutPanel unit="PX">
+
+		<g:north size="50">
+			<g:HTMLPanel>
+				<div class="modal-dialog-title">
+					<span class="fa fa-exclamation-triangle fa-lg"></span>
+					<h1 class="{style.inline}">
+						<g:Label text="{c.header}" />
+					</h1>
+				</div>
+			</g:HTMLPanel>
+		</g:north>
+
+		<g:center>
+			<g:HTMLPanel>
+				<div class="{style.warn}">
+					<g:Label text="{c.warningHeader}"></g:Label>
+					<ul>
+						<li>
+							<g:Label text="{c.editor}"></g:Label>
+						</li>
+						<li>
+							<g:Label text="{c.automaticUpdate}"></g:Label>
+						</li>
+						<li>
+							<g:Label text="{c.adConnector}"></g:Label>
+						</li>
+						<li>
+							<g:Label text="{c.outlookConnector}"></g:Label>
+						</li>
+					</ul>
+				</div>
+
+			</g:HTMLPanel>
+		</g:center>
+
+		<g:south size="33">
+			<g:FlowPanel>
+				<f:DoneCancelActionBar ui:field="actionBar" />
+			</g:FlowPanel>
+		</g:south>
+	</g:DockLayoutPanel>
+
+
+</ui:UiBinder>

@@ -1,0 +1,7 @@
+BEGIN:VCARD
+VERSION:3.0
+FN:David Phan
+N:Phan;David;;;
+ADR;TYPE=HOME:;;42 rue des plantes vertes;Toulouse;;31000;
+ADR;TYPE=WORK:;;40 rue du village d’entreprises;Labège;;31670;
+END:VCARD

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+	<inherits name="com.google.gwt.json.JSON"/>	
+	<source path='calendar' />
+	<inherits name="net.bluemind.ui.gwttask.GwtTaskUi"/>
+	<inherits name="net.bluemind.ui.gwtcalendar.GwtCalendarUi"/>
+</module>

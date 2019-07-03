@@ -1,0 +1,14 @@
+The files you put here will end up in
+/usr/share/bm-dav-data/static_responses/
+
+They are used when a dav request always has the same response. We put
+them on the filesystem instead of serving the response from java to be
+able to use sendFile and benefit from linux sendfile support.
+
+To use dav on your host in eclipse (assuming tom is your user) (yes
+this is also a reminder for me):
+
+sudo mkdir /usr/share/bm-dav-data
+sudo chown tom /usr/share/bm-dav-data/
+cd /usr/share/bm-dav-data/
+ln -s /Users/tom/git/blue-project/plugins/net.bluemind.dav.server/static_responses .

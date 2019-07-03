@@ -1,0 +1,17 @@
+{
+    "name": "@bluemind/html-utils",
+    "description": "HTML utils : text2html, html2text, sanitizer, validator...",
+    "version": "4.1.0",
+    "license": "GPL-3.0",
+    "author": "Blue Mind SAS",
+    "main": "src/index.js",
+    "module": "src/index.js",
+    "scripts": {},
+    "dependencies": {
+        "libphonenumber-js": "^1.7.8",
+        "linkifyjs": "^2.1.8",
+        "lodash.defaults": "^4.2.0",
+        "lodash.repeat": "^4.1.0",
+        "lodash.startswith": "^4.2.1"
+    }
+}

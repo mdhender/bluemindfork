@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.rrule.closure
+Bundle-SymbolicName: net.bluemind.rrule.closure
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Closure-Bundle-Type: Library
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ClassPath: js.jar,
+ .

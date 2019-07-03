@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.system.external_systems" name="external_systems" schema="schema/net.bluemind.system.external_systems.exsd"/>
+   <extension
+         point="net.bluemind.core.rest.apiEndpoint">
+      <endpoint
+            api="net.bluemind.system.api.IInstallation">
+      </endpoint>
+      <endpoint
+            api="net.bluemind.system.api.IDomainTemplate">
+      </endpoint>
+      <endpoint
+            api="net.bluemind.system.api.ISystemConfiguration">
+      </endpoint>
+      <endpoint
+            api="net.bluemind.system.api.IMailDeliveryMgmt">
+      </endpoint>
+      <endpoint
+            api="net.bluemind.system.api.ISecurityMgmt">
+      </endpoint>
+      <endpoint
+            api="net.bluemind.system.api.IGlobalSettings">
+      </endpoint>
+      <endpoint
+            api="net.bluemind.system.api.IExternalSystem">
+      </endpoint>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.serviceFactory">
+      <serviceFactory
+            class="net.bluemind.system.service.PostfixMgmtFactory"></serviceFactory>
+      <serviceFactory
+            class="net.bluemind.system.service.InstallationFactory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.system.service.DomainTemplateFactory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.system.service.SystemConfigurationFactory"></serviceFactory>
+      <serviceFactory
+      		class="net.bluemind.system.service.SecurityMgmtFactory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.system.service.GlobalSettingsFactory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.system.service.ExternalSystemServiceFactory">
+      </serviceFactory>
+   </extension>
+   <extension
+         point="net.bluemind.system.schemaupgrader.component">
+      <component-version
+            class="net.bluemind.system.service.internal.BMCoreInstallationVersion"
+            id="bm/core">
+      </component-version>
+   </extension>
+   <extension
+         point="net.bluemind.system.hook">
+      <validator
+            class="net.bluemind.system.service.internal.SubscriptionContactsValidator">
+      </validator>
+   </extension>
+
+</plugin>

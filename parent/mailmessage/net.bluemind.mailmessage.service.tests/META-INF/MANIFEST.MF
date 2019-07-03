@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.mailmessage.service.tests
+Bundle-SymbolicName: net.bluemind.mailmessage.service.tests;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.mailmessage.api,
+ net.bluemind.mailmessage.service,
+ net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
+ net.bluemind.core.container.persistance,
+ net.bluemind.tests.defaultdata,
+ net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
+ net.bluemind.core.context;bundle-version="1.0.0",
+ net.bluemind.lib.jodatime;bundle-version="1.0.0",
+ net.bluemind.core.sessions,
+ net.bluemind.core.rest.http.vertx;bundle-version="1.0.0",
+ net.bluemind.tests.defaultdata,
+ net.bluemind.addressbook.domainbook;bundle-version="1.0.0",
+ net.bluemind.group.service;bundle-version="1.0.0",
+ net.bluemind.core.tests.testshelper,
+ io.vertx.core,
+ org.junit,
+ net.bluemind.core.rest
+

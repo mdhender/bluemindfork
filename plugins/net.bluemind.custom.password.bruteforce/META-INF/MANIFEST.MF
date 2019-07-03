@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.custom.password.bruteforce
+Bundle-SymbolicName: net.bluemind.custom.password.bruteforce;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.core.password.bruteforce.Activator
+Bundle-Vendor: BlueMind
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.slf4j,
+ com.google.guava;bundle-version="19.0.0",
+ net.bluemind.authentication.provider;bundle-version="1.0.0",
+ net.bluemind.core.container.api;bundle-version="1.0.0",
+ net.bluemind.core.commons;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy

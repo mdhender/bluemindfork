@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ItemOperations xmlns="ItemOperations">
+	<Fetch>
+		<Store>Mailbox</Store>
+		<LongId xmlns="Search">${mailUid}</LongId>
+		<Options>
+			<MIMESupport xmlns="AirSync">2</MIMESupport>
+			<BodyPreference xmlns="AirSyncBase">
+				<Type>4</Type>
+			</BodyPreference>
+		</Options>
+	</Fetch>
+</ItemOperations>

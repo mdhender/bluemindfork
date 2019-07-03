@@ -1,0 +1,60 @@
+#!/bin/bash
+#BEGIN LICENSE
+#
+# Copyright © Blue Mind SAS, 2012-2016
+#
+# This file is part of BlueMind. BlueMind is a messaging and collaborative
+# solution.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of either the GNU Affero General Public License as
+# published by the Free Software Foundation (version 3 of the License).
+#
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# See LICENSE.txt
+
+
+set -e
+
+. /usr/share/debconf/confmodule
+
+chown www-data /usr/share/bm-webmail/temp
+chown www-data /var/log/bm-webmail
+if [ -d /usr/share/bm-webmail/logs ]; then
+  rm -rf /usr/share/bm-webmail/logs
+fi
+if [ -L /usr/share/bm-webmail/logs ]; then
+  rm -f /usr/share/bm-webmail/logs
+fi
+
+if [ ! -e /etc/bm-webmail/bm-php5-fpm.conf ]; then
+  cp -f /usr/share/doc/bm-webmail/bm-php5-fpm.conf /etc/bm-webmail
+fi
+cp -f /usr/share/doc/bm-webmail/bm-webmail /etc/nginx/sites-available/
+
+pushd /etc/nginx/sites-enabled
+rm -f bm-webmail
+ln -s ../sites-available/bm-webmail .
+popd
+
+invoke-rc.d bm-php-fpm restart 0>/dev/null 1>/dev/null 2>/dev/null 3>/dev/null
+
+echo "Restart nginx service"
+invoke-rc.d bm-nginx restart 0>/dev/null 1>/dev/null 2>/dev/null 3>/dev/null || true
+
+if [ -e /etc/init.d/apache2 ]; then
+  update-rc.d -f apache2 remove > /dev/null 2>&1
+  if [ -f /etc/init.d/apache2 ]; then
+      invoke-rc.d apache2 stop 0>/dev/null 1>/dev/null 2>/dev/null 3>/dev/null
+  fi
+fi
+
+#DEBHELPER#
+
+exit 0
+
+

@@ -1,0 +1,19 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" 
+	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'>
+
+
+	<g:HTMLPanel>
+
+		<g:FlowPanel >
+			<g:Label ui:field="categoryTitle" styleName="subSectionTitle"></g:Label>
+		</g:FlowPanel>
+
+		<g:Tree ui:field="rolesTree" >
+		</g:Tree>
+
+	</g:HTMLPanel>
+
+</ui:UiBinder>

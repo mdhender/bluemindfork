@@ -1,0 +1,54 @@
+/var/log/bm-webmail/debug {
+        daily
+        missingok
+        rotate 52
+        compress
+        delaycompress
+        notifempty
+        create 640 www-data www-data
+        sharedscripts
+}
+
+/var/log/bm-webmail/errors {
+        daily
+        missingok
+        rotate 52
+        compress
+        delaycompress
+        notifempty
+        create 640 www-data www-data
+        sharedscripts
+}
+
+/var/log/bm-webmail/imap {
+        daily
+        missingok
+        rotate 52
+        compress
+        delaycompress
+        notifempty
+        create 640 www-data www-data
+        sharedscripts
+}
+
+/var/log/bm-webmail/mailSent.log {
+        daily
+        missingok
+        rotate 52
+        compress
+        delaycompress
+        notifempty
+        create 640 www-data www-data
+        sharedscripts
+}
+
+/var/log/bm-webmail/sendmail {
+        daily
+        missingok
+        rotate 52
+        compress
+        delaycompress
+        notifempty
+        create 640 www-data www-data
+        sharedscripts
+}

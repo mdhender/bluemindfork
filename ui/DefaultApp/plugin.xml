@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module
+            index="index.html"
+            root="/">
+         <web-resource
+               bundle="net.bluemind.ui.defaultapp">
+         </web-resource>
+         <handler
+               class="net.bluemind.defaultapp.server.DefaultAppIndexHandler"
+               path="index.html">
+         </handler>
+      </web-module>
+   </extension>
+   <extension
+         id="defaultapp"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="net.bluemind.webmodules.launcher.webLauncher"
+            name="defaultapp">
+         <property
+               name="appName"
+               value="defaultapp">
+         </property>
+      </product>
+   </extension>
+
+</plugin>

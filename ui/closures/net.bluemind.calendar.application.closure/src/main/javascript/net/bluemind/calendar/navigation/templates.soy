@@ -1,0 +1,167 @@
+{namespace net.bluemind.calendar.navigation.templates}
+
+/**
+ * Calendars & tags lists
+ */
+{template .calendarsAndTags}
+
+  <div class="{css calendars-and-tags}">
+	  <div class="{css view-calendars}">
+	    <h2 class="{css goog-zippy-header} " id="zippy-cals">
+	      <span class="{css fa}"></span>{msg meaning="general.calendars" desc="Calendars"}Calendars{/msg}
+	    </h2>
+	    <div class="{css goog-zippy-content}"></div>
+	  </div>
+	  <div class="{css view-todolists}" >
+	    <h2 class="{css goog-zippy-header}" id="zippy-todolists">
+	     <span class="{css fa}"></span>{msg meaning="general.todolists" desc="Todolists"}Todolists{/msg}
+	    </h2>
+	    <div class="{css goog-zippy-content}"></div>
+	  </div>	  
+	  <div class="{css view-tags}" >
+	    <h2 class="{css goog-zippy-header}" id="zippy-tags">
+	     <span class="{css fa}"></span>{msg meaning="general.tags" desc="Tags"}Tags{/msg}
+	    </h2>
+	    <div class="{css goog-zippy-content}"></div>
+	  </div>
+  </div>
+{/template}
+
+/**
+ * Calendar
+ * @param name Calendar label.
+ * @param photo Calendar photo
+ * @param ownerDisplayname owner displayname
+ */
+{template .calendar}
+    <div class="{css calendar-item-photo}">
+      {if $photo}
+      	<img src="{$photo}" style='border:1px solid #ccc;'></img>
+      {else}
+      	<span class="{css no-photo} {css fa} {css fa-lg} {css fa-calendar}"></span>
+      {/if}
+    </div>
+    <div class="{css title}" title="{$name}">
+      <span>{$name}</span>
+      {if $ownerDisplayname}
+      <span class="shared-by">{$ownerDisplayname}</span>
+      {/if}
+    </div>
+{/template}
+
+
+/**
+ * Calendar
+ * @param name Todolist label.
+ * @param ownerDisplayname owner displayname
+ */
+{template .todolist}
+    <div class="{css calendar-item-photo}">
+      <span class="{css no-photo} {css fa} {css fa-lg} {css fa-calendar-check-o}"></span>
+    </div> 
+    <div class=" {css title}" title="{$name}">
+      <span>{$name}</span>
+      {if $ownerDisplayname}
+      <span class="shared-by">{$ownerDisplayname}</span>
+      {/if}
+    </div>
+{/template}
+
+/**
+ * Tag
+ * @param color Tag class.
+ * @param name Tag label.
+ */
+{template .tag}
+  <div class="{css tag-item}">
+    <div style="color: #{$color};" class="{css fa} {css fa-tag} {css fa-lg} {css tag-dot}"></div>
+    <div class="{css title}" title="{$name}">
+      <span>{$name}</span>
+    </div>
+  </div>
+{/template}
+
+/**
+ *
+ */
+{template .deleteviewdialog}
+<div class="{css modal-dialog}">
+  <div class="{css modal-dialog-title}">
+    <span class="{css modal-dialog-title-text}">{msg meaning="calendar.view.delete" desc="delete view dialog title"}Delete this view{/msg}</span>
+    <span class="{css modal-dialog-title-close}"></span>
+  </div>
+  <div class="{css modal-dialog-content}">{msg meaning="calendar.view.delete.confirm" desc="delete view dialog content"}Would you like to delete this view?{/msg}</div>
+  <div class="{css modal-dialog-buttons}">
+    <button id="dvd-btn-ok" name="ok" class="{css goog-button-base}">{msg meaning="general.yes" desc="yes"}Yes{/msg}</button>
+    <button name="cancel" class="{css goog-button-base}">{msg meaning="general.no" desc="no"}No{/msg}</button>
+  </div>
+  <span tabindex="0"></span>
+</div>
+{/template}
+
+/**
+ *
+ */
+{template .saveviewdialog}
+<div class="{css modal-dialog}">
+  <div class="{css modal-dialog-title}">
+    <span class="{css modal-dialog-title-text}">{msg meaning="calendar.view.save" desc="save view dialog title"}Save this view{/msg}</span>
+    <span class="{css modal-dialog-title-close}"></span>
+  </div>
+  <form id="svd-form" class="{css svd-form}" autocomplete="off" onsubmit="return false;">
+    <div class="{css modal-dialog-content}">
+      {msg meaning="general.label" desc="label label"}Label{/msg}:
+      <span id="save-dialog-view-title"></span>
+    </div>
+    <div class="{css modal-dialog-buttons}">
+      <button id="avd-btn-save" type="submit" name="save" class="{css goog-button-base}">{msg meaning="general.save" desc="save button"}Save{/msg}</button>
+      <button name="cancel" class="{css goog-button-base}">{msg meaning="general.cancel" desc="button cancel"}Cancel{/msg}</button>
+    </div>
+  </form>
+  <span tabindex="0"></span>
+</div>
+{/template}
+
+/**
+ * Calendar view selector
+ */
+{template .viewSelector}
+  <div class="{css left-panel-section-title}">
+    {msg meaning="calendar.view.myViews" desc="my views"}My views{/msg}
+    <span class="{css left-panel-section-action}">
+      <div id="view-button" class="{css sidebar-menu-button}">&#x25BC;</div>
+      <div id="menu-view" class="{css goog-menu}" style="display:none">
+        <div id="view-add-action" class="{css goog-menuitem}">{msg meaning="calendar.view.save" desc="save this view"}Save this view{/msg}</div>
+        <div id="view-delete-action" class="{css goog-menuitem}">{msg meaning="calendar.view.delete" desc="delete this view"}Delete this view{/msg}</div>
+        <hr class="{css goog-menuitem}"/>
+        <div id="view-my-calendar-action" class="{css goog-menuitem}">{msg meaning="calendar.view.myCalendar" desc="view my calendar"}My calendar{/msg}</div>
+        <hr class="{css goog-menuitem}"/>
+      </div>
+    </span>
+  </div>
+{/template}
+
+/**
+ * Entry item
+ * @param entry Entry data.
+ */
+{template .calendarrow}
+  <div>
+  
+  {if $entry['photo'] }
+    <img class="{css picture}" src="{$entry['photo']}" style='border:1px solid #ccc;'></img>
+  {elseif $entry['type'] == 'group'}
+    <img class="{css picture}" src="images/no-dlist-picture_small.png" />
+  {/if}
+  "{$entry['name']}"&nbsp;
+
+  {if $entry['type'] == 'group'} 
+    ({$entry['memberCount']})&nbsp;
+  {/if}
+
+  {if $entry['email'] }
+    &lt;{$entry['email']}&gt;    
+  {/if}  
+  </div>
+{/template}
+

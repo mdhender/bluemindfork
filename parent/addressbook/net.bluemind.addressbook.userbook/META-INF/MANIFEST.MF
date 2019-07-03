@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Services
+Bundle-SymbolicName: net.bluemind.addressbook.userbook;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.addressbook.api;bundle-version="1.0.0",
+ net.bluemind.core.container.service;bundle-version="1.0.0",
+ net.bluemind.core.container.api;bundle-version="1.0.0",
+ net.bluemind.core.rest;bundle-version="1.0.0",
+ net.bluemind.core.rest.http;bundle-version="1.0.0",
+ com.google.guava;bundle-version="19.0.0",
+ net.bluemind.slf4j;bundle-version="1.0.0",
+ net.bluemind.addressbook.service;bundle-version="1.0.0",
+ net.bluemind.core.jdbc;bundle-version="1.0.0",
+ net.bluemind.user.hook;bundle-version="1.0.0",
+ net.bluemind.user.api;bundle-version="1.0.0",
+ net.bluemind.core.context,
+ net.bluemind.core.container.repair
+Export-Package: net.bluemind.addressbook.userbook
+

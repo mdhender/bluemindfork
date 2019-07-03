@@ -1,0 +1,11 @@
+#!/usr/bin/make -f
+
+include /usr/share/cdbs/1/rules/debhelper.mk
+
+JAVA_HOME := /usr/lib/jvm/bm-jdk
+
+build:
+	echo "cli build"
+
+install/bm-cli::
+	cp -rf ${CURDIR}/ROOT/* ${CURDIR}/debian/bm-cli

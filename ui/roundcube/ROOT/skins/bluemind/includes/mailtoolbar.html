@@ -1,0 +1,67 @@
+<div id="messagetoolbar" class="toolbar">
+<roundcube:button command="delete" type="link" class="goog-button-base goog-button-base-disabled dangerousactionbutton delete" classAct="goog-button-base dangerousactionbutton delete" classSel="goog-button-base goog-button-base-active dangerousactionbutton delete" label="delete" title="deletemessage" />
+
+<roundcube:if condition="template:name == 'message'" />
+<roundcube:button command="list" type="link" class="goog-button-base-last goog-inline-block goog-button goog-button-base back goog-button-disabled btn fa fa-arrow-left" classAct="goog-button-base-last goog-inline-block goog-button goog-button-base btn fa fa-arrow-left" classSel="goog-button-base-last goog-inline-block goog-button goog-button-base back goog-button-active btn fa fa-arrow-left" content="&nbsp;"/>
+	<span class="spacer"></span>
+<roundcube:endif />
+
+<roundcube:button command="reply" type="link" class="goog-inline-block goog-button goog-button-base goog-button-base-disabled goog-button-base-first reply btn fa fa-reply" classAct="goog-inline-block goog-button goog-button-base goog-button-base-first reply btn fa fa-reply" classSel="goog-inline-block goog-button goog-button-base goog-button-base-active goog-button-base-first reply btn fa fa-reply" content="&nbsp;" title="replytomessage" /><span class="dropbutton">
+<roundcube:button command="reply-all" type="link" class="goog-inline-block goog-button goog-button-base goog-button-base-disabled goog-combo-button goog-button-base-middle reply-all btn-drop fa fa-reply-all" classAct="goog-inline-block goog-button goog-button-base goog-combo-button goog-button-base-middle btn-drop fa fa-reply-all" classSel="goog-inline-block goog-button goog-button-base goog-button-base-active goog-combo-button goog-button-base-middle btn-drop fa fa-reply-all" content="&nbsp;" title="replytoallmessage" /><span class="dropbuttontip" id="replyallmenulink" onclick="UI.show_popup('replyallmenu');return false"><span class="fa fa-caret-down"></span></span></span><span class="dropbutton">
+<roundcube:button command="forward" type="link" class="goog-inline-block goog-button goog-button-base goog-button-base-disabled goog-combo-button goog-button-base-last forward btn-drop fa fa-long-arrow-right" classAct="goog-inline-block goog-button goog-button-base goog-combo-button goog-button-base-last forward btn-drop fa fa-long-arrow-right" classSel="goog-inline-block goog-button goog-button-base goog-combo-button goog-button-base-active goog-button-base-last forward btn-drop fa fa-long-arrow-right" content="&nbsp;"title="forwardmessage" /><span class="dropbuttontip" id="forwardmenulink" onclick="UI.show_popup('forwardmenu');return false"><span class="fa fa-caret-down"></span></span>
+</span>
+
+<roundcube:button command="checkmail" type="link" class="goog-inline-block goog-button goog-button-base goog-button-base-disabled btn fa fa-refresh" classAct="goog-inline-block goog-button goog-button-base btn fa fa-refresh" classSel="goog-inline-block goog-button goog-button-base goog-button-base-active btn fa fa-refresh" content="&nbsp;" title="checkmail" />
+
+<roundcube:if condition="template:name == 'message'" />
+<roundcube:button command="print" type="link" class="goog-inline-block goog-button goog-button-base print" classAct="goog-inline-block goog-button goog-button-base print" classSel="goog-inline-block goog-button goog-button-base print" label="print" title="printmessage" />
+<roundcube:endif />
+<roundcube:container name="toolbar" id="mailtoolbar" />
+<span class="markdropbutton"><roundcube:if condition="template:name == 'mail'" />
+<roundcube:button name="markmenulink" id="markmessagemenulink" type="link" class="goog-inline-block goog-menu-button goog-button-base" label="mark" title="markmessages" onclick="UI.show_popup('markmessagemenu');return false" /><span class="dropbuttontip" onclick="UI.show_popup('markmessagemenu');return false"><span class="fa fa-caret-down"></span></span></span><span class="dropbutton">
+<roundcube:endif />
+<roundcube:if condition="template:name == 'message'" />
+  <roundcube:object name="mailboxlist" type="select" noSelection="moveto" maxlength="25" onchange="rcmail.command('moveto', this.options[this.selectedIndex].value)" class="goog-button-base mailboxlist " folder_filter="mail" />
+<roundcube:endif />
+<roundcube:button name="messagemenulink" id="messagemenulink" type="link" class="goog-inline-block goog-menu-button goog-button-base btn fa fa-cogs btn" content="&nbsp;" title="moreactions" onclick="UI.show_popup('messagemenu');return false" />
+
+
+<div id="forwardmenu" class="popupmenu">
+	<ul class="toolbarmenu">
+		<li><roundcube:button command="forward" label="forwardinline" prop="sub" classAct="forwardlink active" class="forwardlink" /></li>
+		<li><roundcube:button command="forward-attachment" label="forwardattachment" prop="sub" classAct="forwardattachmentlink active" class="forwardattachmentlink" /></li>
+		<roundcube:container name="forwardmenu" id="forwardmenu" />
+	</ul>
+</div>
+
+<div id="replyallmenu" class="popupmenu">
+	<ul class="toolbarmenu">
+		<li><roundcube:button command="reply-all" label="replyall" prop="sub" class="replyalllink" classAct="replyalllink active" /></li>
+		<li><roundcube:button command="reply-list" label="replylist" prop="sub" class="replylistlink" classAct="replylistlink active" /></li>
+		<roundcube:container name="replyallmenu" id="replyallmenu" />
+	</ul>
+</div>
+
+<div id="messagemenu" class="popupmenu">
+  <ul class="toolbarmenu iconized">
+	<li><roundcube:button command="print" label="printmessage" class="icon" classAct="icon active" innerclass="icon fa fa-print" /></li>
+	<li><roundcube:button command="download" label="emlsave" class="icon" classAct="icon active" innerclass="icon fa fa-download" /></li>
+	<li><roundcube:button command="edit" label="editasnew" class="icon" classAct="icon active" innerclass="icon fa fa-pencil" /></li>
+	<li><roundcube:button command="viewsource" label="viewsource" class="icon" classAct="icon active" innerclass="icon fa fa-code" /></li>
+	<li><roundcube:button command="open" label="openinextwin" target="_blank" class="icon" classAct="icon active" innerclass="icon fa fa-external-link-square" /></li>
+	<roundcube:container name="messagemenu" id="messagemenu" />
+  </ul>
+</div>
+
+<roundcube:if condition="template:name == 'mail'" />
+<div id="markmessagemenu" class="popupmenu">
+  <ul class="toolbarmenu iconized">
+	<li><roundcube:button command="mark" prop="read" label="markread" classAct="icon active" class="icon" innerclass="icon fa fa-circle-o" /></li>
+	<li><roundcube:button command="mark" prop="unread" label="markunread" classAct="icon active" class="icon" innerclass="icon fa fa-eye" /></li>
+	<li><roundcube:button command="mark" prop="flagged" label="markflagged" classAct="icon active" class="icon" innerclass="icon fa fa-flag" /></li>
+	<li><roundcube:button command="mark" prop="unflagged" label="markunflagged" classAct="icon active" class="icon" innerclass="icon fa fa-flag-o" /></li>
+	<roundcube:container name="markmenu" id="markmessagemenu" />
+  </ul>
+</div>
+<roundcube:endif />
+</div>

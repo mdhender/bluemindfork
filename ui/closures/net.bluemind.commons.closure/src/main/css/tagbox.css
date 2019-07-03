@@ -1,0 +1,129 @@
+
+.bm-tagbox {
+  background-color: #e6e6e6;
+  background-repeat: no-repeat;
+  background-image: linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);
+  /* @alternate */ background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), color-stop(25%, #ffffff), to(#e6e6e6));
+  /* @alternate */ background-image: -webkit-linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);
+  /* @alternate */ background-image: -moz-linear-gradient(top, #ffffff, #ffffff 25%, #e6e6e6);
+  /* @alternate */ background-image: -ms-linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);
+  /* @alternate */ background-image: -o-linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#e6e6e6', GradientType=0);  
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  padding-right: 24px;
+}
+
+.bm-tagbox-bullets {
+  padding: 0;
+  margin: 2px 27px 0 18px;
+  display: inline;
+  background-color: #fff;
+  position: absolute;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  height: 1.4em;
+  line-height: 1.3em;  
+}
+
+.bm-tagbox-bullets li {
+  display: inline-block;
+  background: #eee;
+  border: 1px solid #ccc;
+  padding: 0 14px 0 14px;  
+  margin: 1px 2px 0 0;
+  border-radius: 2px;
+  min-width: 14px;
+  max-width: 200px;
+  white-space: nowrap;
+  position: relative;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  vertical-align: middle;
+}
+
+
+.bm-tagbox-bullets li span.bm-tagbox-bullet-close {
+  display: inline-block;
+  background-color: #fff;
+  border-left: 1px solid #ccc;
+  padding: 0 2px;
+  font-weight: bold;
+  cursor: pointer;
+  position: absolute;
+  right: 0;
+  border-radius: 0 1px 1px 0;
+  width: 1ex;
+  height: 100%;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAMAAAC67D+PAAAAAXNSR0IArs4c6QAAAnlQTFRFpqamz8/P5OTkra2tmJiYhYqN7u7uw8PDmJiY7Ozs0tLSWVlZq6urV1dXppAMsYtXFSKFmzAAK0l/Kmebra2tiS45liGDm0OaZDLP7IkC31QIFqqaLZloqqoH1q4AWo6Hh4pRdTUAjmyKcSCBcIOnPiJ3iAwRjkQAhw9PG3U8I2F8n3AAqloAV5oDOYINLWbPp3By3kR5JH9jZXSGMjMxRV6Ftbe0c3RyIiIi1t7npK/JqZnA1aaLz6SnfMMkXz+X2d3M59zPtmMNQoWhrSJzlUSkyNCR2MOG134akk0Vu52Dt9SKwpzJnrrElsi7zaqFOZlcyo2v5nOXpbkn0JkPYozZWL+xZayJRLFQjb85vb9NQ6WGm8Kkri0qWactqpGojJeklqG7h6qmqKd5xaiCyFYbtk9bxEKt5+a18ueyzJmY88264tXV2tPf0dfZ0N3d3beMwdHyuebgwtzH157L0eax0b04lZnOpciRwJOR9sfY4sffz8LwxNDe+9y0Oz+u2WZouOaytHGzkWPY8cK/8aY939KY6H5JU2yl3sJAAAEAmJiYd3l2DwDNmKCoVGiv6soAWVlZbG1r6+3qTMoU8PLvRKsYury57fL15LkEO0QfSLcZM3LpZmhlgq31js54TcMa+94A9/n22dvYi43VU43r/+vunJ6bra+s4ePfirdy6OjsO0lPLjsm3+TmgYOAtJwAXV5c0NHbi5vH29jcmqXMYWEMmcSf5/D43OT6zTE04u79ZKsAUFJPCZcUZG97YXuwhYqN2Nf8UVfOgJEH/v/8uMz/7u7upaekhartyszJ0tXRYo2ymLPKxdn/zMzMZ4fwi42K////2NqnMAAAAAF0Uk5TAEDm2GYAAAABYktHRACIBR1IAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH2wgYCTYjNVqpdQAAACRJREFUCNdjYEAC3d1wshtEdsMEuqEsCJsBnYlQgKQNyTA4AACrMhW5aLzwgQAAAABJRU5ErkJggg==) center no-repeat;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+
+.bm-tagbox-bullets li span.bm-tagbox-bullet-color {
+  display: inline-block;
+  border-right: 1px solid #ccc;
+  padding: 0 2px;
+  font-weight: bold;
+  position: absolute;
+  left: 0;
+  width: 1ex;
+  height: 100%;
+  border-radius: 1px 0 0 1px;
+}
+
+.bm-tagbox-bullets li span:hover {
+  background-color: #DDF4FB;
+}
+
+.bm-tagbox textarea {
+  /*
+  outline: 0;
+  border-color: rgba(82, 168, 236, 0.8);
+  -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 8px rgba(82, 168, 236, 0.6);
+  -moz-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 8px rgba(82, 168, 236, 0.6);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 8px rgba(82, 168, 236, 0.6);
+  */
+  background-color: #fff;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+  border: 0;
+  margin: 0;
+  resize: none;
+  width: 100%;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  vertical-align: middle;
+  padding: 2px;
+}
+
+.bm-tagbox .goog-menu {
+  margin-top: -1px;
+  width: 219px;  /* input width + button width + 3 * 1px border */
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.bm-tagbox-button {
+  cursor: pointer;
+  display: inline-block;
+  font-size: 10px;
+  text-align: center;
+  width: 16px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 20px;
+  line-height: 20px;
+}
+
+/* IE6 only hack */
+* html .bm-tagbox-button {
+  padding: 0 3px;
+}
+

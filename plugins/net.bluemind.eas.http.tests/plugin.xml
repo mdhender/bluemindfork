@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.eas.http.endpoint">
+      <handler
+            impl="net.bluemind.eas.http.tests.mocks.DummyEndpoint">
+      </handler>
+      <handler
+            impl="net.bluemind.eas.http.tests.mocks.BrokenEndpoint">
+      </handler>
+      <filter
+            impl="net.bluemind.eas.http.tests.mocks.DummyFilter1">
+      </filter>
+      <filter
+            impl="net.bluemind.eas.http.tests.mocks.DummyFilter2">
+      </filter>
+   </extension>
+
+</plugin>

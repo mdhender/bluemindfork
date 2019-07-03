@@ -1,0 +1,67 @@
+<roundcube:object name="doctype" value="html5" />
+<html>
+<head>
+<title><roundcube:object name="pagetitle" /></title>
+<roundcube:include file="/includes/links.html" />
+</head>
+<body class="noscroll">
+
+<roundcube:include file="/includes/header.html" />
+<roundcube:button command="compose" type="link" class="goog-button-base goog-button-base-disabled goog-primaryactionbutton compose" classAct="goog-button-base goog-primaryactionbutton compose" classSel="goog-button-base goog-button-base-active goog-primaryactionbutton compose pressed" label="compose" title="writenewmessage"  />
+
+<div id="mainscreen">
+
+
+
+<div id="mailview-left">
+
+<!-- folders list -->
+<div id="mailboxcontainer" class="uibox listbox">
+<div class="scroller">
+<roundcube:object name="mailboxlist" id="mailboxlist" class="listing" folder_filter="mail" unreadwrap="%s" />
+</div>
+</div>
+
+</div>
+
+<div id="mailview-right" class=" ">
+<!-- toolbar -->
+
+<roundcube:include file="/includes/mailtoolbar.html" />
+<div id="messagecontainer" class="uibox">
+<div id="messageheader">
+<span id="previewheaderstoggle"></span>
+
+<h2 class="subject"><roundcube:object name="messageHeaders" valueOf="subject" /></h2>
+<roundcube:object name="messageHeaders" class="headers-table" addicon="/images/addcontact.png" exclude="subject" max="20" />
+<roundcube:object name="messageFullHeaders" id="full-headers" />
+
+<!-- record navigation -->
+<div id="countcontrols" class="pagenav">
+	<roundcube:object name="messageCountDisplay" class="countdisplay" />
+	<roundcube:button command="previousmessage" type="link" class="button prevpage disabled fa fa-caret-left" classAct="button prevpage fa fa-caret-left" classSel="button prevpage pressed fa fa-caret-left" innerClass="inner" title="previousmessage" content="" />
+	<roundcube:button command="nextmessage" type="link" class="button nextpage disabled fa fa-caret-right" classAct="button nextpage fa fa-caret-right" classSel="button nextpage pressed fa fa-caret-right" innerClass="inner" title="nextmessage" content="" />
+</div>
+
+</div>
+
+<div id="messagecontent">
+<div class="rightcol">
+<roundcube:object name="messageAttachments" id="attachment-list" class="attachmentslist" />
+</div>
+<div class="leftcol">
+<roundcube:object name="messageObjects" id="message-objects" />
+<roundcube:object name="messageBody" id="messagebody" />
+</div>
+</div>
+<roundcube:object name="message" id="message" class="statusbar" />
+</div>
+
+</div><!-- end mailview-right -->
+
+</div><!-- end mainscreen -->
+
+<roundcube:include file="/includes/footer.html" />
+
+</body>
+</html>

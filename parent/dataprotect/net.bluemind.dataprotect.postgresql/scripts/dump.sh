@@ -1,0 +1,10 @@
+#!/bin/bash
+
+rm -f ${file}
+
+PGPASSWORD=${pass} pg_dump \
+--format=t --file=${file} --clean \
+--username=${user} --host=localhost \
+${db}
+
+echo "Dump done in ${file}"

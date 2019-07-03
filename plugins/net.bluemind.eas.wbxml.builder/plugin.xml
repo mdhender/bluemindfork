@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.eas.wbxml.builder.vertx.BSEventFactory">
+      </verticle>
+   </extension>
+
+</plugin>

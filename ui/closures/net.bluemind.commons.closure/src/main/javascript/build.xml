@@ -1,0 +1,260 @@
+<project name="bluemind-base" basedir=".">
+  <dirname property="bluemind-base.dir" file="${ant.file.bluemind-base}"/>
+
+  <!-- CONSTANTS -->
+  <property name="lib.dir" location="${bluemind-base.dir}/.."/>
+  <property name="home.dir" location="${user.home}"/>
+  <property name="build.dir" location="${basedir}/build"/>
+
+  <property name="bluemind-library.dir" value="${lib.dir}/bluemind"/>
+  <property name="closure-library.dir" value="${lib.dir}/closure-library"/>
+  <property name="closure-compiler.jar" value="${lib.dir}/closure-compiler/compiler.jar"/>
+  <property name="closure-templates.dir" value="${lib.dir}/closure-templates/"/>
+  <property name="closure-templates.jar" value="${lib.dir}/closure-templates/SoyToJsSrcCompiler.jar"/>
+  <property name="closure-stylesheets.jar" value="${lib.dir}/closure-stylesheets/closure-stylesheets.jar"/>
+  <property name="closure-i18n.jar" value="${lib.dir}/closure-templates-msg-extractor/SoyMsgExtractor.jar" />
+  <property name="relief-library.dir" value="${lib.dir}/relief" />
+  <property name="ydn-db.dir" value="${lib.dir}/ydn-db" />
+  <property name="ydn-base.dir" value="${lib.dir}/ydn-base" />
+
+  <property name="outputwrapper.norun" value="(function(){%output%})();"/>
+
+  <!-- BASE MACROS -->
+
+  <!-- Closure library compile -->
+  <macrodef name="closure-compile">
+    <element name="cssmap" optional="yes"/>
+    <element name="options" optional="yes"/>
+    <element name="extrapaths" optional="yes"/>
+    <attribute name="input.dir"/>
+    <attribute name="build.dir" default="${build.dir}"/>
+    <attribute name="compilerjarfile" default="${closure-compiler.jar}"/>
+    <attribute name="compilationlevel" default="ADVANCED_OPTIMIZATIONS"/>
+    <attribute name="outputmode" default="compiled"/>
+    <attribute name="input"/>
+    <attribute name="output"/>
+    <attribute name="namespace"/>
+    <attribute name="lang" />
+    <sequential>
+      <exec executable="python" failonerror="true" logError="true">
+        <arg value="${closure-library.dir}/closure/bin/build/closurebuilder.py" />
+        <cssmap/>
+        <arg line='-i "@{input}"'/>
+        <arg line='--output_file "@{output}"'/>
+        <arg line='--root="${closure-library.dir}"'/>
+        <arg line='--root="${bluemind-library.dir}"' />
+        <arg line='--root="${relief-library.dir}"' />
+        <arg line='--root="${ydn-db.dir}/js"' />
+        <arg line='--root="${ydn-base.dir}/js"' />
+        <arg line='--root="${closure-templates.dir}"' />
+        <arg line='--root="@{input.dir}"'/>
+        <arg line='--root="@{build.dir}/@{lang}"'/>
+        <arg line='--namespace="@{namespace}"' />
+        <arg line="-o @{outputmode}"/>
+        <arg line='-c "@{compilerjarfile}"'/>
+        <arg line='-f "--compilation_level=@{compilationlevel}"'/>
+        <arg line='-f "--js=${closure-library.dir}/closure/goog/deps.js"'/>
+        <arg line='-f "--js=@{build.dir}/map.gss.js"'/>
+        <arg line='-f "--language_in=ECMASCRIPT5"'/>
+        <arg line='-f "--use_types_for_optimization"'/>
+        <arg line='-f "--jscomp_error=accessControls"'/>
+        <arg line='-f "--jscomp_error=ambiguousFunctionDecl"'/>
+        <arg line='-f "--jscomp_error=checkRegExp"'/>
+        <arg line='-f "--jscomp_error=checkTypes"'/>
+        <arg line='-f "--jscomp_error=checkVars"'/>
+        <arg line='-f "--jscomp_error=const"'/>
+        <arg line='-f "--jscomp_error=constantProperty"'/>
+        <arg line='-f "--jscomp_warning=deprecated"'/>
+        <arg line='-f "--jscomp_error=duplicateMessage"'/> 
+        <arg line='-f "--jscomp_error=es5Strict"'/>
+        <arg line='-f "--jscomp_error=externsValidation"'/>
+        <arg line='-f "--jscomp_error=globalThis"'/>
+        <arg line='-f "--jscomp_error=internetExplorerChecks"'/>
+        <arg line='-f "--jscomp_error=invalidCasts"'/>
+        <arg line='-f "--jscomp_error=internetExplorerChecks"'/>
+        <arg line='-f "--jscomp_error=misplacedTypeAnnotation"'/>
+        <arg line='-f "--jscomp_error=missingProperties"'/>
+        <arg line='-f "--jscomp_error=nonStandardJsDocs"'/>
+        <arg line='-f "--jscomp_error=strictModuleDepCheck"'/>
+        <arg line='-f "--jscomp_error=typeInvalidation"'/>
+        <arg line='-f "--jscomp_error=undefinedNames"'/>
+        <arg line='-f "--jscomp_error=undefinedVars"'/>
+        <arg line='-f "--jscomp_error=unknownDefines"'/>
+        <arg line='-f "--jscomp_warning=uselessCode"'/>
+        <arg line='-f "--jscomp_error=visibility"'/>
+        <arg line='-f "--warning_level=VERBOSE"'/>
+        <arg line='-f "--externs=${ydn-base.dir}/externs/browser.js"'/>
+        <arg line='-f "--output_wrapper=${outputwrapper.norun}"'/>
+        <arg line='-f "--define=goog.DEBUG=false"' /> 
+        <extrapaths/>
+        <options/>
+      </exec>
+      <echo>@{output} generated.</echo>
+    </sequential>
+  </macrodef>
+
+  <!-- CSS compile -->
+  <macrodef name="gss-compile">
+    <attribute name="output" />
+    <attribute name="input.dir"/>
+    <attribute name="build.dir" default="${build.dir}"/>
+    <element name="inputfiles" optional="yes" />
+    <sequential>
+      <fileset dir="${bluemind-library.dir}" id="lib-gss-files" includes="**/*.css" />
+      <pathconvert property="lib-gss-input" refid="lib-gss-files" pathsep=" "/>        
+      <fileset dir="@{input.dir}" id="project-gss-files" includes="**/*.css" />
+      <pathconvert property="project-gss-input" refid="project-gss-files" pathsep=" "/>            
+      <java jar="${closure-stylesheets.jar}" fork="true" failonerror="true" logError="true">
+        <arg line='-o "@{output}"' />
+        <arg line="--allowed-non-standard-function progid:DXImageTransform.Microsoft.gradient" />
+        <arg line="--allowed-non-standard-function color-stop" />
+        <arg line="--allowed-non-standard-function filter" />
+        <arg line="--allowed-non-standard-function -moz-radial-gradient" />
+        <arg line="--allow-unrecognized-properties" />
+        <arg line="--output-renaming-map-format CLOSURE_COMPILED" />
+        <arg line="--rename CLOSURE" />
+        <arg line='--output-renaming-map "@{build.dir}/map.gss.js"' />
+        <arg line='${lib-gss-input}' />
+        <arg line='${project-gss-input}' />
+        <inputfiles />
+      </java>
+    </sequential>
+  </macrodef>
+
+  <!-- I18N compile -->
+  <macrodef name="xliff-compile">
+    <attribute name="output" />
+    <element name="inputfiles" />
+    <element name="options" optional="yes" />    
+    <sequential>
+      <java jar="${closure-i18n.jar}" fork="true" failonerror="true" logError="true">
+        <arg line='--outputFile "@{output}"' />
+        <inputfiles />
+        <options />
+      </java>
+    </sequential>
+  </macrodef>
+
+  <!-- Template compile -->
+  <macrodef name="soy-compile">
+    <attribute name="locales" />
+    <attribute name="input.dir"/>
+    <attribute name="build.dir" default="${build.dir}"/>
+    <element name="inputfiles" optional="yes" />
+    <sequential>
+      <fileset dir="${bluemind-library.dir}" id="lib-soy-files" includes="**/*.soy" />
+      <pathconvert property="lib-soy-input" refid="lib-soy-files" pathsep=" "/>  
+      <fileset dir="@{input.dir}" id="project-soy-files" includes="**/*.soy" />
+      <pathconvert property="project-soy-input" refid="project-soy-files" pathsep=" "/>           
+      <java jar="${closure-templates.jar}" fork="true" failonerror="true" logError="true">
+        <arg line="--outputPathFormat @{build.dir}/{LOCALE}/{INPUT_FILE_NAME_NO_EXT}.soy.js"/>
+        <arg line="--shouldProvideRequireSoyNamespaces" />
+        <arg line="--shouldGenerateJsdoc" />
+        <arg line="--cssHandlingScheme GOOG" />
+        <arg line='--locales "@{locales}"' />
+        <arg line='--messageFilePathFormat "${bluemind-base.dir}/lang/{LOCALE}.xlf"' />
+        <arg line='${lib-soy-input}' />
+        <arg line='${project-soy-input}' />
+        <arg line='"${relief-library.dir}/relief/handlers/handlers.soy"' />
+        <inputfiles />
+      </java>
+    </sequential>
+  </macrodef>  
+
+  <!-- Extract message -->
+  <macrodef name="">
+    <attribute name="outputFile" />
+    <element name="inputfiles" />
+    <sequential>
+      <java jar="${closure-templates-msg-extractor.dir}/SoyMsgExtractor.jar" fork="true" failonerror="true" logError="true">
+        <arg line='--outputFile "@{outputFile}"' />
+        <inputfiles />
+      </java>
+    </sequential>
+  </macrodef>
+
+  <!-- EDITOR COMPILATION MACROS -->
+
+  <macrodef name="editor-compile">
+    <attribute name="css" />
+    <attribute name="js" />
+    <attribute name="build.dir" default="${build.dir}"/>
+    <sequential>
+      <mkdir dir="@{build.dir}/src" />
+      <soy-compile locales="en,fr,es,sk" build.dir="@{build.dir}" input.dir="@{build.dir}/src"/>
+      <gss-compile output="@{css}" build.dir="@{build.dir}" input.dir="@{build.dir}/src"/>
+      <closure-compile input="${bluemind-library.dir}/ui/editor.js" output="@{js}.js" input.dir="@{build.dir}/src" build.dir="@{build.dir}" namespace="bluemind.ui.Editor" lang="en"/> 
+      <closure-compile input="${bluemind-library.dir}/ui/editor.js" output="@{js}_fr.js" input.dir="@{build.dir}/src" build.dir="@{build.dir}" namespace="bluemind.ui.Editor" lang="fr"/> 
+      <closure-compile input="${bluemind-library.dir}/ui/editor.js" output="@{js}_es.js" input.dir="@{build.dir}/src" build.dir="@{build.dir}" namespace="bluemind.ui.Editor" lang="es"/> 
+      <closure-compile input="${bluemind-library.dir}/ui/editor.js" output="@{js}_sk.js" input.dir="@{build.dir}/src" build.dir="@{build.dir}" namespace="bluemind.ui.Editor" lang="sk"/> 
+      <copy file="@{js}.js" tofile="@{js}_en.js"/>
+      <delete dir="@{build.dir}/src" failonerror="false" />
+    </sequential>
+  </macrodef>  
+
+  <!-- SEARCH FIELD COMPILATION MACROS -->
+
+  <macrodef name="searchfield-compile">
+    <attribute name="css" />
+    <attribute name="js" />
+    <attribute name="build.dir" default="${build.dir}"/>
+    <sequential>
+      <mkdir dir="@{build.dir}/src" />
+      <soy-compile locales="en" build.dir="@{build.dir}" input.dir="@{build.dir}/src"/>
+      <gss-compile output="@{css}" build.dir="@{build.dir}" input.dir="@{build.dir}/src"/>
+      <closure-compile input="${bluemind-library.dir}/ui/searchfield.js" output="@{js}.js" input.dir="@{build.dir}/src" build.dir="@{build.dir}" namespace="bluemind.ui.SearchField" lang="en"/> 
+      <delete dir="@{build.dir}/src" failonerror="false" />
+    </sequential>
+  </macrodef>  
+
+  <!-- DIALER FIELD COMPILATION MACROS -->
+
+  <macrodef name="dialer-compile">
+    <attribute name="css" />
+    <attribute name="js" />
+    <attribute name="build.dir" default="${build.dir}"/>
+    <sequential>
+      <mkdir dir="@{build.dir}/src" />
+      <soy-compile locales="en" build.dir="@{build.dir}" input.dir="@{build.dir}/src"/>
+      <gss-compile output="@{css}" build.dir="@{build.dir}" input.dir="@{build.dir}/src"/>
+      <closure-compile input="${bluemind-library.dir}/ui/dialer.js" output="@{js}.js" input.dir="@{build.dir}/src" build.dir="@{build.dir}" namespace="bluemind.ui.Dialer" lang="en"/>
+      <delete dir="@{build.dir}/src" failonerror="false" />
+    </sequential>
+  </macrodef>  
+
+  <!-- LIBRARY COMPILATION TARGET -->
+
+  <target name="lib-xliff" description="extract template messages">
+    <fileset dir="${bluemind-library.dir}" id="lib-soy-files" includes="**/*.soy" />
+    <pathconvert property="lib-soy-input" refid="lib-soy-files" pathsep=" "/>
+    <xliff-compile output="${basedir}/lang/en.xlf">
+      <inputfiles>
+        <arg line='${lib-soy-input}' />
+      </inputfiles>
+    </xliff-compile>
+  </target>
+
+  <!-- EDITOR DEPLOY FOR DEV -->
+  <target name="editor-dist" description="Dist closure wyzwig editor">
+    <editor-compile 
+      js='${basedir}/../../GWTCommon/src/net/bluemind/ui/editor/editor' 
+      css='${basedir}/../../GWTCommon/src//net/bluemind/ui/editor/pub/editor.css' 
+      build.dir='/tmp/build' />
+  </target>
+
+  <!-- SEARCH FIELD DEPLOY FOR WEBMAIL -->
+  <target name="searchfield-dist" description="Dist closure search field widget">
+    <searchfield-compile 
+      js='${basedir}/../../webmail/plugins/bm_search/search' 
+      css='${basedir}/../../webmail/plugins/bm_search/skins/bluemind/search.css' 
+      build.dir='/tmp/build' />
+  </target>
+
+  <!-- DIALER FIELD DEPLOY FOR WEBMAIL -->
+  <target name="dialer-dist" description="Dist closure dialer field widget">
+    <dialer-compile 
+      js='${basedir}/../../webmail/plugins/bm_dialer/dial' 
+      css='${basedir}/../../webmail/plugins/bm_dialer/skins/bluemind/dial.css' 
+      build.dir='/tmp/build' />
+  </target>  
+</project>  

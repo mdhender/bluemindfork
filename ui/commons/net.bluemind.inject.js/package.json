@@ -1,0 +1,23 @@
+{
+    "name": "@bluemind/inject",
+    "description": "Dependencies injection framework",
+    "version": "4.1.0",
+    "license": "GPL-3.0",
+    "author": "Blue Mind SAS",
+    "main": "src/index.js",
+    "module": "src/index.js",
+    "devDependencies": {
+        "@bluemind/conf": "^4.1.0"
+    },
+    "scripts": {
+        "build": "",
+        "test": "jest --config node_modules/@bluemind/conf/jest.config.js"
+    },
+    "dependencies": {
+        "@bluemind/global": "^4.1.0",
+        "lodash.isfunction": "^3.0.9",
+        "lodash.isnil": "^4.0.0",
+        "lodash.isstring": "^4.0.1",
+        "lodash.isundefined": "^3.0.1"
+    }
+}

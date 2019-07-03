@@ -1,0 +1,545 @@
+/* BEGIN LICENSE
+ * Copyright © Blue Mind SAS, 2012-2016
+ *
+ * This file is part of BlueMind. BlueMind is a messaging and collaborative
+ * solution.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of either the GNU Affero General Public License as
+ * published by the Free Software Foundation (version 3 of the License).
+ *
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See LICENSE.txt
+ * END LICENSE
+ */
+package net.bluemind.calendar.service;
+
+import static org.junit.Assert.assertNotNull;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.TimeZone;
+import java.util.UUID;
+
+import javax.sql.DataSource;
+
+import org.elasticsearch.client.transport.TransportClient;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.vertx.java.core.AsyncResult;
+import org.vertx.java.core.Handler;
+
+import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.SettableFuture;
+
+import net.bluemind.addressbook.api.IAddressBookUids;
+import net.bluemind.addressbook.api.VCard;
+import net.bluemind.addressbook.api.VCard.Identification.Name;
+import net.bluemind.addressbook.api.VCard.Kind;
+import net.bluemind.addressbook.domainbook.DomainAddressBook;
+import net.bluemind.addressbook.persistance.VCardIndexStore;
+import net.bluemind.addressbook.persistance.VCardStore;
+import net.bluemind.calendar.api.ICalendar;
+import net.bluemind.calendar.api.ICalendarUids;
+import net.bluemind.calendar.api.IFreebusyUids;
+import net.bluemind.calendar.api.VEvent;
+import net.bluemind.calendar.api.VEventOccurrence;
+import net.bluemind.calendar.api.VEventSeries;
+import net.bluemind.calendar.auditlog.CalendarAuditor;
+import net.bluemind.calendar.service.internal.CalendarService;
+import net.bluemind.core.api.Email;
+import net.bluemind.core.api.date.BmDateTime.Precision;
+import net.bluemind.core.api.date.BmDateTimeWrapper;
+import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.auditlog.IAuditManager;
+import net.bluemind.core.container.api.ContainerSubscription;
+import net.bluemind.core.container.model.Container;
+import net.bluemind.core.container.model.Item;
+import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.model.acl.AccessControlEntry;
+import net.bluemind.core.container.model.acl.Verb;
+import net.bluemind.core.container.persistance.AclStore;
+import net.bluemind.core.container.persistance.ContainerStore;
+import net.bluemind.core.container.persistance.DataSourceRouter;
+import net.bluemind.core.container.persistance.ItemStore;
+import net.bluemind.core.container.service.internal.ContainerStoreService;
+import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
+import net.bluemind.core.jdbc.JdbcActivator;
+import net.bluemind.core.jdbc.JdbcTestHelper;
+import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.sessions.Sessions;
+import net.bluemind.core.tests.BmTestContext;
+import net.bluemind.core.utils.UIDGenerator;
+import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.service.DirEntryHandlers;
+import net.bluemind.domain.api.Domain;
+import net.bluemind.group.api.Group;
+import net.bluemind.group.persistance.GroupStore;
+import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.mailbox.api.Mailbox.Type;
+import net.bluemind.mailbox.service.internal.MailboxStoreService;
+import net.bluemind.server.api.Server;
+import net.bluemind.tag.api.ITagUids;
+import net.bluemind.tag.api.Tag;
+import net.bluemind.tag.api.TagRef;
+import net.bluemind.tag.persistance.TagStore;
+import net.bluemind.tests.defaultdata.PopulateHelper;
+import net.bluemind.user.api.IUserSubscription;
+import net.bluemind.user.api.User;
+import net.bluemind.user.service.internal.ContainerUserStoreService;
+
+public abstract class AbstractCalendarTests {
+
+	protected TransportClient esearchClient;
+
+	protected ItemValue<User> testUser;
+	protected SecurityContext userSecurityContext;
+	protected Container userCalendarContainer;
+	protected Container userCalendarViewContainer;
+	protected Container userFreebusyContainer;
+
+	protected Container userTagContainer;
+
+	protected ItemValue<User> attendee1;
+	protected SecurityContext attendee1SecurityContext;
+	protected Container attendee1CalendarContainer;
+	protected Container attendee1TagContainer;
+
+	protected ItemValue<User> attendee2;
+	protected SecurityContext attendee2SecurityContext;
+	protected Container attendee2CalendarContainer;
+	protected Container attendee2TagContainer;
+
+	protected ItemValue<User> forbidden;
+	protected Container forbiddenCalendarContainer;
+
+	protected Tag tag1;
+	protected TagRef tagRef1;
+	protected Tag tag2;
+	protected TagRef tagRef2;
+
+	protected ItemValue<VCard> dlistItemValue;
+	protected Group group;
+	protected String groupUid;
+	protected boolean sendNotifications = false;
+
+	protected String domainUid;
+
+	private MailboxStoreService mailboxStore;
+
+	protected DateTimeZone tz = DateTimeZone.forID("Europe/Paris");
+	protected BmTestContext testContext = new BmTestContext(SecurityContext.SYSTEM);
+
+	protected SecurityContext basicUserSecurityContext;
+	protected DataSource dataDataSource;
+
+	protected AclStore aclStore;
+	protected AclStore aclStoreData;
+
+	protected Container domainContainer;
+	protected String datalocation;
+
+	@BeforeClass
+	public static void oneShotBefore() {
+		System.setProperty("es.mailspool.count", "1");
+	}
+
+	@Before
+	public void beforeBefore() throws Exception {
+		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+		DateTimeZone.setDefault(DateTimeZone.UTC);
+		ElasticsearchTestHelper.getInstance().beforeTest();
+		JdbcTestHelper.getInstance().beforeTest();
+
+		final SettableFuture<Void> future = SettableFuture.<Void>create();
+		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
+
+			@Override
+			public void handle(AsyncResult<Void> event) {
+				future.set(null);
+			}
+		};
+		VertxPlatform.spawnVerticles(done);
+		future.get();
+
+		Server esServer = new Server();
+		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
+		esServer.tags = Lists.newArrayList("bm/es");
+
+		PopulateHelper.initGlobalVirt(esServer);
+
+		domainUid = "bm.lan";
+		datalocation = PopulateHelper.FAKE_CYRUS_IP;
+		dataDataSource = JdbcActivator.getInstance().getMailboxDataSource(datalocation);
+
+		ItemValue<Domain> domain = PopulateHelper.createTestDomain(domainUid);
+
+		ContainerStore containerStore = new ContainerStore(testContext, JdbcTestHelper.getInstance().getDataSource(),
+				SecurityContext.SYSTEM);
+
+		Container mboxContainer = containerStore.get(domainUid);
+		assertNotNull(mboxContainer);
+
+		mailboxStore = new MailboxStoreService(JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM,
+				mboxContainer);
+
+		// User container
+		Container usersBook = Container.create("addressbook_" + domainUid, "addressbook", domainUid + " users", "me",
+				true);
+		usersBook = containerStore.get(DomainAddressBook.getIdentifier("bm.lan"));
+
+		domainContainer = containerStore.get("bm.lan");
+		assertNotNull(domainContainer);
+		ItemStore userItemStore = new ItemStore(JdbcTestHelper.getInstance().getDataSource(), domainContainer,
+				SecurityContext.SYSTEM);
+		ContainerUserStoreService userStore = new ContainerUserStoreService(testContext, domainContainer, domain);
+
+		GroupStore groupStore = new GroupStore(JdbcTestHelper.getInstance().getDataSource(), domainContainer);
+		ItemStore groupsItemStore = new ItemStore(JdbcTestHelper.getInstance().getDataSource(), domainContainer,
+				SecurityContext.SYSTEM);
+
+		ContainerStoreService<VCard> vcardStore = new ContainerStoreService<VCard>(
+				JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM, usersBook, IAddressBookUids.TYPE,
+				new VCardStore(JdbcTestHelper.getInstance().getDataSource(), usersBook));
+
+		// test user
+		testUser = defaultUser("testUser" + System.nanoTime(), "Doe", "John");
+
+		userStore.create(testUser.uid, testUser.value);
+		vcardStore.create("user_" + testUser.uid, "John Doe", testUser.value.contactInfos);
+
+		userSecurityContext = new SecurityContext("user", testUser.uid, Arrays.<String>asList(),
+				Arrays.<String>asList(), domainUid);
+
+		Sessions.get().put(userSecurityContext.getSessionId(), userSecurityContext);
+
+		basicUserSecurityContext = new SecurityContext("fake", "fake", Arrays.<String>asList(), Arrays.<String>asList(),
+				domainUid);
+		Sessions.get().put(basicUserSecurityContext.getSessionId(), basicUserSecurityContext);
+
+		userCalendarContainer = createTestContainer(userSecurityContext, ICalendarUids.TYPE, "John Doe",
+				ICalendarUids.TYPE + ":Default:" + testUser.uid, testUser.uid);
+		userCalendarViewContainer = createTestContainer(userSecurityContext, "calendarview", "views",
+				"calendarview:" + testUser.uid, testUser.uid);
+
+		userFreebusyContainer = createTestContainer(userSecurityContext, IFreebusyUids.TYPE, "John Doe",
+				IFreebusyUids.getFreebusyContainerUid(testUser.uid), testUser.uid);
+
+		userTagContainer = createTestContainer(userSecurityContext, ITagUids.TYPE, "tags",
+				ITagUids.TYPE + "_" + testUser.uid, testUser.uid);
+
+		Container contactsContainer = createTestContainer(userSecurityContext, IAddressBookUids.TYPE, "My Contacts",
+				"book:Contacts_" + testUser.uid, testUser.uid);
+
+		Container collectedContactsContainer = createTestContainer(userSecurityContext, IAddressBookUids.TYPE,
+				"Collected contacts yay", "book:CollectedContacts_" + testUser.uid, testUser.uid);
+
+		// attendee 1
+		attendee1 = defaultUser("test" + UUID.randomUUID().toString(), "attendee1", "attendee1");
+		userStore.create(attendee1.uid, attendee1.value);
+		vcardStore.create("user_" + attendee1.uid, "John Doe", attendee1.value.contactInfos);
+		attendee1SecurityContext = new SecurityContext("attendee1", attendee1.uid, Arrays.<String>asList(),
+				Arrays.<String>asList(), domainUid);
+		Sessions.get().put(attendee1SecurityContext.getSessionId(), attendee1SecurityContext);
+		attendee1CalendarContainer = createTestContainer(attendee1SecurityContext, ICalendarUids.TYPE, "test",
+				ICalendarUids.TYPE + ":Default:" + attendee1.uid, attendee1.uid);
+		attendee1TagContainer = createTestContainer(attendee1SecurityContext, ITagUids.TYPE, "tags",
+				ITagUids.TYPE + "_" + attendee1.uid, attendee1.uid);
+
+		// attendee 2
+		attendee2 = defaultUser("test" + UUID.randomUUID().toString(), "attendee2", "attendee2");
+		userStore.create(attendee2.uid, attendee2.value);
+		vcardStore.create("user_" + attendee2.uid, "John Doe", attendee2.value.contactInfos);
+		attendee2SecurityContext = new SecurityContext("attendee2", attendee2.uid, Arrays.<String>asList(),
+				Arrays.<String>asList(), domainUid);
+		Sessions.get().put(attendee2SecurityContext.getSessionId(), attendee2SecurityContext);
+		attendee2CalendarContainer = createTestContainer(attendee2SecurityContext, ICalendarUids.TYPE, "test",
+				ICalendarUids.TYPE + ":Default:" + attendee2.uid, attendee2.uid);
+		attendee2TagContainer = createTestContainer(attendee2SecurityContext, ITagUids.TYPE, "tags",
+				ITagUids.TYPE + "_" + attendee2.uid, attendee2.uid);
+
+		// forbidden attendee
+		forbidden = defaultUser("test" + UUID.randomUUID().toString(), "forbidden", "forbidden");
+		userStore.create(forbidden.uid, forbidden.value);
+		vcardStore.create("user_" + forbidden.uid, "Forbidden", forbidden.value.contactInfos);
+		SecurityContext forbiddenSecurityContext = new SecurityContext("forbidden", forbidden.uid,
+				Arrays.<String>asList(), Arrays.<String>asList(), domainUid);
+		Sessions.get().put(forbiddenSecurityContext.getSessionId(), forbiddenSecurityContext);
+		forbiddenCalendarContainer = createTestContainer(forbiddenSecurityContext, ICalendarUids.TYPE, "test",
+				ICalendarUids.TYPE + ":Default:" + forbidden.uid, forbidden.uid);
+
+		// Dlist
+		vcardStore = new ContainerStoreService<VCard>(JdbcTestHelper.getInstance().getDataSource(),
+				SecurityContext.SYSTEM, contactsContainer, IAddressBookUids.TYPE,
+				new VCardStore(JdbcTestHelper.getInstance().getDataSource(), contactsContainer));
+		VCardIndexStore vcardIndex = new VCardIndexStore(ElasticsearchTestHelper.getInstance().getClient(),
+				contactsContainer);
+
+		String member1Uid = UUID.randomUUID().toString();
+		String member1Email = "email" + UUID.randomUUID().toString() + "@vcard.lan";
+		VCard member1 = defaultVCard("Member 1", member1Email);
+		vcardStore.create(member1Uid, "Member 1", member1);
+		vcardIndex.create(member1Uid, member1);
+		String member2Uid = UUID.randomUUID().toString();
+		String member2Email = "email" + UUID.randomUUID().toString() + "@vcard.lan";
+		VCard member2 = defaultVCard("Member 2", member2Email);
+		vcardStore.create(member2Uid, "Member 2", member2);
+		vcardIndex.create(member2Uid, member2);
+
+		VCard dlist = defaultVCard("DLIST", "dlist" + UUID.randomUUID().toString() + "@vcard.lan");
+		dlist.kind = Kind.group;
+		String dlistUid = UUID.randomUUID().toString();
+		dlist.organizational.member = Arrays.asList(
+				VCard.Organizational.Member.create(contactsContainer.uid, member1Uid, "Member 1", member1Email),
+				VCard.Organizational.Member.create(contactsContainer.uid, member2Uid, "Member 2", member2Email));
+		vcardStore.create(dlistUid, "DLIST", dlist);
+		vcardIndex.create(dlistUid, dlist);
+
+		dlistItemValue = vcardStore.get(dlistUid, null);
+
+		// Group
+		group = defaultGroup();
+		groupUid = UIDGenerator.uid();
+
+		DirEntryHandlers.byKind(DirEntry.Kind.GROUP).create(new BmTestContext(SecurityContext.SYSTEM), "bm.lan",
+				DirEntry.create(null, "bm.lan/groups/" + groupUid, DirEntry.Kind.GROUP, groupUid, group.name,
+						group.emails.iterator().next().address, false, false, false));
+		Item groupItem = groupsItemStore.get(groupUid);
+		groupStore.create(groupItem, group);
+
+		group = groupStore.get(groupItem);
+
+		groupStore.addUsersMembers(groupItem, userItemStore.getMultiple(Arrays.asList(attendee1.uid, attendee2.uid)));
+
+		Mailbox groupMbox = new Mailbox();
+		groupMbox.type = Type.group;
+		groupMbox.routing = Routing.none;
+		groupMbox.name = group.name;
+		Email e = new Email();
+		e.address = group.name + "@bm.lan";
+		e.allAliases = true;
+		e.isDefault = true;
+		groupMbox.emails = Arrays.asList(e);
+		mailboxStore.attach(groupUid, null, groupMbox);
+
+		Mailbox groupMailbox = mailboxStore.get(groupUid, null).value;
+		group.emails = groupMailbox.emails;
+
+		// Acls
+		aclStore = new AclStore(testContext, JdbcTestHelper.getInstance().getDataSource());
+		List<AccessControlEntry> ace = Arrays
+				.asList(AccessControlEntry.create(userSecurityContext.getSubject(), Verb.All));
+		aclStore.store(domainContainer, ace);
+		aclStore.store(usersBook, ace);
+
+		// Acls sharded data
+		aclStoreData = new AclStore(testContext, dataDataSource);
+		aclStoreData.store(userCalendarContainer, ace);
+		aclStoreData.store(userCalendarViewContainer, ace);
+		aclStoreData.store(userFreebusyContainer, ace);
+		aclStoreData.store(userTagContainer, ace);
+		aclStoreData.store(contactsContainer, ace);
+		aclStoreData.store(collectedContactsContainer, ace);
+
+		List<AccessControlEntry> a1 = Arrays.asList(
+				AccessControlEntry.create(attendee1SecurityContext.getSubject(), Verb.All),
+				AccessControlEntry.create(attendee2SecurityContext.getSubject(), Verb.Read),
+				AccessControlEntry.create(userSecurityContext.getSubject(), Verb.Read));
+		aclStoreData.store(attendee1CalendarContainer, a1);
+		aclStoreData.store(attendee1TagContainer, a1);
+
+		List<AccessControlEntry> a2 = Arrays
+				.asList(AccessControlEntry.create(attendee2SecurityContext.getSubject(), Verb.All));
+		aclStoreData.store(attendee2CalendarContainer, a2);
+		aclStoreData.store(attendee2TagContainer, a2);
+
+		// Tags
+		ContainerStoreService<Tag> storeService = new ContainerStoreService<>(dataDataSource, userSecurityContext,
+				userTagContainer, ITagUids.TYPE, new TagStore(dataDataSource, userTagContainer));
+
+		tag1 = new Tag();
+		tag1.label = "tag1";
+		tag1.color = "ffffff";
+		storeService.create("tag1", "tag1", tag1);
+		tagRef1 = new TagRef();
+		tagRef1.containerUid = userTagContainer.uid;
+		tagRef1.itemUid = "tag1";
+
+		tag2 = new Tag();
+		tag2.label = "tag2";
+		tag2.color = "ffffff";
+		storeService.create("tag2", "tag2", tag2);
+		tagRef2 = new TagRef();
+		tagRef2.containerUid = userTagContainer.uid;
+		tagRef2.itemUid = "tag2";
+
+		// elasticsearch
+		esearchClient = ElasticsearchTestHelper.getInstance().getClient();
+
+	}
+
+	@After
+	public void after() throws Exception {
+		JdbcTestHelper.getInstance().afterTest();
+	}
+
+	/**
+	 * @return
+	 */
+	protected VEventSeries defaultVEvent() {
+		VEventSeries series = new VEventSeries();
+		VEvent event = new VEvent();
+		DateTimeZone tz = DateTimeZone.forID("Asia/Ho_Chi_Minh");
+		event.dtstart = time(new DateTime(2022, 2, 13, 1, 0, 0, tz));
+		event.summary = "event " + System.currentTimeMillis();
+		event.location = "Toulouse";
+		event.description = "Lorem ipsum";
+		event.transparency = VEvent.Transparency.Opaque;
+		event.classification = VEvent.Classification.Private;
+		event.status = VEvent.Status.Confirmed;
+		event.priority = 3;
+
+		event.organizer = new VEvent.Organizer(testUser.value.login + "@bm.lan");
+
+		List<VEvent.Attendee> attendees = new ArrayList<>(1);
+		VEvent.Attendee me = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.Chair,
+				VEvent.ParticipationStatus.Accepted, true, "", "", "", "osef", null, null, null,
+				"external@attendee.lan");
+		attendees.add(me);
+
+		event.attendees = attendees;
+
+		event.categories = new ArrayList<TagRef>(2);
+		event.categories.add(tagRef1);
+		event.categories.add(tagRef2);
+
+		series.main = event;
+		return series;
+	}
+
+	protected VEventOccurrence recurringVEvent() {
+		VEventOccurrence event = new VEventOccurrence();
+		DateTimeZone tz = DateTimeZone.forID("Asia/Ho_Chi_Minh");
+		event.dtstart = time(new DateTime(2022, 2, 13, 1, 0, 0, tz));
+		event.recurid = time(new DateTime(2022, 2, 13, 2, 0, 0, tz));
+		event.summary = "event " + System.currentTimeMillis();
+		event.location = "Toulouse";
+		event.description = "Lorem ipsum";
+		event.transparency = VEvent.Transparency.Opaque;
+		event.classification = VEvent.Classification.Private;
+		event.status = VEvent.Status.Confirmed;
+		event.priority = 3;
+
+		event.organizer = new VEvent.Organizer(testUser.value.login + "@bm.lan");
+
+		List<VEvent.Attendee> attendees = new ArrayList<>(1);
+		VEvent.Attendee me = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.Chair,
+				VEvent.ParticipationStatus.Accepted, true, "", "", "",
+				testUser.value.contactInfos.identification.formatedName.value, null, null, null,
+				testUser.value.login + "@bm.lan");
+		attendees.add(me);
+
+		event.attendees = attendees;
+
+		event.categories = new ArrayList<TagRef>(2);
+		event.categories.add(tagRef1);
+		event.categories.add(tagRef2);
+
+		return event;
+	}
+
+	private ItemValue<User> defaultUser(String login, String lastname, String firstname) {
+		net.bluemind.user.api.User user = new User();
+		login = login.toLowerCase();
+		user.login = login;
+		Email em = new Email();
+		em.address = login + "@bm.lan";
+		em.isDefault = true;
+		em.allAliases = false;
+		user.emails = Arrays.asList(em);
+		user.password = "password";
+		user.routing = Routing.internal;
+		user.dataLocation = PopulateHelper.FAKE_CYRUS_IP;
+		VCard card = new VCard();
+		card.identification.name = Name.create(lastname, firstname, null, null, null, null);
+		card.identification.formatedName = VCard.Identification.FormatedName.create(firstname + " " + lastname,
+				Arrays.<VCard.Parameter>asList());
+		user.contactInfos = card;
+		ItemValue<User> ret = ItemValue.create(login + "_bm.lan", user);
+		ret.displayName = card.identification.formatedName.value;
+		return ret;
+	}
+
+	protected Container createTestContainer(SecurityContext context, String type, String name, String uid, String owner)
+			throws SQLException {
+		BmContext ctx = new BmTestContext(context);
+		ContainerStore containerHome = new ContainerStore(ctx, dataDataSource, context);
+		Container container = Container.create(uid, type, name, owner, domainUid, true);
+		container = containerHome.create(container);
+
+		ContainerStore directoryStore = new ContainerStore(ctx, ctx.getDataSource(), context);
+		directoryStore.createContainerLocation(container, datalocation);
+
+		IUserSubscription subApi = ctx.provider().instance(IUserSubscription.class, domainUid);
+		subApi.subscribe(context.getSubject(), Arrays.asList(ContainerSubscription.create(container.uid, true)));
+
+		return container;
+	}
+
+	private VCard defaultVCard(String formattedName, String email) {
+		VCard card = new VCard();
+		card.identification = new VCard.Identification();
+		card.identification.formatedName = VCard.Identification.FormatedName.create(formattedName,
+				Arrays.<VCard.Parameter>asList());
+		card.communications.emails = Arrays.asList(VCard.Communications.Email.create(email));
+		return card;
+	}
+
+	private Group defaultGroup() {
+		Group group = new Group();
+		group.name = "group-" + System.nanoTime();
+
+		group.description = "Test group";
+		Email e = new Email();
+		e.address = group.name + "@bm.lan";
+		e.allAliases = true;
+		e.isDefault = true;
+		group.emails = Arrays.asList(e);
+
+		return group;
+	}
+
+	protected net.bluemind.core.api.date.BmDateTime time(DateTime dateTime) {
+		return time(dateTime, true);
+	}
+
+	protected net.bluemind.core.api.date.BmDateTime time(DateTime dateTime, boolean autoDate) {
+		if (autoDate && dateTime.getZone().equals(DateTimeZone.getDefault()) && dateTime.getHourOfDay() == 0
+				&& dateTime.getMinuteOfHour() == 0 && dateTime.getSecondOfMinute() == 0) {
+			long ts = dateTime.withZoneRetainFields(DateTimeZone.UTC).getMillis();
+			return BmDateTimeWrapper.fromTimestamp(ts, dateTime.getZone().getID(), Precision.Date);
+		} else {
+			return BmDateTimeWrapper.create(dateTime, Precision.DateTime);
+		}
+	}
+
+	protected ICalendar getCalendarService(SecurityContext context, Container container) throws ServerFault {
+		BmContext ctx = new BmTestContext(context);
+		DataSource ds = DataSourceRouter.get(ctx, container.uid);
+		return new CalendarService(ds, esearchClient, container, ctx,
+				CalendarAuditor.auditor(IAuditManager.instance(), ctx, container));
+	}
+
+}

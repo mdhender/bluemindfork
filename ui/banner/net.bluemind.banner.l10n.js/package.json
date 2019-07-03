@@ -1,0 +1,8 @@
+{
+    "name": "@bluemind/banner.l10n",
+    "version": "4.1.0",
+    "description": "Bluemind banner language package",
+    "author": "Blue Mind SAS",
+    "license": "GPLv3",
+    "main": "index.js"
+}

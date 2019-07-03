@@ -1,0 +1,137 @@
+Return-Path: <fernadel@viedemer.com>
+Received: from viedemer.com (groupware.blue-mind.com [10.10.10.14])
+	 by groupware with LMTPA;
+	 Wed, 24 Jul 2013 11:10:48 +0200
+X-Sieve: CMU Sieve 2.4
+Received: from groupware.blue-mind.com (LHLO
+ groupware.blue-mind.com) (10.10.10.14) by unknown with LMTP;
+ 7/24/13 9:10 AM
+Received: from viedemer.com ([10.1.4.63])	by emailsecurity2.viedemer.com (
+ 7.3.6.7163)	with ESMTP; Wed, 24 Jul 2013 11:10:41 +0200
+MIME-Version: 1.0
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-Class: urn:content-classes:calendarmessage
+Content-Type: multipart/alternative;
+	boundary="----_=_NextPart_001_01CE884D.AB873A1D"
+Subject: =?iso-8859-1?Q?Mis=28e=29_=E0_jour=3A_R=E9union_RH_de_rentr=E9e?=
+Date: Wed, 24 Jul 2013 11:10:41 +0200
+Message-ID: <C7F3BBB3330D624C9E14F4CE89E8903D08B31C33@FRSAMS000.viedemer.com>
+Thread-Topic: =?iso-8859-1?Q?R=E9union_RH_de_rentr=E9e?=
+Thread-Index: Ac6IShyCk8xGvKhlRca74b5HYJmgawAA47lA
+From: Celine Fernand <fernadel@viedemer.com>
+To: =?iso-8859-1?Q?L=E9onie_Laurent?=
+	<llaurent@vardert.com>,Laurence Defaye / Allibert
+	<l.fayette@blue-mind.com>
+
+------_=_NextPart_001_01CE884D.AB873A1D
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+Quand : lundi 16 septembre 2013 09:30-12:30 (GMT+01:00) Bruxelles, Copenhag=
+ue, Madrid, Paris=2E
+Emplacement : salle incentive
+
+*~*~*~*~*~*~*~*~*~*
+
+
+
+------_=_NextPart_001_01CE884D.AB873A1D
+Content-Type: text/html; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3=2E2//EN">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Diso-8859=
+-1">
+<META NAME=3D"Generator" CONTENT=3D"MS Exchange Server version 6=2E5=2E763=
+8=2E1">
+<TITLE>Mis(e) =E0 jour: R=E9union RH de rentr=E9e</TITLE>
+</HEAD>
+<BODY>
+<!-- Converted from text/rtf format -->
+
+<P><FONT COLOR=3D"#000080" SIZE=3D2 FACE=3D"Arial">Quand=A0: lundi 16 sept=
+embre 2013 09:30-12:30 (GMT+01:00) Bruxelles, Copenhague, Madrid, Paris=2E<=
+/FONT>
+
+<BR><FONT COLOR=3D"#000080" SIZE=3D2 FACE=3D"Arial">Emplacement=A0: salle =
+incentive</FONT>
+</P>
+
+<P><FONT COLOR=3D"#000080" SIZE=3D2 FACE=3D"Arial">*~*~*~*~*~*~*~*~*~*</FO=
+NT>
+</P>
+<BR>
+
+</BODY>
+</HTML>
+------_=_NextPart_001_01CE884D.AB873A1D
+Content-Class: urn:content-classes:calendarmessage
+Content-Type: text/calendar; method=REQUEST; name="meeting.ics"
+Content-Transfer-Encoding: quoted-printable
+
+BEGIN:VCALENDAR
+METHOD:REQUEST
+PRODID:Microsoft CDO for Microsoft Exchange
+VERSION:2=2E0
+BEGIN:VTIMEZONE
+TZID:(GMT+01=2E00) Sarajevo/Warsaw/Zagreb
+X-MICROSOFT-CDO-TZID:2
+BEGIN:STANDARD
+DTSTART:16010101T030000
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+RRULE:FREQ=3DYEARLY;WKST=3DMO;INTERVAL=3D1;BYMONTH=3D10;BYDAY=3D-1SU
+END:STANDARD
+BEGIN:DAYLIGHT
+DTSTART:16010101T020000
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+RRULE:FREQ=3DYEARLY;WKST=3DMO;INTERVAL=3D1;BYMONTH=3D3;BYDAY=3D-1SU
+END:DAYLIGHT
+END:VTIMEZONE
+BEGIN:VEVENT
+DTSTAMP:20130724T091041Z
+DTSTART;TZID=3D"(GMT+01=2E00) Sarajevo/Warsaw/Zagreb":20130916T093000
+SUMMARY:Mis(e) =C3=A0 jour: R=C3=A9union RH de rentr=C3=A9e
+UID:040000008200E00074C5B7101A82E0080000000080F208E05A88CE0100000000000000=
+0
+ 01000000088D09CB4813EC74FBC13270E7428E99B
+ATTENDEE;ROLE=3DREQ-PARTICIPANT;PARTSTAT=3DNEEDS-ACTION;RSVP=3DTRUE;CN=3D"=
+L=C3=A9onie L
+ aurent":MAILTO:llaurent@vardert=2Ecom
+ATTENDEE;ROLE=3DREQ-PARTICIPANT;PARTSTAT=3DNEEDS-ACTION;RSVP=3DTRUE;CN=3D"=
+Laurence=20
+ Defaye / Allibert":MAILTO:l=2Efayette@blue-mind=2Ecom
+ORGANIZER;CN=3D"Celine Fernand":MAILTO:fernadel@viedemer=2Ecom
+LOCATION:salle incentive
+DTEND;TZID=3D"(GMT+01=2E00) Sarajevo/Warsaw/Zagreb":20130916T123000
+DESCRIPTION:\N
+SEQUENCE:0
+PRIORITY:5
+CLASS:
+CREATED:20130724T091041Z
+LAST-MODIFIED:20130724T091041Z
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+X-MICROSOFT-CDO-BUSYSTATUS:BUSY
+X-MICROSOFT-CDO-INSTTYPE:0
+X-MICROSOFT-CDO-INTENDEDSTATUS:BUSY
+X-MICROSOFT-CDO-ALLDAYEVENT:FALSE
+X-MICROSOFT-CDO-IMPORTANCE:1
+X-MICROSOFT-CDO-OWNERAPPTID:12089309
+X-MICROSOFT-CDO-APPT-SEQUENCE:2
+X-MICROSOFT-CDO-ATTENDEE-CRITICAL-CHANGE:20130724T091040Z
+X-MICROSOFT-CDO-OWNER-CRITICAL-CHANGE:20130724T091041Z
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:REMINDER
+TRIGGER;RELATED=3DSTART:-PT00H15M00S
+END:VALARM
+END:VEVENT
+END:VCALENDAR
+
+------_=_NextPart_001_01CE884D.AB873A1D--
+
+

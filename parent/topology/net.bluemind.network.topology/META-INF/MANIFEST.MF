@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.network.topology
+Bundle-SymbolicName: net.bluemind.network.topology
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.network.topology.impl.TopologyActivator
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.core.container.api;bundle-version="4.1.0";visibility:=reexport,
+ net.bluemind.server.api;visibility:=reexport,
+ com.google.guava,
+ slf4j.api
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.network.topology
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.network.topology,
+ net.bluemind.network.topology.dto

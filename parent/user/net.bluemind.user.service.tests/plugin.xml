@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.core.container.hooks.aclhook">
+      <acl_hook
+            impl="net.bluemind.user.service.DummyAclHook">
+      </acl_hook>
+   </extension>
+   <extension
+         point="net.bluemind.user.passwordupdater">
+      <password_updater
+            impl="net.bluemind.user.service.internal.FailPasswordUpdater"
+            priority="1">
+      </password_updater>
+   </extension>
+
+</plugin>

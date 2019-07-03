@@ -1,0 +1,62 @@
+.emailPanel {
+	width: 100%;
+	table-layout: fixed;
+}
+
+.textBox {
+	vertical-align: top;
+	max-width: 45%;
+	border-radius: 3px 0 0 3px;
+	height: 16px;
+	line-height: 15px;
+	padding: 5px 0;
+}
+
+.listBox {
+	max-width: 45%;
+	height: 27px;
+	border-radius: 0 3px 3px 0;
+}
+
+.defaultListBox {
+	height: 28px;
+	border-radius: 0 3px 3px 0;
+	max-width: 45%;
+}
+
+.defaultListBoxLine {
+	margin-bottom: 2px;
+}
+
+.mailContainer {
+	margin-bottom: 2px;
+}
+
+.at {
+	vertical-align: top;
+	height: 25px;
+	background-color: whiteSmoke;
+	color: #666;
+	border: 1px solid #CCC;
+	border-left: none;
+	border-right: none;
+	line-height: 26px;
+	display: inline-block;
+}
+
+.icon {
+	cursor: pointer;
+}
+
+.prependedText {
+	vertical-align: top;
+	background-color: whiteSmoke;
+	color: #666;
+	border: 1px solid #CCC;
+	border-right: none;
+	border-radius: 3px 0px 0px 3px;
+	padding: 6px 2px 0px;
+	display: inline-block;
+	height: 20px;
+	max-width: 35%;
+}

@@ -1,0 +1,39 @@
+{namespace bluemind.calendar.pending.template}
+
+/**
+ * Notification
+ */
+{template .notification}
+    <div class="{css pendingCount}"></div>
+{/template}
+
+/**
+ * Waiting event list
+ */
+{template .list}
+  <div id="gridContainer">
+    <table id="pendinglist" class="{css pendinglist}">
+      <tbody>
+      <tr class="{css header}">
+        <td><span id="evt-root" class="{css goog-checkbox}"></span></td>
+        <td>{msg desc="event date label"}Date{/msg}</td>
+        <td>&nbsp;</td>
+        <td>{msg desc="event hour label"}Hour{/msg}</td>
+        <td>{msg desc="event detail"}Detail{/msg}</td>
+      </tr>
+      </tbody>
+      <tbody id="events-list">
+      </tbody>
+    </table>
+  </div>
+{/template}
+
+
+/**
+ * Empty list
+ */
+{template .emptyList}
+  <div id="gridContainer">
+    <div class="{css emptyListMsg}">{msg desc="no pending events"}No pending events here!{/msg}</div>
+  </div>
+{/template}

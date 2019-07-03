@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="webLauncher"
+         name="webLauncher"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            thread="main"
+            visible="true">
+         <run
+               class="net.bluemind.webmodules.launcher.Launcher">
+         </run>
+      </application>
+   </extension>
+   <extension
+   id="webLauncher"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="net.bluemind.webmodules.launcher.webLauncher"
+            name="bm.webserver">
+         <property
+               name="appName" value="bm.webserver">
+         </property>
+      </product>
+   </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.webmodule.server.WebModuleServerVerticleFactory">
+      </verticle>
+   </extension>
+
+</plugin>

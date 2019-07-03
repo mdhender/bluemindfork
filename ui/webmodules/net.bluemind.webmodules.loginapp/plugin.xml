@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module
+            index="index.html"
+            root="/login">
+         <web-resource
+               bundle="net.bluemind.webmodules.loginapp">               
+         </web-resource>
+         <handler
+               class="net.bluemind.webmodules.login.LoginHandler"
+               path="index.html"></handler>
+         <handler
+               class="net.bluemind.webmodules.login.LoginHandler"
+               path="native"></handler>
+         
+      </web-module>
+   </extension>
+   
+   <extension
+         point="net.bluemind.proxy.http.authenforcer">
+      <enforcer
+            impl="net.bluemind.webmodules.login.hps.AuthEnforcer" priority="1">
+      </enforcer>
+   </extension>
+</plugin>

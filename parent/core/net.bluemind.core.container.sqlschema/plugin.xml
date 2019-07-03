@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.core.jdbc.schema">
+      <schema
+            name="item-store"
+            resource="sql/item-store-1.0.0-SNAPSHOT.sql">
+         <compose
+               id="schema-version">
+         </compose>
+      </schema>
+      <schema
+            name="container-sync-store"
+            resource="sql/container-sync-1.0.0-SNAPSHOT.sql">
+         <compose
+               id="item-store">
+         </compose>
+      </schema>
+      <schema
+            name="containers-hierarchy"
+            resource="sql/containers-hierarchy-1.0.0-SNAPSHOT.sql">
+         <compose
+               id="item-store">
+         </compose>
+      </schema>
+      <schema
+            name="owner-subscriptions"
+            resource="sql/owner-subscriptions-1.0.0-SNAPSHOT.sql">
+         <compose
+               id="item-store">
+         </compose>
+      </schema>
+   </extension>
+   <extension
+         point="net.bluemind.system.schemaupgrader.sqlscript">
+      <sql
+            build_number="1"
+            ignore_errors="true"
+            major="5"
+            script="sql/containers-hierarchy-1.0.0-SNAPSHOT.sql">
+      </sql>
+   </extension>
+   <extension
+         point="net.bluemind.system.schemaupgrader.sqlscript">
+      <sql
+            build_number="1"
+            ignore_errors="false"
+            major="5"
+            script="sql/owner-subscriptions-1.0.0-SNAPSHOT.sql">
+      </sql>
+   </extension>
+
+</plugin>

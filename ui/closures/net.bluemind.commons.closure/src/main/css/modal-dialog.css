@@ -1,0 +1,181 @@
+/* Styles for goog.ui.Dialog */
+.modal-dialog-bg {
+  position: absolute;
+  background-color: #666;
+  /* @alternate */ background-image: -webkit-gradient(radial,center center,30,center center,800,from(#F8F8F8),to(#000));
+  /* @alternate */ background-image: -moz-radial-gradient(#F8F8F8, #000);  
+  background-repeat:no-repeat;
+  top: 0;
+  left: 0;
+  z-index: 1999;
+}
+
+.modal-dialog {
+  position: absolute;
+  border: 1px solid #666;
+  font-family: arial, sans-serif;
+  width: 475px;
+  color: #000;
+  outline: none;
+  -moz-box-shadow: 0px 5px 80px #555;
+  -webkit-box-shadow: 0px 5px 80px #555;
+  box-shadow: 0px 5px 80px #555;
+  z-index:2000;
+}
+
+.modal-dialog a,
+.modal-dialog a:link,
+.modal-dialog a:visited  {
+  color: #0066cc;
+  cursor: pointer;
+}
+
+.modal-dialog-title {
+  position: relative;
+  background-color: #F8F8F8;
+  color: #000;
+  text-shadow: #CCC 0 1px 2px;
+  border-bottom: 1px solid #CCC;
+  padding: 10px 15px;
+  font-size: 130%;
+  font-weight: bold;
+  vertical-align: middle;
+  cursor:default;
+  user-select: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+}
+
+.modal-dialog-title-close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  width: 15px;
+  height: 16px;
+  cursor: pointer;
+  display: inline-block;
+  font: normal normal normal 14px/1 FontAwesome;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 16px;
+}
+
+.modal-dialog-title-close:before {
+  content: "\f00d";
+}
+
+.modal-dialog-content {
+  padding: 15px;
+  font-size: 90%;
+  background-color: #fff;
+}
+
+.modal-dialog-buttons {
+  padding: 10px 15px;
+  background-color: #fff;
+  border-top: 1px solid #CCC;
+}
+
+.goog-buttonset-default {
+  font-weight: bold;
+}
+
+.modal-dialog table {
+  width:100%;
+  background:#FFF;
+  margin:5px 0;
+}
+
+.modal-dialog table button {
+  width:100%;
+}
+
+.modal-dialog-buttons button {
+  border-radius: 2px;
+  -moz-border-radius: 2px;
+  -webkit-border-radius: 2px;
+  cursor: pointer;
+  display: inline-block;
+  text-align: center;
+  background-color: #e6e6e6;
+  background-repeat: no-repeat;
+  background-image: linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);
+  /* @alternate */ background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), color-stop(25%, #ffffff), to(#e6e6e6));
+  /* @alternate */ background-image: -webkit-linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);
+  /* @alternate */ background-image: -moz-linear-gradient(top, #ffffff, #ffffff 25%, #e6e6e6);
+  /* @alternate */ background-image: -ms-linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);
+  /* @alternate */ background-image: -o-linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#e6e6e6', GradientType=0);
+  padding: 3px 12px 4px;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+  color: #333;
+  line-height: normal;
+  border: 1px solid #ccc;
+  border-bottom-color: #bbb;
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+  -webkit-transition: 0.1s linear all;
+  -moz-transition: 0.1s linear all;
+  -ms-transition: 0.1s linear all;
+  -o-transition: 0.1s linear all;
+  transition: 0.1s linear all;
+  box-sizing:border-box;
+  -moz-box-sizing:border-box;
+  -webkit-box-sizing:border-box;
+}
+
+.modal-dialog-buttons button:hover {
+  background-position: 0 -15px;
+  text-decoration: none;
+}
+
+.modal-dialog-buttons button:focus {
+  outline: 1px dotted #666;
+}
+
+.modal-dialog-buttons button:active {
+  -webkit-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25), 0 1px 2px rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25), 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25), 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.modal-dialog-buttons button.goog-buttonset-default {
+  color: #ffffff;
+  background-color: #0064CD;
+  background-repeat: repeat-x;
+  background-image: linear-gradient(to bottom, #049CDB, #0064CD);
+  /* @alternate */ background-image: -khtml-gradient(linear, left top, left bottom, from(#049CDB), to(#0064CD));
+  /* @alternate */ background-image: -moz-linear-gradient(top, #049CDB, #0064CD);
+  /* @alternate */ background-image: -ms-linear-gradient(top, #049CDB, #0064CD);
+  /* @alternate */ background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #049CDB), color-stop(100%, #0064CD));
+  /* @alternate */ background-image: -webkit-linear-gradient(top, #049CDB, #0064CD);
+  /* @alternate */ background-image: -o-linear-gradient(top, #049CDB, #0064CD);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#049CDB', endColorstr='#0064CD', GradientType=0);
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  border-color: rgba(27, 82, 123, 0.1) rgba(27, 82, 123, 0.1) rgba(27, 82, 123, 0.25);
+}
+
+
+.modal-dialog-buttons button.goog-buttonset-default[disabled] {
+  color: #888;
+  text-decoration: none;
+  cursor: default;
+  background-image: none;
+  outline: none;
+  background-color: #e6e6e6;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);  
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+  /* filter: alpha(opacity=65); */
+  -khtml-opacity: 0.65;
+  -moz-opacity: 0.65;
+  opacity: 0.65;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;  
+}
+
+

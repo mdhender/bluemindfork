@@ -1,0 +1,34 @@
+{namespace net.bluemind.calendar.list.templates}
+
+
+/**
+ * Waiting event list
+ */
+{template .list}
+  <div id="gridContainer">
+    <table id="pendinglist" class="{css pendinglist}">
+      <tbody>
+      <tr class="{css header}">
+        <td>{msg desc="event date label" meaning="calendar.list.dateColumn"}Date{/msg}</td>
+        <td>{msg desc="event hour label" meaning="calendar.list.hourColumn"}Hour{/msg}</td>
+        <td>&nbsp;</td>
+        <td>{msg desc="event detail" meaning="calendar.list.detailColumn"}Detail{/msg}</td>
+        <td>&nbsp;</td>
+      </tr>
+      </tbody>
+      <tbody id="events-list">
+      </tbody>
+    </table>
+    <div class="{css missingContainers}"></div>
+  </div>
+{/template}
+
+
+/**
+ * Empty list
+ */
+{template .emptyList}
+  <div id="gridContainer">
+    <div class="{css emptyListMsg}">{msg desc="no pending events"  meaning="calendar.list.noPendingEvents"}No pending events here!{/msg}</div>
+  </div>
+{/template}

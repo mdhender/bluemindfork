@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Lazy list demo demo</title>
+
+    <script type="text/javascript" src="../../../../closure-library/closure/goog/base.js"></script>
+    <script type="text/javascript" src="../../deps.js"></script>
+    <script type="text/javascript">
+        goog.require("ydn.ui.LazyList");
+    </script>
+
+</head>
+<body>
+<style>
+    #root {
+        width: 20em;
+        height: 30em;
+        border: solid blue thin;
+        padding: 4px;
+    }
+
+    .ydn-lazy-list {
+        border: solid gray thin;
+    }
+</style>
+<div id="root"></div>
+<div id="msg"></div>
+<script>
+    var model = new ydn.ui.LazyListModel(1000);
+    var list = new ydn.ui.LazyList(model, new ydn.ui.LazyListRenderer());
+    list.render(document.getElementById('root'));
+
+    setInterval(function() {
+        msg.textContent = document.querySelector('.ydn-lazy-list').childElementCount + ' elements';
+    }, 1000)
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: ItemStore
+Bundle-SymbolicName: net.bluemind.core.container.sqlschema;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Require-Bundle: net.bluemind.core.sqlschema;bundle-version="1.0.0",
+ net.bluemind.system.schemaupgrader;bundle-version="4.1.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.core.container.sqlschema

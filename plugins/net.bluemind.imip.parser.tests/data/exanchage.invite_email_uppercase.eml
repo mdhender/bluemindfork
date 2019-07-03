@@ -1,0 +1,89 @@
+Return-Path: <admin@willow.vmw>
+Received: from willow.vmw ([172.16.45.135])
+	 by bjday (Cyrus v2.4.16-Debian-2.4.16-1hudson92) with LMTPA;
+	 Fri, 25 May 2012 20:25:22 +0200
+X-Sieve: CMU Sieve 2.4
+Received: from 172.16.45.135 (LHLO bjday.willow.vmw) (172.16.45.135) by
+ unknown with LMTP; 5/25/12 6:25 PM
+Received: from [172.16.45.1] (unknown [172.16.45.1])
+	by bjday.willow.vmw (Postfix) with ESMTP id 16EA44444
+	for <tom@willow.vmw>; Fri, 25 May 2012 20:25:20 +0200 (CEST)
+User-Agent: Microsoft-MacOutlook/14.2.1.120420
+Date: Sun, 27 May 2012 19:49:00 +0200
+Subject: =?UTF-8?B?UsOpdW5pb24=?= depuis outlook
+From: Thomas Cataldo <admin@willow.vmw>
+To: Thomas Cataldo <tom@willow.vmw>
+Message-ID: <CBE835BE.3D8%admin@willow.vmw>
+Thread-Topic: =?UTF-8?B?UsOpdW5pb24=?= depuis outlook
+Mime-version: 1.0
+Content-type: multipart/alternative;
+	boundary="B_3420992958_13541428"
+
+> This message is in MIME format. Since your mail reader does not understand
+this format, some or all of this message may not be legible.
+
+--B_3420992958_13541428
+Content-type: text/html;
+	charset="UTF-8"
+Content-transfer-encoding: quoted-printable
+
+<html><head></head><body style=3D"word-wrap: break-word; -webkit-nbsp-mode: s=
+pace; -webkit-line-break: after-white-space; color: rgb(0, 0, 0); font-size:=
+ 14px; font-family: Calibri, sans-serif; "><div>De 8h =C3=A0 8h30</div></body></=
+html>
+
+--B_3420992958_13541428
+Content-Type: text/calendar;method=REQUEST;
+	charset="UTF-8";name="meeting.ics"
+Content-transfer-encoding: quoted-printable
+
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Microsoft Corporation//Outlook for Mac MIMEDIR//EN
+METHOD:REQUEST
+BEGIN:VTIMEZONE
+TZID:Romance Standard Time
+BEGIN:DAYLIGHT
+TZNAME:Daylight
+RRULE:FREQ=3DYEARLY;INTERVAL=3D1;BYDAY=3D-1SU;BYMONTH=3D3
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+DTSTART:20120325T020000
+END:DAYLIGHT
+BEGIN:STANDARD
+TZNAME:Standard
+RRULE:FREQ=3DYEARLY;INTERVAL=3D1;BYDAY=3D-1SU;BYMONTH=3D10
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+DTSTART:20121028T030000
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:A93D8AAF-53FE-40D1-990B-C056E13727F2
+X-ENTOURAGE_UUID:A93D8AAF-53FE-40D1-990B-C056E13727F2
+DTSTAMP:20120527T174900Z
+DTSTART;TZID=3D"Romance Standard Time":20120527T200000
+DTEND;TZID=3D"Romance Standard Time":20120527T203000
+LAST-MODIFIED:20120527T174900Z
+SUMMARY:R=C3=A9union depuis outlook
+DESCRIPTION:De 8h =C3=A0 8h30\n
+LOCATION:Le lieu
+ORGANIZER:MAILTO:admin@willow.vmw
+SEQUENCE:0
+ATTENDEE;ROLE=3DREQ-PARTICIPANT;RSVP=3DTRUE;CN=3D"Thomas
+  Cataldo";PARTSTAT=3DNEEDS-ACTION:MAILTO:Tom@willow.vmw
+X-MICROSOFT-CDO-BUSYSTATUS:BUSY
+X-MICROSOFT-CDO-ALLDAYEVENT:FALSE
+X-MICROSOFT-CDO-INSTTYPE:0
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:REMINDER
+TRIGGER;RELATED=3DSTART:-PT00H15M00S
+END:VALARM
+END:VEVENT
+END:VCALENDAR
+
+
+--B_3420992958_13541428--
+
+

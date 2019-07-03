@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.scheduledjob.job
+Bundle-SymbolicName: net.bluemind.scheduledjob.job;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.scheduledjob.scheduler,
+ net.bluemind.scheduledjob.api,
+ net.bluemind.core.commons;bundle-version="1.0.0",
+ net.bluemind.slf4j;bundle-version="1.0.0",
+ net.bluemind.core.rest
+Export-Package: net.bluemind.scheduledjob.job

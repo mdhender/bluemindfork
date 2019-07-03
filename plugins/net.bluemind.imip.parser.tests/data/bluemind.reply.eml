@@ -1,0 +1,248 @@
+Return-Path: <evelyne.dutouron@ledepartement00.zz>
+Received: from trusty.bm.lan (localhost [127.0.0.1])
+	 by trusty with LMTPA;
+	 Mon, 25 Apr 2016 14:25:31 +0200
+X-Sieve: CMU Sieve 2.4
+Received: from /192.168.253.150 (LHLO trusty.bm.lan) by unknown with LMTP;
+ 4/25/16 12:25 PM
+Received: from [127.0.1.1] (unknown [192.168.253.150])
+	by trusty.bm.lan (Postfix) with ESMTP id EA345413E0
+	for <admin@bm.lan>; Mon, 25 Apr 2016 14:25:30 +0200 (CEST)
+MIME-Version: 1.0
+Date: Mon, 25 Apr 2016 12:25:30 +0000
+Subject: =?ISO-8859-1?Q?Evelyne_Dutouron_a_accept=E9_l'invitation:_CAZZA?=
+Sender: Evelyne Dutouron <evelyne.dutouron@ledepartement00.zz>
+From: Evelyne Dutouron <evelyne.dutouron@ledepartement00.zz>
+To: Evelyne Dutouron <evelyne.dutouron@ledepartement00.zz>
+Content-Type: multipart/mixed;
+ boundary="-=Part.9.e7443edb30bdca69.1544d61b9e2.d6090517618d5456=-"
+Message-Id: <20160425122530.EA345413E0@trusty.bm.lan>
+
+---=Part.9.e7443edb30bdca69.1544d61b9e2.d6090517618d5456=-
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="-=Part.8.11049dbcf152a8f3.1544d61b9e1.92ae8cddb99b9fbb=-"
+
+---=Part.8.11049dbcf152a8f3.1544d61b9e1.92ae8cddb99b9fbb=-
+Content-Type: text/html; charset=UTF-8;
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+  <style type=3D"text/css">
+
+body {
+  background: #F8F8F8;
+  color: #666;
+  padding: 15px;
+  font-size: small;
+  font-family: arial, sans-serif;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  border: 1px solid #CCC;
+  background: #FFF;
+  width: 100%;
+  margin-top: 10px;
+}
+
+
+/** Header */
+
+h1 {
+  display: inline;
+}
+
+h1=2Einfo {
+ color: #049cdb;
+}
+
+h1=2Eupdate {
+  color: orange;
+}
+
+h1=2Ecancel {
+  color: red;
+}
+
+h1=2Eaccepted {
+  color: green;
+}
+
+h1=2Edeclined {
+  color:red;
+}
+
+/** Detail */
+
+h2 {
+	text-align:center;
+}
+
+=2Eupdated {
+  color: orange;
+  font-size: 80%;
+  font-style: italic;
+}
+
+=2Ekey {
+   text-align: right;
+   vertical-align: top;
+   padding-right: 15px;
+   color: #CCC;
+   font-style: italic;
+}
+
+=2Evalue {
+  color:#666;
+}
+
+=2Edate {
+  color: #2D2D2D;
+  font-weight:bold;
+  font-size: medium;
+}
+
+=2Etz {
+  font-size: smaller;
+  font-style: italic;
+  font-weight: normal;
+}
+
+=2Eattendees {
+  list-style-type: none;
+  padding: 0px;
+  margin: 0px;
+}
+
+=2Enote {
+  padding: 4px;
+  margin: 4px;
+  border: 1px solid #C6EDF9;
+  background: #DDF4FB;
+}
+
+=2Eat {
+   text-align: right;
+   vertical-align: top;
+   padding-right: 5px;
+   color: #CCC;
+   font-style: italic;
+   font-size: 90%;
+}
+</style></head>
+<body><h1 class=3D"accepted">
+  Evelyne Dutouron a accept=C3=A9 l'invitation
+</h1>
+<table>
+  <tr>
+    <td colspan=3D"2"><h2>CAZZA </h2></td>
+  </tr>
+  <tr>
+    <td class=3D"key">Quand</td>
+    <td class=3D"value">
+          le <span class=3D"date">dimanche 1 mai 2016</span><br />
+          de <span class=3D"date">18:00</span> =C3=A0 <span class=3D"date"=
+>20:30</span>
+
+    </td>
+  </tr>
+  <tr>
+    <td class=3D"key">Organisateur</td><td class=3D"value">admin SetupWiza=
+rd</td>
+  </tr>
+  <tr>
+    <td class=3D"key">Participants</td>
+    <td class=3D"value">
+      <ul class=3D"attendees">
+          <li>david phan</li>
+          <li>admin SetupWizard</li>
+          <li>Evelyne Dutouron</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td colspan=3D"2"><h2>&nbsp;</h2></td>
+  </tr>
+</table>
+  <div class=3D"at">Evelyne Dutouron</div>
+</body>
+</html>
+---=Part.8.11049dbcf152a8f3.1544d61b9e1.92ae8cddb99b9fbb=-
+Content-Type: text/calendar; charset=UTF-8; method=REPLY
+Content-Transfer-Encoding: 8bit
+
+BEGIN:VCALENDAR
+PRODID:-//Blue Mind//Blue Mind Calendar//FR
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:REPLY
+BEGIN:VTIMEZONE
+TZID:Europe/Paris
+TZURL:http://tzurl.org/zoneinfo-outlook/Europe/Paris
+X-LIC-LOCATION:Europe/Paris
+BEGIN:DAYLIGHT
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+TZNAME:CEST
+DTSTART:19700329T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+TZNAME:CET
+DTSTART:19701025T030000
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+DTSTAMP:20160425T122530Z
+SEQUENCE:0
+UID:0839ab78569b58f97c8f56d61493ba30dced2013
+ATTENDEE;CUTYPE=INDIVIDUAL;PARTSTAT=ACCEPTED;RSVP=FALSE;CN=Evelyne Dutouron;ROLE=REQ-PARTICIPANT:mailto:evelyne.dutouron@ledepartement00.zz
+DTSTART;TZID=Europe/Paris:20160501T180000
+DTEND;TZID=Europe/Paris:20160501T203000
+TRANSP:OPAQUE
+ORGANIZER;CN=admin SetupWizard:mailto:admin@bm.lan
+PRIORITY:5
+CLASS:PUBLIC
+SUMMARY:CAZZA
+X-MOZ-LASTACK:20160425T122530Z
+X-MICROSOFT-DISALLOW-COUNTER:TRUE
+X-MICROSOFT-CDO-BUSYSTATUS:BUSY
+END:VEVENT
+END:VCALENDAR
+
+---=Part.8.11049dbcf152a8f3.1544d61b9e1.92ae8cddb99b9fbb=---
+
+---=Part.9.e7443edb30bdca69.1544d61b9e2.d6090517618d5456=-
+Content-Type: application/ics; name="event.ics"
+Content-Disposition: attachment; filename="event.ics"
+Content-Transfer-Encoding: base64
+
+QkVHSU46VkNBTEVOREFSDQpQUk9ESUQ6LS8vQmx1ZSBNaW5kLy9CbHVlIE1pbmQgQ2FsZW5kYXIv
+L0ZSDQpWRVJTSU9OOjIuMA0KQ0FMU0NBTEU6R1JFR09SSUFODQpNRVRIT0Q6UkVQTFkNCkJFR0lO
+OlZUSU1FWk9ORQ0KVFpJRDpFdXJvcGUvUGFyaXMNClRaVVJMOmh0dHA6Ly90enVybC5vcmcvem9u
+ZWluZm8tb3V0bG9vay9FdXJvcGUvUGFyaXMNClgtTElDLUxPQ0FUSU9OOkV1cm9wZS9QYXJpcw0K
+QkVHSU46REFZTElHSFQNClRaT0ZGU0VURlJPTTorMDEwMA0KVFpPRkZTRVRUTzorMDIwMA0KVFpO
+QU1FOkNFU1QNCkRUU1RBUlQ6MTk3MDAzMjlUMDIwMDAwDQpSUlVMRTpGUkVRPVlFQVJMWTtCWU1P
+TlRIPTM7QllEQVk9LTFTVQ0KRU5EOkRBWUxJR0hUDQpCRUdJTjpTVEFOREFSRA0KVFpPRkZTRVRG
+Uk9NOiswMjAwDQpUWk9GRlNFVFRPOiswMTAwDQpUWk5BTUU6Q0VUDQpEVFNUQVJUOjE5NzAxMDI1
+VDAzMDAwMA0KUlJVTEU6RlJFUT1ZRUFSTFk7QllNT05USD0xMDtCWURBWT0tMVNVDQpFTkQ6U1RB
+TkRBUkQNCkVORDpWVElNRVpPTkUNCkJFR0lOOlZFVkVOVA0KRFRTVEFNUDoyMDE2MDQyNVQxMjI1
+MzBaDQpTRVFVRU5DRTowDQpVSUQ6MDgzOWFiNzg1NjliNThmOTdjOGY1NmQ2MTQ5M2JhMzBkY2Vk
+MjAxMw0KQVRURU5ERUU7Q1VUWVBFPUlORElWSURVQUw7UEFSVFNUQVQ9QUNDRVBURUQ7UlNWUD1G
+QUxTRTtDTj1FdmVseW5lIER1dG91cm9uO1JPTEU9UkVRLVBBUlRJQ0lQQU5UOm1haWx0bzpldmVs
+eW5lLmR1dG91cm9uQGxlZGVwYXJ0ZW1lbnQwMC56eg0KRFRTVEFSVDtUWklEPUV1cm9wZS9QYXJp
+czoyMDE2MDUwMVQxODAwMDANCkRURU5EO1RaSUQ9RXVyb3BlL1BhcmlzOjIwMTYwNTAxVDIwMzAw
+MA0KVFJBTlNQOk9QQVFVRQ0KT1JHQU5JWkVSO0NOPWFkbWluIFNldHVwV2l6YXJkOm1haWx0bzph
+ZG1pbkBibS5sYW4NClBSSU9SSVRZOjUNCkNMQVNTOlBVQkxJQw0KU1VNTUFSWTpDQVpaQQ0KWC1N
+T1otTEFTVEFDSzoyMDE2MDQyNVQxMjI1MzBaDQpYLU1JQ1JPU09GVC1ESVNBTExPVy1DT1VOVEVS
+OlRSVUUNClgtTUlDUk9TT0ZULUNETy1CVVNZU1RBVFVTOkJVU1kNCkVORDpWRVZFTlQNCkVORDpW
+Q0FMRU5EQVINCg==
+
+---=Part.9.e7443edb30bdca69.1544d61b9e2.d6090517618d5456=---
+

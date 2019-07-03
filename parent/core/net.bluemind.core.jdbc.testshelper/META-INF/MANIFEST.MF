@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Jdbc
+Bundle-SymbolicName: net.bluemind.core.jdbc.testshelper;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.pool;bundle-version="1.0.0",
+ net.bluemind.slf4j;bundle-version="1.0.0",
+ net.bluemind.core.jdbc;bundle-version="1.0.0",
+ net.bluemind.core.caches.testhelper;bundle-version="4.1.0"
+Export-Package: net.bluemind.core.jdbc
+Automatic-Module-Name: net.bluemind.core.jdbc.testshelper

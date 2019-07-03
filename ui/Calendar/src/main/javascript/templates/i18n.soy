@@ -1,0 +1,480 @@
+{namespace bluemind.calendar.template.i18n}
+
+/**
+ * AppName
+ * @param nb pending events count.
+ */
+{template .appName}
+  {msg desc="appName"}Calendar{/msg} {if $nb > 0}({$nb}){/if} - BlueMind
+{/template}
+
+/**
+ * Today
+ */
+{template .today}
+  {msg desc="today button"}Today{/msg}
+{/template}
+
+/**
+ * Refresh
+ */
+{template .refresh}
+  {msg desc="refresh button"}Refresh{/msg}
+{/template}
+
+/**
+ * Day
+ */
+{template .day}
+  {msg desc="day button"}Day{/msg}
+{/template}
+
+/**
+ * Week 
+ */
+{template .week}
+  {msg desc="week button"}Week{/msg}
+{/template}
+
+/**
+ * Month
+ */
+{template .month}
+  {msg desc="month button"}Month{/msg}
+{/template}
+
+/**
+ * Agenda
+ */
+{template .agenda}
+  {msg desc="agenda button"}Agenda{/msg}
+{/template}
+
+/**
+ * List
+ */
+{template .list}
+  {msg desc="list button"}List{/msg}
+{/template}
+
+/**
+ * save
+ */
+{template .save}
+  {msg desc="save button"}Save{/msg}
+{/template}
+
+/**
+ * Discard
+ */
+{template .discard}
+  {msg desc="discard button"}Discard{/msg}
+{/template}
+
+/**
+ * Accept
+ */
+{template .accept}
+  {msg desc="pending accept button"}Accept{/msg}
+{/template}
+
+/**
+ * Decline 
+ */
+{template .decline}
+  {msg desc="pending decline button"}Decline{/msg}
+{/template}
+
+/**
+ * Allday
+ */
+{template .allday}
+  {msg desc="event allday label"}All day{/msg}
+{/template}
+
+/**
+ * All
+ */
+{template .all}
+  {msg desc="all items"}All{/msg}
+{/template}
+
+/**
+ * Delete
+ */
+{template .remove}
+  {msg desc="delete event button"}Delete event{/msg}
+{/template}
+
+/**
+ * no result
+ * @param search search pattern.
+ */
+{template .emptyCalendarSearchResult}
+  {msg desc="autocomplete no result"}Your search - {$search} - did not match any calendars.{/msg}
+{/template}
+
+/**
+ * previous period tooltip
+ */
+{template .previousPeriod}
+  {msg desc="previous period tooltip"}Previous period{/msg}
+{/template}
+
+/**
+ * next period tooltip
+ */
+{template .nextPeriod}
+  {msg desc="next period tooltip"}Next period{/msg}
+{/template}
+
+/**
+ * print as pdf tooltip
+ */
+{template .printAsPdf}
+  {msg desc="print as pdf tooltip"}Print as PDF{/msg}
+{/template}
+
+/**
+ * online tooltip
+ */
+{template .onlineStatus}
+  {msg desc="online status tooltip"}You are online.{/msg}
+{/template}
+
+/**
+ * offline tooltip
+ */
+{template .offlineStatus}
+  {msg desc="offline status tooltip"}You are offline.{/msg}
+{/template}
+
+/**
+ * disconnected tooltip
+ */
+{template .disconnectedStatus}
+  {msg desc="disconnected status tooltip"}Server is unreachable.{/msg}
+{/template}
+
+/**
+ * syncing tooltip
+ */
+{template .syncStatus}
+  {msg desc="sync status tooltip"}Syncing.{/msg}
+{/template}
+
+/**
+ * online
+ */
+{template .online}
+  {msg desc="online label"}Online{/msg}
+{/template}
+
+/**
+ * offline
+ */
+{template .offline}
+  {msg desc="offline label"}Offline{/msg}
+{/template}
+
+/**
+ * disconnected
+ */
+{template .disconnected}
+  {msg desc="disconnected label"}Server unreachable{/msg}
+{/template}
+
+/**
+ * pending event tooltip
+ * @param nb nb pending event
+ */
+{template .pendingEvent}
+  {if $nb == 1}
+    {msg desc="one pending event tooltip"}One pending event.{/msg}
+  {elseif $nb > 1}
+    {$nb}{msg desc="a lot of pending events tooltip"} pending events.{/msg}
+  {else}
+    {msg desc="no pending tooltip"}No pending events.{/msg}
+  {/if}
+{/template}
+
+/**
+ * Default error message in event form
+ */
+{template .defaultError}
+  {msg desc="Default error message in event form"}Invalid format{/msg}
+{/template}
+
+/**
+ * Default error message in event form
+ */
+{template .defaultDateError}
+  {msg desc="Default date error message in event form"}Invalid date format{/msg}
+{/template}
+
+
+/**
+ * Error for empty title
+ */
+{template .emptyTitleError}
+  {msg desc="Error for empty title"}Title cannot be empty{/msg}
+{/template}
+
+/**
+ * Error for no attendee
+ */
+{template .noAttendeeError}
+  {msg desc="Error for no attendee"}Event must contain attendee{/msg}
+{/template}
+
+/**
+ * Error for incorrect begin-end date
+ */
+{template .endBeforeBeginError}
+  {msg desc="Error for incorrect begin-end date"}End date cannot be before begin date{/msg}
+{/template}
+
+/**
+ * Error for incorrect begin-repeat end date
+ */
+{template .repeatEndBeforeBeginError}
+  {msg desc="Error for incorrect begin-repeat end date"}End of repetition cannot be before begin date{/msg}
+{/template}
+
+/**
+ * Error for empty repeat days
+ */
+{template .emptyRepeatDaysError}
+  {msg desc="Error for empty repeat days"}You must set at least one repeat day{/msg}
+{/template}
+
+/**
+ * Create event button
+ */
+{template .createEvent}
+  {msg desc="new event button"}New event{/msg}
+{/template}
+
+/**
+ * Back to calendar
+ */
+{template .backToCalendar}
+  {msg desc="back to calendar"}Back to calendar{/msg}
+{/template}
+
+/**
+ * Sync baby !
+ */
+{template .syncInProgress}
+  {msg desc="Sync in progress"}Synchronize ...{/msg}
+{/template}
+
+/**
+ * AutoPick prev
+ */
+{template .autoPickPrev}
+  {msg desc="AutoPick Previous"}«{/msg}
+{/template}
+
+/**
+ * AutoPick next
+ */
+{template .autoPickNext}
+  {msg desc="AutoPick Next"}AutoPick next »{/msg}
+{/template}
+
+/**
+ * No information
+ */
+{template .noInformation}
+  {msg desc="freebusy no information"}No information{/msg}
+{/template}
+
+/**
+ * Busy
+ */
+{template .busy}
+  {msg desc="Busy state for event opacity"}Busy{/msg}
+{/template}
+
+/**
+ * ICS Export
+ */
+{template .icsExport}
+  {msg desc="ics export"}ICS Export{/msg}
+{/template}
+
+/**
+ * ICS Import
+ */
+{template .icsImport}
+  {msg desc="ics import"}ICS Import{/msg}
+{/template}
+
+
+/**
+ * Import
+ */
+{template .mport}
+  {msg desc="button import"}Import{/msg}
+{/template}
+
+/**
+ * Cancel
+ */
+{template .cancel}
+  {msg desc="button cancel"}Cancel{/msg}
+{/template}
+
+/**
+ * Feature available only when online
+ */
+{template .onlineOnly}
+  {msg desc="Title for feature disabled when offline"}You must be online to use this feature.{/msg}
+{/template}
+
+/**
+ * Restricted to local attendees
+ */
+{template .restrictAttendee}
+  {msg desc="When offline autocomplete only complete with local attendees"}When offline, the attendees will only be autocompleted by contacts you have already invited in a meeting.{/msg}
+{/template}
+
+/**
+ * Local connection, cannot logout 
+ */
+{template .localConnection}
+  {msg desc="When offline the logout link is replaced by this label"}------{/msg}
+{/template}
+
+/**
+ * Private
+ */
+{template .isPrivate}
+  {msg desc="Private state for event privacy"}Private{/msg}
+{/template}
+
+/**
+ * Search placeholder
+ */
+{template .search}
+  {msg desc="search placeholder"}Search...{/msg}
+{/template}
+
+/**
+ * create new view
+ * @param v view to create.
+ */
+{template .createNewView}
+  {msg desc="create a new view"}Create the view {$v}{/msg}
+{/template}
+
+/**
+ * New view button
+ */
+{template .newViewBtn}
+  {msg desc="new view button"}Create view{/msg}
+{/template}
+
+/**
+ * New view button
+ */
+{template .updateViewBtn}
+  {msg desc="update view button"}Update view{/msg}
+{/template}
+
+/**
+ * override view
+ * @param v view label.
+ */
+{template .overrideViewMsg}
+  {msg desc="update existing view dialog content"}View <strong>{$v}</strong> already exists. Do you want to update this view?{/msg}
+{/template}
+
+/**
+ * availability warning
+ */
+{template .availabilityWarn}
+  {msg desc="warn if not all attendees are available"}Not all attendees are available.{/msg}
+{/template}
+
+/**
+ * msg event date in the past 
+ */ 
+{template .eventOccursInThePast}
+  {msg desc="event occurs in the past"}The event occurs in the past{/msg}
+{/template}
+
+/**
+ * msg event date in the past 
+ */ 
+{template .eventsSeriesOccurInThePast}
+  {msg desc="all the events in the series occur in the past"}All the events in the series occur in the past{/msg}
+{/template}
+
+/**
+ * err count
+ * @param nb nb errors
+ */
+{template .formErrorsCount}
+  {msg desc="show all errors"}Show all errors ({$nb}){/msg}
+{/template}
+
+
+/**
+ * No archive storage in public mode 
+ */
+{template .noPublicArchive}
+  {msg desc="No archive storage in public mode"}You cannot consult calendar archives in public mode. Please relog in private mode.{/msg}
+{/template}
+
+/**
+ * No archive storage in offline mode 
+ */
+{template .noOfflineArchive}
+  {msg desc="No archive  in offline mode"}You cannot consult calendar archives when offline.{/msg}
+{/template}
+
+/**
+ * msg invalid attendee email
+ */ 
+{template .invalidEmail}
+  {msg desc="email is invalid"}Email address is invalid{/msg}
+{/template}
+
+/**
+ * msg no slots found in freebusy
+ */ 
+{template .freebusyNoSlotsFound}
+  {msg desc="No free slots found"}No free slots found. Do you want to search further? {/msg}
+{/template}
+
+/**
+ * close btn
+ */ 
+{template .close}
+  {msg desc="close"}Close{/msg}
+{/template}
+
+/**
+ * filter btn
+ */ 
+{template .filter}
+  {msg desc="filter"}Filter{/msg}
+{/template}
+
+/**
+ * Calling
+ * @param number Calling number.
+ */
+{template .dialling}
+   {msg desc="Dialing a phone number"}Dialing{/msg} {$number}...
+{/template}
+
+/**
+ * Call error
+ * @param number Calling number.
+ */
+{template .faildialling}
+    {msg desc="Fait to dial a phone number"}Fail to call{/msg} {$number}
+{/template}

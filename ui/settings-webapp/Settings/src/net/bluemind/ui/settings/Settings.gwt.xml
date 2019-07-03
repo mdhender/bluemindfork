@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to='net.bluemind.ui.settings'>
+	<!-- Inherit the core Web Toolkit stuff. -->
+	<inherits name='com.google.gwt.user.User' />
+	<inherits name="com.google.gwt.i18n.I18N" />
+	<inherits name="net.bluemind.core.CommonsApi" />
+	<inherits name="net.bluemind.core.CoreApi"/>
+	<inherits name="net.bluemind.backend.mail.MailApi" />
+	<inherits name="net.bluemind.mailshare.MailshareApi" />
+	<inherits name="net.bluemind.ui.common.CommonIcons"/>
+	<inherits name="net.bluemind.ui.common.client.CommonForms"/>
+	<inherits name="net.bluemind.authentication.AuthenticationApi" />
+	<inherits name="net.bluemind.system.SystemApi" />
+	<inherits name="net.bluemind.mailflow.MailflowApi" />
+	<inherits name="net.bluemind.ui.extensions.GWTExtensions" />
+	<inherits name="net.bluemind.gwtconsoleapp.base.Menus"/>
+	<inherits name="net.bluemind.gwtconsoleapp.base.Notification" />
+	<inherits name="net.bluemind.gwtconsoleapp.base.Eventbus" />
+    <inherits name="net.bluemind.gwtconsoleapp.base.Editor" />
+	<inherits name="net.bluemind.role.RoleApi"/>
+	<inherits name="net.bluemind.ui.settings.SettingsGeneral" />
+	<inherits name="net.bluemind.ui.settings.SettingsMail" />
+	<inherits name="net.bluemind.ui.settings.SettingsAddressBook" />
+	<inherits name="net.bluemind.ui.settings.SettingsCalendar" />
+	<inherits name="net.bluemind.ui.settings.SettingsTask" />
+	<inherits name="net.bluemind.gwtconsoleapp.base.LifeCycle" />
+	<!-- Specify the app entry point class. -->
+	<entry-point class='net.bluemind.ui.settings.client.Settings' />
+	<inherits name='com.google.gwt.user.theme.standard.StandardResources' />
+
+	<!-- Specify the paths for translatable code -->
+	<source path='client' />
+
+	<!-- Internationalization support. -->
+	<extend-property name="locale" values="en" />
+ 	<extend-property name="locale" values="fr" />
+
+	<set-property-fallback name="locale" value="en" />
+	<set-property name="user.agent" value="gecko1_8" />
+	<extend-property name="user.agent" values="safari" />
+	<extend-property name="user.agent" values="ie10" />
+	<collapse-all-properties />
+
+</module>

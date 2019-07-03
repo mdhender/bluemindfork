@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?xml-stylesheet href="chrome://bm/skin/style.css" type="text/css"?>
+<!DOCTYPE overlay SYSTEM "chrome://bm/locale/bm.dtd">
+
+<?xml-stylesheet href="chrome://messenger/skin/primaryToolbar.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/messageHeader.css" type="text/css"?>
+
+<overlay id="bm-ics-bandal-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <script type="application/javascript" src="chrome://bm/content/ics-bandal/bmIcsBandal.js"/>
+    <vbox id="messagepanebox">
+      <vbox id="singlemessage" insertbefore="msgHeaderView">
+        <hbox id="bm-ics-bandal"
+                collapsed="true"
+                insertbefore="messagepanewrapper">
+            <description class="msgNotificationBarText" value="&bm.icsbandal.description;"/>
+            <grid>
+                <columns>
+                    <column></column>
+                    <column></column>
+                </columns>
+                <rows>
+                    <row>
+                        <label value="&bm.icsbandal.title;"/>
+                        <label id="bm-ics-bandal-title" value=""/>
+                    </row>
+                    <row>
+                        <label value="&bm.icsbandal.when;"/>
+                        <label id="bm-ics-bandal-when" value=""/>
+                    </row>
+                    <row>
+                        <label value="&bm.icsbandal.where;"/>
+                        <label id="bm-ics-bandal-where" value=""/>
+                    </row>
+                    <row id="bm-ics-bandal-partRow">
+                        <label id="bm-ics-bandal-participation" value=""/>
+                        <hbox>
+                            <label id="bm-ics-bandal-accept" class="text-link"
+                                   onclick="" value="&bm.icsbandal.accept;"/>
+                            <label value="-"/>
+                            <label id="bm-ics-bandal-tentative" class="text-link"
+                                   onclick="" value="&bm.icsbandal.tentative;"/>
+                            <label value="-"/>
+                            <label id="bm-ics-bandal-decline" class="text-link"
+                                   onclick="" value="&bm.icsbandal.decline;"/>
+                        </hbox>
+                    </row>
+                </rows>
+            </grid>
+        </hbox>
+      </vbox>
+    </vbox>
+</overlay>

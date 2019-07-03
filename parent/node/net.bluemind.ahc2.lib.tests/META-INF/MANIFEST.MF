@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.ahc2.lib.tests
+Bundle-SymbolicName: net.bluemind.ahc2.lib.tests
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.ahc2.lib.tests.Activator
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ io.netty;bundle-version="4.0.56",
+ org.asynchttpclient.netty-codec-dns.source;bundle-version="2.0.39",
+ org.asynchttpclient.netty-resolver-dns.source;bundle-version="2.0.39",
+ org.asynchttpclient.netty-resolver.source;bundle-version="2.0.39",
+ org.asynchttpclient.async-http-client;bundle-version="2.0.39",
+ org.junit
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.ahc2.lib.tests
+Bundle-ActivationPolicy: lazy

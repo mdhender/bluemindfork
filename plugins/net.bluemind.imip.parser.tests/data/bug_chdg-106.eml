@@ -1,0 +1,358 @@
+Return-Path: <benoit.maurel@capgemini.com>
+Received: from capgemini.com (chslbluemind.ch-gers.fr [10.110.1.52])
+	 by chslbluemind with LMTPA;
+	 Thu, 27 Feb 2014 11:36:34 +0100
+X-Sieve: CMU Sieve 2.4
+Received: from chslbluemind.ch-gers.fr (LHLO chslbluemind.ch-gers.fr)
+ (10.110.1.52) by unknown with LMTP; 2/27/14 10:36 AM
+Received: from portailbluemind.ch-gers.fr (chslproxybm.ch-gers.local [192.168.250.248])
+	by chslbluemind.ch-gers.fr (Postfix) with ESMTP id 250C51815DA
+	for <m.aguilar@ch-gers.fr>; Thu, 27 Feb 2014 11:36:33 +0100 (CET)
+Received: from c86.altospam.com (c86.altospam.com [88.190.31.191])
+	by portailbluemind.ch-gers.fr (Postfix) with ESMTP id 3EC0A21E6D
+	for <m.aguilar@ch-gers.fr>; Thu, 27 Feb 2014 11:36:31 +0100 (CET)
+Received: from spffrpar2.capgemini.com ([194.4.230.84])
+	by c86.altospam.com with esmtps (TLSv1:DHE-RSA-AES256-SHA:256) (Altospam)
+	id 1WIyKF-0003WZ-FS 
+	for m.aguilar@ch-gers.fr; Thu, 27 Feb 2014 11:36:30 +0100
+X-IronPort-AV: E=Sophos;i="4.97,553,1389740400"; 
+   d="scan'208,217";a="7334700"
+Received: from unknown (HELO de-cm-hc22.corp.capgemini.com) ([10.43.215.123])
+  by IRFRPAR-C670-02-D2-incoming.capgemini.com with ESMTP/TLS/AES128-SHA; 27 Feb 2014 11:36:22 +0100
+Received: from DE-CM-MBX25.corp.capgemini.com ([169.254.8.10]) by
+ de-cm-hc22.corp.capgemini.com ([10.43.215.74]) with mapi id 14.03.0158.001;
+ Thu, 27 Feb 2014 11:36:22 +0100
+From: "Maurel, Benoit" <benoit.maurel@capgemini.com>
+To: Michel Aguilar <m.aguilar@ch-gers.fr>
+Thread-Topic: =?iso-8859-1?Q?test_p=E9riodique?=
+Thread-Index: Ac8zp4/TRIPK6z02Syaprap3ASjm5QAACYIQ
+Date: Thu, 27 Feb 2014 10:36:21 +0000
+Message-ID: <272E52AF18D49C4E935F546A9EF08FF60D4B978B@DE-CM-MBX25.corp.capgemini.com>
+Accept-Language: fr-FR, en-US
+Content-Language: fr-FR
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.30.21.84]
+MIME-Version: 1.0
+Subject: =?iso-8859-1?Q?test_p=E9riodique?=
+Content-Type: multipart/alternative;
+	boundary="_000_272E52AF18D49C4E935F546A9EF08FF60D4B978BDECMMBX25corpca_"
+X-ALTOSPAM-HOST: c86.altospam.com
+X-BM-Event:
+ 040000008200E00074C5B7101A82E00800000000F0EBA5F1AF33CF010000000000000000100000001F957BD0CEDEFB4D83EC72D6FA6A49C9
+
+--_000_272E52AF18D49C4E935F546A9EF08FF60D4B978BDECMMBX25corpca_
+Content-Type: text/plain; charset="iso-8859-1"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+
+Quand : A lieu chaque vendredi =E0 compter du 28/02/2014 jusqu'au 02/05/201=
+4 de 13:00 =E0 14:00 (UTC+01:00) Bruxelles, Copenhague, Madrid, Paris=2E
+Emplacement : Live Meeting
+
+Remarque : le d=E9calage GMT ci-dessus ne tient pas compte des r=E9glages =
+de l'heure d'=E9t=E9=2E
+
+*~*~*~*~*~*~*~*~*~*
+
+
+
+
+
+-+-----+-----+-----+-----+-----+-----+-----+-----+-
+
+
+Maurel, Benoit vous a invit=E9 =E0 participer =E0 une r=E9union en ligne =
+=E0 l'aide du serveur Microsoft=AE Office Communications Server=2E
+Joignez la r=E9union=2E<meet:sip:benoit=2Emaurel@capgemini=2Ecom;gruu;opaq=
+ue=3Dapp:conf:focus:id:8b8451d1d9894535861da595937615ae%3Fconf-key=3D3446>
+
+Assurez-vous que le client Office Live Meeting est install=E9 avant la r=
+=E9union :
+*       Je me connecte depuis l'int=E9rieur du r=E9seau Corporation<http:/=
+/r=2Eoffice=2Emicrosoft=2Ecom/r/rlidOCSR2?clid=3D1033&p1=3Dlivemeeting>
+*       Je me connecte depuis l'ext=E9rieur du r=E9seau Corporation<http:/=
+/r=2Eoffice=2Emicrosoft=2Ecom/r/rlidOCSR2?clid=3D1033&p1=3Dlivemeeting>
+
+INFORMATIONS AUDIO
+Pour joindre une r=E9union =E0 partir de votre t=E9l=E9phone, composez le =
+num=E9ro =E0 l'aide des informations suivantes :
+        T=E9l=E9phone :     FR +33 1 70 48 06 63 [Fran=E7ais, Anglais]
+        Rechercher le num=E9ro de t=E9l=E9phone d'acc=E8s local pour la r=
+=E9gion<https://webgimseu=2Ecapgemini=2Ecom/dialin>
+
+        ID de la conf=E9rence :   13237917
+        Code confidentiel :     Code confidentiel non requis
+        Remarque : si vous disposez d'un compte sur ce r=E9seau d'entrepri=
+se, joignez =E0 l'aide de votre code personnel=2E Avez-vous d=E9fini votre =
+code personnel ?<https://webgimseu=2Ecapgemini=2Ecom/dialin>
+
+R=C9SOLUTION DES PROBL=C8MES
+Impossible de joindre la r=E9union ? D=E9marrez Office Live Meeting et acc=
+=E9dez =E0 la r=E9union avec les informations suivantes :
+        ID de la r=E9union :      8b8451d1d9894535861da595937615ae
+        Code d'acc=E8s :  3446
+        Emplacement :   meet:sip:benoit=2Emaurel@capgemini=2Ecom;gruu;opaq=
+ue=3Dapp:conf:focus:id:8b8451d1d9894535861da595937615ae%3Fconf-key=3D3446
+
+Si vous ne parvenez toujours pas =E0 acc=E9der =E0 la r=E9union, contactez=
+ les services de support technique :
+*       =C0 l'int=E9rieur du r=E9seau Corporation<http://r=2Eoffice=2Emicr=
+osoft=2Ecom/r/rlidLiveMeeting?p1=3D12&p2=3Den_us&p3=3DLMInfo&p4=3Dsupportse=
+rver>
+*       =C0 l'ext=E9rieur du r=E9seau Corporation<http://r=2Eoffice=2Emicr=
+osoft=2Ecom/r/rlidLiveMeeting?p1=3D12&p2=3Den_us&p3=3DLMInfo&p4=3Dsupportse=
+rver>
+
+REMARQUE
+Vous pouvez utiliser Office Live Meeting pour enregistrer des r=E9unions=
+=2E En participant =E0 cette r=E9union, vous consentez =E0 ce que vos commu=
+nications soient contr=F4l=E9es ou enregistr=E9es =E0 tout moment au cours =
+de la r=E9union=2E
+
+
+
+This message contains information that may be privileged or confidential a=
+nd is the property of the Capgemini Group=2E It is intended only for the pe=
+rson to whom it is addressed=2E If you are not the intended recipient, you =
+are not authorized to read, print, retain, copy, disseminate, distribute, o=
+r use this message or any part thereof=2E If you receive this message in er=
+ror, please notify the sender immediately and delete all copies of this mes=
+sage=2E
+
+--_000_272E52AF18D49C4E935F546A9EF08FF60D4B978BDECMMBX25corpca_
+Content-Type: text/html; charset="iso-8859-1"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso-8859=
+-1">
+<meta name=3D"Generator" content=3D"Microsoft Exchange Server">
+<!-- converted from rtf -->
+<style><!-- =2EEmailQuote { margin-left: 1pt; padding-left: 4pt; border-le=
+ft: #800000 2px solid; } --></style>
+</head>
+<body>
+<font face=3D"Calibri" size=3D"2"><span style=3D"font-size:11pt;">
+<div>Quand : A lieu chaque vendredi =E0 compter du 28/02/2014 jusqu'au 02/=
+05/2014 de 13:00 =E0 14:00 (UTC&#43;01:00) Bruxelles, Copenhague, Madrid, P=
+aris=2E</div>
+<div>Emplacement : Live Meeting</div>
+<div>&nbsp;</div>
+<div>Remarque : le d=E9calage GMT ci-dessus ne tient pas compte des r=E9gl=
+ages de l'heure d'=E9t=E9=2E</div>
+<div>&nbsp;</div>
+<div>*~*~*~*~*~*~*~*~*~*</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<div><font face=3D"Lucida Console" size=3D"2"><span style=3D"font-size:10p=
+t;">-&#43;-----&#43;-----&#43;-----&#43;-----&#43;-----&#43;-----&#43;-----=
+&#43;-----&#43;-</span></font></div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<div style=3D"margin-bottom:2pt;"><font face=3D"Tahoma" size=3D"2"><span s=
+tyle=3D"font-size:9pt;">Maurel, Benoit vous a invit=E9 =E0 participer =E0 u=
+ne r=E9union en ligne =E0 l'aide du serveur Microsoft=AE Office Communicati=
+ons Server=2E</span></font></div>
+<div style=3D"margin-bottom:2pt;"><a href=3D"meet:sip:benoit=2Emaurel@capg=
+emini=2Ecom;gruu;opaque=3Dapp:conf:focus:id:8b8451d1d9894535861da595937615a=
+e%3Fconf-key=3D3446"><font face=3D"Tahoma" color=3D"blue"><u>Joignez la r=
+=E9union=2E</u></font></a></div>
+<div style=3D"margin-bottom:2pt;">&nbsp;</div>
+<div style=3D"margin-bottom:2pt;"><font face=3D"Tahoma" size=3D"2"><span s=
+tyle=3D"font-size:9pt;">Assurez-vous que le client Office Live Meeting est =
+install=E9 avant la r=E9union&nbsp;:</span></font></div>
+<ul style=3D"margin:0;padding-left:36pt;">
+<font face=3D"Tahoma" size=3D"2"><span style=3D"font-size:9pt;">
+<li style=3D"margin-bottom:2pt;">Je me connecte depuis <a href=3D"http://r=
+=2Eoffice=2Emicrosoft=2Ecom/r/rlidOCSR2?clid=3D1033&amp;p1=3Dlivemeeting"><=
+font color=3D"blue"><u>l'int=E9rieur du r=E9seau Corporation</u></font></a>=
+</li><li style=3D"margin-bottom:2pt;">Je me connecte depuis <a href=3D"http=
+://r=2Eoffice=2Emicrosoft=2Ecom/r/rlidOCSR2?clid=3D1033&amp;p1=3Dlivemeetin=
+g"><font color=3D"blue"><u>l'ext=E9rieur du r=E9seau Corporation</u></font>=
+</a></li></span></font>
+</ul>
+<div style=3D"margin-top:10pt;margin-bottom:2pt;"><font face=3D"Tahoma" co=
+lor=3D"#004D80"><b>INFORMATIONS AUDIO</b><font color=3D"navy"><b> </b></fon=
+t></font></div>
+<div style=3D"margin-bottom:2pt;"><font face=3D"Tahoma" size=3D"2"><span s=
+tyle=3D"font-size:9pt;">Pour joindre une r=E9union =E0 partir de votre t=E9=
+l=E9phone, composez le num=E9ro =E0 l'aide des informations suivantes :</sp=
+an></font></div>
+<div style=3D"margin-bottom:2pt;"><font face=3D"Tahoma" size=3D"2"><span s=
+tyle=3D"font-size:9pt;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T=E9l=E9=
+phone :&nbsp;&nbsp;&nbsp;&nbsp; FR &#43;33 1 70 48 06 63 [Fran=E7ais, Angla=
+is]</span></font></div>
+<div style=3D"margin-bottom:2pt;"><font face=3D"Tahoma" size=3D"2"><span s=
+tyle=3D"font-size:9pt;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href=
+=3D"https://webgimseu=2Ecapgemini=2Ecom/dialin"><font color=3D"blue"><u>Rec=
+hercher le num=E9ro de t=E9l=E9phone d'acc=E8s local pour la r=E9gion</u></=
+font></a></span></font></div>
+<div style=3D"margin-bottom:2pt;">&nbsp;</div>
+<div style=3D"margin-bottom:2pt;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
+p; <font face=3D"Tahoma" size=3D"2"><span style=3D"font-size:9pt;">ID de la=
+ conf=E9rence :&nbsp;&nbsp; 13237917</span></font></div>
+<div style=3D"margin-bottom:2pt;"><font face=3D"Tahoma" size=3D"2"><span s=
+tyle=3D"font-size:9pt;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Code con=
+fidentiel :&nbsp;&nbsp;&nbsp;&nbsp; Code confidentiel non requis</span></fo=
+nt></div>
+<div style=3D"margin-bottom:2pt;"><font face=3D"Tahoma" size=3D"2"><span s=
+tyle=3D"font-size:9pt;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Remarque=
+&nbsp;: si vous disposez d'un compte sur ce r=E9seau d'entreprise, joignez =
+=E0 l'aide de votre code personnel=2E <a href=3D"https://webgimseu=2Ecapgem=
+ini=2Ecom/dialin"><font color=3D"blue"><u>Avez-vous
+d=E9fini votre code&nbsp;personnel&nbsp;?</u></font></a></span></font></di=
+v>
+<div style=3D"margin-top:10pt;margin-bottom:2pt;"><font face=3D"Tahoma" co=
+lor=3D"#004D80"><b>R=C9SOLUTION DES PROBL=C8MES</b><font color=3D"navy"><b>=
+ </b></font></font></div>
+<div style=3D"margin-bottom:2pt;"><font face=3D"Tahoma" size=3D"2"><span s=
+tyle=3D"font-size:9pt;">Impossible de joindre la r=E9union&nbsp;? D=E9marre=
+z Office Live Meeting et acc=E9dez =E0 la r=E9union avec les informations s=
+uivantes&nbsp;:</span></font></div>
+<div style=3D"margin-bottom:2pt;"><font face=3D"Tahoma" size=3D"2"><span s=
+tyle=3D"font-size:9pt;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ID de la=
+ r=E9union&nbsp;:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 8b8451d1d9894535861da595937=
+615ae</span></font></div>
+<div style=3D"margin-bottom:2pt;"><font face=3D"Tahoma" size=3D"2"><span s=
+tyle=3D"font-size:9pt;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Code d'a=
+cc=E8s&nbsp;:&nbsp; 3446</span></font></div>
+<div style=3D"margin-bottom:2pt;"><font face=3D"Tahoma" size=3D"2"><span s=
+tyle=3D"font-size:9pt;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Emplacem=
+ent&nbsp;:&nbsp;&nbsp; <a href=3D"meet:sip:benoit=2Emaurel@capgemini=2Ecom;=
+gruu;opaque=3Dapp:conf:focus:id:8b8451d1d9894535861da595937615ae%3Fconf-key=
+=3D3446"><font color=3D"blue"><u>meet:sip:benoit=2Emaurel@capgemini=2Ecom;g=
+ruu;opaque=3Dapp:conf:focus:id:8b8451d1d9894535861da595937615ae%3Fconf-key=
+=3D3446</u></font></a></span></font></div>
+<div style=3D"margin-bottom:2pt;">&nbsp;</div>
+<div style=3D"margin-bottom:2pt;"><font face=3D"Tahoma" size=3D"2"><span s=
+tyle=3D"font-size:9pt;">Si vous ne parvenez toujours pas =E0 acc=E9der =E0 =
+la r=E9union, contactez les services de support technique&nbsp;:</span></fo=
+nt></div>
+<ul style=3D"margin:0;padding-left:36pt;">
+<li style=3D"margin-bottom:2pt;"><a href=3D"http://r=2Eoffice=2Emicrosoft=
+=2Ecom/r/rlidLiveMeeting?p1=3D12&amp;p2=3Den_us&amp;p3=3DLMInfo&amp;p4=3Dsu=
+pportserver"><font face=3D"Tahoma" size=3D"2" color=3D"blue"><span style=3D=
+"font-size:9pt;"><u>=C0 l'int=E9rieur du r=E9seau Corporation</u></span></f=
+ont></a></li><li style=3D"margin-bottom:2pt;"><a href=3D"http://r=2Eoffice=
+=2Emicrosoft=2Ecom/r/rlidLiveMeeting?p1=3D12&amp;p2=3Den_us&amp;p3=3DLMInfo=
+&amp;p4=3Dsupportserver"><font face=3D"Tahoma" size=3D"2" color=3D"blue"><s=
+pan style=3D"font-size:9pt;"><u>=C0 l'ext=E9rieur du r=E9seau Corporation</=
+u></span></font></a></li></ul>
+<div style=3D"margin-top:10pt;margin-bottom:2pt;"><font face=3D"Tahoma" co=
+lor=3D"#004D80"><b>REMARQUE</b><font color=3D"navy"><b> </b></font></font><=
+/div>
+<div style=3D"margin-bottom:2pt;"><font face=3D"Tahoma" size=3D"2"><span s=
+tyle=3D"font-size:9pt;">Vous pouvez utiliser Office Live Meeting pour enreg=
+istrer des r=E9unions=2E En participant =E0 cette r=E9union, vous consentez=
+ =E0 ce que vos communications soient contr=F4l=E9es ou
+enregistr=E9es =E0 tout moment au cours de la r=E9union=2E</span></font></=
+div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+</span></font>
+<p></p>
+
+<p></p>
+
+<p></p>
+
+<p style=3D"font-size: 9px; ">This message contains information that may b=
+e privileged or confidential and is the property of the Capgemini Group=2E =
+It is intended only for the person to whom it is addressed=2E If you are no=
+t the intended recipient, you are not authorized to read, print, retain, co=
+py, disseminate, distribute, or use this message or any part thereof=2E If =
+you receive this message in error, please notify the sender immediately and=
+ delete all copies of this message=2E</p></body>
+</html>
+
+--_000_272E52AF18D49C4E935F546A9EF08FF60D4B978BDECMMBX25corpca_
+Content-Type: text/calendar; charset="utf-8"; method=REQUEST
+Content-Transfer-Encoding: base64
+
+QkVHSU46VkNBTEVOREFSDQpNRVRIT0Q6UkVRVUVTVA0KUFJPRElEOk1pY3Jvc29mdCBFeGNoYW5n
+ZSBTZXJ2ZXIgMjAxMA0KVkVSU0lPTjoyLjANCkJFR0lOOlZUSU1FWk9ORQ0KVFpJRDpSb21hbmNl
+IFN0YW5kYXJkIFRpbWUNCkJFR0lOOlNUQU5EQVJEDQpEVFNUQVJUOjE2MDEwMTAxVDAzMDAwMA0K
+VFpPRkZTRVRGUk9NOiswMjAwDQpUWk9GRlNFVFRPOiswMTAwDQpSUlVMRTpGUkVRPVlFQVJMWTtJ
+TlRFUlZBTD0xO0JZREFZPS0xU1U7QllNT05USD0xMA0KRU5EOlNUQU5EQVJEDQpCRUdJTjpEQVlM
+SUdIVA0KRFRTVEFSVDoxNjAxMDEwMVQwMjAwMDANClRaT0ZGU0VURlJPTTorMDEwMA0KVFpPRkZT
+RVRUTzorMDIwMA0KUlJVTEU6RlJFUT1ZRUFSTFk7SU5URVJWQUw9MTtCWURBWT0tMVNVO0JZTU9O
+VEg9Mw0KRU5EOkRBWUxJR0hUDQpFTkQ6VlRJTUVaT05FDQpCRUdJTjpWRVZFTlQNCk9SR0FOSVpF
+UjtDTj0iTWF1cmVsLCBCZW5vaXQiOk1BSUxUTzpiZW5vaXQubWF1cmVsQGNhcGdlbWluaS5jb20N
+CkFUVEVOREVFO1JPTEU9UkVRLVBBUlRJQ0lQQU5UO1BBUlRTVEFUPU5FRURTLUFDVElPTjtSU1ZQ
+PVRSVUU7Q049TWljaGVsIEFndQ0KIGlsYXI6TUFJTFRPOm0uYWd1aWxhckBjaC1nZXJzLmZyDQpE
+RVNDUklQVElPTjtMQU5HVUFHRT1mci1GUjpRdWFuZCA6IEEgbGlldSBjaGFxdWUgdmVuZHJlZGkg
+w6AgY29tcHRlciBkdSAyOC8NCiAwMi8yMDE0IGp1c3F1J2F1IDAyLzA1LzIwMTQgZGUgMTM6MDAg
+w6AgMTQ6MDAgKFVUQyswMTowMCkgQnJ1eGVsbGVzXCwgQ29wZQ0KIG5oYWd1ZVwsIE1hZHJpZFws
+IFBhcmlzLlxuRW1wbGFjZW1lbnQgOiBMaXZlIE1lZXRpbmdcblxuUmVtYXJxdWUgOiBsZSBkw6lj
+DQogYWxhZ2UgR01UIGNpLWRlc3N1cyBuZSB0aWVudCBwYXMgY29tcHRlIGRlcyByw6lnbGFnZXMg
+ZGUgbCdoZXVyZSBkJ8OpdMOpLlwNCiBuXG4qfip+Kn4qfip+Kn4qfip+Kn4qXG5cblxuXG5cblxu
+LSstLS0tLSstLS0tLSstLS0tLSstLS0tLSstLS0tLSstLS0tLSstLQ0KIC0tLSstLS0tLSstXG5c
+blxuTWF1cmVsXCwgQmVub2l0IHZvdXMgYSBpbnZpdMOpIMOgIHBhcnRpY2lwZXIgw6AgdW5lIHLD
+qXVuDQogaW9uIGVuIGxpZ25lIMOgIGwnYWlkZSBkdSBzZXJ2ZXVyIE1pY3Jvc29mdMKuIE9mZmlj
+ZSBDb21tdW5pY2F0aW9ucyBTZXJ2ZXINCiAuXG5Kb2lnbmV6IGxhIHLDqXVuaW9uLjxtZWV0OnNp
+cDpiZW5vaXQubWF1cmVsQGNhcGdlbWluaS5jb21cO2dydXVcO29wYXF1ZQ0KID1hcHA6Y29uZjpm
+b2N1czppZDo4Yjg0NTFkMWQ5ODk0NTM1ODYxZGE1OTU5Mzc2MTVhZSUzRmNvbmYta2V5PTM0NDY+
+XG5cbkFzDQogc3VyZXotdm91cyBxdWUgbGUgY2xpZW50IE9mZmljZSBMaXZlIE1lZXRpbmcgZXN0
+IGluc3RhbGzDqSBhdmFudCBsYSByw6l1bmkNCiBvbiA6XG7igKIgICAgICAgSmUgbWUgY29ubmVj
+dGUgZGVwdWlzIGwnaW50w6lyaWV1ciBkdSByw6lzZWF1IENvcnBvcmF0aW9uPA0KIGh0dHA6Ly9y
+Lm9mZmljZS5taWNyb3NvZnQuY29tL3IvcmxpZE9DU1IyP2NsaWQ9MTAzMyZwMT1saXZlbWVldGlu
+Zz5cbuKAoiAgDQogICAgICBKZSBtZSBjb25uZWN0ZSBkZXB1aXMgbCdleHTDqXJpZXVyIGR1IHLD
+qXNlYXUgQ29ycG9yYXRpb248aHR0cDovL3Iub2YNCiBmaWNlLm1pY3Jvc29mdC5jb20vci9ybGlk
+T0NTUjI/Y2xpZD0xMDMzJnAxPWxpdmVtZWV0aW5nPlxuXG5JTkZPUk1BVElPTlMgQQ0KIFVESU9c
+blBvdXIgam9pbmRyZSB1bmUgcsOpdW5pb24gw6AgcGFydGlyIGRlIHZvdHJlIHTDqWzDqXBob25l
+XCwgY29tcG9zZXogDQogbGUgbnVtw6lybyDDoCBsJ2FpZGUgZGVzIGluZm9ybWF0aW9ucyBzdWl2
+YW50ZXMgOlxuICAgICAgICBUw6lsw6lwaG9uZSA6ICANCiAgICBGUiArMzMgMSA3MCA0OCAwNiA2
+MyBbRnJhbsOnYWlzXCwgQW5nbGFpc11cbiAgICAgICAgUmVjaGVyY2hlciBsZSBudW3DqQ0KIHJv
+IGRlIHTDqWzDqXBob25lIGQnYWNjw6hzIGxvY2FsIHBvdXIgbGEgcsOpZ2lvbjxodHRwczovL3dl
+YmdpbXNldS5jYXBnZW1pDQogbmkuY29tL2RpYWxpbj5cblxuICAgICAgICBJRCBkZSBsYSBjb25m
+w6lyZW5jZSA6ICAgMTMyMzc5MTdcbiAgICAgICAgQ29kZSANCiBjb25maWRlbnRpZWwgOiAgICAg
+Q29kZSBjb25maWRlbnRpZWwgbm9uIHJlcXVpc1xuICAgICAgICBSZW1hcnF1ZSA6IHNpIHZvdQ0K
+IHMgZGlzcG9zZXogZCd1biBjb21wdGUgc3VyIGNlIHLDqXNlYXUgZCdlbnRyZXByaXNlXCwgam9p
+Z25leiDDoCBsJ2FpZGUgZGUgDQogdm90cmUgY29kZSBwZXJzb25uZWwuIEF2ZXotdm91cyBkw6lm
+aW5pIHZvdHJlIGNvZGUgcGVyc29ubmVsID88aHR0cHM6Ly93ZWINCiBnaW1zZXUuY2FwZ2VtaW5p
+LmNvbS9kaWFsaW4+XG5cblLDiVNPTFVUSU9OIERFUyBQUk9CTMOITUVTXG5JbXBvc3NpYmxlIGRl
+IA0KIGpvaW5kcmUgbGEgcsOpdW5pb24gPyBEw6ltYXJyZXogT2ZmaWNlIExpdmUgTWVldGluZyBl
+dCBhY2PDqWRleiDDoCBsYSByw6l1DQogbmlvbiBhdmVjIGxlcyBpbmZvcm1hdGlvbnMgc3VpdmFu
+dGVzIDpcbiAgICAgICAgSUQgZGUgbGEgcsOpdW5pb24gOiAgICAgIDgNCiBiODQ1MWQxZDk4OTQ1
+MzU4NjFkYTU5NTkzNzYxNWFlXG4gICAgICAgIENvZGUgZCdhY2PDqHMgOiAgMzQ0NlxuICAgICAg
+ICBFbQ0KIHBsYWNlbWVudCA6ICAgbWVldDpzaXA6YmVub2l0Lm1hdXJlbEBjYXBnZW1pbmkuY29t
+XDtncnV1XDtvcGFxdWU9YXBwOmNvbmY6DQogZm9jdXM6aWQ6OGI4NDUxZDFkOTg5NDUzNTg2MWRh
+NTk1OTM3NjE1YWUlM0Zjb25mLWtleT0zNDQ2XG5cblNpIHZvdXMgbmUgcGENCiBydmVuZXogdG91
+am91cnMgcGFzIMOgIGFjY8OpZGVyIMOgIGxhIHLDqXVuaW9uXCwgY29udGFjdGV6IGxlcyBzZXJ2
+aWNlcyBkZQ0KICBzdXBwb3J0IHRlY2huaXF1ZSA6XG7igKIgICAgICAgw4AgbCdpbnTDqXJpZXVy
+IGR1IHLDqXNlYXUgQ29ycG9yYXRpb248aHR0DQogcDovL3Iub2ZmaWNlLm1pY3Jvc29mdC5jb20v
+ci9ybGlkTGl2ZU1lZXRpbmc/cDE9MTImcDI9ZW5fdXMmcDM9TE1JbmZvJnA0PXMNCiB1cHBvcnRz
+ZXJ2ZXI+XG7igKIgICAgICAgw4AgbCdleHTDqXJpZXVyIGR1IHLDqXNlYXUgQ29ycG9yYXRpb248
+aHR0cDovL3Iubw0KIGZmaWNlLm1pY3Jvc29mdC5jb20vci9ybGlkTGl2ZU1lZXRpbmc/cDE9MTIm
+cDI9ZW5fdXMmcDM9TE1JbmZvJnA0PXN1cHBvcnRzDQogZXJ2ZXI+XG5cblJFTUFSUVVFXG5Wb3Vz
+IHBvdXZleiB1dGlsaXNlciBPZmZpY2UgTGl2ZSBNZWV0aW5nIHBvdXIgZW5yZWdpc3QNCiByZXIg
+ZGVzIHLDqXVuaW9ucy4gRW4gcGFydGljaXBhbnQgw6AgY2V0dGUgcsOpdW5pb25cLCB2b3VzIGNv
+bnNlbnRleiDDoCBjZQ0KICBxdWUgdm9zIGNvbW11bmljYXRpb25zIHNvaWVudCBjb250csO0bMOp
+ZXMgb3UgZW5yZWdpc3Ryw6llcyDDoCB0b3V0IG1vbWVuDQogdCBhdSBjb3VycyBkZSBsYSByw6l1
+bmlvbi5cblxuXG5cbg0KUlJVTEU6RlJFUT1XRUVLTFk7Q09VTlQ9MTA7SU5URVJWQUw9MTtCWURB
+WT1GUjtXS1NUPU1PDQpTVU1NQVJZO0xBTkdVQUdFPWZyLUZSOnRlc3QgcMOpcmlvZGlxdWUNCkRU
+U1RBUlQ7VFpJRD1Sb21hbmNlIFN0YW5kYXJkIFRpbWU6MjAxNDAyMjhUMTMwMDAwDQpEVEVORDtU
+WklEPVJvbWFuY2UgU3RhbmRhcmQgVGltZToyMDE0MDIyOFQxNDAwMDANClVJRDowNDAwMDAwMDgy
+MDBFMDAwNzRDNUI3MTAxQTgyRTAwODAwMDAwMDAwRjBFQkE1RjFBRjMzQ0YwMTAwMDAwMDAwMDAw
+MDAwMA0KIDAxMDAwMDAwMDFGOTU3QkQwQ0VERUZCNEQ4M0VDNzJENkZBNkE0OUM5DQpDTEFTUzpQ
+VUJMSUMNClBSSU9SSVRZOjUNCkRUU1RBTVA6MjAxNDAyMjdUMTAzNjAyWg0KVFJBTlNQOk9QQVFV
+RQ0KU1RBVFVTOkNPTkZJUk1FRA0KU0VRVUVOQ0U6MA0KTE9DQVRJT047TEFOR1VBR0U9ZnItRlI6
+TGl2ZSBNZWV0aW5nDQpYLU1JQ1JPU09GVC1DRE8tQVBQVC1TRVFVRU5DRTowDQpYLU1JQ1JPU09G
+VC1DRE8tT1dORVJBUFBUSUQ6MTMyNzE3OTc0Mg0KWC1NSUNST1NPRlQtQ0RPLUJVU1lTVEFUVVM6
+VEVOVEFUSVZFDQpYLU1JQ1JPU09GVC1DRE8tSU5URU5ERURTVEFUVVM6QlVTWQ0KWC1NSUNST1NP
+RlQtQ0RPLUFMTERBWUVWRU5UOkZBTFNFDQpYLU1JQ1JPU09GVC1DRE8tSU1QT1JUQU5DRToxDQpY
+LU1JQ1JPU09GVC1DRE8tSU5TVFRZUEU6MQ0KWC1NSUNST1NPRlQtRElTQUxMT1ctQ09VTlRFUjpG
+QUxTRQ0KQkVHSU46VkFMQVJNDQpBQ1RJT046RElTUExBWQ0KREVTQ1JJUFRJT046UkVNSU5ERVIN
+ClRSSUdHRVI7UkVMQVRFRD1TVEFSVDotUFQxNU0NCkVORDpWQUxBUk0NCkVORDpWRVZFTlQNCkVO
+RDpWQ0FMRU5EQVINCg==
+
+--_000_272E52AF18D49C4E935F546A9EF08FF60D4B978BDECMMBX25corpca_--
+
+

@@ -1,0 +1,27 @@
+Source: bluemind
+Section: net
+Priority: optional
+Maintainer: BlueMind Team <team@blue-mind.net>
+Standards-Version: 3.9.1
+
+Package: bm-plugin-hps-cas
+Architecture: amd64
+Depends: bm-hps (= ${binary:Version})
+Description: BlueMind CAS support
+ BlueMind CAS support
+
+Package: bm-cas-native
+Depends: bm-plugin-hps-cas, ${misc:Depends}
+Architecture: all
+Priority: extra
+Section: oldlibs
+Description: transitional package
+ This is a transitional package. It can safely be removed.
+
+Package: bm-cas-role
+Depends: bm-plugin-hps-cas, ${misc:Depends}
+Architecture: all
+Priority: extra
+Section: oldlibs
+Description: transitional package
+ This is a transitional package. It can safely be removed.

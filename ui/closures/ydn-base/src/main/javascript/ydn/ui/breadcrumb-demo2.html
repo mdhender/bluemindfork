@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Sitemap and breadcrumb demo</title>
+
+    <link rel="stylesheet" type="text/css" href="breadcrumb.css">
+    <script type="text/javascript" src="../../../../closure-library/closure/goog/base.js"></script>
+    <script type="text/javascript" src="../../deps.js"></script>
+    <script type="text/javascript">
+        goog.require("goog.events.EventTarget");
+    </script>
+    <script type="text/javascript" src="breadcrumb.js"></script>
+    <script type="text/javascript">
+        goog.require("ydn.data.SiteMap");
+        goog.require("ydn.ui.Breadcrumb");
+    </script>
+
+</head>
+<body>
+<div>Heading before breadcrumb.</div>
+<div id="ydn-breadcrumb"></div>
+<div>A bunch of text.</div>
+
+<script type="text/javascript">
+
+  var base_path = location.pathname.replace('/ydn/ui/breadcrumb-demo2.html', '');
+  window.SITE_MAP = {
+    "name": "main.js",
+    "url": base_path + "/main.js",
+    "children": [{
+      "name": "ydn",
+      "url": base_path + "/ydn/",
+      "children": [
+        {
+          "url": base_path + "/ydn/ui",
+          "title": "ui",
+          "children": [{
+            name: 'demo1',
+            url: base_path + '/ydn/ui/breadcrumb-demo1.html'
+          }, {
+            name: 'demo2',
+            url: base_path + '/ydn/ui/breadcrumb-demo2.html'
+          }]
+        }, {
+          name: 'data',
+          url: base_path + '/ydn/ui/data'
+        }
+      ]
+    }]
+  };
+  var sitemap = ydn.data.SiteMap.fromJSON(SITE_MAP);
+  var breadcrumb = new ydn.ui.Breadcrumb(sitemap);
+  breadcrumb.render(document.getElementById('ydn-breadcrumb'));
+
+</script>
+</body>
+</html>

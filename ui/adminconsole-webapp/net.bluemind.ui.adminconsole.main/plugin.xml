@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   
+   <extension
+         point="net.bluemind.ui.commons.banner">
+      <banner-entry
+            cssIcon="fa fa-lg fa-wrench"
+            description="%banner-entry.description"
+            name="%banner-entry.name"
+            offline="false"
+            role="hasAdminConsole"
+            root="/adminconsole/">
+      </banner-entry>
+   </extension>
+
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module
+            index="index.html"
+            root="/adminconsole">
+         <web-resource
+               bundle="net.bluemind.ui.adminconsole.main">
+         </web-resource>
+         <handler
+               class="net.bluemind.ui.admin.server.IndexHandler"
+               path="index.html">
+         </handler>
+         <handler
+               class="net.bluemind.ui.admin.server.FileUploadHandler"
+               path="fileupload">
+         </handler>
+    
+         <js
+               async-loading="true"
+               path="net.bluemind.ui.adminconsole.main/net.bluemind.ui.adminconsole.main.nocache.js">
+         </js>
+         <web-resource
+               bundle="net.bluemind.commons.ui.closure">
+         </web-resource>
+
+         <web-resource
+               bundle="net.bluemind.ui.banner.standalone.closure">
+         </web-resource>
+  
+         <css
+               path="AdminConsole.css">
+         </css>
+		
+		 <css
+               path="net.bluemind.ui.adminconsole.main/common.css">
+         </css>
+
+		 <css
+               path="bubble.css">
+         </css>
+   <web-resource
+         bundle="net.bluemind.ui.adminconsole.base">
+   </web-resource>
+    
+      </web-module>
+   </extension>
+     
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module-provider
+            module="/adminconsole">
+
+         <web-resource
+               bundle="net.bluemind.ui.banner.standalone.closure">
+         </web-resource>
+
+         <css
+               path="css/net.bluemind.ui.banner.standalone.closure.css">
+         </css>
+         <js
+               path="js/compile/net.bluemind.ui.banner.standalone.closure.js"
+               translation="true">
+         </js>
+      </web-module-provider>
+   </extension>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module-provider
+            module="/adminconsole">
+            
+            
+         <web-resource
+               bundle="net.bluemind.ui.editor.standalone.closure">
+         </web-resource>
+
+         <css
+               path="css/net.bluemind.ui.editor.standalone.closure.css">
+         </css>
+         <js
+               path="js/compile/net.bluemind.ui.editor.standalone.closure.js">
+         </js>
+         
+      </web-module-provider>
+   </extension>
+   <extension
+         point="net.bluemind.banner">
+      <application
+            description="%banner-entry.description"
+            href="/adminconsole/"
+            name="%banner-entry.name"
+            order="10"
+            role="hasAdminConsole">
+         <icon-svg>
+         <![CDATA[
+         <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M11.5 20L19 15.75V7.25L11.5 3L4 7.25V15.75L11.5 20ZM11.5 15.75L7.75 13.625V9.375L11.5 7.25L15.25 9.375V13.625L11.5 15.75Z" fill="#00CBFF" />
+    <path d="M19 15.75V7.25L15.25 9.375V13.625L11.5 15.75L7.75 13.625L4 15.75L11.5 20L19 15.75Z" fill="#1793DD" />
+</svg>
+         ]]>
+         </icon-svg>
+      </application>
+   </extension>
+  
+</plugin>

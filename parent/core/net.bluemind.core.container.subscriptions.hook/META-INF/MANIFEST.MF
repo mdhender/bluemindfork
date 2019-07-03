@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.core.container.subscriptions.hook
+Bundle-SymbolicName: net.bluemind.core.container.subscriptions.hook;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.core.container.hooks,
+ net.bluemind.core.rest,
+ net.bluemind.core.container.api,
+ slf4j.api,
+ net.bluemind.user.api
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.core.container.subscriptions.hook
+Bundle-ActivationPolicy: lazy

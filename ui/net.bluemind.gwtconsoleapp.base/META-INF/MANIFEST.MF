@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: GWT common api
+Bundle-SymbolicName: net.bluemind.gwtconsoleapp.base;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.ui.gwtcommon.icons;bundle-version="1.0.0";visibility:=reexport,
+ net.bluemind.tag.api.gwt;bundle-version="1.0.0";visibility:=reexport,
+ net.bluemind.core.container.api.gwt;bundle-version="1.0.0";visibility:=reexport,
+ net.bluemind.core.container.api;bundle-version="1.0.0",
+ net.bluemind.core.commons.gwt;bundle-version="1.0.0";visibility:=reexport,
+ net.bluemind.directory.api.gwt;bundle-version="1.0.0";visibility:=reexport,
+ net.bluemind.domain.api,
+ com.google.gwt.user;resolution:=optional,
+ net.bluemind.ui.extensions.gwt;visibility:=reexport
+Export-Package: net.bluemind.gwtconsoleapp.base,
+ net.bluemind.gwtconsoleapp.base.editor,
+ net.bluemind.gwtconsoleapp.base.editor.gwt,
+ net.bluemind.gwtconsoleapp.base.eventbus,
+ net.bluemind.gwtconsoleapp.base.handler,
+ net.bluemind.gwtconsoleapp.base.i18n,
+ net.bluemind.gwtconsoleapp.base.lifecycle,
+ net.bluemind.gwtconsoleapp.base.menus,
+ net.bluemind.gwtconsoleapp.base.notification

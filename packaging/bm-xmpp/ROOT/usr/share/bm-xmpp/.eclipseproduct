@@ -1,0 +1,5 @@
+#Eclipse Product File
+#Fri May 16 15:00:19 CEST 2014
+version=1.0.0.b12165
+name=xmpp
+id=net.bluemind.xmpp.server.launcher.xmpp

@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.custom.password.sizestrength
+Bundle-SymbolicName: net.bluemind.custom.password.sizestrength;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.core.commons,
+ net.bluemind.user.hook,
+ net.bluemind.core.rest
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy

@@ -1,0 +1,8 @@
+[
+	{ 
+ 		"name":"bluemind/ldap"
+	},
+	{ 
+ 		"name":"bluemind/postgres-tests"
+	}
+]

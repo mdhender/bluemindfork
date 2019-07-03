@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.lib.jackson.tests
+Bundle-SymbolicName: net.bluemind.lib.jackson.tests
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: net.bluemind.lib.jackson.tests.Activator
+Bundle-Vendor: blue-mind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.lib.jackson;bundle-version="1.0.0",
+ org.junit;bundle-version="3.8.2",
+ net.bluemind.bo.common;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy

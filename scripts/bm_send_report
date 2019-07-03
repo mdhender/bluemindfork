@@ -1,0 +1,96 @@
+#!/bin/bash
+# Packs all blue-mind logs for analysis
+set -e
+
+test $# -eq 1 || {
+    echo "usage: $0 <email>"
+    echo "Will send a compressed log report to this email"
+    exit 1
+}
+email=$1
+echo "The logs will be sent to $email"
+
+ldir=/tmp/bm.log.`date -u +%s`
+echo "Packaging logs into $ldir..."
+
+mkdir -p $ldir
+
+# collect(dir, prefix)
+# eg. collect bm core
+function collect() {
+    pdir=$1
+    pref=$2
+    echo "Collecting $pdir / $pref..."
+    if [ -d /var/log/$pdir ]; then
+	mkdir -p $ldir/$pdir
+	touch $ldir/$pdir/$pref.log
+	for i in `seq 15 -1 1`; do
+	    lFile=/var/log/$pdir/$pref.log.$i.gz
+	    if [ -f $lFile ]; then
+		echo -n "    Adding $lFile..."
+		zcat $lFile >> $ldir/$pdir/$pref.log
+		echo "OK"
+	    fi
+	done
+	lFile=/var/log/$pdir/$pref.log
+	if [ -f $lFile ]; then
+	    echo -n "    Adding $lFile..."
+	    cat $lFile >> $ldir/$pdir/$pref.log
+	    echo "OK"
+	fi
+    fi
+    echo "Finished for $pdir / $pref"
+}
+
+# eclipse product logs
+collect bm core
+collect bm-tomcat bm-java
+collect bm-tomcat solr
+collect bm-hps hps
+collect bm-lmtpd lmtpd
+collect bm-eas eas
+collect bm-node node
+collect ysnp ysnp
+collect bm-locator locator
+collect bm-mq hornetq
+
+# hprof files
+if ls /var/log/*.hprof > /dev/null 2>&1; then
+    echo "You need to download the HPROFS !"
+    ls -l1 /var/log/*.hprof > $ldir/hprof.log
+    jps -ml >> $ldir/hprof.log
+fi
+
+# dmesg & computer stuff
+dmesg > $ldir/dmesg
+cat /proc/cpuinfo > $ldir/cpuinfo
+cat /proc/meminfo > $ldir/meminfo
+jps -ml > $ldir/jps
+
+pushd /tmp
+echo -n "Compressing..."
+tar cf $ldir.tar `basename $ldir`
+bzip2 -9 $ldir.tar
+rm -fr $ldir
+echo "OK"
+popd
+
+# send as email with attachment
+eurl=`cat /etc/bm/bm.ini|grep '^external-url'`
+subject="[`hostname -f`] bm logs for $eurl"
+echo $subject
+
+echo "Should send: "
+du -sh $ldir.tar.bz2
+
+echo -n "Sending to $email with mutt..."
+echo "See attached logs" | mutt -s "$subject" -a $ldir.tar.bz2 -- $email && \
+rm -f $ldir.tar.bz2
+
+if [ -f $ldir.tar.bz2 ]; then
+    echo "FAILED: Mail was not sent, data is in $ldir.tar.bz2"
+else
+    echo "OK"
+fi
+
+exit 0

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<forwards>
+	<forward path="/webapp" target="locator://bm/webmail:8080/webapp">
+		<auth kind="CORE2" />
+		<whitelist>
+			<wl uri="/skins/bluemind/images/favicon.ico" />
+		</whitelist>
+	</forward>
+</forwards>

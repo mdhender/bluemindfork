@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.filehosting.ui.closure
+Bundle-SymbolicName: net.bluemind.filehosting.ui.closure;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Closure-Bundle-Type: Library
+Bundle-ClassPath: css.jar,
+ js.jar,
+ .
+Require-Bundle: net.bluemind.filehosting.api.closure;bundle-version="4.1.0",
+ net.bluemind.commons.ui.closure;bundle-version="4.1.0"

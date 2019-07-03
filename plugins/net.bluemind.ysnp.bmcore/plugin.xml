@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.ysnp.credentialvalidatorfactory">
+      <credential_validator_factory
+            implementation="net.bluemind.ysnp.bmcore.CoreCredentialValidatorFactory">
+      </credential_validator_factory>
+   </extension>
+   <extension
+         point="net.bluemind.system.state">
+      <state-listener
+            class="net.bluemind.ysnp.bmcore.internal.CoreStateListener"></state-listener>
+   </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.ysnp.bmcore.internal.PostfixSenderVerticleFactory">
+      </verticle>
+   </extension>
+
+</plugin>

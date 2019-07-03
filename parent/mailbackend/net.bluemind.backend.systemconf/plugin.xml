@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.system.hook">
+      <validator
+            class="net.bluemind.backend.systemconf.internal.MyNetworksValidator">
+      </validator>
+      <sanitizor
+            class="net.bluemind.backend.systemconf.internal.MyNetworksSanitizor">
+      </sanitizor>
+      <validator
+            class="net.bluemind.backend.systemconf.internal.MessageSizeLimitValidator">
+      </validator>
+      <sanitizor
+            class="net.bluemind.backend.systemconf.internal.MessageSizeLimitSanitizor">
+      </sanitizor>
+      <sanitizor
+            class="net.bluemind.backend.systemconf.internal.MessageSizeLimitSanitizor">
+      </sanitizor>
+   </extension>
+   <extension
+         point="net.bluemind.server.hook.serverhook">
+      <hook
+            impl="net.bluemind.backend.systemconf.internal.SystemConfServerHook">
+      </hook>
+   </extension>
+
+</plugin>

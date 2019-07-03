@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.cli.cmd.api.cmdlet">
+      <registration
+            impl="net.bluemind.cli.metrics.TickReconfigureCommand$Reg"
+            priority="100">
+      </registration>
+      <registration
+            impl="net.bluemind.cli.metrics.TickStatusCommand$Reg"
+            priority="500">
+      </registration>
+   </extension>
+
+</plugin>

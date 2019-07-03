@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.core.rest.apiEndpoint">
+      <endpoint
+            api="net.bluemind.mailshare.api.IMailshare">
+      </endpoint>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.serviceFactory">
+      <serviceFactory
+            class="net.bluemind.mailshare.service.MailshareServiceFactory">
+      </serviceFactory>
+   </extension>
+   <extension
+         point="net.bluemind.directory.handler">
+      <handler
+            class="net.bluemind.mailshare.service.internal.MailshareDirHandler">
+      </handler>
+   </extension>
+   <extension
+         point="net.bluemind.core.sanitizerfactory">
+      <sanitizerfactory
+            implementation="net.bluemind.mailshare.service.internal.MailshareVCardSanitizer$Factory"></sanitizerfactory>
+   </extension>
+   <extension
+         point="net.bluemind.core.validatorfactory">
+      <validatorfactory
+            implementation="net.bluemind.mailshare.service.internal.MailshareValidator$Factory">
+      </validatorfactory>
+   </extension>
+
+</plugin>

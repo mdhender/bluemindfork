@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<fragment>
+   <extension
+         point="net.bluemind.mailflow.rules_extensions">
+      <rule
+            description="rule 1"
+            ruleIdentifier="rule1">
+      </rule>
+   </extension>
+   <extension
+         point="net.bluemind.mailflow.rules_extensions">
+      <rule
+            description="rule 2"
+            ruleIdentifier="rule2">
+      </rule>
+   </extension>
+   <extension
+         point="net.bluemind.mailflow.actions_extensions">
+      <action
+            actionIdentifier="action1"
+            description="action 1">
+      </action>
+   </extension>
+   <extension
+         point="net.bluemind.mailflow.actions_extensions">
+      <action
+            actionIdentifier="action2"
+            description="action 2">
+      </action>
+   </extension>
+   <extension
+         point="net.bluemind.mailflow.actions_extensions">
+      <action
+            actionIdentifier="action3"
+            description="action 3">
+      </action>
+   </extension>
+   <extension
+         point="net.bluemind.mailflow.actions_extensions">
+      <action
+            actionIdentifier="AddSignatureAction"
+            description="AddSignatureAction">
+      </action>
+   </extension>
+   <extension
+         point="net.bluemind.mailflow.actions_extensions">
+      <action
+            actionIdentifier="action4"
+            description="action 4">
+      </action>
+   </extension>
+
+</fragment>

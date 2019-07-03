@@ -1,0 +1,11 @@
+.serviceOk {
+	background-color: #f9f9f9!important;
+}
+
+.serviceWarn {
+	background-color: #f1e39f!important;
+}
+
+.serviceKo {
+	background-color: #f79e9e!important;
+}

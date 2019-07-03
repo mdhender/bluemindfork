@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module >
+	<source path='client' />
+	
+	<inherits name='com.google.code.gwt.crop.GWTCropper'/>
+	<!-- Inherit the core Web Toolkit stuff. -->
+	<inherits name='com.google.gwt.user.User' />
+	<inherits name="com.google.gwt.i18n.I18N" />
+	<inherits name="com.google.gwt.http.HTTP" />
+	<inherits name="com.google.gwt.xml.XML" />
+	<inherits name='com.google.gwt.user.User' />
+	<inherits name="com.google.gwt.i18n.I18N" />
+	<inherits name="net.bluemind.ui.common.client.CommonForms" />
+	<inherits name="net.bluemind.core.CommonsApi" />
+	<inherits name="net.bluemind.core.CoreApi" />
+	<inherits name="net.bluemind.gwtconsoleapp.base.Editor" />
+</module>

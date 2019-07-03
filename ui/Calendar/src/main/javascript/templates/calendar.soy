@@ -1,0 +1,1032 @@
+{namespace bluemind.calendar.template}
+
+/**
+ * HTML Body
+ */
+{template .body}
+  <div id="pageHeader" class="{css pageHeader}"></div>
+  <div id="pageBody" class="{css pageBody}"> 
+    <div id="leftPanel" class="{css leftPanel}">
+      <div id="actions" class="{css actions}"></div>
+      <div id="datePicker"></div>
+      <div id="viewSelectorContainer"></div>
+      {call .selectorTabs /} 
+    </div>
+    <div id="content">
+      <div id="toolbar" class="{css toolbar}"></div>
+      <div id="viewContainer" class="{css viewContainer}"></div>
+    </div>
+  </div>
+{/template}
+
+/**
+ * HTML Body
+ */
+{template .selectorTabs}
+  <div id='bm-selector-tab' class="{css goog-tab-bar} {css goog-tab-bar-top}">
+    <div id='bm-selector-calendars' class="{css goog-tab} {css goog-tab-selected}">
+      {msg desc="calendars"}Calendars{/msg}
+    </div>
+    <div id='bm-selector-tags' class="{css goog-tab}">
+      {msg desc="Tags selector tab"}Tags{/msg}
+    </div>
+  </div>
+  <div id='bm-calendars'>
+    <div style="padding-right:6px">
+      <input type="text" id="calendarAutoComplete" label="{msg desc="add calendar autocomplete label"}Add a calendar ...{/msg}" autocomplete="off"/>
+    </div>
+    <div id="bm-calendars-items"></div>
+  </div>
+  <div id='bm-tags' class="{css tags}">
+    <div id="bm-tags-items" class="{css tagItems}"></div>
+  </div> 
+{/template}
+
+
+/**
+ * spinner
+ */
+{template .spinner}
+  <div>{msg desc="spinner text"}Loading...{/msg}</div>
+{/template}
+
+/**
+ * Header
+ * @param displayName user dn.
+ * @param profile user profile.
+ * @param picture calendar picture.
+ * @param sid logged user sid.
+ * @param version app version.
+ * @param mailPerms user mail permission.
+ * @param unreadMailCount unread mail count. 
+ * @param hideBandal hide bandal.
+ * @param roles User roles
+ * @param im can you chat? not sure.
+ */
+{template .header}
+  {if $hideBandal}
+    <div id="bandal-tb" class="{css bandal-tb}"></div>
+    <div id="bandal" class="{css bandal} {css hide}">
+  {else}
+    <div id="bandal" class="{css bandal}">
+  {/if}
+    <div id="identity" class="{css identity}">
+      {call .calendarPicture}
+        {param picture: $picture /}
+        {param sid: $sid /}
+        {param type: 'user' /}
+      {/call}
+      <div id="displayNameContainer" class="{css bandal-item-container}">
+        <div id="displayName">{$displayName}</div>
+      </div>
+      |
+      {if $im}
+        <a href="" onclick="var p = window.open('../im/#', 'IM', 'height=500, width=700, top=100, left=100, toolbar=no, menubar=no, location=no, resizable=yes, scrollbars=no, status=no'); p.focus(); localStorage.removeItem('bm-unread'); return false;">
+          <img  id="im-notifier" class='{css btn-im}' src="themes/default/images/im.png" title="IM"/> 
+        </a>
+        |
+      {/if}
+      {if $roles['cti']}
+        <a>
+          <img id="dial" class='{css btn-dial}' src="themes/default/images/pad.png" title="{msg desc="Dialer link in banner"}Dialer{/msg}" style="cursor:pointer;" /> 
+        </a> 
+        |
+      {/if}
+      <a href="/settings">
+        <img id="btn-settings" class="{css btn-settings}" src="themes/default/images/settings.png" title="{msg desc="settings"}Settings{/msg}">
+      </a>
+      |
+      <div id="notificationContainer" class="{css bandal-item-container}"></div>|
+      <div id="connectionStatusContainer" class="{css bandal-item-container}"></div>|
+      <div id="logoutContainer">
+        <a id="logoutLnk" href="bluemind_sso_logout">{msg desc="logout"}Logout{/msg}</a>
+      </div>
+    </div> 
+    <div id="apps" class="{css apps}">
+
+      {if $mailPerms}
+        <a class="{css app}" href="/webmail/">
+          <img class="{css app-logo}" src="themes/default/images/webmail.png"></img>
+          <div class="{css app-title}">
+            {msg desc="appName Mail"}Mail{/msg}
+            {if $unreadMailCount > 0}
+              <div class="{css app-notification-container}">
+                <div id="unreadMailCount" class="{css app-notification}">{$unreadMailCount}</div>
+                <div class="{css app-notification-spacer}"></div>
+              </div>
+            {else}
+              <div class="{css app-notification-container}">
+                <div id="unreadMailCount" class="{css app-notification} {css app-notification-none}">0</div>
+                <div class="{css app-notification-spacer}"></div>
+              </div>
+            {/if}
+          </div>
+        </a>
+      {/if}
+
+       <a class="{css app}" href="/contact/">
+         <img class="{css app-logo}" src="themes/default/images/contact.png"></img>
+         <div class="{css app-title}">
+           {msg desc="appName Contacts"}Contacts{/msg}
+           <div class="{css app-notification-container}">
+             <div class="{css app-notification} {css app-notification-none}">0</div>
+             <div class="{css app-notification-spacer}"></div>
+           </div>
+         </div>
+       </a>
+
+      <a class="{css app}" href="/cal/">
+        <img class="{css app-logo}" src="themes/default/images/calendar.png"></img>
+        <div class="{css app-title-selected}">
+          {msg desc="appName Calendar"}Calendar{/msg}
+           <div class="{css app-notification-container}">
+             <div class="{css app-notification} {css app-notification-none}">0</div>
+             <div class="{css app-notification-spacer}"></div>
+           </div>
+          <div class="{css app-cursor}"></div>
+        </div>
+      </a>
+
+      {if $profile == 'admin'}
+        <a class="{css app}" href="/adminconsole/">
+          <img class="{css app-logo}" src="themes/default/images/admin.png"></img>
+          <div class="{css app-title}">
+            {msg desc="appName Admin"}Administration{/msg}
+             <div class="{css app-notification-container}">
+               <div class="{css app-notification} {css app-notification-none}">0</div>
+               <div class="{css app-notification-spacer}"></div>
+             </div>
+          </div>
+        </a>
+      {/if}
+
+    </div>
+  </div>
+
+  <div class="{css logo}">
+    <img id="appLogo" src="themes/default/images/logo_bm.png" title="BlueMind - {msg desc="appName Calendar and version"}Calendar (Version {$version}){/msg}" />
+  </div>
+
+  <div class="{css search-form}">
+    <form id="search-form" autocomplete="off" onsubmit="return false;">
+      <input type="text" id="pattern" name="search" value="" class="{css searchField} {css goog-button-base-first}"/>
+      <div type="button" id="search-btn" class="{css searchBtn} {css goog-button-base} {css goog-button-base-last}">
+        <div class="{css searchBtnIco}"></div>
+      </div>
+    </form>
+  </div>
+
+{/template}
+
+/**
+ * Days view
+ */
+{template .daysView}
+  <div id="headContainer" class="{css headContainer}">
+    <table id="table-allday" class="{css table-allday}">
+      <tr id="label"></tr>
+      <tr id="allDayContainer"></tr>
+    </table>
+  </div>
+  <div id="gridContainer" class="{css gridContainer}">
+    <table id="table-inday" class="{css table-inday}">
+      <tr class="{css hourTr}">
+        <td width="60px"></td>
+        <td id="tdHourContainer">
+          <div style="position:relative;">
+            <div id="hourContainer" class="{css hourContainer}"></div>
+          </div>
+        </td>
+      </tr>
+      <tr id="bodyContent">
+        <td id="leftPanelHour" class="{css leftPanelHour}">
+          <div style="position:relative;top:-1px;">
+            <div id="hourLabelContainer" class="{css hourLabelContainer}"></div>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+{/template}
+
+/**
+ * Week, day or every custom view with less than 8 day
+ */
+{template .weekGrid}
+  <div id="bm-cal-wg-header">
+  </div>
+  <div class="{css bm-cal-wg-border}"></div>
+  <div id="bm-cal-wg-grid">
+  </div>
+{/template}
+
+/**
+ * Container for grid representing all day .
+ * FIXME: Should replace .daysView
+ * @param interval length of the displayed interval (in day) 
+ */
+{template .allDayGrid}
+  <table id="bm-cal-adg-table" class="{css bm-cal-adg-table}">
+    <tr>
+      <td width="60px" rowspan="2">week no</td>
+      {for $day in range($interval)}
+      <th class="{css bm-cal-adg-label}">{$day}</th>  
+      {/for}
+    </tr>
+    <tr>
+      <td colspan='{$interval}' class="{css bm-cal-adg-allday}">
+        <table id="bm-cal-adg-view" class="{css bm-cal-adg-view}">
+          <tr>
+            {for $day in range($interval)}
+              <td class="{css bm-cal-adg-day}">&nbsp;</td>  
+            {/for}
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+{/template}
+
+/**
+ * Container for grid representing day times.
+ * FIXME: Should replace .daysView
+ * @param interval length of the displayed interval (in day) 
+ */
+{template .timedGrid}
+  <table id="bm-cal-tg-table" class="{css bm-cal-tg-table}">
+    <tr height='1'>
+      <td width="60px"></td>
+      <td colspan="{$interval}">
+        <div class="{css bm-cal-tg-wrapper}">
+          <div class="{css bm-cal-tg-hour-container}">
+            {for $hour in range(24)}
+            <div class="{css bm-cal-tg-time-marker}"></div>
+            <div class="{css bm-cal-tg-half-marker}"></div>
+            {/for}
+          </div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td class="{css bm-cal-tg-time-label}">
+        {for $hour in range(24)}
+        <div>{$hour}:00</div>
+        {/for}
+      </td>
+      {for $day in range($interval)}
+      <td class="{css bm-cal-tg-day}">
+      <div id='bm-cal-tg-day-{$day}'></div>
+      <div id='bm-cal-tg-drag-{$day}'></div>
+      </td>  
+      {/for}
+    </tr>
+  </table>
+{/template}
+
+/**
+ * Month view
+ */
+{template .monthView}
+  <div id="headContainer" class="{css headContainer}">
+    <table id="table-allday" class="{css table-allday}">
+      <tr id="monthDayLabel">
+        <td  class="{css monthWeekNumContainer}"></td> 
+      </tr>
+    </table>
+  </div>
+  <div id="gridContainer" class="{css gridContainer}">
+    <table class="{css monthContainer}">
+      <tr>
+        <td id="monthWeekNumContainer" class="{css monthWeekNumContainer}">
+          <table id="monthWeekNumContainerTable"></table>
+        </td> 
+        <td>
+          <div id="monthContainer" />
+        </td>
+      </tr>
+    </table>
+  </div>
+{/template}
+
+
+/**
+ * Agenda view
+ */
+{template .agendaView}
+  <div id="gridContainer" class="{css gridContainer}">
+    <table id="agenda" class="{css event-list}">
+    </table>
+  </div>
+{/template}
+
+/**
+ * form notification
+ * @param css css name
+ * @param msg
+ */
+{template .formNotification}
+  <div class="{$css}">{$msg}</div>
+{/template}
+/**
+ * Event form
+ * @param event {bluemind.calendar.view.forms.Event} containing event data.
+ * @param calendars Appointable calendars.
+ * @param longweekdays English weekdays fullname
+ * @param narrowweekdays Translated weekdays shortname
+ * @param usercreate user create.
+ * @param userupdate user update.
+ * @param timecreate time create.
+ * @param timeupdate time update.
+ */
+{template .form}
+<div id="gridContainer" class="{css gridContainer}">
+  <form class="{css bm-ui-form}" id="bm-ui-form">
+    <table>
+      <tr style="height: 13em;">
+        <td>
+          <div>
+            <span id="bm-ui-form-notification-popup-btn" class="{css form-notification-btn}"></span>
+            <div id="bm-ui-form-notification" class="{css form-notification}"></div>
+          </div>
+          <div id="bm-ui-form-notification-popup" class="{css popup}"></div>
+          <fieldset id="bm-ui-form-fieldset-main">
+            <div class="{css event-infos-container}">
+              {if $usercreate != ''}
+                <div class="{css event-infos}">
+                  {msg desc="created by"}Created by{/msg} {$usercreate} {msg desc="on"}on{/msg} {$timecreate}
+                </div>
+              {/if}
+              {if $userupdate != ''}
+                <div class="{css event-infos}">
+                  {msg desc="updated by"}Updated by{/msg} {$userupdate} {msg desc="on"}on{/msg} {$timeupdate}
+                </div>
+              {/if}
+            </div>
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+              <label for="bm-ui-form-title">{msg desc="event title label"}Title{/msg}</label>
+              <div class="{css bm-ui-form-input}">
+                <input id="bm-ui-form-title" name="title" type="text" value="{$event.title}" />
+              </div>
+            </div>
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+              <label for="bm-ui-form-datebegin">{msg desc="event date label"}Date{/msg}</label>
+              <div class="{css bm-ui-form-input}">
+                <div class="{css bm-ui-form-inline}">
+                  <input id="bm-ui-form-datebegin" class="{css bm-mini}" name="datebegin" type="text" value="" />
+                  <div id="bm-ui-form-timebegin" class="{css bm-mini} {css bm-ui-form-inline}"></div>
+                  <label for="bm-ui-form-dateend">{msg desc="event date range separator"}to{/msg}</label>
+                  <input id="bm-ui-form-dateend" class="{css bm-mini}" name="dateend" type="text" value="" />
+                  <div id="bm-ui-form-timeend" class="{css bm-mini} {css bm-ui-form-inline}"></div>
+                </div>
+              </div>
+            </div>
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}" id="bm-ui-form-allday-block" class="{css bm-ui-form-allday-block}">
+              <div class="{css bm-ui-form-input}">
+                <ul class="{css bm-ui-form-inline}">
+                  <li>
+                    <label class="{css bm-ui-form-prepend}" for="bm-ui-form-allday">
+                      <input class="{css bm-ui-form-checkbox}" type="checkbox" id="bm-ui-form-allday" name="allday" {if $event.allday}checked="true" {/if}/>
+                    </label>
+                    <label class="{css bm-ui-form-append}" for="bm-ui-form-allday">{msg desc="event allday label"}All day{/msg}</label>
+                  </li>
+              </div>
+            </div>  
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+              <div id="bm-ui-form-repeat-sentence" class="{css bm-ui-form-input} {css bm-ui-form-repeat-sentence}">
+              {call .repeatSentence}
+                {param repeat: $event.repeat /}
+              {/call}       
+              </div>
+            </div>  
+          </fieldset>
+        </td>
+        <td id="bm-ui-form-fieldset-attendees-container" rowspan="3" class="{css bm-ui-form-fieldset-attendees-container}">
+          <fieldset id="bm-ui-form-fieldset-attendees">
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+              <input type="text" label="{msg desc="Add an attendee to the event"}Add an attendee ...{/msg}" id="bm-ui-form-attendee-input" name="" value="" class="{css bm-ui-form-attendee-input}"/>
+            </div>           
+            <div class="{css bm-ui-form-entry} {css bm-clearfix} {css bm-ui-form-role-legend-container}">
+              <div><div class="{css bm-ui-form-role-legend} {css bm-ui-form-role-opt}">&nbsp;</div><span>{msg desc="attendee part role optional"}Participation optional{/msg}</span></div>
+              <div><div class="{css bm-ui-form-role-legend} {css bm-ui-form-role-req}">&nbsp;</div><span>{msg desc="attendee part role required"}Participation required{/msg}</span></div>
+            </div>
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}" id="bm-ui-form-attendee">
+            </div>
+          </fieldset>
+        </td>
+      </tr>
+      <tr style="height: 2.8em;">
+        <td>
+          <div id='bm-ui-form-tab' class="{css goog-tab-bar} {css goog-tab-bar-top}">
+            <div id='bm-ui-form-tab-details' class="{css goog-tab} {css goog-tab-selected}">{msg desc="Event form inforamtion panel"}Informations{/msg}</div>
+            {if $event.canRepeat }
+            <div id='bm-ui-form-tab-repeat' class="{css goog-tab}">{msg desc="Event form repeation panel"}Repeat{/msg}</div>
+            {else}
+            <div style='display:none' id='bm-ui-form-tab-repeat' class="{css goog-tab}">{msg desc="Event form repeation panel"}Repeat{/msg}</div>
+            {/if}
+            <div id='bm-ui-form-tab-freebusy' class="{css goog-tab}">{msg desc="Event form freebusy panel"}Find a time{/msg}</div>
+          </div>
+        </td>
+      </tr>
+      <tr style="height:auto;">
+        <td>      
+          <fieldset id="bm-ui-form-fieldset-details" class="{css goog-tab-content}">
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+              <label for="bm-ui-form-location">{msg desc="event location label"}Location{/msg}</label>
+              <div class="{css bm-ui-form-input}">
+                <input type="text" name="location" id="bm-ui-form-location" value="{$event.location}" />
+              </div>
+            </div>    
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+              <label for="bm-ui-form-owner">{msg desc="organizer"}Organizer{/msg}</label>
+              <div class="{css bm-ui-form-input}">
+                <select id="bm-ui-form-owner" name="calendar">
+                {foreach $cal in $calendars}
+                  <option value="{$cal.id_}"{if $event.calendar == $cal.id_} selected="true"{/if}>{$cal.label_}</option>
+                {/foreach}
+                </select>
+              </div>
+            </div>
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+              <label for="bm-ui-form-tag">{msg desc="event title label"}Tag{/msg}</label>
+              <div class="{css bm-ui-form-input}" id="bm-ui-form-tag">
+              </div>
+            </div>
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+              <label for="bm-ui-form-description">{msg desc="event description label"}Description{/msg}</label>
+              <div class="{css bm-ui-form-input}">
+                <div id="bm-ui-form-description"></div>
+              </div>
+            </div>      
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+              <label for="bm-ui-form-reminder">{msg desc="event reminder label"}Reminder{/msg}</label>
+              <div class="{css bm-ui-form-input}">
+                <div class="{css bm-ui-form-inline}" id="bm-ui-form-reminder-block">
+                  <input class="{css bm-mini}" type="text" id="bm-ui-form-reminder" name="reminderduration" value="{$event.reminder.duration}"/>
+                  <select name="reminderunit" id="bm-ui-form-reminder-unit" class="{css bm-small}">
+                    <option value="1"{if $event.reminder.unit == 'seconds'} selected="true"{/if}>{msg desc="Selector for reminder unit : seconds"}seconds{/msg}</option>
+                    <option value="60"{if $event.reminder.unit == 'minutes'} selected="true"{/if}>{msg desc="Selector for reminder unit : mintues"}minutes{/msg}</option>
+                    <option value="3600"{if $event.reminder.unit == 'hours'} selected="true"{/if}>{msg desc="Selector for reminder unit : hours"}hours{/msg}</option>
+                    <option value="86400"{if $event.reminder.unit == 'days'} selected="true"{/if}>{msg desc="Selector for reminder unit : days"}days{/msg}</option>
+                  </select>
+                  &nbsp;<span class="{css remove}" id="bm-ui-form-no-reminder"></span>
+                </div>
+                <div class="{css bm-ui-form-inline}" id="bm-ui-form-no-reminder-block">
+                  <input type="button" class="{css goog-button-base}" id="bm-ui-form-add-reminder" value="{msg desc="Button to add a reminder"}Add a reminder{/msg}" />
+                </div>
+              </div>
+            </div>
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+              <label for="bm-ui-form-opacity">{msg desc="event opacity label"}Show me as{/msg}</label>
+              <div class="{css bm-ui-form-input}">
+                <ul class="{css bm-ui-form-inline}">
+                  <li>
+                    <input class="{css bm-ui-form-radio}" type="radio" id="bm-ui-form-opacity-busy" name="opacity" value="OPAQUE" {if $event.opacity == 'OPAQUE'}checked="true" {/if}/>
+                    <label for="bm-ui-form-opacity-busy">{msg desc="Busy state for event opacity"}Busy{/msg}</label>
+                  </li>
+                  <li>
+                    <input class="{css bm-ui-form-radio}" type="radio" id="bm-ui-form-opacity-free" name="opacity" value="TRANSPARENT" {if $event.opacity == 'TRANSPARENT'}checked="true" {/if}/>
+                    <label for="bm-ui-form-opacity-free">{msg desc="Free state for event opacity"}Available{/msg}</label>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+              <label for="bm-ui-form-privacy">{msg desc="event privacy label"}Privacy{/msg}</label>
+              <div class="{css bm-ui-form-input}">
+                <ul class="{css bm-ui-form-inline}">
+                  <li>
+                    <input class="{css bm-ui-form-radio}" type="radio" id="bm-ui-form-privacy-private" name="privacy" value="private" {if $event.privacy == 'private'}checked="true" {/if}/>
+                    <label for="bm-ui-form-privacy-private">{msg desc="Private state for event privacy"}Private{/msg}</label>
+                  </li>
+                  <li>
+                    <input class="{css bm-ui-form-radio}" type="radio" id="bm-ui-form-privacy-public" name="privacy" value="public"  {if $event.privacy == 'public'}checked="true" {/if}/>
+                    <label for="bm-ui-form-privacy-public">{msg desc="Public state for event privacy"}Public{/msg}</label>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset id="bm-ui-form-fieldset-repeat" class="{css goog-tab-content}" style='display: none'>
+          <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+            <label for="bm-ui-form-repeat">{msg desc="Event repeat kind selection label"}Repeat{/msg}</label>
+            <div class="{css bm-ui-form-input}">
+              <select name="repeat" id="bm-ui-form-repeat">
+                <option value="none"{if $event.repeat.kind == 'none'} selected="true"{/if}>{msg desc="No repeteation for this event"}None{/msg}</option>
+                <option value="daily"{if $event.repeat.kind == 'daily'} selected="true"{/if}>{msg desc="Event will repeat on a day based period"}Daily{/msg}</option>
+                <option value="weekly"{if $event.repeat.kind == 'weekly'} selected="true"{/if}>{msg desc="Event will repeat on a week based period"}Weekly{/msg}</option>
+                <option value="monthly"{if $event.repeat.kind == 'monthly'} selected="true"{/if}>{msg desc="Event will repeat on a month based period"}Monthly{/msg}</option>
+                <option value="yearly"{if $event.repeat.kind == 'yearly'} selected="true"{/if}>{msg desc="Event will repeat on a year based period"}Yearly{/msg}</option>
+              </select>
+            </div>
+          </div>
+          <div class="{css bm-ui-form-entry} {css bm-clearfix}" id="bm-ui-form-fieldset-period-block">
+            <label for="bm-ui-form-repeat-periodicity">{msg desc="Event repeat periodicity"}Repeat every{/msg}</label>
+            <div class="{css bm-ui-form-input}">
+              <input type="text" class="{css bm-mini}" name="repeat-periodicity" id="bm-ui-form-repeat-periodicity" value="{$event.repeat.periodicity}" />
+            </div>
+          </div>
+          <div class="{css bm-ui-form-entry} {css bm-clearfix}" id="bm-ui-form-repeat-by-block">
+            <label for="bm-ui-form-repeat-by">{msg desc="Wich kind of montly repeat is the event"}Repeat by{/msg}</label>
+            <div class="{css bm-ui-form-input}">
+              <div class="{css bm-ui-form-inline}">
+                <input class="{css bm-ui-form-radio}" type="radio" id="bm-ui-form-repeat-by-date" name="repeat-by" value="bydate" {if $event.repeat.monthly == 'bydate'}checked="true" {/if}/>
+                <label for="bm-ui-form-repeat-by-date">{msg desc="Label for by date event repeat kind"}day of month{/msg}</label>
+                <input class="{css bm-ui-form-radio}" type="radio" id="bm-ui-form-repeat-by-day" name="repeat-by" value="byday"  {if $event.repeat.monthly == 'byday'}checked="true" {/if}/>
+                <label for="bm-ui-form-repeat-by-day">{msg desc="Label for by day event repeat kind"}day of week{/msg}</label>
+              </div>
+            </div>
+          </div>
+          <div class="{css bm-ui-form-entry} {css bm-clearfix}" id="bm-ui-form-repeat-days-block" class="{css bm-ui-form-repeat-days-block}">
+            <label for="bm-ui-form-repeat-days">{msg desc="On which day a weekly event will occur"}Repeat on{/msg}</label>
+            <div class="{css bm-ui-form-inline}">
+              <div class="{css bm-ui-form-input}" id="bm-ui-form-repeat-days-container">
+                {for $day in range(7)}
+                <label for="bm-ui-form-repeat-days-{$longweekdays[$day]}" class="{css bm-ui-form-prepend}">
+                  <input class="{css bm-ui-form-checkbox}" type="checkbox" id="bm-ui-form-repeat-days-{$longweekdays[$day]}" name="{$longweekdays[$day]}" {if $event.repeat.days[$longweekdays[$day]]}checked="true" {/if}/>
+                </label>
+                <label class="{css bm-ui-form-append}" for="bm-ui-form-repeat-days-{$longweekdays[$day]}">{$narrowweekdays[$day]}</label></span>
+                {/for}
+              </div>
+            </div>
+          </div>
+          <div class="{css bm-ui-form-entry} {css bm-clearfix}"  id="bm-ui-form-fieldset-end-block">
+            <label for="bm-ui-form-repeat-end-never">{msg desc="Label for event repeat end selection"}Ends{/msg}</label>
+            <div class="{css bm-ui-form-input}">
+              <div class="{css bm-ui-form-inline}">
+                <input class="{css bm-ui-form-radio}" type="radio" id="bm-ui-form-repeat-end-never" name="repeat-end" value="never" {if $event.repeat.neverend}checked="true" {/if}/>
+                <label for="bm-ui-form-repeat-end-never">{msg desc="Label for event repeat never end selection"}Never{/msg}</label>
+                <br/>
+                <input class="{css bm-ui-form-radio}" type="radio" id="bm-ui-form-repeat-end-on" name="repeat-end" value="on"  {if $event.repeat.neverend == false}checked="true" {/if}/>
+                <label for="bm-ui-form-repeat-end-on">{msg desc="Label for event repeat ends on selection"}On{/msg}</label>
+                <input type="text" name="repeat-end-date" id="bm-ui-form-repeat-end-date" value="{if $event.repeat.dateend}{$event.repeat.dateend}{/if}" />
+              </div>
+            </div>
+          </div>
+          </fieldset>
+          <fieldset id="bm-ui-form-fieldset-freebusy" class="{css goog-tab-content} {css fiedset-content}" style="display: none">
+            <div id="freebusy-root-panel" class={css freebusy-root-panel}>
+              <table class="{css freebusy-root-table}">
+                <tr>
+                  <td colspan="2">
+                    <div id="freebusy-north-toolbar" class="{css freebusy-toolbar}"></div>
+                  </td>
+                </tr>
+                <tr height="100%">
+                  <td class="{css freebusy-root-table-sidebar}">
+                    <div id="freebusy-sidebar" class="{css freebusy-sidebar}">
+                      <table id="freebusy-attendees-container" class="{css fb-attendees-container}">
+                        <tbody id="freebusy-attendees-container-tbody">
+                          <tr><td class="{css empty}"></td></tr>
+                          <tr><td class="{css empty}"></td></tr>
+                          <tr id="empty-all-attendees" class="{css empty-all-attendees}"><td></td></tr>
+                        </tbody>
+                        <tfoot>
+                          <tr><td class="{css empty}"></td></tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  </td>
+                  <td class="{css freebusy-root-table-timeline}">
+                    <div id="freebusy-container" class="{css freebusy-container}">
+                      <div id="fb-dummy-event" class="{css fb-dummy-event}">
+                        <div id="fb-dummy-event-resizer-begin" class="{css fb-dummy-event-resizer} {css fb-dummy-event-resizer-begin}"></div>
+                        <div id="fb-dummy-event-resizer-end" class="{css fb-dummy-event-resizer} {css fb-dummy-event-resizer-end}"></div>
+                      </div>
+                      <table id="freebusy-data-container" class="{css freebusy} {css fb-timeline-container}">
+                        <tbody id="freebusy-timeline-container">
+                        </tbody>
+                      </table>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="2">
+                    <div id="legend-container" class="{css legend-container}">
+                      <div class="{css legend}">
+                        <div class="{css outOfWorkFreeBusy}"></div>
+                        <span>{msg desc="out of work"}Out of work{/msg}</span>
+                      </div>
+                      <div class="{css legend}">
+                        <div class="{css busy}"></div>
+                        <span>{msg desc="Busy state for event opacity"}Busy{/msg}</span>
+                      </div>
+                      <div class="{css legend}">
+                        <div class="{css no-information}"></div>
+                        <span>{msg desc="freebusy no information"}No information{/msg}</span>
+                      </div>
+                    </div>
+                    <div id="freebusy-south-toolbar" class="{css freebusy-toolbar}"></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </fieldset>
+        </td>
+      </tr>
+    </table>
+  </form>
+</div>
+{/template}
+
+/**
+ * Event repeat properties as a sentence
+ * @param repeat Event repeat properties.
+ * @param? error Error message
+ */
+{template .repeatSentence}
+  {if $repeat.kind != 'none'}
+  <strong>{msg desc="Repeat sentence prefix"}Repeat : {/msg}</strong>
+    {if $error}
+    <span class="{css error}">{$error}</span>
+    {else}
+      {if $repeat.periodicity == 1}
+        {switch $repeat.kind }
+          {case 'daily'}
+            {msg desc="Event will repeat on a day based period"}Daily{/msg}
+          {case 'weekly'}
+            {msg desc="Event will repeat on a week based period"}Weekly{/msg},&nbsp;
+            {msg desc="weekly repeat, days of week"}on {$repeat.days}{/msg}
+          {case 'monthly', 'monthlybydate', 'monthlybyday'}
+            {msg desc="Event will repeat on a month based period"}Monthly{/msg}
+          {case 'yearly'}
+            {msg desc="Event will repeat on a year based period"}Yearly{/msg}
+          {default}
+            What ??
+        {/switch} 
+      {else}
+        {switch $repeat.kind }
+          {case 'daily'}
+            {msg desc="Event will repeat every x days"}Every {$repeat.periodicity} days{/msg}
+          {case 'weekly'}
+            {msg desc="Event will repeat every x weeks"}Every {$repeat.periodicity} weeks{/msg},&nbsp;
+            {msg desc="weekly repeat, days of week"}on {$repeat.days}{/msg}
+          {case 'monthly', 'monthlybydate', 'monthlybyday'}
+            {msg desc="Event will repeat every x months"}Every {$repeat.periodicity} months{/msg}
+          {case 'yearly'}
+            {msg desc="Event will repeat every x years"}Every {$repeat.periodicity} years{/msg}
+          {default}
+            What ??
+        {/switch} 
+      {/if} 
+      {if $repeat.neverend == false}
+        ,&nbsp;{msg desc="Label for repeat end"}until{/msg}&nbsp;{$repeat.dateend}
+      {/if}
+    {/if}
+  {/if}
+{/template}
+
+/**
+ * Attendee
+ * @param calendar Calendar id.
+ * @param label Attendee label.
+ * @param picture calendar picture.
+ * @param type calendar type.
+ * @param sid logged user sid.
+ * @param role attendee role.
+ * @param participation participation
+ * @param email email
+ */
+{template .attendee}
+  <div id="bm-ui-form-attendee-{$calendar}" class="{css bm-ui-form-attendee-entry}">
+    <div id="bm-ui-form-remove-{$calendar}" class="{css bm-ui-form-remove}">&nbsp;</div>
+    {if $role == 'OPT'}
+      <div id="bm-ui-form-role-{$calendar}" class="{css bm-ui-form-role} {css bm-ui-form-role-opt}">&nbsp;</div>
+    {else}
+      <div id="bm-ui-form-role-{$calendar}" class="{css bm-ui-form-role} {css bm-ui-form-role-req}">&nbsp;</div>
+    {/if}
+    {call .calendarPicture}
+      {param picture: $picture /}
+      {param sid: $sid /}
+      {param type: $type /}
+    {/call}
+    {if $participation == 'DECLINED'}
+      <span class="{css declined}" title="{$label}{if $email}<{$email}>{/if}">
+    {elseif $participation == 'NEEDS-ACTION'}
+      <span class="{css needsaction}" title="{$label}{if $email}<{$email}>{/if}">
+    {else}
+      <span class="{css accepted}" title="{$label}{if $email}<{$email}>{/if}">
+    {/if}
+    {$label}</span>
+    <input type='hidden' value='{$calendar}' name='attendees' />
+  </div>
+{/template}
+
+/**
+ * search
+ */
+{template .search}
+  <div id="gridContainer" class="{css gridContainer}">
+    <table id="seachresults" class="{css result}">
+      <tr>
+        <td>id</td>
+        <td>{msg desc="event title label"}Title{/msg}</td>
+        <td>{msg desc="event location label"}Location{/msg}</td>
+        <td>{msg desc="event desc label"}Description{/msg}</td>
+      </tr>
+    </table> 
+  </div>
+{/template}
+
+
+/**
+ * Event
+ * @param id Event id.
+ * @param date Event date.
+ * @param tooltip Event tooltip.
+ * @param title Event title.
+ * @param repeat Event repeat kind.
+ * @param klass Event class.
+ * @param opaque Is event opaque.
+ * @param updatable Is event is updatable.
+ * @param isPrivate Is event private.
+ * @param isAttend Is user attend to event.
+ * @param isMeeting meeting.
+ * @param duration event duration.
+ * @param location event location.
+ * @param tags event tags
+ */
+{template .event}
+  {if $isPrivate and not $updatable and not $isAttend}
+    <div id="{$id}" class="{$klass}" title="{msg desc="private"}Private{/msg}">
+  {else}
+    <div id="{$id}" class="{$klass}" title="{$tooltip}">
+  {/if}
+  {if $opaque == 'transparent'}
+    <div class="{css transparent-marker}"></div>
+  {/if}
+  <div class="{css icon-container}">
+    {if length($tags) > 0}
+      <div class="{css tag-mark}" title="
+      {foreach $tag in $tags}
+        {$tag['label']}{if not isLast($tag)},{sp}{/if}
+      {/foreach}
+      " style="
+      {if length($tags) > 1}
+        border-left-color: #{$tags[0]['color']};
+        border-right-color: #{$tags[1]['color']};
+        width: 1px;
+        border-width: 0 7px;
+      {else}
+        background-color:#{$tags[0]['color']}
+      {/if}
+       "></div>
+    {/if}
+    {if $repeat}
+      <img src="themes/default/images/repeat.png" />
+    {/if}
+    {if $isPrivate}
+      <img src="themes/default/images/private.png" />
+    {/if}
+    {if $isMeeting}
+      <img src="themes/default/images/meeting.png" />
+    {/if}
+    {if $updatable}
+      <div class="{css ev-resizer}"></div>
+    {/if}
+  </div>
+  <dl>
+    <dt class="{css ev-header}">
+      {$date}
+      {if $duration < 3600}
+        {if $isPrivate and not $updatable and not $isAttend}
+          {msg desc="private"}Private{/msg}
+        {else}
+          {if $location != ''}
+            <span class="{css ev-location}">, {$location}</span>
+          {/if}
+        {/if}
+      {/if}
+    </dt>
+    <dd>
+      {if $duration >= 3600}
+        {if $isPrivate and not $updatable and not $isAttend}
+          <span class="{css ev-content}">{msg desc="private"}Private{/msg}</span>
+        {else}
+          <span class="{css ev-content}">{$title}</span>
+          {if $location != ''}
+            <span class="{css ev-location}">, {$location}</span>
+          {/if}
+        {/if}
+      {/if}
+    </dd>
+  </dl>
+  </div>
+{/template}
+
+
+/**
+ * Event
+ * @param id Event id.
+ * @param title Event title.
+ * @param tooltip Event tooltip.
+ * @param ico icone type.
+ * @param repeat Event repeat kind.
+ * @param klass Event class.
+ * @param left Event left extension.
+ * @param right Event right extension.
+ * @param opaque Is event opaque.
+ * @param isPrivate Is event private.
+ * @param isAttend Is user attend to event.
+ * @param isMeeting meeting.
+ * @param updatable Is event is updatable.
+ * @param location event location.
+ * @param tags Event tags
+ */
+{template .eventAllday}
+  {if $isPrivate and not $updatable and not $isAttend}
+    <div id="{$id}" class="{$klass}" title="{msg desc="private"}Private{/msg}">
+  {else}
+    <div id="{$id}" class="{$klass}" title="{$tooltip}">
+  {/if}
+  {if $opaque == 'transparent'}
+    <div class="{css transparent-marker}"></div>
+  {/if}
+  {if $right}
+    <div class="{css extension} {css FR}">
+      <div class="{css extension-right}"></div>
+    </div>
+  {else}
+    <div class="{css extension} {css FR} {css no-extention}">
+      <div class="{css extension-right}"></div>
+    </div>
+  {/if}
+  {if $left}
+    <div class="{css extension} {css FL}">
+      <div class="{css extension-left}"></div>
+    </div>
+  {else}
+    <div class="{css extension} {css FL} {css no-extention}">
+      <div class="{css extension-left}"></div>
+    </div>
+  {/if}
+  <div class="{css icon-container}">
+  {if $repeat}
+    {if $ico == 'dark'}
+      <img src="themes/default/images/repeat_dark.png" />
+    {else}
+      <img src="themes/default/images/repeat.png" />
+    {/if}
+  {/if}
+  {if $isPrivate}
+    {if $ico == 'dark'}
+      <img src="themes/default/images/private_dark.png" />
+    {else}
+      <img src="themes/default/images/private.png" />
+    {/if}
+  {/if}
+  {if $isMeeting}
+    {if $ico == 'dark'}
+      <img src="themes/default/images/meeting_dark.png" />
+    {else}
+      <img src="themes/default/images/meeting.png" />
+    {/if}
+  {/if}
+  {if length($tags) > 0}
+    <div class="{css tag-mark}" title="
+    {foreach $tag in $tags}
+      {$tag['label']}{if not isLast($tag)},{sp}{/if}
+    {/foreach}
+    " style="
+    {if length($tags) > 1}
+      border-left-color: #{$tags[0]['color']};
+      border-right-color: #{$tags[1]['color']};
+      width: 1px;
+      border-width: 0 7px;
+    {else}
+      background-color:#{$tags[0]['color']}
+    {/if}
+     "></div>
+  {/if}
+  </div>
+  <dl>
+    <dt class="{css ev-header}" style="display:none;"></dt>
+    <dd>
+      {if $isPrivate and not $updatable and not $isAttend}
+        <span class="{css ev-content}">{msg desc="private"}Private{/msg}</span>
+      {else}
+        <span class="{css ev-content}">{$title}</span>
+        {if $location != ''}
+          <span class="{css ev-location}">, {$location}</span>
+        {/if}
+      {/if}
+    </dd>
+  </dl>
+  </div>
+{/template}
+
+/**
+ * Calendar
+ * @param id Calendar id.
+ * @param klass Calendar klass.
+ * @param label Calendar label.
+ * @param picture calendar picture.
+ * @param type calendar type.
+ * @param email calendar email
+ * @param sid logged user sid.
+ */
+{template .calendar}
+  <div id="calendar{$id}" class="{css calendar-item}">
+    <div id="remove{$id}" class="{$klass} {css remove}"></div>
+    {if $label == 'batmobile'}
+      <img src="themes/default/images/batmobile.png"></img>
+    {else}
+      {call .calendarPicture}
+        {param picture: $picture /}
+        {param sid: $sid /}
+        {param type: $type /}
+      {/call}
+    {/if}
+    {if $email != ''}
+      <div class="{css title}" title="{$label} <{$email}>">
+    {else}
+      <div class="{css title}" title="{$label}">
+    {/if}
+      <span>{$label}</span>
+    </div>
+  </div>
+{/template}
+
+
+/**
+ * Tag
+ * @param id Tag id.
+ * @param color Calendar color.
+ * @param label Tag label.
+ */
+{template .tag}
+  <div id="tag-{$id}" class="{css tag-item}">
+    <div class="{css color-dot}" style="background-color:#{$color}"></div>
+    <span>{$label}</span>
+  </div>
+{/template}
+
+
+/**
+ * No Tag
+ */
+{template .notag}
+  <div id="tag-none" class="{css tag-item}">
+    <span>{msg desc="Hide events without tag"}Hide unhandled tags{/msg}</span>
+  </div>
+{/template}
+
+/**
+ * connectionStatus
+ */
+{template .connectionStatus}
+  <div id="connectionStatus" class="{css connection-status}"></div>
+{/template}
+
+/**
+ * Calendar pic
+ *
+ * @param picture calendar picture.
+ * @param sid logged user sid.
+ * @param type logged calendar type.
+ */
+{template .calendarPicture}
+  {if $picture > 0}
+    <img src="/adminconsole/adminconsole/fetchDocument?id={$picture}&sid={$sid}" class='{css avatar-picture}'></img>
+  {else}
+    {if $type == 'calendar'}
+      <img src="themes/default/images/none.png"></img>
+    {elseif $type == 'undefined'}
+      <img src="themes/default/images/user.png"></img>
+    {else}
+      <img src="themes/default/images/{$type}.png"></img>
+    {/if}
+  {/if}
+{/template}
+
+/**
+ * Calendar freebusy tooltip
+ *
+ * @param dtstart date start.
+ * @param dtend date end.
+ * @param title event title.
+ */
+{template .freebusyTooltip}
+  <div class="{css freebusy-tooltip}">
+    <div class="{css date}">{$dtstart} - {$dtend}</div>
+    <div class="{css title}">{$title}</div>
+  </div>
+{/template}
+
+/**
+ * Calendar view selector
+ */
+{template .viewSelector}
+  <div class="{css left-panel-section-title}">
+    {msg desc="my views"}My views{/msg}
+    <span class="{css left-panel-section-action}">
+      <div id="view-button" class="{css sidebar-menu-button}">&#x25BC;</div>
+      <div id="view-menu" class="{css goog-menu}" style="display:none">
+        <div id="view-add-action" class="{css goog-menuitem}">{msg desc="save this view"}Save this view{/msg}</div>
+        <div id="view-delete-action" class="{css goog-menuitem}">{msg desc="delete this view"}Delete this view{/msg}</div>
+        <hr class="{css goog-menuitem}"/>
+        <div id="view-my-calendar-action" class="{css goog-menuitem}">{msg desc="view my calendar"}My calendar{/msg}</div>
+        <hr class="{css goog-menuitem}"/>
+      </div>
+    </span>
+  </div>
+{/template}

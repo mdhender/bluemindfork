@@ -1,0 +1,152 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:bj="urn:import:net.bluemind.ui.admin.client" xmlns:f="urn:import:net.bluemind.ui.admin.client.forms"
+	xmlns:common="urn:import:net.bluemind.ui.common.client.forms"
+	xmlns:r="urn:import:net.bluemind.ui.adminconsole.directory.resource"
+	xmlns:a="urn:import:net.bluemind.ui.adminconsole.base.ui"
+	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'>
+
+	<ui:style>
+	.imageOutline {
+	    border-style: dashed;
+	    border-width: 2px;
+            cursor: pointer;
+	}
+
+	#editResourceTitle {
+		font-size: medium;
+		margin: 0;
+	}
+	
+	#editResourceTitle div {
+		display: inline;
+	}
+	
+	.logo {
+		vertical-align: middle;
+	}
+	
+	.errorLabel {
+		color: red;
+		font-weight: bold;
+		padding: 3px;
+	}
+	
+	.topRight {
+		position: absolute;
+		top: 10px;
+		right: 10px;
+	}
+	
+	.fs {
+		border: none;
+		margin-left: 20px;
+	}
+	
+	.fs legend {
+		font-weight: bold;
+		margin-left: -20px;
+	}
+	
+	.tdContent {
+		padding: 2px 6px;
+	}
+	
+	.formLabel {
+		vertical-align: top;
+		padding-top: 5px;
+	}
+
+	.policyline {
+		line-height: 1.4em;
+	}
+
+	.policyButton {
+		float:left;
+		padding-right: 7px;
+	}
+	
+	.policyDiv {
+		display: table;
+	}
+
+	.refuseLabel {
+		float:left;
+		padding-right: 7px;
+    	padding-left: 15px;
+	}
+
+	</ui:style>
+
+	<ui:with field="mc"
+		type="net.bluemind.ui.adminconsole.directory.resource.l10n.ResourceConstants" />
+
+	<g:HTMLPanel>
+
+		<g:Label text="{mc.generalInfo}" styleName="sectionTitle"></g:Label>
+
+		<table class="formContainer">
+			<common:StringEdit ui:field="name" titleText="{mc.name}"
+				maxLength="4096" mandatory="true" readOnly="false" />
+
+			<tr class="setting">
+				<td class="{style.formLabel}">
+					<ui:msg key="type">Type</ui:msg>
+				</td>
+				<td class="form">
+					<g:Label ui:field="type" />
+				</td>
+			</tr>
+
+			<tr class="setting">
+				<td class="{style.formLabel}">
+					<g:Label text="{mc.reservationMode}"/>
+				</td>
+				<td class="{style.policyline}">
+					<div class="{style.policyDiv}" >
+					<g:RadioButton name="reservationPolicy" ui:field="reservationModeOwner" styleName="{style.policyButton}" text="{mc.reservationModeOwner}" />
+					<br />
+					<g:RadioButton name="reservationPolicy" ui:field="reservationModeAutoAccept" styleName="{style.policyButton}" text="{mc.reservationModeAutoAccept}" />
+					<br />
+					<g:CheckBox ui:field="reservationModeAutoRefuse" styleName="{style.refuseLabel}" text="{mc.reservationModeAutoAcceptRefuse}" />
+					</div>
+				</td>
+			</tr>
+
+			<tr class="setting">
+				<td class="{style.formLabel}">
+					<ui:msg key="photo">Photo</ui:msg>
+				</td>
+				<td class="form">
+					<g:Image ui:field="icon" width="100px" height="100px" styleName="{style.imageOutline}"/>
+				</td>
+			</tr>
+
+			<a:DelegationEdit ui:field="delegation" titleText="{mc.delegation}"
+				maxLength="32" mandatory="false" kind="RESOURCE" />
+
+			<tr class="setting">
+				<td class="{style.formLabel}">
+					<g:Label text="{mc.mail}"></g:Label>
+				</td>
+				<td class="form">
+					<a:MailAddressTableEditor ui:field="mailTable" size="1"
+						hasImplicitEmail="false" />
+				</td>
+				<td></td>
+			</tr>
+
+			<f:TextEdit ui:field="description" titleText="{mc.description}"
+				mandatory="false" />
+				
+		</table>
+
+		<g:Label ui:field="customPropTitle" text="{mc.customProperties}"
+			styleName="sectionTitle"></g:Label>
+		<g:HTMLPanel ui:field="customPropertiesContainer"></g:HTMLPanel>
+
+	</g:HTMLPanel>
+
+</ui:UiBinder>

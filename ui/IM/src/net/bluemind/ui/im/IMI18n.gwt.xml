@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- When updating your version of GWT, you should also update this DTD reference, 
+	so that your app can take advantage of the latest GWT module capabilities. -->
+<!DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit 2.5.0//EN"
+  "http://google-web-toolkit.googlecode.com/svn/tags/2.5.0/distro-source/core/src/gwt-module.dtd">
+<module rename-to='net.bluemind.ui.instantmessaging'>
+	<inherits name='net.bluemind.ui.im.IM' />
+	
+	<extend-property name="locale" values="en" />
+	<extend-property name="locale" values="fr" />
+	<extend-property name="locale" values="sk" />
+	<extend-property name="locale" values="es" />
+	<extend-property name="locale" values="pl" />
+	<extend-property name="locale" values="de" />
+	<extend-property name="locale" values="it" />
+	<extend-property name="locale" values="zh" />
+	<set-property-fallback name="locale" value="en" />
+
+</module>

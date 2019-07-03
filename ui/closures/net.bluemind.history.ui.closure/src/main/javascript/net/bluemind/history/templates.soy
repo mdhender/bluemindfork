@@ -1,0 +1,38 @@
+{namespace net.bluemind.history.templates}
+
+/**
+ * History dialog
+ * @param history
+ */
+{template .dialogHistory}
+  <div id="history-container">
+  	<table id="history-table" style="width:100%">
+  		<thead>
+	  		<tr>
+	    		<th>{msg meaning="history.date" desc="Date"}Date{/msg}</th>
+	    		<th>{msg meaning="history.type" desc="Type"}Type{/msg}</th> 
+	    		<th>{msg meaning="history.author" desc="Author"}Author{/msg}</th>
+	    		<th>{msg meaning="history.origin" desc="Origin"}Origin{/msg}</th>
+	  		</tr>
+  		</thead>
+  		<tbody>
+	  	  {foreach $entry in $history}
+	    	<tr>
+	    		<td>{$entry.date}</td>
+	    		{if $entry.type == 'Created'}
+	    			<td><i title="{msg meaning="history.created" desc="Origin"}Created{/msg}" class="fa fa-plus-circle" aria-hidden="true"></i></td>
+	    		{/if}
+	    		{if $entry.type == 'Updated'}
+	    			<td><i title="{msg meaning="history.updated" desc="Origin"}Updated{/msg}" class="fa fa-refresh" aria-hidden="true"></i></td>
+	    		{/if}
+	    		{if $entry.type == 'Deleted'}
+	    			<td><i title="{msg meaning="history.deleted" desc="Origin"}Deleted{/msg}" class="fa fa-minus-circle" aria-hidden="true"></i></td>
+	    		{/if}
+	    		<td>{$entry['authorDisplayName']}</td>
+	    		<td>{$entry['origin']}</td>
+	    	</tr>
+	  	  {/foreach}
+  	    </tbody>
+	</table>
+  </div>
+{/template}

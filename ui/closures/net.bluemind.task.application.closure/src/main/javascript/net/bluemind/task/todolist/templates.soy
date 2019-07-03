@@ -1,0 +1,71 @@
+{namespace net.bluemind.task.todolist.templates}
+
+/**
+ * BEGIN LICENSE
+ * Copyright © Blue Mind SAS, 2012-2016
+ *
+ * This file is part of BlueMind. BlueMind is a messaging and collaborative
+ * solution.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of either the GNU Affero General Public License as
+ * published by the Free Software Foundation (version 3 of the License).
+ *
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * END LICENSE
+ */
+ 
+/**
+ * List task item label
+ * @param task
+ */
+{template .label}
+  <h2 title="{$task.label}">{$task.label}</h2>
+  {if $task.date}
+    <div class="{css date}">{$task.date}</div>
+  {/if}
+  {call .tags}
+  	{param tags : $task.tags /}
+  {/call}
+{/template}
+
+/**
+ * List task item tags pill
+ * @param tags
+ */
+{template .tags}
+  {if length($tags) == 1}
+    <div class="{css tag}" title="{$tags[0].label}" style="float:left; background-color: #{$tags[0].color};"></div>  
+  {elseif $tags and length($tags) > 1}
+    <div class="{css tag} {css multi}" title="
+      {foreach $tag in $tags}
+        {$tag.label}
+        {if not isLast($tag)} ,{sp} {/if}
+      {/foreach}
+    " style="float:left; border-left-color: #{$tags[0].color}; border-right-color: #{$tags[1].color};"></div>
+  {/if}
+{/template}
+
+/**
+ * Import form dialog
+ */
+{template .dialogImport}
+  <form  enctype="multipart/form-data" method="post" action="contact/bmc">
+    <input type='file' name='vcs'/>
+  </form>
+{/template}
+
+/**
+ * vtodo Import in progress dialog
+ */
+{template .progressImport}
+  <div class={css status}></div>
+  <div class="{css progress} {css striped} {css active}">
+    <div class="{css bar}"></div>
+  <div>
+{/template}
+

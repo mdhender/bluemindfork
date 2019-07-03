@@ -1,0 +1,62 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" 
+	xmlns:f="urn:import:net.bluemind.ui.common.client.forms" 
+	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default'>
+
+	<ui:style>
+		.logOutput {
+			margin: 5px;
+		}
+		
+		.progressOuter {
+			margin: 5px;
+			border: 1px solid black;
+			padding: 1px;
+			height: 35px;
+		}
+		
+		.progressInner {
+			background-color: green;
+			height: 100%;
+		}
+		
+		.logo {
+			vertical-align: middle;
+			text-align: center;
+		}
+	</ui:style>
+	
+	<ui:with field="pt" type="net.bluemind.ui.adminconsole.progress.ui.ProgressTexts" />
+
+	<g:DockLayoutPanel unit='PX'>
+
+		<g:north size="50">
+			<f:ProgressBar ui:field="progress" />
+		</g:north>
+
+		<g:center>
+			<g:ScrollPanel width="100%" height="100%">
+				<g:VerticalPanel width="100%" height="100%">
+					<g:cell verticalAlignment='ALIGN_MIDDLE' horizontalAlignment='ALIGN_CENTER'>
+						<g:Image ui:field="logo" styleName="{style.logo}" />
+					</g:cell>
+					<g:cell>
+						<g:SimplePanel ui:field="taskOutput" styleName="{style.logOutput}"/>
+					</g:cell>
+				</g:VerticalPanel>
+			</g:ScrollPanel>
+		</g:center>
+
+		<g:south size="40">
+			<g:DockLayoutPanel styleName="modal-dialog-buttons">
+				<g:north size="40">
+					<g:Button ui:field="seeLogs" text="{pt.showLogs}" height="75%"/>
+				</g:north>
+		 	</g:DockLayoutPanel>
+		</g:south>
+		
+	</g:DockLayoutPanel>
+
+</ui:UiBinder>

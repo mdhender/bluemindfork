@@ -1,0 +1,105 @@
+#compose-attachments #attachment-list li {
+  padding: 0px 15px 2px 0px;
+  list-style: none;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: transparent;
+}
+#attachment-list li a {
+  padding-left: 0px;
+
+}
+
+.attachmentpreview {
+  min-width: 120px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.attachmentpreview img {
+  display: block;
+  position: relative;
+  background: url(filetypes.png) 0 0 no-repeat;
+  min-height: 26px;
+  min-width: 26px;
+  margin: auto;
+}
+
+.pdf.attachmentpreview img {
+  background-position: 0 -26px;
+}
+
+.doc.attachmentpreview img,
+.docx.attachmentpreview img,
+.msword.attachmentpreview img {
+	background-position: 0 -52px;
+}
+
+.odt.attachmentpreview img {
+	background-position: 0 -78px;
+}
+
+.xls.attachmentpreview img,
+.xlsx.attachmentpreview img,
+.msexcel.attachmentpreview img {
+	background-position: 0 -104px;
+}
+
+.ods.attachmentpreview img {
+	background-position: 0 -130px;
+}
+
+.zip.attachmentpreview img,
+.gz.attachmentpreview img {
+	background-position: 0 -156px;
+}
+
+.rar.attachmentpreview img {
+	background-position: 0 -182px;
+}
+
+.image.attachmentpreview img {
+	background-position: 0 -208px;
+}
+
+.jpg.attachmentpreview img,
+.jpeg.attachmentpreview img {
+	background-position: 0 -234px;
+}
+
+.png.attachmentpreview img {
+	background-position: 0 -260px;
+}
+
+.m4p.attachmentpreview img {
+	background-position: 0 -286px;
+}
+
+.mp3.attachmentpreview img,
+.audio.attachmentpreview img {
+	background-position: 0 -312px;
+}
+
+.video.attachmentpreview img {
+	background-position: 0 -338px;
+}
+
+.txt.attachmentpreview img,
+.text.attachmentpreview img {
+	background-position: 0 -416px;
+}
+
+.ics.attachmentpreview img,
+.calendar.attachmentpreview img {
+	background-position: 0 -364px;
+}
+
+.vcard.attachmentpreview img {
+	background-position: 0 -390px;
+}
+
+.html.attachmentpreview img {
+	background-position: 0 -442px;
+}
+

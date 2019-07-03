@@ -1,0 +1,25 @@
+div.ics-toolbar {
+  margin: 8px;
+  padding: 5px;
+  background: #EBEBEB;
+  border: 1px solid #BFBFBF;
+}
+
+div.ics-toolbar table.headers-table td {
+  border: none;
+}
+
+a.highlight {
+  font-weight: bold;
+  text-decoration: none;
+  pointer-events: none;
+  cursor: default;
+}
+
+div.ics-toolbar-error {
+  margin: 8px;
+  padding: 5px;
+  background: #FDDFDE;
+  border: 1px solid #FBC7C6;
+  color: #c43c35;
+}

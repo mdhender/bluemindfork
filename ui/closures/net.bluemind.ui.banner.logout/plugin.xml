@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module-provider
+            module="*">
+         <js
+               path="js/compile/net.bluemind.ui.banner.logout.js">
+         </js>
+         <web-resource
+               bundle="net.bluemind.ui.banner.logout">
+         </web-resource>
+      </web-module-provider>
+   </extension>
+</plugin>

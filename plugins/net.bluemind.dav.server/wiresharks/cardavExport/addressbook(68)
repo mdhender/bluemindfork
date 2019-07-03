@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<multistatus xmlns='DAV:'>
+  <response>
+    <href>/addressbooks/__uids__/EB397106-443A-47BE-9CA5-558037E137BF/addressbook/c26de140d46250814e0461935c2de4e4.vcf</href>
+    <propstat>
+      <prop>
+        <getetag>"2127608d6835953e8d1f58b0d0776c21"</getetag>
+        <uid xmlns='http://calendarserver.org/ns/'>5f96985f-1c05-4180-9c56-243a82c10e36</uid>
+      </prop>
+      <status>HTTP/1.1 200 OK</status>
+    </propstat>
+  </response>
+  <response>
+    <href>/addressbooks/__uids__/EB397106-443A-47BE-9CA5-558037E137BF/addressbook/883284437a4c85dabe8b0219c899f120.vcf</href>
+    <propstat>
+      <prop>
+        <getetag>"9c272c6bc2ebc41c32538828b1113614"</getetag>
+      </prop>
+      <status>HTTP/1.1 200 OK</status>
+    </propstat>
+  </response>
+</multistatus>

@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.ui.banner.logout
+Bundle-SymbolicName: net.bluemind.ui.banner.logout;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Closure-Bundle-Type: Application
+Closure-Inputs: net/bluemind/ui/banner/logout/run.js
+Web-Resources: web-resources
+Bundle-ClassPath: js.jar, .

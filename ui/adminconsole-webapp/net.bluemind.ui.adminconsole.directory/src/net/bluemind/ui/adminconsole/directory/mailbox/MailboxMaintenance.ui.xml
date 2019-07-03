@@ -1,0 +1,32 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:bj="urn:import:net.bluemind.ui.admin.client" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:ff="urn:import:net.bluemind.ui.settings.client.forms" xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui"
+	xmlns:common="urn:import:net.bluemind.ui.common.client.forms">
+
+	<ui:with field="tips"
+		type="net.bluemind.ui.adminconsole.directory.IconTips" />
+
+	<ui:with field="mmc"
+		type="net.bluemind.ui.adminconsole.directory.mailbox.l10n.MailboxMaintenanceConstants" />
+
+	<g:HTMLPanel>
+
+		<g:Label text="{mmc.mailboxIndex}" styleName="sectionTitle"></g:Label>
+		<table>
+			<tr>
+				<td style='width:400px'>
+					<g:Label text="{mmc.consolidateMailboxIndex}"></g:Label>
+				</td>
+				<td style='width:200px'>
+					<g:Button text="{mmc.execute}" styleName="button primary"
+						ui:field="consolidateMailboxIndex" />
+				</td>
+			</tr>
+
+		</table>
+
+	</g:HTMLPanel>
+</ui:UiBinder>

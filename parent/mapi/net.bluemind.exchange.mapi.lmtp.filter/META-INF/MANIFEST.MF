@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.exchange.mapi.lmtp.filter
+Bundle-SymbolicName: net.bluemind.exchange.mapi.lmtp.filter;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: blue-mind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.lmtp,
+ org.apache.james.apache-mime4j-core,
+ org.apache.james.apache-mime4j-dom
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy

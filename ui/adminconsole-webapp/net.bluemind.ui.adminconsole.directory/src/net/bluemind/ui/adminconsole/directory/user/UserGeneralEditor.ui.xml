@@ -1,0 +1,116 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:bj="urn:import:net.bluemind.ui.admin.client" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui" xmlns:common="urn:import:net.bluemind.ui.common.client.forms">
+
+	<ui:style>
+	.logo {
+		vertical-align: middle;
+	}
+	
+	.errorLabel {
+		color: red;
+		font-weight: bold;
+		padding: 3px;
+	}
+	
+	.ta {
+		height: 100%;
+		width: 300px;
+		padding-left: 10px;
+	}
+	
+	h1 {
+		font-size: medium;
+		color: #444;
+	}
+	
+	.rightPanel {
+		position: absolute;
+		right: 10px;
+		width: 100px;
+		text-align: right;
+	}
+	
+	h1 div {
+		display: inline;
+	}
+	
+	#editUserTitle {
+		font-size: medium;
+		margin: 0;
+	}
+	
+	#editUserTitle div {
+		display: inline;
+	}
+	
+	.glist {
+		min-width: 200px;
+		padding-bottom: 9px;
+	}
+	
+	.taskLauncher {
+		color: #24638f;
+		font-weight: bold;
+	}
+	</ui:style>
+
+	<ui:with field="tips"
+		type="net.bluemind.ui.adminconsole.directory.IconTips" />
+
+	<ui:with field="uc"
+		type="net.bluemind.ui.adminconsole.directory.user.l10n.UserConstants" />
+
+	<g:HTMLPanel>
+		<div class="{style.rightPanel}">
+			<g:CheckBox ui:field="archive" text="{uc.archive}" />
+		</div>
+
+		<g:Label text="{uc.accountName}" styleName="sectionTitle"></g:Label>
+
+		<table class="formContainer">
+
+			<common:StringEdit ui:field="login" titleText="{uc.login}"
+				maxLength="32" mandatory="true" readOnly="false" />
+
+			<f:DelegationEdit ui:field="delegation" titleText="{uc.delegation}"
+				maxLength="32" mandatory="false" kind="USER" />
+
+			<tr class="setting">
+				<td class="label">
+					<g:Label text="{uc.groups}"></g:Label>
+				</td>
+				<td>
+					<g:ListBox ui:field="groupsList" styleName="{style.glist}" />
+				</td>
+			</tr>
+
+			<tr class="setting">
+				<td />
+				<td>
+					<g:Anchor ui:field="editGroupMembership" text="{uc.editGroupMembership}"
+						href="" styleName="{style.glist}"></g:Anchor>
+				</td>
+			</tr>
+
+		</table>
+
+		<g:HTMLPanel ui:field="accountPanel" visible="false">
+			<table class="formContainer">
+				<tr class="setting">
+					<td class="label">
+						<g:Label text="{uc.accountType}"></g:Label>
+					</td>
+					<td>
+						<g:HTMLPanel ui:field="accountType">
+						</g:HTMLPanel>
+					</td>
+				</tr>
+			</table>
+		</g:HTMLPanel>
+
+	</g:HTMLPanel>
+</ui:UiBinder>

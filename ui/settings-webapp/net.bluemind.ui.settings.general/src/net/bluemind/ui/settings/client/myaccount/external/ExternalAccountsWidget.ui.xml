@@ -1,0 +1,27 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui">
+
+	<ui:style>
+		.account_tbl {
+			width:100%;
+			border-spacing: 0px;
+		}
+	</ui:style>
+
+	<ui:with field="c"
+		type="net.bluemind.ui.settings.client.myaccount.external.l10n.ExternalAccountsEditConstants" />
+
+	<g:HTMLPanel>
+		
+		<g:Button ui:field="addAccount" text="{c.configureAccount}" styleName="button secondary"></g:Button>
+	
+		<g:Label text="{c.myAccounts}" styleName="sectionTitle"></g:Label>
+
+		<g:FlexTable ui:field="myAccounts" styleName="{style.account_tbl}">
+		</g:FlexTable>
+
+	</g:HTMLPanel>
+
+
+</ui:UiBinder>

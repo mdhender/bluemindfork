@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<fragment>
+   <extension
+         point="net.bluemind.group.hook.grouphook">
+      <hook
+            impl="net.bluemind.group.hook.TestHook">
+      </hook>
+   </extension>
+
+</fragment>

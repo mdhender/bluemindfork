@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.tracing.tests
+Bundle-SymbolicName: net.bluemind.tracing.tests
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.tracing.tests.Activator
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ org.junit,
+ net.bluemind.tracing
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.tracing.tests
+Bundle-ActivationPolicy: lazy

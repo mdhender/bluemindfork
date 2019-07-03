@@ -1,0 +1,30 @@
+.occupant {
+	background: #FFF;
+	border: 1px solid;
+	margin-right: 4px;
+	border-spacing: 0;
+	border-collapse: collapse;
+	font-size: smaller;
+	display: inline-block;
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+}
+
+.occupant img {
+	vertical-align: middle;
+}
+
+.occupant img.star {
+	margin: 0px 4px;
+	opacity: 0.4;
+}
+
+.occupant div {
+	display: table-cell;
+	vertical-align: middle;
+}
+
+.occupant div.label {
+	padding: 0px 4px;
+}

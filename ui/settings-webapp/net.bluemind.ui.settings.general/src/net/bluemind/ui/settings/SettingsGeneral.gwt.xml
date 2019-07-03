@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+	<inherits name="com.google.gwt.json.JSON"/>
+	<source path='client' />
+	<inherits name="net.bluemind.ui.gwtuser.GwtUserUi"/>
+	<inherits name="net.bluemind.ui.gwttag.GwtTagUi"/>
+</module>

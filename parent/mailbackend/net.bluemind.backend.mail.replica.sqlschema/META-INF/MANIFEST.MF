@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.backend.mail.replica.sqlschema
+Bundle-SymbolicName: net.bluemind.backend.mail.replica.sqlschema;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.backend.mail.replica.sqlschema.Activator
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.core.sqlschema,
+ net.bluemind.system.schemaupgrader;bundle-version="4.1.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: net.bluemind.backend.mail.replica.sqlschema

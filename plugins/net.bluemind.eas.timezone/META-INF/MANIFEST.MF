@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.eas.timezone
+Bundle-SymbolicName: net.bluemind.eas.timezone
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.eas.timezone.Activator
+Bundle-Vendor: blue-mind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.slf4j;bundle-version="1.6.4",
+ net.bluemind.lib.vertx,
+ io.netty;bundle-version="4.0.33"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.eas.timezone

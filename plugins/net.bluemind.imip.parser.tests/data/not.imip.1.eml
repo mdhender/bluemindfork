@@ -1,0 +1,59 @@
+Return-Path: <admin@willow.vmw>
+Received: from willow.vmw ([172.16.45.135])
+	 by bjday (Cyrus v2.4.16-Debian-2.4.16-1hudson92) with LMTPA;
+	 Sun, 27 May 2012 21:07:44 +0200
+X-Sieve: CMU Sieve 2.4
+Received: from 172.16.45.135 (LHLO bjday.willow.vmw) (172.16.45.135) by
+ unknown with LMTP; 5/27/12 7:07 PM
+Received: from willow.local (unknown [172.16.45.1])
+	(Authenticated sender: admin@willow.vmw)
+	by bjday.willow.vmw (Postfix) with ESMTPA id 764303AC
+	for <admin@willow.vmw>; Sun, 27 May 2012 21:07:44 +0200 (CEST)
+Message-ID: <4FC27B87.209@willow.vmw>
+Date: Sun, 27 May 2012 21:07:51 +0200
+From: Admin SW <admin@willow.vmw>
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:12.0) Gecko/20120428 Thunderbird/12.0.1
+MIME-Version: 1.0
+To: admin@willow.vmw
+Subject: Mail pas IMIP mais avec un ics =?ISO-8859-1?Q?attach=E9?=
+Content-Type: multipart/mixed;
+ boundary="------------020405060009030704090508"
+
+This is a multi-part message in MIME format.
+--------------020405060009030704090508
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Avec attach ICS
+
+
+--------------020405060009030704090508
+Content-Type: text/calendar;
+ name="event.ics"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="event.ics"
+
+BEGIN:VCALENDAR
+PRODID:-//Blue Mind//Blue Mind Calendar//FR
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:REQUEST
+SEQUENCE:0
+BEGIN:VEVENT
+DTSTAMP:20120527T184306Z
+UID:121e57bf1b135ed875844ccdaee44272f99b7fd0
+ATTENDEE;CUTYPE=INDIVIDUAL;PARTSTAT=ACCEPTED;RSVP=TRUE;CN=Thomas Cataldo;ROLE=CHAIR:mailto:tom@willow.vmw
+ATTENDEE;CUTYPE=INDIVIDUAL;PARTSTAT=NEEDS-ACTION;RSVP=TRUE;CN=admin SetupWizard;ROLE=REQ-PARTICIPANT:mailto:admin@willow.vmw
+DTSTART:20120528T070000Z
+DTEND:20120528T080000Z
+TRANSP:OPAQUE
+ORGANIZER;CN=Thomas Cataldo:mailto:tom@willow.vmw
+PRIORITY:5
+CLASS:PUBLIC
+SUMMARY:A accepter
+X-MOZ-LASTACK:20120527T184306Z
+END:VEVENT
+END:VCALENDAR
+
+--------------020405060009030704090508--

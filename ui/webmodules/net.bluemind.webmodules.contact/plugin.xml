@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module
+            index="index.html"
+            root="/contact">
+
+		<handler class="net.bluemind.webmodules.contact.handlers.ContactAppCacheHandler"
+			path="contact.appcache">
+			</handler>
+         <handler
+               class="net.bluemind.webmodules.contact.handlers.ContactHandler"
+               path="index.html">
+         </handler>
+         <handler
+               class="net.bluemind.webmodules.contact.handlers.ContactJspHandler"
+               path="Contact.jsp">
+         </handler>
+         
+         <handler
+               class="net.bluemind.webmodules.contact.handlers.ContactOfflineHandler"
+               path="index-offline.html">
+         </handler>
+         <handler
+               class="net.bluemind.webmodule.server.handlers.LogHandler"
+               path="log">
+         </handler>
+
+         <handler
+               class="net.bluemind.webmodules.contact.handlers.ImportVCardHandler"
+               path="import-vcard">
+         </handler>
+         <handler
+               class="net.bluemind.webmodules.contact.handlers.ExportVCardHandler"
+               path="export-vcard">
+         </handler>
+
+         <web-resource
+               bundle="contact">               
+         </web-resource>
+         
+      </web-module>
+   </extension>
+   <extension
+         point="net.bluemind.ui.commons.banner">
+      <banner-entry
+            cssIcon="fa fa-lg fa-addressbook"
+            description="%banner-entry.description"
+            name="%banner-entry.name"
+            offline="true"
+            priority="99"
+            role="hasMail"
+            root="/contact/">
+      </banner-entry>
+   </extension>
+   <extension
+         point="net.bluemind.banner">
+      <application
+            description="%banner-entry.description"
+            href="/contact/"
+            name="%banner-entry.name"
+            order="99"
+            role="hasMail">
+         <icon-svg>
+            <![CDATA[
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5.82999 8.79V3.6L10.33 1L14.83 3.6V8.79L10.33 11.39L5.82999 8.79Z" fill="#00AAEB" />
+                <path d="M2 19.31V16.73C2 13.97 10.43 12.2 10.43 12.2C10.43 12.2 18.86 13.97 18.86 16.73V19.31H2Z" fill="#00AAEB" />
+                <path d="M7.58 12.96C5.13 13.73 2 15.04 2 16.73V19.31H10.44L7.58 12.96Z" fill="#00CBFF" />
+                <path d="M10.43 19.31H18.87V16.73C18.87 15.05 15.74 13.74 13.29 12.97L10.43 19.31Z" fill="#1793DD" />
+                <path d="M10.33 6.19V1L5.84 3.59V8.80589L10.33 6.19Z" fill="#00CBFF" />
+            </svg>
+            ]]>
+         </icon-svg>
+      </application>
+   </extension>
+
+</plugin>

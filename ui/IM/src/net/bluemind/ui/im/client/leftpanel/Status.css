@@ -1,0 +1,83 @@
+.status {
+	width: 10px;
+	height: 10px;
+	border-radius: 10px;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	display: inline-block;
+}
+
+.statusIM {
+	width: 10px;
+	height: 10px;
+	border-radius: 10px 0px 0px 10px;
+	-moz-border-radius: 10px 0px 0px 10px;
+	-webkit-border-radius: 10px 0px 0px 10px;
+	display: inline-block;
+}
+
+.statusPhone {
+/* 	width: 10px; */
+/* 	height: 10px; */
+/* 	border-radius: 0px 10px 10px 0px; */
+/* 	-moz-border-radius: 0px 10px 10px 0px; */
+/* 	-webkit-border-radius: 0px 10px 10px 0px; */
+	display: inline;
+	color: white;
+	background-color: 3D3D3D;
+	margin: 0px 2px 0px 0px;
+}
+
+.statusOffline {
+	background-color: #DDD;
+}
+
+.statusAvailable {
+	background-color: #00FE00;
+}
+
+.statusBusy {
+	background-color: orange;
+}
+
+.statusAway {
+	background-color: red;
+}
+.statusPhoneAvailable {
+    color: #00FE00;
+}
+.statusPhoneOffline {
+    color: #DDD;
+}
+
+.statusPhoneAway {
+	color: red;
+}
+.statusPhoneRinging {
+	color: red;
+	-webkit-animation: blink 1s infinite;
+	-moz-animation: blink 1s infinite;
+	-o-animation: blink 1s infinite;
+	animation: blink 1s infinite;
+}
+
+@-webkit-keyframes blink {
+  0%   { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@-moz-keyframes blink {
+  0%   { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@-o-keyframes blink {
+  0%   { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes blink {
+  0%   { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}

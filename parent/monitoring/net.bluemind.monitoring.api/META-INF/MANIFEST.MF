@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.monitoring.api
+Bundle-SymbolicName: net.bluemind.monitoring.api
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0"
+Export-Package: net.bluemind.monitoring.api
+Import-Package: net.bluemind.core.api,
+ net.bluemind.node.api,
+ net.bluemind.server.api

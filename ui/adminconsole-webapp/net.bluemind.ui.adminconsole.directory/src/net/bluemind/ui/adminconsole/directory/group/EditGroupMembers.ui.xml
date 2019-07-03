@@ -1,0 +1,171 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui"
+	xmlns:common="urn:import:net.bluemind.ui.common.client.forms"
+	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:d="urn:import:net.bluemind.ui.admin.client.forms.det">
+
+	<ui:style>
+	#editGroupTitle {
+		font-size: medium;
+		margin: 0;
+	}
+	
+	#editGroupTitle div {
+		display: inline;
+	}
+	
+	.logo {
+		vertical-align: middle;
+	}
+	
+	.errorLabel {
+		color: red;
+		font-weight: bold;
+		padding: 3px;
+	}
+	
+	.arrow {
+		padding: 5px 10px 4px 10px !important;
+	}
+	
+	.container {
+		padding: 5px;
+	}
+	
+	.flowPanel {
+		display: inline-block;
+		height: 100%;
+		vertical-align: top;
+	}
+	
+	.btnContainerTop {
+		vertical-align: bottom;
+		padding-bottom: 10px;
+	}
+	
+	.btnContainerBottom {
+		vertical-align: top;
+		padding-top: 10px;
+	}
+	
+	.dgContainer {
+		width: 45%;
+	}
+	
+	.fake {
+		visibility: hidden;
+	}
+	
+	.title {
+		text-align: left;
+		display: table;
+		width: 100%;
+		margin: 0px;
+	}
+	
+	.filterContainer {
+		text-align: left;
+		padding: 5px;
+		margin: 5px 0px;
+		background: #F8F8F8;
+	}
+	
+	.panel {
+		height: 100%;
+	}
+	</ui:style>
+
+	<ui:with field="mc"
+		type="net.bluemind.ui.adminconsole.directory.group.l10n.GroupConstants" />
+
+	<g:DockLayoutPanel unit='PX'>
+		<g:north size="60">
+			<g:HTMLPanel styleName="{style.container}">
+				<g:FlowPanel styleName="{style.flowPanel} {style.dgContainer}">
+
+					<g:Label text="{mc.activeMembers}" styleName="sectionTitle {style.title}"></g:Label>
+
+					<g:FlowPanel styleName="{style.filterContainer}">
+						<g:TextBox ui:field="membersFilter"></g:TextBox>
+					</g:FlowPanel>
+
+				</g:FlowPanel>
+
+				<g:FlowPanel styleName="{style.flowPanel}">
+					<g:PushButton styleName="button {style.arrow} {style.fake} fa fa-long-arrow-right fa-2x">
+					</g:PushButton>
+				</g:FlowPanel>
+
+				<g:FlowPanel styleName="{style.flowPanel} {style.dgContainer}">
+
+					<g:Label text="{mc.membersLookup}" styleName="sectionTitle  {style.title}"></g:Label>
+
+					<g:FlowPanel styleName="{style.filterContainer}">
+						<g:TextBox ui:field="lookupFilter"></g:TextBox>
+					</g:FlowPanel>
+
+				</g:FlowPanel>
+			</g:HTMLPanel>
+		</g:north>
+
+		<g:center>
+			<g:FlowPanel styleName="{style.container}">
+				<g:FlowPanel styleName="{style.flowPanel} {style.dgContainer}">
+						<d:DETable ui:field="activeMembers"></d:DETable>
+				</g:FlowPanel>
+
+				<g:FlowPanel styleName="{style.flowPanel}">
+
+					<g:Grid styleName="{style.panel}">
+						<g:row>
+							<g:customCell styleName="{style.btnContainerTop}">
+								<g:PushButton ui:field="addMembers" title="{mc.iconTipAddMembers}"
+									styleName="button {style.arrow} fa fa-long-arrow-left fa-2x">
+								</g:PushButton>
+
+							</g:customCell>
+						</g:row>
+						<g:row>
+							<g:customCell styleName="{style.btnContainerBottom}">
+								<g:PushButton ui:field="rmMembers" title="{mc.iconTipRmMembers}"
+									styleName="button {style.arrow} fa fa-long-arrow-right fa-2x">
+								</g:PushButton>
+
+							</g:customCell>
+						</g:row>
+					</g:Grid>
+
+				</g:FlowPanel>
+
+				<g:FlowPanel styleName="{style.flowPanel} {style.dgContainer}">
+
+						<d:DETable ui:field="membersLookup"></d:DETable>
+
+				</g:FlowPanel>
+
+			</g:FlowPanel>
+		</g:center>
+
+		<g:south size="30">
+			<g:HTMLPanel styleName="{style.container}">
+
+				<g:FlowPanel styleName="{style.flowPanel} {style.dgContainer}">
+					<d:DEPager ui:field="lPager" />
+				</g:FlowPanel>
+
+				<g:FlowPanel styleName="{style.flowPanel}">
+					<g:PushButton styleName="button {style.arrow} {style.fake} fa fa-long-arrow-left fa-2x">
+					</g:PushButton>
+				</g:FlowPanel>
+
+				<g:FlowPanel styleName="{style.flowPanel} {style.dgContainer}">
+					<d:DEPager ui:field="rPager" />
+				</g:FlowPanel>
+
+			</g:HTMLPanel>
+		</g:south>
+
+	</g:DockLayoutPanel>
+</ui:UiBinder>

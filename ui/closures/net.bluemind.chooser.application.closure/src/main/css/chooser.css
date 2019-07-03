@@ -1,0 +1,71 @@
+html, body {
+	height: 100%
+} 
+
+.logo {
+  float: left;
+  margin-right: 5px;
+}
+
+.logo img {
+  vertical-align : middle;
+  margin-left : 5px;  
+  display: block;
+  height: 55px;
+}
+
+.search {
+	white-space: nowrap;
+	margin-left: 216px;
+	margin-right: 60px;
+}
+
+.search input {
+  width: 100%;
+  margin-top: 17px;
+  vertical-align: bottom;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.search .goog-button {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left: 0;
+}
+
+.breadcrumb {
+	border-bottom: 1px solid #ccc ;
+}
+
+.filehosting-explorer {
+	position: absolute;
+	top: 90px;
+	bottom: 70px;
+	left: 0;
+	right: 0;
+	overflow-y: auto;
+}
+
+.filehosting-explorer .filehosting-message {
+	position: absolute;
+	top: 50%;
+	margin-top: -60px;
+	width: 100%;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  border-top: 1px solid #ccc;
+  padding: 1em 2em;
+  text-align: right;
+  box-sizing: border-box;
+}
+
+.footer .goo-button-base {
+	margin-left: 1em;
+}

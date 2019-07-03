@@ -1,0 +1,29 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:j="urn:import:net.bluemind.ui.adminconsole.jobs">
+	<ui:style>
+		.important {
+			font-weight: bold;
+		}
+	</ui:style>
+
+	<ui:with type="net.bluemind.ui.adminconsole.jobs.JobTexts"
+		field="jt"></ui:with>
+
+	<g:HTMLPanel>
+		<g:Label ui:field="domainName" styleName="sectionTitle"></g:Label>
+
+		<table class="formContainer">
+			<j:StringListBox ui:field="planKind" titleText="{jt.planKind}" />
+
+			<tr class="setting">
+				<td class="label"></td>
+				<td class="form">
+					<g:HTMLPanel ui:field="planForm" />
+				</td>
+			</tr>
+
+		</table>
+	</g:HTMLPanel>
+
+</ui:UiBinder>

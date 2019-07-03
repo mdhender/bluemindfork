@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<forwards>
+	<forward path="/chooser" target="locator://bm/cal:8080/chooser">
+		<auth kind="CORE2" />
+		<whitelist>
+			<wl uri="/favicon.ico" />
+		</whitelist>
+	</forward>
+</forwards>

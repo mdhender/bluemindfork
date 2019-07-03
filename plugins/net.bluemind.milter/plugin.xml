@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.milter.milterfactory" name="milterfactory" schema="schema/net.bluemind.milter.milterfactory.exsd"/>
+   <extension-point id="net.bluemind.milter.actionfactory" name="actionfactory" schema="schema/net.bluemind.milter.actionfactory.exsd"/>
+   <extension
+         id="milter"
+         name="Blue Mind milter"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            thread="any"
+            visible="true">
+         <run
+               class="net.bluemind.milter.MilterApplication">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="milter"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="net.bluemind.milter.milter"
+            name="milter">
+         <property
+               name="appName"
+               value="milter">
+         </property>
+      </product>
+   </extension>
+   <extension
+         point="net.bluemind.hornetq.forwardToVertx">
+      <vertx-forwarder
+            class="net.bluemind.milter.mq.MilterMessageForwarder">
+      </vertx-forwarder>
+   </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.milter.impl.DomainAliasCacheFactory">
+      </verticle>
+   </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.milter.impl.RuleAssignmentCacheFactory">
+      </verticle>
+   </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.milter.impl.MilterMainVerticle$Factory">
+      </verticle>
+   </extension>
+      <extension
+            point="net.bluemind.system.state">
+         <state-listener
+               class="net.bluemind.milter.CoreStateListener">
+         </state-listener>
+      </extension>
+   
+
+</plugin>

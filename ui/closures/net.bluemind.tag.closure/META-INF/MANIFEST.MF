@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.tag.closure
+Bundle-SymbolicName: net.bluemind.tag.closure;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Closure-Bundle-Type: Library
+Require-Bundle: relief;bundle-version="1.0.0",
+ net.bluemind.commons.closure;bundle-version="1.0.0",
+ net.bluemind.container.closure;bundle-version="1.0.0",
+ ydn-base;bundle-version="1.0.0",
+ ydn-db;bundle-version="1.0.0",
+ net.bluemind.tag.api.closure
+Bundle-ClassPath: js.jar,
+ .
+Automatic-Module-Name: net.bluemind.tag.closure

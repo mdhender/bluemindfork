@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="webLauncher" id="net.bluemind.webmodules.launcher.webLauncher" application="net.bluemind.webmodules.launcher.webLauncher" version="1.0.0.qualifier" useFeatures="false" includeLaunchers="true">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <programArgs>-consoleLog -debug
+      </programArgs>
+      <vmArgs>-Dosgi.noShutdown=true -Duser.timezone=GMT -Djava.awt.headless=true -Xmx2048m
+      </vmArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
+   </launcherArgs>
+
+   <windowImages/>
+
+   <launcher>
+      <solaris/>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+   </vm>
+
+
+   <plugins>
+      <plugin id="calendar"/>
+      <plugin id="com.fasterxml.jackson.core.jackson-annotations"/>
+      <plugin id="com.fasterxml.jackson.core.jackson-core"/>
+      <plugin id="com.fasterxml.jackson.core.jackson-databind"/>
+      <plugin id="contact"/>
+      <plugin id="io.netty"/>
+      <plugin id="net.bluemind.addressbook.api"/>
+      <plugin id="net.bluemind.addressbook.api.closure"/>
+      <plugin id="net.bluemind.authentication.api"/>
+      <plugin id="net.bluemind.authentication.closure"/>
+      <plugin id="net.bluemind.calendar.api"/>
+      <plugin id="net.bluemind.calendar.api.closure"/>
+      <plugin id="net.bluemind.calendar.application.closure"/>
+      <plugin id="net.bluemind.calendar.closure"/>
+      <plugin id="net.bluemind.chooser.application.closure"/>
+      <plugin id="net.bluemind.commons.closure"/>
+      <plugin id="net.bluemind.commons.ui.closure"/>
+      <plugin id="net.bluemind.config"/>
+      <plugin id="net.bluemind.container.closure"/>
+      <plugin id="net.bluemind.core.commons"/>
+      <plugin id="net.bluemind.core.container.api"/>
+      <plugin id="net.bluemind.core.container.api.closure"/>
+      <plugin id="net.bluemind.core.context"/>
+      <plugin id="net.bluemind.core.rest"/>
+      <plugin id="net.bluemind.core.rest.http"/>
+      <plugin id="net.bluemind.core.sessions"/>
+      <plugin id="net.bluemind.core.task.api"/>
+      <plugin id="net.bluemind.domain.api"/>
+      <plugin id="net.bluemind.eclipse.common"/>
+      <plugin id="net.bluemind.extensions.closure"/>
+      <plugin id="net.bluemind.group.api"/>
+      <plugin id="net.bluemind.lib.async-http"/>
+      <plugin id="net.bluemind.lib.freemarker"/>
+      <plugin id="net.bluemind.lib.guava"/>
+      <plugin id="net.bluemind.lib.jackson"/>
+      <plugin id="net.bluemind.lib.jodatime"/>
+      <plugin id="net.bluemind.lib.jta"/>
+      <plugin id="net.bluemind.lib.netty"/>
+      <plugin id="net.bluemind.lib.vertx"/>
+      <plugin id="net.bluemind.locator.client"/>
+      <plugin id="net.bluemind.mailbox.api"/>
+      <plugin id="net.bluemind.mailbox.identity.api"/>
+      <plugin id="net.bluemind.mvp.closure"/>
+      <plugin id="net.bluemind.outlook.autodiscover"/>
+      <plugin id="net.bluemind.rrule.closure"/>
+      <plugin id="net.bluemind.server.api"/>
+      <plugin id="net.bluemind.slf4j"/>
+      <plugin id="net.bluemind.tag.api"/>
+      <plugin id="net.bluemind.tag.api.closure"/>
+      <plugin id="net.bluemind.task.application.closure"/>
+      <plugin id="net.bluemind.todolist.api"/>
+      <plugin id="net.bluemind.todolist.closure"/>
+      <plugin id="net.bluemind.ui.webmail.application"/>
+      <plugin id="net.bluemind.user.api"/>
+      <plugin id="net.bluemind.utils"/>
+      <plugin id="net.bluemind.vertx.common"/>
+      <plugin id="net.bluemind.webmodule"/>
+      <plugin id="net.bluemind.webmodule.server"/>
+      <plugin id="net.bluemind.webmodules.calendar"/>
+      <plugin id="net.bluemind.webmodules.chooser"/>
+      <plugin id="net.bluemind.webmodules.contact"/>
+      <plugin id="net.bluemind.webmodules.launcher"/>
+      <plugin id="net.bluemind.webmodules.todolist"/>
+      <plugin id="net.bluemind.webmodules.webmail"/>
+      <plugin id="org.apache.commons.codec"/>
+      <plugin id="org.apache.mime4j"/>
+      <plugin id="org.eclipse.core.contenttype"/>
+      <plugin id="org.eclipse.core.jobs"/>
+      <plugin id="org.eclipse.core.runtime"/>
+      <plugin id="org.eclipse.core.runtime.compatibility.registry" fragment="true"/>
+      <plugin id="org.eclipse.equinox.app"/>
+      <plugin id="org.eclipse.equinox.common"/>
+      <plugin id="org.eclipse.equinox.preferences"/>
+      <plugin id="org.eclipse.equinox.registry"/>
+      <plugin id="org.eclipse.osgi"/>
+      <plugin id="relief"/>
+      <plugin id="ydn-base"/>
+      <plugin id="ydn-db"/>
+   </plugins>
+
+
+</product>

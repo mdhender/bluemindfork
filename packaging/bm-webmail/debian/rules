@@ -1,0 +1,16 @@
+#!/usr/bin/make -f
+
+include /usr/share/cdbs/1/rules/debhelper.mk
+
+JAVA_HOME := /usr/lib/jvm/bm-jdk
+# Do not generate crappy dependencies for unused libs
+DEB_DH_SHLIBDEPS_ARGS_bm-webmail := "-Xlib"
+
+build:
+	echo "build"
+
+install/bm-webmail::
+	cp -rf ${CURDIR}/ROOT/* ${CURDIR}/debian/bm-webmail
+	# (/bin/bash $(CURDIR)/debian/build_bm-webmail.sh $(CURDIR))
+	# License
+	# cp $(CURDIR)/LICENSE.txt $(CURDIR)/debian/bm-webmail/usr/share/bm-webmail/

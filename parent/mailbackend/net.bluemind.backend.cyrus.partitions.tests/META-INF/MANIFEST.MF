@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.backend.cyrus.partitions.tests
+Bundle-SymbolicName: net.bluemind.backend.cyrus.partitions.tests
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.backend.cyrus.partitions.tests.CPTestsActivator
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.backend.cyrus.partitions,
+ net.bluemind.mailbox.api,
+ org.junit
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.backend.cyrus.partitions.tests
+Bundle-ActivationPolicy: lazy

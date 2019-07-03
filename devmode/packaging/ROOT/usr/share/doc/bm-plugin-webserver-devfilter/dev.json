@@ -1,0 +1,110 @@
+{
+    "servers": {
+        "webpack-compile": {
+            "ip": "dev.bluemind.test",
+            "port": 9180
+        },
+        "gwt-compile": {
+            "ip": "dev.bluemind.test",
+            "port": 8888
+        },
+        "gwt-control": {
+            "ip": "dev.bluemind.test",
+            "port": 9876
+        },
+        "closure-compile": {
+            "ip": "dev.bluemind.test",
+            "port": 9810
+        }
+    },
+    "filters": [
+        {
+            "serverId": "webpack-compile",
+            "search": "/webapp/js/compile/net.bluemind.webapp.mail.js",
+            "replace": "/net.bluemind.webapp.mail.js",
+            "active": false
+        },
+        {
+            "serverId": "gwt-compile",
+            "search": "/adminconsole/net.bluemind.ui.adminconsole.main/(.*+)?",
+            "replace": "/net.bluemind.ui.adminconsole.main/$1",
+            "active": false
+        },
+        {
+            "serverId": "closure-compile",
+            "search": "/cal/js/compile/calendar(.*).js",
+            "replace": "/compile?id=calendar",
+            "active": false
+        },
+        {
+            "serverId": "closure-compile",
+            "search": "/cal/css/calendar.css",
+            "replace": "/css/calendar/calendar.css",
+            "active": false
+        },
+        {
+            "search": "(.*).appcache",
+            "active": false
+        },
+        {
+            "serverId": "closure-compile",
+            "search": "/input/(.*+)?",
+            "replace": "/input/$1",
+            "active": false
+        },
+        {
+            "serverId": "webpack-compile",
+            "search": "/signature/js/compile/net.bluemind.ui.signature.application.js",
+            "replace": "/signature/js/compile/net.bluemind.ui.signature.application.js",
+            "active": false
+        },
+        {
+            "serverId": "gwt-compile",
+            "search": "/settings/net.bluemind.ui.settings/(.*+)?",
+            "replace": "/net.bluemind.ui.settings/$1",
+            "active": false
+        },
+        {
+            "serverId": "gwt-compile",
+            "search": "/setup/setupwizard/(.*+)?",
+            "replace": "/setupwizard/$1",
+            "active": false
+        },
+        {
+            "serverId": "closure-compile",
+            "search": "/contact/js/compile/contact(.*).js",
+            "replace": "/compile?id=contact",
+            "active": false
+        },
+        {
+            "serverId": "closure-compile",
+            "search": "/contact/css/contact.css",
+            "replace": "/contact/css/contact.css",
+            "active": false
+        },
+        {
+            "serverId": "closure-compile",
+            "search": "/task/js/compile/net.bluemind.task.application.closure(.*).js",
+            "replace": "/compile?id=net.bluemind.task.application.closure",
+            "active": false
+        },
+        {
+            "serverId": "closure-compile",
+            "search": "/task/css/net.bluemind.task.application.closure.css",
+            "replace": "/css/net-bluemind-task-application-closure/net-bluemind-task-application-closure.css",
+            "active": false
+        }
+    ],
+    "forwardPorts": [
+        {
+            "serverId": "webpack-compile",
+            "src": 9180,
+            "active": true
+        },
+        {
+            "serverId": "gwt-control",
+            "src": 9876,
+            "active": true
+        }
+    ]
+}

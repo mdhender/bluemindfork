@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file original="SoyMsgBundle" datatype="x-soy-msg-bundle" xml:space="preserve" source-language="en" target-language="es">
+    <body>
+      <trans-unit id="36333135874492506" datatype="html">
+        <source>Upload an image from the local disk. Fit for image smaller than 10 KB.</source>
+        <target/>
+        <note priority="1" from="description">Upload an image from the local disk. Fit for image smaller than 10 KB.</note>
+      </trans-unit>
+      <trans-unit id="266505507282188406" datatype="html">
+        <source>Italic</source>
+        <target/>
+        <note priority="1" from="description">Italic</note>
+      </trans-unit>
+      <trans-unit id="424272104514632030" datatype="html">
+        <source>Increase indent</source>
+        <target/>
+        <note priority="1" from="description">Increase indent</note>
+      </trans-unit>
+      <trans-unit id="498955713219086539" datatype="html">
+        <source>Add or remove link</source>
+        <target/>
+        <note priority="1" from="description">Add or remove link</note>
+      </trans-unit>
+      <trans-unit id="572374137936995270" datatype="html">
+        <source>Huge</source>
+        <target/>
+        <note priority="1" from="description">Huge font size</note>
+      </trans-unit>
+      <trans-unit id="601687834168346123" datatype="html">
+        <source>Remove formatting</source>
+        <target/>
+        <note priority="1" from="description">Remove formatting</note>
+      </trans-unit>
+      <trans-unit id="771664384252640128" datatype="html">
+        <source>Bold</source>
+        <target/>
+        <note priority="1" from="description">Bold</note>
+      </trans-unit>
+      <trans-unit id="1103299628984958400" datatype="html">
+        <source>Quote</source>
+        <target/>
+        <note priority="1" from="description">Quote</note>
+      </trans-unit>
+      <trans-unit id="1230154438678955604" datatype="html">
+        <source>Change</source>
+        <target/>
+        <note priority="1" from="description">Change</note>
+      </trans-unit>
+      <trans-unit id="1300426640177809290" datatype="html">
+        <source>Bullet list</source>
+        <target/>
+        <note priority="1" from="description">Bullet list</note>
+      </trans-unit>
+      <trans-unit id="1652741429694683856" datatype="html">
+        <source>From an URL</source>
+        <target/>
+        <note priority="1" from="description">From an URL</note>
+      </trans-unit>
+      <trans-unit id="1955414465834973166" datatype="html">
+        <source>Text background color</source>
+        <target/>
+        <note priority="1" from="description">Text background color</note>
+      </trans-unit>
+      <trans-unit id="2028043933153427551" datatype="html">
+        <source>Link an image from a web server.</source>
+        <target/>
+        <note priority="1" from="description">Link an image from a web server.</note>
+      </trans-unit>
+      <trans-unit id="2159130950882492111" datatype="html">
+        <source>Cancel</source>
+        <target/>
+        <note priority="1" from="description">Cancel</note>
+      </trans-unit>
+      <trans-unit id="2173109048644581799" datatype="html">
+        <source>What's the URL of the image?</source>
+        <target/>
+        <note priority="1" from="description">Image on the web form title</note>
+      </trans-unit>
+      <trans-unit id="2387445801154230215" datatype="html">
+        <source>Justify</source>
+        <target/>
+        <note priority="1" from="description">Justify</note>
+      </trans-unit>
+      <trans-unit id="2400709026636319434" datatype="html">
+        <source>Superscript</source>
+        <target/>
+        <note priority="1" from="description">Superscript</note>
+      </trans-unit>
+      <trans-unit id="2691071213775274065" datatype="html">
+        <source>Edit HTML source</source>
+        <target/>
+        <note priority="1" from="description">Edit HTML source</note>
+      </trans-unit>
+      <trans-unit id="2981219928115418649" datatype="html">
+        <source>Link</source>
+        <target/>
+        <note priority="1" from="description">Link</note>
+      </trans-unit>
+      <trans-unit id="2987924536987142657" datatype="html">
+        <source>Decrease indent</source>
+        <target/>
+        <note priority="1" from="description">Decrease indent</note>
+      </trans-unit>
+      <trans-unit id="3039777944730987558" datatype="html">
+        <source>Normal / serif</source>
+        <target/>
+        <note priority="1" from="description">Normal / serif font family</note>
+      </trans-unit>
+      <trans-unit id="3080483882937310852" datatype="html">
+        <source>Normal</source>
+        <target/>
+        <note priority="1" from="description">Normal font size</note>
+      </trans-unit>
+      <trans-unit id="3218032077571206048" datatype="html">
+        <source>Go to link:</source>
+        <target/>
+        <note priority="1" from="description">Go to link:</note>
+      </trans-unit>
+      <trans-unit id="3411333056704497267" datatype="html">
+        <source>Test this link</source>
+        <target/>
+        <note priority="1" from="description">Test this link</note>
+      </trans-unit>
+      <trans-unit id="3473696249944591885" datatype="html">
+        <source>Align right</source>
+        <target/>
+        <note priority="1" from="description">Align right</note>
+      </trans-unit>
+      <trans-unit id="3494640238679592893" datatype="html">
+        <source>Link to:</source>
+        <target/>
+        <note priority="1" from="description">Link to:</note>
+      </trans-unit>
+      <trans-unit id="3636660662850355255" datatype="html">
+        <source>Web address</source>
+        <target/>
+        <note priority="1" from="description">Web address</note>
+      </trans-unit>
+      <trans-unit id="3717811105219271560" datatype="html">
+        <source>Left-to-right</source>
+        <target/>
+        <note priority="1" from="description">Left-to-right</note>
+      </trans-unit>
+      <trans-unit id="3854470486997869851" datatype="html">
+        <source>Image from my computer.</source>
+        <target/>
+        <note priority="1" from="description">Image from my computer</note>
+      </trans-unit>
+      <trans-unit id="3905533329051691155" datatype="html">
+        <source>Large</source>
+        <target/>
+        <note priority="1" from="description">Large font size</note>
+      </trans-unit>
+      <trans-unit id="3967269098753656610" datatype="html">
+        <source>Email address</source>
+        <target/>
+        <note priority="1" from="description">Email address</note>
+      </trans-unit>
+      <trans-unit id="4221042196936324014" datatype="html">
+        <source>Redo</source>
+        <target/>
+        <note priority="1" from="description">Redo</note>
+      </trans-unit>
+      <trans-unit id="4249324484211564661" datatype="html">
+        <source>Font</source>
+        <target/>
+        <note priority="1" from="description">Font</note>
+      </trans-unit>
+      <trans-unit id="4343272218729323623" datatype="html">
+        <source>To what URL should this link go?</source>
+        <target/>
+        <note priority="1" from="description">To what URL should this link go?</note>
+      </trans-unit>
+      <trans-unit id="4814285799071780083" datatype="html">
+        <source>Remove</source>
+        <target/>
+        <note priority="1" from="description">Remove</note>
+      </trans-unit>
+      <trans-unit id="4929028322522855188" datatype="html">
+        <source>Link to a page or file somewhere else on the web</source>
+        <target/>
+        <note priority="1" from="description">Link to a page or file somewhere else on the web</note>
+      </trans-unit>
+      <trans-unit id="4998574756480191562" datatype="html">
+        <source>This link cannot be tested.</source>
+        <target/>
+        <note priority="1" from="description">This link cannot be tested.</note>
+      </trans-unit>
+      <trans-unit id="5065987038897726996" datatype="html">
+        <source>Edit Image</source>
+        <target/>
+        <note priority="1" from="description">Edit Image</note>
+      </trans-unit>
+      <trans-unit id="5081339521690645825" datatype="html">
+        <source>Align left</source>
+        <target/>
+        <note priority="1" from="description">Align left</note>
+      </trans-unit>
+      <trans-unit id="5518642308752954261" datatype="html">
+        <source>Select the image to upload</source>
+        <target/>
+        <note priority="1" from="description">Select the image to upload</note>
+      </trans-unit>
+      <trans-unit id="5606773121630395154" datatype="html">
+        <source>To what email address should this link?</source>
+        <target/>
+        <note priority="1" from="description">To what email address should this link?</note>
+      </trans-unit>
+      <trans-unit id="5638474687255279643" datatype="html">
+        <source>Text color</source>
+        <target/>
+        <note priority="1" from="description">Text color</note>
+      </trans-unit>
+      <trans-unit id="5759112297138809693" datatype="html">
+        <source>Minor heading</source>
+        <target/>
+        <note priority="1" from="description">Minor heading</note>
+      </trans-unit>
+      <trans-unit id="5763031177401499381" datatype="html">
+        <source>Invalid URL</source>
+        <target/>
+        <note priority="1" from="description">Invalid URL</note>
+      </trans-unit>
+      <trans-unit id="5775346636203685655" datatype="html">
+        <source>Undo</source>
+        <target/>
+        <note priority="1" from="description">Undo</note>
+      </trans-unit>
+      <trans-unit id="6053004284706925412" datatype="html">
+        <source>Strikethrough</source>
+        <target/>
+        <note priority="1" from="description">Strikethrough</note>
+      </trans-unit>
+      <trans-unit id="6104836168939038249" datatype="html">
+        <source>Image source:</source>
+        <target/>
+        <note priority="1" from="description">Image source:</note>
+      </trans-unit>
+      <trans-unit id="6317126528752584322" datatype="html">
+        <source>Heading</source>
+        <target/>
+        <note priority="1" from="description">Heading</note>
+      </trans-unit>
+      <trans-unit id="6589256532931398744" datatype="html">
+        <source>Underline</source>
+        <target/>
+        <note priority="1" from="description">Underline</note>
+      </trans-unit>
+      <trans-unit id="6781617070710024146" datatype="html">
+        <source>Subheading</source>
+        <target/>
+        <note priority="1" from="description">Subheading</note>
+      </trans-unit>
+      <trans-unit id="7131377065256068978" datatype="html">
+        <source>Small</source>
+        <target/>
+        <note priority="1" from="description">Small font size</note>
+      </trans-unit>
+      <trans-unit id="7199173597052647458" datatype="html">
+        <source>Right-to-left</source>
+        <target/>
+        <note priority="1" from="description">Right-to-left</note>
+      </trans-unit>
+      <trans-unit id="7272331212902583494" datatype="html">
+        <source>Align center</source>
+        <target/>
+        <note priority="1" from="description">Align center</note>
+      </trans-unit>
+      <trans-unit id="7513076467032912668" datatype="html">
+        <source>Format</source>
+        <target/>
+        <note priority="1" from="description">Format</note>
+      </trans-unit>
+      <trans-unit id="7602700356470899711" datatype="html">
+        <source>Insert image</source>
+        <target/>
+        <note priority="1" from="description">Insert image</note>
+      </trans-unit>
+      <trans-unit id="7847171946828670653" datatype="html">
+        <source>Numbered list</source>
+        <target/>
+        <note priority="1" from="description">Numbered list</note>
+      </trans-unit>
+      <trans-unit id="7913678223536081420" datatype="html">
+        <source>HTML</source>
+        <target/>
+        <note priority="1" from="description">Edit HTML</note>
+      </trans-unit>      
+      <trans-unit id="8310087377446784258" datatype="html">
+        <source>Link to an email address</source>
+        <target/>
+        <note priority="1" from="description">Link to an email address</note>
+      </trans-unit>
+      <trans-unit id="8681120734298209363" datatype="html">
+        <source>Subscript</source>
+        <target/>
+        <note priority="1" from="description">Subscript</note>
+      </trans-unit>
+      <trans-unit id="8720977247725652816" datatype="html">
+        <source>Ok</source>
+        <target/>
+        <note priority="1" from="description">Ok</note>
+      </trans-unit>
+      <trans-unit id="8961647648050064254" datatype="html">
+        <source>Font size</source>
+        <target/>
+        <note priority="1" from="description">Font size</note>
+      </trans-unit>
+      <trans-unit id="9123313796608916601" datatype="html">
+        <source>Edit Link</source>
+        <target/>
+        <note priority="1" from="description">Edit Link</note>
+      </trans-unit>
+      <trans-unit id="9191968011325658792" datatype="html">
+        <source>Invalid email address</source>
+        <target/>
+        <note priority="1" from="description">Invalid email address</note>
+      </trans-unit>
+      <trans-unit id="9215052393755298704" datatype="html">
+        <source>Text to display:</source>
+        <target/>
+        <note priority="1" from="description">Text to display:</note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

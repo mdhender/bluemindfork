@@ -1,0 +1,69 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>bm-webmail</artifactId>
+	<packaging>bm-service-extension</packaging>
+	<properties>
+		<service.name>bm-webserver</service.name>
+	</properties>
+
+	<parent>
+		<groupId>net.bluemind</groupId>
+		<artifactId>net.bluemind.packaging</artifactId>
+		<version>4.1.0-SNAPSHOT</version>
+	</parent>
+
+	<dependencies>
+		<dependency>
+			<groupId>net.bluemind.ui</groupId>
+			<artifactId>webmail</artifactId>
+			<version>${project.version}</version>
+			<type>zip</type>
+		</dependency>
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.p2.we.webmail</artifactId>
+			<version>${project.version}</version>
+			<type>zip</type>
+		</dependency>
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>net.bluemind.php-client</artifactId>
+			<version>${project.version}</version>
+			<type>zip</type>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+			  <artifactId>maven-antrun-plugin</artifactId>
+			  <executions>
+			    <execution>
+			      <phase>prepare-package</phase>
+			      <configuration>
+				<tasks>
+				  <unzip dest="${basedir}/target/packaging/ROOT/usr/share/bm-webmail">
+				    <fileset dir="${basedir}/target/dependency">
+				      <include name="**/webmail*.zip" />
+				    </fileset>
+				  </unzip>
+
+				  <unzip dest="${basedir}/target/packaging/ROOT/usr/share/bm-webmail/bm_libs">
+				    <fileset dir="${basedir}/target/dependency">
+				      <include name="**/net.bluemind.php-client*.zip" />
+				    </fileset>
+				  </unzip>
+				</tasks>
+			      </configuration>
+			      <goals>
+				<goal>run</goal>
+			      </goals>
+			    </execution>
+			  </executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
+

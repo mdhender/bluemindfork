@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.server.hook.serverhook">
+      <hook
+            impl="net.bluemind.system.webmail.WebmailHook">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.nginx.update">
+      <updater
+            impl="net.bluemind.system.webmail.WebmailConfigUpdater"></updater>
+   </extension>
+
+</plugin>

@@ -1,0 +1,50 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:bj="urn:import:net.bluemind.ui.admin.client" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	xmlns:rt="urn:import:net.bluemind.ui.adminconsole.directory.resourcetype"
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'>
+
+	<ui:style>
+		.filtersContainer {
+			float: right;
+		}
+	</ui:style>
+
+	<ui:with field="tips"
+		type="net.bluemind.ui.adminconsole.directory.IconTips" />
+
+	<ui:with field="c"
+		type="net.bluemind.ui.adminconsole.directory.resourcetype.l10n.ResourceTypeConstants" />
+
+	<g:DockLayoutPanel unit="PX">
+
+		<g:north size="30">
+
+			<g:FlowPanel>
+
+				<g:FlowPanel styleName="{style.filtersContainer}">
+					<g:TextBox ui:field="search" styleName="button-last" />
+				</g:FlowPanel>
+
+				<g:FlowPanel>
+
+					<g:Button ui:field="newButton" enabled="true" styleName="button primary"
+						text="{c.create}" />
+
+					<g:Button ui:field="deleteButton" enabled="false"
+						styleName="button dangerHighVoltage" text="{c.delete}" />
+
+				</g:FlowPanel>
+
+			</g:FlowPanel>
+
+		</g:north>
+
+		<g:center>
+			<rt:ResourceTypeGrid ui:field="grid"></rt:ResourceTypeGrid>
+		</g:center>
+
+	</g:DockLayoutPanel>
+
+</ui:UiBinder>

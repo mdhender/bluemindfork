@@ -1,0 +1,23 @@
+[Unit]
+Description=LSB: BM xivobridge Server.
+Before=runlevel2.target runlevel3.target runlevel4.target runlevel5.target shutdown.target
+After=systemd-journald-dev-log.socket network-online.target bm-core.service
+Wants=network-online.target
+Conflicts=shutdown.target
+ConditionPathExists=!/etc/bm/bm-xivobridge.disabled
+
+[Service]
+Type=forking
+Restart=no
+TimeoutStartSec=90s
+IgnoreSIGPIPE=no
+KillMode=process
+GuessMainPID=no
+RemainAfterExit=no
+PIDFile=/var/run/bm-xivobridge.pid
+SuccessExitStatus=129 143
+ExecStart=/etc/init.d/bm-xivobridge start
+ExecStop=/etc/init.d/bm-xivobridge stop
+
+[Install]
+WantedBy=multi-user.target

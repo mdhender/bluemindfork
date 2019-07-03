@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.common.io
+Bundle-SymbolicName: net.bluemind.common.io
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: com.google.guava;bundle-version="24.1.0";visibility:=reexport
+Export-Package: net.bluemind.common.io
+

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This file describes BM Domains configuration. -->
+<domainTemplate>
+	<hostTags>
+		<kind id="test">
+			<desc lang="fr">domain template test extension</desc>
+			<desc lang="en">gg</desc>
+
+		</kind>
+
+		<kind id="bm">
+			<tag value="test" multival="true" mandatory="true" autoAssign="true">
+				<desc lang="fr">Test fr</desc>
+				<desc lang="en">Test en</desc>
+			</tag>
+
+		</kind>
+	</hostTags>
+</domainTemplate>

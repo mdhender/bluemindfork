@@ -1,0 +1,19 @@
+OPTIONS /principals/__uids__/A211480B-0708-4022-A2BC-90D8B3506DFC/ HTTP/1.1
+Host: mav.willow.vmw:8443
+Content-Length: 0
+Connection: keep-alive
+Accept: */*
+User-Agent: Mac_OS_X/10.9 (13A603) CalendarAgent/174
+Accept-Language: en-us
+Authorization: Digest username="tom", realm="mav.willow.vmw", nonce="32ac832cc2767f7655251b2b", uri="/principals/__uids__/A211480B-0708-4022-A2BC-90D8B3506DFC/", response="e9e9f1ad4acbf704be2587a3f8cac241", opaque="16fffece1c087d7c9928af3b3338d2d2-MzJhYzgzMmNjMjc2N2Y3NjU1MjUxYjJiLDE3Mi4xNi40NS4xLDEzODU2NDA3MzA=", algorithm="md5"
+Accept-Encoding: gzip, deflate
+
+HTTP/1.1 200 OK
+DAV: 1, access-control, calendar-access, calendar-schedule, calendar-auto-schedule, calendar-availability, inbox-availability, calendar-proxy, calendarserver-private-events, calendarserver-private-comments, calendarserver-sharing, calendarserver-sharing-no-scheduling, calendar-query-extended, calendar-default-alarms, calendar-managed-attachments, calendarserver-partstat-changes, extended-mkcol, calendarserver-principal-property-search, calendarserver-principal-search, calendarserver-home-sync
+Server: Twisted/12.2.0 TwistedWeb/9.0.0
+Content-Length: 0
+Strict-Transport-Security: max-age=604800
+Date: Thu, 28 Nov 2013 12:12:10 GMT
+Allow: ACL, COPY, DELETE, GET, HEAD, LOCK, MKCOL, MOVE, OPTIONS, PROPFIND, PROPPATCH, PUT, REPORT, UNLOCK
+Connection: close
+

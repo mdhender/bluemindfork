@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.proxy.http.forward">
+      <forward
+            auth_kind="CORE2"
+            path="/is-recognized"
+            target="locator://bm/is-recognized:8080/is-recognized">
+      </forward>
+   </extension>
+   <extension
+         point="net.bluemind.proxy.http.forward">
+      <forward
+            auth_kind="CORE2"
+            path="/path"
+            target="locator://bm/target:8080/target">
+      </forward>
+   </extension>
+   <extension
+         point="net.bluemind.proxy.http.forward">
+      <forward
+            auth_kind="CORE2"
+            path="/match-subquery/"
+            target="locator://bm/match-subquery:8080/match-subquery/">
+      </forward>
+   </extension>
+
+</plugin>

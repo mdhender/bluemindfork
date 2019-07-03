@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests
+Bundle-SymbolicName: net.bluemind.lib.javax.mail.tests
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.lib.javax.mail.tests.Activator
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.slf4j;bundle-version="1.0.0",
+ org.junit,
+ net.bluemind.pool,
+ com.sun.mail.imap;bundle-version="1.5.2",
+ com.sun.mail.javax.mail;bundle-version="1.5.2"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy

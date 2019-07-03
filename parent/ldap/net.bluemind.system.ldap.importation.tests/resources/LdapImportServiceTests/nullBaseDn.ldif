@@ -1,0 +1,6 @@
+dn: dc=nullBaseDn,dc=local
+objectClass: organization
+objectClass: top
+objectClass: dcObject
+dc: nullBaseDn
+o: Test DC

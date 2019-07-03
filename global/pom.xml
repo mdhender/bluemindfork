@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>net.bluemind</groupId>
+	<artifactId>net.bluemind.global</artifactId>
+	<version>4.1.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<profiles>
+		<profile>
+			<id>dev-mode</id>
+			<properties>
+				<l10n.list>"en", "fr"</l10n.list>
+			</properties>
+		</profile>
+
+		<profile>
+			<id>i18n</id>
+			<properties>
+				<l10n.list>"de", "en", "es", "fr", "hu", "it", "nl", "pl", "ru", "sk","uk", "zh"</l10n.list>
+			</properties>
+		</profile>
+	</profiles>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<tycho-version>1.0.0</tycho-version>
+		<tycho-extras-version>1.0.0</tycho-extras-version>
+		<bm-plugins-version>1.0.332</bm-plugins-version>
+		<bm.metrics.agent>1.18.0</bm.metrics.agent>
+		<maven.test.failure.ignore>true</maven.test.failure.ignore>
+		<sonar.language>java</sonar.language>
+		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+		<sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+		<sonar.jacoco.excludes>**/*Test*,**/generated/**/*</sonar.jacoco.excludes>
+		<l10n.list>"en", "fr"</l10n.list>
+		<gwt-version>2.8.2</gwt-version>
+                <docker.devenv.tag>4.1.40754</docker.devenv.tag>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>bluemind-deps</id>
+			<layout>p2</layout>
+			<url>http://forge.blue-mind.net/staging/p2/dependencies/414/</url>
+		</repository>
+		<repository>
+			<id>tigase</id>
+			<url>http://build.tigase.org/maven</url>
+
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>daily</updatePolicy>
+			</snapshots>
+		</repository>
+
+		<repository>
+			<id>nexus-central</id>
+			<url>http://forge.blue-mind.net/nexus/content/groups/public</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>daily</updatePolicy>
+			</snapshots>
+		</repository>
+
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>bm-maven-plugins</id>
+			<url>http://forge.blue-mind.net/nexus/content/repositories/snapshots</url>
+
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>daily</updatePolicy>
+			</snapshots>
+		</pluginRepository>
+
+		<pluginRepository>
+			<id>bm-maven-plugins-releases</id>
+			<url>http://forge.blue-mind.net/nexus/content/repositories/releases</url>
+
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>daily</updatePolicy>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
+		</plugins>
+
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-install-plugin</artifactId>
+					<version>2.5.2</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>2.5.1</version>
+					<configuration>
+						<source>1.8</source>
+						<target>1.8</target>
+					</configuration>
+					<executions>
+						<execution>
+							<id>compiletests</id>
+							<phase>test-compile</phase>
+							<goals>
+								<goal>testCompile</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>2.6.1</version>
+					<configuration>
+						<filesets>
+							<fileset>
+								<directory>${basedir}/generated</directory>
+							</fileset>
+						</filesets>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>3.0.1</version>
+					<executions>
+						<execution>
+							<id>attach-sources</id>
+							<phase>verify</phase>
+							<goals>
+								<goal>jar-no-fork</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-maven-plugin</artifactId>
+					<version>${tycho-version}</version>
+					<extensions>true</extensions>
+					<configuration>
+						<encoding>UTF-8</encoding>
+						<source>1.8</source>
+						<target>1.8</target>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-packaging-plugin</artifactId>
+					<version>${tycho-version}</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-compiler-plugin</artifactId>
+					<version>${tycho-version}</version>
+					<configuration>
+						<encoding>UTF-8</encoding>
+						<annotationProcessors>
+							<annotationProcessor>net.bluemind.codegen.processor.MetaModelProcessor</annotationProcessor>
+						</annotationProcessors>
+						<generatedSourcesDirectory>${basedir}/generated</generatedSourcesDirectory>
+						<source>1.8</source>
+						<target>1.8</target>
+						<useProjectSettings>false</useProjectSettings>
+					</configuration>
+					<dependencies>
+						<dependency>
+							<groupId>net.bluemind</groupId>
+							<artifactId>net.bluemind.codegen.metamodel</artifactId>
+							<version>${bm-plugins-version}</version>
+							<scope>compile</scope>
+						</dependency>
+					</dependencies>
+				</plugin>
+
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-source-plugin</artifactId>
+					<version>${tycho-version}</version>
+
+				</plugin>
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-surefire-plugin</artifactId>
+					<version>${tycho-version}</version>
+
+					<inherited>true</inherited>
+					<configuration>
+						<includes>
+							<include>**/*TestCase.java</include>
+							<include>**/Test*.java</include>
+							<include>**/*Tests.java</include>
+						</includes>
+						<showEclipseLog>true</showEclipseLog>
+						<useUIHarness>false</useUIHarness>
+						<useUIThread>false</useUIThread>
+						<failIfNoTests>false</failIfNoTests>
+						<product>org.eclipse.platform.ide</product>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>2.12.4</version>
+					<executions>
+						<execution>
+							<id>test</id>
+							<phase>test</phase>
+							<configuration>
+								<includes>
+									<include>**/*Test.java</include>
+								</includes>
+								<testClassesDirectory>${basedir}/target/classes</testClassesDirectory>
+								<argLine>${tycho.testArgLine}</argLine>
+							</configuration>
+							<goals>
+								<goal>test</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+				<plugin>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>0.7.5.201505241946</version>
+					<configuration>
+						<destFile>${sonar.jacoco.reportPath}</destFile>
+						<append>true</append>
+					</configuration>
+					<executions>
+						<execution>
+							<goals>
+								<goal>prepare-agent</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>2.7</version>
+				</plugin>
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>target-platform-configuration</artifactId>
+					<version>${tycho-version}</version>
+					<configuration>
+						<environments>
+							<environment>
+								<os>linux</os>
+								<ws>gtk</ws>
+								<arch>x86_64</arch>
+							</environment>
+						</environments>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-versions-plugin</artifactId>
+					<version>${tycho-version}</version>
+					<configuration>
+						<encoding>UTF-8</encoding>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>net.alchim31.maven</groupId>
+					<artifactId>yuicompressor-maven-plugin</artifactId>
+					<version>1.5.1</version>
+					<executions>
+						<execution>
+							<phase>prepare-package</phase>
+							<goals>
+								<goal>compress</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<gzip>true</gzip>
+						<force>true</force>
+						<disableOptimizations>true</disableOptimizations>
+						<jswarn>false</jswarn>
+
+						<nomunge>true</nomunge>
+						<nosuffix>true</nosuffix>
+						<outputDirectory>web-resources</outputDirectory>
+						<sourceDirectory>web-resources</sourceDirectory>
+						<webappDirectory>web-resources</webappDirectory>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>net.bluemind</groupId>
+					<artifactId>bm-docker-maven-plugin</artifactId>
+					<version>${bm-plugins-version}</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>start</goal>
+								<goal>stop</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+				<plugin>
+					<groupId>net.bluemind</groupId>
+					<artifactId>net.bluemind.codegen.php</artifactId>
+					<version>${bm-plugins-version}</version>
+				</plugin>
+
+				<plugin>
+					<groupId>net.bluemind</groupId>
+					<artifactId>net.bluemind.codegen.gwt</artifactId>
+					<version>${bm-plugins-version}</version>
+				</plugin>
+
+				<plugin>
+					<groupId>net.bluemind</groupId>
+					<artifactId>net.bluemind.codegen.js</artifactId>
+					<version>${bm-plugins-version}</version>
+				</plugin>
+
+				<plugin>
+					<groupId>net.bluemind</groupId>
+					<artifactId>net.bluemind.codegen.closure</artifactId>
+					<version>${bm-plugins-version}</version>
+                                      </plugin>
+
+				<plugin>
+					<groupId>net.bluemind</groupId>
+					<artifactId>net.bluemind.codegen.csharp</artifactId>
+					<version>${bm-plugins-version}</version>
+				</plugin>
+
+				<plugin>
+					<groupId>net.bluemind</groupId>
+					<artifactId>net.bluemind.codegen.moz.js</artifactId>
+					<version>${bm-plugins-version}</version>
+				</plugin>
+
+				<plugin>
+					<groupId>net.bluemind</groupId>
+					<artifactId>net.bluemind.codegen.doc</artifactId>
+					<version>${bm-plugins-version}</version>
+				</plugin>
+
+				<plugin>
+					<groupId>net.bluemind</groupId>
+					<artifactId>net.bluemind.codegen.python</artifactId>
+					<version>${bm-plugins-version}</version>
+				</plugin>
+
+				<plugin>
+					<groupId>net.bluemind</groupId>
+					<artifactId>bm-plovr-maven-plugin</artifactId>
+					<version>${bm-plugins-version}</version>
+				</plugin>
+
+				<plugin>
+					<groupId>net.bluemind</groupId>
+					<artifactId>bm-packaging-maven-plugin</artifactId>
+					<version>${bm-plugins-version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>gwt-maven-plugin</artifactId>
+					<version>${gwt-version}</version>
+					<configuration>
+						<extraJvmArgs>-Xmx2048M -Xms1024M -Xss1024k</extraJvmArgs>
+					</configuration>
+					<executions>
+						<execution>
+							<goals>
+								<goal>compile</goal>
+							</goals>
+							<configuration>
+								<draftCompile>false</draftCompile>
+								<inplace>true</inplace>
+								<force>true</force>
+								<generateJsInteropExports>true</generateJsInteropExports>
+								<warSourceDirectory>web-resources</warSourceDirectory>
+								<collapse-all-properties/>
+								<!--<incremental>true</incremental>-->
+							</configuration>
+						</execution>
+					</executions>
+					<dependencies>
+						<dependency>
+							<groupId>org.json</groupId>
+							<artifactId>json</artifactId>
+							<version>20090211</version>
+						</dependency>
+						<dependency>
+							<groupId>xerces</groupId>
+							<artifactId>xercesImpl</artifactId>
+							<version>2.9.1</version>
+						</dependency>
+					</dependencies>
+				</plugin>
+				<plugin>
+					<groupId>com.github.eirslett</groupId>
+					<artifactId>frontend-maven-plugin</artifactId>
+					<version>1.6</version>
+					<executions>
+						<execution>
+							<id>Install JS build tools</id>
+							<goals>
+								<goal>install-node-and-yarn</goal>
+							</goals>
+							<configuration>
+                                                                <nodeVersion>v8.11.0</nodeVersion>
+                                                                <yarnVersion>v1.6.0</yarnVersion>
+							</configuration>
+						</execution>
+                                               <execution>
+                                                        <id>Install JS dependencies</id>
+                                                        <goals>
+                                                                <goal>yarn</goal>
+                                                        </goals>
+                                                </execution>
+						<execution>
+							<id>Build JS resources</id>
+							<goals>
+								<goal>yarn</goal>
+							</goals>
+							<phase>generate-resources</phase>
+							<configuration>
+								<arguments>run build</arguments>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+
+</project>

@@ -1,0 +1,4 @@
+cyrus.squat
+/var/lib/cyrus/proc/
+/var/lib/cyrus/lock/
+/var/lib/cyrus/socket/

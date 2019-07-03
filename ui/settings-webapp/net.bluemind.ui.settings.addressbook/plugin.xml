@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.ui.settings.menusContributor">
+      <contributor
+            function="gwtSettingsAddressBookMenusContributor">
+      </contributor>
+   </extension>
+   <extension
+         point="net.bluemind.ui.settings.screensContributor">
+      <contributor
+            function="gwtSettingsAddressBookScreensContributor">
+      </contributor>
+   </extension>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module-provider
+            module="/settings">
+         <handler
+               class="net.bluemind.addressbook.server.settings.ImportVCardHandler"
+               path="ab/import">
+         </handler>
+      </web-module-provider>
+   </extension>
+
+</plugin>

@@ -1,0 +1,241 @@
+<roundcube:object name="doctype" value="html5" />
+<html>
+<head>
+<title><roundcube:object name="pagetitle" /></title>
+<roundcube:include file="/includes/links.html" />
+<style type="text/css">
+<roundcube:if condition="config:preview_pane == true" />
+	#mailview-top { height: <roundcube:exp expression="!empty(cookie:mailviewsplitter) ? cookie:mailviewsplitter-48 : 276" />px; }
+	#mailview-bottom { top: <roundcube:exp expression="!empty(cookie:mailviewsplitter) ? cookie:mailviewsplitter+6 : 330" />px; height: auto; }
+	#mailpreviewframe { display: block; }
+<roundcube:endif />
+</style>
+</head>
+<body>
+
+<div class="minwidth">
+<roundcube:include file="/includes/header.html" />
+<roundcube:button command="compose" type="link" class="goog-button-base goog-button-base-disabled goog-primaryactionbutton compose" classAct="goog-button-base goog-primaryactionbutton compose" classSel="goog-button-base goog-button-base-active goog-primaryactionbutton compose pressed" label="compose" title="writenewmessage"  />
+
+  <div class="search">
+<!-- search filter -->
+<div id="searchfilter">
+	<roundcube:object name="searchfilter" class="goog-button-base  searchfilter" />
+</div>
+
+<!-- search box -->
+<div id="quicksearchbar">
+<roundcube:button command="reset-search" id="searchreset" class="fa fa-times-circle reset" title="resetsearch" content=" " />
+<roundcube:button name="searchmenulink" id="searchmenulink" class="iconbutton searchoptions" onclick="UI.show_popup('searchmenu');return false" title="searchmod" content=" " />
+<roundcube:object name="searchform" id="quicksearchbox" />
+</div>
+  </div>
+<div id="mainscreen">
+
+<!-- toolbar -->
+
+<div id="mailview-left">
+
+<!-- folders list -->
+<div id="folderlist-header"></div>
+<div id="mailboxcontainer" class="uibox listbox">
+<div id="folderlist-content" class="scroller withfooter">
+<roundcube:object name="mailboxlist" id="mailboxlist" class="listing" folder_filter="mail" unreadwrap="%s" />
+</div>
+<div id="folderlist-footer" class="boxfooter">
+	<roundcube:button name="mailboxmenulink" id="mailboxmenulink" type="link" title="folderactions" class="goog-inline-block goog-menu-button goog-button-base fa fa-cogs" onclick="UI.show_popup('mailboxmenu');return false" content="&nbsp;" />
+	<roundcube:if condition="env:quota" />
+		<roundcube:object name="quotaDisplay" id="quotadisplay" class="countdisplay" display="text" />
+	<roundcube:endif />
+</div>
+</div>
+
+</div>
+
+<div id="mailview-right">
+	<roundcube:include file="/includes/mailtoolbar.html" />
+
+<roundcube:if condition="config:preview_pane == true" />
+<div id="mailview-top" class="uibox">
+<roundcube:else />
+<div id="mailview-top" class="uibox fullheight">
+<roundcube:endif />
+
+<!-- messagelist -->
+<div id="messagelistcontainer" class="boxlistcontent">
+<roundcube:object name="messages"
+	id="messagelist"
+	class="records-table sortheader"
+	optionsmenuIcon="true" />
+</div>
+
+<!-- list footer -->
+<div id="messagelistfooter">
+	<div id="listcontrols">
+		<roundcube:if condition="env:threads" />
+			<a href="#list" class="goog-button-base-first goog-inline-block goog-menu-button goog-button-base listmode" id="maillistmode" title="<roundcube:label name='list' />"><span class="fa fa-list"></span></a><a href="#threads" class="goog-button-base-last goog-inline-block goog-menu-button goog-button-base threadmode" id="mailthreadmode" title="<roundcube:label name='threads' />"><span class="fa fa-comments"></span></a>
+		<roundcube:else />
+			<a href="#list" class="goog-button-base-first goog-inline-block goog-button goog-button-base goog-button-base-active listmode" title="<roundcube:label name='list' />" onclick="return false"><span class="fa fa-list"></span></a><a href="#threads" class="goog-button-base-last goog-inline-block goog-button goog-button-base goog-button-base-disabled  threadmode" title="<roundcube:label name='threads' />" onclick="return false"><span class="fa fa-comments"></span></a>
+		<roundcube:endif />
+	</div>
+	
+	<div id="listselectors">
+	<a href="#select" id="listselectmenulink" class="goog-inline-block goog-menu-button goog-button-base" onclick="UI.show_popup('listselectmenu');return false"><span class="handle"><roundcube:label name="select" /></span><div class="fa fa-caret-down"></div></a>
+	<roundcube:if condition="env:threads" />
+		&nbsp; <a href="#threads" id="threadselectmenulink" class="goog-inline-block goog-menu-button goog-button-base" onclick="UI.show_popup('threadselectmenu');return false"><span class="handle"><roundcube:label name="threads" /></span><div class="fa fa-caret-down"></div></a>
+	<roundcube:endif />
+	</div>
+
+	<div id="countcontrols" class="pagenav dark">
+		<roundcube:object name="messageCountDisplay" class="countdisplay" />
+		<span class="pagenavbuttons">
+		<roundcube:button command="firstpage" type="link" class="goog-button-base-first goog-inline-block goog-menu-button goog-button-base goog-button-base-disabled fa fa-step-backward btn" classAct="goog-button-base-first goog-inline-block goog-menu-button goog-button-base fa fa-step-backward btn" classSel="goog-button-base-first goog-inline-block goog-menu-button goog-button-base goog-button-base-active fa fa-step-backward btn" title="firstpage" content="&nbsp;" /><roundcube:button command="previouspage" type="link" class="goog-button-base-middle goog-inline-block goog-menu-button goog-button-base goog-button-base-disabled fa fa-caret-left btn" classAct="goog-button-base-middle goog-inline-block goog-menu-button goog-button-base fa fa-caret-left btn" classSel="goog-button-base-middle goog-inline-block goog-menu-button goog-button-base goog-button-base-active fa fa-caret-left btn" title="previouspage" content="&nbsp;" /><roundcube:button command="nextpage" type="link" class="goog-button-base-middle goog-inline-block goog-menu-button goog-button-base goog-button-base-disabled fa fa-caret-right btn" classAct="goog-button-base-middle goog-inline-block goog-menu-button goog-button-base fa fa-caret-right btn" classSel="goog-button-base-middle goog-inline-block goog-menu-button goog-button-base goog-button-base-active fa fa-caret-right btn" title="nextpage" content="&nbsp;" /><roundcube:button command="lastpage" type="link" class="goog-button-base-last goog-inline-block goog-menu-button goog-button-base goog-button-base-disabled fa fa-step-forward btn" classAct="goog-button-base-last goog-inline-block goog-menu-button goog-button-base fa fa-step-forward btn" classSel="goog-button-base-last goog-inline-block goog-menu-button goog-button-base goog-button-base-active fa fa-step-forward btn" title="lastpage" content="&nbsp;" />
+		</span>
+	</div>
+
+	<roundcube:container name="listcontrols" id="listcontrols" />
+
+	<a href="#preview" id="mailpreviewtoggle" title="<roundcube:label name='previewpane' />"></a>
+</div>
+
+</div><!-- end mailview-top -->
+
+<div id="mailview-bottom" class="uibox">
+
+<div id="mailpreviewframe">
+<roundcube:object name="messagecontentframe" id="messagecontframe" style="width:100%; height:100%" frameborder="0" src="/watermark.html" />
+</div>
+
+<roundcube:object name="message" id="message" class="statusbar" />
+
+</div><!-- end mailview-bottom -->
+
+</div><!-- end mailview-right -->
+
+</div><!-- end mainscreen -->
+
+<div><!-- end minwidth -->
+
+<div id="searchmenu" class="popupmenu">
+	<ul class="toolbarmenu">
+		<li><label><input type="checkbox" name="s_mods[]" value="subject" id="s_mod_subject" onclick="UI.set_searchmod(this)" /> <roundcube:label name="subject" /></label></li>
+		<li><label><input type="checkbox" name="s_mods[]" value="from" id="s_mod_from" onclick="UI.set_searchmod(this)" /> <roundcube:label name="from" /></label></li>
+		<li><label><input type="checkbox" name="s_mods[]" value="to" id="s_mod_to" onclick="UI.set_searchmod(this)" /> <roundcube:label name="to" /></label></li>
+		<li><label><input type="checkbox" name="s_mods[]" value="cc" id="s_mod_cc" onclick="UI.set_searchmod(this)" /> <roundcube:label name="cc" /></label></li>
+		<li><label><input type="checkbox" name="s_mods[]" value="bcc" id="s_mod_bcc" onclick="UI.set_searchmod(this)" /> <roundcube:label name="bcc" /></label></li>
+		<li><label><input type="checkbox" name="s_mods[]" value="text" id="s_mod_text" onclick="UI.set_searchmod(this)" /> <roundcube:label name="msgtext" /></label></li>
+	</ul>
+</div>
+
+<div id="dragmessagemenu" class="popupmenu">
+	<ul class="toolbarmenu">
+		<li><roundcube:button command="moveto" onclick="return rcmail.drag_menu_action('moveto')" label="move" classAct="active" /></li>
+		<li><roundcube:button command="copy" onclick="return rcmail.drag_menu_action('copy')" label="copy" classAct="active" /></li>
+	</ul>
+</div>
+
+<div id="mailboxmenu" class="popupmenu">
+	<ul class="toolbarmenu" id="mailboxoptionsmenu">
+		<li><roundcube:button command="expunge" type="link" label="compact" classAct="active" /></li>
+		<li class="separator_below"><roundcube:button command="purge" type="link" label="empty" id="purgeCommandBtn" classAct="active" class="disabled"/></li>
+		<li><roundcube:button command="folders" task="settings" type="link" label="managefolders" classAct="active" /></li>
+		<roundcube:container name="mailboxoptions" id="mailboxoptionsmenu" />
+	</ul>
+</div>
+
+<div id="listselectmenu" class="popupmenu dropdown">
+	<ul class="toolbarmenu iconized">
+		<li><roundcube:button command="select-all" type="link" label="all" class="icon" classAct="icon active" innerclass="icon fa fa-envelope" /></li>
+		<li><roundcube:button command="select-all" type="link" prop="page" label="currpage" class="icon" classAct="icon active" innerclass="icon fa fa-list" /></li>
+		<li><roundcube:button command="select-all" type="link" prop="unread" label="unread" class="icon" classAct="icon active" innerclass="icon fa fa-eye" /></li>
+		<li><roundcube:button command="select-all" type="link" prop="flagged" label="flagged" class="icon" classAct="icon active" innerclass="icon fa fa-flag" /></li>
+		<li><roundcube:button command="select-all" type="link" prop="invert" label="invert" class="icon" classAct="icon active" innerclass="icon invert" /></li>
+		<li><roundcube:button command="select-none" type="link" label="none" class="icon" classAct="icon active" innerclass="icon fa fa-times" /></li>
+	</ul>
+</div>
+
+<div id="threadselectmenu" class="popupmenu dropdown">
+	<ul class="toolbarmenu">
+		<li><roundcube:button command="expand-all" type="link" label="expand-all" class="icon" classAct="icon active" innerclass="icon fa fa-comments" /></li>
+		<li><roundcube:button command="expand-unread" type="link" label="expand-unread" class="icon" classAct="icon active" innerclass="icon fa fa-comments" /></li>
+		<li><roundcube:button command="collapse-all" type="link" label="collapse-all" class="icon" classAct="icon active" innerclass="icon fa fa-comments" /></li>
+	</ul>
+</div>
+
+<div id="listoptions" class="propform popupdialog">
+<roundcube:if condition="!in_array('list_cols', (array)config:dont_override) && env:archive_enabled" />
+	<fieldset class="floating">
+		<legend><roundcube:label name="listcolumns" /></legend>
+		<ul class="proplist">
+			<li><label class="disabled"><input type="checkbox" id="cols_threads" name="list_col[]" value="threads" checked="checked" disabled="disabled" /> <roundcube:label name="threads" /></label></li>
+			<li><label class="disabled"><input type="checkbox" id="cols_subject" name="list_col[]" value="subject" checked="checked" disabled="disabled" /> <roundcube:label name="subject" /></label></li>
+			<li><label><input type="checkbox" id="cols_archive" name="list_col[]" value="archive" /> <roundcube:label name="bm_archive.archive" /></label></li>
+			<li><label><input type="checkbox" id="cols_fromto" name="list_col[]" value="fromto" /> <roundcube:label name="fromto" /></label></li>
+			<li><label><input type="checkbox" id="cols_from" name="list_col[]" value="from" /> <roundcube:label name="from" /></label></li>
+			<li><label><input type="checkbox" id="cols_to" name="list_col[]" value="to" /> <roundcube:label name="to" /></label></li>
+			<li><label><input type="checkbox" id="cols_replyto" name="list_col[]" value="replyto" /> <roundcube:label name="replyto" /></label></li>
+			<li><label><input type="checkbox" name="list_col[]" id="cols_cc" value="cc" /> <roundcube:label name="cc" /></label></li>
+			<li><label><input type="checkbox" name="list_col[]" id="cols_date" value="date" /> <roundcube:label name="date" /></label></li>
+			<li><label><input type="checkbox" name="list_col[]" id="cols_size" value="size" /> <roundcube:label name="size" /></label></li>
+			<li><label><input type="checkbox" name="list_col[]" id="cols_status" value="status" /> <roundcube:label name="readstatus" /></label></li>
+			<li><label><input type="checkbox" name="list_col[]" id="cols_attachment" value="attachment" /> <roundcube:label name="attachment" /></label></li>
+			<li><label><input type="checkbox" name="list_col[]" id="cols_flag" value="flag" /> <roundcube:label name="flag" /></label></li>
+			<li><label><input type="checkbox" name="list_col[]" id="cols_priority" value="priority" /> <roundcube:label name="priority" /></label></li>
+		</ul>
+	</fieldset>
+<roundcube:elseif condition="!in_array('list_cols', (array)config:dont_override) && !env:archive_enabled" />
+	<fieldset class="floating">
+		<legend><roundcube:label name="listcolumns" /></legend>
+		<ul class="proplist">
+			<li><label class="disabled"><input type="checkbox" id="cols_threads" name="list_col[]" value="threads" checked="checked" disabled="disabled" /> <roundcube:label name="threads" /></label></li>
+			<li><label class="disabled"><input type="checkbox" id="cols_subject" name="list_col[]" value="subject" checked="checked" disabled="disabled" /> <roundcube:label name="subject" /></label></li>
+			<li><label><input type="checkbox" id="cols_fromto" name="list_col[]" value="fromto" /> <roundcube:label name="fromto" /></label></li>
+			<li><label><input type="checkbox" id="cols_from" name="list_col[]" value="from" /> <roundcube:label name="from" /></label></li>
+			<li><label><input type="checkbox" id="cols_to" name="list_col[]" value="to" /> <roundcube:label name="to" /></label></li>
+			<li><label><input type="checkbox" id="cols_replyto" name="list_col[]" value="replyto" /> <roundcube:label name="replyto" /></label></li>
+			<li><label><input type="checkbox" name="list_col[]" id="cols_cc" value="cc" /> <roundcube:label name="cc" /></label></li>
+			<li><label><input type="checkbox" name="list_col[]" id="cols_date" value="date" /> <roundcube:label name="date" /></label></li>
+			<li><label><input type="checkbox" name="list_col[]" id="cols_size" value="size" /> <roundcube:label name="size" /></label></li>
+			<li><label><input type="checkbox" name="list_col[]" id="cols_status" value="status" /> <roundcube:label name="readstatus" /></label></li>
+			<li><label><input type="checkbox" name="list_col[]" id="cols_attachment" value="attachment" /> <roundcube:label name="attachment" /></label></li>
+			<li><label><input type="checkbox" name="list_col[]" id="cols_flag" value="flag" /> <roundcube:label name="flag" /></label></li>
+			<li><label><input type="checkbox" name="list_col[]" id="cols_priority" value="priority" /> <roundcube:label name="priority" /></label></li>
+		</ul>
+	</fieldset>
+<roundcube:endif />
+<roundcube:if condition="!in_array('message_sort_col', (array)config:dont_override)" />
+	<fieldset class="floating">
+		<legend><roundcube:label name="listsorting" /></legend>
+		<ul class="proplist">
+			<li><label><input type="radio" name="sort_col" value="" /> <roundcube:label name="nonesort" /></label></li>
+			<li><label><input type="radio" name="sort_col" value="arrival" /> <roundcube:label name="arrival" /></label></li>
+			<li><label><input type="radio" name="sort_col" value="date" /> <roundcube:label name="sentdate" /></label></li>
+			<li><label><input type="radio" name="sort_col" value="subject" /> <roundcube:label name="subject" /></label></li>
+			<li><label><input type="radio" name="sort_col" value="fromto" /> <roundcube:label name="fromto" /></label></li>
+			<li><label><input type="radio" name="sort_col" value="from" /> <roundcube:label name="from" /></label></li>
+			<li><label><input type="radio" name="sort_col" value="to" /> <roundcube:label name="to" /></label></li>
+			<li><label><input type="radio" name="sort_col" value="cc" /> <roundcube:label name="cc" /></label></li>
+			<li><label><input type="radio" name="sort_col" value="size" /> <roundcube:label name="size" /></label></li>
+		</ul>
+	</fieldset>
+<roundcube:endif />
+<roundcube:if condition="!in_array('message_sort_order', (array)config:dont_override)" />
+	<fieldset class="floating">
+		<legend><roundcube:label name="listorder" /></legend>
+		<ul class="proplist">
+			<li><label><input type="radio" name="sort_ord" value="ASC" /> <roundcube:label name="asc" /></label></li>
+			<li><label><input type="radio" name="sort_ord" value="DESC" /> <roundcube:label name="desc" /></label></li>
+		</ul>
+	</fieldset>
+<roundcube:endif />
+	<br style="clear:both" />
+	<div class="formbuttons">
+		<roundcube:button command="menu-save" id="listmenusave" type="link" class="goog-button-base goog-primaryactionbutton" label="save" />
+		<roundcube:button command="menu-open" id="listmenucancel" type="link" class="goog-button-base goog-button" label="cancel" />
+	</div>
+</div>
+
+<roundcube:include file="/includes/footer.html" />
+
+</body>
+</html>

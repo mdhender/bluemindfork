@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Gwtserver
+Bundle-SymbolicName: net.bluemind.webmodule.devmodefilter;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.lib.vertx,
+ net.bluemind.slf4j,
+ org.eclipse.osgi,
+ net.bluemind.webmodule.server;bundle-version="1.0.0",
+ net.bluemind.core.rest.http,
+ net.bluemind.core.rest,
+ net.bluemind.authentication.api,
+ net.bluemind.locator.vertxclient,
+ com.google.guava,
+ net.bluemind.eclipse.common
+Bundle-ClassPath: .

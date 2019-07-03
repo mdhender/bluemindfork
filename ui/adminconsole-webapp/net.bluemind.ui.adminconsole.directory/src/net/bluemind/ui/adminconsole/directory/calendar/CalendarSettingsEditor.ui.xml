@@ -1,0 +1,79 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:f="urn:import:net.bluemind.ui.admin.client.forms"
+	xmlns:ff="urn:import:net.bluemind.ui.adminconsole.base.ui"
+	xmlns:common="urn:import:net.bluemind.ui.common.client.forms"
+	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:d="urn:import:net.bluemind.ui.admin.client.forms.det">
+
+	<ui:style>
+	.panel {
+		height: 100%;
+	}
+	</ui:style>
+
+
+	<ui:with field="c"
+		type="net.bluemind.ui.adminconsole.directory.calendar.l10n.CalendarSettingsConstants" />
+
+	<g:HTMLPanel>
+		<table class="formContainer">
+			<!-- // First day of week -->
+			<tr class="setting">
+				<td class="label">
+					<ui:text from="{c.workingDays}" />
+				</td>
+				<td style="form">
+					<g:ListBox ui:field="workingDays" multipleSelect="true" visibleItemCount="7"/>
+				</td>
+			</tr>
+
+			<tr class="setting">
+				<td class="label">
+					<ui:text from="{c.dayStartsAt}"/>
+				</td>
+				<td style="form">
+					<common:TimePickerMs ui:field="dayStartsAt" />
+				</td>
+			</tr>
+
+			<tr class="setting">
+				<td class="label">
+					<ui:text from="{c.dayEndsAt}"/>
+				</td>
+				<td style="form">
+					<common:TimePickerMs ui:field="dayEndsAt" />
+				</td>
+			</tr>
+			
+			<tr class="setting">
+				<td class="label">
+					<ui:text from="{c.allDay}"/>
+				</td>
+				<td style="form">
+					<g:CheckBox ui:field="allDay" />
+				</td>
+			</tr>
+
+			<tr class="setting">
+				<td class="label">
+					<ui:text from="{c.minDuration}"/>
+				</td>
+				<td style="form">
+					<g:ListBox ui:field="minDuration" />
+				</td>
+			</tr>
+			
+			
+			<tr class="setting">
+				<td class="label">
+					<ui:text from="{c.timezone}"/>
+				</td>
+				<td style="form">
+					<g:ListBox ui:field="tz" />
+				</td>
+			</tr>
+		</table>
+	</g:HTMLPanel>
+</ui:UiBinder>

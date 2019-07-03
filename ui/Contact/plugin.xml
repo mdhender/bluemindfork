@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module-provider
+            module="/contact">
+         <web-resource
+               bundle="contact">
+         </web-resource>
+         <css
+               path="css/contact.css">
+         </css>
+         <js
+               path="js/compile/contact.js"
+               translation="true">
+         </js>
+         <web-resource
+               bundle="net.bluemind.commons.ui.closure">
+         </web-resource>
+         <web-resource
+               bundle="net.bluemind.ui.imageupload.standalone">
+         </web-resource>
+         <js
+               path="net.bluemind.ui.imageupload.standalone/net.bluemind.ui.imageupload.standalone.nocache.js"></js>
+      </web-module-provider>
+   </extension>
+
+</plugin>

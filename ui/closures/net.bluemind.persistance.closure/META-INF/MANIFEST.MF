@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.persistance.closure
+Bundle-SymbolicName: net.bluemind.persistance.closure;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Closure-Bundle-Type: Library
+Require-Bundle: ydn-base;bundle-version="1.0.0",
+ ydn-db;bundle-version="1.0.0",
+ relief;bundle-version="1.0.0"
+Bundle-ClassPath: js.jar,
+ .

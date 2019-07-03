@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="node" uid="node" id="net.bluemind.node.server.nodeserver" application="net.bluemind.node.server.nodelauncher" version="4.1.0.qualifier" useFeatures="false" includeLaunchers="true">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <vmArgs>-server -Xms128m -Xmx128m -Dosgi.noShutdown=true -Djava.net.preferIPv4Stack=true -Xss256k -XX:+UseCompressedOops -XX:MaxDirectMemorySize=64m -XX:+UseG1GC -XX:MaxGCPauseMillis=500
+      </vmArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
+   </launcherArgs>
+
+   <launcher name="bm-node">
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+   </vm>
+
+   <plugins>
+      <plugin id="ch.qos.logback.classic"/>
+      <plugin id="ch.qos.logback.core"/>
+      <plugin id="com.fasterxml.jackson.core.jackson-annotations"/>
+      <plugin id="com.fasterxml.jackson.core.jackson-core"/>
+      <plugin id="com.fasterxml.jackson.core.jackson-databind"/>
+      <plugin id="com.google.guava"/>
+      <plugin id="com.netflix.spectator.api"/>
+      <plugin id="io.netty"/>
+      <plugin id="io.vertx.core"/>
+      <plugin id="io.vertx.platform"/>
+      <plugin id="javax.ws.rs"/>
+      <plugin id="javax.xml"/>
+      <plugin id="jcl.over.slf4j"/>
+      <plugin id="joda-time"/>
+      <plugin id="jul.to.slf4j"/>
+      <plugin id="net.bluemind.core.commons"/>
+      <plugin id="net.bluemind.eclipse.common"/>
+      <plugin id="net.bluemind.lib.jackson"/>
+      <plugin id="net.bluemind.lib.jodatime"/>
+      <plugin id="net.bluemind.lib.jta"/>
+      <plugin id="net.bluemind.lib.vertx"/>
+      <plugin id="net.bluemind.metrics.registry"/>
+      <plugin id="net.bluemind.node.server"/>
+      <plugin id="net.bluemind.node.shared"/>
+      <plugin id="net.bluemind.osgi.log"/>
+      <plugin id="net.bluemind.slf4j"/>
+      <plugin id="net.bluemind.slf4j.configuration" fragment="true"/>
+      <plugin id="net.bluemind.systemd.notify"/>
+      <plugin id="net.bluemind.utils"/>
+      <plugin id="net.java.dev.jna"/>
+      <plugin id="org.apache.commons.codec"/>
+      <plugin id="org.apache.commons.lang"/>
+      <plugin id="org.eclipse.core.contenttype"/>
+      <plugin id="org.eclipse.core.jobs"/>
+      <plugin id="org.eclipse.core.runtime"/>
+      <plugin id="org.eclipse.equinox.app"/>
+      <plugin id="org.eclipse.equinox.common"/>
+      <plugin id="org.eclipse.equinox.ds"/>
+      <plugin id="org.eclipse.equinox.preferences"/>
+      <plugin id="org.eclipse.equinox.registry"/>
+      <plugin id="org.eclipse.equinox.util"/>
+      <plugin id="org.eclipse.osgi"/>
+      <plugin id="org.eclipse.osgi.services"/>
+      <plugin id="org.eclipse.update.configurator"/>
+      <plugin id="slf4j.api"/>
+   </plugins>
+
+   <configurations>
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
+      <property name="osgi.configuration.area" value="/var/lib/bm-node/" />
+      <property name="osgi.noShutdown" value="true" />
+   </configurations>
+
+</product>

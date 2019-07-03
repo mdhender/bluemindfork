@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.ui.adminconsole.menusContributor">
+      <contributor
+            function="NetBluemindUiAdminconsoleSecurityContributor">
+      </contributor>
+   </extension>
+   <extension
+         point="net.bluemind.ui.adminconsole.screenContributor">
+      <contributor
+            function="NetBluemindUiAdminconsoleScreensSecurityContributor">
+      </contributor>
+   </extension>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module-provider
+            module="/adminconsole">
+         <handler
+               class="net.bluemind.webmodule.uploadhandler.TextFileUploadHandler"
+               path="utils/textfileupload">
+         </handler>
+      </web-module-provider>
+   </extension>
+  
+</plugin>

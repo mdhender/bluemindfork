@@ -1,0 +1,39 @@
+Return-Path: <u1@apr-vmnet.loc>
+Received: from bluejob-build.apr-vmnet.loc (localhost.localdomain [127.0.0.1])
+	 by bluejob-build-3 with LMTPA;
+	 Mon, 16 Nov 2015 14:51:23 +0100
+X-Sieve: CMU Sieve 2.4
+Received: from /172.16.20.50 (LHLO bluejob-build.apr-vmnet.loc) by unknown
+ with LMTP; 11/16/15 1:51 PM
+Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
+	by bluejob-build.apr-vmnet.loc (Postfix) with ESMTP id 2B4769E749
+	for <admin@apr-vmnet.loc>; Mon, 16 Nov 2015 14:51:22 +0100 (CET)
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="=_7bb2eebc04b379f2622be0d2322f955f"
+Date: Mon, 16 Nov 2015 14:51:22 +0100
+From: u1 u1 <u1@apr-vmnet.loc>
+To: admin SetupWizard <admin@apr-vmnet.loc>
+Subject: test
+Message-ID: <9804837b872432bda94e4d05a6f80b02@apr-vmnet.loc>
+X-Sender: u1@apr-vmnet.loc
+User-Agent: Roundcube Webmail/0.8.5
+
+--=_7bb2eebc04b379f2622be0d2322f955f
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+
+ 
+
+Mail de test 
+--=_7bb2eebc04b379f2622be0d2322f955f
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/html; charset=UTF-8
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN">
+<html><body>
+<p>&nbsp;</p>
+<p>Mail de test</p>
+</body></html>
+
+--=_7bb2eebc04b379f2622be0d2322f955f--

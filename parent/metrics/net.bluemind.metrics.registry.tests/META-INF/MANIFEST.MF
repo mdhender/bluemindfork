@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.metrics.registry.tests
+Bundle-SymbolicName: net.bluemind.metrics.registry.tests
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.metrics.registry.tests.Activator
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.metrics.registry;bundle-version="4.1.0",
+ io.netty;bundle-version="4.0.51",
+ slf4j.api;bundle-version="1.7.5",
+ org.junit,
+ com.fasterxml.jackson.core.jackson-core,
+ com.fasterxml.jackson.core.jackson-databind
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.metrics.registry.tests
+Bundle-ActivationPolicy: lazy

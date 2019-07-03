@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.authentication.persistence
+Bundle-SymbolicName: net.bluemind.authentication.persistence
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.core.jdbc;bundle-version="1.0.0",
+ net.bluemind.slf4j;bundle-version="1.0.0",
+ net.bluemind.core.container.persistance,
+ net.bluemind.authentication.api;bundle-version="1.0.0",
+ net.bluemind.core.context,
+ net.bluemind.authentication.sqlschema;bundle-version="1.0.0"
+Export-Package: net.bluemind.authentication.persistence

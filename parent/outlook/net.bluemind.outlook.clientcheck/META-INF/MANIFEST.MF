@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.outlook.clientcheck
+Bundle-SymbolicName: net.bluemind.outlook.clientcheck;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: io.vertx.core,
+ net.bluemind.locator.client,
+ net.bluemind.system.api,
+ net.bluemind.config,
+ net.bluemind.system.service,
+ slf4j.api,
+ net.bluemind.core.rest;bundle-version="4.1.0"
+

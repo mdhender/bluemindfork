@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Api
+Bundle-SymbolicName: net.bluemind.calendar.api
+Bundle-Version: 4.1.0.qualifier
+Export-Package: net.bluemind.calendar.api,
+ net.bluemind.calendar.api.internal
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
+ net.bluemind.core.container.api;bundle-version="1.0.0",
+ net.bluemind.user.api;bundle-version="1.0.0",
+ net.bluemind.tag.api,
+ net.bluemind.lib.jackson;bundle-version="1.0.0",
+ net.bluemind.slf4j;bundle-version="1.0.0",
+ net.bluemind.core.task.api,
+ net.bluemind.icalendar.api;bundle-version="1.0.0";visibility:=reexport
+

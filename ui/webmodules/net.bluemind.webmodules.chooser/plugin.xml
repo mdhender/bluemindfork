@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module
+            index="index.html"
+            root="/chooser">
+         <web-resource
+               bundle="net.bluemind.chooser.application.closure">
+         </web-resource>
+         <handler
+               class="net.bluemind.webmodules.chooser.handlers.ChooserHandler"
+               path="index.html">
+         </handler>
+      </web-module>
+   </extension>
+
+</plugin>

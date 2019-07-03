@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.core.rest.serviceFactory">
+      <serviceFactory
+            class="net.bluemind.scheduledjob.service.ScheduledJobServiceFactory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.scheduledjob.service.ScheduledInCoreJobServiceFactory">
+      </serviceFactory>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.apiEndpoint">
+      <endpoint
+            api="net.bluemind.scheduledjob.api.IJob">
+      </endpoint>
+   </extension>
+
+</plugin>

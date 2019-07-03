@@ -1,0 +1,53 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>net.bluemind</groupId>
+		<artifactId>net.bluemind.corev2</artifactId>
+		<version>4.1.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>net.bluemind.mailbackend.plugins</artifactId>
+	<packaging>pom</packaging>
+	<modules>
+	  <module>net.bluemind.backend.cyrus.partitions</module>
+	  <module>net.bluemind.backend.cyrus.partitions.tests</module>
+		<module>net.bluemind.backend.cyrus</module>
+		<module>net.bluemind.backend.cyrus.bmgroups</module>
+		<module>net.bluemind.backend.cyrus.bmgroups.tests</module>
+		<module>net.bluemind.backend.cyrus.mailboxesdb</module>
+		<module>net.bluemind.backend.cyrus.mailboxesdb.tests</module>
+		<module>net.bluemind.backend.cyrus.tests</module>
+		<module>net.bluemind.lmtp.testhelper</module>
+		<module>net.bluemind.lmtp.proxy.tests</module>
+		<module>net.bluemind.backend.postfix</module>
+		<module>net.bluemind.backend.postfix.tests</module>
+		<module>net.bluemind.backend.systemconf</module>
+		<module>net.bluemind.backend.systemconf.tests</module>
+
+		<module>net.bluemind.imap.vertx</module>
+		<module>net.bluemind.imap.vertx.tests</module>
+
+		<module>net.bluemind.backend.mail.api</module>
+		<module>net.bluemind.backend.mail.replica.api</module>
+		<module>net.bluemind.backend.mail.replica.utils</module>
+		<module>net.bluemind.backend.mail.replica.persistence</module>
+		<module>net.bluemind.backend.mail.replica.persistence.tests</module>
+		<module>net.bluemind.backend.mail.replica.service</module>
+		<module>net.bluemind.backend.mail.replica.indexing</module>
+		<module>net.bluemind.backend.mail.parsing</module>
+		<module>net.bluemind.backend.mail.replica.service.tests</module>
+		<module>net.bluemind.backend.mail.replica.sqlschema</module>
+		<module>net.bluemind.backend.cyrus.replication.testhelper</module>
+		<module>net.bluemind.backend.cyrus.replication.protocol</module>
+		<module>net.bluemind.backend.cyrus.replication.observers</module>
+		<module>net.bluemind.backend.cyrus.replication.client</module>
+		<module>net.bluemind.backend.cyrus.replication.server</module>
+		<module>net.bluemind.backend.cyrus.replication.storage.core</module>
+		<module>net.bluemind.backend.cyrus.replication.storage.mock</module>
+		<module>net.bluemind.backend.cyrus.syncclient.mgmt</module>
+		<module>net.bluemind.backend.cyrus.replication.server.tests</module>
+		<module>net.bluemind.backend.cyrus.replication.link</module>
+
+	</modules>
+
+</project>

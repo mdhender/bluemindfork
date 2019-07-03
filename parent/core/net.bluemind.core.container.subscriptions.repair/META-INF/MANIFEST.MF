@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.core.container.subscriptions.repair
+Bundle-SymbolicName: net.bluemind.core.container.subscriptions.repair;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.core.container.subscriptions.repair.Activator
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.directory.service,
+ net.bluemind.directory.api,
+ net.bluemind.core.task.service,
+ slf4j.api,
+ net.bluemind.user.persistance
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.core.container.subscriptions.repair
+Bundle-ActivationPolicy: lazy

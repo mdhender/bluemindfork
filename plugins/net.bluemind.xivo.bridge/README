@@ -1,0 +1,9 @@
+Events xivo:
+
+simulate status from xuc:
+curl -X POST -H 'Content-Type: application/json' http://127.0.0.1:9091/xivo/1.0/event/willow.vmw/dropbox/ -d'{"username":"admin","status":8}'
+curl -X POST -H 'Content-Type: application/json' http://bm-prod.blue-mind.loc:9091/xivo/1.0/event/blue-mind.net/dropbox/ -d'{"username":"sylvain.garcia","status":8}'
+
+fetch saved status from bridge:
+curl -X GET http://127.0.0.1:9091/xivo/1.0/status/willow.vmw/admin/
+curl -X GET http://127.0.0.1:9091/xivo/1.0/status/blue-mind.net/sylvain.garcia/

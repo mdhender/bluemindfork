@@ -1,0 +1,11 @@
+Source: bluemind
+Section: net
+Priority: optional
+Maintainer: Blue Mind Team <team@blue-mind.net>
+Standards-Version: 3.9.1
+
+Package: bm-lmtpd
+Architecture: amd64
+Depends: bm-jdk (= 8u212-bluemind29), openssl, bm-tika (= ${binary:Version})
+Description: Blue Mind LMTP proxy daemon
+ LMTP proxy daemon for inbound mail processing

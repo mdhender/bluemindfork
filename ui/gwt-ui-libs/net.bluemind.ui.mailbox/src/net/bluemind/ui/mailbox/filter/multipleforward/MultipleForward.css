@@ -1,0 +1,42 @@
+.valuesPanel {
+	border: 1px solid #CCC;
+	padding: 0px;
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+}
+
+.valuesPanel div {
+	display: inline-block;
+}
+
+.recipient {
+	background-color: #99CCFF;
+	border-radius: 2px;
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 2px;
+	display: inline-block;
+	margin: 2px;
+	padding: 1px;
+	border: 1px solid #666;
+	cursor:	default;
+}
+
+.disabled {
+	background-color: #eee;
+	cursor:	default;
+}
+
+.recipient div {
+	display: inline-block;
+}
+
+.pointer {
+	cursor:	pointer;
+}
+
+.recipientInput {
+	border: none;
+	padding: 1px;
+	margin: 3px 2px 3px 5px;
+}

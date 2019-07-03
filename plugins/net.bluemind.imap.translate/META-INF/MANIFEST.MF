@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.imap.translate
+Bundle-SymbolicName: net.bluemind.imap.translate
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.imap.translate.TranslationActivator
+Bundle-Vendor: blue-mind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.slf4j,
+ net.bluemind.lib.jutf7,
+ com.google.guava;bundle-version="19.0.0",
+ net.bluemind.lib.vertx
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.imap.translate;uses:="org.osgi.framework"

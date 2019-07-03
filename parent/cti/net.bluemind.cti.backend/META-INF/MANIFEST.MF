@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.cti.backend
+Bundle-SymbolicName: net.bluemind.cti.backend;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: blue-mind.net
+Require-Bundle: net.bluemind.core.commons,
+ net.bluemind.cti.api;bundle-version="1.0.0",
+ slf4j.api;bundle-version="1.7.5",
+ net.bluemind.eclipse.common,
+ net.bluemind.user.api,
+ net.bluemind.core.container.api;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.cti.backend
+

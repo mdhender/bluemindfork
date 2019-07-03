@@ -1,0 +1,18 @@
+BEGIN:VCARD
+VERSION:3.0
+FN:Eric Cantoné
+N:Cantoné;Eric;;;
+EMAIL;TYPE=INTERNET;TYPE=HOME:e.cantoné@dom.lan
+END:VCARD
+BEGIN:VCARD
+VERSION:3.0
+FN:John Bang
+N:Bang;John;;;
+EMAIL;TYPE=INTERNET;TYPE=HOME:j.b@dom
+END:VCARD
+BEGIN:VCARD
+VERSION:3.0
+FN:David Phan
+N:Phan;David;;;
+EMAIL;TYPE=INTERNET:david.phan@dom.lan
+END:VCARD

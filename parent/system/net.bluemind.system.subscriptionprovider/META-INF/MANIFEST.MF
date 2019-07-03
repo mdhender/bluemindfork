@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.system.subscriptionprovider
+Bundle-SymbolicName: net.bluemind.system.subscriptionprovider;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Export-Package: net.bluemind.system.subscriptionprovider
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
+ net.bluemind.system.api;bundle-version="1.0.0";visibility:=reexport,
+ net.bluemind.eclipse.common,
+ net.bluemind.slf4j;bundle-version="1.0.0",
+ net.bluemind.system.helper
+

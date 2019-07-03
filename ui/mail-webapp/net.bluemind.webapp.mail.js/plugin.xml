@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module-provider
+            module="/webapp">
+         <web-resource
+               bundle="net.bluemind.webapp.mail.js">
+         </web-resource>
+         <js
+               async-loading="false"
+               path="js/compile/net.bluemind.webapp.mail.js">
+         </js>
+      </web-module-provider>
+   </extension>
+   <extension
+         point="net.bluemind.webapp">
+      <application-route
+            component="mail-webapp"
+            path="/mail">
+      </application-route>
+   </extension>
+   <extension
+         point="net.bluemind.banner">
+      <application
+            description="%banner-entry.description"
+            href="/webapp/mail/"
+            name="%banner-entry.name"
+            order="10"
+            role="hasMail">
+         <icon-svg>
+         <![CDATA[ 
+         	<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M21.0274 4H0.972591C0.437666 4 0 4.4497 0 4.99933V18.0007C0 18.5503 0.437666 19 0.972591 19H21.0274C21.5623 19 22 18.5503 22 18.0007V4.99933C22 4.4497 21.5721 4 21.0274 4Z" fill="#00A0DD" />
+        <path d="M22 18.0007V17.0213L11.3112 9.03665L0 17.481V18.0007C0 18.5503 0.437666 19 0.972591 19H21.0274C21.5721 19 22 18.5503 22 18.0007Z" fill="#168ACF" />
+        <path d="M11 13.9634L22 5.74883V4.99933C22 4.4497 21.5623 4 21.0274 4H0.972591C0.437666 4 0 4.4497 0 4.99933V5.74883L11 13.9634Z" fill="#00CBFF" />
+    </svg>
+    ]]>
+         </icon-svg>
+      </application>
+   </extension>
+</plugin>

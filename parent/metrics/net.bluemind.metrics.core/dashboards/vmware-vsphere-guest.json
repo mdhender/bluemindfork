@@ -1,0 +1,533 @@
+{
+	"id": 4,
+	"cells": [
+		{
+			"i": "12423c69-bc0b-4673-a77e-6397882bc2cb",
+			"x": 0,
+			"y": 4,
+			"w": 4,
+			"h": 4,
+			"name": "Mem swapped (MB)",
+			"queries": [
+				{
+					"query": "SELECT mean(\"value\") AS \"mean_value\" FROM \"telegraf\".\"autogen\".\"agent.vmware.swappedMB\" WHERE time \u003e :dashboardTime: GROUP BY time(:interval:), \"host\" FILL(null)",
+					"queryConfig": {
+						"database": "telegraf",
+						"measurement": "agent.vmware.swappedMB",
+						"retentionPolicy": "autogen",
+						"fields": [
+							{
+								"value": "mean",
+								"type": "func",
+								"alias": "mean_value",
+								"args": [
+									{
+										"value": "value",
+										"type": "field",
+										"alias": ""
+									}
+								]
+							}
+						],
+						"tags": {
+							
+						},
+						"groupBy": {
+							"time": "auto",
+							"tags": [
+								"host"
+							]
+						},
+						"areTagsAccepted": false,
+						"fill": "null",
+						"rawText": null,
+						"range": null,
+						"shifts": null
+					},
+					"source": "/chronograf/v1/sources/0"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"0",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "2",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "8cddc0ba-73a2-4754-b8c8-aba6afdb45fa",
+					"type": "scale",
+					"hex": "#31C0F6",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				},
+				{
+					"id": "ba952127-4e8f-4938-a8f8-9c6426799893",
+					"type": "scale",
+					"hex": "#A500A5",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				},
+				{
+					"id": "2f58aeec-74ce-4cf6-bdd7-2cd24372cee6",
+					"type": "scale",
+					"hex": "#FF7E27",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				}
+			],
+			"legend": {
+				
+			},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": false,
+				"digits": 3
+			},
+			"links": {
+				"self": "/chronograf/v1/dashboards/4/cells/12423c69-bc0b-4673-a77e-6397882bc2cb"
+			}
+		},
+		{
+			"i": "3720d5a3-3e2a-4c7e-8efc-07fd74a2b719",
+			"x": 4,
+			"y": 4,
+			"w": 4,
+			"h": 4,
+			"name": "Mem overhead (MB)",
+			"queries": [
+				{
+					"query": "SELECT mean(\"value\") AS \"mean_value\" FROM \"telegraf\".\"autogen\".\"agent.vmware.overheadMB\" WHERE time \u003e :dashboardTime: GROUP BY time(:interval:), \"host\" FILL(null)",
+					"queryConfig": {
+						"database": "telegraf",
+						"measurement": "agent.vmware.overheadMB",
+						"retentionPolicy": "autogen",
+						"fields": [
+							{
+								"value": "mean",
+								"type": "func",
+								"alias": "mean_value",
+								"args": [
+									{
+										"value": "value",
+										"type": "field",
+										"alias": ""
+									}
+								]
+							}
+						],
+						"tags": {
+							
+						},
+						"groupBy": {
+							"time": "auto",
+							"tags": [
+								"host"
+							]
+						},
+						"areTagsAccepted": false,
+						"fill": "null",
+						"rawText": null,
+						"range": null,
+						"shifts": null
+					},
+					"source": "/chronograf/v1/sources/0"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"0",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "2",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "8cddc0ba-73a2-4754-b8c8-aba6afdb45fa",
+					"type": "scale",
+					"hex": "#31C0F6",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				},
+				{
+					"id": "ba952127-4e8f-4938-a8f8-9c6426799893",
+					"type": "scale",
+					"hex": "#A500A5",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				},
+				{
+					"id": "2f58aeec-74ce-4cf6-bdd7-2cd24372cee6",
+					"type": "scale",
+					"hex": "#FF7E27",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				}
+			],
+			"legend": {
+				
+			},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": false,
+				"digits": 3
+			},
+			"links": {
+				"self": "/chronograf/v1/dashboards/4/cells/3720d5a3-3e2a-4c7e-8efc-07fd74a2b719"
+			}
+		},
+		{
+			"i": "17f1e091-64d9-4b90-ade6-6e2a5f09a786",
+			"x": 4,
+			"y": 0,
+			"w": 4,
+			"h": 4,
+			"name": "Stolen time (ms per sec)",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(max(\"totalTime\"),1s)/1000000 AS \"ms_stolen_per_sec\" FROM \"telegraf\".\"autogen\".\"agent.vmware.stolenTime\" WHERE time \u003e :dashboardTime: GROUP BY time(:interval:), \"host\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {
+							
+						},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(max(\"totalTime\"),1s)/1000000 AS \"ms_stolen_per_sec\" FROM \"telegraf\".\"autogen\".\"agent.vmware.stolenTime\" WHERE time \u003e :dashboardTime: GROUP BY time(:interval:), \"host\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "/chronograf/v1/sources/0"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "8cddc0ba-73a2-4754-b8c8-aba6afdb45fa",
+					"type": "scale",
+					"hex": "#31C0F6",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				},
+				{
+					"id": "ba952127-4e8f-4938-a8f8-9c6426799893",
+					"type": "scale",
+					"hex": "#A500A5",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				},
+				{
+					"id": "2f58aeec-74ce-4cf6-bdd7-2cd24372cee6",
+					"type": "scale",
+					"hex": "#FF7E27",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				}
+			],
+			"legend": {
+				
+			},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": false,
+				"digits": 3
+			},
+			"links": {
+				"self": "/chronograf/v1/dashboards/4/cells/17f1e091-64d9-4b90-ade6-6e2a5f09a786"
+			}
+		},
+		{
+			"i": "feaf7ed8-1f7c-44c9-94a6-e3d23f443a69",
+			"x": 0,
+			"y": 0,
+			"w": 4,
+			"h": 4,
+			"name": "Stolen Time (%)",
+			"queries": [
+				{
+					"query": "SELECT mean(\"value\") AS \"percent\" FROM \"telegraf\".\"autogen\".\"agent.vmware.stolenPercent\" WHERE time \u003e :dashboardTime: GROUP BY time(:interval:), \"host\" FILL(null)",
+					"queryConfig": {
+						"database": "telegraf",
+						"measurement": "agent.vmware.stolenPercent",
+						"retentionPolicy": "autogen",
+						"fields": [
+							{
+								"value": "mean",
+								"type": "func",
+								"alias": "percent",
+								"args": [
+									{
+										"value": "value",
+										"type": "field",
+										"alias": ""
+									}
+								]
+							}
+						],
+						"tags": {
+							
+						},
+						"groupBy": {
+							"time": "auto",
+							"tags": [
+								"host"
+							]
+						},
+						"areTagsAccepted": false,
+						"fill": "null",
+						"rawText": null,
+						"range": null,
+						"shifts": null
+					},
+					"source": "/chronograf/v1/sources/0"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "8cddc0ba-73a2-4754-b8c8-aba6afdb45fa",
+					"type": "scale",
+					"hex": "#31C0F6",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				},
+				{
+					"id": "ba952127-4e8f-4938-a8f8-9c6426799893",
+					"type": "scale",
+					"hex": "#A500A5",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				},
+				{
+					"id": "2f58aeec-74ce-4cf6-bdd7-2cd24372cee6",
+					"type": "scale",
+					"hex": "#FF7E27",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				}
+			],
+			"legend": {
+				
+			},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": false,
+				"digits": 3
+			},
+			"links": {
+				"self": "/chronograf/v1/dashboards/4/cells/feaf7ed8-1f7c-44c9-94a6-e3d23f443a69"
+			}
+		}
+	],
+	"templates": [],
+	"name": "VMWare vSphere guests",
+	"organization": "default",
+	"links": {
+		"self": "/chronograf/v1/dashboards/4",
+		"cells": "/chronograf/v1/dashboards/4/cells",
+		"templates": "/chronograf/v1/dashboards/4/templates"
+	}
+}

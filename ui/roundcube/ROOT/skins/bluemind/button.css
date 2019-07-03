@@ -1,0 +1,389 @@
+.goog-button-base-top-shadow {
+  display: none;
+}
+a.goog-button-base, a.goog-button-base:visited {
+  color: #333!important;
+  text-decoration: none;
+}
+
+a.dangerousactionbutton, a.dangerousactionbutton:visited {
+  color: #fff!important;
+  text-decoration: none;
+}
+
+a.goog-primaryactionbutton, a.goog-primaryactionbutton:visited {
+  color: #fff!important;
+  text-decoration: none;
+}
+
+.goog-button-base {
+  font-size: small;
+  border-radius: 2px;
+  -moz-border-radius: 2px;
+  -webkit-border-radius: 2px;
+  cursor: pointer;
+  display: inline-block !important;
+  text-align: center;
+  background-color: #e6e6e6;
+  background-repeat: no-repeat;
+  background-image: linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);
+  /* @alternate */ background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), color-stop(25%, #ffffff), to(#e6e6e6));
+  /* @alternate */ background-image: -webkit-linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);
+  /* @alternate */ background-image: -moz-linear-gradient(top, #ffffff, #ffffff 25%, #e6e6e6);
+  /* @alternate */ background-image: -ms-linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);
+  /* @alternate */ background-image: -o-linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#e6e6e6', GradientType=0);
+  padding: 3px 12px 4px;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+  color: #333!important;
+  line-height: normal;
+  border: 1px solid #ccc;
+  border-bottom-color: #bbb;
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+  -webkit-transition: 0.1s linear all;
+  -moz-transition: 0.1s linear all;
+  -ms-transition: 0.1s linear all;
+  -o-transition: 0.1s linear all;
+  transition: 0.1s linear all;
+  box-sizing:border-box;
+  -moz-box-sizing:border-box;
+  -webkit-box-sizing:border-box;
+}
+
+.goog-button-base-hover, .goog-button-base:hover {
+  background-position: 0 -15px;
+  text-decoration: none;
+}
+
+.goog-button-base-focused, .goog-button-base:focus {
+  outline: 1px dotted #666;
+}
+
+.goog-button-base-first {
+  -webkit-border-top-right-radius: 0px;
+  -webkit-border-bottom-right-radius: 0px;
+  -moz-border-radius-topright: 0px;
+  -moz-border-radius-bottomright: 0px;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+  border-right:none;
+  margin-right: 0;
+}
+.goog-button-base-middle {
+  border-radius: 0px;
+  -moz-border-radius: 0px;
+  -webkit-border-radius: 0px;
+  border-right:none;
+  margin-right: 0;
+  margin-left: 0;
+}
+
+select.goog-button-base {
+  padding: 0;
+}
+
+.goog-button-base-last {
+  -webkit-border-top-left-radius: 0px;
+  -webkit-border-bottom-left-radius: 0px;
+  -moz-border-radius-topleft: 0px;
+  -moz-border-radius-bottomleft: 0px;
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+  margin-left: 0;
+}
+
+.split-left {
+  margin-right:0;
+}
+
+.split-right {
+  margin-left:0;
+  padding-left:2px;
+  padding-right:2px;
+}
+
+.goog-primaryactionbutton {
+  color: #ffffff;
+  background-color: #0064CD;
+  background-repeat: repeat-x;
+  background-image: linear-gradient(top, #049CDB, #0064CD);
+  /* @alternate */ background-image: -khtml-gradient(linear, left top, left bottom, from(#049CDB), to(#0064CD));
+  /* @alternate */ background-image: -moz-linear-gradient(top, #049CDB, #0064CD);
+  /* @alternate */ background-image: -ms-linear-gradient(top, #049CDB, #0064CD);
+  /* @alternate */ background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #049CDB), color-stop(100%, #0064CD));
+  /* @alternate */ background-image: -webkit-linear-gradient(top, #049CDB, #0064CD);
+  /* @alternate */ background-image: -o-linear-gradient(top, #049CDB, #0064CD);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#049CDB', endColorstr='#0064CD', GradientType=0);
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  border-color: rgba(27, 82, 123, 0.1) rgba(27, 82, 123, 0.1) rgba(27, 82, 123, 0.25);
+}
+
+.dangerousactionbutton {
+  color: #FFF;
+  background-color: #C43C35;
+  background-repeat: repeat-x;
+  background-image: linear-gradient(top, #ee5f5b, #c43c35);
+  /* @alternate */ background-image: -khtml-gradient(linear, left top, left bottom, from(#ee5f5b), to(#c43c35));
+  /* @alternate */ background-image: -moz-linear-gradient(top, #ee5f5b, #c43c35);
+  /* @alternate */ background-image: -ms-linear-gradient(top, #ee5f5b, #c43c35);
+  /* @alternate */ background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ee5f5b), color-stop(100%, #c43c35));
+  /* @alternate */ background-image: -webkit-linear-gradient(top, #ee5f5b, #c43c35);
+  /* @alternate */ background-image: -o-linear-gradient(top, #ee5f5b, #c43c35);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ee5f5b', endColorstr='#c43c35', GradientType=0);
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  border-color: rgba(196, 60, 53, 0.1) rgba(196, 60, 53, 0.1) rgba(136, 42, 37, 0.25);
+}
+
+.goog-button-base-open, .goog-button-base-active, .goog-button-base:active {
+  -webkit-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25), 0 1px 2px rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25), 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25), 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.goog-button-base-disabled, .goog-button-base[disabled], .goog-button-base-disabled:active, .goog-button-base-disabled:focus {
+  cursor: default;
+  background-image: none;
+  outline: none;
+  background-color: #e6e6e6;
+  color: #888;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);  
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+  /* filter: alpha(opacity=65); */
+  -khtml-opacity: 0.65;
+  -moz-opacity: 0.65;
+  opacity: 0.65;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+}
+
+::root .goog-menu-button-dropdown {
+  line-height: normal;
+}
+
+.goog-button-base-disabled .goog-menu-button-dropdown, .goog-button-base[disabled] .goog-menu-button-dropdown {
+  color: #888 !important;
+}
+
+.goog-button-base .goog-menu-button-dropdown {
+}
+
+.goog-menu-button-dropdown-hack {
+  background: url(images/dropdown.png) no-repeat right;
+  padding-right: 15px;
+}
+
+.goog-primaryactionbutton .goog-menu-button-dropdown {
+  display: inline-block;
+  margin-left: 3px;
+  height: 15px;
+  width: 7px;
+  /* Client apps may override the URL at which they serve the sprite. */
+  background: url(images/editortoolbar-reverted.png) no-repeat -388px 0;
+  vertical-align: top;
+}
+
+.goog-link-button {
+  position: relative;
+  color: #00f;
+  cursor: pointer;
+}
+
+/* State: disabled. */
+.goog-link-button-disabled {
+  color: #888;
+  text-decoration: none;
+  cursor: default;
+}
+
+
+.goog-flat-menu-button {
+  background-color: #fff;
+  border: 1px solid #c9c9c9;
+  color: #333;
+  cursor: pointer;
+  font: normal 95%;
+  list-style: none;
+  margin: 0 2px;
+  outline: none;
+  padding: 1px 4px;
+  position: relative;
+  text-decoration: none;
+  vertical-align: middle;
+}
+
+.goog-flat-menu-button-disabled * {
+  border-color: #ccc;
+  color: #999;
+  cursor: default;
+}
+
+.goog-flat-menu-button-hover {
+  border-color: #9cf #69e #69e #7af !important; /* Hover border wins. */
+}
+
+.goog-flat-menu-button-active {
+  background-color: #bbb;
+  background-position: bottom left;
+}
+
+.goog-flat-menu-button-focused {
+  border-color: #bbb;
+}
+
+.goog-flat-menu-button-caption {
+  padding-right: 10px;
+  vertical-align: top;
+}
+
+.goog-flat-menu-button-dropdown {
+  /* Client apps may override the URL at which they serve the sprite. */
+  background: url(../images/editortoolbar.png) no-repeat -388px 0;
+  position: absolute;
+  right: 2px;
+  top: 0;
+  vertical-align: top;
+  width: 7px;
+}
+
+.goog-combo-button {
+  padding-right: 20px
+}
+
+
+.markdropbutton,
+.dropbutton {
+	display: inline-block;
+	position: relative;
+        vertical-align: middle;
+}
+.markdropbutton a,
+.dropbutton a {
+  padding-right: 28px;
+}
+
+.dropbutton .dropbuttontip {
+  display: block;
+  position: absolute;
+  right: 0;
+  top: 1px;
+  height: 23px;
+  width: 18px;
+  cursor: pointer;
+  border-left: 1px solid #DDD;
+}
+
+a.goog-button-base-last {
+  margin-left: -1px;
+}
+.dropbutton .dropbuttontip span.fa {
+  position:absolute;
+  top: 5px;
+  left: 5px;
+}
+
+.dropbutton a.button.disabled + .dropbuttontip {
+	opacity: 0.5;
+	filter: alpha(opacity=50);
+}
+
+.markdropbutton a.button,
+.dropbutton a.button {
+    margin-left: 0;
+    padding-left: 0;
+    margin-right: 0;
+    padding-right: 0;
+}
+
+
+.markdropbutton .dropbuttontip {
+  display: block;
+  position: absolute;
+  right: 0;
+  top: 2px;
+  height: 23px;
+  width: 24px;
+  cursor: pointer;
+}
+
+.markdropbutton .dropbuttontip span.fa {
+  position:absolute;
+  top: 5px;
+  left: 5px;
+}
+
+
+
+/* Pill (collapsed border) styles. */
+.goog-button-base-collapse-right,
+.goog-button-base-collapse-right .goog-button-base-outer-box,
+.goog-button-base-collapse-right .goog-button-base-inner-box {
+  margin-right: 0;
+  border-bottom-right-radius: 0;
+  -moz-border-bottom-right-radius: 0;
+  -webkit-border-bottom-right-radius: 0;  
+  border-top-right-radius: 0;
+  -moz-border-top-right-radius: 0;
+  -webkit-border-top-right-radius: 0;      
+
+}
+
+.goog-button-base-collapse-left,
+.goog-button-base-collapse-left .goog-button-base-outer-box,
+.goog-button-base-collapse-left .goog-button-base-inner-box {
+  margin-left: 0;
+  border-bottom-left-radius: 0;
+  -moz-border-bottom-left-radius: 0;
+  -webkit-border-bottom-left-radius: 0;  
+  border-top-left-radius: 0;
+  -moz-border-top-left-radius: 0;
+  -webkit-border-top-left-radius: 0;  
+}
+
+.goog-trash-button {
+  outline: none;
+  cursor: pointer;
+  margin-left: 1em;
+  margin-top: -8px;  
+}
+
+.goog-trash-button-lid {
+  position: absolute;
+  -webkit-transform-origin: -7% 100%;
+  -moz-transform-origin: -7% 100%;
+  transform-origin: -7% 100%;
+  height: 4px;
+  width: 11px;
+  cursor: pointer;
+  background: url(../images/trash.png) 0px 1px no-repeat;
+  margin-top: 3px;  
+  display: inline;
+}
+
+.goog-trash-button-can {
+  display: inline;
+  position: absolute;
+  height: 10px;
+  width: 11px;
+  margin-top: 7px;
+  cursor: pointer;
+  background: url(../images/trash.png) -0px -3px no-repeat;
+}
+
+.goog-trash-button-focus .goog-trash-button-lid,.goog-trash-button-hover> .goog-trash-button-lid {
+  -webkit-transition: -webkit-transform 200ms;
+  -webkit-transform: rotate(-45deg);
+  transition: transform 200ms;
+  -moz-transition: -moz-transform 200ms;
+  -moz-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+}
+.goog-flat-button {
+  position: relative;
+  /*width: 20ex;*/
+  cursor: pointer;
+  outline: none;
+  -moz-outline: none;
+}

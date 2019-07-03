@@ -1,0 +1,11 @@
+.photo {
+	cursor: pointer;
+	border: 1px solid #FFF;
+	width: 96px;
+	height: 96px;
+	margin-right: 5px;
+}
+
+.photo:hover {
+	border: 1px solid #24638F;
+}

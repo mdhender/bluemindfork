@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.webmodules.vue
+Bundle-SymbolicName: net.bluemind.webmodules.vue;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.bluemind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Web-Resources: web-resources
+Require-Bundle: io.vertx.core,
+ slf4j.api,
+ com.google.guava

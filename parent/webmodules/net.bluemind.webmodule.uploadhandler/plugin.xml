@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module-provider
+            module="*">
+         <handler
+               class="net.bluemind.webmodule.uploadhandler.internal.TemporaryUploadHandler"
+               path="tmpfileupload">
+         </handler>
+         <handler
+               class="net.bluemind.webmodule.uploadhandler.internal.TemporaryImageUploadAndCropHandler"
+               path="image/tmpcrop">
+         </handler>
+         <handler
+               class="net.bluemind.webmodule.uploadhandler.internal.TemporaryImageUploadHandler"
+               path="image/tmpupload">
+         </handler>
+      </web-module-provider>
+   </extension>
+
+</plugin>

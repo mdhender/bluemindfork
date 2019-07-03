@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.directory.handler" name="directoryHandler" schema="schema/net.bluemind.directory.handler.exsd"/>
+   <extension-point id="net.bluemind.directory.repairSupport" name="repairSupport" schema="schema/net.bluemind.directory.repairSupport.exsd"/>
+   <extension-point id="net.bluemind.directory.decorator" name="directoryDecorator" schema="schema/net.bluemind.directory.decorator.exsd"/>
+   <extension
+         point="net.bluemind.core.rest.apiEndpoint">
+      <endpoint
+            api="net.bluemind.directory.api.IDirectory">
+      </endpoint>
+      <endpoint
+            api="net.bluemind.directory.api.IOrgUnits">
+      </endpoint>
+      <endpoint
+            api="net.bluemind.directory.api.IDirEntryMaintenance">
+      </endpoint>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.serviceFactory">
+      <serviceFactory
+            class="net.bluemind.directory.service.DirectoryServiceFactory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.directory.service.OrgUnitsFactory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.directory.service.internal.InCoreDirectory$Factory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.directory.service.internal.DirEntryMaintenance$Factory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.directory.service.internal.DirEntryMaintenance$InternalFactory">
+      </serviceFactory>
+   </extension>
+   <extension
+         point="net.bluemind.core.validatorfactory">
+      <validatorfactory
+            implementation="net.bluemind.directory.service.internal.OrgUnitValidatorFactory"></validatorfactory>
+   </extension>
+   <extension
+         point="net.bluemind.core.caches.registry.registration">
+      <reg
+            impl="net.bluemind.directory.service.internal.DirEntriesCache$Registration">
+      </reg>
+   </extension>
+   <extension
+         point="net.bluemind.core.sanitizerfactory">
+      <sanitizerfactory
+            implementation="net.bluemind.directory.service.DirDomainValueSanitizer$Factory">
+      </sanitizerfactory>
+   </extension>
+      <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.directory.service.internal.DirectoryVerticle$Factory">
+      </verticle>
+      <verticle
+            impl="net.bluemind.directory.service.internal.DirNotificationsClusterProducer$Factory">
+      </verticle>
+   </extension>
+   <extension
+         point="net.bluemind.directory.handler">
+      <handler
+            class="net.bluemind.directory.service.internal.OrgUnitDirEntryHandler">
+      </handler>
+   </extension>
+   <extension
+         point="net.bluemind.user.hook.userhook">
+      <hook
+            impl="net.bluemind.directory.service.internal.OrgUnitUserHook">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.directory.decorator">
+      <decorator
+            impl="net.bluemind.directory.service.internal.I18nDirectory">
+      </decorator>
+   </extension>
+
+</plugin>

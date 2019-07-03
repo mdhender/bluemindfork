@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?xml-stylesheet href="chrome://global/skin/"?>
+<?xml-stylesheet href="chrome://messenger/content/bindings.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css" type="text/css" ?>
+<?xml-stylesheet href="chrome://bm/skin/style.css" type="text/css"?>
+<!DOCTYPE dialog SYSTEM "chrome://bm/locale/bm.dtd">
+<dialog id="bmVacation"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        buttons="accept,cancel"
+        onload="gBMVacation.init();"
+        ondialogaccept="return gBMVacation.onAccept();"
+        ondialogcancel=""
+        title="&bm.vacation.dialog.title;"
+        style="width: 40em; min-height: 31em;"
+        persist="screenX screenY">
+    <script type="application/x-javascript" src="chrome://bm/content/preferences/bmVacation.js"/>
+    <commandset>
+        <command id="cmd_radio_enable" oncommand="gBMVacation.vacEnabled(true);"/>
+        <command id="cmd_radio_disable" oncommand="gBMVacation.vacEnabled(false);"/>
+    </commandset>
+    <notificationbox id="errorNotificationBar" notificationside="top"/>
+    <radiogroup id="radios-vacation">
+        <radio id="disable-vacation" label="&bm.vacation.disable;" command="cmd_radio_disable"/>
+        <radio id="enable-vacation" label="&bm.vacation.enable;" command="cmd_radio_enable"/>
+    </radiogroup>
+    <spacer/>
+    <grid flex="1">
+        <columns>
+            <column/>
+            <column flex="1"/>
+        </columns>
+        <rows>
+            <row>
+                <label id="label-start" value="&bm.vacation.start;"/>
+                <hbox>
+                    <datepicker id="date-start" type="popup"/>
+                    <checkbox id="check-end" label="&bm.vacation.end;" onclick="document.getElementById('date-end').disabled = this.checked;"/>
+                    <datepicker id="date-end" type="popup"/>
+                </hbox>
+            </row>
+            <spacer/>
+            <row>
+                <label id="label-subject" value="&bm.vacation.subject;"/>
+                <textbox id="text-subject"/>
+            </row>
+            <row>
+                <label id="label-message" value="&bm.vacation.message;"/>
+                <textbox id="text-message" multiline="true" rows="10"/>
+            </row>
+        </rows>
+    </grid>
+</dialog>

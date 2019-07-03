@@ -1,0 +1,223 @@
+/* BEGIN LICENSE
+  * Copyright © Blue Mind SAS, 2012-2017
+  *
+  * This file is part of BlueMind. BlueMind is a messaging and collaborative
+  * solution.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of either the GNU Affero General Public License as
+  * published by the Free Software Foundation (version 3 of the License).
+  *
+  * This program is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  *
+  * See LICENSE.txt
+  * END LICENSE
+  */
+package net.bluemind.backend.mail.parsing;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.apache.james.mime4j.MimeException;
+import org.apache.james.mime4j.dom.Body;
+import org.apache.james.mime4j.dom.Header;
+import org.apache.james.mime4j.dom.Message;
+import org.apache.james.mime4j.dom.address.Address;
+import org.apache.james.mime4j.dom.address.Mailbox;
+import org.apache.james.mime4j.dom.field.ParsedField;
+import org.apache.james.mime4j.field.LenientFieldParser;
+import org.apache.james.mime4j.message.BasicBodyFactory;
+import org.apache.james.mime4j.message.BodyPart;
+import org.apache.james.mime4j.message.MessageImpl;
+import org.apache.james.mime4j.message.MultipartImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Throwables;
+
+import net.bluemind.backend.mail.api.MessageBody;
+import net.bluemind.backend.mail.api.MessageBody.Part;
+import net.bluemind.backend.mail.api.MessageBody.Recipient;
+import net.bluemind.backend.mail.replica.api.MailApiHeaders;
+import net.bluemind.config.InstallationId;
+import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.mime4j.common.Mime4JHelper;
+import net.bluemind.mime4j.common.Mime4JHelper.SizedStream;
+
+public class EmlBuilder {
+
+	private static final Logger logger = LoggerFactory.getLogger(EmlBuilder.class);
+
+	public static Message of(MessageBody mb, String owner) {
+
+		MessageImpl msg = new MessageImpl();
+		msg.setDate(mb.date);
+		BasicBodyFactory bbf = new BasicBodyFactory();
+		logger.info("******************* Building with subject {}", mb.subject);
+		msg.setSubject(mb.subject);
+		try {
+			fillHeader(msg.getHeader(), mb.headers);
+		} catch (MimeException e1) {
+			logger.error(e1.getMessage(), e1);
+		}
+		setRecipients(msg, mb.recipients);
+
+		Part structure = mb.structure;
+		try {
+			Body body = createBody(bbf, mb.structure, owner);
+			if (body instanceof MultipartImpl) {
+				msg.setMultipart((MultipartImpl) body);
+			} else {
+				msg.setBody(body, structure.mime);
+			}
+
+		} catch (IOException e) {
+			msg.setBody(bbf.textBody("CRAP: " + e.getMessage(), StandardCharsets.UTF_8));
+		}
+
+		return msg;
+	}
+
+	private static void setRecipients(MessageImpl msg, List<Recipient> recipients) {
+		Mailbox from = null;
+		Mailbox sender = null;
+		List<Address> to = new LinkedList<>();
+		List<Address> cc = new LinkedList<>();
+		List<Address> bcc = new LinkedList<>();
+		for (Recipient r : recipients) {
+			String[] split = r.address.split("@");
+			String local = split[0];
+			String dom = split[1];
+			Mailbox cur = new Mailbox(local, dom);
+			switch (r.kind) {
+			case BlindCarbonCopy:
+				bcc.add(cur);
+				break;
+			case CarbonCopy:
+				cc.add(cur);
+				break;
+			case Originator:
+				from = cur;
+				break;
+			case Primary:
+				to.add(cur);
+				break;
+			case Sender:
+				sender = cur;
+				break;
+			}
+		}
+		msg.setFrom(from);
+		if (sender != null) {
+			msg.setSender(sender);
+		}
+		if (!to.isEmpty()) {
+			msg.setTo(to);
+		}
+		if (!cc.isEmpty()) {
+			msg.setCc(cc);
+		}
+		if (!bcc.isEmpty()) {
+			msg.setBcc(bcc);
+		}
+	}
+
+	private static Body createBody(BasicBodyFactory bbf, Part structure, String owner) throws IOException {
+		Body body = null;
+		if (structure.children.isEmpty()) {
+			switch (structure.mime) {
+			case "text/plain":
+			case "text/html":
+				body = bbf.textBody(inputStream(null, null, null, structure, owner).input, "utf-8");
+				break;
+			default:
+				body = bbf.binaryBody(inputStream(null, null, null, structure, owner).input);
+			}
+		} else {
+			// multipart
+			MultipartImpl mp = new MultipartImpl(structure.mime.substring("multipart/".length()));
+			for (Part p : structure.children) {
+				logger.info("Adding part {}", p.mime);
+				Body childBody = createBody(bbf, p, owner);
+				BodyPart bp = new BodyPart();
+				if (childBody instanceof MultipartImpl) {
+					bp.setMultipart((MultipartImpl) childBody);
+				} else {
+					bp.setBody(childBody, p.mime);
+				}
+				Header partHeader = bp.getHeader();
+				try {
+					fillHeader(partHeader, p.headers);
+				} catch (MimeException e) {
+					logger.error(e.getMessage(), e);
+				}
+				mp.addBodyPart(bp);
+			}
+			body = mp;
+		}
+		return body;
+	}
+
+	private static void fillHeader(Header partHeader, List<net.bluemind.backend.mail.api.MessageBody.Header> headers)
+			throws MimeException {
+		for (net.bluemind.backend.mail.api.MessageBody.Header h : headers) {
+			if (h.name.equals("Content-Type")) {
+				continue;
+			}
+			if (h.values.size() == 1) {
+				ParsedField parsed = LenientFieldParser.parse(h.name + ": " + h.values.get(0));
+				partHeader.addField(parsed);
+			} else {
+				logger.warn("Skipping multivalued {}", h.name);
+			}
+		}
+	}
+
+	public static SizedStream inputStream(Long id, String previousBody, Date date, Part structure, String owner) {
+		File emlInput = new File(Bodies.STAGING, structure.address + ".part");
+		if (!emlInput.exists()) {
+			throw ServerFault.notFound("Missing staging file " + emlInput.getAbsolutePath());
+		}
+		if (id == null) {
+			try {
+				InputStream input = Files.newInputStream(emlInput.toPath(), StandardOpenOption.READ);
+				SizedStream ss = new SizedStream();
+				ss.input = input;
+				ss.size = (int) emlInput.length();
+				return ss;
+			} catch (IOException e) {
+				throw Throwables.propagate(e);
+			}
+		}
+		try (InputStream in = new FileInputStream(emlInput)) {
+			Message asMessage = Mime4JHelper.parse(in);
+			net.bluemind.backend.mail.api.MessageBody.Header idHeader = net.bluemind.backend.mail.api.MessageBody.Header
+					.create(MailApiHeaders.X_BM_INTERNAL_ID, owner + "#" + InstallationId.getIdentifier() + ":" + id);
+			List<net.bluemind.backend.mail.api.MessageBody.Header> toAdd = Arrays.asList(idHeader);
+			if (previousBody != null) {
+				net.bluemind.backend.mail.api.MessageBody.Header prevHeader = net.bluemind.backend.mail.api.MessageBody.Header
+						.create(MailApiHeaders.X_BM_PREVIOUS_BODY, previousBody);
+				toAdd = Arrays.asList(idHeader, prevHeader);
+			}
+			asMessage.setDate(date);
+			fillHeader(asMessage.getHeader(), toAdd);
+			return Mime4JHelper.asSizedStream(asMessage);
+		} catch (IOException e) {
+			throw Throwables.propagate(e);
+		} catch (MimeException e) {
+			throw Throwables.propagate(e);
+		}
+	}
+
+}

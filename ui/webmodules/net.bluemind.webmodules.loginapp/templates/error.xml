@@ -1,0 +1,24 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<title>Welcome to Blue Mind</title>
+
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<link rel="stylesheet" href="/templates/screen.css" type="text/css" />
+	</head>
+	<body>
+		<div id='sso-body'>
+			<img id="logo" src="images/logo-bluemind.png" alt="BlueMind" />
+			<br/> <br/> <br/>
+			<b>${error_nb}.</b> <i>That's an error.</i>
+			<br/> <br/>
+			<ul class="form-errors">
+				<li>
+					<ul class="errors">
+						<li>${error_desc}</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+	</body>
+</html>

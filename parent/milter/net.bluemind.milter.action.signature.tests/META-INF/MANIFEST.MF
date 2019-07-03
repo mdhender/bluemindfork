@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.milter.action.signature.tests
+Bundle-SymbolicName: net.bluemind.milter.action.signature.tests;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.bluemind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.junit,
+ net.bluemind.milter.action.signature,
+ org.apache.james.apache-mime4j-dom,
+ net.bluemind.milter,
+ org.mockito.mockito-all;bundle-version="2.0.2",
+ net.bluemind.mailflow.rbe,
+ net.bluemind.addressbook.api,
+ net.bluemind.mime4j.common,
+ net.bluemind.signature.commons

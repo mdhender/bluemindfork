@@ -1,0 +1,16 @@
+dn: cn=grptest00,dc=local
+objectClass: qmailGroup
+objectClass: inetLocalMailRecipient
+objectClass: bmGroup
+objectClass: top
+objectClass: posixGroup
+cn: grptest00
+gidNumber: 10001
+description: Test group 01
+mailMessageStore: fake
+mail: grptest00@memberof.virt
+mail: allaliases
+mailLocalAddress: grptest00@memberof-alias.virt
+mailLocalAddress: grptest00.alias01@memberof.virt
+mailLocalAddress: grptest00.alias02@invalid-domain-alias.virt
+mailAlternateAddress: must be ignore

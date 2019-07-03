@@ -1,0 +1,51 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:bj="urn:import:net.bluemind.ui.admin.client" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui" xmlns:common="urn:import:net.bluemind.ui.admin.client.forms">
+
+	<ui:with field="c"
+		type="net.bluemind.ui.adminconsole.system.domains.l10n.DomainConstants" />
+
+
+	<g:HTMLPanel>
+		<f:FieldSetPanel name="{c.definition}" />
+		<table border="0">
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.name}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:TextBox readOnly="true" width="400px" ui:field="name" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.description}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:TextArea visibleLines="3" width="400px" ui:field="description" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.language}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<g:ListBox visibleItemCount="1" width="400px" ui:field="language" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:200px'>
+					<g:Label text="{c.aliases}:"></g:Label>
+				</td>
+				<td style='width:400px'>
+					<common:MultiStringEditContainer width="400px" ui:field="aliases" />
+				</td>
+			</tr>
+		</table>
+		
+	</g:HTMLPanel>
+
+</ui:UiBinder>

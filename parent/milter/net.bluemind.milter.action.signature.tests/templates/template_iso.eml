@@ -1,0 +1,302 @@
+Delivered-To: tommi.fricker@gmail.com
+Received: by 10.157.33.34 with SMTP id i31csp428860otb;
+        Wed, 20 Sep 2017 02:53:54 -0700 (PDT)
+X-Google-Smtp-Source: AOwi7QAMq2Y1U6Q+Cy19rJWWHGhVe7mzcETMKlUMMT+ZqXnF8tzBC32R0G5lbqONEf+IrvKXSp6f
+X-Received: by 10.28.52.8 with SMTP id b8mr695540wma.134.1505901234884;
+        Wed, 20 Sep 2017 02:53:54 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1505901234; cv=none;
+        d=google.com; s=arc-20160816;
+        b=CknrvppYnZ+JCSRUSNF+kYIC6LRpiWrC5Mi3R8pCEwHTJglcCz610SrAXKyxxKOApE
+         gNNJ3/uJVBpNWfU1ySkaMRv9aEKTh7PjzU9DfHQhxDz6nmMvkDLxlp43/ifdbgILBm2V
+         PxZGNQh6Mh+uJXWH2893NPfb+qXuQWbGwcdjBPF5scg5onDcdjPia59bcS7xI/TTxRZ+
+         9N5KTLW7QEImIPkbXfE72r4tbIvC3FsWlmstxrnGCr260cNF5Qq8FfuXMDDFbUXhyhCe
+         Ydtg87c+xuBinFYjE0Qxe47YaicJASMA9u07neXbSNm4EP2hsASUP/Hslqg2LkB6OMh2
+         MZzg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=content-language:thread-index:mime-version:message-id:date:subject
+         :to:from:arc-authentication-results;
+        bh=TKl92nMv5WT5S1NdtTjV9LS8+KuWdS8ITT6e4v876A8=;
+        b=sUdM2MNqIcBobWgWYJihZY/i2Y0EaBqT/e86p2Sosyjn0G2IwmSGhfGSFg4FgTWpmt
+         gidSNEmQyzbVCUPqlYMue09YzLcrzrBJtQ18PQzEx08HV8Aeqfwvd8JVeRUnaaL0c7sK
+         HS8jon8KCfkkHHGQyHH01jsY2yCjp40UKLGVYgG4U2reS2qDWRravoL+Xn74vHv5o3af
+         Qv3uqEhKHSJATBfsmmU1NA0AIcJC6k9BSlQ4As3/exUkB6fKCEprddSIcpBtZRqQiD99
+         kF/n4Ihnr8p4s0OUtdfPs9LCRk5zzhPBFPHkYSwFIGPIPkv2odIIh7fBFGIgIMvXbTHo
+         tmbg==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: domain of stephanie.marcet@bluemind.net designates 93.93.41.59 as permitted sender) smtp.mailfrom=stephanie.marcet@bluemind.net
+Return-Path: <stephanie.marcet@bluemind.net>
+Received: from smtp.blue-mind.net (smtp.bluemind.net. [93.93.41.59])
+        by mx.google.com with ESMTPS id 94si1164871wre.467.2017.09.20.02.53.54
+        for <tommi.fricker@gmail.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 20 Sep 2017 02:53:54 -0700 (PDT)
+Received-SPF: pass (google.com: domain of stephanie.marcet@bluemind.net designates 93.93.41.59 as permitted sender) client-ip=93.93.41.59;
+Authentication-Results: mx.google.com;
+       spf=pass (google.com: domain of stephanie.marcet@bluemind.net designates 93.93.41.59 as permitted sender) smtp.mailfrom=stephanie.marcet@bluemind.net
+Received: from StephaniePC (unknown [192.168.31.107])
+	(Authenticated sender: stephanie.marcet@bluemind.net)
+	by smtp.blue-mind.net (Postfix) with ESMTPSA id F0C298007
+	for <tommi.fricker@googlemail.com>; Wed, 20 Sep 2017 11:53:53 +0200 (CEST)
+From: =?iso-8859-1?Q?St=E9phanie_Marcet?= <stephanie.marcet@bluemind.net>
+To: <tommi.fricker@googlemail.com>
+Subject: mutuelle
+Date: Wed, 20 Sep 2017 11:53:55 +0200
+Message-ID: <007b01d331f6$5f59e8c0$1e0dba40$@bluemind.net>
+MIME-Version: 1.0
+Content-Type: multipart/related;
+	boundary="----=_NextPart_000_007C_01D33207.22E43F60"
+X-Mailer: Microsoft Outlook 14.0
+Thread-Index: AdMx9kwiMDHd2giSS/mE9gKf13WiKQ==
+Content-Language: fr
+
+This is a multipart message in MIME format.
+
+------=_NextPart_000_007C_01D33207.22E43F60
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_001_007D_01D33207.22E43F60"
+
+
+------=_NextPart_001_007D_01D33207.22E43F60
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+Bonjour,
+
+=20
+
+Vous trouverez en salle de pause deux d=E9pliants concernant votre =
+mutuelle.=20
+
+=20
+
+-Activer votre espace client : si vous ne l=92avez pas d=E9j=E0 fait, il =
+est
+n=E9cessaire de cr=E9er son compte sur l=92espace g=E9n=E9rali.=20
+
+Il pourra vous servir en cas de demande de remboursements de frais =
+(osth=E9o,
+frais m=E9dicaux,=85) envoi de documents, suivre vos remboursements,=85=20
+
+Pour cela, vous devez cr=E9er un compte avec vos identifiants (le code
+adh=E9rent se trouve sur votre carte mutuelle)
+
+=20
+
+-Nouveau Programme Vitaly (facultatif) : programme de pr=E9vention ayant =
+pour
+but d=92am=E9liorer la qualit=E9 de vie.=20
+
+En plus d=92am=E9liorer votre qualit=E9 de vie, vous pourrez =
+b=E9n=E9ficier de
+r=E9ductions dans certains magasins et sur des produits visant =E0 =
+am=E9liorer
+votre quotidien J et =E7a c=92est g=E9niaaaaal !!
+
+=20
+
+=20
+
+Il n=92y a pas assez de d=E9pliants pour tout le monde, alors merci de =
+ne pas
+les jeter apr=E8s en avoir pris connaissance !=20
+
+=20
+
+Je suis =E0 votre =E9coute si vous avez des questions,
+
+=20
+
+Bonne journ=E9e
+
+=20
+
+=20
+
+----
+
+St=E9phanie MARCET
+
+T=E9l : +33 (0)5 81 91 55 60=20
+
+www.bluemind.net <http://www.bluemind.net/> =20
+
+BlueMind, Messagerie & Espaces collaboratifs
+
+logoBM_150
+
+=20
+
+=20
+
+=20
+
+
+------=_NextPart_001_007D_01D33207.22E43F60
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
+xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" =
+xmlns=3D"http://www.w3.org/TR/REC-html40"><head><meta name=3D"Generator" =
+content=3D"Microsoft Word 14 (filtered medium)"><!--[if =
+!mso]><style>v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+w\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+</style><![endif]--><style><!--
+/* Font Definitions */
+@font-face
+	{font-family:Helvetica;
+	panose-1:2 11 6 4 2 2 2 2 2 4;}
+@font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;}
+@font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:Tahoma;
+	panose-1:2 11 6 4 3 5 4 4 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";
+	mso-fareast-language:EN-US;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:purple;
+	text-decoration:underline;}
+p.MsoAcetate, li.MsoAcetate, div.MsoAcetate
+	{mso-style-priority:99;
+	mso-style-link:"Texte de bulles Car";
+	margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:8.0pt;
+	font-family:"Tahoma","sans-serif";
+	mso-fareast-language:EN-US;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:"Calibri","sans-serif";
+	color:windowtext;}
+span.TextedebullesCar
+	{mso-style-name:"Texte de bulles Car";
+	mso-style-priority:99;
+	mso-style-link:"Texte de bulles";
+	font-family:"Tahoma","sans-serif";}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-family:"Calibri","sans-serif";
+	mso-fareast-language:EN-US;}
+@page WordSection1
+	{size:612.0pt 792.0pt;
+	margin:70.85pt 70.85pt 70.85pt 70.85pt;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]--></head><body lang=3D"FR" link=3D"blue" =
+vlink=3D"purple"><div class=3D"WordSection1"><p =
+class=3D"MsoNormal">Bonjour,<o:p></o:p></p><p =
+class=3D"MsoNormal"><o:p>&nbsp;</o:p></p><p class=3D"MsoNormal">Vous =
+trouverez en salle de pause&nbsp;deux d=E9pliants concernant votre =
+mutuelle. <o:p></o:p></p><p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p><p =
+class=3D"MsoNormal">-Activer votre espace client&nbsp;: si vous ne =
+l&#8217;avez pas d=E9j=E0 fait, il est n=E9cessaire de cr=E9er son =
+compte sur l&#8217;espace g=E9n=E9rali. <o:p></o:p></p><p =
+class=3D"MsoNormal">Il pourra vous servir en cas de demande de =
+remboursements de frais (osth=E9o, frais m=E9dicaux,&#8230;) envoi de =
+documents, suivre vos remboursements,&#8230; <o:p></o:p></p><p =
+class=3D"MsoNormal">Pour cela, vous devez cr=E9er un compte avec vos =
+identifiants (le code adh=E9rent se trouve sur votre carte =
+mutuelle)<o:p></o:p></p><p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p><p =
+class=3D"MsoNormal">-Nouveau Programme Vitaly&nbsp;(facultatif) : =
+programme de pr=E9vention ayant pour but d&#8217;am=E9liorer la =
+qualit=E9 de vie. <o:p></o:p></p><p class=3D"MsoNormal">En plus =
+d&#8217;am=E9liorer votre qualit=E9 de vie, vous pourrez b=E9n=E9ficier =
+de r=E9ductions dans certains magasins et sur des produits visant =E0 =
+am=E9liorer votre quotidien&nbsp;<span =
+style=3D'font-family:Wingdings'>J</span> et =E7a c&#8217;est =
+g=E9niaaaaal&nbsp;!!<o:p></o:p></p><p =
+class=3D"MsoNormal"><o:p>&nbsp;</o:p></p><p =
+class=3D"MsoNormal"><o:p>&nbsp;</o:p></p><p class=3D"MsoNormal">Il =
+n&#8217;y a pas assez de d=E9pliants pour tout le monde, alors merci de =
+ne pas les jeter apr=E8s en avoir pris connaissance&nbsp;! =
+<o:p></o:p></p><p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p><p =
+class=3D"MsoNormal">Je suis =E0 votre =E9coute si vous avez des =
+questions,<o:p></o:p></p><p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p><p =
+class=3D"MsoNormal">Bonne journ=E9e<o:p></o:p></p><p =
+class=3D"MsoNormal"><o:p>&nbsp;</o:p></p><p =
+class=3D"MsoNormal"><o:p>&nbsp;</o:p></p><p class=3D"MsoNormal"><span =
+style=3D'font-family:"Courier =
+New";mso-fareast-language:FR'>----<o:p></o:p></span></p><p =
+class=3D"MsoNormal"><span style=3D'font-family:"Courier =
+New";mso-fareast-language:FR'>St=E9phanie MARCET<o:p></o:p></span></p><p =
+class=3D"MsoNormal"><span style=3D'font-size:10.0pt;font-family:"Courier =
+New";mso-fareast-language:FR'>T=E9l : +33 (0)5 81 91 55 60 =
+<o:p></o:p></span></p><p class=3D"MsoNormal"><span =
+style=3D'font-size:10.0pt;font-family:"Courier =
+New";mso-fareast-language:FR'><a =
+href=3D"http://www.bluemind.net/">www.bluemind.net</a> =
+<o:p></o:p></span></p><p class=3D"MsoNormal"><span =
+style=3D'mso-fareast-language:FR'>BlueMind, Messagerie &amp; Espaces =
+collaboratifs</span><span style=3D'font-family:"Courier =
+New";mso-fareast-language:FR'><o:p></o:p></span></p><p =
+class=3D"MsoNormal"><span =
+style=3D'font-size:9.0pt;font-family:"Helvetica","sans-serif";color:black=
+;mso-fareast-language:FR'><img border=3D"0" width=3D"150" height=3D"50" =
+id=3D"Image_x0020_1" src=3D"cid:image001.png@01D33207.229C60F0" =
+alt=3D"logoBM_150"></span><span style=3D'font-family:"Courier =
+New";mso-fareast-language:FR'><o:p></o:p></span></p><p =
+class=3D"MsoNormal"><span style=3D'font-size:10.0pt;font-family:"Courier =
+New";mso-fareast-language:FR'><o:p>&nbsp;</o:p></span></p><p =
+class=3D"MsoNormal"><span =
+style=3D'mso-fareast-language:FR'><o:p>&nbsp;</o:p></span></p><p =
+class=3D"MsoNormal"><o:p>&nbsp;</o:p></p></div></body></html>
+------=_NextPart_001_007D_01D33207.22E43F60--
+
+------=_NextPart_000_007C_01D33207.22E43F60
+Content-Type: image/png;
+	name="image001.png"
+Content-Transfer-Encoding: base64
+Content-ID: <image001.png@01D33207.229C60F0>
+
+iVBORw0KGgoAAAANSUhEUgAAAJYAAAAyCAMAAACJUtIoAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJ
+bWFnZVJlYWR5ccllPAAAAMNQTFRFAC9rEDx0ALboELvpFrvqC7npIEl+MFaHIL/rMMTsLMDrQGOQ
+UHCZQMjuUM3vWMvvYH2jf5e1cIqsf9rzcNbyctPxYdDwY83vYNHxbtDwd9Xyj6S+n7HHhNXyj9/1
+gtjzn9z0n+T2r77Rv8vasN/1pdz0v+X3uuP2teH2r+j4v+35uuv5q+X3z9jjyen41+/6xOf4zuv5
+0+353PH7z/H73+Xsy+763/b86/f84fP79fv++v3+8Pn95vX87/r+7/L2////ntUV5AAAA19JREFU
+WMPt2G1/mjAQAHCgFtqhG2i3dYPuQWh92CjalRWhlXz/T7XLXYKoQdnWX8sL8gIT5Cd/L/G4qLFW
+Nq1jdayO1bH+npXertrHym7DMLxJ28XK45DabdYi1moSli3OW8JKF+iZxoSbrFrBWlKU7iBKv6bY
+XWQtYJHkkc3ORyy/w1HaDtbkid0PDMM4m7HHRXtY8frCoDa4T3dYScBbQoPAdd36z4brIupF0C1Y
+Alcnqgt91/UbsN6fGGX7cL3NcjVsulOIwYGvDK3Angm9gAV4VDRb0+yjrKsees6+DPD19KOKpWlW
+0YSFUYi0/2ZlbyhKozVj3ylqvd8qluY0YTm84xErsm07+icWpHeUvH3A4XqEo6tKsieJD0dTDhJc
+Q3zRydUXlSyddyxiFbjC8Jh4frk8o6OsFSQqYJzPyzMPbzmrkuxFgBx8ceXR3kRuyA39QrC0MTi1
+6iTy41AHMLzDCi52DrOyG56k+ARWTs6JFU7TXZalZDk0w0PJcsQcbrGwmTR91A6w0vAAK4wrrILf
+yVWx+E1NHoJEsHR57y2WLVYb8hqwbjIF68dym1V+v30WBMssChPRdF1UaHssDyMYMPp23nFWzBSs
+eapgjZUsC+dviGd4rGDoU0CqLHl0KbM9J4vffp/F7+C6tmTx4PXh0hqWjSv0yC+xMQsSJC0fJauc
+Yz5DmBv0oJ5lN2ddVE7OlCxcrH4DFv4KnedhGZcP4tR6dFLPcjesMlmYlBtkOnUxZ43rWEP6ML0h
+yziheZyd4WiflVi46EsWLFxH/hJ1WMR+IFj8N6Cz4MCS9/GRcZQlKFBr3Q8kUbnk4fYbloVpVOQt
+WPKmZHk8o9axeMx1W2+QTpc5G9ET+pye2ZdrFk9VLF+Gblyegvf7ousJVsKjWseip2WjLD+N2fqy
+LLcGc/ZEW40dlhVsFhqn6H3qF+TqF4LFLJ3VsyIeKevIo1psxCYp+0nlTe8ry+Q+KK9Wp6I8lVUD
+lJdJWUFEUIRGojqFyxLoV2qHrSO860FhGpVlrLqCyGPa6wDvU884fXcdih3j8oU3P7tVXLaU+9br
+z99kd/Hie4z94jLF8ob//4D/Q8D8vcL+VVXzQjEoKJz4Krt9FYvlq5Kyep3/RjTWytaxOlbH6lgd
+61naH306FfQmHchDAAAAAElFTkSuQmCC
+
+------=_NextPart_000_007C_01D33207.22E43F60--
+

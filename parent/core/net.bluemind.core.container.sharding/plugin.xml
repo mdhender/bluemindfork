@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension-point id="net.bluemind.core.container.sharding.sharded" name="sharded" schema="schema/net.bluemind.core.container.sharding.sharded.exsd"/>
+
+</plugin>

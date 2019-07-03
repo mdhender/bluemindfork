@@ -1,0 +1,275 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true' xmlns:s="urn:import:net.bluemind.ui.adminconsole.system.subscription" xmlns:d="urn:import:com.google.gwt.dom.client">
+
+	<ui:style>
+	
+	h1 {
+		font-size: medium;
+		color: #444;
+	}
+	
+	h1 div {
+		display: inline;
+	}
+	
+	.logo {
+		vertical-align: middle;
+	}
+	
+	#licenseInfo {
+		height: 20px;
+	}
+	
+	.licenceInformation {
+		background-color: #DDF4FB;
+		border: 1px solid #C6EDF9;
+		padding: 6px;
+		border-radius: 3px;
+		-webkit-border-radius: 3px;
+		-moz-border-radius: 3px;
+		margin-bottom: 3em;
+		border-collapse: separate;
+	}
+	
+	#license {
+		width: 100%;
+	}
+	
+	.inputUpload {
+		border: none;
+	}
+	
+	.delete {
+		vertical-align: top;
+		font-size: small;
+		border: 1px solid #660404;
+		color: #FFFFFF;
+		background-color: #C43C35;
+		text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+		border-color: rgba(196, 60, 53, 0.1) rgba(196, 60, 53, 0.1)
+			rgba(136, 42, 37, 0.25);
+		background-image: -moz-linear-gradient(top, #EE5F5B, #C43C35);
+		background-image: -ms-linear-gradient(top, #EE5F5B, #C43C35);
+		background-image: -webkit-linear-gradient(top, #EE5F5B, #C43C35);
+		background-image: -o-linear-gradient(top, #EE5F5B, #C43C35);
+		background-image: linear-gradient(top, #EE5F5B, #C43C35);
+	}
+	
+	.delete[disabled] {
+		background-color: #a41818;
+		border: 1px solid #660404;
+	}
+	
+	.kindError {
+		background-color: red;
+	}
+	
+	.subscriptionPostInstallInformations {
+		margin-bottom: 30px;
+	}
+	
+	.noSubContact {
+		color: red;
+		font-weight: bold;
+	}
+
+	.prependedText {
+		vertical-align: top;
+		background-color: whiteSmoke;
+		color: #666;
+		border: 1px solid #CCC;
+		border-right: none;
+		border-radius: 3px 0px 0px 3px;
+		padding: 6px 2px 0px;
+		display: inline-block;
+		height: 20px;
+		max-width: 35%;
+	}
+	
+	.textBox {
+		vertical-align: top;
+		max-width: 45%;
+		border-radius: 3px 0 0 3px;
+		height: 16px;
+		line-height: 15px;
+		padding: 5px 0;
+	}
+	
+	.listBox {
+		max-width: 45%;
+		height: 27px;
+		border-radius: 0 3px 3px 0;
+	}
+	
+	.defaultListBox {
+		height: 28px;
+		border-radius: 0 3px 3px 0;
+		max-width: 45%;
+	}
+	
+	.contactPanel {
+		margin-top: 30px;
+	}
+	</ui:style>
+
+	<ui:with field="ilc"
+		type="net.bluemind.ui.adminconsole.system.subscription.l10n.InstallLicenseConstants" />
+
+	<g:DockLayoutPanel unit='EM'>
+		<g:north size="4.5">
+			<g:HTMLPanel>
+				<div>
+					<h1 id="installLicenseTitle">
+						<i class="fa fa-lg fa-key" />
+						<g:Label text="{ilc.title}" />
+					</h1>
+				</div>
+			</g:HTMLPanel>
+		</g:north>
+
+		<g:center>
+			<g:VerticalPanel>
+				<g:VerticalPanel ui:field="messagesTable">
+				</g:VerticalPanel>
+				<g:Grid ui:field="licenceInformation" styleName="{style.licenceInformation}">
+					<g:row>
+						<g:customCell>
+							<g:Label text="{ilc.subscriptionIdentifier}">
+							</g:Label>
+						</g:customCell>
+						<g:customCell>
+							<g:Label ui:field="subscriptionIdentifier"></g:Label>
+						</g:customCell>
+					</g:row>
+
+					<g:row>
+						<g:customCell>
+							<g:Label text="{ilc.lic_signed_customer}">
+							</g:Label>
+						</g:customCell>
+						<g:customCell>
+							<g:Label ui:field="customer"></g:Label>
+						</g:customCell>
+					</g:row>
+
+					<g:row></g:row>
+
+					<g:row>
+						<g:customCell>
+							<g:Label text="{ilc.bmVersion}">
+							</g:Label>
+						</g:customCell>
+						<g:customCell>
+							<g:Label ui:field="bmVersion"></g:Label>
+						</g:customCell>
+					</g:row>
+
+					<g:row></g:row>
+
+					<g:row>
+						<g:customCell>
+							<g:Label text="{ilc.subscriptionMaxAccounts}">
+							</g:Label>
+						</g:customCell>
+						<g:customCell>
+							<g:Label ui:field="maxAccounts">
+							</g:Label>
+						</g:customCell>
+					</g:row>
+
+					<g:row>
+						<g:customCell>
+							<g:Label text="{ilc.installationAccounts}">
+							</g:Label>
+						</g:customCell>
+						<g:customCell>
+							<g:Label ui:field="accounts">
+							</g:Label>
+						</g:customCell>
+					</g:row>
+
+
+					<g:row>
+						<g:customCell>
+							<g:Label ui:field="maxSimpleAccountsLabel" text="{ilc.subscriptionMaxSimpleAccounts}" visible="false">
+							</g:Label>
+						</g:customCell>
+						<g:customCell>
+							<g:Label ui:field="maxSimpleAccounts" visible="false">
+							</g:Label>
+						</g:customCell>
+					</g:row>
+
+					<g:row>
+						<g:customCell>
+							<g:Label ui:field="simpleAccountsLabel" text="{ilc.installationSimpleAccounts}" visible="false">
+							</g:Label>
+						</g:customCell>
+						<g:customCell>
+							<g:Label ui:field="simpleAccounts" visible="false">
+							</g:Label>
+						</g:customCell>
+					</g:row>
+
+					<g:row></g:row>
+
+
+					<g:row>
+						<g:customCell>
+							<g:Label text="{ilc.subscriptionStarts}">
+							</g:Label>
+						</g:customCell>
+						<g:customCell>
+							<g:Label ui:field="subscriptionStarts">
+							</g:Label>
+						</g:customCell>
+					</g:row>
+
+					<g:row>
+						<g:customCell>
+							<g:Label text="{ilc.subscriptionEnds}">
+							</g:Label>
+						</g:customCell>
+						<g:customCell>
+							<g:Label ui:field="subscriptionEnds">
+							</g:Label>
+						</g:customCell>
+					</g:row>
+
+				</g:Grid>
+
+				<g:HorizontalPanel>
+					<g:HTML ui:field="subscriptionPostInstallInformations"
+						visible="false" styleName="{style.subscriptionPostInstallInformations}">
+					</g:HTML>
+				</g:HorizontalPanel>
+
+				<g:HorizontalPanel>
+					<g:FormPanel ui:field="uploadFormPanel">
+						<g:HTMLPanel>
+							<g:FileUpload ui:field="uploadLicenseFile" title="Photo"
+								name="photo" styleName="{style.inputUpload}" visible="false" />
+							<g:Button styleName="button primary" text="{ilc.uploadLicense}"
+								ui:field="uploadLicenseButton" />
+						</g:HTMLPanel>
+					</g:FormPanel>
+					<g:Button styleName="button {style.delete}" text="{ilc.deleteLicense}"
+						ui:field="deleteLicenseButton" />
+				</g:HorizontalPanel>
+
+				<g:VerticalPanel styleName="{style.contactPanel}">
+					<g:HTML ui:field="noSubContacts" styleName="{style.noSubContact}"></g:HTML>
+					<g:Label ui:field="aboutSubContacts"></g:Label>
+					<s:SubContactTable ui:field="mailTable"></s:SubContactTable>
+				</g:VerticalPanel>
+
+			</g:VerticalPanel>
+		</g:center>
+	</g:DockLayoutPanel>
+
+
+
+</ui:UiBinder>

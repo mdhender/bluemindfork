@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head>
+  <head>
+    <title>Welcome to BlueMind</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/errors-pages/favicon.ico">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="/errors-pages/screen.css" type="text/css">
+    <script type='text/javascript' src='/errors-pages/script.js' ></script>
+    <script type="text/javascript">
+      loadL10n();
+    </script>
+    
+  <head>
+  
+  </head>
+  <body onLoad="loadPage();">
+    <div id="header"></div>
+    <div class="message">
+      <div class="subheader" data-l10n='error.notFound'></div>
+      <div class="hr"></div>
+      <div class="context">
+        <p data-l10n='error.goHome'></p>
+      </div>
+      <button class="big disabled loading" id="redirect" onclick="return home();" disabled="true"  data-l10n='error.home' ></button>
+      <div class="subcontext">404</div>
+    </div>
+    <img class="logo" src="/errors-pages/logo.png" />
+  </body>
+</html>

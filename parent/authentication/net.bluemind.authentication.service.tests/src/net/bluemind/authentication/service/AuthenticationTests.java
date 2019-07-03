@@ -1,0 +1,347 @@
+/* BEGIN LICENSE
+ * Copyright © Blue Mind SAS, 2012-2016
+ *
+ * This file is part of BlueMind. BlueMind is a messaging and collaborative
+ * solution.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of either the GNU Affero General Public License as
+ * published by the Free Software Foundation (version 3 of the License).
+ *
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See LICENSE.txt
+ * END LICENSE
+ */
+package net.bluemind.authentication.service;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.vertx.java.core.AsyncResult;
+import org.vertx.java.core.Handler;
+
+import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.SettableFuture;
+
+import net.bluemind.authentication.api.APIKey;
+import net.bluemind.authentication.api.AuthUser;
+import net.bluemind.authentication.api.IAPIKeys;
+import net.bluemind.authentication.api.IAuthentication;
+import net.bluemind.authentication.api.LoginResponse;
+import net.bluemind.authentication.api.LoginResponse.Status;
+import net.bluemind.config.Token;
+import net.bluemind.core.api.Email;
+import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.jdbc.JdbcTestHelper;
+import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.rest.http.ClientSideServiceProvider;
+import net.bluemind.domain.api.DomainSettingsKeys;
+import net.bluemind.domain.api.IDomainSettings;
+import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.pool.impl.BmConfIni;
+import net.bluemind.role.api.DefaultRoles;
+import net.bluemind.server.api.Server;
+import net.bluemind.system.state.StateContext;
+import net.bluemind.tests.defaultdata.PopulateHelper;
+import net.bluemind.user.api.IUser;
+import net.bluemind.user.api.User;
+
+public class AuthenticationTests {
+
+	@Before
+	public void setup() throws Exception {
+		JdbcTestHelper.getInstance().beforeTest();
+
+		final SettableFuture<Void> future = SettableFuture.<Void>create();
+		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
+
+			@Override
+			public void handle(AsyncResult<Void> event) {
+				future.set(null);
+			}
+		};
+		VertxPlatform.spawnVerticles(done);
+		future.get();
+
+		Server esServer = new Server();
+		esServer.ip = new BmConfIni().get("es-host");
+		esServer.tags = Lists.newArrayList("bm/es");
+
+		String cyrusIp = new BmConfIni().get("imap-role");
+		Server imapServer = new Server();
+		imapServer.ip = cyrusIp;
+		imapServer.tags = Lists.newArrayList("mail/imap");
+
+		PopulateHelper.initGlobalVirt(esServer);
+
+		PopulateHelper.addDomainAdmin("admin0", "global.virt", Routing.external);
+
+		PopulateHelper.createTestDomain("bm.lan", esServer);
+		IDomainSettings settings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, "bm.lan");
+		Map<String, String> domainSettings = settings.get();
+		domainSettings.put(DomainSettingsKeys.mail_routing_relay.name(), "external@test.fr");
+		domainSettings.put(DomainSettingsKeys.domain_max_basic_account.name(), "");
+		settings.set(domainSettings);
+		PopulateHelper.addDomainAdmin("admin", "bm.lan", Routing.external);
+		PopulateHelper.addUser("toto", "bm.lan", Routing.external);
+		PopulateHelper.addUser("nomail", "bm.lan", Routing.none);
+		PopulateHelper.addSimpleUser("simple", "bm.lan", Routing.external);
+
+		StateContext.setState("reset");
+		StateContext.setState("core.started");
+	}
+
+	@After
+	public void after() throws Exception {
+		JdbcTestHelper.getInstance().afterTest();
+	}
+
+	@Test
+	public void testLogin() throws Exception {
+		initState();
+
+		IAuthentication authentication = getService(null);
+
+		LoginResponse response = authentication.login("admin0@global.virt", "admin", "junit");
+
+		assertEquals(Status.Ok, response.status);
+		assertNotNull(response.authKey);
+
+		String authKey = response.authKey;
+
+		response = authentication.login("admin0@global.virt", authKey, "auth-key");
+		assertEquals(Status.Ok, response.status);
+		assertEquals(authKey, response.authKey);
+
+		response = authentication.login("nomail@bm.lan", "nomail", "junit");
+		assertEquals(Status.Ok, response.status);
+
+		response = authentication.login("admin0@global.virt", "not_valid", "invalid-junit");
+		assertEquals(Status.Bad, response.status);
+	}
+
+	private void initState() {
+		StateContext.setState("core.stopped");
+		StateContext.setState("core.started");
+		StateContext.setState("core.started");
+	}
+
+	@Test
+	public void testAlias() throws Exception {
+		initState();
+		IAuthentication authentication = getService(null);
+
+		LoginResponse response = authentication.login("admin-alias@bm.lan", "admin", "junit");
+
+		assertEquals(Status.Ok, response.status);
+		assertNotNull(response.authKey);
+
+		String authKey = response.authKey;
+
+		response = authentication.login("admin-alias@bm.lan", authKey, "auth-key");
+		assertEquals(Status.Ok, response.status);
+		assertEquals(authKey, response.authKey);
+
+		// admin-alias is not allAlias
+		response = authentication.login("admin-alias@aliasbm.lan", authKey, "auth-key");
+		assertEquals(Status.Bad, response.status);
+
+		response = authentication.login("admin-allalias@bm.lan", authKey, "auth-key");
+		assertEquals(Status.Ok, response.status);
+		assertEquals(authKey, response.authKey);
+
+		response = authentication.login("admin-allalias@aliasbm.lan", authKey, "auth-key");
+		assertEquals(Status.Ok, response.status);
+		assertEquals(authKey, response.authKey);
+
+		// user without email, login using alias
+		response = authentication.login("admin@aliasbm.lan", authKey, "auth-key");
+		assertEquals(Status.Bad, response.status);
+
+		response = authentication.login("admin-alias@bm.lan", "not_valid", "invalid-junit");
+		assertEquals(Status.Bad, response.status);
+
+		response = authentication.login("admin-alias-invalid@bm.lan", "not_valid", "invalid-junit");
+		assertEquals(Status.Bad, response.status);
+	}
+
+	private IAuthentication getService(String sessionId) throws ServerFault {
+		return ClientSideServiceProvider.getProvider("http://127.0.0.1:8090", sessionId)
+				.instance(IAuthentication.class);
+	}
+
+	@Test
+	public void testLogout() throws Exception {
+		initState();
+		IAuthentication authentication = getService(null);
+		LoginResponse response = authentication.login("admin0@global.virt", "admin", "junit");
+		assertEquals(Status.Ok, response.status);
+
+		// check auth with the authkey
+		response = authentication.login("admin0@global.virt", response.authKey, "junit");
+		assertEquals(Status.Ok, response.status);
+
+		authentication = getService(response.authKey);
+		authentication.logout();
+
+		authentication = getService(null);
+		response = authentication.login("admin0@global.virt", response.authKey, "junit");
+		assertEquals(Status.Bad, response.status);
+	}
+
+	@Test
+	public void testSu() throws Exception {
+		initState();
+		IAuthentication authentication = getService(null);
+		LoginResponse response = authentication.login("admin0@global.virt", "admin", "junit");
+
+		authentication = getService(response.authKey);
+
+		response = authentication.su("admin0@global.virt");
+		assertEquals(LoginResponse.Status.Ok, response.status);
+		assertNotNull(response.authKey);
+	}
+
+	@Test
+	public void testApiKey() throws ServerFault {
+		initState();
+
+		SecurityContext ctx = new SecurityContext(null, "admin0", Arrays.<String>asList(), Arrays.<String>asList(),
+				"global.virt");
+
+		IAPIKeys service = ServerSideServiceProvider.getProvider(ctx).instance(IAPIKeys.class);
+
+		APIKey key = service.create("testApiKey");
+
+		assertNotNull(key);
+
+		IAuthentication authentication = getService(null);
+		LoginResponse response = authentication.login("admin0@global.virt", key.sid, "testApiKey");
+		assertEquals(Status.Ok, response.status);
+
+		service.delete(key.sid);
+
+		response = authentication.login("admin0@global.virt", key.sid, "testApiKey");
+		assertEquals(Status.Bad, response.status);
+	}
+
+	@Test
+	public void testLoginArchived() throws Exception {
+		initState();
+
+		IAuthentication authentication = getService(null);
+
+		LoginResponse response = authentication.login("toto@bm.lan", "toto", "testLoginArchived");
+
+		assertEquals(Status.Ok, response.status);
+		assertNotNull(response.authKey);
+
+		IUser userService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class,
+				"bm.lan");
+		ItemValue<User> toto = userService.byLogin("toto");
+		toto.value.archived = true;
+		userService.update(toto.uid, toto.value);
+
+		response = authentication.login("toto@bm.lan", "toto", "testLoginArchived");
+
+		assertEquals(Status.Bad, response.status);
+		assertNull(response.authKey);
+	}
+
+	@Test
+	public void testGetCurrentUser() throws Exception {
+		initState();
+
+		IAuthentication authentication = getService(null);
+
+		LoginResponse response = authentication.login("toto@bm.lan", "toto", "junit");
+		assertEquals(Status.Ok, response.status);
+		assertNotNull(response.authKey);
+
+		String authKey = response.authKey;
+		AuthUser user = getService(authKey).getCurrentUser();
+		assertNotNull(user);
+		assertEquals("bm.lan", user.domainUid);
+	}
+
+	@Test
+	public void testSystemInMaintenanceModeShouldPreventNormalUsersFromAuthenticating() throws Exception {
+		initState();
+		IAuthentication authentication = getService(null);
+		LoginResponse response = authentication.login("toto@bm.lan", "toto", "junit");
+		assertEquals(Status.Ok, response.status);
+
+		StateContext.setState("core.upgrade.start");
+
+		response = authentication.login("toto@bm.lan", "toto", "junit");
+		assertEquals(Status.Bad, response.status);
+	}
+
+	@Test
+	public void testSystemInMaintenanceModeShouldStillAllowAdmin0FromAuthenticating() throws Exception {
+		initState();
+		IAuthentication authentication = getService(null);
+		LoginResponse response = authentication.login("toto@bm.lan", "toto", "junit");
+		assertEquals(Status.Ok, response.status);
+
+		StateContext.setState("core.upgrade.start");
+
+		response = authentication.login("toto@bm.lan", "toto", "junit");
+		assertEquals(Status.Bad, response.status);
+
+		response = authentication.login("admin0@global.virt", Token.admin0(), "junit");
+		assertEquals(Status.Ok, response.status);
+	}
+
+	@Test
+	public void testSimpleUserLogin_Roles() {
+		initState();
+
+		IAuthentication authentication = getService(null);
+		LoginResponse response = authentication.login("simple@bm.lan", "simple", "testSimpleUserLogin_Roles");
+
+		assertEquals(Status.Ok, response.status);
+		assertEquals(DefaultRoles.SIMPLE_USER_DEFAULT_ROLES, response.authUser.roles);
+		assertTrue(response.authUser.rolesByOU.isEmpty());
+
+	}
+
+	@Test
+	public void testLoginInUsingAliasEmailShouldReturnCorrectUser() throws Exception {
+		initState();
+
+		PopulateHelper.addUser("user1", "bm.lan", Routing.external);
+		PopulateHelper.addUser("user2", "bm.lan", Routing.external);
+
+		IUser userService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class,
+				"bm.lan");
+		ItemValue<User> user2 = userService.getComplete("user2");
+		user2.value.emails = new ArrayList<>(user2.value.emails);
+		user2.value.emails.add(Email.create("user1@aliasbm.lan", false));
+		userService.update("user2", user2.value);
+
+		IAuthentication authentication = getService(null);
+		LoginResponse response = authentication.login("user1@aliasbm.lan", "user2", "junit");
+
+		assertEquals(Status.Ok, response.status);
+		assertEquals(response.authUser.uid, "user2");
+	}
+
+}

@@ -1,0 +1,55 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:f="urn:import:net.bluemind.ui.common.client.forms"
+	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'>
+
+	<ui:style>
+	.logo {
+		vertical-align: middle;
+		float: left;
+	}
+	
+	.content {
+		padding: 10px;
+	}
+	
+	.inline {
+		display: inline-block;
+	}
+
+	</ui:style>
+
+	<ui:with field="c"
+		type="net.bluemind.ui.mailbox.identity.IdentityConstants" />
+
+	<g:DockLayoutPanel unit="PX">
+
+		<g:north size="50">
+			<g:HTMLPanel>
+				<div class="modal-dialog-title">
+					<span class="fa-stack fa-lg">
+						<i class="fa fa-square-o fa-stack-2x"></i>
+						<i class="fa fa-user fa-stack-1x"></i>
+					</span>
+					<h1 class="{style.inline}">
+						<g:Label text="{c.identities}" />
+					</h1>
+				</div>
+			</g:HTMLPanel>
+		</g:north>
+
+		<g:center>
+			<g:ScrollPanel styleName="{style.content}" ui:field="content"></g:ScrollPanel>
+		</g:center>
+
+		<g:south size="40">
+			<g:FlowPanel styleName="modal-dialog-buttons">
+				<f:DoneCancelActionBar ui:field="actionBar" />
+			</g:FlowPanel>
+		</g:south>
+
+	</g:DockLayoutPanel>
+
+</ui:UiBinder>

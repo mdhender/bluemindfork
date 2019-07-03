@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   
+  
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module-provider
+            module="/settings">         
+
+         <web-resource
+               bundle="net.bluemind.ui.editor.standalone.closure">
+         </web-resource>
+
+         <css
+               path="css/net.bluemind.ui.editor.standalone.closure.css">
+         </css>
+         <js
+               path="js/compile/net.bluemind.ui.editor.standalone.closure.js">
+         </js>
+      </web-module-provider>
+   </extension>
+   <extension
+         point="net.bluemind.ui.settings.menusContributor">
+      <contributor
+            function="gwtSettingsMailMenusContributor">
+      </contributor>
+   </extension>
+   <extension
+         point="net.bluemind.ui.settings.screensContributor">
+      <contributor
+            function="gwtSettingsMailScreensContributor">
+      </contributor>
+   </extension>
+
+
+</plugin>

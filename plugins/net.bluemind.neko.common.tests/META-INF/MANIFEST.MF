@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.neko.common.tests
+Bundle-SymbolicName: net.bluemind.neko.common.tests
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.neko.common.tests.Activator
+Bundle-Vendor: blue-mind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.neko.common;bundle-version="1.0.0",
+ org.junit;bundle-version="3.8.2",
+ com.google.guava;bundle-version="19.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy

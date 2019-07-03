@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.eas.client
+Bundle-SymbolicName: net.bluemind.eas.client;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.eclipse.core.runtime;bundle-version="3.4.0",
+ org.junit;bundle-version="3.8.2",
+ net.bluemind.eas.utils;bundle-version="1.0.0",
+ net.bluemind.eas.wbxml;bundle-version="1.0.0",
+ com.google.guava;bundle-version="19.0.0",
+ com.ning.async-http-client;bundle-version="1.9.26",
+ net.bluemind.slf4j;bundle-version="1.0.0"
+Bundle-ClassPath: .
+Export-Package: net.bluemind.eas.client,
+ net.bluemind.eas.client.utils
+Bundle-Vendor: blue-mind.net

@@ -1,0 +1,27 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>net.bluemind</groupId>
+		<artifactId>net.bluemind.corev2</artifactId>
+		<version>4.1.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>net.bluemind.todolist.plugins</artifactId>
+	<packaging>pom</packaging>
+	<modules>
+		<module>net.bluemind.todolist.adapter</module>
+		<module>net.bluemind.todolist.api</module>
+		<module>net.bluemind.todolist.sqlschema</module>
+		<module>net.bluemind.todolist.persistance</module>
+		<module>net.bluemind.todolist.persistance.tests</module>
+		<module>net.bluemind.todolist.service</module>
+		<module>net.bluemind.todolist.service.tests</module>
+		<module>net.bluemind.todolist.feature</module>
+		<module>net.bluemind.todolist.job</module>
+		<module>net.bluemind.todolist.hook</module>
+		<module>net.bluemind.todolist.hook.acl</module>
+		<module>net.bluemind.todolist.usertodolist</module>
+		<module>net.bluemind.todolist.usertodolist.tests</module>
+	</modules>
+
+</project>

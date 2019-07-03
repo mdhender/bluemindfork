@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Gwtserver
+Bundle-SymbolicName: net.bluemind.webmodule.gwtserver;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.lib.vertx,
+ net.bluemind.slf4j,
+ org.eclipse.osgi,
+ net.bluemind.webmodule.server,
+ com.google.gwt.user;resolution:=optional,
+ com.google.gwt.servlet,
+ javax.servlet;bundle-version="2.5.0"
+Export-Package: net.bluemind.webmodule.gwtserver
+Bundle-ClassPath: .

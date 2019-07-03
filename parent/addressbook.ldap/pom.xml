@@ -1,0 +1,22 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>net.bluemind</groupId>
+		<artifactId>net.bluemind.corev2</artifactId>
+		<version>4.1.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>net.bluemind.addressbook.ldap.plugins</artifactId>
+	<packaging>pom</packaging>
+	<modules>
+		<module>net.bluemind.addressbook.ldap.api</module>
+		<module>net.bluemind.addressbook.ldap.adapter</module>
+		<module>net.bluemind.addressbook.ldap.adapter.tests</module>
+		<module>net.bluemind.addressbook.ldap.service</module>
+		<module>net.bluemind.addressbook.ldap.service.tests</module>
+		<module>net.bluemind.addressbook.ldap.job</module>
+		<module>net.bluemind.addressbook.ldap.sync</module>
+		<module>net.bluemind.addressbook.ldap.sync.tests</module>
+	</modules>
+
+</project>

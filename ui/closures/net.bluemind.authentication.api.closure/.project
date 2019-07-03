@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<projectDescription>
+	<name>net.bluemind.authentication.api.closure</name>
+	<comment/>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>com.digiarea.gct.core.ClosureBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.wst.jsdt.core.javascriptValidator</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>net.vtst.ow.eclipse.js.closure.closureBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.pde.ManifestBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.pde.SchemaBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		
+	</buildSpec>
+	<natures>
+		
+		<nature>org.eclipse.wst.jsdt.core.jsNature</nature>
+		<nature>net.vtst.ow.eclipse.js.closure.closureNature</nature>
+		<nature>org.eclipse.pde.PluginNature</nature>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+		<nature>com.digiarea.gct.core.ClosureNature</nature>
+	</natures>
+</projectDescription>

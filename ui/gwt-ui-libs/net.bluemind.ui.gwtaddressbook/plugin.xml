@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.ui.addressbook.addressbookType" name="Addressbook type extensionPoint" schema="schema/net.bluemind.ui.addressbook.addressbookType.exsd"/>
+   <extension
+         point="net.bluemind.ui.addressbook.addressbookType">
+      <addressbook-type
+            actions-widget="bm.addressbook.InternalAddressbookActions"
+            create-widget="bm.addressbook.InternalAddressbookCreation"
+            label="%addressbook-type.internal"
+            type="internal">
+      </addressbook-type>
+      
+   </extension>
+   <extension
+         point="net.bluemind.extensions">
+      <export-extension-point
+            id="net.bluemind.ui.addressbook.addressbookType">
+      </export-extension-point>
+   </extension>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module-provider
+            module="/settings">
+      </web-module-provider>
+      <web-module-provider
+            module="/adminconsole">
+      </web-module-provider>
+   </extension>
+   <extension
+         point="net.bluemind.ui.addressbook.addressbookType">
+      <addressbook-type
+            actions-widget="bm.addressbook.LdapAddressbookActions"
+            create-widget="bm.addressbook.LdapAddressbookCreation"
+            label="%addressbook-type.ldap"
+            role="manageDomainLDAPAB"
+            type="ldap">
+      </addressbook-type>
+   </extension>
+   <extension
+         point="net.bluemind.ui.addressbook.addressbookType">
+      <addressbook-type
+            actions-widget="bm.addressbook.AdAddressbookActions"
+            create-widget="bm.addressbook.AdAddressbookCreation"
+            label="%addressbook-type.ad"
+            role="manageDomainLDAPAB"
+            type="ad">
+      </addressbook-type>
+   </extension>
+
+</plugin>

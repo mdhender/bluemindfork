@@ -1,0 +1,5 @@
+#Eclipse Product File
+#Fri May 16 15:01:17 CEST 2014
+version=1.0.0.b12165
+name=tika
+id=net.bluemind.tika.server.tika

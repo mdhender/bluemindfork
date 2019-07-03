@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.externaluser.api
+Bundle-SymbolicName: net.bluemind.externaluser.api
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.core.commons,
+ net.bluemind.directory.api,
+ net.bluemind.addressbook.api,
+ net.bluemind.group.api
+Export-Package: net.bluemind.externaluser.api

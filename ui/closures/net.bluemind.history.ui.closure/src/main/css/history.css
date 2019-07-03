@@ -1,0 +1,29 @@
+#history-container {
+	max-height: 350px;
+	overflow: auto;
+}
+
+#history-table th {
+   background: #c4e0ec;
+   height: 40px;
+}
+
+#history-table tr {
+	height: 35px;	
+}
+
+#history-table tr {
+	text-align: center;	
+}
+
+#history-table tr td:nth-child(3) {
+	text-align: left !important;	
+}
+
+#history-table tr:nth-child(odd) {
+    background: #fbf8f7;
+}
+
+#history-table tr:nth-child(even) {
+    background: #ffffff;
+}

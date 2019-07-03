@@ -1,0 +1,31 @@
+.goog-toolbar-separator {
+  margin: 0 2px;
+  border-left: 1px solid #d6d6d6;
+  border-right: 1px solid #f7f7f7;
+  padding: 0;
+  width: 0;
+  text-decoration: none;
+  list-style: none;
+  outline: none;
+  vertical-align: middle;
+  line-height: normal;
+  font-size: 120%;
+  overflow: hidden;
+}
+
+
+.goog-toolbar {
+  background: #eee;
+  border: 1px solid #d5d5d5;
+  cursor: default;
+  font: normal 12px Arial, sans-serif;
+  margin: 0;
+  outline: none;
+  padding: 2px;
+  position: relative;
+  zoom: 1; /* The toolbar element must have layout on IE. */
+}
+
+.goog-toolbar .goog-flat-menu-button .goog-flat-menu-button-dropdown {
+  background-position: 50% 10px;
+}

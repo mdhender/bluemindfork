@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.customproperties">
+      <customproperties
+            implementation="net.bluemind.samba.customproperties.SambaDomainCustomProperties">
+      </customproperties>
+      <customproperties
+            implementation="net.bluemind.samba.customproperties.SambaGroupCustomProperties">
+      </customproperties>
+      <customproperties
+            implementation="net.bluemind.samba.customproperties.SambaUserCustomProperties">
+      </customproperties>
+   </extension>
+
+</plugin>

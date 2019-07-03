@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This file describes BM Domains configuration. -->
+<domainTemplate>
+	<hostTags>
+		<kind id="mail" visibility="GLOBALDOMAINONLY">
+			<desc lang="fr">Messagerie</desc>
+			<desc lang="en">Mail System</desc>
+
+			<helpText lang="fr">Ces serveurs gèrent la messagerie BlueMind.
+			</helpText>
+			<helpText lang="en">The following servers handle BlueMind Mail System.
+			</helpText>
+
+			<tag value="mail/smtp" multival="true" mandatory="false" autoAssign="true">
+				<desc lang="fr">Serveur de courrier interne</desc>
+				<desc lang="en">Internal mail server</desc>
+			</tag>
+			<tag value="mail/smtp-edge" multival="true" mandatory="false" autoAssign="false">
+				<desc lang="fr">Relai de messagerie</desc>
+				<desc lang="en">Mail relay</desc>
+			</tag>
+			<tag value="mail/imap" multival="true" mandatory="true" autoAssign="true">
+				<desc lang="fr">Serveur de stockage des boîtes aux lettres</desc>
+				<desc lang="en">Mailbox storage server</desc>
+			</tag>
+		</kind>
+
+		<kind id="indexing" visibility="GLOBALDOMAINONLY">
+			<desc lang="fr">Indexation / Recherche</desc>
+			<desc lang="en">Indexing / Searching</desc>
+
+			<helpText lang="fr">Ces serveurs enregistrent un index
+				plein-texte
+				permettant une recherche rapide dans les données
+				collaboratives.
+			</helpText>
+			<helpText lang="en">The servers below store a full-text index for
+				fast searches through BlueMind data.
+			</helpText>
+
+			<tag value="bm/es" multival="true" mandatory="true" autoAssign="true">
+				<desc lang="fr">Serveur d'indexation</desc>
+				<desc lang="en">Indexing server</desc>
+			</tag>
+		</kind>
+
+		<kind id="bm" domainScreen="true" globalDomainScreen="false" visibility="GLOBALDOMAINONLY" >
+			<desc lang="fr">Services BM</desc>
+			<desc lang="en">BM Services</desc>
+
+			<helpText lang="fr">Ces serveurs permettent la communication
+				entre les différents composants de l'architecture BlueMind.
+			</helpText>
+			<helpText lang="en">The servers below handle communications between
+				BlueMind components.
+			</helpText>
+
+			<tag value="bm/core" multival="true" mandatory="true" autoAssign="true">
+				<desc lang="fr">Serveur Central</desc>
+				<desc lang="en">Core Server</desc>
+			</tag>
+			<tag value="bm/hps" multival="true" mandatory="true" autoAssign="true">
+				<desc lang="fr">Serveur SSO</desc>
+				<desc lang="en">SSO proxy</desc>
+			</tag>
+			<tag value="bm/xmpp" multival="false" mandatory="true" autoAssign="true">
+				<desc lang="fr">Serveur XMPP</desc>
+				<desc lang="en">XMPP Server</desc>
+			</tag>
+			<tag value="bm/ac" multival="false" mandatory="true" autoAssign="true">
+				<desc lang="fr">Console d'administration</desc>
+				<desc lang="en">Admin console</desc>
+			</tag>
+			<tag value="bm/cal" multival="false" mandatory="true" autoAssign="true">
+				<desc lang="fr">Application calendrier</desc>
+				<desc lang="en">Calendar application</desc>
+			</tag>
+			<tag value="bm/webmail" multival="false" mandatory="true" autoAssign="true">
+				<desc lang="fr">Application webmail</desc>
+				<desc lang="en">Webmail application</desc>
+			</tag>
+			<tag value="bm/contact" multival="false" mandatory="true" autoAssign="true">
+				<desc lang="fr">Application contact</desc>
+				<desc lang="en">Contact application</desc>
+			</tag>
+			<tag value="bm/settings" multival="false" mandatory="true" autoAssign="true">
+				<desc lang="fr">Application de paramétrage</desc>
+				<desc lang="en">Settings application</desc>
+			</tag>
+			<tag value="bm/redirector" multival="false" mandatory="true" autoAssign="true">
+				<desc lang="fr">Redirection vers l'application par défaut</desc>
+				<desc lang="en">Default app redirector</desc>
+			</tag>
+			<tag value="bm/nginx" multival="false" mandatory="true" autoAssign="true">
+				<desc lang="fr">Mandataire HTTPS</desc>
+				<desc lang="en">Reverse proxy HTTPS</desc>
+			</tag>
+			<tag value="bm/pgsql" multival="false" mandatory="true" autoAssign="true">
+				<desc lang="fr">Base de données</desc>
+				<desc lang="en">Database</desc>
+			</tag>
+			<tag value="bm/pgsql-data" multival="false" mandatory="true" autoAssign="true">
+				<desc lang="fr">Données utilisateurs</desc>
+				<desc lang="en">Users data</desc>
+			</tag>
+
+		</kind>
+		
+	</hostTags>
+</domainTemplate>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+	<inherits name="com.google.gwt.json.JSON"/>
+	<inherits name="net.bluemind.directory.DirectoryApi"/>
+	<inherits name="net.bluemind.mailshare.MailshareApi"/>
+	<source path='' />
+</module>

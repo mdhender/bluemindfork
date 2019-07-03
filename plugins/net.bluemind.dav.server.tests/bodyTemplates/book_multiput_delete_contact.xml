@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<D:multiput xmlns:D="http://me.com/_namespace/">
+  <D:resource>
+    <A:href xmlns:A="DAV:">${book}${contactId}.vcf</A:href>
+    <D:delete/>
+  </D:resource>
+</D:multiput>

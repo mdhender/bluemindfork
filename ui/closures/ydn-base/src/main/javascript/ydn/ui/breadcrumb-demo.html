@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Sitemap and breadcrumb demo</title>
+
+    <link rel="stylesheet" type="text/css" href="breadcrumb.css">
+    <script type="text/javascript" src="../../../../closure-library/closure/goog/base.js"></script>
+    <script type="text/javascript" src="../../deps.js"></script>
+    <script type="text/javascript">
+        goog.require("goog.events.EventTarget");
+    </script>
+    <script type="text/javascript" src="breadcrumb.js"></script>
+    <script type="text/javascript">
+        goog.require("ydn.data.SiteMap");
+        goog.require("ydn.ui.Breadcrumb");
+    </script>
+
+</head>
+<body>
+<div id="breadcrumb"></div>
+<div id="content">no selection</div>
+<div>A bunch of text.</div>
+<div>
+
+<div id="sitemap"></div>
+</div>
+<script type="text/javascript">
+  var ele = document.getElementById('sitemap');
+  var content = document.getElementById('content');
+
+  var breadcrumb = new ydn.ui.Breadcrumb();
+  breadcrumb.render(document.getElementById('breadcrumb'));
+  var map = {
+      "id": "https://sites.google.com/feeds/content/mechanobio.info/function/0", "name": "function", "url": "/", "title": "Home",
+      "children":
+              [
+          {"children": [
+              {"children": [], "url": "https://sites.goograation.com/croikers", "title": "Myosin-x in the transport of cargo", "id": "https://sites.google.com/feeds/content/mechanobio.info/function/2544896280702524413"},
+              {"children": [], "url": "https://sites.goo.com/ckers", "title": "Transport", "id": "https://sites.google.com/feeds/content/mechanobio.info/function/2544896280702524413"}
+          ], "url": "https://sites.google.com/a/mechanobio.info/function/formin-and-profilin-in-actin-nucleation", "title": "Formin", "id": "https://sites.google.com/feeds/content/mechanobio.info/function/1397201148711566363"},
+          {"children": [], "url": "https://sites.google.com/a/mechantion/home", "title": "Home", "id": "https://sites.google.com/feeds/content/mechanobio.info/function/6160410219768181323"},
+          {"children": [
+              {"children": [], "url": "https://sites.googranspotiation/crosslikers", "title": "Crosslinkers", "id": "https://sites.google.com/feeds/content/mechanobio.info/function/2544896280702524413"},
+              {"children": [
+                  {"children": [
+                      {"children": [], "url": "https://sites.googranspotiation/crosslikers-ch", "title": "Crosslinkers child", "id": "https://sites.google.com/feeds/content/mechanobio.info/function/2544896280702524413"},
+                  ], "url": "https://sites.google.com/a/mechanobio.info/function/myosin-x-in-the-transport-of-cargo-and-filopodia-initiation", "title": "Myosin-X", "id": "https://sites.google.com/feeds/content/mechanobio.info/function/2544896280702524413"},
+                  {"children": [], "url": "https://sites.google.com/htgranspopodia-initiation", "title": "Initiation", "id": "https://sites.google.com/feeds/content/mechanobio.info/function/2544896280702524413"}
+              ], "url": "https://sites.google.com/a/mechanobio.info/function/crosslinkers-and-actin/linking", "title": "Linking", "id": "https://sites.google.com/feeds/content/mechanobio.info/function/3402635890044362928"}
+          ], "url": "https://sites.google.com/a/mechanobio.info/function/crosslinkers-and-actin", "title": "Crosslinkers and Actin", "id": "https://sites.google.com/feeds/content/mechanobio.info/function/819161410149837373"}
+      ]};
+  var sitemap = ydn.data.SiteMap.fromJSON(map);
+  var arr = []; sitemap.walk(sitemap.children_[2].children_[1].url, arr);
+  breadcrumb.show(arr);
+  ele.addEventListener('click', function(e) {
+      console.log(e.target);
+      if (e.target.tagName == 'A') {
+          var arr = [];
+          sitemap.walk(e.target.href, arr);
+          if (arr.length > 0) {
+              var leaf = arr[arr.length - 1];
+              content.textContent = leaf.title;
+              breadcrumb.show(arr);
+          } else {
+              throw new Error('empty array')
+          }
+      }
+  });
+  breadcrumb.addEventListener('click', function(e) {
+    console.log(e.target.href);
+  });
+</script>
+</body>
+</html>

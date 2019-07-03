@@ -1,0 +1,30 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>net.bluemind</groupId>
+		<artifactId>net.bluemind.corev2</artifactId>
+		<version>4.1.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>net.bluemind.directory.plugins</artifactId>
+	<packaging>pom</packaging>
+	<modules>
+		<module>net.bluemind.directory.api</module>
+		<module>net.bluemind.directory.sqlschema</module>
+		<module>net.bluemind.directory.persistance</module>
+		<module>net.bluemind.directory.persistance.tests</module>
+		<module>net.bluemind.directory.service</module>
+		<module>net.bluemind.dataprotect.ou</module>
+		<module>net.bluemind.dataprotect.ou.tests</module>
+		<module>net.bluemind.directory.service.tests</module>
+		<module>net.bluemind.directory.service.xfer.tests</module>
+		<module>net.bluemind.directory.hollow.datamodel</module>
+		<module>net.bluemind.directory.hollow.datamodel.consumer</module>
+		<module>net.bluemind.directory.hollow.datamodel.consumer.tests</module>
+		<module>net.bluemind.directory.hollow.datamodel.producer</module>
+		<module>net.bluemind.directory.hollow.datamodel.producer.tests</module>
+		<module>net.bluemind.directory.hollow.datamodel.utils</module>
+		<module>net.bluemind.cli.hollow</module>
+	</modules>
+
+</project>

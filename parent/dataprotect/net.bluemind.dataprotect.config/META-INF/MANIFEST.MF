@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.dataprotect.config
+Bundle-SymbolicName: net.bluemind.dataprotect.config;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.dataprotect.config.Activator
+Bundle-Vendor: blue-mind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.dataprotect.service,
+ net.bluemind.core.commons,
+ net.bluemind.dataprotect.api;bundle-version="4.1.0",
+ com.google.guava,
+ net.bluemind.core.container.persistance,
+ net.bluemind.node.api
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy

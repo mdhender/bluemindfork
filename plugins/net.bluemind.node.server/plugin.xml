@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="nodelauncher"
+         name="NodeLauncher"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            thread="any"
+            visible="true">
+         <run
+               class="net.bluemind.node.server.NodeLauncher">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="nodeserver"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="net.bluemind.node.server.nodelauncher"
+            name="node">
+         <property
+               name="appName"
+               value="node">
+         </property>
+      </product>
+   </extension>
+
+</plugin>

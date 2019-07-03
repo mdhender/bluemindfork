@@ -1,0 +1,597 @@
+{namespace net.bluemind.calendar.day.templates}
+
+/**
+ * Days view
+ */
+{template .main}
+  <div class="{css day-head}">
+    <table id="table-allday" class="{css table-allday}">
+      <tbody>
+        <tr id="label"></tr>
+        <tr id="allDayContainer"></tr>
+      <tbody>
+    </table>
+  </div>
+  <div class="{css day-grid}">
+    <table id="table-inday" class="{css table-inday}">
+      <tbody>
+        <tr class="{css hourTr}">
+        </tr>
+        <tr id="bodyContent"></tr>
+      <tbody>
+    </table>
+  </div>
+{/template}
+
+/**
+ * Event base bubble template
+ */
+{template .popup}
+<div class="{css eb}">
+  <div class="{css eb-arrow-border}"></div>
+  <div class="{css eb-arrow}"></div>
+  <div class="{css eb-inner}">
+    <span class="{css eb-close} {css fa} {css fa-close}"></span>
+    <div class="{css eb-title}"></div>
+    <div class="{css eb-content}"></div>
+  </div>
+</div>
+{/template}
+
+/**
+ * Event
+ * @param states Event repeat kind.
+ * @param tags event tags
+ */
+{template .event}
+  {if not $states.busy}
+    <div class="{css transparent-marker}"></div>
+  {/if}
+  <div class="{css icon-container}">
+    {if length($tags) > 0}
+      <div class="{css tag-mark}" title="
+      {foreach $tag in $tags}
+        {$tag['label']}{if not isLast($tag)},{sp}{/if}
+      {/foreach}
+      " style="
+      {if length($tags) > 1}
+        border-left-color: #{$tags[0]['color']};
+        border-right-color: #{$tags[1]['color']};
+        width: 1px;
+        border-width: 0 7px;
+      {else}
+        background-color:#{$tags[0]['color']}
+      {/if}
+       "></div>
+    {/if}
+    {if $states.repeat}
+      <span class="{css fa} {css fa-repeat}"></span>
+    {/if}
+    {if $states.private_}
+      <span class="{css fa} {css fa-lock}"></span>
+    {/if}
+    {if $states.meeting}
+      <span class="{css fa} {css fa-users}"></span>
+    {/if}
+    {if $states.updatable}
+      <span class="{css ev-resizer} {css fa}">
+        <span class="{css fa-circle}"></span>
+        <span class="{css fa-circle}"></span>
+        <span class="{css fa-circle}"></span>
+      </div>
+    {/if}
+  </div>
+  <dl>
+    <dt class="{css ev-header}">
+    </dt>
+    <dd>
+    </dd>
+  </dl>
+{/template}
+
+
+/**
+ * Event
+ * @param summary Event title.
+ * @param states Event states.
+ * @param left Event left extension.
+ * @param right Event right extension.
+ * @param location event location.
+ * @param tags Event tags
+ */
+{template .allDayEvent}
+  {if not $states.busy}
+    <div class="{css transparent-marker}"></div>
+  {/if}
+  {if $right}
+    <div class="{css extension} {css FR}">
+      <div class="{css extension-right}"></div>
+    </div>
+  {else}
+    <div class="{css extension} {css FR} {css no-extention}">
+      <div class="{css extension-right}"></div>
+    </div>
+  {/if}
+  {if $left}
+    <div class="{css extension} {css FL}">
+      <div class="{css extension-left}"></div>
+    </div>
+  {else}
+    <div class="{css extension} {css FL} {css no-extention}">
+      <div class="{css extension-left}"></div>
+    </div>
+  {/if}
+  <div class="{css icon-container}">
+  {if $states.repeat}
+    <span class="{css fa} {css fa-repeat}"></span>
+  {/if}
+  {if $states.private_}
+    <span class="{css fa} {css fa-lock}"></span>
+  {/if}
+  {if $states.meeting}
+    <span class="{css fa} {css fa-users}"></span>    
+  {/if}
+  {if length($tags) > 0}
+    <div class="{css tag-mark}" title="
+    {foreach $tag in $tags}
+      {$tag.label}{if not isLast($tag)},{sp}{/if}
+    {/foreach}
+    " style="
+    {if length($tags) > 1}
+      border-left-color: #{$tags[0].color};
+      border-right-color: #{$tags[1].color};
+      width: 1px;
+      border-width: 0 7px;
+    {else}
+      background-color:#{$tags[0].color}
+    {/if}
+     "></div>
+  {/if}
+  </div>
+  <dl>
+    <dt class="{css ev-header}" style="display:none;"></dt>
+    <dd>
+        <span class="{css ev-content}">{$summary}</span>
+        {if $location and $location != ''}
+          <span class="{css ev-location}">, {$location}</span>
+        {/if}
+    </dd>
+  </dl>
+  </div>
+{/template}
+
+
+/**
+ * Event quick create form  template
+ * @param summary Event title.
+ * @param calendar Event calendar.
+ * @param calendars Appointable calendars.
+ */
+{template .create}
+<div id="ecb-form-notification" class="{css form-notification} {css warn}">{msg meaning="calendar.eventOccursInPast" desc="event occurs in the past"}The event occurs in the past{/msg}</div>
+<form  id="ecb-form" class="{css ecb-form}" autocomplete="off" onsubmit="return false;">
+
+  <div class="{css eb-root}">
+    <table class="{css eb-table}" cellpadding="0" cellspacing="0">
+      <tbody>
+        <tr>
+          <th>{msg meaning="calendar.event.title" desc="event title label"}Title{/msg}</th>
+          <td><input type="text" name="ecb-title" id="ecb-title" value="{$summary}" maxlength="255" /></td>
+        </tr>
+        <tr>
+          <th>{msg meaning="calendar.calendar" desc="calendar"}Calendar{/msg}</th>
+          <td>
+            <select id="ecb-calendar" class="{css ecb-calendar}">
+            {foreach $cal in $calendars}
+              {if $cal.id_ == $calendar}
+                <option value="{$cal.uid}" selected="true">{$cal.name}</option>
+              {else}
+                <option value="{$cal.uid}" >{$cal.name}</option>
+              {/if}
+            {/foreach}
+            </select>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="{css eb-buttons}">
+    <table>
+      <tbody>
+        <tr>
+          <td>
+            <input id="ecb-btn-create" class="{css goog-button-base} {css goog-primaryactionbutton}" type="submit" value="{msg meaning="calendar.action.newEvent" desc="new event button"}New event{/msg}" />
+          </td>
+          <td class="{css btn-detail}">
+            <a href="javascript:void(0)" id="eb-btn-event-new-screen" class="{css cb-link}">
+              {msg meaning="calendar.event.modifyDetails" desc="update event link"}Modify details{/msg} »
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</form>
+{/template}
+
+
+/**
+ * Event consult popup
+ * @param event Event.
+ * @param calendar Calendar
+ */
+{template .consult}
+  <div class="{css eb-root}">
+    <table class="{css eb-table}" cellpadding="0" cellspacing="0">
+      <tbody>
+          <tr>
+            <th>{msg meaning="calendar.event.title" desc="event title label"}Title{/msg}</th>
+            <td class="consult-title">{$event.summary}</td>
+          </tr>
+
+          {if $event.organizer}
+            <tr>
+              <th>{msg meaning="calendar.event.organizer" desc="organizer"}Organizer{/msg}</th>
+              <td>{$event.organizer['commonName']}</td>
+            </tr>
+          {/if}
+
+          {if $calendar}
+            <tr>
+              <th>{msg meaning="calendar.calendar" desc="calendar"}Calendar{/msg}</th>
+              <td>{$calendar.name}</td>
+            </tr>
+          {/if}
+
+          {if $event.location}
+            <tr>
+              <th>{msg meaning="calendar.event.location" desc="event location label"}Location{/msg}</th>
+              <td>{$event.location}</td>
+            </tr>
+          {/if}
+
+          {if $event.states.meeting}
+            <tr>
+              <th class="{css attendees-label}">{msg meaning="calendar.event.attendees" desc="attendees"}Attendees{/msg}</th>
+              <td>
+                {call .attendees_}
+                  {param attendees : $event.attendees /}
+                {/call}
+              </td>
+            </tr>
+          {/if}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="{css eb-buttons}">
+    <a href="javascript:void(0);" id="eb-btn-event-consult-screen">
+      {msg meaning="calendar.event.detail" desc="event detail"}Detail{/msg} »
+    </a>
+  </div>
+{/template}
+
+
+/**
+ * Event update popup
+ * @param event Event.
+ * @param calendar Calendar
+ */
+{template .update}
+  {if $event.states.error}
+    <div class="{css form-notification} {css error}">{msg desc="error"}The synchronization has failed. Check full view for more details.{/msg}</div>
+  {elseif not $event.states.synced}
+    <div class="{css form-notification} {css notice}">{msg desc="Pending synchronisation"}Not all modifications are synchronized with the server yet.{/msg}</div>
+  {/if}
+  <form  id="ecb-update-form" class="{css ecb-form}" autocomplete="off" onsubmit="return false;">
+    <div class="{css eb-root}">
+      <table class="{css eb-table}" cellpadding="0" cellspacing="0">
+        <tbody>
+          <tr>
+            <th>{msg meaning="calendar.event.title" desc="event title label"}Title{/msg}</th>
+            <td>
+              <input class="consult-title" type="text" id="ecb-update-title" value="{$event.summary}" />
+            </td>
+            <td>
+              <input type="submit" class="{css goog-button-base}" id="eb-btn-update" value="{msg meaning="general.save" desc="save button"}Save{/msg}" style="visibility:hidden;" />
+            </td>
+          </tr>
+
+          {if $calendar}
+            <tr>
+              <th>{msg meaning="calendar.calendar" desc="calendar"}Calendar{/msg}</th>
+              <td colspan="2">{$calendar.name}</td>
+            </tr>
+          {/if}
+
+          {if $event.organizer}
+            <tr>
+              <th>{msg meaning="calendar.event.organizer" desc="organizer"}Organizer{/msg}</th>
+              <td colspan="2">{$event.organizer['commonName']}</td>
+            </tr>
+          {/if}
+
+          {if $event.location}
+            <tr>
+              <th>{msg meaning="calendar.event.location" desc="event location label"}Location{/msg}</th>
+              <td colspan="2">{$event.location}</td>
+            </tr>
+          {/if}
+
+          {if $event.states.meeting}
+            <tr>
+              <th class="{css attendees-label}">{msg meaning="calendar.event.attendees" desc="attendees"}Attendees{/msg}</th>
+              <td colspan="2">
+                {call .attendees_}
+                  {param attendees : $event.attendees /}
+                {/call}
+              </td>
+            </tr>
+          {/if}
+
+          {if $event.states.attendee}
+            <tr>
+              <th>{msg meaning="calendar.event.participation" desc="Participation"}Participation{/msg}</th>
+              <td id="partstat-container">
+              </td>
+            </tr>
+          {/if}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="{css eb-buttons}">
+      <table>
+        <tbody>
+          <tr>
+            <td>
+              <input id="eb-btn-delete" class="{css goog-button-base} {css dangerousactionbutton}" type="button" value="{msg meaning="calendar.event.delete" desc="delete event button"}Delete event{/msg}" />
+            </td>
+            <td class="{css btn-detail}">
+              <a href="javascript:void(0)" id="eb-btn-event-update-screen" class="{css cb-link}">
+                {msg meaning="calendar.event.modifyDetails" desc="update event link"}Modify details{/msg} »
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </form>
+{/template}
+
+/**
+ * Participation quick links
+ * @param participation Attendee participation.
+ * @param states event states
+ */
+{template .participation_}
+      <span class="{css ecb-form-participation}">
+        <button class="{css eb-btn-accepted-menu} {css goog-button-base}" {if $participation == 'Accepted'}disabled="true"{/if}>{msg meaning="general.yes" desc="yes"}Yes{/msg}</button>
+        <div class="{css partstat-accepted-menu} {css goog-menu}" style="display:none">
+          <div {if not $states.occurrence}style="display:none"{/if} class="{css goog-menuitem} {css goog-menuitem-disabled} {css accept-series}">{msg meaning="calendar.event.recurringEvent.action.all" desc="All events in the series"}All events in the series{/msg}</div>
+          <div {if $states.exception}style="display:none"{/if} class="{css eb-btn-event-accepted-default-notification-series} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation" desc="Send response now"}Send response now{/msg}</div>
+          <div {if $states.exception}style="display:none"{/if} class="{css eb-btn-event-accepted-edit-notification-series} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation.note" desc="Add a note to the response before sending"}Add a note to the response before sending{/msg}</div>
+          <div {if $states.exception}style="display:none"{/if} class="{css eb-btn-event-accepted-no-notification-series} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation.silent" desc="Do not send response"}Do not send response{/msg}</div>
+          <div {if $states.exception}style="display:none"{/if} class="{css goog-menuitem} {css goog-menuitem-disabled}" {if not $states.occurrence}style="display:none"{/if}>&nbsp;</div>
+          <div {if not $states.occurrence}style="display:none"{/if} class="{css accept-instance} {css goog-menuitem} {css goog-menuitem-disabled}">{msg meaning="calendar.event.recurringEvent.action.onlyThisOne" desc="calendar.event.recurringEvent.action.onlyThisOne"}Only this instance{/msg}</div>
+          <div {if $states.main}style="display:none"{/if} class="{css eb-btn-event-accepted-default-notification} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation" desc="Send response now"}Send response now{/msg}</div>
+          <div {if $states.main}style="display:none"{/if} class="{css eb-btn-event-accepted-edit-notification} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation.note" desc="Add a note to the response before sending"}Add a note to the response before sending{/msg}</div>
+          <div {if $states.main}style="display:none"{/if} class="{css eb-btn-event-accepted-no-notification} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation.silent" desc="Do not send response"}Do not send response{/msg}</div>
+        </div>
+      </span>
+      <span class="{css ecb-form-participation}">
+        <button class="{css eb-btn-tentative-menu} {css goog-button-base}" {if $participation == 'Tentative'}disabled="true"{/if}>{msg meaning="calendar.event.participation.maybe" desc="Button to set participation to 'tentative'"}Tentative{/msg}</button>
+        <div class="{css partstat-tentative-menu} {css goog-menu}" style="display:none">
+          <div {if not $states.occurrence}style="display:none"{/if} class="{css tentative-series} {css goog-menuitem} {css goog-menuitem-disabled}">{msg meaning="calendar.event.recurringEvent.action.all" desc="All events in the series"}All events in the series{/msg}</div>
+          <div {if $states.exception}style="display:none"{/if} class="{css eb-btn-event-tentative-default-notification-series} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation" desc="Send response now"}Send response now{/msg}</div>
+          <div {if $states.exception}style="display:none"{/if} class="{css eb-btn-event-tentative-edit-notification-series} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation.note" desc="Add a note to the response before sending"}Add a note to the response before sending{/msg}</div>
+          <div {if $states.exception}style="display:none"{/if} class="{css eb-btn-event-tentative-no-notification-series} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation.silent" desc="Do not send response"}Do not send response{/msg}</div>
+          <div {if $states.exception}style="display:none"{/if} class="{css goog-menuitem} {css goog-menuitem-disabled}" {if not $states.occurrence}style="display:none"{/if}>&nbsp;</div>
+          <div {if not $states.occurrence}style="display:none"{/if} class="{css tentative-instance} {css goog-menuitem} {css goog-menuitem-disabled}">{msg meaning="calendar.event.recurringEvent.action.onlyThisOne" desc="calendar.event.recurringEvent.action.onlyThisOne"}Only this instance{/msg}</div>
+          <div {if $states.main}style="display:none"{/if}class="{css eb-btn-event-tentative-default-notification} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation" desc="Send response now"}Send response now{/msg}</div>
+          <div {if $states.main}style="display:none"{/if} class="{css eb-btn-event-tentative-edit-notification} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation.note" desc="Add a note to the response before sending"}Add a note to the response before sending{/msg}</div>
+          <div {if $states.main}style="display:none"{/if} class="{css eb-btn-event-tentative-no-notification} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation.silent" desc="Do not send response"}Do not send response{/msg}</div>
+        </div>
+      </span>
+      <span class="{css ecb-form-participation}">
+        <button class="{css eb-btn-declined-menu} {css goog-button-base}" {if $participation == 'Declined'}disabled="true"{/if}>{msg meaning="general.no" desc="no"}No{/msg}</button>
+        <div class="{css partstat-declined-menu} {css goog-menu}" style="display:none">
+          <div {if not $states.occurrence}style="display:none"{/if} class="{css decline-series} {css goog-menuitem} {css goog-menuitem-disabled}">{msg meaning="calendar.event.recurringEvent.action.all" desc="All events in the series"}All events in the series{/msg}</div>
+          <div {if $states.exception}style="display:none"{/if} class="{css eb-btn-event-declined-default-notification-series} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation" desc="Send response now"}Send response now{/msg}</div>
+          <div {if $states.exception}style="display:none"{/if} class="{css eb-btn-event-declined-edit-notification-series} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation.note" desc="Add a note to the response before sending"}Add a note to the response before sending{/msg}</div>
+          <div {if $states.exception}style="display:none"{/if} class="{css eb-btn-event-declined-no-notification-series} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation.silent" desc="Do not send response"}Do not send response{/msg}</div>
+          <div {if $states.exception}style="display:none"{/if} class="{css goog-menuitem} {css goog-menuitem-disabled}" {if not $states.exception}style="display:none"{/if}>&nbsp;</div>
+          <div {if not $states.occurrence}style="display:none"{/if} class="{css decline-instance} {css goog-menuitem} {css goog-menuitem-disabled}">{msg meaning="calendar.event.recurringEvent.action.onlyThisOne" desc="calendar.event.recurringEvent.action.onlyThisOne"}Only this instance{/msg}</div>
+          <div {if $states.main}style="display:none"{/if} class="{css eb-btn-event-declined-default-notification} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation" desc="Send response now"}Send response now{/msg}</div>
+          <div {if $states.main}style="display:none"{/if} class="{css eb-btn-event-declined-edit-notification} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation.note" desc="Add a note to the response before sending"}Add a note to the response before sending{/msg}</div>
+          <div {if $states.main}style="display:none"{/if} class="{css eb-btn-event-declined-no-notification} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation.silent" desc="Do not send response"}Do not send response{/msg}</div>
+        </div>
+      </span>
+{/template}
+
+/**
+ * Attendees
+ * @param attendees attendees list.
+ */
+{template .attendees_}
+  <div class="{css bubble-attendees-container}">
+    <ul class="{css attendees}">
+    {foreach $attendee in $attendees}
+      {if $attendee['partStatus'] == 'Declined'}
+        <li class="{css declined}" title="{if $attendee['mailto']}<{$attendee['mailto']}>{/if}">
+      	  {$attendee['commonName']}
+        </li>
+      {elseif $attendee['partStatus'] == 'Accepted'}
+        <li class="{css accepted}" title="{if $attendee['mailto']}{$attendee['mailto']}{/if}">
+      	{$attendee['commonName']}
+        </li>
+      {elseif $attendee['partStatus'] == 'Tentative'}
+        <li class="{css tentative}" title="{if $attendee['mailto']}{$attendee['mailto']}{/if}">
+      	{$attendee['commonName']}        
+      {else}
+        <li class="{css needsaction}" title="{if $attendee['mailto']}{$attendee['mailto']}{/if}">
+      	  {$attendee['commonName']}
+        </li>
+      {/if}
+    {/foreach}
+    </ul>
+  </div>
+{/template}
+
+/**
+ * Dialog: Recurring event update
+ */
+{template .recurringUpdateDialog}
+<div class="{css modal-dialog} {css recurring}">
+  <div class="{css modal-dialog-title}">
+    <span class="{css modal-dialog-title-text}">{msg meaning="calendar.event.recurringEvent.update.title" desc="update dialog title"}Update recurring event{/msg}</span>
+    <span class="{css modal-dialog-title-close}"></span>
+  </div>
+  <div class="{css modal-dialog-content}">{msg meaning="calendar.event.recurringEvent.update.content" desc="update recurring dialog content"}Would you like to change only this event, all events in the series, or this and all following events in the series?{/msg}
+    <table>
+      <tr>
+        <td><button id="rud-btn-this-instance" class="{css goog-button-base}">{msg meaning="calendar.event.recurringEvent.action.onlyThisOne" desc="button only this instance"}Only this instance{/msg}</button></td>
+        <td>{msg meaning="calendar.event.recurringEvent.action.allOtherRemainSame" desc="all other events in the series will remain the same"}All other events in the series will remain the same.{/msg}</td>
+      </tr>
+      <tr>
+        <td><button id="rud-btn-all-the-following" class="{css goog-button-base}">{msg meaning="calendar.event.recurringEvent.action.allFollowing" desc="button update all the following"}All the following{/msg}</button></td>
+        <td>{msg meaning="calendar.event.recurringEvent.info.allFollowingWillBeChanged" desc="this and all the following events will be changed"}This and all the following events will be changed.{/msg}</td>
+      </tr>
+      <tr id="rud-tr-update-serie">
+        <td><button id="rud-btn-update-serie" class="{css goog-button-base}">{msg meaning="calendar.event.recurringEvent.action.all" desc="button update serie"}All events in the series{/msg}</button></td>
+        <td>{msg meaning="calendar.event.recurringEvent.info.allWillBeChanged" desc="all events in the series will be changed"}All events in the series will be changed.{/msg}</td>
+      </tr>
+    </table>
+  </div>
+  <div class="{css modal-dialog-buttons}">
+    <button name="cancel" class="{css goog-button-base}">{msg meaning="general.cancel" desc="button cancel"}Cancel{/msg}</button>
+  </div>
+  <span tabindex="0"></span>
+</div>
+{/template}
+
+
+
+/**
+ * Dialog: Recurring event delete
+ */
+{template .recurringDeleteDialog}
+<div class="{css modal-dialog} {css recurring}">
+  <div class="{css modal-dialog-title}">
+    <span class="{css modal-dialog-title-text}">{msg meaning="calendar.event.recurringEvent.delete.title" desc="delete dialog title"}Delete recurring event{/msg}</span>
+    <span class="{css modal-dialog-title-close}"></span>
+  </div>
+  <div class="{css modal-dialog-content}">{msg meaning="calendar.event.recurringEvent.delete.content" desc="delete recurring dialog content"}Would you like to delete only this event, all events in the series or this and all future events in the series?{/msg}
+    <table>
+      <tr>
+        <td><button id="rdd-btn-this-instance" class="{css goog-button-base}">{msg meaning="calendar.event.recurringEvent.action.onlyThisOne" desc="button only this instance"}Only this instance{/msg}</button></td>
+        <td>{msg meaning="calendar.event.recurringEvent.action.allOtherRemainSame" desc="all other events in the series will be retained"}All other events in the series will be retained.{/msg}</td>
+      </tr>
+      <tr>
+        <td><button id="rdd-btn-all-the-following" class="{css goog-button-base}">{msg meaning="calendar.event.recurringEvent.action.allFollowing" desc="button delete all the following"}All the following{/msg}</button></td>
+        <td>{msg meaning="calendar.event.recurringEvent.info.allFollowingWillBeChanged" desc="this and all the following events will be deleted"}This and all the following events will be deleted.{/msg}</td>
+      </tr>
+      <tr>
+        <td><button id="rdd-btn-delete-serie" class="{css goog-button-base}">{msg meaning="calendar.event.recurringEvent.action.all" desc="button delete serie"}All events in the series{/msg}</button></td>
+        <td>{msg meaning="calendar.event.recurringEvent.info.allWillBeDeleted" desc="all events in the series will be deleted"}All events in the series will be deleted.{/msg}</td>
+      </tr>
+    </table>
+  </div>
+  <div class="{css modal-dialog-buttons}">
+    <button name="cancel" class="{css goog-button-base}">{msg meaning="general.cancel" desc="button cancel"}Cancel{/msg}</button>
+  </div>
+  <span tabindex="0"></span>
+</div>
+{/template}
+
+/**
+ * Dialog: Recurring event form
+ */
+{template .recurringFormDialog}
+<div class="{css modal-dialog} {css recurring}">
+  <div class="{css modal-dialog-title}">
+    <span class="{css modal-dialog-title-text}">{msg meaning="calendar.event.recurringEvent.update.title" desc="update dialog title"}Update recurring event{/msg}</span>
+    <span class="{css modal-dialog-title-close}"></span>
+  </div>
+  <div class="{css modal-dialog-content}">{msg meaning="calendar.event.recurringEvent.updateWithoutFollowing.content" desc="update recurring dialog content"}Would you like to change only this event or all events in the series ?{/msg}
+    <table>
+      <tr>
+        <td><button id="rfd-btn-this-instance" class="{css goog-button-base}">{msg meaning="calendar.event.recurringEvent.action.onlyThisOne" desc="button only this instance"}Only this instance{/msg}</button></td>
+        <td>{msg meaning="calendar.event.recurringEvent.action.allOtherRemainSame" desc="all other events in the series will remain the same"}All other events in the series will remain the same.{/msg}</td>
+      </tr>
+      <tr>
+        <td><button id="rfd-btn-goto-serie" class="{css goog-button-base}">{msg meaning="calendar.event.recurringEvent.action.all" desc="button update serie"}All events in the series{/msg}</button></td>
+        <td>{msg meaning="calendar.event.recurringEvent.info.allWillBeChanged" desc="all events in the series will be changed"}All events in the series will be changed.{/msg}</td>
+      </tr>
+    </table>
+  </div>
+  <div class="{css modal-dialog-buttons}">
+    <button name="cancel" class="{css goog-button-base}">{msg meaning="general.cancel" desc="button cancel"}Cancel{/msg}</button>
+  </div>
+  <span tabindex="0"></span>
+</div>
+{/template}
+
+
+/**
+ * Event
+ * @param summary Event title.
+ * @param states Event states.
+ * @param location event location.
+ * @param formatted event formated date
+ */
+{template .overflow}
+  {if not $states.busy}
+    <div class="{css transparent-marker}"></div>
+  {/if}
+  <div class="{css icon-container}">
+  {if $states.repeat}
+    <span class="{css fa} {css fa-repeat}"></span>
+  {/if}
+  {if $states.private_}
+    <span class="{css fa} {css fa-lock}"></span>
+  {/if}
+  {if $states.meeting}
+    <span class="{css fa} {css fa-users}"></span>    
+  {/if}
+  </div>
+  <dl>
+    <dt class="{css ev-header}" style="display:none;"></dt>
+    <dd>
+    	<span class="{css ev-content}">
+    	{if $states.short}
+    		{$formatted.tstart}{sp}
+    	{/if}
+        	{$summary}
+        </span>
+        {if $location != '' and isNonnull($location) }
+          <span class="{css ev-location}">, {$location}</span>
+        {/if}
+    </dd>
+  </dl>
+  </div>
+{/template}
+
+/**
+ * Event
+ * @param formatted event formated date
+ */
+{template .overflowExtension}
+  <div class="{css extension} {css FR} {css right}">
+    <div class="{css extension-right}"></div>
+  </div>
+  <div class="{css extension} {css FL} {css left}">
+    <div class="{css extension-left}"></div>
+  </div>
+  </div>
+  <dl>
+    <dt class="{css ev-header}" style="display:none;"></dt>
+    <dd>
+        <span class="{css ev-content} {css left}">{$formatted.dstart}</span>
+        <span class="{css ev-content} {css right}">{$formatted.dend}</span>
+    </dd>
+  </dl>
+{/template}

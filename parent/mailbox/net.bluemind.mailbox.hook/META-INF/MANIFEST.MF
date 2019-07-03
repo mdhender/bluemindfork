@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.mailshare.hook
+Bundle-SymbolicName: net.bluemind.mailbox.hook;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
+ net.bluemind.core.container.api;bundle-version="1.0.0",
+ net.bluemind.server.api;bundle-version="1.0.0",
+ net.bluemind.mailbox.api;bundle-version="1.0.0",
+ net.bluemind.core.rest
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: net.bluemind.mailbox.hook

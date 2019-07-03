@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.system.stateobserver.testhelper
+Bundle-SymbolicName: net.bluemind.system.stateobserver.testhelper;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.system.stateobserver.testhelper.Activator
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.system.state,
+ net.bluemind.system.stateobserver,
+ net.bluemind.system.api,
+ net.bluemind.lib.vertx,
+ net.bluemind.hornetq.client
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.system.stateobserver.testhelper
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.system.stateobserver.testhelper

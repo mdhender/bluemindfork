@@ -1,0 +1,95 @@
+/* Miam css */
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+.bm-icon {
+  list-style-image: url("chrome://bm/skin/BM_Icone01_48.png");
+}
+
+/* toolbar buttons */
+#bm-button-open-calendar {
+  list-style-image: url("chrome://bm/skin/BM_Icone01_24.png");
+}
+
+toolbar[iconsize="small"] #bm-button-open-calendar {
+  list-style-image: url("chrome://bm/skin/BM_Icone01_16.png");
+}
+
+#bm-button-open-todolist {
+  list-style-image: url("chrome://bm/skin/BM_Icone01_24.png");
+}
+
+toolbar[iconsize="small"] #bm-button-open-todolist {
+  list-style-image: url("chrome://bm/skin/BM_Icone01_16.png");
+}
+
+#bm-button-sync {
+  list-style-image: url("chrome://bm/skin/BM_Icone01_24.png");
+}
+
+toolbar[iconsize="small"] #bm-button-sync {
+  list-style-image: url("chrome://bm/skin/BM_Icone01_16.png");
+}
+
+/* toolbar buttons */
+#bm-button-archive {
+  list-style-image: url("chrome://bm/skin/BM_Icone01_24.png");
+}
+
+toolbar[iconsize="small"] #bm-button-archive {
+  list-style-image: url("chrome://bm/skin/BM_Icone01_16.png");
+}
+
+/* Thunderbird prefpane tab icon */
+#MailPreferences radio[pane="paneBM"] {
+  list-style-image: url("chrome://bm/skin/BM_Icone01_24.png");
+}
+
+treechildren::-moz-tree-image(DirCol, IsBm-true) {
+  list-style-image: url("chrome://bm/skin/BM_Icone01_16.png");
+}
+
+treechildren::-moz-tree-image(DirCol, IsBm-true, IsBmShared-true) {
+  list-style-image: url("chrome://bm/skin/shared.png");
+}
+
+treechildren::-moz-tree-checkbox {
+  /* unchecked checkbox treecells. This style MUST come before treechildren::-moz-tree-checkbox(checked) otherwise it won't take effect. */
+  list-style-image: url("")
+}
+treechildren::-moz-tree-checkbox(checked) {
+  /* checked checkbox treecells. cbox-check.gif isn't available in
+     Firefox 1, 2, and 3 in Mac OS X so you should specify a URL to an image
+     in your extension or elsewhere. */
+  list-style-image: url("chrome://global/skin/checkbox/cbox-check.gif");
+}
+treechildren::-moz-tree-checkbox(disabled) {
+  /* disabled checkbox treecells. cbox-check-dis.gif isn't available in
+     Firefox 1, 2, and 3 in Mac OS X, so you should specify a URL to an image
+     in your extension or elsewhere. */
+  list-style-image: url("chrome://global/skin/checkbox/cbox-check-dis.gif")
+}
+
+.bm-delete-button {
+  list-style-image: url("chrome://bm/skin/trash.png");
+  cursor: pointer;
+}
+
+treechildren::-moz-tree-image(subjectCol, kw-bmarchived) {
+  list-style-image: url("chrome://bm/skin/archived.png");
+}
+
+label.highlight {
+  font-weight: bold;
+  text-decoration: none;
+}
+
+label.red {
+  color: red !important;
+}
+
+#bm-ics-bandal {
+  background-color: #dbeaf9;
+  color: -moz-dialogtext;
+  border-bottom: 1px solid #bfbfbf;
+  padding: 3px;
+}
