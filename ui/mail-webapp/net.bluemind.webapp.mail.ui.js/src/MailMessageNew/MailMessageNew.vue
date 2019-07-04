@@ -11,6 +11,8 @@
                             ref="to"
                             :contacts.sync="message_.to"
                             class="mt-2"
+                            :autocomplete-results="autocompleteResultsTo"
+                            @search="(searchedPattern) => onSearch('to', searchedPattern)"
                         >
                             {{ $t("common.to") }}
                         </bm-contact-input>
@@ -20,10 +22,10 @@
                         class="text-center"
                     >
                         <bm-button
-                            v-if="mode == modes.TO"
+                            v-if="mode_ == modes.TO"
                             variant="link"
                             class="text-blue"
-                            @click="mode = (modes.TO|modes.CC|modes.BCC)"
+                            @click="mode_= (modes.TO|modes.CC|modes.BCC)"
                         >
                             <bm-icon icon="chevron" />
                         </bm-button>
@@ -31,37 +33,46 @@
                 </bm-row>
                 <hr class="mt-0 mb-2">
 
-                <bm-row v-if="mode > modes.TO">
+                <bm-row v-if="mode_> modes.TO">
                     <bm-col cols="11">
-                        <bm-contact-input :contacts.sync="message_.cc">{{ $t("common.cc") }}</bm-contact-input>
+                        <bm-contact-input
+                            ref="cc"
+                            :contacts.sync="message_.cc"
+                            :autocomplete-results="autocompleteResultsCc"
+                            @search="(searchedPattern) => onSearch('cc', searchedPattern)"
+                        >
+                            {{ $t("common.cc") }}
+                        </bm-contact-input>
                     </bm-col>
                     <bm-col
                         cols="1"
                         class="text-center"
                     >
                         <bm-button
-                            v-if="mode == (modes.TO|modes.CC)"
+                            v-if="mode_== (modes.TO|modes.CC)"
                             variant="link"
                             class="text-blue"
-                            @click="mode = (modes.TO|modes.CC|modes.BCC)"
+                            @click="mode_= (modes.TO|modes.CC|modes.BCC)"
                         >
                             {{ $t("common.bcc") }}
                         </bm-button>
                     </bm-col>
                 </bm-row>
                 <hr
-                    v-if="mode > modes.TO"
+                    v-if="mode_> modes.TO"
                     class="mt-0 mb-2"
                 >
 
                 <bm-contact-input
-                    v-if="mode == (modes.TO|modes.CC|modes.BCC)"
+                    v-if="mode_== (modes.TO|modes.CC|modes.BCC)"
                     :contacts.sync="message_.bcc"
+                    :autocomplete-results="autocompleteResultsBcc"
+                    @search="(searchedPattern) => onSearch('bcc', searchedPattern)"
                 >
                     {{ $t("common.bcc") }}
                 </bm-contact-input>
                 <hr
-                    v-if="mode == (modes.TO|modes.CC|modes.BCC)"
+                    v-if="mode_== (modes.TO|modes.CC|modes.BCC)"
                     class="mt-0"
                 >
 
@@ -109,6 +120,9 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+import { OrderBy } from "@bluemind/addressbook.api";
+import { VCardInfoAdaptor } from "@bluemind/contact";
 import BmButton from "@bluemind/styleguide/components/buttons/BmButton";
 import BmCol from "@bluemind/styleguide/components/layout/BmCol";
 import BmContactInput from "@bluemind/styleguide/components/form/BmContactInput";
@@ -120,7 +134,9 @@ import BmIcon from "@bluemind/styleguide/components/BmIcon";
 import BmPanel from "@bluemind/styleguide/components/BmPanel/BmPanel";
 import BmRow from "@bluemind/styleguide/components/layout/BmRow";
 import CommonL10N from "@bluemind/l10n";
+import debounce from "lodash/debounce";
 import MailMessageNewFooter from "./MailMessageNewFooter";
+import ServiceLocator from "@bluemind/inject";
 import uuid from "uuid/v4";
 
 /**
@@ -178,12 +194,25 @@ export default {
                 headers: []
             },
             expandPreviousMessages: false,
-            modes: MailMessageNewModes
+            modes: MailMessageNewModes,
+            autocompleteResults: [],
+            autocompleteResultsTo: [],
+            autocompleteResultsCc: [],
+            autocompleteResultsBcc: [],
+            mode_: this.mode
         };
     },
     computed: {
+        ...mapGetters("backend.mail/items", { lastRecipients: "getLastRecipients" }),
         panelTitle() {
             return this.message_.subject ? this.message_.subject : this.$t("mail.main.new");
+        }
+    },
+    watch: {
+        autocompleteResults: function() {
+            this.autocompleteResultsTo = this.getAutocompleteResults("to");
+            this.autocompleteResultsCc = this.getAutocompleteResults("cc");
+            this.autocompleteResultsBcc = this.getAutocompleteResults("bcc");
         }
     },
     mounted: function() {
@@ -214,7 +243,7 @@ export default {
                 .then(taskrefId => {
                     this.$store.commit("alert/addSuccess", {
                         uid: uuid(),
-                        message: "Message successfully sent (" + taskrefId + ")"
+                        message: "Message successfully sent (" + (taskrefId ? taskrefId.id : "N/A") + ")"
                     });
                     this.close();
                 })
@@ -233,6 +262,44 @@ export default {
         },
         save() {
             // Not implemented yet
+        },
+        onSearch(fieldFocused, searchedPattern) {
+            this.fieldFocused = fieldFocused;
+            this.search(searchedPattern);
+        },
+        search: debounce(function(searchedRecipient) {
+            if (searchedRecipient === "") {
+                this.autocompleteResults = [];
+            } else {
+                return ServiceLocator.getProvider("AddressBooksPersistance")
+                    .get()
+                    .search({
+                        from: 0,
+                        size: 5,
+                        query: searchedRecipient,
+                        orderBy: OrderBy.Pertinance,
+                        escapeQuery: false
+                    })
+                    .then(results => {
+                        if (results.values.length === 0) {
+                            this.autocompleteResults = undefined;
+                        } else {
+                            this.autocompleteResults = results.values.map(vcardInfo =>
+                                VCardInfoAdaptor.toContact(vcardInfo)
+                            );
+                        }
+                    });
+            }
+        }, 200),
+        getAutocompleteResults(fromField) {
+            if (fromField !== this.fieldFocused || this.autocompleteResults === undefined) {
+                return [];
+            }
+            if (this.autocompleteResults.length > 0) {
+                return this.autocompleteResults;
+            } else {
+                return this.lastRecipients;
+            }
         }
     }
 };

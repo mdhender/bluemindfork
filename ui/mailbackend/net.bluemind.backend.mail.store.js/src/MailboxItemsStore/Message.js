@@ -48,7 +48,11 @@ export default class Message {
             REPLY_TO: "Reply-To"
         };
 
-        fromMailboxItem(item, this);
+        if (item.value) {
+            fromMailboxItem(item, this);
+        } else {
+            Object.assign(this, item);
+        }
 
         this.userSession = injector.getProvider('UserSession').get();
 
@@ -217,8 +221,8 @@ function buildRecipientsForKind(kind, addresses) {
     return (addresses || []).map(address => {
         return {
             kind: kind,
-            address: address.address,
-            dn: address.dn
+            address: address,
+            dn: "" // FIXME should provide the displayed name here
         };
     });
 }

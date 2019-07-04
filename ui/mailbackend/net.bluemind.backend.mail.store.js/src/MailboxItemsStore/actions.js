@@ -3,6 +3,7 @@ import injector from "@bluemind/inject";
 import PartsHelper from "./PartsHelper";
 import ServiceLocator from "@bluemind/inject";
 import uuid from "uuid/v4";
+import Message from "./Message.js";
 
 export function all({ commit }, folder) {
     const service = ServiceLocator.getProvider("MailboxItemsPersistance").get(folder);
@@ -147,7 +148,7 @@ export function send(payload, { message, isAReply, previousMessage, outboxUid })
         }
     }
     if (!validate(message)) {
-        return;
+        return Promise.reject();
     }
     sanitize(message);
     const userSession = injector.getProvider('UserSession').get();
@@ -157,7 +158,7 @@ export function send(payload, { message, isAReply, previousMessage, outboxUid })
     return service
         .uploadPart(message.content)
         .then(addrPart => service.create(
-            message.toMailboxItem(
+            new Message(message).toMailboxItem(
                 addrPart,
                 userSession.defaultEmail,
                 userSession.formatedName

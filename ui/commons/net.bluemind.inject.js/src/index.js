@@ -1,5 +1,5 @@
-import { default as VueInjection } from "./VueInjection";
-import Vue from "vue";
-Vue.use(VueInjection);
+// import { default as VueInjection } from "./VueInjection";
+// import Vue from "vue";
+// Vue.use(VueInjection);
 
 export { default } from "./DependencyLocator";
