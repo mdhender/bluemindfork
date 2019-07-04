@@ -210,11 +210,17 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		}
 		CompletableFuture<ItemIdentifier> future = ReplicationEvents.onSubtreeUpdate(toWatch);
 		final String fnName = newName;
+		final String fnToWath = toWatch;
 		imapContext.withImapClient((sc, fast) -> {
 			logger.info("Deleting {}", fnName);
 			selectInbox(sc, fast);
 			sc.deleteMailbox(fnName);
-			return future.get(10, TimeUnit.SECONDS);
+			try {
+				return future.get(10, TimeUnit.SECONDS);
+			} catch (InterruptedException | ExecutionException | TimeoutException e) {
+				logger.warn("Failed to delete folder {} {}", fnName, fnToWath);
+				throw new ServerFault(e);
+			}
 		});
 	}
 
