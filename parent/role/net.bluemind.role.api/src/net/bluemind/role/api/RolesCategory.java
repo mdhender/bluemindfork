@@ -20,13 +20,24 @@ package net.bluemind.role.api;
 
 import net.bluemind.core.api.BMApi;
 
+/**
+ * Role category declaration.
+ *
+ */
 @BMApi(version = "3")
 public class RolesCategory {
 
+	/**
+	 * Unique identifier.
+	 */
 	public String id;
-
+	/**
+	 * Category label.
+	 */
 	public String label;
-
+	/**
+	 * Priority (order).
+	 */
 	public int priority;
 
 	public static RolesCategory create(String id, String label) {

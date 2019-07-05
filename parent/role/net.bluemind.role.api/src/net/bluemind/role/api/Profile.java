@@ -20,6 +20,7 @@ package net.bluemind.role.api;
 
 import net.bluemind.core.api.BMApi;
 
+@Deprecated
 @BMApi(version = "3")
 public class Profile {
 
