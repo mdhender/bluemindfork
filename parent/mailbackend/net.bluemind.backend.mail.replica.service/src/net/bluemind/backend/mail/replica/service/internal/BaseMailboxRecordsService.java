@@ -199,6 +199,38 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 
 	}
 
+	protected boolean checkExistOnBackend(long imapUid) {
+		SubtreeLocation recordsLocation = optRecordsLocation
+				.orElseThrow(() -> new ServerFault("Missing subtree location"));
+		String datalocation = DataSourceRouter.location(context, recordsLocation.subtreeContainer);
+		CyrusPartition partition = CyrusPartition.forServerAndDomain(datalocation, container.domainUid);
+
+		Iterator<String> mbox = Splitter.on("/").split(recordsLocation.contName).iterator();
+		String mboxType = mbox.next();
+
+		MailboxDescriptor md = new MailboxDescriptor();
+		md.type = "users".equals(mboxType) ? Type.user : Type.mailshare;
+		md.mailboxName = mbox.next();
+		md.utf7FolderPath = UTF7Converter.encode(recordsLocation.imapPath());
+
+		if (md.type == Type.mailshare) {
+			md.utf7FolderPath = md.utf7FolderPath.substring("Dossiers partag&AOk-s/".length(),
+					md.utf7FolderPath.length());
+		}
+		IServiceTopology topology = Topology.get();
+
+		boolean exist = false;
+		ItemValue<Server> backend = topology.datalocation(datalocation);
+
+		if (backend.uid.equals(topology.core().uid)) {
+			exist = directExist(md, partition, imapUid);
+		} else {
+			INodeClient nc = NodeActivator.get(backend.value.address());
+			exist = nodeExist(nc, md, partition, imapUid);
+		}
+		return exist;
+	}
+
 	private InputStream nodeRead(INodeClient nc, MailboxDescriptor md, CyrusPartition partition, long imapUid) {
 		String path = CyrusFileSystemPathHelper.getFileSystemPath(container.domainUid, md, partition, imapUid);
 		List<FileDescription> file = nc.listFiles(path);
@@ -212,6 +244,19 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 			}
 		}
 		return nc.openStream(path);
+	}
+
+	private boolean nodeExist(INodeClient nc, MailboxDescriptor md, CyrusPartition partition, long imapUid) {
+		String path = CyrusFileSystemPathHelper.getFileSystemPath(container.domainUid, md, partition, imapUid);
+		List<FileDescription> file = nc.listFiles(path);
+		if (file.isEmpty()) {
+			path = CyrusFileSystemPathHelper.getHSMFileSystemPath(container.domainUid, md, partition, imapUid);
+			file = nc.listFiles(path);
+			if (file.isEmpty()) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private InputStream directRead(MailboxDescriptor md, CyrusPartition partition, long imapUid) {
@@ -232,6 +277,19 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 		} catch (IOException e) {
 			throw new ServerFault(e);
 		}
+	}
+
+	private boolean directExist(MailboxDescriptor md, CyrusPartition partition, long imapUid) {
+		String path = CyrusFileSystemPathHelper.getFileSystemPath(container.domainUid, md, partition, imapUid);
+		File pathFile = new File(path);
+		if (!pathFile.exists()) {
+			path = CyrusFileSystemPathHelper.getHSMFileSystemPath(container.domainUid, md, partition, imapUid);
+			pathFile = new File(path);
+			if (!pathFile.exists()) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 }

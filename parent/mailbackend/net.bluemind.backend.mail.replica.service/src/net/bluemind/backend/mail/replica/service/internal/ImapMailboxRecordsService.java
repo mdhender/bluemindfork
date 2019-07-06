@@ -213,15 +213,21 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		Set<Long> knownUids = imapUids.stream().map(Long::new).collect(Collectors.toSet());
 		List<String> allUids = storeService.allUids();
 		List<ItemValue<MailboxRecord>> extraRecords = new ArrayList<>(allUids.size());
+		List<ItemValue<MailboxRecord>> unlinkedRecords = new ArrayList<>(allUids.size());
 		for (List<String> slice : Lists.partition(allUids, 50)) {
 			List<ItemValue<MailboxRecord>> records = storeService.getMultiple(slice);
 			for (ItemValue<MailboxRecord> iv : records) {
-				if (!knownUids.contains(iv.value.imapUid) && !iv.flags.contains(ItemFlag.Deleted)) {
-					extraRecords.add(iv);
+				if (!knownUids.contains(iv.value.imapUid)) {
+					if (!checkExistOnBackend(iv.value.imapUid)) {
+						unlinkedRecords.add(iv);
+					} else if (!iv.flags.contains(ItemFlag.Deleted)) {
+						extraRecords.add(iv);
+					}
 				}
 			}
 		}
-		logger.info("Found {} extra record(s) before resync of {}", extraRecords.size(), imapFolder);
+		logger.info("Found {} extra record(s), {} unlinked record(s) before resync of {}", extraRecords.size(),
+				unlinkedRecords.size(), imapFolder);
 		if (!extraRecords.isEmpty()) {
 			IDbMailboxRecords recsApi = context.provider().instance(IDbMailboxRecords.class,
 					IMailReplicaUids.uniqueId(container.uid));
@@ -231,6 +237,11 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 				return ret;
 			}).collect(Collectors.toList());
 			recsApi.updates(batch);
+		}
+		if (!unlinkedRecords.isEmpty()) {
+			IDbMailboxRecords recsApi = context.provider().instance(IDbMailboxRecords.class,
+					IMailReplicaUids.uniqueId(container.uid));
+			recsApi.deleteImapUids(unlinkedRecords.stream().map(iv -> iv.value.imapUid).collect(Collectors.toList()));
 		}
 		time = System.currentTimeMillis() - time;
 		logger.info("{} re-sync completed in {}ms.", imapFolder, time);
