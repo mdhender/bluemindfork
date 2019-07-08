@@ -68,13 +68,14 @@ net.bluemind.ui.cti.PhoneMatcher.prototype.requestMatchingRows = function(token,
     'Accept' : 'application/json'
   }));
   var client = new net.bluemind.addressbook.api.AddressBooksClient(rpc, '');
+  var escapedToken = token.replace(/([:+\-!\(\){}\[\]^"~*?\\]|[&\|]{2})/g,  "\\$1");
   var query = {
     'from' : 0,
     'size' : 10,
-    'escapeQuery' : true,
+    'escapeQuery' : false,
     'query' : '_exists_: value.communications.tels.value ' + //
-    ' AND ( value.identification.formatedName.value:' + token + //
-    ' OR value.communications.tels.value:' + token + ' )'
+    ' AND ( value.identification.formatedName.value:' + escapedToken + //
+    ' OR value.communications.tels.value:' + escapedToken + ' )'
   };
 
   client.search(query).then(function(res) {
