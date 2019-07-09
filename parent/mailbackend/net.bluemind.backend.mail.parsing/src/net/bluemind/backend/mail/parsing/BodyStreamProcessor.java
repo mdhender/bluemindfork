@@ -385,7 +385,12 @@ public class BodyStreamProcessor {
 			SizedBody sized = (SizedBody) sub.getBody();
 			p.size = sized.size();
 
-			p.dispositionType = DispositionType.valueOfNullSafeIgnoreCase(sub.getDispositionType());
+			try {
+				p.dispositionType = DispositionType.valueOfNullSafeIgnoreCase(sub.getDispositionType());
+			} catch (IllegalArgumentException ie) {
+				logger.warn("Invalid disposition type, using {}: {}", DispositionType.ATTACHMENT, ie.getMessage());
+				p.dispositionType = DispositionType.ATTACHMENT;
+			}
 
 			// Apple Mail sends PDFs as inline stuff
 			// --Apple-Mail=_597C093C-5BA5-4C97-8C3A-FE774541930B
