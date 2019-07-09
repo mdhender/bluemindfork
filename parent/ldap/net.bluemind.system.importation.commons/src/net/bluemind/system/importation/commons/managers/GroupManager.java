@@ -115,9 +115,7 @@ public abstract class GroupManager extends EntityManager {
 
 			group.value = pluginGroup.group;
 		} catch (LdapInvalidAttributeValueException e) {
-			String errorMsg = String.format("Unable to convert entry:%s to a valid BlueMind group", entry.getDn());
-			logger.error(errorMsg);
-			throw new ServerFault(errorMsg);
+			throw new ServerFault(e);
 		}
 	}
 
