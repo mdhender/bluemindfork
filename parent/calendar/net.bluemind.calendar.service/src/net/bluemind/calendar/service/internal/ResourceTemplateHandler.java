@@ -73,7 +73,9 @@ public final class ResourceTemplateHandler {
 	private static final String PROPERTIES_SEPARATOR = "\n";
 	private static final String PROPERTIES_LOCALIZATION_SEPARATOR = "::";
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceTemplateHandler.class);
-	private static final Pattern TEMPLATE_VARIABLES_PATTERN = Pattern.compile("\\$\\{([\\w\\s]+)\\}");
+	// note: '[\p{L}\p{N}_]' is the unicode alternative of '\w' (matches characters
+	// with accents)
+	private static final Pattern TEMPLATE_VARIABLES_PATTERN = Pattern.compile("\\$\\{([\\p{L}\\p{N}_\\s]+)\\}");
 	private static final String DEFAULT_LANGUAGE_TAG = "fr";
 
 	/**

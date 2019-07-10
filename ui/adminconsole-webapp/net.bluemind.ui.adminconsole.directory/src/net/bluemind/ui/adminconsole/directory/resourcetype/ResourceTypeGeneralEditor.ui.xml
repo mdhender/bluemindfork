@@ -92,6 +92,13 @@
 				</td>
 				<td class="form">
 					<p align="justify" style="width:32.7rem;"><i><ui:msg key="templateInfo">Template info</ui:msg></i></p>
+					<p>
+						<ui:msg key="templateInfoVar">Variables:</ui:msg>
+						<ul>
+							<li style="width:32.7rem;"><ui:msg key="templateInfoVar1">var1</ui:msg></li>
+							<li style="width:32.7rem;"><ui:msg key="templateInfoVar2">var2</ui:msg></li>
+						</ul>
+					</p>
 					<rt:TemplateContainer ui:field="templateContainer"></rt:TemplateContainer>
 				</td>
 			</tr>

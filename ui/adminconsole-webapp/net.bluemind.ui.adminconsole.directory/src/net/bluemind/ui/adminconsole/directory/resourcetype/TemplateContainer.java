@@ -25,30 +25,47 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.google.gwt.dom.client.Style.FontWeight;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.uibinder.client.UiConstructor;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.RichTextArea;
 import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
+import net.bluemind.ui.adminconsole.directory.resourcetype.l10n.ResourceTypeConstants;
+
 public class TemplateContainer extends Composite {
 	private static final String WIDTH = "32.7rem";
 	private static final String NEW_BUTTON = "New";
-	private static final String MINUS_BUTTON = "-";
-	private static final String PLUS_BUTTON = "+";
 	private static final List<String> SUPPORTED_LANGUAGES = Arrays
 			.asList(new String[] { "de", "en", "es", "fr", "hu", "it", "nl", "pl", "pt", "ru", "sk", "uk", "zh" });
 	private TabPanel tabPanel = new TabPanel();
 	private List<TemplatePanel> templatePanels = new ArrayList<>();
+	private Integer previouslySelected = -1;
+	private Label removeTabTitle;
+	private Label addTabTitle;
 
 	@UiConstructor
 	public TemplateContainer() {
-		// add listeners for the '+' and '-' buttons
+		// initialize 'x' and '-' tab titles
+		this.removeTabTitle = new Label("x");
+		this.removeTabTitle.getElement().getStyle().setFontWeight(FontWeight.BOLD);
+		this.removeTabTitle.getElement().getStyle().setColor("red");
+		this.addTabTitle = new Label("+");
+		this.addTabTitle.getElement().getStyle().setFontWeight(FontWeight.BOLD);
+		this.addTabTitle.getElement().getStyle().setColor("green");
+
+		// add listeners for the 'x' and '-' buttons
 		this.tabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
+
 
 			@Override
 			public void onSelection(SelectionEvent<Integer> event) {
@@ -61,18 +78,19 @@ public class TemplateContainer extends Composite {
 
 					if (tabPanel.getWidgetCount() == 2) {
 						// add 'delete' button
-						tabPanel.insert(new Label(), MINUS_BUTTON, 0);
+						tabPanel.insert(new Label(), removeTabTitle, 0);
 					}
-				} else if (tabPanel.getWidgetCount() > 2 && event.getSelectedItem() == 0) {
-					// delete last template
-					tabPanel.remove(tabPanel.getWidgetCount() - 2);
-					templatePanels.remove(templatePanels.size() - 1);
+				} else if (previouslySelected != 0 && tabPanel.getWidgetCount() > 2 && event.getSelectedItem() == 0) {
+					// delete previously selected template
+					tabPanel.remove(previouslySelected);
+					templatePanels.remove(previouslySelected - 1);
 
 					if (tabPanel.getWidgetCount() == 2) {
 						// remove 'delete' button
 						tabPanel.remove(0);
 					}
 				}
+				previouslySelected = event.getSelectedItem();
 			}
 		});
 
@@ -100,10 +118,10 @@ public class TemplateContainer extends Composite {
 			this.tabPanel.add(templatePanel, entry.getKey());
 			this.templatePanels.add(templatePanel);
 		}
-		this.tabPanel.add(new Label(), PLUS_BUTTON);
+		this.tabPanel.add(new Label(), this.addTabTitle);
 
 		if (this.tabPanel.getWidgetCount() > 1) {
-			this.tabPanel.insert(new Label(), MINUS_BUTTON, 0);
+			this.tabPanel.insert(new Label(), this.removeTabTitle, 0);
 			this.tabPanel.selectTab(1);
 		}
 	}
@@ -127,8 +145,12 @@ public class TemplateContainer extends Composite {
 	private class TemplatePanel extends VerticalPanel {
 		private ListBox languageBox;
 		private TextArea templateArea;
+		private RichTextArea previewArea;
+		private Button previewButton;
+		private boolean isPreview = false;
 
 		public TemplatePanel(final List<String> languages, final String selectedLanguage) {
+			// language combo-box
 			languageBox = new ListBox();
 			int index = 0;
 			for (final String language : languages) {
@@ -138,11 +160,46 @@ public class TemplateContainer extends Composite {
 				}
 				index++;
 			}
+
+			// template edition area
 			templateArea = new TextArea();
 			templateArea.setWidth("98%");
 			templateArea.getElement().getStyle().setProperty("marginTop", "2px");
+
+			// template preview area
+			previewArea = new RichTextArea();
+			previewArea.setWidth("98%");
+			previewArea.getElement().getStyle().setProperty("marginTop", "2px");
+			previewArea.setVisible(false);
+
+			// edition/preview toggle button
+			previewButton = new Button(ResourceTypeConstants.INST.templatePreviewButtonOn(), new ClickHandler() {
+
+				@Override
+				public void onClick(ClickEvent event) {
+					if (isPreview) {
+						// hide preview
+						previewArea.setVisible(false);
+						templateArea.setVisible(true);
+						previewButton.setText(ResourceTypeConstants.INST.templatePreviewButtonOn());
+					} else {
+						// show preview
+						previewArea.setWidth(String.valueOf(templateArea.getElement().getOffsetWidth() - 5) + "px");
+						previewArea.setHeight(String.valueOf(templateArea.getElement().getOffsetHeight() - 7) + "px");
+						previewArea.setHTML(templateArea.getText());
+						previewArea.setVisible(true);
+						templateArea.setVisible(false);
+						previewButton.setText(ResourceTypeConstants.INST.templatePreviewButtonOff());
+					}
+					// toggle
+					isPreview = !isPreview;
+				}
+			});
+
 			this.add(languageBox);
 			this.add(templateArea);
+			this.add(previewArea);
+			this.add(previewButton);
 		}
 
 		public TemplatePanel(final List<String> languages) {
