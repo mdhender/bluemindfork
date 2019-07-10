@@ -32,7 +32,5 @@
     "mail.content.reply.aria": "Répondre à l'expéditeur",
     "mail.content.reply_all.aria": "Répondre à tous les destinataires",
     "mail.content.forward.aria": "Transférer ce message",
-    "mail.content.3dots.aria": "Voir plus d'actions",
-    "mail.compose.reply.subject": "Re: ",
-    "mail.compose.reply.body": "Le {date}, {name} a écrit :"
+    "mail.content.3dots.aria": "Voir plus d'actions"
 }

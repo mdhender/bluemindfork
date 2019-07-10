@@ -8,16 +8,18 @@
             :mode="mode"
             @close="mode = 'default'"
         />
-        <mail-message-content :message="message" :parts="parts" />
+        <mail-message-content
+            :message="message"
+            :parts="parts"
+        />
         <div />
     </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
-import { html2text } from "@bluemind/html-utils";
-import MailMessageContent from "./MailMessageContent";
-import MailMessageNew from "./MailMessageNew";
+import MailMessageContent from "./MailMessageContent/MailMessageContent";
+import MailMessageNew, { MailMessageNewModes } from "./MailMessageNew/MailMessageNew";
 
 export default {
     name: "MailThread",
@@ -30,35 +32,9 @@ export default {
             message: "currentMessage",
             parts: "currentParts"
         }),
-        subject() {
-            let replySubject = this.$t("mail.compose.reply.subject");
-            if (replySubject !== this.message.subject.substring(0, replySubject.length)) {
-                return replySubject + this.message.subject;
-            }
-            return this.message.subject;
-        },
-        previousMessageContent() {
-            let previousMessage = "";
-            this.parts.forEach(part => {
-                if (part.mime === "text/html") {
-                    previousMessage += html2text.fromString(part.content);
-                } else if (part.mime === "text/plain") {
-                    previousMessage += part.content;
-                }
-            });
-            previousMessage = previousMessage
-                .split("\n")
-                .map(line => "> " + line)
-                .join("\n");
-            previousMessage =
-                this.$t("mail.compose.reply.body", { date: this.message.date, name: this.message.from.formattedName }) +
-                "\n\n" +
-                previousMessage;
-            return previousMessage;
-        },
         previousMessage() {
             return {
-                content: this.previousMessageContent,
+                content: this.message.previousMessageContent(this.pathSuffix(), this.parts),
                 messageId: this.message.messageId,
                 references: this.message.references
             };
@@ -68,17 +44,17 @@ export default {
             return {
                 to: this.message.computeRecipients(this.message.recipientFields.TO, action),
                 cc: this.message.computeRecipients(this.message.recipientFields.CC, action),
-                subject: this.subject
+                subject: this.message.computeSubject(action)
             };
         },
         mode() {
             if (this.showComposer) {
                 if (this.isReplyAll() && this.preparedAnswer.cc && this.preparedAnswer.cc.length > 0) {
-                    return "default";
+                    return MailMessageNewModes.TO | MailMessageNewModes.CC;
                 }
-                return "reply";
+                return MailMessageNewModes.TO;
             }
-            return null;
+            return MailMessageNewModes.NONE;
         },
         showComposer() {
             const action = this.pathSuffix();

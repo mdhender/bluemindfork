@@ -5,7 +5,7 @@ let actionsOnMailConsult = {
     // if folder value dont change, this function is not executed
     folder(store, value) {
         return store.dispatch("backend.mail/items/all", value)
-            .then(() => 
+            .then(() =>
                 store.commit("backend.mail/folders/setCurrent", value)
             );
     },
@@ -32,7 +32,7 @@ export default [
                     $actions: {
                         folder(store, value) {
                             return store.dispatch("backend.mail/items/all", value)
-                                .then(() => 
+                                .then(() =>
                                     store.commit("backend.mail/folders/setCurrent", value)
                                 );
                         }
@@ -44,15 +44,22 @@ export default [
                 component: MailThread,
                 children: [
                     {
-                        path:"reply",
+                        path: "reply",
                         name: "replyTo",
                         meta: {
                             $actions: actionsOnMailConsult
                         }
                     },
                     {
-                        path:"replyAll",
+                        path: "replyAll",
                         name: "replyToAll",
+                        meta: {
+                            $actions: actionsOnMailConsult
+                        }
+                    },
+                    {
+                        path: "forward",
+                        name: "forwardTo",
                         meta: {
                             $actions: actionsOnMailConsult
                         }

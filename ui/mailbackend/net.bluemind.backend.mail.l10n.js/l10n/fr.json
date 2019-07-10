@@ -1,0 +1,10 @@
+{
+    "mail.compose.reply.subject": "Re: ",
+    "mail.compose.forward.subject": "Tr: ",
+    "mail.compose.reply.body": "Le {date}, {name} a écrit :",
+    "mail.compose.forward.body": "---- Message Original ----",
+    "mail.compose.forward.prev.message.info.subject": "Sujet",
+    "mail.compose.forward.prev.message.info.to": "\u00C0",
+    "mail.compose.forward.prev.message.info.date": "Date",
+    "mail.compose.forward.prev.message.info.from": "De"
+}

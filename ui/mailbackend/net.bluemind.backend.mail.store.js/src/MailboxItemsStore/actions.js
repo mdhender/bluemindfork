@@ -47,7 +47,7 @@ export function select({ state, commit, getters, dispatch }, { folder, uid }) {
  */
 function retrievePartsByCapabilities(getters, uid) {
     const message = getters.messageByUid(uid);
-    return message.getInlineParts(message.structure);
+    return message.computeInlineParts();
 }
 
 /**

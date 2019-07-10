@@ -1,26 +1,33 @@
 /* BEGIN LICENSE
-  * Copyright © Blue Mind SAS, 2012-2017
-  *
-  * This file is part of BlueMind. BlueMind is a messaging and collaborative
-  * solution.
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of either the GNU Affero General Public License as
-  * published by the Free Software Foundation (version 3 of the License).
-  *
-  * This program is distributed in the hope that it will be useful,
-  * but WITHOUT ANY WARRANTY; without even the implied warranty of
-  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-  *
-  * See LICENSE.txt
-  * END LICENSE
-  */
+ * Copyright © Blue Mind SAS, 2012-2017
+ *
+ * This file is part of BlueMind. BlueMind is a messaging and collaborative
+ * solution.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of either the GNU Affero General Public License as
+ * published by the Free Software Foundation (version 3 of the License).
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See LICENSE.txt
+ * END LICENSE
+ */
 import { RecipientKind, SystemFlag } from "@bluemind/backend.mail.api";
 import GetInlinePartsVisitor from "./GetInlinePartsVisitor";
 import TreeWalker from "./TreeWalker";
 import { EmailExtractor } from "@bluemind/email";
 import injector from "@bluemind/inject";
+import BackMailL10N from "@bluemind/backend.mail.l10n";
+import { html2text } from "@bluemind/html-utils";
 
+/**
+ * Holds data and methods for displaying a mail message and respond to it.
+ * 
+ * @see net.bluemind.backend.mail.api.MailboxItem.java
+ */
 export default class Message {
 
     constructor(item) {
@@ -41,42 +48,9 @@ export default class Message {
             REPLY_TO: "Reply-To"
         };
 
-        this.loadFromItem(item);
-    }
+        fromMailboxItem(item, this);
 
-    loadFromItem(item) {
-        const mailboxItem = item.value;
-        this.subject = mailboxItem.body.subject;
-        this.preview = mailboxItem.body.preview;
-        this.from = mailboxItem.body.recipients.find(
-            rcpt => rcpt.kind == RecipientKind.Originator
-        );
-        this.to = mailboxItem.body.recipients.filter(
-            rcpt => rcpt.kind == RecipientKind.Primary
-        );
-        this.cc = mailboxItem.body.recipients.filter(
-            rcpt => rcpt.kind == RecipientKind.CarbonCopy
-        );
-        this.bcc = mailboxItem.body.recipients.filter(
-            rcpt => rcpt.kind == RecipientKind.BlindCarbonCopy
-        );
-        this.computeFormattedName();
-        this.date = new Date(mailboxItem.body.date);
-        this.structure = mailboxItem.body.structure;
-        this.headers = mailboxItem.body.headers;
-        this.messageId = mailboxItem.body.messageId;
-        this.references = mailboxItem.body.references;
-        this.flags = mailboxItem.systemFlags
-            .concat(mailboxItem.otherFlags)
-            .map(flag => flag.toLowerCase());
-        this.states = [];
-        this.uid = item.uid; // FIXME remove me
-        this.ids = {
-            uid: item.uid,
-            imap: mailboxItem.imapUid,
-            id: item.internalId
-        };
-        this.extend(item);
+        this.userSession = injector.getProvider('UserSession').get();
     }
 
     toMailboxItem(addrPart, sender, senderDomain) {
@@ -84,7 +58,7 @@ export default class Message {
             body: {
                 subject: this.subject,
                 headers: this.headers,
-                recipients: this.buildRecipients(sender, senderDomain),
+                recipients: buildRecipients(sender, senderDomain, this),
                 messageId: this.messageId,
                 references: this.references,
                 structure: {
@@ -95,50 +69,77 @@ export default class Message {
         };
     }
 
-    buildRecipients(sender, senderDomain) {
-        const primaries = this.buildRecipientsForKind(RecipientKind.Primary, this.to);
-        const carbonCopies = this.buildRecipientsForKind(RecipientKind.CarbonCopy, this.cc);
-        const blindCarbonCopies = this.buildRecipientsForKind(RecipientKind.BlindCarbonCopy, this.bcc);
-        const originator = [{
-            kind: RecipientKind.Originator,
-            address: sender,
-            dn: senderDomain
-        }];
-
-        return primaries.concat(carbonCopies).concat(blindCarbonCopies).concat(originator);
-    }
-
-    buildRecipientsForKind(kind, addresses) {
-        return (addresses || []).map(address => {
-            return {
-                kind: kind,
-                address: address,
-                dn: address.split("@")[1]
-            };
-        });
-    }
-
-    computeFormattedName() {
-        this.from.formattedName = this.from.dn || this.from.address;
-        this.to.forEach(rcpt => rcpt.formattedName = rcpt.dn || rcpt.address);
-        this.cc.forEach(rcpt => rcpt.formattedName = rcpt.dn || rcpt.address);
-        this.bcc.forEach(rcpt => rcpt.formattedName = rcpt.dn || rcpt.address);
-    }
-
-    extend(item) {
-        if (item.value.body.smartAttach) {
-            this.states.push("has-attachment");
-        }
-        if (item.value.systemFlags.indexOf(SystemFlag.seen) === -1) {
-            this.states.push("not-seen");
-        }
-    }
-
-    getInlineParts(rootPart) {
+    /** 
+     * Compute the inline parts keyed by capabilities.
+     * 
+     * @see GetInlinePartsVisitor
+     */
+    computeInlineParts() {
         const visitor = new GetInlinePartsVisitor();
-        const walker = new TreeWalker(rootPart, visitor);
+        const walker = new TreeWalker(this.structure, visitor);
         walker.walk();
         return visitor.result();
+    }
+
+    /** Compute the subject in function of the current action (like "Re: My Subject" when Reply). */
+    computeSubject(action) {
+        let subjectPrefix;
+        switch (action) {
+            case this.actions.REPLY:
+            case this.actions.REPLYALL:
+                subjectPrefix = getLocalizedProperty(this.userSession, "mail.compose.reply.subject");
+                break;
+            case this.actions.FORWARD:
+                subjectPrefix = getLocalizedProperty(this.userSession, "mail.compose.forward.subject");
+                break;
+            default:
+                break;
+        }
+
+        // avoid subject prefix repetitions (like "Re: Re: Re: Re: My Subject")
+        if (subjectPrefix !== this.subject.substring(0, subjectPrefix.length)) {
+            return subjectPrefix + this.subject;
+        }
+        return this.subject;
+    }
+
+    /** 
+     * Build the text representing this message as a previous message.
+     * Like:
+     * @example
+     * `On Tuesday 2019 01 01, John Doe wrote:
+     * > Dear Jane,
+     * >  I could not bear to see you with Tarzan anymore,
+     * > it will kill me! Please come back!
+     * ...`
+     */
+    previousMessageContent(action, parts) {
+        let previousMessage = "";
+        parts.forEach(part => {
+            if (part.mime === "text/html") {
+                previousMessage += html2text.fromString(part.content);
+            } else if (part.mime === "text/plain") {
+                previousMessage += part.content;
+            }
+        });
+
+        let previousMessageSeparator = "";
+
+        switch (action) {
+            case this.actions.REPLY:
+            case this.actions.REPLYALL:
+                previousMessage = previousMessage.split("\n").map(line => "> " + line).join("\n");
+                previousMessageSeparator = getLocalizedProperty(this.userSession, "mail.compose.reply.body",
+                    { date: this.date, name: this.from.formattedName });
+                break;
+            case this.actions.FORWARD:
+                previousMessageSeparator = buildPreviousMessageSeparatorForForward(this);
+                break;
+            default:
+                break;
+        }
+
+        return previousMessageSeparator + "\n\n" + previousMessage;
     }
 
     /** 
@@ -148,82 +149,230 @@ export default class Message {
     computeRecipients(targetField = this.recipientFields.TO, action = this.actions.REPLY) {
         switch (targetField) {
             case this.recipientFields.CC:
-                return this.computeRecipientsCC(action);
+                return computeRecipientsCC(action, this);
             case this.recipientFields.TO:
-                return this.computeRecipientsTO(action);
+                return computeRecipientsTO(action, this);
             default:
                 return [];
         }
     }
+}
 
-    computeRecipientsCC(action) {
-        if (action == this.actions.REPLYALL) {
-            const mailFollowUpTo = this.headers.find(header => header.name === this.recipientHeaders.MAIL_FOLLOWUP_TO);
-            if (!mailFollowUpTo) {
-                return this.cc.map(cc => cc.address);
-            }
-        }
+/** Initialize the given message using the MailboxItem 'item'.  */
+function fromMailboxItem(item, message) {
+    const mailboxItem = item.value;
+    message.subject = mailboxItem.body.subject;
+    message.preview = mailboxItem.body.preview;
+    message.from = mailboxItem.body.recipients.find(
+        rcpt => rcpt.kind == RecipientKind.Originator
+    );
+    message.to = mailboxItem.body.recipients.filter(
+        rcpt => rcpt.kind == RecipientKind.Primary
+    );
+    message.cc = mailboxItem.body.recipients.filter(
+        rcpt => rcpt.kind == RecipientKind.CarbonCopy
+    );
+    message.bcc = mailboxItem.body.recipients.filter(
+        rcpt => rcpt.kind == RecipientKind.BlindCarbonCopy
+    );
+    computeFormattedName(message);
+    computeFullName(message);
+    message.date = new Date(mailboxItem.body.date);
+    message.structure = mailboxItem.body.structure;
+    message.headers = mailboxItem.body.headers;
+    message.messageId = mailboxItem.body.messageId;
+    message.references = mailboxItem.body.references;
+    message.flags = mailboxItem.systemFlags
+        .concat(mailboxItem.otherFlags)
+        .map(flag => flag.toLowerCase());
+    message.states = [];
+    message.uid = item.uid; // FIXME remove me
+    message.ids = {
+        uid: item.uid,
+        imap: mailboxItem.imapUid,
+        id: item.internalId
+    };
+
+    if (item.value.body.smartAttach) {
+        message.states.push("has-attachment");
+    }
+    if (item.value.systemFlags.indexOf(SystemFlag.seen) === -1) {
+        message.states.push("not-seen");
+    }
+}
+
+/** 
+ * Add to recipients fields (from, to, cc, bcc) the property 'formattedName' containing either the distinguished name
+ * or the address.
+ */
+function computeFormattedName(message) {
+    message.from.formattedName = message.from.dn || message.from.address;
+    message.to.forEach(rcpt => rcpt.formattedName = rcpt.dn || rcpt.address);
+    message.cc.forEach(rcpt => rcpt.formattedName = rcpt.dn || rcpt.address);
+    message.bcc.forEach(rcpt => rcpt.formattedName = rcpt.dn || rcpt.address);
+}
+
+/** 
+ * Add to recipients fields (from, to, cc, bcc) the property 'fullName' containing the distinguished name - if present
+ *  - and the address.
+ */
+function computeFullName(message) {
+    message.from.fullName = message.from.dn ? message.from.dn + " <" + message.from.address + ">"
+        : message.from.address;
+    message.to.forEach(to => to.fullName = to.dn ? to.dn + " <" + to.address + ">"
+        : to.address);
+    message.cc.forEach(cc => cc.fullName = cc.dn ? cc.dn + " <" + cc.address + ">"
+        : cc.address);
+    message.bcc.forEach(bcc => bcc.fullName = bcc.dn ? bcc.dn + " <" + bcc.address + ">"
+        : bcc.address);
+}
+
+function buildRecipients(sender, senderDomain, message) {
+    const primaries = buildRecipientsForKind(RecipientKind.Primary, message.to);
+    const carbonCopies = buildRecipientsForKind(RecipientKind.CarbonCopy, message.cc);
+    const blindCarbonCopies = buildRecipientsForKind(RecipientKind.BlindCarbonCopy, message.bcc);
+    const originator = [{
+        kind: RecipientKind.Originator,
+        address: sender,
+        dn: senderDomain
+    }];
+
+    return primaries.concat(carbonCopies).concat(blindCarbonCopies).concat(originator);
+}
+
+function buildRecipientsForKind(kind, addresses) {
+    return (addresses || []).map(address => {
+        return {
+            kind: kind,
+            address: address,
+            dn: address.split("@")[1]
+        };
+    });
+}
+
+/** 
+ * Compute the list of recipients depending on the action (reply, reply all...) and the 'Cc' recipient field.
+ */
+function computeRecipientsCC(action, message) {
+    if (action == message.actions.FORWARD) {
         return [];
     }
 
-    computeRecipientsTO(action) {
-        const isReplyAll = action == this.actions.REPLYALL;
-
-        if (isReplyAll) {
-            const mailFollowUpTo = this.header(this.recipientHeaders.MAIL_FOLLOWUP_TO);
-            if (mailFollowUpTo) {
-                return this.addressesFromHeader(mailFollowUpTo, true);
-            }
+    if (action == message.actions.REPLYALL) {
+        const mailFollowUpTo =
+            message.headers.find(header => header.name === message.recipientHeaders.MAIL_FOLLOWUP_TO);
+        if (!mailFollowUpTo) {
+            return message.cc.map(cc => cc.address);
         }
+    }
+    return [];
+}
 
-        const mailReplyToHeader = this.header(this.recipientHeaders.MAIL_REPLY_TO);
-        if (mailReplyToHeader) {
-            return this.addressesFromHeader(mailReplyToHeader, isReplyAll);
-        }
-
-        const replyToHeader = this.header(this.recipientHeaders.REPLY_TO);
-        if (replyToHeader) {
-            return this.addressesFromHeader(replyToHeader, isReplyAll);
-        }
-
-        // compute recipients from "From" or "To"
-        let recipients = [this.from.address];
-        const myEmail = injector.getProvider('UserSession').get().defaultEmail;
-        if (isReplyAll) {
-            // respond to sender and all recipients except myself
-            recipients.push(...this.to.map(to => to.address));
-            recipients = recipients.filter(address => address != myEmail);
-            // avoid duplicates
-            recipients = Array.from(new Set(recipients));
-            if (recipients.length == 0) {
-                // I was alone, respond to myself then
-                recipients = [myEmail];
-            }
-        } else if (recipients.includes(myEmail)) {
-            // all recipients except myself
-            recipients = this.to.map(to => to.address).filter(address => address != myEmail);
-            if (recipients.length == 0) {
-                // I was alone, respond to myself then
-                recipients = [myEmail];
-            } else {
-                // respond to the first "not me" recipient only
-                recipients = [recipients[0]];
-            }
-        }
-
-        return recipients;
+/** 
+ * Compute the list of recipients depending on the action (reply, reply all...) and the 'To' recipient field.
+ */
+function computeRecipientsTO(action, message) {
+    if (action == message.actions.FORWARD) {
+        return [];
     }
 
-    header(headerName) {
-        return this.headers.find(header => header.name === headerName);
+    const isReplyAll = action == message.actions.REPLYALL;
+
+    if (isReplyAll) {
+        const mailFollowUpTo = header(message.recipientHeaders.MAIL_FOLLOWUP_TO, message);
+        if (mailFollowUpTo) {
+            return addressesFromHeader(mailFollowUpTo, true);
+        }
     }
 
-    addressesFromHeader(header, isReplyAll) {
-        if (isReplyAll) {
-            return header.values.map(value => EmailExtractor.extractEmail(value));
+    const mailReplyToHeader = header(message.recipientHeaders.MAIL_REPLY_TO, message);
+    if (mailReplyToHeader) {
+        return addressesFromHeader(mailReplyToHeader, isReplyAll);
+    }
+
+    const replyToHeader = header(message.recipientHeaders.REPLY_TO, message);
+    if (replyToHeader) {
+        return addressesFromHeader(replyToHeader, isReplyAll);
+    }
+
+    // compute recipients from "From" or "To"
+    let recipients = [message.from.address];
+    const myEmail = injector.getProvider('UserSession').get().defaultEmail;
+    if (isReplyAll) {
+        // respond to sender and all recipients except myself
+        recipients.push(...message.to.map(to => to.address));
+        recipients = recipients.filter(address => address != myEmail);
+        // avoid duplicates
+        recipients = Array.from(new Set(recipients));
+        if (recipients.length == 0) {
+            // I was alone, respond to myself then
+            recipients = [myEmail];
+        }
+    } else if (recipients.includes(myEmail)) {
+        // all recipients except myself
+        recipients = message.to.map(to => to.address).filter(address => address != myEmail);
+        if (recipients.length == 0) {
+            // I was alone, respond to myself then
+            recipients = [myEmail];
         } else {
-            return [EmailExtractor.extractEmail(header.values[0])];
+            // respond to the first "not me" recipient only
+            recipients = [recipients[0]];
         }
     }
 
+    return recipients;
+}
+
+function header(headerName, message) {
+    return message.headers.find(header => header.name === headerName);
+}
+
+function addressesFromHeader(header, isReplyAll) {
+    if (isReplyAll) {
+        return header.values.map(value => EmailExtractor.extractEmail(value));
+    } else {
+        return [EmailExtractor.extractEmail(header.values[0])];
+    }
+}
+
+/**
+ * Return the property value localized to the current user.
+ * @param {*} userSession the current user session object
+ * @param {string} propertyKey the key of the property
+ * @param {*} namedParameters optional parameters like: { "date": "2019-09-01", "weather": "sunny" }
+ */
+function getLocalizedProperty(userSession, propertyKey, namedParameters) {
+    // FIXME should use a common tool to translate messages (see '@bluemind/webapp.mail.l10n')
+    let property = BackMailL10N[userSession.lang][propertyKey];
+    if (namedParameters) {
+        namedParameters = new Map(Object.entries(namedParameters));
+        namedParameters.forEach((value, key) => property = property.replace(new RegExp("\\{" + key + "\\}"), value));
+    }
+    return property;
+}
+
+/** A separator before the previous message containing basic info. */
+function buildPreviousMessageSeparatorForForward(message) {
+    let previousMessageSeparator = getLocalizedProperty(message.userSession, "mail.compose.forward.body");
+    previousMessageSeparator += "\n";
+    previousMessageSeparator += getLocalizedProperty(message.userSession,
+        "mail.compose.forward.prev.message.info.subject");
+    previousMessageSeparator += ": ";
+    previousMessageSeparator += message.subject;
+    previousMessageSeparator += "\n";
+    previousMessageSeparator += getLocalizedProperty(message.userSession,
+        "mail.compose.forward.prev.message.info.to");
+    previousMessageSeparator += ": ";
+    previousMessageSeparator += message.to.map(to => to.fullName);
+    previousMessageSeparator += "\n";
+    previousMessageSeparator += getLocalizedProperty(message.userSession,
+        "mail.compose.forward.prev.message.info.date");
+    previousMessageSeparator += ": ";
+    previousMessageSeparator += message.date;
+    previousMessageSeparator += "\n";
+    previousMessageSeparator += getLocalizedProperty(message.userSession,
+        "mail.compose.forward.prev.message.info.from");
+    previousMessageSeparator += ": ";
+    previousMessageSeparator += message.from.fullName;
+    return previousMessageSeparator;
 }

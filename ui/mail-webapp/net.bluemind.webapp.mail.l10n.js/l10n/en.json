@@ -32,7 +32,5 @@
     "mail.content.reply.aria": "Reply only to sender",
     "mail.content.reply_all.aria": "Reply to all recipients",
     "mail.content.forward.aria": "Forward this mail",
-    "mail.content.3dots.aria": "See more actions",
-    "mail.compose.reply.subject": "Re: ",
-    "mail.compose.reply.body": "On {date}, {name} wrote:"
+    "mail.content.3dots.aria": "See more actions"
 }
