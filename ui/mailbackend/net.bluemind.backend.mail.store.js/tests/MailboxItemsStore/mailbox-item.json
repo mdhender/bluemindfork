@@ -1,0 +1,71 @@
+{
+    "value": {
+        "body": {
+            "guid": "8307f6dfbae188450a0595c9d04146097c10b733",
+            "subject": "searchtest004",
+            "smartAttach": false,
+            "date": 1552915416000,
+            "size": 868,
+            "headers": [],
+            "recipients": [
+                {
+                    "kind": "Primary",
+                    "address": "jdoe@vm40.net",
+                    "dn": "John Doe"
+                },
+                {
+                    "kind": "Originator",
+                    "address": "jdoe@vm40.net",
+                    "dn": "John Doe"
+                }
+            ],
+            "messageId": "idididididididid",
+            "references": "refrefrefrefref",
+            "structure": {
+                "mime": "multipart/alternative",
+                "address": "TEXT",
+                "children": [
+                    {
+                        "mime": "text/plain",
+                        "address": "1",
+                        "encoding": "7bit",
+                        "charset": "UTF-8",
+                        "size": 20
+                    },
+                    {
+                        "mime": "text/html",
+                        "address": "2",
+                        "encoding": "quoted-printable",
+                        "charset": "UTF-8",
+                        "size": 209
+                    }
+                ],
+                "size": 868
+            },
+            "preview": "searchtest004 \r\n\r\n  ",
+            "bodyVersion": 1
+        },
+        "imapUid": 3,
+        "systemFlags": [
+            "seen"
+        ],
+        "otherFlags": [],
+        "internalFlags": [],
+        "messageBody": "8307f6dfbae188450a0595c9d04146097c10b733",
+        "modSeq": 6,
+        "internalDate": 1552915416000,
+        "lastUpdated": 1557415293000
+    },
+    "uid": "3.",
+    "internalId": 339,
+    "version": 5,
+    "displayName": "3.",
+    "externalId": null,
+    "createdBy": "system",
+    "updatedBy": "system",
+    "created": 1557415293511,
+    "updated": 1557415293511,
+    "flags": [
+        "Seen"
+    ]
+}

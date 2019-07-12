@@ -160,7 +160,7 @@ export function send(payload, { message, isAReply, previousMessage, outboxUid })
             message.toMailboxItem(
                 addrPart,
                 userSession.defaultEmail,
-                userSession.domain
+                userSession.formatedName
             )))
         .then(() => outboxService.flush()); // TODO: this request returns a taskref ID, we have to track taskref state)
 }

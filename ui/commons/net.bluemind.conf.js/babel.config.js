@@ -1,8 +1,8 @@
 module.exports = function (api, otherPlugins = []) {
     api.cache(true);
-  
+
     const presets = [
-        ["@babel/preset-env", 
+        ["@babel/preset-env",
             {
                 "modules": "auto",
                 "targets": {
@@ -18,7 +18,11 @@ module.exports = function (api, otherPlugins = []) {
     ];
 
     const plugins = otherPlugins;
-  
+
+    if (process.env.NODE_ENV === "test") {
+        plugins.push("require-context-hook");
+    }
+
     return {
         presets,
         plugins

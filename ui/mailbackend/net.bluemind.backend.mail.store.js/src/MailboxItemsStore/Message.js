@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2017
+ * Copyright © Blue Mind SAS, 2012-2019
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -51,14 +51,15 @@ export default class Message {
         fromMailboxItem(item, this);
 
         this.userSession = injector.getProvider('UserSession').get();
+
     }
 
-    toMailboxItem(addrPart, sender, senderDomain) {
+    toMailboxItem(addrPart, sender, senderName) {
         return {
             body: {
                 subject: this.subject,
                 headers: this.headers,
-                recipients: buildRecipients(sender, senderDomain, this),
+                recipients: buildRecipients(sender, senderName, this),
                 messageId: this.messageId,
                 references: this.references,
                 structure: {
@@ -130,7 +131,7 @@ export default class Message {
             case this.actions.REPLYALL:
                 previousMessage = previousMessage.split("\n").map(line => "> " + line).join("\n");
                 previousMessageSeparator = getLocalizedProperty(this.userSession, "mail.compose.reply.body",
-                    { date: this.date, name: this.from.formattedName });
+                    { date: this.date, name: nameAndAddress(this.from) });
                 break;
             case this.actions.FORWARD:
                 previousMessageSeparator = buildPreviousMessageSeparatorForForward(this);
@@ -175,8 +176,6 @@ function fromMailboxItem(item, message) {
     message.bcc = mailboxItem.body.recipients.filter(
         rcpt => rcpt.kind == RecipientKind.BlindCarbonCopy
     );
-    computeFormattedName(message);
-    computeFullName(message);
     message.date = new Date(mailboxItem.body.date);
     message.structure = mailboxItem.body.structure;
     message.headers = mailboxItem.body.headers;
@@ -201,40 +200,14 @@ function fromMailboxItem(item, message) {
     }
 }
 
-/** 
- * Add to recipients fields (from, to, cc, bcc) the property 'formattedName' containing either the distinguished name
- * or the address.
- */
-function computeFormattedName(message) {
-    message.from.formattedName = message.from.dn || message.from.address;
-    message.to.forEach(rcpt => rcpt.formattedName = rcpt.dn || rcpt.address);
-    message.cc.forEach(rcpt => rcpt.formattedName = rcpt.dn || rcpt.address);
-    message.bcc.forEach(rcpt => rcpt.formattedName = rcpt.dn || rcpt.address);
-}
-
-/** 
- * Add to recipients fields (from, to, cc, bcc) the property 'fullName' containing the distinguished name - if present
- *  - and the address.
- */
-function computeFullName(message) {
-    message.from.fullName = message.from.dn ? message.from.dn + " <" + message.from.address + ">"
-        : message.from.address;
-    message.to.forEach(to => to.fullName = to.dn ? to.dn + " <" + to.address + ">"
-        : to.address);
-    message.cc.forEach(cc => cc.fullName = cc.dn ? cc.dn + " <" + cc.address + ">"
-        : cc.address);
-    message.bcc.forEach(bcc => bcc.fullName = bcc.dn ? bcc.dn + " <" + bcc.address + ">"
-        : bcc.address);
-}
-
-function buildRecipients(sender, senderDomain, message) {
+function buildRecipients(sender, senderName, message) {
     const primaries = buildRecipientsForKind(RecipientKind.Primary, message.to);
     const carbonCopies = buildRecipientsForKind(RecipientKind.CarbonCopy, message.cc);
     const blindCarbonCopies = buildRecipientsForKind(RecipientKind.BlindCarbonCopy, message.bcc);
     const originator = [{
         kind: RecipientKind.Originator,
         address: sender,
-        dn: senderDomain
+        dn: senderName
     }];
 
     return primaries.concat(carbonCopies).concat(blindCarbonCopies).concat(originator);
@@ -244,8 +217,8 @@ function buildRecipientsForKind(kind, addresses) {
     return (addresses || []).map(address => {
         return {
             kind: kind,
-            address: address,
-            dn: address.split("@")[1]
+            address: address.address,
+            dn: address.dn
         };
     });
 }
@@ -297,7 +270,7 @@ function computeRecipientsTO(action, message) {
 
     // compute recipients from "From" or "To"
     let recipients = [message.from.address];
-    const myEmail = injector.getProvider('UserSession').get().defaultEmail;
+    const myEmail = message.userSession.defaultEmail;
     if (isReplyAll) {
         // respond to sender and all recipients except myself
         recipients.push(...message.to.map(to => to.address));
@@ -363,7 +336,7 @@ function buildPreviousMessageSeparatorForForward(message) {
     previousMessageSeparator += getLocalizedProperty(message.userSession,
         "mail.compose.forward.prev.message.info.to");
     previousMessageSeparator += ": ";
-    previousMessageSeparator += message.to.map(to => to.fullName);
+    previousMessageSeparator += message.to.map(to => nameAndAddress(to));
     previousMessageSeparator += "\n";
     previousMessageSeparator += getLocalizedProperty(message.userSession,
         "mail.compose.forward.prev.message.info.date");
@@ -373,6 +346,11 @@ function buildPreviousMessageSeparatorForForward(message) {
     previousMessageSeparator += getLocalizedProperty(message.userSession,
         "mail.compose.forward.prev.message.info.from");
     previousMessageSeparator += ": ";
-    previousMessageSeparator += message.from.fullName;
+    previousMessageSeparator += nameAndAddress(message.from);
     return previousMessageSeparator;
+}
+
+/** @return like "John Doe <jdoe@bluemind.net>" */
+function nameAndAddress(recipient) {
+    return recipient.dn ? recipient.dn + " <" + recipient.address + ">" : recipient.address;
 }

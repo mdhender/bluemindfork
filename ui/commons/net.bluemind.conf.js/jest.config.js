@@ -1,5 +1,5 @@
 module.exports = {
-    rootDir: process.cwd()+"/",
+    rootDir: process.cwd() + "/",
     verbose: true,
     moduleFileExtensions: ["js", "json", "vue"],
     transform: {
@@ -10,5 +10,8 @@ module.exports = {
     transformIgnorePatterns: [
         "/node_modules/(?!@bluemind/email|@bluemind/html-utils|@bluemind/date|@bluemind/i18n)",
     ],
-    testURL: "http://localhost"
+    testURL: "http://localhost",
+    setupFiles: [
+        "./.jest/register-context.js"
+    ]
 };

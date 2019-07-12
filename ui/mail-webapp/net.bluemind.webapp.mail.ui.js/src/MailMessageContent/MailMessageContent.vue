@@ -11,26 +11,43 @@
             </bm-col>
         </bm-row>
         <bm-row class="d-flex">
-            <bm-col cols="8" class="d-flex">
-                <mail-message-content-from :dn="message.from.dn" :address="message.from.address" />
+            <bm-col
+                cols="8"
+                class="d-flex"
+            >
+                <mail-message-content-from
+                    :dn="message.from.dn"
+                    :address="message.from.address"
+                />
             </bm-col>
-            <bm-col cols="4" class="align-self-center text-right">
+            <bm-col
+                cols="4"
+                class="align-self-center text-right"
+            >
                 {{ date }} {{ $t("mail.content.date.at") }} {{ hour }}
             </bm-col>
         </bm-row>
         <bm-row>
-            <bm-col cols="12"><hr class="my-2"></bm-col>
+            <bm-col cols="12">
+                <hr class="my-2">
+            </bm-col>
         </bm-row>
         <bm-row>
             <bm-col cols="12">
-                <mail-message-content-recipient v-if="to" :recipients="to">
+                <mail-message-content-recipient
+                    v-if="to"
+                    :recipients="to"
+                >
                     {{ $t("mail.content.to") }}
                 </mail-message-content-recipient>
             </bm-col>
         </bm-row>
         <bm-row class="pb-2">
             <bm-col cols="12">
-                <mail-message-content-recipient v-if="cc" :recipients="cc">
+                <mail-message-content-recipient
+                    v-if="cc"
+                    :recipients="cc"
+                >
                     {{ $t("mail.content.copy") }}
                 </mail-message-content-recipient>
             </bm-col>
@@ -38,10 +55,16 @@
         <bm-row v-if="hasAttachments">
             <bm-col cols="12">
                 <hr class="bg-dark my-0">
-                <mail-message-content-attachment :has-attachment="hasAttachments" :attachments="attachments" />
+                <mail-message-content-attachment
+                    :has-attachment="hasAttachments"
+                    :attachments="attachments"
+                />
             </bm-col>
         </bm-row>
-        <bm-row ref="scrollableContainerForMailMessageContentBody" class="pt-1 flex-fill">
+        <bm-row
+            ref="scrollableContainerForMailMessageContentBody"
+            class="pt-1 flex-fill"
+        >
             <bm-col col>
                 <mail-message-content-body :parts="displayableParts" />
             </bm-col>
@@ -100,13 +123,13 @@ export default {
         ...mapGetters("backend.mail/items", { realAttachments: "attachments" }),
         to() {
             if (this.message.to.length > 0) {
-                return this.message.to.map(dest => dest.formattedName);
+                return this.message.to.map(dest => (dest.dn ? dest.dn : dest.address));
             }
             return "";
         },
         cc() {
             if (this.message.cc.length > 0) {
-                return this.message.cc.map(dest => dest.formattedName);
+                return this.message.cc.map(dest => (dest.dn ? dest.dn : dest.address));
             }
             return "";
         },

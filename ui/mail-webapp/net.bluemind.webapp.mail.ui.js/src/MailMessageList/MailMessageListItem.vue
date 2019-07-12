@@ -8,28 +8,53 @@
         @mouseleave.native="quickActionButtonsVisible = false"
     >
         <bm-row class="align-items-center">
-            <bm-col cols="1" class="selector">
+            <bm-col
+                cols="1"
+                class="selector"
+            >
                 <bm-avatar :alt="from" />
                 <bm-check @click.native.stop />
             </bm-col>
             <bm-col cols="8">
                 <span>{{ from }}</span>
             </bm-col>
-            <bm-col v-show="!quickActionButtonsVisible" cols="3" class="mail-widgets">
-                <component :is="widget" v-for="widget in widgets" :key="widget.template" class="ml-2" />
+            <bm-col
+                v-show="!quickActionButtonsVisible"
+                cols="3"
+                class="mail-widgets"
+            >
+                <component
+                    :is="widget"
+                    v-for="widget in widgets"
+                    :key="widget.template"
+                    class="ml-2"
+                />
             </bm-col>
-            <bm-col v-show="quickActionButtonsVisible" cols="3">
+            <bm-col
+                v-show="quickActionButtonsVisible"
+                cols="3"
+            >
                 <transition name="fade">
                     <mail-message-list-item-quick-action-buttons :message="message" />
                 </transition>
             </bm-col>
         </bm-row>
         <bm-row>
-            <bm-col cols="1" class="mail-attachment">
-                <component :is="state" v-if="!!state" class="ml-2" />
+            <bm-col
+                cols="1"
+                class="mail-attachment"
+            >
+                <component
+                    :is="state"
+                    v-if="!!state"
+                    class="ml-2"
+                />
             </bm-col>
             <bm-col class="mail-subject">{{ message.subject }}</bm-col>
-            <bm-col cols="3" class="mail-date">
+            <bm-col
+                cols="3"
+                class="mail-date"
+            >
                 <span class="text-nowrap d-none d-sm-block d-md-none d-xl-block">{{ displayedDate }}</span>
                 <span class="text-nowrap d-sm-none d-md-block d-xl-none">{{ smallerDisplayedDate }}</span>
             </bm-col>
@@ -93,8 +118,7 @@ export default {
     },
     data() {
         return {
-            quickActionButtonsVisible: false,
-
+            quickActionButtonsVisible: false
         };
     },
     computed: {
@@ -116,7 +140,7 @@ export default {
                 .shift();
         },
         from() {
-            return this.message.from.formattedName;
+            return this.message.from.dn ? this.message.from.dn : this.message.from.address;
         }
     }
 };
@@ -132,11 +156,11 @@ export default {
 }
 
 .mail-message-list-item .selector:hover .bm-avatar {
-    display: none!important;
+    display: none !important;
 }
 
 .mail-message-list-item .selector:hover .custom-check {
-    display: inline-block!important;
+    display: inline-block !important;
 }
 
 .list-group-item.mail-message-list-item.not-seen {
