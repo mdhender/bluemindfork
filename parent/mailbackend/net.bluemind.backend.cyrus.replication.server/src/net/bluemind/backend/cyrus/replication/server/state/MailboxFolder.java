@@ -24,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.json.JsonObject;
 
+import com.google.common.base.CharMatcher;
+
 import net.bluemind.backend.cyrus.replication.protocol.parsing.JsUtils;
 import net.bluemind.backend.cyrus.replication.server.Token;
 import net.bluemind.backend.mail.replica.api.MailboxAnnotation;
@@ -242,8 +244,10 @@ public class MailboxFolder {
 		return quotaRoot;
 	}
 
-	private String quoteIfNeeded(String s) {
-		if (s.contains(" ")) {
+	private static final CharMatcher quoteMatcher = CharMatcher.anyOf(" ()");
+
+	private static String quoteIfNeeded(String s) {
+		if (quoteMatcher.matchesAnyOf(s)) {
 			return "\"" + s + "\"";
 		} else {
 			return s;
