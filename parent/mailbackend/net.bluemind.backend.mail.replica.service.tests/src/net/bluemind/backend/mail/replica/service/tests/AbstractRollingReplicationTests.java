@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
@@ -60,6 +61,11 @@ public abstract class AbstractRollingReplicationTests {
 
 	protected String uniqueUidPart() {
 		return System.currentTimeMillis() + "";
+	}
+
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty("es.mailspool.count", "1");
 	}
 
 	@Before

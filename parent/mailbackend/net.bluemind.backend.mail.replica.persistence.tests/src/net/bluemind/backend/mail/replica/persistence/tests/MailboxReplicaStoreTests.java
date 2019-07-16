@@ -33,9 +33,9 @@ import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
+import net.bluemind.backend.mail.replica.api.utils.Subtree;
 import net.bluemind.backend.mail.replica.persistence.MailboxReplicaStore;
 import net.bluemind.backend.mail.replica.utils.SubtreeContainer;
-import net.bluemind.backend.mail.replica.utils.SubtreeContainer.Subtree;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.persistance.ContainerStore;
@@ -63,9 +63,8 @@ public class MailboxReplicaStoreTests {
 				"user" + System.currentTimeMillis());
 		String partition = "t" + System.currentTimeMillis() + "_vmw";
 		Subtree sub = SubtreeContainer.mailSubtreeUid(partition, rootDesc.ns, rootDesc.name);
-		String containerId = sub.subtreeUid;
-		Container container = Container.create(containerId, IMailReplicaUids.REPLICATED_MBOXES, "test", "me",
-				true);
+		String containerId = sub.subtreeUid();
+		Container container = Container.create(containerId, IMailReplicaUids.REPLICATED_MBOXES, "test", "me", true);
 		container = containerHome.create(container);
 
 		assertNotNull(container);

@@ -96,15 +96,6 @@
       </serviceFactory>
    </extension>
    <extension
-         point="net.bluemind.core.caches.registry.registration">
-      <reg
-            impl="net.bluemind.backend.mail.replica.service.internal.CacheRegistration">
-      </reg>
-      <reg
-            impl="net.bluemind.backend.mail.replica.service.internal.hooks.DeletedDataMementos$Registration">
-      </reg>
-   </extension>
-   <extension
          point="net.bluemind.core.container.sharding.sharded">
       <container
             type="mailbox_records">
@@ -185,6 +176,15 @@
       <repairSupport
             factory="net.bluemind.backend.mail.replica.service.internal.repair.RenamedInboxRepair$RepairFactory">
       </repairSupport>
+   </extension>
+   <extension
+         point="net.bluemind.core.caches.registry.registration">
+      <reg
+            impl="net.bluemind.backend.mail.replica.service.internal.CacheRegistration">
+      </reg>
+      <reg
+            impl="net.bluemind.backend.mail.replica.service.CacheRegistration2">
+      </reg>
    </extension>
 
 </plugin>

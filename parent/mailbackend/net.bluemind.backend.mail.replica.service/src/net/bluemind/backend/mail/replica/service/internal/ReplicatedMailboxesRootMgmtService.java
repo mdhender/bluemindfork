@@ -42,11 +42,11 @@ import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.MailboxReplicaRootUpdate;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
+import net.bluemind.backend.mail.replica.api.utils.Subtree;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.backend.mail.replica.persistence.MailboxReplicaStore;
 import net.bluemind.backend.mail.replica.service.internal.hooks.DeletedDataMementos;
 import net.bluemind.backend.mail.replica.utils.SubtreeContainer;
-import net.bluemind.backend.mail.replica.utils.SubtreeContainer.Subtree;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.api.IFlatHierarchyUids;
@@ -89,7 +89,7 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 			return;
 		}
 		sub = SubtreeContainer.mailSubtreeUid(context, domainUid, root);
-		String containerUid = sub.subtreeUid;
+		String containerUid = sub.subtreeUid();
 		String ownerUid = sub.ownerUid;
 		IContainers contApi = context.provider().instance(IContainers.class);
 		if (getRootContainer(containerUid, contApi) == null) {
@@ -169,7 +169,7 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 		cm.defaultContainer = true;
 		cm.name = subtreeName(rename.to);
 		logger.info("Renaming subtree from {} to {}", subtreeName(rename.from), cm.name);
-		contApi.update(sub.subtreeUid, cm);
+		contApi.update(sub.subtreeUid(), cm);
 	}
 
 	@Override

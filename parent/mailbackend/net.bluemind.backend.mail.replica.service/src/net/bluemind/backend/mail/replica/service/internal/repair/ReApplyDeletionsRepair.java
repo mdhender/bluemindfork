@@ -252,7 +252,7 @@ public class ReApplyDeletionsRepair extends InternalMaintenanceOperation {
 			folders.add(new ListInfo(mboxName, true));
 
 			String flag = "ReApplyDeletionsRepair" + Long.toHexString(System.currentTimeMillis());
-			String subtree = SubtreeContainer.mailSubtreeUid(domainUid, Namespace.shared, mbox.uid).subtreeUid;
+			String subtree = SubtreeContainer.mailSubtreeUid(domainUid, Namespace.shared, mbox.uid).subtreeUid();
 			MboxContext mailApi = new MboxContext(subtree, userCtx);
 			processFolders(op, mailApi, monitor, flag, sc, folders);
 
@@ -332,7 +332,7 @@ public class ReApplyDeletionsRepair extends InternalMaintenanceOperation {
 					}
 					return true;
 				}).collect(Collectors.toList());
-				String subtree = SubtreeContainer.mailSubtreeUid(domainUid, Namespace.users, mbox.uid).subtreeUid;
+				String subtree = SubtreeContainer.mailSubtreeUid(domainUid, Namespace.users, mbox.uid).subtreeUid();
 				BmContext userCtx = context.su("repair-" + UUID.randomUUID().toString(), mbox.uid, domainUid);
 				MboxContext mailApi = new MboxContext(subtree, userCtx);
 				processFolders(op, mailApi, monitor, flag, sc, folders);

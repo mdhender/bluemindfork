@@ -23,11 +23,11 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.MoreObjects;
 import com.google.common.cache.CacheBuilder;
 
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
+import net.bluemind.backend.mail.replica.api.utils.Subtree;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.caches.registry.CacheHolder;
 import net.bluemind.core.caches.registry.CacheRegistry;
@@ -41,23 +41,6 @@ public class SubtreeContainer {
 
 	private static final Logger logger = LoggerFactory.getLogger(SubtreeContainer.class);
 
-	public static class Subtree {
-		public Subtree(String sub, String owner) {
-			this.subtreeUid = sub;
-			this.ownerUid = owner;
-		}
-
-		public final String subtreeUid;
-		public final String ownerUid;
-
-		public String toString() {
-			return MoreObjects.toStringHelper(Subtree.class)//
-					.add("subtree", subtreeUid)//
-					.add("owner", ownerUid)//
-					.toString();
-		}
-	}
-
 	public static Subtree mailSubtreeUid(BmContext ctx, String domainUid, MailboxReplicaRootDescriptor mr) {
 		logger.debug("Compute subtree uid for {} @ {}", mr, domainUid);
 		String ownerUid = owner(ctx, mr, domainUid);
@@ -65,8 +48,12 @@ public class SubtreeContainer {
 	}
 
 	public static Subtree mailSubtreeUid(String domainUid, Namespace ns, String ownerUid) {
-		String sub = "subtree_" + domainUid.replace('.', '_') + "!" + ns.prefix() + ownerUid;
-		return new Subtree(sub, ownerUid);
+		Subtree ret = new Subtree();
+		ret.domainUid = domainUid;
+		ret.namespace = ns;
+		ret.ownerUid = ownerUid;
+		return ret;
+
 	}
 
 	public static class Registration implements ICacheRegistration {

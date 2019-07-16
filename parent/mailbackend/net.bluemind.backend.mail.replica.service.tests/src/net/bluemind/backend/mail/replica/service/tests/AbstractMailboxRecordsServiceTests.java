@@ -44,9 +44,9 @@ import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
+import net.bluemind.backend.mail.replica.api.utils.Subtree;
 import net.bluemind.backend.mail.replica.persistence.MailboxReplicaStore;
 import net.bluemind.backend.mail.replica.utils.SubtreeContainer;
-import net.bluemind.backend.mail.replica.utils.SubtreeContainer.Subtree;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.persistance.ContainerStore;
@@ -101,7 +101,7 @@ public abstract class AbstractMailboxRecordsServiceTests<T> {
 		Subtree subtreeId = SubtreeContainer.mailSubtreeUid(dom, Namespace.users, "me");
 
 		// init a subtree with an inbox
-		Container container = Container.create(subtreeId.subtreeUid, IMailReplicaUids.REPLICATED_MBOXES, "test", "me",
+		Container container = Container.create(subtreeId.subtreeUid(), IMailReplicaUids.REPLICATED_MBOXES, "test", "me",
 				true);
 		Container acl = Container.create(IMailboxAclUids.uidForMailbox("me"), IMailboxAclUids.MAILBOX_ACL_PREFIX,
 				"acls", "me", true);

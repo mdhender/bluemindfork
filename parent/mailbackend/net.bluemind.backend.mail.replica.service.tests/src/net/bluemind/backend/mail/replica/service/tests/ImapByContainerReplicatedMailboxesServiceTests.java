@@ -31,7 +31,7 @@ public class ImapByContainerReplicatedMailboxesServiceTests
 
 	protected IMailboxFoldersByContainer getService(SecurityContext ctx) {
 		return ServerSideServiceProvider.getProvider(ctx).instance(IMailboxFoldersByContainer.class,
-				subtreeDescriptor.subtreeUid);
+				subtreeDescriptor.subtreeUid());
 	}
 
 }
