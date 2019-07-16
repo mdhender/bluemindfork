@@ -20,11 +20,12 @@ package net.bluemind.backend.mail.parsing;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
 import org.slf4j.Logger;
@@ -49,26 +50,26 @@ public class EZInputStreamAdapter {
 
 	private static class ResetableOutput {
 		private final Path file;
-		private final OutputStream fileOut;
+		private final SeekableByteChannel fileOut;
 		private boolean closed;
 		private boolean reset;
 
-		public ResetableOutput(File f) {
-			this.file = f.toPath();
+		public ResetableOutput(Path path) {
+			this.file = path;
 			try {
-				this.fileOut = Files.newOutputStream(file);
+				this.fileOut = Files.newByteChannel(file, StandardOpenOption.CREATE,
+						StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
 			} catch (IOException e) {
 				throw new AdaptException(e);
 			}
 		}
 
-		public void write(byte[] data) throws IOException {
+		public void write(ByteBuffer data) throws IOException {
 			fileOut.write(data);
 		}
 
 		public void close() {
 			try {
-				fileOut.flush();
 				fileOut.close();
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
@@ -103,30 +104,27 @@ public class EZInputStreamAdapter {
 
 	}
 
-	private static boolean shm = isShmAvailable();
+	private static final Path shmParent = new File("/dev/shm/sync.bodies/").toPath();
+	private static final boolean shm = isShmAvailable();
 
 	private static boolean isShmAvailable() {
 		File shm = new File("/dev/shm");
 		boolean ret = shm.exists() && shm.isDirectory();
 		if (ret) {
-			File out = new File(shm, "sync.bodies");
-			out.mkdirs();
+			shmParent.toFile().mkdirs();
 		}
 		return ret;
 	}
 
-	private static final AtomicLong tmpName = new AtomicLong();
-
 	private static ResetableOutput output() {
-		if (shm) {
-			File f = new File("/dev/shm/sync.bodies/body." + tmpName.incrementAndGet());
-			return new ResetableOutput(f);
-		} else {
-			try {
-				return new ResetableOutput(File.createTempFile("ez-is-adapt", ".stream"));
-			} catch (IOException e) {
-				throw new AdaptException(e);
+		try {
+			if (shm) {
+				return new ResetableOutput(Files.createTempFile(shmParent, "ez-is-adapt", ".stream"));
+			} else {
+				return new ResetableOutput(Files.createTempFile("ez-is-adapt", ".stream"));
 			}
+		} catch (IOException e) {
+			throw new AdaptException(e);
 		}
 	}
 
@@ -172,9 +170,8 @@ public class EZInputStreamAdapter {
 
 		});
 		vxStream.dataHandler(buf -> {
-			byte[] toAdd = buf.getBytes();
 			try {
-				diskCopy.write(toAdd);
+				diskCopy.write(buf.getByteBuf().nioBuffer());
 			} catch (IOException e) {
 				logger.error(e.getMessage());
 			}
