@@ -38,6 +38,7 @@ import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.Server;
 
 public class DbConnections implements ITickTemplateProvider {
+
 	private static final Logger logger = LoggerFactory.getLogger(ITickTemplateProvider.class);
 
 	@Override
@@ -76,7 +77,7 @@ public class DbConnections implements ITickTemplateProvider {
 		def.variables.putObject("targetdatalocation",
 				new JsonObject().putString("type", "string").putString("value", server.uid));
 		def.variables.putObject("dbkind", new JsonObject().putString("type", "string").putString("value", kind));
-
+		logger.info("Alert definition for {} {}", server.value, kind);
 		return def;
 	}
 

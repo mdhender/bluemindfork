@@ -18,8 +18,10 @@
 package net.bluemind.metrics.core.tick.scripts;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,32 +34,35 @@ import net.bluemind.metrics.core.tick.TickTemplateDefBuilder;
 import net.bluemind.metrics.core.tick.TickTemplateHelper;
 import net.bluemind.server.api.Server;
 
-public class StateHeartbeats extends BasicTickTemplateProvider {
-
-	private static final Logger logger = LoggerFactory.getLogger(StateHeartbeats.class);
+public class RunningCyrusReplication extends BasicTickTemplateProvider {
+	private static final Logger logger = LoggerFactory.getLogger(RunningCyrusReplication.class);
 
 	@Override
 	public String templateId() {
-		return "state-heartbeat-age";
+		return "replication-sync-client";
 	}
 
 	@Override
 	public InputStream content() {
-		return StateHeartbeats.class.getClassLoader().getResourceAsStream("tickconfig/state-heartbeat-age.tick");
+		return RunningCyrusReplication.class.getClassLoader()
+				.getResourceAsStream("tickconfig/replication-sync-client.tick");
 	}
 
 	@Override
 	public List<TemplateDefinition> createDefinitions(BmContext ctx, String endPointUrl, ItemValue<Server> server) {
-		return server.value.tags.stream()//
-				.flatMap(tag -> Product.byTag(tag).stream())//
-				.filter(p -> p.useHearbeats)//
-				.map(product -> {
-					String alertId = TickTemplateHelper.newId(product, "heartbeat", server);
-					TemplateDefinition def = new TickTemplateDefBuilder(alertId).withDatalocation(server.uid)
-							.withEndPoint(endPointUrl).withProduct(product).build();
-					logger.info("Alert for heartbeats created for {} on {}", product, server.value);
-					return def;
-				}).collect(Collectors.toList());
+		Set<Product> srvProducts = EnumSet.noneOf(Product.class);
+		server.value.tags.forEach(tag -> srvProducts.addAll(Product.byTag(tag)));
+
+		List<TemplateDefinition> defs = new ArrayList<TemplateDefinition>();
+
+		if (srvProducts.contains(Product.CYRUS)) {
+			String alertId = TickTemplateHelper.newId(Product.CYRUS, templateId(), server);
+			TemplateDefinition def = new TickTemplateDefBuilder(alertId).withDatalocation(server.uid)
+					.withEndPoint(endPointUrl).withProduct(Product.CYRUS).build();
+			defs.add(def);
+			logger.info("Alert definition for sync_client on {} created.", server.value);
+		}
+		return defs;
 	}
 
 }
