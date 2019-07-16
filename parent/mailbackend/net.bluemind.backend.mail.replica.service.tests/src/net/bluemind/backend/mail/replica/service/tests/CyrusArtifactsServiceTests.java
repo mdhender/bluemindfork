@@ -25,7 +25,6 @@ package net.bluemind.backend.mail.replica.service.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -46,8 +45,6 @@ import net.bluemind.backend.mail.replica.api.MailboxSub;
 import net.bluemind.backend.mail.replica.api.QuotaRoot;
 import net.bluemind.backend.mail.replica.api.SeenOverlay;
 import net.bluemind.backend.mail.replica.api.SieveScript;
-import net.bluemind.core.api.fault.ErrorCode;
-import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
@@ -186,43 +183,6 @@ public class CyrusArtifactsServiceTests {
 		List<MailboxAnnotation> search = service.annotations(ma.mailbox);
 		assertEquals(2, search.size());
 		service.deleteAnnotation(ma);
-	}
-
-	@Test
-	public void testAnnotationsAsUser() {
-		ICyrusReplicationAnnotations service = getAnnotationsService(userContext.getSecurityContext());
-		MailboxAnnotation ma = new MailboxAnnotation();
-		ma.mailbox = "test.lab!user.another";
-		ma.userId = "another@test.lab";
-		ma.entry = "the_key";
-		ma.value = "id";
-		try {
-			service.storeAnnotation(ma);
-			fail("another does not exist");
-		} catch (ServerFault sf) {
-			assertEquals(ErrorCode.NOT_FOUND, sf.getCode());
-		}
-
-		MailboxAnnotation noRights = new MailboxAnnotation();
-		noRights.mailbox = "test.lab!user.german^pr0n";
-		noRights.userId = "german.pr0n@test.lab";
-		noRights.entry = "the_key";
-		noRights.value = "id";
-		try {
-			service.storeAnnotation(noRights);
-			fail("ACLs should block the store annotation call");
-		} catch (ServerFault sf) {
-			sf.printStackTrace();
-			assertEquals(ErrorCode.PERMISSION_DENIED, sf.getCode());
-		}
-
-		MailboxAnnotation myBox = new MailboxAnnotation();
-		myBox.mailbox = "test.lab!user.user.Sent";
-		myBox.userId = "user@test.lab";
-		myBox.entry = "the_key";
-		myBox.value = "id";
-		service.storeAnnotation(myBox);
-
 	}
 
 	protected ICyrusReplicationArtifacts getArtifactsService(SecurityContext ctx) {
