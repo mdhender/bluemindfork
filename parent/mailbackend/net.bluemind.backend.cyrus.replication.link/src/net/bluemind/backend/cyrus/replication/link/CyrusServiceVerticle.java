@@ -17,29 +17,55 @@
   */
 package net.bluemind.backend.cyrus.replication.link;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.vertx.java.core.eventbus.EventBus;
 import org.vertx.java.platform.Verticle;
 
 import net.bluemind.backend.cyrus.CyrusService;
+import net.bluemind.backend.cyrus.replication.link.probe.ReplicationLatencyMonitor;
+import net.bluemind.backend.cyrus.replication.link.probe.SharedMailboxProbe;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.server.api.Assignment;
 import net.bluemind.server.api.IServer;
 
 public class CyrusServiceVerticle extends Verticle {
+
+	private static final Logger logger = LoggerFactory.getLogger(CyrusServiceVerticle.class);
 
 	@Override
 	public void start() {
 		EventBus eventBus = vertx.eventBus();
 
 		eventBus.registerHandler("mailreplica.receiver.ready", message -> {
-
-			IServer service = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class,
-					InstallationId.getIdentifier());
+			IServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+			IServer service = prov.instance(IServer.class, InstallationId.getIdentifier());
 
 			service.allComplete().stream().filter(s -> s.value.tags.contains("mail/imap")).forEach(s -> {
 				CyrusService cyrusService = new CyrusService(s.value.address());
 				cyrusService.reload();
+
+				List<Assignment> assignments = service.getServerAssignments(s.uid).stream()
+						.filter(as -> "mail/imap".equals(as.tag)).collect(Collectors.toList());
+				for (Assignment domainServerPair : assignments) {
+					try {
+						SharedMailboxProbe probe = new SharedMailboxProbe.Builder()//
+								.forBackend(domainServerPair)//
+								.server(s)//
+								.provider(prov)//
+								.build();
+						logger.info("Probe mailbox is {}", probe);
+						new ReplicationLatencyMonitor(vertx, probe).start();
+					} catch (Exception e) {
+						logger.error(e.getMessage(), e);
+					}
+				}
 			});
 
 		});

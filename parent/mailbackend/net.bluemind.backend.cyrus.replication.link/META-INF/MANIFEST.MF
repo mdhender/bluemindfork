@@ -11,4 +11,12 @@ Require-Bundle: net.bluemind.lib.vertx;bundle-version="4.1.0",
  net.bluemind.core.rest,
  net.bluemind.config,
  net.bluemind.core.container.api;bundle-version="4.1.0",
- net.bluemind.backend.cyrus
+ net.bluemind.backend.cyrus,
+ net.bluemind.mailshare.api,
+ net.bluemind.mailbox.api,
+ slf4j.api,
+ net.bluemind.network.topology,
+ net.bluemind.imap,
+ net.bluemind.backend.cyrus.replication.observers,
+ net.bluemind.metrics.registry
+Export-Package: net.bluemind.backend.cyrus.replication.link.probe

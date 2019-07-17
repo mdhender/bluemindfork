@@ -22,6 +22,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.GregorianCalendar;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
@@ -110,7 +112,7 @@ public class ReplicationParentUidRepair implements IDirEntryRepairSupport {
 			}
 		}
 
-		public abstract void folders(BiConsumer<StoreClient, ListResult> process);
+		public abstract void folders(BiConsumer<StoreClient, List<ListInfo>> process);
 	}
 
 	public static final class UserMailboxWalk extends MailboxWalk {
@@ -119,7 +121,7 @@ public class ReplicationParentUidRepair implements IDirEntryRepairSupport {
 			super(context, mbox, domainUid, srv);
 		}
 
-		public void folders(BiConsumer<StoreClient, ListResult> process) {
+		public void folders(BiConsumer<StoreClient, List<ListInfo>> process) {
 			String login = mbox.value.name + "@" + domainUid;
 
 			try (Sudo sudo = new Sudo(mbox.value.name, domainUid);
@@ -140,14 +142,18 @@ public class ReplicationParentUidRepair implements IDirEntryRepairSupport {
 			super(context, mbox, domainUid, srv);
 		}
 
-		public void folders(BiConsumer<StoreClient, ListResult> process) {
+		public void folders(BiConsumer<StoreClient, List<ListInfo>> process) {
 			try (StoreClient sc = new StoreClient(srv.address(), 1143, "admin0", Token.admin0())) {
 				if (!sc.login()) {
 					logger.error("Fail to connect", mbox.value.name);
 					return;
 				}
-				ListResult mboxFolder = sc.listSubFoldersMailbox(mbox.value.name + "@" + domainUid);
-				process.accept(sc, mboxFolder);
+				List<ListInfo> mboxFoldersWithRoot = new LinkedList<>();
+				ListInfo root = new ListInfo(mbox.value.name + "@" + domainUid, true);
+				mboxFoldersWithRoot.add(root);
+				ListResult shareChildren = sc.listSubFoldersMailbox(mbox.value.name + "@" + domainUid);
+				mboxFoldersWithRoot.addAll(shareChildren);
+				process.accept(sc, mboxFoldersWithRoot);
 			}
 		}
 	}
