@@ -52,6 +52,7 @@ public class BMExecutor {
 	private static final Vertx timerMgmt = VertxPlatform.getVertx();
 
 	private volatile long lastFullLog = 0;
+	private volatile long lastInfoLog = 0;
 
 	private final ThreadPoolExecutor executor;
 	private final ConcurrentHashMap<Runnable, Thread> runningThreads;
@@ -166,21 +167,24 @@ public class BMExecutor {
 		return asExecutorService;
 	}
 
+	private static final String logMsg = "Executor/{} running: {} on {}, queue size: {}, total timed-out: {}, rejected: {}";
+
 	protected void logExecutorState() {
 		int active = runningThreads.size();
-		String logMsg = "Executor/{} running: {} on {}, queue size: {}, total timed-out: {}, rejected: {}";
-		if (active > (threadCounts / 2)) {
-
-			logger.warn(logMsg, name, active, threadCounts, executor.getQueue().size(), timedoutCounter.longValue(),
-					rejectionCounter.longValue());
-
-			if (lastFullLog < (System.currentTimeMillis() - 2000)) {
-				lastFullLog = System.currentTimeMillis();
-				logRunningTasks((msg, params) -> logger.warn(msg, params));
-				logQueuedTasks((msg, params) -> logger.warn(msg, params));
+		if (active > (threadCounts * 0.8)) {
+			long now = System.currentTimeMillis();
+			if (lastInfoLog < (now - 2000)) {
+				lastInfoLog = now;
+				logger.info(logMsg, name, active, threadCounts, executor.getQueue().size(), timedoutCounter.longValue(),
+						rejectionCounter.longValue());
 			}
-		} else if (active > (threadCounts / 4)) {
-			logger.info(logMsg, name, active, threadCounts, executor.getQueue().size(), timedoutCounter.longValue(),
+
+			if (lastFullLog < (now - 60000)) {
+				lastFullLog = now;
+				logRunningTasks((msg, params) -> logger.info(msg, params));
+			}
+		} else if (logger.isDebugEnabled() && active > (threadCounts * 0.5)) {
+			logger.debug(logMsg, name, active, threadCounts, executor.getQueue().size(), timedoutCounter.longValue(),
 					rejectionCounter.longValue());
 		}
 	}
@@ -198,14 +202,6 @@ public class BMExecutor {
 			func.log("running thread: {} task {}, stack {}", entry.getValue(), entry.getKey(), stackAsString);
 		});
 
-	}
-
-	private void logQueuedTasks(LogFunction func) {
-		ImmutableSet<Runnable> queuedTasks = ImmutableSet.copyOf(executor.getQueue());
-
-		queuedTasks.forEach(queued -> {
-			func.log("queued task {}", queued);
-		});
 	}
 
 	public void execute(BMTask command) {
