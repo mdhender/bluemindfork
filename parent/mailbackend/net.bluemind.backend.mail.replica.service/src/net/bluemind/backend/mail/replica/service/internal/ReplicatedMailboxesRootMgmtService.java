@@ -94,8 +94,8 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 		IContainers contApi = context.provider().instance(IContainers.class);
 		if (getRootContainer(containerUid, contApi) == null) {
 			createRootContainer(root, domainUid, containerUid, ownerUid, contApi);
-		} else {
-			logger.info("Container {} exists for {}", containerUid, root.fullName());
+		} else if (logger.isDebugEnabled()) {
+			logger.debug("Container {} exists for {}", containerUid, root.fullName());
 		}
 	}
 
@@ -104,13 +104,12 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 		try {
 			lock.writeLock().lock();
 			if (getRootContainer(containerUid, contApi) == null) {
-				logger.info("Should create missing root {}", containerUid);
+				logger.info("Create missing root {}", containerUid);
 				ContainerDescriptor toCreate = ContainerDescriptor.create(containerUid, subtreeName(root), ownerUid,
 						IMailReplicaUids.REPLICATED_MBOXES, domainUid, true);
 				toCreate.domainUid = domainUid;
 
 				contApi.create(toCreate.uid, toCreate);
-				// FIXME set permissions
 				EmitReplicationEvents.mailboxRootCreated(root);
 			}
 		} finally {

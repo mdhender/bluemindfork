@@ -96,7 +96,6 @@ public class ImapContext {
 
 		public PoolableStoreClient(String hostname, int port, String login, String password) {
 			super(hostname, port, login, password);
-			logger.info("Creating vertx imap client...");
 			this.fastFetch = VXStoreClient.create(hostname, port, login, password);
 		}
 
@@ -115,7 +114,6 @@ public class ImapContext {
 		if (imapClient.isPresent() && !imapClient.get().fastFetch.isClosed()) {
 			return imapClient.get();
 		} else {
-			logger.info("Start IMAP init for {}", latd);
 			PoolableStoreClient sc = new PoolableStoreClient(server, 1143, latd, sid);
 			CompletableFuture<Optional<PoolableStoreClient>> prom = sc.fastFetch.login()
 					.thenApply(resp -> Optional.of(sc));
@@ -124,9 +122,9 @@ public class ImapContext {
 				imapClient = prom.get(10, TimeUnit.SECONDS);
 				if (!minaClientOk) {
 					sc.closeImpl();
-					throw new ServerFault("Failed to establish both imap connections .");
+					throw new ServerFault("Failed to establish both imap connections for " + latd);
 				}
-				logger.info("Imap init of both clients is complete for {}.", latd);
+				logger.info("[{}] Imap init of both clients is complete.", latd);
 			} catch (Exception e) {
 				sc.closeImpl();
 				throw new ServerFault(e);
@@ -154,7 +152,9 @@ public class ImapContext {
 		String key = context.getSecurityContext().getSessionId();
 		ImapContext imapCtx = sidToCtxCache.getIfPresent(key);
 		if (imapCtx == null) {
-			logger.warn("ImapContext cache miss for key {}", key);
+			if (logger.isDebugEnabled()) {
+				logger.debug("ImapContext cache miss for key {}", key);
+			}
 			IServiceProvider srvProv = context.provider();
 			IAuthentication authApi = srvProv.instance(IAuthentication.class);
 			AuthUser curUser = authApi.getCurrentUser();
@@ -168,7 +168,7 @@ public class ImapContext {
 				imapCtx = new ImapContext(latd, partition, imapSrv, key, curUser);
 				sidToCtxCache.put(key, imapCtx);
 			} else {
-				throw new ServerFault("This is intended for users with a mailbox");
+				throw new ServerFault("ImapContext is intended for users with a mailbox");
 			}
 		}
 		return imapCtx;
