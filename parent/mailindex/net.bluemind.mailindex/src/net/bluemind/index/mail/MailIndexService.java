@@ -59,6 +59,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.json.JsonObject;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.netflix.spectator.api.Registry;
 
@@ -863,7 +864,7 @@ public class MailIndexService implements IMailIndexService {
 
 		boolean hasAttachment = !((List<String>) source.get("has")).isEmpty();
 
-		String preview = (String) source.get("preview");
+		String preview = Strings.nullToEmpty((String) source.get("preview"));
 
 		MessageSearchResult msr = new MessageSearchResult(contUid, itemId, subject, size, "IPM.Note", messageDate, from,
 				to, seen, flagged, hasAttachment, preview);
