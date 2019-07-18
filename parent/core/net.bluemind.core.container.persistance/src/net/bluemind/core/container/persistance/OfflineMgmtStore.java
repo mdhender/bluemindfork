@@ -24,21 +24,31 @@ import java.sql.Statement;
 
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class OfflineMgmtStore {
 
-	private DataSource ds;
+	private static final Logger logger = LoggerFactory.getLogger(OfflineMgmtStore.class);
+	private final DataSource ds;
 
 	public OfflineMgmtStore(DataSource ds) {
 		this.ds = ds;
 	}
 
+	private static final String query(int count) {
+		return "select multi_nextval('t_container_item_id_seq', " + count + ")"; // NOSONAR
+	}
+
 	public long reserveItemIds(int count) throws SQLException {
 		long ret = 0;
-		try (Connection con = ds.getConnection(); Statement st = con.createStatement()) {
-			try (ResultSet rs = st.executeQuery("select nextval('t_container_item_id_seq')")) {
-				rs.next();
-				ret = rs.getLong(1);
-				st.execute("ALTER SEQUENCE t_container_item_id_seq RESTART with " + (ret + count)); // NOSONAR
+		try (Connection con = ds.getConnection();
+				Statement st = con.createStatement();
+				ResultSet rs = st.executeQuery(query(count))) {
+			rs.next();
+			ret = rs.getLong(1);
+			if (logger.isDebugEnabled()) {
+				logger.debug("SEQVAL: {}", ret);
 			}
 		}
 		return ret;
