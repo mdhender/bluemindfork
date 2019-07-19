@@ -41,12 +41,7 @@
 </template>
 
 <script>
-import BmButton from "@bluemind/styleguide/components/buttons/BmButton";
-import BmCollapse from "@bluemind/styleguide/components/BmCollapse";
-import BmCounterBadge from "@bluemind/styleguide/components/BmCounterBadge";
-import BmIcon from "@bluemind/styleguide/components/BmIcon";
-import BmLabelIcon from "@bluemind/styleguide/components/BmLabelIcon";
-import BmTree from "@bluemind/styleguide/components/BmTree";
+import { BmButton, BmCollapse, BmCounterBadge, BmIcon, BmLabelIcon, BmTree } from "@bluemind/styleguide";
 import { mapGetters, mapActions } from "vuex";
 import injector from "@bluemind/inject";
 

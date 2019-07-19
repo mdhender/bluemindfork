@@ -17,12 +17,7 @@
 </template>
 
 <script>
-import BmAvatar from "@bluemind/styleguide/components/BmAvatar";
-import BmDropdownItem from "@bluemind/styleguide/components/BmDropdownItem";
-import BmLabelIcon from "@bluemind/styleguide/components/BmLabelIcon";
-import BmNavbarNav from "@bluemind/styleguide/components/navbar/BmNavbarNav";
-import BmNavItemDropdown from "@bluemind/styleguide/components/nav/BmNavItemDropdown";
-import BmTooltip from "@bluemind/styleguide/directives/BmTooltip";
+import { BmAvatar, BmDropdownItem, BmLabelIcon, BmNavbarNav, BmNavItemDropdown, BmTooltip} from "@bluemind/styleguide";
 
 export default {
     name: "BmBannerUser",

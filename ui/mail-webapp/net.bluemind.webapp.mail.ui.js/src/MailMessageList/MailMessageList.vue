@@ -42,14 +42,8 @@
 </template>
 
 <script>
-import BmCheck from "@bluemind/styleguide/components/BmCheck";
-import BmCol from "@bluemind/styleguide/components/layout/BmCol";
-import BmListGroup from "@bluemind/styleguide/components/lists/BmListGroup";
-import BmListGroupItem from "@bluemind/styleguide/components/lists/BmListGroupItem";
-import BmListGroupSeparator from "@bluemind/styleguide/components/lists/BmListGroupSeparator";
-import BmIcon from "@bluemind/styleguide/components/BmIcon";
-import BmInfiniteScroll from "@bluemind/styleguide/components/BmInfiniteScroll";
-import BmRow from "@bluemind/styleguide/components/layout/BmRow";
+import { BmCheck, BmCol, BmListGroup, BmListGroupItem, BmListGroupSeparator, BmIcon, BmInfiniteScroll, BmRow }
+    from "@bluemind/styleguide";
 import MailMessageListItem from "./MailMessageListItem";
 import { mapGetters, mapState } from "vuex";
 import { DateRange } from "@bluemind/date";

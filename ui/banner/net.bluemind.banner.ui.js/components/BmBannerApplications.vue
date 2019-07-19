@@ -20,9 +20,7 @@
 </template>
 
 <script>
-import BmBadge from "@bluemind/styleguide/components/BmBadge";
-import BmNavbarNav from "@bluemind/styleguide/components/navbar/BmNavbarNav";
-import BmNavItem from "@bluemind/styleguide/components/nav/BmNavItem";
+import { BmBadge, BmNavbarNav, BmNavItem } from "@bluemind/styleguide";
 
 export default {
     name: "BmBannerApplications",

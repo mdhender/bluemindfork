@@ -27,8 +27,7 @@
 </template>
 
 <script>
-import BmButton from "@bluemind/styleguide/components/buttons/BmButton";
-import BmIcon from "@bluemind/styleguide/components/BmIcon";
+import { BmButton, BmIcon } from "@bluemind/styleguide";
 
 export default {
     name: "MailMessageContentAttachment",

@@ -16,11 +16,7 @@
 import BannerL10N from "@bluemind/banner.l10n";
 import BmBannerApplications from "./BmBannerApplications";
 import BmBannerUser from "./BmBannerUser";
-import BmCollapse from "@bluemind/styleguide/components/BmCollapse";
-import BmNavbar from "@bluemind/styleguide/components/navbar/BmNavbar";
-import BmNavbarBrand from "@bluemind/styleguide/components/navbar/BmNavbarBrand";
-import BmNavbarToggle from "@bluemind/styleguide/components/navbar/BmNavbarToggle";
-import BmNavItem from "@bluemind/styleguide/components/nav/BmNavItem";
+import { BmCollapse, BmNavbar, BmNavbarBrand, BmNavbarToggle, BmNavItem} from "@bluemind/styleguide";
 
 export default {
     name: "BmBanner",

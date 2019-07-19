@@ -45,18 +45,11 @@
 </template>
 
 <script>
-import BmApplicationAlert from "@bluemind/styleguide/components/BmApplicationAlert";
-import BmLabelIcon from "@bluemind/styleguide/components/BmLabelIcon";
-import BmButton from "@bluemind/styleguide/components/buttons/BmButton";
-import BmCol from "@bluemind/styleguide/components/layout/BmCol";
-import BmContainer from "@bluemind/styleguide/components/layout/BmContainer";
-import BmFormInput from "@bluemind/styleguide/components/form/BmFormInput";
-import BmIcon from "@bluemind/styleguide/components/BmIcon";
-import BmRow from "@bluemind/styleguide/components/layout/BmRow";
+import { BmApplicationAlert, BmLabelIcon, BmButton, BmCol, BmContainer, BmFormInput, BmIcon, BmRow, MakeUniq }
+    from "@bluemind/styleguide"; 
 import MailAppL10N from "@bluemind/webapp.mail.l10n";
 import MailFolderTree from "./MailFolderTree";
 import MailMessageList from "./MailMessageList/MailMessageList";
-import MakeUniq from "@bluemind/styleguide/mixins/MakeUniq";
 import MailToolbar from "./MailToolbar";
 
 export default {

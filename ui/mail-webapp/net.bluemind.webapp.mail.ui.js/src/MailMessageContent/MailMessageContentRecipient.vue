@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import BmContact from "@bluemind/styleguide/components/BmContact";
+import { BmContact } from "@bluemind/styleguide";
 
 export default {
     name: "MailMessageContentRecipient",

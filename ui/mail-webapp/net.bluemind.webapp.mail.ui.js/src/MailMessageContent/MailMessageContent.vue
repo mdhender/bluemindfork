@@ -76,9 +76,7 @@
 import { DateTimeFormat } from "@bluemind/i18n";
 import { mapGetters } from "vuex";
 import { MimeType } from "@bluemind/email";
-import BmCol from "@bluemind/styleguide/components/layout/BmCol";
-import BmContainer from "@bluemind/styleguide/components/layout/BmContainer";
-import BmRow from "@bluemind/styleguide/components/layout/BmRow";
+import { BmCol, BmContainer, BmRow } from "@bluemind/styleguide";
 import CommonL10N from "@bluemind/l10n";
 import MailMessageContentAttachment from "./MailMessageContentAttachment";
 import MailMessageContentBody from "./MailMessageContentBody";

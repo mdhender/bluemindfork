@@ -38,9 +38,7 @@
 </template>
 
 <script>
-import BmButtonToolbar from "@bluemind/styleguide/components/buttons/BmButtonToolbar";
-import BmButton from "@bluemind/styleguide/components/buttons/BmButton";
-import BmIcon from "@bluemind/styleguide/components/BmIcon";
+import { BmButtonToolbar, BmButton, BmIcon }  from "@bluemind/styleguide";
 import { mapActions, mapState, mapGetters } from "vuex";
 export default {
     name: "MailToolbar",

@@ -85,12 +85,7 @@ const FLAG_COMPONENT = {
     }
 };
 
-import BmAvatar from "@bluemind/styleguide/components/BmAvatar";
-import BmCheck from "@bluemind/styleguide/components/BmCheck";
-import BmCol from "@bluemind/styleguide/components/layout/BmCol";
-import BmIcon from "@bluemind/styleguide/components/BmIcon";
-import BmListGroupItem from "@bluemind/styleguide/components/lists/BmListGroupItem";
-import BmRow from "@bluemind/styleguide/components/layout/BmRow";
+import { BmAvatar, BmCheck, BmCol, BmIcon, BmListGroupItem, BmRow } from "@bluemind/styleguide";
 import { DateTimeFormat } from "@bluemind/i18n";
 import MailMessageListItemQuickActionButtons from "./MailMessageListItemQuickActionButtons";
 

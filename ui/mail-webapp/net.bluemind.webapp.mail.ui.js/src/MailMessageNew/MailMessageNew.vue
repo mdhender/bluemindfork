@@ -123,16 +123,8 @@
 import { mapGetters } from "vuex";
 import { OrderBy } from "@bluemind/addressbook.api";
 import { VCardInfoAdaptor } from "@bluemind/contact";
-import BmButton from "@bluemind/styleguide/components/buttons/BmButton";
-import BmCol from "@bluemind/styleguide/components/layout/BmCol";
-import BmContactInput from "@bluemind/styleguide/components/form/BmContactInput";
-import BmFormTextarea from "@bluemind/styleguide/components/form/BmFormTextarea";
-import BmFormInput from "@bluemind/styleguide/components/form/BmFormInput";
-import BmForm from "@bluemind/styleguide/components/form/BmForm";
-import BmFormGroup from "@bluemind/styleguide/components/form/BmFormGroup";
-import BmIcon from "@bluemind/styleguide/components/BmIcon";
-import BmPanel from "@bluemind/styleguide/components/BmPanel/BmPanel";
-import BmRow from "@bluemind/styleguide/components/layout/BmRow";
+import { BmButton, BmCol, BmContactInput, BmFormTextarea, BmFormInput, BmForm, BmFormGroup, BmIcon, BmPanel, BmRow } 
+    from "@bluemind/styleguide";
 import CommonL10N from "@bluemind/l10n";
 import debounce from "lodash/debounce";
 import MailMessageNewFooter from "./MailMessageNewFooter";

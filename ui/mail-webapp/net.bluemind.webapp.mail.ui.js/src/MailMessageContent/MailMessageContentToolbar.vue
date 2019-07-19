@@ -16,9 +16,7 @@
 </template>
     
 <script>
-import BmButton from "@bluemind/styleguide/components/buttons/BmButton";
-import BmButtonToolbar from "@bluemind/styleguide/components/buttons/BmButtonToolbar";
-import BmIcon from "@bluemind/styleguide/components/BmIcon";
+import { BmButton, BmButtonToolbar, BmIcon } from "@bluemind/styleguide";
 
 export default {
     name: "MailMessageContentToolbar",

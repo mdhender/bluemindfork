@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import BmButton from "@bluemind/styleguide/components/buttons/BmButton";
+import { BmButton } from "@bluemind/styleguide";
 
 export default {
     name: "MailMessageNewFooter",

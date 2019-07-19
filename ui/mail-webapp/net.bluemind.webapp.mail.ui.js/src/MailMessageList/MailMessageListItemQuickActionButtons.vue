@@ -29,10 +29,7 @@
 </template>
 
 <script>
-import BmButtonToolbar from "@bluemind/styleguide/components/buttons/BmButtonToolbar";
-import BmButtonGroup from "@bluemind/styleguide/components/buttons/BmButtonGroup";
-import BmButton from "@bluemind/styleguide/components/buttons/BmButton";
-import BmIcon from "@bluemind/styleguide/components/BmIcon";
+import { BmButtonToolbar, BmButtonGroup, BmButton, BmIcon } from "@bluemind/styleguide";
 import { mapGetters } from "vuex";
 
 export default {
