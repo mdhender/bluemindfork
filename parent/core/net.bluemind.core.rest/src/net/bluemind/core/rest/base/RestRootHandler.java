@@ -52,6 +52,7 @@ import net.bluemind.core.rest.filter.IRestFilter;
 import net.bluemind.core.rest.log.CallLogger;
 import net.bluemind.core.rest.model.RestService;
 import net.bluemind.core.rest.model.RestServiceApiDescriptor.MethodDescriptor;
+import net.bluemind.core.rest.vertx.VertxStream.LocalPathStream;
 import net.bluemind.core.sessions.Sessions;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.lib.vertx.BMExecutor;
@@ -252,7 +253,11 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 			logger.debug("do call: request {}", request);
 
 			if (request.bodyStream != null) {
-				request.bodyStream = new MonitoredReadStream(request.bodyStream, monitor);
+				if (request.bodyStream instanceof LocalPathStream) {
+					logger.debug("Not wrapping {}", request.bodyStream);
+				} else {
+					request.bodyStream = new MonitoredReadStream(request.bodyStream, monitor);
+				}
 			}
 
 			this.response.response.setMonitor(monitor);

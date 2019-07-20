@@ -18,14 +18,21 @@
 package net.bluemind.backend.cyrus.replication.storage.core;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
+import java.io.IOException;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileChannel.MapMode;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
+import org.vertx.java.core.buffer.Buffer;
 
+import io.netty.buffer.Unpooled;
 import net.bluemind.authentication.api.IAuthenticationPromise;
 import net.bluemind.backend.cyrus.partitions.CyrusBoxes.ReplicatedBox;
 import net.bluemind.backend.cyrus.replication.server.state.StorageApiLink;
@@ -38,11 +45,13 @@ import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxesPromise;
 import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesRootMgmtPromise;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.config.Token;
+import net.bluemind.core.api.Stream;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.PromiseServiceProvider;
 import net.bluemind.core.rest.http.HttpClientProvider;
 import net.bluemind.core.rest.http.VertxPromiseServiceProvider;
+import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.locator.vertxclient.VertxLocatorClient;
 
 public class CoreStorageBackend implements StorageApiLink {
@@ -50,17 +59,18 @@ public class CoreStorageBackend implements StorageApiLink {
 
 	private static final boolean SYNC_DEBUG = new File(System.getProperty("user.home") + "/sync.debug").exists();
 
-	private Set<String> validatedPartitions;
-	private Set<String> validatedRoots;
-	private IServiceProvider asyncProv;
+	private final IServiceProvider asyncProv;
+	private final String remoteIp;
+	private final StreamProvider streamProvider;
 
-	private String remoteIp;
+	private interface StreamProvider {
+		Stream of(Path p);
+	}
 
-	private CoreStorageBackend(IServiceProvider asyncProv, String remoteIp) {
+	private CoreStorageBackend(IServiceProvider asyncProv, String remoteIp, StreamProvider sp) {
 		this.asyncProv = asyncProv;
 		this.remoteIp = remoteIp;
-		validatedPartitions = new HashSet<>();
-		validatedRoots = new HashSet<>();
+		this.streamProvider = sp;
 	}
 
 	public String remoteIp() {
@@ -82,7 +92,14 @@ public class CoreStorageBackend implements StorageApiLink {
 			IServiceProvider prov = prom;
 			IAuthenticationPromise asyncAuth = prov.instance(IAuthenticationPromise.class);
 			return asyncAuth.ping().thenApply(v -> {
-				StorageApiLink apiLink = new CoreStorageBackend(prov, remoteIp);
+				StorageApiLink apiLink = new CoreStorageBackend(prov, remoteIp, path -> {
+					try (FileChannel channel = (FileChannel) Files.newByteChannel(path, StandardOpenOption.READ)) {
+						MappedByteBuffer mapped = channel.map(MapMode.READ_ONLY, 0, channel.size());
+						return VertxStream.stream(new Buffer(Unpooled.wrappedBuffer(mapped)));
+					} catch (IOException ie) {
+						throw new RuntimeException(ie);
+					}
+				});
 				logger.info("[{}] Api link created, core pinged.", remoteIp);
 				return apiLink;
 			});
@@ -109,7 +126,7 @@ public class CoreStorageBackend implements StorageApiLink {
 
 			IAuthenticationPromise asyncAuth = prov.instance(IAuthenticationPromise.class);
 			return asyncAuth.ping().thenApply(v -> {
-				StorageApiLink apiLink = new CoreStorageBackend(prov, remoteIp);
+				StorageApiLink apiLink = new CoreStorageBackend(prov, remoteIp, p -> VertxStream.localPath(p));
 				logger.info("[{}] Api link created, core pinged.", remoteIp);
 				return apiLink;
 			});
@@ -124,10 +141,10 @@ public class CoreStorageBackend implements StorageApiLink {
 
 	public CompletableFuture<IDbMessageBodiesPromise> bodies(String partition) {
 		CompletableFuture<IDbMessageBodiesPromise> apiProm = new CompletableFuture<>();
-		if (!validatedPartitions.contains(partition)) {
+		if (!KnownRoots.validatedPartitions.contains(partition)) {
 			logger.info("Partition {} bodies setup complete.", partition);
 			if (!apiProm.isCompletedExceptionally()) {
-				validatedPartitions.add(partition);
+				KnownRoots.validatedPartitions.add(partition);
 				apiProm.complete(asyncProv.instance(IDbMessageBodiesPromise.class, partition));
 			}
 		} else {
@@ -142,12 +159,12 @@ public class CoreStorageBackend implements StorageApiLink {
 		String rootString = partition + "!" + root.fullName();
 		logger.debug("Checking {}...", rootString);
 		CompletableFuture<IDbReplicatedMailboxesPromise> apiProm = new CompletableFuture<>();
-		if (!validatedRoots.contains(rootString)) {
+		if (!KnownRoots.validatedRoots.contains(rootString)) {
 			IReplicatedMailboxesRootMgmtPromise mgmtApi = asyncProv.instance(IReplicatedMailboxesRootMgmtPromise.class,
 					partition);
 			mgmtApi.create(root).thenAccept(v -> {
 				logger.info("Root {} setup complete.", rootString);
-				validatedRoots.add(rootString);
+				KnownRoots.validatedRoots.add(rootString);
 				apiProm.complete(mboxesApi(partition, root.fullName()));
 			}).exceptionally(t -> {
 				logger.error(t.getMessage(), t);
@@ -217,5 +234,10 @@ public class CoreStorageBackend implements StorageApiLink {
 
 	public CompletableFuture<Void> delete(MailboxReplicaRootDescriptor root, String partition) {
 		return asyncProv.instance(IReplicatedMailboxesRootMgmtPromise.class, partition).delete(root);
+	}
+
+	@Override
+	public Stream stream(Path p) {
+		return streamProvider.of(p);
 	}
 }

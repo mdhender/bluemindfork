@@ -36,6 +36,7 @@ import com.google.common.io.CountingInputStream;
 
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.rest.vertx.VertxStream;
+import net.bluemind.core.rest.vertx.VertxStream.LocalPathStream;
 
 public class EZInputStreamAdapter {
 
@@ -154,6 +155,18 @@ public class EZInputStreamAdapter {
 
 	private static <T> void setupStreamHandlers(final Function<CountingInputStream, T> streamConsumer,
 			CompletableFuture<T> ret, ReadStream<?> vxStream) {
+		if (vxStream instanceof LocalPathStream) {
+			LocalPathStream lps = (LocalPathStream) vxStream;
+			try (CountingInputStream toConsume = new CountingInputStream(Files.newInputStream(lps.path()))) {
+				T output = streamConsumer.apply(toConsume);
+				ret.complete(output);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				ret.completeExceptionally(e);
+			}
+			return;
+		}
+
 		ResetableOutput diskCopy = output();
 
 		vxStream.endHandler(gotIt -> {

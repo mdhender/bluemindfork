@@ -18,6 +18,8 @@
  */
 package net.bluemind.core.rest.vertx;
 
+import java.nio.file.Path;
+
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.buffer.Buffer;
@@ -120,6 +122,49 @@ public class VertxStream {
 				return null;
 			}
 		};
+	}
+
+	public static class LocalPathStream implements Stream, ReadStream<LocalPathStream> {
+
+		private final Path path;
+
+		public LocalPathStream(Path p) {
+			this.path = p;
+		}
+
+		public Path path() {
+			return path;
+		}
+
+		@Override
+		public LocalPathStream dataHandler(Handler<Buffer> handler) {
+			return this;
+		}
+
+		@Override
+		public LocalPathStream pause() {
+			return this;
+		}
+
+		@Override
+		public LocalPathStream resume() {
+			return this;
+		}
+
+		@Override
+		public LocalPathStream exceptionHandler(Handler<Throwable> handler) {
+			return this;
+		}
+
+		@Override
+		public LocalPathStream endHandler(Handler<Void> endHandler) {
+			return this;
+		}
+
+	}
+
+	public static Stream localPath(Path p) {
+		return new LocalPathStream(p);
 	}
 
 	public static Stream stream(Buffer body) {
