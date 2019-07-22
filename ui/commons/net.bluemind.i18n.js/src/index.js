@@ -1,9 +1,11 @@
 import DateTimeFormat from './DateTimeFormat';
-import TranslationHelper from './TranslationHelper';
+import FirstDayOfWeek from './FirstDayOfWeek';
 import InheritTranslationsMixin from './InheritTranslationsMixin';
+import TranslationHelper from './TranslationHelper';
 
 export {
     DateTimeFormat,
-    TranslationHelper,
-    InheritTranslationsMixin
+    FirstDayOfWeek,
+    InheritTranslationsMixin,
+    TranslationHelper
 };

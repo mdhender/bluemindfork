@@ -1,7 +1,9 @@
+import injector from "@bluemind/inject";
 import isNumber from "lodash.isnumber";
 import isObject from "lodash.isobject";
 
 export default class LocalDate {
+
     constructor(opt_year, month = 0, date = 1) {
         if (isNumber(opt_year)) {
             this.date = buildDate(opt_year, month, date);
@@ -11,6 +13,10 @@ export default class LocalDate {
         } else {
             const today = new Date();
             this.date = buildDate(today.getFullYear(), today.getMonth(), today.getDate());
+        }
+        const env = injector.getProvider("Environment").get();
+        if (env) {
+            this.firstDayOfWeek = env.firstDayOfWeek;
         }
     }
 
@@ -38,6 +44,19 @@ export default class LocalDate {
 
     getDate() {
         return this.date.getDate();
+    }
+
+    getDay() {
+        return this.date.getDay();
+    }
+
+    getWeekDay() {
+        return (this.getDay() + 7 - this.firstDayOfWeek) % 7;
+    }
+
+    // 0 = Sunday, 6 = Saturday
+    setFirstDayOfWeek(day) {
+        this.firstDayOfWeek = day;
     }
 }
 

@@ -7,7 +7,7 @@ export default class DateRange {
     }
 
     contains(date) {
-        return date.valueOf() >= this.start.valueOf() && date.valueOf() <= this.end.valueOf();
+        return date.valueOf() >= this.start.valueOf() && date.valueOf() < this.end.valueOf();
     }
 
     static yesterday(opt_today) {
@@ -23,10 +23,10 @@ export default class DateRange {
     }
 
     static thisWeek(opt_today) {
-        const today = new LocalDate(opt_today);
-        //FIXME
-        const fow = new LocalDate(opt_today).minus(7);
-        return new DateRange(fow, today);
+        const dayOfWeek = new LocalDate(opt_today).getWeekDay();
+        const start = new LocalDate(opt_today).minus(dayOfWeek);
+        const end = new LocalDate(opt_today).plus(7 - dayOfWeek);
+        return new DateRange(start, end);
     }
 
     static past(opt_today) {

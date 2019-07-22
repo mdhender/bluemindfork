@@ -1,12 +1,13 @@
-import Vue from "vue";
+import { extend } from "@bluemind/vuex-router";
+import { FirstDayOfWeek } from "@bluemind/i18n";
+import { InheritTranslationsMixin } from "@bluemind/i18n";
+import { sync } from "vuex-router-sync";
+import injector from "@bluemind/inject";
 import MainApp from "./MainApp.vue";
 import router from "@bluemind/router";
-import injector from "@bluemind/inject";
 import store from "@bluemind/store";
-import { sync } from "vuex-router-sync";
-import { extend } from "@bluemind/vuex-router";
+import Vue from "vue";
 import VueI18n from "vue-i18n";
-import { InheritTranslationsMixin } from "@bluemind/i18n";
 
 Vue.use(VueI18n);
 
@@ -16,6 +17,14 @@ injector.register({
 });
 
 const userSession = injector.getProvider("UserSession").get();
+const firstDayOfWeek = FirstDayOfWeek[userSession.lang.toUpperCase()] || 1; // if no lang defined, use monday as fdow
+
+injector.register({
+    provide: "Environment",
+    use: {
+        firstDayOfWeek: firstDayOfWeek // FIXME : use user settings instead
+    }
+});
 
 sync(store, router);
 extend(router, store);
