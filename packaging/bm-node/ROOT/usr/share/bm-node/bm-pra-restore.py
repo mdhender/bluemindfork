@@ -79,9 +79,9 @@ def execCmd(logFileName, cmd, env, desc):
 	logFile.write('----------------------\nRunning command: ' + str(cmd) + "\n")
 	logFile.flush()
 	if env is None:
-	    p = subprocess.Popen(cmd, stdout=logFile, stderr=logFile)
-        else:
-	    p = subprocess.Popen(cmd, stdout=logFile, stderr=logFile, env=env)
+		p = subprocess.Popen(cmd, stdout=logFile, stderr=logFile)
+	else:
+		p = subprocess.Popen(cmd, stdout=logFile, stderr=logFile, env=env)
 	
 	spinner = [ '-', '\\', '|', '/' ]
 	c = 0
