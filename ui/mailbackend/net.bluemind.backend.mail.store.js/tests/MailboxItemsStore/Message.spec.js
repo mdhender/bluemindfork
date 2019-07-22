@@ -32,7 +32,9 @@ describe("Message", () => {
             body: {
                 subject: mailboxItem.value.body.subject,
                 headers: mailboxItem.value.body.headers,
-                recipients: mailboxItem.value.body.recipients,
+                // FIXME we do not handle the displayed name (aka distinguished name) yet (except fo Originator)
+                recipients: mailboxItem.value.body.recipients.map(
+                    r => r.kind == "Originator" ? r : ({ "kind": r.kind, "address": r.address, "dn": "" })),
                 messageId: mailboxItem.value.body.messageId,
                 references: mailboxItem.value.body.references,
                 structure: {
@@ -41,7 +43,13 @@ describe("Message", () => {
                 }
             }
         };
-        expect(message.toMailboxItem("TEXT", "jdoe@vm40.net", "John Doe")).toEqual(expectedItem);
+
+        // FIXME for now message recipients are just addresses (when sending message)
+        message.to = message.to.map(r => r.address);
+
+        let actualItem = message.toMailboxItem("TEXT", "jdoe@vm40.net", "John Doe");
+
+        expect(actualItem).toEqual(expectedItem);
     });
     test("computeSubject for Reply", () => {
         const message = new Message(mailboxItem);
