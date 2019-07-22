@@ -75,13 +75,13 @@ def getBmCoreTagBackupPath(bmBackupPath, generationToRestore):
 	sys.exit(1)
 	
 def execCmd(logFileName, cmd, env, desc):
-	if env is None:
-		env = {}
-		
 	logFile = open(logFileName, 'a')
 	logFile.write('----------------------\nRunning command: ' + str(cmd) + "\n")
 	logFile.flush()
-	p =	subprocess.Popen(cmd, stdout=logFile, stderr=logFile, env=env)
+	if env is None:
+	    p = subprocess.Popen(cmd, stdout=logFile, stderr=logFile)
+        else:
+	    p = subprocess.Popen(cmd, stdout=logFile, stderr=logFile, env=env)
 	
 	spinner = [ '-', '\\', '|', '/' ]
 	c = 0
@@ -133,6 +133,16 @@ def restoreCommonConfiguration(bmCorePath):
 	"Restoring BlueMind Node configuration")
 	
 	execCmd(LOG_FILE,\
+        ['chown', 'root:www-data', '/etc/bm/bm-core.tok'],\
+	None,\
+	"Fix owner of bm-core.tok file")
+	
+	execCmd(LOG_FILE,\
+        ['chmod', '440', '/etc/bm/bm-core.tok'],\
+	None,\
+	"Fix permission of bm-core.tok file")
+	
+	execCmd(LOG_FILE,\
 	['cp', '-f', '/etc/bm/certs/bm_cert.pem', '/etc/ssl/certs/bm_cert.pem'],\
 	None,\
 	"Restoring BlueMind certificate file")
@@ -181,6 +191,7 @@ def restoreBmEs(bmCorePath, bmEsPath):
 	['rm',\
 	 '-Rf',\
 	 '/var/spool/bm-elasticsearch/repo'],\
+	None,\
 	"Cleanup ES repo")
 
 	execCmd(LOG_FILE, \
@@ -188,6 +199,7 @@ def restoreBmEs(bmCorePath, bmEsPath):
 	 '-r',\
 	 bmCoreTagBackupPath + '/var/backups/bluemind/work/elasticsearch',\
 	 '/var/spool/bm-elasticsearch'],\
+	None,\
 	"Copy backup to ES repo")
 
 	execCmd(LOG_FILE, \
@@ -195,6 +207,7 @@ def restoreBmEs(bmCorePath, bmEsPath):
 	 '-R',\
 	 'elasticsearch:elasticsearch',\
 	 '/var/spool/bm-elasticsearch/repo'],\
+	None,\
 	"chown ES repo")
 	
 	execCmd(LOG_FILE, \
