@@ -37,27 +37,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Strings;
 
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.MessageBody.RecipientKind;
 import net.bluemind.backend.mail.parsing.BodyStreamProcessor;
 import net.bluemind.backend.mail.parsing.BodyStreamProcessor.MessageBodyData;
+import net.bluemind.backend.mail.parsing.Keyword;
 import net.bluemind.core.api.Stream;
 
 public class IndexedMessageBody {
 
 	public final List<String> content;
 	public final Map<String, Object> data;
-	public final Map<String, Object> headers;
-	public final String subject;
+	private final Map<String, Keyword> headers;
+	public final Keyword subject;
 	public final String uid;
 	public final String preview;
 
 	private static final Logger logger = LoggerFactory.getLogger(IndexedMessageBody.class);
 
-	private IndexedMessageBody(String uid, List<String> content, Map<String, Object> data, Map<String, Object> headers,
-			String subject, String preview) {
+	private IndexedMessageBody(String uid, List<String> content, Map<String, Object> data, Map<String, Keyword> headers,
+			Keyword subject, String preview) {
 		this.uid = uid;
 		this.content = content;
 		this.data = data;
@@ -78,8 +78,8 @@ public class IndexedMessageBody {
 	public static class IndexedMessageBodyBuilder {
 		public List<String> content = new ArrayList<>();
 		public Map<String, Object> data = new HashMap<>();
-		public Map<String, Object> headers = new HashMap<>();
-		public String subject = "";
+		public Map<String, Keyword> headers = new HashMap<>();
+		public Keyword subject = new Keyword(null);
 		public String preview = "";
 		public final String uid;
 
@@ -87,7 +87,7 @@ public class IndexedMessageBody {
 			this.uid = uid;
 		}
 
-		public IndexedMessageBodyBuilder subject(String subject) {
+		public IndexedMessageBodyBuilder subject(Keyword subject) {
 			this.subject = subject;
 			return this;
 		}
@@ -97,7 +97,7 @@ public class IndexedMessageBody {
 			return this;
 		}
 
-		public IndexedMessageBodyBuilder headers(Map<String, Object> headers) {
+		public IndexedMessageBodyBuilder headers(Map<String, Keyword> headers) {
 			this.headers = headers;
 			return this;
 		}
@@ -158,14 +158,14 @@ public class IndexedMessageBody {
 						.map(r -> Arrays.asList(r.dn, r.address)).flatMap(Collection::stream).filter(Objects::nonNull)
 						.collect(Collectors.toList()));
 
-		Map<String, Object> headers = new HashMap<>();
+		Map<String, Keyword> headers = new HashMap<>();
 		Set<String> hasProps = new HashSet<>();
 		headers.putAll(bodyData.headers);
-		headers.put("from", Strings.emptyToNull(body.recipients.stream().filter(r -> r.kind == RecipientKind.Originator)
+		headers.put("from", new Keyword(body.recipients.stream().filter(r -> r.kind == RecipientKind.Originator)
 				.map(Object::toString).collect(Collectors.joining(", "))));
-		headers.put("to", Strings.emptyToNull(body.recipients.stream().filter(r -> r.kind == RecipientKind.Primary)
+		headers.put("to", new Keyword(body.recipients.stream().filter(r -> r.kind == RecipientKind.Primary)
 				.map(Object::toString).collect(Collectors.joining(", "))));
-		headers.put("cc", Strings.emptyToNull(body.recipients.stream().filter(r -> r.kind == RecipientKind.CarbonCopy)
+		headers.put("cc", new Keyword(body.recipients.stream().filter(r -> r.kind == RecipientKind.CarbonCopy)
 				.map(Object::toString).collect(Collectors.joining(", "))));
 		if (bodyData.headers.containsKey("x-bm-event") && bodyData.headers.containsKey("x-bm-rsvp")) {
 			hasProps.add("invitation");
@@ -186,9 +186,13 @@ public class IndexedMessageBody {
 		return new IndexedMessageBody.IndexedMessageBodyBuilder(uid) //
 				.content(content) //
 				.data(data) //
-				.headers(headers).subject(body.subject)//
+				.headers(headers).subject(new Keyword(body.subject))//
 				.preview(preview)//
 				.build();
+	}
+
+	public Map<String, String> headers() {
+		return headers.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
 	}
 
 }

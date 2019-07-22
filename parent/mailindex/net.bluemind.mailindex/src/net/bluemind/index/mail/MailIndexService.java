@@ -129,9 +129,9 @@ public class MailIndexService implements IMailIndexService {
 		Map<String, Object> content = new HashMap<>();
 		content.put("content", body.content);
 		content.put("preview", body.preview);
-		content.put("subject", body.subject);
-		content.put("subject_kw", body.subject);
-		content.put("headers", body.headers);
+		content.put("subject", body.subject.toString());
+		content.put("subject_kw", body.subject.toString());
+		content.put("headers", body.headers());
 		content.putAll(body.data);
 		client.prepareIndex(INDEX_PENDING, PENDING_TYPE).setId(body.uid).setSource(content).execute().actionGet();
 		return content;
