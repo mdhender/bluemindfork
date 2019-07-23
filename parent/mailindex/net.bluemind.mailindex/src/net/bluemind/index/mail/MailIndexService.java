@@ -238,6 +238,9 @@ public class MailIndexService implements IMailIndexService {
 		mutableContent.put("is", is);
 		mutableContent.put("itemId", item.internalId);
 		mutableContent.put("parentId", parentUid);
+		if (mail.internalDate != null) {
+			mutableContent.put("internalDate", mail.internalDate.toInstant().toString());
+		}
 		mutableContent.put(JOIN_FIELD, ImmutableMap.of("name", CHILD_TYPE, "parent", parentUid));
 
 		// deduplicate fields
@@ -795,6 +798,7 @@ public class MailIndexService implements IMailIndexService {
 		searchBuilder.addStoredField("itemId");
 		searchBuilder.addStoredField("uid");
 		searchBuilder.addStoredField("preview");
+		searchBuilder.addStoredField("internalDate");
 		searchBuilder.setFetchSource(true);
 		searchBuilder.setFrom(Long.valueOf(query.offset).intValue());
 		searchBuilder.setSize(Long.valueOf(query.maxResults).intValue());
@@ -840,8 +844,16 @@ public class MailIndexService implements IMailIndexService {
 		String subject = (String) source.get("subject");
 		logger.debug("matching result itemId:{} subject:'{}' in folder:{}", itemId, subject, folderUid);
 		int size = (int) source.get("size");
-		ZonedDateTime date = ZonedDateTime.parse((String) source.get("date"));
+
+		String internalDate = (String) source.get("internalDate");
+		ZonedDateTime date;
+		if (internalDate != null) {
+			date = ZonedDateTime.parse(internalDate);
+		} else {
+			date = ZonedDateTime.parse((String) source.get("date"));
+		}
 		Date messageDate = Date.from(date.toInstant());
+
 		List<String> flags = (List<String>) source.get("is");
 		boolean seen = flags.contains("seen");
 		boolean flagged = flags.contains("flagged");

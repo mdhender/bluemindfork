@@ -83,7 +83,7 @@ class rcube_storage_bm extends rcube_imap {
 
   private $sortMap = array(
     "date" => "date",
-    "arrival" => "date",
+    "arrival" => "internalDate",
     "size" => "size",
     "from" => "headers.from",
     "to" => "headers.to",
