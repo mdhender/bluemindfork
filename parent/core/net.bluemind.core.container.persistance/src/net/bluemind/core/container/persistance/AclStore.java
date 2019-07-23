@@ -50,8 +50,8 @@ public class AclStore extends JdbcAbstractStore {
 	}
 
 	/**
-	 * please prefer the {@link AclStore#AclStore(BmContext, DataSource)}
-	 * variant that enables caching.
+	 * please prefer the {@link AclStore#AclStore(BmContext, DataSource)} variant
+	 * that enables caching.
 	 * 
 	 * @param pool
 	 */
@@ -90,14 +90,14 @@ public class AclStore extends JdbcAbstractStore {
 		if (cached != null) {
 			return cached;
 		}
-		List<AccessControlEntry> acls = select(GET_QUERY, (rs) -> new AccessControlEntry(),
+		List<AccessControlEntry> acls = new ArrayList<>(select(GET_QUERY, (rs) -> new AccessControlEntry(),
 				Arrays.<EntityPopulator<AccessControlEntry>>asList((rs, index, value) -> {
 
 					String subject = rs.getString(index++);
 					value.subject = subject;
 					value.verb = Verb.valueOf(rs.getString(index++));
 					return index;
-				}), new Object[] { container.id });
+				}), new Object[] { container.id }));
 		cache.put(container.uid, acls);
 		return acls;
 	}
