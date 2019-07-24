@@ -72,8 +72,6 @@ import net.bluemind.node.api.NodeActivator;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
-import net.bluemind.system.ldap.export.LdapExportService;
-import net.bluemind.system.ldap.export.LdapHelper;
 import net.bluemind.system.ldap.export.objects.DomainDirectoryGroup;
 import net.bluemind.system.ldap.export.objects.DomainDirectoryUser;
 import net.bluemind.system.ldap.export.verticle.LdapExportVerticle;
@@ -153,6 +151,7 @@ public class LdapExportServiceTests {
 
 		String userUid = PopulateHelper.addUser(UUID.randomUUID().toString(), domain.value.name);
 		String groupUid = addGroup();
+		String systemGroupUid = addGroup(true);
 
 		LdapExportService les = LdapExportService.build(domain.uid);
 		les.sync();
@@ -168,10 +167,11 @@ public class LdapExportServiceTests {
 		assertTrue(results.groupExported.contains(groupUid));
 
 		assertNotEquals(0, results.groupNotExported.size());
+		assertTrue(results.groupNotExported.contains(systemGroupUid));
 	}
 
 	@Test
-	public void testExportUser_hiddenNotExported() throws Exception {
+	public void testExportUser_hidden() throws Exception {
 		checkBmVersion();
 
 		User user = PopulateHelper.getUser("test-" + System.nanoTime(), domain.value.name, Mailbox.Routing.none);
@@ -185,11 +185,13 @@ public class LdapExportServiceTests {
 
 		LdapConnection ldapCon = LdapHelper.connectDirectory(ldapRoleServer);
 		Entry ldapEntry = ldapCon.lookup("uid=" + user.login + ",ou=users,dc=" + domain.value.name + ",dc=local");
-		assertNull(ldapEntry);
+		assertNotNull(ldapEntry);
+		assertEquals(1, ldapEntry.get("bmHidden").size());
+		assertTrue(ldapEntry.get("bmHidden").contains("true"));
 	}
 
 	@Test
-	public void testExportGroup_hiddenNotExported() throws Exception {
+	public void testExportGroup_hidden() throws Exception {
 		checkBmVersion();
 
 		Group group = getGroup();
@@ -203,7 +205,9 @@ public class LdapExportServiceTests {
 
 		LdapConnection ldapCon = LdapHelper.connectDirectory(ldapRoleServer);
 		Entry ldapEntry = ldapCon.lookup("cn=" + group.name + ",ou=groups,dc=" + domain.value.name + ",dc=local");
-		assertNull(ldapEntry);
+		assertNotNull(ldapEntry);
+		assertEquals(1, ldapEntry.get("bmHidden").size());
+		assertTrue(ldapEntry.get("bmHidden").contains("true"));
 	}
 
 	@Test
@@ -375,7 +379,7 @@ public class LdapExportServiceTests {
 	}
 
 	@Test
-	public void testExportUser_removeFromLdapIfUpdatedToHidden() throws Exception {
+	public void testExportUser_manageHiddenAttribute() throws Exception {
 		String userUid = PopulateHelper.addUser("test" + System.nanoTime(), domain.value.name, Mailbox.Routing.none);
 
 		LdapExportService les = LdapExportService.build(domain.uid);
@@ -388,6 +392,8 @@ public class LdapExportServiceTests {
 		LdapConnection ldapCon = LdapHelper.connectDirectory(ldapRoleServer);
 		Entry ldapUser = ldapCon.lookup("uid=" + user.value.login + ",ou=users,dc=" + domain.value.name + ",dc=local");
 		assertNotNull(ldapUser);
+		assertEquals(1, ldapUser.get("bmHidden").size());
+		assertTrue(ldapUser.get("bmHidden").contains("false"));
 
 		user.value.hidden = true;
 		userService.update(user.uid, user.value);
@@ -395,11 +401,23 @@ public class LdapExportServiceTests {
 		les.sync();
 
 		ldapUser = ldapCon.lookup("uid=" + user.value.login + ",ou=users,dc=" + domain.value.name + ",dc=local");
-		assertNull(ldapUser);
+		assertNotNull(ldapUser);
+		assertEquals(1, ldapUser.get("bmHidden").size());
+		assertTrue(ldapUser.get("bmHidden").contains("true"));
+
+		user.value.hidden = false;
+		userService.update(user.uid, user.value);
+
+		les.sync();
+
+		ldapUser = ldapCon.lookup("uid=" + user.value.login + ",ou=users,dc=" + domain.value.name + ",dc=local");
+		assertNotNull(ldapUser);
+		assertEquals(1, ldapUser.get("bmHidden").size());
+		assertTrue(ldapUser.get("bmHidden").contains("false"));
 	}
 
 	@Test
-	public void testExportGroup_removeFromLdapIfUpdatedToHidden() throws Exception {
+	public void testExportGroup_manageHiddenAttribute() throws Exception {
 		String groupUid = addGroup();
 
 		LdapExportService.build(domain.uid).sync();
@@ -411,6 +429,8 @@ public class LdapExportServiceTests {
 		LdapConnection ldapCon = LdapHelper.connectDirectory(ldapRoleServer);
 		Entry ldapGroup = ldapCon.lookup("cn=" + group.value.name + ",ou=groups,dc=" + domain.value.name + ",dc=local");
 		assertNotNull(ldapGroup);
+		assertEquals(1, ldapGroup.get("bmHidden").size());
+		assertTrue(ldapGroup.get("bmHidden").contains("false"));
 
 		group.value.hidden = true;
 		groupService.update(group.uid, group.value);
@@ -418,7 +438,19 @@ public class LdapExportServiceTests {
 		LdapExportService.build(domain.uid).sync();
 
 		ldapGroup = ldapCon.lookup("cn=" + group.value.name + ",ou=groups,dc=" + domain.value.name + ",dc=local");
-		assertNull(ldapGroup);
+		assertNotNull(ldapGroup);
+		assertEquals(1, ldapGroup.get("bmHidden").size());
+		assertTrue(ldapGroup.get("bmHidden").contains("true"));
+
+		group.value.hidden = false;
+		groupService.update(group.uid, group.value);
+
+		LdapExportService.build(domain.uid).sync();
+
+		ldapGroup = ldapCon.lookup("cn=" + group.value.name + ",ou=groups,dc=" + domain.value.name + ",dc=local");
+		assertNotNull(ldapGroup);
+		assertEquals(1, ldapGroup.get("bmHidden").size());
+		assertTrue(ldapGroup.get("bmHidden").contains("false"));
 	}
 
 	@Test
@@ -1096,7 +1128,12 @@ public class LdapExportServiceTests {
 	}
 
 	private String addGroup() {
+		return addGroup(false);
+	}
+
+	private String addGroup(boolean system) {
 		Group group = getGroup();
+		group.system = system;
 		return addGroup(group);
 	}
 
@@ -1149,7 +1186,7 @@ public class LdapExportServiceTests {
 
 		Entry ldapEntry = ldapCon.lookup("cn=" + group.value.name + ",ou=groups,dc=" + domain.value.name + ",dc=local");
 
-		if (dirEntry.hidden || dirEntry.system) {
+		if (dirEntry.system) {
 			assertNull(ldapEntry);
 			results.groupNotExported.add(dirEntry.entryUid);
 		} else {
@@ -1165,7 +1202,7 @@ public class LdapExportServiceTests {
 
 		Entry ldapEntry = ldapCon.lookup("uid=" + user.value.login + ",ou=users,dc=" + domain.value.name + ",dc=local");
 
-		if (dirEntry.hidden || dirEntry.system) {
+		if (dirEntry.system) {
 			assertNull(ldapEntry);
 			results.userNotExported.add(dirEntry.entryUid);
 		} else {

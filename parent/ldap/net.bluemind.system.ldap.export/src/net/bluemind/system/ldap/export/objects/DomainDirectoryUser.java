@@ -54,8 +54,8 @@ public class DomainDirectoryUser extends LdapObjects {
 
 	public static final List<String> ldapAttrsStringsValues = ImmutableList.of(//
 			// Identity
-			"bmUid", "cn", "sn", "employeeType", "givenName", "description", "ou", "departmentNumber", "title",
-			"jpegPhoto",
+			"bmUid", "bmHidden", "cn", "sn", "employeeType", "givenName", "description", "ou", "departmentNumber",
+			"title", "jpegPhoto",
 			// Email
 			"mail",
 			// Phones
@@ -214,6 +214,8 @@ public class DomainDirectoryUser extends LdapObjects {
 
 		try {
 			ldapEntry = new DefaultEntry(getDn(), "objectclass: inetOrgPerson", "objectclass: bmUser");
+
+			ldapEntry.add("bmHidden", Boolean.toString(user.value.hidden));
 
 			initIdentity(ldapEntry);
 			initEmail(ldapEntry);

@@ -82,8 +82,9 @@ objectClass: olcSchemaConfig
 cn: bluemind
 olcAttributeTypes: {0}( 1.3.6.1.4.1.39073.2.1 NAME 'bmUid' DESC 'BlueMind UID' EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{256} SINGLE-VALUE )
 olcAttributeTypes: {1}( 1.3.6.1.4.1.39073.2.2 NAME 'bmVersion' DESC 'BlueMind changset version' EQUALITY integerMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
-olcObjectClasses: {0}( 1.3.6.1.4.1.39073.1.1 NAME 'bmGroup' DESC 'BlueMind group' SUP top AUXILIARY MAY ( member $ mail $ bmUid ) )
-olcObjectClasses: {1}( 1.3.6.1.4.1.39073.1.2 NAME 'bmUser' DESC 'BlueMind user' SUP top AUXILIARY MUST ( bmUid ) )
+olcAttributeTypes: {2}( 1.3.6.1.4.1.39073.2.3 NAME 'bmHidden' DESC 'BlueMind hidden status' EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{256} SINGLE-VALUE )
+olcObjectClasses: {0}( 1.3.6.1.4.1.39073.1.1 NAME 'bmGroup' DESC 'BlueMind group' SUP top AUXILIARY MAY ( member $ mail $ bmUid $ bmHidden ) )
+olcObjectClasses: {1}( 1.3.6.1.4.1.39073.1.2 NAME 'bmUser' DESC 'BlueMind user' SUP top AUXILIARY MUST ( bmUid ) MAY ( bmHidden ) )
 olcObjectClasses: {2}( 1.3.6.1.4.1.39073.1.3 NAME 'bmDomain' DESC 'BlueMind domain' SUP top AUXILIARY MUST ( bmVersion ) )
 
 # Load module

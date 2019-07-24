@@ -58,7 +58,7 @@ public class DomainDirectoryGroup extends LdapObjects {
 	private final MembersList members;
 
 	public static final List<String> ldapAttrsStringsValues = ImmutableList.of(//
-			"bmUid", "description", "mail", "member", "memberUid");
+			"bmUid", "bmHidden", "description", "mail", "member", "memberUid");
 
 	public DomainDirectoryGroup(ItemValue<Domain> domain, ItemValue<Group> group, MembersList members) {
 		this.domain = domain;
@@ -95,6 +95,8 @@ public class DomainDirectoryGroup extends LdapObjects {
 			if (!Strings.isNullOrEmpty(group.value.description)) {
 				ldapEntry.add("description", group.value.description);
 			}
+
+			ldapEntry.add("bmHidden", Boolean.toString(group.value.hidden));
 
 			Email email = group.value.defaultEmail();
 			if (email != null) {

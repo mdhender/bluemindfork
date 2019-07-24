@@ -66,11 +66,11 @@ import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.ldap.export.hook.LdapServerHook;
 import net.bluemind.system.ldap.export.objects.DomainDirectoryGroup;
+import net.bluemind.system.ldap.export.objects.DomainDirectoryGroup.MembersList;
 import net.bluemind.system.ldap.export.objects.DomainDirectoryGroups;
 import net.bluemind.system.ldap.export.objects.DomainDirectoryRoot;
 import net.bluemind.system.ldap.export.objects.DomainDirectoryUser;
 import net.bluemind.system.ldap.export.objects.DomainDirectoryUsers;
-import net.bluemind.system.ldap.export.objects.DomainDirectoryGroup.MembersList;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 
@@ -204,7 +204,7 @@ public class LdapExportService {
 				continue;
 			}
 
-			if (dirEntry.hidden || dirEntry.system) {
+			if (dirEntry.system) {
 				continue;
 			}
 
@@ -228,7 +228,7 @@ public class LdapExportService {
 				continue;
 			}
 
-			if (dirEntry.hidden || dirEntry.system) {
+			if (dirEntry.system) {
 				deleteLdapEntry(ldapCon, dirEntry.entryUid);
 				continue;
 			}
@@ -369,8 +369,7 @@ public class LdapExportService {
 		}
 
 		for (Member member : groupService.getExpandedMembers(group.uid)) {
-			if (usersAlreadyManaged.contains(member.uid)
-					|| member.type == Type.external_user) {
+			if (usersAlreadyManaged.contains(member.uid) || member.type == Type.external_user) {
 				continue;
 			}
 
