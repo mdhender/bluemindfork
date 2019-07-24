@@ -49,6 +49,7 @@
 		<module>net.bluemind.backend.mail.api.gwt</module>
 		<module>net.bluemind.monitoring.api.gwt</module>
         <module>net.bluemind.externaluser.api.gwt</module>
+        <module>net.bluemind.attachment.api.gwt</module>
 	</modules>
 
 	<build>

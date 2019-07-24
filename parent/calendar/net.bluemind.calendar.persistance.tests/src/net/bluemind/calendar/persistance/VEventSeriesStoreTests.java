@@ -43,6 +43,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
@@ -123,6 +124,20 @@ public class VEventSeriesStoreTests {
 		assertNull(evt.main.alarm);
 		assertNull(evt.main.rrule);
 		assertEquals(2, evt.main.attendees.size());
+		assertEquals(2, evt.main.attachments.size());
+
+		List<AttachedFile> attachments = evt.main.attachments;
+		int checked = 0;
+		for (AttachedFile attachedFile : attachments) {
+			if (attachedFile.name.equals("test.gif")) {
+				assertEquals("http://somewhere/1", attachedFile.publicUrl);
+				checked++;
+			} else if (attachedFile.name.equals("test.png")) {
+				assertEquals("http://somewhere/2", attachedFile.publicUrl);
+				checked++;
+			}
+		}
+		assertEquals(2, checked);
 
 		evt.main.summary = "updated summary";
 		evt.main.location = "updated location";
@@ -893,6 +908,16 @@ public class VEventSeriesStoreTests {
 		event.classification = VEvent.Classification.Private;
 		event.status = VEvent.Status.Confirmed;
 		event.priority = 42;
+
+		event.attachments = new ArrayList<>();
+		AttachedFile attachment1 = new AttachedFile();
+		attachment1.publicUrl = "http://somewhere/1";
+		attachment1.name = "test.gif";
+		event.attachments.add(attachment1);
+		AttachedFile attachment2 = new AttachedFile();
+		attachment2.publicUrl = "http://somewhere/2";
+		attachment2.name = "test.png";
+		event.attachments.add(attachment2);
 
 		event.organizer = new VEvent.Organizer();
 		event.organizer.uri = UUID.randomUUID().toString();

@@ -14,5 +14,6 @@ Require-Bundle: net.bluemind.todolist.api;bundle-version="1.0.0",
  net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.todolist.sqlschema;bundle-version="1.0.0";visibility:=reexport,
  net.bluemind.icalendar.persistence;bundle-version="1.0.0",
- net.bluemind.tag.persistance
+ net.bluemind.tag.persistance,
+ net.bluemind.attachment.api
 Export-Package: net.bluemind.todolist.persistance

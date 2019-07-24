@@ -50,6 +50,8 @@
       <plugin id="jul.to.slf4j"/>
       <plugin id="net.bluemind.addressbook.adapter"/>
       <plugin id="net.bluemind.addressbook.api"/>
+      <plugin id="net.bluemind.attachment.api"/>
+      <plugin id="net.bluemind.attachment.api.gwt"/>
       <plugin id="net.bluemind.authentication.api"/>
       <plugin id="net.bluemind.calendar.api"/>
       <plugin id="net.bluemind.calendar.helper"/>

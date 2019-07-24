@@ -373,6 +373,6 @@ public enum ErrorCode {
 	/**
 	 * 
 	 */
-	INVALID_GROUP_MEMBER;
+	INVALID_GROUP_MEMBER, EMPTY_EVENT_ATTACHMENT_VALUE;
 
 }
