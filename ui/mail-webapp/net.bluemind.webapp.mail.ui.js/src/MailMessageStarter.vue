@@ -47,12 +47,13 @@
                 </div>
             </div>
         </div>
-        <img src="images/logo-bluemind.png" class="mt-4">
+        <svg height="30" width="120" class="mt-4" v-html="logo" />
+        <!-- <img src="images/logo-bluemind.png" class="mt-4"> -->
     </div>
 </template>
 
 <script>
-import { BmButton, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
+import { BmButton, BmIcon, BmLabelIcon, BmLogo } from "@bluemind/styleguide";
 import { mapGetters } from "vuex";
 
 export default {
@@ -76,6 +77,11 @@ export default {
             }
             return null;
         }
+    },
+    data() {
+        return {
+            logo: BmLogo
+        };
     },
     methods: {
         getDraftUid() {

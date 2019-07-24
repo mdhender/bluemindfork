@@ -1,8 +1,8 @@
 <template>
     <bm-navbar type="dark" variant="info-dark" toggleable="lg" class="bm-banner p-0 align-items-stretch">
         <bm-navbar-toggle target="collapse-applications" />
-        <bm-navbar-brand :title="$t('banner.main.brand', software)" href="#" class="p-1">
-            <img src="images/logo-bluemind.png">
+        <bm-navbar-brand :title="$t('banner.main.brand', software)" href="#" class="pl-3">
+            <svg height="30" width="120" v-html="logo" />
         </bm-navbar-brand>
         <bm-collapse id="collapse-applications" is-nav class="order-1 order-lg-0 align-items-end">
             <bm-banner-applications :applications="applications" />
@@ -16,7 +16,7 @@
 import BannerL10N from "@bluemind/banner.l10n";
 import BmBannerApplications from "./BmBannerApplications";
 import BmBannerUser from "./BmBannerUser";
-import { BmCollapse, BmNavbar, BmNavbarBrand, BmNavbarToggle, BmNavItem} from "@bluemind/styleguide";
+import { BmCollapse, BmLogo, BmNavbar, BmNavbarBrand, BmNavbarToggle, BmNavItem} from "@bluemind/styleguide";
 
 export default {
     name: "BmBanner",
@@ -47,6 +47,11 @@ export default {
             required: true,
             type: Object
         }
+    },
+    data() {
+        return {
+            logo: BmLogo
+        };
     }
 };
 </script>

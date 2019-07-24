@@ -27,6 +27,10 @@ module.exports = {
                 use: ["vue-style-loader", "css-loader", "sass-loader"]
             },
             {
+                test: /\.svg$/,
+                loader: 'svg-inline-loader'
+            },
+            {
                 test: /\.js$/,
                 loader: "babel-loader",
                 include: [path.resolve(__dirname, "./src")]
