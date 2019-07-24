@@ -37,6 +37,7 @@ public class LdapPoolByDomain {
 		public final LdapConnection ldapCon;
 		public final LdapConnectionConfig ldapConnectionConfig;
 		public final Parameters ldapParameters;
+		public boolean LDAP_ERROR = false;
 
 		public LdapConnectionContext(LdapConnection ldapCon, LdapConnectionConfig ldapConnectionConfig,
 				Parameters ldapParameters) {
@@ -127,6 +128,12 @@ public class LdapPoolByDomain {
 					"No LDAP connection pool for: " + ldapConCtx.ldapParameters.toString() + ", closing connection");
 
 			ldapConCtx.ldapCon.close();
+			return;
+		}
+
+		if (ldapConCtx.LDAP_ERROR) {
+			logger.warn("Invalidate LDAP connection from pool {}", ldapConCtx.ldapParameters);
+			pool.getPool().invalidateObject(ldapConCtx.ldapCon);
 			return;
 		}
 

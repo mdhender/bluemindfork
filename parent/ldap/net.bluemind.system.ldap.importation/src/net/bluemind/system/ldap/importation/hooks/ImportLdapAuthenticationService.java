@@ -126,6 +126,7 @@ public class ImportLdapAuthenticationService extends ImportAuthenticationService
 			throw re;
 		} catch (Exception e) {
 			logger.error(String.format("Error searching external ID %s", uuid), e);
+			ldapConCtx.LDAP_ERROR = true;
 			throw e;
 		} finally {
 			// https://docs.oracle.com/javase/tutorial/essential/exceptions/finally.html
@@ -188,6 +189,7 @@ public class ImportLdapAuthenticationService extends ImportAuthenticationService
 			throw re;
 		} catch (Exception e) {
 			logger.error("Fail to check LDAP authentication", e);
+			ldapConCtx.LDAP_ERROR = true;
 			return false;
 		} finally {
 			// https://docs.oracle.com/javase/tutorial/essential/exceptions/finally.html
