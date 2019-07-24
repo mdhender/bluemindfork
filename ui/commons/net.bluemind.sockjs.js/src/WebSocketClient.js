@@ -1,23 +1,28 @@
 import SockJS from "sockjs-client";
 import injector from "@bluemind/inject";
+import global from "@bluemind/global";
 import UUIDGenerator from "@bluemind/uuid";
 import { EventTarget } from "@bluemind/event";
 import WebSocketEventTarget from "./WebSocketEventTarget";
 import OnlineEvent from "./OnlineEvent";
 import RestEvent from "./RestEvent";
 
-const websocket = {
-    client: null,
-    handler: new WebSocketEventTarget(),
-    plugins: new EventTarget(),
-    online: false,
-    url: null,
-    timers: {
-        ping: null,
-        heartbeat: null,
-        connect: null
-    }
-};
+const websocket = global.$websocket || (global.$websocket = createWebsocket());
+
+function createWebsocket() {
+    return {
+        client: null,
+        handler: new WebSocketEventTarget(),
+        plugins: new EventTarget(),
+        online: false,
+        url: null,
+        timers: {
+            ping: null,
+            heartbeat: null,
+            connect: null
+        }
+    };
+}
 
 export default class WebSocketClient {
     constructor(url) {

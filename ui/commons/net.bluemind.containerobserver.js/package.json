@@ -1,6 +1,6 @@
 {
-    "name": "@bluemind/sockjs",
-    "description": "Plugin to connect bluemind sockjs bus",
+    "name": "@bluemind/containerobserver",
+    "description": "Plugin using websocket and vue-bus to observe changes on containers",
     "version": "4.1.0",
     "license": "GPL-3.0",
     "author": "Blue Mind SAS",
@@ -8,14 +8,13 @@
     "module": "src/index.js",
     "devDependencies": {
         "@bluemind/conf": "^4.1.0",
-        "@bluemind/event": "^4.1.0",
-        "@bluemind/global": "^4.1.0",
         "@vue/test-utils": "^1.0.0-beta.25"
     },
     "scripts": {
         "test": "jest --config node_modules/@bluemind/conf/jest.config.js"
     },
-    "peerDependencies": {
-        "sockjs-client": "^1.3.0"
+    "dependencies": {
+        "@bluemind/sockjs": "^4.1.0",
+        "@bluemind/inject": "^4.1.0"
     }
 }

@@ -10,6 +10,7 @@
         "@bluemind/alert.store": "^4.1.0",
         "@bluemind/backend.mail.api": "^4.1.0",
         "@bluemind/backend.mail.store": "^4.1.0",
+        "@bluemind/containerobserver": "^4.1.0",
         "@bluemind/inject": "^4.1.0",
         "@bluemind/router": "^4.1.0",
         "@bluemind/store": "^4.1.0",

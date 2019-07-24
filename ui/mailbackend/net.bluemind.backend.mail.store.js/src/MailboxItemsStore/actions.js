@@ -6,6 +6,10 @@ import uuid from "uuid/v4";
 import Message from "./Message.js";
 import { getLocalizedProperty } from "@bluemind/backend.mail.l10n";
 
+export function $_mailrecord_changed({ dispatch }, { container }) {
+    return dispatch("all", container);
+}
+
 export function all({ commit }, folder) {
     const service = ServiceLocator.getProvider("MailboxItemsPersistance").get(folder);
     return service
@@ -124,7 +128,7 @@ export function fetch({ state }, { folder, uid, part }) {
     return ServiceLocator.getProvider("MailboxItemsPersistance")
         .get(folder)
         .fetch(item.value.imapUid, part.address, encoding)
-        .then(function (stream) {
+        .then(function(stream) {
             part.content = stream;
             part.uid = uid;
             part.cid = part.contentId;
@@ -149,24 +153,22 @@ export function send(payload, { message, isAReply, previousMessage, outboxUid })
         }
     }
 
-    const userSession = injector.getProvider('UserSession').get();
-
     if (!validate(message)) {
         return Promise.reject(getLocalizedProperty(userSession, "mail.error.email.address.invalid"));
     }
     sanitize(message);
+    const userSession = injector.getProvider("UserSession").get();
     const service = ServiceLocator.getProvider("MailboxItemsPersistance").get(outboxUid);
     const outboxService = ServiceLocator.getProvider("OutboxPersistance").get();
 
     return service
         .uploadPart(message.content)
-        .then(addrPart => service.create(
-            new Message(message).toMailboxItem(
-                addrPart,
-                userSession.defaultEmail,
-                userSession.formatedName
-            )))
-        .then(() => outboxService.flush());
+        .then(addrPart =>
+            service.create(
+                new Message(message).toMailboxItem(addrPart, userSession.defaultEmail, userSession.formatedName)
+            )
+        )
+        .then(() => outboxService.flush()); // TODO: this request returns a taskref ID, we have to track taskref state)
 }
 
 function validate(messageToSend) {

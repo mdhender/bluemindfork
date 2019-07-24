@@ -1,13 +1,22 @@
 import MailApp from "@bluemind/webapp.mail.ui.vuejs";
 import { MailThread, MailMessageNew, MailMessageStarter } from "@bluemind/webapp.mail.ui.vuejs";
+import ContainerObserver from "@bluemind/containerobserver";
 
-let actionsOnMailConsult = {
+function observeContainer(store, value) {
+    const previous = store.getters["backend.mail/folders/currentFolder"];
+    if (previous) {
+        ContainerObserver.forget("mailbox_records", previous);
+    }
+    ContainerObserver.observe("mailbox_records", value);
+}
+
+const actionsOnMailConsult = {
     // if folder value dont change, this function is not executed
     folder(store, value) {
-        return store.dispatch("backend.mail/items/all", value)
-            .then(() =>
-                store.commit("backend.mail/folders/setCurrent", value)
-            );
+        return store.dispatch("backend.mail/items/all", value).then(() => {
+            observeContainer(store, value);
+            return store.commit("backend.mail/folders/setCurrent", value);
+        });
     },
     mail(store, value, unused, { params }) {
         return store.dispatch("backend.mail/items/select", { uid: value, folder: params.folder });
@@ -32,8 +41,10 @@ export default [
                     $actions: {
                         folder(store, value) {
                             store.commit("backend.mail/items/setCurrent", null);
-                            return store.dispatch("backend.mail/items/all", value)
-                                .then(() => store.commit("backend.mail/folders/setCurrent", value));
+                            return store.dispatch("backend.mail/items/all", value).then(() => {
+                                observeContainer(store, value);
+                                return store.commit("backend.mail/folders/setCurrent", value);
+                            });
                         }
                     }
                 }
