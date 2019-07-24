@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -43,6 +44,7 @@ import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.icalendar.parser.CalendarOwner;
 import net.bluemind.icalendar.parser.ICal4jEventHelper;
 import net.bluemind.icalendar.parser.ICal4jHelper;
 import net.bluemind.lib.ical4j.data.CalendarBuilder;
@@ -133,7 +135,6 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 				if (method != null) {
 					icalEvent.getAlarms().clear();
 				}
-
 				// BM-10430
 				if (method != Method.REPLY) {
 					PropertyList listAttendees = icalEvent.getProperties(Property.ATTENDEE);
@@ -182,15 +183,17 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 
 	/**
 	 * @param ics
+	 * @param owner
 	 * @return
 	 * @throws ServerFault
 	 */
-	public static List<ItemValue<VEventSeries>> convertToVEventList(String ics) throws ServerFault {
+	public static List<ItemValue<VEventSeries>> convertToVEventList(String ics, Optional<CalendarOwner> owner)
+			throws ServerFault {
 
 		List<String> icsCalendarList = splitIcs(ics);
 		List<ItemValue<VEventSeries>> ret = new ArrayList<>();
 		for (String cal : icsCalendarList) {
-			ret.addAll(parseCalendar(cal));
+			ret.addAll(parseCalendar(cal, owner));
 
 		}
 		return ret;
@@ -215,7 +218,8 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 		return cals;
 	}
 
-	private static <T extends VEvent> List<ItemValue<VEventSeries>> parseCalendar(String ics) throws ServerFault {
+	private static <T extends VEvent> List<ItemValue<VEventSeries>> parseCalendar(String ics,
+			Optional<CalendarOwner> owner) throws ServerFault {
 		CalendarParser parser = CalendarParserFactory.getInstance().createParser();
 		PropertyFactoryRegistry propertyFactory = new PropertyFactoryRegistry();
 		ParameterFactoryRegistry parameterFactory = new ParameterFactoryRegistry();
@@ -264,7 +268,8 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 					.next();
 
 			@SuppressWarnings("unchecked")
-			ItemValue<T> vevent = (ItemValue<T>) new ICal4jEventHelper<>().parseIcs(new VEvent(), ical4j, globalTZ);
+			ItemValue<T> vevent = (ItemValue<T>) new ICal4jEventHelper<>().parseIcs(new VEvent(), ical4j, globalTZ,
+					owner);
 			if (ical4j.getCreated() != null) {
 				vevent.created = ical4j.getCreated().getDate();
 			}

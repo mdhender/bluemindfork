@@ -31,6 +31,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
@@ -1137,7 +1138,7 @@ public class ImipFilterVEventTests {
 		InputStream in = this.getClass().getClassLoader().getResourceAsStream("ics/" + filename);
 		String ics = FileUtils.streamString(in, true);
 		in.close();
-		List<ItemValue<VEventSeries>> vevents = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> vevents = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 		return vevents;
 	}
 

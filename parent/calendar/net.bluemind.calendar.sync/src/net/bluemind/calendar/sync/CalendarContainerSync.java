@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -123,7 +124,7 @@ public class CalendarContainerSync implements ISyncableContainer {
 		if (data.ics != null && !data.ics.isEmpty()) {
 			List<ItemValue<VEventSeries>> events = new ArrayList<>();
 			try {
-				events = VEventServiceHelper.convertToVEventList(data.ics);
+				events = VEventServiceHelper.convertToVEventList(data.ics, Optional.empty());
 			} catch (ServerFault sf) {
 				logger.error(sf.getMessage(), sf);
 				return ret;

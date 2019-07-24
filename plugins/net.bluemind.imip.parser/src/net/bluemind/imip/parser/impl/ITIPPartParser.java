@@ -27,6 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.james.mime4j.dom.Entity;
 import org.apache.james.mime4j.dom.TextBody;
@@ -102,7 +103,8 @@ public class ITIPPartParser {
 				orga = icalVEvent.getOrganizer();
 				seq = icalVEvent.getSequence();
 				VEvent calElement = new VEvent();
-				calElement = new ICal4jEventHelper<VEvent>().parseIcs(calElement, part, globalTZ).value;
+				calElement = new ICal4jEventHelper<VEvent>().parseIcs(calElement, part, globalTZ,
+						Optional.empty()).value;
 
 				// DTEND
 				calElement.dtend = IcalConverter.convertToDateTime(icalVEvent.getEndDate(), globalTZ);
@@ -140,7 +142,7 @@ public class ITIPPartParser {
 				orga = icalVTodo.getOrganizer();
 				seq = icalVTodo.getSequence();
 				VTodo calElement = new VTodo();
-				new ICal4jHelper<VTodo>().parseIcs(calElement, part, globalTZ);
+				new ICal4jHelper<VTodo>().parseIcs(calElement, part, globalTZ, Optional.empty());
 
 				// DUE
 				calElement.due = IcalConverter.convertToDateTime(icalVTodo.getDue(), globalTZ);

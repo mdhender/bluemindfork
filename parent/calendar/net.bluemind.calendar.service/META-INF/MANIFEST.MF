@@ -50,7 +50,8 @@ Require-Bundle: net.bluemind.calendar.api;bundle-version="1.0.0",
  net.bluemind.server.api,
  net.bluemind.resource.api,
  net.bluemind.resource.helper,
- net.bluemind.attachment.api
+ net.bluemind.attachment.api,
+ net.bluemind.icalendar.parser
 Export-Package: net.bluemind.calendar.service,
  net.bluemind.calendar.service.internal
 Bundle-Activator: net.bluemind.calendar.service.CalendarActivator
