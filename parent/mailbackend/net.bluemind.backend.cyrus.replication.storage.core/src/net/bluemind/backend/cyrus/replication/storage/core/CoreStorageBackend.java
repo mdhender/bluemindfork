@@ -197,7 +197,8 @@ public class CoreStorageBackend implements StorageApiLink {
 	/**
 	 * Returns the API object suitable to manipulate the given mailbox.
 	 * 
-	 * @param box can't be null
+	 * @param box
+	 *            can't be null
 	 * @return access to db hierarchy api
 	 */
 	public CompletableFuture<ApiDesc> replicatedMailboxes(ReplicatedBox box) {
@@ -233,7 +234,8 @@ public class CoreStorageBackend implements StorageApiLink {
 	}
 
 	public CompletableFuture<Void> delete(MailboxReplicaRootDescriptor root, String partition) {
-		return asyncProv.instance(IReplicatedMailboxesRootMgmtPromise.class, partition).delete(root);
+		return asyncProv.instance(IReplicatedMailboxesRootMgmtPromise.class, partition).delete(root.ns.name(),
+				root.name);
 	}
 
 	@Override

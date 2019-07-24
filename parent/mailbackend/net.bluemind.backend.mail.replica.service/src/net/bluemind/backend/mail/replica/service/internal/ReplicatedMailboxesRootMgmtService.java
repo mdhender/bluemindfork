@@ -130,17 +130,17 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 		return root.ns.name() + "/" + root.name.replace('^', '.');
 	}
 
-	private String owner(MailboxReplicaRootDescriptor root, String domainUid, String defaultOwner) {
+	private String owner(String namespace, String mailboxName, String domainUid, String defaultOwner) {
 		String owner = defaultOwner;
-		if (root.ns == Namespace.users) {
+		if (Namespace.valueOf(namespace) == Namespace.users) {
 			IUser userApi = context.provider().instance(IUser.class, domainUid);
-			ItemValue<User> found = userApi.byLogin(root.name);
+			ItemValue<User> found = userApi.byLogin(mailboxName);
 			if (found != null) {
 				owner = found.uid;
 			}
 		} else {
 			IMailshare shareApi = context.provider().instance(IMailshare.class, domainUid);
-			String toSearch = root.name.replace('^', '.');
+			String toSearch = mailboxName.replace('^', '.');
 			Optional<ItemValue<Mailshare>> found = shareApi.allComplete().stream()
 					.filter(it -> it.value.name.equals(toSearch)).findFirst();
 			if (found.isPresent()) {
@@ -173,8 +173,8 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 	}
 
 	@Override
-	public void delete(MailboxReplicaRootDescriptor root) {
-		String owner = owner(root, partition.domainUid, null);
+	public void delete(String namespace, String mailboxName) {
+		String owner = owner(namespace, mailboxName, partition.domainUid, null);
 		if (owner != null) {
 			DataSource ds = DataSourceRouter.get(context, IFlatHierarchyUids.getIdentifier(owner, partition.domainUid));
 			reset((lookup -> {

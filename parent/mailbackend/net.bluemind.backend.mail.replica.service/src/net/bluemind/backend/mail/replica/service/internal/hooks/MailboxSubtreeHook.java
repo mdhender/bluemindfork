@@ -95,7 +95,7 @@ public class MailboxSubtreeHook implements IMailboxHook {
 
 		MailboxReplicaRootDescriptor root = asRootDescriptor(boxItem);
 		logger.info("Deleting subtree {} on {}", root, partition);
-		rootMgmtApi.delete(root);
+		rootMgmtApi.delete(root.ns.name(), root.name);
 	}
 
 	@Override

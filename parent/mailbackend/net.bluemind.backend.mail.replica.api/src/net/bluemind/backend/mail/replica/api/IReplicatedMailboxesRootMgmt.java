@@ -21,6 +21,7 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.MailboxReplicaRootUpdate;
 import net.bluemind.core.api.BMApi;
@@ -30,8 +31,8 @@ import net.bluemind.core.api.BMApi;
 public interface IReplicatedMailboxesRootMgmt {
 
 	/**
-	 * Create the folders subtree container for the replication of a mailbox.
-	 * This can be called safely if the existence of the container is unknown.
+	 * Create the folders subtree container for the replication of a mailbox. This
+	 * can be called safely if the existence of the container is unknown.
 	 * 
 	 * @param root
 	 */
@@ -49,7 +50,7 @@ public interface IReplicatedMailboxesRootMgmt {
 	void update(MailboxReplicaRootUpdate rename);
 
 	@DELETE
-	@Path("_delete")
-	void delete(MailboxReplicaRootDescriptor root);
+	@Path("_delete/{namespace}/{mailboxName}")
+	void delete(@PathParam(value = "namespace") String namespace, @PathParam(value = "mailboxName") String mailboxName);
 
 }
