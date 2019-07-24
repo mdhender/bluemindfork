@@ -18,6 +18,7 @@
 package net.bluemind.system.ldap.export.objects;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -52,7 +53,8 @@ public class DomainDirectoryUser extends LdapObjects {
 	private final ItemValue<User> user;
 	private final byte[] userPhoto;
 
-	public static final List<String> ldapAttrsStringsValues = ImmutableList.of(//
+	public static final List<String> ldapAttrsStringsValues = ImmutableList.of( //
+			"objectclass",
 			// Identity
 			"bmUid", "bmHidden", "cn", "sn", "employeeType", "givenName", "description", "ou", "departmentNumber",
 			"title", "jpegPhoto",
@@ -230,7 +232,9 @@ public class DomainDirectoryUser extends LdapObjects {
 				}
 			}
 
-			ldapEntry.removeAttributes("bmUid");
+			if (ldapEntry.get("bmUid") != null) {
+				ldapEntry.removeAttributes("bmUid");
+			}
 			ldapEntry.add("bmUid", user.uid);
 		} catch (LdapException e) {
 			throw new ServerFault("Fail to manage user: " + getDn(), e);
@@ -312,15 +316,15 @@ public class DomainDirectoryUser extends LdapObjects {
 		Entry entry = getLdapEntry();
 
 		for (String attr : Stream.concat(ldapAttrsStringsValues.stream(), getEnhancerAttributeList().stream())
-				.collect(Collectors.toList())) {
+				.map(String::toLowerCase).collect(Collectors.toSet())) {
 			modifyRequest = updateLdapAttribute(modifyRequest, currentEntry, entry, attr);
 		}
 
 		return modifyRequest;
 	}
 
-	private List<String> getEnhancerAttributeList() {
+	private Collection<String> getEnhancerAttributeList() {
 		return Activator.getEntityEnhancerHooks().stream().map(IEntityEnhancer::userEnhancerAttributes)
-				.filter(Objects::nonNull).flatMap(List::stream).collect(Collectors.toList());
+				.filter(Objects::nonNull).flatMap(List::stream).collect(Collectors.toSet());
 	}
 }

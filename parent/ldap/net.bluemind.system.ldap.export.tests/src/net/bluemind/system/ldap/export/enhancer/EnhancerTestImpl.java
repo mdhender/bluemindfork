@@ -9,6 +9,7 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.group.api.Group;
+import net.bluemind.system.ldap.export.objects.DomainDirectoryGroup.MembersList;
 import net.bluemind.user.api.User;
 
 public class EnhancerTestImpl implements IEntityEnhancer {
@@ -26,7 +27,8 @@ public class EnhancerTestImpl implements IEntityEnhancer {
 	}
 
 	@Override
-	public Entry enhanceGroup(ItemValue<Domain> domain, ItemValue<Group> group, Entry entry) throws LdapException {
+	public Entry enhanceGroup(ItemValue<Domain> domain, ItemValue<Group> group, MembersList members, Entry entry)
+			throws LdapException {
 		return entry;
 	}
 

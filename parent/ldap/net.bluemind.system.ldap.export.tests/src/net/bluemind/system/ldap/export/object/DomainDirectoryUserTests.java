@@ -193,7 +193,7 @@ public class DomainDirectoryUserTests {
 
 		ModifyRequest modificationRequest = ddu.getModifyRequest(currentEntry);
 		assertEquals("cn=dntoupdate", modificationRequest.getName().getName());
-		assertEquals(25, modificationRequest.getModifications().size());
+		assertEquals(26, modificationRequest.getModifications().size());
 	}
 
 	private ItemValue<Domain> getTestDomain() {

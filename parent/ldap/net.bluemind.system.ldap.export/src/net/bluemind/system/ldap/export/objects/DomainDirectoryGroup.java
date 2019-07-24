@@ -58,7 +58,7 @@ public class DomainDirectoryGroup extends LdapObjects {
 	private final MembersList members;
 
 	public static final List<String> ldapAttrsStringsValues = ImmutableList.of(//
-			"bmUid", "bmHidden", "description", "mail", "member", "memberUid");
+			"objectclass", "bmUid", "bmHidden", "description", "mail", "member", "memberUid");
 
 	public DomainDirectoryGroup(ItemValue<Domain> domain, ItemValue<Group> group, MembersList members) {
 		this.domain = domain;
@@ -112,13 +112,15 @@ public class DomainDirectoryGroup extends LdapObjects {
 			}
 
 			for (IEntityEnhancer entityEnhancer : Activator.getEntityEnhancerHooks()) {
-				Entry enhancedEntry = entityEnhancer.enhanceGroup(domain, group, ldapEntry);
+				Entry enhancedEntry = entityEnhancer.enhanceGroup(domain, group, members, ldapEntry);
 				if (enhancedEntry != null) {
 					ldapEntry = enhancedEntry;
 				}
 			}
 
-			ldapEntry.removeAttributes("bmUid");
+			if (ldapEntry.get("bmUid") != null) {
+				ldapEntry.removeAttributes("bmUid");
+			}
 			ldapEntry.add("bmUid", group.uid);
 		} catch (LdapException e) {
 			throw new ServerFault("Fail to manage group: " + getDn(), e);
@@ -135,7 +137,7 @@ public class DomainDirectoryGroup extends LdapObjects {
 		Entry entry = getLdapEntry();
 
 		for (String attr : Stream.concat(ldapAttrsStringsValues.stream(), getEnhancerAttributeList().stream())
-				.collect(Collectors.toList())) {
+				.map(String::toLowerCase).collect(Collectors.toSet())) {
 			modifyRequest = updateLdapAttribute(modifyRequest, currentEntry, entry, attr);
 		}
 
@@ -144,7 +146,7 @@ public class DomainDirectoryGroup extends LdapObjects {
 
 	private Collection<String> getEnhancerAttributeList() {
 		return Activator.getEntityEnhancerHooks().stream().map(IEntityEnhancer::groupEnhancerAttributes)
-				.filter(Objects::nonNull).flatMap(List::stream).collect(Collectors.toList());
+				.filter(Objects::nonNull).flatMap(List::stream).collect(Collectors.toSet());
 	}
 
 	public List<String> getRemovedMembersUid(Entry entry) {

@@ -103,7 +103,7 @@ public class DomainDirectoryGroupTests {
 
 		ModifyRequest modificationRequest = ddg.getModifyRequest(currentEntry);
 		assertEquals("cn=dntoupdate", modificationRequest.getName().getName());
-		assertEquals(6, modificationRequest.getModifications().size());
+		assertEquals(7, modificationRequest.getModifications().size());
 	}
 
 	private ItemValue<Group> getTestGroup() {

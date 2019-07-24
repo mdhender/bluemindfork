@@ -25,6 +25,7 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.group.api.Group;
+import net.bluemind.system.ldap.export.objects.DomainDirectoryGroup.MembersList;
 import net.bluemind.user.api.User;
 
 public interface IEntityEnhancer {
@@ -32,7 +33,8 @@ public interface IEntityEnhancer {
 
 	List<String> userEnhancerAttributes();
 
-	Entry enhanceGroup(ItemValue<Domain> domain, ItemValue<Group> group, Entry entry) throws LdapException;
+	Entry enhanceGroup(ItemValue<Domain> domain, ItemValue<Group> group, MembersList members, Entry entry)
+			throws LdapException;
 
 	List<String> groupEnhancerAttributes();
 }
