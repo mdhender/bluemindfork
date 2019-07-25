@@ -250,7 +250,7 @@ public class LdapExportService {
 	private void updateGroup(LdapConnection ldapCon, String uid) throws LdapException, CursorException {
 		List<Entry> ldapEntries = LdapHelper.getLdapEntryFromUid(ldapCon, domain, uid);
 		if (ldapEntries.size() != 1) {
-			resetGroup(ldapCon, ldapEntries, uid);
+			resetLdapGroup(ldapCon, ldapEntries, uid);
 			return;
 		}
 
@@ -264,17 +264,23 @@ public class LdapExportService {
 		DomainDirectoryGroup.MembersList members = getGroupMembers(group);
 		DomainDirectoryGroup ddg = new DomainDirectoryGroup(domain, group, members);
 
-		LdapHelper.modifyLdapEntry(ldapCon, ddg.getModifyRequest(groupLdapEntry));
+		updateLdapGroupEntry(ldapCon, uid, ddg, groupLdapEntry);
+	}
 
-		manageParentsMemberUid(ldapCon, groupLdapEntry, uid, ddg);
+	private void updateLdapGroupEntry(LdapConnection ldapCon, String groupUid,
+			DomainDirectoryGroup domainDirectoryGroup, Entry groupLdapEntry)
+			throws LdapException, CursorException, LdapInvalidDnException {
+		LdapHelper.modifyLdapEntry(ldapCon, domainDirectoryGroup.getModifyRequest(groupLdapEntry));
 
-		if (!groupLdapEntry.getDn().getName().equals(ddg.getDn())) {
-			ldapCon.rename(groupLdapEntry.getDn(), new Rdn(ddg.getRDn()));
+		manageParentsMemberUid(ldapCon, groupLdapEntry, groupUid, domainDirectoryGroup);
+
+		if (!groupLdapEntry.getDn().getName().equals(domainDirectoryGroup.getDn())) {
+			ldapCon.rename(groupLdapEntry.getDn(), new Rdn(domainDirectoryGroup.getRDn()));
 
 			// JUnit: testExportGroupMember_renameGroupMember
 			updateParentsGroupsMembersAttributes(ldapCon,
-					groupService.getParents(uid).stream().map(g -> g.uid).collect(Collectors.toList()),
-					MemberAttrUpdate.build("member", groupLdapEntry.getDn().getName(), ddg.getDn()));
+					groupService.getParents(groupUid).stream().map(g -> g.uid).collect(Collectors.toList()),
+					MemberAttrUpdate.build("member", groupLdapEntry.getDn().getName(), domainDirectoryGroup.getDn()));
 		}
 	}
 
@@ -307,9 +313,11 @@ public class LdapExportService {
 				.map(m -> MemberAttrUpdate.build("memberUid", null, m)).toArray(MemberAttrUpdate[]::new));
 	}
 
-	private void resetGroup(LdapConnection ldapCon, List<Entry> ldapEntries, String uid)
+	private void resetLdapGroup(LdapConnection ldapCon, List<Entry> ldapEntries, String uid)
 			throws LdapException, CursorException {
+		logger.warn("{} LDAP entries with same bmUid {} - remove and re-recreate LDAP entry", ldapEntries.size(), uid);
 		for (Entry entry : ldapEntries) {
+			logger.warn("Removing entry DN {}", entry.getDn().toString());
 			ldapCon.delete(entry.getDn());
 		}
 
@@ -323,7 +331,20 @@ public class LdapExportService {
 		}
 
 		DomainDirectoryGroup.MembersList members = getGroupMembers(group);
-		Entry ldapEntry = new DomainDirectoryGroup(domain, group, members).getLdapEntry();
+		DomainDirectoryGroup domainDirectoryGroup = new DomainDirectoryGroup(domain, group, members);
+
+		Entry entry = ldapCon.lookup(domainDirectoryGroup.getDn());
+		if (entry != null) {
+			updateLdapGroupEntry(ldapCon, uid, domainDirectoryGroup, entry);
+			return;
+		}
+
+		createLdapGroupEntry(ldapCon, uid, domainDirectoryGroup);
+	}
+
+	private void createLdapGroupEntry(LdapConnection ldapCon, String groupUid,
+			DomainDirectoryGroup domainDirectoryGroup) throws LdapException, CursorException {
+		Entry ldapEntry = domainDirectoryGroup.getLdapEntry();
 
 		LdapHelper.addLdapEntry(ldapCon, ldapEntry);
 
@@ -331,7 +352,7 @@ public class LdapExportService {
 		// changeset
 		// JUnit: testExportGroupMember_createGroupHierarchy
 		updateParentsGroupsMembersAttributes(ldapCon,
-				groupService.getParents(uid).stream().map(g -> g.uid).collect(Collectors.toList()),
+				groupService.getParents(groupUid).stream().map(g -> g.uid).collect(Collectors.toList()),
 				MemberAttrUpdate.build("member", ldapEntry.getDn().getName(), ldapEntry.getDn().getName()));
 	}
 
@@ -399,21 +420,34 @@ public class LdapExportService {
 		}
 
 		byte[] userPhoto = userService.getPhoto(uid);
-		Entry ldapEntry = new DomainDirectoryUser(domain, user, userPhoto).getLdapEntry();
+		DomainDirectoryUser domainDirectoryUser = new DomainDirectoryUser(domain, user, userPhoto);
+
+		Entry entry = ldapCon.lookup(domainDirectoryUser.getDn());
+		if (entry != null) {
+			updateLdapUserEntry(ldapCon, uid, domainDirectoryUser, entry);
+			return;
+		}
+
+		createLdapUserEntry(ldapCon, uid, domainDirectoryUser);
+	}
+
+	private void createLdapUserEntry(LdapConnection ldapCon, String userUid, DomainDirectoryUser domainDirectoryUser)
+			throws LdapException, CursorException {
+		Entry ldapEntry = domainDirectoryUser.getLdapEntry();
 
 		LdapHelper.addLdapEntry(ldapCon, ldapEntry);
 
 		// Manage user parent group is created before user in the same
 		// changeset
 		// JUnit: testExportGroupMember_addUserToGroupChild
-		updateParentsGroupsMembersAttributes(ldapCon, userService.memberOfGroups(uid),
+		updateParentsGroupsMembersAttributes(ldapCon, userService.memberOfGroups(userUid),
 				MemberAttrUpdate.build("member", ldapEntry.getDn().getName(), ldapEntry.getDn().getName()));
 	}
 
 	private void updateUser(LdapConnection ldapCon, String uid) throws LdapException, CursorException {
 		List<Entry> ldapEntries = LdapHelper.getLdapEntryFromUid(ldapCon, domain, uid);
 		if (ldapEntries.size() != 1) {
-			resetUser(ldapCon, ldapEntries, uid);
+			resetLdapUser(ldapCon, ldapEntries, uid);
 			return;
 		}
 
@@ -424,12 +458,18 @@ public class LdapExportService {
 			throw new ServerFault("Unable to find user UID: " + uid);
 		}
 		DomainDirectoryUser ddu = new DomainDirectoryUser(domain, user, userService.getPhoto(uid));
+		updateLdapUserEntry(ldapCon, uid, ddu, userLdapEntry);
+	}
+
+	private void updateLdapUserEntry(LdapConnection ldapCon, String userUid, DomainDirectoryUser ddu,
+			Entry userLdapEntry)
+			throws LdapException, LdapInvalidDnException, CursorException, LdapInvalidAttributeValueException {
 		LdapHelper.modifyLdapEntry(ldapCon, ddu.getModifyRequest(userLdapEntry));
 
 		if (!userLdapEntry.getDn().getName().equals(ddu.getDn())) {
 			ldapCon.rename(userLdapEntry.getDn(), new Rdn(ddu.getRDn()));
 
-			updateParentsGroupsMembersAttributes(ldapCon, userService.memberOfGroups(uid),
+			updateParentsGroupsMembersAttributes(ldapCon, userService.memberOfGroups(userUid),
 					MemberAttrUpdate.build("member", userLdapEntry.getDn().getName(), ddu.getDn()),
 					MemberAttrUpdate.build("memberUid", userLdapEntry.get("uid").getString(), ddu.getRDnValue()));
 		}
@@ -496,9 +536,11 @@ public class LdapExportService {
 		}
 	}
 
-	private void resetUser(LdapConnection ldapCon, List<Entry> ldapEntries, String uid)
+	private void resetLdapUser(LdapConnection ldapCon, List<Entry> ldapEntries, String uid)
 			throws LdapException, ServerFault, CursorException {
+		logger.warn("{} LDAP entries with same bmUid {} - remove and re-recreate LDAP entry", ldapEntries.size(), uid);
 		for (Entry entry : ldapEntries) {
+			logger.warn("Removing entry DN {}", entry.getDn().toString());
 			ldapCon.delete(entry.getDn());
 		}
 

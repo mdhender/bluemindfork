@@ -36,6 +36,9 @@ import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
+import org.apache.directory.api.ldap.model.message.ModifyRequest;
+import org.apache.directory.api.ldap.model.message.ModifyRequestImpl;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,6 +47,7 @@ import org.vertx.java.core.Handler;
 
 import com.google.common.util.concurrent.SettableFuture;
 
+import net.bluemind.addressbook.api.VCard;
 import net.bluemind.config.InstallationId;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.fault.ErrorCode;
@@ -286,6 +290,42 @@ public class LdapExportServiceTests {
 
 		ldapUser = ldapCon.lookup("uid=" + user.value.login + ",ou=users,dc=" + domain.value.name + ",dc=local");
 		assertNotNull(ldapUser);
+	}
+
+	@Test
+	public void testExportUser_updateIfPresentOnCreate() throws Exception {
+		String userUid = PopulateHelper.addUser("test" + System.nanoTime(), domain.value.name, Mailbox.Routing.none);
+
+		IUser userService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class,
+				domain.value.name);
+		ItemValue<User> user = userService.getComplete(userUid);
+
+		LdapExportService les = LdapExportService.build(domain.uid);
+		les.sync();
+
+		LdapConnection ldapCon = LdapHelper.connectDirectory(ldapRoleServer);
+
+		Entry ldapUser = ldapCon.lookup("uid=" + user.value.login + ",ou=users,dc=" + domain.value.name + ",dc=local");
+		assertNotNull(ldapUser);
+		assertEquals(userUid, ldapUser.get("bmuid").getString());
+		assertNull(ldapUser.get("description"));
+
+		// Force sync from beginning
+		ModifyRequest modifyRequest = new ModifyRequestImpl();
+		modifyRequest.setName(new Dn("dc=" + domain.value.name + ",dc=local"));
+		modifyRequest.replace("bmVersion", "0");
+		ldapCon.modify(modifyRequest);
+
+		user.value.contactInfos = new VCard();
+		user.value.contactInfos.explanatory.note = "Updated description";
+		userService.update(user.uid, user.value);
+
+		LdapExportService.build(domain.uid).sync();
+
+		ldapUser = ldapCon.lookup("uid=" + user.value.login + ",ou=users,dc=" + domain.value.name + ",dc=local");
+		assertNotNull(ldapUser);
+		assertEquals(userUid, ldapUser.get("bmuid").getString());
+		assertEquals("Updated description", ldapUser.get("description").getString());
 	}
 
 	@Test
@@ -971,6 +1011,40 @@ public class LdapExportServiceTests {
 		assertFalse(attrs.contains(group2Dn));
 		attrs = entry.get("memberUid");
 		assertFalse(attrs.contains(user2.login));
+	}
+
+	@Test
+	public void testExportGroup_updateIfPresentOnCreate() throws Exception {
+		String groupUid = addGroup();
+
+		IGroup groupService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IGroup.class,
+				domain.value.name);
+		ItemValue<Group> group = groupService.getComplete(groupUid);
+
+		LdapExportService.build(domain.uid).sync();
+
+		LdapConnection ldapCon = LdapHelper.connectDirectory(ldapRoleServer);
+
+		Entry ldapGroup = ldapCon.lookup("cn=" + group.value.name + ",ou=groups,dc=" + domain.value.name + ",dc=local");
+		assertNotNull(ldapGroup);
+		assertEquals(groupUid, ldapGroup.get("bmuid").getString());
+		assertNull(ldapGroup.get("description"));
+
+		// Force sync from beginning
+		ModifyRequest modifyRequest = new ModifyRequestImpl();
+		modifyRequest.setName(new Dn("dc=" + domain.value.name + ",dc=local"));
+		modifyRequest.replace("bmVersion", "0");
+		ldapCon.modify(modifyRequest);
+
+		group.value.description = "Updated description";
+		groupService.update(group.uid, group.value);
+
+		LdapExportService.build(domain.uid).sync();
+
+		ldapGroup = ldapCon.lookup("cn=" + group.value.name + ",ou=groups,dc=" + domain.value.name + ",dc=local");
+		assertNotNull(ldapGroup);
+		assertEquals(groupUid, ldapGroup.get("bmuid").getString());
+		assertEquals("Updated description", ldapGroup.get("description").getString());
 	}
 
 	/**
