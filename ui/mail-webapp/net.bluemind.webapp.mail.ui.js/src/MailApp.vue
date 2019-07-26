@@ -2,7 +2,7 @@
     <bm-container fluid class="flex-fill d-flex flex-column mail-app">
         <bm-row align-v="center" class="shadow-sm bg-surface py-2 py-xl-0 topbar">
             <bm-col cols="4" md="2" order="0">
-                <bm-button 
+                <bm-button
                     variant="primary"
                     class="text-nowrap ml-3 d-xl-inline-block d-block"
                     @click="composeNewMessage"
@@ -20,7 +20,7 @@
                     <bm-icon icon="search" class="searchIcon" />
                 </div>
             </bm-col>
-            <bm-col class="d-none d-lg-block h-100" cols="12" xl="7" order="last">  
+            <bm-col class="d-none d-lg-block h-100" cols="12" xl="7" order="last">
                 <mail-toolbar class="mx-auto mx-xl-0" />
             </bm-col>
         </bm-row>
@@ -35,18 +35,22 @@
                 <router-view />
             </bm-col>
         </bm-row>
-        <bm-application-alert :errors="getErrorAlerts()" :successes="getSuccessAlerts()">
-            <template v-slot="f">
-                <div v-if="f.alert.subject">{{ f.alert.subject }}</div>
-                {{ f.alert.message }}
-            </template>
-        </bm-application-alert>
+        <bm-application-alert :errors="getErrorAlerts()" :successes="getSuccessAlerts()" />
     </bm-container>
 </template>
 
 <script>
-import { BmApplicationAlert, BmLabelIcon, BmButton, BmCol, BmContainer, BmFormInput, BmIcon, BmRow, MakeUniq }
-    from "@bluemind/styleguide"; 
+import {
+    BmApplicationAlert,
+    BmLabelIcon,
+    BmButton,
+    BmCol,
+    BmContainer,
+    BmFormInput,
+    BmIcon,
+    BmRow,
+    MakeUniq
+} from "@bluemind/styleguide";
 import MailAppL10N from "@bluemind/webapp.mail.l10n";
 import MailFolderTree from "./MailFolderTree";
 import MailMessageList from "./MailMessageList/MailMessageList";
@@ -107,5 +111,11 @@ body > div {
 
 .mail-app .topbar {
     flex: 0 0 4em;
+}
+
+.mail-app .bm-application-alert {
+    position: absolute;
+    bottom: 5px;
+    width: 50vw;
 }
 </style>

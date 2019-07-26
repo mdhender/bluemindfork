@@ -6,5 +6,6 @@
     "mail.compose.forward.prev.message.info.subject": "Sujet",
     "mail.compose.forward.prev.message.info.to": "\u00C0",
     "mail.compose.forward.prev.message.info.date": "Date",
-    "mail.compose.forward.prev.message.info.from": "De"
+    "mail.compose.forward.prev.message.info.from": "De",
+    "mail.error.email.address.invalid": "Adresse de courriel invalide."
 }

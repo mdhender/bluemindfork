@@ -1,9 +1,6 @@
 <template>
     <bm-form class="mail-message-new mt-3 px-3">
-        <bm-panel
-            :title="panelTitle"
-            @remove="close"
-        >
+        <bm-panel :title="panelTitle" @remove="close">
             <template #body>
                 <bm-row class="align-items-center">
                     <bm-col cols="11">
@@ -12,69 +9,57 @@
                             :contacts.sync="message_.to"
                             class="mt-2"
                             :autocomplete-results="autocompleteResultsTo"
-                            @search="(searchedPattern) => onSearch('to', searchedPattern)"
+                            @search="searchedPattern => onSearch('to', searchedPattern)"
                         >
                             {{ $t("common.to") }}
                         </bm-contact-input>
                     </bm-col>
-                    <bm-col
-                        cols="1"
-                        class="text-center"
-                    >
+                    <bm-col cols="1" class="text-center">
                         <bm-button
                             v-if="mode_ == modes.TO"
                             variant="link"
                             class="text-blue"
-                            @click="mode_= (modes.TO|modes.CC|modes.BCC)"
+                            @click="mode_ = modes.TO | modes.CC | modes.BCC"
                         >
                             <bm-icon icon="chevron" />
                         </bm-button>
                     </bm-col>
                 </bm-row>
-                <hr class="mt-0 mb-2">
+                <hr class="mt-0 mb-2" />
 
-                <bm-row v-if="mode_> modes.TO">
+                <bm-row v-if="mode_ > modes.TO">
                     <bm-col cols="11">
                         <bm-contact-input
                             ref="cc"
                             :contacts.sync="message_.cc"
                             :autocomplete-results="autocompleteResultsCc"
-                            @search="(searchedPattern) => onSearch('cc', searchedPattern)"
+                            @search="searchedPattern => onSearch('cc', searchedPattern)"
                         >
                             {{ $t("common.cc") }}
                         </bm-contact-input>
                     </bm-col>
-                    <bm-col
-                        cols="1"
-                        class="text-center"
-                    >
+                    <bm-col cols="1" class="text-center">
                         <bm-button
-                            v-if="mode_== (modes.TO|modes.CC)"
+                            v-if="mode_ == (modes.TO | modes.CC)"
                             variant="link"
                             class="text-blue"
-                            @click="mode_= (modes.TO|modes.CC|modes.BCC)"
+                            @click="mode_ = modes.TO | modes.CC | modes.BCC"
                         >
                             {{ $t("common.bcc") }}
                         </bm-button>
                     </bm-col>
                 </bm-row>
-                <hr
-                    v-if="mode_> modes.TO"
-                    class="mt-0 mb-2"
-                >
+                <hr v-if="mode_ > modes.TO" class="mt-0 mb-2" />
 
                 <bm-contact-input
-                    v-if="mode_== (modes.TO|modes.CC|modes.BCC)"
+                    v-if="mode_ == (modes.TO | modes.CC | modes.BCC)"
                     :contacts.sync="message_.bcc"
                     :autocomplete-results="autocompleteResultsBcc"
-                    @search="(searchedPattern) => onSearch('bcc', searchedPattern)"
+                    @search="searchedPattern => onSearch('bcc', searchedPattern)"
                 >
                     {{ $t("common.bcc") }}
                 </bm-contact-input>
-                <hr
-                    v-if="mode_== (modes.TO|modes.CC|modes.BCC)"
-                    class="mt-0"
-                >
+                <hr v-if="mode_ == (modes.TO | modes.CC | modes.BCC)" class="mt-0" />
 
                 <bm-form-input
                     v-model="message_.subject"
@@ -84,7 +69,7 @@
                     @keydown.enter.native.prevent
                 />
                 <bm-row class="d-block">
-                    <hr class="bg-dark mt-1 mb-1">
+                    <hr class="bg-dark mt-1 mb-1" />
                 </bm-row>
                 <bm-form-group>
                     <bm-form-textarea
@@ -102,18 +87,11 @@
                     class="pb-0"
                     @click="displayPreviousMessages"
                 >
-                    <bm-icon
-                        icon="3dots"
-                        size="sm"
-                    />
+                    <bm-icon icon="3dots" size="sm" />
                 </bm-button>
             </template>
             <template #footer>
-                <mail-message-new-footer
-                    @save="save"
-                    @close="close"
-                    @send="send"
-                />
+                <mail-message-new-footer @save="save" @close="close" @send="send" />
             </template>
         </bm-panel>
     </bm-form>
@@ -123,8 +101,18 @@
 import { mapGetters } from "vuex";
 import { OrderBy } from "@bluemind/addressbook.api";
 import { VCardInfoAdaptor } from "@bluemind/contact";
-import { BmButton, BmCol, BmContactInput, BmFormTextarea, BmFormInput, BmForm, BmFormGroup, BmIcon, BmPanel, BmRow } 
-    from "@bluemind/styleguide";
+import {
+    BmButton,
+    BmCol,
+    BmContactInput,
+    BmFormTextarea,
+    BmFormInput,
+    BmForm,
+    BmFormGroup,
+    BmIcon,
+    BmPanel,
+    BmRow
+} from "@bluemind/styleguide";
 import CommonL10N from "@bluemind/l10n";
 import debounce from "lodash/debounce";
 import MailMessageNewFooter from "./MailMessageNewFooter";
@@ -232,16 +220,23 @@ export default {
                     previousMessage: this.previousMessage,
                     outboxUid
                 })
-                .then(taskrefId => {
+                .then(() => {
                     this.$store.commit("alert/addSuccess", {
                         uid: uuid(),
-                        message: "Message successfully sent (" + (taskrefId ? taskrefId.id : "N/A") + ")"
+                        message: this.$t("common.alert.message.sent.ok", { subject: messageToSend.subject })
                     });
                     this.close();
                 })
-                .catch(reason =>
-                    this.$store.commit("alert/addError", { uid: uuid(), message: "Failed to send message " + reason })
-                );
+                .catch(reason => {
+                    const error = {
+                        uid: uuid(),
+                        message: this.$t("common.alert.message.sent.error", {
+                            subject: messageToSend.subject,
+                            reason: reason
+                        })
+                    };
+                    this.$store.commit("alert/addError", error);
+                });
         },
         close() {
             if (this.previousMessage) {

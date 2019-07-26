@@ -4,6 +4,7 @@ import PartsHelper from "./PartsHelper";
 import ServiceLocator from "@bluemind/inject";
 import uuid from "uuid/v4";
 import Message from "./Message.js";
+import { getLocalizedProperty } from "@bluemind/backend.mail.l10n";
 
 export function all({ commit }, folder) {
     const service = ServiceLocator.getProvider("MailboxItemsPersistance").get(folder);
@@ -147,11 +148,13 @@ export function send(payload, { message, isAReply, previousMessage, outboxUid })
             message.references = previousMessage.references;
         }
     }
+
+    const userSession = injector.getProvider('UserSession').get();
+
     if (!validate(message)) {
-        return Promise.reject();
+        return Promise.reject(getLocalizedProperty(userSession, "mail.error.email.address.invalid"));
     }
     sanitize(message);
-    const userSession = injector.getProvider('UserSession').get();
     const service = ServiceLocator.getProvider("MailboxItemsPersistance").get(outboxUid);
     const outboxService = ServiceLocator.getProvider("OutboxPersistance").get();
 
@@ -163,7 +166,7 @@ export function send(payload, { message, isAReply, previousMessage, outboxUid })
                 userSession.defaultEmail,
                 userSession.formatedName
             )))
-        .then(() => outboxService.flush()); // TODO: this request returns a taskref ID, we have to track taskref state)
+        .then(() => outboxService.flush());
 }
 
 function validate(messageToSend) {

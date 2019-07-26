@@ -1,10 +1,12 @@
 {
     "common.send": "Envoyer",
     "common.to": "À",
-    "common.cc" : "Cc",
-    "common.bcc" : "Cci",
+    "common.cc": "Cc",
+    "common.bcc": "Cci",
     "common.save": "Enregistrer",
     "common.delete": "Supprimer",
     "common.attachments": "1 pièce jointe | {count} pièces jointes",
-    "common.save_all": "Tout enregistrer"
+    "common.save_all": "Tout enregistrer",
+    "common.alert.message.sent.ok": "<i>\"{subject}\"</i> a bien été envoyé !",
+    "common.alert.message.sent.error": "<i>\"{subject}\"</i> n'a pu être envoyé.<br>{reason}"
 }

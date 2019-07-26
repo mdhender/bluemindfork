@@ -20,7 +20,7 @@ import GetInlinePartsVisitor from "./GetInlinePartsVisitor";
 import TreeWalker from "./TreeWalker";
 import { EmailExtractor } from "@bluemind/email";
 import injector from "@bluemind/inject";
-import BackMailL10N from "@bluemind/backend.mail.l10n";
+import { getLocalizedProperty } from "@bluemind/backend.mail.l10n";
 import { html2text } from "@bluemind/html-utils";
 
 /**
@@ -310,22 +310,6 @@ function addressesFromHeader(header, isReplyAll) {
     } else {
         return [EmailExtractor.extractEmail(header.values[0])];
     }
-}
-
-/**
- * Return the property value localized to the current user.
- * @param {*} userSession the current user session object
- * @param {string} propertyKey the key of the property
- * @param {*} namedParameters optional parameters like: { "date": "2019-09-01", "weather": "sunny" }
- */
-function getLocalizedProperty(userSession, propertyKey, namedParameters) {
-    // FIXME should use a common tool to translate messages (see '@bluemind/webapp.mail.l10n')
-    let property = BackMailL10N[userSession.lang][propertyKey];
-    if (namedParameters) {
-        namedParameters = new Map(Object.entries(namedParameters));
-        namedParameters.forEach((value, key) => property = property.replace(new RegExp("\\{" + key + "\\}"), value));
-    }
-    return property;
 }
 
 /** A separator before the previous message containing basic info. */
