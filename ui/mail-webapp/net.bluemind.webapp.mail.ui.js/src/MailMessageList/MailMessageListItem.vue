@@ -162,7 +162,7 @@ export default {
     border-left: theme-color("primary") 5px solid !important;
 }
 
-.list-group-item.mail-message-list-item {
+a.list-group-item.mail-message-list-item {
     border-left: transparent solid 5px !important;
     font-size: $font-size-lg;
 }
