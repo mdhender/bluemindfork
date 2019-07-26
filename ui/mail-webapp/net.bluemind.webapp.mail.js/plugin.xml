@@ -15,13 +15,6 @@
       </web-module-provider>
    </extension>
    <extension
-         point="net.bluemind.webapp">
-      <application-route
-            component="mail-webapp"
-            path="/mail">
-      </application-route>
-   </extension>
-   <extension
          point="net.bluemind.banner">
       <application
             description="%banner-entry.description"
