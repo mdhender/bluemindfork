@@ -13,27 +13,21 @@
         <bm-collapse id="collapse-mailbox" v-model="isMailboxExpanded">
             <bm-tree
                 :value="tree"
-                class="ml-2 text-nowrap text-truncate"
+                :selected="currentFolder"
                 node-id-key="uid"
+                class="ml-2 text-nowrap text-truncate"
                 breakpoint="xl"
                 @expand="expand"
                 @collapse="collapse"
+                @select="onSelect"
             >
                 <template v-slot="f">
-                    <router-link
-                        :to="'/mail/' + f.value.uid + '/'"
-                        :class="{active: f.value.selected}"
-                        active-class="router-link-active"
-                        tag="span"
-                        style="cursor:pointer;"
-                    >
-                        <bm-label-icon :icon="icon(f.value)" breakpoint="xl">{{ f.value.name }}</bm-label-icon>
-                        <bm-counter-badge 
-                            v-if="f.value.uid === currentFolder && countUnreadMessages > 0" 
-                            :value="countUnreadMessages" 
-                            class="float-right mr-3" 
-                        />
-                    </router-link>
+                    <bm-label-icon :icon="icon(f.value)" breakpoint="xl">{{ f.value.name }}</bm-label-icon>
+                    <bm-counter-badge 
+                        v-if="f.value.uid === currentFolder && countUnreadMessages > 0" 
+                        :value="countUnreadMessages" 
+                        class="float-right mr-3" 
+                    />
                 </template>
             </bm-tree>
         </bm-collapse>
@@ -63,9 +57,8 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("backend.mail/folders", ["tree"]),
-        ...mapGetters("backend.mail/items", ["countUnreadMessages"]),
-        ...mapGetters("backend.mail/folders", {currentFolder: "currentFolder"})
+        ...mapGetters("backend.mail/folders", ["tree", "currentFolder"]),
+        ...mapGetters("backend.mail/items", ["countUnreadMessages"])
     },
     methods: {
         icon(f) {
@@ -87,18 +80,22 @@ export default {
             }
             return "folder";
         },
-        ...mapActions("backend.mail/folders", ["expand", "collapse"])
+        ...mapActions("backend.mail/folders", ["expand", "collapse"]),
+        onSelect(uid) {
+            this.$router.push({ path: '/mail/' + uid + '/' });
+        }
     }
 };
 </script>
 <style lang="scss">
-    @import '~@bluemind/styleguide/css/_variables';
-    .bm-tree-node-active, .bm-tree-node-active .btn {
-        color: $info-dark;
-    }
+@import '~@bluemind/styleguide/css/_variables';
 
-    .mail-folder-tree button.collapse-mailbox-btn {
-        color: $info-dark;
-        text-decoration-line: none;
-    }
+.bm-tree-node-active, .bm-tree-node-active .btn {
+    color: $info-dark;
+}
+
+.mail-folder-tree button.collapse-mailbox-btn {
+    color: $info-dark;
+    text-decoration-line: none;
+}
 </style>

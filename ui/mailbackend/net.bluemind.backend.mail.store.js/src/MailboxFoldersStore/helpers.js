@@ -1,11 +1,10 @@
-export function toTreeItem(folder, settings, selected) {
+export function toTreeItem(folder, settings) {
     return {
         uid: folder.uid,
         name: folder.value.name,
         fullname: folder.value.fullName,
         parent: folder.value.parentUid || null,
         expanded: (settings && settings.expanded) || false,
-        selected,
         children: []
     };
 }

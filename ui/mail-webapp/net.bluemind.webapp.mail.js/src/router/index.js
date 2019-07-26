@@ -31,10 +31,9 @@ export default [
                 meta: {
                     $actions: {
                         folder(store, value) {
+                            store.commit("backend.mail/items/setCurrent", null);
                             return store.dispatch("backend.mail/items/all", value)
-                                .then(() =>
-                                    store.commit("backend.mail/folders/setCurrent", value)
-                                );
+                                .then(() => store.commit("backend.mail/folders/setCurrent", value));
                         }
                     }
                 }

@@ -3,8 +3,7 @@ import { toTreeItem, sort } from "./helpers";
 export function tree(state) {
     const nodeMap = new Map();
     state.folders.forEach(folderItem => {
-        const isSelected = state.settings.current === folderItem.uid;
-        const folder = toTreeItem(folderItem, state.settings[folderItem.uid], isSelected);
+        const folder = toTreeItem(folderItem, state.settings[folderItem.uid]);
         const siblings = nodeMap.has(folder.parent) ? nodeMap.get(folder.parent) : [];
         const children = nodeMap.has(folder.uid) ? nodeMap.get(folder.uid) : [];
         siblings.push(folder);
