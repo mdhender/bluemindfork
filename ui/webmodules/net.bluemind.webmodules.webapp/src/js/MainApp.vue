@@ -8,6 +8,7 @@
 <script>
 import BmBanner from "@bluemind/banner.ui.vuejs/components/BmBanner";
 import "@bluemind/styleguide/css/bluemind.scss";
+import injector from "@bluemind/inject";
 
 export default {
     components: {
@@ -45,12 +46,14 @@ export default {
         data.applications.sort((a, b) => b.order - a.order);
         data.widgets.sort((a, b) => b.order - a.order);
 
-        const user = window.bmcSessionInfos;
-        user.displayname = user["formatedName"];
-        user.email = user["defaultEmail"];
+        const userSession = injector.getProvider("UserSession").get();
+        const user = {
+            displayname: userSession["formatedName"],
+            email: userSession["defaultEmail"]
+        };
         const software = {
-            version: window.bmcSessionInfos["bmVersion"],
-            brand: window.bmcSessionInfos["bmBrandVersion"]
+            version: userSession["bmVersion"],
+            brand: userSession["bmBrandVersion"]
         };
         data.user = user;
         data.software = software;
