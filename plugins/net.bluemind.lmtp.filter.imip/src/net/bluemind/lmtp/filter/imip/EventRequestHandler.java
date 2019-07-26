@@ -326,14 +326,14 @@ public class EventRequestHandler extends RequestHandler implements IIMIPHandler 
 				data.put("tz", tz.getDisplayName(new Locale(settings.get("lang"))));
 			}
 
-			CalendarMail m = new CalendarMail();
-			m.from = from;
-			m.sender = from;
-			m.to = new MailboxList(Arrays.asList(to), true);
-			m.method = method;
-			m.ics = icsPart;
-			m.html = new CalendarMailHelper().buildBody(templateName, settings.get("lang"), resolver, data);
-			m.subject = subject;
+			CalendarMail m = new CalendarMail.CalendarMailBuilder() //
+					.from(from) //
+					.sender(from) //
+					.to(new MailboxList(Arrays.asList(to), true)) //
+					.method(method) //
+					.ics(icsPart) //
+					.html(new CalendarMailHelper().buildBody(templateName, settings.get("lang"), resolver, data)) //
+					.subject(subject).build();
 			return m.getMessage();
 
 		} catch (TemplateException e) {

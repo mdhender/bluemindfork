@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 
+import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEvent.Transparency;
 import net.bluemind.calendar.api.VEventOccurrence;
@@ -400,6 +401,13 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 
 		appendXMsProperties(properties, vevent);
 		appendXMozProperties(properties);
+
+		if (vevent.attachments != null) {
+			for (AttachedFile file : vevent.attachments) {
+				XProperty prop = new XProperty("X-BM-ATTACHMENT", "(" + file.name + ")" + file.publicUrl);
+				properties.add(prop);
+			}
+		}
 
 		return ret;
 	}

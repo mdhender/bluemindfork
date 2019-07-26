@@ -13,6 +13,7 @@
 	<modules>
 		<module>net.bluemind.core.commons.gwt</module>
 		<module>net.bluemind.core.container.api.gwt</module>
+		<module>net.bluemind.attachment.api.gwt</module>
 		<module>net.bluemind.core.task.api.gwt</module>
 		<module>net.bluemind.tag.api.gwt</module>
 		<module>net.bluemind.hsm.api.gwt</module>

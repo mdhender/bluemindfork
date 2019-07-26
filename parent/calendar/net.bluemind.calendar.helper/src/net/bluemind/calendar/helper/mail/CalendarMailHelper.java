@@ -28,6 +28,9 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.james.mime4j.dom.BinaryBody;
+import org.apache.james.mime4j.message.BasicBodyFactory;
+import org.apache.james.mime4j.message.BodyPart;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -46,18 +49,31 @@ public class CalendarMailHelper extends ReminderMailHelper<VEvent> {
 		cfg.setClassForTemplateLoading(this.getClass(), "/");
 	}
 
+	public BodyPart createBinaryPart(byte[] part) {
+
+		BasicBodyFactory bodyFactory = new BasicBodyFactory();
+		BinaryBody body = bodyFactory.binaryBody(part);
+
+		BodyPart bodyPart = new BodyPart();
+		bodyPart.setBody(body);
+
+		return bodyPart;
+	}
+
 	/**
 	 * Extract {@link VEvent} data
 	 * 
 	 * @param vevent
-	 *            the {@link VEvent} to extract
+	 *                   the {@link VEvent} to extract
 	 * @return a {@link Map} containing the {@link VEvent} data
 	 */
 	public Map<String, Object> extractVEventDataToMap(VEvent vevent, VAlarm valarm) {
 		Map<String, Object> data = new HashMap<String, Object>();
 
-		Long duration = vevent.dtend != null ? (new BmDateTimeWrapper(vevent.dtend).toUTCTimestamp()
-				- new BmDateTimeWrapper(vevent.dtstart).toUTCTimestamp()) / 1000 : null;
+		Long duration = vevent.dtend != null
+				? (new BmDateTimeWrapper(vevent.dtend).toUTCTimestamp()
+						- new BmDateTimeWrapper(vevent.dtstart).toUTCTimestamp()) / 1000
+				: null;
 
 		data.put("duration", duration);
 
