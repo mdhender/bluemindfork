@@ -31,6 +31,7 @@ import org.joda.time.DateTimeZone;
 import org.junit.Test;
 
 import net.bluemind.calendar.api.CalendarsVEventQuery;
+import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendars;
 import net.bluemind.calendar.api.Reminder;
 import net.bluemind.calendar.api.VEvent;
@@ -45,6 +46,7 @@ import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemContainerValue;
 import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
 
@@ -99,6 +101,10 @@ public class CalendarsServiceTests extends AbstractCalendarTests {
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
 
 		DateTime dtalarm = new DateTime(new BmDateTimeWrapper(event.main.dtstart).toUTCTimestamp() - 600 * 1000);
+
+		ICalendar cal = ServerSideServiceProvider.getProvider(userSecurityContext).instance(ICalendar.class, userCalendarContainer);
+		
+
 		List<Reminder> reminder = getCalendarsService(userSecurityContext).getReminder(time(dtalarm));
 		assertEquals(1, reminder.size());
 

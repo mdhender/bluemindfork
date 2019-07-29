@@ -120,6 +120,8 @@ public abstract class AbstractRollingReplicationTests {
 		MQ.init().get(30, TimeUnit.SECONDS);
 		Topology.get();
 
+		SyncServerHelper.waitFor();
+
 		cyrusReplication.startReplication().get(5, TimeUnit.SECONDS);
 
 		this.rec = new ReplicationEventsRecorder(VertxPlatform.getVertx());

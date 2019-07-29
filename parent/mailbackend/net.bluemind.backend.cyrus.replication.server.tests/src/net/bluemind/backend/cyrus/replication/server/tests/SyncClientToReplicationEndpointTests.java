@@ -45,6 +45,7 @@ public class SyncClientToReplicationEndpointTests {
 			}
 		});
 		deployed.get(10, TimeUnit.SECONDS);
+		SyncServerHelper.waitFor();
 		System.err.println("Deployement is complete, test starts...");
 	}
 
