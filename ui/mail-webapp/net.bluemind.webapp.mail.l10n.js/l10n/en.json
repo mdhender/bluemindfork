@@ -31,6 +31,5 @@
     "mail.message.starter.display.drafts": "Every drafts",
     "mail.content.reply.aria": "Reply only to sender",
     "mail.content.reply_all.aria": "Reply to all recipients",
-    "mail.content.forward.aria": "Forward this mail",
-    "mail.content.3dots.aria": "See more actions"
+    "mail.content.forward.aria": "Forward this mail"
 }

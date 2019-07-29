@@ -9,9 +9,6 @@
         <bm-button variant="primary" :aria-label="$t('mail.content.forward.aria')" :to="{ name: 'forwardTo'}">
             <bm-icon icon="forward" size="2x" />
         </bm-button>
-        <bm-button variant="primary" :aria-label="$t('mail.content.3dots.aria')">
-            <bm-icon icon="3dots" size="2x" />
-        </bm-button>
     </bm-button-toolbar>
 </template>
     
