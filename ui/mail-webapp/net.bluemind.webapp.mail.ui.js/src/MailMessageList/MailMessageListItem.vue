@@ -7,22 +7,15 @@
         @mouseenter.native="quickActionButtonsVisible = true"
         @mouseleave.native="quickActionButtonsVisible = false"
     >
-        <bm-row class="align-items-center">
-            <bm-col
-                cols="1"
-                class="selector"
-            >
+        <bm-row class="align-items-center flex-nowrap">
+            <bm-col cols="1" class="selector">
                 <bm-avatar :alt="from" />
                 <bm-check @click.native.stop />
             </bm-col>
-            <bm-col cols="8">
-                <span>{{ from }}</span>
+            <bm-col cols="8" class="text-overflow">
+                {{ from }}
             </bm-col>
-            <bm-col
-                v-show="!quickActionButtonsVisible"
-                cols="3"
-                class="mail-widgets"
-            >
+            <bm-col v-show="!quickActionButtonsVisible" cols="3" class="mail-widgets">
                 <component
                     :is="widget"
                     v-for="widget in widgets"
@@ -30,10 +23,7 @@
                     class="ml-2"
                 />
             </bm-col>
-            <bm-col
-                v-show="quickActionButtonsVisible"
-                cols="3"
-            >
+            <bm-col v-show="quickActionButtonsVisible" cols="3">
                 <transition name="fade">
                     <mail-message-list-item-quick-action-buttons :message="message" />
                 </transition>
@@ -50,7 +40,7 @@
                     class="ml-2"
                 />
             </bm-col>
-            <bm-col class="mail-subject">{{ message.subject }}</bm-col>
+            <bm-col class="mail-subject text-overflow">{{ message.subject }}</bm-col>
             <bm-col
                 cols="3"
                 class="mail-date"
@@ -171,10 +161,13 @@ a.list-group-item.mail-message-list-item {
 }
 
 .mail-subject {
+    color: $text-muted;
+}
+
+.text-overflow {
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    color: $text-muted;
 }
 
 .mail-date,
