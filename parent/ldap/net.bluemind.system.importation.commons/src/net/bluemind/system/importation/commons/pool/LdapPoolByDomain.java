@@ -18,8 +18,10 @@
  */
 package net.bluemind.system.importation.commons.pool;
 
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.BindRequest;
 import org.apache.directory.api.ldap.model.message.BindRequestImpl;
 import org.apache.directory.api.ldap.model.message.BindResponse;
@@ -37,7 +39,7 @@ public class LdapPoolByDomain {
 		public final LdapConnection ldapCon;
 		public final LdapConnectionConfig ldapConnectionConfig;
 		public final Parameters ldapParameters;
-		public boolean LDAP_ERROR = false;
+		private boolean ldapConError = false;
 
 		public LdapConnectionContext(LdapConnection ldapCon, LdapConnectionConfig ldapConnectionConfig,
 				Parameters ldapParameters) {
@@ -56,6 +58,25 @@ public class LdapPoolByDomain {
 			}
 
 			return LdapProtocol.PLAIN;
+		}
+
+		/**
+		 * Set ldapCon status to error
+		 * 
+		 * @return
+		 */
+		public LdapConnectionContext setError() {
+			ldapConError = true;
+			return this;
+		}
+
+		/**
+		 * Is ldapCon status set to error
+		 * 
+		 * @return
+		 */
+		public boolean isError() {
+			return ldapConError;
 		}
 	}
 
@@ -86,11 +107,12 @@ public class LdapPoolByDomain {
 	 * @return
 	 * @throws Exception
 	 */
-	public LdapConnectionContext getAuthenticatedConnectionContext(Parameters ldapParameters) throws Exception {
+	public Optional<LdapConnectionContext> getAuthenticatedConnectionContext(Parameters ldapParameters)
+			throws Exception {
 		LdapConnectionContext ldapConCtx = getConnectionContext(ldapParameters);
 
 		if (ldapParameters.ldapServer.login == null || ldapParameters.ldapServer.login.isEmpty()) {
-			return ldapConCtx;
+			return Optional.of(ldapConCtx);
 		}
 
 		BindRequest bindRequest = new BindRequestImpl();
@@ -99,7 +121,14 @@ public class LdapPoolByDomain {
 		bindRequest.setCredentials(ldapParameters.ldapServer.password);
 
 		long ldSearchTime = System.currentTimeMillis();
-		BindResponse response = ldapConCtx.ldapCon.bind(bindRequest);
+		BindResponse response = null;
+		try {
+			response = ldapConCtx.ldapCon.bind(bindRequest);
+		} catch (LdapException le) {
+			releaseConnectionContext(ldapConCtx.setError());
+			return Optional.empty();
+		}
+
 		ldSearchTime = System.currentTimeMillis() - ldSearchTime;
 
 		if (ResultCodeEnum.SUCCESS != response.getLdapResult().getResultCode()
@@ -109,16 +138,19 @@ public class LdapPoolByDomain {
 					&& !response.getLdapResult().getDiagnosticMessage().isEmpty()) {
 				errorMsg += " - " + response.getLdapResult().getDiagnosticMessage();
 			}
+
+			releaseConnectionContext(ldapConCtx);
+
 			logger.error(errorMsg);
-			throw new Exception(errorMsg);
+			return Optional.empty();
 		}
 
 		logger.info("Bind success on: " + ldapParameters.toString() + "(" + ldSearchTime + "ms)");
-		return ldapConCtx;
+		return Optional.of(ldapConCtx);
 	}
 
 	public void releaseConnectionContext(LdapConnectionContext ldapConCtx) throws Exception {
-		if (ldapConCtx.ldapCon == null) {
+		if (ldapConCtx == null || ldapConCtx.ldapCon == null) {
 			return;
 		}
 
@@ -131,7 +163,7 @@ public class LdapPoolByDomain {
 			return;
 		}
 
-		if (ldapConCtx.LDAP_ERROR) {
+		if (ldapConCtx.isError()) {
 			logger.warn("Invalidate LDAP connection from pool {}", ldapConCtx.ldapParameters);
 			pool.getPool().invalidateObject(ldapConCtx.ldapCon);
 			return;
@@ -154,6 +186,7 @@ public class LdapPoolByDomain {
 		}
 
 		try {
+			pool.getPool().clear();
 			pool.getPool().close();
 		} catch (Exception e) {
 			logger.error("Fail to close LDAP pool for: " + ldapParameters.toString(), e);
