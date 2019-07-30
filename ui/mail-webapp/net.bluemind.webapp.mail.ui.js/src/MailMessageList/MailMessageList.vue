@@ -11,15 +11,15 @@
     >
         <bm-list-group-item class="bg-transparent align-with-items">
             <bm-row>
-                <bm-col cols="2">
+                <bm-col cols="1">
                     <bm-check />
                 </bm-col>
-                <bm-col class="d-none d-sm-block d-md-none d-xl-block">
+                <bm-col class="d-none d-sm-block d-md-none d-xl-block pl-2">
                     <span class="text-nowrap">
                         filtrer <span class="fake-select">Tous <bm-icon icon="caret-down" /></span>
                     </span>
                 </bm-col>
-                <bm-col class="d-none d-sm-block d-md-none d-xl-block" cols="5">
+                <bm-col class="d-none d-sm-block d-md-none d-xl-block text-right pr-0">
                     <span class="text-nowrap">
                         trier par <span class="fake-select">Date <bm-icon icon="caret-down" /></span>
                     </span>
@@ -29,7 +29,12 @@
         <bm-infinite-scroll :items="messages" :position.sync="position" :total="length" :item-key="'uid'" class="h-100">
             <template #item="f">
                 <bm-list-group-separator v-if="hasSeparator(f.item.uid)" class="mail-list-separator">
-                    {{ $t(getSeparator(f.item.date)) }}
+                    <bm-row>
+                        <bm-col cols="1" />
+                        <bm-col class="pl-4">
+                            {{ $t(getSeparator(f.item.date)) }}
+                        </bm-col>
+                    </bm-row>
                 </bm-list-group-separator>
                 <mail-message-list-item
                     :message="f.item"
