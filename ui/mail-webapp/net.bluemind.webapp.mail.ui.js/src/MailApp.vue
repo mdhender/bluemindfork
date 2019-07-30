@@ -1,11 +1,11 @@
 <template>
     <bm-container fluid class="flex-fill d-flex flex-column mail-app">
-        <bm-row align-v="center" class="shadow-sm bg-surface py-2 py-xl-0">
+        <bm-row align-v="center" class="shadow-sm bg-surface py-2 py-xl-0 topbar">
             <bm-col cols="4" md="2" order="0">
                 <bm-button 
-                    :to="{ name: 'newMessage' }"
                     variant="primary"
                     class="text-nowrap ml-3 d-xl-inline-block d-block"
+                    @click="composeNewMessage"
                 >
                     <bm-label-icon icon="plus" breakpoint="xl">{{ $t("mail.main.new") }}</bm-label-icon>
                 </bm-button>
@@ -20,7 +20,7 @@
                     <bm-icon icon="search" class="searchIcon" />
                 </div>
             </bm-col>
-            <bm-col class="d-none d-lg-block" cols="12" xl="7" order="last">  
+            <bm-col class="d-none d-lg-block h-100" cols="12" xl="7" order="last">  
                 <mail-toolbar class="mx-auto mx-xl-0" />
             </bm-col>
         </bm-row>
@@ -50,7 +50,7 @@ import { BmApplicationAlert, BmLabelIcon, BmButton, BmCol, BmContainer, BmFormIn
 import MailAppL10N from "@bluemind/webapp.mail.l10n";
 import MailFolderTree from "./MailFolderTree";
 import MailMessageList from "./MailMessageList/MailMessageList";
-import MailToolbar from "./MailToolbar";
+import MailToolbar from "./MailToolbar/";
 
 export default {
     name: "MailApp",
@@ -80,6 +80,10 @@ export default {
         },
         getSuccessAlerts() {
             return this.$store.state["alert"].successes;
+        },
+        composeNewMessage() {
+            this.$store.commit("backend.mail/items/setCurrent", null);
+            this.$router.push({ name: 'newMessage' });
         }
     }
 };
@@ -99,5 +103,9 @@ body > div {
 
 .mail-app .searchIcon {
     margin-left: -25px;
+}
+
+.mail-app .topbar {
+    flex: 0 0 4em;
 }
 </style>

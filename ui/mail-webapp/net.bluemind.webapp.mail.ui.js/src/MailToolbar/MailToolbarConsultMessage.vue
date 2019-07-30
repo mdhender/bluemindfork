@@ -1,11 +1,11 @@
 <template>
-    <bm-button-toolbar key-nav class="mail-toolbar flex-nowrap w-50">
+    <div>
         <bm-button
             v-if="!!uid && message.states.includes('not-seen')"
             :disabled="!uid"
             variant="none"
+            class="unread"
             :aria-label="$tc('mail.actions.mark_read.aria')"
-            class="text-nowrap text-truncate"
             @click="updateSeen({ folder, uid, isSeen: true })"
         >
             <bm-icon icon="read" size="2x" />
@@ -15,8 +15,8 @@
             v-else
             :disabled="!uid"
             variant="none"
+            class="read"
             :aria-label="$tc('mail.actions.mark_unread.aria')"
-            class="text-nowrap text-truncate"
             @click="updateSeen({ folder, uid, isSeen: false })"
         >
             <bm-icon icon="unread" size="2x" />
@@ -34,23 +34,23 @@
             <bm-icon icon="3dots" size="2x" />
             {{ $tc("mail.toolbar.more") }}
         </bm-button>
-    </bm-button-toolbar>
+    </div>
 </template>
 
 <script>
-import { BmButtonToolbar, BmButton, BmIcon }  from "@bluemind/styleguide";
+import { BmButton, BmIcon }  from "@bluemind/styleguide";
 import { mapActions, mapState, mapGetters } from "vuex";
+
 export default {
-    name: "MailToolbar",
+    name: "MailToolbarConsultMessage",
     components: {
         BmButton,
-        BmButtonToolbar,
         BmIcon
     },
     computed: {
         ...mapGetters("backend.mail/items", { message: "currentMessage" }),
-        ...mapState("backend.mail/items", { uid: "current" }),
-        ...mapGetters("backend.mail/folders", { folder: "currentFolder" })
+        ...mapGetters("backend.mail/folders", { folder: "currentFolder" }),
+        ...mapState("backend.mail/items", { uid: "current" })
     },
     methods: {
         ...mapActions("backend.mail/items", ["updateSeen"])
@@ -58,18 +58,8 @@ export default {
 };
 </script>
 
-<style lang="scss">
-//TODO might move inside bluemind-styleguide
-@import "~@bluemind/styleguide/css/variables";
-
-.mail-toolbar .btn {
-    flex-basis: 11em;
-    flex-grow: 1;
-    flex-shrink: 0;
-}
-
-.mail-toolbar .btn:focus,
-.mail-toolbar .btn.focus {
-    box-shadow: none !important;
+<style>
+.unread, .read {
+    width: 8rem;
 }
 </style>
