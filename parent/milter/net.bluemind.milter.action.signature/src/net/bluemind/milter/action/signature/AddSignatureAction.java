@@ -68,9 +68,10 @@ public class AddSignatureAction implements MilterAction {
 			return;
 		}
 
-		addDisclaimer(modifier, context, configuration, sender, domainItem.uid);
-		modifier.updateBody(modifier.getMessage(), identifier());
-		modifier.addHeader("X-BM-Disclaimer", "Yes", identifier());
+		if (addDisclaimer(modifier, context, configuration, sender, domainItem.uid)) {
+			modifier.updateBody(modifier.getMessage(), identifier());
+			modifier.addHeader("X-BM-Disclaimer", "Yes", identifier());
+		}
 
 	}
 
@@ -78,7 +79,7 @@ public class AddSignatureAction implements MilterAction {
 		return DirectoryCache.getVCard(context, domain, sender);
 	}
 
-	public void addDisclaimer(UpdatedMailMessage modifier, IClientContext context, Map<String, String> configuration,
+	public boolean addDisclaimer(UpdatedMailMessage modifier, IClientContext context, Map<String, String> configuration,
 			String sender, String domain) {
 		AddDisclaimer action = new AddDisclaimer(() -> getVCard(context, sender, domain));
 
@@ -88,22 +89,26 @@ public class AddSignatureAction implements MilterAction {
 
 		if (body instanceof Multipart) {
 			action.addToMultiPart(message, configuration);
-		} else {
-			if (body instanceof TextBody) {
-				try {
-					modifier.removeHeader("Content-Transfer-Encoding");
+			return true;
+		}
 
-					if ("text/html".equals(message.getMimeType())) {
-						action.addToHtmlPart(message, configuration);
-					} else {
-						action.addToTextPart(message, configuration);
-					}
-				} catch (Exception e) {
-					modifier.removeHeaders.remove("Content-Transfer-Encoding");
-					throw e;
+		if (body instanceof TextBody) {
+			try {
+				modifier.removeHeader("Content-Transfer-Encoding");
+
+				if ("text/html".equals(message.getMimeType())) {
+					action.addToHtmlPart(message, configuration);
+				} else {
+					action.addToTextPart(message, configuration);
 				}
+				return true;
+			} catch (Exception e) {
+				modifier.removeHeaders.remove("Content-Transfer-Encoding");
+				throw e;
 			}
 		}
+
+		return false;
 	}
 
 	public boolean containsSignedOrEncryptedParts(UpdatedMailMessage message) {
