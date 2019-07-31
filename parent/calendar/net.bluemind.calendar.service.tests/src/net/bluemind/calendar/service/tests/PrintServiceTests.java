@@ -33,11 +33,11 @@ import net.bluemind.calendar.pdf.internal.PrintCalendar;
 import net.bluemind.calendar.service.AbstractCalendarTests;
 import net.bluemind.calendar.service.internal.PrintService;
 import net.bluemind.core.api.date.BmDateTime.Precision;
-import net.bluemind.core.api.date.BmDateTimeHelper;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.tests.BmTestContext;
+import net.bluemind.tests.defaultdata.BmDateTimeHelper;
 
 public class PrintServiceTests extends AbstractCalendarTests {
 

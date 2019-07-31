@@ -62,7 +62,6 @@ import net.bluemind.calendar.service.AbstractCalendarTests;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTime.Precision;
-import net.bluemind.core.api.date.BmDateTimeHelper;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -85,6 +84,7 @@ import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm.Action;
 import net.bluemind.tag.api.ITags;
 import net.bluemind.tag.api.TagRef;
+import net.bluemind.tests.defaultdata.BmDateTimeHelper;
 
 public class CalendarServiceTests extends AbstractCalendarTests {
 

@@ -47,7 +47,6 @@ import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.service.internal.VEventContainerStoreService;
-import net.bluemind.core.api.date.BmDateTimeHelper;
 import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.persistance.ContainerSettingsStore;
 import net.bluemind.core.container.persistance.ContainerStore;
@@ -65,6 +64,7 @@ import net.bluemind.server.api.Server;
 import net.bluemind.tag.api.ITags;
 import net.bluemind.tag.api.Tag;
 import net.bluemind.tag.api.TagRef;
+import net.bluemind.tests.defaultdata.BmDateTimeHelper;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class CalendarRepairSupportTests {

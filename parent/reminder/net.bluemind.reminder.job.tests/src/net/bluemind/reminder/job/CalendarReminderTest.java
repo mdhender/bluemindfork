@@ -45,7 +45,6 @@ import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.job.CalendarAlarmSupport;
 import net.bluemind.core.api.date.BmDateTime;
-import net.bluemind.core.api.date.BmDateTimeHelper;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
@@ -56,6 +55,7 @@ import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.scheduledjob.scheduler.IScheduler;
 import net.bluemind.tag.api.TagRef;
+import net.bluemind.tests.defaultdata.BmDateTimeHelper;
 import net.bluemind.user.api.User;
 
 public class CalendarReminderTest {
@@ -192,10 +192,8 @@ public class CalendarReminderTest {
 	}
 
 	protected ItemValue<VEvent> defaultVEvent() {
-
 		VEvent event = new VEvent();
-		// DateTimeZone tz = DateTimeZone.forID("Asia/Ho_Chi_Minh");
-		event.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 13, 1, 0, 0, 0, ZoneId.of("UTC")));
+		event.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 13, 1, 0, 0, 0, ZoneId.of("Asia/Ho_Chi_Minh")));
 		event.summary = "event 324532532523523";
 		event.location = "Toulouse";
 		event.description = "Lorem ipsum";
@@ -214,11 +212,9 @@ public class CalendarReminderTest {
 		attendees.add(me);
 
 		event.attendees = attendees;
-
 		event.categories = new ArrayList<TagRef>(0);
 
 		return ItemValue.create("324532532523523", event);
-
 	}
 
 	private String templateFrench() {

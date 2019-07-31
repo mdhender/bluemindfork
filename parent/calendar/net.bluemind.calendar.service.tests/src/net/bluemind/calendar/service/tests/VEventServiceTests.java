@@ -48,7 +48,6 @@ import net.bluemind.core.api.ImportStats;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTime.Precision;
-import net.bluemind.core.api.date.BmDateTimeHelper;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -66,6 +65,7 @@ import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm.Action;
+import net.bluemind.tests.defaultdata.BmDateTimeHelper;
 import net.bluemind.utils.FileUtils;
 
 public class VEventServiceTests extends AbstractCalendarTests {
@@ -98,7 +98,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 				"jane.bang@domain.lan");
 		vevent.main.attendees.add(jane);
 
-		vevent.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(1983, 2, 13, 2, 0, 0, 0, tz));
+		vevent.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(1983, 2, 13, 2, 0, 0, 0, hoChiMinhTz));
 		vevent.main.summary = "testExport à 4€";
 		vevent.main.alarm = new ArrayList<>(1);
 
@@ -494,9 +494,6 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertNotNull(vevent);
 
 		assertEquals("Europe/Paris", vevent.dtstart.timezone);
-		// DTSTART;TZID=Europe/Paris:19830213T020000
-		// assertTrue(dtstart.isEqual(new BmDateTimeWrapper(vevent.dtstart)
-		// .toJodaTime()));
 		assertEquals("testImport", vevent.summary);
 		assertEquals(VEvent.Classification.Private, vevent.classification);
 		assertEquals(Transparency.Opaque, vevent.transparency);

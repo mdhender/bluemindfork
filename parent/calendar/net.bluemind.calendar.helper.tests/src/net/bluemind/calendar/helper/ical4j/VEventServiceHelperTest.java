@@ -227,7 +227,7 @@ public class VEventServiceHelperTest {
 		assertEquals(VEvent.RRule.Frequency.WEEKLY, rrule.frequency);
 		assertNull(rrule.count);
 		assertEquals(2, rrule.interval.intValue());
-		assertEquals(until.toOffsetDateTime(), new BmDateTimeWrapper(rrule.until).toDateTime());
+		assertEquals(until.toOffsetDateTime(), new BmDateTimeWrapper(rrule.until).toDateTime().toOffsetDateTime());
 
 		assertNotNull(rrule.bySecond);
 		assertEquals(2, rrule.bySecond.size());

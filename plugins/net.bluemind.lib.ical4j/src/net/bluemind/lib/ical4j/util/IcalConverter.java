@@ -19,8 +19,8 @@
 package net.bluemind.lib.ical4j.util;
 
 import java.time.DateTimeException;
-import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,7 +89,8 @@ public class IcalConverter {
 			return id;
 		} catch (DateTimeException e) {
 			logger.error("unknow timezone {}", property);
-			return ZoneId.from(Instant.ofEpochMilli(timeZone.getOffset(date.getTime()))).getId();
+			ZoneOffset zo = ZoneOffset.ofTotalSeconds(timeZone.getOffset(date.getTime()) / 1000);
+			return ZoneId.of(zo.getId()).getId();
 		}
 	}
 

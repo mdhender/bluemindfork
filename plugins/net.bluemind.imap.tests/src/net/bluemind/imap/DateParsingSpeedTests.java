@@ -96,8 +96,9 @@ public class DateParsingSpeedTests extends TestCase {
 	}
 
 	public void testEquals() throws ParseException, DecodingException {
-		DateTimeFormatter df = DateTimeFormatter.ofPattern("dd-MMM-yyyy HH:mm:ss Z");
+		DateTimeFormatter df = DateTimeFormatter.ofPattern("d-MMM-yyyy HH:mm:ss Z");
 		df = df.withLocale(Locale.US);
+
 		String d = " 5-Apr-2012 10:54:38 +0200";
 		Date date = Date.from(ZonedDateTime.parse(d.trim(), df).toInstant());
 		SimpleDateFormat jdkDf = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss Z", Locale.US);

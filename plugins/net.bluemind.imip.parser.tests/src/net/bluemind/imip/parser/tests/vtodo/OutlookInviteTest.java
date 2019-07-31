@@ -42,8 +42,7 @@ public class OutlookInviteTest extends IMIPTestCase {
 		assertNotNull(elem.dtstart);
 		assertEquals(2015, new BmDateTimeWrapper(elem.dtstart).toDateTime().getYear());
 		assertEquals(22, new BmDateTimeWrapper(elem.dtstart).toDateTime().getDayOfMonth());
-		assertEquals(7, new BmDateTimeWrapper(elem.dtstart).toDateTime().getMonth());
-
+		assertEquals(7, new BmDateTimeWrapper(elem.dtstart).toDateTime().getMonthValue());
 	}
 
 }

@@ -38,7 +38,6 @@ import net.bluemind.calendar.api.PublishMode;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.service.AbstractCalendarTests;
 import net.bluemind.calendar.service.internal.PublishCalendarService;
-import net.bluemind.core.api.date.BmDateTimeHelper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistance.DataSourceRouter;
@@ -47,6 +46,7 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.base.GenericStream;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.icalendar.api.ICalendarElement.Classification;
+import net.bluemind.tests.defaultdata.BmDateTimeHelper;
 
 public class PublishCalendarTests extends AbstractCalendarTests {
 

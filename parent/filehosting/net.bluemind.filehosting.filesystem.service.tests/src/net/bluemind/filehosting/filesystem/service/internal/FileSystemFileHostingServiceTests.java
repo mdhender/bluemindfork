@@ -22,6 +22,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
@@ -420,7 +422,9 @@ public class FileSystemFileHostingServiceTests {
 		String id = ID.extract(publicLink.url);
 
 		assertNotNull(publicLink.expirationDate);
-		assertEquals(expirationDate, ZonedDateTime.parse(publicLink.expirationDate.toString()).toString());
+
+		ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochMilli(publicLink.expirationDate), ZoneId.of("UTC"));
+		assertEquals(expirationDate + "[UTC]", date.toString());
 
 		service.getSharedFile(id);
 	}

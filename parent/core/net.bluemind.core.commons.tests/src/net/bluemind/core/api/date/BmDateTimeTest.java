@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 import org.junit.Test;
@@ -43,14 +44,14 @@ public class BmDateTimeTest {
 		BmDateTime dt = BmDateTimeWrapper.create(iso);
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.Date, dt.precision);
+		assertEquals(Precision.Date, dt.precision);
 		assertNull(dt.timezone);
 		assertEquals("2015-05-28", dt.iso8601);
 
 		dt = BmDateTimeWrapper.create(iso, "UTC");
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.Date, dt.precision);
+		assertEquals(Precision.Date, dt.precision);
 		assertNull(dt.timezone);
 		assertEquals("2015-05-28", dt.iso8601);
 
@@ -58,23 +59,22 @@ public class BmDateTimeTest {
 		dt = BmDateTimeWrapper.create(iso, "US/Alaska");
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.Date, dt.precision);
+		assertEquals(Precision.Date, dt.precision);
 		assertNull(dt.timezone);
 		assertEquals("2015-01-28", dt.iso8601);
 
 		iso = "2015-05-28T01:00:00+0200";
-		System.err.println(BmDateTimeWrapper.detectTimeZone(iso));
 		dt = BmDateTimeWrapper.create(iso, Precision.Date);
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.Date, dt.precision);
+		assertEquals(Precision.Date, dt.precision);
 		assertNull(dt.timezone);
 		assertEquals("2015-05-28", dt.iso8601);
 
 		dt = BmDateTimeWrapper.create(iso, null, Precision.Date);
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.Date, dt.precision);
+		assertEquals(Precision.Date, dt.precision);
 		assertNull(dt.timezone);
 		assertEquals("2015-05-28", dt.iso8601);
 
@@ -83,14 +83,14 @@ public class BmDateTimeTest {
 		dt = BmDateTimeWrapper.create(iso, "UTC", Precision.Date);
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.Date, dt.precision);
+		assertEquals(Precision.Date, dt.precision);
 		assertNull(dt.timezone);
 		assertEquals("2015-05-27", dt.iso8601);
 
 		dt = BmDateTimeWrapper.create(iso, "Europe/Paris", Precision.Date);
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.Date, dt.precision);
+		assertEquals(Precision.Date, dt.precision);
 		assertNull(dt.timezone);
 		assertEquals("2015-05-28", dt.iso8601);
 
@@ -98,14 +98,14 @@ public class BmDateTimeTest {
 		dt = BmDateTimeWrapper.fromTimestamp(timestamp, null, Precision.Date);
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.Date, dt.precision);
+		assertEquals(Precision.Date, dt.precision);
 		assertNull(dt.timezone);
 		assertEquals("2015-05-28", dt.iso8601);
 
 		dt = BmDateTimeWrapper.fromTimestamp(timestamp, "US/Alaska", Precision.Date);
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.Date, dt.precision);
+		assertEquals(Precision.Date, dt.precision);
 		assertNull(dt.timezone);
 		assertEquals("2015-05-27", dt.iso8601);
 
@@ -113,14 +113,14 @@ public class BmDateTimeTest {
 		dt = BmDateTimeWrapper.fromTimestamp(timestamp, null, Precision.Date);
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.Date, dt.precision);
+		assertEquals(Precision.Date, dt.precision);
 		assertNull(dt.timezone);
 		assertEquals("2015-05-28", dt.iso8601);
 
 		dt = BmDateTimeWrapper.fromTimestamp(timestamp, "US/Alaska", Precision.Date);
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.Date, dt.precision);
+		assertEquals(Precision.Date, dt.precision);
 		assertNull(dt.timezone);
 		assertEquals("2015-05-27", dt.iso8601);
 	}
@@ -131,60 +131,60 @@ public class BmDateTimeTest {
 		BmDateTime dt = BmDateTimeWrapper.create(iso);
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.DateTime, dt.precision);
+		assertEquals(Precision.DateTime, dt.precision);
 		assertEquals("+0100", dt.timezone);
 		assertEquals("2015-01-28T12:00:00.000+01:00", dt.iso8601);
 
 		dt = BmDateTimeWrapper.create(iso, Precision.DateTime);
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.DateTime, dt.precision);
+		assertEquals(Precision.DateTime, dt.precision);
 		assertEquals("+0100", dt.timezone);
 		assertEquals("2015-01-28T12:00:00.000+01:00", dt.iso8601);
 
 		dt = BmDateTimeWrapper.create(iso, "Europe/Paris");
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.DateTime, dt.precision);
+		assertEquals(Precision.DateTime, dt.precision);
 		assertEquals("Europe/Paris", dt.timezone);
 		assertEquals("2015-01-28T12:00:00.000+01:00", dt.iso8601);
 
-		dt = BmDateTimeWrapper.create(iso, "Europe/Paris", BmDateTime.Precision.DateTime);
+		dt = BmDateTimeWrapper.create(iso, "Europe/Paris", Precision.DateTime);
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.DateTime, dt.precision);
+		assertEquals(Precision.DateTime, dt.precision);
 		assertEquals("Europe/Paris", dt.timezone);
 		assertEquals("2015-01-28T12:00:00.000+01:00", dt.iso8601);
 
-		dt = BmDateTimeWrapper.create(iso, "Asia/Tokyo", BmDateTime.Precision.DateTime);
+		dt = BmDateTimeWrapper.create(iso, "Asia/Tokyo", Precision.DateTime);
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.DateTime, dt.precision);
+		assertEquals(Precision.DateTime, dt.precision);
 		assertEquals("Asia/Tokyo", dt.timezone);
 		assertEquals("2015-01-28T20:00:00.000+09:00", dt.iso8601);
 
 		iso = "2015-01-28T12:00:00";
 
-		dt = BmDateTimeWrapper.create(iso, "Pacific/Auckland", BmDateTime.Precision.DateTime);
+		dt = BmDateTimeWrapper.create(iso, "Pacific/Auckland", Precision.DateTime);
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.DateTime, dt.precision);
+		assertEquals(Precision.DateTime, dt.precision);
 		assertEquals("Pacific/Auckland", dt.timezone);
 		assertEquals("2015-01-28T12:00:00.000+13:00", dt.iso8601);
 
-		dt = BmDateTimeWrapper.create(iso, "Brazil/East", BmDateTime.Precision.DateTime);
+		dt = BmDateTimeWrapper.create(iso, "Brazil/East", Precision.DateTime);
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.DateTime, dt.precision);
+		assertEquals(Precision.DateTime, dt.precision);
 		assertEquals("Brazil/East", dt.timezone);
 		assertEquals("2015-01-28T12:00:00.000-02:00", dt.iso8601);
 
 		iso = "2015-01-28T12:00:00+0300";
 
-		dt = BmDateTimeWrapper.create(iso, "Invalid TimeZone", BmDateTime.Precision.DateTime);
+		dt = BmDateTimeWrapper.create(iso, "Invalid TimeZone", Precision.DateTime);
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.DateTime, dt.precision);
+		assertEquals(Precision.DateTime, dt.precision);
 		assertEquals("+0300", dt.timezone);
 		assertEquals("2015-01-28T12:00:00.000+03:00", dt.iso8601);
 
@@ -192,7 +192,7 @@ public class BmDateTimeTest {
 		dt = BmDateTimeWrapper.fromTimestamp(timestamp, "US/Alaska", Precision.DateTime);
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.DateTime, dt.precision);
+		assertEquals(Precision.DateTime, dt.precision);
 		assertEquals("US/Alaska", dt.timezone);
 		assertEquals("2015-05-28T04:00:00.000-08:00", dt.iso8601);
 
@@ -201,7 +201,7 @@ public class BmDateTimeTest {
 		dt = BmDateTimeWrapper.fromTimestamp(timestamp, "Invalid TimeZone", Precision.DateTime);
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.DateTime, dt.precision);
+		assertEquals(Precision.DateTime, dt.precision);
 		assertEquals(ZoneId.of("UTC").getId(), dt.timezone);
 		assertEquals("2015-05-28T12:00:00.000Z", dt.iso8601);
 
@@ -214,54 +214,54 @@ public class BmDateTimeTest {
 		BmDateTime dt = BmDateTimeWrapper.create(iso);
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.DateTime, dt.precision);
+		assertEquals(Precision.DateTime, dt.precision);
 		assertEquals(null, dt.timezone);
 		assertEquals("2015-01-28T12:00:00.000", dt.iso8601);
 
 		dt = BmDateTimeWrapper.create(iso, Precision.DateTime);
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.DateTime, dt.precision);
+		assertEquals(Precision.DateTime, dt.precision);
 		assertEquals(null, dt.timezone);
 		assertEquals("2015-01-28T12:00:00.000", dt.iso8601);
 
-		dt = BmDateTimeWrapper.create(iso, null, BmDateTime.Precision.DateTime);
+		dt = BmDateTimeWrapper.create(iso, null, Precision.DateTime);
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.DateTime, dt.precision);
+		assertEquals(Precision.DateTime, dt.precision);
 		assertEquals(null, dt.timezone);
 		assertEquals("2015-01-28T12:00:00.000", dt.iso8601);
 
-		dt = BmDateTimeWrapper.create(iso, "Invalid TimeZone", BmDateTime.Precision.DateTime);
+		dt = BmDateTimeWrapper.create(iso, "Invalid TimeZone", Precision.DateTime);
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.DateTime, dt.precision);
+		assertEquals(Precision.DateTime, dt.precision);
 		assertEquals(null, dt.timezone);
 		assertEquals("2015-01-28T12:00:00.000", dt.iso8601);
 
 		iso = "2015-01-28T12:00:00+0200";
 
-		dt = BmDateTimeWrapper.create(iso, null, BmDateTime.Precision.DateTime);
+		dt = BmDateTimeWrapper.create(iso, null, Precision.DateTime);
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.DateTime, dt.precision);
+		assertEquals(Precision.DateTime, dt.precision);
 		assertNull(dt.timezone);
 		assertEquals("2015-01-28T12:00:00.000", dt.iso8601);
 
 		iso = "2015-01-28";
-		dt = BmDateTimeWrapper.create(iso, null, BmDateTime.Precision.DateTime);
+		dt = BmDateTimeWrapper.create(iso, null, Precision.DateTime);
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.DateTime, dt.precision);
+		assertEquals(Precision.DateTime, dt.precision);
 		assertEquals(null, dt.timezone);
 		assertEquals("2015-01-28T00:00:00.000", dt.iso8601);
 
 		iso = "2015-01-28T12:00:00";
 
-		dt = BmDateTimeWrapper.create(iso, "Invalid TimeZone", BmDateTime.Precision.DateTime);
+		dt = BmDateTimeWrapper.create(iso, "Invalid TimeZone", Precision.DateTime);
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.DateTime, dt.precision);
+		assertEquals(Precision.DateTime, dt.precision);
 		assertNull(dt.timezone);
 		assertEquals("2015-01-28T12:00:00.000", dt.iso8601);
 
@@ -269,7 +269,7 @@ public class BmDateTimeTest {
 		dt = BmDateTimeWrapper.fromTimestamp(timestamp, null, Precision.DateTime);
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.DateTime, dt.precision);
+		assertEquals(Precision.DateTime, dt.precision);
 		assertNull(dt.timezone);
 		assertEquals("2015-05-28T12:00:00.000", dt.iso8601);
 
@@ -285,12 +285,12 @@ public class BmDateTimeTest {
 		BmDateTime dt2 = BmDateTimeWrapper.create(isoWithTime);
 		validator.validate(dt2);
 
-		assertEquals(BmDateTime.Precision.DateTime, dt.precision);
-		assertEquals(BmDateTime.Precision.DateTime, dt2.precision);
+		assertEquals(Precision.DateTime, dt.precision);
+		assertEquals(Precision.DateTime, dt2.precision);
 	}
 
 	@Test
-	public void testEvaluatePrecicionWithTime() {
+	public void testEvaluatePrecisionWithTime() {
 		String isoWithTime = "2015-05-28T16:45:43.355Z";
 
 		BmDateTime dt = BmDateTimeWrapper.create(isoWithTime, "UTC");
@@ -299,8 +299,8 @@ public class BmDateTimeTest {
 		BmDateTime dt2 = BmDateTimeWrapper.create(isoWithTime);
 		validator.validate(dt2);
 
-		assertEquals(BmDateTime.Precision.DateTime, dt.precision);
-		assertEquals(BmDateTime.Precision.DateTime, dt2.precision);
+		assertEquals(Precision.DateTime, dt.precision);
+		assertEquals(Precision.DateTime, dt2.precision);
 	}
 
 	@Test
@@ -310,7 +310,7 @@ public class BmDateTimeTest {
 		BmDateTime dt = BmDateTimeWrapper.create(isoWithoutTime);
 		validator.validate(dt);
 
-		assertEquals(BmDateTime.Precision.Date, dt.precision);
+		assertEquals(Precision.Date, dt.precision);
 	}
 
 	@Test
@@ -477,7 +477,7 @@ public class BmDateTimeTest {
 		assertEquals("ISO8601: 2015-05-29T00:00:00.000+04:00, Precision: DateTime, Timezone: +04:00", dt.toString());
 
 		iso8601 = "2015-05-29T00:00:0.000+02:00";
-		dt = BmDateTimeWrapper.create(iso8601, "Europe/Paris", BmDateTime.Precision.DateTime);
+		dt = BmDateTimeWrapper.create(iso8601, "Europe/Paris", Precision.DateTime);
 		validator.validate(dt);
 
 		assertEquals("ISO8601: 2015-05-29T00:00:00.000+02:00, Precision: DateTime, Timezone: Europe/Paris",
@@ -488,6 +488,53 @@ public class BmDateTimeTest {
 		validator.validate(dt);
 
 		assertEquals("ISO8601: 2015-05-29T07:10:49.127Z, Precision: DateTime, Timezone: UTC", dt.toString());
+	}
+
+	@Test
+	public void testICalDate() {
+		String iso8601 = "20190801";
+		BmDateTime dt = BmDateTimeWrapper.create(iso8601);
+		validator.validate(dt);
+
+		assertEquals("2019-08-01", dt.iso8601);
+	}
+
+	@Test
+	public void testICalDateTime() {
+		String iso8601 = "20190801T192257";
+		BmDateTime dt = BmDateTimeWrapper.create(iso8601);
+		validator.validate(dt);
+
+		assertEquals("2019-08-01T19:22:57.000", dt.iso8601);
+	}
+
+	@Test
+	public void testFormatDateIntoDateTime() {
+		String iso8601 = "2019-07-31";
+		BmDateTime dt = BmDateTimeWrapper.create(iso8601);
+		validator.validate(dt);
+
+		String formattedDate = new BmDateTimeWrapper(dt).format("yyyy-MM-dd'T'HH:mm:ss.S");
+		assertEquals("2019-07-31T00:00:00.0", formattedDate);
+
+		iso8601 = "2022-12-31";
+		dt = BmDateTimeWrapper.create(iso8601);
+		validator.validate(dt);
+
+		formattedDate = new BmDateTimeWrapper(dt).format("yyyy-MM-dd HH:mm:ss.SSS");
+		assertEquals("2022-12-31 00:00:00.000", formattedDate);
+	}
+
+	@Test
+	public void testToDateTimeIsConsistent() {
+		ZonedDateTime originalZdt = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault());
+		BmDateTimeWrapper modifiedZdt = new BmDateTimeWrapper(
+				BmDateTimeWrapper.create(originalZdt, Precision.DateTime));
+		assertEquals(originalZdt, modifiedZdt.toDateTime());
+
+		BmDateTime dt = new BmDateTime("20170512", "UTC", Precision.Date);
+		BmDateTimeWrapper dtw = new BmDateTimeWrapper(dt);
+		dtw.toDateTime(); // no DateTimeParseException
 	}
 
 }

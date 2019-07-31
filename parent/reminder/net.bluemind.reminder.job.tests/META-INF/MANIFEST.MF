@@ -23,5 +23,6 @@ Require-Bundle: slf4j.api,
  net.bluemind.core.sendmail;bundle-version="1.0.0",
  net.bluemind.addressbook.api,
  org.mockito.mockito-core;bundle-version="1.10.17",
- org.objenesis;bundle-version="1.0.0"
+ org.objenesis;bundle-version="1.0.0",
+ net.bluemind.tests.defaultdata;bundle-version="4.1.0"
 Export-Package: net.bluemind.reminder.job

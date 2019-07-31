@@ -49,7 +49,6 @@ import net.bluemind.calendar.api.VFreebusyQuery;
 import net.bluemind.calendar.service.AbstractCalendarTests;
 import net.bluemind.calendar.service.internal.VFreebusyService;
 import net.bluemind.core.api.date.BmDateTime.Precision;
-import net.bluemind.core.api.date.BmDateTimeHelper;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -62,6 +61,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.tests.BmTestContext;
+import net.bluemind.tests.defaultdata.BmDateTimeHelper;
 
 public class VFreebusyServiceTests extends AbstractCalendarTests {
 
@@ -167,7 +167,7 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 		String uid = "test_" + System.nanoTime();
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, vevent, sendNotifications);
 
-		ZonedDateTime dtstart = ZonedDateTime.of(2014, 1, 0, 0, 0, 0, 0, defaultTz);
+		ZonedDateTime dtstart = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, defaultTz);
 		ZonedDateTime dtend = ZonedDateTime.of(2014, 12, 31, 0, 0, 0, 0, defaultTz);
 
 		VFreebusy freebusy = getVFreebusyService(userSecurityContext, userFreebusyContainer)

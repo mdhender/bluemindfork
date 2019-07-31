@@ -41,10 +41,10 @@ import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.api.date.BmDateTime;
-import net.bluemind.core.api.date.BmDateTimeHelper;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.RRule.Frequency;
+import net.bluemind.tests.defaultdata.BmDateTimeHelper;
 
 public class OccurrenceHelperTest {
 	private final ZoneId tz = ZoneId.of("Asia/Ho_Chi_Minh");

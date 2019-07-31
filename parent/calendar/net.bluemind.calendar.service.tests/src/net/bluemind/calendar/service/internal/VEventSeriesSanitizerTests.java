@@ -20,6 +20,9 @@ package net.bluemind.calendar.service.internal;
 import static org.junit.Assert.assertNotNull;
 
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,8 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -376,13 +377,14 @@ public class VEventSeriesSanitizerTests {
 
 	private ItemValue<VEventSeries> defaultVEvent(final String summary, final String description) {
 		final VEvent event = new VEvent();
-		final DateTimeZone tz = DateTimeZone.forID("Europe/Paris");
+		final ZoneId tz = ZoneId.of("Europe/Paris");
 
 		final long now = System.currentTimeMillis();
 		final long start = now + (1000 * 60 * 60);
-		DateTime temp = new DateTime(start, tz);
+		ZonedDateTime temp = ZonedDateTime.ofInstant(Instant.ofEpochMilli(start), tz);
 		event.dtstart = BmDateTimeWrapper.create(temp, Precision.DateTime);
-		temp = new DateTime(start + (1000 * 60 * 60), tz);
+
+		temp = ZonedDateTime.ofInstant(Instant.ofEpochMilli(start + (1000 * 60 * 60)), tz);
 		event.dtend = BmDateTimeWrapper.create(temp, Precision.DateTime);
 		event.summary = summary;
 		event.location = "Toulouse";
