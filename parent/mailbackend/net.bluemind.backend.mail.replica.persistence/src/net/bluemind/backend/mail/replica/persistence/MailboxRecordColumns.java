@@ -38,7 +38,6 @@ import net.bluemind.core.jdbc.JdbcAbstractStore.StatementValues;
 public class MailboxRecordColumns {
 
 	public static final Columns COLUMNS = Columns.create() //
-			.col("message_body_guid")//
 			.col("imap_uid")//
 			.col("mod_seq")//
 			.col("last_updated")//

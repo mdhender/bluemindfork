@@ -18,6 +18,7 @@
 package net.bluemind.backend.mail.replica.persistence;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -38,22 +39,21 @@ public class MessageBodyStore extends JdbcAbstractStore {
 	}
 
 	private static final String CREATE_QUERY = "INSERT INTO t_message_body ( " + MessageBodyColumns.COLUMNS.names()
-			+ ", guid) VALUES (" + MessageBodyColumns.COLUMNS.values() + ", ? )";
+			+ ", guid) VALUES (" + MessageBodyColumns.COLUMNS.values() + ", decode(?, 'hex'))";
 
 	public void create(MessageBody value) throws SQLException {
 		insert(CREATE_QUERY, value, MessageBodyColumns.values(value.guid));
 	}
 
 	private static final String UPD_QUERY = "UPDATE t_message_body SET ( " + MessageBodyColumns.COLUMNS.names()
-			+ ") = (" + MessageBodyColumns.COLUMNS.values() + " )" + " WHERE guid = ? ";
+			+ ") = (" + MessageBodyColumns.COLUMNS.values() + " )" + " WHERE guid = decode(?, 'hex')";
 
 	public void update(MessageBody value) throws SQLException {
-
 		update(UPD_QUERY, value, MessageBodyColumns.values(value.guid));
 	}
 
 	public void delete(String guid) throws SQLException {
-		delete("DELETE FROM t_message_body WHERE guid = ?", new Object[] { guid });
+		delete("DELETE FROM t_message_body WHERE guid = decode(?, 'hex')", new Object[] { guid });
 	}
 
 	public void deleteAll() throws SQLException {
@@ -61,20 +61,20 @@ public class MessageBodyStore extends JdbcAbstractStore {
 	}
 
 	private static final String GET_QUERY = "SELECT " + MessageBodyColumns.COLUMNS.names()
-			+ " FROM t_message_body WHERE guid = ?";
+			+ " FROM t_message_body WHERE guid = decode(?, 'hex')";
 
 	public MessageBody get(String guid) throws SQLException {
 		return unique(GET_QUERY, MB_CREATOR, MessageBodyColumns.populator(guid), new Object[] { guid });
 	}
 
-	private static final String MGET_QUERY = "SELECT guid, " + MessageBodyColumns.COLUMNS.names()
-			+ " FROM t_message_body WHERE guid = ANY(?::text[])";
+	private static final String MGET_QUERY = "SELECT encode(guid, 'hex'), " + MessageBodyColumns.COLUMNS.names()
+			+ " FROM t_message_body WHERE guid = ANY(?::bytea[])";
 
 	public List<MessageBody> multiple(String... guids) throws SQLException {
 		return select(MGET_QUERY, MB_CREATOR, (rs, index, mb) -> {
 			mb.guid = rs.getString(index++);
 			return MessageBodyColumns.simplePopulator().populate(rs, index, mb);
-		}, new Object[] { guids });
+		}, new Object[] { toByteArray(guids) });
 	}
 
 	public List<MessageBody> multiple(List<String> guid) throws SQLException {
@@ -82,16 +82,16 @@ public class MessageBodyStore extends JdbcAbstractStore {
 	}
 
 	public boolean exists(String uid) throws SQLException {
-		String q = "select 1 from t_message_body mb where guid=?";
+		String q = "select 1 from t_message_body mb where guid = decode(?, 'hex')";
 		Boolean found = unique(q, rs -> Boolean.TRUE, Collections.emptyList(), new Object[] { uid });
 		return found == null ? false : true;
 	}
 
 	public List<String> existing(List<String> toCheck) throws SQLException {
 		List<String> theList = java.util.Optional.ofNullable(toCheck).orElse(Collections.emptyList());
-		String q = "select guid from t_message_body mb where guid=ANY(?)";
-		return select(q, rs -> rs.getString(1), (rs, index, val) -> index,
-				new Object[] { theList.toArray(new String[0]) });
+		String[] params = toByteArray(theList.toArray(new String[0]));
+		String q = "select encode(guid, 'hex') from t_message_body mb where guid = ANY(?::bytea[])";
+		return select(q, rs -> rs.getString(1), (rs, index, val) -> index, new Object[] { params });
 	}
 
 	public List<String> deleteOrphanBodies() throws SQLException {
@@ -101,6 +101,15 @@ public class MessageBodyStore extends JdbcAbstractStore {
 		int handled = delete(query, new Object[0]);
 		logger.info("{} orphan bodies purged.", handled);
 		return selected;
+	}
+
+	private String[] toByteArray(String... guids) {
+		List<String> params = new ArrayList<String>(guids.length);
+		for (String guid : guids) {
+			params.add("\\x" + guid);
+		}
+
+		return params.toArray(new String[0]);
 	}
 
 }

@@ -1,5 +1,5 @@
 create table t_message_body (
-	guid text primary key,
+	guid bytea primary key,
 	subject text,
 	structure jsonb,
 	headers jsonb,
@@ -34,7 +34,7 @@ create table t_mailbox_replica (
 create index i_mailbox_replica on t_mailbox_replica (item_id);
 
 create table t_mailbox_record (
-	message_body_guid text not null, 
+	message_body_guid bytea not null, 
 	imap_uid int8 not null,
 	mod_seq int8 not null,
 	last_updated timestamp not null,

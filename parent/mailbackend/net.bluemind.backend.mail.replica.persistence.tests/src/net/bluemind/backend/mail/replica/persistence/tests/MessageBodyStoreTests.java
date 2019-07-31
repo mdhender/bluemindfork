@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -76,6 +77,33 @@ public class MessageBodyStoreTests {
 	}
 
 	@Test
+	public void testExisting() throws SQLException {
+		String guid = CyrusGUID.randomGuid();
+		MessageBody mb = simpleTextBody(guid);
+		bodyStore.create(mb);
+
+		assertTrue(bodyStore.exists(guid));
+		List<String> existing = bodyStore.existing(Arrays.asList(guid, "DEADDEAD"));
+
+		assertEquals(1, existing.size());
+		assertEquals(guid, existing.get(0));
+	}
+
+	@Test
+	public void testDelete() throws SQLException {
+		String guid = CyrusGUID.randomGuid();
+		MessageBody mb = simpleTextBody(guid);
+		bodyStore.create(mb);
+		MessageBody reloaded = bodyStore.get(guid);
+		assertNotNull(reloaded);
+
+		bodyStore.delete(guid);
+		reloaded = bodyStore.get(guid);
+		assertNull(reloaded);
+
+	}
+
+	@Test
 	public void testCrudSimple() throws SQLException {
 		String guid = CyrusGUID.randomGuid();
 		MessageBody mb = simpleTextBody(guid);
@@ -103,6 +131,7 @@ public class MessageBodyStoreTests {
 		bodyStore.update(reloaded);
 		MessageBody reloaded2 = bodyStore.get(guid);
 		assertEquals("updated", reloaded2.subject);
+		assertEquals(guid, reloaded2.guid);
 
 		bodyStore.delete(guid);
 		reloaded = bodyStore.get(guid);

@@ -119,6 +119,7 @@ public class MailboxRecordStoreTests {
 		MailboxRecord reloaded = boxRecordStore.get(it);
 		assertNotNull(reloaded);
 		assertNotNull(reloaded.systemFlags);
+		assertEquals(mb.messageBody, reloaded.messageBody);
 
 		List<MailboxRecord> multiple = boxRecordStore.getMultiple(Arrays.asList(it));
 		assertTrue(multiple.size() == 1);

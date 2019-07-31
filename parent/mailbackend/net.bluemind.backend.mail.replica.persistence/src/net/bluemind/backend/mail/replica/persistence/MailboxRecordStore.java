@@ -60,18 +60,18 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 		this(pool, null);
 	}
 
-	private static final String REC_CREATE_QUERY = "INSERT INTO t_mailbox_record ( "
-			+ MailboxRecordColumns.COLUMNS.names() + ", item_id) VALUES (" + MailboxRecordColumns.COLUMNS.values()
-			+ ", ? )";
+	private static final String REC_CREATE_QUERY = "INSERT INTO t_mailbox_record (message_body_guid, "
+			+ MailboxRecordColumns.COLUMNS.names() + ", item_id) VALUES (decode(?, 'hex'), "
+			+ MailboxRecordColumns.COLUMNS.values() + ", ? )";
 
 	@Override
 	public void create(Item item, MailboxRecord value) throws SQLException {
 		insert(REC_CREATE_QUERY, value, MailboxRecordColumns.values(item));
 	}
 
-	private static final String REC_UPDATE_QUERY = "UPDATE t_mailbox_record SET ( "
-			+ MailboxRecordColumns.COLUMNS.names() + ") = (" + MailboxRecordColumns.COLUMNS.values() + " )"
-			+ " WHERE item_id = ? ";
+	private static final String REC_UPDATE_QUERY = "UPDATE t_mailbox_record SET (message_body_guid, "
+			+ MailboxRecordColumns.COLUMNS.names() + ") = (decode(?, 'hex'), " + MailboxRecordColumns.COLUMNS.values()
+			+ " )" + " WHERE item_id = ? ";
 
 	@Override
 	public void update(Item item, MailboxRecord value) throws SQLException {
@@ -83,8 +83,8 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 		delete("DELETE FROM t_mailbox_record WHERE item_id = ?", new Object[] { item.id });
 	}
 
-	private static final String GET_ITEM_QUERY = "SELECT " + MailboxRecordColumns.COLUMNS.names()
-			+ " FROM t_mailbox_record WHERE item_id = ?";
+	private static final String GET_ITEM_QUERY = "SELECT encode(message_body_guid, 'hex'), "
+			+ MailboxRecordColumns.COLUMNS.names() + " FROM t_mailbox_record WHERE item_id = ?";
 	private static final List<EntityPopulator<MailboxRecord>> POPULATORS = Arrays
 			.asList(MailboxRecordColumns.populator());
 
@@ -95,7 +95,7 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 
 	@Override
 	public List<MailboxRecord> getMultiple(List<Item> items) throws SQLException {
-		String query = "select item_id, " + MailboxRecordColumns.COLUMNS.names()
+		String query = "select item_id, encode(message_body_guid, 'hex'), " + MailboxRecordColumns.COLUMNS.names()
 				+ " FROM t_mailbox_record WHERE item_id = ANY(?::int4[])";
 		List<ItemV<MailboxRecord>> values = select(query, con -> new ItemV<MailboxRecord>(), (rs, index, itemv) -> {
 			itemv.itemId = rs.getLong(index++);
@@ -107,8 +107,8 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 	}
 
 	public List<MailboxRecordItemV> getExpiredItems(int days) throws SQLException {
-		String query = "select c.uid, ci.id, " + MailboxRecordColumns.COLUMNS.names("mbr")
-				+ " FROM t_mailbox_record mbr " //
+		String query = "select c.uid, ci.id, encode(message_body_guid, 'hex'), "
+				+ MailboxRecordColumns.COLUMNS.names("mbr") + " FROM t_mailbox_record mbr " //
 				+ "JOIN t_container_item ci on ci.id = mbr.item_id " //
 				+ "JOIN t_container c on c.id = ci.container_id "//
 				+ "WHERE mbr.system_flags::bit(32) & (" + InternalFlag.expunged.value + ")::bit(32)= " //
@@ -156,7 +156,7 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 		}
 		String inString = itemIds.stream().map(Object::toString).collect(Collectors.joining(","));
 		String query = "" + //
-				"SELECT item_id, imap_uid, message_body_guid FROM t_mailbox_record "
+				"SELECT item_id, imap_uid, encode(message_body_guid, 'hex') FROM t_mailbox_record "
 				+ "INNER JOIN t_container_item ci ON ci.id=item_id " + "WHERE ci.container_id=? AND item_id IN ("
 				+ inString + ")";
 		return select(query, rs -> new ImapBinding(), (rs, index, value) -> {
@@ -195,7 +195,7 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 	 */
 	public List<ImapBinding> havingBodyVersionLowerThan(final int version) throws SQLException {
 		final StringBuilder sql = new StringBuilder();
-		sql.append("SELECT ci.id, mbr.imap_uid, mbr.message_body_guid FROM t_mailbox_record mbr ");
+		sql.append("SELECT ci.id, mbr.imap_uid, encode(mbr.message_body_guid, 'hex') FROM t_mailbox_record mbr ");
 		sql.append("INNER JOIN t_container_item ci ON ci.id = mbr.item_id ");
 		sql.append("LEFT JOIN t_message_body mb ON mbr.message_body_guid = mb.guid ");
 		sql.append("WHERE ci.container_id = ? ");
@@ -252,11 +252,11 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 	}
 
 	public List<MailboxRecordItemUri> getBodyGuidReferences(String guid) throws SQLException {
-		String query = "select c.uid, ci.uid, mbr.message_body_guid, mbr.imap_uid, c.owner " //
+		String query = "select c.uid, ci.uid, encode(mbr.message_body_guid, 'hex'), mbr.imap_uid, c.owner " //
 				+ "FROM t_mailbox_record mbr " //
 				+ "JOIN t_container_item ci on ci.id = mbr.item_id " //
 				+ "JOIN t_container c on c.id = ci.container_id " //
-				+ "WHERE mbr.message_body_guid = ? order by ci.created";
+				+ "WHERE mbr.message_body_guid = decode(?, 'hex') order by ci.created";
 
 		return select(query, con -> new MailboxRecordItemUri(), (rs, index, itemUri) -> {
 			itemUri.containerUid = rs.getString(index++);
@@ -269,7 +269,7 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 	}
 
 	public Set<String> getImapUidReferences(long uid, String owner) throws SQLException {
-		String query = "select mbr.message_body_guid " //
+		String query = "select encode(mbr.message_body_guid, 'hex') " //
 				+ "FROM t_mailbox_record mbr " //
 				+ "JOIN t_container_item ci on ci.id = mbr.item_id " //
 				+ "JOIN t_container c on c.id = ci.container_id " //

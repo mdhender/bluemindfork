@@ -73,9 +73,10 @@ public class JdbcAbstractStore {
 					Object param = parameters[i];
 					if (param instanceof Long[]) {
 						st.setArray(i + 1, conn.createArrayOf("int", (Long[]) param));
-
 					} else if (param instanceof String[]) {
 						st.setArray(i + 1, conn.createArrayOf("text", (String[]) param));
+					} else if (param instanceof Byte[]) {
+						st.setArray(i + 1, conn.createArrayOf("bytea", (Byte[]) param));
 					} else {
 						st.setObject(i + 1, parameters[i]);
 					}
@@ -192,6 +193,8 @@ public class JdbcAbstractStore {
 						st.setArray(index++, conn.createArrayOf("text", (String[]) param));
 					} else if (param instanceof Long[]) {
 						st.setArray(index++, conn.createArrayOf("int4", (Long[]) param));
+					} else if (param instanceof Byte[]) {
+						st.setArray(index++, conn.createArrayOf("bytea", (Byte[]) param));
 					} else {
 						st.setObject(index++, parameters[i]);
 					}
@@ -225,6 +228,8 @@ public class JdbcAbstractStore {
 						st.setArray(i + 1, conn.createArrayOf("text", (String[]) param));
 					} else if (param instanceof Long[]) {
 						st.setArray(i + 1, conn.createArrayOf("int4", (Long[]) param));
+					} else if (param instanceof Byte[]) {
+						st.setArray(i + 1, conn.createArrayOf("bytea", (Byte[]) param));
 					} else {
 						st.setObject(i + 1, parameters[i]);
 					}
@@ -342,6 +347,8 @@ public class JdbcAbstractStore {
 						st.setArray(index++, conn.createArrayOf("text", (String[]) param));
 					} else if (param instanceof Long[]) {
 						st.setArray(index++, conn.createArrayOf("int4", (Long[]) param));
+					} else if (param instanceof Byte[]) {
+						st.setArray(index++, conn.createArrayOf("bytea", (Byte[]) param));
 					} else {
 						st.setObject(index++, parameters[i]);
 					}
@@ -404,6 +411,8 @@ public class JdbcAbstractStore {
 						st.setArray(index++, conn.createArrayOf("text", (String[]) param));
 					} else if (param instanceof Long[]) {
 						st.setArray(index++, conn.createArrayOf("int4", (Long[]) param));
+					} else if (param instanceof Byte[]) {
+						st.setArray(index++, conn.createArrayOf("bytea", (Byte[]) param));
 					} else {
 						st.setObject(index++, parameters[i]);
 					}
