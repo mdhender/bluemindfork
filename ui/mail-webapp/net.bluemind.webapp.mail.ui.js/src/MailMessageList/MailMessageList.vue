@@ -26,7 +26,13 @@
                 </bm-col>
             </bm-row>
         </bm-list-group-item>
-        <bm-infinite-scroll :items="messages" :position.sync="position" :total="length" :item-key="'uid'" class="h-100">
+        <bm-infinite-scroll 
+            :items="messages" 
+            :position.sync="position" 
+            :total="length" 
+            :item-key="'uid'" 
+            class="h-100 bg-extra-light"
+        >
             <template #item="f">
                 <bm-list-group-separator v-if="hasSeparator(f.item.uid)" class="mail-list-separator">
                     <bm-row>
