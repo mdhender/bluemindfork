@@ -145,7 +145,7 @@ public class LdapPoolByDomain {
 			return Optional.empty();
 		}
 
-		logger.info("Bind success on: " + ldapParameters.toString() + "(" + ldSearchTime + "ms)");
+		logger.debug("Bind success on: " + ldapParameters.toString() + "(" + ldSearchTime + "ms)");
 		return Optional.of(ldapConCtx);
 	}
 

@@ -116,7 +116,7 @@ public abstract class ImportAuthenticationService implements IAuthProvider {
 
 		String cachedPass = dnToPass.getIfPresent(userDn);
 		if (cachedPass != null && cachedPass.equals(authContext.getUserPassword())) {
-			logger.info("Allowed directory user {} from dnToPass cache system", userDn);
+			logger.debug("Allowed directory user {} from dnToPass cache system", userDn);
 			return AuthResult.YES;
 		}
 

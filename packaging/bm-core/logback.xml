@@ -24,6 +24,7 @@
 	</appender>
 
 	<logger name="org.apache.directory.shared" level="ERROR" />
+	<logger name="org.apache.directory.ldap.client.api.LdapNetworkConnection" level="ERROR" />
 	<root level="INFO">
 		<appender-ref ref="R" />
 	</root>
