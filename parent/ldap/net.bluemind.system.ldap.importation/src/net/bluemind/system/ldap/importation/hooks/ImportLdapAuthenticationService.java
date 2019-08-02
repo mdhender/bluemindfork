@@ -92,8 +92,10 @@ public class ImportLdapAuthenticationService extends ImportAuthenticationService
 			throw re;
 		} catch (Exception e) {
 			logger.error("Fail to get LDAP DN for user: " + userLogin + "@" + domainName, e);
-			ldapConCtx.ifPresent(lcc -> releaseConnection(ldapPoolByDomain, parameters, lcc.setError()));
+			ldapConCtx.ifPresent(lcc -> lcc.setError());
 			return null;
+		} finally {
+			ldapConCtx.ifPresent(lcc -> releaseConnection(ldapPoolByDomain, parameters, lcc));
 		}
 
 		if (ldapUserLogin == null) {
@@ -133,8 +135,10 @@ public class ImportLdapAuthenticationService extends ImportAuthenticationService
 			throw re;
 		} catch (Exception e) {
 			logger.error(String.format("Error searching external ID %s", uuid), e);
-			ldapConCtx.ifPresent(lcc -> releaseConnection(ldapPoolByDomain, parameters, lcc.setError()));
+			ldapConCtx.ifPresent(lcc -> lcc.setError());
 			throw e;
+		} finally {
+			ldapConCtx.ifPresent(lcc -> releaseConnection(ldapPoolByDomain, parameters, lcc));
 		}
 
 		if (ldapUserLogin == null) {
