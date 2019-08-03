@@ -33,6 +33,7 @@ import com.google.common.collect.Lists;
 
 import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.backend.cyrus.replication.testhelper.CyrusReplicationHelper;
+import net.bluemind.backend.cyrus.replication.testhelper.SyncServerHelper;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
