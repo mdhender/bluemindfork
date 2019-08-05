@@ -54,6 +54,7 @@ import net.bluemind.core.container.service.ItemUpdate;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.core.jdbc.JdbcAbstractStore.SqlOperation;
+import net.bluemind.lib.vertx.VertxPlatform;
 
 public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
@@ -73,6 +74,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	private final IItemFlagsProvider<T> flagsProvider;
 	private final IWeightSeedProvider<T> weightSeedProvider;
 	private final IWeightProvider weightProvider;
+	private ContainerChangeEventProducer containerChangeEventProducer;
 
 	public static interface IItemFlagsProvider<W> {
 		Collection<ItemFlag> flags(W value);
@@ -99,6 +101,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		this.flagsProvider = fProv;
 		this.weightSeedProvider = wsProv;
 		this.weightProvider = wProv;
+		this.containerChangeEventProducer = new ContainerChangeEventProducer(securityContext, VertxPlatform.eventBus(), container);
 	}
 
 	public ContainerStoreService(DataSource pool, SecurityContext securityContext, Container container, String itemType,
@@ -272,6 +275,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			if (hasChangeLog) {
 				changelogStore.itemCreated(LogEntry.create(item.version, item.uid, item.externalId,
 						securityContext.getSubject(), origin, item.id, weightSeedProvider.weightSeed(value)));
+				this.containerChangeEventProducer.produceEvent();
 			}
 			createValue(item, value);
 			return ItemUpdate.of(item);
@@ -295,6 +299,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			if (hasChangeLog) {
 				changelogStore.itemUpdated(LogEntry.create(item.version, item.uid, item.externalId,
 						securityContext.getSubject(), origin, item.id, weightSeedProvider.weightSeed(value)));
+				this.containerChangeEventProducer.produceEvent();
 			}
 			createValue(item, value);
 			return null;
@@ -321,6 +326,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			if (hasChangeLog) {
 				changelogStore.itemUpdated(LogEntry.create(item.version, item.uid, item.externalId,
 						securityContext.getSubject(), origin, item.id, weightSeedProvider.weightSeed(value)));
+				this.containerChangeEventProducer.produceEvent();
 			}
 			updateValue(item, value);
 			return ItemUpdate.of(item);
@@ -344,6 +350,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			if (hasChangeLog) {
 				changelogStore.itemUpdated(LogEntry.create(item.version, item.uid, item.externalId,
 						securityContext.getSubject(), origin, item.id, weightSeedProvider.weightSeed(value)));
+				this.containerChangeEventProducer.produceEvent();
 			}
 			updateValue(item, value);
 			return ItemUpdate.of(item);
@@ -366,6 +373,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			if (hasChangeLog) {
 				changelogStore.itemDeleted(LogEntry.create(item.version, item.uid, item.externalId,
 						securityContext.getSubject(), origin, item.id, 0L));
+				this.containerChangeEventProducer.produceEvent();
 			}
 			itemStore.delete(item);
 			return ItemUpdate.of(item);
@@ -384,6 +392,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			if (hasChangeLog) {
 				changelogStore.itemDeleted(LogEntry.create(item.version, item.uid, item.externalId,
 						securityContext.getSubject(), origin, item.id, 0L));
+				this.containerChangeEventProducer.produceEvent();
 			}
 			itemStore.delete(item);
 			return ItemUpdate.of(item);
@@ -404,6 +413,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			if (hasChangeLog) {
 				changelogStore.itemUpdated(LogEntry.create(item.version, item.uid, item.externalId,
 						securityContext.getSubject(), origin, item.id, 0L));
+				this.containerChangeEventProducer.produceEvent();
 			}
 			return null;
 		});
@@ -421,6 +431,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			// delete container
 			if (hasChangeLog) {
 				changelogStore.allItemsDeleted(securityContext.getSubject(), origin);
+				this.containerChangeEventProducer.produceEvent();
 			}
 			// delete items
 			itemStore.deleteAll();
@@ -549,6 +560,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				T value = getValue(item);
 				changelogStore.itemUpdated(LogEntry.create(item.version, item.uid, item.externalId,
 						securityContext.getSubject(), origin, item.id, weightSeedProvider.weightSeed(value)));
+				this.containerChangeEventProducer.produceEvent();
 			}
 			return null;
 		});
@@ -652,5 +664,4 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		});
 
 	}
-
 }

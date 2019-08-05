@@ -396,6 +396,11 @@ public class UserServiceTests {
 		user = getService(domainAdminSecurityContext).getComplete(uid).value;
 
 		eventChecker.shouldSuccess();
+
+		// ensure the vcard has been created
+		// eventChecker.shouldSuccess is not enough, several events are sent
+		Thread.sleep(200);
+
 		IAddressBook abService = ServerSideServiceProvider.getProvider(domainAdminSecurityContext)
 				.instance(IAddressBook.class, "addressbook_" + domainUid);
 		ItemValue<VCard> vcard = abService.getComplete(uid);
@@ -407,6 +412,10 @@ public class UserServiceTests {
 		getService(domainAdminSecurityContext).update(uid, user);
 
 		eventChecker.shouldSuccess();
+
+		// ensure the vcard has been removed (archived user)
+		// eventChecker.shouldSuccess is not enough, several events are sent
+		Thread.sleep(200);
 
 		vcard = abService.getComplete(uid);
 		assertNull(vcard);

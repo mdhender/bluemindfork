@@ -180,5 +180,10 @@
             factory="net.bluemind.backend.mail.replica.service.internal.repair.ReplicationDeletedMailboxRepair$ReplicationDeletedMailboxRepairFactory">
       </repairSupport>
    </extension>
-
+   <extension
+		 point="net.bluemind.core.rest.eventBusAccessRule">
+      <access-rule
+            class="net.bluemind.backend.mail.replica.service.MailboxRecordEventBusAccessRule">
+      </access-rule>
+  </extension>
 </plugin>
