@@ -20,6 +20,7 @@ package net.bluemind.system.ldap.export.objects;
 import java.util.Iterator;
 
 import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.message.ModifyRequest;
@@ -51,7 +52,7 @@ public abstract class LdapObjects {
 		}
 
 		if (currentAttribute != null && attribute == null) {
-			return modifyRequest.remove(currentAttribute);
+			return modifyRequest.remove(new DefaultAttribute(attributeName));
 		}
 
 		if (currentAttribute.size() != attribute.size()) {
