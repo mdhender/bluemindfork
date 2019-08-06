@@ -23,8 +23,6 @@ public class Patterns {
 
 	public static final Pattern APPLY_MSG_HEADER = Pattern.compile("\\s?%\\{(\\S+) ([a-f0-9]+) ([0-9]+)\\}");
 
-	public static final Pattern LITERAL_FOLLOWS = Pattern.compile(".+[\\{ ](\\d+)\\+?\\}");
-
 	public static final Pattern ATOM_TOKEN = Pattern.compile("\\{\\d+\\+\\}\\{(t\\d+\\.bin)\\}");
 
 }

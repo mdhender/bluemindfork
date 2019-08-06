@@ -1,711 +1,892 @@
 {
-		"id": 6,
-		"cells": [
-			{
-				"i": "419a27b6-3041-4c83-bd52-614437a427d0",
-				"x": 8,
-				"y": 4,
-				"w": 4,
-				"h": 3,
-				"name": "Replicated per hour",
-				"queries": [
-					{
-						"query": "SELECT non_negative_difference(last(\"count\")) AS \"msg_count\" FROM \"telegraf\".\"autogen\".\"bm-core.cyrus-replication.applyMessage\" WHERE time > :dashboardTime: GROUP BY time(1h) FILL(null)",
-						"queryConfig": {
-							"database": "",
-							"measurement": "",
-							"retentionPolicy": "",
-							"fields": [],
-							"tags": {},
-							"groupBy": {
-								"time": "",
-								"tags": []
-							},
-							"areTagsAccepted": false,
-							"rawText": "SELECT non_negative_difference(last(\"count\")) AS \"msg_count\" FROM \"telegraf\".\"autogen\".\"bm-core.cyrus-replication.applyMessage\" WHERE time > :dashboardTime: GROUP BY time(1h) FILL(null)",
-							"range": null,
-							"shifts": null
+	"id": 6,
+	"cells": [
+		{
+			"i": "1adec324-dd9b-4f8d-b62a-5849c8351ad5",
+			"x": 0,
+			"y": 6,
+			"w": 12,
+			"h": 2,
+			"name": "Replication Latency (ms)",
+			"queries": [
+				{
+					"query": "SELECT max(\"value\") AS \"latency_ms\" FROM \"telegraf\".\"autogen\".\"bm-core.replication-latency.probe\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"mailbox\" FILL(null)",
+					"queryConfig": {
+						"database": "telegraf",
+						"measurement": "bm-core.replication-latency.probe",
+						"retentionPolicy": "autogen",
+						"fields": [
+							{
+								"value": "max",
+								"type": "func",
+								"alias": "latency_ms",
+								"args": [
+									{
+										"value": "value",
+										"type": "field",
+										"alias": ""
+									}
+								]
+							}
+						],
+						"tags": {
+							
 						},
-						"source": "/chronograf/v1/sources/0"
-					}
-				],
-				"axes": {
-					"x": {
-						"bounds": [
-							"",
-							""
-						],
-						"label": "",
-						"prefix": "",
-						"suffix": "",
-						"base": "10",
-						"scale": "linear"
+						"groupBy": {
+							"time": "auto",
+							"tags": [
+								"mailbox"
+							]
+						},
+						"areTagsAccepted": false,
+						"fill": "null",
+						"rawText": null,
+						"range": null,
+						"shifts": null
 					},
-					"y": {
-						"bounds": [
-							"",
-							""
-						],
-						"label": "",
-						"prefix": "",
-						"suffix": "",
-						"base": "10",
-						"scale": "linear"
-					},
-					"y2": {
-						"bounds": [
-							"",
-							""
-						],
-						"label": "",
-						"prefix": "",
-						"suffix": "",
-						"base": "10",
-						"scale": "linear"
-					}
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
 				},
-				"type": "bar",
-				"colors": [
-					{
-						"id": "4e8360ea-d1d3-4cbd-ad5b-fb0a767d2ce3",
-						"type": "scale",
-						"hex": "#31C0F6",
-						"name": "Nineteen Eighty Four",
-						"value": "0"
-					},
-					{
-						"id": "62d74dc4-2049-4d42-afcf-96280cc5033b",
-						"type": "scale",
-						"hex": "#A500A5",
-						"name": "Nineteen Eighty Four",
-						"value": "0"
-					},
-					{
-						"id": "01cbdd10-5565-4086-9cf1-9bbc8c5321fa",
-						"type": "scale",
-						"hex": "#FF7E27",
-						"name": "Nineteen Eighty Four",
-						"value": "0"
-					}
-				],
-				"legend": {},
-				"tableOptions": {
-					"verticalTimeAxis": true,
-					"sortBy": {
-						"internalName": "time",
-						"displayName": "",
-						"visible": true
-					},
-					"wrapping": "truncate",
-					"fixFirstColumn": true
+				"y": {
+					"bounds": [
+						"0",
+						""
+					],
+					"label": "Latency",
+					"prefix": "",
+					"suffix": "",
+					"base": "raw",
+					"scale": "linear"
 				},
-				"fieldOptions": [
-					{
-						"internalName": "time",
-						"displayName": "",
-						"visible": true
-					}
-				],
-				"timeFormat": "MM/DD/YYYY HH:mm:ss",
-				"decimalPlaces": {
-					"isEnforced": true,
-					"digits": 2
-				},
-				"links": {
-					"self": "/chronograf/v1/dashboards/6/cells/419a27b6-3041-4c83-bd52-614437a427d0"
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
 				}
 			},
-			{
-				"i": "239c4625-a282-4780-99a2-e70c9d62e997",
-				"x": 0,
-				"y": 4,
-				"w": 4,
-				"h": 3,
-				"name": "Active replication sessions",
-				"queries": [
-					{
-						"query": "SELECT mean(\"value\") AS \"mean_value\" FROM \"telegraf\".\"autogen\".\"bm-core.cyrus-replication.activeSessions\" WHERE time > :dashboardTime: GROUP BY time(:interval:) FILL(null)",
-						"queryConfig": {
-							"database": "telegraf",
-							"measurement": "bm-core.cyrus-replication.activeSessions",
-							"retentionPolicy": "autogen",
-							"fields": [
-								{
-									"value": "mean",
-									"type": "func",
-									"alias": "mean_value",
-									"args": [
-										{
-											"value": "value",
-											"type": "field",
-											"alias": ""
-										}
-									]
-								}
-							],
-							"tags": {},
-							"groupBy": {
-								"time": "auto",
-								"tags": []
-							},
-							"areTagsAccepted": false,
-							"fill": "null",
-							"rawText": null,
-							"range": null,
-							"shifts": null
-						},
-						"source": "/chronograf/v1/sources/0"
-					}
-				],
-				"axes": {
-					"x": {
-						"bounds": [
-							"",
-							""
-						],
-						"label": "",
-						"prefix": "",
-						"suffix": "",
-						"base": "10",
-						"scale": "linear"
-					},
-					"y": {
-						"bounds": [
-							"",
-							""
-						],
-						"label": "Active",
-						"prefix": "",
-						"suffix": "",
-						"base": "10",
-						"scale": "linear"
-					},
-					"y2": {
-						"bounds": [
-							"",
-							""
-						],
-						"label": "",
-						"prefix": "",
-						"suffix": "",
-						"base": "10",
-						"scale": "linear"
-					}
+			"type": "line-stacked",
+			"colors": [
+				{
+					"id": "e7d22f35-9c12-446b-a3a1-65c1ff14efd7",
+					"type": "scale",
+					"hex": "#31C0F6",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
 				},
-				"type": "line",
-				"colors": [
-					{
-						"id": "4e8360ea-d1d3-4cbd-ad5b-fb0a767d2ce3",
-						"type": "scale",
-						"hex": "#31C0F6",
-						"name": "Nineteen Eighty Four",
-						"value": "0"
-					},
-					{
-						"id": "62d74dc4-2049-4d42-afcf-96280cc5033b",
-						"type": "scale",
-						"hex": "#A500A5",
-						"name": "Nineteen Eighty Four",
-						"value": "0"
-					},
-					{
-						"id": "01cbdd10-5565-4086-9cf1-9bbc8c5321fa",
-						"type": "scale",
-						"hex": "#FF7E27",
-						"name": "Nineteen Eighty Four",
-						"value": "0"
-					}
-				],
-				"legend": {},
-				"tableOptions": {
-					"verticalTimeAxis": true,
-					"sortBy": {
-						"internalName": "time",
-						"displayName": "",
-						"visible": true
-					},
-					"wrapping": "truncate",
-					"fixFirstColumn": true
+				{
+					"id": "57a99ad9-9b19-4083-baf4-7608c7704f39",
+					"type": "scale",
+					"hex": "#A500A5",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
 				},
-				"fieldOptions": [
-					{
-						"internalName": "time",
-						"displayName": "",
-						"visible": true
-					}
-				],
-				"timeFormat": "MM/DD/YYYY HH:mm:ss",
-				"decimalPlaces": {
-					"isEnforced": true,
-					"digits": 2
-				},
-				"links": {
-					"self": "/chronograf/v1/dashboards/6/cells/239c4625-a282-4780-99a2-e70c9d62e997"
+				{
+					"id": "095f3f8e-a002-4d00-93bb-3678a457801b",
+					"type": "scale",
+					"hex": "#FF7E27",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
 				}
+			],
+			"legend": {
+				
 			},
-			{
-				"i": "e5b4ff57-4ecf-4810-b6d6-018dca249532",
-				"x": 8,
-				"y": 0,
-				"w": 4,
-				"h": 4,
-				"name": "Record updates per second",
-				"queries": [
-					{
-						"query": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"mean_count\" FROM \"telegraf\".\"autogen\".\"bm-core.cyrus-replication.recordUpdates\" WHERE time > :dashboardTime: GROUP BY time(:interval:) FILL(null)",
-						"queryConfig": {
-							"database": "",
-							"measurement": "",
-							"retentionPolicy": "",
-							"fields": [],
-							"tags": {},
-							"groupBy": {
-								"time": "",
-								"tags": []
-							},
-							"areTagsAccepted": false,
-							"rawText": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"mean_count\" FROM \"telegraf\".\"autogen\".\"bm-core.cyrus-replication.recordUpdates\" WHERE time > :dashboardTime: GROUP BY time(:interval:) FILL(null)",
-							"range": null,
-							"shifts": null
-						},
-						"source": "/chronograf/v1/sources/0"
-					}
-				],
-				"axes": {
-					"x": {
-						"bounds": [
-							"",
-							""
-						],
-						"label": "",
-						"prefix": "",
-						"suffix": "",
-						"base": "10",
-						"scale": "linear"
-					},
-					"y": {
-						"bounds": [
-							"",
-							""
-						],
-						"label": "",
-						"prefix": "",
-						"suffix": "",
-						"base": "10",
-						"scale": "linear"
-					},
-					"y2": {
-						"bounds": [
-							"",
-							""
-						],
-						"label": "",
-						"prefix": "",
-						"suffix": "",
-						"base": "10",
-						"scale": "linear"
-					}
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
 				},
-				"type": "line",
-				"colors": [
-					{
-						"id": "4e8360ea-d1d3-4cbd-ad5b-fb0a767d2ce3",
-						"type": "scale",
-						"hex": "#31C0F6",
-						"name": "Nineteen Eighty Four",
-						"value": "0"
-					},
-					{
-						"id": "62d74dc4-2049-4d42-afcf-96280cc5033b",
-						"type": "scale",
-						"hex": "#A500A5",
-						"name": "Nineteen Eighty Four",
-						"value": "0"
-					},
-					{
-						"id": "01cbdd10-5565-4086-9cf1-9bbc8c5321fa",
-						"type": "scale",
-						"hex": "#FF7E27",
-						"name": "Nineteen Eighty Four",
-						"value": "0"
-					}
-				],
-				"legend": {},
-				"tableOptions": {
-					"verticalTimeAxis": true,
-					"sortBy": {
-						"internalName": "time",
-						"displayName": "",
-						"visible": true
-					},
-					"wrapping": "truncate",
-					"fixFirstColumn": true
-				},
-				"fieldOptions": [
-					{
-						"internalName": "time",
-						"displayName": "",
-						"visible": true
-					}
-				],
-				"timeFormat": "MM/DD/YYYY HH:mm:ss",
-				"decimalPlaces": {
-					"isEnforced": true,
-					"digits": 2
-				},
-				"links": {
-					"self": "/chronograf/v1/dashboards/6/cells/e5b4ff57-4ecf-4810-b6d6-018dca249532"
-				}
+				"wrapping": "truncate",
+				"fixFirstColumn": true
 			},
-			{
-				"i": "155e49f9-26af-4551-b851-581f7770bdba",
-				"x": 4,
-				"y": 0,
-				"w": 4,
-				"h": 4,
-				"name": "Replicated MB per min",
-				"queries": [
-					{
-						"query": "SELECT non_negative_derivative(last(\"count\"), 1m)/(1024*1024) AS \"mean_count\" FROM \"telegraf\".\"autogen\".\"bm-core.cyrus-replication.applyMessageBytes\" WHERE time > :dashboardTime: GROUP BY time(:interval:) FILL(null)",
-						"queryConfig": {
-							"database": "",
-							"measurement": "",
-							"retentionPolicy": "",
-							"fields": [],
-							"tags": {},
-							"groupBy": {
-								"time": "",
-								"tags": []
-							},
-							"areTagsAccepted": false,
-							"rawText": "SELECT non_negative_derivative(last(\"count\"), 1m)/(1024*1024) AS \"mean_count\" FROM \"telegraf\".\"autogen\".\"bm-core.cyrus-replication.applyMessageBytes\" WHERE time > :dashboardTime: GROUP BY time(:interval:) FILL(null)",
-							"range": null,
-							"shifts": null
-						},
-						"source": "/chronograf/v1/sources/0"
-					}
-				],
-				"axes": {
-					"x": {
-						"bounds": [
-							"",
-							""
-						],
-						"label": "",
-						"prefix": "",
-						"suffix": "",
-						"base": "10",
-						"scale": "linear"
-					},
-					"y": {
-						"bounds": [
-							"",
-							""
-						],
-						"label": "",
-						"prefix": "",
-						"suffix": "",
-						"base": "10",
-						"scale": "linear"
-					},
-					"y2": {
-						"bounds": [
-							"",
-							""
-						],
-						"label": "",
-						"prefix": "",
-						"suffix": "",
-						"base": "10",
-						"scale": "linear"
-					}
-				},
-				"type": "line",
-				"colors": [
-					{
-						"id": "4e8360ea-d1d3-4cbd-ad5b-fb0a767d2ce3",
-						"type": "scale",
-						"hex": "#31C0F6",
-						"name": "Nineteen Eighty Four",
-						"value": "0"
-					},
-					{
-						"id": "62d74dc4-2049-4d42-afcf-96280cc5033b",
-						"type": "scale",
-						"hex": "#A500A5",
-						"name": "Nineteen Eighty Four",
-						"value": "0"
-					},
-					{
-						"id": "01cbdd10-5565-4086-9cf1-9bbc8c5321fa",
-						"type": "scale",
-						"hex": "#FF7E27",
-						"name": "Nineteen Eighty Four",
-						"value": "0"
-					}
-				],
-				"legend": {},
-				"tableOptions": {
-					"verticalTimeAxis": true,
-					"sortBy": {
-						"internalName": "time",
-						"displayName": "",
-						"visible": true
-					},
-					"wrapping": "truncate",
-					"fixFirstColumn": true
-				},
-				"fieldOptions": [
-					{
-						"internalName": "time",
-						"displayName": "",
-						"visible": true
-					}
-				],
-				"timeFormat": "MM/DD/YYYY HH:mm:ss",
-				"decimalPlaces": {
-					"isEnforced": true,
-					"digits": 2
-				},
-				"links": {
-					"self": "/chronograf/v1/dashboards/6/cells/155e49f9-26af-4551-b851-581f7770bdba"
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
 				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
 			},
-			{
-				"i": "7c9482ac-e88f-48ef-920c-f2c0aa9db9e7",
-				"x": 0,
-				"y": 0,
-				"w": 4,
-				"h": 4,
-				"name": "Replicated messages per minute",
-				"queries": [
-					{
-						"query": "SELECT non_negative_derivative(last(\"count\"), 1m) AS \"msg_per_min\" FROM \"telegraf\".\"autogen\".\"bm-core.cyrus-replication.applyMessage\" WHERE time > :dashboardTime: GROUP BY time(:interval:) FILL(null)",
-						"queryConfig": {
-							"database": "",
-							"measurement": "",
-							"retentionPolicy": "",
-							"fields": [],
-							"tags": {},
-							"groupBy": {
-								"time": "",
-								"tags": []
-							},
-							"areTagsAccepted": false,
-							"rawText": "SELECT non_negative_derivative(last(\"count\"), 1m) AS \"msg_per_min\" FROM \"telegraf\".\"autogen\".\"bm-core.cyrus-replication.applyMessage\" WHERE time > :dashboardTime: GROUP BY time(:interval:) FILL(null)",
-							"range": null,
-							"shifts": null
-						},
-						"source": "/chronograf/v1/sources/0"
-					}
-				],
-				"axes": {
-					"x": {
-						"bounds": [
-							"",
-							""
-						],
-						"label": "",
-						"prefix": "",
-						"suffix": "",
-						"base": "10",
-						"scale": "linear"
-					},
-					"y": {
-						"bounds": [
-							"",
-							""
-						],
-						"label": "",
-						"prefix": "",
-						"suffix": "",
-						"base": "10",
-						"scale": "linear"
-					},
-					"y2": {
-						"bounds": [
-							"",
-							""
-						],
-						"label": "",
-						"prefix": "",
-						"suffix": "",
-						"base": "10",
-						"scale": "linear"
-					}
-				},
-				"type": "line",
-				"colors": [
-					{
-						"id": "4e8360ea-d1d3-4cbd-ad5b-fb0a767d2ce3",
-						"type": "scale",
-						"hex": "#31C0F6",
-						"name": "Nineteen Eighty Four",
-						"value": "0"
-					},
-					{
-						"id": "62d74dc4-2049-4d42-afcf-96280cc5033b",
-						"type": "scale",
-						"hex": "#A500A5",
-						"name": "Nineteen Eighty Four",
-						"value": "0"
-					},
-					{
-						"id": "01cbdd10-5565-4086-9cf1-9bbc8c5321fa",
-						"type": "scale",
-						"hex": "#FF7E27",
-						"name": "Nineteen Eighty Four",
-						"value": "0"
-					}
-				],
-				"legend": {},
-				"tableOptions": {
-					"verticalTimeAxis": true,
-					"sortBy": {
-						"internalName": "time",
-						"displayName": "",
-						"visible": true
-					},
-					"wrapping": "truncate",
-					"fixFirstColumn": true
-				},
-				"fieldOptions": [
-					{
-						"internalName": "time",
-						"displayName": "",
-						"visible": true
-					}
-				],
-				"timeFormat": "MM/DD/YYYY HH:mm:ss",
-				"decimalPlaces": {
-					"isEnforced": true,
-					"digits": 2
-				},
-				"links": {
-					"self": "/chronograf/v1/dashboards/6/cells/7c9482ac-e88f-48ef-920c-f2c0aa9db9e7"
-				}
-			},
-			{
-				"i": "0699ee4a-48b0-490f-bc67-0b1adaa55d30",
-				"x": 4,
-				"y": 4,
-				"w": 4,
-				"h": 3,
-				"name": "Mailspool indices search time",
-				"queries": [
-					{
-						"query": "SELECT (non_negative_difference(last(\"totalTime\"))/1000000)/(non_negative_difference(last(\"count\"))) FROM \"telegraf\".\"autogen\".\"bm-core.mailindex-service.response-time\" WHERE time > :dashboardTime: GROUP BY \"index\", time(:interval:)\n",
-						"queryConfig": {
-							"database": "",
-							"measurement": "",
-							"retentionPolicy": "",
-							"fields": [],
-							"tags": {},
-							"groupBy": {
-								"time": "",
-								"tags": []
-							},
-							"areTagsAccepted": false,
-							"rawText": "SELECT (non_negative_difference(last(\"totalTime\"))/1000000)/(non_negative_difference(last(\"count\"))) FROM \"telegraf\".\"autogen\".\"bm-core.mailindex-service.response-time\" WHERE time > :dashboardTime: GROUP BY \"index\", time(:interval:)\n",
-							"range": null,
-							"shifts": null
-						},
-						"source": "/chronograf/v1/sources/0"
-					}
-				],
-				"axes": {
-					"x": {
-						"bounds": [
-							"",
-							""
-						],
-						"label": "",
-						"prefix": "",
-						"suffix": "",
-						"base": "10",
-						"scale": "linear"
-					},
-					"y": {
-						"bounds": [
-							"",
-							""
-						],
-						"label": "milliseconds",
-						"prefix": "",
-						"suffix": "",
-						"base": "10",
-						"scale": "linear"
-					},
-					"y2": {
-						"bounds": [
-							"",
-							""
-						],
-						"label": "",
-						"prefix": "",
-						"suffix": "",
-						"base": "10",
-						"scale": "linear"
-					}
-				},
-				"type": "line",
-				"colors": [
-					{
-						"id": "faede073-a841-40a2-843a-2450bd456fbc",
-						"type": "scale",
-						"hex": "#31C0F6",
-						"name": "Nineteen Eighty Four",
-						"value": "0"
-					},
-					{
-						"id": "06c9202c-229d-4e58-a2e1-2707e2caf609",
-						"type": "scale",
-						"hex": "#A500A5",
-						"name": "Nineteen Eighty Four",
-						"value": "0"
-					},
-					{
-						"id": "d867b44f-376f-4769-9090-750e2398db07",
-						"type": "scale",
-						"hex": "#FF7E27",
-						"name": "Nineteen Eighty Four",
-						"value": "0"
-					}
-				],
-				"legend": {},
-				"tableOptions": {
-					"verticalTimeAxis": true,
-					"sortBy": {
-						"internalName": "time",
-						"displayName": "",
-						"visible": true
-					},
-					"wrapping": "truncate",
-					"fixFirstColumn": true
-				},
-				"fieldOptions": [
-					{
-						"internalName": "time",
-						"displayName": "",
-						"visible": true
-					}
-				],
-				"timeFormat": "MM/DD/YYYY HH:mm:ss",
-				"decimalPlaces": {
-					"isEnforced": true,
-					"digits": 2
-				},
-				"links": {
-					"self": "/chronograf/v1/dashboards/6/cells/0699ee4a-48b0-490f-bc67-0b1adaa55d30"
-				}
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/6/cells/1adec324-dd9b-4f8d-b62a-5849c8351ad5"
 			}
-		],
-		"templates": [],
-		"name": "Mailspool & Replication",
-		"organization": "default",
-		"links": {
-			"self": "/chronograf/v1/dashboards/6",
-			"cells": "/chronograf/v1/dashboards/6/cells",
-			"templates": "/chronograf/v1/dashboards/6/templates"
+		},
+		{
+			"i": "419a27b6-3041-4c83-bd52-614437a427d0",
+			"x": 8,
+			"y": 3,
+			"w": 4,
+			"h": 3,
+			"name": "Replicated per hour",
+			"queries": [
+				{
+					"query": "SELECT non_negative_difference(last(\"count\")) AS \"msg_count\" FROM \"telegraf\".\"autogen\".\"bm-core.cyrus-replication.applyMessage\" WHERE time > :dashboardTime: GROUP BY time(1h) FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {
+							
+						},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_difference(last(\"count\")) AS \"msg_count\" FROM \"telegraf\".\"autogen\".\"bm-core.cyrus-replication.applyMessage\" WHERE time > :dashboardTime: GROUP BY time(1h) FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "/chronograf/v1/sources/0",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "bar",
+			"colors": [
+				{
+					"id": "4e8360ea-d1d3-4cbd-ad5b-fb0a767d2ce3",
+					"type": "scale",
+					"hex": "#31C0F6",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				},
+				{
+					"id": "62d74dc4-2049-4d42-afcf-96280cc5033b",
+					"type": "scale",
+					"hex": "#A500A5",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				},
+				{
+					"id": "01cbdd10-5565-4086-9cf1-9bbc8c5321fa",
+					"type": "scale",
+					"hex": "#FF7E27",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				}
+			],
+			"legend": {
+				
+			},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/6/cells/419a27b6-3041-4c83-bd52-614437a427d0"
+			}
+		},
+		{
+			"i": "239c4625-a282-4780-99a2-e70c9d62e997",
+			"x": 0,
+			"y": 3,
+			"w": 4,
+			"h": 3,
+			"name": "Running sync_client per backend",
+			"queries": [
+				{
+					"query": "SELECT min(\"value\") AS \"min_value\" FROM \"telegraf\".\"autogen\".\"replication.sync_client.process\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"host\" FILL(0)",
+					"queryConfig": {
+						"database": "telegraf",
+						"measurement": "replication.sync_client.process",
+						"retentionPolicy": "autogen",
+						"fields": [
+							{
+								"value": "min",
+								"type": "func",
+								"alias": "min_value",
+								"args": [
+									{
+										"value": "value",
+										"type": "field",
+										"alias": ""
+									}
+								]
+							}
+						],
+						"tags": {
+							
+						},
+						"groupBy": {
+							"time": "auto",
+							"tags": [
+								"host"
+							]
+						},
+						"areTagsAccepted": false,
+						"fill": "0",
+						"rawText": null,
+						"range": null,
+						"shifts": null
+					},
+					"source": "/chronograf/v1/sources/0",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "Active",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line-stacked",
+			"colors": [
+				{
+					"id": "4e8360ea-d1d3-4cbd-ad5b-fb0a767d2ce3",
+					"type": "scale",
+					"hex": "#31C0F6",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				},
+				{
+					"id": "62d74dc4-2049-4d42-afcf-96280cc5033b",
+					"type": "scale",
+					"hex": "#A500A5",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				},
+				{
+					"id": "01cbdd10-5565-4086-9cf1-9bbc8c5321fa",
+					"type": "scale",
+					"hex": "#FF7E27",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				}
+			],
+			"legend": {
+				
+			},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/6/cells/239c4625-a282-4780-99a2-e70c9d62e997"
+			}
+		},
+		{
+			"i": "e5b4ff57-4ecf-4810-b6d6-018dca249532",
+			"x": 8,
+			"y": 0,
+			"w": 4,
+			"h": 3,
+			"name": "Record updates per second",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"mean_count\" FROM \"telegraf\".\"autogen\".\"bm-core.cyrus-replication.recordUpdates\" WHERE time > :dashboardTime: GROUP BY time(:interval:) FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {
+							
+						},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"count\"), 1s) AS \"mean_count\" FROM \"telegraf\".\"autogen\".\"bm-core.cyrus-replication.recordUpdates\" WHERE time > :dashboardTime: GROUP BY time(:interval:) FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "/chronograf/v1/sources/0",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "4e8360ea-d1d3-4cbd-ad5b-fb0a767d2ce3",
+					"type": "scale",
+					"hex": "#31C0F6",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				},
+				{
+					"id": "62d74dc4-2049-4d42-afcf-96280cc5033b",
+					"type": "scale",
+					"hex": "#A500A5",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				},
+				{
+					"id": "01cbdd10-5565-4086-9cf1-9bbc8c5321fa",
+					"type": "scale",
+					"hex": "#FF7E27",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				}
+			],
+			"legend": {
+				
+			},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/6/cells/e5b4ff57-4ecf-4810-b6d6-018dca249532"
+			}
+		},
+		{
+			"i": "155e49f9-26af-4551-b851-581f7770bdba",
+			"x": 4,
+			"y": 0,
+			"w": 4,
+			"h": 3,
+			"name": "Replicated MB per min",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(last(\"count\"), 1m)/(1024*1024) AS \"mean_count\" FROM \"telegraf\".\"autogen\".\"bm-core.cyrus-replication.applyMessageBytes\" WHERE time > :dashboardTime: GROUP BY time(:interval:) FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {
+							
+						},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"count\"), 1m)/(1024*1024) AS \"mean_count\" FROM \"telegraf\".\"autogen\".\"bm-core.cyrus-replication.applyMessageBytes\" WHERE time > :dashboardTime: GROUP BY time(:interval:) FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "/chronograf/v1/sources/0",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "4e8360ea-d1d3-4cbd-ad5b-fb0a767d2ce3",
+					"type": "scale",
+					"hex": "#31C0F6",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				},
+				{
+					"id": "62d74dc4-2049-4d42-afcf-96280cc5033b",
+					"type": "scale",
+					"hex": "#A500A5",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				},
+				{
+					"id": "01cbdd10-5565-4086-9cf1-9bbc8c5321fa",
+					"type": "scale",
+					"hex": "#FF7E27",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				}
+			],
+			"legend": {
+				
+			},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/6/cells/155e49f9-26af-4551-b851-581f7770bdba"
+			}
+		},
+		{
+			"i": "7c9482ac-e88f-48ef-920c-f2c0aa9db9e7",
+			"x": 0,
+			"y": 0,
+			"w": 4,
+			"h": 3,
+			"name": "Replicated messages per minute",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(last(\"count\"), 1m) AS \"msg_per_min\" FROM \"telegraf\".\"autogen\".\"bm-core.cyrus-replication.applyMessage\" WHERE time > :dashboardTime: GROUP BY time(:interval:) FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {
+							
+						},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"count\"), 1m) AS \"msg_per_min\" FROM \"telegraf\".\"autogen\".\"bm-core.cyrus-replication.applyMessage\" WHERE time > :dashboardTime: GROUP BY time(:interval:) FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "/chronograf/v1/sources/0",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "4e8360ea-d1d3-4cbd-ad5b-fb0a767d2ce3",
+					"type": "scale",
+					"hex": "#31C0F6",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				},
+				{
+					"id": "62d74dc4-2049-4d42-afcf-96280cc5033b",
+					"type": "scale",
+					"hex": "#A500A5",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				},
+				{
+					"id": "01cbdd10-5565-4086-9cf1-9bbc8c5321fa",
+					"type": "scale",
+					"hex": "#FF7E27",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				}
+			],
+			"legend": {
+				
+			},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/6/cells/7c9482ac-e88f-48ef-920c-f2c0aa9db9e7"
+			}
+		},
+		{
+			"i": "0699ee4a-48b0-490f-bc67-0b1adaa55d30",
+			"x": 4,
+			"y": 3,
+			"w": 4,
+			"h": 3,
+			"name": "Mailspool indices search time",
+			"queries": [
+				{
+					"query": "SELECT (non_negative_difference(last(\"totalTime\"))/1000000)/(non_negative_difference(last(\"count\"))) FROM \"telegraf\".\"autogen\".\"bm-core.mailindex-service.response-time\" WHERE time > :dashboardTime: GROUP BY \"index\", time(:interval:)\n",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {
+							
+						},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT (non_negative_difference(last(\"totalTime\"))/1000000)/(non_negative_difference(last(\"count\"))) FROM \"telegraf\".\"autogen\".\"bm-core.mailindex-service.response-time\" WHERE time > :dashboardTime: GROUP BY \"index\", time(:interval:)\n",
+						"range": null,
+						"shifts": null
+					},
+					"source": "/chronograf/v1/sources/0",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "milliseconds",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "faede073-a841-40a2-843a-2450bd456fbc",
+					"type": "scale",
+					"hex": "#31C0F6",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				},
+				{
+					"id": "06c9202c-229d-4e58-a2e1-2707e2caf609",
+					"type": "scale",
+					"hex": "#A500A5",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				},
+				{
+					"id": "d867b44f-376f-4769-9090-750e2398db07",
+					"type": "scale",
+					"hex": "#FF7E27",
+					"name": "Nineteen Eighty Four",
+					"value": "0"
+				}
+			],
+			"legend": {
+				
+			},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/6/cells/0699ee4a-48b0-490f-bc67-0b1adaa55d30"
+			}
 		}
+	],
+	"templates": [],
+	"name": "Mailspool & Replication",
+	"organization": "default",
+	"links": {
+		"self": "/chronograf/v1/dashboards/6",
+		"cells": "/chronograf/v1/dashboards/6/cells",
+		"templates": "/chronograf/v1/dashboards/6/templates"
 	}
+}

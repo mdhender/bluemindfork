@@ -22,18 +22,25 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 
 public class Sanitizer {
+	private static final Logger logger = LoggerFactory.getLogger(Sanitizer.class);
 
 	private static final List<ISanitizerFactory<Object>> sanitizers = loadSanitizer();
 
 	private static List<ISanitizerFactory<Object>> loadSanitizer() {
 		RunnableExtensionLoader<ISanitizerFactory<Object>> rel = new RunnableExtensionLoader<ISanitizerFactory<Object>>();
-		List<ISanitizerFactory<Object>> stores = rel.loadExtensions("net.bluemind.core", "sanitizerfactory",
+		List<ISanitizerFactory<Object>> stores = rel.loadExtensionsWithPriority("net.bluemind.core", "sanitizerfactory",
 				"sanitizerfactory", "implementation");
+
+		stores.stream().forEach(store -> logger.info("sanitizer factory class: {} for: {}", store.getClass().getName(),
+				store.support()));
 
 		return stores;
 	}

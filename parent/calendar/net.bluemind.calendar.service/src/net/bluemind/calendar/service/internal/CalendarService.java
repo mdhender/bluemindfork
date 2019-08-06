@@ -269,6 +269,7 @@ public class CalendarService implements ICalendar {
 		}
 		sanitizer.sanitize(event);
 		extSanitizer.update(old.value, event);
+
 		auditor.actionValueSanitized(event);
 		validator.update(old.value, event);
 		extValidator.update(old.value, event);

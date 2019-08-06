@@ -115,7 +115,7 @@ public abstract class UserManager extends EntityManager {
 
 	public abstract List<? extends UuidMapper> getUserGroupsMemberGuid(LdapConnection ldapCon);
 
-	public void update(ItemValue<User> currentUser, MailFilter mailFilter) throws ServerFault {
+	public void update(ItemValue<User> currentUser, MailFilter mailFilter) {
 		update(new ImportLogger(), currentUser, mailFilter);
 	}
 
@@ -174,9 +174,7 @@ public abstract class UserManager extends EntityManager {
 			mailboxQuota = pluginUser.mailboxQuota;
 			setMailFilter(pluginUser.mailFilter);
 		} catch (LdapInvalidAttributeValueException e) {
-			String errorMsg = String.format("Unable to convert entry:%s to a valid BlueMind user", entry.getDn());
-			logger.error(errorMsg);
-			throw new ServerFault(errorMsg);
+			throw new ServerFault(e);
 		}
 	}
 

@@ -24,6 +24,7 @@ import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.Before;
@@ -117,16 +118,17 @@ public class VCardSanitizerTests extends AbstractServiceTests {
 				VCard.Organizational.Member.create(book1.uid, uid1, "fakeName", "fakemailto@fake.com"),
 				VCard.Organizational.Member.create(book2.uid, uid2, "fakeName", "fakemailto@fake.com"),
 				VCard.Organizational.Member.create(book2.uid, uid3, "fakeName", "fakemailto@fake.com"),
-				VCard.Organizational.Member.create("fakeUid", "fakeUid", "dontchange", "immutable@freeze.com"));
+				VCard.Organizational.Member.create("fakeUid", "fakeUid", "dontchange", "immutable@freeze.com"),
+				VCard.Organizational.Member.create(null, "fakeUid2", "fakeuid2", "fakeuid2@freeze.com"));
 
 		try {
-			new VCardSanitizer(testContext).sanitize(testCard);
+			new VCardSanitizer(testContext).sanitize(testCard, Optional.of("bookUid"));
 		} catch (ServerFault e) {
 			e.printStackTrace();
 			fail(e.getMessage());
 		}
 
-		assertEquals(4, testCard.organizational.member.size());
+		assertEquals(5, testCard.organizational.member.size());
 		VCard.Organizational.Member m = testCard.organizational.member.get(0);
 
 		// check info of user1 was updated from container item
@@ -149,6 +151,10 @@ public class VCardSanitizerTests extends AbstractServiceTests {
 		assertEquals("dontchange", m.commonName);
 		assertEquals("immutable@freeze.com", m.mailto);
 		assertNull(m.containerUid);
+
+		m = testCard.organizational.member.get(4);
+		assertEquals("fakeuid2", m.commonName);
+		assertEquals("bookUid", m.containerUid);
 	}
 
 	@Test
@@ -157,7 +163,7 @@ public class VCardSanitizerTests extends AbstractServiceTests {
 		card.identification.name = VCard.Identification.Name.create("familyNames  ", "givenNames  ",
 				" additionnalNames  ", " prefix ", "suffix ", Arrays.<VCard.Parameter>asList());
 		try {
-			new VCardSanitizer(testContext).sanitize(card);
+			new VCardSanitizer(testContext).sanitize(card, Optional.empty());
 		} catch (ServerFault e) {
 			fail(e.getMessage());
 		}
@@ -175,7 +181,7 @@ public class VCardSanitizerTests extends AbstractServiceTests {
 		VCard card = defaultVCard();
 		card.communications.emails = Arrays.asList(VCard.Communications.Email.create("  this.is.calendar@bm.lan    "));
 		try {
-			new VCardSanitizer(testContext).sanitize(card);
+			new VCardSanitizer(testContext).sanitize(card, Optional.empty());
 		} catch (ServerFault e) {
 			fail(e.getMessage());
 		}

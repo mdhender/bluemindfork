@@ -21,8 +21,14 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 
+/**
+ * Declaration of default user roles.
+ */
 public class DefaultRoles {
 
+	/**
+	 * Default roles of a simple user accounts.
+	 */
 	public static final Set<String> SIMPLE_USER_DEFAULT_ROLES = ImmutableSet.<String>builder().add(BasicRoles.ROLE_MAIL, //
 			BasicRoles.ROLE_MAIL_FORWARDING, //
 			BasicRoles.SELF_CHANGE_PASSWORD, //
@@ -31,12 +37,18 @@ public class DefaultRoles {
 			BasicRoles.ROLE_SELF_CHANGE_MAILBOX_FILTER, //
 			BasicRoles.ROLE_READ_DOMAIN_FILTER).build();
 
+	/**
+	 * Additional FULL user account roles (includes simple user account roles).
+	 */
 	public static final Set<String> USER_DEFAULT_ROLES = ImmutableSet.<String>builder().add(BasicRoles.ROLE_CALENDAR, //
 			BasicRoles.ROLE_EAS, //
 			BasicRoles.ROLE_DAV, //
 			BasicRoles.ROLE_TBIRD, //
 			BasicRoles.ROLE_OUTLOOK).addAll(SIMPLE_USER_DEFAULT_ROLES).build();
 
+	/**
+	 * Default administrator roles.
+	 */
 	public static final Set<String> ADMIN_DEFAULT_ROLES = ImmutableSet.<String>builder()
 			.add(BasicRoles.ROLE_ADMIN, BasicRoles.ROLE_ADMINCONSOLE).addAll(USER_DEFAULT_ROLES).build();
 

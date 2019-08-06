@@ -254,6 +254,7 @@ public class GeneralPartWidget extends CompositeGwtWidgetElement {
 	private void listboxSetValues(ListBox listbox, String value) {
 		if (value == null) {
 			listbox.setSelectedIndex(-1);
+			return;
 		}
 
 		HashSet<String> set = new HashSet<>(Arrays.asList(value.split(",")));

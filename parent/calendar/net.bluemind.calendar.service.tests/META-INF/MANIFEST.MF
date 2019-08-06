@@ -33,5 +33,7 @@ Require-Bundle: org.junit,
  net.bluemind.calendar.api,
  net.bluemind.tag.hooks;bundle-version="4.1.0",
  net.bluemind.externaluser.service;bundle-version="4.1.0",
- net.bluemind.externaluser.api
+ net.bluemind.externaluser.api,
+ net.bluemind.backend.cyrus,
+ net.bluemind.resource.service;bundle-version="4.1.0"
 

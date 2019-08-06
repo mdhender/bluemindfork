@@ -1,6 +1,7 @@
 package net.bluemind.systemd.notify;
 
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +52,28 @@ public class SystemD {
 				logger.error("Notify failed: {}", errorCode);
 			} else {
 				logger.info("Notified for {}, errorCode: {}", pid, errorCode);
+			}
+		}
+
+		public void setupWatchdog(long period, TimeUnit unit) {
+			int pid = LIBC.getpid();
+			logger.info("Setup systemd watchdog for PID {}...", pid);
+			int errorCode = impl.sd_pid_notify(pid, 0, "WATCHDOG_USEC=" + unit.toMicros(period));
+			if (errorCode <= 0) {
+				logger.error("setupWatchdog failed: {}", errorCode);
+			} else {
+				logger.info("setupWatchdog OK for {}, errorCode: {}", pid, errorCode);
+			}
+		}
+
+		public void watchdogKeepalive() {
+			int pid = LIBC.getpid();
+			logger.info("keepAlive for PID {}...", pid);
+			int errorCode = impl.sd_pid_notify(pid, 0, "WATCHDOG=1");
+			if (errorCode <= 0) {
+				logger.error("keepAlive failed: {}", errorCode);
+			} else {
+				logger.debug("keepAlive for {}, errorCode: {}", pid, errorCode);
 			}
 		}
 

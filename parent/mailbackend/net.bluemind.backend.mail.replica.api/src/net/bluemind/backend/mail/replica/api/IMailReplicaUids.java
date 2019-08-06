@@ -48,6 +48,8 @@ public interface IMailReplicaUids {
 	 */
 	public static final String REPAIR_SUBTREE_OP = "replication.subtree";
 
+	public static final String REPAIR_RENAMED_INBOX_OP = "renamed.inbox";
+
 	/**
 	 * Repair operation id for repairing the multiple inbox syndrom
 	 */
@@ -87,8 +89,7 @@ public interface IMailReplicaUids {
 	 * Returns the uid for the subtree container for a given mailbox
 	 * 
 	 * @param domainUid
-	 * @param mbox
-	 *                      Mailbox item
+	 * @param mbox      Mailbox item
 	 * @return subtree container UID
 	 */
 	@GET

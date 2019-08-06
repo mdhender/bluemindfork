@@ -62,6 +62,20 @@ public class AddSignatureActionTests {
 	}
 
 	@Test
+	public void testAppleMailNoBody() throws Exception {
+		String template = "apple_mail_no_body.eml";
+		UpdatedMailMessage mm = loadTemplate(template);
+
+		AddSignatureAction action = new MockAddSignatureAction();
+		Map<String, String> configuration = new HashMap<>();
+		configuration.put("plain", "plain-signature");
+		configuration.put("html", "html-signature");
+		boolean added = action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
+		assertFalse(added);
+
+	}
+
+	@Test
 	public void testBase64EncodedBodyPart() throws Exception {
 		String template = "template1.eml";
 		UpdatedMailMessage mm = loadTemplate(template);
@@ -70,7 +84,8 @@ public class AddSignatureActionTests {
 		Map<String, String> configuration = new HashMap<>();
 		configuration.put("plain", "plain-signature");
 		configuration.put("html", "html-signature");
-		action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
+		boolean added = action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
+		assertTrue(added);
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		Mime4JHelper.serializeBody(mm.getMessage(), baos);
@@ -91,7 +106,8 @@ public class AddSignatureActionTests {
 		Map<String, String> configuration = new HashMap<>();
 		configuration.put("plain", "plain-signature");
 		configuration.put("html", "html-signature");
-		action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
+		boolean added = action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
+		assertTrue(added);
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		Body body = mm.getMessage().getBody();
@@ -111,7 +127,8 @@ public class AddSignatureActionTests {
 		Map<String, String> configuration = new HashMap<>();
 		configuration.put("plain", "et des accents é è l'a");
 		configuration.put("html", "et des accents é è l'a");
-		action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
+		boolean added = action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
+		assertTrue(added);
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		Body body = mm.getMessage().getBody();
@@ -138,7 +155,8 @@ public class AddSignatureActionTests {
 		Map<String, String> configuration = new HashMap<>();
 		configuration.put("plain", "et des accents é è l'a");
 		configuration.put("html", "et des accents é è l'a");
-		action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
+		boolean added = action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
+		assertTrue(added);
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		Body body = mm.getMessage().getBody();
@@ -157,7 +175,8 @@ public class AddSignatureActionTests {
 		Map<String, String> configuration = new HashMap<>();
 		configuration.put("plain", "plain-signature");
 		configuration.put("html", "html-signature");
-		action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
+		boolean added = action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
+		assertTrue(added);
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		Body body = mm.getMessage().getBody();
@@ -177,8 +196,10 @@ public class AddSignatureActionTests {
 		configuration.put("removePrevious", "true");
 		configuration.put("plain", "plain-signature");
 		configuration.put("html", "html-signature");
-		action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
-		action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
+		boolean added = action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
+		assertTrue(added);
+		added = action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
+		assertTrue(added);
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		Body body = mm.getMessage().getBody();
@@ -201,8 +222,10 @@ public class AddSignatureActionTests {
 				"<img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAMAAAAolt3jAAAAA1BMVEUAAACnej3aAAAAFUlEQVR42t3BAQEAAACAkP6v9iPaAQDSAAHMIBAUAAAAAElFTkSuQmCC\" />");
 		AddSignatureAction action = new MockAddSignatureAction();
 
-		action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
-		action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
+		boolean added = action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
+		assertTrue(added);
+		added = action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
+		assertTrue(added);
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		Body body = mm.getMessage().getBody();
@@ -295,7 +318,8 @@ public class AddSignatureActionTests {
 		configuration.put("usePlaceholder", "true");
 		configuration.put("plain", "plain-signature");
 		configuration.put("html", "html-signature");
-		action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
+		boolean added = action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
+		assertTrue(added);
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		Body body = mm.getMessage().getBody();
@@ -305,13 +329,17 @@ public class AddSignatureActionTests {
 		assertTrue("Text Disclaimer is not present ", eml.indexOf("plain-signature") >= 0);
 		assertTrue("HTML Disclaimer is not present ", eml.indexOf("html-signature") >= 0);
 
-		assertTrue("Text disclaimer was placed before placeholder", eml.indexOf("TextBefore") < eml.indexOf("plain-signature"));
-		assertTrue("Text disclaimer was placed after placeholder", eml.indexOf("TextAfter") > eml.indexOf("plain-signature"));
-		assertTrue("Html disclaimer was placed before placeholder", eml.indexOf("HTMLBefore") < eml.indexOf("html-signature"));
-		assertTrue("Html disclaimer was placed after placeholder", eml.indexOf("HTMLAfter") > eml.indexOf("html-signature"));
+		assertTrue("Text disclaimer was placed before placeholder",
+				eml.indexOf("TextBefore") < eml.indexOf("plain-signature"));
+		assertTrue("Text disclaimer was placed after placeholder",
+				eml.indexOf("TextAfter") > eml.indexOf("plain-signature"));
+		assertTrue("Html disclaimer was placed before placeholder",
+				eml.indexOf("HTMLBefore") < eml.indexOf("html-signature"));
+		assertTrue("Html disclaimer was placed after placeholder",
+				eml.indexOf("HTMLAfter") > eml.indexOf("html-signature"));
 
-		
 	}
+
 	@Test
 	public void testNoPlaceholder() throws Exception {
 		String template = "template_no_placeholder.eml";
@@ -322,7 +350,8 @@ public class AddSignatureActionTests {
 		configuration.put("usePlaceholder", "true");
 		configuration.put("plain", "plain-signature");
 		configuration.put("html", "html-signature");
-		action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
+		boolean added = action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
+		assertTrue(added);
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		Body body = mm.getMessage().getBody();
@@ -331,10 +360,13 @@ public class AddSignatureActionTests {
 		assertTrue("Text Disclaimer is not present ", eml.indexOf("plain-signature") >= 0);
 		assertTrue("HTML Disclaimer is not present ", eml.indexOf("html-signature") >= 0);
 
-		assertTrue("Text disclaimer was not placed at the end of mail", eml.indexOf("TextAfter") < eml.indexOf("plain-signature"));
-		assertTrue("HTML disclaimer was not placed at the end of mail", eml.indexOf("HTMLAfter") < eml.indexOf("html-signature"));
+		assertTrue("Text disclaimer was not placed at the end of mail",
+				eml.indexOf("TextAfter") < eml.indexOf("plain-signature"));
+		assertTrue("HTML disclaimer was not placed at the end of mail",
+				eml.indexOf("HTMLAfter") < eml.indexOf("html-signature"));
 
 	}
+
 	@Test
 	public void testMultiplePlaceholders() throws Exception {
 		String template = "template_placeholders.eml";
@@ -345,7 +377,8 @@ public class AddSignatureActionTests {
 		configuration.put("usePlaceholder", "true");
 		configuration.put("plain", "plain-signature");
 		configuration.put("html", "html-signature");
-		action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
+		boolean added = action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
+		assertTrue(added);
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		Body body = mm.getMessage().getBody();
@@ -355,10 +388,13 @@ public class AddSignatureActionTests {
 		assertTrue("Text Disclaimer is not present ", eml.indexOf("plain-signature") >= 0);
 		assertTrue("HTML Disclaimer is not present ", eml.indexOf("html-signature") >= 0);
 
-		assertTrue("Text disclaimer was not placed at the end of mail", eml.indexOf("TextAfter") < eml.indexOf("plain-signature"));
-		assertTrue("HTML disclaimer was not placed at the end of mail", eml.indexOf("HTMLAfter") < eml.indexOf("html-signature"));
+		assertTrue("Text disclaimer was not placed at the end of mail",
+				eml.indexOf("TextAfter") < eml.indexOf("plain-signature"));
+		assertTrue("HTML disclaimer was not placed at the end of mail",
+				eml.indexOf("HTMLAfter") < eml.indexOf("html-signature"));
 
 	}
+
 	private String toEml(Message msg) throws IOException {
 		InputStream asStream = Mime4JHelper.asStream(msg);
 		StringBuilder sb = new StringBuilder();

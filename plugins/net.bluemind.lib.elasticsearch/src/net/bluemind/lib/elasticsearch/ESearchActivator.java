@@ -33,6 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
@@ -381,20 +382,34 @@ public final class ESearchActivator implements BundleActivator {
 		logger.info("reset index {}", index);
 		try {
 			client.admin().indices().prepareDelete(index).execute().actionGet();
+			if (isPrimary(index)) {
+				int count = indexes.values().stream().filter(item -> item.supportsIndex(index)).findFirst().get().count;
+				if (count > 1) {
+					for (int i = 1; i <= count; i++) {
+						String indexName = index + "_" + i;
+						logger.info("reset index {}", indexName);
+						client.admin().indices().prepareDelete(indexName).execute().actionGet();
+					}
+				}
+			}
 			logger.info("index {} reset.", index);
 		} catch (Exception e) {
 
 		}
 
-		initIndex(client, index);
+		initIndex(client, index, isPrimary(index));
 	}
 
 	public static void initIndex(String index) {
 		Client client = ESearchActivator.getClient();
-		initIndex(client, index);
+		initIndex(client, index, isPrimary(index));
 	}
 
-	public static void initIndex(Client client, String index) {
+	private static boolean isPrimary(String index) {
+		return !Pattern.compile(".*_\\d+").matcher(index).matches();
+	}
+
+	private static void initIndex(Client client, String index, boolean primary) {
 		Optional<IndexDefinition> indexDefinition = indexes.values().stream().filter(item -> item.supportsIndex(index))
 				.findFirst();
 
@@ -402,12 +417,13 @@ public final class ESearchActivator implements BundleActivator {
 			logger.warn("no SCHEMA for {}", index);
 			try {
 				client.admin().indices().prepareCreate(index).execute().actionGet();
+				return;
 			} catch (Exception e) {
 				logger.warn("failed to create indice {} : {}", index, e.getMessage());
 			}
 		} else {
 			IndexDefinition definition = indexDefinition.get();
-			int count = definition.count;
+			int count = primary ? definition.count : 1;
 			byte[] schema = definition.schema;
 			try {
 				if (count > 1) {
@@ -429,7 +445,6 @@ public final class ESearchActivator implements BundleActivator {
 					ClusterHealthResponse resp = client.admin().cluster().prepareHealth(index).setWaitForGreenStatus()
 							.execute().actionGet();
 					logger.debug("index health {}", resp);
-
 				}
 			} catch (Exception e) {
 				logger.warn("failed to create indice {} : {}", index, e.getMessage(), e);

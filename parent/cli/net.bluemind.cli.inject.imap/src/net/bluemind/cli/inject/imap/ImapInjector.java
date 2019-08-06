@@ -138,9 +138,11 @@ public class ImapInjector {
 		StringBuilder sb = new StringBuilder();
 		sb.append("From: ").append(from.email).append("\r\n");
 		sb.append("To: ").append(to.email).append("\r\n");
-		sb.append("Subject: ").append("Rand Message ").append(rd.nextInt()).append("\r\n\r\n");
-		sb.append("Yeah this is body");
-		sb.append("\r\n");
+		sb.append("Subject: Rand Message ").append(rd.nextInt()).append("\r\n\r\n");
+		sb.append("Yeah this is body\r\n");
+		for (int i = 0; i < 1024; i++) {
+			sb.append("Lorem ipsum sit amet, si vis pacem para bellum\r\n");
+		}
 		byte[] emlContent = sb.toString().getBytes();
 		return emlContent;
 	}

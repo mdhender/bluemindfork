@@ -149,6 +149,12 @@
          <tick_template_provider
                impl="net.bluemind.metrics.core.tick.scripts.MailspoolWorstResponseTime">
          </tick_template_provider>
+         <tick_template_provider
+               impl="net.bluemind.metrics.core.tick.scripts.DbConnections">
+         </tick_template_provider>
+         <tick_template_provider
+               impl="net.bluemind.metrics.core.tick.scripts.RunningCyrusReplication">
+         </tick_template_provider>
    </extension>
    <extension
          point="net.bluemind.metrics.core.tickDashboardProvider">
@@ -197,6 +203,13 @@
          point="net.bluemind.lib.vertx.verticles">
       <verticle
             impl="net.bluemind.metrics.core.healing.MailspoolWorstResponseTimeVerticle$Factory">
+      </verticle>
+   </extension>
+   
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.metrics.core.db.DbCheck$Factory">
       </verticle>
    </extension>
    

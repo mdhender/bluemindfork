@@ -28,6 +28,8 @@ import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.calendar.api.ICalendarUids;
+import net.bluemind.core.api.fault.ErrorCode;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.ContainerSubscriptionModel;
 import net.bluemind.core.container.api.IContainers;
@@ -255,15 +257,25 @@ public class FolderBackend extends CoreConnect {
 			IContainers containers = getService(bs, IContainers.class);
 			allSubs.deleted.forEach(uid -> {
 				String containerUid = uid.replace(String.format("sub-of-%s-to-", bs.getUser().getUid()), "");
-				ContainerDescriptor cd = containers.get(containerUid);
-				String nodeUid = ContainerHierarchyNode.uidFor(containerUid, cd.type, bs.getUser().getDomain());
-				ItemValue<ContainerHierarchyNode> h = flatH.getComplete(nodeUid);
-				if (h != null) {
-					FolderChangeReference f = getDeletedItemChange(h.internalId);
-					ret.items.add(f);
-				} else {
-					logger.warn("[{}] delete subscription: no node uid {} for container {} in hierarchy",
-							bs.getUser().getDefaultEmail(), nodeUid, cd);
+				try {
+					ContainerDescriptor cd = containers.get(containerUid);
+					String nodeUid = ContainerHierarchyNode.uidFor(containerUid, cd.type, bs.getUser().getDomain());
+					ItemValue<ContainerHierarchyNode> h = flatH.getComplete(nodeUid);
+					if (h != null) {
+						FolderChangeReference f = getDeletedItemChange(h.internalId);
+						ret.items.add(f);
+					} else {
+						logger.warn("[{}] delete subscription: no node uid {} for container {} in hierarchy",
+								bs.getUser().getDefaultEmail(), nodeUid, cd);
+					}
+				} catch (ServerFault sf) {
+					if (sf.getCode() == ErrorCode.NOT_FOUND) {
+						logger.warn("[{}] delete subscription: container {} not found", bs.getUser().getDefaultEmail(),
+								containerUid);
+					} else {
+						throw sf;
+					}
+
 				}
 			});
 		}

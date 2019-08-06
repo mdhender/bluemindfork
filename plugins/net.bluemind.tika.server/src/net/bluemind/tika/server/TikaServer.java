@@ -18,6 +18,7 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.systemd.notify.SystemD;
 import net.bluemind.tika.server.impl.ExtractTextWorker;
 import net.bluemind.tika.server.impl.ReceiveDocumentVerticle;
+import net.bluemind.tika.server.impl.SystemdWatchdogVerticle;
 
 public class TikaServer implements IApplication {
 
@@ -62,13 +63,19 @@ public class TikaServer implements IApplication {
 			}
 		};
 
-		pm.deployVerticle(ReceiveDocumentVerticle.class.getCanonicalName(), null, new URL[0], 4, null, doneHandler);
+		pm.deployVerticle(ReceiveDocumentVerticle.class.getCanonicalName(), null, new URL[0], 32, null, doneHandler);
 
 		pm.deployWorkerVerticle(false, ExtractTextWorker.class.getCanonicalName(), null, new URL[0], 4, null,
 				doneHandler);
 		cdl.await(1, TimeUnit.MINUTES);
 		if (SystemD.isAvailable()) {
 			SystemD.get().notifyReady();
+			pm.deployVerticle(SystemdWatchdogVerticle.class.getCanonicalName(), null, new URL[0], 1, null, ar -> {
+				if (ar.failed()) {
+					logger.error("Watchdog setup failed", ar.cause());
+				}
+			});
+
 		}
 
 		return IApplication.EXIT_OK;

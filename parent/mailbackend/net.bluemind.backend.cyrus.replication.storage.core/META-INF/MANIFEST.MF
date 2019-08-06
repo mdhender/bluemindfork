@@ -14,7 +14,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.mailindex;bundle-version="4.1.0",
  net.bluemind.backend.mail.replica.api,
  net.bluemind.config,
- net.bluemind.backend.cyrus.partitions
+ net.bluemind.backend.cyrus.partitions,
+ net.bluemind.core.caches.registry
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.backend.cyrus.replication.storage.core
 Bundle-ActivationPolicy: lazy

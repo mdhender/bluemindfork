@@ -157,7 +157,11 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 	@Override
 	public void update(MessageBody mb) {
 		try {
-			bodyStore.update(mb);
+			if (exists(mb.guid)) {
+				bodyStore.update(mb);
+			} else {
+				bodyStore.create(mb);
+			}
 			BodiesCache.bodies.put(mb.guid, mb);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);

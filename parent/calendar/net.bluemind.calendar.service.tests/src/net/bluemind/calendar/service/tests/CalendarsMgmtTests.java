@@ -36,8 +36,13 @@ import org.vertx.java.core.Handler;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.SettableFuture;
 
+import net.bluemind.addressbook.api.VCard;
+import net.bluemind.addressbook.api.VCard.Identification.Name;
+import net.bluemind.backend.cyrus.CyrusAdmins;
+import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.calendar.api.CalendarDescriptor;
 import net.bluemind.calendar.api.ICalendarsMgmt;
+import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.persistance.ContainerStore;
@@ -51,8 +56,12 @@ import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.pool.impl.BmConfIni;
+import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
+import net.bluemind.user.api.User;
 
 public class CalendarsMgmtTests {
 
@@ -72,14 +81,21 @@ public class CalendarsMgmtTests {
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
 		esServer.tags = Lists.newArrayList("bm/es");
 
-		PopulateHelper.initGlobalVirt(esServer);
+		Server imapServer = new Server();
+		imapServer.ip = new BmConfIni().get("imap-role");
+		imapServer.tags = Lists.newArrayList("mail/imap");
 
-		domainUid = "test" + System.currentTimeMillis() + ".lan";
+		PopulateHelper.initGlobalVirt(esServer, imapServer);
+
+		domainUid = "test.lan";
 
 		domainAdmin = BmTestContext.contextWithSession("testUser", "test", domainUid, SecurityContext.ROLE_ADMIN)
 				.getSecurityContext();
 
-		PopulateHelper.addDomain(domainUid);
+		PopulateHelper.createTestDomain(domainUid, esServer, imapServer);
+
+		this.createCyrusPartition(imapServer, domainUid);
+
 		PopulateHelper.domainAdmin(domainUid, domainAdmin.getSubject());
 		final SettableFuture<Void> future = SettableFuture.<Void>create();
 		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
@@ -101,6 +117,32 @@ public class CalendarsMgmtTests {
 		Sessions.get().put(dummy2.getSessionId(), dummy2);
 
 		testContext = new BmTestContext(SecurityContext.SYSTEM);
+	}
+
+	private void createCyrusPartition(final Server imapServer, final String domainUid) {
+		final CyrusService cyrusService = new CyrusService(imapServer.ip);
+		cyrusService.createPartition(domainUid);
+		cyrusService.refreshPartitions(Arrays.asList(domainUid));
+		new CyrusAdmins(
+				ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class, "default"),
+				imapServer.ip).write();
+		cyrusService.reload();
+	}
+
+	private User defaultUser(String login) {
+		User user = new User();
+		user.login = login;
+		Email em = new Email();
+		em.address = login + "@" + this.domainUid;
+		em.isDefault = true;
+		em.allAliases = false;
+		user.emails = Arrays.asList(em);
+		user.password = "password";
+		user.routing = Routing.none;
+		VCard card = new VCard();
+		card.identification.name = Name.create(login, login, null, null, null, null);
+		user.contactInfos = card;
+		return user;
 	}
 
 	@Test

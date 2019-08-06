@@ -17,6 +17,7 @@
   */
 package net.bluemind.backend.cyrus.replication.server.state;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -32,6 +33,7 @@ import net.bluemind.backend.mail.replica.api.IDbMailboxRecordsPromise;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodiesPromise;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxesPromise;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
+import net.bluemind.core.api.Stream;
 import net.bluemind.core.rest.http.HttpClientProvider;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 
@@ -67,6 +69,8 @@ public interface StorageApiLink {
 			return f.newLink(vertx, http, remoteIp);
 		}).orElseThrow(() -> ReplicationException.serverError("No StorageApiLink usable implementation found."));
 	}
+
+	public Stream stream(Path p);
 
 	public CompletableFuture<IDbMessageBodiesPromise> bodies(String partition);
 

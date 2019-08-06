@@ -20,7 +20,7 @@ package net.bluemind.backend.mail.replica.api;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.mailbox.api.Mailbox;
 
-@BMApi(version = "3")
+@BMApi(version = "3", internal = true)
 public class MailboxReplicaRootDescriptor {
 
 	@BMApi(version = "3")

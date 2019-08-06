@@ -7,7 +7,7 @@ Group:              Applications/messaging
 URL:                http://www.bluemind.net/
 ExcludeArch:        s390 s390x
 Requires(post):     systemd systemd-sysv
-Requires:           bm-jdk = 8u212-bluemind29, bm-tika = %{version}-%{release}, openssl
+Requires:           bm-jdk = 8u212-bluemind29, openssl
 Requires(post):     /bin/bash, initscripts
 
 %description

@@ -33,11 +33,11 @@ import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
+import net.bluemind.backend.mail.replica.api.utils.Subtree;
 import net.bluemind.backend.mail.replica.persistence.MailboxReplicaStore;
 import net.bluemind.backend.mail.replica.service.internal.MailboxReplicaFlagProvider;
 import net.bluemind.backend.mail.replica.service.internal.hooks.DeletedDataMementos;
 import net.bluemind.backend.mail.replica.utils.SubtreeContainer;
-import net.bluemind.backend.mail.replica.utils.SubtreeContainer.Subtree;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistance.ContainerStore;
@@ -63,7 +63,7 @@ public abstract class AbstractReplicatedMailboxesServiceFactory<T>
 		} else {
 			return createNoopService(mailboxRoot, partition.domainUid);
 		}
-		String uid = sub.subtreeUid;
+		String uid = sub.subtreeUid();
 		DataSource ds = DataSourceRouter.get(context, uid);
 		String datalocation = DataSourceRouter.location(context, uid);
 		ContainerStore containerStore = new ContainerStore(context, ds, context.getSecurityContext());

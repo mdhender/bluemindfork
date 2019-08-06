@@ -18,12 +18,6 @@
 package net.bluemind.backend.cyrus.replication.server.state;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileChannel.MapMode;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -41,7 +35,6 @@ import com.google.common.collect.Lists;
 import com.netflix.spectator.api.Counter;
 import com.netflix.spectator.api.Registry;
 
-import io.netty.buffer.Unpooled;
 import net.bluemind.backend.cyrus.partitions.CyrusBoxes.ReplicatedBox;
 import net.bluemind.backend.cyrus.replication.server.Token;
 import net.bluemind.backend.cyrus.replication.server.utils.LiteralTokens;
@@ -61,7 +54,6 @@ import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.base.GenericStream;
-import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.lib.jutf7.UTF7Converter;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
@@ -100,29 +92,16 @@ public class ReplicationState {
 					dest.delete();
 					added.complete(null);
 				} else {
-					try {
-						FileChannel fChannel = (FileChannel) Files.newByteChannel(dest.toPath(),
-								StandardOpenOption.READ);
-						long len = dest.length();
-						MappedByteBuffer mapped = fChannel.map(MapMode.READ_ONLY, 0, len);
-						Stream uploadStream = VertxStream.stream(new Buffer(Unpooled.wrappedBuffer(mapped)));
-						messageBodiesApi.create(msg.guid(), uploadStream).whenComplete((v, ex) -> {
-							try {
-								fChannel.close();
-							} catch (IOException e) {
-								logger.error(e.getMessage(), e);
-							}
-							dest.delete();
-							if (ex != null) {
-								logger.error("addMessage.create: " + ex.getMessage(), ex);
-							}
-							addMsgCounterBytes.increment(len);
-							added.complete(null);
-						});
-					} catch (IOException e) {
-						logger.error(e.getMessage(), e);
+					long len = dest.length();
+					Stream uploadStream = storage.stream(dest.toPath());
+					messageBodiesApi.create(msg.guid(), uploadStream).whenComplete((v, ex) -> {
+						dest.delete();
+						if (ex != null) {
+							logger.error("addMessage.create: " + ex.getMessage(), ex);
+						}
+						addMsgCounterBytes.increment(len);
 						added.complete(null);
-					}
+					});
 
 				}
 			});

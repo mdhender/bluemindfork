@@ -43,7 +43,6 @@ public class CalendarEventProducer {
 		this.loginAtDomain = securityContext.getSubject();
 		this.eventBus = ev;
 		this.securityContext = securityContext;
-
 	}
 
 	public void changed() {
@@ -59,35 +58,22 @@ public class CalendarEventProducer {
 	}
 
 	public void veventCreated(VEventSeries event, String uid, boolean sendNotifications) {
-		VEventMessage msg = getVEventMessage(event, uid, sendNotifications);
+		VEventMessage msg = new VEventMessage(event, uid, sendNotifications, securityContext, auditor.eventId(),
+				container);
 		eventBus.publish(CalendarHookAddress.EVENT_CREATED, new LocalJsonObject<>(msg));
 	}
 
 	public void veventUpdated(VEventSeries old, VEventSeries vevent, String uid, boolean sendNotifications) {
-		VEventMessage msg = getVEventMessage(vevent, uid, sendNotifications);
+		VEventMessage msg = new VEventMessage(vevent, uid, sendNotifications, securityContext, auditor.eventId(),
+				container);
 		msg.oldEvent = old;
 		eventBus.publish(CalendarHookAddress.EVENT_UPDATED, new LocalJsonObject<>(msg));
 	}
 
 	public void veventDeleted(VEventSeries vevent, String uid, boolean sendNotifications) {
-		VEventMessage msg = getVEventMessage(vevent, uid, sendNotifications);
+		VEventMessage msg = new VEventMessage(vevent, uid, sendNotifications, securityContext, auditor.eventId(),
+				container);
 		eventBus.publish(CalendarHookAddress.EVENT_DELETED, new LocalJsonObject<>(msg));
-	}
-
-	/**
-	 * @param vevent
-	 * @param uid
-	 * @return
-	 */
-	private VEventMessage getVEventMessage(VEventSeries vevent, String uid, boolean sendNotifications) {
-		VEventMessage ret = new VEventMessage();
-		ret.itemUid = uid;
-		ret.vevent = vevent;
-		ret.securityContext = securityContext;
-		ret.container = container;
-		ret.sendNotifications = sendNotifications;
-		ret.auditEventId = auditor.eventId();
-		return ret;
 	}
 
 }

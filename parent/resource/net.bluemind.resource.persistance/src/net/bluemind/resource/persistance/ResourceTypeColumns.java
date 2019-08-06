@@ -22,6 +22,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.jdbc.Columns;
@@ -34,7 +36,8 @@ public class ResourceTypeColumns {
 
 	public static Columns cols = Columns.create() //
 			.col("label")//
-			.col("id");
+			.col("templates")//
+			.col("id");//
 
 	public static Columns propCols = Columns.create() //
 			.col("id")//
@@ -49,8 +52,10 @@ public class ResourceTypeColumns {
 					ResourceTypeDescriptor desc) throws SQLException {
 
 				statement.setString(index++, desc.label);
+				statement.setObject(index++, desc.templates);
 				statement.setString(index++, identifier);
 				statement.setLong(index++, container.id);
+
 				return index;
 			}
 		};
@@ -79,8 +84,16 @@ public class ResourceTypeColumns {
 			@Override
 			public int populate(ResultSet rs, int index, ResourceTypeDescriptor value) throws SQLException {
 				value.label = rs.getString(index++);
+				value.templates = new HashMap<>();
+				@SuppressWarnings("unchecked")
+				final Map<String, String> optionals = (Map<String, String>) rs.getObject(index++);
+				if (optionals != null) {
+					value.templates.putAll(optionals);
+				}
+
 				// skip id
 				index++;
+
 				return index;
 			}
 

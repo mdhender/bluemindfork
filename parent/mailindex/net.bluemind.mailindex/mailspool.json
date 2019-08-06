@@ -65,6 +65,10 @@
 					"type": "date",
 					"store": true
 				},
+				"internalDate": {
+					"type": "date",
+					"store": true
+				},
 				"owner": {
 					"type": "keyword",
 					"store": false

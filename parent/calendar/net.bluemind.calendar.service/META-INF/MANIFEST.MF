@@ -48,7 +48,8 @@ Require-Bundle: net.bluemind.calendar.api;bundle-version="1.0.0",
  net.bluemind.user.persistance,
  net.bluemind.core.container.sharding,
  net.bluemind.config,
- net.bluemind.server.api
+ net.bluemind.server.api,
+ net.bluemind.resource.api;bundle-version="4.1.0" 
 Export-Package: net.bluemind.calendar.service,
  net.bluemind.calendar.service.internal
 Bundle-Activator: net.bluemind.calendar.service.CalendarActivator

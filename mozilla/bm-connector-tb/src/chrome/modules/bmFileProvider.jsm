@@ -99,6 +99,11 @@ bmFileProvider.prototype = {
         return true;
     },
     
+     // for TB >= 68
+    getPreviousUploads: function() {
+        return [];
+    },
+
     /**
      * upload the file to the cloud provider. The callback's OnStopRequest
      * method will be called when finished, with success or an error code.
@@ -119,20 +124,24 @@ bmFileProvider.prototype = {
                 throw Cr.NS_ERROR_FAILURE;
             }
         }
+        let self = this;
         if (!aCallback) {
             let wrapper = function(aFile) {
                 return new Promise(function(resolve, reject) {
-                    this._uploadFile(aFile, {
+                    self._uploadFile(aFile, {
                         onStartRequest: function() {},
                         onStopRequest: function(p, ctx, cr) {
                             if (!Components.isSuccessCode(cr)) {
                                 throw cr;
                             }
-                            resolve({});
+                            let upload = {
+                                url: self._urlsForFiles[aFile.path]
+                            }
+                            resolve(upload);
                         }
                     });
-                }.bind(this));
-            }.bind(this);
+                });
+            };
             async function asyncUpload(aFile) {
                 return await wrapper(aFile);
             }

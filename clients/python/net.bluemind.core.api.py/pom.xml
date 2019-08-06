@@ -41,6 +41,8 @@
 						<apiName>net.bluemind.im.api</apiName>
 						<apiName>net.bluemind.mailbox.api</apiName>
 						<apiName>net.bluemind.mailbox.identity.api</apiName>
+						<apiName>net.bluemind.mailflow.common.api</apiName>
+						<apiName>net.bluemind.mailmessage.api</apiName>
 						<apiName>net.bluemind.mailshare.api</apiName>
 						<apiName>net.bluemind.resource.api</apiName>
 						<apiName>net.bluemind.role.api</apiName>

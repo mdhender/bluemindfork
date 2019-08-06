@@ -196,10 +196,10 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 	public List<ImapBinding> havingBodyVersionLowerThan(final int version) throws SQLException {
 		final StringBuilder sql = new StringBuilder();
 		sql.append("SELECT ci.id, mbr.imap_uid, mbr.message_body_guid FROM t_mailbox_record mbr ");
-		sql.append("JOIN t_message_body mb ON mbr.message_body_guid = mb.guid ");
-		sql.append("JOIN t_container_item ci ON ci.id = mbr.item_id ");
+		sql.append("INNER JOIN t_container_item ci ON ci.id = mbr.item_id ");
+		sql.append("LEFT JOIN t_message_body mb ON mbr.message_body_guid = mb.guid ");
 		sql.append("WHERE ci.container_id = ? ");
-		sql.append("AND mb.body_version < ? ");
+		sql.append("AND (mb.body_version < ? OR mb.guid IS NULL) ");
 		sql.append("AND (ci.flags::bit(32) & (" + ItemFlag.Deleted.value + ")::bit(32))=0::bit(32) ");
 		sql.append("AND (mbr.system_flags::bit(32) & (" + InternalFlag.expunged.value + ")::bit(32))=0::bit(32) ");
 		return select(sql.toString(), rs -> new ImapBinding(), (rs, index, value) -> {

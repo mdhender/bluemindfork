@@ -77,4 +77,7 @@ public interface ResourceTypeConstants extends Constants {
 
 	String emptyLabel();
 
+	String templatePreviewButtonOn();
+
+	String templatePreviewButtonOff();
 }

@@ -87,3 +87,13 @@ create table t_sieve_script (
 	primary key (user_id, filename)
 );
 create index t_sieve_by_user_id ON t_sieve_script (user_id);
+
+create table t_subtree_uid (
+	domain_uid	text not null,
+	mailbox_uid text not null,
+	mailbox_name text not null,
+	namespace text not null,
+	unique (domain_uid, mailbox_uid)
+);
+
+create index subtree_uid_idx ON t_subtree_uid (domain_uid, mailbox_name);

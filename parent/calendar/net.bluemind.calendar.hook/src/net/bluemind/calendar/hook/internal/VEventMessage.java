@@ -32,6 +32,19 @@ public class VEventMessage {
 	public Container container;
 	public String auditEventId;
 
+	public VEventMessage() {
+	}
+
+	public VEventMessage(final VEventSeries vevent, final String uid, boolean sendNotifications,
+			final SecurityContext securityContext, final String auditEventId, final Container container) {
+		this.itemUid = uid;
+		this.vevent = vevent;
+		this.securityContext = securityContext;
+		this.container = container;
+		this.sendNotifications = sendNotifications;
+		this.auditEventId = auditEventId;
+	}
+
 	public VEventMessage copy() {
 		VEventMessage copy = new VEventMessage();
 		copy.itemUid = this.itemUid;

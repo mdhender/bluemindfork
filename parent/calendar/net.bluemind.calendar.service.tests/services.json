@@ -3,4 +3,7 @@
  },
  { 
     "name":"bluemind/elasticsearch-tests" 
+ },
+ {
+    "name":"bluemind/imap-role"
 }]

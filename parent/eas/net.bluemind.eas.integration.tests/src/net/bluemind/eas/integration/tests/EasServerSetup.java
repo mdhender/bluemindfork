@@ -125,6 +125,7 @@ public class EasServerSetup {
 		if (!beforeTimeout) {
 			throw new TimeoutException("Vertx spaw was too slow");
 		}
+		SyncServerHelper.waitFor();
 
 		MQ.init().get(30, TimeUnit.SECONDS);
 		Topology.get();

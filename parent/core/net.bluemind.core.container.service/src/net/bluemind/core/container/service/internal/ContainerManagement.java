@@ -325,4 +325,9 @@ public class ContainerManagement implements IContainerManagement {
 		}
 	}
 
+	@Override
+	public boolean canAccess(List<String> verbsOrRoles) throws ServerFault {
+		return rbacManager.can(verbsOrRoles.toArray(new String[0]));
+	}
+
 }

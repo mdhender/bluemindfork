@@ -59,6 +59,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.json.JsonObject;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.netflix.spectator.api.Registry;
 
@@ -128,9 +129,9 @@ public class MailIndexService implements IMailIndexService {
 		Map<String, Object> content = new HashMap<>();
 		content.put("content", body.content);
 		content.put("preview", body.preview);
-		content.put("subject", body.subject);
-		content.put("subject_kw", body.subject);
-		content.put("headers", body.headers);
+		content.put("subject", body.subject.toString());
+		content.put("subject_kw", body.subject.toString());
+		content.put("headers", body.headers());
 		content.putAll(body.data);
 		client.prepareIndex(INDEX_PENDING, PENDING_TYPE).setId(body.uid).setSource(content).execute().actionGet();
 		return content;
@@ -237,6 +238,9 @@ public class MailIndexService implements IMailIndexService {
 		mutableContent.put("is", is);
 		mutableContent.put("itemId", item.internalId);
 		mutableContent.put("parentId", parentUid);
+		if (mail.internalDate != null) {
+			mutableContent.put("internalDate", mail.internalDate.toInstant().toString());
+		}
 		mutableContent.put(JOIN_FIELD, ImmutableMap.of("name", CHILD_TYPE, "parent", parentUid));
 
 		// deduplicate fields
@@ -794,6 +798,7 @@ public class MailIndexService implements IMailIndexService {
 		searchBuilder.addStoredField("itemId");
 		searchBuilder.addStoredField("uid");
 		searchBuilder.addStoredField("preview");
+		searchBuilder.addStoredField("internalDate");
 		searchBuilder.setFetchSource(true);
 		searchBuilder.setFrom(Long.valueOf(query.offset).intValue());
 		searchBuilder.setSize(Long.valueOf(query.maxResults).intValue());
@@ -839,8 +844,16 @@ public class MailIndexService implements IMailIndexService {
 		String subject = (String) source.get("subject");
 		logger.debug("matching result itemId:{} subject:'{}' in folder:{}", itemId, subject, folderUid);
 		int size = (int) source.get("size");
-		ZonedDateTime date = ZonedDateTime.parse((String) source.get("date"));
+
+		String internalDate = (String) source.get("internalDate");
+		ZonedDateTime date;
+		if (internalDate != null) {
+			date = ZonedDateTime.parse(internalDate);
+		} else {
+			date = ZonedDateTime.parse((String) source.get("date"));
+		}
 		Date messageDate = Date.from(date.toInstant());
+
 		List<String> flags = (List<String>) source.get("is");
 		boolean seen = flags.contains("seen");
 		boolean flagged = flags.contains("flagged");
@@ -863,7 +876,7 @@ public class MailIndexService implements IMailIndexService {
 
 		boolean hasAttachment = !((List<String>) source.get("has")).isEmpty();
 
-		String preview = (String) source.get("preview");
+		String preview = Strings.nullToEmpty((String) source.get("preview"));
 
 		MessageSearchResult msr = new MessageSearchResult(contUid, itemId, subject, size, "IPM.Note", messageDate, from,
 				to, seen, flagged, hasAttachment, preview);

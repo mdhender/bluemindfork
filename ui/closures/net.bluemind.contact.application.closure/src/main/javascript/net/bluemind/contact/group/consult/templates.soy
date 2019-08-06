@@ -26,10 +26,19 @@
  */
 {template .card}
   <div class="{css header}">
+    <div class="card-photo">
+    {if $contact.photo}
+  	  <img src="{$contact.photo}" alt="" />
+	  {else}
+	  <i class="fa fa-5x fa-users"></i>aa
+    {/if}
+    </div>
     <h1>
     {$contact.name}
     </h1>
     <span class="{css container}">{$contact.container.name}</span>
+    <div style="clear: both;"></div>
+
   </div>
   <div class="{css main}">
     {if $contact.categories}

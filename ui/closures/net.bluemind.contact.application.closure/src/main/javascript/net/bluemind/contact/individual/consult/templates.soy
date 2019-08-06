@@ -26,30 +26,33 @@
  */
 {template .card}
   <div class="{css header}">
+    <div class="card-photo">
     {if $contact.photo}
   	  <img src="{$contact.photo}" alt="" />
 	  {else}
 	  {if $contact.kind == 'group'}
-	  <i class="fa fa-lg fa-users"></i>
+	  <i class="fa fa-5x fa-users"></i>aa
 	  {else}
-	  <i class="fa fa-lg fa-user"></i>
+	  <i class="fa fa-5x fa-user"></i>
 	  {/if}
     {/if}
+    </div>
     <h1>{$contact.name}
     </h1>
     <span class="{css container}">{$contact.container.name}</span>
     {if ($contact.company)}
-      <div><div>{$contact.company}</div></div>
+      <div>{$contact.company}</div>
     {/if}
     {if ($contact.title)}
-        <div><div>{$contact.title}</div></div>
+        <div>{$contact.title}</div>
     {/if}
     {if ($contact.division)}
-        <div><div>{$contact.division}</div></div>
+        <div>{$contact.division}</div>
     {/if}
     {if ($contact.department)}
-        <div><div>{$contact.department}</div></div>
+        <div>{$contact.department}</div>
     {/if}
+    <div style="clear: both;"></div>
   </div>
   <div class="{css main}">
     {if $contact.categories}

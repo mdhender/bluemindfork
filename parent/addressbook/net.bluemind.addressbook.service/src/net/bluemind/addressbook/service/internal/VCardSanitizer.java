@@ -21,6 +21,8 @@ package net.bluemind.addressbook.service.internal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
@@ -62,13 +64,24 @@ public class VCardSanitizer implements ISanitizer<VCard> {
 		this.tagsSanitizer = new TagsSanitizer(context);
 	}
 
-	public void sanitize(VCard card) throws ServerFault {
+	public void sanitize(VCard card, Optional<String> containerUid) throws ServerFault {
 		sanitizeDefault(card);
 		sanitizeFormattedName(card);
 		sanitizeCnAndMailto(card);
 		sanitizeParameterValues(card);
 		sanitizeEmails(card);
+		sanitizeMembers(card, containerUid);
 		tagsSanitizer.sanitize(card.explanatory.categories);
+	}
+
+	private void sanitizeMembers(VCard card, Optional<String> containerUid) {
+		containerUid.ifPresent(container -> {
+			card.organizational.member.forEach(member -> {
+				if (member.itemUid != null && member.containerUid == null) {
+					member.containerUid = container;
+				}
+			});
+		});
 	}
 
 	private void sanitizeEmails(VCard card) {
@@ -251,11 +264,22 @@ public class VCardSanitizer implements ISanitizer<VCard> {
 
 	@Override
 	public void create(VCard obj) throws ServerFault {
-		sanitize(obj);
+		create(obj, Collections.emptyMap());
 	}
 
 	@Override
 	public void update(VCard current, VCard obj) throws ServerFault {
-		sanitize(obj);
+		update(current, obj, Collections.emptyMap());
 	}
+
+	@Override
+	public void create(VCard entity, Map<String, String> params) {
+		sanitize(entity, Optional.ofNullable(params.get("containerUid")));
+	}
+
+	@Override
+	public void update(VCard current, VCard entity, Map<String, String> params) {
+		sanitize(entity, Optional.ofNullable(params.get("containerUid")));
+	}
+
 }

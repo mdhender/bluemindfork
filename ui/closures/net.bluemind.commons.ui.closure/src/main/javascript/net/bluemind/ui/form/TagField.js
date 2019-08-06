@@ -25,6 +25,7 @@ goog.require("goog.ui.ComboBox");
 goog.require("goog.ui.ComboBoxItem");
 goog.require("net.bluemind.ui.form.TagFieldTemplate");
 goog.require("goog.math");
+goog.require('goog.string');
 goog.provide("net.bluemind.ui.form.TagField.ComboBoxItemRenderer");
 goog.provide("net.bluemind.ui.form.TagField.ComboBoxItem");
 /**
@@ -82,8 +83,17 @@ net.bluemind.ui.form.TagField.prototype.createField = function() {
 
   /** @meaning tags.selectOne */
   var MSG_TAG_SELECT = goog.getMsg('Select a tag...');
+
   cb.setId('tagsbox');
   cb.setDefaultText(MSG_TAG_SELECT);
+  cb.setMatchFunction(function(str1, str2) {
+    /** @meaning tags.create */
+    var MSG_TAG_CREATE = goog.getMsg('Create tag');
+    if (goog.string.startsWith(str1, MSG_TAG_CREATE.toLowerCase())) {
+      return str2.length > 0;
+    }
+    return goog.string.startsWith(str1, str2);
+  })
   this.addChild(cb);
   cb.render(this.getElementByClass(goog.getCssName('field-base-field')));
   cb.setEnabled(this.isEnabled());
@@ -104,16 +114,12 @@ net.bluemind.ui.form.TagField.prototype.enterDocument = function() {
   });
   
   this.getHandler().listen(this.getChild('tagsbox'), 'change', function(evt) {
-    var item = this.getChild('tagsbox').getItemAt(this.getChild('tagsbox').getItemCount() - 1);
-    if (evt.target.getToken().length > 0) {
-      item.setVisible(true);
-      /** @meaning tags.create */
-      var MSG_TAG_CREATE = goog.getMsg('Create tag');
-      item.setContent(MSG_TAG_CREATE + ' "' + evt.target.getValue() + '" ...');
-      item.setValue('create');
-    } else {
-      item.setVisible(false);
-    }
+    var tagsbox = this.getChild('tagsbox');
+    var item = tagsbox.getItemAt(tagsbox.getItemCount() - 1);
+    /** @meaning tags.create */
+    var MSG_TAG_CREATE = goog.getMsg('Create tag');
+    item.setContent(MSG_TAG_CREATE + ' "' + evt.target.getValue() + '" ...');
+    tagsbox.lastToken_ = tagsbox.lastToken ? tagsbox.lastToken : null;
   });
   this.getHandler().listen(this.getChild('bullets').getKeyEventTarget(), goog.events.EventType.FOCUS, function(evt) {
     this.getChild('tagsbox').getLabelInput().focusAndSelect();
@@ -195,13 +201,9 @@ net.bluemind.ui.form.TagField.prototype.refresh_ = function() {
 
   /** @meaning tags.create */
   var MSG_TAG_CREATE = goog.getMsg('Create tag');
-  var createTag = new goog.ui.ComboBoxItem(MSG_TAG_CREATE, 'create');
-  createTag.setId('create-tag');
-  createTag.setContent(MSG_TAG_CREATE + ' "' + this.getChild('tagsbox').getValue()
-      + '" ...');
-  createTag.setSticky(true);
-  createTag.setVisible(this.getChild('tagsbox').getValue() != '');
-  this.getChild('tagsbox').addItem(createTag);
+  var item = new goog.ui.ComboBoxItem(MSG_TAG_CREATE, 'create');
+  item.setId('create-tag');
+  this.getChild('tagsbox').addItem(item);
 
   this.resizeInput_();
 }

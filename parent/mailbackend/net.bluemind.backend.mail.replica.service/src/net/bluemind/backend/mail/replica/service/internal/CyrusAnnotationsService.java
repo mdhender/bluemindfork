@@ -20,35 +20,29 @@ package net.bluemind.backend.mail.replica.service.internal;
 import java.sql.SQLException;
 import java.util.List;
 
-import net.bluemind.backend.cyrus.partitions.CyrusBoxes;
-import net.bluemind.backend.cyrus.partitions.CyrusBoxes.ReplicatedBox;
-import net.bluemind.backend.cyrus.partitions.CyrusPartition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.bluemind.backend.mail.replica.api.ICyrusReplicationAnnotations;
 import net.bluemind.backend.mail.replica.api.MailboxAnnotation;
 import net.bluemind.backend.mail.replica.persistence.AnnotationStore;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.model.acl.Verb;
-import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.mailbox.api.IMailboxAclUids;
-import net.bluemind.mailbox.api.IMailboxes;
-import net.bluemind.mailbox.api.Mailbox;
 
 public class CyrusAnnotationsService implements ICyrusReplicationAnnotations {
 
+	private static final Logger logger = LoggerFactory.getLogger(CyrusAnnotationsService.class);
 	private final AnnotationStore annoStore;
 	private final BmContext context;
 
 	public CyrusAnnotationsService(BmContext context, AnnotationStore annoStore) {
 		this.annoStore = annoStore;
 		this.context = context;
+		logger.debug("Created in ctx {}", this.context);
 	}
 
 	@Override
 	public void storeAnnotation(MailboxAnnotation ss) {
-		new RBACManager(context).forContainer(IMailboxAclUids.uidForMailbox(mbox(ss.mailbox))).check(Verb.Write.name());
-
 		try {
 			annoStore.store(ss);
 		} catch (SQLException e) {
@@ -58,8 +52,6 @@ public class CyrusAnnotationsService implements ICyrusReplicationAnnotations {
 
 	@Override
 	public void deleteAnnotation(MailboxAnnotation ss) {
-		new RBACManager(context).forContainer(IMailboxAclUids.uidForMailbox(mbox(ss.mailbox))).check(Verb.Write.name());
-
 		try {
 			annoStore.delete(ss);
 		} catch (SQLException e) {
@@ -68,25 +60,12 @@ public class CyrusAnnotationsService implements ICyrusReplicationAnnotations {
 	}
 
 	public List<MailboxAnnotation> annotations(String mbox) {
-		new RBACManager(context).forContainer(IMailboxAclUids.uidForMailbox(mbox(mbox))).check(Verb.Read.name());
-
 		try {
 			return annoStore.byMailbox(mbox);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
 
-	}
-
-	private String mbox(String mailbox) {
-		ReplicatedBox box = CyrusBoxes.forCyrusMailbox(mailbox);
-		String domain = CyrusPartition.forName(box.partition).domainUid;
-		ItemValue<Mailbox> mboxItem = context.su().provider().instance(IMailboxes.class, domain)
-				.byName(box.local.replace('^', '.'));
-		if (mboxItem == null) {
-			throw ServerFault.notFound("mailbox uid for " + box + " (domain " + domain + ") not found");
-		}
-		return mboxItem.uid;
 	}
 
 }

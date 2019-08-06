@@ -33,10 +33,13 @@ import org.junit.Test;
 import org.vertx.java.core.AsyncResult;
 import org.vertx.java.core.Handler;
 
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.SettableFuture;
 
-import net.bluemind.calendar.api.IFreebusyUids;
+import net.bluemind.backend.cyrus.CyrusAdmins;
+import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.calendar.api.IFreebusyMgmt;
+import net.bluemind.calendar.api.IFreebusyUids;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
@@ -48,11 +51,15 @@ import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sessions.Sessions;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.pool.impl.BmConfIni;
+import net.bluemind.server.api.IServer;
+import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.persistance.UserSubscriptionStore;
 
 public class FreebusyMgmtTests {
 
+	private static final String DOMAIN = "test.lan";
 	protected SecurityContext defaultSecurityContext;
 	protected SecurityContext anotherSecurityContext;
 	protected Container container;
@@ -60,7 +67,6 @@ public class FreebusyMgmtTests {
 	@Before
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
-		
 
 		final SettableFuture<Void> future = SettableFuture.<Void>create();
 		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
@@ -73,11 +79,18 @@ public class FreebusyMgmtTests {
 		VertxPlatform.spawnVerticles(done);
 		future.get();
 
-		PopulateHelper.initGlobalVirt();
+		Server imapServer = new Server();
+		imapServer.ip = new BmConfIni().get("imap-role");
+		imapServer.tags = Lists.newArrayList("mail/imap");
 
-		PopulateHelper.addDomain("bm.lan");
+		PopulateHelper.initGlobalVirt(imapServer);
+
+		PopulateHelper.createTestDomain(DOMAIN, imapServer);
+
+		this.createCyrusPartition(imapServer, DOMAIN);
+
 		defaultSecurityContext = new SecurityContext("testUser", "test", Arrays.<String>asList(),
-				Arrays.<String>asList(), "bm.lan");
+				Arrays.<String>asList(), DOMAIN);
 
 		Sessions.get().put(defaultSecurityContext.getSessionId(), defaultSecurityContext);
 
@@ -87,7 +100,7 @@ public class FreebusyMgmtTests {
 		AclStore aclStore = new AclStore(JdbcTestHelper.getInstance().getDataSource());
 
 		container = Container.create(UUID.randomUUID().toString(), IFreebusyUids.TYPE, "fb container",
-				defaultSecurityContext.getSubject(), "bm.lan", true);
+				defaultSecurityContext.getSubject(), DOMAIN, true);
 		container = containerStore.create(container);
 		assertNotNull(container);
 
@@ -95,15 +108,25 @@ public class FreebusyMgmtTests {
 				Arrays.asList(AccessControlEntry.create(defaultSecurityContext.getSubject(), Verb.All)));
 
 		UserSubscriptionStore userSubscriptionStore = new UserSubscriptionStore(SecurityContext.SYSTEM,
-				JdbcTestHelper.getInstance().getDataSource(), containerStore.get("bm.lan"));
+				JdbcTestHelper.getInstance().getDataSource(), containerStore.get(DOMAIN));
 
 		userSubscriptionStore.subscribe(defaultSecurityContext.getSubject(), container);
 
 		anotherSecurityContext = new SecurityContext(UUID.randomUUID().toString(), "another", Arrays.<String>asList(),
-				Arrays.<String>asList(), "bm.lan");
+				Arrays.<String>asList(), "another.lan");
 
 		Sessions.get().put(anotherSecurityContext.getSessionId(), anotherSecurityContext);
 
+	}
+
+	private void createCyrusPartition(final Server imapServer, final String domainUid) {
+		final CyrusService cyrusService = new CyrusService(imapServer.ip);
+		cyrusService.createPartition(domainUid);
+		cyrusService.refreshPartitions(Arrays.asList(domainUid));
+		new CyrusAdmins(
+				ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class, "default"),
+				imapServer.ip).write();
+		cyrusService.reload();
 	}
 
 	@After

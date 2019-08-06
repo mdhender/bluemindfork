@@ -47,11 +47,11 @@ import net.bluemind.core.api.ParametersValidator;
 import net.bluemind.core.api.Regex;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.api.IFlatHierarchyUids;
 import net.bluemind.core.container.api.IContainersFlatHierarchy;
 import net.bluemind.core.container.api.IDataShardSupport;
-import net.bluemind.core.container.api.IOwnerSubscriptions;
+import net.bluemind.core.container.api.IFlatHierarchyUids;
 import net.bluemind.core.container.api.IOwnerSubscriptionUids;
+import net.bluemind.core.container.api.IOwnerSubscriptions;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
@@ -369,18 +369,16 @@ public class Directory {
 		});
 
 		xferContainer(monitor.subWork(1), dirEntry, serverUid, "mapi_fai", (String containerUid) -> {
-			return sp.instance(IMapiFolderAssociatedInformation.class, containerUid);
+			return sp.instance(IMapiFolderAssociatedInformation.class, containerUid.substring("mapi_fai_".length()));
 		});
 
-		xferContainer(monitor.subWork(1), dirEntry, serverUid, IFlatHierarchyUids.TYPE,
-				(String containerUid) -> {
-					return sp.instance(IContainersFlatHierarchy.class, domainUid, entryUid);
-				});
+		xferContainer(monitor.subWork(1), dirEntry, serverUid, IFlatHierarchyUids.TYPE, (String containerUid) -> {
+			return sp.instance(IContainersFlatHierarchy.class, domainUid, entryUid);
+		});
 
-		xferContainer(monitor.subWork(1), dirEntry, serverUid, IOwnerSubscriptionUids.TYPE,
-				(String containerUid) -> {
-					return sp.instance(IOwnerSubscriptions.class, domainUid, entryUid);
-				});
+		xferContainer(monitor.subWork(1), dirEntry, serverUid, IOwnerSubscriptionUids.TYPE, (String containerUid) -> {
+			return sp.instance(IOwnerSubscriptions.class, domainUid, entryUid);
+		});
 
 		ItemValue<Mailbox> mailbox = sp.instance(IMailboxes.class, domainUid).getComplete(entryUid);
 

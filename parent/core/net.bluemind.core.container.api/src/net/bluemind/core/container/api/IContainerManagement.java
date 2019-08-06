@@ -47,7 +47,7 @@ public interface IContainerManagement {
 	 * store container ACL
 	 * 
 	 * @param entries
-	 *            acl
+	 *                    acl
 	 * @throws ServerFault
 	 */
 	@PUT
@@ -155,6 +155,10 @@ public interface IContainerManagement {
 	@DELETE
 	@Path("{subject}/offlineSync")
 	public void disallowOfflineSync(@PathParam("subject") String subject) throws ServerFault;
+
+	@POST
+	@Path("_canAccess")
+	public boolean canAccess(List<String> verbsOrRoles) throws ServerFault;
 
 	@GET
 	@Path("_itemCount")

@@ -99,7 +99,7 @@ public abstract class AbstractReplicatedMailboxesRootMgmtServiceTests {
 		IReplicatedMailboxesRootMgmt service = getService(SecurityContext.SYSTEM);
 		MailboxReplicaRootDescriptor root = MailboxReplicaRootDescriptor.create(Namespace.users, "john");
 		service.create(root);
-		service.delete(root);
+		service.delete(root.ns.name(), root.name);
 	}
 
 	protected abstract IReplicatedMailboxesRootMgmt getService(SecurityContext ctx);

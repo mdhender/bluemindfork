@@ -34,5 +34,6 @@ Require-Bundle: org.junit,
  net.bluemind.authentication.service;bundle-version="4.1.0",
  org.mockito.mockito-core,
  org.objenesis,
- net.bluemind.core.validator
+ net.bluemind.core.validator,
+ net.bluemind.core.sanitizer
 Automatic-Module-Name: net.bluemind.addressbook.service.tests

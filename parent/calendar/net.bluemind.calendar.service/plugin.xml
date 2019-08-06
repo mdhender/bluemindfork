@@ -156,5 +156,10 @@
             factory="net.bluemind.calendar.service.internal.repair.CalendarViewRepairSupport$Factory">
       </repairSupport>
    </extension>
-
+   <extension
+         point="net.bluemind.core.sanitizerfactory">
+      <sanitizerfactory
+            implementation="net.bluemind.calendar.service.internal.VEventSeriesSanitizer$Factory">
+      </sanitizerfactory>
+   </extension>
 </plugin>

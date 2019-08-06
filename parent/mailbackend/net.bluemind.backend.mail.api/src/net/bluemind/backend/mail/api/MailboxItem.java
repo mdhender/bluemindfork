@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 
 import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.core.api.BMApi;
@@ -111,6 +112,7 @@ public class MailboxItem {
 
 	@Override
 	public String toString() {
-		return "[rec imap: " + imapUid + ", body: " + body.guid + ", flags: " + systemFlags + "]";
+		return "[rec imap: " + imapUid + ", body: " + Optional.ofNullable(body).map(b -> b.guid).orElse("NULL BODY")
+				+ ", flags: " + systemFlags + "]";
 	}
 }

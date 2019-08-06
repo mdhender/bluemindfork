@@ -36,6 +36,7 @@ import com.google.common.collect.Lists;
 
 import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.backend.cyrus.replication.testhelper.CyrusReplicationHelper;
+import net.bluemind.backend.cyrus.replication.testhelper.SyncServerHelper;
 import net.bluemind.cli.inject.imap.ImapInjector;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -107,6 +108,8 @@ public class ImapInjectorTests {
 		assertTrue(beforeTimeout);
 
 		MQ.init().get(30, TimeUnit.SECONDS);
+
+		SyncServerHelper.waitFor();
 
 		cyrusReplication.startReplication().get(5, TimeUnit.SECONDS);
 

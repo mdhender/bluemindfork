@@ -25,7 +25,7 @@ import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.platform.Verticle;
 
-import net.bluemind.system.ldap.export.internal.LdapExportService;
+import net.bluemind.system.ldap.export.LdapExportService;
 
 public class LdapExportVerticle extends Verticle {
 	private static final Logger logger = LoggerFactory.getLogger(LdapExportVerticle.class);

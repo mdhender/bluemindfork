@@ -28,6 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Future;
 import org.vertx.java.core.Vertx;
+import org.vertx.java.core.eventbus.Message;
+import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.core.net.NetServer;
 import org.vertx.java.platform.Verticle;
 
@@ -35,6 +37,7 @@ import net.bluemind.backend.cyrus.replication.observers.IReplicationObserver;
 import net.bluemind.backend.cyrus.replication.observers.ReplicationObservers;
 import net.bluemind.backend.cyrus.replication.server.state.ReadyStateNotifier;
 import net.bluemind.core.rest.http.HttpClientProvider;
+import net.bluemind.system.api.SystemState;
 
 public class SyncServerVerticle extends Verticle {
 
@@ -43,20 +46,32 @@ public class SyncServerVerticle extends Verticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(SyncServerVerticle.class);
 
+	private boolean started = false;
+
 	public void start(Future<Void> start) {
+		super.vertx.eventBus().registerHandler(SystemState.BROADCAST, (Message<JsonObject> m) -> {
+			if (!started) {
+				SystemState state = SystemState.fromOperation(m.body().getString("operation"));
+				if (state == SystemState.CORE_STATE_RUNNING) {
+					started = true;
+					startSyncServer();
+				}
+			}
+		});
+
+		start.setResult(null);
+	}
+
+	private void startSyncServer() {
 		NetServer srv = vertx.createNetServer();
 		srv.setAcceptBacklog(1024).setTCPNoDelay(true).setTCPKeepAlive(true).setReuseAddress(true);
 		HttpClientProvider prov = new HttpClientProvider(vertx);
 		List<IReplicationObserver> observers = ReplicationObservers.create(vertx);
 		srv.connectHandler(new SyncServerConnection(vertx, prov, observers));
-
 		srv.listen(PORT, result -> {
 			if (result.succeeded()) {
 				logger.info("Listening on port {}", PORT);
-				start.setResult(null);
 				notifyReadyState(vertx);
-			} else {
-				start.setFailure(result.cause());
 			}
 		});
 	}

@@ -286,7 +286,9 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 		if (internalUser == null) {
 			logger.warn("no user found for login {}", login);
 		} else {
-			logger.info("found user {}, domain {} for login {}", internalUser.value.login, theDomain.uid, login);
+			if (logger.isDebugEnabled()) {
+				logger.debug("found user {}, domain {} for login {}", internalUser.value.login, theDomain.uid, login);
+			}
 
 			if (internalUser.value.archived) {
 				logger.warn("user {} is archived", login);

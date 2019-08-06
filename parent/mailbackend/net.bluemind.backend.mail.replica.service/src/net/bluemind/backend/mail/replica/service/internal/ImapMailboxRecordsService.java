@@ -187,7 +187,6 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	@Override
 	public void deleteById(long id) {
-		rbac.check(Verb.Write.name());
 		logger.info("Delete {}", id);
 		ItemValue<MailboxItem> toDelete = getCompleteById(id);
 		if (toDelete != null) {
@@ -204,7 +203,6 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	@Override
 	public void resync() {
-		rbac.check(Verb.Write.name());
 		long time = System.currentTimeMillis();
 		Collection<Integer> imapUids = imapContext.withImapClient((sc, fast) -> {
 			sc.select(imapFolder);
@@ -213,15 +211,21 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		Set<Long> knownUids = imapUids.stream().map(Long::new).collect(Collectors.toSet());
 		List<String> allUids = storeService.allUids();
 		List<ItemValue<MailboxRecord>> extraRecords = new ArrayList<>(allUids.size());
+		List<ItemValue<MailboxRecord>> unlinkedRecords = new ArrayList<>(allUids.size());
 		for (List<String> slice : Lists.partition(allUids, 50)) {
 			List<ItemValue<MailboxRecord>> records = storeService.getMultiple(slice);
 			for (ItemValue<MailboxRecord> iv : records) {
-				if (!knownUids.contains(iv.value.imapUid) && !iv.flags.contains(ItemFlag.Deleted)) {
-					extraRecords.add(iv);
+				if (!knownUids.contains(iv.value.imapUid)) {
+					if (!checkExistOnBackend(iv.value.imapUid)) {
+						unlinkedRecords.add(iv);
+					} else if (!iv.flags.contains(ItemFlag.Deleted)) {
+						extraRecords.add(iv);
+					}
 				}
 			}
 		}
-		logger.info("Found {} extra record(s) before resync of {}", extraRecords.size(), imapFolder);
+		logger.info("Found {} extra record(s), {} unlinked record(s) before resync of {}", extraRecords.size(),
+				unlinkedRecords.size(), imapFolder);
 		if (!extraRecords.isEmpty()) {
 			IDbMailboxRecords recsApi = context.provider().instance(IDbMailboxRecords.class,
 					IMailReplicaUids.uniqueId(container.uid));
@@ -232,13 +236,17 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			}).collect(Collectors.toList());
 			recsApi.updates(batch);
 		}
+		if (!unlinkedRecords.isEmpty()) {
+			IDbMailboxRecords recsApi = context.provider().instance(IDbMailboxRecords.class,
+					IMailReplicaUids.uniqueId(container.uid));
+			recsApi.deleteImapUids(unlinkedRecords.stream().map(iv -> iv.value.imapUid).collect(Collectors.toList()));
+		}
 		time = System.currentTimeMillis() - time;
 		logger.info("{} re-sync completed in {}ms.", imapFolder, time);
 	}
 
 	@Override
 	public Ack updateById(long id, MailboxItem mail) {
-		rbac.check(Verb.Write.name());
 		if (mail.imapUid == 0) {
 			logger.warn("Not updating {} with imapUid 0", id);
 			return Ack.create(0L);
@@ -401,7 +409,6 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	@Override
 	public ItemIdentifier create(MailboxItem value) {
-		rbac.check(Verb.Write.name());
 		IOfflineMgmt offlineApi = context.provider().instance(IOfflineMgmt.class, imapContext.user.domainUid,
 				imapContext.user.uid);
 		IdRange alloc = offlineApi.allocateOfflineIds(1);
@@ -410,7 +417,6 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	@Override
 	public Ack createById(long id, MailboxItem value) {
-		rbac.check(Verb.Write.name());
 		ItemIdentifier itemIdentifier = create(id, value);
 		return Ack.create(itemIdentifier.version);
 	}
@@ -650,7 +656,6 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	@Override
 	public String uploadPart(Stream part) {
-		rbac.check(Verb.Write.name());
 		String addr = UUID.randomUUID().toString();
 		logger.info("[{}] Upload starts {}...", addr, part);
 		CompletableFuture<Void> upload = EZInputStreamAdapter.consume(part, oioStream -> {
@@ -674,13 +679,11 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	@Override
 	public void removePart(String partId) {
-		rbac.check(Verb.Write.name());
 		new File(Bodies.STAGING, partId + ".part").delete();
 	}
 
 	@Override
 	public Ack updateSeens(List<SeenUpdate> updates) {
-		rbac.check(Verb.Write.name());
 		List<Long> seenMdn = new ArrayList<>(updates.size());
 		List<Long> seen = new ArrayList<>(updates.size());
 		List<Long> unseen = new ArrayList<>(updates.size());
@@ -869,7 +872,6 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	@Override
 	public void multipleDeleteById(List<Long> ids) throws ServerFault {
-		rbac.check(Verb.Write.name());
 		if (ids.isEmpty()) {
 			logger.info("ids list is empty, nothing to delete");
 			return;

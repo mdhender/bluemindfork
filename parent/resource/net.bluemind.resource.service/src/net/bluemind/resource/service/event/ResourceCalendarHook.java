@@ -18,7 +18,6 @@
  */
 package net.bluemind.resource.service.event;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -88,7 +87,7 @@ public class ResourceCalendarHook implements ICalendarHook {
 						.get(message.container.owner);
 				ItemValue<ResourceDescriptor> resource = ItemValue.create(message.container.owner, rd);
 
-				for (VEvent vEvent : flatten(message.vevent)) {
+				for (VEvent vEvent : message.vevent.flatten()) {
 					try {
 						List<Attendee> attendees = vEvent.attendees;
 						for (Attendee attendee : attendees) {
@@ -203,18 +202,6 @@ public class ResourceCalendarHook implements ICalendarHook {
 	@Override
 	public void onEventDeleted(VEventMessage message) {
 
-	}
-
-	// FIXME move this code in VEventSeries
-	private List<VEvent> flatten(VEventSeries vEvents) {
-		List<VEvent> evts = new ArrayList<>();
-		if (vEvents.main != null) {
-			evts.add(vEvents.main);
-		}
-		vEvents.occurrences.forEach(occurrence -> {
-			evts.add(occurrence);
-		});
-		return evts;
 	}
 
 	private ResourceBundle getMessages(Locale locale) {

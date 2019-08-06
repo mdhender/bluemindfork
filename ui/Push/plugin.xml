@@ -4,7 +4,7 @@
    <extension
          point="net.bluemind.webmodule">
       <web-module-provider
-            module="/webmail,/contact,/cal,/tasks,/adminconsole,/settings">
+            module="/webmail,/contact,/cal,/task,/adminconsole,/settings">
          <js
                async-loading="true"
                path="net.bluemind.ui.push/net.bluemind.ui.push.nocache.js">

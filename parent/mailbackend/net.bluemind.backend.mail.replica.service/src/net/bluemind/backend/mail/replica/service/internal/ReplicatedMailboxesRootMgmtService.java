@@ -42,11 +42,11 @@ import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.MailboxReplicaRootUpdate;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
+import net.bluemind.backend.mail.replica.api.utils.Subtree;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.backend.mail.replica.persistence.MailboxReplicaStore;
 import net.bluemind.backend.mail.replica.service.internal.hooks.DeletedDataMementos;
 import net.bluemind.backend.mail.replica.utils.SubtreeContainer;
-import net.bluemind.backend.mail.replica.utils.SubtreeContainer.Subtree;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.api.IFlatHierarchyUids;
@@ -89,13 +89,13 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 			return;
 		}
 		sub = SubtreeContainer.mailSubtreeUid(context, domainUid, root);
-		String containerUid = sub.subtreeUid;
+		String containerUid = sub.subtreeUid();
 		String ownerUid = sub.ownerUid;
 		IContainers contApi = context.provider().instance(IContainers.class);
 		if (getRootContainer(containerUid, contApi) == null) {
 			createRootContainer(root, domainUid, containerUid, ownerUid, contApi);
-		} else {
-			logger.info("Container {} exists for {}", containerUid, root.fullName());
+		} else if (logger.isDebugEnabled()) {
+			logger.debug("Container {} exists for {}", containerUid, root.fullName());
 		}
 	}
 
@@ -104,13 +104,12 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 		try {
 			lock.writeLock().lock();
 			if (getRootContainer(containerUid, contApi) == null) {
-				logger.info("Should create missing root {}", containerUid);
+				logger.info("Create missing root {}", containerUid);
 				ContainerDescriptor toCreate = ContainerDescriptor.create(containerUid, subtreeName(root), ownerUid,
 						IMailReplicaUids.REPLICATED_MBOXES, domainUid, true);
 				toCreate.domainUid = domainUid;
 
 				contApi.create(toCreate.uid, toCreate);
-				// FIXME set permissions
 				EmitReplicationEvents.mailboxRootCreated(root);
 			}
 		} finally {
@@ -131,17 +130,17 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 		return root.ns.name() + "/" + root.name.replace('^', '.');
 	}
 
-	private String owner(MailboxReplicaRootDescriptor root, String domainUid, String defaultOwner) {
+	private String owner(String namespace, String mailboxName, String domainUid, String defaultOwner) {
 		String owner = defaultOwner;
-		if (root.ns == Namespace.users) {
+		if (Namespace.valueOf(namespace) == Namespace.users) {
 			IUser userApi = context.provider().instance(IUser.class, domainUid);
-			ItemValue<User> found = userApi.byLogin(root.name);
+			ItemValue<User> found = userApi.byLogin(mailboxName);
 			if (found != null) {
 				owner = found.uid;
 			}
 		} else {
 			IMailshare shareApi = context.provider().instance(IMailshare.class, domainUid);
-			String toSearch = root.name.replace('^', '.');
+			String toSearch = mailboxName.replace('^', '.');
 			Optional<ItemValue<Mailshare>> found = shareApi.allComplete().stream()
 					.filter(it -> it.value.name.equals(toSearch)).findFirst();
 			if (found.isPresent()) {
@@ -170,12 +169,12 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 		cm.defaultContainer = true;
 		cm.name = subtreeName(rename.to);
 		logger.info("Renaming subtree from {} to {}", subtreeName(rename.from), cm.name);
-		contApi.update(sub.subtreeUid, cm);
+		contApi.update(sub.subtreeUid(), cm);
 	}
 
 	@Override
-	public void delete(MailboxReplicaRootDescriptor root) {
-		String owner = owner(root, partition.domainUid, null);
+	public void delete(String namespace, String mailboxName) {
+		String owner = owner(namespace, mailboxName, partition.domainUid, null);
 		if (owner != null) {
 			DataSource ds = DataSourceRouter.get(context, IFlatHierarchyUids.getIdentifier(owner, partition.domainUid));
 			reset((lookup -> {

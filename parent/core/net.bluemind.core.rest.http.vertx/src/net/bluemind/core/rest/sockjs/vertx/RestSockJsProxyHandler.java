@@ -180,6 +180,7 @@ public class RestSockJsProxyHandler implements Handler<Buffer> {
 		};
 		restbus.register(request, (v) -> {
 			handlers.put(path, handler);
+			sendResponse(request.id, RestResponse.ok(200, null));
 			return handler;
 		}, (e) -> {
 			if (logger.isDebugEnabled()) {

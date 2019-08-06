@@ -426,6 +426,7 @@ i.envelope {
   background-color: #eee;
   padding: 10px;
   margin-bottom: 10px;
+
 }
 
 .vcard .header > div.container {
@@ -437,11 +438,22 @@ i.envelope {
 }
 
 
-.field-photo {
-	margin-right: 10px;
+.field-photo, .card-photo {
+	margin-right: 25px;
 	float: left;
-	height: 96px;
+  height: 97px;
+  font-size: 1.5em;
+  overflow: visible!important;
 }
+
+.card-photo img {
+  min-width: 50px;
+  min-height: 50px;
+  max-width: 96px;
+  max-height: 96px;
+  border: 1px solid #ccc;
+}
+
 /******************************************************************************
  *                        GROUP VCARD 
  *****************************************************************************/

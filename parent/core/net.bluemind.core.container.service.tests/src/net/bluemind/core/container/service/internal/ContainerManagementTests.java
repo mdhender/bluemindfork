@@ -8,6 +8,7 @@ import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -65,6 +66,8 @@ public class ContainerManagementTests {
 
 		PopulateHelper.addDomain(domainUid);
 		PopulateHelper.addUser("subject", domainUid);
+
+		PopulateHelper.addUser("accesstest", domainUid);
 
 		testSecurityContext = new SecurityContext("testSessionId", "test", Arrays.<String>asList(testGroup),
 				Arrays.<String>asList(), domainUid);
@@ -314,6 +317,44 @@ public class ContainerManagementTests {
 			sf.printStackTrace();
 			fail();
 		}
+	}
+
+	@Test
+	public void testAccess() throws SQLException {
+		SecurityContext ctx = new SecurityContext("accesstest", "accesstest", Collections.emptyList(),
+				Arrays.<String>asList(), domainUid);
+		Sessions.get().put(ctx.getSessionId(), ctx);
+
+		IContainerManagement containerManagement = service(ctx, containerId);
+
+		aclStore.store(container, Collections.emptyList());
+
+		assertFalse(containerManagement.canAccess(Arrays.asList(Verb.Read.name())));
+		assertFalse(containerManagement.canAccess(Arrays.asList(Verb.Write.name())));
+		assertFalse(containerManagement.canAccess(Arrays.asList(Verb.Manage.name())));
+
+		assertFalse(
+				containerManagement.canAccess(Arrays.asList(Verb.Read.name(), Verb.Write.name(), Verb.Manage.name())));
+
+		aclStore.store(container, Arrays.asList(AccessControlEntry.create(ctx.getSubject(), Verb.Read)));
+
+		assertTrue(containerManagement.canAccess(Arrays.asList(Verb.Read.name())));
+		assertFalse(containerManagement.canAccess(Arrays.asList(Verb.Write.name())));
+		assertFalse(containerManagement.canAccess(Arrays.asList(Verb.Manage.name())));
+
+		assertTrue(
+				containerManagement.canAccess(Arrays.asList(Verb.Read.name(), Verb.Write.name(), Verb.Manage.name())));
+		assertFalse(containerManagement.canAccess(Arrays.asList(Verb.Write.name(), Verb.Manage.name())));
+
+		aclStore.store(container, Arrays.asList(AccessControlEntry.create(ctx.getSubject(), Verb.Write)));
+
+		assertTrue(containerManagement.canAccess(Arrays.asList(Verb.Read.name())));
+		assertTrue(containerManagement.canAccess(Arrays.asList(Verb.Write.name())));
+		assertFalse(containerManagement.canAccess(Arrays.asList(Verb.Manage.name())));
+
+		assertTrue(
+				containerManagement.canAccess(Arrays.asList(Verb.Read.name(), Verb.Write.name(), Verb.Manage.name())));
+		assertTrue(containerManagement.canAccess(Arrays.asList(Verb.Write.name(), Verb.Manage.name())));
 	}
 
 	@Test

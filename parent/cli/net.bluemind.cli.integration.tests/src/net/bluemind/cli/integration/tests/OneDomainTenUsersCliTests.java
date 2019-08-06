@@ -49,9 +49,8 @@ public class OneDomainTenUsersCliTests {
 
 	public static final int USER_COUNT = 10;
 	private static String domainUid;
-	private static CliTestHelper testHelper	;
+	private static CliTestHelper testHelper;
 	private static CLIManager cli;
-
 
 	@BeforeClass
 	public static void beforeClass() throws Exception {
@@ -83,9 +82,9 @@ public class OneDomainTenUsersCliTests {
 		cli.processArgs("index", "shards");
 		String output = testHelper.outputAndReset();
 		assertNotNull(output);
-		int jsonArrayStart = output.indexOf("\n[");
-		assertTrue(jsonArrayStart > 0);
-		String justJson = output.substring(jsonArrayStart + 1);
+		int jsonArrayStart = output.indexOf("[ {");
+		assertTrue(jsonArrayStart >= 0);
+		String justJson = output.substring(jsonArrayStart);
 		JsonArray reparsedStats = new JsonArray(justJson);
 		assertTrue(reparsedStats.size() > 0);
 	}
@@ -181,7 +180,7 @@ public class OneDomainTenUsersCliTests {
 		LoginResponse response = authService.login("admin0@global.virt", "newpassword", "test");
 		assertTrue(response.status.equals(LoginResponse.Status.Ok));
 	}
-	
+
 	@Test
 	public void testDomainQuotaUpdate() {
 		cli.processArgs("user", "get", "--display", "quota email", domainUid);
@@ -192,15 +191,15 @@ public class OneDomainTenUsersCliTests {
 
 		cli.processArgs("user", "update", domainUid, "--quota", "2047");
 		output = testHelper.outputAndReset();
-		
+
 		cli.processArgs("user", "get", "--display", "quota", email);
 		output = testHelper.outputAndReset();
-		
+
 		List<JsonObject> entryObjects = Pattern.compile("\n").splitAsStream(output).filter(l -> l.startsWith("{"))
 				.map(l -> new JsonObject(l)).collect(Collectors.toList());
 		entryObjects.forEach(o -> assertEquals(2047, o.getInteger("quota").intValue()));
 	}
-	
+
 	@Test
 	public void testUserExport() {
 		cli.processArgs("user", "get", "--display", "quota email", domainUid);

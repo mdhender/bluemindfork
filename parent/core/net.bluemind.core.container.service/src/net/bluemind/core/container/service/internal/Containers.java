@@ -333,15 +333,19 @@ public class Containers implements IContainers {
 		List<BaseContainerDescriptor> ret = new ArrayList<BaseContainerDescriptor>();
 
 		dataSources.forEach(ds -> {
-			ContainerStore containerStore = new ContainerStore(context, ds, securityContext);
-			if (query.owner != null) {
-				// FIXME not everybody should be able to call this
-				ret.addAll(asDescriptorsLight(
-						doOrFail(() -> containerStore.findByTypeOwnerReadOnly(query.type, query.owner, query.readonly)),
-						securityContext));
-			} else {
-				ret.addAll(asDescriptorsLight(doOrFail(() -> containerStore.findAccessiblesByType(query)),
-						securityContext));
+			try {
+				ContainerStore containerStore = new ContainerStore(context, ds, securityContext);
+				if (query.owner != null) {
+					// FIXME not everybody should be able to call this
+					ret.addAll(asDescriptorsLight(doOrFail(
+							() -> containerStore.findByTypeOwnerReadOnly(query.type, query.owner, query.readonly)),
+							securityContext));
+				} else {
+					ret.addAll(asDescriptorsLight(doOrFail(() -> containerStore.findAccessiblesByType(query)),
+							securityContext));
+				}
+			} catch (Exception e) {
+				logger.warn("Fail to fetch containers on datasource {}", ds);
 			}
 
 		});
@@ -363,13 +367,18 @@ public class Containers implements IContainers {
 		List<ContainerDescriptor> ret = new ArrayList<ContainerDescriptor>();
 
 		dataSources.forEach(ds -> {
-			ContainerStore suContainerStore = new ContainerStore(context, ds, sc);
-			if (query.owner != null && query.type != null) {
-				ret.addAll(asDescriptors(doOrFail(() -> suContainerStore.findByTypeAndOwner(query.type, query.owner)),
-						sc));
-			} else {
-				ret.addAll(asDescriptors(doOrFail(() -> suContainerStore.findAccessiblesByType(query)), sc));
+			try {
+				ContainerStore suContainerStore = new ContainerStore(context, ds, sc);
+				if (query.owner != null && query.type != null) {
+					ret.addAll(asDescriptors(
+							doOrFail(() -> suContainerStore.findByTypeAndOwner(query.type, query.owner)), sc));
+				} else {
+					ret.addAll(asDescriptors(doOrFail(() -> suContainerStore.findAccessiblesByType(query)), sc));
+				}
+			} catch (Exception e) {
+				logger.warn("Fail to fetch containers for user {} on datasource {}", userUid, ds);
 			}
+
 		});
 		return dedup(ret);
 

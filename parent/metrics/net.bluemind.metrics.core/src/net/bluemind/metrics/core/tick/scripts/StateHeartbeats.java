@@ -55,7 +55,7 @@ public class StateHeartbeats extends BasicTickTemplateProvider {
 					String alertId = TickTemplateHelper.newId(product, "heartbeat", server);
 					TemplateDefinition def = new TickTemplateDefBuilder(alertId).withDatalocation(server.uid)
 							.withEndPoint(endPointUrl).withProduct(product).build();
-					logger.info("Definition is {}", def.variables.encodePrettily());
+					logger.info("Alert for heartbeats created for {} on {}", product, server.value);
 					return def;
 				}).collect(Collectors.toList());
 	}

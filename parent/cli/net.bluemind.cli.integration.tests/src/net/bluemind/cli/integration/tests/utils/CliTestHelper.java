@@ -30,6 +30,7 @@ import com.google.common.collect.Lists;
 
 import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.backend.cyrus.replication.testhelper.CyrusReplicationHelper;
+import net.bluemind.backend.cyrus.replication.testhelper.SyncServerHelper;
 import net.bluemind.backend.mail.replica.indexing.RecordIndexActivator;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
@@ -171,7 +172,10 @@ public class CliTestHelper {
 			System.err.println("Reloading index support...");
 			RecordIndexActivator.reload();
 			System.err.println("Starting replication if needed...");
-			return replication.map(helper -> helper.startReplication()).orElse(CompletableFuture.completedFuture(null));
+			return replication.map(helper -> {
+				SyncServerHelper.waitFor();
+				return helper.startReplication();
+			}).orElse(CompletableFuture.completedFuture(null));
 		}).thenApply(replicationStarted -> {
 			for (String domUid : domains) {
 				for (int i = 0; i < toProvision.userCount; i++) {
@@ -194,7 +198,7 @@ public class CliTestHelper {
 	public void afterTest() throws Exception {
 		outAndErr.reset();
 	}
-	
+
 	public void afterClassTest() throws Exception {
 		System.setOut(origOut);
 		System.setErr(origErr);

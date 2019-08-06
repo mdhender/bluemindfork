@@ -115,7 +115,7 @@ public class IcsHook implements ICalendarHook {
 				sendEventInvitations(message);
 			} else {
 				DirEntry dirEntry = getMyDirEntry(message);
-				List<VEvent> flat = flatten(message.vevent);
+				List<VEvent> flat = message.vevent.flatten();
 				for (VEvent vEvent : flat) {
 					Optional<EventAttendeeTuple> attendee = getMatchingAttendeeForEvent(vEvent, dirEntry);
 					if (attendee.isPresent()) {
@@ -138,7 +138,7 @@ public class IcsHook implements ICalendarHook {
 		}
 
 		VEventSeries oldEventSeries = message.oldEvent;
-		List<VEvent> flatten = flatten(updatedEvent);
+		List<VEvent> flatten = updatedEvent.flatten();
 		try {
 			if (isMasterVersion(message.oldEvent, message.container)) {
 				onMasterVersionUpdated(message, updatedEvent, oldEventSeries, flatten);
@@ -223,6 +223,7 @@ public class IcsHook implements ICalendarHook {
 			deletedAttendees = deletedAttendees.stream().filter(a -> {
 				return !userDeletedFromSeries.contains(a);
 			}).collect(Collectors.toList());
+
 			if (!evt.exception()) {
 				userDeletedFromSeries.addAll(deletedAttendees);
 			}
@@ -348,7 +349,7 @@ public class IcsHook implements ICalendarHook {
 		List<Attendee> seriesAttendees = master != null ? master.attendees.stream().filter(a -> {
 			return attendsToSeries(message.vevent, a);
 		}).collect(Collectors.toList()) : Collections.emptyList();
-		List<VEvent> events = flatten(message.vevent);
+		List<VEvent> events = message.vevent.flatten();
 
 		for (VEvent evt : events) {
 			for (Attendee attendee : evt.attendees) {
@@ -447,7 +448,7 @@ public class IcsHook implements ICalendarHook {
 			return attendsToSeries(message.vevent, a);
 		}).collect(Collectors.toList()) : Collections.emptyList();
 
-		List<VEvent> events = flatten(message.vevent);
+		List<VEvent> events = message.vevent.flatten();
 
 		for (VEvent evt : events) {
 			for (Attendee attendee : evt.attendees) {
@@ -848,13 +849,13 @@ public class IcsHook implements ICalendarHook {
 	}
 
 	private VEventSeries getSeriesForAttendee(VEventSeries updatedEvent, Attendee attendee) {
-		return flatten(updatedEvent).stream() //
+		return updatedEvent.flatten().stream() //
 				.filter(evt -> userAttends(evt, attendee)) //
 				.reduce(new VEventSeries(), reduceSeries(), combineSeries());
 	}
 
 	private VEventSeries reduceToAttendee(VEventSeries updatedEvent, Attendee attendee) {
-		return flatten(updatedEvent).stream() //
+		return updatedEvent.flatten().stream() //
 				.map(evt -> {
 					evt.attendees = Arrays.asList(attendee);
 					return evt;
@@ -1021,7 +1022,7 @@ public class IcsHook implements ICalendarHook {
 
 	private boolean attendsToSeries(VEventSeries series, Attendee attendee) {
 		boolean attends = true;
-		List<VEvent> flatten = flatten(series);
+		List<VEvent> flatten = series.flatten();
 		for (VEvent vEvent : flatten) {
 			attends = attends && userAttends(vEvent, attendee);
 		}
@@ -1082,10 +1083,6 @@ public class IcsHook implements ICalendarHook {
 		return dirEntry.entryUid.equals(container.owner);
 	}
 
-	/**
-	 *
-	 */
-
 	private IServiceProvider provider() {
 		return ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 	}
@@ -1098,17 +1095,6 @@ public class IcsHook implements ICalendarHook {
 			this.attendee = attendee;
 			this.event = event;
 		}
-	}
-
-	private List<VEvent> flatten(VEventSeries vEvents) {
-		List<VEvent> evts = new ArrayList<>();
-		if (vEvents.main != null) {
-			evts.add(vEvents.main);
-		}
-		vEvents.occurrences.forEach(occurrence -> {
-			evts.add(occurrence);
-		});
-		return evts;
 	}
 
 	private static class MailData {
@@ -1189,4 +1175,5 @@ public class IcsHook implements ICalendarHook {
 		}
 
 	}
+
 }

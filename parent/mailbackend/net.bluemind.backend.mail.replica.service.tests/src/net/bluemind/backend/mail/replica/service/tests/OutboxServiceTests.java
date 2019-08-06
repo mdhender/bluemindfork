@@ -18,6 +18,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.vertx.java.core.buffer.Buffer;
 
@@ -45,12 +46,17 @@ import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.mime.MimeTree;
 
 public class OutboxServiceTests extends AbstractRollingReplicationTests {
-	
+
 	private String apiKey;
 	private String partition;
 	private String mboxRoot;
 	private ClientSideServiceProvider provider;
-	
+
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty("es.mailspool.count", "1");
+	}
+
 	@Before
 	public void before() throws Exception {
 		super.before();
@@ -85,7 +91,7 @@ public class OutboxServiceTests extends AbstractRollingReplicationTests {
 		} while (hierarchy.exactVersion < 7);
 		System.out.println("Hierarchy is now at version " + hierarchy.exactVersion);
 		System.err.println("before is complete, starting test.");
-		
+
 		provider = ClientSideServiceProvider.getProvider("http://127.0.0.1:8090", "sid");
 	}
 
@@ -94,35 +100,35 @@ public class OutboxServiceTests extends AbstractRollingReplicationTests {
 		System.err.println("Test is over, after starts...");
 		super.after();
 	}
-	
+
 	@Test
 	public void testFlushOutbox() throws IOException {
 		// create a mail in outbox folder
 		IMailboxFolders mailboxFolderService = provider.instance(IMailboxFolders.class, partition, mboxRoot);
 		String outboxUid = mailboxFolderService.byName("Outbox").uid;
 		this.addMailToFolder(outboxUid);
-	
+
 		String sentUid = mailboxFolderService.byName("Sent").uid;
 		IMailboxItems mailboxItemsService = provider.instance(IMailboxItems.class, sentUid);
 		assertEquals(0, mailboxItemsService.count(ItemFlagFilter.all()).total);
-		
+
 		provider.instance(IOutbox.class, domainUid, userUid).flush();
-		
+
 		CompletableFuture<Void> applyMailboxCompletetion = new ExpectCommand().onNextApplyMailbox(sentUid);
-		
+
 		try {
 			applyMailboxCompletetion.get(5, TimeUnit.SECONDS);
 		} catch (InterruptedException | ExecutionException | TimeoutException e) {
 			e.printStackTrace();
 			fail();
 		}
-		
+
 		assertEquals(1, mailboxItemsService.count(ItemFlagFilter.all()).total);
 	}
-	
+
 	private long addMailToFolder(String mailboxUid) throws IOException {
 		assertNotNull(mailboxUid);
-		
+
 		try (InputStream in = testEml()) {
 			Stream forUpload = VertxStream.stream(new Buffer(ByteStreams.toByteArray(in)));
 			IMailboxItems recordsApi = provider.instance(IMailboxItems.class, mailboxUid);

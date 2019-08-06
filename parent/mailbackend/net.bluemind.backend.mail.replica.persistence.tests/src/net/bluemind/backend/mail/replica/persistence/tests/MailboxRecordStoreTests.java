@@ -40,8 +40,8 @@ import org.junit.Test;
 import net.bluemind.backend.cyrus.replication.testhelper.CyrusGUID;
 import net.bluemind.backend.cyrus.replication.testhelper.MailboxUniqueId;
 import net.bluemind.backend.mail.api.MailboxItem.SystemFlag;
-import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
+import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
@@ -70,8 +70,7 @@ public class MailboxRecordStoreTests {
 				securityContext);
 		String boxUniqueId = MailboxUniqueId.random();
 		String containerId = IMailReplicaUids.mboxRecords(boxUniqueId);
-		Container container = Container.create(containerId, IMailReplicaUids.MAILBOX_RECORDS, "test", "me",
-				true);
+		Container container = Container.create(containerId, IMailReplicaUids.MAILBOX_RECORDS, "test", "me", true);
 		container = containerHome.create(container);
 
 		assertNotNull(container);
@@ -107,9 +106,6 @@ public class MailboxRecordStoreTests {
 		itemStore.update(it.uid, null, Collections.emptyList());
 		unread = boxRecordStore.unreadItems();
 		assertFalse(unread.isEmpty());
-
-		List<ImapBinding> toUpdate = boxRecordStore.havingBodyVersionLowerThan(0);
-		assertTrue(toUpdate.isEmpty());
 	}
 
 	@Test

@@ -78,7 +78,7 @@ public class FlatHierarchyRepair implements IDirEntryRepairSupport {
 			if (entry.system) {
 				return;
 			}
-			logger.info("Check flat hier for {} as {}", entry, context);
+			logger.info("Checking flat hier for {} as {}", entry, context);
 
 		}
 
@@ -92,7 +92,7 @@ public class FlatHierarchyRepair implements IDirEntryRepairSupport {
 			if (entry.system) {
 				return;
 			}
-			logger.info("Repair flat hier for {} as {}", entry, context);
+			logger.info("Repairing flat hier for {} as {}", entry, context);
 			IInternalContainersFlatHierarchyMgmt mgmtApi = context.provider()
 					.instance(IInternalContainersFlatHierarchyMgmt.class, domainUid, entry.entryUid);
 			mgmtApi.init();

@@ -155,11 +155,15 @@ public class BaseReplicatedMailboxesService implements IBaseMailboxFolders {
 				// because jutf7 does not honor onMalformedInput(REPLACE) and
 				// Charset.decode
 				// throws an Error in that case
-				logger.warn("{} looks like utf-7 but it is not", s);
+				if (logger.isDebugEnabled()) {
+					logger.debug("{} looks like utf-7 but it is not", s);
+				}
 				return s;
 			}
 		} else {
-			logger.warn("{} contains non-ascii chars, not decoding as utf7.", s);
+			if (logger.isDebugEnabled()) {
+				logger.debug("{} contains non-ascii chars, not decoding as utf7.", s);
+			}
 			return s;
 		}
 	}

@@ -47,6 +47,7 @@ public class ResourceTypeStore extends JdbcAbstractStore {
 		logger.debug("create resourcetype {}", identifier);
 
 		doOrFail(() -> {
+
 			String query = "INSERT INTO t_resource_type ( " + ResourceTypeColumns.cols.names()
 					+ ", resource_container_id)" + " VALUES ( " + ResourceTypeColumns.cols.values() + ", ?)";
 
@@ -84,8 +85,7 @@ public class ResourceTypeStore extends JdbcAbstractStore {
 	public void update(String identifier, ResourceTypeDescriptor descriptor) throws ServerFault {
 		doOrFail(() -> {
 
-			String query = "UPDATE t_resource_type set label = ? WHERE id = ? and resource_container_id = ?";
-
+			String query = "UPDATE t_resource_type set label = ?, templates = ? WHERE id = ? and resource_container_id = ?";
 			update(query, descriptor, ResourceTypeColumns.statementValues(identifier, container));
 
 			delete("DELETE FROM t_resource_type_prop WHERE " + "type_id = ? and resource_container_id = ?",

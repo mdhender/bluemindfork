@@ -28,6 +28,7 @@ import java.util.concurrent.CountDownLatch;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.vertx.java.core.AsyncResult;
 import org.vertx.java.core.Handler;
@@ -38,8 +39,8 @@ import net.bluemind.backend.mail.api.IBaseMailboxFolders;
 import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesRootMgmt;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
+import net.bluemind.backend.mail.replica.api.utils.Subtree;
 import net.bluemind.backend.mail.replica.utils.SubtreeContainer;
-import net.bluemind.backend.mail.replica.utils.SubtreeContainer.Subtree;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
@@ -56,6 +57,11 @@ public abstract class AbstractReplicatedMailboxesServiceTests<T extends IBaseMai
 	protected String partition;
 	protected MailboxReplicaRootDescriptor mboxDescriptor;
 	protected Subtree subtreeDescriptor;
+
+	@BeforeClass
+	public static void beforeCLass() {
+		System.setProperty("es.mailspool.count", "1");
+	}
 
 	@Before
 	public void before() throws Exception {
@@ -108,5 +114,4 @@ public abstract class AbstractReplicatedMailboxesServiceTests<T extends IBaseMai
 		BmTestContext testCtx = BmTestContext.contextWithSession("test-sid", subtreeDescriptor.ownerUid, "vagrant.vmw");
 		assertNotNull(getService(testCtx.getSecurityContext()));
 	}
-
 }

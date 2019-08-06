@@ -21,6 +21,7 @@ package net.bluemind.resource.persistance.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -46,7 +47,6 @@ public class ResourceTypeStoreTests {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
-		
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 
 		ContainerStore containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
@@ -71,9 +71,14 @@ public class ResourceTypeStoreTests {
 				ResourceTypeDescriptor.Property.create("WhiteBoard", ResourceTypeDescriptor.Property.Type.Boolean,
 						"whiteboard ?"), //
 
-		ResourceTypeDescriptor.Property.create("Seats", ResourceTypeDescriptor.Property.Type.Number, "number of seats"), //
+				ResourceTypeDescriptor.Property.create("Seats", ResourceTypeDescriptor.Property.Type.Number,
+						"number of seats"), //
 				ResourceTypeDescriptor.Property.create("BlaBla", ResourceTypeDescriptor.Property.Type.String,
 						"blabla"));
+		testDescriptor.templates.put("fr",
+				"Ce template utilise la propriété WhiteBoard de valeur ${WhiteBoard} et Seats de valeur ${Seats}");
+		testDescriptor.templates.put("en",
+				"This template uses the property WhiteBoard having the value ${WhiteBoard} and the property Seats having the value ${Seats}");
 		resourceTypeStore.create("Room/EventRoom", testDescriptor);
 
 		ResourceTypeDescriptor get = resourceTypeStore.get("Room/EventRoom");
@@ -83,8 +88,8 @@ public class ResourceTypeStoreTests {
 		testDescriptor.properties = Arrays.asList(
 				ResourceTypeDescriptor.Property.create("TV", ResourceTypeDescriptor.Property.Type.Boolean, "TV ?"), //
 
-		ResourceTypeDescriptor.Property.create("Bottles", ResourceTypeDescriptor.Property.Type.Number,
-				"number of bottles"), //
+				ResourceTypeDescriptor.Property.create("Bottles", ResourceTypeDescriptor.Property.Type.Number,
+						"number of bottles"), //
 				ResourceTypeDescriptor.Property.create("BlaBla", ResourceTypeDescriptor.Property.Type.String,
 						"blabla"));
 		resourceTypeStore.update("Room/EventRoom", testDescriptor);
@@ -116,6 +121,11 @@ public class ResourceTypeStoreTests {
 		for (int i = 0; i < get.properties.size(); i++) {
 			assertPropertyEquals(get.properties.get(i), testDescriptor.properties.get(i));
 		}
+		assertEquals(get.templates.size(), testDescriptor.templates.size());
+		testDescriptor.templates.forEach((key, value) -> {
+			assertTrue(get.templates.containsKey(key));
+			assertEquals(get.templates.get(key), value);
+		});
 	}
 
 	private void assertPropertyEquals(Property property, Property property2) {

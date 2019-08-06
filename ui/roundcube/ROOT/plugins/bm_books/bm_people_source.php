@@ -274,7 +274,11 @@ class bm_people_source extends rcube_addressbook {
             );
             $members->add($rc);
           } else {
-            $this->expandMembers($m->containerUid, $m->itemUid, $members);
+            $containerUid = $m->containerUid;
+            if (is_null($containerUid)){
+              $containerUid = $container;
+            }
+            $this->expandMembers($containerUid, $m->itemUid, $members);
           }
         } 
     }

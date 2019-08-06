@@ -26,12 +26,14 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
 import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.backend.cyrus.replication.testhelper.CyrusReplicationHelper;
+import net.bluemind.backend.cyrus.replication.testhelper.SyncServerHelper;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
@@ -60,6 +62,11 @@ public abstract class AbstractRollingReplicationTests {
 
 	protected String uniqueUidPart() {
 		return System.currentTimeMillis() + "";
+	}
+
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty("es.mailspool.count", "1");
 	}
 
 	@Before
@@ -113,6 +120,8 @@ public abstract class AbstractRollingReplicationTests {
 
 		MQ.init().get(30, TimeUnit.SECONDS);
 		Topology.get();
+
+		SyncServerHelper.waitFor();
 
 		cyrusReplication.startReplication().get(5, TimeUnit.SECONDS);
 

@@ -41,6 +41,7 @@ public class TokensHandler {
 	long frameId = 0;
 
 	private ReplicationFrameBuilder frameBuilder;
+	private static final byte[] DELIM = "\r\n".getBytes();
 
 	public TokensHandler() {
 		frameBuilder = new ReplicationFrameBuilder(frameId++);
@@ -73,7 +74,7 @@ public class TokensHandler {
 
 			}
 		} else {
-			parser.delimitedMode("\r\n".getBytes());
+			parser.delimitedMode(DELIM);
 			delimitedMode = true;
 		}
 

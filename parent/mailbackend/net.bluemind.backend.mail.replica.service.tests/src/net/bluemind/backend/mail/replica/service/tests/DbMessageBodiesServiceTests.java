@@ -22,6 +22,7 @@
  */
 package net.bluemind.backend.mail.replica.service.tests;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
@@ -59,6 +60,19 @@ public class DbMessageBodiesServiceTests extends AbstractMessageBodiesServiceTes
 				System.out.println(recip.kind + " <" + recip.address + ">");
 			}
 		});
+	}
+
+	@Test
+	public void storeFromStreamBM14964Subject() {
+		IDbMessageBodies mboxes = getService(SecurityContext.SYSTEM);
+		assertNotNull(mboxes);
+		ReadStream<InputStreamWrapper> emlReadStream = openResource("data/mail.eml");
+		Stream bmStream = VertxStream.stream(emlReadStream);
+		String uid = CyrusGUID.randomGuid();
+		mboxes.create(uid, bmStream);
+
+		MessageBody loaded = mboxes.getComplete(uid);
+		assertEquals("Engagements Budget DSI_ FONCTION détail", loaded.subject);
 	}
 
 	protected IDbMessageBodies getService(SecurityContext ctx) {

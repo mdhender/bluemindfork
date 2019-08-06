@@ -18,6 +18,8 @@
  */
 package net.bluemind.imap;
 
+import com.google.common.base.MoreObjects;
+
 public class Annotation {
 	public final String valueShared;
 	public final String valuePriv;
@@ -50,5 +52,11 @@ public class Annotation {
 		}
 
 		return orig;
+	}
+
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(Annotation.class).add("priv", valuePriv).add("shared", valueShared)
+				.toString();
 	}
 }

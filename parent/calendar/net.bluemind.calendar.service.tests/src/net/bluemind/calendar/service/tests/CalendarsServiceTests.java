@@ -99,6 +99,7 @@ public class CalendarsServiceTests extends AbstractCalendarTests {
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
 
 		DateTime dtalarm = new DateTime(new BmDateTimeWrapper(event.main.dtstart).toUTCTimestamp() - 600 * 1000);
+
 		List<Reminder> reminder = getCalendarsService(userSecurityContext).getReminder(time(dtalarm));
 		assertEquals(1, reminder.size());
 

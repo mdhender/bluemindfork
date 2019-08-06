@@ -80,8 +80,8 @@ public class ApplyMessage implements IAsyncReplicationCommand {
 
 		return rootRef.content.thenApply(v -> {
 			long elapsed = System.currentTimeMillis() - time;
-			logger.info("Finished ApplyMessage in {}ms.", elapsed);
 			int total = count.get();
+			logger.info("Finished ApplyMessage {} in {}ms.", total, elapsed);
 			observers.stream().forEach(ob -> ob.onApplyMessages(total));
 			return CommandResult.success();
 		});

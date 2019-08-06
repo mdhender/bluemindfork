@@ -17,6 +17,8 @@
   */
 package net.bluemind.backend.mail.replica.service.internal.hooks;
 
+import java.sql.SQLException;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -27,8 +29,8 @@ import com.google.common.cache.CacheBuilder;
 
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
-import net.bluemind.backend.mail.replica.utils.SubtreeContainer;
-import net.bluemind.backend.mail.replica.utils.SubtreeContainer.Subtree;
+import net.bluemind.backend.mail.replica.api.utils.Subtree;
+import net.bluemind.backend.mail.replica.persistence.SubtreeUidStore;
 import net.bluemind.core.caches.registry.CacheHolder;
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
@@ -36,11 +38,11 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.mailbox.api.Mailbox;
 
-public class DeletedDataMementos extends CacheHolder<String, Subtree> {
+public class DeletedDataMementos extends CacheHolder<String, Optional<Subtree>> {
 
 	public static final Logger logger = LoggerFactory.getLogger(DeletedDataMementos.class);
 
-	private static Cache<String, Subtree> buildCache() {
+	private static Cache<String, Optional<Subtree>> buildCache() {
 		return CacheBuilder.newBuilder().expireAfterWrite(2, TimeUnit.MINUTES).build();
 	}
 
@@ -52,16 +54,15 @@ public class DeletedDataMementos extends CacheHolder<String, Subtree> {
 		}
 	}
 
-	public DeletedDataMementos(Cache<String, Subtree> cache) {
+	public DeletedDataMementos(Cache<String, Optional<Subtree>> cache) {
 		super(cache);
 	}
 
 	public static DeletedDataMementos get(BmContext context) {
 		if (context == null || context.provider().instance(CacheRegistry.class) == null) {
 			return new DeletedDataMementos(null);
-		} else {
-			return new DeletedDataMementos(context.provider().instance(CacheRegistry.class).get("deletedDataMementos"));
 		}
+		return new DeletedDataMementos(context.provider().instance(CacheRegistry.class).get("deletedDataMementos"));
 	}
 
 	public static void preDelete(BmContext ctx, String domainUid, ItemValue<Mailbox> mbox) {
@@ -72,17 +73,42 @@ public class DeletedDataMementos extends CacheHolder<String, Subtree> {
 		DeletedDataMementos mementos = DeletedDataMementos.get(ctx);
 		logger.info("Remembering with {}", mementos);
 
-		String root = domainUid + "!" + mbox.value.type.nsPrefix + mbox.value.name.replace('.', '^');
-		Subtree st = SubtreeContainer.mailSubtreeUid(domainUid,
-				mbox.value.type.sharedNs ? Namespace.shared : Namespace.users, mbox.uid);
-		logger.info("Caching {} => {} for future use.", root, st.subtreeUid);
-		mementos.put(root, st);
+		SubtreeUidStore store = new SubtreeUidStore(ctx.getDataSource());
+
+		Subtree subtree = new Subtree();
+		subtree.ownerUid = mbox.uid;
+		subtree.mailboxName = mbox.value.name;
+		subtree.namespace = mbox.value.type.sharedNs ? Namespace.shared : Namespace.users;
+		subtree.domainUid = domainUid;
+
+		try {
+			store.store(subtree);
+			mementos.put(subtree.subtreeUid(), Optional.of(subtree));
+		} catch (SQLException e) {
+			logger.warn(e.getMessage(), e);
+		}
+
 	}
 
 	public static Subtree cachedSubtree(BmContext context, String domainUid, MailboxReplicaRootDescriptor mailboxRoot) {
 		DeletedDataMementos ctxCache = DeletedDataMementos.get(context);
 		String key = domainUid + "!" + mailboxRoot.ns.prefix() + mailboxRoot.name;
 		logger.debug("Looking for {}", key);
-		return ctxCache.getIfPresent(key);
+		Optional<Subtree> subtree = ctxCache.getIfPresent(key);
+
+		if (subtree == null) {
+			SubtreeUidStore store = new SubtreeUidStore(context.getDataSource());
+			try {
+				Subtree fromDb = store.getByMboxName(domainUid, mailboxRoot.name);
+				subtree = Optional.ofNullable(fromDb);
+				ctxCache.put(key, subtree);
+			} catch (SQLException e) {
+				logger.warn("Failed to get Subtree for {} {}: {}", domainUid, mailboxRoot.name, e.getMessage(), e);
+			}
+		}
+
+		return subtree.orElse(null);
+
 	}
+
 }

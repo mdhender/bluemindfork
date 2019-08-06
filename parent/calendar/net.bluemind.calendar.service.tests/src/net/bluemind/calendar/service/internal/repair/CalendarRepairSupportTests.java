@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,6 +41,8 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.SettableFuture;
 
 import net.bluemind.calendar.api.ICalendarUids;
+import net.bluemind.backend.cyrus.CyrusAdmins;
+import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
@@ -53,9 +56,12 @@ import net.bluemind.core.container.persistance.DataSourceRouter;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.NullTaskMonitor;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.pool.impl.BmConfIni;
+import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.tag.api.ITags;
 import net.bluemind.tag.api.Tag;
@@ -94,10 +100,18 @@ public class CalendarRepairSupportTests {
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
 		esServer.tags = Lists.newArrayList("bm/es");
-		PopulateHelper.initGlobalVirt(esServer);
 
-		domainUid = "bm.lan";
-		PopulateHelper.createTestDomain(domainUid);
+		Server imapServer = new Server();
+		imapServer.ip = new BmConfIni().get("imap-role");
+		imapServer.tags = Lists.newArrayList("mail/imap");
+
+		PopulateHelper.initGlobalVirt(esServer, imapServer);
+
+		domainUid = "test.lan";
+		PopulateHelper.createTestDomain(domainUid, esServer, imapServer);
+
+		this.createCyrusPartition(imapServer, this.domainUid);
+
 		user1 = PopulateHelper.addUser("test1", domainUid);
 		user2 = PopulateHelper.addUser("test2", domainUid);
 
@@ -116,6 +130,16 @@ public class CalendarRepairSupportTests {
 
 		ContainerSettingsStore css = containerSettings(calUid);
 		css.setSettings(settings);
+	}
+
+	private void createCyrusPartition(final Server imapServer, final String domainUid) {
+		final CyrusService cyrusService = new CyrusService(imapServer.ip);
+		cyrusService.createPartition(domainUid);
+		cyrusService.refreshPartitions(Arrays.asList(domainUid));
+		new CyrusAdmins(
+				ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class, "default"),
+				imapServer.ip).write();
+		cyrusService.reload();
 	}
 
 	@After

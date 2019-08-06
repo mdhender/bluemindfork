@@ -83,12 +83,12 @@ import net.bluemind.backend.mail.replica.api.MailboxAnnotation;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
+import net.bluemind.backend.mail.replica.api.utils.Subtree;
 import net.bluemind.backend.mail.replica.api.MailboxSub;
 import net.bluemind.backend.mail.replica.api.QuotaRoot;
 import net.bluemind.backend.mail.replica.service.ReplicationEvents;
 import net.bluemind.backend.mail.replica.service.tests.ReplicationEventsRecorder.Hierarchy;
 import net.bluemind.backend.mail.replica.utils.SubtreeContainer;
-import net.bluemind.backend.mail.replica.utils.SubtreeContainer.Subtree;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.Stream;
@@ -345,8 +345,9 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 			item.body = brandNew;
 			item.otherFlags = Arrays.asList("Pouic");
 			long expectedId = id;
-			System.err.println("Before create by id.....");
+			System.err.println("Before create by id....." + id);
 			recordsApi.createById(expectedId, item);
+			System.err.println("OK YEAH YEAH");
 			ItemValue<MailboxItem> reloaded = recordsApi.getCompleteById(expectedId);
 			assertNotNull(reloaded);
 			assertNotNull(reloaded.value.body.headers);
@@ -827,7 +828,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		CompletableFuture<MailboxReplicaRootDescriptor> onRoot = ReplicationEvents.onMailboxRootCreated();
 		MailboxReplicaRootDescriptor expected = MailboxReplicaRootDescriptor.create(Namespace.shared, mailshare.name);
 		Subtree sub = SubtreeContainer.mailSubtreeUid(domainUid, expected.ns, mailshare.name);
-		String subtreeUid = sub.subtreeUid;
+		String subtreeUid = sub.subtreeUid();
 		System.err.println("On subtree update " + subtreeUid);
 		CompletableFuture<ItemIdentifier> onSubtree = ReplicationEvents.onSubtreeUpdate(subtreeUid);
 		CompletableFuture<Void> allEvents = CompletableFuture.allOf(onRoot, onSubtree);
@@ -890,7 +891,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		CompletableFuture<MailboxReplicaRootDescriptor> onRoot = ReplicationEvents.onMailboxRootCreated();
 		MailboxReplicaRootDescriptor expected = MailboxReplicaRootDescriptor.create(Namespace.shared, mailshare.name);
 		Subtree sub = SubtreeContainer.mailSubtreeUid(domainUid, expected.ns, mailshare.name);
-		String subtreeUid = sub.subtreeUid;
+		String subtreeUid = sub.subtreeUid();
 		System.err.println("On subtree update " + subtreeUid);
 		CompletableFuture<ItemIdentifier> onSubtree = ReplicationEvents.onSubtreeUpdate(subtreeUid);
 		CompletableFuture<Void> allEvents = CompletableFuture.allOf(onRoot, onSubtree);
@@ -979,7 +980,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		CompletableFuture<MailboxReplicaRootDescriptor> onRoot = ReplicationEvents.onMailboxRootCreated();
 		MailboxReplicaRootDescriptor expected = MailboxReplicaRootDescriptor.create(Namespace.shared, mailshare.name);
 		Subtree sub = SubtreeContainer.mailSubtreeUid(domainUid, expected.ns, mailshare.name);
-		String subtreeUid = sub.subtreeUid;
+		String subtreeUid = sub.subtreeUid();
 		System.err.println("On subtree update " + subtreeUid);
 		CompletableFuture<ItemIdentifier> onSubtree = ReplicationEvents.onSubtreeUpdate(subtreeUid);
 		CompletableFuture<Void> allEvents = CompletableFuture.allOf(onRoot, onSubtree);
@@ -1028,7 +1029,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		CompletableFuture<MailboxReplicaRootDescriptor> onRoot = ReplicationEvents.onMailboxRootCreated();
 		MailboxReplicaRootDescriptor expected = MailboxReplicaRootDescriptor.create(Namespace.shared, mailshare.name);
 		Subtree sub = SubtreeContainer.mailSubtreeUid(domainUid, expected.ns, mailshare.name);
-		String subtreeUid = sub.subtreeUid;
+		String subtreeUid = sub.subtreeUid();
 		CompletableFuture<ItemIdentifier> onSubtree = ReplicationEvents.onSubtreeUpdate(subtreeUid);
 		CompletableFuture<Void> allEvents = CompletableFuture.allOf(onRoot, onSubtree);
 
@@ -2081,7 +2082,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		CompletableFuture<MailboxReplicaRootDescriptor> onRoot = ReplicationEvents.onMailboxRootCreated();
 		MailboxReplicaRootDescriptor expected = MailboxReplicaRootDescriptor.create(Namespace.shared, mailshare.name);
 		Subtree sub = SubtreeContainer.mailSubtreeUid(domainUid, expected.ns, mailshare.name);
-		String subtreeUid = sub.subtreeUid;
+		String subtreeUid = sub.subtreeUid();
 		System.err.println("On subtree update " + subtreeUid);
 		CompletableFuture<ItemIdentifier> onSubtree = ReplicationEvents.onSubtreeUpdate(subtreeUid);
 		CompletableFuture<Void> allEvents = CompletableFuture.allOf(onRoot, onSubtree);

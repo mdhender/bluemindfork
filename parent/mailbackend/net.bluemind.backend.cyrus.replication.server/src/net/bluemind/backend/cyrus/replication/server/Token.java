@@ -38,6 +38,7 @@ import org.vertx.java.core.file.FileSystem;
 import com.google.common.io.Files;
 
 import net.bluemind.backend.cyrus.replication.server.state.ReplicationException;
+import net.bluemind.backend.cyrus.replication.server.utils.LiteralSize;
 import net.bluemind.backend.cyrus.replication.server.utils.Patterns;
 
 public abstract class Token {
@@ -158,10 +159,9 @@ public abstract class Token {
 			return new TextToken("{" + fileName + "}", null, writeCompletion);
 		} else {
 			String asString = next.toString();
-			Matcher matcher = Patterns.LITERAL_FOLLOWS.matcher(asString);
-			if (matcher.matches()) {
-				int size = Integer.parseInt(matcher.group(1));
-				LiteralFollowUp follow = new LiteralFollowUp(size);
+			int fastSize = LiteralSize.of(next.getByteBuf());
+			if (fastSize > 0) {
+				LiteralFollowUp follow = new LiteralFollowUp(fastSize);
 				return new TextToken(asString, follow, CompletableFuture.completedFuture(null));
 			} else {
 				return new TextToken(asString, null, CompletableFuture.completedFuture(null));

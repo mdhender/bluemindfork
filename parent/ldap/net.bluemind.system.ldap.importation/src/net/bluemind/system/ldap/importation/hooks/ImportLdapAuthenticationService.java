@@ -70,16 +70,18 @@ public class ImportLdapAuthenticationService extends ImportAuthenticationService
 		String ldapUserLogin = null;
 
 		LdapPoolByDomain ldapPoolByDomain = Activator.getLdapPoolByDomain();
-		LdapConnectionContext ldapConCtx = null;
+		Optional<LdapConnectionContext> ldapConCtx = Optional.empty();
 		try {
 			ldapConCtx = ldapPoolByDomain.getAuthenticatedConnectionContext(parameters);
 
-			EntryCursor result = ldapConCtx.ldapCon.search(parameters.ldapDirectory.baseDn,
-					new LdapUserSearchFilter().getSearchFilter(parameters, Optional.empty(), userLogin, null),
-					SearchScope.SUBTREE, "dn");
+			if (ldapConCtx.isPresent()) {
+				EntryCursor result = ldapConCtx.get().ldapCon.search(parameters.ldapDirectory.baseDn,
+						new LdapUserSearchFilter().getSearchFilter(parameters, Optional.empty(), userLogin, null),
+						SearchScope.SUBTREE, "dn");
 
-			if (result.next()) {
-				ldapUserLogin = result.get().getDn().getName();
+				if (result.next()) {
+					ldapUserLogin = result.get().getDn().getName();
+				}
 			}
 		} catch (RuntimeException re) {
 			if (re.getCause() != null && re.getCause() instanceof InterruptedException) {
@@ -90,9 +92,14 @@ public class ImportLdapAuthenticationService extends ImportAuthenticationService
 			throw re;
 		} catch (Exception e) {
 			logger.error("Fail to get LDAP DN for user: " + userLogin + "@" + domainName, e);
+			ldapConCtx.ifPresent(lcc -> lcc.setError());
 			return null;
 		} finally {
-			releaseConnection(ldapPoolByDomain, parameters, ldapConCtx);
+			ldapConCtx.ifPresent(lcc -> releaseConnection(ldapPoolByDomain, parameters, lcc));
+		}
+
+		if (ldapUserLogin == null) {
+			logger.error("Unable to find {}@{}", userLogin, domainName);
 		}
 
 		return ldapUserLogin;
@@ -104,18 +111,20 @@ public class ImportLdapAuthenticationService extends ImportAuthenticationService
 
 		LdapPoolByDomain ldapPoolByDomain = Activator.getLdapPoolByDomain();
 
-		EntryCursor result = null;
-		LdapConnectionContext ldapConCtx = null;
+		Optional<LdapConnectionContext> ldapConCtx = Optional.empty();
 		try {
 			ldapConCtx = ldapPoolByDomain.getAuthenticatedConnectionContext(parameters);
 
-			String filter = new LdapUserSearchFilter().getSearchFilter(parameters, Optional.empty(), null, uuid);
-			result = ldapConCtx.ldapCon.search(parameters.ldapDirectory.baseDn, filter, SearchScope.SUBTREE, "dn");
+			if (ldapConCtx.isPresent()) {
+				String filter = new LdapUserSearchFilter().getSearchFilter(parameters, Optional.empty(), null, uuid);
+				EntryCursor result = ldapConCtx.get().ldapCon.search(parameters.ldapDirectory.baseDn, filter,
+						SearchScope.SUBTREE, "dn");
 
-			if (result.next()) {
-				ldapUserLogin = result.get().getDn().getName();
-			} else {
-				logger.warn("uuid " + uuid + " not found with filter " + filter);
+				if (result.next()) {
+					ldapUserLogin = result.get().getDn().getName();
+				} else {
+					logger.warn("uuid " + uuid + " not found with filter " + filter);
+				}
 			}
 		} catch (RuntimeException re) {
 			if (re.getCause() != null && re.getCause() instanceof InterruptedException) {
@@ -126,18 +135,10 @@ public class ImportLdapAuthenticationService extends ImportAuthenticationService
 			throw re;
 		} catch (Exception e) {
 			logger.error(String.format("Error searching external ID %s", uuid), e);
+			ldapConCtx.ifPresent(lcc -> lcc.setError());
 			throw e;
 		} finally {
-			// https://docs.oracle.com/javase/tutorial/essential/exceptions/finally.html
-			if (result != null) {
-				try {
-					result.close();
-				} catch (Exception e1) {
-					logger.error(e1.getMessage(), e1);
-				}
-			}
-
-			releaseConnection(ldapPoolByDomain, parameters, ldapConCtx);
+			ldapConCtx.ifPresent(lcc -> releaseConnection(ldapPoolByDomain, parameters, lcc));
 		}
 
 		if (ldapUserLogin == null) {
@@ -188,6 +189,7 @@ public class ImportLdapAuthenticationService extends ImportAuthenticationService
 			throw re;
 		} catch (Exception e) {
 			logger.error("Fail to check LDAP authentication", e);
+			ldapConCtx = ldapConCtx.setError();
 			return false;
 		} finally {
 			// https://docs.oracle.com/javase/tutorial/essential/exceptions/finally.html

@@ -19,22 +19,36 @@
 package net.bluemind.resource.api.type;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")
 public class ResourceTypeDescriptor {
 
-	/**
-	 * Name
-	 */
+	/** Name. */
 	public String label;
 
 	/**
-	 * Custom properties
+	 * User defined extra properties for this resource type. Example: may define a
+	 * 'Quality definition' property for a 'Video projector' type.
 	 */
-	public List<Property> properties;
+	public List<Property> properties = Collections.emptyList();
+
+	/**
+	 * Templates keyed by language tags.<br>
+	 * A template uses {@link #properties} names as variables.<br>
+	 * <br>
+	 * Example: <i>This template uses the property WhiteBoard having the value
+	 * ${WhiteBoard} and the property Seats having the value ${Seats}.</i>
+	 * 
+	 * @see Locale#toLanguageTag()
+	 */
+	public Map<String, String> templates = new HashMap<>();
 
 	@BMApi(version = "3")
 	public static class Property {

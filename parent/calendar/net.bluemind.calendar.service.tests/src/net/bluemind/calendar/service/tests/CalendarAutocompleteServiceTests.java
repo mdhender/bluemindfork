@@ -38,6 +38,8 @@ import com.google.common.util.concurrent.SettableFuture;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.addressbook.domainbook.IDomainAddressBook;
+import net.bluemind.backend.cyrus.CyrusAdmins;
+import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.calendar.api.CalendarLookupResponse;
 import net.bluemind.calendar.api.ICalendarAutocomplete;
 import net.bluemind.calendar.api.ICalendarUids;
@@ -54,15 +56,17 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sessions.Sessions;
 import net.bluemind.core.tests.BmTestContext;
-import net.bluemind.externaluser.api.ExternalUser;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.Member;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.role.api.BasicRoles;
+import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
@@ -70,11 +74,11 @@ import net.bluemind.user.api.User;
 import net.bluemind.user.persistance.UserSubscriptionStore;
 
 public class CalendarAutocompleteServiceTests {
+	private static final String DOMAIN = "test.lan";
 	private BmContext testContext;
 	protected SecurityContext defaultSecurityContext;
 	private ContainerStore containerStore;
 	private Server imapServer;
-	private AclStore aclStore;
 	private SecurityContext adminSecurityContext;
 
 	@Before
@@ -97,16 +101,23 @@ public class CalendarAutocompleteServiceTests {
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
 		esServer.tags = Lists.newArrayList("bm/es");
 
-		PopulateHelper.initGlobalVirt(esServer);
-		PopulateHelper.addDomain("bm.lan");
-		PopulateHelper.addUser("test", "bm.lan");
+		this.imapServer = new Server();
+		imapServer.ip = new BmConfIni().get("imap-role");
+		imapServer.tags = Lists.newArrayList("mail/imap");
+
+		PopulateHelper.initGlobalVirt(esServer, imapServer);
+		PopulateHelper.createTestDomain(DOMAIN, esServer, imapServer);
+
+		this.createCyrusPartition(imapServer, DOMAIN);
+
+		PopulateHelper.addUser("test", DOMAIN);
 		defaultSecurityContext = new SecurityContext("testUser", "test", Arrays.<String>asList(),
-				Arrays.<String>asList(), "bm.lan");
+				Arrays.<String>asList(), DOMAIN);
 
 		Sessions.get().put(defaultSecurityContext.getSessionId(), defaultSecurityContext);
 
 		adminSecurityContext = new SecurityContext("testAdmin", "testAdmin", Arrays.<String>asList(),
-				Arrays.<String>asList(BasicRoles.ROLE_ADMIN), "bm.lan");
+				Arrays.<String>asList(BasicRoles.ROLE_ADMIN), DOMAIN);
 
 		Sessions.get().put(adminSecurityContext.getSessionId(), adminSecurityContext);
 		testContext = new BmTestContext(SecurityContext.SYSTEM);
@@ -116,7 +127,7 @@ public class CalendarAutocompleteServiceTests {
 				defaultSecurityContext);
 
 		Container container = Container.create("addressbook_testUser", "addressbook", "Contacts",
-				defaultSecurityContext.getSubject(), "bm.lan", true);
+				defaultSecurityContext.getSubject(), DOMAIN, true);
 		container = containerStore.create(container);
 		assertNotNull(container);
 
@@ -125,16 +136,25 @@ public class CalendarAutocompleteServiceTests {
 				Arrays.asList(AccessControlEntry.create(defaultSecurityContext.getSubject(), Verb.All)));
 
 		UserSubscriptionStore userSubscriptionStore = new UserSubscriptionStore(SecurityContext.SYSTEM,
-				JdbcTestHelper.getInstance().getDataSource(), dirContainerStore.get("bm.lan"));
+				JdbcTestHelper.getInstance().getDataSource(), dirContainerStore.get(DOMAIN));
 
 		userSubscriptionStore.subscribe(defaultSecurityContext.getSubject(), container);
+	}
 
+	private void createCyrusPartition(final Server imapServer, final String domainUid) {
+		final CyrusService cyrusService = new CyrusService(imapServer.ip);
+		cyrusService.createPartition(domainUid);
+		cyrusService.refreshPartitions(Arrays.asList(domainUid));
+		new CyrusAdmins(
+				ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class, "default"),
+				imapServer.ip).write();
+		cyrusService.reload();
 	}
 
 	protected Container createTestContainer(String uid, String name, Verb verb, boolean isDefault) throws Exception {
 
 		Container container = Container.create(uid, ICalendarUids.TYPE, name, defaultSecurityContext.getSubject(),
-				"bm.lan", isDefault);
+				 DOMAIN, isDefault);
 		container = containerStore.create(container);
 		assertNotNull(container);
 
@@ -153,7 +173,7 @@ public class CalendarAutocompleteServiceTests {
 
 	protected void createTestUser(String uid, String firstname, String lastname, Verb verb)
 			throws SQLException, ServerFault {
-		IUser users = testContext.provider().instance(IUser.class, "bm.lan");
+		IUser users = testContext.provider().instance(IUser.class, DOMAIN);
 
 		String f = java.text.Normalizer.normalize(firstname, java.text.Normalizer.Form.NFD)
 				.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
@@ -174,8 +194,7 @@ public class CalendarAutocompleteServiceTests {
 	}
 
 	protected String createTestExternalUser(String name, String email) {
-		ExternalUser eu = new ExternalUser();
-		return PopulateHelper.addExternalUser("bm.lan", email, name);
+		return PopulateHelper.addExternalUser(DOMAIN, email, name);
 	}
 
 	protected void createTestGroup(String uid, String name, String... membersUid) throws SQLException, ServerFault {
@@ -189,11 +208,11 @@ public class CalendarAutocompleteServiceTests {
 
 	protected void createTestGroup(String uid, String name, boolean hidden, boolean hiddenMembers, Member... members)
 			throws SQLException, ServerFault {
-		IGroup groups = testContext.provider().instance(IGroup.class, "bm.lan");
+		IGroup groups = testContext.provider().instance(IGroup.class, DOMAIN);
 		Group g = new Group();
 		g.name = name;
 		// server imap uid
-		g.dataLocation = PopulateHelper.FAKE_CYRUS_IP;
+		g.dataLocation = this.imapServer.ip;
 		g.hidden = hidden;
 		g.hiddenMembers = hiddenMembers;
 		groups.create(uid, g);
@@ -205,7 +224,7 @@ public class CalendarAutocompleteServiceTests {
 		net.bluemind.user.api.User user = new User();
 		user.login = login;
 		Email em = new Email();
-		em.address = login + "@bm.lan";
+		em.address = login + "@" + DOMAIN;
 		em.isDefault = true;
 		em.allAliases = false;
 		user.emails = Arrays.asList(em);
@@ -329,7 +348,7 @@ public class CalendarAutocompleteServiceTests {
 
 		createTestGroup("g1", "David Gilmour all band", Member.user("u1"), Member.user("u2"), Member.user("u3"),
 				Member.group("g2"), Member.group("g3"), Member.group("g4"));
-		testContext.provider().instance(IDomainAddressBook.class, "bm.lan").sync();
+		testContext.provider().instance(IDomainAddressBook.class, DOMAIN).sync();
 
 		res = service.calendarLookup("david", Verb.Read);
 		assertEquals(3, res.size());

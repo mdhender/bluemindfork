@@ -82,8 +82,9 @@ public class BodyStreamProcessor {
 
 	// copied from UidFetchCommand
 	private static final Set<String> fromSummaryClass = Sets.newHashSet("DATE", "FROM", "TO", "CC", "SUBJECT",
-			"CONTENT-TYPE", "REPLY-TO", "LIST-POST", "DISPOSITION-NOTIFICATION-TO", "X-PRIORITY", "X-BM_HSM_ID",
-			"X-BM_HSM_DATETIME", "X-BM-EVENT", "X-BM-RESOURCEBOOKING", "X-BM-FOLDERSHARING", "X-ASTERISK-CALLERID");
+			"CONTENT-TYPE", "REPLY-TO", "MAIL-REPLY-TO", "MAIL-FOLLOWUP-TO", "LIST-POST", "DISPOSITION-NOTIFICATION-TO",
+			"X-PRIORITY", "X-BM_HSM_ID", "X-BM_HSM_DATETIME", "X-BM-EVENT", "X-BM-RESOURCEBOOKING",
+			"X-BM-FOLDERSHARING", "X-ASTERISK-CALLERID");
 
 	private static final Set<String> fromMailApi = Sets.newHashSet(MailApiHeaders.ALL);
 
@@ -121,7 +122,10 @@ public class BodyStreamProcessor {
 			MessageBody mb = new MessageBody();
 			mb.bodyVersion = BODY_VERSION;
 			Message parsed = Mime4JHelper.parse(emlInput, new OffloadedBodyFactory());
-			mb.subject = parsed.getSubject();
+			String subject = parsed.getSubject();
+			if (subject != null) {
+				mb.subject = subject.replace("\u0000", "");
+			}
 			mb.date = parsed.getDate();
 			mb.size = (int) emlInput.getCount();
 			Multimap<String, String> mmapHeaders = MultimapBuilder.hashKeys().linkedListValues().build();
@@ -206,8 +210,9 @@ public class BodyStreamProcessor {
 		return r;
 	}
 
-	private static Map<String, String> mapHeaders(List<net.bluemind.backend.mail.api.MessageBody.Header> headers) {
-		return headers.stream().collect(Collectors.toMap(h -> h.name.toLowerCase(), h -> h.values.get(0), (u, v) -> v));
+	private static Map<String, Keyword> mapHeaders(List<net.bluemind.backend.mail.api.MessageBody.Header> headers) {
+		return headers.stream()
+				.collect(Collectors.toMap(h -> h.name.toLowerCase(), h -> new Keyword(h.values.get(0)), (u, v) -> v));
 	}
 
 	public static class MessageBodyData {
@@ -215,10 +220,10 @@ public class BodyStreamProcessor {
 		public final String text;
 		public final List<String> filenames;
 		public final List<String> with;
-		public final Map<String, String> headers;
+		public final Map<String, Keyword> headers;
 
 		public MessageBodyData(MessageBody body, String text, List<String> filenames, List<String> with,
-				Map<String, String> headers) {
+				Map<String, Keyword> headers) {
 			this.body = body;
 			this.text = text;
 			this.filenames = filenames;
@@ -382,7 +387,12 @@ public class BodyStreamProcessor {
 			SizedBody sized = (SizedBody) sub.getBody();
 			p.size = sized.size();
 
-			p.dispositionType = DispositionType.valueOfNullSafeIgnoreCase(sub.getDispositionType());
+			try {
+				p.dispositionType = DispositionType.valueOfNullSafeIgnoreCase(sub.getDispositionType());
+			} catch (IllegalArgumentException ie) {
+				logger.warn("Invalid disposition type, using {}: {}", DispositionType.ATTACHMENT, ie.getMessage());
+				p.dispositionType = DispositionType.ATTACHMENT;
+			}
 
 			// Apple Mail sends PDFs as inline stuff
 			// --Apple-Mail=_597C093C-5BA5-4C97-8C3A-FE774541930B
