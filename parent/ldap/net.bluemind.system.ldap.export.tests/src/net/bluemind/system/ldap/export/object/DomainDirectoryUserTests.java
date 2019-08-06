@@ -84,6 +84,10 @@ public class DomainDirectoryUserTests {
 		assertEquals(1, attrs.size());
 		assertEquals("Formated name", attrs.get(0));
 
+		attrs = getAttributeValues(entry, "displayName");
+		assertEquals(1, attrs.size());
+		assertEquals("Formated name", attrs.get(0));
+
 		attrs = getAttributeValues(entry, "sn");
 		assertEquals(1, attrs.size());
 		assertEquals("familyName", attrs.get(0));
@@ -193,7 +197,7 @@ public class DomainDirectoryUserTests {
 
 		ModifyRequest modificationRequest = ddu.getModifyRequest(currentEntry);
 		assertEquals("cn=dntoupdate", modificationRequest.getName().getName());
-		assertEquals(26, modificationRequest.getModifications().size());
+		assertEquals(27, modificationRequest.getModifications().size());
 	}
 
 	private ItemValue<Domain> getTestDomain() {
