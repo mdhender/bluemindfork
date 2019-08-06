@@ -4,6 +4,7 @@ module.exports = {
     rootDir: process.cwd() + "/",
     verbose: true,
     moduleFileExtensions: ["js", "json", "vue"],
+    modulePathIgnorePatterns: ["open/clients/js/target/"],
     transform: {
         "^.+\\.js$": "babel-jest",
         ".+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2)$": "jest-transform-stub",
