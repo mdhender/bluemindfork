@@ -2,7 +2,9 @@
     <bm-navbar type="dark" variant="info-dark" toggleable="lg" class="bm-banner p-0 align-items-stretch">
         <bm-navbar-toggle target="collapse-applications" />
         <bm-navbar-brand :title="$t('banner.main.brand', software)" href="#" class="pl-3">
-            <svg height="30" width="120" v-html="logo" />
+            <router-link :to="logoLink">
+                <svg height="30" width="120" v-html="logo" />
+            </router-link>
         </bm-navbar-brand>
         <bm-collapse id="collapse-applications" is-nav class="order-1 order-lg-0 align-items-end">
             <bm-banner-applications :applications="applications" />
@@ -16,7 +18,7 @@
 import BannerL10N from "@bluemind/banner.l10n";
 import BmBannerApplications from "./BmBannerApplications";
 import BmBannerUser from "./BmBannerUser";
-import { BmCollapse, BmLogo, BmNavbar, BmNavbarBrand, BmNavbarToggle, BmNavItem} from "@bluemind/styleguide";
+import { BmCollapse, BmLogo, BmNavbar, BmNavbarBrand, BmNavbarToggle, BmNavItem } from "@bluemind/styleguide";
 
 export default {
     name: "BmBanner",
@@ -50,8 +52,16 @@ export default {
     },
     data() {
         return {
-            logo: BmLogo
+            logo: BmLogo,
+            selectedAppPath: ""
         };
+    },
+    computed: {
+        /** Go to the current application's home page. */
+        logoLink() {
+            const selectedApp = this.applications.find(application => this.$route.path.startsWith(application.href));
+            return selectedApp ? selectedApp.href : "/";
+        }
     }
 };
 </script>
