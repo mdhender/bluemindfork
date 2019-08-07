@@ -153,11 +153,14 @@ export function send(payload, { message, isAReply, previousMessage, outboxUid })
         }
     }
 
+    const userSession = injector.getProvider("UserSession").get();
+
     if (!validate(message)) {
         return Promise.reject(getLocalizedProperty(userSession, "mail.error.email.address.invalid"));
     }
+
     sanitize(message);
-    const userSession = injector.getProvider("UserSession").get();
+
     const service = ServiceLocator.getProvider("MailboxItemsPersistance").get(outboxUid);
     const outboxService = ServiceLocator.getProvider("OutboxPersistance").get();
 
