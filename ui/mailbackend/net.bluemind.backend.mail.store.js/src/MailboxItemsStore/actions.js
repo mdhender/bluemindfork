@@ -128,7 +128,7 @@ export function fetch({ state }, { folder, uid, part }) {
     return ServiceLocator.getProvider("MailboxItemsPersistance")
         .get(folder)
         .fetch(item.value.imapUid, part.address, encoding)
-        .then(function(stream) {
+        .then(function (stream) {
             part.content = stream;
             part.uid = uid;
             part.cid = part.contentId;
@@ -139,7 +139,7 @@ export function updateSeen({ state, commit }, { folder, uid, isSeen }) {
     const itemId = state.items.find(item => item.uid === uid).internalId;
     return ServiceLocator.getProvider("MailboxItemsPersistance")
         .get(folder)
-        .updateSeens([{ itemId: itemId, seen: isSeen, mdnSent: true }])
+        .updateSeens([{ itemId: itemId, seen: isSeen, mdnSent: false }])
         .then(() => commit("updateSeen", { uid: uid, isSeen: isSeen }));
 }
 
