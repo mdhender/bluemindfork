@@ -115,7 +115,7 @@ public class CalendarAlarmSupport implements IAlarmSupport<VEvent> {
 					VEventOccurrence occs = OccurrenceHelper.getOccurrence(event, expected);
 					// do not add reminder for event exceptions
 					// exceptions are processed below
-					if (occs != null && event.value.occurrence(expected) == null
+					if (occs != null && !hasAnyOccurenceMatching(event.value.occurrences, expected)
 							&& attends(occs, containerDescriptor.ownerDirEntryPath)) {
 						ret.add(net.bluemind.calendar.api.Reminder.create(ItemValue.create(event.uid, occs), valarm));
 					}
@@ -141,6 +141,10 @@ public class CalendarAlarmSupport implements IAlarmSupport<VEvent> {
 		}
 
 		return toReminder(ret);
+	}
+
+	private boolean hasAnyOccurenceMatching(List<VEventOccurrence> occurrences, BmDateTime expected) {
+		return occurrences.stream().anyMatch(occ -> occ.dtstart.equals(expected));
 	}
 
 	private boolean attends(VEventOccurrence occ, String dir) {
