@@ -68,6 +68,7 @@ public final class ClusterMember extends ClusterNode {
 		cfg.setInstanceName(jvmType + "-" + UUID.randomUUID().toString());
 		cfg.setProperty("hazelcast.logging.type", "slf4j");
 		cfg.setProperty("hazelcast.socket.server.bind.any", "false");
+		cfg.setProperty("hazelcast.phone.home.enabled", "false");
 		cfg.setProperty(GroupProperty.HEALTH_MONITORING_LEVEL.getName(), HealthMonitorLevel.OFF.name());
 		GroupConfig gc = new GroupConfig(MQ.CLUSTER_ID);
 		cfg.setGroupConfig(gc);
