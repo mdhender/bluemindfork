@@ -199,7 +199,7 @@ public class MilterHandler implements JilterHandler {
 			String domainPart = smtpEnvelope.getSender().getDomainPart();
 			ItemValue<Domain> domain = DomainAliasCache.getDomain(domainPart);
 			if (null == domain) {
-				logger.warn("Cannot find domain/alias of sender {}", modifiedMail.getMessage().getFrom().get(0));
+				logger.warn("Cannot find domain/alias of sender {}", smtpEnvelope.getSender());
 				return 0;
 			}
 			IClientContext mailflowContext = new ClientContext(domain);
