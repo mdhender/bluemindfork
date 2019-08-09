@@ -28,27 +28,22 @@
                 <router-view />
             </bm-col>
         </bm-row>
-        <bm-application-alert :errors="errorAlerts" :successes="successAlerts" />
+        <bm-application-alert :errors="errorAlerts" :successes="successAlerts">
+            <template v-slot="slotProps"><mail-alert-renderer :alert="slotProps.alert" /></template>
+        </bm-application-alert>
     </bm-container>
 </template>
 
 <script>
-import {
-    BmApplicationAlert,
-    BmLabelIcon,
-    BmButton,
-    BmCol,
-    BmContainer,
-    BmRow,
-    MakeUniq
-} from "@bluemind/styleguide";
+import { BmApplicationAlert, BmLabelIcon, BmButton, BmCol, BmContainer, BmRow, MakeUniq } from "@bluemind/styleguide";
 import { mapActions, mapGetters, mapState, mapMutations } from "vuex";
 import MailAppL10N from "@bluemind/webapp.mail.l10n";
 import MailFolderTree from "./MailFolderTree";
 import MailMessageList from "./MailMessageList/MailMessageList";
 import MailToolbar from "./MailToolbar/";
 import MailSearchForm from "./MailSearchForm";
-import uuid from "uuid/v4";
+import MailAlertRenderer from "./MailAlertRenderer";
+import { AlertTypes, Alert } from "@bluemind/alert.store";
 
 export default {
     name: "MailApp",
@@ -62,7 +57,8 @@ export default {
         MailFolderTree,
         MailMessageList,
         MailToolbar,
-        MailSearchForm
+        MailSearchForm,
+        MailAlertRenderer
     },
     mixins: [MakeUniq],
     i18n: { messages: MailAppL10N },
@@ -79,30 +75,44 @@ export default {
                 const subject = message.subject;
                 const mailId = message.ids.id;
 
-                this.$store.dispatch("backend.mail/items/remove", { 
-                    folderId: this.currentFolderId, 
-                    trashFolderId: this.trashFolderId, 
-                    mailId
-                }).then(() => {
-                    const index = this.messages.findIndex(message => mailId === message.ids.id);
-                    if (this.current !== null) {
-                        if (this.count === 1) {
-                            this.$router.push('/mail/' + this.currentFolder + '/');
-                        } else if (this.count === index + 1) {
-                            this.$router.push('/mail/' + this.currentFolder + '/' + this.messages[index - 1].uid);
-                        } else {
-                            this.$router.push('/mail/' + this.currentFolder + '/' + this.messages[index + 1].uid);
+                this.$store
+                    .dispatch("backend.mail/items/remove", {
+                        folderId: this.currentFolderId,
+                        trashFolderId: this.trashFolderId,
+                        mailId
+                    })
+                    .then(() => {
+                        const index = this.messages.findIndex(message => mailId === message.ids.id);
+                        if (this.current !== null) {
+                            if (this.count === 1) {
+                                this.$router.push("/mail/" + this.currentFolder + "/");
+                            } else if (this.count === index + 1) {
+                                this.$router.push("/mail/" + this.currentFolder + "/" + this.messages[index - 1].uid);
+                            } else {
+                                this.$router.push("/mail/" + this.currentFolder + "/" + this.messages[index + 1].uid);
+                            }
                         }
-                    }
-                    this.remove(index);
-                    this.addSuccess({
-                        uuid: uuid(),
-                        message: '"' + subject + '" ' + this.$t("common.alert.remove.ok")
+                        this.remove(index);
+                        const key = "common.alert.remove.ok";
+                        const success = new Alert({
+                            type: AlertTypes.SUCCESS,
+                            code: "ALERT_CODE_MSG_REMOVED_OK",
+                            key,
+                            message: this.$t(key, { subject }),
+                            props: { subject }
+                        });
+                        this.addSuccess(success);
+                    })
+                    .catch(reason => {
+                        const key = "common.alert.remove.error";
+                        const error = new Alert({
+                            code: "ALERT_CODE_MSG_REMOVED_ERROR",
+                            key,
+                            message: this.$t(key, { subject, reason }),
+                            props: { subject, reason }
+                        });
+                        this.addError(error);
                     });
-                }).catch((reason) => this.addError({
-                    uuid: uuid(),
-                    message: '"' + subject + '" ' + this.$t("common.alert.remove.error") + "<br>" + reason
-                }));
             }
         }
     },
@@ -122,7 +132,7 @@ export default {
         ...mapMutations("backend.mail/items", ["remove", "setCurrent"]),
         composeNewMessage() {
             this.setCurrent(null);
-            this.$router.push({ name: 'newMessage' });
+            this.$router.push({ name: "newMessage" });
         }
     }
 };

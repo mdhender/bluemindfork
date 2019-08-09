@@ -117,7 +117,7 @@ import debounce from "lodash/debounce";
 import MailMessageNewFooter from "./MailMessageNewFooter";
 import MailMessageNewModes from "./MailMessageNewModes";
 import ServiceLocator from "@bluemind/inject";
-import uuid from "uuid/v4";
+import { AlertTypes, Alert } from "@bluemind/alert.store";
 
 export default {
     name: "MailMessageNew",
@@ -193,32 +193,48 @@ export default {
                 messageToSend.content += "\n\n\n" + this.previousMessage.content;
             }
 
-            let outboxUid = this.$store.state["backend.mail/folders"].folders.find(function(folder) {
+            const folders = this.$store.state["backend.mail/folders"].folders;
+            const outbox = folders.find(function(folder) {
                 return folder.displayName === "Outbox";
-            }).uid;
+            });
+            const sentbox = folders.find(function(folder) {
+                return folder.displayName === "Sent";
+            });
 
             this.$store
                 .dispatch("backend.mail/items/send", {
                     message: messageToSend,
                     isAReply: !!this.previousMessage,
                     previousMessage: this.previousMessage,
-                    outboxUid
+                    outboxUid: outbox.uid,
+                    sentboxUid: sentbox.uid
                 })
-                .then(() => {
-                    this.$store.commit("alert/addSuccess", {
-                        uid: uuid(),
-                        message: this.$t("common.alert.message.sent.ok", { subject: messageToSend.subject })
+                .then(mailImapId => {
+                    const key = "common.alert.message.sent.ok";
+                    const success = new Alert({
+                        type: AlertTypes.SUCCESS,
+                        code: "ALERT_CODE_MSG_SENT_OK",
+                        key,
+                        message: this.$t(key, { subject: messageToSend.subject }),
+                        props: {
+                            subject: messageToSend.subject,
+                            subjectLink: "/mail/" + sentbox.uid + "/" + mailImapId + "."
+                        }
                     });
+                    this.$store.commit("alert/addSuccess", success);
                     this.close();
                 })
                 .catch(reason => {
-                    const error = {
-                        uid: uuid(),
-                        message: this.$t("common.alert.message.sent.error", {
+                    const key = "common.alert.message.sent.error";
+                    const error = new Alert({
+                        code: "ALERT_CODE_MSG_SENT_ERROR",
+                        key,
+                        message: this.$t(key, { subject: messageToSend.subject }),
+                        props: {
                             subject: messageToSend.subject,
-                            reason: reason
-                        })
-                    };
+                            reason
+                        }
+                    });
                     this.$store.commit("alert/addError", error);
                 });
         },

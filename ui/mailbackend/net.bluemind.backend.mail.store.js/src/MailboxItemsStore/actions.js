@@ -14,7 +14,7 @@ export function $_mailrecord_changed({ dispatch }, { container }) {
 export function all({ commit }, folder) {
     const service = ServiceLocator.getProvider("MailboxItemsPersistance").get(folder);
     return service
-        .filteredChangesetById(0, { must: [], mustNot: [ ItemFlag.Deleted ] })
+        .filteredChangesetById(0, { must: [], mustNot: [ItemFlag.Deleted] })
         .then(result => {
             let ids = result.created.map(itemVersion => itemVersion.id);
             if (ids.length >= 500) {
@@ -35,10 +35,10 @@ export function select({ state, commit, getters, dispatch }, { folder, uid }) {
 
     // 2) Obtain the different display possibilities
     const result = visitParts(getters, uid);
-    
+
     // 3) Choose parts to display
     let chosenParts = choosePartsToDisplay(result.inlines);
-    
+
     // 4) Retrieve parts content
     return fetchParts(state, commit, folder, uid, dispatch, chosenParts).then(() => {
         // 5) Manipulate parts content before display
@@ -157,7 +157,7 @@ export function updateSeen({ state, commit }, { folder, uid, isSeen }) {
         .then(() => commit("updateSeen", { uid: uid, isSeen: isSeen }));
 }
 
-export function send(payload, { message, isAReply, previousMessage, outboxUid }) {
+export function send(payload, { message, isAReply, previousMessage, outboxUid, sentboxUid }) {
     if (isAReply) {
         if (previousMessage.messageId) {
             message.headers.push({ name: "In-Reply-To", values: [previousMessage.messageId] });
@@ -175,17 +175,58 @@ export function send(payload, { message, isAReply, previousMessage, outboxUid })
 
     sanitize(message);
 
-    const service = ServiceLocator.getProvider("MailboxItemsPersistance").get(outboxUid);
+    const outboxItemsService = ServiceLocator.getProvider("MailboxItemsPersistance").get(outboxUid);
+    const sentboxItemsService = ServiceLocator.getProvider("MailboxItemsPersistance").get(sentboxUid);
     const outboxService = ServiceLocator.getProvider("OutboxPersistance").get();
 
-    return service
+    let mailId;
+    return outboxItemsService
         .uploadPart(message.content)
-        .then(addrPart =>
-            service.create(
+        .then(addrPart => {
+            // create the mail in the outbox
+            return outboxItemsService.create(
                 new Message(message).toMailboxItem(addrPart, userSession.defaultEmail, userSession.formatedName, true)
-            )
-        )
-        .then(() => outboxService.flush()); // TODO: this request returns a taskref ID, we have to track taskref state)
+            );
+        })
+        .then(itemIdentifier => {
+            // request to send the mail and move it to the sentbox
+            mailId = itemIdentifier.id;
+            return outboxService.flush();
+        })
+        .then(taskRef => {
+            // wait for the flush of the outbox to be finished (flush means send mail + move to sentbox)
+            const taskService = ServiceLocator.getProvider("TaskService").get(taskRef.id);
+            return retrieveTaskResult(taskService, 250, 5);
+        })
+        .then((taskResult) => {
+            // compute and return the IMAP id of the mail inside the sentbox
+            if (taskResult.result && Array.isArray(taskResult.result)) {
+                let importedMailboxItem = taskResult.result.find(r => r.source == mailId);
+                return sentboxItemsService.getCompleteById(importedMailboxItem.destination);
+            } else {
+                throw "Unable to retrieve task result";
+            }
+        })
+        .then(mailItem => mailItem.value.imapUid);
+}
+
+/** Wait for the task to be finished or a timeout is reached. */
+function retrieveTaskResult(taskService, delayTime, maxTries, iteration = 1) {
+    return new Promise(resolve => setTimeout(() => resolve(taskService.status()), delayTime))
+        .then(taskStatus => {
+            const taskEnded = taskStatus && taskStatus.state && taskStatus.state != "InProgress"
+                && taskStatus.state != "NotStarted";
+            if (taskEnded) {
+                return JSON.parse(taskStatus.result);
+            } else {
+                if (iteration < maxTries) {
+                    // 'smart' delay: add 250ms each retry
+                    return retrieveTaskResult(taskService, delayTime + 250, maxTries, ++iteration);
+                } else {
+                    return Promise.reject("Timeout while retrieving task result");
+                }
+            }
+        });
 }
 
 function validate(messageToSend) {

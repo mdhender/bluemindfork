@@ -7,6 +7,7 @@
     "main": "src/index.js",
     "module": "src/index.js",
     "dependencies": {
+        "@bluemind/alert.store": "^4.1.0",
         "@bluemind/backend.mail.api": "^4.1.0",
         "@bluemind/contact": "^4.1.0",
         "@bluemind/date": "^4.1.0",

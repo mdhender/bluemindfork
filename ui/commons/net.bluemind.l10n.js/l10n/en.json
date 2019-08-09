@@ -7,8 +7,6 @@
     "common.delete": "Delete",
     "common.attachments": "1 attachment | {count} attachments",
     "common.save_all": "Save all",
-    "common.alert.message.sent.ok": "<i>\"{subject}\"</i> successfuly sent !",
-    "common.alert.message.sent.error": "<i>\"{subject}\"</i> has not been sent.<br>{reason}",
     "common.toggleAttachments": "Display/hide attachments",
     "common.filter": "filter",
     "common.all": "All",
@@ -19,6 +17,8 @@
     "common.messages": "0 message | 1 message | {count} messages",
     "common.search.error": "Search did not succeed.",
     "common.check.connection": "Check your internet connection and retry in a few moments.",
-    "common.alert.remove.ok": "has been deleted.",
-    "common.alert.remove.error": "could not be deleted."
+    "common.alert.remove.ok": "\"{subject}\" has been deleted.",
+    "common.alert.remove.error": "\"{subject}\" could not be deleted.{br}{reason}",
+    "common.alert.message.sent.ok": "\"{subjectWithLink}\" successfuly sent !",
+    "common.alert.message.sent.error": "\"{subject}\" has not been sent.{br}{reason}"
 }

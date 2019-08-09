@@ -22,6 +22,8 @@ import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.IOutbox;
 import net.bluemind.backend.mail.api.ImportMailboxItemSet;
 import net.bluemind.backend.mail.api.ImportMailboxItemSet.MailboxItemId;
+import net.bluemind.backend.mail.api.ImportMailboxItemsStatus.ImportedMailboxItem;
+import net.bluemind.backend.mail.api.ImportMailboxItemsStatus;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
@@ -37,6 +39,7 @@ import net.bluemind.core.sendmail.ISendmail;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
+import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mime4j.common.Mime4JHelper;
@@ -81,14 +84,20 @@ public class OutboxService implements IOutbox {
 		monitor.begin(mails.size(), "FLUSHING OUTBOX - have " + mails.size() + " mails to send.");
 
 		List<CompletableFuture<Void>> promises = new ArrayList<>();
+		final List<ImportedMailboxItem> importedMailboxItems = new ArrayList<>(mails.size());
 		mails.forEach(item -> {
 			promises.add(
 					SyncStreamDownload.read(mailboxItemsService.fetchComplete(item.value.imapUid)).thenAccept(buf -> {
 						InputStream in = new ByteBufInputStream(buf);
 						Message msg = Mime4JHelper.parse(in);
 						mailer.send(domainUid, msg);
-						mailboxFoldersService.importItems(sentInternalId, ImportMailboxItemSet.moveIn(outboxInternalId,
-								Arrays.asList(MailboxItemId.of(item.internalId)), null));
+						final ImportMailboxItemsStatus importMailboxItemsStatus = mailboxFoldersService
+								.importItems(sentInternalId, ImportMailboxItemSet.moveIn(outboxInternalId,
+										Arrays.asList(MailboxItemId.of(item.internalId)), null));
+						final List<ImportedMailboxItem> doneIds = importMailboxItemsStatus.doneIds;
+						if (doneIds != null && !doneIds.isEmpty()) {
+							importedMailboxItems.addAll(doneIds);
+						}
 						monitor.progress(1,
 								"FLUSHING OUTBOX - mail " + msg.getMessageId() + " sent and moved in Sent folder.");
 					}));
@@ -96,13 +105,14 @@ public class OutboxService implements IOutbox {
 
 		try {
 			CompletableFuture.allOf(Iterables.toArray(promises, CompletableFuture.class)).thenAccept(finished -> {
-				monitor.end(true, "FLUSHING OUTBOX finished successfully", "{ 'result': 'ok'}");
+				monitor.end(true, "FLUSHING OUTBOX finished successfully",
+						String.format("{\"result\": %s}", JsonUtils.asString(importedMailboxItems)));
 			}).get(30, TimeUnit.SECONDS);
 		} catch (InterruptedException | ExecutionException e) {
-			monitor.end(false, "FLUSHING OUTBOX - finished in error", "{ 'result': " + e + "}");
+			monitor.end(false, "FLUSHING OUTBOX - finished in error", "{\"result\": \"" + e + "\"}");
 			logger.error("FLUSHING OUTBOX - finished in error", e);
 		} catch (TimeoutException e) {
-			monitor.end(false, "FLUSHING OUTBOX - timeout reached", "{ 'result': " + e + "}");
+			monitor.end(false, "FLUSHING OUTBOX - timeout reached", "{\"result\": \"" + e + "\"}");
 			logger.warn("FLUSHING OUTBOX - timeout reached", e);
 		}
 	}
