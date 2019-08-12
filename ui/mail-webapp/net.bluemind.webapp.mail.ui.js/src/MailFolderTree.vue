@@ -2,7 +2,7 @@
     <div class="mail-folder-tree">
         <bm-button 
             variant="link" 
-            class="collapse-mailbox-btn d-none d-xl-flex align-items-center pb-1"
+            class="collapse-mailbox-btn d-none d-xl-flex align-items-center pb-2 pt-3 border-0 pl-1 w-100"
             aria-controls="collapse-mailbox"
             :aria-expanded="isMailboxExpanded"
             @click="isMailboxExpanded = !isMailboxExpanded"
@@ -15,18 +15,20 @@
                 :value="tree"
                 :selected="currentFolder"
                 node-id-key="uid"
-                class="ml-2 text-nowrap text-truncate"
+                class="text-nowrap text-truncate"
                 breakpoint="xl"
                 @expand="expand"
                 @collapse="collapse"
                 @select="onSelect"
             >
                 <template v-slot="f">
-                    <bm-label-icon :icon="icon(f.value)" breakpoint="xl">{{ f.value.name }}</bm-label-icon>
+                    <bm-label-icon :icon="icon(f.value)" breakpoint="xl" class="flex-fill">
+                        {{ f.value.name }}
+                    </bm-label-icon>
                     <bm-counter-badge 
                         v-if="f.value.uid === currentFolder && countUnreadMessages > 0" 
                         :value="countUnreadMessages" 
-                        class="float-right mr-3" 
+                        class="mr-1" 
                     />
                 </template>
             </bm-tree>
@@ -97,5 +99,10 @@ export default {
 .mail-folder-tree button.collapse-mailbox-btn {
     color: $info-dark;
     text-decoration-line: none;
+}
+
+.bm-counter-badge {
+    position: absolute;
+    right: 0;
 }
 </style>

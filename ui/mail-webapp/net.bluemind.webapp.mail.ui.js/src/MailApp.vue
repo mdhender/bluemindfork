@@ -28,7 +28,7 @@
             <bm-col cols="12" md="3" lg="1" xl="2" class="d-lg-block collapse px-0 bg-surface">
                 <mail-folder-tree />
             </bm-col>
-            <bm-col cols="12" md="3" class="pl-2 py-1 pr-0">
+            <bm-col cols="12" md="3" class="pl-2 pr-0">
                 <mail-message-list class="h-100" />
             </bm-col>
             <bm-col cols="12" md="9" lg="8" xl="7" class="d-md-block collapse pl-2 pr-0 h-100">

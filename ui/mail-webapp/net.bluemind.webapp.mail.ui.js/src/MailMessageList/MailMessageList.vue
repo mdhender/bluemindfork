@@ -9,12 +9,12 @@
         @keyup.home="goTo(0)"
         @keyup.end="goTo(length - 1)"
     >
-        <bm-list-group-item class="bg-transparent align-with-items">
+        <bm-list-group-item class="bg-transparent align-with-items pb-2 pt-3 pl-3">
             <bm-row>
                 <bm-col cols="1">
                     <bm-check />
                 </bm-col>
-                <bm-col class="d-none d-sm-block d-md-none d-xl-block pl-2">
+                <bm-col class="d-none d-sm-block d-md-none d-xl-block pl-0">
                     <span class="text-nowrap">
                         filtrer <span class="fake-select">Tous <bm-icon icon="caret-down" /></span>
                     </span>
@@ -37,7 +37,7 @@
                 <bm-list-group-separator v-if="hasSeparator(f.item.uid)" class="mail-list-separator">
                     <bm-row>
                         <bm-col cols="1" />
-                        <bm-col class="pl-4">
+                        <bm-col class="pl-3">
                             {{ $t(getSeparator(f.item.date)) }}
                         </bm-col>
                     </bm-row>
@@ -155,7 +155,9 @@ export default {
     font-weight: $font-weight-bold;
     cursor: pointer;
 }
-.mail-message-list .align-with-items {
-    margin-left: 12px;
+.mail-message-list div.align-with-items {
+    margin-left: 6px; //fixme
+    border-bottom: 0!important;
+    border-left: 5px solid transparent!important;
 }
 </style>
