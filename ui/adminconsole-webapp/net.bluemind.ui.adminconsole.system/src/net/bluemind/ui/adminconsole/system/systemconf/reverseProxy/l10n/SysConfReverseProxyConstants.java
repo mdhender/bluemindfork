@@ -30,4 +30,6 @@ public interface SysConfReverseProxyConstants extends Messages {
 	String swPassword();
 
 	String reverseProxyTab();
+
+	String nginxWorker();
 }
