@@ -83,9 +83,9 @@ import net.bluemind.backend.mail.replica.api.MailboxAnnotation;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
-import net.bluemind.backend.mail.replica.api.utils.Subtree;
 import net.bluemind.backend.mail.replica.api.MailboxSub;
 import net.bluemind.backend.mail.replica.api.QuotaRoot;
+import net.bluemind.backend.mail.replica.api.utils.Subtree;
 import net.bluemind.backend.mail.replica.service.ReplicationEvents;
 import net.bluemind.backend.mail.replica.service.tests.ReplicationEventsRecorder.Hierarchy;
 import net.bluemind.backend.mail.replica.utils.SubtreeContainer;
@@ -1145,6 +1145,39 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		foundItem = mboxesApi.getCompleteById(foundItem.internalId);
 		System.err.println("Found before add draft: " + foundItem);
 		addDraft(foundItem, ids.globalCounter + 2);
+	}
+
+	@Test
+	public void renameFolderToSameName() throws IMAPException, InterruptedException, IOException {
+		IServiceProvider clientProv = provider();
+		IMailboxFolders mboxesApi = clientProv.instance(IMailboxFolders.class, partition, mboxRoot);
+		List<ItemValue<MailboxFolder>> allBoxes = mboxesApi.all();
+		ItemValue<MailboxFolder> inbox = null;
+		for (ItemValue<MailboxFolder> box : allBoxes) {
+			System.out.println("On name " + box.value.name);
+			if (box.value.name.equals("INBOX")) {
+				inbox = box;
+				break;
+			}
+		}
+		assertNotNull(inbox);
+		MailboxReplica toCreate = new MailboxReplica();
+		long time = System.currentTimeMillis() / 1000;
+		toCreate.name = "create" + time;
+		IOfflineMgmt idAllocator = provider().instance(IOfflineMgmt.class, domainUid, userUid);
+		IdRange ids = idAllocator.allocateOfflineIds(3);
+		ItemIdentifier created = mboxesApi.createForHierarchy(ids.globalCounter, toCreate);
+		System.out.println("Got a create of version " + created.version);
+		ContainerChangeset<Long> changed = mboxesApi.changesetById(created.version - 1);
+		long newItemId = changed.created.get(0);
+		System.out.println("From changelog: itemId should be " + newItemId);
+		ItemValue<MailboxFolder> foundItem = mboxesApi.getCompleteById(newItemId);
+		System.out.println("Found " + foundItem.value.name);
+		addDraft(foundItem, ids.globalCounter + 1);
+
+		Ack updated = mboxesApi.updateById(foundItem.internalId, foundItem.value);
+		System.err.println("version after update: " + updated.version + " for " + foundItem.value.name);
+		assertTrue(updated.version > foundItem.version);
 	}
 
 	private CountDownLatch expectMessage(String vertxAddress) {
