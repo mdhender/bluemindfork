@@ -3,8 +3,8 @@ import * as getters from "./getters.js";
 import * as mutations from "./mutations.js";
 
 const state = {
+    attachments: [],
     items: [],
-    parts: [],
     current: null,
     count: 0,
     partsToDisplay: []

@@ -28,5 +28,5 @@ export function setPartsToDisplay(state, partsToDisplay) {
 }
 
 export function setAttachments(state, attachments) {
-    state.attachments = attachments;
+    state.attachments = attachments.slice();
 }

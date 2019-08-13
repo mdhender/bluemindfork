@@ -15,13 +15,14 @@
  * See LICENSE.txt
  * END LICENSE
  */
-import { RecipientKind, SystemFlag } from "@bluemind/backend.mail.api";
-import GetInlinePartsVisitor from "./GetInlinePartsVisitor";
-import TreeWalker from "./TreeWalker";
 import { EmailExtractor } from "@bluemind/email";
-import injector from "@bluemind/inject";
 import { getLocalizedProperty } from "@bluemind/backend.mail.l10n";
 import { html2text } from "@bluemind/html-utils";
+import { RecipientKind, SystemFlag } from "@bluemind/backend.mail.api";
+import GetAttachmentPartsVisitor from "./GetAttachmentPartsVisitor";
+import GetInlinePartsVisitor from "./GetInlinePartsVisitor";
+import injector from "@bluemind/inject";
+import TreeWalker from "./TreeWalker";
 
 /**
  * Holds data and methods for displaying a mail message and respond to it.
@@ -55,7 +56,6 @@ export default class Message {
         }
 
         this.userSession = injector.getProvider('UserSession').get();
-
     }
 
     toMailboxItem(addrPart, sender, senderName, isSeen) {
@@ -79,15 +79,21 @@ export default class Message {
     }
 
     /** 
-     * Compute the inline parts keyed by capabilities.
+     * Compute parts (inline and attachment)
      * 
      * @see GetInlinePartsVisitor
+     * @see GetAttachmentPartsVisitor
+     * 
      */
-    computeInlineParts() {
-        const visitor = new GetInlinePartsVisitor();
-        const walker = new TreeWalker(this.structure, visitor);
+    computeParts() {
+        const inlineVisitor = new GetInlinePartsVisitor();
+        const attachmentVisitor = new GetAttachmentPartsVisitor();
+        const walker = new TreeWalker(this.structure, [inlineVisitor, attachmentVisitor]);
         walker.walk();
-        return visitor.result();
+        return {
+            inlines: inlineVisitor.result(),
+            attachments: attachmentVisitor.result()
+        };
     }
 
     /** Compute the subject in function of the current action (like "Re: My Subject" when Reply). */

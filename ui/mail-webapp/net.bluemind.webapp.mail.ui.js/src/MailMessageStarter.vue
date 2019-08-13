@@ -63,6 +63,11 @@ export default {
         BmIcon,
         BmLabelIcon
     },
+    data() {
+        return {
+            logo: BmLogo
+        };
+    },
     computed: {
         ...mapGetters("backend.mail/folders", ["tree"]),
         ...mapGetters("backend.mail/items", ["messages"]),
@@ -77,11 +82,6 @@ export default {
             }
             return null;
         }
-    },
-    data() {
-        return {
-            logo: BmLogo
-        };
     },
     methods: {
         getDraftUid() {

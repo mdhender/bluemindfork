@@ -19,6 +19,7 @@ const actionsOnMailConsult = {
         });
     },
     mail(store, value, unused, { params }) {
+        store.commit("backend.mail/items/setAttachments", []);
         return store.dispatch("backend.mail/items/select", { uid: value, folder: params.folder });
     }
 };

@@ -28,28 +28,27 @@ export function all({ commit }, folder) {
         });
 }
 
-/** TODO remove when webapp store is ready */
+/* TODO remove when webapp store is ready : following calls should be done in webapp, not in mailbackend */
 export function select({ state, commit, getters, dispatch }, { folder, uid }) {
-    // FIXME following calls should be done in webapp, not in mailbackend
-
     // 1) Select the current message to display
     commit("setCurrent", uid);
 
-    // 2) Add attachments FIXME
-    commit("setAttachments", ["application.log 1,8Mo", "flyer.odt 450Ko"]);
-
-    // 3) Obtain the different display possibilities
-    const partsByCapabilities = retrievePartsByCapabilities(getters, uid);
-
-    // 4) Chose what to display
-    let chosenParts = chosePartsToDisplay(partsByCapabilities);
-
-    // 5) Retrieve parts content
+    // 2) Obtain the different display possibilities
+    const result = visitParts(getters, uid);
+    
+    // 3) Choose parts to display
+    let chosenParts = choosePartsToDisplay(result.inlines);
+    
+    // 4) Retrieve parts content
     return fetchParts(state, commit, folder, uid, dispatch, chosenParts).then(() => {
-        // 6) Manipulate parts content before display
+        // 5) Manipulate parts content before display
         chosenParts = processBeforeDisplay(state, uid, chosenParts);
-        // 7) Render the parts
-        displayParts(commit, uid, chosenParts);
+
+        // 6) Add attachments
+        setAttachments(commit, dispatch, folder, uid, result.attachments).then(() =>
+            // 7) Render the parts
+            displayParts(commit, uid, chosenParts)
+        );
     });
 }
 
@@ -58,9 +57,17 @@ export function select({ state, commit, getters, dispatch }, { folder, uid }) {
  *
  * TODO move to webapp store or router when ready.
  */
-function retrievePartsByCapabilities(getters, uid) {
+function visitParts(getters, uid) {
     const message = getters.messageByUid(uid);
-    return message.computeInlineParts();
+    return message.computeParts();
+}
+
+function setAttachments(commit, dispatch, folder, uid, attachments) {
+    let promises = attachments
+        .filter(a => MimeType.previewAvailable(a.mime))
+        .map(part => dispatch("fetch", { folder, uid, part }));
+
+    return Promise.all(promises).then(commit("setAttachments", attachments));
 }
 
 /**
@@ -68,7 +75,7 @@ function retrievePartsByCapabilities(getters, uid) {
  *
  * TODO move to webapp store or router when ready.
  */
-function chosePartsToDisplay(partsByCapabilities) {
+function choosePartsToDisplay(partsByCapabilities) {
     // we may have no choice (only one entry without capabilities)
     if (partsByCapabilities.length === 1) {
         return partsByCapabilities[0].parts;

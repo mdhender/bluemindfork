@@ -34,31 +34,22 @@
         </bm-row>
         <bm-row>
             <bm-col cols="12">
-                <mail-message-content-recipient
-                    v-if="to"
-                    :recipients="to"
-                >
+                <mail-message-content-recipient v-if="to" :recipients="to">
                     {{ $t("mail.content.to") }}
                 </mail-message-content-recipient>
             </bm-col>
         </bm-row>
         <bm-row class="pb-2">
             <bm-col cols="12">
-                <mail-message-content-recipient
-                    v-if="cc"
-                    :recipients="cc"
-                >
+                <mail-message-content-recipient v-if="cc" :recipients="cc">
                     {{ $t("mail.content.copy") }}
                 </mail-message-content-recipient>
             </bm-col>
         </bm-row>
-        <bm-row v-if="hasAttachments">
+        <bm-row>
             <bm-col cols="12">
                 <hr class="bg-dark my-0">
-                <mail-message-content-attachment
-                    :has-attachment="hasAttachments"
-                    :attachments="attachments"
-                />
+                <mail-message-content-attachments-block :attachments="attachments" />
             </bm-col>
         </bm-row>
         <bm-row
@@ -78,7 +69,7 @@ import { mapGetters } from "vuex";
 import { MimeType } from "@bluemind/email";
 import { BmCol, BmContainer, BmRow } from "@bluemind/styleguide";
 import CommonL10N from "@bluemind/l10n";
-import MailMessageContentAttachment from "./MailMessageContentAttachment";
+import MailMessageContentAttachmentsBlock from "./MailMessageContentAttachmentsBlock";
 import MailMessageContentBody from "./MailMessageContentBody";
 import MailMessageContentFrom from "./MailMessageContentFrom";
 import MailMessageContentRecipient from "./MailMessageContentRecipient";
@@ -93,7 +84,7 @@ export default {
         BmCol,
         BmContainer,
         BmRow,
-        MailMessageContentAttachment,
+        MailMessageContentAttachmentsBlock,
         MailMessageContentBody,
         MailMessageContentFrom,
         MailMessageContentRecipient,
@@ -200,9 +191,6 @@ export default {
                 this.$refs.scrollableContainerForMailMessageContentBody.scrollTop = 0;
                 this.$refs.scrollableContainerForMailMessageContentBody.scrollLeft = 0;
             });
-        },
-        hasAttachments() {
-            return this.attachments.length > 0;
         },
         saveAttachments() {
             // not implemented yet

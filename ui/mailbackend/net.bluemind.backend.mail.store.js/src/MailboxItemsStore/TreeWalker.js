@@ -3,7 +3,7 @@
  * Call the 'visit(node, ancestors)' method of each given visitor.
  */
 export default class TreeWalker {
-    constructor(rootNode, ...visitors) {
+    constructor(rootNode, visitors) {
         this.rootNode = rootNode;
         this.visitors = visitors;
     }
