@@ -29,6 +29,7 @@ import net.bluemind.backend.cyrus.replication.server.ReplicationFrame;
 import net.bluemind.backend.cyrus.replication.server.ReplicationSession;
 import net.bluemind.backend.cyrus.replication.server.Token;
 import net.bluemind.backend.cyrus.replication.server.state.ReplicationException;
+import net.bluemind.backend.cyrus.replication.server.utils.MailboxNameHelper;
 import net.bluemind.backend.mail.replica.api.MailboxSub;
 import net.bluemind.backend.mail.replica.api.SieveScript;
 
@@ -67,15 +68,7 @@ public class GetMeta implements IAsyncReplicationCommand {
 		}
 
 		public void addSub(MailboxSub f) {
-			subs.add(quoteIfNeeded(f.mboxName));
-		}
-
-		private String quoteIfNeeded(String mboxName) {
-			if (mboxName.contains(" ")) {
-				return "\"" + mboxName + "\"";
-			} else {
-				return mboxName;
-			}
+			subs.add(MailboxNameHelper.quoteIfNeeded(f.mboxName));
 		}
 
 		public void addSieve(SieveScript f) {
