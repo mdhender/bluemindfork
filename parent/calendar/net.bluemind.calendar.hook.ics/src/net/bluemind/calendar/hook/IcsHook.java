@@ -89,6 +89,9 @@ import net.bluemind.icalendar.api.ICalendarElement.Organizer;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 import net.bluemind.icalendar.api.ICalendarElement.Role;
 import net.bluemind.icalendar.parser.Mime;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.system.api.SystemConf;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.IUserSettings;
 import net.bluemind.user.api.User;
@@ -716,17 +719,9 @@ public class IcsHook implements ICalendarHook {
 					settings = userSettingsService.get(user.uid);
 				}
 
-				List<EventAttachment> attachments = new ArrayList<>();
-				for (AttachedFile att : event.attachments) {
-					BodyPart binaryPart;
-					try {
-						binaryPart = new CalendarMailHelper().createBinaryPart(loadAttachment(att));
-						// FIXME use mime-class
-						attachments.add(
-								new EventAttachment(att.publicUrl, att.name, Mime.getMimeType(att.name), binaryPart));
-					} catch (IOException e) {
-						logger.warn("Cannot read event attachment from url {}", att.publicUrl, e);
-					}
+				List<EventAttachment> attachments = handleAttachments(event);
+				if (!hasBinaryAttachments(attachments)) {
+					data.put("attachments", attachments);
 				}
 
 				Message mail = buildMailMessage(from, from, attendeeListTo, attendeeListCc, subjectTemplate, template,
@@ -738,13 +733,51 @@ public class IcsHook implements ICalendarHook {
 				auditor.actionSend(message.itemUid, recipient.getAddress(), ics);
 			});
 
-		} catch (ServerFault e) {
+		} catch (
+
+		ServerFault e) {
 			logger.error(e.getMessage(), e);
 		}
 
 	}
 
-	private byte[] loadAttachment(AttachedFile attachment) throws IOException {
+	private boolean hasBinaryAttachments(List<EventAttachment> attachments) {
+		return !attachments.isEmpty() && attachments.get(0).isBinaryAttachment();
+	}
+
+	private List<EventAttachment> handleAttachments(VEvent event) {
+		long maxBytes = 10000l;
+		long bytesRead = 0;
+		if (!event.attachments.isEmpty()) {
+			SystemConf systemConf = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+					.instance(ISystemConfiguration.class).getValues();
+			maxBytes = systemConf.convertedValue(SysConfKeys.message_size_limit.name(), val -> Long.parseLong(val),
+					10000l);
+		}
+		List<EventAttachment> attachments = new ArrayList<>();
+		try {
+			List<EventAttachment> binaryParts = new ArrayList<>(event.attachments.size());
+			for (AttachedFile att : event.attachments) {
+				try {
+					byte[] attachmentAsBytes = loadAttachment(att, bytesRead, maxBytes);
+					bytesRead += attachmentAsBytes.length;
+					BodyPart binaryPart = new CalendarMailHelper().createBinaryPart(attachmentAsBytes);
+					binaryParts
+							.add(new EventAttachment(att.publicUrl, att.name, Mime.getMimeType(att.name), binaryPart));
+				} catch (IOException e) {
+					logger.warn("Cannot read event attachment from url {}", att.publicUrl, e);
+				}
+			}
+			attachments.addAll(binaryParts);
+		} catch (FileSizeExceededException fee) {
+			attachments.addAll(event.attachments.stream()
+					.map(att -> new EventAttachment(att.publicUrl, att.name, Mime.getMimeType(att.name)))
+					.collect(Collectors.toList()));
+		}
+		return attachments;
+	}
+
+	private byte[] loadAttachment(AttachedFile attachment, long read, long maxBytes) throws IOException {
 		try {
 			SSLContext sc = SSLContext.getInstance("SSL");
 			sc.init(null, new TrustManager[] { Trust.createTrustManager() }, new SecureRandom());
@@ -753,9 +786,13 @@ public class IcsHook implements ICalendarHook {
 		}
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try (BufferedInputStream in = new BufferedInputStream(new URL(attachment.publicUrl).openStream())) {
-			byte dataBuffer[] = new byte[1024];
+			byte dataBuffer[] = new byte[8192];
 			int bytesRead = 0;
-			while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
+			while ((bytesRead = in.read(dataBuffer, 0, 8192)) != -1) {
+				read += bytesRead;
+				if (read > maxBytes) {
+					throw new FileSizeExceededException();
+				}
 				baos.write(dataBuffer, 0, bytesRead);
 			}
 		}
@@ -1221,6 +1258,10 @@ public class IcsHook implements ICalendarHook {
 			return new MailData(organizer, subject, body, from, data, senderSettings);
 		}
 
+	}
+
+	@SuppressWarnings("serial")
+	public static class FileSizeExceededException extends RuntimeException {
 	}
 
 }

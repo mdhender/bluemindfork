@@ -66,7 +66,6 @@ public class CalendarMail {
 		MessageBuilder builder = createBuilder();
 
 		MessageImpl m = new MessageImpl();
-		Header messageHeader = builder.newHeader();
 		m.setDate(new Date());
 		m.setSubject(subject);
 		m.setSender(sender);
@@ -116,20 +115,21 @@ public class CalendarMail {
 
 		attachments.ifPresent(atts -> {
 			for (EventAttachment att : atts) {
-				BodyPart attBody = new BodyPart();
-				attBody.setBody(att.part.getBody());
-				attBody.setFilename(att.name);
-				Header header = builder.newHeader();
-				header.setField(Fields.contentType(att.contentType + "; name=\"" + att.name + "\""));
-				header.setField(Fields.contentDisposition("attachment; filename=\"" + att.name + "\""));
-				header.setField(Fields.contentTransferEncoding("base64"));
-				attBody.setHeader(header);
-				mixed.addBodyPart(attBody);
+				if (att.isBinaryAttachment()) {
+					BodyPart attBody = new BodyPart();
+					attBody.setBody(att.part.get().getBody());
+					attBody.setFilename(att.name);
+					Header header = builder.newHeader();
+					header.setField(Fields.contentType(att.contentType + "; name=\"" + att.name + "\""));
+					header.setField(Fields.contentDisposition("attachment; filename=\"" + att.name + "\""));
+					header.setField(Fields.contentTransferEncoding("base64"));
+					attBody.setHeader(header);
+					mixed.addBodyPart(attBody);
+				}
 			}
 		});
 
 		m.setMultipart(mixed);
-		m.setHeader(messageHeader);
 
 		return m;
 	}

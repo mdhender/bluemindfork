@@ -7,12 +7,12 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.attachment.api;bundle-version="4.1.0",
  net.bluemind.restbus.api.gwt;bundle-version="4.1.0",
  com.google.gwt.user;resolution:=optional,
- net.bluemind.core.commons.gwt;bundle-version="4.1.0"
+ net.bluemind.core.commons.gwt;bundle-version="4.1.0",
  net.bluemind.user.api.gwt;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.restbus.api.gwt;bundle-version="4.1.0";visibility:=reexport
 Export-Package: net.bluemind.attachment.api.gwt.endpoint,
  net.bluemind.attachment.api.gwt.js,
- net.bluemind.attachment.api.gwt.serder
+ net.bluemind.attachment.api.gwt.serder,
  net.bluemind.attachment.api.gwt.js
 Automatic-Module-Name: net.bluemind.attachment.api.gwt
 
