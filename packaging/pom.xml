@@ -33,7 +33,7 @@
           <module>bm-chooser</module>
 	  <module>bm-settings</module>
 	  <module>bm-webmail</module>
-	  <module>bm-mail</module>
+	  <module>bm-mail-app</module>
 	  <module>bm-client-access</module>
 	  <module>bm-conf</module>
 	  <module>bm-cyrus</module>	  

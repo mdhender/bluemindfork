@@ -19,7 +19,7 @@
 		<module>defaultapp</module>
 		<module>settings</module>
 		<module>webmail</module>
-		<module>mail</module>
+		<module>mail-app</module>
 		<module>adminconsole-ldap</module>
 		<module>adminconsole-ldap-export</module>
 		<module>adminconsole-filehosting</module>
