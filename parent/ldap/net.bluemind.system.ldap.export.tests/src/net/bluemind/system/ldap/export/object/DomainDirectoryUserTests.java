@@ -100,6 +100,10 @@ public class DomainDirectoryUserTests {
 		assertEquals(1, attrs.size());
 		assertEquals("description", attrs.get(0));
 
+		attrs = getAttributeValues(entry, "o");
+		assertEquals(1, attrs.size());
+		assertEquals("company", attrs.get(0));
+
 		attrs = getAttributeValues(entry, "ou");
 		assertEquals(1, attrs.size());
 		assertEquals("division", attrs.get(0));
@@ -197,7 +201,7 @@ public class DomainDirectoryUserTests {
 
 		ModifyRequest modificationRequest = ddu.getModifyRequest(currentEntry);
 		assertEquals("cn=dntoupdate", modificationRequest.getName().getName());
-		assertEquals(27, modificationRequest.getModifications().size());
+		assertEquals(28, modificationRequest.getModifications().size());
 	}
 
 	private ItemValue<Domain> getTestDomain() {
@@ -218,6 +222,7 @@ public class DomainDirectoryUserTests {
 		vcard.identification.name.familyNames = "familyName";
 		vcard.identification.name.givenNames = "givenName";
 		vcard.explanatory.note = "description";
+		vcard.organizational.org.company = "company";
 		vcard.organizational.org.division = "division";
 		vcard.organizational.org.department = "department number";
 		vcard.organizational.title = "title";
