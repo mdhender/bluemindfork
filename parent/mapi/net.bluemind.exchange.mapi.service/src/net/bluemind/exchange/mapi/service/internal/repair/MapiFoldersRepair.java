@@ -20,12 +20,12 @@ package net.bluemind.exchange.mapi.service.internal.repair;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.function.BiConsumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 
 import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.api.ContainerQuery;
@@ -37,6 +37,7 @@ import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.service.IDirEntryRepairSupport;
+import net.bluemind.exchange.mapi.api.IMapiFolder;
 import net.bluemind.exchange.mapi.api.IMapiFoldersMgmt;
 import net.bluemind.exchange.mapi.api.IMapiMailbox;
 import net.bluemind.exchange.mapi.api.MapiFolder;
@@ -86,23 +87,51 @@ public class MapiFoldersRepair implements IDirEntryRepairSupport {
 			this.context = ctx;
 		}
 
+		private interface FolderRepairAction {
+			void extraFolder(IMapiFoldersMgmt foldersApi, BaseContainerDescriptor c);
+
+			void extraContent(IMapiFolder contentApi, BaseContainerDescriptor c);
+		}
+
 		@Override
 		public void check(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
-			verifyExtraFolders(domainUid, entry, report, monitor, (foldersApi, extra) -> {
-				report.warn(mapiFoldersOp.identifier, "Folder " + extra.uid + " should be removed.");
+			verifyExtraFolders(domainUid, entry, report, monitor, new FolderRepairAction() {
+
+				@Override
+				public void extraFolder(IMapiFoldersMgmt foldersApi, BaseContainerDescriptor extra) {
+					report.warn(mapiFoldersOp.identifier, "Folder " + extra.uid + " should be removed.");
+				}
+
+				@Override
+				public void extraContent(IMapiFolder contentApi, BaseContainerDescriptor extra) {
+					report.warn(mapiFoldersOp.identifier, "Folder " + extra.uid + " content should be purged.");
+				}
 			});
 		}
 
 		@Override
 		public void repair(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
-			verifyExtraFolders(domainUid, entry, report, monitor, (foldersApi, extra) -> {
-				monitor.log("Deleting " + extra.uid);
-				foldersApi.delete(extra.uid);
+			verifyExtraFolders(domainUid, entry, report, monitor, new FolderRepairAction() {
+
+				@Override
+				public void extraFolder(IMapiFoldersMgmt foldersApi, BaseContainerDescriptor extra) {
+					monitor.log("Deleting " + extra.uid);
+					foldersApi.delete(extra.uid);
+				}
+
+				@Override
+				public void extraContent(IMapiFolder contentApi, BaseContainerDescriptor c) {
+					List<Long> allIds = contentApi.changesetById(0L).created;
+					if (!allIds.isEmpty()) {
+						monitor.log("Cleaning content of " + c.uid + ": " + allIds.size() + " item(s)");
+						Lists.partition(allIds, 50).forEach(chunk -> contentApi.multipleDeleteById(chunk));
+					}
+				}
 			});
 		}
 
 		private void verifyExtraFolders(String domainUid, DirEntry entry, DiagnosticReport report,
-				IServerTaskMonitor monitor, BiConsumer<IMapiFoldersMgmt, BaseContainerDescriptor> processExtra) {
+				IServerTaskMonitor monitor, FolderRepairAction processExtra) {
 			logger.info("Checking mapi folders of {}@{}", entry, domainUid);
 			monitor.log("Checking folders of " + entry + "@" + domainUid);
 
@@ -127,8 +156,9 @@ public class MapiFoldersRepair implements IDirEntryRepairSupport {
 				if (!NonMapiFolder.legitKind(k)) {
 					MapiFolder folder = foldersApi.get(c.uid);
 					logger.warn("We should not have a folder for kind {} => {}", k, folder);
-					processExtra.accept(foldersApi, c);
+					processExtra.extraFolder(foldersApi, c);
 				}
+
 				monitor.progress(1, c.uid + " handled.");
 			}
 
