@@ -18,13 +18,15 @@
  */
 package net.bluemind.calendar.service.internal;
 
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
+import java.time.zone.ZoneRulesException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.joda.time.DateTimeZone;
-import org.joda.time.LocalTime;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -91,12 +93,12 @@ public class CalendarSettings implements ICalendarSettings {
 
 		String dayStart = map.get(CFG_DAY_START);
 		if (dayStart != null) {
-			ret.dayStart = LocalTime.parse(dayStart).getMillisOfDay();
+			ret.dayStart = LocalTime.parse(dayStart).get(ChronoField.MILLI_OF_DAY);
 		}
 
 		String dayEnd = map.get(CFG_DAY_END);
 		if (dayEnd != null) {
-			ret.dayEnd = LocalTime.parse(dayEnd).getMillisOfDay();
+			ret.dayEnd = LocalTime.parse(dayEnd).get(ChronoField.MILLI_OF_DAY);
 		}
 
 		ret.timezoneId = map.get(CFG_TIMEZONE);
@@ -107,9 +109,9 @@ public class CalendarSettings implements ICalendarSettings {
 
 		String daysAsString = Joiner.on(",").join(config.workingDays);
 		String minDuration = config.minDuration != null ? config.minDuration.toString() : null;
-
-		String ds = LocalTime.fromMillisOfDay((long) config.dayStart).toString("HH:mm");
-		String de = LocalTime.fromMillisOfDay((long) config.dayEnd).toString("HH:mm");
+		String ds = LocalTime.ofNanoOfDay((long) config.dayStart * 1000000)
+				.format(DateTimeFormatter.ofPattern("HH:mm"));
+		String de = LocalTime.ofNanoOfDay((long) config.dayEnd * 1000000).format(DateTimeFormatter.ofPattern("HH:mm"));
 
 		String tz = config.timezoneId;
 
@@ -130,10 +132,9 @@ public class CalendarSettings implements ICalendarSettings {
 		ParametersValidator.notNullAndNotEmpty(settings.timezoneId);
 
 		try {
-			DateTimeZone.forID(settings.timezoneId);
-		} catch (IllegalArgumentException e) {
+			ZoneId.of(settings.timezoneId);
+		} catch (ZoneRulesException e) {
 			throw new ServerFault("timezone " + settings.timezoneId + " is not valid");
 		}
-
 	}
 }

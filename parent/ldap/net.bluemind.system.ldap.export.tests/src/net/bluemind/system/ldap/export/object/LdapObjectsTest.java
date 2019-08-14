@@ -75,8 +75,7 @@ public class LdapObjectsTest extends LdapObjects {
 
 		assertEquals(ModificationOperation.REMOVE_ATTRIBUTE, mod.getOperation());
 		assertEquals("cn", mod.getAttribute().getId());
-		assertTrue(mod.getAttribute().contains("val1"));
-		assertTrue(mod.getAttribute().contains("val2"));
+		assertEquals(0, mod.getAttribute().size());
 	}
 
 	@Test

@@ -21,6 +21,8 @@ package net.bluemind.calendar.service.internal.repair;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,8 +30,6 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,8 +47,6 @@ import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.service.internal.VEventContainerStoreService;
-import net.bluemind.core.api.date.BmDateTime.Precision;
-import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.persistance.ContainerSettingsStore;
 import net.bluemind.core.container.persistance.ContainerStore;
@@ -66,6 +64,7 @@ import net.bluemind.server.api.Server;
 import net.bluemind.tag.api.ITags;
 import net.bluemind.tag.api.Tag;
 import net.bluemind.tag.api.TagRef;
+import net.bluemind.tests.defaultdata.BmDateTimeHelper;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class CalendarRepairSupportTests {
@@ -264,8 +263,8 @@ public class CalendarRepairSupportTests {
 	protected VEventSeries defaultVEvent() {
 		VEventSeries series = new VEventSeries();
 		VEvent event = new VEvent();
-		DateTimeZone tz = DateTimeZone.forID("Asia/Ho_Chi_Minh");
-		event.dtstart = time(new DateTime(2022, 2, 13, 1, 0, 0, tz));
+		ZoneId tz = ZoneId.of("Asia/Ho_Chi_Minh");
+		event.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 13, 1, 0, 0, 0, tz));
 		event.summary = "event " + System.currentTimeMillis();
 		event.location = "Toulouse";
 		event.description = "Lorem ipsum";
@@ -278,23 +277,9 @@ public class CalendarRepairSupportTests {
 		event.categories.add(TagRef.create("tags_" + user2, "user2Tag", "c2", "t2"));
 		series.main = event;
 		series.icsUid = "check";
-		series.occurrences = ImmutableList
-				.of(VEventOccurrence.fromEvent(event, time(new DateTime(2022, 2, 13, 1, 0, 0, tz))));
+		series.occurrences = ImmutableList.of(VEventOccurrence.fromEvent(event,
+				BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 13, 1, 0, 0, 0, tz))));
 		return series;
-	}
-
-	protected net.bluemind.core.api.date.BmDateTime time(DateTime dateTime) {
-		return time(dateTime, true);
-	}
-
-	protected net.bluemind.core.api.date.BmDateTime time(DateTime dateTime, boolean autoDate) {
-		if (autoDate && dateTime.getZone().equals(DateTimeZone.getDefault()) && dateTime.getHourOfDay() == 0
-				&& dateTime.getMinuteOfHour() == 0 && dateTime.getSecondOfMinute() == 0) {
-			long ts = dateTime.withZoneRetainFields(DateTimeZone.UTC).getMillis();
-			return BmDateTimeWrapper.fromTimestamp(ts, dateTime.getZone().getID(), Precision.Date);
-		} else {
-			return BmDateTimeWrapper.create(dateTime, Precision.DateTime);
-		}
 	}
 
 }

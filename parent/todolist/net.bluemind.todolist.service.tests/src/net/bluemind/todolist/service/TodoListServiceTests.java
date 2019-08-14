@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -35,8 +36,6 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.Test;
 import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.json.JsonObject;
@@ -412,15 +411,15 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	@Test
 	public void testSearchByDateInterval() throws ServerFault {
 		VTodo todo = defaultVTodo();
-		DateTime temp = new DateTime(1983, 2, 13, 0, 0, 0, tz);
+		ZonedDateTime temp = ZonedDateTime.of(1983, 2, 13, 0, 0, 0, 0, tz);
 		todo.dtstart = BmDateTimeWrapper.create(temp, Precision.DateTime);
 		todo.due = BmDateTimeWrapper.create(temp.plusDays(1), Precision.DateTime);
 		String uid = "test_" + System.nanoTime();
 
 		getService(defaultSecurityContext).create(uid, todo);
 		refreshIndex();
-		DateTime from = new DateTime(1983, 2, 1, 0, 0, 0, tz);
-		DateTime to = new DateTime(1983, 3, 1, 0, 0, 0, tz);
+		ZonedDateTime from = ZonedDateTime.of(1983, 2, 1, 0, 0, 0, 0, tz);
+		ZonedDateTime to = ZonedDateTime.of(1983, 3, 1, 0, 0, 0, 0, tz);
 		VTodoQuery query = VTodoQuery.create(BmDateTimeWrapper.create(from, Precision.DateTime),
 				BmDateTimeWrapper.create(to, Precision.DateTime));
 		ListResult<ItemValue<VTodo>> res = getService(defaultSecurityContext).search(query);
@@ -450,8 +449,8 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	public void testNoAlarm() throws ServerFault {
 		VTodo todo = defaultVTodo();
 		todo.alarm = null;
-		todo.dtstart = BmDateTimeWrapper.create(new DateTime(2000, 12, 25, 19, 0, 0, tz), Precision.DateTime);
-		todo.due = BmDateTimeWrapper.create(new DateTime(2000, 12, 25, 20, 0, 0, tz), Precision.DateTime);
+		todo.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2000, 12, 25, 19, 0, 0, 0, tz), Precision.DateTime);
+		todo.due = BmDateTimeWrapper.create(ZonedDateTime.of(2000, 12, 25, 20, 0, 0, 0, tz), Precision.DateTime);
 
 		String uid = "test_" + System.nanoTime();
 
@@ -469,8 +468,8 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		todo.alarm = new ArrayList<ICalendarElement.VAlarm>(1);
 		todo.alarm.add(ICalendarElement.VAlarm.create(Action.Email, -42, "alarm desc", 42, 1, "w00t"));
 
-		todo.dtstart = BmDateTimeWrapper.create(new DateTime(2000, 12, 25, 19, 0, 0, tz), Precision.DateTime);
-		todo.due = BmDateTimeWrapper.create(new DateTime(2000, 12, 25, 20, 0, 0, tz), Precision.DateTime);
+		todo.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2000, 12, 25, 19, 0, 0, 0, tz), Precision.DateTime);
+		todo.due = BmDateTimeWrapper.create(ZonedDateTime.of(2000, 12, 25, 20, 0, 0, 0, tz), Precision.DateTime);
 
 		String uid = "test_" + System.nanoTime();
 
@@ -646,8 +645,8 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		ITodoList service = getService(defaultSecurityContext);
 
 		VTodo todo = defaultVTodo();
-		todo.dtstart = BmDateTimeWrapper.create(new DateTime(2014, 2, 13, 8, 0, 0, tz), Precision.DateTime);
-		todo.due = BmDateTimeWrapper.create(new DateTime(2014, 2, 14, 8, 0, 0, tz), Precision.DateTime);
+		todo.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 13, 8, 0, 0, 0, tz), Precision.DateTime);
+		todo.due = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 14, 8, 0, 0, 0, tz), Precision.DateTime);
 		VTodo.RRule rrule = new VTodo.RRule();
 		rrule.frequency = VTodo.RRule.Frequency.DAILY;
 		rrule.interval = 1;
@@ -659,37 +658,38 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		service.create(uid, todo);
 		refreshIndex();
 
-		BmDateTime dateMin = BmDateTimeWrapper.create(new DateTime(2014, 2, 1, 0, 0, 0, tz), Precision.DateTime);
-		BmDateTime dateMax = BmDateTimeWrapper.create(new DateTime(2014, 2, 28, 0, 0, 0, tz), Precision.DateTime);
+		BmDateTime dateMin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 1, 0, 0, 0, 0, tz), Precision.DateTime);
+		BmDateTime dateMax = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 28, 0, 0, 0, 0, tz),
+				Precision.DateTime);
 
 		VTodoQuery query = VTodoQuery.create(dateMin, dateMax);
 		ListResult<ItemValue<VTodo>> res = service.search(query);
 		assertEquals(5, res.values.size());
 
-		List<DateTime> foundDtstart = new ArrayList<DateTime>(12);
+		List<ZonedDateTime> foundDtstart = new ArrayList<ZonedDateTime>(12);
 
-		List<DateTime> foundDue = new ArrayList<DateTime>(12); // savoyarde
+		List<ZonedDateTime> foundDue = new ArrayList<ZonedDateTime>(12); // savoyarde
 
 		for (ItemValue<VTodo> item : res.values) {
 			assertEquals(uid, item.uid);
-			foundDtstart.add(new BmDateTimeWrapper(item.value.dtstart).toJodaTime());
-			foundDue.add(new BmDateTimeWrapper(item.value.due).toJodaTime());
+			foundDtstart.add(new BmDateTimeWrapper(item.value.dtstart).toDateTime());
+			foundDue.add(new BmDateTimeWrapper(item.value.due).toDateTime());
 		}
 
-		assertTrue(foundDtstart.contains(new DateTime(2014, 2, 13, 8, 0, 0, tz)));
-		assertTrue(foundDtstart.contains(new DateTime(2014, 2, 14, 8, 0, 0, tz)));
-		assertTrue(foundDtstart.contains(new DateTime(2014, 2, 15, 8, 0, 0, tz)));
-		assertTrue(foundDtstart.contains(new DateTime(2014, 2, 16, 8, 0, 0, tz)));
-		assertTrue(foundDtstart.contains(new DateTime(2014, 2, 17, 8, 0, 0, tz)));
+		assertTrue(foundDtstart.contains(ZonedDateTime.of(2014, 2, 13, 8, 0, 0, 0, tz)));
+		assertTrue(foundDtstart.contains(ZonedDateTime.of(2014, 2, 14, 8, 0, 0, 0, tz)));
+		assertTrue(foundDtstart.contains(ZonedDateTime.of(2014, 2, 15, 8, 0, 0, 0, tz)));
+		assertTrue(foundDtstart.contains(ZonedDateTime.of(2014, 2, 16, 8, 0, 0, 0, tz)));
+		assertTrue(foundDtstart.contains(ZonedDateTime.of(2014, 2, 17, 8, 0, 0, 0, tz)));
 
-		assertTrue(foundDue.contains(new DateTime(2014, 2, 14, 8, 0, 0, tz)));
-		assertTrue(foundDue.contains(new DateTime(2014, 2, 15, 8, 0, 0, tz)));
-		assertTrue(foundDue.contains(new DateTime(2014, 2, 16, 8, 0, 0, tz)));
-		assertTrue(foundDue.contains(new DateTime(2014, 2, 17, 8, 0, 0, tz)));
-		assertTrue(foundDue.contains(new DateTime(2014, 2, 18, 8, 0, 0, tz)));
+		assertTrue(foundDue.contains(ZonedDateTime.of(2014, 2, 14, 8, 0, 0, 0, tz)));
+		assertTrue(foundDue.contains(ZonedDateTime.of(2014, 2, 15, 8, 0, 0, 0, tz)));
+		assertTrue(foundDue.contains(ZonedDateTime.of(2014, 2, 16, 8, 0, 0, 0, tz)));
+		assertTrue(foundDue.contains(ZonedDateTime.of(2014, 2, 17, 8, 0, 0, 0, tz)));
+		assertTrue(foundDue.contains(ZonedDateTime.of(2014, 2, 18, 8, 0, 0, 0, tz)));
 
-		dateMin = BmDateTimeWrapper.create(new DateTime(2014, 2, 19, 0, 0, 0, tz), Precision.DateTime);
-		dateMax = BmDateTimeWrapper.create(new DateTime(2014, 2, 28, 0, 0, 0, tz), Precision.DateTime);
+		dateMin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 19, 0, 0, 0, 0, tz), Precision.DateTime);
+		dateMax = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 28, 0, 0, 0, 0, tz), Precision.DateTime);
 
 		query = VTodoQuery.create(dateMin, dateMax);
 		res = service.search(query);
@@ -702,12 +702,12 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		ITodoList service = getService(defaultSecurityContext);
 
 		VTodo todo = defaultVTodo();
-		todo.dtstart = BmDateTimeWrapper.create(new DateTime(2014, 5, 29, 0, 0, 0, tz), Precision.DateTime);
-		todo.due = BmDateTimeWrapper.create(new DateTime(2014, 5, 29, 0, 0, 0, tz), Precision.DateTime);
+		todo.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 5, 29, 0, 0, 0, 0, tz), Precision.DateTime);
+		todo.due = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 5, 29, 0, 0, 0, 0, tz), Precision.DateTime);
 
 		VTodo.RRule rrule = new VTodo.RRule();
 		rrule.frequency = VTodo.RRule.Frequency.WEEKLY;
-		rrule.until = BmDateTimeWrapper.create(new DateTime(2014, 6, 4, 0, 0, 0, tz), Precision.DateTime);
+		rrule.until = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 6, 4, 0, 0, 0, 0, tz), Precision.DateTime);
 		List<VTodo.RRule.WeekDay> weekDay = new ArrayList<VTodo.RRule.WeekDay>(4);
 		weekDay.add(VTodo.RRule.WeekDay.MO);
 		weekDay.add(VTodo.RRule.WeekDay.TU);
@@ -722,10 +722,10 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		refreshIndex();
 
 		net.bluemind.core.api.date.BmDateTime dateMin = BmDateTimeWrapper
-				.create(new DateTime(2014, 5, 26, 0, 0, 0, DateTimeZone.forID("Europe/Paris")), Precision.DateTime);
+				.create(ZonedDateTime.of(2014, 5, 26, 0, 0, 0, 0, tz), Precision.DateTime);
 
 		net.bluemind.core.api.date.BmDateTime dateMax = BmDateTimeWrapper
-				.create(new DateTime(2014, 6, 2, 0, 0, 0, DateTimeZone.forID("Europe/Paris")), Precision.DateTime);
+				.create(ZonedDateTime.of(2014, 6, 2, 0, 0, 0, 0, tz), Precision.DateTime);
 
 		VTodoQuery query = VTodoQuery.create(dateMin, dateMax);
 
@@ -733,9 +733,9 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		assertEquals(2, res.values.size());
 
 		net.bluemind.core.api.date.BmDateTime expectedOccurrence1 = BmDateTimeWrapper
-				.create(new DateTime(2014, 5, 29, 0, 0, 0, tz), Precision.DateTime);
+				.create(ZonedDateTime.of(2014, 5, 29, 0, 0, 0, 0, tz), Precision.DateTime);
 		net.bluemind.core.api.date.BmDateTime expectedOccurrence2 = BmDateTimeWrapper
-				.create(new DateTime(2014, 5, 30, 0, 0, 0, tz), Precision.DateTime);
+				.create(ZonedDateTime.of(2014, 5, 30, 0, 0, 0, 0, tz), Precision.DateTime);
 
 		boolean f1 = false;
 		boolean f2 = false;
@@ -753,10 +753,8 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		assertTrue(f1);
 		assertTrue(f2);
 
-		dateMin = BmDateTimeWrapper.create(new DateTime(2014, 6, 5, 0, 0, 0, DateTimeZone.forID("Europe/Paris")),
-				Precision.Date);
-		dateMax = BmDateTimeWrapper.create(new DateTime(2014, 6, 20, 0, 0, 0, DateTimeZone.forID("Europe/Paris")),
-				Precision.Date);
+		dateMin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 6, 5, 0, 0, 0, 0, tz), Precision.Date);
+		dateMax = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 6, 20, 0, 0, 0, 0, tz), Precision.Date);
 		query = VTodoQuery.create(dateMin, dateMax);
 		res = service.search(query);
 		assertEquals(0, res.values.size());
@@ -770,8 +768,8 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		VTodo todo = defaultVTodo();
 
 		todo.summary = "monthlyByDay";
-		todo.dtstart = BmDateTimeWrapper.create(new DateTime(2010, 2, 4, 17, 0, 0, tz), Precision.DateTime);
-		todo.due = BmDateTimeWrapper.create(new DateTime(2010, 2, 4, 18, 0, 0, tz), Precision.DateTime);
+		todo.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2010, 2, 4, 17, 0, 0, 0, tz), Precision.DateTime);
+		todo.due = BmDateTimeWrapper.create(ZonedDateTime.of(2010, 2, 4, 18, 0, 0, 0, tz), Precision.DateTime);
 
 		// Every _1st_ thurday
 		VTodo.RRule rrule = new VTodo.RRule();
@@ -787,30 +785,31 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		service.create(uid, todo);
 		refreshIndex();
 
-		BmDateTime dateMin = BmDateTimeWrapper.create(new DateTime(2011, 1, 1, 0, 0, 0, tz), Precision.DateTime);
-		BmDateTime dateMax = BmDateTimeWrapper.create(new DateTime(2011, 12, 31, 0, 0, 0, tz), Precision.DateTime);
+		BmDateTime dateMin = BmDateTimeWrapper.create(ZonedDateTime.of(2011, 1, 1, 0, 0, 0, 0, tz), Precision.DateTime);
+		BmDateTime dateMax = BmDateTimeWrapper.create(ZonedDateTime.of(2011, 12, 31, 0, 0, 0, 0, tz),
+				Precision.DateTime);
 		VTodoQuery query = VTodoQuery.create(dateMin, dateMax);
 		ListResult<ItemValue<VTodo>> res = service.search(query);
 		assertEquals(12, res.values.size());
 
-		List<DateTime> found = new ArrayList<DateTime>(12);
+		List<ZonedDateTime> found = new ArrayList<ZonedDateTime>(12);
 		for (ItemValue<VTodo> item : res.values) {
 			assertEquals(uid, item.uid);
-			found.add(new BmDateTimeWrapper(item.value.dtstart).toJodaTime());
+			found.add(new BmDateTimeWrapper(item.value.dtstart).toDateTime());
 		}
 
-		assertTrue(found.contains(new DateTime(2011, 1, 6, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 2, 3, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 3, 3, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 4, 7, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 5, 5, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 6, 2, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 7, 7, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 8, 4, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 9, 1, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 10, 6, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 11, 3, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 12, 1, 17, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 1, 6, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 2, 3, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 3, 3, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 4, 7, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 5, 5, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 6, 2, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 7, 7, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 8, 4, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 9, 1, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 10, 6, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 11, 3, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 12, 1, 17, 0, 0, 0, tz)));
 
 		// Every _LAST_ monday
 		rrule = new VTodo.RRule();
@@ -822,7 +821,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		todo.rrule = rrule;
 
 		Set<net.bluemind.core.api.date.BmDateTime> exdate = new HashSet<>(1);
-		exdate.add(BmDateTimeWrapper.create(new DateTime(2011, 2, 28, 17, 0, 0, tz), Precision.DateTime));
+		exdate.add(BmDateTimeWrapper.create(ZonedDateTime.of(2011, 2, 28, 17, 0, 0, 0, tz), Precision.DateTime));
 		todo.exdate = exdate;
 
 		uid = "testMonthlyByDayOccurrences_" + System.nanoTime();
@@ -833,35 +832,35 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		res = service.search(query);
 		assertEquals(23, res.values.size());
 
-		found = new ArrayList<DateTime>(23);
+		found = new ArrayList<ZonedDateTime>(23);
 		for (ItemValue<VTodo> item : res.values) {
-			found.add(new BmDateTimeWrapper(item.value.dtstart).toJodaTime());
+			found.add(new BmDateTimeWrapper(item.value.dtstart).toDateTime());
 		}
 
-		assertTrue(found.contains(new DateTime(2011, 1, 6, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 2, 3, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 3, 3, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 4, 7, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 5, 5, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 6, 2, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 7, 7, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 8, 4, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 9, 1, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 10, 6, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 11, 3, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 12, 1, 17, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 1, 6, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 2, 3, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 3, 3, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 4, 7, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 5, 5, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 6, 2, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 7, 7, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 8, 4, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 9, 1, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 10, 6, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 11, 3, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 12, 1, 17, 0, 0, 0, tz)));
 
-		assertTrue(found.contains(new DateTime(2011, 1, 31, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 3, 28, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 4, 25, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 5, 30, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 6, 27, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 7, 25, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 8, 29, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 9, 26, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 10, 31, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 11, 28, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 12, 26, 17, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 1, 31, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 3, 28, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 4, 25, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 5, 30, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 6, 27, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 7, 25, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 8, 29, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 9, 26, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 10, 31, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 11, 28, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 12, 26, 17, 0, 0, 0, tz)));
 	}
 
 	@Test
@@ -870,8 +869,8 @@ public class TodoListServiceTests extends AbstractServiceTests {
 
 		VTodo todo = defaultVTodo();
 
-		todo.dtstart = BmDateTimeWrapper.create(new DateTime(2014, 1, 1, 8, 0, 0, tz), Precision.DateTime);
-		todo.due = BmDateTimeWrapper.create(new DateTime(2014, 1, 1, 8, 0, 0, tz), Precision.DateTime);
+		todo.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 1, 1, 8, 0, 0, 0, tz), Precision.DateTime);
+		todo.due = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 1, 1, 8, 0, 0, 0, tz), Precision.DateTime);
 
 		VTodo.RRule rrule = new VTodo.RRule();
 		rrule.frequency = VTodo.RRule.Frequency.MONTHLY;
@@ -883,35 +882,36 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		service.create(uid, todo);
 		refreshIndex();
 
-		BmDateTime dateMin = BmDateTimeWrapper.create(new DateTime(2014, 2, 1, 0, 0, 0, tz), Precision.DateTime);
-		BmDateTime dateMax = BmDateTimeWrapper.create(new DateTime(2014, 2, 28, 0, 0, 0, tz), Precision.DateTime);
+		BmDateTime dateMin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 1, 0, 0, 0, 0, tz), Precision.DateTime);
+		BmDateTime dateMax = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 28, 0, 0, 0, 0, tz),
+				Precision.DateTime);
 
 		VTodoQuery query = VTodoQuery.create(dateMin, dateMax);
 		ListResult<ItemValue<VTodo>> res = service.search(query);
 		assertEquals(1, res.values.size());
 
-		DateTime expectedOccurrence1 = new DateTime(2014, 2, 1, 8, 0, 0, tz);
+		ZonedDateTime expectedOccurrence1 = ZonedDateTime.of(2014, 2, 1, 8, 0, 0, 0, tz);
 
 		boolean f1 = false;
 
 		for (ItemValue<VTodo> item : res.values) {
 			assertEquals(uid, item.uid);
 
-			if (expectedOccurrence1.equals(new BmDateTimeWrapper(item.value.dtstart).toJodaTime())) {
+			if (expectedOccurrence1.equals(new BmDateTimeWrapper(item.value.dtstart).toDateTime())) {
 				f1 = true;
 			}
 		}
 
 		assertTrue(f1);
 
-		dateMin = BmDateTimeWrapper.create(new DateTime(2014, 1, 1, 0, 0, 0, tz), Precision.DateTime);
-		dateMax = BmDateTimeWrapper.create(new DateTime(2014, 12, 31, 0, 0, 0, tz), Precision.DateTime);
+		dateMin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, tz), Precision.DateTime);
+		dateMax = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 12, 31, 0, 0, 0, 0, tz), Precision.DateTime);
 		query = VTodoQuery.create(dateMin, dateMax);
 		res = service.search(query);
 		assertEquals(12, res.values.size());
 
-		dateMin = BmDateTimeWrapper.create(new DateTime(2014, 2, 18, 0, 0, 0, tz), Precision.DateTime);
-		dateMax = BmDateTimeWrapper.create(new DateTime(2014, 2, 28, 0, 0, 0, tz), Precision.DateTime);
+		dateMin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 18, 0, 0, 0, 0, tz), Precision.DateTime);
+		dateMax = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 28, 0, 0, 0, 0, tz), Precision.DateTime);
 
 		query = VTodoQuery.create(dateMin, dateMax);
 		res = service.search(query);
@@ -924,8 +924,8 @@ public class TodoListServiceTests extends AbstractServiceTests {
 
 		VTodo todo = defaultVTodo();
 
-		todo.dtstart = BmDateTimeWrapper.create(new DateTime(2014, 1, 1, 8, 0, 0, tz), Precision.DateTime);
-		todo.due = BmDateTimeWrapper.create(new DateTime(2014, 1, 1, 8, 0, 0, tz), Precision.DateTime);
+		todo.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 1, 1, 8, 0, 0, 0, tz), Precision.DateTime);
+		todo.due = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 1, 1, 8, 0, 0, 0, tz), Precision.DateTime);
 
 		VTodo.RRule rrule = new VTodo.RRule();
 		rrule.frequency = VTodo.RRule.Frequency.MONTHLY;
@@ -933,7 +933,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		todo.rrule = rrule;
 
 		Set<net.bluemind.core.api.date.BmDateTime> exdate = new HashSet<>(1);
-		BmDateTime exDate = BmDateTimeWrapper.create(new DateTime(2014, 6, 1, 8, 0, 0, tz), Precision.DateTime);
+		BmDateTime exDate = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 6, 1, 8, 0, 0, 0, tz), Precision.DateTime);
 		exdate.add(exDate);
 		todo.exdate = exdate;
 
@@ -942,8 +942,9 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		service.create(uid, todo);
 		refreshIndex();
 
-		BmDateTime dateMin = BmDateTimeWrapper.create(new DateTime(2014, 1, 1, 0, 0, 0, tz), Precision.DateTime);
-		BmDateTime dateMax = BmDateTimeWrapper.create(new DateTime(2014, 12, 31, 0, 0, 0, tz), Precision.DateTime);
+		BmDateTime dateMin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, tz), Precision.DateTime);
+		BmDateTime dateMax = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 12, 31, 0, 0, 0, 0, tz),
+				Precision.DateTime);
 
 		VTodoQuery query = VTodoQuery.create(dateMin, dateMax);
 		ListResult<ItemValue<VTodo>> res = service.search(query);
@@ -967,8 +968,8 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		VTodo todo = defaultVTodo();
 		todo.summary = "Yearly";
 
-		todo.dtstart = BmDateTimeWrapper.create(new DateTime(2000, 12, 25, 19, 0, 0, tz), Precision.DateTime);
-		todo.due = BmDateTimeWrapper.create(new DateTime(2000, 12, 25, 20, 0, 0, tz), Precision.DateTime);
+		todo.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2000, 12, 25, 19, 0, 0, 0, tz), Precision.DateTime);
+		todo.due = BmDateTimeWrapper.create(ZonedDateTime.of(2000, 12, 25, 20, 0, 0, 0, tz), Precision.DateTime);
 		VTodo.RRule rrule = new VTodo.RRule();
 		rrule.frequency = VTodo.RRule.Frequency.YEARLY;
 		rrule.interval = 1;
@@ -979,20 +980,21 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		service.create(uid, todo);
 		refreshIndex();
 
-		BmDateTime dateMin = BmDateTimeWrapper.create(new DateTime(2002, 1, 1, 0, 0, 0, tz), Precision.DateTime);
-		BmDateTime dateMax = BmDateTimeWrapper.create(new DateTime(2023, 12, 31, 0, 0, 0, tz), Precision.DateTime);
+		BmDateTime dateMin = BmDateTimeWrapper.create(ZonedDateTime.of(2002, 1, 1, 0, 0, 0, 0, tz), Precision.DateTime);
+		BmDateTime dateMax = BmDateTimeWrapper.create(ZonedDateTime.of(2023, 12, 31, 0, 0, 0, 0, tz),
+				Precision.DateTime);
 		VTodoQuery query = VTodoQuery.create(dateMin, dateMax);
 		ListResult<ItemValue<VTodo>> res = service.search(query);
 		assertEquals(22, res.values.size());
 
-		List<DateTime> found = new ArrayList<DateTime>(12);
+		List<ZonedDateTime> found = new ArrayList<ZonedDateTime>(12);
 		for (ItemValue<VTodo> item : res.values) {
 			assertEquals(uid, item.uid);
-			found.add(new BmDateTimeWrapper(item.value.dtstart).toJodaTime());
+			found.add(new BmDateTimeWrapper(item.value.dtstart).toDateTime());
 		}
 
 		for (int i = 2002; i < 2024; i++) {
-			assertTrue(found.contains(new DateTime(i, 12, 25, 19, 0, 0, tz)));
+			assertTrue(found.contains(ZonedDateTime.of(i, 12, 25, 19, 0, 0, 0, tz)));
 		}
 	}
 
@@ -1002,8 +1004,8 @@ public class TodoListServiceTests extends AbstractServiceTests {
 
 		VTodo todo = defaultVTodo();
 
-		todo.dtstart = BmDateTimeWrapper.create(new DateTime(2014, 1, 1, 8, 0, 0, tz), Precision.DateTime);
-		todo.due = BmDateTimeWrapper.create(new DateTime(2014, 1, 1, 8, 0, 0, tz), Precision.DateTime);
+		todo.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 1, 1, 8, 0, 0, 0, tz), Precision.DateTime);
+		todo.due = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 1, 1, 8, 0, 0, 0, tz), Precision.DateTime);
 
 		VTodo.RRule rrule = new VTodo.RRule();
 		rrule.frequency = VTodo.RRule.Frequency.MONTHLY;
@@ -1011,14 +1013,14 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		todo.rrule = rrule;
 
 		Set<net.bluemind.core.api.date.BmDateTime> exdate = new HashSet<>(1);
-		BmDateTime exDate = BmDateTimeWrapper.create(new DateTime(2014, 6, 1, 8, 0, 0, tz), Precision.DateTime);
+		BmDateTime exDate = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 6, 1, 8, 0, 0, 0, tz), Precision.DateTime);
 		exdate.add(exDate);
 		todo.exdate = exdate;
 
 		Set<net.bluemind.core.api.date.BmDateTime> rdates = new HashSet<>(1);
-		BmDateTime rdate = BmDateTimeWrapper.create(new DateTime(2014, 6, 4, 8, 0, 0, tz), Precision.DateTime);
+		BmDateTime rdate = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 6, 4, 8, 0, 0, 0, tz), Precision.DateTime);
 		rdates.add(rdate);
-		BmDateTime rdate2 = BmDateTimeWrapper.create(new DateTime(2014, 7, 4, 8, 0, 0, tz), Precision.DateTime);
+		BmDateTime rdate2 = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 7, 4, 8, 0, 0, 0, tz), Precision.DateTime);
 		rdates.add(rdate2);
 		todo.rdate = rdates;
 
@@ -1027,8 +1029,9 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		service.create(uid, todo);
 		refreshIndex();
 
-		BmDateTime dateMin = BmDateTimeWrapper.create(new DateTime(2014, 1, 1, 0, 0, 0, tz), Precision.DateTime);
-		BmDateTime dateMax = BmDateTimeWrapper.create(new DateTime(2014, 12, 31, 0, 0, 0, tz), Precision.DateTime);
+		BmDateTime dateMin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, tz), Precision.DateTime);
+		BmDateTime dateMax = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 12, 31, 0, 0, 0, 0, tz),
+				Precision.DateTime);
 
 		VTodoQuery query = VTodoQuery.create(dateMin, dateMax);
 		ListResult<ItemValue<VTodo>> res = service.search(query);

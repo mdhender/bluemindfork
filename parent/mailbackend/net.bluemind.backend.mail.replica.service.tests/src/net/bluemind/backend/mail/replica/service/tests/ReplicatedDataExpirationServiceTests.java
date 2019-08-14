@@ -27,11 +27,12 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.joda.time.LocalDate;
 import org.junit.Test;
 import org.vertx.java.core.streams.ReadStream;
 
@@ -117,7 +118,8 @@ public class ReplicatedDataExpirationServiceTests extends AbstractMailboxRecords
 	private Date getDate(int lastUpdated) {
 		LocalDate localDate = LocalDate.now();
 		LocalDate adapted = localDate.minusDays(lastUpdated);
-		return adapted.toDate();
+		return Date.from(adapted.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
 	}
 
 	protected IDbMailboxRecords getService(SecurityContext ctx) {

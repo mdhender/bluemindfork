@@ -23,14 +23,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -251,8 +251,8 @@ public class RestoreCalendarsTaskTests {
 
 	private VEvent defaultEvent() {
 		VEvent event = new VEvent();
-		DateTimeZone tz = DateTimeZone.forID("Asia/Ho_Chi_Minh");
-		event.dtstart = BmDateTimeWrapper.create(new DateTime(2022, 2, 13, 1, 0, 0, tz), Precision.DateTime);
+		ZonedDateTime temp = ZonedDateTime.of(2022, 2, 13, 1, 0, 0, 0, ZoneId.of("Asia/Ho_Chi_Minh"));
+		event.dtstart = BmDateTimeWrapper.create(temp, Precision.DateTime);
 		event.summary = "event " + System.currentTimeMillis();
 		event.location = "Toulouse";
 		event.description = "Lorem ipsum";

@@ -16,7 +16,6 @@ Require-Bundle: net.bluemind.lib.jackson;bundle-version="1.0.0",
  org.eclipse.osgi,
  slf4j.api;bundle-version="1.7.5",
  org.apache.commons.lang,
- net.bluemind.lib.jodatime;visibility:=reexport,
  net.bluemind.common.io;bundle-version="4.1.0"
 Bundle-ClassPath: .
 X-BM-Version: 4.1.0

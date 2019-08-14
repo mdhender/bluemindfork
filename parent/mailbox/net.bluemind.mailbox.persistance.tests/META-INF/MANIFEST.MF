@@ -11,4 +11,3 @@ Require-Bundle: net.bluemind.core.jdbc.testshelper,
  net.bluemind.core.rest,
  net.bluemind.config,
  net.bluemind.directory.persistance
-Import-Package: org.joda.time

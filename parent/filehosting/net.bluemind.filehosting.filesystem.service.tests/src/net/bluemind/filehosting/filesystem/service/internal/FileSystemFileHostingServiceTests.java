@@ -22,6 +22,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -32,8 +35,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -89,8 +90,6 @@ public class FileSystemFileHostingServiceTests {
 	@Before
 	public void setup() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
-
-		
 
 		final CountDownLatch latch = new CountDownLatch(1);
 		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
@@ -423,7 +422,9 @@ public class FileSystemFileHostingServiceTests {
 		String id = ID.extract(publicLink.url);
 
 		assertNotNull(publicLink.expirationDate);
-		assertEquals(expirationDate, new DateTime(publicLink.expirationDate, DateTimeZone.UTC).toString());
+
+		ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochMilli(publicLink.expirationDate), ZoneId.of("UTC"));
+		assertEquals(expirationDate + "[UTC]", date.toString());
 
 		service.getSharedFile(id);
 	}

@@ -22,9 +22,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 
-import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.vertx.java.core.AsyncResult;
@@ -69,6 +70,8 @@ public class VEventSanitizerTests {
 
 	private BmTestContext test1Context;
 	private String domainUid;
+	private ZoneId defaultTz = ZoneId.systemDefault();
+	private final ZonedDateTime date1 = ZonedDateTime.of(2015, 05, 01, 0, 0, 0, 0, defaultTz);
 
 	@Before
 	public void beforeBefore() throws Exception {
@@ -155,7 +158,7 @@ public class VEventSanitizerTests {
 		VEvent vevent = new VEvent();
 
 		// dtstart != null
-		vevent.dtstart = BmDateTimeWrapper.create(new DateTime(2015, 05, 01, 0, 0, 0), Precision.Date);
+		vevent.dtstart = BmDateTimeWrapper.create(date1, Precision.Date);
 		// summary != null
 		vevent.summary = "event " + System.currentTimeMillis();
 
@@ -175,7 +178,7 @@ public class VEventSanitizerTests {
 		VEvent vevent = new VEvent();
 
 		// dtstart != null
-		vevent.dtstart = BmDateTimeWrapper.create(new DateTime(2015, 05, 01, 0, 0, 0), Precision.Date);
+		vevent.dtstart = BmDateTimeWrapper.create(date1, Precision.Date);
 		// summary != null
 		vevent.summary = "event " + System.currentTimeMillis();
 
@@ -197,7 +200,7 @@ public class VEventSanitizerTests {
 		VEvent vevent = new VEvent();
 
 		// dtstart != null
-		vevent.dtstart = BmDateTimeWrapper.create(new DateTime(2015, 05, 01, 0, 0, 0), Precision.Date);
+		vevent.dtstart = BmDateTimeWrapper.create(date1, Precision.Date);
 		// summary != null
 		vevent.summary = "event " + System.currentTimeMillis();
 
@@ -213,7 +216,7 @@ public class VEventSanitizerTests {
 
 		vevent = new VEvent();
 
-		vevent.dtstart = BmDateTimeWrapper.create(new DateTime(2015, 05, 01, 0, 0, 0), Precision.Date);
+		vevent.dtstart = BmDateTimeWrapper.create(date1, Precision.Date);
 		vevent.summary = "event " + System.currentTimeMillis();
 		vevent.organizer = new Organizer();
 		vevent.organizer.commonName = "check";
@@ -250,7 +253,7 @@ public class VEventSanitizerTests {
 		vevent = new VEvent();
 
 		// dtstart != null
-		vevent.dtstart = BmDateTimeWrapper.create(new DateTime(2015, 05, 01, 0, 0, 0), Precision.Date);
+		vevent.dtstart = BmDateTimeWrapper.create(date1, Precision.Date);
 		// summary != null
 		vevent.summary = "event " + System.currentTimeMillis();
 
@@ -269,7 +272,7 @@ public class VEventSanitizerTests {
 		VEvent vevent = new VEvent();
 
 		// dtstart != null
-		vevent.dtstart = BmDateTimeWrapper.create(new DateTime(2015, 05, 01, 0, 0, 0), Precision.Date);
+		vevent.dtstart = BmDateTimeWrapper.create(date1, Precision.Date);
 		// summary != null
 		vevent.summary = "event " + System.currentTimeMillis();
 
@@ -298,7 +301,7 @@ public class VEventSanitizerTests {
 		VEvent vevent = new VEvent();
 
 		// dtstart != null
-		vevent.dtstart = BmDateTimeWrapper.create(new DateTime(2015, 05, 01, 0, 0, 0), Precision.Date);
+		vevent.dtstart = BmDateTimeWrapper.create(date1, Precision.Date);
 		// summary != null
 		vevent.summary = "event " + System.currentTimeMillis();
 
@@ -316,7 +319,7 @@ public class VEventSanitizerTests {
 
 		vevent = new VEvent();
 
-		vevent.dtstart = BmDateTimeWrapper.create(new DateTime(2015, 05, 01, 0, 0, 0), Precision.Date);
+		vevent.dtstart = BmDateTimeWrapper.create(date1, Precision.Date);
 		vevent.summary = "event " + System.currentTimeMillis();
 		attendee = new VEvent.Attendee();
 		attendee.commonName = "check";
@@ -334,7 +337,7 @@ public class VEventSanitizerTests {
 		// attendee not in system
 		vevent = new VEvent();
 
-		vevent.dtstart = BmDateTimeWrapper.create(new DateTime(2015, 05, 01, 0, 0, 0), Precision.Date);
+		vevent.dtstart = BmDateTimeWrapper.create(date1, Precision.Date);
 		vevent.summary = "event " + System.currentTimeMillis();
 		attendee = new VEvent.Attendee();
 		attendee.commonName = "check";
@@ -352,7 +355,7 @@ public class VEventSanitizerTests {
 		// attendee not in system (with dir)
 		vevent = new VEvent();
 
-		vevent.dtstart = BmDateTimeWrapper.create(new DateTime(2015, 05, 01, 0, 0, 0), Precision.Date);
+		vevent.dtstart = BmDateTimeWrapper.create(date1, Precision.Date);
 		vevent.summary = "event " + System.currentTimeMillis();
 		attendee = new VEvent.Attendee();
 		attendee.commonName = "check";
@@ -374,7 +377,7 @@ public class VEventSanitizerTests {
 		// attendee with invalid email and without commonName
 		VEvent vevent = new VEvent();
 
-		vevent.dtstart = BmDateTimeWrapper.create(new DateTime(2015, 05, 01, 0, 0, 0), Precision.Date);
+		vevent.dtstart = BmDateTimeWrapper.create(date1, Precision.Date);
 		vevent.summary = "event " + System.currentTimeMillis();
 		Attendee attendee = new VEvent.Attendee();
 		attendee.commonName = null;
@@ -396,10 +399,11 @@ public class VEventSanitizerTests {
 		VEvent vevent = new VEvent();
 
 		// dtstart != null
-		vevent.dtstart = BmDateTimeWrapper.create(new DateTime(2015, 05, 01, 0, 0, 0), Precision.Date);
+		vevent.dtstart = BmDateTimeWrapper.create(date1, Precision.Date);
 		// summary != null
 		vevent.summary = "event " + System.currentTimeMillis();
-		vevent.exdate = ImmutableSet.of(BmDateTimeWrapper.create(new DateTime(2015, 05, 02, 0, 0, 0), Precision.Date));
+		vevent.exdate = ImmutableSet
+				.of(BmDateTimeWrapper.create(ZonedDateTime.of(2015, 05, 02, 0, 0, 0, 0, defaultTz), Precision.Date));
 		sanitizer.sanitize(vevent);
 		// fixed
 		assertNull(vevent.exdate);
@@ -411,7 +415,7 @@ public class VEventSanitizerTests {
 		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, this.domainUid);
 
 		VEvent vevent = new VEvent();
-		vevent.dtstart = BmDateTimeWrapper.create(new DateTime(2015, 05, 01, 0, 0, 0), Precision.Date);
+		vevent.dtstart = BmDateTimeWrapper.create(date1, Precision.Date);
 		vevent.summary = "event " + System.currentTimeMillis();
 		Attendee attendee = new VEvent.Attendee();
 		attendee.commonName = "test1";

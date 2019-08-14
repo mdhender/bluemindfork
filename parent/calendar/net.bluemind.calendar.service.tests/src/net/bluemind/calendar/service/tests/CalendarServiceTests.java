@@ -26,6 +26,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -41,8 +43,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.Test;
 import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.json.JsonObject;
@@ -84,6 +84,7 @@ import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm.Action;
 import net.bluemind.tag.api.ITags;
 import net.bluemind.tag.api.TagRef;
+import net.bluemind.tests.defaultdata.BmDateTimeHelper;
 
 public class CalendarServiceTests extends AbstractCalendarTests {
 
@@ -142,8 +143,8 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 		VEventOccurrence exception = recurringVEvent();
 		exception.categories.clear();
-		exception.recurid = time(new DateTime(2014, 2, 13, 8, 0, 0, tz));
-		exception.dtstart = time(new DateTime(2014, 2, 13, 16, 0, 0, tz));
+		exception.recurid = BmDateTimeHelper.time(ZonedDateTime.of(2014, 2, 13, 8, 0, 0, 0, tz));
+		exception.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2014, 2, 13, 16, 0, 0, 0, tz));
 
 		event.occurrences = Arrays.asList(exception);
 
@@ -348,7 +349,7 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		String uid = "test_" + System.nanoTime();
 
 		VEventOccurrence eventException = recurringVEvent();
-		eventException.dtstart = time(new DateTime(2022, 2, 15, 1, 0, 0, tz));
+		eventException.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 15, 1, 0, 0, 0, tz));
 
 		event.occurrences = Arrays.asList(eventException);
 
@@ -734,14 +735,14 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 	@Test
 	public void testSearchByDateInterval() throws ServerFault {
 		VEventSeries event = defaultVEvent();
-		event.main.dtstart = time(new DateTime(1983, 2, 13, 0, 0, 0, tz));
+		event.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(1983, 2, 13, 0, 0, 0, 0, tz));
 		String uid = "test_" + System.nanoTime();
 
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
 
-		DateTime dateMin = new DateTime(1983, 2, 1, 0, 0, 0, tz);
-		DateTime dateMax = new DateTime(1983, 3, 1, 0, 0, 0, tz);
-		VEventQuery query = VEventQuery.create(time(dateMin), time(dateMax));
+		ZonedDateTime dateMin = ZonedDateTime.of(1983, 2, 1, 0, 0, 0, 0, tz);
+		ZonedDateTime dateMax = ZonedDateTime.of(1983, 3, 1, 0, 0, 0, 0, tz);
+		VEventQuery query = VEventQuery.create(BmDateTimeHelper.time(dateMin), BmDateTimeHelper.time(dateMax));
 		ListResult<ItemValue<VEventSeries>> res = getCalendarService(userSecurityContext, userCalendarContainer)
 				.search(query);
 		assertEquals(1, res.values.size());
@@ -750,11 +751,11 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 	@Test
 	public void testBug3286() throws ServerFault {
 		VEventSeries event = defaultVEvent();
-		event.main.dtstart = time(new DateTime(2014, 5, 29, 0, 0, 0, tz));
+		event.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2014, 5, 29, 0, 0, 0, 0, tz));
 
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = VEvent.RRule.Frequency.WEEKLY;
-		rrule.until = time(new DateTime(2014, 6, 4, 0, 0, 0, tz));
+		rrule.until = BmDateTimeHelper.time(ZonedDateTime.of(2014, 6, 4, 0, 0, 0, 0, tz));
 		List<VEvent.RRule.WeekDay> weekDay = new ArrayList<VEvent.RRule.WeekDay>(4);
 		weekDay.add(VEvent.RRule.WeekDay.MO);
 		weekDay.add(VEvent.RRule.WeekDay.TU);
@@ -768,10 +769,9 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
 
-		net.bluemind.core.api.date.BmDateTime dateMin = BmDateTimeWrapper
-				.create(new DateTime(2014, 5, 26, 0, 0, 0, DateTimeZone.forID("Europe/Paris")), Precision.DateTime);
-		net.bluemind.core.api.date.BmDateTime dateMax = BmDateTimeWrapper
-				.create(new DateTime(2014, 6, 2, 0, 0, 0, DateTimeZone.forID("Europe/Paris")), Precision.DateTime);
+		BmDateTime dateMin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 5, 26, 0, 0, 0, 0, tz),
+				Precision.DateTime);
+		BmDateTime dateMax = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 6, 2, 0, 0, 0, 0, tz), Precision.DateTime);
 
 		VEventQuery query = VEventQuery.create(dateMin, dateMax);
 		ItemValue<VEventSeries> res = getCalendarService(userSecurityContext, userCalendarContainer)
@@ -779,8 +779,8 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		List<VEvent> list = OccurrenceHelper.list(res, dateMin, dateMax);
 		assertEquals(2, list.size());
 
-		net.bluemind.core.api.date.BmDateTime expectedOccurrence1 = time(new DateTime(2014, 5, 29, 0, 0, 0, tz));
-		net.bluemind.core.api.date.BmDateTime expectedOccurrence2 = time(new DateTime(2014, 5, 30, 0, 0, 0, tz));
+		BmDateTime expectedOccurrence1 = BmDateTimeHelper.time(ZonedDateTime.of(2014, 5, 29, 0, 0, 0, 0, tz));
+		BmDateTime expectedOccurrence2 = BmDateTimeHelper.time(ZonedDateTime.of(2014, 5, 30, 0, 0, 0, 0, tz));
 
 		boolean f1 = false;
 		boolean f2 = false;
@@ -797,10 +797,8 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		assertTrue(f1);
 		assertTrue(f2);
 
-		dateMin = BmDateTimeWrapper.create(new DateTime(2014, 6, 5, 0, 0, 0, DateTimeZone.forID("Europe/Paris")),
-				Precision.Date);
-		dateMax = BmDateTimeWrapper.create(new DateTime(2014, 6, 20, 0, 0, 0, DateTimeZone.forID("Europe/Paris")),
-				Precision.Date);
+		dateMin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 6, 5, 0, 0, 0, 0, tz), Precision.Date);
+		dateMax = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 6, 20, 0, 0, 0, 0, tz), Precision.Date);
 		query = VEventQuery.create(dateMin, dateMax);
 		assertEquals(0, getCalendarService(userSecurityContext, userCalendarContainer).search(query).total);
 	}
@@ -808,7 +806,7 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 	@Test
 	public void testDailyOccurrences() throws ServerFault {
 		VEventSeries event = defaultVEvent();
-		event.main.dtstart = time(new DateTime(2014, 2, 13, 8, 0, 0, tz));
+		event.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2014, 2, 13, 8, 0, 0, 0, tz));
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = VEvent.RRule.Frequency.DAILY;
 		rrule.interval = 1;
@@ -819,8 +817,9 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
 
-		BmDateTime dateMin = BmDateTimeWrapper.create(new DateTime(2014, 2, 1, 0, 0, 0, tz), Precision.DateTime);
-		BmDateTime dateMax = BmDateTimeWrapper.create(new DateTime(2014, 2, 28, 0, 0, 0, tz), Precision.DateTime);
+		BmDateTime dateMin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 1, 0, 0, 0, 0, tz), Precision.DateTime);
+		BmDateTime dateMax = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 28, 0, 0, 0, 0, tz),
+				Precision.DateTime);
 
 		VEventQuery query = VEventQuery.create(dateMin, dateMax);
 		ItemValue<VEventSeries> res = getCalendarService(userSecurityContext, userCalendarContainer)
@@ -828,19 +827,19 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		List<VEvent> list = OccurrenceHelper.list(res, dateMin, dateMax);
 		assertEquals(5, list.size());
 
-		List<DateTime> found = new ArrayList<DateTime>(12);
+		List<ZonedDateTime> found = new ArrayList<ZonedDateTime>(12);
 		for (VEvent item : list) {
-			found.add(new BmDateTimeWrapper(item.dtstart).toJodaTime());
+			found.add(new BmDateTimeWrapper(item.dtstart).toDateTime());
 		}
 
-		assertTrue(found.contains(new DateTime(2014, 2, 13, 8, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2014, 2, 14, 8, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2014, 2, 15, 8, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2014, 2, 16, 8, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2014, 2, 17, 8, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2014, 2, 13, 8, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2014, 2, 14, 8, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2014, 2, 15, 8, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2014, 2, 16, 8, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2014, 2, 17, 8, 0, 0, 0, tz)));
 
-		dateMin = BmDateTimeWrapper.create(new DateTime(2014, 2, 18, 0, 0, 0, tz), Precision.DateTime);
-		dateMax = BmDateTimeWrapper.create(new DateTime(2014, 2, 28, 0, 0, 0, tz), Precision.DateTime);
+		dateMin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 18, 0, 0, 0, 0, tz), Precision.DateTime);
+		dateMax = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 28, 0, 0, 0, 0, tz), Precision.DateTime);
 
 		query = VEventQuery.create(dateMin, dateMax);
 		res = getCalendarService(userSecurityContext, userCalendarContainer).search(query).values.get(0);
@@ -851,7 +850,7 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 	@Test
 	public void testMonthlyOccurrences() throws ServerFault {
 		VEventSeries event = defaultVEvent();
-		event.main.dtstart = time(new DateTime(2014, 1, 1, 8, 0, 0, tz));
+		event.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2014, 1, 1, 8, 0, 0, 0, tz));
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = VEvent.RRule.Frequency.MONTHLY;
 		rrule.interval = 1;
@@ -861,8 +860,9 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
 
-		BmDateTime dateMin = BmDateTimeWrapper.create(new DateTime(2014, 2, 1, 0, 0, 0, tz), Precision.DateTime);
-		BmDateTime dateMax = BmDateTimeWrapper.create(new DateTime(2014, 2, 28, 0, 0, 0, tz), Precision.DateTime);
+		BmDateTime dateMin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 1, 0, 0, 0, 0, tz), Precision.DateTime);
+		BmDateTime dateMax = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 28, 0, 0, 0, 0, tz),
+				Precision.DateTime);
 
 		VEventQuery query = VEventQuery.create(dateMin, dateMax);
 		ItemValue<VEventSeries> res = getCalendarService(userSecurityContext, userCalendarContainer)
@@ -870,28 +870,28 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		List<VEvent> list = OccurrenceHelper.list(res, dateMin, dateMax);
 		assertEquals(1, list.size());
 
-		DateTime expectedOccurrence1 = new DateTime(2014, 2, 1, 8, 0, 0, tz);
+		ZonedDateTime expectedOccurrence1 = ZonedDateTime.of(2014, 2, 1, 8, 0, 0, 0, tz);
 
 		boolean f1 = false;
 
 		for (VEvent item : list) {
 
-			if (expectedOccurrence1.equals(new BmDateTimeWrapper(item.dtstart).toJodaTime())) {
+			if (expectedOccurrence1.equals(new BmDateTimeWrapper(item.dtstart).toDateTime())) {
 				f1 = true;
 			}
 		}
 
 		assertTrue(f1);
 
-		dateMin = BmDateTimeWrapper.create(new DateTime(2014, 1, 1, 0, 0, 0, tz), Precision.DateTime);
-		dateMax = BmDateTimeWrapper.create(new DateTime(2014, 12, 31, 0, 0, 0, tz), Precision.DateTime);
+		dateMin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, tz), Precision.DateTime);
+		dateMax = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 12, 31, 0, 0, 0, 0, tz), Precision.DateTime);
 		query = VEventQuery.create(dateMin, dateMax);
 		res = getCalendarService(userSecurityContext, userCalendarContainer).search(query).values.get(0);
 		list = OccurrenceHelper.list(res, dateMin, dateMax);
 		assertEquals(12, list.size());
 
-		dateMin = BmDateTimeWrapper.create(new DateTime(2014, 2, 18, 0, 0, 0, tz), Precision.DateTime);
-		dateMax = BmDateTimeWrapper.create(new DateTime(2014, 2, 28, 0, 0, 0, tz), Precision.DateTime);
+		dateMin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 18, 0, 0, 0, 0, tz), Precision.DateTime);
+		dateMax = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 28, 0, 0, 0, 0, tz), Precision.DateTime);
 
 		query = VEventQuery.create(dateMin, dateMax);
 		res = getCalendarService(userSecurityContext, userCalendarContainer).search(query).values.get(0);
@@ -902,14 +902,14 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 	@Test
 	public void testMonthlyOccurrencesException() throws ServerFault {
 		VEventSeries event = defaultVEvent();
-		event.main.dtstart = time(new DateTime(2014, 1, 1, 8, 0, 0, tz));
+		event.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2014, 1, 1, 8, 0, 0, 0, tz));
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = VEvent.RRule.Frequency.MONTHLY;
 		rrule.interval = 1;
 		event.main.rrule = rrule;
 
-		Set<net.bluemind.core.api.date.BmDateTime> exdate = new HashSet<>(1);
-		BmDateTime exDate = time(new DateTime(2014, 6, 1, 8, 0, 0, tz));
+		Set<BmDateTime> exdate = new HashSet<>(1);
+		BmDateTime exDate = BmDateTimeHelper.time(ZonedDateTime.of(2014, 6, 1, 8, 0, 0, 0, tz));
 		exdate.add(exDate);
 		event.main.exdate = exdate;
 
@@ -917,8 +917,9 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
 
-		BmDateTime dateMin = BmDateTimeWrapper.create(new DateTime(2014, 1, 1, 0, 0, 0, tz), Precision.DateTime);
-		BmDateTime dateMax = BmDateTimeWrapper.create(new DateTime(2014, 12, 31, 0, 0, 0, tz), Precision.DateTime);
+		BmDateTime dateMin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, tz), Precision.DateTime);
+		BmDateTime dateMax = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 12, 31, 0, 0, 0, 0, tz),
+				Precision.DateTime);
 
 		VEventQuery query = VEventQuery.create(dateMin, dateMax);
 		ItemValue<VEventSeries> res = getCalendarService(userSecurityContext, userCalendarContainer)
@@ -931,8 +932,9 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 	public void testMonthlyByDayOccurrences() throws ServerFault {
 		VEventSeries event = defaultVEvent();
 		event.main.summary = "monthlyByDay";
-		event.main.dtstart = BmDateTimeWrapper.create(new DateTime(2010, 2, 4, 17, 0, 0, tz), Precision.DateTime);
-		event.main.dtend = BmDateTimeWrapper.create(new DateTime(2010, 2, 4, 18, 0, 0, tz), Precision.DateTime);
+		event.main.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2010, 2, 4, 17, 0, 0, 0, tz),
+				Precision.DateTime);
+		event.main.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2010, 2, 4, 18, 0, 0, 0, tz), Precision.DateTime);
 
 		// Every _1st_ thurday
 		VEvent.RRule rrule = new VEvent.RRule();
@@ -947,30 +949,31 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
 
-		BmDateTime dateMin = BmDateTimeWrapper.create(new DateTime(2011, 1, 1, 0, 0, 0, tz), Precision.DateTime);
-		BmDateTime dateMax = BmDateTimeWrapper.create(new DateTime(2011, 12, 31, 0, 0, 0, tz), Precision.DateTime);
+		BmDateTime dateMin = BmDateTimeWrapper.create(ZonedDateTime.of(2011, 1, 1, 0, 0, 0, 0, tz), Precision.DateTime);
+		BmDateTime dateMax = BmDateTimeWrapper.create(ZonedDateTime.of(2011, 12, 31, 0, 0, 0, 0, tz),
+				Precision.DateTime);
 		VEventQuery query = VEventQuery.create(dateMin, dateMax);
 		ItemValue<VEventSeries> res = getCalendarService(userSecurityContext, userCalendarContainer)
 				.search(query).values.get(0);
 		List<VEvent> list = OccurrenceHelper.list(res, dateMin, dateMax);
 
-		List<DateTime> found = new ArrayList<DateTime>(12);
+		List<ZonedDateTime> found = new ArrayList<ZonedDateTime>(12);
 		for (VEvent item : list) {
-			found.add(new BmDateTimeWrapper(item.dtstart).toJodaTime());
+			found.add(new BmDateTimeWrapper(item.dtstart).toDateTime());
 		}
 
-		assertTrue(found.contains(new DateTime(2011, 1, 6, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 2, 3, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 3, 3, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 4, 7, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 5, 5, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 6, 2, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 7, 7, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 8, 4, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 9, 1, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 10, 6, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 11, 3, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 12, 1, 17, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 1, 6, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 2, 3, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 3, 3, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 4, 7, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 5, 5, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 6, 2, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 7, 7, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 8, 4, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 9, 1, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 10, 6, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 11, 3, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 12, 1, 17, 0, 0, 0, tz)));
 
 		// Every _LAST_ monday
 		rrule = new VEvent.RRule();
@@ -981,8 +984,8 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		rrule.interval = 1;
 		event.main.rrule = rrule;
 
-		Set<net.bluemind.core.api.date.BmDateTime> exdate = new HashSet<>(1);
-		BmDateTime exDate = time(new DateTime(2011, 2, 28, 17, 0, 0, tz));
+		Set<BmDateTime> exdate = new HashSet<>(1);
+		BmDateTime exDate = BmDateTimeHelper.time(ZonedDateTime.of(2011, 2, 28, 17, 0, 0, 0, tz));
 		exdate.add(exDate);
 		event.main.exdate = exdate;
 
@@ -998,43 +1001,45 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 		assertEquals(23, list.size());
 
-		found = new ArrayList<DateTime>();
+		found = new ArrayList<ZonedDateTime>();
 		for (VEvent item : list) {
-			found.add(new BmDateTimeWrapper(item.dtstart).toJodaTime());
+			found.add(new BmDateTimeWrapper(item.dtstart).toDateTime());
 		}
 
-		assertTrue(found.contains(new DateTime(2011, 1, 6, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 2, 3, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 3, 3, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 4, 7, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 5, 5, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 6, 2, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 7, 7, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 8, 4, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 9, 1, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 10, 6, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 11, 3, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 12, 1, 17, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 1, 6, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 2, 3, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 3, 3, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 4, 7, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 5, 5, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 6, 2, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 7, 7, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 8, 4, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 9, 1, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 10, 6, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 11, 3, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 12, 1, 17, 0, 0, 0, tz)));
 
-		assertTrue(found.contains(new DateTime(2011, 1, 31, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 3, 28, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 4, 25, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 5, 30, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 6, 27, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 7, 25, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 8, 29, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 9, 26, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 10, 31, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 11, 28, 17, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2011, 12, 26, 17, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 1, 31, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 3, 28, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 4, 25, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 5, 30, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 6, 27, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 7, 25, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 8, 29, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 9, 26, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 10, 31, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 11, 28, 17, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2011, 12, 26, 17, 0, 0, 0, tz)));
 	}
 
 	@Test
 	public void testYearlyOccurrences() throws ServerFault {
 		VEventSeries event = defaultVEvent();
 		event.main.summary = "Yearly";
-		event.main.dtstart = BmDateTimeWrapper.create(new DateTime(2000, 12, 25, 19, 0, 0, tz), Precision.DateTime);
-		event.main.dtend = BmDateTimeWrapper.create(new DateTime(2000, 12, 25, 20, 0, 0, tz), Precision.DateTime);
+		event.main.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2000, 12, 25, 19, 0, 0, 0, tz),
+				Precision.DateTime);
+		event.main.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2000, 12, 25, 20, 0, 0, 0, tz),
+				Precision.DateTime);
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = VEvent.RRule.Frequency.YEARLY;
 		rrule.interval = 1;
@@ -1044,8 +1049,9 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
 
-		BmDateTime dateMin = BmDateTimeWrapper.create(new DateTime(2002, 1, 1, 0, 0, 0, tz), Precision.DateTime);
-		BmDateTime dateMax = BmDateTimeWrapper.create(new DateTime(2023, 12, 31, 0, 0, 0, tz), Precision.DateTime);
+		BmDateTime dateMin = BmDateTimeWrapper.create(ZonedDateTime.of(2002, 1, 1, 0, 0, 0, 0, tz), Precision.DateTime);
+		BmDateTime dateMax = BmDateTimeWrapper.create(ZonedDateTime.of(2023, 12, 31, 0, 0, 0, 0, tz),
+				Precision.DateTime);
 		VEventQuery query = VEventQuery.create(dateMin, dateMax);
 		ItemValue<VEventSeries> res = getCalendarService(userSecurityContext, userCalendarContainer)
 				.search(query).values.get(0);
@@ -1079,8 +1085,8 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 	public void testNoAlarm() throws ServerFault {
 		VEventSeries event = defaultVEvent();
 		event.main.alarm = null;
-		event.main.dtstart = time(new DateTime(2000, 12, 25, 19, 0, 0, tz));
-		event.main.dtend = time(new DateTime(2000, 12, 25, 20, 0, 0, tz));
+		event.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2000, 12, 25, 19, 0, 0, 0, tz));
+		event.main.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2000, 12, 25, 20, 0, 0, 0, tz));
 
 		String uid = "test_" + System.nanoTime();
 
@@ -1099,8 +1105,8 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		event.main.alarm = new ArrayList<ICalendarElement.VAlarm>(1);
 		event.main.alarm.add(ICalendarElement.VAlarm.create(Action.Email, -600, "alarm desc", 10, 1, "w00t"));
 
-		event.main.dtstart = time(new DateTime(2000, 12, 25, 19, 0, 0, tz));
-		event.main.dtend = time(new DateTime(2000, 12, 25, 20, 0, 0, tz));
+		event.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2000, 12, 25, 19, 0, 0, 0, tz));
+		event.main.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2000, 12, 25, 20, 0, 0, 0, tz));
 
 		String uid = "test_" + System.nanoTime();
 
@@ -1158,9 +1164,9 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 	@Test
 	public void testCreateAllDay() throws ServerFault {
 		VEventSeries event = defaultVEvent();
-		event.main.dtstart = BmDateTimeWrapper.create(new DateTime(2022, 2, 13, 1, 0, 0, tz), Precision.Date);
-		long ts = new DateTime(2022, 2, 14, 0, 0, 0, DateTimeZone.UTC).getMillis();
-		event.main.dtend = net.bluemind.core.api.date.BmDateTimeWrapper.fromTimestamp(ts, null);
+		event.main.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 13, 1, 0, 0, 0, tz), Precision.Date);
+		long ts = ZonedDateTime.of(2022, 2, 14, 0, 0, 0, 0, ZoneId.of("UTC")).toInstant().toEpochMilli();
+		event.main.dtend = BmDateTimeWrapper.fromTimestamp(ts, null);
 		String uid = "test_" + System.nanoTime();
 
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
@@ -1410,22 +1416,22 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 	public void testRDate() throws ServerFault {
 
 		VEventSeries event = defaultVEvent();
-		event.main.dtstart = time(new DateTime(2014, 1, 1, 8, 0, 0, tz));
+		event.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2014, 1, 1, 8, 0, 0, 0, tz));
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = VEvent.RRule.Frequency.MONTHLY;
 		rrule.interval = 1;
 		event.main.rrule = rrule;
 
-		Set<net.bluemind.core.api.date.BmDateTime> exdate = new HashSet<>(1);
-		BmDateTime exDate = time(new DateTime(2014, 6, 1, 8, 0, 0, tz));
+		Set<BmDateTime> exdate = new HashSet<>(1);
+		BmDateTime exDate = BmDateTimeHelper.time(ZonedDateTime.of(2014, 6, 1, 8, 0, 0, 0, tz));
 		exdate.add(exDate);
 		event.main.exdate = exdate;
 
-		Set<net.bluemind.core.api.date.BmDateTime> rdate = new HashSet<>(1);
-		BmDateTime rDate1 = time(new DateTime(2014, 6, 13, 12, 0, 0, tz));
+		Set<BmDateTime> rdate = new HashSet<>(1);
+		BmDateTime rDate1 = BmDateTimeHelper.time(ZonedDateTime.of(2014, 6, 13, 12, 0, 0, 0, tz));
 		rdate.add(rDate1);
 
-		BmDateTime rDate2 = time(new DateTime(2014, 7, 14, 16, 0, 0, tz));
+		BmDateTime rDate2 = BmDateTimeHelper.time(ZonedDateTime.of(2014, 7, 14, 16, 0, 0, 0, tz));
 		rdate.add(rDate2);
 
 		event.main.rdate = rdate;
@@ -1434,8 +1440,9 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
 
-		BmDateTime dateMin = BmDateTimeWrapper.create(new DateTime(2014, 1, 1, 0, 0, 0, tz), Precision.DateTime);
-		BmDateTime dateMax = BmDateTimeWrapper.create(new DateTime(2014, 12, 31, 0, 0, 0, tz), Precision.DateTime);
+		BmDateTime dateMin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, tz), Precision.DateTime);
+		BmDateTime dateMax = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 12, 31, 0, 0, 0, 0, tz),
+				Precision.DateTime);
 
 		VEventQuery query = VEventQuery.create(dateMin, dateMax);
 		ItemValue<VEventSeries> res = getCalendarService(userSecurityContext, userCalendarContainer)
@@ -1476,8 +1483,8 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		String uid = "test_" + System.nanoTime();
 
 		VEventOccurrence eventException = recurringVEvent();
-		eventException.dtstart = time(new DateTime(2022, 2, 15, 1, 0, 0, tz));
-		eventException.recurid = time(new DateTime(2022, 2, 15, 1, 0, 0, tz));
+		eventException.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 15, 1, 0, 0, 0, tz));
+		eventException.recurid = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 15, 1, 0, 0, 0, tz));
 
 		event.occurrences = Arrays.asList(eventException);
 
@@ -1587,7 +1594,7 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 	@Test
 	public void testSearchOccurrences() throws ServerFault {
 		VEventSeries event = defaultVEvent();
-		event.main.dtstart = time(new DateTime(2014, 2, 13, 8, 0, 0, tz));
+		event.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2014, 2, 13, 8, 0, 0, 0, tz));
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = VEvent.RRule.Frequency.DAILY;
 		rrule.interval = 1;
@@ -1595,16 +1602,17 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		event.main.rrule = rrule;
 
 		VEventOccurrence exception = recurringVEvent();
-		exception.recurid = time(new DateTime(2014, 2, 13, 8, 0, 0, tz));
-		exception.dtstart = time(new DateTime(2014, 2, 13, 16, 0, 0, tz));
+		exception.recurid = BmDateTimeHelper.time(ZonedDateTime.of(2014, 2, 13, 8, 0, 0, 0, tz));
+		exception.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2014, 2, 13, 16, 0, 0, 0, tz));
 
 		event.occurrences = Arrays.asList(exception);
 
 		String uid = "test_" + System.nanoTime();
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
 
-		BmDateTime dateMin = BmDateTimeWrapper.create(new DateTime(2014, 2, 1, 0, 0, 0, tz), Precision.DateTime);
-		BmDateTime dateMax = BmDateTimeWrapper.create(new DateTime(2014, 2, 28, 0, 0, 0, tz), Precision.DateTime);
+		BmDateTime dateMin = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 1, 0, 0, 0, 0, tz), Precision.DateTime);
+		BmDateTime dateMax = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 2, 28, 0, 0, 0, 0, tz),
+				Precision.DateTime);
 
 		VEventQuery query = VEventQuery.create(dateMin, dateMax);
 		ItemValue<VEventSeries> res = getCalendarService(userSecurityContext, userCalendarContainer)
@@ -1612,25 +1620,15 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		List<VEvent> list = OccurrenceHelper.list(res, dateMin, dateMax);
 		assertEquals(5, list.size());
 
-		List<DateTime> found = new ArrayList<DateTime>(5);
+		List<ZonedDateTime> found = new ArrayList<ZonedDateTime>(5);
 		for (VEvent item : list) {
-			found.add(new BmDateTimeWrapper(item.dtstart).toJodaTime());
+			found.add(new BmDateTimeWrapper(item.dtstart).toDateTime());
 		}
 
-		assertTrue(found.contains(new DateTime(2014, 2, 13, 16, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2014, 2, 14, 8, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2014, 2, 15, 8, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2014, 2, 16, 8, 0, 0, tz)));
-		assertTrue(found.contains(new DateTime(2014, 2, 17, 8, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2014, 2, 13, 16, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2014, 2, 14, 8, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2014, 2, 15, 8, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2014, 2, 16, 8, 0, 0, 0, tz)));
+		assertTrue(found.contains(ZonedDateTime.of(2014, 2, 17, 8, 0, 0, 0, tz)));
 	}
-
-	protected BmDateTime time(DateTime dateTime) {
-		if (dateTime.getHourOfDay() == 0 && dateTime.getMinuteOfHour() == 0 && dateTime.getSecondOfMinute() == 0) {
-			long ts = dateTime.withZoneRetainFields(DateTimeZone.UTC).getMillis();
-			return BmDateTimeWrapper.fromTimestamp(ts, null, Precision.Date);
-		} else {
-			return BmDateTimeWrapper.create(dateTime, Precision.DateTime);
-		}
-	}
-
 }

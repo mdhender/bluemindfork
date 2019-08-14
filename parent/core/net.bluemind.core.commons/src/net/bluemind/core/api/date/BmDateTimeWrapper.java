@@ -19,25 +19,23 @@
 package net.bluemind.core.api.date;
 
 import java.time.DateTimeException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
-
-import org.apache.commons.lang.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.DateTimeFormatterBuilder;
-import org.joda.time.format.DateTimeParser;
-import org.joda.time.format.ISODateTimeFormat;
 
 import net.bluemind.core.api.date.BmDateTime.Precision;
 
 public class BmDateTimeWrapper {
 
-	static private DateTimeFormatter iso8601Parser = buildIso8601Parser();
+	private final static DateTimeFormatter complexParser = DateTimeFormatter.ofPattern(
+			"[yyyyMMdd][yyyy-MM-dd][yyyy-DDD]['T'[HHmmss][HHmm][HH:mm:ss][HH:mm:s][HH:mm][.SSSSSSSSS][.SSSSSS][.SSS][.SS][.S]][OOOO][O][z][XXXXX][XXXX]['['VV']']");
 
 	public final BmDateTime bmDateTime;
 
@@ -53,12 +51,9 @@ public class BmDateTimeWrapper {
 	 * <li>If timezone is null and precision is a {@link Precision#DateTime},
 	 * iso8601 timezone will be used. If there is no timezone in iso8601, null will
 	 * be used.
-	 * 
-	 * FIXME: This does not seems right. We should parse iso8601 timezone only in
-	 * {@link #create(String, String)}.</li>
 	 * </ul>
 	 * 
-	 * To parse iso8601 those rules will be applied in this order With this rules
+	 * To parse iso8601 those rules will be applied in this order. With this rules
 	 * applied, iso8601 will be parsed this way:
 	 * <ul>
 	 * <li>Either iso8601 and timezone contain a tz: iso8601 will be converted to
@@ -74,13 +69,12 @@ public class BmDateTimeWrapper {
 	 * offset</li>
 	 * </ul>
 	 * 
-	 * @param iso8601   Iso8601 representation of a {@link DateTime},
+	 * @param iso8601   Iso8601 representation of a {@link ZonedDateTime},
 	 *                  {@link LocalDate}, {@link LocalDateTime}
-	 * @param timezone  {@link DateTimeZone#getID()} for DateTime, null for Local
+	 * @param timezone  {@link ZoneId#getId()} for ZonedDateTime, null for Local
 	 *                  date or local datetime. If the timezone is not recognized,
 	 *                  the timezone will be parsed from iso8601.
 	 * @param precision {@link Precision#Date} or {@link Precision#DateTime}
-	 * @return
 	 */
 	public static BmDateTime create(String iso8601, String timezone, Precision precision) {
 		timezone = sanitizeTimeZone(timezone, detectTimeZone(iso8601));
@@ -98,10 +92,9 @@ public class BmDateTimeWrapper {
 	 * timezone is parsed from iso8601.
 	 * 
 	 * @see #create(String, String, Precision)
-	 * @param iso8601   Iso8601 representation of a {@link DateTime},
+	 * @param iso8601   Iso8601 representation of a {@link ZonedDateTime},
 	 *                  {@link LocalDate}, {@link LocalDateTime}
 	 * @param precision {@link Precision#Date} or {@link Precision#DateTime}
-	 * @return
 	 */
 
 	public static BmDateTime create(String iso8601, Precision precision) {
@@ -114,12 +107,11 @@ public class BmDateTimeWrapper {
 	 * Precision is parsed from iso8601.
 	 * 
 	 * @see #create(String, String, Precision)
-	 * @param iso8601  Iso8601 representation of a {@link DateTime},
+	 * @param iso8601  Iso8601 representation of a {@link ZonedDateTime},
 	 *                 {@link LocalDate}, {@link LocalDateTime}
-	 * @param timezone {@link DateTimeZone#getID()} for DateTime, null for Local
-	 *                 date or local datetime. If the timezone is not recognized,
-	 *                 null will be used.
-	 * @return
+	 * @param timezone {@link ZoneId#getId()} for ZonedDateTime, null for Local date
+	 *                 or local datetime. If the timezone is not recognized, null
+	 *                 will be used.
 	 */
 	public static BmDateTime create(String iso8601, String timezone) {
 		return BmDateTimeWrapper.create(iso8601, timezone, evaluatePrecision(iso8601));
@@ -128,33 +120,38 @@ public class BmDateTimeWrapper {
 	/**
 	 * Creates a BmDateTime based on a string.
 	 * 
-	 * FIXME: timezone is set automatically set to null. It should be parsed from
-	 * iso8601.
-	 * 
 	 * Precision and timezone are parsed from iso8601.
 	 * 
 	 * @see #create(String, String, Precision)
-	 * @param iso8601 Iso8601 representation of a {@link DateTime},
+	 * @param iso8601 Iso8601 representation of a {@link ZonedDateTime},
 	 *                {@link LocalDate}, {@link LocalDateTime}
-	 * @return
 	 */
 	public static BmDateTime create(String iso8601) {
 		return BmDateTimeWrapper.create(iso8601, detectTimeZone(iso8601), evaluatePrecision(iso8601));
 	}
 
 	/**
-	 * Timezone will be set after {@link DateTime#getZone()}.
+	 * Timezone will be set after {@link ZonedDateTime#getZone()}.
 	 * 
 	 * @see #create(String, String, Precision)
 	 * 
 	 * @param dateTime
-	 * @param timezone {@link DateTimeZone#getID()} for DateTime, null for Local
-	 *                 date or local datetime. If the timezone is not recognized,
-	 *                 the default timezone ID will be used (UTC).
-	 * @return
+	 * @param precision {@link Precision#Date} or {@link Precision#DateTime}
 	 */
-	public static BmDateTime create(org.joda.time.DateTime dateTime, Precision precision) {
-		return BmDateTimeWrapper.create(dateTime.toString(), dateTime.getZone().getID(), precision);
+	public static BmDateTime create(ZonedDateTime dateTime, Precision precision) {
+		return BmDateTimeWrapper.create(dateTime.toOffsetDateTime().toString(), dateTime.getZone().getId(), precision);
+	}
+
+	/**
+	 * Timezone will be set to UTC.
+	 * 
+	 * @see #create(String, String, Precision)
+	 * 
+	 * @param localDateTime
+	 * @param precision     {@link Precision#Date} or {@link Precision#DateTime}
+	 */
+	public static BmDateTime create(LocalDateTime localDateTime, Precision precision) {
+		return BmDateTimeWrapper.create(ZonedDateTime.of(localDateTime, ZoneId.of("UTC")), precision);
 	}
 
 	/**
@@ -163,7 +160,6 @@ public class BmDateTimeWrapper {
 	 * 
 	 * @see #fromTimestamp(long, String, Precision)
 	 * @param timestamp
-	 * @return
 	 */
 	public BmDateTime copy(long timestamp) {
 		return fromTimestamp(timestamp, bmDateTime.timezone, bmDateTime.precision);
@@ -176,12 +172,10 @@ public class BmDateTimeWrapper {
 	 * {@link Precision#DateTime}
 	 * 
 	 * @see #create(long, String, Precision)
-	 * @param iso8601 Iso8601 representation of a {@link DateTime},
-	 *                {@link LocalDate}, {@link LocalDateTime}
-	 * @return
+	 * @param timestamp
 	 */
 	public static BmDateTime fromTimestamp(long timestamp) {
-		return new BmDateTime(new Date(timestamp).toInstant().toString(), DateTimeZone.UTC.getID(), Precision.DateTime);
+		return new BmDateTime(new Date(timestamp).toInstant().toString(), ZoneId.of("UTC").getId(), Precision.DateTime);
 	}
 
 	/**
@@ -190,9 +184,8 @@ public class BmDateTimeWrapper {
 	 * precision to {@link Precision#DateTime}
 	 * 
 	 * @see #create(long, String, Precision)
-	 * @param iso8601 Iso8601 representation of a {@link DateTime},
-	 *                {@link LocalDate}, {@link LocalDateTime}
-	 * @return
+	 * @param timestamp
+	 * @param timezone
 	 */
 	public static BmDateTime fromTimestamp(long timestamp, String timezone) {
 		return fromTimestamp(timestamp, timezone, Precision.DateTime);
@@ -207,22 +200,21 @@ public class BmDateTimeWrapper {
 	 * @see #create(String, String, Precision)
 	 * 
 	 * @param timestamp the milliseconds from 1970-01-01T00:00:00Z
-	 * @param timezone  {@link DateTimeZone#getID()} for DateTime, null for Local
+	 * @param timezone  {@link ZoneId#getId()} for ZonedDateTime, null for Local
 	 *                  date or local datetime. If the timezone is not recognized
 	 *                  UTC will be used.
 	 * @param precision If precision is {@link Precision#Date} : No timezone nor
 	 *                  time will be printed in the iso string
-	 * @return
 	 */
 	public static BmDateTime fromTimestamp(long timestamp, String timezone, Precision precision) {
-		DateTime dt;
+		ZonedDateTime dt;
 		if (timezone == null) {
-			dt = new DateTime(timestamp, DateTimeZone.UTC);
+			dt = ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.of("UTC"));
 		} else {
-			timezone = sanitizeTimeZone(timezone, DateTimeZone.UTC.getID());
-			dt = new DateTime(timestamp, DateTimeZone.forID(timezone));
+			timezone = sanitizeTimeZone(timezone, ZoneId.of("UTC").getId());
+			dt = ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.of(timezone));
 		}
-		String iso8601 = dt.toString(ISODateTimeFormat.dateTime());
+		String iso8601 = dt.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
 		return BmDateTimeWrapper.create(iso8601, timezone, precision);
 	}
 
@@ -232,29 +224,20 @@ public class BmDateTimeWrapper {
 			if (!containsTimeZone(tz)) {
 				tz = fallback;
 			}
-
 			return tz;
 		}
 		return timezone;
 	}
 
-	public static String detectTimeZone(String iso8601) {
-		try {
-			if (iso8601.contains("Z") || iso8601.contains("z")) {
-				return DateTimeZone.UTC.getID();
-			} else {
-				if (iso8601.contains("+")) {
-					return iso8601.substring(iso8601.lastIndexOf("+"));
-				} else {
-					if (isoContainsMinusOffset(iso8601)) {
-						return iso8601.substring(iso8601.lastIndexOf("-"));
-					}
-				}
-			}
-		} catch (Exception e) {
+	private static String detectTimeZone(String iso8601) {
+		if (iso8601.contains("Z") || iso8601.contains("z")) {
+			return ZoneId.of("UTC").getId();
+		} else if (iso8601.contains("+")) {
+			return iso8601.substring(iso8601.lastIndexOf("+"));
+		} else if (isoContainsMinusOffset(iso8601)) {
+			return iso8601.substring(iso8601.lastIndexOf("-"));
 		}
 		return null;
-
 	}
 
 	private static boolean isoContainsMinusOffset(String iso8601) {
@@ -266,30 +249,138 @@ public class BmDateTimeWrapper {
 	}
 
 	private static String sanitizeIso8601String(String iso8601, Precision precision, String timezone) {
-		DateTimeFormatter printer = null;
-		if (precision == Precision.Date) {
-			printer = ISODateTimeFormat.date().withZone(DateTimeZone.forID(timezone));
-		} else if (containsTimeZone(timezone)) {
-			printer = ISODateTimeFormat.dateTime().withZone(DateTimeZone.forID(timezone));
-		} else {
-			printer = ISODateTimeFormat.dateHourMinuteSecondMillis();
-		}
-		// If iso8601 or return value is a LocalDate(Time), iso8601 must not be
-		// converted to default timezone.
-		if (timezone != null && detectTimeZone(iso8601) != null) {
-			return printer.print(iso8601Parser.parseDateTime(iso8601));
-		} else {
-			return printer.print(iso8601Parser.parseLocalDateTime(iso8601).toDateTime(DateTimeZone.forID(timezone)));
+		DateTimeFormatter printer = computePrinter(iso8601, precision, timezone);
+		DateTimeFormatter parser;
+
+		boolean hasTime = containsTime(iso8601);
+		boolean hasValidTz = containsTimeZone(timezone);
+		ZoneId tz = hasValidTz ? ZoneId.of(timezone) : null;
+		boolean isoContainsValidTz = (detectTimeZone(iso8601) != null);
+
+		if (precision == Precision.Date && hasTime && hasValidTz) {
+			return ZonedDateTime.parse(iso8601, complexParser).format(printer);
+		} else if (precision == Precision.Date) {
+			if (hasTime) {
+				iso8601 = removeTime(iso8601);
+			}
+			if (isICalDateFormat(iso8601)) {
+				parser = DateTimeFormatter.BASIC_ISO_DATE;
+			} else {
+				parser = DateTimeFormatter.ISO_LOCAL_DATE;
+			}
+			return LocalDate.parse(iso8601, parser).format(printer);
 		}
 
+		if (!hasTime) {
+			iso8601 = isoAddTime(iso8601);
+		}
+		if (hasValidTz) {
+			if (!isoContainsValidTz) {
+				return ZonedDateTime.parse(iso8601, complexParser.withZone(tz)).format(printer);
+			}
+			return ZonedDateTime.parse(iso8601, complexParser).withZoneSameInstant(tz).format(printer);
+		}
+
+		if (isoContainsValidTz) {
+			iso8601 = removeTimezoneFromIso(iso8601);
+		}
+		if (!containsTime(iso8601)) {
+			iso8601 = isoAddTime(iso8601);
+		}
+		printer = computePrinter(iso8601, precision, timezone);
+		if (isICalDateTimeFormat(iso8601)) {
+			parser = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss");
+		} else {
+			parser = DateTimeFormatter.ISO_DATE_TIME;
+		}
+		return LocalDateTime.parse(iso8601, parser).format(printer);
+	}
+
+	private static boolean isICalDateFormat(String iso8601) {
+		return !containsTime(iso8601) && !iso8601.contains("-");
+	}
+
+	private static boolean isICalDateTimeFormat(String iso8601) {
+		return containsTime(iso8601) && !iso8601.contains(":");
+	}
+
+	private static DateTimeFormatter computePrinter(String iso8601, Precision precision, String timezone) {
+		DateTimeFormatter printer;
+		if (precision == Precision.Date) {
+			if (timezone != null) {
+				printer = DateTimeFormatter.ISO_LOCAL_DATE.withZone(ZoneId.of(timezone));
+			} else {
+				printer = DateTimeFormatter.ISO_LOCAL_DATE;
+			}
+		} else {
+			DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
+
+			builder.appendPattern("yyyy-MM-dd'T'HH:mm:ss");
+			int nanoSecondsNumber = isoCountNanoSecondsDigits(iso8601);
+			if (nanoSecondsNumber == 6 || nanoSecondsNumber == 9) {
+				builder.optionalStart()
+						.appendFraction(ChronoField.NANO_OF_SECOND, nanoSecondsNumber, nanoSecondsNumber, true)
+						.optionalEnd();
+			} else {
+				builder.optionalStart().appendFraction(ChronoField.NANO_OF_SECOND, 3, 3, true).optionalEnd();
+			}
+			if (timezone != null || detectTimeZone(iso8601) != null) {
+				builder.appendPattern("XXX");
+			}
+			printer = builder.toFormatter();
+		}
+		return printer;
+	}
+
+	private static int isoCountNanoSecondsDigits(String iso8601) {
+		if (containsNanoSecond(iso8601)) {
+			int plusIndex = iso8601.indexOf("+");
+			int zIndex = iso8601.indexOf("Z");
+			int dotIndex = iso8601.indexOf(".");
+
+			if (zIndex == -1 && plusIndex == -1) {
+				return iso8601.substring(dotIndex).length();
+			} else if (zIndex != -1) {
+				return iso8601.substring(dotIndex, zIndex).length();
+			} else if (plusIndex != -1) {
+				return iso8601.substring(dotIndex, plusIndex).length();
+			}
+		}
+		return 0;
+	}
+
+	private static String isoAddTime(String iso8601) {
+		return iso8601.concat("T00:00:00.000");
+	}
+
+	private static String removeTimezoneFromIso(String iso8601) {
+		int zIndex = iso8601.indexOf("Z");
+		int plusIndex = iso8601.indexOf("+");
+		if (zIndex != -1) {
+			return iso8601.substring(0, zIndex);
+		} else if (plusIndex != -1) {
+			return iso8601.substring(0, plusIndex);
+		}
+		return iso8601;
+	}
+
+	private static boolean containsNanoSecond(String iso8601) {
+		return iso8601.contains(".");
 	}
 
 	private static Precision evaluatePrecision(String iso8601) {
-		return isoStringContainsTime(iso8601) ? Precision.DateTime : Precision.Date;
+		return containsTime(iso8601) ? Precision.DateTime : Precision.Date;
 	}
 
-	private static boolean isoStringContainsTime(String iso8601) {
+	private static boolean containsTime(String iso8601) {
 		return iso8601.contains("T");
+	}
+
+	private static String removeTime(String iso8601) {
+		if (containsTime(iso8601)) {
+			return iso8601.substring(0, iso8601.indexOf("T"));
+		}
+		return iso8601;
 	}
 
 	/**
@@ -298,10 +389,9 @@ public class BmDateTimeWrapper {
 	 * If bmDateTime.timezone is null timezone will be used without conversion. If
 	 * bmDateTime.timezone is not null, bmDateTime will be converted to timezone.
 	 * 
-	 * @param timezone {@link DateTimeZone#getID()} for DateTime, null for Local
-	 *                 date or local datetime. If the timezone is not recognized,
-	 *                 the default timezone ID will be used (UTC).
-	 * @return
+	 * @param timezone {@link ZoneId#getId()} for ZonedDateTime, null for Local date
+	 *                 or local datetime. If the timezone is not recognized, the
+	 *                 default timezone ID will be used (UTC).
 	 */
 	public BmDateTime withTimeZone(String timezone) {
 		if (containsTimeZone(bmDateTime.timezone)) {
@@ -314,67 +404,74 @@ public class BmDateTimeWrapper {
 	/**
 	 * Output the BmDateTime using the specified format pattern.
 	 *
-	 * @see org.joda.time.format.DateTimeFormat
-	 * @see DateTime#toString
-	 *
 	 * @param pattern the pattern specification, null means use
 	 *                <code>toString</code>
 	 * @return the formatted string, not null
 	 * 
 	 */
 	public String format(String format) {
-		DateTimeFormatter dateTimeParser = ISODateTimeFormat.dateTimeParser();
-		if (containsTimeZone()) {
-			dateTimeParser = dateTimeParser.withZone(DateTimeZone.forID(bmDateTime.timezone));
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
+
+		if (bmDateTime.precision == Precision.Date) {
+			LocalDate ld = LocalDate.parse(bmDateTime.iso8601);
+			if (format.contains("T") || format.contains(":")) {
+				return ld.atStartOfDay().format(formatter);
+			}
+			return ld.format(formatter);
 		}
 
-		return dateTimeParser.parseDateTime(bmDateTime.iso8601).toString(format);
+		if (containsTimeZone() || bmDateTime.timezone != null) {
+			DateTimeFormatter dateTimeParser = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+					.withZone(ZoneId.of(bmDateTime.timezone));
+			return ZonedDateTime.parse(bmDateTime.iso8601, dateTimeParser).format(formatter);
+		} else {
+			return LocalDateTime.parse(bmDateTime.iso8601, DateTimeFormatter.ISO_LOCAL_DATE_TIME).format(formatter);
+		}
 	}
 
 	public String toIso8601() {
-		return ISODateTimeFormat.dateTime().print(toJodaTime());
+		return DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(toDateTime());
 	}
 
 	public static String toIso8601(long timestamp, String timezone) {
-		DateTime ldt = new DateTime(timestamp, DateTimeZone.forID(timezone));
-		return ISODateTimeFormat.dateTime().print(ldt);
-	}
-
-	@Deprecated
-	public DateTime toJodaTime() {
-		if (containsTimeZone(bmDateTime.timezone)) {
-			return new DateTime(bmDateTime.iso8601, DateTimeZone.forID(bmDateTime.timezone));
-		} else {
-			return new DateTime(bmDateTime.iso8601, DateTimeZone.UTC);
-		}
+		ZonedDateTime ldt = ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.of(timezone));
+		return DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(ldt);
 	}
 
 	public ZonedDateTime toDateTime() {
+		String iso8601 = bmDateTime.iso8601;
+
+		ZoneId utcTz = ZoneId.of("UTC");
+		boolean isTzParamValid = containsTimeZone(bmDateTime.timezone);
+		ZoneId tz = isTzParamValid ? ZoneId.of(bmDateTime.timezone) : null;
+		boolean isoContainsValidTz = (detectTimeZone(iso8601) != null);
+
 		if (bmDateTime.precision == Precision.Date) {
-			return ZonedDateTime.of(java.time.LocalDate.parse(bmDateTime.iso8601).atStartOfDay(), ZoneId.of("UTC"));
-		} else if (containsTimeZone(bmDateTime.timezone)) {
-			try {
-				return ZonedDateTime.of(java.time.LocalDateTime.parse(bmDateTime.iso8601),
-						ZoneId.of(bmDateTime.timezone));
-			} catch (DateTimeException e) {
-				return ZonedDateTime.parse(bmDateTime.iso8601);
+			LocalDate ld;
+			if (isICalDateFormat(iso8601)) {
+				ld = LocalDate.parse(iso8601, DateTimeFormatter.BASIC_ISO_DATE);
+			} else {
+				ld = LocalDate.parse(iso8601);
 			}
+			return ZonedDateTime.of(ld.atStartOfDay(), utcTz);
+		} else if (isTzParamValid && isoContainsValidTz) {
+			return ZonedDateTime.parse(iso8601).withZoneSameInstant(tz);
 		} else {
-			return ZonedDateTime.of(java.time.LocalDateTime.parse(bmDateTime.iso8601), ZoneId.of("UTC"));
+			return ZonedDateTime.of(LocalDateTime.parse(iso8601), utcTz);
 		}
 	}
 
 	public boolean isBefore(BmDateTime date) {
-		return toJodaTime().isBefore(new BmDateTimeWrapper(date).toJodaTime());
+		return toDateTime().isBefore(new BmDateTimeWrapper(date).toDateTime());
 	}
 
 	public boolean isAfter(BmDateTime date) {
-		return toJodaTime().isAfter(new BmDateTimeWrapper(date).toJodaTime());
+		return toDateTime().isAfter(new BmDateTimeWrapper(date).toDateTime());
 	}
 
 	/**
 	 * Test if {@link BmDateTime#timezone} is not null and is a valid identifier
-	 * according to {@link DateTimeZone#getAvailableIDs()}
+	 * according to {@link ZoneId#getAvailableZoneIds()}
 	 * 
 	 * @return True if {@link BmDateTime#timezone} is valid
 	 */
@@ -383,11 +480,11 @@ public class BmDateTimeWrapper {
 	}
 
 	private static boolean containsTimeZone(String timezone) {
-		if (!StringUtils.isEmpty(timezone)) {
+		if (timezone != null && !timezone.isEmpty()) {
 			try {
-				DateTimeZone.forID(timezone).getID();
+				ZoneId.of(timezone).getId();
 				return true;
-			} catch (Exception e) {
+			} catch (DateTimeException e) {
 
 			}
 		}
@@ -414,7 +511,7 @@ public class BmDateTimeWrapper {
 	 * @return Gets the milliseconds of the {@link BmDateTime} from the Java epoch.
 	 */
 	public long toUTCTimestamp() {
-		return BmDateTimeWrapper.toTimestamp(bmDateTime.iso8601, DateTimeZone.UTC.getID());
+		return BmDateTimeWrapper.toTimestamp(bmDateTime.iso8601, ZoneId.of("UTC").getId());
 	}
 
 	/**
@@ -423,53 +520,47 @@ public class BmDateTimeWrapper {
 	 * {@link LocalDateTime}, timezone is used for the timestamp offset. Otherwise
 	 * it is ignored.
 	 * 
-	 * @param iso8601  Iso8601 representation of a {@link DateTime},
+	 * @param iso8601  Iso8601 representation of a {@link ZonedDateTime},
 	 *                 {@link LocalDate}, {@link LocalDateTime}
-	 * @param timezone {@link DateTimeZone#getID()} for DateTime. If the timezone is
+	 * @param timezone {@link ZoneId#getId()} for ZonedDateTime. If the timezone is
 	 *                 not recognized, the UTC timezone will be used.
-	 * @return
 	 */
 	public static long toTimestamp(String iso8601, String timezone) {
-		try {
-			if (containsTimeZone(timezone)) {
-				return new DateTime(iso8601, DateTimeZone.forID(timezone)).getMillis();
-			} else {
-				return ISODateTimeFormat.dateOptionalTimeParser().withZoneUTC().parseMillis(iso8601);
-			}
-		} catch (IllegalArgumentException e) {
-			return ISODateTimeFormat.dateTimeNoMillis().withZoneUTC().parseMillis(iso8601);
+		ZonedDateTime result = null;
+		Precision precision = evaluatePrecision(iso8601);
+		ZoneId tz = ZoneId.of("UTC");
+		boolean isoContainsValidTz = (detectTimeZone(iso8601) != null);
+		boolean isTzParamValid = containsTimeZone(timezone);
+		if (isTzParamValid) {
+			tz = ZoneId.of(timezone);
 		}
+
+		try {
+			if (precision == Precision.Date) {
+				result = LocalDate.parse(iso8601).atStartOfDay(tz);
+			} else if (isTzParamValid && isoContainsValidTz) {
+				result = ZonedDateTime.parse(iso8601);
+			} else {
+				result = LocalDateTime.parse(iso8601).atZone(tz).withZoneSameInstant(tz);
+			}
+		} catch (DateTimeException e) {
+			result = ZonedDateTime.parse(iso8601).withZoneSameInstant(tz).truncatedTo(ChronoUnit.SECONDS);
+		}
+		return result.toInstant().toEpochMilli();
 	}
 
 	/**
 	 * Convert {@link BmDateTime} to a {@link Date}. If {@link BmDateTime} is a
 	 * {@link LocalDate} or a {@link LocalDateTime}, UTC timezone will be used.
 	 * 
-	 * FIXME: Actually default timezone will be used. To change.
-	 * 
 	 * @see BmDateTimeWrapper#toUTCTimestamp()
-	 * @return
 	 */
 	public Date toDate() {
-		return new Date(toTimestamp(DateTimeZone.getDefault().getID()));
+		String tz = ZoneId.systemDefault().getId();
+		if (bmDateTime.timezone != null) {
+			tz = bmDateTime.timezone;
+		}
+		return new Date(toTimestamp(tz));
 	}
 
-	/**
-	 * @return
-	 */
-	private static DateTimeFormatter buildIso8601Parser() {
-		DateTimeFormatter basicDateHourMinuteSecond = new DateTimeFormatterBuilder()
-				.append(ISODateTimeFormat.basicDate().getParser()).appendLiteral("T").appendHourOfDay(2)
-				.appendMinuteOfHour(2).appendSecondOfMinute(2).toFormatter();
-
-		DateTimeFormatter basicDateHourMinuteSecondMillis = new DateTimeFormatterBuilder()
-				.append(basicDateHourMinuteSecond).appendMillisOfSecond(3).toFormatter();
-
-		DateTimeParser[] parsers = new DateTimeParser[] { ISODateTimeFormat.basicDateTime().getParser(),
-				ISODateTimeFormat.basicDateTimeNoMillis().getParser(), basicDateHourMinuteSecond.getParser(),
-				basicDateHourMinuteSecondMillis.getParser(), ISODateTimeFormat.basicDate().getParser(),
-				ISODateTimeFormat.dateOptionalTimeParser().getParser() };
-
-		return new DateTimeFormatterBuilder().append(null, parsers).toFormatter();
-	}
 }

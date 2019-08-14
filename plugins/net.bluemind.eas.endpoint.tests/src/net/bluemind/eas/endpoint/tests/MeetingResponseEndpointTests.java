@@ -21,6 +21,7 @@ package net.bluemind.eas.endpoint.tests;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -44,7 +45,6 @@ import org.apache.james.mime4j.message.BodyPart;
 import org.apache.james.mime4j.message.MessageImpl;
 import org.apache.james.mime4j.message.MultipartImpl;
 import org.apache.james.mime4j.stream.RawField;
-import org.joda.time.DateTime;
 import org.vertx.java.core.buffer.Buffer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -250,7 +250,7 @@ public class MeetingResponseEndpointTests extends AbstractEndpointTest {
 				.instance(ICalendar.class, "calendar:Default:" + testDevice.owner.uid);
 
 		VEvent event = new VEvent();
-		event.dtstart = BmDateTimeWrapper.create(new DateTime(), Precision.DateTime);
+		event.dtstart = BmDateTimeWrapper.create(ZonedDateTime.now(), Precision.DateTime);
 		event.summary = "Piscine";
 		event.location = "Toulouse";
 		event.description = "Lorem ipsum";

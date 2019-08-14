@@ -22,14 +22,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -72,6 +72,7 @@ public class TodoListsServiceTests {
 	private AclStore aclStore;
 	private String userUid;
 	private UserSubscriptionStore userSubscriptionStore;
+	private ZoneId utcTz = ZoneId.of("UTC");
 
 	@Before
 	public void before() throws Exception {
@@ -156,8 +157,7 @@ public class TodoListsServiceTests {
 
 		VTodo todo = new VTodo();
 		todo.uid = UUID.randomUUID().toString();
-		DateTimeZone tz = DateTimeZone.UTC;
-		DateTime temp = new DateTime(2015, 2, 13, 0, 0, 0, tz);
+		ZonedDateTime temp = ZonedDateTime.of(2015, 2, 13, 0, 0, 0, 0, utcTz);
 		todo.dtstart = BmDateTimeWrapper.create(temp, Precision.DateTime);
 		todo.due = BmDateTimeWrapper.create(temp.plusMonths(1), Precision.DateTime);
 		todo.summary = "test";
@@ -216,8 +216,7 @@ public class TodoListsServiceTests {
 
 		VTodo todo = new VTodo();
 		todo.uid = UUID.randomUUID().toString();
-		DateTimeZone tz = DateTimeZone.UTC;
-		DateTime temp = new DateTime(2024, 12, 28, 0, 0, 0, tz);
+		ZonedDateTime temp = ZonedDateTime.of(2024, 12, 28, 0, 0, 0, 0, utcTz);
 		todo.dtstart = BmDateTimeWrapper.create(temp, Precision.DateTime);
 		todo.due = BmDateTimeWrapper.create(temp.plusMonths(1), Precision.DateTime);
 		todo.summary = "Test Todo";

@@ -24,6 +24,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,7 +34,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
-import org.joda.time.LocalDate;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -254,7 +255,7 @@ public class MailboxRecordStoreTests {
 	private Date adaptDate(int daysBeforeNow) {
 		LocalDate localDate = LocalDate.now();
 		LocalDate adapted = localDate.minusDays(daysBeforeNow);
-		return adapted.toDate();
+		return Date.from(adapted.atStartOfDay(ZoneId.systemDefault()).toInstant());
 	}
 
 	private MailboxRecord simpleRecord() {

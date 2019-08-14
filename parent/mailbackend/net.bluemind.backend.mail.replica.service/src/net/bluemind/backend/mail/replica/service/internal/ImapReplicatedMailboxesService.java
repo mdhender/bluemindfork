@@ -130,9 +130,16 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		}
 		final String fnOld = oldName;
 		final String fnNew = newName;
+
+		if (fnOld.equals(fnNew)) {
+			logger.warn("Rename attempt to same name '{}'");
+			storeService.touch(current.uid);
+			ItemValue<MailboxFolder> touched = getCompleteById(id);
+			return Ack.create(touched.version);
+		}
 		CompletableFuture<ItemIdentifier> future = ReplicationEvents.onSubtreeUpdate(toWatch);
 		return imapContext.withImapClient((sc, fast) -> {
-			logger.info("Rename attempt of {} to {}", fnOld, fnNew);
+			logger.info("Rename attempt of '{}' to '{}'", fnOld, fnNew);
 			selectInbox(sc, fast);
 			sc.rename(fnOld, fnNew);
 			long version = future.get(10, TimeUnit.SECONDS).version;

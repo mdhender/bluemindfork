@@ -20,6 +20,7 @@ package net.bluemind.icalendar.parser;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -29,7 +30,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,6 +106,8 @@ public class ICal4jHelper<T extends ICalendarElement> {
 	protected static Logger logger = LoggerFactory.getLogger(ICal4jHelper.class);
 
 	private static final TimeZoneRegistry tzRegistry = TimeZoneRegistryFactory.getInstance().createRegistry();
+
+	static ZoneId utcTz = ZoneId.of("UTC");
 
 	// ICS -> BM
 	public ItemValue<T> parseIcs(T iCalendarElement, CalendarComponent cc, String globalTZ) {
@@ -923,10 +925,10 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		if (iCalendarElement.exdate != null && !iCalendarElement.exdate.isEmpty()) {
 			DateList dateList = new DateList();
 			ArrayList<BmDateTime> sorted = new ArrayList<>(iCalendarElement.exdate);
-			Collections.sort(sorted, new DateTimeComparator(DateTimeZone.UTC.getID()));
+			Collections.sort(sorted, new DateTimeComparator(utcTz.getId()));
 			BmDateTime d = sorted.get(0);
 			if (d.precision == Precision.DateTime || d.timezone != null) {
-				String tz = d.timezone != null ? d.timezone : DateTimeZone.UTC.getID();
+				String tz = d.timezone != null ? d.timezone : utcTz.getId();
 				dateList.setTimeZone(tzRegistry.getTimeZone(tz));
 			}
 			for (BmDateTime date : sorted) {
@@ -942,10 +944,10 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		if (iCalendarElement.rdate != null && !iCalendarElement.rdate.isEmpty()) {
 			DateList dateList = new DateList();
 			ArrayList<BmDateTime> sorted = new ArrayList<>(iCalendarElement.rdate);
-			Collections.sort(sorted, new DateTimeComparator(DateTimeZone.UTC.getID()));
+			Collections.sort(sorted, new DateTimeComparator(utcTz.getId()));
 			BmDateTime d = sorted.get(0);
 			if (d.precision == Precision.DateTime || d.timezone != null) {
-				String tz = d.timezone != null ? d.timezone : DateTimeZone.UTC.getID();
+				String tz = d.timezone != null ? d.timezone : utcTz.getId();
 				dateList.setTimeZone(tzRegistry.getTimeZone(tz));
 			}
 			for (BmDateTime date : sorted) {
@@ -1188,11 +1190,11 @@ public class ICal4jHelper<T extends ICalendarElement> {
 				TimeZone tz = tzRegistry.getTimeZone(date.timezone);
 				dt.setTimeZone(tz);
 			} else {
-				dt.setTimeZone(tzRegistry.getTimeZone(DateTimeZone.UTC.getID()));
+				dt.setTimeZone(tzRegistry.getTimeZone(utcTz.getId()));
 			}
 			return dt;
 		} else {
-			return new Date(bmDate.toTimestamp(DateTimeZone.UTC.getID()));
+			return new Date(bmDate.toTimestamp(utcTz.getId()));
 		}
 	}
 

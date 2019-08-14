@@ -21,12 +21,13 @@ package net.bluemind.calendar.service.internal;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoField;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.joda.time.DateTimeZone;
-import org.joda.time.LocalTime;
 import org.junit.Test;
 
 import net.bluemind.calendar.api.CalendarSettingsData;
@@ -94,9 +95,10 @@ public class CalendarSettingsValidateAndAdaptTests {
 		assertEquals("UTC", map.get(CalendarSettings.CFG_TIMEZONE));
 
 		CalendarSettingsData s = CalendarSettings.adapt(map);
-		assertEquals(new LocalTime(8, 0).getMillisOfDay(), s.dayStart.intValue());
-		assertEquals(new LocalTime(18, 0).getMillisOfDay(), s.dayEnd.intValue());
-		assertEquals(DateTimeZone.UTC.getID(), s.timezoneId);
+
+		assertEquals(LocalTime.of(8, 0).get(ChronoField.MILLI_OF_DAY), s.dayStart.intValue());
+		assertEquals(LocalTime.of(18, 0).get(ChronoField.MILLI_OF_DAY), s.dayEnd.intValue());
+		assertEquals(ZoneId.of("UTC").getId(), s.timezoneId);
 		assertEquals(new Integer(5), s.minDuration);
 		assertEquals(Arrays.asList(Day.MO, Day.FR), s.workingDays);
 
@@ -109,9 +111,9 @@ public class CalendarSettingsValidateAndAdaptTests {
 
 	private CalendarSettingsData defaultSettings() {
 		CalendarSettingsData s = new CalendarSettingsData();
-		s.dayStart = new LocalTime(8, 0).getMillisOfDay();
-		s.dayEnd = new LocalTime(18, 0).getMillisOfDay();
-		s.timezoneId = DateTimeZone.UTC.getID();
+		s.dayStart = LocalTime.of(8, 0).get(ChronoField.MILLI_OF_DAY);
+		s.dayEnd = LocalTime.of(18, 0).get(ChronoField.MILLI_OF_DAY);
+		s.timezoneId = ZoneId.of("UTC").getId();
 		s.minDuration = 5;
 		s.workingDays = Arrays.asList(Day.MO, Day.FR);
 		return s;

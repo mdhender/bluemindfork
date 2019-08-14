@@ -10,7 +10,6 @@ Require-Bundle: net.bluemind.core.commons,
  net.bluemind.slf4j,
  net.bluemind.tag.api,
  net.bluemind.lib.ical4j,
- net.bluemind.lib.jodatime;bundle-version="1.0.0",
  net.bluemind.neko.common,
  com.fasterxml.jackson.core.jackson-core;bundle-version="2.4.1";visibility:=reexport,
  com.fasterxml.jackson.core.jackson-annotations;bundle-version="2.4.1"

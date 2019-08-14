@@ -19,10 +19,9 @@ package net.bluemind.todolist.service.internal.repair;
 
 import static org.junit.Assert.assertEquals;
 
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -40,7 +39,6 @@ import net.bluemind.tag.api.TagRef;
 import net.bluemind.todolist.api.ITodoList;
 import net.bluemind.todolist.api.VTodo;
 import net.bluemind.todolist.service.AbstractServiceTests;
-import net.bluemind.todolist.service.internal.repair.TodoListRepairSupport;
 
 public class TodoListRepairTestsDisabled extends AbstractServiceTests {
 
@@ -129,8 +127,7 @@ public class TodoListRepairTestsDisabled extends AbstractServiceTests {
 
 		VTodo todo = new VTodo();
 		todo.uid = uid;
-		DateTimeZone tz = DateTimeZone.UTC;
-		DateTime temp = new DateTime(2024, 12, 28, 0, 0, 0, tz);
+		ZonedDateTime temp = ZonedDateTime.of(2024, 12, 28, 0, 0, 0, 0, utcTz);
 		todo.dtstart = BmDateTimeWrapper.create(temp, Precision.DateTime);
 		todo.due = BmDateTimeWrapper.create(temp.plusMonths(1), Precision.DateTime);
 		todo.summary = "Test Todo";

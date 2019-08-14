@@ -18,9 +18,11 @@
  */
 package net.bluemind.eas.state;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Iterator;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,7 +101,7 @@ public class StateMachine {
 		}
 
 		SyncState ret = new SyncState();
-		ret.date = new DateTime(Long.parseLong(sss.next()));
+		ret.date = ZonedDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(sss.next())), ZoneId.systemDefault());
 		ret.type = ItemDataType.valueOf(sss.next());
 		ret.version = Long.parseLong(sss.next());
 		ret.subscriptionVersion = Long.parseLong(sss.next());

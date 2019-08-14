@@ -6,7 +6,6 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.junit,
  net.bluemind.calendar.api,
- net.bluemind.lib.jodatime,
  net.bluemind.calendar.helper;bundle-version="1.0.0",
  net.bluemind.mime4j.common,
  org.freemarker.freemarker;bundle-version="2.3.20",

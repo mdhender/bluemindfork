@@ -36,7 +36,6 @@
       <plugin id="io.vertx.platform"/>
       <plugin id="javax.ws.rs"/>
       <plugin id="jcl.over.slf4j"/>
-      <plugin id="joda-time"/>
       <plugin id="jul.to.slf4j"/>
       <plugin id="net.bluemind.addressbook.api"/>
       <plugin id="net.bluemind.common.reflect"/>
@@ -53,7 +52,6 @@
       <plugin id="net.bluemind.group.api"/>
       <plugin id="net.bluemind.hornetq.client"/>
       <plugin id="net.bluemind.lib.jackson"/>
-      <plugin id="net.bluemind.lib.jodatime"/>
       <plugin id="net.bluemind.lib.jta"/>
       <plugin id="net.bluemind.lib.vertx"/>
       <plugin id="net.bluemind.locator.client"/>

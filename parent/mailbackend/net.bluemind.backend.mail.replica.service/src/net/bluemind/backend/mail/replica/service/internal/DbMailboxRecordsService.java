@@ -243,6 +243,42 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 		}
 	}
 
+	private static class UpsertResult {
+		final ItemVersion version;
+		final boolean update;
+
+		public UpsertResult(ItemVersion v, boolean b) {
+			this.version = v;
+			this.update = b;
+		}
+
+		public static UpsertResult create(ItemVersion v) {
+			return new UpsertResult(v, false);
+		}
+
+		public static UpsertResult update(ItemVersion v) {
+			return new UpsertResult(v, true);
+		}
+	}
+
+	private UpsertResult upsertByUid(String uid, MailboxRecord mr) {
+		try {
+			return UpsertResult.create(storeService.create(uid, uid, mr));
+		} catch (ServerFault sf) {
+			logger.warn("create failed: {}, trying update of {}", sf.getMessage(), uid);
+			return UpsertResult.update(storeService.update(uid, uid, mr));
+		}
+	}
+
+	private UpsertResult upsertById(String uid, long id, MailboxRecord mr) {
+		try {
+			return UpsertResult.create(storeService.createWithId(uid, id, null, uid, mr));
+		} catch (ServerFault sf) {
+			logger.warn("createById failed: {}, trying updateById of uid: {}, id: {}", sf.getMessage(), uid, id);
+			return UpsertResult.update(storeService.update(id, uid, mr));
+		}
+	}
+
 	@Override
 	public void updates(List<MailboxRecord> records) {
 		logger.info("[{}] Update with {} record(s)", mailboxUniqueId, records.size());
@@ -289,60 +325,54 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 				}
 
 				String uid = mr.imapUid + ".";
-				ItemVersion version = null;
-				boolean update = false;
+				UpsertResult upsert = null;
 
 				Long expId = GuidExpectedIdCache
 						.expectedId(IMailReplicaUids.uniqueId(container.uid) + ":" + mr.messageBody);
 
 				if (expId != null) {
-					version = storeService.createWithId(uid, expId, null, uid, mr);
+					upsert = UpsertResult.create(storeService.createWithId(uid, expId, null, uid, mr));
 					GuidExpectedIdCache.invalidate(IMailReplicaUids.uniqueId(container.uid) + ":" + mr.messageBody);
 				} else {
 					ExpectedId knownInternalId = BodyInternalIdCache.expectedRecordId(container.owner, mr.messageBody);
 					if (knownInternalId == null) {
-						try {
-							version = storeService.create(uid, uid, mr);
-						} catch (ServerFault sf) {
-							logger.warn("create failed: {}, trying update of {}", sf.getMessage(), uid);
-							version = storeService.update(uid, uid, mr);
-							update = true;
-						}
+						upsert = upsertByUid(uid, mr);
 					} else {
 						logger.info("Create directly with the right id {} from replication.", knownInternalId);
 						if (knownInternalId.updateOfBody == null) {
-							try {
-								version = storeService.createWithId(uid, knownInternalId.id, null, uid, mr);
-							} catch (ServerFault sf) {
-								logger.warn("createWithId failed: {}, trying update of {}", sf.getMessage(),
-										knownInternalId.id);
-								version = storeService.update(knownInternalId.id, uid, mr);
-								update = true;
-							}
+							upsert = upsertById(uid, knownInternalId.id, mr);
 						} else {
 							try {
 								logger.info("Update record {} to point to a different body {}", knownInternalId,
 										mr.messageBody);
-								version = storeService.update(knownInternalId.id, uid, mr);
+								upsert = UpsertResult.update(storeService.update(knownInternalId.id, uid, mr));
 								BodyInternalIdCache.vanishedBody(container.owner,
-										knownInternalId.updateOfBody).version = version;
-								update = true;
+										knownInternalId.updateOfBody).version = upsert.version;
+
 							} catch (ServerFault sf) {
-								version = storeService.createWithId(uid, knownInternalId.id, null, uid, mr);
+								logger.warn("[{}] Update of {} failed: {}", container.uid, knownInternalId.id,
+										sf.getMessage());
+								try {
+									upsert = UpsertResult
+											.create(storeService.createWithId(uid, knownInternalId.id, null, uid, mr));
+								} catch (ServerFault refault) {
+									logger.warn("byId global failure: {}", refault.getMessage());
+									upsert = upsertByUid(uid, mr);
+								}
 							}
 						}
 						BodyInternalIdCache.invalidateBody(mr.messageBody);
 					}
 				}
-				if (!update) {
-					crNotifs.add(CreateNotif.of(version.version, version.id, mr.imapUid));
+				if (!upsert.update) {
+					crNotifs.add(CreateNotif.of(upsert.version.version, upsert.version.id, mr.imapUid));
 				} else {
-					upNotifs.add(UpdateNotif.of(version, mr));
+					upNotifs.add(UpdateNotif.of(upsert.version, mr));
 				}
 
 				ItemValue<MailboxRecord> idxAndNotif = ItemValue.create(uid, mr);
-				idxAndNotif.internalId = version.id;
-				idxAndNotif.version = version.version;
+				idxAndNotif.internalId = upsert.version.id;
+				idxAndNotif.version = upsert.version.version;
 
 				pushToIndex.add(idxAndNotif);
 				if ("INBOX".equals(recordsLocation.boxName) && recordsLocation.namespace() == Namespace.users

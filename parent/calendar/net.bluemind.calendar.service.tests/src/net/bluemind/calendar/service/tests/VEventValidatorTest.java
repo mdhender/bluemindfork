@@ -23,9 +23,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 
-import org.joda.time.DateTime;
 import org.junit.Test;
 
 import net.bluemind.calendar.api.VEvent;
@@ -40,6 +41,7 @@ import net.bluemind.icalendar.api.ICalendarElement.RRule.WeekDay;
 public class VEventValidatorTest {
 
 	private VEventValidator validator = new VEventValidator();
+	private ZoneId defaultTz = ZoneId.systemDefault();
 
 	@Test
 	public void testValidate() {
@@ -65,8 +67,9 @@ public class VEventValidatorTest {
 		assertTrue(ErrorCode.NO_EVENT_DATE == err);
 
 		// dtstart != null
-		vevent.dtstart = BmDateTimeWrapper.create(new DateTime(2015, 05, 01, 0, 0, 0), Precision.Date);
-		vevent.dtend = BmDateTimeWrapper.create(new DateTime(2015, 05, 01, 1, 0, 0), Precision.Date);
+		vevent.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2015, 05, 01, 0, 0, 0, 0, defaultTz),
+				Precision.Date);
+		vevent.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2015, 05, 01, 1, 0, 0, 0, defaultTz), Precision.Date);
 
 		err = null;
 		try {
@@ -112,8 +115,9 @@ public class VEventValidatorTest {
 	public void testList() throws ServerFault {
 		VEvent vevent = new VEvent();
 		vevent.summary = "check";
-		vevent.dtstart = BmDateTimeWrapper.create(new DateTime(2015, 05, 01, 0, 0, 0), Precision.Date);
-		vevent.dtend = BmDateTimeWrapper.create(new DateTime(2015, 05, 01, 1, 0, 0), Precision.Date);
+		vevent.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2015, 05, 01, 0, 0, 0, 0, defaultTz),
+				Precision.Date);
+		vevent.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2015, 05, 01, 1, 0, 0, 0, defaultTz), Precision.Date);
 		vevent.rrule = new VEvent.RRule();
 		vevent.rrule.frequency = Frequency.DAILY;
 
@@ -189,8 +193,9 @@ public class VEventValidatorTest {
 	public void testWeeklyWithoutDays() {
 		VEvent vevent = new VEvent();
 		vevent.summary = "check";
-		vevent.dtstart = BmDateTimeWrapper.create(new DateTime(2015, 05, 01, 0, 0, 0), Precision.Date);
-		vevent.dtend = BmDateTimeWrapper.create(new DateTime(2015, 05, 01, 1, 0, 0), Precision.Date);
+		vevent.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2015, 05, 01, 0, 0, 0, 0, defaultTz),
+				Precision.Date);
+		vevent.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2015, 05, 01, 1, 0, 0, 0, defaultTz), Precision.Date);
 		vevent.rrule = new VEvent.RRule();
 		vevent.rrule.frequency = Frequency.WEEKLY;
 
@@ -210,8 +215,10 @@ public class VEventValidatorTest {
 		vevent.summary = "bang";
 
 		// DtEnd < DtStart
-		vevent.dtstart = BmDateTimeWrapper.create(new DateTime(2017, 05, 17, 8, 0, 0), Precision.DateTime);
-		vevent.dtend = BmDateTimeWrapper.create(new DateTime(2017, 05, 17, 7, 0, 0), Precision.DateTime);
+		vevent.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2017, 05, 17, 8, 0, 0, 0, defaultTz),
+				Precision.DateTime);
+		vevent.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2017, 05, 17, 7, 0, 0, 0, defaultTz),
+				Precision.DateTime);
 
 		try {
 			validator.validate(vevent);
@@ -220,8 +227,10 @@ public class VEventValidatorTest {
 		}
 
 		// DtEnd > DtStart
-		vevent.dtstart = BmDateTimeWrapper.create(new DateTime(2017, 05, 17, 8, 0, 0), Precision.DateTime);
-		vevent.dtend = BmDateTimeWrapper.create(new DateTime(2017, 05, 17, 9, 0, 0), Precision.DateTime);
+		vevent.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2017, 05, 17, 8, 0, 0, 0, defaultTz),
+				Precision.DateTime);
+		vevent.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2017, 05, 17, 9, 0, 0, 0, defaultTz),
+				Precision.DateTime);
 
 		try {
 			validator.validate(vevent);
@@ -230,8 +239,10 @@ public class VEventValidatorTest {
 		}
 
 		// DtEnd == DtStart
-		vevent.dtstart = BmDateTimeWrapper.create(new DateTime(2017, 05, 17, 8, 0, 0), Precision.DateTime);
-		vevent.dtend = BmDateTimeWrapper.create(new DateTime(2017, 05, 17, 8, 0, 0), Precision.DateTime);
+		vevent.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2017, 05, 17, 8, 0, 0, 0, defaultTz),
+				Precision.DateTime);
+		vevent.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2017, 05, 17, 8, 0, 0, 0, defaultTz),
+				Precision.DateTime);
 
 		try {
 			validator.validate(vevent);

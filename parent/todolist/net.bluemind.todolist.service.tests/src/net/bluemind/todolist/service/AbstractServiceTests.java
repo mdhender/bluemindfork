@@ -21,6 +21,8 @@ package net.bluemind.todolist.service;
 import static org.junit.Assert.assertNotNull;
 
 import java.sql.SQLException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,8 +32,6 @@ import java.util.UUID;
 import javax.sql.DataSource;
 
 import org.elasticsearch.client.transport.TransportClient;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Before;
 import org.vertx.java.core.AsyncResult;
@@ -60,9 +60,9 @@ import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.icalendar.api.ICalendarElement.Status;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.server.api.Server;
+import net.bluemind.tag.api.ITagUids;
 import net.bluemind.tag.api.Tag;
 import net.bluemind.tag.api.TagRef;
-import net.bluemind.tag.api.ITagUids;
 import net.bluemind.tag.persistance.TagRefStore;
 import net.bluemind.tag.persistance.TagStore;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -96,7 +96,8 @@ public abstract class AbstractServiceTests {
 
 	protected BmContext defaultContext;
 
-	protected DateTimeZone tz = DateTimeZone.forID("Europe/Paris");
+	protected ZoneId tz = ZoneId.of("Europe/Paris");
+	protected ZoneId utcTz = ZoneId.of("UTC");
 	protected VTodoContainerStoreService vtodoStoreService;
 
 	protected String datalocation;
@@ -107,7 +108,6 @@ public abstract class AbstractServiceTests {
 	@Before
 	public void before() throws Exception {
 		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-		DateTimeZone.setDefault(DateTimeZone.UTC);
 		JdbcTestHelper.getInstance().beforeTest();
 
 		ElasticsearchTestHelper.getInstance().beforeTest();
@@ -216,11 +216,9 @@ public abstract class AbstractServiceTests {
 	protected abstract ITodoList getService(SecurityContext context) throws ServerFault;
 
 	protected VTodo defaultVTodo() {
-
 		VTodo todo = new VTodo();
 		todo.uid = UUID.randomUUID().toString();
-		DateTimeZone tz = DateTimeZone.UTC;
-		DateTime temp = new DateTime(2024, 12, 28, 0, 0, 0, tz);
+		ZonedDateTime temp = ZonedDateTime.of(2024, 12, 28, 0, 0, 0, 0, ZoneId.of("UTC"));
 		todo.dtstart = BmDateTimeWrapper.create(temp, Precision.DateTime);
 		todo.due = BmDateTimeWrapper.create(temp.plusMonths(1), Precision.DateTime);
 		todo.summary = "Test Todo";

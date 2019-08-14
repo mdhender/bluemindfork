@@ -37,4 +37,3 @@ Require-Bundle: org.junit,
  net.bluemind.user.service,
  net.bluemind.core.tests.testshelper,
  net.bluemind.group.service
-Import-Package: org.joda.time

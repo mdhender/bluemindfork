@@ -21,6 +21,8 @@ package net.bluemind.calendar.service;
 import static org.junit.Assert.assertNotNull;
 
 import java.sql.SQLException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,8 +32,6 @@ import java.util.UUID;
 import javax.sql.DataSource;
 
 import org.elasticsearch.client.transport.TransportClient;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -57,8 +57,6 @@ import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.auditlog.CalendarAuditor;
 import net.bluemind.calendar.service.internal.CalendarService;
 import net.bluemind.core.api.Email;
-import net.bluemind.core.api.date.BmDateTime.Precision;
-import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlog.IAuditManager;
 import net.bluemind.core.container.api.ContainerSubscription;
@@ -95,6 +93,7 @@ import net.bluemind.tag.api.ITagUids;
 import net.bluemind.tag.api.Tag;
 import net.bluemind.tag.api.TagRef;
 import net.bluemind.tag.persistance.TagStore;
+import net.bluemind.tests.defaultdata.BmDateTimeHelper;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUserSubscription;
 import net.bluemind.user.api.User;
@@ -139,7 +138,10 @@ public abstract class AbstractCalendarTests {
 
 	private MailboxStoreService mailboxStore;
 
-	protected DateTimeZone tz = DateTimeZone.forID("Europe/Paris");
+	protected ZoneId tz = ZoneId.of("Europe/Paris");
+	protected ZoneId utcTz = ZoneId.of("UTC");
+	protected ZoneId defaultTz = ZoneId.systemDefault();
+
 	protected BmTestContext testContext = new BmTestContext(SecurityContext.SYSTEM);
 
 	protected SecurityContext basicUserSecurityContext;
@@ -159,7 +161,6 @@ public abstract class AbstractCalendarTests {
 	@Before
 	public void beforeBefore() throws Exception {
 		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-		DateTimeZone.setDefault(DateTimeZone.UTC);
 		ElasticsearchTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().beforeTest();
 
@@ -401,8 +402,8 @@ public abstract class AbstractCalendarTests {
 	protected VEventSeries defaultVEvent() {
 		VEventSeries series = new VEventSeries();
 		VEvent event = new VEvent();
-		DateTimeZone tz = DateTimeZone.forID("Asia/Ho_Chi_Minh");
-		event.dtstart = time(new DateTime(2022, 2, 13, 1, 0, 0, tz));
+		ZoneId tz = ZoneId.of("Asia/Ho_Chi_Minh");
+		event.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 13, 1, 0, 0, 0, tz));
 		event.summary = "event " + System.currentTimeMillis();
 		event.location = "Toulouse";
 		event.description = "Lorem ipsum";
@@ -431,9 +432,9 @@ public abstract class AbstractCalendarTests {
 
 	protected VEventOccurrence recurringVEvent() {
 		VEventOccurrence event = new VEventOccurrence();
-		DateTimeZone tz = DateTimeZone.forID("Asia/Ho_Chi_Minh");
-		event.dtstart = time(new DateTime(2022, 2, 13, 1, 0, 0, tz));
-		event.recurid = time(new DateTime(2022, 2, 13, 2, 0, 0, tz));
+		ZoneId tz = ZoneId.of("Asia/Ho_Chi_Minh");
+		event.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 13, 1, 0, 0, 0, tz));
+		event.recurid = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 13, 2, 0, 0, 0, tz));
 		event.summary = "event " + System.currentTimeMillis();
 		event.location = "Toulouse";
 		event.description = "Lorem ipsum";
@@ -519,20 +520,6 @@ public abstract class AbstractCalendarTests {
 		group.emails = Arrays.asList(e);
 
 		return group;
-	}
-
-	protected net.bluemind.core.api.date.BmDateTime time(DateTime dateTime) {
-		return time(dateTime, true);
-	}
-
-	protected net.bluemind.core.api.date.BmDateTime time(DateTime dateTime, boolean autoDate) {
-		if (autoDate && dateTime.getZone().equals(DateTimeZone.getDefault()) && dateTime.getHourOfDay() == 0
-				&& dateTime.getMinuteOfHour() == 0 && dateTime.getSecondOfMinute() == 0) {
-			long ts = dateTime.withZoneRetainFields(DateTimeZone.UTC).getMillis();
-			return BmDateTimeWrapper.fromTimestamp(ts, dateTime.getZone().getID(), Precision.Date);
-		} else {
-			return BmDateTimeWrapper.create(dateTime, Precision.DateTime);
-		}
 	}
 
 	protected ICalendar getCalendarService(SecurityContext context, Container container) throws ServerFault {

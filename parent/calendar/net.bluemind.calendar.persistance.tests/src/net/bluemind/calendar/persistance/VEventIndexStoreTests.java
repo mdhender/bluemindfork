@@ -24,6 +24,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.SQLException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +38,6 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -279,12 +280,13 @@ public class VEventIndexStoreTests {
 	@Test
 	public void testSearchByDateInterval() throws SQLException {
 		ItemValue<VEventSeries> event = defaultVEvent();
-		event.value.main.dtstart = BmDateTimeWrapper.create(new DateTime(1983, 2, 13, 0, 0, 0), Precision.Date);
+		event.value.main.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(1983, 2, 13, 0, 0, 0, 0, ZoneId.of("UTC")),
+				Precision.Date);
 		indexStore.create(event.uid, event.value);
 		indexStore.refresh();
 
-		DateTime dateMin = new DateTime(1983, 2, 1, 0, 0, 0);
-		DateTime dateMax = new DateTime(1983, 3, 1, 0, 0, 0);
+		ZonedDateTime dateMin = ZonedDateTime.of(1983, 2, 1, 0, 0, 0, 0, ZoneId.of("UTC"));
+		ZonedDateTime dateMax = ZonedDateTime.of(1983, 3, 1, 0, 0, 0, 0, ZoneId.of("UTC"));
 		VEventQuery query = VEventQuery.create(BmDateTimeWrapper.create(dateMin, Precision.Date),
 				BmDateTimeWrapper.create(dateMax, Precision.Date));
 
@@ -294,7 +296,8 @@ public class VEventIndexStoreTests {
 
 		// create an event not in search range
 		ItemValue<VEventSeries> event2 = defaultVEvent();
-		event2.value.main.dtstart = BmDateTimeWrapper.create(new DateTime(1986, 6, 16, 0, 0, 0), Precision.Date);
+		event2.value.main.dtstart = BmDateTimeWrapper
+				.create(ZonedDateTime.of(1986, 6, 16, 0, 0, 0, 0, ZoneId.of("UTC")), Precision.Date);
 		indexStore.create(event2.uid, event2.value);
 		indexStore.refresh();
 
@@ -304,7 +307,8 @@ public class VEventIndexStoreTests {
 
 		// create an event in search range
 		ItemValue<VEventSeries> event3 = defaultVEvent();
-		event3.value.main.dtstart = BmDateTimeWrapper.create(new DateTime(1983, 2, 22, 0, 0, 0), Precision.Date);
+		event3.value.main.dtstart = BmDateTimeWrapper
+				.create(ZonedDateTime.of(1983, 2, 22, 0, 0, 0, 0, ZoneId.of("UTC")), Precision.Date);
 		indexStore.create(event3.uid, event3.value);
 		indexStore.refresh();
 
@@ -313,16 +317,16 @@ public class VEventIndexStoreTests {
 
 		// create an event at dateEnd (excluded from range)
 		ItemValue<VEventSeries> event4 = defaultVEvent();
-		event4.value.main.dtstart = BmDateTimeWrapper.create(new DateTime(1983, 3, 1, 0, 0, 0), Precision.Date);
+		event4.value.main.dtstart = BmDateTimeWrapper.create(dateMax, Precision.Date);
 		indexStore.create(event4.uid, event4.value);
 		indexStore.refresh();
 
 		res = indexStore.search(query);
 		assertEquals(2, res.values.size());
-		
+
 		// create an event at dateBegin (included in range)
 		ItemValue<VEventSeries> event5 = defaultVEvent();
-		event5.value.main.dtstart = BmDateTimeWrapper.create(new DateTime(1983, 2, 1, 0, 0, 0), Precision.Date);
+		event5.value.main.dtstart = BmDateTimeWrapper.create(dateMin, Precision.Date);
 		indexStore.create(event5.uid, event5.value);
 		indexStore.refresh();
 
@@ -405,12 +409,15 @@ public class VEventIndexStoreTests {
 	@Test
 	public void testBug3286() throws SQLException {
 		ItemValue<VEventSeries> event = defaultVEvent();
-		event.value.main.dtstart = BmDateTimeWrapper.create(new DateTime(2014, 5, 29, 8, 0, 0), Precision.Date);
-		event.value.main.dtend = BmDateTimeWrapper.create(new DateTime(2014, 5, 29, 9, 0, 0), Precision.Date);
+		event.value.main.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 5, 29, 8, 0, 0, 0, ZoneId.of("UTC")),
+				Precision.Date);
+		event.value.main.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 5, 29, 9, 0, 0, 0, ZoneId.of("UTC")),
+				Precision.Date);
 
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = VEvent.RRule.Frequency.WEEKLY;
-		rrule.until = BmDateTimeWrapper.create(new DateTime(2014, 6, 4, 0, 0, 0), Precision.Date);
+		rrule.until = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 6, 4, 0, 0, 0, 0, ZoneId.of("UTC")),
+				Precision.Date);
 		List<VEvent.RRule.WeekDay> weekDay = new ArrayList<VEvent.RRule.WeekDay>(4);
 		weekDay.add(VEvent.RRule.WeekDay.MO);
 		weekDay.add(VEvent.RRule.WeekDay.TU);
@@ -422,8 +429,8 @@ public class VEventIndexStoreTests {
 		indexStore.create(event.uid, event.value);
 		indexStore.refresh();
 
-		DateTime dateMin = new DateTime(2014, 5, 26, 0, 0, 0);
-		DateTime dateMax = new DateTime(2014, 6, 1, 0, 0, 0);
+		ZonedDateTime dateMin = ZonedDateTime.of(2014, 5, 26, 0, 0, 0, 0, ZoneId.of("UTC"));
+		ZonedDateTime dateMax = ZonedDateTime.of(2014, 6, 1, 0, 0, 0, 0, ZoneId.of("UTC"));
 		VEventQuery query = VEventQuery.create(BmDateTimeWrapper.create(dateMin, Precision.Date),
 				BmDateTimeWrapper.create(dateMax, Precision.Date));
 		ListResult<String> res = indexStore.search(query);
@@ -434,11 +441,13 @@ public class VEventIndexStoreTests {
 	@Test
 	public void testSearchRRule() throws SQLException {
 		ItemValue<VEventSeries> event = defaultVEvent();
-		event.value.main.dtstart = BmDateTimeWrapper.create(new DateTime(1983, 2, 13, 0, 0, 0), Precision.Date);
+		event.value.main.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(1983, 2, 13, 0, 0, 0, 0, ZoneId.of("UTC")),
+				Precision.Date);
 
 		VEvent.RRule rrule = new VEvent.RRule();
 		rrule.frequency = VEvent.RRule.Frequency.YEARLY;
-		rrule.until = BmDateTimeWrapper.create(new DateTime(2083, 2, 13, 0, 0, 0), Precision.Date);
+		rrule.until = BmDateTimeWrapper.create(ZonedDateTime.of(2083, 2, 13, 0, 0, 0, 0, ZoneId.of("UTC")),
+				Precision.Date);
 
 		event.value.main.rrule = rrule;
 
@@ -449,23 +458,23 @@ public class VEventIndexStoreTests {
 				.search(VEventQuery.create("value.rrule.until.iso8601:" + "\"" + rrule.until.iso8601 + "\""));
 		assertEquals(1, res.values.size());
 
-		DateTime dateMin = new DateTime(1983, 2, 12, 0, 0, 0);
-		DateTime dateMax = new DateTime(1983, 2, 14, 0, 0, 0);
+		ZonedDateTime dateMin = ZonedDateTime.of(1983, 2, 12, 0, 0, 0, 0, ZoneId.of("UTC"));
+		ZonedDateTime dateMax = ZonedDateTime.of(1983, 2, 14, 0, 0, 0, 0, ZoneId.of("UTC"));
 		VEventQuery query = VEventQuery.create(BmDateTimeWrapper.create(dateMin, Precision.Date),
 				BmDateTimeWrapper.create(dateMax, Precision.Date));
 		res = indexStore.search(query);
 		assertEquals(1, res.values.size());
 		assertEquals(event.uid, res.values.get(0));
 
-		dateMin = new DateTime(1983, 2, 14, 0, 0, 0);
-		dateMax = new DateTime(1983, 2, 15, 0, 0, 0);
+		dateMin = ZonedDateTime.of(1983, 2, 14, 0, 0, 0, 0, ZoneId.of("UTC"));
+		dateMax = ZonedDateTime.of(1983, 2, 15, 0, 0, 0, 0, ZoneId.of("UTC"));
 		query = VEventQuery.create(BmDateTimeWrapper.create(dateMin, Precision.Date),
 				BmDateTimeWrapper.create(dateMax, Precision.Date));
 		res = indexStore.search(query);
 		assertEquals(1, res.values.size()); // not 0 because of rrule.until
 
-		dateMin = new DateTime(2014, 2, 12, 0, 0, 0);
-		dateMax = new DateTime(2014, 2, 14, 0, 0, 0);
+		dateMin = ZonedDateTime.of(2014, 2, 12, 0, 0, 0, 0, ZoneId.of("UTC"));
+		dateMax = ZonedDateTime.of(2014, 2, 14, 0, 0, 0, 0, ZoneId.of("UTC"));
 		query = VEventQuery.create(BmDateTimeWrapper.create(dateMin, Precision.Date),
 				BmDateTimeWrapper.create(dateMax, Precision.Date));
 		res = indexStore.search(query);
@@ -476,7 +485,7 @@ public class VEventIndexStoreTests {
 	private ItemValue<VEventSeries> defaultVEvent() {
 		VEventSeries series = new VEventSeries();
 		VEvent event = new VEvent();
-		event.dtstart = BmDateTimeWrapper.create(new DateTime(), Precision.DateTime);
+		event.dtstart = BmDateTimeWrapper.create(ZonedDateTime.now(), Precision.DateTime);
 		event.summary = "event " + System.currentTimeMillis();
 		event.location = "Toulouse";
 		event.description = "Lorem ipsum";

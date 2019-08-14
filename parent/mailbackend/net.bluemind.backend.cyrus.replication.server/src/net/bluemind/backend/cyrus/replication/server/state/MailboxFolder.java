@@ -24,10 +24,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.json.JsonObject;
 
-import com.google.common.base.CharMatcher;
-
 import net.bluemind.backend.cyrus.replication.protocol.parsing.JsUtils;
 import net.bluemind.backend.cyrus.replication.server.Token;
+import net.bluemind.backend.cyrus.replication.server.utils.MailboxNameHelper;
 import net.bluemind.backend.mail.replica.api.MailboxAnnotation;
 
 public class MailboxFolder {
@@ -216,7 +215,7 @@ public class MailboxFolder {
 
 	private void mailboxFields(StringBuilder sb) {
 		sb.append("UNIQUEID ").append(uniqueId);
-		sb.append(" MBOXNAME ").append(quoteIfNeeded(name));
+		sb.append(" MBOXNAME ").append(MailboxNameHelper.quoteIfNeeded(name));
 		sb.append(" SYNC_CRC ").append(syncCRC);
 		// FIXME cyrus 3 new
 		sb.append(" SYNC_CRC_ANNOT ").append("0");
@@ -242,16 +241,6 @@ public class MailboxFolder {
 
 	public String getQuotaRoot() {
 		return quotaRoot;
-	}
-
-	private static final CharMatcher quoteMatcher = CharMatcher.anyOf(" ()");
-
-	private static String quoteIfNeeded(String s) {
-		if (quoteMatcher.matchesAnyOf(s)) {
-			return "\"" + s + "\"";
-		} else {
-			return s;
-		}
 	}
 
 	public void setQuotaRoot(String quotaRoot) {

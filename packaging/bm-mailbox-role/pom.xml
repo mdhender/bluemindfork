@@ -9,7 +9,7 @@
 		<service.name>bm-mailbox-role</service.name>
 		<shortDescription>BlueMind Mailbox storage</shortDescription>
 		<description>All the services for building a mailbox storage server</description>
-		<dependencies>bm-conf bm-cyrus bm-postfix bm-lmtpd bm-node bm-tick-node bm-postgresql=11.3-bluemind99</dependencies>
+		<dependencies>bm-conf bm-cyrus bm-postfix bm-lmtpd bm-node bm-tick-node bm-postgresql=11.5-bluemind102</dependencies>
 	</properties>
 	
 	<parent>

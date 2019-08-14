@@ -19,6 +19,8 @@
 package net.bluemind.calendar.job;
 
 import java.io.IOException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,8 +32,6 @@ import java.util.stream.Collectors;
 
 import org.apache.james.mime4j.dom.address.Mailbox;
 import org.apache.james.mime4j.message.BodyPart;
-import org.joda.time.DateTime;
-import org.joda.time.DurationFieldType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.json.JsonObject;
@@ -74,7 +74,7 @@ public class CalendarAlarmSupport implements IAlarmSupport<VEvent> {
 	public static final String SUBJECT_TEMPLATE = "EventSubjectAlert.ftl";
 
 	public static final ConcurrentMap<String, List<ItemValue<VEventSeries>>> eventsOfTheDay = new ConcurrentHashMap<>();
-	private static DateTime day;
+	private static ZonedDateTime day;
 
 	static {
 		if (VertxPlatform.getPlatformManager() == null) {
@@ -115,7 +115,7 @@ public class CalendarAlarmSupport implements IAlarmSupport<VEvent> {
 					VEventOccurrence occs = OccurrenceHelper.getOccurrence(event, expected);
 					// do not add reminder for event exceptions
 					// exceptions are processed below
-					if (occs != null && event.value.occurrence(expected) == null
+					if (occs != null && !hasAnyOccurenceMatching(event.value.occurrences, expected)
 							&& attends(occs, containerDescriptor.ownerDirEntryPath)) {
 						ret.add(net.bluemind.calendar.api.Reminder.create(ItemValue.create(event.uid, occs), valarm));
 					}
@@ -143,6 +143,10 @@ public class CalendarAlarmSupport implements IAlarmSupport<VEvent> {
 		return toReminder(ret);
 	}
 
+	private boolean hasAnyOccurenceMatching(List<VEventOccurrence> occurrences, BmDateTime expected) {
+		return occurrences.stream().anyMatch(occ -> occ.dtstart.equals(expected));
+	}
+
 	private boolean attends(VEventOccurrence occ, String dir) {
 		final String owner = "bm://" + dir;
 		return occ.attendees.isEmpty() || owner.equals(occ.organizer.dir) || occ.attendees.stream()
@@ -150,7 +154,8 @@ public class CalendarAlarmSupport implements IAlarmSupport<VEvent> {
 	}
 
 	private void prepareForDate(BmDateTime dtalarm) {
-		DateTime currentDate = new BmDateTimeWrapper(dtalarm).toJodaTime().withTimeAtStartOfDay();
+		ZonedDateTime currentDate = new BmDateTimeWrapper(dtalarm).toDateTime().toLocalDate()
+				.atStartOfDay(ZoneId.systemDefault());
 		if (day == null || !currentDate.isEqual(day)) {
 			day = currentDate;
 			eventsOfTheDay.clear();
@@ -161,7 +166,7 @@ public class CalendarAlarmSupport implements IAlarmSupport<VEvent> {
 		ICalendar calendar = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
 				containerUid);
 		VEventQuery q = VEventQuery.create(BmDateTimeWrapper.create(day, Precision.DateTime),
-				BmDateTimeWrapper.create(day.withFieldAdded(DurationFieldType.hours(), 48), Precision.DateTime));
+				BmDateTimeWrapper.create(day.plusHours(48), Precision.DateTime));
 		ListResult<ItemValue<VEventSeries>> events = calendar.search(q);
 		return events.values.stream().filter(item -> item.value.hasAlarm()).collect(Collectors.toList());
 	}

@@ -81,7 +81,7 @@ public interface IRestTestService extends IVirtualApi<ComplexRequest> {
 			@QueryParam("param3") ParamEnum test3) throws ServerFault;
 
 	@PUT
-	@Path("jodaTime")
+	@Path("dateTime")
 	public ObjectWithTime putTime(ObjectWithTime time) throws ServerFault;
 
 	@POST

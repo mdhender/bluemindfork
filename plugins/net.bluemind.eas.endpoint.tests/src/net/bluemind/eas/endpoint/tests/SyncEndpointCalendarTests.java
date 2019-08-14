@@ -19,12 +19,12 @@
 package net.bluemind.eas.endpoint.tests;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
 import org.vertx.java.core.buffer.Buffer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -381,7 +381,7 @@ public class SyncEndpointCalendarTests extends AbstractEndpointTest {
 
 		// Create an event into public calendar
 		VEvent event = new VEvent();
-		event.dtstart = BmDateTimeWrapper.create(new DateTime(), Precision.DateTime);
+		event.dtstart = BmDateTimeWrapper.create(ZonedDateTime.now(), Precision.DateTime);
 		event.summary = "Piscine";
 		event.location = "Toulouse";
 		event.description = "Lorem ipsum";
@@ -530,7 +530,7 @@ public class SyncEndpointCalendarTests extends AbstractEndpointTest {
 
 		// Create an event into public calendar
 		VEvent event = new VEvent();
-		event.dtstart = BmDateTimeWrapper.create(new DateTime(), Precision.DateTime);
+		event.dtstart = BmDateTimeWrapper.create(ZonedDateTime.now(), Precision.DateTime);
 		event.summary = "Piscine";
 		event.location = "Toulouse";
 		event.description = "Lorem ipsum";
@@ -794,7 +794,7 @@ public class SyncEndpointCalendarTests extends AbstractEndpointTest {
 
 	private String createEvent() throws ServerFault {
 		VEvent event = new VEvent();
-		event.dtstart = BmDateTimeWrapper.create(new DateTime(), Precision.DateTime);
+		event.dtstart = BmDateTimeWrapper.create(ZonedDateTime.now(), Precision.DateTime);
 		event.summary = "Piscine";
 		event.location = "Toulouse";
 		event.description = "Lorem ipsum";

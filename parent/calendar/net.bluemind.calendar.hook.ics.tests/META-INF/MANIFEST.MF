@@ -45,5 +45,4 @@ Import-Package: net.bluemind.addressbook.domainbook,
  net.bluemind.document.persistance.fs,
  net.bluemind.document.storage,
  net.bluemind.mailbox.persistance,
- net.bluemind.resource.persistance,
- org.joda.time
+ net.bluemind.resource.persistance

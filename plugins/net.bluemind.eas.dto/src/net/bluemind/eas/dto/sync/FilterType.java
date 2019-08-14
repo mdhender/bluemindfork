@@ -18,13 +18,14 @@
  */
 package net.bluemind.eas.dto.sync;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,12 +101,12 @@ public enum FilterType {
 			cal.setTimeInMillis(0);
 		}
 		Date fromFilter = cal.getTime();
-		if (st.date == null || fromFilter.after(st.date.toDate()) || hasChanged || st.version == 0) {
+		if (st.date == null || fromFilter.after(Date.from(st.date.toInstant())) || hasChanged || st.version == 0) {
 			logger.info(
 					"Set st.version to 0 and st.highestUid to 0 (st.date: '{}', fromFilter: '{}', filter has changed: '{}', st.version: '{}')",
 					st.date, fromFilter, hasChanged, st.version);
 
-			st.date = new DateTime(fromFilter);
+			st.date = ZonedDateTime.ofInstant(fromFilter.toInstant(), ZoneId.systemDefault());
 			st.version = 0;
 		}
 

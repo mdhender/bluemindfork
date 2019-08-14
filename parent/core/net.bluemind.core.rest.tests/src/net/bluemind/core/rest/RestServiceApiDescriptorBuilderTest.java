@@ -71,7 +71,7 @@ public class RestServiceApiDescriptorBuilderTest {
 				assertEquals("/api/test/queryParam", bind.path);
 				assertEquals(HttpMethod.GET, bind.httpMethodName);
 			} else if (bind.getApiInterfaceName().equals("putTime")) {
-				assertEquals("/api/test/jodaTime", bind.path);
+				assertEquals("/api/test/dateTime", bind.path);
 				assertEquals(HttpMethod.PUT, bind.httpMethodName);
 			} else {
 				System.err.println("not handled method " + bind.getApiInterfaceName() + " " + bind.path);

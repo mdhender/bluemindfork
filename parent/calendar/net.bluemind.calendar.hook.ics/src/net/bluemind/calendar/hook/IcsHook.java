@@ -19,6 +19,7 @@
 package net.bluemind.calendar.hook;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,7 +39,6 @@ import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.address.Mailbox;
 import org.apache.james.mime4j.dom.address.MailboxList;
 import org.apache.james.mime4j.message.BodyPart;
-import org.joda.time.Hours;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -910,25 +910,25 @@ public class IcsHook implements ICalendarHook {
 	 * @return
 	 */
 	private boolean occursInThePast(VEvent event) {
-		org.joda.time.DateTime now = org.joda.time.DateTime.now();
+		ZonedDateTime now = ZonedDateTime.now();
 		// normally we would have to compare "now" with every attendees
 		// timezone.
 		// the -12 hours patterns enables acceptable behaviour without loading
 		// all attendees data
 		if (!new BmDateTimeWrapper(event.dtstart).containsTimeZone()) {
-			now = now.minus(Hours.hours(12));
+			now = now.minusHours(12);
 		}
 		if (event.rrule == null && event.dtend != null
-				&& new BmDateTimeWrapper(event.dtend).toJodaTime().isBefore(now)) {
+				&& new BmDateTimeWrapper(event.dtend).toDateTime().isBefore(now)) {
 			return true;
 		}
 
-		if (event.rrule == null && new BmDateTimeWrapper(event.dtstart).toJodaTime().isBefore(now)) {
+		if (event.rrule == null && new BmDateTimeWrapper(event.dtstart).toDateTime().isBefore(now)) {
 			return true;
 		}
 
 		if (event.rrule != null && event.rrule.until != null
-				&& new BmDateTimeWrapper(event.rrule.until).toJodaTime().isBefore(now)) {
+				&& new BmDateTimeWrapper(event.rrule.until).toDateTime().isBefore(now)) {
 			return true;
 		}
 

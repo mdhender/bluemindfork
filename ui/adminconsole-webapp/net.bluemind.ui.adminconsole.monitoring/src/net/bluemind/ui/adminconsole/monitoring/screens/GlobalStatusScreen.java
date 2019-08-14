@@ -26,8 +26,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -194,9 +192,8 @@ public class GlobalStatusScreen extends Composite implements IGwtScreenRoot {
 
 			@Override
 			public void success(SubscriptionInformations value) {
-				subscriptionExpDate.getElement().setInnerHTML(
-						text.subscriptionExpDateLabel() + ": " + (value.ends == null ? text.noSubscription()
-								: DateTimeFormat.getFormat(PredefinedFormat.DATE_LONG).format(value.ends)));
+				subscriptionExpDate.getElement().setInnerHTML(text.subscriptionExpDateLabel() + ": "
+						+ (value.ends == null ? text.noSubscription() : value.ends.toString()));
 			}
 
 		});
@@ -266,5 +263,4 @@ public class GlobalStatusScreen extends Composite implements IGwtScreenRoot {
 
 		this.listBox.filterView(this.filters);
 	}
-
 }
