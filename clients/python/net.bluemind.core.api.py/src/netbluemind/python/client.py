@@ -37,6 +37,10 @@ class BMClient:
         from netbluemind.user.api.IUser import IUser
         return self.instance(IUser,domain)
 
+    def userSettings(self, containerUid):
+        from netbluemind.user.api.IUserSettings import IUserSettings
+        return self.instance(IUserSettings,containerUid)
+
     def groups(self, domain):
         from netbluemind.group.api.IGroup import IGroup
         return self.instance(IGroup,domain)
