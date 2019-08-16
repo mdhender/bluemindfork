@@ -517,6 +517,9 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	@Override
 	public List<ItemValue<MailboxItem>> multipleById(List<Long> ids) {
+		if (ids.size() > 500) {
+			throw new ServerFault("multipleById is limited to 500 ids per-call, you asked for " + ids.size());
+		}
 		rbac.check(Verb.Read.name());
 		List<UidRange> rangesTmp = null;
 		if (namespace == Namespace.shared) {
