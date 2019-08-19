@@ -110,6 +110,8 @@
       <plugin id="net.bluemind.webmodule.inputfilter"/>
       <plugin id="net.bluemind.webmodule.server"/>
       <plugin id="net.bluemind.webmodules.launcher"/>
+      <plugin id="net.bluemind.webmodules.vue"/>
+      <plugin id="net.bluemind.webmodules.webapp"/>
       <plugin id="net.java.dev.jna"/>
       <plugin id="net.sourceforge.nekohtml"/>
       <plugin id="org.apache.commons.codec"/>
