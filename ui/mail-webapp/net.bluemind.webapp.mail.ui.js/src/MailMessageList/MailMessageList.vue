@@ -28,9 +28,11 @@
         </bm-list-group-item>
         <bm-infinite-scroll 
             :items="messages" 
-            :position.sync="position" 
             :total="length" 
-            :item-key="'uid'" 
+            :item-key="'uid'"
+            item-size="dynamic"
+            :goto="position"
+            scrollbar
             class="h-100 bg-extra-light"
         >
             <template #item="f">
@@ -89,8 +91,7 @@ export default {
     },
     data() {
         return {
-            PAGE: PAGE_DIFF,
-            position: 0
+            PAGE: PAGE_DIFF
         };
     },
     computed: {
@@ -99,11 +100,12 @@ export default {
         ...mapState("backend.mail/items", {
             length: "count",
             selectedUid: "current"
-        })
-    },
-    watch: {
-        folder() {
-            this.position = -1;
+        }),
+        position() {
+            if (this.selectedUid) {
+                return this.indexOf(this.selectedUid);
+            }
+            return 0;
         }
     },
     methods: {
