@@ -5,6 +5,7 @@ import ServiceLocator from "@bluemind/inject";
 import uuid from "uuid/v4";
 import Message from "./Message.js";
 import { getLocalizedProperty } from "@bluemind/backend.mail.l10n";
+import { ItemFlag } from "@bluemind/core.container.api";
 
 export function $_mailrecord_changed({ dispatch }, { container }) {
     return dispatch("all", container);
@@ -13,8 +14,14 @@ export function $_mailrecord_changed({ dispatch }, { container }) {
 export function all({ commit }, folder) {
     const service = ServiceLocator.getProvider("MailboxItemsPersistance").get(folder);
     return service
-        .sortedIds({ column: "internal_date", direction: "desc" })
-        .then(uids => service.multipleById(uids))
+        .filteredChangesetById(0, { must: [], mustNot: [ ItemFlag.Deleted ] })
+        .then(result => {
+            let ids = result.created.map(itemVersion => itemVersion.id);
+            if (ids.length >= 500) {
+                ids = ids.slice(0, 499);
+            }
+            return service.multipleById(ids);
+        })
         .then(items => {
             commit("setItems", items);
             commit("setCount", items.length);
