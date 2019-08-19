@@ -58,8 +58,8 @@ export default class Message {
 
     }
 
-    toMailboxItem(addrPart, sender, senderName) {
-        return {
+    toMailboxItem(addrPart, sender, senderName, isSeen) {
+        let mailboxItem = {
             body: {
                 subject: this.subject,
                 headers: this.headers,
@@ -72,6 +72,10 @@ export default class Message {
                 }
             }
         };
+        if (isSeen) {
+            mailboxItem.systemFlags = [ SystemFlag.seen ];
+        }
+        return mailboxItem;
     }
 
     /** 

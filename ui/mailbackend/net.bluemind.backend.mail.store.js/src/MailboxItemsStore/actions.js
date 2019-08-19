@@ -175,7 +175,7 @@ export function send(payload, { message, isAReply, previousMessage, outboxUid })
         .uploadPart(message.content)
         .then(addrPart =>
             service.create(
-                new Message(message).toMailboxItem(addrPart, userSession.defaultEmail, userSession.formatedName)
+                new Message(message).toMailboxItem(addrPart, userSession.defaultEmail, userSession.formatedName, true)
             )
         )
         .then(() => outboxService.flush()); // TODO: this request returns a taskref ID, we have to track taskref state)
