@@ -132,7 +132,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		final String fnNew = newName;
 
 		if (fnOld.equals(fnNew)) {
-			logger.warn("Rename attempt to same name '{}'");
+			logger.warn("Rename attempt to same name '{}'", fnOld);
 			storeService.touch(current.uid);
 			ItemValue<MailboxFolder> touched = getCompleteById(id);
 			return Ack.create(touched.version);

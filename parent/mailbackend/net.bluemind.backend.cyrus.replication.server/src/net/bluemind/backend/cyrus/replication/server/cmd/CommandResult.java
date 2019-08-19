@@ -69,7 +69,7 @@ public class CommandResult {
 
 	public String toString() {
 		return fullResponse//
-				.map(b -> String.format("[Buffer with %d byte(s)]"))
+				.map(b -> String.format("[Buffer with %d byte(s)]", b.length()))
 				.orElseGet(() -> String.format("[%s: '%s']", getClass().getSimpleName(), responseString()));
 	}
 
