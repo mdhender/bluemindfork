@@ -8,5 +8,6 @@
     "common.attachments": "1 attachment | {count} attachments",
     "common.save_all": "Save all",
     "common.alert.message.sent.ok": "<i>\"{subject}\"</i> successfuly sent !",
-    "common.alert.message.sent.error": "<i>\"{subject}\"</i> has not been sent.<br>{reason}"
+    "common.alert.message.sent.error": "<i>\"{subject}\"</i> has not been sent.<br>{reason}",
+    "common.toggleAttachments": "Display/hide attachments"
 }

@@ -45,7 +45,7 @@ export function select({ state, commit, getters, dispatch }, { folder, uid }) {
         chosenParts = processBeforeDisplay(state, uid, chosenParts);
 
         // 6) Add attachments
-        setAttachments(commit, dispatch, folder, uid, result.attachments).then(() =>
+        return setAttachments(commit, dispatch, folder, uid, result.attachments).then(() =>
             // 7) Render the parts
             displayParts(commit, uid, chosenParts)
         );
@@ -65,7 +65,7 @@ function visitParts(getters, uid) {
 function setAttachments(commit, dispatch, folder, uid, attachments) {
     let promises = attachments
         .filter(a => MimeType.previewAvailable(a.mime))
-        .map(part => dispatch("fetch", { folder, uid, part }));
+        .map(part => dispatch("fetch", { folder, uid, part, isAttachment: true }));
 
     return Promise.all(promises).then(commit("setAttachments", attachments));
 }
@@ -101,7 +101,7 @@ function choosePartsToDisplay(partsByCapabilities) {
  */
 function fetchParts(state, commit, folder, uid, dispatch, partsToFetch) {
     // use mailbackend to fetch parts
-    let promises = partsToFetch.map(part => dispatch("fetch", { folder, uid, part }));
+    let promises = partsToFetch.map(part => dispatch("fetch", { folder, uid, part, isAttachment: false }));
     return Promise.all(promises).catch(reason => {
         commit("alert/add", { uid: uuid(), type: "danger", message: "Failed to read mail " + reason });
     });
@@ -133,10 +133,10 @@ function displayParts(commit, uid, partsToDisplay) {
     commit("setPartsToDisplay", partsToDisplay);
 }
 
-export function fetch({ state }, { folder, uid, part }) {
+export function fetch({ state }, { folder, uid, part, isAttachment }) {
     const item = state.items.find(item => item.uid == uid);
     let encoding = part.encoding;
-    if (MimeType.isImage(part)) {
+    if (isAttachment || MimeType.isImage(part)) {
         encoding = null;
     }
     return ServiceLocator.getProvider("MailboxItemsPersistance")

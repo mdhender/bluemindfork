@@ -9,6 +9,7 @@ export default class GetAttachmentPartsVisitor {
         if (PartsHelper.isAttachment(part)) {
             this.results.push({
                 address: part.address,
+                charset: part.charset,
                 filename: part.fileName,
                 encoding: part.encoding,
                 mime: part.mime,

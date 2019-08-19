@@ -5,17 +5,29 @@
                 <img :src="preview" class="w-100 preview">
             </bm-col>
         </bm-row>
-        <bm-row>
-            <bm-col class="p-2 col-auto">
-                <bm-icon :icon="fileTypeIcon" size="lg" />
+        <bm-row class="p-2">
+            <bm-col class="col-auto pl-0">
+                <bm-icon :icon="fileTypeIcon" size="lg" class="align-bottom" />
             </bm-col>
-            <bm-col class="p-2 text-nowrap text-truncate flex-grow-1">
-                <span class="font-weight-bold">{{ attachment.filename }}</span>
+            <bm-col class="text-nowrap text-truncate flex-grow-1">
+                <span 
+                    v-bm-tooltip.hover.d500
+                    :title="attachment.filename"
+                    class="font-weight-bold"
+                >
+                    {{ attachment.filename }}
+                </span>
                 <br>
                 {{ fileSize }}
             </bm-col>
-            <bm-col class="py-1 px-2 col-auto my-auto">
-                <bm-button variant="light" class="p-1" size="lg" @click="save">
+            <bm-col class="col-auto pr-0">
+                <bm-button 
+                    variant="light"
+                    class="p-2 h-100"
+                    size="lg"
+                    :aria-label="$tc('commons.downloadAttachement')" 
+                    @click="save"
+                >
                     <bm-icon icon="download" size="lg" />
                 </bm-button>
             </bm-col>
@@ -24,7 +36,8 @@
 </template>
 
 <script>
-import { BmButton, BmCol, BmContainer, BmIcon, BmRow } from "@bluemind/styleguide";
+import { BmButton, BmCol, BmContainer, BmIcon, BmRow, BmTooltip } from "@bluemind/styleguide";
+import { mapActions, mapGetters, mapState } from "vuex";
 import { MimeType } from "@bluemind/email";
 
 function roundTo1Decimal(number) {
@@ -40,6 +53,7 @@ export default {
         BmIcon,
         BmRow
     },
+    directives: { BmTooltip },
     props: {
         attachment: {
             type: Object,
@@ -47,6 +61,8 @@ export default {
         }
     },
     computed: {
+        ...mapGetters("backend.mail/folders", { folder: "currentFolder" }),
+        ...mapState("backend.mail/items", { mailUid: "current" }),
         fileTypeIcon() {
             return MimeType.matchingIcon(this.attachment.mime);
         },
@@ -70,8 +86,26 @@ export default {
         }
     },
     methods: {
+        ...mapActions("backend.mail/items", ["fetch"]),
         save() {
-            // TODO
+            // attachment content may be already fetched (if preview is available), if no we must fetch it
+            if (this.attachment.content) {
+                this.triggerDownload();
+            } else {
+                this.fetch({ folder: this.folder, uid: this.mailUid, part: this.attachment, isAttachment: true })
+                    .then(() => this.triggerDownload());
+            }
+        },
+        triggerDownload() {
+            let element = document.createElement('a');
+            element.style.display = 'none';
+            element.setAttribute('download', this.attachment.filename);
+            element.setAttribute('href', "data:" + this.attachment.mime + ";base64, " + this.attachment.content);
+            document.body.appendChild(element);
+
+            element.click();
+
+            document.body.removeChild(element);
         }
     }
 };
