@@ -1,6 +1,6 @@
 <template>
     <bm-form class="mail-message-new mt-3 px-3">
-        <bm-panel :title="panelTitle" @remove="close">
+        <bm-panel :title="panelTitle" :closeable="false">
             <template #body>
                 <bm-row class="align-items-center">
                     <bm-col cols="11">
@@ -25,7 +25,7 @@
                         </bm-button>
                     </bm-col>
                 </bm-row>
-                <hr class="mt-0 mb-2" />
+                <hr class="mt-0 mb-2">
 
                 <bm-row v-if="mode_ > modes.TO">
                     <bm-col cols="11">
@@ -49,7 +49,7 @@
                         </bm-button>
                     </bm-col>
                 </bm-row>
-                <hr v-if="mode_ > modes.TO" class="mt-0 mb-2" />
+                <hr v-if="mode_ > modes.TO" class="mt-0 mb-2">
 
                 <bm-contact-input
                     v-if="mode_ == (modes.TO | modes.CC | modes.BCC)"
@@ -59,7 +59,7 @@
                 >
                     {{ $t("common.bcc") }}
                 </bm-contact-input>
-                <hr v-if="mode_ == (modes.TO | modes.CC | modes.BCC)" class="mt-0" />
+                <hr v-if="mode_ == (modes.TO | modes.CC | modes.BCC)" class="mt-0">
 
                 <bm-form-input
                     v-model="message_.subject"
@@ -69,7 +69,7 @@
                     @keydown.enter.native.prevent
                 />
                 <bm-row class="d-block">
-                    <hr class="bg-dark mt-1 mb-1" />
+                    <hr class="bg-dark mt-1 mb-1">
                 </bm-row>
                 <bm-form-group>
                     <bm-form-textarea
