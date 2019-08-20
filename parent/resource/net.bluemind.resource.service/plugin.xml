@@ -46,6 +46,12 @@
             impl="net.bluemind.resource.service.event.ResourceCalendarHook">
       </hook>
    </extension>
+    <extension
+          point="net.bluemind.resource.helper">
+       <templatehelper
+             impl="net.bluemind.resource.service.ResourceTemplateHelper">
+       </templatehelper>
+    </extension>
    
 
 </plugin>

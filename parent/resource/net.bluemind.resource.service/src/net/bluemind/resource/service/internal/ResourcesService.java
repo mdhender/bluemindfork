@@ -58,11 +58,16 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.MailFilter.Rule;
 import net.bluemind.mailbox.service.IInCoreMailboxes;
+import net.bluemind.resource.api.EventInfo;
 import net.bluemind.resource.api.IResources;
 import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.resource.api.type.IResourceTypes;
 import net.bluemind.resource.api.type.ResourceTypeDescriptor;
+import net.bluemind.resource.helper.IResourceTemplateHelper;
+import net.bluemind.resource.helper.ResourceTemplateHelpers;
 import net.bluemind.role.api.BasicRoles;
+import net.bluemind.user.api.IUser;
+import net.bluemind.user.api.IUserSettings;
 
 public class ResourcesService implements IResources {
 	final static Logger logger = LoggerFactory.getLogger(ResourcesService.class);
@@ -79,6 +84,9 @@ public class ResourcesService implements IResources {
 	private IInCoreMailboxes mailboxes;
 
 	private ResourceMailboxAdapter mailboxAdapter;
+	private IUser userService;
+	private IUserSettings userSettingsService;
+	private static final IResourceTemplateHelper RESOURCE_TEMPLATE_HELPER = ResourceTemplateHelpers.getInstance();
 
 	public ResourcesService(BmContext context, ItemValue<Domain> domain, Container resourcesContainer)
 			throws ServerFault {
@@ -96,6 +104,8 @@ public class ResourcesService implements IResources {
 
 		mailboxAdapter = new ResourceMailboxAdapter();
 
+		this.userService = context.su().provider().instance(IUser.class, domainUid);
+		this.userSettingsService = context.su().provider().instance(IUserSettings.class, domainUid);
 	}
 
 	@Override
@@ -335,6 +345,28 @@ public class ResourcesService implements IResources {
 	public List<String> byType(String typeUid) throws ServerFault {
 		rbacManager.check(Verb.Read.name(), BasicRoles.ROLE_MANAGER);
 		return storeService.findByType(typeUid);
+	}
+
+	@Override
+	public String addToEventDescription(final String resourceUid, final EventInfo eventInfo) {
+		if (!RESOURCE_TEMPLATE_HELPER.containsTemplate(eventInfo.getDescription(), resourceUid)) {
+			final String descForCalEvent = this.buildDescForCalEvent(resourceUid, eventInfo.getOrganizerUid());
+			return RESOURCE_TEMPLATE_HELPER.addTemplate(eventInfo.getDescription(), descForCalEvent);
+		} else {
+			return eventInfo.getDescription();
+		}
+	}
+
+	@Override
+	public String removeFromEventDescription(String resourceUid, final EventInfo eventInfo) {
+		return RESOURCE_TEMPLATE_HELPER.removeTemplate(eventInfo.getDescription(), resourceUid);
+	}
+
+	/** Build a piece of description using the resource's template - if any. */
+	private String buildDescForCalEvent(final String resourceUid, final String origanizerUid) {
+		final String organizerName = this.userService.getVCard(origanizerUid).identification.formatedName.value;
+		final String organizerLanguage = this.userSettingsService.get(origanizerUid).get("lang");
+		return RESOURCE_TEMPLATE_HELPER.processTemplate(this.domainUid, resourceUid, organizerLanguage, organizerName);
 	}
 
 }

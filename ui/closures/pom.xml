@@ -58,6 +58,8 @@
 		<module>net.bluemind.webmail.banner.closure</module>
 		<module>net.bluemind.databases.utils</module>
 		<module>net.bluemind.announcement.api.closure</module>
+		<module>net.bluemind.resource.api.closure</module>
+		<module>net.bluemind.resource.closure</module>
 	</modules>
 	<build>
 		<plugins>

@@ -33,4 +33,6 @@
    <bundle id="net.bluemind.announcement.api.closure" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.todolist.closure" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.todolist.api.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.resource.api.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.resource.closure" version="4.1.0.qualifier"/>
 </site>

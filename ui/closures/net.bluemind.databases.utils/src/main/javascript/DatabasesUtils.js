@@ -31,6 +31,7 @@ goog.require("net.bluemind.addressbook.persistance.schema");
 goog.require("net.bluemind.todolist.persistance.schema");
 goog.require("net.bluemind.calendar.persistance.schema");
 goog.require("net.bluemind.authentication.schema");
+goog.require("net.bluemind.resource.persistance.schema");
 goog.require("net.bluemind.mvp.ApplicationContext");
 goog.require("net.bluemind.persistance.DatabaseService");
 goog.require('net.bluemind.mvp.Application');
@@ -79,7 +80,10 @@ net.bluemind.databases.DatabasesUtils.prototype.reset = function() {
     }, {
       name : 'auth',
       schema : net.bluemind.authentication.schema
-    } ]);
+    }, {
+        name : 'resources',
+        schema : net.bluemind.resource.persistance.schema
+      } ]);
   }, null, this).then(function() {
     service.clearAll();
   });

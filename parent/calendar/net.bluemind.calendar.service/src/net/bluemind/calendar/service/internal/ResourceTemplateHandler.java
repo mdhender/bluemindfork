@@ -17,16 +17,10 @@
   */
 package net.bluemind.calendar.service.internal;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Optional;
 
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventSeries;
@@ -38,11 +32,9 @@ import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.CUType;
 import net.bluemind.icalendar.api.ICalendarElement.Organizer;
-import net.bluemind.resource.api.IResources;
-import net.bluemind.resource.api.ResourceDescriptor;
-import net.bluemind.resource.api.type.IResourceTypes;
 import net.bluemind.resource.api.type.ResourceTypeDescriptor;
-import net.bluemind.resource.api.type.ResourceTypeDescriptor.Property;
+import net.bluemind.resource.helper.IResourceTemplateHelper;
+import net.bluemind.resource.helper.ResourceTemplateHelpers;
 import net.bluemind.user.api.IUserSettings;
 
 /**
@@ -66,21 +58,16 @@ import net.bluemind.user.api.IUserSettings;
  * <li>the variables are defined in
  * {@link ResourceTypeDescriptor#properties}</li>
  * </ul>
+ * 
+ * @see ResourceTemplateHelper
  */
 public final class ResourceTemplateHandler {
-	private static final String TEMPLATE_HTML_TAG = "<resourcetemplate />";
-	private static final Pattern TEMPLATE_HTML_TAG_PATTERN = Pattern.compile("<\\s*resourcetemplate\\s*/?>");
-	private static final String PROPERTIES_SEPARATOR = "\n";
-	private static final String PROPERTIES_LOCALIZATION_SEPARATOR = "::";
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceTemplateHandler.class);
-	// note: '[\p{L}\p{N}_]' is the unicode alternative of '\w' (matches characters
-	// with accents)
-	private static final Pattern TEMPLATE_VARIABLES_PATTERN = Pattern.compile("\\$\\{([\\p{L}\\p{N}_\\s]+)\\}");
-	private static final String DEFAULT_LANGUAGE_TAG = "fr";
+	private static final IResourceTemplateHelper RESOURCE_TEMPLATE_HELPER = ResourceTemplateHelpers.getInstance();
 
 	/**
-	 * Process resources templates, if any, of a newly created event. Then append
-	 * the result to the event description.
+	 * Process resources templates, if any, of a newly created event. Then
+	 * append the result to the event description.
 	 */
 	public void handleCreatedEvent(final VEventSeries vEventSeries, final String domainUid) {
 		final long start = System.currentTimeMillis();
@@ -111,7 +98,7 @@ public final class ResourceTemplateHandler {
 	public void handleDeletedResources(final VEvent vEvent, final List<Attendee> deletedAttendees) {
 		final long start = System.currentTimeMillis();
 		deletedAttendees.stream().filter(this::isResource).forEach(resourceAttendee -> {
-			this.removeFromDescription(vEvent);
+			this.removeFromDescription(vEvent, resourceAttendee);
 		});
 		LOGGER.debug("Handled resource template in {}ms (handleDeletedResources)", System.currentTimeMillis() - start);
 	}
@@ -122,41 +109,26 @@ public final class ResourceTemplateHandler {
 
 	/**
 	 * Detect attendee of kind 'resource', then pick a localized template, then
-	 * transform it using {@link ResourceTypeDescriptor#properties}, then add it to
-	 * the event description.
+	 * transform it using {@link ResourceTypeDescriptor#properties}, then add it
+	 * to the event description.
 	 */
 	private void addToDescription(final VEvent vEvent, final Attendee resourceAttendee, final String domainUid) {
-		final Optional<String> resourceId = this.toResourceId(resourceAttendee);
-		if (!resourceId.isPresent()) {
-			throw new ServerFault(
-					String.format("Attendee identifier not found: %s", JsonUtils.asString(resourceAttendee)));
-		}
-		final IServiceProvider provider = this.provider();
-		final ResourceDescriptor resourceDescriptor = provider.instance(IResources.class, domainUid)
-				.get(resourceId.get());
-		final IResourceTypes resourceTypeService = provider.instance(IResourceTypes.class, domainUid);
-		final ResourceTypeDescriptor resourceTypeDescriptor = resourceTypeService
-				.get(resourceDescriptor.typeIdentifier);
-		if (resourceTypeDescriptor.templates != null && !resourceTypeDescriptor.templates.isEmpty()) {
-			// this is the organizer's language that is used for the template
-			final String localeLanguageTag = this.organizerLanguage(vEvent, domainUid);
-			final String descriptionToAdd = this.processTemplate(resourceTypeDescriptor, resourceDescriptor,
-					localeLanguageTag, vEvent);
-			// append the result of the template to the event's description. Avoid to add it
-			// multiple times (in case of an update).
-			if (!vEvent.description.contains(descriptionToAdd)) {
-				vEvent.description += TEMPLATE_HTML_TAG;
-				vEvent.description += descriptionToAdd;
-			}
+		final String resourceId = this.toResourceId(resourceAttendee);
+		final String localeLanguageTag = this.organizerLanguage(vEvent, domainUid);
+		final String organizerName = vEvent.organizer.commonName;
+		final String descriptionToAdd = RESOURCE_TEMPLATE_HELPER.processTemplate(domainUid, resourceId,
+				localeLanguageTag, organizerName);
+		// append the result of the template to the event's description
+		// avoid to add it multiple times (in case of an update)
+		if (!RESOURCE_TEMPLATE_HELPER.containsTemplate(vEvent.description, resourceId)) {
+			vEvent.description = RESOURCE_TEMPLATE_HELPER.addTemplate(vEvent.description, descriptionToAdd);
 		}
 	}
 
-	/** Remove all transformed templates from the description. */
-	private void removeFromDescription(final VEvent vEvent) {
-		final Matcher matcher = TEMPLATE_HTML_TAG_PATTERN.matcher(vEvent.description);
-		if (matcher.find()) {
-			vEvent.description = vEvent.description.substring(0, matcher.start());
-		}
+	/** Remove the transformed template from the description. */
+	private void removeFromDescription(final VEvent vEvent, final Attendee resourceAttendee) {
+		final String resourceId = this.toResourceId(resourceAttendee);
+		vEvent.description = RESOURCE_TEMPLATE_HELPER.removeTemplate(vEvent.description, resourceId);
 	}
 
 	private String organizerLanguage(final VEvent vEvent, final String domainUid) {
@@ -166,12 +138,19 @@ public final class ResourceTemplateHandler {
 		return userSettingsService.get(userId).get("lang");
 	}
 
-	private Optional<String> toResourceId(final Attendee resourceAttendee) {
+	private String toResourceId(final Attendee resourceAttendee) {
 		String resourceId = this.pathToId(resourceAttendee.dir);
+
 		if (resourceId == null) {
 			resourceId = this.pathToId(resourceAttendee.uri);
 		}
-		return Optional.fromNullable(resourceId);
+
+		if (resourceId == null) {
+			throw new ServerFault(
+					String.format("Attendee identifier not found: %s", JsonUtils.asString(resourceAttendee)));
+		}
+
+		return resourceId;
 	}
 
 	private String pathToId(final String path) {
@@ -180,97 +159,6 @@ public final class ResourceTemplateHandler {
 
 	private IServiceProvider provider() {
 		return ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-	}
-
-	/**
-	 * Replace the template variables using
-	 * {@link ResourceTypeDescriptor#properties}.
-	 */
-	private String processTemplate(final ResourceTypeDescriptor resourceTypeDescriptor,
-			final ResourceDescriptor resourceDescriptor, final String localeLanguageTag, final VEvent vEvent) {
-		final String template = this.localizedTemplate(resourceTypeDescriptor, localeLanguageTag);
-		String result = template;
-		final Matcher matcher = TEMPLATE_VARIABLES_PATTERN.matcher(template);
-		final Map<String, String> props = this.mapOfProps(resourceTypeDescriptor, resourceDescriptor, vEvent);
-		while (matcher.find()) {
-			final String propertyName = matcher.group(1);
-			final String propertyValue = props.get(propertyName);
-			if (propertyValue != null) {
-				result = result.replaceAll(String.format("\\$\\{%s\\}", propertyName), propertyValue);
-			}
-		}
-
-		// remove lines having not-replaced variables
-		final StringBuilder filteredResult = new StringBuilder();
-		int index = 0;
-		final String[] resultLines = result.split("\\n");
-		for (final String resultLine : resultLines) {
-			if (!TEMPLATE_VARIABLES_PATTERN.matcher(resultLine).find()) {
-				filteredResult.append(resultLine);
-				if (index != resultLines.length - 1) {
-					filteredResult.append('\n');
-				}
-			}
-			index++;
-		}
-		result = filteredResult.toString();
-
-		return result;
-	}
-
-	/** Retrieve the template corresponding to the given locale. */
-	private String localizedTemplate(final ResourceTypeDescriptor resourceTypeDescriptor, String localeLanguageTag) {
-		if (localeLanguageTag == null || localeLanguageTag.isEmpty()) {
-			localeLanguageTag = DEFAULT_LANGUAGE_TAG;
-		}
-		String result = resourceTypeDescriptor.templates.get(localeLanguageTag);
-		if (result == null) {
-			// fallback (to any template found)
-			result = resourceTypeDescriptor.templates.values().iterator().next();
-		}
-		return result;
-	}
-
-	/**
-	 * Build the map of properties keyed by their localized labels (i.e.: one
-	 * property value mays have 2 entries if 2 locales exist). Also add special
-	 * properties, like the name of the event organizer.<br>
-	 * <br>
-	 * Property key sample:
-	 * 
-	 * <pre>
-	 * fr::MaClefDePropEnFrancais\nen::MyEnglishPropKey
-	 * </pre>
-	 */
-	private Map<String, String> mapOfProps(final ResourceTypeDescriptor resourceTypeDescriptor,
-			final ResourceDescriptor resourceDescriptor, final VEvent vEvent) {
-		final Map<String, String> result = new HashMap<>();
-
-		resourceDescriptor.properties.forEach(prop -> {
-			final Property p = resourceTypeDescriptor.property(prop.propertyId);
-			final String[] labels = p.label.split(PROPERTIES_SEPARATOR);
-			for (final String label : labels) {
-				result.put(label.substring(
-						label.indexOf(PROPERTIES_LOCALIZATION_SEPARATOR) + PROPERTIES_LOCALIZATION_SEPARATOR.length()),
-						prop.value);
-			}
-		});
-
-		// add common variables FIXME handle localization correctly
-		result.put("Organisateur", vEvent.organizer.commonName);
-		result.put("Organizer", vEvent.organizer.commonName);
-		result.put("NomRessource", resourceDescriptor.label);
-		result.put("ResourceName", resourceDescriptor.label);
-
-		return result;
-	}
-
-	/**
-	 * @return the separator between the already existing description and the
-	 *         transformed template
-	 */
-	public static String separator() {
-		return TEMPLATE_HTML_TAG;
 	}
 
 }

@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Api
-Bundle-SymbolicName: net.bluemind.resource.api
+Bundle-SymbolicName: net.bluemind.resource.api;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Export-Package: net.bluemind.resource.api,
  net.bluemind.resource.api.type

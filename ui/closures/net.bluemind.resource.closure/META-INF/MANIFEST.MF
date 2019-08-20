@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.resource.closure
+Bundle-SymbolicName: net.bluemind.resource.closure;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: blue-mind.net
+Bundle-ClassPath: js.jar
+Closure-Bundle-Type: Library
+Require-Bundle: net.bluemind.container.closure;bundle-version="1.0.0",
+ net.bluemind.resource.api.closure;bundle-version="1.0.0",
+ net.bluemind.core.container.api.closure;bundle-version="1.0.0",
+ net.bluemind.commons.closure;bundle-version="1.0.0"
+Automatic-Module-Name: net.bluemind.resource.closure

@@ -147,6 +147,7 @@ net.bluemind.calendar.vevent.ac.AttendeeMatcher.prototype.requestMatchingRows = 
       .then(function(res) {
         var attendees = [];
         goog.array.forEach(res, function(vcard) {
+        	
           var ret = {
             'cutype' : null,
             'commonName' : vcard['value']['identification']['formatedName']['value'],

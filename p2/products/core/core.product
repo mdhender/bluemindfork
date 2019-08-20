@@ -305,6 +305,7 @@
       <plugin id="net.bluemind.resource.persistance"/>
       <plugin id="net.bluemind.resource.service"/>
       <plugin id="net.bluemind.resource.sqlschema"/>
+      <plugin id="net.bluemind.resource.helper"/>
       <plugin id="net.bluemind.role.api"/>
       <plugin id="net.bluemind.role.persistence"/>
       <plugin id="net.bluemind.role.provider"/>

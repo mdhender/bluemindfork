@@ -92,6 +92,12 @@ goog.require("net.bluemind.tag.sync.UnitaryTagSync");
 goog.require("net.bluemind.todolist.service.TodolistsSyncManager");
 goog.require("net.bluemind.calendar.service.CalendarsSyncManager");
 goog.require("net.bluemind.calendar.PendingEventsMgmt");
+goog.require("net.bluemind.resource.persistance.schema");
+goog.require("net.bluemind.resource.sync.ResourcesSync");
+goog.require("net.bluemind.resource.sync.UnitaryResourcesSync");
+goog.require("net.bluemind.resource.sync.ResourcesClientSync");
+goog.require('net.bluemind.resource.service.ResourcesService');
+
 /**
  * Calendar application
  * 
@@ -286,7 +292,7 @@ net.bluemind.calendar.CalendarApplication.prototype.registerServices = function(
   ctx.service("todolists-sync-manager", net.bluemind.todolist.service.TodolistsSyncManager);
   ctx.service("metadataMgmt", net.bluemind.calendar.MetadataMgmt);
   ctx.service("pendingEventsMgmt", net.bluemind.calendar.PendingEventsMgmt);
-
+  ctx.service("resources", net.bluemind.resource.service.ResourcesService);
 };
 
 /** @override */
@@ -298,25 +304,28 @@ net.bluemind.calendar.CalendarApplication.prototype.registerHelpers = function(c
 
 /** @override */
 net.bluemind.calendar.CalendarApplication.prototype.getDbSchemas = function(ctx) {
-  var root = goog.base(this, 'getDbSchemas', ctx);
-  return goog.array.concat(root, [ {
-    name : 'tag',
-    schema : net.bluemind.container.persistance.schema,
-    options : net.bluemind.container.persistance.options
-  }, {
-    name : 'folder',
-    schema : net.bluemind.folder.persistance.schema
-  }, {
-    name : 'contact',
-    schema : net.bluemind.addressbook.persistance.schema
-  }, {
-    name : 'calendarview',
-    schema : net.bluemind.container.persistance.schema
-  }, {
-    name : 'calendar',
-    schema : net.bluemind.calendar.persistance.schema
-  }, {
-    name : 'todolist',
-    schema : net.bluemind.todolist.persistance.schema
-  } ]);
+	var root = goog.base(this, 'getDbSchemas', ctx);
+	return goog.array.concat(root, [ {
+		name : 'tag',
+		schema : net.bluemind.container.persistance.schema,
+		options : net.bluemind.container.persistance.options
+	}, {
+		name : 'folder',
+		schema : net.bluemind.folder.persistance.schema
+	}, {
+		name : 'contact',
+		schema : net.bluemind.addressbook.persistance.schema
+	}, {
+		name : 'calendarview',
+		schema : net.bluemind.container.persistance.schema
+	}, {
+		name : 'calendar',
+		schema : net.bluemind.calendar.persistance.schema
+	}, {
+		name : 'todolist',
+		schema : net.bluemind.todolist.persistance.schema
+	}, {
+		name : 'resources',
+		schema : net.bluemind.resource.persistance.schema
+	} ]);
 };

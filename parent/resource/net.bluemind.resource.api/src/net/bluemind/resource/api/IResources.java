@@ -33,6 +33,7 @@ import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.resource.api.type.ResourceTypeDescriptor;
 
 /**
  * Resources API. Resources are used, for example, to create an entity like a
@@ -51,9 +52,12 @@ public interface IResources {
 	/**
 	 * Creates a {@link ResourceDescriptor}.
 	 * 
-	 * @param uid                { @link ResourceDescriptor } unique id
-	 * @param resourceDescriptor { {@link ResourceDescriptor }
-	 * @throws ServerFault standard error object
+	 * @param uid
+	 *            { @link ResourceDescriptor } unique id
+	 * @param resourceDescriptor
+	 *            { {@link ResourceDescriptor }
+	 * @throws ServerFault
+	 *             standard error object
 	 */
 	@PUT
 	@Path("{uid}")
@@ -62,9 +66,12 @@ public interface IResources {
 	/**
 	 * Modify an existing {@link ResourceDescriptor}.
 	 * 
-	 * @param uid                { @link ResourceDescriptor } unique id
-	 * @param resourceDescriptor updated { {@link ResourceDescriptor }
-	 * @throws ServerFault standard error object
+	 * @param uid
+	 *            { @link ResourceDescriptor } unique id
+	 * @param resourceDescriptor
+	 *            updated { {@link ResourceDescriptor }
+	 * @throws ServerFault
+	 *             standard error object
 	 */
 	@POST
 	@Path("{uid}")
@@ -73,8 +80,10 @@ public interface IResources {
 	/**
 	 * Delete an existing {@link ResourceDescriptor}.
 	 * 
-	 * @param uid { @link ResourceDescriptor } unique id
-	 * @throws ServerFault standard error object
+	 * @param uid
+	 *            { @link ResourceDescriptor } unique id
+	 * @throws ServerFault
+	 *             standard error object
 	 */
 	@DELETE
 	@Path("{uid}")
@@ -83,10 +92,12 @@ public interface IResources {
 	/**
 	 * Fetch an existing {@link ResourceDescriptor} by its unique id.
 	 * 
-	 * @param uid { @link ResourceDescriptor } unique id
-	 * @return {@link ResourceDescriptor}, or null if the {@link ResourceDescriptor}
-	 *         does not exist
-	 * @throws ServerFault standard error object
+	 * @param uid
+	 *            { @link ResourceDescriptor } unique id
+	 * @return {@link ResourceDescriptor}, or null if the
+	 *         {@link ResourceDescriptor} does not exist
+	 * @throws ServerFault
+	 *             standard error object
 	 */
 	@GET
 	@Path("{uid}")
@@ -95,10 +106,12 @@ public interface IResources {
 	/**
 	 * Fetch a {@link ResourceDescriptor} icon.
 	 * 
-	 * @param uid { @link ResourceDescriptor } unique id
+	 * @param uid
+	 *            { @link ResourceDescriptor } unique id
 	 * @return icon binary data (png format) or null if the
 	 *         {@link ResourceDescriptor} does not exist
-	 * @throws ServerFault standard error object
+	 * @throws ServerFault
+	 *             standard error object
 	 */
 	@GET
 	@Path("{uid}/icon")
@@ -108,9 +121,12 @@ public interface IResources {
 	/**
 	 * Set a {@link ResourceDescriptor} icon.
 	 * 
-	 * @param uid  { @link ResourceDescriptor } unique id
-	 * @param icon icon binary data (png format)
-	 * @throws ServerFault standard error object
+	 * @param uid
+	 *            { @link ResourceDescriptor } unique id
+	 * @param icon
+	 *            icon binary data (png format)
+	 * @throws ServerFault
+	 *             standard error object
 	 */
 	@POST
 	@Path("{uid}/icon")
@@ -120,11 +136,13 @@ public interface IResources {
 	/**
 	 * Fetch an existing {@link ResourceDescriptor} by its email.
 	 * 
-	 * @param email { @link ResourceDescriptor } email
+	 * @param email
+	 *            { @link ResourceDescriptor } email
 	 * @return {@link ResourceDescriptor}
 	 *         {@link net.bluemind.core.container.api.ItemValue}, or null if the
 	 *         {@link ResourceDescriptor} does not exist
-	 * @throws ServerFault standard error object
+	 * @throws ServerFault
+	 *             standard error object
 	 */
 	@GET
 	@Path("byEmail/{email}")
@@ -133,14 +151,51 @@ public interface IResources {
 	/**
 	 * List all {@link ResourceDescriptor} by type.
 	 * 
-	 * @param typeUid { @link net.bluemind.resource.api.type.ResourceType } unique
-	 *                id
-	 * @return list of {@link ResourceDescriptor} uids or null if the type does not
-	 *         exists or if there are no {@link ResourceDescriptor} matching.
-	 * @throws ServerFault standard error object
+	 * @param typeUid
+	 *            { @link net.bluemind.resource.api.type.ResourceType } unique
+	 *            id
+	 * @return list of {@link ResourceDescriptor} uids or null if the type does
+	 *         not exists or if there are no {@link ResourceDescriptor}
+	 *         matching.
+	 * @throws ServerFault
+	 *             standard error object
 	 */
 	@GET
 	@Path("byType/{type}")
 	public List<String> byType(@PathParam("type") String typeUid) throws ServerFault;
+
+	/**
+	 * Compute the transformed template associated to the given resource if any,
+	 * then append it to the given <code>eventDescription</code>.
+	 * 
+	 * @see ResourceTypeDescriptor#templates
+	 * @param resourceUid
+	 *            the identifier of {@link ResourceDescriptor}
+	 * @param organizer
+	 *            the organizer of the calendar event
+	 * 
+	 * @return the modified - or not - <code>eventDescription</code>
+	 * @throws ServerFault
+	 *             standard error object
+	 */
+	@POST
+	@Path("{uid}/addToEventDesc")
+	public String addToEventDescription(@PathParam("uid") String resourceUid, EventInfo eventInfo) throws ServerFault;
+
+	/**
+	 * Remove the transformed template associated to the given resource from the
+	 * given <code>eventDescription</code>.
+	 * 
+	 * @see ResourceTypeDescriptor#templates
+	 * @param resourceUid
+	 *            the identifier of {@link ResourceDescriptor}
+	 * @return the modified - or not - <code>eventDescription</code>
+	 * @throws ServerFault
+	 *             standard error object
+	 */
+	@POST
+	@Path("{uid}/removeFromEventDesc")
+	public String removeFromEventDescription(@PathParam("uid") String resourceUid, EventInfo eventInfo)
+			throws ServerFault;
 
 }

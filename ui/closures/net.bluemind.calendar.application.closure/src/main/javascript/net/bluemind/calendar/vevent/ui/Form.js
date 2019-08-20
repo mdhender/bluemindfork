@@ -2206,6 +2206,11 @@ net.bluemind.calendar.vevent.ui.Form.prototype.handleAddAttendee_ = function(e) 
       // default participation => RequiredParticipant
       attendee['role'] = 'RequiredParticipant';
       this.addAttendee_(attendee);
+
+      if(attendee['cutype'] == "Resource") {
+    	  this.addResourceTemplateToDescription(attendee);
+      }
+
       this.getModel().attendees.push(attendee);
     }, this);
     this.ac_.setAttendees(this.getModel().attendees);
@@ -2230,6 +2235,10 @@ net.bluemind.calendar.vevent.ui.Form.prototype.handleRemoveAttendee_ = function(
   });
   this.ac_.setAttendees(this.getModel().attendees);
   this.ac_.sanitizeGroups(attendee);
+  
+  if(attendee['cutype'] == "Resource") {
+	this.removeResourceTemplateFromDescription(attendee);
+  }
 };
 
 /**
@@ -2263,6 +2272,36 @@ net.bluemind.calendar.vevent.ui.Form.prototype.addAttendee_ = function(attendee)
     goog.style.setElementShown(remove, false);
   }
 };
+
+/** Request the computing of a resource template if any and add it to the event description if not already done. */
+net.bluemind.calendar.vevent.ui.Form.prototype.addResourceTemplateToDescription = function (attendee) {
+  this.addOrRemoveResourceTemplateFromDescription(attendee, "add");
+}
+
+/** Request the removing of a resource template from the event description if present. */
+net.bluemind.calendar.vevent.ui.Form.prototype.removeResourceTemplateFromDescription = function (attendee) {
+  this.addOrRemoveResourceTemplateFromDescription(attendee, "remove");
+}
+
+/** Add or remove a resource template to/from the event's description. */
+net.bluemind.calendar.vevent.ui.Form.prototype.addOrRemoveResourceTemplateFromDescription = function (attendee, mode) {
+  var resourceUid = attendee.dir.substring(attendee.dir.lastIndexOf("/") + 1);
+  var descriptionEditor = this.editor_;
+  var eventDescription = descriptionEditor.getValue();
+  var domainUid = this.ctx.user["domainUid"];
+  if (mode == "add") {
+    var organizerUid = this.ctx.user.uid;
+    this.ctx.service('resources').addToEventDescription(domainUid, resourceUid, organizerUid, eventDescription)
+      .then(function (result) {
+        descriptionEditor.setValue(result);
+      });
+  } else if (mode == "remove") {
+    this.ctx.service('resources').removeFromEventDescription(domainUid, resourceUid, eventDescription)
+      .then(function (result) {
+        descriptionEditor.setValue(result);
+      });
+  }
+}
 
 /**
  * toggle attendee role.

@@ -36,7 +36,9 @@ Require-Bundle: net.bluemind.resource.api;bundle-version="1.0.0",
  org.apache.commons.lang,
  net.bluemind.calendar.hook,
  net.bluemind.user.api,
- net.bluemind.core.task.service;bundle-version="4.1.0"
+ net.bluemind.core.task.service;bundle-version="4.1.0",
+ net.bluemind.eclipse.common;bundle-version="4.1.0",
+ net.bluemind.resource.helper
 Export-Package: net.bluemind.resource.service,
  net.bluemind.resource.service.internal
 

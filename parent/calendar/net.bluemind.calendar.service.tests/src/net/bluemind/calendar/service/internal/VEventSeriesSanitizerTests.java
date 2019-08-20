@@ -78,6 +78,8 @@ import net.bluemind.resource.api.ResourceReservationMode;
 import net.bluemind.resource.api.type.IResourceTypes;
 import net.bluemind.resource.api.type.ResourceTypeDescriptor;
 import net.bluemind.resource.api.type.ResourceTypeDescriptor.Property;
+import net.bluemind.resource.helper.IResourceTemplateHelper;
+import net.bluemind.resource.helper.ResourceTemplateHelpers;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.tag.api.TagRef;
@@ -89,8 +91,10 @@ import net.bluemind.user.service.internal.ContainerUserStoreService;
 public class VEventSeriesSanitizerTests {
 	private static final String USER_UID_AND_LOGIN = "u1";
 	private static final String TEMPLATE = "Hello! I am a template mate! ${Organizer} invites you to this wonderful event with the property ${MyCustomPropOne} and also ${MyCustomPropTwo} and the even better ${MyCustomPropThree} !!! How lucky you!\nThis entire ${line} should be removed since it contains ${unknown} variables.\nThis line should be kept.";
-	private static final String TRANSFORMED_TEMPLATE = ResourceTemplateHandler.separator()
-			+ "FR Hello! I am a template mate! John Doe invites you to this wonderful event with the property My Custom Prop One Value and also My Custom Prop Two Value and the even better My Custom Prop Three Value !!! How lucky you!\nThis line should be kept.";
+	private static final String RESOURCE_ID = "123-456-789";
+	private static final String TRANSFORMED_TEMPLATE_SEPARATOR = "<br>\n";
+	private static final String TRANSFORMED_TEMPLATE_SUFFIX = "<br><br>";
+	private String transformedTemplate;
 	private String domainUid;
 	private ItemValue<Server> dataLocation;
 	private ContainerStore containerHome;
@@ -130,7 +134,13 @@ public class VEventSeriesSanitizerTests {
 		this.initDomain(dataLocation, imapServer);
 
 		this.createCyrusPartition(imapServer, this.domainUid);
+
+		final IResourceTemplateHelper resourceTemplateHelper = ResourceTemplateHelpers.getInstance();
+		this.transformedTemplate = resourceTemplateHelper.tagBegin(RESOURCE_ID) + "\n"
+				+ "FR Hello! I am a template mate! John Doe invites you to this wonderful event with the property My Custom Prop One Value and also My Custom Prop Two Value and the even better My Custom Prop Three Value !!! How lucky you!\nThis line should be kept."
+				+ "\n" + resourceTemplateHelper.tagEnd();
 	}
+
 
 	private void createCyrusPartition(final Server imapServer, final String domainUid) {
 		final CyrusService cyrusService = new CyrusService(imapServer.ip);
@@ -156,7 +166,8 @@ public class VEventSeriesSanitizerTests {
 		Assert.assertNotNull(vEventMessage.vevent);
 		final List<VEvent> vEvents = vEventMessage.vevent.flatten();
 		Assert.assertNotNull(vEvents);
-		final String expectedResult = description + TRANSFORMED_TEMPLATE;
+		final String expectedResult = description + TRANSFORMED_TEMPLATE_SEPARATOR + transformedTemplate
+				+ TRANSFORMED_TEMPLATE_SUFFIX;
 		this.checkDescription(vEvents, expectedResult);
 	}
 
@@ -186,7 +197,7 @@ public class VEventSeriesSanitizerTests {
 
 		// build an event without a resource
 		final String description = "delete 1 resource attendee having an already transformed template in the description";
-		final VEventMessage vEventMessage = this.buildEvent(description + TRANSFORMED_TEMPLATE, false);
+		final VEventMessage vEventMessage = this.buildEvent(description + transformedTemplate, false);
 		vEventMessage.oldEvent = oldEventMessage.vevent;
 
 		// execute the code
@@ -230,7 +241,29 @@ public class VEventSeriesSanitizerTests {
 		Assert.assertNotNull(vEventMessage.vevent);
 		final List<VEvent> vEvents = vEventMessage.vevent.flatten();
 		Assert.assertNotNull(vEvents);
-		final String expectedResult = description + TRANSFORMED_TEMPLATE;
+		final String expectedResult = description + TRANSFORMED_TEMPLATE_SEPARATOR + transformedTemplate
+				+ TRANSFORMED_TEMPLATE_SUFFIX;
+		this.checkDescription(vEvents, expectedResult);
+	}
+
+	/**
+	 * Test {@link ResourceDescriptionAdapterHook#onEventUpdated(VEventMessage)}
+	 * : create a resource already having the template in its description.
+	 */
+	@Test
+	public void onEventCreatedAlreadyHavingTemplate() {
+		// build the event and call
+		// ResourceDescriptionAdapterHook.onEventCreated
+		final String description = "a resource already having the template in its description" + transformedTemplate;
+		final VEventMessage vEventMessage = this.eventCreation(description, true);
+
+		// check the result - the processed template should not have been added
+		// another time, i.e. only one occurrence of the processed template
+		// should be present
+		Assert.assertNotNull(vEventMessage.vevent);
+		final List<VEvent> vEvents = vEventMessage.vevent.flatten();
+		Assert.assertNotNull(vEvents);
+		final String expectedResult = description;
 		this.checkDescription(vEvents, expectedResult);
 	}
 
@@ -272,7 +305,7 @@ public class VEventSeriesSanitizerTests {
 		final Attendee visio = new Attendee();
 		visio.commonName = "Visio-conference";
 		visio.cutype = CUType.Resource;
-		final String resourceId = "visioId";
+		final String resourceId = RESOURCE_ID;
 		visio.mailto = resourceId + "@" + this.domainUid;
 		visio.dir = "path/to/my/resource/" + resourceId;
 		final String resourceTypeId = "visioTypeId";

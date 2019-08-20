@@ -19,6 +19,7 @@
 		<module>net.bluemind.resource.hook.ics.tests</module>
 		<module>net.bluemind.resource.lmtp.filter</module>
 		<module>net.bluemind.resource.lmtp.filter.tests</module>
+		<module>net.bluemind.resource.helper</module>
 	</modules>
 
 </project>

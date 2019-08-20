@@ -539,3 +539,7 @@ net.bluemind.calendar.vevent.VEventPresenter.prototype.save_ = function(e) {
   this.actions_.save(e);
 
 };
+
+net.bluemind.calendar.vevent.VEventPresenter.prototype.resourceDescRequest = function(resourceUid, organizer) {
+	
+};
