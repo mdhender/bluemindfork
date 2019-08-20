@@ -1,6 +1,13 @@
 package net.bluemind.hps.auth.core2.tests;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -13,22 +20,34 @@ import org.junit.Test;
 import org.vertx.java.core.AsyncResult;
 import org.vertx.java.core.Handler;
 
+import com.google.common.base.Strings;
+
 import net.bluemind.core.api.AsyncHandler;
+import net.bluemind.core.api.Email;
+import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
+import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.hps.auth.core2.C2Provider;
 import net.bluemind.hps.auth.core2.C2ProviderFactory;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.proxy.http.ExternalCreds;
 import net.bluemind.proxy.http.IAuthProvider;
 import net.bluemind.proxy.http.ILogoutListener;
 import net.bluemind.tests.defaultdata.PopulateHelper;
+import net.bluemind.user.api.IUser;
+import net.bluemind.user.api.User;
 
 public class C2ProviderTests {
+
+	private String domainUid;
 
 	@Before
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
-		
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
 		final CountDownLatch cdl = new CountDownLatch(1);
@@ -42,7 +61,10 @@ public class C2ProviderTests {
 		VertxPlatform.spawnVerticles(done);
 		cdl.await();
 
+		domainUid = String.format("domain-%s.tld", System.currentTimeMillis());
+
 		PopulateHelper.initGlobalVirt();
+		PopulateHelper.createTestDomain(domainUid);
 
 		PopulateHelper.addDomainAdmin("admin0", "global.virt");
 
@@ -97,4 +119,170 @@ public class C2ProviderTests {
 		JdbcTestHelper.getInstance().afterTest();
 	}
 
+	@Test
+	public void sessionId_externalCreds_invalidLogin() {
+		ExternalCreds externalCreds = new ExternalCreds();
+		externalCreds.setLoginAtDomain("invalid");
+
+		new C2Provider(null, null).sessionId(externalCreds, null, new AsyncHandler<String>() {
+			@Override
+			public void success(String value) {
+				fail("Must get a failure!");
+			}
+
+			@Override
+			public void failure(Throwable e) {
+				assertTrue(e instanceof ServerFault);
+			}
+		});
+	}
+
+	@Test
+	public void sessionId_externalCreds_unknownLogin() {
+		ExternalCreds externalCreds = new ExternalCreds();
+		externalCreds.setLoginAtDomain(String.format("unknonwn@%s", domainUid));
+
+		new C2Provider(VertxPlatform.getVertx(), null).sessionId(externalCreds, Collections.emptyList(),
+				new AsyncHandler<String>() {
+					@Override
+					public void success(String value) {
+						assertNull(value);
+					}
+
+					@Override
+					public void failure(Throwable e) {
+						fail("Must not fail!");
+					}
+				});
+	}
+
+	@Test
+	public void sessionId_externalCreds_archivedUser() {
+		String userLogin = String.format("%s", System.currentTimeMillis());
+
+		User user = new User();
+		user.login = userLogin;
+		user.routing = Routing.internal;
+		user.archived = true;
+
+		String emailAlias = String.format("mail.%s@%s", userLogin, domainUid);
+		user.emails = Arrays.asList(Email.create(emailAlias, true, true));
+
+		String userUid = UUID.randomUUID().toString();
+
+		ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class, domainUid).create(userUid,
+				user);
+
+		ExternalCreds externalCreds = new ExternalCreds();
+		externalCreds.setLoginAtDomain(String.format("%s@%s", userLogin, domainUid));
+
+		new C2Provider(VertxPlatform.getVertx(), null).sessionId(externalCreds, Collections.emptyList(),
+				new AsyncHandler<String>() {
+					@Override
+					public void success(String value) {
+						assertNull(value);
+					}
+
+					@Override
+					public void failure(Throwable e) {
+						fail("Must not fail!");
+					}
+				});
+	}
+
+	@Test
+	public void sessionId_externalCreds_latdIsMailboxName() {
+		String userLogin = String.format("%s", System.currentTimeMillis());
+
+		User user = new User();
+		user.login = userLogin;
+		user.routing = Routing.internal;
+
+		String emailAlias = String.format("mail.%s@%s", userLogin, domainUid);
+		user.emails = Arrays.asList(Email.create(emailAlias, true, true));
+
+		String userUid = UUID.randomUUID().toString();
+
+		ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class, domainUid).create(userUid,
+				user);
+
+		ExternalCreds externalCreds = new ExternalCreds();
+		externalCreds.setLoginAtDomain(String.format("%s@%s", userLogin, domainUid));
+
+		new C2Provider(VertxPlatform.getVertx(), null).sessionId(externalCreds, Collections.emptyList(),
+				new AsyncHandler<String>() {
+					@Override
+					public void success(String value) {
+						assertFalse(Strings.isNullOrEmpty(value));
+					}
+
+					@Override
+					public void failure(Throwable e) {
+						fail("Must not fail!");
+					}
+				});
+	}
+
+	@Test
+	public void sessionId_externalCreds_latdIsMailAlias() {
+		String userLogin = String.format("%s", System.currentTimeMillis());
+
+		User user = new User();
+		user.login = userLogin;
+		user.routing = Routing.internal;
+
+		String emailAlias = String.format("mail.%s@%s", userLogin, domainUid);
+		user.emails = Arrays.asList(Email.create(emailAlias, true, true));
+
+		String userUid = UUID.randomUUID().toString();
+
+		ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class, domainUid).create(userUid,
+				user);
+
+		ExternalCreds externalCreds = new ExternalCreds();
+		externalCreds.setLoginAtDomain(emailAlias);
+
+		new C2Provider(VertxPlatform.getVertx(), null).sessionId(externalCreds, Collections.emptyList(),
+				new AsyncHandler<String>() {
+					@Override
+					public void success(String value) {
+						assertFalse(Strings.isNullOrEmpty(value));
+					}
+
+					@Override
+					public void failure(Throwable e) {
+						fail("Must not fail!");
+					}
+				});
+	}
+
+	@Test
+	public void sessionId_externalCreds_routingNone() {
+		String userLogin = String.format("%s", System.currentTimeMillis());
+
+		User user = new User();
+		user.login = userLogin;
+		user.routing = Routing.none;
+
+		String userUid = UUID.randomUUID().toString();
+
+		ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class, domainUid).create(userUid,
+				user);
+
+		ExternalCreds externalCreds = new ExternalCreds();
+		externalCreds.setLoginAtDomain(String.format("%s@%s", userLogin, domainUid));
+
+		new C2Provider(VertxPlatform.getVertx(), null).sessionId(externalCreds, Collections.emptyList(),
+				new AsyncHandler<String>() {
+					@Override
+					public void success(String value) {
+						assertFalse(Strings.isNullOrEmpty(value));
+					}
+
+					@Override
+					public void failure(Throwable e) {
+						fail("Must not fail!");
+					}
+				});
+	}
 }

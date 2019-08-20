@@ -55,6 +55,7 @@ import net.bluemind.utils.DOMUtils;
 
 public class CasProtocol implements IAuthProtocol {
 	private static final Logger logger = LoggerFactory.getLogger(CasProtocol.class);
+
 	private String casURL;
 	private String casDomain;
 	private String callbackURL;
@@ -100,54 +101,7 @@ public class CasProtocol implements IAuthProtocol {
 				replyError(req);
 			});
 
-			res.bodyHandler(body -> {
-				Optional<ExternalCreds> optionalCreds = validateCasTicket(ticket, body);
-				if (optionalCreds.isPresent()) {
-					ExternalCreds creds = optionalCreds.get();
-
-					logger.info("create session for {}", creds.getLoginAtDomain());
-					prov.sessionId(creds, forwadedFor, new AsyncHandler<String>() {
-						@Override
-						public void success(String sid) {
-							if (sid == null) {
-								logger.error("error during cas auth, {} login not valid", creds.getLoginAtDomain());
-								req.response().setStatusCode(500);
-								req.response().end();
-								return;
-							}
-
-							// get cookie...
-							String proxySid = ss.newSession(sid, protocol);
-
-							logger.info("Got sid: {}, proxySid: {}", sid, proxySid);
-
-							Cookie co = new DefaultCookie("BMHPS", proxySid);
-							co.setPath("/");
-							co.setHttpOnly(true);
-							if (CookieHelper.secureCookies()) {
-								co.setSecure(true);
-							}
-							req.response().headers().add("Location", "/");
-							req.response().setStatusCode(302);
-
-							req.response().headers().add("Set-Cookie", ServerCookieEncoder.LAX.encode(co));
-							req.response().end();
-						}
-
-						@Override
-						public void failure(Throwable e) {
-							logger.error(String.format("error during cas auth for user %s", creds.getLoginAtDomain()),
-									e);
-							req.response().setStatusCode(500);
-							req.response().end();
-						}
-
-					});
-				} else {
-					logger.error("error during cas auth, no creds, redirect to login");
-					redirectToCasServer(req);
-				}
-			});
+			res.bodyHandler(body -> validationUriResponseBody(req, protocol, prov, ss, forwadedFor, ticket, body));
 		});
 
 		casReq.exceptionHandler(e -> {
@@ -158,6 +112,58 @@ public class CasProtocol implements IAuthProtocol {
 
 		casReq.end();
 
+	}
+
+	private void validationUriResponseBody(HttpServerRequest req, IAuthProtocol protocol, IAuthProvider prov,
+			ISessionStore ss, List<String> forwadedFor, String ticket, Buffer body) {
+		Optional<ExternalCreds> optionalCreds = validateCasTicket(ticket, body);
+		if (optionalCreds.isPresent()) {
+			ExternalCreds creds = optionalCreds.get();
+
+			logger.info("Create session for {}", creds.getLoginAtDomain());
+			prov.sessionId(creds, forwadedFor, new AsyncHandler<String>() {
+				@Override
+				public void success(String sid) {
+					if (sid == null) {
+						logger.error("Error during cas auth, {} login not valid (not found/archived or not user)",
+								creds.getLoginAtDomain());
+						req.response().headers().add(org.vertx.java.core.http.HttpHeaders.LOCATION,
+								String.format("/errors-pages/deniedAccess.html?login=%s", creds.getLoginAtDomain()));
+						req.response().setStatusCode(302);
+						req.response().end();
+						return;
+					}
+
+					// get cookie...
+					String proxySid = ss.newSession(sid, protocol);
+
+					logger.info("Got sid: {}, proxySid: {}", sid, proxySid);
+
+					Cookie co = new DefaultCookie("BMHPS", proxySid);
+					co.setPath("/");
+					co.setHttpOnly(true);
+					if (CookieHelper.secureCookies()) {
+						co.setSecure(true);
+					}
+					req.response().headers().add(org.vertx.java.core.http.HttpHeaders.LOCATION, "/");
+					req.response().setStatusCode(302);
+
+					req.response().headers().add("Set-Cookie", ServerCookieEncoder.LAX.encode(co));
+					req.response().end();
+				}
+
+				@Override
+				public void failure(Throwable e) {
+					logger.error(String.format("error during cas auth for user %s", creds.getLoginAtDomain()), e);
+					req.response().setStatusCode(500);
+					req.response().end();
+				}
+
+			});
+		} else {
+			logger.error("error during cas auth, no creds, redirect to login");
+			redirectToCasServer(req);
+		}
 	}
 
 	private void replyError(HttpServerRequest req) {
@@ -204,12 +210,11 @@ public class CasProtocol implements IAuthProtocol {
 	}
 
 	private void redirectToCasServer(HttpServerRequest req) {
-		// TODO Auto-generated method stub
 		// Only works with CAS authentication for now
 		String location = casURL + "login?service=";
 
 		location += callbackTo(req);
-		req.response().headers().add("Location", location);
+		req.response().headers().add(org.vertx.java.core.http.HttpHeaders.LOCATION, location);
 		req.response().setStatusCode(302);
 		req.response().end();
 	}
@@ -236,7 +241,7 @@ public class CasProtocol implements IAuthProtocol {
 	@Override
 	public void logout(HttpServerRequest event) {
 		HttpServerResponse resp = event.response();
-		resp.headers().add("Location", casURL + "logout");
+		resp.headers().add(org.vertx.java.core.http.HttpHeaders.LOCATION, String.format("%slogout", casURL));
 		resp.setStatusCode(302);
 		resp.end();
 	}

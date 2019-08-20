@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.ning.http.util.Base64;
 
@@ -122,75 +123,75 @@ public class C2Provider implements IAuthProvider {
 
 	@Override
 	public void sessionId(ExternalCreds externalCreds, List<String> remoteIps, AsyncHandler<String> handler) {
-		if (externalCreds.domainName.isPresent()) {
-			String domainName = externalCreds.domainName.get();
-
-			if (!externalCreds.getLoginAtDomain().endsWith(String.format("@%s", domainName))) {
-				// externalCreds.getLoginAtDomain() is not real loginAtDomain
-				sudoRealLoginAtDomain(true, remoteIps, handler, externalCreds);
-				return;
-			}
-		}
-
-		// Try sudo, and check real loginAtDomain only if domainName is defined in
-		// externalCred
-		// user@domain.tld with externalCreds.domainName.equals("domain.tld") may be an
-		// alias
-		doSudo(externalCreds.domainName.isPresent(), remoteIps, handler, externalCreds);
-	}
-
-	/**
-	 * Do sudo with real loginAtDomain
-	 * 
-	 * @param firstTry
-	 *                      <ul>
-	 *                      <li>true: try sudo in any case</li>
-	 *                      <li>false: do sudo if real loginAtDomain and
-	 *                      {@link net.bluemind.proxy.http.ExternalCreds#getLoginAtDomain()}
-	 *                      are different else send null SID to handler</li>
-	 *                      </ul>
-	 * @param remoteIps
-	 * @param handler
-	 * @param sp
-	 * @param externalCreds
-	 */
-	private void sudoRealLoginAtDomain(boolean firstTry, List<String> remoteIps, AsyncHandler<String> handler,
-			ExternalCreds externalCreds) {
-		if (!externalCreds.domainName.isPresent()) {
-			sudoOrNullSid(firstTry, remoteIps, handler, externalCreds);
+		if (Strings.isNullOrEmpty(externalCreds.getLoginAtDomain())
+				|| !externalCreds.getLoginAtDomain().contains("@")) {
+			handler.failure(new ServerFault(String.format("Invalid loginAtDomain %s from external credentials",
+					externalCreds.getLoginAtDomain())));
 			return;
 		}
 
-		externalCreds.domainName.ifPresent(domainName -> {
-			getProvider(externalCreds.getLoginAtDomain(), Token.admin0(), remoteIps)
-					.instance(IMailboxesPromise.class, domainName).byEmail(externalCreds.getLoginAtDomain())
-					.exceptionally(e -> null).thenAccept(mailbox -> {
-						if (mailbox == null || mailbox.value.type != Type.user) {
-							sudoOrNullSid(firstTry, remoteIps, handler, externalCreds);
-							return;
-						}
+		String domainName = getDomainName(externalCreds);
 
-						String realLoginAtdomain = String.format("%s@%s", mailbox.value.name, domainName);
+		IMailboxesPromise mailboxClient = getProvider(externalCreds.getLoginAtDomain(), Token.admin0(), remoteIps)
+				.instance(IMailboxesPromise.class, domainName);
 
-						if (!firstTry && externalCreds.getLoginAtDomain().equals(realLoginAtdomain)) {
-							handler.success(null);
-						}
+		mailboxClient
+				.byName(externalCreds.getLoginAtDomain().substring(0, externalCreds.getLoginAtDomain().indexOf('@')))
+				.whenComplete((mailbox, exception) -> {
+					if (exception != null) {
+						handler.failure(exception);
+						return;
+					}
 
-						logger.info("Try sudo with login {} instead of {}", realLoginAtdomain,
-								externalCreds.getLoginAtDomain());
-						externalCreds.setLoginAtDomain(realLoginAtdomain);
-						doSudo(false, remoteIps, handler, externalCreds);
-					});
+					if (mailbox != null && mailbox.value.type == Type.user && !mailbox.value.archived) {
+						doSudo(remoteIps, handler, externalCreds);
+						return;
+					}
+
+					loginAtDomainAsEmail(mailboxClient, remoteIps, externalCreds, handler, domainName);
+				});
+	}
+
+	/**
+	 * Search mailbox using external credential loginAtDomain as email
+	 * 
+	 * @param mailboxClient
+	 * @param remoteIps
+	 * @param externalCreds
+	 * @param handler
+	 * @param domainName
+	 */
+	private void loginAtDomainAsEmail(IMailboxesPromise mailboxClient, List<String> remoteIps,
+			ExternalCreds externalCreds, AsyncHandler<String> handler, String domainName) {
+		mailboxClient.byEmail(externalCreds.getLoginAtDomain()).whenComplete((mailbox, exception) -> {
+			if (exception != null) {
+				handler.failure(exception);
+				return;
+			}
+
+			if (mailbox == null || mailbox.value.type != Type.user || mailbox.value.archived) {
+				handler.success(null);
+				return;
+			}
+
+			String realLoginAtdomain = String.format("%s@%s", mailbox.value.name, domainName);
+
+			logger.info("Try sudo with login {} (Submitted login {})", realLoginAtdomain,
+					externalCreds.getLoginAtDomain());
+			externalCreds.setLoginAtDomain(realLoginAtdomain);
+			doSudo(remoteIps, handler, externalCreds);
 		});
 	}
 
-	private void sudoOrNullSid(boolean firstTry, List<String> remoteIps, AsyncHandler<String> handler,
-			ExternalCreds externalCreds) {
-		if (firstTry) {
-			doSudo(false, remoteIps, handler, externalCreds);
-		} else {
-			handler.success(null);
-		}
+	/**
+	 * Get domain name from external credential loginAtDomain
+	 * 
+	 * @param externalCreds
+	 * @return
+	 */
+	private String getDomainName(ExternalCreds externalCreds) {
+		return externalCreds.domainName
+				.orElse(externalCreds.getLoginAtDomain().substring(externalCreds.getLoginAtDomain().indexOf('@')));
 	}
 
 	/**
@@ -205,8 +206,7 @@ public class C2Provider implements IAuthProvider {
 	 * @param sp
 	 * @param externalCreds
 	 */
-	private void doSudo(boolean checkLatdOnBadAuth, List<String> remoteIps, AsyncHandler<String> handler,
-			ExternalCreds externalCreds) {
+	private void doSudo(List<String> remoteIps, AsyncHandler<String> handler, ExternalCreds externalCreds) {
 		logger.info("[{}] sessionId (EXT)", externalCreds.getLoginAtDomain());
 
 		getProvider(externalCreds.getLoginAtDomain(), Token.admin0(), remoteIps).instance(IAuthenticationPromise.class)
@@ -220,11 +220,6 @@ public class C2Provider implements IAuthProvider {
 					if (lr.status == Status.Ok) {
 						handlerLoginSuccess(lr, remoteIps, handler);
 					} else {
-						if (checkLatdOnBadAuth) {
-							sudoRealLoginAtDomain(false, remoteIps, handler, externalCreds);
-							return;
-						}
-
 						handler.success(null);
 					}
 				});

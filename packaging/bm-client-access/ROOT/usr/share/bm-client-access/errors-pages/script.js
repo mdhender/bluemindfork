@@ -7,7 +7,7 @@ function loadPage() {
     }
     var button = document.getElementById('redirect');
     button.className = 'big';
-    button.disabled = false;    
+    button.disabled = false;
   }
 }
 
@@ -84,4 +84,10 @@ function retry(){
 function home(){
   window.location.href = '/';
   return false;
+};
+
+function getUrlParam(name){
+  var url_string = window.location.href;
+  var url = new URL(url_string);
+  return url.searchParams.get(name);
 };
