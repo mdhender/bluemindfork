@@ -29,6 +29,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
+import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.container.api.Ack;
@@ -120,16 +121,23 @@ public interface IMailboxItems
 	List<ItemValue<MailboxItem>> multipleById(List<Long> ids);
 
 	/**
+	 * Fetch a single part from an email mime tree. The address, encoding & charset
+	 * are specified in the {@link Part} objects from {@link MessageBody#structure}.
+	 * 
+	 * 
 	 * @param imapUid
 	 * @param address
 	 * @param encoding set null to fetch pristine part
-	 * @return
+	 * @param mime     override the mime type of the response
+	 * @param charset  override the charset of the response
+	 * @return a stream of the (optionally) decoded part
 	 */
 	@GET
 	@Path("part/{imapUid}/{address}")
 	@Produces("application/octet-stream")
 	Stream fetch(@PathParam("imapUid") long imapUid, @PathParam("address") String address,
-			@QueryParam("encoding") String encoding);
+			@QueryParam("encoding") String encoding, @QueryParam("mime") String mime,
+			@QueryParam("charset") String charset);
 
 	/**
 	 * @param imapUid

@@ -25,6 +25,7 @@ import java.util.Map;
 
 import org.vertx.java.core.buffer.Buffer;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
@@ -253,7 +254,12 @@ public class DefaultResponseCodecs {
 		@Override
 		public RestResponse encode(RestRequest request, String defaultMimeType, Stream response) {
 			RestResponse resp = RestResponse.stream(VertxStream.read(response));
-			resp.headers.add("Content-Type", defaultMimeType);
+			String mime = response.mime().orElse(defaultMimeType);
+			resp.headers.add("Content-Type", response.charset().map(cs -> mime + "; charset=" + cs).orElse(mime));
+			response.fileName().ifPresent(fn -> {
+				String sanitized = CharMatcher.ascii().retainFrom(fn);
+				resp.headers.add("Content-Disposition", String.format("attachment; filename=\"%s\";", sanitized));
+			});
 			return resp;
 		}
 

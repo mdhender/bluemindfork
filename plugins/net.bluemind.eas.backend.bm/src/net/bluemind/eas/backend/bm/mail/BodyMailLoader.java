@@ -60,13 +60,10 @@ public class BodyMailLoader extends CoreConnect {
 	private static final Logger logger = LoggerFactory.getLogger(BodyMailLoader.class);
 
 	/**
-	 * @param bf
-	 *            the body factory used to process the body parts
+	 * @param bf           the body factory used to process the body parts
 	 * @param bs
-	 * @param collectionId
-	 *            used to encode unique identifiers for attachments
-	 * @param store
-	 *            must be in selected state
+	 * @param collectionId used to encode unique identifiers for attachments
+	 * @param store        must be in selected state
 	 */
 	public BodyMailLoader(BackendSession bs, MailFolder folder) {
 		this.bs = bs;
@@ -112,7 +109,8 @@ public class BodyMailLoader extends CoreConnect {
 			bodyAccumulator.consumeMime(content);
 		} else {
 			Part bodyPart = bodyPart(item.value.body.structure);
-			Stream content = service.fetch(item.value.imapUid, bodyPart.address, bodyPart.encoding);
+			Stream content = service.fetch(item.value.imapUid, bodyPart.address, bodyPart.encoding, bodyPart.mime,
+					bodyPart.charset);
 			bodyAccumulator.consumeBodyPart(bodyPart, content);
 		}
 

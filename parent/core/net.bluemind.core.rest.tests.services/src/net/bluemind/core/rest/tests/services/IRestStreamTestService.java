@@ -22,6 +22,8 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.Stream;
@@ -35,6 +37,12 @@ public interface IRestStreamTestService {
 
 	@GET
 	public Stream in();
+
+	@GET
+	@Path("inContentType")
+	@Produces("application/octet-stream")
+	public Stream inContentType(@QueryParam("mime") String mime, @QueryParam("cs") String cs,
+			@QueryParam("fn") String fileName);
 
 	@POST
 	public Stream inout(Stream stream);

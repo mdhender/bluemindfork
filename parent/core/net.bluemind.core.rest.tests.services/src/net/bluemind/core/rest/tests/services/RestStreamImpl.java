@@ -92,6 +92,29 @@ public class RestStreamImpl implements IRestStreamTestService {
 	}
 
 	@Override
+	public Stream inContentType(String mime, String cs, String name) {
+		final QueueReadStream b = new QueueReadStream();
+
+		vertx.setPeriodic(10, new Handler<Long>() {
+			private int count = 0;
+
+			@Override
+			public void handle(Long event) {
+				count++;
+
+				b.queue(new Buffer("" + count));
+
+				if (count >= 9) {
+					vertx.cancelTimer(event);
+					b.end();
+				}
+			}
+
+		});
+		return VertxStream.stream(b, mime, cs, name);
+	}
+
+	@Override
 	public Stream inout(Stream stream) {
 
 		final QueueReadStream q = new QueueReadStream();

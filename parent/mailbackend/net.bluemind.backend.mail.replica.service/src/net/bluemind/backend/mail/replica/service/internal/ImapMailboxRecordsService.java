@@ -597,17 +597,18 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	@Override
 	public Stream fetchComplete(long imapUid) {
 		rbac.check(Verb.Read.name());
-		return fetch(imapUid, "", null);
+		return fetch(imapUid, "", null, null, null);
 	}
 
 	@Override
-	public Stream fetch(long imapUid, String address, String encoding) {
+	public Stream fetch(long imapUid, String address, String encoding, String mime, String charset) {
 		rbac.check(Verb.Read.name());
 		ByteBuf downloaded = fetch(imapUid, address);
 		Stream stream = null;
 		if (encoding != null) {
 			try (InputStream in = dec(downloaded, encoding)) {
-				stream = VertxStream.stream(new Buffer(Unpooled.wrappedBuffer(ByteStreams.toByteArray(in))));
+				stream = VertxStream.stream(new Buffer(Unpooled.wrappedBuffer(ByteStreams.toByteArray(in))), mime,
+						charset);
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 				stream = VertxStream.stream(new Buffer());

@@ -19,6 +19,7 @@
 package net.bluemind.core.rest.vertx;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
@@ -35,9 +36,35 @@ public class VertxStream {
 	public static class ReadStreamStream implements Stream, ReadStream<ReadStreamStream> {
 
 		private final ReadStream<?> stream;
+		private final Optional<String> mime;
+		private final Optional<String> charset;
+		private final Optional<String> fileName;
 
 		public ReadStreamStream(ReadStream<?> delegate) {
+			this(delegate, Optional.empty(), Optional.empty(), Optional.empty());
+		}
+
+		public ReadStreamStream(ReadStream<?> delegate, Optional<String> mime, Optional<String> charset,
+				Optional<String> filename) {
 			this.stream = delegate;
+			this.mime = mime;
+			this.charset = charset;
+			this.fileName = filename;
+		}
+
+		@Override
+		public Optional<String> charset() {
+			return charset;
+		}
+
+		@Override
+		public Optional<String> mime() {
+			return mime;
+		}
+
+		@Override
+		public Optional<String> fileName() {
+			return fileName;
 		}
 
 		@Override
@@ -76,12 +103,21 @@ public class VertxStream {
 		if (stream instanceof Stream) {
 			return (Stream) stream;
 		} else {
-			return wrap(stream);
+			return wrap(stream, null, null, null);
 		}
 	}
 
-	private static <T> Stream wrap(ReadStream<?> stream) {
-		return new ReadStreamStream(stream);
+	public static <T> Stream stream(ReadStream<T> stream, String mime, String charset, String fileName) {
+		if (stream instanceof Stream) {
+			return (Stream) stream;
+		} else {
+			return wrap(stream, mime, charset, fileName);
+		}
+	}
+
+	private static <T> Stream wrap(ReadStream<?> stream, String mime, String charset, String fileName) {
+		return new ReadStreamStream(stream, Optional.ofNullable(mime), Optional.ofNullable(charset),
+				Optional.ofNullable(fileName));
 	}
 
 	public static ReadStream<?> read(Stream stream) {
@@ -167,8 +203,16 @@ public class VertxStream {
 		return new LocalPathStream(p);
 	}
 
+	public static Stream stream(Buffer body, String mime, String charset) {
+		return stream(new BufferReadStream(body), mime, charset, null);
+	}
+
+	public static Stream stream(Buffer body, String mime, String charset, String fileName) {
+		return stream(new BufferReadStream(body), mime, charset, fileName);
+	}
+
 	public static Stream stream(Buffer body) {
-		return stream(new BufferReadStream(body));
+		return stream(body, null, null);
 	}
 
 }

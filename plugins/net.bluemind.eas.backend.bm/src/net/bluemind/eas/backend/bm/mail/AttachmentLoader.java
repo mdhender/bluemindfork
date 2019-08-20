@@ -54,7 +54,7 @@ public class AttachmentLoader extends CoreConnect {
 			return null;
 		}
 
-		Stream partStream = service.fetch(item.value.imapUid, partAddr, contentTransferEncoding);
+		Stream partStream = service.fetch(item.value.imapUid, partAddr, contentTransferEncoding, null, null);
 		CompletableFuture<Buffer> partContent = SyncStreamDownload.read(partStream);
 		Buffer part = partContent.get(10, TimeUnit.SECONDS);
 		return new FastByteInputStream(part.getBytes());
