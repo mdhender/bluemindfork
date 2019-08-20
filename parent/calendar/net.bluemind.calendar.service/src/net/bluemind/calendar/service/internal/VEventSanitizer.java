@@ -200,6 +200,26 @@ public class VEventSanitizer {
 		}
 
 		tagsSanitizer.sanitize(vevent.categories);
+
+		if (vevent.description != null && !vevent.description.isEmpty()) {
+			vevent.description = removeOuterMarkups(vevent.description);
+		}
+
+	}
+
+	private String removeOuterMarkups(String html) {
+		// FIXME use neko or an unreadable regexp here
+		String ret = html;
+		String lower = html.toLowerCase();
+		int bodyStart = lower.indexOf("<body");
+		if (bodyStart >= 0) {
+			int bodyTagEnd = lower.indexOf('>', bodyStart + 4);
+			int endOfBody = lower.indexOf("</body>", bodyTagEnd);
+			if (bodyTagEnd > 0 && endOfBody > 0) {
+				ret = html.substring(bodyTagEnd + 1, endOfBody);
+			}
+		}
+		return ret;
 	}
 
 	private <T> List<T> filterNull(List<T> l) {
