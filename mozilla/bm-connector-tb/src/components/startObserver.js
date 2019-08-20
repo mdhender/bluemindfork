@@ -118,17 +118,26 @@ StartObserver.prototype = {
             let channel;
             let input;
             try {
-                if (this._ioService.newChannel2) {
-                    channel = this._ioService.newChannel2("chrome://bm/content/certs/" + CertName,
-                                                             null, //aOriginCharset
-                                                             null, //aBaseURI
+                let uri = Services.io.newURI("chrome://bm/content/certs/" + CertName);
+                if ("newChannelFromURI2" in Services.io) {
+                    // before TB 67 
+                    channel = Services.io.newChannelFromURI2(uri,
                                                              null, //aLoadingNode
                                                              Services.scriptSecurityManager.getSystemPrincipal(),
                                                              null, //aTriggeringPrincipal
                                                              Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
                                                              Components.interfaces.nsIContentPolicy.TYPE_OTHER);
-                } else {
+                } else if (!this._ioService.newChannel2 && !ChromeUtils.generateQI) {
+                    // before TB 57
                     channel = this._ioService.newChannel("chrome://bm/content/certs/" + CertName, null, null);
+                } else {
+                    // TB 67 and later
+                    channel = Services.io.newChannelFromURI(uri,
+                                                            null, //aLoadingNode
+                                                            Services.scriptSecurityManager.getSystemPrincipal(),
+                                                            null, //aTriggeringPrincipal
+                                                            Components.interfaces.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                                            Components.interfaces.nsIContentPolicy.TYPE_OTHER);
                 }
                 input = channel.open();
             } catch (e) {
