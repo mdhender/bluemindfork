@@ -38,11 +38,22 @@ public class ApplyMessageHelper {
 	private static final Splitter SPACES = Splitter.on(' ').omitEmptyStrings();
 	private static final Logger logger = LoggerFactory.getLogger(ApplyMessageHelper.class);
 
-	public static Stream<MailboxMessage> process(String allTokens) {
+	private static final int CHUNK_SIZE = 4;
+
+	public static class MessagesBatch {
+		private static final MailboxMessage[] EMPTY = new MailboxMessage[0];
+		public final MailboxMessage[] toProcess;
+
+		public MessagesBatch(List<MailboxMessage> msgs) {
+			toProcess = msgs.toArray(EMPTY);
+		}
+	}
+
+	public static Stream<MessagesBatch> process(String allTokens) {
 		List<String> withoutNILNodes = SPACES.splitToList(allTokens).stream().filter(s -> !"NIL".equals(s))
 				.collect(Collectors.toList());
 		List<List<String>> partitionned = Lists.partition(withoutNILNodes, 3);
-		return partitionned.stream().map(threeElems -> {
+		List<MailboxMessage> toApply = partitionned.stream().map(threeElems -> {
 			if (threeElems.size() != 3) {
 				logger.error("Unbalanced list: {}", threeElems);
 				return null;
@@ -67,8 +78,9 @@ public class ApplyMessageHelper {
 			builder.length(len);
 			builder.content(Token.of(new Buffer(tokRef), false, null));
 			return builder.build();
-		}).filter(Objects::nonNull);
+		}).filter(Objects::nonNull).collect(Collectors.toList());
 
+		return Lists.partition(toApply, CHUNK_SIZE).stream().map(MessagesBatch::new);
 	}
 
 }

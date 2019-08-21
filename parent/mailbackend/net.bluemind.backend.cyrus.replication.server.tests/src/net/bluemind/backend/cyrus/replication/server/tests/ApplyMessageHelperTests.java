@@ -37,8 +37,8 @@ import org.junit.Test;
 
 import com.google.common.io.CharStreams;
 
-import net.bluemind.backend.cyrus.replication.server.state.MailboxMessage;
 import net.bluemind.backend.cyrus.replication.server.utils.ApplyMessageHelper;
+import net.bluemind.backend.cyrus.replication.server.utils.ApplyMessageHelper.MessagesBatch;
 
 public class ApplyMessageHelperTests {
 
@@ -52,7 +52,7 @@ public class ApplyMessageHelperTests {
 		String justTokens = fat.substring("APPLY MESSAGE (".length());
 		assertEquals('%', justTokens.charAt(0));
 
-		Stream<MailboxMessage> theStream = ApplyMessageHelper.process(justTokens);
+		Stream<MessagesBatch> theStream = ApplyMessageHelper.process(justTokens);
 		CompletableFuture<Void> root = CompletableFuture.completedFuture(null);
 		final AtomicReference<CompletableFuture<Void>> rootRef = new AtomicReference<CompletableFuture<Void>>(root);
 		final AtomicInteger current = new AtomicInteger(0);

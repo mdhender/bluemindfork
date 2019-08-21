@@ -30,9 +30,9 @@ import net.bluemind.backend.cyrus.replication.observers.IReplicationObserver;
 import net.bluemind.backend.cyrus.replication.server.ReplicationFrame;
 import net.bluemind.backend.cyrus.replication.server.ReplicationSession;
 import net.bluemind.backend.cyrus.replication.server.Token;
-import net.bluemind.backend.cyrus.replication.server.state.MailboxMessage;
 import net.bluemind.backend.cyrus.replication.server.state.ReplicationState;
 import net.bluemind.backend.cyrus.replication.server.utils.ApplyMessageHelper;
+import net.bluemind.backend.cyrus.replication.server.utils.ApplyMessageHelper.MessagesBatch;
 
 /**
  * APPLY MESSAGE (%{vagrant_vmw dd3b1e83bb56d757ed6d112252bbf4a959aaa032
@@ -68,14 +68,19 @@ public class ApplyMessage implements IAsyncReplicationCommand {
 		String withVerb = t.value();
 		String msgHeader = withVerb.substring("APPLY MESSAGE (".length());
 
-		Stream<MailboxMessage> theStream = ApplyMessageHelper.process(msgHeader);
+		Stream<MessagesBatch> theStream = ApplyMessageHelper.process(msgHeader);
 		CompletableFuture<Void> root = CompletableFuture.completedFuture(null);
 		final Holder<CompletableFuture<Void>> rootRef = new Holder<>(root);
 		final ReplicationState state = session.state();
 		AtomicInteger count = new AtomicInteger();
 		theStream.forEach(msg -> rootRef.replace(prev -> {
-			count.incrementAndGet();
-			return prev.thenCompose(v -> state.addMessage(msg));
+			int batchSize = msg.toProcess.length;
+			count.addAndGet(batchSize);
+			CompletableFuture<?>[] batch = new CompletableFuture[batchSize];
+			for (int i = 0; i < batchSize; i++) {
+				batch[i] = state.addMessage(msg.toProcess[i]);
+			}
+			return prev.thenCompose(v -> CompletableFuture.allOf(batch));
 		}));
 
 		return rootRef.content.thenApply(v -> {
