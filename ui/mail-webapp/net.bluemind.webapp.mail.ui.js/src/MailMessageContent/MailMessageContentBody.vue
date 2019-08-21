@@ -29,13 +29,13 @@ export default {
     methods: {
         resizeIFrame() {
             const offsetHeight = this.$refs.iFrameMailContent.contentWindow.document.body.offsetHeight;
-            this.$refs.iFrameMailContent.style.height = offsetHeight + (offsetHeight*10/100) + 'px';
+            this.$refs.iFrameMailContent.style.height = offsetHeight + (offsetHeight * 10) / 100 + "px";
 
             const scrollHeight = this.$refs.iFrameMailContent.contentWindow.document.body.scrollHeight;
             const clientHeight = this.$refs.iFrameMailContent.contentWindow.document.body.clientHeight;
-            
+
             if (scrollHeight > clientHeight) {
-                this.$refs.iFrameMailContent.style.height = scrollHeight + (scrollHeight*10/100) + 'px';
+                this.$refs.iFrameMailContent.style.height = scrollHeight + (scrollHeight * 10) / 100 + "px";
             }
         },
         display() {
@@ -66,16 +66,18 @@ export default {
                 iframeDoc.close();
 
                 this.addStyle(iframeDoc);
-                
+
                 this.$nextTick(function() {
                     this.resizeIFrame();
                 });
             }
         },
 
-        /** Add style to the iframe for 'reply' and 'forward' rendering. */
+        /** Apply specific styles to the given iframe. */
         addStyle(iframeDoc) {
-            const css = ` .reply {
+            // add style for 'reply' and 'forward' rendering
+            // add style to enable <pre> content to wrap in order to see all of it
+            const css = `.reply {
                             margin-left: 1rem;
                             padding-left: 1rem;
                             border-left: 2px solid black;
@@ -84,6 +86,9 @@ export default {
                             margin-left: 1rem;
                             padding-left: 1rem;
                             color: purple;
+                        }
+                        pre {
+                            white-space: pre-line;
                         }`;
             const head = iframeDoc.head || iframeDoc.getElementsByTagName("head")[0];
             let style = iframeDoc.getElementsByTagName("style")[0];
