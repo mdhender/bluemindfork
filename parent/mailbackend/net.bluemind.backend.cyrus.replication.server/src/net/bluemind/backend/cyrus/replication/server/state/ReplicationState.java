@@ -81,34 +81,39 @@ public class ReplicationState {
 
 	public CompletableFuture<Void> addMessage(MailboxMessage msg) {
 		CompletableFuture<Void> added = new CompletableFuture<>();
-		File dest = new File(Token.ROOT, msg.partition() + "_" + msg.guid() + ".eml");
-		LiteralTokens.export(msg.content(), dest);
-		storage.bodies(msg.partition()).thenAccept(messageBodiesApi -> {
-			messageBodiesApi.exists(msg.guid()).whenComplete((exists, excep) -> {
-				addMsgCounter.increment();
-				if (exists == null || excep != null) {
-					logger.warn("null exists..., excep: {}", excep);
-				} else if (exists) {
-					dest.delete();
-					added.complete(null);
-				} else {
-					long len = dest.length();
-					Stream uploadStream = storage.stream(dest.toPath());
-					messageBodiesApi.create(msg.guid(), uploadStream).whenComplete((v, ex) -> {
+		try {
+			File dest = new File(Token.ROOT, msg.partition() + "_" + msg.guid() + ".eml");
+			LiteralTokens.export(msg.content(), dest);
+			storage.bodies(msg.partition()).thenAccept(messageBodiesApi -> {
+				messageBodiesApi.exists(msg.guid()).whenComplete((exists, excep) -> {
+					addMsgCounter.increment();
+					if (excep != null) {
+						added.completeExceptionally(excep);
+					} else if (exists == null) {
+						added.completeExceptionally(new NullPointerException("exists returned null"));
+					} else if (exists) {
 						dest.delete();
-						if (ex != null) {
-							logger.error("addMessage.create: " + ex.getMessage(), ex);
-						}
-						addMsgCounterBytes.increment(len);
 						added.complete(null);
-					});
-
-				}
+					} else {
+						long len = dest.length();
+						Stream uploadStream = storage.stream(dest.toPath());
+						messageBodiesApi.create(msg.guid(), uploadStream).whenComplete((v, ex) -> {
+							dest.delete();
+							if (ex != null) {
+								logger.error("addMessage.create: " + ex.getMessage(), ex);
+							}
+							addMsgCounterBytes.increment(len);
+							added.complete(null);
+						});
+					}
+				});
+			}).exceptionally(t -> {
+				added.completeExceptionally(t);
+				return null;
 			});
-		}).exceptionally(t -> {
-			added.completeExceptionally(t);
-			return null;
-		});
+		} catch (Exception e) {
+			added.completeExceptionally(e);
+		}
 		return added;
 	}
 
