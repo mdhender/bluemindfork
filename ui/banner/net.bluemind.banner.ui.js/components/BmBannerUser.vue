@@ -10,7 +10,7 @@
             </bm-dropdown-item>
             <div class="dropdown-divider" />
             <bm-dropdown-item href="#">
-                <bm-label-icon icon="forward">{{ $t("banner.menu.logout") }} </bm-label-icon>
+                <bm-label-icon icon="sign-out">{{ $t("banner.menu.logout") }} </bm-label-icon>
             </bm-dropdown-item>
         </bm-nav-item-dropdown>
     </bm-navbar-nav>
