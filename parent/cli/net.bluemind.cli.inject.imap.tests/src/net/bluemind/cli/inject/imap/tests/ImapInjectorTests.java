@@ -137,11 +137,20 @@ public class ImapInjectorTests {
 		assertNotNull(inject);
 		int MSG = 20000;
 		inject.runCycle(MSG);
+		int stalled = 0;
 		do {
-			Thread.sleep(500);
+			int cur = total.get();
+			Thread.sleep(1000);
+			int afterSleep = total.get();
 			System.err.println("Applied " + total.get() + " message(s)");
-		} while (total.get() < MSG);
+			if (cur == afterSleep) {
+				stalled++;
+			}
+		} while (total.get() < MSG && stalled < 30);
 		Thread.sleep(2000);
+		if (stalled >= 30) {
+			throw new RuntimeException("Test stalled");
+		}
 	}
 
 }
