@@ -22,6 +22,7 @@ import org.elasticsearch.index.IndexNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.backend.mail.replica.indexing.IMailIndexService;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
@@ -38,7 +39,12 @@ public class ESMailboxHook extends DefaultMailboxHook {
 		if (domainUid.equals("global.virt")) {
 			return;
 		}
-		MailIndexActivator.getService().createMailbox(value.uid);
+		IMailIndexService indexService = MailIndexActivator.getService();
+		if (indexService != null) {
+			indexService.createMailbox(value.uid);
+		} else {
+			logger.warn("Index service missing onMailboxCreated (domain {})", domainUid);
+		}
 	}
 
 	@Override

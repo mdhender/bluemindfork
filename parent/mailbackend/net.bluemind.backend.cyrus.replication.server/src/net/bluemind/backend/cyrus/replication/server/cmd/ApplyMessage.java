@@ -74,17 +74,15 @@ public class ApplyMessage implements IAsyncReplicationCommand {
 		final ReplicationState state = session.state();
 		AtomicInteger count = new AtomicInteger();
 		theStream.forEach(msg -> rootRef.replace(prev -> {
-			int batchSize = msg.toProcess.length;
-			count.addAndGet(batchSize);
-			CompletableFuture<?>[] batch = new CompletableFuture[batchSize];
-			for (int i = 0; i < batchSize; i++) {
-				batch[i] = state.addMessage(msg.toProcess[i]).whenComplete((v, ex) -> {
-					if (ex != null) {
-						logger.error("ApplyMessage failure", ex);
-					}
-				});
-			}
-			return prev.thenCompose(v -> CompletableFuture.allOf(batch));
+			return prev.thenCompose(v -> {
+				int batchSize = msg.toProcess.length;
+				count.addAndGet(batchSize);
+				CompletableFuture<?>[] batch = new CompletableFuture[batchSize];
+				for (int i = 0; i < batchSize; i++) {
+					batch[i] = state.addMessage(msg.toProcess[i]);
+				}
+				return CompletableFuture.allOf(batch);
+			});
 		}));
 
 		return rootRef.content.thenApply(v -> {

@@ -43,6 +43,7 @@ import net.bluemind.backend.mail.replica.service.internal.BodyInternalIdCache.Ex
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.rest.vertx.VertxStream;
 
 public class DbMessageBodiesService implements IDbMessageBodies {
 
@@ -56,6 +57,17 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 
 	@Override
 	public void create(String uid, Stream eml) {
+		if (exists(uid)) {
+			try {
+				logger.warn("Skipping existing body {}", uid);
+				VertxStream.sink(eml).get(10, TimeUnit.SECONDS);
+				return;
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				throw new ServerFault(e);
+			}
+		}
+
 		CompletableFuture<Void> promise = BodyStreamProcessor.processBody(eml).exceptionally(t -> {
 			logger.error(t.getMessage(), t);
 			return null;

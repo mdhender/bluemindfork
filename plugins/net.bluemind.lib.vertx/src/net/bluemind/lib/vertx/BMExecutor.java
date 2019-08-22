@@ -48,6 +48,7 @@ import net.bluemind.metrics.registry.MetricsRegistry;
 public class BMExecutor {
 
 	private static final Logger logger = LoggerFactory.getLogger(BMExecutor.class);
+	private static final int DEFAULT_QUEUE = Math.max(128, 32 * (2 + Runtime.getRuntime().availableProcessors()));
 	private static final int DEFAULT_WORKER_POOL_SIZE = Math.max(Runtime.getRuntime().availableProcessors() * 2, 30);
 	private static final Vertx timerMgmt = VertxPlatform.getVertx();
 
@@ -141,7 +142,7 @@ public class BMExecutor {
 				.monitorValue(new LongAdder());
 
 		this.executor = new ThreadPoolExecutor(thread, thread, 0L, TimeUnit.MILLISECONDS,
-				new ArrayBlockingQueue<>(thread * 2), new VertxThreadFactory(name),
+				new ArrayBlockingQueue<>(DEFAULT_QUEUE), new VertxThreadFactory(name),
 				new BMRejectedExecutionHandler(rejectionCounter)) {
 
 			@Override
@@ -158,7 +159,6 @@ public class BMExecutor {
 
 		};
 		PolledMeter.using(reg).withId(idFactory.name("queued", "name", name)).monitorSize(executor.getQueue());
-
 		this.asExecutorService = new BMExecutorService(this);
 
 	}

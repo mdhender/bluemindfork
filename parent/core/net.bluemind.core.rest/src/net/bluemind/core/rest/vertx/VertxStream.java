@@ -20,6 +20,7 @@ package net.bluemind.core.rest.vertx;
 
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
@@ -122,6 +123,21 @@ public class VertxStream {
 
 	public static ReadStream<?> read(Stream stream) {
 		return (ReadStream<?>) stream;
+	}
+
+	public static CompletableFuture<Void> sink(Stream stream) {
+		if (stream instanceof LocalPathStream) {
+			return CompletableFuture.completedFuture(null);
+		} else {
+			ReadStream<?> vxStream = (ReadStream<?>) stream;
+			CompletableFuture<Void> ret = new CompletableFuture<Void>();
+			vxStream.dataHandler(b -> {
+			});
+			vxStream.endHandler(v -> ret.complete(null));
+			vxStream.exceptionHandler(ex -> ret.completeExceptionally(ex));
+			vxStream.resume();
+			return ret;
+		}
 	}
 
 	public static ReadStream<?> readInContext(final Vertx vertx, Stream stream) {

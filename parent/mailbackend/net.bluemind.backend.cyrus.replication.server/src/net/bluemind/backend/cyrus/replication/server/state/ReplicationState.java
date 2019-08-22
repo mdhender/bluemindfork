@@ -80,41 +80,21 @@ public class ReplicationState {
 	}
 
 	public CompletableFuture<Void> addMessage(MailboxMessage msg) {
-		CompletableFuture<Void> added = new CompletableFuture<>();
-		try {
-			File dest = new File(Token.ROOT, msg.partition() + "_" + msg.guid() + ".eml");
-			LiteralTokens.export(msg.content(), dest);
-			storage.bodies(msg.partition()).thenAccept(messageBodiesApi -> {
-				messageBodiesApi.exists(msg.guid()).whenComplete((exists, excep) -> {
-					addMsgCounter.increment();
-					if (excep != null) {
-						added.completeExceptionally(excep);
-					} else if (exists == null) {
-						added.completeExceptionally(new NullPointerException("exists returned null"));
-					} else if (exists) {
-						dest.delete();
-						added.complete(null);
-					} else {
-						long len = dest.length();
-						Stream uploadStream = storage.stream(dest.toPath());
-						messageBodiesApi.create(msg.guid(), uploadStream).whenComplete((v, ex) -> {
-							dest.delete();
-							if (ex != null) {
-								logger.error("addMessage.create: " + ex.getMessage(), ex);
-							}
-							addMsgCounterBytes.increment(len);
-							added.complete(null);
-						});
-					}
-				});
-			}).exceptionally(t -> {
-				added.completeExceptionally(t);
-				return null;
-			});
-		} catch (Exception e) {
-			added.completeExceptionally(e);
-		}
-		return added;
+		File dest = new File(Token.ROOT, msg.partition() + "_" + msg.guid() + ".eml");
+		LiteralTokens.export(msg.content(), dest);
+		long len = dest.length();
+		return storage.bodies(msg.partition()).thenCompose(messageBodiesApi -> {
+			Stream uploadStream = storage.stream(dest.toPath());
+			return messageBodiesApi.create(msg.guid(), uploadStream);
+		}).whenComplete((v, ex) -> {
+			dest.delete();
+			if (ex != null) {
+				logger.error("addMessage.create: " + ex.getMessage(), ex);
+			} else {
+				addMsgCounter.increment();
+				addMsgCounterBytes.increment(len);
+			}
+		});
 	}
 
 	public CompletableFuture<MessageBody> messageByGuid(String partition, String guid) {

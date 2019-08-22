@@ -46,7 +46,7 @@ public class DomainBookVerticle extends Verticle {
 			public void handle(Message<? extends JsonObject> event) {
 
 				if (suspended) {
-					logger.warn("domain book replication is suspended");
+					logger.warn("domain book replication is suspended {}", event.body());
 					return;
 				}
 				String domain = event.body().getString("domain");
@@ -59,7 +59,7 @@ public class DomainBookVerticle extends Verticle {
 						dBook.sync();
 					}
 				} catch (Exception e) {
-					logger.error("error during replication", e);
+					logger.error("error during replication: {}", e.getMessage());
 				}
 
 				logger.info("replicate domain book {} DONE in {} ms", domain, (System.currentTimeMillis() - time));
@@ -73,7 +73,7 @@ public class DomainBookVerticle extends Verticle {
 
 		getVertx().eventBus().registerHandler("dir.changed", (Message<? extends JsonObject> msg) -> {
 			if (suspended) {
-				logger.warn("domain book replication is suspended");
+				logger.warn("domain book replication is suspended: {}", msg.body());
 				return;
 			}
 			tm.handle(msg);
