@@ -17,7 +17,6 @@
     "mail.list.range.today": "Today",
     "mail.list.range.yesterday": "Yesterday",
     "mail.main.new": "New message",
-    "main.main.search.placeholder": "Search",
     "mail.new.to.placeholder": "Subject",
     "mail.new.subject": "Subject",
     "mail.new.subject.placeholder": "Define your message subject",
@@ -38,5 +37,8 @@
     "mail.message.starter.display.drafts": "Every drafts",
     "mail.content.reply.aria": "Reply only to sender",
     "mail.content.reply_all.aria": "Reply to all recipients",
-    "mail.content.forward.aria": "Forward this mail"
+    "mail.content.forward.aria": "Forward this mail",
+    "mail.list.search.no_result": "No message containing",
+    "mail.list.search.no_result.found": "has been found.",
+    "mail.list.search.no_result.try_otherwise": "Please retry using a more generic search term."
 }

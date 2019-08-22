@@ -9,5 +9,14 @@
     "common.save_all": "Tout enregistrer",
     "common.alert.message.sent.ok": "<i>\"{subject}\"</i> a bien été envoyé !",
     "common.alert.message.sent.error": "<i>\"{subject}\"</i> n'a pu être envoyé.<br>{reason}",
-    "common.toggleAttachments": "Afficher/cacher les pièces jointes" 
+    "common.toggleAttachments": "Afficher/cacher les pièces jointes",
+    "common.filter": "filtrer",
+    "common.all": "Tous",
+    "common.sort_by": "trier par",
+    "common.date": "Date",
+    "common.search": "Recherche",
+    "common.searching": "Recherche en cours...",
+    "common.messages": "0 message | 1 message | {count} messages",
+    "common.search.error": "La recherche n'a pu aboutir.",
+    "common.check.connection": "Vérifiez votre connexion internet et réessayez dans quelques instants."
 }

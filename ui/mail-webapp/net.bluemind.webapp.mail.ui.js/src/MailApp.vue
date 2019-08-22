@@ -11,14 +11,7 @@
                 </bm-button>
             </bm-col>
             <bm-col cols="8" md="10" xl="3" order="1">
-                <div class="d-flex align-items-center justify-content-center">
-                    <bm-form-input
-                        :placeholder="$t('main.main.search.placeholder')"
-                        type="search"
-                        class="rounded-0 border-secondary"
-                    />
-                    <bm-icon icon="search" class="searchIcon" />
-                </div>
+                <mail-search-form />
             </bm-col>
             <bm-col class="d-none d-lg-block h-100" cols="12" xl="7" order="last">
                 <mail-toolbar class="mx-auto mx-xl-0" />
@@ -46,8 +39,6 @@ import {
     BmButton,
     BmCol,
     BmContainer,
-    BmFormInput,
-    BmIcon,
     BmRow,
     MakeUniq
 } from "@bluemind/styleguide";
@@ -55,6 +46,7 @@ import MailAppL10N from "@bluemind/webapp.mail.l10n";
 import MailFolderTree from "./MailFolderTree";
 import MailMessageList from "./MailMessageList/MailMessageList";
 import MailToolbar from "./MailToolbar/";
+import MailSearchForm from "./MailSearchForm";
 
 export default {
     name: "MailApp",
@@ -63,13 +55,12 @@ export default {
         BmButton,
         BmCol,
         BmContainer,
-        BmFormInput,
         BmLabelIcon,
-        BmIcon,
         BmRow,
         MailFolderTree,
         MailMessageList,
-        MailToolbar
+        MailToolbar,
+        MailSearchForm
     },
     mixins: [MakeUniq],
     i18n: { messages: MailAppL10N },
@@ -103,10 +94,6 @@ body > div {
 
 .flex-fill {
     min-height: 0;
-}
-
-.mail-app .searchIcon {
-    margin-left: -25px;
 }
 
 .mail-app .topbar {

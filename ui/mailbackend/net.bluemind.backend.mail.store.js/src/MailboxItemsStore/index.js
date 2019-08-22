@@ -7,7 +7,12 @@ const state = {
     items: [],
     current: null,
     count: 0,
-    partsToDisplay: []
+    partsToDisplay: [],
+    search: {
+        pattern: null,
+        loading: false,
+        error: false
+    }
 };
 
 export default {

@@ -9,11 +9,13 @@
 import BmBanner from "@bluemind/banner.ui.vuejs/components/BmBanner";
 import "@bluemind/styleguide/css/bluemind.scss";
 import injector from "@bluemind/inject";
+import CommonL10N from "@bluemind/l10n";
 
 export default {
     components: {
         BmBanner
     },
+    i18n: { messages: CommonL10N },
     data() {
         const data = {};
         data.applications = [];

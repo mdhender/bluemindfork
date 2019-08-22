@@ -16,10 +16,10 @@
                     </bm-col>
                     <bm-col cols="1" class="text-center">
                         <bm-button
-                            v-if="mode_ == modes.TO"
+                            v-if="mode == modes.TO"
                             variant="link"
                             class="text-blue"
-                            @click="mode_ = modes.TO | modes.CC | modes.BCC"
+                            @click="mode = modes.TO | modes.CC | modes.BCC"
                         >
                             <bm-icon icon="chevron" />
                         </bm-button>
@@ -27,7 +27,7 @@
                 </bm-row>
                 <hr class="mt-0 mb-2">
 
-                <bm-row v-if="mode_ > modes.TO">
+                <bm-row v-if="mode > modes.TO">
                     <bm-col cols="11">
                         <bm-contact-input
                             ref="cc"
@@ -40,26 +40,26 @@
                     </bm-col>
                     <bm-col cols="1" class="text-center">
                         <bm-button
-                            v-if="mode_ == (modes.TO | modes.CC)"
+                            v-if="mode == (modes.TO | modes.CC)"
                             variant="link"
                             class="text-blue"
-                            @click="mode_ = modes.TO | modes.CC | modes.BCC"
+                            @click="mode = modes.TO | modes.CC | modes.BCC"
                         >
                             {{ $t("common.bcc") }}
                         </bm-button>
                     </bm-col>
                 </bm-row>
-                <hr v-if="mode_ > modes.TO" class="mt-0 mb-2">
+                <hr v-if="mode > modes.TO" class="mt-0 mb-2">
 
                 <bm-contact-input
-                    v-if="mode_ == (modes.TO | modes.CC | modes.BCC)"
+                    v-if="mode == (modes.TO | modes.CC | modes.BCC)"
                     :contacts.sync="message_.bcc"
                     :autocomplete-results="autocompleteResultsBcc"
                     @search="searchedPattern => onSearch('bcc', searchedPattern)"
                 >
                     {{ $t("common.bcc") }}
                 </bm-contact-input>
-                <hr v-if="mode_ == (modes.TO | modes.CC | modes.BCC)" class="mt-0">
+                <hr v-if="mode == (modes.TO | modes.CC | modes.BCC)" class="mt-0">
 
                 <bm-form-input
                     v-model="message_.subject"
@@ -113,25 +113,11 @@ import {
     BmPanel,
     BmRow
 } from "@bluemind/styleguide";
-import CommonL10N from "@bluemind/l10n";
 import debounce from "lodash/debounce";
 import MailMessageNewFooter from "./MailMessageNewFooter";
+import MailMessageNewModes from "./MailMessageNewModes";
 import ServiceLocator from "@bluemind/inject";
 import uuid from "uuid/v4";
-
-/**
- * Flags for the display mode of MailMessageNew's recipients fields.
- *
- * @example
- * MailMessageNew.mode = (TO|CC|BCC) // means we would like to display all 3 fields
- * MailMessageNew.mode = TO // means we would like the TO field only
- */
-export const MailMessageNewModes = {
-    NONE: 0,
-    TO: 1,
-    CC: 2,
-    BCC: 4
-};
 
 export default {
     name: "MailMessageNew",
@@ -162,7 +148,6 @@ export default {
             default: null
         }
     },
-    i18n: { messages: CommonL10N },
     data() {
         return {
             message_: {
@@ -178,8 +163,7 @@ export default {
             autocompleteResults: [],
             autocompleteResultsTo: [],
             autocompleteResultsCc: [],
-            autocompleteResultsBcc: [],
-            mode_: this.mode
+            autocompleteResultsBcc: []
         };
     },
     computed: {

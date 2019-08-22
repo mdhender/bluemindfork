@@ -199,3 +199,46 @@ function sanitize(messageToSend) {
     }
     messageToSend.content = messageToSend.content.replace(/[\n\r]/g, String.fromCharCode(13, 10));
 }
+
+const MAX_SEARCH_RESULTS = 500; // FIXME
+
+export function search({ commit }, { folderUid, pattern }) {
+    return ServiceLocator.getProvider("MailboxFoldersPersistance").get().searchItems({
+        query: {
+            searchSessionId: undefined,
+            query: pattern,
+            maxResults: MAX_SEARCH_RESULTS,
+            offset: undefined,
+            scope: {
+                folderScope: {
+                    folderUid
+                },
+                isDeepTraversal: false
+            }
+        },
+        sort: {
+            criteria: [
+                {
+                    field: "date",
+                    order: "Desc"
+                }
+            ]
+        }
+    }).then(searchResults => {
+        const ids = searchResults.results.map(messageSearchResult => messageSearchResult.itemId);
+        return ServiceLocator.getProvider("MailboxItemsPersistance").get(folderUid).multipleById(ids).then(items => {
+            commit("setItems", items);
+            commit("setCount", searchResults.totalResults);
+            commit("setSearchPattern", pattern);
+            commit("setSearchLoading", false);
+            commit("setSearchError", false);
+        });
+    }).catch(() => {
+        commit("setItems", []);
+        commit("setCount", 0);
+        commit("setSearchPattern", pattern);
+        commit("setSearchLoading", false);
+        commit("setSearchError", true);
+    })
+    ;
+}

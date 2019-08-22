@@ -1,3 +1,5 @@
+import Vue from "vue";
+
 export function setItems(state, items) {
     state.items = items;
 }
@@ -29,4 +31,16 @@ export function setPartsToDisplay(state, partsToDisplay) {
 
 export function setAttachments(state, attachments) {
     state.attachments = attachments.slice();
+}
+
+export function setSearchPattern(state, pattern) {
+    Vue.set(state.search, 'pattern', pattern);
+}
+
+export function setSearchLoading(state, isLoading) {
+    Vue.set(state.search, 'loading', isLoading);
+}
+
+export function setSearchError(state, hasError) {
+    Vue.set(state.search, 'error', hasError);
 }

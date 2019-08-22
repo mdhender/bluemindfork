@@ -7,34 +7,19 @@ import MainApp from "./MainApp.vue";
 import router from "@bluemind/router";
 import store from "@bluemind/store";
 import Vue from "vue";
-import VueI18n from "vue-i18n";
 import VueBus from "@bluemind/vue-bus";
+import VueI18n from "vue-i18n";
 import VueSockjsPlugin from "@bluemind/vue-sockjs";
 
-Vue.use(VueI18n);
-Vue.use(VueBus, { store });
-Vue.use(VueSockjsPlugin, {url: '/eventbus/', VueBus});
+setVuePlugins();
 
 injector.register({
     provide: "UserSession",
     use: window.bmcSessionInfos
 });
-
 const userSession = injector.getProvider("UserSession").get();
-const firstDayOfWeek = FirstDayOfWeek[userSession.lang.toUpperCase()] || 1; // if no lang defined, use monday as fdow
 
-injector.register({
-    provide: "Environment",
-    use: {
-        firstDayOfWeek: firstDayOfWeek // FIXME : use user settings instead
-    }
-});
-
-injector.register({
-    provide: "GlobalEventBus",
-    use: VueBus
-});
-
+registerDependencies(userSession);
 
 sync(store, router);
 extend(router, store);
@@ -49,5 +34,25 @@ new Vue({
     store
 });
 
+function setVuePlugins() {
+    Vue.use(VueI18n);
+    Vue.use(VueBus, { store });
+    Vue.use(VueSockjsPlugin, {url: '/eventbus/', VueBus});
+}
+
+function registerDependencies(userSession) {
+    // if no lang defined, use monday as fdow
+    const firstDayOfWeek = FirstDayOfWeek[userSession.lang.toUpperCase()] || 1;
+
+    injector.register({
+        provide: "Environment",
+        use: { firstDayOfWeek }
+    });
+
+    injector.register({
+        provide: "GlobalEventBus",
+        use: VueBus
+    });
+}
 //Ajouter des data via des plugins
 //Ajouter des plugin vue via des plugins

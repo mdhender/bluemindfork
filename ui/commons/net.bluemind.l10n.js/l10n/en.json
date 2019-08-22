@@ -9,5 +9,14 @@
     "common.save_all": "Save all",
     "common.alert.message.sent.ok": "<i>\"{subject}\"</i> successfuly sent !",
     "common.alert.message.sent.error": "<i>\"{subject}\"</i> has not been sent.<br>{reason}",
-    "common.toggleAttachments": "Display/hide attachments"
+    "common.toggleAttachments": "Display/hide attachments",
+    "common.filter": "filter",
+    "common.all": "All",
+    "common.sort_by": "sort by",
+    "common.date": "Date",
+    "common.search": "Search",
+    "common.searching": "Searching...",
+    "common.messages": "0 message | 1 message | {count} messages",
+    "common.search.error": "Search did not succeed.",
+    "common.check.connection": "Check your internet connection and retry in a few moments."
 }

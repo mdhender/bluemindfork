@@ -17,7 +17,6 @@
     "mail.list.range.today": "Aujourd'hui",
     "mail.list.range.yesterday": "Hier",
     "mail.main.new": "Nouveau message",
-    "main.main.search.placeholder": "Rechercher",
     "mail.new.to.placeholder": "Ajouter un ou des destinataires",
     "mail.new.subject": "Sujet",
     "mail.new.subject.placeholder": "Objet",
@@ -38,5 +37,8 @@
     "mail.message.starter.display.drafts": "Tous mes brouillons",
     "mail.content.reply.aria": "Répondre à l'expéditeur",
     "mail.content.reply_all.aria": "Répondre à tous les destinataires",
-    "mail.content.forward.aria": "Transférer ce message"
+    "mail.content.forward.aria": "Transférer ce message",
+    "mail.list.search.no_result": "Aucun message contenant",
+    "mail.list.search.no_result.found": "n'a été trouvé.",
+    "mail.list.search.no_result.try_otherwise": "Essayez un terme plus générique."
 }

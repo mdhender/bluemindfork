@@ -9,25 +9,17 @@
         @keyup.home="goTo(0)"
         @keyup.end="goTo(length - 1)"
     >
-        <bm-list-group-item class="bg-transparent align-with-items pb-2 pt-3 pl-3">
-            <bm-row>
-                <bm-col cols="1">
-                    <bm-check />
-                </bm-col>
-                <bm-col class="d-none d-sm-block d-md-none d-xl-block pl-0">
-                    <span class="text-nowrap">
-                        filtrer <span class="fake-select">Tous <bm-icon icon="caret-down" /></span>
-                    </span>
-                </bm-col>
-                <bm-col class="d-none d-sm-block d-md-none d-xl-block text-right pr-0">
-                    <span class="text-nowrap">
-                        trier par <span class="fake-select">Date <bm-icon icon="caret-down" /></span>
-                    </span>
-                </bm-col>
-            </bm-row>
+        <mail-message-list-header />
+        <bm-list-group-item v-if="mode === 'search'" class="font-size-lg pl-4">
+            {{ $t("common.search") }} : {{ $tc("common.messages", length, { count: length }) }}
         </bm-list-group-item>
-        <bm-infinite-scroll 
-            :items="messages" 
+        <div v-if="displaySpinner" class="pt-5 text-center">
+            {{ $t("common.searching") }}
+            <bm-spinner class="pt-3" />
+        </div>
+        <bm-infinite-scroll
+            v-else-if="length > 0"
+            :items="messages"
             :total="length" 
             :item-key="'uid'"
             item-size="dynamic"
@@ -46,22 +38,44 @@
                 </bm-list-group-separator>
                 <mail-message-list-item
                     :message="f.item"
-                    :to="'/mail/' + folder + '/' + f.item.uid"
+                    :to="computeLink(f.item)"
                     style="cursor: pointer;"
                 />
             </template>
         </bm-infinite-scroll>
+        <bm-list-group-item v-else-if="mode === 'search'" class="bg-extra-light text-center h-100">
+            <div class="pt-5 font-size-lg">
+                <template v-if="search.error === true">
+                    {{ $t("common.search.error") }} <br><br>
+                    {{ $t("common.check.connection") }}
+                </template>
+                <template v-else>
+                    {{ $t("mail.list.search.no_result") }} <br>
+                    <div class="search-pattern">"{{ search.pattern }}"</div>
+                    {{ $t("mail.list.search.no_result.found") }} <br><br>
+                    {{ $t("mail.list.search.no_result.try_otherwise") }}
+                </template>
+            </div>
+        </bm-list-group-item>
     </bm-list-group>
 </template>
 
 <script>
-import { BmCheck, BmCol, BmListGroup, BmListGroupItem, BmListGroupSeparator, BmIcon, BmInfiniteScroll, BmRow }
-    from "@bluemind/styleguide";
-import MailMessageListItem from "./MailMessageListItem";
-import { mapGetters, mapState } from "vuex";
+import { 
+    BmCol, 
+    BmListGroup, 
+    BmListGroupItem,
+    BmListGroupSeparator, 
+    BmInfiniteScroll, 
+    BmRow,
+    BmSpinner
+} from "@bluemind/styleguide";
 import { DateRange } from "@bluemind/date";
+import { mapGetters, mapState } from "vuex";
 import findIndex from "lodash.findindex";
 import last from "lodash.last";
+import MailMessageListHeader from "./MailMessageListHeader";
+import MailMessageListItem from "./MailMessageListItem";
 
 let PAGE_DIFF = 9;
 
@@ -79,14 +93,14 @@ const RANGES = [TODAY, YESTERDAY, THIS_WEEK, OLDER];
 export default {
     name: "MailMessageList",
     components: {
-        BmCheck,
         BmCol,
         BmListGroup,
         BmListGroupItem,
         BmListGroupSeparator,
-        BmIcon,
         BmInfiniteScroll,
         BmRow,
+        BmSpinner,
+        MailMessageListHeader,
         MailMessageListItem
     },
     data() {
@@ -99,13 +113,20 @@ export default {
         ...mapGetters("backend.mail/folders", { folder: "currentFolder" }),
         ...mapState("backend.mail/items", {
             length: "count",
-            selectedUid: "current"
+            selectedUid: "current",
+            search: "search"
         }),
         position() {
             if (this.selectedUid) {
                 return this.indexOf(this.selectedUid);
             }
             return 0;
+        },
+        mode() {
+            return this.search.pattern !== null ? "search" : "default";
+        },
+        displaySpinner() {
+            return this.search.loading === true;
         }
     },
     methods: {
@@ -143,23 +164,31 @@ export default {
         },
         getSeparator(date) {
             return this.getRange(date)[I18N];
+        },
+        computeLink(item) {
+            if (this.mode === 'search') {
+                return '/mail/search/' + this.search.pattern + '/' + item.uid;
+            }
+            return '/mail/' + this.folder + '/' + item.uid;
         }
     }
 };
 </script>
+
 <style lang="scss">
 @import "~@bluemind/styleguide/css/variables";
+
 .mail-message-list {
     outline: none;
 }
-.fake-select {
+
+.mail-message-list .font-size-lg {
+    font-size: $font-size-lg;
+}
+
+.mail-message-list .search-pattern {
     color: $info-dark;
     font-weight: $font-weight-bold;
-    cursor: pointer;
-}
-.mail-message-list div.align-with-items {
-    margin-left: 6px; //fixme
-    border-bottom: 0!important;
-    border-left: 5px solid transparent!important;
+    word-break: break-all;
 }
 </style>

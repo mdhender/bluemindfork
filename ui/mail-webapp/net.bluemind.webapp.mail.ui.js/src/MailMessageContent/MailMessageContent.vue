@@ -68,7 +68,6 @@ import { DateTimeFormat } from "@bluemind/i18n";
 import { mapGetters } from "vuex";
 import { MimeType } from "@bluemind/email";
 import { BmCol, BmContainer, BmRow } from "@bluemind/styleguide";
-import CommonL10N from "@bluemind/l10n";
 import MailMessageContentAttachmentsBlock from "./MailMessageContentAttachmentsBlock";
 import MailMessageContentBody from "./MailMessageContentBody";
 import MailMessageContentFrom from "./MailMessageContentFrom";
@@ -100,7 +99,6 @@ export default {
             required: true
         }
     },
-    i18n: { messages: CommonL10N },
     data() {
         return {
             displayableParts: [],

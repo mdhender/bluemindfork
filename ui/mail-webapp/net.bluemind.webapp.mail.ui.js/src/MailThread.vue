@@ -19,7 +19,8 @@
 <script>
 import { mapGetters } from "vuex";
 import MailMessageContent from "./MailMessageContent/MailMessageContent";
-import MailMessageNew, { MailMessageNewModes } from "./MailMessageNew/MailMessageNew";
+import MailMessageNew from "./MailMessageNew";
+import MailMessageNewModes from "./MailMessageNew/MailMessageNewModes";
 
 export default {
     name: "MailThread",

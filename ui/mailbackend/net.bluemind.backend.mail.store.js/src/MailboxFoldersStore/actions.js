@@ -11,8 +11,7 @@ export function bootstrap({ dispatch, state, commit }) {
 }
 
 export function all({ commit }) {
-    const service = ServiceLocator.getProvider("MailboxFoldersPersistance").get();
-    return service.all().then(items => {
+    return ServiceLocator.getProvider("MailboxFoldersPersistance").get().all().then(items => {
         commit("all", items);
     });
 }
