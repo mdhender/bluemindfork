@@ -12,7 +12,7 @@
     <em:targetApplication>
       <RDF:Description>
         <em:id>{3550f703-e582-4d05-9a08-453d09bdfdc6}</em:id> 
-        <em:minVersion>10.0</em:minVersion>
+        <em:minVersion>57.0</em:minVersion>
         <em:maxVersion>100.*</em:maxVersion>
         <em:updateLink>${url}</em:updateLink>
       </RDF:Description>
