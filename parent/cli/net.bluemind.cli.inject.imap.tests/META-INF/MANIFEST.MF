@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.cli.inject.imap.tests
-Bundle-SymbolicName: net.bluemind.cli.inject.imap.tests
+Bundle-SymbolicName: net.bluemind.cli.inject.imap.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.cli.inject.imap.tests.Activator
 Bundle-Vendor: bluemind.net

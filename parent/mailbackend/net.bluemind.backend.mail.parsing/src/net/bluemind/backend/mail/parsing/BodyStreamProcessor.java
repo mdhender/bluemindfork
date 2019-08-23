@@ -49,9 +49,11 @@ import org.apache.james.mime4j.dom.address.MailboxList;
 import org.apache.james.mime4j.dom.field.ContentTypeField;
 import org.apache.james.mime4j.dom.field.FieldName;
 import org.apache.james.mime4j.stream.Field;
+import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
@@ -74,7 +76,6 @@ import net.bluemind.mime4j.common.AddressableEntity;
 import net.bluemind.mime4j.common.Mime4JHelper;
 import net.bluemind.mime4j.common.OffloadedBodyFactory;
 import net.bluemind.mime4j.common.OffloadedBodyFactory.SizedBody;
-import net.bluemind.neko.common.NekoHelper;
 
 public class BodyStreamProcessor {
 
@@ -253,22 +254,26 @@ public class BodyStreamProcessor {
 			for (AddressableEntity ae : parts) {
 				String mime = ae.getMimeType();
 				if (Mime4JHelper.TEXT_PLAIN.equals(mime) && !Mime4JHelper.isAttachment(ae)) {
-					return NekoHelper.trimWhiteSpace(getBodyContent(ae)).trim();
+					return CharMatcher.whitespace().collapseFrom(getBodyContent(ae), ' ').trim();
 				} else if (html == null && Mime4JHelper.TEXT_HTML.equals(mime) && !Mime4JHelper.isAttachment(ae)) {
 					html = getBodyContent(ae);
 				}
 			}
 			if (html != null) {
-				return NekoHelper.flatCompactRawText(html);
+				return htmlToText(html);
 			}
 
 		} else {
 			if (body instanceof TextBody) {
-				return NekoHelper.flatCompactRawText(getBodyContent(message));
+				return htmlToText(getBodyContent(message));
 			}
 		}
 
 		return "";
+	}
+
+	private static String htmlToText(String html) {
+		return Jsoup.parse(html).body().text();
 	}
 
 	private static String getBodyContent(Entity e) {

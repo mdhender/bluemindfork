@@ -30,6 +30,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.javafaker.Faker;
+import com.github.javafaker.GameOfThrones;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -134,15 +136,22 @@ public class ImapInjector {
 		}
 	}
 
+	private static final GameOfThrones gotFaker = Faker.instance().gameOfThrones();
+
 	private byte[] createEml(Random rd, TargetMailbox from, TargetMailbox to) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("From: ").append(from.email).append("\r\n");
 		sb.append("To: ").append(to.email).append("\r\n");
+		sb.append("Context-Type: text/html; charset=utf-8\r\n");
 		sb.append("Subject: Rand Message ").append(rd.nextInt()).append("\r\n\r\n");
-		sb.append("Yeah this is body\r\n");
+		sb.append("<html><body><p>Yeah this is   body   </p>\r\n");
 		for (int i = 0; i < 1024; i++) {
-			sb.append("Lorem ipsum sit amet, si vis pacem para bellum\r\n");
+			sb.append("<p>").append(gotFaker.quote()).append("</p>\r\n");
+			sb.append("<div>Written by <em>").append(gotFaker.character()).append("</em> of ").append(gotFaker.house())
+					.append("</div>");
+			sb.append("<div>Delivered to <em>").append(gotFaker.city()).append("</em></div>");
 		}
+		sb.append("\r\n</body></html>\r\n");
 		byte[] emlContent = sb.toString().getBytes();
 		return emlContent;
 	}

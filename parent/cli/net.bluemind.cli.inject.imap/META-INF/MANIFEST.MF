@@ -21,3 +21,6 @@ Automatic-Module-Name: net.bluemind.cli.inject.smtp
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.cli.inject.imap
 Bundle-Vendor: bluemind.net
+Bundle-ClassPath: lib/javafaker-1.0.1.jar,
+ lib/snakeyaml-1.23.jar,
+ .

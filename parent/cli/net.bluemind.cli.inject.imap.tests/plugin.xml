@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.backend.cyrus.replication.observers.provider">
+      <provider
+            impl="net.bluemind.cli.inject.imap.tests.ApplyCounter"
+            priority="42">
+      </provider>
+   </extension>
+
+</plugin>

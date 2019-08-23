@@ -10,12 +10,13 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.commons;bundle-version="4.1.0",
  net.bluemind.backend.mail.api,
  net.bluemind.mime4j.common,
- net.bluemind.neko.common,
  net.bluemind.config,
  net.bluemind.backend.mail.replica.api,
  io.vertx.core,
  net.bluemind.core.rest,
- net.bluemind.content.analysis
+ net.bluemind.content.analysis,
+ org.jsoup
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.backend.mail.parsing
+Automatic-Module-Name: net.bluemind.backend.mail.parsing

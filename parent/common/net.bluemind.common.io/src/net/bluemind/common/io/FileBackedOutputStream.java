@@ -17,11 +17,11 @@ package net.bluemind.common.io;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
@@ -45,7 +45,7 @@ public final class FileBackedOutputStream extends OutputStream {
 
 	private OutputStream out;
 	private MemoryOutput memory;
-	private File file;
+	private Path file;
 
 	/** ByteArrayOutputStream that exposes its internals. */
 	private static class MemoryOutput extends ByteArrayOutputStream {
@@ -61,7 +61,7 @@ public final class FileBackedOutputStream extends OutputStream {
 	/** Returns the file holding the data (possibly null). */
 	@VisibleForTesting
 	synchronized File getFile() {
-		return file;
+		return file.toFile();
 	}
 
 	/**
@@ -92,7 +92,7 @@ public final class FileBackedOutputStream extends OutputStream {
 
 			@Override
 			public long size() {
-				return file != null ? file.length() : memory.getCount();
+				return file != null ? file.toFile().length() : memory.getCount();
 			}
 		};
 	}
@@ -109,7 +109,7 @@ public final class FileBackedOutputStream extends OutputStream {
 
 	private synchronized InputStream openInputStream() throws IOException {
 		if (file != null) {
-			return new FileInputStream(file);
+			return Files.newInputStream(file);
 		} else {
 			return new ByteArrayInputStream(memory.getBuffer(), 0, memory.getCount());
 		}
@@ -133,9 +133,9 @@ public final class FileBackedOutputStream extends OutputStream {
 			}
 			out = memory;
 			if (file != null) {
-				File deleteMe = file;
+				Path deleteMe = file;
 				file = null;
-				Files.delete(deleteMe.toPath());
+				Files.delete(deleteMe);
 			}
 		}
 	}
@@ -173,8 +173,8 @@ public final class FileBackedOutputStream extends OutputStream {
 	 */
 	private void update(int len) throws IOException {
 		if (file == null && (memory.getCount() + len > fileThreshold)) {
-			File temp = File.createTempFile("fbos-" + filenamePrefix, null);
-			OutputStream transfer = Files.newOutputStream(temp.toPath()); // NOSONAR
+			Path temp = Files.createTempFile("fbos-" + filenamePrefix, null);
+			OutputStream transfer = Files.newOutputStream(temp); // NOSONAR
 			transfer.write(memory.getBuffer(), 0, memory.getCount());
 			transfer.flush();
 

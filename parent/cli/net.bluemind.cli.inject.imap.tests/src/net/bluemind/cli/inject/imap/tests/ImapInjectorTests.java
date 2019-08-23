@@ -22,15 +22,12 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.elasticsearch.common.Strings;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.collect.Lists;
 
@@ -131,26 +128,29 @@ public class ImapInjectorTests {
 		System.err.println("The test is here....");
 		ImapInjector inject = new ImapInjector(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM),
 				domainUid);
-		AtomicInteger total = new AtomicInteger();
-		VertxPlatform.eventBus().registerHandler("replication.apply.message",
-				(Message<JsonObject> msg) -> total.addAndGet(msg.body().getInteger("count")));
+		ApplyCounter.reset();
 		assertNotNull(inject);
 		int MSG = 20000;
-		inject.runCycle(MSG);
+		int MAX_STALLS = 500;
+		Runnable r = () -> inject.runCycle(MSG);
+		Thread injection = new Thread(r, "injector-thread");
+		injection.start();
 		int stalled = 0;
 		long time = System.currentTimeMillis();
 		do {
-			int cur = total.get();
-			Thread.sleep(2000);
-			int afterSleep = total.get();
-			System.err.println("Applied " + total.get() + " message(s), stalls: " + stalled + " after "
+			int cur = ApplyCounter.total();
+			Thread.sleep(4000);
+			int afterSleep = ApplyCounter.total();
+			System.err.println("Applied " + afterSleep + " message(s), stalls: " + stalled + " after "
 					+ (System.currentTimeMillis() - time) + "ms.");
 			if (cur == afterSleep) {
 				stalled++;
 			}
-		} while (total.get() < MSG && stalled < 60);
+		} while (ApplyCounter.total() < MSG && stalled < MAX_STALLS);
 		Thread.sleep(2000);
-		if (stalled >= 60) {
+		System.err.println("Waiting for injection end...");
+		injection.join(60000);
+		if (stalled >= MAX_STALLS) {
 			throw new RuntimeException("Test stalled");
 		}
 	}
