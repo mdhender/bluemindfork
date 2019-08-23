@@ -25,6 +25,7 @@ import java.util.Map;
 import freemarker.template.Template;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.node.api.INodeClient;
+import net.bluemind.node.api.NCUtils;
 import net.bluemind.server.api.IServer;
 
 /**
@@ -58,8 +59,12 @@ public class CyrusHsm extends AbstractConfFile {
 
 		byte[] rendered = render(cyrusConf, data);
 		if (node != null) {
+			NCUtils.execNoOut(node, "mkdir /dummy-sds");
+			NCUtils.execNoOut(node, "chown -R cyrus:mail /dummy-sds");
 			node.writeFile("/etc/cyrus-hsm", new ByteArrayInputStream(rendered));
 		} else {
+			service.submitAndWait(serverUid, "mkdir /dummy-sds");
+			service.submitAndWait(serverUid, "chown -R cyrus:mail /dummy-sds");
 			service.writeFile(serverUid, "/etc/cyrus-hsm", rendered);
 		}
 	}

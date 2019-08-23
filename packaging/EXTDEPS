@@ -1,4 +1,5 @@
-BMCYRUS="3.0.8-bluemind174"
+BMCYRUS="3.0.8-bluemind180"
+BMSDS="1.0.0-180"
 
 BMES="6.4.3-bluemind74"
 
@@ -32,10 +33,12 @@ PG_RHEL7="11.5-1PGDG.rhel7"
 
 # Cyrus
 BMCYRUSDEB="bm-cyrus-imapd=${BMCYRUS} \
+		        libbmsds=${BMSDS} \
 			bm-imap-i18n=${BMCYRUS} \
 			cyrus-common-2.4=${BMCYRUS} \
 			cyrus-common=${BMCYRUS}"
-BMCYRUSRPM="bm-cyrus-imapd=${BMCYRUS}"
+BMCYRUSRPM="bm-cyrus-imapd=${BMCYRUS} \
+            libbmsds=${BMSDS}"
 
 # tick
 BMTICKDEB="bm-telegraf=${TELEGRAF} \
