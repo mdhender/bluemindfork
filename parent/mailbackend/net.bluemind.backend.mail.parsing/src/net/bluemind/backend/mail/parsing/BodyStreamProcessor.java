@@ -154,7 +154,7 @@ public class BodyStreamProcessor {
 				Multipart mpBody = (Multipart) parsed.getBody();
 				processMultipart(mb, mpBody, filenames, bodyTxt);
 			}
-			String extractedBody = extractBody(parsed);
+			String extractedBody = CharMatcher.whitespace().collapseFrom(extractBody(parsed), ' ');
 			bodyTxt.append(extractedBody);
 			mb.preview = extractedBody.substring(0, Math.min(160, extractedBody.length()));
 
