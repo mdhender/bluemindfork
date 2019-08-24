@@ -139,10 +139,10 @@ public class ImapInjectorTests {
 		long time = System.currentTimeMillis();
 		do {
 			int cur = ApplyCounter.total();
-			Thread.sleep(4000);
+			Thread.sleep(5000);
 			int afterSleep = ApplyCounter.total();
 			System.err.println("Applied " + afterSleep + " message(s), stalls: " + stalled + " after "
-					+ (System.currentTimeMillis() - time) + "ms.");
+					+ (System.currentTimeMillis() - time) + "ms (alive: " + injection.isAlive() + ").");
 			if (cur == afterSleep) {
 				stalled++;
 			}

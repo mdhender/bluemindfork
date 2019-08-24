@@ -20,6 +20,7 @@ package net.bluemind.cli.inject.imap;
 import java.io.ByteArrayInputStream;
 import java.util.Objects;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -143,7 +144,7 @@ public class ImapInjector {
 		sb.append("From: ").append(from.email).append("\r\n");
 		sb.append("To: ").append(to.email).append("\r\n");
 		sb.append("Context-Type: text/html; charset=utf-8\r\n");
-		sb.append("Subject: Rand Message ").append(rd.nextInt()).append("\r\n\r\n");
+		sb.append("Subject: Rand Message ").append(UUID.randomUUID()).append("\r\n\r\n");
 		sb.append("<html><body><p>Yeah this is   body   </p>\r\n");
 		for (int i = 0; i < 1024; i++) {
 			sb.append("<p>").append(gotFaker.quote()).append("</p>\r\n");
