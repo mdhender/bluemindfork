@@ -7,9 +7,9 @@
 
 <script>
 import BmBanner from "@bluemind/banner.ui.vuejs/components/BmBanner";
+import CommonL10N from "@bluemind/l10n";
 import "@bluemind/styleguide/css/bluemind.scss";
 import injector from "@bluemind/inject";
-import CommonL10N from "@bluemind/l10n";
 
 export default {
     components: {

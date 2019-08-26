@@ -12,7 +12,8 @@ const state = {
         pattern: null,
         loading: false,
         error: false
-    }
+    },
+    shouldRemoveItem: null
 };
 
 export default {

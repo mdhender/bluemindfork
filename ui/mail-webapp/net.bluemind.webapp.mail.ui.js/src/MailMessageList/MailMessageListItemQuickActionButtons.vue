@@ -4,7 +4,7 @@
             <bm-button
                 :aria-label="$tc('mail.actions.remove.aria')"
                 class="p-1 mr-2 border-0 no-bg hovershadow"
-                @click.prevent
+                @click.prevent="shouldRemoveItem(message.uid)"
             >
                 <bm-icon icon="trash" size="lg" />
             </bm-button>
@@ -30,7 +30,7 @@
 
 <script>
 import { BmButtonToolbar, BmButtonGroup, BmButton, BmIcon } from "@bluemind/styleguide";
-import { mapGetters } from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 
 export default {
     name: "MailMessageListItemQuickActionButtons",
@@ -50,6 +50,7 @@ export default {
         ...mapGetters("backend.mail/folders", { folder: "currentFolder" })
     },
     methods: {
+        ...mapMutations("backend.mail/items", ["shouldRemoveItem"]),
         markAsSeen(isSeen) {
             this.$store.dispatch("backend.mail/items/updateSeen", {
                 folder: this.folder,

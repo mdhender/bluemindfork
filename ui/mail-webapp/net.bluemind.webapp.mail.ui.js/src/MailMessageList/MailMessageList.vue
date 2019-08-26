@@ -2,6 +2,7 @@
     <bm-list-group
         class="mail-message-list"
         tabindex="0"
+        @keyup.delete.prevent="shouldRemoveItem(selectedUid)"
         @keyup.up="moveTo(-1)"
         @keyup.down="moveTo(+1)"
         @keyup.page-down="moveTo(+PAGE)"
@@ -37,6 +38,7 @@
                     </bm-row>
                 </bm-list-group-separator>
                 <mail-message-list-item
+                    :ref="'message-' + f.item.uid"
                     :message="f.item"
                     :to="computeLink(f.item)"
                     style="cursor: pointer;"
@@ -70,8 +72,8 @@ import {
     BmRow,
     BmSpinner
 } from "@bluemind/styleguide";
+import { mapGetters, mapMutations, mapState } from "vuex";
 import { DateRange } from "@bluemind/date";
-import { mapGetters, mapState } from "vuex";
 import findIndex from "lodash.findindex";
 import last from "lodash.last";
 import MailMessageListHeader from "./MailMessageListHeader";
@@ -129,7 +131,15 @@ export default {
             return this.search.loading === true;
         }
     },
+    watch: {
+        selectedUid() {
+            if (this.selectedUid && this.$refs["message-" + this.selectedUid]) {
+                this.$nextTick(() => this.$refs["message-" + this.selectedUid].$el.focus());
+            }
+        }
+    },
     methods: {
+        ...mapMutations("backend.mail/items", ["shouldRemoveItem"]),
         getRange(date) {
             for (let i = 0; i < RANGES.length; i++) {
                 if (RANGES[i].contains(date)) {

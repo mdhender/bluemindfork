@@ -28,7 +28,7 @@
                 <router-view />
             </bm-col>
         </bm-row>
-        <bm-application-alert :errors="getErrorAlerts()" :successes="getSuccessAlerts()" />
+        <bm-application-alert :errors="errorAlerts" :successes="successAlerts" />
     </bm-container>
 </template>
 
@@ -42,11 +42,13 @@ import {
     BmRow,
     MakeUniq
 } from "@bluemind/styleguide";
+import { mapActions, mapGetters, mapState, mapMutations } from "vuex";
 import MailAppL10N from "@bluemind/webapp.mail.l10n";
 import MailFolderTree from "./MailFolderTree";
 import MailMessageList from "./MailMessageList/MailMessageList";
 import MailToolbar from "./MailToolbar/";
 import MailSearchForm from "./MailSearchForm";
+import uuid from "uuid/v4";
 
 export default {
     name: "MailApp",
@@ -64,25 +66,62 @@ export default {
     },
     mixins: [MakeUniq],
     i18n: { messages: MailAppL10N },
+    computed: {
+        ...mapGetters("backend.mail/items", ["currentMessage", "messages", "messageByUid"]),
+        ...mapGetters("backend.mail/folders", ["currentFolderId", "trashFolderId", "currentFolder"]),
+        ...mapState("backend.mail/items", ["shouldRemoveItem", "count", "current"]),
+        ...mapState("alert", { errorAlerts: "errors", successAlerts: "successes" })
+    },
+    watch: {
+        shouldRemoveItem() {
+            if (this.shouldRemoveItem !== null) {
+                const message = this.messageByUid(this.shouldRemoveItem);
+                const subject = message.subject;
+                const mailId = message.ids.id;
+
+                this.$store.dispatch("backend.mail/items/remove", { 
+                    folderId: this.currentFolderId, 
+                    trashFolderId: this.trashFolderId, 
+                    mailId
+                }).then(() => {
+                    const index = this.messages.findIndex(message => mailId === message.ids.id);
+                    if (this.current !== null) {
+                        if (this.count === 1) {
+                            this.$router.push('/mail/' + this.currentFolder + '/');
+                        } else if (this.count === index + 1) {
+                            this.$router.push('/mail/' + this.currentFolder + '/' + this.messages[index - 1].uid);
+                        } else {
+                            this.$router.push('/mail/' + this.currentFolder + '/' + this.messages[index + 1].uid);
+                        }
+                    }
+                    this.remove(index);
+                    this.addSuccess({
+                        uuid: uuid(),
+                        message: '"' + subject + '" ' + this.$t("common.alert.remove.ok")
+                    });
+                }).catch((reason) => this.addError({
+                    uuid: uuid(),
+                    message: '"' + subject + '" ' + this.$t("common.alert.remove.error") + "<br>" + reason
+                }));
+            }
+        }
+    },
     created: function() {
         const isRootPath = this.$route.path.endsWith("/mail/");
 
-        this.$store.dispatch("backend.mail/folders/bootstrap", isRootPath).then(() => {
+        this.bootstrap(isRootPath).then(() => {
             if (isRootPath) {
-                this.$store.dispatch("backend.mail/items/all", 
-                    this.$store.state["backend.mail/folders"].settings.current);
+                this.all(this.currentFolder);
             }
         });
     },
     methods: {
-        getErrorAlerts() {
-            return this.$store.state["alert"].errors;
-        },
-        getSuccessAlerts() {
-            return this.$store.state["alert"].successes;
-        },
+        ...mapActions("backend.mail/folders", ["bootstrap"]),
+        ...mapActions("backend.mail/items", ["all"]),
+        ...mapMutations("alert", ["addError", "addSuccess"]),
+        ...mapMutations("backend.mail/items", ["remove", "setCurrent"]),
         composeNewMessage() {
-            this.$store.commit("backend.mail/items/setCurrent", null);
+            this.setCurrent(null);
             this.$router.push({ name: 'newMessage' });
         }
     }

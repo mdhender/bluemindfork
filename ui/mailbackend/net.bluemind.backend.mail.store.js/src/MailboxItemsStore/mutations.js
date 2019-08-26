@@ -44,3 +44,12 @@ export function setSearchLoading(state, isLoading) {
 export function setSearchError(state, hasError) {
     Vue.set(state.search, 'error', hasError);
 }
+
+export function remove(state, index) {
+    state.items.splice(index, 1);
+    state.count--;
+}
+
+export function shouldRemoveItem(state, mailUid) {
+    state.shouldRemoveItem = mailUid;
+}

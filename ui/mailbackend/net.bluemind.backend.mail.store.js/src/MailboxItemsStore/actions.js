@@ -239,6 +239,16 @@ export function search({ commit }, { folderUid, pattern }) {
         commit("setSearchPattern", pattern);
         commit("setSearchLoading", false);
         commit("setSearchError", true);
-    })
-    ;
+    });
+}
+
+export function remove(payload, { folderId, trashFolderId, mailId }) {
+    return ServiceLocator.getProvider("MailboxFoldersPersistance")
+        .get()
+        .importItems(trashFolderId, {
+            mailboxFolderId: folderId,
+            ids: [{ id: mailId }],
+            expectedIds: undefined,
+            deleteFromSource: true
+        });
 }

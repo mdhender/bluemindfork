@@ -19,3 +19,11 @@ export function tree(state) {
 export function currentFolder(state) {
     return state.settings.current;
 }
+
+export function currentFolderId(state) {
+    return state.folders.find(folder => folder.uid === state.settings.current).internalId;
+}
+
+export function trashFolderId(state) {
+    return state.folders.find(folderItem => folderItem.value.fullName === "Trash").internalId;
+}

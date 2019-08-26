@@ -134,6 +134,14 @@ export default {
 <style lang="scss" >
 @import "~@bluemind/styleguide/css/variables";
 
+.mail-message-list-item {
+    cursor: pointer;
+}
+
+.mail-message-list-item:focus {
+    outline: none;
+}
+
 .mail-message-list-item .selector .custom-check {
     display: none !important;
     margin-left: 1em;

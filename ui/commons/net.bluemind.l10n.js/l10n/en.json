@@ -18,5 +18,7 @@
     "common.searching": "Searching...",
     "common.messages": "0 message | 1 message | {count} messages",
     "common.search.error": "Search did not succeed.",
-    "common.check.connection": "Check your internet connection and retry in a few moments."
+    "common.check.connection": "Check your internet connection and retry in a few moments.",
+    "common.alert.remove.ok": "has been deleted.",
+    "common.alert.remove.error": "could not be deleted."
 }

@@ -14,7 +14,7 @@ describe("GetInlinePartsVisitor", () => {
 
         // run the code
         const visitor = new GetInlinePartsVisitor();
-        const walker = new TreeWalker(rootPart, visitor);
+        const walker = new TreeWalker(rootPart, [visitor]);
         walker.walk();
         const result = visitor.result();
 
@@ -43,7 +43,7 @@ describe("GetInlinePartsVisitor", () => {
 
         // run the code
         const visitor = new GetInlinePartsVisitor();
-        const walker = new TreeWalker(rootPart, visitor);
+        const walker = new TreeWalker(rootPart, [visitor]);
         walker.walk();
         const result = visitor.result();
 
@@ -79,7 +79,7 @@ describe("GetInlinePartsVisitor", () => {
 
         // run the code
         const visitor = new GetInlinePartsVisitor();
-        const walker = new TreeWalker(rootPart, visitor);
+        const walker = new TreeWalker(rootPart, [visitor]);
         walker.walk();
         const result = visitor.result();
 
@@ -108,7 +108,7 @@ describe("GetInlinePartsVisitor", () => {
 
         // run the code
         const visitor = new GetInlinePartsVisitor();
-        const walker = new TreeWalker(rootPart, visitor);
+        const walker = new TreeWalker(rootPart, [visitor]);
         walker.walk();
         const result = visitor.result();
 
@@ -143,7 +143,7 @@ describe("GetInlinePartsVisitor", () => {
 
         // run the code
         const visitor = new GetInlinePartsVisitor();
-        const walker = new TreeWalker(rootPart, visitor);
+        const walker = new TreeWalker(rootPart, [visitor]);
         walker.walk();
         const result = visitor.result();
 
@@ -188,7 +188,7 @@ describe("GetInlinePartsVisitor", () => {
 
         // run the code
         const visitor = new GetInlinePartsVisitor();
-        const walker = new TreeWalker(rootPart, visitor);
+        const walker = new TreeWalker(rootPart, [visitor]);
         walker.walk();
         const result = visitor.result();
 
@@ -226,7 +226,7 @@ describe("GetInlinePartsVisitor", () => {
 
         // run the code
         const visitor = new GetInlinePartsVisitor();
-        const walker = new TreeWalker(rootPart, visitor);
+        const walker = new TreeWalker(rootPart, [visitor]);
         walker.walk();
         const result = visitor.result();
 
@@ -268,7 +268,7 @@ describe("GetInlinePartsVisitor", () => {
 
         // run the code
         const visitor = new GetInlinePartsVisitor();
-        const walker = new TreeWalker(rootPart, visitor);
+        const walker = new TreeWalker(rootPart, [visitor]);
         walker.walk();
         const result = visitor.result();
 
@@ -310,7 +310,7 @@ describe("GetInlinePartsVisitor", () => {
 
         // run the code
         const visitor = new GetInlinePartsVisitor();
-        const walker = new TreeWalker(rootPart, visitor);
+        const walker = new TreeWalker(rootPart, [visitor]);
         walker.walk();
         const result = visitor.result();
 
@@ -355,7 +355,7 @@ describe("GetInlinePartsVisitor", () => {
 
         // run the code
         const visitor = new GetInlinePartsVisitor();
-        const walker = new TreeWalker(rootPart, visitor);
+        const walker = new TreeWalker(rootPart, [visitor]);
         walker.walk();
         const result = visitor.result();
 
@@ -408,7 +408,7 @@ describe("GetInlinePartsVisitor", () => {
 
         // run the code
         const visitor = new GetInlinePartsVisitor();
-        const walker = new TreeWalker(rootPart, visitor);
+        const walker = new TreeWalker(rootPart, [visitor]);
         walker.walk();
         const result = visitor.result();
 

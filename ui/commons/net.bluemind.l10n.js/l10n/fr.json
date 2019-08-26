@@ -18,5 +18,7 @@
     "common.searching": "Recherche en cours...",
     "common.messages": "0 message | 1 message | {count} messages",
     "common.search.error": "La recherche n'a pu aboutir.",
-    "common.check.connection": "Vérifiez votre connexion internet et réessayez dans quelques instants."
+    "common.check.connection": "Vérifiez votre connexion internet et réessayez dans quelques instants.",
+    "common.alert.remove.ok": "a bien été supprimé.",
+    "common.alert.remove.error": "n'a pas pu être supprimé."
 }
