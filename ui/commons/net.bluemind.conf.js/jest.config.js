@@ -11,7 +11,7 @@ module.exports = {
         ".*\\.(vue)$": "vue-jest"
     },
     transformIgnorePatterns: [
-        "/node_modules/(?!@bluemind/email|@bluemind/html-utils|@bluemind/date|@bluemind/i18n)",
+        "/node_modules/(?!@bluemind/|storybook-addon-vue-info)",
     ],
     testURL: "http://localhost",
     setupFiles: [
