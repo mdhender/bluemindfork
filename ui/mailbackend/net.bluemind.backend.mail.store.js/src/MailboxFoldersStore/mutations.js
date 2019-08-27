@@ -13,5 +13,8 @@ export function folderSettings(state, value) {
 }
 
 export function setCurrent(state, uid) {
+    const settings = JSON.parse(window.localStorage.getItem("backend.mail.folders")) || {};
+    settings.current = uid;
+    window.localStorage.setItem("backend.mail.folders", JSON.stringify(settings));
     Vue.set(state.settings, 'current', uid);
 }

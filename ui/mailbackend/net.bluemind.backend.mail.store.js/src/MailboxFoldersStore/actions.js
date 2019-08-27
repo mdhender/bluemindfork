@@ -1,10 +1,10 @@
 import ServiceLocator from "@bluemind/inject";
 
-export function bootstrap({ dispatch, state, commit }) {
+export function bootstrap({ dispatch, state, commit }, mustSetInboxAsCurrent) {
     return dispatch("settings")
         .then(() => dispatch("all"))
         .then(() => {
-            if (state.settings.current == null) {
+            if (mustSetInboxAsCurrent) {
                 commit("setCurrent", state.folders.find(item => item.displayName === "INBOX").uid);
             }
         });

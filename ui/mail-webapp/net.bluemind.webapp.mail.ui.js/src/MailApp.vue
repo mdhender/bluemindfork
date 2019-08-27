@@ -65,8 +65,13 @@ export default {
     mixins: [MakeUniq],
     i18n: { messages: MailAppL10N },
     created: function() {
-        this.$store.dispatch("backend.mail/folders/bootstrap").then(() => {
-            this.$store.dispatch("backend.mail/items/all", this.$store.state["backend.mail/folders"].settings.current);
+        const isRootPath = this.$route.path.endsWith("/mail/");
+
+        this.$store.dispatch("backend.mail/folders/bootstrap", isRootPath).then(() => {
+            if (isRootPath) {
+                this.$store.dispatch("backend.mail/items/all", 
+                    this.$store.state["backend.mail/folders"].settings.current);
+            }
         });
     },
     methods: {
