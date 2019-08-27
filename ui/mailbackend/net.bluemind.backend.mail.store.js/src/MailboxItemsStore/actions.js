@@ -141,7 +141,7 @@ export function fetch({ state }, { folder, uid, part, isAttachment }) {
     }
     return ServiceLocator.getProvider("MailboxItemsPersistance")
         .get(folder)
-        .fetch(item.value.imapUid, part.address, encoding)
+        .fetch(item.value.imapUid, part.address, encoding, part.mime, part.charset)
         .then(function (stream) {
             part.content = stream;
             part.uid = uid;
