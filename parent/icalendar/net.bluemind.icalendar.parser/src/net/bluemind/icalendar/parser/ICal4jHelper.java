@@ -538,7 +538,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 
 			reccurringRule.until = IcalConverter.convertToDateTime(recur.getUntil(), tz);
 			if (null != reccurringRule.until && null != elem.dtstart) {
-				reccurringRule.until.precision = elem.dtstart.precision;
+				reccurringRule.until = BmDateTimeWrapper.create(reccurringRule.until.iso8601, elem.dtstart.precision);
 			}
 
 			if (recur.getSecondList() != null) {
