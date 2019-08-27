@@ -123,6 +123,8 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.toModelView = function(veve
     var MSG_PRIVATE = goog.getMsg('Private');
     model.summary = MSG_PRIVATE;
   }
+  
+  model.attachments = this.parseAttachments_(vevent);
 
   return model;
 };
@@ -285,6 +287,25 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.parseRRule_ = function(veve
   return rrule;
 };
 
+net.bluemind.calendar.vevent.VEventAdaptor.prototype.parseAttachments_ = function(vevent) {
+  if (!vevent['attachments']) {
+    return [];
+  }
+  
+  var attachments = goog.array.map(vevent['attachments'], function(attachment) {
+    return {
+      publicUrl : attachment['publicUrl'],
+      name : attachment['name']
+    };
+  }, this);
+  
+  for (var i = 0; i < attachments.length; i++) { 
+    attachments[i].index = i;
+  } 
+  
+  return attachments;
+}
+
 /**
  * Test if the given item container is owned by a given attendee
  * 
@@ -351,6 +372,15 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.fromModelView = function(mo
       return {
         'action' : alarm.action,
         'trigger' : (null != alarm.trigger) ? alarm.trigger * -1 : alarm.trigger
+      }
+    });
+  }
+  
+  if (goog.isArray(model.attachments)) {
+    vevent['attachments'] = goog.array.map(model.attachments, function(attachment) {
+      return {
+        'publicUrl' : attachment.publicUrl,
+        'name' : attachment.name
       }
     });
   }

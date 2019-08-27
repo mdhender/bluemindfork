@@ -463,6 +463,65 @@ net.bluemind.calendar.vevent.ui.Form.prototype.enterDocument = function() {
     });
   });
   el = dom.getElement('bm-ui-form-reminder');
+  
+  // ATTACHMENTS
+  goog.array.map(this.getModel().attachments, function(attachment) {
+    handler.listen(dom.getElement('bm-ui-form-delete-attachment-'+attachment.index), goog.events.EventType.CLICK, this.delAttachment(attachment));
+  }, this);
+  
+  var canRemoteAttach = goog.global['bmcSessionInfos']['roles'].split(',').includes('canRemoteAttach');
+  if (!canRemoteAttach){
+    this.getDomHelper().removeNode(dom.getElement('bm-ui-form-no-attachment-block'));
+    if (this.getModel().attachments.length == 0){
+      this.getDomHelper().removeNode(dom.getElement('attachment-label'));
+    }
+  } else {
+    handler.listen(dom.getElement('localAttachmentFile'), goog.events.EventType.CHANGE, function() {
+      var fileInput = document.getElementById('localAttachmentFile');
+      var file = fileInput.files[0];
+      var formData = new FormData();
+      formData.append('file', file);
+      
+      var sid = goog.global['bmcSessionInfos']['sid'];
+      var domain = goog.global['bmcSessionInfos']['domain'];
+      var url = '/api/attachment/' + encodeURIComponent(domain) + '/' + encodeURIComponent(file.name) + '/share';
+      var xhr = new XMLHttpRequest();
+      xhr.open('PUT', url, true);
+      xhr.setRequestHeader('X-BM-ApiKey', sid);
+      var that = this;  
+      xhr.onload = function () {
+          var ret = JSON.parse(this.response);
+          var index = 0;
+          for (i = 0; i < that.getModel().attachments.length; i++) { 
+            index = Math.max(that.getModel().attachments[i].index, index);
+          } 
+          index++;
+          var publicUrl = ret['publicUrl'];
+          var name = ret['name'];
+          var newAttachment  = {
+              publicUrl : publicUrl,
+              name : name,
+              index : index
+          }
+          
+          that.getModel().attachments.push(newAttachment);
+          var entry = soy.renderAsFragment(net.bluemind.calendar.vevent.templates.attachmentEntry, {
+            attachment : newAttachment
+          });
+
+          that.getDomHelper().appendChild(dom.getElement('bm-attachment-list'), entry);
+          handler.listen(dom.getElement('bm-ui-form-delete-attachment-'+newAttachment.index), goog.events.EventType.CLICK, that.delAttachment(newAttachment));
+          
+          dom.getElement('localAttachmentFile').value = "";
+      };
+      xhr.send(formData);
+      
+    });
+   
+    handler.listen(dom.getElement('bm-ui-form-add-attachment-server'), goog.events.EventType.CLICK, function() {
+      
+    });
+  }
 
   // LOCATION
   el = dom.getElement('bm-ui-form-location');
@@ -556,6 +615,20 @@ net.bluemind.calendar.vevent.ui.Form.prototype.enterDocument = function() {
   // focus on title field
   dom.getElement('bm-ui-form-title').focus();
 };
+
+/**
+ * @private
+ */
+net.bluemind.calendar.vevent.ui.Form.prototype.delAttachment = function(attachment){
+  return function() {
+    for( var i = 0; i < this.getModel().attachments.length; i++){ 
+      if (this.getModel().attachments[i].name === attachment.name) {
+        this.getModel().attachments.splice(i, 1); 
+      }
+    }
+    this.getDomHelper().removeNode(this.getDomHelper().getElement('div-bm-ui-form-delete-attachment-'+attachment.index));
+   }
+}
 
 /**
  * @private
@@ -2273,12 +2346,18 @@ net.bluemind.calendar.vevent.ui.Form.prototype.addAttendee_ = function(attendee)
   }
 };
 
-/** Request the computing of a resource template if any and add it to the event description if not already done. */
+/**
+ * Request the computing of a resource template if any and add it to the event
+ * description if not already done.
+ */
 net.bluemind.calendar.vevent.ui.Form.prototype.addResourceTemplateToDescription = function (attendee) {
   this.addOrRemoveResourceTemplateFromDescription(attendee, "add");
 }
 
-/** Request the removing of a resource template from the event description if present. */
+/**
+ * Request the removing of a resource template from the event description if
+ * present.
+ */
 net.bluemind.calendar.vevent.ui.Form.prototype.removeResourceTemplateFromDescription = function (attendee) {
   this.addOrRemoveResourceTemplateFromDescription(attendee, "remove");
 }

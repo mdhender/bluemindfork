@@ -19,11 +19,8 @@
 package net.bluemind.imip.parser.impl;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.james.mime4j.dom.BinaryBody;
 import org.apache.james.mime4j.dom.Body;
@@ -33,11 +30,9 @@ import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.Multipart;
 import org.apache.james.mime4j.dom.field.ContentTypeField;
 import org.apache.james.mime4j.message.BodyPart;
-import org.apache.james.mime4j.stream.Field;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.imip.parser.IIMIPParser;
 import net.bluemind.imip.parser.IMIPInfos;
 import net.bluemind.imip.parser.ITIPMethod;
@@ -72,25 +67,6 @@ public class IMIPParserImpl implements IIMIPParser {
 		Multipart mp = (Multipart) body;
 		List<Entity> parts = mp.getBodyParts();
 		parts = expandParts(parts);
-
-		List<Field> attachments = m.getHeader().getFields("X-BM-ATTACHMENT");
-		List<AttachedFile> attachedFiles = new ArrayList<>();
-		if (attachments != null) {
-			String headerPattern = "\\((.*)\\)(.*)";
-			Pattern compile = Pattern.compile(headerPattern);
-			for (Field field : attachments) {
-				Matcher matcher = compile.matcher(field.getBody());
-				if (matcher.find()) {
-					String name = matcher.group(1);
-					String uri = matcher.group(2);
-					AttachedFile file = new AttachedFile();
-					file.name = name;
-					file.publicUrl = uri;
-					attachedFiles.add(file);
-				}
-			}
-
-		}
 
 		for (Entity e : parts) {
 			String mime = e.getMimeType();
