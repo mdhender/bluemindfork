@@ -38,7 +38,7 @@
 
 <script>
 import { BmButton, BmCollapse, BmCounterBadge, BmIcon, BmLabelIcon, BmTree } from "@bluemind/styleguide";
-import { mapGetters, mapActions } from "vuex";
+import { mapGetters, mapActions, mapMutations } from "vuex";
 import injector from "@bluemind/inject";
 
 
@@ -83,7 +83,9 @@ export default {
             return "folder";
         },
         ...mapActions("backend.mail/folders", ["expand", "collapse"]),
+        ...mapMutations("backend.mail/items", ["setCurrent"]),
         onSelect(uid) {
+            this.setCurrent(null);
             this.$router.push({ path: '/mail/' + uid + '/' });
         }
     }
