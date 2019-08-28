@@ -22,8 +22,8 @@ import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -45,7 +45,7 @@ public abstract class CyrusAclService {
 	protected static final Logger logger = LoggerFactory.getLogger(CyrusAclService.class);
 	public static final int MAX_TASK_COUNT = 10;
 	private static final ExecutorService executer = new ThreadPoolExecutor(MAX_TASK_COUNT, MAX_TASK_COUNT, 15L,
-			TimeUnit.MINUTES, new ArrayBlockingQueue<>(MAX_TASK_COUNT * 3), new VertxThreadFactory("bm-acl"));
+			TimeUnit.MINUTES, new LinkedBlockingQueue<>(), new VertxThreadFactory("bm-acl"));
 
 	private CyrusAclService(String backendAddress) {
 		this.backendAddress = backendAddress;
