@@ -22,6 +22,8 @@ public enum DockerContainer {
 
 	WEBDAV("bluemind/webdav", "webdav"),
 
+	S3("bluemind/s3", "s3"),
+
 	MAILBOX_ROLE("bluemind/mailbox-role", "mailbox-role");
 
 	private final String name;

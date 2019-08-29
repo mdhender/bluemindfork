@@ -68,6 +68,7 @@
 		<module>serialization</module>
 		<module>contentanalysis</module>
 		<module>topology</module>
+		<module>cloud</module>
 	</modules>
 
 	<build>
