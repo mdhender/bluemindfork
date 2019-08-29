@@ -1,6 +1,6 @@
 <template>
     <div class="mail-message-content-body min-h-100">
-        <iframe ref="iFrameMailContent" class="w-100 border-0" scrolling="no" />
+        <iframe ref="iFrameMailContent" class="w-100 border-0" scrolling="no" @load="resizeIFrame" />
     </div>
 </template>
 
@@ -28,15 +28,8 @@ export default {
     },
     methods: {
         resizeIFrame() {
-            const offsetHeight = this.$refs.iFrameMailContent.contentWindow.document.body.offsetHeight;
-            this.$refs.iFrameMailContent.style.height = offsetHeight + (offsetHeight * 10) / 100 + "px";
-
-            const scrollHeight = this.$refs.iFrameMailContent.contentWindow.document.body.scrollHeight;
-            const clientHeight = this.$refs.iFrameMailContent.contentWindow.document.body.clientHeight;
-
-            if (scrollHeight > clientHeight) {
-                this.$refs.iFrameMailContent.style.height = scrollHeight + (scrollHeight * 10) / 100 + "px";
-            }
+            let htmlRootNode = this.$refs.iFrameMailContent.contentDocument.documentElement;
+            this.$refs.iFrameMailContent.style.height = htmlRootNode.offsetHeight + "px";
         },
         display() {
             if (this.parts) {
@@ -66,10 +59,6 @@ export default {
                 iframeDoc.close();
 
                 this.addStyle(iframeDoc);
-
-                this.$nextTick(function() {
-                    this.resizeIFrame();
-                });
             }
         },
 
