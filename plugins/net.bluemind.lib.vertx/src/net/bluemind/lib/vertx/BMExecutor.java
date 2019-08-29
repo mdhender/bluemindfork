@@ -43,7 +43,6 @@ import com.netflix.spectator.api.Registry;
 import com.netflix.spectator.api.patterns.PolledMeter;
 
 import net.bluemind.core.utils.GlobalConstants;
-import net.bluemind.eclipse.common.IHasPriority;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 
@@ -66,6 +65,10 @@ public class BMExecutor {
 	private final BMExecutorService asExecutorService;
 	private final Registry reg;
 	private final IdFactory idFactory;
+
+	public interface IHasPriority {
+		int priority();
+	}
 
 	private static final class BMRejectedExecutionHandler implements RejectedExecutionHandler {
 
