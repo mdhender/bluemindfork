@@ -28,6 +28,6 @@ Require-Bundle: net.bluemind.authentication.api;bundle-version="1.0.0";visibilit
  net.bluemind.role.api,
  net.bluemind.core.container.service,
  net.bluemind.system.api,
- net.bluemind.directory.hollow.datamodel.consumer
+ net.bluemind.user.hook
 Export-Package: net.bluemind.authentication.service
 

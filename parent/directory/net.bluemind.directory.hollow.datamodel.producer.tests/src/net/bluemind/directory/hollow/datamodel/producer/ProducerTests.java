@@ -31,6 +31,7 @@ import java.util.UUID;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -67,6 +68,11 @@ public class ProducerTests {
 
 	private String domainUid;
 	private ItemValue<Domain> domain;
+
+	@BeforeClass
+	public static void oneShotBefore() {
+		System.setProperty("es.mailspool.count", "1");
+	}
 
 	@Before
 	public void setup() throws Exception {
@@ -220,6 +226,42 @@ public class ProducerTests {
 
 		Collection<AddressBookRecord> ret = search.byNameOrEmailPrefix("user");
 		assertEquals(4, ret.size());
+	}
+
+	@Test
+	public void testArchiveUser() throws Exception {
+		DirectoryTestProducer producer = new DirectoryTestProducer(domainUid);
+		producer.init();
+		producer.produce();
+		Thread.sleep(3000);
+
+		DirectoryTestConsumer consumer = new DirectoryTestConsumer(producer.file);
+		DirectorySearchFactory.getDeserializers().remove(domainUid);
+		DirectorySearchFactory.getDeserializers().put(domainUid, consumer);
+		SerializedDirectorySearch search = DirectorySearchFactory.get(domainUid);
+
+		Wait w = new Wait(consumer);
+		producer.produce();
+		w.waitFor();
+
+		Optional<AddressBookRecord> byEmail = search.byEmail("user1@" + domainUid);
+		assertTrue(byEmail.isPresent());
+
+		IUser userService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class,
+				domain.uid);
+		ItemValue<User> user1 = userService.getComplete("user1");
+		user1.value.archived = true;
+		userService.update("user1", user1.value);
+
+		producer.produce();
+		Thread.sleep(3000);
+
+		w = new Wait(consumer);
+		producer.produce();
+		w.waitFor();
+
+		byEmail = search.byEmail("user1@" + domainUid);
+		assertFalse(byEmail.isPresent());
 	}
 
 	@Test

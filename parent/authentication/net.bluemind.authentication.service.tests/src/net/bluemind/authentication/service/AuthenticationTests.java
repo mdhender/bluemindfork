@@ -101,6 +101,7 @@ public class AuthenticationTests {
 		settings.set(domainSettings);
 		PopulateHelper.addDomainAdmin("admin", "bm.lan", Routing.external);
 		PopulateHelper.addUser("toto", "bm.lan", Routing.external);
+		PopulateHelper.addUser("archived", "bm.lan", Routing.external);
 		PopulateHelper.addUser("nomail", "bm.lan", Routing.none);
 		PopulateHelper.addSimpleUser("simple", "bm.lan", Routing.external);
 
@@ -248,19 +249,13 @@ public class AuthenticationTests {
 
 		IAuthentication authentication = getService(null);
 
-		LoginResponse response = authentication.login("toto@bm.lan", "toto", "testLoginArchived");
-
-		assertEquals(Status.Ok, response.status);
-		assertNotNull(response.authKey);
-
 		IUser userService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class,
 				"bm.lan");
-		ItemValue<User> toto = userService.byLogin("toto");
-		toto.value.archived = true;
-		userService.update(toto.uid, toto.value);
+		ItemValue<User> archived = userService.byLogin("archived");
+		archived.value.archived = true;
+		userService.update(archived.uid, archived.value);
 
-		response = authentication.login("toto@bm.lan", "toto", "testLoginArchived");
-
+		LoginResponse response = authentication.login("archived@bm.lan", "archived", "testLoginArchived");
 		assertEquals(Status.Bad, response.status);
 		assertNull(response.authKey);
 	}

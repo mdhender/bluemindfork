@@ -76,8 +76,11 @@ public class DirectoryDeserializer {
 		logger.info("Current version: {}", consumer.getCurrentVersionId());
 
 		this.minimalIndex = new AddressBookRecordPrimaryKeyIndex(consumer, "minimalid");
+		minimalIndex.listenToDataRefresh();
 		this.distinguishedNameIndex = new AddressBookRecordPrimaryKeyIndex(consumer, "distinguishedName");
+		distinguishedNameIndex.listenToDataRefresh();
 		this.uidIndex = new AddressBookRecordPrimaryKeyIndex(consumer, "uid");
+		uidIndex.listenToDataRefresh();
 		this.nameIndex = new HollowPrefixIndex(consumer.getStateEngine(), "AddressBookRecord", "name.value");
 		nameIndex.listenForDeltaUpdates();
 		this.emailIndex = new HollowPrefixIndex(consumer.getStateEngine(), "AddressBookRecord", "emails.address.value");

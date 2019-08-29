@@ -163,8 +163,7 @@ public class DirectorySerializer implements DataSerializer {
 		Map<String, DataLocation> locationCache = new HashMap<>();
 		for (List<String> dirPartition : Lists.partition(allUids, 100)) {
 			List<ItemValue<DirEntry>> entries = dirApi.getMultiple(dirPartition).stream().filter(this::supportedType)
-					.filter(this::supportedState).collect(Collectors.toList());
-
+					.collect(Collectors.toList());
 			List<String> uidWithEmails = entries.stream().filter(iv -> iv.value.email != null).map(iv -> iv.uid)
 					.collect(Collectors.toList());
 
@@ -176,7 +175,11 @@ public class DirectorySerializer implements DataSerializer {
 				rec.addressBook = oabs.computeIfAbsent(domainUid, d -> {
 					return createOabEntry(domain);
 				});
-				incremetal.addOrModify(rec);
+				if (entry.value.archived) {
+					incremetal.delete(new RecordPrimaryKey("AddressBookRecord", new String[] { entry.value.entryUid }));
+				} else {
+					incremetal.addOrModify(rec);
+				}
 			}
 		}
 		for (String uidToRm : changeset.deleted) {
@@ -190,10 +193,6 @@ public class DirectorySerializer implements DataSerializer {
 	private boolean supportedType(ItemValue<DirEntry> iv) {
 		return !iv.value.system && (iv.value.kind == Kind.USER || iv.value.kind == Kind.GROUP
 				|| iv.value.kind == Kind.MAILSHARE || iv.value.kind == Kind.RESOURCE);
-	}
-
-	private boolean supportedState(ItemValue<DirEntry> iv) {
-		return !iv.value.archived;
 	}
 
 	@SuppressWarnings("unchecked")

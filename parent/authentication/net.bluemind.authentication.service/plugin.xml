@@ -28,5 +28,11 @@
             class="net.bluemind.authentication.service.APIKeysServiceFactory">
       </serviceFactory>
    </extension>
+   <extension
+         point="net.bluemind.user.hook.userhook">
+      <hook
+            impl="net.bluemind.authentication.service.internal.AuthContextUserHook">
+      </hook>
+   </extension>
 
 </plugin>

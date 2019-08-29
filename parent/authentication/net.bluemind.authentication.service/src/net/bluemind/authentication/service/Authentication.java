@@ -24,8 +24,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -46,6 +48,7 @@ import net.bluemind.authentication.provider.IAuthProvider.AuthResult;
 import net.bluemind.authentication.provider.IAuthProvider.IAuthContext;
 import net.bluemind.authentication.provider.ILoginSessionValidator;
 import net.bluemind.authentication.provider.ILoginValidationListener;
+import net.bluemind.authentication.service.internal.AuthContextCache;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.service.internal.RBACManager;
@@ -255,22 +258,54 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 			return null;
 		}
 
+		try {
+			IAuthContext nakedAuthContext = AuthContextCache.getInstance().getCache().get(login, () -> {
+				return loadFromDb(login);
+			}).orElse(null);
+
+			if (nakedAuthContext == null) {
+				return null;
+			}
+
+			return new AuthContext(context.getSecurityContext(), nakedAuthContext.getDomain(),
+					nakedAuthContext.getUser(), nakedAuthContext.getRealUserLogin(), password);
+
+		} catch (ExecutionException e) {
+			throw new ServerFault(e);
+		}
+
+	}
+
+	private Optional<IAuthContext> loadFromDb(String login) {
 		Iterator<String> splitted = atSplitter.split(login).iterator();
 		String localPart = splitted.next();
-
 		String domainPart = splitted.hasNext() ? splitted.next() : "global.virt";
 		boolean isStandardDomain = !domainPart.equals("global.virt");
+
 		ServerSideServiceProvider sp = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		IDomains domainService = sp.instance(IDomains.class);
 		ItemValue<Domain> theDomain = domainService.findByNameOrAliases(domainPart);
 		if (theDomain == null) {
 			logger.error("Domain {} not found.", domainPart);
-			return null;
+			return Optional.empty();
 		}
 		if (logger.isDebugEnabled()) {
 			logger.debug("Found domain {}", theDomain.uid);
 		}
 
+		ItemValue<User> internalUser = getUser(login, localPart, domainPart, isStandardDomain, sp, theDomain);
+		if (internalUser == null) {
+			return Optional.empty();
+		}
+
+		AuthContext authContext = new AuthContext(null, theDomain, internalUser, localPart, null);
+		Optional<IAuthContext> ret = Optional.of(authContext);
+		AuthContextCache.getInstance().getCache().put(login, ret);
+		return ret;
+	}
+
+	private ItemValue<User> getUser(String login, String localPart, String domainPart, boolean isStandardDomain,
+			ServerSideServiceProvider sp, ItemValue<Domain> theDomain) {
 		IUser userService = sp.instance(IUser.class, theDomain.uid);
 
 		ItemValue<User> internalUser = null;
@@ -294,8 +329,7 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 				internalUser = null;
 			}
 		}
-
-		return new AuthContext(context.getSecurityContext(), theDomain, internalUser, localPart, password);
+		return internalUser;
 	}
 
 	private AuthResult checkProviders(AuthContext authContext, String origin) throws ServerFault {
