@@ -9,22 +9,18 @@ export function toTreeItem(folder, settings) {
     };
 }
 
-export function sort(f1, f2) {
-    const fn = name => {
-        switch (name) {
-            case "INBOX":
-                return "00";
-            case "Sent":
-                return "01";
-            case "Drafts":
-                return "02";
-            case "Trash":
-                return "03";
-            case "Junk":
-                return "04";
-            default:
-                return name;
-        }
-    };
-    return f1.name == f2.name ? 0 : fn(f1.name) > fn(f2.name) ? 1 : -1;
+const defaultFolders = [ "INBOX", "Sent", "Drafts", "Trash", "Junk", "Outbox"];
+
+export function sortFolders(f1, f2) {
+    const f1Weight = defaultFolders.indexOf(f1.name);
+    const f2Weight = defaultFolders.indexOf(f2.name);
+    if (f1Weight >= 0 && f2Weight >= 0) {
+        return f1Weight - f2Weight;
+    } else if (f1Weight >= 0 && f2Weight < 0) {
+        return -1;
+    } else if (f1Weight < 0 && f2Weight >= 0 ) {
+        return 1;
+    } else {
+        return f1.name.localeCompare(f2.name);
+    }
 }

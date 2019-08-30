@@ -1,4 +1,4 @@
-import { toTreeItem, sort } from "./helpers";
+import { toTreeItem, sortFolders } from "./helpers";
 
 export function tree(state) {
     const nodeMap = new Map();
@@ -7,8 +7,8 @@ export function tree(state) {
         const siblings = nodeMap.has(folder.parent) ? nodeMap.get(folder.parent) : [];
         const children = nodeMap.has(folder.uid) ? nodeMap.get(folder.uid) : [];
         siblings.push(folder);
-        siblings.sort(sort);
-        children.sort(sort);
+        siblings.sort(sortFolders);
+        children.sort(sortFolders);
         folder.children = children;
         nodeMap.set(folder.parent, siblings);
         nodeMap.set(folder.uid, children);
