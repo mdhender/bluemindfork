@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -39,6 +40,7 @@ import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEvent.Transparency;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
+import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.icalendar.parser.ICal4jEventHelper;
@@ -63,6 +65,7 @@ import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
 import net.fortuna.ical4j.model.property.CalScale;
 import net.fortuna.ical4j.model.property.DateProperty;
 import net.fortuna.ical4j.model.property.DtEnd;
+import net.fortuna.ical4j.model.property.LastModified;
 import net.fortuna.ical4j.model.property.Method;
 import net.fortuna.ical4j.model.property.ProdId;
 import net.fortuna.ical4j.model.property.Transp;
@@ -72,8 +75,12 @@ import net.fortuna.ical4j.model.property.XProperty;
 public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 
 	public static String convertToIcs(Method method, List<ItemValue<VEventSeries>> vevents, Object... properties) {
-		List<VEventSeries> series = vevents.stream().map(iv -> iv.value).collect(Collectors.toList());
-		return convertToIcal4jCalendar(method, series, properties).toString();
+		return convertToIcal4jCalendar(method, vevents, properties).toString();
+	}
+
+	public static Calendar convertToIcal4jCalendar(Method method, List<VEventSeries> vevents) {
+		return convertToIcal4jCalendar(method,
+				vevents.stream().map(v -> ItemValue.create((String) null, v)).collect(Collectors.toList()));
 	}
 
 	/**
@@ -82,7 +89,7 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 	 * @return
 	 */
 	// FIXME Object... should be Property...
-	public static Calendar convertToIcal4jCalendar(Method method, List<VEventSeries> vevents,
+	public static Calendar convertToIcal4jCalendar(Method method, List<ItemValue<VEventSeries>> vevents,
 			Object... paramProperties) {
 		Calendar calendar = initCalendar();
 
@@ -98,7 +105,8 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 
 		Set<String> timezones = new HashSet<String>();
 
-		for (VEventSeries event : vevents) {
+		for (ItemValue<VEventSeries> eventItem : vevents) {
+			VEventSeries event = eventItem.value;
 			if (null != event.main) {
 				timezones.add(event.main.dtstart.timezone);
 				timezones.add(event.main.dtend.timezone);
@@ -108,6 +116,17 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 				timezones.add(occurrence.dtend.timezone);
 			});
 			List<net.fortuna.ical4j.model.component.VEvent> evts = convertToIcal4jVEvent(event.icsUid, event);
+
+			if (eventItem.updated != null) {
+				String iso8601 = BmDateTimeWrapper.toIso8601(eventItem.updated.getTime(), "UTC");
+				evts.forEach(evt -> {
+					try {
+						evt.getProperties().add(new LastModified(iso8601));
+					} catch (ParseException e) {
+						logger.warn("Cannot parse ICS Last modified date {}:{}", eventItem.updated, e.getMessage());
+					}
+				});
+			}
 
 			for (net.fortuna.ical4j.model.component.VEvent icalEvent : evts) {
 				// DO NOT propagate alarm to attendees (or organiser)

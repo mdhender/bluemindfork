@@ -79,7 +79,7 @@ public interface IChangelogSupport {
 	/**
 	 * @param since
 	 * @param filter
-	 *            to exclude some items (eg. deleted items)
+	 *                   to exclude some items (eg. deleted items)
 	 * 
 	 * @return if successful, return a {@link ContainerChangeset} with internal
 	 *         numeric ids matching the given filter

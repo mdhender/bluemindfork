@@ -146,7 +146,7 @@ public class InternalOwnerSubscriptionsService implements IInternalOwnerSubscrip
 	public List<ItemValue<ContainerSubscriptionModel>> getMultiple(List<String> uids) {
 		return storeService.getMultiple(uids);
 	}
-	
+
 	@Override
 	public void xfer(String serverUid) throws ServerFault {
 

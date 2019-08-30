@@ -161,11 +161,9 @@ public class CalendarContainerSync implements ISyncableContainer {
 					changes.add.add(ItemAdd.create(uid, event, false));
 					i++;
 				} else {
-					if (itemValue.updated != null) {
-						if (itemValue.updated.after(oldEvent.updated)) {
-							changes.modify.add(ItemModify.create(oldEvent.uid, event, false));
-							i++;
-						}
+					if (itemValue.updated == null || itemValue.updated.after(oldEvent.updated)) {
+						changes.modify.add(ItemModify.create(oldEvent.uid, event, false));
+						i++;
 					}
 				}
 

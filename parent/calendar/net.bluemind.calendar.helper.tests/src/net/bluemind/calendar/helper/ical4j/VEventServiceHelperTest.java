@@ -375,6 +375,22 @@ public class VEventServiceHelperTest {
 		assertTrue(ics.contains("DTEND;TZID=Europe/London:19830213T210000"));
 	}
 
+	@SuppressWarnings("deprecation")
+	@Test
+	public void exportShouldSetLastModifiedIfPossible() {
+		VEventSeries series = new VEventSeries();
+		VEvent event = new VEvent();
+		series.main = event;
+		series.main.dtstart = new BmDateTime("1983-02-13T21:00:00+01:00", null, Precision.DateTime);
+		series.main.dtend = new BmDateTime("1983-02-13T22:00:00+01:00", null, Precision.DateTime);
+
+		ItemValue<VEventSeries> create = ItemValue.create("test", series);
+		create.updated = new java.util.Date(111, 06, 12);
+		String ics = VEventServiceHelper.convertToIcs(create);
+		System.err.println(ics);
+		assertTrue(ics.contains("LAST-MODIFIED:20101207T000000"));
+	}
+
 	@Test
 	public void exdateWithoutTimezone() {
 		VEventSeries series = new VEventSeries();
