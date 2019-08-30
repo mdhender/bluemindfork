@@ -62,7 +62,8 @@ public class CyrusBoxes {
 	 * 
 	 * Returns null otherwise.
 	 * 
-	 * @param userName fully qualified user name
+	 * @param userName
+	 *                     fully qualified user name
 	 * @return a {@link ReplicatedBox}
 	 */
 	public static ReplicatedBox forLoginAtDomain(String userName) {
@@ -99,7 +100,7 @@ public class CyrusBoxes {
 			ReplicatedBox rb = new ReplicatedBox();
 			rb.local = login;
 			rb.partition = domain.replace('.', '_');
-			rb.folderName = deletedMailboxMatch.group(3).replace('.', '/').replace('^', '/');
+			rb.folderName = deletedMailboxMatch.group(3).replace('.', '/').replace('^', '.');
 			rb.ns = Namespace.deleted;
 			return rb;
 		} else if (deletedSharedMailboxMatch.find()) {
@@ -109,7 +110,7 @@ public class CyrusBoxes {
 			ReplicatedBox rb = new ReplicatedBox();
 			rb.local = login;
 			rb.partition = domain.replace('.', '_');
-			rb.folderName = deletedSharedMailboxMatch.group(3).replace('.', '/').replace('^', '/');
+			rb.folderName = deletedSharedMailboxMatch.group(3).replace('.', '/').replace('^', '.');
 			rb.ns = Namespace.deletedShared;
 			return rb;
 		} else if (userMatch.find()) {
@@ -143,7 +144,7 @@ public class CyrusBoxes {
 			int dot = afterPart.indexOf('.');
 			if (dot > 0) {
 				rb.local = afterPart.substring(0, dot);
-				rb.folderName = afterPart.substring(dot + 1).replace('.', '/').replace('^', '/');
+				rb.folderName = afterPart.substring(dot + 1).replace('.', '/').replace('^', '.');
 			} else {
 				rb.local = afterPart;
 				rb.folderName = afterPart;
