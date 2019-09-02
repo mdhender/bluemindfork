@@ -120,7 +120,7 @@ public class CyrusBoxes {
 			ReplicatedBox rb = new ReplicatedBox();
 			rb.local = login;
 			rb.partition = domain.replace('.', '_');
-			rb.folderName = userMatch.group(3).replace('.', '/').replace('^', '/');
+			rb.folderName = userMatch.group(3).replace('.', '/').replace('^', '.');
 			rb.ns = Namespace.users;
 			return rb;
 		} else if (userRootMatch.find()) {
