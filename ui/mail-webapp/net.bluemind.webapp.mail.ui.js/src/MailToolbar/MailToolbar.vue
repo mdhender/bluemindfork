@@ -1,6 +1,6 @@
 <template>
     <bm-button-toolbar 
-        v-show="message || isMessageComposerDisplayed"
+        v-if="message || isMessageComposerDisplayed"
         key-nav
         class="mail-toolbar flex-nowrap h-100"
     >
