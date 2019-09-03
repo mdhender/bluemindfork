@@ -54,6 +54,7 @@ chronograph="8888"
 kapacitor="9092"
 es="9200 9300"
 memcache="11211"
+sds="8091"
 
 timeout="-w 10"
 if check_debian_jessie; then
@@ -77,6 +78,7 @@ bmPorts="${r"${cyrus}"} \
 	 ${r"${chronograph}"} \
 	 ${r"${kapacitor}"} \
 	 ${r"${es}"} \
+	 ${r"${sds}"} \
 	 ${r"${memcache}"}"
 
 bmHosts="${bmHostsAddresses?join(" ")}"

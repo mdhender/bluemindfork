@@ -6,6 +6,6 @@ Standards-Version: 3.9.1
 
 Package: bm-lmtpd
 Architecture: amd64
-Depends: bm-jdk (= 8u212-bluemind29), openssl
+Depends: bm-jdk (= 8u222-bluemind30), openssl
 Description: Blue Mind LMTP proxy daemon
  LMTP proxy daemon for inbound mail processing

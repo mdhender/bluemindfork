@@ -29,5 +29,6 @@
 		<module>webserver-extensions</module>
 		<module>bm-connector-tbird</module>
 		<module>core-extensions</module>
+		<module>sdsproxy</module>
 	</modules>
 </project>

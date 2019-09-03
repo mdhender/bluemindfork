@@ -1,9 +1,9 @@
-BMCYRUS="3.0.8-bluemind180"
-BMSDS="1.0.0-180"
+BMCYRUS="3.0.8-bluemind185"
+BMSDS="1.0.0-185"
 
 BMES="6.4.3-bluemind74"
 
-BMJDK="8u212-bluemind29"
+BMJDK="8u222-bluemind30"
 BMSNZIP="1.0.4-bluemind4"
 BMNGINX="1.14.0-bluemind79"
 BMPHP="5.6.40-bluemind79"

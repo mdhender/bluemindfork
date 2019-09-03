@@ -13,7 +13,6 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava;bundle-version="19.0.0",
  io.vertx.core;bundle-version="2.1.6";visibility:=reexport,
  io.vertx.platform;bundle-version="2.1.6";visibility:=reexport,
- net.bluemind.core.commons,
  net.bluemind.metrics.registry
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
@@ -22,3 +21,4 @@ Export-Package: net.bluemind.lib.vertx,
  net.bluemind.lib.vertx.domainsocket,
  net.bluemind.lib.vertx.utils
 Eclipse-BuddyPolicy: registered
+Automatic-Module-Name: net.bluemind.lib.vertx

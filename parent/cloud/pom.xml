@@ -10,7 +10,9 @@
 	<packaging>pom</packaging>
 	<modules>
 	  <module>net.bluemind.aws.s3.tests</module>
-
+	  <module>net.bluemind.sds.proxy</module>
+	  <module>net.bluemind.sds.proxy.tests</module>
+	  <module>net.bluemind.sds.proxy.launcher</module>
 	</modules>
 
 </project>

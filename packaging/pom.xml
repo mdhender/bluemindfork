@@ -36,7 +36,8 @@
 	  <module>bm-mail-app</module>
 	  <module>bm-client-access</module>
 	  <module>bm-conf</module>
-	  <module>bm-cyrus</module>	  
+	  <module>bm-cyrus</module>
+	  <module>bm-sds-proxy</module>	  
 	  <module>bm-full</module>
 	  <module>bm-checks</module>
 	  <module>bm-ldap-role</module>

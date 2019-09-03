@@ -493,4 +493,6 @@
    <bundle id="net.bluemind.dataprotect.todolist" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.dataprotect.user" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.lib.ristretto" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.sds.proxy" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.sds.proxy.launcher" version="4.1.0.qualifier"/>
 </site>

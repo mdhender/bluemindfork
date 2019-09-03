@@ -42,13 +42,15 @@ import com.google.common.collect.ImmutableSet;
 import com.netflix.spectator.api.Registry;
 import com.netflix.spectator.api.patterns.PolledMeter;
 
-import net.bluemind.core.utils.GlobalConstants;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 
 public class BMExecutor {
 
 	private static final Logger logger = LoggerFactory.getLogger(BMExecutor.class);
+
+	public static final long DEFAULT_TIMEOUT = 20 * 1000l; // 20s
+
 	private static final int DEFAULT_QUEUE = Math.max(1024, 4 * 32 * (2 + Runtime.getRuntime().availableProcessors()));
 	private static final int DEFAULT_WORKER_POOL_SIZE = Math.max(Runtime.getRuntime().availableProcessors() * 2, 30);
 	private static final Vertx timerMgmt = VertxPlatform.getVertx();
@@ -223,7 +225,7 @@ public class BMExecutor {
 	}
 
 	public void execute(BMTask command) {
-		execute(command, GlobalConstants.DEFAULT_TIMEOUT);
+		execute(command, DEFAULT_TIMEOUT);
 	}
 
 	private static final class BMDirectTask extends FutureTask<Void> implements IHasPriority {

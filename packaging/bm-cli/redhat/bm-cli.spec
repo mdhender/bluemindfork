@@ -6,7 +6,7 @@ License:            GNU Affero General Public License v3
 Group:              Applications/messaging
 URL:                http://www.bluemind.net/
 ExcludeArch:        s390 s390x
-Requires:           bm-jdk = 8u212-bluemind29, jq
+Requires:           bm-jdk = 8u222-bluemind30, jq
 
 %description
 BlueMind CLI
