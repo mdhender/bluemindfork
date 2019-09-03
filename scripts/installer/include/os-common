@@ -3,9 +3,9 @@ REDHAT7="redhat-7"
 UBUNTU_TRUSTY="ubuntu-trusty"
 UBUNTU_XENIAL="ubuntu-xenial"
 UBUNTU_BIONIC="ubuntu-bionic"
-DEBIAN_WHEEZY="debian-wheezy"
 DEBIAN_JESSIE="debian-jessie"
 DEBIAN_STRETCH="debian-stretch"
+DEBIAN_BUSTER="debian-buster"
 
 check_redhat7() {
     if [  -e /etc/system-release ]; then
@@ -30,10 +30,10 @@ check_ubuntu() {
     return 1
 }
 
-check_debian_wheezy() {
+check_debian_buster() {
     if [ -e "/etc/debian_version" ]; then
         release=`cat /etc/debian_version`
-        if [[ "${release}" == *"7."* ]]; then
+        if [[ "${release}" == *"10."* ]]; then
             return 0
         fi
     fi
@@ -96,9 +96,9 @@ detect_os() {
         fi
     fi
 
-    if [ -e "./wheezy" ]; then
-        INSTALLER_VERSION=${DEBIAN_WHEEZY}
-        if check_debian_wheezy; then
+    if [ -e "./buster" ]; then
+        INSTALLER_VERSION=${DEBIAN_BUSTER}
+        if check_debian_buster; then
             OS_VERSION=${INSTALLER_VERSION}
             source "./include/os-debian-squeeze-base"
         fi
