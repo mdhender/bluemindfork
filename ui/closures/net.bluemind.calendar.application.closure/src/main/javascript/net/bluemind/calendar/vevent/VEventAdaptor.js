@@ -115,6 +115,8 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.toModelView = function(veve
     return helper.create(exdate);
   }, this);
 
+  model.attachments = this.parseAttachments_(vevent);
+  
   model.states = {};
   model = this.updateStates(model, calendar);
 
@@ -123,8 +125,6 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.toModelView = function(veve
     var MSG_PRIVATE = goog.getMsg('Private');
     model.summary = MSG_PRIVATE;
   }
-  
-  model.attachments = this.parseAttachments_(vevent);
 
   return model;
 };
@@ -203,6 +203,7 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.updateStates = function(mod
   model.states.updatable = (calendar.states.writable) && (!model.states.private_ || (calendar.owner == this.ctx_.user['uid']) || this.canAll_(calendar.verbs)) ;
   model.states.attendee = goog.isDefAndNotNull(model.attendee) && model.states.meeting && !model.states.master
   model.states.removable = model.states.updatable && !!model.id;
+  model.states.hasAttachments = model.attachments.length > 0;
 
   return model;
 };
