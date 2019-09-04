@@ -34,8 +34,9 @@ BMFileHostingAPI.prototype.store = function(aOnLoad, aOnError, aThis, aExtraHead
 };
 
 BMFileHostingAPI.prototype.share = function(aOnLoad, aOnError, aThis, path, downloadLimit, expirationDate) {
-    let url = this._baseUrl + "/filehosting/" + this._domainUid + "/" + encodeURIComponent(path) + "/share";
-    url += "?downloadLimit=" + encodeURIComponent(downloadLimit);
+    let url = this._baseUrl + "/filehosting/" + this._domainUid + "/_share";
+    url += "?path=" + encodeURIComponent(path);
+    url += "&downloadLimit=" + encodeURIComponent(downloadLimit);
     url += "&expirationDate=" + encodeURIComponent(expirationDate);
     return this._execute(aOnLoad, aOnError, aThis, url, "GET", null, null);
 };

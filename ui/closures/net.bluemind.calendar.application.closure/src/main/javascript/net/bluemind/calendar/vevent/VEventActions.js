@@ -184,7 +184,7 @@ net.bluemind.calendar.vevent.VEventActions.prototype.participation = function(e)
 };
 
 net.bluemind.calendar.vevent.VEventActions.prototype.collectAttendees_ = function(attendees) {
-  if (attendees == null || attendees.length == 0){
+  if (attendees == null || attendees.length == 0) {
     return;
   }
 
@@ -196,33 +196,43 @@ net.bluemind.calendar.vevent.VEventActions.prototype.collectAttendees_ = functio
     return;
   }
 
+  goog.array
+      .forEach(
+          toCollect,
+          function(c) {
+            var q = '(_exists_:value.communications.emails.value OR value.kind:group) AND (value.identification.formatedName.value:'
+                + c['mailto'] + ' OR value.communications.emails.value:' + c['mailto'] + ')';
 
-  goog.array.forEach(toCollect, function(c) {
-    var q = '(_exists_:value.communications.emails.value OR value.kind:group) AND (value.identification.formatedName.value:'
-        + c['mailto'] + ' OR value.communications.emails.value:' + c['mailto'] + ')';
+            this.ctx_.service('addressbooks').search(c['mailto'], 0, 1, 'Pertinance', q).then(function(res) {
+              if (res.count == 0) {
+                var vcard = {
+                  'container' : 'book:CollectedContacts_' + this.ctx_.user['uid'],
+                  'uid' : net.bluemind.mvp.UID.generate(),
+                  'value' : {
+                    'identification' : {
+                      'name' : {
+                        'familyNames' : c['commonName']
+                      }
+                    },
+                    'organizational' : {},
+                    'related' : {},
+                    'explanatory' : {},
+                    'communications' : {
+                      'emails' : [ {
+                        'parameters' : [ {
+                          'label' : 'TYPE',
+                          'value' : 'work'
+                        } ],
+                        'value' : c['mailto']
+                      } ]
+                    }
+                  }
+                };
 
-    this.ctx_
-        .service('addressbooks')
-        .search(c['mailto'], 0, 1, 'Pertinance', q).then(function(res) {
-          if (res.count == 0) {
-            var vcard = {
-              'container' : 'book:CollectedContacts_' + this.ctx_.user['uid'],
-              'uid' : net.bluemind.mvp.UID.generate(),
-              'value' : {
-                'identification' : {'name': {'familyNames' : c['commonName']}},
-                'organizational' : {},
-                'related' : {},
-                'explanatory' : {},
-                'communications' : {
-                  'emails': [{'parameters' : [{'label' : 'TYPE', 'value' : 'work'}], 'value' : c['mailto']}]
-                }
+                this.ctx_.service('addressbook').create(vcard);
               }
-            };
-
-            this.ctx_.service('addressbook').create(vcard);
-          }
-        }, null, this);
-    }, this);
+            }, null, this);
+          }, this);
 };
 
 /**
@@ -233,15 +243,16 @@ net.bluemind.calendar.vevent.VEventActions.prototype.collectAttendees_ = functio
 
 net.bluemind.calendar.vevent.VEventActions.prototype.save = function(e) {
   var model = e.vevent;
-  return this.ctx_.service('calendar').getItem(model.initalContainer || model.calendar, model.uid).then(function(existing) {
-    if (existing && model.initalContainer && model.calendar != model.initalContainer) {
-      this.move_(e, existing);
-    } else if (!existing) {
-      this.create_(e);
-    } else {
-      this.update_(e, existing);
-    }
-  }, null, this);
+  return this.ctx_.service('calendar').getItem(model.initalContainer || model.calendar, model.uid).then(
+      function(existing) {
+        if (existing && model.initalContainer && model.calendar != model.initalContainer) {
+          this.move_(e, existing);
+        } else if (!existing) {
+          this.create_(e);
+        } else {
+          this.update_(e, existing);
+        }
+      }, null, this);
 };
 
 /**
@@ -511,7 +522,7 @@ net.bluemind.calendar.vevent.VEventActions.prototype.goToForm_ = function(model,
     uri.getQueryData().set('recurrence-id', model.recurrenceId.toIsoString(true, true))
   }
   uri.getQueryData().set('container', model.calendar);
-  //FIXME
+  // FIXME
   if (model.states.updatable) {
     var storage = bluemind.storage.StorageHelper.getExpiringStorage();
     var vseries = this.adaptor_.fromVEventModelView(model, opt_vseries);
@@ -665,7 +676,7 @@ net.bluemind.calendar.vevent.VEventActions.prototype.showReccurringFormDialog_ =
 
 net.bluemind.calendar.vevent.VEventActions.prototype.needNotification = function(oldValue, actual) {
   var compareOrganizer = function(old, actual) {
-    if (!old && actual || !actual && old ) {
+    if (!old && actual || !actual && old) {
       return false;
     }
     return old == actual || old['dir'] == actual['dir'];
@@ -687,6 +698,22 @@ net.bluemind.calendar.vevent.VEventActions.prototype.needNotification = function
 
   };
 
+  var compareAttachments = function(old, actual) {
+    if (old == null && actual == null) {
+      return true;
+    } else if ((old == null && actual != null) || (old != null && actual == null)) {
+      return false;
+    } else if (old.length != actual.length) {
+      return false;
+    } else {
+      return goog.array.equals(old, actual, function(oldAttachment, actualAttachment) {
+        return oldAttachment['name'] == actualAttachment['name']
+            && oldAttachment['publicUrl'] == actualAttachment['publicUrl'];
+      });
+    }
+
+  };
+
   var compareExdate = function(old, actual) {
     var oldLength = goog.isDefAndNotNull(old) && goog.isArray(old) ? old.length : 0;
     var actualLength = goog.isDefAndNotNull(actual) && goog.isArray(actual) ? actual.length : 0;
@@ -700,6 +727,7 @@ net.bluemind.calendar.vevent.VEventActions.prototype.needNotification = function
   ret |= oldValue['priority'] != actual['priority'];
   ret |= !compareExdate(oldValue['exdate'], actual['exdate']);
   ret |= !compareAttendees(oldValue['attendees'], actual['attendees']);
+  ret |= !compareAttachments(oldValue['attachments'], actual['attachments']);
   ret |= !compareOrganizer(oldValue['organizer'], actual['organizer']);
 
   ret |= this.adaptor_.recurrenceHasChanged(oldValue, actual);
