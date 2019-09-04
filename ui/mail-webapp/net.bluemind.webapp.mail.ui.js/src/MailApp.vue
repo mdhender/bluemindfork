@@ -144,9 +144,6 @@ body > div {
     display: flex;
     flex-direction: column;
 }
-.mail-app .row:first-child {
-    z-index: 1;
-}
 
 .flex-fill {
     min-height: 0;
@@ -154,6 +151,7 @@ body > div {
 
 .mail-app .topbar {
     flex: 0 0 4em;
+    z-index: 1;
 }
 
 .mail-app .bm-application-alert {

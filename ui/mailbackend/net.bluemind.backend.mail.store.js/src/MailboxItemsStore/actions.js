@@ -363,3 +363,36 @@ export function remove(payload, { folderId, trashFolderId, mailId }) {
             deleteFromSource: true
         });
 }
+
+export function move({ commit, dispatch, rootGetters }, { item, mailId, index, newFolderPattern }) {
+    const currentFolderId = rootGetters["backend.mail/folders/currentFolderId"];
+    const service = ServiceLocator.getProvider("MailboxFoldersPersistance").get();
+    let promise = undefined;
+
+    if (item.type && item.type === "create-folder") {
+        item.name = item.name.replace(newFolderPattern, '');
+        promise = dispatch("backend.mail/folders/create", item, { root: true })
+            .then((itemIdentifier) => service.importItems(itemIdentifier.id, {
+                mailboxFolderId: currentFolderId,
+                ids: [{ id: mailId }],
+                expectedIds: undefined,
+                deleteFromSource: true
+            }));
+    } else {
+        promise = service.importItems(item.id, {
+            mailboxFolderId: currentFolderId,
+            ids: [{ id: mailId }],
+            expectedIds: undefined,
+            deleteFromSource: true
+        });
+    }
+
+    commit("remove", index);
+
+    promise.then(() => {
+        console.log("message moved successfully"); // REMOVE ME when alerts are set
+    }).catch(() => 
+        console.error("failed moving the message...") // REMOVE ME when alerts are set
+    );
+    return promise;
+}

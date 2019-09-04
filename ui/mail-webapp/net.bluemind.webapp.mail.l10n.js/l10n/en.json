@@ -45,5 +45,6 @@
     "mail.list.search.no_result.try_otherwise": "Please retry using a more generic search term.",
     "mail.alert.message.sent.ok": "\"{subjectWithLink}\" successfuly sent !",
     "mail.alert.message.sent.error": "\"{subject}\" has not been sent.{br}{reason}",
-    "mail.error.email.address.invalid": "Invalid email address."
+    "mail.error.email.address.invalid": "Invalid email address.",
+    "mail.folder.new": "New folder"
 }

@@ -57,4 +57,9 @@ export default {
 .mail-toolbar .btn.focus {
     box-shadow: none !important;
 }
+
+.mail-toolbar .btn:hover {
+    background-color: $extra-light !important;
+    border-color: $extra-light !important;
+}
 </style>

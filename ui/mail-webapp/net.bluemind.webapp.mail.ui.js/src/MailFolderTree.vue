@@ -22,9 +22,7 @@
                 @select="onSelect"
             >
                 <template v-slot="f">
-                    <bm-label-icon :icon="icon(f.value)" breakpoint="xl" class="flex-fill">
-                        {{ f.value.name }}
-                    </bm-label-icon>
+                    <mail-folder-icon :folder="f.value" breakpoint="xl" class="flex-fill" />
                     <bm-counter-badge
                         v-if="f.value.uid === currentFolder && unreadCount > 0"
                         :value="unreadCount"
@@ -37,9 +35,10 @@
 </template>
 
 <script>
-import { BmButton, BmCollapse, BmCounterBadge, BmIcon, BmLabelIcon, BmTree } from "@bluemind/styleguide";
+import { BmButton, BmCollapse, BmCounterBadge, BmIcon, BmTree } from "@bluemind/styleguide";
 import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
 import injector from "@bluemind/inject";
+import MailFolderIcon from "./MailFolderIcon";
 
 export default {
     name: "MailFolderTree",
@@ -48,8 +47,8 @@ export default {
         BmCollapse,
         BmCounterBadge,
         BmIcon,
-        BmLabelIcon,
-        BmTree
+        BmTree,
+        MailFolderIcon
     },
     data() {
         return {
@@ -62,25 +61,6 @@ export default {
         ...mapState("backend.mail/items", ["unreadCount"])
     },
     methods: {
-        icon(f) {
-            if (!f.parent) {
-                switch (f.name) {
-                    case "INBOX":
-                        return "inbox";
-                    case "Drafts":
-                        return "pencil";
-                    case "Trash":
-                        return "trash";
-                    case "Junk":
-                        return "forbidden";
-                    case "Outbox":
-                        return "clock";
-                    case "Sent":
-                        return "paper-plane";
-                }
-            }
-            return "folder";
-        },
         ...mapActions("backend.mail/folders", ["expand", "collapse"]),
         ...mapMutations("backend.mail/items", ["setCurrent"]),
         onSelect(uid) {

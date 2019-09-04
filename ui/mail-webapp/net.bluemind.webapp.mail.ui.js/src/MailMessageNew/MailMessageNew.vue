@@ -258,13 +258,11 @@ export default {
 </script>
 
 <style>
-.mail-message-new input,
-.mail-message-new textarea {
+.mail-message-new input, .mail-message-new textarea {
     border: none;
 }
 
-.mail-message-new input:focus,
-.mail-message-new textarea:focus {
+.mail-message-new input:focus, .mail-message-new textarea:focus {
     box-shadow: none;
 }
 

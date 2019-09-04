@@ -1,19 +1,23 @@
-import { toTreeItem, sortFolders } from "./helpers";
+import Folder from "./Folder";
 
 export function tree(state) {
     const nodeMap = new Map();
     state.folders.forEach(folderItem => {
-        const folder = toTreeItem(folderItem, state.settings[folderItem.uid]);
+        const folder = folderItem.toTreeItem(state.settings[folderItem.uid]);
         const siblings = nodeMap.has(folder.parent) ? nodeMap.get(folder.parent) : [];
         const children = nodeMap.has(folder.uid) ? nodeMap.get(folder.uid) : [];
         siblings.push(folder);
-        siblings.sort(sortFolders);
-        children.sort(sortFolders);
+        siblings.sort(Folder.compare);
+        children.sort(Folder.compare);
         folder.children = children;
         nodeMap.set(folder.parent, siblings);
         nodeMap.set(folder.uid, children);
     });
     return nodeMap.get(null) || [];
+}
+
+export function flat(state) {
+    return state.folders.map(folderItem => folderItem.toTreeItem(state.settings[folderItem.uid]));
 }
 
 export function currentFolder(state) {

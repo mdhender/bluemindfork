@@ -36,3 +36,23 @@ export function collapse({ commit }, uid) {
     window.localStorage.setItem("backend.mail.folders", JSON.stringify(settings));
     commit("folderSettings", { uid: uid, settings: folder });
 }
+
+export function create({ commit }, item) {
+    const service = ServiceLocator.getProvider("MailboxFoldersPersistance").get();
+    let newFolderItemIdentifier;
+    return service
+        .createBasic({
+            name: item.name,
+            fullName: item.name,
+            parentUid: undefined,
+            deleted: false
+        })
+        .then((itemIdentifier) => { 
+            newFolderItemIdentifier = itemIdentifier;
+            return service.getComplete(itemIdentifier.uid); 
+        })
+        .then((mailboxFolder) => {
+            commit("create", mailboxFolder);
+            return newFolderItemIdentifier;
+        });
+}

@@ -1,21 +1,19 @@
 <template>
-    <div class="mail-search-form d-flex align-items-center justify-content-center">
-        <bm-form-input
-            v-model="searchedPattern"
-            :placeholder="$t('common.search')"
-            type="search"
-            :aria-label="$t('common.search')"
-            class="rounded-0"
-            @keydown.enter="search"
-            @update="onChange"
-        />
-        <bm-icon v-if="searchedPattern === ''" icon="search" class="searchIcon" />
-        <bm-button-close v-else class="px-0" @click="cancel" />
-    </div>
+    <bm-form-input
+        v-model="searchedPattern"
+        :placeholder="$t('common.search')"
+        type="search"
+        icon="search"
+        :aria-label="$t('common.search')"
+        class="mail-search-form rounded-0"
+        @keydown.enter="search"
+        @update="onChange"
+        @reset="cancel"
+    />
 </template>
 
 <script>
-import { BmButtonClose, BmFormInput, BmIcon } from "@bluemind/styleguide";
+import { BmFormInput } from "@bluemind/styleguide";
 import { mapGetters, mapMutations } from "vuex";
 
 const MILLISECONDS_BEFORE_DISPLAY_SPINNER = 50;
@@ -23,11 +21,7 @@ const MILLISECONDS_BEFORE_TRIGGER_SEARCH = 500;
 
 export default {
     name: "MailSearchForm",
-    components: {
-        BmButtonClose,
-        BmFormInput,
-        BmIcon
-    },
+    components: { BmFormInput },
     data() {
         return {
             searchedPattern: this.$route.params.pattern || "",
@@ -77,26 +71,3 @@ export default {
     }
 };
 </script>
-
-<style lang="scss">
-@import "@bluemind/styleguide/css/_variables.scss";
-
-.mail-search-form .searchIcon,
-.mail-search-form .close {
-    margin-left: -map-get($spacers, 4);
-}
-
-.mail-search-form input {
-    padding-right: map-get($spacers, 4);
-}
-
-.mail-search-form .close {
-    height: 12px;
-    width: 12px;
-    font-size: 26px;
-}
-
-.mail-search-form .close:hover {
-    color: $primary;
-}
-</style>

@@ -45,5 +45,6 @@
     "mail.list.search.no_result.try_otherwise": "Essayez un terme plus générique.",
     "mail.alert.message.sent.ok": "\"{subjectWithLink}\" a bien été envoyé !",
     "mail.alert.message.sent.error": "\"{subject}\" n'a pu être envoyé.{br}{reason}",
-    "mail.error.email.address.invalid": "Adresse de courriel invalide."
+    "mail.error.email.address.invalid": "Adresse de courriel invalide.",
+    "mail.folder.new": "Nouveau dossier"
 }
