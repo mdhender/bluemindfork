@@ -98,9 +98,9 @@ public class CyrusBoxes {
 			String login = deletedMailboxMatch.group(2);
 			logger.debug("Extracted p: {}, l: {}", domain, login);
 			ReplicatedBox rb = new ReplicatedBox();
-			rb.local = login;
+			rb.local = sanitizeCyrusPath(login);
 			rb.partition = domain.replace('.', '_');
-			rb.folderName = deletedMailboxMatch.group(3).replace('.', '/').replace('^', '.');
+			rb.folderName = sanitizeCyrusPath(deletedMailboxMatch.group(3));
 			rb.ns = Namespace.deleted;
 			return rb;
 		} else if (deletedSharedMailboxMatch.find()) {
@@ -108,9 +108,9 @@ public class CyrusBoxes {
 			String login = deletedSharedMailboxMatch.group(2);
 			logger.debug("Extracted p: {}, l: {}", domain, login);
 			ReplicatedBox rb = new ReplicatedBox();
-			rb.local = login;
+			rb.local = sanitizeCyrusPath(login);
 			rb.partition = domain.replace('.', '_');
-			rb.folderName = deletedSharedMailboxMatch.group(3).replace('.', '/').replace('^', '.');
+			rb.folderName = sanitizeCyrusPath(deletedSharedMailboxMatch.group(3));
 			rb.ns = Namespace.deletedShared;
 			return rb;
 		} else if (userMatch.find()) {
@@ -118,9 +118,9 @@ public class CyrusBoxes {
 			String login = userMatch.group(2);
 			logger.debug("Extracted p: {}, l: {}", domain, login);
 			ReplicatedBox rb = new ReplicatedBox();
-			rb.local = login;
+			rb.local = sanitizeCyrusPath(login);
 			rb.partition = domain.replace('.', '_');
-			rb.folderName = userMatch.group(3).replace('.', '/').replace('^', '.');
+			rb.folderName = sanitizeCyrusPath(userMatch.group(3));
 			rb.ns = Namespace.users;
 			return rb;
 		} else if (userRootMatch.find()) {
@@ -129,7 +129,7 @@ public class CyrusBoxes {
 			String login = userRootMatch.group(2);
 			logger.debug("Extracted p: {}, l: {}", domain, login);
 			ReplicatedBox rb = new ReplicatedBox();
-			rb.local = login;
+			rb.local = sanitizeCyrusPath(login);
 			rb.partition = domain.replace('.', '_');
 			rb.folderName = "INBOX";
 			rb.ns = Namespace.users;
@@ -144,7 +144,7 @@ public class CyrusBoxes {
 			int dot = afterPart.indexOf('.');
 			if (dot > 0) {
 				rb.local = afterPart.substring(0, dot);
-				rb.folderName = afterPart.substring(dot + 1).replace('.', '/').replace('^', '.');
+				rb.folderName = sanitizeCyrusPath(afterPart.substring(dot + 1));
 			} else {
 				rb.local = afterPart;
 				rb.folderName = afterPart;
@@ -152,6 +152,10 @@ public class CyrusBoxes {
 			}
 			return rb;
 		}
+	}
+
+	private static String sanitizeCyrusPath(String element) {
+		return element.replace('.', '/').replace('^', '.');
 	}
 
 }

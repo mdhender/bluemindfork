@@ -26,7 +26,7 @@ import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.cyrus.partitions.MailboxDescriptor;
 import net.bluemind.mailbox.api.Mailbox;
 
-public class PathHelperTests {
+public class PathHelperTest {
 
 	@Test
 	public void testMailshareSubfolderPath() {

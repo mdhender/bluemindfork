@@ -26,14 +26,13 @@ import org.junit.Test;
 import net.bluemind.backend.cyrus.partitions.CyrusBoxes.ReplicatedBox;
 import net.bluemind.backend.cyrus.replication.server.utils.ReplicatedBoxes;
 
-public class ReplicatedBoxesTests {
+public class ReplicatedBoxesTest {
 
 	@Test
 	public void testQuotedMboxName() {
 		String box = "\"ex2016.vmw!user.tom.Deleted Messages\"";
 		ReplicatedBox rBox = ReplicatedBoxes.forCyrusMailbox(box);
 		assertNotNull(rBox);
-		System.out.println("partition: '" + rBox.partition + "'");
 		assertEquals("ex2016_vmw", rBox.partition);
 		assertEquals("tom", rBox.local);
 	}
@@ -68,6 +67,25 @@ public class ReplicatedBoxesTests {
 		assertEquals("mailshare", rBox.local);
 		assertEquals("bm_lan", rBox.partition);
 		assertEquals("yeahyeah/5C614D43", rBox.folderName);
+	}
+
+	@Test
+	public void testEscapingCyrusPAths() {
+		String box = "\"ex2016.vmw!user.t^om.Deleted Messages\"";
+		ReplicatedBox rBox = ReplicatedBoxes.forCyrusMailbox(box);
+		assertNotNull(rBox);
+		assertEquals("t.om", rBox.local);
+
+		box = "bm.lan!DELETED.user.da^vid.yeah^yeah.5C614D43";
+		rBox = ReplicatedBoxes.forCyrusMailbox(box);
+		assertEquals("da.vid", rBox.local);
+		assertEquals("bm_lan", rBox.partition);
+		assertEquals("yeah.yeah/5C614D43", rBox.folderName);
+
+		box = "bm.lan!DELETED.mail^share.yeah^yeah.5C614D43";
+		rBox = ReplicatedBoxes.forCyrusMailbox(box);
+		assertEquals("mail.share", rBox.local);
+		assertEquals("yeah.yeah/5C614D43", rBox.folderName);
 	}
 
 }
