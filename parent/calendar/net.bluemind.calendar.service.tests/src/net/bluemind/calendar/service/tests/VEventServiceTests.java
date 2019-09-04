@@ -947,7 +947,14 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		TaskRef taskRef = getVEventService(userSecurityContext, userCalendarContainer)
 				.importIcs(GenericStream.simpleValue(export, s -> s.getBytes()));
 		ImportStats stats = waitImportEnd(taskRef);
+		// event not modified
+		assertEquals(0, stats.importedCount());
 
+		export = export.replaceAll("LAST-MODIFIED:\\d{8}T\\d{6}", "LAST-MODIFIED:20221207T000000");
+
+		taskRef = getVEventService(userSecurityContext, userCalendarContainer)
+				.importIcs(GenericStream.simpleValue(export, s -> s.getBytes()));
+		stats = waitImportEnd(taskRef);
 		assertEquals(1, stats.importedCount());
 
 		ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer)
