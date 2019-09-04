@@ -109,7 +109,7 @@ function fetchParts(state, commit, folder, id, dispatch, partsToFetch) {
     // use mailbackend to fetch parts
     let promises = partsToFetch.map(part => dispatch("fetch", { folder, id, part, isAttachment: false }));
     return Promise.all(promises).catch(reason => {
-        commit("alert/add", { uid: uuid(), type: "danger", message: "Failed to read mail " + reason });
+        commit("alert/addAlert", { uid: uuid(), type: "error", message: "Failed to read mail " + reason });
     });
 }
 
@@ -201,7 +201,7 @@ export function send({ state, rootState, commit }) {
             key,
             message: getLocalizedProperty(userSession, key)
         });
-        commit("alert/addError", error, { root: true });
+        commit("alert/addAlert", error, { root: true });
         return Promise.resolve();
     }
 
@@ -255,7 +255,7 @@ export function send({ state, rootState, commit }) {
                     subjectLink: "/mail/" + sentboxUid + "/" + mailImapUid + "."
                 }
             });
-            commit("alert/addSuccess", success, { root: true });
+            commit("alert/addAlert", success, { root: true });
             commit("setDraftMail", null);
         })
         .catch(reason => {
@@ -269,7 +269,7 @@ export function send({ state, rootState, commit }) {
                     reason
                 }
             });
-            commit("alert/addError", error, { root: true });
+            commit("alert/addAlert", error, { root: true });
         });
 }
 

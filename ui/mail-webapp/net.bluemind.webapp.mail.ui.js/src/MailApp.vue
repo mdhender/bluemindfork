@@ -28,10 +28,8 @@
                 <router-view />
             </bm-col>
         </bm-row>
-        <bm-application-alert :errors="errorAlerts" :successes="successAlerts">
-            <template v-slot="slotProps">
-                <mail-alert-renderer :alert="slotProps.alert" />
-            </template>
+        <bm-application-alert :alerts="alerts">
+            <template v-slot="slotProps"><mail-alert-renderer :alert="slotProps.alert" /></template>
         </bm-application-alert>
     </bm-container>
 </template>
@@ -68,7 +66,7 @@ export default {
         ...mapGetters("backend.mail/items", ["currentMessage", "messages", "indexOf"]),
         ...mapGetters("backend.mail/folders", ["currentFolderId", "trashFolderId", "currentFolder"]),
         ...mapState("backend.mail/items", ["shouldRemoveItem", "count", "current"]),
-        ...mapState("alert", { errorAlerts: "errors", successAlerts: "successes" })
+        ...mapState("alert", ["alerts"])
     },
     watch: {
         shouldRemoveItem() {
@@ -103,7 +101,7 @@ export default {
                             message: this.$t(key, { subject }),
                             props: { subject }
                         });
-                        this.addSuccess(success);
+                        this.addAlert(success);
                     })
                     .catch(reason => {
                         const key = "common.alert.remove.error";
@@ -113,7 +111,7 @@ export default {
                             message: this.$t(key, { subject, reason }),
                             props: { subject, reason }
                         });
-                        this.addError(error);
+                        this.addAlert(error);
                     });
             }
         }
@@ -130,7 +128,7 @@ export default {
     methods: {
         ...mapActions("backend.mail/folders", ["bootstrap"]),
         ...mapActions("backend.mail/items", ["all"]),
-        ...mapMutations("alert", ["addError", "addSuccess"]),
+        ...mapMutations("alert", ["addAlert"]),
         ...mapMutations("backend.mail/items", ["remove", "setCurrent"]),
         composeNewMessage() {
             this.setCurrent(null);

@@ -3,8 +3,7 @@ export { default as AlertTypes } from "./AlertTypes";
 export { default as Alert } from "./Alert";
 
 const state = {
-    errors: [],
-    successes: []
+    alerts: []
 };
 
 export default {

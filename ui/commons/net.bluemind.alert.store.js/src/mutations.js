@@ -1,17 +1,12 @@
-export function addError(state, error) {
-    state.errors.splice(0, state.errors.length);
-    state.errors.push(error);
-
+export function addAlert(state, alert) {
+    console.log("me there");
+    state.alerts.push(alert);
 }
 
-export function removeErrorAlert(state, errorUid) {
-    state.errors.splice(state.errors.findIndex(error => error.uid === errorUid), 1);
+export function removeAlert(state, alertUid) {
+    state.alerts.splice(state.alerts.findIndex(alert => alert.uid === alertUid), 1);
 }
 
-export function removeAllErrorAlerts(state) {
-    state.errors.splice(0, state.errors.length);
-}
-
-export function addSuccess(state, success) {
-    state.successes.push(success);
+export function removeAllAlerts(state) {
+    state.alerts = [];
 }
