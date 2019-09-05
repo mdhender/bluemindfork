@@ -92,7 +92,7 @@ function createSockJsClient() {
     if (websocket.client != null && websocket.client.readyState != SockJS.CLOSED) {
         return websocket.client;
     }
-    const client = new SockJS(websocket.url);
+    const client = {};
     client.onopen = function() {
         websocket.timers.ping = setTimeout(ping, 5 * 1000);
         online();
