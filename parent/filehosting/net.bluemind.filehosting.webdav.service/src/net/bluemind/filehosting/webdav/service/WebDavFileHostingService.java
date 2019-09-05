@@ -77,7 +77,7 @@ public abstract class WebDavFileHostingService implements IFileHostingService {
 		try {
 			ConnectionContext con = getConnectionContext(context);
 			return con != null;
-		} catch (NullPointerException e) {
+		} catch (Exception e) {
 			return false;
 		}
 	}
