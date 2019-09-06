@@ -1,8 +1,11 @@
 <template>
     <bm-container class="mb-2 mail-message-content-attachment-item bg-white border border-light">
-        <bm-row v-if="hasPreview" class="pt-1">
+        <bm-row v-if="isExpanded" class="pt-1">
             <bm-col cols="12" class="px-1">
-                <img :src="preview" class="w-100 preview">
+                <img v-if="hasPreview" :src="preview" class="w-100 preview">
+                <div v-else class="preview w-100 d-flex align-items-center">
+                    <bm-icon :icon="fileTypeIcon" size="7x" class="m-auto" />
+                </div>
             </bm-col>
         </bm-row>
         <bm-row class="p-2">
@@ -26,7 +29,7 @@
                     class="p-2 h-100"
                     size="lg"
                     :aria-label="$tc('commons.downloadAttachement')" 
-                    @click="save"
+                    @click="$emit('save')"
                 >
                     <bm-icon icon="download" size="lg" />
                 </bm-button>
@@ -37,7 +40,6 @@
 
 <script>
 import { BmButton, BmCol, BmContainer, BmIcon, BmRow, BmTooltip } from "@bluemind/styleguide";
-import { mapActions, mapGetters, mapState } from "vuex";
 import { MimeType } from "@bluemind/email";
 
 function roundTo1Decimal(number) {
@@ -58,11 +60,14 @@ export default {
         attachment: {
             type: Object,
             required: true
+        },
+        isExpanded: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
     computed: {
-        ...mapGetters("backend.mail/folders", { folder: "currentFolder" }),
-        ...mapState("backend.mail/items", { mailUid: "current" }),
         fileTypeIcon() {
             return MimeType.matchingIcon(this.attachment.mime);
         },
@@ -83,29 +88,6 @@ export default {
         },
         preview() {
             return "data:" + this.attachment.mime + ";base64, " + this.attachment.content;
-        }
-    },
-    methods: {
-        ...mapActions("backend.mail/items", ["fetch"]),
-        save() {
-            // attachment content may be already fetched (if preview is available), if no we must fetch it
-            if (this.attachment.content) {
-                this.triggerDownload();
-            } else {
-                this.fetch({ folder: this.folder, uid: this.mailUid, part: this.attachment, isAttachment: true })
-                    .then(() => this.triggerDownload());
-            }
-        },
-        triggerDownload() {
-            let element = document.createElement('a');
-            element.style.display = 'none';
-            element.setAttribute('download', this.attachment.filename);
-            element.setAttribute('href', "data:" + this.attachment.mime + ";base64, " + this.attachment.content);
-            document.body.appendChild(element);
-
-            element.click();
-
-            document.body.removeChild(element);
         }
     }
 };

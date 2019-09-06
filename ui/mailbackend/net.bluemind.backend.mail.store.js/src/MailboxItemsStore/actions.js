@@ -45,10 +45,10 @@ export function select({ state, commit, getters, dispatch }, { folder, uid }) {
         chosenParts = processBeforeDisplay(state, uid, chosenParts);
 
         // 6) Add attachments
-        return setAttachments(commit, dispatch, folder, uid, result.attachments).then(() =>
-            // 7) Render the parts
-            displayParts(commit, uid, chosenParts)
-        );
+        commit("setAttachments", result.attachments);
+        
+        // 7) Render the parts
+        return displayParts(commit, uid, chosenParts);
     });
 }
 
@@ -60,14 +60,6 @@ export function select({ state, commit, getters, dispatch }, { folder, uid }) {
 function visitParts(getters, uid) {
     const message = getters.messageByUid(uid);
     return message.computeParts();
-}
-
-function setAttachments(commit, dispatch, folder, uid, attachments) {
-    let promises = attachments
-        .filter(a => MimeType.previewAvailable(a.mime))
-        .map(part => dispatch("fetch", { folder, uid, part, isAttachment: true }));
-
-    return Promise.all(promises).then(commit("setAttachments", attachments));
 }
 
 /**
