@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.sds.proxy.store">
+      <store
+            factory="net.bluemind.sds.proxy.store.s3.S3BackingStoreFactory">
+      </store>
+   </extension>
+
+</plugin>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension-point id="net.bluemind.sds.proxy.store" name="store" schema="schema/net.bluemind.sds.proxy.store.exsd"/>
    <extension
          point="net.bluemind.lib.vertx.verticles">
       <verticle

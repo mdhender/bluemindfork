@@ -15,13 +15,17 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.sds.proxy.events;
+package net.bluemind.sds.proxy.store;
 
 @SuppressWarnings("serial")
 public class SdsException extends RuntimeException {
 
 	public SdsException(Throwable t) {
 		super(t);
+	}
+
+	public SdsException(String s) {
+		super(s);
 	}
 
 }

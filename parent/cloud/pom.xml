@@ -13,6 +13,8 @@
 	  <module>net.bluemind.sds.proxy</module>
 	  <module>net.bluemind.sds.proxy.tests</module>
 	  <module>net.bluemind.sds.proxy.launcher</module>
+	  <module>net.bluemind.sds.proxy.store.s3</module>
+	  <module>net.bluemind.sds.proxy.store.s3.tests</module>
 	</modules>
 
 </project>

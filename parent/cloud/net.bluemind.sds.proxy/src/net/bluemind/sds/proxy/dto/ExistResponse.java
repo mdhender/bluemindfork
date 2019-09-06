@@ -21,4 +21,10 @@ public class ExistResponse extends SdsResponse {
 
 	public boolean exist;
 
+	public static ExistResponse from(boolean known) {
+		ExistResponse er = new ExistResponse();
+		er.exist = known;
+		return er;
+	}
+
 }
