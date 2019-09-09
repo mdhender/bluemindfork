@@ -324,14 +324,13 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		if (fmtType != null) {
 			extension = Mime.getExtension(fmtType.getValue());
 		}
-		String b64 = new String(binary);
 		String filename = "attachment_" + index + "." + extension;
 		CalendarOwner calOwner = owner.get();
 		try (Sudo asUser = new Sudo(calOwner.userUid, calOwner.domainUid)) {
 			try {
 				IAttachment service = ServerSideServiceProvider.getProvider(asUser.context).instance(IAttachment.class,
 						calOwner.domainUid);
-				AttachedFile att = service.share(filename, GenericStream.simpleValue(b64, b -> b.getBytes()));
+				AttachedFile att = service.share(filename, GenericStream.simpleValue(binary, bin -> bin));
 				return att;
 			} catch (ServerFault e) {
 				logger.info("Cannot attach binary file as attachment: {}", e.getMessage());
