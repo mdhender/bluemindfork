@@ -18,6 +18,7 @@
 package net.bluemind.sds.proxy.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -33,6 +34,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.vertx.java.core.buffer.Buffer;
+import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.http.HttpClient;
 import org.vertx.java.core.json.JsonObject;
 
@@ -61,13 +63,30 @@ public class SdsProxyTests {
 	public void after() {
 		Arrays.stream(new File("/dummy-sds").listFiles(file -> file.isFile())).forEach(File::delete);
 		new File("/dummy-sds").delete();
+
+		CompletableFuture<Integer> waitResp = new CompletableFuture<>();
+		HttpClient client = VertxPlatform.getVertx().createHttpClient().setHost("127.0.0.1").setPort(8091);
+		JsonObject payload = new JsonObject().putString("storeType", "dummy");
+		client.post("/configuration", resp -> {
+			System.err.println("resp " + resp);
+			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
+			resp.endHandler(v -> {
+				System.err.println(resp.statusCode());
+				waitResp.complete(resp.statusCode());
+			});
+		}).setChunked(true).write(new Buffer(payload.encode())).end();
+		try {
+			waitResp.get(5, TimeUnit.SECONDS);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Test
 	public void testHeadCall() throws InterruptedException, ExecutionException, TimeoutException {
-		CompletableFuture<Integer> waitResp = new CompletableFuture<>();
 		HttpClient client = VertxPlatform.getVertx().createHttpClient().setHost("127.0.0.1").setPort(8091);
 		JsonObject payload = new JsonObject().putString("mailbox", "yeah").putString("guid", "123");
+		CompletableFuture<Integer> waitResp = new CompletableFuture<>();
 		client.head("/sds", resp -> {
 			System.err.println("resp " + resp);
 			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
@@ -155,6 +174,53 @@ public class SdsProxyTests {
 		int httpStatus = waitResp.get(5, TimeUnit.SECONDS);
 		assertEquals(200, httpStatus);
 		assertTrue("dest was not created", new File("/dummy-sds/dest.txt").exists());
+	}
+
+	@Test
+	public void testConfigureCall() throws InterruptedException, ExecutionException, TimeoutException {
+		CompletableFuture<Integer> waitResp = new CompletableFuture<>();
+		HttpClient client = VertxPlatform.getVertx().createHttpClient().setHost("127.0.0.1").setPort(8091);
+		CompletableFuture<Boolean> reconfigured = new CompletableFuture<>();
+		VertxPlatform.eventBus().registerHandler("sds.events.configuration.updated", (Message<Boolean> msg) -> {
+			System.err.println("reconfigured.");
+			reconfigured.complete(msg.body());
+		});
+
+		CompletableFuture<JsonObject> storeMsg = new CompletableFuture<>();
+		VertxPlatform.eventBus().registerHandler("test.store.configured", (Message<JsonObject> msg) -> {
+			System.err.println("reconfigured with " + msg.body());
+			storeMsg.complete(msg.body());
+		});
+
+		CompletableFuture<String> existCall = new CompletableFuture<>();
+		VertxPlatform.eventBus().registerHandler("test.store.exists", (Message<String> msg) -> {
+			System.err.println("exist test with " + msg.body());
+			existCall.complete(msg.body());
+		});
+
+		JsonObject payload = new JsonObject().putString("storeType", "test");
+		client.post("/configuration", resp -> {
+			System.err.println("resp " + resp);
+			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
+			resp.endHandler(v -> {
+				System.err.println(resp.statusCode());
+				waitResp.complete(resp.statusCode());
+			});
+		}).setChunked(true).write(new Buffer(payload.encode())).end();
+
+		System.err.println("started");
+		int httpStatus = waitResp.get(5, TimeUnit.SECONDS);
+		assertEquals(200, httpStatus);
+
+		payload = new JsonObject().putString("mailbox", "yeah").putString("guid", "123");
+		client.head("/sds", resp -> {
+			resp.endHandler(v -> {
+			});
+		}).setChunked(true).write(new Buffer(payload.encode())).end();
+
+		assertTrue(reconfigured.get(5, TimeUnit.SECONDS));
+		assertNotNull(storeMsg.get(5, TimeUnit.SECONDS));
+		assertNotNull(existCall.get(5, TimeUnit.SECONDS));
 	}
 
 }

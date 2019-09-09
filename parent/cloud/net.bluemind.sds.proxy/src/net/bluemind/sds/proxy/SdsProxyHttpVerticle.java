@@ -32,6 +32,7 @@ import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.platform.Verticle;
 
 import net.bluemind.lib.vertx.IVerticleFactory;
+import net.bluemind.sds.proxy.dto.ConfigureResponse;
 import net.bluemind.sds.proxy.dto.ExistResponse;
 import net.bluemind.sds.proxy.dto.JsMapper;
 import net.bluemind.sds.proxy.dto.SdsResponse;
@@ -68,6 +69,8 @@ public class SdsProxyHttpVerticle extends Verticle {
 		router.put("/sds", req -> doPut(req));
 		router.get("/sds", req -> doGet(req));
 
+		router.post("/configuration", req -> configure(req));
+
 		srv.requestHandler(router).listen(8091, result -> {
 			if (result.succeeded()) {
 				startedResult.setResult(null);
@@ -75,6 +78,10 @@ public class SdsProxyHttpVerticle extends Verticle {
 				startedResult.setFailure(result.cause());
 			}
 		});
+	}
+
+	private void configure(HttpServerRequest req) {
+		sendBody(req, SdsAddresses.CONFIG, ConfigureResponse.class, resp -> req.response().setStatusCode(200).end());
 	}
 
 	private void doHead(HttpServerRequest req) {

@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.GroupPrincipal;
 import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFilePermissions;
@@ -30,6 +32,7 @@ import java.nio.file.attribute.UserPrincipalLookupService;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -40,6 +43,7 @@ import org.vertx.java.platform.Verticle;
 
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.lib.vertx.IVerticleFactory;
+import net.bluemind.sds.proxy.dto.ConfigureResponse;
 import net.bluemind.sds.proxy.dto.DeleteRequest;
 import net.bluemind.sds.proxy.dto.ExistRequest;
 import net.bluemind.sds.proxy.dto.GetRequest;
@@ -49,11 +53,13 @@ import net.bluemind.sds.proxy.dto.SdsRequest;
 import net.bluemind.sds.proxy.dto.SdsResponse;
 import net.bluemind.sds.proxy.store.ISdsBackingStore;
 import net.bluemind.sds.proxy.store.ISdsBackingStoreFactory;
+import net.bluemind.sds.proxy.store.SdsException;
 import net.bluemind.sds.proxy.store.dummy.DummyBackingStore;
 
 public class SdsEventHandlerVerticle extends Verticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(SdsEventHandlerVerticle.class);
+	private static final Path config = new File("/etc/bm-sds-proxy/config.json").toPath();
 
 	public static class SdsEventFactory implements IVerticleFactory {
 
@@ -69,14 +75,28 @@ public class SdsEventHandlerVerticle extends Verticle {
 
 	}
 
-	private ISdsBackingStore sdsStore;
+	private AtomicReference<ISdsBackingStore> sdsStore = new AtomicReference<>();
 	private final Map<String, ISdsBackingStoreFactory> factories;
 	private JsonObject storeConfig;
 
 	public SdsEventHandlerVerticle() {
 		this.factories = loadStoreFactories();
-		this.storeConfig = new JsonObject();
-		sdsStore = loadStore();
+		this.storeConfig = loadConfig();
+		sdsStore.set(loadStore());
+	}
+
+	private JsonObject loadConfig() {
+
+		if (Files.exists(config)) {
+			try {
+				return new JsonObject(new String(Files.readAllBytes(config)));
+			} catch (IOException e) {
+				throw new SdsException(e);
+			}
+		} else {
+			logger.info("Configuration {} is missing, using defaults.", config.toFile().getAbsolutePath());
+			return new JsonObject();
+		}
 	}
 
 	private ISdsBackingStore loadStore() {
@@ -115,14 +135,16 @@ public class SdsEventHandlerVerticle extends Verticle {
 		final Optional<UserPrincipal> optCyrusUser = Optional.ofNullable(cyrusUser);
 		final Optional<GroupPrincipal> optMailGroup = Optional.ofNullable(mailGroup);
 
-		registerForJsonSdsRequest(SdsAddresses.EXIST, ExistRequest.class, sdsStore::exists);
+		registerForJsonSdsRequest(SdsAddresses.EXIST, ExistRequest.class, r -> sdsStore.get().exists(r));
 
-		registerForJsonSdsRequest(SdsAddresses.DELETE, DeleteRequest.class, sdsStore::delete);
+		registerForJsonSdsRequest(SdsAddresses.DELETE, DeleteRequest.class, r -> sdsStore.get().delete(r));
 
-		registerForJsonSdsRequest(SdsAddresses.PUT, PutRequest.class, sdsStore::upload);
+		registerForJsonSdsRequest(SdsAddresses.PUT, PutRequest.class, r -> sdsStore.get().upload(r));
+
+		registerForJsonSdsRequest(SdsAddresses.CONFIG, this::reConfigure);
 
 		registerForJsonSdsRequest(SdsAddresses.GET, GetRequest.class, get -> {
-			SdsResponse resp = sdsStore.download(get);
+			SdsResponse resp = sdsStore.get().download(get);
 			if (resp.succeeded()) {
 				optCyrusUser.ifPresent(cyrus -> {
 					optMailGroup.ifPresent(mail -> {
@@ -133,6 +155,24 @@ public class SdsEventHandlerVerticle extends Verticle {
 			return resp;
 		});
 
+	}
+
+	private ConfigureResponse reConfigure(JsonObject req) {
+		logger.info("Apply configuration {}", req);
+		storeConfig = req;
+		sdsStore.set(loadStore());
+
+		try {
+			Files.write(config, req.encode().getBytes(), StandardOpenOption.CREATE,
+					StandardOpenOption.TRUNCATE_EXISTING);
+		} catch (IOException e) {
+			logger.warn("Failed to save configuration to {}", config.toFile().getAbsolutePath());
+		}
+
+		// for unit tests
+		vertx.eventBus().publish("sds.events.configuration.updated", true);
+
+		return new ConfigureResponse();
 	}
 
 	private void mkdirAndChown(File dest, UserPrincipal user, GroupPrincipal g) {
@@ -181,6 +221,20 @@ public class SdsEventHandlerVerticle extends Verticle {
 				msg.reply(jsResp);
 			} catch (Exception e) {
 				logger.error("{} Error processing payload {}", address, jsonString, e);
+				// let the event bus timeout trigger, an http 500 will be returned
+			}
+		});
+	}
+
+	private <R extends SdsResponse> void registerForJsonSdsRequest(String address,
+			UnsafeFunction<JsonObject, R> process) {
+		vertx.eventBus().registerHandler(address, (Message<JsonObject> msg) -> {
+			try {
+				R sdsResp = process.apply(msg.body());
+				JsonObject jsResp = new JsonObject(JsMapper.get().writeValueAsString(sdsResp));
+				msg.reply(jsResp);
+			} catch (Exception e) {
+				logger.error("{} Error processing payload {}", address, msg.body(), e);
 				// let the event bus timeout trigger, an http 500 will be returned
 			}
 		});

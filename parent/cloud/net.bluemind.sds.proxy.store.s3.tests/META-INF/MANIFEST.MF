@@ -8,7 +8,23 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.sds.proxy.store.s3;bundle-version="4.1.0",
  org.junit,
- net.bluemind.dockerclient
+ net.bluemind.dockerclient,
+ net.bluemind.tests.defaultdata,
+ net.bluemind.core.elasticsearch.testshelper,
+ net.bluemind.backend.cyrus,
+ net.bluemind.pool,
+ net.bluemind.vertx.testhelper,
+ net.bluemind.backend.cyrus.replication.testhelper,
+ net.bluemind.core.jdbc.testshelper;bundle-version="4.1.0",
+ net.bluemind.network.topology,
+ net.bluemind.network.topology.producer;bundle-version="4.1.0",
+ net.bluemind.hornetq.client,
+ net.bluemind.backend.cyrus.replication.storage.core;bundle-version="4.1.0",
+ net.bluemind.sds.proxy.testhelper,
+ net.bluemind.sds.proxy.mgmt,
+ net.bluemind.imap,
+ net.bluemind.authentication.service;bundle-version="4.1.0",
+ net.bluemind.backend.mail.replica.service;bundle-version="4.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.sds.proxy.store.s3.tests
 Bundle-ActivationPolicy: lazy

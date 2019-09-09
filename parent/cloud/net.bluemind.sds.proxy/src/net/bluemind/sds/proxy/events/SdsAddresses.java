@@ -19,6 +19,11 @@ package net.bluemind.sds.proxy.events;
 
 public class SdsAddresses {
 
+	private SdsAddresses() {
+	}
+
+	public static final String CONFIG = "configure";
+
 	public static final String EXIST = "sds.exist";
 
 	public static final String PUT = "sds.put";
