@@ -147,6 +147,7 @@
       <plugin id="net.bluemind.core.rest.http"/>
       <plugin id="net.bluemind.core.rest.http.vertx"/>
       <plugin id="net.bluemind.core.sanitizer"/>
+      <plugin id="net.bluemind.core.sds.configurator"/>
       <plugin id="net.bluemind.core.sendmail"/>
       <plugin id="net.bluemind.core.serialization"/>
       <plugin id="net.bluemind.core.sessions"/>
@@ -301,11 +302,11 @@
       <plugin id="net.bluemind.reminder.job"/>
       <plugin id="net.bluemind.reminder.mail"/>
       <plugin id="net.bluemind.resource.api"/>
+      <plugin id="net.bluemind.resource.helper"/>
       <plugin id="net.bluemind.resource.hook.ics"/>
       <plugin id="net.bluemind.resource.persistance"/>
       <plugin id="net.bluemind.resource.service"/>
       <plugin id="net.bluemind.resource.sqlschema"/>
-      <plugin id="net.bluemind.resource.helper"/>
       <plugin id="net.bluemind.role.api"/>
       <plugin id="net.bluemind.role.persistence"/>
       <plugin id="net.bluemind.role.provider"/>
@@ -317,6 +318,7 @@
       <plugin id="net.bluemind.scheduledjob.scheduler"/>
       <plugin id="net.bluemind.scheduledjob.service"/>
       <plugin id="net.bluemind.scheduledjob.sqlschema"/>
+      <plugin id="net.bluemind.sds.proxy.mgmt"/>
       <plugin id="net.bluemind.serialization.client"/>
       <plugin id="net.bluemind.server.api"/>
       <plugin id="net.bluemind.server.hook"/>

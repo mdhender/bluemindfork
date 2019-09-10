@@ -53,9 +53,7 @@ public class CyrusHsm extends AbstractConfFile {
 
 		HsmConfig config = getHsmConfig();
 
-		data.put("archiveEnabled", config.enabled);
-		data.put("archiveDays", config.archiveDays);
-		data.put("archiveMaxSize", config.maxSize);
+		data.put("cyrusConf", config.cyrusConf);
 
 		byte[] rendered = render(cyrusConf, data);
 		if (node != null) {

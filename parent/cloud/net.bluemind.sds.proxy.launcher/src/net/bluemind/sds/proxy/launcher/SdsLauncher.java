@@ -27,7 +27,7 @@ import net.bluemind.systemd.notify.SystemD;
 
 public class SdsLauncher implements IApplication {
 
-	private Logger logger = LoggerFactory.getLogger(SdsLauncher.class);
+	private static final Logger logger = LoggerFactory.getLogger(SdsLauncher.class);
 
 	@Override
 	public Object start(IApplicationContext context) throws Exception {

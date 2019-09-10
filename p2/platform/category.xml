@@ -495,4 +495,8 @@
    <bundle id="net.bluemind.lib.ristretto" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.sds.proxy" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.sds.proxy.launcher" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.core.sds.configurator" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.sds.proxy.mgmt" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.sds.proxy.store.s3" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.sds.proxy.testhelper" version="4.1.0.qualifier"/>
 </site>

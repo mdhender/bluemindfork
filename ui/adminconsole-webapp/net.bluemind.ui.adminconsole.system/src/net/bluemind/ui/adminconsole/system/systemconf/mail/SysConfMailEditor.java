@@ -18,13 +18,17 @@
  */
 package net.bluemind.ui.adminconsole.system.systemconf.mail;
 
+import java.util.Optional;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.TableElement;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.IntegerBox;
+import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.TextBox;
 
 import net.bluemind.gwtconsoleapp.base.editor.WidgetElement;
@@ -34,6 +38,7 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.ui.adminconsole.system.systemconf.SysConfModel;
+import net.bluemind.ui.adminconsole.system.systemconf.mail.l10n.SysConfMailConstants;
 import net.bluemind.ui.adminconsole.system.systemconf.util.ValueUtil;
 
 public class SysConfMailEditor extends CompositeGwtWidgetElement {
@@ -51,13 +56,13 @@ public class SysConfMailEditor extends CompositeGwtWidgetElement {
 	TextBox relayHost;
 
 	@UiField
-	IntegerBox cyrusMaxChild;
+	IntegerBox cyrusMaxChildTextBox;
 
 	@UiField
-	IntegerBox cyrusRetentionTime;
+	IntegerBox cyrusRetentionTimeTextBox;
 
 	@UiField
-	CheckBox archiveEnabled;
+	ListBox archiveKindSelectBox;
 
 	@UiField
 	IntegerBox archiveDays;
@@ -65,7 +70,41 @@ public class SysConfMailEditor extends CompositeGwtWidgetElement {
 	@UiField
 	IntegerBox archiveSizeThreshold;
 
+	@UiField
+	TableElement archiveCyrusTable;
+
+	@UiField
+	TableElement archiveS3Table;
+
+	@UiField
+	TextBox s3EndpointAddress;
+
+	@UiField
+	TextBox s3AccessKey;
+
+	@UiField
+	PasswordTextBox s3SecretKey;
+
+	@UiField
+	TextBox s3BucketName;
+
 	private static SysConfMailUiBinder uiBinder = GWT.create(SysConfMailUiBinder.class);
+
+	private enum ArchiveKindValue {
+		none(SysConfMailConstants.INST.archiveKindNone(), "none", 0),
+		cyrus(SysConfMailConstants.INST.archiveKindCyrus(), "cyrus", 1),
+		s3(SysConfMailConstants.INST.archiveKindS3(), "s3", 2);
+
+		private String display;
+		private String value;
+		private int index;
+
+		private ArchiveKindValue(String display, String value, int index) {
+			this.display = display;
+			this.value = value;
+			this.index = index;
+		}
+	}
 
 	interface SysConfMailUiBinder extends UiBinder<HTMLPanel, SysConfMailEditor> {
 	}
@@ -73,6 +112,14 @@ public class SysConfMailEditor extends CompositeGwtWidgetElement {
 	protected SysConfMailEditor() {
 		HTMLPanel panel = uiBinder.createAndBindUi(this);
 		initWidget(panel);
+
+		for (ArchiveKindValue val : ArchiveKindValue.values()) {
+			archiveKindSelectBox.addItem(val.display, val.value);
+		}
+
+		archiveKindSelectBox.addChangeHandler(event -> {
+			updateArchiveTablesVisibilities();
+		});
 	}
 
 	public static void registerType() {
@@ -87,6 +134,11 @@ public class SysConfMailEditor extends CompositeGwtWidgetElement {
 
 	@Override
 	public void loadModel(JavaScriptObject model) {
+		String _CYRUS_RETENTION_TIME_DEFAULT = "7";
+		String _CYRUS_ARCHIVE_DAYS_DEFAULT = "7";
+		String _CYRUS_MAX_CHILD_DEFAULT = "200";
+		String _ARCHIVE_KIND_DEFAULT = ArchiveKindValue.none.name();
+
 		SysConfModel map = SysConfModel.from(model);
 
 		myNetworks.setText(map.get(SysConfKeys.mynetworks.name()).toString());
@@ -95,28 +147,28 @@ public class SysConfMailEditor extends CompositeGwtWidgetElement {
 			relayHost.setText(map.get(SysConfKeys.relayhost.name()).toString());
 		}
 
-		if (map.get(SysConfKeys.imap_max_child.name()) != null) {
-			cyrusMaxChild.setText(map.get(SysConfKeys.imap_max_child.name()));
-		} else {
-			cyrusMaxChild.setText("");
-		}
+		String cyrusMaxChildValue = Optional.ofNullable(map.get(SysConfKeys.imap_max_child.name()))
+				.orElse(_CYRUS_MAX_CHILD_DEFAULT);
+		cyrusMaxChildTextBox.setText(cyrusMaxChildValue);
 
-		if (map.get(SysConfKeys.cyrus_expunged_retention_time.name()) != null) {
-			cyrusRetentionTime.setText(map.get(SysConfKeys.cyrus_expunged_retention_time.name()));
-		} else {
-			cyrusRetentionTime.setText("");
-		}
+		String cyrusRententionTime = Optional.ofNullable(map.get(SysConfKeys.cyrus_expunged_retention_time.name()))
+				.orElse(_CYRUS_RETENTION_TIME_DEFAULT);
+		cyrusRetentionTimeTextBox.setText(cyrusRententionTime);
 
-		if (map.get(SysConfKeys.archive_enabled.name()) != null) {
-			archiveEnabled.setValue(Boolean.parseBoolean(map.get(SysConfKeys.archive_enabled.name())));
-			if (archiveEnabled.getValue()) {
-				archiveDays.setText(map.get(SysConfKeys.archive_days.name()));
-				archiveSizeThreshold.setText(readArchiveSizeThreshold(map, SysConfKeys.archive_size_threshold, 1));
-			}
-		} else {
-			archiveEnabled.setValue(false);
-		}
+		int archiveKindIndex = ArchiveKindValue.valueOf(
+				Optional.ofNullable(map.get(SysConfKeys.archive_kind.name())).orElse(_ARCHIVE_KIND_DEFAULT)).index;
+		archiveKindSelectBox.setSelectedIndex(archiveKindIndex);
 
+		archiveDays.setText(
+				Optional.ofNullable(map.get(SysConfKeys.archive_days.name())).orElse(_CYRUS_ARCHIVE_DAYS_DEFAULT));
+		archiveSizeThreshold.setText(readArchiveSizeThreshold(map, SysConfKeys.archive_size_threshold, 1024));
+
+		s3EndpointAddress.setText(map.get(SysConfKeys.sds_s3_endpoint.name()));
+		s3AccessKey.setText(map.get(SysConfKeys.sds_s3_access_key.name()));
+		s3SecretKey.setText(map.get(SysConfKeys.sds_s3_secret_key.name()));
+		s3BucketName.setText(map.get(SysConfKeys.sds_s3_bucket.name()));
+
+		updateArchiveTablesVisibilities();
 	}
 
 	@Override
@@ -130,25 +182,27 @@ public class SysConfMailEditor extends CompositeGwtWidgetElement {
 
 		maxMailSize.setText("" + Integer.parseInt(sanitizedMaxMessageSize) / (1024 * 1024));
 
-		map.putString(SysConfKeys.archive_enabled.name(), archiveEnabled.getValue() ? "true" : "false");
+		map.putString(SysConfKeys.archive_kind.name(), archiveKindSelectBox.getSelectedValue());
 
-		if (archiveDays.getValue() != null) {
-			map.putString(SysConfKeys.archive_days.name(), "" + archiveDays.getValue().intValue());
-		} else {
-			map.putString(SysConfKeys.archive_days.name(), "7");
-		}
+		map.putString(SysConfKeys.archive_days.name(),
+				Optional.ofNullable("" + archiveDays.getValue().intValue()).orElse("7"));
 
 		map.putString(SysConfKeys.archive_size_threshold.name(), sanitizeArchiveSizeThreshold(archiveSizeThreshold, 1));
 
-		map.putString(SysConfKeys.imap_max_child.name(), cyrusMaxChild.getText());
+		map.putString(SysConfKeys.sds_s3_endpoint.name(), s3EndpointAddress.getText());
+		map.putString(SysConfKeys.sds_s3_access_key.name(), s3AccessKey.getText());
+		map.putString(SysConfKeys.sds_s3_secret_key.name(), s3SecretKey.getText());
+		map.putString(SysConfKeys.sds_s3_bucket.name(), s3BucketName.getText());
 
-		if (cyrusRetentionTime.getValue() != null) {
-			map.putString(SysConfKeys.cyrus_expunged_retention_time.name(), cyrusRetentionTime.getText());
+		map.putString(SysConfKeys.imap_max_child.name(), cyrusMaxChildTextBox.getText());
+
+		if (cyrusRetentionTimeTextBox.getValue() != null) {
+			map.putString(SysConfKeys.cyrus_expunged_retention_time.name(), cyrusRetentionTimeTextBox.getText());
 		}
 	}
 
 	private String readArchiveSizeThreshold(SysConfModel map, SysConfKeys key, int defaultValue) {
-		String limit = map.get(key.name()).toString();
+		String limit = Optional.ofNullable(map.get(key.name())).orElse(Integer.toString(defaultValue)).toString();
 		limit = ValueUtil.removeNonDigitCharacters(limit, defaultValue);
 		int limitInt = Integer.parseInt(limit) / 1024;
 		return String.valueOf(limitInt);
@@ -175,4 +229,20 @@ public class SysConfMailEditor extends CompositeGwtWidgetElement {
 		return String.valueOf(intLimit);
 	}
 
+	private void updateArchiveTablesVisibilities() {
+		switch (archiveKindSelectBox.getSelectedValue()) {
+		case "cyrus":
+			archiveS3Table.setAttribute("style", "display:none");
+			archiveCyrusTable.setAttribute("style", "display:block");
+			break;
+		case "s3":
+			archiveS3Table.setAttribute("style", "display:block");
+			archiveCyrusTable.setAttribute("style", "display:none");
+			break;
+		case "none":
+			archiveS3Table.setAttribute("style", "display:none");
+			archiveCyrusTable.setAttribute("style", "display:none");
+			break;
+		}
+	}
 }

@@ -52,9 +52,10 @@ public class Cyrus extends AbstractConfFile {
 
 		HsmConfig config = getHsmConfig();
 
-		if (config.isEnabled()) {
-			data.put("archiveEnabled", config.enabled);
-			data.put("archiveDays", config.archiveDays);
+		boolean archiveEnabled = config.cyrusConf.get("archive_enabled").equals("1");
+		if (archiveEnabled) {
+			data.put("archiveEnabled", archiveEnabled);
+			data.put("archiveDays", config.cyrusConf.get("archive_days"));
 		}
 
 		service.writeFile(serverUid, "/etc/cyrus.conf", render(cyrusConf, data));

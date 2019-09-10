@@ -51,17 +51,17 @@ public class CyrusSysConfObserver implements ISystemConfigurationObserver {
 
 		// if the server has been initialized, the hsm config has already been written
 		if (!initialized) {
-			String prevHsmEnabled = previous.stringValue(SysConfKeys.archive_enabled.name());
+			String prevArchiveKind = previous.stringValue(SysConfKeys.archive_kind.name());
 			String prevHsmDays = previous.stringValue(SysConfKeys.archive_days.name());
 			String prevHsmThreshold = previous.stringValue(SysConfKeys.archive_size_threshold.name());
 			String prevRetention = previous.stringValue(SysConfKeys.cyrus_expunged_retention_time.name());
 
-			String currentHsmEnabled = conf.stringValue(SysConfKeys.archive_enabled.name());
+			String currentArchiveKind = conf.stringValue(SysConfKeys.archive_kind.name());
 			String currentHsmDays = conf.stringValue(SysConfKeys.archive_days.name());
 			String currentHsmThreshold = conf.stringValue(SysConfKeys.archive_size_threshold.name());
 			String currentRetention = conf.stringValue(SysConfKeys.cyrus_expunged_retention_time.name());
 
-			if ((!equals(prevHsmEnabled, currentHsmEnabled)) || (!equals(prevHsmDays, currentHsmDays))
+			if ((!equals(prevArchiveKind, currentArchiveKind)) || (!equals(prevHsmDays, currentHsmDays))
 					|| (!equals(prevHsmThreshold, currentHsmThreshold)) || (!equals(prevRetention, currentRetention))) {
 				for (ItemValue<Server> server : context.provider().instance(IServer.class, "default").allComplete()) {
 					if (server.value.tags.contains("mail/imap")) {
