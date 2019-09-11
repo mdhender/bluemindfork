@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
@@ -103,6 +105,7 @@ public class ResourceTemplateHelper implements IResourceTemplateHelper {
 
 		final String template = localizedTemplate(resourceTypeDescriptor, localeLanguageTag);
 		String result = template;
+
 		final Matcher matcher = TEMPLATE_VARIABLES_PATTERN.matcher(template);
 		final Map<String, String> props = mapOfProps(resourceTypeDescriptor, resourceDescriptor, organizerName);
 		while (matcher.find()) {
@@ -149,7 +152,10 @@ public class ResourceTemplateHelper implements IResourceTemplateHelper {
 			// fallback (to any template found)
 			result = resourceTypeDescriptor.templates.values().iterator().next();
 		}
-		return result;
+
+		// some variables like ${étage} may be broken due to HTML escaping:
+		// ${&eacute;tage}
+		return StringEscapeUtils.unescapeHtml(result);
 	}
 
 	/**
