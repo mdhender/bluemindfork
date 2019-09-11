@@ -24,6 +24,7 @@ package net.bluemind.backend.mail.replica.service.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 import org.vertx.java.core.streams.ReadStream;
@@ -73,6 +74,32 @@ public class DbMessageBodiesServiceTests extends AbstractMessageBodiesServiceTes
 
 		MessageBody loaded = mboxes.getComplete(uid);
 		assertEquals("Engagements Budget DSI_ FONCTION détail", loaded.subject);
+	}
+
+	@Test
+	public void repeatBM15193() {
+
+		for (int i = 0; i < 10; i++) {
+			try {
+				storeFromStreamBM15193();
+			} catch (Exception e) {
+				fail("Test broken at loop " + i + ": " + e.getMessage());
+			}
+		}
+	}
+
+	@Test
+	public void storeFromStreamBM15193() {
+		IDbMessageBodies mboxes = getService(SecurityContext.SYSTEM);
+		assertNotNull(mboxes);
+		ReadStream<InputStreamWrapper> emlReadStream = openResource("data/bm-15193.eml");
+		Stream bmStream = VertxStream.stream(emlReadStream);
+		String uid = "d2d5876ba2d00d2c1290e46323adefa48567f0a7";
+		mboxes.create(uid, bmStream);
+
+		MessageBody loaded = mboxes.getComplete(uid);
+		assertNotNull(loaded);
+		mboxes.delete(uid);
 	}
 
 	protected IDbMessageBodies getService(SecurityContext ctx) {
