@@ -12,24 +12,25 @@
     >
         <mail-message-list-header />
         <bm-list-group-item v-if="mode === 'search'" class="font-size-lg pl-4">
-            {{ $t("common.search") }} : {{ $tc("common.messages", length, { count: length }) }}
+            {{ $t("common.search") }} : {{ $tc("common.messages", count, { count }) }}
         </bm-list-group-item>
         <div v-if="displaySpinner" class="pt-5 text-center">
             {{ $t("common.searching") }}
             <bm-spinner class="pt-3" />
         </div>
         <bm-infinite-scroll
-            v-else-if="length > 0"
+            v-else-if="count > 0"
             :items="messages"
-            :total="length" 
-            :item-key="'uid'"
+            :total="count"
+            :item-key="'id'"
             item-size="dynamic"
             :goto="position"
             scrollbar
             class="h-100 bg-extra-light"
+            @scroll="loadMessages"
         >
             <template #item="f">
-                <bm-list-group-separator v-if="hasSeparator(f.item.uid)" class="mail-list-separator">
+                <bm-list-group-separator v-if="hasSeparator(f.item.id)" class="mail-list-separator">
                     <bm-row>
                         <bm-col cols="1" />
                         <bm-col class="pl-3">
@@ -38,23 +39,26 @@
                     </bm-row>
                 </bm-list-group-separator>
                 <mail-message-list-item
-                    :ref="'message-' + f.item.uid"
+                    :ref="'message-' + f.item.id"
                     :message="f.item"
                     :to="computeLink(f.item)"
                     style="cursor: pointer;"
                 />
             </template>
+            <template #loading>
+                <mail-message-list-loading style="cursor: pointer;" />
+            </template>
         </bm-infinite-scroll>
         <bm-list-group-item v-else-if="mode === 'search'" class="bg-extra-light text-center h-100">
             <div class="pt-5 font-size-lg">
                 <template v-if="search.error === true">
-                    {{ $t("common.search.error") }} <br><br>
+                    {{ $t("common.search.error") }} <br /><br />
                     {{ $t("common.check.connection") }}
                 </template>
                 <template v-else>
-                    {{ $t("mail.list.search.no_result") }} <br>
+                    {{ $t("mail.list.search.no_result") }} <br />
                     <div class="search-pattern">"{{ search.pattern }}"</div>
-                    {{ $t("mail.list.search.no_result.found") }} <br><br>
+                    {{ $t("mail.list.search.no_result.found") }} <br /><br />
                     {{ $t("mail.list.search.no_result.try_otherwise") }}
                 </template>
             </div>
@@ -63,21 +67,21 @@
 </template>
 
 <script>
-import { 
-    BmCol, 
-    BmListGroup, 
+import {
+    BmCol,
+    BmListGroup,
     BmListGroupItem,
-    BmListGroupSeparator, 
-    BmInfiniteScroll, 
+    BmListGroupSeparator,
+    BmInfiniteScroll,
     BmRow,
     BmSpinner
 } from "@bluemind/styleguide";
 import { mapGetters, mapMutations, mapState } from "vuex";
 import { DateRange } from "@bluemind/date";
-import findIndex from "lodash.findindex";
 import last from "lodash.last";
 import MailMessageListHeader from "./MailMessageListHeader";
 import MailMessageListItem from "./MailMessageListItem";
+import MailMessageListLoading from "./MailMessageListLoading";
 
 let PAGE_DIFF = 9;
 
@@ -103,27 +107,22 @@ export default {
         BmRow,
         BmSpinner,
         MailMessageListHeader,
-        MailMessageListItem
+        MailMessageListItem,
+        MailMessageListLoading
     },
     data() {
         return {
-            PAGE: PAGE_DIFF
+            PAGE: PAGE_DIFF,
+            position: 0
         };
     },
     computed: {
-        ...mapGetters("backend.mail/items", ["messages"]),
+        ...mapGetters("backend.mail/items", ["messages", "count", "indexOf"]),
         ...mapGetters("backend.mail/folders", { folder: "currentFolder" }),
         ...mapState("backend.mail/items", {
-            length: "count",
             selectedUid: "current",
             search: "search"
         }),
-        position() {
-            if (this.selectedUid) {
-                return this.indexOf(this.selectedUid);
-            }
-            return 0;
-        },
         mode() {
             return this.search.pattern !== null ? "search" : "default";
         },
@@ -133,9 +132,23 @@ export default {
     },
     watch: {
         selectedUid() {
-            if (this.selectedUid && this.$refs["message-" + this.selectedUid]) {
-                this.$nextTick(() => this.$refs["message-" + this.selectedUid].$el.focus());
+            if (this.selectedUid) {
+                this.position = this.indexOf(this.selectedUid);
             }
+            if (this.selectedUid && this.$refs["message-" + this.selectedUid]) {
+                this.$nextTick(() => {
+                    this.$refs["message-" + this.selectedUid];
+                    this.$refs["message-" + this.selectedUid].$el.focus();
+                });
+            }
+        },
+        folder() {
+            this.position = 0;
+        }
+    },
+    created() {
+        if (this.selectedUid) {
+            this.position = this.indexOf(this.selectedUid);
         }
     },
     methods: {
@@ -156,17 +169,18 @@ export default {
         },
         goTo(index) {
             if (this.selectedUid) {
-                index = Math.min(Math.max(0, index), this.length - 1);
-                this.$router.push({ path: "" + this.messages[index].uid });
+                index = Math.min(Math.max(0, index), this.count - 1);
+                this.$router.push({ path: "" + this.messages[index].id });
             }
         },
-        indexOf(uid) {
-            return findIndex(this.messages, message => message.uid == uid);
-        },
-        hasSeparator(uid) {
-            let index = this.indexOf(uid);
+        hasSeparator(id) {
+            let index = this.indexOf(id);
             if (index > 0) {
-                if (this.getRange(this.messages[index].date) === this.getRange(this.messages[index - 1].date)) {
+                if (
+                    !this.messages[index] ||
+                    !this.messages[index - 1] ||
+                    this.getRange(this.messages[index].date) === this.getRange(this.messages[index - 1].date)
+                ) {
                     return false;
                 }
             }
@@ -175,11 +189,14 @@ export default {
         getSeparator(date) {
             return this.getRange(date)[I18N];
         },
-        computeLink(item) {
-            if (this.mode === 'search') {
-                return '/mail/search/' + this.search.pattern + '/' + item.uid;
+        computeLink(message) {
+            if (this.mode === "search") {
+                return "/mail/search/" + this.search.pattern + "/" + message.id;
             }
-            return '/mail/' + this.folder + '/' + item.uid;
+            return "/mail/" + this.folder + "/" + message.id;
+        },
+        loadMessages(range) {
+            this.$store.dispatch("mail-app/loadRange", range);
         }
     }
 };

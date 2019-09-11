@@ -26,11 +26,10 @@ import TreeWalker from "./TreeWalker";
 
 /**
  * Holds data and methods for displaying a mail message and respond to it.
- * 
+ *
  * @see net.bluemind.backend.mail.api.MailboxItem.java
  */
 export default class Message {
-
     constructor(item) {
         this.actions = {
             REPLY: "reply",
@@ -55,7 +54,7 @@ export default class Message {
             Object.assign(this, item);
         }
 
-        this.userSession = injector.getProvider('UserSession').get();
+        this.userSession = injector.getProvider("UserSession").get();
     }
 
     toMailboxItem(addrPart, sender, senderName, isSeen) {
@@ -73,17 +72,17 @@ export default class Message {
             }
         };
         if (isSeen) {
-            mailboxItem.systemFlags = [ SystemFlag.seen ];
+            mailboxItem.systemFlags = [SystemFlag.seen];
         }
         return mailboxItem;
     }
 
-    /** 
+    /**
      * Compute parts (inline and attachment)
-     * 
+     *
      * @see GetInlinePartsVisitor
      * @see GetAttachmentPartsVisitor
-     * 
+     *
      */
     computeParts() {
         const inlineVisitor = new GetInlinePartsVisitor();
@@ -118,7 +117,7 @@ export default class Message {
         return this.subject;
     }
 
-    /** 
+    /**
      * Build the text representing this message as a previous message.
      * Like:
      * @example
@@ -143,9 +142,14 @@ export default class Message {
         switch (action) {
             case this.actions.REPLY:
             case this.actions.REPLYALL:
-                previousMessage = previousMessage.split("\n").map(line => "> " + line).join("\n");
-                previousMessageSeparator = getLocalizedProperty(this.userSession, "mail.compose.reply.body",
-                    { date: this.date, name: nameAndAddress(this.from) });
+                previousMessage = previousMessage
+                    .split("\n")
+                    .map(line => "> " + line)
+                    .join("\n");
+                previousMessageSeparator = getLocalizedProperty(this.userSession, "mail.compose.reply.body", {
+                    date: this.date,
+                    name: nameAndAddress(this.from)
+                });
                 break;
             case this.actions.FORWARD:
                 previousMessageSeparator = buildPreviousMessageSeparatorForForward(this);
@@ -157,7 +161,7 @@ export default class Message {
         return previousMessageSeparator + "\n\n" + previousMessage;
     }
 
-    /** 
+    /**
      * Compute the list of recipients depending on the action (reply, reply all...) and the kind of recipient field we
      *  want to fill (cc, to).
      */
@@ -178,33 +182,19 @@ function fromMailboxItem(item, message) {
     const mailboxItem = item.value;
     message.subject = mailboxItem.body.subject;
     message.preview = mailboxItem.body.preview;
-    message.from = mailboxItem.body.recipients.find(
-        rcpt => rcpt.kind == RecipientKind.Originator
-    );
-    message.to = mailboxItem.body.recipients.filter(
-        rcpt => rcpt.kind == RecipientKind.Primary
-    );
-    message.cc = mailboxItem.body.recipients.filter(
-        rcpt => rcpt.kind == RecipientKind.CarbonCopy
-    );
-    message.bcc = mailboxItem.body.recipients.filter(
-        rcpt => rcpt.kind == RecipientKind.BlindCarbonCopy
-    );
+    message.from = mailboxItem.body.recipients.find(rcpt => rcpt.kind == RecipientKind.Originator);
+    message.to = mailboxItem.body.recipients.filter(rcpt => rcpt.kind == RecipientKind.Primary);
+    message.cc = mailboxItem.body.recipients.filter(rcpt => rcpt.kind == RecipientKind.CarbonCopy);
+    message.bcc = mailboxItem.body.recipients.filter(rcpt => rcpt.kind == RecipientKind.BlindCarbonCopy);
     message.date = new Date(mailboxItem.body.date);
     message.structure = mailboxItem.body.structure;
     message.headers = mailboxItem.body.headers;
     message.messageId = mailboxItem.body.messageId;
     message.references = mailboxItem.body.references;
-    message.flags = mailboxItem.systemFlags
-        .concat(mailboxItem.otherFlags)
-        .map(flag => flag.toLowerCase());
+    message.flags = mailboxItem.systemFlags.concat(mailboxItem.otherFlags).map(flag => flag.toLowerCase());
     message.states = [];
-    message.uid = item.uid; // FIXME remove me
-    message.ids = {
-        uid: item.uid,
-        imap: mailboxItem.imapUid,
-        id: item.internalId
-    };
+    message.uid = item.uid;
+    message.id = item.internalId;
 
     if (item.value.body.smartAttach) {
         message.states.push("has-attachment");
@@ -218,13 +208,18 @@ function buildRecipients(sender, senderName, message) {
     const primaries = buildRecipientsForKind(RecipientKind.Primary, message.to);
     const carbonCopies = buildRecipientsForKind(RecipientKind.CarbonCopy, message.cc);
     const blindCarbonCopies = buildRecipientsForKind(RecipientKind.BlindCarbonCopy, message.bcc);
-    const originator = [{
-        kind: RecipientKind.Originator,
-        address: sender,
-        dn: senderName
-    }];
+    const originator = [
+        {
+            kind: RecipientKind.Originator,
+            address: sender,
+            dn: senderName
+        }
+    ];
 
-    return primaries.concat(carbonCopies).concat(blindCarbonCopies).concat(originator);
+    return primaries
+        .concat(carbonCopies)
+        .concat(blindCarbonCopies)
+        .concat(originator);
 }
 
 function buildRecipientsForKind(kind, addresses) {
@@ -237,7 +232,7 @@ function buildRecipientsForKind(kind, addresses) {
     });
 }
 
-/** 
+/**
  * Compute the list of recipients depending on the action (reply, reply all...) and the 'Cc' recipient field.
  */
 function computeRecipientsCC(action, message) {
@@ -246,8 +241,9 @@ function computeRecipientsCC(action, message) {
     }
 
     if (action == message.actions.REPLYALL) {
-        const mailFollowUpTo =
-            message.headers.find(header => header.name === message.recipientHeaders.MAIL_FOLLOWUP_TO);
+        const mailFollowUpTo = message.headers.find(
+            header => header.name === message.recipientHeaders.MAIL_FOLLOWUP_TO
+        );
         if (!mailFollowUpTo) {
             return message.cc.map(cc => cc.address);
         }
@@ -255,7 +251,7 @@ function computeRecipientsCC(action, message) {
     return [];
 }
 
-/** 
+/**
  * Compute the list of recipients depending on the action (reply, reply all...) and the 'To' recipient field.
  */
 function computeRecipientsTO(action, message) {
@@ -326,23 +322,28 @@ function addressesFromHeader(header, isReplyAll) {
 function buildPreviousMessageSeparatorForForward(message) {
     let previousMessageSeparator = getLocalizedProperty(message.userSession, "mail.compose.forward.body");
     previousMessageSeparator += "\n";
-    previousMessageSeparator += getLocalizedProperty(message.userSession,
-        "mail.compose.forward.prev.message.info.subject");
+    previousMessageSeparator += getLocalizedProperty(
+        message.userSession,
+        "mail.compose.forward.prev.message.info.subject"
+    );
     previousMessageSeparator += ": ";
     previousMessageSeparator += message.subject;
     previousMessageSeparator += "\n";
-    previousMessageSeparator += getLocalizedProperty(message.userSession,
-        "mail.compose.forward.prev.message.info.to");
+    previousMessageSeparator += getLocalizedProperty(message.userSession, "mail.compose.forward.prev.message.info.to");
     previousMessageSeparator += ": ";
     previousMessageSeparator += message.to.map(to => nameAndAddress(to));
     previousMessageSeparator += "\n";
-    previousMessageSeparator += getLocalizedProperty(message.userSession,
-        "mail.compose.forward.prev.message.info.date");
+    previousMessageSeparator += getLocalizedProperty(
+        message.userSession,
+        "mail.compose.forward.prev.message.info.date"
+    );
     previousMessageSeparator += ": ";
     previousMessageSeparator += message.date;
     previousMessageSeparator += "\n";
-    previousMessageSeparator += getLocalizedProperty(message.userSession,
-        "mail.compose.forward.prev.message.info.from");
+    previousMessageSeparator += getLocalizedProperty(
+        message.userSession,
+        "mail.compose.forward.prev.message.info.from"
+    );
     previousMessageSeparator += ": ";
     previousMessageSeparator += nameAndAddress(message.from);
     return previousMessageSeparator;

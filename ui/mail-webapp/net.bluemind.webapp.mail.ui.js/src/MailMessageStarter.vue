@@ -13,20 +13,20 @@
             </svg>
             <div class="mail-message-starter-content position-absolute">
                 <h1>
-                    <bm-icon icon="emoticon" class="mb-3" size="lg" /> <br>
+                    <bm-icon icon="emoticon" class="mb-3" size="lg" /> <br />
                     <i18n path="mail.message.starter" tag="span">
-                        <br place="cr">
+                        <br place="cr" />
                     </i18n>
                 </h1>
-                <hr class="my-4">
+                <hr class="my-4" />
                 <div>
-                    {{ $t("mail.message.starter.write") }} <br>
+                    {{ $t("mail.message.starter.write") }} <br />
                     <bm-button :to="{ path: 'new' }" variant="primary">
                         <bm-label-icon icon="plus">{{ $t("mail.main.new") }}</bm-label-icon>
                     </bm-button>
                 </div>
                 <div>
-                    {{ $t("mail.message.starter.display") }}<br>
+                    {{ $t("mail.message.starter.display") }}<br />
                     <bm-button
                         variant="secondary"
                         :to="{ path: '/mail/' + folder + '/' + firstUnreadMessage }"
@@ -38,7 +38,7 @@
                     </bm-button>
                 </div>
                 <div>
-                    {{ $t("mail.message.starter.display") }} <br>
+                    {{ $t("mail.message.starter.display") }} <br />
                     <bm-button :to="{ path: '/mail/' + getDraftUid() }" variant="secondary">
                         <bm-label-icon icon="pencil">
                             {{ $t("mail.message.starter.display.drafts") }}
@@ -75,9 +75,9 @@ export default {
 
         firstUnreadMessage() {
             if (this.folder) {
-                const message = this.messages.find(message => message.states.includes("not-seen"));
+                const message = this.messages.find(message => message && message.states.includes("not-seen"));
                 if (message) {
-                    return message.uid;
+                    return message.id;
                 }
             }
             return null;

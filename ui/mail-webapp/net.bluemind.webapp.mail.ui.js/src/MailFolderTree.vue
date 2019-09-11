@@ -1,13 +1,13 @@
 <template>
     <div class="mail-folder-tree">
-        <bm-button 
-            variant="link" 
+        <bm-button
+            variant="link"
             class="collapse-mailbox-btn d-none d-xl-flex align-items-center pb-2 pt-3 border-0 pl-1 w-100"
             aria-controls="collapse-mailbox"
             :aria-expanded="isMailboxExpanded"
             @click="isMailboxExpanded = !isMailboxExpanded"
         >
-            <bm-icon :icon="isMailboxExpanded ? 'caret-down' : 'caret-right'" size="sm" class="bm-icon mr-2" /> 
+            <bm-icon :icon="isMailboxExpanded ? 'caret-down' : 'caret-right'" size="sm" class="bm-icon mr-2" />
             <span class="font-weight-bold">{{ mailboxEmail }}</span>
         </bm-button>
         <bm-collapse id="collapse-mailbox" v-model="isMailboxExpanded">
@@ -25,10 +25,10 @@
                     <bm-label-icon :icon="icon(f.value)" breakpoint="xl" class="flex-fill">
                         {{ f.value.name }}
                     </bm-label-icon>
-                    <bm-counter-badge 
-                        v-if="f.value.uid === currentFolder && countUnreadMessages > 0" 
-                        :value="countUnreadMessages" 
-                        class="mr-1" 
+                    <bm-counter-badge
+                        v-if="f.value.uid === currentFolder && unreadCount > 0"
+                        :value="unreadCount"
+                        class="mr-1"
                     />
                 </template>
             </bm-tree>
@@ -38,9 +38,8 @@
 
 <script>
 import { BmButton, BmCollapse, BmCounterBadge, BmIcon, BmLabelIcon, BmTree } from "@bluemind/styleguide";
-import { mapGetters, mapActions, mapMutations } from "vuex";
+import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
 import injector from "@bluemind/inject";
-
 
 export default {
     name: "MailFolderTree",
@@ -55,12 +54,12 @@ export default {
     data() {
         return {
             isMailboxExpanded: true,
-            mailboxEmail: injector.getProvider('UserSession').get().defaultEmail
+            mailboxEmail: injector.getProvider("UserSession").get().defaultEmail
         };
     },
     computed: {
         ...mapGetters("backend.mail/folders", ["tree", "currentFolder"]),
-        ...mapGetters("backend.mail/items", ["countUnreadMessages"])
+        ...mapState("backend.mail/items", ["unreadCount"])
     },
     methods: {
         icon(f) {
@@ -68,7 +67,7 @@ export default {
                 switch (f.name) {
                     case "INBOX":
                         return "inbox";
-                    case "Drafts": 
+                    case "Drafts":
                         return "pencil";
                     case "Trash":
                         return "trash";
@@ -86,15 +85,16 @@ export default {
         ...mapMutations("backend.mail/items", ["setCurrent"]),
         onSelect(uid) {
             this.setCurrent(null);
-            this.$router.push({ path: '/mail/' + uid + '/' });
+            this.$router.push({ path: "/mail/" + uid + "/" });
         }
     }
 };
 </script>
 <style lang="scss">
-@import '~@bluemind/styleguide/css/_variables';
+@import "~@bluemind/styleguide/css/_variables";
 
-.bm-tree-node-active, .bm-tree-node-active .btn {
+.bm-tree-node-active,
+.bm-tree-node-active .btn {
     color: $info-dark;
 }
 

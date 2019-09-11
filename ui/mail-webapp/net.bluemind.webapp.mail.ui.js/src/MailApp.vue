@@ -29,7 +29,9 @@
             </bm-col>
         </bm-row>
         <bm-application-alert :errors="errorAlerts" :successes="successAlerts">
-            <template v-slot="slotProps"><mail-alert-renderer :alert="slotProps.alert" /></template>
+            <template v-slot="slotProps">
+                <mail-alert-renderer :alert="slotProps.alert" />
+            </template>
         </bm-application-alert>
     </bm-container>
 </template>
@@ -63,7 +65,7 @@ export default {
     mixins: [MakeUniq],
     i18n: { messages: MailAppL10N },
     computed: {
-        ...mapGetters("backend.mail/items", ["currentMessage", "messages", "messageByUid"]),
+        ...mapGetters("backend.mail/items", ["currentMessage", "messages", "indexOf"]),
         ...mapGetters("backend.mail/folders", ["currentFolderId", "trashFolderId", "currentFolder"]),
         ...mapState("backend.mail/items", ["shouldRemoveItem", "count", "current"]),
         ...mapState("alert", { errorAlerts: "errors", successAlerts: "successes" })
@@ -71,9 +73,10 @@ export default {
     watch: {
         shouldRemoveItem() {
             if (this.shouldRemoveItem !== null) {
-                const message = this.messageByUid(this.shouldRemoveItem);
+                const index = this.indexOf(this.shouldRemoveItem);
+                const message = this.messages[index];
                 const subject = message.subject;
-                const mailId = message.ids.id;
+                const mailId = message.id;
 
                 this.$store
                     .dispatch("backend.mail/items/remove", {
@@ -82,14 +85,13 @@ export default {
                         mailId
                     })
                     .then(() => {
-                        const index = this.messages.findIndex(message => mailId === message.ids.id);
                         if (this.current !== null) {
                             if (this.count === 1) {
                                 this.$router.push("/mail/" + this.currentFolder + "/");
                             } else if (this.count === index + 1) {
-                                this.$router.push("/mail/" + this.currentFolder + "/" + this.messages[index - 1].uid);
+                                this.$router.push("/mail/" + this.currentFolder + "/" + this.messages[index - 1].id);
                             } else {
-                                this.$router.push("/mail/" + this.currentFolder + "/" + this.messages[index + 1].uid);
+                                this.$router.push("/mail/" + this.currentFolder + "/" + this.messages[index + 1].id);
                             }
                         }
                         this.remove(index);

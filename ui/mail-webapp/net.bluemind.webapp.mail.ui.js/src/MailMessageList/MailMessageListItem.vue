@@ -116,7 +116,7 @@ export default {
 };
 </script>
 
-<style lang="scss" >
+<style lang="scss">
 @import "~@bluemind/styleguide/css/variables";
 
 .mail-message-list-item {

@@ -30,7 +30,7 @@ export default {
     },
     data() {
         return {
-            searchedPattern: "",
+            searchedPattern: this.$route.params.pattern || "",
             idSetTimeoutLoading: null,
             idSetTimeoutSearch: null
         };
@@ -39,7 +39,7 @@ export default {
         ...mapGetters("backend.mail/folders", ["currentFolder"]),
         inputIsEmpty() {
             return this.searchedPattern === "";
-        },
+        }
     },
     watch: {
         currentFolder() {
@@ -50,7 +50,7 @@ export default {
         ...mapMutations("backend.mail/items", ["setSearchPattern", "setSearchLoading", "setSearchError"]),
         search() {
             if (this.searchedPattern != "") {
-                this.$router.push({ name: 'search', params: { pattern: this.searchedPattern } });
+                this.$router.push({ name: "search", params: { pattern: this.searchedPattern } });
             }
         },
         cancel() {
@@ -81,21 +81,22 @@ export default {
 <style lang="scss">
 @import "@bluemind/styleguide/css/_variables.scss";
 
-.mail-search-form .searchIcon, .mail-search-form .close {
-    margin-left: - map-get($spacers, 4);
+.mail-search-form .searchIcon,
+.mail-search-form .close {
+    margin-left: -map-get($spacers, 4);
 }
 
 .mail-search-form input {
     padding-right: map-get($spacers, 4);
 }
 
-.mail-search-form .close { 
+.mail-search-form .close {
     height: 12px;
     width: 12px;
     font-size: 26px;
 }
 
-.mail-search-form .close:hover { 
+.mail-search-form .close:hover {
     color: $primary;
 }
 </style>

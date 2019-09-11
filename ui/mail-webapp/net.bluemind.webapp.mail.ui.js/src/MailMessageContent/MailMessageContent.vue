@@ -20,7 +20,7 @@
         </bm-row>
         <bm-row>
             <bm-col cols="12">
-                <hr class="my-2">
+                <hr class="my-2" />
             </bm-col>
         </bm-row>
         <bm-row>
@@ -39,7 +39,7 @@
         </bm-row>
         <bm-row>
             <bm-col cols="12">
-                <hr class="bg-dark my-0">
+                <hr class="bg-dark my-0" />
                 <mail-message-content-attachments-block :attachments="attachments" />
             </bm-col>
         </bm-row>
@@ -189,7 +189,7 @@ export default {
             if (this.message.states.includes("not-seen")) {
                 return this.$store.dispatch("backend.mail/items/updateSeen", {
                     folder: this.folder,
-                    uid: this.message.uid,
+                    id: this.message.id,
                     isSeen: true
                 });
             }

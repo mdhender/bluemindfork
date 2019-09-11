@@ -4,7 +4,7 @@
             <bm-button
                 :aria-label="$tc('mail.actions.remove.aria')"
                 class="p-1 mr-2 border-0 no-bg hovershadow"
-                @click.prevent="shouldRemoveItem(message.uid)"
+                @click.prevent="shouldRemoveItem(message.id)"
             >
                 <bm-icon icon="trash" size="lg" />
             </bm-button>
@@ -54,7 +54,7 @@ export default {
         markAsSeen(isSeen) {
             this.$store.dispatch("backend.mail/items/updateSeen", {
                 folder: this.folder,
-                uid: this.message.uid,
+                id: this.message.id,
                 isSeen: isSeen
             });
         }

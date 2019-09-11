@@ -21,9 +21,11 @@ export function currentFolder(state) {
 }
 
 export function currentFolderId(state) {
-    return state.folders.find(folder => folder.uid === state.settings.current).internalId;
+    const folder = state.folders.find(folder => folder.uid === state.settings.current);
+    return folder && folder.internalId;
 }
 
 export function trashFolderId(state) {
-    return state.folders.find(folderItem => folderItem.value.fullName === "Trash").internalId;
+    const folder = state.folders.find(folder => folder.uid === state.settings.current);
+    return folder && folder.internalId;
 }

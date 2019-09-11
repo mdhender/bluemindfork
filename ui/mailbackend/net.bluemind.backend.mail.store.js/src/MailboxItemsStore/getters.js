@@ -1,14 +1,21 @@
 import Message from "./Message.js";
 
 export function messages(state) {
-    return (state.items || []).map(item => {
-        return new Message(item);
+    return (state.sortedIds || []).map(id => {
+        return state.items[id] && new Message(state.items[id]);
     });
 }
 
-export function currentMessage(state, getters) {
+export function count(state) {
+    return state.sortedIds.length;
+}
+
+export function indexOf(state) {
+    return id => state.sortedIds.indexOf(id);
+}
+export function currentMessage(state) {
     if (state.current) {
-        let message = getters.messageByUid(state.current);
+        let message = new Message(state.items[state.current]);
         message.flags.push("hasAttachment");
         return message;
     }
@@ -26,27 +33,17 @@ export function attachments(state) {
     }
 }
 
-export function messageByUid(state) {
-    return uid => {
-        const mailboxItem = state.items.find(item => item.uid == uid);
-        if (mailboxItem) {
-            return new Message(mailboxItem);
-        }
-    };
-}
-
-export function countUnreadMessages(state, getters) {
-    return getters.messages.filter(message => message.states.includes("not-seen")).length;
-}
-
 export function getLastRecipients(state, getters, { max = 5 }) {
     let lastRecipients = [];
     const messages = getters.messages;
-    for (let i = 0; i < messages.length; i++ ) {
+    for (let i = 0; i < messages.length; i++) {
         if (lastRecipients.length === max) {
             break;
         }
         const message = messages[i];
+        if (!message) {
+            continue;
+        }
         const allRecipients = message.to
             .concat(message.cc)
             .concat(message.bcc)

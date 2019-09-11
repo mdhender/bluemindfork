@@ -4,9 +4,10 @@ import * as mutations from "./mutations.js";
 
 const state = {
     attachments: [],
-    items: [],
     current: null,
-    count: 0,
+    items: {},
+    sortedIds: [],
+    unreadCount: 0,
     partsToDisplay: [],
     search: {
         pattern: null,

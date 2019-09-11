@@ -12,45 +12,58 @@ export function $_mailrecord_changed({ dispatch }, { container }) {
     return dispatch("all", container);
 }
 
-export function all({ commit }, folder) {
+export function all({ commit, dispatch }, folder) {
     const service = ServiceLocator.getProvider("MailboxItemsPersistance").get(folder);
+
     return service
         .filteredChangesetById(0, { must: [], mustNot: [ItemFlag.Deleted] })
-        .then(result => {
-            let ids = result.created.map(itemVersion => itemVersion.id);
-            if (ids.length >= 500) {
-                ids = ids.slice(0, 499);
-            }
-            return service.multipleById(ids);
+        .then(changeset => changeset.created.map(itemVersion => itemVersion.id))
+        .then(ids => {
+            commit("setSortedIds", ids);
+            return dispatch("multipleById", { folder, ids: ids.slice(0, 20) });
         })
-        .then(items => {
-            commit("setItems", items);
-            commit("setCount", items.length);
-        });
+        .then(() => service.getPerUserUnread())
+        .then(unread => commit("setUnreadCount", unread.total));
+}
+
+export function multipleById({ commit }, { folder, ids }) {
+    const service = ServiceLocator.getProvider("MailboxItemsPersistance").get(folder);
+    return service.multipleById(ids).then(items => commit("setItems", items));
 }
 
 /* TODO remove when webapp store is ready : following calls should be done in webapp, not in mailbackend */
-export function select({ state, commit, getters, dispatch }, { folder, uid }) {
-    // 1) Select the current message to display
-    commit("setCurrent", uid);
+export function select({ state, commit, dispatch }, { folder, id }) {
+    const payload = {};
+    let promise = Promise.resolve();
+    if (!state.items[id]) {
+        promise = ServiceLocator.getProvider("MailboxItemsPersistance")
+            .get(folder)
+            .getCompleteById(id)
+            .then(item => commit("setItems", [item]));
+    }
+    return promise
+        .then(() => {
+            commit("setCurrent", id);
+            // 1) Select the current message to display
 
-    // 2) Obtain the different display possibilities
-    const result = visitParts(getters, uid);
+            // 2) Obtain the different display possibilities
+            payload.result = visitParts(state, id);
 
-    // 3) Choose parts to display
-    let chosenParts = choosePartsToDisplay(result.inlines);
+            // 3) Choose parts to display
+            payload.chosenParts = choosePartsToDisplay(payload.result.inlines);
 
-    // 4) Retrieve parts content
-    return fetchParts(state, commit, folder, uid, dispatch, chosenParts).then(() => {
-        // 5) Manipulate parts content before display
-        chosenParts = processBeforeDisplay(state, uid, chosenParts);
+            // 4) Retrieve parts content
+            return fetchParts(state, commit, folder, id, dispatch, payload.chosenParts);
+        })
+        .then(() => {
+            // 5) Manipulate parts content before display
+            payload.chosenParts = processBeforeDisplay(payload.chosenParts);
 
-        // 6) Add attachments
-        commit("setAttachments", result.attachments);
+            // 6) Add attachments
+            commit("setAttachments", payload.result.attachments);
 
-        // 7) Render the parts
-        return displayParts(commit, uid, chosenParts);
-    });
+            return displayParts(commit, payload.chosenParts);
+        });
 }
 
 /**
@@ -58,8 +71,8 @@ export function select({ state, commit, getters, dispatch }, { folder, uid }) {
  *
  * TODO move to webapp store or router when ready.
  */
-function visitParts(getters, uid) {
-    const message = getters.messageByUid(uid);
+function visitParts(state, id) {
+    const message = new Message(state.items[id]);
     return message.computeParts();
 }
 
@@ -92,9 +105,9 @@ function choosePartsToDisplay(partsByCapabilities) {
  *
  * TODO move to webapp store or router when ready.
  */
-function fetchParts(state, commit, folder, uid, dispatch, partsToFetch) {
+function fetchParts(state, commit, folder, id, dispatch, partsToFetch) {
     // use mailbackend to fetch parts
-    let promises = partsToFetch.map(part => dispatch("fetch", { folder, uid, part, isAttachment: false }));
+    let promises = partsToFetch.map(part => dispatch("fetch", { folder, id, part, isAttachment: false }));
     return Promise.all(promises).catch(reason => {
         commit("alert/add", { uid: uuid(), type: "danger", message: "Failed to read mail " + reason });
     });
@@ -105,7 +118,7 @@ function fetchParts(state, commit, folder, uid, dispatch, partsToFetch) {
  *
  * TODO move to webapp store or router when ready.
  */
-function processBeforeDisplay(state, uid, fetchedParts) {
+function processBeforeDisplay(fetchedParts) {
     const htmlParts = fetchedParts.filter(part => part.mime === "text/html");
     const imageParts = fetchedParts.filter(part => MimeType.isImage(part) && toBeIncluded(part));
     PartsHelper.insertInlineImages(htmlParts, imageParts);
@@ -122,12 +135,12 @@ function toBeIncluded(part) {
  *
  * TODO move to webapp store or router when ready.
  */
-function displayParts(commit, uid, partsToDisplay) {
+function displayParts(commit, partsToDisplay) {
     commit("setPartsToDisplay", partsToDisplay);
 }
 
-export function fetch({ state }, { folder, uid, part, isAttachment }) {
-    const item = state.items.find(item => item.uid == uid);
+export function fetch({ state }, { folder, id, part, isAttachment }) {
+    const item = state.items[id];
     let encoding = part.encoding;
     if (isAttachment || MimeType.isImage(part)) {
         encoding = null;
@@ -135,20 +148,21 @@ export function fetch({ state }, { folder, uid, part, isAttachment }) {
     return ServiceLocator.getProvider("MailboxItemsPersistance")
         .get(folder)
         .fetch(item.value.imapUid, part.address, encoding, part.mime, part.charset)
-        .then(function (stream) {
+        .then(function(stream) {
             part.content = stream;
-            part.uid = uid;
+            part.id = id;
             part.cid = part.contentId;
         });
 }
 
-export function updateSeen({ state, commit, rootGetters }, { folder, uid, isSeen }) {
+export function updateSeen({ commit, rootGetters }, { folder, id, isSeen }) {
     folder = folder || rootGetters["backend.mail/folders/currentFolder"];
-    const itemId = state.items.find(item => item.uid === uid).internalId;
-    return ServiceLocator.getProvider("MailboxItemsPersistance")
-        .get(folder)
-        .updateSeens([{ itemId: itemId, seen: isSeen, mdnSent: false }])
-        .then(() => commit("updateSeen", { uid: uid, isSeen: isSeen }));
+    const service = ServiceLocator.getProvider("MailboxItemsPersistance").get(folder);
+    return service
+        .updateSeens([{ itemId: id, seen: isSeen, mdnSent: false }])
+        .then(() => commit("updateSeen", { id, isSeen }))
+        .then(() => service.getPerUserUnread())
+        .then(unread => commit("setUnreadCount", unread.total));
 }
 
 export function send({ state, rootState, commit }) {
@@ -161,11 +175,11 @@ export function send({ state, rootState, commit }) {
         messageToSend.content += "\n\n\n" + previousMessage.content;
     }
 
-    const outboxUid = rootState["backend.mail/folders"].folders.find(function (folder) {
+    const outboxUid = rootState["backend.mail/folders"].folders.find(function(folder) {
         return folder.displayName === "Outbox";
     }).uid;
 
-    const sentboxUid = rootState["backend.mail/folders"].folders.find(function (folder) {
+    const sentboxUid = rootState["backend.mail/folders"].folders.find(function(folder) {
         return folder.displayName === "Sent";
     }).uid;
 
@@ -200,19 +214,25 @@ export function send({ state, rootState, commit }) {
         .uploadPart(messageToSend.content)
         .then(addrPart =>
             service.create(
-                new Message(messageToSend)
-                    .toMailboxItem(addrPart, userSession.defaultEmail, userSession.formatedName, true)
+                new Message(messageToSend).toMailboxItem(
+                    addrPart,
+                    userSession.defaultEmail,
+                    userSession.formatedName,
+                    true
+                )
             )
         )
         .then(itemIdentifier => {
             mailId = itemIdentifier.id;
             const outboxService = ServiceLocator.getProvider("OutboxPersistance").get();
             return outboxService.flush();
-        }).then(taskRef => {
+        })
+        .then(taskRef => {
             // wait for the flush of the outbox to be finished (flush means send mail + move to sentbox)
             const taskService = ServiceLocator.getProvider("TaskService").get(taskRef.id);
             return retrieveTaskResult(taskService, 250, 5);
-        }).then(taskResult => {
+        })
+        .then(taskResult => {
             // compute and return the IMAP id of the mail inside the sentbox
             if (taskResult.result && Array.isArray(taskResult.result)) {
                 let importedMailboxItem = taskResult.result.find(r => r.source == mailId);
@@ -253,24 +273,22 @@ export function send({ state, rootState, commit }) {
         });
 }
 
-
 /** Wait for the task to be finished or a timeout is reached. */
 function retrieveTaskResult(taskService, delayTime, maxTries, iteration = 1) {
-    return new Promise(resolve => setTimeout(() => resolve(taskService.status()), delayTime))
-        .then(taskStatus => {
-            const taskEnded = taskStatus && taskStatus.state && taskStatus.state != "InProgress"
-                && taskStatus.state != "NotStarted";
-            if (taskEnded) {
-                return JSON.parse(taskStatus.result);
+    return new Promise(resolve => setTimeout(() => resolve(taskService.status()), delayTime)).then(taskStatus => {
+        const taskEnded =
+            taskStatus && taskStatus.state && taskStatus.state != "InProgress" && taskStatus.state != "NotStarted";
+        if (taskEnded) {
+            return JSON.parse(taskStatus.result);
+        } else {
+            if (iteration < maxTries) {
+                // 'smart' delay: add 250ms each retry
+                return retrieveTaskResult(taskService, delayTime + 250, maxTries, ++iteration);
             } else {
-                if (iteration < maxTries) {
-                    // 'smart' delay: add 250ms each retry
-                    return retrieveTaskResult(taskService, delayTime + 250, maxTries, ++iteration);
-                } else {
-                    return Promise.reject("Timeout while retrieving task result");
-                }
+                return Promise.reject("Timeout while retrieving task result");
             }
-        });
+        }
+    });
 }
 
 function validate(messageToSend) {
@@ -288,43 +306,51 @@ function sanitize(messageToSend) {
 const MAX_SEARCH_RESULTS = 500; // FIXME
 
 export function search({ commit }, { folderUid, pattern }) {
-    return ServiceLocator.getProvider("MailboxFoldersPersistance").get().searchItems({
-        query: {
-            searchSessionId: undefined,
-            query: pattern,
-            maxResults: MAX_SEARCH_RESULTS,
-            offset: undefined,
-            scope: {
-                folderScope: {
-                    folderUid
-                },
-                isDeepTraversal: false
-            }
-        },
-        sort: {
-            criteria: [
-                {
-                    field: "date",
-                    order: "Desc"
+    return ServiceLocator.getProvider("MailboxFoldersPersistance")
+        .get()
+        .searchItems({
+            query: {
+                searchSessionId: undefined,
+                query: pattern,
+                maxResults: MAX_SEARCH_RESULTS,
+                offset: undefined,
+                scope: {
+                    folderScope: {
+                        folderUid
+                    },
+                    isDeepTraversal: false
                 }
-            ]
-        }
-    }).then(searchResults => {
-        const ids = searchResults.results.map(messageSearchResult => messageSearchResult.itemId);
-        return ServiceLocator.getProvider("MailboxItemsPersistance").get(folderUid).multipleById(ids).then(items => {
-            commit("setItems", items);
-            commit("setCount", searchResults.totalResults);
+            },
+            sort: {
+                criteria: [
+                    {
+                        field: "date",
+                        order: "Desc"
+                    }
+                ]
+            }
+        })
+        .then(searchResults => {
+            const ids = searchResults.results.map(messageSearchResult => messageSearchResult.itemId);
+            commit("setSortedIds", ids);
+            return ServiceLocator.getProvider("MailboxItemsPersistance")
+                .get(folderUid)
+                .multipleById(ids)
+                .then(items => {
+                    commit("setItems", items);
+                    commit("setCount", searchResults.totalResults);
+                    commit("setSearchPattern", pattern);
+                    commit("setSearchLoading", false);
+                    commit("setSearchError", false);
+                });
+        })
+        .catch(() => {
+            commit("setItems", []);
+            commit("setCount", 0);
             commit("setSearchPattern", pattern);
             commit("setSearchLoading", false);
-            commit("setSearchError", false);
+            commit("setSearchError", true);
         });
-    }).catch(() => {
-        commit("setItems", []);
-        commit("setCount", 0);
-        commit("setSearchPattern", pattern);
-        commit("setSearchLoading", false);
-        commit("setSearchError", true);
-    });
 }
 
 export function remove(payload, { folderId, trashFolderId, mailId }) {

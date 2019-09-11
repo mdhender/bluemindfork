@@ -1,19 +1,21 @@
 import Vue from "vue";
 
 export function setItems(state, items) {
-    state.items = items;
+    items.forEach(item => {
+        Vue.set(state.items, item.internalId, item);
+    });
 }
 
-export function setCount(state, count) {
-    state.count = count;
+export function setSortedIds(state, ids) {
+    state.sortedIds = ids;
 }
 
-export function setCurrent(state, uid) {
-    state.current = uid;
+export function setCurrent(state, id) {
+    state.current = parseInt(id);
 }
 
-export function updateSeen(state, { uid, isSeen }) {
-    let mailboxItem = state.items.find(item => item.uid === uid);
+export function updateSeen(state, { id, isSeen }) {
+    let mailboxItem = state.items[id];
     let currentSeenState = mailboxItem.value.systemFlags.includes("seen");
     if (currentSeenState !== isSeen) {
         if (isSeen) {
@@ -34,20 +36,20 @@ export function setAttachments(state, attachments) {
 }
 
 export function setSearchPattern(state, pattern) {
-    Vue.set(state.search, 'pattern', pattern);
+    Vue.set(state.search, "pattern", pattern);
 }
 
 export function setSearchLoading(state, isLoading) {
-    Vue.set(state.search, 'loading', isLoading);
+    Vue.set(state.search, "loading", isLoading);
 }
 
 export function setSearchError(state, hasError) {
-    Vue.set(state.search, 'error', hasError);
+    Vue.set(state.search, "error", hasError);
 }
 
 export function remove(state, index) {
-    state.items.splice(index, 1);
-    state.count--;
+    const id = state.sortedIds.splice(index, 1);
+    Vue.delete(state.items, id);
 }
 
 export function shouldRemoveItem(state, mailUid) {
@@ -56,4 +58,8 @@ export function shouldRemoveItem(state, mailUid) {
 
 export function setDraftMail(state, draftMail) {
     state.draftMail = draftMail;
+}
+
+export function setUnreadCount(state, count) {
+    state.unreadCount = count;
 }

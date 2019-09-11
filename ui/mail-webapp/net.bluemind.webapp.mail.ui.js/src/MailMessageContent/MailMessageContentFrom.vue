@@ -1,9 +1,5 @@
 <template>
-    <bm-contact 
-        :contact="{ email: address, displayName: dn }" 
-        :closeable="false"
-        variant="transparent" 
-    />
+    <bm-contact :contact="{ email: address, displayName: dn }" :closeable="false" variant="transparent" />
 </template>
 
 <script>
@@ -17,6 +13,7 @@ export default {
     props: {
         dn: {
             type: String,
+            required: false,
             default: ""
         },
         address: {

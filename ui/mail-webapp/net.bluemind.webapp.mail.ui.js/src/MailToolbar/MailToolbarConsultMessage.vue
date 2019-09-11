@@ -5,7 +5,7 @@
             variant="none"
             class="unread"
             :aria-label="$tc('mail.actions.mark_read.aria')"
-            @click="updateSeen({ folder, uid: message.uid, isSeen: true })"
+            @click="updateSeen({ folder, id: message.id, isSeen: true })"
         >
             <bm-icon icon="read" size="2x" />
             {{ $tc("mail.actions.mark_read") }}
@@ -15,12 +15,12 @@
             variant="none"
             class="read"
             :aria-label="$tc('mail.actions.mark_unread.aria')"
-            @click="updateSeen({ folder, uid: message.uid, isSeen: false })"
+            @click="updateSeen({ folder, id: message.id, isSeen: false })"
         >
             <bm-icon icon="unread" size="2x" />
             {{ $tc("mail.actions.mark_unread") }}
         </bm-button>
-        <bm-button variant="none" :aria-label="$tc('mail.actions.remove.aria')" @click="shouldRemoveItem(message.uid)">
+        <bm-button variant="none" :aria-label="$tc('mail.actions.remove.aria')" @click="shouldRemoveItem(message.id)">
             <bm-icon icon="trash" size="2x" />
             {{ $tc("mail.actions.remove") }}
         </bm-button>
@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import { BmButton, BmIcon }  from "@bluemind/styleguide";
+import { BmButton, BmIcon } from "@bluemind/styleguide";
 import { mapActions, mapMutations, mapGetters } from "vuex";
 
 export default {
@@ -51,13 +51,14 @@ export default {
     },
     methods: {
         ...mapActions("backend.mail/items", ["updateSeen"]),
-        ...mapMutations("backend.mail/items", ["shouldRemoveItem"]),
+        ...mapMutations("backend.mail/items", ["shouldRemoveItem"])
     }
 };
 </script>
 
 <style>
-.unread, .read {
+.unread,
+.read {
     width: 8rem;
 }
 </style>

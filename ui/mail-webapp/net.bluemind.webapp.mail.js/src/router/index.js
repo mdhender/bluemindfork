@@ -19,7 +19,7 @@ const actionsOnMailConsult = {
     },
     mail(store, value, unused, { params }) {
         store.commit("backend.mail/items/setAttachments", []);
-        return store.dispatch("backend.mail/items/select", { uid: value, folder: params.folder });
+        return store.dispatch("backend.mail/items/select", { id: value, folder: params.folder });
     }
 };
 
@@ -58,10 +58,7 @@ export default [
                         pattern: actionOnSearch,
                         mail(store, value) {
                             const folderUid = store.state["backend.mail/folders"].settings.current;
-                            return store.dispatch(
-                                "backend.mail/items/select", 
-                                { uid: value, folder: folderUid }
-                            );
+                            return store.dispatch("backend.mail/items/select", { id: value, folder: folderUid });
                         }
                     }
                 }
