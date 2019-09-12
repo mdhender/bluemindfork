@@ -56,7 +56,8 @@ public class SharedMailboxProbe {
 	}
 
 	public static String nameFor(Assignment domainServerPair) {
-		return "probe_" + domainServerPair.serverUid + "__" + domainServerPair.domainUid;
+		return "probe_" + domainServerPair.serverUid.replace(".", "-") + "__"
+				+ domainServerPair.domainUid.replace(".", "-");
 	}
 
 	public static String uidFor(Assignment domainServerPair) {

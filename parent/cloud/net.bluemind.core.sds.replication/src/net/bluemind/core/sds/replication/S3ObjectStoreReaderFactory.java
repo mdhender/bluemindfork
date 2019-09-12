@@ -17,6 +17,8 @@
  */
 package net.bluemind.core.sds.replication;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,16 +27,25 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.netflix.spectator.api.Registry;
 
 import net.bluemind.backend.mail.replica.service.sds.IObjectStoreReader;
+import net.bluemind.metrics.registry.IdFactory;
+import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 
 public class S3ObjectStoreReaderFactory implements IObjectStoreReader.Factory {
 
 	private static final Logger logger = LoggerFactory.getLogger(S3ObjectStoreReader.class);
+	private final ConcurrentHashMap<String, AmazonS3> s3ClientCache;
+
+	private static final Registry registry = MetricsRegistry.get();
+	private static final IdFactory idFactory = new IdFactory("replication.sds.s3", MetricsRegistry.get(),
+			S3ObjectStoreReaderFactory.class);
 
 	public S3ObjectStoreReaderFactory() {
+		this.s3ClientCache = new ConcurrentHashMap<String, AmazonS3>();
 	}
 
 	@Override
@@ -48,12 +59,17 @@ public class S3ObjectStoreReaderFactory implements IObjectStoreReader.Factory {
 		String accessKey = conf.stringValue(SysConfKeys.sds_s3_access_key.name());
 		String secretKey = conf.stringValue(SysConfKeys.sds_s3_secret_key.name());
 		String bucket = conf.stringValue(SysConfKeys.sds_s3_bucket.name());
-		logger.info("Creating S3 reader for {} {}", endpoint, bucket);
-		AmazonS3ClientBuilder builder = AmazonS3ClientBuilder.standard();
-		builder.setEndpointConfiguration(new EndpointConfiguration(endpoint, ""));
-		builder.setCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)));
-		AmazonS3 client = builder.build();
-		return new S3ObjectStoreReader(client, bucket);
+		String cacheKey = String.join(";", endpoint, accessKey, secretKey);
+
+		AmazonS3 client = s3ClientCache.computeIfAbsent(cacheKey, key -> {
+			logger.info("Creating S3 client for {}", endpoint);
+			AmazonS3ClientBuilder builder = AmazonS3ClientBuilder.standard();
+			builder.setEndpointConfiguration(new EndpointConfiguration(endpoint, ""));
+			builder.setCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)));
+			return builder.build();
+		});
+
+		return new S3ObjectStoreReader(client, bucket, registry, idFactory);
 	}
 
 }

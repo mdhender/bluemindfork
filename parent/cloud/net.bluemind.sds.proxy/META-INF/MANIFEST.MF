@@ -13,7 +13,9 @@ Require-Bundle: org.eclipse.core.runtime,
  com.fasterxml.jackson.core.jackson-core,
  net.bluemind.systemd.notify,
  com.google.guava,
- net.bluemind.eclipse.common
+ net.bluemind.eclipse.common,
+ net.bluemind.metrics.registry,
+ net.bluemind.vertx.common
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.sds.proxy
 Bundle-ActivationPolicy: lazy

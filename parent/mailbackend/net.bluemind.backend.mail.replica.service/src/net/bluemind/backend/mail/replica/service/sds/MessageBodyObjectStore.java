@@ -68,7 +68,7 @@ public class MessageBodyObjectStore {
 
 		ISystemConfiguration config = ctx.provider().instance(ISystemConfiguration.class);
 		this.objectStoreReader = loadReader(config.getValues());
-		logger.info("reading with {}", objectStoreReader);
+		logger.info("Reading with {}", objectStoreReader);
 	}
 
 	private static Map<String, Factory> loadStores() {

@@ -22,6 +22,10 @@ import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.json.JsonObject;
 
+import com.netflix.spectator.api.Registry;
+
+import net.bluemind.metrics.registry.IdFactory;
+import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.sds.proxy.store.ISdsBackingStore;
 import net.bluemind.sds.proxy.store.ISdsBackingStoreFactory;
 
@@ -29,6 +33,9 @@ public class S3BackingStoreFactory implements ISdsBackingStoreFactory {
 
 	private static final Logger logger = LoggerFactory.getLogger(S3BackingStore.class);
 	public static final String NAME = "s3";
+
+	private static final Registry registry = MetricsRegistry.get();
+	private static final IdFactory idFactory = new IdFactory("s3", MetricsRegistry.get(), S3BackingStoreFactory.class);
 
 	public S3BackingStoreFactory() {
 	}
@@ -40,7 +47,7 @@ public class S3BackingStoreFactory implements ISdsBackingStoreFactory {
 			throw new IllegalArgumentException("Configuration is not for an s3 backend: " + configuration.encode());
 		}
 		logger.info("Configuring with {}", configuration.encode());
-		return new S3BackingStore(S3Configuration.from(configuration));
+		return new S3BackingStore(S3Configuration.from(configuration), registry, idFactory);
 
 	}
 

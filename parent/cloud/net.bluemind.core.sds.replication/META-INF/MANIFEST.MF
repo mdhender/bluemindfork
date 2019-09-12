@@ -9,6 +9,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.system.api,
  net.bluemind.aws.s3,
  com.google.guava,
- slf4j.api
+ slf4j.api,
+ net.bluemind.metrics.registry;bundle-version="4.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.core.sds.replication
+Import-Package: net.bluemind.metrics.registry

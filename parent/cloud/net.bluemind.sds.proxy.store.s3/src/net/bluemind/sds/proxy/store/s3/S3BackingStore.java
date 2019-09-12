@@ -34,7 +34,9 @@ import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.google.common.io.ByteStreams;
+import com.netflix.spectator.api.Registry;
 
+import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.sds.proxy.dto.DeleteRequest;
 import net.bluemind.sds.proxy.dto.ExistRequest;
 import net.bluemind.sds.proxy.dto.ExistResponse;
@@ -51,7 +53,13 @@ public class S3BackingStore implements ISdsBackingStore {
 	private final AmazonS3 client;
 	private final Bucket bucket;
 
-	public S3BackingStore(S3Configuration s3Configuration) {
+	private final Registry registry;
+	private final IdFactory idFactory;
+
+	public S3BackingStore(S3Configuration s3Configuration, Registry registry, IdFactory idfactory) {
+		this.registry = registry;
+		this.idFactory = idfactory;
+
 		AmazonS3ClientBuilder builder = AmazonS3ClientBuilder.standard();
 		builder.setEndpointConfiguration(
 				new EndpointConfiguration(s3Configuration.getEndpoint(), s3Configuration.getRegion()));
@@ -79,7 +87,9 @@ public class S3BackingStore implements ISdsBackingStore {
 	public SdsResponse upload(PutRequest req) throws IOException {
 		SdsResponse sr = new SdsResponse();
 		try {
-			PutObjectResult result = client.putObject(bucket.getName(), req.guid, new File(req.filename));
+			File file = new File(req.filename);
+			PutObjectResult result = client.putObject(bucket.getName(), req.guid, file);
+			registry.counter(idFactory.name("transfer").withTag("direction", "upload")).increment(file.length());
 			logger.info("Result {} {}", result.getETag(), result.getVersionId());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -92,10 +102,12 @@ public class S3BackingStore implements ISdsBackingStore {
 	public SdsResponse download(GetRequest req) throws IOException {
 		SdsResponse sr = new SdsResponse();
 		File target = new File(req.filename);
+
 		try (S3Object s3object = client.getObject(bucket.getName(), req.guid);
 				S3ObjectInputStream stream = s3object.getObjectContent();
 				OutputStream out = java.nio.file.Files.newOutputStream(target.toPath())) {
 			ByteStreams.copy(stream, out);
+			registry.counter(idFactory.name("transfer").withTag("direction", "download")).increment(target.length());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			sr.error = new SdsError(e.getMessage());
