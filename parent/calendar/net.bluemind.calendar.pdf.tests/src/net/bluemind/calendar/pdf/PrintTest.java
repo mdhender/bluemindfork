@@ -105,6 +105,44 @@ public class PrintTest {
 		assertEquals(expected, s);
 	}
 
+	@Test
+	public void testIntersectingEvents() throws ServerFault, IOException {
+		CalInfo cal = defaultCalendar();
+		VEvent event = defaultVEvent();
+		event.summary = "printSimpleEvent1";
+		event.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2019, 9, 13, 11, 45, 0, 0, ZoneId.of("Europe/Paris")));
+		event.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2019, 9, 13, 13, 15, 0, 0, ZoneId.of("Europe/Paris")));
+		String uid = "test_1";
+
+		VEvent event2 = defaultVEvent();
+		event2.summary = "printSimpleEvent2";
+		event2.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2019, 9, 13, 12, 0, 0, 0, ZoneId.of("Europe/Paris")));
+		event2.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2019, 9, 13, 13, 0, 0, 0, ZoneId.of("Europe/Paris")));
+		String uid2 = "test_2";
+
+		PrintOptions options = new PrintOptions();
+		options.dateBegin = BmDateTimeWrapper.create(ZonedDateTime.of(2019, 9, 9, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
+		options.dateEnd = BmDateTimeWrapper.create(ZonedDateTime.of(2019, 9, 15, 0, 0, 0, 0, ZoneId.systemDefault()),
+				Precision.Date);
+		options.calendars.add(CalendarMetadata.create(cal.uid, "#3D99FF"));
+
+		options.format = PrintFormat.SVG;
+
+		List<ItemContainerValue<VEvent>> vevents = Arrays.asList(
+				ItemContainerValue.create(cal.uid, ItemValue.create(uid2, event2), event2),
+				ItemContainerValue.create(cal.uid, ItemValue.create(uid, event), event));
+		PrintCalendarDay p = new PrintCalendarDay(printContext(cal), options, vevents, 7);
+		p.process();
+		byte[] data = p.sendSVGString();
+
+		String s = new String(data);
+		assertNotNull(s);
+
+		String expected = getSvgFromFile("testIntersectingEvents.svg");
+		assertEquals(expected, s);
+	}
+
 	private CalInfo defaultCalendar() {
 		CalInfo ret = new PrintCalendar.CalInfo();
 		ret.uid = "test";
@@ -384,7 +422,7 @@ public class PrintTest {
 				"<?xml version=\"1.0\" encoding=\"UTF-8\"?><svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" contentScriptType=\"text/ecmascript\" width=\"1042\" zoomAndPan=\"magnify\" contentStyleType=\"text/css\" height=\"744\" preserveAspectRatio=\"xMidYMid meet\" version=\"1.0\"><text><tspan x=\"30\" y=\"30\">Monday 29 February 2016 - Sunday 10 April 2016</tspan></text><text x=\"30\" y=\"42\"><tspan style=\"fill:#3D99FF\">John Doe</tspan></text><rect width=\"952\" x=\"60\" height=\"636\" y=\"66\" style=\"fill:white;stroke:#CCC;stroke-width:1;\"/><text x=\"128\" y=\"63\" text-anchor=\"middle\">Mon</text><line y2=\"702\" style=\"fill:white;stroke:#CCC;stroke-width:1;\" x1=\"60\" x2=\"60\" y1=\"66\"/><text x=\"264\" y=\"63\" text-anchor=\"middle\">Tue</text><line y2=\"702\" style=\"fill:white;stroke:#CCC;stroke-width:1;\" x1=\"196\" x2=\"196\" y1=\"66\"/><text x=\"400\" y=\"63\" text-anchor=\"middle\">Wed</text><line y2=\"702\" style=\"fill:white;stroke:#CCC;stroke-width:1;\" x1=\"332\" x2=\"332\" y1=\"66\"/><text x=\"536\" y=\"63\" text-anchor=\"middle\">Thu</text><line y2=\"702\" style=\"fill:white;stroke:#CCC;stroke-width:1;\" x1=\"468\" x2=\"468\" y1=\"66\"/><text x=\"672\" y=\"63\" text-anchor=\"middle\">Fri</text><line y2=\"702\" style=\"fill:white;stroke:#CCC;stroke-width:1;\" x1=\"604\" x2=\"604\" y1=\"66\"/><text x=\"808\" y=\"63\" text-anchor=\"middle\">Sat</text><line y2=\"702\" style=\"fill:white;stroke:#CCC;stroke-width:1;\" x1=\"740\" x2=\"740\" y1=\"66\"/><text x=\"944\" y=\"63\" text-anchor=\"middle\">Sun</text><line y2=\"702\" style=\"fill:white;stroke:#CCC;stroke-width:1;\" x1=\"876\" x2=\"876\" y1=\"66\"/><line y2=\"66\" style=\"fill:white;stroke:#CCC;stroke-width:1;\" x1=\"60\" x2=\"1012\" y1=\"66\"/><line y2=\"172\" style=\"fill:white;stroke:#CCC;stroke-width:1;\" x1=\"60\" x2=\"1012\" y1=\"172\"/><line y2=\"278\" style=\"fill:white;stroke:#CCC;stroke-width:1;\" x1=\"60\" x2=\"1012\" y1=\"278\"/><line y2=\"384\" style=\"fill:white;stroke:#CCC;stroke-width:1;\" x1=\"60\" x2=\"1012\" y1=\"384\"/><line y2=\"490\" style=\"fill:white;stroke:#CCC;stroke-width:1;\" x1=\"60\" x2=\"1012\" y1=\"490\"/><line y2=\"596\" style=\"fill:white;stroke:#CCC;stroke-width:1;\" x1=\"60\" x2=\"1012\" y1=\"596\"/><text x=\"181\" y=\"78\">01</text><text x=\"30\" y=\"119\">10</text><text x=\"317\" y=\"78\">02</text><text x=\"453\" y=\"78\">03</text><text x=\"589\" y=\"78\">04</text><text x=\"725\" y=\"78\">05</text><text x=\"861\" y=\"78\">06</text><text x=\"997\" y=\"78\">07</text><text x=\"181\" y=\"184\">08</text><text x=\"30\" y=\"225\">11</text><text x=\"317\" y=\"184\">09</text><text x=\"453\" y=\"184\">10</text><text x=\"589\" y=\"184\">11</text><text x=\"725\" y=\"184\">12</text><text x=\"861\" y=\"184\">13</text><text x=\"997\" y=\"184\">14</text><text x=\"181\" y=\"290\">15</text><text x=\"30\" y=\"331\">12</text><text x=\"317\" y=\"290\">16</text><text x=\"453\" y=\"290\">17</text><text x=\"589\" y=\"290\">18</text><text x=\"725\" y=\"290\">19</text><text x=\"861\" y=\"290\">20</text><text x=\"997\" y=\"290\">21</text><text x=\"181\" y=\"396\">22</text><text x=\"30\" y=\"437\">13</text><text x=\"317\" y=\"396\">23</text><text x=\"453\" y=\"396\">24</text><text x=\"589\" y=\"396\">25</text><text x=\"725\" y=\"396\">26</text><text x=\"861\" y=\"396\">27</text><text x=\"997\" y=\"396\">28</text><text x=\"181\" y=\"502\">29</text><text x=\"30\" y=\"543\">14</text><text x=\"317\" y=\"502\">30</text><text x=\"453\" y=\"502\">31</text><text x=\"589\" y=\"502\">01</text><text x=\"725\" y=\"502\">02</text><text x=\"861\" y=\"502\">03</text><text x=\"997\" y=\"502\">04</text><text x=\"181\" y=\"608\">05</text><text x=\"30\" y=\"649\">15</text><text x=\"317\" y=\"608\">06</text><text x=\"453\" y=\"608\">07</text><text x=\"589\" y=\"608\">08</text><text x=\"725\" y=\"608\">09</text><text x=\"861\" y=\"608\">10</text><rect x=\"876\" y=\"184\" width=\"136\" style=\"fill:#3D99FF;stroke-width:1;stroke:#1d4a7c;\" rx=\"3\" height=\"12\"><clipPath id=\"clip-test-1457308800000\"/></rect><text x=\"879\" y=\"193\" style=\"fill:#ffffff;font-weight:bolder;font-size:8px;\">testMonth, <tspan style=\"fill:#ffffff;font-style:italic;font-size:8px;\">Toulouse</tspan></text><rect x=\"60\" y=\"608\" width=\"544\" style=\"fill:#3D99FF;stroke-width:1;stroke:#1d4a7c;\" rx=\"3\" height=\"12\"><clipPath id=\"clip-test-1460073600000\"/></rect><text x=\"63\" y=\"617\" style=\"fill:#ffffff;font-weight:bolder;font-size:8px;\">testMonth4, <tspan style=\"fill:#ffffff;font-style:italic;font-size:8px;\">Toulouse</tspan></text><rect x=\"60\" y=\"502\" width=\"952\" style=\"fill:#3D99FF;stroke-width:1;stroke:#1d4a7c;\" rx=\"3\" height=\"12\"><clipPath id=\"clip-test-1459728000000\"/></rect><text x=\"63\" y=\"511\" style=\"fill:#ffffff;font-weight:bolder;font-size:8px;\">testMonth4, <tspan style=\"fill:#ffffff;font-style:italic;font-size:8px;\">Toulouse</tspan></text><rect x=\"468\" y=\"516\" width=\"136\" style=\"fill:#3D99FF;stroke-width:1;stroke:#1d4a7c;\" rx=\"3\" height=\"12\"><clipPath id=\"clip-test-1459468800000\"/></rect><text x=\"471\" y=\"525\" style=\"fill:#ffffff;font-weight:bolder;font-size:8px;\">testMonth5, <tspan style=\"fill:#ffffff;font-style:italic;font-size:8px;\">Toulouse</tspan></text><rect x=\"60\" y=\"396\" width=\"952\" style=\"fill:#3D99FF;stroke-width:1;stroke:#1d4a7c;\" rx=\"3\" height=\"12\"><clipPath id=\"clip-test-1459123200000\"/></rect><text x=\"63\" y=\"405\" style=\"fill:#ffffff;font-weight:bolder;font-size:8px;\">testMonth4, <tspan style=\"fill:#ffffff;font-style:italic;font-size:8px;\">Toulouse</tspan></text><rect x=\"60\" y=\"184\" width=\"136\" style=\"fill:#3D99FF;stroke-width:1;stroke:#1d4a7c;\" rx=\"3\" height=\"12\"><clipPath id=\"clip-test-1457395200000\"/></rect><text x=\"63\" y=\"193\" style=\"fill:#ffffff;font-weight:bolder;font-size:8px;\">testMonth, <tspan style=\"fill:#ffffff;font-style:italic;font-size:8px;\">Toulouse</tspan></text><rect x=\"740\" y=\"184\" width=\"136\" style=\"fill:#3D99FF;stroke-width:1;stroke:#1d4a7c;\" rx=\"3\" height=\"12\"><clipPath id=\"clip-test-1457827200000\"/></rect><text x=\"743\" y=\"193\" style=\"fill:#ffffff;font-weight:bolder;font-size:8px;\">testMonth2, <tspan style=\"fill:#ffffff;font-style:italic;font-size:8px;\">Toulouse</tspan></text><clipPath id=\"clip-testt-1458385200000\"><rect width=\"136\" x=\"604\" height=\"12\" y=\"290\" style=\"fill:none\"/></clipPath><text x=\"607\" y=\"299\" style=\"fill:#3D99FF;font-weight:bolder;font-size:8px;width:136;\" clip-path=\"url(#clip-testt-1458385200000)\">11:00 - testMonth3, <tspan style=\"fill:#3D99FF;font-weight:bolder;font-size:8px;width:136;\">Toulouse</tspan></text><clipPath id=\"clip-testt-1458572400000\"><rect width=\"136\" x=\"876\" height=\"12\" y=\"396\" style=\"fill:none\"/></clipPath><text x=\"879\" y=\"405\" style=\"fill:#3D99FF;font-weight:bolder;font-size:8px;width:136;\" clip-path=\"url(#clip-testt-1458572400000)\">15:00 - testMonth7, <tspan style=\"fill:#3D99FF;font-weight:bolder;font-size:8px;width:136;\">Toulouse</tspan></text></svg>");
 	}
 
-	@Test
+	// @Test
 	public void testListWithColor() throws ServerFault, IOException {
 		CalInfo cal = defaultCalendar();
 
