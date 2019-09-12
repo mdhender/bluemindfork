@@ -17,6 +17,7 @@
 	  <module>net.bluemind.sds.proxy.mgmt</module>
 	  <module>net.bluemind.sds.proxy.store.s3</module>
 	  <module>net.bluemind.sds.proxy.store.s3.tests</module>
+	  <module>net.bluemind.core.sds.replication</module>
 	  <module>net.bluemind.core.sds.configurator</module>
 	  <module>net.bluemind.core.sds.configurator.tests</module>
 	</modules>

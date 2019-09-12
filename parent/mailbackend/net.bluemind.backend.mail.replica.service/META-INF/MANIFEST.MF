@@ -49,5 +49,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.backend.mail.replica.service,
  net.bluemind.backend.mail.replica.service.internal,
- net.bluemind.backend.mail.replica.service.internal.repair
+ net.bluemind.backend.mail.replica.service.internal.repair,
+ net.bluemind.backend.mail.replica.service.sds
 Automatic-Module-Name: net.bluemind.backend.mail.replica.service

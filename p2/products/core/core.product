@@ -87,6 +87,7 @@
       <plugin id="net.bluemind.authentication.provider"/>
       <plugin id="net.bluemind.authentication.service"/>
       <plugin id="net.bluemind.authentication.sqlschema"/>
+      <plugin id="net.bluemind.aws.s3"/>
       <plugin id="net.bluemind.backend.cyrus"/>
       <plugin id="net.bluemind.backend.cyrus.mailboxesdb"/>
       <plugin id="net.bluemind.backend.cyrus.partitions"/>
@@ -148,6 +149,7 @@
       <plugin id="net.bluemind.core.rest.http.vertx"/>
       <plugin id="net.bluemind.core.sanitizer"/>
       <plugin id="net.bluemind.core.sds.configurator"/>
+      <plugin id="net.bluemind.core.sds.replication"/>
       <plugin id="net.bluemind.core.sendmail"/>
       <plugin id="net.bluemind.core.serialization"/>
       <plugin id="net.bluemind.core.sessions"/>

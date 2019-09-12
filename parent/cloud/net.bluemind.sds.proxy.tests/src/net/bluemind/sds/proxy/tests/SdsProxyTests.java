@@ -76,7 +76,7 @@ public class SdsProxyTests {
 			});
 		}).setChunked(true).write(new Buffer(payload.encode())).end();
 		try {
-			waitResp.get(5, TimeUnit.SECONDS);
+			waitResp.get(30, TimeUnit.SECONDS);
 		} catch (InterruptedException | ExecutionException | TimeoutException e) {
 			e.printStackTrace();
 		}

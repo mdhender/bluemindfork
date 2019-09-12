@@ -17,6 +17,9 @@
   */
 package net.bluemind.backend.mail.replica.service.internal;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashSet;
@@ -170,14 +173,23 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 			Set<String> inObjectStore = bodyObjectStore.exist(checkCopy);
 			Set<String> processedFromObjectStore = new HashSet<>();
 			for (String guid : inObjectStore) {
+				Path tmpFromSDS = null;
 				try {
-					Stream emlFromObjectStore = bodyObjectStore.open(guid);
+					tmpFromSDS = bodyObjectStore.open(guid);
+					Stream emlFromObjectStore = VertxStream.localPath(tmpFromSDS);
 					logger.debug("Process {} from object-store...", guid);
 					create(guid, emlFromObjectStore);
 					processedFromObjectStore.add(guid);
 					logger.debug("{} processed from object store !", guid);
 				} catch (Exception e) {
 					logger.error(e.getMessage(), e);
+				} finally {
+					if (tmpFromSDS != null) {
+						try {
+							Files.deleteIfExists(tmpFromSDS);
+						} catch (IOException e) {
+						}
+					}
 				}
 			}
 			time = System.currentTimeMillis() - time;

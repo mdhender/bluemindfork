@@ -35,6 +35,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.hash.Hashing;
 
@@ -45,9 +46,11 @@ import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.backend.cyrus.replication.testhelper.CyrusReplicationHelper;
 import net.bluemind.backend.cyrus.replication.testhelper.SyncServerHelper;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.dockerclient.DockerEnv;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.imap.FlagsList;
@@ -63,6 +66,8 @@ import net.bluemind.sds.proxy.store.s3.S3BackingStoreFactory;
 import net.bluemind.sds.proxy.store.s3.S3Configuration;
 import net.bluemind.sds.proxy.testhelper.ObjectStoreTestHelper;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.vertx.testhelper.Deploy;
 
@@ -77,6 +82,8 @@ public class SdsProxyWithS3IntegrationTests {
 	private String domainUid;
 	private String userUid;
 	private String cyrusIp;
+	private String bucket;
+	private S3Configuration config;
 
 	@Before
 	public void before() throws Exception {
@@ -136,6 +143,19 @@ public class SdsProxyWithS3IntegrationTests {
 
 		cyrusReplication.startReplication().get(5, TimeUnit.SECONDS);
 
+		this.bucket = "junit-" + System.currentTimeMillis();
+		this.config = S3Configuration.withEndpointAndBucket("http://" + DockerEnv.getIp("bluemind/s3") + ":8000",
+				bucket);
+
+		ImmutableMap<String, String> freshConf = ImmutableMap.of(SysConfKeys.archive_kind.name(), "s3", //
+				SysConfKeys.sds_s3_access_key.name(), config.getAccessKey(), //
+				SysConfKeys.sds_s3_secret_key.name(), config.getSecretKey(), //
+				SysConfKeys.sds_s3_endpoint.name(), config.getEndpoint(), //
+				SysConfKeys.sds_s3_bucket.name(), config.getBucket());
+		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+		ISystemConfiguration sysConfApi = prov.instance(ISystemConfiguration.class);
+		sysConfApi.updateMutableValues(freshConf);
+
 		System.err.println("Start populate user " + userUid);
 		PopulateHelper.addUser(userUid, domainUid, Routing.internal);
 	}
@@ -151,9 +171,6 @@ public class SdsProxyWithS3IntegrationTests {
 	@Test
 	public void configureSdsProxy() throws InterruptedException, ExecutionException, TimeoutException, IOException {
 		// configure sds-proxy for s3
-		String bucket = "junit-" + System.currentTimeMillis();
-		S3Configuration config = S3Configuration
-				.withEndpointAndBucket("http://" + DockerEnv.getIp("bluemind/s3") + ":8000", bucket);
 
 		try (SdsProxyManager sdsMgmt = new SdsProxyManager(VertxPlatform.getVertx(), cyrusIp)) {
 			sdsMgmt.applyConfiguration(config.asJson()).get(5, TimeUnit.SECONDS);

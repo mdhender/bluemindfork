@@ -17,8 +17,10 @@
   */
 package net.bluemind.backend.mail.replica.service.sds;
 
-import java.io.File;
-import java.util.Collections;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,20 +28,60 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
-import net.bluemind.core.api.Stream;
-import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.backend.mail.replica.service.sds.IObjectStoreReader.Factory;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.rest.vertx.VertxStream;
+import net.bluemind.eclipse.common.RunnableExtensionLoader;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.system.api.SystemConf;
 
 public class MessageBodyObjectStore {
 
-	private static final File sdsDir = new File("/dummy-sds");
 	private static final Logger logger = LoggerFactory.getLogger(MessageBodyObjectStore.class);
 	private final BmContext ctx;
+	private final IObjectStoreReader objectStoreReader;
+
+	private static final IObjectStoreReader NOOP_READER = new IObjectStoreReader() {
+
+		@Override
+		public boolean exist(String guid) {
+			return false;
+		}
+
+		@Override
+		public Path read(String guid) {
+			return null;
+		}
+
+		@Override
+		public String toString() {
+			return "NOOP_READER:" + super.toString();
+		}
+
+	};
+
+	private static final Map<String, IObjectStoreReader.Factory> archiveKindToObjectStore = loadStores();
 
 	public MessageBodyObjectStore(BmContext ctx, CyrusPartition partition) {
 		this.ctx = ctx;
 		logger.debug("Object store for {} and partition {}", this.ctx, partition);
+
+		ISystemConfiguration config = ctx.provider().instance(ISystemConfiguration.class);
+		this.objectStoreReader = loadReader(config.getValues());
+		logger.info("reading with {}", objectStoreReader);
+	}
+
+	private static Map<String, Factory> loadStores() {
+		RunnableExtensionLoader<IObjectStoreReader.Factory> rel = new RunnableExtensionLoader<>();
+		List<Factory> factories = rel.loadExtensions("net.bluemind.backend.mail.replica.service", "objectstore",
+				"reader", "impl");
+		return factories.stream().collect(Collectors.toMap(f -> f.handledObjectStoreKind(), f -> f));
+	}
+
+	private IObjectStoreReader loadReader(SystemConf values) {
+		String archiveKind = values.stringValue(SysConfKeys.archive_kind.name());
+		return Optional.ofNullable(archiveKindToObjectStore.get(archiveKind)).map(f -> f.create(values))
+				.orElse(NOOP_READER);
 	}
 
 	/**
@@ -50,18 +92,13 @@ public class MessageBodyObjectStore {
 	 * @return
 	 */
 	public Set<String> exist(Set<String> bodyGuid) {
-		if (!sdsDir.isDirectory()) {
-			return Collections.emptySet();
-		}
-		return bodyGuid.stream().filter(guid -> new File(sdsDir, guid).exists()).collect(Collectors.toSet());
+		logger.debug("Checking with {}", objectStoreReader);
+		return bodyGuid.stream().filter(g -> objectStoreReader.exist(g)).collect(Collectors.toSet());
 	}
 
-	public Stream open(String guid) {
-		File f = new File(sdsDir, guid);
-		if (!f.exists()) {
-			throw ServerFault.notFound("Body " + guid + " (" + f.getAbsolutePath() + ") is missing from object store.");
-		}
-		return VertxStream.localPath(f.toPath());
+	public Path open(String guid) {
+		logger.debug("Open {} with {}", guid, objectStoreReader);
+		return objectStoreReader.read(guid);
 	}
 
 }
