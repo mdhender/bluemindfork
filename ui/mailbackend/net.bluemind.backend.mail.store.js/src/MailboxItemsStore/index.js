@@ -13,7 +13,8 @@ const state = {
         loading: false,
         error: false
     },
-    shouldRemoveItem: null
+    shouldRemoveItem: null,
+    draftMail: null
 };
 
 export default {

@@ -98,7 +98,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapMutations, mapState } from "vuex";
 import { OrderBy } from "@bluemind/addressbook.api";
 import { VCardInfoAdaptor } from "@bluemind/contact";
 import {
@@ -117,7 +117,6 @@ import debounce from "lodash/debounce";
 import MailMessageNewFooter from "./MailMessageNewFooter";
 import MailMessageNewModes from "./MailMessageNewModes";
 import ServiceLocator from "@bluemind/inject";
-import { AlertTypes, Alert } from "@bluemind/alert.store";
 
 export default {
     name: "MailMessageNew",
@@ -156,7 +155,8 @@ export default {
                 bcc: this.message ? this.message.bcc : [],
                 subject: this.message ? this.message.subject : "",
                 content: "",
-                headers: []
+                headers: [],
+                previousMessage: this.previousMessage
             },
             expandPreviousMessages: false,
             modes: MailMessageNewModes,
@@ -168,6 +168,7 @@ export default {
     },
     computed: {
         ...mapGetters("backend.mail/items", { lastRecipients: "getLastRecipients" }),
+        ...mapState("backend.mail/items", ["draftMail"]),
         panelTitle() {
             return this.message_.subject ? this.message_.subject : this.$t("mail.main.new");
         }
@@ -177,66 +178,30 @@ export default {
             this.autocompleteResultsTo = this.getAutocompleteResults("to");
             this.autocompleteResultsCc = this.getAutocompleteResults("cc");
             this.autocompleteResultsBcc = this.getAutocompleteResults("bcc");
+        },
+        message_: {
+            handler: function() {
+                this.setDraftMail(this.message_);
+            },
+            deep: true
+        },
+        draftMail: function() {
+            if (this.draftMail == null) {
+                this.close();
+            }
         }
     },
     mounted: function() {
         this.$refs.to.focus();
     },
     methods: {
+        ...mapMutations("backend.mail/items", ["setDraftMail"]),
         displayPreviousMessages() {
             this.message_.content += "\n\n\n" + this.previousMessage.content;
             this.expandPreviousMessages = true;
         },
         send() {
-            const messageToSend = JSON.parse(JSON.stringify(this.message_));
-            if (this.previousMessage && this.previousMessage.content && !this.expandPreviousMessages) {
-                messageToSend.content += "\n\n\n" + this.previousMessage.content;
-            }
-
-            const folders = this.$store.state["backend.mail/folders"].folders;
-            const outbox = folders.find(function(folder) {
-                return folder.displayName === "Outbox";
-            });
-            const sentbox = folders.find(function(folder) {
-                return folder.displayName === "Sent";
-            });
-
-            this.$store
-                .dispatch("backend.mail/items/send", {
-                    message: messageToSend,
-                    isAReply: !!this.previousMessage,
-                    previousMessage: this.previousMessage,
-                    outboxUid: outbox.uid,
-                    sentboxUid: sentbox.uid
-                })
-                .then(mailImapId => {
-                    const key = "common.alert.message.sent.ok";
-                    const success = new Alert({
-                        type: AlertTypes.SUCCESS,
-                        code: "ALERT_CODE_MSG_SENT_OK",
-                        key,
-                        message: this.$t(key, { subject: messageToSend.subject }),
-                        props: {
-                            subject: messageToSend.subject,
-                            subjectLink: "/mail/" + sentbox.uid + "/" + mailImapId + "."
-                        }
-                    });
-                    this.$store.commit("alert/addSuccess", success);
-                    this.close();
-                })
-                .catch(reason => {
-                    const key = "common.alert.message.sent.error";
-                    const error = new Alert({
-                        code: "ALERT_CODE_MSG_SENT_ERROR",
-                        key,
-                        message: this.$t(key, { subject: messageToSend.subject }),
-                        props: {
-                            subject: messageToSend.subject,
-                            reason
-                        }
-                    });
-                    this.$store.commit("alert/addError", error);
-                });
+            this.$store.dispatch("backend.mail/items/send");
         },
         close() {
             if (this.previousMessage) {

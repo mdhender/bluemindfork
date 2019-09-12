@@ -18,7 +18,5 @@
     "common.search.error": "Search did not succeed.",
     "common.check.connection": "Check your internet connection and retry in a few moments.",
     "common.alert.remove.ok": "\"{subject}\" has been deleted.",
-    "common.alert.remove.error": "\"{subject}\" could not be deleted.{br}{reason}",
-    "common.alert.message.sent.ok": "\"{subjectWithLink}\" successfuly sent !",
-    "common.alert.message.sent.error": "\"{subject}\" has not been sent.{br}{reason}"
+    "common.alert.remove.error": "\"{subject}\" could not be deleted.{br}{reason}"
 }

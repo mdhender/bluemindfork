@@ -40,5 +40,8 @@
     "mail.content.forward.aria": "Transférer ce message",
     "mail.list.search.no_result": "Aucun message contenant",
     "mail.list.search.no_result.found": "n'a été trouvé.",
-    "mail.list.search.no_result.try_otherwise": "Essayez un terme plus générique."
+    "mail.list.search.no_result.try_otherwise": "Essayez un terme plus générique.",
+    "mail.alert.message.sent.ok": "\"{subjectWithLink}\" a bien été envoyé !",
+    "mail.alert.message.sent.error": "\"{subject}\" n'a pu être envoyé.{br}{reason}",
+    "mail.error.email.address.invalid": "Adresse de courriel invalide."
 }

@@ -6,6 +6,7 @@ import uuid from "uuid/v4";
 import Message from "./Message.js";
 import { getLocalizedProperty } from "@bluemind/backend.mail.l10n";
 import { ItemFlag } from "@bluemind/core.container.api";
+import { AlertTypes, Alert } from "@bluemind/alert.store";
 
 export function $_mailrecord_changed({ dispatch }, { container }) {
     return dispatch("all", container);
@@ -46,7 +47,7 @@ export function select({ state, commit, getters, dispatch }, { folder, uid }) {
 
         // 6) Add attachments
         commit("setAttachments", result.attachments);
-        
+
         // 7) Render the parts
         return displayParts(commit, uid, chosenParts);
     });
@@ -149,58 +150,108 @@ export function updateSeen({ state, commit }, { folder, uid, isSeen }) {
         .then(() => commit("updateSeen", { uid: uid, isSeen: isSeen }));
 }
 
-export function send(payload, { message, isAReply, previousMessage, outboxUid, sentboxUid }) {
+export function send({ state, rootState, commit }) {
+    const draftMail = state.draftMail;
+    const previousMessage = draftMail.previousMessage;
+    const isAReply = !!previousMessage;
+
+    const messageToSend = JSON.parse(JSON.stringify(draftMail));
+    if (previousMessage && previousMessage.content && !messageToSend.content.includes(previousMessage.content)) {
+        messageToSend.content += "\n\n\n" + previousMessage.content;
+    }
+
+    const outboxUid = rootState["backend.mail/folders"].folders.find(function (folder) {
+        return folder.displayName === "Outbox";
+    }).uid;
+
+    const sentboxUid = rootState["backend.mail/folders"].folders.find(function (folder) {
+        return folder.displayName === "Sent";
+    }).uid;
+
     if (isAReply) {
         if (previousMessage.messageId) {
-            message.headers.push({ name: "In-Reply-To", values: [previousMessage.messageId] });
-            message.references = [previousMessage.messageId].concat(previousMessage.references);
+            messageToSend.headers.push({ name: "In-Reply-To", values: [previousMessage.messageId] });
+            messageToSend.references = [previousMessage.messageId].concat(previousMessage.references);
         } else {
-            message.references = previousMessage.references;
+            messageToSend.references = previousMessage.references;
         }
     }
 
     const userSession = injector.getProvider("UserSession").get();
 
-    if (!validate(message)) {
-        return Promise.reject(getLocalizedProperty(userSession, "mail.error.email.address.invalid"));
+    if (!validate(messageToSend)) {
+        const key = "mail.error.email.address.invalid";
+        const error = new Alert({
+            code: "ALERT_CODE_MSG_ADDRESS_INVALID",
+            key,
+            message: getLocalizedProperty(userSession, key)
+        });
+        commit("alert/addError", error, { root: true });
+        return Promise.resolve();
     }
 
-    sanitize(message);
+    sanitize(messageToSend);
 
-    const outboxItemsService = ServiceLocator.getProvider("MailboxItemsPersistance").get(outboxUid);
-    const sentboxItemsService = ServiceLocator.getProvider("MailboxItemsPersistance").get(sentboxUid);
-    const outboxService = ServiceLocator.getProvider("OutboxPersistance").get();
+    const service = ServiceLocator.getProvider("MailboxItemsPersistance").get(outboxUid);
 
     let mailId;
-    return outboxItemsService
-        .uploadPart(message.content)
-        .then(addrPart => {
-            // create the mail in the outbox
-            return outboxItemsService.create(
-                new Message(message).toMailboxItem(addrPart, userSession.defaultEmail, userSession.formatedName, true)
-            );
-        })
+    return service
+        .uploadPart(messageToSend.content)
+        .then(addrPart =>
+            service.create(
+                new Message(messageToSend)
+                    .toMailboxItem(addrPart, userSession.defaultEmail, userSession.formatedName, true)
+            )
+        )
         .then(itemIdentifier => {
-            // request to send the mail and move it to the sentbox
             mailId = itemIdentifier.id;
+            const outboxService = ServiceLocator.getProvider("OutboxPersistance").get();
             return outboxService.flush();
-        })
-        .then(taskRef => {
+        }).then(taskRef => {
             // wait for the flush of the outbox to be finished (flush means send mail + move to sentbox)
             const taskService = ServiceLocator.getProvider("TaskService").get(taskRef.id);
             return retrieveTaskResult(taskService, 250, 5);
-        })
-        .then((taskResult) => {
+        }).then(taskResult => {
             // compute and return the IMAP id of the mail inside the sentbox
             if (taskResult.result && Array.isArray(taskResult.result)) {
                 let importedMailboxItem = taskResult.result.find(r => r.source == mailId);
+                const sentboxItemsService = ServiceLocator.getProvider("MailboxItemsPersistance").get(sentboxUid);
                 return sentboxItemsService.getCompleteById(importedMailboxItem.destination);
             } else {
                 throw "Unable to retrieve task result";
             }
         })
-        .then(mailItem => mailItem.value.imapUid);
+        .then(mailItem => {
+            const mailImapUid = mailItem.value.imapUid;
+            const key = "mail.alert.message.sent.ok";
+            const success = new Alert({
+                type: AlertTypes.SUCCESS,
+                code: "ALERT_CODE_MSG_SENT_OK",
+                key,
+                message: getLocalizedProperty(userSession, key, { subject: messageToSend.subject }),
+                props: {
+                    subject: messageToSend.subject,
+                    subjectLink: "/mail/" + sentboxUid + "/" + mailImapUid + "."
+                }
+            });
+            commit("alert/addSuccess", success, { root: true });
+            commit("setDraftMail", null);
+        })
+        .catch(reason => {
+            const key = "mail.alert.message.sent.error";
+            const error = new Alert({
+                code: "ALERT_CODE_MSG_SENT_ERROR",
+                key,
+                message: getLocalizedProperty(userSession, key, { subject: messageToSend.subject, reason: reason }),
+                props: {
+                    subject: messageToSend.subject,
+                    reason
+                }
+            });
+            commit("alert/addError", error, { root: true });
+        });
 }
+
 
 /** Wait for the task to be finished or a timeout is reached. */
 function retrieveTaskResult(taskService, delayTime, maxTries, iteration = 1) {

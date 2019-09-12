@@ -1,6 +1,6 @@
 <template>
     <div>
-        <bm-button variant="none" :aria-label="$tc('mail.actions.send.aria')">
+        <bm-button variant="none" :aria-label="$tc('mail.actions.send.aria')" @click="send()">
             <bm-icon icon="send" size="2x" />
             {{ $tc("mail.actions.send") }}
         </bm-button>
@@ -27,6 +27,11 @@ export default {
     components: {
         BmButton,
         BmIcon
+    },
+    methods:{
+        send() {
+            this.$store.dispatch("backend.mail/items/send");
+        }
     }
 };
 </script>

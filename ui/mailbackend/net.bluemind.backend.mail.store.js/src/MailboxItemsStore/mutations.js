@@ -53,3 +53,7 @@ export function remove(state, index) {
 export function shouldRemoveItem(state, mailUid) {
     state.shouldRemoveItem = mailUid;
 }
+
+export function setDraftMail(state, draftMail) {
+    state.draftMail = draftMail;
+}

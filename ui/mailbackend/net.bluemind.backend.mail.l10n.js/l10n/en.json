@@ -7,5 +7,7 @@
     "mail.compose.forward.prev.message.info.to": "To",
     "mail.compose.forward.prev.message.info.date": "Date",
     "mail.compose.forward.prev.message.info.from": "From",
-    "mail.error.email.address.invalid": "Invalid email address."
+    "mail.error.email.address.invalid": "Invalid email address.",
+    "mail.alert.message.sent.ok": "\"{subjectWithLink}\" successfuly sent !",
+    "mail.alert.message.sent.error": "\"{subject}\" has not been sent.{br}{reason}"
 }
