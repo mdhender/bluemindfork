@@ -185,4 +185,14 @@ public final class FileBackedOutputStream extends OutputStream {
 			memory = null;
 		}
 	}
+
+	@Override
+	protected void finalize() throws Throwable {
+		if (file != null) {
+			Path deleteMe = file;
+			file = null;
+			Files.delete(deleteMe);
+		}
+		super.finalize();
+	}
 }

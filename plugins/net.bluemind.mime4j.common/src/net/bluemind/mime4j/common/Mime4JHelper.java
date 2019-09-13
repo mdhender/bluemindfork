@@ -331,15 +331,30 @@ public class Mime4JHelper {
 		public int size;
 	}
 
+	/**
+	 * Serialize to a stream AND dispose the given message.
+	 * 
+	 * @param msg
+	 * @return
+	 * @throws IOException
+	 */
 	public static SizedStream asSizedStream(Message msg) throws IOException {
 		FileBackedOutputStream fbos = new FileBackedOutputStream(32768, TMP_PREFIX);
 		serialize(msg, fbos);
 		SizedStream ks = new SizedStream();
 		ks.input = FBOSInput.from(fbos);
 		ks.size = (int) fbos.asByteSource().size();
+		msg.dispose();
 		return ks;
 	}
 
+	/**
+	 * Serialize to a stream AND dispose the given message.
+	 * 
+	 * @param msg
+	 * @return
+	 * @throws IOException
+	 */
 	public static InputStream asStream(Message msg) throws IOException {
 		return asSizedStream(msg).input;
 	}
