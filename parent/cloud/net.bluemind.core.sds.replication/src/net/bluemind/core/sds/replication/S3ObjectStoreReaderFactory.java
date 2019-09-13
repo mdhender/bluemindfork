@@ -22,13 +22,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.netflix.spectator.api.Registry;
 
+import net.bluemind.aws.s3.utils.S3ClientFactory;
+import net.bluemind.aws.s3.utils.S3Configuration;
 import net.bluemind.backend.mail.replica.service.sds.IObjectStoreReader;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
@@ -63,10 +61,8 @@ public class S3ObjectStoreReaderFactory implements IObjectStoreReader.Factory {
 
 		AmazonS3 client = s3ClientCache.computeIfAbsent(cacheKey, key -> {
 			logger.info("Creating S3 client for {}", endpoint);
-			AmazonS3ClientBuilder builder = AmazonS3ClientBuilder.standard();
-			builder.setEndpointConfiguration(new EndpointConfiguration(endpoint, ""));
-			builder.setCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)));
-			return builder.build();
+			S3Configuration config = S3Configuration.withEndpointBucketKeys(endpoint, bucket, accessKey, secretKey);
+			return S3ClientFactory.create(config);
 		});
 
 		return new S3ObjectStoreReader(client, bucket, registry, idFactory);

@@ -34,6 +34,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.vertx.java.core.json.JsonObject;
 
+import net.bluemind.aws.s3.utils.S3Configuration;
 import net.bluemind.dockerclient.DockerEnv;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.sds.proxy.dto.DeleteRequest;
@@ -43,7 +44,6 @@ import net.bluemind.sds.proxy.dto.PutRequest;
 import net.bluemind.sds.proxy.dto.SdsResponse;
 import net.bluemind.sds.proxy.store.ISdsBackingStore;
 import net.bluemind.sds.proxy.store.s3.S3BackingStoreFactory;
-import net.bluemind.sds.proxy.store.s3.S3Configuration;
 
 public class S3StoreTests {
 

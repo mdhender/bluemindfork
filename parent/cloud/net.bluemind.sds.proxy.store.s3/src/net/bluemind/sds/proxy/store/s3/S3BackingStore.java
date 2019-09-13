@@ -24,11 +24,7 @@ import java.io.OutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
@@ -36,6 +32,8 @@ import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.google.common.io.ByteStreams;
 import com.netflix.spectator.api.Registry;
 
+import net.bluemind.aws.s3.utils.S3ClientFactory;
+import net.bluemind.aws.s3.utils.S3Configuration;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.sds.proxy.dto.DeleteRequest;
 import net.bluemind.sds.proxy.dto.ExistRequest;
@@ -60,12 +58,7 @@ public class S3BackingStore implements ISdsBackingStore {
 		this.registry = registry;
 		this.idFactory = idfactory;
 
-		AmazonS3ClientBuilder builder = AmazonS3ClientBuilder.standard();
-		builder.setEndpointConfiguration(
-				new EndpointConfiguration(s3Configuration.getEndpoint(), s3Configuration.getRegion()));
-		builder.setCredentials(new AWSStaticCredentialsProvider(
-				new BasicAWSCredentials(s3Configuration.getAccessKey(), s3Configuration.getSecretKey())));
-		this.client = builder.build();
+		this.client = S3ClientFactory.create(s3Configuration);
 		boolean exists = client.doesBucketExistV2(s3Configuration.getBucket());
 		if (!exists) {
 			logger.warn("Bucket {} does not exist", s3Configuration.getBucket());

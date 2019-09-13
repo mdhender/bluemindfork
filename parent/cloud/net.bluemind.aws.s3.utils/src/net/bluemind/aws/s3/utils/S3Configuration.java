@@ -15,33 +15,39 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.sds.proxy.store.s3;
+package net.bluemind.aws.s3.utils;
 
 import org.vertx.java.core.json.JsonObject;
 
 public class S3Configuration {
 
-	private String endpoint;
-	private String region = "";
-	private String accessKey = "accessKey1";
-	private String secretKey = "verySecretKey1";
-	private String bucket;
+	public String endpoint;
+	public String region = "";
+	public String accessKey;
+	public String secretKey;
+	public String bucket;
 
-	private S3Configuration() {
+	public S3Configuration() {
 
 	}
 
 	public static S3Configuration withEndpointAndBucket(String endpoint, String bucket) {
+		return withEndpointBucketKeys(endpoint, bucket, "accessKey1", "verySecretKey1");
+	}
+
+	public static S3Configuration withEndpointBucketKeys(String endpoint, String bucket, String ak, String sk) {
 		S3Configuration sc = new S3Configuration();
 		sc.endpoint = endpoint;
 		sc.bucket = bucket;
+		sc.accessKey = ak;
+		sc.secretKey = sk;
 		return sc;
 	}
 
 	public JsonObject asJson() {
 
 		return new JsonObject()//
-				.putString("storeType", S3BackingStoreFactory.NAME)//
+				.putString("storeType", "s3")//
 				.putString("endpoint", endpoint)//
 				.putString("region", region)//
 				.putString("accessKey", accessKey)//

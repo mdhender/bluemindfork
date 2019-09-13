@@ -7,5 +7,6 @@ Standards-Version: 3.9.1
 Package: bm-cli
 Architecture: amd64
 Depends: bm-jdk (= 8u222-bluemind30), jq
+Recommends: s3cmd
 Description: BlueMind CLI
  BlueMind Command Line Interface

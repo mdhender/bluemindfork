@@ -37,6 +37,7 @@
       <plugin id="jcl.over.slf4j"/>
       <plugin id="jul.to.slf4j"/>
       <plugin id="net.bluemind.aws.s3"/>
+      <plugin id="net.bluemind.aws.s3.utils"/>
       <plugin id="net.bluemind.eclipse.common"/>
       <plugin id="net.bluemind.lib.jackson"/>
       <plugin id="net.bluemind.lib.vertx"/>

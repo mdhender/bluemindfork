@@ -24,6 +24,7 @@ import org.vertx.java.core.json.JsonObject;
 
 import com.netflix.spectator.api.Registry;
 
+import net.bluemind.aws.s3.utils.S3Configuration;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.sds.proxy.store.ISdsBackingStore;

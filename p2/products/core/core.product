@@ -88,6 +88,7 @@
       <plugin id="net.bluemind.authentication.service"/>
       <plugin id="net.bluemind.authentication.sqlschema"/>
       <plugin id="net.bluemind.aws.s3"/>
+      <plugin id="net.bluemind.aws.s3.utils"/>
       <plugin id="net.bluemind.backend.cyrus"/>
       <plugin id="net.bluemind.backend.cyrus.mailboxesdb"/>
       <plugin id="net.bluemind.backend.cyrus.partitions"/>
