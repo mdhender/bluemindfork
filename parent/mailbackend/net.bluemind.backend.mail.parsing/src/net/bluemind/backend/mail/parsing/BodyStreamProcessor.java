@@ -184,7 +184,7 @@ public class BodyStreamProcessor {
 		mb.structure.size = mb.size;
 		time = System.currentTimeMillis() - time;
 		if (time > 10) {
-			logger.info("Body processed in {}ms.", time);
+			logger.info("Body ({} byte(s)) processed in {}ms.", mb.size, time);
 		}
 
 		MessageBodyData bodyData = new MessageBodyData(mb, bodyTxt.toString(), filenames, with, mapHeaders(mb.headers));
@@ -429,8 +429,8 @@ public class BodyStreamProcessor {
 
 			if (fetchContent) {
 				SingleBody body = (SingleBody) sub.getBody();
-				try {
-					p.content = ByteStreams.toByteArray(body.getInputStream());
+				try (InputStream partStream = body.getInputStream()) {
+					p.content = ByteStreams.toByteArray(partStream);
 				} catch (IOException e) {
 					logger.warn("Failed to fetch content", e.getMessage());
 				}
@@ -471,9 +471,8 @@ public class BodyStreamProcessor {
 	}
 
 	private static void indexAttachment(Entity ae, StringBuilder bodyTxt) {
-		try {
-			SingleBody body = (SingleBody) ae.getBody();
-			InputStream in = body.getInputStream();
+		SingleBody body = (SingleBody) ae.getBody();
+		try (InputStream in = body.getInputStream()) {
 			if (canAnalyzeAttachment(ae)) {
 				ContentAnalyzerFactory.get().ifPresent(analyzer -> {
 					CompletableFuture<Optional<String>> ret = analyzer.extractText(in);

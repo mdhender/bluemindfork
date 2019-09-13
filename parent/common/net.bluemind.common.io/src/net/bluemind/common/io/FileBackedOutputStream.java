@@ -17,11 +17,16 @@ package net.bluemind.common.io;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FilterInputStream;
+import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
@@ -39,6 +44,7 @@ import com.google.common.io.ByteSource;
  */
 public final class FileBackedOutputStream extends OutputStream {
 
+	private static final Logger logger = LoggerFactory.getLogger(FileBackedOutputStream.class);
 	private final int fileThreshold;
 	private final ByteSource source;
 	private final String filenamePrefix;
@@ -46,6 +52,7 @@ public final class FileBackedOutputStream extends OutputStream {
 	private OutputStream out;
 	private MemoryOutput memory;
 	private Path file;
+	private final Throwable track;
 
 	/** ByteArrayOutputStream that exposes its internals. */
 	private static class MemoryOutput extends ByteArrayOutputStream {
@@ -64,6 +71,68 @@ public final class FileBackedOutputStream extends OutputStream {
 		return file.toFile();
 	}
 
+	private static class TrackInFilter extends FilterInputStream {
+
+		private final Throwable track;
+		private boolean closeCalled;
+
+		protected TrackInFilter(InputStream in) {
+			super(in);
+			this.track = new Throwable("unclosed in-stream allocation").fillInStackTrace();
+		}
+
+		@Override
+		public void close() throws IOException {
+			this.closeCalled = true;
+			super.close();
+		}
+
+		@Override
+		protected void finalize() throws Throwable {
+			if (!closeCalled) {
+				logger.error(track.getMessage(), track);
+				super.close();
+			}
+			super.finalize();
+		}
+	}
+
+	private static class TrackOutFilter extends FilterOutputStream {
+
+		private final Throwable track;
+		private boolean closeCalled;
+
+		protected TrackOutFilter(OutputStream in) {
+			super(in);
+			this.track = new Throwable("unclosed out-stream allocation").fillInStackTrace();
+		}
+
+		@Override
+		public void close() throws IOException {
+			this.closeCalled = true;
+			super.close();
+		}
+
+		@Override
+		protected void finalize() throws Throwable {
+			if (!closeCalled) {
+				logger.error(track.getMessage(), track);
+				super.close();
+			}
+			super.finalize();
+		}
+
+		@Override
+		public void write(byte[] b) throws IOException {
+			out.write(b);
+		}
+
+		@Override
+		public void write(byte[] b, int off, int len) throws IOException {
+			out.write(b, off, len);
+		}
+	}
+
 	/**
 	 * Creates a new instance that uses the given file threshold, and does not reset
 	 * the data when the {@link ByteSource} returned by {@link #asByteSource} is
@@ -76,6 +145,7 @@ public final class FileBackedOutputStream extends OutputStream {
 	public FileBackedOutputStream(int fileThreshold, String filenamePrefix) {
 		this.fileThreshold = fileThreshold;
 		this.filenamePrefix = filenamePrefix;
+		this.track = new Throwable("not reset fbos allocation").fillInStackTrace();
 		memory = new MemoryOutput();
 		out = memory;
 
@@ -109,7 +179,7 @@ public final class FileBackedOutputStream extends OutputStream {
 
 	private synchronized InputStream openInputStream() throws IOException {
 		if (file != null) {
-			return Files.newInputStream(file);
+			return new TrackInFilter(Files.newInputStream(file));
 		} else {
 			return new ByteArrayInputStream(memory.getBuffer(), 0, memory.getCount());
 		}
@@ -174,7 +244,7 @@ public final class FileBackedOutputStream extends OutputStream {
 	private void update(int len) throws IOException {
 		if (file == null && (memory.getCount() + len > fileThreshold)) {
 			Path temp = Files.createTempFile("fbos-" + filenamePrefix, null);
-			OutputStream transfer = Files.newOutputStream(temp); // NOSONAR
+			OutputStream transfer = new TrackOutFilter(Files.newOutputStream(temp)); // NOSONAR
 			transfer.write(memory.getBuffer(), 0, memory.getCount());
 			transfer.flush();
 
@@ -189,9 +259,8 @@ public final class FileBackedOutputStream extends OutputStream {
 	@Override
 	protected void finalize() throws Throwable {
 		if (file != null) {
-			Path deleteMe = file;
-			file = null;
-			Files.delete(deleteMe);
+			logger.error(track.getMessage(), track);
+			Files.delete(file);
 		}
 		super.finalize();
 	}

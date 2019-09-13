@@ -87,6 +87,7 @@ public class OutboxService implements IOutbox {
 						InputStream in = new ByteBufInputStream(buf);
 						Message msg = Mime4JHelper.parse(in);
 						mailer.send(domainUid, msg);
+						msg.dispose();
 						mailboxFoldersService.importItems(sentInternalId, ImportMailboxItemSet.moveIn(outboxInternalId,
 								Arrays.asList(MailboxItemId.of(item.internalId)), null));
 						monitor.progress(1,
