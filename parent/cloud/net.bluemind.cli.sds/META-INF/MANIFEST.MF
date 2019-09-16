@@ -7,7 +7,11 @@ Bundle-Activator: net.bluemind.cli.sds.CliSdsActivator
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.cli.cmd.api,
- net.bluemind.system.api
+ net.bluemind.system.api,
+ net.bluemind.cli.utils,
+ net.bluemind.backend.cyrus.partitions,
+ com.ning.async-http-client,
+ com.google.guava
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.cli.sds
 Bundle-ActivationPolicy: lazy

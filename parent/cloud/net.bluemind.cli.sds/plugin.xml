@@ -6,6 +6,9 @@
       <registration
             impl="net.bluemind.cli.sds.S3CmdCommand$Reg"
             priority="500"></registration>
+      <registration
+            impl="net.bluemind.cli.sds.MigrateCommand$Reg"
+            priority="400"></registration>
    </extension>
 
 </plugin>

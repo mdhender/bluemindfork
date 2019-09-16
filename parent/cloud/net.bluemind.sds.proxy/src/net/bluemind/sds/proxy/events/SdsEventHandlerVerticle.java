@@ -23,6 +23,8 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.GroupPrincipal;
 import java.nio.file.attribute.PosixFileAttributeView;
@@ -144,11 +146,20 @@ public class SdsEventHandlerVerticle extends Verticle {
 		registerForJsonSdsRequest(SdsAddresses.CONFIG, this::reConfigure);
 
 		registerForJsonSdsRequest(SdsAddresses.GET, GetRequest.class, get -> {
+			String finalPath = get.filename;
+			Path tmp = Files.createTempFile("sds", ".eml");
+			get.filename = tmp.toFile().getAbsolutePath();
 			SdsResponse resp = sdsStore.get().download(get);
 			if (resp.succeeded()) {
 				optCyrusUser.ifPresent(cyrus -> {
 					optMailGroup.ifPresent(mail -> {
-						mkdirAndChown(new File(get.filename), cyrus, mail);
+						File tempFile = new File(get.filename);
+						mkdirAndChown(tempFile, cyrus, mail);
+						try {
+							Files.move(tempFile.toPath(), Paths.get(finalPath), StandardCopyOption.REPLACE_EXISTING);
+						} catch (IOException e) {
+							logger.error(e.getMessage(), e);
+						}
 					});
 				});
 			}

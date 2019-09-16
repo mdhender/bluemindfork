@@ -17,6 +17,8 @@
   */
 package net.bluemind.backend.cyrus.partitions;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 
 import com.google.common.base.MoreObjects;
@@ -36,6 +38,14 @@ public class CyrusPartition {
 		this.serverUid = srv;
 		this.domainUid = dom;
 		this.name = serverUid.replace('.', '_') + "__" + domainUid.replace('.', '_');
+	}
+
+	public Path mainParent() {
+		return Paths.get(CyrusFileSystemPathHelper.MAIN_ROOT + name);
+	}
+
+	public Path archiveParent() {
+		return Paths.get(CyrusFileSystemPathHelper.ARCHIVE_ROOT + name);
 	}
 
 	public String toString() {
