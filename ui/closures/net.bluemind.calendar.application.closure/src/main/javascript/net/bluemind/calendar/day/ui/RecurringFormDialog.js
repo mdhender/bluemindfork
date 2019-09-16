@@ -35,8 +35,7 @@ goog.require("net.bluemind.calendar.vevent.VEventEvent");
 
 /**
  * @param {goog.dom.DomHelper} opt_domHelper Optional DOM helper; see {@link
- *          goog.ui.Component} for semantics.
- * 
+ * goog.ui.Component} for semantics.
  * @constructor
  * @extends {goog.ui.Component}
  */
@@ -47,7 +46,6 @@ net.bluemind.calendar.day.ui.RecurringFormDialog = function(opt_domHelper) {
 goog.inherits(net.bluemind.calendar.day.ui.RecurringFormDialog, goog.ui.Dialog);
 
 /**
- * 
  * @type {Object}
  * @private
  */
@@ -111,10 +109,19 @@ net.bluemind.calendar.day.ui.RecurringFormDialog.prototype.gotoInstance_ = funct
  */
 net.bluemind.calendar.day.ui.RecurringFormDialog.prototype.gotoSerie_ = function() {
   this.setVisible(false);
-  this.vseries_.main.summary = this.getModel().summary;
-  this.vseries_.main.recurringDone = true;
-  var e = new net.bluemind.calendar.vevent.VEventEvent(net.bluemind.calendar.vevent.EventType.DETAILS, this.vseries_.main);
-  this.dispatchEvent(e);
+  if (!this.vseries_.main) {
+    var model = this.getModel();
+    model.recurringDone = false;
+    var e = new net.bluemind.calendar.vevent.VEventEvent(net.bluemind.calendar.vevent.EventType.DETAILS, this
+        .getModel());
+    this.dispatchEvent(e);
+  } else {
+    this.vseries_.main.summary = this.getModel().summary;
+    this.vseries_.main.recurringDone = true;
+    var e = new net.bluemind.calendar.vevent.VEventEvent(net.bluemind.calendar.vevent.EventType.DETAILS,
+        this.vseries_.main);
+    this.dispatchEvent(e);
+  }
 };
 
 /**
