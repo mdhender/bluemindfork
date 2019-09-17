@@ -26,6 +26,7 @@ import java.util.List;
 
 import net.bluemind.addressbook.api.VCard.Communications.Email;
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.api.Required;
 import net.bluemind.tag.api.TagRef;
 
 /**
@@ -35,6 +36,7 @@ import net.bluemind.tag.api.TagRef;
 @BMApi(version = "3")
 public class VCard {
 
+	@Required
 	public Kind kind = Kind.individual;
 
 	/**
@@ -562,6 +564,7 @@ public class VCard {
 		 * To specify a public key or authentication certificate associated with the
 		 * object that the vCard represents
 		 */
+		@Required
 		public Key key = new Key();
 
 		@BMApi(version = "3")
@@ -606,6 +609,7 @@ public class VCard {
 	@BMApi(version = "3")
 	public static class BasicAttribute {
 		public List<Parameter> parameters = Collections.emptyList();
+		@Required
 		public String value;
 
 		public String getParameterValue(String name) {
@@ -663,7 +667,9 @@ public class VCard {
 
 	@BMApi(version = "3")
 	public static class Parameter {
+		@Required
 		public String label;
+		@Required
 		public String value;
 
 		public static Parameter create(String label, String value) {
