@@ -11,19 +11,10 @@
             </bm-col>
         </bm-row>
         <bm-row class="d-flex">
-            <bm-col
-                cols="8"
-                class="d-flex"
-            >
-                <mail-message-content-from
-                    :dn="message.from.dn"
-                    :address="message.from.address"
-                />
+            <bm-col cols="8" class="d-flex">
+                <mail-message-content-from :dn="message.from.dn" :address="message.from.address" />
             </bm-col>
-            <bm-col
-                cols="4"
-                class="align-self-center text-right"
-            >
+            <bm-col cols="4" class="align-self-center text-right">
                 {{ date }} {{ $t("mail.content.date.at") }} {{ hour }}
             </bm-col>
         </bm-row>
@@ -52,10 +43,7 @@
                 <mail-message-content-attachments-block :attachments="attachments" />
             </bm-col>
         </bm-row>
-        <bm-row
-            ref="scrollableContainerForMailMessageContentBody"
-            class="pt-1 flex-fill"
-        >
+        <bm-row ref="scrollableContainerForMailMessageContentBody" class="pt-1 flex-fill">
             <bm-col col>
                 <mail-message-content-body :parts="displayableParts" />
             </bm-col>
@@ -65,7 +53,7 @@
 
 <script>
 import { DateTimeFormat } from "@bluemind/i18n";
-import { mapGetters } from "vuex";
+import { mapGetters, mapState } from "vuex";
 import { MimeType } from "@bluemind/email";
 import { BmCol, BmContainer, BmRow } from "@bluemind/styleguide";
 import MailMessageContentAttachmentsBlock from "./MailMessageContentAttachmentsBlock";
@@ -108,6 +96,7 @@ export default {
     computed: {
         ...mapGetters("backend.mail/folders", { folder: "currentFolder" }),
         ...mapGetters("backend.mail/items", { realAttachments: "attachments" }),
+        ...mapState("backend.mail/items", ["current"]),
         to() {
             if (this.message.to.length > 0) {
                 return this.message.to.map(dest => (dest.dn ? dest.dn : dest.address));
@@ -137,6 +126,9 @@ export default {
                 this.resetScroll();
             },
             immediate: true
+        },
+        current: function() {
+            this.markAsSeen();
         }
     },
     created() {
@@ -193,24 +185,15 @@ export default {
         saveAttachments() {
             // not implemented yet
         },
-        onLeave() {
-            if (this.message.states.includes("not-seen")) {
-                this.markAsSeen(this.message, this.folder);
-            }
-        },
         markAsSeen() {
-            return this.$store.dispatch("backend.mail/items/updateSeen", {
-                folder: this.folder,
-                uid: this.message.uid,
-                isSeen: true
-            });
+            if (this.message.states.includes("not-seen")) {
+                return this.$store.dispatch("backend.mail/items/updateSeen", {
+                    folder: this.folder,
+                    uid: this.message.uid,
+                    isSeen: true
+                });
+            }
         }
-    },
-    beforeRouteUpdate(to, from, next) {
-        if (to.params.mail != from.params.mail) {
-            this.markAsSeen();
-        }
-        next();
     }
 };
 </script>

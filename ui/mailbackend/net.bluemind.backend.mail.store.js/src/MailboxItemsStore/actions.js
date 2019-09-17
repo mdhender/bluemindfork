@@ -142,7 +142,8 @@ export function fetch({ state }, { folder, uid, part, isAttachment }) {
         });
 }
 
-export function updateSeen({ state, commit }, { folder, uid, isSeen }) {
+export function updateSeen({ state, commit, rootGetters }, { folder, uid, isSeen }) {
+    folder = folder || rootGetters["backend.mail/folders/currentFolder"];
     const itemId = state.items.find(item => item.uid === uid).internalId;
     return ServiceLocator.getProvider("MailboxItemsPersistance")
         .get(folder)

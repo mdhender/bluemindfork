@@ -16,12 +16,7 @@
                 {{ from }}
             </bm-col>
             <bm-col v-show="!quickActionButtonsVisible" cols="3" class="mail-widgets">
-                <component
-                    :is="widget"
-                    v-for="widget in widgets"
-                    :key="widget.template"
-                    class="ml-2"
-                />
+                <component :is="widget" v-for="widget in widgets" :key="widget.template" class="ml-2" />
             </bm-col>
             <bm-col v-show="quickActionButtonsVisible" cols="3">
                 <transition name="fade">
@@ -30,21 +25,11 @@
             </bm-col>
         </bm-row>
         <bm-row>
-            <bm-col
-                cols="1"
-                class="mail-attachment"
-            >
-                <component
-                    :is="state"
-                    v-if="!!state"
-                    class="ml-2"
-                />
+            <bm-col cols="1" class="mail-attachment">
+                <component :is="state" v-if="!!state" class="ml-2" />
             </bm-col>
             <bm-col class="mail-subject text-overflow">{{ message.subject }}</bm-col>
-            <bm-col
-                cols="3"
-                class="mail-date"
-            >
+            <bm-col cols="3" class="mail-date">
                 <span class="text-nowrap d-none d-sm-block d-md-none d-xl-block">{{ displayedDate }}</span>
                 <span class="text-nowrap d-sm-none d-md-block d-xl-none">{{ smallerDisplayedDate }}</span>
             </bm-col>

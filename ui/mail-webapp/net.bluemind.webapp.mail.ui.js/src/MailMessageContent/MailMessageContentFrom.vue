@@ -17,7 +17,7 @@ export default {
     props: {
         dn: {
             type: String,
-            required: true
+            default: ""
         },
         address: {
             type: String,
