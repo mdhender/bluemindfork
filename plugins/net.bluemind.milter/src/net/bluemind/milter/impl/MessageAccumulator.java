@@ -1,6 +1,7 @@
 package net.bluemind.milter.impl;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.Map;
@@ -82,8 +83,8 @@ public class MessageAccumulator {
 	}
 
 	void done() {
-		try {
-			message = Mime4JHelper.parse(current.asByteSource().openStream());
+		try (InputStream in = current.asByteSource().openStream()) {
+			message = Mime4JHelper.parse(in);
 		} catch (IOException e) {
 			Throwables.propagate(e);
 		} finally {
