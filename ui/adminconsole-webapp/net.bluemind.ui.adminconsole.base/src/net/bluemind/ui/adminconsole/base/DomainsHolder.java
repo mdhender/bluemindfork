@@ -22,7 +22,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.json.client.JSONObject;
 
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.gwt.serder.ItemValueGwtSerDer;
@@ -55,11 +56,12 @@ public class DomainsHolder {
 		this.selectedDomain = domain;
 		emitDomainChangedEvent(domain);
 
-		JSONValue jsDomainItem = new ItemValueGwtSerDer<Domain>(new DomainGwtSerDer()).serialize(domain);
-		setJsonDomainsHolderSelectedDomain(jsDomainItem);
+		JSONObject jsDomainItem = new JSONObject();
+		new ItemValueGwtSerDer<Domain>(new DomainGwtSerDer()).serializeTo(domain, jsDomainItem);
+		setJsonDomainsHolderSelectedDomain(jsDomainItem.getJavaScriptObject());
 	}
 
-	private static native void setJsonDomainsHolderSelectedDomain(JSONValue domain)
+	private static native void setJsonDomainsHolderSelectedDomain(JavaScriptObject domain)
 
 	/*-{ 
 		$wnd.jsonDomainsHolderSelectedDomain = domain;
