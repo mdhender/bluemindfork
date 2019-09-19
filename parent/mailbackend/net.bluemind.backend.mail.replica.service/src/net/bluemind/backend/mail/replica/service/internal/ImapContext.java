@@ -108,10 +108,14 @@ public class ImapContext {
 			super.close();
 		}
 
+		public boolean isClosed() {
+			return super.isClosed() || fastFetch.isClosed();
+		}
+
 	}
 
 	private PoolableStoreClient imapAsUser() {
-		if (imapClient.isPresent() && !imapClient.get().fastFetch.isClosed()) {
+		if (imapClient.isPresent() && !imapClient.get().isClosed()) {
 			return imapClient.get();
 		} else {
 			PoolableStoreClient sc = new PoolableStoreClient(server, 1143, latd, sid);

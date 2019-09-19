@@ -417,9 +417,12 @@ public final class ClientSupport {
 	/**
 	 * Sets an IMAP Acl on a mailbox
 	 * 
-	 * @param mailbox  user/toto@willow.vmw
-	 * @param consumer admin0
-	 * @param acl      all
+	 * @param mailbox
+	 *                     user/toto@willow.vmw
+	 * @param consumer
+	 *                     admin0
+	 * @param acl
+	 *                     all
 	 * @return true if SETACL succeeds
 	 */
 	public boolean setAcl(String mailbox, String consumer, Acl acl) {
@@ -507,6 +510,10 @@ public final class ClientSupport {
 			ir.setPayload("BMTAG BAD " + cause.getMessage());
 			setResponses(Arrays.asList(ir));
 		}
+	}
+
+	public boolean isClosed() {
+		return session == null || !session.isConnected();
 	}
 
 }

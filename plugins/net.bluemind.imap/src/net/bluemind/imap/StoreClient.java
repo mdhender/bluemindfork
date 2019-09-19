@@ -133,7 +133,8 @@ public class StoreClient implements AutoCloseable {
 	/**
 	 * Opens the given IMAP folder. Only one folder quand be active at a time.
 	 * 
-	 * @param mailbox utf8 mailbox name.
+	 * @param mailbox
+	 *                    utf8 mailbox name.
 	 * @throws IMAPException
 	 */
 	public boolean select(String mailbox) throws IMAPException {
@@ -296,8 +297,10 @@ public class StoreClient implements AutoCloseable {
 	}
 
 	/**
-	 * @param mailbox user/admin@buffy.kvm
-	 * @param quota   unit is KB, 0 removes the quota
+	 * @param mailbox
+	 *                    user/admin@buffy.kvm
+	 * @param quota
+	 *                    unit is KB, 0 removes the quota
 	 * @return
 	 */
 	public boolean setQuota(String mailbox, int quota) {
@@ -465,5 +468,9 @@ public class StoreClient implements AutoCloseable {
 	@Override
 	public void close() {
 		logout();
+	}
+
+	public boolean isClosed() {
+		return cs.isClosed();
 	}
 }
