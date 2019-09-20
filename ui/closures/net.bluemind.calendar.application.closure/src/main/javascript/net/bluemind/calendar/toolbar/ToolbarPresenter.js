@@ -61,7 +61,7 @@ net.bluemind.calendar.toolbar.ToolbarPresenter = function(ctx) {
   this.handler.listen(this.view_.getChild('previous'), goog.ui.Component.EventType.ACTION, function() {
     var date = this.ctx.session.get('range').getStartDate();
     // BM-7850 Fix: business week prev period
-    if (this.ctx.session.get('view') == 'week') {
+    if (ctx.settings.get('showweekends') !== true && ctx.session.get('range.size') == 5) {
       date.add(new goog.date.Interval(goog.date.Interval.DAYS, -7))
     } else { 
       date.add(new goog.date.Interval(goog.date.Interval.DAYS, -1))
@@ -71,7 +71,7 @@ net.bluemind.calendar.toolbar.ToolbarPresenter = function(ctx) {
   this.handler.listen(this.view_.getChild('next'), goog.ui.Component.EventType.ACTION, function() {
     var date = this.ctx.session.get('range').getEndDate();
     // BM-7850 Fix: business week next period
-    if (this.ctx.session.get('view') == 'week') {
+    if (ctx.settings.get('showweekends') !== true && ctx.session.get('range.size') == 5) {
       date = this.ctx.session.get('range').getStartDate();
       date.add(new goog.date.Interval(goog.date.Interval.DAYS, +7))
     }
