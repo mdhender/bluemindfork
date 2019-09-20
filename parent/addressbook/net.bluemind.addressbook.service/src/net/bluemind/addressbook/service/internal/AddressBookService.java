@@ -21,6 +21,8 @@ package net.bluemind.addressbook.service.internal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +46,7 @@ import net.bluemind.addressbook.api.VCardChanges;
 import net.bluemind.addressbook.api.VCardChanges.ItemAdd;
 import net.bluemind.addressbook.api.VCardInfo;
 import net.bluemind.addressbook.api.VCardQuery;
+import net.bluemind.addressbook.api.VCardQuery.OrderBy;
 import net.bluemind.addressbook.domainbook.DomainAddressBook;
 import net.bluemind.addressbook.persistance.VCardIndexStore;
 import net.bluemind.addressbook.persistance.VCardStore;
@@ -332,6 +335,7 @@ public class AddressBookService implements IInCoreAddressBook {
 	@Override
 	public ListResult<ItemValue<VCardInfo>> search(VCardQuery query) throws ServerFault {
 		rbacManager.check(Verb.Read.name());
+		List<ItemValue<VCardInfo>> values = null;
 		if (StringUtils.isEmpty(query.query)) {
 
 			List<String> uids = storeService.allUidsOrderedByDisplayname();
@@ -341,32 +345,34 @@ public class AddressBookService implements IInCoreAddressBook {
 			to = Math.min(to, uids.size());
 			List<String> subUids = uids.subList(from, to);
 
-			List<ItemValue<VCardInfo>> values = new ArrayList<>(subUids.size());
+			values = new ArrayList<>(subUids.size());
 
 			List<ItemValue<VCard>> items = storeService.getMultiple(subUids);
 			for (ItemValue<VCard> item : items) {
 				values.add(adapt(item));
 			}
-			ListResult<ItemValue<VCardInfo>> ret = new ListResult<>();
-			ret.total = uids.size();
-			ret.values = values;
-			return ret;
-
 		} else {
 			ListResult<String> res = indexStore.search(query);
 
-			List<ItemValue<VCardInfo>> values = new ArrayList<>(res.values.size());
+			values = new ArrayList<>(res.values.size());
 			List<ItemValue<VCard>> items = storeService.getMultiple(res.values);
 			for (ItemValue<VCard> item : items) {
 				values.add(adapt(item));
 			}
-
-			ListResult<ItemValue<VCardInfo>> ret = new ListResult<>();
-			ret.total = res.total;
-			ret.values = values;
-			return ret;
+		}
+		if (query.orderBy != OrderBy.Pertinance) {
+			Collections.sort(values, new Comparator<ItemValue<VCardInfo>>() {
+				@Override
+				public int compare(ItemValue<VCardInfo> o1, ItemValue<VCardInfo> o2) {
+					return o1.displayName.compareTo(o2.displayName);
+				}
+			});
 		}
 
+		ListResult<ItemValue<VCardInfo>> ret = new ListResult<>();
+		ret.total = values.size();
+		ret.values = values;
+		return ret;
 	}
 
 	@Override
