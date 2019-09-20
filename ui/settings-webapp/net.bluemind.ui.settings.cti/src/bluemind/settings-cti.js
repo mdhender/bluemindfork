@@ -11,14 +11,6 @@ goog.global['gwtSettingsCTIScreensContributor'] = function() {
         'type' : 'net.bluemind.ui.settings.cti.MainCtiPartProvider',
         'roles': ['hasIM','hasCTI']
       }
-    },
-    {
-      'contributedElementId' : 'calendarGeneralContainer',
-      'contributedAttribute' : 'childrens',
-      'contribution' : {
-        'type' : 'net.bluemind.ui.settings.cti.CalendarCtiPartProvider',
-          'role' : 'hasCTI'
-      }
     }];  
   }};
   
