@@ -18,6 +18,8 @@
 package net.bluemind.backend.cyrus.replication.storage.mock;
 
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
@@ -32,6 +34,7 @@ import net.bluemind.backend.mail.replica.api.IDbMailboxRecordsPromise;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodiesPromise;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxesPromise;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
+import net.bluemind.backend.mail.replica.api.ResolvedMailbox;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.rest.http.HttpClientProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
@@ -108,6 +111,11 @@ public class MockReplicationStorage implements StorageApiLink {
 	@Override
 	public Stream stream(Path p) {
 		return VertxStream.localPath(p);
+	}
+
+	@Override
+	public CompletableFuture<List<ResolvedMailbox>> resolveNames(List<String> names) {
+		return CompletableFuture.completedFuture(Collections.emptyList());
 	}
 
 }

@@ -64,11 +64,15 @@ public class MessageBodyObjectStore {
 
 	public MessageBodyObjectStore(BmContext ctx, CyrusPartition partition) {
 		this.ctx = ctx;
-		logger.debug("Object store for {} and partition {}", this.ctx, partition);
+		if (logger.isDebugEnabled()) {
+			logger.debug("Object store for {} and partition {}", this.ctx, partition);
+		}
 
 		ISystemConfiguration config = ctx.provider().instance(ISystemConfiguration.class);
 		this.objectStoreReader = loadReader(config.getValues());
-		logger.info("Reading with {}", objectStoreReader);
+		if (logger.isDebugEnabled()) {
+			logger.debug("Reading with {}", objectStoreReader);
+		}
 	}
 
 	private static Map<String, Factory> loadStores() {

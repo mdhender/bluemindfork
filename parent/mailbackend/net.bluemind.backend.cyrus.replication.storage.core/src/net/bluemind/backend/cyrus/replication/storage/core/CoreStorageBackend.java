@@ -25,6 +25,7 @@ import java.nio.channels.FileChannel.MapMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
@@ -42,8 +43,10 @@ import net.bluemind.backend.mail.replica.api.ICyrusReplicationArtifactsPromise;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecordsPromise;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodiesPromise;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxesPromise;
+import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesMgmtPromise;
 import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesRootMgmtPromise;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
+import net.bluemind.backend.mail.replica.api.ResolvedMailbox;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.context.SecurityContext;
@@ -197,8 +200,7 @@ public class CoreStorageBackend implements StorageApiLink {
 	/**
 	 * Returns the API object suitable to manipulate the given mailbox.
 	 * 
-	 * @param box
-	 *            can't be null
+	 * @param box can't be null
 	 * @return access to db hierarchy api
 	 */
 	public CompletableFuture<ApiDesc> replicatedMailboxes(ReplicatedBox box) {
@@ -241,5 +243,10 @@ public class CoreStorageBackend implements StorageApiLink {
 	@Override
 	public Stream stream(Path p) {
 		return streamProvider.of(p);
+	}
+
+	@Override
+	public CompletableFuture<List<ResolvedMailbox>> resolveNames(List<String> names) {
+		return asyncProv.instance(IReplicatedMailboxesMgmtPromise.class).resolve(names);
 	}
 }

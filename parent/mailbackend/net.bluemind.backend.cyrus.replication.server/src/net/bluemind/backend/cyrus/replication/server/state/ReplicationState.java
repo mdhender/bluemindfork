@@ -176,6 +176,14 @@ public class ReplicationState {
 		});
 	}
 
+	public CompletableFuture<List<MailboxFolder>> foldersByName(List<String> names) {
+		return storage.resolveNames(names).thenApply(resolved -> resolved.stream().map(v -> {
+			MailboxFolder ret = DtoConverters.from(v.partition, v.desc, v.replica);
+			ret.setAnnotations(v.annotations);
+			return ret;
+		}).collect(Collectors.toList()));
+	}
+
 	public CompletableFuture<Optional<Buffer>> record(MailboxFolder folder, String bodyGuid, long imapUid) {
 		if (folder == null) {
 			return CompletableFuture.completedFuture(null);

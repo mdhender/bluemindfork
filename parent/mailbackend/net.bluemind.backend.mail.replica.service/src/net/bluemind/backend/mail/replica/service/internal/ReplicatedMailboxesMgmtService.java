@@ -25,26 +25,40 @@ package net.bluemind.backend.mail.replica.service.internal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.backend.cyrus.partitions.CyrusBoxes;
+import net.bluemind.backend.cyrus.partitions.CyrusBoxes.ReplicatedBox;
 import net.bluemind.backend.mail.api.MailboxFolderSearchQuery;
 import net.bluemind.backend.mail.api.SearchQuery;
 import net.bluemind.backend.mail.api.SearchQuery.SearchScope;
 import net.bluemind.backend.mail.api.SearchResult;
+import net.bluemind.backend.mail.replica.api.ICyrusReplicationAnnotations;
+import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesMgmt;
+import net.bluemind.backend.mail.replica.api.MailboxAnnotation;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecordItemUri;
+import net.bluemind.backend.mail.replica.api.MailboxReplica;
+import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
+import net.bluemind.backend.mail.replica.api.ResolvedMailbox;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.core.container.model.Item;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.index.MailIndexActivator;
 
 public class ReplicatedMailboxesMgmtService implements IReplicatedMailboxesMgmt {
@@ -125,6 +139,63 @@ public class ReplicatedMailboxesMgmtService implements IReplicatedMailboxesMgmt 
 			MailboxRecordStore store = new MailboxRecordStore(ds);
 			refs.addAll(func.apply(store));
 		});
+	}
+
+	private static final String apiCacheKey(ReplicatedBox box) {
+		return box.partition + "!" + box.local;
+	}
+
+	private static class ResolutionDTO {
+		final ReplicatedBox box;
+		final String name;
+
+		private ResolutionDTO(ReplicatedBox rb, String n) {
+			this.box = rb;
+			this.name = n;
+		}
+	}
+
+	@Override
+	public List<ResolvedMailbox> resolve(List<String> names) {
+		int len = names.size();
+		if (len > 100) {
+			logger.info("Resolving {} name(s)", len);
+		}
+		Map<String, IDbReplicatedMailboxes> subApis = new HashMap<>();
+		IServiceProvider apis = context.provider();
+		ICyrusReplicationAnnotations annotApi = apis.instance(ICyrusReplicationAnnotations.class);
+		return names.stream().map(cyrusName -> {
+			int exMarkIdx = cyrusName.indexOf('!');
+			if (exMarkIdx < 0) {
+				return null;
+			}
+			ReplicatedBox ret = CyrusBoxes.forCyrusMailbox(cyrusName);
+			try {
+				subApis.computeIfAbsent(apiCacheKey(ret),
+						b -> apis.instance(IDbReplicatedMailboxes.class, ret.partition, ret.ns.prefix() + ret.local));
+				return new ResolutionDTO(ret, cyrusName);
+			} catch (Exception e) {
+				logger.warn("Skipping '{}' ({}): {}", cyrusName, ret, e.getMessage());
+				return null;
+			}
+		}).filter(Objects::nonNull).map(dto -> {
+			ItemValue<MailboxReplica> replica = subApis.get(apiCacheKey(dto.box)).byReplicaName(dto.box.folderName);
+			if (replica == null) {
+				logger.warn("{} not found.", dto.box);
+				return null;
+			}
+			ResolvedMailbox resolved = new ResolvedMailbox();
+			resolved.desc = dto.box.asDescriptor();
+			resolved.partition = dto.box.partition;
+			resolved.replica = replica;
+			if (dto.box.ns == Namespace.users) {
+				List<MailboxAnnotation> found = annotApi.annotations(dto.name);
+				if (found != null) {
+					resolved.annotations = found;
+				}
+			}
+			return resolved;
+		}).filter(Objects::nonNull).collect(Collectors.toList());
 	}
 
 }

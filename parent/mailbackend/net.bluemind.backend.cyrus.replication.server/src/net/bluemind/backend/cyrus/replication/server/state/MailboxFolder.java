@@ -72,7 +72,6 @@ public class MailboxFolder {
 				ma.value = Token.atomOrValue(ma.value);
 				return ma;
 			});
-			logger.debug("ANNOTS: {}", mf.annotations);
 		}
 		mf.syncCRC = Long.parseLong(mbox.getString("SYNC_CRC"));
 		mf.quotaRoot = mbox.getString("QUOTAROOT");
@@ -232,7 +231,13 @@ public class MailboxFolder {
 		sb.append(" ACL \"").append(acl).append("\"");
 		sb.append(" OPTIONS ").append(options);
 		if (!annotations.isEmpty()) {
-			System.err.println("should write annotations");
+			sb.append(" ANNOTATIONS (");
+			boolean first = true;
+			for (MailboxAnnotation ma : annotations) {
+				sb.append(first ? "" : " ").append(ma.toShortParenObjectString());
+				first = false;
+			}
+			sb.append(")");
 		}
 		if (quotaRoot != null) {
 			sb.append(" QUOTAROOT ").append(quotaRoot);
