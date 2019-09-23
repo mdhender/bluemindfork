@@ -157,7 +157,7 @@ public class DemoteCommand extends AbstractHSMCommand {
 
 		// the message is not archived yet, do the magic
 		IMAPByteSource mailContent = sc.uidFetchMessage(id.getUid());
-		Message msg = Mime4JHelper.parse(mailContent.source().openStream());
+
 		try {
 			hsmId = storage.store(context.getSecurityContext().getContainerUid(), context.getLoginContext().uid,
 					mailContent.source().openStream());
@@ -168,7 +168,7 @@ public class DemoteCommand extends AbstractHSMCommand {
 			mailContent.close();
 		}
 
-		try {
+		try (Message msg = Mime4JHelper.parse(mailContent.source().openStream())) {
 			// Replace old mail
 			FlagsList fl = summary.getFlags();
 			fl.add(Flag.BMARCHIVED);
@@ -208,8 +208,8 @@ public class DemoteCommand extends AbstractHSMCommand {
 		} catch (TemplateException e) {
 			logger.error(e.getMessage(), e);
 			throw new IOException(e);
-		} finally {
-			msg.dispose();
+		} catch (Exception e1) {
+			throw new RuntimeException(e1);
 		}
 	}
 

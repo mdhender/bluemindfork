@@ -344,7 +344,6 @@ public class Mime4JHelper {
 		SizedStream ks = new SizedStream();
 		ks.input = FBOSInput.from(fbos);
 		ks.size = (int) fbos.asByteSource().size();
-		msg.dispose();
 		return ks;
 	}
 

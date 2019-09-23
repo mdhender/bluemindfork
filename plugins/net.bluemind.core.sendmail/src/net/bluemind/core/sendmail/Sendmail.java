@@ -110,11 +110,11 @@ public class Sendmail implements ISendmail {
 	 * Send an email. This API is usable from outside core JVM.
 	 * 
 	 * @param fromEmail
-	 *            Envelope from
+	 *                       Envelope from
 	 * @param userDomain
-	 *            Used to locate a valid SMTP
+	 *                       Used to locate a valid SMTP
 	 * @param rcptTo
-	 *            the real recipients
+	 *                       the real recipients
 	 * @param m
 	 * @throws ServerFault
 	 */
@@ -129,7 +129,6 @@ public class Sendmail implements ISendmail {
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			MessageWriter writer = MessageServiceFactory.newInstance().newMessageWriter();
 			writer.writeMessage(m, out);
-			m.dispose();
 			byte[] bytes = out.toByteArray();
 			in = new ByteArrayInputStream(bytes);
 		} catch (Exception e) {

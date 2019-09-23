@@ -118,22 +118,22 @@ public class SmartReplyEndpointRealTests extends AbstractEndpointTest {
 		Integer repUid = (Integer) res.iterator().next();
 
 		IMAPByteSource mailContent = sc.uidFetchMessage(repUid);
-		Message msg = Mime4JHelper.parse(mailContent.source().openStream());
-		sc.logout();
-		sc.close();
+		try (Message msg = Mime4JHelper.parse(mailContent.source().openStream())) {
+			sc.logout();
+			sc.close();
 
-		Body body = msg.getBody();
-		assertTrue(body instanceof Multipart);
-		Multipart mparts = (Multipart) body;
-		List<AddressableEntity> parts = Mime4JHelper.expandParts(mparts.getBodyParts());
-		assertEquals(1, parts.size());
-		AddressableEntity e = parts.get(0);
-		assertEquals("text/html", e.getMimeType());
-		TextBody pb = (TextBody) e.getBody();
-		InputStream in = pb.getInputStream();
-		String replyContent = new String(ByteStreams.toByteArray(in), pb.getMimeCharset()).trim();
-		System.err.println(replyContent);
-		msg.dispose();
+			Body body = msg.getBody();
+			assertTrue(body instanceof Multipart);
+			Multipart mparts = (Multipart) body;
+			List<AddressableEntity> parts = Mime4JHelper.expandParts(mparts.getBodyParts());
+			assertEquals(1, parts.size());
+			AddressableEntity e = parts.get(0);
+			assertEquals("text/html", e.getMimeType());
+			TextBody pb = (TextBody) e.getBody();
+			InputStream in = pb.getInputStream();
+			String replyContent = new String(ByteStreams.toByteArray(in), pb.getMimeCharset()).trim();
+			System.err.println(replyContent);
+		}
 	}
 
 	public void testAndroidSmartReply() throws Exception {
@@ -195,22 +195,22 @@ public class SmartReplyEndpointRealTests extends AbstractEndpointTest {
 		Integer repUid = (Integer) res.iterator().next();
 
 		IMAPByteSource mailContent = sc.uidFetchMessage(repUid);
-		Message msg = Mime4JHelper.parse(mailContent.source().openStream());
-		sc.logout();
-		sc.close();
+		try (Message msg = Mime4JHelper.parse(mailContent.source().openStream())) {
+			sc.logout();
+			sc.close();
 
-		Body body = msg.getBody();
-		assertTrue(body instanceof Multipart);
-		Multipart mparts = (Multipart) body;
-		List<AddressableEntity> parts = Mime4JHelper.expandParts(mparts.getBodyParts());
-		assertEquals(1, parts.size());
-		AddressableEntity e = parts.get(0);
-		assertEquals("text/html", e.getMimeType());
-		TextBody pb = (TextBody) e.getBody();
-		InputStream in = pb.getInputStream();
-		String replyContent = new String(ByteStreams.toByteArray(in), pb.getMimeCharset()).trim();
-		System.err.println(replyContent);
-		msg.dispose();
+			Body body = msg.getBody();
+			assertTrue(body instanceof Multipart);
+			Multipart mparts = (Multipart) body;
+			List<AddressableEntity> parts = Mime4JHelper.expandParts(mparts.getBodyParts());
+			assertEquals(1, parts.size());
+			AddressableEntity e = parts.get(0);
+			assertEquals("text/html", e.getMimeType());
+			TextBody pb = (TextBody) e.getBody();
+			InputStream in = pb.getInputStream();
+			String replyContent = new String(ByteStreams.toByteArray(in), pb.getMimeCharset()).trim();
+			System.err.println(replyContent);
+		}
 	}
 
 	private Integer fetchInboxId() throws IOException {

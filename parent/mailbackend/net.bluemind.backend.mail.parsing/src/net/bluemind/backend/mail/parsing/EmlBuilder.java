@@ -200,8 +200,7 @@ public class EmlBuilder {
 				throw Throwables.propagate(e);
 			}
 		}
-		try (InputStream in = new FileInputStream(emlInput)) {
-			Message asMessage = Mime4JHelper.parse(in);
+		try (InputStream in = new FileInputStream(emlInput); Message asMessage = Mime4JHelper.parse(in)) {
 			net.bluemind.backend.mail.api.MessageBody.Header idHeader = net.bluemind.backend.mail.api.MessageBody.Header
 					.create(MailApiHeaders.X_BM_INTERNAL_ID, owner + "#" + InstallationId.getIdentifier() + ":" + id);
 			List<net.bluemind.backend.mail.api.MessageBody.Header> toAdd = Arrays.asList(idHeader);
@@ -213,10 +212,10 @@ public class EmlBuilder {
 			asMessage.setDate(date);
 			fillHeader(asMessage.getHeader(), toAdd);
 			return Mime4JHelper.asSizedStream(asMessage);
-		} catch (IOException e) {
-			throw Throwables.propagate(e);
-		} catch (MimeException e) {
-			throw Throwables.propagate(e);
+		} catch (RuntimeException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 	}
 

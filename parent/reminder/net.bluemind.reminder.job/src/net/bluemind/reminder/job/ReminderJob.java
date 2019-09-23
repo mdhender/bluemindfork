@@ -351,12 +351,14 @@ public class ReminderJob implements IScheduledJob {
 			data.put("tz", tz.getDisplayName(new Locale(userPrefs.get("lang"))));
 		}
 
-		Message message = getMessage(mboxes, subject, userPrefs.get("lang"), data, alarmSupport);
+		try (Message message = getMessage(mboxes, subject, userPrefs.get("lang"), data, alarmSupport)) {
 
-		logger.info("send reminder to {} for entity {}", mboxes.to.getAddress(), entity.summary);
+			logger.info("send reminder to {} for entity {}", mboxes.to.getAddress(), entity.summary);
 
-		mailer.send(mboxes.from, message);
-		message.dispose();
+			mailer.send(mboxes.from, message);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private String tryGet(Map<String, String> userPrefs, String defaultValue, String... keys) {

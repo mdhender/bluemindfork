@@ -397,9 +397,12 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 				if (previousBody != null) {
 					body.headers.add(Header.create(MailApiHeaders.X_BM_PREVIOUS_BODY, previousBody));
 				}
-				Message msg = EmlBuilder.of(body, container.owner);
-				return Mime4JHelper.asSizedStream(msg);
-			} catch (ServerFault sf) {
+				try (Message msg = EmlBuilder.of(body, container.owner)) {
+					return Mime4JHelper.asSizedStream(msg);
+				}
+			} catch (
+
+			ServerFault sf) {
 				throw sf;
 			} catch (Exception e) {
 				throw new ServerFault(e);

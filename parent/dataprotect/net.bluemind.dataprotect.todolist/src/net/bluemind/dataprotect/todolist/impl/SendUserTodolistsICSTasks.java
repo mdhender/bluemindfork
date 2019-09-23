@@ -62,8 +62,8 @@ import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.dataprotect.api.DataProtectGeneration;
 import net.bluemind.dataprotect.api.Restorable;
 import net.bluemind.dataprotect.service.BackupDataProvider;
-import net.bluemind.todolist.api.IVTodo;
 import net.bluemind.todolist.api.ITodoUids;
+import net.bluemind.todolist.api.IVTodo;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 
@@ -113,9 +113,10 @@ public class SendUserTodolistsICSTasks implements IServerTask {
 						"no-reply@" + item.domainUid);
 				Mailbox to = SendmailHelper.formatAddress(user.value.contactInfos.identification.formatedName.value,
 						user.value.defaultEmail().address);
-				Message m = getMessage(sender, to, allIcs);
-				Sendmail mailer = new Sendmail();
-				mailer.send(sender, m);
+				try (Message m = getMessage(sender, to, allIcs)) {
+					Sendmail mailer = new Sendmail();
+					mailer.send(sender, m);
+				}
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}

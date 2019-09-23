@@ -724,11 +724,14 @@ public class IcsHook implements ICalendarHook {
 					data.put("attachments", attachments);
 				}
 
-				Message mail = buildMailMessage(from, from, attendeeListTo, attendeeListCc, subjectTemplate, template,
-						messagesResolverProvider.getResolver(new Locale(getLocale(settings))), data,
-						createBodyPart(message.itemUid, ics), settings, event, method, attachments);
-				mailer.send(from.getAddress(), from.getDomain(), new MailboxList(Arrays.asList(recipient), true), mail);
-				mail.dispose();
+				try (Message mail = buildMailMessage(from, from, attendeeListTo, attendeeListCc, subjectTemplate,
+						template, messagesResolverProvider.getResolver(new Locale(getLocale(settings))), data,
+						createBodyPart(message.itemUid, ics), settings, event, method, attachments)) {
+					mailer.send(from.getAddress(), from.getDomain(), new MailboxList(Arrays.asList(recipient), true),
+							mail);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
 
 				auditor.actionSend(message.itemUid, recipient.getAddress(), ics);
 			});

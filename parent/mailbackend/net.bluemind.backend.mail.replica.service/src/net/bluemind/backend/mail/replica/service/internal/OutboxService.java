@@ -85,13 +85,16 @@ public class OutboxService implements IOutbox {
 			promises.add(
 					SyncStreamDownload.read(mailboxItemsService.fetchComplete(item.value.imapUid)).thenAccept(buf -> {
 						InputStream in = new ByteBufInputStream(buf);
-						Message msg = Mime4JHelper.parse(in);
-						mailer.send(domainUid, msg);
-						msg.dispose();
-						mailboxFoldersService.importItems(sentInternalId, ImportMailboxItemSet.moveIn(outboxInternalId,
-								Arrays.asList(MailboxItemId.of(item.internalId)), null));
-						monitor.progress(1,
-								"FLUSHING OUTBOX - mail " + msg.getMessageId() + " sent and moved in Sent folder.");
+						try (Message msg = Mime4JHelper.parse(in)) {
+							mailer.send(domainUid, msg);
+
+							mailboxFoldersService.importItems(sentInternalId, ImportMailboxItemSet
+									.moveIn(outboxInternalId, Arrays.asList(MailboxItemId.of(item.internalId)), null));
+							monitor.progress(1,
+									"FLUSHING OUTBOX - mail " + msg.getMessageId() + " sent and moved in Sent folder.");
+						} catch (Exception e) {
+							throw new RuntimeException(e);
+						}
 					}));
 		});
 

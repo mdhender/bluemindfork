@@ -67,28 +67,31 @@ public class Composer {
 		m.put("archLink", getHSMLink(hsmId));
 		StringWriter sw = new StringWriter(4096);
 		tpl.process(m, sw);
-		Message msg = new MessageImpl();
-		Header heads = new HeaderImpl();
-		heads.setField(Fields.contentType("text/html", ImmutableMap.of("charset", "utf-8")));
-		heads.setField(Fields.contentTransferEncoding(MimeUtil.ENC_QUOTED_PRINTABLE));
-		heads.setField(new RawField(HSMHeaders.HSM_ID, hsmId));
-		heads.setField(new RawField(HSMHeaders.HSM_DATETIME, dateTime));
+		try (Message msg = new MessageImpl()) {
+			Header heads = new HeaderImpl();
+			heads.setField(Fields.contentType("text/html", ImmutableMap.of("charset", "utf-8")));
+			heads.setField(Fields.contentTransferEncoding(MimeUtil.ENC_QUOTED_PRINTABLE));
+			heads.setField(new RawField(HSMHeaders.HSM_ID, hsmId));
+			heads.setField(new RawField(HSMHeaders.HSM_DATETIME, dateTime));
 
-		Header oh = orig.getHeader();
-		List<Field> origFields = oh.getFields();
-		for (Field f : origFields) {
-			if (!f.getName().toLowerCase().startsWith("content")) {
-				heads.addField(f);
+			Header oh = orig.getHeader();
+			List<Field> origFields = oh.getFields();
+			for (Field f : origFields) {
+				if (!f.getName().toLowerCase().startsWith("content")) {
+					heads.addField(f);
+				}
 			}
+
+			BasicBodyFactory bbf = new BasicBodyFactory();
+			String mime = sw.toString().replace("\r", "").replace("\n", "\r\n");
+			TextBody tb = bbf.textBody(mime, Charset.forName("utf-8"));
+			msg.setBody(tb);
+			msg.setHeader(heads);
+
+			return Mime4JHelper.asStream(msg);
+		} catch (Exception e) {
+			throw new IOException(e);
 		}
-
-		BasicBodyFactory bbf = new BasicBodyFactory();
-		String mime = sw.toString().replace("\r", "").replace("\n", "\r\n");
-		TextBody tb = bbf.textBody(mime, Charset.forName("utf-8"));
-		msg.setBody(tb);
-		msg.setHeader(heads);
-
-		return Mime4JHelper.asStream(msg);
 	}
 
 	private String getHSMLink(String hsmId) {

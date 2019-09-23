@@ -134,62 +134,66 @@ public class BodyStreamProcessor {
 
 		MessageBody mb = new MessageBody();
 		mb.bodyVersion = BODY_VERSION;
-		Message parsed = Mime4JHelper.parse(emlInput, new OffloadedBodyFactory());
-		String subject = parsed.getSubject();
-		if (subject != null) {
-			mb.subject = subject.replace("\u0000", "");
+		try (Message parsed = Mime4JHelper.parse(emlInput, new OffloadedBodyFactory())) {
+			String subject = parsed.getSubject();
+			if (subject != null) {
+				mb.subject = subject.replace("\u0000", "");
+			}
+			mb.date = parsed.getDate();
+			mb.size = (int) emlInput.getCount();
+			Multimap<String, String> mmapHeaders = MultimapBuilder.hashKeys().linkedListValues().build();
+			parsed.getHeader().forEach(field -> mmapHeaders.put(field.getName(), field.getBody()));
+			mb.headers = processHeaders(mmapHeaders);
+			mb.messageId = parsed.getMessageId();
+			mb.references = processReferences(mmapHeaders);
+
+			processRecipients(mb, parsed);
+
+			if (logger.isDebugEnabled()) {
+				logger.debug("Got {} unique header(s)", mb.headers.size());
+			}
+			List<String> filenames = new ArrayList<>();
+			StringBuilder bodyTxt = new StringBuilder();
+			if (!parsed.isMultipart()) {
+				Part p = new Part();
+				p.mime = parsed.getMimeType();
+				p.address = "1";
+				p.size = mb.size;
+				mb.structure = p;
+				p.charset = parsed.getCharset();
+				p.encoding = parsed.getContentTransferEncoding();
+			} else {
+				Multipart mpBody = (Multipart) parsed.getBody();
+				processMultipart(mb, mpBody, filenames, bodyTxt, fetchContent);
+			}
+
+			String extractedBody = extractBody(parsed);
+			extractedBody = extractedBody.replace("\u0000", "");
+			bodyTxt.append(extractedBody);
+			mb.preview = CharMatcher.whitespace()
+					.collapseFrom(extractedBody.substring(0, Math.min(160, extractedBody.length())), ' ');
+
+			List<String> with = new LinkedList<>();
+			if (parsed.getFrom() != null && !parsed.getFrom().isEmpty()) {
+				with.add(toString(parsed.getFrom().get(0)));
+			}
+			with.addAll(toString(parsed.getTo()));
+			with.addAll(toString(parsed.getCc()));
+
+			mb.structure.size = mb.size;
+			time = System.currentTimeMillis() - time;
+			if (time > 10) {
+				logger.info("Body ({} byte(s)) processed in {}ms.", mb.size, time);
+			}
+
+			MessageBodyData bodyData = new MessageBodyData(mb, bodyTxt.toString(), filenames, with,
+					mapHeaders(mb.headers));
+			logger.debug("Processed {}", bodyData);
+			return bodyData;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
-		mb.date = parsed.getDate();
-		mb.size = (int) emlInput.getCount();
-		Multimap<String, String> mmapHeaders = MultimapBuilder.hashKeys().linkedListValues().build();
-		parsed.getHeader().forEach(field -> mmapHeaders.put(field.getName(), field.getBody()));
-		mb.headers = processHeaders(mmapHeaders);
-		mb.messageId = parsed.getMessageId();
-		mb.references = processReferences(mmapHeaders);
 
-		processRecipients(mb, parsed);
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Got {} unique header(s)", mb.headers.size());
-		}
-		List<String> filenames = new ArrayList<>();
-		StringBuilder bodyTxt = new StringBuilder();
-		if (!parsed.isMultipart()) {
-			Part p = new Part();
-			p.mime = parsed.getMimeType();
-			p.address = "1";
-			p.size = mb.size;
-			mb.structure = p;
-			p.charset = parsed.getCharset();
-			p.encoding = parsed.getContentTransferEncoding();
-		} else {
-			Multipart mpBody = (Multipart) parsed.getBody();
-			processMultipart(mb, mpBody, filenames, bodyTxt, fetchContent);
-		}
-
-		String extractedBody = extractBody(parsed);
-		extractedBody = extractedBody.replace("\u0000", "");
-		bodyTxt.append(extractedBody);
-		mb.preview = CharMatcher.whitespace()
-				.collapseFrom(extractedBody.substring(0, Math.min(160, extractedBody.length())), ' ');
-
-		List<String> with = new LinkedList<>();
-		if (parsed.getFrom() != null && !parsed.getFrom().isEmpty()) {
-			with.add(toString(parsed.getFrom().get(0)));
-		}
-		with.addAll(toString(parsed.getTo()));
-		with.addAll(toString(parsed.getCc()));
-
-		parsed.dispose();
-		mb.structure.size = mb.size;
-		time = System.currentTimeMillis() - time;
-		if (time > 10) {
-			logger.info("Body ({} byte(s)) processed in {}ms.", mb.size, time);
-		}
-
-		MessageBodyData bodyData = new MessageBodyData(mb, bodyTxt.toString(), filenames, with, mapHeaders(mb.headers));
-		logger.debug("Processed {}", bodyData);
-		return bodyData;
 	}
 
 	private static List<String> processReferences(Multimap<String, String> mmapHeaders) {
