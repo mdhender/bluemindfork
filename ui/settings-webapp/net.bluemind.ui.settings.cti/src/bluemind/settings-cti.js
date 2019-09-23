@@ -1,4 +1,3 @@
-goog.require('net.bluemind.ui.settings.cti.CalendarCtiPartProvider');
 goog.require('net.bluemind.ui.settings.cti.MainCtiPartProvider');
 
 goog.global['gwtSettingsCTIScreensContributor'] = function() {
