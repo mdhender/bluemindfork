@@ -143,7 +143,7 @@ public class ImapInjector {
 		StringBuilder sb = new StringBuilder();
 		sb.append("From: ").append(from.email).append("\r\n");
 		sb.append("To: ").append(to.email).append("\r\n");
-		sb.append("Context-Type: text/html; charset=utf-8\r\n");
+		sb.append("Content-Type: text/html; charset=utf-8\r\n");
 		sb.append("Subject: Rand Message ").append(UUID.randomUUID()).append("\r\n\r\n");
 		sb.append("<html><body><p>Yeah this is   body   </p>\r\n");
 		for (int i = 0; i < 1024; i++) {

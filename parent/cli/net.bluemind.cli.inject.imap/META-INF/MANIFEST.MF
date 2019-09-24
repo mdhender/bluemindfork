@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.cli.inject.imap
-Bundle-SymbolicName: net.bluemind.cli.inject.imap
+Bundle-SymbolicName: net.bluemind.cli.inject.imap;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.cli.cmd.api,

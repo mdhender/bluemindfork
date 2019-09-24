@@ -7,7 +7,7 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-consoleLog sds migrate devenv.blue
+      <programArgs>-consoleLog help inject
       </programArgs>
       <vmArgs>-Duser.timezone=GMT -Djava.awt.headless=true -Dnet.bluemind.property.product=bm-cli
       </vmArgs>
@@ -28,16 +28,19 @@
       <plugin id="backport-util-concurrent"/>
       <plugin id="ch.qos.logback.classic"/>
       <plugin id="ch.qos.logback.core"/>
+      <plugin id="com.beetstra.jutf7"/>
       <plugin id="com.fasterxml.jackson.core.jackson-annotations"/>
       <plugin id="com.fasterxml.jackson.core.jackson-core"/>
       <plugin id="com.fasterxml.jackson.core.jackson-databind"/>
       <plugin id="com.github.freva.ascii-table"/>
+      <plugin id="com.github.javafaker"/>
       <plugin id="com.google.guava"/>
       <plugin id="com.hazelcast"/>
       <plugin id="com.hazelcast.client" fragment="true"/>
       <plugin id="com.netflix.hollow"/>
       <plugin id="com.netflix.spectator.api"/>
       <plugin id="com.ning.async-http-client"/>
+      <plugin id="com.sun.mail.javax.mail"/>
       <plugin id="io.airlift.airline"/>
       <plugin id="io.netty"/>
       <plugin id="io.vertx.core"/>
@@ -66,6 +69,7 @@
       <plugin id="net.bluemind.cli.hollow"/>
       <plugin id="net.bluemind.cli.hz"/>
       <plugin id="net.bluemind.cli.index"/>
+      <plugin id="net.bluemind.cli.inject.imap"/>
       <plugin id="net.bluemind.cli.launcher"/>
       <plugin id="net.bluemind.cli.mail"/>
       <plugin id="net.bluemind.cli.mapi"/>
@@ -101,10 +105,12 @@
       <plugin id="net.bluemind.hornetq.client"/>
       <plugin id="net.bluemind.hsm.api"/>
       <plugin id="net.bluemind.icalendar.api"/>
+      <plugin id="net.bluemind.imap"/>
       <plugin id="net.bluemind.lib.elasticsearch"/>
       <plugin id="net.bluemind.lib.ical4j"/>
       <plugin id="net.bluemind.lib.jackson"/>
       <plugin id="net.bluemind.lib.jta"/>
+      <plugin id="net.bluemind.lib.jutf7"/>
       <plugin id="net.bluemind.lib.vertx"/>
       <plugin id="net.bluemind.locator.client"/>
       <plugin id="net.bluemind.mailbox.api"/>
@@ -112,6 +118,8 @@
       <plugin id="net.bluemind.metrics.alerts.api"/>
       <plugin id="net.bluemind.metrics.registry"/>
       <plugin id="net.bluemind.neko.common"/>
+      <plugin id="net.bluemind.network.topology"/>
+      <plugin id="net.bluemind.network.topology.consumer"/>
       <plugin id="net.bluemind.network.utils"/>
       <plugin id="net.bluemind.resource.api"/>
       <plugin id="net.bluemind.role.api"/>
@@ -128,6 +136,7 @@
       <plugin id="org.apache.commons.codec"/>
       <plugin id="org.apache.commons.compress"/>
       <plugin id="org.apache.commons.lang"/>
+      <plugin id="org.apache.mina.core"/>
       <plugin id="org.apache.xerces"/>
       <plugin id="org.apache.xml.resolver"/>
       <plugin id="org.apache.xml.serializer"/>
@@ -154,6 +163,7 @@
       <plugin id="org.mnode.ical4j"/>
       <plugin id="org.mnode.ical4j.vcard"/>
       <plugin id="org.mnode.ical4j.zoneinfo-outlook"/>
+      <plugin id="org.yaml.snakeyaml"/>
       <plugin id="slf4j.api"/>
    </plugins>
 
