@@ -20,7 +20,7 @@
             description="%banner-entry.description"
             href="/webapp/mail/"
             name="%banner-entry.name"
-            order="10"
+            order="1"
             role="hasMail">
          <icon-svg>
          <![CDATA[ 

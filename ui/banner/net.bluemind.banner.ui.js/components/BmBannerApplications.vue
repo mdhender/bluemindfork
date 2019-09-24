@@ -1,5 +1,5 @@
 <template>
-    <bm-navbar-nav fill class="bm-banner-applications ">
+    <bm-navbar-nav fill class="bm-banner-applications align-items-end">
         <bm-nav-item 
             v-for="app in applications" 
             :key="app.href" 
@@ -8,11 +8,7 @@
             class="px-2"
         >
             <div class="d-inline-block">
-                <span v-if="!!app.icon.svg" v-html="app.icon.svg" />
-                <bm-icon v-else-if="!!app.icon.name" :name="app.icon.name" />
-                <img v-else-if="!!app.icon.url" :href="app.icon.url" aria-hidden="true">
-                <bm-icon v-else name="" />
-                <div class="d-inline-block align-middle">{{ app.name }}</div>
+                <bm-banner-app-icon :icon-app="app.icon" />
             </div>
             <bm-badge>{{ app.count }}</bm-badge>
         </bm-nav-item>
@@ -21,11 +17,13 @@
 
 <script>
 import { BmBadge, BmNavbarNav, BmNavItem } from "@bluemind/styleguide";
+import BmBannerAppIcon from "./BmBannerAppIcon";
 
 export default {
     name: "BmBannerApplications",
     components: {
         BmBadge,
+        BmBannerAppIcon,
         BmNavbarNav,
         BmNavItem,
     },
@@ -52,9 +50,7 @@ export default {
 }
 
 .bm-banner-applications .nav-link {
-    text-transform: uppercase;
     border-bottom: transparent solid 3px;
     color: color-yiq(theme-color("info-dark")) !important;
-    font-size: $font-size-lg;
 }
 </style>
