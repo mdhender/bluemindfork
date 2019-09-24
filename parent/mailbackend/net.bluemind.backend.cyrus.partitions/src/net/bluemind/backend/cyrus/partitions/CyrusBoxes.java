@@ -62,8 +62,7 @@ public class CyrusBoxes {
 	 * 
 	 * Returns null otherwise.
 	 * 
-	 * @param userName
-	 *                     fully qualified user name
+	 * @param userName fully qualified user name
 	 * @return a {@link ReplicatedBox}
 	 */
 	public static ReplicatedBox forLoginAtDomain(String userName) {
@@ -147,7 +146,7 @@ public class CyrusBoxes {
 				rb.folderName = afterPart.substring(dot + 1).replace('.', '/').replace('^', '.');
 			} else {
 				rb.local = afterPart;
-				rb.folderName = afterPart;
+				rb.folderName = afterPart.replace('^', '.');
 				rb.mailboxRoot = true;
 			}
 			return rb;
