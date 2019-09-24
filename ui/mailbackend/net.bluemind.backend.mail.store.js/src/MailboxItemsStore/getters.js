@@ -16,8 +16,10 @@ export function indexOf(state) {
 export function currentMessage(state) {
     if (state.current) {
         let message = new Message(state.items[state.current]);
-        message.flags.push("hasAttachment");
-        return message;
+        if (message) {
+            message.flags.push("hasAttachment");
+            return message;
+        }
     }
 }
 

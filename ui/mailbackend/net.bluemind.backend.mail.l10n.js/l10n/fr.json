@@ -9,5 +9,8 @@
     "mail.compose.forward.prev.message.info.from": "De",
     "mail.error.email.address.invalid": "Adresse de courriel invalide.",
     "mail.alert.message.sent.ok": "\"{subjectWithLink}\" a bien été envoyé !",
-    "mail.alert.message.sent.error": "\"{subject}\" n'a pu être envoyé.{br}{reason}"
+    "mail.alert.message.sent.error": "\"{subject}\" n'a pu être envoyé.{br}{reason}",
+    "mail.alert.draft.save.error": "\"{subject}\" n'a pas été sauvé.{br}{reason}",
+    "mail.alert.message.draft.delete.ok": "\"{subject}\" a bien été supprimé!",
+    "mail.alert.message.draft.delete.error": "\"{subject}\" n'a pas été supprimé.{br}{reason}"
 }

@@ -1,6 +1,7 @@
 import * as actions from "./actions.js";
 import * as getters from "./getters.js";
 import * as mutations from "./mutations.js";
+import DraftStatus from "./DraftStatus.js";
 
 const state = {
     attachments: [],
@@ -15,7 +16,11 @@ const state = {
         error: false
     },
     shouldRemoveItem: null,
-    draftMail: null
+    draft: {
+        id: null,
+        status: DraftStatus.NEW,
+        saveDate: null
+    }
 };
 
 export default {

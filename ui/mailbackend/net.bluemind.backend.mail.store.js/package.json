@@ -11,6 +11,7 @@
         "@bluemind/core.container.api": "^4.1.46209",
         "@bluemind/email": "^4.1.0",
         "@bluemind/inject": "^4.1.0",
+        "@bluemind/router": "^4.1.0",
         "lodash.findlast": "^4.6.0",
         "lodash.isequal": "^4.5.0",
         "uuid": "^3.3.2"

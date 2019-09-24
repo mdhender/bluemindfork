@@ -50,5 +50,11 @@
     "mail.alert.move.in_progress": "Moving \"{subject}\" in progress...",
     "mail.alert.move.ok": "\"{subject}\" has been moved in {icon} {folderNameWithLink} ! ",
     "mail.alert.move.error": "\"{subject}\" could not be moved in \"{folderName}\".{br}{reason}",
-    "mail.alert.create_folder.ok": "Folder \"{folderName}\" has been created."
+    "mail.alert.create_folder.ok": "Folder \"{folderName}\" has been created.",
+    "mail.draft.save.inprogress": "Saving...",
+    "mail.draft.save.date.time": "Draft saved at {time}",
+    "mail.draft.save.date": "Draft saved on {date}",
+    "mail.alert.draft.save.error": "\"{subject}\" has not been saved.{br}{reason}",
+    "mail.alert.message.draft.delete.ok": "\"{subject}\" successfuly deleted!",
+    "mail.alert.message.draft.delete.error": "\"{subject}\" has not been deleted.{br}{reason}"
 }

@@ -91,14 +91,14 @@
                 </bm-button>
             </template>
             <template #footer>
-                <mail-message-new-footer @save="save" @close="close" @send="send" />
+                <mail-message-new-footer @save="saveDraft" @delete="deleteDraft" @send="send" />
             </template>
         </bm-panel>
     </bm-form>
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapState } from "vuex";
+import { mapGetters, mapActions, mapMutations } from "vuex";
 import { OrderBy } from "@bluemind/addressbook.api";
 import { VCardInfoAdaptor } from "@bluemind/contact";
 import {
@@ -163,12 +163,12 @@ export default {
             autocompleteResults: [],
             autocompleteResultsTo: [],
             autocompleteResultsCc: [],
-            autocompleteResultsBcc: []
+            autocompleteResultsBcc: [],
+            debouncedSave: debounce(this.saveDraft, 1000)
         };
     },
     computed: {
         ...mapGetters("backend.mail/items", { lastRecipients: "getLastRecipients" }),
-        ...mapState("backend.mail/items", ["draftMail"]),
         panelTitle() {
             return this.message_.subject ? this.message_.subject : this.$t("mail.main.new");
         }
@@ -181,39 +181,34 @@ export default {
         },
         message_: {
             handler: function() {
-                this.setDraftMail(this.message_);
+                this.setDraft({ draft: this.message_ });
+                this.debouncedSave();
             },
             deep: true
-        },
-        draftMail: function() {
-            if (this.draftMail == null) {
-                this.close();
-            }
         }
+    },
+    created: function() {
+        this.setDraft({ draft: this.message_, isNew: true });
     },
     mounted: function() {
         this.$refs.to.focus();
     },
     methods: {
-        ...mapMutations("backend.mail/items", ["setDraftMail"]),
+        ...mapActions("backend.mail/items", ["saveDraft"]),
+        ...mapMutations("backend.mail/items", ["setDraft"]),
         displayPreviousMessages() {
             this.message_.content += "\n\n\n" + this.previousMessage.content;
             this.expandPreviousMessages = true;
         },
         send() {
-            this.$store.dispatch("backend.mail/items/send");
+            this.debouncedSave.cancel();
+            // send then close the composer
+            this.$store.dispatch("backend.mail/items/send").then(() => this.navigateToParent());
         },
-        close() {
-            if (this.previousMessage) {
-                let indexOfLastSlash = this.$store.state.route.path.lastIndexOf("/");
-                let newPath = this.$route.path.substring(0, indexOfLastSlash);
-                this.$router.push({ path: newPath });
-            } else {
-                this.$router.push({ path: "/mail/" });
-            }
-        },
-        save() {
-            // Not implemented yet
+        deleteDraft() {
+            this.debouncedSave.cancel();
+            // delete the draft then close the composer
+            this.$store.dispatch("backend.mail/items/deleteDraft").then(() => this.navigateToParent());
         },
         onSearch(fieldFocused, searchedPattern) {
             this.fieldFocused = fieldFocused;
@@ -252,6 +247,12 @@ export default {
             } else {
                 return this.lastRecipients;
             }
+        },
+        /** Navigate to the parent path: from a/b/c to a/b */
+        navigateToParent() {
+            const path = this.$router.history.current.path;
+            const parentPath = path.substring(0, path.lastIndexOf("/"));
+            this.$router.push(parentPath);
         }
     }
 };

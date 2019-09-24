@@ -8,10 +8,7 @@
             :mode="mode"
             @close="mode = 'default'"
         />
-        <mail-message-content
-            :message="message"
-            :parts="parts"
-        />
+        <mail-message-content v-if="message" :message="message" :parts="parts" />
         <div />
     </div>
 </template>
@@ -60,9 +57,10 @@ export default {
         showComposer() {
             const action = this.pathSuffix();
             return (
-                action == this.message.actions.REPLY ||
-                action == this.message.actions.REPLYALL ||
-                action == this.message.actions.FORWARD
+                this.message &&
+                (action == this.message.actions.REPLY ||
+                    action == this.message.actions.REPLYALL ||
+                    action == this.message.actions.FORWARD)
             );
         }
     },

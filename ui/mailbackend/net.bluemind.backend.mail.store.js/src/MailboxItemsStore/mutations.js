@@ -1,4 +1,5 @@
 import Vue from "vue";
+import DraftStatus from "./DraftStatus";
 
 export function setItems(state, items) {
     items.forEach(item => {
@@ -59,8 +60,19 @@ export function shouldRemoveItem(state, mailUid) {
     state.shouldRemoveItem = mailUid;
 }
 
-export function setDraftMail(state, draftMail) {
-    state.draftMail = draftMail;
+export function updateDraft(state, draft) {
+    Object.assign(state.draft, draft);
+}
+
+/** Update or reset the draft in the store. */
+export function setDraft(state, { draft, isNew }) {
+    const draftCopy = Object.assign({}, draft);
+    if (isNew) {
+        draftCopy.status = DraftStatus.NEW;
+        draftCopy.id = null;
+        draftCopy.saveDate = null;
+    }
+    updateDraft(state, draftCopy);
 }
 
 export function setUnreadCount(state, count) {

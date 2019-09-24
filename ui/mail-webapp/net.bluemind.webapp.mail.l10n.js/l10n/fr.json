@@ -50,5 +50,11 @@
     "mail.alert.move.in_progress": "Déplacement de \"{subject}\" en cours...",
     "mail.alert.move.ok": "\"{subject}\" a bien été déplacé dans {icon} {folderNameWithLink} ! ",
     "mail.alert.move.error": "\"{subject}\" n'a pas pu être déplacé dans \"{folderName}\".{br}{reason}",
-    "mail.alert.create_folder.ok": "Le dossier \"{folderName}\" a bien été créé."
+    "mail.alert.create_folder.ok": "Le dossier \"{folderName}\" a bien été créé.",
+    "mail.draft.save.inprogress": "Enregistrement en cours...",
+    "mail.draft.save.date.time": "Brouillon enregistré à {time}",
+    "mail.draft.save.date": "Brouillon enregistré le {date}",
+    "mail.alert.draft.save.error": "\"{subject}\" n'a pas été sauvé.{br}{reason}",
+    "mail.alert.message.draft.delete.ok": "\"{subject}\" successfuly deleted!",
+    "mail.alert.message.draft.delete.error": "\"{subject}\" has not been deleted.{br}{reason}"
 }

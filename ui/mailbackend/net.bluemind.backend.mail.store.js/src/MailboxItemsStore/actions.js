@@ -7,6 +7,7 @@ import Message from "./Message.js";
 import { getLocalizedProperty } from "@bluemind/backend.mail.l10n";
 import { ItemFlag } from "@bluemind/core.container.api";
 import { AlertTypes, Alert } from "@bluemind/alert.store";
+import DraftStatus from "./DraftStatus";
 
 export function $_mailrecord_changed({ dispatch }, { container }) {
     return dispatch("all", container);
@@ -148,7 +149,7 @@ export function fetch({ state }, { folder, id, part, isAttachment }) {
     return ServiceLocator.getProvider("MailboxItemsPersistance")
         .get(folder)
         .fetch(item.value.imapUid, part.address, encoding, part.mime, part.charset)
-        .then(function(stream) {
+        .then(function (stream) {
             part.content = stream;
             part.id = id;
             part.cid = part.contentId;
@@ -165,65 +166,49 @@ export function updateSeen({ commit, rootGetters }, { folder, id, isSeen }) {
         .then(unread => commit("setUnreadCount", unread.total));
 }
 
-export function send({ state, rootState, commit }) {
-    const draftMail = state.draftMail;
-    const previousMessage = draftMail.previousMessage;
-    const isAReply = !!previousMessage;
+/** Send the last draft: move it to the Outbox then flush. */
+export function send({ state, commit, rootState, dispatch }) {
+    const draft = state.draft;
+    let draftId = draft.id;
+    let userSession;
+    let sentbox;
 
-    const messageToSend = JSON.parse(JSON.stringify(draftMail));
-    if (previousMessage && previousMessage.content && !messageToSend.content.includes(previousMessage.content)) {
-        messageToSend.content += "\n\n\n" + previousMessage.content;
-    }
+    // ensure the last draft is up to date
+    return dispatch("saveDraft")
+        .then(newDraftId => {
+            draftId = newDraftId;
+            commit("updateDraft", { status: DraftStatus.SENDING });
 
-    const outboxUid = rootState["backend.mail/folders"].folders.find(function(folder) {
-        return folder.displayName === "Outbox";
-    }).uid;
-
-    const sentboxUid = rootState["backend.mail/folders"].folders.find(function(folder) {
-        return folder.displayName === "Sent";
-    }).uid;
-
-    if (isAReply) {
-        if (previousMessage.messageId) {
-            messageToSend.headers.push({ name: "In-Reply-To", values: [previousMessage.messageId] });
-            messageToSend.references = [previousMessage.messageId].concat(previousMessage.references);
-        } else {
-            messageToSend.references = previousMessage.references;
-        }
-    }
-
-    const userSession = injector.getProvider("UserSession").get();
-
-    if (!validate(messageToSend)) {
-        const key = "mail.error.email.address.invalid";
-        const error = new Alert({
-            code: "ALERT_CODE_MSG_ADDRESS_INVALID",
-            key,
-            message: getLocalizedProperty(userSession, key)
-        });
-        commit("alert/addAlert", error, { root: true });
-        return Promise.resolve();
-    }
-
-    sanitize(messageToSend);
-
-    const service = ServiceLocator.getProvider("MailboxItemsPersistance").get(outboxUid);
-
-    let mailId;
-    return service
-        .uploadPart(messageToSend.content)
-        .then(addrPart =>
-            service.create(
-                new Message(messageToSend).toMailboxItem(
-                    addrPart,
-                    userSession.defaultEmail,
-                    userSession.formatedName,
-                    true
-                )
-            )
-        )
-        .then(itemIdentifier => {
-            mailId = itemIdentifier.id;
+            // validation
+            userSession = injector.getProvider("UserSession").get();
+            if (!validate(draft)) {
+                throw getLocalizedProperty(userSession, "mail.error.email.address.invalid");
+            }
+            return Promise.resolve();
+        })
+        .then(() => {
+            // move draft from draftbox to outbox
+            const draftbox = rootState["backend.mail/folders"].folders.find(function (folder) {
+                return folder.displayName === "Drafts";
+            });
+            const outbox = rootState["backend.mail/folders"].folders.find(function (folder) {
+                return folder.displayName === "Outbox";
+            });
+            return ServiceLocator.getProvider("MailboxFoldersPersistance")
+                .get()
+                .importItems(outbox.internalId, {
+                    mailboxFolderId: draftbox.internalId,
+                    ids: [{ id: draftId }],
+                    expectedIds: undefined,
+                    deleteFromSource: true
+                });
+        })
+        .then(moveResult => {
+            // flush the outbox
+            if (!moveResult || moveResult.status != "SUCCESS") {
+                throw "Unable to flush the Outbox.";
+            }
+            draftId = moveResult.doneIds[0].destination;
             const outboxService = ServiceLocator.getProvider("OutboxPersistance").get();
             return outboxService.flush();
         })
@@ -235,8 +220,11 @@ export function send({ state, rootState, commit }) {
         .then(taskResult => {
             // compute and return the IMAP id of the mail inside the sentbox
             if (taskResult.result && Array.isArray(taskResult.result)) {
-                let importedMailboxItem = taskResult.result.find(r => r.source == mailId);
-                const sentboxItemsService = ServiceLocator.getProvider("MailboxItemsPersistance").get(sentboxUid);
+                let importedMailboxItem = taskResult.result.find(r => r.source == draftId);
+                sentbox = rootState["backend.mail/folders"].folders.find(function (folder) {
+                    return folder.displayName === "Sent";
+                });
+                const sentboxItemsService = ServiceLocator.getProvider("MailboxItemsPersistance").get(sentbox.uid);
                 return sentboxItemsService.getCompleteById(importedMailboxItem.destination);
             } else {
                 throw "Unable to retrieve task result";
@@ -249,24 +237,25 @@ export function send({ state, rootState, commit }) {
                 type: AlertTypes.SUCCESS,
                 code: "ALERT_CODE_MSG_SENT_OK",
                 key,
-                message: getLocalizedProperty(userSession, key, { subject: messageToSend.subject }),
+                message: getLocalizedProperty(userSession, key, { subject: draft.subject }),
                 props: {
-                    subject: messageToSend.subject,
-                    subjectLink: "/mail/" + sentboxUid + "/" + mailImapUid + "."
+                    subject: draft.subject,
+                    subjectLink: "/mail/" + sentbox.uid + "/" + mailImapUid + "."
                 }
             });
             commit("alert/addAlert", success, { root: true });
-            commit("setDraftMail", null);
+            commit("updateDraft", { status: DraftStatus.SENT, id: null, saveDate: null });
         })
         .catch(reason => {
             const key = "mail.alert.message.sent.error";
             const error = new Alert({
                 code: "ALERT_CODE_MSG_SENT_ERROR",
                 key,
-                message: getLocalizedProperty(userSession, key, { subject: messageToSend.subject, reason }),
-                props: { subject: messageToSend.subject, reason: reason.message }
+                message: getLocalizedProperty(userSession, key, { subject: draft.subject, reason: reason.message }),
+                props: { subject: draft.subject, reason: reason.message }
             });
             commit("alert/addAlert", error, { root: true });
+            commit("updateDraft", { status: DraftStatus.SENT });
         });
 }
 
@@ -358,6 +347,173 @@ export function remove(payload, { folderId, trashFolderId, mailId }) {
             ids: [{ id: mailId }],
             expectedIds: undefined,
             deleteFromSource: true
+        });
+}
+
+/**
+ * Wait until the draft is not saving or a timeout is reached.
+ * @param {*} draft the draft message
+ * @param {Number} delayTime the initial delay time between two checks
+ * @param {Number} maxTries the maximum number of checks
+ * @param {Number} iteration DO NOT SET. Only used internally for recursivity
+ */
+function waitUntilDraftNotSaving(draft, delayTime, maxTries, iteration = 1) {
+    if (draft.status == DraftStatus.SAVING) {
+        return new Promise(resolve => setTimeout(() => resolve(draft.status), delayTime))
+            .then(status => {
+                if (status != DraftStatus.SAVING) {
+                    return Promise.resolve();
+                } else {
+                    if (iteration < maxTries) {
+                        // 'smart' delay: add 250ms each retry
+                        return waitUntilDraftNotSaving(draft, delayTime + 250, maxTries, ++iteration);
+                    } else {
+                        return Promise.reject("Timeout while waiting for the draft to be saved");
+                    }
+                }
+            });
+    } else {
+        return Promise.resolve();
+    }
+}
+
+/** Save the current draft: create it into Drafts box, delete the previous one. */
+export function saveDraft({ commit, rootState, state }) {
+    const previousDraftId = state.draft.id;
+    let service;
+    let draft;
+    let userSession;
+
+    // only one saveDraft at a time
+    return waitUntilDraftNotSaving(state.draft, 250, 5)
+        .then(() => {
+            // prepare the message content and initialize services
+            commit("updateDraft", { status: DraftStatus.SAVING });
+
+            // deep clone
+            draft = JSON.parse(JSON.stringify(state.draft));
+
+            const previousMessage = draft.previousMessage;
+            const isAReply = !!previousMessage;
+
+            delete draft.id;
+            delete draft.status;
+            delete draft.saveDate;
+
+            if (previousMessage && previousMessage.content
+                && !draft.content.includes(previousMessage.content)) {
+                draft.content += "\n\n\n" + previousMessage.content;
+            }
+
+            if (isAReply) {
+                if (previousMessage.messageId) {
+                    draft.headers.push({ name: "In-Reply-To", values: [previousMessage.messageId] });
+                    draft.references = [previousMessage.messageId].concat(previousMessage.references);
+                } else {
+                    draft.references = previousMessage.references;
+                }
+            }
+
+            sanitize(draft);
+
+            const draftbox = rootState["backend.mail/folders"].folders.find(function (folder) {
+                return folder.displayName === "Drafts";
+            });
+
+            service = ServiceLocator.getProvider("MailboxItemsPersistance").get(draftbox.uid);
+            userSession = injector.getProvider("UserSession").get();
+        })
+        .then(() => {
+            // upload the parts of the draft
+            // FIXME cyrus wants \r\n, should do the replacement in the core, yes ?
+            return service.uploadPart(draft.content.replace(/\r?\n/g, "\r\n"));
+        })
+        .then(addrPart => {
+            // create the new draft in the draftbox
+            return service.create(
+                new Message(draft)
+                    .toMailboxItem(addrPart, userSession.defaultEmail, userSession.formatedName, true)
+            );
+        })
+        .then(itemIdentifier => {
+            // update the draft properties
+            commit("updateDraft", { status: DraftStatus.SAVED, saveDate: new Date(), id: itemIdentifier.id });
+            if (previousDraftId) {
+                // delete the previous draft
+                return service.deleteById(previousDraftId);
+            }
+            return Promise.resolve();
+        })
+        .then(() => {
+            // return the draft identifier
+            return draft.id;
+        })
+        .catch(reason => {
+            const key = "mail.alert.draft.save.error";
+            const error = new Alert({
+                code: "ALERT_CODE_MSG_DRAFT_SAVE_ERROR",
+                key,
+                message: getLocalizedProperty(userSession, key, { subject: draft.subject, reason }),
+                props: {
+                    subject: draft.subject,
+                    reason
+                }
+            });
+            commit("alert/addError", error, { root: true });
+            commit("updateDraft", { status: DraftStatus.SAVE_ERROR, saveDate: null });
+        });
+}
+
+/** Delete the draft (hard delete, not moved in Trash box). */
+export function deleteDraft({ commit, rootState, state }) {
+    const draft = state.draft;
+
+    if (!draft.id || draft.status == DraftStatus.DELETED) {
+        // no saved draft to delete, just close the composer
+        return Promise.resolve();
+    }
+
+    let service;
+    let userSession;
+    return new Promise(resolve => {
+        // initialize service, session and status
+        const draftbox = rootState["backend.mail/folders"].folders.find(function (folder) {
+            return folder.displayName === "Drafts";
+        });
+        service = ServiceLocator.getProvider("MailboxItemsPersistance").get(draftbox.uid);
+        userSession = injector.getProvider("UserSession").get();
+        commit("updateDraft", { status: DraftStatus.DELETING });
+        return resolve();
+    })
+        .then(() => {
+            // request a delete on core side
+            return service.deleteById(draft.id);
+        })
+        .then(() => {
+            const key = "mail.alert.message.draft.delete.ok";
+            const success = new Alert({
+                type: AlertTypes.SUCCESS,
+                code: "ALERT_CODE_MSG_DRAFT_DELETE_OK",
+                key,
+                message: getLocalizedProperty(userSession, key, { subject: draft.subject }),
+                props: { subject: draft.subject }
+            });
+            commit("alert/addSuccess", success, { root: true });
+            commit("updateDraft", { status: DraftStatus.DELETED });
+        })
+        .catch(reason => {
+            const key = "mail.alert.message.draft.delete.error";
+            const error = new Alert({
+                code: "ALERT_CODE_MSG_DRAFT_DELETE_ERROR",
+                key,
+                message: getLocalizedProperty(userSession, key, { subject: draft.subject, reason: reason }),
+                props: {
+                    subject: draft.subject,
+                    reason
+                }
+            });
+            commit("alert/addError", error, { root: true });
+            commit("updateDraft", { status: DraftStatus.DELETE_ERROR });
         });
 }
 
