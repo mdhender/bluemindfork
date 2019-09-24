@@ -420,8 +420,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		assertNull(folderItem);
 
 		folderItem = mboxesApi.getComplete(folderUid);
-		assertNotNull(folderItem);
-		assertTrue(folderItem.flags.contains(ItemFlag.Deleted));
+		assertNull(folderItem);
 
 	}
 
@@ -453,8 +452,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		assertNull(folderItem);
 
 		folderItem = mboxesApi.getComplete(folderUid);
-		assertNotNull(folderItem);
-		assertTrue(folderItem.flags.contains(ItemFlag.Deleted));
+		assertNull(folderItem);
 	}
 
 	@Test
@@ -485,8 +483,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		assertNull(folderItem);
 
 		folderItem = mboxesApi.getComplete(folderUid);
-		assertNotNull(folderItem);
-		assertTrue(folderItem.flags.contains(ItemFlag.Deleted));
+		assertNull(folderItem);
 
 	}
 
@@ -936,8 +933,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		folders.deleteById(freshFolder.internalId);
 		Thread.sleep(1000);
 		ItemValue<MailboxFolder> exists = folders.getCompleteById(freshFolder.internalId);
-		System.err.println("Got " + exists);
-		assertTrue(exists.flags.contains(ItemFlag.Deleted));
+		assertNull(exists);
 
 		// nested case
 		child = new MailboxFolder();
@@ -963,7 +959,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		folders.deleteById(subFolder.id);
 		Thread.sleep(1000);
 		ItemValue<MailboxFolder> subFound = folders.getCompleteById(subFolder.id);
-		assertTrue(subFound.flags.contains(ItemFlag.Deleted));
+		assertNull(subFound);
 	}
 
 	@Test
@@ -1961,7 +1957,9 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		assertEquals(0, reloaded.value.body.structure.nonInlineAttachments().size());
 	}
 
-	@Test
+	/**
+	 * DISABLED
+	 */
 	public void softDelete() throws InterruptedException {
 		IContainersFlatHierarchy hierarchyApi = provider().instance(IContainersFlatHierarchy.class, domainUid, userUid);
 
@@ -2016,7 +2014,9 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 
 	}
 
-	@Test
+	/**
+	 * DISABLED
+	 */
 	public void softDelete_Mailshare() throws InterruptedException {
 		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		IMailshare mailshareApi = prov.instance(IMailshare.class, domainUid);
