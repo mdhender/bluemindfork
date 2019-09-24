@@ -74,7 +74,7 @@ public class S3StoreTests {
 		ExistRequest er = new ExistRequest();
 		er.mailbox = "titi";
 		er.guid = UUID.randomUUID().toString();
-		assertFalse(store.exists(er).exist);
+		assertFalse(store.exists(er).exists);
 	}
 
 	@Test
@@ -85,7 +85,7 @@ public class S3StoreTests {
 		ExistRequest er = new ExistRequest();
 		er.mailbox = "titi";
 		er.guid = UUID.randomUUID().toString();
-		assertFalse(store.exists(er).exist);
+		assertFalse(store.exists(er).exists);
 
 		PutRequest pr = new PutRequest();
 		pr.mailbox = er.mailbox;
@@ -96,7 +96,7 @@ public class S3StoreTests {
 		SdsResponse resp = store.upload(pr);
 		assertNotNull(resp);
 
-		assertTrue(store.exists(er).exist);
+		assertTrue(store.exists(er).exists);
 	}
 
 	@Test
@@ -121,7 +121,7 @@ public class S3StoreTests {
 		ExistRequest er = new ExistRequest();
 		er.guid = dr.guid;
 		er.mailbox = dr.mailbox;
-		assertFalse(store.exists(er).exist);
+		assertFalse(store.exists(er).exists);
 
 	}
 

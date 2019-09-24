@@ -55,7 +55,7 @@ public class DummyBackingStore implements ISdsBackingStore {
 	@Override
 	public ExistResponse exists(ExistRequest exist) {
 		ExistResponse resp = new ExistResponse();
-		resp.exist = new File("/dummy-sds/", exist.guid).exists();
+		resp.exists = new File("/dummy-sds/", exist.guid).exists();
 		return resp;
 	}
 

@@ -76,11 +76,11 @@ public class SdsProxyHttpVerticle extends Verticle {
 			logger.warn("Unknown request to {} {}", req.method(), req.absoluteURI());
 			req.response().setStatusCode(400).end();
 		});
-		router.head("/sds", req -> doHead(req));
-		router.delete("/sds", req -> doDelete(req));
-		router.put("/sds", req -> doPut(req));
-		router.get("/sds", req -> doGet(req));
-		router.post("/configuration", req -> configure(req));
+		router.head("/sds", this::exist);
+		router.delete("/sds", this::delete);
+		router.put("/sds", this::put);
+		router.get("/sds", this::get);
+		router.post("/configuration", this::configure);
 
 		srv.requestHandler(router).listen(8091, result -> {
 			if (result.succeeded()) {
@@ -91,24 +91,24 @@ public class SdsProxyHttpVerticle extends Verticle {
 		});
 	}
 
-	private void configure(HttpServerRequest req) {
-		sendBody(req, SdsAddresses.CONFIG, ConfigureResponse.class, (resp, http) -> http.setStatusCode(200).end());
+	private void configure(HttpServerRequest request) {
+		sendBody(request, SdsAddresses.CONFIG, ConfigureResponse.class, (resp, http) -> http.setStatusCode(200).end());
 	}
 
-	private void doHead(HttpServerRequest req) {
-		sendBody(req, SdsAddresses.EXIST, ExistResponse.class,
-				(resp, http) -> http.setStatusCode(resp.exist ? 200 : 404).end());
+	private void exist(HttpServerRequest request) {
+		sendBody(request, SdsAddresses.EXIST, ExistResponse.class,
+				(resp, http) -> http.setStatusCode(resp.exists ? 200 : 404).end());
 	}
 
-	private void doDelete(HttpServerRequest req) {
+	private void delete(HttpServerRequest req) {
 		sendBody(req, SdsAddresses.DELETE, SdsResponse.class, (resp, http) -> http.setStatusCode(200).end());
 	}
 
-	private void doPut(HttpServerRequest req) {
+	private void put(HttpServerRequest req) {
 		sendBody(req, SdsAddresses.PUT, SdsResponse.class, (resp, http) -> http.setStatusCode(200).end());
 	}
 
-	private void doGet(HttpServerRequest req) {
+	private void get(HttpServerRequest req) {
 		sendBody(req, SdsAddresses.GET, SdsResponse.class, (resp, http) -> http.setStatusCode(200).end());
 	}
 
@@ -116,33 +116,34 @@ public class SdsProxyHttpVerticle extends Verticle {
 			BiConsumer<T, HttpServerResponse> onSuccess) {
 		long start = registry.clock().monotonicTime();
 		HttpServerRequest req = Requests.wrap(httpReq);
-		req.bodyHandler(payload -> {
-			vertx.eventBus().sendWithTimeout(address, new JsonObject(payload.toString()), 3000,
-					(AsyncResult<Message<JsonObject>> res) -> {
-						Id timerId = idFactory.name("requestTime")//
-								.withTag("method", address)//
-								.withTag("status", res.succeeded() ? "OK" : "FAILED");
-						registry.timer(timerId).record(registry.clock().monotonicTime() - start, TimeUnit.NANOSECONDS);
 
-						if (res.succeeded()) {
-							String jsonString = res.result().body().encode();
-							try {
-								T objectResp = JsMapper.get().readValue(jsonString, respClass);
-								if (objectResp.succeeded()) {
-									Requests.tag(req, "method", address);
-									onSuccess.accept(objectResp, req.response());
-								} else {
-									req.response().setStatusMessage(objectResp.error.message).setStatusCode(500).end();
-								}
-							} catch (IOException e) {
-								logger.error("Error parsing {} response ({})", address, jsonString, e);
-								req.response().setStatusCode(500).end();
-							}
+		req.bodyHandler(payload -> {
+			JsonObject json = new JsonObject(payload.toString().trim().isEmpty() ? "{}" : payload.toString());
+			vertx.eventBus().sendWithTimeout(address, json, 3000, (AsyncResult<Message<JsonObject>> res) -> {
+				Id timerId = idFactory.name("requestTime")//
+						.withTag("method", address)//
+						.withTag("status", res.succeeded() ? "OK" : "FAILED");
+				registry.timer(timerId).record(registry.clock().monotonicTime() - start, TimeUnit.NANOSECONDS);
+
+				if (res.succeeded()) {
+					String jsonString = res.result().body().encode();
+					try {
+						T objectResp = JsMapper.get().readValue(jsonString, respClass);
+						if (objectResp.succeeded()) {
+							Requests.tag(req, "method", address);
+							onSuccess.accept(objectResp, req.response());
 						} else {
-							logger.error("Call over {} failed", address, res.cause());
-							req.response().setStatusCode(500).end();
+							req.response().setStatusMessage(objectResp.error.message).setStatusCode(500).end();
 						}
-					});
+					} catch (IOException e) {
+						logger.error("Error parsing {} response ({})", address, jsonString, e);
+						req.response().setStatusCode(500).end();
+					}
+				} else {
+					logger.error("Call over {} failed", address, res.cause());
+					req.response().setStatusCode(500).end();
+				}
+			});
 		});
 
 	}

@@ -57,7 +57,7 @@ public class SdsTestStore implements ISdsBackingStore {
 	public ExistResponse exists(ExistRequest req) {
 		vertx.eventBus().publish("test.store.exists", req.guid);
 		ExistResponse er = new ExistResponse();
-		er.exist = true;
+		er.exists = true;
 		return er;
 	}
 

@@ -19,11 +19,11 @@ package net.bluemind.sds.proxy.dto;
 
 public class ExistResponse extends SdsResponse {
 
-	public boolean exist;
+	public boolean exists;
 
 	public static ExistResponse from(boolean known) {
 		ExistResponse er = new ExistResponse();
-		er.exist = known;
+		er.exists = known;
 		return er;
 	}
 

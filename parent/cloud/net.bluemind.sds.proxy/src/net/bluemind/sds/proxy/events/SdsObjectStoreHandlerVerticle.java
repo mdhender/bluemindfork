@@ -58,12 +58,12 @@ import net.bluemind.sds.proxy.store.ISdsBackingStoreFactory;
 import net.bluemind.sds.proxy.store.SdsException;
 import net.bluemind.sds.proxy.store.dummy.DummyBackingStore;
 
-public class SdsEventHandlerVerticle extends Verticle {
+public class SdsObjectStoreHandlerVerticle extends Verticle {
 
-	private static final Logger logger = LoggerFactory.getLogger(SdsEventHandlerVerticle.class);
+	private static final Logger logger = LoggerFactory.getLogger(SdsObjectStoreHandlerVerticle.class);
 	private static final Path config = new File("/etc/bm-sds-proxy/config.json").toPath();
 
-	public static class SdsEventFactory implements IVerticleFactory {
+	public static class SdsObjectStoreFactory implements IVerticleFactory {
 
 		@Override
 		public boolean isWorker() {
@@ -72,7 +72,7 @@ public class SdsEventHandlerVerticle extends Verticle {
 
 		@Override
 		public Verticle newInstance() {
-			return new SdsEventHandlerVerticle();
+			return new SdsObjectStoreHandlerVerticle();
 		}
 
 	}
@@ -81,7 +81,7 @@ public class SdsEventHandlerVerticle extends Verticle {
 	private final Map<String, ISdsBackingStoreFactory> factories;
 	private JsonObject storeConfig;
 
-	public SdsEventHandlerVerticle() {
+	public SdsObjectStoreHandlerVerticle() {
 		this.factories = loadStoreFactories();
 		this.storeConfig = loadConfig();
 		sdsStore.set(loadStore());
