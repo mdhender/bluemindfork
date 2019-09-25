@@ -282,9 +282,6 @@ public class IdentityEdit extends CommonForm implements ICommonEditor {
 	 * @param id
 	 */
 	private void setFormTemplate() {
-		// setSignatureFormat(id.);
-		// sigContent.setText(id.signature);
-		// BM-8633 do not "override" default name
 		int index = emails.getSelectedIndex();
 		IdentityDescription id = templates.get(index);
 		if (name.getText() == null || name.getText().isEmpty()) {
@@ -299,9 +296,7 @@ public class IdentityEdit extends CommonForm implements ICommonEditor {
 			sent.setText(IdentityConstants.INST.useEntitySent(id.email));
 		}
 
-		if (id.signature != null && !id.signature.trim().isEmpty()) {
-			sigContent.setText(id.signature);
-		}
+		sigContent.setText(id.signature);
 
 		sent.setVisible(true);
 	}
@@ -315,9 +310,7 @@ public class IdentityEdit extends CommonForm implements ICommonEditor {
 		displayname.setText(identity.displayname);
 		name.setText(identity.name);
 		setEmail(identity.email);
-		setFormTemplate();
 		sent.setValue(!"Sent".equals(identity.sentFolder));
-
 	}
 
 	/**

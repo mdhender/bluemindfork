@@ -132,4 +132,9 @@ public class MailIdentitiesModel extends JavaScriptObject {
 	/*-{
 	return this['identities-to-delete'];
 	}-*/;
+
+	public final native boolean isNoDefaultIdentity()
+	/*-{
+	return this['noDefaultIdentity'];
+	}-*/;
 }
