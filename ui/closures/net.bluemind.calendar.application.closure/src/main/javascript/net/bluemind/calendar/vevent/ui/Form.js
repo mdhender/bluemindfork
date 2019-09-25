@@ -482,9 +482,6 @@ net.bluemind.calendar.vevent.ui.Form.prototype.enterDocument = function() {
       this.resetError_('details');
       var fileInput = document.getElementById('localAttachmentFile');
       var file = fileInput.files[0];
-      var formData = new FormData();
-      formData.append('file', file);
-      
       var sid = goog.global['bmcSessionInfos']['sid'];
       var domain = goog.global['bmcSessionInfos']['domain'];
       var url = '/api/attachment/' + encodeURIComponent(domain) + '/' + encodeURIComponent(file.name) + '/share';
@@ -517,8 +514,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.enterDocument = function() {
           that.addAttachment(that, ret, dom);
           dom.getElement('localAttachmentFile').value = "";
       };
-      xhr.send(formData);
-      
+      xhr.send(file);
     });
    
     handler.listen(dom.getElement('bm-ui-form-add-attachment-server'), goog.events.EventType.CLICK, function() {
