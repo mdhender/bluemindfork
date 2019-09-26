@@ -153,19 +153,26 @@ public class SdsEventHandlerVerticle extends Verticle {
 			if (resp.succeeded()) {
 				optCyrusUser.ifPresent(cyrus -> {
 					optMailGroup.ifPresent(mail -> {
-						File tempFile = new File(get.filename);
+						File tempFile = tmp.toFile();
 						mkdirAndChown(tempFile, cyrus, mail);
-						try {
-							Files.move(tempFile.toPath(), Paths.get(finalPath), StandardCopyOption.REPLACE_EXISTING);
-						} catch (IOException e) {
-							logger.error(e.getMessage(), e);
-						}
+						move(tmp, Paths.get(finalPath));
 					});
 				});
+				if (!optCyrusUser.isPresent() || !optMailGroup.isPresent()) {
+					move(tmp, Paths.get(finalPath));
+				}
 			}
 			return resp;
 		});
 
+	}
+
+	private static void move(Path src, Path dest) {
+		try {
+			Files.move(src, dest, StandardCopyOption.REPLACE_EXISTING);
+		} catch (IOException e) {
+			logger.error(e.getMessage(), e);
+		}
 	}
 
 	private ConfigureResponse reConfigure(JsonObject req) {
