@@ -37,7 +37,7 @@ const websocket = {
     }
 };
 
-describe("WebSocketClient", () => {
+xdescribe("WebSocketClient", () => {
     beforeEach(() => {
         SockJS.mockImplementation(() => websocket);
     });

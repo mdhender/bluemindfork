@@ -15,7 +15,7 @@ export default {
     components: {
         BmBanner
     },
-    i18n: { messages: CommonL10N },
+    componentI18N: { messages: CommonL10N },
     data() {
         const data = {};
         data.applications = [];

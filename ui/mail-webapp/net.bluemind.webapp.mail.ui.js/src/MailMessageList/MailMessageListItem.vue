@@ -12,9 +12,7 @@
                 <bm-avatar :alt="from" />
                 <bm-check @click.native.stop />
             </bm-col>
-            <bm-col cols="8" class="text-overflow">
-                {{ from }}
-            </bm-col>
+            <bm-col cols="8" class="text-overflow">{{ from }}</bm-col>
             <bm-col v-show="!quickActionButtonsVisible" cols="3" class="mail-widgets">
                 <component :is="widget" v-for="widget in widgets" :key="widget.template" class="ml-2" />
             </bm-col>
@@ -60,8 +58,16 @@ const FLAG_COMPONENT = {
     }
 };
 
-import { BmAvatar, BmCheck, BmCol, BmIcon, BmListGroupItem, BmRow } from "@bluemind/styleguide";
+import {
+    BmAvatar,
+    BmCheck,
+    BmCol,
+    BmIcon,
+    BmListGroupItem,
+    BmRow
+} from "@bluemind/styleguide";
 import { DateTimeFormat } from "@bluemind/i18n";
+import injector from "@bluemind/inject";
 import MailMessageListItemQuickActionButtons from "./MailMessageListItemQuickActionButtons";
 
 export default {
@@ -88,15 +94,19 @@ export default {
     },
     data() {
         return {
-            quickActionButtonsVisible: false
+            quickActionButtonsVisible: false,
+            locale: injector.getProvider("UserSession").get().lang
         };
     },
     computed: {
         displayedDate: function() {
-            return DateTimeFormat.getRelativeFormat(this.message.date);
+            return DateTimeFormat.getRelativeFormat(this.message.date, this.locale);
         },
         smallerDisplayedDate: function() {
-            const dateString = DateTimeFormat.getRelativeFormat(this.message.date);
+            const dateString = DateTimeFormat.getRelativeFormat(
+                this.message.date,
+                this.locale
+            );
             return dateString.substring(dateString.indexOf(" ") + 1);
         },
         widgets() {
@@ -110,7 +120,9 @@ export default {
                 .shift();
         },
         from() {
-            return this.message.from.dn ? this.message.from.dn : this.message.from.address;
+            return this.message.from.dn
+                ? this.message.from.dn
+                : this.message.from.address;
         }
     }
 };
@@ -163,8 +175,7 @@ a.list-group-item.mail-message-list-item {
     white-space: nowrap;
 }
 
-.mail-date,
-.mail-widgets {
+.mail-date, .mail-widgets {
     text-align: right;
 }
 

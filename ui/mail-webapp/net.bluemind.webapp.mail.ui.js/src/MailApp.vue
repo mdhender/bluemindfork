@@ -63,7 +63,7 @@ export default {
         MailAlertRenderer
     },
     mixins: [MakeUniq],
-    i18n: { messages: MailAppL10N },
+    componentI18N: { messages: MailAppL10N },
     computed: {
         ...mapGetters("backend.mail/items", ["currentMessage", "messages", "indexOf"]),
         ...mapGetters("backend.mail/folders", ["currentFolderId", "trashFolderId", "currentFolder"]),

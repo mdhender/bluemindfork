@@ -31,7 +31,7 @@ export default {
         BmNavItem,
         BmNavbarToggle
     },
-    i18n: { messages: BannerL10N },
+    componentI18N: { messages: BannerL10N },
     props: {
         applications: {
             required: true,
