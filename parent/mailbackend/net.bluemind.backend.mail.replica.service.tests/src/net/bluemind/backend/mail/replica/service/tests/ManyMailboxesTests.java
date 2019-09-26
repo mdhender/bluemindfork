@@ -20,22 +20,30 @@ package net.bluemind.backend.mail.replica.service.tests;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.vertx.java.core.Handler;
+import org.vertx.java.core.eventbus.Message;
+import org.vertx.java.core.json.JsonArray;
+import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
-import net.bluemind.backend.cyrus.replication.client.SyncClient;
 import net.bluemind.backend.cyrus.replication.client.UnparsedResponse;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.imap.IMAPException;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailshare.api.IMailshare;
 import net.bluemind.mailshare.api.Mailshare;
@@ -44,22 +52,22 @@ import net.bluemind.tests.defaultdata.PopulateHelper;
 public class ManyMailboxesTests extends AbstractRollingReplicationTests {
 
 	private List<String> mailboxes;
-	private SyncClient syncClient;
 
 	/**
 	 * each user produces 6 folders
 	 */
 	public static final int TOTAL = 175;
+	public static final int SHARED_EVERY_N = 10;
 
 	@Before
 	@Override
 	public void before() throws Exception {
 		super.before();
 		int CNT = TOTAL;
-		this.mailboxes = new ArrayList<>(6 * CNT);
+		this.mailboxes = new ArrayList<>(10 * CNT);
 		for (int i = 1; i <= CNT; i++) {
 			String uid = null;
-			if (i % 20 == 0) {
+			if (i % SHARED_EVERY_N == 0) {
 				uid = "shared.junit" + Strings.padStart(Integer.toString(i), 5, '0');
 				ServerSideServiceProvider apis = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 				IMailshare sharesApi = apis.instance(IMailshare.class, domainUid);
@@ -88,13 +96,45 @@ public class ManyMailboxesTests extends AbstractRollingReplicationTests {
 		System.err.println("Registered " + mailboxes.size() + " mailboxes.");
 		System.err.println("Connecting in 2sec...");
 		Thread.sleep(2000);
-		this.syncClient = new SyncClient("127.0.0.1", 2501);
-		syncClient.connect().get(10, TimeUnit.SECONDS);
+		CountDownLatch cdl = new CountDownLatch(1);
+		VertxPlatform.eventBus().send("sc.connect", "hello", new Handler<Message<Void>>() {
+
+			@Override
+			public void handle(Message<Void> event) {
+				cdl.countDown();
+			}
+		});
+		cdl.await(10, TimeUnit.SECONDS);
+	}
+
+	private static CompletableFuture<UnparsedResponse> mailboxes(String... mboxes) {
+		CompletableFuture<UnparsedResponse> ret = new CompletableFuture<>();
+		if (mboxes.length == 0) {
+			ret.completeExceptionally(new ArrayIndexOutOfBoundsException("the mailboxes array must not be empty"));
+			return ret;
+		}
+		JsonArray js = new JsonArray();
+		Arrays.stream(mboxes).forEach(js::addString);
+		VertxPlatform.eventBus().sendWithTimeout("sc.mailboxes", new JsonObject().putArray("mboxes", js), 10000,
+				result -> {
+					if (result.succeeded()) {
+						ret.complete(new UnparsedResponse("OK", Collections.emptyList()));
+					} else {
+						ret.completeExceptionally(result.cause());
+					}
+				});
+		return ret;
 	}
 
 	@Override
 	public void after() throws Exception {
-		syncClient.disconnect().get(10, TimeUnit.SECONDS);
+		CountDownLatch cdl = new CountDownLatch(1);
+		VertxPlatform.eventBus().send("sc.disconnect", "bye", new Handler<Message<Void>>() {
+			public void handle(Message<Void> event) {
+				cdl.countDown();
+			}
+		});
+		cdl.await(10, TimeUnit.SECONDS);
 		super.after();
 	}
 
@@ -104,22 +144,22 @@ public class ManyMailboxesTests extends AbstractRollingReplicationTests {
 		String[] mboxes = mailboxes.stream().filter(v -> v.contains("shared")).toArray(String[]::new);
 		System.err.println("Starting on slice with " + mboxes.length + " item(s)");
 		long time = System.currentTimeMillis();
-		UnparsedResponse response = syncClient.getMailboxes(mboxes).get(30, TimeUnit.SECONDS);
+		UnparsedResponse response = mailboxes(mboxes).get(30, TimeUnit.SECONDS);
 		assertNotNull(response);
 		time = System.currentTimeMillis() - time;
 	}
 
 	@Test
-	public void testGet1000Mailboxes()
+	public void testGetManyMailboxes()
 			throws IMAPException, InterruptedException, ExecutionException, TimeoutException {
 		int loops = 10;
 		for (int i = 0; i < loops; i++) {
 			System.err.println("**** " + (i + 1) + " / " + loops + " ****");
-			for (List<String> slice : Lists.partition(mailboxes, 1000)) {
+			for (List<String> slice : Lists.partition(mailboxes, 100)) {
 				String[] mboxes = slice.toArray(new String[0]);
 				System.err.println("Starting on slice with " + mboxes.length + " item(s)");
 				long time = System.currentTimeMillis();
-				UnparsedResponse response = syncClient.getMailboxes(mboxes).get(30, TimeUnit.SECONDS);
+				UnparsedResponse response = mailboxes(mboxes).get(30, TimeUnit.SECONDS);
 				assertNotNull(response);
 				time = System.currentTimeMillis() - time;
 				System.err.println((i + 1) + "/ " + loops + ": Response for " + slice.size() + " in " + time + "ms.");
