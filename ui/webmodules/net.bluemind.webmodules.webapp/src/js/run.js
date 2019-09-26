@@ -26,27 +26,9 @@ extend(router, store);
 
 Vue.mixin(InheritTranslationsMixin);
 
-// For later when vue i18n bug is fixed (https://forge.bluemind.net/jira/browse/FEATWEBML-326)
-const dateTimeFormats = {
-    'fr': {
-        date: {
-            day: '2-digit', month: '2-digit', year: 'numeric'
-        },
-        time: {
-            hour: '2-digit', minute: '2-digit'
-        },
-        shortDateWithWeekday: {
-            weekday: 'short', day: '2-digit', month: '2-digit'
-        },
-        dateWithWeekday: {
-            weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric'
-        }
-    }
-};
-
 new Vue({
     el: "#app",
-    i18n: { locale: userSession.lang, fallbackLocale: 'en', dateTimeFormats },
+    i18n: { locale: userSession.lang, fallbackLocale: 'en', dateTimeFormats: getDateTimeFormats() },
     render: h => h(MainApp),
     router,
     store
@@ -71,6 +53,39 @@ function registerDependencies(userSession) {
         provide: "GlobalEventBus",
         use: VueBus
     });
+}
+
+function getDateTimeFormats() {
+    return {
+        'fr': {
+            short_date: {
+                day: '2-digit', month: '2-digit', year: 'numeric'
+            },
+            short_time: {
+                hour: '2-digit', minute: '2-digit'
+            },
+            relative_date: {
+                weekday: 'short', day: '2-digit', month: '2-digit'
+            },
+            full_date: {
+                weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric'
+            }
+        },
+        'en': {
+            short_date: {
+                day: '2-digit', month: '2-digit', year: 'numeric'
+            },
+            short_time: {
+                hour: '2-digit', minute: '2-digit'
+            },
+            relative_date: {
+                weekday: 'short', day: '2-digit', month: '2-digit'
+            },
+            full_date: {
+                weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric'
+            }
+        }
+    };
 }
 //Ajouter des data via des plugins
 //Ajouter des plugin vue via des plugins

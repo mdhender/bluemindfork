@@ -12,13 +12,12 @@
         </bm-row>
         <bm-row class="d-flex">
             <bm-col cols="8" class="d-flex">
-                <mail-message-content-from
-                    :dn="message.from.dn"
-                    :address="message.from.address"
-                />
+                <mail-message-content-from :dn="message.from.dn" :address="message.from.address" />
             </bm-col>
             <bm-col cols="4" class="align-self-center text-right">
-                {{ displayedDate }}
+                {{ $d(message.date, 'full_date') }} 
+                {{ $t("mail.content.date.at") }} 
+                {{ $d(message.date, 'short_time') }}
             </bm-col>
         </bm-row>
         <bm-row>
@@ -55,12 +54,9 @@
 </template>
 
 <script>
-import { DateTimeFormat } from "@bluemind/i18n";
 import { mapGetters, mapState } from "vuex";
-import { DateComparator } from "@bluemind/date";
 import { MimeType } from "@bluemind/email";
 import { BmCol, BmContainer, BmRow } from "@bluemind/styleguide";
-import injector from "@bluemind/inject";
 import MailMessageContentAttachmentsBlock from "./MailMessageContentAttachmentsBlock";
 import MailMessageContentBody from "./MailMessageContentBody";
 import MailMessageContentFrom from "./MailMessageContentFrom";
@@ -116,21 +112,6 @@ export default {
         },
         subject() {
             return this.message.subject || "(No subject)"; // FIXME i18n
-        },
-        displayedDate() {
-            const locale = injector.getProvider('UserSession').get().lang;
-            let displayedDate;
-            if (DateComparator.isSameDay(this.message.date, new Date())) {
-                displayedDate = DateTimeFormat.formatTime(this.message.date, locale);
-            } else {
-                displayedDate = DateTimeFormat.formatDateWithWeekday(this.message.date, locale) + 
-                    " " +
-                    this.$t("mail.content.date.at") +
-                    " " +
-                    DateTimeFormat.formatTime(this.message.date,locale);
-                
-            }
-            return displayedDate;
         }
     },
     watch: {

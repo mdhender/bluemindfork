@@ -66,8 +66,7 @@ import {
     BmListGroupItem,
     BmRow
 } from "@bluemind/styleguide";
-import { DateTimeFormat } from "@bluemind/i18n";
-import injector from "@bluemind/inject";
+import { DateComparator } from "@bluemind/date";
 import MailMessageListItemQuickActionButtons from "./MailMessageListItemQuickActionButtons";
 
 export default {
@@ -94,20 +93,22 @@ export default {
     },
     data() {
         return {
-            quickActionButtonsVisible: false,
-            locale: injector.getProvider("UserSession").get().lang
+            quickActionButtonsVisible: false
         };
     },
     computed: {
         displayedDate: function() {
-            return DateTimeFormat.getRelativeFormat(this.message.date, this.locale);
+            const today = new Date();
+            const messageDate = this.message.date;
+            if (DateComparator.isSameDay(messageDate, today)) {
+                return this.$d(messageDate, 'short_time');
+            } else if (DateComparator.isSameYear(messageDate, today)) {
+                return this.$d(messageDate, 'relative_date');
+            }
+            return this.$d(messageDate, 'short_date');
         },
         smallerDisplayedDate: function() {
-            const dateString = DateTimeFormat.getRelativeFormat(
-                this.message.date,
-                this.locale
-            );
-            return dateString.substring(dateString.indexOf(" ") + 1);
+            return this.displayedDate.substring(this.displayedDate.indexOf(" ") + 1);
         },
         widgets() {
             return this.message.flags.map(flag => FLAG_COMPONENT[flag]).filter(widget => !!widget);
