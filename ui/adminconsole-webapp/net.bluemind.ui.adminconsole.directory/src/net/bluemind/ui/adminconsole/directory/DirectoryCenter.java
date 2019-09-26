@@ -505,7 +505,7 @@ public class DirectoryCenter extends Composite implements IGwtScreenRoot, IDomai
 						res.values.add(userItem);
 					}
 				}
-				res.total = res.values.size();
+				res.total = Math.max(dirRet.total, userRet.total);
 				CompletableFuture<ListResult<ItemValue<DirEntry>>> totalRes = null;
 				if (res.total == 0) {
 					// no result, maybe we are looking for a specific dirEntry via
