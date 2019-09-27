@@ -32,11 +32,6 @@ public class ProductChecks {
 	private static final Logger logger = LoggerFactory.getLogger(ProductChecks.class);
 
 	public static void validate() {
-
-		if (checksDeactivated()) {
-			return;
-		}
-
 		List<IProductValidator> validators = loadValidators();
 
 		logger.info("Loaded {} product validators", validators.size());
@@ -49,14 +44,19 @@ public class ProductChecks {
 		}
 
 		if (failed) {
-			logger.warn("Validation checks have failed. Exiting application....");
-			System.exit(1);
+			if (dryMode()) {
+				logger.warn("Validation checks have failed....");
+			} else {
+				logger.warn("Validation checks have failed. Exiting application....");
+				System.exit(1);
+			}
 		}
 
 	}
 
-	private static boolean checksDeactivated() {
-		return (System.getProperty("bm-no-product-checks") != null || new File("/etc/bm/non.blocking.checks").exists());
+	private static boolean dryMode() {
+		return (System.getProperty("bm-non-blocking-checks") != null
+				|| new File("/etc/bm/non.blocking.checks").exists());
 	}
 
 	private static List<IProductValidator> loadValidators() {
