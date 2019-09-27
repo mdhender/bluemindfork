@@ -40,7 +40,7 @@ import net.bluemind.addressbook.ldap.adapter.LdapContact.ErrCode;
 import net.bluemind.addressbook.ldap.api.LdapParameters;
 import net.bluemind.utils.FileUtils;
 
-public class InetOrgPersonAdapterTest {
+public class InetOrgPersonAdapterTests {
 
 	@Test
 	public void testUid() throws Exception {
