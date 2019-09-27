@@ -18,6 +18,8 @@
  */
 package net.bluemind.system.validation;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -31,6 +33,10 @@ public class ProductChecks {
 	private static final Logger logger = LoggerFactory.getLogger(ProductChecks.class);
 
 	public static void validate() {
+
+		if (checksDeactivated()) {
+			return;
+		}
 
 		List<IProductValidator> validators = loadValidators();
 
@@ -48,6 +54,11 @@ public class ProductChecks {
 			System.exit(1);
 		}
 
+	}
+
+	private static boolean checksDeactivated() {
+		return (System.getProperty("bm-no-product-checks") != null
+				|| Files.exists(new File(System.getProperty("user.dir"), "bm-no-product-checks").toPath()));
 	}
 
 	private static List<IProductValidator> loadValidators() {
