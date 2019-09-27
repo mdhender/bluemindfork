@@ -37,6 +37,10 @@ public interface IProductValidator {
 			return new ValidationResult(true, message);
 		}
 
+		public static ValidationResult valid() {
+			return valid("OK");
+		}
+
 		public static ValidationResult notValid(String message) {
 			return new ValidationResult(false, message);
 		}

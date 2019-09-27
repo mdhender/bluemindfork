@@ -90,6 +90,7 @@
       <plugin id="net.bluemind.aws.s3"/>
       <plugin id="net.bluemind.aws.s3.utils"/>
       <plugin id="net.bluemind.backend.cyrus"/>
+      <plugin id="net.bluemind.backend.cyrus.integrity.check"/>
       <plugin id="net.bluemind.backend.cyrus.mailboxesdb"/>
       <plugin id="net.bluemind.backend.cyrus.partitions"/>
       <plugin id="net.bluemind.backend.cyrus.replication.link"/>
@@ -350,6 +351,7 @@
       <plugin id="net.bluemind.system.sqlschema"/>
       <plugin id="net.bluemind.system.state"/>
       <plugin id="net.bluemind.system.subscriptionprovider"/>
+      <plugin id="net.bluemind.system.validation"/>
       <plugin id="net.bluemind.system.webmail"/>
       <plugin id="net.bluemind.systemd.notify"/>
       <plugin id="net.bluemind.tag.api"/>
@@ -453,8 +455,8 @@
 
    <configurations>
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
-      <property name="osgi.configuration.area" value="/var/lib/bm-core/" />
       <property name="osgi.noShutdown" value="true" />
+      <property name="osgi.configuration.area" value="/var/lib/bm-core/" />
    </configurations>
 
    <preferencesInfo>
