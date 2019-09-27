@@ -19,7 +19,6 @@
 package net.bluemind.system.validation;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -57,8 +56,7 @@ public class ProductChecks {
 	}
 
 	private static boolean checksDeactivated() {
-		return (System.getProperty("bm-no-product-checks") != null
-				|| Files.exists(new File(System.getProperty("user.dir"), "bm-no-product-checks").toPath()));
+		return (System.getProperty("bm-no-product-checks") != null || new File("/etc/bm/non.blocking.checks").exists());
 	}
 
 	private static List<IProductValidator> loadValidators() {
