@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.addressbook.ldap.adapter
-Bundle-SymbolicName: net.bluemind.addressbook.ldap.adapter
+Bundle-SymbolicName: net.bluemind.addressbook.ldap.adapter;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.bluemind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -9,5 +9,9 @@ Require-Bundle: net.bluemind.addressbook.api,
  com.google.guava,
  net.bluemind.lib.ldap;bundle-version="4.1.0",
  net.bluemind.slf4j;bundle-version="4.1.0",
- net.bluemind.addressbook.ldap.api
-Export-Package: net.bluemind.addressbook.ldap.adapter
+ net.bluemind.addressbook.ldap.api,
+ org.eclipse.osgi,
+ net.bluemind.eclipse.common
+Export-Package: net.bluemind.addressbook.ldap.adapter,
+ net.bluemind.addressbook.ldap.adapter.enhancer
+Bundle-Activator: net.bluemind.addressbook.ldap.adapter.Activator
