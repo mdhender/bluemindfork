@@ -168,9 +168,13 @@ public class EmailManager extends CoreConnect {
 					IMailboxItems service = getMailboxItemsService(bs, sent.uid);
 					byte[] data = ByteStreams.toByteArray(is);
 					String partAddr = service.uploadPart(VertxStream.stream(new Buffer(data)));
-					MailboxItem mi = MailboxItem.of(m.getSubject(), Part.create(null, "message/rfc822", partAddr));
-					mi.systemFlags = Arrays.asList(SystemFlag.seen);
-					service.create(mi);
+					try {
+						MailboxItem mi = MailboxItem.of(m.getSubject(), Part.create(null, "message/rfc822", partAddr));
+						mi.systemFlags = Arrays.asList(SystemFlag.seen);
+						service.create(mi);
+					} finally {
+						service.removePart(partAddr);
+					}
 				}
 			}
 
