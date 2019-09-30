@@ -12,6 +12,8 @@
     "mail.actions.save.aria": "Save message being written",
     "mail.actions.send": "Send",
     "mail.actions.send.aria": "Send message being written",
+    "mail.actions.spam": "Spam",
+    "mail.actions.spam.aria": "Report this message as spam",
     "mail.list.range.older": "Older",
     "mail.list.range.this_week": "This week",
     "mail.list.range.today": "Today",

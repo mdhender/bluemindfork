@@ -20,13 +20,17 @@
             <bm-icon icon="unread" size="2x" />
             {{ $tc("mail.actions.mark_unread") }}
         </bm-button>
-        <bm-button variant="none" :aria-label="$tc('mail.actions.remove.aria')" @click="shouldRemoveItem(message.id)">
-            <bm-icon icon="trash" size="2x" />
-            {{ $tc("mail.actions.remove") }}
-        </bm-button>
         <bm-button variant="none" :aria-label="$tc('mail.toolbar.move.aria')">
             <bm-icon icon="folder" size="2x" />
             {{ $tc("mail.toolbar.move") }}
+        </bm-button>
+        <bm-button variant="none" :aria-label="$tc('mail.actions.spam.aria')">
+            <bm-icon icon="forbidden" size="2x" />
+            {{ $tc("mail.actions.spam") }}
+        </bm-button>
+        <bm-button variant="none" :aria-label="$tc('mail.actions.remove.aria')" @click="shouldRemoveItem(message.id)">
+            <bm-icon icon="trash" size="2x" />
+            {{ $tc("mail.actions.remove") }}
         </bm-button>
         <bm-button variant="none" :aria-label="$tc('mail.toolbar.more.aria')">
             <bm-icon icon="3dots" size="2x" />
