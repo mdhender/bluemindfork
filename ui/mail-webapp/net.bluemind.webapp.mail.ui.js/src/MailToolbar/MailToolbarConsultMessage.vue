@@ -1,5 +1,6 @@
 <template>
     <div class="mail-toolbar-consult-message">
+        <global-events @keydown.tab.capture="forceCloseMoveAutocomplete" />
         <bm-button
             v-if="message.states.includes('not-seen')"
             variant="none"
@@ -24,7 +25,6 @@
             class="h-100 move-message"
             @shown="openMoveAutocomplete"
             @hide="closeMoveAutocomplete"
-            @keydown.tab.capture="forceCloseMoveAutocomplete"
         >
             <template slot="button-content" variant="none" :aria-label="$tc('mail.toolbar.move.aria')">
                 <bm-icon icon="folder" size="2x" /> {{ $tc("mail.toolbar.move") }}
@@ -62,6 +62,7 @@
 <script>
 import { BmAutocomplete, BmButton, BmDropdown, BmIcon }  from "@bluemind/styleguide";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
+import GlobalEvents from 'vue-global-events';
 import MailFolderIcon from "../MailFolderIcon";
 
 export default {
@@ -71,6 +72,7 @@ export default {
         BmButton,
         BmDropdown,
         BmIcon,
+        GlobalEvents,
         MailFolderIcon
     },
     data() {
@@ -117,8 +119,8 @@ export default {
             return (folder.name.toLowerCase().includes(input.toLowerCase())) && (folder.uid !== this.currentFolder);
         },
         selectFolder(item) {
-            const mailId = this.message.ids.id;
-            const index = this.messages.findIndex(message => mailId === message.ids.id);
+            const mailId = this.message.id;
+            const index = this.messages.findIndex(message => mailId === message.id);
 
             this.move({ item, mailId, index, newFolderPattern: this.newFolderPattern });
 
@@ -128,9 +130,9 @@ export default {
                 if (this.count === 0) {
                     this.$router.push('/mail/' + this.currentFolder + '/');
                 } else if (this.count === index) {
-                    this.$router.push('/mail/' + this.currentFolder + '/' + this.messages[index - 1].uid);
+                    this.$router.push('/mail/' + this.currentFolder + '/' + this.messages[index - 1].id);
                 } else {
-                    this.$router.push('/mail/' + this.currentFolder + '/' + this.messages[index].uid);
+                    this.$router.push('/mail/' + this.currentFolder + '/' + this.messages[index].id);
                 }
             }
         },
@@ -141,9 +143,7 @@ export default {
             this.searchFolderPattern = "";
             this.matchingFolders = undefined;
         },
-        // FIXME tab event not captured..
         forceCloseMoveAutocomplete() {
-            console.log("me there");
             this.$refs['move-dropdown'].hide(true);
             this.closeMoveAutocomplete();
         }
