@@ -18,5 +18,6 @@
     "common.search.error": "La recherche n'a pu aboutir.",
     "common.check.connection": "Vérifiez votre connexion internet et réessayez dans quelques instants.",
     "common.alert.remove.ok": "\"{subject}\" a bien été supprimé.",
-    "common.alert.remove.error": "\"{subject}\" n'a pas pu être supprimé.{br}{reason}"
+    "common.alert.remove.error": "\"{subject}\" n'a pas pu être supprimé.{br}{reason}",
+    "common.or": "ou"
 }

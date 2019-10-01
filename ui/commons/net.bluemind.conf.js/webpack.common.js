@@ -31,6 +31,10 @@ module.exports = {
                 loader: 'svg-inline-loader'
             },
             {
+                test: /\.png$/,
+                loader: 'url-loader'
+            },
+            {
                 test: /\.js$/,
                 loader: "babel-loader",
                 include: [path.resolve(__dirname, "./src")]

@@ -1,71 +1,52 @@
 <template>
-    <div class="mail-message-starter mt-5 text-center font-size-lg">
-        <div class="m-auto d-block position-relative">
-            <svg
-                version="1.1"
-                xmlns="http://www.w3.org/2000/svg"
-                width="100%"
-                height="100%"
-                viewBox="0 0 174 200"
-                class="hexagon position-relative"
-            >
-                <polygon points="87,0 174,50 174,150 87,200 0,150 0,50 87,0" />
-            </svg>
-            <div class="mail-message-starter-content position-absolute">
-                <h1>
-                    <bm-icon icon="emoticon" class="mb-3" size="lg" /> <br />
-                    <i18n path="mail.message.starter" tag="span">
-                        <br place="cr" />
-                    </i18n>
+    <div class="mail-message-starter h-100">
+        <div class="d-flex flex-column justify-content-center h-100 text-center w-100">
+            <div class="d-flex flex-grow-1 flex-shrink-0 flex-column justify-space-evenly">
+                <h1 class="">
+                    {{ $t("mail.message.starter") }}
                 </h1>
-                <hr class="my-4" />
-                <div>
-                    {{ $t("mail.message.starter.write") }} <br />
-                    <bm-button :to="{ path: 'new' }" variant="primary">
-                        <bm-label-icon icon="plus">{{ $t("mail.main.new") }}</bm-label-icon>
-                    </bm-button>
-                </div>
-                <div>
-                    {{ $t("mail.message.starter.display") }}<br />
-                    <bm-button
-                        variant="secondary"
-                        :to="{ path: '/mail/' + folder + '/' + firstUnreadMessage }"
-                        :disabled="!firstUnreadMessage"
-                    >
-                        <bm-label-icon icon="unread">
-                            {{ $t("mail.message.starter.display.unread_message") }}
-                        </bm-label-icon>
-                    </bm-button>
-                </div>
-                <div>
-                    {{ $t("mail.message.starter.display") }} <br />
-                    <bm-button :to="{ path: '/mail/' + getDraftUid() }" variant="secondary">
-                        <bm-label-icon icon="pencil">
-                            {{ $t("mail.message.starter.display.drafts") }}
-                        </bm-label-icon>
-                    </bm-button>
+                <h1 class=" ">{{ $t("common.or") }}</h1>
+            </div>
+            <div class="flex-grow-1 flex-shrink-0 overflow-hidden d-flex flex-column align-items-center">
+                <div class="bg-white py-3 d-table ">
+                    <div class="d-table-cell px-4">
+                        <div class="pb-2">{{ $t("mail.message.starter.write") }}</div>
+                        <bm-button :to="{ path: 'new' }" variant="primary">
+                            <bm-label-icon icon="plus"> {{ $t("mail.main.new") }} </bm-label-icon>
+                        </bm-button>
+                    </div>
+                    <div class="d-table-cell px-4">
+                        <div class="pb-2">{{ $t("mail.message.starter.display") }}</div>
+                        <bm-button :to="{ path: '/mail/' + getDraftUid() }" variant="secondary">
+                            <bm-label-icon icon="pencil"> 
+                                {{ $t("mail.message.starter.display.drafts") }} 
+                            </bm-label-icon>
+                        </bm-button>
+                    </div>
                 </div>
             </div>
+            <div
+                class="w-100 flex-shrink-1" 
+                :style="'flex-basis: 321px;background: url(' +emptyMessageIllustration +') no-repeat center top'"
+            />
         </div>
-        <svg height="30" width="120" class="mt-4" v-html="logo" />
-        <!-- <img src="images/logo-bluemind.png" class="mt-4"> -->
     </div>
 </template>
 
 <script>
-import { BmButton, BmIcon, BmLabelIcon, BmLogo } from "@bluemind/styleguide";
+import { BmButton, BmLabelIcon } from "@bluemind/styleguide";
 import { mapGetters } from "vuex";
+import emptyMessageIllustration from "../assets/home-page.png";
 
 export default {
     name: "MailMessageStarter",
     components: {
         BmButton,
-        BmIcon,
         BmLabelIcon
     },
     data() {
         return {
-            logo: BmLogo
+            emptyMessageIllustration
         };
     },
     computed: {
@@ -100,26 +81,20 @@ export default {
     font-size: $font-size-lg;
 }
 
-.mail-message-starter .mail-message-starter-content > div {
-    margin-bottom: map-get($spacers, 4);
-    line-height: 2;
-}
-
 .mail-message-starter h1 {
     color: $info-dark;
+    font-size: 2rem;
 }
 
 .mail-message-starter svg.hexagon polygon {
     fill: $surface-bg;
 }
 
-.mail-message-starter .mail-message-starter-content {
-    top: 3em;
-    left: 4em;
-    width: 27em;
+.mail-message-starter .flex-grow-3{
+    flex-grow: 3;
 }
 
-.mail-message-starter > div {
-    width: 35em;
+.mail-message-starter .justify-space-evenly{
+    justify-content: space-evenly;
 }
 </style>

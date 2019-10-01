@@ -17,7 +17,8 @@
         "@bluemind/webapp.mail.ui.vuejs": "^4.1.0"
     },
     "devDependencies": {
-        "@bluemind/conf": "^4.1.0"
+        "@bluemind/conf": "^4.1.0",
+        "url-loader": "^2.1.0"
     },
     "scripts": {
         "build": "webpack --env production --progress --profile --colors",
