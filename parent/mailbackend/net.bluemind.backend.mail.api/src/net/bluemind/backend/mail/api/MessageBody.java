@@ -105,11 +105,7 @@ public class MessageBody {
 		public byte[] content;
 
 		public static Part create(String file, String mime, String addr) {
-			Part p = new Part();
-			p.mime = mime;
-			p.fileName = file;
-			p.address = addr;
-			return p;
+			return create(file, mime, addr, 0);
 		}
 
 		public static Part create(String file, String mime, String addr, int size) {

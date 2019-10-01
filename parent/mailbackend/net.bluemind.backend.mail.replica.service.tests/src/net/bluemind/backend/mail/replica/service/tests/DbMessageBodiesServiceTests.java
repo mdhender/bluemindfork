@@ -102,6 +102,20 @@ public class DbMessageBodiesServiceTests extends AbstractMessageBodiesServiceTes
 		mboxes.delete(uid);
 	}
 
+	@Test
+	public void storeFromStreamBM15245() {
+		IDbMessageBodies mboxes = getService(SecurityContext.SYSTEM);
+		assertNotNull(mboxes);
+		ReadStream<InputStreamWrapper> emlReadStream = openResource("data/BM-15245.eml");
+		Stream bmStream = VertxStream.stream(emlReadStream);
+		String uid = CyrusGUID.randomGuid();
+		mboxes.create(uid, bmStream);
+
+		MessageBody loaded = mboxes.getComplete(uid);
+		assertNotNull(loaded);
+		mboxes.delete(uid);
+	}
+
 	protected IDbMessageBodies getService(SecurityContext ctx) {
 		return ServerSideServiceProvider.getProvider(ctx).instance(IDbMessageBodies.class, partition);
 	}
