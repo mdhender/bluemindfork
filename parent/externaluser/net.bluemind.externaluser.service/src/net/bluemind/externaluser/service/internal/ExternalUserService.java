@@ -87,7 +87,7 @@ public class ExternalUserService implements IInCoreExternalUser {
 
 		sanitizer.create(externalUser);
 		sanitizer.create(new DirDomainValue<>(domainUid, uid, externalUser));
-		validator.validate(externalUser, domainUid, bmContext);
+		validator.validate(externalUser, uid, domainUid, bmContext);
 
 		storeService.createWithExtId(uid, extId, externalUser);
 		eventProducer.changed(uid, storeService.getVersion());
@@ -102,7 +102,7 @@ public class ExternalUserService implements IInCoreExternalUser {
 
 		sanitizer.update(previous, eu);
 		sanitizer.update(new DirDomainValue<>(domainUid, uid, previous), new DirDomainValue<>(domainUid, uid, eu));
-		validator.validate(eu, domainUid, bmContext);
+		validator.validate(eu, uid, domainUid, bmContext);
 
 		storeService.update(uid, eu);
 		eventProducer.changed(uid, storeService.getVersion());
