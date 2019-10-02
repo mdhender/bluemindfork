@@ -69,6 +69,7 @@ export default [
                 meta: {
                     $actions: {
                         folder(store, value) {
+                            store.commit("backend.mail/items/setCurrent", null);
                             store.commit("backend.mail/items/setSearchPattern", null);
                             store.commit("backend.mail/items/setSearchLoading", null);
                             return store.dispatch("backend.mail/items/all", value).then(() => {

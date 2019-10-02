@@ -63,9 +63,9 @@ export default {
     mixins: [MakeUniq],
     componentI18N: { messages: MailAppL10N },
     computed: {
-        ...mapGetters("backend.mail/items", ["currentMessage", "messages", "indexOf"]),
+        ...mapGetters("backend.mail/items", ["currentMessage", "messages", "indexOf", "count"]),
         ...mapGetters("backend.mail/folders", ["currentFolderId", "trashFolderId", "currentFolder"]),
-        ...mapState("backend.mail/items", ["shouldRemoveItem", "count", "current"]),
+        ...mapState("backend.mail/items", ["shouldRemoveItem", "current"]),
         ...mapState("alert", ["alerts"])
     },
     watch: {
@@ -76,43 +76,40 @@ export default {
                 const subject = message.subject;
                 const mailId = message.id;
 
-                this.$store
-                    .dispatch("backend.mail/items/remove", {
-                        folderId: this.currentFolderId,
-                        trashFolderId: this.trashFolderId,
-                        mailId
-                    })
-                    .then(() => {
-                        if (this.current !== null) {
-                            if (this.count === 1) {
-                                this.$router.push("/mail/" + this.currentFolder + "/");
-                            } else if (this.count === index + 1) {
-                                this.$router.push("/mail/" + this.currentFolder + "/" + this.messages[index - 1].id);
-                            } else {
-                                this.$router.push("/mail/" + this.currentFolder + "/" + this.messages[index + 1].id);
-                            }
+                this.$store.dispatch("backend.mail/items/remove", {
+                    folderId: this.currentFolderId,
+                    trashFolderId: this.trashFolderId,
+                    mailId
+                }).then(() => {
+                    if (this.current !== null) {
+                        if (this.count === 1) {
+                            this.$router.push("/mail/" + this.currentFolder + "/");
+                        } else if (this.count === index + 1) {
+                            this.$router.push("/mail/" + this.currentFolder + "/" + this.messages[index - 1].id);
+                        } else {
+                            this.$router.push("/mail/" + this.currentFolder + "/" + this.messages[index + 1].id);
                         }
-                        this.remove(index);
-                        const key = "common.alert.remove.ok";
-                        const success = new Alert({
-                            type: AlertTypes.SUCCESS,
-                            code: "ALERT_CODE_MSG_REMOVED_OK",
-                            key,
-                            message: this.$t(key, { subject }),
-                            props: { subject }
-                        });
-                        this.addAlert(success);
-                    })
-                    .catch(reason => {
-                        const key = "common.alert.remove.error";
-                        const error = new Alert({
-                            code: "ALERT_CODE_MSG_REMOVED_ERROR",
-                            key,
-                            message: this.$t(key, { subject, reason }),
-                            props: { subject, reason }
-                        });
-                        this.addAlert(error);
+                    }
+                    this.remove(index);
+                    const key = "common.alert.remove.ok";
+                    const success = new Alert({
+                        type: AlertTypes.SUCCESS,
+                        code: "ALERT_CODE_MSG_REMOVED_OK",
+                        key,
+                        message: this.$t(key, { subject }),
+                        props: { subject }
                     });
+                    this.addAlert(success);
+                }).catch(reason => {
+                    const key = "common.alert.remove.error";
+                    const error = new Alert({
+                        code: "ALERT_CODE_MSG_REMOVED_ERROR",
+                        key,
+                        message: this.$t(key, { subject, reason }),
+                        props: { subject, reason }
+                    });
+                    this.addAlert(error);
+                });
             }
         }
     },

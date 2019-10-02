@@ -1,5 +1,4 @@
 export function addAlert(state, alert) {
-    console.log("me there");
     state.alerts.push(alert);
 }
 

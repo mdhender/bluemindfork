@@ -46,5 +46,9 @@
     "mail.alert.message.sent.ok": "\"{subjectWithLink}\" successfuly sent !",
     "mail.alert.message.sent.error": "\"{subject}\" has not been sent.{br}{reason}",
     "mail.error.email.address.invalid": "Invalid email address.",
-    "mail.folder.new": "New folder"
+    "mail.folder.new": "New folder",
+    "mail.alert.move.in_progress": "Moving \"{subject}\" in progress...",
+    "mail.alert.move.ok": "\"{subject}\" has been moved in {icon} {folderNameWithLink} ! ",
+    "mail.alert.move.error": "\"{subject}\" could not be moved in \"{folderName}\".{br}{reason}",
+    "mail.alert.create_folder.ok": "Folder \"{folderName}\" has been created."
 }

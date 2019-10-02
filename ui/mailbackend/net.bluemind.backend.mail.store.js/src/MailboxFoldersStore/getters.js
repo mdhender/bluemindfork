@@ -26,10 +26,16 @@ export function currentFolder(state) {
 
 export function currentFolderId(state) {
     const folder = state.folders.find(folder => folder.uid === state.settings.current);
-    return folder && folder.internalId;
+    if (folder) {
+        return folder.internalId;
+    }
+    return null;
 }
 
 export function trashFolderId(state) {
-    const folder = state.folders.find(folder => folder.uid === state.settings.current);
-    return folder && folder.internalId;
+    const trashFolder = state.folders.find(folderItem => folderItem.value.fullName === "Trash");
+    if (trashFolder) {
+        return trashFolder.internalId;
+    }
+    return null;
 }

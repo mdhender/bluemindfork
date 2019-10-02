@@ -23,10 +23,12 @@
             ref="move-dropdown"
             :no-caret="true"
             class="h-100 move-message"
+            :disabled="disableMove"
+            variant="none"
             @shown="openMoveAutocomplete"
             @hide="closeMoveAutocomplete"
         >
-            <template slot="button-content" variant="none" :aria-label="$tc('mail.toolbar.move.aria')">
+            <template slot="button-content" :aria-label="$tc('mail.toolbar.move.aria')">
                 <bm-icon icon="folder" size="2x" /> {{ $tc("mail.toolbar.move") }}
             </template>
             <bm-autocomplete 
@@ -61,7 +63,7 @@
 
 <script>
 import { BmAutocomplete, BmButton, BmDropdown, BmIcon }  from "@bluemind/styleguide";
-import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
+import { mapActions, mapGetters, mapMutations } from "vuex";
 import GlobalEvents from 'vue-global-events';
 import MailFolderIcon from "../MailFolderIcon";
 
@@ -80,16 +82,16 @@ export default {
             maxFoldersProposed: 5, // FIXME ?
             matchingFolders: undefined,
             searchFolderPattern: "",
-            newFolderPattern: " (" + this.$t("mail.folder.new") +")"
+            newFolderPattern: " (" + this.$t("mail.folder.new") +")",
+            disableMove: false
         };
     },
     computed: {
-        ...mapGetters("backend.mail/items", { message: "currentMessage", messages: "messages" }),
+        ...mapGetters("backend.mail/items", { message: "currentMessage", messages: "messages", count: "count" }),
         ...mapGetters("backend.mail/folders", ["flat", "currentFolder"] ),
-        ...mapState("backend.mail/items", ["count"]),
         defaultFolders() {
-            return this.flat.filter(
-                folder => (folder.name === "INBOX" || folder.name === "Trash") && folder.uid !== this.currentFolder
+            return this.flat.filter(folder => 
+                (folder.name === "INBOX" || folder.name === "Trash") && folder.uid !== this.currentFolder
             );
         }
     },
@@ -105,7 +107,7 @@ export default {
                         this.matchingFolders.push(folder);
                     }
                 });
-                this.matchingFolders = this.matchingFolders.slice(0, this.maxFoldersProposed);
+                this.matchingFolders.splice(this.maxFoldersProposed, this.matchingFolders.length);
                 this.matchingFolders.push({ 
                     type: "create-folder",
                     name: input + this.newFolderPattern,
@@ -119,22 +121,24 @@ export default {
             return (folder.name.toLowerCase().includes(input.toLowerCase())) && (folder.uid !== this.currentFolder);
         },
         selectFolder(item) {
-            const mailId = this.message.id;
-            const index = this.messages.findIndex(message => mailId === message.id);
+            this.disableMove = true;
+            const messageId = this.message.id;
+            const messageSubject = this.message.subject;
+            const index = this.messages.findIndex(message => message.id === messageId);
 
-            this.move({ item, mailId, index, newFolderPattern: this.newFolderPattern });
-
-            // Be careful : remove item mutation is synchronous in move action.
-            //    --> item must be considered as already deleted here
             if (this.current !== null) {
-                if (this.count === 0) {
+                if (this.count === 1) {
                     this.$router.push('/mail/' + this.currentFolder + '/');
-                } else if (this.count === index) {
+                } else if (this.count === index + 1) {
                     this.$router.push('/mail/' + this.currentFolder + '/' + this.messages[index - 1].id);
                 } else {
-                    this.$router.push('/mail/' + this.currentFolder + '/' + this.messages[index].id);
+                    this.$router.push('/mail/' + this.currentFolder + '/' + this.messages[index + 1].id);
                 }
             }
+
+            this.move({ item, messageId, messageSubject, index, newFolderPattern: this.newFolderPattern })
+                .finally(() => this.disableMove = false);
+            this.$refs['move-dropdown'].hide(true);
         },
         openMoveAutocomplete() {
             this.$nextTick(() => this.$refs["moveAutocomplete"].focus());

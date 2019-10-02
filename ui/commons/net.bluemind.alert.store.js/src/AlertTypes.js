@@ -18,6 +18,7 @@
 
 /** Alert types. */
 export default Object.freeze({
-    SUCCESS: "success",
-    ERROR: "error"
+    SUCCESS: Symbol("success"),
+    LOADING: Symbol("loading"),
+    ERROR: Symbol("error")
 });

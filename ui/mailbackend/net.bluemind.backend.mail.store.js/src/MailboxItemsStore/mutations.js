@@ -50,6 +50,9 @@ export function setSearchError(state, hasError) {
 export function remove(state, index) {
     const id = state.sortedIds.splice(index, 1);
     Vue.delete(state.items, id);
+    if (state.current === id || state.sortedIds.length === 0) {
+        state.current = null;
+    }
 }
 
 export function shouldRemoveItem(state, mailUid) {

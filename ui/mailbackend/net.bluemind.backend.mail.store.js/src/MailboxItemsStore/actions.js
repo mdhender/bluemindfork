@@ -263,11 +263,8 @@ export function send({ state, rootState, commit }) {
             const error = new Alert({
                 code: "ALERT_CODE_MSG_SENT_ERROR",
                 key,
-                message: getLocalizedProperty(userSession, key, { subject: messageToSend.subject, reason: reason }),
-                props: {
-                    subject: messageToSend.subject,
-                    reason
-                }
+                message: getLocalizedProperty(userSession, key, { subject: messageToSend.subject, reason }),
+                props: { subject: messageToSend.subject, reason: reason.message }
             });
             commit("alert/addAlert", error, { root: true });
         });
@@ -364,35 +361,81 @@ export function remove(payload, { folderId, trashFolderId, mailId }) {
         });
 }
 
-export function move({ commit, dispatch, rootGetters }, { item, mailId, index, newFolderPattern }) {
+export function move({ commit, dispatch, rootGetters }, { item, messageId, messageSubject, index, newFolderPattern }) {
     const currentFolderId = rootGetters["backend.mail/folders/currentFolderId"];
     const service = ServiceLocator.getProvider("MailboxFoldersPersistance").get();
-    let promise = undefined;
+    let promise;
+    let destinationFolderUid = item.uid;
+    const uidMoveInProgress = uuid();
+    const moveInProgress = new Alert({
+        uid: uidMoveInProgress,
+        code: "ALERT_CODE_MSG_MOVED_IN_PROGRESS",
+        key: "mail.alert.move.in_progress",
+        type: AlertTypes.LOADING,
+        props: { subject: "mySubject" }
+    });
 
     if (item.type && item.type === "create-folder") {
         item.name = item.name.replace(newFolderPattern, '');
         promise = dispatch("backend.mail/folders/create", item, { root: true })
-            .then((itemIdentifier) => service.importItems(itemIdentifier.id, {
-                mailboxFolderId: currentFolderId,
-                ids: [{ id: mailId }],
-                expectedIds: undefined,
-                deleteFromSource: true
-            }));
+            .then((itemIdentifier) => { 
+                destinationFolderUid = itemIdentifier.uid;
+                commit("alert/addAlert", 
+                    new Alert({
+                        type: AlertTypes.SUCCESS,
+                        code: "ALERT_CODE_CREATE_FOLDER_OK",
+                        key: "mail.alert.create_folder.ok",
+                        props: { folderName: item.name }
+                    }), 
+                    { root: true }
+                );
+                commit("alert/addAlert", moveInProgress, { root: true });
+                service.importItems(itemIdentifier.id, {
+                    mailboxFolderId: currentFolderId,
+                    ids: [{ id: messageId }],
+                    expectedIds: undefined,
+                    deleteFromSource: true
+                });
+            });
     } else {
+        commit("alert/addAlert", moveInProgress, { root: true });
         promise = service.importItems(item.id, {
             mailboxFolderId: currentFolderId,
-            ids: [{ id: mailId }],
+            ids: [{ id: messageId }],
             expectedIds: undefined,
             deleteFromSource: true
         });
     }
 
-    commit("remove", index);
-
     promise.then(() => {
-        console.log("message moved successfully"); // REMOVE ME when alerts are set
-    }).catch(() => 
-        console.error("failed moving the message...") // REMOVE ME when alerts are set
-    );
+        commit("remove", index);
+        commit("alert/addAlert", 
+            new Alert({
+                type: AlertTypes.SUCCESS,
+                code: "ALERT_CODE_MSG_MOVE_OK",
+                key: "mail.alert.move.ok",
+                props: { 
+                    subject: messageSubject,
+                    folder: item,
+                    folderNameLink: '/mail/' + destinationFolderUid + '/'
+                }
+            }), 
+            { root: true }
+        );
+    }).catch(error => 
+        commit("alert/addAlert", 
+            new Alert({
+                type: AlertTypes.ERROR,
+                code: "ALERT_CODE_MSG_MOVE_ERROR",
+                key: "mail.alert.move.error",
+                props: { 
+                    subject: messageSubject,
+                    folderName: item.name,
+                    reason: error.message
+                }
+            }), 
+            { root: true })
+    ).finally(() => commit("alert/removeAlert", uidMoveInProgress, { root: true }));
+    
     return promise;
 }
