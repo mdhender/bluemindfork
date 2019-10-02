@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,9 +84,13 @@ public class LdapAddressBookSyncJob implements IScheduledJob {
 				.instance(IContainers.class);
 
 		BmContext context = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
-		ContainersSyncStore store = new ContainersSyncStore(context.getDataSource());
-		List<String> uids = ContainersSyncStore
-				.doOrFail(() -> store.list(IAddressBookUids.TYPE, from.getTime().getTime(), MAX, "baseDn"));
+
+		List<String> uids = context.getAllMailboxDataSource().stream().flatMap(dataSource -> {
+			ContainersSyncStore store = new ContainersSyncStore(dataSource);
+			return ContainersSyncStore
+					.doOrFail(() -> store.list(IAddressBookUids.TYPE, from.getTime().getTime(), MAX, "baseDn"))
+					.stream();
+		}).collect(Collectors.toList());
 
 		if (uids.size() > 0) {
 			double total = 100d / uids.size();
