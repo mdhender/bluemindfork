@@ -21,6 +21,8 @@ package net.bluemind.core.container.sync.tests;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -43,10 +45,11 @@ public class SyncableContainerTests {
 		c.type = "dummy";
 
 		SyncableContainer sc = new SyncableContainer(ctx);
-
-		ContainerSyncResult ret = sc.sync(c, "token", new NullTaskMonitor());
+		Map<String, String> synctTokens = new HashMap<>();
+		synctTokens.put("Tata", "Suzanne");
+		ContainerSyncResult ret = sc.sync(c, synctTokens, new NullTaskMonitor());
 		assertEquals(42L, ret.status.nextSync.longValue());
-		assertEquals("token", ret.status.syncToken);
+		assertEquals("Suzanne", ret.status.syncTokens.get("Tata"));
 		assertEquals(3, ret.added);
 		assertEquals(4, ret.removed);
 		assertEquals(5, ret.updated);

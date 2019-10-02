@@ -9,5 +9,6 @@ Require-Bundle: net.bluemind.core.commons,
  net.bluemind.core.rest,
  net.bluemind.eclipse.common,
  net.bluemind.core.container.persistance;bundle-version="4.1.0",
- net.bluemind.core.task.service
+ net.bluemind.core.task.service,
+ net.bluemind.slf4j;bundle-version="4.1.0"
 Export-Package: net.bluemind.core.container.sync

@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -63,8 +64,10 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.container.model.SortDescriptor;
 import net.bluemind.core.container.model.acl.Verb;
+import net.bluemind.core.container.persistance.ContainerSettingsStore;
 import net.bluemind.core.container.persistance.ContainerStore;
 import net.bluemind.core.container.persistance.ContainerSyncStore;
+import net.bluemind.core.container.persistance.DataSourceRouter;
 import net.bluemind.core.container.service.ChangeLogUtil;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
@@ -84,6 +87,9 @@ import net.bluemind.lib.vertx.VertxPlatform;
 public class CalendarService implements ICalendar {
 
 	private static final Logger logger = LoggerFactory.getLogger(CalendarService.class);
+
+	/** When this limit is reached, sync on demand stops. */
+	public static final int SYNC_ERRORS_LIMIT = 4;
 
 	private VEventContainerStoreService storeService;
 	private VEventIndexStore indexStore;
@@ -121,10 +127,29 @@ public class CalendarService implements ICalendar {
 		EventBus eventBus = VertxPlatform.eventBus();
 		calendarEventProducer = new CalendarEventProducer(auditor, container, context.getSecurityContext(), eventBus);
 
+		final String origin = context.getSecurityContext().getOrigin();
+		final boolean isRemote = this.isRemoteCalendar(context, container);
+		calendarEventProducer.serviceAccessed(container.uid, origin, isRemote);
+
 		extSanitizer = new Sanitizer(context);
 		extValidator = new Validator(context);
 		validator = new VEventValidator();
 		rbacManager = RBACManager.forContext(context).forContainer(container);
+	}
+
+	private boolean isRemoteCalendar(final BmContext context, final Container container) {
+		final ContainerSettingsStore containerSettingsStore = new ContainerSettingsStore(
+				DataSourceRouter.get(context, container.uid), container);
+		Map<String, String> settings;
+		try {
+			settings = containerSettingsStore.getSettings();
+			if (settings != null && settings.containsKey("icsUrl")) {
+				return true;
+			}
+		} catch (SQLException e) {
+			throw new ServerFault(e);
+		}
+		return false;
 	}
 
 	@Override
@@ -731,6 +756,14 @@ public class CalendarService implements ICalendar {
 		indexStore.refresh();
 
 		calendarEventProducer.changed();
+	}
+
+	@Override
+	public boolean isAutoSyncActivated() throws ServerFault {
+		final ContainerSyncStore containerSyncStore = new ContainerSyncStore(
+				DataSourceRouter.get(context, container.uid), container);
+		final ContainerSyncStatus containerSyncStatus = containerSyncStore.getSyncStatus();
+		return containerSyncStatus != null ? containerSyncStatus.errors < SYNC_ERRORS_LIMIT : true;
 	}
 
 }

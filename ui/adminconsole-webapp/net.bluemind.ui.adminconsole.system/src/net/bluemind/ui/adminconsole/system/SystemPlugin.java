@@ -32,6 +32,7 @@ import net.bluemind.ui.adminconsole.system.domains.edit.DomainSettingsModelHandl
 import net.bluemind.ui.adminconsole.system.domains.edit.EditDomainScreen;
 import net.bluemind.ui.adminconsole.system.domains.edit.ServersModelHandler;
 import net.bluemind.ui.adminconsole.system.domains.edit.bmservices.EditDomainBmServicesEditor;
+import net.bluemind.ui.adminconsole.system.domains.edit.extcal.EditExternalCalendarsEditor;
 import net.bluemind.ui.adminconsole.system.domains.edit.filters.EditDomainFiltersEditor;
 import net.bluemind.ui.adminconsole.system.domains.edit.filters.FiltersModelHandler;
 import net.bluemind.ui.adminconsole.system.domains.edit.general.DomainMaxBasicAccountEditor;
@@ -123,6 +124,9 @@ public class SystemPlugin {
 
 		// MailflowRules
 		EditMailflowRulesEditor.registerType();
+
+		// External calendars
+		EditExternalCalendarsEditor.registerType();
 
 		MenuContributor.exportAsfunction("NetBluemindUiAdminconsoleSystemContributor",
 				MenuContributor.create(new SystemMenusContributor()));

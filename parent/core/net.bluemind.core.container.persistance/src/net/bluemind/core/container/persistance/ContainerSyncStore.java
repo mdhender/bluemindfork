@@ -22,7 +22,9 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
 import java.util.Objects;
 
 import javax.sql.DataSource;
@@ -59,15 +61,15 @@ public class ContainerSyncStore extends JdbcAbstractStore {
 	public void setSyncStatus(final ContainerSyncStatus syncStatus) throws ServerFault {
 		try {
 
-			insert("INSERT INTO t_container_sync (container_id, sync_token, next_sync, last_sync) VALUES (?,?,?, NOW()) "
-					+ "ON CONFLICT (container_id) DO UPDATE SET sync_token = ?, next_sync = ?, last_sync = NOW()  ",
+			insert("INSERT INTO t_container_sync (container_id, sync_tokens, next_sync, last_sync, errors) VALUES (?,?,?, NOW(), ?) "
+					+ "ON CONFLICT (container_id) DO UPDATE SET sync_tokens = ?, next_sync = ?, last_sync = NOW(), errors = ?  ",
 					null, (con, statement, index, currentRow, value) -> {
 						statement.setLong(index++, container.id);
 
-						if (syncStatus != null) {
-							statement.setString(index++, syncStatus.syncToken);
+						if (syncStatus.syncTokens != null) {
+							statement.setObject(index++, syncStatus.syncTokens);
 						} else {
-							statement.setNull(index++, Types.VARCHAR);
+							statement.setObject(index++, Collections.EMPTY_MAP);
 						}
 
 						if (syncStatus.nextSync != null) {
@@ -76,16 +78,28 @@ public class ContainerSyncStore extends JdbcAbstractStore {
 							statement.setNull(index++, Types.TIMESTAMP);
 						}
 
-						if (syncStatus.syncToken != null) {
-							statement.setString(index++, syncStatus.syncToken);
+						if (syncStatus.errors != null) {
+							statement.setInt(index++, syncStatus.errors);
 						} else {
-							statement.setString(index++, "");
+							statement.setNull(index++, Types.INTEGER);
+						}
+
+						if (syncStatus.syncTokens != null) {
+							statement.setObject(index++, syncStatus.syncTokens);
+						} else {
+							statement.setObject(index++, Collections.EMPTY_MAP);
 						}
 
 						if (syncStatus.nextSync != null) {
 							statement.setTimestamp(index++, new Timestamp(syncStatus.nextSync));
 						} else {
 							statement.setNull(index++, Types.TIMESTAMP);
+						}
+
+						if (syncStatus.errors != null) {
+							statement.setInt(index++, syncStatus.errors);
+						} else {
+							statement.setNull(index++, Types.INTEGER);
 						}
 
 						return index;
@@ -116,11 +130,12 @@ public class ContainerSyncStore extends JdbcAbstractStore {
 
 	public ContainerSyncStatus getSyncStatus() throws ServerFault {
 		try {
+			@SuppressWarnings("unchecked")
 			ContainerSyncStatus status = unique(
-					"SELECT sync_token, next_sync, last_sync FROM t_container_sync WHERE container_id = ?",
+					"SELECT sync_tokens, next_sync, last_sync, errors FROM t_container_sync WHERE container_id = ?",
 					(Creator<ContainerSyncStatus>) con -> new ContainerSyncStatus(),
 					Arrays.<EntityPopulator<ContainerSyncStatus>>asList((rs, index, value) -> {
-						value.syncToken = rs.getString(index++);
+						value.syncTokens = (Map<String, String>) rs.getObject(index++);
 						Timestamp ts = rs.getTimestamp(index++);
 						if (ts != null) {
 							value.nextSync = ts.getTime();
@@ -130,6 +145,9 @@ public class ContainerSyncStore extends JdbcAbstractStore {
 						if (ts != null) {
 							value.lastSync = new Date(ts.getTime());
 						}
+						
+						value.errors = rs.getInt(index++);
+						
 						return index;
 					}), new Object[] { container.id });
 

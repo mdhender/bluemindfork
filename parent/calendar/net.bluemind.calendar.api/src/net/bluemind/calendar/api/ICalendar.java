@@ -44,43 +44,76 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.SortDescriptor;
 import net.bluemind.core.task.api.TaskRef;
 
+/** Calendar operations. */
 @BMApi(version = "3")
 @Path("/calendars/{containerUid}")
 public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSeries>, ICountingSupport, ISortingSupport,
 		IDataShardSupport {
 
 	/**
-	 * Creates a {@link VEvent}
+	 * Creates a {@link VEvent}.
 	 * 
 	 * @param uid
+	 *            the unique identifier for the new event
 	 * @param event
+	 *            the {@link VEventSeries} to store
 	 * @param sendNotifications
-	 * @throws ServerFault
+	 *            if <code>true</code> then notify this event creation on the
+	 *            events bus
 	 */
 	@PUT
 	@Path("{uid}")
 	public void create(@PathParam(value = "uid") String uid, VEventSeries event,
 			@QueryParam(value = "sendNotifications") Boolean sendNotifications) throws ServerFault;
 
+	/**
+	 * Update the event identified by the given <i>item identifier</i>.
+	 * 
+	 * @param id
+	 *            the <i>item identifier</i> of the {@link VEventSeries}
+	 * @param value
+	 *            the new value to set
+	 * @return the acknowledgement object with the new version of the updated
+	 *         item
+	 */
 	@POST
 	@Path("id/{id}")
 	Ack updateById(@PathParam("id") long id, VEventSeries value);
 
+	/**
+	 * Delete the event identified by the given <i>item identifier</i>.
+	 * 
+	 * @param the
+	 *            <i>item identifier</i> of the {@link VEventSeries}
+	 */
 	@DELETE
 	@Path("id/{id}")
 	void deleteById(@PathParam("id") long id);
 
+	/**
+	 * Creates a {@link VEventSeries}.
+	 * 
+	 * @param id
+	 *            the <i>item identifier</i> of the {@link VEventSeries}
+	 * @param event
+	 *            the {@link VEventSeries} to store
+	 * @return the acknowledgement object with the new version of the updated
+	 *         item
+	 */
 	@PUT
 	@Path("id/{id}")
 	public Ack createById(@PathParam(value = "id") long id, VEventSeries event) throws ServerFault;
 
 	/**
-	 * Updates a {@link VEvent}
+	 * Updates a {@link VEventSeries}.
 	 * 
 	 * @param uid
+	 *            the unique identifier of the event
 	 * @param event
+	 *            the {@link VEventSeries} to update
 	 * @param sendNotifications
-	 * @throws ServerFault
+	 *            if <code>true</code> then notify this event creation on the
+	 *            events bus
 	 */
 	@POST
 	@Path("{uid}")
@@ -88,47 +121,61 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 			@QueryParam(value = "sendNotifications") Boolean sendNotifications) throws ServerFault;
 
 	/**
-	 * Returns a {@link VEvent}
+	 * Returns the {@link VEventSeries} identified by the given unique
+	 * identifier.
 	 * 
 	 * @param uid
-	 * @return if successful, this method return a {@link VEvent}
-	 * @throws ServerFault
+	 *            the unique identifier of the event
+	 * @return a {@link VEventSeries} if successful
 	 */
 	@GET
 	@Path("{uid}/complete")
 	public ItemValue<VEventSeries> getComplete(@PathParam(value = "uid") String uid) throws ServerFault;
 
 	/**
-	 * Returns {@link VEventSeries}
+	 * Returns all {@link VEventSeries} matching the given ICS unique
+	 * identifier.
 	 * 
-	 * @param uid {@link VEventSeries#icsUid}
-	 * @return if successful, this method return a {@link VEvent}
-	 * @throws ServerFault
+	 * @param uid
+	 *            the ICS unique identifier
+	 * @return the list of matching {@link VEventSeries}
 	 */
 	@GET
 	@Path("_icsuid/{uid}")
 	public List<ItemValue<VEventSeries>> getByIcsUid(@PathParam(value = "uid") String uid) throws ServerFault;
 
+	/**
+	 * Retrieve the {@link VEventSeries} identified by the given identifier.
+	 * 
+	 * @param id
+	 *            the identifier of the event
+	 * @return a {@link VEventSeries} if successfulSortDescriptor
+	 */
 	@GET
 	@Path("{id}/completeById")
 	ItemValue<VEventSeries> getCompleteById(@PathParam("id") long id);
 
 	/**
-	 * Fetch multiple {@link VEvent}s from theirs uniques uids
+	 * Fetch multiple {@link VEventSeries} identified by the given unique
+	 * identifiers.
 	 * 
 	 * @param uids
-	 * @return {@link List<ItemValue<VEvent>>}
-	 * @throws ServerFault
+	 *            the list of unique identifiers
+	 * @return all matching {@link VEventSeries}
 	 */
 	@POST
 	@Path("_mget")
 	public List<ItemValue<VEventSeries>> multipleGet(List<String> uids) throws ServerFault;
 
 	/**
-	 * Deletes a {@link VEvent}
+	 * Deletes the {@link VEventSeries} identified by the given unique
+	 * identifier.
 	 * 
 	 * @param uid
+	 *            the unique identifier of the event
 	 * @param sendNotifications
+	 *            if <code>true</code> then notify this event deletion on the
+	 *            events bus
 	 * @throws ServerFault
 	 */
 	@DELETE
@@ -137,10 +184,10 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 			@QueryParam(value = "sendNotifications") Boolean sendNotifications) throws ServerFault;
 
 	/**
-	 * Touch an {@link VEvent}
+	 * Touch a {@link VEvent}.
 	 * 
 	 * @param uid
-	 * @throws ServerFault
+	 *            the unique identifier of the event
 	 */
 	@POST
 	@Path("{uid}/_touch")
@@ -151,72 +198,95 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	 * <code>containerUid</code>.
 	 * 
 	 * @param changes
-	 * @throws ServerFault
+	 *            the changes to apply
 	 */
 	@PUT
 	@Path("_mupdates")
 	public ContainerUpdatesResult updates(VEventChanges changes) throws ServerFault;
 
 	/**
-	 * Returns a {@link ListResult} of {@link ItemValue} of {@link VEvent}
+	 * Search for events matching the given query.
 	 * 
 	 * @param query
-	 * @return
-	 * @throws ServerFault
+	 *            the {@link VEventQuery} to match against
+	 * @return the matching {@link VEventSeries}
 	 */
 	@POST
 	@Path("_search")
 	public ListResult<ItemValue<VEventSeries>> search(VEventQuery query) throws ServerFault;
 
 	/**
-	 * CLIENT_WIN style
+	 * Apply the given changes and return the differences since the given time.
+	 * CLIENT_WIN style.
 	 * 
 	 * @param since
+	 *            the time from wich compare changes
 	 * @param changes
-	 * @return
-	 * @throws ServerFault
+	 *            the changes to apply
+	 * @return the {@link ContainerChangeset} of the difSortDescriptorferences
 	 */
 	@PUT
 	@Path("_sync")
 	public ContainerChangeset<String> sync(@QueryParam("since") Long since, VEventChanges changes) throws ServerFault;
 
 	/**
-	 * @return
-	 * @throws ServerFault
+	 * List all the events of this calendar.
+	 * 
+	 * @return all the {@link VEventSeries}
 	 */
 	@GET
 	@Path("_list")
 	public ListResult<ItemValue<VEventSeries>> list() throws ServerFault;
 
 	/**
+	 * Retrieve {@link Reminder}s matching the given {@link BmDateTime}.
 	 * 
-	 * Retrieve reminders (events with alarm)
-	 * 
-	 * @throws ServerFault
+	 * @param dtalarm
+	 *            the {@link BmDateTime} to match
+	 * @return the matching {@link Reminder}s
 	 */
 	@POST
 	@Path("_remimder")
 	public List<Reminder> getReminder(BmDateTime dtalarm) throws ServerFault;
 
 	/**
-	 * @throws ServerFault
+	 * Remove all events from this calendar.
+	 * 
+	 * @return the reference to this asynchronous operation
 	 */
 	@POST
 	@Path("_reset")
 	public TaskRef reset() throws ServerFault;
 
 	/**
-	 * Returns all the items uid from the container
+	 * Returns all the items uid from the container.
 	 * 
-	 * @return
-	 * @throws ServerFault
+	 * @return all the items uid from the container.
 	 */
 	@GET
 	@Path("_all")
 	List<String> all() throws ServerFault;
 
+	/**
+	 * Sort the events item identifiers in function of the given
+	 * {@link SortDescriptor}.
+	 * 
+	 * @param the
+	 *            sort directive
+	 * @return the sorted event items identifiers
+	 */
 	@POST
 	@Path("_sorted")
 	public List<Long> sortedIds(SortDescriptor sorted) throws ServerFault;
+
+	/**
+	 * Check the automatic synchronization is activated for this calendar.
+	 * 
+	 * @return <code>true</code> if this calendar is automatically synchronized,
+	 *         <code>false</code> otherwise
+	 */
+	@GET
+	@Path("_isAutoSyncActivated")
+	public boolean isAutoSyncActivated() throws ServerFault;
 
 }

@@ -44,4 +44,7 @@ public interface ExternalCalendarConstants extends Messages {
 
 	public String reminders();
 
+	public String syncDeactivated();
+
+	public String syncDeactivatedToolTip();
 }

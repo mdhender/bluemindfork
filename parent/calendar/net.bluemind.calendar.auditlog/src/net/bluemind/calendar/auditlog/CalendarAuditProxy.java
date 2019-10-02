@@ -212,4 +212,9 @@ public class CalendarAuditProxy implements ICalendar {
 				.audit(() -> calendar.multipleDeleteById(ids));
 	}
 
+	@Override
+	public boolean isAutoSyncActivated() throws ServerFault {
+		return auditor.action("isAutoSyncActivated").readOnly().audit(() -> calendar.isAutoSyncActivated());
+	}
+
 }

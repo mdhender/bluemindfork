@@ -128,7 +128,7 @@ public class VEventService implements IVEvent {
 	}
 
 	private Stream emptyCalendar() {
-		String cal = "BEGIN:VCALENDAR\r\n" + "PRODID:-//Bluemind//Bluemind Calendar//FR\r\n" + "VERSION:2.0\r\n"
+		String cal = "BEGIN:VCALENDAR\r\n" + "PRODID:-//BlueMind//BlueMind Calendar//FR\r\n" + "VERSION:2.0\r\n"
 				+ "CALSCALE:GREGORIAN\r\n" + "END:VCALENDAR\r\n";
 		return GenericStream.simpleValue(cal, (s) -> s.getBytes());
 	}

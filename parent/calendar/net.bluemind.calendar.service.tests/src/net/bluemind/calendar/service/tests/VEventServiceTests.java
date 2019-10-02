@@ -426,7 +426,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 
 		System.out.println(export);
 		assertTrue(export.contains("BEGIN:VCALENDAR"));
-		assertTrue(export.contains("PRODID:-//Bluemind//Bluemind Calendar//FR"));
+		assertTrue(export.contains("PRODID:-//BlueMind//BlueMind Calendar//FR"));
 		assertTrue(export.contains("VERSION:2.0"));
 		assertTrue(export.contains("CALSCALE:GREGORIAN"));
 		assertTrue(export.contains("END:VCALENDAR"));

@@ -18,6 +18,8 @@
   */
 package net.bluemind.core.container.sync.tests;
 
+import java.util.Map;
+
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerSyncResult;
@@ -39,11 +41,11 @@ public class DummySyncContainer implements ISyncableContainer {
 	}
 
 	@Override
-	public ContainerSyncResult sync(String syncToken, IServerTaskMonitor monitor) throws ServerFault {
+	public ContainerSyncResult sync(Map<String, String> syncTokens, IServerTaskMonitor monitor) throws ServerFault {
 		ContainerSyncResult ret = new ContainerSyncResult();
 		ret.status = new ContainerSyncStatus();
 		ret.status.nextSync = 42L;
-		ret.status.syncToken = "token";
+		ret.status.syncTokens.put("Tata", "Suzanne");
 		ret.added = 3;
 		ret.removed = 4;
 		ret.updated = 5;

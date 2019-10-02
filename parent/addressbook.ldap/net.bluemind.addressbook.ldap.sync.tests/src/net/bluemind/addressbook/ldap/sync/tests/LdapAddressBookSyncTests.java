@@ -145,7 +145,7 @@ public class LdapAddressBookSyncTests {
 		assertEquals(0, res.removed);
 		Long ns = res.status.nextSync;
 		assertTrue(ns > 0);
-		assertNotNull(res.status.syncToken);
+		assertNotNull(res.status.syncTokens);
 
 		IAddressBook abService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IAddressBook.class, abUid);

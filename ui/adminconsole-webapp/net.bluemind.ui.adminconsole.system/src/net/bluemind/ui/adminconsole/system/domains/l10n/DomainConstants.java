@@ -228,4 +228,23 @@ public interface DomainConstants extends Messages {
 	String sendDateIsBeforeRule();
 
 	String sendDateIsAfterRule();
+
+	String externalCalendars();
+
+	String minDelay();
+
+	String hour();
+
+	String hours();
+
+	String minute();
+
+	String minutes();
+
+	String minDelayWarning();
+
+	String minDelayMinutes();
+
+	String other();
+
 }

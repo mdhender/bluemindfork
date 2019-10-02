@@ -19,6 +19,7 @@
 package net.bluemind.core.container.sync;
 
 import java.util.List;
+import java.util.Map;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
@@ -37,17 +38,17 @@ public class SyncableContainer {
 		this.context = context;
 	}
 
-	public ContainerSyncResult sync(Container container, String syncToken, IServerTaskMonitor monitor)
+	public ContainerSyncResult sync(Container container, Map<String, String> syncTokens, IServerTaskMonitor monitor)
 			throws ServerFault {
 		if (container == null) {
 			return null;
 		}
 
 		ContainerSyncResult ret = null;
-		for (ISyncableContainerFactory sanitizer : impl) {
-			if (container.type.equals(sanitizer.support())) {
+		for (ISyncableContainerFactory syncContainersFactory : impl) {
+			if (container.type.equals(syncContainersFactory.support())) {
 				// FIXME more than one impl ?
-				ret = sanitizer.create(context, container).sync(syncToken, monitor);
+				ret = syncContainersFactory.create(context, container).sync(syncTokens, monitor);
 			}
 		}
 		return ret;

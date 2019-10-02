@@ -19,6 +19,7 @@ package net.bluemind.addressbook.ldap.sync;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -72,12 +73,14 @@ public class LdapAddressBookContainerSync implements ISyncableContainer {
 
 	private class SyncData {
 		public long timestamp;
-		public String syncToken;
+		public Map<String, String> syncTokens;
 		public List<LdapContact> contacts;
 		public Set<String> ldapUids;
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(LdapAddressBookContainerSync.class);
+
+	private static final String SYNC_TOKEN_MODIFY_TIMESTAMP = "modify-timestamp";
 
 	private BmContext context;
 	private Container container;
@@ -88,7 +91,7 @@ public class LdapAddressBookContainerSync implements ISyncableContainer {
 	}
 
 	@Override
-	public ContainerSyncResult sync(String syncToken, IServerTaskMonitor monitor) throws ServerFault {
+	public ContainerSyncResult sync(Map<String, String> syncTokens, IServerTaskMonitor monitor) throws ServerFault {
 		monitor.begin(2, null);
 		try {
 			DataSource ds = DataSourceRouter.get(context, container.uid);
@@ -109,7 +112,8 @@ public class LdapAddressBookContainerSync implements ISyncableContainer {
 				LdapParameters lp = LdapParameters.create(type, settings.get("hostname"), settings.get("protocol"),
 						"true".equals(settings.get("allCertificate")), settings.get("baseDn"), settings.get("loginDn"),
 						settings.get("loginPw"), settings.get("filter"), settings.get("entryUUID"));
-				ContainerSyncResult ret = sync(syncToken, lp, monitor.subWork(1));
+				final String modifyTimestampString = syncTokens.get(SYNC_TOKEN_MODIFY_TIMESTAMP);
+				ContainerSyncResult ret = sync(modifyTimestampString, lp, monitor.subWork(1));
 				return ret;
 			}
 
@@ -126,7 +130,7 @@ public class LdapAddressBookContainerSync implements ISyncableContainer {
 		ContainerSyncResult ret = new ContainerSyncResult();
 		ret.status = new ContainerSyncStatus();
 		ret.status.nextSync = data.timestamp + 3600000;
-		ret.status.syncToken = data.syncToken;
+		ret.status.syncTokens = data.syncTokens;
 
 		VCardChanges changes = new VCardChanges();
 		changes.add = new ArrayList<VCardChanges.ItemAdd>();
@@ -172,7 +176,7 @@ public class LdapAddressBookContainerSync implements ISyncableContainer {
 		return ret;
 	}
 
-	private ContainerSyncResult sync(String syncToken, LdapParameters lp, IServerTaskMonitor monitor) {
+	private ContainerSyncResult sync(String modifyTimestampString, LdapParameters lp, IServerTaskMonitor monitor) {
 
 		ContainerSyncResult ret = new ContainerSyncResult();
 		ret.status = new ContainerSyncStatus();
@@ -181,14 +185,17 @@ public class LdapAddressBookContainerSync implements ISyncableContainer {
 		sd.timestamp = System.currentTimeMillis();
 		sd.contacts = new ArrayList<LdapContact>();
 		sd.ldapUids = new HashSet<String>();
-		sd.syncToken = syncToken;
-		if (Strings.isNullOrEmpty(sd.syncToken)) {
-			sd.syncToken = "19700101000000.0Z";
+		if (Strings.isNullOrEmpty(modifyTimestampString)) {
+			modifyTimestampString = "19700101000000.0Z";
 		}
+		if(sd.syncTokens == null) {
+			sd.syncTokens = new HashMap<>();
+		}
+		sd.syncTokens.put(SYNC_TOKEN_MODIFY_TIMESTAMP, modifyTimestampString);
 
 		try (LdapConProxy con = LdapHelper.connectLdap(lp)) {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss'.0Z'");
-			long modifyTimestamp = sdf.parse(sd.syncToken).getTime();
+			long modifyTimestamp = sdf.parse(modifyTimestampString).getTime();
 			PagedResults pagedSearchControl = new PagedResultsDecorator(con.getCodecService());
 
 			// Fetch all ldap uids
@@ -224,7 +231,8 @@ public class LdapAddressBookContainerSync implements ISyncableContainer {
 
 				searchRequest = new SearchRequestImpl();
 				searchRequest.setBase(new Dn(lp.baseDn));
-				searchRequest.setFilter("(&" + lp.filter + "(" + lp.modifyTimeStampAttr + ">=" + sd.syncToken + "))");
+				searchRequest.setFilter(
+						"(&" + lp.filter + "(" + lp.modifyTimeStampAttr + ">=" + modifyTimestampString + "))");
 				searchRequest.setScope(SearchScope.SUBTREE);
 				searchRequest.addAttributes("*", lp.modifyTimeStampAttr, lp.entryUUID);
 				searchRequest.setDerefAliases(AliasDerefMode.NEVER_DEREF_ALIASES);
@@ -268,7 +276,7 @@ public class LdapAddressBookContainerSync implements ISyncableContainer {
 				ContainerSyncResult syncRes = updateAddressbook(sd, monitor);
 				ret.status.syncStatus = status;
 				ret.status.nextSync = sd.timestamp + 3600000;
-				ret.status.syncToken = sdf.format(modifyTimestamp);
+				ret.status.syncTokens.put(SYNC_TOKEN_MODIFY_TIMESTAMP, sdf.format(modifyTimestamp));
 				ret.added += syncRes.added;
 				ret.removed += syncRes.removed;
 				ret.updated += syncRes.updated;
