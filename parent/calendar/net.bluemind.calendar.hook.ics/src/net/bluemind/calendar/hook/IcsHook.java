@@ -18,11 +18,7 @@
  */
 package net.bluemind.calendar.hook;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.URL;
-import java.security.SecureRandom;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,10 +35,6 @@ import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.address.Mailbox;
 import org.apache.james.mime4j.dom.address.MailboxList;
@@ -53,7 +45,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Sets;
 
 import freemarker.template.TemplateException;
-import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
@@ -62,6 +53,7 @@ import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
 import net.bluemind.calendar.helper.mail.CalendarMail.CalendarMailBuilder;
 import net.bluemind.calendar.helper.mail.CalendarMailHelper;
 import net.bluemind.calendar.helper.mail.EventAttachment;
+import net.bluemind.calendar.helper.mail.EventAttachmentHelper;
 import net.bluemind.calendar.helper.mail.Messages;
 import net.bluemind.calendar.hook.internal.VEventMessage;
 import net.bluemind.common.freemarker.FreeMarkerMsg;
@@ -88,14 +80,12 @@ import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.Organizer;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 import net.bluemind.icalendar.api.ICalendarElement.Role;
-import net.bluemind.icalendar.parser.Mime;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.IUserSettings;
 import net.bluemind.user.api.User;
-import net.bluemind.utils.Trust;
 import net.fortuna.ical4j.model.property.Method;
 
 /**
@@ -719,8 +709,18 @@ public class IcsHook implements ICalendarHook {
 					settings = userSettingsService.get(user.uid);
 				}
 
-				List<EventAttachment> attachments = handleAttachments(event);
-				if (!hasBinaryAttachments(attachments)) {
+				long maxMsgBytes = 10485760L;
+				if (!event.attachments.isEmpty()) {
+					SystemConf systemConf = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+							.instance(ISystemConfiguration.class).getValues();
+					maxMsgBytes = systemConf.convertedValue(SysConfKeys.message_size_limit.name(),
+							val -> Long.parseLong(val), 10485760L);
+
+				}
+				// attachment size ~= 60% message
+				long maxAttachBytes = maxMsgBytes * 6 / 10;
+				List<EventAttachment> attachments = EventAttachmentHelper.getAttachments(event, maxAttachBytes);
+				if (!EventAttachmentHelper.hasBinaryAttachments(attachments)) {
 					data.put("attachments", attachments);
 				}
 
@@ -742,64 +742,6 @@ public class IcsHook implements ICalendarHook {
 			logger.error(e.getMessage(), e);
 		}
 
-	}
-
-	private boolean hasBinaryAttachments(List<EventAttachment> attachments) {
-		return !attachments.isEmpty() && attachments.get(0).isBinaryAttachment();
-	}
-
-	private List<EventAttachment> handleAttachments(VEvent event) {
-		long maxBytes = 10000l;
-		long bytesRead = 0;
-		if (!event.attachments.isEmpty()) {
-			SystemConf systemConf = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-					.instance(ISystemConfiguration.class).getValues();
-			maxBytes = systemConf.convertedValue(SysConfKeys.message_size_limit.name(), val -> Long.parseLong(val),
-					10000l);
-		}
-		List<EventAttachment> attachments = new ArrayList<>();
-		try {
-			List<EventAttachment> binaryParts = new ArrayList<>(event.attachments.size());
-			for (AttachedFile att : event.attachments) {
-				try {
-					byte[] attachmentAsBytes = loadAttachment(att, bytesRead, maxBytes);
-					bytesRead += attachmentAsBytes.length;
-					BodyPart binaryPart = new CalendarMailHelper().createBinaryPart(attachmentAsBytes);
-					binaryParts
-							.add(new EventAttachment(att.publicUrl, att.name, Mime.getMimeType(att.name), binaryPart));
-				} catch (IOException e) {
-					logger.warn("Cannot read event attachment from url {}", att.publicUrl, e);
-				}
-			}
-			attachments.addAll(binaryParts);
-		} catch (FileSizeExceededException fee) {
-			attachments.addAll(event.attachments.stream()
-					.map(att -> new EventAttachment(att.publicUrl, att.name, Mime.getMimeType(att.name)))
-					.collect(Collectors.toList()));
-		}
-		return attachments;
-	}
-
-	private byte[] loadAttachment(AttachedFile attachment, long read, long maxBytes) throws IOException {
-		try {
-			SSLContext sc = SSLContext.getInstance("SSL");
-			sc.init(null, new TrustManager[] { Trust.createTrustManager() }, new SecureRandom());
-			HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-		} catch (Exception e) {
-		}
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		try (BufferedInputStream in = new BufferedInputStream(new URL(attachment.publicUrl).openStream())) {
-			byte dataBuffer[] = new byte[8192];
-			int bytesRead = 0;
-			while ((bytesRead = in.read(dataBuffer, 0, 8192)) != -1) {
-				read += bytesRead;
-				if (read > maxBytes) {
-					throw new FileSizeExceededException();
-				}
-				baos.write(dataBuffer, 0, bytesRead);
-			}
-		}
-		return baos.toByteArray();
 	}
 
 	private static Map<String, String> getSenderSettings(VEventMessage message, DirEntry fromDirEntry)
@@ -1261,10 +1203,6 @@ public class IcsHook implements ICalendarHook {
 			return new MailData(organizer, subject, body, from, data, senderSettings);
 		}
 
-	}
-
-	@SuppressWarnings("serial")
-	public static class FileSizeExceededException extends RuntimeException {
 	}
 
 }
