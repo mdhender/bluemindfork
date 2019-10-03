@@ -6,6 +6,9 @@
       <endpoint
             api="net.bluemind.authentication.api.IAuthentication">
       </endpoint>
+      <endpoint
+            api="net.bluemind.authentication.api.ISecurityToken">
+      </endpoint>
    </extension>
    <extension
          point="net.bluemind.core.rest.serviceFactory">
@@ -14,6 +17,9 @@
       </serviceFactory>
       <serviceFactory
             class="net.bluemind.authentication.service.InCoreAuthenticationFactory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.authentication.service.SecurityTokenService$Factory">
       </serviceFactory>
    </extension>
    <extension
@@ -33,6 +39,19 @@
       <hook
             impl="net.bluemind.authentication.service.internal.AuthContextUserHook">
       </hook>
+   </extension>
+   <extension
+         point="net.bluemind.core.sessions.provider">
+      <provider
+            impl="net.bluemind.authentication.service.TokenSessionProvider"
+            priority="42">
+      </provider>
+   </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.authentication.service.tokens.TokenExpireVerticle$Factory">
+      </verticle>
    </extension>
 
 </plugin>

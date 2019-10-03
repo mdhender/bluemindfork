@@ -1,5 +1,6 @@
 package net.bluemind.core.sessions;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -126,7 +127,17 @@ public class Sessions implements BundleActivator {
 			return SecurityContext.SYSTEM;
 		}
 
-		return sessions.getIfPresent(key);
+		return Optional.ofNullable(sessions.getIfPresent(key)).orElseGet(() -> {
+			for (ISessionsProvider sp : SessionProviders.get()) {
+				SecurityContext fromProv = sp.get(key).orElse(null);
+				if (fromProv != null) {
+					// prevent rebuild from provider
+					sessions.put(key, fromProv);
+					return fromProv;
+				}
+			}
+			return null;
+		});
 	}
 
 }

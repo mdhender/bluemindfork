@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,10 +41,12 @@ import net.bluemind.authentication.api.APIKey;
 import net.bluemind.authentication.api.AuthUser;
 import net.bluemind.authentication.api.IAPIKeys;
 import net.bluemind.authentication.api.IAuthentication;
+import net.bluemind.authentication.api.ISecurityToken;
 import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.authentication.api.LoginResponse.Status;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.Email;
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -82,11 +85,6 @@ public class AuthenticationTests {
 		Server esServer = new Server();
 		esServer.ip = new BmConfIni().get("es-host");
 		esServer.tags = Lists.newArrayList("bm/es");
-
-		String cyrusIp = new BmConfIni().get("imap-role");
-		Server imapServer = new Server();
-		imapServer.ip = cyrusIp;
-		imapServer.tags = Lists.newArrayList("mail/imap");
 
 		PopulateHelper.initGlobalVirt(esServer);
 
@@ -186,6 +184,11 @@ public class AuthenticationTests {
 	private IAuthentication getService(String sessionId) throws ServerFault {
 		return ClientSideServiceProvider.getProvider("http://127.0.0.1:8090", sessionId)
 				.instance(IAuthentication.class);
+	}
+
+	private ISecurityToken getTokenService(String sessionId) throws ServerFault {
+		return ClientSideServiceProvider.getProvider("http://127.0.0.1:8090", sessionId).instance(ISecurityToken.class,
+				sessionId);
 	}
 
 	@Test
@@ -337,6 +340,38 @@ public class AuthenticationTests {
 
 		assertEquals(Status.Ok, response.status);
 		assertEquals(response.authUser.uid, "user2");
+	}
+
+	@Test
+	public void testPromoteToToken() throws Exception {
+		initState();
+		IAuthentication authentication = getService(null);
+		LoginResponse response = authentication.login("admin0@global.virt", "admin", "junit");
+		assertEquals(Status.Ok, response.status);
+
+		ISecurityToken secToken = getTokenService(response.authKey);
+		secToken.upgrade();
+		String permToken = response.authKey;
+
+		// destroy the volatile auth key
+		authentication = getService(response.authKey);
+		authentication.logout();
+
+		// verify the token is re-activated after logout
+		authentication = getService(permToken);
+		AuthUser current = authentication.getCurrentUser();
+		assertNotNull(current);
+		assertEquals("admin0", current.uid);
+		secToken.renew();
+
+		System.err.println("destroying...");
+		secToken.destroy();
+		try {
+			authentication.ping();
+			fail("ping should fail after token is destroyed");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.AUTHENTICATION_FAIL, sf.getCode());
+		}
 	}
 
 }
