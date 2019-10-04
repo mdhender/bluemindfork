@@ -33,6 +33,7 @@ import org.vertx.java.core.http.RouteMatcher;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.platform.Verticle;
 
+import com.google.common.base.Strings;
 import com.netflix.spectator.api.Id;
 import com.netflix.spectator.api.Registry;
 
@@ -81,6 +82,7 @@ public class SdsProxyHttpVerticle extends Verticle {
 		router.put("/sds", this::put);
 		router.get("/sds", this::get);
 		router.post("/configuration", this::configure);
+		router.head("/mailbox", this::validateMailbox);
 
 		srv.requestHandler(router).listen(8091, result -> {
 			if (result.succeeded()) {
@@ -110,6 +112,29 @@ public class SdsProxyHttpVerticle extends Verticle {
 
 	private void get(HttpServerRequest req) {
 		sendBody(req, SdsAddresses.GET, SdsResponse.class, (resp, http) -> http.setStatusCode(200).end());
+	}
+
+	private void validateMailbox(HttpServerRequest request) {
+		request.bodyHandler(buffer -> {
+			if (Strings.isNullOrEmpty(buffer.toString())) {
+				request.response().setStatusCode(403).end();
+			}
+
+			JsonObject json = new JsonObject(buffer.toString());
+
+			vertx.eventBus().sendWithTimeout(SdsAddresses.VALIDATION, json, 3000, result -> {
+				if (result.failed()) {
+					request.response().setStatusCode(200).end();
+				} else {
+					if ((boolean) result.result().body()) {
+						request.response().setStatusCode(200).end();
+					} else {
+						request.response().setStatusCode(403).end();
+					}
+				}
+
+			});
+		});
 	}
 
 	private <T extends SdsResponse> void sendBody(HttpServerRequest httpReq, String address, Class<T> respClass,

@@ -32,6 +32,6 @@ public class SdsAddresses {
 
 	public static final String DELETE = "sds.delete";
 
-	public static final String VALIDATE = "sds.validate";
+	public static final String VALIDATION = "core.api.mailbox.validation";
 
 }
