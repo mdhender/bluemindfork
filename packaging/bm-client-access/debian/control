@@ -6,6 +6,6 @@ Standards-Version: 3.9.1
 
 Package: bm-client-access
 Architecture: amd64
-Depends: bm-conf, bm-nginx (= 1.14.0-bluemind79), openssl, apache2-utils
+Depends: bm-conf, bm-nginx (= 1.16.1-bluemind81), openssl, apache2-utils
 Description: BlueMind client access
  Proxy server for BlueMind client services
