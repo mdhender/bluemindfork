@@ -601,6 +601,52 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 	}
 
 	@Test
+	public void createFolderEndingWithSpace() throws IMAPException, InterruptedException {
+		IServiceProvider clientProv = provider();
+		IMailboxFolders mboxesApi = clientProv.instance(IMailboxFolders.class, partition, mboxRoot);
+		List<ItemValue<MailboxFolder>> allBoxes = mboxesApi.all();
+		ItemValue<MailboxFolder> inbox = null;
+		for (ItemValue<MailboxFolder> box : allBoxes) {
+			if (box.value.name.equals("INBOX")) {
+				inbox = box;
+				break;
+			}
+		}
+		assertNotNull(inbox);
+		MailboxReplica toCreate = new MailboxReplica();
+		long time = System.currentTimeMillis() / 1000;
+		toCreate.name = "create" + time + " Février ";
+		IOfflineMgmt idAllocator = provider().instance(IOfflineMgmt.class, domainUid, userUid);
+		IdRange oneId = idAllocator.allocateOfflineIds(1);
+		System.err.println("Create starts...");
+		ItemIdentifier created = mboxesApi.createForHierarchy(oneId.globalCounter, toCreate);
+		System.out.println("Got a create of version " + created.version);
+		ContainerChangeset<Long> changed = mboxesApi.changesetById(created.version - 1);
+		long newItemId = changed.created.get(0);
+		System.out.println("From changelog: itemId should be " + newItemId);
+		ItemValue<MailboxFolder> foundItem = mboxesApi.getCompleteById(newItemId);
+		System.out.println("Found " + foundItem.value.name);
+
+		int newMail = imapAsUser(sc -> {
+			int added = sc.append(toCreate.name, testEml(), new FlagsList());
+			return added;
+		});
+		assertTrue(newMail > 0);
+
+		oneId = idAllocator.allocateOfflineIds(1);
+		MailboxReplica sub = new MailboxReplica();
+		sub.name = toCreate.name + "/Toto espace ";
+		ItemIdentifier createdSub = mboxesApi.createForHierarchy(oneId.globalCounter, sub);
+		ItemValue<MailboxFolder> subItem = mboxesApi.getCompleteById(createdSub.id);
+		System.err.println("Sub " + subItem.value);
+
+		assertTrue(foundItem.value.name.endsWith(" "));
+		assertTrue(foundItem.value.fullName.endsWith(" "));
+		assertTrue(subItem.value.name.endsWith(" "));
+		assertTrue(subItem.value.fullName.endsWith(" "));
+	}
+
+	@Test
 	public void createSubThenUnsub() throws IMAPException, InterruptedException {
 		IServiceProvider clientProv = provider();
 		IMailboxFolders mboxesApi = clientProv.instance(IMailboxFolders.class, partition, mboxRoot);
