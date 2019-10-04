@@ -20,10 +20,11 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.rest,
  net.bluemind.core.rest.http,
  net.bluemind.network.topology,
- net.bluemind.backend.mail.replica.api
+ net.bluemind.backend.mail.replica.api,
+ net.bluemind.config
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.sds.proxy
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.sds.proxy.dto,
+ net.bluemind.sds.proxy.events,
  net.bluemind.sds.proxy.store
-Import-Package: net.bluemind.config

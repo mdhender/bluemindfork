@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.platform.Verticle;
@@ -41,19 +42,25 @@ public class SdsCyrusValidationHandlerVerticle extends Verticle {
 	public void start() {
 		cli = getProvider();
 
-		vertx.eventBus().registerHandler(SdsAddresses.VALIDATION, (Message<JsonObject> message) -> {
-			JsonObject json = message.body();
-			String mailbox = json.getString("mailbox");
-			String partition = json.getString("partition");
+		vertx.eventBus().registerHandler(SdsAddresses.VALIDATION, (Message<Buffer> message) -> {
+			JsonObject json = JsonHelper.getJsonFromString(message.body().toString());
 
-			cli.prevalidate(mailbox, partition).thenAccept((Boolean result) -> {
-				logger.info("BM Core {} creation of {}/{}", result ? "approves" : "rejects", partition, mailbox);
-				message.reply(result);
-			}).exceptionally(ex -> {
-				logger.error("Unable to get approval of {}/{}: {}", partition, mailbox, ex.getMessage());
-				message.fail(CORE_EXCEPTION, ex.getMessage());
-				return null;
-			});
+			if (JsonHelper.isValidJson(json, "mailbox", "partition")) {
+				String mailbox = json.getString("mailbox");
+				String partition = json.getString("partition");
+
+				cli.prevalidate(mailbox, partition).thenAccept((Boolean result) -> {
+					logger.info("BM Core {} creation of {}/{}", result ? "approves" : "rejects", partition, mailbox);
+					message.reply(result);
+				}).exceptionally(ex -> {
+					logger.error("Unable to get approval of {}/{}: {}", partition, mailbox, ex.getMessage());
+					message.fail(CORE_EXCEPTION, ex.getMessage());
+					return null;
+				});
+			} else {
+				logger.error("Invalid payload: {}", json);
+				message.reply(false);
+			}
 		});
 	}
 
