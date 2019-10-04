@@ -14,7 +14,7 @@
 
 <script>
 import { BmFormInput } from "@bluemind/styleguide";
-import { mapGetters, mapMutations } from "vuex";
+import { mapMutations, mapState } from "vuex";
 
 const MILLISECONDS_BEFORE_DISPLAY_SPINNER = 50;
 const MILLISECONDS_BEFORE_TRIGGER_SEARCH = 500;
@@ -30,29 +30,26 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("backend.mail/folders", ["currentFolder"]),
+        ...mapState("mail-webapp", ["currentFolderUid"]),
         inputIsEmpty() {
             return this.searchedPattern === "";
         }
     },
     watch: {
-        currentFolder() {
+        currentFolderUid() {
             this.searchedPattern = "";
         }
     },
     methods: {
-        ...mapMutations("backend.mail/items", ["setSearchPattern", "setSearchLoading", "setSearchError"]),
+        ...mapMutations("mail-webapp", ["setSearchPattern", "setSearchLoading", "setSearchError"]),
         search() {
             if (this.searchedPattern != "") {
-                this.$router.push({ name: "search", params: { pattern: this.searchedPattern } });
+                this.$router.push("/mail/search/" + this.searchedPattern + "/");
             }
         },
         cancel() {
             this.searchedPattern = "";
-            this.setSearchPattern(null);
-            this.setSearchLoading(false);
-            this.setSearchError(false);
-            this.$router.push("/mail/" + this.currentFolder);
+            this.$router.push("/mail/" + this.currentFolderUid + "/");
         },
         onChange() {
             if (this.searchedPattern === "") {

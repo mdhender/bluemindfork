@@ -3,25 +3,25 @@ import debounce from "lodash.debounce";
 
 let debouncedLoadMessage = debounce(loadMessages, 250);
 
-export function loadRange({ dispatch, rootGetters, rootState }, { start, end }) {
-    const messages = rootGetters["backend.mail/items/messages"];
-    const sorted = rootState["backend.mail/items"].sortedIds;
-    const folder = rootGetters["backend.mail/folders/currentFolder"];
+export function loadRange({ dispatch, getters, state }, { start, end }) {
+    const messages = getters["messages/messages"];
+    const sorted = state.messages.sortedIds;
+    const folderUid = state.currentFolderUid;
     const essentials = missingMessages(messages, sorted, start, end);
     const full = essentials
         .concat(missingMessages(messages, sorted, start - 100, start))
         .concat(missingMessages(messages, sorted, end, end + 100));
     if (essentials.length > 0) {
         debouncedLoadMessage.cancel();
-        return loadMessages(dispatch, folder, full);
+        return loadMessages(dispatch, folderUid, full);
     } else {
-        return debouncedLoadMessage(dispatch, folder, full);
+        return debouncedLoadMessage(dispatch, folderUid, full);
     }
 }
 
-function loadMessages(dispatch, folder, ids) {
+function loadMessages(dispatch, folderUid, ids) {
     loading.push(...ids);
-    return dispatch("backend.mail/items/multipleById", { folder, ids }, { root: true }).then(() => {
+    return dispatch("messages/multipleById", { folderUid, ids }).then(() => {
         ids.forEach(id => loading.splice(loading.indexOf(id), 1));
     });
 }

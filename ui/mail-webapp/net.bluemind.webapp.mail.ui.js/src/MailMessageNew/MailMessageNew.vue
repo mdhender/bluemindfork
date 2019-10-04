@@ -24,7 +24,7 @@
                         </bm-button>
                     </bm-col>
                 </bm-row>
-                <hr class="m-0">
+                <hr class="m-0" />
 
                 <bm-row v-if="mode > modes.TO">
                     <bm-col cols="11">
@@ -48,7 +48,7 @@
                         </bm-button>
                     </bm-col>
                 </bm-row>
-                <hr v-if="mode > modes.TO" class="m-0">
+                <hr v-if="mode > modes.TO" class="m-0" />
 
                 <bm-contact-input
                     v-if="mode == (modes.TO | modes.CC | modes.BCC)"
@@ -58,7 +58,7 @@
                 >
                     {{ $t("common.bcc") }}
                 </bm-contact-input>
-                <hr v-if="mode == (modes.TO | modes.CC | modes.BCC)" class="mt-0">
+                <hr v-if="mode == (modes.TO | modes.CC | modes.BCC)" class="mt-0" />
 
                 <bm-form-input
                     v-model="message_.subject"
@@ -68,7 +68,7 @@
                     @keydown.enter.native.prevent
                 />
                 <bm-row class="d-block">
-                    <hr class="bg-dark m-0">
+                    <hr class="bg-dark m-0" />
                 </bm-row>
                 <div class="flex-grow-1">
                     <bm-form-textarea
@@ -80,7 +80,7 @@
                         class="mail-content h-100"
                         no-resize
                     />
-                    <bm-rich-editor 
+                    <bm-rich-editor
                         v-else
                         v-model="message_.content"
                         :is-menu-bar-opened="userPrefIsMenuBarOpened"
@@ -162,7 +162,7 @@ export default {
             autocompleteResultsCc: [],
             autocompleteResultsBcc: [],
             debouncedSave: debounce(this.saveDraft, 1000),
-            userPrefTextOnly: false, // TODO: initialize this with user setting 
+            userPrefTextOnly: false, // TODO: initialize this with user setting
             userPrefIsMenuBarOpened: false, // TODO: initialize this with user setting
             message_: {
                 to: this.message ? this.message.to : [],
@@ -177,7 +177,8 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("backend.mail/items", { lastRecipients: "getLastRecipients" }),
+        //FIXME: move draft.
+        ...mapGetters("mail-webapp", ["lastRecipients"]),
         panelTitle() {
             return this.message_.subject ? this.message_.subject : this.$t("mail.main.new");
         }
@@ -204,8 +205,8 @@ export default {
         this.$refs.to.focus();
     },
     methods: {
-        ...mapActions("backend.mail/items", ["saveDraft"]),
-        ...mapMutations("backend.mail/items", ["setDraft"]),
+        ...mapActions("mail-webapp", ["saveDraft"]),
+        ...mapMutations("mail-webapp", ["setDraft"]),
         displayPreviousMessages() {
             this.message_.content += "\n\n\n" + this.previousMessage.content;
             this.expandPreviousMessages = true;
@@ -213,12 +214,12 @@ export default {
         send() {
             this.debouncedSave.cancel();
             // send then close the composer
-            this.$store.dispatch("backend.mail/items/send").then(() => this.navigateToParent());
+            this.$store.dispatch("mail-webapp/send").then(() => this.navigateToParent());
         },
         deleteDraft() {
             this.debouncedSave.cancel();
             // delete the draft then close the composer
-            this.$store.dispatch("backend.mail/items/deleteDraft").then(() => this.navigateToParent());
+            this.$store.dispatch("mail-webapp/deleteDraft").then(() => this.navigateToParent());
         },
         onSearch(fieldFocused, searchedPattern) {
             this.fieldFocused = fieldFocused;
@@ -261,7 +262,7 @@ export default {
         /** Navigate to the parent path: from a/b/c to a/b */
         navigateToParent() {
             const path = this.$router.history.current.path;
-            const parentPath = path.substring(0, path.lastIndexOf("/"));
+            const parentPath = path.substring(0, path.lastIndexOf("/") + 1);
             this.$router.push(parentPath);
         }
     }
@@ -271,11 +272,13 @@ export default {
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
 
-.mail-message-new input, .mail-message-new textarea {
+.mail-message-new input,
+.mail-message-new textarea {
     border: none;
 }
 
-.mail-message-new input:focus, .mail-message-new textarea:focus {
+.mail-message-new input:focus,
+.mail-message-new textarea:focus {
     box-shadow: none;
 }
 
@@ -287,7 +290,8 @@ export default {
     overflow: auto !important;
 }
 
-.mail-message-new .ProseMirror, .mail-message-new .mail-content { 
+.mail-message-new .ProseMirror,
+.mail-message-new .mail-content {
     padding: map-get($spacers, 2) map-get($spacers, 3);
 }
 </style>

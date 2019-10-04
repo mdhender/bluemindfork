@@ -1,4 +1,4 @@
-const PREFIX = "$_";
+const PREFIX = "$_VueBus_";
 const METHOD_PATTERN = /[\W\s_]/g;
 
 export default {

@@ -4,7 +4,7 @@
             <bm-button
                 :aria-label="$tc('mail.actions.remove.aria')"
                 class="p-1 mr-2 border-0 no-bg hovershadow"
-                @click.prevent="shouldRemoveItem(message.id)"
+                @click.prevent="remove(message.id)"
             >
                 <bm-icon icon="trash" size="lg" />
             </bm-button>
@@ -12,7 +12,7 @@
                 v-if="message.states.includes('not-seen')"
                 class="p-1 border-0 no-bg hovershadow"
                 :aria-label="$tc('mail.actions.mark_read.aria')"
-                @click.prevent="markAsSeen(true)"
+                @click.prevent="markAsRead(message.id)"
             >
                 <bm-icon class="hovershadow" icon="unread" size="lg" />
             </bm-button>
@@ -20,7 +20,7 @@
                 v-else
                 class="p-1 border-0 no-bg hovershadow"
                 :aria-label="$tc('mail.actions.mark_unread.aria')"
-                @click.prevent="markAsSeen(false)"
+                @click.prevent="markAsUnread(message.id)"
             >
                 <bm-icon icon="read" size="lg" />
             </bm-button>
@@ -30,7 +30,7 @@
 
 <script>
 import { BmButtonToolbar, BmButtonGroup, BmButton, BmIcon } from "@bluemind/styleguide";
-import { mapGetters, mapMutations } from "vuex";
+import { mapActions, mapGetters, mapState } from "vuex";
 
 export default {
     name: "MailMessageListItemQuickActionButtons",
@@ -47,16 +47,16 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("backend.mail/folders", { folder: "currentFolder" })
+        ...mapGetters("mail-webapp", ["nextMessageId"]),
+        ...mapState("mail-webapp", ["currentMessageId"])
     },
     methods: {
-        ...mapMutations("backend.mail/items", ["shouldRemoveItem"]),
-        markAsSeen(isSeen) {
-            this.$store.dispatch("backend.mail/items/updateSeen", {
-                folder: this.folder,
-                id: this.message.id,
-                isSeen: isSeen
-            });
+        ...mapActions("mail-webapp", ["markAsRead", "markAsUnread"]),
+        remove() {
+            if (this.currentMessageId == this.message.id) {
+                this.$router.push("" + (this.nextMessageId || ""));
+            }
+            this.$store.dispatch("mail-webapp/remove", this.message.id);
         }
     }
 };

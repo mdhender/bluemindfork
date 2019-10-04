@@ -1,6 +1,6 @@
 import { AddressBooksClient } from "@bluemind/addressbook.api";
 import { MailboxFoldersClient, MailboxItemsClient, OutboxClient } from "@bluemind/backend.mail.api";
-import { MailboxFoldersStore, MailboxItemsStore, OutboxStore } from "@bluemind/backend.mail.store";
+import { MailboxFoldersStore, MailboxItemsStore } from "@bluemind/backend.mail.store";
 import { TaskClient } from "@bluemind/core.task.api";
 import MailAppStore from "@bluemind/webapp.mail.store";
 import AlertStore from "@bluemind/alert.store";
@@ -18,10 +18,9 @@ router.addRoutes(mailRoutes);
 Vue.component("mail-webapp", MailApp);
 
 function registerStores() {
-    store.registerModule("mail-app", MailAppStore);
-    store.registerModule("backend.mail/folders", MailboxFoldersStore);
-    store.registerModule("backend.mail/items", MailboxItemsStore);
-    store.registerModule("backend.mail/outbox", OutboxStore);
+    store.registerModule("mail-webapp", MailAppStore);
+    store.registerModule(["mail-webapp", "messages"], MailboxItemsStore);
+    store.registerModule(["mail-webapp", "folders"], MailboxFoldersStore);
     store.registerModule("alert", AlertStore);
 }
 

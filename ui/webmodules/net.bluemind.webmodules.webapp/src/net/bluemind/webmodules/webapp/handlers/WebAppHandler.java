@@ -24,7 +24,6 @@ import net.bluemind.webmodule.server.handlers.AbstractFtlHandler;
 public class WebAppHandler extends AbstractFtlHandler {
 
 	public WebAppHandler() {
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

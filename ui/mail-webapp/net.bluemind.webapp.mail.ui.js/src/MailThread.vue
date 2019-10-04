@@ -26,9 +26,9 @@ export default {
         MailMessageNew
     },
     computed: {
-        ...mapGetters("backend.mail/items", {
+        ...mapGetters("mail-webapp", {
             message: "currentMessage",
-            parts: "currentParts"
+            parts: "currentMessageContent"
         }),
         previousMessage() {
             return {

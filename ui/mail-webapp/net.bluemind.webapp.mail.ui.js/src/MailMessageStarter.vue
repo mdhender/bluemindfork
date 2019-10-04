@@ -35,7 +35,7 @@
 
 <script>
 import { BmButton, BmLabelIcon } from "@bluemind/styleguide";
-import { mapGetters } from "vuex";
+import { mapGetters, mapState } from "vuex";
 import emptyMessageIllustration from "../assets/home-page.png";
 
 export default {
@@ -50,9 +50,10 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("backend.mail/folders", ["tree"]),
-        ...mapGetters("backend.mail/items", ["messages"]),
-        ...mapGetters("backend.mail/folders", { folder: "currentFolder" }),
+        ...mapGetters("mail-webapp", ["tree"]),
+        ...mapGetters("mail-webapp/folders", ["defaultFolders"]),
+        ...mapGetters("mail-webapp/messages", ["messages"]),
+        ...mapState("mail-webapp", { folder: "currentFolderUid" }),
 
         firstUnreadMessage() {
             if (this.folder) {

@@ -13,19 +13,20 @@
         <bm-collapse id="collapse-mailbox" v-model="isMailboxExpanded">
             <bm-tree
                 :value="tree"
-                :selected="currentFolder"
+                :selected="currentFolderUid"
                 node-id-key="uid"
                 class="text-nowrap text-truncate"
                 breakpoint="xl"
                 @expand="expand"
                 @collapse="collapse"
-                @select="onSelect"
+                @select="uid => $router.push({ path: '/mail/' + uid + '/' })"
             >
                 <template v-slot="f">
                     <mail-folder-icon :folder="f.value" breakpoint="xl" class="flex-fill" />
                     <bm-counter-badge
-                        v-if="f.value.uid === currentFolder && unreadCount > 0"
-                        :value="unreadCount"
+                        v-if="f.value.unread > 0"
+                        :value="f.value.unread"
+                        :variant="f.value.uid != currentFolderUid ? 'secondary' : 'primary'"
                         class="mr-1"
                     />
                 </template>
@@ -36,7 +37,7 @@
 
 <script>
 import { BmButton, BmCollapse, BmCounterBadge, BmIcon, BmTree } from "@bluemind/styleguide";
-import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
+import { mapGetters, mapActions, mapState } from "vuex";
 import injector from "@bluemind/inject";
 import MailFolderIcon from "./MailFolderIcon";
 
@@ -57,16 +58,11 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("backend.mail/folders", ["tree", "currentFolder"]),
-        ...mapState("backend.mail/items", ["unreadCount"])
+        ...mapGetters("mail-webapp", ["tree"]),
+        ...mapState("mail-webapp", ["currentFolderUid"])
     },
     methods: {
-        ...mapActions("backend.mail/folders", ["expand", "collapse"]),
-        ...mapMutations("backend.mail/items", ["setCurrent"]),
-        onSelect(uid) {
-            this.setCurrent(null);
-            this.$router.push({ path: "/mail/" + uid + "/" });
-        }
+        ...mapActions("mail-webapp", { expand: "expandFolder", collapse: "collapseFolder" })
     }
 };
 </script>

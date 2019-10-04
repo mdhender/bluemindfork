@@ -8,7 +8,7 @@
                 <bm-icon icon="paper-clip" class="mr-1 ml-3" size="lg" />
                 <span class="font-weight-bold pr-2">
                     {{ $tc("common.attachments", attachments.length, { count: attachments.length }) }}
-                </span> 
+                </span>
             </bm-col>
         </bm-row>
         <bm-row v-if="seeMoreAttachments" class="ml-3 mr-1">
@@ -20,7 +20,7 @@
             </bm-col>
             <bm-col cols="4" class="mb-2">
                 <bm-row class="border border-transparent">
-                    <bm-button 
+                    <bm-button
                         variant="outline-secondary"
                         class="w-100 mail-message-content-attachments-block-toggle py-2"
                         :aria-label="$t('common.toggleAttachments')"
@@ -33,7 +33,7 @@
         </bm-row>
         <bm-row v-else class="ml-3 mr-1">
             <bm-col v-for="(attachment, index) in attachments" :key="attachment.address" cols="4">
-                <mail-message-content-attachment-item 
+                <mail-message-content-attachment-item
                     :attachment="attachment"
                     :is-expanded="isExpanded"
                     @save="save(index)"
@@ -54,7 +54,7 @@
 
 <script>
 import { BmButton, BmCol, BmContainer, BmIcon, BmRow } from "@bluemind/styleguide";
-import { mapActions, mapGetters, mapState } from "vuex";
+import { mapActions, mapState } from "vuex";
 import { MimeType } from "@bluemind/email";
 import MailMessageContentAttachmentItem from "./MailMessageContentAttachmentItem";
 
@@ -81,8 +81,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("backend.mail/folders", { folder: "currentFolder" }),
-        ...mapState("backend.mail/items", { mailUid: "current" }),
+        ...mapState("mail-webapp", { folder: "currentFolderUid", message: "currentMessageId" }),
         hasAttachments() {
             return this.attachments.length > 0;
         },
@@ -103,24 +102,25 @@ export default {
         }
     },
     methods: {
-        ...mapActions("backend.mail/items", ["fetch"]),
+        ...mapActions("mail-webapp/messages", ["fetch"]),
         toggleExpand() {
             if (!this.isExpanded && this.hasAnyAttachmentWithPreview && !this.attachmentsContentFetched) {
-                let promises = this.attachments.filter(a => MimeType.previewAvailable(a.mime))
+                let promises = this.attachments
+                    .filter(a => MimeType.previewAvailable(a.mime))
                     .map(attachment =>
                         // need to fetch content (for attachments where preview is available)
                         // before render expanded mode
-                        this.fetch({ 
-                            folder: this.folder, 
-                            uid: this.mailUid, 
-                            part: attachment, 
-                            isAttachment: true 
+                        this.fetch({
+                            folder: this.folder,
+                            id: this.message,
+                            part: attachment,
+                            isAttachment: true
                         })
                     );
                 Promise.all(promises)
                     .then(() => {
                         this.attachmentsContentFetched = true;
-                        this.isExpanded = !this.isExpanded;    
+                        this.isExpanded = !this.isExpanded;
                     })
                     .catch(() => console.error("fail to fetch attachment content"));
             } else {
@@ -131,6 +131,7 @@ export default {
             return MimeType.previewAvailable(attachment.mime);
         },
         save(index) {
+            //FIXME
             const attachment = this.attachments[index];
             // attachment content may be already fetched (if its preview has been displayed)
             if (attachment.content) {
@@ -138,19 +139,17 @@ export default {
             } else {
                 this.fetch({
                     folder: this.folder,
-                    uid: this.mailUid,
+                    id: this.message,
                     part: attachment,
                     isAttachment: true
-                }).then(() => 
-                    this.triggerDownload(attachment)
-                );
+                }).then(() => this.triggerDownload(attachment));
             }
         },
         triggerDownload(attachment) {
-            let element = document.createElement('a');
-            element.style.display = 'none';
-            element.setAttribute('download', attachment.filename);
-            element.setAttribute('href', "data:" + attachment.mime + ";base64, " + attachment.content);
+            let element = document.createElement("a");
+            element.style.display = "none";
+            element.setAttribute("download", attachment.filename);
+            element.setAttribute("href", "data:" + attachment.mime + ";base64, " + attachment.content);
             document.body.appendChild(element);
 
             element.click();
@@ -174,7 +173,7 @@ export default {
 }
 
 .mail-message-content-attachments-block-toggle {
-    line-height: #{$line-height-base*2} !important;
+    line-height: #{$line-height-base * 2} !important;
 }
 
 .border-transparent {

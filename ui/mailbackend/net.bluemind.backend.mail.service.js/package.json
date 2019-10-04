@@ -1,0 +1,19 @@
+{
+    "name": "@bluemind/backend.mail.service",
+    "description": "Bluemind MailBackend : Client proxy",
+    "version": "4.1.0",
+    "license": "GPL-3.0",
+    "author": "Blue Mind SAS",
+    "main": "src/index.js",
+    "module": "src/index.js",
+    "dependencies": {
+        "@bluemind/core.container.api": "^4.1.0",
+        "@bluemind/backend.mail.api": "^4.1.0"
+    },
+    "devDependencies": {
+        "@bluemind/conf": "^4.1.0"
+    },
+    "scripts": {
+        "test": "jest --config node_modules/@bluemind/conf/jest.config.js"
+    }
+}

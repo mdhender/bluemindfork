@@ -15,9 +15,9 @@
                 <mail-message-content-from :dn="message.from.dn" :address="message.from.address" />
             </bm-col>
             <bm-col cols="4" class="align-self-center text-right">
-                {{ $d(message.date, 'full_date') }} 
-                {{ $t("mail.content.date.at") }} 
-                {{ $d(message.date, 'short_time') }}
+                {{ $d(message.date, "full_date") }}
+                {{ $t("mail.content.date.at") }}
+                {{ $d(message.date, "short_time") }}
             </bm-col>
         </bm-row>
         <bm-row>
@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from "vuex";
+import { mapState, mapActions, mapGetters } from "vuex";
 import { MimeType } from "@bluemind/email";
 import { BmCol, BmContainer, BmRow } from "@bluemind/styleguide";
 import MailMessageContentAttachmentsBlock from "./MailMessageContentAttachmentsBlock";
@@ -95,9 +95,13 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("backend.mail/folders", { folder: "currentFolder" }),
-        ...mapGetters("backend.mail/items", { realAttachments: "attachments" }),
-        ...mapState("backend.mail/items", ["current"]),
+        ...mapState("mail-webapp", {
+            folderUid: "currentFolderUid",
+            messageId: "currentMessageId"
+        }),
+        ...mapGetters("mail-webapp", {
+            realAttachments: "currentMessageAttachments"
+        }),
         to() {
             if (this.message.to.length > 0) {
                 return this.message.to.map(dest => (dest.dn ? dest.dn : dest.address));
@@ -122,15 +126,16 @@ export default {
             },
             immediate: true
         },
-        current: function() {
-            this.markAsSeen();
+        messageId: function() {
+            this.markAsRead(this.messageId);
         }
     },
     created() {
-        this.markAsSeen();
+        this.markAsRead(this.messageId);
     },
     methods: {
-    /** Filter displayable parts. Others will be considered as attachments. */
+        ...mapActions("mail-webapp", ["markAsRead"]),
+        /** Filter displayable parts. Others will be considered as attachments. */
         filterParts() {
             let displayableParts = [];
             this.displayableParts.splice(0, this.displayableParts.length);
@@ -140,23 +145,21 @@ export default {
                 this.parts.forEach(part => {
                     // check MIME type (like 'image')
                     let isDisplayable =
-            displayableMimeTypes.find(displayableMimeType =>
-                MimeType.typeEquals(displayableMimeType, part.mime)
-            ) !== undefined;
+                        displayableMimeTypes.find(displayableMimeType =>
+                            MimeType.typeEquals(displayableMimeType, part.mime)
+                        ) !== undefined;
                     if (!isDisplayable) {
                         // check MIME sub-type (like 'image/png')
                         isDisplayable =
-              displayableMimeSubTypes.find(displayableMimeSubType =>
-                  MimeType.equals(displayableMimeSubType, part.mime)
-              ) !== undefined;
+                            displayableMimeSubTypes.find(displayableMimeSubType =>
+                                MimeType.equals(displayableMimeSubType, part.mime)
+                            ) !== undefined;
                     }
                     if (isDisplayable) {
                         displayableParts.push(part);
                     } else {
                         // FIXME should pass the whole part or at least localize the default name
-                        const attachmentName = part.fileName
-                            ? part.fileName
-                            : "Untitled " + part.mime;
+                        const attachmentName = part.fileName ? part.fileName : "Untitled " + part.mime;
                         let size = new String(part.size / 1000);
                         size = size.substring(0, size.indexOf("."));
                         if (size == 0) {
@@ -181,15 +184,6 @@ export default {
         },
         saveAttachments() {
             // not implemented yet
-        },
-        markAsSeen() {
-            if (this.message.states.includes("not-seen")) {
-                return this.$store.dispatch("backend.mail/items/updateSeen", {
-                    folder: this.folder,
-                    id: this.message.id,
-                    isSeen: true
-                });
-            }
         }
     }
 };

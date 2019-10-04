@@ -12,14 +12,14 @@ export default {
  */
 function insertInlineImages(partsWithReferences = [], imageParts = []) {
     const inlineReferenceRegex = /<img[^>]+?src\s*=\s*['"]cid:([^'"]*)['"][^>]*?>{1}?/gim;
-
+    const inlined = [];
     partsWithReferences.forEach(partWithReferences => {
         let inlineReferences;
         while ((inlineReferences = inlineReferenceRegex.exec(partWithReferences.content)) !== null) {
             const cid = inlineReferences[1];
             const replaceRegex = new RegExp("(<img[^>]+?src\\s*=\\s*['\"])cid:" + cid + "(['\"][^>]*?>{1}?)", "gmi");
             const imagePart = imageParts.find(
-                part => part.cid && part.cid.toUpperCase() === "<" + inlineReferences[1].toUpperCase() + ">"
+                part => part.contentId && part.contentId.toUpperCase() === "<" + inlineReferences[1].toUpperCase() + ">"
             );
             if (imagePart) {
                 const base64Image = imagePart.content.replace(new RegExp("\\n", "g"), "");
@@ -27,9 +27,11 @@ function insertInlineImages(partsWithReferences = [], imageParts = []) {
                     replaceRegex,
                     "$1data:" + imagePart.mime + ";base64, " + base64Image + "$2"
                 );
+                inlined.push(imagePart.contentId);
             }
         }
     });
+    return inlined;
 }
 
 /**

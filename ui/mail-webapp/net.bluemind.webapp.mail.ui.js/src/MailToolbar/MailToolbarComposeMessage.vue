@@ -20,7 +20,8 @@
 </template>
 
 <script>
-import { BmButton, BmIcon }  from "@bluemind/styleguide";
+import { BmButton, BmIcon } from "@bluemind/styleguide";
+import { mapActions } from "vuex";
 
 export default {
     name: "MailToolbarComposeMessage",
@@ -28,10 +29,8 @@ export default {
         BmButton,
         BmIcon
     },
-    methods:{
-        send() {
-            this.$store.dispatch("backend.mail/items/send");
-        }
+    methods: {
+        ...mapActions("mail-webapp", ["send"])
     }
 };
 </script>

@@ -2,7 +2,7 @@
     <bm-list-group
         class="mail-message-list"
         tabindex="0"
-        @keyup.delete.prevent="shouldRemoveItem(selectedUid)"
+        @keyup.delete.prevent="remove"
         @keyup.up="moveTo(-1)"
         @keyup.down="moveTo(+1)"
         @keyup.page-down="moveTo(+PAGE)"
@@ -41,7 +41,7 @@
                 <mail-message-list-item
                     :ref="'message-' + f.item.id"
                     :message="f.item"
-                    :to="computeLink(f.item)"
+                    :to="messageRoute(f.item.id)"
                     style="cursor: pointer;"
                 />
             </template>
@@ -61,7 +61,7 @@
                     <div class="search-pattern">"{{ search.pattern }}"</div>
                     {{ $t("mail.list.search.no_result.found") }} <br /><br />
                     {{ $t("mail.list.search.no_result.try_otherwise") }}
-                    <div 
+                    <div
                         class="float-right pt-5 no-search-results-illustration w-50"
                         v-html="noSearchResultsIllustration"
                     />
@@ -81,7 +81,7 @@ import {
     BmRow,
     BmSpinner
 } from "@bluemind/styleguide";
-import { mapGetters, mapMutations, mapState } from "vuex";
+import { mapGetters, mapState, mapActions } from "vuex";
 import { DateRange } from "@bluemind/date";
 import last from "lodash.last";
 import MailMessageListEmptyFolder from "./MailMessageListEmptyFolder";
@@ -121,33 +121,30 @@ export default {
     data() {
         return {
             PAGE: PAGE_DIFF,
-            position: 0,
-            noSearchResultsIllustration
+            noSearchResultsIllustration,
+            position: 0
         };
     },
     computed: {
-        ...mapGetters("backend.mail/items", ["messages", "count", "indexOf"]),
-        ...mapGetters("backend.mail/folders", { folder: "currentFolder" }),
-        ...mapState("backend.mail/items", {
-            selectedUid: "current",
-            search: "search"
-        }),
+        ...mapGetters("mail-webapp/messages", ["messages", "count", "indexOf"]),
+        ...mapGetters("mail-webapp", ["nextMessageId"]),
+        ...mapState("mail-webapp", ["currentFolderUid", "currentMessageId", "search"]),
         mode() {
-            return this.search.pattern !== null ? "search" : "default";
+            return this.search.pattern ? "search" : "default";
         },
         displaySpinner() {
             return this.search.loading === true;
         }
     },
     watch: {
-        selectedUid() {
-            if (this.selectedUid) {
-                this.position = this.indexOf(this.selectedUid);
+        currentMessageId() {
+            if (this.currentMessageId) {
+                this.position = this.indexOf(this.currentMessageId);
             }
-            if (this.selectedUid && this.$refs["message-" + this.selectedUid]) {
+            if (this.currentMessageId && this.$refs["message-" + this.currentMessageId]) {
                 this.$nextTick(() => {
-                    this.$refs["message-" + this.selectedUid];
-                    this.$refs["message-" + this.selectedUid].$el.focus();
+                    this.$refs["message-" + this.currentMessageId];
+                    this.$refs["message-" + this.currentMessageId].$el.focus();
                 });
             }
         },
@@ -156,12 +153,17 @@ export default {
         }
     },
     created() {
-        if (this.selectedUid) {
-            this.position = this.indexOf(this.selectedUid);
+        if (this.currentMessageId) {
+            this.position = this.indexOf(this.currentMessageId);
         }
     },
     methods: {
-        ...mapMutations("backend.mail/items", ["shouldRemoveItem"]),
+        ...mapActions("mail-webapp", { loadMessages: "loadRange" }),
+        remove() {
+            console;
+            this.$router.push(this.messageRoute(this.nextMessageId));
+            this.$store.dispatch("mail-webapp/remove", this.currentMessageId);
+        },
         getRange(date) {
             for (let i = 0; i < RANGES.length; i++) {
                 if (RANGES[i].contains(date)) {
@@ -171,13 +173,13 @@ export default {
             return last(RANGES);
         },
         moveTo(diff) {
-            if (this.selectedUid) {
-                let index = this.indexOf(this.selectedUid) + diff;
+            if (this.currentMessageId) {
+                let index = this.indexOf(this.currentMessageId) + diff;
                 this.goTo(index);
             }
         },
         goTo(index) {
-            if (this.selectedUid) {
+            if (this.currentMessageId) {
                 index = Math.min(Math.max(0, index), this.count - 1);
                 this.$router.push({ path: "" + this.messages[index].id });
             }
@@ -198,14 +200,15 @@ export default {
         getSeparator(date) {
             return this.getRange(date)[I18N];
         },
-        computeLink(message) {
-            if (this.mode === "search") {
-                return "/mail/search/" + this.search.pattern + "/" + message.id;
+        messageRoute(id) {
+            const path = this.$route.path;
+            id = id || "";
+            if (this.$route.params.mail) {
+                return path.replace(new RegExp("/" + this.$route.params.mail + "/?.*"), "/" + id);
+            } else if (path == "/mail/" || path == "/mail/new") {
+                return "/mail/" + this.currentFolderUid + "/" + id;
             }
-            return "/mail/" + this.folder + "/" + message.id;
-        },
-        loadMessages(range) {
-            this.$store.dispatch("mail-app/loadRange", range);
+            return path + id;
         }
     }
 };

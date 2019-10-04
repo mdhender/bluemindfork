@@ -1,17 +1,13 @@
 <template>
-    <bm-button-toolbar 
-        v-if="message || isMessageComposerDisplayed"
-        key-nav
-        class="mail-toolbar flex-nowrap h-100"
-    >
+    <bm-button-toolbar v-if="message || isMessageComposerDisplayed" key-nav class="mail-toolbar flex-nowrap h-100">
         <mail-toolbar-compose-message v-if="isMessageComposerDisplayed" />
         <mail-toolbar-consult-message v-else />
     </bm-button-toolbar>
 </template>
 
 <script>
-import { BmButtonToolbar }  from "@bluemind/styleguide";
-import { mapGetters } from "vuex";
+import { BmButtonToolbar } from "@bluemind/styleguide";
+import { mapState } from "vuex";
 import MailToolbarComposeMessage from "./MailToolbarComposeMessage";
 import MailToolbarConsultMessage from "./MailToolbarConsultMessage";
 
@@ -23,13 +19,15 @@ export default {
         MailToolbarConsultMessage
     },
     computed: {
-        ...mapGetters("backend.mail/items", { message: "currentMessage" }),
+        ...mapState("mail-webapp", { message: "currentMessageId" }),
         isMessageComposerDisplayed() {
             const routePath = this.$route.path;
-            return routePath.endsWith("new") ||
+            return (
+                routePath.endsWith("new") ||
                 routePath.endsWith("reply") ||
                 routePath.endsWith("replyAll") ||
-                routePath.endsWith("forward");
+                routePath.endsWith("forward")
+            );
         }
     }
 };

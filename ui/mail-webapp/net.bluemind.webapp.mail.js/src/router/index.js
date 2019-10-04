@@ -1,31 +1,13 @@
 import MailApp, { MailThread, MailMessageNew, MailMessageStarter } from "@bluemind/webapp.mail.ui.vuejs";
-import ContainerObserver from "@bluemind/containerobserver";
-
-function observeContainer(store, value) {
-    const previous = store.getters["backend.mail/folders/currentFolder"];
-    if (previous) {
-        ContainerObserver.forget("mailbox_records", previous);
-    }
-    ContainerObserver.observe("mailbox_records", value);
-}
 
 const actionsOnMailConsult = {
-    // if folder value dont change, this function is not executed
-    folder(store, value) {
-        return store.dispatch("backend.mail/items/all", value).then(() => {
-            observeContainer(store, value);
-            return store.commit("backend.mail/folders/setCurrent", value);
-        });
-    },
-    mail(store, value, unused, { params }) {
-        store.commit("backend.mail/items/setAttachments", []);
-        return store.dispatch("backend.mail/items/select", { id: value, folder: params.folder });
-    }
+    folder: (store, value) => store.dispatch("mail-webapp/selectFolder", value),
+    mail: (store, value) => store.dispatch("mail-webapp/selectMessage", parseInt(value))
 };
 
 function actionOnSearch(store, value) {
-    const folderUid = store.state["backend.mail/folders"].settings.current;
-    return store.dispatch("backend.mail/items/search", { folderUid, pattern: value });
+    const folderUid = store.state["mail-webapp"].currentFolderUid;
+    return store.dispatch("mail-webapp/search", { folderUid, pattern: value });
 }
 
 export default [
@@ -56,26 +38,19 @@ export default [
                 meta: {
                     $actions: {
                         pattern: actionOnSearch,
-                        mail(store, value) {
-                            const folderUid = store.state["backend.mail/folders"].settings.current;
-                            return store.dispatch("backend.mail/items/select", { id: value, folder: folderUid });
-                        }
+                        mail: (store, value) => store.dispatch("mail-webapp/selectMessage", parseInt(value))
                     }
                 }
             },
             {
-                path: ":folder",
+                path: ":folder/",
+                name: "folder",
                 component: MailMessageStarter,
                 meta: {
                     $actions: {
-                        folder(store, value) {
-                            store.commit("backend.mail/items/setCurrent", null);
-                            store.commit("backend.mail/items/setSearchPattern", null);
-                            store.commit("backend.mail/items/setSearchLoading", null);
-                            return store.dispatch("backend.mail/items/all", value).then(() => {
-                                observeContainer(store, value);
-                                return store.commit("backend.mail/folders/setCurrent", value);
-                            });
+                        folder: {
+                            call: (store, value) => store.dispatch("mail-webapp/selectFolder", value),
+                            force: true
                         }
                     }
                 }

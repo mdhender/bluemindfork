@@ -1,10 +1,11 @@
-import * as actions from "./actions.js";
-import * as getters from "./getters.js";
-import * as mutations from "./mutations.js";
+import * as actions from "./actions";
+import * as getters from "./getters";
+import * as mutations from "./mutations";
 
 const state = {
+    items: [],
     folders: [],
-    settings: {},
+    settings: {}
 };
 
 export default {

@@ -1,12 +1,11 @@
 import * as actions from "./actions";
-
-const state = {};
-const getters = {};
-const mutations = {};
+import * as getters from "./getters";
+import * as mutations from "./mutations";
+import * as state from "./state";
 
 export default {
     namespaced: true,
-    state,
+    state: Object.assign({}, state),
     actions,
     mutations,
     getters

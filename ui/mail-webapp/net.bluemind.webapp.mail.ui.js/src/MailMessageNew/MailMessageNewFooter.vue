@@ -41,7 +41,7 @@ export default {
         BmButton
     },
     computed: {
-        ...mapState("backend.mail/items", ["draft"]),
+        ...mapState("mail-webapp", ["draft"]),
         formattedDraftSaveDate() {
             // TODO use Blandine's work when pushed
             return { value: this.draft.saveDate || new Date(), mode: "hours" };

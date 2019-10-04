@@ -7,6 +7,13 @@
     "main": "src/index.js",
     "module": "src/index.js",
     "dependencies": {
+        "@bluemind/alert.store": "^4.1.0",
+        "@bluemind/backend.mail.l10n": "^4.1.0",
+        "@bluemind/backend.mail.store": "^4.1.0",
+        "@bluemind/containerobserver": "^4.1.0",
+        "@bluemind/email": "^4.1.0",
+        "@bluemind/inject": "^4.1.0",
+        "@bluemind/uuid": "^4.1.0",
         "lodash.debounce": "^4.0.8"
     },
     "devDependencies": {

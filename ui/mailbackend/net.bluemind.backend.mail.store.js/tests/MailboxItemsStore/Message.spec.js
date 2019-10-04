@@ -18,8 +18,6 @@
 import Message from "../../src/MailboxItemsStore/Message.js";
 import mailboxItem from "./mailbox-item.json";
 
-
-
 describe("Message", () => {
     test("constructor & toMailboxItem", () => {
         const message = new Message(mailboxItem);
@@ -33,8 +31,9 @@ describe("Message", () => {
                 subject: mailboxItem.value.body.subject,
                 headers: mailboxItem.value.body.headers,
                 // FIXME we do not handle the displayed name (aka distinguished name) yet (except fo Originator)
-                recipients: mailboxItem.value.body.recipients.map(
-                    r => r.kind == "Originator" ? r : ({ "kind": r.kind, "address": r.address, "dn": "" })),
+                recipients: mailboxItem.value.body.recipients.map(r =>
+                    r.kind == "Originator" ? r : { kind: r.kind, address: r.address, dn: "" }
+                ),
                 messageId: mailboxItem.value.body.messageId,
                 references: mailboxItem.value.body.references,
                 structure: {
@@ -79,7 +78,7 @@ describe("Message", () => {
         const message = new Message(mailboxItem);
         checkComputePreviousMessage(message, message.actions.FORWARD);
     });
-    // 
+    //
     test("computeRecipients for TO and Reply and no header", () => {
         const message = new Message(mailboxItem);
         checkComputeRecipients(message, message.recipientFields.TO, message.actions.REPLY);
@@ -110,8 +109,9 @@ describe("Message", () => {
         const message = new Message(mailboxItem);
         const others = ["azerty@keyboard.com", "memory@ram.net", "pixel@lcd.org"];
         message.headers = [{ name: "Mail-Followup-To", values: others }];
-        checkComputeRecipients(message, message.recipientFields.TO, message.actions.REPLYALL,
-            { mailFollowupTo: others });
+        checkComputeRecipients(message, message.recipientFields.TO, message.actions.REPLYALL, {
+            mailFollowupTo: others
+        });
     });
     test("computeRecipients for TO and ReplyAll and Mail-Reply-To header", () => {
         const message = new Message(mailboxItem);
@@ -133,8 +133,9 @@ describe("Message", () => {
         const message = new Message(mailboxItem);
         const others = ["azerty@keyboard.com", "memory@ram.net", "pixel@lcd.org"];
         message.headers = [{ name: "Mail-Followup-To", values: others }];
-        checkComputeRecipients(message, message.recipientFields.TO, message.actions.FORWARD,
-            { mailFollowupTo: others });
+        checkComputeRecipients(message, message.recipientFields.TO, message.actions.FORWARD, {
+            mailFollowupTo: others
+        });
     });
     test("computeRecipients for TO and Forward and Mail-Reply-To header", () => {
         const message = new Message(mailboxItem);
@@ -178,8 +179,9 @@ describe("Message", () => {
         const message = new Message(mailboxItem);
         const others = ["azerty@keyboard.com", "memory@ram.net", "pixel@lcd.org"];
         message.headers = [{ name: "Mail-Followup-To", values: others }];
-        checkComputeRecipients(message, message.recipientFields.CC, message.actions.REPLYALL,
-            { mailFollowupTo: others });
+        checkComputeRecipients(message, message.recipientFields.CC, message.actions.REPLYALL, {
+            mailFollowupTo: others
+        });
     });
     test("computeRecipients for CC and ReplyAll and Mail-Reply-To header", () => {
         const message = new Message(mailboxItem);
@@ -201,8 +203,9 @@ describe("Message", () => {
         const message = new Message(mailboxItem);
         const others = ["azerty@keyboard.com", "memory@ram.net", "pixel@lcd.org"];
         message.headers = [{ name: "Mail-Followup-To", values: others }];
-        checkComputeRecipients(message, message.recipientFields.CC, message.actions.FORWARD,
-            { mailFollowupTo: others });
+        checkComputeRecipients(message, message.recipientFields.CC, message.actions.FORWARD, {
+            mailFollowupTo: others
+        });
     });
     test("computeRecipients for CC and Forward and Mail-Reply-To header", () => {
         const message = new Message(mailboxItem);
@@ -234,10 +237,11 @@ function checkComputePreviousMessage(message, action) {
     message.userSession = { lang: "en" };
     const parts = [
         {
-            "mime": "text/html",
-            "content": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"><html><body><p><span" +
-                " style=\"font-family: Arial; font-size: 12px;\">messageContent</span></p></body></html>",
-            "uid": "59."
+            mime: "text/html",
+            content:
+                '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"><html><body><p><span' +
+                ' style="font-family: Arial; font-size: 12px;">messageContent</span></p></body></html>',
+            uid: "59."
         }
     ];
     const previousMessage = message.previousMessageContent(action, parts);
@@ -246,14 +250,16 @@ function checkComputePreviousMessage(message, action) {
     switch (action) {
         case message.actions.REPLY:
         case message.actions.REPLYALL:
-            expectedPreviousMessage = "On " +
-                message.date +
-                ", John Doe <jdoe@vm40.net> wrote:\n\n> messageContent\n> ";
+            expectedPreviousMessage =
+                "On " + message.date + ", John Doe <jdoe@vm40.net> wrote:\n\n> messageContent\n> ";
             break;
         case message.actions.FORWARD:
-            expectedPreviousMessage = "---- Original Message ----\nSubject: " +
-                message.subject + "\nTo: John Doe <jdoe@vm40.net>\nDate: " +
-                message.date + "\nFrom: John Doe <jdoe@vm40.net>\n\nmessageContent\n";
+            expectedPreviousMessage =
+                "---- Original Message ----\nSubject: " +
+                message.subject +
+                "\nTo: John Doe <jdoe@vm40.net>\nDate: " +
+                message.date +
+                "\nFrom: John Doe <jdoe@vm40.net>\n\nmessageContent\n";
             break;
         default:
             break;
@@ -265,10 +271,16 @@ function checkComputeRecipients(message, recipientField, action, headersInfo) {
     message.userSession = { defaultEmail: "jdoe@vm40.net" };
 
     message.from = { dn: "John Doe", address: "jdoe@vm40.net" };
-    message.to = [{ dn: "John Doe", address: "jdoe@vm40.net" },
-        { dn: "Toto Matic", address: "tmatic@vm40.net" }, { dn: "Georges Abitbol", address: "gabitbol@vm40.net" }];
-    message.cc = [{ dn: "John Doe", address: "jdoe@vm40.net" },
-        { dn: "Toto Matic", address: "tmatic@vm40.net" }, { dn: "Georges Abitbol", address: "gabitbol@vm40.net" }];
+    message.to = [
+        { dn: "John Doe", address: "jdoe@vm40.net" },
+        { dn: "Toto Matic", address: "tmatic@vm40.net" },
+        { dn: "Georges Abitbol", address: "gabitbol@vm40.net" }
+    ];
+    message.cc = [
+        { dn: "John Doe", address: "jdoe@vm40.net" },
+        { dn: "Toto Matic", address: "tmatic@vm40.net" },
+        { dn: "Georges Abitbol", address: "gabitbol@vm40.net" }
+    ];
 
     const recipients = message.computeRecipients(recipientField, action);
 
