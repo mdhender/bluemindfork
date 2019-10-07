@@ -35,10 +35,25 @@ class bm_contacts_manager {
   private $bmAddressbookIds;
   private $defaultAddressbook;
   private $userSubscriptionClient;
+  private $translatedAddressbooksName;
 
-  function __construct() {
+  function __construct($translatedAddressbooksName) {
     unset($this->bmAddressbookIds);
+    $this->translatedAddressbooksName = $translatedAddressbooksName;
   }
+
+  private function getAddressbookName($folder) {
+    $userUid = $_SESSION['bm_sso']['bmUserId'];
+    if ("book:CollectedContacts_".$userUid == $folder->containerUid){
+      return $this->translatedAddressbooksName['collected_contacts'];
+    } else if ("addressbook_".$_SESSION['bm_sso']['bmDomain'] == $folder->containerUid) {
+      return $this->translatedAddressbooksName['users'];
+    } else if ("book:Contacts_".$userUid == $folder->containerUid){
+      return $this->translatedAddressbooksName['contacts'];
+    }
+    return $folder->name;
+  }
+
 
   public function setAddressBookCompletionIds() {
     $rcmail = rcmail::get_instance();
@@ -99,9 +114,12 @@ class bm_contacts_manager {
   }
 
   public function convertBMFolderToRCFolder($bmFolder) {
+
+    $this->getAddressbookName($bmFolder);
+
     return array(
           'id' => (string)$bmFolder->uid,
-          'name' => $bmFolder->name,
+          'name' => $this->getAddressbookName($bmFolder),
           'readonly' => $bmFolder->writable ? false : true,
           'groups' => false
         );
@@ -162,7 +180,7 @@ class bm_contacts_manager {
     $folder = $this->getFolderFromId($addressBook['id']);
 
     if(isset($folder)) {
-      $addressbook['instance'] = new bm_book($folder->name, $folder, $this);
+      $addressbook['instance'] = new bm_book($this->getAddressbookName($folder), $folder, $this);
     }
     
     return $addressbook;
