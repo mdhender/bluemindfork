@@ -72,4 +72,6 @@ public interface DPTexts extends Messages {
 	String sync();
 
 	String typeOU();
+	
+	String backupHSM();
 }

@@ -19,23 +19,27 @@ public class BoxFsFolders {
 	public final String restoreFolderName;
 	public final String restoreDataRoot;
 	public final String restoreMetaRoot;
+	public final String restoreArchiveRoot;
 
 	public final Set<String> dataPath;
 	public final Set<String> metaPath;
+	public final Set<String> archivePath;
 
-	private BoxFsFolders(String restoreDataRoot, String restoreMetaRoot, String restoreFolderName, Set<String> dataPath,
-			Set<String> metaPath) {
+	private BoxFsFolders(String restoreDataRoot, String restoreMetaRoot, String restoreArchiveRoot,
+			String restoreFolderName, Set<String> dataPath, Set<String> metaPath, Set<String> archivePath) {
 		this.restoreFolderName = restoreFolderName;
 
 		this.restoreDataRoot = restoreDataRoot + "/" + restoreFolderName;
 		this.restoreMetaRoot = restoreMetaRoot + "/" + restoreFolderName;
+		this.restoreArchiveRoot = restoreArchiveRoot + "/" + restoreFolderName;
 
 		this.dataPath = dataPath;
 		this.metaPath = metaPath;
+		this.archivePath = archivePath;
 	}
 
 	public Set<String> allFolders() {
-		return Stream.concat(dataPath.stream(), metaPath.stream()).collect(Collectors.toSet());
+		return Stream.of(dataPath, metaPath, archivePath).flatMap(Set::stream).collect(Collectors.toSet());
 	}
 
 	public static BoxFsFolders build(ItemValue<Domain> d, ItemValue<Mailbox> mbox, DataProtectGeneration dpg) {
@@ -43,9 +47,11 @@ public class BoxFsFolders {
 		String restoreFolderName = "restored-" + sdf.format(dpg.protectionTime);
 		String restoreFolderDataRoot = mboxContainer(mbox, d.value, 'r') + fsLogin(mbox.value.name);
 		String restoreFolderMetaRoot = mboxMetaContainer(mbox, d.value, 'r') + fsLogin(mbox.value.name);
+		String restoreArchiveRoot = mboxArchiveContainer(mbox, d.value, 'r') + fsLogin(mbox.value.name);
 
 		Set<String> dataPath = new HashSet<>();
 		Set<String> metaPath = new HashSet<>();
+		Set<String> archivePath = new HashSet<>();
 
 		List<Character> letters = new LinkedList<>();
 		if (mbox.value.type == Type.user) {
@@ -58,6 +64,7 @@ public class BoxFsFolders {
 
 			restoreFolderDataRoot = mboxContainer(mbox, d.value, letter) + fsLogin(mbox.value.name);
 			restoreFolderMetaRoot = mboxMetaContainer(mbox, d.value, letter) + fsLogin(mbox.value.name);
+			restoreArchiveRoot = mboxArchiveContainer(mbox, d.value, letter) + fsLogin(mbox.value.name);
 		} else if (mbox.value.type == Type.mailshare) {
 			char[] chars = "abcdefghijklmnopqrstuvwxyz".toCharArray();
 			for (char c : chars) {
@@ -68,9 +75,11 @@ public class BoxFsFolders {
 		for (char c : letters) {
 			dataPath.add(mboxContainer(mbox, d.value, c) + fsLogin(mbox.value.name));
 			metaPath.add(mboxMetaContainer(mbox, d.value, c) + fsLogin(mbox.value.name));
+			archivePath.add(mboxArchiveContainer(mbox, d.value, c) + fsLogin(mbox.value.name));
 		}
 
-		return new BoxFsFolders(restoreFolderDataRoot, restoreFolderMetaRoot, restoreFolderName, dataPath, metaPath);
+		return new BoxFsFolders(restoreFolderDataRoot, restoreFolderMetaRoot, restoreArchiveRoot, restoreFolderName,
+				dataPath, metaPath, archivePath);
 	}
 
 	public static String namespace(ItemValue<Mailbox> mbox) {
@@ -83,6 +92,10 @@ public class BoxFsFolders {
 
 	private static String mboxMetaContainer(ItemValue<Mailbox> mbox, Domain d, char oneLetterSplit) {
 		return boxContainer("/var/spool/cyrus/meta", mbox, d, oneLetterSplit);
+	}
+
+	private static String mboxArchiveContainer(ItemValue<Mailbox> mbox, Domain d, char oneLetterSplit) {
+		return boxContainer("/var/spool/bm-hsm/cyrus-archives", mbox, d, oneLetterSplit);
 	}
 
 	private static String boxContainer(String root, ItemValue<Mailbox> mbox, Domain d, char oneLetterSplit) {

@@ -68,6 +68,9 @@ public class DPPolicy extends Composite implements IGwtScreenRoot {
 	@UiField
 	CheckBox backupMails;
 
+	@UiField
+	CheckBox backupHSM;
+
 	private ScreenRoot instance;
 
 	public DPPolicy(ScreenRoot instance) {
@@ -113,10 +116,17 @@ public class DPPolicy extends Composite implements IGwtScreenRoot {
 						if (!backupMails.getValue().booleanValue()) {
 							skipTags.add("mail/imap");
 							skipTags.add("mail/archive");
+							skipTags.add("mail/cyrus_archives");
 						} else {
 							skipTags.remove("mail/imap");
 							skipTags.remove("mail/archive");
+							if (!backupHSM.getValue().booleanValue()) {
+								skipTags.add("mail/cyrus_archives");
+							} else {
+								skipTags.remove("mail/cyrus_archives");
+							}
 						}
+
 						values.put(SysConfKeys.dpBackupSkipTags.name(), toString(skipTags));
 						sysApi.updateMutableValues(values, new DefaultAsyncHandler<Void>() {
 							@Override
@@ -151,6 +161,11 @@ public class DPPolicy extends Composite implements IGwtScreenRoot {
 
 	protected void onScreenShown(ScreenShowRequest ssr) {
 		backupMails.setValue(true);
+		backupHSM.setValue(false);
+		backupMails.addClickHandler(c -> {
+			backupHSM.setEnabled(backupMails.getValue().booleanValue());
+		});
+
 		DataProtectGwtEndpoint dpApi = new DataProtectGwtEndpoint(Ajax.TOKEN.getSessionId());
 		dpApi.getRetentionPolicy(new DefaultAsyncHandler<RetentionPolicy>() {
 
@@ -164,6 +179,9 @@ public class DPPolicy extends Composite implements IGwtScreenRoot {
 					public void success(SystemConf value) {
 						backupMails
 								.setValue(!value.stringList(SysConfKeys.dpBackupSkipTags.name()).contains("mail/imap"));
+						backupHSM.setValue(
+								!value.stringList(SysConfKeys.dpBackupSkipTags.name()).contains("mail/cyrus_archives"));
+
 					}
 				});
 			}

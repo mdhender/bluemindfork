@@ -138,19 +138,10 @@ public class MboxRestoreService {
 
 			int mailPartId = mailPart.id;
 
-			NCUtils.exec(nc, String.format("mkdir -p '%s'", boxFsFolders.restoreDataRoot));
-			NCUtils.exec(nc, String.format("chown cyrus:mail '%s'", boxFsFolders.restoreDataRoot));
-			NCUtils.exec(nc, String.format("chmod 700 '%s'", boxFsFolders.restoreDataRoot));
-			boxFsFolders.dataPath.forEach(f -> {
-				session.restoreOneFolder(mailPartId, f, boxFsFolders.restoreDataRoot);
-			});
+			restoreFsFolders(session, boxFsFolders.restoreDataRoot, boxFsFolders.dataPath, nc, mailPartId);
+			restoreFsFolders(session, boxFsFolders.restoreMetaRoot, boxFsFolders.metaPath, nc, mailPartId);
+			restoreFsFolders(session, boxFsFolders.restoreArchiveRoot, boxFsFolders.archivePath, nc, mailPartId);
 
-			NCUtils.exec(nc, String.format("mkdir -p '%s'", boxFsFolders.restoreMetaRoot));
-			NCUtils.exec(nc, String.format("chown cyrus:mail '%s'", boxFsFolders.restoreMetaRoot));
-			NCUtils.exec(nc, String.format("chmod 700 '%s'", boxFsFolders.restoreMetaRoot));
-			boxFsFolders.metaPath.forEach(f -> {
-				session.restoreOneFolder(mailPartId, f, boxFsFolders.restoreMetaRoot);
-			});
 			break;
 		default:
 			logger.error("Unsupported restore mode: " + mode);
@@ -206,4 +197,16 @@ public class MboxRestoreService {
 
 		session.restore(mailPart.get().id, toRestore);
 	}
+
+	private void restoreFsFolders(IToolSession session, String rootPath, Set<String> path, INodeClient nc,
+			int mailPartId) {
+		logger.info("restore fs folder {}", rootPath);
+		NCUtils.exec(nc, String.format("mkdir -p '%s'", rootPath));
+		NCUtils.exec(nc, String.format("chown cyrus:mail '%s'", rootPath));
+		NCUtils.exec(nc, String.format("chmod 700 '%s'", rootPath));
+		path.forEach(f -> {
+			session.restoreOneFolder(mailPartId, f, rootPath);
+		});
+	}
+
 }

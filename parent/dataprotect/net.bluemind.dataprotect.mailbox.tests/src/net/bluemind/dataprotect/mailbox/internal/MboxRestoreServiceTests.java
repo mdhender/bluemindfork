@@ -29,19 +29,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.vertx.java.core.AsyncResult;
 import org.vertx.java.core.Handler;
 
 import com.google.common.collect.Lists;
 
+import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.backend.cyrus.ServerHook;
 import net.bluemind.config.InstallationId;
 import net.bluemind.config.Token;
@@ -68,6 +72,7 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.imap.Acl;
 import net.bluemind.imap.Annotation;
+import net.bluemind.imap.Envelope;
 import net.bluemind.imap.Flag;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.IMAPException;
@@ -76,10 +81,10 @@ import net.bluemind.imap.ListResult;
 import net.bluemind.imap.SearchQuery;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
-import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.service.common.DefaultFolder;
 import net.bluemind.mailshare.api.IMailshare;
 import net.bluemind.mailshare.api.Mailshare;
@@ -91,6 +96,7 @@ import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.api.DomainTemplate;
 import net.bluemind.system.api.IDomainTemplate;
+import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class MboxRestoreServiceTests {
@@ -111,6 +117,11 @@ public class MboxRestoreServiceTests {
 	private ItemValue<Mailbox> sharedMbox;
 	private String subFolder;
 	private String subFolderWithSpace;
+
+	@BeforeClass
+	public static void oneShotBefore() {
+		System.setProperty("es.mailspool.count", "1");
+	}
 
 	@Before
 	public void before() throws Exception {
@@ -216,6 +227,26 @@ public class MboxRestoreServiceTests {
 			assertTrue(sc.create(subFolderWithSpace));
 		}
 
+		// enable cyrus hsm
+		System.out.println("Enable cyrus hsm");
+		Map<String, String> values = new HashMap<>();
+		values.put("archive_kind", "cyrus");
+		values.put("archive_days", "7");
+		values.put("archive_size_threshold", "100");
+		ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ISystemConfiguration.class)
+				.updateMutableValues(values);
+		new CyrusService(cyrusIp).reload();
+		Thread.sleep(3000);
+
+		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, latd, login)) {
+			assertTrue(sc.login());
+			try (InputStream mail = MboxRestoreService.class.getClassLoader().getResourceAsStream("data/coucou.eml")) {
+				int added = sc.append("INBOX", mail, new FlagsList());
+				System.out.println("Added archived email uid: " + added);
+				assertTrue("Appending an archived email to the mailbox failed.", added > 0);
+			}
+		}
+
 		backupApi = sp.instance(IDataProtect.class);
 		TaskRef task = backupApi.saveAll();
 		track(task);
@@ -237,8 +268,9 @@ public class MboxRestoreServiceTests {
 		testDomain = sp.instance(IDomains.class).get(domain);
 		assertNotNull(mbox);
 		System.out.println("The mailbox to work on is: " + mbox.uid);
+
 	}
-	
+
 	private List<String> getTagsExcept(String... except) {
 		// tag & assign host for everything
 		List<String> tags = new LinkedList<String>();
@@ -398,6 +430,9 @@ public class MboxRestoreServiceTests {
 			sc.select("INBOX");
 			Collection<Integer> all = sc.uidSearch(new SearchQuery());
 			assertFalse("INBOX should not be empty after restore", all.isEmpty());
+
+			Collection<Envelope> allEmails = sc.uidFetchEnvelope(all);
+			assertTrue(allEmails.stream().filter(env -> "coucou".equals(env.getSubject())).count() > 0);
 
 			assertTrue(sc.select(subFolder));
 			assertTrue(sc.select(subFolderWithSpace));
