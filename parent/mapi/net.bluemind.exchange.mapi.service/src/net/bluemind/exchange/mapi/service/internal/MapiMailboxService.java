@@ -88,12 +88,18 @@ public class MapiMailboxService implements IMapiMailbox {
 	private void checkFaiContainer(MapiReplica replica) {
 		String faiContainerId = MapiFAIContainer.getIdentifier(replica);
 		ContainerDescriptor fais = ContainerDescriptor.create(faiContainerId, faiContainerId,
-				context.getSecurityContext().getSubject(), MapiFAIContainer.TYPE, domainUid, true);
-		IContainers contApi = context.provider().instance(IContainers.class);
+				pfMailbox ? PublicFolders.mailboxGuid(domainUid) : context.getSecurityContext().getSubject(),
+				MapiFAIContainer.TYPE, domainUid, true);
+		IContainers contApi = context.su().provider().instance(IContainers.class);
 		ContainerDescriptor current = contApi.getIfPresent(faiContainerId);
+		if (current != null && !current.owner.equals(fais.owner)) {
+			logger.info("Reset FAI container {} as owner is wrong", faiContainerId);
+			contApi.delete(faiContainerId);
+			current = null;
+		}
 		if (current == null) {
 			contApi.create(faiContainerId, fais);
-			logger.info("Created container {}", faiContainerId);
+			logger.info("Created FAI container {}", faiContainerId);
 		}
 		if (pfMailbox) {
 			logger.info("Setting domain-wide {} ACLs for PF FAI folder {}", domainUid, faiContainerId);

@@ -154,6 +154,9 @@ public class ImapContext {
 
 	public static ImapContext of(BmContext context) {
 		String key = context.getSecurityContext().getSessionId();
+		if (key == null) {
+			throw new ServerFault("ImapContext requires a non null sessionId ctx: " + context.getSecurityContext());
+		}
 		ImapContext imapCtx = sidToCtxCache.getIfPresent(key);
 		if (imapCtx == null) {
 			if (logger.isDebugEnabled()) {
