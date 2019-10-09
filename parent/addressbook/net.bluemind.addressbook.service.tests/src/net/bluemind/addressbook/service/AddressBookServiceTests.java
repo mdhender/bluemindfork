@@ -401,6 +401,32 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
+	public void testSearchTotal() throws ServerFault {
+		VCard card = defaultVCard();
+		card.identification.name = VCard.Identification.Name.create(".bbbbb", null, null, null, null,
+				Collections.emptyList());
+		getService(defaultSecurityContext).create("testUid1", card);
+
+		card = defaultVCard();
+		card.identification.name = VCard.Identification.Name.create("baaaaaaa", null, null, null, null,
+				Collections.emptyList());
+		getService(defaultSecurityContext).create("testUid2", card);
+
+		card = defaultVCard();
+		card.identification.name = VCard.Identification.Name.create("bzzzzzzz", null, null, null, null,
+				Collections.emptyList());
+		getService(defaultSecurityContext).create("testUid3", card);
+
+		VCardQuery query = VCardQuery.create(null);
+		query.from = 0;
+		query.size = 1;
+		ListResult<ItemValue<VCardInfo>> res = getService(defaultSecurityContext).search(query);
+
+		assertEquals(3, res.total);
+		assertEquals(1, res.values.size());
+	}
+
+	@Test
 	public void testSearch() throws ServerFault {
 		VCard card = defaultVCard();
 		card.identification.nickname = VCard.Identification.Nickname.create("Aachi");

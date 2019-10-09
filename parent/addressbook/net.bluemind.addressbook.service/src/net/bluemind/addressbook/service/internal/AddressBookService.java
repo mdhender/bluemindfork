@@ -336,6 +336,7 @@ public class AddressBookService implements IInCoreAddressBook {
 	public ListResult<ItemValue<VCardInfo>> search(VCardQuery query) throws ServerFault {
 		rbacManager.check(Verb.Read.name());
 		List<ItemValue<VCardInfo>> values = null;
+		ListResult<ItemValue<VCardInfo>> ret = new ListResult<>();
 		if (StringUtils.isEmpty(query.query)) {
 
 			List<String> uids = storeService.allUidsOrderedByDisplayname();
@@ -346,6 +347,7 @@ public class AddressBookService implements IInCoreAddressBook {
 			List<String> subUids = uids.subList(from, to);
 
 			values = new ArrayList<>(subUids.size());
+			ret.total = uids.size();
 
 			List<ItemValue<VCard>> items = storeService.getMultiple(subUids);
 			for (ItemValue<VCard> item : items) {
@@ -355,10 +357,12 @@ public class AddressBookService implements IInCoreAddressBook {
 			ListResult<String> res = indexStore.search(query);
 
 			values = new ArrayList<>(res.values.size());
+
 			List<ItemValue<VCard>> items = storeService.getMultiple(res.values);
 			for (ItemValue<VCard> item : items) {
 				values.add(adapt(item));
 			}
+			ret.total = res.total;
 		}
 		if (query.orderBy != OrderBy.Pertinance) {
 			Collections.sort(values, new Comparator<ItemValue<VCardInfo>>() {
@@ -369,8 +373,6 @@ public class AddressBookService implements IInCoreAddressBook {
 			});
 		}
 
-		ListResult<ItemValue<VCardInfo>> ret = new ListResult<>();
-		ret.total = values.size();
 		ret.values = values;
 		return ret;
 	}
