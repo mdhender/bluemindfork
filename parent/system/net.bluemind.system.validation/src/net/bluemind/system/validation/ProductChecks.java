@@ -38,9 +38,13 @@ public class ProductChecks {
 
 		boolean failed = false;
 		for (IProductValidator validator : validators) {
-			ValidationResult result = validator.validate();
-			logger.info("Validator {} : Valid: {}, Message: {}", validator.getName(), result.valid, result.message);
-			failed |= !result.valid;
+			try {
+				ValidationResult result = validator.validate();
+				logger.info("Validator {} : Valid: {}, Message: {}", validator.getName(), result.valid, result.message);
+				failed |= !result.valid;
+			} catch (Exception e) {
+				logger.error("Check {} failed ({}), skipping it for now", validator.getName(), e.getMessage());
+			}
 		}
 
 		if (failed) {
