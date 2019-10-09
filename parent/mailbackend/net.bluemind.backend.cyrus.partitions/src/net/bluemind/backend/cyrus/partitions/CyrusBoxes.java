@@ -36,6 +36,7 @@ public class CyrusBoxes {
 	private static final Pattern userMboxRe = Pattern.compile("(.*)!user\\.([^\\.]*)\\.(.*)$");
 	private static final Pattern deletedMbox = Pattern.compile("(.*)!DELETED.user\\.([^\\.]*)\\.(.*)$");
 	private static final Pattern deletedSharedMbox = Pattern.compile("(.*)!DELETED\\.([^\\.]*)\\.(.*)$");
+	private static final Pattern sharedMbox = Pattern.compile("(.*)!(.*)$");
 
 	public static class ReplicatedBox {
 		public Namespace ns;
@@ -83,7 +84,7 @@ public class CyrusBoxes {
 	 * Input is "ex2016.vmw!user.tom.Deleted Messages" (or without the quotes)
 	 * 
 	 * @param fromBox
-	 * @return
+	 * @return null if the format does not match
 	 */
 	public static ReplicatedBox forCyrusMailbox(String fromMbox) {
 		fromMbox = CharMatcher.is('"').trimFrom(fromMbox);
@@ -91,6 +92,7 @@ public class CyrusBoxes {
 		Matcher userRootMatch = userMboxRootRe.matcher(fromMbox);
 		Matcher deletedMailboxMatch = deletedMbox.matcher(fromMbox);
 		Matcher deletedSharedMailboxMatch = deletedSharedMbox.matcher(fromMbox);
+		Matcher sharedMatch = sharedMbox.matcher(fromMbox);
 
 		if (deletedMailboxMatch.find()) {
 			String domain = deletedMailboxMatch.group(1);
@@ -134,12 +136,11 @@ public class CyrusBoxes {
 			rb.ns = Namespace.users;
 			rb.mailboxRoot = true;
 			return rb;
-		} else {
+		} else if (sharedMatch.find()) {
 			ReplicatedBox rb = new ReplicatedBox();
 			rb.ns = Namespace.shared;
-			int mark = fromMbox.indexOf('!');
-			rb.partition = fromMbox.substring(0, mark).replace('.', '_');
-			String afterPart = fromMbox.substring(mark + 1);
+			rb.partition = sharedMatch.group(1).replace('.', '_');
+			String afterPart = sharedMatch.group(2);
 			int dot = afterPart.indexOf('.');
 			if (dot > 0) {
 				rb.local = afterPart.substring(0, dot);
@@ -150,6 +151,9 @@ public class CyrusBoxes {
 				rb.mailboxRoot = true;
 			}
 			return rb;
+		} else {
+			logger.error("'{}' does not match a known mailbox pattern", fromMbox);
+			return null;
 		}
 	}
 

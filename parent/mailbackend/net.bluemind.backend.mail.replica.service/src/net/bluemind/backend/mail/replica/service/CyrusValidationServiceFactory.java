@@ -33,7 +33,7 @@ public class CyrusValidationServiceFactory
 
 	@Override
 	public ICyrusValidation instance(BmContext context, String... params) throws ServerFault {
-		return new CyrusValidationService();
+		return new CyrusValidationService(context);
 	}
 
 }
