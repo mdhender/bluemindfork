@@ -28,10 +28,8 @@
                 </bm-col>
             </bm-row>
         </bm-popover>
-        <bm-navbar-brand :title="$t('banner.main.brand', software)" href="#">
-            <router-link :to="logoLink">
-                <svg height="30" width="120" v-html="logo" />
-            </router-link>
+        <bm-navbar-brand :title="$t('banner.main.brand', software)" href="#" :to="logoLink">
+            <svg height="30" width="120" v-html="logo" />
         </bm-navbar-brand>
         <bm-banner-applications :applications="defaultApps" />
         <div class="app-title text-center flex-grow-1 align-self-center font-weight-bold text-uppercase">
