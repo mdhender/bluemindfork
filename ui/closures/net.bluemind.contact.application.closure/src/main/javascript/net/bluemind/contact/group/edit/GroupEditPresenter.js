@@ -173,7 +173,7 @@ net.bluemind.contact.group.edit.GroupEditPresenter.prototype.handleValidateConta
       while ( i--) {
         var member = model.members[i];
         if (member.id == ret[index]['uid']) {
-          if (ret[index]['value']['kind'] == 'group') {
+          if (!ret[index]['value'] || ret[index]['value']['kind'] == 'group') {
             model.members.splice(i, 1);
           } else {
             member.name = ret[index]['displayName'];
