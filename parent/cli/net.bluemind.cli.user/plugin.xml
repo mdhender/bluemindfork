@@ -27,6 +27,10 @@
             impl="net.bluemind.cli.user.UserImportCommand$Reg"
             priority="79">
       </registration>
+      <registration
+            impl="net.bluemind.cli.user.UserSharedCommand$Reg"
+            priority="77">
+      </registration>
    </extension>
 
 </plugin>
