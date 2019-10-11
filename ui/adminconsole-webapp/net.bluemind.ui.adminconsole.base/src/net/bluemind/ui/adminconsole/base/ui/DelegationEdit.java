@@ -150,6 +150,11 @@ public class DelegationEdit extends AbstractTextEdit<String> {
 		}
 	}
 
+	@Override
+	public void setFocus(boolean focus) {
+		textBox.setFocus(focus);
+	}
+
 	private static String toPath(OrgUnitPath path) {
 		return OUUtils.toPath(path);
 	}
