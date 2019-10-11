@@ -25,14 +25,28 @@ import javax.ws.rs.Path;
 
 import net.bluemind.core.api.BMApi;
 
+/**
+ * This API allows upgrading short-lived session identifiers to persisting
+ * tokens lasting 7 days.
+ * 
+ * Upgraded session identifiers do not require a
+ * {@link IAuthentication#login(String, String, String)} call
+ *
+ */
 @BMApi(version = "3", internal = true)
-@Path("/auth/token/{sid}")
+@Path("/auth/token/{sessionIdentifier}")
 public interface ISecurityToken {
 
+	/**
+	 * Promote an existing core session to a long-lived access token
+	 */
 	@PUT
 	@Path("_upgrade")
 	void upgrade();
 
+	/**
+	 * Extend token life by 7 days
+	 */
 	@POST
 	@Path("_renew")
 	void renew();
