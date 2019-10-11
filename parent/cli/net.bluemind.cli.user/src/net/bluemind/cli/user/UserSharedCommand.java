@@ -50,7 +50,7 @@ public class UserSharedCommand extends SingleOrDomainOperation {
 
 		@Override
 		public Class<? extends ICmdLet> commandClass() {
-			return UserUpdateCommand.class;
+			return UserSharedCommand.class;
 		}
 	}
 	
@@ -97,6 +97,7 @@ public class UserSharedCommand extends SingleOrDomainOperation {
 				aclJson.putString("Subect", acl.subject);
 				aclJson.putString("verb", acl.verb.toString());		
 			}
+			ctx.info(aclJson.toString());
 		}
 	}
 
