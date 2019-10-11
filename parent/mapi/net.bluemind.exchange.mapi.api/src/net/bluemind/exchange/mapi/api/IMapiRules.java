@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2019
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -21,28 +21,21 @@ package net.bluemind.exchange.mapi.api;
 import java.util.List;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 
 import net.bluemind.core.api.BMApi;
-import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.directory.api.DirEntry;
+import net.bluemind.core.container.api.IDataShardSupport;
 
 @BMApi(version = "3")
-@Path("/mapi/{domainUid}")
-public interface IMapi {
+@Path("/mapi_rule/{folderId}")
+public interface IMapiRules extends IDataShardSupport {
 
-	/**
-	 * Fetches directory items from a list of NSPI minimalIds
-	 * 
-	 * @deprecated use HOLLOW directory copy for directory informations
-	 * @param galItems
-	 * @return
-	 * @throws ServerFault
-	 */
+	@PUT
+	@Path("_mupdates")
+	void updates(MapiRuleChanges changes);
+
 	@GET
-	@Path("_galContent")
-	@Deprecated
-	List<ItemValue<DirEntry>> getGALContent(List<Long> galItems) throws ServerFault;
+	List<MapiRule> all();
 
 }

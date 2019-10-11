@@ -48,7 +48,7 @@ public class MapiFAIStoreTests {
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 
-		ContainerStore containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				securityContext);
 		faiContainerId = MapiFAIContainer.getIdentifier("fake_replica");
 		Container fais = Container.create(faiContainerId, MapiFAIContainer.TYPE, faiContainerId, "me", true);

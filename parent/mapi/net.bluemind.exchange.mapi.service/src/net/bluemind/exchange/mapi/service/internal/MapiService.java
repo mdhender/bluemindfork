@@ -25,13 +25,6 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Strings;
-
-import net.bluemind.addressbook.api.IAddressBookUids;
-import net.bluemind.addressbook.api.IAddressBook;
-import net.bluemind.addressbook.api.VCardInfo;
-import net.bluemind.addressbook.api.VCardQuery;
-import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
@@ -47,42 +40,21 @@ public class MapiService implements IMapi {
 
 	private static final Logger logger = LoggerFactory.getLogger(MapiService.class);
 
-	private BmContext context;
-
-	private String domainUid;
-
 	private final ItemStore directoryItemStore;
-
 	private final IDirectory directoryService;
 
 	public MapiService(BmContext context, String domainUid) throws ServerFault {
-		this.context = context;
-		this.domainUid = domainUid;
 		try {
 			ContainerStore cs = new ContainerStore(context, context.getDataSource(), context.getSecurityContext());
 			Container directoryContainer = cs.get(domainUid);
 			directoryItemStore = new ItemStore(context.getDataSource(), directoryContainer,
 					context.getSecurityContext());
 			directoryService = context.provider().instance(IDirectory.class, directoryContainer.uid);
+			logger.debug("Created for {}", domainUid);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
 
-	}
-
-	@Override
-	public List<Long> searchGAL(String query) throws ServerFault {
-		IAddressBook addrApi = context.provider().instance(IAddressBook.class,
-				IAddressBookUids.userVCards(domainUid));
-		ListResult<ItemValue<VCardInfo>> search = addrApi.search(VCardQuery.create(query));
-		List<String> uids = search.values.stream().map(val -> val.uid).collect(Collectors.toList());
-
-		DirEntryQuery dirQuery = DirEntryQuery.entries(uids.toArray(new String[0]));
-		IDirectory dirApi = context.provider().instance(IDirectory.class, domainUid);
-		ListResult<ItemValue<DirEntry>> found = dirApi.search(dirQuery);
-		logger.info("GAL '{}' => {} result(s)", query, found.total);
-		return found.values.stream().filter(iv -> !Strings.isNullOrEmpty(iv.value.email)).map(iv -> iv.internalId)
-				.collect(Collectors.toList());
 	}
 
 	@Override

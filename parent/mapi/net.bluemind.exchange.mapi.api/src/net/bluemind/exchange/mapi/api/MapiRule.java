@@ -18,31 +18,18 @@
  */
 package net.bluemind.exchange.mapi.api;
 
-import java.util.List;
-
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-
 import net.bluemind.core.api.BMApi;
-import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.directory.api.DirEntry;
 
+/**
+ * MAPI Rule storage. Storage is done as an opaque base64 blob as the format is
+ * rule-provider dependent.
+ *
+ */
 @BMApi(version = "3")
-@Path("/mapi/{domainUid}")
-public interface IMapi {
+public class MapiRule {
 
-	/**
-	 * Fetches directory items from a list of NSPI minimalIds
-	 * 
-	 * @deprecated use HOLLOW directory copy for directory informations
-	 * @param galItems
-	 * @return
-	 * @throws ServerFault
-	 */
-	@GET
-	@Path("_galContent")
-	@Deprecated
-	List<ItemValue<DirEntry>> getGALContent(List<Long> galItems) throws ServerFault;
+	public long ruleId;
+
+	public String ruleBase64;
 
 }

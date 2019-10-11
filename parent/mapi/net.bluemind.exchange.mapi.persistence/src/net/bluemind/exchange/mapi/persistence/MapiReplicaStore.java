@@ -35,6 +35,7 @@ public class MapiReplicaStore extends JdbcAbstractStore {
 
 	public MapiReplicaStore(DataSource dataSource) {
 		super(dataSource);
+		logger.debug("Created for ds {}", dataSource);
 	}
 
 	/**
