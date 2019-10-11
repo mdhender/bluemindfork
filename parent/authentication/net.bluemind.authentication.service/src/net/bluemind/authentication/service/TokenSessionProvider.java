@@ -50,7 +50,7 @@ public class TokenSessionProvider implements ISessionsProvider {
 				return null;
 			}
 			logger.info("[{}@{}] Rebuilding context for token {}", tok.subjectUid, tok.subjectDomain, tok.key);
-			return coreAuth.buildContext(tok.subjectDomain, tok.subjectUid);
+			return coreAuth.buildContext(tok.key, tok.subjectDomain, tok.subjectUid);
 		});
 	}
 
