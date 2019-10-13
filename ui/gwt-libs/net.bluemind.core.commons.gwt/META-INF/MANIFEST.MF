@@ -7,7 +7,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: com.google.gwt.user;resolution:=optional,
  net.bluemind.core.commons;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.core.context;bundle-version="4.1.0";visibility:=reexport,
- com.github.gwt-completablefuture;bundle-version="0.0.1";visibility:=reexport
+ com.github.gwt-completablefuture;bundle-version="0.0.1"
 Export-Package: net.bluemind.core,
  net.bluemind.core.api.date.gwt.js,
  net.bluemind.core.api.date.gwt.serder,

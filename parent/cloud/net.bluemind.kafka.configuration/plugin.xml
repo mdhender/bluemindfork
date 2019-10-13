@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.kafka.configuration.topics" name="topics" schema="schema/net.bluemind.kafka.configuration.topics.exsd"/>
+   <extension-point id="net.bluemind.kafka.configuration.brokers" name="brokers" schema="schema/net.bluemind.kafka.configuration.brokers.exsd"/>
+
+</plugin>

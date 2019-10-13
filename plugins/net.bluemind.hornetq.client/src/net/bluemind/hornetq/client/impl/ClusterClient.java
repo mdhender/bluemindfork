@@ -43,7 +43,9 @@ public final class ClusterClient extends ClusterNode {
 		ClientConfig cfg = new ClientConfig();
 
 		cfg.setInstanceName(jvmType + "-" + UUID.randomUUID().toString());
-		cfg.setProperty("hazelcast.logging.type", "slf4j");
+		cfg.setProperty(GroupProperty.LOGGING_TYPE.getName(), "slf4j");
+		cfg.setProperty(GroupProperty.BACKPRESSURE_ENABLED.getName(), "true");
+		cfg.setProperty(GroupProperty.OPERATION_BACKUP_TIMEOUT_MILLIS.getName(), "61000");
 		cfg.setProperty(GroupProperty.HEALTH_MONITORING_LEVEL.getName(), HealthMonitorLevel.OFF.name());
 		GroupConfig gc = new GroupConfig(MQ.CLUSTER_ID);
 		cfg.setGroupConfig(gc);

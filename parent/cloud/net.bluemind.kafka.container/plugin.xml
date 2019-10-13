@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.kafka.configuration.brokers">
+      <broker
+            factory="net.bluemind.kafka.container.SingleKafkaContainer$DockerBF"
+            priority="100">
+      </broker>
+   </extension>
+
+</plugin>

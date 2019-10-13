@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <bundle id="net.bluemind.kafka.configuration"/>
+   <bundle id="net.bluemind.kafka.configuration.fs"/>
+   <bundle id="net.bluemind.forest.instance.api"/>
+   <bundle id="net.bluemind.forest.instance.service"/>
+   <bundle id="net.bluemind.forest.cloud.api"/>
+   <bundle id="net.bluemind.kafka.client"/>
+</site>

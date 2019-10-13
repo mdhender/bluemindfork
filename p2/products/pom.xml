@@ -30,5 +30,6 @@
 		<module>bm-connector-tbird</module>
 		<module>core-extensions</module>
 		<module>sdsproxy</module>
+		<module>forest</module>
 	</modules>
 </project>

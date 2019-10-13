@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="forest.cloud"
+         name="forest.cloud"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            thread="main"
+            visible="true">
+         <run
+               class="net.bluemind.forest.cloud.launcher.ForestCloudApplication">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="forest"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="forest.cloud"
+            name="Forest Rest Endpoint">
+         <property
+               name="appName"
+               value="Forest Rest Endpoint">
+         </property>
+      </product>
+   </extension>
+
+</plugin>

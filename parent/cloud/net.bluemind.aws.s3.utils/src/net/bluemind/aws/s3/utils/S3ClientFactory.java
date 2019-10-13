@@ -17,6 +17,7 @@
  */
 package net.bluemind.aws.s3.utils;
 
+import com.amazonaws.SDKGlobalConfiguration;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
@@ -24,6 +25,10 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 
 public class S3ClientFactory {
+
+	static {
+		System.setProperty(SDKGlobalConfiguration.DISABLE_CERT_CHECKING_SYSTEM_PROPERTY, "");
+	}
 
 	private S3ClientFactory() {
 	}
@@ -34,6 +39,7 @@ public class S3ClientFactory {
 				new EndpointConfiguration(s3Configuration.getEndpoint(), s3Configuration.getRegion()));
 		builder.setCredentials(new AWSStaticCredentialsProvider(
 				new BasicAWSCredentials(s3Configuration.getAccessKey(), s3Configuration.getSecretKey())));
+		builder.setPathStyleAccessEnabled(true);
 		return builder.build();
 	}
 }

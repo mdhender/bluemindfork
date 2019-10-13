@@ -501,4 +501,11 @@
    <bundle id="net.bluemind.sds.proxy.testhelper" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.sds.replication" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.aws.s3.utils"/>
+   <bundle id="net.bluemind.kafka.configuration"/>
+   <bundle id="net.bluemind.kafka.configuration.fs"/>
+   <bundle id="net.bluemind.forest.cloud.api"/>
+   <bundle id="net.bluemind.forest.cloud.launcher"/>
+   <bundle id="net.bluemind.forest.cloud.service"/>
+   <bundle id="net.bluemind.forest.instance.api"/>
+   <bundle id="net.bluemind.forest.instance.service"/>
 </site>

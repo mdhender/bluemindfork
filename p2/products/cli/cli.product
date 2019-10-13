@@ -7,7 +7,7 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-consoleLog check status
+      <programArgs>-consoleLog help forest join
       </programArgs>
       <vmArgs>-Duser.timezone=GMT -Djava.awt.headless=true -Dnet.bluemind.property.product=bm-cli
       </vmArgs>
@@ -102,6 +102,9 @@
       <plugin id="net.bluemind.exchange.mapi.api"/>
       <plugin id="net.bluemind.exchange.publicfolders.common"/>
       <plugin id="net.bluemind.filehosting.api"/>
+      <plugin id="net.bluemind.forest.cloud.api"/>
+      <plugin id="net.bluemind.forest.instance.api"/>
+      <plugin id="net.bluemind.forest.instance.cli"/>
       <plugin id="net.bluemind.group.api"/>
       <plugin id="net.bluemind.hornetq.client"/>
       <plugin id="net.bluemind.hsm.api"/>

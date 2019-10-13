@@ -1,0 +1,11 @@
+#!/usr/bin/make -f
+
+include /usr/share/cdbs/1/rules/debhelper.mk
+
+JAVA_HOME := /usr/lib/jvm/bm-jdk
+
+build:
+	echo "forest-node"
+
+install/bm-forest-node::
+	cp -rf ${CURDIR}/ROOT/* ${CURDIR}/debian/bm-forest-node

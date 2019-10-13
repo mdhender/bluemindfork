@@ -28,6 +28,7 @@ import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.MemberAttributeConfig;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.config.ReliableTopicConfig;
+import com.hazelcast.config.RestApiConfig;
 import com.hazelcast.config.RingbufferConfig;
 import com.hazelcast.config.TcpIpConfig;
 import com.hazelcast.core.Cluster;
@@ -66,9 +67,12 @@ public final class ClusterMember extends ClusterNode {
 		Config cfg = new Config();
 
 		cfg.setInstanceName(jvmType + "-" + UUID.randomUUID().toString());
-		cfg.setProperty("hazelcast.logging.type", "slf4j");
-		cfg.setProperty("hazelcast.socket.server.bind.any", "false");
-		cfg.setProperty("hazelcast.phone.home.enabled", "false");
+		cfg.setProperty(GroupProperty.LOGGING_TYPE.getName(), "slf4j");
+		cfg.setProperty(GroupProperty.BACKPRESSURE_ENABLED.getName(), "true");
+		cfg.setProperty(GroupProperty.OPERATION_BACKUP_TIMEOUT_MILLIS.getName(), "61000");
+		cfg.setProperty(GroupProperty.SOCKET_SERVER_BIND_ANY.getName(), "false");
+		cfg.setProperty(GroupProperty.PHONE_HOME_ENABLED.getName(), "false");
+		cfg.getNetworkConfig().setRestApiConfig(new RestApiConfig().setEnabled(true));
 		cfg.setProperty(GroupProperty.HEALTH_MONITORING_LEVEL.getName(), HealthMonitorLevel.OFF.name());
 		GroupConfig gc = new GroupConfig(MQ.CLUSTER_ID);
 		cfg.setGroupConfig(gc);
