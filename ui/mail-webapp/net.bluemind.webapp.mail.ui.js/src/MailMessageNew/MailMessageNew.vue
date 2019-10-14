@@ -73,6 +73,7 @@
                 </bm-row>
                 <bm-form-group>
                     <bm-form-textarea
+                        v-if="userPrefTextOnly"
                         v-model="message_.content"
                         :rows="10"
                         :max-rows="10000"
@@ -80,6 +81,7 @@
                         class="mail-content"
                         no-resize
                     />
+                    <bm-rich-editor v-else v-model="message_.content" />
                 </bm-form-group>
                 <bm-button
                     v-if="previousMessage && previousMessage.content && !expandPreviousMessages"
@@ -105,12 +107,13 @@ import {
     BmButton,
     BmCol,
     BmContactInput,
-    BmFormTextarea,
     BmFormInput,
     BmForm,
     BmFormGroup,
+    BmFormTextarea,
     BmIcon,
     BmPanel,
+    BmRichEditor,
     BmRow
 } from "@bluemind/styleguide";
 import debounce from "lodash/debounce";
@@ -124,12 +127,13 @@ export default {
         BmButton,
         BmCol,
         BmContactInput,
-        BmFormTextarea,
         BmFormInput,
         BmForm,
         BmFormGroup,
+        BmFormTextarea,
         BmIcon,
         BmPanel,
+        BmRichEditor,
         BmRow,
         MailMessageNewFooter
     },
@@ -164,7 +168,8 @@ export default {
             autocompleteResultsTo: [],
             autocompleteResultsCc: [],
             autocompleteResultsBcc: [],
-            debouncedSave: debounce(this.saveDraft, 1000)
+            debouncedSave: debounce(this.saveDraft, 1000),
+            userPrefTextOnly: false // FIXME 
         };
     },
     computed: {
@@ -258,7 +263,9 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
 .mail-message-new input, .mail-message-new textarea {
     border: none;
 }
@@ -267,7 +274,15 @@ export default {
     box-shadow: none;
 }
 
-.mail-content {
+.mail-message-new .bm-rich-editor-content .ProseMirror {
+    min-height: 12rem;
+}
+
+.mail-message-new .mail-content {
     overflow: auto !important;
+}
+
+.mail-message-new .ProseMirror, .mail-message-new .mail-content { 
+    padding: map-get($spacers, 2) map-get($spacers, 3);
 }
 </style>
