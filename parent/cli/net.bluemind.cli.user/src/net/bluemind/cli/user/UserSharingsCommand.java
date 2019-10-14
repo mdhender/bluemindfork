@@ -60,43 +60,36 @@ public class UserSharingsCommand extends SingleOrDomainOperation {
 	@Option(name = "--given", description = "Show Containers shared by the user")
 	public Boolean given = false;
 	
-	@Option(name = "--received", description = "Show Shared Containers from other users")
+	@Option(name = "--received", description = "Show Containers Shared by other users")
 	public Boolean received = false;
 	
 	@Override
 	public void synchronousDirOperation(String domainUid, ItemValue<DirEntry> de) {
+		IContainers containersApi = ctx.adminApi().instance(IContainers.class, de.uid);
+		ContainerQuery query = new ContainerQuery();
+		query.owner = de.uid;
+		List<ContainerDescriptor> containers = containersApi.allForUser(domainUid, de.uid, query);
 		if (given) {
-			IContainers containersApi = ctx.adminApi().instance(IContainers.class, de.uid);
-			ContainerQuery query = new ContainerQuery();
-			query.owner = de.uid;
-			
-			List<ContainerDescriptor> containers = containersApi.allForUser(domainUid, de.uid, query);
-			sharingsGiven(containers, de, domainUid);
+			getAclsAndContainers(containers, de, domainUid, true);
 		}
 		else if(received) {
-			IContainers containersApi = ctx.adminApi().instance(IContainers.class, de.uid);
-			ContainerQuery query = new ContainerQuery();
-			query.owner = de.uid;
-			
-			List<ContainerDescriptor> containers = containersApi.allForUser(domainUid, de.uid, query);
-			sharingsReceived(containers, de, domainUid);
+			getAclsAndContainers(containers, de, domainUid, false);
 		}
 			
 	}
 	
-	private void sharingsGiven(List<ContainerDescriptor> containers, ItemValue<DirEntry> de, String domainUid) {
-		
+	private void getAclsAndContainers(List<ContainerDescriptor> containers, ItemValue<DirEntry> de, String domainUid, Boolean owned) {
 		Map<ContainerDescriptor, List<AccessControlEntry>> map = new HashMap<ContainerDescriptor, List<AccessControlEntry>>();
 		int aclsNumbers = 0;
 		
 		for (ContainerDescriptor containerDescriptor : containers) {
-			if(containerDescriptor.owner.equalsIgnoreCase(de.uid)) {			
+			if(containerDescriptor.owner.equalsIgnoreCase(de.uid) == owned) {			
 				IContainerManagement containerManager = ctx.adminApi().instance(IContainerManagement.class, containerDescriptor.uid);
 				List<AccessControlEntry> acls = containerManager.getAccessControlList();
 				List<AccessControlEntry> aclsWithoutUser = new ArrayList<>();
 				for (AccessControlEntry acl : acls) {
 					//Do not garbage your own shares
-					if(!acl.subject.equalsIgnoreCase(de.uid)) {
+					if(acl.subject.equalsIgnoreCase(de.uid) != owned) {
 						aclsWithoutUser.add(acl);
 					}
 				}
@@ -108,71 +101,19 @@ public class UserSharingsCommand extends SingleOrDomainOperation {
 		}
 		displayGiven(map, aclsNumbers, domainUid);
 	}
-
-	private void sharingsReceived(List<ContainerDescriptor> containers, ItemValue<DirEntry> de, String domainUid) {
-		Map<ContainerDescriptor, List<AccessControlEntry>> map = new HashMap<ContainerDescriptor, List<AccessControlEntry>>();
-		int aclsNumbers = 0;
-		
-		for (ContainerDescriptor containerDescriptor : containers) {
-			if(!containerDescriptor.owner.equalsIgnoreCase(de.uid)) {
-				IContainerManagement containerManager = ctx.adminApi().instance(IContainerManagement.class, containerDescriptor.uid);
-				List<AccessControlEntry> acls = containerManager.getAccessControlList();
-				List<AccessControlEntry> aclsWithoutUser = new ArrayList<>();
-				for (AccessControlEntry acl : acls) {
-					//Garbage your own shares
-					if(acl.subject.equalsIgnoreCase(de.uid)) {
-						aclsWithoutUser.add(acl);
-					}
-				}
-				aclsNumbers += aclsWithoutUser.size();
-				if(!aclsWithoutUser.isEmpty()) {
-					map.put(containerDescriptor, aclsWithoutUser);
-				}
-			}
-		}
-		displayReceived(map, aclsNumbers, domainUid);
-	}
-
 	private void displayGiven(Map<ContainerDescriptor, List<AccessControlEntry>> map, int size, String domainUid) {
 		//Used to add a row to include the header
 		size++;
 		
-		String[][] asTable = new String[size][6];
-		asTable[0][0] = "Container Name";
-		asTable[0][1] = "Container Uid";
-		asTable[0][2] = "Container Type";
-		asTable[0][3] = "DisplayName";
-		asTable[0][4] = "Subject";
-		asTable[0][5] = "Verb";
-		
-		int i = 1;
-		for (Map.Entry<ContainerDescriptor, List<AccessControlEntry>> entry : map.entrySet()) {
-			ContainerDescriptor containerInfos = entry.getKey();
-			List<AccessControlEntry> acls = entry.getValue();
-			for (AccessControlEntry acl : acls) {
-				asTable[i][0] = containerInfos.name;
-				asTable[i][1] = containerInfos.uid;
-				asTable[i][2] = containerInfos.type;
-				asTable[i][3] = resolvedSubject(acl.subject, domainUid);
-				asTable[i][4] = acl.subject;
-				asTable[i][5] = acl.verb.toString();
-				i++;
-			}
-		}
-		ctx.info(AsciiTable.getTable(asTable));
-	}
-	
-	private void displayReceived(Map<ContainerDescriptor, List<AccessControlEntry>> map, int size, String domainUid) {
-		//Used to add a row to include the header
-		size++;
-		
-		String[][] asTable = new String[size][6];
-		asTable[0][0] = "DisplayName";
+		String[][] asTable = new String[size][8];
+		asTable[0][0] = "Owner DisplayName";
 		asTable[0][1] = "Owner";
-		asTable[0][2] = "Container Uid";
-		asTable[0][3] = "Container Type";
-		asTable[0][4] = "Subject";
-		asTable[0][5] = "Verb";
+		asTable[0][2] = "Container Name";
+		asTable[0][3] = "Container Uid";
+		asTable[0][4] = "Container Type";
+		asTable[0][5] = "DisplayName";
+		asTable[0][6] = "Subject";
+		asTable[0][7] = "Verb";
 		
 		int i = 1;
 		for (Map.Entry<ContainerDescriptor, List<AccessControlEntry>> entry : map.entrySet()) {
@@ -181,15 +122,18 @@ public class UserSharingsCommand extends SingleOrDomainOperation {
 			for (AccessControlEntry acl : acls) {
 				asTable[i][0] = containerInfos.ownerDisplayname;
 				asTable[i][1] = containerInfos.owner;
-				asTable[i][2] = containerInfos.uid;
-				asTable[i][3] = containerInfos.type;
-				asTable[i][4] = acl.subject;
-				asTable[i][5] = acl.verb.toString();
+				asTable[i][2] = containerInfos.name;
+				asTable[i][3] = containerInfos.uid;
+				asTable[i][4] = containerInfos.type;
+				asTable[i][5] = resolvedSubject(acl.subject, domainUid);
+				asTable[i][6] = acl.subject;
+				asTable[i][7] = acl.verb.toString();
 				i++;
 			}
 		}
 		ctx.info(AsciiTable.getTable(asTable));
 	}
+	
 	
 	private String resolvedSubject(String subject, String domainUid) {
 		if(subject.equalsIgnoreCase(domainUid)) {
