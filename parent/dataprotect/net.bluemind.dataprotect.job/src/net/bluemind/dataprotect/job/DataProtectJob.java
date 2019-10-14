@@ -27,6 +27,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vertx.java.core.buffer.Buffer;
+import org.vertx.java.core.json.JsonObject;
 
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
@@ -74,23 +76,22 @@ public class DataProtectJob implements IScheduledJob {
 				return;
 			}
 		}
+
 		IScheduledJobRunId slot = sched.requestSlot("global.virt", this, startDate);
 		if (slot != null) {
 			logger.info("Starting backup...");
-			sched.info(slot, "en", "dp style");
-			sched.info(slot, "fr", "dp style");
+			sched.info(slot, "en", "Starting backup");
+			sched.info(slot, "fr", "Démarrage de la sauvegarde");
+
 			IServiceProvider sp = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 			IDataProtect dpApi = sp.instance(IDataProtect.class);
 			AtomicReference<JobExitStatus> status = new AtomicReference<JobExitStatus>(JobExitStatus.SUCCESS);
 			try {
 				TaskRef ref = dpApi.saveAll();
-				ITask taskApi = sp.instance(ITask.class, ref.id + "");
+				ITask taskApi = sp.instance(ITask.class, String.format("%s", ref.id));
 				Stream logsStream = taskApi.log();
 
-				VertxStream.read(logsStream).dataHandler(log -> {
-					sched.info(slot, "en", log.toString());
-					sched.info(slot, "fr", log.toString());
-				});
+				VertxStream.read(logsStream).dataHandler(log -> displayLogs(sched, slot, log));
 
 				TaskStatus taskResult = TaskUtils.wait(sp, ref);
 				if (!taskResult.state.succeed) {
@@ -118,6 +119,22 @@ public class DataProtectJob implements IScheduledJob {
 
 		}
 
+	}
+
+	private void displayLogs(IScheduler sched, IScheduledJobRunId slot, Buffer logBuffer) {
+		JsonObject log = new JsonObject(logBuffer.toString());
+		String message = log.getString("message");
+
+		if (message == null || message.equals("")) {
+			return;
+		}
+
+		logger.info("{} {} {} {}", log.getNumber("done"), log.getNumber("total"), message, log.getBoolean("end"));
+
+		String formatedMessage = String.format("%d/%d: %s", log.getNumber("done").intValue() + 1,
+				log.getNumber("total").intValue() + 1, message);
+		sched.info(slot, "en", formatedMessage);
+		sched.info(slot, "fr", formatedMessage);
 	}
 
 	@Override

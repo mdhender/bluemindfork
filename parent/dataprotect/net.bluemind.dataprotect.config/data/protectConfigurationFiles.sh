@@ -9,42 +9,42 @@ fi
 mkdir -p ${ETC_PATH}
 
 if [ -e /etc/bm ]; then
-  echo "Protect /etc/bm"
+  echo "/etc/bm"
   cp -r /etc/bm ${ETC_PATH}
 fi
 
 if [ -e /etc/imapd.conf ]; then
-  echo "Protect /etc/imapd.conf"
+  echo "/etc/imapd.conf"
   cp -r /etc/imapd.conf ${ETC_PATH}/imapd.conf
 fi
 
 if [ -e /etc/cyrus.conf ]; then
-  echo "Protect /etc/cyrus.conf"
+  echo "/etc/cyrus.conf"
   cp -r /etc/cyrus.conf ${ETC_PATH}/cyrus.conf
 fi
 
 if [ -e /etc/cyrus-partitions ]; then
-  echo "Protect /etc/cyrus-partitions"
+  echo "/etc/cyrus-partitions"
   cp -r /etc/cyrus-partitions ${ETC_PATH}/cyrus-partitions
 fi
 
 if [ -e /etc/cyrus-admins ]; then
-  echo "Protect /etc/cyrus-admins"
+  echo "/etc/cyrus-admins"
   cp -r /etc/cyrus-admins ${ETC_PATH}/cyrus-admins
 fi
 
 if [ -e /etc/postfix ]; then
-  echo "Protect /etc/postfix"
+  echo "/etc/postfix"
   cp -r /etc/postfix ${ETC_PATH}
 fi
 
 if [ -e /etc/bm-hps ]; then
-  echo "Protect /etc/bm-hps"
+  echo "/etc/bm-hps"
   cp -r /etc/bm-hps ${ETC_PATH}
 fi
 
 if [ -e /etc/bm-node ]; then
-  echo "Protect /etc/bm-node"
+  echo "/etc/bm-node"
   cp -r /etc/bm-node ${ETC_PATH}
 fi
 
@@ -52,6 +52,6 @@ if [ -e /usr/share/bm-elasticsearch/config/elasticsearch.yml ]; then
   ES_PATH=${DST_PATH}/usr/share/bm-elasticsearch/config
   mkdir -p ${ES_PATH}
   
-  echo "Protect /usr/share/bm-elasticsearch/config/elasticsearch.yml"
+  echo "/usr/share/bm-elasticsearch/config/elasticsearch.yml"
   cp -r /usr/share/bm-elasticsearch/config/elasticsearch.yml ${ES_PATH}/elasticsearch.yml
 fi

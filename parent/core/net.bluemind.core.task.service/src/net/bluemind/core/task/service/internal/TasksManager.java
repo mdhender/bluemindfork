@@ -55,7 +55,7 @@ public class TasksManager implements ITasksManager {
 	@Override
 	public TaskRef run(final String taskId, final IServerTask serverTask) throws ServerFault {
 		final TaskManager task = new TaskManager(taskId);
-		final TaskMonitor monitor = new TaskMonitor(vertx.eventBus(), "tasks-" + taskId);
+		final TaskMonitor monitor = new TaskMonitor(vertx.eventBus(), addr(taskId));
 		final LoggingTaskMonitor loggingMonitor = new LoggingTaskMonitor(null, monitor, 0);
 		TaskManager oldTask = tasks.putIfAbsent(taskId, task);
 		if (oldTask != null) {
