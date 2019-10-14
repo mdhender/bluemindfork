@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import com.github.freva.asciitable.AsciiTable;
 
@@ -31,7 +30,6 @@ import io.airlift.airline.Option;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.directory.common.SingleOrDomainOperation;
-import net.bluemind.core.api.ListResult;
 import net.bluemind.core.container.api.ContainerQuery;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
@@ -40,10 +38,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
-import net.bluemind.directory.api.DirEntryQuery;
 import net.bluemind.directory.api.IDirectory;
-import net.bluemind.user.api.IUser;
-import net.bluemind.user.api.User;
 
 @Command(name = "sharings", description = "Show shared containers for a user")
 public class UserSharingsCommand extends SingleOrDomainOperation {
