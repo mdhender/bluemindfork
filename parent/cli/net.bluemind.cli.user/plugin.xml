@@ -28,7 +28,7 @@
             priority="79">
       </registration>
       <registration
-            impl="net.bluemind.cli.user.UserSharedCommand$Reg"
+            impl="net.bluemind.cli.user.UserSharingsCommand$Reg"
             priority="77">
       </registration>
    </extension>
