@@ -86,22 +86,22 @@ public class UserSharingsCommand extends SingleOrDomainOperation {
 			if(containerDescriptor.owner.equalsIgnoreCase(de.uid) == owned) {			
 				IContainerManagement containerManager = ctx.adminApi().instance(IContainerManagement.class, containerDescriptor.uid);
 				List<AccessControlEntry> acls = containerManager.getAccessControlList();
-				List<AccessControlEntry> aclsWithoutUser = new ArrayList<>();
+				List<AccessControlEntry> aclsFiltered = new ArrayList<>();
 				for (AccessControlEntry acl : acls) {
 					//Do not garbage your own shares
 					if(acl.subject.equalsIgnoreCase(de.uid) != owned) {
-						aclsWithoutUser.add(acl);
+						aclsFiltered.add(acl);
 					}
 				}
-				aclsNumbers += aclsWithoutUser.size();
-				if(!aclsWithoutUser.isEmpty()) {
-					map.put(containerDescriptor, aclsWithoutUser);
+				aclsNumbers += aclsFiltered.size();
+				if(!aclsFiltered.isEmpty()) {
+					map.put(containerDescriptor, aclsFiltered);
 				}
 			}
 		}
-		displayGiven(map, aclsNumbers, domainUid);
+		display(map, aclsNumbers, domainUid);
 	}
-	private void displayGiven(Map<ContainerDescriptor, List<AccessControlEntry>> map, int size, String domainUid) {
+	private void display(Map<ContainerDescriptor, List<AccessControlEntry>> map, int size, String domainUid) {
 		//Used to add a row to include the header
 		size++;
 		
