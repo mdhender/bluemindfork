@@ -139,9 +139,9 @@ public class UserSharingsCommand extends SingleOrDomainOperation {
 			return domainUid;
 		}
 		IDirectory dirApi = ctx.adminApi().instance(IDirectory.class, domainUid);
-		DirEntry user = dirApi.findByEntryUid(subject);	
-		if(user != null) {
-			return user.displayName;
+		DirEntry entry = dirApi.findByEntryUid(subject);	
+		if(entry != null) {
+			return String.format("%s %s", entry.kind.name(), entry.displayName);
 		} else {
 			return "NO USER FOUND";
 		}
