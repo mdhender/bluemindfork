@@ -150,7 +150,6 @@ public class UserSharingsCommand extends SingleOrDomainOperation {
 			exception.entryUid = subject;
 			map.put(exception, verb);
 		} else if(expand && entry.kind == Kind.GROUP){
-			ctx.info(entry.kind.name());
 			map = expandGroup(entry, verb, domainUid);
 		} else {
 			map.put(entry, verb);
