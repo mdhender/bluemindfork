@@ -149,7 +149,7 @@ public class UserSharingsCommand extends SingleOrDomainOperation {
 			exception.displayName = "NO ENTRY FOUND";
 			exception.entryUid = subject;
 			map.put(exception, verb);
-		} else if(expand && entry.kind.name().equalsIgnoreCase("GROUP")){
+		} else if(expand && entry.kind == Kind.GROUP){
 			ctx.info(entry.kind.name());
 			map = expandGroup(entry, verb, domainUid);
 		} else {
