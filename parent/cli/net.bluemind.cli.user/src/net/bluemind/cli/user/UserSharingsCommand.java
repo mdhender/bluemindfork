@@ -64,7 +64,7 @@ public class UserSharingsCommand extends SingleOrDomainOperation {
 	@Option(name = "--received", description = "Show containers Shared by other users")
 	public Boolean received = false;
 	
-	@Option(name = "--expand", description = "Expand groups when a Container")
+	@Option(name = "--expand", description = "Expand groups when a Container is shared to a group")
 	public Boolean expand = false;
 	
 	@Override
