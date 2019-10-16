@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -197,8 +198,8 @@ public class MessageBody {
 		public static Recipient create(RecipientKind kind, String dn, String address) {
 			Recipient rcpt = new Recipient();
 			rcpt.kind = kind;
-			rcpt.dn = dn;
-			rcpt.address = address;
+			rcpt.dn = Optional.ofNullable(dn).map(d -> d.replace("\u0000", "")).orElse(null);
+			rcpt.address = Optional.ofNullable(address).map(d -> d.replace("\u0000", "")).orElse(null);
 			return rcpt;
 		}
 
