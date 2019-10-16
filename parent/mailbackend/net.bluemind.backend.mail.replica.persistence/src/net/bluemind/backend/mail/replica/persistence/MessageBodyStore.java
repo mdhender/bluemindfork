@@ -95,8 +95,8 @@ public class MessageBodyStore extends JdbcAbstractStore {
 	}
 
 	public List<String> deleteOrphanBodies() throws SQLException {
-		String query = "delete from t_message_body b where created < NOW() - INTERVAL '2 hour' and not exists (select from t_mailbox_record where message_body_guid = b.guid)";
-		String selectQuery = "select b.guid from t_message_body b where created < NOW() - INTERVAL '2 hour' and not exists (select from t_mailbox_record where message_body_guid = b.guid)";
+		String query = "delete from t_message_body b where created < NOW() - INTERVAL '2 days' and not exists (select from t_mailbox_record where message_body_guid = b.guid)";
+		String selectQuery = "select b.guid from t_message_body b where created < NOW() - INTERVAL '2 days' and not exists (select from t_mailbox_record where message_body_guid = b.guid)";
 		List<String> selected = select(selectQuery, StringCreator.FIRST, (rs, index, val) -> index);
 		int handled = delete(query, new Object[0]);
 		logger.info("{} orphan bodies purged.", handled);
