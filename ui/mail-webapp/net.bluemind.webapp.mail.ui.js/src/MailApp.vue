@@ -24,7 +24,7 @@
             <bm-col cols="12" md="3" class="pl-2 pr-0">
                 <mail-message-list class="h-100" />
             </bm-col>
-            <bm-col cols="12" md="9" lg="8" xl="7" class="d-md-block collapse px-0 h-100">
+            <bm-col cols="12" md="9" lg="8" xl="7" class="collapse px-0 h-100 d-flex flex-column overflow-auto">
                 <router-view />
             </bm-col>
         </bm-row>

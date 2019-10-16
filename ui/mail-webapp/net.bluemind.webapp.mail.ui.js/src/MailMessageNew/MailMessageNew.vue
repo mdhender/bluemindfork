@@ -1,5 +1,5 @@
 <template>
-    <bm-form class="mail-message-new mt-3 px-3">
+    <bm-form class="mail-message-new p-3 flex-grow-1 d-flex">
         <bm-panel :title="panelTitle" :closeable="false">
             <template #body>
                 <bm-row class="align-items-center">
@@ -7,7 +7,6 @@
                         <bm-contact-input
                             ref="to"
                             :contacts.sync="message_.to"
-                            class="mt-2"
                             :autocomplete-results="autocompleteResultsTo"
                             @search="searchedPattern => onSearch('to', searchedPattern)"
                         >
@@ -25,7 +24,7 @@
                         </bm-button>
                     </bm-col>
                 </bm-row>
-                <hr class="mt-0 mb-2">
+                <hr class="m-0">
 
                 <bm-row v-if="mode > modes.TO">
                     <bm-col cols="11">
@@ -49,7 +48,7 @@
                         </bm-button>
                     </bm-col>
                 </bm-row>
-                <hr v-if="mode > modes.TO" class="mt-0 mb-2">
+                <hr v-if="mode > modes.TO" class="m-0">
 
                 <bm-contact-input
                     v-if="mode == (modes.TO | modes.CC | modes.BCC)"
@@ -69,24 +68,24 @@
                     @keydown.enter.native.prevent
                 />
                 <bm-row class="d-block">
-                    <hr class="bg-dark mt-1 mb-1">
+                    <hr class="bg-dark m-0">
                 </bm-row>
-                <bm-form-group>
+                <div class="flex-grow-1">
                     <bm-form-textarea
-                        v-if="userPrefTextOnly"
+                        v-if="true"
                         v-model="message_.content"
                         :rows="10"
                         :max-rows="10000"
                         :aria-label="$t('mail.new.content.aria')"
-                        class="mail-content"
+                        class="mail-content h-100"
                         no-resize
                     />
-                    <bm-rich-editor v-else v-model="message_.content" />
-                </bm-form-group>
+                    <bm-rich-editor v-else v-model="message_.content" class="h-100" />
+                </div>
                 <bm-button
                     v-if="previousMessage && previousMessage.content && !expandPreviousMessages"
                     variant="outline-dark"
-                    class="pb-0"
+                    class="align-self-start"
                     @click="displayPreviousMessages"
                 >
                     <bm-icon icon="3dots" size="sm" />
@@ -109,7 +108,6 @@ import {
     BmContactInput,
     BmFormInput,
     BmForm,
-    BmFormGroup,
     BmFormTextarea,
     BmIcon,
     BmPanel,
@@ -129,7 +127,6 @@ export default {
         BmContactInput,
         BmFormInput,
         BmForm,
-        BmFormGroup,
         BmFormTextarea,
         BmIcon,
         BmPanel,
@@ -169,7 +166,7 @@ export default {
             autocompleteResultsCc: [],
             autocompleteResultsBcc: [],
             debouncedSave: debounce(this.saveDraft, 1000),
-            userPrefTextOnly: false // FIXME 
+            userPrefTextOnly: false // TODO: initialize this with user setting 
         };
     },
     computed: {
