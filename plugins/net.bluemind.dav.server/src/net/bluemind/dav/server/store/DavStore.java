@@ -59,6 +59,7 @@ import net.bluemind.dav.server.proto.props.caldav.CalendarTimezone;
 import net.bluemind.dav.server.proto.props.caldav.CalendarUserAddressSet;
 import net.bluemind.dav.server.proto.props.caldav.DefaultAlarmVEventDate;
 import net.bluemind.dav.server.proto.props.caldav.DefaultAlarmVEventDateTime;
+import net.bluemind.dav.server.proto.props.caldav.MaxAttendeesPerInstance;
 import net.bluemind.dav.server.proto.props.caldav.ScheduleCalendarTransp;
 import net.bluemind.dav.server.proto.props.caldav.ScheduleDefaultCalendarUrl;
 import net.bluemind.dav.server.proto.props.caldav.ScheduleInboxUrl;
@@ -160,6 +161,7 @@ public final class DavStore {
 		reg(SupportedCalendarComponentSet.factory());
 		reg(SupportedCalendarComponentSets.factory());
 		reg(ScheduleTag.factory());
+		reg(MaxAttendeesPerInstance.factory());
 
 		// calendarserver.org
 		reg(AllowedCalendarComponentSet.factory());
@@ -387,7 +389,8 @@ public final class DavStore {
 
 	/**
 	 * @param ret
-	 * @param path the vevents container path
+	 * @param path
+	 *                 the vevents container path
 	 */
 	private void addEvents(List<DavResource> ret, DavResource dr) {
 		ContainerDescriptor cd = lc.vStuffContainer(dr);
