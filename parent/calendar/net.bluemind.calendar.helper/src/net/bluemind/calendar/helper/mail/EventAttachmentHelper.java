@@ -77,6 +77,7 @@ public class EventAttachmentHelper {
 			SSLContext sc = SSLContext.getInstance("SSL");
 			sc.init(null, new TrustManager[] { Trust.createTrustManager() }, new SecureRandom());
 			HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+			HttpsURLConnection.setDefaultHostnameVerifier(Trust.acceptAllVerifier());
 		} catch (Exception e) {
 		}
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
