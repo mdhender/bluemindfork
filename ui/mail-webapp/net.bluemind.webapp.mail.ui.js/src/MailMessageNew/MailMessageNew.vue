@@ -72,7 +72,7 @@
                 </bm-row>
                 <div class="flex-grow-1">
                     <bm-form-textarea
-                        v-if="true"
+                        v-if="userPrefTextOnly"
                         v-model="message_.content"
                         :rows="10"
                         :max-rows="10000"
@@ -80,7 +80,12 @@
                         class="mail-content h-100"
                         no-resize
                     />
-                    <bm-rich-editor v-else v-model="message_.content" class="h-100" />
+                    <bm-rich-editor 
+                        v-else
+                        v-model="message_.content"
+                        :is-menu-bar-opened="userPrefIsMenuBarOpened"
+                        class="h-100"
+                    />
                 </div>
                 <bm-button
                     v-if="previousMessage && previousMessage.content && !expandPreviousMessages"
@@ -166,7 +171,8 @@ export default {
             autocompleteResultsCc: [],
             autocompleteResultsBcc: [],
             debouncedSave: debounce(this.saveDraft, 1000),
-            userPrefTextOnly: false // TODO: initialize this with user setting 
+            userPrefTextOnly: false, // TODO: initialize this with user setting 
+            userPrefIsMenuBarOpened: false // TODO: initialize this with user setting
         };
     },
     computed: {
