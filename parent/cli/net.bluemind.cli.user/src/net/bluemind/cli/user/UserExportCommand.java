@@ -64,10 +64,11 @@ public class UserExportCommand extends SingleOrDomainOperation {
 	}
 
 	public String outputDir = "/tmp/bm-export";
+	public String rootDir = "/tmp/bm-export";
 
 	@Override
 	public void synchronousDirOperation(String domainUid, ItemValue<DirEntry> de) {
-		outputDir = outputDir + "/" + UUID.randomUUID();
+		outputDir = rootDir + "/" + UUID.randomUUID();  //BM-15290: Needed when using --match [a-c].*
 		File dir = new File(outputDir);
 		try {
 			dir.mkdirs();
@@ -85,7 +86,7 @@ public class UserExportCommand extends SingleOrDomainOperation {
 	}
 
 	private File createArchive(ItemValue<DirEntry> de) {
-		File archiveFile = new File(outputDir + "/../" + de.value.email + ".tgz");
+		File archiveFile = new File(rootDir + "/" + de.value.email + ".tgz");
 
 		try (OutputStream fOut = Files.newOutputStream(archiveFile.toPath());
 				BufferedOutputStream bOut = new BufferedOutputStream(fOut);
