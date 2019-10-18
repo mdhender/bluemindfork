@@ -4,7 +4,7 @@ APT_SOURCE_FILE="/etc/apt/sources.list.d/bm.list"
 APT_BM_CONF="/etc/apt/preferences.d/bm"
 
 install_prepare_system() {
-    if [ ${OS_VERSION} -eq ${UBUNTU_BIONIC} ]; then
+    if [ ${OS_VERSION} == ${UBUNTU_BIONIC} ]; then
         add-apt-repository universe | tee -a ${BLUEMIND_INSTALLER_LOG}
     fi
 
