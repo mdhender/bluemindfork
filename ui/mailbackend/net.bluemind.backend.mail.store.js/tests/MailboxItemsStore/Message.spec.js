@@ -47,7 +47,11 @@ describe("Message", () => {
         // FIXME for now message recipients are just addresses (when sending message)
         message.to = message.to.map(r => r.address);
 
-        let actualItem = message.toMailboxItem("TEXT", "jdoe@vm40.net", "John Doe");
+        let structure = {
+            mime: "text/plain",
+            address: "TEXT"
+        };
+        let actualItem = message.toMailboxItem("jdoe@vm40.net", "John Doe", false, structure);
 
         expect(actualItem).toEqual(expectedItem);
     });

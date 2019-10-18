@@ -8,6 +8,7 @@ import { getLocalizedProperty } from "@bluemind/backend.mail.l10n";
 import { ItemFlag } from "@bluemind/core.container.api";
 import { AlertTypes, Alert } from "@bluemind/alert.store";
 import DraftStatus from "./DraftStatus";
+import { html2text } from "@bluemind/html-utils";
 
 export function $_mailrecord_changed({ dispatch }, { container }) {
     return dispatch("all", container);
@@ -231,7 +232,7 @@ export function send({ state, commit, rootState, dispatch }) {
             }
         })
         .then(mailItem => {
-            const mailImapUid = mailItem.value.imapUid;
+            const mailId = mailItem.internalId;
             const key = "mail.alert.message.sent.ok";
             const success = new Alert({
                 type: AlertTypes.SUCCESS,
@@ -240,7 +241,7 @@ export function send({ state, commit, rootState, dispatch }) {
                 message: getLocalizedProperty(userSession, key, { subject: draft.subject }),
                 props: {
                     subject: draft.subject,
-                    subjectLink: "/mail/" + sentbox.uid + "/" + mailImapUid + "."
+                    subjectLink: "/mail/" + sentbox.uid + "/" + mailId
                 }
             });
             commit("alert/addAlert", success, { root: true });
@@ -392,19 +393,19 @@ export function saveDraft({ commit, rootState, state }) {
 
             // deep clone
             draft = JSON.parse(JSON.stringify(state.draft));
-
+            
             const previousMessage = draft.previousMessage;
             const isAReply = !!previousMessage;
-
+            
             delete draft.id;
             delete draft.status;
             delete draft.saveDate;
-
+            
             if (previousMessage && previousMessage.content
                 && !draft.content.includes(previousMessage.content)) {
                 draft.content += "\n\n\n" + previousMessage.content;
             }
-
+            
             if (isAReply) {
                 if (previousMessage.messageId) {
                     draft.headers.push({ name: "In-Reply-To", values: [previousMessage.messageId] });
@@ -413,30 +414,69 @@ export function saveDraft({ commit, rootState, state }) {
                     draft.references = previousMessage.references;
                 }
             }
-
+            
             sanitize(draft);
-
+            
             const draftbox = rootState["backend.mail/folders"].folders.find(function (folder) {
                 return folder.displayName === "Drafts";
             });
-
+            
             service = ServiceLocator.getProvider("MailboxItemsPersistance").get(draftbox.uid);
             userSession = injector.getProvider("UserSession").get();
         })
         .then(() => {
-            // upload the parts of the draft
+            let partsToUpload = {};
             // FIXME cyrus wants \r\n, should do the replacement in the core, yes ?
-            return service.uploadPart(draft.content.replace(/\r?\n/g, "\r\n"));
+            let content = draft.content.replace(/\r?\n/g, "\r\n");
+            
+            if (draft.type === "text") {
+                partsToUpload[MimeType.TEXT_PLAIN] = content;
+            } else if (draft.type === "html") {
+                partsToUpload[MimeType.TEXT_HTML] = content;
+                partsToUpload[MimeType.TEXT_PLAIN] = html2text(content).replace(/\r?\n/g, "\r\n");
+            }
+            
+            // upload draft parts
+            let addrParts = {};
+            let promises = Object.entries(partsToUpload).map(uploadMe => 
+                service.uploadPart(uploadMe[1]).then((addrPart) => { 
+                    addrParts[uploadMe[0]] = addrPart; 
+                    return Promise.resolve();
+                })
+            );
+            return Promise.all(promises).then(() => addrParts);
         })
-        .then(addrPart => {
+        .then(addrParts => {
             // create the new draft in the draftbox
+            let structure;
+            let textPart = {
+                mime: MimeType.TEXT_PLAIN,
+                address: addrParts[MimeType.TEXT_PLAIN]
+            };
+
+            if (draft.type === "text") {
+                structure = textPart;
+            } else if (draft.type === "html") {
+                structure = {
+                    mime: MimeType.MULTIPART_ALTERNATIVE,
+                    children: [
+                        textPart,
+                        {
+                            mime: MimeType.TEXT_HTML,
+                            address: addrParts[MimeType.TEXT_HTML]
+                        }
+                    ]
+                };
+            }
+            
             return service.create(
                 new Message(draft)
-                    .toMailboxItem(addrPart, userSession.defaultEmail, userSession.formatedName, true)
+                    .toMailboxItem(userSession.defaultEmail, userSession.formatedName, true, structure)
             );
         })
         .then(itemIdentifier => {
             // update the draft properties
+            draft.id = itemIdentifier.id;
             commit("updateDraft", { status: DraftStatus.SAVED, saveDate: new Date(), id: itemIdentifier.id });
             if (previousDraftId) {
                 // delete the previous draft
@@ -445,7 +485,6 @@ export function saveDraft({ commit, rootState, state }) {
             return Promise.resolve();
         })
         .then(() => {
-            // return the draft identifier
             return draft.id;
         })
         .catch(reason => {

@@ -57,7 +57,7 @@ export default class Message {
         this.userSession = injector.getProvider("UserSession").get();
     }
 
-    toMailboxItem(addrPart, sender, senderName, isSeen) {
+    toMailboxItem(sender, senderName, isSeen, structure) {
         let mailboxItem = {
             body: {
                 subject: this.subject,
@@ -65,10 +65,7 @@ export default class Message {
                 recipients: buildRecipients(sender, senderName, this),
                 messageId: this.messageId,
                 references: this.references,
-                structure: {
-                    mime: "text/plain",
-                    address: addrPart
-                }
+                structure
             }
         };
         if (isSeen) {
@@ -131,7 +128,7 @@ export default class Message {
         let previousMessage = "";
         parts.forEach(part => {
             if (part.mime === "text/html") {
-                previousMessage += html2text.fromString(part.content);
+                previousMessage += html2text(part.content);
             } else if (part.mime === "text/plain") {
                 previousMessage += part.content;
             }

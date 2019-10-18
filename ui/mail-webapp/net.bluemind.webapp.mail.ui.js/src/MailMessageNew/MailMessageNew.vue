@@ -155,15 +155,6 @@ export default {
     },
     data() {
         return {
-            message_: {
-                to: this.message ? this.message.to : [],
-                cc: this.message ? this.message.cc : [],
-                bcc: this.message ? this.message.bcc : [],
-                subject: this.message ? this.message.subject : "",
-                content: "",
-                headers: [],
-                previousMessage: this.previousMessage
-            },
             expandPreviousMessages: false,
             modes: MailMessageNewModes,
             autocompleteResults: [],
@@ -172,7 +163,17 @@ export default {
             autocompleteResultsBcc: [],
             debouncedSave: debounce(this.saveDraft, 1000),
             userPrefTextOnly: false, // TODO: initialize this with user setting 
-            userPrefIsMenuBarOpened: false // TODO: initialize this with user setting
+            userPrefIsMenuBarOpened: false, // TODO: initialize this with user setting
+            message_: {
+                to: this.message ? this.message.to : [],
+                cc: this.message ? this.message.cc : [],
+                bcc: this.message ? this.message.bcc : [],
+                subject: this.message ? this.message.subject : "",
+                content: "",
+                headers: [],
+                previousMessage: this.previousMessage,
+                type: undefined
+            }
         };
     },
     computed: {
@@ -197,6 +198,7 @@ export default {
     },
     created: function() {
         this.setDraft({ draft: this.message_, isNew: true });
+        this.message_.type = this.userPrefTextOnly ? "text" : "html";
     },
     mounted: function() {
         this.$refs.to.focus();

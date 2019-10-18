@@ -155,7 +155,6 @@ const display = {
     title: 'block'
 };
 
-export const fromString = function (str) {
+export default function (str) {
     return htmlToText(str, {});
-};
-export default { fromString };
+}
