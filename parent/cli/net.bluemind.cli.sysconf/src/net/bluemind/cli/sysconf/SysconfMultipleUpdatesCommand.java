@@ -19,32 +19,31 @@ package net.bluemind.cli.sysconf;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Paths;
 import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-
 import io.airlift.airline.Arguments;
-import io.airlift.airline.Option;
 import io.airlift.airline.Command;
+import io.airlift.airline.Option;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.system.api.ISystemConfiguration;
 
-
 @Command(name = "mset", description = "Set values by using a file")
 public class SysconfMultipleUpdatesCommand implements ICmdLet, Runnable {
-	
+
 	public static class Reg implements ICmdLetRegistration {
 
 		@Override
@@ -57,66 +56,67 @@ public class SysconfMultipleUpdatesCommand implements ICmdLet, Runnable {
 			return SysconfMultipleUpdatesCommand.class;
 		}
 	}
-	
+
 	protected CliContext ctx;
 	protected CliUtils cliUtils;
-	
+
 	@Override
 	public Runnable forContext(CliContext ctx) {
 		this.ctx = ctx;
 		this.cliUtils = new CliUtils(ctx);
 		return this;
 	}
-	
+
 	@Arguments(required = true, description = "a Json file which contains one or multiple key-value pairs")
 	public String file = null;
 
 	@Option(required = true, name = "--format", description = "a Json or Properties file which contains one or multiple key-value pairs. Format value : <json|properties>")
 	public String format = null;
-	
+
 	@Override
 	public void run() {
 		ISystemConfiguration configurationApi = ctx.adminApi().instance(ISystemConfiguration.class);
-		
-		if(new File(file).isFile()) {
+
+		if (new File(file).isFile()) {
 			Map<String, String> map = new HashMap<>();
-			
-    		if (format.equalsIgnoreCase("json")){
-    			map = jsonFileToMap(file);
-    		}
-    		if (format.equalsIgnoreCase("properties")){
-    			map = propertiesFileToMap(file);
-    		}
-    		configurationApi.updateMutableValues(map);
+
+			if (format.equalsIgnoreCase("json")) {
+				map = jsonFileToMap(file);
+			}
+			if (format.equalsIgnoreCase("properties")) {
+				map = propertiesFileToMap(file);
+			}
+			configurationApi.updateMutableValues(map);
 
 		} else {
 			ctx.error(String.format("%s not found", file.toString()));
 		}
 
 	}
-	
-	private Map<String, String> jsonFileToMap(String file){
+
+	private Map<String, String> jsonFileToMap(String file) {
 		Map<String, String> map = new HashMap<>();
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			String content = new String(Files.readAllBytes(Paths.get(file)));
-	        map = mapper.readValue(content, new TypeReference<Map<String, String>>() {});
+			map = mapper.readValue(content, new TypeReference<Map<String, String>>() {
+			});
 		} catch (Exception ex) {
 			ctx.error(ex.getMessage());
 		}
-		return map;	
+		return map;
 	}
-	
-	private Map<String, String> propertiesFileToMap(String file){
-		Map<String, String> map = new HashMap<>();
-		Properties prop = new Properties();		
+
+	private Map<String, String> propertiesFileToMap(String file) {
+		Map<String, String> map = Collections.emptyMap();
+		Properties prop = new Properties();
 		try (InputStream input = new FileInputStream(file)) {
-            prop.load(input);
-            map = (Map) prop;
-        } catch (Exception ex) {
-        	ctx.error(ex.getMessage());
-        }
-		
-        return map;
+			prop.load(input);
+			map = prop.entrySet().stream().collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.toString()));
+		} catch (Exception ex) {
+			ctx.error(ex.getMessage());
+		}
+
+		return map;
 	}
 }
