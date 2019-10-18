@@ -49,6 +49,7 @@
                 <mail-message-list-loading style="cursor: pointer;" />
             </template>
         </bm-infinite-scroll>
+        <mail-message-list-empty-folder v-else-if="count === 0 && mode == 'default'" />
         <bm-list-group-item v-else-if="mode === 'search'" class="bg-extra-light text-center h-100">
             <div class="pt-5 font-size-lg">
                 <template v-if="search.error === true">
@@ -79,6 +80,7 @@ import {
 import { mapGetters, mapMutations, mapState } from "vuex";
 import { DateRange } from "@bluemind/date";
 import last from "lodash.last";
+import MailMessageListEmptyFolder from "./MailMessageListEmptyFolder";
 import MailMessageListHeader from "./MailMessageListHeader";
 import MailMessageListItem from "./MailMessageListItem";
 import MailMessageListLoading from "./MailMessageListLoading";
@@ -106,6 +108,7 @@ export default {
         BmInfiniteScroll,
         BmRow,
         BmSpinner,
+        MailMessageListEmptyFolder,
         MailMessageListHeader,
         MailMessageListItem,
         MailMessageListLoading

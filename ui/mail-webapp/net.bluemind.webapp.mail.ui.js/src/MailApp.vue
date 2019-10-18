@@ -37,12 +37,12 @@
 <script>
 import { BmApplicationAlert, BmLabelIcon, BmButton, BmCol, BmContainer, BmRow, MakeUniq } from "@bluemind/styleguide";
 import { mapActions, mapGetters, mapState, mapMutations } from "vuex";
+import MailAlertRenderer from "./MailAlertRenderer";
 import MailAppL10N from "@bluemind/webapp.mail.l10n";
 import MailFolderTree from "./MailFolderTree";
 import MailMessageList from "./MailMessageList/MailMessageList";
 import MailToolbar from "./MailToolbar/";
 import MailSearchForm from "./MailSearchForm";
-import MailAlertRenderer from "./MailAlertRenderer";
 import { AlertTypes, Alert } from "@bluemind/alert.store";
 
 export default {
@@ -54,11 +54,11 @@ export default {
         BmContainer,
         BmLabelIcon,
         BmRow,
+        MailAlertRenderer,
         MailFolderTree,
         MailMessageList,
         MailToolbar,
         MailSearchForm,
-        MailAlertRenderer
     },
     mixins: [MakeUniq],
     componentI18N: { messages: MailAppL10N },

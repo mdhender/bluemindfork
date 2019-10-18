@@ -55,5 +55,7 @@
     "mail.draft.save.date": "Draft saved on {date}",
     "mail.alert.draft.save.error": "\"{subject}\" has not been saved.{br}{reason}",
     "mail.alert.message.draft.delete.ok": "\"{subject}\" successfuly deleted!",
-    "mail.alert.message.draft.delete.error": "\"{subject}\" has not been deleted.{br}{reason}"
+    "mail.alert.message.draft.delete.error": "\"{subject}\" has not been deleted.{br}{reason}",
+    "mail.folder": "Folder",
+    "mail.empty": "is empty"
 }
