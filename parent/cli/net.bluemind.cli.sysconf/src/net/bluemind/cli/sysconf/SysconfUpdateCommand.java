@@ -60,7 +60,7 @@ public class SysconfUpdateCommand implements ICmdLet, Runnable {
 	@Arguments(title="key", required = true, description = "key")
 	public String key = null;
 	
-	@Option(name="{--value, -v}",required = true, description = "value")
+	@Option(name={"--value", "-v"},required = true, description = "value")
 	public String value = null;
 
 	
