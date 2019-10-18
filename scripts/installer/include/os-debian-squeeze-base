@@ -30,7 +30,7 @@ os_sanity_install() {
         exit 1
     fi
     
-    apt-get -y install aptitude debconf 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
+    apt-get -y install aptitude debconf gnupg 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
     if [ $? -ne 0 ]; then
         display_error "${txt_fail_to_install_needed_pkgs}"
         exit 1
