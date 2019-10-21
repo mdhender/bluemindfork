@@ -50,7 +50,7 @@
             </template>
         </bm-infinite-scroll>
         <mail-message-list-empty-folder v-else-if="count === 0 && mode == 'default'" />
-        <bm-list-group-item v-else-if="mode === 'search'" class="bg-extra-light text-center h-100">
+        <bm-list-group-item v-else-if="mode === 'search'" class="bg-extra-light text-center h-100 pr-0">
             <div class="pt-5 font-size-lg">
                 <template v-if="search.error === true">
                     {{ $t("common.search.error") }} <br /><br />
@@ -61,6 +61,10 @@
                     <div class="search-pattern">"{{ search.pattern }}"</div>
                     {{ $t("mail.list.search.no_result.found") }} <br /><br />
                     {{ $t("mail.list.search.no_result.try_otherwise") }}
+                    <div 
+                        class="float-right pt-5 no-search-results-illustration w-50"
+                        v-html="noSearchResultsIllustration"
+                    />
                 </template>
             </div>
         </bm-list-group-item>
@@ -84,6 +88,7 @@ import MailMessageListEmptyFolder from "./MailMessageListEmptyFolder";
 import MailMessageListHeader from "./MailMessageListHeader";
 import MailMessageListItem from "./MailMessageListItem";
 import MailMessageListLoading from "./MailMessageListLoading";
+import noSearchResultsIllustration from "../../assets/no-search-result.svg";
 
 let PAGE_DIFF = 9;
 
@@ -116,7 +121,8 @@ export default {
     data() {
         return {
             PAGE: PAGE_DIFF,
-            position: 0
+            position: 0,
+            noSearchResultsIllustration
         };
     },
     computed: {
@@ -220,5 +226,10 @@ export default {
     color: $info-dark;
     font-weight: $font-weight-bold;
     word-break: break-all;
+}
+
+.mail-message-list .no-search-results-illustration {
+    height: 404px;
+    width: 354px;
 }
 </style>
