@@ -20,6 +20,7 @@ package net.bluemind.mailbox.service.internal;
 
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -743,6 +744,8 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 						e);
 			}
 		}
+
+		setMailboxAccessControlList(uid, Collections.emptyList());
 
 		deleteMailboxesAclsContainer(uid);
 		mailboxStorage().delete(context, domainUid, itemValue);
