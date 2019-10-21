@@ -30,7 +30,7 @@ import com.google.common.cache.CacheBuilder;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
 import net.bluemind.backend.mail.replica.api.utils.Subtree;
-import net.bluemind.backend.mail.replica.persistence.SubtreeUidStore;
+import net.bluemind.backend.mail.replica.persistence.DeletedMailboxesStore;
 import net.bluemind.core.caches.registry.CacheHolder;
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
@@ -73,7 +73,7 @@ public class DeletedDataMementos extends CacheHolder<String, Optional<Subtree>> 
 		DeletedDataMementos mementos = DeletedDataMementos.get(ctx);
 		logger.info("Remembering with {}", mementos);
 
-		SubtreeUidStore store = new SubtreeUidStore(ctx.getDataSource());
+		DeletedMailboxesStore store = new DeletedMailboxesStore(ctx.getDataSource());
 
 		Subtree subtree = new Subtree();
 		subtree.ownerUid = mbox.uid;
@@ -97,7 +97,7 @@ public class DeletedDataMementos extends CacheHolder<String, Optional<Subtree>> 
 		Optional<Subtree> subtree = ctxCache.getIfPresent(key);
 
 		if (subtree == null) {
-			SubtreeUidStore store = new SubtreeUidStore(context.getDataSource());
+			DeletedMailboxesStore store = new DeletedMailboxesStore(context.getDataSource());
 			try {
 				Subtree fromDb = store.getByMboxName(domainUid, mailboxRoot.name);
 				subtree = Optional.ofNullable(fromDb);

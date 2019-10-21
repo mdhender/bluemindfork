@@ -56,11 +56,11 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
-import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.MailboxConfig;
 import net.bluemind.mailbox.api.MailboxQuota;
 import net.bluemind.mailbox.hook.IMailboxHook;
@@ -557,8 +557,8 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 	}
 
 	/**
-	 * If not <code>repair</code>, use {@link IDirEntryMaintenance#check(Set)}
-	 * If <code>repair</code>, use {@link IDirEntryMaintenance#repair(Set)}
+	 * If not <code>repair</code>, use {@link IDirEntryMaintenance#check(Set)} If
+	 * <code>repair</code>, use {@link IDirEntryMaintenance#repair(Set)}
 	 * 
 	 * <pre>
 	 * <code>
@@ -691,6 +691,16 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 	public void created(String uid, Mailbox mailbox) throws ServerFault {
 		Helper.createMailboxesAclsContainer(context, domainUid, uid, mailbox);
 		ItemValue<Mailbox> itemValue = storeService.get(uid, null);
+
+		for (IMailboxHook hook : hooks) {
+			try {
+				hook.preMailboxCreated(context, domainUid, itemValue.value.name);
+			} catch (Exception e) {
+				logger.error("error during call to hook (preMailboxCreated) {} : {} ", hook.getClass(), e.getMessage(),
+						e);
+			}
+		}
+
 		mailboxStorage().create(context, domainUid, itemValue);
 
 		for (IMailboxHook hook : hooks) {
@@ -766,9 +776,8 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 				}
 			}
 			IContainers containers = context.su().provider().instance(IContainers.class);
-			containers.create(IMailboxAclUids.uidForMailbox(uid),
-					ContainerDescriptor.create(IMailboxAclUids.uidForMailbox(uid), box.name, uid,
-							IMailboxAclUids.TYPE, domainUid, true));
+			containers.create(IMailboxAclUids.uidForMailbox(uid), ContainerDescriptor
+					.create(IMailboxAclUids.uidForMailbox(uid), box.name, uid, IMailboxAclUids.TYPE, domainUid, true));
 
 			logger.info("initialized folders for {}", uid);
 		}

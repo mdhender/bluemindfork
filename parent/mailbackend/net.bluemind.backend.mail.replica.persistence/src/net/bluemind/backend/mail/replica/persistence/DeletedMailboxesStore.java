@@ -24,9 +24,9 @@ import javax.sql.DataSource;
 import net.bluemind.backend.mail.replica.api.utils.Subtree;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 
-public class SubtreeUidStore extends JdbcAbstractStore {
+public class DeletedMailboxesStore extends JdbcAbstractStore {
 
-	public SubtreeUidStore(DataSource dataSource) {
+	public DeletedMailboxesStore(DataSource dataSource) {
 		super(dataSource);
 	}
 
@@ -34,6 +34,11 @@ public class SubtreeUidStore extends JdbcAbstractStore {
 		String query = "INSERT INTO t_subtree_uid ( " + SubtreeUidColumns.COLUMNS.names() + ") VALUES ("
 				+ SubtreeUidColumns.COLUMNS.values() + ")";
 		insert(query, subtree, SubtreeUidColumns.values());
+	}
+
+	public void deleteByName(String domainUid, String mailboxName) throws SQLException {
+		String query = "DELETE FROM t_subtree_uid WHERE domain_uid = ? AND mailbox_name = ?";
+		delete(query, new Object[] { domainUid, mailboxName });
 	}
 
 	public Subtree getByMboxName(String domainUid, String mailboxName) throws SQLException {
