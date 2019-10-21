@@ -38,6 +38,7 @@ import net.bluemind.core.container.model.ItemUri;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
+import net.bluemind.core.container.persistance.DataSourceRouter;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.exchange.mapi.api.IMapiFolderAssociatedInformation;
@@ -87,6 +88,7 @@ public class MapiMailboxService implements IMapiMailbox {
 
 	private void checkFaiContainer(MapiReplica replica) {
 		String faiContainerId = MapiFAIContainer.getIdentifier(replica);
+		DataSourceRouter.invalidateContainer(faiContainerId);
 		ContainerDescriptor fais = ContainerDescriptor.create(faiContainerId, faiContainerId,
 				pfMailbox ? PublicFolders.mailboxGuid(domainUid) : context.getSecurityContext().getSubject(),
 				MapiFAIContainer.TYPE, domainUid, true);
