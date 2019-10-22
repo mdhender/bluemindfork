@@ -97,6 +97,7 @@ import net.bluemind.dav.server.proto.props.carddav.MaxImageSize;
 import net.bluemind.dav.server.proto.props.carddav.MaxResourceSize;
 import net.bluemind.dav.server.proto.props.carddav.PrincipalAddress;
 import net.bluemind.dav.server.proto.props.mecom.BulkRequests;
+import net.bluemind.dav.server.proto.props.mecom.GuardianRestricted;
 import net.bluemind.dav.server.proto.props.webdav.AddMember;
 import net.bluemind.dav.server.proto.props.webdav.CurrentUserPrincipal;
 import net.bluemind.dav.server.proto.props.webdav.CurrentUserPrivilegeSet;
@@ -190,6 +191,7 @@ public final class DavStore {
 
 		// me.com
 		reg(BulkRequests.factory());
+		reg(GuardianRestricted.factory());
 
 		// apple ical
 		reg(Autoprovisioned.factory());
