@@ -743,4 +743,38 @@ public class UserManagerImplTests {
 
 		assertNull(previousUser.value.contactInfos.explanatory.note);
 	}
+
+	@Test
+	public void entryToUserRemoveAddress()
+			throws LdapInvalidDnException, ServerFault, LdapException, CursorException, IOException {
+		Entry testUserEntry = getTestUserEntry(
+				"uid=user00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
+		UserManager userManager = UserManagerImpl
+				.build(LdapParameters.build(domain.value, Collections.<String, String>emptyMap()), domain,
+						testUserEntry)
+				.get();
+
+		ItemValue<User> previousUser = ItemValue.create(Item.create("old", "oldextid"), new User());
+		previousUser.value.login = "oldlogin";
+		previousUser.value.password = "oldpasswd";
+		previousUser.value.contactInfos = new VCard();
+		previousUser.value.contactInfos.identification.name.givenNames = "oldfirstname";
+		previousUser.value.contactInfos.identification.name.familyNames = "oldname";
+		previousUser.value.contactInfos.explanatory.note = "olddescription";
+
+		DeliveryAddressing oldAddress = new DeliveryAddressing();
+		oldAddress.address.parameters = Arrays.asList(Parameter.create("TYPE", "work"));
+		oldAddress.address.locality = "locality";
+		oldAddress.address.postalCode = "postalcode";
+		oldAddress.address.countryName = "countryname";
+		oldAddress.address.streetAddress = "streetaddress";
+		oldAddress.address.postOfficeBox = "postofficebox";
+		previousUser.value.contactInfos.deliveryAddressing = Arrays.asList(oldAddress);
+
+		ImportLogger importLogger = getImportLogger();
+		userManager.update(importLogger, previousUser, new MailFilter());
+		assertEquals(JobExitStatus.SUCCESS, importLogger.repportStatus.get().getJobStatus());
+
+		assertEquals(0, previousUser.value.contactInfos.deliveryAddressing.size());
+	}
 }
