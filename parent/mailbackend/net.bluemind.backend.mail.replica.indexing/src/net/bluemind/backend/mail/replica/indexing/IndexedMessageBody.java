@@ -192,7 +192,10 @@ public class IndexedMessageBody {
 	}
 
 	public Map<String, String> headers() {
-		return headers.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+		return headers.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> {
+			String s = e.getValue().toString();
+			return s.substring(0, Math.min(s.length(), 1024));
+		}));
 	}
 
 }
