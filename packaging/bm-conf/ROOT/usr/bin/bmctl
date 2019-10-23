@@ -49,6 +49,7 @@ start_bm() {
   product bm-tika start
   product bm-webserver start
   product bm-xmpp start
+  product bm-sds-proxy start
   product bm-cyrus-imapd start
   product bm-milter start
   product bm-mapi start
@@ -71,6 +72,7 @@ stop_bm() {
   product bm-lmtpd stop
   product bm-elasticsearch stop
   product bm-ysnp stop
+  product bm-sds-proxy stop
   product bm-cyrus-imapd stop
   product bm-php-fpm stop
   return $ret
@@ -99,6 +101,7 @@ function bm_all_status() {
   show_status bm-elasticsearch
   show_status bm-tika
   show_status bm-lmtpd
+  show_status bm-sds-proxy
   show_status bm-cyrus-imapd
   show_status bm-webserver
   show_status bm-php-fpm
