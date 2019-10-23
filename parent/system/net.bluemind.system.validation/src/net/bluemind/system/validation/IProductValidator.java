@@ -26,24 +26,27 @@ public interface IProductValidator {
 
 	public static class ValidationResult {
 		public final boolean valid;
+		public final boolean blocking;
 		public final String message;
 
-		private ValidationResult(boolean valid, String message) {
+		private ValidationResult(boolean valid, boolean blocking, String message) {
 			this.valid = valid;
+			this.blocking = blocking;
 			this.message = message;
 		}
 
 		public static ValidationResult valid(String message) {
-			return new ValidationResult(true, message);
+			return new ValidationResult(true, false, message);
 		}
 
 		public static ValidationResult valid() {
 			return valid("OK");
 		}
 
-		public static ValidationResult notValid(String message) {
-			return new ValidationResult(false, message);
+		public static ValidationResult notValid(boolean blocking, String message) {
+			return new ValidationResult(false, blocking, message);
 		}
+
 	}
 
 }

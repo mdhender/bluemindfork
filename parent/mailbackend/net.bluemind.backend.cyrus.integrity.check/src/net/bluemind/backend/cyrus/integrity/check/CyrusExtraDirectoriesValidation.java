@@ -20,12 +20,16 @@ package net.bluemind.backend.cyrus.integrity.check;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
@@ -74,7 +78,13 @@ public class CyrusExtraDirectoriesValidation implements IProductValidator {
 				}
 			});
 		}
-		return failures.intValue() == 0 ? ValidationResult.valid() : ValidationResult.notValid(report.toString());
+		try {
+			CompletableFuture.allOf(allChecks).get(1, TimeUnit.MINUTES);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			throw new ServerFault(e);
+		}
+		return failures.intValue() == 0 ? ValidationResult.valid()
+				: ValidationResult.notValid(false, report.toString());
 	}
 
 }

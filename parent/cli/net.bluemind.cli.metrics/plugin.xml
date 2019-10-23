@@ -11,6 +11,14 @@
             impl="net.bluemind.cli.metrics.TickStatusCommand$Reg"
             priority="500">
       </registration>
+      <registration
+            impl="net.bluemind.cli.metrics.CheckStatusCommand$Reg"
+            priority="500">
+      </registration>
+      <registration
+            impl="net.bluemind.cli.metrics.CheckRunCommand$Reg"
+            priority="400">
+      </registration>
    </extension>
 
 </plugin>

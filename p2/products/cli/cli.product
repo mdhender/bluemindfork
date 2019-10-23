@@ -7,7 +7,7 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-consoleLog help inject
+      <programArgs>-consoleLog check status
       </programArgs>
       <vmArgs>-Duser.timezone=GMT -Djava.awt.headless=true -Dnet.bluemind.property.product=bm-cli
       </vmArgs>
