@@ -27,7 +27,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<tycho-version>1.4.0</tycho-version>
 		<tycho-extras-version>1.4.0</tycho-extras-version>
-		<bm-plugins-version>1.0.337</bm-plugins-version>
+		<bm-plugins-version>1.0.345</bm-plugins-version>
 		<bm.metrics.agent>1.18.0</bm.metrics.agent>
 		<maven.test.failure.ignore>true</maven.test.failure.ignore>
 		<sonar.language>java</sonar.language>
