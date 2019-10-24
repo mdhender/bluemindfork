@@ -68,7 +68,7 @@ public class PutProtocol implements IDavProtocol<PutQuery, PutResponse> {
 				}
 
 				String ct = r.headers().get("Content-Type");
-				if ("text/calendar".equals(ct)) {
+				if (ct != null && ct.startsWith("text/calendar")) {
 					pq.setCalendar(b.toString());
 				} else {
 					throw new RuntimeException("Unsupported content type: " + ct);
