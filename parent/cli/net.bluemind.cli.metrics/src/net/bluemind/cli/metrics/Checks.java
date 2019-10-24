@@ -33,9 +33,11 @@ public class Checks {
 			break;
 		case WARN:
 			ctx.warn(Strings.padEnd(check, 25, ' ') + result.level.name());
+			ctx.info(Strings.nullToEmpty(result.message));
 			break;
 		case CRIT:
 			ctx.error(Strings.padEnd(check, 25, ' ') + result.level.name());
+			ctx.info(Strings.nullToEmpty(result.message));
 			break;
 		case UNKNOWN:
 		default:

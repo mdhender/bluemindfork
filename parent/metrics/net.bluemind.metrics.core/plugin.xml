@@ -218,5 +218,11 @@
             impl="net.bluemind.metrics.core.db.DbCheck$Factory">
       </verticle>
    </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.metrics.core.service.ProductChecksService$ConsumerFactory">
+      </verticle>
+   </extension>
    
 </plugin>

@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.json.JsonObject;
+import org.vertx.java.platform.Verticle;
 
 import com.netflix.spectator.api.Registry;
 
@@ -35,6 +36,7 @@ import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Topic;
+import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.metrics.alerts.api.CheckResult;
 import net.bluemind.metrics.alerts.api.CheckResult.Level;
 import net.bluemind.metrics.alerts.api.IProductChecks;
@@ -46,7 +48,29 @@ public class ProductChecksService implements IProductChecks {
 
 	private static final Map<String, Optional<CheckResult>> results = new ConcurrentHashMap<>();
 
-	static {
+	public static class ChecksConsumerVerticle extends Verticle {
+		@Override
+		public void start() {
+			initConsumer();
+		}
+
+	}
+
+	public static class ConsumerFactory implements IVerticleFactory {
+
+		@Override
+		public boolean isWorker() {
+			return true;
+		}
+
+		@Override
+		public Verticle newInstance() {
+			return new ChecksConsumerVerticle();
+		}
+
+	}
+
+	private static void initConsumer() {
 		MQ.init().whenComplete((v, ex) -> {
 
 			if (ex != null) {
