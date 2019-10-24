@@ -43,6 +43,8 @@ public class RuleTexts {
 			return TEXTS.senderInOURule();
 		case "SenderInGroupRule":
 			return TEXTS.senderInGroupRule();
+		case "SenderIsRule":
+			return TEXTS.senderIsRule();
 		case "AddSignatureAction":
 			return TEXTS.signatureAction();
 		case "RecipientIsExternalRule":

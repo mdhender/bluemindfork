@@ -185,16 +185,18 @@ public interface DomainConstants extends Messages {
 
 	String senderInGroupRule();
 
+	String senderIsRule();
+
 	String matchAlwaysRule();
 
 	String xorRule();
 
 	String signatureAction();
-	
+
 	String isDisclaimer();
-	
+
 	String usePlaceholder();
-	
+
 	String removePrevious();
 
 	String addAssignment();

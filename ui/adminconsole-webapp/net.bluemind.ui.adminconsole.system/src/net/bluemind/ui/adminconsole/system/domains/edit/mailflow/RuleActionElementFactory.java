@@ -30,6 +30,7 @@ import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.rules.DateBased
 import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.rules.RuleTreeItem;
 import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.rules.SenderInGroupRule;
 import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.rules.SenderInOuRule;
+import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.rules.SenderIsRule;
 import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.rules.SimpleRule;
 
 public class RuleActionElementFactory {
@@ -43,17 +44,16 @@ public class RuleActionElementFactory {
 		case "RecipientIsExternalRule":
 			return new SimpleRule(parent, descriptor, ruleIdentifiers, config, domainUid);
 		case "AndRule":
-			return new CompositeTreeItem(parent, descriptor, ruleIdentifiers, config, domainUid);
 		case "OrRule":
-			return new CompositeTreeItem(parent, descriptor, ruleIdentifiers, config, domainUid);
 		case "NotRule":
-			return new CompositeTreeItem(parent, descriptor, ruleIdentifiers, config, domainUid);
 		case "XorRule":
 			return new CompositeTreeItem(parent, descriptor, ruleIdentifiers, config, domainUid);
 		case "SenderInOuRule":
 			return new SenderInOuRule(parent, descriptor, ruleIdentifiers, config, domainUid);
 		case "SenderInGroupRule":
 			return new SenderInGroupRule(parent, descriptor, ruleIdentifiers, config, domainUid);
+		case "SenderIsRule": 
+			return new SenderIsRule(parent, descriptor, ruleIdentifiers, config, domainUid);
 		case "SendDateIsBefore":
 		case "SendDateIsAfter":
 			return new DateBasedRule(parent, descriptor, ruleIdentifiers, config, domainUid);
