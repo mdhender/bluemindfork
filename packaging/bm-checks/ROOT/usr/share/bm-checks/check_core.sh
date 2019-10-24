@@ -1,6 +1,6 @@
 #!/bin/bash
 
-JAVA_APP="net.bluemind.core.launcher.core"
+JAVA_APP="net.bluemind.application.launcher.coreLauncher"
 APP_NAME="BlueMind Core Server"
 WORKSPACE=`dirname $0`
 
