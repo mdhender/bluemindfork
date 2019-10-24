@@ -7,8 +7,13 @@ source ${WORKSPACE}"/check.lib"
 
 installationId="72D26E8A-5BB1-48A4-BC71-EEE92E0CE4EE"
 
-state=$(curl --silent --connect-timeout 5 --data "bluemind-${installationId}&dev-pass" http://$(hostname -i):5701/hazelcast/rest/management/cluster/state)
-result=$?
+# Must listen on a least one network interface
+for hostIp in $(hostname -I); do
+    state=$(curl --silent --connect-timeout 5 --data "bluemind-${installationId}&dev-pass" http://${hostIp}:5701/hazelcast/rest/management/cluster/state)
+    result=$?
+    
+    [[ "${result}" == 0 ]] && break
+done
 
 if [[ "$result" > 0 ]]
   then
