@@ -93,5 +93,12 @@
             ruleIdentifier="SendDateIsBefore">
       </rule>
    </extension>
+   <extension
+         point="net.bluemind.mailflow.rules_extensions">
+      <rule
+            description="Rule matches if mail sender is the given entry"
+            ruleIdentifier="SenderIsRule">
+      </rule>
+   </extension>
   
 </plugin>
