@@ -209,7 +209,8 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 					.instance(IUserSettings.class, authContext.domain.uid).get(authContext.user.uid);
 
 			if (context == null) {
-				logger.info("l: '{}', o: '{}' successfully authentified", login, origin);
+				logger.info("login: '{}', origin: '{}', from: '{}' successfully authentified", login, origin,
+						securityContext.getRemoteAddresses());
 				resp.authKey = UUID.randomUUID().toString();
 				context = buildSecurityContext(resp.authKey, authContext.user, authContext.domain.uid, settings, origin,
 						interactive);
@@ -230,7 +231,8 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 				Sessions.get().put(resp.authKey, context);
 
 			} else {
-				logger.debug("l: '{}', o: '{}' successfully authentified with session token", login, origin);
+				logger.debug("login: '{}', origin: '{}', from: '{}' successfully authentified with session token",
+						login, origin, securityContext.getRemoteAddresses());
 				resp.authKey = context.getSessionId();
 			}
 
