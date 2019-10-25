@@ -12,6 +12,7 @@
 		<module>net.bluemind.core.commons</module>
 		<module>net.bluemind.core.commons.tests</module>
 		<module>net.bluemind.core.sessions</module>
+		<module>net.bluemind.core.sessions.deletion.hz</module>
 		<module>net.bluemind.core.context</module>
 		<module>net.bluemind.config</module>
 		<module>net.bluemind.i18n.labels</module>

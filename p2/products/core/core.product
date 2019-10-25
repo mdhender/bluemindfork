@@ -155,6 +155,7 @@
       <plugin id="net.bluemind.core.sendmail"/>
       <plugin id="net.bluemind.core.serialization"/>
       <plugin id="net.bluemind.core.sessions"/>
+      <plugin id="net.bluemind.core.sessions.deletion.hz"/>
       <plugin id="net.bluemind.core.sqlschema"/>
       <plugin id="net.bluemind.core.task.api"/>
       <plugin id="net.bluemind.core.task.service"/>
