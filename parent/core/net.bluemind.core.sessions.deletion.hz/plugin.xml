@@ -4,7 +4,7 @@
    <extension
          point="net.bluemind.core.sessions.deletion">
       <listener
-            new_attribute="net.bluemind.core.sessions.deletion.hz.PropagateSessionDeletions">
+            impl="net.bluemind.core.sessions.deletion.hz.PropagateSessionDeletions">
       </listener>
    </extension>
 
