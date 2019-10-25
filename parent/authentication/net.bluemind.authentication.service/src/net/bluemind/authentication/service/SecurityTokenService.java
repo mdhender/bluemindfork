@@ -58,6 +58,7 @@ public class SecurityTokenService implements ISecurityToken {
 			throw ServerFault.notFound("token '" + sid + "' is missing");
 		}
 		token.renew();
+		TokensStore.get().add(token);
 	}
 
 	@Override
