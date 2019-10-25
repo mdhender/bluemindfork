@@ -50,4 +50,7 @@ public class EmptySubscriptionProvider implements ISubscriptionProvider {
 		return null;
 	}
 
+	@Override
+	public void updateSubscriptionUrl(Distribution detect, String version) {
+	}
 }

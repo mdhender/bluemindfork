@@ -28,13 +28,14 @@ public interface ISubscriptionProvider {
 
 	/**
 	 * @param sub
-	 * @throws ServerFault
-	 *             code == ErrorCode.NOT_FOUND if update subscription is not
-	 *             available
+	 * @throws ServerFault code == ErrorCode.NOT_FOUND if update subscription is not
+	 *                     available
 	 */
 	public void updateSubscription(byte[] sub, Distribution serverOS) throws ServerFault;
 
 	public void removeSubscription(Distribution distribution) throws ServerFault;
 
 	public byte[] getRawSubscription() throws ServerFault;
+
+	public void updateSubscriptionUrl(Distribution detect, String version);
 }

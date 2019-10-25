@@ -351,6 +351,14 @@ public class InstallationService implements IInstallation {
 	}
 
 	@Override
+	public void updateSubscriptionVersion(String version) {
+		RBACManager.forContext(context).check(BasicRoles.ROLE_MANAGE_SUBSCRIPTION);
+
+		SubscriptionProviders.getSubscriptionProvider()
+				.updateSubscriptionUrl(OsVersionDetectionFactory.create().detect(), version);
+	}
+
+	@Override
 	public void removeSubscription() throws ServerFault {
 		RBACManager.forContext(context).check(BasicRoles.ROLE_MANAGE_SUBSCRIPTION);
 
