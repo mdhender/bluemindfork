@@ -221,7 +221,7 @@
    <extension
          point="net.bluemind.lib.vertx.verticles">
       <verticle
-            impl="net.bluemind.metrics.core.service.ProductChecksService$ConsumerFactory">
+            impl="net.bluemind.metrics.core.service.ChecksConsumerVerticle$ConsumerFactory">
       </verticle>
    </extension>
    
