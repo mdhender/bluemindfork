@@ -15,7 +15,7 @@ RemainAfterExit=no
 SuccessExitStatus=129 143
 Environment=JAVA_HOME=/usr/lib/jvm/bm-jdk
 ExecStart=/usr/share/bm-tika/bm-tika /var/run/bm-tika.pid
-Restart=on-watchdog
+Restart=on-abnormal
 
 [Install]
 WantedBy=multi-user.target
