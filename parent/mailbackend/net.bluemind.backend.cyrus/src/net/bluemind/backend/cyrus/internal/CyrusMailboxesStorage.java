@@ -436,6 +436,7 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 
 		CyrusService cyrus = new CyrusService(server.value.address());
 		cyrus.refreshPartitions(getMailImapDomains(context, server.uid));
+		cyrus.reloadSds();
 		cyrus.reload();
 	}
 

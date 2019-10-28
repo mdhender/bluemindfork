@@ -84,13 +84,24 @@ public class CyrusService {
 	}
 
 	public void reload() throws ServerFault {
-		logger.info("Attempting restart on " + backendAddress);
-		ExitList restartOp = NCUtils.exec(nodeClient, "service bm-cyrus-imapd restart", 90, TimeUnit.SECONDS);
-		if (restartOp.getExitCode() != 0) {
-			String output = restartOp.stream().collect(Collectors.joining("; "));
+		logger.info("Attempting cyrus restart on {}", backendAddress);
+
+		ExitList cyrusRestartOp = NCUtils.exec(nodeClient, "service bm-cyrus-imapd restart", 90, TimeUnit.SECONDS);
+		if (cyrusRestartOp.getExitCode() != 0) {
+			String output = cyrusRestartOp.stream().collect(Collectors.joining("; "));
 			throw new ServerFault("Cyrus restart failed (output: " + output + ")");
 		}
 		new NetworkHelper(backendAddress).waitForListeningPort(1143, 30, TimeUnit.SECONDS);
+	}
+
+	public void reloadSds() throws ServerFault {
+		logger.info("Attempting sds restart on {}", backendAddress);
+		ExitList sdsRestartOp = NCUtils.exec(nodeClient, "service bm-sds-proxy restart", 90, TimeUnit.SECONDS);
+		if (sdsRestartOp.getExitCode() != 0) {
+			String output = sdsRestartOp.stream().collect(Collectors.joining("; "));
+			throw new ServerFault("Sds restart failed (output: " + output + ")");
+		}
+		new NetworkHelper(backendAddress).waitForListeningPort(8091, 30, TimeUnit.SECONDS);
 	}
 
 	public CyrusPartition createPartition(String domainUid) throws ServerFault {
