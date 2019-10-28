@@ -18,6 +18,11 @@
     "common.search.error": "La recherche n'a pu aboutir.",
     "common.check.connection": "Vérifiez votre connexion internet et réessayez dans quelques instants.",
     "common.alert.remove.ok": "\"{subject}\" a bien été supprimé.",
+    "common.alert.remove.loading": "Suppression de \"{subject}\" en cours...",
     "common.alert.remove.error": "\"{subject}\" n'a pas pu être supprimé.{br}{reason}",
-    "common.or": "ou"
+    "common.alert.purge.ok": "\"{subject}\" a bien été supprimé définitivement.",
+    "common.alert.purge.loading": "Suppression définitive de \"{subject}\" en cours...",
+    "common.alert.purge.error": "\"{subject}\" n'a pas pu être supprimé définitivement.{br}{reason}",
+    "common.or": "ou",
+    "common.cancel": "Annuler"
 }

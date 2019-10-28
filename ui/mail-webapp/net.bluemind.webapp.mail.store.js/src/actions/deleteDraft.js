@@ -36,7 +36,7 @@ export function deleteDraft({ commit, state, getters }) {
                 message: getLocalizedProperty(userSession, key, { subject: draft.subject }),
                 props: { subject: draft.subject }
             });
-            commit("alert/addSuccess", success, { root: true });
+            commit("alert/addAlert", success, { root: true });
             commit("updateDraft", { status: DraftStatus.DELETED });
         })
         .catch(reason => {
@@ -50,7 +50,7 @@ export function deleteDraft({ commit, state, getters }) {
                     reason
                 }
             });
-            commit("alert/addError", error, { root: true });
+            commit("alert/addAlert", error, { root: true });
             commit("updateDraft", { status: DraftStatus.DELETE_ERROR });
         });
 }

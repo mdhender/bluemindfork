@@ -8,6 +8,9 @@
     "mail.actions.remove": "Supprimer",
     "mail.actions.remove.aria": "Supprimer le message {subject} | Supprimer les messages sélectionnés",
     "mail.actions.remove.compose.aria": "Supprimer le message en cours de rédaction",
+    "mail.actions.purge": "Supprimer définitivement",
+    "mail.actions.purge.modal.title": "Supprimer un message",
+    "mail.actions.purge.modal.content": "Supprimer définitivement ce message ?",
     "mail.actions.save": "Enregistrer",
     "mail.actions.save.aria": "Enregistrer le message en cours de rédaction",
     "mail.actions.send": "Envoyer",
@@ -58,5 +61,6 @@
     "mail.alert.message.draft.delete.error": "\"{subject}\" has not been deleted.{br}{reason}",
     "mail.alert.send.loading": "Envoi de \"{subject}\" en cours...",
     "mail.folder": "Le dossier",
-    "mail.empty": "est vide"
+    "mail.empty": "est vide",
+    "mail.shortcuts.purge": "Maj + Suppr"
 }

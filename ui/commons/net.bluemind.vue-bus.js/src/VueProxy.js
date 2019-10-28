@@ -7,7 +7,7 @@ export default {
                 const listeners = this.$options.bus;
                 if (listeners) {
                     Object.keys(listeners).forEach(event => {
-                        const handler = ((event, payload) => listeners[event](payload)).bind(this);
+                        const handler = ((event, payload) => listeners[event].apply(this, payload));
                         this.$bus.$on(event, handler);
                         listeners[event]._handler = handler;
                     });

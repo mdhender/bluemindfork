@@ -124,7 +124,7 @@ export function saveDraft({ commit, state, getters }) {
                     reason
                 }
             });
-            commit("alert/addError", error, { root: true });
+            commit("alert/addAlert", error, { root: true });
             commit("updateDraft", { status: DraftStatus.SAVE_ERROR, saveDate: null });
         });
 }

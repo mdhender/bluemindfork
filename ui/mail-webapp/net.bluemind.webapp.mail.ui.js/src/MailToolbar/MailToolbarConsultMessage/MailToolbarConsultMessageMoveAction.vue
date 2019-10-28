@@ -1,84 +1,49 @@
 <template>
-    <div class="mail-toolbar-consult-message">
-        <global-events @keydown.tab.capture="forceCloseMoveAutocomplete" />
-        <bm-button
-            v-if="currentMessage.states.includes('not-seen')"
-            variant="none"
-            class="unread"
-            :aria-label="$tc('mail.actions.mark_read.aria')"
-            @click="markAsRead(currentMessage.id)"
+    <bm-dropdown
+        ref="move-dropdown"
+        :no-caret="true"
+        class="h-100 move-message"
+        :disabled="disableMove"
+        variant="none"
+        @shown="openMoveAutocomplete"
+        @hide="closeMoveAutocomplete"
+    >
+        <template slot="button-content" :aria-label="$tc('mail.toolbar.move.aria')">
+            <bm-icon icon="folder" size="2x" /> {{ $tc("mail.toolbar.move") }}
+        </template>
+        <bm-autocomplete
+            ref="moveAutocomplete"
+            class="autocomplete-folders shadow-sm"
+            :value="searchFolderPattern"
+            :items="matchingFolders === undefined ? defaultFolders : matchingFolders"
+            search-icon
+            :max-results="maxFoldersProposed + 1"
+            @input="searchFolder"
+            @selected="selectFolder"
+            @keydown.esc.native="closeMoveAutocomplete"
         >
-            <bm-icon icon="read" size="2x" /> {{ $tc("mail.actions.mark_read") }}
-        </bm-button>
-        <bm-button
-            v-else
-            variant="none"
-            class="read"
-            :aria-label="$tc('mail.actions.mark_unread.aria')"
-            @click="markAsUnread(currentMessage.id)"
-        >
-            <bm-icon icon="unread" size="2x" /> {{ $tc("mail.actions.mark_unread") }}
-        </bm-button>
-        <bm-dropdown
-            ref="move-dropdown"
-            :no-caret="true"
-            class="h-100 move-message"
-            :disabled="disableMove"
-            variant="none"
-            @shown="openMoveAutocomplete"
-            @hide="closeMoveAutocomplete"
-        >
-            <template slot="button-content" :aria-label="$tc('mail.toolbar.move.aria')">
-                <bm-icon icon="folder" size="2x" /> {{ $tc("mail.toolbar.move") }}
+            <template v-slot="f">
+                <div class="text-nowrap text-truncate">
+                    <mail-folder-icon v-if="f.item.uid" :folder="f.item.value" />
+                    <bm-label-icon v-else icon="plus">{{ f.item.displayname }}</bm-label-icon>
+                </div>
             </template>
-            <bm-autocomplete
-                ref="moveAutocomplete"
-                class="autocomplete-folders shadow-sm"
-                :value="searchFolderPattern"
-                :items="matchingFolders === undefined ? defaultFolders : matchingFolders"
-                search-icon
-                :max-results="maxFoldersProposed + 1"
-                @input="searchFolder"
-                @selected="selectFolder"
-                @keydown.esc.native="closeMoveAutocomplete"
-            >
-                <template v-slot="f">
-                    <div class="text-nowrap text-truncate">
-                        <mail-folder-icon v-if="f.item.uid" :folder="f.item.value" />
-                        <bm-label-icon v-else icon="plus">{{ f.item.displayname }}</bm-label-icon>
-                    </div>
-                </template>
-            </bm-autocomplete>
-        </bm-dropdown>
-        <bm-button variant="none" :aria-label="$tc('mail.actions.spam.aria')">
-            <bm-icon icon="forbidden" size="2x" />
-            {{ $tc("mail.actions.spam") }}
-        </bm-button>
-        <bm-button variant="none" :aria-label="$tc('mail.actions.remove.aria')" @click="remove">
-            <bm-icon icon="trash" size="2x" />
-            {{ $tc("mail.actions.remove") }}
-        </bm-button>
-        <bm-button variant="none" :aria-label="$tc('mail.toolbar.more.aria')">
-            <bm-icon icon="3dots" size="2x" /> {{ $tc("mail.toolbar.more") }}
-        </bm-button>
-    </div>
+        </bm-autocomplete>
+    </bm-dropdown>
 </template>
 
 <script>
-import { BmAutocomplete, BmButton, BmDropdown, BmLabelIcon, BmIcon } from "@bluemind/styleguide";
+import { BmAutocomplete, BmDropdown, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
 import { mapActions, mapGetters, mapState } from "vuex";
-import GlobalEvents from "vue-global-events";
-import MailFolderIcon from "../MailFolderIcon";
+import MailFolderIcon from "../../MailFolderIcon";
 
 export default {
-    name: "MailToolbarConsultMessage",
+    name: "MailToolbarConsultMessageMoveAction",
     components: {
         BmAutocomplete,
-        BmButton,
         BmDropdown,
         BmIcon,
         BmLabelIcon,
-        GlobalEvents,
         MailFolderIcon
     },
     data() {
@@ -94,7 +59,6 @@ export default {
         ...mapState("mail-webapp", ["currentFolderUid"]),
         ...mapState("mail-webapp/folders", ["items"]),
         ...mapGetters("mail-webapp", ["currentMessage", "nextMessageId"]),
-        ...mapGetters("mail-webapp/messages", ["messages", "count"]),
         defaultFolders() {
             const defaultFolders = this.$store.getters["mail-webapp/folders/defaultFolders"];
             return [defaultFolders.INBOX, defaultFolders.TRASH].filter(
@@ -103,11 +67,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail-webapp", ["markAsRead", "markAsUnread", "move"]),
-        remove() {
-            this.$router.push("" + (this.nextMessageId || ""));
-            this.$store.dispatch("mail-webapp/remove", this.currentMessage.id);
-        },
+        ...mapActions("mail-webapp", ["move"]),
         searchFolder(input) {
             if (input !== "") {
                 this.searchFolderPattern = input;
@@ -160,11 +120,6 @@ export default {
 
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
-
-.mail-toolbar-consult-message .unread,
-.mail-toolbar-consult-message .read {
-    width: 8rem;
-}
 
 .autocomplete-folders .list-group {
     border-top: 1px solid $primary;

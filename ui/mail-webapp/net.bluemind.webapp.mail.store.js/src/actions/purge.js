@@ -1,40 +1,37 @@
 import { AlertTypes, Alert } from "@bluemind/alert.store";
 import UUIDGenerator from "@bluemind/uuid";
 
-export function remove({ state, dispatch, getters, commit }, messageId) {
+export function purge({ dispatch, commit }, { messageId, folderUid }) {
     let subject, loadingAlertUid = UUIDGenerator.generate();
-    const destinationId = getters["folders/defaultFolders"].TRASH.internalId;
-    const sourceId = getters["folders/getFolderByUid"](state.currentFolderUid).internalId;
-    
-    if (sourceId == destinationId) {
-        return dispatch("purge", { messageId, folderUid: state.currentFolderUid });
-    }
-    return dispatch("$_getIfNotPresent", { folder: state.currentFolderUid, id: messageId })
+
+    return dispatch("$_getIfNotPresent", { folder: folderUid, id: messageId })
         .then(message => {
             subject = message.subject;
+
             commit("alert/addAlert", new Alert({
                 type: AlertTypes.LOADING,
-                code: "ALERT_CODE_MSG_REMOVED_LOADING",
-                key : "common.alert.remove.loading",
+                code: "ALERT_CODE_MSG_PURGE_LOADING",
+                key : "common.alert.purge.loading",
                 uid: loadingAlertUid,
                 props: { subject }
             }), { root: true });
-            return dispatch("messages/move", { sourceId, destinationId, messageId });
+            
+            return dispatch("messages/remove", { messageId, folderUid });
         })
         .then(() => {
             commit("alert/removeAlert", loadingAlertUid, { root: true });
             commit("alert/addAlert", new Alert({
                 type: AlertTypes.SUCCESS,
-                code: "ALERT_CODE_MSG_REMOVED_OK",
-                key: "common.alert.remove.ok",
+                code: "ALERT_CODE_MSG_PURGE_OK",
+                key: "common.alert.purge.ok",
                 props: { subject }
             }), { root: true });
         })
         .catch(reason => {
             commit("alert/removeAlert", loadingAlertUid, { root: true });
             commit("alert/addAlert", new Alert({
-                code: "ALERT_CODE_MSG_REMOVED_ERROR",
-                key: "common.alert.remove.error",
+                code: "ALERT_CODE_MSG_PURGE_ERROR",
+                key: "common.alert.purge.error",
                 props: { subject, reason }
             }), { root: true });
         });

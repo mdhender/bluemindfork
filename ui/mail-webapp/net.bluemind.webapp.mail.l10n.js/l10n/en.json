@@ -8,6 +8,9 @@
     "mail.actions.remove": "Remove",
     "mail.actions.remove.aria": "Remove {subject} | Remove selected messages",
     "mail.actions.remove.compose.aria": "Remove message being written",
+    "mail.actions.purge": "Remove definitely",
+    "mail.actions.purge.modal.title": "Remove a message",
+    "mail.actions.purge.modal.content": "Remove definitely this message ?",
     "mail.actions.save": "Save",
     "mail.actions.save.aria": "Save message being written",
     "mail.actions.send": "Send",
@@ -58,5 +61,6 @@
     "mail.alert.message.draft.delete.error": "\"{subject}\" has not been deleted.{br}{reason}",
     "mail.alert.send.loading": "Sending \"{subject}\" in progress...",
     "mail.folder": "Folder",
-    "mail.empty": "is empty"
+    "mail.empty": "is empty",
+    "mail.shortcuts.purge": "Shift + Delete"
 }

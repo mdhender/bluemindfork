@@ -75,7 +75,7 @@ describe("MailApp Store: LoadRange action", () => {
         // Fixme Debounce does not seems to work
         // expect(context.dispatch).toHaveBeenCalled();
     });
-    test("overwritte delayed request if a new one is triggered before timeout", () => {
+    test("overwrite delayed request if a new one is triggered before timeout", () => {
         //FIXME : this test should be completed with 2 successive delayed request,
         // but lodash debounce cannnot be tested...
         context.rootState["backend.mail/items"].sortedIds.slice(100, 150).forEach(id => {

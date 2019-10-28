@@ -37,7 +37,7 @@ new Vue({
 function setVuePlugins() {
     Vue.use(VueI18n);
     Vue.use(VueBus, { store });
-    Vue.use(VueSockjsPlugin, {url: '/eventbus/', VueBus});
+    Vue.use(VueSockjsPlugin, { url: '/eventbus/', VueBus });
 }
 
 function registerDependencies(userSession) {

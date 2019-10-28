@@ -2,7 +2,8 @@
     <bm-list-group
         class="mail-message-list"
         tabindex="0"
-        @keyup.delete.prevent="remove"
+        @keyup.shift.delete.exact.prevent="openPurgeModal"
+        @keyup.delete.exact.prevent="remove"
         @keyup.up="moveTo(-1)"
         @keyup.down="moveTo(+1)"
         @keyup.page-down="moveTo(+PAGE)"
@@ -89,6 +90,7 @@ import MailMessageListHeader from "./MailMessageListHeader";
 import MailMessageListItem from "./MailMessageListItem";
 import MailMessageListLoading from "./MailMessageListLoading";
 import noSearchResultsIllustration from "../../assets/no-search-result.svg";
+import { SHOW_PURGE_MODAL } from "../VueBusEventTypes";
 
 let PAGE_DIFF = 9;
 
@@ -126,8 +128,9 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail-webapp/messages", ["messages", "count", "indexOf"]),
         ...mapGetters("mail-webapp", ["nextMessageId"]),
+        ...mapGetters("mail-webapp/messages", ["messages", "count", "indexOf"]),
+        ...mapGetters("mail-webapp/folders", ["defaultFolders"]),
         ...mapState("mail-webapp", ["currentFolderUid", "currentMessageId", "search"]),
         mode() {
             return this.search.pattern ? "search" : "default";
@@ -160,7 +163,10 @@ export default {
     methods: {
         ...mapActions("mail-webapp", { loadMessages: "loadRange" }),
         remove() {
-            console;
+            if (this.currentFolderUid == this.defaultFolders.TRASH.uid) {
+                this.openPurgeModal();
+                return;
+            }
             this.$router.push(this.messageRoute(this.nextMessageId));
             this.$store.dispatch("mail-webapp/remove", this.currentMessageId);
         },
@@ -209,6 +215,9 @@ export default {
                 return "/mail/" + this.currentFolderUid + "/" + id;
             }
             return path + id;
+        },
+        openPurgeModal() {
+            this.$bus.$emit(SHOW_PURGE_MODAL);
         }
     }
 };

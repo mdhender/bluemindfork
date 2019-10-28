@@ -28,6 +28,7 @@
                 <router-view />
             </bm-col>
         </bm-row>
+        <mail-purge-modal />
         <bm-application-alert :alerts="alerts">
             <template v-slot="slotProps">
                 <mail-alert-renderer :alert="slotProps.alert" />
@@ -43,6 +44,7 @@ import { mapActions, mapGetters, mapState } from "vuex";
 import MailAppL10N from "@bluemind/webapp.mail.l10n";
 import MailFolderTree from "./MailFolderTree";
 import MailMessageList from "./MailMessageList/MailMessageList";
+import MailPurgeModal from "./MailPurgeModal";
 import MailToolbar from "./MailToolbar/";
 import MailSearchForm from "./MailSearchForm";
 
@@ -58,8 +60,9 @@ export default {
         MailAlertRenderer,
         MailFolderTree,
         MailMessageList,
-        MailToolbar,
-        MailSearchForm
+        MailPurgeModal,
+        MailSearchForm,
+        MailToolbar
     },
     mixins: [MakeUniq],
     componentI18N: { messages: MailAppL10N },

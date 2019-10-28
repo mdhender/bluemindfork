@@ -9,6 +9,7 @@ export * from "./markAsRead";
 export * from "./markAsUnread";
 export * from "./move";
 export * from "./remove";
+export * from "./purge";
 export * from "./saveDraft";
 export * from "./search";
 export * from "./selectFolder";

@@ -146,7 +146,7 @@ export default {
     border-left: transparent solid 3px;
 }
 
-.apps-popover .bm-app:hover, .apps-popover .bm-app.router-link-exact-active {
+.apps-popover .bm-app:hover, .apps-popover .bm-app.router-link-active {
     color: $primary;
     border-left: $primary solid 3px;
 }

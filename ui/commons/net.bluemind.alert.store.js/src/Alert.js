@@ -16,13 +16,13 @@
  * END LICENSE
  */
 import AlertTypes from "./AlertTypes";
-import uuid from "uuid/v4";
+import UUIDGenerator from "@bluemind/uuid";
 
 /** Generic structure for an alert.  */
 export default class Alert {
     constructor({ type, uid, code, message, key, props }) {
         this.type = type || AlertTypes.ERROR;
-        this.uid = uid || uuid();
+        this.uid = uid || UUIDGenerator.generate();
         this.code = code;
         this.message = message;
         this.key = key;

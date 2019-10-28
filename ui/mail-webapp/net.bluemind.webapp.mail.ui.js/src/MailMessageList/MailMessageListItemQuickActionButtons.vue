@@ -4,7 +4,8 @@
             <bm-button
                 :aria-label="$tc('mail.actions.remove.aria')"
                 class="p-1 mr-2 border-0 no-bg hovershadow"
-                @click.prevent="remove(message.id)"
+                @click.shift.exact.prevent="openPurgeModal"
+                @click.exact.prevent="remove(message.id)"
             >
                 <bm-icon icon="trash" size="lg" />
             </bm-button>
@@ -31,6 +32,7 @@
 <script>
 import { BmButtonToolbar, BmButtonGroup, BmButton, BmIcon } from "@bluemind/styleguide";
 import { mapActions, mapGetters, mapState } from "vuex";
+import { SHOW_PURGE_MODAL } from "../VueBusEventTypes";
 
 export default {
     name: "MailMessageListItemQuickActionButtons",
@@ -48,15 +50,23 @@ export default {
     },
     computed: {
         ...mapGetters("mail-webapp", ["nextMessageId"]),
-        ...mapState("mail-webapp", ["currentMessageId"])
+        ...mapState("mail-webapp", ["currentMessageId", "currentFolderUid"]),
+        ...mapGetters("mail-webapp/folders", ["defaultFolders"]),
     },
     methods: {
         ...mapActions("mail-webapp", ["markAsRead", "markAsUnread"]),
         remove() {
+            if (this.currentFolderUid == this.defaultFolders.TRASH.uid) {
+                this.openPurgeModal();
+                return;
+            }
             if (this.currentMessageId == this.message.id) {
                 this.$router.push("" + (this.nextMessageId || ""));
             }
             this.$store.dispatch("mail-webapp/remove", this.message.id);
+        },
+        openPurgeModal() {
+            this.$bus.$emit(SHOW_PURGE_MODAL, [ this.message.id ]);
         }
     }
 };
