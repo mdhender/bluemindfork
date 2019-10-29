@@ -48,11 +48,10 @@ upstream eas {
 
 
 server {
-  listen   443 default_server;
+  listen   443 ssl default_server;
   include /etc/nginx/bm-servername.conf;
   include /etc/nginx/bm-externalurl.conf;
 
-  ssl  on;
   ssl_certificate  /etc/ssl/certs/bm_cert.pem;
   ssl_certificate_key  /etc/ssl/certs/bm_cert.pem;
   
