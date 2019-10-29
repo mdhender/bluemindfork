@@ -56,6 +56,7 @@
     "mail.alert.draft.save.error": "\"{subject}\" has not been saved.{br}{reason}",
     "mail.alert.message.draft.delete.ok": "\"{subject}\" successfuly deleted!",
     "mail.alert.message.draft.delete.error": "\"{subject}\" has not been deleted.{br}{reason}",
+    "mail.alert.send.loading": "Sending \"{subject}\" in progress...",
     "mail.folder": "Folder",
     "mail.empty": "is empty"
 }

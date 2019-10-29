@@ -1,17 +1,26 @@
 //FIXME: Refactor this...
 
-import injector from "@bluemind/inject";
 import { getLocalizedProperty } from "@bluemind/backend.mail.l10n";
 import { DraftStatus } from "@bluemind/backend.mail.store";
 import { AlertTypes, Alert } from "@bluemind/alert.store";
 import { EmailValidator } from "@bluemind/email";
+import injector from "@bluemind/inject";
+import UUIDGenerator from "@bluemind/uuid";
 
 /** Send the last draft: move it to the Outbox then flush. */
 export function send({ state, commit, getters, dispatch }) {
     const draft = state.draft;
     let draftId = draft.id;
-    let userSession;
-    let sentbox;
+    let userSession, sentbox;
+    const loadingAlertUid = UUIDGenerator.generate();
+    
+    commit("alert/addAlert", new Alert({
+        type: AlertTypes.LOADING,
+        code: "ALERT_CODE_MSG_SEND_LOADING",
+        key : "mail.alert.send.loading",
+        uid: loadingAlertUid,
+        props: { subject: draft.subject }
+    }), { root: true });
 
     // ensure the last draft is up to date
     return dispatch("saveDraft")
@@ -78,6 +87,7 @@ export function send({ state, commit, getters, dispatch }) {
                     subjectLink: "/mail/" + sentbox.uid + "/" + mailId
                 }
             });
+            commit("alert/removeAlert", loadingAlertUid, { root: true });
             commit("alert/addAlert", success, { root: true });
             commit("updateDraft", { status: DraftStatus.SENT, id: null, saveDate: null });
         })
@@ -89,6 +99,7 @@ export function send({ state, commit, getters, dispatch }) {
                 message: getLocalizedProperty(userSession, key, { subject: draft.subject, reason: reason.message }),
                 props: { subject: draft.subject, reason: reason.message }
             });
+            commit("alert/removeAlert", loadingAlertUid, { root: true });
             commit("alert/addAlert", error, { root: true });
             commit("updateDraft", { status: DraftStatus.SENT });
         });
