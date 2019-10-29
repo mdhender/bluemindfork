@@ -249,6 +249,7 @@ server {
     gzip_comp_level 9;
     
     proxy_pass http://hps/settings/;
+    client_max_body_size 10m;
     proxy_intercept_errors on;
   }
 
