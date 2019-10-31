@@ -4,9 +4,6 @@
    <extension
          point="net.bluemind.core.rest.apiEndpoint">
       <endpoint
-            api="net.bluemind.exchange.mapi.api.IMapi">
-      </endpoint>
-      <endpoint
             api="net.bluemind.exchange.mapi.api.IMapiMailbox">
       </endpoint>
       <endpoint
@@ -27,9 +24,6 @@
    </extension>
    <extension
          point="net.bluemind.core.rest.serviceFactory">
-      <serviceFactory
-            class="net.bluemind.exchange.mapi.service.MapiServiceFactory">
-      </serviceFactory>
       <serviceFactory
             class="net.bluemind.exchange.mapi.service.MapiMailboxServiceFactory">
       </serviceFactory>
