@@ -16,12 +16,13 @@
  * END LICENSE
  */
 import { EmailExtractor } from "@bluemind/email";
-import { getLocalizedProperty } from "@bluemind/backend.mail.l10n";
 import { html2text } from "@bluemind/html-utils";
 import { RecipientKind, SystemFlag } from "@bluemind/backend.mail.api";
+import { TranslationHelper } from "@bluemind/i18n";
 import GetAttachmentPartsVisitor from "./GetAttachmentPartsVisitor";
 import GetInlinePartsVisitor from "./GetInlinePartsVisitor";
 import injector from "@bluemind/inject";
+import MailAppL10N from "@bluemind/webapp.mail.l10n";
 import TreeWalker from "./TreeWalker";
 
 /**
@@ -98,10 +99,16 @@ export default class Message {
         switch (action) {
             case this.actions.REPLY:
             case this.actions.REPLYALL:
-                subjectPrefix = getLocalizedProperty(this.userSession, "mail.compose.reply.subject");
+                subjectPrefix = TranslationHelper.getLocalizedProperty(
+                    MailAppL10N, 
+                    this.userSession, 
+                    "mail.compose.reply.subject");
                 break;
             case this.actions.FORWARD:
-                subjectPrefix = getLocalizedProperty(this.userSession, "mail.compose.forward.subject");
+                subjectPrefix = TranslationHelper.getLocalizedProperty(
+                    MailAppL10N, 
+                    this.userSession, 
+                    "mail.compose.forward.subject");
                 break;
             default:
                 break;
@@ -143,10 +150,13 @@ export default class Message {
                     .split("\n")
                     .map(line => "> " + line)
                     .join("\n");
-                previousMessageSeparator = getLocalizedProperty(this.userSession, "mail.compose.reply.body", {
-                    date: this.date,
-                    name: nameAndAddress(this.from)
-                });
+                previousMessageSeparator = TranslationHelper.getLocalizedProperty(
+                    MailAppL10N, 
+                    this.userSession, 
+                    "mail.compose.reply.body", {
+                        date: this.date,
+                        name: nameAndAddress(this.from)
+                    });
                 break;
             case this.actions.FORWARD:
                 previousMessageSeparator = buildPreviousMessageSeparatorForForward(this);
@@ -317,30 +327,28 @@ function addressesFromHeader(header, isReplyAll) {
 
 /** A separator before the previous message containing basic info. */
 function buildPreviousMessageSeparatorForForward(message) {
-    let previousMessageSeparator = getLocalizedProperty(message.userSession, "mail.compose.forward.body");
+    let previousMessageSeparator = TranslationHelper.getLocalizedProperty(
+        MailAppL10N, message.userSession, "mail.compose.forward.body");
     previousMessageSeparator += "\n";
-    previousMessageSeparator += getLocalizedProperty(
+    previousMessageSeparator += TranslationHelper.getLocalizedProperty(
+        MailAppL10N,
         message.userSession,
-        "mail.compose.forward.prev.message.info.subject"
-    );
+        "mail.compose.forward.prev.message.info.subject");
     previousMessageSeparator += ": ";
     previousMessageSeparator += message.subject;
     previousMessageSeparator += "\n";
-    previousMessageSeparator += getLocalizedProperty(message.userSession, "mail.compose.forward.prev.message.info.to");
+    previousMessageSeparator += TranslationHelper.getLocalizedProperty(
+        message.userSession, "mail.compose.forward.prev.message.info.to");
     previousMessageSeparator += ": ";
     previousMessageSeparator += message.to.map(to => nameAndAddress(to));
     previousMessageSeparator += "\n";
-    previousMessageSeparator += getLocalizedProperty(
-        message.userSession,
-        "mail.compose.forward.prev.message.info.date"
-    );
+    previousMessageSeparator += TranslationHelper.getLocalizedProperty(
+        message.userSession, "mail.compose.forward.prev.message.info.date");
     previousMessageSeparator += ": ";
     previousMessageSeparator += message.date;
     previousMessageSeparator += "\n";
-    previousMessageSeparator += getLocalizedProperty(
-        message.userSession,
-        "mail.compose.forward.prev.message.info.from"
-    );
+    previousMessageSeparator += TranslationHelper.getLocalizedProperty(
+        message.userSession, "mail.compose.forward.prev.message.info.from");
     previousMessageSeparator += ": ";
     previousMessageSeparator += nameAndAddress(message.from);
     return previousMessageSeparator;

@@ -1,11 +1,12 @@
 //FIXME: Refactor this
 
-import { Message, DraftStatus } from "@bluemind/backend.mail.store";
-import injector from "@bluemind/inject";
-import { getLocalizedProperty } from "@bluemind/backend.mail.l10n";
 import { Alert } from "@bluemind/alert.store";
 import { html2text } from "@bluemind/html-utils";
+import { Message, DraftStatus } from "@bluemind/backend.mail.store";
 import { MimeType } from "@bluemind/email";
+import { TranslationHelper } from "@bluemind/i18n";
+import injector from "@bluemind/inject";
+import MailAppL10N from "@bluemind/webapp.mail.l10n";
 
 /** Save the current draft: create it into Drafts box, delete the previous one. */
 export function saveDraft({ commit, state, getters }) {
@@ -118,7 +119,11 @@ export function saveDraft({ commit, state, getters }) {
             const error = new Alert({
                 code: "ALERT_CODE_MSG_DRAFT_SAVE_ERROR",
                 key,
-                message: getLocalizedProperty(userSession, key, { subject: draft.subject, reason }),
+                message: TranslationHelper.getLocalizedProperty(
+                    MailAppL10N, 
+                    userSession, 
+                    key, 
+                    { subject: draft.subject, reason }),
                 props: {
                     subject: draft.subject,
                     reason

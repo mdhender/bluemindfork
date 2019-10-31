@@ -1,7 +1,8 @@
-import { DraftStatus } from "@bluemind/backend.mail.store";
-import injector from "@bluemind/inject";
 import { Alert, AlertTypes } from "@bluemind/alert.store";
-import { getLocalizedProperty } from "@bluemind/backend.mail.l10n";
+import { DraftStatus } from "@bluemind/backend.mail.store";
+import { TranslationHelper } from "@bluemind/i18n";
+import injector from "@bluemind/inject";
+import MailAppL10N from "@bluemind/webapp.mail.l10n";
 
 /** Delete the draft (hard delete, not moved in Trash box). */
 export function deleteDraft({ commit, state, getters }) {
@@ -33,7 +34,11 @@ export function deleteDraft({ commit, state, getters }) {
                 type: AlertTypes.SUCCESS,
                 code: "ALERT_CODE_MSG_DRAFT_DELETE_OK",
                 key,
-                message: getLocalizedProperty(userSession, key, { subject: draft.subject }),
+                message: TranslationHelper.getLocalizedProperty(
+                    MailAppL10N, 
+                    userSession,
+                    key, 
+                    { subject: draft.subject }),
                 props: { subject: draft.subject }
             });
             commit("alert/addAlert", success, { root: true });
@@ -44,7 +49,11 @@ export function deleteDraft({ commit, state, getters }) {
             const error = new Alert({
                 code: "ALERT_CODE_MSG_DRAFT_DELETE_ERROR",
                 key,
-                message: getLocalizedProperty(userSession, key, { subject: draft.subject, reason: reason }),
+                message: TranslationHelper.getLocalizedProperty(
+                    MailAppL10N, 
+                    userSession, 
+                    key, 
+                    { subject: draft.subject, reason: reason }),
                 props: {
                     subject: draft.subject,
                     reason

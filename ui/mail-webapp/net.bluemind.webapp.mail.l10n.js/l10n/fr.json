@@ -57,11 +57,19 @@
     "mail.draft.save.date.time": "Brouillon enregistré à {time}",
     "mail.draft.save.date": "Brouillon enregistré le {date}",
     "mail.alert.draft.save.error": "\"{subject}\" n'a pas été sauvé.{br}{reason}",
-    "mail.alert.message.draft.delete.ok": "\"{subject}\" successfuly deleted!",
-    "mail.alert.message.draft.delete.error": "\"{subject}\" has not been deleted.{br}{reason}",
+    "mail.alert.message.draft.delete.ok": "\"{subject}\" a bien été supprimé!",
+    "mail.alert.message.draft.delete.error": "\"{subject}\" n'a pas été supprimé.{br}{reason}",
     "mail.alert.send.loading": "Envoi de \"{subject}\" en cours...",
     "mail.folder": "Le dossier",
     "mail.empty": "est vide",
     "mail.shortcuts.purge": "Maj + Suppr",
-    "mail.attachment.untitled": "Sans titre - ({mimeType})"
+    "mail.attachment.untitled": "Sans titre - ({mimeType})",
+    "mail.compose.reply.subject": "Re: ",
+    "mail.compose.forward.subject": "Tr: ",
+    "mail.compose.reply.body": "Le {date}, {name} a écrit :",
+    "mail.compose.forward.body": "---- Message Original ----",
+    "mail.compose.forward.prev.message.info.subject": "Sujet",
+    "mail.compose.forward.prev.message.info.to": "\u00C0",
+    "mail.compose.forward.prev.message.info.date": "Date",
+    "mail.compose.forward.prev.message.info.from": "De"
 }

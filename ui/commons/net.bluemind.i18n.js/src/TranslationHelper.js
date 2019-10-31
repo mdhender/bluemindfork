@@ -24,5 +24,14 @@ export default {
             res = this.mergeTranslations(res, adapted);
         });
         return res;
-    } 
+    },
+    getLocalizedProperty(appProperties, userSession, propertyKey, namedParameters) {
+        let property = appProperties[userSession.lang][propertyKey];
+        if (namedParameters) {
+            namedParameters = new Map(Object.entries(namedParameters));
+            namedParameters.forEach(
+                (value, key) => property = property.replace(new RegExp("\\{" + key + "\\}"), value));
+        }
+        return property;
+    }
 };

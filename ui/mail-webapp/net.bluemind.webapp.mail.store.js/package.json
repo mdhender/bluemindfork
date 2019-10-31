@@ -8,7 +8,6 @@
     "module": "src/index.js",
     "dependencies": {
         "@bluemind/alert.store": "^4.1.0",
-        "@bluemind/backend.mail.l10n": "^4.1.0",
         "@bluemind/backend.mail.store": "^4.1.0",
         "@bluemind/containerobserver": "^4.1.0",
         "@bluemind/email": "^4.1.0",

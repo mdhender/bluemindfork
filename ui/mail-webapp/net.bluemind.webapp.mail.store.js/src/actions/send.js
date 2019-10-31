@@ -1,10 +1,11 @@
 //FIXME: Refactor this...
 
-import { getLocalizedProperty } from "@bluemind/backend.mail.l10n";
-import { DraftStatus } from "@bluemind/backend.mail.store";
 import { AlertTypes, Alert } from "@bluemind/alert.store";
+import { DraftStatus } from "@bluemind/backend.mail.store";
 import { EmailValidator } from "@bluemind/email";
+import { TranslationHelper } from "@bluemind/i18n";
 import injector from "@bluemind/inject";
+import MailAppL10N from "@bluemind/webapp.mail.l10n";
 import UUIDGenerator from "@bluemind/uuid";
 
 /** Send the last draft: move it to the Outbox then flush. */
@@ -31,7 +32,10 @@ export function send({ state, commit, getters, dispatch }) {
             // validation
             userSession = injector.getProvider("UserSession").get();
             if (!validate(draft)) {
-                throw getLocalizedProperty(userSession, "mail.error.email.address.invalid");
+                throw TranslationHelper.getLocalizedProperty(
+                    MailAppL10N, 
+                    userSession, 
+                    "mail.error.email.address.invalid");
             }
             return Promise.resolve();
         })
@@ -81,7 +85,11 @@ export function send({ state, commit, getters, dispatch }) {
                 type: AlertTypes.SUCCESS,
                 code: "ALERT_CODE_MSG_SENT_OK",
                 key,
-                message: getLocalizedProperty(userSession, key, { subject: draft.subject }),
+                message: TranslationHelper.getLocalizedProperty(
+                    MailAppL10N, 
+                    userSession, 
+                    key,
+                    { subject: draft.subject }),
                 props: {
                     subject: draft.subject,
                     subjectLink: "/mail/" + sentbox.uid + "/" + mailId
@@ -96,7 +104,11 @@ export function send({ state, commit, getters, dispatch }) {
             const error = new Alert({
                 code: "ALERT_CODE_MSG_SENT_ERROR",
                 key,
-                message: getLocalizedProperty(userSession, key, { subject: draft.subject, reason: reason.message }),
+                message: TranslationHelper.getLocalizedProperty(
+                    MailAppL10N, 
+                    userSession, 
+                    key,
+                    { subject: draft.subject, reason: reason.message }),
                 props: { subject: draft.subject, reason: reason.message }
             });
             commit("alert/removeAlert", loadingAlertUid, { root: true });
