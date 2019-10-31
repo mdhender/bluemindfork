@@ -2,25 +2,34 @@
     <bm-button-toolbar class="mail-message-list-item-quick-action-buttons pt-1 justify-content-end">
         <bm-button-group>
             <bm-button
+                v-bm-tooltip.d500.top.viewport
                 :aria-label="$tc('mail.actions.remove.aria')"
-                class="p-1 mr-2 border-0 no-bg hovershadow"
+                :title="$tc('mail.actions.remove.aria')"
+                class="p-1 mr-2 border-0 hovershadow"
+                variant="link"
                 @click.shift.exact.prevent="openPurgeModal"
                 @click.exact.prevent="remove(message.id)"
             >
                 <bm-icon icon="trash" size="lg" />
             </bm-button>
             <bm-button
-                v-if="message.states.includes('not-seen')"
-                class="p-1 border-0 no-bg hovershadow"
+                v-if="message.states.includes('not-seen')" 
+                v-bm-tooltip.d500.top.viewport
+                class="p-1 border-0 hovershadow"
                 :aria-label="$tc('mail.actions.mark_read.aria')"
+                :title="$tc('mail.actions.mark_read.aria')"
+                variant="link"
                 @click.prevent="markAsRead(message.id)"
             >
-                <bm-icon class="hovershadow" icon="unread" size="lg" />
+                <bm-icon icon="unread" size="lg" />
             </bm-button>
             <bm-button
-                v-else
-                class="p-1 border-0 no-bg hovershadow"
+                v-else 
+                v-bm-tooltip.d500.top.viewport
+                class="p-1 border-0 hovershadow"
                 :aria-label="$tc('mail.actions.mark_unread.aria')"
+                :title="$tc('mail.actions.mark_unread.aria')"
+                variant="link"
                 @click.prevent="markAsUnread(message.id)"
             >
                 <bm-icon icon="read" size="lg" />
@@ -30,7 +39,7 @@
 </template>
 
 <script>
-import { BmButtonToolbar, BmButtonGroup, BmButton, BmIcon } from "@bluemind/styleguide";
+import { BmButtonToolbar, BmButtonGroup, BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
 import { mapActions, mapGetters, mapState } from "vuex";
 import { SHOW_PURGE_MODAL } from "../VueBusEventTypes";
 
@@ -42,6 +51,7 @@ export default {
         BmButton,
         BmIcon
     },
+    directives: { BmTooltip },
     props: {
         message: {
             type: Object,
@@ -72,11 +82,8 @@ export default {
 };
 </script>
 <style>
-.mail-message-list-item-quick-action-buttons .no-bg {
-    background: none !important;
-}
 .mail-message-list-item-quick-action-buttons .hovershadow:hover {
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
-    border-radius: 1px;
 }
+
 </style>

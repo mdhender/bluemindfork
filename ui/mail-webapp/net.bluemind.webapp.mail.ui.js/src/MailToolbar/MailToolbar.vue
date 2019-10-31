@@ -34,7 +34,6 @@ export default {
 </script>
 
 <style lang="scss">
-//TODO might move inside bluemind-styleguide
 @import "~@bluemind/styleguide/css/variables";
 
 .mail-toolbar .btn {
@@ -45,19 +44,11 @@ export default {
     padding-bottom: 0;
     height: 100%;
     min-width: 5.5rem;
+    font-weight: $font-weight-normal;
 }
 
 .mail-toolbar .btn > svg {
     font-size: 1.5em;
 }
 
-.mail-toolbar .btn:focus,
-.mail-toolbar .btn.focus {
-    box-shadow: none !important;
-}
-
-.mail-toolbar .btn:hover {
-    background-color: $extra-light !important;
-    border-color: $extra-light !important;
-}
 </style>

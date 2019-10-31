@@ -136,10 +136,6 @@ export default {
     cursor: pointer;
 }
 
-.mail-message-list-item:focus {
-    outline: none;
-}
-
 .mail-message-list-item .selector .custom-check {
     display: none !important;
     margin-left: 1em;
@@ -162,6 +158,13 @@ a.list-group-item.mail-message-list-item {
     border-left: transparent solid 5px !important;
     font-size: $font-size-lg;
 }
+.list-group-item.mail-message-list-item:focus {
+   outline: $outline;
+   &:hover {
+    background-color: darken($component-active-bg, 10%);
+   }
+}
+
 .not-seen {
     font-weight: $font-weight-bold;
 }

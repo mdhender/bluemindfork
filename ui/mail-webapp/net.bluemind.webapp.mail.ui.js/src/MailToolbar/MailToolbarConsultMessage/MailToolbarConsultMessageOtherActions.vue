@@ -1,9 +1,11 @@
 <template>
     <div class="d-inline-block h-100">
         <bm-dropdown 
+            v-bm-tooltip.bottom.d500
             :no-caret="true"
-            variant="none"
+            variant="link"
             :aria-label="$tc('mail.toolbar.more.aria')"
+            :title="$tc('mail.toolbar.more.aria')"
             class="other_actions h-100"
         >
             <template slot="button-content">
@@ -20,7 +22,7 @@
 </template>
 
 <script>
-import { BmDropdown, BmDropdownItem, BmIcon }  from "@bluemind/styleguide";
+import { BmDropdown, BmDropdownItem, BmIcon, BmTooltip }  from "@bluemind/styleguide";
 import { mapActions, mapGetters, mapState } from "vuex";
 
 export default {
@@ -30,6 +32,7 @@ export default {
         BmDropdownItem,
         BmIcon
     },
+    directives: {BmTooltip},
     computed: {
         ...mapState("mail-webapp", ["currentFolderUid", "currentMessageId"]),
         ...mapGetters("mail-webapp", ["nextMessageId"])

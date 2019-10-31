@@ -54,6 +54,10 @@ export default {
     display: flex;
     align-items: center;
     padding-left: 0!important;
+    text-decoration: none;
+    &:hover, &:focus, &:active{
+        text-decoration: none;
+    }
 }
 
 .bm-banner-user .nav-link span {

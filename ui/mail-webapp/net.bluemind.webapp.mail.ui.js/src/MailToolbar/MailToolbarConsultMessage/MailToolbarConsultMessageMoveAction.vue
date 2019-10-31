@@ -1,10 +1,12 @@
 <template>
     <bm-dropdown
         ref="move-dropdown"
+        v-bm-tooltip.bottom.d500
         :no-caret="true"
         class="h-100 move-message"
         :disabled="disableMove"
-        variant="none"
+        variant="link"
+        :title="$tc('mail.toolbar.move.aria')"
         :aria-label="$tc('mail.toolbar.move.aria')"
         @shown="openMoveAutocomplete"
         @hide="closeMoveAutocomplete"
@@ -34,7 +36,7 @@
 </template>
 
 <script>
-import { BmAutocomplete, BmDropdown, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
+import { BmAutocomplete, BmDropdown, BmIcon, BmLabelIcon, BmTooltip } from "@bluemind/styleguide";
 import { mapActions, mapGetters, mapState } from "vuex";
 import MailFolderIcon from "../../MailFolderIcon";
 
@@ -47,6 +49,7 @@ export default {
         BmLabelIcon,
         MailFolderIcon
     },
+    directives: {BmTooltip},
     data() {
         return {
             maxFoldersProposed: 5, // FIXME ?
@@ -138,10 +141,6 @@ export default {
 .move-message .btn.dropdown-toggle {
     padding: 0;
     border: none;
-}
-
-.move-message .btn.dropdown-toggle:enabled {
-    background-color: unset;
 }
 
 .move-message .dropdown-menu {

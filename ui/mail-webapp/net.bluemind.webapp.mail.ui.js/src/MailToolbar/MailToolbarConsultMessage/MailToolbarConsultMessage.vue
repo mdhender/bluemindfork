@@ -3,8 +3,10 @@
         <global-events @keydown.tab.capture="forceCloseMoveAutocomplete" />
         <bm-button
             v-if="currentMessage.states.includes('not-seen')"
-            variant="none"
+            v-bm-tooltip.bottom.d500
+            variant="link"
             class="unread"
+            :title="$tc('mail.actions.mark_read.aria')"
             :aria-label="$tc('mail.actions.mark_read.aria')"
             @click="markAsRead(currentMessage.id)"
         >
@@ -12,20 +14,29 @@
         </bm-button>
         <bm-button
             v-else
-            variant="none"
+            v-bm-tooltip.bottom.d500
+            variant="link"
             class="read"
+            :title="$tc('mail.actions.mark_unread.aria')"
             :aria-label="$tc('mail.actions.mark_unread.aria')"
             @click="markAsUnread(currentMessage.id)"
         >
             <bm-icon icon="unread" size="2x" /> {{ $tc("mail.actions.mark_unread") }}
         </bm-button>
         <mail-toolbar-consult-message-move-action />
-        <bm-button variant="none" :aria-label="$tc('mail.actions.spam.aria')">
+        <bm-button
+            v-bm-tooltip.bottom.d500
+            variant="link"
+            :title="$tc('mail.actions.spam.aria')"
+            :aria-label="$tc('mail.actions.spam.aria')"
+        >
             <bm-icon icon="forbidden" size="2x" />
             {{ $tc("mail.actions.spam") }}
         </bm-button>
         <bm-button 
-            variant="none"
+            v-bm-tooltip.bottom.d500
+            variant="link"
+            :title="$tc('mail.actions.remove.aria')"
             :aria-label="$tc('mail.actions.remove.aria')"
             @click.exact="remove"
             @click.shift.exact="openPurgeModal"
@@ -38,7 +49,7 @@
 </template>
 
 <script>
-import { BmButton, BmIcon } from "@bluemind/styleguide";
+import { BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
 import { mapActions, mapGetters, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
 import MailToolbarConsultMessageMoveAction from "./MailToolbarConsultMessageMoveAction";
@@ -54,6 +65,7 @@ export default {
         MailToolbarConsultMessageMoveAction,
         MailToolbarConsultMessageOtherActions
     },
+    directives: {BmTooltip},
     computed: {
         ...mapState("mail-webapp", ["currentFolderUid"]),
         ...mapGetters("mail-webapp", ["currentMessage", "nextMessageId"]),
