@@ -66,8 +66,8 @@ public class SettingsHook extends DefaultServerHook implements ISystemConfigurat
 	private void updateSmtpEdgeServers(List<ItemValue<Server>> postfixs, SystemConf conf) throws ServerFault {
 		for (ItemValue<Server> postfix : postfixs) {
 			logger.info("Distributing new settings to {}:{}", postfix.value.name, postfix.value.ip);
-			logger.info("Setting mynetworks to {}", conf.stringValue(SysConfKeys.mynetworks.name()));
-			logger.info("Setting messageSizeLimit to {}", conf.stringValue(SysConfKeys.message_size_limit.name()));
+			logger.info("Setting mynetworks to '{}'", conf.stringValue(SysConfKeys.mynetworks.name()));
+			logger.info("Setting messageSizeLimit to '{}'", conf.stringValue(SysConfKeys.message_size_limit.name()));
 
 			INodeClient nc = NodeActivator.get(postfix.value.address());
 
@@ -81,15 +81,22 @@ public class SettingsHook extends DefaultServerHook implements ISystemConfigurat
 			tr = nc.executeCommandNoOut("/usr/sbin/postconf -e 'mailbox_size_limit = "
 					+ conf.stringValue(SysConfKeys.message_size_limit.name()) + "'");
 			NCUtils.waitFor(nc, tr);
+
+			tr = nc.executeCommandNoOut("service postfix restart");
+			NCUtils.waitFor(nc, tr);
+
+			if (logger.isDebugEnabled()) {
+				logger.debug(new String(nc.read("/etc/postfix/main.cf")));
+			}
 		}
 	}
 
 	private void updateSmtpServers(List<ItemValue<Server>> postfixs, SystemConf conf) throws ServerFault {
 		for (ItemValue<Server> postfix : postfixs) {
 			logger.info("Distributing new settings to {}:{}", postfix.value.name, postfix.value.ip);
-			logger.info("Setting mynetworks to {}", conf.stringValue(SysConfKeys.mynetworks.name()));
-			logger.info("Setting messageSizeLimit to {}", conf.stringValue(SysConfKeys.message_size_limit.name()));
-			logger.info("Setting relayhost to {}", conf.stringValue(SysConfKeys.relayhost.name()));
+			logger.info("Setting mynetworks to '{}'", conf.stringValue(SysConfKeys.mynetworks.name()));
+			logger.info("Setting messageSizeLimit to '{}'", conf.stringValue(SysConfKeys.message_size_limit.name()));
+			logger.info("Setting relayhost to '{}'", conf.stringValue(SysConfKeys.relayhost.name()));
 
 			INodeClient nc = NodeActivator.get(postfix.value.address());
 
@@ -104,14 +111,17 @@ public class SettingsHook extends DefaultServerHook implements ISystemConfigurat
 					+ conf.stringValue(SysConfKeys.message_size_limit.name()) + "'");
 			NCUtils.waitFor(nc, tr);
 
-			logger.info("/usr/sbin/postconf -e 'relayhost = " + (conf.stringValue(SysConfKeys.relayhost.name()) == null
-					? "" : conf.stringValue(SysConfKeys.relayhost.name()).trim()) + "'");
 			tr = nc.executeCommandNoOut(
 					"/usr/sbin/postconf -e 'relayhost = " + (conf.stringValue(SysConfKeys.relayhost.name()) == null ? ""
 							: conf.stringValue(SysConfKeys.relayhost.name()).trim()) + "'");
 			NCUtils.waitFor(nc, tr);
 
-			logger.info(new String(nc.read("/etc/postfix/main.cf")));
+			tr = nc.executeCommandNoOut("service postfix restart");
+			NCUtils.waitFor(nc, tr);
+
+			if (logger.isDebugEnabled()) {
+				logger.debug(new String(nc.read("/etc/postfix/main.cf")));
+			}
 		}
 	}
 
