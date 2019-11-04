@@ -1,0 +1,73 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:bj="urn:import:net.bluemind.ui.admin.client" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui" xmlns:common="urn:import:net.bluemind.ui.common.client.forms">
+
+	<ui:style>
+	.updateToLatestHelp {
+		background-color: #DDF4FB;
+		border: 1px solid #C6EDF9;
+		padding: 6px;
+		border-radius: 3px;
+		-webkit-border-radius: 3px;
+		-moz-border-radius: 3px;
+		border-collapse: separate;
+	}
+	
+	.subscriptionNeeded {
+		color: #620606;
+		background-color: #d86363;
+		border: 1px solid #C43C35;
+		padding: 6px;
+		border-radius: 3px;
+		-webkit-border-radius: 3px;
+		-moz-border-radius: 3px;
+		border-collapse: separate;
+	}
+	</ui:style>
+
+	<ui:with field="c"
+		type="net.bluemind.ui.adminconsole.system.maintenance.update.l10n.UpdateConstants" />
+
+
+	<g:HTMLPanel>
+		<f:FieldSetPanel name="{c.setupUpdateTitle}" />
+		<g:HTMLPanel visible="false" ui:field="subscriptionUnavailable">
+		<table border="0">
+			<tr>
+				<td>
+				<g:Label styleName="{style.subscriptionNeeded}" text="{c.unavailableSubscription}" />
+				</td>
+			</tr>
+		</table>
+		</g:HTMLPanel>
+		
+		<g:HTMLPanel ui:field="subscriptionAvailable">
+		<table border="0">
+			<tr>
+				<td colspan="2">
+				<g:Label styleName="{style.updateToLatestHelp}" text="{c.updateToLatestHelp}" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:400px'>
+					<g:Label text="{c.majorVersion}:" />
+				</td>
+				<td style='width:200px'>
+					<g:Label ui:field="majorVersion" />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:400px'>
+					<g:Label text="{c.updateToLatest}:"></g:Label>
+				</td>
+				<td style='width:200px'>
+					<g:Button text="{c.setupUpdate}" ui:field="setupUpdate" />
+				</td>
+			</tr>
+		</table>
+		</g:HTMLPanel>
+	</g:HTMLPanel>
+</ui:UiBinder>

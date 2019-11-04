@@ -54,6 +54,8 @@ import net.bluemind.ui.adminconsole.system.hosts.edit.EditHostServerRolesEditor;
 import net.bluemind.ui.adminconsole.system.hosts.edit.ServerModelHandler;
 import net.bluemind.ui.adminconsole.system.hosts.edit.UserLanguageModelHandler;
 import net.bluemind.ui.adminconsole.system.maintenance.MaintenanceScreen;
+import net.bluemind.ui.adminconsole.system.maintenance.update.UpdateModelHandler;
+import net.bluemind.ui.adminconsole.system.maintenance.update.UpdateScreen;
 import net.bluemind.ui.adminconsole.system.subscription.SubscriptionModelHandler;
 import net.bluemind.ui.adminconsole.system.subscription.SubscriptionWidget;
 import net.bluemind.ui.adminconsole.system.systemconf.GlobalSettingsModelHandler;
@@ -121,6 +123,8 @@ public class SystemPlugin {
 
 		// Maintenance
 		MaintenanceScreen.registerType();
+		UpdateModelHandler.registerType();
+		UpdateScreen.registerType();
 
 		// MailflowRules
 		EditMailflowRulesEditor.registerType();

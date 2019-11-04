@@ -16,12 +16,11 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.ui.adminconsole.system.subscription;
+package net.bluemind.ui.adminconsole.system.maintenance.update;
 
 import java.util.concurrent.CompletableFuture;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.core.shared.GWT;
 
 import net.bluemind.core.api.AsyncHandler;
@@ -40,21 +39,22 @@ import net.bluemind.system.api.gwt.endpoint.InstallationSockJsEndpoint;
 import net.bluemind.system.api.gwt.js.JsSubscriptionInformations;
 import net.bluemind.system.api.gwt.serder.SubscriptionInformationsGwtSerDer;
 import net.bluemind.ui.adminconsole.base.SubscriptionInfoHolder;
+import net.bluemind.ui.adminconsole.system.subscription.SubscriptionKeys;
 import net.bluemind.ui.common.client.forms.Ajax;
 
-public class SubscriptionModelHandler implements IGwtModelHandler {
+public class UpdateModelHandler implements IGwtModelHandler {
 
-	public static final String TYPE = "bm.ac.SubscriptionModelHandler";
+	public static final String TYPE = "bm.ac.UpdateModelHandler";
 
 	public static void registerType() {
 		GwtModelHandler.register(TYPE, new IGwtDelegateFactory<IGwtModelHandler, ModelHandler>() {
 
 			@Override
 			public IGwtModelHandler create(ModelHandler modelHandler) {
-				return new SubscriptionModelHandler();
+				return new UpdateModelHandler();
 			}
 		});
-		GWT.log("bm.ac.SubscriptionModelHandler registered");
+		GWT.log(TYPE + " registered");
 	}
 
 	@Override
@@ -71,23 +71,10 @@ public class SubscriptionModelHandler implements IGwtModelHandler {
 			}
 		});
 
-		CompletableFuture<Void> subscriptionContactsLoad = installationService.getSubscriptionContacts()
-				.thenAccept(emails -> {
-					JsArrayString emailsArray = JavaScriptObject.createArray().cast();
-					emails.forEach(email -> {
-						emailsArray.push(email);
-					});
-
-					map.put(SubscriptionKeys.subscriptionContacts.name(), emailsArray);
-				}).exceptionally(e -> {
-					return null;
-				});
-
-		CompletableFuture.allOf(subInfosLoad, subscriptionContactsLoad).thenRun(() -> handler.success(null))
-				.exceptionally(t -> {
-					handler.failure(t);
-					return null;
-				});
+		subInfosLoad.thenRun(() -> handler.success(null)).exceptionally(t -> {
+			handler.failure(t);
+			return null;
+		});
 	}
 
 	@Override

@@ -16,35 +16,26 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.ui.adminconsole.system.l10n;
+package net.bluemind.ui.adminconsole.system.maintenance.update.l10n;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.ConstantsWithLookup;
 
-public interface SystemMenuConstants extends ConstantsWithLookup {
+public interface UpdateConstants extends ConstantsWithLookup {
 
-	public String systemManagement();
+	public static final UpdateConstants INST = GWT.create(UpdateConstants.class);
 
-	public String servers();
+	public String setupUpdateTitle();
 
-	public String applicationServers();
+	public String updateToLatest();
 
-	public String systemConfiguration();
+	public String updateToLatestHelp();
 
-	public String subscriptionInstallation();
+	public String majorVersion();
 
-	public String domains();
+	public String unavailableSubscription();
 
-	public String createDomain();
+	public String setupUpdate();
 
-	public String domainsManager();
-
-	public String maintenance();
-
-	public String maintainEmails();
-
-	public String documentation();
-
-	public String uploadDocumentation();
-
-	public String updateBluemind();
+	public String continuUpdateHelp();
 }
