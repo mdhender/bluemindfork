@@ -7,7 +7,7 @@ export function fetch({ state, commit }, { folder, id, part, isAttachment }) {
     if (isAttachment || MimeType.isImage(part)) {
         encoding = null;
     }
-    return ServiceLocator.getProvider("MailboxItemsPersistance")
+    return ServiceLocator.getProvider("MailboxItemsPersistence")
         .get(folder)
         .fetch(item.value.imapUid, part.address, encoding, part.mime, part.charset)
         .then(stream => commit("storePart", { id, address: part.address, content: stream }));

@@ -2,7 +2,7 @@
 import ServiceLocator from "@bluemind/inject";
 
 export function create({ commit }, { name, parentUid }) {
-    const service = ServiceLocator.getProvider("MailboxFoldersPersistance").get();
+    const service = ServiceLocator.getProvider("MailboxFoldersPersistence").get();
     let newFolderItemIdentifier;
     return service
         .createBasic({

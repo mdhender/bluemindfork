@@ -27,7 +27,7 @@ function registerStores() {
 function registerAPIClients() {
     injector.register({
         // FIXME in fact it is not the persistence layer, use XxxAPI or XxxService instead
-        provide: "MailboxFoldersPersistance",
+        provide: "MailboxFoldersPersistence",
         factory: () => {
             const userSession = injector.getProvider("UserSession").get();
             return new MailboxFoldersClient(
@@ -40,13 +40,13 @@ function registerAPIClients() {
 
     injector.register({
         // FIXME in fact it is not the persistence layer, use XxxAPI or XxxService instead
-        provide: "MailboxItemsPersistance",
+        provide: "MailboxItemsPersistence",
         factory: uid => new MailboxItemsClient(injector.getProvider("UserSession").get().sid, uid)
     });
 
     injector.register({
         // FIXME in fact it is not the persistence layer, use XxxAPI or XxxService instead
-        provide: "OutboxPersistance",
+        provide: "OutboxPersistence",
         factory: () => {
             const userSession = injector.getProvider("UserSession").get();
             return new OutboxClient(userSession.sid, userSession.domain, userSession.userId);
@@ -55,7 +55,7 @@ function registerAPIClients() {
 
     injector.register({
         // FIXME in fact it is not the persistence layer, use XxxAPI or XxxService instead
-        provide: "AddressBooksPersistance",
+        provide: "AddressBooksPersistence",
         factory: () => new AddressBooksClient(injector.getProvider("UserSession").get().sid)
     });
 

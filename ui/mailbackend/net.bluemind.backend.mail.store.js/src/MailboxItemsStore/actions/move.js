@@ -1,7 +1,7 @@
 import ServiceLocator from "@bluemind/inject";
 
 export function move({ commit }, { sourceId, destinationId, messageId }) {
-    return ServiceLocator.getProvider("MailboxFoldersPersistance")
+    return ServiceLocator.getProvider("MailboxFoldersPersistence")
         .get()
         .importItems(destinationId, {
             mailboxFolderId: sourceId,

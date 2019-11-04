@@ -40,7 +40,7 @@ export function send({ state, commit, getters, dispatch }) {
             const draftbox = getters["folders/defaultFolders"].DRAFTS;
             const outbox = getters["folders/defaultFolders"].OUTBOX;
             return injector
-                .getProvider("MailboxFoldersPersistance")
+                .getProvider("MailboxFoldersPersistence")
                 .get()
                 .importItems(outbox.internalId, {
                     mailboxFolderId: draftbox.internalId,
@@ -55,7 +55,7 @@ export function send({ state, commit, getters, dispatch }) {
                 throw "Unable to flush the Outbox.";
             }
             draftId = moveResult.doneIds[0].destination;
-            const outboxService = injector.getProvider("OutboxPersistance").get();
+            const outboxService = injector.getProvider("OutboxPersistence").get();
             return outboxService.flush();
         })
         .then(taskRef => {
@@ -68,7 +68,7 @@ export function send({ state, commit, getters, dispatch }) {
             if (taskResult.result && Array.isArray(taskResult.result)) {
                 let importedMailboxItem = taskResult.result.find(r => r.source == draftId);
                 sentbox = getters["folders/defaultFolders"].SENT;
-                const sentboxItemsService = injector.getProvider("MailboxItemsPersistance").get(sentbox.uid);
+                const sentboxItemsService = injector.getProvider("MailboxItemsPersistence").get(sentbox.uid);
                 return sentboxItemsService.getCompleteById(importedMailboxItem.destination);
             } else {
                 throw "Unable to retrieve task result";

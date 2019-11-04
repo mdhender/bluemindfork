@@ -47,7 +47,7 @@ export function saveDraft({ commit, state, getters }) {
 
             const draftbox = getters["folders/defaultFolders"].DRAFTS;
 
-            service = injector.getProvider("MailboxItemsPersistance").get(draftbox.uid);
+            service = injector.getProvider("MailboxItemsPersistence").get(draftbox.uid);
             userSession = injector.getProvider("UserSession").get();
         })
         .then(() => {

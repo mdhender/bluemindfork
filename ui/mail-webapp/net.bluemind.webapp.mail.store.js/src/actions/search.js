@@ -6,7 +6,7 @@ const MAX_SEARCH_RESULTS = 500;
 export function search({ commit, dispatch }, { folderUid, pattern }) {
     commit("messages/clearItems");
     commit("clearCurrentMessage");
-    return ServiceLocator.getProvider("MailboxFoldersPersistance")
+    return ServiceLocator.getProvider("MailboxFoldersPersistence")
         .get()
         .searchItems({
             query: {

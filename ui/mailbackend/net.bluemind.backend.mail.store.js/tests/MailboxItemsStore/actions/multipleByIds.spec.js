@@ -1,6 +1,6 @@
 import ServiceLocator from "@bluemind/inject";
 
 export function multipleById({ commit }, { folderUid, ids }) {
-    const service = ServiceLocator.getProvider("MailboxItemsPersistance").get(folderUid);
+    const service = ServiceLocator.getProvider("MailboxItemsPersistence").get(folderUid);
     return service.multipleById(ids).then(items => commit("setItems", items));
 }

@@ -1,5 +1,5 @@
 export * from "./fetch";
-export * from "./geCompleteById";
+export * from "./getCompleteById";
 export * from "./move";
 export * from "./multipleById";
 export * from "./remove";

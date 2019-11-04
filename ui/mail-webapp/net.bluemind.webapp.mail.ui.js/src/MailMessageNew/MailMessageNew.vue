@@ -229,7 +229,7 @@ export default {
             if (searchedRecipient === "") {
                 this.autocompleteResults = [];
             } else {
-                return ServiceLocator.getProvider("AddressBooksPersistance")
+                return ServiceLocator.getProvider("AddressBooksPersistence")
                     .get()
                     .search({
                         from: 0,

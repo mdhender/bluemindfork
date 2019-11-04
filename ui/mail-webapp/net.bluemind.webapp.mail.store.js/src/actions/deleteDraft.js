@@ -18,7 +18,7 @@ export function deleteDraft({ commit, state, getters }) {
         // initialize service, session and status
         const draftbox = getters["folders/defaultFolders"].DRAFTS;
 
-        service = injector.getProvider("MailboxItemsPersistance").get(draftbox.uid);
+        service = injector.getProvider("MailboxItemsPersistence").get(draftbox.uid);
         userSession = injector.getProvider("UserSession").get();
         commit("updateDraft", { status: DraftStatus.DELETING });
         return resolve();
