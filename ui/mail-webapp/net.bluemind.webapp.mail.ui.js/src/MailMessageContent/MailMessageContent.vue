@@ -99,9 +99,7 @@ export default {
             folderUid: "currentFolderUid",
             messageId: "currentMessageId"
         }),
-        ...mapGetters("mail-webapp", {
-            realAttachments: "currentMessageAttachments"
-        }),
+        ...mapGetters("mail-webapp", { realAttachments: "currentMessageAttachments" }),
         to() {
             if (this.message.to.length > 0) {
                 return this.message.to.map(dest => (dest.dn ? dest.dn : dest.address));

@@ -2,7 +2,10 @@
     <bm-container v-if="hasAttachments" class="mail-message-content-attachments-block pt-2 pb-0 bg-extra-light">
         <bm-row class="mb-2">
             <bm-col cols="12" class="pl-2">
-                <button class="btn p-0 bg-transparent border-0 caret-btn" :aria-label="$t('common.toggleAttachments')">
+                <button 
+                    class="btn p-0 bg-transparent border-0 caret-btn align-text-bottom"
+                    :aria-label="$t('common.toggleAttachments')"
+                >
                     <bm-icon :icon="isExpanded ? 'caret-down' : 'caret-right'" @click="toggleExpand" />
                 </button>
                 <bm-icon icon="paper-clip" class="mr-1 ml-3" size="lg" />
@@ -54,7 +57,7 @@
 
 <script>
 import { BmButton, BmCol, BmContainer, BmIcon, BmRow } from "@bluemind/styleguide";
-import { mapActions, mapState } from "vuex";
+import { mapActions, mapState, mapGetters } from "vuex";
 import { MimeType } from "@bluemind/email";
 import MailMessageContentAttachmentItem from "./MailMessageContentAttachmentItem";
 
@@ -82,6 +85,7 @@ export default {
     },
     computed: {
         ...mapState("mail-webapp", { folder: "currentFolderUid", message: "currentMessageId" }),
+        ...mapGetters("mail-webapp", ["currentMessageAttachments"]),
         hasAttachments() {
             return this.attachments.length > 0;
         },
@@ -96,7 +100,7 @@ export default {
         }
     },
     watch: {
-        attachments() {
+        message() {
             this.isExpanded = false;
             this.attachmentsContentFetched = false;
         }
@@ -133,8 +137,9 @@ export default {
         save(index) {
             //FIXME
             const attachment = this.attachments[index];
+            const partToFetch = this.findAttachmentPart(attachment);
             // attachment content may be already fetched (if its preview has been displayed)
-            if (attachment.content) {
+            if (partToFetch != undefined && partToFetch.content != undefined) {
                 this.triggerDownload(attachment);
             } else {
                 this.fetch({
@@ -149,12 +154,16 @@ export default {
             let element = document.createElement("a");
             element.style.display = "none";
             element.setAttribute("download", attachment.filename);
-            element.setAttribute("href", "data:" + attachment.mime + ";base64, " + attachment.content);
+            element.setAttribute("href", 
+                "data:" + attachment.mime + ";base64, " + this.findAttachmentPart(attachment).content);
             document.body.appendChild(element);
 
             element.click();
 
             document.body.removeChild(element);
+        },
+        findAttachmentPart(attachment) {
+            return this.currentMessageAttachments.find(a => attachment.address === a.address);
         }
     }
 };

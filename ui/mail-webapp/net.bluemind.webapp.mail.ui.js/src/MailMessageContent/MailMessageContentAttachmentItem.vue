@@ -40,6 +40,7 @@
 
 <script>
 import { BmButton, BmCol, BmContainer, BmIcon, BmRow, BmTooltip } from "@bluemind/styleguide";
+import { mapGetters } from "vuex";
 import { MimeType } from "@bluemind/email";
 
 function roundTo1Decimal(number) {
@@ -68,6 +69,7 @@ export default {
         }
     },
     computed: {
+        ...mapGetters("mail-webapp", ["currentMessageAttachments"]),
         fileTypeIcon() {
             return MimeType.matchingIcon(this.attachment.mime);
         },
@@ -87,7 +89,8 @@ export default {
             return MimeType.previewAvailable(this.attachment.mime);
         },
         preview() {
-            return "data:" + this.attachment.mime + ";base64, " + this.attachment.content;
+            return "data:" + this.attachment.mime + ";base64, " 
+                + this.currentMessageAttachments.find(a => this.attachment.address === a.address).content;
         }
     }
 };
