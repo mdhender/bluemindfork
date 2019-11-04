@@ -10,5 +10,10 @@ export function fetch({ state, commit }, { folder, id, part, isAttachment }) {
     return ServiceLocator.getProvider("MailboxItemsPersistence")
         .get(folder)
         .fetch(item.value.imapUid, part.address, encoding, part.mime, part.charset)
-        .then(stream => commit("storePart", { id, address: part.address, content: stream }));
+        .then(stream => {
+            if (isAttachment && part.encoding == "8bit") {
+                stream = btoa(stream);
+            }
+            commit("storePart", { id, address: part.address, content: stream }); 
+        });
 }
