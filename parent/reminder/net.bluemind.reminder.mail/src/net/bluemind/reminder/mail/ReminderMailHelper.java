@@ -110,8 +110,7 @@ public abstract class ReminderMailHelper<T extends ICalendarElement> {
 	/**
 	 * Extract {@link VEvent} data
 	 * 
-	 * @param entity
-	 *            the {@link VEvent} to extract
+	 * @param entity the {@link VEvent} to extract
 	 * @return a {@link Map} containing the {@link VEvent} data
 	 */
 	protected void addICalendarelementDataToMap(T entity, VAlarm valarm, Map<String, Object> data) {
@@ -125,7 +124,6 @@ public abstract class ReminderMailHelper<T extends ICalendarElement> {
 		if (entity.description != null && !entity.description.isEmpty()) {
 			// FIXME pretty description
 			String desc = entity.description.replace("\r\n", "\n");
-			desc = desc.replace("\n", "<br>\n");
 			data.put("description", desc);
 		}
 		data.put("available", true);

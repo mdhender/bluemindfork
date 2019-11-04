@@ -25,6 +25,7 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -671,7 +672,8 @@ public class EventConverter {
 		} else {
 			e.summary = "---";
 		}
-		e.description = data.getDescription();
+		e.description = Optional.ofNullable(data.getDescription())
+				.map(desc -> "<pre>" + desc.replace("\r\n", "\n") + "</pre>").orElse(null);
 
 		if (data.getLocation() != null) {
 			e.location = data.getLocation();
