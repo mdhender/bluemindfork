@@ -15,6 +15,7 @@
 
 <script>
 import { mapGetters } from "vuex";
+import { computeSubject, previousMessageContent } from "./MessageBuilder";
 import MailMessageContent from "./MailMessageContent/MailMessageContent";
 import MailMessageNew from "./MailMessageNew";
 import MailMessageNewModes from "./MailMessageNew/MailMessageNewModes";
@@ -32,7 +33,7 @@ export default {
         }),
         previousMessage() {
             return {
-                content: this.message.previousMessageContent(this.pathSuffix(), this.inlineParts),
+                content: previousMessageContent(this.pathSuffix(), this.inlineParts, this.message),
                 messageId: this.message.messageId,
                 references: this.message.references
             };
@@ -42,7 +43,7 @@ export default {
             return {
                 to: this.message.computeRecipients(this.message.recipientFields.TO, action),
                 cc: this.message.computeRecipients(this.message.recipientFields.CC, action),
-                subject: this.message.computeSubject(action)
+                subject: computeSubject(action, this.message)
             };
         },
         mode() {

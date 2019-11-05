@@ -5,10 +5,11 @@
         class="h-100 move-message"
         :disabled="disableMove"
         variant="none"
+        :aria-label="$tc('mail.toolbar.move.aria')"
         @shown="openMoveAutocomplete"
         @hide="closeMoveAutocomplete"
     >
-        <template slot="button-content" :aria-label="$tc('mail.toolbar.move.aria')">
+        <template slot="button-content">
             <bm-icon icon="folder" size="2x" /> {{ $tc("mail.toolbar.move") }}
         </template>
         <bm-autocomplete

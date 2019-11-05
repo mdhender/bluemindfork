@@ -16,13 +16,10 @@
  * END LICENSE
  */
 import { EmailExtractor } from "@bluemind/email";
-import { html2text } from "@bluemind/html-utils";
 import { RecipientKind, SystemFlag } from "@bluemind/backend.mail.api";
-import { TranslationHelper } from "@bluemind/i18n";
 import GetAttachmentPartsVisitor from "./GetAttachmentPartsVisitor";
 import GetInlinePartsVisitor from "./GetInlinePartsVisitor";
 import injector from "@bluemind/inject";
-import MailAppL10N from "@bluemind/webapp.mail.l10n";
 import TreeWalker from "./TreeWalker";
 
 /**
@@ -91,81 +88,6 @@ export default class Message {
             inlines: inlineVisitor.result(),
             attachments: attachmentVisitor.result()
         };
-    }
-
-    /** Compute the subject in function of the current action (like "Re: My Subject" when Reply). */
-    computeSubject(action) {
-        let subjectPrefix;
-        switch (action) {
-            case this.actions.REPLY:
-            case this.actions.REPLYALL:
-                subjectPrefix = TranslationHelper.getLocalizedProperty(
-                    MailAppL10N, 
-                    this.userSession, 
-                    "mail.compose.reply.subject");
-                break;
-            case this.actions.FORWARD:
-                subjectPrefix = TranslationHelper.getLocalizedProperty(
-                    MailAppL10N, 
-                    this.userSession, 
-                    "mail.compose.forward.subject");
-                break;
-            default:
-                break;
-        }
-
-        // avoid subject prefix repetitions (like "Re: Re: Re: Re: My Subject")
-        if (subjectPrefix !== this.subject.substring(0, subjectPrefix.length)) {
-            return subjectPrefix + this.subject;
-        }
-        return this.subject;
-    }
-
-    /**
-     * Build the text representing this message as a previous message.
-     * Like:
-     * @example
-     * `On Tuesday 2019 01 01, John Doe wrote:
-     * > Dear Jane,
-     * >  I could not bear to see you with Tarzan anymore,
-     * > it will kill me! Please come back!
-     * ...`
-     */
-    previousMessageContent(action, parts) {
-        let previousMessage = "";
-        parts.forEach(part => {
-            if (part.mime === "text/html") {
-                previousMessage += html2text(part.content);
-            } else if (part.mime === "text/plain") {
-                previousMessage += part.content;
-            }
-        });
-
-        let previousMessageSeparator = "";
-
-        switch (action) {
-            case this.actions.REPLY:
-            case this.actions.REPLYALL:
-                previousMessage = previousMessage
-                    .split("\n")
-                    .map(line => "> " + line)
-                    .join("\n");
-                previousMessageSeparator = TranslationHelper.getLocalizedProperty(
-                    MailAppL10N, 
-                    this.userSession, 
-                    "mail.compose.reply.body", {
-                        date: this.date,
-                        name: nameAndAddress(this.from)
-                    });
-                break;
-            case this.actions.FORWARD:
-                previousMessageSeparator = buildPreviousMessageSeparatorForForward(this);
-                break;
-            default:
-                break;
-        }
-
-        return previousMessageSeparator + "\n\n" + previousMessage;
     }
 
     /**
@@ -323,38 +245,4 @@ function addressesFromHeader(header, isReplyAll) {
     } else {
         return [EmailExtractor.extractEmail(header.values[0])];
     }
-}
-
-/** A separator before the previous message containing basic info. */
-function buildPreviousMessageSeparatorForForward(message) {
-    let previousMessageSeparator = TranslationHelper.getLocalizedProperty(
-        MailAppL10N, message.userSession, "mail.compose.forward.body");
-    previousMessageSeparator += "\n";
-    previousMessageSeparator += TranslationHelper.getLocalizedProperty(
-        MailAppL10N,
-        message.userSession,
-        "mail.compose.forward.prev.message.info.subject");
-    previousMessageSeparator += ": ";
-    previousMessageSeparator += message.subject;
-    previousMessageSeparator += "\n";
-    previousMessageSeparator += TranslationHelper.getLocalizedProperty(
-        message.userSession, "mail.compose.forward.prev.message.info.to");
-    previousMessageSeparator += ": ";
-    previousMessageSeparator += message.to.map(to => nameAndAddress(to));
-    previousMessageSeparator += "\n";
-    previousMessageSeparator += TranslationHelper.getLocalizedProperty(
-        message.userSession, "mail.compose.forward.prev.message.info.date");
-    previousMessageSeparator += ": ";
-    previousMessageSeparator += message.date;
-    previousMessageSeparator += "\n";
-    previousMessageSeparator += TranslationHelper.getLocalizedProperty(
-        message.userSession, "mail.compose.forward.prev.message.info.from");
-    previousMessageSeparator += ": ";
-    previousMessageSeparator += nameAndAddress(message.from);
-    return previousMessageSeparator;
-}
-
-/** @return like "John Doe <jdoe@bluemind.net>" */
-function nameAndAddress(recipient) {
-    return recipient.dn ? recipient.dn + " <" + recipient.address + ">" : recipient.address;
 }

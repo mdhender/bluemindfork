@@ -26,9 +26,16 @@ extend(router, store);
 
 Vue.mixin(InheritTranslationsMixin);
 
+const i18n = new VueI18n({ locale: userSession.lang, fallbackLocale: 'en', dateTimeFormats: getDateTimeFormats() });
+
+injector.register({
+    provide: "i18n",
+    use: i18n
+});
+
 new Vue({
     el: "#app",
-    i18n: { locale: userSession.lang, fallbackLocale: 'en', dateTimeFormats: getDateTimeFormats() },
+    i18n,
     render: h => h(MainApp),
     router,
     store

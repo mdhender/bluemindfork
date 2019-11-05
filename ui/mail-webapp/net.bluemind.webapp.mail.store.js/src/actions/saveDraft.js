@@ -4,16 +4,12 @@ import { Alert } from "@bluemind/alert.store";
 import { html2text } from "@bluemind/html-utils";
 import { Message, DraftStatus } from "@bluemind/backend.mail.store";
 import { MimeType } from "@bluemind/email";
-import { TranslationHelper } from "@bluemind/i18n";
 import injector from "@bluemind/inject";
-import MailAppL10N from "@bluemind/webapp.mail.l10n";
 
 /** Save the current draft: create it into Drafts box, delete the previous one. */
 export function saveDraft({ commit, state, getters }) {
     const previousDraftId = state.draft.id;
-    let service;
-    let draft;
-    let userSession;
+    let service, draft, userSession;
 
     // only one saveDraft at a time
     return waitUntilDraftNotSaving(state.draft, 250, 5)
@@ -115,15 +111,12 @@ export function saveDraft({ commit, state, getters }) {
             return draft.id;
         })
         .catch(reason => {
+            const vueI18n = injector.getProvider("i18n").get();
             const key = "mail.alert.draft.save.error";
             const error = new Alert({
                 code: "ALERT_CODE_MSG_DRAFT_SAVE_ERROR",
                 key,
-                message: TranslationHelper.getLocalizedProperty(
-                    MailAppL10N, 
-                    userSession, 
-                    key, 
-                    { subject: draft.subject, reason }),
+                message: vueI18n.t(key, { subject: draft.subject, reason }),
                 props: {
                     subject: draft.subject,
                     reason
