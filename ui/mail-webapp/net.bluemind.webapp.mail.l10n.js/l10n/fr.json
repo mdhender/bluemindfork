@@ -62,5 +62,6 @@
     "mail.alert.send.loading": "Envoi de \"{subject}\" en cours...",
     "mail.folder": "Le dossier",
     "mail.empty": "est vide",
-    "mail.shortcuts.purge": "Maj + Suppr"
+    "mail.shortcuts.purge": "Maj + Suppr",
+    "mail.attachment.untitled": "Sans titre - ({mimeType})"
 }

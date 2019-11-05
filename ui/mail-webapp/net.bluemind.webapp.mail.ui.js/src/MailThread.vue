@@ -8,7 +8,7 @@
             :mode="mode"
             @close="mode = 'default'"
         />
-        <mail-message-content v-if="message" :message="message" :parts="parts" />
+        <mail-message-content v-if="message" />
         <div />
     </div>
 </template>
@@ -28,11 +28,11 @@ export default {
     computed: {
         ...mapGetters("mail-webapp", {
             message: "currentMessage",
-            parts: "currentMessageContent"
+            inlineParts: "currentMessageContent"
         }),
         previousMessage() {
             return {
-                content: this.message.previousMessageContent(this.pathSuffix(), this.parts),
+                content: this.message.previousMessageContent(this.pathSuffix(), this.inlineParts),
                 messageId: this.message.messageId,
                 references: this.message.references
             };

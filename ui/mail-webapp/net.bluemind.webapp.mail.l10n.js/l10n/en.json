@@ -62,5 +62,6 @@
     "mail.alert.send.loading": "Sending \"{subject}\" in progress...",
     "mail.folder": "Folder",
     "mail.empty": "is empty",
-    "mail.shortcuts.purge": "Shift + Delete"
+    "mail.shortcuts.purge": "Shift + Delete",
+    "mail.attachment.untitled": "Untitled - ({mimeType})"
 }

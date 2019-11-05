@@ -42,12 +42,12 @@
         <bm-row>
             <bm-col cols="12">
                 <hr class="bg-dark my-0" />
-                <mail-message-content-attachments-block :attachments="attachments" />
+                <mail-message-content-attachments-block />
             </bm-col>
         </bm-row>
         <bm-row ref="scrollableContainerForMailMessageContentBody" class="pt-1 flex-fill">
             <bm-col col>
-                <mail-message-content-body :parts="displayableParts" />
+                <mail-message-content-body />
             </bm-col>
         </bm-row>
     </bm-container>
@@ -55,16 +55,12 @@
 
 <script>
 import { mapState, mapActions, mapGetters } from "vuex";
-import { MimeType } from "@bluemind/email";
 import { BmCol, BmContainer, BmRow } from "@bluemind/styleguide";
 import MailMessageContentAttachmentsBlock from "./MailMessageContentAttachmentsBlock";
 import MailMessageContentBody from "./MailMessageContentBody";
 import MailMessageContentFrom from "./MailMessageContentFrom";
 import MailMessageContentRecipient from "./MailMessageContentRecipient";
 import MailMessageContentToolbar from "./MailMessageContentToolbar";
-
-const displayableMimeTypes = [MimeType.IMAGE];
-const displayableMimeSubTypes = [MimeType.TEXT_PLAIN, MimeType.TEXT_HTML];
 
 export default {
     name: "MailMessageContent",
@@ -78,28 +74,9 @@ export default {
         MailMessageContentRecipient,
         MailMessageContentToolbar
     },
-    props: {
-        message: {
-            type: Object,
-            required: true
-        },
-        parts: {
-            type: Array,
-            required: true
-        }
-    },
-    data() {
-        return {
-            displayableParts: [],
-            attachments: []
-        };
-    },
     computed: {
-        ...mapState("mail-webapp", {
-            folderUid: "currentFolderUid",
-            messageId: "currentMessageId"
-        }),
-        ...mapGetters("mail-webapp", { realAttachments: "currentMessageAttachments" }),
+        ...mapGetters("mail-webapp", { message: "currentMessage" }),
+        ...mapState("mail-webapp", { messageId: "currentMessageId" }),
         to() {
             if (this.message.to.length > 0) {
                 return this.message.to.map(dest => (dest.dn ? dest.dn : dest.address));
@@ -117,63 +94,16 @@ export default {
         }
     },
     watch: {
-        parts: {
+        messageId: {
             handler: function() {
-                this.filterParts();
                 this.resetScroll();
+                this.markAsRead(this.messageId);
             },
             immediate: true
-        },
-        messageId: function() {
-            this.markAsRead(this.messageId);
         }
-    },
-    created() {
-        this.markAsRead(this.messageId);
     },
     methods: {
         ...mapActions("mail-webapp", ["markAsRead"]),
-        /** Filter displayable parts. Others will be considered as attachments. */
-        filterParts() {
-            let displayableParts = [];
-            this.displayableParts.splice(0, this.displayableParts.length);
-            let attachments = [];
-            this.attachments.splice(0, this.displayableParts.length);
-            if (this.parts) {
-                this.parts.forEach(part => {
-                    // check MIME type (like 'image')
-                    let isDisplayable =
-                        displayableMimeTypes.find(displayableMimeType =>
-                            MimeType.typeEquals(displayableMimeType, part.mime)
-                        ) !== undefined;
-                    if (!isDisplayable) {
-                        // check MIME sub-type (like 'image/png')
-                        isDisplayable =
-                            displayableMimeSubTypes.find(displayableMimeSubType =>
-                                MimeType.equals(displayableMimeSubType, part.mime)
-                            ) !== undefined;
-                    }
-                    if (isDisplayable) {
-                        displayableParts.push(part);
-                    } else {
-                        // FIXME should pass the whole part or at least localize the default name
-                        const attachmentName = part.fileName ? part.fileName : "Untitled " + part.mime;
-                        let size = new String(part.size / 1000);
-                        size = size.substring(0, size.indexOf("."));
-                        if (size == 0) {
-                            size = part.size + "o";
-                        } else {
-                            size = size + "Ko";
-                        }
-                        attachments.push(attachmentName + " " + size);
-                    }
-                });
-            }
-            this.displayableParts = [];
-            this.displayableParts.push(...displayableParts);
-            this.attachments = [];
-            this.attachments.push(...this.realAttachments, ...attachments);
-        },
         resetScroll() {
             this.$nextTick(() => {
                 this.$refs.scrollableContainerForMailMessageContentBody.scrollTop = 0;

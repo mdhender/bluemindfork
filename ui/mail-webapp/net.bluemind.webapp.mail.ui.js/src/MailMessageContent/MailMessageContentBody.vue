@@ -6,15 +6,13 @@
 
 <script>
 import { mailText2Html, MimeType } from "@bluemind/email";
+import { mapGetters } from "vuex";
 import { sanitizeHtml } from "@bluemind/html-utils";
 
 export default {
     name: "MailMessageContentBody",
-    props: {
-        parts: {
-            type: Array,
-            required: true
-        }
+    computed: {
+        ...mapGetters("mail-webapp", { parts: "currentMessageContent" }),
     },
     watch: {
         parts: {

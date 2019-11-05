@@ -71,12 +71,6 @@ export default {
         BmRow,
         MailMessageContentAttachmentItem
     },
-    props: {
-        attachments: {
-            type: Array,
-            required: true
-        }
-    },
     data() {
         return {
             isExpanded: false,
@@ -84,8 +78,8 @@ export default {
         };
     },
     computed: {
+        ...mapGetters("mail-webapp", { attachments: "currentMessageAttachments" }),
         ...mapState("mail-webapp", { folder: "currentFolderUid", message: "currentMessageId" }),
-        ...mapGetters("mail-webapp", ["currentMessageAttachments"]),
         hasAttachments() {
             return this.attachments.length > 0;
         },
@@ -137,9 +131,8 @@ export default {
         save(index) {
             //FIXME
             const attachment = this.attachments[index];
-            const partToFetch = this.findAttachmentPart(attachment);
             // attachment content may be already fetched (if its preview has been displayed)
-            if (partToFetch != undefined && partToFetch.content != undefined) {
+            if (attachment.content != undefined) {
                 this.triggerDownload(attachment);
             } else {
                 this.fetch({
@@ -147,23 +140,26 @@ export default {
                     id: this.message,
                     part: attachment,
                     isAttachment: true
-                }).then(() => this.triggerDownload(attachment));
+                }).then(() => this.triggerDownload(index));
             }
         },
-        triggerDownload(attachment) {
+        triggerDownload(index) {
+            const attachment = this.attachments[index];
+            
+            if (attachment.encoding == "8bit") {
+                attachment.content = btoa(attachment.content);
+            }
+
             let element = document.createElement("a");
             element.style.display = "none";
             element.setAttribute("download", attachment.filename);
             element.setAttribute("href", 
-                "data:" + attachment.mime + ";base64, " + this.findAttachmentPart(attachment).content);
+                "data:" + attachment.mime + ";base64, " + attachment.content);
             document.body.appendChild(element);
 
             element.click();
 
             document.body.removeChild(element);
-        },
-        findAttachmentPart(attachment) {
-            return this.currentMessageAttachments.find(a => attachment.address === a.address);
         }
     }
 };
