@@ -75,6 +75,8 @@ public class VCardSanitizer implements ISanitizer<VCard> {
 	}
 
 	private void sanitizeMembers(VCard card, Optional<String> containerUid) {
+		card.organizational.member = card.organizational.member.stream()
+				.filter(member -> StringUtils.isNotBlank(member.mailto)).collect(Collectors.toList());
 		containerUid.ifPresent(container -> {
 			card.organizational.member.forEach(member -> {
 				if (member.itemUid != null && member.containerUid == null) {

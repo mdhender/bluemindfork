@@ -20,6 +20,7 @@ package net.bluemind.addressbook.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
@@ -33,6 +34,7 @@ import org.junit.Test;
 import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Kind;
+import net.bluemind.addressbook.api.VCard.Organizational.Member;
 import net.bluemind.addressbook.persistance.VCardStore;
 import net.bluemind.addressbook.service.internal.AddressBookService;
 import net.bluemind.addressbook.service.internal.VCardSanitizer;
@@ -187,6 +189,33 @@ public class VCardSanitizerTests extends AbstractServiceTests {
 		}
 
 		assertEquals("this.is.calendar@bm.lan", card.communications.emails.get(0).value);
+
+	}
+
+	@Test
+	public void testDeleteDListMembersWithoutEmail() {
+		VCard card = defaultVCard();
+
+		Member member1 = Member.create("container", "item1", "hasMail1", "hasMail1@hasMail.org");
+		Member member2 = Member.create("container", "item2", "hasNoMail2", null);
+		Member member3 = Member.create("container", "item3", "hasNoMail3", null);
+		Member member4 = Member.create("container", "item4", "hasMail4", "hasMail4@hasMail.org");
+		Member member5 = Member.create("container", "item5", "hasNoMail5", null);
+
+		card.kind = Kind.group;
+		card.organizational.member = Arrays.asList(member1, member2, member3, member4, member5);
+
+		try {
+			new VCardSanitizer(testContext).sanitize(card, Optional.empty());
+		} catch (ServerFault e) {
+			fail(e.getMessage());
+		}
+
+		assertEquals(2, card.organizational.member.size());
+
+		for (Member member : card.organizational.member) {
+			assertTrue(member.commonName.startsWith("hasMail"));
+		}
 
 	}
 
