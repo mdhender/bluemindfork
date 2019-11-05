@@ -17,13 +17,19 @@
   */
 package net.bluemind.backend.cyrus.replication.link.probe;
 
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
+import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.api.TaskStatus;
+import net.bluemind.core.task.service.TaskUtils;
+import net.bluemind.directory.api.IDirEntryMaintenance;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailshare.api.IMailshare;
 import net.bluemind.mailshare.api.Mailshare;
@@ -97,7 +103,14 @@ public class SharedMailboxProbe {
 			logger.info("Shared mailbox probe will be {}@{} with uid {}", probe.name, backendAssignment.domainUid, uid);
 			ItemValue<Mailshare> sharedBox = sharedApi.getComplete(uid);
 			if (sharedBox != null) {
-				logger.info("Probe is {}", sharedBox);
+				logger.info("Probe mailbox exists {}", sharedBox);
+				IDirEntryMaintenance repairSupport = prov.instance(IDirEntryMaintenance.class,
+						backendAssignment.domainUid, uid);
+				Set<String> ops = repairSupport.getAvailableOperations().stream().map(mo -> mo.identifier)
+						.collect(Collectors.toSet());
+				TaskRef repairTask = repairSupport.repair(ops);
+				TaskStatus status = TaskUtils.wait(prov, repairTask);
+				logger.info("Probe mailbox repairs finished, status {}", status);
 			} else {
 				sharedApi.create(uid, probe);
 				sharedBox = sharedApi.getComplete(uid);
