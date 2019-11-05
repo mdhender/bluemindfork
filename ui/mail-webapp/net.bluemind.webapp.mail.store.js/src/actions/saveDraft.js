@@ -1,6 +1,5 @@
 //FIXME: Refactor this
 
-import { Alert } from "@bluemind/alert.store";
 import { html2text } from "@bluemind/html-utils";
 import { Message, DraftStatus } from "@bluemind/backend.mail.store";
 import { MimeType } from "@bluemind/email";
@@ -110,19 +109,7 @@ export function saveDraft({ commit, state, getters }) {
             // return the draft identifier
             return draft.id;
         })
-        .catch(reason => {
-            const vueI18n = injector.getProvider("i18n").get();
-            const key = "mail.alert.draft.save.error";
-            const error = new Alert({
-                code: "ALERT_CODE_MSG_DRAFT_SAVE_ERROR",
-                key,
-                message: vueI18n.t(key, { subject: draft.subject, reason }),
-                props: {
-                    subject: draft.subject,
-                    reason
-                }
-            });
-            commit("alert/addAlert", error, { root: true });
+        .catch(() => {
             commit("updateDraft", { status: DraftStatus.SAVE_ERROR, saveDate: null });
         });
 }
