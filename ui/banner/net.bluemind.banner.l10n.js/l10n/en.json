@@ -2,5 +2,6 @@
     "banner.main.brand": "Bluemind",
     "banner.main.apps": "Bluemind applications",
     "banner.menu.logout": "Log out",
-    "banner.menu.settings": "Settings"
+    "banner.menu.settings": "Settings",
+    "banner.reach.all_apps": "Access to all Bluemind applications"
 }

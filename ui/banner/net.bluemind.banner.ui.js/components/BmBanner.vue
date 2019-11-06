@@ -1,8 +1,15 @@
 <template>
     <bm-navbar type="dark" variant="info-dark" toggleable="lg" class="bm-banner p-0 align-items-stretch">
-        <div id="all-apps-popover" class="px-3 align-self-center">
+        <bm-button 
+            id="all-apps-popover"
+            v-bm-tooltip.hover.d1000
+            variant="link"
+            class="px-3 align-self-center"
+            :title="$t('banner.reach.all_apps')"
+            :aria-label="$t('banner.reach.all_apps')"
+        >
             <bm-icon icon="9dots" size="2x" />
-        </div>
+        </bm-button>
         <bm-popover
             ref="apps-popover"
             target="all-apps-popover"
@@ -45,7 +52,16 @@ import BannerL10N from "@bluemind/banner.l10n";
 import BmBannerApplications from "./BmBannerApplications";
 import BmBannerAppIcon from "./BmBannerAppIcon";
 import BmBannerUser from "./BmBannerUser";
-import { BmCol, BmIcon, BmLogo, BmNavbar, BmNavbarBrand, BmPopover, BmRow } from "@bluemind/styleguide";
+import { 
+    BmButton, 
+    BmCol, 
+    BmIcon, 
+    BmLogo, 
+    BmNavbar, 
+    BmNavbarBrand, 
+    BmPopover, 
+    BmRow, 
+    BmTooltip } from "@bluemind/styleguide";
 
 export default {
     name: "BmBanner",
@@ -53,6 +69,7 @@ export default {
         BmBannerApplications,
         BmBannerAppIcon,
         BmBannerUser,
+        BmButton,
         BmCol,
         BmIcon,
         BmNavbar,
@@ -60,6 +77,7 @@ export default {
         BmPopover,
         BmRow
     },
+    directives: { BmTooltip },
     componentI18N: { messages: BannerL10N },
     props: {
         applications: {
@@ -128,10 +146,13 @@ export default {
     margin-right: 0;
 }
 
+.bm-banner #all-apps-popover:focus, .bm-banner #all-apps-popover:hover {
+    background-color: unset;
+}
+
 .apps-popover {
     max-width: unset !important;
-    margin-top: map-get($spacers, 3) !important;
-    left: -5px !important;
+    left: -23px !important;
 }
 
 .apps-popover .arrow {
