@@ -27,7 +27,7 @@
             </bm-button>
         </div>
         <span 
-            v-if="isSaveOnError"
+            v-if="errorOccuredOnSave"
             v-bm-tooltip.bottom.hover.d500
             class="d-flex align-items-center pr-2 text-danger"
             :title="$t('mail.draft.save.error.reason')"
@@ -40,8 +40,9 @@
 
 <script>
 import { BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
-import { mapState } from "vuex";
+import { DateComparator } from "@bluemind/date";
 import { DraftStatus } from "@bluemind/backend.mail.store";
+import { mapState } from "vuex";
 
 export default {
     name: "MailMessageNewFooter",
@@ -52,10 +53,6 @@ export default {
     directives: { BmTooltip },
     computed: {
         ...mapState("mail-webapp", ["draft"]),
-        formattedDraftSaveDate() {
-            // TODO use Blandine's work when pushed
-            return { value: this.draft.saveDate || new Date(), mode: "hours" };
-        },
         isSending() {
             return this.draft.status == DraftStatus.SENDING;
         },
@@ -65,7 +62,7 @@ export default {
         isDeleting() {
             return this.draft.status == DraftStatus.DELETING;
         },
-        isSaveOnError() {
+        errorOccuredOnSave() {
             return this.draft.status == DraftStatus.SAVE_ERROR;
         },
         hasSaveDate() {
@@ -74,22 +71,20 @@ export default {
         saveMessage() {
             if (this.isSaving) {
                 return this.$t("mail.draft.save.inprogress");
-            } else if (this.isSaveOnError) {
+            } else if (this.errorOccuredOnSave) {
                 return this.$t("mail.draft.save.error");
             } else if (this.hasSaveDate) {
-                // TODO use Blandine's work when pushed
-                if (this.formattedDraftSaveDate.mode == "hours") {
-                    const time =
-                        this.formattedDraftSaveDate.value.getHours() +
-                        ":" +
-                        this.formattedDraftSaveDate.value.getMinutes();
-                    return this.$t("mail.draft.save.date.time", { time });
-                } else {
-                    return this.$t("mail.draft.save.date", { date: this.formattedDraftSaveDate.value });
-                }
+                return this.formattedDraftSaveDate;
             } else {
                 return null;
             }
+        },
+        formattedDraftSaveDate() {
+            const saveDate = this.draft.saveDate || new Date();
+            if (DateComparator.isToday(saveDate)) {
+                return this.$t("mail.draft.save.date.time", { time: this.$d(saveDate, 'short_time') });
+            }
+            return this.$t("mail.draft.save.date", { date: this.$d(saveDate, 'short_date') });
         }
     }
 };
