@@ -107,7 +107,6 @@ public class MailboxItem {
 		MailboxItem mi = new MailboxItem();
 		mi.body = MessageBody.of(subject, structure);
 		return mi;
-
 	}
 
 	@Override

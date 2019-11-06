@@ -26,7 +26,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -56,10 +55,10 @@ import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.core.streams.ReadStream;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.io.ByteStreams;
 
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.DispositionType;
+import net.bluemind.backend.mail.api.FetchOptions;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.ImportMailboxItemSet;
@@ -272,10 +271,6 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		System.out.println("Version is now " + updatedVersion.version);
 	}
 
-	protected IServiceProvider provider() {
-		return ClientSideServiceProvider.getProvider("http://127.0.0.1:8090", "sid");
-	}
-
 	@Test
 	public void createDraft() throws IMAPException, InterruptedException, IOException {
 		IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
@@ -310,53 +305,6 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 			Thread.sleep(200);
 		} while (retry++ < 10);
 		assertTrue("record was not marked as deleted", retry < 10);
-	}
-
-	protected ItemValue<MailboxItem> addDraft(ItemValue<MailboxFolder> inbox) throws IOException, InterruptedException {
-		return addDraft(inbox, userUid);
-	}
-
-	protected ItemValue<MailboxItem> addDraft(ItemValue<MailboxFolder> inbox, String owner)
-			throws IOException, InterruptedException {
-		IOfflineMgmt idAllocator = provider().instance(IOfflineMgmt.class, domainUid, owner);
-		IdRange oneId = idAllocator.allocateOfflineIds(1);
-		return addDraft(inbox, oneId.globalCounter, owner);
-	}
-
-	protected ItemValue<MailboxItem> addDraft(ItemValue<MailboxFolder> inbox, long id)
-			throws IOException, InterruptedException {
-		return addDraft(inbox, id, userUid);
-	}
-
-	protected ItemValue<MailboxItem> addDraft(ItemValue<MailboxFolder> inbox, long id, String owner)
-			throws IOException, InterruptedException {
-		assertNotNull(inbox);
-		IMailboxItems recordsApi = provider().instance(IMailboxItems.class, inbox.uid);
-		try (InputStream in = testEml()) {
-			Stream forUpload = VertxStream.stream(new Buffer(ByteStreams.toByteArray(in)));
-			String partId = recordsApi.uploadPart(forUpload);
-			assertNotNull(partId);
-			System.out.println("Got partId " + partId);
-			Part fullEml = Part.create(null, "message/rfc822", partId);
-			MessageBody brandNew = new MessageBody();
-			brandNew.subject = "toto";
-			brandNew.structure = fullEml;
-			MailboxItem item = new MailboxItem();
-			item.body = brandNew;
-			item.otherFlags = Arrays.asList("Pouic");
-			long expectedId = id;
-			System.err.println("Before create by id....." + id);
-			recordsApi.createById(expectedId, item);
-			System.err.println("OK YEAH YEAH");
-			ItemValue<MailboxItem> reloaded = recordsApi.getCompleteById(expectedId);
-			assertNotNull(reloaded);
-			assertNotNull(reloaded.value.body.headers);
-			Optional<Header> idHeader = reloaded.value.body.headers.stream()
-					.filter(h -> h.name.equals(MailApiHeaders.X_BM_INTERNAL_ID)).findAny();
-			assertTrue(idHeader.isPresent());
-			assertEquals(owner + "#" + InstallationId.getIdentifier() + ":" + expectedId, idHeader.get().firstValue());
-			return reloaded;
-		}
 	}
 
 	@Test
@@ -543,10 +491,8 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		MessageBody bodyVal = item.value.body;
 		JsonObject js = new JsonObject(JsonUtils.asString(bodyVal.structure));
 		System.out.println("Structure is " + js.encodePrettily());
-		Stream partStream = recordsApi.fetch(item.value.imapUid, "3", null, null, null);
+		Stream partStream = recordsApi.fetch(item.value.imapUid, "3", FetchOptions.pristine());
 		fetchPart(partStream);
-		// System.out.println("HTML?\n" + fullPartContent.toString());
-
 	}
 
 	private Buffer fetchPart(Stream s) throws InterruptedException {
@@ -1106,7 +1052,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		PartsWalker<Void> walk = new PartsWalker<>(null);
 		AtomicInteger partBytes = new AtomicInteger();
 		walk.visit((ctx, part) -> {
-			Stream fetched = itemsApi.fetch(added.value.imapUid, part.address, null, null, null);
+			Stream fetched = itemsApi.fetch(added.value.imapUid, part.address, FetchOptions.pristine());
 			try {
 				Buffer asBuffer = fetchPart(fetched);
 				partBytes.addAndGet(asBuffer.length());

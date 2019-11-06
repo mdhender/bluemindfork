@@ -17,27 +17,47 @@
   */
 package net.bluemind.backend.mail.replica.service.tests;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.vertx.java.core.buffer.Buffer;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+import com.google.common.io.ByteStreams;
 
 import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.backend.cyrus.replication.testhelper.CyrusReplicationHelper;
 import net.bluemind.backend.cyrus.replication.testhelper.SyncServerHelper;
+import net.bluemind.backend.mail.api.IMailboxItems;
+import net.bluemind.backend.mail.api.MailboxFolder;
+import net.bluemind.backend.mail.api.MailboxItem;
+import net.bluemind.backend.mail.api.MessageBody;
+import net.bluemind.backend.mail.api.MessageBody.Header;
+import net.bluemind.backend.mail.api.MessageBody.Part;
+import net.bluemind.backend.mail.replica.api.MailApiHeaders;
+import net.bluemind.config.InstallationId;
+import net.bluemind.core.api.Stream;
+import net.bluemind.core.container.api.IOfflineMgmt;
+import net.bluemind.core.container.api.IdRange;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
+import net.bluemind.core.rest.IServiceProvider;
+import net.bluemind.core.rest.http.ClientSideServiceProvider;
+import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.lib.vertx.Constructor;
@@ -160,6 +180,57 @@ public abstract class AbstractRollingReplicationTests {
 
 	protected InputStream testEml() {
 		return EmlTemplates.withRandomMessageId("with_inlines.ftl");
+	}
+
+	protected ItemValue<MailboxItem> addDraft(ItemValue<MailboxFolder> inbox) throws IOException, InterruptedException {
+		return addDraft(inbox, userUid);
+	}
+
+	protected ItemValue<MailboxItem> addDraft(ItemValue<MailboxFolder> inbox, String owner)
+			throws IOException, InterruptedException {
+		IOfflineMgmt idAllocator = provider().instance(IOfflineMgmt.class, domainUid, owner);
+		IdRange oneId = idAllocator.allocateOfflineIds(1);
+		return addDraft(inbox, oneId.globalCounter, owner);
+	}
+
+	protected ItemValue<MailboxItem> addDraft(ItemValue<MailboxFolder> inbox, long id)
+			throws IOException, InterruptedException {
+		return addDraft(inbox, id, userUid);
+	}
+
+	protected ItemValue<MailboxItem> addDraft(ItemValue<MailboxFolder> inbox, long id, String owner)
+			throws IOException, InterruptedException {
+		assertNotNull(inbox);
+		IMailboxItems recordsApi = provider().instance(IMailboxItems.class, inbox.uid);
+		try (InputStream in = testEml()) {
+			Stream forUpload = VertxStream.stream(new Buffer(ByteStreams.toByteArray(in)));
+			String partId = recordsApi.uploadPart(forUpload);
+			assertNotNull(partId);
+			System.out.println("Got partId " + partId);
+			Part fullEml = Part.create(null, "message/rfc822", partId);
+			MessageBody brandNew = new MessageBody();
+			brandNew.subject = "toto";
+			brandNew.structure = fullEml;
+			MailboxItem item = new MailboxItem();
+			item.body = brandNew;
+			item.otherFlags = Arrays.asList("Pouic");
+			long expectedId = id;
+			System.err.println("Before create by id....." + id);
+			recordsApi.createById(expectedId, item);
+			System.err.println("OK YEAH YEAH");
+			ItemValue<MailboxItem> reloaded = recordsApi.getCompleteById(expectedId);
+			assertNotNull(reloaded);
+			assertNotNull(reloaded.value.body.headers);
+			Optional<Header> idHeader = reloaded.value.body.headers.stream()
+					.filter(h -> h.name.equals(MailApiHeaders.X_BM_INTERNAL_ID)).findAny();
+			assertTrue(idHeader.isPresent());
+			assertEquals(owner + "#" + InstallationId.getIdentifier() + ":" + expectedId, idHeader.get().firstValue());
+			return reloaded;
+		}
+	}
+
+	protected IServiceProvider provider() {
+		return ClientSideServiceProvider.getProvider("http://127.0.0.1:8090", "sid");
 	}
 
 	@After

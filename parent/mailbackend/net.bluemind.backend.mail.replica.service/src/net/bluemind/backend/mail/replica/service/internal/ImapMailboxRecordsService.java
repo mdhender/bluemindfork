@@ -59,6 +59,7 @@ import com.google.common.io.ByteStreams;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.Unpooled;
+import net.bluemind.backend.mail.api.FetchOptions;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.backend.mail.api.MailboxItem.SystemFlag;
@@ -601,26 +602,27 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	@Override
 	public Stream fetchComplete(long imapUid) {
 		rbac.check(Verb.Read.name());
-		return fetch(imapUid, "", null, null, null);
+		return fetch(imapUid, "", FetchOptions.pristine());
 	}
 
 	@Override
-	public Stream fetch(long imapUid, String address, String encoding, String mime, String charset) {
+	public Stream fetch(long imapUid, String address, FetchOptions options) {
 		rbac.check(Verb.Read.name());
 		ByteBuf downloaded = fetch(imapUid, address);
-		Stream stream = null;
-		if (encoding != null) {
-			try (InputStream in = dec(downloaded, encoding)) {
-				stream = VertxStream.stream(new Buffer(Unpooled.wrappedBuffer(ByteStreams.toByteArray(in))), mime,
-						charset);
+
+		Buffer buffer = null;
+		if (options.encoding != null) {
+			try (InputStream in = dec(downloaded, options.encoding)) {
+				buffer = new Buffer(Unpooled.wrappedBuffer(ByteStreams.toByteArray(in)));
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
-				stream = VertxStream.stream(new Buffer());
+				buffer = new Buffer();
 			}
 		} else {
-			stream = VertxStream.stream(new Buffer(downloaded));
+			buffer = new Buffer(downloaded);
 		}
-		return stream;
+
+		return VertxStream.stream(buffer, options.mime, options.charset, options.filename);
 	}
 
 	private InputStream dec(ByteBuf downloaded, String encoding) {
