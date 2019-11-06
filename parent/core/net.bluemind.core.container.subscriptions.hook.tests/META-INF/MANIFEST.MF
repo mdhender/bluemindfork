@@ -19,7 +19,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.container.subscriptions.repair;bundle-version="4.1.0",
  net.bluemind.directory.service,
  net.bluemind.core.task.service,
- slf4j.api
+ slf4j.api,
+ net.bluemind.locator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.core.container.subscriptions.hook.tests
 Bundle-ActivationPolicy: lazy

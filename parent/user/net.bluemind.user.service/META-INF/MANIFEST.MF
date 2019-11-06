@@ -35,7 +35,7 @@ Require-Bundle: net.bluemind.user.api;bundle-version="1.0.0",
  net.bluemind.mailbox.api;visibility:=reexport,
  net.bluemind.mailbox.identity.api;visibility:=reexport,
  net.bluemind.core.sanitizer;visibility:=reexport,
- net.bluemind.authentication.api, 
+ net.bluemind.authentication.api,
  net.bluemind.authentication.persistence,
  net.bluemind.eclipse.common,
  net.bluemind.mailbox.persistance,
@@ -51,10 +51,10 @@ Require-Bundle: net.bluemind.user.api;bundle-version="1.0.0",
  net.bluemind.mailbox.hook,
  net.bluemind.core.container.subscriptions.hook;bundle-version="4.1.0",
  net.bluemind.i18n.labels,
- net.bluemind.group.member;visibility:=reexport
+ net.bluemind.group.member;visibility:=reexport,
+ org.mnode.ical4j.vcard;bundle-version="0.9.7"
 Export-Package: net.bluemind.user.service,
  net.bluemind.user.service.internal,
  net.bluemind.user.service.passwordvalidator
-Import-Package: net.fortuna.ical4j.vcard
 Automatic-Module-Name: net.bluemind.user.service
 

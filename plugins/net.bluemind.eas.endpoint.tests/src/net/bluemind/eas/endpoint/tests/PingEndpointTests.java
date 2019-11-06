@@ -19,7 +19,6 @@
 package net.bluemind.eas.endpoint.tests;
 
 import java.io.IOException;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -34,7 +33,6 @@ import net.bluemind.eas.dto.ping.PingResponse;
 import net.bluemind.eas.http.wbxml.WbxmlHandlerBase;
 import net.bluemind.eas.testhelper.mock.ResponseObject;
 import net.bluemind.eas.testhelper.mock.TimeoutException;
-import net.bluemind.eas.testhelper.vertx.Deploy;
 import net.bluemind.eas.utils.DOMUtils;
 import net.bluemind.eas.wbxml.WBXMLTools;
 import net.bluemind.hornetq.client.MQ;
@@ -49,7 +47,6 @@ public class PingEndpointTests extends AbstractEndpointTest {
 	private int calendarServerId;
 	private int addressbookServerId;
 	private Producer mailNotification;
-	private Set<String> deploymentCollectionListenerVerticleIDs;
 
 	public void setUp() throws Exception {
 		super.setUp();
@@ -64,13 +61,9 @@ public class PingEndpointTests extends AbstractEndpointTest {
 			}
 		});
 		mqLatch.await(5, TimeUnit.SECONDS);
-		deploymentCollectionListenerVerticleIDs = Deploy.beforeTest(new String[0],
-				new String[] { "net.bluemind.eas.busmods.CollectionListenerVerticle" });
-
 	}
 
 	public void tearDown() throws Exception {
-		Deploy.afterTest(deploymentCollectionListenerVerticleIDs);
 		mailNotification.close();
 		super.tearDown();
 	}

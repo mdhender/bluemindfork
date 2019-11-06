@@ -15,6 +15,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.lib.vertx,
  net.bluemind.core.rest,
  net.bluemind.tag.hooks;bundle-version="4.1.0",
- net.bluemind.core.task.service;bundle-version="4.1.0"
+ net.bluemind.core.task.service;bundle-version="4.1.0",
+ net.bluemind.locator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy

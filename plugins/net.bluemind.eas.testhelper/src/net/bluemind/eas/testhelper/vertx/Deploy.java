@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.platform.PlatformManager;
+import org.vertx.java.platform.VerticleConstructor;
 
 import net.bluemind.lib.vertx.VertxPlatform;
 
@@ -31,7 +32,7 @@ public class Deploy {
 
 	private static PlatformManager pm = VertxPlatform.getPlatformManager();
 
-	public static Set<String> beforeTest(String[] classes, String[] workerClasses) {
+	public static Set<String> beforeTest(VerticleConstructor[] classes, VerticleConstructor[] workerClasses) {
 		Set<String> deploymentIDs = new HashSet<>();
 		deploy(deploymentIDs, classes, false);
 		deploy(deploymentIDs, workerClasses, true);
@@ -42,7 +43,7 @@ public class Deploy {
 		undeploy(deploymentIDs);
 	}
 
-	private static void deploy(Set<String> deployed, String[] classes, boolean worker) {
+	private static void deploy(Set<String> deployed, VerticleConstructor[] classes, boolean worker) {
 		DoneHandler<String> done = new DoneHandler<>(classes.length);
 		for (int i = 0; i < classes.length; i++) {
 			if (worker) {

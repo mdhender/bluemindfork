@@ -11,6 +11,7 @@ import org.vertx.java.core.AsyncResult;
 import org.vertx.java.core.Future;
 import org.vertx.java.core.Handler;
 import org.vertx.java.platform.Verticle;
+import org.vertx.java.platform.VerticleConstructor;
 
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
@@ -81,41 +82,56 @@ public class BMModule extends Verticle {
 			future.setResult(null);
 			return;
 		}
-
-		final String klass = vf.newInstance().getClass().getCanonicalName();
+		VerticleConstructor vc = fromFactory(vf);
+		final String klass = vc.className();
 
 		logger.info("deploying {} verticle {}", vf.isWorker() ? "worker" : "std", klass);
 		if (vf.isWorker()) {
 			if (vf instanceof IUniqueVerticleFactory) {
-				container.deployWorkerVerticle(klass, null, 1, false, done);
+				container.deployWorkerVerticle(vc, null, 1, false, done);
 			} else {
-				container.deployWorkerVerticle(klass, null, 1, true, done);
+				container.deployWorkerVerticle(vc, null, 1, true, done);
 			}
 		} else {
 
 			if (vf instanceof IUniqueVerticleFactory) {
-				container.deployVerticle(klass, 1, done);
+				container.deployVerticle(vc, 1, done);
 			} else {
 				// deploy 1, then deploy others so that osgi bundles are
 				// resolved
 				// when the first one is loaded
-				container.deployVerticle(klass, 1, new Handler<AsyncResult<String>>() {
+				container.deployVerticle(vc, 1, new Handler<AsyncResult<String>>() {
 
 					@Override
 					public void handle(AsyncResult<String> event) {
 						if (event.succeeded()) {
 							int inst = Runtime.getRuntime().availableProcessors() * 2 - 1;
 							logger.info("********* Time for {} more {}.... ", inst, klass);
-							container.deployVerticle(klass, inst - 1, done);
+							container.deployVerticle(vc, inst - 1, done);
 						} else {
 							Throwable t = event.cause();
 							logger.error("Load Error: " + t.getMessage(), t);
-							// System.exit(1);
 						}
 					}
 				});
 			}
 		}
+	}
+
+	private VerticleConstructor fromFactory(IVerticleFactory vf) {
+		return new VerticleConstructor() {
+			private final String className = vf.newInstance().getClass().getCanonicalName();
+
+			@Override
+			public Verticle newInstance() throws Exception {
+				return vf.newInstance();
+			}
+
+			@Override
+			public String className() {
+				return className;
+			}
+		};
 	}
 
 	public void stop() {

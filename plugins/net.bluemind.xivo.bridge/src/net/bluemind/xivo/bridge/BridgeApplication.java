@@ -28,6 +28,7 @@ import org.vertx.java.platform.PlatformManager;
 
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Topic;
+import net.bluemind.lib.vertx.Constructor;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.xivo.bridge.http.v1.HornetQBridge;
 import net.bluemind.xivo.bridge.http.v1.HttpEndpointV1Router;
@@ -52,11 +53,11 @@ public class BridgeApplication implements IApplication {
 				DepDoneHandler depDone = new DepDoneHandler();
 				int procs = Runtime.getRuntime().availableProcessors();
 				int instances = Math.max(10, procs);
-				pm.deployVerticle(HttpEndpointV1Router.class.getCanonicalName(), null, new URL[0], instances, null,
-						depDone);
+				pm.deployVerticle(Constructor.of(HttpEndpointV1Router::new, HttpEndpointV1Router.class), null,
+						new URL[0], instances, null, depDone);
 
-				pm.deployWorkerVerticle(false, HornetQBridge.class.getCanonicalName(), null, new URL[0], instances,
-						null, depDone);
+				pm.deployWorkerVerticle(false, Constructor.of(HornetQBridge::new, HornetQBridge.class), null,
+						new URL[0], instances, null, depDone);
 
 			}
 		});

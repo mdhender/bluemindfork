@@ -22,6 +22,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.sessions,
  net.bluemind.core.container.hierarchy.hook;bundle-version="4.1.0",
  net.bluemind.core.rest.http.tests;bundle-version="4.1.0",
- net.bluemind.calendar.usercalendar;bundle-version="4.1.0"
+ net.bluemind.calendar.usercalendar;bundle-version="4.1.0",
+ net.bluemind.locator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy

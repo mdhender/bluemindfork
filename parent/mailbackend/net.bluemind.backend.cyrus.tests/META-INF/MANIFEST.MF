@@ -37,7 +37,8 @@ Require-Bundle: org.junit,
  net.bluemind.network.utils,
  net.bluemind.mailshare.api,
  net.bluemind.mailshare.service;bundle-version="4.1.0",
- net.bluemind.core.task.service;bundle-version="4.1.0"
+ net.bluemind.core.task.service;bundle-version="4.1.0",
+ net.bluemind.locator
 Bundle-ClassPath: .
 Automatic-Module-Name: net.bluemind.backend.cyrus.tests
 

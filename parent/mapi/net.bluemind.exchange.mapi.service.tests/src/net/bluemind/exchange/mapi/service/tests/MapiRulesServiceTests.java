@@ -43,7 +43,9 @@ import net.bluemind.core.sessions.Sessions;
 import net.bluemind.exchange.mapi.api.IMapiRules;
 import net.bluemind.exchange.mapi.api.MapiRule;
 import net.bluemind.exchange.mapi.api.MapiRuleChanges;
+import net.bluemind.lib.vertx.Constructor;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.locator.LocatorVerticle;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.vertx.testhelper.Deploy;
 
@@ -54,7 +56,7 @@ public class MapiRulesServiceTests {
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
 
-		Deploy.verticles(false, "net.bluemind.locator.LocatorVerticle").get(5, TimeUnit.SECONDS);
+		Deploy.verticles(false, Constructor.of(LocatorVerticle::new, LocatorVerticle.class)).get(5, TimeUnit.SECONDS);
 
 		PopulateHelper.initGlobalVirt();
 		Sessions.get().put("toto", SecurityContext.SYSTEM);

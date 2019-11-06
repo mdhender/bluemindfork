@@ -38,10 +38,12 @@ import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.StoreClient;
+import net.bluemind.lib.vertx.Constructor;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.lmtp.testhelper.client.VertxLmtpClient;
 import net.bluemind.lmtp.testhelper.model.FakeMailbox;
 import net.bluemind.lmtp.testhelper.model.MailboxesModel;
+import net.bluemind.locator.LocatorVerticle;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
@@ -70,7 +72,7 @@ public class CyrusLmtpTests extends AbstractChainTest {
 	public void setupMailServices(MailboxesModel mdl) throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
-		Deploy.verticles(false, "net.bluemind.locator.LocatorVerticle").get(5, TimeUnit.SECONDS);
+		Deploy.verticles(false, Constructor.of(LocatorVerticle::new, LocatorVerticle.class)).get(5, TimeUnit.SECONDS);
 
 		BmConfIni ini = new BmConfIni();
 

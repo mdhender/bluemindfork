@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -63,7 +62,6 @@ import net.bluemind.eas.endpoint.tests.helpers.TestMail;
 import net.bluemind.eas.http.wbxml.WbxmlHandlerBase;
 import net.bluemind.eas.testhelper.mock.ResponseObject;
 import net.bluemind.eas.testhelper.mock.TimeoutException;
-import net.bluemind.eas.testhelper.vertx.Deploy;
 import net.bluemind.eas.utils.DOMUtils;
 import net.bluemind.eas.wbxml.WBXMLTools;
 import net.bluemind.hornetq.client.MQ;
@@ -86,7 +84,6 @@ public class SyncEndpointTests extends AbstractEndpointTest {
 
 	private int inboxServerId;
 	private Producer mailNotification;
-	private Set<String> deploymentIDs;
 
 	private static final int PAGE_SIZE = 8;
 
@@ -106,8 +103,6 @@ public class SyncEndpointTests extends AbstractEndpointTest {
 			}
 		});
 		mqLatch.await(5, TimeUnit.SECONDS);
-		deploymentIDs = Deploy.beforeTest(new String[0],
-				new String[] { "net.bluemind.eas.busmods.CollectionListenerVerticle" });
 
 	}
 
@@ -136,7 +131,6 @@ public class SyncEndpointTests extends AbstractEndpointTest {
 
 	public void tearDown() throws Exception {
 		mailNotification.close();
-		Deploy.afterTest(deploymentIDs);
 		super.tearDown();
 	}
 

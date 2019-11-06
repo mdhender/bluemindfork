@@ -53,7 +53,9 @@ import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.imap.ListResult;
 import net.bluemind.imap.StoreClient;
+import net.bluemind.lib.vertx.Constructor;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.locator.LocatorVerticle;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.service.common.DefaultFolder;
 import net.bluemind.pool.impl.BmConfIni;
@@ -125,9 +127,9 @@ public class CyrusBackendTests {
 	@Test
 	public void testHooksAreCalled() throws Exception {
 
-		final CountDownLatch cdl = new CountDownLatch(3);
-		VertxPlatform.getPlatformManager().deployVerticle("net.bluemind.locator.LocatorVerticle", null, new URL[0], 1,
-				null, new Handler<AsyncResult<String>>() {
+		final CountDownLatch cdl = new CountDownLatch(1);
+		VertxPlatform.getPlatformManager().deployVerticle(Constructor.of(LocatorVerticle::new, LocatorVerticle.class),
+				null, new URL[0], 1, null, new Handler<AsyncResult<String>>() {
 
 					@Override
 					public void handle(AsyncResult<String> event) {
@@ -135,26 +137,7 @@ public class CyrusBackendTests {
 						cdl.countDown();
 					}
 				});
-		VertxPlatform.getPlatformManager().deployWorkerVerticle(true,
-				"net.bluemind.user.hook.internal.UserHooksVerticle", null, new URL[0], 1, null,
-				new Handler<AsyncResult<String>>() {
 
-					@Override
-					public void handle(AsyncResult<String> event) {
-						System.out.println("UserHooks, successful: " + event.succeeded());
-						cdl.countDown();
-					}
-				});
-		VertxPlatform.getPlatformManager().deployWorkerVerticle(true,
-				"net.bluemind.server.hook.internal.ServerHooksVerticle", null, new URL[0], 1, null,
-				new Handler<AsyncResult<String>>() {
-
-					@Override
-					public void handle(AsyncResult<String> event) {
-						System.out.println("ServerHooks, successful: " + event.succeeded());
-						cdl.countDown();
-					}
-				});
 		cdl.await();
 
 		IUser userService = getService();

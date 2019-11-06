@@ -31,9 +31,12 @@ import org.vertx.java.core.Vertx;
 import org.vertx.java.core.eventbus.EventBus;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.platform.PlatformManager;
+import org.vertx.java.platform.Verticle;
+import org.vertx.java.platform.VerticleConstructor;
 
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Slf4JLoggerFactory;
+import net.bluemind.lib.vertx.internal.BMModule;
 import net.bluemind.lib.vertx.internal.BMPlatformManagerFactory;
 import net.bluemind.lib.vertx.internal.Result;
 
@@ -94,24 +97,35 @@ public final class VertxPlatform implements BundleActivator {
 
 		future = new CompletableFuture<>();
 		JsonObject config = new JsonObject();
-		pm.deployModuleFromClasspath("net.bluemind~app~3.0.0", config, 1, new URL[0],
-				new Handler<AsyncResult<String>>() {
+		VerticleConstructor bmModule = new VerticleConstructor() {
 
-					@Override
-					public void handle(AsyncResult<String> event) {
-						logger.info("Module deployed, success: {}", event.succeeded());
-						if (event.succeeded()) {
-							logger.info("Deployement id is {}", event.result());
-							deploymentId = event.result();
-							complete.handle(new Result<Void>());
-							future.complete(null);
-						} else {
-							logger.error(event.cause().getMessage(), event.cause());
-							complete.handle(new Result<Void>(event.cause()));
-							future.completeExceptionally(event.cause());
-						}
-					}
-				});
+			@Override
+			public Verticle newInstance() throws Exception {
+				return new BMModule();
+			}
+
+			@Override
+			public String className() {
+				return BMModule.class.getCanonicalName();
+			}
+		};
+		pm.deployVerticle(bmModule, config, new URL[0], 1, null, new Handler<AsyncResult<String>>() {
+
+			@Override
+			public void handle(AsyncResult<String> event) {
+				logger.info("BMModule deployed, success: {}", event.succeeded());
+				if (event.succeeded()) {
+					logger.info("Deployement id is {}", event.result());
+					deploymentId = event.result();
+					complete.handle(new Result<Void>());
+					future.complete(null);
+				} else {
+					logger.error(event.cause().getMessage(), event.cause());
+					complete.handle(new Result<Void>(event.cause()));
+					future.completeExceptionally(event.cause());
+				}
+			}
+		});
 	}
 
 	public static void undeployVerticles(final Handler<AsyncResult<Void>> complete) {

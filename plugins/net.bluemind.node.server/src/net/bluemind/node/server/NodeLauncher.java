@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.platform.PlatformManager;
 
+import net.bluemind.lib.vertx.Constructor;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.node.server.busmod.SysCommand;
 import net.bluemind.node.server.handlers.DepDoneHandler;
@@ -46,10 +47,12 @@ public class NodeLauncher implements IApplication {
 		int procs = Runtime.getRuntime().availableProcessors();
 		int instances = Math.max(10, procs);
 		DepDoneHandler httpDep = new DepDoneHandler();
-		pm.deployVerticle(BlueMindNode.class.getCanonicalName(), null, new URL[0], instances, null, httpDep);
+		pm.deployVerticle(Constructor.of(BlueMindNode::new, BlueMindNode.class), null, new URL[0], instances, null,
+				httpDep);
 
 		DepDoneHandler workerDep = new DepDoneHandler();
-		pm.deployWorkerVerticle(true, SysCommand.class.getCanonicalName(), null, new URL[0], 1, null, workerDep);
+		pm.deployWorkerVerticle(true, Constructor.of(SysCommand::new, SysCommand.class), null, new URL[0], 1, null,
+				workerDep);
 
 		this.tikaTimer = pm.vertx().setPeriodic(10000, new TikaMonitor());
 

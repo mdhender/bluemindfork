@@ -56,7 +56,9 @@ import net.bluemind.dockerclient.DockerEnv;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.StoreClient;
+import net.bluemind.lib.vertx.Constructor;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.locator.LocatorVerticle;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.pool.impl.BmConfIni;
@@ -89,7 +91,7 @@ public class SdsProxyWithS3IntegrationTests {
 	public void before() throws Exception {
 
 		JdbcTestHelper.getInstance().beforeTest();
-		Deploy.verticles(false, "net.bluemind.locator.LocatorVerticle").get(5, TimeUnit.SECONDS);
+		Deploy.verticles(false, Constructor.of(LocatorVerticle::new, LocatorVerticle.class)).get(5, TimeUnit.SECONDS);
 
 		BmConfIni ini = new BmConfIni();
 

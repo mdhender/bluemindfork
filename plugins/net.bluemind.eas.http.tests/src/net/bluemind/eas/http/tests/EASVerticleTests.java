@@ -24,6 +24,7 @@ import org.vertx.java.core.MultiMap;
 import org.vertx.java.core.http.HttpClient;
 import org.vertx.java.core.http.HttpClientRequest;
 import org.vertx.java.core.json.impl.Base64;
+import org.vertx.java.platform.VerticleConstructor;
 
 import junit.framework.TestCase;
 import net.bluemind.authentication.api.IAuthentication;
@@ -43,9 +44,11 @@ import net.bluemind.eas.http.tests.mocks.DummyFilter1;
 import net.bluemind.eas.http.tests.mocks.DummyFilter2;
 import net.bluemind.eas.http.tests.vertx.TestResponseHandler;
 import net.bluemind.eas.testhelper.vertx.Deploy;
+import net.bluemind.lib.vertx.Constructor;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
+import net.bluemind.vertx.common.bus.CoreAuth;
 
 public class EASVerticleTests extends TestCase {
 
@@ -57,9 +60,12 @@ public class EASVerticleTests extends TestCase {
 	private String password = "admin";
 	private String coreUrl = "http://core2.bm.lan:8090";
 
-	private String[] verticlesClasses = new String[] { EASHttpVerticle.class.getCanonicalName() };
-	private String[] workerClasses = new String[] { "net.bluemind.vertx.common.bus.CoreAuth",
-			"net.bluemind.vertx.common.bus.Locator", DeviceValidationVerticle.class.getCanonicalName() };
+	private VerticleConstructor[] verticlesClasses = new VerticleConstructor[] {
+			Constructor.of(EASHttpVerticle::new, EASHttpVerticle.class) };
+
+	private VerticleConstructor[] workerClasses = new VerticleConstructor[] {
+			Constructor.of(CoreAuth::new, CoreAuth.class),
+			Constructor.of(DeviceValidationVerticle::new, DeviceValidationVerticle.class) };
 
 	public void setUp() {
 		GlobalConfig.DISABLE_POLICIES = true;

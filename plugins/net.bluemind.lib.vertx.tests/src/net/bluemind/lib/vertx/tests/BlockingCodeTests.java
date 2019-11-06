@@ -53,7 +53,8 @@ public class BlockingCodeTests {
 	public void testBlockingCodeFromEventLoop() throws InterruptedException, ExecutionException, TimeoutException {
 		PlatformManager pm = VertxPlatform.getPlatformManager();
 		CompletableFuture<String> deployement = new CompletableFuture<>();
-		pm.deployVerticle(SimpleHttpServer.class.getCanonicalName(), new JsonObject(), new URL[0], 2, null, result -> {
+
+		pm.deployVerticle(SimpleHttpServer.contructor(), new JsonObject(), new URL[0], 2, null, result -> {
 			if (result.succeeded()) {
 				deployement.complete(result.result());
 			} else {
