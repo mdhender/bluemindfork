@@ -157,7 +157,7 @@ public class MailboxValidator {
 
 		if (mailbox.quota > max) {
 			throw new ServerFault(
-					String.format("Invalid quota for %s. Quota must be less than %s MiB", uid, (max / 1024)),
+					String.format("Invalid quota for %s. Quota must be less than %d MiB", uid, (max / 1024)),
 					ErrorCode.INVALID_PARAMETER);
 		}
 
