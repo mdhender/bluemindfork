@@ -70,7 +70,7 @@ public class MailboxValidator {
 	 * Performs mailbox validation
 	 * 
 	 * @param mailbox
-	 *            the object to check
+	 *                    the object to check
 	 * @string uid the expected uid of the object to check
 	 * @throws ServerFault
 	 */
@@ -131,11 +131,11 @@ public class MailboxValidator {
 					ErrorCode.INVALID_PARAMETER);
 		}
 
-		validateMaxQuota(mailbox);
+		validateMaxQuota(uid, mailbox);
 
 	}
 
-	private void validateMaxQuota(Mailbox mailbox) {
+	private void validateMaxQuota(String uid, Mailbox mailbox) {
 		if (mailbox.quota == null) {
 			return;
 		}
@@ -156,7 +156,8 @@ public class MailboxValidator {
 		}
 
 		if (mailbox.quota > max) {
-			throw new ServerFault("Invalid quota. Quota must be less than " + (max / 1024) + " MiB",
+			throw new ServerFault(
+					String.format("Invalid quota for %s. Quota must be less than %s MiB", uid, (max / 1024)),
 					ErrorCode.INVALID_PARAMETER);
 		}
 
