@@ -17,6 +17,8 @@
   */
 package net.bluemind.backend.mail.api;
 
+import java.util.List;
+
 import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")
@@ -24,6 +26,8 @@ public class SearchQuery {
 
 	public String searchSessionId;
 	public String query;
+	public HeaderQuery headerQuery;
+
 	public long maxResults;
 	public long offset;
 	public SearchScope scope;
@@ -37,6 +41,25 @@ public class SearchQuery {
 	@BMApi(version = "3")
 	public static class FolderScope {
 		public String folderUid;
+	}
+
+	@BMApi(version = "3")
+	public static class HeaderQuery {
+
+		public Operator operator;
+		public List<Header> query;
+	}
+
+	@BMApi(version = "3")
+	public static enum Operator {
+		AND, OR
+	}
+
+	@BMApi(version = "3")
+	public static class Header {
+
+		public String name;
+		public String value;
 	}
 
 }

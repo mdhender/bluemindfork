@@ -68,6 +68,7 @@ import net.bluemind.backend.mail.api.MailboxFolderSearchQuery;
 import net.bluemind.backend.mail.api.MessageSearchResult;
 import net.bluemind.backend.mail.api.MessageSearchResult.Mbox;
 import net.bluemind.backend.mail.api.SearchQuery;
+import net.bluemind.backend.mail.api.SearchQuery.Operator;
 import net.bluemind.backend.mail.api.SearchResult;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
@@ -790,11 +791,21 @@ public class MailIndexService implements IMailIndexService {
 
 		if (query.query != null) {
 			String pattern = "content:\"" + query.query + "\"";
-			searchBuilder.setQuery(
-					bq.must(JoinQueryBuilders.hasParentQuery("body", QueryBuilders.queryStringQuery(pattern), false)));
-		} else {
-			searchBuilder.setQuery(bq);
+			bq = bq.must(JoinQueryBuilders.hasParentQuery("body", QueryBuilders.queryStringQuery(pattern), false));
 		}
+		if (query.headerQuery != null && !query.headerQuery.query.isEmpty()) {
+			List<QueryBuilder> builders = new ArrayList<>();
+			for (SearchQuery.Header headerQuery : query.headerQuery.query) {
+				String queryString = "headers." + headerQuery.name.toLowerCase() + ":\"" + headerQuery.value + "\"";
+				builders.add(QueryBuilders.queryStringQuery(queryString));
+			}
+			if (query.headerQuery.operator == Operator.AND) {
+				bq = bq.must(Queries.and(builders));
+			} else {
+				bq = bq.must(Queries.or(builders));
+			}
+		}
+		searchBuilder.setQuery(bq);
 		searchBuilder.addStoredField("itemId");
 		searchBuilder.addStoredField("uid");
 		searchBuilder.addStoredField("preview");
