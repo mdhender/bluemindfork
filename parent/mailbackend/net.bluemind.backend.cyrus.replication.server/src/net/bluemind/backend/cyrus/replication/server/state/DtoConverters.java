@@ -67,7 +67,7 @@ public class DtoConverters {
 				nameBase = addFolderPart(nameBase, mr);
 			}
 		} else {
-			if (!mr.fullName.equals(rd.fullName())) {
+			if (!mr.fullName.replace('.', '^').equals(rd.fullName())) {
 				// not the root
 				nameBase = addFolderPart(nameBase, mr);
 			}

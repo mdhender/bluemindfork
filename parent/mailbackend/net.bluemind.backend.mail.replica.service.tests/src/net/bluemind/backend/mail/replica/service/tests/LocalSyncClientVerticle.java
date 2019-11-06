@@ -79,11 +79,15 @@ public class LocalSyncClientVerticle extends Verticle {
 			for (int i = 0; i < js.size(); i++) {
 				mb[i] = js.get(i);
 			}
-			client.getMailboxes(mb).whenComplete((v, ex) -> {
+			client.getMailboxes(mb).whenComplete((ur, ex) -> {
 				if (ex != null) {
 					ex.printStackTrace();
 				}
-				msg.reply(ex == null);
+				JsonArray lines = new JsonArray();
+				for (String l : ur.dataLines) {
+					lines.addString(l);
+				}
+				msg.reply(lines);
 			});
 		});
 		System.err.println("LocalSyncClientVerticle deployed !");

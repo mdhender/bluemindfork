@@ -18,11 +18,13 @@
 package net.bluemind.backend.mail.replica.service.tests;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -31,6 +33,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.vertx.java.core.AsyncResult;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.json.JsonArray;
@@ -40,6 +43,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 import net.bluemind.backend.cyrus.replication.client.UnparsedResponse;
+import net.bluemind.backend.cyrus.replication.protocol.parsing.ParenObjectParser;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.imap.IMAPException;
@@ -56,8 +60,8 @@ public class ManyMailboxesTests extends AbstractRollingReplicationTests {
 	/**
 	 * each user produces 6 folders
 	 */
-	public static final int TOTAL = 175;
-	public static final int SHARED_EVERY_N = 10;
+	public static final int TOTAL = 6;
+	public static final int SHARED_EVERY_N = 2;
 
 	@Before
 	@Override
@@ -116,9 +120,12 @@ public class ManyMailboxesTests extends AbstractRollingReplicationTests {
 		JsonArray js = new JsonArray();
 		Arrays.stream(mboxes).forEach(js::addString);
 		VertxPlatform.eventBus().sendWithTimeout("sc.mailboxes", new JsonObject().putArray("mboxes", js), 10000,
-				result -> {
+				(AsyncResult<Message<JsonArray>> result) -> {
 					if (result.succeeded()) {
-						ret.complete(new UnparsedResponse("OK", Collections.emptyList()));
+						JsonArray dataLines = result.result().body();
+						List<String> asList = new ArrayList<>(dataLines.size());
+						dataLines.forEach(obj -> asList.add(obj.toString()));
+						ret.complete(new UnparsedResponse("OK", asList));
 					} else {
 						ret.completeExceptionally(result.cause());
 					}
@@ -147,6 +154,19 @@ public class ManyMailboxesTests extends AbstractRollingReplicationTests {
 		UnparsedResponse response = mailboxes(mboxes).get(30, TimeUnit.SECONDS);
 		assertNotNull(response);
 		time = System.currentTimeMillis() - time;
+		System.err.println("Ran in " + time + "ms. " + response.statusResponse);
+		Set<String> expectedInResponse = new HashSet<>(Arrays.asList(mboxes));
+		ParenObjectParser parser = ParenObjectParser.create();
+		for (String l : response.dataLines) {
+			System.err.println(l);
+			int idx = l.indexOf("%(");
+			assertTrue(idx > 0);
+
+			JsonObject mailboxObj = parser.parse(l.substring(idx)).asObject();
+			assertTrue(mailboxObj.containsField("MBOXNAME"));
+			String fetched = mailboxObj.getString("MBOXNAME");
+			assertTrue(fetched + " is not an expected mailbox", expectedInResponse.contains(fetched));
+		}
 	}
 
 	@Test
