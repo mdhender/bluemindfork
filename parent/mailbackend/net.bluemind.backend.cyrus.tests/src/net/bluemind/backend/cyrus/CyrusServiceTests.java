@@ -167,7 +167,7 @@ public class CyrusServiceTests {
 		service.createBox(mbox, partition);
 
 		String nmbox = mbox + "rename";
-		service.renameBox(mbox, nmbox, partition);
+		service.renameBox(mbox, nmbox);
 	}
 
 	@Test

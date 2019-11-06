@@ -6,6 +6,6 @@ Standards-Version: 3.9.1
 
 Package: bm-cyrus
 Architecture: amd64
-Depends: bm-conf (= ${binary:Version}), bm-cyrus-imapd (= 3.0.8-bluemind197), bm-ysnp (= ${binary:Version}), bm-sds-proxy (= ${binary:Version}), sasl2-bin, libsasl2 | libsasl2-2, libsasl2-modules
+Depends: bm-conf (= ${binary:Version}), bm-cyrus-imapd (= 3.0.8-bluemind200), bm-ysnp (= ${binary:Version}), bm-sds-proxy (= ${binary:Version}), sasl2-bin, libsasl2 | libsasl2-2, libsasl2-modules
 Description: BlueMind Cyrus / SASL
  Configuration of Cyrus and SASL

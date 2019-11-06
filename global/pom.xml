@@ -36,7 +36,7 @@
 		<sonar.jacoco.excludes>**/*Test*,**/generated/**/*</sonar.jacoco.excludes>
 		<l10n.list>"en", "fr"</l10n.list>
 		<gwt-version>2.8.2</gwt-version>
-                <docker.devenv.tag>4.1.46484</docker.devenv.tag>
+                <docker.devenv.tag>4.1.46757</docker.devenv.tag>
 	</properties>
 
 	<repositories>

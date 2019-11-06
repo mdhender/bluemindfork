@@ -25,10 +25,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 
-import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.report.DiagnosticReport;
-import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
@@ -42,7 +40,6 @@ import net.bluemind.imap.ListInfo;
 import net.bluemind.imap.ListResult;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.network.topology.Topology;
-import net.bluemind.server.api.Server;
 
 public class DefaultPartitionRepair extends InternalMaintenanceOperation {
 
@@ -103,7 +100,7 @@ public class DefaultPartitionRepair extends InternalMaintenanceOperation {
 			try (StoreClient sc = new StoreClient(backend.value.address(), 1143, "admin0", Token.admin0())) {
 				boolean login = sc.login();
 				if (login) {
-					repairBackend(repair, domainUid, report, monitor, backend, sc);
+					repairBackend(repair, domainUid, report, monitor, sc);
 				}
 
 			}
@@ -113,8 +110,7 @@ public class DefaultPartitionRepair extends InternalMaintenanceOperation {
 	}
 
 	private void repairBackend(boolean repair, String domainUid, DiagnosticReport report, IServerTaskMonitor monitor,
-			ItemValue<Server> backend, StoreClient sc) {
-		CyrusPartition right = CyrusPartition.forServerAndDomain(backend, domainUid);
+			StoreClient sc) {
 		ListResult allMailboxes = sc.listAllDomain(domainUid);
 		monitor.begin(allMailboxes.size(), "Working on " + allMailboxes.size() + " mailbox(es)");
 		for (ListInfo li : allMailboxes) {
@@ -127,7 +123,7 @@ public class DefaultPartitionRepair extends InternalMaintenanceOperation {
 			String part = annots.valueShared;
 			if ("default".equals(part)) {
 				if (repair) {
-					repairFolder(report, monitor, sc, right, li);
+					repairFolder(report, monitor, sc, li);
 				} else {
 					monitor.log(li.getName() + " should be repaired.");
 					report.warn(ID, li.getName() + " should be repaired.");
@@ -138,11 +134,10 @@ public class DefaultPartitionRepair extends InternalMaintenanceOperation {
 		}
 	}
 
-	private void repairFolder(DiagnosticReport report, IServerTaskMonitor monitor, StoreClient sc, CyrusPartition right,
-			ListInfo li) {
+	private void repairFolder(DiagnosticReport report, IServerTaskMonitor monitor, StoreClient sc, ListInfo li) {
 		try {
 			monitor.log("Repairing " + li.getName() + "...");
-			boolean result = sc.renameMailbox(li.getName(), li.getName(), right.name);
+			boolean result = sc.rename(li.getName(), li.getName());
 			monitor.log(li.getName() + " repaired => " + result);
 			if (result) {
 				report.ok(ID, li.getName() + " repaired.");

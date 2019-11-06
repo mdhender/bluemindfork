@@ -225,7 +225,7 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 
 			String boxName = boxname(cur, domainUid);
 
-			cyrus.renameBox(pboxName, boxName, domainUid);
+			cyrus.renameBox(pboxName, boxName);
 
 			Map<String, Acl> acl = new HashMap<>();
 			acl.put("admin0", Acl.ALL);

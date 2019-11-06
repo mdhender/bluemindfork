@@ -72,7 +72,8 @@ public final class MailboxOps {
 	/**
 	 * @param domain
 	 * @param srv
-	 * @param mailboxUid mailbox container uid
+	 * @param mailboxUid
+	 *            mailbox container uid
 	 */
 	public static void annotate(Server srv, String mailboxUid) {
 		try (StoreClient sc = new StoreClient(srv.address(), 1143, "admin0", Token.admin0())) {
@@ -91,12 +92,11 @@ public final class MailboxOps {
 		}
 	}
 
-	public static void rename(String domainUid, ItemValue<Server> srv, String prevBox, String newBox) {
+	public static void rename(ItemValue<Server> srv, String prevBox, String newBox) {
 		try (StoreClient sc = new StoreClient(srv.value.address(), 1143, "admin0", Token.admin0())) {
 			sc.login();
-			String part = CyrusPartition.forServerAndDomain(srv, domainUid).name;
-			logger.info("RENAMING {} to {} on {}", prevBox, newBox, part);
-			boolean result = sc.renameMailbox(prevBox, newBox, part);
+			logger.info("RENAMING {} to {}", prevBox, newBox);
+			boolean result = sc.rename(prevBox, newBox);
 			logger.info("RENAME {} -> {}: {}", prevBox, newBox, result);
 		} catch (IMAPException e) {
 			logger.error(e.getMessage(), e);

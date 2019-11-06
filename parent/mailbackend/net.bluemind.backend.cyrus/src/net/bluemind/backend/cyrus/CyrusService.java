@@ -198,16 +198,15 @@ public class CyrusService {
 		}
 	}
 
-	public void renameBox(String pboxName, String boxName, String domainUid) throws ServerFault {
+	public void renameBox(String pboxName, String boxName) throws ServerFault {
 		try (StoreClient sc = new StoreClient(backendAddress, 1143, "admin0", Token.admin0())) {
 			if (!sc.login()) {
 				throw new ServerFault(
 						"rename " + pboxName + " failed. " + "Login as admin0 failed, server " + backendAddress);
 			}
 
-			CyrusPartition partition = CyrusPartition.forServerAndDomain(backend, domainUid);
-			logger.info("rename {} to {} (partition {})", pboxName, boxName, partition);
-			if (!sc.renameMailbox(pboxName, boxName, partition.name)) {
+			logger.info("rename {} to {}", pboxName, boxName);
+			if (!sc.rename(pboxName, boxName)) {
 				throw new ServerFault("rename " + pboxName + " failed");
 			}
 		} catch (IMAPException e) {
@@ -238,8 +237,10 @@ public class CyrusService {
 	}
 
 	/**
-	 * @param boxName eg. user/john@bm.lan
-	 * @param quota   unit is KB
+	 * @param boxName
+	 *            eg. user/john@bm.lan
+	 * @param quota
+	 *            unit is KB
 	 * @throws ServerFault
 	 */
 	public void setQuota(String boxName, int quota) throws ServerFault {
