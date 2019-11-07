@@ -32,6 +32,9 @@ public class MetricsRegistry {
 
 	private static void tryInit() {
 		try {
+			// spectator uses context class loader
+			Thread.currentThread().setContextClassLoader(MetricsRegistry.class.getClassLoader());
+
 			Registry registry = new BMRegistry();
 			Spectator.globalRegistry().add(registry);
 			logger.info("Agent connection established");
