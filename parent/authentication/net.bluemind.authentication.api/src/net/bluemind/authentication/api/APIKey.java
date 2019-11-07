@@ -26,4 +26,8 @@ public class APIKey {
 	public String sid;
 
 	public String displayName;
+
+	public String subject;
+
+	public String domainUid;
 }

@@ -48,6 +48,13 @@
       </provider>
    </extension>
    <extension
+         point="net.bluemind.core.sessions.provider">
+      <provider
+            impl="net.bluemind.authentication.service.ApiKeySessionProvider"
+            priority="41">
+      </provider>
+   </extension>
+   <extension
          point="net.bluemind.lib.vertx.verticles">
       <verticle
             impl="net.bluemind.authentication.service.tokens.TokenExpireVerticle$Factory">

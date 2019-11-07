@@ -35,11 +35,11 @@ import net.bluemind.core.api.fault.ServerFault;
 public interface IAPIKeys {
 
 	/**
-	 * Creates an {@link APIKey} for the given core session. This will be usable
-	 * as a valid password to impersonate the user.
+	 * Creates an {@link APIKey} for the given core session. This will be usable as
+	 * a valid password to impersonate the user.
 	 * 
 	 * @param displayName
-	 *            the name of the {@link APIKey}
+	 *                        the name of the {@link APIKey}
 	 * @return an {@link APIKey} to impersonate the user
 	 * @throws ServerFault
 	 */
@@ -50,7 +50,7 @@ public interface IAPIKeys {
 	 * Deletes an {@link APIKey}
 	 * 
 	 * @param sid
-	 *            the {@link APIKey#sid}
+	 *                the {@link APIKey#sid}
 	 * @throws ServerFault
 	 */
 	@DELETE
@@ -63,5 +63,9 @@ public interface IAPIKeys {
 	 */
 	@GET
 	public List<APIKey> list() throws ServerFault;
+
+	@GET
+	@Path("{sid}")
+	public APIKey get(@PathParam("key") String sid) throws ServerFault;
 
 }

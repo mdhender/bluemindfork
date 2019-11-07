@@ -38,6 +38,8 @@ public class APIKeyStore extends JdbcAbstractStore {
 		public int populate(ResultSet rs, int index, APIKey value) throws SQLException {
 			value.sid = rs.getString(index++);
 			value.displayName = rs.getString(index++);
+			value.subject = rs.getString(index++);
+			value.domainUid = rs.getString(index++);
 			return index;
 		}
 	};
@@ -48,13 +50,14 @@ public class APIKeyStore extends JdbcAbstractStore {
 	}
 
 	public void create(APIKey apikey) throws ServerFault {
-		String query = "INSERT INTO t_api_key (sid, displayname, subject) VALUES (?, ?, ?)";
+		String query = "INSERT INTO t_api_key (sid, displayname, subject, domain_uid) VALUES (?, ?, ?, ?)";
 		doOrFail(() -> {
 			insert(query, apikey, (con, statement, index, rowIndex, value) -> {
 
 				statement.setString(index++, value.sid);
 				statement.setString(index++, value.displayName);
 				statement.setString(index++, context.getSubject());
+				statement.setString(index++, context.getContainerUid());
 				return index;
 
 			});
@@ -64,24 +67,27 @@ public class APIKeyStore extends JdbcAbstractStore {
 
 	public void delete(String sid) throws ServerFault {
 		doOrFail(() -> {
-			delete("DELETE FROM t_api_key where sid = ? and subject = ? ", new Object[] { sid, context.getSubject() });
+			delete("DELETE FROM t_api_key where sid = ? and subject = ? and domain_uid = ? ",
+					new Object[] { sid, context.getSubject(), context.getContainerUid() });
 			return null;
 		});
 	}
 
 	public void deleteAll() throws ServerFault {
 		doOrFail(() -> {
-			delete("DELETE FROM t_api_key where subject = ?", new Object[] { context.getSubject() });
+			delete("DELETE FROM t_api_key where subject = ? and domain_uid = ?",
+					new Object[] { context.getSubject(), context.getContainerUid() });
 			return null;
 		});
 	}
 
 	public List<APIKey> list() throws ServerFault {
 		try {
-			String query = "SELECT sid, displayname FROM t_api_key " + " WHERE subject = ?";
+			String query = "SELECT sid, displayname, subject, domain_uid FROM t_api_key "
+					+ " WHERE subject = ? and domain_uid = ?";
 
 			return select(query, (rs) -> new APIKey(), Arrays.<EntityPopulator<APIKey>>asList(APIKEY_POPULATOR),
-					new Object[] { context.getSubject() });
+					new Object[] { context.getSubject(), context.getContainerUid() });
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
@@ -89,10 +95,10 @@ public class APIKeyStore extends JdbcAbstractStore {
 
 	public APIKey get(String sid) throws ServerFault {
 		try {
-			String query = "SELECT sid, displayname FROM t_api_key " + " WHERE subject = ? and sid = ? ";
+			String query = "SELECT sid, displayname, subject, domain_uid FROM t_api_key " + " WHERE sid = ? ";
 
 			return unique(query, (rs) -> new APIKey(), Arrays.<EntityPopulator<APIKey>>asList(APIKEY_POPULATOR),
-					new Object[] { context.getSubject(), sid });
+					new Object[] { sid });
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}

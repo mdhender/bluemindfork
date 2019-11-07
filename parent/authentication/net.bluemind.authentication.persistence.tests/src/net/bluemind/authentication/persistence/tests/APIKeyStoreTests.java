@@ -44,15 +44,14 @@ public class APIKeyStoreTests {
 	@Before
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
-		
 
-		SecurityContext context1 = new SecurityContext(null, "subject", Arrays.<String> asList(),
-				Arrays.<String> asList(), null);
+		SecurityContext context1 = new SecurityContext(null, "subject", Arrays.<String>asList(),
+				Arrays.<String>asList(), "bm.loc");
 
 		store1 = new APIKeyStore(JdbcTestHelper.getInstance().getDataSource(), context1);
 
-		SecurityContext context2 = new SecurityContext(null, "another-subject", Arrays.<String> asList(),
-				Arrays.<String> asList(), null);
+		SecurityContext context2 = new SecurityContext(null, "another-subject", Arrays.<String>asList(),
+				Arrays.<String>asList(), "bm.loc");
 
 		store2 = new APIKeyStore(JdbcTestHelper.getInstance().getDataSource(), context2);
 
@@ -78,8 +77,9 @@ public class APIKeyStoreTests {
 		fetched = store1.get("random");
 		assertNull(fetched);
 
+		// !sic, keys are unique
 		fetched = store2.get(apikey.sid);
-		assertNull(fetched);
+		assertNotNull(fetched);
 
 	}
 

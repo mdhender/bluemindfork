@@ -52,10 +52,10 @@ public class APIKeysTests {
 	@Before
 	public void setup() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
-		
+
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
-		final SettableFuture<Void> future = SettableFuture.<Void> create();
+		final SettableFuture<Void> future = SettableFuture.<Void>create();
 		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
 
 			@Override
@@ -74,8 +74,8 @@ public class APIKeysTests {
 
 		PopulateHelper.addDomainAdmin("admin0", "global.virt");
 
-		SecurityContext ctx = new SecurityContext("testUser", "test", Arrays.<String> asList(),
-				Arrays.<String> asList(), "fakeContainerUid");
+		SecurityContext ctx = new SecurityContext("testUser", "test", Arrays.<String>asList(), Arrays.<String>asList(),
+				"fakeContainerUid");
 
 		service = new APIKeysService(JdbcTestHelper.getInstance().getDataSource(), ctx);
 
@@ -114,16 +114,30 @@ public class APIKeysTests {
 	}
 
 	@Test
-	public void create() throws  ServerFault {
+	public void create() throws ServerFault {
 		String dn = "key" + System.currentTimeMillis();
 		APIKey ret = service.create(dn);
 		assertNotNull(ret);
 		assertEquals(dn, ret.displayName);
 		assertNotNull(ret.sid);
+		assertNotNull(ret.domainUid);
 	}
 
 	@Test
-	public void fetch() throws  ServerFault {
+	public void get() throws ServerFault {
+		String dn = "key" + System.currentTimeMillis();
+		APIKey ret = service.create(dn);
+		APIKey get = service.get(ret.sid);
+
+		assertNotNull(get);
+		assertEquals(ret.subject, get.subject);
+		assertEquals(ret.sid, get.sid);
+		assertEquals(ret.domainUid, get.domainUid);
+		assertEquals(ret.displayName, get.displayName);
+	}
+
+	@Test
+	public void fetch() throws ServerFault {
 
 		List<APIKey> list = service.list();
 		assertEquals(0, list.size());
@@ -157,7 +171,7 @@ public class APIKeysTests {
 	}
 
 	@Test
-	public void delete() throws  ServerFault {
+	public void delete() throws ServerFault {
 		APIKey key = service.create("key1");
 		APIKey key2 = service.create("key2");
 

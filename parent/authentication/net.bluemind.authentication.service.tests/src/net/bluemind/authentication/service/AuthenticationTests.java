@@ -374,4 +374,22 @@ public class AuthenticationTests {
 		}
 	}
 
+	@Test
+	public void testServiceUsingApiKey() {
+		initState();
+
+		SecurityContext ctx = new SecurityContext(null, "admin0", Arrays.<String>asList(), Arrays.<String>asList(),
+				"global.virt");
+		IAPIKeys service = ServerSideServiceProvider.getProvider(ctx).instance(IAPIKeys.class);
+		APIKey key = service.create("testApiKey");
+
+		IAuthentication authentication = getService(key.sid);
+		AuthUser current = authentication.getCurrentUser();
+		assertNotNull(current);
+		assertEquals("admin0", current.uid);
+
+		assertNotNull(key);
+
+	}
+
 }
