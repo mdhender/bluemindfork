@@ -129,6 +129,8 @@ public class MailIndexService implements IMailIndexService {
 		Client client = getIndexClient();
 		Map<String, Object> content = new HashMap<>();
 		content.put("content", body.content);
+		content.put("messageId", body.messageId.toString());
+		content.put("references", body.references.stream().map(kw -> kw.toString()).collect(Collectors.toList()));
 		content.put("preview", body.preview);
 		content.put("subject", body.subject.toString());
 		content.put("subject_kw", body.subject.toString());
@@ -246,6 +248,8 @@ public class MailIndexService implements IMailIndexService {
 
 		// deduplicate fields
 		mutableContent.remove("content");
+		mutableContent.remove("messageId");
+		mutableContent.remove("references");
 
 		String route = "partition_xxx";
 		GetResponse hasParent = client.prepareGet(userAlias, MAILSPOOL_TYPE, parentUid).setFetchSource(false).get();
@@ -788,11 +792,10 @@ public class MailIndexService implements IMailIndexService {
 		}
 
 		bq.mustNot(QueryBuilders.termQuery("is", "deleted"));
+		bq = addSearchQuery(bq, "content", query.query);
+		bq = addPreciseSearchQuery(bq, "messageId", query.messageId);
+		bq = addPreciseSearchQuery(bq, "references", query.references);
 
-		if (query.query != null) {
-			String pattern = "content:\"" + query.query + "\"";
-			bq = bq.must(JoinQueryBuilders.hasParentQuery("body", QueryBuilders.queryStringQuery(pattern), false));
-		}
 		if (query.headerQuery != null && !query.headerQuery.query.isEmpty()) {
 			List<QueryBuilder> builders = new ArrayList<>();
 			for (SearchQuery.Header headerQuery : query.headerQuery.query) {
@@ -844,6 +847,24 @@ public class MailIndexService implements IMailIndexService {
 		logger.info("[{}] results: {} (tried {}) / {}, hasMore: {}", dirEntryUid, results.size(),
 				searchHits.getHits().length, result.totalResults, result.hasMoreResults);
 		return result;
+	}
+
+	private BoolQueryBuilder addSearchQuery(BoolQueryBuilder bq, String searchField, String searchValue) {
+		if (searchValue != null) {
+			String pattern = searchField + ":\"" + searchValue + "\"";
+			return bq.must(JoinQueryBuilders.hasParentQuery("body", QueryBuilders.queryStringQuery(pattern), false));
+		} else {
+			return bq;
+		}
+	}
+
+	private BoolQueryBuilder addPreciseSearchQuery(BoolQueryBuilder bq, String searchField, String searchValue) {
+		if (searchValue != null) {
+			return bq.must(
+					JoinQueryBuilders.hasParentQuery("body", QueryBuilders.termQuery(searchField, searchValue), false));
+		} else {
+			return bq;
+		}
 	}
 
 	@SuppressWarnings({ "unchecked" })

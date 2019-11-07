@@ -337,4 +337,76 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		assertEquals(0, results.totalResults);
 	}
 
+	@Test
+	public void testSearchByMessageId() throws MimeIOException, IOException, InterruptedException, ExecutionException {
+		long imapUid = 1;
+		byte[] eml = Files.toByteArray(new File("data/test.eml"));
+		storeBody(bodyUid, eml);
+		storeMessage(mboxUid, userUid, bodyUid, imapUid, Collections.emptyList());
+		ESearchActivator.refreshIndex(INDEX_NAME);
+
+		SearchQuery query = new SearchQuery();
+		query.maxResults = 10;
+		query.offset = 0;
+		query.messageId = "<7FA4B249-C434-4F98-A447-A0F0C8D42A4E@pinkfloy.net>";
+		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		q.query = query;
+		query.scope = new SearchScope();
+		query.scope.isDeepTraversal = true;
+
+		SearchResult results = MailIndexActivator.getService().searchItems(userUid, q);
+
+		assertEquals(1, results.totalResults);
+		MessageSearchResult messageSearchResult = results.results.get(0);
+		assertEquals(44l, messageSearchResult.itemId);
+
+		query = new SearchQuery();
+		query.maxResults = 10;
+		query.offset = 0;
+		query.messageId = "idontexist";
+		q = new MailboxFolderSearchQuery();
+		q.query = query;
+		query.scope = new SearchScope();
+		query.scope.isDeepTraversal = true;
+		results = MailIndexActivator.getService().searchItems(userUid, q);
+
+		assertEquals(0, results.totalResults);
+	}
+
+	@Test
+	public void testSearchByReferences() throws MimeIOException, IOException, InterruptedException, ExecutionException {
+		long imapUid = 1;
+		byte[] eml = Files.toByteArray(new File("data/test.eml"));
+		storeBody(bodyUid, eml);
+		storeMessage(mboxUid, userUid, bodyUid, imapUid, Collections.emptyList());
+		ESearchActivator.refreshIndex(INDEX_NAME);
+
+		SearchQuery query = new SearchQuery();
+		query.maxResults = 10;
+		query.offset = 0;
+		query.references = "<19980507220459.5655.qmail@warren.demon.co.uk>";
+		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		q.query = query;
+		query.scope = new SearchScope();
+		query.scope.isDeepTraversal = true;
+
+		SearchResult results = MailIndexActivator.getService().searchItems(userUid, q);
+
+		assertEquals(1, results.totalResults);
+		MessageSearchResult messageSearchResult = results.results.get(0);
+		assertEquals(44l, messageSearchResult.itemId);
+
+		query = new SearchQuery();
+		query.maxResults = 10;
+		query.offset = 0;
+		query.references = "idontexist";
+		q = new MailboxFolderSearchQuery();
+		q.query = query;
+		query.scope = new SearchScope();
+		query.scope.isDeepTraversal = true;
+		results = MailIndexActivator.getService().searchItems(userUid, q);
+
+		assertEquals(0, results.totalResults);
+	}
+
 }

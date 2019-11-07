@@ -47,6 +47,14 @@
 					"type": "text",
 					"norms": false
 				},
+				"messageId": {
+					"type": "keyword",
+					"store": true
+				},
+				"references": {
+					"type": "keyword",
+					"store": true
+				},
 				"preview": {
 					"type": "text",
 					"index": false,
