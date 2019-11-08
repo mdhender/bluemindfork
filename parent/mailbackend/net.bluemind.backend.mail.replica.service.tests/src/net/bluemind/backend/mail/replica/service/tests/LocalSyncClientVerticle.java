@@ -90,6 +90,21 @@ public class LocalSyncClientVerticle extends Verticle {
 				msg.reply(lines);
 			});
 		});
+
+		vertx.eventBus().registerLocalHandler("sc.fullMailbox", (Message<String> msg) -> {
+			System.err.println(Thread.currentThread().getName() + " fullMailbox " + msg.body());
+			client.getFullMailbox(msg.body()).whenComplete((ur, ex) -> {
+				if (ex != null) {
+					ex.printStackTrace();
+				}
+				JsonArray lines = new JsonArray();
+				for (String l : ur.dataLines) {
+					lines.addString(l);
+				}
+				msg.reply(lines);
+			});
+		});
+
 		System.err.println("LocalSyncClientVerticle deployed !");
 	}
 }

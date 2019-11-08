@@ -17,6 +17,7 @@
   */
 package net.bluemind.backend.mail.replica.service.tests;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -133,6 +134,22 @@ public class ManyMailboxesTests extends AbstractRollingReplicationTests {
 		return ret;
 	}
 
+	private static CompletableFuture<UnparsedResponse> fullMailbox(String mbox) {
+		CompletableFuture<UnparsedResponse> ret = new CompletableFuture<>();
+		VertxPlatform.eventBus().sendWithTimeout("sc.fullMailbox", mbox, 10000,
+				(AsyncResult<Message<JsonArray>> result) -> {
+					if (result.succeeded()) {
+						JsonArray dataLines = result.result().body();
+						List<String> asList = new ArrayList<>(dataLines.size());
+						dataLines.forEach(obj -> asList.add(obj.toString()));
+						ret.complete(new UnparsedResponse("OK", asList));
+					} else {
+						ret.completeExceptionally(result.cause());
+					}
+				});
+		return ret;
+	}
+
 	@Override
 	public void after() throws Exception {
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -167,6 +184,21 @@ public class ManyMailboxesTests extends AbstractRollingReplicationTests {
 			String fetched = mailboxObj.getString("MBOXNAME");
 			assertTrue(fetched + " is not an expected mailbox", expectedInResponse.contains(fetched));
 		}
+	}
+
+	@Test
+	public void testGetFullDottedMailshare()
+			throws IMAPException, InterruptedException, ExecutionException, TimeoutException {
+		String mbox = mailboxes.stream().filter(v -> v.contains("shared")).findFirst().get();
+		long time = System.currentTimeMillis();
+		UnparsedResponse response = fullMailbox(mbox).get(30, TimeUnit.SECONDS);
+		assertNotNull(response);
+		time = System.currentTimeMillis() - time;
+		System.err.println("Ran in " + time + "ms. " + response.statusResponse);
+		for (String l : response.dataLines) {
+			System.err.println(l);
+		}
+		assertEquals(1, response.dataLines.size());
 	}
 
 	@Test

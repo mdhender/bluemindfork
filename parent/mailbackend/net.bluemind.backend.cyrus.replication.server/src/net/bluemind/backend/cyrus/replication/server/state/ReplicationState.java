@@ -19,6 +19,7 @@ package net.bluemind.backend.cyrus.replication.server.state;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -54,7 +55,6 @@ import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.base.GenericStream;
-import net.bluemind.lib.jutf7.UTF7Converter;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 
@@ -147,33 +147,7 @@ public class ReplicationState {
 	}
 
 	public CompletableFuture<MailboxFolder> folderByName(String name) {
-		CompletableFuture<MailboxFolder> ret = new CompletableFuture<>();
-		int exMarkIdx = name.indexOf('!');
-		if (exMarkIdx < 0) {
-			ret.completeExceptionally(new Exception("Invalid name: " + name));
-			return ret;
-		}
-		String partition = name.substring(0, exMarkIdx).replace('.', '_');
-		String mboxName = name.substring(partition.length() + 1);
-		MailboxReplicaRootDescriptor rootDesc = ReplicatedBoxes.forCyrusMailbox(name).asDescriptor();
-		logger.debug("'{}' => partition: '{}', mboxName '{}'", name, partition, mboxName);
-		return storage.replicatedMailboxes(partition, rootDesc).thenCompose(mboxApi -> {
-			String searchTerm = DtoConverters.toReplicaName(rootDesc, mboxName);
-			String decoded = UTF7Converter.decode(searchTerm);
-			logger.debug("Searching for {} ({})", decoded, searchTerm);
-			return mboxApi.byReplicaName(decoded);
-		}).exceptionally(t -> {
-			logger.error(t.getMessage(), t);
-			return null;
-		}).thenApply(replicaIV -> {
-			if (replicaIV == null) {
-				logger.info("Missing {}", rootDesc);
-				return null;
-			} else {
-				logger.debug("[{}] Found {} for {}", rootDesc, replicaIV.uid, replicaIV.value.fullName);
-				return DtoConverters.from(partition, rootDesc, replicaIV);
-			}
-		});
+		return foldersByName(Arrays.asList(name)).thenApply(resolved -> resolved.isEmpty() ? null : resolved.get(0));
 	}
 
 	public CompletableFuture<List<MailboxFolder>> foldersByName(List<String> names) {
