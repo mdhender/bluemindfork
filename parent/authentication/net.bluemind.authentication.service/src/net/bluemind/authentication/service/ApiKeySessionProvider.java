@@ -33,17 +33,16 @@ public class ApiKeySessionProvider implements ISessionsProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(TokenSessionProvider.class);
 
-	private IInCoreAuthentication coreAuth;
-	private IAPIKeys keyService;
+	private final IInCoreAuthentication coreAuth;
 
 	public ApiKeySessionProvider() {
-		ServerSideServiceProvider apis = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-		this.coreAuth = apis.instance(IInCoreAuthentication.class);
-		this.keyService = apis.instance(IAPIKeys.class);
+		this.coreAuth = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IInCoreAuthentication.class);
 	}
 
 	@Override
 	public Optional<SecurityContext> get(String token) {
+		IAPIKeys keyService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IAPIKeys.class);
 		return Optional.ofNullable(keyService.get(token)).map(apiKey -> {
 
 			logger.info("[{}@{}] Building context for api key}", apiKey.subject, apiKey.domainUid);
