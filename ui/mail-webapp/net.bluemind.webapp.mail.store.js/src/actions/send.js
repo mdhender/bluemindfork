@@ -1,6 +1,5 @@
 //FIXME: Refactor this...
 
-import { AlertTypes, Alert } from "@bluemind/alert.store";
 import { DraftStatus } from "@bluemind/backend.mail.store";
 import { EmailValidator } from "@bluemind/email";
 import injector from "@bluemind/inject";
@@ -11,15 +10,12 @@ export function send({ state, commit, getters, dispatch }) {
     const draft = state.draft;
     let draftId = draft.id, sentbox;
     const loadingAlertUid = UUIDGenerator.generate();
-    const vueI18n = injector.getProvider("i18n").get();
     
-    commit("alert/addAlert", new Alert({
-        type: AlertTypes.LOADING,
-        code: "ALERT_CODE_MSG_SEND_LOADING",
-        key : "mail.alert.send.loading",
-        uid: loadingAlertUid,
-        props: { subject: draft.subject }
-    }), { root: true });
+    commit("alert/add", { 
+        code: "MSG_SEND_LOADING", 
+        uid: loadingAlertUid, 
+        props: { subject: draft.subject } 
+    }, { root: true });
 
     // ensure the last draft is up to date
     return dispatch("saveDraft")
@@ -29,7 +25,7 @@ export function send({ state, commit, getters, dispatch }) {
 
             // validation
             if (!validate(draft)) {
-                throw vueI18n.t("mail.error.email.address.invalid");
+                throw injector.getProvider("i18n").get().t("mail.error.email.address.invalid");
             }
             return Promise.resolve();
         })
@@ -74,31 +70,19 @@ export function send({ state, commit, getters, dispatch }) {
         })
         .then(mailItem => {
             const mailId = mailItem.internalId;
-            const key = "mail.alert.message.sent.ok";
-            const success = new Alert({
-                type: AlertTypes.SUCCESS,
-                code: "ALERT_CODE_MSG_SENT_OK",
-                key,
-                message: vueI18n.t(key, { subject: draft.subject }),
-                props: {
-                    subject: draft.subject,
-                    subjectLink: "/mail/" + sentbox.uid + "/" + mailId
-                }
-            });
-            commit("alert/removeAlert", loadingAlertUid, { root: true });
-            commit("alert/addAlert", success, { root: true });
+            commit("alert/remove", loadingAlertUid, { root: true });
+            commit("alert/add", { code: "MSG_SENT_OK", props: {
+                subject: draft.subject,
+                subjectLink: "/mail/" + sentbox.uid + "/" + mailId
+            }}, { root: true });
             commit("updateDraft", { status: DraftStatus.SENT, id: null, saveDate: null });
         })
         .catch(reason => {
-            const key = "mail.alert.message.sent.error";
-            const error = new Alert({
-                code: "ALERT_CODE_MSG_SENT_ERROR",
-                key,
-                message: vueI18n.t(key, { subject: draft.subject, reason: reason.message }),
+            commit("alert/remove", loadingAlertUid, { root: true });
+            commit("alert/add", { 
+                code: "MSG_SENT_ERROR", 
                 props: { subject: draft.subject, reason: reason.message }
-            });
-            commit("alert/removeAlert", loadingAlertUid, { root: true });
-            commit("alert/addAlert", error, { root: true });
+            }, { root: true });
             commit("updateDraft", { status: DraftStatus.SENT });
         });
 }

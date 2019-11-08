@@ -1,4 +1,3 @@
-import { AlertTypes, Alert } from "@bluemind/alert.store";
 import UUIDGenerator from "@bluemind/uuid";
 
 export function remove({ state, dispatch, getters, commit }, messageId) {
@@ -12,30 +11,19 @@ export function remove({ state, dispatch, getters, commit }, messageId) {
     return dispatch("$_getIfNotPresent", { folder: state.currentFolderUid, id: messageId })
         .then(message => {
             subject = message.subject;
-            commit("alert/addAlert", new Alert({
-                type: AlertTypes.LOADING,
-                code: "ALERT_CODE_MSG_REMOVED_LOADING",
-                key : "common.alert.remove.loading",
-                uid: loadingAlertUid,
-                props: { subject }
-            }), { root: true });
+            commit("alert/add", {  
+                code: "MSG_REMOVED_LOADING",
+                props: { subject },
+                uid: loadingAlertUid
+            }, { root: true });
             return dispatch("messages/move", { sourceId, destinationId, messageId });
         })
         .then(() => {
-            commit("alert/removeAlert", loadingAlertUid, { root: true });
-            commit("alert/addAlert", new Alert({
-                type: AlertTypes.SUCCESS,
-                code: "ALERT_CODE_MSG_REMOVED_OK",
-                key: "common.alert.remove.ok",
-                props: { subject }
-            }), { root: true });
+            commit("alert/remove", loadingAlertUid, { root: true });
+            commit("alert/add", { code: "MSG_REMOVED_OK", props: { subject } }, { root: true });
         })
         .catch(reason => {
-            commit("alert/removeAlert", loadingAlertUid, { root: true });
-            commit("alert/addAlert", new Alert({
-                code: "ALERT_CODE_MSG_REMOVED_ERROR",
-                key: "common.alert.remove.error",
-                props: { subject, reason }
-            }), { root: true });
+            commit("alert/remove", loadingAlertUid, { root: true });
+            commit("alert/add", { code: "MSG_REMOVED_ERROR", props: { subject, reason } }, { root: true });
         });
 }

@@ -49,7 +49,7 @@
     "mail.alert.message.sent.error": "\"{subject}\" n'a pu être envoyé.{br}{reason}",
     "mail.error.email.address.invalid": "Adresse de courriel invalide.",
     "mail.folder.new": "Nouveau dossier",
-    "mail.alert.move.in_progress": "Déplacement de \"{subject}\" en cours...",
+    "mail.alert.move.loading": "Déplacement de \"{subject}\" en cours...",
     "mail.alert.move.ok": "\"{subject}\" a bien été déplacé dans {icon} {folderNameWithLink} ! ",
     "mail.alert.move.error": "\"{subject}\" n'a pas pu être déplacé dans \"{folderName}\".{br}{reason}",
     "mail.alert.create_folder.ok": "Le dossier \"{folderName}\" a bien été créé.",

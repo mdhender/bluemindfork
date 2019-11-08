@@ -5,5 +5,8 @@
     "license": "GPL-3.0",
     "author": "Blue Mind SAS",
     "main": "src/index.js",
-    "module": "src/index.js"
+    "module": "src/index.js",
+    "dependencies": {
+        "lodash.clonedeep": "4.5.0"
+    }
 }

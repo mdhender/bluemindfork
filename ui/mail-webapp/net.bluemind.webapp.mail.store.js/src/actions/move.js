@@ -1,10 +1,13 @@
-import { AlertTypes, Alert } from "@bluemind/alert.store";
 import UUIDGenerator from "@bluemind/uuid";
 
 export function move({ state, dispatch, getters, commit }, { messageId, folder }) {
     let subject, destination;
     const alertUid = UUIDGenerator.generate();
-    commit("alert/addAlert", getMoveInProgress(alertUid), { root: true });
+    commit("alert/add", {
+        code: "MSG_MOVED_LOADING",
+        props: { subject: "mySubject" },
+        uid: alertUid
+    }, { root: true });
 
     return Promise.resolve()
         .then(() => {
@@ -23,46 +26,16 @@ export function move({ state, dispatch, getters, commit }, { messageId, folder }
             return dispatch("messages/move", { sourceId, destinationId: destination.internalId, messageId });
         })
         .then(() => {
-            commit("alert/addAlert", getMoveOkAlert(subject, folder), { root: true });
+            commit("alert/add", {
+                code: "MSG_MOVE_OK",
+                props: { subject, folder, folderNameLink: "/mail/" + folder.uid + "/" }
+            }, { root: true });
         })
         .catch(error =>
-            commit("alert/addAlert", getMoveErrorAlert(subject, folder.name, error.message), { root: true })
+            commit("alert/add", {
+                code: "MSG_MOVE_ERROR",
+                props: { subject, folderName: folder.name, reason: error.message }
+            }, { root: true })
         )
-        .finally(() => commit("alert/removeAlert", alertUid, { root: true }));
-}
-
-function getMoveInProgress(uid) {
-    return new Alert({
-        uid,
-        code: "ALERT_CODE_MSG_MOVED_IN_PROGRESS",
-        key: "mail.alert.move.in_progress",
-        type: AlertTypes.LOADING,
-        props: { subject: "mySubject" }
-    });
-}
-
-function getMoveOkAlert(subject, folder) {
-    return new Alert({
-        type: AlertTypes.SUCCESS,
-        code: "ALERT_CODE_MSG_MOVE_OK",
-        key: "mail.alert.move.ok",
-        props: {
-            subject,
-            folder,
-            folderNameLink: "/mail/" + folder.uid + "/"
-        }
-    });
-}
-
-function getMoveErrorAlert(subject, folderName, reason) {
-    return new Alert({
-        type: AlertTypes.ERROR,
-        code: "ALERT_CODE_MSG_MOVE_ERROR",
-        key: "mail.alert.move.error",
-        props: {
-            subject,
-            folderName,
-            reason
-        }
-    });
+        .finally(() => commit("alert/remove", alertUid, { root: true }));
 }

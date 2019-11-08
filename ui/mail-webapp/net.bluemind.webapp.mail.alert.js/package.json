@@ -1,0 +1,8 @@
+{
+    "name": "@bluemind/webapp.mail.alert",
+    "version": "4.1.0",
+    "description": "Bluemind MailApp alerts declaration",
+    "author": "Blue Mind SAS",
+    "license": "GPLv3",
+    "main": "index.js"
+}
