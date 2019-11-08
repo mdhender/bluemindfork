@@ -65,8 +65,7 @@ public class BMModule extends Verticle {
 			public void handle(AsyncResult<String> event) {
 				if (event.failed()) {
 					Throwable t = event.cause();
-					logger.error(t.getMessage(), t);
-					// System.exit(1);
+					logger.error("verticle loading failed: {}", t.getMessage(), t);
 				}
 				deploy(queue.poll(), future, this);
 			}

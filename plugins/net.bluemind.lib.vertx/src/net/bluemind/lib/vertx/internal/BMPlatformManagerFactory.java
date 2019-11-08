@@ -15,7 +15,6 @@ public class BMPlatformManagerFactory implements PlatformManagerFactory {
 
 	public BMPlatformManagerFactory() {
 		InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
-		Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
 		this.pm = new BMPlatformManager();
 		logger.info("Using BM platform manager factory {}", pm);
 	}
