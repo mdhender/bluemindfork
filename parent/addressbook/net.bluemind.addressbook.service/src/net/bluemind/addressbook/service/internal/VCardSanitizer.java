@@ -27,15 +27,20 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 
+import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.BasicAttribute;
 import net.bluemind.addressbook.api.VCard.Communications.Email;
 import net.bluemind.addressbook.api.VCard.Identification;
 import net.bluemind.addressbook.api.VCard.Identification.FormatedName;
 import net.bluemind.addressbook.api.VCard.Kind;
+import net.bluemind.addressbook.api.VCard.Organizational.Member;
 import net.bluemind.addressbook.api.VCard.Parameter;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sanitizer.ISanitizer;
 import net.bluemind.core.sanitizer.ISanitizerFactory;
 import net.bluemind.tag.service.TagsSanitizer;
@@ -76,7 +81,8 @@ public class VCardSanitizer implements ISanitizer<VCard> {
 
 	private void sanitizeMembers(VCard card, Optional<String> containerUid) {
 		card.organizational.member = card.organizational.member.stream()
-				.filter(member -> StringUtils.isNotBlank(member.mailto)).collect(Collectors.toList());
+				.filter(member -> StringUtils.isNotBlank(member.mailto) || isDList(member, containerUid))
+				.collect(Collectors.toList());
 		containerUid.ifPresent(container -> {
 			card.organizational.member.forEach(member -> {
 				if (member.itemUid != null && member.containerUid == null) {
@@ -84,6 +90,16 @@ public class VCardSanitizer implements ISanitizer<VCard> {
 				}
 			});
 		});
+	}
+
+	protected boolean isDList(Member member, Optional<String> containerUid) {
+		String container = member.containerUid == null ? containerUid.orElse(null) : member.containerUid;
+		if (container != null) {
+			ItemValue<VCard> resolved = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+					.instance(IAddressBook.class, container).getComplete(member.itemUid);
+			return resolved != null && resolved.value.kind == Kind.group;
+		}
+		return false;
 	}
 
 	private void sanitizeEmails(VCard card) {

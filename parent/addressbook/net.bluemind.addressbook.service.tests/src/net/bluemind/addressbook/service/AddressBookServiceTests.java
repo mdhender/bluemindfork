@@ -332,11 +332,13 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 		group.kind = Kind.group;
 		String uid5 = "testcreate_" + System.nanoTime();
 		group.organizational.member = Arrays.asList(Member.create(container.uid, uid5, "fakeName", "fake@email.la"));
+		VCard member = defaultVCard();
+		member.communications.emails = Arrays.asList(Email.create("fake@email.la"));
 		VCardChanges changes = VCardChanges.create(
 				// add
 				Arrays.asList(VCardChanges.ItemAdd.create(uid3, defaultVCard()),
 						// Create group before member
-						VCardChanges.ItemAdd.create(uid4, group), VCardChanges.ItemAdd.create(uid5, defaultVCard())
+						VCardChanges.ItemAdd.create(uid4, group), VCardChanges.ItemAdd.create(uid5, member)
 
 				),
 				// modify

@@ -120,8 +120,8 @@ public class BasicVCardSanitizerTest {
 		m2.itemUid = "4321";
 		m2.containerUid = "alreadythere";
 		VCard.Organizational.Member m3 = new VCard.Organizational.Member();
-		m2.commonName = "ext";
-		m2.mailto = "ext@ofchange.org";
+		m3.commonName = "ext";
+		m3.mailto = "ext@ofchange.org";
 		card.organizational.member.add(m);
 		card.organizational.member.add(m2);
 		card.organizational.member.add(m3);
@@ -358,7 +358,7 @@ public class BasicVCardSanitizerTest {
 	}
 
 	public VCardSanitizer getSanitizer() {
-		return new VCardSanitizer(null);
+		return new TestVCardSanitizer(null);
 	}
 
 	protected VCard defaultVCard() {
