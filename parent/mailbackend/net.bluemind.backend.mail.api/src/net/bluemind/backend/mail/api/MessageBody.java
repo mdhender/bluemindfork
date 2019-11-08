@@ -160,8 +160,7 @@ public class MessageBody {
 		}
 
 		private static List<Part> nonInlineAttachments(Part structure, Part parent, List<Part> attach) {
-			if (parent != null
-					&& (DispositionType.ATTACHMENT == structure.dispositionType || structure.fileName != null)) {
+			if (parent != null && structure.dispositionType != DispositionType.INLINE && structure.fileName != null) {
 				attach.add(structure);
 			}
 			for (Part p : structure.children) {
