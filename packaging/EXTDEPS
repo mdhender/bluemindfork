@@ -9,7 +9,7 @@ BMNGINX="1.16.1-bluemind81"
 BMPHP="5.6.40-bluemind79"
 BMPHPMEMCACHE="3.0.8-bluemind79"
 
-BMPOSTGRESQL="11.5-bluemind102"
+BMPOSTGRESQL="11.5-bluemind103"
 
 # tick
 TELEGRAF="1.11.1.bm4-1"
