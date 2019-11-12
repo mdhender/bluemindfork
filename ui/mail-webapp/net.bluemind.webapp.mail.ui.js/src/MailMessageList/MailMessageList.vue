@@ -21,11 +21,11 @@
         </div>
         <bm-infinite-scroll
             v-else-if="count > 0"
+            ref="bmInfiniteScroll"
             :items="messages"
             :total="count"
             :item-key="'id'"
             item-size="dynamic"
-            :goto="position"
             scrollbar
             class="h-100 bg-extra-light"
             @scroll="loadMessages"
@@ -62,10 +62,12 @@
                     <div class="search-pattern">"{{ search.pattern }}"</div>
                     {{ $t("mail.list.search.no_result.found") }} <br /><br />
                     {{ $t("mail.list.search.no_result.try_otherwise") }}
+                    <!-- eslint-disable vue/no-v-html -->
                     <div
                         class="float-right pt-5 no-search-results-illustration w-50"
                         v-html="noSearchResultsIllustration"
                     />
+                    <!-- eslint-enable vue/no-v-html -->
                 </template>
             </div>
         </bm-list-group-item>
@@ -123,8 +125,7 @@ export default {
     data() {
         return {
             PAGE: PAGE_DIFF,
-            noSearchResultsIllustration,
-            position: 0
+            noSearchResultsIllustration
         };
     },
     computed: {
@@ -141,8 +142,8 @@ export default {
     },
     watch: {
         currentMessageId() {
-            if (this.currentMessageId) {
-                this.position = this.indexOf(this.currentMessageId);
+            if (this.currentMessageId && this.$refs.bmInfiniteScroll) {
+                this.$refs.bmInfiniteScroll.goto(this.indexOf(this.currentMessageId));
             }
             if (this.currentMessageId && this.$refs["message-" + this.currentMessageId]) {
                 this.$nextTick(() => {
@@ -151,13 +152,15 @@ export default {
                 });
             }
         },
-        folder() {
-            this.position = 0;
+        currentFolderUid() {
+            if (this.$refs.bmInfiniteScroll) {
+                this.$refs.bmInfiniteScroll.goto(0);
+            }
         }
     },
     created() {
-        if (this.currentMessageId) {
-            this.position = this.indexOf(this.currentMessageId);
+        if (this.currentMessageId && this.$refs.bmInfiniteScroll) {
+            this.$refs.bmInfiniteScroll.goto(this.indexOf(this.currentMessageId));
         }
     },
     methods: {
