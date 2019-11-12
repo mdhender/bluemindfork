@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.After;
 import org.junit.Before;
@@ -138,6 +139,42 @@ public class MessageBodyStoreTests {
 		assertNull(reloaded);
 	}
 
+	static final int CNT = 10000;
+
+	@Test
+	public void testMgetPerf() throws SQLException {
+		long time = System.currentTimeMillis();
+		String[] existing = new String[CNT];
+		for (int i = 0; i < CNT; i++) {
+			String guid = CyrusGUID.randomGuid();
+			MessageBody mb = simpleTextBody(guid);
+			bodyStore.create(mb);
+			existing[i] = guid;
+		}
+		time = System.currentTimeMillis() - time;
+		System.err.println("Provisionned " + CNT + " in " + time + "ms.");
+
+		int total = 0;
+		time = System.currentTimeMillis();
+		for (int i = 0; i < 250; i++) {
+			String[] randSlice = randomSlice(existing, 500);
+			List<MessageBody> fetched = bodyStore.multiple(randSlice);
+			total += fetched.size();
+		}
+		time = System.currentTimeMillis() - time;
+		System.err.println("Fetched bunch (" + total + ") in " + time + "ms.");
+
+	}
+
+	private String[] randomSlice(String[] existing, int len) {
+		String[] randSlice = new String[len];
+		ThreadLocalRandom rand = ThreadLocalRandom.current();
+		for (int i = 0; i < len; i++) {
+			randSlice[i] = existing[rand.nextInt(CNT)];
+		}
+		return randSlice;
+	}
+
 	@Test
 	public void testdeleteOrphan() throws SQLException {
 		ContainerStore containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
@@ -191,9 +228,9 @@ public class MessageBodyStoreTests {
 	}
 
 	private void adjustCreationDate(String subject) throws SQLException {
-		try (Connection con = JdbcTestHelper.getInstance().getDataSource().getConnection()) {
-			PreparedStatement stm = con.prepareStatement(
-					"update t_message_body set created = NOW() - INTERVAL '1 year' where subject = ?");
+		try (Connection con = JdbcTestHelper.getInstance().getDataSource().getConnection();
+				PreparedStatement stm = con.prepareStatement(
+						"update t_message_body set created = NOW() - INTERVAL '1 year' where subject = ?")) {
 			stm.setString(1, subject);
 			stm.executeUpdate();
 		}

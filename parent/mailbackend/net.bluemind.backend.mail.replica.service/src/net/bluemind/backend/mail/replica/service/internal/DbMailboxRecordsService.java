@@ -111,8 +111,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 
 	@Override
 	public void create(String uid, MailboxRecord mail) {
-		SubtreeLocation recordsLocation = optRecordsLocation
-				.orElseThrow(() -> new ServerFault("Missing subtree location"));
+		SubtreeLocation recordsLocation = locationOrFault();
 
 		ExpectedId knownInternalId = BodyInternalIdCache.expectedRecordId(container.owner, mail.messageBody);
 		ItemVersion version = null;
@@ -143,10 +142,13 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 		}
 	}
 
+	private SubtreeLocation locationOrFault() {
+		return optRecordsLocation.orElseThrow(() -> new ServerFault("Missing subtree location"));
+	}
+
 	private void index(ItemValue<MailboxRecord> mail, Optional<BulkOperation> op) {
 		if (logger.isDebugEnabled()) {
-			SubtreeLocation recordsLocation = optRecordsLocation
-					.orElseThrow(() -> new ServerFault("Missing subtree location"));
+			SubtreeLocation recordsLocation = locationOrFault();
 
 			logger.debug("Indexing mail in mailbox {}:{}@{} in folder {}", mailboxUniqueId,
 					recordsLocation.subtreeContainer, recordsLocation.partition, recordsLocation.boxName);
@@ -158,8 +160,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 
 		if (!mboxFolder.isPresent()) {
 			try {
-				SubtreeLocation recordsLocation = optRecordsLocation
-						.orElseThrow(() -> new ServerFault("Missing subtree location"));
+				SubtreeLocation recordsLocation = locationOrFault();
 
 				IDbByContainerReplicatedMailboxes foldersApi = context.provider()
 						.instance(IDbByContainerReplicatedMailboxes.class, recordsLocation.subtreeContainer);
@@ -176,8 +177,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 
 	@Override
 	public void update(String uid, MailboxRecord mail) {
-		SubtreeLocation recordsLocation = optRecordsLocation
-				.orElseThrow(() -> new ServerFault("Missing subtree location"));
+		SubtreeLocation recordsLocation = locationOrFault();
 		ItemVersion upd = storeService.update(uid, uid, mail);
 		EmitReplicationEvents.recordUpdated(mailboxUniqueId, upd, mail);
 
@@ -187,8 +187,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 
 	@Override
 	public void delete(String uid) {
-		SubtreeLocation recordsLocation = optRecordsLocation
-				.orElseThrow(() -> new ServerFault("Missing subtree location"));
+		SubtreeLocation recordsLocation = locationOrFault();
 
 		ItemVersion iv = storeService.delete(uid);
 		EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, iv.version,
@@ -288,8 +287,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 
 		List<ItemValue<MailboxRecord>> pushToIndex = new ArrayList<>(records.size());
 		List<ItemValue<MailboxRecord>> newMailNotification = new LinkedList<>();
-		SubtreeLocation recordsLocation = optRecordsLocation
-				.orElseThrow(() -> new ServerFault("Missing subtree location"));
+		SubtreeLocation recordsLocation = locationOrFault();
 
 		long contVersion = storeService.doOrFail(() -> {
 			long[] uidArrays = records.stream().mapToLong(rec -> rec.imapUid).toArray();
@@ -470,11 +468,10 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 
 	@Override
 	public void deleteImapUids(List<Long> uids) {
-		SubtreeLocation recordsLocation = optRecordsLocation
-				.orElseThrow(() -> new ServerFault("Missing subtree location"));
+		SubtreeLocation recordsLocation = locationOrFault();
 
 		logger.info("Should delete {} uid(s)", uids.size());
-		long[] asArray = uids.stream().mapToLong(u -> u.longValue()).toArray();
+		long[] asArray = uids.stream().mapToLong(Long::longValue).toArray();
 		AtomicLong lastVersion = new AtomicLong();
 		storeService.doOrFail(() -> {
 			Set<RecordID> itemUids = recordStore.identifiers(asArray);
@@ -491,7 +488,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 	}
 
 	private void expungeIndex(List<Long> uids) {
-		IDSet set = IDSet.create(uids.stream().mapToInt(l -> l.intValue()).toArray());
+		IDSet set = IDSet.create(uids.stream().mapToInt(Long::intValue).toArray());
 		ItemValue<Mailbox> box = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IMailboxes.class, container.domainUid).getComplete(container.owner);
 		ItemValue<MailboxFolder> folder = getFolder();
@@ -516,7 +513,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 	}
 
 	@Override
-	public void xfer(String serverUid) throws ServerFault {
+	public void xfer(String serverUid) {
 
 		DataSource ds = context.getMailboxDataSource(serverUid);
 		ContainerStore cs = new ContainerStore(null, ds, context.getSecurityContext());
