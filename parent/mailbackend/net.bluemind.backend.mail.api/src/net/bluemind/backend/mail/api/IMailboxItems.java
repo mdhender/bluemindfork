@@ -53,6 +53,16 @@ import net.bluemind.core.container.model.SortDescriptor;
 public interface IMailboxItems
 		extends IChangelogSupport, ICrudByIdSupport<MailboxItem>, ICountingSupport, ISortingSupport {
 
+	/**
+	 * Upload an email part (eg. attachment, html body). The returned address can be
+	 * used as {@link Part#address} when creating or updating a {@link MailboxItem}.
+	 * 
+	 * The uploaded parts need to be cleaned-up explicitly with
+	 * {@link IMailboxItems#removePart(String)}
+	 * 
+	 * @param part a re-usable email part.
+	 * @return an address usable as {@link Part#address}
+	 */
 	@PUT
 	@Path("_part")
 	String uploadPart(Stream part);
@@ -93,6 +103,11 @@ public interface IMailboxItems
 	@Path("_recent")
 	List<Long> recentItems(Date deliveredOrUpdatedAfter);
 
+	/**
+	 * Remove a part uploaded through {@link IMailboxItems#uploadPart(Stream)}
+	 * 
+	 * @param partId an address returned by a previous <code>uploadPart</code> call
+	 */
 	@DELETE
 	@Path("{partId}/_part")
 	void removePart(@PathParam("partId") String partId);

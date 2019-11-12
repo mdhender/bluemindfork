@@ -18,6 +18,7 @@
 package net.bluemind.backend.mail.replica.service.internal;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -310,7 +311,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 					throw new ServerFault("Failed to fetch part " + p.address + " from current.");
 				}
 				String replacedPartUid = UUID.randomUUID().toString();
-				File output = new File(Bodies.STAGING, replacedPartUid + ".part");
+				File output = partFile(replacedPartUid);
 				try (OutputStream out = Files.newOutputStream(output.toPath());
 						ByteBufInputStream in = new ByteBufInputStream(fetched.result.get().data, true)) {
 					ByteStreams.copy(in, out);
@@ -667,7 +668,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		logger.info("[{}] Upload starts {}...", addr, part);
 		CompletableFuture<Void> upload = EZInputStreamAdapter.consume(part, oioStream -> {
 			logger.info("[{}] Got adapted stream {}", addr, oioStream);
-			File output = new File(Bodies.STAGING, addr + ".part");
+			File output = partFile(addr);
 			try (OutputStream out = Files.newOutputStream(output.toPath())) {
 				ByteStreams.copy(oioStream, out);
 			} catch (Exception e) {
@@ -686,7 +687,19 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	@Override
 	public void removePart(String partId) {
-		new File(Bodies.STAGING, partId + ".part").delete();
+		try {
+			File part = partFile(partId);
+			if (part.exists()) {
+				Files.delete(part.toPath());
+				logger.info("removed {}", part.getAbsolutePath());
+			}
+		} catch (IOException e) {
+			logger.error(e.getMessage(), e);
+		}
+	}
+
+	private File partFile(String partId) {
+		return new File(Bodies.STAGING, partId + ".part");
 	}
 
 	@Override
