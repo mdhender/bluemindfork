@@ -26,6 +26,11 @@ import net.bluemind.user.hook.DefaultUserHook;
 public class AuthContextUserHook extends DefaultUserHook {
 
 	@Override
+	public void onUserCreated(BmContext context, String domainUid, ItemValue<User> fresh) throws ServerFault {
+		AuthContextCache.getInstance().getCache().invalidate(fresh.value.login + "@" + domainUid);
+	}
+
+	@Override
 	public void onUserUpdated(BmContext context, String domainUid, ItemValue<User> previous, ItemValue<User> current)
 			throws ServerFault {
 		AuthContextCache.getInstance().getCache().invalidate(previous.value.login + "@" + domainUid);

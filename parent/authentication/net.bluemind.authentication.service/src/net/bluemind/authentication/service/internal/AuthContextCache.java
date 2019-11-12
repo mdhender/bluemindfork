@@ -36,7 +36,8 @@ public class AuthContextCache {
 		return instance;
 	}
 
-	private static final Cache<String, Optional<IAuthContext>> authContextCache = CacheBuilder.newBuilder().build();
+	private static final Cache<String, Optional<IAuthContext>> authContextCache = CacheBuilder.newBuilder().softValues()
+			.build();
 
 	public Cache<String, Optional<IAuthContext>> getCache() {
 		return authContextCache;
