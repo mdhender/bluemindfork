@@ -23,7 +23,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,17 +71,12 @@ public class ReplicationLatencyMonitor {
 				replicationFeedback.whenComplete((latency, ex) -> {
 					if (ex != null) {
 						latencyGauge.set(60000);
-						if (ex instanceof TimeoutException) {
-							logger.warn("Replication is lagging (>60sec) or broken: {}", ex.getMessage());
-							vertx.setTimer(10000, retid -> start());
-						} else {
-							logger.error("Stopping replication probe", ex);
-						}
+						logger.error("Replication probe failed: {}", ex.getMessage());
 					} else {
 						logger.info("Replication latency is {}ms.", latency);
 						latencyGauge.set(latency);
-						vertx.setTimer(10000, retid -> start());
 					}
+					vertx.setTimer(10000, retid -> start());
 				});
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);

@@ -17,6 +17,7 @@
   */
 package net.bluemind.backend.cyrus.replication.link.probe;
 
+import java.util.Deque;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,15 +31,14 @@ import net.bluemind.backend.cyrus.replication.observers.IReplicationObserverProv
 
 public class ReplicationFeebackObserver implements IReplicationObserverProvider {
 
-	public static final Set<String> toWatch = ConcurrentHashMap.newKeySet();
-	public static final ConcurrentLinkedDeque<CompletableFuture<Void>> watchers = new ConcurrentLinkedDeque<>();
+	protected static final Set<String> toWatch = ConcurrentHashMap.newKeySet();
+	private static final Deque<CompletableFuture<Void>> watchers = new ConcurrentLinkedDeque<>();
 
 	public static final CompletableFuture<Void> addWatcher(Vertx vertx) {
 		CompletableFuture<Void> future = new CompletableFuture<>();
 		watchers.addLast(future);
-		vertx.setTimer(60000, tid -> {
-			future.completeExceptionally(new TimeoutException("It took more than 60sec to get replication feedback"));
-		});
+		vertx.setTimer(60000,
+				tid -> future.completeExceptionally(new TimeoutException("Replication feedback is slow")));
 		return future;
 	}
 
@@ -46,6 +46,7 @@ public class ReplicationFeebackObserver implements IReplicationObserverProvider 
 
 		@Override
 		public void onApplyMessages(int total) {
+			// we just track apply mailbox calls
 		}
 
 		@Override
