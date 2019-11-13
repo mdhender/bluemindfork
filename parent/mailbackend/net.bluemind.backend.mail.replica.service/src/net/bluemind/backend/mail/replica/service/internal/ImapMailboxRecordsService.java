@@ -288,7 +288,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	}
 
 	private Ack mailRewrite(ItemValue<MailboxItem> current, MailboxItem newValue) {
-		logger.warn("Full EML rewrite expected with subject {}.", newValue.body.subject);
+		logger.warn("Full EML rewrite expected with subject '{}'", newValue.body.subject);
 		newValue.body.date = current.value.body.date;
 		Part currentStruct = current.value.body.structure;
 		Part expectedStruct = newValue.body.structure;
