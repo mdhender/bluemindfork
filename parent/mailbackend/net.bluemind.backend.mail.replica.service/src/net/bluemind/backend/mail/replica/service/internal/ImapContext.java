@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,9 +95,11 @@ public class ImapContext {
 	private static class PoolableStoreClient extends StoreClient {
 
 		public final VXStoreClient fastFetch;
+		private final ReentrantLock lock;
 
 		public PoolableStoreClient(String hostname, int port, String login, String password) {
 			super(hostname, port, login, password);
+			this.lock = new ReentrantLock();
 			this.fastFetch = VXStoreClient.create(hostname, port, login, password);
 		}
 
@@ -145,7 +148,15 @@ public class ImapContext {
 
 	public <T> T withImapClient(ImapClientConsumer<T> cons) {
 		try (PoolableStoreClient sc = imapAsUser()) {
-			return cons.accept(sc, sc.fastFetch);
+			if (sc.lock.tryLock(1, TimeUnit.SECONDS)) {
+				try {
+					return cons.accept(sc, sc.fastFetch);
+				} finally {
+					sc.lock.unlock();
+				}
+			} else {
+				throw new ServerFault("[" + latd + "] Failed to grab imap con lock.");
+			}
 		} catch (ServerFault sf) {
 			throw sf;
 		} catch (Exception e) {
