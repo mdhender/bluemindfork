@@ -19,6 +19,7 @@ package net.bluemind.backend.mail.replica.service.internal;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -142,7 +143,7 @@ public class ImapContext {
 		T accept(StoreClient sc, VXStoreClient fast) throws Exception;
 	}
 
-	public synchronized <T> T withImapClient(ImapClientConsumer<T> cons) {
+	public <T> T withImapClient(ImapClientConsumer<T> cons) {
 		try (PoolableStoreClient sc = imapAsUser()) {
 			return cons.accept(sc, sc.fastFetch);
 		} catch (ServerFault sf) {
@@ -157,28 +158,34 @@ public class ImapContext {
 		if (key == null) {
 			throw new ServerFault("ImapContext requires a non null sessionId ctx: " + context.getSecurityContext());
 		}
-		ImapContext imapCtx = sidToCtxCache.getIfPresent(key);
-		if (imapCtx == null) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("ImapContext cache miss for key {}", key);
-			}
-			IServiceProvider srvProv = context.provider();
-			IAuthentication authApi = srvProv.instance(IAuthentication.class);
-			AuthUser curUser = authApi.getCurrentUser();
-			if (curUser != null && curUser.value != null) {
-				String latd = curUser.value.login + "@" + curUser.domainUid;
-				String partition = CyrusPartition.forServerAndDomain(curUser.value.dataLocation,
-						curUser.domainUid).name;
+		try {
+			return sidToCtxCache.get(key, () -> {
+				if (logger.isDebugEnabled()) {
+					logger.debug("ImapContext cache miss for key {}", key);
+				}
+				IServiceProvider srvProv = context.provider();
+				IAuthentication authApi = srvProv.instance(IAuthentication.class);
+				AuthUser curUser = authApi.getCurrentUser();
+				if (curUser != null && curUser.value != null) {
+					String latd = curUser.value.login + "@" + curUser.domainUid;
+					String partition = CyrusPartition.forServerAndDomain(curUser.value.dataLocation,
+							curUser.domainUid).name;
 
-				ItemValue<Server> imap = Topology.get().datalocation(curUser.value.dataLocation);
-				String imapSrv = imap.value.address();
-				imapCtx = new ImapContext(latd, partition, imapSrv, key, curUser);
-				sidToCtxCache.put(key, imapCtx);
+					ItemValue<Server> imap = Topology.get().datalocation(curUser.value.dataLocation);
+					String imapSrv = imap.value.address();
+					return new ImapContext(latd, partition, imapSrv, key, curUser);
+				} else {
+					throw new ServerFault("ImapContext is intended for users with a mailbox");
+				}
+			});
+		} catch (ExecutionException e) {
+			if (e.getCause() instanceof ServerFault) {
+				throw (ServerFault) e.getCause();
 			} else {
-				throw new ServerFault("ImapContext is intended for users with a mailbox");
+				throw new ServerFault(e);
 			}
 		}
-		return imapCtx;
+
 	}
 
 }
