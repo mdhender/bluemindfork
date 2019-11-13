@@ -35,7 +35,8 @@
                 </bm-col>
             </bm-row>
         </bm-popover>
-        <bm-navbar-brand :title="$t('banner.main.brand', software)" href="#" :to="logoLink">
+        <bm-navbar-brand v-bm-tooltip.hover.d500 href="#" :to="logoLink" :title="$t('banner.main.brand')">
+            <!-- eslint-disable-next-line vue/no-v-html -->
             <svg height="30" width="120" v-html="logo" />
         </bm-navbar-brand>
         <bm-banner-applications :applications="defaultApps" />
