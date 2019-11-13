@@ -1966,26 +1966,26 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 	}
 
 	@Test
-	public void testApiPreservesDispositionType() throws IMAPException, InterruptedException, IOException {
+	public void testApiFixDispositionType() throws IMAPException, InterruptedException, IOException {
 		// create inbox
 		final IMailboxFolders mailboxFolders = provider().instance(IMailboxFolders.class, partition, mboxRoot);
 		final ItemValue<MailboxFolder> inbox = mailboxFolders.byName("INBOX");
 		assertNotNull(inbox);
 
-		// create draft containing inline parts
+		// create APPLE-MAIL draft containing inline parts not displayed by other client
 		final ItemValue<MailboxItem> reloaded = addDraft(inbox);
 
-		// check disposition type is kept ( 0:text without disposition, 1:image
-		// inline,
-		// 2:image inline)
+		// check disposition types are fixed ( 0:text without disposition, 1:image
+		// attachment,
+		// 2:image attachment)
 		final List<Part> subParts = reloaded.value.body.structure.children;
-		assertEquals(DispositionType.INLINE, subParts.get(1).dispositionType);
-		assertEquals(DispositionType.INLINE, subParts.get(2).dispositionType);
+		assertEquals(DispositionType.ATTACHMENT, subParts.get(1).dispositionType);
+		assertEquals(DispositionType.ATTACHMENT, subParts.get(2).dispositionType);
 		assertNull(subParts.get(0).dispositionType);
 
-		// should not have real attachments (it is based on disposition type)
-		assertFalse(reloaded.value.body.structure.hasRealAttachments());
-		assertEquals(0, reloaded.value.body.structure.nonInlineAttachments().size());
+		// should have real attachments (it is based on disposition type)
+		assertTrue(reloaded.value.body.structure.hasRealAttachments());
+		assertEquals(2, reloaded.value.body.structure.nonInlineAttachments().size());
 	}
 
 	/**

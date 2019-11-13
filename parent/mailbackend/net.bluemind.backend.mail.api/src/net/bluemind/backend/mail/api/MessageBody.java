@@ -136,8 +136,7 @@ public class MessageBody {
 
 		private static boolean hasRealAttachments(Part structure, Part parent) {
 			boolean ret = false;
-			if (parent != null && DispositionType.ATTACHMENT == structure.dispositionType
-					&& !"multipart/related".equals(parent.mime)) {
+			if (parent != null && DispositionType.ATTACHMENT == structure.dispositionType) {
 				return true;
 			}
 			for (Part p : structure.children) {
@@ -170,8 +169,7 @@ public class MessageBody {
 		}
 
 		private static List<Part> inlineAttachments(Part structure, Part parent, List<Part> attach) {
-			if (parent != null
-					&& (DispositionType.INLINE == structure.dispositionType || structure.contentId != null)) {
+			if (parent != null && DispositionType.INLINE == structure.dispositionType && structure.contentId != null) {
 				attach.add(structure);
 			}
 			for (Part p : structure.children) {

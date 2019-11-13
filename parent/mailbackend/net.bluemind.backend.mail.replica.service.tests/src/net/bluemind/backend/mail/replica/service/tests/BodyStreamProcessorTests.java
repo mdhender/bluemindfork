@@ -172,23 +172,29 @@ public class BodyStreamProcessorTests {
 	}
 
 	@Test
-	public void testDispositionTypeIsKept()
+	public void testDispositionTypeFixed()
 			throws InterruptedException, ExecutionException, TimeoutException, IOException {
 		Stream stream = openResource("data/with_inlines.eml");
+		// Apple-Mail inline attachments not displayed by other client
+
 		MessageBodyData result = BodyStreamProcessor.processBody(stream).get(2, TimeUnit.SECONDS);
 		assertNotNull(result);
-		// the second and third children of the multipart should have an inline
+
+		JsonObject asJs = new JsonObject(JsonUtils.asString(result.body.structure));
+		System.out.println("JS: " + asJs.encodePrettily());
+
+		// the second and third children of the multipart should have a fixed attachment
 		// disposition type
 		final DispositionType secondChildDispositionType = result.body.structure.children.get(1).dispositionType;
-		Assert.assertEquals(DispositionType.INLINE, secondChildDispositionType);
+		Assert.assertEquals(DispositionType.ATTACHMENT, secondChildDispositionType);
 		final DispositionType thirdChildDispositionType = result.body.structure.children.get(2).dispositionType;
-		Assert.assertEquals(DispositionType.INLINE, thirdChildDispositionType);
+		Assert.assertEquals(DispositionType.ATTACHMENT, thirdChildDispositionType);
 		// the first child should not have one
 		final DispositionType firstChildDispositionType = result.body.structure.children.get(0).dispositionType;
 		Assert.assertNull(firstChildDispositionType);
-		// should not have real attachments (it is based on disposition type)
-		Assert.assertFalse(result.body.structure.hasRealAttachments());
-		Assert.assertEquals(0, result.body.structure.nonInlineAttachments().size());
+		// should have real attachments (it is based on disposition type)
+		Assert.assertTrue(result.body.structure.hasRealAttachments());
+		Assert.assertEquals(2, result.body.structure.nonInlineAttachments().size());
 	}
 
 	/**
