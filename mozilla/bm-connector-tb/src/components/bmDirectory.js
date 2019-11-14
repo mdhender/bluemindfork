@@ -431,11 +431,13 @@ BmDirectory.prototype = {
         }
         let book = new AddressBookClient(srv, this._authKey, this.mContainerId);
         
-        let term = this._searchString + "*";
+        let term = "(" + this._searchString + "*)";
         let q = "value.kind: 'individual'";
         let limit = 100;
         if (this._autoCompleteSearch) {
-            q += " AND value.communications.emails.value:" + term;
+            q += " AND (value.identification.formatedName.value:" + term
+            + " OR value.communications.emails.value:" + term + ")"
+            + " AND _exists_:value.communications.emails.value";
             limit = 10;
         } else {
             q += " AND (value.identification.formatedName.value:" + term
