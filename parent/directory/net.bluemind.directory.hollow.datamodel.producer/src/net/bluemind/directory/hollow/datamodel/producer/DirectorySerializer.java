@@ -62,6 +62,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.serialization.DataSerializer;
 import net.bluemind.core.serialization.HzHollowAnnouncer;
+import net.bluemind.directory.api.BaseDirEntry;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
@@ -86,11 +87,13 @@ public class DirectorySerializer implements DataSerializer {
 	private ServerSideServiceProvider prov;
 	private HollowProducer producer;
 	private final String domainUid;
+	private final Object produceLock;
 
-	private HollowIncrementalProducer incremetal;
+	private HollowIncrementalProducer incremental;
 
 	public DirectorySerializer(String domainUid) {
 		this.domainUid = domainUid;
+		this.produceLock = new Object();
 		init();
 	}
 
@@ -116,12 +119,15 @@ public class DirectorySerializer implements DataSerializer {
 		producer.initializeDataModel(OfflineAddressBook.class);
 		logger.info("Announcement watcher current version: {}", announcementWatcher.getLatestVersion());
 		this.blobRetriever = new HollowFilesystemBlobRetriever(localPublishDir);
-		this.incremetal = new HollowIncrementalProducer(producer);
+		this.incremental = new HollowIncrementalProducer(producer);
 	}
 
-	public void produce() {
-		synchronized (domainUid) {
-			serializeIncrement();
+	/**
+	 * @return the version of the hollow snap
+	 */
+	public long produce() {
+		synchronized (produceLock) {
+			return serializeIncrement();
 		}
 	}
 
@@ -146,7 +152,7 @@ public class DirectorySerializer implements DataSerializer {
 		return false;
 	}
 
-	private void serializeIncrement() {
+	private long serializeIncrement() {
 		Map<String, OfflineAddressBook> oabs = new HashMap<>();
 
 		IDomains domApi = prov.instance(IDomains.class);
@@ -159,7 +165,7 @@ public class DirectorySerializer implements DataSerializer {
 
 		ContainerChangeset<String> changeset = dirApi.changeset(version);
 		List<String> allUids = new ArrayList<>(Sets.newHashSet(Iterables.concat(changeset.created, changeset.updated)));
-		logger.info("Sync from v{} gave {} uid(s)", version, allUids.size());
+		logger.info("Sync from v{} gave +{} / -{} uid(s)", version, allUids.size(), changeset.deleted.size());
 		Map<String, DataLocation> locationCache = new HashMap<>();
 		for (List<String> dirPartition : Lists.partition(allUids, 100)) {
 			List<ItemValue<DirEntry>> entries = dirApi.getMultiple(dirPartition).stream().filter(this::supportedType)
@@ -172,22 +178,22 @@ public class DirectorySerializer implements DataSerializer {
 				AddressBookRecord rec = dirEntryToAddressBookRecord(domain, entry,
 						mailboxes.stream().filter(m -> m.uid.equals(entry.value.entryUid)).findAny().orElse(null),
 						locationCache, installationId);
-				rec.addressBook = oabs.computeIfAbsent(domainUid, d -> {
-					return createOabEntry(domain);
-				});
+				rec.addressBook = oabs.computeIfAbsent(domainUid, d -> createOabEntry(domain));
 				if (entry.value.archived) {
-					incremetal.delete(new RecordPrimaryKey("AddressBookRecord", new String[] { entry.value.entryUid }));
+					incremental
+							.delete(new RecordPrimaryKey("AddressBookRecord", new String[] { entry.value.entryUid }));
 				} else {
-					incremetal.addOrModify(rec);
+					incremental.addOrModify(rec);
 				}
 			}
 		}
 		for (String uidToRm : changeset.deleted) {
-			incremetal.delete(new RecordPrimaryKey("AddressBookRecord", new String[] { uidToRm }));
+			incremental.delete(new RecordPrimaryKey("AddressBookRecord", new String[] { uidToRm }));
 		}
-		long hollowVersion = incremetal.runCycle();
+		long hollowVersion = incremental.runCycle();
 		logger.info("Created new incremental hollow snap (dir v{}, hollow v{})", changeset.version, hollowVersion);
 		DomainVersions.get().put(domainUid, changeset.version);
+		return hollowVersion;
 	}
 
 	private boolean supportedType(ItemValue<DirEntry> iv) {
@@ -200,14 +206,14 @@ public class DirectorySerializer implements DataSerializer {
 			ItemValue<Mailbox> box, Map<String, DataLocation> datalocationCache, String installationId) {
 		AddressBookRecord rec = new AddressBookRecord();
 
-		String domainUid = domain.uid;
-		DirEntrySerializer serializer = DirEntrySerializer.get(domainUid, entry);
+		String tmpDom = domain.uid;
+		DirEntrySerializer serializer = DirEntrySerializer.get(tmpDom, entry);
 		rec.uid = entry.uid;
-		rec.distinguishedName = entryDN(entry.value.kind, rec.uid, domainUid, installationId);
+		rec.distinguishedName = entryDN(entry.value.kind, rec.uid, tmpDom, installationId);
 		rec.minimalid = entry.internalId;
 		rec.created = serializer.get(DirEntrySerializer.Property.Created).toDate();
 		rec.updated = serializer.get(DirEntrySerializer.Property.Updated).toDate();
-		rec.domain = domainUid;
+		rec.domain = tmpDom;
 		String server = entry.value.dataLocation;
 		if (server != null) {
 			rec.dataLocation = datalocationCache.computeIfAbsent(server, s -> {
@@ -220,7 +226,7 @@ public class DirectorySerializer implements DataSerializer {
 			});
 		}
 		List<String> aliases = new ArrayList<>();
-		aliases.add(domainUid);
+		aliases.add(tmpDom);
 		aliases.addAll(domain.value.aliases);
 		rec.emails = toEmails(box, aliases);
 		rec.name = serializer.get(DirEntrySerializer.Property.DisplayName).toString();
@@ -310,7 +316,7 @@ public class DirectorySerializer implements DataSerializer {
 		}
 	}
 
-	public void deleteDataDir() throws Exception {
+	public void deleteDataDir() throws IOException {
 		Path directory = Paths.get(getDataDir().getAbsolutePath());
 		Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
 			@Override
@@ -338,7 +344,7 @@ public class DirectorySerializer implements DataSerializer {
 		return announcementWatcher.getLatestVersion();
 	}
 
-	public static String entryDN(DirEntry.Kind kind, String entryUid, String domainUid, String installationId) {
+	public static String entryDN(BaseDirEntry.Kind kind, String entryUid, String domainUid, String installationId) {
 		return String.format("%s/ou=%s/cn=Recipients/cn=%s:%s", getOrgDn(installationId), domainUid, kind.toString(),
 				entryUid).toLowerCase();
 	}

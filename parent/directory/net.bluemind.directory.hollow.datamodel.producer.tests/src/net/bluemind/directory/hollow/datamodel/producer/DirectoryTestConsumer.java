@@ -20,14 +20,28 @@ package net.bluemind.directory.hollow.datamodel.producer;
 
 import java.io.File;
 
+import com.netflix.hollow.api.consumer.HollowConsumer.AnnouncementWatcher;
+
 import net.bluemind.directory.hollow.datamodel.consumer.DirectoryDeserializer;
+import net.bluemind.serialization.client.HollowContext;
 
 public class DirectoryTestConsumer extends DirectoryDeserializer {
 
-	public File file;
-
 	public DirectoryTestConsumer(File file) {
 		super(file);
+	}
+
+	public void refreshTo(long snapVersion) {
+		long cur = getVersion();
+		System.err.println("cur: " + cur + " snap: " + snapVersion);
+		if (getVersion() != snapVersion) {
+			consumer.triggerRefreshTo(snapVersion);
+		}
+	}
+
+	@Override
+	protected AnnouncementWatcher watcher(HollowContext ctx) {
+		return null;
 	}
 
 	public long getVersion() {
