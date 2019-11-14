@@ -56,7 +56,7 @@
     "mail.draft.save.inprogress": "Enregistrement en cours...",
     "mail.draft.save.date.time": "Brouillon enregistré à {time}",
     "mail.draft.save.date": "Brouillon enregistré le {date}",
-    "mail.draft.save.error": "Erreur dans l'enregistrement du brouillon",
+    "mail.draft.save.error": "Erreur lors de l'enregistrement du brouillon",
     "mail.draft.save.error.reason": "Vous êtes peut-être déconnecté",
     "mail.alert.message.draft.delete.ok": "\"{subject}\" a bien été supprimé!",
     "mail.alert.message.draft.delete.error": "\"{subject}\" n'a pas été supprimé.{br}{reason}",
