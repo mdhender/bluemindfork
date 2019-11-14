@@ -15,10 +15,10 @@
                     </bm-col>
                     <bm-col cols="1" class="text-center">
                         <bm-button
-                            v-if="mode == modes.TO"
+                            v-if="mode_ == modes.TO"
                             variant="link"
                             class="text-blue"
-                            @click="mode = modes.TO | modes.CC | modes.BCC"
+                            @click="mode_ = modes.TO | modes.CC | modes.BCC"
                         >
                             <bm-icon icon="chevron" />
                         </bm-button>
@@ -26,10 +26,9 @@
                 </bm-row>
                 <hr class="m-0" />
 
-                <bm-row v-if="mode > modes.TO">
+                <bm-row v-if="mode_ > modes.TO">
                     <bm-col cols="11">
                         <bm-contact-input
-                            ref="cc"
                             :contacts.sync="message_.cc"
                             :autocomplete-results="autocompleteResultsCc"
                             @search="searchedPattern => onSearch('cc', searchedPattern)"
@@ -39,26 +38,26 @@
                     </bm-col>
                     <bm-col cols="1" class="text-center">
                         <bm-button
-                            v-if="mode == (modes.TO | modes.CC)"
+                            v-if="mode_ == (modes.TO | modes.CC)"
                             variant="link"
                             class="text-blue"
-                            @click="mode = modes.TO | modes.CC | modes.BCC"
+                            @click="mode_ = modes.TO | modes.CC | modes.BCC"
                         >
                             {{ $t("common.bcc") }}
                         </bm-button>
                     </bm-col>
                 </bm-row>
-                <hr v-if="mode > modes.TO" class="m-0" />
+                <hr v-if="mode_ > modes.TO" class="m-0" />
 
                 <bm-contact-input
-                    v-if="mode == (modes.TO | modes.CC | modes.BCC)"
+                    v-if="mode_ == (modes.TO | modes.CC | modes.BCC)"
                     :contacts.sync="message_.bcc"
                     :autocomplete-results="autocompleteResultsBcc"
                     @search="searchedPattern => onSearch('bcc', searchedPattern)"
                 >
                     {{ $t("common.bcc") }}
                 </bm-contact-input>
-                <hr v-if="mode == (modes.TO | modes.CC | modes.BCC)" class="mt-0" />
+                <hr v-if="mode_ == (modes.TO | modes.CC | modes.BCC)" class="m-0" />
 
                 <bm-form-input
                     v-model="message_.subject"
@@ -67,12 +66,11 @@
                     type="text"
                     @keydown.enter.native.prevent
                 />
-                <bm-row class="d-block">
-                    <hr class="bg-dark m-0" />
-                </bm-row>
+                <bm-row class="d-block"><hr class="bg-dark m-0" /></bm-row>
                 <div class="flex-grow-1">
                     <bm-form-textarea
                         v-if="userPrefTextOnly"
+                        ref="message-content"
                         v-model="message_.content"
                         :rows="10"
                         :max-rows="10000"
@@ -82,6 +80,7 @@
                     />
                     <bm-rich-editor
                         v-else
+                        ref="message-content"
                         v-model="message_.content"
                         :is-menu-bar-opened="userPrefIsMenuBarOpened"
                         class="h-100"
@@ -164,6 +163,7 @@ export default {
             debouncedSave: debounce(this.saveDraft, 1000),
             userPrefTextOnly: false, // TODO: initialize this with user setting
             userPrefIsMenuBarOpened: false, // TODO: initialize this with user setting
+            mode_: this.mode,
             message_: {
                 to: this.message ? this.message.to : [],
                 cc: this.message ? this.message.cc : [],
@@ -177,7 +177,6 @@ export default {
         };
     },
     computed: {
-        //FIXME: move draft.
         ...mapGetters("mail-webapp", ["lastRecipients"]),
         panelTitle() {
             return this.message_.subject ? this.message_.subject : this.$t("mail.main.new");
@@ -202,7 +201,11 @@ export default {
         this.message_.type = this.userPrefTextOnly ? "text" : "html";
     },
     mounted: function() {
-        this.$refs.to.focus();
+        if (this.message && (this.message.to.length > 0 || this.message.cc.length > 0)) {
+            this.$refs["message-content"].focus();
+        } else {
+            this.$refs.to.focus();
+        }
     },
     methods: {
         ...mapActions("mail-webapp", ["saveDraft"]),
