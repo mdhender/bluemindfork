@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -68,6 +69,9 @@ public class AuditLogCommand implements ICmdLet, Runnable {
 	@Option(name = "--data", required = false, description = "Show data")
 	public boolean data;
 
+	@Option(name = "--show-errors", required = false, description = "Show lines containing errors")
+	public boolean showErrors;
+
 	@Option(name = "--show-ro", required = false, description = "Show read-only data")
 	public boolean readOnly;
 
@@ -100,19 +104,23 @@ public class AuditLogCommand implements ICmdLet, Runnable {
 			throw new CliException("Cannot read file " + file + ":" + e.getMessage());
 		}
 
-		String output = process(content);
-		ctx.info(output);
+		Result output = process(content);
+		ctx.info(output.content);
+		if (!showErrors) {
+			ctx.info("Filtered " + output.errors + " erroneous lines");
+		}
 	}
 
-	private String process(List<String> content) {
+	private Result process(List<String> content) {
 		List<Tblrow> tblData = new ArrayList<>();
 		boolean lastLineFailed = false;
+		AtomicInteger errors = new AtomicInteger(0);
 
 		for (int i = 0; i < content.size(); i++) {
 			String line = content.get(i);
 			String next = content.size() > (i + 1) ? content.get(i + 1) : "";
 			if (!line.trim().isEmpty()) {
-				lastLineFailed = processLine(tblData, line, next, lastLineFailed);
+				lastLineFailed = processLine(tblData, line, next, lastLineFailed, errors);
 			}
 		}
 
@@ -122,10 +130,11 @@ public class AuditLogCommand implements ICmdLet, Runnable {
 				new Column().header("Calendar").dataAlign(HorizontalAlign.LEFT).with(r -> r.entity) //
 		));
 
-		return table;
+		return new Result(table, errors.get());
 	}
 
-	private boolean processLine(List<Tblrow> tblData, String line, String nextLine, boolean lastLineFailed) {
+	private boolean processLine(List<Tblrow> tblData, String line, String nextLine, boolean lastLineFailed,
+			AtomicInteger errorCount) {
 		// replace encoded \" and \\" in the json structure
 		line = line.replace("\\\\\\\"", "");
 		line = line.replace("\\\"", "\"");
@@ -134,8 +143,11 @@ public class AuditLogCommand implements ICmdLet, Runnable {
 		boolean success = true;
 		if (!m.matches()) {
 			if (!lastLineFailed) {
-				tblData.add(new Tblrow("", "", "", "", "", "Line does not match audit pattern: " + line, "", "",
-						Collections.emptyList()));
+				errorCount.addAndGet(1);
+				if (showErrors) {
+					tblData.add(new Tblrow("", "", "", "", "", "Line does not match audit pattern: " + line, "", "",
+							Collections.emptyList()));
+				}
 			}
 			return true;
 		} else {
@@ -314,6 +326,17 @@ public class AuditLogCommand implements ICmdLet, Runnable {
 		@Override
 		public Class<? extends ICmdLet> commandClass() {
 			return AuditLogCommand.class;
+		}
+
+	}
+
+	static class Result {
+		final String content;
+		final int errors;
+
+		public Result(String content, int errors) {
+			this.content = content;
+			this.errors = errors;
 		}
 
 	}
