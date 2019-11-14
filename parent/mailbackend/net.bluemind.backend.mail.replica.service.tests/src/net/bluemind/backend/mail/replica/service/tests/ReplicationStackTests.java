@@ -436,6 +436,21 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 	}
 
 	@Test
+	public void createAlreadyExists() {
+		IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
+		String folderName = "f" + System.currentTimeMillis();
+
+		MailboxFolder folder = new MailboxFolder();
+		folder.fullName = folderName;
+		folder.name = folderName;
+		ItemIdentifier createAck = mboxesApi.createBasic(folder);
+		assertNotNull(createAck);
+
+		ItemIdentifier alreadyExists = mboxesApi.createBasic(folder);
+		assertEquals(createAck, alreadyExists);
+	}
+
+	@Test
 	public void createById() throws IMAPException, InterruptedException, IOException {
 		IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
 		String folderName = "f" + System.currentTimeMillis();
