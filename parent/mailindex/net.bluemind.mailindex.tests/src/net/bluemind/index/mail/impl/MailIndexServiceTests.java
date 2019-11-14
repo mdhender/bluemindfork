@@ -49,7 +49,7 @@ import net.bluemind.backend.mail.api.MessageSearchResult;
 import net.bluemind.backend.mail.api.SearchQuery;
 import net.bluemind.backend.mail.api.SearchQuery.Header;
 import net.bluemind.backend.mail.api.SearchQuery.HeaderQuery;
-import net.bluemind.backend.mail.api.SearchQuery.Operator;
+import net.bluemind.backend.mail.api.SearchQuery.LogicalOperator;
 import net.bluemind.backend.mail.api.SearchQuery.SearchScope;
 import net.bluemind.backend.mail.api.SearchResult;
 import net.bluemind.backend.mail.replica.indexing.MailSummary;
@@ -289,7 +289,7 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		query.maxResults = 10;
 		query.offset = 0;
 		query.headerQuery = new HeaderQuery();
-		query.headerQuery.operator = Operator.AND;
+		query.headerQuery.logicalOperator = LogicalOperator.AND;
 		Header headerQueryElement = new Header();
 		headerQueryElement.name = "From";
 		headerQueryElement.value = "Roger Water <roger.water@pinkfloyd.net>";
@@ -305,7 +305,7 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		assertEquals(44l, messageSearchResult.itemId);
 
 		query.headerQuery = new HeaderQuery();
-		query.headerQuery.operator = Operator.OR;
+		query.headerQuery.logicalOperator = LogicalOperator.OR;
 		headerQueryElement = new Header();
 		headerQueryElement.name = "From";
 		headerQueryElement.value = "Roger Water <roger.water@pinkfloyd.net>";
@@ -321,7 +321,7 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		assertEquals(1, results.totalResults);
 
 		query.headerQuery = new HeaderQuery();
-		query.headerQuery.operator = Operator.AND;
+		query.headerQuery.logicalOperator = LogicalOperator.AND;
 		headerQueryElement = new Header();
 		headerQueryElement.name = "From";
 		headerQueryElement.value = "Roger Water <roger.water@pinkfloyd.net>";

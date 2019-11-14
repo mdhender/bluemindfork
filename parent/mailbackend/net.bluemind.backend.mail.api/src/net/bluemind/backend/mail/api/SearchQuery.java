@@ -97,7 +97,7 @@ public class SearchQuery {
 		/**
 		 * Defines the search operator of the requested header search values
 		 */
-		public Operator operator;
+		public LogicalOperator logicalOperator;
 		/**
 		 * List of requested {@link Header}}
 		 */
@@ -108,7 +108,7 @@ public class SearchQuery {
 	 * Defines the search operator of the requested header search values
 	 */
 	@BMApi(version = "3")
-	public static enum Operator {
+	public enum LogicalOperator {
 		/**
 		 * Search matches if ALL requested headers are present having the requested
 		 * value
@@ -137,10 +137,10 @@ public class SearchQuery {
 		public String value;
 	}
 
-	public static SearchQuery allHeaders(Map<String, String> headerValues, Operator operator) {
+	public static SearchQuery allHeaders(Map<String, String> headerValues, LogicalOperator operator) {
 		SearchQuery query = new SearchQuery();
 		query.headerQuery = new HeaderQuery();
-		query.headerQuery.operator = operator;
+		query.headerQuery.logicalOperator = operator;
 		query.headerQuery.query = headerValues.keySet().stream().map(key -> {
 			Header header = new Header();
 			header.name = key;
