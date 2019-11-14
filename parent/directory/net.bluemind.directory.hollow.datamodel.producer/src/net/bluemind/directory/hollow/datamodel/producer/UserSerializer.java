@@ -37,6 +37,7 @@ public class UserSerializer extends DirEntrySerializer {
 		this.user = user;
 	}
 
+	@Override
 	public Value get(Property property) {
 		switch (property) {
 		case DisplayName:

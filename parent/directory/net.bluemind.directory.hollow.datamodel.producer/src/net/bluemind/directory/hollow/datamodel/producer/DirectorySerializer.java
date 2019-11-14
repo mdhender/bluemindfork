@@ -141,7 +141,7 @@ public class DirectorySerializer implements DataSerializer {
 		return new File(BASE_DATA_DIR, domainUid);
 	}
 
-	public boolean restoreIfAvailable(HollowProducer producer, BlobRetriever retriever,
+	private boolean restoreIfAvailable(HollowProducer producer, BlobRetriever retriever,
 			AnnouncementWatcher unpinnableAnnouncementWatcher) {
 
 		long latestVersion = unpinnableAnnouncementWatcher.getLatestVersion();

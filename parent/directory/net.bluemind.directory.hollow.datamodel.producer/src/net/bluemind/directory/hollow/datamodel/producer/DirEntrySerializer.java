@@ -47,12 +47,19 @@ import net.bluemind.user.api.User;
 
 public abstract class DirEntrySerializer {
 
-	public static enum Property {
-		Email, SmtpAddress, DisplayName, Account, Surname, GivenName, AddressBookProxyAddresses, OfficeLocation, DisplayType, ObjectType, SendRichInfo, BusinessTelephoneNumber, StreetAddress, Locality, StateOrProvince, PostalCode, Country, Title, CompanyName, Assistant, DepartmentName, AddressBookTargetAddress, HomeTelephoneNumber, Business2TelephoneNumbers, PrimaryFaxNumber, MobileTelephoneNumber, AssistantTelephoneNumber, PagerTelephoneNumber, Comment, UserCertificate, UserX509Certificate, AddressBookX509Certificate, AddressBookHomeMessageDatabaseAscii, AddressBookDisplayNamePrintableAscii, ThumbnailPhoto, postOfficeBox, AddressBookManagerDistinguishedName, Kind, DataLocation, Created, Updated, Hidden
+	public enum Property {
+		Email, SmtpAddress, DisplayName, Account, Surname, GivenName, AddressBookProxyAddresses, OfficeLocation,
+		DisplayType, ObjectType, SendRichInfo, BusinessTelephoneNumber, StreetAddress, Locality, StateOrProvince,
+		PostalCode, Country, Title, CompanyName, Assistant, DepartmentName, AddressBookTargetAddress,
+		HomeTelephoneNumber, Business2TelephoneNumbers, PrimaryFaxNumber, MobileTelephoneNumber,
+		AssistantTelephoneNumber, PagerTelephoneNumber, Comment, UserCertificate, UserX509Certificate,
+		AddressBookX509Certificate, AddressBookHomeMessageDatabaseAscii, AddressBookDisplayNamePrintableAscii,
+		ThumbnailPhoto, postOfficeBox, AddressBookManagerDistinguishedName, Kind, DataLocation, Created, Updated, Hidden
+
 	}
 
-	protected ItemValue<DirEntry> dirEntry;
-	protected String domainUid;
+	protected final ItemValue<DirEntry> dirEntry;
+	protected final String domainUid;
 
 	protected DirEntrySerializer(ItemValue<DirEntry> dirEntry, String domainUid) {
 		this.dirEntry = dirEntry;
@@ -123,8 +130,10 @@ public abstract class DirEntrySerializer {
 				return new ByteArrayValue(JPEGThumbnail.scaleImage(pngPhoto, 120, 120));
 			}
 		} catch (Exception e) {
+			// no pic
 		}
 		return Value.NULL;
+
 	}
 
 	private Value getEmailAddress() {
