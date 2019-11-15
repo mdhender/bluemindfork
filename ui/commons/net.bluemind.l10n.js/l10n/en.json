@@ -17,12 +17,12 @@
     "common.messages": "0 message | 1 message | {count} messages",
     "common.search.error": "Search did not succeed.",
     "common.check.connection": "Check your internet connection and retry in a few moments.",
-    "common.alert.remove.ok": "\"{subject}\" has been deleted.",
-    "common.alert.remove.loading": "Deletion of \"{subject}\" in progress...",
-    "common.alert.remove.error": "\"{subject}\" could not be deleted.{br}{reason}",
-    "common.alert.purge.ok": "\"{subject}\" has been deleted definitely.",
-    "common.alert.purge.loading": "Definitive deletion of \"{subject}\" in progress...",
-    "common.alert.purge.error": "\"{subject}\" could not be deleted definitely.{br}{reason}",
+    "alert.common.remove.ok": "\"{subject}\" has been deleted.",
+    "alert.common.remove.loading": "Deletion of \"{subject}\" in progress...",
+    "alert.common.remove.error": "\"{subject}\" could not be deleted.{br}{reason}",
+    "alert.common.purge.ok": "\"{subject}\" has been deleted definitely.",
+    "alert.common.purge.loading": "Definitive deletion of \"{subject}\" in progress...",
+    "alert.common.purge.error": "\"{subject}\" could not be deleted definitely.{br}{reason}",
     "common.or": "or",
     "common.cancel": "Cancel"
 }
