@@ -16,17 +16,22 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.cti.service;
+package net.bluemind.cti.service.internal;
 
-public class CTIDeferredAction {
+import net.bluemind.cti.service.CTIDeferredAction;
+import net.bluemind.deferredaction.registry.IDeferredActionExecutor;
+import net.bluemind.deferredaction.registry.IDeferredActionExecutorFactory;
 
-	public static final String ACTION_ID = "CTI";
+public class DeferredActionCTIExecutorFactory implements IDeferredActionExecutorFactory {
 
-	public static String reference(String userUid) {
-		return ACTION_ID + "_" + userUid;
+	@Override
+	public String getSupportedActionId() {
+		return CTIDeferredAction.ACTION_ID;
 	}
 
-	public static String userUid(String reference) {
-		return reference.substring(ACTION_ID.length() + 1);
+	@Override
+	public IDeferredActionExecutor create() {
+		return new DeferredActionCTIExecutor();
 	}
+
 }

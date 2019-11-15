@@ -160,12 +160,12 @@ public class DeferredActionEventExecutor implements IDeferredActionExecutor {
 		return data;
 	}
 
-	@SafeVarargs
+	@SuppressWarnings("unchecked")
 	static <K, T> Optional<T> getValue(Map<K, T> map, K... keys) {
 		return Arrays.asList(keys).stream().filter(map::containsKey).findFirst().map(map::get);
 	}
 
-	static boolean isNotGlobalVirt(ItemValue<Domain> domain) {
+	private static boolean isNotGlobalVirt(ItemValue<Domain> domain) {
 		return !"global.virt".equals(domain.value.name);
 	}
 
@@ -177,7 +177,7 @@ public class DeferredActionEventExecutor implements IDeferredActionExecutor {
 		return new Locale(language);
 	}
 
-	static ItemValue<EventDeferredAction> from(ItemValue<DeferredAction> deferredAction) {
+	public static ItemValue<EventDeferredAction> from(ItemValue<DeferredAction> deferredAction) {
 		EventDeferredAction eventDeferredAction = new EventDeferredAction(deferredAction.value);
 		return ItemValue.create(deferredAction.uid, eventDeferredAction);
 	}

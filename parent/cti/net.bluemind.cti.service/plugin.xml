@@ -25,5 +25,11 @@
             impl="net.bluemind.cti.service.internal.CTIUserSettingsVerticle$CTIUserSettingsVerticleFactory">
       </verticle>
    </extension>
+   <extension
+         point="net.bluemind.deferredaction.registry.executor">
+      <executor
+            implementation="net.bluemind.cti.service.internal.DeferredActionCTIExecutorFactory">
+      </executor>
+   </extension>
 
 </plugin>

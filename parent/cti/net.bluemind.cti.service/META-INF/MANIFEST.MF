@@ -17,7 +17,9 @@ Require-Bundle: net.bluemind.core.commons,
  net.bluemind.hornetq.client,
  com.google.guava,
  net.bluemind.lib.vertx,
- net.bluemind.deferredaction.api
+ net.bluemind.deferredaction.registry,
+ net.bluemind.deferredaction.api,
+ net.bluemind.calendar.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: net.bluemind.cti.service.CTIActivator

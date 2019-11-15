@@ -18,6 +18,7 @@
  */
 package net.bluemind.cti.service.internal;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +67,7 @@ public class CTIUserSettingsVerticle extends BusModBase {
 			storedTriggers.forEach(action -> deferredActionService.delete(action.uid));
 			if (isCalPresenceSet(settings)) {
 				DeferredAction deferredAction = new DeferredAction();
-				deferredAction.executionDate = new Date();
+				deferredAction.executionDate = new Date(Instant.now().toEpochMilli());
 				deferredAction.actionId = CTIDeferredAction.ACTION_ID;
 				deferredAction.reference = CTIDeferredAction.reference(userUid);
 				deferredActionService.create(UUID.randomUUID().toString(), deferredAction);
