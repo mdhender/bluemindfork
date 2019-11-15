@@ -26,7 +26,9 @@ import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
+import org.vertx.java.core.eventbus.Message;
+import org.vertx.java.core.json.JsonObject;
+import org.vertx.java.platform.Verticle;
 
 import com.netflix.spectator.api.Gauge;
 import com.netflix.spectator.api.Registry;
@@ -39,54 +41,69 @@ import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.IMAPException;
 import net.bluemind.imap.SearchQuery;
 import net.bluemind.imap.StoreClient;
+import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.Server;
 
-public class ReplicationLatencyMonitor {
+public class LatencyMonitorWorker extends Verticle {
 
-	private static final Logger logger = LoggerFactory.getLogger(ReplicationLatencyMonitor.class);
+	private static final Logger logger = LoggerFactory.getLogger(LatencyMonitorWorker.class);
 
-	private final Vertx vertx;
-	private final SharedMailboxProbe probe;
 	private final Registry registry;
+	private final IdFactory idf;
 
-	private final Gauge latencyGauge;
-
-	public ReplicationLatencyMonitor(Vertx vx, SharedMailboxProbe probe) {
-		this.vertx = vx;
-		this.probe = probe;
+	public LatencyMonitorWorker() {
 		registry = MetricsRegistry.get();
-		IdFactory idf = new IdFactory("replication-latency", registry, ReplicationLatencyMonitor.class);
-		this.latencyGauge = registry.gauge(idf.name("probe", "mailbox", probe.share().value.name, "unit", "ms",
-				"backendAddress", probe.backend().value.address()));
-		this.latencyGauge.set(30000);
+		this.idf = new IdFactory("replication-latency", registry, LatencyMonitorWorker.class);
 	}
 
+	@Override
 	public void start() {
-		vertx.setTimer(10000, tid -> {
-			try {
-				CompletableFuture<Long> replicationFeedback = doProbe();
-				replicationFeedback.whenComplete((latency, ex) -> {
-					if (ex != null) {
-						latencyGauge.set(60000);
-						logger.error("Replication probe failed: {}", ex.getMessage());
-					} else {
-						logger.info("Replication latency is {}ms.", latency);
-						latencyGauge.set(latency);
-					}
-					vertx.setTimer(10000, retid -> start());
-				});
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
+		vertx.eventBus().registerHandler("replication.latency.probe", (Message<JsonObject> msg) -> {
+			Probe probe = Probe.of(msg.body());
+			doProbe(probe).whenComplete((lat, ex) -> {
+				if (ex == null) {
+					logger.info("Replication latency is {}ms.", lat);
+					msg.reply();
+				} else {
+					msg.fail(1, ex.getMessage());
+				}
+			});
 		});
 	}
 
-	public CompletableFuture<Long> doProbe() {
+	public static class Probe {
+		String datalocation;
+		String name;
+		String domainUid;
+
+		private Probe(String loc, String n, String dom) {
+			this.datalocation = loc;
+			this.name = n;
+			this.domainUid = dom;
+		}
+
+		public JsonObject toJson() {
+			return new JsonObject().putString("datalocation", datalocation).putString("name", name)
+					.putString("domainUid", domainUid);
+		}
+
+		public static Probe of(JsonObject js) {
+			return new Probe(js.getString("datalocation"), js.getString("name"), js.getString("domainUid"));
+		}
+
+		public static Probe of(SharedMailboxProbe p) {
+			return new Probe(p.backend().uid, p.share().value.name, p.domainUid());
+		}
+	}
+
+	public CompletableFuture<Long> doProbe(Probe probe) {
 		CompletableFuture<Long> replFeeback = new CompletableFuture<>();
-		ItemValue<Server> backend = Topology.get().datalocation(probe.share().value.dataLocation);
+		ItemValue<Server> backend = Topology.get().datalocation(probe.datalocation);
+		Gauge latencyGauge = registry.gauge(
+				idf.name("probe", "mailbox", probe.name, "unit", "ms", "backendAddress", backend.value.address()));
 
 		FlagsList fl = new FlagsList();
 		fl.add(Flag.SEEN);
@@ -95,7 +112,7 @@ public class ReplicationLatencyMonitor {
 			if (!sc.login()) {
 				throw new IMAPException("Login failed for admin0");
 			}
-			String mboxName = probe.share().value.name + "@" + probe.domainUid();
+			String mboxName = probe.name + "@" + probe.domainUid;
 			boolean selected = sc.select(mboxName);
 			if (!selected) {
 				throw new IMAPException("SELECT of " + mboxName + " failed.");
@@ -120,8 +137,8 @@ public class ReplicationLatencyMonitor {
 			if (content.isEmpty()) {
 				throw new IMAPException("Failed to add a message to " + mboxName);
 			}
-			ReplicationFeebackObserver.toWatch.add(annot.valueShared);
-			CompletableFuture<Void> applyMailboxPromise = ReplicationFeebackObserver.addWatcher(vertx);
+			CompletableFuture<Void> applyMailboxPromise = ReplicationFeebackObserver.addWatcher(vertx,
+					annot.valueShared);
 			FlagsList curFlags = sc.uidFetchFlags(content).iterator().next();
 			boolean set = !curFlags.contains(Flag.SEEN);
 			long now = System.currentTimeMillis();
@@ -131,17 +148,34 @@ public class ReplicationLatencyMonitor {
 			} else {
 				applyMailboxPromise.whenComplete((v, ex) -> {
 					if (ex != null) {
+						latencyGauge.set(60000);
 						replFeeback.completeExceptionally(ex);
 					} else {
+						latencyGauge.set((double) (System.currentTimeMillis() - now));
 						replFeeback.complete(System.currentTimeMillis() - now);
 					}
 				});
 			}
 
 		} catch (Exception ex) {
+			latencyGauge.set(60000);
 			replFeeback.completeExceptionally(ex);
 		}
 		return replFeeback;
+
+	}
+
+	public static class Factory implements IVerticleFactory {
+
+		@Override
+		public boolean isWorker() {
+			return true;
+		}
+
+		@Override
+		public Verticle newInstance() {
+			return new LatencyMonitorWorker();
+		}
 
 	}
 

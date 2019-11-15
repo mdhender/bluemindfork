@@ -6,6 +6,9 @@
       <verticle
             impl="net.bluemind.backend.cyrus.replication.link.CyrusServiceVerticleFactory">
       </verticle>
+      <verticle
+            impl="net.bluemind.backend.cyrus.replication.link.probe.LatencyMonitorWorker$Factory">
+      </verticle>
    </extension>
    <extension
          point="net.bluemind.backend.cyrus.replication.observers.provider">

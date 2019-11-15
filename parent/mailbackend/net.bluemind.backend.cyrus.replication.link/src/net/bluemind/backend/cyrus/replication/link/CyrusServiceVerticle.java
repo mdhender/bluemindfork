@@ -26,7 +26,7 @@ import org.vertx.java.core.eventbus.EventBus;
 import org.vertx.java.platform.Verticle;
 
 import net.bluemind.backend.cyrus.CyrusService;
-import net.bluemind.backend.cyrus.replication.link.probe.ReplicationLatencyMonitor;
+import net.bluemind.backend.cyrus.replication.link.probe.ReplicationLatencyTimer;
 import net.bluemind.backend.cyrus.replication.link.probe.SharedMailboxProbe;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.context.SecurityContext;
@@ -61,7 +61,7 @@ public class CyrusServiceVerticle extends Verticle {
 								.provider(prov)//
 								.build();
 						logger.info("Probe mailbox is {}", probe);
-						new ReplicationLatencyMonitor(vertx, probe).start();
+						new ReplicationLatencyTimer(vertx, probe).start();
 					} catch (Exception e) {
 						logger.error(e.getMessage(), e);
 					}
