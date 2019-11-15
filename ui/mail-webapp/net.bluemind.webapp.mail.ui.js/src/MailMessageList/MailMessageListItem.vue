@@ -12,7 +12,11 @@
                 <bm-avatar :alt="from" />
                 <bm-check @click.native.stop />
             </bm-col>
-            <bm-col cols="8" class="text-overflow">{{ from }}</bm-col>
+            <bm-col cols="8" class="text-overflow">
+                <div v-bm-tooltip.d500.viewport :title="from" class="text-overflow d-inline-block mw-100">
+                    {{ from }}
+                </div>
+            </bm-col>
             <bm-col v-show="!quickActionButtonsVisible" cols="3" class="mail-widgets">
                 <component :is="widget" v-for="widget in widgets" :key="widget.template" class="ml-2" />
             </bm-col>
@@ -26,7 +30,15 @@
             <bm-col cols="1" class="mail-attachment">
                 <component :is="state" v-if="!!state" class="ml-2" />
             </bm-col>
-            <bm-col class="mail-subject text-overflow">{{ message.subject }}</bm-col>
+            <bm-col class="mail-subject text-overflow">
+                <div 
+                    v-bm-tooltip.d500.bottom.viewport
+                    :title="message.subject"
+                    class="text-overflow d-inline-block mw-100"
+                >
+                    {{ message.subject }}
+                </div>
+            </bm-col>
             <bm-col cols="3" class="mail-date">
                 <span class="text-nowrap d-none d-sm-block d-md-none d-xl-block">{{ displayedDate }}</span>
                 <span class="text-nowrap d-sm-none d-md-block d-xl-none">{{ smallerDisplayedDate }}</span>
@@ -64,7 +76,8 @@ import {
     BmCol,
     BmIcon,
     BmListGroupItem,
-    BmRow
+    BmRow,
+    BmTooltip
 } from "@bluemind/styleguide";
 import { DateComparator } from "@bluemind/date";
 import MailMessageListItemQuickActionButtons from "./MailMessageListItemQuickActionButtons";
@@ -80,6 +93,7 @@ export default {
         BmRow,
         MailMessageListItemQuickActionButtons
     },
+    directives: { BmTooltip },
     props: {
         to: {
             required: false,
