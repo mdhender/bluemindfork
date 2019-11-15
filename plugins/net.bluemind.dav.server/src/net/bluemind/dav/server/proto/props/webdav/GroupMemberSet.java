@@ -150,7 +150,7 @@ public class GroupMemberSet implements IPropertyValue {
 					continue;
 				}
 
-				DirEntry dir = dirApi.getEntry(ace.subject);
+				DirEntry dir = dirApi.findByEntryUid(ace.subject);
 				if (dir != null) {
 					members.add(new UserMember(ace, dir));
 				} else {
