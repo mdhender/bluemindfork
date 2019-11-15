@@ -21,7 +21,7 @@
                 variant="link"
                 @click.prevent="markAsRead(message.id)"
             >
-                <bm-icon icon="unread" size="lg" />
+                <bm-icon icon="read" size="lg" />
             </bm-button>
             <bm-button
                 v-else 
@@ -32,7 +32,7 @@
                 variant="link"
                 @click.prevent="markAsUnread(message.id)"
             >
-                <bm-icon icon="read" size="lg" />
+                <bm-icon icon="unread" size="lg" />
             </bm-button>
         </bm-button-group>
     </bm-button-toolbar>
