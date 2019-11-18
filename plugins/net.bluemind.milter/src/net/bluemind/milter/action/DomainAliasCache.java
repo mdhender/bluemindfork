@@ -41,6 +41,9 @@ public class DomainAliasCache extends Verticle {
 	private static Map<String, Optional<ItemValue<Domain>>> domainCache = new ConcurrentHashMap<>();
 
 	public static ItemValue<Domain> getDomain(String domainPart) {
+		if (domainPart == null) {
+			return null;
+		}
 		return domainCache.computeIfAbsent(domainPart, domOrAlias -> {
 			String host = "http://" + Topology.get().core().value.address() + ":8090";
 			IServiceProvider prov = ClientSideServiceProvider.getProvider(host, Token.admin0());
