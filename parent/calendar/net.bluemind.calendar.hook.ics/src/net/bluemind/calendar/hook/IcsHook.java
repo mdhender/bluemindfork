@@ -720,7 +720,7 @@ public class IcsHook implements ICalendarHook {
 				// attachment size ~= 60% message
 				long maxAttachBytes = maxMsgBytes * 6 / 10;
 				List<EventAttachment> attachments = EventAttachmentHelper.getAttachments(event, maxAttachBytes);
-				if (!EventAttachmentHelper.hasBinaryAttachments(attachments)) {
+				if (!attachments.isEmpty() && !EventAttachmentHelper.hasBinaryAttachments(attachments)) {
 					data.put("attachments", attachments);
 				}
 
