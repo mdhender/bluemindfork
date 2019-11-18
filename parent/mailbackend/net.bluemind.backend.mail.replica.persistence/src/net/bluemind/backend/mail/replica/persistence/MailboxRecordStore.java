@@ -141,7 +141,7 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 		if (uidArrays.length == 0) {
 			return Collections.emptySet();
 		}
-		String inString = Arrays.stream(uidArrays).mapToObj(l -> Long.toString(l)).collect(Collectors.joining(","));
+		String inString = Arrays.stream(uidArrays).mapToObj(Long::toString).collect(Collectors.joining(","));
 		String query = "" + //
 				"SELECT mr.imap_uid, mr.mod_seq, ci.uid FROM t_mailbox_record mr "
 				+ "INNER JOIN t_container_item ci ON ci.id=mr.item_id " + "WHERE ci.container_id=? AND mr.imap_uid IN ("
@@ -172,7 +172,7 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 		String query = "SELECT item.id FROM t_mailbox_record rec "
 				+ "INNER JOIN t_container_item item ON rec.item_id=item.id " //
 				+ "WHERE item.container_id=? " //
-				+ "AND (item.flags::bit(32) & 2::bit(32))=0::bit(32)"; // not deleted;
+				+ "AND (item.flags::bit(32) & 2::bit(32))=0::bit(32)"; // not deleted
 		StringBuilder sort = new StringBuilder();
 		if (sorted == null || sorted.fields.isEmpty()) {
 			sort.append("rec.internal_date desc");
@@ -211,14 +211,15 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 	}
 
 	public List<ImapBinding> recentItems(Date d) throws SQLException {
-		String query = "SELECT item.id, rec.imap_uid FROM t_mailbox_record rec "
+		String query = "SELECT item.id, rec.imap_uid, encode(rec.message_body_guid, 'hex') FROM t_mailbox_record rec "
 				+ "INNER JOIN t_container_item item ON rec.item_id=item.id " //
-				+ "WHERE item.container_id=? AND item.updated >= ?";
+				+ "INNER JOIN t_message_body mb ON rec.message_body_guid = mb.guid "//
+				+ "WHERE item.container_id=? AND mb.date_header >= ?";
 
 		return select(query, rs -> new ImapBinding(), (rs, index, value) -> {
 			value.itemId = rs.getInt(index++);
 			value.imapUid = rs.getInt(index++);
-			value.bodyGuid = null;
+			value.bodyGuid = rs.getString(index++);
 			return index;
 		}, new Object[] { container.id, new Timestamp(d.getTime()) });
 	}
@@ -227,8 +228,8 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 		String query = "SELECT item.id, rec.imap_uid FROM t_mailbox_record rec "
 				+ "INNER JOIN t_container_item item ON rec.item_id=item.id " //
 				+ "WHERE item.container_id=? " //
-				+ "AND (item.flags::bit(32) & (" + ItemFlag.Deleted.value + ")::bit(32))=0::bit(32)" // not deleted;
-				+ "AND (item.flags::bit(32) & (" + ItemFlag.Seen.value + ")::bit(32))=0::bit(32)"; // not seen;
+				+ "AND (item.flags::bit(32) & (" + ItemFlag.Deleted.value + ")::bit(32))=0::bit(32)" // not deleted
+				+ "AND (item.flags::bit(32) & (" + ItemFlag.Seen.value + ")::bit(32))=0::bit(32)"; // not seen
 
 		return select(query, rs -> new ImapBinding(), (rs, index, value) -> {
 			value.itemId = rs.getInt(index++);
@@ -239,15 +240,18 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 	}
 
 	public static class MailboxRecordItemV {
-		public ItemV<MailboxRecord> item;
-		public String containerUid;
+		private ItemV<MailboxRecord> item;
+		private String containerUid;
 
-		public MailboxRecordItemV(ItemV<MailboxRecord> item, String containerUid) {
-			this.item = item;
-			this.containerUid = containerUid;
+		private MailboxRecordItemV() {
 		}
 
-		public MailboxRecordItemV() {
+		public ItemV<MailboxRecord> item() {
+			return item;
+		}
+
+		public String containerUid() {
+			return containerUid;
 		}
 	}
 

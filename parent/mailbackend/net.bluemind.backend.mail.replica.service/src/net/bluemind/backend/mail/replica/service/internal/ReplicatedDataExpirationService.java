@@ -28,8 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
-import net.bluemind.backend.mail.replica.api.IReplicatedDataExpiration;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
+import net.bluemind.backend.mail.replica.api.IReplicatedDataExpiration;
 import net.bluemind.backend.mail.replica.indexing.RecordIndexActivator;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore.MailboxRecordItemV;
@@ -68,8 +68,8 @@ public class ReplicatedDataExpirationService implements IReplicatedDataExpiratio
 			List<MailboxRecordItemV> expiredItems = store.getExpiredItems(days);
 
 			Map<String, List<Long>> partitioned = expiredItems.stream()
-					.collect(Collectors.groupingBy(record -> record.containerUid,
-							Collectors.mapping(rec -> rec.item.value.imapUid, Collectors.toList())));
+					.collect(Collectors.groupingBy(MailboxRecordItemV::containerUid,
+							Collectors.mapping(rec -> rec.item().value.imapUid, Collectors.toList())));
 
 			partitioned.entrySet().forEach(entry -> {
 				String mboxUniqueId = IMailReplicaUids.uniqueId(entry.getKey());
