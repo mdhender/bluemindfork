@@ -44,7 +44,7 @@
    <extension
          point="net.bluemind.ui.commons.banner">
       <banner-entry
-            cssIcon="fa fa-lg fa-tasks"
+            cssIcon="fa fa-lg fa-calendar-check-o"
             description="%banner-entry.description"
             name="%banner-entry.name"
             offline="true"
