@@ -363,8 +363,8 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 
 		if (result == AuthResult.YES) {
 			for (ILoginValidationListener vl : loginListeners) {
-				vl.onValidLogin(matchingProvider, authContext.getRealUserLogin(), authContext.domain.uid,
-						authContext.userPassword);
+				vl.onValidLogin(matchingProvider, authContext.user != null, authContext.getRealUserLogin(),
+						authContext.domain.uid, authContext.userPassword);
 			}
 		}
 

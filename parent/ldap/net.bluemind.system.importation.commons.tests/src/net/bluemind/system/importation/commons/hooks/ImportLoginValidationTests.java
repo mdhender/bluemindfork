@@ -110,7 +110,7 @@ public class ImportLoginValidationTests {
 			}
 		};
 
-		unsupportedAuthProvider.onValidLogin(fakeAuthProvider, null, null, null);
+		unsupportedAuthProvider.onValidLogin(fakeAuthProvider, false, null, null, null);
 	}
 
 	@Test
@@ -123,7 +123,7 @@ public class ImportLoginValidationTests {
 		};
 
 		try {
-			importLoginValidationTest.onValidLogin(fakeAuthProvider, null, "invaliddomainuid", null);
+			importLoginValidationTest.onValidLogin(fakeAuthProvider, false, null, "invaliddomainuid", null);
 			fail("Test must thrown an exception");
 		} catch (ServerFault sf) {
 			assertEquals("Domain uid invaliddomainuid not found", sf.getMessage());
@@ -143,7 +143,7 @@ public class ImportLoginValidationTests {
 			}
 		};
 
-		importLoginValidationTest.onValidLogin(fakeAuthProvider, "login", domain.uid, null);
+		importLoginValidationTest.onValidLogin(fakeAuthProvider, true, "login", domain.uid, null);
 	}
 
 	@Test
@@ -166,7 +166,7 @@ public class ImportLoginValidationTests {
 		};
 
 		try {
-			importLoginValidationTest.onValidLogin(fakeAuthProvider, "login", domain.uid, null);
+			importLoginValidationTest.onValidLogin(fakeAuthProvider, false, "login", domain.uid, null);
 		} catch (ServerFault sf) {
 			assertEquals("Can't find user: login@" + domain.uid + " in directory server", sf.getMessage());
 		}
@@ -257,7 +257,7 @@ public class ImportLoginValidationTests {
 		}
 
 		ImportLoginValidationFake importLoginValidationTest = new ImportLoginValidationFake();
-		importLoginValidationTest.onValidLogin(fakeAuthProvider, "login", domain.uid, null);
+		importLoginValidationTest.onValidLogin(fakeAuthProvider, false, "login", domain.uid, null);
 
 		assertNotNull(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class, domain.uid)
 				.getComplete(userManagerTest.user.uid));
