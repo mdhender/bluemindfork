@@ -68,7 +68,6 @@ import net.bluemind.backend.mail.api.MessageBody.Header;
 import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.backend.mail.api.SeenUpdate;
 import net.bluemind.backend.mail.api.utils.PartsWalker;
-import net.bluemind.backend.mail.parsing.EZInputStreamAdapter;
 import net.bluemind.backend.mail.parsing.EmlBuilder;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
@@ -101,6 +100,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.utils.ReadInputStream;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.imap.Flag;
@@ -667,23 +667,20 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	@Override
 	public String uploadPart(Stream part) {
+		long time = System.currentTimeMillis();
 		String addr = UUID.randomUUID().toString();
 		logger.info("[{}] Upload starts {}...", addr, part);
-		CompletableFuture<Void> upload = EZInputStreamAdapter.consume(part, oioStream -> {
-			logger.info("[{}] Got adapted stream {}", addr, oioStream);
+		try (ReadInputStream ri = new ReadInputStream(VertxStream.read(part))) {
 			File output = partFile(addr);
 			try (OutputStream out = Files.newOutputStream(output.toPath())) {
-				ByteStreams.copy(oioStream, out);
+				ByteStreams.copy(ri, out);
+				time = System.currentTimeMillis() - time;
+				logger.info("[{}] Upload tooks {}ms", addr, time);
+				return addr;
 			} catch (Exception e) {
 				throw new ServerFault(e);
-
 			}
-			return null;
-		});
-		try {
-			upload.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
-			return addr;
-		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+		} catch (Exception e) {
 			throw new ServerFault(e);
 		}
 	}
