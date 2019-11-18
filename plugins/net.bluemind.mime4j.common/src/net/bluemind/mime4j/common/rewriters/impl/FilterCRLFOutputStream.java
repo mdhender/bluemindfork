@@ -23,23 +23,63 @@ import java.io.OutputStream;
 
 public class FilterCRLFOutputStream extends FilterOutputStream {
 
-	char prev = 0;
-	private boolean first = true;
+	int last = 0;
+
+	public static final int CR = 13;
+
+	public static final int LF = 10;
+
+	public static final byte[] CRLF = { CR, LF };
 
 	public FilterCRLFOutputStream(OutputStream out) {
 		super(out);
 	}
 
 	@Override
-	public void write(int b) throws IOException {
-
-		char asChar = (char) b;
-		if (!first && asChar == '\n' && prev != '\r') {
-			super.write('\r');
+	public void write(int ch) throws IOException {
+		if (ch == CR) {
+			out.write(CRLF);
+		} else if (ch == LF) {
+			if (last != CR) {
+				out.write(CRLF);
+			}
+		} else {
+			out.write(ch);
 		}
-		prev = asChar;
-		first = false;
-		super.write(b);
+		last = ch;
+	}
+
+	@Override
+	public void write(byte[] b) throws IOException {
+		write(b, 0, b.length);
+	}
+
+	@Override
+	public void write(byte[] b, int off, int len) throws IOException {
+		int d = off;
+		len += off;
+		for (int i = off; i < len; i++) {
+			switch (b[i]) {
+			case CR:
+				out.write(b, d, i - d);
+				out.write(CRLF, 0, 2);
+				d = i + 1;
+				break;
+			case LF:
+				if (last != CR) {
+					out.write(b, d, i - d);
+					out.write(CRLF, 0, 2);
+				}
+				d = i + 1;
+				break;
+			default:
+				break;
+			}
+			last = b[i];
+		}
+		if (len - d > 0) {
+			out.write(b, d, len - d);
+		}
 	}
 
 }
