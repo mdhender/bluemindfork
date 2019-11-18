@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.backend.mail.api.IReadOnlyMailboxFolders;
-import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
@@ -100,9 +99,15 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 	@Override
 	public void update(String uid, MailboxReplica replica) {
 		sanitizeNames(replica);
-		ItemValue<MailboxFolder> previous = getComplete(uid);
+		ItemValue<MailboxReplica> previous = getCompleteReplica(uid);
 		if (previous != null) {
 			ItemVersion upd = storeService.update(uid, replica.name, replica);
+
+			ItemValue<MailboxReplica> toCache = ItemValue.create(previous, replica);
+			toCache.displayName = replica.name;
+			toCache.value.dataLocation = previous.value.dataLocation;
+			MboxReplicasCache.cache(toCache);
+
 			boolean minorChange = isMinorChange(replica, previous);
 			if (!minorChange) {
 				String recordsContainerUid = IMailReplicaUids.mboxRecords(uid);
@@ -124,7 +129,7 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 		}
 	}
 
-	private boolean isMinorChange(MailboxReplica replica, ItemValue<MailboxFolder> previous) {
+	private boolean isMinorChange(MailboxReplica replica, ItemValue<MailboxReplica> previous) {
 		boolean sameName = previous.value.fullName.equals(replica.fullName);
 		boolean deletionStatusUnchanged = previous.flags.contains(ItemFlag.Deleted) == replica.deleted;
 
@@ -146,6 +151,7 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 		// is it root ??? should we drop the subtree ?
 		ItemVersion deleted = storeService.delete(uid);
 		if (deleted != null) {
+			MboxReplicasCache.invalidate(uid);
 			String toDelete = IMailReplicaUids.mboxRecords(uid);
 			if (recordsApi != null) {
 				logger.info("Purge records in {} {}...", uid, toDelete);

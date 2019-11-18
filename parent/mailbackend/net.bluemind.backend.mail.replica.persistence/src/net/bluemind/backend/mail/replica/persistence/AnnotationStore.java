@@ -37,11 +37,12 @@ public class AnnotationStore extends JdbcAbstractStore {
 		super(pool);
 	}
 
+	private static final String UPSERT = "INSERT INTO t_mailbox_annotation ( " + AnnotationColumns.COLUMNS.names()
+			+ ") VALUES (" + AnnotationColumns.COLUMNS.values() + ") ON CONFLICT (mbox, user_id, entry) DO UPDATE SET ("
+			+ AnnotationColumns.COLUMNS.names() + ") = (" + AnnotationColumns.COLUMNS.values() + ")";
+
 	public void store(MailboxAnnotation qr) throws SQLException {
-		String query = "INSERT INTO t_mailbox_annotation ( " + AnnotationColumns.COLUMNS.names() + ") VALUES ("
-				+ AnnotationColumns.COLUMNS.values() + ") ON CONFLICT (mbox, user_id, entry) DO UPDATE SET ("
-				+ AnnotationColumns.COLUMNS.names() + ") = (" + AnnotationColumns.COLUMNS.values() + ")";
-		insert(query, qr, Arrays.asList(AnnotationColumns.values(), AnnotationColumns.values()));
+		insert(UPSERT, qr, Arrays.asList(AnnotationColumns.values(), AnnotationColumns.values()));
 		logger.info("annot {} upserted.", qr);
 	}
 
@@ -51,9 +52,11 @@ public class AnnotationStore extends JdbcAbstractStore {
 		logger.info("annot {} deleted.", qr);
 	}
 
+	private static final String BY_MBOX = "SELECT " + AnnotationColumns.COLUMNS.names()
+			+ " FROM t_mailbox_annotation WHERE mbox=?";
+
 	public List<MailboxAnnotation> byMailbox(String mbox) throws SQLException {
-		String query = "SELECT " + AnnotationColumns.COLUMNS.names() + " FROM t_mailbox_annotation WHERE mbox=?";
-		return select(query, rs -> new MailboxAnnotation(), AnnotationColumns.populator(), new Object[] { mbox });
+		return select(BY_MBOX, rs -> new MailboxAnnotation(), AnnotationColumns.populator(), new Object[] { mbox });
 	}
 
 }

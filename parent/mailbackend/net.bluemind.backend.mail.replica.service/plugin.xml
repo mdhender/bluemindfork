@@ -198,5 +198,8 @@
       <reg
             impl="net.bluemind.backend.mail.replica.service.internal.hooks.DeletedDataMementos$Registration">
       </reg>
+      <reg
+            impl="net.bluemind.backend.mail.replica.service.internal.MboxReplicasCache$Reg">
+      </reg>
    </extension>
 </plugin>
