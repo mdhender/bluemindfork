@@ -118,6 +118,7 @@ import net.bluemind.mime4j.common.Mime4JHelper.SizedStream;
 public class ImapMailboxRecordsService extends BaseMailboxRecordsService implements IMailboxItems {
 
 	private static final Logger logger = LoggerFactory.getLogger(ImapMailboxRecordsService.class);
+	private static final Integer DEFAULT_TIMEOUT = 18; // sec
 	private final String imapFolder;
 	private final ImapContext imapContext;
 	private final SeenOverlayStore seenOverlays;
@@ -302,7 +303,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 					try {
 						return fast.select(imapFolder)
 								.thenCompose(selec -> fast.fetch(current.value.imapUid, p.address))
-								.get(15, TimeUnit.SECONDS);
+								.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 					} catch (TimeoutException e) {
 						throw new ServerFault("Failed to fetch part " + p.address + " from current. Timeout occured");
 					}
@@ -354,7 +355,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 						cf.completeExceptionally(ie);
 						return cf;
 					}
-				}).get(15, TimeUnit.SECONDS);
+				}).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 			} catch (TimeoutException e) {
 				throw new ServerFault("Failed to append email. Timeout occured");
 			}
@@ -362,7 +363,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		logger.info("Waiting for old imap uid {} to be updated, the new one is {}...", current.value.imapUid,
 				appended.result.map(r -> r.newUid).orElse(-1L));
 		try {
-			ItemChange change = completion.get(10, TimeUnit.SECONDS);
+			ItemChange change = completion.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 			return Ack.create(change.version);
 		} catch (InterruptedException | ExecutionException | TimeoutException e) {
 			throw new ServerFault(e);
@@ -380,7 +381,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		doImapFlagsUpdate(mail.imapUid, mail);
 		time = System.currentTimeMillis() - time;
 		try {
-			ItemChange change = repEvent.get(10, TimeUnit.SECONDS);
+			ItemChange change = repEvent.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 			logger.info("Updated item with a latency of {}ms. (imap time: {}ms)", change.latencyMs, time);
 			return Ack.create(change.version);
 		} catch (Exception e) {
@@ -465,7 +466,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		});
 		if (addedUid > 0) {
 			try {
-				ItemChange change = completion.get(10, TimeUnit.SECONDS);
+				ItemChange change = completion.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 				logger.warn("**** CreateById of item {}, latency: {}ms.", change.internalId, change.latencyMs);
 				return ItemIdentifier.of(null, id, change.version);
 			} catch (InterruptedException | ExecutionException | TimeoutException e) {
@@ -651,7 +652,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 						ImapResponseStatus<FetchResponse> emptyResp = new ImapResponseStatus<>(Status.Ok,
 								new FetchResponse(Unpooled.EMPTY_BUFFER));
 						return CompletableFuture.completedFuture(emptyResp);
-					}).get(15, TimeUnit.SECONDS);
+					}).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 				} catch (TimeoutException e) {
 					throw new ServerFault("Failed to fetch " + imapUid + " .Timeout occured");
 				}
@@ -680,7 +681,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			return null;
 		});
 		try {
-			upload.get(18, TimeUnit.SECONDS);
+			upload.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 			return addr;
 		} catch (InterruptedException | ExecutionException | TimeoutException e) {
 			throw new ServerFault(e);
@@ -816,7 +817,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			return null;
 		});
 		try {
-			Long v = repEvent.get(10, TimeUnit.SECONDS);
+			Long v = repEvent.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 			return Ack.create(v);
 		} catch (Exception e) {
 			throw new ServerFault(e);
@@ -916,7 +917,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		doImapAddFlags(uids, Arrays.asList(Flag.DELETED.toString()));
 		time = System.currentTimeMillis() - time;
 		try {
-			ItemChange change = repEvent.get(10, TimeUnit.SECONDS);
+			ItemChange change = repEvent.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 			logger.info("Delete {} items with a latency of {}ms. (imap time: {}ms)", ids.size(), change.latencyMs,
 					time);
 		} catch (Exception e) {
