@@ -18,8 +18,10 @@
             </bm-col>
         </bm-row>
         <bm-row class="flex-fill">
-            <bm-col cols="12" md="3" lg="1" xl="2" class="d-lg-block collapse px-0 bg-surface">
-                <mail-folder-tree />
+            <bm-col cols="12" md="3" lg="1" xl="2" class="d-lg-block collapse px-0 bg-surface h-100">
+                <div class="h-100 scroller scroller-visible-on-hover position-relative">
+                    <mail-folder-tree class="d-inline-block" />
+                </div>
             </bm-col>
             <bm-col cols="12" md="3" class="pl-2 pr-0">
                 <mail-message-list class="h-100" />
@@ -103,5 +105,9 @@ body > div {
     position: absolute;
     bottom: 5px;
     z-index: 3;
+}
+
+.mail-folder-tree {
+    min-width: 100%;
 }
 </style>

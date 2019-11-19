@@ -15,7 +15,7 @@
                 :value="tree"
                 :selected="currentFolderUid"
                 node-id-key="uid"
-                class="text-nowrap text-truncate"
+                class="text-nowrap"
                 breakpoint="xl"
                 @expand="expand"
                 @collapse="collapse"
@@ -27,7 +27,7 @@
                         v-if="f.value.unread > 0"
                         :value="f.value.unread"
                         :variant="f.value.uid != currentFolderUid ? 'secondary' : 'primary'"
-                        class="mr-1"
+                        class="mr-1 position-sticky"
                     />
                 </template>
             </bm-tree>
