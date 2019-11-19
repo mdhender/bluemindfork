@@ -30,7 +30,7 @@
             <bm-col cols="1" class="mail-attachment">
                 <component :is="state" v-if="!!state" class="ml-2" />
             </bm-col>
-            <bm-col class="mail-subject text-overflow">
+            <bm-col class="text-secondary text-overflow">
                 <div 
                     v-bm-tooltip.d500.bottom.viewport
                     :title="message.subject"
@@ -181,10 +181,6 @@ a.list-group-item.mail-message-list-item {
 
 .not-seen {
     font-weight: $font-weight-bold;
-}
-
-.mail-subject {
-    color: $text-muted;
 }
 
 .text-overflow {

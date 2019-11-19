@@ -7,7 +7,7 @@
         </bm-row>
         <bm-row>
             <bm-col cols="12">
-                <h2 class="text-secondary font-weight-normal">{{ subject }}</h2>
+                <h1>{{ subject }}</h1>
             </bm-col>
         </bm-row>
         <bm-row class="d-flex">

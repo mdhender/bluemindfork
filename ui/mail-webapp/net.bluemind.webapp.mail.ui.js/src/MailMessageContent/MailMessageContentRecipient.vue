@@ -1,6 +1,6 @@
 <template>
     <div class="d-flex flex-wrap mb-1">
-        <span class="pr-1"><slot /></span> 
+        <span class="pr-1 text-secondary"><slot /></span> 
         <div v-for="(recipient, index) in recipients" :key="recipient" class="d-flex">
             <bm-contact 
                 :closeable="false" 
