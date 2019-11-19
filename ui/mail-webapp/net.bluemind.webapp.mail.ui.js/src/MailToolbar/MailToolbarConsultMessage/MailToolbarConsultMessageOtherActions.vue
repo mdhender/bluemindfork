@@ -1,7 +1,7 @@
 <template>
     <div class="d-inline-block h-100">
         <bm-dropdown 
-            v-bm-tooltip.bottom.d500
+            v-bm-tooltip.bottom.ds500
             :no-caret="true"
             variant="link"
             :aria-label="$tc('mail.toolbar.more.aria')"

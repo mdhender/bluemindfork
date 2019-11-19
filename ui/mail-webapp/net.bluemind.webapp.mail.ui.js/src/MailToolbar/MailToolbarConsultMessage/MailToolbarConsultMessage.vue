@@ -3,7 +3,7 @@
         <global-events @keydown.tab.capture="forceCloseMoveAutocomplete" />
         <bm-button
             v-if="currentMessage.states.includes('not-seen')"
-            v-bm-tooltip.bottom.d500
+            v-bm-tooltip.bottom.ds500
             variant="link"
             class="unread"
             :title="$tc('mail.actions.mark_read.aria')"
@@ -14,7 +14,7 @@
         </bm-button>
         <bm-button
             v-else
-            v-bm-tooltip.bottom.d500
+            v-bm-tooltip.bottom.ds500
             variant="link"
             class="read"
             :title="$tc('mail.actions.mark_unread.aria')"
@@ -25,7 +25,7 @@
         </bm-button>
         <mail-toolbar-consult-message-move-action />
         <bm-button
-            v-bm-tooltip.bottom.d500
+            v-bm-tooltip.bottom.ds500
             variant="link"
             :title="$tc('mail.actions.spam.aria')"
             :aria-label="$tc('mail.actions.spam.aria')"
@@ -34,7 +34,7 @@
             {{ $tc("mail.actions.spam") }}
         </bm-button>
         <bm-button 
-            v-bm-tooltip.bottom.d500
+            v-bm-tooltip.bottom.ds500
             variant="link"
             :title="$tc('mail.actions.remove.aria')"
             :aria-label="$tc('mail.actions.remove.aria')"

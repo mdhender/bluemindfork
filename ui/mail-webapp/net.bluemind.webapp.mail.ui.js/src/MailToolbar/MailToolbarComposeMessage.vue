@@ -1,7 +1,7 @@
 <template>
     <div>
         <bm-button
-            v-bm-tooltip.bottom.d500
+            v-bm-tooltip.bottom.ds500
             variant="link"
             :aria-label="$tc('mail.actions.send.aria')"
             :title="$tc('mail.actions.send.aria')"
@@ -12,7 +12,7 @@
             {{ $tc("mail.actions.send") }}
         </bm-button>
         <bm-button
-            v-bm-tooltip.bottom.d500
+            v-bm-tooltip.bottom.ds500
             variant="link"
             :aria-label="$tc('mail.actions.save.aria')"
             :title="$tc('mail.actions.save.aria')"
@@ -23,7 +23,7 @@
             {{ $tc("mail.actions.save") }}
         </bm-button>
         <bm-button
-            v-bm-tooltip.bottom.d500
+            v-bm-tooltip.bottom.ds500
             variant="link"
             :aria-label="$tc('mail.actions.remove.compose.aria')"
             :title="$tc('mail.actions.remove.compose.aria')"
@@ -34,7 +34,7 @@
             {{ $tc("mail.actions.remove") }}
         </bm-button> 
         <bm-button
-            v-bm-tooltip.bottom.d500
+            v-bm-tooltip.bottom.ds500
             variant="link"
             :aria-label="$tc('mail.actions.attach.aria')"
             :title="$tc('mail.actions.attach.aria')"

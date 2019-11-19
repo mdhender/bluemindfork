@@ -2,7 +2,7 @@
     <bm-button-toolbar class="mail-message-list-item-quick-action-buttons pt-1 justify-content-end">
         <bm-button-group>
             <bm-button
-                v-bm-tooltip.d500.top.viewport
+                v-bm-tooltip.ds500.top.viewport
                 :aria-label="$tc('mail.actions.remove.aria')"
                 :title="$tc('mail.actions.remove.aria')"
                 class="p-1 mr-2 border-0 hovershadow"
@@ -14,7 +14,7 @@
             </bm-button>
             <bm-button
                 v-if="message.states.includes('not-seen')" 
-                v-bm-tooltip.d500.top.viewport
+                v-bm-tooltip.ds500.top.viewport
                 class="p-1 border-0 hovershadow"
                 :aria-label="$tc('mail.actions.mark_read.aria')"
                 :title="$tc('mail.actions.mark_read.aria')"
@@ -25,7 +25,7 @@
             </bm-button>
             <bm-button
                 v-else 
-                v-bm-tooltip.d500.top.viewport
+                v-bm-tooltip.ds500.top.viewport
                 class="p-1 border-0 hovershadow"
                 :aria-label="$tc('mail.actions.mark_unread.aria')"
                 :title="$tc('mail.actions.mark_unread.aria')"

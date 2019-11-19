@@ -13,16 +13,23 @@
                 <bm-check @click.native.stop />
             </bm-col>
             <bm-col cols="8" class="text-overflow">
-                <div v-bm-tooltip.d500.viewport :title="from" class="text-overflow d-inline-block mw-100">
+                <div v-bm-tooltip.ds500.viewport :title="from" class="text-overflow d-inline-block mw-100">
                     {{ from }}
                 </div>
             </bm-col>
-            <bm-col v-show="!quickActionButtonsVisible" cols="3" class="mail-widgets">
-                <component :is="widget" v-for="widget in widgets" :key="widget.template" class="ml-2" />
-            </bm-col>
-            <bm-col v-show="quickActionButtonsVisible" cols="3">
-                <transition name="fade">
-                    <mail-message-list-item-quick-action-buttons :message="message" />
+            <bm-col cols="3">
+                <transition name="fade" mode="out-in">
+                    <div v-if="!quickActionButtonsVisible" class="float-right">
+                        <component
+                            :is="widget"
+                            v-for="widget in widgets"
+                            :key="widget.template"
+                        />
+                    </div>
+                    <mail-message-list-item-quick-action-buttons
+                        v-if="quickActionButtonsVisible" 
+                        :message="message"
+                    />
                 </transition>
             </bm-col>
         </bm-row>
@@ -32,14 +39,14 @@
             </bm-col>
             <bm-col class="text-secondary text-overflow">
                 <div 
-                    v-bm-tooltip.d500.bottom.viewport
+                    v-bm-tooltip.ds500.bottom.viewport
                     :title="message.subject"
                     class="text-overflow d-inline-block mw-100"
                 >
                     {{ message.subject }}
                 </div>
             </bm-col>
-            <bm-col cols="3" class="mail-date">
+            <bm-col cols="3" class="text-right">
                 <span class="text-nowrap d-none d-sm-block d-md-none d-xl-block">{{ displayedDate }}</span>
                 <span class="text-nowrap d-sm-none d-md-block d-xl-none">{{ smallerDisplayedDate }}</span>
             </bm-col>
@@ -189,16 +196,12 @@ a.list-group-item.mail-message-list-item {
     white-space: nowrap;
 }
 
-.mail-date, .mail-widgets {
-    text-align: right;
-}
-
 .fade-enter-active {
-    transition: opacity 0.5s;
+    transition: opacity 0.2s;
 }
 
 .fade-leave-active {
-    transition: opacity 0s;
+    transition: opacity 0.3s;
 }
 
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {

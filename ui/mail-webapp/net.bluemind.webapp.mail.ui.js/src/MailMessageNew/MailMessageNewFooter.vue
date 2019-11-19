@@ -28,7 +28,7 @@
         </div>
         <span 
             v-if="errorOccuredOnSave"
-            v-bm-tooltip.bottom.hover.d500
+            v-bm-tooltip.bottom.hover.ds500
             class="d-flex align-items-center pr-2 text-danger"
             :title="$t('mail.draft.save.error.reason')"
         >

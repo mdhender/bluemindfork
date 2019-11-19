@@ -1,7 +1,7 @@
 <template>
     <bm-dropdown
         ref="move-dropdown"
-        v-bm-tooltip.bottom.d500
+        v-bm-tooltip.bottom.ds500
         :no-caret="true"
         class="h-100 move-message"
         :disabled="disableMove"
