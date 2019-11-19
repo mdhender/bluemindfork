@@ -87,6 +87,7 @@ import net.bluemind.backend.mail.replica.service.ReplicationEvents;
 import net.bluemind.backend.mail.replica.service.ReplicationEvents.ItemChange;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Stream;
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.api.Count;
@@ -357,7 +358,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 					}
 				}).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 			} catch (TimeoutException e) {
-				throw new ServerFault("Failed to append email. Timeout occured");
+				throw new ServerFault("Failed to append email. Timeout occured", ErrorCode.TIMEOUT);
 			}
 		});
 		logger.info("Waiting for old imap uid {} to be updated, the new one is {}...", current.value.imapUid,
@@ -365,7 +366,9 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		try {
 			ItemChange change = completion.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 			return Ack.create(change.version);
-		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+		} catch (TimeoutException e) {
+			throw new ServerFault(e.getMessage(), ErrorCode.TIMEOUT);
+		} catch (InterruptedException | ExecutionException e) {
 			throw new ServerFault(e);
 		}
 	}
@@ -384,6 +387,8 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			ItemChange change = repEvent.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 			logger.info("Updated item with a latency of {}ms. (imap time: {}ms)", change.latencyMs, time);
 			return Ack.create(change.version);
+		} catch (TimeoutException e) {
+			throw new ServerFault(e.getMessage(), ErrorCode.TIMEOUT);
 		} catch (Exception e) {
 			throw new ServerFault(e);
 		}
@@ -469,7 +474,9 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 				ItemChange change = completion.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 				logger.warn("**** CreateById of item {}, latency: {}ms.", change.internalId, change.latencyMs);
 				return ItemIdentifier.of(null, id, change.version);
-			} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			} catch (TimeoutException e) {
+				throw new ServerFault(e.getMessage(), ErrorCode.TIMEOUT);
+			} catch (InterruptedException | ExecutionException e) {
 				throw new ServerFault(e);
 			}
 		}
@@ -654,7 +661,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 						return CompletableFuture.completedFuture(emptyResp);
 					}).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 				} catch (TimeoutException e) {
-					throw new ServerFault("Failed to fetch " + imapUid + " .Timeout occured");
+					throw new ServerFault("Failed to fetch " + imapUid + " .Timeout occured", ErrorCode.TIMEOUT);
 				}
 
 				return fetchResp.result.get().data;
@@ -816,6 +823,8 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		try {
 			Long v = repEvent.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 			return Ack.create(v);
+		} catch (TimeoutException e) {
+			throw new ServerFault(e.getMessage(), ErrorCode.TIMEOUT);
 		} catch (Exception e) {
 			throw new ServerFault(e);
 		}
@@ -917,6 +926,8 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			ItemChange change = repEvent.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 			logger.info("Delete {} items with a latency of {}ms. (imap time: {}ms)", ids.size(), change.latencyMs,
 					time);
+		} catch (TimeoutException e) {
+			throw new ServerFault(e.getMessage(), ErrorCode.TIMEOUT);
 		} catch (Exception e) {
 			throw new ServerFault(e);
 		}
