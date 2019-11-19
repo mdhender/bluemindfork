@@ -68,6 +68,7 @@ import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
@@ -405,7 +406,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 					toUpdate.size() - deletes, deletes, System.currentTimeMillis() - time);
 			return storeService.getVersion();
 		});
-		updateIndex(pushToIndex);
+		updateIndex(contVersion, pushToIndex);
 		if (!newMailNotification.isEmpty()) {
 			for (ItemValue<MailboxRecord> toNotify : newMailNotification) {
 				newMailNotification(toNotify);
@@ -429,16 +430,19 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 				createdIds);
 	}
 
-	private void updateIndex(List<ItemValue<MailboxRecord>> pushToIndex) {
+	private void updateIndex(long contVersion, List<ItemValue<MailboxRecord>> pushToIndex) {
 		if (!pushToIndex.isEmpty()) {
-			long esTime = System.currentTimeMillis();
-			Optional<BulkOperation> bulkOp = Optional.of(indexService.startBulk());
-			for (ItemValue<MailboxRecord> forIndex : pushToIndex) {
-				index(forIndex, bulkOp);
-			}
-			bulkOp.ifPresent(bul -> bul.commit(false));
-			esTime = System.currentTimeMillis() - esTime;
-			logger.info("[{}] Es CRUD op, idx: {} in {}ms", mailboxUniqueId, pushToIndex.size(), esTime);
+			ITasksManager runner = context.provider().instance(ITasksManager.class);
+			runner.run(mailboxUniqueId + "-" + contVersion, monitor -> {
+				long esTime = System.currentTimeMillis();
+				Optional<BulkOperation> bulkOp = Optional.of(indexService.startBulk());
+				for (ItemValue<MailboxRecord> forIndex : pushToIndex) {
+					index(forIndex, bulkOp);
+				}
+				bulkOp.ifPresent(bul -> bul.commit(false));
+				esTime = System.currentTimeMillis() - esTime;
+				logger.info("[{}] Es CRUD op, idx: {} in {}ms", mailboxUniqueId, pushToIndex.size(), esTime);
+			});
 		}
 	}
 
