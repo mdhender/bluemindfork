@@ -2,6 +2,8 @@
 <!ENTITY bm.button.open.calendar.tooltiptext "Open BlueMind Calendar in a new tab.">
 <!ENTITY bm.button.open.todolist.label "Tasks">
 <!ENTITY bm.button.open.todolist.tooltiptext "Open BlueMind Tasks in a new tab.">
+<!ENTITY bm.button.open.settings.label "BlueMind settings">
+<!ENTITY bm.button.open.settings.tooltiptext "Open your BlueMind settings in a new tab.">
 <!ENTITY bm.button.sync.label "Synchronize">
 <!ENTITY bm.button.sync.tooltiptext "Synchronize BlueMind addressbooks.">
 <!ENTITY bm.preferences.tab.label "BlueMind">
@@ -15,66 +17,15 @@
 <!ENTITY bm.preferences.import.button.label "Import...">
 <!ENTITY bm.preferences.import.button.tooltiptext "Import contacts in BlueMind.">
 <!ENTITY bm.preferences.contact.label "BlueMind Contacts">
-<!ENTITY bm.preferences.calendar.label "BlueMind Calendar">
-<!ENTITY bm.preferences.calendar.calendar.label "Configure BlueMind calendar preferences">
-<!ENTITY bm.preferences.calendar.button.label "Calendar...">
+<!ENTITY bm.preferences.settings.label "BlueMind Settings">
+<!ENTITY bm.preferences.settings.settings.label "Configure your BlueMind preferences">
+<!ENTITY bm.preferences.settings.button.label "Settings...">
 <!ENTITY bm.preferences.im.label "Instant messaging">
 <!ENTITY bm.preferences.im.add.label "BlueMind instant messaging account">
 <!ENTITY bm.preferences.im.button.add.label "Configure...">
-<!ENTITY bm.preferences.mail.label "Messaging">
-<!ENTITY bm.preferences.mail.vacation.label "Automatic reply">
-<!ENTITY bm.preferences.mail.button.vacation.label "Reply...">
 <!ENTITY bm.preferences.log.label "Logging">
 <!ENTITY bm.preferences.log.pref.label "Enable debug logging">
 <!ENTITY bm.abnamedialog.local "BlueMind Directory">
-<!ENTITY bm.calprefs.dialog.title "BlueMind calendar preferences">
-<!ENTITY bm.calprefs.tabgeneral.label "General">
-<!ENTITY bm.calprefs.tabgeneral.timezone.label "Time zone">
-<!ENTITY bm.calprefs.tabgeneral.dateformat.label "Date format">
-<!ENTITY bm.calprefs.tabgeneral.dateformat.item1 "31/12/2013">
-<!ENTITY bm.calprefs.tabgeneral.dateformat.item2 "2013-12-31">
-<!ENTITY bm.calprefs.tabgeneral.dateformat.item3 "12/31/2013">
-<!ENTITY bm.calprefs.tabgeneral.timeformat.label "Time format">
-<!ENTITY bm.calprefs.tabgeneral.item1 "1:00pm">
-<!ENTITY bm.calprefs.tabgeneral.item2 "13:00">
-<!ENTITY bm.calprefs.tabgeneral.weekstartson.label "Week starts on">
-<!ENTITY bm.calprefs.tabgeneral.monday "Monday">
-<!ENTITY bm.calprefs.tabgeneral.tuesday "Tuesday">
-<!ENTITY bm.calprefs.tabgeneral.wednesday "Wednesday">
-<!ENTITY bm.calprefs.tabgeneral.thursday "Thursday">
-<!ENTITY bm.calprefs.tabgeneral.friday "Friday">
-<!ENTITY bm.calprefs.tabgeneral.saturday "Saturday">
-<!ENTITY bm.calprefs.tabgeneral.sunday "Sunday">
-<!ENTITY bm.calprefs.tabgeneral.defaultview.label "Default view">
-<!ENTITY bm.calprefs.tabgeneral.defaultview.day "Day">
-<!ENTITY bm.calprefs.tabgeneral.defaultview.week "Week">
-<!ENTITY bm.calprefs.tabgeneral.defaultview.month "Month">
-<!ENTITY bm.calprefs.tabgeneral.defaultview.agenda "List">
-<!ENTITY bm.calprefs.tabgeneral.showdeclinedevents.label "Show declined events">
-<!ENTITY bm.calprefs.tabgeneral.yes "Yes">
-<!ENTITY bm.calprefs.tabgeneral.no "No">
-<!ENTITY bm.calprefs.tabgeneral.showweekends.label "Show weekends">
-<!ENTITY bm.calprefs.tabgeneral.daystartsat.label "Day starts at">
-<!ENTITY bm.calprefs.tabgeneral.dayendsat.label "Day ends at">
-<!ENTITY bm.calprefs.tabgeneral.workingdays.label "Working days">
-<!ENTITY bm.calprefs.tabcalendars.label "My calendars">
-<!ENTITY bm.calprefs.tabcalendars.new "New calendar">
-<!ENTITY bm.calprefs.tabcalendars.add "Add">
-<!ENTITY bm.calprefs.tabsubscribe.label "Subscription">
-<!ENTITY bm.calprefs.tabsubscribe.filter "Filter: ">
-<!ENTITY bm.calprefs.tabsubscribe.tab.name "Name">
-<!ENTITY bm.calprefs.tabsubscribe.tab.email "Email">
-<!ENTITY bm.calprefs.tabsubscribe.tab.rights "Rights">
-<!ENTITY bm.calprefs.tabsubscribe.tab.subscribed "Subscribed">
-<!ENTITY bm.calprefs.tabshare.label "Sharings">
-<!ENTITY bm.calprefs.tabshare.selectcalendar.label "Manage sharings of ">
-<!ENTITY bm.calprefs.tabshare.publicsahre.label "Allow public share">
-<!ENTITY bm.calprefs.tabshare.access "Can invite me">
-<!ENTITY bm.calprefs.tabshare.read "Can invite me and can see my events">
-<!ENTITY bm.calprefs.tabshare.write "Can update my events">
-<!ENTITY bm.calprefs.tabshare.admin "Can update my events and manage my sharings">
-<!ENTITY bm.calprefs.tabshare.sharewith.label "Share with specific people or group">
-<!ENTITY bm.calprefs.tabshare.sharewith.search "Add people or group: ">
 <!ENTITY bm.icsbandal.description "Meeting">
 <!ENTITY bm.icsbandal.title "Title">
 <!ENTITY bm.icsbandal.when "When">
@@ -85,12 +36,5 @@
 <!ENTITY bm.card.alert.local "This is a readonly contact member of list:">
 <!ENTITY bm.remotechooser.title "BlueMind: Files chooser">
 <!ENTITY bm.compose.attach.link "From BlueMind file hosting">
-<!ENTITY bm.vacation.dialog.title "BlueMind: Automatic reply">
-<!ENTITY bm.vacation.disable "Do not send automatic reply">
-<!ENTITY bm.vacation.enable "Send automatic reply">
-<!ENTITY bm.vacation.start "From">
-<!ENTITY bm.vacation.end "to (included)">
-<!ENTITY bm.vacation.subject "Subject">
-<!ENTITY bm.vacation.message "Message">
 <!ENTITY bm.signature.disclamer "A corporate signature will be added to your message">
 <!ENTITY bm.signature.hide "Hide preview">

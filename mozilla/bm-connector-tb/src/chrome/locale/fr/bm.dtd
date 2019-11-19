@@ -2,6 +2,8 @@
 <!ENTITY bm.button.open.calendar.tooltiptext "Ouvrir le calendrier BlueMind dans un nouvel onglet.">
 <!ENTITY bm.button.open.todolist.label "Tâches">
 <!ENTITY bm.button.open.todolist.tooltiptext "Ouvrir les tâches BlueMind dans un nouvel onglet.">
+<!ENTITY bm.button.open.settings.label "Préférences BlueMind">
+<!ENTITY bm.button.open.settings.tooltiptext "Ouvrez vos préférences BlueMind dans un nouvel onglet.">
 <!ENTITY bm.button.sync.label "Synchroniser">
 <!ENTITY bm.button.sync.tooltiptext "Synchroniser les carnets d'adresses BlueMind.">
 <!ENTITY bm.preferences.tab.label "BlueMind">
@@ -14,66 +16,15 @@
 <!ENTITY bm.preferences.showlog.button.tooltiptext "Voir le fichier journal de l'extension.">
 <!ENTITY bm.preferences.import.button.label "Importer...">
 <!ENTITY bm.preferences.import.button.tooltiptext "Importer des contacts dans BlueMind.">
-<!ENTITY bm.preferences.calendar.label "Agenda BlueMind">
-<!ENTITY bm.preferences.calendar.calendar.label "Configurer les préférences de l'agenda BlueMind">
-<!ENTITY bm.preferences.calendar.button.label "Agenda...">
+<!ENTITY bm.preferences.settings.label "Préférences BlueMind">
+<!ENTITY bm.preferences.settings.settings.label "Configurez vos préférences BlueMind">
+<!ENTITY bm.preferences.settings.button.label "Préférences...">
 <!ENTITY bm.preferences.im.label "Messagerie instantannée">
 <!ENTITY bm.preferences.im.add.label "Compte de messagerie instantannée BlueMind">
 <!ENTITY bm.preferences.im.button.add.label "Configurer...">
-<!ENTITY bm.preferences.mail.label "Messagerie">
-<!ENTITY bm.preferences.mail.vacation.label "Réponse automatique">
-<!ENTITY bm.preferences.mail.button.vacation.label "Réponse...">
 <!ENTITY bm.preferences.log.label "Journalisation">
 <!ENTITY bm.preferences.log.pref.label "Activer la journalisation détaillée">
 <!ENTITY bm.abnamedialog.local "Carnet BlueMind">
-<!ENTITY bm.calprefs.dialog.title "Préférences agenda BlueMind">
-<!ENTITY bm.calprefs.tabgeneral.label "Général">
-<!ENTITY bm.calprefs.tabgeneral.timezone.label "Fuseau horaire">
-<!ENTITY bm.calprefs.tabgeneral.dateformat.label "Format de date">
-<!ENTITY bm.calprefs.tabgeneral.dateformat.item1 "31/12/2013">
-<!ENTITY bm.calprefs.tabgeneral.dateformat.item2 "2013-12-31">
-<!ENTITY bm.calprefs.tabgeneral.dateformat.item3 "12/31/2013">
-<!ENTITY bm.calprefs.tabgeneral.timeformat.label "Format d'heure">
-<!ENTITY bm.calprefs.tabgeneral.item1 "1:00pm">
-<!ENTITY bm.calprefs.tabgeneral.item2 "13:00">
-<!ENTITY bm.calprefs.tabgeneral.weekstartson.label "La semaine commence le">
-<!ENTITY bm.calprefs.tabgeneral.monday "Lundi">
-<!ENTITY bm.calprefs.tabgeneral.tuesday "Mardi">
-<!ENTITY bm.calprefs.tabgeneral.wednesday "Mercredi">
-<!ENTITY bm.calprefs.tabgeneral.thursday "Jeudi">
-<!ENTITY bm.calprefs.tabgeneral.friday "Vendredi">
-<!ENTITY bm.calprefs.tabgeneral.saturday "Samedi">
-<!ENTITY bm.calprefs.tabgeneral.sunday "Dimanche">
-<!ENTITY bm.calprefs.tabgeneral.defaultview.label "Vue par défaut">
-<!ENTITY bm.calprefs.tabgeneral.defaultview.day "Jour">
-<!ENTITY bm.calprefs.tabgeneral.defaultview.week "Semaine">
-<!ENTITY bm.calprefs.tabgeneral.defaultview.month "Mois">
-<!ENTITY bm.calprefs.tabgeneral.defaultview.agenda "Liste">
-<!ENTITY bm.calprefs.tabgeneral.showdeclinedevents.label "Afficher les événements refusés">
-<!ENTITY bm.calprefs.tabgeneral.yes "Oui">
-<!ENTITY bm.calprefs.tabgeneral.no "Non">
-<!ENTITY bm.calprefs.tabgeneral.showweekends.label "Afficher les week-ends">
-<!ENTITY bm.calprefs.tabgeneral.daystartsat.label "La journée commence à">
-<!ENTITY bm.calprefs.tabgeneral.dayendsat.label "La journée se termine à">
-<!ENTITY bm.calprefs.tabgeneral.workingdays.label "Jours ouvrés">
-<!ENTITY bm.calprefs.tabcalendars.label "Mes calendriers">
-<!ENTITY bm.calprefs.tabcalendars.new "Nouveau calendrier">
-<!ENTITY bm.calprefs.tabcalendars.add "Ajouter">
-<!ENTITY bm.calprefs.tabsubscribe.label "Abonnements">
-<!ENTITY bm.calprefs.tabsubscribe.filter "Filtrer :">
-<!ENTITY bm.calprefs.tabsubscribe.tab.name "Nom">
-<!ENTITY bm.calprefs.tabsubscribe.tab.email "Email">
-<!ENTITY bm.calprefs.tabsubscribe.tab.rights "Droits">
-<!ENTITY bm.calprefs.tabsubscribe.tab.subscribed "Souscrit">
-<!ENTITY bm.calprefs.tabshare.label "Gestion des partages">
-<!ENTITY bm.calprefs.tabshare.selectcalendar.label "Gérer les partages de ">
-<!ENTITY bm.calprefs.tabshare.publicsahre.label "Autoriser le partage public">
-<!ENTITY bm.calprefs.tabshare.access "Peut m'inviter à une réunion">
-<!ENTITY bm.calprefs.tabshare.read "Peut m'inviter et voir mes rendez-vous">
-<!ENTITY bm.calprefs.tabshare.write "Peut modifier mes rendez-vous">
-<!ENTITY bm.calprefs.tabshare.admin "Peut modifier mes rendez-vous et gerer mes agendas">
-<!ENTITY bm.calprefs.tabshare.sharewith.label "Partager avec des personnes ou des groupes en particulier">
-<!ENTITY bm.calprefs.tabshare.sharewith.search "Ajouter un utilisateur ou groupe: ">
 <!ENTITY bm.icsbandal.description "Réunion">
 <!ENTITY bm.icsbandal.title "Titre">
 <!ENTITY bm.icsbandal.when "Quand">
@@ -84,12 +35,5 @@
 <!ENTITY bm.card.alert.local "Ceci est un contact non modifiable qui est un membre de la liste :">
 <!ENTITY bm.remotechooser.title "BlueMind: Sélecteur de fichiers">
 <!ENTITY bm.compose.attach.link "Depuis le serveur de fichiers BlueMind">
-<!ENTITY bm.vacation.dialog.title "BlueMind: Réponse automatique">
-<!ENTITY bm.vacation.disable "Ne pas envoyer de réponse automatique">
-<!ENTITY bm.vacation.enable "Envoyer des réponses automatiques">
-<!ENTITY bm.vacation.start "Du">
-<!ENTITY bm.vacation.end "jusqu'au (inclus)">
-<!ENTITY bm.vacation.subject "Sujet">
-<!ENTITY bm.vacation.message "Message">
 <!ENTITY bm.signature.disclamer "Une signature d'entreprise sera ajoutée à votre message">
 <!ENTITY bm.signature.hide "Masquer l'aperçu">

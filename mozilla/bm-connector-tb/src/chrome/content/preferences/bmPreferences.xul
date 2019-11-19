@@ -17,11 +17,11 @@
                 </hbox>
             </groupbox>
             <groupbox>
-                <caption label="&bm.preferences.calendar.label;"/>
+                <caption label="&bm.preferences.settings.label;"/>
                 <hbox align="center">
-                    <label value="&bm.preferences.calendar.calendar.label;"/>
+                    <label value="&bm.preferences.settings.settings.label;"/>
                     <spacer flex="1"/>
-                    <button label="&bm.preferences.calendar.button.label;" oncommand="gBMPreferences.openCalendarPrefDialog();"/>
+                    <button label="&bm.preferences.settings.button.label;" oncommand="gBMPreferences.openSettingsTab();"/>
                 </hbox>
             </groupbox>
             <groupbox>
@@ -30,14 +30,6 @@
                     <label value="&bm.preferences.im.add.label;"/>
                     <spacer flex="1"/>
                     <button label="&bm.preferences.im.button.add.label;" oncommand="gBMPreferences.addXMPPAccount();"/>
-                </hbox>
-            </groupbox>
-            <groupbox>
-                <caption label="&bm.preferences.mail.label;"/>
-                <hbox align="center">
-                    <label value="&bm.preferences.mail.vacation.label;"/>
-                    <spacer flex="1"/>
-                    <button label="&bm.preferences.mail.button.vacation.label;" oncommand="gBMPreferences.openVacationDialog();"/>
                 </hbox>
             </groupbox>
             <groupbox>

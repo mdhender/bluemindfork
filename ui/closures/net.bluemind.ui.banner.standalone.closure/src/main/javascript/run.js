@@ -50,16 +50,21 @@ var authClient = new net.bluemind.authentication.api.AuthenticationClient(rpc, '
 net.bluemind.ui.BannerStandalone.render = function(bannerEl, opt_selectedApp) {
   banner.dispose();
   
-  authClient.getCurrentUser().then(function(authUser) {
-    banner = new bluemind.ui.Banner();
-    model['user'] = authUser;
-    model['entries'] = bluemind.ui.BannerModel.loadEntries(authUser);
-    model['selectedEntry'] = opt_selectedApp;
-    model['widgets'] = bluemind.ui.BannerModel.loadWidgets(model['user']);
-    banner.setModel(model);
-    banner.render(bannerEl);
-
-  });
+  var hideBandal = false || goog.string.contains(goog.userAgent.getUserAgentString(), 'Thunderbird')
+  || goog.string.contains(goog.userAgent.getUserAgentString(), 'Icedove');
+  
+  if (!hideBandal) {
+	  authClient.getCurrentUser().then(function(authUser) {
+	    banner = new bluemind.ui.Banner();
+	    model['user'] = authUser;
+	    model['entries'] = bluemind.ui.BannerModel.loadEntries(authUser);
+	    model['selectedEntry'] = opt_selectedApp;
+	    model['widgets'] = bluemind.ui.BannerModel.loadWidgets(model['user']);
+	    banner.setModel(model);
+	    banner.render(bannerEl);
+	
+	  });
+  }
 };
 
 goog.exportSymbol('net.bluemind.ui.BannerStandalone.render', net.bluemind.ui.BannerStandalone.render);

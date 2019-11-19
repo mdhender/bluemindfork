@@ -39,6 +39,9 @@
         <menuitem id="bm-button-open-todolist-menu"
                   label="&bm.button.open.todolist.label;"
                   oncommand="gBMOverlay.openBmApp('/task', false);"/>
+        <menuitem id="bm-button-open-settings-menu"
+                  label="&bm.button.open.settings.label;"
+                  oncommand="gBMOverlay.openBmApp('/settings', false);"/>          
       </menupopup>
     </menu>
   </menupopup>
