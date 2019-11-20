@@ -8,7 +8,8 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.systemd.notify;bundle-version="3.1.0",
  org.junit;bundle-version="4.12.0",
- net.bluemind.vertx.testhelper
+ net.bluemind.vertx.testhelper,
+ net.bluemind.lib.vertx
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.systemd.notify.tests
 Bundle-ActivationPolicy: lazy

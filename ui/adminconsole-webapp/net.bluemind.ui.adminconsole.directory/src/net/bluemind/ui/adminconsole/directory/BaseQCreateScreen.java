@@ -142,7 +142,7 @@ public abstract class BaseQCreateScreen extends Composite implements IGwtComposi
 	@Override
 	public void loadModel(JavaScriptObject model) {
 	}
-	
+
 	@Override
 	public void saveModel(JavaScriptObject model) {
 	}
@@ -150,7 +150,7 @@ public abstract class BaseQCreateScreen extends Composite implements IGwtComposi
 	@Override
 	public void doLoad(ScreenRoot instance) {
 		JsMapStringJsObject map = instance.getModel().cast();
-		ItemValue<Domain> d = DomainsHolder.get().getSelectedDomain();
+		ItemValue<Domain> d = getDomain();
 
 		map.put("domain",
 				new ItemValueGwtSerDer<>(new DomainGwtSerDer()).serialize(d).isObject().getJavaScriptObject());
@@ -162,6 +162,10 @@ public abstract class BaseQCreateScreen extends Composite implements IGwtComposi
 				rootScreen.loadModel(rootScreen.getModel());
 			}
 		});
+	}
+
+	protected ItemValue<Domain> getDomain() {
+		return DomainsHolder.get().getSelectedDomain();
 	}
 
 }

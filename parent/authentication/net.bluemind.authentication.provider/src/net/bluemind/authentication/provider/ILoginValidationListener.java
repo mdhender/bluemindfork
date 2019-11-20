@@ -21,6 +21,6 @@ package net.bluemind.authentication.provider;
 
 public interface ILoginValidationListener {
 
-	void onValidLogin(IAuthProvider provider, String login, String domain, String password);
+	void onValidLogin(IAuthProvider provider, boolean userExists, String login, String domain, String password);
 
 }

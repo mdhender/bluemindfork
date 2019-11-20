@@ -23,5 +23,6 @@ Require-Bundle: net.bluemind.milter,
  net.bluemind.directory.api,
  net.bluemind.addressbook.api,
  net.bluemind.hornetq.client,
- net.bluemind.signature.commons;bundle-version="4.1.0"
+ net.bluemind.signature.commons;bundle-version="4.1.0",
+ net.bluemind.network.topology
 Export-Package: net.bluemind.milter.action.signature

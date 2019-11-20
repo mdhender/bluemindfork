@@ -103,6 +103,18 @@ input[type="text"], input[type="password"] {
     margin: 4px 0px 14px;
 }
 
+input[type="password"] {
+	padding-right: 25px;
+}
+
+.field-icon {
+	float: right;
+	margin-top: -35px;
+	margin-right: 10px;
+	cursor: pointer;
+	position: relative;
+}
+
 input[type="text"]:focus, input[type="password"]:focus {
 	outline: 0;
 	border-color: rgba(82, 168, 236, 0.8);

@@ -37,6 +37,12 @@
 				<module>rest-docs</module>
 			</modules>
 		</profile>
+		<profile>
+			<id>packaging</id>
+			<modules>
+				<module>packaging</module>
+			</modules>
+		</profile>
 	</profiles>
 
 

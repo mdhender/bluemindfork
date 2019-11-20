@@ -37,17 +37,25 @@ class bm_books extends rcube_plugin {
   private $mailManager;
 
   private $contactBMClient;
+  private $translatedAddressbooksName;
 
   const USERS = 'users';
   const CONTACTS = 'contacts';
   const COLLECTED_CONTACTS = 'collected_contacts';
-  const DIRECTORY = 'Annuaire'; // fixme bm-core set Annuaire as default name
 
   function __construct($api) {
     parent::__construct($api);
     $this->add_texts('localization/');
-    $this->contactsManager = new bm_contacts_manager();
+    $this->setTranslatedAddressbooksName();
+    $this->contactsManager = new bm_contacts_manager($this->translatedAddressbooksName);
     $this->mailManager = new bm_mail_manager($this->contactsManager);
+  }
+
+
+  private function setTranslatedAddressbooksName() {
+    $this->translatedAddressbooksName[$this::USERS] = $this->gettext($this::USERS);
+    $this->translatedAddressbooksName[$this::CONTACTS] = $this->gettext($this::CONTACTS);
+    $this->translatedAddressbooksName[$this::COLLECTED_CONTACTS] = $this->gettext($this::COLLECTED_CONTACTS);
   }
   
   public function init() {

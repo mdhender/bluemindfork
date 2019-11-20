@@ -33,7 +33,7 @@ public interface IUser extends IDirEntryPhotoSupport, IDirEntryExtIdSupport {
 	 * Creates a new {@link User} with the given uid. Also creates default calendar,
 	 * todo elements and the {@link User}'s mailbox if routing is internal
 	 * 
-	 * @param uid
+	 * @param uid 
 	 *                 the user's unique id
 	 * @param user
 	 *                 user data

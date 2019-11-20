@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -33,11 +34,16 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.attachment.api.AttachedFile;
+import net.bluemind.attachment.api.IAttachment;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.rest.base.GenericStream;
 import net.bluemind.core.utils.DateTimeComparator;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.Classification;
@@ -78,6 +84,7 @@ import net.fortuna.ical4j.model.parameter.SentBy;
 import net.fortuna.ical4j.model.parameter.Value;
 import net.fortuna.ical4j.model.parameter.XParameter;
 import net.fortuna.ical4j.model.property.Action;
+import net.fortuna.ical4j.model.property.Attach;
 import net.fortuna.ical4j.model.property.Attendee;
 import net.fortuna.ical4j.model.property.Categories;
 import net.fortuna.ical4j.model.property.Clazz;
@@ -110,7 +117,8 @@ public class ICal4jHelper<T extends ICalendarElement> {
 	static ZoneId utcTz = ZoneId.of("UTC");
 
 	// ICS -> BM
-	public ItemValue<T> parseIcs(T iCalendarElement, CalendarComponent cc, String globalTZ) {
+	public ItemValue<T> parseIcs(T iCalendarElement, CalendarComponent cc, String globalTZ,
+			Optional<CalendarOwner> owner) {
 
 		// UID
 		String uid = parseIcsUid(cc.getProperty(Property.UID));
@@ -284,7 +292,66 @@ public class ICal4jHelper<T extends ICalendarElement> {
 			iCalendarElement.rrule = rrule;
 		}
 
+		// ATTACH
+		iCalendarElement.attachments = parseAttachments(cc.getProperties(Property.ATTACH), owner);
+
 		return ItemValue.create(uid, iCalendarElement);
+	}
+
+	private List<AttachedFile> parseAttachments(PropertyList attachments, Optional<CalendarOwner> owner) {
+		List<AttachedFile> atts = new ArrayList<>();
+
+		for (int i = 0; i < attachments.size(); i++) {
+			Attach prop = (Attach) attachments.get(i);
+			byte[] binary = prop.getBinary();
+			if (binary == null && prop.getUri() != null) {
+				atts.add(addUriAttachment(prop));
+			} else if (binary != null && owner.isPresent()) {
+				AttachedFile addBinaryAttachment = addBinaryAttachment(prop, binary, i, owner);
+				if (addBinaryAttachment != null) {
+					atts.add(addBinaryAttachment);
+				}
+			}
+		}
+
+		return atts;
+
+	}
+
+	private AttachedFile addBinaryAttachment(Attach prop, byte[] binary, int index, Optional<CalendarOwner> owner) {
+		String extension = "data";
+		Parameter fmtType = prop.getParameter(Parameter.FMTTYPE);
+		if (fmtType != null) {
+			extension = Mime.getExtension(fmtType.getValue());
+		}
+		String filename = "attachment_" + index + "." + extension;
+		CalendarOwner calOwner = owner.get();
+		try (Sudo asUser = new Sudo(calOwner.userUid, calOwner.domainUid)) {
+			try {
+				IAttachment service = ServerSideServiceProvider.getProvider(asUser.context).instance(IAttachment.class,
+						calOwner.domainUid);
+				AttachedFile att = service.share(filename, GenericStream.simpleValue(binary, bin -> bin));
+				return att;
+			} catch (ServerFault e) {
+				logger.info("Cannot attach binary file as attachment: {}", e.getMessage());
+			}
+		}
+		return null;
+	}
+
+	private AttachedFile addUriAttachment(Attach prop) {
+		String url = prop.getUri().toString();
+		String filename = null;
+		if (prop.getParameter("X-FILE-NAME") != null) {
+			filename = prop.getParameter("X-FILE-NAME").getValue();
+		} else {
+			filename = prop.getUri().getPath();
+		}
+		AttachedFile att = new AttachedFile();
+		att.expirationDate = 0l;
+		att.name = filename;
+		att.publicUrl = url;
+		return att;
 	}
 
 	/**
@@ -538,7 +605,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 
 			reccurringRule.until = IcalConverter.convertToDateTime(recur.getUntil(), tz);
 			if (null != reccurringRule.until && null != elem.dtstart) {
-				reccurringRule.until.precision = elem.dtstart.precision;
+				reccurringRule.until = BmDateTimeWrapper.create(reccurringRule.until.iso8601, elem.dtstart.precision);
 			}
 
 			if (recur.getSecondList() != null) {
@@ -838,7 +905,26 @@ public class ICal4jHelper<T extends ICalendarElement> {
 				logger.warn("url is not valid", e);
 			}
 		}
+
+		// ATTACH
+		parseICalendarElementAttachments(properties, iCalendarElement);
+
 		return properties;
+	}
+
+	private static void parseICalendarElementAttachments(PropertyList properties, ICalendarElement iCalendarElement) {
+		if (iCalendarElement.attachments != null && !iCalendarElement.attachments.isEmpty()) {
+			for (AttachedFile attachment : iCalendarElement.attachments) {
+				ParameterList params = new ParameterList();
+				params.add(new XParameter("X-FILE-NAME", attachment.name));
+				try {
+					Attach attach = new Attach(params, attachment.publicUrl);
+					properties.add(attach);
+				} catch (Exception e) {
+					logger.warn("Attachment is not valid", e);
+				}
+			}
+		}
 	}
 
 	private static void parseICalendarElementReccurId(PropertyList properties, ICalendarElement iCalendarElement) {

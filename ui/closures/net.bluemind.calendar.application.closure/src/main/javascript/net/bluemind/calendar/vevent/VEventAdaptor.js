@@ -115,6 +115,8 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.toModelView = function(veve
     return helper.create(exdate);
   }, this);
 
+  model.attachments = this.parseAttachments_(vevent);
+  
   model.states = {};
   model = this.updateStates(model, calendar);
 
@@ -201,6 +203,7 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.updateStates = function(mod
   model.states.updatable = (calendar.states.writable) && (!model.states.private_ || (calendar.owner == this.ctx_.user['uid']) || this.canAll_(calendar.verbs)) ;
   model.states.attendee = goog.isDefAndNotNull(model.attendee) && model.states.meeting && !model.states.master
   model.states.removable = model.states.updatable && !!model.id;
+  model.states.hasAttachments = model.attachments.length > 0;
 
   return model;
 };
@@ -285,6 +288,25 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.parseRRule_ = function(veve
   return rrule;
 };
 
+net.bluemind.calendar.vevent.VEventAdaptor.prototype.parseAttachments_ = function(vevent) {
+  if (!vevent['attachments']) {
+    return [];
+  }
+  
+  var attachments = goog.array.map(vevent['attachments'], function(attachment) {
+    return {
+      publicUrl : attachment['publicUrl'],
+      name : attachment['name']
+    };
+  }, this);
+  
+  for (var i = 0; i < attachments.length; i++) { 
+    attachments[i].index = i;
+  } 
+  
+  return attachments;
+}
+
 /**
  * Test if the given item container is owned by a given attendee
  * 
@@ -351,6 +373,15 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.fromModelView = function(mo
       return {
         'action' : alarm.action,
         'trigger' : (null != alarm.trigger) ? alarm.trigger * -1 : alarm.trigger
+      }
+    });
+  }
+  
+  if (goog.isArray(model.attachments)) {
+    vevent['attachments'] = goog.array.map(model.attachments, function(attachment) {
+      return {
+        'publicUrl' : attachment.publicUrl,
+        'name' : attachment.name
       }
     });
   }

@@ -31,6 +31,7 @@ import net.bluemind.addressbook.api.VCard.Communications.Tel;
 import net.bluemind.addressbook.api.VCard.DeliveryAddressing;
 import net.bluemind.addressbook.api.VCard.Parameter;
 import net.bluemind.addressbook.ldap.adapter.LdapContact.ErrCode;
+import net.bluemind.addressbook.ldap.adapter.enhancer.ILdapContactEnhancer;
 import net.bluemind.addressbook.ldap.adapter.helper.VCardHelper;
 import net.bluemind.addressbook.ldap.api.LdapParameters;
 import net.bluemind.addressbook.ldap.api.LdapParameters.DirectoryType;
@@ -166,6 +167,10 @@ public class InetOrgPersonAdapter {
 
 		lc.vcard.deliveryAddressing.addAll(VCardHelper.manageAddress(entry.get(LDAP_POSTAL_ADDRESS), "work"));
 		lc.vcard.deliveryAddressing.addAll(VCardHelper.manageAddress(entry.get(LDAP_HOME_POSTAL_ADDRESS), "home"));
+
+		for (ILdapContactEnhancer ilce : Activator.getLdapContactEnhancerHooks()) {
+			ilce.enhanceLdapContact(entry, lc);
+		}
 
 		return lc;
 	}

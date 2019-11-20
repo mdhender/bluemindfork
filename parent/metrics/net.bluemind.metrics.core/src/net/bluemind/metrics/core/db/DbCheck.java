@@ -52,10 +52,12 @@ public class DbCheck extends Verticle implements BundleActivator {
 		idFactory = new IdFactory("jdbc", metricRegistry, DbCheck.class);
 
 		super.vertx.setPeriodic(1000 * 10, (id) -> {
-			String coreuid = Topology.get().core().uid;
-			check(JdbcActivator.getInstance().getDataSource(), coreuid, "directory");
-			JdbcActivator.getInstance().getMailboxDataSource().entrySet().forEach(e -> {
-				check(e.getValue(), e.getKey(), "mailbox");
+			Topology.getIfAvailable().ifPresent(topo -> {
+				String coreuid = topo.core().uid;
+				check(JdbcActivator.getInstance().getDataSource(), coreuid, "directory");
+				JdbcActivator.getInstance().getMailboxDataSource().entrySet().forEach(e -> {
+					check(e.getValue(), e.getKey(), "mailbox");
+				});
 			});
 		});
 	}

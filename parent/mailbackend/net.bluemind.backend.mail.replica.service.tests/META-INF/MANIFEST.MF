@@ -53,7 +53,9 @@ Require-Bundle: org.junit,
  net.bluemind.directory.service,
  net.bluemind.hsm.service;bundle-version="4.1.0",
  net.bluemind.core.sendmail,
- net.bluemind.system.api
+ net.bluemind.system.api,
+ net.bluemind.lib.vertx,
+ net.bluemind.locator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.backend.mail.replica.service.tests

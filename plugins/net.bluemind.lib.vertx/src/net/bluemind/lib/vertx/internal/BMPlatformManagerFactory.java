@@ -14,16 +14,9 @@ public class BMPlatformManagerFactory implements PlatformManagerFactory {
 	private final BMPlatformManager pm;
 
 	public BMPlatformManagerFactory() {
-		logger.info("Using BM platform manager factory.");
-		if (Thread.currentThread().getContextClassLoader() == null) {
-			Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
-		} else {
-			logger.info("Classloader used by vertx {}, factory classloader {}",
-					Thread.currentThread().getContextClassLoader(), this.getClass().getClassLoader());
-		}
 		InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
-
 		this.pm = new BMPlatformManager();
+		logger.info("Using BM platform manager factory {}", pm);
 	}
 
 	@Override

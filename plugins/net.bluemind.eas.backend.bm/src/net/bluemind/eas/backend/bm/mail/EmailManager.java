@@ -44,6 +44,8 @@ import net.bluemind.backend.mail.api.ImportMailboxItemsStatus.ImportStatus;
 import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.backend.mail.api.MailboxItem.SystemFlag;
 import net.bluemind.backend.mail.api.MessageBody.Part;
+import net.bluemind.core.api.fault.ErrorCode;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
@@ -168,9 +170,17 @@ public class EmailManager extends CoreConnect {
 					IMailboxItems service = getMailboxItemsService(bs, sent.uid);
 					byte[] data = ByteStreams.toByteArray(is);
 					String partAddr = service.uploadPart(VertxStream.stream(new Buffer(data)));
-					MailboxItem mi = MailboxItem.of(m.getSubject(), Part.create(null, "message/rfc822", partAddr));
-					mi.systemFlags = Arrays.asList(SystemFlag.seen);
-					service.create(mi);
+					try {
+						MailboxItem mi = MailboxItem.of(m.getSubject(), Part.create(null, "message/rfc822", partAddr));
+						mi.systemFlags = Arrays.asList(SystemFlag.seen);
+						service.create(mi);
+					} catch (ServerFault serverFault) {
+						if (serverFault.getCode() != ErrorCode.TIMEOUT) {
+							throw serverFault;
+						}
+					} finally {
+						service.removePart(partAddr);
+					}
 				}
 			}
 

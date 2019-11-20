@@ -82,6 +82,8 @@ import net.bluemind.ui.adminconsole.base.ui.ScreenShowRequest;
 import net.bluemind.ui.adminconsole.directory.l10n.DirectoryCenterConstants;
 import net.bluemind.ui.common.client.forms.Ajax;
 import net.bluemind.ui.gwttask.client.TaskWatcher;
+import net.bluemind.user.api.IUserPromise;
+import net.bluemind.user.api.gwt.endpoint.UserGwtEndpoint;
 
 public class DirectoryCenter extends Composite implements IGwtScreenRoot, IDomainChangedListener {
 
@@ -467,25 +469,64 @@ public class DirectoryCenter extends Composite implements IGwtScreenRoot, IDomai
 		IDirectoryPromise dir = new DirectoryGwtEndpoint(Ajax.TOKEN.getSessionId(),
 				DomainsHolder.get().getSelectedDomain().uid).promiseApi();
 
-		dir.search(dq).thenCompose(res -> {
-			if (res.total == 0) {
-				// no result, maybe we are looking for a specific dirEntry via
-				// its UID
-				return dir.findByEntryUid(dq.nameOrEmailFilter).thenApply(dirEntry -> {
-					if (dirEntry != null) {
-						return ListResult.create(Arrays.asList(ItemValue.create(dirEntry.entryUid, dirEntry)));
-					} else {
-						return res;
+		IUserPromise user = new UserGwtEndpoint(Ajax.TOKEN.getSessionId(), DomainsHolder.get().getSelectedDomain().uid)
+				.promiseApi();
+		CompletableFuture<ListResult<ItemValue<DirEntry>>> dirSearch = dir.search(dq);
+		CompletableFuture<ListResult<ItemValue<DirEntry>>> userSearch = new CompletableFuture<>();
+		if (dq.nameOrEmailFilter != null && dq.kindsFilter.contains(Kind.USER)) {
+			user.byLogin(dq.nameOrEmailFilter).thenAccept(u -> {
+				if (u == null) {
+					userSearch.complete(new ListResult<>());
+				} else {
+					dir.findByEntryUid(u.uid).thenAccept(dirEntry -> {
+						userSearch.complete(
+								ListResult.create(Arrays.asList(ItemValue.create(dirEntry.entryUid, dirEntry))));
+					});
+				}
+			});
+		} else {
+			userSearch.complete(new ListResult<>());
+		}
+
+		dirSearch.thenAccept(dirRet -> {
+			userSearch.thenAccept(userRet -> {
+				ListResult<ItemValue<DirEntry>> res = new ListResult<>();
+				res.values = new ArrayList<>();
+				res.values.addAll(dirRet.values);
+				for (ItemValue<DirEntry> userItem : userRet.values) {
+					boolean alreadyAdded = false;
+					for (ItemValue<DirEntry> dirItem : dirRet.values) {
+						if (userItem.uid.equals(dirItem.uid)) {
+							alreadyAdded = true;
+							break;
+						}
 					}
+					if (!alreadyAdded) {
+						res.values.add(userItem);
+					}
+				}
+				res.total = Math.max(dirRet.total, userRet.total);
+				CompletableFuture<ListResult<ItemValue<DirEntry>>> totalRes = null;
+				if (res.total == 0) {
+					// no result, maybe we are looking for a specific dirEntry via
+					// its UID
+					totalRes = dir.findByEntryUid(dq.nameOrEmailFilter).thenApply(dirEntry -> {
+						if (dirEntry != null) {
+							return ListResult.create(Arrays.asList(ItemValue.create(dirEntry.entryUid, dirEntry)));
+						} else {
+							return res;
+						}
+					});
+				} else {
+					totalRes = CompletableFuture.completedFuture(res);
+				}
+				totalRes.thenAccept(r -> {
+					asyncHandler.success(r);
+				}).exceptionally(t -> {
+					asyncHandler.failure(t);
+					return null;
 				});
-			} else {
-				return CompletableFuture.completedFuture(res);
-			}
-		}).thenAccept(res -> {
-			asyncHandler.success(res);
-		}).exceptionally(t -> {
-			asyncHandler.failure(t);
-			return null;
+			});
 		});
 	}
 

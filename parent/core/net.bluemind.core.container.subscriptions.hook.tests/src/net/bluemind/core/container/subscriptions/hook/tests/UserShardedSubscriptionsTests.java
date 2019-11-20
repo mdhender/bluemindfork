@@ -41,8 +41,8 @@ import com.google.common.collect.Sets;
 
 import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.api.ContainerSubscriptionModel;
-import net.bluemind.core.container.api.IOwnerSubscriptions;
 import net.bluemind.core.container.api.IOwnerSubscriptionUids;
+import net.bluemind.core.container.api.IOwnerSubscriptions;
 import net.bluemind.core.container.api.internal.IInternalOwnerSubscriptions;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemValue;
@@ -58,7 +58,9 @@ import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.directory.api.IDirEntryMaintenance;
 import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.service.IInternalDirEntryMaintenance;
+import net.bluemind.lib.vertx.Constructor;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.locator.LocatorVerticle;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
@@ -76,7 +78,7 @@ public class UserShardedSubscriptionsTests {
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
 
-		Deploy.verticles(false, "net.bluemind.locator.LocatorVerticle").get(20, TimeUnit.SECONDS);
+		Deploy.verticles(false, Constructor.of(LocatorVerticle::new, LocatorVerticle.class)).get(20, TimeUnit.SECONDS);
 
 		BmConfIni ini = new BmConfIni();
 

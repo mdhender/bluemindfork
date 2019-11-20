@@ -26,7 +26,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.document.storage,
  net.bluemind.utils,
  net.bluemind.icalendar.api,
- net.bluemind.todolist.api
+ net.bluemind.todolist.api,
+ net.bluemind.eas.busmods
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Fragment-Host: net.bluemind.eas

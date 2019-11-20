@@ -36,7 +36,7 @@ public class RestNetVerticle extends Verticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(RestNetVerticle.class);
 
-	private static final int PORT = 8090;
+	private static final int PORT = Integer.parseInt(System.getProperty("bm.rest.net.verticle.port", "8090"));
 
 	@Override
 	public void start(Future<Void> started) {

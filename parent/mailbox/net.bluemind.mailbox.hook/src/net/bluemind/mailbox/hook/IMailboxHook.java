@@ -26,6 +26,18 @@ import net.bluemind.mailbox.api.Mailbox;
 
 public interface IMailboxHook {
 
+	/**
+	 * Invoked before the mailbox is created in the backing store
+	 * 
+	 * @param context
+	 * @param domainUid
+	 * @param name
+	 * @throws ServerFault
+	 */
+	default void preMailboxCreated(BmContext context, String domainUid, String name) throws ServerFault {
+
+	}
+
 	public void onMailboxCreated(BmContext context, String domainUid, ItemValue<Mailbox> value) throws ServerFault;
 
 	public void onMailboxUpdated(BmContext context, String domainUid, ItemValue<Mailbox> previousValue,

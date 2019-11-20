@@ -44,7 +44,6 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
-import net.bluemind.gwtconsoleapp.base.notification.Notification;
 import net.bluemind.ui.common.client.forms.Ajax;
 import net.bluemind.ui.gwttask.client.TaskWatcher;
 
@@ -54,6 +53,7 @@ public class ExternalIcsCalendarActions extends CompositeGwtWidgetElement {
 	private String containerUid;
 	private Anchor syncAnchor;
 	private Label icsUrl;
+	private Label syncDeactivated;
 
 	public ExternalIcsCalendarActions() {
 
@@ -85,6 +85,14 @@ public class ExternalIcsCalendarActions extends CompositeGwtWidgetElement {
 
 		hp.add(reset);
 		hp.add(syncAnchor);
+
+		syncDeactivated = new Label();
+		syncDeactivated.setStyleName("fa fa-lg fa-warning");
+		syncDeactivated.setTitle(ExternalCalendarConstants.INST.syncDeactivatedToolTip());
+		syncDeactivated.getElement().getStyle().setProperty("marginLeft", "10px");
+		syncDeactivated.getElement().getStyle().setProperty("color", "red");
+		syncDeactivated.setVisible(false);
+		hp.add(syncDeactivated);
 
 		vp.add(hp);
 
@@ -128,7 +136,7 @@ public class ExternalIcsCalendarActions extends CompositeGwtWidgetElement {
 
 			@Override
 			public void success(TaskRef value) {
-				TaskWatcher.track(value.id);
+				TaskWatcher.track(value.id, false).thenAccept(v -> checkAutoSync());
 			}
 
 			@Override
@@ -145,7 +153,22 @@ public class ExternalIcsCalendarActions extends CompositeGwtWidgetElement {
 		JsMapStringString m = model.cast();
 		containerUid = m.get("container");
 		icsUrl.setText(m.get("icsUrl"));
+		this.checkAutoSync();
+	}
 
+	private void checkAutoSync() {
+		final ICalendarAsync calendarService = new CalendarGwtEndpoint(Ajax.TOKEN.getSessionId(), containerUid);
+		calendarService.isAutoSyncActivated(new AsyncHandler<Boolean>() {
+
+			@Override
+			public void success(Boolean autoSyncActivate) {
+				syncDeactivated.setVisible(!autoSyncActivate);
+			}
+
+			@Override
+			public void failure(Throwable e) {
+			}
+		});
 	}
 
 	public void setModel(String containerUid) {

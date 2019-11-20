@@ -24,5 +24,10 @@ import net.bluemind.core.context.SecurityContext;
 
 public interface IInCoreAuthentication extends IAuthentication {
 
-	public SecurityContext buildContext(String domainUid, String userUid) throws ServerFault;
+	public SecurityContext buildContext(String sid, String domainUid, String userUid) throws ServerFault;
+
+	default SecurityContext buildContext(String domainUid, String userUid) throws ServerFault {
+		return buildContext(null, domainUid, userUid);
+	}
+
 }

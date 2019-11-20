@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-
+import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.tag.api.TagRef;
@@ -50,6 +50,7 @@ public class ICalendarElement {
 	public Set<BmDateTime> rdate;
 	public RRule rrule;
 	public String url;
+	public List<AttachedFile> attachments = Collections.emptyList();
 
 	@BMApi(version = "3")
 	public static class VAlarm {
@@ -143,8 +144,8 @@ public class ICalendarElement {
 		 **/
 		public String member;
 		/**
-		 * "ROLE", for the intended role that the attendee will have in the
-		 * calendar component;
+		 * "ROLE", for the intended role that the attendee will have in the calendar
+		 * component;
 		 */
 		public Role role;
 		/**
@@ -156,8 +157,8 @@ public class ICalendarElement {
 		 */
 		public Boolean rsvp;
 		/**
-		 * "DELEGATED-TO", to indicate the calendar users that the original
-		 * request was delegated to;
+		 * "DELEGATED-TO", to indicate the calendar users that the original request was
+		 * delegated to;
 		 */
 		public String delTo;
 

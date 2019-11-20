@@ -25,6 +25,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.vertx.java.core.buffer.Buffer;
 
+import net.bluemind.backend.mail.api.FetchOptions;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.core.api.Stream;
@@ -54,7 +55,7 @@ public class AttachmentLoader extends CoreConnect {
 			return null;
 		}
 
-		Stream partStream = service.fetch(item.value.imapUid, partAddr, contentTransferEncoding, null, null);
+		Stream partStream = service.fetch(item.value.imapUid, partAddr, FetchOptions.decoded(contentTransferEncoding));
 		CompletableFuture<Buffer> partContent = SyncStreamDownload.read(partStream);
 		Buffer part = partContent.get(10, TimeUnit.SECONDS);
 		return new FastByteInputStream(part.getBytes());

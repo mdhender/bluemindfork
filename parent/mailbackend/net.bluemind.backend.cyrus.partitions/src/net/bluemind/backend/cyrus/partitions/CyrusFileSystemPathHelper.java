@@ -18,6 +18,8 @@
 package net.bluemind.backend.cyrus.partitions;
 
 public class CyrusFileSystemPathHelper {
+	public static final String MAIN_ROOT = "/var/spool/cyrus/data/";
+	public static final String ARCHIVE_ROOT = "/var/spool/bm-hsm/cyrus-archives/";
 
 	private CyrusFileSystemPathHelper() {
 
@@ -99,12 +101,12 @@ public class CyrusFileSystemPathHelper {
 
 	public static String getFileSystemPath(String domainUid, MailboxDescriptor mboxDescriptor, CyrusPartition partition,
 			long imapUid) {
-		return getPath(domainUid, mboxDescriptor, partition, imapUid, "/var/spool/cyrus/data/");
+		return getPath(domainUid, mboxDescriptor, partition, imapUid, MAIN_ROOT);
 	}
 
 	public static String getHSMFileSystemPath(String domainUid, MailboxDescriptor mboxDescriptor,
 			CyrusPartition partition, long imapUid) {
-		return getPath(domainUid, mboxDescriptor, partition, imapUid, "/var/spool/bm-hsm/cyrus-archives/");
+		return getPath(domainUid, mboxDescriptor, partition, imapUid, ARCHIVE_ROOT);
 	}
 
 }

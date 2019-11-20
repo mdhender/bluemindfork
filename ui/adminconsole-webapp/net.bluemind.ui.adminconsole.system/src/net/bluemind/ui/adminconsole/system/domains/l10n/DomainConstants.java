@@ -185,16 +185,18 @@ public interface DomainConstants extends Messages {
 
 	String senderInGroupRule();
 
+	String senderIsRule();
+
 	String matchAlwaysRule();
 
 	String xorRule();
 
 	String signatureAction();
-	
+
 	String isDisclaimer();
-	
+
 	String usePlaceholder();
-	
+
 	String removePrevious();
 
 	String addAssignment();
@@ -226,4 +228,23 @@ public interface DomainConstants extends Messages {
 	String sendDateIsBeforeRule();
 
 	String sendDateIsAfterRule();
+
+	String externalCalendars();
+
+	String minDelay();
+
+	String hour();
+
+	String hours();
+
+	String minute();
+
+	String minutes();
+
+	String minDelayWarning();
+
+	String minDelayMinutes();
+
+	String other();
+
 }

@@ -50,8 +50,10 @@ import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.auditlog.CalendarAuditor;
 import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
-import net.bluemind.calendar.helper.mail.CalendarMail;
+import net.bluemind.calendar.helper.mail.CalendarMail.CalendarMailBuilder;
 import net.bluemind.calendar.helper.mail.CalendarMailHelper;
+import net.bluemind.calendar.helper.mail.EventAttachment;
+import net.bluemind.calendar.helper.mail.EventAttachmentHelper;
 import net.bluemind.calendar.helper.mail.Messages;
 import net.bluemind.calendar.hook.internal.VEventMessage;
 import net.bluemind.common.freemarker.FreeMarkerMsg;
@@ -78,6 +80,9 @@ import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.Organizer;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 import net.bluemind.icalendar.api.ICalendarElement.Role;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.system.api.SystemConf;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.IUserSettings;
 import net.bluemind.user.api.User;
@@ -704,16 +709,36 @@ public class IcsHook implements ICalendarHook {
 					settings = userSettingsService.get(user.uid);
 				}
 
-				Message mail = buildMailMessage(from, from, attendeeListTo, attendeeListCc, subjectTemplate, template,
-						messagesResolverProvider.getResolver(new Locale(getLocale(settings))), data,
-						createBodyPart(message.itemUid, ics), settings, event, method);
-				mailer.send(from.getAddress(), from.getDomain(), new MailboxList(Arrays.asList(recipient), true), mail);
-				mail.dispose();
+				long maxMsgBytes = 10485760L;
+				if (!event.attachments.isEmpty()) {
+					SystemConf systemConf = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+							.instance(ISystemConfiguration.class).getValues();
+					maxMsgBytes = systemConf.convertedValue(SysConfKeys.message_size_limit.name(),
+							val -> Long.parseLong(val), 10485760L);
+
+				}
+				// attachment size ~= 60% message
+				long maxAttachBytes = maxMsgBytes * 6 / 10;
+				List<EventAttachment> attachments = EventAttachmentHelper.getAttachments(event, maxAttachBytes);
+				if (!attachments.isEmpty() && !EventAttachmentHelper.hasBinaryAttachments(attachments)) {
+					data.put("attachments", attachments);
+				}
+
+				try (Message mail = buildMailMessage(from, from, attendeeListTo, attendeeListCc, subjectTemplate,
+						template, messagesResolverProvider.getResolver(new Locale(getLocale(settings))), data,
+						createBodyPart(message.itemUid, ics), settings, event, method, attachments)) {
+					mailer.send(from.getAddress(), from.getDomain(), new MailboxList(Arrays.asList(recipient), true),
+							mail);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
 
 				auditor.actionSend(message.itemUid, recipient.getAddress(), ics);
 			});
 
-		} catch (ServerFault e) {
+		} catch (
+
+		ServerFault e) {
 			logger.error(e.getMessage(), e);
 		}
 
@@ -729,7 +754,7 @@ public class IcsHook implements ICalendarHook {
 	private Message buildMailMessage(Mailbox from, Mailbox sender, List<Mailbox> attendeeListTo,
 			List<Mailbox> attendeeListCc, String subjectTemplate, String templateName,
 			MessagesResolver messagesResolver, Map<String, Object> data, BodyPart ics, Map<String, String> settings,
-			VEvent vevent, Method method) throws ServerFault {
+			VEvent vevent, Method method, List<EventAttachment> attachments) throws ServerFault {
 		try {
 			String subject = new CalendarMailHelper().buildSubject(subjectTemplate, settings.get("lang"),
 					messagesResolver, data);
@@ -749,7 +774,7 @@ public class IcsHook implements ICalendarHook {
 			}
 
 			return getMessage(from, sender, attendeeListTo, attendeeListCc, subject, templateName, settings.get("lang"),
-					messagesResolver, data, ics, method);
+					messagesResolver, data, ics, method, attachments);
 
 		} catch (TemplateException e) {
 			throw new ServerFault(e);
@@ -967,6 +992,7 @@ public class IcsHook implements ICalendarHook {
 	 * @param data
 	 * @param ics
 	 * @param method
+	 * @param attachments
 	 * @return
 	 * @throws TemplateException
 	 * @throws IOException
@@ -974,25 +1000,28 @@ public class IcsHook implements ICalendarHook {
 	 */
 	private Message getMessage(Mailbox from, Mailbox sender, List<Mailbox> attendeeListTo, List<Mailbox> attendeeListCc,
 			String subject, String templateName, String locale, MessagesResolver messagesResolver,
-			Map<String, Object> data, BodyPart ics, Method method) throws TemplateException, IOException, ServerFault {
-		CalendarMail m = new CalendarMail();
+			Map<String, Object> data, BodyPart ics, Method method, List<EventAttachment> attachments)
+			throws TemplateException, IOException, ServerFault {
 
-		m.from = from;
-		m.sender = sender;
-		m.to = new MailboxList(attendeeListTo, true);
-		if (attendeeListCc != null) {
-			m.cc = new MailboxList(attendeeListCc, true);
-		}
-		m.method = method;
-
-		if (ics != null) {
-			m.ics = ics;
-		}
 		data.put("msg", new FreeMarkerMsg(messagesResolver));
-		m.html = new CalendarMailHelper().buildBody(templateName, locale, messagesResolver, data);
-		m.subject = subject;
 
-		return m.getMessage();
+		CalendarMailBuilder mailBuilder = new CalendarMailBuilder() //
+				.from(from) //
+				.sender(sender) //
+				.to(new MailboxList(attendeeListTo, true)) //
+				.method(method) //
+				.html(new CalendarMailHelper().buildBody(templateName, locale, messagesResolver, data)) //
+				.subject(subject) //
+				.ics(ics) //
+				.attachments(attachments);
+
+		logger.info("CalMail for attachments : {}", mailBuilder.build().attachments.get().size());
+
+		if (attendeeListCc != null) {
+			mailBuilder.cc(new MailboxList(attendeeListCc, true));
+		}
+
+		return mailBuilder.build().getMessage();
 	}
 
 	private String getIcsPart(String uid, Method method, VEventSeries series, Attendee attendee) throws ServerFault {

@@ -41,12 +41,14 @@ import org.junit.Test;
 import net.bluemind.backend.cyrus.replication.testhelper.CyrusGUID;
 import net.bluemind.backend.cyrus.replication.testhelper.MailboxUniqueId;
 import net.bluemind.backend.mail.api.MailboxItem.SystemFlag;
+import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore.MailboxRecordItemV;
+import net.bluemind.backend.mail.replica.persistence.MessageBodyStore;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemFlag;
@@ -59,6 +61,7 @@ public class MailboxRecordStoreTests {
 
 	private ItemStore itemStore;
 	private MailboxRecordStore boxRecordStore;
+	private MessageBodyStore bodyStore;
 
 	@Before
 	public void before() throws Exception {
@@ -79,6 +82,7 @@ public class MailboxRecordStoreTests {
 		itemStore = new ItemStore(JdbcTestHelper.getInstance().getDataSource(), container, securityContext);
 		boxRecordStore = new MailboxRecordStore(JdbcTestHelper.getInstance().getDataSource(), container);
 		boxRecordStore.deleteAll();
+		bodyStore = new MessageBodyStore(JdbcTestHelper.getInstance().getDataSource());
 	}
 
 	@After
@@ -152,6 +156,9 @@ public class MailboxRecordStoreTests {
 	@Test
 	public void testRecentItems() throws SQLException {
 		MailboxRecord mb = simpleRecord();
+		MessageBody body = body(mb.messageBody, new Date());
+		bodyStore.create(body);
+
 		String uniqueId = "rec" + System.currentTimeMillis();
 		itemStore.create(Item.create(uniqueId, null));
 		Item it = itemStore.get(uniqueId);
@@ -249,7 +256,7 @@ public class MailboxRecordStoreTests {
 		assertEquals(2, expiredItems.size());
 
 		for (MailboxRecordItemV mailboxRecordItemV : expiredItems) {
-			assertTrue(uids.contains(mailboxRecordItemV.item.value.imapUid));
+			assertTrue(uids.contains(mailboxRecordItemV.item().value.imapUid));
 		}
 	}
 
@@ -267,6 +274,13 @@ public class MailboxRecordStoreTests {
 		record.lastUpdated = new Date();
 		record.systemFlags = EnumSet.of(SystemFlag.seen);
 		return record;
+	}
+
+	private MessageBody body(String guid, Date d) {
+		MessageBody mb = new MessageBody();
+		mb.date = d;
+		mb.guid = guid;
+		return mb;
 	}
 
 }

@@ -90,7 +90,8 @@ public class IMIPParserImpl implements IIMIPParser {
 				IMIPInfos imip = new IMIPInfos();
 				imip.method = method;
 				imip.messageId = mid;
-				return parseiTIP(imip, e);
+				IMIPInfos parseiTIP = parseiTIP(imip, e);
+				return parseiTIP;
 			} else {
 				// BM-5591
 				// Outlook sends application/tnef for vTodo

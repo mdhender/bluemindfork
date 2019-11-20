@@ -15,8 +15,11 @@
       <sanitizor
             class="net.bluemind.backend.systemconf.internal.MessageSizeLimitSanitizor">
       </sanitizor>
+      <validator
+            class="net.bluemind.backend.systemconf.internal.CyrusMaxChildValidator">
+      </validator>
       <sanitizor
-            class="net.bluemind.backend.systemconf.internal.MessageSizeLimitSanitizor">
+            class="net.bluemind.backend.systemconf.internal.CyrusMaxChildSanitizor">
       </sanitizor>
    </extension>
    <extension

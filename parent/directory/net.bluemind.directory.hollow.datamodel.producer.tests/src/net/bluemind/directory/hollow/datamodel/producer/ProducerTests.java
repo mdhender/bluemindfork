@@ -27,10 +27,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
-import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -44,6 +45,8 @@ import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.TaskUtils;
+import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.IDirectory;
 import net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord;
 import net.bluemind.directory.hollow.datamodel.consumer.DirectorySearchFactory;
 import net.bluemind.directory.hollow.datamodel.consumer.SerializedDirectorySearch;
@@ -51,6 +54,8 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.api.IGroup;
+import net.bluemind.lib.vertx.Constructor;
+import net.bluemind.locator.LocatorVerticle;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailshare.api.IMailshare;
@@ -62,16 +67,22 @@ import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
+import net.bluemind.vertx.testhelper.Deploy;
 
 public class ProducerTests {
 
 	private String domainUid;
 	private ItemValue<Domain> domain;
 
+	@BeforeClass
+	public static void oneShotBefore() {
+		System.setProperty("es.mailspool.count", "1");
+	}
+
 	@Before
 	public void setup() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
-
+		Deploy.verticles(false, Constructor.of(LocatorVerticle::new, LocatorVerticle.class)).get(5, TimeUnit.SECONDS);
 		ElasticsearchTestHelper.getInstance().beforeTest();
 
 		domainUid = "dom" + System.currentTimeMillis() + ".test";
@@ -102,10 +113,10 @@ public class ProducerTests {
 		IMailshare mailshareService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IMailshare.class, domain.uid);
 
-		groupService.create(UUID.randomUUID().toString(), defaultGroup("test1", cyrusIp));
-		groupService.create(UUID.randomUUID().toString(), defaultGroup("test2", cyrusIp));
+		groupService.create("group1", defaultGroup("g1", cyrusIp));
+		groupService.create("group2", defaultGroup("g2", cyrusIp));
 
-		mailshareService.create(UUID.randomUUID().toString(), defaultMailshare(cyrusIp));
+		mailshareService.create("share1", defaultMailshare(cyrusIp));
 
 	}
 
@@ -118,19 +129,17 @@ public class ProducerTests {
 	public void testSimpleExport() throws Exception {
 		DirectoryTestProducer producer = new DirectoryTestProducer(domainUid);
 		producer.init();
-		producer.produce();
-		Thread.sleep(3000);
+		long snap = producer.produce();
 
 		DirectoryTestConsumer consumer = new DirectoryTestConsumer(producer.file);
 		DirectorySearchFactory.getDeserializers().remove(domainUid);
 		DirectorySearchFactory.getDeserializers().put(domainUid, consumer);
 		SerializedDirectorySearch search = DirectorySearchFactory.get(domainUid);
 
+		consumer.refreshTo(snap);
 		Collection<AddressBookRecord> dir = search.all();
 		assertEquals(8, dir.size());
 
-		producer.produce();
-		Thread.sleep(3000);
 		assertTrue(producer.file.listFiles().length > 0);
 		dir = search.all();
 		assertEquals(8, dir.size());
@@ -138,8 +147,8 @@ public class ProducerTests {
 		PopulateHelper.addUserWithRoles("user3", domainUid);
 		PopulateHelper.addUserWithRoles("user7", domainUid);
 		PopulateHelper.addUserWithRoles("user4", domainUid);
-		producer.produce();
-		Thread.sleep(3000);
+		consumer.refreshTo(producer.produce());
+
 		assertTrue(producer.file.listFiles().length > 0);
 		dir = search.all();
 		assertEquals(11, dir.size());
@@ -147,8 +156,7 @@ public class ProducerTests {
 		String uid5 = PopulateHelper.addUserWithRoles("user5", domainUid);
 		PopulateHelper.addUserWithRoles("user6", domainUid);
 
-		producer.produce();
-		Thread.sleep(3000);
+		consumer.refreshTo(producer.produce());
 		assertTrue(producer.file.listFiles().length > 0);
 		dir = search.all();
 		assertEquals(13, dir.size());
@@ -157,8 +165,7 @@ public class ProducerTests {
 		TaskRef tr = user.delete(uid5);
 		TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), tr);
 
-		producer.produce();
-		Thread.sleep(3000);
+		consumer.refreshTo(producer.produce());
 		assertTrue(producer.file.listFiles().length > 0);
 		dir = search.all();
 		assertEquals(12, dir.size());
@@ -175,13 +182,13 @@ public class ProducerTests {
 
 		DirectoryTestProducer producer = new DirectoryTestProducer(domainUid);
 		producer.init();
-		producer.produce();
-		Thread.sleep(3000);
+		long snap = producer.produce();
 
 		DirectoryTestConsumer consumer = new DirectoryTestConsumer(producer.file);
 		DirectorySearchFactory.getDeserializers().remove(domainUid);
 		DirectorySearchFactory.getDeserializers().put(domainUid, consumer);
 		SerializedDirectorySearch search = DirectorySearchFactory.get(domainUid);
+		consumer.refreshTo(snap);
 
 		Collection<AddressBookRecord> all = search.all();
 		all.forEach(ab -> {
@@ -206,20 +213,79 @@ public class ProducerTests {
 	public void testSearchByNameOrEmail() throws Exception {
 		DirectoryTestProducer producer = new DirectoryTestProducer(domainUid);
 		producer.init();
-		producer.produce();
-		Thread.sleep(3000);
+		long snap = producer.produce();
 
 		DirectoryTestConsumer consumer = new DirectoryTestConsumer(producer.file);
 		DirectorySearchFactory.getDeserializers().remove(domainUid);
 		DirectorySearchFactory.getDeserializers().put(domainUid, consumer);
 		SerializedDirectorySearch search = DirectorySearchFactory.get(domainUid);
 
-		Wait w = new Wait(consumer);
-		producer.produce();
-		w.waitFor();
+		consumer.refreshTo(snap);
 
 		Collection<AddressBookRecord> ret = search.byNameOrEmailPrefix("user");
 		assertEquals(4, ret.size());
+	}
+
+	@Test
+	public void testArchiveUser() throws Exception {
+		DirectoryTestProducer producer = new DirectoryTestProducer(domainUid);
+		producer.init();
+		long snap = producer.produce();
+
+		DirectoryTestConsumer consumer = new DirectoryTestConsumer(producer.file);
+		DirectorySearchFactory.getDeserializers().remove(domainUid);
+		DirectorySearchFactory.getDeserializers().put(domainUid, consumer);
+		SerializedDirectorySearch search = DirectorySearchFactory.get(domainUid);
+
+		consumer.refreshTo(snap);
+
+		Optional<AddressBookRecord> byEmail = search.byEmail("user1@" + domainUid);
+		assertTrue(byEmail.isPresent());
+
+		IUser userService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class,
+				domain.uid);
+		ItemValue<User> user1 = userService.getComplete("user1");
+		user1.value.archived = true;
+		userService.update("user1", user1.value);
+
+		consumer.refreshTo(producer.produce());
+
+		byEmail = search.byEmail("user1@" + domainUid);
+		assertFalse(byEmail.isPresent());
+	}
+
+	@Test
+	public void testDeleteGroup() throws Exception {
+		DirectoryTestProducer producer = new DirectoryTestProducer(domainUid);
+		producer.init();
+		long snap = producer.produce();
+
+		DirectoryTestConsumer consumer = new DirectoryTestConsumer(producer.file);
+		DirectorySearchFactory.getDeserializers().remove(domainUid);
+		DirectorySearchFactory.getDeserializers().put(domainUid, consumer);
+		SerializedDirectorySearch search = DirectorySearchFactory.get(domainUid);
+
+		consumer.refreshTo(snap);
+
+		Optional<AddressBookRecord> byEmail = search.byEmail("g1@" + domainUid);
+		assertTrue(byEmail.isPresent());
+
+		IGroup groupService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IGroup.class,
+				domain.uid);
+		System.err.println("Deleting group...");
+		groupService.delete("group1");
+		IDirectory dir = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDirectory.class,
+				domain.uid);
+		DirEntry fetch = null;
+		do {
+			Thread.sleep(100);
+			fetch = dir.findByEntryUid("group1");
+		} while (fetch != null);
+
+		consumer.refreshTo(producer.produce());
+
+		byEmail = search.byEmail("g1@" + domainUid);
+		assertFalse(byEmail.isPresent());
 	}
 
 	@Test
@@ -239,17 +305,14 @@ public class ProducerTests {
 
 		DirectoryTestProducer producer = new DirectoryTestProducer(domainUid);
 		producer.init();
-		producer.produce();
-		Thread.sleep(3000);
+		long version = producer.produce();
 
 		DirectoryTestConsumer consumer = new DirectoryTestConsumer(producer.file);
 		DirectorySearchFactory.getDeserializers().remove(domainUid);
 		DirectorySearchFactory.getDeserializers().put(domainUid, consumer);
 		SerializedDirectorySearch search = DirectorySearchFactory.get(domainUid);
 
-		Wait w = new Wait(consumer);
-		producer.produce();
-		w.waitFor();
+		consumer.refreshTo(version);
 
 		// user1 : user1@dom1544606454540.test, allAliases: false : default:
 		// true
@@ -271,33 +334,7 @@ public class ProducerTests {
 		assertTrue(byEmail.isPresent());
 	}
 
-	public static class Wait {
-
-		private DirectoryTestConsumer consumer;
-		private long version;
-
-		public Wait(DirectoryTestConsumer consumer) {
-			this.consumer = consumer;
-			this.version = consumer.getVersion();
-			System.err.println("init consumer with version " + version);
-		}
-
-		public void waitFor() {
-			int countdown = 20;
-			while (version == consumer.getVersion() && countdown > 0) {
-				System.err.println("version " + version + " --> " + consumer.getVersion());
-				try {
-					Thread.sleep(150);
-				} catch (InterruptedException e) {
-				}
-				countdown--;
-			}
-			version = consumer.getVersion();
-		}
-
-	}
-
-	private Group defaultGroup(String prefix, String cyrusIp) {
+	private Group defaultGroup(String name, String cyrusIp) {
 		IServer serverService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class,
 				"default");
 
@@ -305,10 +342,7 @@ public class ProducerTests {
 
 		Group group = new Group();
 
-		if (prefix == null || prefix.isEmpty()) {
-			prefix = "group";
-		}
-		group.name = prefix + "-" + System.nanoTime();
+		group.name = name;
 		group.description = "Test group";
 
 		Email e = new Email();

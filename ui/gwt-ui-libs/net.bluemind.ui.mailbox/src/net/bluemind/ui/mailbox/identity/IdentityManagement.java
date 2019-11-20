@@ -20,6 +20,7 @@ package net.bluemind.ui.mailbox.identity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -135,6 +136,8 @@ public class IdentityManagement extends CompositeGwtWidgetElement {
 
 	private String mboxName;
 
+	private boolean noDefaultIdentity;
+
 	/**
 	 * @param token
 	 * @param user
@@ -204,6 +207,7 @@ public class IdentityManagement extends CompositeGwtWidgetElement {
 
 			}
 		});
+
 	}
 
 	/**
@@ -273,12 +277,15 @@ public class IdentityManagement extends CompositeGwtWidgetElement {
 				? identityDescription.displayname
 				: "";
 
-		table.setWidget(row, 0, def);
-		table.setText(row, 1, name);
-		table.setText(row, 2, identityDescription.email);
-		table.setText(row, 3, displayName);
-		table.setWidget(row, 4, edit);
-		table.setWidget(row, 5, trash);
+		int index = 0;
+		if (!this.noDefaultIdentity) {
+			table.setWidget(row, index++, def);
+		}
+		table.setText(row, index++, name);
+		table.setText(row, index++, identityDescription.email);
+		table.setText(row, index++, displayName);
+		table.setWidget(row, index++, edit);
+		table.setWidget(row, index++, trash);
 
 		table.getCellFormatter().setStyleName(row, 0, s.actionCell());
 	}
@@ -377,12 +384,15 @@ public class IdentityManagement extends CompositeGwtWidgetElement {
 	protected void draw() {
 		table.removeAllRows();
 		table.getRowFormatter().setStyleName(0, s.headers());
-		table.setWidget(0, 0, new Label(getTexts().defaultIdentity()));
-		table.setWidget(0, 1, new Label(getTexts().name()));
-		table.setWidget(0, 2, new Label(getTexts().email()));
-		table.setWidget(0, 3, new Label(getTexts().displayname()));
-		table.setWidget(0, 4, new Label(""));
-		table.setWidget(0, 5, new Label(""));
+		int index = 0;
+		if (!this.noDefaultIdentity) {
+			table.setWidget(0, index++, new Label(getTexts().defaultIdentity()));
+		}
+		table.setWidget(0, index++, new Label(getTexts().name()));
+		table.setWidget(0, index++, new Label(getTexts().email()));
+		table.setWidget(0, index++, new Label(getTexts().displayname()));
+		table.setWidget(0, index++, new Label(""));
+		table.setWidget(0, index++, new Label(""));
 		table.getCellFormatter().setStyleName(0, 0, s.name());
 		table.getCellFormatter().setStyleName(0, 1, s.name());
 		table.getCellFormatter().setStyleName(0, 2, s.name());
@@ -440,6 +450,9 @@ public class IdentityManagement extends CompositeGwtWidgetElement {
 	@Override
 	public void loadModel(JavaScriptObject model) {
 		MailIdentitiesModel mim = model.cast();
+
+		this.noDefaultIdentity = mim.isNoDefaultIdentity();
+
 		this.supportsExternalIdentities = mim.isSupportsExternalIdentities();
 		defaultIdentity = null;
 
@@ -452,18 +465,12 @@ public class IdentityManagement extends CompositeGwtWidgetElement {
 
 		templates.clear();
 
-		final List<IdentityDescription> mimTemplates = mim.getIdentitiesTemplatesAsList();
-		if (!mimTemplates.isEmpty() && mimTemplates.get(0).isDefault != null && !mimTemplates.get(0).isDefault) {
-			// add a default identity
-			final IdentityDescription defaultIdentity = new IdentityDescription();
-			final String email = mimTemplates.get(0).email;
-			defaultIdentity.email = email;
-			defaultIdentity.isDefault = true;
-			defaultIdentity.mbox = mim.getMailboxUid();
-			defaultIdentity.name = email.substring(0, email.indexOf('@'));
-			templates.add(defaultIdentity);
-		}
-		templates.addAll(mimTemplates);
+		// use a Set and a custom decorator (with equals & hashcode) to avoid
+		// duplicates and fill with mailbox and user identities
+		final Set<IdDescDeco> idDescDecos = new HashSet<IdDescDeco>();
+		idDescDecos.addAll(IdDescDeco.fromIdentityDescriptions(mim.getIdentitiesTemplatesAsList()));
+		idDescDecos.addAll(IdDescDeco.fromIdentityDescriptions(this.identities));
+		templates.addAll(IdDescDeco.toIdentityDescriptions(idDescDecos));
 
 		domainUid = mim.getDomainUid();
 		mboxUid = mim.getMailboxUid();

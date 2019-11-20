@@ -30,5 +30,11 @@
             impl="net.bluemind.directory.hollow.datamodel.producer.impl.DomainVersions$Reg">
       </reg>
    </extension>
+   <extension
+         point="net.bluemind.directory.repairSupport">
+      <repairSupport
+            factory="net.bluemind.directory.hollow.datamodel.producer.impl.HollowDirectoryRepair$RepairFactory">
+      </repairSupport>
+   </extension>
 
 </plugin>

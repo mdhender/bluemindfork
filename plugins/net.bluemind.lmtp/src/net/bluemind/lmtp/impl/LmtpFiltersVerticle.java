@@ -156,15 +156,12 @@ public class LmtpFiltersVerticle extends Verticle {
 
 	private ByteBuf writeFilteredMessage(org.apache.james.mime4j.dom.Message message) throws FilterException {
 		ByteBuf result = Unpooled.buffer();
-		try (OutputStream out = new ByteBufOutputStream(result)) {
-			MessageServiceFactoryImpl.newInstance().newMessageWriter().writeMessage(message, out);
-
+		try (org.apache.james.mime4j.dom.Message m = message; OutputStream out = new ByteBufOutputStream(result)) {
+			MessageServiceFactoryImpl.newInstance().newMessageWriter().writeMessage(m, out);
 			return result;
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw new FilterException(LmtpReply.TEMPORARY_FAILURE, "Internal error");
-		} finally {
-			message.dispose();
 		}
 	}
 

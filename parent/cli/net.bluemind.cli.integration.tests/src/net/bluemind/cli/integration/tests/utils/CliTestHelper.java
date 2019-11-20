@@ -35,7 +35,9 @@ import net.bluemind.backend.mail.replica.indexing.RecordIndexActivator;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
+import net.bluemind.lib.vertx.Constructor;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.locator.LocatorVerticle;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
@@ -141,7 +143,7 @@ public class CliTestHelper {
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
 
-		Deploy.verticles(false, "net.bluemind.locator.LocatorVerticle").get(20, TimeUnit.SECONDS);
+		Deploy.verticles(false, Constructor.of(LocatorVerticle::new, LocatorVerticle.class)).get(20, TimeUnit.SECONDS);
 
 		ItemValue<Server> cyrusServer = ItemValue.create("localhost", imapServer);
 		CyrusService cyrusService = new CyrusService(cyrusServer);

@@ -121,6 +121,7 @@ public class BMPoolActivator extends Plugin {
 	public Pool newPool(String dbType, String login, String password, String dbName, String dbHost, int poolSize,
 			String schema) throws Exception {
 		logger.info("Starting connection pool {}/{}, schema: {}, dbtype: {}", dbHost, dbName, schema, dbType);
+		ClassLoader threadContextCl = Thread.currentThread().getContextClassLoader();
 		try {
 
 			IJDBCDriver cf = getDriver(dbType);
@@ -165,6 +166,9 @@ public class BMPoolActivator extends Plugin {
 		} catch (Exception t) {
 			logger.error(t.getMessage(), t);
 			throw t;
+		} finally {
+			// restore previous context classloader
+			Thread.currentThread().setContextClassLoader(threadContextCl);
 		}
 	}
 

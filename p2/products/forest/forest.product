@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="Forest Rest Endpoint" uid="forest" id="net.bluemind.forest.cloud.launcher.forest" application="forest.cloud" version="4.1.0.qualifier" useFeatures="false" includeLaunchers="false">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <vmArgs>-Dosgi.noShutdown=true
+      </vmArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
+   </launcherArgs>
+
+   <launcher>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+   </vm>
+
+   <plugins>
+      <plugin id="ch.qos.logback.classic"/>
+      <plugin id="ch.qos.logback.core"/>
+      <plugin id="com.fasterxml.jackson.core.jackson-annotations"/>
+      <plugin id="com.fasterxml.jackson.core.jackson-core"/>
+      <plugin id="com.fasterxml.jackson.core.jackson-databind"/>
+      <plugin id="com.google.guava"/>
+      <plugin id="com.hazelcast"/>
+      <plugin id="com.netflix.spectator.api"/>
+      <plugin id="com.ning.async-http-client"/>
+      <plugin id="io.netty"/>
+      <plugin id="io.vertx.core"/>
+      <plugin id="io.vertx.platform"/>
+      <plugin id="javax.validation.api"/>
+      <plugin id="javax.ws.rs"/>
+      <plugin id="javax.xml"/>
+      <plugin id="jcl.over.slf4j"/>
+      <plugin id="jul.to.slf4j"/>
+      <plugin id="net.bluemind.common.io"/>
+      <plugin id="net.bluemind.common.reflect"/>
+      <plugin id="net.bluemind.config"/>
+      <plugin id="net.bluemind.core.commons"/>
+      <plugin id="net.bluemind.core.context"/>
+      <plugin id="net.bluemind.core.rest"/>
+      <plugin id="net.bluemind.core.rest.common"/>
+      <plugin id="net.bluemind.core.rest.http"/>
+      <plugin id="net.bluemind.core.rest.http.vertx"/>
+      <plugin id="net.bluemind.core.sessions"/>
+      <plugin id="net.bluemind.core.task.api"/>
+      <plugin id="net.bluemind.eclipse.common"/>
+      <plugin id="net.bluemind.forest.cloud.api"/>
+      <plugin id="net.bluemind.forest.cloud.hazelcast"/>
+      <plugin id="net.bluemind.forest.cloud.launcher"/>
+      <plugin id="net.bluemind.forest.cloud.service"/>
+      <plugin id="net.bluemind.forest.instance.api"/>
+      <plugin id="net.bluemind.kafka.client"/>
+      <plugin id="net.bluemind.kafka.configuration"/>
+      <plugin id="net.bluemind.kafka.configuration.fs"/>
+      <plugin id="net.bluemind.lib.jackson"/>
+      <plugin id="net.bluemind.lib.vertx"/>
+      <plugin id="net.bluemind.metrics.registry"/>
+      <plugin id="net.bluemind.slf4j"/>
+      <plugin id="net.bluemind.slf4j.configuration" fragment="true"/>
+      <plugin id="net.bluemind.system.api"/>
+      <plugin id="net.bluemind.systemd.notify"/>
+      <plugin id="net.bluemind.utils"/>
+      <plugin id="net.java.dev.jna"/>
+      <plugin id="org.apache.commons.lang"/>
+      <plugin id="org.eclipse.core.contenttype"/>
+      <plugin id="org.eclipse.core.jobs"/>
+      <plugin id="org.eclipse.core.runtime"/>
+      <plugin id="org.eclipse.equinox.app"/>
+      <plugin id="org.eclipse.equinox.common"/>
+      <plugin id="org.eclipse.equinox.launcher"/>
+      <plugin id="org.eclipse.equinox.preferences"/>
+      <plugin id="org.eclipse.equinox.registry"/>
+      <plugin id="org.eclipse.osgi"/>
+      <plugin id="org.eclipse.update.configurator"/>
+      <plugin id="org.jboss.netty"/>
+      <plugin id="slf4j.api"/>
+   </plugins>
+
+
+</product>

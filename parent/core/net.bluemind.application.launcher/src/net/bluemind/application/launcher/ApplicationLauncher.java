@@ -51,6 +51,7 @@ import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.state.StateContext;
+import net.bluemind.system.validation.ProductChecks;
 import net.bluemind.systemd.notify.Startup;
 
 public class ApplicationLauncher implements IApplication {
@@ -116,7 +117,9 @@ public class ApplicationLauncher implements IApplication {
 					loadMailboxDataSource();
 					message.reply("ok");
 				});
-				logger.info("Verticles deployement complete.");
+				logger.info("Verticles deployement complete for {}, starting product checks...",
+						BMVersion.getVersion());
+				ProductChecks.validate();
 				Startup.notifyReady();
 				notifyCoreStatus("core.started");
 				TimeRangeAnnotation.annotate("CORE Start", new Date(), Optional.empty());

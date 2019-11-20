@@ -118,7 +118,7 @@ public class AddressableEntity implements Entity {
 			}
 		}
 		if (filename != null) {
-			filename = DecoderUtil.decodeEncodedWords(filename, DecodeMonitor.SILENT);
+			filename = DecoderUtil.decodeEncodedWords(filename, DecodeMonitor.SILENT).replace("\u0000", "");
 		}
 
 		return filename;

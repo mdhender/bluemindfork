@@ -159,6 +159,7 @@ public class DbReplicatedMailboxesServiceFactory
 				logger.info("NOOP searchItems on deleted mailbox {}@{}", mailboxRoot.name, domainUid);
 				return new SearchResult();
 			}
+
 		};
 	}
 

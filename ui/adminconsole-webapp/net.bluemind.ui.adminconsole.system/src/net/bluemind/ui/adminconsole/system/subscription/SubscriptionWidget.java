@@ -122,48 +122,48 @@ public class SubscriptionWidget extends Composite implements IGwtScreenRoot {
 
 	@UiField
 	Label maxSimpleAccountsLabel;
-	
+
 	@UiField
 	HTML subscriptionPostInstallInformations;
-	
+
 	@UiField
 	HTML noSubContacts;
-	
+
 	@UiField
 	Label aboutSubContacts;
-	
+
 	@UiField
 	SubContactTable mailTable;
-	
+
 	public interface BBBundle extends ClientBundle {
 		@Source("SubscriptionWidget.css")
 		BBStyle getStyle();
 	}
-	
+
 	public interface BBStyle extends CssResource {
 		String mailContact();
 	}
 
 	public static final BBBundle bundle;
 	public static final BBStyle style;
-	
+
 	static {
 		bundle = GWT.create(BBBundle.class);
 		style = bundle.getStyle();
 		style.ensureInjected();
 	}
-	
+
 	private static SubscriptionBinder uiBinder = GWT.create(SubscriptionBinder.class);
 	private SubscriptionRemovalWarningDialog srws;
 	private ScreenRoot screenRoot;
 	public static final String TYPE = "bm.ac.SubscriptionWidget";
-	
+
 	public SubscriptionWidget(ScreenRoot screenRoot) {
 		this.screenRoot = screenRoot;
 		DockLayoutPanel dlp = uiBinder.createAndBindUi(this);
 		dlp.setHeight("100%");
 		initWidget(dlp);
-		
+
 		uploadLicenseButton.setText(InstallLicenseConstants.INST.updateLicenseButton());
 		setupUploadForm();
 		deleteLicenseButton.setVisible(false);
@@ -173,56 +173,54 @@ public class SubscriptionWidget extends Composite implements IGwtScreenRoot {
 			public void run() {
 				save(null, null);
 			}
-		});		
-		
-		noSubContacts.setHTML("<h2>"+SubscriptionConstants.INST.noSubscriptionContact()+"</h2>");
+		});
+
+		noSubContacts.setHTML("<h2>" + SubscriptionConstants.INST.noSubscriptionContact() + "</h2>");
 		aboutSubContacts.setText(SubscriptionConstants.INST.subscriptionContacts());
-		
+
 		licenceInformation.getColumnFormatter().setWidth(0, "300px");
 		licenceInformation.getColumnFormatter().setWidth(1, "200px");
-		
+
 		mailTable.setInformationsPanels(aboutSubContacts, noSubContacts);
 		mailTable.setStyleName(style.mailContact());
 	}
-	
+
 	public static ScreenElement screenModel() {
 		ScreenRoot screenRoot = ScreenRoot.create("subscription", TYPE).cast();
 		screenRoot.getHandlers().push(ModelHandler.create(null, SubscriptionModelHandler.TYPE).<ModelHandler>cast());
 		return screenRoot;
 	}
-	
 
 	@Override
 	public void attach(Element parent) {
 		parent.appendChild(getElement());
-		onAttach();	
+		onAttach();
 	}
 
 	@Override
 	public void loadModel(JavaScriptObject model) {
 		final JsMapStringJsObject map = model.cast();
-		
+
 		JavaScriptObject jsSubscription = map.get(SubscriptionKeys.subscription.name());
 		JsArrayString jsSubscriptionContacts = map.get(SubscriptionKeys.subscriptionContacts.name()).cast();
-		
+
 		SubscriptionInformations sub = null;
 		if (jsSubscription != null) {
 			GWT.log("Found an installed subscription");
-			sub = new SubscriptionInformationsGwtSerDer()
-					.deserialize(new JSONObject(jsSubscription.cast()));
+			sub = new SubscriptionInformationsGwtSerDer().deserialize(new JSONObject(jsSubscription.cast()));
 			setSubscriptionInformations(sub);
 		} else {
 			setSubscriptionInformations(null);
 		}
-		
+
 		if (jsSubscriptionContacts != null) {
 			mailTable.display(jsSubscriptionContacts);
-			
+
 			if (jsSubscriptionContacts.length() == 0) {
 				aboutSubContacts.setVisible(false);
 			}
 		}
-		
+
 		if (jsSubscription == null || !sub.valid) {
 			mailTable.setVisible(false);
 			noSubContacts.setVisible(false);
@@ -263,7 +261,7 @@ public class SubscriptionWidget extends Composite implements IGwtScreenRoot {
 			}
 		});
 	}
-	
+
 	public static void registerType() {
 		GwtScreenRoot.register(TYPE, new IGwtDelegateFactory<IGwtScreenRoot, ScreenRoot>() {
 
@@ -273,16 +271,16 @@ public class SubscriptionWidget extends Composite implements IGwtScreenRoot {
 			}
 		});
 	}
-	
+
 	public void setSubscriptionInformations(SubscriptionInformations sub) {
 		showLicenseInfo(sub);
-		
+
 		if (sub.kind == SubscriptionInformations.Kind.NONE) {
 			deleteLicenseButton.setVisible(false);
 		} else {
 			deleteLicenseButton.setVisible(true);
 		}
-		
+
 		deleteLicenseButton.addClickHandler(new ClickHandler() {
 
 			@Override
@@ -302,7 +300,7 @@ public class SubscriptionWidget extends Composite implements IGwtScreenRoot {
 			}
 		});
 	}
-	
+
 	private void save(String licence, String filename) {
 		this.license = licence;
 		this.licenseFileName = filename;

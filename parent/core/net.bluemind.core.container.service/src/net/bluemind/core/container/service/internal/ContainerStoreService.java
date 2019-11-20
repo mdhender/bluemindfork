@@ -101,7 +101,8 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		this.flagsProvider = fProv;
 		this.weightSeedProvider = wsProv;
 		this.weightProvider = wProv;
-		this.containerChangeEventProducer = new ContainerChangeEventProducer(securityContext, VertxPlatform.eventBus(), container);
+		this.containerChangeEventProducer = new ContainerChangeEventProducer(securityContext, VertxPlatform.eventBus(),
+				container);
 	}
 
 	public ContainerStoreService(DataSource pool, SecurityContext securityContext, Container container, String itemType,
@@ -664,4 +665,5 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		});
 
 	}
+
 }

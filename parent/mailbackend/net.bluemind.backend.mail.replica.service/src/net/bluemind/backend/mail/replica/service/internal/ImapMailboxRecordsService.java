@@ -18,6 +18,7 @@
 package net.bluemind.backend.mail.replica.service.internal;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -58,6 +59,7 @@ import com.google.common.io.ByteStreams;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.Unpooled;
+import net.bluemind.backend.mail.api.FetchOptions;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.backend.mail.api.MailboxItem.SystemFlag;
@@ -66,7 +68,6 @@ import net.bluemind.backend.mail.api.MessageBody.Header;
 import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.backend.mail.api.SeenUpdate;
 import net.bluemind.backend.mail.api.utils.PartsWalker;
-import net.bluemind.backend.mail.parsing.EZInputStreamAdapter;
 import net.bluemind.backend.mail.parsing.EmlBuilder;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
@@ -86,6 +87,7 @@ import net.bluemind.backend.mail.replica.service.ReplicationEvents;
 import net.bluemind.backend.mail.replica.service.ReplicationEvents.ItemChange;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Stream;
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.api.Count;
@@ -99,6 +101,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.utils.ReadInputStream;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.imap.Flag;
@@ -116,6 +119,7 @@ import net.bluemind.mime4j.common.Mime4JHelper.SizedStream;
 public class ImapMailboxRecordsService extends BaseMailboxRecordsService implements IMailboxItems {
 
 	private static final Logger logger = LoggerFactory.getLogger(ImapMailboxRecordsService.class);
+	private static final Integer DEFAULT_TIMEOUT = 18; // sec
 	private final String imapFolder;
 	private final ImapContext imapContext;
 	private final SeenOverlayStore seenOverlays;
@@ -286,7 +290,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	}
 
 	private Ack mailRewrite(ItemValue<MailboxItem> current, MailboxItem newValue) {
-		logger.warn("Full EML rewrite expected with subject {}.", newValue.body.subject);
+		logger.warn("Full EML rewrite expected with subject '{}'", newValue.body.subject);
 		newValue.body.date = current.value.body.date;
 		Part currentStruct = current.value.body.structure;
 		Part expectedStruct = newValue.body.structure;
@@ -300,7 +304,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 					try {
 						return fast.select(imapFolder)
 								.thenCompose(selec -> fast.fetch(current.value.imapUid, p.address))
-								.get(15, TimeUnit.SECONDS);
+								.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 					} catch (TimeoutException e) {
 						throw new ServerFault("Failed to fetch part " + p.address + " from current. Timeout occured");
 					}
@@ -310,7 +314,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 					throw new ServerFault("Failed to fetch part " + p.address + " from current.");
 				}
 				String replacedPartUid = UUID.randomUUID().toString();
-				File output = new File(Bodies.STAGING, replacedPartUid + ".part");
+				File output = partFile(replacedPartUid);
 				try (OutputStream out = Files.newOutputStream(output.toPath());
 						ByteBufInputStream in = new ByteBufInputStream(fetched.result.get().data, true)) {
 					ByteStreams.copy(in, out);
@@ -352,17 +356,19 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 						cf.completeExceptionally(ie);
 						return cf;
 					}
-				}).get(15, TimeUnit.SECONDS);
+				}).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 			} catch (TimeoutException e) {
-				throw new ServerFault("Failed to append email. Timeout occured");
+				throw new ServerFault("Failed to append email. Timeout occured", ErrorCode.TIMEOUT);
 			}
 		});
 		logger.info("Waiting for old imap uid {} to be updated, the new one is {}...", current.value.imapUid,
 				appended.result.map(r -> r.newUid).orElse(-1L));
 		try {
-			ItemChange change = completion.get(10, TimeUnit.SECONDS);
+			ItemChange change = completion.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 			return Ack.create(change.version);
-		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+		} catch (TimeoutException e) {
+			throw new ServerFault(e.getMessage(), ErrorCode.TIMEOUT);
+		} catch (InterruptedException | ExecutionException e) {
 			throw new ServerFault(e);
 		}
 	}
@@ -378,9 +384,11 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		doImapFlagsUpdate(mail.imapUid, mail);
 		time = System.currentTimeMillis() - time;
 		try {
-			ItemChange change = repEvent.get(10, TimeUnit.SECONDS);
+			ItemChange change = repEvent.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 			logger.info("Updated item with a latency of {}ms. (imap time: {}ms)", change.latencyMs, time);
 			return Ack.create(change.version);
+		} catch (TimeoutException e) {
+			throw new ServerFault(e.getMessage(), ErrorCode.TIMEOUT);
 		} catch (Exception e) {
 			throw new ServerFault(e);
 		}
@@ -397,9 +405,12 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 				if (previousBody != null) {
 					body.headers.add(Header.create(MailApiHeaders.X_BM_PREVIOUS_BODY, previousBody));
 				}
-				Message msg = EmlBuilder.of(body, container.owner);
-				return Mime4JHelper.asSizedStream(msg);
-			} catch (ServerFault sf) {
+				try (Message msg = EmlBuilder.of(body, container.owner)) {
+					return Mime4JHelper.asSizedStream(msg);
+				}
+			} catch (
+
+			ServerFault sf) {
 				throw sf;
 			} catch (Exception e) {
 				throw new ServerFault(e);
@@ -460,10 +471,12 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		});
 		if (addedUid > 0) {
 			try {
-				ItemChange change = completion.get(10, TimeUnit.SECONDS);
+				ItemChange change = completion.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 				logger.warn("**** CreateById of item {}, latency: {}ms.", change.internalId, change.latencyMs);
 				return ItemIdentifier.of(null, id, change.version);
-			} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			} catch (TimeoutException e) {
+				throw new ServerFault(e.getMessage(), ErrorCode.TIMEOUT);
+			} catch (InterruptedException | ExecutionException e) {
 				throw new ServerFault(e);
 			}
 		}
@@ -597,26 +610,27 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	@Override
 	public Stream fetchComplete(long imapUid) {
 		rbac.check(Verb.Read.name());
-		return fetch(imapUid, "", null, null, null);
+		return fetch(imapUid, "", FetchOptions.pristine());
 	}
 
 	@Override
-	public Stream fetch(long imapUid, String address, String encoding, String mime, String charset) {
+	public Stream fetch(long imapUid, String address, FetchOptions options) {
 		rbac.check(Verb.Read.name());
 		ByteBuf downloaded = fetch(imapUid, address);
-		Stream stream = null;
-		if (encoding != null) {
-			try (InputStream in = dec(downloaded, encoding)) {
-				stream = VertxStream.stream(new Buffer(Unpooled.wrappedBuffer(ByteStreams.toByteArray(in))), mime,
-						charset);
+
+		Buffer buffer = null;
+		if (options.encoding != null) {
+			try (InputStream in = dec(downloaded, options.encoding)) {
+				buffer = new Buffer(Unpooled.wrappedBuffer(ByteStreams.toByteArray(in)));
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
-				stream = VertxStream.stream(new Buffer());
+				buffer = new Buffer();
 			}
 		} else {
-			stream = VertxStream.stream(new Buffer(downloaded));
+			buffer = new Buffer(downloaded);
 		}
-		return stream;
+
+		return VertxStream.stream(buffer, options.mime, options.charset, options.filename);
 	}
 
 	private InputStream dec(ByteBuf downloaded, String encoding) {
@@ -645,9 +659,9 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 						ImapResponseStatus<FetchResponse> emptyResp = new ImapResponseStatus<>(Status.Ok,
 								new FetchResponse(Unpooled.EMPTY_BUFFER));
 						return CompletableFuture.completedFuture(emptyResp);
-					}).get(15, TimeUnit.SECONDS);
+					}).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 				} catch (TimeoutException e) {
-					throw new ServerFault("Failed to fetch " + imapUid + " .Timeout occured");
+					throw new ServerFault("Failed to fetch " + imapUid + " .Timeout occured", ErrorCode.TIMEOUT);
 				}
 
 				return fetchResp.result.get().data;
@@ -660,30 +674,39 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	@Override
 	public String uploadPart(Stream part) {
+		long time = System.currentTimeMillis();
 		String addr = UUID.randomUUID().toString();
 		logger.info("[{}] Upload starts {}...", addr, part);
-		CompletableFuture<Void> upload = EZInputStreamAdapter.consume(part, oioStream -> {
-			logger.info("[{}] Got adapted stream {}", addr, oioStream);
-			File output = new File(Bodies.STAGING, addr + ".part");
+		try (ReadInputStream ri = new ReadInputStream(VertxStream.read(part))) {
+			File output = partFile(addr);
 			try (OutputStream out = Files.newOutputStream(output.toPath())) {
-				ByteStreams.copy(oioStream, out);
+				ByteStreams.copy(ri, out);
+				time = System.currentTimeMillis() - time;
+				logger.info("[{}] Upload tooks {}ms", addr, time);
+				return addr;
 			} catch (Exception e) {
 				throw new ServerFault(e);
-
 			}
-			return null;
-		});
-		try {
-			upload.get(18, TimeUnit.SECONDS);
-			return addr;
-		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+		} catch (Exception e) {
 			throw new ServerFault(e);
 		}
 	}
 
 	@Override
 	public void removePart(String partId) {
-		new File(Bodies.STAGING, partId + ".part").delete();
+		try {
+			File part = partFile(partId);
+			if (part.exists()) {
+				Files.delete(part.toPath());
+				logger.info("removed {}", part.getAbsolutePath());
+			}
+		} catch (IOException e) {
+			logger.error(e.getMessage(), e);
+		}
+	}
+
+	private File partFile(String partId) {
+		return new File(Bodies.STAGING, partId + ".part");
 	}
 
 	@Override
@@ -798,8 +821,10 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			return null;
 		});
 		try {
-			Long v = repEvent.get(10, TimeUnit.SECONDS);
+			Long v = repEvent.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 			return Ack.create(v);
+		} catch (TimeoutException e) {
+			throw new ServerFault(e.getMessage(), ErrorCode.TIMEOUT);
 		} catch (Exception e) {
 			throw new ServerFault(e);
 		}
@@ -898,9 +923,11 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		doImapAddFlags(uids, Arrays.asList(Flag.DELETED.toString()));
 		time = System.currentTimeMillis() - time;
 		try {
-			ItemChange change = repEvent.get(10, TimeUnit.SECONDS);
+			ItemChange change = repEvent.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 			logger.info("Delete {} items with a latency of {}ms. (imap time: {}ms)", ids.size(), change.latencyMs,
 					time);
+		} catch (TimeoutException e) {
+			throw new ServerFault(e.getMessage(), ErrorCode.TIMEOUT);
 		} catch (Exception e) {
 			throw new ServerFault(e);
 		}

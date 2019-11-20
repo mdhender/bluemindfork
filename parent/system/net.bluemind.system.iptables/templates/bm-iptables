@@ -47,13 +47,14 @@ hps="8079"
 webserver="8080"
 eas="8082"
 locator="8084"
-core="8090"
+core="2501 8090"
 tika="8087"
 influxdb="8086"
 chronograph="8888"
 kapacitor="9092"
 es="9200 9300"
 memcache="11211"
+sds="8091"
 
 timeout="-w 10"
 if check_debian_jessie; then
@@ -77,6 +78,7 @@ bmPorts="${r"${cyrus}"} \
 	 ${r"${chronograph}"} \
 	 ${r"${kapacitor}"} \
 	 ${r"${es}"} \
+	 ${r"${sds}"} \
 	 ${r"${memcache}"}"
 
 bmHosts="${bmHostsAddresses?join(" ")}"

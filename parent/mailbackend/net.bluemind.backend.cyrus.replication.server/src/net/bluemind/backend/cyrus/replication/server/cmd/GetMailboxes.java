@@ -17,6 +17,7 @@
   */
 package net.bluemind.backend.cyrus.replication.server.cmd;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -80,7 +81,6 @@ public class GetMailboxes implements IAsyncReplicationCommand {
 	}
 
 	public CompletableFuture<CommandResult> doIt(ReplicationSession session, Token t, ReplicationFrame frame) {
-		CompletableFuture<CommandResult> future = new CompletableFuture<>();
 		String withVerb = t.value();
 		String mboxAndContent = withVerb.substring("GET MAILBOXES ".length());
 		ParenObjectParser parser = ParenObjectParser.create();
@@ -92,38 +92,20 @@ public class GetMailboxes implements IAsyncReplicationCommand {
 		GetMailboxesResponse response = new GetMailboxesResponse();
 		ReplicationState state = session.state();
 		int len = requestedMboxes.size();
-		CompletableFuture<Void> chain = CompletableFuture.completedFuture(null);
-		try {
-			for (int i = 0; i < len; i++) {
-				String mboxName = Token.atomOrValue(requestedMboxes.get(i));
-				chain = chain.thenCompose(v -> {
-					logger.debug("On {}", mboxName);
-
-					return state.folderByName(mboxName).exceptionally(err -> {
-						logger.warn("Error getting '{}': {}", mboxName, err.getMessage());
-						return null;
-					}).thenAccept(known -> {
-						if (known != null) {
-							response.addMailbox(known);
-						} else {
-							logger.warn("'{}' is unknown in our replica.", mboxName);
-						}
-					});
-				});
-
-			}
-			chain.whenComplete((v, ex) -> {
-				if (ex != null) {
-					future.completeExceptionally(ex);
-				} else {
-					future.complete(response);
-				}
-			});
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			future.completeExceptionally(e);
+		long start = System.currentTimeMillis();
+		List<String> boxNames = new ArrayList<>(requestedMboxes.size());
+		for (int i = 0; i < len; i++) {
+			String mboxName = Token.atomOrValue(requestedMboxes.get(i));
+			boxNames.add(mboxName);
 		}
-		return future;
+		return state.foldersByName(boxNames).thenApply(folders -> {
+			folders.forEach(response::addMailbox);
+			long elapsed = System.currentTimeMillis() - start;
+			if (elapsed > 400) {
+				logger.warn("Slow resolution of {} mailbox(es) in {}ms.", requestedMboxes.size(), elapsed);
+			}
+			return response;
+		});
 	}
 
 }

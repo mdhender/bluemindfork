@@ -64,7 +64,8 @@ Require-Bundle: net.bluemind.commons.ui.closure;bundle-version="4.1.0",
  net.bluemind.ui.gwtaddressbook;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.addressbook.ldap.api.gwt;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.externaluser.api.gwt,
- net.bluemind.externaluser.api
+ net.bluemind.externaluser.api,
+ net.bluemind.ui.gwtcommon.editor;visibility:=reexport
 Export-Package: net.bluemind.ui.adminconsole.directory,
  net.bluemind.ui.adminconsole.directory.ou
 Automatic-Module-Name: net.bluemind.ui.adminconsole.directory

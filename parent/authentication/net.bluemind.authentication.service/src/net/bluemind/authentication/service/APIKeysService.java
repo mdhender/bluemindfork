@@ -55,7 +55,7 @@ public class APIKeysService implements IAPIKeys {
 		apikey.displayName = displayName;
 		store.create(apikey);
 
-		return apikey;
+		return store.get(apikey.sid);
 	}
 
 	@Override
@@ -74,6 +74,11 @@ public class APIKeysService implements IAPIKeys {
 		}
 
 		return store.list();
+	}
+
+	@Override
+	public APIKey get(String sid) throws ServerFault {
+		return store.get(sid);
 	}
 
 }

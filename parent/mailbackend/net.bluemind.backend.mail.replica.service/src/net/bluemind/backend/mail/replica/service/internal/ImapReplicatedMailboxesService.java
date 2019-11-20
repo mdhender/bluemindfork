@@ -166,10 +166,16 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			toWatch = recLoc.subtreeContainer;
 			newName = recLoc.imapPath() + "/" + value.name;
 		}
+
+		ItemValue<MailboxFolder> folder = byName(newName);
+		if (folder != null) {
+			return ItemIdentifier.of(folder.uid, folder.internalId, folder.version);
+		}
+
 		FolderInternalIdCache.storeExpectedRecordId(container, value.fullName, hierId);
 		final String computedName = newName;
 		CompletableFuture<ItemIdentifier> future = ReplicationEvents.onSubtreeUpdate(toWatch);
-		logger.info("{} Should create {}", root, computedName);
+		logger.info("{} Should create '{}'", root, computedName);
 		return imapContext.withImapClient((sc, fast) -> {
 			boolean ok = sc.create(computedName);
 			if (ok) {

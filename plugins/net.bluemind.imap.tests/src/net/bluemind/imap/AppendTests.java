@@ -18,7 +18,6 @@
  */
 package net.bluemind.imap;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
@@ -58,7 +57,7 @@ public class AppendTests extends LoggedTestCase implements IMessageProducer {
 		assertEquals(0, ap2.getFailed());
 	}
 
-	public void testBM12019BigAppend() throws IMAPException, IOException {
+	public void testBM12019BigAppend() throws IMAPException, Exception {
 		StoreClient sc = newStore(false);
 		InputStream bigInput = getUtf8Rfc822Message(70 * 1024);
 		FlagsList fl = new FlagsList();
@@ -72,10 +71,10 @@ public class AppendTests extends LoggedTestCase implements IMessageProducer {
 		System.out.println("Fetched " + fetched.size() + " byte(s)");
 		assertTrue(fetched.size() > 69 * 1024 * 1024);
 		OffloadedBodyFactory offload = new OffloadedBodyFactory();
-		Message parsed = Mime4JHelper.parse(fetched.source().openBufferedStream(), offload);
-		assertNotNull(parsed);
-		sc.uidExpunge(Arrays.asList(result));
-		parsed.dispose();
+		try (Message parsed = Mime4JHelper.parse(fetched.source().openBufferedStream(), offload)) {
+			assertNotNull(parsed);
+			sc.uidExpunge(Arrays.asList(result));
+		}
 		fetched.close();
 	}
 

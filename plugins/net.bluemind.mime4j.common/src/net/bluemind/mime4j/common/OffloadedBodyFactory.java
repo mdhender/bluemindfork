@@ -158,11 +158,9 @@ public class OffloadedBodyFactory implements BodyFactory {
 	 * Creates a {@link BinaryBody} that holds the content of the given input
 	 * stream.
 	 *
-	 * @param is
-	 *            input stream to create a message body from.
+	 * @param is input stream to create a message body from.
 	 * @return a binary body.
-	 * @throws IOException
-	 *             if an I/O error occurs.
+	 * @throws IOException if an I/O error occurs.
 	 */
 	public BinaryBody binaryBody(InputStream is) throws IOException {
 		if (is == null)
@@ -173,22 +171,18 @@ public class OffloadedBodyFactory implements BodyFactory {
 	}
 
 	/**
-	 * Creates a {@link TextBody} that holds the content of the given input
-	 * stream.
+	 * Creates a {@link TextBody} that holds the content of the given input stream.
 	 * <p>
-	 * The charset corresponding to the given MIME charset name is used to
-	 * decode the byte content of the input stream into a character stream when
-	 * calling {@link TextBody#getReader() getReader()} on the returned object.
-	 * If the MIME charset has no corresponding Java charset or the Java charset
-	 * cannot be used for decoding then &quot;us-ascii&quot; is used instead.
+	 * The charset corresponding to the given MIME charset name is used to decode
+	 * the byte content of the input stream into a character stream when calling
+	 * {@link TextBody#getReader() getReader()} on the returned object. If the MIME
+	 * charset has no corresponding Java charset or the Java charset cannot be used
+	 * for decoding then &quot;us-ascii&quot; is used instead.
 	 *
-	 * @param is
-	 *            input stream to create a message body from.
-	 * @param mimeCharset
-	 *            name of a MIME charset.
+	 * @param is          input stream to create a message body from.
+	 * @param mimeCharset name of a MIME charset.
 	 * @return a text body.
-	 * @throws IOException
-	 *             if an I/O error occurs.
+	 * @throws IOException if an I/O error occurs.
 	 */
 	public TextBody textBody(InputStream is, String mimeCharset) throws IOException {
 		if (is == null)

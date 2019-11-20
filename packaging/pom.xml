@@ -36,11 +36,14 @@
 	  <module>bm-mail-app</module>
 	  <module>bm-client-access</module>
 	  <module>bm-conf</module>
-	  <module>bm-cyrus</module>	  
+	  <module>bm-cyrus</module>
+	  <module>bm-sds-proxy</module>
+	  <module>bm-forest-node</module>
 	  <module>bm-full</module>
 	  <module>bm-checks</module>
 	  <module>bm-ldap-role</module>
 	  <module>bm-mailbox-role</module>
+	  <module>bm-forest-node-role</module>
 	  <module>bm-edge-role</module>
 	  <module>bm-tick-full</module>
 	  <module>bm-tick-node</module>
@@ -59,6 +62,7 @@
       <module>bm-plugin-core-cti</module>
       <module>bm-plugin-core-cti-xivo</module>
       <module>bm-plugin-core-filehosting-filesystem</module>
+      <module>bm-plugin-core-forest</module>
       <module>bm-plugin-core-monitoring</module>
       <module>bm-plugin-core-mapi-support</module>
       <module>bm-plugin-node-monitoring</module>

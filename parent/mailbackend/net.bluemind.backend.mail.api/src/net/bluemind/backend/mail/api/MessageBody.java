@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -102,12 +103,10 @@ public class MessageBody {
 		@JsonInclude(Include.NON_NULL)
 		public DispositionType dispositionType;
 
+		public byte[] content;
+
 		public static Part create(String file, String mime, String addr) {
-			Part p = new Part();
-			p.mime = mime;
-			p.fileName = file;
-			p.address = addr;
-			return p;
+			return create(file, mime, addr, 0);
 		}
 
 		public static Part create(String file, String mime, String addr, int size) {
@@ -161,7 +160,7 @@ public class MessageBody {
 		}
 
 		private static List<Part> nonInlineAttachments(Part structure, Part parent, List<Part> attach) {
-			if (parent != null && DispositionType.ATTACHMENT == structure.dispositionType) {
+			if (parent != null && structure.dispositionType != DispositionType.INLINE && structure.fileName != null) {
 				attach.add(structure);
 			}
 			for (Part p : structure.children) {
@@ -199,8 +198,8 @@ public class MessageBody {
 		public static Recipient create(RecipientKind kind, String dn, String address) {
 			Recipient rcpt = new Recipient();
 			rcpt.kind = kind;
-			rcpt.dn = dn;
-			rcpt.address = address;
+			rcpt.dn = Optional.ofNullable(dn).map(d -> d.replace("\u0000", "")).orElse(null);
+			rcpt.address = Optional.ofNullable(address).map(d -> d.replace("\u0000", "")).orElse(null);
 			return rcpt;
 		}
 

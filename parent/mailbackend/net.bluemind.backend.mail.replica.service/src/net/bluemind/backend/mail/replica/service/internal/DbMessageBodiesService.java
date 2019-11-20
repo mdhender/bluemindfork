@@ -17,6 +17,9 @@
   */
 package net.bluemind.backend.mail.replica.service.internal;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashSet;
@@ -40,6 +43,7 @@ import net.bluemind.backend.mail.replica.indexing.IndexedMessageBody;
 import net.bluemind.backend.mail.replica.indexing.RecordIndexActivator;
 import net.bluemind.backend.mail.replica.persistence.MessageBodyStore;
 import net.bluemind.backend.mail.replica.service.internal.BodyInternalIdCache.ExpectedId;
+import net.bluemind.backend.mail.replica.service.sds.MessageBodyObjectStore;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
@@ -50,9 +54,11 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 	private static final Logger logger = LoggerFactory.getLogger(DbMessageBodiesService.class);
 
 	protected final MessageBodyStore bodyStore;
+	private final MessageBodyObjectStore bodyObjectStore;
 
-	public DbMessageBodiesService(MessageBodyStore bs) {
-		this.bodyStore = bs;
+	public DbMessageBodiesService(MessageBodyStore bodyStore, MessageBodyObjectStore bodyObjectStore) {
+		this.bodyStore = bodyStore;
+		this.bodyObjectStore = bodyObjectStore;
 	}
 
 	@Override
@@ -160,6 +166,39 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 			List<String> exists = bodyStore.existing(notNull);
 			Set<String> checkCopy = new HashSet<>(notNull);
 			checkCopy.removeAll(exists);
+
+			// check if the unknown bodies are not in our object store
+			// and process them from here if they are
+			long time = System.currentTimeMillis();
+			Set<String> inObjectStore = bodyObjectStore.exist(checkCopy);
+			Set<String> processedFromObjectStore = new HashSet<>();
+			for (String guid : inObjectStore) {
+				Path tmpFromSDS = null;
+				try {
+					tmpFromSDS = bodyObjectStore.open(guid);
+					Stream emlFromObjectStore = VertxStream.localPath(tmpFromSDS);
+					logger.debug("Process {} from object-store...", guid);
+					create(guid, emlFromObjectStore);
+					processedFromObjectStore.add(guid);
+					logger.debug("{} processed from object store !", guid);
+				} catch (Exception e) {
+					logger.error(e.getMessage(), e);
+				} finally {
+					if (tmpFromSDS != null) {
+						try {
+							Files.deleteIfExists(tmpFromSDS);
+						} catch (IOException e) {
+						}
+					}
+				}
+			}
+			time = System.currentTimeMillis() - time;
+			if (!processedFromObjectStore.isEmpty()) {
+				checkCopy.removeAll(processedFromObjectStore);
+				logger.info("{} message(s) processed from object-store in {}ms.", processedFromObjectStore.size(),
+						time);
+			}
+
 			return ImmutableList.copyOf(checkCopy);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);

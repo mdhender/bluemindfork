@@ -148,6 +148,12 @@ create table t_todolist_vtodo (
   valarm_duration int[],
   valarm_repeat int[],
   valarm_summary text[],
+  
+  /*
+    * 3.8.1.1.  Attachment
+    */
+   attach_uri text[],
+   attach_name text[],
 
   item_id int4 references t_container_item(id) primary key
 );

@@ -1,0 +1,229 @@
+Return-Path: <>
+Received: from bm-core.laforet.com (localhost [127.0.0.1])
+	 by bm-cyrus with LMTPA;
+	 Tue, 10 Sep 2019 16:27:11 +0200
+X-Cyrus-Session-Id: cyrus-14711-1568125631-1-7923882263269749857
+X-Sieve: CMU Sieve 3.0
+Received: from /192.168.3.81 (LHLO bm-core.laforet.com) by unknown with
+ LMTP; 9/10/19 2:27 PM
+Received: from bm-edge.laforet.com (bm-edge.laforet.com [192.168.3.80])
+	by bm-core.laforet.com (Postfix) with ESMTPS id 83B975FD5D
+	for <qh6@laforet.local>; Tue, 10 Sep 2019 16:27:11 +0200 (CEST)
+Received: from smtp-02.laforet.com (smtp-02.laforet.com [192.168.3.3])
+	by bm-edge.laforet.com (Postfix) with ESMTPS id 6E0B440067
+	for <lelamentin@laforet.com>; Tue, 10 Sep 2019 16:27:11 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+	by smtp-02.laforet.com (Postfix) with ESMTP id 447CB200D6
+	for <lelamentin@laforet.com>; Tue, 10 Sep 2019 16:27:11 +0200 (CEST)
+X-Virus-Scanned: Debian amavisd-new at smtp-02.laforet.com
+X-Spam-Flag: NO
+X-Spam-Score: -1.788
+X-Spam-Level:
+X-Spam-Status: No, score=-1.788 tagged_above=-1000 required=5.6
+	tests=[BAYES_00=-1.9, BODY_URI_ONLY=0.001, DKIM_SIGNED=0.1,
+	T_DKIM_INVALID=0.01, URIBL_BLOCKED=0.001]
+	autolearn=no autolearn_force=no
+Authentication-Results: smtp-02.laforet.com (amavisd-new);
+	dkim=fail (1024-bit key) reason="fail (message has been altered)"
+	header.d=laforet.com
+Received: from smtp-02.laforet.com ([127.0.0.1])
+	by localhost (smtp-02.laforet.com [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id g2fpFzgiEMkI for <lelamentin@laforet.com>;
+	Tue, 10 Sep 2019 16:27:10 +0200 (CEST)
+Received: from EUR02-AM5-obe.outbound.protection.outlook.com (mail-am5eur02lp2059.outbound.protection.outlook.com [104.47.4.59])
+	by smtp-02.laforet.com (Postfix) with ESMTP id EFF0F20125
+	for <lelamentin@laforet.com>; Tue, 10 Sep 2019 16:27:09 +0200 (CEST)
+Received: from VI1PR09CA0048.eurprd09.prod.outlook.com (2603:10a6:802:28::16)
+ by AM5PR0901MB1409.eurprd09.prod.outlook.com (2603:10a6:203:47::9) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2241.18; Tue, 10 Sep
+ 2019 14:27:09 +0000
+Received: from DB5EUR03FT021.eop-EUR03.prod.protection.outlook.com
+ (2a01:111:f400:7e0a::204) by VI1PR09CA0048.outlook.office365.com
+ (2603:10a6:802:28::16) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2241.18 via Frontend
+ Transport; Tue, 10 Sep 2019 14:27:09 +0000
+Authentication-Results: spf=none (sender IP is 109.62.8.179)
+ smtp.helo=mail3.fortdefrance.fr; laforet.com; dkim=fail (signature did not
+ verify) header.d=laforet.com;laforet.com; dmarc=none action=none
+ header.from=mail3.fortdefrance.fr;compauth=softpass reason=201
+Received-SPF: None (protection.outlook.com: mail3.fortdefrance.fr does not
+ designate permitted sender hosts)
+Received: from mail3.fortdefrance.fr (109.62.8.179) by
+ DB5EUR03FT021.mail.protection.outlook.com (10.152.20.238) with Microsoft SMTP
+ Server id 15.20.2241.14 via Frontend Transport; Tue, 10 Sep 2019 14:27:08
+ +0000
+Received: from mail3.fortdefrance.fr (127.0.0.1) id heupbc0171s4 for <lelamentin@laforet.com>; Tue, 10 Sep 2019 10:27:01 -0400 (envelope-from <>)
+Received: from lacerta2.villefdf.local ([172.16.0.21])
+	by mail3.fortdefrance.fr (SonicWALL 8.0.7.3275)
+	with ESMTP id 201909101427010117562; Tue, 10 Sep 2019 10:27:01 -0400
+Received: from DominoFDF.mairie-fort-de-france.fr (unknown [10.1.252.57])
+	by lacerta2.villefdf.local (Postfix) with ESMTP id DAB1940511
+	for <lelamentin@laforet.com>; Tue, 10 Sep 2019 10:28:41 -0400 (AST)
+Received: from mail3.fortdefrance.fr ([109.62.8.179])
+          by DominoFDF.mairie-fort-de-france.fr (Lotus Domino Release 8.5.2FP4)
+          with ESMTP id 2019091010274097-153331 ;
+          Tue, 10 Sep 2019 10:27:40 -0400 
+Authentication-Results-Original: mail3.fortdefrance.fr;	spf=pass
+ smtp.mailfrom=lelamentin@laforet.com;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=laforet.com; h=
+	user-agent:message-id:subject:subject:from:from:date:date
+	:content-type:content-type:mime-version:received:received
+	:received; s=main; t=1568125622; x=1569940023; bh=dRuHvWeYVDtBix
+	PYEojsVRRCRVh92XphyKGM25x9tYI=; b=c88CtrcN2C+xNalEnGpgPqbsg736+l
+	QNiNniTCEXTGqtpp4bAWl3yg4DzDhJDzfuHLtOYW56S1IdrWHiAGkFs9QN34Son+
+	J4uxqNARhxCP1001+SRL+H6vIlRjYRHHThEiW3Tdhoirwp7wXcwQJUiOTY5qV+F4
+	GToKoW2buEZbc=
+X-Virus-Scanned: Debian amavisd-new at smtp-02.laforet.com
+MIME-Version: 1.0
+Date: Tue, 10 Sep 2019 10:27:00 -0400
+From: postmaster@mail3.fortdefrance.fr
+To: LE LAMENTIN <lelamentin@laforet.com>
+Subject: RELAY: Hello, this is the mail server on mail3.fortdefrance.fr. 
+Message-ID: <0321fe5089246f66ee597a2cdcc2e989@laforet.local>
+X-Sender: lelamentin@laforet.com
+User-Agent: Roundcube Webmail/0.8.5
+X-Bm-Milter-Handled: dc174f9d-80f9-4570-ae11-109c877f7148
+X-Bm-Transport-Timestamp: 1568125622014
+X-Scanned-By: MIMEDefang 2.79 on 127.0.1.1
+X-Mlf-SPF: SPF Pass (result=pass;action=none;identity=mailfrom;domain=laforet.com;source=89.185.50.19;details:allowedlist=consider;)
+X-Mlf-DKIM: DKIM Disabled (result=disabled;)
+X-Mlf-DMARC: DMARC Disabled (result=disabled;)
+X-Mlf-Language-Detected: NoLanguageFilter_French
+X-Mlf-Connecting-IP: 89.185.50.19
+X-Mlf-Country-Code: FR
+X-Mlf-Threat-History: nothreat
+X-Mlf-Threat-Detailed-History: nothreat;other_hasattach;none;none
+X-Mlf-UniqueId-History: i201909101426560117560
+Content-Type: multipart/report; report-type=delivery-status; boundary="==IFJRGLKFGIR40889506UHRUHIHD"
+X-Mlf-Version: 8.0.7.3275
+X-Mlf-UniqueId: o201909101427010117562
+X-EOPAttributedMessage: 0
+X-EOPTenantAttributedMessage: ef7c99b6-580b-45cc-bd5a-07e57df338e3:0
+X-Forefront-Antispam-Report:
+	CIP:109.62.8.179;IPV:NLI;CTRY:MQ;EFV:NLI;SFV:NSPM;SFS:(10001)(2970300002)(428003)(43234003)(189003)(199004)(1930700014)(5024004)(58126008)(14444005)(33186001)(5000100001)(486006)(1476002)(9686003)(26005)(24736004)(108616005)(33003)(956004)(16586007)(336012)(42882007)(476003)(33964004)(4743002)(126002)(53416004)(5660300002)(6916009)(305945005)(356004)(81166006)(6666004)(1096003)(78352004)(81156014)(590304002)(8676002)(71190400001)(93046001)(49413001)(17046004);DIR:INB;SFP:;SCL:1;SRVR:AM5PR0901MB1409;H:mail3.fortdefrance.fr;FPR:;SPF:None;LANG:en;PTR:bas1.mtq.109-62-8-179.static.only.fr;MX:0;A:0;
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 45d40ec4-3b6b-4b06-1961-08d735faf67c
+X-Microsoft-Antispam:
+	BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(5600166)(711020)(4605104)(49563074)(71702078);SRVR:AM5PR0901MB1409;
+X-MS-TrafficTypeDiagnostic: AM5PR0901MB1409:
+X-LD-Processed: ef7c99b6-580b-45cc-bd5a-07e57df338e3,ExtAddr
+X-MS-Oob-TLC-OOBClassifiers: OLM:5797;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?ZVI3Nnl3K2ZOTzc5MENtczgydmxkZzROcTFZRm9NRU9Hd2NWU2NlU3Q2alpI?=
+ =?utf-8?B?b2duWkhkb05ramVqdUUya3ZBQWdvWUVPTWlKTUV3Y3B6eGhRMUZiUER0ejlR?=
+ =?utf-8?B?VE1TVjZNRmExZ0FBY3lnWStiWnp4TTI1UUNnbFM1ZGhST2JiK1JlVlJvb1Jp?=
+ =?utf-8?B?YjdFVVAzazYvZVhLcjZZbEFQcHVJTUpxOU5ZdDF1T1JZa2ZBOGJ2L3BMUEVN?=
+ =?utf-8?B?N1FoV2ZycDBKejc0Q2cwMHBPcmhML3VTT1FWVWpYRGJ2K1llejloTVp5ZjEw?=
+ =?utf-8?B?MHh0MFdkK2ExR3c0VzNRcGNxbUg2bVZWRmlnQmgraks4L3QzWGZ1UytJY0xT?=
+ =?utf-8?B?SkZBVDd3MkY4eElCaXlVbm05TkQyYlVKTW5xWWtka3VQQ2poMWhuWmlXUGhw?=
+ =?utf-8?B?THkxc3lybkF4aC9XSVExRUVnS05DVUJ5RmovQTJidEZqc0YxYk9YdFg1eDVJ?=
+ =?utf-8?B?N0VmQWcwN1M2OHpJOHdRT2hnalFBUmhXa24wamtkRXFVNExpS0JZb3F3Tkxo?=
+ =?utf-8?B?bFRmR25FbjYwZTduTlNQcTVqYXgzMm9uUTZoSThFSWRjYzllcGFwSTdJWnZK?=
+ =?utf-8?B?UG5TTGxXVzZYVjdUOXNCK0c1TEtaRi9OakUwSVhzSkFOZWZDaWVQdGJSWGhC?=
+ =?utf-8?B?YjN1LzgzZkJSM05pUU4zdU1xWjJWTzRMdWJ4cGllelBGTUZYQldva3RnNXRY?=
+ =?utf-8?B?T3NhNVJKWlNLR1FDUEwzaFJETWNrUDlXaythd3EwTFI0SStDZDdkcmF3WkVG?=
+ =?utf-8?B?dmhnNGI2QjRxUi9YYjFRWTFpZ3dGeWluekdIbXBIbnordkNTRDFEc0tjVVlY?=
+ =?utf-8?B?SnkxR0ZieU1FUW95NnBlWG9Hdm1KRzBaZmExa0hVV3NrdFRFMXdwaVdsdmlQ?=
+ =?utf-8?B?dmZhVzRXemYwZXkrTi92cGFvL2JLMFFDakRaZUVYM0dCTVpXcEhsR3NOWTRm?=
+ =?utf-8?B?RHFWY243bDFRVTlxdEtFQitOc0dGVkNUbjVvL09NaEdXSlhza0JjQTVHODBU?=
+ =?utf-8?B?amdFUG05OU1ObGJxOW5WTk1yMFJBOXF0ajJoc1NFMGlaRDlOSGFvUm0zL3Ix?=
+ =?utf-8?B?d2ZFZ2Vzc1NHTU9xRjNiOTZzZnhLWTdBcDlsc1VKc0V1aEpDc3YzekEwYldk?=
+ =?utf-8?B?Z1lFenlFTHE0UWdTaUpiSjkyT2liRFhPUUpPa0JSSy9pU0VaYWJrZml2b3pY?=
+ =?utf-8?B?a3IrNXYvRjJiYWQ1Y2NXMHUxYnhMWFJqbjJmcEREVjdWTXdrSWNlNkpGMU9R?=
+ =?utf-8?B?ZjIrbFdEZWtEWmkrMDVvc3JYUFhyTEtmaVpia2hwSTRXSWk5SHkzLzJ4MVNQ?=
+ =?utf-8?Q?z3tVObfbBXsCUadYGiQCNOaSHOgly6wmBd?=
+X-OriginatorOrg: laforet.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Sep 2019 14:27:08.6456
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 45d40ec4-3b6b-4b06-1961-08d735faf67c
+X-MS-Exchange-CrossTenant-Id: ef7c99b6-580b-45cc-bd5a-07e57df338e3
+X-MS-Exchange-CrossTenant-FromEntityHeader: Internet
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM5PR0901MB1409
+
+--==IFJRGLKFGIR40889506UHRUHIHD
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
+
+SGVsbG8sIHRoaXMgaXMgdGhlIG1haWwgc2VydmVyIG9uIG1haWwzLmZvcnRkZWZyYW5jZS5mci4g
+ACAASSBhbSBzZW5kaW5nIHlvdSB0aGlzIG1lc3NhZ2UgdG8gaW5mb3JtIHlvdSBvbiB0aGUgZGVs
+aXZlcnkgc3RhdHVzIG9mIGEgAG1lc3NhZ2UgeW91IHByZXZpb3VzbHkgc2VudC4gIEltbWVkaWF0
+ZWx5IGJlbG93IHlvdSB3aWxsIGZpbmQgYSBsaXN0IG9mIAB0aGUgYWZmZWN0ZWQgcmVjaXBpZW50
+czsgIGFsc28gYXR0YWNoZWQgaXMgYSBEZWxpdmVyeSBTdGF0dXMgTm90aWZpY2F0aW9uIAAoRFNO
+KSByZXBvcnQgaW4gc3RhbmRhcmQgZm9ybWF0LCBhcyB3ZWxsIGFzIHRoZSBoZWFkZXJzIG9mIHRo
+ZSBvcmlnaW5hbCAAbWVzc2FnZS4gACAAICA8cmlxdWV0dGUubWF1cmljZS1tYWRlbG9uQGZvcnRk
+ZWZyYW5jZS5mcj4gIHJlbGF5ZWQgdG8gbWFpbGVyIFsxMC4xLjI1Mi41N10gKDEwLjEuMjUyLjU3
+KSAADQoNCg==
+
+--==IFJRGLKFGIR40889506UHRUHIHD
+Content-Type: message/delivery-status
+
+Reporting-MTA: dns;mail3.fortdefrance.fr
+X-PowerMTA-VirtualMTA: mta_inbound_pathid_0_smarthost
+Received-From-MTA: dns;mail3.fortdefrance.fr (127.0.0.1)
+Arrival-Date: Tue, 10 Sep 2019 10:27:00 -0400
+
+Original-Recipient: rfc822;riquette.maurice-madelon@fortdefrance.fr
+Final-Recipient: rfc822;riquette.maurice-madelon@fortdefrance.fr
+Action: relayed
+Status: 2.0.0 (success)
+Remote-MTA: dns;[10.1.252.57] (10.1.252.57)
+
+--==IFJRGLKFGIR40889506UHRUHIHD
+Content-Type: message/rfc822
+
+Received: from mail3.fortdefrance.fr (127.0.0.1) id heupb80171s0 for <riquette.maurice-madelon@fortdefrance.fr>; Tue, 10 Sep 2019 10:27:00 -0400 (envelope-from <lelamentin@laforet.com>)
+Received: from smtp-02.laforet.com ([89.185.50.19])
+	by mail3.fortdefrance.fr (SonicWALL 8.0.7.3275)
+	with ESMTP id 201909101426560117560; Tue, 10 Sep 2019 10:26:57 -0400
+Received: from localhost (localhost [127.0.0.1])
+	by smtp-02.laforet.com (Postfix) with ESMTP id BF4F7200D6
+	for <riquette.maurice-madelon@fortdefrance.fr>; Tue, 10 Sep 2019 16:27:02 +0200 (CEST)
+Received: from smtp-02.laforet.com ([127.0.0.1])
+	by localhost (smtp-02.laforet.com [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id N4x4E6Zoyd7f
+	for <riquette.maurice-madelon@fortdefrance.fr>;
+	Tue, 10 Sep 2019 16:27:02 +0200 (CEST)
+Received: from bm-core.laforet.com (bm-core.laforet.com [192.168.3.81])
+	by smtp-02.laforet.com (Postfix) with ESMTP id 152E92008F
+	for <riquette.maurice-madelon@fortdefrance.fr>; Tue, 10 Sep 2019 16:27:02 +0200 (CEST)
+Received: from localhost.localdomain (localhost [127.0.0.1])
+	by bm-core.laforet.com (Postfix) with ESMTP id 98EC95FD5D
+	for <riquette.maurice-madelon@fortdefrance.fr>; Tue, 10 Sep 2019 16:27:01 +0200 (CEST)
+Authentication-Results: mail3.fortdefrance.fr;
+	spf=pass smtp.mailfrom=lelamentin@laforet.com;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=laforet.com; h=
+	user-agent:message-id:subject:subject:from:from:date:date
+	:content-type:content-type:mime-version:received:received
+	:received; s=main; t=1568125622; x=1569940023; bh=dRuHvWeYVDtBix
+	PYEojsVRRCRVh92XphyKGM25x9tYI=; b=c88CtrcN2C+xNalEnGpgPqbsg736+l
+	QNiNniTCEXTGqtpp4bAWl3yg4DzDhJDzfuHLtOYW56S1IdrWHiAGkFs9QN34Son+
+	J4uxqNARhxCP1001+SRL+H6vIlRjYRHHThEiW3Tdhoirwp7wXcwQJUiOTY5qV+F4
+	GToKoW2buEZbc=
+X-Virus-Scanned: Debian amavisd-new at smtp-02.laforet.com
+MIME-Version: 1.0
+Date: Tue, 10 Sep 2019 16:27:01 +0200
+From: LE LAMENTIN <lelamentin@laforet.com>
+To: <riquette.maurice-madelon@fortdefrance.fr>
+Subject: Fwd: cu librairie chretienne
+Return-Receipt-To: LE LAMENTIN <lelamentin@laforet.com>
+Disposition-Notification-To: LE LAMENTIN <lelamentin@laforet.com>
+Message-ID: <0321fe5089246f66ee597a2cdcc2e989@laforet.local>
+X-Sender: lelamentin@laforet.com
+User-Agent: Roundcube Webmail/0.8.5
+X-Bm-Milter-Handled: dc174f9d-80f9-4570-ae11-109c877f7148
+X-Bm-Transport-Timestamp: 1568125622014
+X-Scanned-By: MIMEDefang 2.79 on 127.0.1.1
+X-Mlf-SPF: SPF Pass (result=pass;action=none;identity=mailfrom;domain=laforet.com;source=89.185.50.19;details:allowedlist=consider;)
+X-Mlf-DKIM: DKIM Disabled (result=disabled;)
+X-Mlf-DMARC: DMARC Disabled (result=disabled;)
+X-Mlf-Language-Detected: NoLanguageFilter_French
+X-Mlf-Connecting-IP: 89.185.50.19
+X-Mlf-Country-Code: FR
+X-Mlf-Threat: nothreat
+X-Mlf-Threat-Detailed: nothreat;other_hasattach;none;none
+X-Mlf-UniqueId: i201909101426560117560
+Content-Type: text/plain
+
+
+--==IFJRGLKFGIR40889506UHRUHIHD--

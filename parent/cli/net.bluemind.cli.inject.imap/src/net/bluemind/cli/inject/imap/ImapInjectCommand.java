@@ -18,6 +18,10 @@
 package net.bluemind.cli.inject.imap;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
@@ -27,6 +31,7 @@ import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.lib.vertx.VertxPlatform;
 
 @Command(name = "imap", description = "Injects a batch of emails through IMAP")
 public class ImapInjectCommand implements ICmdLet, Runnable {
@@ -47,7 +52,7 @@ public class ImapInjectCommand implements ICmdLet, Runnable {
 	@Arguments(required = true, description = "the domain (uid or alias)")
 	public String domain;
 
-	@Option(name = "msg", description = "The number of messages to add")
+	@Option(name = "--msg", description = "The number of messages to add (defaults to 100)")
 	public int cycles = 100;
 
 	private CliContext ctx;
@@ -59,8 +64,27 @@ public class ImapInjectCommand implements ICmdLet, Runnable {
 		if (domUid == null) {
 			throw new ServerFault("domain " + domain + " not found");
 		}
-		ImapInjector inject = new ImapInjector(ctx.adminApi(), domUid);
-		inject.runCycle(cycles);
+		CompletableFuture<Void> cf = new CompletableFuture<>();
+		VertxPlatform.spawnVerticles(v -> {
+			if (v.succeeded()) {
+				cf.complete(null);
+			} else {
+				cf.completeExceptionally(v.cause());
+			}
+
+		});
+		try {
+			cf.get(20, TimeUnit.SECONDS);
+			ImapInjector inject = new ImapInjector(ctx.adminApi(), domUid);
+			long time = System.currentTimeMillis();
+			ctx.info("Starting injection of " + cycles + " message(s)");
+			inject.runCycle(cycles);
+			ctx.info("Injection of " + cycles + " message(s) finished in " + (System.currentTimeMillis() - time)
+					+ "ms.");
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			e.printStackTrace();
+			ctx.error(e.getMessage());
+		}
 	}
 
 	@Override

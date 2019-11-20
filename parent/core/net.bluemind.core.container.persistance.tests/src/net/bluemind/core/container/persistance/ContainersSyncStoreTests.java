@@ -70,14 +70,14 @@ public class ContainersSyncStoreTests {
 		// no init
 		// css.initSync();
 		ContainerSyncStatus ss = new ContainerSyncStatus();
-		ss.syncToken = "token";
+		ss.syncTokens.put("Tata", "Suzanne");
 		Calendar ns1 = Calendar.getInstance();
 		ns1.set(2016, 1, 13, 2, 0, 0);
 		ss.nextSync = ns1.getTimeInMillis();
 		css.setSyncStatus(ss);
 
 		ContainerSyncStatus us = css.getSyncStatus();
-		assertEquals(ss.syncToken, us.syncToken);
+		assertEquals(ss.syncTokens.get("Tata"), us.syncTokens.get("Tata"));
 	}
 
 	@Test
@@ -95,7 +95,7 @@ public class ContainersSyncStoreTests {
 	public void list() throws Exception {
 		ContainersSyncStore store = new ContainersSyncStore(JdbcTestHelper.getInstance().getDataSource());
 		ContainerSyncStatus ss = new ContainerSyncStatus();
-		ss.syncToken = "token";
+		ss.syncTokens.put("Tata", "Suzanne");
 		Calendar ns1 = Calendar.getInstance();
 		ns1.set(2016, 1, 13, 2, 0, 0);
 		ss.nextSync = ns1.getTimeInMillis();
@@ -167,7 +167,7 @@ public class ContainersSyncStoreTests {
 				JdbcTestHelper.getInstance().getDataSource(), container);
 		containerSyncStore.initSync();
 		final ContainerSyncStatus containerSyncStatus = new ContainerSyncStatus();
-		containerSyncStatus.syncToken = "token";
+		containerSyncStatus.syncTokens.put("Tata", "Suzanne");
 		final Calendar calendar = Calendar.getInstance();
 		calendar.set(2016, 1, 13, 2, 0, 0);
 		containerSyncStatus.nextSync = calendar.getTimeInMillis();

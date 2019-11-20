@@ -1,0 +1,44 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui"
+	xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:bj="urn:import:net.bluemind.ui.admin.client"
+	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui"
+	xmlns:common="urn:import:net.bluemind.ui.common.client.forms"
+	xmlns:admin="urn:import:net.bluemind.ui.admin.client.forms">
+
+	<ui:with field="c"
+		type="net.bluemind.ui.adminconsole.system.domains.l10n.DomainConstants" />
+
+
+	<g:HTMLPanel>
+		<f:FieldSetPanel name="{c.externalCalendars}" />
+		<table>
+			<tr>
+				<td>
+					<g:Label text="{c.minDelay}:" />
+				</td>
+				<td>
+					<g:ListBox visibleItemCount="1" width="100px" ui:field="minDelayBox" />
+				</td>
+				<td>
+					<g:Label visible="false"  ui:field="minDelayWarningIcon" />
+				</td>
+				<td>
+					<g:Label visible="false" text="{c.minDelayWarning}" ui:field="minDelayWarning" />
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<g:Label visible="false" text="{c.minDelayMinutes}:" ui:field="minutes" />
+				</td>
+				<td>
+					<g:IntegerBox visible="false" width="90px" ui:field="minDelayOther" />
+				</td>
+			</tr>
+		</table>
+	</g:HTMLPanel>
+
+</ui:UiBinder>

@@ -301,10 +301,12 @@ public class EventRequestHandler extends RequestHandler implements IIMIPHandler 
 				ResourceBundle.getBundle("lang", new Locale(senderSettings.get("lang"))));
 		String subject = resolver.translate("eventForbiddenAttendee", new Object[] { mailbox.displayName, summary });
 
-		Message mail = buildMailMessage(from, to, subject, "EventForbiddenAttendee.ftl", resolver, data, icsPart,
-				senderSettings, event, Method.REPLY);
-		mailer.send(from, mail);
-		mail.dispose();
+		try (Message mail = buildMailMessage(from, to, subject, "EventForbiddenAttendee.ftl", resolver, data, icsPart,
+				senderSettings, event, Method.REPLY)) {
+			mailer.send(from, mail);
+		} catch (Exception e) {
+			throw new ServerFault(e);
+		}
 	}
 
 	private Message buildMailMessage(org.apache.james.mime4j.dom.address.Mailbox from,
@@ -326,14 +328,14 @@ public class EventRequestHandler extends RequestHandler implements IIMIPHandler 
 				data.put("tz", tz.getDisplayName(new Locale(settings.get("lang"))));
 			}
 
-			CalendarMail m = new CalendarMail();
-			m.from = from;
-			m.sender = from;
-			m.to = new MailboxList(Arrays.asList(to), true);
-			m.method = method;
-			m.ics = icsPart;
-			m.html = new CalendarMailHelper().buildBody(templateName, settings.get("lang"), resolver, data);
-			m.subject = subject;
+			CalendarMail m = new CalendarMail.CalendarMailBuilder() //
+					.from(from) //
+					.sender(from) //
+					.to(new MailboxList(Arrays.asList(to), true)) //
+					.method(method) //
+					.ics(icsPart) //
+					.html(new CalendarMailHelper().buildBody(templateName, settings.get("lang"), resolver, data)) //
+					.subject(subject).build();
 			return m.getMessage();
 
 		} catch (TemplateException e) {

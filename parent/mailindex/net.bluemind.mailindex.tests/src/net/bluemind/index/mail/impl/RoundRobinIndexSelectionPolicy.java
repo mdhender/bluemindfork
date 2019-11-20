@@ -32,7 +32,8 @@ public class RoundRobinIndexSelectionPolicy implements IIndexSelectionPolicy {
 		if (mailboxUid.equals("user00")) {
 			RoundRobinIndexSelectionPolicy.current = 0;
 		}
-		String index = shards.get(RoundRobinIndexSelectionPolicy.current % 25);
+		int shardIndex = Math.min(shards.size() - 1, RoundRobinIndexSelectionPolicy.current % 25);
+		String index = shards.get(shardIndex);
 		RoundRobinIndexSelectionPolicy.current++;
 		System.err.println("assigning " + index + " to " + mailboxUid);
 		return index;

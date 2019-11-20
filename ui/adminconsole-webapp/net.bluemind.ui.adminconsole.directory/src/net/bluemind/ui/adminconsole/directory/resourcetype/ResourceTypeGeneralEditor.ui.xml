@@ -5,7 +5,7 @@
 	xmlns:common="urn:import:net.bluemind.ui.common.client.forms" xmlns:ff="urn:import:net.bluemind.ui.admin.client.forms"
 	xmlns:rt="urn:import:net.bluemind.ui.adminconsole.directory.resourcetype"
 	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
-	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'>
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true' xmlns:e="urn:import:net.bluemind.ui.editor.client">
 
 	<ui:style>
 
@@ -99,7 +99,8 @@
 							<li style="width:32.7rem;"><ui:msg key="templateInfoVar2">var2</ui:msg></li>
 						</ul>
 					</p>
-					<rt:TemplateContainer ui:field="templateContainer"></rt:TemplateContainer>
+					<g:ListBox ui:field="templateLanguagesComboBox" />
+					<e:Editor ui:field="templateEditor" width="100%" />
 				</td>
 			</tr>
 

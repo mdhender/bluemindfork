@@ -33,6 +33,7 @@ import net.bluemind.backend.mail.replica.api.IDbMailboxRecordsPromise;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodiesPromise;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxesPromise;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
+import net.bluemind.backend.mail.replica.api.ResolvedMailbox;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.rest.http.HttpClientProvider;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
@@ -94,5 +95,7 @@ public interface StorageApiLink {
 	public CompletableFuture<Boolean> validate(String login, String secret);
 
 	public CompletableFuture<Void> delete(MailboxReplicaRootDescriptor root, String partition);
+
+	public CompletableFuture<List<ResolvedMailbox>> resolveNames(List<String> names);
 
 }

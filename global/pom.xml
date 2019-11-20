@@ -25,9 +25,9 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<tycho-version>1.0.0</tycho-version>
-		<tycho-extras-version>1.0.0</tycho-extras-version>
-		<bm-plugins-version>1.0.341</bm-plugins-version>
+		<tycho-version>1.4.0</tycho-version>
+		<tycho-extras-version>1.4.0</tycho-extras-version>
+		<bm-plugins-version>1.0.349</bm-plugins-version>
 		<bm.metrics.agent>1.18.0</bm.metrics.agent>
 		<maven.test.failure.ignore>true</maven.test.failure.ignore>
 		<sonar.language>java</sonar.language>
@@ -36,14 +36,14 @@
 		<sonar.jacoco.excludes>**/*Test*,**/generated/**/*</sonar.jacoco.excludes>
 		<l10n.list>"en", "fr"</l10n.list>
 		<gwt-version>2.8.2</gwt-version>
-                <docker.devenv.tag>4.1.46484</docker.devenv.tag>
+                <docker.devenv.tag>4.1.46757</docker.devenv.tag>
 	</properties>
 
 	<repositories>
 		<repository>
 			<id>bluemind-deps</id>
 			<layout>p2</layout>
-			<url>http://forge.blue-mind.net/staging/p2/dependencies/428/</url>
+			<url>http://forge.blue-mind.net/staging/p2/dependencies/452/</url>
 		</repository>
 		<repository>
 			<id>tigase</id>
@@ -102,7 +102,7 @@
 		</plugins>
 
 		<pluginManagement>
-			<plugins>
+            <plugins>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-install-plugin</artifactId>
@@ -266,6 +266,7 @@
 					<groupId>org.eclipse.tycho</groupId>
 					<artifactId>target-platform-configuration</artifactId>
 					<version>${tycho-version}</version>
+					<!--
 					<configuration>
 						<environments>
 							<environment>
@@ -275,6 +276,7 @@
 							</environment>
 						</environments>
 					</configuration>
+					-->
 				</plugin>
 				<plugin>
 					<groupId>org.eclipse.tycho</groupId>
@@ -418,39 +420,6 @@
 							<version>2.9.1</version>
 						</dependency>
 					</dependencies>
-				</plugin>
-				<plugin>
-					<groupId>com.github.eirslett</groupId>
-					<artifactId>frontend-maven-plugin</artifactId>
-					<version>1.6</version>
-					<executions>
-						<execution>
-							<id>Install JS build tools</id>
-							<goals>
-								<goal>install-node-and-yarn</goal>
-							</goals>
-							<configuration>
-                                                                <nodeVersion>v8.11.0</nodeVersion>
-                                                                <yarnVersion>v1.6.0</yarnVersion>
-							</configuration>
-						</execution>
-                                               <execution>
-                                                        <id>Install JS dependencies</id>
-                                                        <goals>
-                                                                <goal>yarn</goal>
-                                                        </goals>
-                                                </execution>
-						<execution>
-							<id>Build JS resources</id>
-							<goals>
-								<goal>yarn</goal>
-							</goals>
-							<phase>generate-resources</phase>
-							<configuration>
-								<arguments>run build</arguments>
-							</configuration>
-						</execution>
-					</executions>
 				</plugin>
 			</plugins>
 		</pluginManagement>

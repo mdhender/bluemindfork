@@ -1,0 +1,12 @@
+Source: bluemind
+Section: net
+Priority: optional
+Maintainer: Blue Mind Team <team@blue-mind.net>
+Standards-Version: 3.9.1
+
+Package: bm-plugin-core-forest
+Architecture: amd64
+Depends: bm-core (= ${binary:Version})
+Description: BlueMind Forest plugin
+  BlueMind forest plugin to federate an instance with other deployements
+

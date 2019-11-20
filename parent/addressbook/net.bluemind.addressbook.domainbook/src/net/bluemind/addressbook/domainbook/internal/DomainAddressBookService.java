@@ -89,6 +89,7 @@ public class DomainAddressBookService implements IDomainAddressBook {
 
 	private static final Logger logger = LoggerFactory.getLogger(DomainAddressBookService.class);
 	protected static final List<IDomainAddressBookHook> hooks = getHooks();
+	private static final String SYNC_TOKEN_CHANGESET_VERSION = "changeset-version";
 	private BmContext context;
 	private String domain;
 	private Container abContainer;
@@ -131,8 +132,9 @@ public class DomainAddressBookService implements IDomainAddressBook {
 		ContainerSyncStore containerSyncStore = new ContainerSyncStore(DataSourceRouter.get(context, abContainer.uid),
 				abContainer);
 		ContainerSyncStatus status = containerSyncStore.getSyncStatus();
-		if (status != null && !Strings.isNullOrEmpty(status.syncToken)) {
-			lastVersion = Long.parseLong(status.syncToken);
+		final String changesetVersion = status.syncTokens.get(SYNC_TOKEN_CHANGESET_VERSION);
+		if (status != null && !Strings.isNullOrEmpty(changesetVersion)) {
+			lastVersion = Long.parseLong(changesetVersion);
 		}
 
 		IDirectory dir = context.provider().instance(IDirectory.class, domain);
@@ -218,7 +220,7 @@ public class DomainAddressBookService implements IDomainAddressBook {
 		ContainerSyncStatus ntatus = new ContainerSyncStatus();
 		ntatus.lastSync = new Date();
 		ntatus.nextSync = null;
-		ntatus.syncToken = Long.toString(changeset.version);
+		ntatus.syncTokens.put(SYNC_TOKEN_CHANGESET_VERSION, Long.toString(changeset.version));
 		containerSyncStore.setSyncStatus(ntatus);
 	}
 

@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.vertx.java.platform.VerticleConstructor;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -37,6 +38,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.eas.command.settings.SettingsProtocol;
 import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.eas.http.EasHeaders;
+import net.bluemind.eas.protocol.impl.ProtocolWorker;
 import net.bluemind.eas.testhelper.device.TestDeviceHelper;
 import net.bluemind.eas.testhelper.device.TestDeviceHelper.TestDevice;
 import net.bluemind.eas.testhelper.mock.RequestsFactory;
@@ -44,6 +46,7 @@ import net.bluemind.eas.testhelper.vertx.Deploy;
 import net.bluemind.eas.utils.DOMUtils;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.MQ.IMQConnectHandler;
+import net.bluemind.lib.vertx.Constructor;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public abstract class AbstractProtocolTests extends TestCase {
@@ -64,8 +67,8 @@ public abstract class AbstractProtocolTests extends TestCase {
 			}
 		});
 		mqLatch.await(5, TimeUnit.SECONDS);
-		deploymentIDs = Deploy.beforeTest(new String[0],
-				new String[] { "net.bluemind.eas.protocol.impl.ProtocolWorker" });
+		deploymentIDs = Deploy.beforeTest(new VerticleConstructor[0],
+				new VerticleConstructor[] { Constructor.of(ProtocolWorker::new, ProtocolWorker.class) });
 
 	}
 

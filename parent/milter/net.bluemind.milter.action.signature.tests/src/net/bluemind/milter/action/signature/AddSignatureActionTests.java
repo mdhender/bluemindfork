@@ -396,15 +396,19 @@ public class AddSignatureActionTests {
 	}
 
 	private String toEml(Message msg) throws IOException {
-		InputStream asStream = Mime4JHelper.asStream(msg);
-		StringBuilder sb = new StringBuilder();
-		int nRead;
+		try (Message m = msg) {
+			InputStream asStream = Mime4JHelper.asStream(msg);
+			StringBuilder sb = new StringBuilder();
+			int nRead;
 
-		while ((nRead = asStream.read()) != -1) {
-			sb.append((char) nRead);
+			while ((nRead = asStream.read()) != -1) {
+				sb.append((char) nRead);
+			}
+
+			return sb.toString();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
-
-		return sb.toString();
 	}
 
 }

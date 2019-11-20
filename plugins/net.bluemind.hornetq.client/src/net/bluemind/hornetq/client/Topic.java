@@ -52,4 +52,7 @@ public final class Topic {
 	public static final String GLOBAL_SETTINGS_NOTIFICATIONS = "bm.global.settings.notifications";
 	public static final String LOGBACK_CONFIG = "logback.configuration";
 
+	public static final String PRODUCT_CHECK_RESULTS = "product.check.result";
+	public static final String PRODUCT_CHECK_REQUESTS = "product.check.req";
+
 }

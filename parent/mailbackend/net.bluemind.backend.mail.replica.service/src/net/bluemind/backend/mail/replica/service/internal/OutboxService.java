@@ -89,17 +89,23 @@ public class OutboxService implements IOutbox {
 			promises.add(
 					SyncStreamDownload.read(mailboxItemsService.fetchComplete(item.value.imapUid)).thenAccept(buf -> {
 						InputStream in = new ByteBufInputStream(buf);
-						Message msg = Mime4JHelper.parse(in);
-						mailer.send(domainUid, msg);
-						final ImportMailboxItemsStatus importMailboxItemsStatus = mailboxFoldersService
+						try (Message msg = Mime4JHelper.parse(in)) {
+							mailer.send(domainUid, msg);
+
+							mailboxFoldersService.importItems(sentInternalId, ImportMailboxItemSet
+									.moveIn(outboxInternalId, Arrays.asList(MailboxItemId.of(item.internalId)), null));
+                                                       	final ImportMailboxItemsStatus importMailboxItemsStatus = mailboxFoldersService
 								.importItems(sentInternalId, ImportMailboxItemSet.moveIn(outboxInternalId,
 										Arrays.asList(MailboxItemId.of(item.internalId)), null));
-						final List<ImportedMailboxItem> doneIds = importMailboxItemsStatus.doneIds;
-						if (doneIds != null && !doneIds.isEmpty()) {
-							importedMailboxItems.addAll(doneIds);
+						        final List<ImportedMailboxItem> doneIds = importMailboxItemsStatus.doneIds;
+						        if (doneIds != null && !doneIds.isEmpty()) {
+						        	importedMailboxItems.addAll(doneIds);
+						        }
+							monitor.progress(1,
+									"FLUSHING OUTBOX - mail " + msg.getMessageId() + " sent and moved in Sent folder.");
+						} catch (Exception e) {
+							throw new RuntimeException(e);
 						}
-						monitor.progress(1,
-								"FLUSHING OUTBOX - mail " + msg.getMessageId() + " sent and moved in Sent folder.");
 					}));
 		});
 

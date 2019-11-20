@@ -34,8 +34,8 @@ import net.bluemind.lib.vertx.utils.DebouncedEventPublisher;
  * there is a <i>debounce</i> time of {@value #DEBOUNCE_TIME_MILLIS}ms.
  */
 public class ContainerChangeEventProducer {
-	
-	private static final int DEBOUNCE_TIME_MILLIS = 50;
+
+	private static final int DEBOUNCE_TIME_MILLIS = 500;
 	private DebouncedEventPublisher debouncedEventPublisher;
 	private JsonObject message;
 	private String address;
@@ -44,7 +44,7 @@ public class ContainerChangeEventProducer {
 			final Container container) {
 		final String loginAtDomain = securityContext.getSubject();
 		this.address = String.format("bm.%s.hook.%s.changed", container.type, container.uid);
-		this.message= new JsonObject();
+		this.message = new JsonObject();
 		message.putString("loginAtDomain", loginAtDomain);
 		debouncedEventPublisher = new DebouncedEventPublisher(eventBus, DEBOUNCE_TIME_MILLIS);
 	}

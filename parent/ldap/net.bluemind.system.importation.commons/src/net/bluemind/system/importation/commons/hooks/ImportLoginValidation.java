@@ -34,16 +34,16 @@ import net.bluemind.system.importation.commons.CoreServices;
 import net.bluemind.system.importation.commons.ICoreServices;
 import net.bluemind.system.importation.commons.Parameters;
 import net.bluemind.system.importation.commons.managers.UserManager;
-import net.bluemind.user.api.IUser;
-import net.bluemind.user.api.User;
 
 /**
  * @author Anthony Prades <anthony.prades@blue-mind.net>
  *
  */
 public abstract class ImportLoginValidation implements ILoginValidationListener {
+
 	@Override
-	public void onValidLogin(IAuthProvider authenticationService, String userLogin, String domainUid, String password) {
+	public void onValidLogin(IAuthProvider authenticationService, boolean userExists, String userLogin,
+			String domainUid, String password) {
 		if (!mustValidLogin(authenticationService)) {
 			return;
 		}
@@ -54,13 +54,13 @@ public abstract class ImportLoginValidation implements ILoginValidationListener 
 			throw new ServerFault(String.format("Domain uid %s not found", domainUid));
 		}
 
+		if (userExists) {
+			return;
+		}
+
 		Map<String, String> domainSettings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDomainSettings.class, domain.uid).get();
 		Parameters directoryParameters = getDirectoryParameters(domain, domainSettings);
-
-		if (getBMUser(userLogin, domain.uid) != null) {
-			return;
-		}
 
 		Optional<UserManager> optionalUserManager = getDirectoryUser(directoryParameters, domain, userLogin);
 		if (!optionalUserManager.isPresent()) {
@@ -101,8 +101,4 @@ public abstract class ImportLoginValidation implements ILoginValidationListener 
 	protected abstract Optional<UserManager> getDirectoryUser(Parameters adParameters, ItemValue<Domain> domain,
 			String userLogin);
 
-	ItemValue<User> getBMUser(String userLogin, String domainUid) {
-		return ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class, domainUid)
-				.byLogin(userLogin);
-	}
 }

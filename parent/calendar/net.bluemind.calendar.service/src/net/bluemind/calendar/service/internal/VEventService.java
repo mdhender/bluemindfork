@@ -19,6 +19,7 @@
 package net.bluemind.calendar.service.internal;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -42,6 +43,7 @@ import net.bluemind.core.rest.base.GenericStream;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.ITasksManager;
+import net.bluemind.icalendar.parser.CalendarOwner;
 
 public class VEventService implements IVEvent {
 
@@ -53,8 +55,11 @@ public class VEventService implements IVEvent {
 
 	private RBACManager rbacManager;
 
+	private Container container;
+
 	public VEventService(BmContext context, Container container) throws ServerFault {
 		this.context = context;
+		this.container = container;
 		this.calendarService = context.provider().instance(ICalendar.class, container.uid);
 		rbacManager = RBACManager.forContext(context).forContainer(container);
 	}
@@ -77,7 +82,8 @@ public class VEventService implements IVEvent {
 	public TaskRef importIcs(Stream stream) throws ServerFault {
 		rbacManager.check(Verb.Write.name());
 		String ics = GenericStream.streamToString(stream);
-		return context.provider().instance(ITasksManager.class).run(new ICSImportTask(calendarService, ics));
+		return context.provider().instance(ITasksManager.class).run(new ICSImportTask(calendarService, ics,
+				Optional.of(new CalendarOwner(container.domainUid, container.owner))));
 	}
 
 	@Override
@@ -122,7 +128,7 @@ public class VEventService implements IVEvent {
 	}
 
 	private Stream emptyCalendar() {
-		String cal = "BEGIN:VCALENDAR\r\n" + "PRODID:-//Bluemind//Bluemind Calendar//FR\r\n" + "VERSION:2.0\r\n"
+		String cal = "BEGIN:VCALENDAR\r\n" + "PRODID:-//BlueMind//BlueMind Calendar//FR\r\n" + "VERSION:2.0\r\n"
 				+ "CALSCALE:GREGORIAN\r\n" + "END:VCALENDAR\r\n";
 		return GenericStream.simpleValue(cal, (s) -> s.getBytes());
 	}

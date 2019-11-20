@@ -10,7 +10,9 @@ Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="4.1.0",
  net.bluemind.tag.api.gwt;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.core.task.api.gwt;bundle-version="4.1.0";visibility:=reexport,
  com.google.gwt.user;resolution:=optional,
- net.bluemind.user.api.gwt;bundle-version="4.1.0";visibility:=reexport
+ net.bluemind.user.api.gwt;bundle-version="4.1.0";visibility:=reexport,
+ net.bluemind.attachment.api.gwt;bundle-version="4.1.0",
+ net.bluemind.attachment.api;bundle-version="4.1.0"
 Export-Package: net.bluemind.icalendar.api.gwt.js,
  net.bluemind.icalendar.api.gwt.serder
 

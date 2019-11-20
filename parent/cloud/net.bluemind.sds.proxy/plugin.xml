@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="net.bluemind.sds.proxy.store" name="store" schema="schema/net.bluemind.sds.proxy.store.exsd"/>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.sds.proxy.SdsProxyHttpVerticle$SdsProxyHttpFactory">
+      </verticle>
+      <verticle
+            impl="net.bluemind.sds.proxy.events.SdsObjectStoreHandlerVerticle$SdsObjectStoreFactory">
+      </verticle>
+      <verticle
+            impl="net.bluemind.sds.proxy.watchdog.WatchdogVerticle$Factory">
+      </verticle>
+      <verticle
+            impl="net.bluemind.sds.proxy.events.SdsCyrusValidationHandlerVerticle$SdsCoreAPIFactory">
+      </verticle>
+   </extension>
+
+</plugin>

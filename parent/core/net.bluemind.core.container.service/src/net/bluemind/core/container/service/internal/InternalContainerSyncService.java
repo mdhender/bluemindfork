@@ -46,7 +46,7 @@ public class InternalContainerSyncService implements IInternalContainerSync {
 	public ContainerSyncResult sync() throws ServerFault {
 		ContainerSyncStatus ss = containerSyncStore.getSyncStatus();
 		SyncableContainer syncableContainer = new SyncableContainer(context);
-		ContainerSyncResult res = syncableContainer.sync(container, ss.syncToken, new NullTaskMonitor());
+		ContainerSyncResult res = syncableContainer.sync(container, ss.syncTokens, new NullTaskMonitor());
 		if (res != null) {
 			containerSyncStore.setSyncStatus(res.status);
 		}

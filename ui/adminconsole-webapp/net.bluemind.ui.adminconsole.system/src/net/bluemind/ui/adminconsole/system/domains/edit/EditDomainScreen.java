@@ -45,6 +45,7 @@ import net.bluemind.role.api.BasicRoles;
 import net.bluemind.ui.adminconsole.base.Actions;
 import net.bluemind.ui.adminconsole.base.ui.CrudActionBar;
 import net.bluemind.ui.adminconsole.system.domains.edit.bmservices.EditDomainBmServicesEditor;
+import net.bluemind.ui.adminconsole.system.domains.edit.extcal.EditExternalCalendarsEditor;
 import net.bluemind.ui.adminconsole.system.domains.edit.filters.EditDomainFiltersEditor;
 import net.bluemind.ui.adminconsole.system.domains.edit.filters.FiltersModelHandler;
 import net.bluemind.ui.adminconsole.system.domains.edit.general.DomainMaxBasicAccountEditor;
@@ -188,6 +189,9 @@ public class EditDomainScreen extends Composite implements IGwtCompositeScreenRo
 		ContainerElement domainServiceContainerElement = ContainerElement.create("editDomainBmServices", children);
 
 		tabs.push(Tab.create(null, c.bmServicesTab(), domainServiceContainerElement));
+
+		tabs.push(Tab.create(null, c.externalCalendars(),
+				ScreenElement.create("editExternalCalendars", EditExternalCalendarsEditor.TYPE)));
 
 		TabContainer tab = TabContainer.create("editDomainTabs", tabs);
 		screenRoot.setContent(tab);

@@ -66,6 +66,15 @@ public class CliContext {
 	}
 
 	/**
+	 * Prints a yellow message (and avoids sonar error)
+	 * 
+	 * @param msg
+	 */
+	public void warn(String msg) {
+		System.out.println(ansi().fgYellow().a(msg).reset()); // NOSONAR
+	}
+
+	/**
 	 * Use this to avoid sonar errors about logger usage
 	 * 
 	 * @param msg

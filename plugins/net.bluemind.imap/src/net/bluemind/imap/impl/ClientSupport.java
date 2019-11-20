@@ -81,7 +81,6 @@ import net.bluemind.imap.command.NamespaceCommand;
 import net.bluemind.imap.command.NoopCommand;
 import net.bluemind.imap.command.QuotaRootCommand;
 import net.bluemind.imap.command.RenameCommand;
-import net.bluemind.imap.command.RenameMailboxCommandChangePart;
 import net.bluemind.imap.command.SelectCommand;
 import net.bluemind.imap.command.SetAclCommand;
 import net.bluemind.imap.command.SetAnnotationCommand;
@@ -417,9 +416,12 @@ public final class ClientSupport {
 	/**
 	 * Sets an IMAP Acl on a mailbox
 	 * 
-	 * @param mailbox  user/toto@willow.vmw
-	 * @param consumer admin0
-	 * @param acl      all
+	 * @param mailbox
+	 *            user/toto@willow.vmw
+	 * @param consumer
+	 *            admin0
+	 * @param acl
+	 *            all
 	 * @return true if SETACL succeeds
 	 */
 	public boolean setAcl(String mailbox, String consumer, Acl acl) {
@@ -432,16 +434,6 @@ public final class ClientSupport {
 
 	public Map<String, Acl> listAcl(String mailbox) {
 		return run(new ListAclCommand(mailbox));
-	}
-
-	public boolean renameMailbox(String mailbox, String newMailbox, String partition) {
-		boolean first = run(new RenameCommand(mailbox, newMailbox));
-		if (first) {
-			logger.info("name changed, switch partition back from default to {}", partition);
-			return run(new RenameMailboxCommandChangePart(newMailbox, partition));
-		} else {
-			return first;
-		}
 	}
 
 	public int getUnseen(String mailbox) {
@@ -507,6 +499,10 @@ public final class ClientSupport {
 			ir.setPayload("BMTAG BAD " + cause.getMessage());
 			setResponses(Arrays.asList(ir));
 		}
+	}
+
+	public boolean isClosed() {
+		return session == null || !session.isConnected();
 	}
 
 }

@@ -29,7 +29,9 @@ goog.require('goog.dom.classlist');
 goog.require('goog.ui.DatePicker');
 goog.require('goog.ui.DatePicker.Events');
 goog.require('goog.dom.ViewportSizeMonitor');
+goog.require('net.bluemind.calendar.vevent.EventType');
 goog.require('goog.events.EventType');
+goog.require("net.bluemind.calendar.day.ui.RecurringFormDialog");
 /**
  * View class for Calendar days view.
  * 
@@ -52,7 +54,7 @@ net.bluemind.calendar.list.ListView.prototype.ctx;
 /**
  * @type {goog.dom.ViewportSizeMonitor}
  */
-net.bluemind.calendar.list.ListView.prototype.sizeMonitor_
+net.bluemind.calendar.list.ListView.prototype.sizeMonitor_;
 
 /**
  * @type {goog.date.DateRange}
@@ -66,6 +68,10 @@ net.bluemind.calendar.list.ListView.MSG_ALLDAY = goog.getMsg('All day');
 net.bluemind.calendar.list.ListView.prototype.createDom = function() {
   goog.base(this, 'createDom');
   goog.dom.classlist.add(this.getElement(), goog.getCssName('list-view'));
+  var recurringPopup = new net.bluemind.calendar.day.ui.RecurringFormDialog();
+  recurringPopup.setId('recurring-popup');
+  this.addChild(recurringPopup);
+
 };
 
 /** @override */
@@ -74,7 +80,13 @@ net.bluemind.calendar.list.ListView.prototype.enterDocument = function() {
   this.sizeMonitor_ = new goog.dom.ViewportSizeMonitor();
   this.getHandler().listen(this.sizeMonitor_, goog.events.EventType.RESIZE, this.resize_);
   this.resize_();
+  this.registerPopup();
 };
+
+net.bluemind.calendar.list.ListView.prototype.registerPopup = function() {
+  this.getHandler().listen(this.getChild('recurring-popup'), net.bluemind.calendar.vevent.EventType.DETAILS,
+      this.gotoReccuringEvent_);
+}
 
 /**
  * Resize grid
@@ -94,6 +106,7 @@ net.bluemind.calendar.list.ListView.prototype.resize_ = function(opt_evt) {
 net.bluemind.calendar.list.ListView.prototype.refresh = function() {
   this.getHandler().removeAll();
   this.getHandler().listen(this.sizeMonitor_, goog.events.EventType.RESIZE, this.resize_);
+  this.registerPopup();
   this.getDomHelper().removeChildren(this.getElement());
   this.draw_()
 };
@@ -223,11 +236,20 @@ net.bluemind.calendar.list.ListView.prototype.drawEvent = function(event, parent
 
 };
 
+net.bluemind.calendar.list.ListView.prototype.gotoReccuringEvent_ = function(eventModel) {
+  var evt = this.currentEvent;
+  if (eventModel.vevent.recurringDone) {
+    this.handleClick_(evt, '{}', 'rec');
+  } else {
+    this.handleClick_(evt, '{}', 'series');
+  }
+}
+
 /**
  * @param {Object} event
  * @param {goog.event.Event} e
  */
-net.bluemind.calendar.list.ListView.prototype.handleClick_ = function(event, e) {
+net.bluemind.calendar.list.ListView.prototype.handleClick_ = function(event, e, opt_rec) {
   // FIXME : should be in presenter not in view
   var loc = goog.global['location'];
 
@@ -238,10 +260,16 @@ net.bluemind.calendar.list.ListView.prototype.handleClick_ = function(event, e) 
     var uri = new goog.Uri('/vevent/');
   }
   uri.getQueryData().set('uid', event.uid);
-  if (event.states.exception) {
-    uri.getQueryData().set('recurrence-id', event.recurrenceId.toIsoString(true, true))
+  if (!opt_rec && event.recurrenceId) {
+    this.currentEvent = event;
+    this.getChild('recurring-popup').setModel(event);
+    this.getChild('recurring-popup').setVSeries(event);
+    this.getChild('recurring-popup').setVisible(true);
+  } else {
+    if (opt_rec && opt_rec != 'series') {
+      uri.getQueryData().set('recurrence-id', event.recurrenceId.toIsoString(true, true))
+    }
+    uri.getQueryData().set('container', event.calendar);
+    loc.hash = uri.toString();
   }
-  uri.getQueryData().set('container', event.calendar);
-  loc.hash = uri.toString();
-
 };

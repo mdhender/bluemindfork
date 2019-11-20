@@ -41,7 +41,8 @@ public class Fail2Ban implements ILoginValidationListener, IAuthProvider {
 	}
 
 	@Override
-	public void onValidLogin(IAuthProvider provider, String userLogin, String domain, String password) {
+	public void onValidLogin(IAuthProvider provider, boolean userExists, String userLogin, String domain,
+			String password) {
 		trials.invalidate(userLogin + "@" + domain);
 	}
 

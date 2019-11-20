@@ -25,7 +25,9 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.todolist.api,
  net.bluemind.server.api,
  net.bluemind.config,
- net.bluemind.utils
+ net.bluemind.utils,
+ com.github.freva.ascii-table,
+ net.bluemind.group.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.cli.user
 Bundle-ActivationPolicy: lazy

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.core.sessions.deletion">
+      <listener
+            impl="net.bluemind.core.sessions.deletion.hz.PropagateSessionDeletions">
+      </listener>
+   </extension>
+
+</plugin>

@@ -22,6 +22,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -30,10 +31,14 @@ import org.vertx.java.core.json.JsonObject;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerQuery;
+import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemUri;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.model.acl.AccessControlEntry;
+import net.bluemind.core.container.model.acl.Verb;
+import net.bluemind.core.container.persistance.DataSourceRouter;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.exchange.mapi.api.IMapiFolderAssociatedInformation;
@@ -41,6 +46,7 @@ import net.bluemind.exchange.mapi.api.IMapiMailbox;
 import net.bluemind.exchange.mapi.api.MapiFAIContainer;
 import net.bluemind.exchange.mapi.api.MapiReplica;
 import net.bluemind.exchange.mapi.persistence.MapiReplicaStore;
+import net.bluemind.exchange.publicfolders.common.PublicFolders;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Topic;
 import net.bluemind.user.api.IUser;
@@ -57,12 +63,15 @@ public class MapiMailboxService implements IMapiMailbox {
 
 	private String mailboxUid;
 
+	private boolean pfMailbox;
+
 	public MapiMailboxService(BmContext context, String domainUid, String mailboxUid) throws ServerFault {
 		this.context = context;
 		this.domainUid = domainUid;
 		this.mailboxUid = mailboxUid;
 		this.context = context;
 		this.mapiReplicaStore = new MapiReplicaStore(context.getDataSource());
+		this.pfMailbox = mailboxUid.equals(PublicFolders.mailboxGuid(domainUid));
 	}
 
 	@Override
@@ -70,17 +79,35 @@ public class MapiMailboxService implements IMapiMailbox {
 		replica.mailboxUid = this.mailboxUid;
 		try {
 			mapiReplicaStore.store(replica);
-
-			String faiContainerId = MapiFAIContainer.getIdentifier(replica);
-			ContainerDescriptor fais = ContainerDescriptor.create(faiContainerId, faiContainerId,
-					context.getSecurityContext().getSubject(), MapiFAIContainer.TYPE, domainUid, true);
-			IContainers contApi = context.provider().instance(IContainers.class);
-			contApi.create(faiContainerId, fais);
-			logger.info("Created container {}", faiContainerId);
 		} catch (SQLException e1) {
 			throw ServerFault.sqlFault(e1);
 		}
+		checkFaiContainer(replica);
 
+	}
+
+	private void checkFaiContainer(MapiReplica replica) {
+		String faiContainerId = MapiFAIContainer.getIdentifier(replica);
+		DataSourceRouter.invalidateContainer(faiContainerId);
+		ContainerDescriptor fais = ContainerDescriptor.create(faiContainerId, faiContainerId,
+				pfMailbox ? PublicFolders.mailboxGuid(domainUid) : context.getSecurityContext().getSubject(),
+				MapiFAIContainer.TYPE, domainUid, true);
+		IContainers contApi = context.su().provider().instance(IContainers.class);
+		ContainerDescriptor current = contApi.getIfPresent(faiContainerId);
+		if (current != null && !current.owner.equals(fais.owner)) {
+			logger.info("Reset FAI container {} as owner is wrong", faiContainerId);
+			contApi.delete(faiContainerId);
+			current = null;
+		}
+		if (current == null) {
+			contApi.create(faiContainerId, fais);
+			logger.info("Created FAI container {}", faiContainerId);
+		}
+		if (pfMailbox) {
+			logger.info("Setting domain-wide {} ACLs for PF FAI folder {}", domainUid, faiContainerId);
+			IContainerManagement mgmtApi = context.su().provider().instance(IContainerManagement.class, faiContainerId);
+			mgmtApi.setAccessControlList(Arrays.asList(AccessControlEntry.create(domainUid, Verb.All)));
+		}
 	}
 
 	@Override

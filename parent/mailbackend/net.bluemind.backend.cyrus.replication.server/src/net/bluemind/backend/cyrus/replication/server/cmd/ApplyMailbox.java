@@ -78,6 +78,15 @@ public class ApplyMailbox implements IAsyncReplicationCommand {
 		JsonObject parsed = parser.parse(mboxAndContent).asObject();
 		ReplicationState state = session.state();
 		MailboxFolder folder = MailboxFolder.of(parsed);
+
+		String partition = Token.atomOrValue(parsed.getString("PARTITION"));
+		if ("default".equals(partition)) {
+			logger.warn("Skip ApplyMailbox on '{}' partition", partition);
+			CompletableFuture<CommandResult> ret = new CompletableFuture<>();
+			ret.complete(CommandResult.success());
+			return ret;
+		}
+
 		return state.registerFolder(folder).thenCompose(v1 -> {
 			JsonArray emails = parsed.getArray("RECORD");
 			int len = emails.size();

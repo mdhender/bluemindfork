@@ -1,5 +1,6 @@
 enable bm-core.service
 enable bm-cyrus-imapd.service
+enable bm-cyrus-syncclient.service
 enable bm-eas.service
 enable bm-mapi.service
 enable bm-elasticsearch.service
@@ -20,6 +21,7 @@ enable bm-ysnp.service
 enable bm-iptables.service
 enable bm-postgresql.service
 enable postgresql.service
+enable bm-sds-proxy.service
 disable postgresql-9.6.service
 disable postgresql-11.service
 disable postgresql@.service

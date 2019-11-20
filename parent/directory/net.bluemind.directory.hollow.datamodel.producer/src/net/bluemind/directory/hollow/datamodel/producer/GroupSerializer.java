@@ -32,6 +32,7 @@ public class GroupSerializer extends DirEntrySerializer {
 		this.group = group;
 	}
 
+	@Override
 	public Value get(Property property) {
 		switch (property) {
 		case DisplayName:

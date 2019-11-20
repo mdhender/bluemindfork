@@ -18,7 +18,6 @@
 package net.bluemind.backend.mail.replica.persistence;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -31,7 +30,7 @@ import net.bluemind.core.jdbc.JdbcAbstractStore;
 
 public class MessageBodyStore extends JdbcAbstractStore {
 
-	private Creator<MessageBody> MB_CREATOR = rs -> new MessageBody();
+	private static final Creator<MessageBody> MB_CREATOR = rs -> new MessageBody();
 
 	public MessageBodyStore(DataSource pool) {
 		super(pool);
@@ -71,32 +70,35 @@ public class MessageBodyStore extends JdbcAbstractStore {
 			+ " FROM t_message_body WHERE guid = ANY(?::bytea[])";
 
 	public List<MessageBody> multiple(String... guids) throws SQLException {
+		return multiple(new Object[] { toByteArray(guids) });
+	}
+
+	public List<MessageBody> multiple(List<String> guids) throws SQLException {
+		return multiple(new Object[] { toByteArray(guids) });
+	}
+
+	private List<MessageBody> multiple(Object[] byteArrays) throws SQLException {
 		return select(MGET_QUERY, MB_CREATOR, (rs, index, mb) -> {
 			mb.guid = rs.getString(index++);
 			return MessageBodyColumns.simplePopulator().populate(rs, index, mb);
-		}, new Object[] { toByteArray(guids) });
-	}
-
-	public List<MessageBody> multiple(List<String> guid) throws SQLException {
-		return multiple(guid.toArray(new String[guid.size()]));
+		}, byteArrays);
 	}
 
 	public boolean exists(String uid) throws SQLException {
 		String q = "select 1 from t_message_body mb where guid = decode(?, 'hex')";
 		Boolean found = unique(q, rs -> Boolean.TRUE, Collections.emptyList(), new Object[] { uid });
-		return found == null ? false : true;
+		return found != null;
 	}
 
 	public List<String> existing(List<String> toCheck) throws SQLException {
 		List<String> theList = java.util.Optional.ofNullable(toCheck).orElse(Collections.emptyList());
-		String[] params = toByteArray(theList.toArray(new String[0]));
 		String q = "select encode(guid, 'hex') from t_message_body mb where guid = ANY(?::bytea[])";
-		return select(q, rs -> rs.getString(1), (rs, index, val) -> index, new Object[] { params });
+		return select(q, StringCreator.FIRST, (rs, index, val) -> index, new Object[] { toByteArray(theList) });
 	}
 
 	public List<String> deleteOrphanBodies() throws SQLException {
-		String query = "delete from t_message_body b where created < NOW() - INTERVAL '2 hour' and not exists (select from t_mailbox_record where message_body_guid = b.guid)";
-		String selectQuery = "select b.guid from t_message_body b where created < NOW() - INTERVAL '2 hour' and not exists (select from t_mailbox_record where message_body_guid = b.guid)";
+		String query = "delete from t_message_body b where created < NOW() - INTERVAL '2 days' and not exists (select from t_mailbox_record where message_body_guid = b.guid)";
+		String selectQuery = "select b.guid from t_message_body b where created < NOW() - INTERVAL '2 days' and not exists (select from t_mailbox_record where message_body_guid = b.guid)";
 		List<String> selected = select(selectQuery, StringCreator.FIRST, (rs, index, val) -> index);
 		int handled = delete(query, new Object[0]);
 		logger.info("{} orphan bodies purged.", handled);
@@ -104,12 +106,21 @@ public class MessageBodyStore extends JdbcAbstractStore {
 	}
 
 	private String[] toByteArray(String... guids) {
-		List<String> params = new ArrayList<String>(guids.length);
-		for (String guid : guids) {
-			params.add("\\x" + guid);
+		int len = guids.length;
+		String[] ret = new String[len];
+		for (int i = 0; i < len; i++) {
+			ret[i] = "\\x" + guids[i];
 		}
+		return ret;
+	}
 
-		return params.toArray(new String[0]);
+	private String[] toByteArray(List<String> guids) {
+		String[] ret = new String[guids.size()];
+		int i = 0;
+		for (String guid : guids) {
+			ret[i++] = "\\x" + guid;
+		}
+		return ret;
 	}
 
 }

@@ -48,6 +48,14 @@ public class ApplyRename implements IAsyncReplicationCommand {
 		JsonObject parsed = parser.parse(toReserve).asObject();
 		String from = Token.atomOrValue(parsed.getString("OLDMBOXNAME"));
 		String to = Token.atomOrValue(parsed.getString("NEWMBOXNAME"));
+
+		String partition = Token.atomOrValue(parsed.getString("PARTITION"));
+		if ("default".equals(partition)) {
+			logger.warn("Skip ApplyRename on '{}' partition", partition);
+			ret.complete(CommandResult.success());
+			return ret;
+		}
+
 		logger.info("Apply RENAME from {} to {}", from, to);
 		session.state().rename(from, to).whenComplete((v, ex) -> {
 			if (ex != null) {

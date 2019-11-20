@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="sds-proxy"
+         name="SDS Proxy"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            thread="main"
+            visible="true">
+         <run
+               class="net.bluemind.sds.proxy.launcher.SdsLauncher">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="sds_proxy"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="net.bluemind.sds.proxy.launcher.sds-proxy"
+            name="SDS Proxy">
+         <property
+               name="appName"
+               value="SDS Proxy">
+         </property>
+      </product>
+   </extension>
+
+</plugin>

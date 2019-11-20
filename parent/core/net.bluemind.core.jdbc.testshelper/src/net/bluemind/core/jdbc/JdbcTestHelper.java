@@ -155,6 +155,8 @@ public class JdbcTestHelper {
 			stopPool(other);
 		}
 		otherPools.clear();
+		// to ensure finalize overrides are executed
+		System.gc();
 	}
 
 	private void stopPool(Pool pool) throws Exception {

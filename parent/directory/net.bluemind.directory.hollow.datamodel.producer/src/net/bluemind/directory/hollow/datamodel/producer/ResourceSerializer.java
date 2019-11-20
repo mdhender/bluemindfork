@@ -25,13 +25,14 @@ import net.bluemind.resource.api.ResourceDescriptor;
 
 public class ResourceSerializer extends DirEntrySerializer {
 
-	private ResourceDescriptor resource;
+	private final ResourceDescriptor resource;
 
 	protected ResourceSerializer(ResourceDescriptor resource, ItemValue<DirEntry> dirEntry, String domainUid) {
 		super(dirEntry, domainUid);
 		this.resource = resource;
 	}
 
+	@Override
 	public Value get(Property property) {
 		switch (property) {
 		case DisplayName:

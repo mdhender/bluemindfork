@@ -28,6 +28,7 @@ import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
+import net.bluemind.icalendar.api.ICalendarElement.CUType;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Period;
 import net.fortuna.ical4j.model.PropertyList;
@@ -103,31 +104,7 @@ public class VFreebusyServiceHelper {
 
 		for (ItemValue<VEvent> item : events) {
 			VEvent event = item.value;
-			VFreebusy.Type type = (event.transparency == VEvent.Transparency.Opaque) ? VFreebusy.Type.BUSY
-					: VFreebusy.Type.FREE;
-
-			for (Attendee a : event.attendees) {
-				if (a.dir != null && a.dir.endsWith("/" + freebusyOwner)) {
-					switch (a.partStatus) {
-					case Accepted:
-						type = Type.BUSY;
-						break;
-					case Declined:
-						type = Type.FREE;
-						break;
-					case NeedsAction:
-						type = Type.BUSYTENTATIVE;
-						break;
-					case Tentative:
-						type = Type.BUSYTENTATIVE;
-						break;
-					default:
-						type = Type.BUSY;
-						break;
-					}
-				}
-			}
-
+			VFreebusy.Type type = getFreebusyType(event, freebusyOwner);
 			Slot s = Slot.create(event.dtstart, event.dtend, event.summary, type);
 			freebusy.slots.add(s);
 		}
@@ -140,6 +117,47 @@ public class VFreebusyServiceHelper {
 		}
 
 		return freebusy;
+	}
+
+	private static Type getFreebusyType(VEvent event, String freebusyOwner) {
+		if (event.transparency == VEvent.Transparency.Opaque ) {
+			return getTypeForOpaque(event, freebusyOwner);
+		} else {
+			return getTypeForTransparent(event, freebusyOwner);
+		}
+	}
+
+	private static Type getTypeForTransparent(VEvent event, String freebusyOwner) {
+		for (Attendee a : event.attendees) {
+			if (a.dir != null && a.dir.endsWith("/" + freebusyOwner)) {
+				if (a.cutype == CUType.Resource || a.cutype == CUType.Room) {
+					return getTypeForAttendee(a);
+				}
+				break;
+			}
+		}		
+		return Type.FREE;
+	}
+
+	private static Type getTypeForOpaque(VEvent event, String freebusyOwner) {
+		for (Attendee a : event.attendees) {
+			if (a.dir != null && a.dir.endsWith("/" + freebusyOwner)) {
+				return getTypeForAttendee(a);
+			}
+		}
+		return Type.BUSY;
+	}
+
+	private static Type getTypeForAttendee(Attendee a) {
+		switch (a.partStatus) {
+		case Declined:
+			return Type.FREE;
+		case NeedsAction:
+		case Tentative:
+			return Type.BUSYTENTATIVE;
+		default:
+			return Type.BUSY;
+		}
 	}
 
 	private static FreeBusy convertToIcal4jVFreebusy(Slot slot) {

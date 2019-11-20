@@ -12,4 +12,5 @@ Require-Bundle: net.bluemind.core.commons,
  net.bluemind.lib.ical4j,
  net.bluemind.neko.common,
  com.fasterxml.jackson.core.jackson-core;bundle-version="2.4.1";visibility:=reexport,
- com.fasterxml.jackson.core.jackson-annotations;bundle-version="2.4.1"
+ com.fasterxml.jackson.core.jackson-annotations;bundle-version="2.4.1",
+ net.bluemind.attachment.api

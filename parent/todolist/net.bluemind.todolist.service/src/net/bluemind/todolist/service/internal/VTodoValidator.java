@@ -18,6 +18,11 @@
  */
 package net.bluemind.todolist.service.internal;
 
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+
+import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ErrorCode;
@@ -52,7 +57,20 @@ public class VTodoValidator {
 				throw new ServerFault("RRule.until is prior to event date", ErrorCode.INVALID_PARAMETER);
 			}
 		}
+		
+		validateAttachments(vtodo.attachments);
 
 	}
 
+	private void validateAttachments(List<AttachedFile> attachments) {
+		if (attachments != null && !attachments.isEmpty()) {
+			for (AttachedFile attachment : attachments) {
+				if (StringUtils.isEmpty(attachment.name) || StringUtils.isEmpty(attachment.publicUrl)) {
+					throw new ServerFault("Event attachment value is empty", ErrorCode.EMPTY_EVENT_ATTACHMENT_VALUE);
+				}
+			}
+		}
+
+	}
+	
 }

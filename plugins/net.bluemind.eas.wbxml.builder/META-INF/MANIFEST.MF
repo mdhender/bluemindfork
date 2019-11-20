@@ -19,4 +19,5 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx
-Export-Package: net.bluemind.eas.wbxml.builder
+Export-Package: net.bluemind.eas.wbxml.builder,
+ net.bluemind.eas.wbxml.builder.vertx

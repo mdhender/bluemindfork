@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.kafka.container
+Bundle-SymbolicName: net.bluemind.kafka.container;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.kafka.container.KafkaContainerActivator
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ org.junit;bundle-version="4.12.0",
+ slf4j.api;bundle-version="1.7.25",
+ net.bluemind.testcontainers;bundle-version="1.12.2";visibility:=reexport,
+ net.bluemind.kafka.configuration;visibility:=reexport,
+ net.bluemind.network.utils
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.kafka.container
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.kafka.container

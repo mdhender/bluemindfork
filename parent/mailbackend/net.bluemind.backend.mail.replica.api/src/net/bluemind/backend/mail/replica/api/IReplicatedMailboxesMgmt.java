@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
@@ -42,4 +43,14 @@ public interface IReplicatedMailboxesMgmt {
 	@GET
 	@Path("{mailbox}/references/query")
 	List<Set<MailboxRecordItemUri>> queryReferences(@PathParam("mailbox") String mailbox, String query);
+
+	/**
+	 * Resolves a list of cyrus mailboxes internal names
+	 * 
+	 * @param names
+	 * @return
+	 */
+	@POST
+	@Path("_mresolve")
+	List<ResolvedMailbox> resolve(List<String> names);
 }

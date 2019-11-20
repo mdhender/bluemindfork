@@ -26,6 +26,8 @@ Require-Bundle: net.bluemind.slf4j;bundle-version="1.0.0",
  net.bluemind.common.freemarker,
  net.bluemind.icalendar.parser,
  net.bluemind.calendar.auditlog,
- net.bluemind.core.auditlog
+ net.bluemind.core.auditlog,
+ net.bluemind.attachment.api,
+ net.bluemind.system.api
 Import-Package: net.bluemind.directory.api
 

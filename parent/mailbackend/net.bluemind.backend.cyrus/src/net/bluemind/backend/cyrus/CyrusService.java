@@ -84,13 +84,24 @@ public class CyrusService {
 	}
 
 	public void reload() throws ServerFault {
-		logger.info("Attempting restart on " + backendAddress);
-		ExitList restartOp = NCUtils.exec(nodeClient, "service bm-cyrus-imapd restart", 90, TimeUnit.SECONDS);
-		if (restartOp.getExitCode() != 0) {
-			String output = restartOp.stream().collect(Collectors.joining("; "));
+		logger.info("Attempting cyrus restart on {}", backendAddress);
+
+		ExitList cyrusRestartOp = NCUtils.exec(nodeClient, "service bm-cyrus-imapd restart", 90, TimeUnit.SECONDS);
+		if (cyrusRestartOp.getExitCode() != 0) {
+			String output = cyrusRestartOp.stream().collect(Collectors.joining("; "));
 			throw new ServerFault("Cyrus restart failed (output: " + output + ")");
 		}
 		new NetworkHelper(backendAddress).waitForListeningPort(1143, 30, TimeUnit.SECONDS);
+	}
+
+	public void reloadSds() throws ServerFault {
+		logger.info("Attempting sds restart on {}", backendAddress);
+		ExitList sdsRestartOp = NCUtils.exec(nodeClient, "service bm-sds-proxy restart", 90, TimeUnit.SECONDS);
+		if (sdsRestartOp.getExitCode() != 0) {
+			String output = sdsRestartOp.stream().collect(Collectors.joining("; "));
+			throw new ServerFault("Sds restart failed (output: " + output + ")");
+		}
+		new NetworkHelper(backendAddress).waitForListeningPort(8091, 30, TimeUnit.SECONDS);
 	}
 
 	public CyrusPartition createPartition(String domainUid) throws ServerFault {
@@ -187,16 +198,15 @@ public class CyrusService {
 		}
 	}
 
-	public void renameBox(String pboxName, String boxName, String domainUid) throws ServerFault {
+	public void renameBox(String pboxName, String boxName) throws ServerFault {
 		try (StoreClient sc = new StoreClient(backendAddress, 1143, "admin0", Token.admin0())) {
 			if (!sc.login()) {
 				throw new ServerFault(
 						"rename " + pboxName + " failed. " + "Login as admin0 failed, server " + backendAddress);
 			}
 
-			CyrusPartition partition = CyrusPartition.forServerAndDomain(backend, domainUid);
-			logger.info("rename {} to {} (partition {})", pboxName, boxName, partition);
-			if (!sc.renameMailbox(pboxName, boxName, partition.name)) {
+			logger.info("rename {} to {}", pboxName, boxName);
+			if (!sc.rename(pboxName, boxName)) {
 				throw new ServerFault("rename " + pboxName + " failed");
 			}
 		} catch (IMAPException e) {
@@ -227,8 +237,10 @@ public class CyrusService {
 	}
 
 	/**
-	 * @param boxName eg. user/john@bm.lan
-	 * @param quota   unit is KB
+	 * @param boxName
+	 *            eg. user/john@bm.lan
+	 * @param quota
+	 *            unit is KB
 	 * @throws ServerFault
 	 */
 	public void setQuota(String boxName, int quota) throws ServerFault {

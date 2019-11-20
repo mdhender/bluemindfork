@@ -19,19 +19,38 @@
 package net.bluemind.core.container.model;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.api.Required;
 
+/** The up-to-date status of a container. */
 @BMApi(version = "3")
 public class ContainerSyncStatus {
 
+	/** Possible statuses. */
 	@BMApi(version = "3")
 	public enum Status {
 		SUCCESS, ERROR;
 	}
 
-	public String syncToken = new String();
+	/** Tokens needed for the synchronization. */
+	@Required
+	public Map<String, String> syncTokens = new HashMap<>();
+
+	/** When the next synchronization should be done in milliseconds. */
 	public Long nextSync;
+
+	/** When the last synchronization has been done. */
 	public Date lastSync;
+
+	/** The {@link Status} of the synchronization. */
 	public Status syncStatus;
+
+	/**
+	 * The number of successive synchronizations errors done so far (may be
+	 * reset to zero).
+	 */
+	public Integer errors = 0;
 }

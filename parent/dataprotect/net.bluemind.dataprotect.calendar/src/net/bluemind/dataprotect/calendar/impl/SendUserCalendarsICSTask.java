@@ -115,9 +115,10 @@ public class SendUserCalendarsICSTask implements IServerTask {
 						"no-reply@" + item.domainUid);
 				Mailbox to = SendmailHelper.formatAddress(user.value.contactInfos.identification.formatedName.value,
 						user.value.defaultEmail().address);
-				Message m = getMessage(sender, to, allIcs);
-				Sendmail mailer = new Sendmail();
-				mailer.send(sender, m);
+				try (Message m = getMessage(sender, to, allIcs)) {
+					Sendmail mailer = new Sendmail();
+					mailer.send(sender, m);
+				}
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}

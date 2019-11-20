@@ -332,11 +332,13 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 		group.kind = Kind.group;
 		String uid5 = "testcreate_" + System.nanoTime();
 		group.organizational.member = Arrays.asList(Member.create(container.uid, uid5, "fakeName", "fake@email.la"));
+		VCard member = defaultVCard();
+		member.communications.emails = Arrays.asList(Email.create("fake@email.la"));
 		VCardChanges changes = VCardChanges.create(
 				// add
 				Arrays.asList(VCardChanges.ItemAdd.create(uid3, defaultVCard()),
 						// Create group before member
-						VCardChanges.ItemAdd.create(uid4, group), VCardChanges.ItemAdd.create(uid5, defaultVCard())
+						VCardChanges.ItemAdd.create(uid4, group), VCardChanges.ItemAdd.create(uid5, member)
 
 				),
 				// modify
@@ -369,6 +371,61 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 		assertEquals(1, vgroup.organizational.member.size());
 		assertEquals(container.uid, vgroup.organizational.member.get(0).containerUid);
 
+	}
+
+	@Test
+	public void testSearchOrder() throws ServerFault {
+		VCard card = defaultVCard();
+		card.identification.name = VCard.Identification.Name.create(".bbbbb", null, null, null, null,
+				Collections.emptyList());
+		getService(defaultSecurityContext).create("testUid1", card);
+
+		card = defaultVCard();
+		card.identification.name = VCard.Identification.Name.create("baaaaaaa", null, null, null, null,
+				Collections.emptyList());
+		getService(defaultSecurityContext).create("testUid2", card);
+
+		card = defaultVCard();
+		card.identification.name = VCard.Identification.Name.create("bzzzzzzz", null, null, null, null,
+				Collections.emptyList());
+		getService(defaultSecurityContext).create("testUid3", card);
+
+		VCardQuery query = VCardQuery.create(null);
+		query.from = 0;
+		query.size = 200;
+		ListResult<ItemValue<VCardInfo>> res = getService(defaultSecurityContext).search(query);
+
+		assertEquals(3, res.total);
+		assertEquals(3, res.values.size());
+		assertEquals("testUid1", res.values.get(0).uid);
+		assertEquals("testUid2", res.values.get(1).uid);
+		assertEquals("testUid3", res.values.get(2).uid);
+	}
+
+	@Test
+	public void testSearchTotal() throws ServerFault {
+		VCard card = defaultVCard();
+		card.identification.name = VCard.Identification.Name.create(".bbbbb", null, null, null, null,
+				Collections.emptyList());
+		getService(defaultSecurityContext).create("testUid1", card);
+
+		card = defaultVCard();
+		card.identification.name = VCard.Identification.Name.create("baaaaaaa", null, null, null, null,
+				Collections.emptyList());
+		getService(defaultSecurityContext).create("testUid2", card);
+
+		card = defaultVCard();
+		card.identification.name = VCard.Identification.Name.create("bzzzzzzz", null, null, null, null,
+				Collections.emptyList());
+		getService(defaultSecurityContext).create("testUid3", card);
+
+		VCardQuery query = VCardQuery.create(null);
+		query.from = 0;
+		query.size = 1;
+		ListResult<ItemValue<VCardInfo>> res = getService(defaultSecurityContext).search(query);
+
+		assertEquals(3, res.total);
+		assertEquals(1, res.values.size());
 	}
 
 	@Test

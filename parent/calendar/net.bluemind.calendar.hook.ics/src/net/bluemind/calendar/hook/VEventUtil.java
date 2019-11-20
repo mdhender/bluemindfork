@@ -70,7 +70,11 @@ public class VEventUtil {
 		if (changed(oldEvent.classification, newEvent.classification)) {
 			return true;
 		}
-		
+
+		if (listChanged(oldEvent.attachments, newEvent.attachments)) {
+			return true;
+		}
+
 		return false;
 	}
 

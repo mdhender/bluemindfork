@@ -48,6 +48,9 @@
 		<module>net.bluemind.backend.cyrus.replication.server.tests</module>
 		<module>net.bluemind.backend.cyrus.replication.link</module>
 
+		<module>net.bluemind.backend.cyrus.integrity.check</module>
+		<module>net.bluemind.backend.cyrus.integrity.check.tests</module>
+
 	</modules>
 
 </project>

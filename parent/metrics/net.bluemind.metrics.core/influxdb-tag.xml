@@ -3,7 +3,7 @@
 <domainTemplate>
 	<hostTags>
 		<kind id="bm">
-			<tag value="metrics/influxdb" multival="false" mandatory="false" autoAssign="false">
+			<tag value="metrics/influxdb" multival="false" mandatory="false" autoAssign="true">
 				<desc lang="fr">Base de métriques (influxdb)</desc>
 				<desc lang="en">Metrics database</desc>
 			</tag>

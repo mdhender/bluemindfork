@@ -102,7 +102,7 @@ public class ProfileInfosCommand implements ICmdLet, Runnable {
 			String parsedReplica = node.value.containerUid.substring("mapi_fai_".length());
 			IMapiFolderAssociatedInformation faiApi = ctx.adminApi().instance(IMapiFolderAssociatedInformation.class,
 					parsedReplica);
-			List<ItemValue<MapiFAI>> allFais = faiApi.all().stream()
+			List<ItemValue<MapiFAI>> allFais = faiApi.all().stream().filter(fai -> fai.value != null)
 					.sorted((fai1, fai2) -> fai1.value.folderId.compareTo(fai2.value.folderId))
 					.collect(Collectors.toList());
 			ctx.info("FAIs found for replica " + parsedReplica + " => " + allFais.size() + " message(s)");

@@ -21,6 +21,7 @@ package net.bluemind.calendar.api;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
+import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.icalendar.api.ICalendarElement;
@@ -47,8 +48,7 @@ public class VEvent extends ICalendarElement {
 	 * </ul>
 	 * </p>
 	 * 
-	 * @return isAllday a boolean to specify if {@link VEvent} is en all day
-	 *         event
+	 * @return isAllday a boolean to specify if {@link VEvent} is en all day event
 	 */
 	public boolean allDay() {
 		return dtstart != null && dtstart.precision.equals(BmDateTime.Precision.Date);
@@ -91,6 +91,14 @@ public class VEvent extends ICalendarElement {
 		if (null != this.dtend) {
 			copy.dtend = new BmDateTime(this.dtend.iso8601, this.dtend.timezone, this.dtend.precision);
 		}
+		copy.attachments = this.attachments.stream().map(att -> {
+			AttachedFile file = new AttachedFile();
+			file.name = att.name;
+			file.expirationDate = att.expirationDate;
+			file.publicUrl = att.publicUrl;
+			return file;
+		}).collect(Collectors.toList());
+
 		copy.transparency = transparency;
 
 		return copy;

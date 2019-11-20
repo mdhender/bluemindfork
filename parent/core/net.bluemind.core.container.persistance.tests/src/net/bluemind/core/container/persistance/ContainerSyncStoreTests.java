@@ -59,21 +59,24 @@ public class ContainerSyncStoreTests {
 
 		assertNull(store.getSyncStatus());
 		ContainerSyncStatus ss = new ContainerSyncStatus();
-		ss.syncToken = "tok";
+		ss.syncTokens.put("Tata", "Suzanne");
 		ss.nextSync = System.currentTimeMillis();
+		ss.errors = 666;
 		store.initSync();
 		store.setSyncStatus(ss);
 
 		ContainerSyncStatus ret = store.getSyncStatus();
 		assertEquals(ss.nextSync, ret.nextSync);
-		assertEquals("tok", ret.syncToken);
+		assertEquals("Suzanne", ret.syncTokens.get("Tata"));
+		assertEquals(666, ret.errors.intValue());
 
 		ss.nextSync = System.currentTimeMillis();
 		store.setSyncStatus(ss);
 
 		ret = store.getSyncStatus();
 		assertEquals(ss.nextSync, ret.nextSync);
-		assertEquals("tok", ret.syncToken);
+		assertEquals("Suzanne", ret.syncTokens.get("Tata"));
+		assertEquals(666, ret.errors.intValue());
 
 		store = new ContainerSyncStore(JdbcTestHelper.getInstance().getDataSource(),
 				Container.create(UUID.randomUUID().toString(), "calendar", "osef", ""));

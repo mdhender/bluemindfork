@@ -43,4 +43,5 @@ Require-Bundle: net.bluemind.addressbook.api;bundle-version="1.0.0",
  net.bluemind.server.api;bundle-version="1.0.0",
  net.bluemind.system.api;bundle-version="1.0.0",
  net.bluemind.system.ldap.importation.api;bundle-version="1.0.0",
- net.bluemind.tag.api;bundle-version="1.0.0"
+ net.bluemind.tag.api;bundle-version="1.0.0",
+ net.bluemind.externaluser.api;bundle-version="1.0.0"

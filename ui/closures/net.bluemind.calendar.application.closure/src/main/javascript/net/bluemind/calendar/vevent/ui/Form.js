@@ -79,6 +79,7 @@ goog.require("bluemind.ui.style.DangerousActionButtonRenderer");
 goog.require("bluemind.ui.style.PrimaryActionButtonRenderer");
 goog.require("net.bluemind.calendar.vevent.VEventAdaptor");
 goog.require("net.bluemind.history.HistoryDialog");
+goog.require('net.bluemind.filehosting.api.FileHostingClient');
 
 /**
  * BlueMind Calendar form
@@ -463,6 +464,89 @@ net.bluemind.calendar.vevent.ui.Form.prototype.enterDocument = function() {
     });
   });
   el = dom.getElement('bm-ui-form-reminder');
+  
+  // ATTACHMENTS
+  goog.array.map(this.getModel().attachments, function(attachment) {
+    handler.listen(dom.getElement('bm-ui-form-delete-attachment-'+attachment.index), goog.events.EventType.CLICK, this.delAttachment(attachment));
+  }, this);
+  
+  var canRemoteAttach = goog.global['bmcSessionInfos']['roles'].split(',').includes('canRemoteAttach');
+  if (!canRemoteAttach){
+    this.getDomHelper().removeNode(dom.getElement('bm-ui-form-no-attachment-block'));
+    this.getDomHelper().removeNode(dom.getElement('add-attachment-label'));
+    if (this.getModel().attachments.length == 0){
+      this.getDomHelper().removeNode(dom.getElement('attachment-label'));
+    }
+  } else {
+    handler.listen(dom.getElement('localAttachmentFile'), goog.events.EventType.CHANGE, function() {
+      this.resetError_('details');
+      var fileInput = document.getElementById('localAttachmentFile');
+      var file = fileInput.files[0];
+      var sid = goog.global['bmcSessionInfos']['sid'];
+      var domain = goog.global['bmcSessionInfos']['domain'];
+      var url = '/api/attachment/' + encodeURIComponent(domain) + '/' + encodeURIComponent(file.name) + '/share';
+      var xhr = new XMLHttpRequest();
+      xhr.open('PUT', url, true);
+      xhr.setRequestHeader('X-BM-ApiKey', sid);
+      var that = this;  
+      that.getDomHelper().getElement('local-att-progress').style.visibility = 'visible';
+      xhr.upload.onprogress = function(e){
+        console.log(e.loaded + "  - > " + e.total);
+        var p = Math.min((e.loaded/e.total)*100, 80);
+        that.getDomHelper().getElement('local-att-progress').value = p;
+      }
+      xhr.onload = function () {
+          that.getDomHelper().getElement('local-att-progress').style.visibility = 'hidden';
+          that.getDomHelper().getElement('local-att-progress').value = 0;
+          if(this.status == 413){
+            /** @meaning calendar.form.error.attachment.size */
+            var MSG_ATTACHMENT_SIZE = goog.getMsg('The selected attachment exceeds the configured max size');
+            that.addError_('details', that.getDomHelper().getElement('add-attachment-label'), MSG_ATTACHMENT_SIZE);
+            return;
+          } 
+          if(this.status != 200){
+            /** @meaning calendar.form.error.attachment */
+            var MSG_ATTACHMENT = goog.getMsg('an unknown error occurred while uploading the document');
+            that.addError_('details', that.getDomHelper().getElement('add-attachment-label'), MSG_ATTACHMENT);
+            return;
+          }
+          var ret = JSON.parse(this.response);
+          that.addAttachment(that, ret, dom);
+          dom.getElement('localAttachmentFile').value = "";
+      };
+      xhr.send(file);
+    });
+   
+    handler.listen(dom.getElement('bm-ui-form-add-attachment-server'), goog.events.EventType.CLICK, function() {
+        var that = this; 
+        var options = {
+          'success': function(links) {
+            goog.array.forEach(links, function(link) {
+              var client = new net.bluemind.filehosting.api.FileHostingClient(that.ctx.rpc, '', that.ctx.user.domainUid);
+              var ret = client.share(link.path, 0, null).then(function(linkInfo) {
+                 linkInfo['publicUrl'] = linkInfo['url'];
+                 linkInfo['name'] = link['name'];
+                 that.addAttachment(that, linkInfo, dom);
+              });
+            });
+          },
+          'multi': true,
+          'close': true
+        };
+        var w = 640, h = 512;
+        var t = (window.screenY || window.screenTop) + ((window.outerHeight || document.documentElement.offsetHeight) - h) / 2;
+        var l = (window.screenX || window.screenLeft) + ((window.outerWidth || document.documentElement.offsetWidth) - w) / 2;
+        var child = window.open('/chooser/#', 'chooser', "width=" + w + ",height=" + h + ",left=" + l + ",top=" + t)
+        var setOptions = function() {
+          if (child['application']) {
+            child['application']['setOptions'](options);
+          } else {
+            setTimeout(setOptions, 50);
+          };
+        }
+        setOptions();
+    });
+  }
 
   // LOCATION
   el = dom.getElement('bm-ui-form-location');
@@ -556,6 +640,47 @@ net.bluemind.calendar.vevent.ui.Form.prototype.enterDocument = function() {
   // focus on title field
   dom.getElement('bm-ui-form-title').focus();
 };
+
+/**
+ * private
+ */
+net.bluemind.calendar.vevent.ui.Form.prototype.addAttachment = function(that, ret, dom){
+  var index = 0;
+  for (var i = 0; i < that.getModel().attachments.length; i++) { 
+    index = Math.max(that.getModel().attachments[i].index, index);
+  } 
+  index++;
+  var publicUrl = ret['publicUrl'];
+  var name = ret['name'];
+  var newAttachment  = {
+      publicUrl : publicUrl,
+      name : name,
+      index : index
+  }
+  
+  that.getModel().attachments.push(newAttachment);
+  var entry = soy.renderAsFragment(net.bluemind.calendar.vevent.templates.attachmentEntry, {
+    attachment : newAttachment
+  });
+
+  that.getDomHelper().appendChild(dom.getElement('bm-attachment-list'), entry);
+  that.getHandler().listen(dom.getElement('bm-ui-form-delete-attachment-'+newAttachment.index), goog.events.EventType.CLICK, that.delAttachment(newAttachment));
+
+}
+
+/**
+ * @private
+ */
+net.bluemind.calendar.vevent.ui.Form.prototype.delAttachment = function(attachment){
+  return function() {
+    for( var i = 0; i < this.getModel().attachments.length; i++){ 
+      if (this.getModel().attachments[i].name === attachment.name) {
+        this.getModel().attachments.splice(i, 1); 
+      }
+    }
+    this.getDomHelper().removeNode(this.getDomHelper().getElement('div-bm-ui-form-delete-attachment-'+attachment.index));
+   }
+}
 
 /**
  * @private
@@ -2273,12 +2398,18 @@ net.bluemind.calendar.vevent.ui.Form.prototype.addAttendee_ = function(attendee)
   }
 };
 
-/** Request the computing of a resource template if any and add it to the event description if not already done. */
+/**
+ * Request the computing of a resource template if any and add it to the event
+ * description if not already done.
+ */
 net.bluemind.calendar.vevent.ui.Form.prototype.addResourceTemplateToDescription = function (attendee) {
   this.addOrRemoveResourceTemplateFromDescription(attendee, "add");
 }
 
-/** Request the removing of a resource template from the event description if present. */
+/**
+ * Request the removing of a resource template from the event description if
+ * present.
+ */
 net.bluemind.calendar.vevent.ui.Form.prototype.removeResourceTemplateFromDescription = function (attendee) {
   this.addOrRemoveResourceTemplateFromDescription(attendee, "remove");
 }

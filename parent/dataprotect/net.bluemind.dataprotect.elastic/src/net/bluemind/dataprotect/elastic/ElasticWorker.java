@@ -80,11 +80,7 @@ public class ElasticWorker extends DefaultWorker {
 
 		registerRepositoryIfNecessary(cluster);
 
-		GetSnapshotsResponse snaps = cluster.prepareGetSnapshots(repository).get();
-		if (!snaps.getSnapshots().isEmpty()
-				&& snaps.getSnapshots().stream().allMatch(s -> snapshot.equals(s.snapshotId().getName()))) {
-			cluster.deleteSnapshot(new DeleteSnapshotRequest().repository(repository).snapshot(snapshot)).actionGet();
-		}
+		deleteExistingSnapshots(cluster);
 
 		CreateSnapshotResponse backup = cluster.createSnapshot(new CreateSnapshotRequest() //
 				.repository(repository) //
@@ -94,7 +90,7 @@ public class ElasticWorker extends DefaultWorker {
 			throw new ServerFault("Unable to snapshot elasticsearch " + backup.status().name());
 		}
 
-		snaps = cluster.prepareGetSnapshots(repository).addSnapshots(snapshot).get();
+		GetSnapshotsResponse snaps = cluster.prepareGetSnapshots(repository).addSnapshots(snapshot).get();
 		SnapshotInfo snap = snaps.getSnapshots().get(0);
 
 		long ts = System.currentTimeMillis();
@@ -119,6 +115,15 @@ public class ElasticWorker extends DefaultWorker {
 		serverApi.submitAndWait(toBackup.uid, String.format("rm -rf %s", dir));
 		serverApi.submitAndWait(toBackup.uid, String.format("mkdir -p %s", dir));
 		serverApi.submitAndWait(toBackup.uid, String.format("rsync -r %s %s", repo, dir));
+		deleteExistingSnapshots(cluster);
+	}
+
+	private void deleteExistingSnapshots(ClusterAdminClient cluster) {
+		GetSnapshotsResponse snaps = cluster.prepareGetSnapshots(repository).get();
+		if (!snaps.getSnapshots().isEmpty()
+				&& snaps.getSnapshots().stream().allMatch(s -> snapshot.equals(s.snapshotId().getName()))) {
+			cluster.deleteSnapshot(new DeleteSnapshotRequest().repository(repository).snapshot(snapshot)).actionGet();
+		}
 	}
 
 	private void registerRepositoryIfNecessary(ClusterAdminClient cluster) {

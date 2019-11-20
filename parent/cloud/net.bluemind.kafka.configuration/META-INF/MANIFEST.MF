@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.kafka.configuration
+Bundle-SymbolicName: net.bluemind.kafka.configuration;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ slf4j.api,
+ net.bluemind.kafka.client;visibility:=reexport,
+ com.google.guava,
+ net.bluemind.eclipse.common
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.kafka.configuration
+Export-Package: net.bluemind.kafka.configuration

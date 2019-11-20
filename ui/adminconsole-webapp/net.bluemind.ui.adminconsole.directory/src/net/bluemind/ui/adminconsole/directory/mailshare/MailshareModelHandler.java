@@ -60,6 +60,7 @@ public class MailshareModelHandler implements IGwtModelHandler {
 		final JsMapStringJsObject map = model.cast();
 		String s = map.getString("mailshareId");
 		String domainUid = map.getString("domainUid");
+		map.put("noDefaultIdentity", true);
 
 		IDomainSettingsPromise domainSettings = new DomainSettingsEndpointPromise(
 				new DomainSettingsSockJsEndpoint(Ajax.TOKEN.getSessionId(), domainUid));

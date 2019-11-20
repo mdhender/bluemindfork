@@ -78,14 +78,16 @@ public class GwtRpcHandler implements Handler<HttpServerRequest>, NeedVertx {
 					@Override
 					public void run(BMTaskMonitor monitor) {
 						((VertxInternal) vertx).setContext((DefaultContext) context);
-						Thread.currentThread().setContextClassLoader(delegate.getClass().getClassLoader());
+						ClassLoader prevCl = Thread.currentThread().getContextClassLoader();
 
 						try {
+							Thread.currentThread().setContextClassLoader(delegate.getClass().getClassLoader());
 							handleRequest(request, buf);
 						} catch (SerializationException e) {
 							throw new RuntimeException(e);
 						} finally {
 							((VertxInternal) vertx).setContext(null);
+							Thread.currentThread().setContextClassLoader(prevCl);
 						}
 					}
 

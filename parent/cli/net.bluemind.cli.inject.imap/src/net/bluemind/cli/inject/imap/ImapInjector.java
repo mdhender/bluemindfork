@@ -124,7 +124,7 @@ public class ImapInjector {
 		Random rd = ThreadLocalRandom.current();
 		TargetMailbox from = userEmails[rd.nextInt(userEmails.length)];
 		TargetMailbox to = userEmails[rd.nextInt(userEmails.length)];
-		byte[] emlContent = createEml(rd, from, to);
+		byte[] emlContent = createEml(from, to);
 		to.lock.acquire();
 		try {
 			int added = to.sc.append("INBOX", new ByteArrayInputStream(emlContent), new FlagsList());
@@ -139,11 +139,11 @@ public class ImapInjector {
 
 	private static final GameOfThrones gotFaker = Faker.instance().gameOfThrones();
 
-	private byte[] createEml(Random rd, TargetMailbox from, TargetMailbox to) {
+	private byte[] createEml(TargetMailbox from, TargetMailbox to) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("From: ").append(from.email).append("\r\n");
 		sb.append("To: ").append(to.email).append("\r\n");
-		sb.append("Context-Type: text/html; charset=utf-8\r\n");
+		sb.append("Content-Type: text/html; charset=utf-8\r\n");
 		sb.append("Subject: Rand Message ").append(UUID.randomUUID()).append("\r\n\r\n");
 		sb.append("<html><body><p>Yeah this is   body   </p>\r\n");
 		for (int i = 0; i < 1024; i++) {

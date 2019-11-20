@@ -16,4 +16,7 @@ Require-Bundle: net.bluemind.core.container.sync,
  net.bluemind.calendar.helper,
  net.bluemind.slf4j;bundle-version="4.1.0",
  net.bluemind.core.task.service,
- bcprov
+ bcprov,
+ net.bluemind.icalendar.parser,
+ net.bluemind.domain.api
+Export-Package: net.bluemind.calendar.sync

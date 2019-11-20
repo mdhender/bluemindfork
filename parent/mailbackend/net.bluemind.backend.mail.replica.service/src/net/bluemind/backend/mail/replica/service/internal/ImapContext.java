@@ -19,7 +19,9 @@ package net.bluemind.backend.mail.replica.service.internal;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,9 +95,11 @@ public class ImapContext {
 	private static class PoolableStoreClient extends StoreClient {
 
 		public final VXStoreClient fastFetch;
+		private final ReentrantLock lock;
 
 		public PoolableStoreClient(String hostname, int port, String login, String password) {
 			super(hostname, port, login, password);
+			this.lock = new ReentrantLock();
 			this.fastFetch = VXStoreClient.create(hostname, port, login, password);
 		}
 
@@ -108,10 +112,14 @@ public class ImapContext {
 			super.close();
 		}
 
+		public boolean isClosed() {
+			return super.isClosed() || fastFetch.isClosed();
+		}
+
 	}
 
 	private PoolableStoreClient imapAsUser() {
-		if (imapClient.isPresent() && !imapClient.get().fastFetch.isClosed()) {
+		if (imapClient.isPresent() && !imapClient.get().isClosed()) {
 			return imapClient.get();
 		} else {
 			PoolableStoreClient sc = new PoolableStoreClient(server, 1143, latd, sid);
@@ -138,9 +146,17 @@ public class ImapContext {
 		T accept(StoreClient sc, VXStoreClient fast) throws Exception;
 	}
 
-	public synchronized <T> T withImapClient(ImapClientConsumer<T> cons) {
+	public <T> T withImapClient(ImapClientConsumer<T> cons) {
 		try (PoolableStoreClient sc = imapAsUser()) {
-			return cons.accept(sc, sc.fastFetch);
+			if (sc.lock.tryLock(1, TimeUnit.SECONDS)) {
+				try {
+					return cons.accept(sc, sc.fastFetch);
+				} finally {
+					sc.lock.unlock();
+				}
+			} else {
+				throw new ServerFault("[" + latd + "] Failed to grab imap con lock.");
+			}
 		} catch (ServerFault sf) {
 			throw sf;
 		} catch (Exception e) {
@@ -150,28 +166,37 @@ public class ImapContext {
 
 	public static ImapContext of(BmContext context) {
 		String key = context.getSecurityContext().getSessionId();
-		ImapContext imapCtx = sidToCtxCache.getIfPresent(key);
-		if (imapCtx == null) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("ImapContext cache miss for key {}", key);
-			}
-			IServiceProvider srvProv = context.provider();
-			IAuthentication authApi = srvProv.instance(IAuthentication.class);
-			AuthUser curUser = authApi.getCurrentUser();
-			if (curUser != null && curUser.value != null) {
-				String latd = curUser.value.login + "@" + curUser.domainUid;
-				String partition = CyrusPartition.forServerAndDomain(curUser.value.dataLocation,
-						curUser.domainUid).name;
+		if (key == null) {
+			throw new ServerFault("ImapContext requires a non null sessionId ctx: " + context.getSecurityContext());
+		}
+		try {
+			return sidToCtxCache.get(key, () -> {
+				if (logger.isDebugEnabled()) {
+					logger.debug("ImapContext cache miss for key {}", key);
+				}
+				IServiceProvider srvProv = context.provider();
+				IAuthentication authApi = srvProv.instance(IAuthentication.class);
+				AuthUser curUser = authApi.getCurrentUser();
+				if (curUser != null && curUser.value != null) {
+					String latd = curUser.value.login + "@" + curUser.domainUid;
+					String partition = CyrusPartition.forServerAndDomain(curUser.value.dataLocation,
+							curUser.domainUid).name;
 
-				ItemValue<Server> imap = Topology.get().datalocation(curUser.value.dataLocation);
-				String imapSrv = imap.value.address();
-				imapCtx = new ImapContext(latd, partition, imapSrv, key, curUser);
-				sidToCtxCache.put(key, imapCtx);
+					ItemValue<Server> imap = Topology.get().datalocation(curUser.value.dataLocation);
+					String imapSrv = imap.value.address();
+					return new ImapContext(latd, partition, imapSrv, key, curUser);
+				} else {
+					throw new ServerFault("ImapContext is intended for users with a mailbox");
+				}
+			});
+		} catch (ExecutionException e) {
+			if (e.getCause() instanceof ServerFault) {
+				throw (ServerFault) e.getCause();
 			} else {
-				throw new ServerFault("ImapContext is intended for users with a mailbox");
+				throw new ServerFault(e);
 			}
 		}
-		return imapCtx;
+
 	}
 
 }

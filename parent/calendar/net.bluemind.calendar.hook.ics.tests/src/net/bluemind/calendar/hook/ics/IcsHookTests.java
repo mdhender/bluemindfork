@@ -37,6 +37,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -687,7 +688,7 @@ public class IcsHookTests {
 		String ics = getIcsPartAsText(m);
 		String method = getIcsPartMethod(m);
 		assertEquals("REQUEST", method);
-		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 
@@ -721,7 +722,7 @@ public class IcsHookTests {
 		String ics = getIcsPartAsText(m);
 		String method = getIcsPartMethod(m);
 		assertEquals("REQUEST", method);
-		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 
@@ -751,7 +752,7 @@ public class IcsHookTests {
 		String ics = getIcsPartAsText(m);
 		String method = getIcsPartMethod(m);
 		assertEquals("REQUEST", method);
-		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 
@@ -781,7 +782,7 @@ public class IcsHookTests {
 		String ics = getIcsPartAsText(m);
 		String method = getIcsPartMethod(m);
 		assertEquals("REQUEST", method);
-		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 
@@ -814,7 +815,7 @@ public class IcsHookTests {
 		String ics = getIcsPartAsText(m);
 		String method = getIcsPartMethod(m);
 		assertEquals("CANCEL", method);
-		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 
@@ -847,7 +848,7 @@ public class IcsHookTests {
 		String ics = getIcsPartAsText(m);
 		String method = getIcsPartMethod(m);
 		assertEquals("CANCEL", method);
-		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 
@@ -881,7 +882,7 @@ public class IcsHookTests {
 		String ics = getIcsPartAsText(m);
 		String method = getIcsPartMethod(m);
 		assertEquals("REQUEST", method);
-		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 
@@ -918,7 +919,7 @@ public class IcsHookTests {
 		String ics = getIcsPartAsText(m);
 		String method = getIcsPartMethod(m);
 		assertEquals("REQUEST", method);
-		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 
@@ -963,7 +964,7 @@ public class IcsHookTests {
 		String ics = getIcsPartAsText(m);
 		String method = getIcsPartMethod(m);
 		assertEquals("REQUEST", method);
-		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 
@@ -1000,7 +1001,7 @@ public class IcsHookTests {
 		String ics = getIcsPartAsText(m);
 		String method = getIcsPartMethod(m);
 		assertEquals("CANCEL", method);
-		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 
@@ -1037,7 +1038,7 @@ public class IcsHookTests {
 		String ics = getIcsPartAsText(m);
 		String method = getIcsPartMethod(m);
 		assertEquals("CANCEL", method);
-		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 
@@ -1074,7 +1075,7 @@ public class IcsHookTests {
 		String ics = getIcsPartAsText(m);
 		String method = getIcsPartMethod(m);
 		assertEquals("CANCEL", method);
-		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 
@@ -1111,7 +1112,7 @@ public class IcsHookTests {
 
 		String method = getIcsPartMethod(m);
 		assertEquals("REQUEST", method);
-		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 
@@ -1176,7 +1177,7 @@ public class IcsHookTests {
 		String method = getIcsPartMethod(m);
 
 		assertEquals("CANCEL", method);
-		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 
@@ -1212,7 +1213,7 @@ public class IcsHookTests {
 		String ics = getIcsPartAsText(m);
 		String method = getIcsPartMethod(m);
 		assertEquals("REQUEST", method); // or ADD ?
-		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 
@@ -1242,7 +1243,7 @@ public class IcsHookTests {
 		String ics = getIcsPartAsText(m);
 		String method = getIcsPartMethod(m);
 		assertEquals("CANCEL", method);
-		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 
@@ -1287,7 +1288,7 @@ public class IcsHookTests {
 		String ics = getIcsPartAsText(m);
 		String method = getIcsPartMethod(m);
 		assertEquals("CANCEL", method);
-		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 
@@ -1318,7 +1319,7 @@ public class IcsHookTests {
 		String ics = getIcsPartAsText(m);
 		String method = getIcsPartMethod(m);
 		assertEquals("CANCEL", method);
-		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 
@@ -1349,7 +1350,7 @@ public class IcsHookTests {
 		String ics = getIcsPartAsText(m);
 		String method = getIcsPartMethod(m);
 		assertEquals("CANCEL", method);
-		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 
@@ -1385,7 +1386,7 @@ public class IcsHookTests {
 		String ics = getIcsPartAsText(m);
 		String method = getIcsPartMethod(m);
 		assertEquals("REPLY", method);
-		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 
@@ -1426,7 +1427,7 @@ public class IcsHookTests {
 		String ics = getIcsPartAsText(m);
 		String method = getIcsPartMethod(m);
 		assertEquals("REPLY", method);
-		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 
@@ -1463,7 +1464,7 @@ public class IcsHookTests {
 		String ics = getIcsPartAsText(m);
 		String method = getIcsPartMethod(m);
 		assertEquals("REPLY", method);
-		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 
@@ -1501,7 +1502,7 @@ public class IcsHookTests {
 		String ics = getIcsPartAsText(m);
 		String method = getIcsPartMethod(m);
 		assertEquals("REPLY", method);
-		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 
@@ -1536,7 +1537,7 @@ public class IcsHookTests {
 		String ics = getIcsPartAsText(m);
 		String method = getIcsPartMethod(m);
 		assertEquals("REPLY", method);
-		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 
@@ -1574,7 +1575,7 @@ public class IcsHookTests {
 		String ics = getIcsPartAsText(m);
 		String method = getIcsPartMethod(m);
 		assertEquals("REPLY", method);
-		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 
@@ -1593,7 +1594,7 @@ public class IcsHookTests {
 		ics = getIcsPartAsText(m);
 		method = getIcsPartMethod(m);
 		assertEquals("REPLY", method);
-		seriesList = VEventServiceHelper.convertToVEventList(ics);
+		seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 
@@ -1624,7 +1625,7 @@ public class IcsHookTests {
 		String ics = getIcsPartAsText(m);
 		String method = getIcsPartMethod(m);
 		assertEquals("REPLY", method);
-		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 
@@ -1659,7 +1660,7 @@ public class IcsHookTests {
 		String ics = getIcsPartAsText(m);
 		String method = getIcsPartMethod(m);
 		assertEquals("REPLY", method);
-		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 
@@ -1707,7 +1708,7 @@ public class IcsHookTests {
 		String ics = getIcsPartAsText(m);
 		String method = getIcsPartMethod(m);
 		assertEquals("REPLY", method);
-		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 
@@ -1789,7 +1790,7 @@ public class IcsHookTests {
 
 		String method = getIcsPartMethod(m);
 		assertEquals("REQUEST", method);
-		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, seriesList.size());
 

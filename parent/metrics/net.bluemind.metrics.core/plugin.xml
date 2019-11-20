@@ -94,6 +94,9 @@
       <endpoint
             api="net.bluemind.metrics.alerts.api.ITickConfiguration">
       </endpoint>
+      <endpoint
+            api="net.bluemind.metrics.alerts.api.IProductChecks">
+      </endpoint>
    </extension>
    
    <extension
@@ -106,6 +109,9 @@
          point="net.bluemind.core.rest.serviceFactory">
       <serviceFactory
             class="net.bluemind.metrics.core.service.TickConfigurationServiceFactory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.metrics.core.service.ProductChecksService$Facto">
       </serviceFactory>
    </extension>
    <extension
@@ -210,6 +216,12 @@
          point="net.bluemind.lib.vertx.verticles">
       <verticle
             impl="net.bluemind.metrics.core.db.DbCheck$Factory">
+      </verticle>
+   </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.metrics.core.service.ChecksConsumerVerticle$ConsumerFactory">
       </verticle>
    </extension>
    

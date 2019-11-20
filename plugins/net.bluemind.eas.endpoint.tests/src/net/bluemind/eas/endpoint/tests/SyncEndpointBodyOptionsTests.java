@@ -254,18 +254,19 @@ public class SyncEndpointBodyOptionsTests extends AbstractEndpointTest {
 	}
 
 	public void XXtestGenerate8bitCrap() throws Exception {
-		MessageImpl mi = new MessageImpl();
-		mi.setSubject("8bit email");
-		BasicBodyFactory bbf = new BasicBodyFactory();
-		TextBody body = bbf.textBody("€uro àccentué", Charset.forName("iso-8859-15"));
-		mi.setBody(body);
-		Header h = mi.getHeader();
-		h.addField(field("Content-Type", "text/plain; charset=iso-8859-15"));
-		h.addField(field("Content-Transfer-Encoding", "8bit"));
-		InputStream in = Mime4JHelper.asStream(mi);
-		File f = new File("/Users/tom/8bit_msg.eml");
-		FileOutputStream out = new FileOutputStream(f);
-		FileUtils.transfer(in, out, true);
+		try (MessageImpl mi = new MessageImpl()) {
+			mi.setSubject("8bit email");
+			BasicBodyFactory bbf = new BasicBodyFactory();
+			TextBody body = bbf.textBody("€uro àccentué", Charset.forName("iso-8859-15"));
+			mi.setBody(body);
+			Header h = mi.getHeader();
+			h.addField(field("Content-Type", "text/plain; charset=iso-8859-15"));
+			h.addField(field("Content-Transfer-Encoding", "8bit"));
+			InputStream in = Mime4JHelper.asStream(mi);
+			File f = new File("/Users/tom/8bit_msg.eml");
+			FileOutputStream out = new FileOutputStream(f);
+			FileUtils.transfer(in, out, true);
+		}
 	}
 
 	private Field field(String k, String v) throws MimeException {

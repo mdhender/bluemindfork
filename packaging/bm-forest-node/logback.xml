@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+
+  <appender name="FOREST" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <File>/var/log/bm-forest-node/forest.log</File>
+    <encoder>
+      <pattern>%d{ISO8601, Europe/Paris} [%thread] %c{1} %p - %m\n</pattern>
+    </encoder>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>/var/log/bm-forest-node/forest.log.%d{yyyy-MM-dd}.gz</fileNamePattern>
+      <maxHistory>7</maxHistory>
+      <totalSizeCap>500MB</totalSizeCap>
+    </rollingPolicy>
+  </appender>
+  
+  <appender name="ASYNC_FOREST" class="ch.qos.logback.classic.AsyncAppender">
+    <queueSize>500</queueSize>
+    <discardingThreshold>0</discardingThreshold>
+    <appender-ref ref="FOREST" />
+  </appender>  
+  
+  <root level="INFO">
+    <appender-ref ref="ASYNC_FOREST"/>
+  </root>
+</configuration>

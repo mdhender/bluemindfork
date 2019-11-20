@@ -27,7 +27,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 
 import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.core.api.BMApi;
@@ -53,6 +52,16 @@ import net.bluemind.core.container.model.SortDescriptor;
 public interface IMailboxItems
 		extends IChangelogSupport, ICrudByIdSupport<MailboxItem>, ICountingSupport, ISortingSupport {
 
+	/**
+	 * Upload an email part (eg. attachment, html body). The returned address can be
+	 * used as {@link Part#address} when creating or updating a {@link MailboxItem}.
+	 * 
+	 * The uploaded parts need to be cleaned-up explicitly with
+	 * {@link IMailboxItems#removePart(String)}
+	 * 
+	 * @param part a re-usable email part.
+	 * @return an address usable as {@link Part#address}
+	 */
 	@PUT
 	@Path("_part")
 	String uploadPart(Stream part);
@@ -93,6 +102,11 @@ public interface IMailboxItems
 	@Path("_recent")
 	List<Long> recentItems(Date deliveredOrUpdatedAfter);
 
+	/**
+	 * Remove a part uploaded through {@link IMailboxItems#uploadPart(Stream)}
+	 * 
+	 * @param partId an address returned by a previous <code>uploadPart</code> call
+	 */
 	@DELETE
 	@Path("{partId}/_part")
 	void removePart(@PathParam("partId") String partId);
@@ -127,17 +141,13 @@ public interface IMailboxItems
 	 * 
 	 * @param imapUid
 	 * @param address
-	 * @param encoding set null to fetch pristine part
-	 * @param mime     override the mime type of the response
-	 * @param charset  override the charset of the response
+	 * @param fetchOptions optional parameters
 	 * @return a stream of the (optionally) decoded part
 	 */
-	@GET
+	@POST
 	@Path("part/{imapUid}/{address}")
 	@Produces("application/octet-stream")
-	Stream fetch(@PathParam("imapUid") long imapUid, @PathParam("address") String address,
-			@QueryParam("encoding") String encoding, @QueryParam("mime") String mime,
-			@QueryParam("charset") String charset);
+	Stream fetch(@PathParam("imapUid") long imapUid, @PathParam("address") String address, FetchOptions fetchOptions);
 
 	/**
 	 * @param imapUid

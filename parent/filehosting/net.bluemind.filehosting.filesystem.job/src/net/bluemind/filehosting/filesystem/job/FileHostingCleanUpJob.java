@@ -18,8 +18,10 @@
  */
 package net.bluemind.filehosting.filesystem.job;
 
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -50,8 +52,12 @@ public class FileHostingCleanUpJob implements IScheduledJob {
 	@Override
 	public void tick(IScheduler sched, boolean plannedExecution, String domainName, Date startDate) throws ServerFault {
 		if (!plannedExecution) {
-			logger.debug("Not planned.");
-			return;
+			GregorianCalendar gc = new GregorianCalendar();
+			gc.setTime(startDate);
+			if (gc.get(Calendar.MINUTE) != 0 || gc.get(Calendar.HOUR_OF_DAY) != 2) {
+				logger.debug("automatic mode, not running at {}", gc.getTime().toString());
+				return;
+			}
 		}
 
 		IScheduledJobRunId rid = null;

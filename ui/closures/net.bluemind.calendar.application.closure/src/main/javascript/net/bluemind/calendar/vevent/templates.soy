@@ -195,6 +195,28 @@
                 </ul>
               </div>
             </div>
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+              <label id="attachment-label" for="bm-ui-form-owner">{msg meaning="calendar.event.attachments" desc="Attachments"}Attachments{/msg}</label>
+              <div class="{css bm-ui-form-input}">
+                &nbsp;
+                <div id="bm-attachment-list">
+                	{foreach $attachment in $event.attachments}
+                  		{call .attachmentEntry}
+                  			{param attachment : $attachment /}
+                  		{/call}
+                  	{/foreach}	
+                </div>
+              </div>
+            </div>
+            <div class="{css bm-ui-form-entry} {css bm-clearfix}">
+              <label id="add-attachment-label" for="bm-ui-form-owner">{msg meaning="calendar.event.add_attachments" desc="Attachments"}Add Attachments{/msg}</label>
+              <div class="{css bm-ui-form-inline}" id="bm-ui-form-no-attachment-block">
+                  <input type="file" id="localAttachmentFile" style="visibility:hidden; width:0px;" />
+				  <label for="localAttachmentFile" class="goog-link-button">{msg meaning="calendar.event.addAttachmentLocal" desc="Attachments"}From local PC{/msg}</label>
+                  <div class="goog-inline-block goog-link-button" role="button" id="bm-ui-form-add-attachment-server" style="-webkit-user-select: none;" tabindex="0">{msg meaning="calendar.event.addAttachmentServer" desc="Button to add an attachment"}From Server{/msg}</div>
+                  &nbsp;&nbsp;<progress id="local-att-progress" max="100" value="0" style="visibility:hidden"></progress>
+              </div>
+            </div>  
           </fieldset>
           <fieldset id="bm-ui-form-fieldset-repeat" class="{css goog-tab-content}" style='display: none'>
           <div class="{css bm-ui-form-entry} {css bm-clearfix}">
@@ -666,4 +688,15 @@
   <img class="{css picture}" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAHzAAAB8wBK+h4IgAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAKMSURBVEiJtVXBShtRFD33vfvuZKItY9WEQBEtuEgWIoWi6N6VH+BX+BFu3fQD1K0rdxZciSio0FVdzEaCoaAm0TSQtE2N8b0ujGIkMxFCzm7uveedd+69M0NbW1tflVLfMQBYa7+wMebH8vLyt0EI7O7uChtjxPO8oUEIeJ5n2BgjrVarp8Dm5ub48fFxxjlHs7OzpdXV1WIvjlJKWCklSqlkXOHa2tqn/f39z0/PhUIBl5eX4fr6ethTgJnFWhvrIAzDnO/78jKWz+ezzWbzJzO7KJ6IGGZmUUpFCpydnQ01m81x3/dfp7yDg4OPS0tLv2IdEFGsg9vb2w+JREK65Wq12oi19i6Kq7UWZmYTNwMR8UWkq0AikfDjuFprw1prcc5FOkin0ywiXrfc2NgYx3GVUsIAPCKKLJqensbk5OTd1dXVu5fxIAj+zc/P3wOI5BLRY4ucc7FrOjU11by5uelo08TERK0Xj5kNE1Gsg3ahb4zpaJOI+L14RCQMIHYGAKCUShpjOhwQkf8GnrDW2kTdJJ/P+0dHR6OFQmHYGNORu7i4SG1sbAwvLi5WcrncnwiNx0/F616GYZg8OTkZub6+9gFAa92VXSwWZWdnJzg8PLybm5urzszM/FZKvXRgmIgE7U1oNBpqe3s7XS6XPQBg5rgOPKNarXp7e3vvT09P71dWVkpBELSeBZRSBgABwPn5ebJSqQxH3bgX6vW6CcNwdGFhod4OERORB8ADAGutz8xdX6q3wlqbBGDbDlpPLTIAQEQJrXVfAlrrBwCufd5fBiAAkgCQzWYplUrd9yMQBIFGe6ZE1GKl1LOAiCCTyfRzfgeIqNGxRQNAnUul0oNzLvKn0Q/K5bL7D9ddzgDKtkW0AAAAAElFTkSuQmCC" />
   {/if}
 {/template}
+
+{template .attachmentEntry}
+	<div style="height: 20px;" id="div-bm-ui-form-delete-attachment-{$attachment.index}">
+	    <a href="{$attachment.publicUrl}" target="_blank"><i class="fa fa-paperclip"></i>&nbsp;{$attachment.name}</a>&nbsp;&nbsp;
+		    <div class="{css bm-ui-form-inline}" id="bm-ui-form-no-reminder-block">
+		    <div class="goog-inline-block"  role="button" id="bm-ui-form-delete-attachment-{$attachment.index}" style="-webkit-user-select: none; cursor: pointer" tabindex="0"><i class="fa fa-trash fa-lg" aria-hidden="true"></i></div>
+	    </div>
+    <br>
+</div>
+{/template}
+
 

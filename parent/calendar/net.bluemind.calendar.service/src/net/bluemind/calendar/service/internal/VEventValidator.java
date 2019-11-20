@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 
+import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.api.date.BmDateTime;
@@ -140,6 +141,18 @@ public class VEventValidator implements IValidator<VEventSeries> {
 		// FIXME allow empty title?
 		if (StringUtils.isEmpty(vevent.summary)) {
 			throw new ServerFault("Event title is empty", ErrorCode.EMPTY_EVENT_TITLE);
+		}
+
+		validateAttachments(vevent.attachments);
+	}
+
+	private void validateAttachments(List<AttachedFile> attachments) {
+		if (attachments != null && !attachments.isEmpty()) {
+			for (AttachedFile attachment : attachments) {
+				if (StringUtils.isEmpty(attachment.name) || StringUtils.isEmpty(attachment.publicUrl)) {
+					throw new ServerFault("Event attachment value is empty", ErrorCode.EMPTY_EVENT_ATTACHMENT_VALUE);
+				}
+			}
 		}
 
 	}

@@ -22,12 +22,15 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.json.client.JSONObject;
 
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.model.gwt.serder.ItemValueGwtSerDer;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.gwt.serder.DomainGwtSerDer;
 
 public class DomainsHolder {
-
 	private static DomainsHolder inst = new DomainsHolder();
 
 	public static DomainsHolder get() {
@@ -52,7 +55,17 @@ public class DomainsHolder {
 	public void setSelectedDomain(ItemValue<Domain> domain) {
 		this.selectedDomain = domain;
 		emitDomainChangedEvent(domain);
+
+		JSONObject jsDomainItem = new JSONObject();
+		new ItemValueGwtSerDer<Domain>(new DomainGwtSerDer()).serializeTo(domain, jsDomainItem);
+		setJsonDomainsHolderSelectedDomain(jsDomainItem.getJavaScriptObject());
 	}
+
+	private static native void setJsonDomainsHolderSelectedDomain(JavaScriptObject domain)
+
+	/*-{ 
+		$wnd.jsonDomainsHolderSelectedDomain = domain;
+	}-*/;
 
 	private List<IDomainChangedListener> domainChangedListeners = new LinkedList<>();
 

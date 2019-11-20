@@ -25,13 +25,14 @@ import net.bluemind.mailshare.api.Mailshare;
 
 public class MailshareSerializer extends DirEntrySerializer {
 
-	private ItemValue<Mailshare> mailshare;
+	private final ItemValue<Mailshare> mailshare;
 
 	protected MailshareSerializer(ItemValue<Mailshare> mailshare, ItemValue<DirEntry> dirEntry, String domainUid) {
 		super(dirEntry, domainUid);
 		this.mailshare = mailshare;
 	}
 
+	@Override
 	public Value get(Property property) {
 		switch (property) {
 		case DisplayName:

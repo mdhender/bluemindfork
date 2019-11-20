@@ -19,6 +19,7 @@
 package net.bluemind.system.ldap.importation.internal.tools;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -241,6 +242,8 @@ public class UserManagerImpl extends UserManager {
 		if (addressSet) {
 			userAddress.address.parameters = Arrays.asList(Parameter.create("TYPE", "work"));
 			user.value.contactInfos.deliveryAddressing = Arrays.asList(userAddress);
+		} else {
+			user.value.contactInfos.deliveryAddressing = Collections.emptyList();
 		}
 	}
 

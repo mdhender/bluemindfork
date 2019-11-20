@@ -23,6 +23,7 @@ import java.util.Map;
 
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.api.Required;
 import net.bluemind.directory.api.BaseDirEntry.AccountType;
 import net.bluemind.directory.api.DirBaseValue;
 import net.bluemind.mailbox.api.Mailbox;
@@ -44,6 +45,7 @@ public final class User extends DirBaseValue {
 	 * The login of the user. The login at (@) domain name is used to sign-into the
 	 * system.
 	 */
+	@Required
 	public String login;
 
 	/**
@@ -63,8 +65,6 @@ public final class User extends DirBaseValue {
 	public Mailbox.Routing routing = Routing.none;
 
 	public AccountType accountType = AccountType.FULL;
-
-	// mailboxUid is "mailbox_user/" + uid + "@" + domain.uid
 
 	/**
 	 * {@link Mailbox#quota}

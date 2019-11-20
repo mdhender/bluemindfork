@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.platform.PlatformManager;
+import org.vertx.java.platform.VerticleConstructor;
 
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.vertx.testhelper.impl.DoneHandler;
@@ -56,7 +57,7 @@ public class Deploy {
 	 * @param classes
 	 * @return
 	 */
-	public static CompletableFuture<Set<String>> verticles(boolean worker, String... classes) {
+	public static CompletableFuture<Set<String>> verticles(boolean worker, VerticleConstructor... classes) {
 		return verticles(worker, Arrays.asList(classes));
 	}
 
@@ -67,9 +68,9 @@ public class Deploy {
 	 * @param classes
 	 * @return
 	 */
-	public static CompletableFuture<Set<String>> verticles(boolean worker, Collection<String> classes) {
+	public static CompletableFuture<Set<String>> verticles(boolean worker, Collection<VerticleConstructor> classes) {
 		DoneHandler<String> done = new DoneHandler<>(classes.size());
-		for (String klass : classes) {
+		for (VerticleConstructor klass : classes) {
 			if (worker) {
 				pm.deployWorkerVerticle(true, klass, new JsonObject(), new URL[0], 1, null, done);
 			} else {

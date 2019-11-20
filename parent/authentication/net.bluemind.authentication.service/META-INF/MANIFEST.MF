@@ -27,6 +27,8 @@ Require-Bundle: net.bluemind.authentication.api;bundle-version="1.0.0";visibilit
  net.bluemind.role.service,
  net.bluemind.role.api,
  net.bluemind.core.container.service,
- net.bluemind.system.api
+ net.bluemind.system.api,
+ net.bluemind.user.hook,
+ com.netflix.hollow
 Export-Package: net.bluemind.authentication.service
 

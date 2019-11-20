@@ -21,6 +21,7 @@ package net.bluemind.backend.mail.replica.indexing;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,19 +52,23 @@ public class IndexedMessageBody {
 	public final Map<String, Object> data;
 	private final Map<String, Keyword> headers;
 	public final Keyword subject;
+	public final Keyword messageId;
+	public final List<Keyword> references;
 	public final String uid;
 	public final String preview;
 
 	private static final Logger logger = LoggerFactory.getLogger(IndexedMessageBody.class);
 
 	private IndexedMessageBody(String uid, List<String> content, Map<String, Object> data, Map<String, Keyword> headers,
-			Keyword subject, String preview) {
+			Keyword subject, String preview, Keyword messageId, List<Keyword> references) {
 		this.uid = uid;
 		this.content = content;
 		this.data = data;
 		this.headers = headers;
 		this.subject = subject;
 		this.preview = preview;
+		this.messageId = messageId;
+		this.references = references;
 	}
 
 	public String toString() {
@@ -71,6 +76,8 @@ public class IndexedMessageBody {
 				.add("uid", uid)//
 				.add("subject", subject)//
 				.add("data", data)//
+				.add("messageId", messageId.value)//
+				.add("references", references)//
 				.add("headers", headers)//
 				.toString();
 	}
@@ -80,6 +87,8 @@ public class IndexedMessageBody {
 		public Map<String, Object> data = new HashMap<>();
 		public Map<String, Keyword> headers = new HashMap<>();
 		public Keyword subject = new Keyword(null);
+		public Keyword messageId = new Keyword(null);
+		public List<Keyword> references = Collections.emptyList();
 		public String preview = "";
 		public final String uid;
 
@@ -112,8 +121,18 @@ public class IndexedMessageBody {
 			return this;
 		}
 
+		public IndexedMessageBodyBuilder messageId(Keyword messageId) {
+			this.messageId = messageId;
+			return this;
+		}
+
+		public IndexedMessageBodyBuilder references(List<Keyword> references) {
+			this.references = references;
+			return this;
+		}
+
 		public IndexedMessageBody build() {
-			return new IndexedMessageBody(uid, content, data, headers, subject, preview);
+			return new IndexedMessageBody(uid, content, data, headers, subject, preview, messageId, references);
 		}
 	}
 
@@ -188,11 +207,17 @@ public class IndexedMessageBody {
 				.data(data) //
 				.headers(headers).subject(new Keyword(body.subject))//
 				.preview(preview)//
+				.messageId(new Keyword(body.messageId))//
+				.references(body.references == null ? Collections.emptyList()
+						: body.references.stream().map(Keyword::new).collect(Collectors.toList()))//
 				.build();
 	}
 
 	public Map<String, String> headers() {
-		return headers.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+		return headers.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> {
+			String s = e.getValue().toString();
+			return s.substring(0, Math.min(s.length(), 1024));
+		}));
 	}
 
 }

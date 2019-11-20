@@ -51,6 +51,11 @@
 		text-align: right;
 		color: #666;
 	}
+
+	.net-bluemind-ui-mailbox-identity-IdentityManagement-Style-actionCell .gwt-RadioButton input {
+		display: none;
+	}
+
 	</ui:style>
 
 	<ui:with field="mc"

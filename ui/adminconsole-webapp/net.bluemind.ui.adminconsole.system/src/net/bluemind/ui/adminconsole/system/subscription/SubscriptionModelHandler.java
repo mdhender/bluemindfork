@@ -77,7 +77,7 @@ public class SubscriptionModelHandler implements IGwtModelHandler {
 					emails.forEach(email -> {
 						emailsArray.push(email);
 					});
-					
+
 					map.put(SubscriptionKeys.subscriptionContacts.name(), emailsArray);
 				}).exceptionally(e -> {
 					return null;
@@ -118,7 +118,7 @@ public class SubscriptionModelHandler implements IGwtModelHandler {
 
 				}
 			};
-			
+
 			if (subscriptionFilename.endsWith(".bmz")) {
 				service.updateSubscriptionWithArchive(new GwtStream(subscription), defaultHandler);
 			} else {

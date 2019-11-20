@@ -29,6 +29,7 @@ import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
 import net.bluemind.backend.mail.replica.persistence.MessageBodyStore;
 import net.bluemind.backend.mail.replica.service.internal.DbMessageBodiesService;
+import net.bluemind.backend.mail.replica.service.sds.MessageBodyObjectStore;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -41,7 +42,8 @@ public class DbMessageBodiesServiceFactory
 	private IDbMessageBodies getService(BmContext context, CyrusPartition partition) {
 		logger.debug("For partition {}...", partition);
 		MessageBodyStore bodyStore = new MessageBodyStore(context.getMailboxDataSource(partition.serverUid));
-		return new DbMessageBodiesService(bodyStore);
+		MessageBodyObjectStore bodyObjectStore = new MessageBodyObjectStore(context, partition);
+		return new DbMessageBodiesService(bodyStore, bodyObjectStore);
 	}
 
 	@Override

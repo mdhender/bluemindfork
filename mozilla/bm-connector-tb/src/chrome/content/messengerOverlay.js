@@ -447,6 +447,8 @@ function installButton(toolbarId, id, beforeId) {
 		toolbar.setAttribute("currentset", toolbar.currentSet);  
 		if (document.persist) {
 			document.persist(toolbar.id, "currentset");
+		} else {
+			Services.xulStore.persist(toolbar, "currentset");
 		}
 	}
 }  

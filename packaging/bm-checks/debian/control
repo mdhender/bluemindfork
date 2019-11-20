@@ -6,6 +6,6 @@ Standards-Version: 3.9.1
 
 Package: bm-checks
 Architecture: amd64
-Depends: curl, expect
+Depends: curl, expect, sasl2-bin
 Description: BlueMind services health check scripts
   BlueMind services health check scripts

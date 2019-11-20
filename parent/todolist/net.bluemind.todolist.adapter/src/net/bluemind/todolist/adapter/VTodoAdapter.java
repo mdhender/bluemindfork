@@ -8,6 +8,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
@@ -59,11 +60,10 @@ public class VTodoAdapter extends ICal4jHelper<VTodo> {
 	 * Create an iCalendar {@link VToDo} component from a {@link VTodo} object.
 	 * 
 	 * @param BlueMind
-	 *            Vtodo
+	 *                     Vtodo
 	 * @return ICalendar VToDo
 	 */
 	public static VToDo adaptTodo(String uid, VTodo vtodo) {
-
 		VToDo ret = new VToDo();
 
 		parseICalendarElement(uid, ret, vtodo);
@@ -180,7 +180,7 @@ public class VTodoAdapter extends ICal4jHelper<VTodo> {
 			}
 
 			VTodo vtodo = new VTodo();
-			vtodo = parseIcs(vtodo, ical4j, globalTZ).value;
+			vtodo = parseIcs(vtodo, ical4j, globalTZ, Optional.empty()).value;
 
 			// DUE
 			vtodo.due = parseIcsDate(ical4j.getDue(), globalTZ);

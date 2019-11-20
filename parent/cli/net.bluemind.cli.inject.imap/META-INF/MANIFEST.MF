@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.cli.inject.imap
-Bundle-SymbolicName: net.bluemind.cli.inject.imap
+Bundle-SymbolicName: net.bluemind.cli.inject.imap;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.cli.cmd.api,
@@ -15,12 +15,12 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.network.topology,
  net.bluemind.authentication.api,
  com.google.guava,
- net.bluemind.mailbox.api
+ net.bluemind.mailbox.api,
+ com.github.javafaker;bundle-version="1.0.1",
+ org.yaml.snakeyaml;bundle-version="1.23.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.cli.inject.smtp
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.cli.inject.imap
 Bundle-Vendor: bluemind.net
-Bundle-ClassPath: lib/javafaker-1.0.1.jar,
- lib/snakeyaml-1.23.jar,
- .
+Bundle-ClassPath: .

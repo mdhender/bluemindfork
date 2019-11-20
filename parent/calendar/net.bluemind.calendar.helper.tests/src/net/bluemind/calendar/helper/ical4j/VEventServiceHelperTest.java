@@ -33,6 +33,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -65,7 +66,7 @@ public class VEventServiceHelperTest {
 				.getResourceAsStream("event_multiplevcalendar.ics");
 		String ics = FileUtils.streamString(in, true);
 		in.close();
-		List<ItemValue<VEventSeries>> events = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> events = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 		assertEquals(2, events.size());
 
 	}
@@ -75,7 +76,7 @@ public class VEventServiceHelperTest {
 		InputStream in = VEventServiceHelperTest.class.getClassLoader().getResourceAsStream("invite.ics");
 		String ics = IOUtils.toString(in);
 		in.close();
-		List<ItemValue<VEventSeries>> events = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> events = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, events.size());
 
@@ -92,7 +93,7 @@ public class VEventServiceHelperTest {
 		InputStream in = VEventServiceHelperTest.class.getClassLoader().getResourceAsStream("unknowntz.ics");
 		String ics = IOUtils.toString(in);
 		in.close();
-		List<ItemValue<VEventSeries>> events = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> events = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(2, events.size());
 
@@ -113,7 +114,7 @@ public class VEventServiceHelperTest {
 		InputStream in = VEventServiceHelperTest.class.getClassLoader().getResourceAsStream("event2.ics");
 		String ics = IOUtils.toString(in);
 		in.close();
-		List<ItemValue<VEventSeries>> events = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> events = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(2, events.size());
 
@@ -140,7 +141,7 @@ public class VEventServiceHelperTest {
 		String ics = IOUtils.toString(in);
 		in.close();
 
-		List<ItemValue<VEventSeries>> events = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> events = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, events.size());
 
@@ -348,7 +349,7 @@ public class VEventServiceHelperTest {
 		InputStream in = VEventServiceHelperTest.class.getClassLoader().getResourceAsStream("not_absolute_uri.ics");
 		String ics = IOUtils.toString(in);
 		in.close();
-		List<ItemValue<VEventSeries>> events = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> events = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(1, events.size());
 		ItemValue<VEventSeries> event = events.get(0);
@@ -373,6 +374,22 @@ public class VEventServiceHelperTest {
 		System.err.println(ics);
 		assertTrue(ics.contains("DTSTART;TZID=Europe/London:19830213T200000"));
 		assertTrue(ics.contains("DTEND;TZID=Europe/London:19830213T210000"));
+	}
+
+	@SuppressWarnings("deprecation")
+	@Test
+	public void exportShouldSetLastModifiedIfPossible() {
+		VEventSeries series = new VEventSeries();
+		VEvent event = new VEvent();
+		series.main = event;
+		series.main.dtstart = new BmDateTime("1983-02-13T21:00:00+01:00", null, Precision.DateTime);
+		series.main.dtend = new BmDateTime("1983-02-13T22:00:00+01:00", null, Precision.DateTime);
+
+		ItemValue<VEventSeries> create = ItemValue.create("test", series);
+		create.updated = new java.util.Date(111, 06, 12);
+		String ics = VEventServiceHelper.convertToIcs(create);
+		System.err.println(ics);
+		assertTrue(ics.contains("LAST-MODIFIED:20101207T000000"));
 	}
 
 	@Test
@@ -418,7 +435,7 @@ public class VEventServiceHelperTest {
 		try (InputStream in = VEventServiceHelperTest.class.getClassLoader()
 				.getResourceAsStream("event_invalid_geo.ics")) {
 			String ics = IOUtils.toString(in);
-			VEventServiceHelper.convertToVEventList(ics);
+			VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 		} catch (Exception e) {
 			fail("should not fail " + e.getMessage());
 		}
@@ -437,7 +454,7 @@ public class VEventServiceHelperTest {
 		String ics = IOUtils.toString(in);
 		in.close();
 
-		VEventServiceHelper.convertToVEventList(ics);
+		VEventServiceHelper.convertToVEventList(ics, Optional.empty());
 
 		assertEquals(rawOffset, ICal4jHelper.getTimeZoneRegistry().getTimeZone("Europe/Paris").getRawOffset());
 	}

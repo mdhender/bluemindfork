@@ -35,6 +35,7 @@ public class MapiFoldersStore extends JdbcAbstractStore {
 
 	public MapiFoldersStore(DataSource dataSource) {
 		super(dataSource);
+		logger.debug("Created for ds {}", dataSource);
 	}
 
 	public void store(MapiFolder value) throws SQLException {

@@ -20,6 +20,7 @@ package net.bluemind.calendar.service.internal;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -38,24 +39,27 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.utils.JsonUtils;
+import net.bluemind.icalendar.parser.CalendarOwner;
 
 public class ICSImportTask implements IServerTask {
 
 	private static final Logger logger = LoggerFactory.getLogger(ICSImportTask.class);
 
-	private String ics;
-	private ICalendar calendarService;
+	private final String ics;
+	private final ICalendar calendarService;
+	private final Optional<CalendarOwner> owner;
 
-	public ICSImportTask(ICalendar calendar, String ics) {
+	public ICSImportTask(ICalendar calendar, String ics, Optional<CalendarOwner> owner) {
 		this.calendarService = calendar;
 		this.ics = ics;
+		this.owner = owner;
 	}
 
 	@Override
 	public void run(IServerTaskMonitor monitor) throws Exception {
 		monitor.begin(3, "Begin import");
 
-		List<ItemValue<VEventSeries>> events = VEventServiceHelper.convertToVEventList(ics);
+		List<ItemValue<VEventSeries>> events = VEventServiceHelper.convertToVEventList(ics, owner);
 		monitor.progress(1, "ICS parsed ( " + events.size() + " events )");
 		ImportStats ret = importEvents(events, monitor.subWork("", 2));
 		// FIXME ret should be returned as ImportStats

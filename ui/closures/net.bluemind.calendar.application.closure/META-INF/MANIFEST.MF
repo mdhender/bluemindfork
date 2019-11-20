@@ -25,6 +25,7 @@ Require-Bundle: net.bluemind.authentication.closure;bundle-version="1.0.0",
  net.bluemind.ui.banner;bundle-version="1.0.0",
  net.bluemind.todolist.ui.closure;bundle-version="1.0.0",
  net.bluemind.history.ui.closure;bundle-version="4.1.0",
- net.bluemind.resource.closure;bundle-version="4.1.0"
+ net.bluemind.resource.closure;bundle-version="4.1.0",
+ net.bluemind.filehosting.api.closure;bundle-version="4.1.0"
 Bundle-ClassPath: css.jar, js.jar
 Closure-Bundle-Type: Library

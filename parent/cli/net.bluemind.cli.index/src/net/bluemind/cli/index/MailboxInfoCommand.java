@@ -21,6 +21,7 @@ import java.util.Optional;
 
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.Strings;
+import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.metrics.sum.InternalSum;
@@ -63,25 +64,36 @@ public class MailboxInfoCommand extends SingleOrDomainOperation {
 		JsonObject userJson = new JsonObject();
 		userJson.putString("email", de.value.email);
 
-		long esQuota = (long) getESQuota(de.uid) / 1024; // to KiB
-		userJson.putNumber("ESQuotaKiB", esQuota);
-		long imapQuota = (long) getImapQuota(domainUid, de);
+		Optional<Long> esQuota = getESQuota(de.uid);
+		if (esQuota.isPresent()) {
+			userJson.putNumber("ESQuotaKiB", esQuota.get());
+		} else {
+			userJson.putString("ESQuotaKiB", "Failed to fetch ES quota");
+		}
+
+		long imapQuota = getImapQuota(domainUid, de);
 		userJson.putNumber("IMAPQuotaKiB", imapQuota);
 
-		if (imapQuota != 0) {
-			userJson.putNumber("ratio", (esQuota / imapQuota * 100));
+		if (esQuota.isPresent() && imapQuota != 0) {
+			userJson.putNumber("ratio", (esQuota.get() / imapQuota * 100));
 		}
 
 		ctx.info(userJson.encode());
 	}
 
-	private double getESQuota(String mailboxId) {
-		SearchResponse sr = ESearchActivator.getClient().prepareSearch(getMailboxAlias(mailboxId))
-				.setQuery(QueryBuilders.matchAllQuery())
-				.addAggregation(AggregationBuilders.sum("used_quota").field("size")).setSize(0).execute().actionGet();
+	private Optional<Long> getESQuota(String mailboxId) {
+		try {
 
-		InternalSum sum = (InternalSum) sr.getAggregations().get("used_quota");
-		return sum.getValue();
+			SearchResponse sr = ESearchActivator.getClient().prepareSearch(getMailboxAlias(mailboxId))
+					.setQuery(QueryBuilders.matchAllQuery())
+					.addAggregation(AggregationBuilders.sum("used_quota").field("size")).setSize(0).execute()
+					.actionGet();
+
+			InternalSum sum = (InternalSum) sr.getAggregations().get("used_quota");
+			return Optional.of((long) sum.getValue() / 1024); // to KiB
+		} catch (IndexNotFoundException e) {
+			return Optional.empty();
+		}
 	}
 
 	private String getMailboxAlias(String mailboxId) {

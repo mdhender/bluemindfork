@@ -182,7 +182,7 @@ public class MailAddress extends Composite
 		}
 
 		listBox.addItem(domain.name, domain.name);
-		if (!implicit) {
+		if (!implicit && domain.aliases != null) {
 			for (String alias : domain.aliases) {
 				listBox.addItem(alias, alias);
 			}

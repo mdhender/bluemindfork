@@ -61,7 +61,6 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.core.sessions.Sessions;
 import net.bluemind.imap.Flag;
 import net.bluemind.imap.FlagsList;
@@ -116,10 +115,6 @@ public class ReplicationIndexingTests extends AbstractRollingReplicationTests {
 
 	private IServiceProvider suProvider() {
 		return ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-	}
-
-	private IServiceProvider provider() {
-		return ClientSideServiceProvider.getProvider("http://127.0.0.1:8090", apiKey);
 	}
 
 	static final int MAIL_COUNT = 500;

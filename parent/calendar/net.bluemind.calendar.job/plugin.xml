@@ -6,9 +6,6 @@
       <scheduledjob_provider
             implementation="net.bluemind.calendar.job.CalendarIndexJob">
       </scheduledjob_provider>
-      <scheduledjob_provider
-            implementation="net.bluemind.calendar.job.ExternalCalendarSyncJob">
-      </scheduledjob_provider>
    </extension>
    <extension
          point="net.bluemind.reminder.job">

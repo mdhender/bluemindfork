@@ -179,18 +179,19 @@ class bm_book extends rcube_addressbook {
     $vcardQuery->size = $this->page_size;
     $vcardQuery->from = $this->page_size * (($this->list_page) ? $this->list_page - 1:0);
     $groupsFound = $this->getAddressbookClient($this->folder->uid)->search($vcardQuery);
+    $result = new rcube_result_set($groupsFound->total, $page * $this->page_size);
     if ($groupsFound->values) {
       foreach($groupsFound->values as $group) {
       if ($group->value->defaultEmail) {
-        array_push($ret, array('ID' => $group->uid, 'email' => array($group->value->defaultEmail), 'name' => $group->displayName, 'source' => 'bm_autocomp'));
+        $result->add(array('ID' => $group->uid, 'email' => array($group->value->defaultEmail), 'name' => $group->displayName, 'source' => 'bm_autocomp'));
         $this->dlists[$group->uid] = array('email' => $group->value->defaultEmail, 'name' => $group->displayName);
       } else {
-        array_push($ret, array('ID' => $group->uid, 'name' => $group->displayName, 'source' => 'bm_autocomp'));
+        $result->add(array('ID' => $group->uid, 'name' => $group->displayName, 'source' => 'bm_autocomp'));
       }
 
       }
     }
-    return $ret;
+    return $result;
   }
 
   public function set_group($gid) { 

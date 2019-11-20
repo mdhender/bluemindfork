@@ -31,6 +31,7 @@ import org.vertx.java.core.http.HttpServerRequest;
 
 import com.google.common.base.Joiner;
 import com.netflix.spectator.api.Registry;
+import com.netflix.spectator.impl.Config;
 
 import net.bluemind.lib.vertx.BlockingCode;
 import net.bluemind.locator.impl.LocatorDbHelper;
@@ -46,7 +47,7 @@ import net.bluemind.metrics.registry.MetricsRegistry;
 public class HostLocationHandler implements Handler<HttpServerRequest> {
 
 	private static final Logger logger = LoggerFactory.getLogger(HostLocationHandler.class);
-	private static final Registry registry = MetricsRegistry.get();
+	private final Registry registry;
 	private final IdFactory idFactory;
 	private final Vertx vertx;
 	private final ExecutorService blockingPool;
@@ -54,6 +55,10 @@ public class HostLocationHandler implements Handler<HttpServerRequest> {
 	public HostLocationHandler(Vertx v, ExecutorService blockingPool) {
 		this.vertx = v;
 		this.blockingPool = blockingPool;
+		ClassLoader configCl = Config.class.getClassLoader();
+		ClassLoader contextCl = Thread.currentThread().getContextClassLoader();
+		logger.info("************ configCl: {}, contextCl: {}", configCl, contextCl);
+		registry = MetricsRegistry.get();
 		idFactory = new IdFactory(registry, HostLocationHandler.class);
 	}
 

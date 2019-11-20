@@ -68,6 +68,7 @@ import net.bluemind.backend.mail.api.MailboxFolderSearchQuery;
 import net.bluemind.backend.mail.api.MessageSearchResult;
 import net.bluemind.backend.mail.api.MessageSearchResult.Mbox;
 import net.bluemind.backend.mail.api.SearchQuery;
+import net.bluemind.backend.mail.api.SearchQuery.LogicalOperator;
 import net.bluemind.backend.mail.api.SearchResult;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
@@ -128,6 +129,8 @@ public class MailIndexService implements IMailIndexService {
 		Client client = getIndexClient();
 		Map<String, Object> content = new HashMap<>();
 		content.put("content", body.content);
+		content.put("messageId", body.messageId.toString());
+		content.put("references", body.references.stream().map(kw -> kw.toString()).collect(Collectors.toList()));
 		content.put("preview", body.preview);
 		content.put("subject", body.subject.toString());
 		content.put("subject_kw", body.subject.toString());
@@ -245,6 +248,8 @@ public class MailIndexService implements IMailIndexService {
 
 		// deduplicate fields
 		mutableContent.remove("content");
+		mutableContent.remove("messageId");
+		mutableContent.remove("references");
 
 		String route = "partition_xxx";
 		GetResponse hasParent = client.prepareGet(userAlias, MAILSPOOL_TYPE, parentUid).setFetchSource(false).get();
@@ -787,14 +792,23 @@ public class MailIndexService implements IMailIndexService {
 		}
 
 		bq.mustNot(QueryBuilders.termQuery("is", "deleted"));
+		bq = addSearchQuery(bq, "content", query.query);
+		bq = addPreciseSearchQuery(bq, "messageId", query.messageId);
+		bq = addPreciseSearchQuery(bq, "references", query.references);
 
-		if (query.query != null) {
-			String pattern = "content:\"" + query.query + "\"";
-			searchBuilder.setQuery(
-					bq.must(JoinQueryBuilders.hasParentQuery("body", QueryBuilders.queryStringQuery(pattern), false)));
-		} else {
-			searchBuilder.setQuery(bq);
+		if (query.headerQuery != null && !query.headerQuery.query.isEmpty()) {
+			List<QueryBuilder> builders = new ArrayList<>();
+			for (SearchQuery.Header headerQuery : query.headerQuery.query) {
+				String queryString = "headers." + headerQuery.name.toLowerCase() + ":\"" + headerQuery.value + "\"";
+				builders.add(QueryBuilders.queryStringQuery(queryString));
+			}
+			if (query.headerQuery.logicalOperator == LogicalOperator.AND) {
+				bq = bq.must(Queries.and(builders));
+			} else {
+				bq = bq.must(Queries.or(builders));
+			}
 		}
+		searchBuilder.setQuery(bq);
 		searchBuilder.addStoredField("itemId");
 		searchBuilder.addStoredField("uid");
 		searchBuilder.addStoredField("preview");
@@ -833,6 +847,24 @@ public class MailIndexService implements IMailIndexService {
 		logger.info("[{}] results: {} (tried {}) / {}, hasMore: {}", dirEntryUid, results.size(),
 				searchHits.getHits().length, result.totalResults, result.hasMoreResults);
 		return result;
+	}
+
+	private BoolQueryBuilder addSearchQuery(BoolQueryBuilder bq, String searchField, String searchValue) {
+		if (searchValue != null) {
+			String pattern = searchField + ":\"" + searchValue + "\"";
+			return bq.must(JoinQueryBuilders.hasParentQuery("body", QueryBuilders.queryStringQuery(pattern), false));
+		} else {
+			return bq;
+		}
+	}
+
+	private BoolQueryBuilder addPreciseSearchQuery(BoolQueryBuilder bq, String searchField, String searchValue) {
+		if (searchValue != null) {
+			return bq.must(
+					JoinQueryBuilders.hasParentQuery("body", QueryBuilders.termQuery(searchField, searchValue), false));
+		} else {
+			return bq;
+		}
 	}
 
 	@SuppressWarnings({ "unchecked" })

@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.forest.cloud.hazelcast
+Bundle-SymbolicName: net.bluemind.forest.cloud.hazelcast
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.forest.cloud.hazelcast.HzCloudActivator
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ com.hazelcast;bundle-version="3.12.2";visibility:=reexport,
+ net.bluemind.kafka.client;bundle-version="2.3.0",
+ slf4j.api
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.forest.cloud.hazelcast
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.forest.cloud.hazelcast

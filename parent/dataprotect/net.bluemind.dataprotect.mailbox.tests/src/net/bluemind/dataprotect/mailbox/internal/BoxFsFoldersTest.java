@@ -60,9 +60,10 @@ public class BoxFsFoldersTest {
 
 		Set<String> folders = bff.allFolders();
 		assertEquals(
-				new HashSet<>(
-						Arrays.asList("/var/spool/cyrus/data/location__test_loc/domain/t/test.loc/j/user/john^doe",
-								"/var/spool/cyrus/meta/location__test_loc/domain/t/test.loc/j/user/john^doe")),
+				new HashSet<>(Arrays.asList(
+						"/var/spool/cyrus/data/location__test_loc/domain/t/test.loc/j/user/john^doe",
+						"/var/spool/cyrus/meta/location__test_loc/domain/t/test.loc/j/user/john^doe",
+						"/var/spool/bm-hsm/cyrus-archives/location__test_loc/domain/t/test.loc/j/user/john^doe")),
 				folders);
 
 		assertEquals(
@@ -73,6 +74,11 @@ public class BoxFsFoldersTest {
 				new HashSet<>(
 						Arrays.asList("/var/spool/cyrus/meta/location__test_loc/domain/t/test.loc/j/user/john^doe")),
 				bff.metaPath);
+
+		assertEquals(
+				new HashSet<>(Arrays.asList(
+						"/var/spool/bm-hsm/cyrus-archives/location__test_loc/domain/t/test.loc/j/user/john^doe")),
+				bff.archivePath);
 
 		assertEquals("restored-" + (new SimpleDateFormat("yyyy-MM-dd")).format(dpg.protectionTime),
 				bff.restoreFolderName);
@@ -105,9 +111,10 @@ public class BoxFsFoldersTest {
 		Set<String> folders = BoxFsFolders.build(domain, mbox, dpg).allFolders();
 
 		assertEquals(
-				new HashSet<>(
-						Arrays.asList("/var/spool/cyrus/data/location__test_loc/domain/t/test.loc/q/user/0815john^doe",
-								"/var/spool/cyrus/meta/location__test_loc/domain/t/test.loc/q/user/0815john^doe")),
+				new HashSet<>(Arrays.asList(
+						"/var/spool/cyrus/data/location__test_loc/domain/t/test.loc/q/user/0815john^doe",
+						"/var/spool/cyrus/meta/location__test_loc/domain/t/test.loc/q/user/0815john^doe",
+						"/var/spool/bm-hsm/cyrus-archives/location__test_loc/domain/t/test.loc/q/user/0815john^doe")),
 				folders);
 
 	}
@@ -133,10 +140,10 @@ public class BoxFsFoldersTest {
 
 		Set<String> folders = BoxFsFolders.build(domain, mbox, dpg).allFolders();
 
-		assertEquals(
-				new HashSet<>(Arrays.asList(
-						"/var/spool/cyrus/meta/location__0815test_loc/domain/q/0815test.loc/j/user/john^doe",
-						"/var/spool/cyrus/data/location__0815test_loc/domain/q/0815test.loc/j/user/john^doe")),
+		assertEquals(new HashSet<>(Arrays.asList(
+				"/var/spool/cyrus/meta/location__0815test_loc/domain/q/0815test.loc/j/user/john^doe",
+				"/var/spool/cyrus/data/location__0815test_loc/domain/q/0815test.loc/j/user/john^doe",
+				"/var/spool/bm-hsm/cyrus-archives/location__0815test_loc/domain/q/0815test.loc/j/user/john^doe")),
 				folders);
 
 	}
@@ -162,10 +169,10 @@ public class BoxFsFoldersTest {
 
 		Set<String> folders = BoxFsFolders.build(domain, mbox, dpg).allFolders();
 
-		assertEquals(
-				new HashSet<>(Arrays.asList(
-						"/var/spool/cyrus/data/location__0815test_loc/domain/q/0815test.loc/q/user/%john^doe",
-						"/var/spool/cyrus/meta/location__0815test_loc/domain/q/0815test.loc/q/user/%john^doe")),
+		assertEquals(new HashSet<>(Arrays.asList(
+				"/var/spool/cyrus/data/location__0815test_loc/domain/q/0815test.loc/q/user/%john^doe",
+				"/var/spool/cyrus/meta/location__0815test_loc/domain/q/0815test.loc/q/user/%john^doe",
+				"/var/spool/bm-hsm/cyrus-archives/location__0815test_loc/domain/q/0815test.loc/q/user/%john^doe")),
 				folders);
 
 	}

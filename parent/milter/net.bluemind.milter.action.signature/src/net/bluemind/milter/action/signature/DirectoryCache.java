@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,14 +33,21 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 import net.bluemind.addressbook.api.VCard;
+import net.bluemind.config.Token;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.rest.IServiceProvider;
+import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.mailflow.rbe.IClientContext;
+import net.bluemind.network.topology.Topology;
 
 public class DirectoryCache extends BusModBase {
 
+	private static Optional<IServiceProvider> provider = Optional.empty();
+	private static Map<String, Long> changesetVersion = new ConcurrentHashMap<>();
 	private static Map<String, VCard> uidToVCard = new ConcurrentHashMap<>();
 	private static Map<String, String> emailToUid = new ConcurrentHashMap<>();
 	private static Cache<String, String> noVCards = CacheBuilder.newBuilder().expireAfterWrite(20, TimeUnit.MINUTES)
@@ -49,14 +57,37 @@ public class DirectoryCache extends BusModBase {
 
 	@Override
 	public void start() {
+
 		super.start();
 		logger.info("Registering directory cache listener");
+
 		super.eb.registerHandler(MilterMessageForwarder.eventAddressChanged, (message) -> {
-			JsonObject jsonObject = (JsonObject) message.body();
-			String domainUid = jsonObject.getString("domain");
-			String uid = jsonObject.getString("uid");
-			logger.info("Invalidating directory cache for {}@{}", uid, domainUid);
-			uidToVCard.remove(domainUid + "#" + uid);
+			if (!provider.isPresent()) {
+				String host = "http://" + Topology.get().core().value.address() + ":8090";
+				provider = Optional.ofNullable(ClientSideServiceProvider.getProvider(host, Token.admin0()));
+				if (!provider.isPresent()) {
+					logger.error("Not able to update the cache. Will retry it when receiving next dir.changed event");
+					return;
+				}
+			}
+
+			String domainUid = ((JsonObject) message.body()).getString("domain");
+
+			Long lastVersion = changesetVersion.getOrDefault(domainUid, new Long(0));
+
+			ContainerChangeset<String> changeset = provider.get().instance(IDirectory.class, domainUid)
+					.changeset(lastVersion);
+
+			if (!uidToVCard.isEmpty()) {
+				// checking if our uids are concerned by changeset
+				Stream.concat(changeset.updated.stream(), changeset.deleted.stream())
+						.filter(uid -> uidToVCard.containsKey(domainUid + "#" + uid)).forEach(uid -> {
+							uidToVCard.remove(domainUid + "#" + uid);
+							logger.info("Invalidating directory cache for {}@{}", uid, domainUid);
+						});
+			}
+
+			changesetVersion.put(domainUid, changeset.version);
 		});
 	}
 
@@ -98,7 +129,7 @@ public class DirectoryCache extends BusModBase {
 				return Optional.ofNullable(dir.getVCard(result.entryUid));
 			}
 		} catch (ServerFault e) {
-			logger.warn("Cannot find vcard of {}", sender, e);	
+			logger.warn("Cannot find vcard of {}", sender, e);
 		}
 		return Optional.empty();
 	}

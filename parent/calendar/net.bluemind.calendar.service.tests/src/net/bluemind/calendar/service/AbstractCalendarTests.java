@@ -48,6 +48,7 @@ import net.bluemind.addressbook.api.VCard.Kind;
 import net.bluemind.addressbook.domainbook.DomainAddressBook;
 import net.bluemind.addressbook.persistance.VCardIndexStore;
 import net.bluemind.addressbook.persistance.VCardStore;
+import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.IFreebusyUids;
@@ -80,6 +81,7 @@ import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.core.utils.UIDGenerator;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.service.DirEntryHandlers;
+import net.bluemind.dockerclient.DockerEnv;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.persistance.GroupStore;
@@ -88,6 +90,7 @@ import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.api.Mailbox.Type;
 import net.bluemind.mailbox.service.internal.MailboxStoreService;
+import net.bluemind.pool.impl.docker.DockerContainer;
 import net.bluemind.server.api.Server;
 import net.bluemind.tag.api.ITagUids;
 import net.bluemind.tag.api.Tag;
@@ -179,7 +182,11 @@ public abstract class AbstractCalendarTests {
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
 		esServer.tags = Lists.newArrayList("bm/es");
 
-		PopulateHelper.initGlobalVirt(esServer);
+		Server nodeServer = new Server();
+		nodeServer.ip = DockerEnv.getIp(DockerContainer.NODE.getName());
+		nodeServer.tags = Lists.newArrayList("filehosting/data");
+
+		PopulateHelper.initGlobalVirt(esServer, nodeServer);
 
 		domainUid = "bm.lan";
 		datalocation = PopulateHelper.FAKE_CYRUS_IP;
@@ -411,6 +418,16 @@ public abstract class AbstractCalendarTests {
 		event.classification = VEvent.Classification.Private;
 		event.status = VEvent.Status.Confirmed;
 		event.priority = 3;
+
+		event.attachments = new ArrayList<>();
+		AttachedFile attachment1 = new AttachedFile();
+		attachment1.publicUrl = "http://somewhere/1";
+		attachment1.name = "test.gif";
+		event.attachments.add(attachment1);
+		AttachedFile attachment2 = new AttachedFile();
+		attachment2.publicUrl = "http://somewhere/2";
+		attachment2.name = "test.png";
+		event.attachments.add(attachment2);
 
 		event.organizer = new VEvent.Organizer(testUser.value.login + "@bm.lan");
 

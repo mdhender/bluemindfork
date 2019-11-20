@@ -53,6 +53,7 @@
 	<extend-property name="locale" values="fr" />
 	<set-property-fallback name="locale" value="en" />
 	<collapse-all-properties />
+
 	<add-linker name="xsiframe" />
 	<!-- <set-configuration-property name="devModeRedirectEnabled" value="true" 
 		/> <set-property name="compiler.useSourceMaps" value="true" /> -->

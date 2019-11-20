@@ -40,7 +40,7 @@ rcube_webmail.prototype.bm_mailtips_get_mailtips = function() {
   if ((_to.length + _cc.length + _bcc.length) == 0) {
     return false;
   }
-  var query = '_from=' + input_from.val() + '&_subject=' + input_subject.val() + '&_to=' + _to.join(', ') + '&_cc=' + _cc.join(', ') + '&_bcc=' + _bcc.join(', ');
+  var query = '_from=' + encodeURIComponent(input_from.val()) + '&_subject=' + encodeURIComponent(input_subject.val()) + '&_to=' + encodeURIComponent(_to.join(', ')) + '&_cc=' + encodeURIComponent(_cc.join(', ')) + '&_bcc=' + encodeURIComponent(_bcc.join(', '));
   if (query != rcmail.bm_mailtips.query) {
     rcmail.bm_mailtips.query = query;
     rcmail.http_post('plugin.bm_mailtips.getmailtips', query);

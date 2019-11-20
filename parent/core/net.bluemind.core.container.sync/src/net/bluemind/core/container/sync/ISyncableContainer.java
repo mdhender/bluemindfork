@@ -18,12 +18,14 @@
   */
 package net.bluemind.core.container.sync;
 
+import java.util.Map;
+
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ContainerSyncResult;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 
 public interface ISyncableContainer {
 
-	public ContainerSyncResult sync(String syncToken, IServerTaskMonitor monitor) throws ServerFault;
+	public ContainerSyncResult sync(Map<String, String> syncTokens, IServerTaskMonitor monitor) throws ServerFault;
 
 }

@@ -1,41 +1,46 @@
-BMCYRUS="3.0.8-bluemind174"
+BMCYRUS="3.0.8-bluemind204"
+BMSDS="1.0.0-204"
 
-BMES="6.4.3-bluemind74"
+BMES="6.4.3-bluemind75"
 
-BMJDK="8u212-bluemind29"
+KAFKA="2.3.0-bluemind2"
+
+BMJDK="8u222-bluemind30"
 BMSNZIP="1.0.4-bluemind4"
-BMNGINX="1.14.0-bluemind79"
+BMNGINX="1.16.1-bluemind81"
 BMPHP="5.6.40-bluemind79"
 BMPHPMEMCACHE="3.0.8-bluemind79"
 
-BMPOSTGRESQL="11.5-bluemind102"
+BMPOSTGRESQL="11.5-bluemind103"
 
 # tick
-TELEGRAF="1.11.1.bm2-1"
+TELEGRAF="1.11.1.bm4-1"
 KAPACITOR="1.5.3.bm3~a801279d"
 CHRONOGRAF="1.7.12.bm1~81b47b2c2"
 INFLUXDB="1.7.7.bm3~0f9bc7512"
 
 
 PGKEYRING="2018.2"
-PG_JESSIE="11.5-1.pgdg80+1"
-PGCOMMON_JESSIE="204.pgdg80+1"
-PG_STRETCH="11.5-1.pgdg90+1"
-PGCOMMON_STRETCH="204.pgdg90+1"
-PG_BUSTER="11.5-1.pgdg100+1"
-PGCOMMON_BUSTER="204.pgdg100+1"
-PG_XENIAL="11.5-1.pgdg16.04+1"
-PGCOMMON_XENIAL="204.pgdg16.04+1"
-PG_BIONIC="11.5-1.pgdg18.04+1"
-PGCOMMON_BIONIC="204.pgdg18.04+1"
+PG_JESSIE="11.5-3.pgdg80+1"
+PGCOMMON_JESSIE="208.pgdg80+2"
+PG_STRETCH="11.5-3.pgdg90+1"
+PGCOMMON_STRETCH="208.pgdg90+2"
+PG_BUSTER="11.5-3.pgdg100+1"
+PGCOMMON_BUSTER="208.pgdg100+1"
+PG_XENIAL="11.5-3.pgdg16.04+1"
+PGCOMMON_XENIAL="208.pgdg16.04+2"
+PG_BIONIC="11.5-3.pgdg18.04+1"
+PGCOMMON_BIONIC="208.pgdg18.04+2"
 PG_RHEL7="11.5-1PGDG.rhel7"
 
 # Cyrus
 BMCYRUSDEB="bm-cyrus-imapd=${BMCYRUS} \
+			libbmsds=${BMSDS} \
 			bm-imap-i18n=${BMCYRUS} \
 			cyrus-common-2.4=${BMCYRUS} \
 			cyrus-common=${BMCYRUS}"
-BMCYRUSRPM="bm-cyrus-imapd=${BMCYRUS}"
+BMCYRUSRPM="bm-cyrus-imapd=${BMCYRUS} \
+			libbmsds=${BMSDS}"
 
 # tick
 BMTICKDEB="bm-telegraf=${TELEGRAF} \
@@ -54,6 +59,9 @@ BMESRPM="bm-elasticsearch=${BMES}"
 # JDK
 BMJDKDEB="bm-jdk=${BMJDK}"
 BMJDKRPM="bm-jdk=${BMJDK}"
+
+# KAFKA
+BMKAFKADEB="bm-kafka=${KAFKA}"
 
 # SNZIP
 BMSNZIPDEB="bm-maintenance-snzip=${BMSNZIP}"
@@ -147,6 +155,7 @@ DEB="${BMCYRUSDEB} \
 		${BMESDEB} \
 		${BMTICKDEB} \
 		${BMJDKDEB} \
+		${BMKAFKADEB} \
 		${BMSNZIPDEB} \
 		${BMNGINXDEB} \
 		${BMPHPDEB} ${BMPHPMEMCACHEDEB} \

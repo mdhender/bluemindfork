@@ -66,4 +66,9 @@ public class MailboxAnnotation {
 				+ " VALUE " + (value == null ? "NIL" : value) + ")";
 	}
 
+	public String toShortParenObjectString() {
+		return "%(ENTRY " + entry + " USERID " + (userId.isEmpty() ? "\"\"" : userId) + " VALUE "
+				+ (value == null ? "NIL" : value) + ")";
+	}
+
 }

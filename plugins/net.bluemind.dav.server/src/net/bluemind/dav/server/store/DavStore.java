@@ -59,6 +59,7 @@ import net.bluemind.dav.server.proto.props.caldav.CalendarTimezone;
 import net.bluemind.dav.server.proto.props.caldav.CalendarUserAddressSet;
 import net.bluemind.dav.server.proto.props.caldav.DefaultAlarmVEventDate;
 import net.bluemind.dav.server.proto.props.caldav.DefaultAlarmVEventDateTime;
+import net.bluemind.dav.server.proto.props.caldav.MaxAttendeesPerInstance;
 import net.bluemind.dav.server.proto.props.caldav.ScheduleCalendarTransp;
 import net.bluemind.dav.server.proto.props.caldav.ScheduleDefaultCalendarUrl;
 import net.bluemind.dav.server.proto.props.caldav.ScheduleInboxUrl;
@@ -96,6 +97,7 @@ import net.bluemind.dav.server.proto.props.carddav.MaxImageSize;
 import net.bluemind.dav.server.proto.props.carddav.MaxResourceSize;
 import net.bluemind.dav.server.proto.props.carddav.PrincipalAddress;
 import net.bluemind.dav.server.proto.props.mecom.BulkRequests;
+import net.bluemind.dav.server.proto.props.mecom.GuardianRestricted;
 import net.bluemind.dav.server.proto.props.webdav.AddMember;
 import net.bluemind.dav.server.proto.props.webdav.CurrentUserPrincipal;
 import net.bluemind.dav.server.proto.props.webdav.CurrentUserPrivilegeSet;
@@ -160,6 +162,7 @@ public final class DavStore {
 		reg(SupportedCalendarComponentSet.factory());
 		reg(SupportedCalendarComponentSets.factory());
 		reg(ScheduleTag.factory());
+		reg(MaxAttendeesPerInstance.factory());
 
 		// calendarserver.org
 		reg(AllowedCalendarComponentSet.factory());
@@ -188,6 +191,7 @@ public final class DavStore {
 
 		// me.com
 		reg(BulkRequests.factory());
+		reg(GuardianRestricted.factory());
 
 		// apple ical
 		reg(Autoprovisioned.factory());
@@ -387,7 +391,8 @@ public final class DavStore {
 
 	/**
 	 * @param ret
-	 * @param path the vevents container path
+	 * @param path
+	 *                 the vevents container path
 	 */
 	private void addEvents(List<DavResource> ret, DavResource dr) {
 		ContainerDescriptor cd = lc.vStuffContainer(dr);

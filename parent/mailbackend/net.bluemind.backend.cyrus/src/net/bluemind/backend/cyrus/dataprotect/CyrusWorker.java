@@ -1,5 +1,7 @@
 package net.bluemind.backend.cyrus.dataprotect;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -7,10 +9,14 @@ import com.google.common.collect.Sets;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.dataprotect.api.PartGeneration;
 import net.bluemind.dataprotect.service.IDPContext;
 import net.bluemind.dataprotect.worker.DefaultWorker;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
 
 public class CyrusWorker extends DefaultWorker {
 
@@ -29,7 +35,15 @@ public class CyrusWorker extends DefaultWorker {
 
 	@Override
 	public Set<String> getDataDirs() {
-		return Sets.newHashSet("/var/lib/cyrus", "/var/spool/cyrus");
+		ISystemConfiguration sysApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ISystemConfiguration.class);
+		List<String> skipTags = new ArrayList<>(sysApi.getValues().stringList(SysConfKeys.dpBackupSkipTags.name()));
+
+		if (skipTags.contains("mail/cyrus_archives")) {
+			return Sets.newHashSet("/var/lib/cyrus", "/var/spool/cyrus");
+		}
+
+		return Sets.newHashSet("/var/lib/cyrus", "/var/spool/cyrus", "/var/spool/bm-hsm/cyrus-archives");
 	}
 
 	@Override

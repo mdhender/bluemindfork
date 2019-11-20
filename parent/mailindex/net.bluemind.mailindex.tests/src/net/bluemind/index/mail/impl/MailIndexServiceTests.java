@@ -45,7 +45,11 @@ import com.google.common.io.Files;
 
 import net.bluemind.backend.mail.api.MailboxFolderSearchQuery;
 import net.bluemind.backend.mail.api.MailboxItem.SystemFlag;
+import net.bluemind.backend.mail.api.MessageSearchResult;
 import net.bluemind.backend.mail.api.SearchQuery;
+import net.bluemind.backend.mail.api.SearchQuery.Header;
+import net.bluemind.backend.mail.api.SearchQuery.HeaderQuery;
+import net.bluemind.backend.mail.api.SearchQuery.LogicalOperator;
 import net.bluemind.backend.mail.api.SearchQuery.SearchScope;
 import net.bluemind.backend.mail.api.SearchResult;
 import net.bluemind.backend.mail.replica.indexing.MailSummary;
@@ -267,9 +271,142 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		SearchResult results = MailIndexActivator.getService().searchItems(userUid, q);
 
 		assertEquals(1, results.totalResults);
-		assertEquals("mbox_records_" + mboxUid, results.results.get(0).containerUid);
-		assertEquals(44l, results.results.get(0).itemId);
-		assertEquals("IPM.Note", results.results.get(0).messageClass);
+		MessageSearchResult messageSearchResult = results.results.get(0);
+		assertEquals("mbox_records_" + mboxUid, messageSearchResult.containerUid);
+		assertEquals(44l, messageSearchResult.itemId);
+		assertEquals("IPM.Note", messageSearchResult.messageClass);
+	}
+
+	@Test
+	public void testSearchByHeader() throws MimeIOException, IOException, InterruptedException, ExecutionException {
+		long imapUid = 1;
+		byte[] eml = Files.toByteArray(new File("data/test.eml"));
+		storeBody(bodyUid, eml);
+		storeMessage(mboxUid, userUid, bodyUid, imapUid, Collections.emptyList());
+		ESearchActivator.refreshIndex(INDEX_NAME);
+
+		SearchQuery query = new SearchQuery();
+		query.maxResults = 10;
+		query.offset = 0;
+		query.headerQuery = new HeaderQuery();
+		query.headerQuery.logicalOperator = LogicalOperator.AND;
+		Header headerQueryElement = new Header();
+		headerQueryElement.name = "From";
+		headerQueryElement.value = "Roger Water <roger.water@pinkfloyd.net>";
+		query.headerQuery.query = Arrays.asList(headerQueryElement);
+		query.scope = new SearchScope();
+		query.scope.isDeepTraversal = true;
+		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		q.query = query;
+		SearchResult results = MailIndexActivator.getService().searchItems(userUid, q);
+
+		assertEquals(1, results.totalResults);
+		MessageSearchResult messageSearchResult = results.results.get(0);
+		assertEquals(44l, messageSearchResult.itemId);
+
+		query.headerQuery = new HeaderQuery();
+		query.headerQuery.logicalOperator = LogicalOperator.OR;
+		headerQueryElement = new Header();
+		headerQueryElement.name = "From";
+		headerQueryElement.value = "Roger Water <roger.water@pinkfloyd.net>";
+		Header headerQueryElement2 = new Header();
+		headerQueryElement2.name = "From";
+		headerQueryElement2.value = "John Water <john.water@pinkfloyd.net>";
+		query.headerQuery.query = Arrays.asList(headerQueryElement, headerQueryElement2);
+
+		q = new MailboxFolderSearchQuery();
+		q.query = query;
+		results = MailIndexActivator.getService().searchItems(userUid, q);
+
+		assertEquals(1, results.totalResults);
+
+		query.headerQuery = new HeaderQuery();
+		query.headerQuery.logicalOperator = LogicalOperator.AND;
+		headerQueryElement = new Header();
+		headerQueryElement.name = "From";
+		headerQueryElement.value = "Roger Water <roger.water@pinkfloyd.net>";
+		headerQueryElement2 = new Header();
+		headerQueryElement2.name = "From";
+		headerQueryElement2.value = "John Water <john.water@pinkfloyd.net>";
+		query.headerQuery.query = Arrays.asList(headerQueryElement, headerQueryElement2);
+
+		q = new MailboxFolderSearchQuery();
+		q.query = query;
+		results = MailIndexActivator.getService().searchItems(userUid, q);
+
+		assertEquals(0, results.totalResults);
+	}
+
+	@Test
+	public void testSearchByMessageId() throws MimeIOException, IOException, InterruptedException, ExecutionException {
+		long imapUid = 1;
+		byte[] eml = Files.toByteArray(new File("data/test.eml"));
+		storeBody(bodyUid, eml);
+		storeMessage(mboxUid, userUid, bodyUid, imapUid, Collections.emptyList());
+		ESearchActivator.refreshIndex(INDEX_NAME);
+
+		SearchQuery query = new SearchQuery();
+		query.maxResults = 10;
+		query.offset = 0;
+		query.messageId = "<7FA4B249-C434-4F98-A447-A0F0C8D42A4E@pinkfloy.net>";
+		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		q.query = query;
+		query.scope = new SearchScope();
+		query.scope.isDeepTraversal = true;
+
+		SearchResult results = MailIndexActivator.getService().searchItems(userUid, q);
+
+		assertEquals(1, results.totalResults);
+		MessageSearchResult messageSearchResult = results.results.get(0);
+		assertEquals(44l, messageSearchResult.itemId);
+
+		query = new SearchQuery();
+		query.maxResults = 10;
+		query.offset = 0;
+		query.messageId = "idontexist";
+		q = new MailboxFolderSearchQuery();
+		q.query = query;
+		query.scope = new SearchScope();
+		query.scope.isDeepTraversal = true;
+		results = MailIndexActivator.getService().searchItems(userUid, q);
+
+		assertEquals(0, results.totalResults);
+	}
+
+	@Test
+	public void testSearchByReferences() throws MimeIOException, IOException, InterruptedException, ExecutionException {
+		long imapUid = 1;
+		byte[] eml = Files.toByteArray(new File("data/test.eml"));
+		storeBody(bodyUid, eml);
+		storeMessage(mboxUid, userUid, bodyUid, imapUid, Collections.emptyList());
+		ESearchActivator.refreshIndex(INDEX_NAME);
+
+		SearchQuery query = new SearchQuery();
+		query.maxResults = 10;
+		query.offset = 0;
+		query.references = "<19980507220459.5655.qmail@warren.demon.co.uk>";
+		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		q.query = query;
+		query.scope = new SearchScope();
+		query.scope.isDeepTraversal = true;
+
+		SearchResult results = MailIndexActivator.getService().searchItems(userUid, q);
+
+		assertEquals(1, results.totalResults);
+		MessageSearchResult messageSearchResult = results.results.get(0);
+		assertEquals(44l, messageSearchResult.itemId);
+
+		query = new SearchQuery();
+		query.maxResults = 10;
+		query.offset = 0;
+		query.references = "idontexist";
+		q = new MailboxFolderSearchQuery();
+		q.query = query;
+		query.scope = new SearchScope();
+		query.scope.isDeepTraversal = true;
+		results = MailIndexActivator.getService().searchItems(userUid, q);
+
+		assertEquals(0, results.totalResults);
 	}
 
 }

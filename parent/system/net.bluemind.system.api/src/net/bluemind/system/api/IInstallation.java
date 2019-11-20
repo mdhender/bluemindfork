@@ -51,6 +51,25 @@ public interface IInstallation extends ICustomTheme {
 	@Consumes("application/zip")
 	public void updateSubscriptionWithArchive(Stream archive) throws ServerFault;
 
+	/**
+	 * Update subscription URL to given version on all servers
+	 * 
+	 * @param version
+	 *                    target version. Special versions:
+	 *                    <ul>
+	 *                    <li><i>latest</i> targets the latest published version of
+	 *                    installed BlueMind major version</li>
+	 *                    <li><i>current</i> targets the current installed version
+	 *                    of BlueMind</li>
+	 *                    </ul>
+	 * 
+	 * @throws ServerFault
+	 *                         standard error object (unchecked exception)
+	 */
+	@POST
+	@Path("subscription/_version")
+	public void updateSubscriptionVersion(@QueryParam("version") String version);
+
 	@DELETE
 	@Path("subscription")
 	public void removeSubscription() throws ServerFault;
@@ -107,11 +126,11 @@ public interface IInstallation extends ICustomTheme {
 	@POST
 	@Path("{ip}/ping")
 	void ping(@PathParam(value = "ip") String ip) throws ServerFault;
-	
+
 	@GET
 	@Path("_subscriptionContacts")
 	public List<String> getSubscriptionContacts() throws ServerFault;
-	
+
 	@POST
 	@Path("_subscriptionContacts")
 	public void setSubscriptionContacts(List<String> emails) throws ServerFault;

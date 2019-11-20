@@ -29,7 +29,6 @@ net.bluemind.api.BlueMindClient.prototype.rpc;
 net.bluemind.api.BlueMindClient.prototype.base;
 
 /**
- * 
  * @param {relief.rpc.Command} cmd Command to execute
  * @param {Object} data Post data
  * @returns {goog.Thenable}

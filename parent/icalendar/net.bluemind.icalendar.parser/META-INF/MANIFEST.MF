@@ -13,5 +13,11 @@ Require-Bundle: net.bluemind.calendar.api,
  slf4j.api,
  net.bluemind.lib.ical4j,
  net.bluemind.core.container.api;bundle-version="4.1.0",
- org.apache.commons.lang
+ org.apache.commons.lang,
+ net.bluemind.attachment.api,
+ net.bluemind.core.context,
+ net.bluemind.core.rest,
+ net.bluemind.user.api,
+ net.bluemind.core.sessions,
+ com.google.guava
 Export-Package: net.bluemind.icalendar.parser

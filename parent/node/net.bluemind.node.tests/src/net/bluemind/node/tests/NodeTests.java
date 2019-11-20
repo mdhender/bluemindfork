@@ -48,6 +48,7 @@ import com.google.common.io.ByteStreams;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
+import net.bluemind.lib.vertx.Constructor;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.node.api.ExitList;
 import net.bluemind.node.api.FileDescription;
@@ -77,10 +78,10 @@ public class NodeTests {
 		int procs = Runtime.getRuntime().availableProcessors();
 		int instances = Math.max(10, procs);
 		CountDownLatch cdl = new CountDownLatch(2);
-		pm.deployVerticle(BlueMindNode.class.getCanonicalName(), null, new URL[0], instances, null,
+		pm.deployVerticle(Constructor.of(BlueMindNode::new, BlueMindNode.class), null, new URL[0], instances, null,
 				ar -> cdl.countDown());
 
-		pm.deployWorkerVerticle(true, SysCommand.class.getCanonicalName(), null, new URL[0], 1, null,
+		pm.deployWorkerVerticle(true, Constructor.of(SysCommand::new, SysCommand.class), null, new URL[0], 1, null,
 				ar -> cdl.countDown());
 
 		factory = new AHCNodeClientFactory();

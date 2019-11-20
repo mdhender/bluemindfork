@@ -18,12 +18,17 @@
  */
 package net.bluemind.ui.adminconsole.directory.resourcetype;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Style.Cursor;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -31,6 +36,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.ListBox;
 
 import net.bluemind.core.commons.gwt.GwtSerDerUtils;
 import net.bluemind.core.commons.gwt.JsMapStringJsObject;
@@ -45,6 +51,7 @@ import net.bluemind.resource.api.type.gwt.js.JsResourceTypeDescriptor;
 import net.bluemind.resource.api.type.gwt.js.JsResourceTypeDescriptorProperty;
 import net.bluemind.resource.api.type.gwt.serder.ResourceTypeDescriptorPropertyGwtSerDer;
 import net.bluemind.ui.common.client.forms.StringEdit;
+import net.bluemind.ui.editor.client.Editor;
 import net.bluemind.ui.imageupload.client.ImageUpload;
 import net.bluemind.ui.imageupload.client.ImageUploadHandler;
 
@@ -56,6 +63,9 @@ public class ResourceTypeGeneralEditor extends CompositeGwtWidgetElement {
 	public static final String TYPE = "bm.ac.ResourceTypeGeneralEditor";
 
 	private static GenralUiBinder uiBinder = GWT.create(GenralUiBinder.class);
+
+	private static final List<String> SUPPORTED_LANGUAGES = Arrays
+			.asList(new String[] { "fr", "en", "de", "es", "pt", "it", "hu", "nl", "pl", "ru", "sk", "uk", "zh" });
 
 	@UiField
 	StringEdit label;
@@ -69,7 +79,16 @@ public class ResourceTypeGeneralEditor extends CompositeGwtWidgetElement {
 	private String imageUuid;
 
 	@UiField
-	TemplateContainer templateContainer;
+	ListBox templateLanguagesComboBox;
+
+	@UiField
+	Editor templateEditor;
+
+	/** Local storage for templates. */
+	private Map<String, String> templatesByLanguage = new HashMap<String, String>();
+
+	/** Keep track of the selected template. */
+	private int selectedTemplateIndex;
 
 	protected ResourceTypeGeneralEditor() {
 		HTMLPanel panel = uiBinder.createAndBindUi(this);
@@ -97,7 +116,34 @@ public class ResourceTypeGeneralEditor extends CompositeGwtWidgetElement {
 
 		customPropContainer.setProperties(properties);
 
-		templateContainer.setTemplates(rt.getTemplates().asMap());
+		this.templatesByLanguage = rt.getTemplates().asMap();
+
+		for (final String language : SUPPORTED_LANGUAGES) {
+			templateLanguagesComboBox.addItem(language);
+		}
+
+		this.templateLanguagesComboBox.setSelectedIndex(0);
+		this.templateEditor.setText(this.templatesByLanguage.get(SUPPORTED_LANGUAGES.get(0)));
+		this.selectedTemplateIndex = 0;
+		this.templateLanguagesComboBox.addChangeHandler(new ChangeHandler() {
+
+			@Override
+			public void onChange(ChangeEvent event) {
+				// store the current template
+				storeCurrentTemplate();
+				
+				// update the selected index
+				selectedTemplateIndex = templateLanguagesComboBox.getSelectedIndex();
+
+				// fill the editor with the new template
+				templateEditor.setText(templatesByLanguage.get(SUPPORTED_LANGUAGES.get(selectedTemplateIndex)));
+			}
+		});
+	}
+
+	private void storeCurrentTemplate() {
+		final String currentTemplate = this.templateEditor.getText();
+		this.templatesByLanguage.put(SUPPORTED_LANGUAGES.get(selectedTemplateIndex), currentTemplate);
 	}
 
 	@Override
@@ -113,14 +159,14 @@ public class ResourceTypeGeneralEditor extends CompositeGwtWidgetElement {
 
 		JSONArray value = new GwtSerDerUtils.ListSerDer<Property>(new ResourceTypeDescriptorPropertyGwtSerDer())
 				.serialize(customPropContainer.getProperties()).isArray();
-		rt.setProperties(value.getJavaScriptObject().<JsArray<JsResourceTypeDescriptorProperty>> cast());
+		rt.setProperties(value.getJavaScriptObject().<JsArray<JsResourceTypeDescriptorProperty>>cast());
 
 		if (imageUuid != null) {
 			map.putString("resourceTypeIcon", imageUuid);
 		}
 
-		rt.setTemplates(JsMapStringString.create(templateContainer.getTemplates()));
-
+		this.storeCurrentTemplate();
+		rt.setTemplates(JsMapStringString.create(this.templatesByLanguage));
 	}
 
 	@UiHandler("icon")

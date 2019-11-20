@@ -79,7 +79,7 @@ public class ContainerSyncService implements IContainerSync {
 			monitor.progress(1, "syncing");
 			if (ss != null) {
 				SyncableContainer syncableContainer = new SyncableContainer(context.su());
-				ContainerSyncResult res = syncableContainer.sync(container, ss.syncToken, monitor.subWork(18));
+				ContainerSyncResult res = syncableContainer.sync(container, ss.syncTokens, monitor.subWork(18));
 				if (res != null) {
 					report.ok(getClass().getName(), String.format("%s sync done. created: %d, updated: %d, deleted: %d",
 							container.name, res.added, res.updated, res.removed));

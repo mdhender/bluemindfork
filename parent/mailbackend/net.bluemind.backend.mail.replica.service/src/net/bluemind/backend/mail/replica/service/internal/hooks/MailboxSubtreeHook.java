@@ -17,6 +17,8 @@
   */
 package net.bluemind.backend.mail.replica.service.internal.hooks;
 
+import java.sql.SQLException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +27,7 @@ import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesRootMgmt;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.MailboxReplicaRootUpdate;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
+import net.bluemind.backend.mail.replica.persistence.DeletedMailboxesStore;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
@@ -37,13 +40,17 @@ public class MailboxSubtreeHook implements IMailboxHook {
 	private static final Logger logger = LoggerFactory.getLogger(MailboxSubtreeHook.class);
 
 	@Override
+	public void preMailboxCreated(BmContext context, String domainUid, String name) throws ServerFault {
+		forgetDeletion(context, domainUid, name);
+	}
+
+	@Override
 	public void onMailboxCreated(BmContext context, String domainUid, ItemValue<Mailbox> boxItem) throws ServerFault {
 		if (boxItem.value.dataLocation == null) {
 			// users & admins group (default groups) seems to be in this case
 			logger.warn("***** WTF mbox without datalocation {}", boxItem.value);
 			return;
 		}
-
 		CyrusPartition partition = CyrusPartition.forServerAndDomain(boxItem.value.dataLocation, domainUid);
 		IReplicatedMailboxesRootMgmt rootMgmtApi = context.provider().instance(IReplicatedMailboxesRootMgmt.class,
 				partition.name);
@@ -52,6 +59,16 @@ public class MailboxSubtreeHook implements IMailboxHook {
 		logger.info("Creating subtree {} on {}", root, partition);
 		rootMgmtApi.create(root);
 
+	}
+
+	private void forgetDeletion(BmContext context, String domainUid, String name) {
+		try {
+			logger.info("Ensure we don't consider {}@{} as deleted", name, domainUid);
+			DeletedMailboxesStore deletedData = new DeletedMailboxesStore(context.getDataSource());
+			deletedData.deleteByName(domainUid, name);
+		} catch (SQLException e) {
+			logger.error(e.getMessage(), e);
+		}
 	}
 
 	private MailboxReplicaRootDescriptor asRootDescriptor(ItemValue<Mailbox> boxItem) {

@@ -34,6 +34,7 @@ import net.bluemind.lib.vertx.utils.ThrottleMessages;
 public class DirectorySerializationVerticle extends Verticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(DirectorySerializationVerticle.class);
+	private static final String DOMAIN_FIELD = "domain";
 
 	@Override
 	public void start() {
@@ -60,7 +61,7 @@ public class DirectorySerializationVerticle extends Verticle {
 	private void registerDomainChangeHandler() {
 		vertx.eventBus().registerHandler(DirectorySerializationDomainHook.DOMAIN_CHANGE_EVENT, msg -> {
 			JsonObject data = (JsonObject) msg.body();
-			String domain = data.getString("domain");
+			String domain = data.getString(DOMAIN_FIELD);
 			String action = data.getString("action");
 			switch (action) {
 			case "create":
@@ -70,13 +71,16 @@ public class DirectorySerializationVerticle extends Verticle {
 				Serializers.forDomain(domain).remove();
 				Serializers.remove(domain);
 				break;
+			default:
+				// only 2 possible actions
+				break;
 			}
 		});
 	}
 
 	private void registerDirectoryChangeHandler() {
 		Handler<Message<? extends JsonObject>> dirChangeHandler = (Message<? extends JsonObject> msg) -> {
-			String dom = msg.body().getString("domain");
+			String dom = msg.body().getString(DOMAIN_FIELD);
 			DirectorySerializer ser = Serializers.forDomain(dom);
 			if (ser != null) {
 				ser.produce();
@@ -84,7 +88,7 @@ public class DirectorySerializationVerticle extends Verticle {
 				logger.warn("Missing serializer for domain {}", dom);
 			}
 		};
-		ThrottleMessages<JsonObject> tm = new ThrottleMessages<JsonObject>((msg) -> msg.body().getString("domain"),
+		ThrottleMessages<JsonObject> tm = new ThrottleMessages<>(msg -> msg.body().getString(DOMAIN_FIELD),
 				dirChangeHandler, vertx, 1000);
 		vertx.eventBus().registerHandler("dir.changed", tm);
 	}

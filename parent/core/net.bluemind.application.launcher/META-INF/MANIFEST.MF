@@ -14,6 +14,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.config,
  net.bluemind.core.container.api;bundle-version="4.1.0",
  net.bluemind.metrics.annotations,
- net.bluemind.systemd.notify
+ net.bluemind.systemd.notify,
+ net.bluemind.system.validation
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: net.bluemind.application.launcher

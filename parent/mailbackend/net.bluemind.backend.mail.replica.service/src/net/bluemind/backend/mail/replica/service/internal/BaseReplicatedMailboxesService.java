@@ -19,6 +19,7 @@ package net.bluemind.backend.mail.replica.service.internal;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -203,11 +204,14 @@ public class BaseReplicatedMailboxesService implements IBaseMailboxFolders {
 	}
 
 	protected ItemValue<MailboxReplica> getCompleteReplica(String uid) {
-		ItemValue<MailboxReplica> fetched = storeService.get(uid, null);
-		if (fetched != null) {
-			fetched.value.dataLocation = dataLocation;
-		}
-		return fetched;
+		return Optional.ofNullable(MboxReplicasCache.byUid(uid)).orElseGet(() -> {
+			ItemValue<MailboxReplica> fetched = storeService.get(uid, null);
+			if (fetched != null) {
+				fetched.value.dataLocation = dataLocation;
+				MboxReplicasCache.cache(fetched);
+			}
+			return fetched;
+		});
 	}
 
 	@Override

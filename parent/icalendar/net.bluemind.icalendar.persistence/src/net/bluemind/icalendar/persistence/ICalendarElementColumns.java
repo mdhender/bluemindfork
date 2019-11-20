@@ -18,12 +18,16 @@
   */
 package net.bluemind.icalendar.persistence;
 
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
 
+import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.core.jdbc.Columns;
 import net.bluemind.core.jdbc.JdbcAbstractStore.EntityPopulator;
 import net.bluemind.core.jdbc.JdbcAbstractStore.StatementValues;
@@ -52,7 +56,9 @@ public class ICalendarElementColumns {
 			.col("exdate_precision", "e_datetime_precision") //
 			.col("rdate_timestamp") //
 			.col("rdate_timezone") //
-			.col("rdate_precision", "e_datetime_precision");
+			.col("rdate_precision", "e_datetime_precision") //
+			.col("attach_uri") //
+			.col("attach_name");
 
 	public static StatementValues<ICalendarElement> values() {
 		return new StatementValues<ICalendarElement>() {
@@ -103,6 +109,17 @@ public class ICalendarElementColumns {
 
 				DateTimeType.setDateTimeArray(conn, statement, index, value.rdate);
 				index += DateTimeType.LENGTH;
+
+				String[] attachmentUrls = new String[value.attachments.size()];
+				String[] attachmentNames = new String[value.attachments.size()];
+
+				for (int i = 0; i < value.attachments.size(); i++) {
+					attachmentUrls[i] = value.attachments.get(i).publicUrl;
+					attachmentNames[i] = value.attachments.get(i).name;
+				}
+
+				statement.setArray(index++, conn.createArrayOf("text", attachmentUrls));
+				statement.setArray(index++, conn.createArrayOf("text", attachmentNames));
 
 				return index;
 
@@ -157,10 +174,34 @@ public class ICalendarElementColumns {
 				value.rdate = DateTimeType.getDateTimes(rs, index);
 				index += DateTimeType.LENGTH;
 
+				String[] attachmentUrls = arrayOfString(rs.getArray(index++));
+				String[] attachmentNames = arrayOfString(rs.getArray(index++));
+
+				List<AttachedFile> attachments = new ArrayList<>(attachmentUrls.length);
+				for (int i = 0; i < attachmentUrls.length; i++) {
+					AttachedFile file = new AttachedFile();
+					file.publicUrl = attachmentUrls[i];
+					file.name = attachmentNames[i];
+					file.expirationDate = 0l;
+					attachments.add(file);
+				}
+
+				value.attachments = attachments;
+
 				return index;
 			}
 
 		};
 
+	}
+
+	protected static String[] arrayOfString(Array array) throws SQLException {
+		String[] ret = null;
+		if (array != null) {
+			ret = (String[]) array.getArray();
+		} else {
+			ret = new String[0];
+		}
+		return ret;
 	}
 }

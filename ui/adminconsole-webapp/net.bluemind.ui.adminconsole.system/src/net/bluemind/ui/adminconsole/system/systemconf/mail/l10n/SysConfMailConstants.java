@@ -52,4 +52,18 @@ public interface SysConfMailConstants extends Messages {
 	String archiveDays();
 
 	String archiveSizeThreshold();
+
+	String s3EndpointAddress();
+
+	String s3AccessKey();
+
+	String s3SecretKey();
+
+	String s3BucketName();
+
+	String archiveKindNone();
+
+	String archiveKindCyrus();
+
+	String archiveKindS3();
 }

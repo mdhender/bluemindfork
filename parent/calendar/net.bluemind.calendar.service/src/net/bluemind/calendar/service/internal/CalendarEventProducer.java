@@ -76,4 +76,12 @@ public class CalendarEventProducer {
 		eventBus.publish(CalendarHookAddress.EVENT_DELETED, new LocalJsonObject<>(msg));
 	}
 
+	public void serviceAccessed(final String calendarUid, final String origin, final boolean isRemote) {
+		final JsonObject message = new JsonObject();
+		message.putString("calendarUid", calendarUid);
+		message.putString("origin", origin);
+		message.putBoolean("isRemote", isRemote);
+		eventBus.publish("bm.calendar.service.accessed", message);
+	}
+
 }

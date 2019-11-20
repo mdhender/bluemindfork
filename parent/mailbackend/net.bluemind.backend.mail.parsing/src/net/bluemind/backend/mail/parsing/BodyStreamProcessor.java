@@ -61,7 +61,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Sets;
+import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
+import com.google.common.io.CountingInputStream;
 
 import net.bluemind.backend.mail.api.DispositionType;
 import net.bluemind.backend.mail.api.MessageBody;
@@ -119,10 +121,20 @@ public class BodyStreamProcessor {
 	public static CompletableFuture<MessageBodyData> processBody(Stream eml) {
 		return EZInputStreamAdapter.consume(eml, emlInput -> {
 			logger.debug("Consuming wrapped stream {}", emlInput);
-			long time = System.currentTimeMillis();
-			MessageBody mb = new MessageBody();
-			mb.bodyVersion = BODY_VERSION;
-			Message parsed = Mime4JHelper.parse(emlInput, new OffloadedBodyFactory());
+			return parseBody(emlInput, false);
+		});
+	}
+
+	public static MessageBodyData parseBodyGetFullContent(CountingInputStream emlInput) {
+		return parseBody(emlInput, true);
+	}
+
+	private static MessageBodyData parseBody(CountingInputStream emlInput, boolean fetchContent) {
+		long time = System.currentTimeMillis();
+
+		MessageBody mb = new MessageBody();
+		mb.bodyVersion = BODY_VERSION;
+		try (Message parsed = Mime4JHelper.parse(emlInput, new OffloadedBodyFactory())) {
 			String subject = parsed.getSubject();
 			if (subject != null) {
 				mb.subject = subject.replace("\u0000", "");
@@ -152,9 +164,11 @@ public class BodyStreamProcessor {
 				p.encoding = parsed.getContentTransferEncoding();
 			} else {
 				Multipart mpBody = (Multipart) parsed.getBody();
-				processMultipart(mb, mpBody, filenames, bodyTxt);
+				processMultipart(mb, mpBody, filenames, bodyTxt, fetchContent);
 			}
+
 			String extractedBody = extractBody(parsed);
+			extractedBody = extractedBody.replace("\u0000", "");
 			bodyTxt.append(extractedBody);
 			mb.preview = CharMatcher.whitespace()
 					.collapseFrom(extractedBody.substring(0, Math.min(160, extractedBody.length())), ' ');
@@ -166,18 +180,20 @@ public class BodyStreamProcessor {
 			with.addAll(toString(parsed.getTo()));
 			with.addAll(toString(parsed.getCc()));
 
-			parsed.dispose();
 			mb.structure.size = mb.size;
 			time = System.currentTimeMillis() - time;
 			if (time > 10) {
-				logger.info("Body processed in {}ms.", time);
+				logger.info("Body ({} byte(s)) processed in {}ms.", mb.size, time);
 			}
 
 			MessageBodyData bodyData = new MessageBodyData(mb, bodyTxt.toString(), filenames, with,
 					mapHeaders(mb.headers));
 			logger.debug("Processed {}", bodyData);
 			return bodyData;
-		});
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
 	}
 
 	private static List<String> processReferences(Multimap<String, String> mmapHeaders) {
@@ -343,20 +359,21 @@ public class BodyStreamProcessor {
 	}
 
 	private static void processMultipart(MessageBody mb, Multipart mpBody, List<String> filenames,
-			StringBuilder bodyTxt) {
+			StringBuilder bodyTxt, boolean fetchContent) {
 		Part root = new Part();
 		root.mime = "multipart/" + mpBody.getSubType();
 		root.address = "TEXT";
 		List<Entity> subParts = mpBody.getBodyParts();
 		int idx = 1;
 		for (Entity sub : subParts) {
-			Part child = subPart(root, idx++, sub, filenames, bodyTxt);
+			Part child = subPart(root, idx++, sub, filenames, bodyTxt, fetchContent);
 			root.children.add(child);
 		}
 		mb.structure = root;
 	}
 
-	private static Part subPart(Part parent, int i, Entity sub, List<String> filenames, StringBuilder bodyTxt) {
+	private static Part subPart(Part parent, int i, Entity sub, List<String> filenames, StringBuilder bodyTxt,
+			boolean fetchContent) {
 		String curAddr = "TEXT".equals(parent.address) ? "" + i : parent.address + "." + i;
 		Part p = new Part();
 		p.address = curAddr;
@@ -373,7 +390,7 @@ public class BodyStreamProcessor {
 			List<Entity> subParts = mult.getBodyParts();
 			int idx = 1;
 			for (Entity subsub : subParts) {
-				Part child = subPart(p, idx++, subsub, filenames, bodyTxt);
+				Part child = subPart(p, idx++, subsub, filenames, bodyTxt, fetchContent);
 				p.children.add(child);
 			}
 		} else if (sub.getBody() instanceof SingleBody) {
@@ -413,9 +430,20 @@ public class BodyStreamProcessor {
 			if ("multipart/report".equals(parent.mime) && p.dispositionType == null && p.fileName == null) {
 				handleReportPart(sub, filenames, bodyTxt, p);
 			}
+
+			if (fetchContent) {
+				SingleBody body = (SingleBody) sub.getBody();
+				try (InputStream partStream = body.getInputStream()) {
+					p.content = ByteStreams.toByteArray(partStream);
+				} catch (IOException e) {
+					logger.warn("Failed to fetch content", e.getMessage());
+				}
+			}
+
 		} else {
 			logger.warn("Don't know how to process {}", p.mime);
 		}
+
 		return p;
 	}
 
@@ -447,9 +475,8 @@ public class BodyStreamProcessor {
 	}
 
 	private static void indexAttachment(Entity ae, StringBuilder bodyTxt) {
-		try {
-			SingleBody body = (SingleBody) ae.getBody();
-			InputStream in = body.getInputStream();
+		SingleBody body = (SingleBody) ae.getBody();
+		try (InputStream in = body.getInputStream()) {
 			if (canAnalyzeAttachment(ae)) {
 				ContentAnalyzerFactory.get().ifPresent(analyzer -> {
 					CompletableFuture<Optional<String>> ret = analyzer.extractText(in);

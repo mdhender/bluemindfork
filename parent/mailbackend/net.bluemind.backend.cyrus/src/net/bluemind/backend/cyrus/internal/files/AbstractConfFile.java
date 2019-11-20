@@ -21,9 +21,12 @@ package net.bluemind.backend.cyrus.internal.files;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableMap;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -79,19 +82,41 @@ public abstract class AbstractConfFile {
 		return sw;
 	}
 
+	/**
+	 * None mode:
+	 * 
+	 * <pre>
+	 * archive_enabled: 0
+	 * </pre>
+	 * 
+	 * Cyrus mode:
+	 * 
+	 * <pre>
+	 *  archive_enabled: 1
+	 *  archive_days: 365
+	 *  archive_maxsize: 15360
+	 *  archive_keepflagged: 0
+	 * </pre>
+	 * 
+	 * Object store mode
+	 * 
+	 * <pre>
+	 * object_storage_enabled: 1
+	 * archive_enabled: 1
+	 * archive_days: 0
+	 * archive_maxsize: 0
+	 * archive_keepflagged: 0
+	 * </pre>
+	 * 
+	 * 
+	 *
+	 */
 	protected static class HsmConfig {
-		public final String enabled;
-		public final String archiveDays;
-		public final String maxSize;
 
-		private HsmConfig(String enabled, String archiveDays, String maxSize) {
-			this.enabled = enabled;
-			this.archiveDays = archiveDays;
-			this.maxSize = maxSize;
-		}
+		public final Map<String, String> cyrusConf;
 
-		public boolean isEnabled() {
-			return enabled.equals("1");
+		private HsmConfig(Map<String, String> cyrusConfKeys) {
+			this.cyrusConf = cyrusConfKeys;
 		}
 
 	}
@@ -101,21 +126,27 @@ public abstract class AbstractConfFile {
 				.instance(ISystemConfiguration.class);
 		SystemConf conf = settingsService.getValues();
 
-		// defaults
-		String enabled = "0";
-		String archiveDays = "7";
-		String maxSize = "1024";
+		String kind = Optional.ofNullable(conf.stringValue("archive_kind")).orElse("none");
 
-		if (conf.booleanValue("archive_enabled") != null) {
-			boolean bEnabled = conf.booleanValue("archive_enabled");
-			if (bEnabled) {
-				enabled = "1";
-				archiveDays = conf.stringValue("archive_days");
-				maxSize = conf.stringValue("archive_size_threshold");
-			}
+		switch (kind) {
+		case "cyrus":
+			String archiveDays = Optional.ofNullable(conf.stringValue("archive_days")).orElse("7");
+			String maxSize = Optional.ofNullable(conf.stringValue("archive_size_threshold")).orElse("1024");
+			return new HsmConfig(ImmutableMap.of(//
+					"archive_enabled", "1", //
+					"archive_days", archiveDays, //
+					"archive_maxsize", maxSize, //
+					"archive_keepflagged", "0"));
+		case "s3":
+			return new HsmConfig(ImmutableMap.of(//
+					"object_storage_enabled", "1", //
+					"archive_enabled", "1", //
+					"archive_days", "0", //
+					"archive_maxsize", "0", //
+					"archive_keepflagged", "0"));
+		case "none":
+		default:
+			return new HsmConfig(ImmutableMap.of("archive_enabled", "0"));
 		}
-
-		return new HsmConfig(enabled, archiveDays, maxSize);
-
 	}
 }

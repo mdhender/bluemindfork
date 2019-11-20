@@ -33,6 +33,7 @@ public class GlobalSettingsService implements IGlobalSettings {
 
 	private final GlobalSettingsStore store;
 	private final DomainSettingsCache domCache;
+	private final GlobalSettingsValidator validator = new GlobalSettingsValidator();
 
 	public GlobalSettingsService(BmContext context) {
 		store = new GlobalSettingsStore(context.getDataSource());
@@ -42,6 +43,7 @@ public class GlobalSettingsService implements IGlobalSettings {
 	@Override
 	public void set(Map<String, String> settings) throws ServerFault {
 		try {
+			validator.check(settings);
 			Map<String, String> merged = get();
 			merged.putAll(settings);
 			store.set(merged);

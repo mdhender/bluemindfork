@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netflix.hollow.api.consumer.HollowConsumer;
+import com.netflix.hollow.api.consumer.HollowConsumer.AnnouncementWatcher;
 import com.netflix.hollow.core.index.HollowHashIndex;
 import com.netflix.hollow.core.index.HollowHashIndexResult;
 import com.netflix.hollow.core.index.HollowPrefixIndex;
@@ -69,21 +70,27 @@ public class DirectoryDeserializer {
 		logger.info("Consuming from directory {}", dir.getAbsolutePath());
 		HollowContext context = HollowContext.get(dir, "directory");
 		this.consumer = HollowConsumer.withBlobRetriever(context.blobRetriever)
-				.withAnnouncementWatcher(context.announcementWatcher).withGeneratedAPIClass(OfflineDirectoryAPI.class)
-				.build();
+				.withAnnouncementWatcher(watcher(context)).withGeneratedAPIClass(OfflineDirectoryAPI.class).build();
 
 		this.consumer.triggerRefresh();
 		logger.info("Current version: {}", consumer.getCurrentVersionId());
 
 		this.minimalIndex = new AddressBookRecordPrimaryKeyIndex(consumer, "minimalid");
+		minimalIndex.listenToDataRefresh();
 		this.distinguishedNameIndex = new AddressBookRecordPrimaryKeyIndex(consumer, "distinguishedName");
+		distinguishedNameIndex.listenToDataRefresh();
 		this.uidIndex = new AddressBookRecordPrimaryKeyIndex(consumer, "uid");
+		uidIndex.listenToDataRefresh();
 		this.nameIndex = new HollowPrefixIndex(consumer.getStateEngine(), "AddressBookRecord", "name.value");
 		nameIndex.listenForDeltaUpdates();
 		this.emailIndex = new HollowPrefixIndex(consumer.getStateEngine(), "AddressBookRecord", "emails.address.value");
 		emailIndex.listenForDeltaUpdates();
 		this.kindIndex = new HollowHashIndex(consumer.getStateEngine(), "AddressBookRecord", "", "kind.value");
 		kindIndex.listenForDeltaUpdates();
+	}
+
+	protected AnnouncementWatcher watcher(HollowContext ctx) {
+		return ctx.announcementWatcher;
 	}
 
 	public Collection<AddressBookRecord> all() {

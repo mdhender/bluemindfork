@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.core.sds.configurator
+Bundle-SymbolicName: net.bluemind.core.sds.configurator;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.system.hook,
+ net.bluemind.system.api,
+ net.bluemind.core.rest,
+ net.bluemind.sds.proxy.mgmt,
+ net.bluemind.network.topology,
+ slf4j.api
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.core.sds.configurator

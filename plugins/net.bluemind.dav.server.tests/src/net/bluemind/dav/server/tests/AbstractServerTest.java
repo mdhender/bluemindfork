@@ -16,6 +16,7 @@ import javax.xml.transform.TransformerException;
 import org.vertx.java.core.AsyncResult;
 import org.vertx.java.core.Handler;
 import org.vertx.java.platform.PlatformManager;
+import org.vertx.java.platform.VerticleConstructor;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
@@ -74,19 +75,19 @@ public abstract class AbstractServerTest extends TestCase {
 
 	}
 
-	private void verticle(String klass, boolean worker) throws InterruptedException {
+	private void verticle(VerticleConstructor ctor, boolean worker) throws InterruptedException {
 		CountDownLatch cdl = new CountDownLatch(1);
 		if (worker) {
-			worker(cdl, klass);
+			worker(cdl, ctor);
 		} else {
-			verticle(cdl, klass);
+			verticle(cdl, ctor);
 		}
 		cdl.await();
 		Thread.sleep(1000);
-		System.err.println("Done with " + klass);
+		System.err.println("Done with " + ctor.className());
 	}
 
-	private void verticle(final CountDownLatch cdl, final String klass) {
+	private void verticle(final CountDownLatch cdl, final VerticleConstructor klass) {
 		PlatformManager pm = VertxPlatform.getPlatformManager();
 		pm.deployVerticle(klass, null, new URL[0], 1, null, new Handler<AsyncResult<String>>() {
 
@@ -98,7 +99,7 @@ public abstract class AbstractServerTest extends TestCase {
 		});
 	}
 
-	private void worker(final CountDownLatch cdl, final String klass) {
+	private void worker(final CountDownLatch cdl, final VerticleConstructor klass) {
 		PlatformManager pm = VertxPlatform.getPlatformManager();
 		pm.deployWorkerVerticle(true, klass, null, new URL[0], 1, null, new Handler<AsyncResult<String>>() {
 

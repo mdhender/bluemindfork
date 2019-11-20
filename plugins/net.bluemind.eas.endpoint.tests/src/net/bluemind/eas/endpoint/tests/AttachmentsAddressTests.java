@@ -61,16 +61,16 @@ public class AttachmentsAddressTests extends AbstractEndpointTest {
 			fillSet(addressesFromBodyStructure, tree);
 
 			IMAPByteSource stream = sc.uidFetchMessage(tm.uid);
-			Message parsed = Mime4JHelper.parse(stream.source().openStream());
-			stream.close();
-			Multipart multipart = (Multipart) parsed.getBody();
-			List<AddressableEntity> asParts = Mime4JHelper.expandParts(multipart.getBodyParts());
-			Set<String> addressesFromMime4j = new LinkedHashSet<>();
-			for (AddressableEntity ae : asParts) {
-				addressesFromMime4j.add(ae.getMimeAddress());
+			try (Message parsed = Mime4JHelper.parse(stream.source().openStream())) {
+				stream.close();
+				Multipart multipart = (Multipart) parsed.getBody();
+				List<AddressableEntity> asParts = Mime4JHelper.expandParts(multipart.getBodyParts());
+				Set<String> addressesFromMime4j = new LinkedHashSet<>();
+				for (AddressableEntity ae : asParts) {
+					addressesFromMime4j.add(ae.getMimeAddress());
+				}
+				assertEquals(addressesFromBodyStructure, addressesFromMime4j);
 			}
-			assertEquals(addressesFromBodyStructure, addressesFromMime4j);
-			parsed.dispose();
 		} catch (IMAPException e) {
 		}
 	}
@@ -90,16 +90,16 @@ public class AttachmentsAddressTests extends AbstractEndpointTest {
 			fillSet(addressesFromBodyStructure, tree);
 
 			IMAPByteSource stream = sc.uidFetchMessage(tm.uid);
-			Message parsed = Mime4JHelper.parse(stream.source().openStream());
-			stream.close();
-			Multipart multipart = (Multipart) parsed.getBody();
-			List<AddressableEntity> asParts = Mime4JHelper.expandTree(multipart.getBodyParts());
-			Set<String> addressesFromMime4j = new LinkedHashSet<>();
-			for (AddressableEntity ae : asParts) {
-				addressesFromMime4j.add(ae.getMimeAddress());
+			try (Message parsed = Mime4JHelper.parse(stream.source().openStream())) {
+				stream.close();
+				Multipart multipart = (Multipart) parsed.getBody();
+				List<AddressableEntity> asParts = Mime4JHelper.expandTree(multipart.getBodyParts());
+				Set<String> addressesFromMime4j = new LinkedHashSet<>();
+				for (AddressableEntity ae : asParts) {
+					addressesFromMime4j.add(ae.getMimeAddress());
+				}
+				assertEquals(addressesFromBodyStructure, addressesFromMime4j);
 			}
-			assertEquals(addressesFromBodyStructure, addressesFromMime4j);
-			parsed.dispose();
 		} catch (IMAPException e) {
 		}
 	}

@@ -234,6 +234,12 @@ public class SyncClient {
 		return onResponse("OK", "NO", "BAD");
 	}
 
+	public CompletableFuture<UnparsedResponse> getFullMailbox(String mbox) {
+		String getUser = String.format("GET FULLMAILBOX \"%s\"\r\n", mbox);
+		server.write(new Buffer(getUser));
+		return onResponse("OK", "NO", "BAD");
+	}
+
 	/**
 	 * 
 	 * GET FETCH %(MBOXNAME fws.fr!user.dani PARTITION bm-master__fws_fr UNIQUEID

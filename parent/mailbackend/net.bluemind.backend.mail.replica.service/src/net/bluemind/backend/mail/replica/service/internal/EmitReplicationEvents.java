@@ -93,7 +93,7 @@ public class EmitReplicationEvents {
 	}
 
 	public static void subtreeUpdated(String subtreeContainerUid, ItemIdentifier item, boolean minorChange) {
-		logger.info("****** Subtree updated {}, minorChange: {}", subtreeContainerUid, minorChange);
+		logger.debug("****** Subtree updated {}, minorChange: {}", subtreeContainerUid, minorChange);
 		JsonObject js = new JsonObject().putString("uid", subtreeContainerUid)//
 				.putString("itemUid", item.uid).putNumber("itemId", item.id).putNumber("version", item.version)//
 				.putBoolean("minor", minorChange);

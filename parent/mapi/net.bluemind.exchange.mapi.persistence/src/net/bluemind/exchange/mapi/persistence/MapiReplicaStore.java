@@ -35,8 +35,15 @@ public class MapiReplicaStore extends JdbcAbstractStore {
 
 	public MapiReplicaStore(DataSource dataSource) {
 		super(dataSource);
+		logger.debug("Created for ds {}", dataSource);
 	}
 
+	/**
+	 * Upsert the given {@link MapiReplica}
+	 * 
+	 * @param value
+	 * @throws SQLException
+	 */
 	public void store(MapiReplica value) throws SQLException {
 		String query = "INSERT INTO t_mapi_replica (" + MapiReplicaColumns.cols.names() + ") VALUES ("
 				+ MapiReplicaColumns.cols.values() + ") ON CONFLICT (mailbox_uid) DO UPDATE SET ("

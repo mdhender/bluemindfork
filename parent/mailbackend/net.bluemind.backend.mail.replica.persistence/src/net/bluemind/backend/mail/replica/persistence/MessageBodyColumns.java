@@ -110,6 +110,7 @@ public class MessageBodyColumns {
 				statement.setString(index++, guid);
 				return 0;
 			}
+
 		};
 	}
 

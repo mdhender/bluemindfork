@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.sds.proxy.mgmt
+Bundle-SymbolicName: net.bluemind.sds.proxy.mgmt
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ io.vertx.core,
+ slf4j.api,
+ com.ning.async-http-client
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.sds.proxy.mgmt
+Export-Package: net.bluemind.sds.proxy.mgmt

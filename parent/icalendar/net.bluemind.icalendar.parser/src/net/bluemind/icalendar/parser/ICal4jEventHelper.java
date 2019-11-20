@@ -18,6 +18,8 @@
  */
 package net.bluemind.icalendar.parser;
 
+import java.util.Optional;
+
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.core.api.date.BmDateTime;
@@ -30,8 +32,9 @@ public class ICal4jEventHelper<T extends VEvent> extends ICal4jHelper<T> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public ItemValue<T> parseIcs(T iCalendarElement, CalendarComponent cc, String globalTZ) {
-		ItemValue<T> parseIcs = super.parseIcs(iCalendarElement, cc, globalTZ);
+	public ItemValue<T> parseIcs(T iCalendarElement, CalendarComponent cc, String globalTZ,
+			Optional<CalendarOwner> owner) {
+		ItemValue<T> parseIcs = super.parseIcs(iCalendarElement, cc, globalTZ, owner);
 
 		// RECCURID
 		if (cc.getProperty(Property.RECURRENCE_ID) != null) {

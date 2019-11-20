@@ -16,7 +16,7 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-
+import net.bluemind.lib.vertx.Constructor;
 import net.bluemind.vertx.testhelper.Deploy;
 
 public class StartupTests {
@@ -46,7 +46,8 @@ public class StartupTests {
 
 	@Before
 	public void before() throws InterruptedException, ExecutionException, TimeoutException {
-		this.deployed = Deploy.verticles(true, NotifyStartupVerticle.class.getCanonicalName()).get(5, TimeUnit.SECONDS);
+		this.deployed = Deploy.verticles(true, Constructor.of(NotifyStartupVerticle::new, NotifyStartupVerticle.class))
+				.get(5, TimeUnit.SECONDS);
 	}
 
 	@After

@@ -24,6 +24,9 @@ import java.util.Set;
 
 import com.google.common.io.Files;
 
+import net.bluemind.lib.vertx.Constructor;
+import net.bluemind.lmtp.impl.LmtpFiltersVerticle;
+import net.bluemind.lmtp.impl.LmtpProxyVerticle;
 import net.bluemind.vertx.testhelper.Deploy;
 
 public class ProxyServer {
@@ -34,9 +37,9 @@ public class ProxyServer {
 	public static void start() throws IOException {
 		String target = "127.0.0.1:2424\n";
 		Files.write(target.getBytes(), proxyConfig);
-		Deploy.verticles(false, "net.bluemind.lmtp.impl.LmtpProxyVerticle").thenCompose(depIds -> {
+		Deploy.verticles(false, Constructor.of(LmtpProxyVerticle::new, LmtpProxyVerticle.class)).thenCompose(depIds -> {
 			deployed.addAll(depIds);
-			return Deploy.verticles(true, "net.bluemind.lmtp.impl.LmtpFiltersVerticle");
+			return Deploy.verticles(true, Constructor.of(LmtpFiltersVerticle::new, LmtpFiltersVerticle.class));
 		}).thenAccept(depIds -> deployed.addAll(depIds)).join();
 	}
 

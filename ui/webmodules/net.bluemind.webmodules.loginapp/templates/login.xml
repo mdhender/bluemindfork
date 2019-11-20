@@ -29,7 +29,8 @@
 				<input type="text" name="login" id="login" value="${userLogin?html}" autofocus="true" autocapitalize="none" autocorrect="off" placeholder="${msg('login.login')}" />
 			</#if>
 			<label for="password">${msg('login.password')}</label>
-			<input type="password" name="password" autocomplete="off" />
+			<input id="password-field" type="password" name="password" autocomplete="off" />
+			<span toggle="password-field" id="toggle-password" class="fa fa-fw fa-eye field-icon"></span>
 			<div class='privacy'>
 				<input type="radio" name="priv" value="priv" id="private"  <#if priv = "true">checked="checked"</#if> />
 	  			<label title="${msg('login.privateTitle')}" for="private"></label>
@@ -46,6 +47,6 @@
 		<img id="bottomLogo" src="logo-bluemind-small.png" alt="BlueMind" />
 		<span id="version" title="Build : ${buildVersion}">${bmVersion}</span>
 		${jsRuntime}
+		<script src="toggle-password.js"></script>
 	</body>
-
 </html>

@@ -82,10 +82,6 @@ public abstract class ClusterNode {
 
 	protected ClusterNode(String jvmType) {
 		logger.info("************* HZ CONNECT *************");
-		System.setProperty("hazelcast.backpressure.enabled", "true");
-		System.setProperty("hazelcast.rest.enabled", "true");
-		// min is 60000
-		System.setProperty("hazelcast.operation.backup.timeout.millis", "61000");
 
 		Thread hzConnect = new Thread(() -> {
 			try {

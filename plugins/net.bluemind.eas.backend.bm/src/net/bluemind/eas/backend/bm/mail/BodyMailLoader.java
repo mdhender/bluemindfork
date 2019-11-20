@@ -29,6 +29,7 @@ import org.apache.james.mime4j.dom.field.FieldName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.backend.mail.api.FetchOptions;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.backend.mail.api.MessageBody.Header;
@@ -109,8 +110,8 @@ public class BodyMailLoader extends CoreConnect {
 			bodyAccumulator.consumeMime(content);
 		} else {
 			Part bodyPart = bodyPart(item.value.body.structure);
-			Stream content = service.fetch(item.value.imapUid, bodyPart.address, bodyPart.encoding, bodyPart.mime,
-					bodyPart.charset);
+			Stream content = service.fetch(item.value.imapUid, bodyPart.address,
+					FetchOptions.of(bodyPart.encoding, bodyPart.mime, bodyPart.charset, null));
 			bodyAccumulator.consumeBodyPart(bodyPart, content);
 		}
 

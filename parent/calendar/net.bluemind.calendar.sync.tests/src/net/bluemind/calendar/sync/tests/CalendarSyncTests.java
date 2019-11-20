@@ -67,7 +67,7 @@ public class CalendarSyncTests {
 	@Before
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
-		
+
 		ElasticsearchTestHelper.getInstance().beforeTest();
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
@@ -84,6 +84,7 @@ public class CalendarSyncTests {
 			}
 		};
 		VertxPlatform.spawnVerticles(done);
+
 		future.get();
 
 		context = new SecurityContext("sid", userUid, Arrays.<String>asList(), Arrays.<String>asList(), domain);
@@ -92,7 +93,6 @@ public class CalendarSyncTests {
 
 		PopulateHelper.createTestDomain(domain);
 		PopulateHelper.addDomainAdmin("admin", domain);
-
 	}
 
 	@After
@@ -104,7 +104,7 @@ public class CalendarSyncTests {
 	public void testSync() throws Exception {
 		sync("https://www.mozilla.org/media/caldata/FrenchHolidays.ics");
 	}
-
+	
 	@Test
 	public void testInternalSync() throws Exception {
 		internalSync("https://www.mozilla.org/media/caldata/FrenchHolidays.ics");
@@ -112,7 +112,7 @@ public class CalendarSyncTests {
 
 	@Test
 	public void testSyncWebcal() throws Exception {
-		sync("webcal://www.matthias-kuech.de/kq/Playstation_4_Releases_United_States.ics");
+		sync("webcal://www.mozilla.org/media/caldata/FrenchHolidays.ics");
 	}
 
 	@Test
@@ -131,19 +131,13 @@ public class CalendarSyncTests {
 				.setAccessControlList(Arrays.asList(AccessControlEntry.create(userUid, Verb.Write)));
 
 		// sync
-		IContainerSync service = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IContainerSync.class, uid);
-		TaskRef taskRef = service.sync();
-		assertNotNull(taskRef);
-		ContainerSyncResult res = waitTaskRef(taskRef);
+		ContainerSyncResult res = this.syncCal(uid);
 		assertNotNull(res);
 		Long ns = res.status.nextSync;
 		assertTrue(ns > 0);
 
 		// resync
-		taskRef = service.sync();
-		assertNotNull(taskRef);
-		res = waitTaskRef(taskRef);
+		res = this.syncCal(uid);
 		assertTrue(res.status.nextSync > ns);
 	}
 
@@ -182,51 +176,12 @@ public class CalendarSyncTests {
 		assertTrue(res.status.nextSync > ns);
 	}
 
-	private void sync(String icsUrl) throws ServerFault {
-		String uid = UUID.randomUUID().toString();
-		CalendarDescriptor cd = CalendarDescriptor.create(icsUrl, userUid, domain);
-
-		HashMap<String, String> settings = new HashMap<String, String>();
-		settings.put("type", "externalIcs");
-		settings.put("icsUrl", icsUrl);
-		cd.settings = settings;
-
-		getCalendarMgmtService().create(uid, cd);
-
-		getContainerManagementService(uid)
-				.setAccessControlList(Arrays.asList(AccessControlEntry.create(userUid, Verb.Write)));
-
-		// sync
+	private ContainerSyncResult syncCal(final String calUid) {
 		IContainerSync service = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IContainerSync.class, uid);
+				.instance(IContainerSync.class, calUid);
 		TaskRef taskRef = service.sync();
 		assertNotNull(taskRef);
-		ContainerSyncResult res = waitTaskRef(taskRef);
-		assertNotNull(res);
-		assertTrue(res.added > 0);
-		assertEquals(0, res.updated);
-		assertEquals(0, res.removed);
-		Long ns = res.status.nextSync;
-		assertTrue(ns > 0);
-
-		// resync
-		taskRef = service.sync();
-		assertNotNull(taskRef);
-		res = waitTaskRef(taskRef);
-		assertNotNull(res);
-		assertEquals(0, res.added);
-		assertEquals(0, res.updated);
-		assertEquals(0, res.removed);
-		assertTrue(res.status.nextSync > ns);
-
-	}
-
-	private ICalendarsMgmt getCalendarMgmtService() throws ServerFault {
-		return ServerSideServiceProvider.getProvider(context).instance(ICalendarsMgmt.class);
-	}
-
-	private IContainerManagement getContainerManagementService(String container) throws ServerFault {
-		return ServerSideServiceProvider.getProvider(context).instance(IContainerManagement.class, container);
+		return waitTaskRef(taskRef);
 	}
 
 	private ContainerSyncResult waitTaskRef(TaskRef taskRef) throws ServerFault {
@@ -246,4 +201,43 @@ public class CalendarSyncTests {
 		return JsonUtils.read(status.result, ContainerSyncResult.class);
 	}
 
+	private void sync(String icsUrl) throws ServerFault {
+		String uid = UUID.randomUUID().toString();
+		CalendarDescriptor cd = CalendarDescriptor.create(icsUrl, userUid, domain);
+
+		HashMap<String, String> settings = new HashMap<String, String>();
+		settings.put("type", "externalIcs");
+		settings.put("icsUrl", icsUrl);
+		cd.settings = settings;
+
+		getCalendarMgmtService().create(uid, cd);
+
+		getContainerManagementService(uid)
+				.setAccessControlList(Arrays.asList(AccessControlEntry.create(userUid, Verb.Write)));
+
+		// sync
+		ContainerSyncResult res = this.syncCal(uid);
+		assertNotNull(res);
+		assertTrue(res.added > 0);
+		assertEquals(0, res.updated);
+		assertEquals(0, res.removed);
+		Long ns = res.status.nextSync;
+		assertTrue(ns > 0);
+
+		// resync
+		res = this.syncCal(uid);
+		assertNotNull(res);
+		assertEquals(0, res.added);
+		assertEquals(0, res.updated);
+		assertEquals(0, res.removed);
+		assertTrue(res.status.nextSync > ns);
+	}
+
+	private ICalendarsMgmt getCalendarMgmtService() throws ServerFault {
+		return ServerSideServiceProvider.getProvider(context).instance(ICalendarsMgmt.class);
+	}
+
+	private IContainerManagement getContainerManagementService(String container) throws ServerFault {
+		return ServerSideServiceProvider.getProvider(context).instance(IContainerManagement.class, container);
+	}
 }

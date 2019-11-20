@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.kafka.client.tests
+Bundle-SymbolicName: net.bluemind.kafka.client.tests
+Bundle-Version: 4.1.0.qualifier
+Bundle-Activator: net.bluemind.kafka.client.tests.KafkaActivator
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ org.junit;bundle-version="4.12.0",
+ net.bluemind.kafka.client;bundle-version="2.3.0",
+ slf4j.api;bundle-version="1.7.25",
+ net.bluemind.testcontainers;bundle-version="1.12.2",
+ net.bluemind.kafka.container
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.kafka.client.tests
+Bundle-ActivationPolicy: lazy

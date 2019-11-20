@@ -41,6 +41,7 @@ import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.io.ByteStreams;
 
+import io.netty.buffer.ByteBufUtil;
 import net.bluemind.backend.mail.api.DispositionType;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.MessageBody.Part;
@@ -82,6 +83,23 @@ public class BodyStreamProcessorTests {
 		assertEquals("<5A538DC1.1060907@rescom.interieur.gouv.fr>", result.body.messageId);
 		JsonObject asJs = new JsonObject(JsonUtils.asString(result.body.structure));
 		System.out.println("JS: " + asJs.encodePrettily());
+	}
+
+	@Test
+	public void testProcessOffice365NDR()
+			throws IOException, InterruptedException, ExecutionException, TimeoutException {
+		Stream stream = openResource("data/bm-15193.eml");
+		MessageBodyData result = BodyStreamProcessor.processBody(stream).get(2, TimeUnit.SECONDS);
+		assertNotNull(result);
+		JsonObject asJs = new JsonObject(JsonUtils.asString(result.body.structure));
+		System.out.println("JS: " + asJs.encodePrettily());
+		String previewBytes = ByteBufUtil.hexDump(result.body.preview.getBytes());
+		System.err.println(previewBytes);
+		System.err.println(result.body.preview);
+		String clearedPreview = result.body.preview.replace("\u0000", "");
+		System.err.println(clearedPreview);
+		String clearedBytes = ByteBufUtil.hexDump(clearedPreview.getBytes());
+		assertEquals(clearedBytes, previewBytes);
 	}
 
 	@Test

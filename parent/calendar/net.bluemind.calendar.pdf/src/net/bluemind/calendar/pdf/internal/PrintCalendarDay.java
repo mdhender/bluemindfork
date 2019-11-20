@@ -34,8 +34,8 @@ import org.w3c.dom.Element;
 
 import net.bluemind.calendar.api.PrintOptions;
 import net.bluemind.calendar.api.VEvent;
-import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.date.BmDateTime.Precision;
+import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemContainerValue;
 import net.bluemind.core.utils.DateTimeComparator;
@@ -409,7 +409,7 @@ public class PrintCalendarDay extends PrintCalendar {
 				Float coord = hoursYCoords.get(current.get(Calendar.HOUR_OF_DAY));
 
 				if (coord != null) {
-					float cell = (float) (coord + (current.get(Calendar.MINUTE) / 30d) * rowHeight);
+					float cell = (float) (coord + (current.get(Calendar.MINUTE) / 30) * rowHeight);
 					ec.addEvent(cell, pe);
 				}
 				current.add(Calendar.MINUTE, 30);

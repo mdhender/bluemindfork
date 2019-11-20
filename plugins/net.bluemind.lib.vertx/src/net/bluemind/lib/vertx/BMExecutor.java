@@ -21,10 +21,11 @@ package net.bluemind.lib.vertx;
 import java.util.Arrays;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -41,14 +42,16 @@ import com.google.common.collect.ImmutableSet;
 import com.netflix.spectator.api.Registry;
 import com.netflix.spectator.api.patterns.PolledMeter;
 
-import net.bluemind.core.utils.GlobalConstants;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 
 public class BMExecutor {
 
 	private static final Logger logger = LoggerFactory.getLogger(BMExecutor.class);
-	private static final int DEFAULT_QUEUE = Math.max(128, 32 * (2 + Runtime.getRuntime().availableProcessors()));
+
+	public static final long DEFAULT_TIMEOUT = 20 * 1000l; // 20s
+
+	private static final int DEFAULT_QUEUE = Math.max(1024, 4 * 32 * (2 + Runtime.getRuntime().availableProcessors()));
 	private static final int DEFAULT_WORKER_POOL_SIZE = Math.max(Runtime.getRuntime().availableProcessors() * 2, 30);
 	private static final Vertx timerMgmt = VertxPlatform.getVertx();
 
@@ -64,6 +67,10 @@ public class BMExecutor {
 	private final BMExecutorService asExecutorService;
 	private final Registry reg;
 	private final IdFactory idFactory;
+
+	public interface IHasPriority {
+		int priority();
+	}
 
 	private static final class BMRejectedExecutionHandler implements RejectedExecutionHandler {
 
@@ -118,11 +125,22 @@ public class BMExecutor {
 		}
 	}
 
-	public interface BMTask {
+	public interface BMTask extends IHasPriority {
 		public void run(BMTaskMonitor monitor);
 
 		public void cancelled();
 
+		/**
+		 * highest priority will run first
+		 */
+		default int priority() {
+			return 0;
+		}
+
+	}
+
+	private static final int priority(Runnable r) {
+		return r instanceof IHasPriority ? ((IHasPriority) r).priority() : 0;
 	}
 
 	public BMExecutor(String name) {
@@ -141,9 +159,11 @@ public class BMExecutor {
 		rejectionCounter = PolledMeter.using(reg).withId(idFactory.name("rejected", "name", name))
 				.monitorValue(new LongAdder());
 
-		this.executor = new ThreadPoolExecutor(thread, thread, 0L, TimeUnit.MILLISECONDS,
-				new ArrayBlockingQueue<>(DEFAULT_QUEUE), new VertxThreadFactory(name),
-				new BMRejectedExecutionHandler(rejectionCounter)) {
+		BlockingQueue<Runnable> prioQueue = new PriorityBlockingQueue<>(DEFAULT_QUEUE,
+				(o1, o2) -> Integer.compare(priority(o2), priority(o1)));
+
+		this.executor = new ThreadPoolExecutor(thread, thread, 0L, TimeUnit.MILLISECONDS, prioQueue,
+				new VertxThreadFactory(name), new BMRejectedExecutionHandler(rejectionCounter)) {
 
 			@Override
 			protected void beforeExecute(Thread t, Runnable r) {
@@ -205,18 +225,26 @@ public class BMExecutor {
 	}
 
 	public void execute(BMTask command) {
-		execute(command, GlobalConstants.DEFAULT_TIMEOUT);
+		execute(command, DEFAULT_TIMEOUT);
 	}
 
-	private static final class BMDirectTask extends FutureTask<Void> {
+	private static final class BMDirectTask extends FutureTask<Void> implements IHasPriority {
+
+		private final int priority;
 
 		public BMDirectTask(BMTask task) {
 			super(() -> task.run(DIRECT_MON), null);
+			this.priority = Math.max(10, task.priority());
+		}
+
+		@Override
+		public int priority() {
+			return priority;
 		}
 
 	}
 
-	private class BMFutureTask extends FutureTask<Void> {
+	private class BMFutureTask extends FutureTask<Void> implements IHasPriority {
 
 		private final InternalBMTaskMonitor monitor;
 		private final BMTask task;
@@ -249,6 +277,11 @@ public class BMExecutor {
 		@Override
 		public String toString() {
 			return task.toString();
+		}
+
+		@Override
+		public int priority() {
+			return task.priority();
 		}
 	}
 

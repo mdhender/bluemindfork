@@ -29,17 +29,17 @@ import org.junit.Test;
 
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
 import net.bluemind.backend.mail.replica.api.utils.Subtree;
-import net.bluemind.backend.mail.replica.persistence.SubtreeUidStore;
+import net.bluemind.backend.mail.replica.persistence.DeletedMailboxesStore;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 
 public class SubtreeUidStoreTests {
-	private SubtreeUidStore store;
+	private DeletedMailboxesStore store;
 
 	@Before
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
-		store = new SubtreeUidStore(JdbcTestHelper.getInstance().getDataSource());
+		store = new DeletedMailboxesStore(JdbcTestHelper.getInstance().getDataSource());
 	}
 
 	@After

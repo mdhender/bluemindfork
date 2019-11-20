@@ -24,6 +24,13 @@
                id="mapi-schema">
          </compose>
       </schema>
+      <schema
+            name="mapi-rules-schema"
+            resource="sql/mapi-rules.1.0.0.sql">
+         <compose
+               id="mapi-schema">
+         </compose>
+      </schema>
    </extension>
    <extension
          point="net.bluemind.system.schemaupgrader.sqlscript">
@@ -44,6 +51,12 @@
             ignore_errors="false"
             major="5"
             script="sql/mapi-folders.1.0.0.sql">
+      </sql>
+      <sql
+            build_number="46526"
+            ignore_errors="false"
+            major="5"
+            script="sql/mapi-rules.1.0.0.sql">
       </sql>
    </extension>
 

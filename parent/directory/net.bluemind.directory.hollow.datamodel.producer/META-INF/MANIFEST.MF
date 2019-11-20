@@ -26,7 +26,9 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.hornetq.client,
  net.bluemind.core.serialization,
  net.bluemind.config,
- net.bluemind.core.caches.registry
+ net.bluemind.core.caches.registry,
+ net.bluemind.directory.service,
+ net.bluemind.core.task.spi
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.directory.hollow.datamodel.producer
 Bundle-ActivationPolicy: lazy

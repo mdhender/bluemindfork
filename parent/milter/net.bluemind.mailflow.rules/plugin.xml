@@ -78,5 +78,12 @@
             priority="2">
       </rule_factory>
    </extension>
+   <extension
+         point="net.bluemind.milter.rulefactory">
+      <rule_factory
+            impl="net.bluemind.mailflow.rules.factories.SenderIsRuleFactory"
+            priority="2">
+      </rule_factory>
+   </extension>
  
 </plugin>

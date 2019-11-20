@@ -24,8 +24,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -46,6 +48,7 @@ import net.bluemind.authentication.provider.IAuthProvider.AuthResult;
 import net.bluemind.authentication.provider.IAuthProvider.IAuthContext;
 import net.bluemind.authentication.provider.ILoginSessionValidator;
 import net.bluemind.authentication.provider.ILoginValidationListener;
+import net.bluemind.authentication.service.internal.AuthContextCache;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.service.internal.RBACManager;
@@ -206,7 +209,8 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 					.instance(IUserSettings.class, authContext.domain.uid).get(authContext.user.uid);
 
 			if (context == null) {
-				logger.info("l: '{}', o: '{}' successfully authentified", login, origin);
+				logger.info("login: '{}', origin: '{}', from: '{}' successfully authentified", login, origin,
+						securityContext.getRemoteAddresses());
 				resp.authKey = UUID.randomUUID().toString();
 				context = buildSecurityContext(resp.authKey, authContext.user, authContext.domain.uid, settings, origin,
 						interactive);
@@ -227,7 +231,8 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 				Sessions.get().put(resp.authKey, context);
 
 			} else {
-				logger.debug("l: '{}', o: '{}' successfully authentified with session token", login, origin);
+				logger.debug("login: '{}', origin: '{}', from: '{}' successfully authentified with session token",
+						login, origin, securityContext.getRemoteAddresses());
 				resp.authKey = context.getSessionId();
 			}
 
@@ -255,9 +260,27 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 			return null;
 		}
 
+		try {
+			IAuthContext nakedAuthContext = AuthContextCache.getInstance().getCache().get(login, () -> {
+				return loadFromDb(login);
+			}).orElse(null);
+
+			if (nakedAuthContext == null) {
+				return null;
+			}
+
+			return new AuthContext(context.getSecurityContext(), nakedAuthContext.getDomain(),
+					nakedAuthContext.getUser(), nakedAuthContext.getRealUserLogin(), password);
+
+		} catch (ExecutionException e) {
+			throw new ServerFault(e);
+		}
+
+	}
+
+	private Optional<IAuthContext> loadFromDb(String login) {
 		Iterator<String> splitted = atSplitter.split(login).iterator();
 		String localPart = splitted.next();
-
 		String domainPart = splitted.hasNext() ? splitted.next() : "global.virt";
 		boolean isStandardDomain = !domainPart.equals("global.virt");
 
@@ -266,12 +289,25 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 		ItemValue<Domain> theDomain = domainService.findByNameOrAliases(domainPart);
 		if (theDomain == null) {
 			logger.error("Domain {} not found.", domainPart);
-			return null;
+			return Optional.empty();
 		}
 		if (logger.isDebugEnabled()) {
 			logger.debug("Found domain {}", theDomain.uid);
 		}
 
+		ItemValue<User> internalUser = getUser(login, localPart, domainPart, isStandardDomain, sp, theDomain);
+		if (internalUser == null) {
+			return Optional.empty();
+		}
+
+		AuthContext authContext = new AuthContext(null, theDomain, internalUser, localPart, null);
+		Optional<IAuthContext> ret = Optional.of(authContext);
+		AuthContextCache.getInstance().getCache().put(login, ret);
+		return ret;
+	}
+
+	private ItemValue<User> getUser(String login, String localPart, String domainPart, boolean isStandardDomain,
+			ServerSideServiceProvider sp, ItemValue<Domain> theDomain) {
 		IUser userService = sp.instance(IUser.class, theDomain.uid);
 
 		ItemValue<User> internalUser = null;
@@ -295,8 +331,7 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 				internalUser = null;
 			}
 		}
-
-		return new AuthContext(context.getSecurityContext(), theDomain, internalUser, localPart, password);
+		return internalUser;
 	}
 
 	private AuthResult checkProviders(AuthContext authContext, String origin) throws ServerFault {
@@ -328,8 +363,8 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 
 		if (result == AuthResult.YES) {
 			for (ILoginValidationListener vl : loginListeners) {
-				vl.onValidLogin(matchingProvider, authContext.getRealUserLogin(), authContext.domain.uid,
-						authContext.userPassword);
+				vl.onValidLogin(matchingProvider, authContext.user != null, authContext.getRealUserLogin(),
+						authContext.domain.uid, authContext.userPassword);
 			}
 		}
 
@@ -470,12 +505,12 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 	}
 
 	@Override
-	public SecurityContext buildContext(String domainUid, String userUid) throws ServerFault {
+	public SecurityContext buildContext(String sid, String domainUid, String userUid) throws ServerFault {
 		ItemValue<User> user = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IUser.class, domainUid).getComplete(userUid);
 		Map<String, String> settings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IUserSettings.class, domainUid).get(userUid);
-		return buildSecurityContext(null, user, domainUid, settings, securityContext.getOrigin(), false);
+		return buildSecurityContext(sid, user, domainUid, settings, securityContext.getOrigin(), false);
 	}
 
 	@Override

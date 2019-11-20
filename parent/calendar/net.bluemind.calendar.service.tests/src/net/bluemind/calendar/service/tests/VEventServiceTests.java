@@ -38,6 +38,7 @@ import java.util.Set;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.calendar.api.IVEvent;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEvent.Transparency;
@@ -228,6 +229,9 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertTrue(export.contains("X-MICROSOFT-DISALLOW-COUNTER:TRUE"));
 		assertTrue(export.contains("X-MICROSOFT-CDO-BUSYSTATUS:BUSY"));
 		assertTrue(export.contains("X-MOZ-LASTACK:"));
+
+		assertTrue(export.contains("ATTACH;X-FILE-NAME=test.gif:http://somewhere/1"));
+		assertTrue(export.contains("ATTACH;X-FILE-NAME=test.png:http://somewhere/2"));
 
 	}
 
@@ -422,7 +426,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 
 		System.out.println(export);
 		assertTrue(export.contains("BEGIN:VCALENDAR"));
-		assertTrue(export.contains("PRODID:-//Bluemind//Bluemind Calendar//FR"));
+		assertTrue(export.contains("PRODID:-//BlueMind//BlueMind Calendar//FR"));
 		assertTrue(export.contains("VERSION:2.0"));
 		assertTrue(export.contains("CALSCALE:GREGORIAN"));
 		assertTrue(export.contains("END:VCALENDAR"));
@@ -465,6 +469,70 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertNotNull(vevent.categories);
 		assertTrue(vevent.categories.isEmpty());
 
+	}
+
+	@Test
+	public void testAttachmentImport() throws ServerFault, IOException {
+		Stream ics = getIcsFromFile("testAttachmentImport.ics");
+
+		TaskRef taskRef = getVEventService(userSecurityContext, userCalendarContainer).importIcs(ics);
+		ImportStats stats = waitImportEnd(taskRef);
+		assertNotNull(stats);
+		assertEquals(1, stats.importedCount());
+
+		ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer)
+				.getComplete("95c659b1-eaf8-4145-a314-9cb4566636b8");
+
+		VEvent vevent = item.value.main;
+		assertNotNull(vevent);
+
+		assertEquals("TestAttachmentImport", vevent.summary);
+		assertEquals(2, vevent.attachments.size());
+
+		List<AttachedFile> attachments = vevent.attachments;
+		int checked = 0;
+		for (AttachedFile attachedFile : attachments) {
+			if (attachedFile.name.equals("test.gif")) {
+				assertEquals("http://somewhere/1", attachedFile.publicUrl);
+				checked++;
+			} else if (attachedFile.name.equals("test.png")) {
+				assertEquals("http://somewhere/2", attachedFile.publicUrl);
+				checked++;
+			}
+		}
+		assertEquals(2, checked);
+	}
+
+	@Test
+	public void testBinaryAttachmentImport() throws ServerFault, IOException {
+		Stream ics = getIcsFromFile("testBinaryAttachmentImport.ics");
+
+		TaskRef taskRef = getVEventService(userSecurityContext, userCalendarContainer).importIcs(ics);
+		ImportStats stats = waitImportEnd(taskRef);
+		assertNotNull(stats);
+		assertEquals(1, stats.importedCount());
+
+		ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer)
+				.getComplete("95c659b1-eaf8-4145-a314-9cb4566636b8");
+
+		VEvent vevent = item.value.main;
+		assertNotNull(vevent);
+
+		assertEquals("TestAttachmentImport", vevent.summary);
+		assertEquals(2, vevent.attachments.size());
+
+		List<AttachedFile> attachments = vevent.attachments;
+		int checked = 0;
+		for (AttachedFile attachedFile : attachments) {
+			if (attachedFile.name.equals("test.gif")) {
+				assertEquals("http://somewhere/1", attachedFile.publicUrl);
+				checked++;
+			} else if (attachedFile.name.equals("attachment_1.txt")) {
+				assertTrue(attachedFile.publicUrl.startsWith("https://"));
+				checked++;
+			}
+		}
+		assertEquals(2, checked);
 	}
 
 	@Test
@@ -947,7 +1015,14 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		TaskRef taskRef = getVEventService(userSecurityContext, userCalendarContainer)
 				.importIcs(GenericStream.simpleValue(export, s -> s.getBytes()));
 		ImportStats stats = waitImportEnd(taskRef);
+		// event not modified
+		assertEquals(0, stats.importedCount());
 
+		export = export.replaceAll("LAST-MODIFIED:\\d{8}T\\d{6}", "LAST-MODIFIED:20221207T000000");
+
+		taskRef = getVEventService(userSecurityContext, userCalendarContainer)
+				.importIcs(GenericStream.simpleValue(export, s -> s.getBytes()));
+		stats = waitImportEnd(taskRef);
 		assertEquals(1, stats.importedCount());
 
 		ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer)

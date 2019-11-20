@@ -34,6 +34,7 @@
       <plugin id="com.hazelcast.client" fragment="true"/>
       <plugin id="com.netflix.spectator.api"/>
       <plugin id="com.ning.async-http-client"/>
+      <plugin id="font-awesome"/>
       <plugin id="io.netty"/>
       <plugin id="io.vertx.core"/>
       <plugin id="io.vertx.platform"/>

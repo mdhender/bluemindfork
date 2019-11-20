@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.system.validation
+Bundle-SymbolicName: net.bluemind.system.validation;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ slf4j.api,
+ net.bluemind.eclipse.common,
+ net.bluemind.hornetq.client
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: system.validation
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.system.validation
+

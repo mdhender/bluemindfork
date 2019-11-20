@@ -73,6 +73,9 @@
     {if $states.meeting}
       <span class="{css fa} {css fa-users}"></span>
     {/if}
+    {if $states.hasAttachments}
+      <span class="{css fa} {css fa-paperclip}"></span>    
+  	{/if}
     {if $states.updatable}
       <span class="{css ev-resizer} {css fa}">
         <span class="{css fa-circle}"></span>
@@ -130,6 +133,9 @@
   {/if}
   {if $states.meeting}
     <span class="{css fa} {css fa-users}"></span>    
+  {/if}
+  {if $states.hasAttachments}
+    <span class="{css fa} {css fa-paperclip}"></span>    
   {/if}
   {if length($tags) > 0}
     <div class="{css tag-mark}" title="
@@ -556,6 +562,9 @@
   {/if}
   {if $states.meeting}
     <span class="{css fa} {css fa-users}"></span>    
+  {/if}
+  {if $states.hasAttachments}
+    <span class="{css fa} {css fa-paperclip}"></span>    
   {/if}
   </div>
   <dl>

@@ -30,6 +30,7 @@ import net.bluemind.backend.cyrus.replication.server.ReplicationSession;
 import net.bluemind.backend.cyrus.replication.server.Token;
 import net.bluemind.backend.cyrus.replication.server.state.MailboxFolder;
 import net.bluemind.backend.cyrus.replication.server.state.ReplicationException;
+import net.bluemind.backend.cyrus.replication.server.utils.MailboxNameHelper;
 import net.bluemind.backend.mail.replica.api.MailboxSub;
 import net.bluemind.backend.mail.replica.api.QuotaRoot;
 import net.bluemind.backend.mail.replica.api.SeenOverlay;
@@ -89,7 +90,7 @@ public class GetUser implements IAsyncReplicationCommand {
 		}
 
 		public void addSub(MailboxSub f) {
-			subs.add(quoteIfNeeded(f.mboxName));
+			subs.add(MailboxNameHelper.quoteIfNeeded(f.mboxName));
 		}
 
 		public void addSieve(SieveScript f) {
@@ -104,13 +105,6 @@ public class GetUser implements IAsyncReplicationCommand {
 			quotas.add(qr);
 		}
 
-		private String quoteIfNeeded(String s) {
-			if (s.contains(" ")) {
-				return "\"" + s + "\"";
-			} else {
-				return s;
-			}
-		}
 	}
 
 	private static class KnownStuff {

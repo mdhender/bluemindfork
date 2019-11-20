@@ -4,9 +4,6 @@
    <extension
          point="net.bluemind.core.rest.apiEndpoint">
       <endpoint
-            api="net.bluemind.exchange.mapi.api.IMapi">
-      </endpoint>
-      <endpoint
             api="net.bluemind.exchange.mapi.api.IMapiMailbox">
       </endpoint>
       <endpoint
@@ -21,12 +18,12 @@
       <endpoint
             api="net.bluemind.exchange.mapi.api.IMapiFoldersMgmt">
       </endpoint>
+      <endpoint
+            api="net.bluemind.exchange.mapi.api.IMapiRules">
+      </endpoint>
    </extension>
    <extension
          point="net.bluemind.core.rest.serviceFactory">
-      <serviceFactory
-            class="net.bluemind.exchange.mapi.service.MapiServiceFactory">
-      </serviceFactory>
       <serviceFactory
             class="net.bluemind.exchange.mapi.service.MapiMailboxServiceFactory">
       </serviceFactory>
@@ -41,6 +38,9 @@
       </serviceFactory>
       <serviceFactory
             class="net.bluemind.exchange.mapi.service.MapiFolderServiceFactory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.exchange.mapi.service.MapiRulesServiceFactory">
       </serviceFactory>
    </extension>
    <extension

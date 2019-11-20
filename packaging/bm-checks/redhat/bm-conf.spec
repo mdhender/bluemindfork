@@ -8,7 +8,7 @@ License:            GNU Affero General Public License v3
 Group:              Applications/messaging
 URL:                http://www.blue-mind.net/
 ExcludeArch:        s390 s390x
-Requires:           curl, expect
+Requires:           curl, expect, cyrus-sasl
 Summary:            BlueMind services health check scripts
 
 %description

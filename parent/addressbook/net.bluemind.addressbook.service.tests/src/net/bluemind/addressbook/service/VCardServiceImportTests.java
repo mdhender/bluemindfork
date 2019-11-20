@@ -21,7 +21,6 @@ package net.bluemind.addressbook.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -201,14 +200,6 @@ public class VCardServiceImportTests extends AbstractServiceTests {
 		// assertEquals("0E47F82D-457D-4085-BDB7-D2655636B640", member.itemUid); //
 		// assertEquals("addressbook_bm.loc", member.containerUid);
 
-		// cn but no email
-		imported = importProperty(true, "X-ADDRESSBOOKSERVER-KIND:group",
-				"X-ADDRESSBOOKSERVER-MEMBER;X-CN=testmember:urn:uuid:addressbook_bm.loc#0E47F82D-457D-4085-BDB7-D2655636B640");
-		assertEquals(1, imported.value.organizational.member.size());
-		member = imported.value.organizational.member.get(0);
-		assertEquals("testmember", member.commonName);
-		assertNull(member.mailto);
-
 		// email but no cn, cn == uid
 		imported = importProperty(true, "X-ADDRESSBOOKSERVER-KIND:group",
 				"X-ADDRESSBOOKSERVER-MEMBER;X-MAILTO=testmember@bm.loc:urn:uuid:addressbook_bm.loc#0E47F82D-457D-4085-BDB7-D2655636B640");
@@ -219,11 +210,11 @@ public class VCardServiceImportTests extends AbstractServiceTests {
 
 		// no email no cn, cn == uid
 		imported = importProperty(true, "X-ADDRESSBOOKSERVER-KIND:group",
-				"X-ADDRESSBOOKSERVER-MEMBER;:urn:uuid:addressbook_bm.loc#0E47F82D-457D-4085-BDB7-D2655636B640");
+				"X-ADDRESSBOOKSERVER-MEMBER;X-MAILTO=testmember@bm.loc:urn:uuid:addressbook_bm.loc#0E47F82D-457D-4085-BDB7-D2655636B640");
 		assertEquals(1, imported.value.organizational.member.size());
 		member = imported.value.organizational.member.get(0);
 		assertEquals("0E47F82D-457D-4085-BDB7-D2655636B640", member.commonName);
-		assertNull(member.mailto);
+		assertEquals("testmember@bm.loc", member.mailto);
 
 		// simple email
 		imported = importProperty(true, "X-ADDRESSBOOKSERVER-KIND:group",
@@ -232,14 +223,6 @@ public class VCardServiceImportTests extends AbstractServiceTests {
 		member = imported.value.organizational.member.get(0);
 		assertEquals("testmember@bm.loc", member.commonName);
 		assertEquals("testmember@bm.loc", member.mailto);
-
-		// simple value
-		imported = importProperty(true, "X-ADDRESSBOOKSERVER-KIND:group",
-				"X-ADDRESSBOOKSERVER-MEMBER;:urn:uuid:JohnDoe");
-		assertEquals(1, imported.value.organizational.member.size());
-		member = imported.value.organizational.member.get(0);
-		assertEquals("JohnDoe", member.commonName);
-		assertNull(member.mailto);
 	}
 
 	// TODO test import organization
