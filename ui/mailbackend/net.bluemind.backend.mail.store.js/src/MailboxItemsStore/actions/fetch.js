@@ -9,6 +9,6 @@ export function fetch({ state, commit }, { folder, id, part, isAttachment }) {
     }
     return ServiceLocator.getProvider("MailboxItemsPersistence")
         .get(folder)
-        .fetch(item.value.imapUid, part.address, encoding, part.mime, part.charset)
+        .fetch(item.value.imapUid, part.address, { encoding, mime: part.mime, charset: part.charset })
         .then(stream => commit("storePart", { id, address: part.address, content: stream }));
 }

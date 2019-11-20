@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
@@ -103,6 +104,7 @@ public class MessageBody {
 		@JsonInclude(Include.NON_NULL)
 		public DispositionType dispositionType;
 
+		@JsonIgnore
 		public byte[] content;
 
 		public static Part create(String file, String mime, String addr) {

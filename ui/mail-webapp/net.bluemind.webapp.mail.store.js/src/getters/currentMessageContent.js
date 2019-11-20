@@ -6,7 +6,7 @@ export function currentMessageContent(state) {
     if (state.currentMessageId && !!partsContent) {
         const parts = state.currentMessageParts.inlines
             .filter(({ address }) => !!partsContent[address])
-            .map(part => Object.assign({ content: partsContent[part.address] }, part));
+            .map(part => Object.assign({}, part, { content: partsContent[part.address] }));
         const html = parts.filter(part => part.mime === "text/html");
         const images = parts.filter(part => MimeType.isImage(part) && part.contentId);
         const inlined = PartsHelper.insertInlineImages(html, images);
