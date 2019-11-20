@@ -33,7 +33,6 @@ import net.bluemind.backend.cyrus.syncclient.mgmt.api.ISyncClientMgmt;
 import net.bluemind.backend.cyrus.syncclient.mgmt.api.ISyncClientObserver;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.node.api.INodeClient;
-import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.node.api.ProcessHandler;
 import net.bluemind.node.shared.ExecDescriptor;
@@ -53,16 +52,16 @@ public class SyncClientMgmt implements ISyncClientMgmt, ProcessHandler {
 	private boolean started;
 	private String activeTask;
 	private final Handler<Message<JsonObject>> uplinkHandler;
+	private final int shardIndex;
 
-	public SyncClientMgmt(Vertx vertx, String cyrusBackendAddress, String replicationChannel,
+	public SyncClientMgmt(Vertx vertx, String cyrusBackendAddress, String replicationChannel, int shardIndex,
 			List<ISyncClientObserver> obs, Executor observersPool) {
 		this.observers = ImmutableList.copyOf(obs);
 		this.observersPool = observersPool;
 		this.node = NodeActivator.get(cyrusBackendAddress);
 		this.vertx = vertx;
 		this.replicationChannel = replicationChannel;
-		// ensure we start in a consistent state
-		NCUtils.execNoOut(this.node, "/usr/bin/killall sync_client");
+		this.shardIndex = shardIndex;
 		this.uplinkHandler = (Message<JsonObject> msg) -> {
 			String linkStatus = msg.body().getString("status");
 			if ("UP".equals(linkStatus)) {
@@ -83,15 +82,14 @@ public class SyncClientMgmt implements ISyncClientMgmt, ProcessHandler {
 		}
 		vertx.eventBus().registerLocalHandler("mailreplica.uplink", uplinkHandler);
 
-		ExecRequest syncClientReq = ExecRequest.named("mail_replication", "sync_client",
-				"/usr/sbin/sync_client -n " + replicationChannel + " -R -l -v", Options.REPLACE_IF_EXISTS);
+		ExecRequest syncClientReq = ExecRequest.named("mail_replication_" + shardIndex, "sync_client",
+				"/usr/sbin/sync_client -n " + replicationChannel + " -i " + shardIndex + " -R -l -v",
+				Options.REPLACE_IF_EXISTS);
 		try {
 			node.asyncExecute(syncClientReq, this);
 		} catch (ServerFault sf) {
 			logger.warn("Failed to start sync_client ({}), retrying in 1sec.", sf.getMessage());
-			vertx.setTimer(1000, tid -> {
-				startRollingReplication();
-			});
+			vertx.setTimer(1000, tid -> startRollingReplication());
 		}
 	}
 
@@ -116,7 +114,7 @@ public class SyncClientMgmt implements ISyncClientMgmt, ProcessHandler {
 		} else {
 			logger.info("SyncClient termined with exitCode {}", exitCode);
 			for (ISyncClientObserver obs : observers) {
-				observersPool.execute(() -> obs.replicationStopped());
+				observersPool.execute(obs::replicationStopped);
 			}
 		}
 	}
