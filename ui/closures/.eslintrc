@@ -1,0 +1,14 @@
+{
+    "env": {
+        "browser": true
+    },
+    "globals": {
+        "goog": "readonly",
+        "net": "readonly",
+        "RRule": "readonly"
+    },
+    "extends": ["eslint:recommended", "plugin:prettier/recommended"],
+    "rules": {
+        "no-console": "warn"
+    }
+}
