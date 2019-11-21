@@ -41,6 +41,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+import com.google.common.base.Strings;
+
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
@@ -187,16 +189,16 @@ public class CasProtocol implements IAuthProtocol {
 		Element status = DOMUtils.getUniqueElement(document.getDocumentElement(), "cas:authenticationSuccess");
 		if (status != null) {
 			String userName = DOMUtils.getUniqueElement(document.getDocumentElement(), "cas:user").getTextContent();
-			if (userName != null && !userName.equals("")) {
+			if (!Strings.isNullOrEmpty(userName)) {
 				// OK we've got an user
 				logger.info("[CAS] Ticket validation successful for user : " + userName);
 
 				ExternalCreds creds = new ExternalCreds(casDomain);
 				creds.setTicket(ticket);
 				if (userName.contains("@")) {
-					creds.setLoginAtDomain(userName);
+					creds.setLoginAtDomain(userName.toLowerCase());
 				} else {
-					creds.setLoginAtDomain(userName + "@" + casDomain);
+					creds.setLoginAtDomain(userName.toLowerCase() + "@" + casDomain.toLowerCase());
 				}
 
 				return Optional.of(creds);
