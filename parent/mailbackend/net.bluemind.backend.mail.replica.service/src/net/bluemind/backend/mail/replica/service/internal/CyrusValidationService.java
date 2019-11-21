@@ -21,7 +21,6 @@ import net.bluemind.network.topology.Topology;
 
 public class CyrusValidationService implements ICyrusValidation {
 	private static final Logger logger = LoggerFactory.getLogger(CyrusValidationService.class);
-
 	private static final String DEFAULT_PARTITION = "default";
 
 	private final BmContext ctx;
@@ -33,6 +32,7 @@ public class CyrusValidationService implements ICyrusValidation {
 	@Override
 	public boolean prevalidate(String mailbox, String partition) {
 		// bm-master__devenv_blue/devenv.blue!user.leslie => accept
+		// bm-master__devenv_blue/devenv.blue!user.leslie.INBOX => reject
 		// (null)/devenv.blue!user.leslie.Sent => accept
 		// (null)/devenv.blue!user.titi => reject
 
@@ -43,6 +43,10 @@ public class CyrusValidationService implements ICyrusValidation {
 
 		ReplicatedBox box = CyrusBoxes.forCyrusMailbox(mailbox);
 		if (box == null) {
+			return false;
+		}
+
+		if (!box.mailboxRoot && "INBOX".equals(box.folderName)) {
 			return false;
 		}
 

@@ -147,6 +147,9 @@ public class InboxSubFolderReplicationTests extends AbstractRollingReplicationTe
 		assertEquals(inbox.get().uid, subFolder.get().value.parentUid);
 		assertEquals(subFolderName, subFolder.get().value.fullName);
 
+		long inboxCount = allBoxes.stream().filter(mailbox -> "INBOX".equals(mailbox.value.name)).count();
+		assertEquals(1, inboxCount);
+
 	}
 
 	@Test

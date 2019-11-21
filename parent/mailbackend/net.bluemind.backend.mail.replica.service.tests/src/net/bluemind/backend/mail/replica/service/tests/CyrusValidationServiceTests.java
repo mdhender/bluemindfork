@@ -155,4 +155,18 @@ public class CyrusValidationServiceTests {
 		boolean result = cli.prevalidate("devenv.blue!super^vision.Sent", null);
 		assertTrue(result);
 	}
+
+	@Test
+	public void inboxIsNotValid() {
+		ICyrusValidation cli = getService(domainAdminSecurityContext);
+		boolean result = cli.prevalidate("devenv.blue!user.leslie.INBOX", backendIp + "__devenv_blue");
+		assertFalse(result);
+	}
+
+	@Test
+	public void inboxSubfolderIsValid() {
+		ICyrusValidation cli = getService(domainAdminSecurityContext);
+		boolean result = cli.prevalidate("devenv.blue!user.leslie.sub.INBOX", backendIp + "__devenv_blue");
+		assertTrue(result);
+	}
 }
