@@ -235,8 +235,7 @@ public abstract class AbstractRollingReplicationTests {
 
 	@After
 	public void after() throws Exception {
-		System.out.println("Waiting for last events (remove this sleep ?)...");
-		Thread.sleep(1000);
+		System.out.println("Stopping test");
 		cyrusReplication.stopReplication().get(5, TimeUnit.SECONDS);
 		JdbcTestHelper.getInstance().afterTest();
 	}

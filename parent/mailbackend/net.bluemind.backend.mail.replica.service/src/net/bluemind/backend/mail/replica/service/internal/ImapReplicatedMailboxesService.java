@@ -326,7 +326,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 
 		int len = mailboxItems.ids.size();
 		if (expectedIds == null || expectedIds.isEmpty()) {
-			expectedIds = new ArrayList<MailboxItemId>(len);
+			expectedIds = new ArrayList<>(len);
 			IOfflineMgmt idAllocator = context.provider().instance(IOfflineMgmt.class, container.domainUid,
 					container.owner);
 			IdRange idRange = idAllocator.allocateOfflineIds(len);
@@ -338,8 +338,6 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		if (expectedIds.size() != len) {
 			throw new ServerFault("expectedIds size does not match with itemIds size", ErrorCode.INVALID_PARAMETER);
 		}
-
-		Iterator<MailboxItemId> expectedIdsIterator = expectedIds.iterator();
 
 		ItemValue<MailboxFolder> destinationFolder = getCompleteById(id);
 		if (destinationFolder == null) {
@@ -359,6 +357,8 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 
 		logger.info("[{}] Preparing to import {} item(s) from {} into {}", imapContext.latd, mailboxItems.ids.size(),
 				sourceFolder.value.fullName, destinationFolder.value.fullName);
+		Iterator<MailboxItemId> expectedIdsIterator = expectedIds.iterator();
+
 		Lists.partition(mailboxItems.ids, 200).forEach(ids -> {
 
 			List<Long> idSlice = ids.stream().map(k -> k.id).collect(Collectors.toList());
