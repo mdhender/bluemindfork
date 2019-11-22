@@ -433,15 +433,22 @@ net.bluemind.calendar.vevent.VEventPresenter.prototype.updateVSeries_ = function
 net.bluemind.calendar.vevent.VEventPresenter.prototype.freeBusyRequest = function(attendee, range, opt_excludeThisEvent) {
   var promise;
   var exclusions = opt_excludeThisEvent && this.ctx.params.get('uid') != null ? [ this.ctx.params.get('uid') ] : [];
-  if (attendee['dir'] && goog.string.startsWith(attendee['dir'], 'bm://')) {
-    var userUid = attendee['dir'].substring('bm://'.length).split("/")[2];
-    var fb = new net.bluemind.calendar.api.VFreebusyClient(this.ctx.rpc, '', 'freebusy:' + userUid);
+
+  var isKnownByBM = goog.string.startsWith(attendee['dir'], 'bm://');
+  var dirEntryKind = isKnownByBM ? attendee['dir'].substring('bm://'.length).split("/")[1] : null;
+
+  var containerBasedFreebusy = dirEntryKind == "users" || dirEntryKind == "resources";
+  var emailBasedFreebusy = attendee["mailto"] && (!isKnownByBM || dirEntryKind == "externaluser");
+
+  if (containerBasedFreebusy) {
+    var uid = attendee['dir'].substring('bm://'.length).split("/")[2];
+    var fb = new net.bluemind.calendar.api.VFreebusyClient(this.ctx.rpc, '', 'freebusy:' + uid);
     promise = fb.get({
       'dtstart' : this.ctx.helper('date').toBMDateTime(new net.bluemind.date.Date(range.getStartDate())),
       'dtend' : this.ctx.helper('date').toBMDateTime(new net.bluemind.date.Date(range.getEndDate())),
       'excludedEvents' : exclusions
     });
-  } else if (attendee['mailto']) {
+  } else if (emailBasedFreebusy) {
     var fb = new net.bluemind.calendar.api.PublicFreebusyClient(this.ctx.rpc, '');
     promise = fb.get(attendee['mailto'], this.ctx.user['uid'], this.ctx.user['domainUid'], {
       'dtstart' : this.ctx.helper('date').toBMDateTime(new net.bluemind.date.Date(range.getStartDate())),
