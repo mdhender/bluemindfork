@@ -170,11 +170,36 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 			hierarchy = rec.hierarchy(domainUid, userUid);
 			System.out.println("Hierarchy version is " + hierarchy.exactVersion);
 			if (System.currentTimeMillis() - delay > 30000) {
-				throw new TimeoutException("Hierarchy init took more than 20sec");
+				throw new TimeoutException("Hierarchy init took more than 30sec");
 			}
 		} while (hierarchy.exactVersion < 7);
 		System.out.println("Hierarchy is now at version " + hierarchy.exactVersion);
-		System.err.println("before is complete, starting test.");
+
+		IServiceProvider prov = provider();
+
+		IMailboxFolders userMboxesApi = prov.instance(IMailboxFolders.class, partition, mboxRoot);
+		List<ItemValue<MailboxFolder>> found = userMboxesApi.all();
+		assertNotNull(found);
+		ItemValue<MailboxFolder> inbox = null;
+		for (ItemValue<MailboxFolder> iv : found) {
+			if (iv.value.name.equals("INBOX")) {
+				inbox = iv;
+				break;
+			}
+		}
+		assertNotNull(inbox);
+		System.err.println("Wait for record in inbox...");
+		IMailboxItems recordsApi = prov.instance(IMailboxItems.class, inbox.uid);
+		ContainerChangeset<Long> allById = recordsApi.changesetById(0L);
+		delay = System.currentTimeMillis();
+		while (allById.created.isEmpty()) {
+			Thread.sleep(50);
+			if (System.currentTimeMillis() - delay > 30000) {
+				throw new TimeoutException("Wait for record took more than 30sec");
+			}
+			allById = recordsApi.changesetById(0L);
+		}
+		System.err.println("before() is complete, starting test...");
 	}
 
 	@Test

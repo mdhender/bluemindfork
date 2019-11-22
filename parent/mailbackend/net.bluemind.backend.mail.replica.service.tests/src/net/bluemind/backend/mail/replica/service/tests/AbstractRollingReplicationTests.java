@@ -235,7 +235,7 @@ public abstract class AbstractRollingReplicationTests {
 
 	@After
 	public void after() throws Exception {
-		System.out.println("Stopping test");
+		System.err.println("test is over, time for after()");
 		cyrusReplication.stopReplication().get(5, TimeUnit.SECONDS);
 		JdbcTestHelper.getInstance().afterTest();
 	}
