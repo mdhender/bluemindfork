@@ -119,14 +119,14 @@ public class MailboxGroupEditor extends CompositeGwtWidgetElement {
 			mailTable.asWidget().setReadOnly(true);
 			mailTable.setVisible(false);
 			emailLabel.setVisible(false);
-			// archiveMail.setVisible(false);
+			archiveMail.setVisible(false);
 		} else {
 			mailTable.asEditor().setValue(group.getEmails());
 			messaging.setSelectedIndex(1);
 			mailTable.asWidget().setReadOnly(false);
 			mailTable.setVisible(true);
 			emailLabel.setVisible(true);
-			// archiveMail.setVisible(true);
+			archiveMail.setVisible(true);
 		}
 
 		mailBackend.setDirEntryUid(map.getString("entryUid"));
