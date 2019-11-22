@@ -119,10 +119,17 @@ public class JdbcTestHelper {
 	}
 
 	private void initializeSchema() {
-		logger.info("directory pool init schema");
-		DbSchemaService.getService(pool.getDataSource(), true).initialize(false);
+		Thread dirSchema = new Thread(() -> {
+			DbSchemaService.getService(pool.getDataSource(), true).initialize(false);
+		});
+		dirSchema.start();
 		logger.info("data pool init schema");
 		DbSchemaService.getService(dataPool.getDataSource(), true).initialize(false);
+		try {
+			dirSchema.join();
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public void initNewServer(String ip) throws Exception {
