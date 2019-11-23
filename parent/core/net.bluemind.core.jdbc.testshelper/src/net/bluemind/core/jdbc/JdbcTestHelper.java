@@ -57,6 +57,14 @@ public class JdbcTestHelper {
 	private JdbcTestHelper() {
 	}
 
+	@SuppressWarnings("serial")
+	private static class JdbcHelperException extends RuntimeException {
+		public JdbcHelperException(Throwable t) {
+			super(t);
+		}
+
+	}
+
 	public void beforeTest() throws Exception {
 		beforeTest("junit_" + System.nanoTime());
 	}
@@ -89,7 +97,6 @@ public class JdbcTestHelper {
 		String password = conf.get("password");
 		String dbName = conf.get("db");
 		String dbHost = conf.get("host");
-		System.out.println("conf: " + conf.getClass().getCanonicalName());
 
 		pool = BMPoolActivator.getDefault().newPool(dbType, login, password, dbName, dbHost,
 				Runtime.getRuntime().availableProcessors() * 2 - 1, schemaName);
@@ -128,7 +135,8 @@ public class JdbcTestHelper {
 		try {
 			dirSchema.join();
 		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
+			Thread.currentThread().interrupt();
+			throw new JdbcHelperException(e);
 		}
 	}
 
@@ -150,20 +158,30 @@ public class JdbcTestHelper {
 	}
 
 	public void afterTest() throws Exception {
-		if (pool != null) {
-			stopPool(pool);
-			JdbcActivator.getInstance().setDataSource(null);
-		}
+		Thread stopMain = new Thread(() -> {
+			if (pool != null) {
+				try {
+					stopPool(pool);
+				} catch (Exception e) {
+					throw new JdbcHelperException(e);
+				}
+				JdbcActivator.getInstance().setDataSource(null);
+				pool = null;
+			}
+		});
+		stopMain.start();
 		if (dataPool != null) {
 			stopPool(dataPool);
 			JdbcActivator.getInstance().setMailboxDataSource(Collections.emptyMap());
+			dataPool = null;
 		}
 		for (Pool other : otherPools) {
 			stopPool(other);
 		}
 		otherPools.clear();
+		stopMain.join();
 		// to ensure finalize overrides are executed
-		System.gc();
+		System.gc(); // NOSONAR
 	}
 
 	private void stopPool(Pool pool) throws Exception {
