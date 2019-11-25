@@ -18,6 +18,8 @@
  */
 package net.bluemind.user.service.internal;
 
+import com.google.common.base.Strings;
+
 import net.bluemind.core.api.ParametersValidator;
 import net.bluemind.core.api.Regex;
 import net.bluemind.core.api.fault.ErrorCode;
@@ -37,12 +39,18 @@ public class UserValidator implements IValidator<User> {
 		validate(newValue);
 	}
 
-	public void validate(User obj) throws ServerFault {
-		ParametersValidator.notNull(obj);
-		ParametersValidator.notNullAndNotEmpty(obj.login);
-		ParametersValidator.notNull(obj.routing);
-		if (!Regex.LOGIN.validate(obj.login)) {
+	public void validate(User user) throws ServerFault {
+		ParametersValidator.notNull(user);
+		ParametersValidator.notNullAndNotEmpty(user.login);
+		ParametersValidator.notNull(user.routing);
+
+		if (!Regex.LOGIN.validate(user.login)) {
 			throw new ServerFault("Login is invalid", ErrorCode.INVALID_PARAMETER);
+		}
+
+		String familyName = user.contactInfos.identification.name.familyNames;
+		if (Strings.isNullOrEmpty(familyName)) {
+			throw new ServerFault("A user should have a last name.", ErrorCode.EMPTY_LASTNAME);
 		}
 	}
 }

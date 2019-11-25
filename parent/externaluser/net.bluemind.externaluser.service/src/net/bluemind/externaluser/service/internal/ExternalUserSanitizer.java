@@ -20,17 +20,17 @@ public class ExternalUserSanitizer implements ISanitizer<ExternalUser> {
 
 	@Override
 	public void create(ExternalUser extUser) throws ServerFault {
-		sanitizeExternalUser(extUser);
+		sanitize(extUser);
 		new Sanitizer(context).create(extUser.contactInfos);
 	}
 
 	@Override
 	public void update(ExternalUser current, ExternalUser updated) throws ServerFault {
-		sanitizeExternalUser(updated);
+		sanitize(updated);
 		new Sanitizer(context).update(current.contactInfos, updated.contactInfos);
 	}
 
-	private void sanitizeExternalUser(ExternalUser extUser) {
+	private void sanitize(ExternalUser extUser) {
 		// sanitize vcard
 		if (extUser.contactInfos == null) {
 			extUser.contactInfos = new VCard();

@@ -17,6 +17,8 @@
   */
 package net.bluemind.externaluser.service.internal;
 
+import com.google.common.base.Strings;
+
 import net.bluemind.core.api.ParametersValidator;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -41,12 +43,17 @@ public class ExternalUserValidator {
 		ParametersValidator.notNullAndNotEmpty(eu.contactInfos.identification.formatedName.value);
 		ParametersValidator.notNullAndNotEmpty(eu.dataLocation);
 
+		String familyName = eu.contactInfos.identification.name.familyNames;
+		if (Strings.isNullOrEmpty(familyName)) {
+			throw new ServerFault("An external user should have a last name.", ErrorCode.EMPTY_LASTNAME);
+		}
+
 		DirEntry dirEntry = bmContext.provider().instance(IDirectory.class, domainUid)
 				.getByEmail(eu.defaultEmailAddress());
 		if (dirEntry != null && !dirEntry.entryUid.equals(externalUserUid)) {
 			throw new ServerFault(
 					"Can't create external user: An entry with the same email address already exists in this domain",
-					ErrorCode.ALREADY_EXISTS);
+					ErrorCode.EMAIL_ALREADY_USED);
 		}
 	}
 }
