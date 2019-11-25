@@ -18,6 +18,7 @@
  */
 package net.bluemind.core.rest.http.internal;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -92,8 +93,8 @@ public class AsyncCompletionHandler extends AsyncCompletionHandlerBase {
 				}
 				resp.headers = h;
 
-				byte[] responseBody = response.getResponseBodyAsBytes();
-				if (responseBody != null && responseBody.length > 0) {
+				ByteBuffer responseBody = response.getResponseBodyAsByteBuffer();
+				if (responseBody != null) {
 					resp.data = new Buffer(Unpooled.wrappedBuffer(responseBody));
 				}
 
