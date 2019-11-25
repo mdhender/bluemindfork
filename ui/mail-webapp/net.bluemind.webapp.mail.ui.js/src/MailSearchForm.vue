@@ -6,7 +6,7 @@
         icon="search"
         :aria-label="$t('common.search')"
         class="mail-search-form rounded-0"
-        @keydown.enter="search"
+        @keydown.enter="doSearch"
         @update="onChange"
         @reset="cancel"
     />
@@ -30,19 +30,21 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail-webapp", ["currentFolderUid"]),
+        ...mapState("mail-webapp", ["currentFolderUid", "search"]),
         inputIsEmpty() {
             return this.searchedPattern === "";
         }
     },
     watch: {
-        currentFolderUid() {
-            this.searchedPattern = "";
+        "search.pattern": function() {
+            if (this.search.pattern === null) {
+                this.searchedPattern = "";
+            }
         }
     },
     methods: {
         ...mapMutations("mail-webapp", ["setSearchPattern", "setSearchLoading", "setSearchError"]),
-        search() {
+        doSearch() {
             if (this.searchedPattern != "") {
                 this.$router.push("/mail/search/" + this.searchedPattern + "/");
             }
@@ -62,7 +64,7 @@ export default {
                     clearTimeout(this.idSetTimeoutSearch);
                 }
                 this.idSetTimeoutLoading = setTimeout(this.setSearchLoading(true), MILLISECONDS_BEFORE_DISPLAY_SPINNER);
-                this.idSetTimeoutSearch = setTimeout(this.search, MILLISECONDS_BEFORE_TRIGGER_SEARCH);
+                this.idSetTimeoutSearch = setTimeout(this.doSearch, MILLISECONDS_BEFORE_TRIGGER_SEARCH);
             }
         }
     }
