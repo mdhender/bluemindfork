@@ -92,15 +92,13 @@ public class OutboxService implements IOutbox {
 						try (Message msg = Mime4JHelper.parse(in)) {
 							mailer.send(domainUid, msg);
 
-							mailboxFoldersService.importItems(sentInternalId, ImportMailboxItemSet
-									.moveIn(outboxInternalId, Arrays.asList(MailboxItemId.of(item.internalId)), null));
-                                                       	final ImportMailboxItemsStatus importMailboxItemsStatus = mailboxFoldersService
-								.importItems(sentInternalId, ImportMailboxItemSet.moveIn(outboxInternalId,
-										Arrays.asList(MailboxItemId.of(item.internalId)), null));
-						        final List<ImportedMailboxItem> doneIds = importMailboxItemsStatus.doneIds;
-						        if (doneIds != null && !doneIds.isEmpty()) {
-						        	importedMailboxItems.addAll(doneIds);
-						        }
+							final ImportMailboxItemsStatus importMailboxItemsStatus = mailboxFoldersService
+									.importItems(sentInternalId, ImportMailboxItemSet.moveIn(outboxInternalId,
+											Arrays.asList(MailboxItemId.of(item.internalId)), null));
+							final List<ImportedMailboxItem> doneIds = importMailboxItemsStatus.doneIds;
+							if (doneIds != null && !doneIds.isEmpty()) {
+								importedMailboxItems.addAll(doneIds);
+							}
 							monitor.progress(1,
 									"FLUSHING OUTBOX - mail " + msg.getMessageId() + " sent and moved in Sent folder.");
 						} catch (Exception e) {
