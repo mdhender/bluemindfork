@@ -118,6 +118,7 @@ import {
     BmRichEditor,
     BmRow
 } from "@bluemind/styleguide";
+import { RouterMixin } from "@bluemind/router";
 import debounce from "lodash/debounce";
 import MailMessageNewFooter from "./MailMessageNewFooter";
 import MailMessageNewModes from "./MailMessageNewModes";
@@ -138,6 +139,7 @@ export default {
         BmRow,
         MailMessageNewFooter
     },
+    mixins: [ RouterMixin ],
     props: {
         message: {
             type: Object,
@@ -261,12 +263,6 @@ export default {
             } else {
                 return this.lastRecipients;
             }
-        },
-        /** Navigate to the parent path: from a/b/c to a/b */
-        navigateToParent() {
-            const path = this.$router.history.current.path;
-            const parentPath = path.substring(0, path.lastIndexOf("/") + 1);
-            this.$router.push(parentPath);
         }
     }
 };
