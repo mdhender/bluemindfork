@@ -4,7 +4,6 @@ Bundle-Name: net.bluemind.user.hook.tests
 Bundle-SymbolicName: net.bluemind.user.hook.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Fragment-Host: net.bluemind.user.hook
 Require-Bundle: org.junit,
  net.bluemind.user.service;bundle-version="1.0.0",
  net.bluemind.user.api;bundle-version="1.0.0",
@@ -27,5 +26,7 @@ Require-Bundle: org.junit,
  net.bluemind.domain.api;bundle-version="1.0.0",
  net.bluemind.mailbox.api,
  net.bluemind.hsm.service;bundle-version="4.1.0",
- net.bluemind.core.task.service;bundle-version="4.1.0"
+ net.bluemind.core.task.service;bundle-version="4.1.0",
+ net.bluemind.user.hook
+Automatic-Module-Name: net.bluemind.user.hook.tests
 

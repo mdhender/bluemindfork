@@ -103,7 +103,6 @@
    <bundle id="net.bluemind.core.context" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.elasticsearch.testshelper" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.jdbc" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.jdbc.schemaextractor" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.jdbc.tests" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.jdbc.testshelper" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.node.testshelper" version="4.1.0.qualifier"/>
@@ -508,4 +507,5 @@
    <bundle id="net.bluemind.forest.cloud.service"/>
    <bundle id="net.bluemind.forest.instance.api"/>
    <bundle id="net.bluemind.forest.instance.service"/>
+   <bundle id="net.bluemind.system.schemaupgrader.runner"/>
 </site>

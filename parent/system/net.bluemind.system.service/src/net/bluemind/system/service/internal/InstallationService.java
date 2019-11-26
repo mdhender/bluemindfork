@@ -82,8 +82,8 @@ import net.bluemind.system.api.UpgradeStatus;
 import net.bluemind.system.helper.ArchiveHelper;
 import net.bluemind.system.helper.distrib.OsVersionDetectionFactory;
 import net.bluemind.system.helper.distrib.list.Distribution;
-import net.bluemind.system.persistance.ComponentVersion;
 import net.bluemind.system.persistance.SchemaVersionStore;
+import net.bluemind.system.schemaupgrader.ComponentVersion;
 import net.bluemind.system.schemaupgrader.ComponentVersionExtensionPoint;
 import net.bluemind.system.schemaupgrader.ISchemaUpgradersProvider;
 import net.bluemind.system.state.StateContext;
@@ -431,7 +431,7 @@ public class InstallationService implements IInstallation {
 
 	@Override
 	public UpgradeStatus upgradeStatus() throws ServerFault {
-		ISchemaUpgradersProvider upgradersProvider = ISchemaUpgradersProvider.getSchemaUpgradersProivder();
+		ISchemaUpgradersProvider upgradersProvider = ISchemaUpgradersProvider.getSchemaUpgradersProvider();
 		if (upgradersProvider == null) {
 			return UpgradeStatus.create("No upgraders found. Make sure the package bm-core-upgraders is installed.",
 					UpgradeStatus.State.UPGRADERS_NOT_AVAILABLE);

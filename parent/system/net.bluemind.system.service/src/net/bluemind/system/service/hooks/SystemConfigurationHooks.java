@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.system.service.internal;
+package net.bluemind.system.service.hooks;
 
 import java.util.List;
 import java.util.Map;

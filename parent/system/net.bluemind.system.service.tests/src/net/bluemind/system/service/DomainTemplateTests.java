@@ -24,17 +24,19 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.system.api.DomainTemplate;
 import net.bluemind.system.api.DomainTemplate.Kind;
 import net.bluemind.system.api.DomainTemplate.Tag;
 import net.bluemind.system.api.IDomainTemplate;
-import net.bluemind.system.service.internal.DomainTemplateService;
 
 public class DomainTemplateTests {
 
 	@Test
 	public void testGetDomainTemplate() throws ServerFault {
-		IDomainTemplate tService = new DomainTemplateService();
+		IDomainTemplate tService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainTemplate.class);
 		DomainTemplate template = tService.getTemplate();
 
 		// test kind

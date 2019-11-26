@@ -348,6 +348,7 @@
       <plugin id="net.bluemind.system.persistance"/>
       <plugin id="net.bluemind.system.pg"/>
       <plugin id="net.bluemind.system.schemaupgrader"/>
+      <plugin id="net.bluemind.system.schemaupgrader.runner"/>
       <plugin id="net.bluemind.system.service"/>
       <plugin id="net.bluemind.system.sqlschema"/>
       <plugin id="net.bluemind.system.state"/>
@@ -456,8 +457,8 @@
 
    <configurations>
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
-      <property name="osgi.noShutdown" value="true" />
       <property name="osgi.configuration.area" value="/var/lib/bm-core/" />
+      <property name="osgi.noShutdown" value="true" />
    </configurations>
 
    <preferencesInfo>

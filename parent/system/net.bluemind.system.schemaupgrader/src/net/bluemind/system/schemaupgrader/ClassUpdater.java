@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.system.schemaupgrader.internal;
+package net.bluemind.system.schemaupgrader;
 
 import java.util.Set;
 
@@ -26,10 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.task.service.IServerTaskMonitor;
-import net.bluemind.system.schemaupgrader.IVersionedUpdater;
-import net.bluemind.system.schemaupgrader.UpdateAction;
-import net.bluemind.system.schemaupgrader.UpdateResult;
-import net.bluemind.system.schemaupgrader.Updater;
 
 public class ClassUpdater implements Updater {
 

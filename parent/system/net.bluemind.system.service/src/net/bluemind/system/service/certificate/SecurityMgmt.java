@@ -16,7 +16,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.system.service.internal;
+package net.bluemind.system.service.certificate;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

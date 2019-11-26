@@ -29,7 +29,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.sessions,
  net.bluemind.system.config,
  org.freemarker.freemarker,
- net.bluemind.directory.hollow.datamodel.consumer
+ net.bluemind.directory.hollow.datamodel.consumer,
+ net.bluemind.system.schemaupgrader.runner
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: net.bluemind.dataprotect.service,
  net.bluemind.dataprotect.service.internal,

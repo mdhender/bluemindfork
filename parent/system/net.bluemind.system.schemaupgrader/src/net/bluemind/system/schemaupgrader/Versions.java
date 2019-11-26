@@ -1,11 +1,10 @@
-package net.bluemind.system.schemaupgrader.internal;
+package net.bluemind.system.schemaupgrader;
 
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import net.bluemind.core.api.VersionInfo;
-import net.bluemind.system.schemaupgrader.Updater;
 
 public class Versions {
 

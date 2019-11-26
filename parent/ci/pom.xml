@@ -12,7 +12,6 @@
 		<module>net.bluemind.dockerclient</module>
 		<module>net.bluemind.pool.dockerconfig</module>
 		<module>net.bluemind.tests.feature</module>
-		<module>net.bluemind.core.jdbc.schemaextractor</module>
 		<module>net.bluemind.config.testfragment</module>
 	</modules>
 

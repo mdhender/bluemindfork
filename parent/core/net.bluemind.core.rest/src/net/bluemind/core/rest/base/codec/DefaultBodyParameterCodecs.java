@@ -23,9 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.vertx.java.core.buffer.Buffer;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 
 import io.netty.buffer.Unpooled;
@@ -90,7 +90,7 @@ public class DefaultBodyParameterCodecs {
 		@Override
 		public T parse(RestRequest request) {
 			String m = request.headers.get("Content-Type");
-			if (StringUtils.isEmpty(m)) {
+			if (Strings.isNullOrEmpty(m)) {
 				m = defaultMimeType;
 			}
 
@@ -105,7 +105,7 @@ public class DefaultBodyParameterCodecs {
 		@Override
 		public void encode(T object, RestRequest request) {
 			String m = request.headers.get("Content-Type");
-			if (StringUtils.isEmpty(m)) {
+			if (Strings.isNullOrEmpty(m)) {
 				m = defaultMimeType;
 			}
 

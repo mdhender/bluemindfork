@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.system.schemaupgrader;
+package net.bluemind.system.schemaupgrader.runner;
 
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -32,27 +32,31 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 
 import net.bluemind.core.api.VersionInfo;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.system.api.UpgradeReport;
-import net.bluemind.system.persistance.ComponentVersion;
 import net.bluemind.system.persistance.SchemaVersion;
 import net.bluemind.system.persistance.SchemaVersion.UpgradePhase;
 import net.bluemind.system.persistance.SchemaVersionStore;
-import net.bluemind.system.schemaupgrader.internal.ClassUpdater;
-import net.bluemind.system.schemaupgrader.internal.SqlUpdater;
-import net.bluemind.system.schemaupgrader.internal.UpdaterFilter;
-import net.bluemind.system.schemaupgrader.internal.Versions;
+import net.bluemind.system.schemaupgrader.ClassUpdater;
+import net.bluemind.system.schemaupgrader.ComponentVersion;
+import net.bluemind.system.schemaupgrader.ComponentVersionExtensionPoint;
+import net.bluemind.system.schemaupgrader.ISchemaUpgradersProvider;
+import net.bluemind.system.schemaupgrader.IVersionedUpdater;
+import net.bluemind.system.schemaupgrader.SqlUpdater;
+import net.bluemind.system.schemaupgrader.UpdateAction;
+import net.bluemind.system.schemaupgrader.UpdateResult;
+import net.bluemind.system.schemaupgrader.Updater;
+import net.bluemind.system.schemaupgrader.Versions;
 
 public class SchemaUpgrade {
 	private DataSource pool;
@@ -73,7 +77,7 @@ public class SchemaUpgrade {
 	private static final Logger logger = LoggerFactory.getLogger(SchemaUpgrade.class);
 
 	public UpdateResult schemaUpgrade(IServerTaskMonitor monitor, UpgradeReport report, VersionInfo from,
-			VersionInfo to) throws ServerFault {
+			VersionInfo to) {
 		List<ComponentVersion> installedComponents = ComponentVersionExtensionPoint.getComponentsVersion();
 		List<ComponentVersion> componentDbVersion = getComponentsVersion();
 
@@ -85,9 +89,8 @@ public class SchemaUpgrade {
 		monitor.begin(installedComponents.size(), null);
 
 		for (ComponentVersion comp : toUpdate) {
-			VersionInfo lfrom = from;
-			lfrom = VersionInfo.checkAndCreate(comp.version);
-			logger.info("component version {} : {}", comp.identifier, lfrom.toString());
+			VersionInfo lfrom = VersionInfo.checkAndCreate(comp.version);
+			logger.info("component version {} : {}", comp.identifier, lfrom);
 			UpdateResult schemaUpgrade = schemaUpgrade(monitor.subWork(1), report, lfrom, to, comp.identifier);
 
 			if (schemaUpgrade.equals(UpdateResult.failed())) {
@@ -122,29 +125,23 @@ public class SchemaUpgrade {
 		logger.info("Schema update path contains {} updater(s)", pathToGlory.size());
 		subWork.begin(pathToGlory.size(), "Starting schema upgrades....");
 		Set<UpdateAction> handledActions = EnumSet.noneOf(UpdateAction.class);
-		UpdateResult ur = UpdateResult.noop();
-		List<Updater> phase1 = pathToGlory.stream().filter(u -> {
-			return !u.afterSchemaUpgrade();
-		}).collect(Collectors.toList());
 
-		List<Updater> phase2 = pathToGlory.stream().filter(u -> {
-			return u.afterSchemaUpgrade() && !onlySchema;
-		}).collect(Collectors.toList());
+		List<Updater> phase1 = pathToGlory.stream().filter(u -> !u.afterSchemaUpgrade()).collect(Collectors.toList());
 
-		ur = executeUpdates(subWork, report, handledActions, UpgradePhase.SCHEMA_UPGRADE, phase1);
+		List<Updater> phase2 = pathToGlory.stream().filter(u -> u.afterSchemaUpgrade() && !onlySchema)
+				.collect(Collectors.toList());
 
-		CompletableFuture<Void> ret = new CompletableFuture<Void>();
+		executeUpdates(subWork, report, handledActions, UpgradePhase.SCHEMA_UPGRADE, phase1);
+
+		CompletableFuture<Void> ret = new CompletableFuture<>();
 		if (ServerSideServiceProvider.mailboxDataSource == null
 				|| ServerSideServiceProvider.mailboxDataSource.isEmpty()) {
 			VertxPlatform.getVertx().eventBus().sendWithTimeout("mailbox.ds.lookup", new JsonObject(), 7000l,
-					new Handler<AsyncResult<Message<String>>>() {
-						@Override
-						public void handle(AsyncResult<Message<String>> event) {
-							if (event.failed()) {
-								ret.completeExceptionally(event.cause());
-							} else {
-								ret.complete(null);
-							}
+					(AsyncResult<Message<String>> event) -> {
+						if (event.failed()) {
+							ret.completeExceptionally(event.cause());
+						} else {
+							ret.complete(null);
 						}
 					});
 		} else {
@@ -159,19 +156,18 @@ public class SchemaUpgrade {
 		}
 
 		subWork.log("going phase 2");
-		ur = executeUpdates(subWork, report, handledActions, UpgradePhase.POST_SCHEMA_UPGRADE, phase2);
-
-		return ur;
+		return executeUpdates(subWork, report, handledActions, UpgradePhase.POST_SCHEMA_UPGRADE, phase2);
 	}
 
 	private UpdateResult executeUpdates(IServerTaskMonitor subWork, UpgradeReport report,
-			Set<UpdateAction> handledActions, UpgradePhase phase, List<Updater> updates) {
+			Set<net.bluemind.system.schemaupgrader.UpdateAction> handledActions, UpgradePhase phase,
+			List<Updater> updates) {
 		UpdateResult ur = UpdateResult.noop();
 		for (Updater u : updates) {
-			logger.info("Starting " + u);
+			logger.info("Starting {}", u);
 			subWork.log("Starting " + u);
 			try {
-				ur = u.update(subWork, ImmutableSet.<UpdateAction>builder().addAll(handledActions).build());
+				ur = u.update(subWork, new HashSet<>(handledActions));
 				handledActions.addAll(ur.actions);
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
@@ -205,11 +201,11 @@ public class SchemaUpgrade {
 		upgraderStore.add(upgraderStatus);
 	}
 
-	private void updateSchemaVersion(String major, String minor, int build) throws ServerFault {
+	private void updateSchemaVersion(String major, String minor, int build) {
 
 		SchemaVersionStore store = new SchemaVersionStore(pool);
 
-		store.doOrFail(() -> {
+		JdbcAbstractStore.doOrFail(() -> {
 			for (ComponentVersion cp : ComponentVersionExtensionPoint.getComponentsVersion()) {
 				store.updateComponentVersion(cp.identifier, major + "." + minor + "." + build);
 			}
@@ -231,16 +227,16 @@ public class SchemaUpgrade {
 			dbScriptStart.major = "" + ((Integer.parseInt(dbScriptStart.major)) + 1);
 		}
 
-		LinkedList<Updater> upgradePath = new LinkedList<Updater>();
+		LinkedList<Updater> upgradePath = new LinkedList<>();
 
-		logger.info("dbScriptStart: " + dbScriptStart.toString() + ", dbScriptEnd:" + dbScriptEnd.toString());
+		logger.info("dbScriptStart: {}, dbScriptEnd: {}", dbScriptStart, dbScriptEnd);
 
-		ISchemaUpgradersProvider upgradersProvider = ISchemaUpgradersProvider.getSchemaUpgradersProivder();
+		ISchemaUpgradersProvider upgradersProvider = ISchemaUpgradersProvider.getSchemaUpgradersProvider();
 		if (upgradersProvider == null) {
 			StringBuilder msg = new StringBuilder("*********************************************************");
 			msg.append("* No upgraders found. Make sure the package bm-core-upgraders is installed.");
 			msg.append("*********************************************************");
-			logger.warn(msg.toString());
+			logger.warn("{}", msg);
 			throw new ServerFault("Upgraders are not available");
 		}
 
@@ -248,7 +244,7 @@ public class SchemaUpgrade {
 			StringBuilder msg = new StringBuilder("*********************************************************");
 			msg.append("* upgraders is not active. Make sure your subscription is valid.");
 			msg.append("*********************************************************");
-			logger.warn(msg.toString());
+			logger.warn("{}", msg);
 			throw new ServerFault("Upgraders are not available");
 
 		}
@@ -264,14 +260,13 @@ public class SchemaUpgrade {
 			if (major == Integer.parseInt(dbScriptStart.major)) {
 				start = Integer.parseInt(dbScriptStart.release);
 			}
-			end = 0;
 			if (major < Integer.parseInt(dbScriptEnd.major)) {
 				end = Integer.MAX_VALUE;
 			} else {
 				end = Integer.parseInt(dbScriptEnd.release);
 			}
 
-			logger.debug("add to upgrade paths: major:" + major + ", start: " + start + ", end: " + end);
+			logger.debug("add to upgrade paths: major: {}, start: {}, end: {}", major, start, end);
 
 			UpdaterFilter filter = new UpdaterFilter(major, start, end, upgraderStore.get(major, start), component);
 			collectSqlFiles(upgradePath, filter, allSqlUpdaters);

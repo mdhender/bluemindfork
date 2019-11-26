@@ -26,7 +26,7 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.system.api.ISecurityMgmt;
 import net.bluemind.system.hook.ISystemHook;
-import net.bluemind.system.service.internal.SecurityMgmt;
+import net.bluemind.system.service.certificate.SecurityMgmt;
 
 public class SecurityMgmtFactory implements ServerSideServiceProvider.IServerSideServiceFactory<ISecurityMgmt> {
 	private static final List<ISystemHook> hooks = getHooks();

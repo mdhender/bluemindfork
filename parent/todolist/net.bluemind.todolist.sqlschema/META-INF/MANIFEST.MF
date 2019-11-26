@@ -7,3 +7,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.core.container.sqlschema;bundle-version="1.0.0",
  net.bluemind.core.sqlschema;bundle-version="1.0.0",
  net.bluemind.icalendar.sqlschema;bundle-version="1.0.0"
+Automatic-Module-Name: net.bluemind.todolist.sqlschema

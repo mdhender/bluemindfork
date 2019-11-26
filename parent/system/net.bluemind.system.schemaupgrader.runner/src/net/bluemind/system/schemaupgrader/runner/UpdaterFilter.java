@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.system.schemaupgrader.internal;
+package net.bluemind.system.schemaupgrader.runner;
 
 import java.util.List;
 

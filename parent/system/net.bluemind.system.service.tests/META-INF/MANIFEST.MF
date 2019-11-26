@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.system.service.tests
 Bundle-SymbolicName: net.bluemind.system.service.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Fragment-Host: net.bluemind.system.service
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.junit,
  net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
@@ -22,4 +21,7 @@ Require-Bundle: org.junit,
  org.mockito.mockito-core;bundle-version="1.10.17",
  org.objenesis;bundle-version="1.0.0",
  net.bluemind.document.service;bundle-version="4.1.0",
- net.bluemind.system.api
+ net.bluemind.system.api,
+ net.bluemind.system.service,
+ net.bluemind.system.hook,
+ net.bluemind.system.persistance

@@ -6,3 +6,4 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.core.sqlschema;bundle-version="1.0.0"
+Automatic-Module-Name: net.bluemind.authentication.sqlschema

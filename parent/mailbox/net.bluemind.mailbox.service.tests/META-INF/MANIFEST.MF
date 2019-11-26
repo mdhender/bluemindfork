@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.mailbox.service.tests
 Bundle-SymbolicName: net.bluemind.mailbox.service.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Fragment-Host: net.bluemind.mailbox.service
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.junit,
  net.bluemind.core.tests.testshelper,
@@ -32,6 +31,11 @@ Require-Bundle: org.junit,
  net.bluemind.resource.service;bundle-version="4.1.0",
  net.bluemind.backend.cyrus.partitions,
  net.bluemind.system.stateobserver.testhelper,
- net.bluemind.backend.mail.replica.service;bundle-version="4.1.0"
+ net.bluemind.backend.mail.replica.service;bundle-version="4.1.0",
+ net.bluemind.core.validator;bundle-version="4.1.0",
+ net.bluemind.mailbox.persistance,
+ net.bluemind.role.api;bundle-version="4.1.0",
+ net.bluemind.system.api,
+ net.bluemind.config
 Automatic-Module-Name: net.bluemind.mailbox.service.tests
 

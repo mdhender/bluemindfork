@@ -25,8 +25,8 @@ import javax.sql.DataSource;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.system.schemaupgrader.ISchemaUpgradersProvider;
 import net.bluemind.system.schemaupgrader.IVersionedUpdater;
+import net.bluemind.system.schemaupgrader.SqlScripts;
 import net.bluemind.system.schemaupgrader.Updater;
-import net.bluemind.system.schemaupgrader.internal.SqlScripts;
 
 public class TestSchemaProvider implements ISchemaUpgradersProvider {
 

@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.system.schemaupgrader.internal;
+package net.bluemind.system.schemaupgrader;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,11 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteStreams;
 
-import net.bluemind.core.jdbc.JdbcHelper;
 import net.bluemind.core.task.service.IServerTaskMonitor;
-import net.bluemind.system.schemaupgrader.UpdateAction;
-import net.bluemind.system.schemaupgrader.UpdateResult;
-import net.bluemind.system.schemaupgrader.Updater;
 
 public class SqlUpdater implements Updater {
 	private static final Logger logger = LoggerFactory.getLogger(SqlUpdater.class);
@@ -77,12 +73,7 @@ public class SqlUpdater implements Updater {
 			throw new RuntimeException(e);
 		}
 
-		Connection con = null;
-		Statement st = null;
-		try {
-			con = pool.getConnection();
-			st = con.createStatement();
-
+		try (Connection con = pool.getConnection(); Statement st = con.createStatement()) {
 			st.execute(schemaValue);
 		} catch (Exception e) {
 			monitor.log(e.getMessage());
@@ -90,8 +81,6 @@ public class SqlUpdater implements Updater {
 			if (!ignoreErrors) {
 				throw e;
 			}
-		} finally {
-			JdbcHelper.cleanup(con, null, st);
 		}
 
 		return UpdateResult.noop();

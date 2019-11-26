@@ -24,15 +24,13 @@ import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.io.Files;
 
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.system.service.certificate.SecurityMgmt;
 
 public class CertificateMgmtCheckCertificateTest {
-	private static final Logger logger = LoggerFactory.getLogger(CertificateMgmtCheckCertificateTest.class);
 
 	private byte[] caData;
 	private byte[] certData;
@@ -122,7 +120,7 @@ public class CertificateMgmtCheckCertificateTest {
 
 			SecurityMgmt.checkCertificate(caChainData, certChainData, privateKey);
 		} catch (IOException | ServerFault e) {
-			logger.error("error during testCaChainUnorderedCheck", e);
+			e.printStackTrace();
 			Assert.fail("Test thrown an exception");
 		}
 	}
@@ -136,7 +134,7 @@ public class CertificateMgmtCheckCertificateTest {
 
 			SecurityMgmt.checkCertificate(caChainData, certChainData, privateKey);
 		} catch (IOException | ServerFault e) {
-			logger.error("error during testCaChainUnorderedCheck", e);
+			e.printStackTrace();
 			Assert.fail("Test thrown an exception");
 		}
 	}

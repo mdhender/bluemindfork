@@ -22,7 +22,6 @@
 		<profile>
 			<id>full</id>
 			<modules>
-				<module>sql</module>
 				<module>clients</module>
 				<module>ui</module>
 				<module>mozilla</module>

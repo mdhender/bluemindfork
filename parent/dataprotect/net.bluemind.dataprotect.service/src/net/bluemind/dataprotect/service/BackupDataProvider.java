@@ -56,7 +56,7 @@ import net.bluemind.server.api.Server;
 import net.bluemind.system.api.IInstallation;
 import net.bluemind.system.api.UpgradeReport;
 import net.bluemind.system.api.UpgradeReport.Status;
-import net.bluemind.system.schemaupgrader.SchemaUpgrade;
+import net.bluemind.system.schemaupgrader.runner.SchemaUpgrade;
 
 /**
  * Allows accessing backed-up data through the {@link IServiceProvider}

@@ -32,12 +32,12 @@ public interface ISchemaUpgradersProvider {
 
 	public boolean isActive();
 
-	public static ISchemaUpgradersProvider getSchemaUpgradersProivder() {
+	public static ISchemaUpgradersProvider getSchemaUpgradersProvider() {
 		RunnableExtensionLoader<ISchemaUpgradersProvider> epLoader = new RunnableExtensionLoader<>();
 		List<ISchemaUpgradersProvider> providers = epLoader.loadExtensions("net.bluemind.system.schemaupgrader",
 				"upgradersprovider", "upgraders-provider", "class");
 
-		if (providers.size() == 0) {
+		if (providers.isEmpty()) {
 			return null;
 		} else {
 			return providers.get(0);

@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.system.persistance;
+package net.bluemind.system.schemaupgrader;
 
 public class ComponentVersion {
 

@@ -30,9 +30,9 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.jdbc.JdbcTestHelper;
-import net.bluemind.system.persistance.ComponentVersion;
 import net.bluemind.system.persistance.SchemaVersion;
 import net.bluemind.system.persistance.SchemaVersion.UpgradePhase;
+import net.bluemind.system.schemaupgrader.ComponentVersion;
 import net.bluemind.system.persistance.SchemaVersionStore;
 
 public class SchemaVersionStoreTests {

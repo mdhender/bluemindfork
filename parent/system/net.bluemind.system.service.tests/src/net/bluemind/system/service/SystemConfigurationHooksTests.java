@@ -27,9 +27,9 @@ import org.junit.Test;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.system.api.SystemConf;
+import net.bluemind.system.service.hooks.SystemConfigurationHooks;
 import net.bluemind.system.service.internal.ObserverHook;
 import net.bluemind.system.service.internal.SanitizorHook;
-import net.bluemind.system.service.internal.SystemConfigurationHooks;
 import net.bluemind.system.service.internal.ValidatorHook;
 
 public class SystemConfigurationHooksTests {

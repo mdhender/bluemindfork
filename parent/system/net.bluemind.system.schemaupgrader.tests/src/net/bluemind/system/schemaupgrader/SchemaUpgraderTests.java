@@ -34,20 +34,15 @@ import net.bluemind.core.api.VersionInfo;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
-import net.bluemind.core.task.service.IServerTaskMonitor;
-import net.bluemind.system.schemaupgrader.internal.ClassUpdater;
-import net.bluemind.system.schemaupgrader.internal.SqlUpdater;
-import net.bluemind.system.schemaupgrader.tests.internal.TestMonitor;
+import net.bluemind.system.schemaupgrader.runner.SchemaUpgrade;
 
 public class SchemaUpgraderTests {
 	private DataSource pool;
-	private IServerTaskMonitor monitor;
 
 	@Before
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 		this.pool = JdbcActivator.getInstance().getDataSource();
-		this.monitor = new TestMonitor();
 	}
 
 	@After

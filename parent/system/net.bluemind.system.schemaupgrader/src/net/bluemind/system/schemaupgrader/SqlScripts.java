@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.system.schemaupgrader.internal;
+package net.bluemind.system.schemaupgrader;
 
 import java.net.URL;
 import java.util.LinkedList;
@@ -31,8 +31,6 @@ import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import net.bluemind.system.schemaupgrader.Updater;
 
 public class SqlScripts {
 

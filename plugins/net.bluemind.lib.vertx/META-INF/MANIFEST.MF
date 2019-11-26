@@ -20,5 +20,4 @@ Bundle-ClassPath: .
 Export-Package: net.bluemind.lib.vertx,
  net.bluemind.lib.vertx.domainsocket,
  net.bluemind.lib.vertx.utils
-Eclipse-BuddyPolicy: registered
 Automatic-Module-Name: net.bluemind.lib.vertx

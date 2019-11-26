@@ -32,8 +32,8 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.system.api.UpgradeReport;
-import net.bluemind.system.schemaupgrader.SchemaUpgrade;
 import net.bluemind.system.schemaupgrader.UpdateResult;
+import net.bluemind.system.schemaupgrader.runner.SchemaUpgrade;
 import net.bluemind.system.state.StateContext;
 
 public class InstallationUpgradeTask implements IServerTask {

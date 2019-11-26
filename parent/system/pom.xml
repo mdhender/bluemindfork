@@ -17,6 +17,7 @@
 		<module>net.bluemind.system.persistance</module>
 		<module>net.bluemind.system.persistance.tests</module>
 		<module>net.bluemind.system.schemaupgrader</module>
+		<module>net.bluemind.system.schemaupgrader.runner</module>
 		<module>net.bluemind.system.schemaupgrader.tests</module>
 		<module>net.bluemind.system.hook</module>
 		<module>net.bluemind.system.config</module>

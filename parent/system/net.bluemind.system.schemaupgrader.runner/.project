@@ -1,7 +1,7 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>net.bluemind.core.jdbc.schemaextractor</name>
-	<comment/>
+	<name>net.bluemind.system.schemaupgrader.runner</name>
+	<comment></comment>
 	<projects>
 	</projects>
 	<buildSpec>
@@ -22,7 +22,6 @@
 		</buildCommand>
 	</buildSpec>
 	<natures>
-		
 		<nature>org.eclipse.pde.PluginNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>

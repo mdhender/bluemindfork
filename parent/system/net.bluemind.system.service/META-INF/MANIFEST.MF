@@ -41,10 +41,13 @@ Require-Bundle: net.bluemind.core.commons,
  io.vertx.core,
  net.bluemind.system.state,
  net.bluemind.system.helper,
- net.bluemind.mailbox.persistance
+ net.bluemind.mailbox.persistance,
+ net.bluemind.system.schemaupgrader.runner
 Bundle-ClassPath: .
 Bundle-ActivationPolicy: lazy
-Export-Package: net.bluemind.system.service
+Export-Package: net.bluemind.system.service,
+ net.bluemind.system.service.certificate,
+ net.bluemind.system.service.hooks
 Bundle-Localization: OSGI-INF/l10n/bundle
 Bundle-Activator: net.bluemind.system.service.Activator
 Automatic-Module-Name: net.bluemind.system.service

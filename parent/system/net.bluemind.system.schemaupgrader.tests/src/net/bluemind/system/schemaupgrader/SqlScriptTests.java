@@ -34,7 +34,6 @@ import org.junit.Test;
 
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
-import net.bluemind.system.schemaupgrader.internal.SqlScripts;
 
 public class SqlScriptTests {
 

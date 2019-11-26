@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.system.schemaupgrader.runner
+Bundle-SymbolicName: net.bluemind.system.schemaupgrader.runner;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.slf4j,
+ net.bluemind.core.jdbc;bundle-version="1.0.0",
+ net.bluemind.eclipse.common,
+ net.bluemind.system.api,
+ net.bluemind.system.persistance,
+ net.bluemind.core.rest,
+ net.bluemind.system.schemaupgrader;visibility:=reexport,
+ net.bluemind.core.task.spi
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: net.bluemind.system.schemaupgrader.runner
+Automatic-Module-Name: net.bluemind.system.schemaupgrader.runner
+
