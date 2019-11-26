@@ -173,7 +173,8 @@ public class EmlBuilder {
 			throws MimeException {
 		for (net.bluemind.backend.mail.api.MessageBody.Header h : headers) {
 			if (h.name.equals("Content-Type")) {
-				continue;
+				// remove previous one, only one "Content-Type" allowed
+				partHeader.removeFields(h.name);
 			}
 			if (h.values.size() == 1) {
 				ParsedField parsed = LenientFieldParser.parse(h.name + ": " + h.values.get(0));
