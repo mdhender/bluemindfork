@@ -25,8 +25,8 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.persistance.ContainerStore;
-import net.bluemind.core.container.persistance.ItemStore;
+import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.domain.api.Domain;
@@ -35,7 +35,7 @@ import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.identity.api.IMailboxIdentity;
 import net.bluemind.mailbox.identity.service.internal.MailboxIdentityService;
-import net.bluemind.mailbox.persistance.MailboxStore;
+import net.bluemind.mailbox.persistence.MailboxStore;
 
 public class MailboxIdentityServiceFactory
 		implements ServerSideServiceProvider.IServerSideServiceFactory<IMailboxIdentity> {

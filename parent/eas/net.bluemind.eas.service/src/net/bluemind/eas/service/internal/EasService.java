@@ -31,7 +31,7 @@ import net.bluemind.eas.api.FolderSyncVersions;
 import net.bluemind.eas.api.Heartbeat;
 import net.bluemind.eas.api.IEas;
 import net.bluemind.eas.api.SentItem;
-import net.bluemind.eas.persistance.EasStore;
+import net.bluemind.eas.persistence.EasStore;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;

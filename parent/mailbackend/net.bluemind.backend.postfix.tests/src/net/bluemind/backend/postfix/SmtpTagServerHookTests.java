@@ -58,7 +58,7 @@ import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.api.SysConfKeys;
-import net.bluemind.system.persistance.SystemConfStore;
+import net.bluemind.system.persistence.SystemConfStore;
 
 public class SmtpTagServerHookTests extends HooksTests {
 	private BmContext testContext = new BmTestContext(SecurityContext.SYSTEM);

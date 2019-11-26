@@ -27,11 +27,11 @@ import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.persistance.ContainerStore;
+import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.hook.DomainHookAdapter;
-import net.bluemind.server.persistance.ServerStore;
+import net.bluemind.server.persistence.ServerStore;
 
 public class ServerDomainHook extends DomainHookAdapter {
 

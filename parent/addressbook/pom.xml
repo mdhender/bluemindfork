@@ -14,8 +14,8 @@
 		<module>net.bluemind.addressbook.hook.acl</module>
 		<module>net.bluemind.addressbook.job</module>
 		<module>net.bluemind.addressbook.sqlschema</module>
-		<module>net.bluemind.addressbook.persistance</module>
-		<module>net.bluemind.addressbook.persistance.tests</module>
+		<module>net.bluemind.addressbook.persistence</module>
+		<module>net.bluemind.addressbook.persistence.tests</module>
 		<module>net.bluemind.addressbook.adapter</module>
 		<module>net.bluemind.addressbook.service</module>
 		<module>net.bluemind.addressbook.service.tests</module>

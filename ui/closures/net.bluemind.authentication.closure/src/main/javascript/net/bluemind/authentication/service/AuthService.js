@@ -21,7 +21,7 @@ goog.provide("net.bluemind.authentication.service.AuthService");
 
 goog.require("goog.events.EventTarget");
 goog.require("goog.structs.Map");
-goog.require("net.bluemind.authentication.persistance.AuthHome");
+goog.require("net.bluemind.authentication.persistence.AuthHome");
 /**
  * Authentication service
  * 
@@ -35,7 +35,7 @@ net.bluemind.authentication.service.AuthService = function(ctx) {
   /** @type {net.bluemind.authentication.api.AuthClient} */
   (ctx.client('auth'))//
   );
-  this.backend_ = new net.bluemind.authentication.persistance.AuthHome(ctx);
+  this.backend_ = new net.bluemind.authentication.persistence.AuthHome(ctx);
 };
 goog.inherits(net.bluemind.authentication.service.AuthService, goog.events.EventTarget);
 
@@ -46,7 +46,7 @@ goog.inherits(net.bluemind.authentication.service.AuthService, goog.events.Event
 net.bluemind.authentication.service.AuthService.prototype.client_;
 
 /**
- * @type {net.bluemind.authentication.persistance.AuthHome}
+ * @type {net.bluemind.authentication.persistence.AuthHome}
  * @private
  */
 net.bluemind.authentication.service.AuthService.prototype.backend_;

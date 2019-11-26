@@ -25,15 +25,15 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import net.bluemind.addressbook.api.VCard;
-import net.bluemind.addressbook.persistance.VCardStore;
+import net.bluemind.addressbook.persistence.VCardStore;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
-import net.bluemind.core.container.persistance.IItemValueStore;
+import net.bluemind.core.container.persistence.IItemValueStore;
 import net.bluemind.directory.api.DirEntry;
-import net.bluemind.directory.persistance.DirEntryStore;
+import net.bluemind.directory.persistence.DirEntryStore;
 import net.bluemind.mailbox.api.Mailbox;
-import net.bluemind.mailbox.persistance.MailFilterStore;
-import net.bluemind.mailbox.persistance.MailboxStore;
+import net.bluemind.mailbox.persistence.MailFilterStore;
+import net.bluemind.mailbox.persistence.MailboxStore;
 
 public class DirEntryAndValueStore<T> implements IItemValueStore<net.bluemind.directory.service.DirEntryAndValue<T>> {
 

@@ -30,7 +30,7 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.scheduledjob.api.IJob;
 import net.bluemind.scheduledjob.api.JobExecutionQuery;
 import net.bluemind.scheduledjob.api.JobExitStatus;
-import net.bluemind.scheduledjob.persistance.ScheduledJobStore;
+import net.bluemind.scheduledjob.persistence.ScheduledJobStore;
 
 public class SanitizeJobExecutions {
 

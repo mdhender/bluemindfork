@@ -53,13 +53,13 @@ import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ContainerModifiableDescriptor;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
-import net.bluemind.core.container.persistance.AclStore;
-import net.bluemind.core.container.persistance.ChangelogStore;
-import net.bluemind.core.container.persistance.ContainerPersonalSettingsStore;
-import net.bluemind.core.container.persistance.ContainerSettingsStore;
-import net.bluemind.core.container.persistance.ContainerStore;
-import net.bluemind.core.container.persistance.ContainerSyncStore;
-import net.bluemind.core.container.persistance.DataSourceRouter;
+import net.bluemind.core.container.persistence.AclStore;
+import net.bluemind.core.container.persistence.ChangelogStore;
+import net.bluemind.core.container.persistence.ContainerPersonalSettingsStore;
+import net.bluemind.core.container.persistence.ContainerSettingsStore;
+import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.ContainerSyncStore;
+import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.sharding.Sharding;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
@@ -71,7 +71,7 @@ import net.bluemind.directory.api.IDirectory;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.i18n.labels.I18nLabels;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.user.persistance.UserSubscriptionStore;
+import net.bluemind.user.persistence.UserSubscriptionStore;
 
 public class Containers implements IContainers {
 

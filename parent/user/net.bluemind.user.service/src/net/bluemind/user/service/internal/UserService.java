@@ -66,7 +66,7 @@ import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.Member;
-import net.bluemind.group.persistance.GroupStore;
+import net.bluemind.group.persistence.GroupStore;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.Mailbox.Routing;
@@ -81,7 +81,7 @@ import net.bluemind.user.api.IPasswordUpdater;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 import net.bluemind.user.hook.IUserHook;
-import net.bluemind.user.persistance.security.HashFactory;
+import net.bluemind.user.persistence.security.HashFactory;
 import net.bluemind.user.service.IInCoreUser;
 import net.bluemind.user.service.passwordvalidator.PasswordValidator;
 

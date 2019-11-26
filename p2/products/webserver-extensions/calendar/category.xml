@@ -17,7 +17,7 @@
    <bundle id="net.bluemind.extensions.closure" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.folder.closure" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mvp.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.persistance.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.persistence.closure" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.rrule.closure" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.tag.api.closure" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.tag.closure" version="4.1.0.qualifier"/>

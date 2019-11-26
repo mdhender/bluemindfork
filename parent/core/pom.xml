@@ -44,8 +44,8 @@
 		<module>net.bluemind.core.container.hierarchy.hook</module>
 		<module>net.bluemind.core.container.hierarchy.hook.tests</module>
 		<module>net.bluemind.core.container.hierarchy.repair</module>
-		<module>net.bluemind.core.container.persistance</module>
-		<module>net.bluemind.core.container.persistance.tests</module>
+		<module>net.bluemind.core.container.persistence</module>
+		<module>net.bluemind.core.container.persistence.tests</module>
 		<module>net.bluemind.core.container.service</module>
 		<module>net.bluemind.core.container.service.tests</module>
 		<module>net.bluemind.core.container.sharding</module>

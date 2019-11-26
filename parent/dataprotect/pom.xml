@@ -11,8 +11,8 @@
 	<modules>
 		<module>net.bluemind.dataprotect.api</module>
 		<module>net.bluemind.dataprotect.sqlschema</module>
-		<module>net.bluemind.dataprotect.persistance</module>
-		<module>net.bluemind.dataprotect.persistance.tests</module>
+		<module>net.bluemind.dataprotect.persistence</module>
+		<module>net.bluemind.dataprotect.persistence.tests</module>
 		<module>net.bluemind.dataprotect.service</module>
 		<module>net.bluemind.dataprotect.service.tests</module>
 		<module>net.bluemind.dataprotect.postgresql</module>

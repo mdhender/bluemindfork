@@ -31,7 +31,7 @@ import com.google.common.collect.Lists;
 
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.persistance.ContainerStore;
+import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;

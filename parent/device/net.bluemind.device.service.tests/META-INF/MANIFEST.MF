@@ -7,7 +7,7 @@ Bundle-Vendor: www.blue-mind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.core.jdbc.testshelper,
  org.junit,
- net.bluemind.core.container.persistance,
+ net.bluemind.core.container.persistence,
  net.bluemind.core.context,
  net.bluemind.device.api,
  net.bluemind.core.commons;bundle-version="1.0.0",

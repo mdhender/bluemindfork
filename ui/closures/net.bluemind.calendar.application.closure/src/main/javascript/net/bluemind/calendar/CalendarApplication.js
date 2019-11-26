@@ -67,11 +67,11 @@ goog.require("net.bluemind.calendar.service.CalendarViewService");
 goog.require("net.bluemind.folder.service.FoldersService");
 goog.require("net.bluemind.folder.service.FolderService");
 goog.require("net.bluemind.container.sync.ContainerSettingsSync");
-goog.require("net.bluemind.folder.persistance.schema");
-goog.require("net.bluemind.calendar.persistance.schema");
-goog.require("net.bluemind.todolist.persistance.schema");
+goog.require("net.bluemind.folder.persistence.schema");
+goog.require("net.bluemind.calendar.persistence.schema");
+goog.require("net.bluemind.todolist.persistence.schema");
 goog.require("net.bluemind.tag.sync.TagSync");
-goog.require("net.bluemind.addressbook.persistance.schema");
+goog.require("net.bluemind.addressbook.persistence.schema");
 goog.require("net.bluemind.addressbook.sync.AddressBookSync");
 goog.require('net.bluemind.addressbook.service.AddressBookService');
 goog.require('net.bluemind.addressbook.service.AddressBooksService');
@@ -84,15 +84,15 @@ goog.require("net.bluemind.calendar.MetadataMgmt");
 goog.require("net.bluemind.calendar.vtodo.consult.VTodoConsultHandler");
 goog.require("net.bluemind.mvp.filter.HistoryFilter");
 goog.require("net.bluemind.container.service.ContainersObserver.EventType");
-goog.require("net.bluemind.container.persistance.schema");
-goog.require("net.bluemind.container.persistance.options");
+goog.require("net.bluemind.container.persistence.schema");
+goog.require("net.bluemind.container.persistence.options");
 goog.require("net.bluemind.ui.banner.widget.UnseenEvents");
 goog.require("net.bluemind.addressbook.service.AddressBooksSyncManager");
 goog.require("net.bluemind.tag.sync.UnitaryTagSync");
 goog.require("net.bluemind.todolist.service.TodolistsSyncManager");
 goog.require("net.bluemind.calendar.service.CalendarsSyncManager");
 goog.require("net.bluemind.calendar.PendingEventsMgmt");
-goog.require("net.bluemind.resource.persistance.schema");
+goog.require("net.bluemind.resource.persistence.schema");
 goog.require("net.bluemind.resource.sync.ResourcesSync");
 goog.require("net.bluemind.resource.sync.UnitaryResourcesSync");
 goog.require("net.bluemind.resource.sync.ResourcesClientSync");
@@ -307,25 +307,25 @@ net.bluemind.calendar.CalendarApplication.prototype.getDbSchemas = function(ctx)
 	var root = goog.base(this, 'getDbSchemas', ctx);
 	return goog.array.concat(root, [ {
 		name : 'tag',
-		schema : net.bluemind.container.persistance.schema,
-		options : net.bluemind.container.persistance.options
+		schema : net.bluemind.container.persistence.schema,
+		options : net.bluemind.container.persistence.options
 	}, {
 		name : 'folder',
-		schema : net.bluemind.folder.persistance.schema
+		schema : net.bluemind.folder.persistence.schema
 	}, {
 		name : 'contact',
-		schema : net.bluemind.addressbook.persistance.schema
+		schema : net.bluemind.addressbook.persistence.schema
 	}, {
 		name : 'calendarview',
-		schema : net.bluemind.container.persistance.schema
+		schema : net.bluemind.container.persistence.schema
 	}, {
 		name : 'calendar',
-		schema : net.bluemind.calendar.persistance.schema
+		schema : net.bluemind.calendar.persistence.schema
 	}, {
 		name : 'todolist',
-		schema : net.bluemind.todolist.persistance.schema
+		schema : net.bluemind.todolist.persistence.schema
 	}, {
 		name : 'resources',
-		schema : net.bluemind.resource.persistance.schema
+		schema : net.bluemind.resource.persistence.schema
 	} ]);
 };

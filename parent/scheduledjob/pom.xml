@@ -12,8 +12,8 @@
 		<module>net.bluemind.scheduledjob.api</module>
 		<module>net.bluemind.scheduledjob.job</module>
 		<module>net.bluemind.scheduledjob.job.tests</module>
-		<module>net.bluemind.scheduledjob.persistance</module>
-		<module>net.bluemind.scheduledjob.persistance.tests</module>
+		<module>net.bluemind.scheduledjob.persistence</module>
+		<module>net.bluemind.scheduledjob.persistence.tests</module>
 		<module>net.bluemind.scheduledjob.scheduler</module>
 		<module>net.bluemind.scheduledjob.service</module>
 		<module>net.bluemind.scheduledjob.service.tests</module>

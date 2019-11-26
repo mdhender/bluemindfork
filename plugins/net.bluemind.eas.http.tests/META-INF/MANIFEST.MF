@@ -18,5 +18,5 @@ Require-Bundle: org.junit;bundle-version="3.8.2",
  net.bluemind.authentication.api,
  net.bluemind.config,
  net.bluemind.core.rest,
- net.bluemind.core.container.persistance,
+ net.bluemind.core.container.persistence,
  net.bluemind.user.api

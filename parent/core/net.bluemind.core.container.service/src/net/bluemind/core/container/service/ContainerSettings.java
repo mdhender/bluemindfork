@@ -23,8 +23,8 @@ import java.util.Map;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.persistance.ContainerSettingsStore;
-import net.bluemind.core.container.persistance.DataSourceRouter;
+import net.bluemind.core.container.persistence.ContainerSettingsStore;
+import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.rest.BmContext;
 
 public class ContainerSettings {

@@ -14,8 +14,8 @@
 		<module>net.bluemind.system.api</module>
 		<module>net.bluemind.system.domaintemplate</module>
 		<module>net.bluemind.system.subscriptionprovider</module>
-		<module>net.bluemind.system.persistance</module>
-		<module>net.bluemind.system.persistance.tests</module>
+		<module>net.bluemind.system.persistence</module>
+		<module>net.bluemind.system.persistence.tests</module>
 		<module>net.bluemind.system.schemaupgrader</module>
 		<module>net.bluemind.system.schemaupgrader.runner</module>
 		<module>net.bluemind.system.schemaupgrader.tests</module>

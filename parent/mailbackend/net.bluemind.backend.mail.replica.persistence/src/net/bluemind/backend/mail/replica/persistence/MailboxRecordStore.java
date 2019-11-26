@@ -44,9 +44,9 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.SortDescriptor;
-import net.bluemind.core.container.persistance.AbstractItemValueStore;
-import net.bluemind.core.container.persistance.LongCreator;
-import net.bluemind.core.container.persistance.StringCreator;
+import net.bluemind.core.container.persistence.AbstractItemValueStore;
+import net.bluemind.core.container.persistence.LongCreator;
+import net.bluemind.core.container.persistence.StringCreator;
 
 public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 

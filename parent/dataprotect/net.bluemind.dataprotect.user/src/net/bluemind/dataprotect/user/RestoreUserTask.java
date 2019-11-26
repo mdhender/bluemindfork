@@ -34,7 +34,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.persistance.ContainerStore;
+import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.rest.BmContext;
@@ -62,7 +62,7 @@ import net.bluemind.tag.api.ITagUids;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.IUserSettings;
 import net.bluemind.user.api.User;
-import net.bluemind.user.persistance.UserStore;
+import net.bluemind.user.persistence.UserStore;
 
 public class RestoreUserTask implements IServerTask {
 

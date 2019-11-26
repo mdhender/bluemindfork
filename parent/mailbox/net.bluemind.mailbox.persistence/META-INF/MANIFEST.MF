@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.mailshare.persistence
+Bundle-SymbolicName: net.bluemind.mailbox.persistence;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Require-Bundle: net.bluemind.core.jdbc,
+ net.bluemind.core.container.persistence,
+ net.bluemind.mailbox.api,
+ net.bluemind.core.commons,
+ net.bluemind.core.container.api,
+ net.bluemind.slf4j,
+ net.bluemind.server.api,
+ net.bluemind.mailbox.sqlschema
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Vendor: blue-mind.net
+Export-Package: net.bluemind.mailbox.persistence
+Automatic-Module-Name: net.bluemind.mailbox.persistence

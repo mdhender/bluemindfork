@@ -34,7 +34,7 @@ import net.bluemind.backend.mail.replica.indexing.RecordIndexActivator;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore.MailboxRecordItemV;
 import net.bluemind.backend.mail.replica.persistence.MessageBodyStore;
-import net.bluemind.core.container.persistance.ContainersHierarchyNodeStore;
+import net.bluemind.core.container.persistence.ContainersHierarchyNodeStore;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.api.TaskRef;

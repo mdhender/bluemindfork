@@ -145,7 +145,7 @@ class Zend_Gdata_Books_VolumeEntry extends Zend_Gdata_Entry
      * Retrieves DOMElement which corresponds to this element and all
      * child properties. This is used to build this object back into a DOM
      * and eventually XML text for sending to the server upon updates, or
-     * for application storage/persistance.
+     * for application storage/persistence.
      *
      * @param DOMDocument $doc The DOMDocument used to construct DOMElements
      * @return DOMElement The DOMElement representing this element and all

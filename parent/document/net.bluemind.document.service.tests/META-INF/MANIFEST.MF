@@ -20,5 +20,5 @@ Require-Bundle: org.junit,
  net.bluemind.addressbook.domainbook;bundle-version="1.0.0",
  net.bluemind.mailbox.service;bundle-version="1.0.0",
  net.bluemind.locator;bundle-version="1.0.0",
- net.bluemind.document.persistance.fs;bundle-version="1.0.0",
+ net.bluemind.document.persistence.fs;bundle-version="1.0.0",
  net.bluemind.domain.api;bundle-version="1.0.0"

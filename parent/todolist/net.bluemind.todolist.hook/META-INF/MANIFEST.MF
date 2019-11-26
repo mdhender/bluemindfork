@@ -10,7 +10,7 @@ Require-Bundle: net.bluemind.lib.vertx,
  net.bluemind.todolist.api,
  net.bluemind.core.rest,
  net.bluemind.core.context,
- net.bluemind.core.container.persistance
+ net.bluemind.core.container.persistence
 Export-Package: net.bluemind.todolist.hook,
  net.bluemind.todolist.hook.internal
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx

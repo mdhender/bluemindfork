@@ -38,9 +38,9 @@ import net.bluemind.core.container.api.internal.IInternalContainersFlatHierarchy
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.persistance.ContainerStore;
-import net.bluemind.core.container.persistance.ContainersHierarchyNodeStore;
-import net.bluemind.core.container.persistance.DataSourceRouter;
+import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.ContainersHierarchyNodeStore;
+import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.sessions.Sessions;

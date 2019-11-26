@@ -29,16 +29,16 @@ import com.google.common.collect.Maps;
 import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.persistance.ContainerStore;
-import net.bluemind.core.container.persistance.DataSourceRouter;
+import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.tag.service.TagsSanitizer;
 import net.bluemind.todolist.api.ITodoUids;
 import net.bluemind.todolist.api.VTodo;
-import net.bluemind.todolist.persistance.VTodoIndexStore;
-import net.bluemind.todolist.persistance.VTodoStore;
+import net.bluemind.todolist.persistence.VTodoIndexStore;
+import net.bluemind.todolist.persistence.VTodoStore;
 import net.bluemind.todolist.service.internal.VTodoContainerStoreService;
 
 public class TodoListRepairSupport {

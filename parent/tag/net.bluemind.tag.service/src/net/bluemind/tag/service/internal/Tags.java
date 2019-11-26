@@ -37,7 +37,7 @@ import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.Verb;
-import net.bluemind.core.container.persistance.ContainerStore;
+import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
@@ -46,7 +46,7 @@ import net.bluemind.tag.api.ITags;
 import net.bluemind.tag.api.Tag;
 import net.bluemind.tag.api.TagChanges;
 import net.bluemind.tag.api.ITagUids;
-import net.bluemind.tag.persistance.TagStore;
+import net.bluemind.tag.persistence.TagStore;
 
 public class Tags implements ITags {
 

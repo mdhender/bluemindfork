@@ -44,7 +44,7 @@ import net.bluemind.externaluser.service.IInCoreExternalUser;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.Member;
-import net.bluemind.group.persistance.GroupStore;
+import net.bluemind.group.persistence.GroupStore;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.role.api.BasicRoles;
 

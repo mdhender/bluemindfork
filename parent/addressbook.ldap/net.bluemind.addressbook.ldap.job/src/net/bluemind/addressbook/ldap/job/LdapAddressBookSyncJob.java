@@ -35,7 +35,7 @@ import net.bluemind.core.container.api.internal.IInternalContainerSync;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ContainerSyncResult;
 import net.bluemind.core.container.model.ContainerSyncStatus.Status;
-import net.bluemind.core.container.persistance.ContainersSyncStore;
+import net.bluemind.core.container.persistence.ContainersSyncStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;

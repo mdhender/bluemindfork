@@ -25,7 +25,7 @@ import java.util.Objects;
 import javax.sql.DataSource;
 
 import net.bluemind.backend.mail.api.MessageBody;
-import net.bluemind.core.container.persistance.StringCreator;
+import net.bluemind.core.container.persistence.StringCreator;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 
 public class MessageBodyStore extends JdbcAbstractStore {

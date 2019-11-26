@@ -29,7 +29,7 @@ import net.bluemind.directory.service.DirEntryAndValue;
 import net.bluemind.directory.service.DirEntryHandler;
 import net.bluemind.directory.service.DirValueStoreService;
 import net.bluemind.domain.api.Domain;
-import net.bluemind.mailbox.identity.persistance.MailboxIdentityStore;
+import net.bluemind.mailbox.identity.persistence.MailboxIdentityStore;
 import net.bluemind.mailshare.api.Mailshare;
 
 public class ContainerMailshareStoreService extends DirValueStoreService<Mailshare> {

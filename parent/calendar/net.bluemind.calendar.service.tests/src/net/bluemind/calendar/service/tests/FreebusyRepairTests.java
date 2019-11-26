@@ -29,11 +29,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.bluemind.calendar.api.IFreebusyUids;
-import net.bluemind.calendar.persistance.FreebusyStore;
+import net.bluemind.calendar.persistence.FreebusyStore;
 import net.bluemind.calendar.service.internal.repair.FreebusyRepairSupport;
 import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.persistance.ContainerStore;
+import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.task.service.NullTaskMonitor;

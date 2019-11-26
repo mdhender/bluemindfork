@@ -43,7 +43,7 @@ import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.resource.api.type.IResourceTypes;
 import net.bluemind.resource.api.type.ResourceType;
 import net.bluemind.resource.api.type.ResourceTypeDescriptor;
-import net.bluemind.resource.persistance.ResourceTypeStore;
+import net.bluemind.resource.persistence.ResourceTypeStore;
 import net.bluemind.role.api.BasicRoles;
 
 public class ResourceTypesService implements IResourceTypes {

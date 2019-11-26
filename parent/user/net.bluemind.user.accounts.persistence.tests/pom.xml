@@ -6,7 +6,7 @@
 		<artifactId>net.bluemind.user.plugins</artifactId>
 		<version>4.1.0-SNAPSHOT</version>
 	</parent>
-	<artifactId>net.bluemind.user.accounts.persistance.tests</artifactId>
+	<artifactId>net.bluemind.user.accounts.persistence.tests</artifactId>
 	<packaging>eclipse-test-plugin</packaging>
 	<build>
 		<plugins>

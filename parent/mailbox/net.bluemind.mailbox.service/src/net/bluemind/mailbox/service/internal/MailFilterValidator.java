@@ -39,7 +39,7 @@ public class MailFilterValidator implements IValidator<MailFilter> {
 
 	// FIXME move EMAIL, emailPattern to somewhere accessible everywhere (and
 	// reuse it
-	// @ net.bluemind.mailbox.persistance.EmailHelper
+	// @ net.bluemind.mailbox.persistence.EmailHelper
 	private static final String EMAIL = "^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@([a-z0-9-]+\\.)+[a-z]{2,}$";
 	public static final Pattern emailPattern = Pattern.compile(EMAIL);
 

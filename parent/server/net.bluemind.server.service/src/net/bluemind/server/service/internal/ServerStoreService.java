@@ -27,7 +27,7 @@ import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.server.api.Assignment;
 import net.bluemind.server.api.Server;
-import net.bluemind.server.persistance.ServerStore;
+import net.bluemind.server.persistence.ServerStore;
 
 public class ServerStoreService extends ContainerStoreService<Server> {
 

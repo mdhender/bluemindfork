@@ -10,8 +10,8 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>net.bluemind.globalsettings.sqlschema</module>
-		<module>net.bluemind.globalsettings.persistance</module>
-		<module>net.bluemind.globalsettings.persistance.tests</module>
+		<module>net.bluemind.globalsettings.persistence</module>
+		<module>net.bluemind.globalsettings.persistence.tests</module>
 	</modules>
 
 </project>

@@ -40,8 +40,8 @@ import net.bluemind.backend.mail.replica.service.internal.hooks.DeletedDataMemen
 import net.bluemind.backend.mail.replica.utils.SubtreeContainer;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.persistance.ContainerStore;
-import net.bluemind.core.container.persistance.DataSourceRouter;
+import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;

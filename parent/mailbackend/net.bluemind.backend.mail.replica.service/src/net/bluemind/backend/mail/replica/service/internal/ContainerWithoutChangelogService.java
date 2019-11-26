@@ -20,7 +20,7 @@ package net.bluemind.backend.mail.replica.service.internal;
 import javax.sql.DataSource;
 
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.persistance.IItemValueStore;
+import net.bluemind.core.container.persistence.IItemValueStore;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.context.SecurityContext;
 

@@ -12,8 +12,8 @@
 		<module>net.bluemind.todolist.adapter</module>
 		<module>net.bluemind.todolist.api</module>
 		<module>net.bluemind.todolist.sqlschema</module>
-		<module>net.bluemind.todolist.persistance</module>
-		<module>net.bluemind.todolist.persistance.tests</module>
+		<module>net.bluemind.todolist.persistence</module>
+		<module>net.bluemind.todolist.persistence.tests</module>
 		<module>net.bluemind.todolist.service</module>
 		<module>net.bluemind.todolist.service.tests</module>
 		<module>net.bluemind.todolist.feature</module>

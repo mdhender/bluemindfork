@@ -31,7 +31,7 @@ import net.bluemind.core.container.api.internal.IInternalContainersFlatHierarchy
 import net.bluemind.core.container.api.internal.IInternalContainersFlatHierarchyMgmt;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerDescriptor;
-import net.bluemind.core.container.persistance.ContainerStore;
+import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.directory.api.DirEntry;

@@ -9,6 +9,6 @@ Require-Bundle: net.bluemind.core.jdbc.testshelper,
  net.bluemind.server.api,
  net.bluemind.tests.defaultdata,
  org.junit,
- net.bluemind.core.container.persistance,
+ net.bluemind.core.container.persistence,
  net.bluemind.locator,
- net.bluemind.directory.persistance
+ net.bluemind.directory.persistence

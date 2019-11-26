@@ -53,8 +53,8 @@ goog.require("net.bluemind.timezone.TimeZoneHelper");
 goog.require("relief.cache.Cache");
 goog.require("relief.rpc.RPCService");
 goog.require("bluemind.storage.StorageHelper");
-goog.require("net.bluemind.container.persistance.DBItemHome");
-goog.require("net.bluemind.persistance.DatabaseService");
+goog.require("net.bluemind.container.persistence.DBItemHome");
+goog.require("net.bluemind.persistence.DatabaseService");
 goog.require("goog.net.Cookies");
 goog.require('net.bluemind.net.OnlineHandler');
 goog.require("net.bluemind.debug.RemoteLogger");
@@ -141,7 +141,7 @@ net.bluemind.mvp.Application.prototype.bootstrap = function(ctx) {
       resolve();
     }
   }, this);
-  ctx.service('database', net.bluemind.persistance.DatabaseService);
+  ctx.service('database', net.bluemind.persistence.DatabaseService);
   goog.log.info(this.logger, 'Initializing databases');
 
   return ctx.service('database').initialize().then(function() {

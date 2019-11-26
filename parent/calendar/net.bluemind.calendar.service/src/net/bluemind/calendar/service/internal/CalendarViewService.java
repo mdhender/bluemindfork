@@ -31,7 +31,7 @@ import net.bluemind.calendar.api.CalendarViewChanges;
 import net.bluemind.calendar.api.ICalendarView;
 import net.bluemind.calendar.api.IUserCalendarViews;
 import net.bluemind.calendar.api.internal.IInCoreCalendarView;
-import net.bluemind.calendar.persistance.CalendarViewStore;
+import net.bluemind.calendar.persistence.CalendarViewStore;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -39,7 +39,7 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.Verb;
-import net.bluemind.core.container.persistance.DataSourceRouter;
+import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 

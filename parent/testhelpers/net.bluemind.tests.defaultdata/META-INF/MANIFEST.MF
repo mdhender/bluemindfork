@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.tests.defaultdata
 Bundle-SymbolicName: net.bluemind.tests.defaultdata
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: blue-mind.net
-Require-Bundle: net.bluemind.core.container.persistance,
+Require-Bundle: net.bluemind.core.container.persistence,
  net.bluemind.core.context,
  net.bluemind.core.jdbc,
  net.bluemind.user.api;visibility:=reexport,
@@ -18,11 +18,11 @@ Require-Bundle: net.bluemind.core.container.persistance,
  net.bluemind.slf4j,
  net.bluemind.core.container.api,
  net.bluemind.core.commons;bundle-version="1.0.0",
- net.bluemind.server.persistance,
+ net.bluemind.server.persistence,
  net.bluemind.core.container.service,
  net.bluemind.domain.api;visibility:=reexport,
  net.bluemind.domain.hook;bundle-version="1.0.0",
- net.bluemind.domain.persistance;bundle-version="1.0.0",
+ net.bluemind.domain.persistence;bundle-version="1.0.0",
  net.bluemind.domain.service;bundle-version="1.0.0",
  org.junit,
  net.bluemind.addressbook.domainbook;bundle-version="1.0.0";visibility:=reexport,

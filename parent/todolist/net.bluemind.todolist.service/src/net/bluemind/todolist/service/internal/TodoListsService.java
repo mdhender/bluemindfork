@@ -46,8 +46,8 @@ import net.bluemind.core.container.model.ItemContainerValue;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
-import net.bluemind.core.container.persistance.ContainerStore;
-import net.bluemind.core.container.persistance.DataSourceRouter;
+import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
@@ -60,7 +60,7 @@ import net.bluemind.todolist.api.ITodoUids;
 import net.bluemind.todolist.api.TodoListsVTodoQuery;
 import net.bluemind.todolist.api.VTodo;
 import net.bluemind.todolist.api.VTodoQuery;
-import net.bluemind.todolist.persistance.VTodoIndexStore;
+import net.bluemind.todolist.persistence.VTodoIndexStore;
 import net.bluemind.user.api.IUserSubscription;
 
 public class TodoListsService implements ITodoLists {

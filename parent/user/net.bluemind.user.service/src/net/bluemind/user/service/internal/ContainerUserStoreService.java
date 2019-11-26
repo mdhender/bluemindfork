@@ -28,7 +28,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.persistance.ContainerStore;
+import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.service.DirEntryAndValue;
@@ -38,10 +38,10 @@ import net.bluemind.mailbox.identity.api.IdentityDescription;
 import net.bluemind.role.persistence.RoleStore;
 import net.bluemind.user.api.User;
 import net.bluemind.user.api.UserMailIdentity;
-import net.bluemind.user.persistance.UserMailIdentityStore;
-import net.bluemind.user.persistance.UserSettingsStore;
-import net.bluemind.user.persistance.UserStore;
-import net.bluemind.user.persistance.UserSubscriptionStore;
+import net.bluemind.user.persistence.UserMailIdentityStore;
+import net.bluemind.user.persistence.UserSettingsStore;
+import net.bluemind.user.persistence.UserStore;
+import net.bluemind.user.persistence.UserSubscriptionStore;
 
 public class ContainerUserStoreService extends DirValueStoreService<User> {
 

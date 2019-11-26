@@ -13,7 +13,7 @@ Require-Bundle: net.bluemind.hsm.storage,
  org.eclipse.osgi,
  org.iq80.snappy;bundle-version="0.4.0",
  net.bluemind.dataprotect.service,
- net.bluemind.core.container.persistance,
+ net.bluemind.core.container.persistence,
  net.bluemind.dataprotect.api
 Bundle-Activator: net.bluemind.hsm.storage.impl.Activator
 Bundle-ActivationPolicy: lazy

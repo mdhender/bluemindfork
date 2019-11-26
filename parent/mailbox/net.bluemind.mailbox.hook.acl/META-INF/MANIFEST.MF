@@ -7,7 +7,7 @@ Bundle-Vendor: www.blue-mind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.core.container.hooks,
  net.bluemind.core.rest,
- net.bluemind.core.container.persistance,
+ net.bluemind.core.container.persistence,
  net.bluemind.core.container.api,
  net.bluemind.slf4j;bundle-version="1.0.0",
  net.bluemind.mime4j.common;bundle-version="1.0.0",

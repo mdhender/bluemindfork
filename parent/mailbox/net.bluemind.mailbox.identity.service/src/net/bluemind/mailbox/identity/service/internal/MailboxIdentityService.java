@@ -39,7 +39,7 @@ import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.identity.api.IMailboxIdentity;
 import net.bluemind.mailbox.identity.api.Identity;
 import net.bluemind.mailbox.identity.api.IdentityDescription;
-import net.bluemind.mailbox.identity.persistance.MailboxIdentityStore;
+import net.bluemind.mailbox.identity.persistence.MailboxIdentityStore;
 import net.bluemind.role.api.BasicRoles;
 
 public class MailboxIdentityService implements IMailboxIdentity {

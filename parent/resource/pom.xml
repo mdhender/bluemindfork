@@ -11,8 +11,8 @@
 	<modules>
 		<module>net.bluemind.resource.api</module>
 		<module>net.bluemind.resource.sqlschema</module>		
-		<module>net.bluemind.resource.persistance</module>
-		<module>net.bluemind.resource.persistance.tests</module>	
+		<module>net.bluemind.resource.persistence</module>
+		<module>net.bluemind.resource.persistence.tests</module>	
 		<module>net.bluemind.resource.service</module>
 		<module>net.bluemind.resource.service.tests</module>
 		<module>net.bluemind.resource.hook.ics</module>

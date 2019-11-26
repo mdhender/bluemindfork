@@ -30,7 +30,7 @@ import org.junit.Test;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.persistance.ContainerStore;
+import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;

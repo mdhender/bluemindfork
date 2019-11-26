@@ -41,9 +41,9 @@ import net.bluemind.dataprotect.api.Restorable;
 import net.bluemind.dataprotect.api.RestoreDefinition;
 import net.bluemind.dataprotect.api.RestoreOperation;
 import net.bluemind.dataprotect.api.RetentionPolicy;
-import net.bluemind.dataprotect.persistance.DataProtectGenerationStore;
-import net.bluemind.dataprotect.persistance.GenerationWriter;
-import net.bluemind.dataprotect.persistance.RetentionPolicyStore;
+import net.bluemind.dataprotect.persistence.DataProtectGenerationStore;
+import net.bluemind.dataprotect.persistence.GenerationWriter;
+import net.bluemind.dataprotect.persistence.RetentionPolicyStore;
 import net.bluemind.dataprotect.service.IRestoreActionProvider;
 import net.bluemind.role.api.BasicRoles;
 

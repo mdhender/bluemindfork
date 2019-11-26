@@ -35,8 +35,8 @@ import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.container.model.acl.Verb;
-import net.bluemind.core.container.persistance.ContainerStore;
-import net.bluemind.core.container.persistance.ContainersHierarchyNodeStore;
+import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.ContainersHierarchyNodeStore;
 import net.bluemind.core.rest.BmContext;
 
 public class InternalContainersHierarchyService implements IInternalContainersFlatHierarchy, IContainersFlatHierarchy {

@@ -42,16 +42,16 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.persistance.ContainerStore;
-import net.bluemind.core.container.persistance.DataSourceRouter;
-import net.bluemind.core.container.persistance.ItemStore;
+import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.DataSourceRouter;
+import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.directory.api.DirEntry;
-import net.bluemind.directory.persistance.DirEntryStore;
+import net.bluemind.directory.persistence.DirEntryStore;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -59,7 +59,7 @@ import net.bluemind.todolist.api.ITodoList;
 import net.bluemind.todolist.api.ITodoLists;
 import net.bluemind.todolist.api.VTodo;
 import net.bluemind.user.api.User;
-import net.bluemind.user.persistance.UserStore;
+import net.bluemind.user.persistence.UserStore;
 
 public class UserTodoListHookTests {
 

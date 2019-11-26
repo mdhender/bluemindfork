@@ -14,7 +14,7 @@ Require-Bundle: net.bluemind.addressbook.api;bundle-version="1.0.0",
  net.bluemind.core.context,
  net.bluemind.domain.api;bundle-version="1.0.0",
  net.bluemind.domain.hook;bundle-version="1.0.0",
- net.bluemind.core.container.persistance,
+ net.bluemind.core.container.persistence,
  net.bluemind.directory.api,
  net.bluemind.core.jdbc,
  net.bluemind.eclipse.common

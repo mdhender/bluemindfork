@@ -49,7 +49,7 @@ import net.bluemind.scheduledjob.api.JobPlanification;
 import net.bluemind.scheduledjob.api.JobQuery;
 import net.bluemind.scheduledjob.api.LogEntry;
 import net.bluemind.scheduledjob.api.PlanKind;
-import net.bluemind.scheduledjob.persistance.ScheduledJobStore;
+import net.bluemind.scheduledjob.persistence.ScheduledJobStore;
 import net.bluemind.scheduledjob.scheduler.IScheduledJob;
 import net.bluemind.scheduledjob.scheduler.impl.JobRegistry;
 import net.bluemind.scheduledjob.scheduler.impl.RunIdImpl;

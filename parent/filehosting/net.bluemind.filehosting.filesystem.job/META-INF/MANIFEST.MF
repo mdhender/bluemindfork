@@ -16,4 +16,4 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.filehosting.filesystem.service,
  net.bluemind.system.api,
  net.bluemind.domain.api,
- net.bluemind.core.container.persistance
+ net.bluemind.core.container.persistence

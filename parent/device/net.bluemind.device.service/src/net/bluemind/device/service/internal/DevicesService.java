@@ -26,7 +26,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.device.api.Device;
 import net.bluemind.device.api.IDevices;
-import net.bluemind.device.persistance.DeviceStore;
+import net.bluemind.device.persistence.DeviceStore;
 
 public class DevicesService implements IDevices {
 	private DeviceStore store;

@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: net.bluemind.user.accounts.persistance.tests
-Bundle-SymbolicName: net.bluemind.user.accounts.persistance.tests;singleton:=true
+Bundle-Name: net.bluemind.user.accounts.persistence.tests
+Bundle-SymbolicName: net.bluemind.user.accounts.persistence.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
@@ -10,6 +10,6 @@ Require-Bundle: net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
  net.bluemind.config,
  net.bluemind.core.rest,
  net.bluemind.tests.defaultdata,
- net.bluemind.core.container.persistance,
+ net.bluemind.core.container.persistence,
  net.bluemind.user.accounts.persistence
 

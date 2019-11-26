@@ -11,8 +11,8 @@
 	<modules>
 		<module>net.bluemind.server.api</module>
 		<module>net.bluemind.server.sqlschema</module>
-		<module>net.bluemind.server.persistance</module>
-		<module>net.bluemind.server.persistance.tests</module>
+		<module>net.bluemind.server.persistence</module>
+		<module>net.bluemind.server.persistence.tests</module>
 		<module>net.bluemind.server.service</module>
 		<module>net.bluemind.server.service.tests</module>
 		<module>net.bluemind.server.hook</module>

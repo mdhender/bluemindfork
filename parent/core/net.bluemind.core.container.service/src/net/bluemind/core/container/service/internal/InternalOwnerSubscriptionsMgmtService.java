@@ -34,7 +34,7 @@ import net.bluemind.core.container.api.internal.IInternalOwnerSubscriptions;
 import net.bluemind.core.container.api.internal.IInternalOwnerSubscriptionsMgmt;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerDescriptor;
-import net.bluemind.core.container.persistance.ContainerStore;
+import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;

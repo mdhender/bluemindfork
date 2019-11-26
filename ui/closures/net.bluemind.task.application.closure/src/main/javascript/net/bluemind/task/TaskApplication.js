@@ -45,9 +45,9 @@ goog.require("net.bluemind.todolist.sync.TodoListSync");
 goog.require("net.bluemind.sync.SyncEngine");
 goog.require("net.bluemind.folder.service.FoldersService");
 goog.require("net.bluemind.folder.service.FolderService");
-goog.require("net.bluemind.folder.persistance.schema");
-goog.require("net.bluemind.todolist.persistance.schema");
-goog.require("net.bluemind.container.persistance.schema");
+goog.require("net.bluemind.folder.persistence.schema");
+goog.require("net.bluemind.todolist.persistence.schema");
+goog.require("net.bluemind.container.persistence.schema");
 goog.require("net.bluemind.tag.service.TagService");
 goog.require("net.bluemind.tag.sync.UnitaryTagSync");
 goog.require("net.bluemind.todolist.service.TodolistsSyncManager");
@@ -143,12 +143,12 @@ net.bluemind.task.TaskApplication.prototype.getDbSchemas = function(ctx) {
   var root = goog.base(this, 'getDbSchemas', ctx);
   return goog.array.concat(root, [ {
     name : 'tag',
-    schema : net.bluemind.container.persistance.schema
+    schema : net.bluemind.container.persistence.schema
   }, {
     name : 'folder',
-    schema : net.bluemind.folder.persistance.schema
+    schema : net.bluemind.folder.persistence.schema
   }, {
     name : 'todolist',
-    schema : net.bluemind.todolist.persistance.schema
+    schema : net.bluemind.todolist.persistence.schema
   } ]);
 };

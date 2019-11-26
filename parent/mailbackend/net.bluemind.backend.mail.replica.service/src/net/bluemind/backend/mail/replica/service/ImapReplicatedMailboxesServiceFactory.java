@@ -28,7 +28,7 @@ import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.persistence.MailboxReplicaStore;
 import net.bluemind.backend.mail.replica.service.internal.ImapReplicatedMailboxesService;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.persistance.ContainerStore;
+import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.rest.BmContext;
 

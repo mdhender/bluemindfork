@@ -26,12 +26,12 @@ import javax.sql.DataSource;
 
 import com.google.common.collect.Maps;
 
-import net.bluemind.calendar.persistance.FreebusyStore;
+import net.bluemind.calendar.persistence.FreebusyStore;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.persistance.ContainerStore;
-import net.bluemind.core.container.persistance.DataSourceRouter;
+import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 

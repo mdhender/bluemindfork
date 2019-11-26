@@ -38,7 +38,7 @@ import com.google.common.util.concurrent.SettableFuture;
 
 import net.bluemind.addressbook.api.AddressBookDescriptor;
 import net.bluemind.addressbook.api.IAddressBooksMgmt;
-import net.bluemind.addressbook.persistance.VCardStore;
+import net.bluemind.addressbook.persistence.VCardStore;
 import net.bluemind.addressbook.service.internal.DomainBookRepairSupport;
 import net.bluemind.addressbook.service.internal.DomainBookRepairSupport.RepairAB;
 import net.bluemind.core.api.report.DiagnosticReport;
@@ -46,9 +46,9 @@ import net.bluemind.core.api.report.DiagnosticReport.Entry;
 import net.bluemind.core.api.report.DiagnosticReport.State;
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.persistance.ContainerStore;
-import net.bluemind.core.container.persistance.ContainerSyncStore;
-import net.bluemind.core.container.persistance.ItemStore;
+import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.ContainerSyncStore;
+import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
@@ -64,7 +64,7 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.server.api.Server;
 import net.bluemind.tag.api.Tag;
 import net.bluemind.tag.api.TagRef;
-import net.bluemind.tag.persistance.TagRefStore;
+import net.bluemind.tag.persistence.TagRefStore;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class DomainBookRepairSupportTests {

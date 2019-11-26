@@ -32,8 +32,8 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.domain.api.Domain;
-import net.bluemind.domain.persistance.DomainSettingsStore;
-import net.bluemind.domain.persistance.DomainStore;
+import net.bluemind.domain.persistence.DomainSettingsStore;
+import net.bluemind.domain.persistence.DomainStore;
 import net.bluemind.role.persistence.RoleStore;
 
 public class DomainStoreService extends ContainerStoreService<Domain> {

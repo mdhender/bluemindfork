@@ -8,7 +8,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.core.container.sync,
  net.bluemind.addressbook.api;bundle-version="4.1.0",
  net.bluemind.core.rest,
- net.bluemind.core.container.persistance,
+ net.bluemind.core.container.persistence,
  net.bluemind.core.task.service,
  net.bluemind.slf4j;bundle-version="4.1.0",
  net.bluemind.addressbook.ldap.api;bundle-version="4.1.0",

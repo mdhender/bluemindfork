@@ -6,7 +6,7 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
- net.bluemind.core.container.persistance,
+ net.bluemind.core.container.persistence,
  net.bluemind.backend.mail.api,
  net.bluemind.backend.mail.replica.api,
  net.bluemind.backend.mail.parsing,

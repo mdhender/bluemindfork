@@ -11,8 +11,8 @@
 	<modules>
 		<module>net.bluemind.user.api</module>
 		<module>net.bluemind.user.sqlschema</module>
-		<module>net.bluemind.user.persistance</module>
-		<module>net.bluemind.user.persistance.tests</module>
+		<module>net.bluemind.user.persistence</module>
+		<module>net.bluemind.user.persistence.tests</module>
 		<module>net.bluemind.user.service</module>
 		<module>net.bluemind.user.service.tests</module>
 		<module>net.bluemind.user.hook</module>

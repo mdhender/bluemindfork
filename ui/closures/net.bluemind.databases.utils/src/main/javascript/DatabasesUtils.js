@@ -25,15 +25,15 @@
  */
 
 goog.provide("net.bluemind.databases.DatabasesUtils");
-goog.require("net.bluemind.container.persistance.schema");
-goog.require("net.bluemind.folder.persistance.schema");
-goog.require("net.bluemind.addressbook.persistance.schema");
-goog.require("net.bluemind.todolist.persistance.schema");
-goog.require("net.bluemind.calendar.persistance.schema");
+goog.require("net.bluemind.container.persistence.schema");
+goog.require("net.bluemind.folder.persistence.schema");
+goog.require("net.bluemind.addressbook.persistence.schema");
+goog.require("net.bluemind.todolist.persistence.schema");
+goog.require("net.bluemind.calendar.persistence.schema");
 goog.require("net.bluemind.authentication.schema");
-goog.require("net.bluemind.resource.persistance.schema");
+goog.require("net.bluemind.resource.persistence.schema");
 goog.require("net.bluemind.mvp.ApplicationContext");
-goog.require("net.bluemind.persistance.DatabaseService");
+goog.require("net.bluemind.persistence.DatabaseService");
 goog.require('net.bluemind.mvp.Application');
 goog.require('net.bluemind.mvp.ApplicationContext');
 /**
@@ -52,7 +52,7 @@ net.bluemind.databases.DatabasesUtils = function() {
 /**
  */
 net.bluemind.databases.DatabasesUtils.prototype.reset = function() {
-  var service = new net.bluemind.persistance.DatabaseService(this.ctx);
+  var service = new net.bluemind.persistence.DatabaseService(this.ctx);
 
   return service.initialize().then(function() {
     return service.regsiterSchemas([ {
@@ -61,28 +61,28 @@ net.bluemind.databases.DatabasesUtils.prototype.reset = function() {
       options : null
     }, {
       name : 'tag',
-      schema : net.bluemind.container.persistance.schema
+      schema : net.bluemind.container.persistence.schema
     }, {
       name : 'folder',
-      schema : net.bluemind.folder.persistance.schema
+      schema : net.bluemind.folder.persistence.schema
     }, {
       name : 'contact',
-      schema : net.bluemind.addressbook.persistance.schema
+      schema : net.bluemind.addressbook.persistence.schema
     }, {
       name : 'calendarview',
-      schema : net.bluemind.container.persistance.schema
+      schema : net.bluemind.container.persistence.schema
     }, {
       name : 'calendar',
-      schema : net.bluemind.calendar.persistance.schema
+      schema : net.bluemind.calendar.persistence.schema
     }, {
       name : 'todolist',
-      schema : net.bluemind.todolist.persistance.schema
+      schema : net.bluemind.todolist.persistence.schema
     }, {
       name : 'auth',
       schema : net.bluemind.authentication.schema
     }, {
         name : 'resources',
-        schema : net.bluemind.resource.persistance.schema
+        schema : net.bluemind.resource.persistence.schema
       } ]);
   }, null, this).then(function() {
     service.clearAll();

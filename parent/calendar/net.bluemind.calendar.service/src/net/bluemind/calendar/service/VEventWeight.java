@@ -22,7 +22,7 @@ import java.util.Optional;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
-import net.bluemind.core.container.persistance.IWeightProvider;
+import net.bluemind.core.container.persistence.IWeightProvider;
 import net.bluemind.core.container.service.internal.ContainerStoreService.IWeightSeedProvider;
 
 public class VEventWeight {

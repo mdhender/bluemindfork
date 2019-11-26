@@ -6,7 +6,7 @@ Bundle-Version: 4.1.0.qualifier
 Export-Package: net.bluemind.core.container.service,
  net.bluemind.core.container.service.internal
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: net.bluemind.core.container.persistance;bundle-version="1.0.0",
+Require-Bundle: net.bluemind.core.container.persistence;bundle-version="1.0.0",
  net.bluemind.core.jdbc;bundle-version="1.0.0",
  net.bluemind.lib.vertx;bundle-version="1.0.0",
  net.bluemind.core.context;bundle-version="1.0.0",
@@ -25,6 +25,6 @@ Require-Bundle: net.bluemind.core.container.persistance;bundle-version="1.0.0",
  net.bluemind.core.task.api,
  net.bluemind.core.task.service,
  net.bluemind.role.api,
- net.bluemind.user.persistance,
+ net.bluemind.user.persistence,
  net.bluemind.core.container.sharding
 Automatic-Module-Name: net.bluemind.core.container.service

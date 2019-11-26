@@ -23,7 +23,7 @@ import javax.sql.DataSource;
 
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
-import net.bluemind.core.container.persistance.AbstractItemValueStore;
+import net.bluemind.core.container.persistence.AbstractItemValueStore;
 
 public class DummyStore extends AbstractItemValueStore<Dummy> {
 

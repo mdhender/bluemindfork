@@ -29,7 +29,7 @@ import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.persistance.DataSourceRouter;
+import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;

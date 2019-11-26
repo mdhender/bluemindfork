@@ -15,8 +15,8 @@
 		<module>net.bluemind.calendar.hook.ics.tests</module>
 		<module>net.bluemind.calendar.hook.acl</module>
 		<module>net.bluemind.calendar.sqlschema</module>
-		<module>net.bluemind.calendar.persistance</module>
-		<module>net.bluemind.calendar.persistance.tests</module>
+		<module>net.bluemind.calendar.persistence</module>
+		<module>net.bluemind.calendar.persistence.tests</module>
 		<module>net.bluemind.calendar.occurrence</module>
 		<module>net.bluemind.calendar.occurrence.tests</module>
 		<module>net.bluemind.calendar.service</module>

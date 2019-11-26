@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
-import net.bluemind.core.container.persistance.AbstractItemValueStore;
+import net.bluemind.core.container.persistence.AbstractItemValueStore;
 import net.bluemind.exchange.mapi.api.MapiFAI;
 
 public class MapiFAIStore extends AbstractItemValueStore<MapiFAI> {

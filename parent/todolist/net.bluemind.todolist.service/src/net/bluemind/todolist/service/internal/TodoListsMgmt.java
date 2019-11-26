@@ -36,8 +36,8 @@ import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.persistance.ContainerStore;
-import net.bluemind.core.container.persistance.DataSourceRouter;
+import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.IServerTask;
@@ -47,8 +47,8 @@ import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.todolist.api.ITodoListsMgmt;
 import net.bluemind.todolist.api.ITodoUids;
 import net.bluemind.todolist.api.VTodo;
-import net.bluemind.todolist.persistance.VTodoIndexStore;
-import net.bluemind.todolist.persistance.VTodoStore;
+import net.bluemind.todolist.persistence.VTodoIndexStore;
+import net.bluemind.todolist.persistence.VTodoStore;
 import net.bluemind.todolist.service.IInCoreTodoListsMgmt;
 
 public class TodoListsMgmt implements ITodoListsMgmt, IInCoreTodoListsMgmt {

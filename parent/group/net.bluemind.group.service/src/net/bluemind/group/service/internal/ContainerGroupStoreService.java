@@ -32,8 +32,8 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.persistance.ChangelogStore.LogEntry;
-import net.bluemind.core.container.persistance.ItemStore;
+import net.bluemind.core.container.persistence.ChangelogStore.LogEntry;
+import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.directory.api.DirEntry;
@@ -44,7 +44,7 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.api.GroupSearchQuery;
 import net.bluemind.group.api.Member;
-import net.bluemind.group.persistance.GroupStore;
+import net.bluemind.group.persistence.GroupStore;
 
 public class ContainerGroupStoreService extends DirValueStoreService<Group> {
 

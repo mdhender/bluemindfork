@@ -20,8 +20,8 @@ package net.bluemind.system.schemaupgrader.runner;
 
 import java.util.List;
 
-import net.bluemind.system.persistance.SchemaVersion;
-import net.bluemind.system.persistance.SchemaVersion.UpgradePhase;
+import net.bluemind.system.persistence.SchemaVersion;
+import net.bluemind.system.persistence.SchemaVersion.UpgradePhase;
 
 public class UpdaterFilter {
 

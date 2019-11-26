@@ -12,7 +12,7 @@ Require-Bundle: org.junit,
  net.bluemind.core.tests.testshelper,
  net.bluemind.config,
  net.bluemind.authentication.service;bundle-version="4.1.0",
- net.bluemind.core.container.persistance,
+ net.bluemind.core.container.persistence,
  net.bluemind.authentication.handler;bundle-version="4.1.0",
  net.bluemind.network.topology.producer;bundle-version="4.1.0",
  net.bluemind.network.topology

@@ -27,7 +27,7 @@ goog.provide("net.bluemind.container.service.ContainerService.EventType");
 
 goog.require("goog.events");
 goog.require("goog.events.EventTarget");
-goog.require("net.bluemind.container.persistance.DBItemHome");
+goog.require("net.bluemind.container.persistence.DBItemHome");
 
 /**
  * Frontend for accessing to items storage manager.
@@ -54,7 +54,7 @@ net.bluemind.container.service.ContainerService.prototype.ctx;
 /**
  * Entry storage backend
  * 
- * @type {net.bluemind.container.persistance.DBItemHome}
+ * @type {net.bluemind.container.persistence.DBItemHome}
  */
 net.bluemind.container.service.ContainerService.prototype.entryBackend_;
 
@@ -65,7 +65,7 @@ net.bluemind.container.service.ContainerService.prototype.initDb_ = function() {
   if (!this.database) {
     this.database = this.ctx.service('database').getDatabase(this.databaseName);
     if (this.database) {
-      this.entryBackend_ = new net.bluemind.container.persistance.DBItemHome(this.database);
+      this.entryBackend_ = new net.bluemind.container.persistence.DBItemHome(this.database);
     }
   }
 }

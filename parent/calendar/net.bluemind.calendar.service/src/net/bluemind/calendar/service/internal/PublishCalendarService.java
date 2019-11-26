@@ -36,7 +36,7 @@ import net.bluemind.calendar.api.IPublishCalendar;
 import net.bluemind.calendar.api.PublishMode;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
-import net.bluemind.calendar.persistance.VEventSeriesStore;
+import net.bluemind.calendar.persistence.VEventSeriesStore;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainerManagement;

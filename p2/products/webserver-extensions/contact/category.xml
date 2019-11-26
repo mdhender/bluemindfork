@@ -19,7 +19,7 @@
    <bundle id="relief" version="4.1.0.qualifier"/>
    <bundle id="ydn-base" version="4.1.0.qualifier"/>
    <bundle id="ydn-db" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.persistance.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.persistence.closure" version="4.1.0.qualifier"/>
    <bundle id="font-awesome" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.cti.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.cti.api.closure" version="4.1.0.qualifier"/>

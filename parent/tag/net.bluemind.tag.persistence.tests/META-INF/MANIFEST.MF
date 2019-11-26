@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests
+Bundle-SymbolicName: net.bluemind.tag.persistence.tests;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Fragment-Host: net.bluemind.tag.persistence
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.junit,
+ net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
+ net.bluemind.core.context;bundle-version="1.0.0",
+ net.bluemind.core.elasticsearch.testshelper;bundle-version="1.0.0",
+ net.bluemind.tag.api
+
+

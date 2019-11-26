@@ -27,7 +27,7 @@ import org.junit.Test;
 import net.bluemind.calendar.api.ICalendarsMgmt;
 import net.bluemind.calendar.api.VEventQuery;
 import net.bluemind.calendar.api.VEventSeries;
-import net.bluemind.calendar.persistance.VEventIndexStore;
+import net.bluemind.calendar.persistence.VEventIndexStore;
 import net.bluemind.calendar.service.AbstractCalendarTests;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;

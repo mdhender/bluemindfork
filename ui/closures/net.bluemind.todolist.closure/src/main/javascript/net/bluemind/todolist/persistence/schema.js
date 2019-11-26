@@ -19,14 +19,14 @@
  */
 
 /**
- * @fileoverview Provides schema for container item persistance
+ * @fileoverview Provides schema for container item persistence
  */
-goog.provide('net.bluemind.todolist.persistance.schema');
+goog.provide('net.bluemind.todolist.persistence.schema');
 
 /**
  * @type {!DatabaseSchema}
  */
-net.bluemind.todolist.persistance.schema = /** @type {!DatabaseSchema} */
+net.bluemind.todolist.persistence.schema = /** @type {!DatabaseSchema} */
 ({
   resetTags : ['3.1.22000', '3.1.22528', '3.1.23062', '4.1.35480'],
   stores : [ {

@@ -33,8 +33,8 @@ import net.bluemind.core.container.model.ItemChangelog;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
-import net.bluemind.core.container.persistance.ContainerStore;
-import net.bluemind.core.container.persistance.OwnerSubscriptionStore;
+import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.OwnerSubscriptionStore;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.role.api.BasicRoles;
 

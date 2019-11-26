@@ -45,8 +45,8 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.persistance.ContainerStore;
-import net.bluemind.core.container.persistance.ItemStore;
+import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
@@ -64,7 +64,7 @@ import net.bluemind.server.api.Assignment;
 import net.bluemind.server.api.CommandStatus;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
-import net.bluemind.server.persistance.ServerStore;
+import net.bluemind.server.persistence.ServerStore;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class ServerServiceTests {

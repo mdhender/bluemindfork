@@ -33,7 +33,7 @@ import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.device.api.Device;
 import net.bluemind.device.api.IDevice;
-import net.bluemind.eas.persistance.EasStore;
+import net.bluemind.eas.persistence.EasStore;
 import net.bluemind.role.api.BasicRoles;
 
 // FIXME zero check !! ( sanitizer, validator, check if device exists etc...)

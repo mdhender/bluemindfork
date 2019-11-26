@@ -27,14 +27,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.addressbook.api.IAddressBookUids;
-import net.bluemind.addressbook.persistance.VCardIndexStore;
-import net.bluemind.addressbook.persistance.VCardStore;
+import net.bluemind.addressbook.persistence.VCardIndexStore;
+import net.bluemind.addressbook.persistence.VCardStore;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemUri;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.persistance.ContainerStore;
-import net.bluemind.core.container.persistance.DataSourceRouter;
+import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -42,7 +42,7 @@ import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.tag.api.ITags;
 import net.bluemind.tag.api.Tag;
-import net.bluemind.tag.persistance.TagReferencesStore;
+import net.bluemind.tag.persistence.TagReferencesStore;
 import net.bluemind.tag.service.ITagEventConsumer;
 
 public class TagEventConsumer implements ITagEventConsumer {

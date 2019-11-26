@@ -30,7 +30,7 @@ import javax.sql.DataSource;
 
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
-import net.bluemind.core.container.persistance.StringCreator;
+import net.bluemind.core.container.persistence.StringCreator;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 
 public class RoleStore extends JdbcAbstractStore {

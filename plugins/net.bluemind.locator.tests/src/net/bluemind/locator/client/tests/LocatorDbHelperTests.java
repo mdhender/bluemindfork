@@ -33,13 +33,13 @@ import com.google.common.collect.Lists;
 
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
-import net.bluemind.core.container.persistance.ContainerStore;
-import net.bluemind.core.container.persistance.ItemStore;
+import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.directory.api.DirEntry;
-import net.bluemind.directory.persistance.DirEntryStore;
+import net.bluemind.directory.persistence.DirEntryStore;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.locator.impl.LocatorDbHelper;
 import net.bluemind.mailbox.api.Mailbox.Routing;

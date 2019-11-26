@@ -24,8 +24,8 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.container.api.IOfflineMgmt;
 import net.bluemind.core.container.api.IdRange;
-import net.bluemind.core.container.persistance.DataSourceRouter;
-import net.bluemind.core.container.persistance.OfflineMgmtStore;
+import net.bluemind.core.container.persistence.DataSourceRouter;
+import net.bluemind.core.container.persistence.OfflineMgmtStore;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.core.rest.BmContext;
 

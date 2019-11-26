@@ -44,8 +44,8 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
-import net.bluemind.core.container.persistance.AclStore;
-import net.bluemind.core.container.persistance.ContainerStore;
+import net.bluemind.core.container.persistence.AclStore;
+import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -55,7 +55,7 @@ import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
-import net.bluemind.user.persistance.UserSubscriptionStore;
+import net.bluemind.user.persistence.UserSubscriptionStore;
 
 public class FreebusyMgmtTests {
 

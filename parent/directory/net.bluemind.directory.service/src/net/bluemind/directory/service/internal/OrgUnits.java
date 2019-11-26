@@ -44,7 +44,7 @@ import net.bluemind.directory.api.IOrgUnits;
 import net.bluemind.directory.api.OrgUnit;
 import net.bluemind.directory.api.OrgUnitPath;
 import net.bluemind.directory.api.OrgUnitQuery;
-import net.bluemind.directory.persistance.ManageableOrgUnit;
+import net.bluemind.directory.persistence.ManageableOrgUnit;
 import net.bluemind.directory.service.DirEventProducer;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.lib.vertx.VertxPlatform;

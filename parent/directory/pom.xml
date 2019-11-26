@@ -11,8 +11,8 @@
 	<modules>
 		<module>net.bluemind.directory.api</module>
 		<module>net.bluemind.directory.sqlschema</module>
-		<module>net.bluemind.directory.persistance</module>
-		<module>net.bluemind.directory.persistance.tests</module>
+		<module>net.bluemind.directory.persistence</module>
+		<module>net.bluemind.directory.persistence.tests</module>
 		<module>net.bluemind.directory.service</module>
 		<module>net.bluemind.dataprotect.ou</module>
 		<module>net.bluemind.dataprotect.ou.tests</module>

@@ -24,7 +24,7 @@
          unpack="false"/>
 
    <plugin
-         id="net.bluemind.addressbook.persistance"
+         id="net.bluemind.addressbook.persistence"
          download-size="0"
          install-size="0"
          version="0.0.0"

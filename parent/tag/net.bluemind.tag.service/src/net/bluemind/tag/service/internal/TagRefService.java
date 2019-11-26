@@ -38,8 +38,8 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.tag.api.ITags;
 import net.bluemind.tag.api.Tag;
 import net.bluemind.tag.api.TagRef;
-import net.bluemind.tag.persistance.ItemTagRef;
-import net.bluemind.tag.persistance.TagRefStore;
+import net.bluemind.tag.persistence.ItemTagRef;
+import net.bluemind.tag.persistence.TagRefStore;
 import net.bluemind.tag.service.IInCoreTagRef;
 
 public class TagRefService implements IInCoreTagRef {

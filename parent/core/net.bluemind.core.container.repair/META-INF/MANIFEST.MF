@@ -9,7 +9,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.directory.service,
  net.bluemind.directory.api,
  net.bluemind.core.task.service,
- net.bluemind.user.persistance,
+ net.bluemind.user.persistence,
  net.bluemind.eclipse.common,
  slf4j.api;bundle-version="1.7.25"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.backend.mail.replica.persistence
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
- net.bluemind.core.container.persistance,
+ net.bluemind.core.container.persistence,
  net.bluemind.backend.mail.replica.api,
  net.bluemind.backend.mail.replica.sqlschema;bundle-version="4.1.0",
  io.vertx.core,

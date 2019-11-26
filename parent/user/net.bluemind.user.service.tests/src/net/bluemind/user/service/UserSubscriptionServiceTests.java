@@ -39,7 +39,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerSubscription;
 import net.bluemind.core.container.api.ContainerSubscriptionDescriptor;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.persistance.ContainerStore;
+import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;

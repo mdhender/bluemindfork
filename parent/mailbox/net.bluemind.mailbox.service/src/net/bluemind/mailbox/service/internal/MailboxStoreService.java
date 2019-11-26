@@ -27,15 +27,15 @@ import javax.sql.DataSource;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
-import net.bluemind.core.container.persistance.ChangelogStore.LogEntry;
+import net.bluemind.core.container.persistence.ChangelogStore.LogEntry;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.MailboxContainerType;
-import net.bluemind.mailbox.identity.persistance.MailboxIdentityStore;
-import net.bluemind.mailbox.persistance.MailFilterStore;
-import net.bluemind.mailbox.persistance.MailboxStore;
+import net.bluemind.mailbox.identity.persistence.MailboxIdentityStore;
+import net.bluemind.mailbox.persistence.MailFilterStore;
+import net.bluemind.mailbox.persistence.MailboxStore;
 
 public class MailboxStoreService extends ContainerStoreService<Mailbox> {
 

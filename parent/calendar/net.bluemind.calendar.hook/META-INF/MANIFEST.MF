@@ -9,7 +9,7 @@ Require-Bundle: net.bluemind.lib.vertx;bundle-version="1.0.0",
  net.bluemind.eclipse.common;bundle-version="1.0.0",
  net.bluemind.calendar.api;bundle-version="1.0.0",
  net.bluemind.core.context;bundle-version="1.0.0",
- net.bluemind.core.container.persistance;bundle-version="1.0.0",
+ net.bluemind.core.container.persistence;bundle-version="1.0.0",
  net.bluemind.core.rest;bundle-version="1.0.0"
 Export-Package: net.bluemind.calendar.hook,
  net.bluemind.calendar.hook.internal

@@ -40,7 +40,7 @@ import com.google.common.io.ByteStreams;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.persistance.ContainerStore;
+import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
@@ -49,7 +49,7 @@ import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.resource.api.type.IResourceTypes;
 import net.bluemind.resource.api.type.ResourceTypeDescriptor;
-import net.bluemind.resource.persistance.ResourceTypeStore;
+import net.bluemind.resource.persistence.ResourceTypeStore;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class ResourcesTypeServiceTests {

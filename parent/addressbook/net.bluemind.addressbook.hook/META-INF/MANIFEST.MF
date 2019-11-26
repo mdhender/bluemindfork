@@ -11,6 +11,6 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.addressbook.api;bundle-version="1.0.0",
  net.bluemind.lib.vertx;bundle-version="1.0.0",
  net.bluemind.core.context,
- net.bluemind.core.container.persistance,
+ net.bluemind.core.container.persistence,
  net.bluemind.core.rest;bundle-version="1.0.0"
 

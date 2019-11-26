@@ -56,8 +56,8 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
-import net.bluemind.core.container.persistance.AclStore;
-import net.bluemind.core.container.persistance.ContainerStore;
+import net.bluemind.core.container.persistence.AclStore;
+import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcActivator;
@@ -79,7 +79,7 @@ import net.bluemind.group.api.Group;
 import net.bluemind.group.api.GroupSearchQuery;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.Member;
-import net.bluemind.group.persistance.GroupStore;
+import net.bluemind.group.persistence.GroupStore;
 import net.bluemind.group.service.internal.ContainerGroupStoreService;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
@@ -89,7 +89,7 @@ import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 import net.bluemind.user.api.UserHelper;
-import net.bluemind.user.persistance.UserStore;
+import net.bluemind.user.persistence.UserStore;
 
 public class GroupServiceTests {
 	private static final String FAKE_IP = "fake";

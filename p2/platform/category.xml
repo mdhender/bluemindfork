@@ -11,8 +11,8 @@
    <bundle id="net.bluemind.addressbook.hook" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.addressbook.hook.acl" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.addressbook.job" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.addressbook.persistance" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.addressbook.persistance.tests" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.addressbook.persistence" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.addressbook.persistence.tests" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.addressbook.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.addressbook.service.tests" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.addressbook.sqlschema" version="4.1.0.qualifier"/>
@@ -68,7 +68,7 @@
    <bundle id="net.bluemind.calendar.hook.ics" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.calendar.job" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.calendar.pdf" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.calendar.persistance" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.calendar.persistence" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.calendar.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.calendar.sqlschema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.calendar.sync" version="4.1.0.qualifier"/>
@@ -94,8 +94,8 @@
    <bundle id="net.bluemind.core.container.api.php" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.container.hooks" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.container.hooks.tests" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.container.persistance" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.container.persistance.tests" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.core.container.persistence" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.core.container.persistence.tests" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.container.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.container.service.tests" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.container.sqlschema" version="4.1.0.qualifier"/>
@@ -140,7 +140,7 @@
    <bundle id="net.bluemind.dataprotect.elastic" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.dataprotect.job" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.dataprotect.mailbox" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.dataprotect.persistance" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.dataprotect.persistence" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.dataprotect.postgresql" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.dataprotect.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.dataprotect.sqlschema" version="4.1.0.qualifier"/>
@@ -148,7 +148,7 @@
    <bundle id="net.bluemind.device.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.device.api.gwt" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.device.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.device.persistance" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.device.persistence" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.device.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.device.sqlschema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.device.userdevice" version="4.1.0.qualifier"/>
@@ -156,14 +156,14 @@
    <bundle id="net.bluemind.directory.api.closure" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.directory.api.gwt" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.directory.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.directory.persistance" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.directory.persistence" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.directory.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.directory.sqlschema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.dockerclient" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.document.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.document.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.document.persistance" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.document.persistance.fs" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.document.persistence" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.document.persistence.fs" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.document.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.document.sqlschema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.document.storage" version="4.1.0.qualifier"/>
@@ -174,7 +174,7 @@
    <bundle id="net.bluemind.domain.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.domain.api.gwt" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.domain.hook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.domain.persistance" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.domain.persistence" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.domain.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.domain.sqlschema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.eas.api" version="4.1.0.qualifier"/>
@@ -187,7 +187,7 @@
    <bundle id="net.bluemind.eas.http" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.eas.http.wbxml" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.eas.partnership" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.eas.persistance" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.eas.persistence" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.eas.search.ldap" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.eas.serdes" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.eas.service" version="4.1.0.qualifier"/>
@@ -211,13 +211,13 @@
    <bundle id="net.bluemind.filehosting.filesystem.sqlschema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.filehosting.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.filehosting.ui.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.globalsettings.persistance" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.globalsettings.persistence" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.globalsettings.sqlschema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.group.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.group.api.gwt" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.group.api.php" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.group.hook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.group.persistance" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.group.persistence" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.group.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.group.sqlschema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.gwtconsoleapp.base" version="4.1.0.qualifier"/>
@@ -240,7 +240,7 @@
    <bundle id="net.bluemind.icalendar.sqlschema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.im.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.im.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.im.persistance" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.im.persistence" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.im.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.im.sqlschema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.imap" version="4.1.0.qualifier"/>
@@ -272,11 +272,11 @@
    <bundle id="net.bluemind.mailbox.identity.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mailbox.identity.api.gwt" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mailbox.identity.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailbox.identity.persistance" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.mailbox.identity.persistence" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mailbox.identity.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mailbox.identity.sqlschema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mailbox.job" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailbox.persistance" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.mailbox.persistence" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mailbox.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mailbox.sqlschema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mailindex" version="4.1.0.qualifier"/>
@@ -294,7 +294,7 @@
    <bundle id="net.bluemind.node.client.build" version="1.0.0"/>
    <bundle id="net.bluemind.node.server" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.osgi.log" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.persistance.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.persistence.closure" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.pimp" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.pool" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.pool.dockerconfig" version="4.1.0.qualifier"/>
@@ -306,7 +306,7 @@
    <bundle id="net.bluemind.resource.api.php" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.resource.hook.ics" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.resource.lmtp.filter" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.resource.persistance" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.resource.persistence" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.resource.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.resource.sqlschema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.role.api" version="4.1.0.qualifier"/>
@@ -320,7 +320,7 @@
    <bundle id="net.bluemind.scheduledjob.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.scheduledjob.api.gwt" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.scheduledjob.job" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.scheduledjob.persistance" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.scheduledjob.persistence" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.scheduledjob.scheduler" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.scheduledjob.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.scheduledjob.sqlschema" version="4.1.0.qualifier"/>
@@ -330,7 +330,7 @@
    <bundle id="net.bluemind.server.hook" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.server.mcast.hook" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.server.node.hook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.server.persistance" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.server.persistence" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.server.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.server.sqlschema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.slf4j" version="4.1.0.qualifier"/>
@@ -351,7 +351,7 @@
    <bundle id="net.bluemind.system.ldap.tests.helpers" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.system.subscriptionprovider" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.system.nginx" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.persistance" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.system.persistence" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.system.schemaupgrader" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.system.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.system.sqlschema" version="4.1.0.qualifier"/>
@@ -362,7 +362,7 @@
    <bundle id="net.bluemind.tag.api.php" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.tag.closure" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.tag.hooks" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.tag.persistance" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.tag.persistence" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.tag.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.tag.sqlschema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.task.application.closure" version="4.1.0.qualifier"/>
@@ -377,7 +377,7 @@
    <bundle id="net.bluemind.todolist.hook" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.todolist.hook.acl" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.todolist.job" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.todolist.persistance" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.todolist.persistence" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.todolist.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.todolist.sqlschema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.todolist.ui.closure" version="4.1.0.qualifier"/>
@@ -431,7 +431,7 @@
    <bundle id="net.bluemind.user.api.gwt" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.user.api.php" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.user.hook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.user.persistance" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.user.persistence" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.user.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.user.sqlschema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.utils" version="4.1.0.qualifier"/>

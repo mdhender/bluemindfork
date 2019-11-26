@@ -39,7 +39,7 @@
 		<module>net.bluemind.folder.closure</module>
 		<module>net.bluemind.mailbox.api.closure</module>
 		<module>net.bluemind.mvp.closure</module>
-		<module>net.bluemind.persistance.closure</module>
+		<module>net.bluemind.persistence.closure</module>
 		<module>net.bluemind.rrule.closure</module>
 		<module>net.bluemind.history.ui.closure</module>
 		<module>net.bluemind.tag.api.closure</module>

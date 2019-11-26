@@ -5,11 +5,11 @@ Bundle-SymbolicName: net.bluemind.tag.service;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.tag.api;bundle-version="1.0.0",
- net.bluemind.core.container.persistance;bundle-version="1.0.0",
+ net.bluemind.core.container.persistence;bundle-version="1.0.0",
  net.bluemind.core.container.service;bundle-version="1.0.0",
  net.bluemind.core.jdbc;bundle-version="1.0.0",
  net.bluemind.core.context;bundle-version="1.0.0",
- net.bluemind.tag.persistance;bundle-version="1.0.0",
+ net.bluemind.tag.persistence;bundle-version="1.0.0",
  net.bluemind.core.container.api;bundle-version="1.0.0",
  net.bluemind.core.rest;bundle-version="1.0.0",
  net.bluemind.core.rest.http;bundle-version="1.0.0",

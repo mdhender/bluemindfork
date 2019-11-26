@@ -9,6 +9,6 @@ Require-Bundle: net.bluemind.calendar.api;bundle-version="1.0.0",
  net.bluemind.core.auditlog;bundle-version="4.1.0",
  net.bluemind.core.container.api;bundle-version="4.1.0",
  net.bluemind.core.rest,
- net.bluemind.core.container.persistance,
+ net.bluemind.core.container.persistence,
  net.bluemind.core.task.service
 Export-Package: net.bluemind.calendar.auditlog

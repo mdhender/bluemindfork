@@ -35,9 +35,9 @@ import net.bluemind.backend.mail.replica.service.internal.NoopMailboxRecordServi
 import net.bluemind.backend.mail.replica.service.internal.RecordsItemFlagProvider;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.persistance.ContainerStore;
-import net.bluemind.core.container.persistance.DataSourceRouter;
-import net.bluemind.core.container.persistance.IWeightProvider;
+import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.DataSourceRouter;
+import net.bluemind.core.container.persistence.IWeightProvider;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.container.service.internal.ContainerStoreService.IWeightSeedProvider;
 import net.bluemind.core.rest.BmContext;

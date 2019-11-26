@@ -10,8 +10,8 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>net.bluemind.im.api</module>
-		<module>net.bluemind.im.persistance</module>
-		<module>net.bluemind.im.persistance.tests</module>
+		<module>net.bluemind.im.persistence</module>
+		<module>net.bluemind.im.persistence.tests</module>
 		<module>net.bluemind.im.service</module>
 		<module>net.bluemind.im.service.tests</module>
 		<module>net.bluemind.im.sqlschema</module>

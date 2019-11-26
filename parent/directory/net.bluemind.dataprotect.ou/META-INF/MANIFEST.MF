@@ -11,7 +11,7 @@ Require-Bundle: net.bluemind.slf4j;bundle-version="1.0.0",
  net.bluemind.core.context,
  net.bluemind.core.rest,
  net.bluemind.directory.api,
- net.bluemind.core.container.persistance
+ net.bluemind.core.container.persistence
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: net.bluemind.dataprotect.ou.Activator

@@ -24,7 +24,7 @@ import java.util.Map;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.domain.service.internal.DomainSettingsCache;
-import net.bluemind.globalsettings.persistance.GlobalSettingsStore;
+import net.bluemind.globalsettings.persistence.GlobalSettingsStore;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Topic;
 import net.bluemind.system.api.IGlobalSettings;

@@ -29,7 +29,7 @@ import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.persistance.ContainerStore;
+import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;

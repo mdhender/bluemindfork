@@ -30,18 +30,18 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemUri;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.persistance.ContainerStore;
-import net.bluemind.core.container.persistance.DataSourceRouter;
+import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.tag.api.ITags;
 import net.bluemind.tag.api.Tag;
-import net.bluemind.tag.persistance.TagReferencesStore;
+import net.bluemind.tag.persistence.TagReferencesStore;
 import net.bluemind.tag.service.ITagEventConsumer;
 import net.bluemind.todolist.api.ITodoUids;
-import net.bluemind.todolist.persistance.VTodoStore;
+import net.bluemind.todolist.persistence.VTodoStore;
 
 public class TagEventConsumer implements ITagEventConsumer {
 

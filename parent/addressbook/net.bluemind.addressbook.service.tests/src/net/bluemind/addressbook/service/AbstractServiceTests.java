@@ -42,8 +42,8 @@ import com.google.common.util.concurrent.SettableFuture;
 import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.VCard;
-import net.bluemind.addressbook.persistance.VCardIndexStore;
-import net.bluemind.addressbook.persistance.VCardStore;
+import net.bluemind.addressbook.persistence.VCardIndexStore;
+import net.bluemind.addressbook.persistence.VCardStore;
 import net.bluemind.addressbook.service.internal.VCardContainerStoreService;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerSubscription;
@@ -51,10 +51,10 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
-import net.bluemind.core.container.persistance.AclStore;
-import net.bluemind.core.container.persistance.ChangelogStore;
-import net.bluemind.core.container.persistance.ContainerStore;
-import net.bluemind.core.container.persistance.ItemStore;
+import net.bluemind.core.container.persistence.AclStore;
+import net.bluemind.core.container.persistence.ChangelogStore;
+import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
@@ -67,9 +67,9 @@ import net.bluemind.server.api.Server;
 import net.bluemind.tag.api.Tag;
 import net.bluemind.tag.api.TagRef;
 import net.bluemind.tag.api.ITagUids;
-import net.bluemind.tag.persistance.ItemTagRef;
-import net.bluemind.tag.persistance.TagRefStore;
-import net.bluemind.tag.persistance.TagStore;
+import net.bluemind.tag.persistence.ItemTagRef;
+import net.bluemind.tag.persistence.TagRefStore;
+import net.bluemind.tag.persistence.TagStore;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUserSubscription;
 
@@ -248,7 +248,7 @@ public abstract class AbstractServiceTests {
 		} catch (
 
 		SQLException e) {
-			logger.error("error during vcard persistance call", e);
+			logger.error("error during vcard persistence call", e);
 			fail(e.getMessage());
 			return null;
 		}

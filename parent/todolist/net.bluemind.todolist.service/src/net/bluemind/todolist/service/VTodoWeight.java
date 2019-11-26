@@ -18,7 +18,7 @@
 package net.bluemind.todolist.service;
 
 import net.bluemind.core.api.date.BmDateTimeWrapper;
-import net.bluemind.core.container.persistance.IWeightProvider;
+import net.bluemind.core.container.persistence.IWeightProvider;
 import net.bluemind.core.container.service.internal.ContainerStoreService.IWeightSeedProvider;
 import net.bluemind.todolist.api.VTodo;
 

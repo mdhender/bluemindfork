@@ -80,7 +80,7 @@ import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.persistance.ContainerStore;
+import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
@@ -105,7 +105,7 @@ import net.bluemind.server.api.Server;
 import net.bluemind.tag.api.TagRef;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.User;
-import net.bluemind.user.persistance.UserSubscriptionStore;
+import net.bluemind.user.persistence.UserSubscriptionStore;
 import net.bluemind.user.service.internal.ContainerUserStoreService;
 
 // prefixes :

@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.scheduledjob.persistence
+Bundle-SymbolicName: net.bluemind.scheduledjob.persistence
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.scheduledjob.sqlschema;bundle-version="1.0.0",
+ net.bluemind.core.jdbc;bundle-version="1.0.0",
+ net.bluemind.slf4j;bundle-version="1.0.0",
+ net.bluemind.scheduledjob.api;bundle-version="1.0.0",
+ net.bluemind.domain.api,
+ net.bluemind.core.commons;bundle-version="1.0.0",
+ net.bluemind.core.context,
+ org.quartz-scheduler.quartz;bundle-version="2.1.5"
+Export-Package: net.bluemind.scheduledjob.persistence

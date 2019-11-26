@@ -21,7 +21,7 @@ package net.bluemind.calendar.hook.ics;
 import java.io.File;
 
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.document.persistance.fs.FilesystemStore;
+import net.bluemind.document.persistence.fs.FilesystemStore;
 import net.bluemind.document.storage.IDocumentStore;
 
 public class TestFileSystemStore extends FilesystemStore implements IDocumentStore {

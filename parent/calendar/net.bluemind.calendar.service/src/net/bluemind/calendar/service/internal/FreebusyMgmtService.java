@@ -22,7 +22,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import net.bluemind.calendar.api.IFreebusyMgmt;
-import net.bluemind.calendar.persistance.FreebusyStore;
+import net.bluemind.calendar.persistence.FreebusyStore;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.acl.Verb;

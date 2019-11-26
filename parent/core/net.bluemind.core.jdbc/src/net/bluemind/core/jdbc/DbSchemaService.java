@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
 
-import net.bluemind.core.jdbc.persistance.DbSchemaStore;
+import net.bluemind.core.jdbc.persistence.DbSchemaStore;
 
 public class DbSchemaService {
 

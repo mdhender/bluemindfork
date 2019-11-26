@@ -36,7 +36,7 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SystemConf;
-import net.bluemind.system.persistance.SystemConfStore;
+import net.bluemind.system.persistence.SystemConfStore;
 import net.bluemind.system.service.hooks.SystemConfigurationHooks;
 
 public class SystemConfiguration implements ISystemConfiguration {

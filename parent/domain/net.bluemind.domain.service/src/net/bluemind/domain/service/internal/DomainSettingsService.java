@@ -41,9 +41,9 @@ import net.bluemind.domain.api.DomainSettings;
 import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.domain.hook.IDomainHook;
-import net.bluemind.domain.persistance.DomainSettingsStore;
+import net.bluemind.domain.persistence.DomainSettingsStore;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
-import net.bluemind.globalsettings.persistance.GlobalSettingsStore;
+import net.bluemind.globalsettings.persistence.GlobalSettingsStore;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.role.api.BasicRoles;
 

@@ -32,7 +32,7 @@ import net.bluemind.directory.service.DirEntryHandler;
 import net.bluemind.directory.service.DirValueStoreService;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.resource.api.ResourceDescriptor;
-import net.bluemind.resource.persistance.ResourceStore;
+import net.bluemind.resource.persistence.ResourceStore;
 
 public class ResourceContainerStoreService extends DirValueStoreService<ResourceDescriptor> {
 

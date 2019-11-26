@@ -28,10 +28,10 @@ import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.service.AbstractCalendarTests;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.persistance.ContainerStore;
+import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.user.persistance.UserSubscriptionStore;
+import net.bluemind.user.persistence.UserSubscriptionStore;
 
 public class CalendarDataSourceTests extends AbstractCalendarTests {
 

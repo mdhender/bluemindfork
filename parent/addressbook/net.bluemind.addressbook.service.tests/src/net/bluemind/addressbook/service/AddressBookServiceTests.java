@@ -60,9 +60,9 @@ import net.bluemind.core.container.model.ItemChangelog;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
-import net.bluemind.core.container.persistance.AclStore;
-import net.bluemind.core.container.persistance.ChangelogStore;
-import net.bluemind.core.container.persistance.ItemStore;
+import net.bluemind.core.container.persistence.AclStore;
+import net.bluemind.core.container.persistence.ChangelogStore;
+import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.LocalJsonObject;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -70,7 +70,7 @@ import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.core.tests.vertx.VertxEventChecker;
 import net.bluemind.tag.api.ITags;
 import net.bluemind.tag.api.TagRef;
-import net.bluemind.tag.persistance.ItemTagRef;
+import net.bluemind.tag.persistence.ItemTagRef;
 
 public class AddressBookServiceTests extends AbstractServiceTests {
 

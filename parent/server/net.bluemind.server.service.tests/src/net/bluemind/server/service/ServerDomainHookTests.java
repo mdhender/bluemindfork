@@ -40,9 +40,9 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
-import net.bluemind.core.container.persistance.AclStore;
-import net.bluemind.core.container.persistance.ContainerStore;
-import net.bluemind.core.container.persistance.ItemStore;
+import net.bluemind.core.container.persistence.AclStore;
+import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
@@ -57,7 +57,7 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
-import net.bluemind.server.persistance.ServerStore;
+import net.bluemind.server.persistence.ServerStore;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class ServerDomainHookTests {

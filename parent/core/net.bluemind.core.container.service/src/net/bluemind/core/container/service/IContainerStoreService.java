@@ -28,7 +28,7 @@ import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ItemChangelog;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
-import net.bluemind.core.container.persistance.IItemValueStore;
+import net.bluemind.core.container.persistence.IItemValueStore;
 
 public interface IContainerStoreService<T> {
 

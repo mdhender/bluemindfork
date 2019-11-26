@@ -31,7 +31,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.device.api.Device;
-import net.bluemind.device.persistance.DeviceStore;
+import net.bluemind.device.persistence.DeviceStore;
 
 public class DeviceStoreService extends ContainerStoreService<Device> {
 

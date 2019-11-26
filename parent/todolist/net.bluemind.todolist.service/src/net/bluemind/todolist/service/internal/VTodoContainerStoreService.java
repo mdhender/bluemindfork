@@ -31,14 +31,14 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.persistance.IItemValueStore;
+import net.bluemind.core.container.persistence.IItemValueStore;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.tag.api.TagRef;
 import net.bluemind.tag.service.IInCoreTagRef;
 import net.bluemind.todolist.api.VTodo;
-import net.bluemind.todolist.persistance.VTodoStore;
+import net.bluemind.todolist.persistence.VTodoStore;
 import net.bluemind.todolist.service.VTodoWeight;
 
 public class VTodoContainerStoreService extends ContainerStoreService<VTodo> {
@@ -97,7 +97,7 @@ public class VTodoContainerStoreService extends ContainerStoreService<VTodo> {
 
 	public List<String> getReminder(BmDateTime dtalarm) throws ServerFault {
 		try {
-			List<VTodoStore.ItemUid> r = ((net.bluemind.todolist.persistance.VTodoStore) getItemValueStore())
+			List<VTodoStore.ItemUid> r = ((net.bluemind.todolist.persistence.VTodoStore) getItemValueStore())
 					.getReminder(dtalarm);
 
 			return r.stream().map((i) -> i.itemUid).collect(Collectors.toList());

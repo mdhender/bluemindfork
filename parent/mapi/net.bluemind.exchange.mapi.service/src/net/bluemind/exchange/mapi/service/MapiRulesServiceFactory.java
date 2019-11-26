@@ -21,7 +21,7 @@ package net.bluemind.exchange.mapi.service;
 import javax.sql.DataSource;
 
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.persistance.DataSourceRouter;
+import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.exchange.mapi.api.IMapiRules;

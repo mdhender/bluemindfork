@@ -49,9 +49,9 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
-import net.bluemind.core.container.persistance.AclStore;
-import net.bluemind.core.container.persistance.ContainerStore;
-import net.bluemind.core.container.persistance.DataSourceRouter;
+import net.bluemind.core.container.persistence.AclStore;
+import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
@@ -71,7 +71,7 @@ import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
-import net.bluemind.user.persistance.UserSubscriptionStore;
+import net.bluemind.user.persistence.UserSubscriptionStore;
 
 public class CalendarAutocompleteServiceTests {
 	private static final String DOMAIN = "test.lan";

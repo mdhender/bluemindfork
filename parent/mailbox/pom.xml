@@ -17,10 +17,10 @@
 		<module>net.bluemind.mailbox.sqlschema</module>
 		<module>net.bluemind.mailbox.identity.sqlschema</module>
 		<module>net.bluemind.mailbox.job</module>
-		<module>net.bluemind.mailbox.persistance</module>
-		<module>net.bluemind.mailbox.persistance.tests</module>
-		<module>net.bluemind.mailbox.identity.persistance</module>
-		<module>net.bluemind.mailbox.identity.persistance.tests</module>
+		<module>net.bluemind.mailbox.persistence</module>
+		<module>net.bluemind.mailbox.persistence.tests</module>
+		<module>net.bluemind.mailbox.identity.persistence</module>
+		<module>net.bluemind.mailbox.identity.persistence.tests</module>
 		<module>net.bluemind.mailbox.service</module>
 		<module>net.bluemind.mailbox.service.tests</module>
 		<module>net.bluemind.mailbox.identity.service</module>

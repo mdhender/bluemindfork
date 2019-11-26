@@ -10,10 +10,10 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>net.bluemind.document.api</module>
-		<module>net.bluemind.document.persistance</module>
-		<module>net.bluemind.document.persistance.fs</module>
-		<module>net.bluemind.document.persistance.fs.tests</module>
-		<module>net.bluemind.document.persistance.tests</module>
+		<module>net.bluemind.document.persistence</module>
+		<module>net.bluemind.document.persistence.fs</module>
+		<module>net.bluemind.document.persistence.fs.tests</module>
+		<module>net.bluemind.document.persistence.tests</module>
 		<module>net.bluemind.document.service</module>
 		<module>net.bluemind.document.service.tests</module>
 		<module>net.bluemind.document.sqlschema</module>

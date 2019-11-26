@@ -31,7 +31,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import net.bluemind.core.jdbc.persistance.DbSchemaStore;
+import net.bluemind.core.jdbc.persistence.DbSchemaStore;
 
 public class DbSchemaServiceTests {
 

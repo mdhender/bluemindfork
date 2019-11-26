@@ -29,13 +29,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.bluemind.calendar.api.VEventSeries;
-import net.bluemind.calendar.persistance.VEventIndexStore;
+import net.bluemind.calendar.persistence.VEventIndexStore;
 import net.bluemind.calendar.service.internal.VEventContainerStoreService;
 import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.persistance.ContainerStore;
-import net.bluemind.core.container.persistance.DataSourceRouter;
+import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.service.ContainerSettings;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.service.IServerTaskMonitor;

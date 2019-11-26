@@ -29,8 +29,8 @@ goog.require('goog.events.EventTarget');
 goog.require('goog.async.Deferred');
 goog.require('goog.array');
 goog.require('bluemind.storage.StorageHelper');
-goog.require('net.bluemind.container.persistance.DBContainerHome');
-goog.require('net.bluemind.container.persistance.DBItemHome');
+goog.require('net.bluemind.container.persistence.DBContainerHome');
+goog.require('net.bluemind.container.persistence.DBItemHome');
 
 /**
  * Service provider object for containers
@@ -56,7 +56,7 @@ net.bluemind.container.service.ContainersService.prototype.ctx;
 /**
  * Container storage backend
  * 
- * @type {net.bluemind.container.persistance.IContainerHome}
+ * @type {net.bluemind.container.persistence.IContainerHome}
  * @private
  */
 net.bluemind.container.service.ContainersService.prototype.backend_;
@@ -64,7 +64,7 @@ net.bluemind.container.service.ContainersService.prototype.backend_;
 /**
  * Entry storage backend
  * 
- * @type {net.bluemind.container.persistance.DBItemHome}
+ * @type {net.bluemind.container.persistence.DBItemHome}
  * @private
  */
 net.bluemind.container.service.ContainersService.prototype.entryBackend_;
@@ -78,8 +78,8 @@ net.bluemind.container.service.ContainersService.prototype.initDb_ = function() 
     if (this.ctx.databaseAvailable) {
       this.database = this.ctx.service('database').getDatabase(this.databaseName);
       if (this.database) {
-        this.backend_ = new net.bluemind.container.persistance.DBContainerHome(this.database);
-        this.entryBackend_ = new net.bluemind.container.persistance.DBItemHome(this.database);
+        this.backend_ = new net.bluemind.container.persistence.DBContainerHome(this.database);
+        this.entryBackend_ = new net.bluemind.container.persistence.DBItemHome(this.database);
       }
     }
   }

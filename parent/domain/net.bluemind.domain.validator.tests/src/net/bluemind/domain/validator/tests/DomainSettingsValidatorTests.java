@@ -36,7 +36,7 @@ import com.google.common.collect.Lists;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.persistance.ContainerStore;
+import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
@@ -48,7 +48,7 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.api.Mailbox.Type;
-import net.bluemind.mailbox.persistance.MailboxStore;
+import net.bluemind.mailbox.persistence.MailboxStore;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 

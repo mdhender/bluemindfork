@@ -11,7 +11,7 @@ Require-Bundle: net.bluemind.lib.vertx;bundle-version="1.0.0",
  net.bluemind.group.api;bundle-version="1.0.0",
  net.bluemind.core.rest;bundle-version="1.0.0",
  net.bluemind.core.context;bundle-version="1.0.0",
- net.bluemind.core.container.persistance;bundle-version="1.0.0",
+ net.bluemind.core.container.persistence;bundle-version="1.0.0",
  net.bluemind.core.commons;bundle-version="1.0.0"
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx
 

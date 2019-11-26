@@ -38,7 +38,7 @@
          unpack="false"/>
 
    <plugin
-         id="net.bluemind.core.container.persistance"
+         id="net.bluemind.core.container.persistence"
          download-size="0"
          install-size="0"
          version="0.0.0"

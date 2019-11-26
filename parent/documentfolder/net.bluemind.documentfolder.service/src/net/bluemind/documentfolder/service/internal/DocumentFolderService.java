@@ -27,7 +27,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.acl.Verb;
-import net.bluemind.core.container.persistance.ItemStore;
+import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.document.api.DocumentMetadata;

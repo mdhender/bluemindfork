@@ -46,7 +46,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.container.model.SortDescriptor;
 import net.bluemind.core.container.model.acl.Verb;
-import net.bluemind.core.container.persistance.ContainerStore;
+import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.service.ChangeLogUtil;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.context.SecurityContext;
@@ -62,8 +62,8 @@ import net.bluemind.todolist.api.Reminder;
 import net.bluemind.todolist.api.VTodo;
 import net.bluemind.todolist.api.VTodoChanges;
 import net.bluemind.todolist.api.VTodoQuery;
-import net.bluemind.todolist.persistance.VTodoIndexStore;
-import net.bluemind.todolist.persistance.VTodoStore;
+import net.bluemind.todolist.persistence.VTodoIndexStore;
+import net.bluemind.todolist.persistence.VTodoStore;
 import net.bluemind.todolist.service.helper.OccurrenceHelper;
 
 public class TodoListService implements ITodoList {

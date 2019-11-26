@@ -41,7 +41,7 @@ import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.persistance.ContainerStore;
+import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcActivator;
@@ -56,7 +56,7 @@ import net.bluemind.role.api.BasicRoles;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUserSettings;
-import net.bluemind.user.persistance.UserSettingsStore;
+import net.bluemind.user.persistence.UserSettingsStore;
 
 public class UserSettingsServiceTests {
 

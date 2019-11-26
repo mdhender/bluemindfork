@@ -42,7 +42,7 @@ import net.bluemind.core.container.api.internal.IInternalContainersFlatHierarchy
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.persistance.DataSourceRouter;
+import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;

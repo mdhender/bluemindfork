@@ -46,7 +46,7 @@ import net.bluemind.core.api.BMVersion;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.persistance.ContainerStore;
+import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
@@ -55,8 +55,8 @@ import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.system.api.CustomLogo;
 import net.bluemind.system.api.IInstallation;
 import net.bluemind.system.api.InstallationVersion;
-import net.bluemind.system.persistance.SchemaVersionStore;
-import net.bluemind.system.persistance.SystemConfStore;
+import net.bluemind.system.persistence.SchemaVersionStore;
+import net.bluemind.system.persistence.SystemConfStore;
 
 public class InstallationTests {
 

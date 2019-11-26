@@ -46,8 +46,8 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemContainerValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
-import net.bluemind.core.container.persistance.AclStore;
-import net.bluemind.core.container.persistance.ContainerStore;
+import net.bluemind.core.container.persistence.AclStore;
+import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
@@ -63,7 +63,7 @@ import net.bluemind.todolist.api.ITodoLists;
 import net.bluemind.todolist.api.TodoListsVTodoQuery;
 import net.bluemind.todolist.api.VTodo;
 import net.bluemind.todolist.api.VTodoQuery;
-import net.bluemind.user.persistance.UserSubscriptionStore;
+import net.bluemind.user.persistence.UserSubscriptionStore;
 
 public class TodoListsServiceTests {
 

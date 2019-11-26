@@ -29,7 +29,7 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.document.api.Document;
 import net.bluemind.document.api.DocumentMetadata;
 import net.bluemind.document.api.IDocument;
-import net.bluemind.document.persistance.DocumentMetadataStore;
+import net.bluemind.document.persistence.DocumentMetadataStore;
 import net.bluemind.document.service.Activator;
 import net.bluemind.document.storage.IDocumentStore;
 

@@ -42,15 +42,15 @@ import net.bluemind.core.container.api.internal.IInternalOwnerSubscriptions;
 import net.bluemind.core.container.api.internal.IInternalOwnerSubscriptionsMgmt;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.persistance.ContainerStore;
-import net.bluemind.core.container.persistance.DataSourceRouter;
+import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.service.IDirEntryRepairSupport;
-import net.bluemind.user.persistance.OneUserSubscriptionStore;
+import net.bluemind.user.persistence.OneUserSubscriptionStore;
 
 public class ShardedSubscriptionRepair implements IDirEntryRepairSupport {
 	public static class Factory implements IDirEntryRepairSupport.Factory {

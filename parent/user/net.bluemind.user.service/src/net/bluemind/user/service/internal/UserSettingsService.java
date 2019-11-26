@@ -37,7 +37,7 @@ import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.user.api.IUserSettings;
-import net.bluemind.user.persistance.UserSettingsStore;
+import net.bluemind.user.persistence.UserSettingsStore;
 
 public class UserSettingsService implements IUserSettings {
 	private static final Logger logger = LoggerFactory.getLogger(UserSettingsService.class);

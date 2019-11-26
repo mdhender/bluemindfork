@@ -28,8 +28,8 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
-import net.bluemind.core.container.persistance.AbstractItemValueStore;
-import net.bluemind.core.container.persistance.StringCreator;
+import net.bluemind.core.container.persistence.AbstractItemValueStore;
+import net.bluemind.core.container.persistence.StringCreator;
 
 public class MailboxReplicaStore extends AbstractItemValueStore<MailboxReplica> {
 

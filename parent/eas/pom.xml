@@ -11,9 +11,9 @@
 	<modules>
 		<module>net.bluemind.eas.api</module>
 		<module>net.bluemind.eas.sqlschema</module>
-		<module>net.bluemind.eas.persistance</module>
+		<module>net.bluemind.eas.persistence</module>
 		<module>net.bluemind.eas.config</module>
-		<module>net.bluemind.eas.persistance.tests</module>
+		<module>net.bluemind.eas.persistence.tests</module>
 		<module>net.bluemind.eas.service</module>
 		<module>net.bluemind.eas.service.tests</module>
 		<module>net.bluemind.eas.verticle</module>

@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.device.persistence.tests
+Bundle-SymbolicName: net.bluemind.device.persistence.tests
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.core.container.persistence,
+ net.bluemind.core.jdbc.testshelper,
+ net.bluemind.device.persistence,
+ org.junit,
+ net.bluemind.device.api,
+ net.bluemind.core.context

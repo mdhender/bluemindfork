@@ -27,6 +27,6 @@ Require-Bundle: org.junit,
  net.bluemind.resource.api,
  net.bluemind.resource.service;bundle-version="1.0.0",
  net.bluemind.core.tests.testshelper,
- net.bluemind.tag.persistance,
- net.bluemind.core.container.persistance,
+ net.bluemind.tag.persistence,
+ net.bluemind.core.container.persistence,
  net.bluemind.calendar.hook

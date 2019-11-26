@@ -40,14 +40,14 @@ goog.require("net.bluemind.folder.sync.FoldersSync");
 goog.require("net.bluemind.container.service.ContainersService");
 goog.require("net.bluemind.folder.service.FoldersService");
 goog.require("net.bluemind.folder.service.FolderService");
-goog.require("net.bluemind.folder.persistance.schema");
+goog.require("net.bluemind.folder.persistence.schema");
 goog.require("net.bluemind.tag.service.TagService");
 goog.require("net.bluemind.tag.sync.TagSync");
-goog.require("net.bluemind.addressbook.persistance.schema");
+goog.require("net.bluemind.addressbook.persistence.schema");
 goog.require("net.bluemind.container.service.ContainersObserver.EventType");
 goog.require("net.bluemind.addressbook.service.AddressBooksSyncManager");
 goog.require("net.bluemind.tag.sync.UnitaryTagSync");
-goog.require("net.bluemind.container.persistance.schema");
+goog.require("net.bluemind.container.persistence.schema");
 
 /**
  * @constructor
@@ -118,13 +118,13 @@ net.bluemind.contact.ContactApplication.prototype.getDbSchemas = function(ctx) {
   var root = goog.base(this, 'getDbSchemas', ctx);
   return goog.array.concat(root, [ {
     name : 'tag',
-    schema : net.bluemind.container.persistance.schema
+    schema : net.bluemind.container.persistence.schema
   }, {
     name : 'folder',
-    schema : net.bluemind.folder.persistance.schema
+    schema : net.bluemind.folder.persistence.schema
   }, {
     name : 'contact',
-    schema : net.bluemind.addressbook.persistance.schema
+    schema : net.bluemind.addressbook.persistence.schema
   } ]);
 };
 

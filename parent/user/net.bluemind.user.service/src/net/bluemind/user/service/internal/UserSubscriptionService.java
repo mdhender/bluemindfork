@@ -38,8 +38,8 @@ import net.bluemind.core.container.api.IOwnerSubscriptions;
 import net.bluemind.core.container.hooks.IContainersHook;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerDescriptor;
-import net.bluemind.core.container.persistance.ContainerStore;
-import net.bluemind.core.container.persistance.DataSourceRouter;
+import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.directory.api.DirEntry;
@@ -48,7 +48,7 @@ import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.i18n.labels.I18nLabels;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.user.api.IUserSubscription;
-import net.bluemind.user.persistance.UserSubscriptionStore;
+import net.bluemind.user.persistence.UserSubscriptionStore;
 
 public class UserSubscriptionService implements IUserSubscription {
 

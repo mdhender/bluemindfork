@@ -21,7 +21,7 @@ package net.bluemind.calendar.service.internal;
 import javax.sql.DataSource;
 
 import net.bluemind.calendar.api.CalendarView;
-import net.bluemind.calendar.persistance.CalendarViewStore;
+import net.bluemind.calendar.persistence.CalendarViewStore;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;

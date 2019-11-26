@@ -52,7 +52,7 @@
          unpack="false"/>
 
    <plugin
-         id="net.bluemind.calendar.persistance"
+         id="net.bluemind.calendar.persistence"
          download-size="0"
          install-size="0"
          version="0.0.0"
