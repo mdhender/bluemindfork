@@ -39,6 +39,7 @@ import org.vertx.java.core.Handler;
 
 import com.google.common.collect.Lists;
 
+import net.bluemind.addressbook.api.VCard;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -176,6 +177,8 @@ public class DirectoryTests {
 				domainUid);
 		User admin = new User();
 		admin.login = "test";
+		admin.contactInfos = new VCard();
+		admin.contactInfos.identification.name.familyNames = "myName";
 		admin.password = "test";
 		admin.routing = Mailbox.Routing.none;
 
@@ -283,6 +286,8 @@ public class DirectoryTests {
 				domainUid);
 		User admin = new User();
 		admin.login = "test";
+		admin.contactInfos = new VCard();
+		admin.contactInfos.identification.name.familyNames = "myName";
 		admin.password = "test";
 		admin.routing = Mailbox.Routing.none;
 
@@ -306,6 +311,8 @@ public class DirectoryTests {
 				domainUid);
 		User u = new User();
 		u.login = "logn" + UUID.randomUUID();
+		u.contactInfos = new VCard();
+		u.contactInfos.identification.name.familyNames = "myName";
 		u.password = "password";
 		u.routing = Mailbox.Routing.none;
 		u.dataLocation = PopulateHelper.FAKE_CYRUS_IP;

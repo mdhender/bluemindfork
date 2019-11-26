@@ -44,13 +44,17 @@ public class UserValidator implements IValidator<User> {
 		ParametersValidator.notNullAndNotEmpty(user.login);
 		ParametersValidator.notNull(user.routing);
 
-		if (!Regex.LOGIN.validate(user.login)) {
-			throw new ServerFault("Login is invalid", ErrorCode.INVALID_PARAMETER);
-		}
+		validateLogin(user);
 
 		String familyName = user.contactInfos.identification.name.familyNames;
 		if (Strings.isNullOrEmpty(familyName)) {
 			throw new ServerFault("A user should have a last name.", ErrorCode.EMPTY_LASTNAME);
+		}
+	}
+
+	void validateLogin(User user) {
+		if (!Regex.LOGIN.validate(user.login)) {
+			throw new ServerFault("Login is invalid", ErrorCode.INVALID_PARAMETER);
 		}
 	}
 }

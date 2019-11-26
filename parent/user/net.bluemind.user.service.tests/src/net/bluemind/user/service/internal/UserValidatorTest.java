@@ -41,15 +41,15 @@ public class UserValidatorTest {
 		String l5 = "0-.-__test1";
 
 		user.login = l1;
-		validator.validate(user);
+		validator.validateLogin(user);
 		user.login = l2;
-		validator.validate(user);
+		validator.validateLogin(user);
 		user.login = l3;
-		validator.validate(user);
+		validator.validateLogin(user);
 		user.login = l4;
-		validator.validate(user);
+		validator.validateLogin(user);
 		user.login = l5;
-		validator.validate(user);
+		validator.validateLogin(user);
 	}
 
 	@Test
@@ -76,7 +76,7 @@ public class UserValidatorTest {
 		try {
 			User user = new User();
 			user.login = login;
-			validator.validate(user);
+			validator.validateLogin(user);
 			fail();
 		} catch (Exception e) {
 		}

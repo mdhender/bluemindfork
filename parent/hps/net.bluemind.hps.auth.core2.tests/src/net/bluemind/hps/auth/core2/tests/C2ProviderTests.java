@@ -22,6 +22,7 @@ import org.vertx.java.core.Handler;
 
 import com.google.common.base.Strings;
 
+import net.bluemind.addressbook.api.VCard;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ServerFault;
@@ -163,6 +164,8 @@ public class C2ProviderTests {
 		User user = new User();
 		user.login = userLogin;
 		user.routing = Routing.internal;
+		user.contactInfos = new VCard();
+		user.contactInfos.identification.name.familyNames = "myName";
 		user.archived = true;
 
 		String emailAlias = String.format("mail.%s@%s", userLogin, domainUid);
@@ -196,6 +199,8 @@ public class C2ProviderTests {
 
 		User user = new User();
 		user.login = userLogin;
+		user.contactInfos = new VCard();
+		user.contactInfos.identification.name.familyNames = "myName";
 		user.routing = Routing.internal;
 
 		String emailAlias = String.format("mail.%s@%s", userLogin, domainUid);
@@ -229,6 +234,8 @@ public class C2ProviderTests {
 
 		User user = new User();
 		user.login = userLogin;
+		user.contactInfos = new VCard();
+		user.contactInfos.identification.name.familyNames = "myName";
 		user.routing = Routing.internal;
 
 		String emailAlias = String.format("mail.%s@%s", userLogin, domainUid);
@@ -262,6 +269,8 @@ public class C2ProviderTests {
 
 		User user = new User();
 		user.login = userLogin;
+		user.contactInfos = new VCard();
+		user.contactInfos.identification.name.familyNames = "myName";
 		user.routing = Routing.none;
 
 		String userUid = UUID.randomUUID().toString();
