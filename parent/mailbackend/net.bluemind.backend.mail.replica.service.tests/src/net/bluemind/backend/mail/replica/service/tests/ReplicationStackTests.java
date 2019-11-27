@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -43,7 +44,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -141,6 +141,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 	}
 
 	@Before
+	@Override
 	public void before() throws Exception {
 		super.before();
 
@@ -165,21 +166,40 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		long delay = System.currentTimeMillis();
 		Hierarchy hierarchy = null;
 		do {
-			Thread.sleep(400);
+			Thread.sleep(50);
 			hierarchy = rec.hierarchy(domainUid, userUid);
 			System.out.println("Hierarchy version is " + hierarchy.exactVersion);
 			if (System.currentTimeMillis() - delay > 30000) {
-				throw new TimeoutException("Hierarchy init took more than 20sec");
+				throw new TimeoutException("Hierarchy init took more than 30sec");
 			}
 		} while (hierarchy.exactVersion < 7);
 		System.out.println("Hierarchy is now at version " + hierarchy.exactVersion);
-		System.err.println("before is complete, starting test.");
-	}
 
-	@After
-	public void after() throws Exception {
-		System.err.println("Test is over, after starts...");
-		super.after();
+		IServiceProvider prov = provider();
+
+		IMailboxFolders userMboxesApi = prov.instance(IMailboxFolders.class, partition, mboxRoot);
+		List<ItemValue<MailboxFolder>> found = userMboxesApi.all();
+		assertNotNull(found);
+		ItemValue<MailboxFolder> inbox = null;
+		for (ItemValue<MailboxFolder> iv : found) {
+			if (iv.value.name.equals("INBOX")) {
+				inbox = iv;
+				break;
+			}
+		}
+		assertNotNull(inbox);
+		System.err.println("Wait for record in inbox...");
+		IMailboxItems recordsApi = prov.instance(IMailboxItems.class, inbox.uid);
+		ContainerChangeset<Long> allById = recordsApi.changesetById(0L);
+		delay = System.currentTimeMillis();
+		while (allById.created.isEmpty()) {
+			Thread.sleep(50);
+			if (System.currentTimeMillis() - delay > 30000) {
+				throw new TimeoutException("Wait for record took more than 30sec");
+			}
+			allById = recordsApi.changesetById(0L);
+		}
+		System.err.println("before() is complete, starting test...");
 	}
 
 	@Test
@@ -1796,31 +1816,35 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		// append mail into root/src
 		ItemValue<MailboxFolder> src = foldersApi.byName(root + "/src");
 		long id = offlineId++;
-		addDraft(src, id);
+		ItemValue<MailboxItem> draf1 = addDraft(src, id);
 
 		long id2 = offlineId++;
-		addDraft(src, id2);
-
-		IMailboxItems itemApi = provider().instance(IMailboxItems.class, src.uid);
+		ItemValue<MailboxItem> draft2 = addDraft(src, id2);
+		System.err.println("Draft1 " + draf1.internalId + ", Draft2 " + draft2.internalId);
 
 		// move into root/src/dst
 		long expectedId = offlineId++;
-		long expectedId2 = offlineId++;
+		long expectedId2 = offlineId;
 
 		ImportMailboxItemSet toMove = ImportMailboxItemSet.moveIn(src.internalId,
 				Arrays.asList(MailboxItemId.of(id), MailboxItemId.of(id2)),
 				Arrays.asList(MailboxItemId.of(expectedId), MailboxItemId.of(expectedId2)));
 
 		ItemValue<MailboxFolder> dst = foldersApi.byName(root + "/src/dst");
+
+		System.err.println("MoveIn " + toMove + "...");
 		ImportMailboxItemsStatus ret = foldersApi.importItems(dst.internalId, toMove);
 
 		assertEquals(ImportStatus.SUCCESS, ret.status);
 		assertEquals(2, ret.doneIds.size());
+		Set<Long> done = ret.doneIds.stream().map(m -> m.destination).collect(Collectors.toSet());
+		assertTrue(done.contains(expectedId));
+		assertTrue(done.contains(expectedId2));
 		assertEquals(expectedId, ret.doneIds.get(0).destination);
 		assertEquals(expectedId2, ret.doneIds.get(1).destination);
 
 		// check
-		itemApi = provider().instance(IMailboxItems.class, dst.uid);
+		IMailboxItems itemApi = provider().instance(IMailboxItems.class, dst.uid);
 		ItemValue<MailboxItem> copy = itemApi.getCompleteById(expectedId);
 		assertNotNull(copy);
 
@@ -1942,26 +1966,26 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 	}
 
 	@Test
-	public void testApiPreservesDispositionType() throws IMAPException, InterruptedException, IOException {
+	public void testApiFixDispositionType() throws IMAPException, InterruptedException, IOException {
 		// create inbox
 		final IMailboxFolders mailboxFolders = provider().instance(IMailboxFolders.class, partition, mboxRoot);
 		final ItemValue<MailboxFolder> inbox = mailboxFolders.byName("INBOX");
 		assertNotNull(inbox);
 
-		// create draft containing inline parts
+		// create APPLE-MAIL draft containing inline parts not displayed by other client
 		final ItemValue<MailboxItem> reloaded = addDraft(inbox);
 
-		// check disposition type is kept ( 0:text without disposition, 1:image
-		// inline,
-		// 2:image inline)
+		// check disposition types are fixed ( 0:text without disposition, 1:image
+		// attachment,
+		// 2:image attachment)
 		final List<Part> subParts = reloaded.value.body.structure.children;
-		assertEquals(DispositionType.INLINE, subParts.get(1).dispositionType);
-		assertEquals(DispositionType.INLINE, subParts.get(2).dispositionType);
+		assertEquals(DispositionType.ATTACHMENT, subParts.get(1).dispositionType);
+		assertEquals(DispositionType.ATTACHMENT, subParts.get(2).dispositionType);
 		assertNull(subParts.get(0).dispositionType);
 
-		// should not have real attachments (it is based on disposition type)
-		assertFalse(reloaded.value.body.structure.hasRealAttachments());
-		assertEquals(0, reloaded.value.body.structure.nonInlineAttachments().size());
+		// should have real attachments (it is based on disposition type)
+		assertTrue(reloaded.value.body.structure.hasRealAttachments());
+		assertEquals(2, reloaded.value.body.structure.nonInlineAttachments().size());
 	}
 
 	/**

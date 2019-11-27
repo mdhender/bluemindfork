@@ -134,6 +134,9 @@ public class DirEntryColumns {
 			case ORG_UNIT:
 				value.path = domainUid + "/ous/" + value.entryUid;
 				break;
+			case EXTERNALUSER:
+				value.path = domainUid + "/externaluser/" + value.entryUid;
+				break;
 			case DOMAIN:
 				value.path = domainUid;
 			default:

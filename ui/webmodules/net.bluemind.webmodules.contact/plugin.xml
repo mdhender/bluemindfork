@@ -46,7 +46,7 @@
    <extension
          point="net.bluemind.ui.commons.banner">
       <banner-entry
-            cssIcon="fa fa-lg fa-addressbook"
+            cssIcon="fa fa-lg fa-user"
             description="%banner-entry.description"
             name="%banner-entry.name"
             offline="true"

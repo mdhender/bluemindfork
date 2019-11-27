@@ -19,11 +19,14 @@ package net.bluemind.backend.mail.replica.persistence;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -159,12 +162,16 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 				"SELECT item_id, imap_uid, encode(message_body_guid, 'hex') FROM t_mailbox_record "
 				+ "INNER JOIN t_container_item ci ON ci.id=item_id " + "WHERE ci.container_id=? AND item_id IN ("
 				+ inString + ")";
-		return select(query, rs -> new ImapBinding(), (rs, index, value) -> {
+		List<ImapBinding> notSorted = select(query, rs -> new ImapBinding(), (rs, index, value) -> {
 			value.itemId = rs.getInt(index++);
 			value.imapUid = rs.getInt(index++);
 			value.bodyGuid = rs.getString(index++);
 			return index;
 		}, new Object[] { container.id });
+		List<ImapBinding> ret = new ArrayList<>(notSorted.size());
+		Map<Long, ImapBinding> sortHelper = notSorted.stream().collect(Collectors.toMap(ib -> ib.itemId, ib -> ib));
+		itemIds.forEach(k -> Optional.ofNullable(sortHelper.get(k)).ifPresent(v -> ret.add(v)));
+		return ret;
 	}
 
 	public List<Long> sortedIds(SortDescriptor sorted) throws SQLException {

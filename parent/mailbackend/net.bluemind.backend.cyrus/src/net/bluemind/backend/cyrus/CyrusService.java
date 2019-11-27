@@ -237,10 +237,8 @@ public class CyrusService {
 	}
 
 	/**
-	 * @param boxName
-	 *            eg. user/john@bm.lan
-	 * @param quota
-	 *            unit is KB
+	 * @param boxName eg. user/john@bm.lan
+	 * @param quota   unit is KB
 	 * @throws ServerFault
 	 */
 	public void setQuota(String boxName, int quota) throws ServerFault {
@@ -311,7 +309,7 @@ public class CyrusService {
 	}
 
 	public void reset() throws ServerFault {
-		NCUtils.execNoOut(nodeClient, "/usr/share/bm-cyrus/resetCyrus.sh");
-		NCUtils.execNoOut(nodeClient, "rm -rf /var/lib/cyrus/sync");
+		NCUtils.execNoOut(nodeClient, "/usr/share/bm-cyrus/resetCyrus.sh", 5, TimeUnit.SECONDS);
+		NCUtils.execNoOut(nodeClient, "rm -rf /var/lib/cyrus/sync", 5, TimeUnit.SECONDS);
 	}
 }

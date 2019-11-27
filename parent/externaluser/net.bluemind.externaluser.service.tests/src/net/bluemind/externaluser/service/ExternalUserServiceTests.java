@@ -240,7 +240,7 @@ public class ExternalUserServiceTests {
 			getExternalUserService().create(extUserItemUid, externalUser);
 			fail("can't create an external user whose right part is a domain alias already used by an user.");
 		} catch (ServerFault sf) {
-			assertEquals(ErrorCode.ALREADY_EXISTS, sf.getCode());
+			assertEquals(ErrorCode.EMAIL_ALREADY_USED, sf.getCode());
 		}
 	}
 
@@ -257,7 +257,7 @@ public class ExternalUserServiceTests {
 			getExternalUserService().create(itemUid2, eu2);
 			fail("can't create an external user with same email than an existing external user.");
 		} catch (ServerFault sf) {
-			assertEquals(ErrorCode.ALREADY_EXISTS, sf.getCode());
+			assertEquals(ErrorCode.EMAIL_ALREADY_USED, sf.getCode());
 		}
 	}
 
@@ -370,8 +370,9 @@ public class ExternalUserServiceTests {
 		String itemUid = UUID.randomUUID().toString();
 		ExternalUser eu = new ExternalUser();
 		String myEmail = "mail@external.com";
+		String myName = "myName";
 		eu.contactInfos = new VCard();
-		eu.contactInfos.identification.formatedName = VCard.Identification.FormatedName.create("myName");
+		eu.contactInfos.identification.name.familyNames = myName;
 		eu.contactInfos.communications.emails = new ArrayList<>();
 		eu.contactInfos.communications.emails.add(VCard.Communications.Email.create(myEmail));
 		eu.hidden = true;
@@ -384,9 +385,9 @@ public class ExternalUserServiceTests {
 		ExternalUser created = externalUserService.getComplete(itemUid).value;
 
 		assertEquals(1, created.contactInfos.communications.emails.size());
-		assertEquals(myEmail, created.contactInfos.communications.emails.iterator().next().value);
-		assertEquals(eu.contactInfos.identification.formatedName.value,
-				created.contactInfos.identification.formatedName.value);
+		assertEquals(myEmail, created.contactInfos.defaultMail());
+		assertEquals(myName, created.contactInfos.identification.name.familyNames);
+		assertEquals(myName, created.contactInfos.identification.formatedName.value);
 	}
 
 	private Group createGroup(String name, String desc, String groupUid) {

@@ -18,6 +18,8 @@
  */
 package net.bluemind.user.service.internal;
 
+import java.util.Arrays;
+
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
@@ -60,9 +62,14 @@ public class UserSanitizer implements ISanitizer<User> {
 		new Sanitizer(context).create(obj.contactInfos);
 	}
 
-	private void sanitize(User obj) {
-		if (obj.routing == null) {
-			obj.routing = Routing.none;
+	private void sanitize(User user) {
+		if (user.routing == null) {
+			user.routing = Routing.none;
+		}
+
+		if (user.contactInfos.defaultMail() == null && user.defaultEmail() != null) {
+			user.contactInfos.communications.emails = Arrays
+					.asList(VCard.Communications.Email.create(user.defaultEmailAddress()));
 		}
 	}
 

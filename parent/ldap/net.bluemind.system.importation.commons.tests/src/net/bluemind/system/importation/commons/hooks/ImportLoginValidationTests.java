@@ -181,6 +181,7 @@ public class ImportLoginValidationTests {
 				user.value.login = "login-" + System.nanoTime();
 				user.value.routing = Routing.internal;
 				user.value.contactInfos = new VCard();
+				user.value.contactInfos.identification.name.familyNames = "myName";
 			}
 
 			@Override

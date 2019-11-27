@@ -20,10 +20,15 @@ package net.bluemind.backend.cyrus.syncclient.mgmt.api;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.vertx.java.core.Vertx;
 
+import net.bluemind.backend.cyrus.syncclient.mgmt.MultiClientManager;
 import net.bluemind.backend.cyrus.syncclient.mgmt.SyncClientMgmt;
+import net.bluemind.node.api.NCUtils;
+import net.bluemind.node.api.NodeActivator;
 
 public interface ISyncClientMgmt {
 
@@ -64,7 +69,13 @@ public interface ISyncClientMgmt {
 		}
 
 		public ISyncClientMgmt build() {
-			return new SyncClientMgmt(vertx, cyrusBackendAddress, replicationChannel, observers, observersPool);
+			// ensure we start in a consistent state
+			NCUtils.execNoOut(NodeActivator.get(cyrusBackendAddress), "/usr/bin/killall sync_client");
+
+			List<ISyncClientMgmt> syncClients = IntStream.range(0, 4).mapToObj(shardIndex -> new SyncClientMgmt(vertx,
+					cyrusBackendAddress, replicationChannel, shardIndex, observers, observersPool))
+					.collect(Collectors.toList());
+			return new MultiClientManager(syncClients);
 		}
 
 	}

@@ -75,9 +75,7 @@ public class VXStoreClient {
 	public static VXStoreClient create(String host, int port, String login, String password) {
 		CompletableFuture<VXStoreClient> cli = new CompletableFuture<>();
 		Vertx vx = VertxPlatform.getVertx();
-		vx.setTimer(1, tid -> {
-			cli.complete(new VXStoreClient(vx, host, port, login, password));
-		});
+		vx.setTimer(1, tid -> cli.complete(new VXStoreClient(vx, host, port, login, password)));
 		return cli.join();
 	}
 
@@ -85,27 +83,29 @@ public class VXStoreClient {
 		this.vertx = vertx;
 		this.login = login;
 		this.password = password;
-		this.connectFuture = new CompletableFuture<NetSocket>();
-		this.closeFuture = new CompletableFuture<Void>();
-		this.setupFuture = new CompletableFuture<ConnectionState>();
+		this.connectFuture = new CompletableFuture<>();
+		this.closeFuture = new CompletableFuture<>();
+		this.setupFuture = new CompletableFuture<>();
 
-		logger.info("Before netClient...");
 		client = vertx.createNetClient();
-		logger.info("NetClient created {}", client);
+		logger.debug("NetClient created {}", client);
 		client.setReuseAddress(true).setTCPNoDelay(true).setTCPKeepAlive(true).setUsePooledBuffers(true);
 		recordParser = new ImapRecordParser();
 
 		ImapProtocolListener<ConnectionState> bannerListener = new ImapProtocolListener<ConnectionState>(setupFuture) {
 
+			@Override
 			public void onStatusResponse(ByteBuf banner) {
-				logger.info("Got banner {}", banner.toString(StandardCharsets.US_ASCII));
+				if (logger.isDebugEnabled()) {
+					logger.debug("Got banner {}", banner.toString(StandardCharsets.US_ASCII));
+				}
 				future.complete(new ConnectionState(vertx.currentContext(), connectFuture.join()));
 			}
 
 		};
 		recordParser.listener(bannerListener);
 
-		logger.info("Connecting...");
+		logger.info("Connecting to {}:{}...", host, port);
 		client.connect(port, host, ar -> {
 			if (ar.succeeded()) {
 				NetSocket sock = ar.result();
@@ -128,12 +128,10 @@ public class VXStoreClient {
 	}
 
 	/**
-	 * @param cmdCons
-	 *                     the consumers receives a {@link StringBuilder} with the
-	 *                     IMAP tag + space char already added
-	 * @param listener
-	 *                     the listener receives the spurious responses (eg. * FETCH
-	 *                     42...)
+	 * @param cmdCons  the consumers receives a {@link StringBuilder} with the IMAP
+	 *                 tag + space char already added
+	 * @param listener the listener receives the spurious responses (eg. * FETCH
+	 *                 42...)
 	 * @return
 	 */
 	private <T> CompletableFuture<ImapResponseStatus<T>> run(Consumer<StringBuilder> cmdCons,
@@ -154,18 +152,16 @@ public class VXStoreClient {
 			ImapProtocolListener<T> listener, ReadStream<W> literal) {
 		String tag = "V" + (++tags);
 
-		Runnable onGoAhead = () -> {
-			setupFuture.thenAccept(conState -> {
-				conState.context.runOnContext(v -> {
-					literal.endHandler(end -> {
-						logger.info("Finished streaming literal.");
-						conState.socket.write("\r\n");
-					});
-					Pump pump = Pump.createPump(literal, conState.socket);
-					pump.start();
+		Runnable onGoAhead = () -> setupFuture.thenAccept(conState -> {
+			conState.context.runOnContext(v -> {
+				literal.endHandler(end -> {
+					logger.debug("Finished streaming literal {}.", literal);
+					conState.socket.write("\r\n");
 				});
+				Pump pump = Pump.createPump(literal, conState.socket);
+				pump.start();
 			});
-		};
+		});
 
 		TagOrGoAheadListener<T> tl = new TagOrGoAheadListener<>(tag, listener, onGoAhead);
 		setupFuture.thenAccept(conState -> {
@@ -194,10 +190,6 @@ public class VXStoreClient {
 
 	private static final CompletableFuture<ImapResponseStatus<SelectResponse>> SELECTED = CompletableFuture
 			.completedFuture(new ImapResponseStatus<SelectResponse>(Status.Ok, new SelectResponse()));
-
-	public void unselect() {
-		selected = null;
-	}
 
 	public CompletableFuture<ImapResponseStatus<SelectResponse>> select(String mailbox) {
 		if (selected != null && selected.equals(mailbox)) {

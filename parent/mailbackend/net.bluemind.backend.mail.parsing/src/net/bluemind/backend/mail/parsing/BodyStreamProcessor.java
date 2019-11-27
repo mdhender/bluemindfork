@@ -50,6 +50,7 @@ import org.apache.james.mime4j.dom.field.ContentTypeField;
 import org.apache.james.mime4j.dom.field.FieldName;
 import org.apache.james.mime4j.stream.Field;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,7 +108,7 @@ public class BodyStreamProcessor {
 	static {
 		// initialization in a separate static bloc enables tests to modify this final
 		// field using reflection
-		BODY_VERSION = 3;
+		BODY_VERSION = 4;
 	}
 
 	private static Set<String> buildWhiteList() {
@@ -186,6 +187,8 @@ public class BodyStreamProcessor {
 				logger.info("Body ({} byte(s)) processed in {}ms.", mb.size, time);
 			}
 
+			cleanUnreferencedInlineAttachments(mb, parsed);
+
 			MessageBodyData bodyData = new MessageBodyData(mb, bodyTxt.toString(), filenames, with,
 					mapHeaders(mb.headers));
 			logger.debug("Processed {}", bodyData);
@@ -196,9 +199,61 @@ public class BodyStreamProcessor {
 
 	}
 
+	private static void cleanUnreferencedInlineAttachments(MessageBody mb, Message parsed) {
+		List<Part> withContentIds = partsWithContentIds(mb.structure, null, new LinkedList<>());
+		if (!withContentIds.isEmpty()) {
+			Optional<AddressableEntity> ae = htmlBody(parsed);
+			String body = ae.map(BodyStreamProcessor::getBodyContent).orElse("");
+			Set<String> refCids = findCIDs(Jsoup.parse(body));
+			for (Part p : withContentIds) {
+				String cid = CharMatcher.anyOf("<>").trimFrom(p.contentId);
+				if (!refCids.contains(cid)) {
+					p.dispositionType = DispositionType.ATTACHMENT;
+					p.contentId = null;
+				} else {
+					p.dispositionType = DispositionType.INLINE;
+				}
+			}
+		}
+	}
+
+	private static List<Part> partsWithContentIds(Part structure, Part parent, List<Part> attach) {
+		if (parent != null && structure.contentId != null) {
+			attach.add(structure);
+		}
+		for (Part p : structure.children) {
+			partsWithContentIds(p, structure, attach);
+		}
+		return attach;
+	}
+
+	private static Optional<AddressableEntity> htmlBody(Message message) {
+		Body body = message.getBody();
+
+		if (body instanceof Multipart) {
+			Multipart mp = (Multipart) body;
+			List<AddressableEntity> parts = Mime4JHelper.expandParts(mp.getBodyParts());
+
+			for (AddressableEntity ae : parts) {
+				String mime = ae.getMimeType();
+				if (Mime4JHelper.TEXT_HTML.equals(mime) && !Mime4JHelper.isAttachment(ae)) {
+					return Optional.of(ae);
+				}
+			}
+		}
+		return Optional.empty();
+	}
+
+	private static Set<String> findCIDs(Document doc) {
+		return doc.select("[src^=cid:]").stream().map(e -> {
+			String src = e.attr("src");
+			return src.substring(4);
+		}).collect(Collectors.toSet());
+	}
+
 	private static List<String> processReferences(Multimap<String, String> mmapHeaders) {
 		for (String headerName : mmapHeaders.keySet()) {
-			if (headerName.toLowerCase().equals("references")) {
+			if ("references".equalsIgnoreCase(headerName)) {
 				return Arrays.asList(mmapHeaders.get(headerName).iterator().next().split(" "));
 			}
 		}

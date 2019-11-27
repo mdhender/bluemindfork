@@ -522,6 +522,9 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 			List<MailFolder> ret = new ArrayList<MailFolder>();
 
 			Set<String> done = new HashSet<String>();
+
+			String inbox = "user/" + mailbox.value.name + "/INBOX@" + domainUid;
+			done.add(inbox);
 			ListResult lr = sc.listSubFoldersMailbox(boxname(mailbox.value, domainUid));
 			// list returns /a, /a/b, /a/b/c
 			// reverse the list to /a/b/c, /a/b, /a so we only check /a/b/c
@@ -554,6 +557,7 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 					String mailboxName = mailboxBuilder.toString() + "@" + domainUid;
 
 					done.add(mailboxName);
+
 					try {
 						if (!sc.select(mailboxName)) {
 							logger.error("{} does not exist. create it", mailboxName);

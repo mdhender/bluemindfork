@@ -317,6 +317,7 @@ public class LdapExportServiceTests {
 		ldapCon.modify(modifyRequest);
 
 		user.value.contactInfos = new VCard();
+		user.value.contactInfos.identification.name.familyNames = "myName";
 		user.value.contactInfos.explanatory.note = "Updated description";
 		userService.update(user.uid, user.value);
 

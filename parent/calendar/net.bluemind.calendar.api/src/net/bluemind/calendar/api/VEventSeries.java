@@ -102,4 +102,9 @@ public class VEventSeries {
 		return evts;
 	}
 
+	@Override
+	public String toString() {
+		return "VEventSeries{icsUid: " + icsUid + ", main: " + main + ", occs: " + occurrences + "}";
+	}
+
 }
