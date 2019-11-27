@@ -21,13 +21,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import javax.mail.internet.MimeUtility;
 
 import org.apache.james.mime4j.MimeException;
 import org.apache.james.mime4j.dom.Body;
@@ -35,8 +41,10 @@ import org.apache.james.mime4j.dom.Header;
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.address.Address;
 import org.apache.james.mime4j.dom.address.Mailbox;
+import org.apache.james.mime4j.dom.field.ContentDispositionField;
 import org.apache.james.mime4j.dom.field.ParsedField;
 import org.apache.james.mime4j.field.LenientFieldParser;
+import org.apache.james.mime4j.message.AbstractEntity;
 import org.apache.james.mime4j.message.BasicBodyFactory;
 import org.apache.james.mime4j.message.BodyPart;
 import org.apache.james.mime4j.message.MessageImpl;
@@ -46,6 +54,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Throwables;
 
+import net.bluemind.backend.mail.api.DispositionType;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.backend.mail.api.MessageBody.Recipient;
@@ -59,12 +68,15 @@ public class EmlBuilder {
 
 	private static final Logger logger = LoggerFactory.getLogger(EmlBuilder.class);
 
+	private EmlBuilder() {
+	}
+
 	public static Message of(MessageBody mb, String owner) {
 
 		MessageImpl msg = new MessageImpl();
 		msg.setDate(mb.date);
 		BasicBodyFactory bbf = new BasicBodyFactory();
-		logger.info("******************* Building with subject {}", mb.subject);
+		logger.info("Subject is '{}'", mb.subject);
 		msg.setSubject(mb.subject);
 		try {
 			fillHeader(msg.getHeader(), mb.headers);
@@ -79,7 +91,7 @@ public class EmlBuilder {
 			if (body instanceof MultipartImpl) {
 				msg.setMultipart((MultipartImpl) body);
 			} else {
-				msg.setBody(body, structure.mime);
+				setBody(msg, body, structure);
 			}
 
 		} catch (IOException e) {
@@ -133,6 +145,40 @@ public class EmlBuilder {
 		}
 	}
 
+	private static void setBody(AbstractEntity ae, Body b, Part p) {
+		Map<String, String> bodyParams = new HashMap<>();
+		if (p.charset != null) {
+			bodyParams.put("charset", p.charset);
+		}
+		ae.setBody(b, p.mime, bodyParams);
+		if (p.encoding != null) {
+			ae.setContentTransferEncoding(p.encoding);
+		}
+		if (p.fileName != null && p.dispositionType == DispositionType.ATTACHMENT) {
+			ae.setContentDisposition(ContentDispositionField.DISPOSITION_TYPE_ATTACHMENT, safeEncode(p.fileName));
+		} else if (p.dispositionType == DispositionType.INLINE && p.contentId != null) {
+			if (p.fileName == null) {
+				ae.setContentDisposition(ContentDispositionField.DISPOSITION_TYPE_INLINE);
+			} else {
+				ae.setContentDisposition(ContentDispositionField.DISPOSITION_TYPE_INLINE, safeEncode(p.fileName));
+			}
+			try {
+				ae.getHeader().addField(LenientFieldParser.parse("Content-ID: <" + p.contentId + ">"));
+			} catch (MimeException e) {
+				logger.warn("Failed to set content-id to {}: {}", p.contentId, e.getMessage());
+			}
+		}
+	}
+
+	private static String safeEncode(String s) {
+		try {
+			return MimeUtility.encodeWord(s, "utf-8", "Q");
+		} catch (UnsupportedEncodingException e) {
+			// should not happen as utf-8 is always available
+			return s;
+		}
+	}
+
 	private static Body createBody(BasicBodyFactory bbf, Part structure, String owner) throws IOException {
 		Body body = null;
 		if (structure.children.isEmpty()) {
@@ -154,7 +200,7 @@ public class EmlBuilder {
 				if (childBody instanceof MultipartImpl) {
 					bp.setMultipart((MultipartImpl) childBody);
 				} else {
-					bp.setBody(childBody, p.mime);
+					setBody(bp, childBody, p);
 				}
 				Header partHeader = bp.getHeader();
 				try {
@@ -172,8 +218,8 @@ public class EmlBuilder {
 	private static void fillHeader(Header partHeader, List<net.bluemind.backend.mail.api.MessageBody.Header> headers)
 			throws MimeException {
 		for (net.bluemind.backend.mail.api.MessageBody.Header h : headers) {
-			if (h.name.equals("Content-Type")) {
-				// remove previous one, only one "Content-Type" allowed
+			if (h.name.equals("Content-Type") || h.name.equals("Content-Transfer-Encoding")) {
+				// remove previous one, only one "Content-Type" or "Content-Transfer-Encoding" allowed
 				partHeader.removeFields(h.name);
 			}
 			if (h.values.size() == 1) {
@@ -186,6 +232,7 @@ public class EmlBuilder {
 	}
 
 	public static SizedStream inputStream(Long id, String previousBody, Date date, Part structure, String owner) {
+		Objects.requireNonNull(structure.address, "Part address must not be null");
 		File emlInput = new File(Bodies.STAGING, structure.address + ".part");
 		if (!emlInput.exists()) {
 			throw ServerFault.notFound("Missing staging file " + emlInput.getAbsolutePath());

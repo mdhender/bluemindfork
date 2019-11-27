@@ -27,4 +27,7 @@ public class Bodies {
 		STAGING.mkdirs();
 	}
 
+	private Bodies() {
+	}
+
 }

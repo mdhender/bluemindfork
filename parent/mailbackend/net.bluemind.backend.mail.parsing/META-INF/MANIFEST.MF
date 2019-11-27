@@ -9,13 +9,16 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava,
  net.bluemind.core.commons;bundle-version="4.1.0",
  net.bluemind.backend.mail.api,
- net.bluemind.mime4j.common,
  net.bluemind.config,
- net.bluemind.backend.mail.replica.api,
+ net.bluemind.backend.mail.replica.api;visibility:=reexport,
  io.vertx.core,
  net.bluemind.core.rest,
  net.bluemind.content.analysis,
- org.jsoup
+ org.jsoup,
+ org.apache.james.apache-mime4j-dom;bundle-version="0.7.3";visibility:=reexport,
+ org.apache.james.apache-mime4j-core;bundle-version="0.7.3";visibility:=reexport,
+ net.bluemind.mime4j.common;bundle-version="4.1.0",
+ javax.mail-api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.backend.mail.parsing
