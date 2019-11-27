@@ -56,7 +56,8 @@ import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import net.bluemind.calendar.api.ICalendarUids;
+import com.google.common.base.Strings;
+
 import net.bluemind.calendar.api.PrintOptions;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.core.api.date.BmDateTime;
@@ -294,35 +295,44 @@ public abstract class PrintCalendar {
 	}
 
 	/**
-	 * TODO should go in a service ? or an utility class ?
-	 * 
-	 * @return <code>true</code> if the given event is a declined invitation i.e.:
-	 *         this event is declined by X and the event's calendar is the X's
-	 *         default calendar
+	 * @return <code>true</code> if the given event is a declined invitation
+	 *         i.e.: this event is declined by X and the event's calendar is the
+	 *         X's default calendar
 	 */
-	private boolean isADeclinedInvitation(final ItemContainerValue<VEvent> event) {
+	private boolean isADeclinedInvitation(ItemContainerValue<VEvent> event) {
 		if (event.value.attendees == null || event.value.attendees.isEmpty()) {
 			// no attendee, so it is not an invitation
 			return false;
 		}
 
 		// search for a declined attendee in her own default calendar
-		for (final Attendee attendee : event.value.attendees) {
-			if (ParticipationStatus.Declined == attendee.partStatus && attendee.dir != null
-					&& !attendee.dir.isEmpty()) {
-				// power tip: the user uid is hidden in the attendee.dir field !
-				final int lastSlashIndex = attendee.dir.lastIndexOf('/');
-				if (lastSlashIndex > 0) {
-					final String attendeeDefaultCalendarUid = ICalendarUids
-							.defaultUserCalendar(attendee.dir.substring(lastSlashIndex + 1));
-					if (event.containerUid.equals(attendeeDefaultCalendarUid)) {
-						return true;
-					}
-				}
+		String calendarUid = this.extractUidFromItemContainerUid(event.containerUid);
+		for (Attendee attendee : event.value.attendees) {
+			if (ParticipationStatus.Declined == attendee.partStatus) {
+				String attendeeUid = this.extractUidFromAttendeeDir(attendee.dir);
+				return attendeeUid.equals(calendarUid);
 			}
 		}
 
 		return false;
+	}
+
+	/**
+	 * The uid of the attendee is found at the very end after the last
+	 * <b>&#47;</b> and the last <b>:</b>.
+	 */
+	private String extractUidFromAttendeeDir(String attendeeDir) {
+		String[] split = Strings.nullToEmpty(attendeeDir).split("[/:]");
+		return split[split.length - 1];
+	}
+
+	/**
+	 * The uid of the container is found at the very end after the last
+	 * <b>:</b>.
+	 */
+	private String extractUidFromItemContainerUid(String itemContainerUid) {
+		String[] split = itemContainerUid.split(":");
+		return split[split.length - 1];
 	}
 
 	public byte[] sendSVGString() throws ServerFault {
