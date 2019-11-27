@@ -51,6 +51,8 @@ import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
+import net.bluemind.core.api.fault.ErrorCode;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemFlag;
@@ -232,7 +234,13 @@ public class MailBackend extends CoreConnect {
 					IMailboxItems service = getMailboxItemsService(bs, folder.uid);
 					items.get(folder).forEach(id -> {
 						logger.info("[{}] Delete mail {}", bs.getUser().getUid(), id);
-						service.deleteById(id);
+						try {
+							service.deleteById(id);
+						} catch (ServerFault sf) {
+							if (sf.getCode() != ErrorCode.TIMEOUT) {
+								throw sf;
+							}
+						}
 					});
 				}
 
@@ -275,8 +283,13 @@ public class MailBackend extends CoreConnect {
 					item.value.systemFlags.removeIf(f -> f == SystemFlag.flagged);
 				}
 			}
-
-			service.updateById(id, item.value);
+			try {
+				service.updateById(id, item.value);
+			} catch (ServerFault sf) {
+				if (sf.getCode() != ErrorCode.TIMEOUT) {
+					throw sf;
+				}
+			}
 
 			return ci;
 		}

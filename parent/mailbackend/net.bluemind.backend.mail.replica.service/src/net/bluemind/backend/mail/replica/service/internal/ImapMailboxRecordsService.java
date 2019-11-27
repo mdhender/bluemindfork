@@ -305,7 +305,8 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 								.thenCompose(selec -> fast.fetch(current.value.imapUid, p.address))
 								.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 					} catch (TimeoutException e) {
-						throw new ServerFault("Failed to fetch part " + p.address + " from current. Timeout occured");
+						throw new ServerFault("Failed to fetch part " + p.address + " from current. Timeout occured",
+								ErrorCode.TIMEOUT);
 					}
 
 				});

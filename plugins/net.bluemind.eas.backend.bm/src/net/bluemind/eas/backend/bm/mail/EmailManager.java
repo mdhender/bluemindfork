@@ -208,7 +208,13 @@ public class EmailManager extends CoreConnect {
 			ContainerChangeset<ItemVersion> changeset = service.filteredChangesetById(0L,
 					ItemFlagFilter.create().mustNot(ItemFlag.Deleted));
 			changeset.created.forEach(iv -> {
-				service.deleteById(iv.id);
+				try {
+					service.deleteById(iv.id);
+				} catch (ServerFault serverFault) {
+					if (serverFault.getCode() != ErrorCode.TIMEOUT) {
+						throw serverFault;
+					}
+				}
 			});
 		}
 

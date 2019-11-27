@@ -432,7 +432,13 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 						});
 					}
 
-					rootPromise.get(15, TimeUnit.SECONDS);
+					try {
+						rootPromise.get(15, TimeUnit.SECONDS);
+					} catch (TimeoutException timeoutException) {
+						logger.warn(timeoutException.getMessage(), timeoutException);
+					} catch (Exception e) {
+						throw e;
+					}
 				}
 
 				return ret;
