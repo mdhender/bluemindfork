@@ -24,6 +24,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+import com.google.common.base.Strings;
+
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
@@ -203,9 +205,12 @@ public class ResourceTemplateHelper implements IResourceTemplateHelper {
 	}
 
 	@Override
-	public String addTemplate(final String text, final String processedTemplate) {
-		final String sanitizedText = sanitizeText(text);
-		final String separator = sanitizedText.isEmpty() ? "" : TEMPLATE_SEPARATOR;
+	public String addTemplate(String text, String processedTemplate) {
+		String sanitizedText = sanitizeText(text);
+		if (Strings.isNullOrEmpty(processedTemplate)) {
+			return sanitizedText;
+		}
+		String separator = sanitizedText.isEmpty() ? "" : TEMPLATE_SEPARATOR;
 		return String.format("%s%s%s%s", sanitizedText, separator, processedTemplate, TEMPLATE_SUFFIX);
 	}
 
