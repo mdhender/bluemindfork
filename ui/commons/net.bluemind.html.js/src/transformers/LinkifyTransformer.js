@@ -7,8 +7,6 @@ export default class {
     }
 
     transform(text) {
-        return this.transformer.transform(linkify(text),{
-            target: "_blank"
-        }); // transform http links and mailto
+        return this.transformer.transform(linkify(text)); // transform http links and mailto
     }
 }

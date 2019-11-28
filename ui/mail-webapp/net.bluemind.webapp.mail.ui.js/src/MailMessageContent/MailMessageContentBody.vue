@@ -53,7 +53,9 @@ export default {
                 });
                 const iframeDoc = this.$refs.iFrameMailContent.contentWindow.document;
                 iframeDoc.open();
-                iframeDoc.write(html);
+                // all links should be opened in an other tab by default
+                iframeDoc.write("<head><base target=\"_blank\"></head>");
+                iframeDoc.write("<body>" + html + "</body>");
                 iframeDoc.close();
 
                 this.addStyle(iframeDoc);
