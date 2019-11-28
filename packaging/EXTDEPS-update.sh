@@ -63,6 +63,8 @@ function updateDependencies() {
         updatePomFile ${file} bm-chronograf ${CHRONOGRAF}
         updatePomFile ${file} bm-kapacitor ${KAPACITOR}
         updatePomFile ${file} bm-influxdb ${INFLUXDB}
+	updatePomFile ${file} bm-kafka ${KAFKA}
+	updatePomFile ${file} bm-sds-storage-s3-minio ${MINIO}
         updatePomFile ${file} bm-cyrus-imapd ${BMCYRUS}
         updatePomFile ${file} bm-postgresql ${BMPOSTGRESQL}
         updatePomFile ${file} bm-jdk ${BMJDK}
@@ -77,6 +79,8 @@ function updateDependencies() {
         updateControlFile ${file} bm-chronograf ${CHRONOGRAF}
         updateControlFile ${file} bm-kapacitor ${KAPACITOR}
         updateControlFile ${file} bm-influxdb ${INFLUXDB}
+	updateControlFile ${file} bm-kafka ${KAFKA}
+	updateControlFile ${file} bm-sds-storage-s3-minio ${MINIO}
         updateControlFile ${file} bm-cyrus-imapd ${BMCYRUS}
         updateControlFile ${file} bm-postgresql ${BMPOSTGRESQL}
         updateControlFile ${file} bm-jdk ${BMJDK}
@@ -94,6 +98,8 @@ function updateDependencies() {
         updateSpecFile ${file} bm-chronograf ${CHRONOGRAF}
         updateSpecFile ${file} bm-kapacitor ${KAPACITOR}
         updateSpecFile ${file} bm-influxdb ${INFLUXDB}
+	updateSpecFile ${file} bm-kafka ${KAFKA}
+	updateSpecFile ${file} bm-sds-storage-s3-minio ${MINIO}
         updateSpecFile ${file} bm-cyrus-imapd 1:${BMCYRUS}
         updateSpecFile ${file} bm-postgresql ${BMPOSTGRESQL}
         updateSpecFile ${file} bm-jdk ${BMJDK}
