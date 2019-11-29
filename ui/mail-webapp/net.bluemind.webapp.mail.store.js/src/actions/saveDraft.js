@@ -75,8 +75,8 @@ export function saveDraft({ commit, state, getters }) {
             let textPart = {
                 mime: MimeType.TEXT_PLAIN,
                 address: addrParts[MimeType.TEXT_PLAIN],
-                headers: [{ name: "Content-Transfer-Encoding", values: ["QUOTED-PRINTABLE"] },
-                    { name: "Content-Type", values: [MimeType.TEXT_PLAIN + "; charset=utf-8"] }]
+                encoding: "quoted-printable",
+                charset: "utf-8"
             };
 
             if (draft.type === "text") {
@@ -89,8 +89,8 @@ export function saveDraft({ commit, state, getters }) {
                         {
                             mime: MimeType.TEXT_HTML,
                             address: addrParts[MimeType.TEXT_HTML],
-                            headers: [{ name: "Content-Transfer-Encoding", values: ["BASE64"] },
-                                { name: "Content-Type", values: [MimeType.TEXT_HTML + "; charset=utf-8"] }]
+                            encoding: "quoted-printable",
+                            charset: "utf-8"
                         }
                     ]
                 };
