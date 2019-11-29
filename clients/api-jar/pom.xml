@@ -6,7 +6,7 @@
 
 	<parent>
 		<groupId>net.bluemind</groupId>
-		<artifactId>net.bluemind.parent</artifactId>
+		<artifactId>clients</artifactId>
 		<version>4.1.0-SNAPSHOT</version>
 	</parent>
 

@@ -27,7 +27,6 @@
 				<module>mozilla</module>
 				<module>p2</module>
 				<module>i18n</module>
-				<module>api-jar</module>
 			</modules>
 		</profile>
 		<profile>
