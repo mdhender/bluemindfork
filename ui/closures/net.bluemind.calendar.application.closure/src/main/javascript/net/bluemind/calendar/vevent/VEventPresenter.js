@@ -434,7 +434,7 @@ net.bluemind.calendar.vevent.VEventPresenter.prototype.freeBusyRequest = functio
   var promise;
   var exclusions = opt_excludeThisEvent && this.ctx.params.get('uid') != null ? [ this.ctx.params.get('uid') ] : [];
 
-  var isKnownByBM = goog.string.startsWith(attendee['dir'], 'bm://');
+  var isKnownByBM = attendee['dir'] != null && goog.string.startsWith(attendee['dir'], 'bm://'); 
   var dirEntryKind = isKnownByBM ? attendee['dir'].substring('bm://'.length).split("/")[1] : null;
 
   var containerBasedFreebusy = dirEntryKind == "users" || dirEntryKind == "resources";
