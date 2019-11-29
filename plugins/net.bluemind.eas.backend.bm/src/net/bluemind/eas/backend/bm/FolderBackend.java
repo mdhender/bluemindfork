@@ -85,8 +85,8 @@ public class FolderBackend extends CoreConnect {
 		// ContainerNode internalId as collectionId
 		IContainersFlatHierarchy flatH = getService(bs, IContainersFlatHierarchy.class, bs.getUser().getDomain(),
 				bs.getUser().getUid());
-		String nodeUid = ContainerHierarchyNode.uidFor(IMailReplicaUids.mboxRecords(itemId.uid), "mailbox_records",
-				bs.getUser().getDomain());
+		String nodeUid = ContainerHierarchyNode.uidFor(IMailReplicaUids.mboxRecords(itemId.uid),
+				IMailReplicaUids.MAILBOX_RECORDS, bs.getUser().getDomain());
 		ItemValue<ContainerHierarchyNode> node = flatH.getComplete(nodeUid);
 
 		return node.internalId;
@@ -164,9 +164,9 @@ public class FolderBackend extends CoreConnect {
 		FolderChanges ret = new FolderChanges();
 
 		List<String> acceptedContainers = new ArrayList<String>();
-		acceptedContainers.add("calendar");
-		acceptedContainers.add("addressbook");
-		acceptedContainers.add("todolist");
+		acceptedContainers.add(ICalendarUids.TYPE);
+		acceptedContainers.add(IAddressBookUids.TYPE);
+		acceptedContainers.add(ITodoUids.TYPE);
 
 		IMailboxFolders mboxFolders = getIMailboxFoldersService(bs);
 
@@ -186,7 +186,7 @@ public class FolderBackend extends CoreConnect {
 				if (acceptedContainers.contains(h.value.containerType)) {
 					FolderChangeReference f = getHierarchyItemChange(bs, h, ChangeType.ADD, offlineContainers);
 					Optional.ofNullable(f).ifPresent(item -> ret.items.add(item));
-				} else if ("mailbox_records".equals(h.value.containerType)) {
+				} else if (IMailReplicaUids.MAILBOX_RECORDS.equals(h.value.containerType)) {
 					FolderChangeReference f = getMailHierarchyItemChange(bs, mboxFolders, flatH, h, ChangeType.ADD);
 					Optional.ofNullable(f).ifPresent(item -> ret.items.add(item));
 				}
@@ -200,7 +200,7 @@ public class FolderBackend extends CoreConnect {
 				if (acceptedContainers.contains(h.value.containerType)) {
 					FolderChangeReference f = getHierarchyItemChange(bs, h, ChangeType.CHANGE, offlineContainers);
 					Optional.ofNullable(f).ifPresent(item -> ret.items.add(item));
-				} else if ("mailbox_records".equals(h.value.containerType)) {
+				} else if (IMailReplicaUids.MAILBOX_RECORDS.equals(h.value.containerType)) {
 					FolderChangeReference f = getMailHierarchyItemChange(bs, mboxFolders, flatH, h, ChangeType.CHANGE);
 					Optional.ofNullable(f).ifPresent(item -> ret.items.add(item));
 				}
@@ -334,16 +334,20 @@ public class FolderBackend extends CoreConnect {
 				logger.error("Fail to fetch folder {}", uniqueId);
 				return null;
 			}
+			if (folder.flags.contains(ItemFlag.Deleted)) {
+				logger.error("Mail folder '{}' is marked as deleted", h.value.name);
+				return null;
+			}
 			if (folder.value.parentUid != null) {
 				String parentUid = ContainerHierarchyNode.uidFor(IMailReplicaUids.mboxRecords(folder.value.parentUid),
-						"mailbox_records", bs.getUser().getDomain());
+						IMailReplicaUids.MAILBOX_RECORDS, bs.getUser().getDomain());
 				parentId = flatH.getComplete(parentUid).internalId;
 			}
 		}
 		folderChangeRef.parentId = parentId;
 		folderChangeRef.folderId = h.internalId;
 
-		logger.debug("====> {} {}", changeType, folderChangeRef);
+		logger.debug("Add mail folder {} {}", changeType, folderChangeRef);
 
 		return folderChangeRef;
 	}
@@ -363,7 +367,7 @@ public class FolderBackend extends CoreConnect {
 		String name = "";
 		FolderType type = null;
 		switch (folder.value.containerType) {
-		case "calendar":
+		case ICalendarUids.TYPE:
 			if (ICalendarUids.defaultUserCalendar(bs.getUser().getUid()).equals(folder.value.containerUid)) {
 				type = FolderType.DEFAULT_CALENDAR_FOLDER;
 			} else {
@@ -381,7 +385,7 @@ public class FolderBackend extends CoreConnect {
 			}
 			name = folder.value.name;
 			break;
-		case "addressbook":
+		case IAddressBookUids.TYPE:
 			if (IAddressBookUids.defaultUserAddressbook(bs.getUser().getUid()).equals(folder.value.containerUid)) {
 				type = FolderType.DEFAULT_CONTACTS_FOLDER;
 			} else {
@@ -399,7 +403,7 @@ public class FolderBackend extends CoreConnect {
 			}
 			name = I18nLabels.getInstance().translate(bs.getLang(), folder.value.name);
 			break;
-		case "todolist":
+		case ITodoUids.TYPE:
 			if (ITodoUids.defaultUserTodoList(bs.getUser().getUid()).equals(folder.value.containerUid)) {
 				type = FolderType.DEFAULT_TASKS_FOLDER;
 			} else {
@@ -407,7 +411,7 @@ public class FolderBackend extends CoreConnect {
 			}
 			name = I18nLabels.getInstance().translate(bs.getLang(), folder.value.name);
 			break;
-		case "mailbox_record":
+		default:
 			break;
 		}
 
@@ -417,7 +421,7 @@ public class FolderBackend extends CoreConnect {
 		f.parentId = 0;
 		f.folderId = folder.internalId;
 
-		logger.debug("====> {} {}", changeType, f);
+		logger.debug("Add folder {} {}", changeType, f);
 
 		return f;
 	}
@@ -429,7 +433,7 @@ public class FolderBackend extends CoreConnect {
 		String name = "";
 		FolderType type = null;
 		switch (container.value.containerType) {
-		case "calendar":
+		case ICalendarUids.TYPE:
 			if (ICalendarUids.defaultUserCalendar(bs.getUser().getUid()).equals(container.value.containerUid)) {
 				type = FolderType.DEFAULT_CALENDAR_FOLDER;
 			} else {
@@ -442,7 +446,7 @@ public class FolderBackend extends CoreConnect {
 			}
 			name = h.value.name;
 			break;
-		case "addressbook":
+		case IAddressBookUids.TYPE:
 			if (IAddressBookUids.defaultUserAddressbook(bs.getUser().getUid()).equals(container.value.containerUid)) {
 				type = FolderType.DEFAULT_CONTACTS_FOLDER;
 			} else {
@@ -455,7 +459,7 @@ public class FolderBackend extends CoreConnect {
 			}
 			name = I18nLabels.getInstance().translate(bs.getLang(), h.value.name);
 			break;
-		case "todolist":
+		case ITodoUids.TYPE:
 			if (ITodoUids.defaultUserTodoList(bs.getUser().getUid()).equals(container.value.containerUid)) {
 				type = FolderType.DEFAULT_TASKS_FOLDER;
 			} else {
@@ -463,7 +467,7 @@ public class FolderBackend extends CoreConnect {
 			}
 			name = I18nLabels.getInstance().translate(bs.getLang(), h.value.name);
 			break;
-		case "mailbox_record":
+		default:
 			break;
 		}
 
@@ -473,7 +477,7 @@ public class FolderBackend extends CoreConnect {
 		f.parentId = 0;
 		f.folderId = h.internalId;
 
-		logger.debug("====> {} {}", f.changeType, f);
+		logger.debug("Add subscription {} {}", f.changeType, f);
 
 		return f;
 	}
