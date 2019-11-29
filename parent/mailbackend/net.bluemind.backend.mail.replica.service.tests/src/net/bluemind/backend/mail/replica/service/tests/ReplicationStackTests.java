@@ -58,7 +58,6 @@ import com.google.common.collect.ImmutableMap;
 
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.DispositionType;
-import net.bluemind.backend.mail.api.FetchOptions;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.ImportMailboxItemSet;
@@ -526,7 +525,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		MessageBody bodyVal = item.value.body;
 		JsonObject js = new JsonObject(JsonUtils.asString(bodyVal.structure));
 		System.out.println("Structure is " + js.encodePrettily());
-		Stream partStream = recordsApi.fetch(item.value.imapUid, "3", FetchOptions.pristine());
+		Stream partStream = recordsApi.fetch(item.value.imapUid, "3", null, null, null, null);
 		fetchPart(partStream);
 	}
 
@@ -1087,7 +1086,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		PartsWalker<Void> walk = new PartsWalker<>(null);
 		AtomicInteger partBytes = new AtomicInteger();
 		walk.visit((ctx, part) -> {
-			Stream fetched = itemsApi.fetch(added.value.imapUid, part.address, FetchOptions.pristine());
+			Stream fetched = itemsApi.fetch(added.value.imapUid, part.address, null, null, null, null);
 			try {
 				Buffer asBuffer = fetchPart(fetched);
 				partBytes.addAndGet(asBuffer.length());

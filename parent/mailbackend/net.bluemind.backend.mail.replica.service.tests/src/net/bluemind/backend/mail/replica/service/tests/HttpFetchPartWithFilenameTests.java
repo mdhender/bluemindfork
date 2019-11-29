@@ -120,7 +120,7 @@ public class HttpFetchPartWithFilenameTests extends AbstractRollingReplicationTe
 		AsyncHttpClient httpClient = new AsyncHttpClient();
 
 		RequestBuilder requestBuilder = new RequestBuilder();
-		requestBuilder.setMethod("POST");
+		requestBuilder.setMethod("GET");
 		requestBuilder.setHeader("X-BM-ApiKey", apiKey);
 		requestBuilder.setHeader("Content-Type", "application/json");
 
@@ -130,8 +130,7 @@ public class HttpFetchPartWithFilenameTests extends AbstractRollingReplicationTe
 
 		// Don't specify any encoding
 		requestBuilder.setUrl("http://localhost:8090/api/mail_items/" + inbox.uid + "/part/" + item.value.imapUid + "/"
-				+ pdfAttachmentAddress);
-		requestBuilder.setBody("{ \"filename\": \"blabla.pdf\" }");
+				+ pdfAttachmentAddress + "?filename=blabla.pdf");
 		Response resp = httpClient.executeRequest(requestBuilder.build()).get(10, TimeUnit.SECONDS);
 
 		String expectedContentDisposition = "attachment; filename=\"blabla.pdf\";";
@@ -141,8 +140,7 @@ public class HttpFetchPartWithFilenameTests extends AbstractRollingReplicationTe
 
 		// Ask for an encoding
 		requestBuilder.setUrl("http://localhost:8090/api/mail_items/" + inbox.uid + "/part/" + item.value.imapUid + "/"
-				+ pdfAttachmentAddress);
-		requestBuilder.setBody("{ \"encoding\": \"base64\" , \"filename\": \"blabla.pdf\" }");
+				+ pdfAttachmentAddress + "?encoding=base64&filename=blabla.pdf");
 		resp = httpClient.executeRequest(requestBuilder.build()).get(10, TimeUnit.SECONDS);
 
 		assertEquals(200, resp.getStatusCode());
