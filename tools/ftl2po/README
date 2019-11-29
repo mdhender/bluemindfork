@@ -1,9 +1,0 @@
-The files freemarker-templates/*.po are a collection of all ftl templates
-contained in the BlueMind project, so that they can be localized using
-weblate.
-
-The commands "ftl2po.py collect" and "ftl2po.py export" are used for
-the conversion. Merging is not handled in case of simultanous editing
-through weblate and through code.
-
-There is no implicit merge strategy. Use with caution!
