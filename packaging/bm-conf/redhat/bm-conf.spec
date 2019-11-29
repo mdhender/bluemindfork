@@ -12,6 +12,9 @@ Summary:            BlueMind configuration
 Conflicts:          bm-ips
 Obsoletes:          bm-ips
 
+%define bluemindgid 841
+%define _bluemindgroup bluemind
+
 %description
 BlueMind configuration
 
@@ -45,6 +48,11 @@ getent group www-data >/dev/null || /usr/sbin/groupadd -r www-data
 getent passwd www-data >/dev/null || /usr/sbin/useradd -c "Nginx web server" -d /usr/share/nginx/html -g www-data \
   -s /sbin/nologin -r www-data
 
+# create 'bluemind' group on target host
+getent group %{_bluemindgroup} >/dev/null || /usr/sbin/groupadd -g %{bluemindgid} -r %{_bluemindgroup}
+getent passwd cyrus && usermod -a -G %{_bluemindgroup} cyrus
+getent passwd www-data && usermod -a -G %{_bluemindgroup} www-data
+
 %post
 for file in /etc/bm/nodeclient_cert.pem \
   /etc/bm/nodeclient_key.pem \
@@ -59,7 +67,7 @@ done
 
 if [ -e /etc/bm/bm-core.tok ]; then
     chmod 440 /etc/bm/bm-core.tok
-    chown root:www-data /etc/bm/bm-core.tok
+    chown root:bluemind /etc/bm/bm-core.tok
 fi
 
 %postun

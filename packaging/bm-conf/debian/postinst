@@ -41,6 +41,17 @@ is_initial_configuration() {
   return 1
 }
 
+manageSystemUserGroup() {
+    addgroup --system bluemind
+
+    # Add user cyrus to group bluemind, if such group and user exists
+    adduser cyrus bluemind || true
+    # Add user www-data to group bluemind, if such group and user exists
+    adduser www-data bluemind || true
+}
+
+manageSystemUserGroup
+
 for file in /etc/bm/nodeclient_cert.pem \
   /etc/bm/nodeclient_key.pem \
   /etc/bm/nodeclient.p12 \
@@ -54,7 +65,7 @@ done
 
 if [ -e /etc/bm/bm-core.tok ]; then
     chmod 440 /etc/bm/bm-core.tok
-    chown root:www-data /etc/bm/bm-core.tok
+    chown root:bluemind /etc/bm/bm-core.tok
 fi
 
 exit 0
