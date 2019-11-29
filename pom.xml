@@ -37,7 +37,7 @@
 			</modules>
 		</profile>
 		<profile>
-			<id>packaging</id>
+			<id>open-packaging</id>
 			<modules>
 				<module>packaging</module>
 			</modules>
