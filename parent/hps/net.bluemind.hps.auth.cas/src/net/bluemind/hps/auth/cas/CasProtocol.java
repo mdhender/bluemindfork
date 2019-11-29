@@ -75,6 +75,16 @@ public class CasProtocol implements IAuthProtocol {
 	@Override
 	public void proceed(AuthRequirements authState, ISessionStore ss, IAuthProvider prov, HttpServerRequest req) {
 		if (req.params().get("ticket") == null) {
+			if (req.path().endsWith("bluemind_sso_logout")
+					&& !Strings.isNullOrEmpty(req.headers().get(org.vertx.java.core.http.HttpHeaders.REFERER))
+					&& req.headers().get(org.vertx.java.core.http.HttpHeaders.REFERER).toLowerCase()
+							.equals(getCasLogoutUrl())) {
+				HttpServerResponse resp = req.response();
+				resp.setStatusCode(200);
+				resp.end();
+				return;
+			}
+
 			redirectToCasServer(req);
 		} else {
 			// validate cas ticket
@@ -243,8 +253,12 @@ public class CasProtocol implements IAuthProtocol {
 	@Override
 	public void logout(HttpServerRequest event) {
 		HttpServerResponse resp = event.response();
-		resp.headers().add(org.vertx.java.core.http.HttpHeaders.LOCATION, String.format("%slogout", casURL));
+		resp.headers().add(org.vertx.java.core.http.HttpHeaders.LOCATION, getCasLogoutUrl());
 		resp.setStatusCode(302);
 		resp.end();
+	}
+
+	private String getCasLogoutUrl() {
+		return String.format("%slogout", casURL).toLowerCase();
 	}
 }
