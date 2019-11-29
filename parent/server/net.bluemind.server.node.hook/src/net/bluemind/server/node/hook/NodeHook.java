@@ -78,7 +78,7 @@ public class NodeHook extends DefaultServerHook {
 
 			remote.writeFile(bmcoretok, new ByteArrayInputStream(Files.toByteArray(new File(bmcoretok))));
 			remote.executeCommandNoOut("chmod 440 " + bmcoretok);
-			remote.executeCommandNoOut("chown root:www-data " + bmcoretok);
+			remote.executeCommandNoOut("chown root:bluemind " + bmcoretok);
 
 			if (!NCUtils.connectedToMyself(remote)) {
 				if (!new File("/etc/bm/skip.restart").exists()) {
