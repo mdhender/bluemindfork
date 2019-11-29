@@ -153,6 +153,12 @@ public class MapiFoldersRepair implements IDirEntryRepairSupport {
 			for (BaseContainerDescriptor c : all) {
 				monitor.log("Checking container " + c.uid);
 				String k = MapiFolderContainer.mapiKind(c.uid);
+				if (k.equals("DEFERRED_ACTION")) {
+					MapiFolder folder = foldersApi.get(c.uid);
+					IMapiFolder contentApi = context.provider().instance(IMapiFolder.class, c.uid);
+					logger.warn("Empty-ing {} => {}", k, folder);
+					processExtra.extraContent(contentApi, c);
+				}
 				if (!NonMapiFolder.legitKind(k)) {
 					MapiFolder folder = foldersApi.get(c.uid);
 					logger.warn("We should not have a folder for kind {} => {}", k, folder);
