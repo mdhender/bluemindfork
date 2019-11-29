@@ -1,6 +1,0 @@
-== USAGE ==
-Se placer dans le dossier ${gatling-2.0.0_home}/bin/ et taper la commande suivante
-
-export JAVA_OPTS="-DipAddress=109.26.74.169 -DnbUsers=1800 -Dduration=900"; ./gatling.sh
-
-où les variables ipAddress, nbUsers et duration sont à paramétrer en fonction de la simulation voulue
