@@ -13,20 +13,20 @@
         <bm-collapse id="collapse-mailbox" v-model="isMailboxExpanded">
             <bm-tree
                 :value="tree"
-                :selected="currentFolderUid"
-                node-id-key="uid"
+                :selected="currentFolderKey"
+                node-id-key="key"
                 class="text-nowrap"
                 breakpoint="xl"
-                @expand="expand"
-                @collapse="collapse"
-                @select="uid => $router.push({ path: '/mail/' + uid + '/' })"
+                @expand="expandFolder"
+                @collapse="collapseFolder"
+                @select="key => $router.push({ path: '/mail/' + key + '/' })"
             >
                 <template v-slot="f">
                     <mail-folder-icon :folder="f.value" breakpoint="xl" class="flex-fill" />
                     <bm-counter-badge
                         v-if="f.value.unread > 0"
                         :value="f.value.unread"
-                        :variant="f.value.uid != currentFolderUid ? 'secondary' : 'primary'"
+                        :variant="f.value.key != currentFolderKey ? 'secondary' : 'primary'"
                         class="mr-1 position-sticky"
                     />
                 </template>
@@ -59,10 +59,10 @@ export default {
     },
     computed: {
         ...mapGetters("mail-webapp", ["tree"]),
-        ...mapState("mail-webapp", ["currentFolderUid"])
+        ...mapState("mail-webapp", ["currentFolderKey"])
     },
     methods: {
-        ...mapActions("mail-webapp", { expand: "expandFolder", collapse: "collapseFolder" })
+        ...mapActions("mail-webapp", ["expandFolder", "collapseFolder"])
     }
 };
 </script>

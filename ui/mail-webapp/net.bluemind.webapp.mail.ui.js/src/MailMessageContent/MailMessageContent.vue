@@ -76,7 +76,7 @@ export default {
     },
     computed: {
         ...mapGetters("mail-webapp", { message: "currentMessage" }),
-        ...mapState("mail-webapp", { messageId: "currentMessageId" }),
+        ...mapState("mail-webapp", ["currentMessageKey"]),
         to() {
             if (this.message.to.length > 0) {
                 return this.message.to.map(dest => (dest.dn ? dest.dn : dest.address));
@@ -94,10 +94,10 @@ export default {
         }
     },
     watch: {
-        messageId: {
+        currentMessageKey: {
             handler: function() {
                 this.resetScroll();
-                this.markAsRead(this.messageId);
+                this.markAsRead(this.currentMessageKey);
             },
             immediate: true
         }

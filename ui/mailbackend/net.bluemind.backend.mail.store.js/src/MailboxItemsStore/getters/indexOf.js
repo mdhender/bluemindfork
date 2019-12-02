@@ -1,3 +1,3 @@
 export function indexOf(state) {
-    return id => state.sortedIds.indexOf(id);
+    return key => state.itemKeys.indexOf(key);
 }

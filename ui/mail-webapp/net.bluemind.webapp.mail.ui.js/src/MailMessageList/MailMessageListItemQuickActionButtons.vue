@@ -8,29 +8,29 @@
                 class="p-1 mr-2 border-0 hovershadow"
                 variant="link"
                 @click.shift.exact.prevent="openPurgeModal"
-                @click.exact.prevent="remove(message.id)"
+                @click.exact.prevent="remove(message.key)"
             >
                 <bm-icon icon="trash" size="lg" />
             </bm-button>
             <bm-button
-                v-if="message.states.includes('not-seen')" 
+                v-if="message.states.includes('not-seen')"
                 v-bm-tooltip.ds500.top.viewport
                 class="p-1 border-0 hovershadow"
                 :aria-label="$tc('mail.actions.mark_read.aria')"
                 :title="$tc('mail.actions.mark_read.aria')"
                 variant="link"
-                @click.prevent="markAsRead(message.id)"
+                @click.prevent="markAsRead(message.key)"
             >
                 <bm-icon icon="read" size="lg" />
             </bm-button>
             <bm-button
-                v-else 
+                v-else
                 v-bm-tooltip.ds500.top.viewport
                 class="p-1 border-0 hovershadow"
                 :aria-label="$tc('mail.actions.mark_unread.aria')"
                 :title="$tc('mail.actions.mark_unread.aria')"
                 variant="link"
-                @click.prevent="markAsUnread(message.id)"
+                @click.prevent="markAsUnread(message.key)"
             >
                 <bm-icon icon="unread" size="lg" />
             </bm-button>
@@ -59,24 +59,23 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("mail-webapp", ["nextMessageId"]),
-        ...mapState("mail-webapp", ["currentMessageId", "currentFolderUid"]),
-        ...mapGetters("mail-webapp/folders", ["defaultFolders"]),
+        ...mapGetters("mail-webapp", ["nextMessageKey", "my"]),
+        ...mapState("mail-webapp", ["currentMessageKey", "currentFolderKey"])
     },
     methods: {
         ...mapActions("mail-webapp", ["markAsRead", "markAsUnread"]),
         remove() {
-            if (this.currentFolderUid == this.defaultFolders.TRASH.uid) {
+            if (this.currentFolderKey == this.my.TRASH.key) {
                 this.openPurgeModal();
                 return;
             }
-            if (this.currentMessageId == this.message.id) {
-                this.$router.push("" + (this.nextMessageId || ""));
+            if (this.currentMessageKey == this.message.key) {
+                this.$router.push("" + (this.nextMessageKey || ""));
             }
-            this.$store.dispatch("mail-webapp/remove", this.message.id);
+            this.$store.dispatch("mail-webapp/remove", this.message.key);
         },
         openPurgeModal() {
-            this.$bus.$emit(SHOW_PURGE_MODAL, [ this.message.id ]);
+            this.$bus.$emit(SHOW_PURGE_MODAL, [this.message.key]);
         }
     }
 };
@@ -85,5 +84,4 @@ export default {
 .mail-message-list-item-quick-action-buttons .hovershadow:hover {
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
 }
-
 </style>

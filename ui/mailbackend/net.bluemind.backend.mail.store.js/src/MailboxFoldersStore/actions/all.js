@@ -1,10 +1,8 @@
 import ServiceLocator from "@bluemind/inject";
 
-export function all({ commit }) {
+export function all({ commit }, mailboxUid) {
     return ServiceLocator.getProvider("MailboxFoldersPersistence")
-        .get()
+        .get(mailboxUid)
         .all()
-        .then(items => {
-            commit("storeItems", items);
-        });
+        .then(items => commit("storeItems", { items, mailboxUid }));
 }

@@ -1,4 +1,5 @@
 export * from "./$_getIfNotPresent";
+export * from "./$_move";
 export * from "./bootstrap";
 export * from "./collapseFolder";
 export * from "./deleteDraft";

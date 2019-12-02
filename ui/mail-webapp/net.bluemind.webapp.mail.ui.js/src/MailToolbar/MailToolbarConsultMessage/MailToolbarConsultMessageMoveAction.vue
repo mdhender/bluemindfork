@@ -11,9 +11,7 @@
         @shown="openMoveAutocomplete"
         @hide="closeMoveAutocomplete"
     >
-        <template slot="button-content">
-            <bm-icon icon="folder" size="2x" /> {{ $tc("mail.toolbar.move") }}
-        </template>
+        <template slot="button-content"> <bm-icon icon="folder" size="2x" /> {{ $tc("mail.toolbar.move") }} </template>
         <bm-autocomplete
             ref="moveAutocomplete"
             class="autocomplete-folders shadow-sm"
@@ -49,7 +47,7 @@ export default {
         BmLabelIcon,
         MailFolderIcon
     },
-    directives: {BmTooltip},
+    directives: { BmTooltip },
     data() {
         return {
             maxFoldersProposed: 5, // FIXME ?
@@ -60,14 +58,10 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail-webapp", ["currentFolderUid"]),
-        ...mapState("mail-webapp/folders", ["items"]),
-        ...mapGetters("mail-webapp", ["currentMessage", "nextMessageId"]),
+        ...mapState("mail-webapp", ["currentMessageKey", "currentFolderKey"]),
+        ...mapGetters("mail-webapp", ["nextMessageKey", "my"]),
         defaultFolders() {
-            const defaultFolders = this.$store.getters["mail-webapp/folders/defaultFolders"];
-            return [defaultFolders.INBOX, defaultFolders.TRASH].filter(
-                folder => folder && folder.uid != this.currentFolderUid
-            );
+            return [this.my.INBOX, this.my.TRASH].filter(folder => folder && folder.key != this.currentFolderKey);
         }
     },
     methods: {
@@ -76,7 +70,7 @@ export default {
             if (input !== "") {
                 this.searchFolderPattern = input;
                 this.matchingFolders = [];
-                this.items.forEach(folder => {
+                this.my.folders.forEach(folder => {
                     if (this.isMatching(folder, input)) {
                         this.matchingFolders.push(folder);
                     }
@@ -94,17 +88,14 @@ export default {
         },
         isMatching(folder, input) {
             return (
-                folder.value.name.toLowerCase().includes(input.toLowerCase()) && folder.uid !== this.currentFolderUid
+                folder.value.name.toLowerCase().includes(input.toLowerCase()) && folder.key !== this.currentFolderKey
             );
         },
         selectFolder(item) {
             this.disableMove = true;
-            const destination = { name: item.value.name, uid: item.uid };
-            this.$router.push("" + (this.nextMessageId || ""));
+            this.$router.push("" + (this.nextMessageKey || ""));
 
-            this.move({ messageId: this.currentMessage.id, folder: destination }).finally(
-                () => (this.disableMove = false)
-            );
+            this.move({ messageKey: this.currentMessageKey, folder: item }).finally(() => (this.disableMove = false));
             this.$refs["move-dropdown"].hide(true);
         },
         openMoveAutocomplete() {

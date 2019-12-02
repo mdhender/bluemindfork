@@ -1,5 +1,9 @@
 <template>
-    <bm-button-toolbar v-if="message || isMessageComposerDisplayed" key-nav class="mail-toolbar flex-nowrap h-100">
+    <bm-button-toolbar
+        v-if="currentMessageKey || isMessageComposerDisplayed"
+        key-nav
+        class="mail-toolbar flex-nowrap h-100"
+    >
         <mail-toolbar-compose-message v-if="isMessageComposerDisplayed" />
         <mail-toolbar-consult-message v-else />
     </bm-button-toolbar>
@@ -19,7 +23,7 @@ export default {
         MailToolbarConsultMessage
     },
     computed: {
-        ...mapState("mail-webapp", { message: "currentMessageId" }),
+        ...mapState("mail-webapp", ["currentMessageKey"]),
         isMessageComposerDisplayed() {
             const routePath = this.$route.path;
             return (
@@ -50,5 +54,4 @@ export default {
 .mail-toolbar .btn > svg {
     font-size: 1.5em;
 }
-
 </style>

@@ -1,0 +1,660 @@
+[
+    {
+        "value": {
+            "body": {
+                "guid": "d86cd1cd846e46f3fc6b95baa2ed421cd838d58f",
+                "subject": "Saying Hello",
+                "smartAttach": false,
+                "date": 1573640448000,
+                "size": 223,
+                "headers": [],
+                "recipients": [
+                    { "kind": "Originator", "address": "jdoe@machine.example", "dn": "John Doe" },
+                    { "kind": "Primary", "address": "mary@example.net", "dn": "Mary Smith" }
+                ],
+                "messageId": "<1234@local.machine.example>",
+                "references": null,
+                "structure": {
+                    "mime": "text/plain",
+                    "address": "1",
+                    "encoding": "7bit",
+                    "charset": "us-ascii",
+                    "size": 223
+                },
+                "preview": "This is a message just to say hello. So, \"Hello\".",
+                "bodyVersion": 3
+            },
+            "imapUid": 12,
+            "systemFlags": ["seen"],
+            "otherFlags": [],
+            "internalFlags": [],
+            "messageBody": "d86cd1cd846e46f3fc6b95baa2ed421cd838d58f",
+            "modSeq": 16,
+            "internalDate": 1573640448000,
+            "lastUpdated": 1573640448000
+        },
+        "uid": "12.",
+        "internalId": 477,
+        "version": 12,
+        "displayName": "12.",
+        "externalId": null,
+        "createdBy": "system",
+        "updatedBy": "system",
+        "created": 1573640448207,
+        "updated": 1573640448207,
+        "flags": ["Seen"]
+    },
+    {
+        "value": {
+            "body": {
+                "guid": "f60fdb10c24e19ef1de81d32fde088a0b1446937",
+                "subject": "Re: TEST \tテストテスト",
+                "smartAttach": false,
+                "date": 1573640448000,
+                "size": 486,
+                "headers": [{ "name": "Reply-To", "values": ["rudeboyjet@gmail.com"] }],
+                "recipients": [
+                    { "kind": "Originator", "address": "atsushi@example.com", "dn": "Atsushi Yoshida" },
+                    { "kind": "Primary", "address": "rudeboyjet@gmail.com" }
+                ],
+                "messageId": "<0CC5E11ED2C1D@example.com>",
+                "references": null,
+                "structure": {
+                    "mime": "text/plain",
+                    "address": "1",
+                    "encoding": "7bit",
+                    "charset": "iso-2022-jp",
+                    "size": 486
+                },
+                "preview": "Hello",
+                "bodyVersion": 3
+            },
+            "imapUid": 13,
+            "systemFlags": ["seen"],
+            "otherFlags": [],
+            "internalFlags": [],
+            "messageBody": "f60fdb10c24e19ef1de81d32fde088a0b1446937",
+            "modSeq": 17,
+            "internalDate": 1573640448000,
+            "lastUpdated": 1573640448000
+        },
+        "uid": "13.",
+        "internalId": 478,
+        "version": 13,
+        "displayName": "13.",
+        "externalId": null,
+        "createdBy": "system",
+        "updatedBy": "system",
+        "created": 1573640449025,
+        "updated": 1573640449025,
+        "flags": ["Seen"]
+    },
+    {
+        "value": {
+            "body": {
+                "guid": "dbb15e0cfdee060e3e6d410afdb66a31d3418db2",
+                "subject": null,
+                "smartAttach": false,
+                "date": 1573640447000,
+                "size": 489,
+                "headers": [],
+                "recipients": [
+                    { "kind": "Originator", "address": "pete@silly.test", "dn": "Pete" },
+                    { "kind": "Primary", "address": "c@public.example", "dn": "Chris Jones" },
+                    { "kind": "Primary", "address": "joe@example.org" },
+                    { "kind": "Primary", "address": "jdoe@one.test", "dn": "John" }
+                ],
+                "messageId": "             <testabcd.1234@silly.test>",
+                "references": null,
+                "structure": {
+                    "mime": "text/plain",
+                    "address": "1",
+                    "encoding": "7bit",
+                    "charset": "us-ascii",
+                    "size": 489
+                },
+                "preview": "Testing.",
+                "bodyVersion": 3
+            },
+            "imapUid": 10,
+            "systemFlags": [],
+            "otherFlags": [],
+            "internalFlags": [],
+            "messageBody": "dbb15e0cfdee060e3e6d410afdb66a31d3418db2",
+            "modSeq": 18,
+            "internalDate": 1573640447000,
+            "lastUpdated": 1573640496000
+        },
+        "uid": "10.",
+        "internalId": 475,
+        "version": 14,
+        "displayName": "10.",
+        "externalId": null,
+        "createdBy": "system",
+        "updatedBy": "system",
+        "created": 1573640447518,
+        "updated": 1573640496308,
+        "flags": []
+    },
+    {
+        "value": {
+            "body": {
+                "guid": "76f1be457508ab89cda352ce9351b4d11af78cc1",
+                "subject": null,
+                "smartAttach": false,
+                "date": 1573640447000,
+                "size": 220,
+                "headers": [],
+                "recipients": [
+                    { "kind": "Originator", "address": "john.q.public@example.com", "dn": "Joe Q. Public" },
+                    { "kind": "Primary", "address": "mary@example.net", "dn": "Mary Smith" },
+                    { "kind": "Primary", "address": "jdoe@test.example" }
+                ],
+                "messageId": "<5678.21-Nov-1997@example.com>",
+                "references": null,
+                "structure": {
+                    "mime": "text/plain",
+                    "address": "1",
+                    "encoding": "7bit",
+                    "charset": "us-ascii",
+                    "size": 220
+                },
+                "preview": "Hi everyone.",
+                "bodyVersion": 3
+            },
+            "imapUid": 11,
+            "systemFlags": [],
+            "otherFlags": [],
+            "internalFlags": [],
+            "messageBody": "76f1be457508ab89cda352ce9351b4d11af78cc1",
+            "modSeq": 19,
+            "internalDate": 1573640447000,
+            "lastUpdated": 1573640497000
+        },
+        "uid": "11.",
+        "internalId": 476,
+        "version": 15,
+        "displayName": "11.",
+        "externalId": null,
+        "createdBy": "system",
+        "updatedBy": "system",
+        "created": 1573640447805,
+        "updated": 1573640496308,
+        "flags": []
+    },
+    {
+        "value": {
+            "body": {
+                "guid": "1ca6884bea9c470a34b28346b50db5bb345bdbc9",
+                "subject": "Re: Saying Hello",
+                "smartAttach": false,
+                "date": 1573640446000,
+                "size": 333,
+                "headers": [],
+                "recipients": [
+                    { "kind": "Originator", "address": "jdoe@machine.example", "dn": "John Doe" },
+                    { "kind": "Primary", "address": "smith@home.example", "dn": "Mary Smith: Personal Account" }
+                ],
+                "messageId": "<abcd.1234@local.machine.tld>",
+                "references": ["<1234@local.machine.example>", "<3456@example.net>"],
+                "structure": {
+                    "mime": "text/plain",
+                    "address": "1",
+                    "encoding": "7bit",
+                    "charset": "us-ascii",
+                    "size": 333
+                },
+                "preview": "This is a reply to your reply.",
+                "bodyVersion": 3
+            },
+            "imapUid": 7,
+            "systemFlags": [],
+            "otherFlags": [],
+            "internalFlags": [],
+            "messageBody": "1ca6884bea9c470a34b28346b50db5bb345bdbc9",
+            "modSeq": 20,
+            "internalDate": 1573640446000,
+            "lastUpdated": 1573640499000
+        },
+        "uid": "7.",
+        "internalId": 472,
+        "version": 16,
+        "displayName": "7.",
+        "externalId": null,
+        "createdBy": "system",
+        "updatedBy": "system",
+        "created": 1573640446285,
+        "updated": 1573640496308,
+        "flags": []
+    },
+    {
+        "value": {
+            "body": {
+                "guid": "5e3df3a162aa10b695c10bb3cf29fc4038531d9f",
+                "subject": "Saying Hello",
+                "smartAttach": false,
+                "date": 1573640446000,
+                "size": 409,
+                "headers": [],
+                "recipients": [
+                    { "kind": "Originator", "address": "jdoe@machine.example", "dn": "John Doe" },
+                    { "kind": "Primary", "address": "mary@example.net", "dn": "Mary Smith" }
+                ],
+                "messageId": "<1234@local.machine.example>",
+                "references": null,
+                "structure": {
+                    "mime": "text/plain",
+                    "address": "1",
+                    "encoding": "7bit",
+                    "charset": "us-ascii",
+                    "size": 409
+                },
+                "preview": "This is a message just to say hello. So, \"Hello\".",
+                "bodyVersion": 3
+            },
+            "imapUid": 8,
+            "systemFlags": ["seen"],
+            "otherFlags": [],
+            "internalFlags": [],
+            "messageBody": "5e3df3a162aa10b695c10bb3cf29fc4038531d9f",
+            "modSeq": 12,
+            "internalDate": 1573640446000,
+            "lastUpdated": 1573640446000
+        },
+        "uid": "8.",
+        "internalId": 473,
+        "version": 8,
+        "displayName": "8.",
+        "externalId": null,
+        "createdBy": "system",
+        "updatedBy": "system",
+        "created": 1573640446678,
+        "updated": 1573640446678,
+        "flags": ["Seen"]
+    },
+    {
+        "value": {
+            "body": {
+                "guid": "092c763a36f53af51084c377cbba9a3d5f065057",
+                "subject": "Saying Hello",
+                "smartAttach": false,
+                "date": 1573640446000,
+                "size": 447,
+                "headers": [],
+                "recipients": [
+                    { "kind": "Originator", "address": "jdoe@machine.example", "dn": "John Doe" },
+                    { "kind": "Primary", "address": "mary@example.net", "dn": "Mary Smith" }
+                ],
+                "messageId": "<1234@local.machine.example>",
+                "references": null,
+                "structure": {
+                    "mime": "text/plain",
+                    "address": "1",
+                    "encoding": "7bit",
+                    "charset": "us-ascii",
+                    "size": 447
+                },
+                "preview": "This is a message just to say hello. So, \"Hello\".",
+                "bodyVersion": 3
+            },
+            "imapUid": 9,
+            "systemFlags": ["seen"],
+            "otherFlags": [],
+            "internalFlags": [],
+            "messageBody": "092c763a36f53af51084c377cbba9a3d5f065057",
+            "modSeq": 13,
+            "internalDate": 1573640446000,
+            "lastUpdated": 1573640446000
+        },
+        "uid": "9.",
+        "internalId": 474,
+        "version": 9,
+        "displayName": "9.",
+        "externalId": null,
+        "createdBy": "system",
+        "updatedBy": "system",
+        "created": 1573640447036,
+        "updated": 1573640447036,
+        "flags": ["Seen"]
+    },
+    {
+        "value": {
+            "body": {
+                "guid": "ce1bc14706764e38495b4ac3be7fb75bb67fa790",
+                "subject": null,
+                "smartAttach": false,
+                "date": 1573640445000,
+                "size": 230,
+                "headers": [],
+                "recipients": [
+                    { "kind": "Originator", "address": "pete@silly.example", "dn": "Pete" },
+                    { "kind": "Primary", "address": "c@a.test", "dn": "Chris Jones" },
+                    { "kind": "Primary", "address": "joe@where.test" },
+                    { "kind": "Primary", "address": "jdoe@one.test", "dn": "John" }
+                ],
+                "messageId": "<testabcd.1234@silly.example>",
+                "references": null,
+                "structure": {
+                    "mime": "text/plain",
+                    "address": "1",
+                    "encoding": "7bit",
+                    "charset": "us-ascii",
+                    "size": 230
+                },
+                "preview": "Testing.",
+                "bodyVersion": 3
+            },
+            "imapUid": 4,
+            "systemFlags": [],
+            "otherFlags": [],
+            "internalFlags": [],
+            "messageBody": "ce1bc14706764e38495b4ac3be7fb75bb67fa790",
+            "modSeq": 21,
+            "internalDate": 1573640445000,
+            "lastUpdated": 1573640500000
+        },
+        "uid": "4.",
+        "internalId": 469,
+        "version": 17,
+        "displayName": "4.",
+        "externalId": null,
+        "createdBy": "system",
+        "updatedBy": "system",
+        "created": 1573640445207,
+        "updated": 1573640500996,
+        "flags": []
+    },
+    {
+        "value": {
+            "body": {
+                "guid": "a0676dd324df846c3b2ca19870e2c0642fe68e8a",
+                "subject": "Saying Hello",
+                "smartAttach": false,
+                "date": 1573640443000,
+                "size": 232,
+                "headers": [],
+                "recipients": [
+                    { "kind": "Originator", "address": "jdoe@machine.example", "dn": "John Doe" },
+                    { "kind": "Primary", "address": "mary@example.net", "dn": "Mary Smith" }
+                ],
+                "messageId": "<1234@local.machine.example>",
+                "references": null,
+                "structure": {
+                    "mime": "text/plain",
+                    "address": "1",
+                    "encoding": "7bit",
+                    "charset": "us-ascii",
+                    "size": 232
+                },
+                "preview": "This is a message just to say hello. So, \"Hello\".",
+                "bodyVersion": 3
+            },
+            "imapUid": 5,
+            "systemFlags": ["seen"],
+            "otherFlags": [],
+            "internalFlags": [],
+            "messageBody": "a0676dd324df846c3b2ca19870e2c0642fe68e8a",
+            "modSeq": 9,
+            "internalDate": 1573640445000,
+            "lastUpdated": 1573640445000
+        },
+        "uid": "5.",
+        "internalId": 470,
+        "version": 5,
+        "displayName": "5.",
+        "externalId": null,
+        "createdBy": "system",
+        "updatedBy": "system",
+        "created": 1573640445545,
+        "updated": 1573640445545,
+        "flags": ["Seen"]
+    },
+    {
+        "value": {
+            "body": {
+                "guid": "47efc2e9730e1771d91f5f3e152ad679757eb55c",
+                "subject": "Re: Saying Hello",
+                "smartAttach": false,
+                "date": 1573640445000,
+                "size": 354,
+                "headers": [
+                    { "name": "Reply-To", "values": ["\"Mary Smith: Personal Account\" <smith@home.example>"] }
+                ],
+                "recipients": [
+                    { "kind": "Originator", "address": "mary@example.net", "dn": "Mary Smith" },
+                    { "kind": "Primary", "address": "jdoe@machine.example", "dn": "John Doe" }
+                ],
+                "messageId": "<3456@example.net>",
+                "references": ["<1234@local.machine.example>"],
+                "structure": {
+                    "mime": "text/plain",
+                    "address": "1",
+                    "encoding": "7bit",
+                    "charset": "us-ascii",
+                    "size": 354
+                },
+                "preview": "This is a reply to your hello.",
+                "bodyVersion": 3
+            },
+            "imapUid": 6,
+            "systemFlags": [],
+            "otherFlags": [],
+            "internalFlags": [],
+            "messageBody": "47efc2e9730e1771d91f5f3e152ad679757eb55c",
+            "modSeq": 22,
+            "internalDate": 1573640445000,
+            "lastUpdated": 1573640502000
+        },
+        "uid": "6.",
+        "internalId": 471,
+        "version": 18,
+        "displayName": "6.",
+        "externalId": null,
+        "createdBy": "system",
+        "updatedBy": "system",
+        "created": 1573640445969,
+        "updated": 1573640502922,
+        "flags": []
+    },
+    {
+        "value": {
+            "body": {
+                "guid": "45633cc73947eef61c2d107a6b26079caa0fe1f8",
+                "subject": "Saying Hello",
+                "smartAttach": false,
+                "date": 1573640444000,
+                "size": 280,
+                "headers": [],
+                "recipients": [
+                    { "kind": "Originator", "address": "jdoe@machine.example", "dn": "John Doe" },
+                    { "kind": "Sender", "address": "mjones@machine.example", "dn": "Michael Jones" },
+                    { "kind": "Primary", "address": "mary@example.net", "dn": "Mary Smith" }
+                ],
+                "messageId": "<1234@local.machine.example>",
+                "references": null,
+                "structure": {
+                    "mime": "text/plain",
+                    "address": "1",
+                    "encoding": "7bit",
+                    "charset": "us-ascii",
+                    "size": 280
+                },
+                "preview": "This is a message just to say hello. So, \"Hello\".",
+                "bodyVersion": 3
+            },
+            "imapUid": 2,
+            "systemFlags": ["seen"],
+            "otherFlags": [],
+            "internalFlags": [],
+            "messageBody": "45633cc73947eef61c2d107a6b26079caa0fe1f8",
+            "modSeq": 6,
+            "internalDate": 1573640444000,
+            "lastUpdated": 1573640444000
+        },
+        "uid": "2.",
+        "internalId": 467,
+        "version": 2,
+        "displayName": "2.",
+        "externalId": null,
+        "createdBy": "system",
+        "updatedBy": "system",
+        "created": 1573640444215,
+        "updated": 1573640444215,
+        "flags": ["Seen"]
+    },
+    {
+        "value": {
+            "body": {
+                "guid": "d7e3e7192427ed93f1b259564336591ba6be54a8",
+                "subject": null,
+                "smartAttach": false,
+                "date": 1573640444000,
+                "size": 285,
+                "headers": [],
+                "recipients": [
+                    { "kind": "Originator", "address": "john.q.public@example.com", "dn": "Joe Q. Public" },
+                    { "kind": "Primary", "address": "mary@x.test", "dn": "Mary Smith" },
+                    { "kind": "Primary", "address": "jdoe@example.org" },
+                    { "kind": "Primary", "address": "one@y.test", "dn": "Who?" },
+                    { "kind": "CarbonCopy", "address": "boss@nil.test" },
+                    { "kind": "CarbonCopy", "address": "sysservices@example.net", "dn": "Giant; \"Big\" Box" }
+                ],
+                "messageId": "<5678.21-Nov-1997@example.com>",
+                "references": null,
+                "structure": {
+                    "mime": "text/plain",
+                    "address": "1",
+                    "encoding": "7bit",
+                    "charset": "us-ascii",
+                    "size": 285
+                },
+                "preview": "Hi everyone.",
+                "bodyVersion": 3
+            },
+            "imapUid": 3,
+            "systemFlags": ["seen"],
+            "otherFlags": [],
+            "internalFlags": [],
+            "messageBody": "d7e3e7192427ed93f1b259564336591ba6be54a8",
+            "modSeq": 7,
+            "internalDate": 1573640444000,
+            "lastUpdated": 1573640444000
+        },
+        "uid": "3.",
+        "internalId": 468,
+        "version": 3,
+        "displayName": "3.",
+        "externalId": null,
+        "createdBy": "system",
+        "updatedBy": "system",
+        "created": 1573640444925,
+        "updated": 1573640444925,
+        "flags": ["Seen"]
+    },
+    {
+        "value": {
+            "body": {
+                "guid": "a0676dd324df846c3b2ca19870e2c0642fe68e8a",
+                "subject": "Saying Hello",
+                "smartAttach": false,
+                "date": 1573640443000,
+                "size": 232,
+                "headers": [],
+                "recipients": [
+                    { "kind": "Originator", "address": "jdoe@machine.example", "dn": "John Doe" },
+                    { "kind": "Primary", "address": "mary@example.net", "dn": "Mary Smith" }
+                ],
+                "messageId": "<1234@local.machine.example>",
+                "references": null,
+                "structure": {
+                    "mime": "text/plain",
+                    "address": "1",
+                    "encoding": "7bit",
+                    "charset": "us-ascii",
+                    "size": 232
+                },
+                "preview": "This is a message just to say hello. So, \"Hello\".",
+                "bodyVersion": 3
+            },
+            "imapUid": 1,
+            "systemFlags": ["seen"],
+            "otherFlags": [],
+            "internalFlags": [],
+            "messageBody": "a0676dd324df846c3b2ca19870e2c0642fe68e8a",
+            "modSeq": 5,
+            "internalDate": 1573640443000,
+            "lastUpdated": 1573640443000
+        },
+        "uid": "1.",
+        "internalId": 466,
+        "version": 1,
+        "displayName": "1.",
+        "externalId": null,
+        "createdBy": "system",
+        "updatedBy": "system",
+        "created": 1573640443832,
+        "updated": 1573640443832,
+        "flags": ["Seen"]
+    },
+    {
+        "value": {
+            "body": {
+                "guid": "ab181638725cd9949a7c28ad7f4e7ea569e0bea2",
+                "subject": "testing",
+                "smartAttach": true,
+                "date": 1118092882000,
+                "size": 789,
+                "headers": [],
+                "recipients": [
+                    { "kind": "Originator", "address": "foo@example.com" },
+                    { "kind": "Primary", "address": "blah@example.com" }
+                ],
+                "messageId": "<9169D984-4E0B-45EF-82D4-8F5E53AD7012@example.com>",
+                "references": null,
+                "structure": {
+                    "mime": "multipart/mixed",
+                    "address": "TEXT",
+                    "children": [
+                        {
+                            "mime": "text/plain",
+                            "address": "1",
+                            "encoding": "quoted-printable",
+                            "charset": "ISO-8859-1",
+                            "size": 25
+                        },
+                        {
+                            "mime": "text/x-ruby-script",
+                            "address": "2",
+                            "encoding": "7bit",
+                            "charset": "us-ascii",
+                            "fileName": "api.rb",
+                            "size": 28,
+                            "dispositionType": "ATTACHMENT"
+                        }
+                    ],
+                    "size": 789
+                },
+                "preview": "This is the first part.",
+                "bodyVersion": 3
+            },
+            "imapUid": 15,
+            "systemFlags": ["seen"],
+            "otherFlags": [],
+            "internalFlags": [],
+            "messageBody": "ab181638725cd9949a7c28ad7f4e7ea569e0bea2",
+            "modSeq": 37,
+            "internalDate": 1118092882000,
+            "lastUpdated": 1574927242000
+        },
+        "uid": "15.",
+        "internalId": 872,
+        "version": 33,
+        "displayName": "15.",
+        "externalId": null,
+        "createdBy": "system",
+        "updatedBy": "system",
+        "created": 1574927242417,
+        "updated": 1574927242417,
+        "flags": ["Seen"]
+    }
+]

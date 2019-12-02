@@ -1,5 +1,5 @@
 export function unreadCount(state) {
-    return folderUid => {
-        return state.foldersData[folderUid] && state.foldersData[folderUid].unread;
+    return folderKey => {
+        return (state.foldersData[folderKey] && state.foldersData[folderKey].unread) || 0;
     };
 }

@@ -1,10 +1,12 @@
+import ItemUri from "@bluemind/item-uri";
+
 // TODO Command pattern // Handle errors and undo
-export function markAsUnread({ dispatch, state, commit }, messageId) {
-    const folderUid = state.currentFolderUid;
-    return dispatch("$_getIfNotPresent", { folder: folderUid, id: messageId }).then(message => {
+export function markAsUnread({ dispatch, state, commit }, messageKey) {
+    const folderUid = ItemUri.container(messageKey);
+    return dispatch("$_getIfNotPresent", messageKey).then(message => {
         if (!message.states.includes("not-seen")) {
             commit("setUnreadCount", { folderUid, count: state.foldersData[folderUid].unread + 1 });
-            return dispatch("messages/updateSeen", { folder: folderUid, id: messageId, isSeen: false });
+            return dispatch("messages/updateSeen", { messageKey, isSeen: false });
         }
     });
     //FIXME:

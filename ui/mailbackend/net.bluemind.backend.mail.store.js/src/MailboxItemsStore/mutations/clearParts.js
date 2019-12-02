@@ -1,3 +1,4 @@
 export function clearParts(state) {
-    state.parts = {};
+    state.partContents = {};
+    Object.keys(state.itemsParts).forEach(key => (state.itemsParts[key] = []));
 }

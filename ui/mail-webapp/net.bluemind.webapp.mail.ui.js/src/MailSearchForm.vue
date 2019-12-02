@@ -30,7 +30,7 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail-webapp", ["currentFolderUid", "search"]),
+        ...mapState("mail-webapp", ["currentFolderKey", "search"]),
         inputIsEmpty() {
             return this.searchedPattern === "";
         }
@@ -51,7 +51,7 @@ export default {
         },
         cancel() {
             this.searchedPattern = "";
-            this.$router.push("/mail/" + this.currentFolderUid + "/");
+            this.$router.push("/mail/" + this.currentFolderKey + "/");
         },
         onChange() {
             if (this.searchedPattern === "") {

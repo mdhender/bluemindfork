@@ -1,10 +1,11 @@
-// TODO Command pattern // Handle errors and undo
-export function markAsRead({ dispatch, state, commit }, messageId) {
-    const folderUid = state.currentFolderUid;
-    return dispatch("$_getIfNotPresent", { folder: folderUid, id: messageId }).then(message => {
+import ItemUri from "@bluemind/item-uri";
+
+export function markAsRead({ dispatch, state, commit }, messageKey) {
+    const folderUid = ItemUri.container(messageKey);
+    return dispatch("$_getIfNotPresent", messageKey).then(message => {
         if (message.states.includes("not-seen")) {
             commit("setUnreadCount", { folderUid, count: state.foldersData[folderUid].unread - 1 });
-            return dispatch("messages/updateSeen", { folder: folderUid, id: messageId, isSeen: true });
+            return dispatch("messages/updateSeen", { messageKey, isSeen: true });
         }
     });
     //FIXME:

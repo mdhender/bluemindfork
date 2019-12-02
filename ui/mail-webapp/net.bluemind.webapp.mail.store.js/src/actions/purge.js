@@ -1,9 +1,9 @@
 import UUIDGenerator from "@bluemind/uuid";
 
-export function purge({ dispatch, commit }, { messageId, folderUid }) {
-    let subject, loadingAlertUid = UUIDGenerator.generate();
-
-    return dispatch("$_getIfNotPresent", { folder: folderUid, id: messageId })
+export function purge({ dispatch, commit }, messageKey) {
+    let subject,
+        loadingAlertUid = UUIDGenerator.generate();
+    return dispatch("$_getIfNotPresent", messageKey)
         .then(message => {
             subject = message.subject;
 
@@ -13,7 +13,7 @@ export function purge({ dispatch, commit }, { messageId, folderUid }) {
                 props: { subject } 
             }, { root: true });
             
-            return dispatch("messages/remove", { messageId, folderUid });
+            return dispatch("messages/remove", messageKey);
         })
         .then(() => {
             commit("alert/remove", loadingAlertUid, { root: true });

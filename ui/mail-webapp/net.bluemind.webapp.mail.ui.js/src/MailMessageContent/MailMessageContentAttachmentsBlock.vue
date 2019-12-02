@@ -2,7 +2,7 @@
     <bm-container v-if="hasAttachments" class="mail-message-content-attachments-block pt-2 pb-0 bg-extra-light">
         <bm-row class="mb-2">
             <bm-col cols="12" class="pl-2">
-                <button 
+                <button
                     class="btn p-0 bg-transparent border-0 caret-btn align-text-bottom"
                     :aria-label="$t('common.toggleAttachments')"
                 >
@@ -79,7 +79,7 @@ export default {
     },
     computed: {
         ...mapGetters("mail-webapp", { attachments: "currentMessageAttachments" }),
-        ...mapState("mail-webapp", { folder: "currentFolderUid", message: "currentMessageId" }),
+        ...mapState("mail-webapp", ["currentMessageKey"]),
         hasAttachments() {
             return this.attachments.length > 0;
         },
@@ -94,7 +94,7 @@ export default {
         }
     },
     watch: {
-        message() {
+        currentMessageKey() {
             this.isExpanded = false;
             this.attachmentsContentFetched = false;
         }
@@ -109,8 +109,7 @@ export default {
                         // need to fetch content (for attachments where preview is available)
                         // before render expanded mode
                         this.fetch({
-                            folder: this.folder,
-                            id: this.message,
+                            messageKey: this.currentMessageKey,
                             part: attachment,
                             isAttachment: true
                         })
@@ -136,8 +135,7 @@ export default {
                 this.triggerDownload(attachment);
             } else {
                 this.fetch({
-                    folder: this.folder,
-                    id: this.message,
+                    messageKey: this.currentMessageKey,
                     part: attachment,
                     isAttachment: true
                 }).then(() => this.triggerDownload(index));
@@ -145,7 +143,7 @@ export default {
         },
         triggerDownload(index) {
             const attachment = this.attachments[index];
-            
+
             if (attachment.encoding == "8bit") {
                 attachment.content = btoa(attachment.content);
             }
@@ -153,8 +151,7 @@ export default {
             let element = document.createElement("a");
             element.style.display = "none";
             element.setAttribute("download", attachment.filename);
-            element.setAttribute("href", 
-                "data:" + attachment.mime + ";base64, " + attachment.content);
+            element.setAttribute("href", "data:" + attachment.mime + ";base64, " + attachment.content);
             document.body.appendChild(element);
 
             element.click();

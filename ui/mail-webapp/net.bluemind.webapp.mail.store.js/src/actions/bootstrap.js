@@ -1,13 +1,13 @@
-export function bootstrap({ dispatch, state, getters }) {
-    return dispatch("folders/all")
+export function bootstrap({ dispatch, state, getters, commit }, login) {
+    commit("setUserLogin", login);
+    getters.my.mailboxUid;
+    return dispatch("folders/all", getters.my.mailboxUid)
         .then(() => {
-            if (!state.currentFolderUid) {
-                return dispatch("selectFolder", getters["folders/defaultFolders"].INBOX.uid);
+            if (!state.currentFolderKey) {
+                return dispatch("selectFolder", getters.my.INBOX.key);
             }
         })
         .then(() => {
-            state.folders.items.forEach(folder => {
-                dispatch("loadUnreadCount", folder.uid);
-            });
+            getters.my.folders.forEach(folder => dispatch("loadUnreadCount", folder.uid));
         });
 }

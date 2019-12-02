@@ -1,9 +1,9 @@
 //FIXME: A action which return something ?
 import ServiceLocator from "@bluemind/inject";
+import ItemUri from "@bluemind/item-uri";
 
-export function create({ commit }, { name, parentUid }) {
-    const service = ServiceLocator.getProvider("MailboxFoldersPersistence").get();
-    let newFolderItemIdentifier;
+export function create({ commit }, { name, parentUid, mailboxUid }) {
+    const service = ServiceLocator.getProvider("MailboxFoldersPersistence").get(mailboxUid);
     return service
         .createBasic({
             name: name,
@@ -11,12 +11,11 @@ export function create({ commit }, { name, parentUid }) {
             parentUid: parentUid,
             deleted: false
         })
-        .then(itemIdentifier => {
-            newFolderItemIdentifier = itemIdentifier;
-            return service.getComplete(itemIdentifier.uid);
+        .then(({ uid }) => {
+            return service.getComplete(uid);
         })
         .then(mailboxFolder => {
-            commit("add", mailboxFolder);
-            return newFolderItemIdentifier;
+            commit("storeItems", { items: [mailboxFolder], mailboxUid });
+            return ItemUri.encode(mailboxFolder.uid, mailboxUid);
         });
 }

@@ -16,11 +16,11 @@
  * END LICENSE
  */
 import Message from "../../src/MailboxItemsStore/Message.js";
-import mailboxItem from "./mailbox-item.json";
+import mailboxItem from "./datas/mailbox-item.json";
 
 describe("Message", () => {
     test("constructor & toMailboxItem", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
 
         expect(message.messageId).toEqual(mailboxItem.value.body.messageId);
         expect(message.uid).toEqual(mailboxItem.uid);
@@ -55,58 +55,58 @@ describe("Message", () => {
         expect(actualItem).toEqual(expectedItem);
     });
     test("computeSubject for Reply", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         checkComputeSubject(message, message.actions.REPLY, "Re: ");
     });
     test("computeSubject for ReplyAll", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         checkComputeSubject(message, message.actions.REPLYALL, "Re: ");
     });
     test("computeSubject for Forward", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         checkComputeSubject(message, message.actions.FORWARD, "Fw: ");
     });
     test("previousMessageContent for Reply", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         checkComputePreviousMessage(message, message.actions.REPLY);
     });
     test("previousMessageContent for ReplyAll", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         checkComputePreviousMessage(message, message.actions.REPLYALL);
     });
     test("previousMessageContent for Forward", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         checkComputePreviousMessage(message, message.actions.FORWARD);
     });
     //
     test("computeRecipients for TO and Reply and no header", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         checkComputeRecipients(message, message.recipientFields.TO, message.actions.REPLY);
     });
     test("computeRecipients for TO and Reply and Mail-Followup-To header", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         const others = ["azerty@keyboard.com", "memory@ram.net", "pixel@lcd.org"];
         message.headers = [{ name: "Mail-Followup-To", values: others }];
         checkComputeRecipients(message, message.recipientFields.TO, message.actions.REPLY);
     });
     test("computeRecipients for TO and Reply and Mail-Reply-To header", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         const others = ["azerty@keyboard.com", "memory@ram.net", "pixel@lcd.org"];
         message.headers = [{ name: "Mail-Reply-To", values: others }];
         checkComputeRecipients(message, message.recipientFields.TO, message.actions.REPLY, { mailReplyTo: others });
     });
     test("computeRecipients for TO and Reply and Reply-To header", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         const others = ["azerty@keyboard.com", "memory@ram.net", "pixel@lcd.org"];
         message.headers = [{ name: "Reply-To", values: others }];
         checkComputeRecipients(message, message.recipientFields.TO, message.actions.REPLY, { replyTo: others });
     });
     test("computeRecipients for TO and ReplyAll and no header", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         checkComputeRecipients(message, message.recipientFields.TO, message.actions.REPLYALL);
     });
     test("computeRecipients for TO and ReplyAll and Mail-Followup-To header", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         const others = ["azerty@keyboard.com", "memory@ram.net", "pixel@lcd.org"];
         message.headers = [{ name: "Mail-Followup-To", values: others }];
         checkComputeRecipients(message, message.recipientFields.TO, message.actions.REPLYALL, {
@@ -114,23 +114,23 @@ describe("Message", () => {
         });
     });
     test("computeRecipients for TO and ReplyAll and Mail-Reply-To header", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         const others = ["azerty@keyboard.com", "memory@ram.net", "pixel@lcd.org"];
         message.headers = [{ name: "Mail-Reply-To", values: others }];
         checkComputeRecipients(message, message.recipientFields.TO, message.actions.REPLYALL, { mailReplyTo: others });
     });
     test("computeRecipients for TO and ReplyAll and Reply-To header", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         const others = ["azerty@keyboard.com", "memory@ram.net", "pixel@lcd.org"];
         message.headers = [{ name: "Reply-To", values: others }];
         checkComputeRecipients(message, message.recipientFields.TO, message.actions.REPLYALL, { replyTo: others });
     });
     test("computeRecipients for TO and Forward and no header", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         checkComputeRecipients(message, message.recipientFields.TO, message.actions.FORWARD);
     });
     test("computeRecipients for TO and Forward and Mail-Followup-To header", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         const others = ["azerty@keyboard.com", "memory@ram.net", "pixel@lcd.org"];
         message.headers = [{ name: "Mail-Followup-To", values: others }];
         checkComputeRecipients(message, message.recipientFields.TO, message.actions.FORWARD, {
@@ -138,45 +138,45 @@ describe("Message", () => {
         });
     });
     test("computeRecipients for TO and Forward and Mail-Reply-To header", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         const others = ["azerty@keyboard.com", "memory@ram.net", "pixel@lcd.org"];
         message.headers = [{ name: "Mail-Reply-To", values: others }];
         checkComputeRecipients(message, message.recipientFields.TO, message.actions.FORWARD, { mailReplyTo: others });
     });
     test("computeRecipients for TO and Forward and Reply-To header", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         const others = ["azerty@keyboard.com", "memory@ram.net", "pixel@lcd.org"];
         message.headers = [{ name: "Reply-To", values: others }];
         checkComputeRecipients(message, message.recipientFields.TO, message.actions.FORWARD, { replyTo: others });
     });
     test("computeRecipients for CC and Reply and no header", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         checkComputeRecipients(message, message.recipientFields.CC, message.actions.REPLY);
     });
     test("computeRecipients for CC and Reply and Mail-Followup-To header", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         const others = ["azerty@keyboard.com", "memory@ram.net", "pixel@lcd.org"];
         message.headers = [{ name: "Mail-Followup-To", values: others }];
         checkComputeRecipients(message, message.recipientFields.CC, message.actions.REPLY);
     });
     test("computeRecipients for CC and Reply and Mail-Reply-To header", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         const others = ["azerty@keyboard.com", "memory@ram.net", "pixel@lcd.org"];
         message.headers = [{ name: "Mail-Reply-To", values: others }];
         checkComputeRecipients(message, message.recipientFields.CC, message.actions.REPLY, { mailReplyTo: others });
     });
     test("computeRecipients for CC and Reply and Reply-To header", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         const others = ["azerty@keyboard.com", "memory@ram.net", "pixel@lcd.org"];
         message.headers = [{ name: "Reply-To", values: others }];
         checkComputeRecipients(message, message.recipientFields.CC, message.actions.REPLY, { replyTo: others });
     });
     test("computeRecipients for CC and ReplyAll and no header", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         checkComputeRecipients(message, message.recipientFields.CC, message.actions.REPLYALL);
     });
     test("computeRecipients for CC and ReplyAll and Mail-Followup-To header", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         const others = ["azerty@keyboard.com", "memory@ram.net", "pixel@lcd.org"];
         message.headers = [{ name: "Mail-Followup-To", values: others }];
         checkComputeRecipients(message, message.recipientFields.CC, message.actions.REPLYALL, {
@@ -184,23 +184,23 @@ describe("Message", () => {
         });
     });
     test("computeRecipients for CC and ReplyAll and Mail-Reply-To header", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         const others = ["azerty@keyboard.com", "memory@ram.net", "pixel@lcd.org"];
         message.headers = [{ name: "Mail-Reply-To", values: others }];
         checkComputeRecipients(message, message.recipientFields.CC, message.actions.REPLYALL, { mailReplyTo: others });
     });
     test("computeRecipients for CC and ReplyAll and Reply-To header", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         const others = ["azerty@keyboard.com", "memory@ram.net", "pixel@lcd.org"];
         message.headers = [{ name: "Reply-To", values: others }];
         checkComputeRecipients(message, message.recipientFields.CC, message.actions.REPLYALL, { replyTo: others });
     });
     test("computeRecipients for CC and Forward and no header", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         checkComputeRecipients(message, message.recipientFields.CC, message.actions.FORWARD);
     });
     test("computeRecipients for CC and Forward and Mail-Followup-To header", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         const others = ["azerty@keyboard.com", "memory@ram.net", "pixel@lcd.org"];
         message.headers = [{ name: "Mail-Followup-To", values: others }];
         checkComputeRecipients(message, message.recipientFields.CC, message.actions.FORWARD, {
@@ -208,13 +208,13 @@ describe("Message", () => {
         });
     });
     test("computeRecipients for CC and Forward and Mail-Reply-To header", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         const others = ["azerty@keyboard.com", "memory@ram.net", "pixel@lcd.org"];
         message.headers = [{ name: "Mail-Reply-To", values: others }];
         checkComputeRecipients(message, message.recipientFields.CC, message.actions.FORWARD, { mailReplyTo: others });
     });
     test("computeRecipients for CC and Forward and Reply-To header", () => {
-        const message = new Message(mailboxItem);
+        const message = new Message("key", mailboxItem);
         const others = ["azerty@keyboard.com", "memory@ram.net", "pixel@lcd.org"];
         message.headers = [{ name: "Reply-To", values: others }];
         checkComputeRecipients(message, message.recipientFields.CC, message.actions.FORWARD, { replyTo: others });

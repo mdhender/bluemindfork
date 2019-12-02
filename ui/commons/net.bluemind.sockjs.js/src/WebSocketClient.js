@@ -92,6 +92,7 @@ function createSockJsClient() {
     if (websocket.client != null && websocket.client.readyState != SockJS.CLOSED) {
         return websocket.client;
     }
+    //FIXME: Use the real client
     const client = {};
     client.onopen = function() {
         websocket.timers.ping = setTimeout(ping, 5 * 1000);
@@ -142,7 +143,7 @@ function send(request, listener) {
 
     const promise = new Promise(resolver.bind(this, request.requestId));
     if (websocket.client.readyState !== SockJS.OPEN) {
-        websocket.handler.disconnected(request.requestId);
+        // websocket.handler.disconnected(request.requestId);
     } else {
         websocket.client.send(JSON.stringify(request));
     }

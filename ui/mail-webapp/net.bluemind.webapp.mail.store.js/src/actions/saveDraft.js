@@ -4,6 +4,7 @@ import { html2text } from "@bluemind/html-utils";
 import { Message, DraftStatus } from "@bluemind/backend.mail.store";
 import { MimeType } from "@bluemind/email";
 import injector from "@bluemind/inject";
+import ItemUri from "@bluemind/item-uri";
 
 /** Save the current draft: create it into Drafts box, delete the previous one. */
 export function saveDraft({ commit, state, getters }) {
@@ -41,7 +42,7 @@ export function saveDraft({ commit, state, getters }) {
 
             sanitize(draft);
 
-            const draftbox = getters["folders/defaultFolders"].DRAFTS;
+            const draftbox = getters.my.DRAFTS;
 
             service = injector.getProvider("MailboxItemsPersistence").get(draftbox.uid);
             userSession = injector.getProvider("UserSession").get();
@@ -95,8 +96,14 @@ export function saveDraft({ commit, state, getters }) {
                     ]
                 };
             }
+            const key = ItemUri.encode(draft.id, getters.my.DRAFTS.uid);
             return service.create(
-                new Message(draft).toMailboxItem(userSession.defaultEmail, userSession.formatedName, true, structure)
+                new Message(key, draft).toMailboxItem(
+                    userSession.defaultEmail,
+                    userSession.formatedName,
+                    true,
+                    structure
+                )
             );
         })
         .then(itemIdentifier => {

@@ -2,12 +2,11 @@ import MailApp, { MailThread, MailMessageNew, MailMessageStarter } from "@bluemi
 
 const actionsOnMailConsult = {
     folder: (store, value) => store.dispatch("mail-webapp/selectFolder", value),
-    mail: (store, value) => store.dispatch("mail-webapp/selectMessage", parseInt(value))
+    mail: (store, value) => store.dispatch("mail-webapp/selectMessage", value)
 };
 
 function actionOnSearch(store, value) {
-    const folderUid = store.state["mail-webapp"].currentFolderUid;
-    return store.dispatch("mail-webapp/search", { folderUid, pattern: value });
+    return store.dispatch("mail-webapp/search", value);
 }
 
 export default [
@@ -38,7 +37,7 @@ export default [
                 meta: {
                     $actions: {
                         pattern: actionOnSearch,
-                        mail: (store, value) => store.dispatch("mail-webapp/selectMessage", parseInt(value))
+                        mail: (store, value) => store.dispatch("mail-webapp/selectMessage", value)
                     }
                 }
             },

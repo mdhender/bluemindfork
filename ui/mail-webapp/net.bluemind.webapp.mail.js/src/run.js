@@ -1,13 +1,12 @@
 import { AddressBooksClient } from "@bluemind/addressbook.api";
 import { AlertFactory } from "@bluemind/alert.store";
 import { MailboxFoldersClient, MailboxItemsClient, OutboxClient } from "@bluemind/backend.mail.api";
-import { MailboxFoldersStore, MailboxItemsStore } from "@bluemind/backend.mail.store";
 import { TaskClient } from "@bluemind/core.task.api";
+import MailWebAppStore from "@bluemind/webapp.mail.store";
 import AlertStore from "@bluemind/alert.store";
 import injector from "@bluemind/inject";
 import MailApp from "@bluemind/webapp.mail.ui.vuejs";
 import MailAppAlerts from "@bluemind/webapp.mail.alert";
-import MailAppStore from "@bluemind/webapp.mail.store";
 import mailRoutes from "./router";
 import router from "@bluemind/router";
 import store from "@bluemind/store";
@@ -21,11 +20,8 @@ router.addRoutes(mailRoutes);
 
 Vue.component("mail-webapp", MailApp);
 
-
 function registerStores() {
-    store.registerModule("mail-webapp", MailAppStore);
-    store.registerModule(["mail-webapp", "messages"], MailboxItemsStore);
-    store.registerModule(["mail-webapp", "folders"], MailboxFoldersStore);
+    store.registerModule("mail-webapp", MailWebAppStore);
     store.registerModule("alert", AlertStore);
 }
 
@@ -33,12 +29,13 @@ function registerAPIClients() {
     injector.register({
         // FIXME in fact it is not the persistence layer, use XxxAPI or XxxService instead
         provide: "MailboxFoldersPersistence",
-        factory: () => {
+        factory: mailboxUid => {
             const userSession = injector.getProvider("UserSession").get();
             return new MailboxFoldersClient(
                 userSession.sid,
                 userSession.domain.replace(".", "_"),
-                "user." + userSession.login.split("@")[0]
+                mailboxUid
+                // "user." + userSession.login.split("@")[0]
             );
         }
     });

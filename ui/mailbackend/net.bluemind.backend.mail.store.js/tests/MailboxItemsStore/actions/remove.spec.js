@@ -1,5 +1,6 @@
-import { remove as removeAction } from "../../../src/MailboxItemsStore/actions/remove";
+import { remove } from "../../../src/MailboxItemsStore/actions/remove";
 import ServiceLocator from "@bluemind/inject";
+import ItemUri from "@bluemind/item-uri";
 
 jest.mock("@bluemind/inject");
 
@@ -15,18 +16,18 @@ const context = {
     commit: jest.fn()
 };
 
-describe("MailItems store: remove action", () => {
-    
+describe("[MailItemsStore][actions] : remove", () => {
     const messageId = "74515",
-        folderUid = "2da34601-8c78-4cc3-baf0-1ae3dfe24a23/17289";
+        folderUid = "2da34601-8c78-4cc3-baf0-1ae3dfe24a23";
+    const messageKey = ItemUri.encode(messageId, folderUid);
 
     beforeEach(() => {
         context.commit.mockClear();
     });
-    
-    test("call remove for a given messageId and folderUid will call API and mutate state", done => {
-        removeAction(context, { messageId, folderUid }).then(() => {
-            expect(context.commit).toHaveBeenCalledWith("removeItems", [messageId]);
+
+    test("call remove service for a given messageId and folderUid  and mutate state", done => {
+        remove(context, messageKey).then(() => {
+            expect(context.commit).toHaveBeenCalledWith("removeItems", [messageKey]);
             done();
         });
         expect(get).toHaveBeenCalledWith(folderUid);
@@ -35,6 +36,6 @@ describe("MailItems store: remove action", () => {
 
     test("fail if deleteById call fail", () => {
         deleteById.mockReturnValueOnce(Promise.reject("Error!"));
-        expect(removeAction(context, { messageId, folderUid })).rejects.toBe("Error!");
+        expect(remove(context, messageKey)).rejects.toBe("Error!");
     });
 });

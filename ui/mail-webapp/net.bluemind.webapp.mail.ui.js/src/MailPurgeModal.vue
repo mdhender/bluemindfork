@@ -1,5 +1,5 @@
 <template>
-    <bm-modal 
+    <bm-modal
         ref="purge-modal"
         centered
         :ok-title="$t('common.delete')"
@@ -21,21 +21,21 @@ import { SHOW_PURGE_MODAL } from "./VueBusEventTypes";
 export default {
     name: "MailPurgeModal",
     components: {
-        BmModal,
+        BmModal
     },
     data() {
         return {
-            messageId: null
+            messageKey: null
         };
     },
     computed: {
-        ...mapState("mail-webapp", ["currentFolderUid", "currentMessageId"]),
-        ...mapGetters("mail-webapp", ["nextMessageId"])
+        ...mapState("mail-webapp", ["currentFolderUid", "currentMessageKey"]),
+        ...mapGetters("mail-webapp", ["nextMessageKey"])
     },
     bus: {
-        [SHOW_PURGE_MODAL]: function(optMessageId) {
-            this.messageId = optMessageId ? optMessageId : this.currentMessageId;
-            if (this.messageId) {
+        [SHOW_PURGE_MODAL]: function(optMessageKey) {
+            this.messageKey = optMessageKey ? optMessageKey : this.currentMessageKey;
+            if (this.messageKey) {
                 this.$refs["purge-modal"].show();
             }
         }
@@ -44,13 +44,13 @@ export default {
         ...mapActions("mail-webapp", ["purge"]),
         closeModal() {
             this.$refs["purge-modal"].hide();
-            this.messageId = null;
+            this.messageKey = null;
         },
         deletionConfirmed() {
-            if (this.currentMessageId == this.messageId) {
-                this.$router.push("" + (this.nextMessageId || ""));
+            if (this.currentMessageKey == this.messageKey) {
+                this.$router.push("" + (this.nextMessageKey || ""));
             }
-            this.purge({ messageId: this.messageId, folderUid: this.currentFolderUid });
+            this.purge(this.messageKey);
             this.closeModal();
         }
     }

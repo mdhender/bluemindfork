@@ -1,23 +1,24 @@
 import ContainerObserver from "@bluemind/containerobserver";
+import ItemUri from "@bluemind/item-uri";
 
-export function selectFolder({ dispatch, commit, state }, folderUid) {
-    if (state.currentFolderUid != folderUid) {
-        if (state.currentFolderUid) {
-            ContainerObserver.forget("mailbox_records", state.currentFolderUid);
+export function selectFolder({ dispatch, commit, state }, folderKey) {
+    const folderUid = ItemUri.item(folderKey);
+    if (state.currentFolderKey != folderKey) {
+        if (state.currentFolderKey) {
+            ContainerObserver.forget("mailbox_records", ItemUri.item(state.currentFolderKey));
         }
         commit("messages/clearItems");
-        commit("setCurrentFolder", folderUid);
+        commit("messages/clearParts");
+        commit("setCurrentFolder", folderKey);
+        ContainerObserver.observe("mailbox_records", folderUid);
     }
     //FIXME
     commit("setSearchLoading", null);
     commit("setSearchPattern", null);
-    ContainerObserver.observe("mailbox_records", state.currentFolderUid);
     commit("clearCurrentMessage");
-    // if (!getters["folders/getFolderByUid"](folderUid) && (const folder = getters["folders/getFolderByName"](name))) {
-    //     folderUid = folder.uid;
-    // }
-    return dispatch("messages/sortedIds", { sorted: state.sorted, folderUid }).then(() => {
-        const sorted = state.messages.sortedIds;
-        return dispatch("messages/multipleById", { folderUid, ids: sorted.slice(0, 100) });
+
+    return dispatch("messages/list", { sorted: state.sorted, folderUid }).then(() => {
+        const sorted = state.messages.itemKeys;
+        return dispatch("messages/multipleByKey", sorted.slice(0, 100));
     });
 }

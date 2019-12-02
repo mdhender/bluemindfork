@@ -28,7 +28,7 @@ import TreeWalker from "./TreeWalker";
  * @see net.bluemind.backend.mail.api.MailboxItem.java
  */
 export default class Message {
-    constructor(item) {
+    constructor(key, item) {
         this.actions = {
             REPLY: "reply",
             REPLYALL: "replyAll",
@@ -51,7 +51,9 @@ export default class Message {
         } else {
             Object.assign(this, item);
         }
-
+        this.key = key;
+        //FIXME : 1 - The user session should not be a requirement here!
+        //FIXME : 2 - Storing the whole user session in a serialized object is a bad idea...
         this.userSession = injector.getProvider("UserSession").get();
     }
 

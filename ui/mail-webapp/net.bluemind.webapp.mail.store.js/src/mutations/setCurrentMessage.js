@@ -1,6 +1,6 @@
 import { clearCurrentMessage } from "./clearCurrentMessage";
 
-export function setCurrentMessage(state, id) {
+export function setCurrentMessage(state, key) {
     clearCurrentMessage(state);
-    state.currentMessageId = id;
+    state.currentMessageKey = key;
 }

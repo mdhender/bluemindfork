@@ -1,3 +1,3 @@
-export function expandFolder({ commit }, uid) {
-    commit("expandFolder", uid);
+export function expandFolder({ commit }, key) {
+    commit("expandFolder", key);
 }

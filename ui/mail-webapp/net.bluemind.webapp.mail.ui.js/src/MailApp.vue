@@ -42,13 +42,14 @@
 <script>
 import { BmApplicationAlert, BmLabelIcon, BmButton, BmCol, BmContainer, BmRow, MakeUniq } from "@bluemind/styleguide";
 import MailAlertRenderer from "./MailAlertRenderer";
-import { mapActions, mapGetters, mapState } from "vuex";
+import { mapActions, mapState } from "vuex";
 import MailAppL10N from "@bluemind/webapp.mail.l10n";
 import MailFolderTree from "./MailFolderTree";
 import MailMessageList from "./MailMessageList/MailMessageList";
 import MailPurgeModal from "./MailPurgeModal";
 import MailToolbar from "./MailToolbar/";
 import MailSearchForm from "./MailSearchForm";
+import injector from "@bluemind/inject";
 
 export default {
     name: "MailApp",
@@ -69,14 +70,11 @@ export default {
     mixins: [MakeUniq],
     componentI18N: { messages: MailAppL10N },
     computed: {
-        ...mapGetters("mail-webapp", ["currentFolder", "messages", "indexOf", "getNearestMessageId"]),
-        ...mapGetters("mail-webapp/messages", ["messages", "indexOf", "count"]),
-        ...mapGetters("mail-webapp/folders", ["defaultFolders"]),
-        ...mapState("mail-webapp", ["currentMessageId"]),
         ...mapState("alert", ["alerts"])
     },
     created: function() {
-        this.bootstrap();
+        const userSession = injector.getProvider("UserSession").get();
+        this.bootstrap(userSession.login);
     },
     methods: {
         ...mapActions("mail-webapp", ["bootstrap"]),

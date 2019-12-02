@@ -1,7 +1,7 @@
 import Message from "../Message";
 
 export function messages(state) {
-    return (state.sortedIds || []).map(id => {
-        return state.items[id] && new Message(state.items[id]);
+    return (state.itemKeys || []).map(key => {
+        return state.items[key] && new Message(key, state.items[key]);
     });
 }

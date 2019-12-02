@@ -1,6 +1,6 @@
 <template>
     <div class="d-inline-block h-100">
-        <bm-dropdown 
+        <bm-dropdown
             v-bm-tooltip.bottom.ds500
             :no-caret="true"
             variant="link"
@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import { BmDropdown, BmDropdownItem, BmIcon, BmTooltip }  from "@bluemind/styleguide";
+import { BmDropdown, BmDropdownItem, BmIcon, BmTooltip } from "@bluemind/styleguide";
 import { mapActions, mapGetters, mapState } from "vuex";
 
 export default {
@@ -32,23 +32,23 @@ export default {
         BmDropdownItem,
         BmIcon
     },
-    directives: {BmTooltip},
+    directives: { BmTooltip },
     computed: {
-        ...mapState("mail-webapp", ["currentFolderUid", "currentMessageId"]),
-        ...mapGetters("mail-webapp", ["nextMessageId"])
+        ...mapState("mail-webapp", ["currentMessageKey"]),
+        ...mapGetters("mail-webapp", ["nextMessageKey"])
     },
     methods: {
         ...mapActions("mail-webapp", ["purge"]),
         deletionConfirmed() {
-            this.$router.push("" + (this.nextMessageId || ""));
-            this.purge({ messageId: this.currentMessageId, folderUid: this.currentFolderUid });
+            this.$router.push("" + (this.nextMessageKey || ""));
+            this.purge(this.currentMessageKey);
         }
     }
 };
 </script>
 
 <style lang="scss">
-@import '~@bluemind/styleguide/css/_variables';
+@import "~@bluemind/styleguide/css/_variables";
 
 .other_actions .dropdown-menu {
     border: none !important;

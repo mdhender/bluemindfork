@@ -1,3 +1,3 @@
-export function collapseFolder({ commit }, uid) {
-    commit("collapseFolder", uid);
+export function collapseFolder({ commit }, key) {
+    commit("collapseFolder", key);
 }

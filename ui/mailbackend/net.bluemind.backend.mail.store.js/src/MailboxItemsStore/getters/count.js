@@ -1,3 +1,3 @@
 export function count(state) {
-    return state.sortedIds.length;
+    return state.itemKeys.length;
 }

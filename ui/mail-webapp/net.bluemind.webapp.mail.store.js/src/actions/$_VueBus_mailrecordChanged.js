@@ -1,4 +1,4 @@
-export function $_VueBus_mailrecordChanged({ dispatch }, { container }) {
+export function $_VueBus_mailrecordChanged({ dispatch }, container) {
     //FIXME
     return dispatch("all", container);
 }

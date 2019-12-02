@@ -8,7 +8,7 @@
             class="unread"
             :title="$tc('mail.actions.mark_read.aria')"
             :aria-label="$tc('mail.actions.mark_read.aria')"
-            @click="markAsRead(currentMessage.id)"
+            @click="markAsRead(currentMessage.key)"
         >
             <bm-icon icon="read" size="2x" /> {{ $tc("mail.actions.mark_read") }}
         </bm-button>
@@ -19,7 +19,7 @@
             class="read"
             :title="$tc('mail.actions.mark_unread.aria')"
             :aria-label="$tc('mail.actions.mark_unread.aria')"
-            @click="markAsUnread(currentMessage.id)"
+            @click="markAsUnread(currentMessage.key)"
         >
             <bm-icon icon="unread" size="2x" /> {{ $tc("mail.actions.mark_unread") }}
         </bm-button>
@@ -33,7 +33,7 @@
             <bm-icon icon="forbidden" size="2x" />
             {{ $tc("mail.actions.spam") }}
         </bm-button>
-        <bm-button 
+        <bm-button
             v-bm-tooltip.bottom.ds500
             variant="link"
             :title="$tc('mail.actions.remove.aria')"
@@ -65,11 +65,10 @@ export default {
         MailToolbarConsultMessageMoveAction,
         MailToolbarConsultMessageOtherActions
     },
-    directives: {BmTooltip},
+    directives: { BmTooltip },
     computed: {
-        ...mapState("mail-webapp", ["currentFolderUid"]),
-        ...mapGetters("mail-webapp", ["currentMessage", "nextMessageId"]),
-        ...mapGetters("mail-webapp/folders", ["defaultFolders"]),
+        ...mapState("mail-webapp", ["currentFolderKey"]),
+        ...mapGetters("mail-webapp", ["currentMessage", "nextMessageKey", "my"])
     },
     methods: {
         ...mapActions("mail-webapp", ["markAsRead", "markAsUnread"]),
@@ -77,12 +76,12 @@ export default {
             this.$bus.$emit(SHOW_PURGE_MODAL);
         },
         remove() {
-            if (this.currentFolderUid == this.defaultFolders.TRASH.uid) {
+            if (this.currentFolderKey == this.my.TRASH.key) {
                 this.openPurgeModal();
                 return;
             }
-            this.$router.push("" + (this.nextMessageId || ""));
-            this.$store.dispatch("mail-webapp/remove", this.currentMessage.id);
+            this.$router.push("" + (this.nextMessageKey || ""));
+            this.$store.dispatch("mail-webapp/remove", this.currentMessage.key);
         }
     }
 };

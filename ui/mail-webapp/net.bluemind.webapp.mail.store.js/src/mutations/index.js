@@ -9,4 +9,5 @@ export * from "./setSearchError";
 export * from "./setSearchLoading";
 export * from "./setSearchPattern";
 export * from "./setUnreadCount";
+export * from "./setUserLogin";
 export * from "./updateDraft";

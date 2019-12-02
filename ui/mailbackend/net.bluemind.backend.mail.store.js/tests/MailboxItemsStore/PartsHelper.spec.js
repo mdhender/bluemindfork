@@ -13,8 +13,8 @@ describe("PartsHelper insertInlineImages", () => {
                 </html>`
             }
         ];
-        const imagePart1 = { cid: "<999999999@test.com>", content: "45D67E89\n1A23BC6\n", mime: "image/jpg" };
-        const imagePart2 = { cid: "<123456789@test.com>", content: "1A23BC6\n45D67E89\n", mime: "image/png" };
+        const imagePart1 = { contentId: "<999999999@test.com>", content: "45D67E89\n1A23BC6\n", mime: "image/jpg" };
+        const imagePart2 = { contentId: "<123456789@test.com>", content: "1A23BC6\n45D67E89\n", mime: "image/png" };
         const imageParts = [imagePart1, imagePart2];
 
         // build expected result
@@ -55,8 +55,8 @@ describe("PartsHelper insertInlineImages", () => {
                 </html>`
             }
         ];
-        const imagePart1 = { cid: "<999999999@test.com>", content: "45D67E89\n1A23BC6\n", mime: "image/jpg" };
-        const imagePart2 = { cid: "<123456789@test.com>", content: "1A23BC6\n45D67E89\n", mime: "image/png" };
+        const imagePart1 = { contentId: "<999999999@test.com>", content: "45D67E89\n1A23BC6\n", mime: "image/jpg" };
+        const imagePart2 = { contentId: "<123456789@test.com>", content: "1A23BC6\n45D67E89\n", mime: "image/png" };
         const imageParts = [imagePart1, imagePart2];
 
         // build expected result

@@ -4,18 +4,24 @@ import { DraftStatus } from "@bluemind/backend.mail.store";
 import { EmailValidator } from "@bluemind/email";
 import injector from "@bluemind/inject";
 import UUIDGenerator from "@bluemind/uuid";
+import ItemUri from "@bluemind/item-uri";
 
 /** Send the last draft: move it to the Outbox then flush. */
 export function send({ state, commit, getters, dispatch }) {
     const draft = state.draft;
-    let draftId = draft.id, sentbox;
+    let draftId = draft.id,
+        sentbox;
     const loadingAlertUid = UUIDGenerator.generate();
-    
-    commit("alert/add", { 
-        code: "MSG_SEND_LOADING", 
-        uid: loadingAlertUid, 
-        props: { subject: draft.subject } 
-    }, { root: true });
+
+    commit(
+        "alert/add",
+        {
+            code: "MSG_SEND_LOADING",
+            uid: loadingAlertUid,
+            props: { subject: draft.subject }
+        },
+        { root: true }
+    );
 
     // ensure the last draft is up to date
     return dispatch("saveDraft")
@@ -25,17 +31,20 @@ export function send({ state, commit, getters, dispatch }) {
 
             // validation
             if (!validate(draft)) {
-                throw injector.getProvider("i18n").get().t("mail.error.email.address.invalid");
+                throw injector
+                    .getProvider("i18n")
+                    .get()
+                    .t("mail.error.email.address.invalid");
             }
             return Promise.resolve();
         })
         .then(() => {
             // move draft from draftbox to outbox
-            const draftbox = getters["folders/defaultFolders"].DRAFTS;
-            const outbox = getters["folders/defaultFolders"].OUTBOX;
+            const draftbox = getters.my.DRAFTS;
+            const outbox = getters.my.OUTBOX;
             return injector
                 .getProvider("MailboxFoldersPersistence")
-                .get()
+                .get(getters.my.mailboxUid)
                 .importItems(outbox.internalId, {
                     mailboxFolderId: draftbox.internalId,
                     ids: [{ id: draftId }],
@@ -61,7 +70,7 @@ export function send({ state, commit, getters, dispatch }) {
             // compute and return the IMAP id of the mail inside the sentbox
             if (taskResult.result && Array.isArray(taskResult.result)) {
                 let importedMailboxItem = taskResult.result.find(r => r.source == draftId);
-                sentbox = getters["folders/defaultFolders"].SENT;
+                sentbox = getters.my.SENT;
                 const sentboxItemsService = injector.getProvider("MailboxItemsPersistence").get(sentbox.uid);
                 return sentboxItemsService.getCompleteById(importedMailboxItem.destination);
             } else {
@@ -69,20 +78,31 @@ export function send({ state, commit, getters, dispatch }) {
             }
         })
         .then(mailItem => {
-            const mailId = mailItem.internalId;
+            const messageKey = ItemUri.encode(mailItem.internalId, getters.my.SENT.uid);
             commit("alert/remove", loadingAlertUid, { root: true });
-            commit("alert/add", { code: "MSG_SENT_OK", props: {
-                subject: draft.subject,
-                subjectLink: "/mail/" + sentbox.uid + "/" + mailId
-            }}, { root: true });
+            commit(
+                "alert/add",
+                {
+                    code: "MSG_SENT_OK",
+                    props: {
+                        subject: draft.subject,
+                        subjectLink: "/mail/" + sentbox.key + "/" + messageKey
+                    }
+                },
+                { root: true }
+            );
             commit("updateDraft", { status: DraftStatus.SENT, id: null, saveDate: null });
         })
         .catch(reason => {
             commit("alert/remove", loadingAlertUid, { root: true });
-            commit("alert/add", { 
-                code: "MSG_SENT_ERROR", 
-                props: { subject: draft.subject, reason: reason.message }
-            }, { root: true });
+            commit(
+                "alert/add",
+                {
+                    code: "MSG_SENT_ERROR",
+                    props: { subject: draft.subject, reason: reason.message }
+                },
+                { root: true }
+            );
             commit("updateDraft", { status: DraftStatus.SENT });
         });
 }

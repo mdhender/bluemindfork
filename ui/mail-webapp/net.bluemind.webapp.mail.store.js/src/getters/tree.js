@@ -1,6 +1,6 @@
-export function tree(state) {
+export function tree(state, getters) {
     const nodeMap = new Map();
-    state.folders.items.forEach(folderItem => {
+    getters["folders/folders"].forEach(folderItem => {
         const data = state.foldersData[folderItem.uid] || {};
         const folder = toTreeItem(folderItem, data);
         const siblings = nodeMap.has(folder.parent) ? nodeMap.get(folder.parent) : [];
@@ -18,6 +18,7 @@ export function tree(state) {
 function toTreeItem(folder, { unread, expanded }) {
     return {
         uid: folder.uid,
+        key: folder.key,
         name: folder.value.name,
         fullname: folder.value.fullName,
         parent: folder.value.parentUid || null,

@@ -17,17 +17,17 @@
                     </div>
                     <div class="d-table-cell px-4">
                         <div class="pb-2">{{ $t("mail.message.starter.display") }}</div>
-                        <bm-button :to="{ path: '/mail/' + getDraftUid() }" variant="secondary">
-                            <bm-label-icon icon="pencil"> 
-                                {{ $t("mail.message.starter.display.drafts") }} 
+                        <bm-button v-if="my.DRAFTS" :to="{ path: '/mail/' + my.DRAFTS.key }" variant="secondary">
+                            <bm-label-icon icon="pencil">
+                                {{ $t("mail.message.starter.display.drafts") }}
                             </bm-label-icon>
                         </bm-button>
                     </div>
                 </div>
             </div>
             <div
-                class="w-100 flex-shrink-1" 
-                :style="'flex-basis: 321px;background: url(' +emptyMessageIllustration +') no-repeat center top'"
+                class="w-100 flex-shrink-1"
+                :style="'flex-basis: 321px;background: url(' + emptyMessageIllustration + ') no-repeat center top'"
             />
         </div>
     </div>
@@ -50,26 +50,18 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail-webapp", ["tree"]),
-        ...mapGetters("mail-webapp/folders", ["defaultFolders"]),
+        ...mapGetters("mail-webapp", ["tree", "my"]),
         ...mapGetters("mail-webapp/messages", ["messages"]),
-        ...mapState("mail-webapp", { folder: "currentFolderUid" }),
+        ...mapState("mail-webapp", ["currentFolderKey"]),
 
         firstUnreadMessage() {
-            if (this.folder) {
+            if (this.currentFolderKey) {
                 const message = this.messages.find(message => message && message.states.includes("not-seen"));
                 if (message) {
-                    return message.id;
+                    return message.key;
                 }
             }
             return null;
-        }
-    },
-    methods: {
-        getDraftUid() {
-            if (this.tree.length > 0) {
-                return this.tree.find(folder => folder.name === "Drafts").uid;
-            }
         }
     }
 };
@@ -91,11 +83,11 @@ export default {
     fill: $surface-bg;
 }
 
-.mail-message-starter .flex-grow-3{
+.mail-message-starter .flex-grow-3 {
     flex-grow: 3;
 }
 
-.mail-message-starter .justify-space-evenly{
+.mail-message-starter .justify-space-evenly {
     justify-content: space-evenly;
 }
 </style>

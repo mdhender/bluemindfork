@@ -24,14 +24,14 @@
             ref="bmInfiniteScroll"
             :items="messages"
             :total="count"
-            :item-key="'id'"
+            :item-key="'key'"
             item-size="dynamic"
             scrollbar
             class="h-100 bg-extra-light"
             @scroll="loadMessages"
         >
             <template #item="f">
-                <bm-list-group-separator v-if="hasSeparator(f.item.id)" class="mail-list-separator">
+                <bm-list-group-separator v-if="hasSeparator(f.item.key)" class="mail-list-separator">
                     <bm-row>
                         <bm-col cols="1" />
                         <bm-col class="pl-3">
@@ -40,9 +40,9 @@
                     </bm-row>
                 </bm-list-group-separator>
                 <mail-message-list-item
-                    :ref="'message-' + f.item.id"
+                    :ref="'message-' + f.item.key"
                     :message="f.item"
-                    :to="messageRoute(f.item.id)"
+                    :to="messageRoute(f.item.key)"
                     style="cursor: pointer;"
                 />
             </template>
@@ -129,10 +129,9 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail-webapp", ["nextMessageId"]),
+        ...mapGetters("mail-webapp", ["nextMessageKey", "my"]),
         ...mapGetters("mail-webapp/messages", ["messages", "count", "indexOf"]),
-        ...mapGetters("mail-webapp/folders", ["defaultFolders"]),
-        ...mapState("mail-webapp", ["currentFolderUid", "currentMessageId", "search"]),
+        ...mapState("mail-webapp", ["currentFolderKey", "currentMessageKey", "search"]),
         mode() {
             return this.search.pattern ? "search" : "default";
         },
@@ -141,37 +140,37 @@ export default {
         }
     },
     watch: {
-        currentMessageId() {
-            if (this.currentMessageId && this.$refs.bmInfiniteScroll) {
-                this.$refs.bmInfiniteScroll.goto(this.indexOf(this.currentMessageId));
+        currentMessageKey() {
+            if (this.currentMessageKey && this.$refs.bmInfiniteScroll) {
+                this.$refs.bmInfiniteScroll.goto(this.indexOf(this.currentMessageKey));
             }
-            if (this.currentMessageId && this.$refs["message-" + this.currentMessageId]) {
+            if (this.currentMessageKey && this.$refs["message-" + this.currentMessageKey]) {
                 this.$nextTick(() => {
-                    this.$refs["message-" + this.currentMessageId];
-                    this.$refs["message-" + this.currentMessageId].$el.focus();
+                    this.$refs["message-" + this.currentMessageKey];
+                    this.$refs["message-" + this.currentMessageKey].$el.focus();
                 });
             }
         },
-        currentFolderUid() {
+        currentFolderKey() {
             if (this.$refs.bmInfiniteScroll) {
                 this.$refs.bmInfiniteScroll.goto(0);
             }
         }
     },
     created() {
-        if (this.currentMessageId && this.$refs.bmInfiniteScroll) {
-            this.$refs.bmInfiniteScroll.goto(this.indexOf(this.currentMessageId));
+        if (this.currentMessageKey && this.$refs.bmInfiniteScroll) {
+            this.$refs.bmInfiniteScroll.goto(this.indexOf(this.currentMessageKey));
         }
     },
     methods: {
         ...mapActions("mail-webapp", { loadMessages: "loadRange" }),
         remove() {
-            if (this.currentFolderUid == this.defaultFolders.TRASH.uid) {
+            if (this.currentFolderKey == this.my.TRASH.key) {
                 this.openPurgeModal();
                 return;
             }
-            this.$router.push(this.messageRoute(this.nextMessageId));
-            this.$store.dispatch("mail-webapp/remove", this.currentMessageId);
+            this.$router.push(this.messageRoute(this.nextMessageKey));
+            this.$store.dispatch("mail-webapp/remove", this.currentMessageKey);
         },
         getRange(date) {
             for (let i = 0; i < RANGES.length; i++) {
@@ -182,19 +181,19 @@ export default {
             return last(RANGES);
         },
         moveTo(diff) {
-            if (this.currentMessageId) {
-                let index = this.indexOf(this.currentMessageId) + diff;
+            if (this.currentMessageKey) {
+                let index = this.indexOf(this.currentMessageKey) + diff;
                 this.goTo(index);
             }
         },
         goTo(index) {
-            if (this.currentMessageId) {
+            if (this.currentMessageKey) {
                 index = Math.min(Math.max(0, index), this.count - 1);
-                this.$router.push({ path: "" + this.messages[index].id });
+                this.$router.push({ path: "" + this.messages[index].key });
             }
         },
-        hasSeparator(id) {
-            let index = this.indexOf(id);
+        hasSeparator(key) {
+            let index = this.indexOf(key);
             if (index > 0) {
                 if (
                     !this.messages[index] ||
@@ -209,15 +208,15 @@ export default {
         getSeparator(date) {
             return this.getRange(date)[I18N];
         },
-        messageRoute(id) {
+        messageRoute(key) {
             const path = this.$route.path;
-            id = id || "";
+            key = key || "";
             if (this.$route.params.mail) {
-                return path.replace(new RegExp("/" + this.$route.params.mail + "/?.*"), "/" + id);
+                return path.replace(new RegExp("/" + this.$route.params.mail + "/?.*"), "/" + key);
             } else if (path == "/mail/" || path == "/mail/new") {
-                return "/mail/" + this.currentFolderUid + "/" + id;
+                return "/mail/" + this.currentFolderKey + "/" + key;
             }
-            return path + id;
+            return path + key;
         },
         openPurgeModal() {
             this.$bus.$emit(SHOW_PURGE_MODAL);
