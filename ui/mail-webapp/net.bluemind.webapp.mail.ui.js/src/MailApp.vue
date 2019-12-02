@@ -102,6 +102,6 @@ body > div {
 .mail-app .bm-application-alert {
     position: absolute;
     bottom: 5px;
-    width: 50vw;
+    z-index: 3;
 }
 </style>
