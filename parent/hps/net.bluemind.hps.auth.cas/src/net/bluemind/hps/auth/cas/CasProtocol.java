@@ -252,6 +252,14 @@ public class CasProtocol implements IAuthProtocol {
 
 	@Override
 	public void logout(HttpServerRequest event) {
+		if (!Strings.isNullOrEmpty(event.headers().get(org.vertx.java.core.http.HttpHeaders.REFERER)) && event.headers()
+				.get(org.vertx.java.core.http.HttpHeaders.REFERER).toLowerCase().equals(getCasLogoutUrl())) {
+			HttpServerResponse resp = event.response();
+			resp.setStatusCode(200);
+			resp.end();
+			return;
+		}
+
 		HttpServerResponse resp = event.response();
 		resp.headers().add(org.vertx.java.core.http.HttpHeaders.LOCATION, getCasLogoutUrl());
 		resp.setStatusCode(302);
