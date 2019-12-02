@@ -26,6 +26,7 @@ install -m 644 /sources/stretch/bm-sds-proxy.service %{buildroot}%{_unitdir}
 %exclude %dir /usr/lib
 %exclude %dir /usr/lib/systemd
 %exclude %dir %{_unitdir}
+%attr(755, -, -) /usr/share/bm-sds-proxy/bm-sds-proxy
 /*
 
 %pre
