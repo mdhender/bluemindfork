@@ -45,7 +45,7 @@ export default {
                     } else if (MimeType.isText(part)) {
                         html += mailText2Html(part.content);
                     } else if (MimeType.isImage(part)) {
-                        const imgSrc = "data:" + part.mime + ";base64, " + part.content;
+                        const imgSrc = URL.createObjectURL(part.content);
                         html += '<div align="center"><img src="' + imgSrc + '"></div>';
                     } else {
                         html += part.content;

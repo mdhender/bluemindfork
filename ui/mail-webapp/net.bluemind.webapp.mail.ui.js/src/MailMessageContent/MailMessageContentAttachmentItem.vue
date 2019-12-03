@@ -91,7 +91,7 @@ export default {
             return MimeType.previewAvailable(this.attachment.mime);
         },
         preview() {
-            return "data:" + this.attachment.mime + ";base64, " + this.attachment.content;
+            return URL.createObjectURL(this.attachment.content);
         }
     }
 };

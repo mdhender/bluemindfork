@@ -22,10 +22,9 @@ function insertInlineImages(partsWithReferences = [], imageParts = []) {
                 part => part.contentId && part.contentId.toUpperCase() === "<" + inlineReferences[1].toUpperCase() + ">"
             );
             if (imagePart) {
-                const base64Image = imagePart.content.replace(new RegExp("\\n", "g"), "");
                 partWithReferences.content = partWithReferences.content.replace(
                     replaceRegex,
-                    "$1data:" + imagePart.mime + ";base64, " + base64Image + "$2"
+                    "$1" + URL.createObjectURL(imagePart.content) + "$2"
                 );
                 inlined.push(imagePart.contentId);
             }

@@ -43,6 +43,12 @@
                 />
             </bm-col>
         </bm-row>
+        <a 
+            ref="download-attachment-link"
+            class="d-none"
+            :download="downloadAttachmentFilename"
+            :href="downloadAttachmentBlob"
+        />
         <!-- Save all button with i18n, please dont delete it 
             <bm-button
             variant="outline-secondary"
@@ -74,7 +80,9 @@ export default {
     data() {
         return {
             isExpanded: false,
-            attachmentsContentFetched: false
+            attachmentsContentFetched: false,
+            downloadAttachmentFilename: "",
+            downloadAttachmentBlob: ""
         };
     },
     computed: {
@@ -132,7 +140,7 @@ export default {
             const attachment = this.attachments[index];
             // attachment content may be already fetched (if its preview has been displayed)
             if (attachment.content != undefined) {
-                this.triggerDownload(attachment);
+                this.triggerDownload(index);
             } else {
                 this.fetch({
                     messageKey: this.currentMessageKey,
@@ -143,20 +151,12 @@ export default {
         },
         triggerDownload(index) {
             const attachment = this.attachments[index];
+            const attachmentBlob = new Blob([attachment.content], { type : attachment.mime });
+            
+            this.downloadAttachmentFilename = attachment.filename;
+            this.downloadAttachmentBlob = URL.createObjectURL(attachmentBlob);
 
-            if (attachment.encoding == "8bit") {
-                attachment.content = btoa(attachment.content);
-            }
-
-            let element = document.createElement("a");
-            element.style.display = "none";
-            element.setAttribute("download", attachment.filename);
-            element.setAttribute("href", "data:" + attachment.mime + ";base64, " + attachment.content);
-            document.body.appendChild(element);
-
-            element.click();
-
-            document.body.removeChild(element);
+            this.$nextTick(() => this.$refs["download-attachment-link"].click());
         }
     }
 };

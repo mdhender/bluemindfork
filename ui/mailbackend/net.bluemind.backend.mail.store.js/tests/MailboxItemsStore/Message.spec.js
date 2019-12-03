@@ -54,31 +54,6 @@ describe("Message", () => {
 
         expect(actualItem).toEqual(expectedItem);
     });
-    test("computeSubject for Reply", () => {
-        const message = new Message("key", mailboxItem);
-        checkComputeSubject(message, message.actions.REPLY, "Re: ");
-    });
-    test("computeSubject for ReplyAll", () => {
-        const message = new Message("key", mailboxItem);
-        checkComputeSubject(message, message.actions.REPLYALL, "Re: ");
-    });
-    test("computeSubject for Forward", () => {
-        const message = new Message("key", mailboxItem);
-        checkComputeSubject(message, message.actions.FORWARD, "Fw: ");
-    });
-    test("previousMessageContent for Reply", () => {
-        const message = new Message("key", mailboxItem);
-        checkComputePreviousMessage(message, message.actions.REPLY);
-    });
-    test("previousMessageContent for ReplyAll", () => {
-        const message = new Message("key", mailboxItem);
-        checkComputePreviousMessage(message, message.actions.REPLYALL);
-    });
-    test("previousMessageContent for Forward", () => {
-        const message = new Message("key", mailboxItem);
-        checkComputePreviousMessage(message, message.actions.FORWARD);
-    });
-    //
     test("computeRecipients for TO and Reply and no header", () => {
         const message = new Message("key", mailboxItem);
         checkComputeRecipients(message, message.recipientFields.TO, message.actions.REPLY);
@@ -220,52 +195,6 @@ describe("Message", () => {
         checkComputeRecipients(message, message.recipientFields.CC, message.actions.FORWARD, { replyTo: others });
     });
 });
-
-function checkComputeSubject(message, action, prefix) {
-    message.userSession = { lang: "en" };
-    const subject = message.computeSubject(action);
-    const expectedSubject = prefix + mailboxItem.value.body.subject;
-    expect(subject).toEqual(expectedSubject);
-
-    // should not add the prefix again
-    message.subject = expectedSubject;
-    const subject2 = message.computeSubject(action);
-    expect(subject2).toEqual(expectedSubject);
-}
-
-function checkComputePreviousMessage(message, action) {
-    message.userSession = { lang: "en" };
-    const parts = [
-        {
-            mime: "text/html",
-            content:
-                '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"><html><body><p><span' +
-                ' style="font-family: Arial; font-size: 12px;">messageContent</span></p></body></html>',
-            uid: "59."
-        }
-    ];
-    const previousMessage = message.previousMessageContent(action, parts);
-
-    let expectedPreviousMessage;
-    switch (action) {
-        case message.actions.REPLY:
-        case message.actions.REPLYALL:
-            expectedPreviousMessage =
-                "On " + message.date + ", John Doe <jdoe@vm40.net> wrote:\n\n> messageContent\n> ";
-            break;
-        case message.actions.FORWARD:
-            expectedPreviousMessage =
-                "---- Original Message ----\nSubject: " +
-                message.subject +
-                "\nTo: John Doe <jdoe@vm40.net>\nDate: " +
-                message.date +
-                "\nFrom: John Doe <jdoe@vm40.net>\n\nmessageContent\n";
-            break;
-        default:
-            break;
-    }
-    expect(previousMessage).toEqual(expectedPreviousMessage);
-}
 
 function checkComputeRecipients(message, recipientField, action, headersInfo) {
     message.userSession = { defaultEmail: "jdoe@vm40.net" };
