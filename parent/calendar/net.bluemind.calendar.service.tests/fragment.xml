@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<fragment>
+   <extension
+         point="net.bluemind.calendar.hook">
+      <hook
+            impl="net.bluemind.calendar.service.internal.WaitForCalendarHook"
+            priority="-99999">
+      </hook>
+   </extension>
+
+</fragment>

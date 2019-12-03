@@ -97,7 +97,6 @@
       <plugin id="net.bluemind.node.client"/>
       <plugin id="net.bluemind.node.shared"/>
       <plugin id="net.bluemind.osgi.log"/>
-      <plugin id="net.bluemind.reminder.mail"/>
       <plugin id="net.bluemind.resource.api"/>
       <plugin id="net.bluemind.resource.lmtp.filter"/>
       <plugin id="net.bluemind.server.api"/>

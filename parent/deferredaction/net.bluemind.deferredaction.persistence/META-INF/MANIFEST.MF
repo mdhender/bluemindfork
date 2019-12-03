@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.deferredaction.persistence
+Bundle-SymbolicName: net.bluemind.deferredaction.persistence;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.deferredaction.api,
+ slf4j.api,
+ io.vertx.core,
+ net.bluemind.core.container.persistence,
+ net.bluemind.deferredaction.sqlschema
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.deferredaction.api.storage
+Export-Package: net.bluemind.deferredaction.persistence

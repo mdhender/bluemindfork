@@ -520,12 +520,12 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		});
 	}
 
-	public List<ItemValue<T>> getMultipleById(List<Long> uids) throws ServerFault {
+	public List<ItemValue<T>> getMultipleById(List<Long> ids) throws ServerFault {
 		return doOrFail(() -> {
 			List<Item> items = null;
 
 			try {
-				items = itemStore.getMultipleById(uids);
+				items = itemStore.getMultipleById(ids);
 			} catch (SQLException e) {
 				throw ServerFault.sqlFault(e);
 			}

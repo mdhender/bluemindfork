@@ -16,8 +16,10 @@ Require-Bundle: net.bluemind.core.commons,
  org.eclipse.osgi,
  net.bluemind.hornetq.client,
  com.google.guava,
- net.bluemind.lib.vertx
+ net.bluemind.lib.vertx,
+ net.bluemind.deferredaction.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: net.bluemind.cti.service.CTIActivator
+Export-Package: net.bluemind.cti.service
 

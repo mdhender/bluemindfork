@@ -51,8 +51,18 @@ Require-Bundle: net.bluemind.calendar.api;bundle-version="1.0.0",
  net.bluemind.resource.api,
  net.bluemind.resource.helper,
  net.bluemind.attachment.api,
- net.bluemind.icalendar.parser
+ net.bluemind.icalendar.parser,
+ net.bluemind.deferredaction.registry,
+ net.bluemind.deferredaction.api,
+ net.bluemind.core.sendmail,
+ net.bluemind.mailbox.api,
+ org.apache.james.apache-mime4j-dom,
+ org.apache.james.apache-mime4j-core,
+ net.bluemind.common.freemarker,
+ net.bluemind.core.commons,
+ net.bluemind.cti.service
 Export-Package: net.bluemind.calendar.service,
+ net.bluemind.calendar.service.deferredaction,
  net.bluemind.calendar.service.internal
 Bundle-Activator: net.bluemind.calendar.service.CalendarActivator
 Bundle-ActivationPolicy: lazy

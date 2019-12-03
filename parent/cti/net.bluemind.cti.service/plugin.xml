@@ -19,5 +19,11 @@
             impl="net.bluemind.cti.service.internal.CTIPresenceHandler$PresFactory">
       </verticle>
    </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.cti.service.internal.CTIUserSettingsVerticle$CTIUserSettingsVerticleFactory">
+      </verticle>
+   </extension>
 
 </plugin>

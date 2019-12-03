@@ -127,7 +127,6 @@
       <plugin id="net.bluemind.network.topology.consumer"/>
       <plugin id="net.bluemind.network.utils"/>
       <plugin id="net.bluemind.osgi.log"/>
-      <plugin id="net.bluemind.reminder.mail"/>
       <plugin id="net.bluemind.role.api"/>
       <plugin id="net.bluemind.server.api"/>
       <plugin id="net.bluemind.slf4j"/>

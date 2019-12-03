@@ -81,9 +81,12 @@ net.bluemind.databases.DatabasesUtils.prototype.reset = function() {
       name : 'auth',
       schema : net.bluemind.authentication.schema
     }, {
-        name : 'resources',
-        schema : net.bluemind.resource.persistence.schema
-      } ]);
+      name : 'resources',
+      schema : net.bluemind.resource.persistence.schema
+    }, {
+      name : 'deferredaction',
+      schema : net.bluemind.deferredaction.persistence.schema
+    } ]);
   }, null, this).then(function() {
     service.clearAll();
   });

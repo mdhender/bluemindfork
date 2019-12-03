@@ -24,9 +24,7 @@ Require-Bundle: net.bluemind.scheduledjob.scheduler,
  net.bluemind.core.container.api,
  net.bluemind.domain.api,
  net.bluemind.hornetq.client,
- net.bluemind.reminder.job,
  net.bluemind.todolist.api,
- net.bluemind.reminder.mail,
  net.bluemind.todolist.service,
  net.bluemind.common.freemarker
 Export-Package: net.bluemind.todolist.job

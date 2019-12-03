@@ -18,6 +18,8 @@
  */
 package net.bluemind.calendar.occurrence;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
@@ -37,6 +39,7 @@ import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.container.model.ItemValue;
 import net.fortuna.ical4j.model.Date;
+import net.fortuna.ical4j.model.DateRange;
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.Period;
 import net.fortuna.ical4j.model.PeriodList;
@@ -46,12 +49,9 @@ public class OccurrenceHelper {
 	/**
 	 * Returns a list of occurrences of a recurring event.
 	 * 
-	 * @param event
-	 *            the recurring event
-	 * @param dtstart
-	 *            the start date of the period
-	 * @param dtend
-	 *            the end date of the period
+	 * @param event   the recurring event
+	 * @param dtstart the start date of the period
+	 * @param dtend   the end date of the period
 	 * @return a list of {@link VEvent}
 	 */
 	public static List<VEvent> list(ItemValue<VEventSeries> event, BmDateTime dtstart, BmDateTime dtend) {
@@ -73,14 +73,11 @@ public class OccurrenceHelper {
 		return ret;
 	}
 
-
 	/**
 	 * Returns an occurrence of a recurring event that occurs a specific date.
 	 * 
-	 * @param event
-	 *            the event
-	 * @param dtstart
-	 *            the expected occurrence date
+	 * @param event   the event
+	 * @param dtstart the expected occurrence date
 	 * @return an {@link VEvent} if the recurring event occurs at {@link BmDateTime}
 	 *         occurrenceDtstart. Returns null otherwise.
 	 */
@@ -94,10 +91,8 @@ public class OccurrenceHelper {
 	/**
 	 * Returns an occurrence of a recurring event with a specific recurid.
 	 * 
-	 * @param event
-	 *            the event
-	 * @param recurid
-	 *            the expected occurrence date
+	 * @param event   the event
+	 * @param recurid the expected occurrence date
 	 * @return an {@link VEvent} if the recurring event occurs at {@link BmDateTime}
 	 *         occurrenceDtstart. Returns null otherwise.
 	 */
@@ -113,7 +108,7 @@ public class OccurrenceHelper {
 		DateTime to = new DateTime(VEventServiceHelper.convertToIcsDate(dtend));
 		return new Period(from, to);
 	}
-	
+
 	private static Period instant(BmDateTime date) {
 		DateTime to = new DateTime(new BmDateTimeWrapper(date).toUTCTimestamp() + 1000);
 		DateTime from = new DateTime(VEventServiceHelper.convertToIcsDate(date));
@@ -187,6 +182,44 @@ public class OccurrenceHelper {
 		}
 		PeriodList periods = ical4jVEvent.calculateRecurrenceSet(period);
 		return periods;
+	}
+
+	/**
+	 * Returns the first occurrence of {event} occurring after {start} or
+	 * {Optional.Empty} if there is none.
+	 * 
+	 * @param start
+	 * @param event
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static Optional<VEventOccurrence> getNextOccurrence(BmDateTime start, VEvent event) {
+		Date from = VEventServiceHelper.convertToIcsDate(start);
+		Date to = null;
+		if (event.rrule.until != null) {
+			to = VEventServiceHelper.convertToIcsDate(event.rrule.until);
+		} else {
+			LocalDateTime now = LocalDateTime.now();
+			LocalDateTime twoYears = now.plusYears(2);
+			to = new net.fortuna.ical4j.model.DateTime(
+					twoYears.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
+		}
+		Period period = new Period(new DateTime(from), new DateTime(to));
+		net.fortuna.ical4j.model.component.VEvent ical4jVEvent = VEventServiceHelper.parse(null, event);
+		PeriodList periods = ical4jVEvent.calculateRecurrenceSet(period);
+
+		return periods.stream().filter(o -> period.includes(((Period) o).getStart(), DateRange.INCLUSIVE_END))
+				.findFirst().map(op -> {
+					Period p = (Period) op;
+					BmDateTime recurid = BmDateTimeWrapper.fromTimestamp(p.getStart().getTime(), event.dtstart.timezone,
+							event.dtstart.precision);
+					VEventOccurrence copy = VEventOccurrence.fromEvent(event, recurid);
+					copy.dtstart = BmDateTimeWrapper.fromTimestamp(p.getStart().getTime(), copy.dtstart.timezone,
+							copy.dtstart.precision);
+					copy.dtend = BmDateTimeWrapper.fromTimestamp(p.getEnd().getTime(), copy.dtend.timezone,
+							copy.dtend.precision);
+					return copy;
+				});
 	}
 
 }

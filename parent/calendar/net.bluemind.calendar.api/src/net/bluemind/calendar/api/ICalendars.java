@@ -25,7 +25,6 @@ import javax.ws.rs.Path;
 
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.ListResult;
-import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemContainerValue;
 import net.bluemind.core.container.model.ItemValue;
@@ -33,15 +32,6 @@ import net.bluemind.core.container.model.ItemValue;
 @BMApi(version = "3")
 @Path("/calendars")
 public interface ICalendars {
-
-	/**
-	 * @param dtalarm
-	 * @return
-	 * @throws ServerFault
-	 */
-	@POST
-	@Path("_reminder")
-	public List<Reminder> getReminder(BmDateTime dtalarm) throws ServerFault;
 
 	/**
 	 * Returns a {@link ListResult} of {@link ItemValue} of {@link VEvent}

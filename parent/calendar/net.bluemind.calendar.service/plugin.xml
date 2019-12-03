@@ -162,4 +162,15 @@
             implementation="net.bluemind.calendar.service.internal.VEventSeriesSanitizer$Factory">
       </sanitizerfactory>
    </extension>
+   <extension point="net.bluemind.deferredaction.registry.executor">
+      <executor
+            implementation="net.bluemind.calendar.service.deferredaction.DeferredActionEventExecutorFactory">
+      </executor>
+   </extension>
+   <extension
+         point="net.bluemind.calendar.hook">
+      <hook
+            impl="net.bluemind.calendar.service.deferredaction.DeferredActionCalendarHook">
+      </hook>
+   </extension>
 </plugin>

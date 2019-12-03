@@ -124,9 +124,12 @@ specialTabs.bmTabType = {
       this._setUpCloseWindowListener(aTab);
 
       if ("onLoad" in aArgs) {
-        aTab.browser.addEventListener("load", function _contentTab_onLoad (event) {
-          aArgs.onLoad(event, aTab.browser);
-          aTab.browser.removeEventListener("load", _contentTab_onLoad, true);
+        aTab.browser.addEventListener("DOMContentLoaded", function _contentTab_onLoad (event) {
+          let win = aTab.browser.contentWindow.wrappedJSObject;
+          if (!win.tbirdOnLoadCalled) {
+            aArgs.onLoad(event, aTab.browser);
+            win.tbirdOnLoadCalled = true;
+          }
         }, true);
       }
 
@@ -165,7 +168,8 @@ specialTabs.bmTabType = {
           onStateChange: function() {},
           onStatusChange: function() {},
           onSecurityChange: function() {},
-          onRefreshAttempted: function() {}
+          onRefreshAttempted: function() {},
+          onContentBlockingEvent: function() {}
       });
 
       filter.addProgressListener(aTab.progressListener, Components.interfaces.nsIWebProgress.NOTIFY_ALL);

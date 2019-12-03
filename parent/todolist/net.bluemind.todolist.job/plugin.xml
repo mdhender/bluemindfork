@@ -2,12 +2,6 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         point="net.bluemind.reminder.job">
-      <job_provider
-            implementation="net.bluemind.todolist.job.TodoListAlarmSupport">
-      </job_provider>
-   </extension>
-   <extension
          point="net.bluemind.scheduledjob.scheduler.job">
       <scheduledjob_provider
             implementation="net.bluemind.todolist.job.TodoListIndexJob">

@@ -80,6 +80,7 @@ goog.require("bluemind.ui.style.PrimaryActionButtonRenderer");
 goog.require("net.bluemind.calendar.vevent.VEventAdaptor");
 goog.require("net.bluemind.history.HistoryDialog");
 goog.require('net.bluemind.filehosting.api.FileHostingClient');
+goog.require('net.bluemind.calendar.vevent.defaultValues');
 
 /**
  * BlueMind Calendar form
@@ -110,21 +111,34 @@ net.bluemind.calendar.vevent.ui.Form = function(ctx, opt_domHelper) {
 
   this.alarm_ = new goog.structs.Map();
   
-  if (this.ctx.settings.get('default_event_alert') && !isNaN(parseInt(this.ctx.settings.get('default_event_alert')))) {
-    this.alarm_.set('inday', [{
-      trigger : this.ctx.settings.get('default_event_alert'),
-      action : 'Email'
-    }]);
+  function isValueSet(ctx, key) {
+    return ctx.settings.get(key) && !isNaN(parseInt(ctx.settings.get(key)));
   }
-  if (this.ctx.settings.get('default_allday_event_alert') && !isNaN(parseInt(this.ctx.settings.get('default_allday_event_alert')))) {
-    this.alarm_.set('allday', [{
-      trigger : this.ctx.settings.get('default_allday_event_alert'),
-      action : 'Email'
-    }]);
-  }
+
+  var alerts = [
+      {
+          default: "default_event_alert",
+          type: "inday"
+      },
+      {
+          default: "default_allday_event_alert",
+          type: "allday"
+      }
+  ];
+  alerts
+      .filter(function(alert) {
+          isValueSet(this.ctx, alert.default);
+      }.bind(this))
+      .forEach(function(alert) {
+          this.alarm_.set(alert.type, [
+              {
+                  trigger: this.ctx.settings.get(alert.default),
+                  action: net.bluemind.calendar.vevent.defaultValues.action
+              }
+          ]);
+      }.bind(this));
   
   var child = new goog.ui.Toolbar();
-  var renderer = goog.ui.style.app.ButtonRenderer.getInstance();
   child.setId('toolbar');
   this.addChild(child);
 
@@ -460,7 +474,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.enterDocument = function() {
     }
     this.addReminder_({
       trigger : defaultAlert,
-      action : 'Email'
+      action : net.bluemind.calendar.vevent.defaultValues.action
     });
   });
   el = dom.getElement('bm-ui-form-reminder');
@@ -1073,70 +1087,120 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onEditorChange_ = function(e) {
 
 /**
  * Show reminder fields
- * 
+ *
  * @param {{trigger:number, action:string}} value Reminder in seconds
  * @private
  */
 net.bluemind.calendar.vevent.ui.Form.prototype.addReminder_ = function(value) {
-  var duration = value.trigger;
-  var index = 1;
-
-  if (value.trigger == 0) {
-    duration = 0;
-    index = 1;
-  } else if (value.trigger % 86400 == 0) {
-    duration = value.trigger / 86400;
-    index = 3;
-  } else if (value.trigger % 3600 == 0) {
-    duration = value.trigger / 3600;
-    index = 2;
-  } else if (value.trigger % 60 == 0) {
-    duration = value.trigger / 60;
-  } else {
-    duration = value.trigger;
-    index = 0;
+  function getDurationUnit(trigger) {
+    var duration = trigger;
+    var unit = 1;
+    if (trigger == 0) {
+      duration = 0;
+      unit = 1;
+    } else if (trigger % 86400 == 0) {
+      duration = trigger / 86400;
+      unit = 86400;
+    } else if (trigger % 3600 == 0) {
+      duration = trigger / 3600;
+      unit = 3600;
+    } else if (trigger % 60 == 0) {
+      duration = trigger / 60;
+      unit = 60;
+    }
+    return { duration: duration, unit: unit };
   }
+
+  function createTriggerInput(duration) {
+    var control = new goog.ui.LabelInput();
+    control.createDom();
+    control.setId('field');
+    control.setValue('' + duration);
+    return control;
+  }
+
+  function createTriggerSelect(unit) {
+    var control = new goog.ui.Select();
+    control.addClassName(goog.getCssName('goog-button-base'));
+    control.addClassName(goog.getCssName('goog-select'));
+    /** @meaning general.seconds */
+    var MSG_SECONDS = goog.getMsg('seconds');
+    control.addItem(new goog.ui.MenuItem(MSG_SECONDS, 1));
+    /** @meaning general.minutes */
+    var MSG_MINUTES = goog.getMsg('minutes');
+    control.addItem(new goog.ui.MenuItem(MSG_MINUTES, 60));
+    /** @meaning general.hours */
+    var MSG_HOURS = goog.getMsg('hours');
+    control.addItem(new goog.ui.MenuItem(MSG_HOURS, 3600));
+    /** @meaning general.days */
+    var MSG_DAYS = goog.getMsg('days');
+    control.addItem(new goog.ui.MenuItem(MSG_DAYS, 86400));
+    control.setId('unit');
+    control.setValue(unit);
+    return control;
+  }
+
+  function createActionSelect(action) {
+    var control = new goog.ui.Select();
+    control.addClassName(goog.getCssName('goog-button-base'));
+    control.addClassName(goog.getCssName('goog-select'));
+    control.setId('action');
+
+    var defaultValue = net.bluemind.calendar.vevent.defaultValues.action;
+    /** @meaning calendar.reminder.action.Email */
+    var MSG_EMAIL = goog.getMsg('Email');
+    /** @meaning calendar.reminder.action.Display */
+    var MSG_DISPLAY = goog.getMsg('Display');
+    var values = [
+      { value: 'Email', msg: MSG_EMAIL },
+      { value: defaultValue, msg: MSG_DISPLAY }
+    ];
+    values.forEach(function(item) {
+      control.addItem(new goog.ui.MenuItem(item.msg, item.value));
+    });
+    control.setValue(action);
+    if (control.getValue() === null) {
+      control.setValue(defaultValue);
+    }
+    return control;
+  }
+
+  var durationvalue = getDurationUnit(value.trigger);
+  var triggerInput = createTriggerInput(durationvalue.duration);
+  var ih = new goog.events.InputHandler(triggerInput.getElement());
   var container = new goog.ui.Component();
-
-  var control = new goog.ui.LabelInput();
-  control.setId('field');
-  container.addChild(control, true);
-  control.setValue("" + duration);
-
-  var ih = new goog.events.InputHandler(control.getElement());
   container.registerDisposable(ih);
+  container.addChild(triggerInput, true);
+  container.addChild(createTriggerSelect(durationvalue.unit), true);
+  container.addChild(createActionSelect(value.action), true);
 
-  control = new goog.ui.Select();
-  control.addClassName(goog.getCssName('goog-button-base'));
-  control.addClassName(goog.getCssName('goog-select'));
-  /** @meaning general.seconds */
-  var MSG_SECONDS = goog.getMsg('seconds');
-  control.addItem(new goog.ui.MenuItem(MSG_SECONDS, 1));
-  /** @meaning general.minutes */
-  var MSG_MINUTES = goog.getMsg('minutes');
-  control.addItem(new goog.ui.MenuItem(MSG_MINUTES, 60));
-  /** @meaning general.hours */
-  var MSG_HOURS = goog.getMsg('hours');
-  control.addItem(new goog.ui.MenuItem(MSG_HOURS, 3600));
-  /** @meaning general.days */
-  var MSG_DAYS = goog.getMsg('days');
-  control.addItem(new goog.ui.MenuItem(MSG_DAYS, 86400));
-  control.setId('unit');
-
-  container.addChild(control, true);
-  control.setSelectedIndex(index);
-
-  control = new goog.ui.Button('X', goog.ui.FlatButtonRenderer.getInstance());
+  var control = new goog.ui.Button('X', goog.ui.FlatButtonRenderer.getInstance());
   container.addChild(control, true);
 
   this.getChild('reminder').addChild(container, true);
   this.updateModel_();
 
-  this.getHandler().listen(control, goog.ui.Component.EventType.ACTION, this.removeReminder_);
+  this.getHandler().listen(
+    control,
+    goog.ui.Component.EventType.ACTION,
+    this.removeReminder_
+  );
 
-  this.getHandler().listen(ih, goog.events.InputHandler.EventType.INPUT, this.updateModel_);
-  this.getHandler().listen(container.getChild('unit'), goog.ui.Component.EventType.CHANGE, this.updateModel_);
-
+  this.getHandler().listen(
+    ih,
+    goog.events.InputHandler.EventType.INPUT,
+    this.updateModel_
+  );
+  this.getHandler().listen(
+    container.getChild('unit'),
+    goog.ui.Component.EventType.CHANGE,
+    this.updateModel_
+  );
+  this.getHandler().listen(
+    container.getChild('action'),
+    goog.ui.Component.EventType.CHANGE,
+    this.updateModel_
+  );
 };
 
 /**
@@ -1145,11 +1209,12 @@ net.bluemind.calendar.vevent.ui.Form.prototype.addReminder_ = function(value) {
 net.bluemind.calendar.vevent.ui.Form.prototype.updateModel_ = function() {
   this.getModel().alarm = []
   this.getChild('reminder').forEachChild(function(child) {
-    if (child.getChild('field') && child.getChild('unit')) {
+    if (child.getChild('field') && child.getChild('unit') && child.getChild('action')) {
       var duration = goog.string.toNumber(child.getChild('field').getValue()) * child.getChild('unit').getValue();
+      var action = child.getChild('action').getValue();
       this.getModel().alarm.push({
         trigger : duration,
-        action : 'Email'
+        action : action
       });
     }
   }, this);
@@ -1947,7 +2012,6 @@ net.bluemind.calendar.vevent.ui.Form.prototype.checkRepeat_ = function() {
  * 
  * @param {boolean} checkAttendees check attendees flag.
  * @return {boolean} Is form valid.
- * @private
  */
 net.bluemind.calendar.vevent.ui.Form.prototype.checkForm_ = function(checkAttendees) {
   var ret = true;
@@ -2333,7 +2397,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.handleAddAttendee_ = function(e) 
       this.addAttendee_(attendee);
 
       if(attendee['cutype'] == "Resource") {
-    	  this.addResourceTemplateToDescription(attendee);
+        this.addResourceTemplateToDescription(attendee);
       }
 
       this.getModel().attendees.push(attendee);
@@ -2362,7 +2426,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.handleRemoveAttendee_ = function(
   this.ac_.sanitizeGroups(attendee);
   
   if(attendee['cutype'] == "Resource") {
-	this.removeResourceTemplateFromDescription(attendee);
+    this.removeResourceTemplateFromDescription(attendee);
   }
 };
 
@@ -2732,3 +2796,4 @@ net.bluemind.calendar.vevent.ui.Form.Notification.prototype.show_ = function() {
 
   this.popup_.setVisible(true);
 };
+

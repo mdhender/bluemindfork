@@ -21,6 +21,7 @@ package net.bluemind.calendar.persistence;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Collections;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -33,6 +34,7 @@ import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.persistence.AbstractItemValueStore;
+import net.bluemind.core.container.persistence.StringCreator;
 import net.bluemind.core.jdbc.convert.DateTimeType;
 
 public class VEventStore extends AbstractItemValueStore<VEvent> {
@@ -127,8 +129,15 @@ public class VEventStore extends AbstractItemValueStore<VEvent> {
 				+ " )";
 
 		Timestamp reminder = DateTimeType.asTimestamp(dtalarm);
-		return select(query.toString(), REMINDER_CREATOR, VEventColumns.itemUidPopulator(),
+		return select(query, REMINDER_CREATOR, VEventColumns.itemUidPopulator(),
 				new Object[] { container.id, reminder, reminder, reminder, reminder, reminder, reminder });
+	}
+
+	public List<String> getEventUidsWithAlarm() throws SQLException {
+		String query = "SELECT DISTINCT i.uid from t_container_item i, t_calendar_vevent v "
+				+ " where i.id = v.item_id and container_id = ? AND valarm_trigger IS NOT NULL";
+
+		return select(query, StringCreator.FIRST, Collections.emptyList(), new Object[] { container.id });
 	}
 
 }

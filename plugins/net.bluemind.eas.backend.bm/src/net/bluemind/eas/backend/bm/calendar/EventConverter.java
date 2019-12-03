@@ -59,6 +59,8 @@ import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.Organizer;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 import net.bluemind.icalendar.api.ICalendarElement.RRule.WeekDay;
+import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
+import net.bluemind.icalendar.api.ICalendarElement.VAlarm.Action;
 
 /**
  * Convert events between BM object model & Microsoft object model
@@ -241,8 +243,9 @@ public class EventConverter {
 		mse.setExceptions(getException(vevent, tz));
 
 		if (vevent.alarm != null && !vevent.alarm.isEmpty()) {
-			if (vevent.alarm.get(0).trigger != null) {
-				mse.setReminder(vevent.alarm.get(0).trigger.intValue() / 60);
+			Optional<VAlarm> alarm = vevent.alarm.stream().filter(a -> a.action == Action.Display).findFirst();
+			if (alarm.isPresent()) {
+				mse.setReminder(alarm.get().trigger.intValue() / 60);
 			}
 		}
 
@@ -685,8 +688,10 @@ public class EventConverter {
 		e.dtstart = BmDateTimeWrapper.fromTimestamp(data.getStartTime().getTime(), data.getTimeZone().getID(), p);
 		e.dtend = BmDateTimeWrapper.fromTimestamp(data.getEndTime().getTime(), data.getTimeZone().getID(), p);
 		if (data.getReminder() != null && data.getReminder() >= 0) {
+			VAlarm alarm = ICalendarElement.VAlarm.create(data.getReminder() * 60);
+			alarm.action = Action.Display;
 			e.alarm = new ArrayList<ICalendarElement.VAlarm>(1);
-			e.alarm.add(ICalendarElement.VAlarm.create(data.getReminder() * 60));
+			e.alarm.add(alarm);
 		}
 
 		List<VEvent.Attendee> attendees = new ArrayList<>(data.getAttendees().size());

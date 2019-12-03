@@ -60,6 +60,9 @@
 		<module>net.bluemind.announcement.api.closure</module>
 		<module>net.bluemind.resource.api.closure</module>
 		<module>net.bluemind.resource.closure</module>
+		<module>net.bluemind.deferredaction.api.closure</module>
+		<module>net.bluemind.deferredaction.closure</module>
+		<module>net.bluemind.deferredaction.reminder.closure</module>
 	</modules>
 	<build>
 		<plugins>

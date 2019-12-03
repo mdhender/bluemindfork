@@ -14,7 +14,6 @@ Require-Bundle: org.junit,
  net.bluemind.core.commons,
  net.bluemind.core.container.persistence,
  net.bluemind.lib.ical4j;bundle-version="1.0.0",
- net.bluemind.reminder.mail;bundle-version="1.0.0",
  net.bluemind.common.freemarker,
  net.bluemind.icalendar.parser;bundle-version="4.1.0",
  slf4j.api;bundle-version="1.7.5"

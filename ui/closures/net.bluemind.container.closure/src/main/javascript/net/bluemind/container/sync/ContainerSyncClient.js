@@ -19,6 +19,9 @@
 
 goog.provide('net.bluemind.container.sync.ContainerSyncClient');
 
+/**
+ * @constructor
+ */
 net.bluemind.container.sync.ContainerSyncClient = function() {
 };
 

@@ -57,6 +57,7 @@ goog.require("net.bluemind.date.Date");
 goog.require("bluemind.calendar.fx.AlldayResizer");// FIXME - unresolved
 // required symbol
 // required symbol
+goog.require('net.bluemind.calendar.vevent.defaultValues');
 
 /**
  * View class for Calendar months view.
@@ -492,7 +493,7 @@ net.bluemind.calendar.month.MonthView.prototype.createEvent_ = function(start, r
   if (this.ctx.settings.get('default_allday_event_alert') && !isNaN(parseInt(this.ctx.settings.get('default_allday_event_alert')))) {
     evt.alarm = [{
       trigger : this.ctx.settings.get('default_allday_event_alert'),
-      action : 'Email'
+      action : net.bluemind.calendar.vevent.defaultValues.action
     }]
   }
 
