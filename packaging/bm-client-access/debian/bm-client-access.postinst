@@ -109,9 +109,6 @@ fi
 popd
 
 echo "Restart nginx service"
-invoke-rc.d bm-nginx stop 0>/dev/null 1>/dev/null 2>/dev/null 3>/dev/null || true
-# see /etc/init.d/nginx@restart
-sleep 1
-invoke-rc.d bm-nginx start 0>/dev/null 1>/dev/null 2>/dev/null 3>/dev/null || true
+systemctl restart bm-nginx
 
 exit 0
