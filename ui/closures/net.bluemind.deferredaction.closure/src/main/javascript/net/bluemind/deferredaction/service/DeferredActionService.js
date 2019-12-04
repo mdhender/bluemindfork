@@ -74,14 +74,7 @@ net.bluemind.deferredaction.service.DeferredActionService.prototype.getItemsRemo
     executionDate
 ) {
     var client = new net.bluemind.deferredaction.api.DeferredActionClient(this.ctx.rpc, "", containerId);
-    return client.getByActionId("EVENT", executionDate).then(function(items) {
-        if (items["value"] != null) {
-            items["name"] = items["displayName"];
-            items["container"] = containerId;
-            return items;
-        }
-        return null;
-    });
+    return client.getByActionId("EVENT", executionDate).then(normalize(containerId));
 };
 
 net.bluemind.deferredaction.service.DeferredActionService.prototype.deleteItem = function(item) {
@@ -125,3 +118,17 @@ net.bluemind.deferredaction.service.DeferredActionService.prototype.createItemRe
     var client = new net.bluemind.deferredaction.api.DeferredActionClient(this.ctx.rpc, "", containerId);
     return client.create(item["uid"], value);
 };
+
+function normalize(containerId) {
+    return function(items) {
+        return items
+            .filter(function(item) {
+                return item["value"] !== null;
+            })
+            .map(function(item) {
+                item["name"] = item["displayName"];
+                item["container"] = containerId;
+                return item;
+            });
+    };
+}
