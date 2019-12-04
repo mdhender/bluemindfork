@@ -22,5 +22,3 @@ Require-Bundle: org.junit,
  net.bluemind.system.state,
  net.bluemind.role.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: net.bluemind.core.container.model,
- net.bluemind.server.api

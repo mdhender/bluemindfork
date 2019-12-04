@@ -56,5 +56,4 @@ Export-Package: net.bluemind.ui.adminconsole.system,
  net.bluemind.ui.adminconsole.system.domains.edit,
  net.bluemind.ui.adminconsole.system.systemconf,
  net.bluemind.ui.adminconsole.system.systemconf.util
-Import-Package: net.bluemind.hsm.api.gwt.js
 Automatic-Module-Name: net.bluemind.ui.adminconsole.system

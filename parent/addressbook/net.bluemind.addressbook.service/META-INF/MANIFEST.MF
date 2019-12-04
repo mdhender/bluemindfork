@@ -48,5 +48,4 @@ Export-Package: net.bluemind.addressbook.service,
  net.bluemind.addressbook.service.internal.repair
 Bundle-Activator: net.bluemind.addressbook.service.Activator
 Bundle-ActivationPolicy: lazy
-Import-Package: org.apache.commons.io
 

@@ -24,4 +24,3 @@ Require-Bundle: org.freemarker.freemarker;bundle-version="2.3.20",
 Export-Package: net.bluemind.calendar.helper.ical4j,
  net.bluemind.calendar.helper.mail,
  net.bluemind.reminder.mail
-Import-Package: net.bluemind.icalendar.parser

@@ -10,7 +10,5 @@ Require-Bundle: net.bluemind.monitoring.service;bundle-version="1.0.0",
  org.apache.commons.lang;bundle-version="2.6.0",
  slf4j.api;bundle-version="1.7.5",
  net.bluemind.core.rest,
- net.bluemind.mailbox.api
-Import-Package: net.bluemind.server.api,
- net.bluemind.monitoring.service.util,
- net.bluemind.core.api.fault
+ net.bluemind.mailbox.api,
+ net.bluemind.server.api

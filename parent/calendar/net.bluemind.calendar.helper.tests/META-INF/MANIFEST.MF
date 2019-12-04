@@ -16,5 +16,5 @@ Require-Bundle: org.junit,
  net.bluemind.lib.ical4j;bundle-version="1.0.0",
  net.bluemind.common.freemarker,
  net.bluemind.icalendar.parser;bundle-version="4.1.0",
- slf4j.api;bundle-version="1.7.5"
-Import-Package: org.apache.commons.io
+ slf4j.api;bundle-version="1.7.5",
+ org.apache.commons.io

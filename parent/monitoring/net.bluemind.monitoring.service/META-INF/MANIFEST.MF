@@ -19,15 +19,12 @@ Require-Bundle: net.bluemind.core.rest,
  net.bluemind.role.provider;bundle-version="4.1.0",
  com.google.guava,
  net.bluemind.role.api,
- org.apache.commons.lang;bundle-version="2.6.0"
+ org.apache.commons.lang;bundle-version="2.6.0",
+ net.bluemind.server.api,
+ net.bluemind.node.api,
+ net.bluemind.config
 Export-Package: net.bluemind.monitoring.service,
  net.bluemind.monitoring.service.internal,
  net.bluemind.monitoring.service.util
-Import-Package: net.bluemind.config,
- net.bluemind.core.api.fault,
- net.bluemind.core.container.model,
- net.bluemind.monitoring.api,
- net.bluemind.node.api,
- net.bluemind.server.api
 Bundle-Activator: net.bluemind.monitoring.service.internal.MonitoringServiceActivator
 Bundle-ActivationPolicy: lazy

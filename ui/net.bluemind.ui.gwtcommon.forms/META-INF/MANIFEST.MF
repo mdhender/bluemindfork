@@ -25,7 +25,6 @@ Export-Package: net.bluemind.ui.common.client,
  net.bluemind.ui.common.client.forms.finder,
  net.bluemind.ui.common.client.forms.tag,
  net.bluemind.ui.common.client.forms.window
-Import-Package: net.bluemind.server.api
 Automatic-Module-Name: net.bluemind.ui.gwtcommon.forms
 
 

@@ -12,5 +12,5 @@ Require-Bundle: org.junit,
  net.bluemind.server.api,
  com.google.guava,
  net.bluemind.core.container.api;bundle-version="4.1.0",
- net.bluemind.node.api
-Import-Package: net.bluemind.pool.impl
+ net.bluemind.node.api,
+ net.bluemind.pool

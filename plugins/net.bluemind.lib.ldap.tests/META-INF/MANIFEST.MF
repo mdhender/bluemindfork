@@ -12,6 +12,3 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.system.ldap.tests.helpers
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
-Import-Package: org.apache.commons.codec.binary,
- org.apache.directory.api.ldap.model.message,
- org.apache.directory.ldap.client.api
