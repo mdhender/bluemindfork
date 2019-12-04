@@ -160,8 +160,7 @@ keyUsage = nonRepudiation, digitalSignature, keyEncipherment
 subjectAltName = @alt_names
 
 [alt_names]
-DNS.1 = WILDCARDCN
-DNS.2 = DOMAINCN
+ALTNAMES
 
 [ v3_ca ]
 subjectKeyIdentifier=hash
@@ -201,38 +200,53 @@ function newCA() {
 function newSignedCert() {
   createCertTemplate
   
-  dots=${cn//[^\.]}
-  if (( ${#dots} > 1 )); then
-    IFS='.' read -r head tails <<< "${cn}"
-    wildcard_cn="*."${tails}
-    domain_cn=${tails}
-  else
-    wildcard_cn="*.${cn}"
-    domain_cn=${cn}
-  fi
+  count=1
+  wildCardCn=""
+  altNames=""
+  for cn in ${cns}; do
+    dots=${cn//[^\.]}
+    if (( ${#dots} > 1 )); then
+      IFS='.' read -r head tails <<< "${cn}"
+      domain=${tails}
+    else
+      domain=${cn}
+    fi
+
+    [ -z "${wildCardCn}" ] && wildCardCn='*.'${domain}
+    echo ${wildCardCn}
+    echo ${count}
+    [ ${count} -ne 1 ] && {
+      altNames=${altNames}'\n'
+    }
+    altNames=${altNames}'\nDNS.'${count}' = *.'${domain}
+    ((count++))
+    altNames=${altNames}'\nDNS.'${count}' = '${domain}
+    ((count++))
+  done
 
   mkdir -p ${certs_out}
   rm -f ${certs_out}"/"${cert}
-  sed -i -e "s/WILDCARDCN/${wildcard_cn}/" ${ca_root}"/"${certtemplate}
-  sed -i -e "s/DOMAINCN/${domain_cn}/" ${ca_root}"/"${certtemplate}
+  sed -i -e "s/WILDCARDCN/${wildCardCn}/" ${ca_root}"/"${certtemplate}
+  sed -i -e "s/ALTNAMES/${altNames}/" ${ca_root}"/"${certtemplate}
 
-  $REQ -config ${ca_root}"/"${certtemplate} -new -nodes -keyout ${ca_root}"/"${cn}"_pk.pem" -out ${ca_root}"/"${cn}"_req.pem" $days
+  $REQ -config ${ca_root}"/"${certtemplate} -new -nodes -keyout ${ca_root}"/"${mainCn}"_pk.pem" -out ${ca_root}"/"${mainCn}"_req.pem" $days
 
   $CA -config ${ca_root}"/"${certtemplate} \
     -extensions v3_req -batch $days \
-    -in ${ca_root}"/"${cn}"_req.pem" \
+    -in ${ca_root}"/"${mainCn}"_req.pem" \
     -out ${certs_out}"/"${cert}
 
-  cat ${ca_root}"/"${cn}"_pk.pem" >> ${certs_out}"/"${cert}
+  cat ${ca_root}"/"${mainCn}"_pk.pem" >> ${certs_out}"/"${cert}
   $CERT -in ${ca_root}"/"${cacert} >> ${certs_out}"/"${cert}
 }
 
-test $# -eq 1 || {
-  echo "usage: createcert.sh <CN>"
+[ $# -lt 1 ] && {
+  echo "usage: createcert.sh <CN> [<CN>...]"
   exit 1
 }
 
-cn=$1
+mainCn=$1
+cns=$*
 
 newCA
 newSignedCert

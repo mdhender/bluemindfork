@@ -88,13 +88,16 @@ if [ ! -e /etc/bm-mapi/bm-upstream-mapi.conf ]; then
 fi
 
 if [ -f "/etc/bm/bm.ini" ]; then
-  externalurl=`cat /etc/bm/bm.ini | grep "^external-url" | sed -e 's/ //g' | cut -d'=' -f2`
+  externalurl=$(cat /etc/bm/bm.ini | grep "^external-url" | sed -e 's/ //g' | cut -d'=' -f2)
 else
-  externalurl="configure.your.external.url"
+  externalurl=$(hostname -f)
+  /usr/share/bm-client-access/bin/createcert.sh configure.your.external.url ${externalurl} $(hostname -I)
 fi
 
-echo "server_name $externalurl;" > /etc/nginx/bm-servername.conf
-echo "set \$bmexternalurl $externalurl;" > /etc/nginx/bm-externalurl.conf
+generateDhParam
+
+echo "server_name ${externalurl};" > /etc/nginx/bm-servername.conf
+echo "set \$bmexternalurl ${externalurl};" > /etc/nginx/bm-externalurl.conf
 
 pushd /etc/nginx/sites-enabled
 rm -f bm-client-access*
@@ -104,12 +107,6 @@ else
     cp -f ../sites-available/bm-client-access-without-password .
 fi
 popd
-
-if [ "${externalurl}" = "configure.your.external.url" ]; then
-    /usr/share/bm-client-access/bin/createcert.sh ${externalurl}
-fi
-
-generateDhParam
 
 echo "Restart nginx service"
 invoke-rc.d bm-nginx stop 0>/dev/null 1>/dev/null 2>/dev/null 3>/dev/null || true
