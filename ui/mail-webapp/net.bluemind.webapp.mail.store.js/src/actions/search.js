@@ -9,7 +9,7 @@ export function search({ state, commit, dispatch, getters }, pattern) {
     commit("clearCurrentMessage");
     const folderUid = ItemUri.item(state.currentFolderKey);
     return ServiceLocator.getProvider("MailboxFoldersPersistence")
-        .get(getters.my.mailboxUid)
+        .get(getters.currentMailbox.mailboxUid)
         .searchItems({
             query: {
                 searchSessionId: undefined,

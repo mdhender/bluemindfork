@@ -5,7 +5,7 @@ import Vuex from "vuex";
 
 const Vue = createLocalVue();
 Vue.use(Vuex);
-const mutations = { $_dummy: jest.fn() };
+const mutations = { $_VueBus_dummy: jest.fn() };
 const store = new Vuex.Store({ mutations });
 Vue.use(VueBus, store);
 
@@ -28,7 +28,7 @@ describe("VueBus", () => {
     });
     test("VuexProxy is started", () => {
         new VueBus.Client().$emit("dummy", {});
-        expect(mutations.$_dummy).toBeCalled();
+        expect(mutations.$_VueBus_dummy).toBeCalled();
     });
     test("All instance of VueBus share the same bus", () => {
         const spy = jest.fn();

@@ -1,6 +1,6 @@
 import { setCurrentMessage } from "../../src/mutations/setCurrentMessage";
 
-describe("[Mail-WebappStore][mutations] : setCurrentMessage ", () => {
+describe.skip("[Mail-WebappStore][mutations] : setCurrentMessage ", () => {
     const state = {};
     beforeEach(() => {
         state.currentMessageKey = "key1";

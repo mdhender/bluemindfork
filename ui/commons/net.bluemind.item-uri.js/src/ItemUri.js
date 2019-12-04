@@ -1,6 +1,6 @@
 export const ItemUri = {
     encode(item, container) {
-        return btoa(item + "/" + container);
+        return btoa(JSON.stringify([item, container]));
     },
     container(uri) {
         return this.decode(uri)[1];
@@ -9,6 +9,6 @@ export const ItemUri = {
         return this.decode(uri)[0];
     },
     decode(uri) {
-        return atob(uri).split("/");
+        return JSON.parse(atob(uri));
     }
 };

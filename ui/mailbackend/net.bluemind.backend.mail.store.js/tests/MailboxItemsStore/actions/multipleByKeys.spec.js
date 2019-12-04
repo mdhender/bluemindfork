@@ -31,9 +31,9 @@ describe("[MailItemsStore][actions] : multipleByKey", () => {
     });
     test("call multipleById service for each folder mutate state with result", done => {
         const messages = {
-            container1: new Array(10).fill(null).map((v, i) => i + 10 + ""),
-            container2: new Array(10).fill(null).map((v, i) => i + 10 + ""),
-            container3: new Array(10).fill(null).map((v, i) => i + 20 + "")
+            container1: new Array(10).fill(null).map((v, i) => i + 10),
+            container2: new Array(10).fill(null).map((v, i) => i + 10),
+            container3: new Array(10).fill(null).map((v, i) => i + 20)
         };
         const keys = generateKeys(10, 20, "container1").concat(
             generateKeys(10, 20, "container2"),

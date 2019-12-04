@@ -15,11 +15,12 @@
         "@bluemind/router": "^4.1.0",
         "lodash.clonedeep": "^4.5.0",
         "lodash.findlast": "^4.6.0",
-        "lodash.isequal": "^4.5.0"
+        "lodash.isequal": "^4.5.0",
+        "lodash.sortedindexby": "^4.6.0"
     },
     "devDependencies": {
-        "@bluemind/conf": "^4.1.0",
         "@bluemind/backend.mail.api": "^4.1.0",
+        "@bluemind/conf": "^4.1.0",
         "vuex": "3.1.0"
     },
     "scripts": {

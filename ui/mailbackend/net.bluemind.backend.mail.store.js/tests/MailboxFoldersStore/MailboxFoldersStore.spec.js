@@ -1,5 +1,5 @@
-import folders1 from "./datas/folders-1";
-import folders2 from "./datas/folders-2";
+import folders1 from "./data/folders-1";
+import folders2 from "./data/folders-2";
 import MailboxFolderStore from "../../src/MailboxFoldersStore";
 import Folder from "../../src/MailboxFoldersStore/Folder";
 import ServiceLocator from "@bluemind/inject";
@@ -34,10 +34,9 @@ describe("[MailboxFolderStore] Vuex store", () => {
             .then(() => {
                 expect(store.state.itemKeys.length).toEqual(folders1.length + folders2.length);
 
-                folders1.forEach((item, index) => {
+                folders1.forEach(item => {
                     const key = ItemUri.encode(item.uid, mailboxUid1);
                     const folder = new Folder(key, item);
-                    expect(store.state.itemKeys.indexOf(key)).toEqual(index);
                     expect(store.getters.getFolderByKey(key)).toEqual(folder);
                 });
                 let defaults = store.getters.getDefaultFolders(mailboxUid1);
@@ -49,10 +48,9 @@ describe("[MailboxFolderStore] Vuex store", () => {
                 );
                 expect(folder).toBe(store.getters.getFolderByPath("Archives/2017/Clients", mailboxUid1));
 
-                folders2.forEach((item, index) => {
+                folders2.forEach(item => {
                     const key = ItemUri.encode(item.uid, mailboxUid2);
                     const folder = new Folder(key, item);
-                    expect(store.state.itemKeys.indexOf(key) - folders1.length).toEqual(index);
                     expect(store.getters.getFolderByKey(key)).toEqual(folder);
                 });
                 defaults = store.getters.getDefaultFolders(mailboxUid2);

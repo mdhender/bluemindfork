@@ -6,9 +6,24 @@ export default class Folder {
         this.key = key;
     }
 
-    static compare(f1, f2) {
-        const f1Weight = defaultFolders.indexOf(f1.name);
-        const f2Weight = defaultFolders.indexOf(f2.name);
+    match(pattern) {
+        let normalized = pattern.toLowerCase().replace(/\/+/g, "/");
+
+        const path = this.value.fullName.toLowerCase();
+        if (normalized.startsWith("/")) {
+            normalized = "^" + normalized.substring(1);
+        }
+        if (normalized.endsWith("/")) {
+            normalized = normalized.slice(0, -1) + "(/[^/]*)?$";
+        } else {
+            normalized += "[^/]*$";
+        }
+        return path.search(normalized) >= 0;
+    }
+
+    compare(folder) {
+        const f1Weight = defaultFolders.indexOf(this.value.fullName);
+        const f2Weight = defaultFolders.indexOf(folder.value.fullName);
         if (f1Weight >= 0 && f2Weight >= 0) {
             return f1Weight - f2Weight;
         } else if (f1Weight >= 0 && f2Weight < 0) {
@@ -16,20 +31,7 @@ export default class Folder {
         } else if (f1Weight < 0 && f2Weight >= 0) {
             return 1;
         } else {
-            return f1.name.localeCompare(f2.name);
+            return this.value.fullName.localeCompare(folder.value.fullName);
         }
-    }
-
-    toTreeItem(settings) {
-        return {
-            uid: this.uid,
-            id: this.internalId,
-            name: this.value.name,
-            fullname: this.value.fullName,
-            icon: this.icon,
-            parent: this.value.parentUid || null,
-            expanded: (settings && settings.expanded) || false,
-            children: []
-        };
     }
 }

@@ -1,4 +1,4 @@
-const PREFIX = "$_VueBus_";
+const PREFIX = "$_vuebus_";
 const METHOD_PATTERN = /[\W\s_]/g;
 
 export default {
@@ -25,9 +25,9 @@ function dispatch(event, payload) {
     const name = event.replace(METHOD_PATTERN, "").toLowerCase();
     const sendToStore = (rules, storeCallback) => {
         for (const fullName in rules) {
-            const endPoint = fullName.split("/").pop();
+            const endPoint = fullName.split("/").pop().toLowerCase();
             if (endPoint.startsWith(PREFIX)) {
-                if (name === endPoint.replace(METHOD_PATTERN, "").toLowerCase()) {
+                if (name === endPoint.replace(PREFIX, "").replace(METHOD_PATTERN, "")) {
                     storeCallback(fullName, payload);
                 }
             }

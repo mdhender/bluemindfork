@@ -1,0 +1,70 @@
+[
+    {
+        "value": {
+            "name": "Sent",
+            "fullName": "Sent",
+            "parentUid": "97e386cc-caff-4931-8bd7-d921bd900f37",
+            "deleted": false,
+            "lastUid": 0,
+            "highestModSeq": 2,
+            "recentUid": 0,
+            "recentTime": 0,
+            "lastAppendDate": 0,
+            "pop3LastLogin": 0,
+            "uidValidity": 1576245273,
+            "acls": [
+                { "subject": "anyone", "rights": "p" },
+                { "subject": "admin0", "rights": "lrswipkxtecdan" },
+                { "subject": "6793466E-F5D4-490F-97BF-DF09D3327BF4@blue-mind.loc", "rights": "lrsp" }
+            ],
+            "options": "P",
+            "syncCRC": 0,
+            "quotaRoot": null,
+            "dataLocation": null
+        },
+        "uid": "8933808e-7ce2-45c6-9fe6-e003bf11eb2e",
+        "internalId": 915,
+        "version": 5,
+        "displayName": "Sent",
+        "externalId": null,
+        "createdBy": "system",
+        "updatedBy": "system",
+        "created": 1576245272315,
+        "updated": 1576245272166,
+        "flags": []
+    },
+    {
+        "value": {
+            "name": "read.only",
+            "fullName": "read.only",
+            "parentUid": null,
+            "deleted": false,
+            "lastUid": 0,
+            "highestModSeq": 5,
+            "recentUid": 0,
+            "recentTime": 0,
+            "lastAppendDate": 0,
+            "pop3LastLogin": 0,
+            "uidValidity": 1576245272,
+            "acls": [
+                { "subject": "anyone", "rights": "p" },
+                { "subject": "admin0", "rights": "lrswipkxtecdan" },
+                { "subject": "6793466E-F5D4-490F-97BF-DF09D3327BF4@blue-mind.loc", "rights": "lrsp" }
+            ],
+            "options": "P",
+            "syncCRC": 0,
+            "quotaRoot": null,
+            "dataLocation": null
+        },
+        "uid": "97e386cc-caff-4931-8bd7-d921bd900f37",
+        "internalId": 913,
+        "version": 7,
+        "displayName": "read.only",
+        "externalId": null,
+        "createdBy": "system",
+        "updatedBy": "system",
+        "created": 1576245272107,
+        "updated": 1576245628792,
+        "flags": []
+    }
+]

@@ -3,6 +3,8 @@ import * as getters from "./getters";
 import * as mutations from "./mutations";
 import * as state from "./state";
 import { MailboxItemsStore as messages, MailboxFoldersStore as folders } from "@bluemind/backend.mail.store";
+import { ContainersStore as mailboxes } from "@bluemind/core.container.store";
+
 export default {
     namespaced: true,
     state: Object.assign({}, state),
@@ -11,6 +13,7 @@ export default {
     getters,
     modules: {
         messages,
-        folders
+        folders,
+        mailboxes
     }
 };

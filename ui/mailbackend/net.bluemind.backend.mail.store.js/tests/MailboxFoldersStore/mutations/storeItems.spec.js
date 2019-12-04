@@ -20,6 +20,7 @@ describe("[MailFoldersStore][mutations] : storeItems", () => {
             result.items[uri] = item;
             result.itemsByContainer[mailboxUid].push(uri);
         });
+        result.itemKeys = result.itemKeys.reverse();
         expect(state).toEqual(result);
     });
     test("add items not already present in state, update the others", () => {
@@ -45,6 +46,8 @@ describe("[MailFoldersStore][mutations] : storeItems", () => {
                 result.itemsByContainer[mailboxUid].push(uri);
             }
         });
+        result.itemKeys = result.itemKeys.reverse();
+
         expect(state).toEqual(result);
     });
     test("support items from different containers", () => {
@@ -70,7 +73,7 @@ describe("[MailFoldersStore][mutations] : storeItems", () => {
             result.itemsByContainer["container:2:uid"].push(uri);
         });
         expect(state.itemKeys.length).toBe(3); // or not to be
-        expect(state.itemKeys).toEqual(Object.keys(result.items));
+        expect(state.itemKeys).toEqual(Object.keys(result.items).reverse());
         expect(state.items).toEqual(result.items);
         expect(state.itemsByContainer).toEqual(result.itemsByContainer);
     });

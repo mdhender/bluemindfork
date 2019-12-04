@@ -3,7 +3,12 @@
         <div class="pb-5">
             <h3 class="d-inline">
                 {{ $t("mail.folder") }}
-                <mail-folder-icon v-if="currentFolder" :folder="currentFolder.value" class="font-weight-bold" />
+                <mail-folder-icon
+                    v-if="currentFolder"
+                    :shared="currentMailbox.type == 'mailshare'"
+                    :folder="currentFolder.value"
+                    class="font-weight-bold"
+                />
             </h3>
             <h3 class="text-center">{{ $t("mail.empty") }}</h3>
         </div>
@@ -30,7 +35,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail-webapp", ["currentFolder"])
+        ...mapGetters("mail-webapp", ["currentFolder", "currentMailbox"])
     }
 };
 </script>

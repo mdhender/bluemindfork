@@ -26,5 +26,6 @@
     "alert.common.purge.loading": "Definitive deletion of \"{subject}\" in progress...",
     "alert.common.purge.error": "\"{subject}\" could not be deleted definitely.{br}{reason}",
     "common.or": "or",
-    "common.cancel": "Cancel"
+    "common.cancel": "Cancel",
+    "common.mailshares": "Shared folders"
 }

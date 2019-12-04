@@ -17,8 +17,10 @@ export function selectFolder({ dispatch, commit, state }, folderKey) {
     commit("setSearchPattern", null);
     commit("clearCurrentMessage");
 
-    return dispatch("messages/list", { sorted: state.sorted, folderUid }).then(() => {
-        const sorted = state.messages.itemKeys;
-        return dispatch("messages/multipleByKey", sorted.slice(0, 100));
-    });
+    return dispatch("messages/list", { sorted: state.sorted, folderUid })
+        .then(() => {
+            const sorted = state.messages.itemKeys;
+            return dispatch("messages/multipleByKey", sorted.slice(0, 100));
+        })
+        .then(() => dispatch("loadUnreadCount", folderUid));
 }

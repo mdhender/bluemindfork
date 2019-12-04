@@ -26,10 +26,10 @@ describe("VuexProxy", () => {
         const spy = jest.fn();
         store.hotUpdate({
             mutations: {
-                $_THIS_WILLBE_CALLED_2_times: spy
+                $_VueBus_THIS_WILLBE_CALLED_2_times: spy
             },
             actions: {
-                $_ThiswillBE_called2times: spy
+                $_VueBus_ThiswillBE_called2times: spy
             }
         });
         VuexProxy.start(bus, store);
@@ -40,10 +40,10 @@ describe("VuexProxy", () => {
         const spy = jest.fn();
         store.hotUpdate({
             mutations: {
-                $_BUSPUBLISHTHIS: spy
+                $_VueBus_BUSPUBLISHTHIS: spy
             },
             actions: {
-                $_busAlsoPublishThis: spy
+                $_VueBus_busAlsoPublishThis: spy
             }
         });
         VuexProxy.start(bus, store);
@@ -60,7 +60,7 @@ describe("VuexProxy", () => {
                 CALL_ME: spy
             },
             actions: {
-                $_CALL_ME_BABY: spy
+                $_VueBus_CALL_ME_BABY: spy
             }
         });
         VuexProxy.start(bus, store);

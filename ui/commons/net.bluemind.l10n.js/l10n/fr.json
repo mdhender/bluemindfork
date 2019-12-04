@@ -26,5 +26,6 @@
     "alert.common.purge.loading": "Suppression définitive de \"{subject}\" en cours...",
     "alert.common.purge.error": "\"{subject}\" n'a pas pu être supprimé définitivement.{br}{reason}",
     "common.or": "ou",
-    "common.cancel": "Annuler"
+    "common.cancel": "Annuler",
+    "common.mailshares": "Dossiers partagés"
 }

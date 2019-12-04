@@ -16,7 +16,7 @@
  * END LICENSE
  */
 import Message from "../../src/MailboxItemsStore/Message.js";
-import mailboxItem from "./datas/mailbox-item.json";
+import mailboxItem from "./data/mailbox-item.json";
 
 describe("Message", () => {
     test("constructor & toMailboxItem", () => {

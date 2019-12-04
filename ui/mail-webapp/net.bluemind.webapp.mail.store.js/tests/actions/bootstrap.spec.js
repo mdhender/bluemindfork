@@ -14,7 +14,8 @@ const context = {
             },
             mailboxUid: "mailbox:uid",
             folders: [{ uid: "1" }, { uid: "2" }, { uid: "3" }, { uid: "4" }, { uid: "5" }, { uid: "6" }]
-        }
+        },
+        mailshares: []
     }
 };
 
@@ -24,7 +25,14 @@ describe("[Mail-WebappStore][actions] :  bootstrap", () => {
         context.commit.mockClear();
         context.state.currentFolderKey = "key";
     });
-    test("load all folders", done => {
+    test("load all folders from my mailbox", done => {
+        bootstrap(context).then(() => {
+            expect(context.dispatch).toHaveBeenNthCalledWith(1, "folders/all", "mailbox:uid");
+            done();
+        });
+    });
+    test("load all folders from mailshares", done => {
+        context.mailshares = [{ uid: "a" }, { uid: "b" }, { uid: "c" }];
         bootstrap(context).then(() => {
             expect(context.dispatch).toHaveBeenNthCalledWith(1, "folders/all", "mailbox:uid");
             done();

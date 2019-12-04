@@ -12,7 +12,7 @@
         </bm-button>
         <bm-collapse id="collapse-mailbox" v-model="isMailboxExpanded">
             <bm-tree
-                :value="tree"
+                :value="tree.my"
                 :selected="currentFolderKey"
                 node-id-key="key"
                 class="text-nowrap"
@@ -23,6 +23,39 @@
             >
                 <template v-slot="f">
                     <mail-folder-icon :folder="f.value" breakpoint="xl" class="flex-fill" />
+                    <bm-counter-badge
+                        v-if="f.value.unread > 0"
+                        :value="f.value.unread"
+                        :variant="f.value.key != currentFolderKey ? 'secondary' : 'primary'"
+                        class="mr-1 position-sticky"
+                    />
+                </template>
+            </bm-tree>
+        </bm-collapse>
+        <bm-button
+            v-if="mailshares.length > 0"
+            variant="link"
+            class="collapse-mailbox-btn d-none d-xl-flex align-items-center pb-2 pt-3 border-0 pl-1 w-100"
+            aria-controls="collapse-mailbox"
+            :aria-expanded="areMailsharesExpanded"
+            @click="areMailsharesExpanded = !areMailsharesExpanded"
+        >
+            <bm-icon :icon="areMailsharesExpanded ? 'caret-down' : 'caret-right'" size="sm" class="bm-icon mr-2" />
+            <span class="font-weight-bold">{{ $t("common.mailshares") }}</span>
+        </bm-button>
+        <bm-collapse id="collapse-mailshares" v-model="areMailsharesExpanded">
+            <bm-tree
+                :value="tree.mailshares"
+                :selected="currentFolderKey"
+                node-id-key="key"
+                class="text-nowrap"
+                breakpoint="xl"
+                @expand="expandFolder"
+                @collapse="collapseFolder"
+                @select="key => $router.push({ path: '/mail/' + key + '/' })"
+            >
+                <template v-slot="f">
+                    <mail-folder-icon shared :folder="f.value" breakpoint="xl" class="flex-fill" />
                     <bm-counter-badge
                         v-if="f.value.unread > 0"
                         :value="f.value.unread"
@@ -54,11 +87,12 @@ export default {
     data() {
         return {
             isMailboxExpanded: true,
+            areMailsharesExpanded: true,
             mailboxEmail: injector.getProvider("UserSession").get().defaultEmail
         };
     },
     computed: {
-        ...mapGetters("mail-webapp", ["tree"]),
+        ...mapGetters("mail-webapp", ["tree", "mailshares"]),
         ...mapState("mail-webapp", ["currentFolderKey"])
     },
     methods: {
@@ -80,7 +114,7 @@ export default {
 }
 
 .bm-counter-badge {
-    // work around to avoid parent padding 
+    // work around to avoid parent padding
     margin-top: -(map-get($spacers, 1));
     margin-bottom: -(map-get($spacers, 1));
 }

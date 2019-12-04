@@ -126,6 +126,7 @@ function fromMailboxItem(item, message) {
     message.states = [];
     message.uid = item.uid;
     message.id = item.internalId;
+    message.imapUid = item.value.imapUid;
 
     if (item.value.body.smartAttach) {
         message.states.push("has-attachment");

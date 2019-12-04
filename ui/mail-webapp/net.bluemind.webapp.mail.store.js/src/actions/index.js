@@ -1,3 +1,4 @@
+export * from "./$_createFolder";
 export * from "./$_getIfNotPresent";
 export * from "./$_move";
 export * from "./bootstrap";

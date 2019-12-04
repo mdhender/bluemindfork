@@ -9,13 +9,13 @@ export function multipleByKey({ commit }, messageKeys) {
         if (!messagesByFolder[folder]) messagesByFolder[folder] = [];
         messagesByFolder[folder].push(id);
     });
-    const serviceProvider = ServiceLocator.getProvider("MailboxItemsPersistence");
-    return Promise.all(
-        Object.keys(messagesByFolder).map(folderUid =>
-            serviceProvider
-                .get(folderUid)
-                .multipleById(messagesByFolder[folderUid])
-                .then(items => commit("storeItems", { items, folderUid }))
-        )
-    );
+    const folders = Object.keys(messagesByFolder);
+    return Promise.all(folders.map(folderUid => getFolderMessages(folderUid, messagesByFolder[folderUid], commit)));
+}
+
+function getFolderMessages(folderUid, messages, commit) {
+    return ServiceLocator.getProvider("MailboxItemsPersistence")
+        .get(folderUid)
+        .multipleById(messages)
+        .then(items => commit("storeItems", { items, folderUid }));
 }

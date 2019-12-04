@@ -1,5 +1,5 @@
-import messages from "./datas/messages";
-import plainTextPart from "./datas/plainTextPart";
+import messages from "./data/messages";
+import plainTextPart from "./data/plainTextPart";
 import MailboxItemsStore from "../../src/MailboxItemsStore";
 import Message from "../../src/MailboxItemsStore/Message";
 import ServiceLocator from "@bluemind/inject";
@@ -21,7 +21,7 @@ ServiceLocator.getProvider.mockReturnValue({
 const localVue = createLocalVue();
 localVue.use(Vuex);
 
-describe("[MailboxItemsClient] Vuex store", () => {
+describe("[MailboxItemsStore] Vuex store", () => {
     test("can load messages from a folder into store", done => {
         const folderUid = "folder:uid";
         const sorted = { direction: "desc", column: "internal_date" };

@@ -2,19 +2,26 @@ import { move } from "../../src/actions/move";
 
 const context = {
     commit: jest.fn(),
-    dispatch: jest.fn().mockReturnValue(Promise.resolve({ subject: "dummy" })),
-    getters: { my: { mailboxUid: "mailbox-uid" } }
+    dispatch: jest.fn(),
+    getters: {
+        my: { mailboxUid: "mailbox-uid" },
+        "folders/getFolderByKey": jest.fn().mockReturnValue({ key: "folder-key", value: { name: "folderName" } })
+    }
 };
 
 describe("[Mail-WebappStore][actions] : move", () => {
     beforeEach(() => {
         context.commit.mockClear();
         context.dispatch.mockClear();
+        context.dispatch.mockReturnValueOnce(Promise.resolve({ subject: "dummy" }));
+        context.dispatch.mockReturnValueOnce("folder-key");
+        context.getters["folders/getFolderByKey"].mockClear();
     });
     test("call private move action", done => {
         const messageKey = "message-key",
             folder = { key: "folder-key" };
         move(context, { messageKey, folder }).then(() => {
+            expect(context.getters["folders/getFolderByKey"]).toHaveBeenCalledWith("folder-key");
             expect(context.dispatch).toHaveBeenCalledWith("$_move", { messageKey, destinationKey: "folder-key" });
             done();
         });
@@ -22,7 +29,7 @@ describe("[Mail-WebappStore][actions] : move", () => {
     });
     test("display alerts", done => {
         const messageKey = "message-key",
-            folder = { key: "folder-key" };
+            folder = { key: "folder-key", value: { name: "folderName" } };
         move(context, { messageKey, folder }).then(() => {
             expect(context.commit).toHaveBeenNthCalledWith(
                 1,
@@ -39,7 +46,7 @@ describe("[Mail-WebappStore][actions] : move", () => {
                 "alert/add",
                 {
                     code: "MSG_MOVE_OK",
-                    props: { subject: "dummy", folder, folderNameLink: "/mail/" + folder.key + "/" }
+                    props: { subject: "dummy", folder: folder.value, folderNameLink: "/mail/" + folder.key + "/" }
                 },
                 { root: true }
             );
@@ -47,15 +54,11 @@ describe("[Mail-WebappStore][actions] : move", () => {
             done();
         });
     });
-    test("create folder if it does not already exists", done => {
+    test("call createFolder private action", done => {
         const messageKey = "message-key",
             folder = { value: { name: "folder-name" } };
         move(context, { messageKey, folder }).then(() => {
-            expect(context.dispatch).toHaveBeenCalledWith("folders/create", {
-                name: "folder-name",
-                parentUid: null,
-                mailboxUid: "mailbox-uid"
-            });
+            expect(context.dispatch).toHaveBeenCalledWith("$_createFolder", folder);
             done();
         });
     });

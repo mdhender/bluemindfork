@@ -1,1 +1,3 @@
-describe("[Mail-WebappStore][actions] : saveDraft (to be done)", () => {});
+describe("[Mail-WebappStore][actions] : saveDraft (to be done)", () => {
+    test.skip("TODO", () => {});
+});

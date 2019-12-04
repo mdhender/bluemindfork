@@ -1,5 +1,7 @@
 <template>
-    <bm-label-icon :icon="icon">{{ folder.name }}</bm-label-icon>
+    <bm-label-icon :icon="icon" :aria-label="shared && $t('common.mailshares')">
+        <slot>{{ folder.name }}</slot>
+    </bm-label-icon>
 </template>
 
 <script>
@@ -14,27 +16,31 @@ export default {
         folder: {
             type: Object,
             required: true
+        },
+        shared: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
     computed: {
         icon() {
-            if (!this.folder.parentUid) {
-                switch (this.folder.name) {
-                    case "INBOX":
-                        return "inbox";
-                    case "Drafts": 
-                        return "pencil";
-                    case "Trash":
-                        return "trash";
-                    case "Junk":
-                        return "forbidden";
-                    case "Outbox":
-                        return "clock";
-                    case "Sent":
-                        return "paper-plane";
-                }
+            const modifier = this.shared ? "-shared" : "";
+            switch (this.folder.fullName) {
+                case "INBOX":
+                    return "inbox";
+                case "Drafts":
+                    return "pencil" + modifier;
+                case "Trash":
+                    return "trash" + modifier;
+                case "Junk":
+                    return "forbidden";
+                case "Outbox":
+                    return "clock";
+                case "Sent":
+                    return "paper-plane" + modifier;
             }
-            return "folder";
+            return "folder" + modifier;
         }
     }
 };

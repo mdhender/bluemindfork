@@ -1,13 +1,12 @@
 import { Message } from "@bluemind/backend.mail.store";
-import mailboxItem from "./datas/mailbox-item.json";
+import mailboxItem from "./data/mailbox-item.json";
 import { computeSubject, previousMessageContent } from "../src/MessageBuilder";
 import injector from "@bluemind/inject";
-
 
 jest.mock("@bluemind/inject");
 injector.getProvider.mockReturnValue({
     get: jest.fn().mockReturnValue({
-        t : (key, params) => {
+        t: (key, params) => {
             if (key == "mail.compose.reply.subject") {
                 return "Re: ";
             } else if (key == "mail.compose.forward.subject") {
@@ -35,7 +34,7 @@ describe("MessageBuilder", () => {
     beforeEach(() => {
         message = new Message("key", mailboxItem);
     });
-    
+
     test("computeSubject for Reply", () => {
         checkComputeSubject(message, message.actions.REPLY, "Re: ");
     });
