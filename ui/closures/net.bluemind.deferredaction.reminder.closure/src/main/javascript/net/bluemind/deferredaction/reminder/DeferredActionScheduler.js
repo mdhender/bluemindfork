@@ -175,8 +175,8 @@ function browserNotify(text) {
  */
 net.bluemind.deferredaction.reminder.DeferredActionScheduler.setNotificationImpl = function(fn) {
     goog.log.info(logger, "Changing notification implementation");
-    notif = fn;
-}
+    notify = fn;
+};
 
 function calculateNextDeferredAction(ctx, deferredaction) {
     return function(items) {
