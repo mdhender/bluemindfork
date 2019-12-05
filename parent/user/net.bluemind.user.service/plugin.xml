@@ -116,4 +116,10 @@
             priority="0">
       </password_updater>
    </extension>
+   <extension
+         point="net.bluemind.core.container.repair">
+      <repair
+            impl="net.bluemind.user.service.internal.DeferredActionUserRepair">
+      </repair>
+   </extension>
 </plugin>

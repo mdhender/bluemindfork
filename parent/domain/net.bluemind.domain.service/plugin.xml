@@ -55,5 +55,11 @@
             impl="net.bluemind.domain.service.internal.DomainServerHook">
       </hook>
    </extension>
+   <extension
+         point="net.bluemind.core.container.repair">
+      <repair
+            impl="net.bluemind.domain.service.internal.DeferredActionDomainRepair">
+      </repair>
+   </extension>
    
 </plugin>
