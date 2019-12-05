@@ -1,5 +1,5 @@
 <template>
-    <bm-button-toolbar class="mail-message-list-item-quick-action-buttons pt-1 justify-content-end">
+    <bm-button-toolbar class="mail-message-list-item-quick-action-buttons justify-content-end">
         <bm-button-group>
             <bm-button
                 v-bm-tooltip.ds500.top.viewport
@@ -10,7 +10,7 @@
                 @click.shift.exact.prevent="openPurgeModal"
                 @click.exact.prevent="remove(message.key)"
             >
-                <bm-icon icon="trash" size="lg" />
+                <bm-icon icon="trash" size="md" />
             </bm-button>
             <bm-button
                 v-if="message.states.includes('not-seen')"
@@ -21,7 +21,7 @@
                 variant="link"
                 @click.prevent="markAsRead(message.key)"
             >
-                <bm-icon icon="read" size="lg" />
+                <bm-icon icon="read" size="md" />
             </bm-button>
             <bm-button
                 v-else
@@ -32,7 +32,7 @@
                 variant="link"
                 @click.prevent="markAsUnread(message.key)"
             >
-                <bm-icon icon="unread" size="lg" />
+                <bm-icon icon="unread" size="md" />
             </bm-button>
         </bm-button-group>
     </bm-button-toolbar>

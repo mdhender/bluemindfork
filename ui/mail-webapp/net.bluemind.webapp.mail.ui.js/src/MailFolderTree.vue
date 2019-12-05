@@ -80,7 +80,8 @@ export default {
 }
 
 .bm-counter-badge {
-    position: absolute;
-    right: 0;
+    // work around to avoid parent padding 
+    margin-top: -(map-get($spacers, 1));
+    margin-bottom: -(map-get($spacers, 1));
 }
 </style>

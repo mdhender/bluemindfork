@@ -7,13 +7,13 @@
         @mouseenter.native="quickActionButtonsVisible = true"
         @mouseleave.native="quickActionButtonsVisible = false"
     >
-        <bm-row class="align-items-center flex-nowrap">
+        <bm-row class="align-items-center flex-nowrap no-gutters">
             <bm-col cols="1" class="selector">
                 <bm-avatar :alt="from" />
                 <bm-check @click.native.stop />
             </bm-col>
             <bm-col cols="8" class="text-overflow">
-                <div v-bm-tooltip.ds500.viewport :title="from" class="text-overflow d-inline-block mw-100">
+                <div v-bm-tooltip.ds500.viewport :title="from" class="text-overflow mw-100 sender">
                     {{ from }}
                 </div>
             </bm-col>
@@ -33,15 +33,15 @@
                 </transition>
             </bm-col>
         </bm-row>
-        <bm-row>
+        <bm-row class="no-gutters">
             <bm-col cols="1" class="mail-attachment">
-                <component :is="state" v-if="!!state" class="ml-2" />
+                <component :is="state" v-if="!!state" class="ml-1" />
             </bm-col>
-            <bm-col class="text-secondary text-overflow">
+            <bm-col class="text-secondary text-overflow subject">
                 <div 
                     v-bm-tooltip.ds500.bottom.viewport
                     :title="message.subject"
-                    class="text-overflow d-inline-block mw-100"
+                    class="text-overflow mw-100"
                 >
                     {{ message.subject }}
                 </div>
@@ -157,10 +157,16 @@ export default {
     cursor: pointer;
 }
 
+.bm-avatar {
+    width: 1.3rem !important;
+    height: 1.3rem !important;
+}
+
 .mail-message-list-item .selector .custom-check {
     display: none !important;
-    margin-left: 1em;
-    padding-left: 1rem;
+    margin-left: 0.825rem;
+    padding-left: 0.825rem;
+    min-height: 1.4rem;
 }
 
 .mail-message-list-item .selector:hover .bm-avatar {
@@ -168,15 +174,19 @@ export default {
 }
 
 .mail-message-list-item .selector:hover .custom-check {
-    display: inline-block !important;
+    display: block !important;
+}
+
+.custom-control-label::after, .custom-control-label::before{
+    top: 0.2rem !important;
 }
 
 .list-group-item.mail-message-list-item.not-seen {
-    border-left: theme-color("primary") 5px solid !important;
+    border-left: theme-color("primary") 4px solid !important;
 }
 
 a.list-group-item.mail-message-list-item {
-    border-left: transparent solid 5px !important;
+    border-left: transparent solid 4px !important;
     font-size: $font-size-lg;
 }
 .list-group-item.mail-message-list-item:focus {
@@ -186,7 +196,7 @@ a.list-group-item.mail-message-list-item {
    }
 }
 
-.not-seen {
+.not-seen .sender, .not-seen .subject {
     font-weight: $font-weight-bold;
 }
 

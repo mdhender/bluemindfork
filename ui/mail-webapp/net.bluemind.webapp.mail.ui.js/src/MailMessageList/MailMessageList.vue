@@ -32,9 +32,9 @@
         >
             <template #item="f">
                 <bm-list-group-separator v-if="hasSeparator(f.item.key)" class="mail-list-separator">
-                    <bm-row>
+                    <bm-row class="no-gutters pl-2">
                         <bm-col cols="1" />
-                        <bm-col class="pl-3">
+                        <bm-col>
                             {{ $t(getSeparator(f.item.date)) }}
                         </bm-col>
                     </bm-row>
@@ -245,5 +245,9 @@ export default {
 .mail-message-list .no-search-results-illustration {
     height: 404px;
     width: 354px;
+}
+
+.mail-message-list .list-group-separator {
+    padding: map-get($spacers, 1);
 }
 </style>
