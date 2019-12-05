@@ -315,13 +315,13 @@ public class DeferredActionCalendarHookTests {
 
 		VEventSeries defaultVEvent = defaultVEvent();
 		ZoneId tz = ZoneId.of("Europe/Paris");
-		defaultVEvent.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2017, 2, 13, 8, 0, 0, 0, tz));
-		defaultVEvent.main.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2017, 2, 13, 9, 0, 0, 0, tz));
+		defaultVEvent.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2017, 2, 13, 0, 0, 1, 0, tz));
+		defaultVEvent.main.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2017, 2, 13, 1, 0, 1, 0, tz));
 		defaultVEvent.main.rrule = new RRule();
 		defaultVEvent.main.rrule.byDay = Arrays.asList(WeekDay.MO, WeekDay.TU, WeekDay.WE, WeekDay.TH, WeekDay.FR,
 				WeekDay.SA, WeekDay.SU);
 		defaultVEvent.main.rrule.frequency = Frequency.WEEKLY;
-		defaultVEvent.main.rrule.until = BmDateTimeHelper.time(ZonedDateTime.of(2025, 2, 13, 8, 0, 0, 0, tz));
+		defaultVEvent.main.rrule.until = BmDateTimeHelper.time(ZonedDateTime.of(2025, 2, 13, 0, 0, 0, 1, tz));
 		addAlarm(defaultVEvent.main, 60 * 60 * 2);
 		CompletableFuture<Void> wait = registerOnHook("uid2");
 		ab.create("uid2", defaultVEvent, false);
@@ -331,9 +331,8 @@ public class DeferredActionCalendarHookTests {
 				new Date(200, 0, 0).getTime());
 		assertEquals(1, byActionId.size());
 
-		// expected date is tomorrow 5am UTC
-		LocalDateTime today = LocalDateTime.now().withHour(5).withMinute(0).withSecond(0).withNano(0);
-		LocalDateTime expected = today.plusDays(1);
+		// expected date is today 21pm UTC
+		LocalDateTime expected = LocalDateTime.now().withHour(21).withMinute(0).withSecond(1).withNano(0);
 
 		LocalDateTime triggerValueAsDate = new java.sql.Timestamp(byActionId.get(0).value.executionDate.getTime())
 				.toLocalDateTime();
