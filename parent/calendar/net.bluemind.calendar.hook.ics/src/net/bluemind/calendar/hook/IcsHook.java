@@ -167,8 +167,18 @@ public class IcsHook implements ICalendarHook {
 			// exdate stuff
 			Set<BmDateTime> newExdates = getNewExceptionList(oldEventSeries.main, updatedEvent.main);
 			if (!newExdates.isEmpty()) {
-				// FIXME: This is not necessary the only modification.
-				sendExceptionsToAttendees(message, newExdates);
+				if (oldEventSeries.occurrences != null) {
+					for (VEventOccurrence oldOcc : oldEventSeries.occurrences) {
+						if (newExdates.contains(oldOcc.recurid)) {
+							sendCancelToAttendees(message, oldOcc, oldOcc.attendees);
+							newExdates.remove(oldOcc.recurid);
+						}
+					}
+				}
+				if (!newExdates.isEmpty()) {
+					// FIXME: This is not necessary the only modification.
+					sendExceptionsToAttendees(message, newExdates);
+				}
 				return;
 			}
 		}
@@ -830,8 +840,7 @@ public class IcsHook implements ICalendarHook {
 			newListException = new HashSet<BmDateTime>(updatedEvent.exdate);
 		}
 
-		return Sets.difference(newListException, oldListException);
-
+		return new HashSet<>(Sets.difference(newListException, oldListException));
 	}
 
 	/**
