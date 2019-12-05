@@ -99,7 +99,7 @@ goog.require("net.bluemind.resource.sync.ResourcesClientSync");
 goog.require('net.bluemind.resource.service.ResourcesService');
 goog.require('net.bluemind.deferredaction.sync.UnitaryDeferredActionSync');
 goog.require('net.bluemind.deferredaction.service.DeferredActionService');
-goog.require('net.bluemind.deferredaction.persistance.schema');
+goog.require('net.bluemind.deferredaction.persistence.schema');
 goog.require('net.bluemind.deferredaction.reminder.DeferredActionScheduler');
 
 

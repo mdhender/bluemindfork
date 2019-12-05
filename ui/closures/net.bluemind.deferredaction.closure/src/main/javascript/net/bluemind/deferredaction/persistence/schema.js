@@ -19,11 +19,11 @@
  */
 
 /**
- * @fileoverview Provides schema for container item persistance
+ * @fileoverview Provides schema for container item persistence
  */
-goog.provide('net.bluemind.deferredaction.persistance.schema');
+goog.provide('net.bluemind.deferredaction.persistence.schema');
 
-net.bluemind.deferredaction.persistance.schema = {
+net.bluemind.deferredaction.persistence.schema = {
   resetTags: [],
   stores: [
     {
