@@ -18,6 +18,8 @@
  */
 package net.bluemind.calendar.service.internal;
 
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -165,6 +167,21 @@ public class VEventSanitizer {
 				cal.setTimeInMillis(end);
 				cal.add(Calendar.DATE, 1);
 				vevent.dtend = BmDateTimeWrapper.fromTimestamp(cal.getTimeInMillis(), null, Precision.Date);
+			}
+		}
+
+		/*
+		 * RFC 5545 3.8.2.2. The value type of the "DTEND" property MUST be the same as
+		 * the "DTSTART" property
+		 */
+		if (vevent.dtstart != null && vevent.dtend != null && vevent.dtend.precision != vevent.dtstart.precision) {
+			vevent.dtend.precision = vevent.dtstart.precision;
+			if (vevent.dtend.precision == Precision.Date) {
+				vevent.dtend.iso8601 = new SimpleDateFormat("yyyy-MM-dd")
+						.format(new BmDateTimeWrapper(vevent.dtend).toDate());
+			} else {
+				vevent.dtend.iso8601 = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+						.format(new BmDateTimeWrapper(vevent.dtend).toDateTime());
 			}
 		}
 

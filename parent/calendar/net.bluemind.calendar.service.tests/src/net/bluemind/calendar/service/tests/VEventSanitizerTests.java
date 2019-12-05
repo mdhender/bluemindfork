@@ -171,6 +171,21 @@ public class VEventSanitizerTests {
 	}
 
 	@Test
+	public void testPrecisionOfDtendIsSameAsDTstart() throws ServerFault {
+
+		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, this.domainUid);
+
+		VEvent vevent = new VEvent();
+
+		vevent.dtstart = BmDateTimeWrapper.create(date1, Precision.Date);
+		vevent.dtend = BmDateTimeWrapper.create(date1, Precision.DateTime);
+
+		sanitizer.sanitize(vevent);
+		assertEquals(vevent.dtstart.precision, vevent.dtend.precision);
+		assertEquals(Precision.Date, vevent.dtstart.precision);
+	}
+
+	@Test
 	public void testOrganizerWithoutEmailCannotCreateMeeting() throws ServerFault {
 
 		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, this.domainUid);
