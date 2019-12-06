@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
+import com.google.common.base.Strings;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
@@ -44,7 +44,7 @@ public class FileHostingRolesVerifier implements IRolesVerifier {
 	private void verifyServerPresence() throws ServerFault {
 		if (null == FileHostingRolesVerifier.serverPresent) {
 			String ip = new LocatorClient().locateHost("filehosting/data", "admin0@global.virt");
-			FileHostingRolesVerifier.serverPresent = new Boolean(StringUtils.isNotEmpty(ip));
+			FileHostingRolesVerifier.serverPresent = new Boolean(!Strings.isNullOrEmpty(ip));
 		}
 	}
 

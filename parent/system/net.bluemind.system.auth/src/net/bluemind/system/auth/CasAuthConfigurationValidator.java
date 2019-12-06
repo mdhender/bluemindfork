@@ -21,7 +21,7 @@ package net.bluemind.system.auth;
 import java.net.URL;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
+import com.google.common.base.Strings;
 
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -41,7 +41,7 @@ public class CasAuthConfigurationValidator implements ISystemConfigurationValida
 		String url = modifications.get(SysConfKeys.cas_url.name());
 
 		// validate url
-		if (StringUtils.isEmpty(url)) {
+		if (Strings.isNullOrEmpty(url)) {
 			throw new ServerFault("CAS url must be setted", ErrorCode.INVALID_PARAMETER);
 		}
 

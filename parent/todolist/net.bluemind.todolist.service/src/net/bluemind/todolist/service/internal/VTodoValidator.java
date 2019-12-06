@@ -20,7 +20,7 @@ package net.bluemind.todolist.service.internal;
 
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import com.google.common.base.Strings;
 
 import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.core.api.date.BmDateTime;
@@ -65,7 +65,7 @@ public class VTodoValidator {
 	private void validateAttachments(List<AttachedFile> attachments) {
 		if (attachments != null && !attachments.isEmpty()) {
 			for (AttachedFile attachment : attachments) {
-				if (StringUtils.isEmpty(attachment.name) || StringUtils.isEmpty(attachment.publicUrl)) {
+				if (Strings.isNullOrEmpty(attachment.name) || Strings.isNullOrEmpty(attachment.publicUrl)) {
 					throw new ServerFault("Event attachment value is empty", ErrorCode.EMPTY_EVENT_ATTACHMENT_VALUE);
 				}
 			}

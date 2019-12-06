@@ -21,9 +21,10 @@ package net.bluemind.todolist.service.internal;
 import java.util.Date;
 import java.util.UUID;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Strings;
 
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.icalendar.api.ICalendarElement.Status;
@@ -37,12 +38,12 @@ public class VTodoSanitizer {
 		if (null == vtodo) {
 			return;
 		}
-		if (StringUtils.isEmpty(vtodo.summary)) {
+		if (Strings.isNullOrEmpty(vtodo.summary)) {
 			logger.warn("VToto.summary is empty for .");
 			vtodo.summary = "(New Todo)";// FIXME: Set to i18n("New Todo").
 		}
 
-		if (StringUtils.isEmpty(vtodo.uid)) {
+		if (Strings.isNullOrEmpty(vtodo.uid)) {
 			String uid = UUID.randomUUID().toString();
 			logger.warn("VEvent.uid is null. set to {}", uid);
 			vtodo.uid = uid;

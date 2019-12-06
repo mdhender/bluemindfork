@@ -27,10 +27,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.james.mime4j.dom.BinaryBody;
 import org.apache.james.mime4j.message.BasicBodyFactory;
 import org.apache.james.mime4j.message.BodyPart;
+
+import com.google.common.base.Strings;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -104,7 +105,7 @@ public class CalendarMailHelper extends ReminderMailHelper<VEvent> {
 
 		List<String> attendees = new LinkedList<String>();
 		for (VEvent.Attendee attendee : vevent.attendees) {
-			if (StringUtils.isEmpty(attendee.commonName)) {
+			if (Strings.isNullOrEmpty(attendee.commonName)) {
 				attendees.add(attendee.mailto);
 			} else {
 				attendees.add(attendee.commonName);

@@ -20,9 +20,10 @@ package net.bluemind.mailbox.service.internal;
 
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Strings;
 
 import net.bluemind.backend.mail.replica.indexing.IMailIndexService;
 import net.bluemind.backend.mail.replica.indexing.RecordIndexActivator;
@@ -114,7 +115,7 @@ public class MailboxMgmt implements IMailboxMgmt {
 	public TaskRef moveIndex(String mailboxUid, String indexName) throws ServerFault {
 		rbacManager.forEntry(mailboxUid).check(BasicRoles.ROLE_MANAGE_MAILBOX);
 
-		if (StringUtils.isEmpty(indexName) || !indexName.startsWith("mailspool")) {
+		if (Strings.isNullOrEmpty(indexName) || !indexName.startsWith("mailspool")) {
 			throw new ServerFault("index name must start with mailspool", ErrorCode.INVALID_PARAMETER);
 		}
 		ItemValue<Mailbox> mailbox = context.provider().instance(IMailboxes.class, domainUid).getComplete(mailboxUid);

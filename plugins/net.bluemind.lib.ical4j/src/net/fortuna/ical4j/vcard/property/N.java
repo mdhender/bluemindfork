@@ -31,13 +31,13 @@
  */
 package net.fortuna.ical4j.vcard.property;
 
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
-
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
+
+import com.google.common.base.Strings;
 
 import net.fortuna.ical4j.model.ValidationException;
 import net.fortuna.ical4j.util.CompatibilityHints;
@@ -189,12 +189,12 @@ public final class N extends Property {
 	@Override
 	public String getValue() {
 		final StringBuilder b = new StringBuilder();
-		if (isNotEmpty(familyName)) {
+		if (!Strings.isNullOrEmpty(familyName)) {
 			b.append(familyName);
 		}
 		b.append(';');
 
-		if (isNotEmpty(givenName)) {
+		if (!Strings.isNullOrEmpty(givenName)) {
 			b.append(givenName);
 		}
 

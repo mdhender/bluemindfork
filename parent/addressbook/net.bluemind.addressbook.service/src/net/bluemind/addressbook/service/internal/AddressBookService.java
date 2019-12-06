@@ -31,11 +31,11 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -337,7 +337,7 @@ public class AddressBookService implements IInCoreAddressBook {
 		rbacManager.check(Verb.Read.name());
 		List<ItemValue<VCardInfo>> values = null;
 		ListResult<ItemValue<VCardInfo>> ret = new ListResult<>();
-		if (StringUtils.isEmpty(query.query)) {
+		if (Strings.isNullOrEmpty(query.query)) {
 
 			List<String> uids = storeService.allUidsOrderedByDisplayname();
 			int from = query.from;

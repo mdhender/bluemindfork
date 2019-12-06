@@ -30,6 +30,8 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
+
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.api.Regex;
@@ -250,7 +252,7 @@ public class VEventSanitizer {
 			return;
 		}
 
-		if (StringUtils.isNotEmpty(organizer.mailto)) {
+		if (!Strings.isNullOrEmpty(organizer.mailto)) {
 			if (!Regex.EMAIL.validate(organizer.mailto)) {
 				organizer.mailto = null;
 			}
@@ -287,7 +289,7 @@ public class VEventSanitizer {
 				attendee.commonName = attendee.mailto;
 			}
 
-			if (StringUtils.isNotEmpty(attendee.mailto) && !Regex.EMAIL.validate(attendee.mailto)) {
+			if (!Strings.isNullOrEmpty(attendee.mailto) && !Regex.EMAIL.validate(attendee.mailto)) {
 				attendee.mailto = null;
 			}
 			DirEntry dir = resolve(attendee.dir, attendee.mailto);

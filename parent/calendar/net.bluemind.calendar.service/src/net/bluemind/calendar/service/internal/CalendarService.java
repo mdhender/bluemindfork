@@ -29,11 +29,12 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.eventbus.EventBus;
+
+import com.google.common.base.Strings;
 
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.VEvent;
@@ -186,7 +187,7 @@ public class CalendarService implements ICalendar {
 			throws ServerFault {
 		rbacManager.check(Verb.Write.name());
 
-		if (StringUtils.isEmpty(event.icsUid)) {
+		if (Strings.isNullOrEmpty(event.icsUid)) {
 			event.icsUid = uid;
 		}
 

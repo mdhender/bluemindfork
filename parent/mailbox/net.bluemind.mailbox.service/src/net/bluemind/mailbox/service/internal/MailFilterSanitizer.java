@@ -21,7 +21,7 @@ package net.bluemind.mailbox.service.internal;
 import java.util.Collections;
 import java.util.HashSet;
 
-import org.apache.commons.lang.StringUtils;
+import com.google.common.base.Strings;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.sanitizer.ISanitizer;
@@ -65,7 +65,7 @@ public class MailFilterSanitizer implements ISanitizer<MailFilter> {
 	}
 
 	private void sanitizeRule(MailFilter.Rule rule) {
-		if (rule.deliver != null && StringUtils.isEmpty(rule.deliver)) {
+		if (rule.deliver != null && Strings.isNullOrEmpty(rule.deliver)) {
 			rule.deliver = null;
 		}
 

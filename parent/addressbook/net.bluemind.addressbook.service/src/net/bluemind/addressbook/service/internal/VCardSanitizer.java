@@ -27,6 +27,8 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.google.common.base.Strings;
+
 import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.BasicAttribute;
@@ -221,25 +223,25 @@ public class VCardSanitizer implements ISanitizer<VCard> {
 		String familyNames = card.identification.name.familyNames;
 		String suffix = card.identification.name.suffixes;
 
-		if (!StringUtils.isEmpty(givenName)) {
+		if (!Strings.isNullOrEmpty(givenName)) {
 			card.identification.name.givenNames = givenName.trim();
 			names.add(givenName.trim());
 		}
-		if (!StringUtils.isEmpty(additionalName)) {
+		if (!Strings.isNullOrEmpty(additionalName)) {
 			card.identification.name.additionalNames = additionalName.trim();
 			names.add(additionalName.trim());
 		}
-		if (!StringUtils.isEmpty(familyNames)) {
+		if (!Strings.isNullOrEmpty(familyNames)) {
 			card.identification.name.familyNames = familyNames.trim();
 			names.add(familyNames.trim());
 		}
-		if (!StringUtils.isEmpty(prefixes)) {
+		if (!Strings.isNullOrEmpty(prefixes)) {
 			card.identification.name.prefixes = prefixes.trim();
 			if (names.isEmpty()) {
 				names.add(prefixes.trim());
 			}
 		}
-		if (!StringUtils.isEmpty(suffix)) {
+		if (!Strings.isNullOrEmpty(suffix)) {
 			card.identification.name.suffixes = suffix.trim();
 			if (names.isEmpty()) {
 				names.add(suffix.trim());
@@ -250,7 +252,7 @@ public class VCardSanitizer implements ISanitizer<VCard> {
 			// card.kind == Kind.individual because group directly set
 			// formatedName.value
 			// org is not yet supported so we use companyname for company
-			if (StringUtils.isNotEmpty(card.organizational.org.company)) {
+			if (!Strings.isNullOrEmpty(card.organizational.org.company)) {
 				names.add(card.organizational.org.company);
 			}
 		}

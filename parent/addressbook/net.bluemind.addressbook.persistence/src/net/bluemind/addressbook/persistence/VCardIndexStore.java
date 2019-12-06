@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -39,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.base.Strings;
 
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCardQuery;
@@ -141,7 +141,7 @@ public class VCardIndexStore {
 	public ListResult<String> search(VCardQuery query) {
 
 		QueryBuilder queryString = null;
-		if (StringUtils.isEmpty(query.query)) {
+		if (Strings.isNullOrEmpty(query.query)) {
 			queryString = QueryBuilders.matchAllQuery();
 		} else {
 			String escapedQuery = query.escapeQuery ? escape(query.query) : query.query;
