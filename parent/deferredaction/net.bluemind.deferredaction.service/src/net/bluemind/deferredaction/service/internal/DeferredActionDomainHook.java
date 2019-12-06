@@ -18,19 +18,17 @@
  */
 package net.bluemind.deferredaction.service.internal;
 
-import java.util.List;
+import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
-import net.bluemind.core.container.model.ItemDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.deferredaction.api.IDeferredAction;
 import net.bluemind.deferredaction.api.IDeferredActionContainerUids;
+import net.bluemind.deferredaction.service.IDeferredActionMgmt;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.hook.DomainHookAdapter;
 
@@ -51,13 +49,14 @@ public class DeferredActionDomainHook extends DomainHookAdapter {
 	public void onBeforeDelete(BmContext context, ItemValue<Domain> domain) throws ServerFault {
 		String containerUid = IDeferredActionContainerUids.uidForDomain(domain.uid);
 
-		List<ItemDescriptor> allItems = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IContainerManagement.class, containerUid).getAllItems();
-		IDeferredAction service = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IDeferredAction.class, containerUid);
-		for (ItemDescriptor action : allItems) {
-			service.delete(action.uid);
+		try {
+			IDeferredActionMgmt service = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+					.instance(IDeferredActionMgmt.class, containerUid);
+			service.prepareContainerDelete();
+			ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IContainers.class)
+					.delete(containerUid);
+		} catch (Exception e) {
+			LoggerFactory.getLogger(DeferredActionUserHook.class).warn("Cannot delete container {}", containerUid, e);
 		}
-		ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IContainers.class).delete(containerUid);
 	}
 }
