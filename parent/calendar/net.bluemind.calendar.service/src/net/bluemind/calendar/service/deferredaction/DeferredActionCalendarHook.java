@@ -196,15 +196,13 @@ public class DeferredActionCalendarHook implements ICalendarHook {
 
 	private IDeferredAction getService(VAlarm valarm, VEventMessage message) {
 		String containerUid = null;
-		SecurityContext ctx;
 		if (valarm.action != null && valarm.action == Action.Email) {
 			containerUid = IDeferredActionContainerUids.uidForDomain(message.container.domainUid);
-			ctx = SecurityContext.SYSTEM;
 		} else {
 			containerUid = IDeferredActionContainerUids.uidForUser(message.container.owner);
-			ctx = message.securityContext;
 		}
-		return ServerSideServiceProvider.getProvider(ctx).instance(IDeferredAction.class, containerUid);
+		return ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDeferredAction.class,
+				containerUid);
 	}
 
 	private List<VEvent> flatten(VEventSeries event) {
