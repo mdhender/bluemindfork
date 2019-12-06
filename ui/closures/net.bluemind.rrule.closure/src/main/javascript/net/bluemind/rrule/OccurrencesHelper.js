@@ -235,7 +235,7 @@ function toRRuleOptions(dtstart, rrule, formatDate) {
     return {
         dtstart: dtstart,
         freq: freq_(rrule["frequency"]),
-        interval: intList_(rrule["interval"]),
+        interval: rrule["interval"] || 1,
         count: rrule["count"],
         until: formatDate(rrule["until"], dtstart.getTimeZone()),
         bysecond: intList_(rrule["bySecond"]),
