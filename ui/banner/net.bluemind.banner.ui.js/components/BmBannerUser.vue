@@ -3,12 +3,12 @@
         <bm-nav-item-dropdown right offset="5">
             <template slot="button-content">
                 <bm-avatar :alt="user.displayname" class="flex-shrink-0" />
-                <span v-bm-tooltip.hover.ds500 class="pr-4 username text-truncate m-auto" :title="user.displayname">
+                <span v-bm-tooltip.ds500 class="pr-4 username text-truncate m-auto" :title="user.displayname">
                     {{ user.displayname }}
                 </span>
             </template>
             <bm-dropdown-item 
-                v-bm-tooltip.left.hover.d500="$t('banner.menu.settings.aria')"
+                v-bm-tooltip.left.ds500="$t('banner.menu.settings.aria')"
                 href="/settings/"
                 :aria-label="$t('banner.menu.settings.aria')"
             >

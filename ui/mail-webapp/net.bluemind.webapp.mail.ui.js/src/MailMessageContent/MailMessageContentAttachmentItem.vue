@@ -14,7 +14,7 @@
             </bm-col>
             <bm-col class="text-nowrap text-truncate flex-grow-1">
                 <span 
-                    v-bm-tooltip.hover.ds500
+                    v-bm-tooltip.ds500
                     :title="attachment.filename"
                     class="font-weight-bold"
                 >
