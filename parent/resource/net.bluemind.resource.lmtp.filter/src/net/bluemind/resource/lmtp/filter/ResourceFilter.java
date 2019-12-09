@@ -41,6 +41,7 @@ import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.core.sendmail.ISendmail;
 import net.bluemind.core.sendmail.Sendmail;
 import net.bluemind.core.sendmail.SendmailHelper;
+import net.bluemind.directory.api.BaseDirEntry;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.group.api.IGroup;
@@ -76,16 +77,19 @@ public class ResourceFilter implements IMessageFilter {
 	public Message filter(LmtpEnvelope env, Message message, long messageSize) throws FilterException {
 		IIMIPParser parser = IMIPParserFactory.create();
 
-		Message pureIcs = new PureICSRewriter().rewrite(message);
+		try (Message pureIcs = new PureICSRewriter().rewrite(message)) {
 
-		IMIPInfos infos = parser.parse(pureIcs);
-		if (infos != null) {
-			return null;
+			IMIPInfos infos = parser.parse(pureIcs);
+			if (infos != null) {
+				return null;
+			}
+		} catch (Exception e) {
+			logger.warn("Error disposing message: {}", e.getMessage());
 		}
 
 		IServiceProvider provider = ClientSideServiceProvider.getProvider(getCoreUrl(), Token.admin0());
 		List<LmtpAddress> recipients = env.getRecipients();
-		if (recipients != null && recipients.size() != 0) {
+		if (recipients != null && !recipients.isEmpty()) {
 			for (LmtpAddress recipient : recipients) {
 				try {
 					String mailbox = getResourceMailbox(provider, recipient);
@@ -93,8 +97,8 @@ public class ResourceFilter implements IMessageFilter {
 						redirectMessageToResourceAdmins(provider, recipient.getDomainPart(), mailbox, message);
 					}
 				} catch (ServerFault e) {
-					logger.error("[" + message.getHeader().getField("Message-ID")
-							+ "] Error while handling resource filter message", e);
+					logger.error("[{}] Error while handling resource filter message",
+							message.getHeader().getField("Message-ID"), e);
 					throw new FilterException(LmtpReply.TEMPORARY_FAILURE,
 							"[" + message.getHeader().getField("Message-ID")
 									+ "] Error while handling resource filter message: " + e.getMessage());
@@ -117,7 +121,7 @@ public class ResourceFilter implements IMessageFilter {
 		return coreUrl;
 	}
 
-	private String getResourceMailbox(IServiceProvider provider, LmtpAddress recipient) throws ServerFault {
+	private String getResourceMailbox(IServiceProvider provider, LmtpAddress recipient) {
 		String mbox = lmtpRecipientToMailboxName(recipient.getEmailAddress());
 		Optional<ItemValue<Mailbox>> mailbox = MailboxCache.get(provider, recipient.getDomainPart(), mbox);
 
@@ -136,13 +140,13 @@ public class ResourceFilter implements IMessageFilter {
 	}
 
 	private void redirectMessageToResourceAdmins(IServiceProvider provider, String domainUid, String mailbox,
-			Message message) throws ServerFault {
+			Message message) {
 		message.setTo((Address) null);
 		message.setCc((Address) null);
 		message.setBcc((Address) null);
 
 		Collection<Address> admins = getResourcesAdmins(provider, domainUid, mailbox);
-		if (admins.size() == 0) {
+		if (admins.isEmpty()) {
 			message.setSubject("[Unable to deliver mail to resource address] " + message.getSubject());
 			message.setTo(message.getFrom().iterator().next());
 		} else {
@@ -152,8 +156,7 @@ public class ResourceFilter implements IMessageFilter {
 		mailer.send(domainUid, message);
 	}
 
-	private Collection<Address> getResourcesAdmins(IServiceProvider provider, String domainUid, String mailbox)
-			throws ServerFault {
+	private Collection<Address> getResourcesAdmins(IServiceProvider provider, String domainUid, String mailbox) {
 		IContainerManagement containerMgmt = provider.instance(IContainerManagement.class,
 				ICalendarUids.TYPE + ":" + mailbox);
 		List<AccessControlEntry> acls = containerMgmt.getAccessControlList();
@@ -169,15 +172,14 @@ public class ResourceFilter implements IMessageFilter {
 
 			DirEntry entry = directoryService.findByEntryUid(acl.subject);
 			if (entry != null) {
-				if (entry.kind == DirEntry.Kind.GROUP) {
+				if (entry.kind == BaseDirEntry.Kind.GROUP) {
 					List<Member> users = groupService.getExpandedUserMembers(entry.entryUid);
 					for (Member user : users) {
-						if (adminsUsers.containsKey(user.uid)) {
-							continue;
+						if (!adminsUsers.containsKey(user.uid)) {
+							DirEntry dirEntry = directoryService.findByEntryUid(user.uid);
+							adminsUsers.put(user.uid,
+									SendmailHelper.formatAddress(dirEntry.displayName, dirEntry.email));
 						}
-
-						DirEntry dirEntry = directoryService.findByEntryUid(user.uid);
-						adminsUsers.put(user.uid, SendmailHelper.formatAddress(dirEntry.displayName, dirEntry.email));
 					}
 				} else {
 					adminsUsers.put(entry.entryUid, SendmailHelper.formatAddress(entry.displayName, entry.email));
