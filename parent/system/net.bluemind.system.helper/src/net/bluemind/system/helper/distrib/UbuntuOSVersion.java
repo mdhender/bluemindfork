@@ -22,8 +22,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.bluemind.system.helper.distrib.list.Distribution;
 import net.bluemind.system.helper.distrib.list.Ubuntu;
@@ -32,19 +32,19 @@ import net.bluemind.system.helper.distrib.list.UbuntuXenial;
 
 public class UbuntuOSVersion implements IOsVersionDetection {
 
-	private static final Log logger = LogFactory.getLog(UbuntuOSVersion.class);
+	private static final Logger logger = LoggerFactory.getLogger(UbuntuOSVersion.class);
 
 	public Distribution detect() {
 		File distributionFile = new File(new Ubuntu().getDistributionFile());
 		Distribution distrib = null;
-		
+
 		distrib = checkVersion(distributionFile, distrib);
-	
+
 		if (distrib == null) {
 			logger.info("Unable to determine Ubuntu version.");
 			distrib = new Ubuntu();
 		}
-		
+
 		logger.info("Detected distribution is: " + distrib.getName());
 		return distrib;
 	}

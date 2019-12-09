@@ -6,7 +6,7 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.core.commons,
  net.bluemind.core.context,
- net.bluemind.slf4j,
+ slf4j.api,
  net.bluemind.eclipse.common,
  net.bluemind.core.rest,
  net.bluemind.system.api,

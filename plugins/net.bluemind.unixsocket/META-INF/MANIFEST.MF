@@ -6,7 +6,7 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.unixsocket.Activator
 Bundle-Vendor: blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
- net.bluemind.slf4j;bundle-version="1.0.0",
+ slf4j.api,
  net.java.dev.jna;bundle-version="3.2.4"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy

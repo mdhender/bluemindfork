@@ -6,7 +6,7 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: blue-mind.net
 Bundle-ClassPath: .
 Require-Bundle: net.bluemind.utils;bundle-version="1.0.0",
- net.bluemind.slf4j;bundle-version="1.0.0",
+ slf4j.api,
  org.apache.mina.core;bundle-version="2.0.7",
  net.bluemind.lib.jutf7,
  com.sun.mail.javax.mail,

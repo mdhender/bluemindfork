@@ -6,7 +6,7 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.core.container.hooks,
- net.bluemind.slf4j;bundle-version="1.0.0",
+ slf4j.api,
  net.bluemind.core.container.persistence,
  net.bluemind.core.container.api,
  net.bluemind.core.context,

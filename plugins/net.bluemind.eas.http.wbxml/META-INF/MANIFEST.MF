@@ -8,7 +8,7 @@ Bundle-Vendor: blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.eas.http;bundle-version="1.0.0",
  net.bluemind.lib.vertx;bundle-version="1.0.0",
- net.bluemind.slf4j,
+ slf4j.api,
  net.bluemind.eas.wbxml;bundle-version="1.0.0",
  net.bluemind.eas.validation;bundle-version="1.0.0",
  net.bluemind.vertx.common,

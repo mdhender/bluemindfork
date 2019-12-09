@@ -8,7 +8,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.eas.utils;bundle-version="1.0.0",
  net.bluemind.eas;bundle-version="1.0.0",
  net.bluemind.eas.dto,
- net.bluemind.slf4j;bundle-version="1.0.0"
+ slf4j.api
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: blue-mind.net

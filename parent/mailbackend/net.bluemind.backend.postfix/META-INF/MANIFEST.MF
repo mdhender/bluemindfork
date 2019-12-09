@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.backend.postfix
 Bundle-SymbolicName: net.bluemind.backend.postfix;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: net.bluemind.slf4j;bundle-version="1.0.0",
+Require-Bundle: slf4j.api,
  net.bluemind.eclipse.common;bundle-version="1.0.0",
  com.google.guava;bundle-version="19.0.0",
  net.bluemind.core.rest,

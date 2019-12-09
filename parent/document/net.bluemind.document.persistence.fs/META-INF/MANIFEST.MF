@@ -6,7 +6,7 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.document.persistence.fs.Activator
 Bundle-Vendor: www.blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
- net.bluemind.slf4j;bundle-version="1.0.0",
+ slf4j.api,
  com.google.guava;bundle-version="19.0.0",
  net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.document.storage;bundle-version="1.0.0"

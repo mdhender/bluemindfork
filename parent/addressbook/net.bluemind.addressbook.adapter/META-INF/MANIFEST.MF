@@ -10,7 +10,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.tag.api;bundle-version="1.0.0",
  net.bluemind.lib.ical4j;bundle-version="1.0.0",
  com.google.guava;bundle-version="19.0.0",
- net.bluemind.slf4j;bundle-version="1.0.0",
+ slf4j.api,
  org.apache.james.apache-mime4j-dom,
  org.apache.james.apache-mime4j-core;bundle-version="0.7.3",
  org.apache.commons.codec

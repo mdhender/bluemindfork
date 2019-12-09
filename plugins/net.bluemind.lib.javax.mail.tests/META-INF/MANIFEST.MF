@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.lib.javax.mail.tests
 Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.lib.javax.mail.tests.Activator
 Require-Bundle: org.eclipse.core.runtime,
- net.bluemind.slf4j;bundle-version="1.0.0",
+ slf4j.api,
  org.junit,
  net.bluemind.pool,
  com.sun.mail.imap;bundle-version="1.5.2",

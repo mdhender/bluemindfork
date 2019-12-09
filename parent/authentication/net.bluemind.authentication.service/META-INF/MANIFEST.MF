@@ -9,7 +9,7 @@ Require-Bundle: net.bluemind.authentication.api;bundle-version="1.0.0";visibilit
  net.bluemind.core.container.api;bundle-version="1.0.0",
  net.bluemind.core.rest;bundle-version="1.0.0",
  net.bluemind.lib.vertx;bundle-version="1.0.0",
- net.bluemind.slf4j;bundle-version="1.0.0",
+ slf4j.api,
  net.bluemind.user.service;bundle-version="1.0.0",
  net.bluemind.user.api;bundle-version="1.0.0",
  org.eclipse.osgi,

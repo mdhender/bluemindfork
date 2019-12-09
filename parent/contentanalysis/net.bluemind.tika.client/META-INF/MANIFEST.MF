@@ -6,7 +6,7 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.4.0",
  com.ning.async-http-client;bundle-version="1.9.26",
- net.bluemind.slf4j;bundle-version="1.0.0",
+ slf4j.api,
  net.bluemind.content.analysis
 Bundle-ClassPath: .
 Export-Package: net.bluemind.tika.client

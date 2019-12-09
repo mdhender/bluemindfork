@@ -6,7 +6,7 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: blue-mind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.core.runtime,
- net.bluemind.slf4j;bundle-version="1.0.0",
+ slf4j.api,
  net.bluemind.lmtp;bundle-version="1.0.0",
  net.bluemind.mime4j.common;bundle-version="1.0.0",
  net.bluemind.imip.parser,

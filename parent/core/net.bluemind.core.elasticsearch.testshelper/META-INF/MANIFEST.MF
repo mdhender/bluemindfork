@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.core.elasticsearch.testshelper;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.pool;bundle-version="1.0.0",
- net.bluemind.slf4j;bundle-version="1.0.0",
+ slf4j.api,
  net.bluemind.lib.elasticsearch;bundle-version="1.0.0";visibility:=reexport
 Bundle-Activator: net.bluemind.core.elasticsearch.ElasticsearchTestHelper
 Bundle-ActivationPolicy: lazy

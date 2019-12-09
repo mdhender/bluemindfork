@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.dataprotect.ou
 Bundle-SymbolicName: net.bluemind.dataprotect.ou;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Require-Bundle: net.bluemind.slf4j;bundle-version="1.0.0",
+Require-Bundle: slf4j.api,
  net.bluemind.lib.vertx,
  net.bluemind.core.task.service,
  net.bluemind.dataprotect.api,

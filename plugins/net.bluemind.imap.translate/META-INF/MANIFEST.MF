@@ -6,7 +6,7 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.imap.translate.TranslationActivator
 Bundle-Vendor: blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
- net.bluemind.slf4j,
+ slf4j.api,
  net.bluemind.lib.jutf7,
  com.google.guava;bundle-version="19.0.0",
  net.bluemind.lib.vertx

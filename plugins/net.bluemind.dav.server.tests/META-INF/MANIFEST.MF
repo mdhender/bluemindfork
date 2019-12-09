@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.dav.server.tests
 Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.dav.server.tests.Activator
 Require-Bundle: org.eclipse.core.runtime,
- net.bluemind.slf4j;bundle-version="1.0.0",
+ slf4j.api,
  com.ning.async-http-client;bundle-version="1.9.26",
  com.google.guava;bundle-version="19.0.0",
  org.junit;bundle-version="3.8.2",

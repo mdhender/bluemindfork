@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.jilter
 Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.jilter.Activator
 Require-Bundle: org.eclipse.core.runtime,
- net.bluemind.slf4j;bundle-version="1.0.0",
+ slf4j.api,
  log4j.over.slf4j;bundle-version="1.7.5",
  io.netty
 Bundle-ActivationPolicy: lazy

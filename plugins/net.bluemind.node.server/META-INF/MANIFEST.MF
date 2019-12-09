@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.node.server;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.node.server.Activator
 Bundle-Vendor: blue-mind.net
-Require-Bundle: net.bluemind.slf4j;bundle-version="1.0.0",
+Require-Bundle: slf4j.api,
  org.eclipse.core.runtime,
  com.google.guava;bundle-version="19.0.0",
  net.bluemind.lib.vertx;bundle-version="1.0.0",

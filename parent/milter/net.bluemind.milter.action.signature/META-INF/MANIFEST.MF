@@ -8,7 +8,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.milter,
  org.apache.james.apache-mime4j-dom,
  net.bluemind.mime4j.common;bundle-version="4.1.0",
- net.bluemind.slf4j;bundle-version="4.1.0",
+ slf4j.api,
  net.bluemind.jilter,
  net.bluemind.domain.api,
  net.bluemind.core.commons;bundle-version="4.1.0",

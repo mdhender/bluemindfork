@@ -22,8 +22,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.bluemind.system.helper.distrib.list.Debian;
 import net.bluemind.system.helper.distrib.list.DebianBuster;
@@ -33,15 +33,15 @@ import net.bluemind.system.helper.distrib.list.Distribution;
 
 public class DebianOSVersion implements IOsVersionDetection {
 
-	private static final Log logger = LogFactory.getLog(DebianOSVersion.class);
+	private static final Logger logger = LoggerFactory.getLogger(DebianOSVersion.class);
 
 	// TODO wrong detection in debian_version file (example : stretch/sid)
 	public Distribution detect() {
 		File distributionFile = new File(new Debian().getDistributionFile());
 		Distribution distrib = null;
-		
+
 		distrib = checkVersion(distributionFile, distrib);
-		
+
 		if (distrib == null) {
 			logger.info("Unable to determine Debian version.");
 			distrib = new Debian();

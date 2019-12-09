@@ -4,7 +4,7 @@ Bundle-Name: Jdbc
 Bundle-SymbolicName: net.bluemind.core.sqlschema;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: net.bluemind.slf4j;bundle-version="1.0.0",
+Require-Bundle: slf4j.api,
  org.eclipse.core.runtime,
  com.google.guava;bundle-version="19.0.0"
 Export-Package: net.bluemind.core.jdbc

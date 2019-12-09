@@ -6,7 +6,7 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.config.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
-Require-Bundle: net.bluemind.slf4j;bundle-version="1.0.0",
+Require-Bundle: slf4j.api,
  com.google.guava;bundle-version="19.0.0",
  org.eclipse.osgi
 Export-Package: net.bluemind.config

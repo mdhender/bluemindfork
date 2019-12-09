@@ -7,7 +7,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.webmodule;bundle-version="1.0.0",
  org.freemarker.freemarker;bundle-version="2.3.20",
  net.bluemind.lib.vertx;bundle-version="1.0.0",
- net.bluemind.slf4j,
+ slf4j.api,
  net.bluemind.core.rest.http,
  net.bluemind.core.rest,
  net.bluemind.addressbook.api,

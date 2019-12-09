@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.core.task.service.tests
 Bundle-Version: 4.1.0.qualifier
 Require-Bundle: net.bluemind.core.jdbc;bundle-version="1.0.0",
  org.junit,
- net.bluemind.slf4j;bundle-version="1.0.0",
+ slf4j.api,
  net.bluemind.core.rest.http,
  net.bluemind.core.sessions;bundle-version="1.0.0",
  net.bluemind.core.task.service,

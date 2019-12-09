@@ -10,7 +10,7 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.4.0",
  net.bluemind.eas.wbxml;bundle-version="1.0.0",
  com.google.guava;bundle-version="19.0.0",
  com.ning.async-http-client;bundle-version="1.9.26",
- net.bluemind.slf4j;bundle-version="1.0.0"
+ slf4j.api
 Bundle-ClassPath: .
 Export-Package: net.bluemind.eas.client,
  net.bluemind.eas.client.utils

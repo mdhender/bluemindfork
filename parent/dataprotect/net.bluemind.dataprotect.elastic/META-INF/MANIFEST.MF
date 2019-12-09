@@ -12,7 +12,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.container.api,
  net.bluemind.dataprotect.api,
  com.google.guava;bundle-version="19.0.0",
- net.bluemind.slf4j,
+ slf4j.api,
  net.bluemind.lib.elasticsearch,
  net.bluemind.core.rest,
  net.bluemind.config

@@ -6,7 +6,7 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.lib.vertx.VertxPlatform
 Bundle-Vendor: blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
- net.bluemind.slf4j;bundle-version="1.0.0",
+ slf4j.api,
  io.netty;bundle-version="4.0.33",
  net.bluemind.lib.jackson;bundle-version="1.0.0",
  net.bluemind.eclipse.common;bundle-version="1.0.0",
