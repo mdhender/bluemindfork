@@ -442,7 +442,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertEquals(1, stats.importedCount());
 
 		ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer)
-				.getComplete("95c659b1-eaf8-4145-a314-9cb4566636b8");
+				.getByIcsUid("95c659b1-eaf8-4145-a314-9cb4566636b8").get(0);
 
 		VEvent vevent = item.value.occurrences.get(0);
 		assertNotNull(vevent);
@@ -721,7 +721,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 
 		assertNotNull(stats);
 		assertEquals(4, stats.importedCount());
-		assertEquals(5, stats.expectedCount());
+		assertEquals(4, stats.expectedCount());
 
 		ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer)
 				.getComplete("a6f213213232112313124214124124214212bc");
@@ -760,7 +760,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 
 		assertNotNull(stats);
 		assertEquals(1, stats.importedCount());
-		assertEquals(5, stats.expectedCount());
+		assertEquals(1, stats.expectedCount());
 
 		ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer)
 				.getComplete("a6f213213232112313124214124124214212bc");
@@ -810,7 +810,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		// - 2 of
 		// 62b6fc35963912c9529ce2be5ce0e138b66b677c7429b7f0cbcc88eb4525d3fd234df6cb6d592effe7cefa5b1c5a6e3e72d7e01e5d3afba9357daa7ff43d7e5d7db1fcc53c1305c7
 		//
-		assertEquals(35, stats.importedCount());
+		assertEquals(37, stats.importedCount());
 
 		ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer)
 				.getComplete("OBM-2.2.19-f28114d4b018d8fcd269-b35fa558525c03c17edb103cbf2a8994ce3638");
@@ -830,11 +830,6 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		item = getCalendarService(userSecurityContext, userCalendarContainer).getComplete(
 				"62b6fc35963912c9529ce2be5f4d16143141b3295fb1cd0d3bd09ec5fbebc500234df6cb6d592effe7cefa5b1c5a6e3e72d7e01e195637d37074d6c761c7a80a0b7c07d2a014bd27");
 
-		assertNotNull(item);
-		assertEquals(3, item.value.occurrences.size());
-
-		item = getCalendarService(userSecurityContext, userCalendarContainer).getComplete(
-				"62b6fc35963912c9529ce2be5ce0e138b66b677c7429b7f0cbcc88eb4525d3fd234df6cb6d592effe7cefa5b1c5a6e3e72d7e01e5d3afba9357daa7ff43d7e5d7db1fcc53c1305c7");
 		assertNotNull(item);
 		assertEquals(3, item.value.occurrences.size());
 	}

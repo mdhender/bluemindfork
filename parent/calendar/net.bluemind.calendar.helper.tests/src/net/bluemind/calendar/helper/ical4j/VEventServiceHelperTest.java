@@ -389,7 +389,7 @@ public class VEventServiceHelperTest {
 		create.updated = new java.util.Date(111, 06, 12);
 		String ics = VEventServiceHelper.convertToIcs(create);
 		System.err.println(ics);
-		assertTrue(ics.contains("LAST-MODIFIED:20101207T000000"));
+		assertTrue(ics.contains("LAST-MODIFIED:20110711T220000Z"));
 	}
 
 	@Test

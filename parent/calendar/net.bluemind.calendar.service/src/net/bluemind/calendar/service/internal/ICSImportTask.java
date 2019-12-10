@@ -21,15 +21,13 @@ package net.bluemind.calendar.service.internal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.calendar.EventChangesMerge;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.VEventChanges;
-import net.bluemind.calendar.api.VEventChanges.ItemAdd;
-import net.bluemind.calendar.api.VEventChanges.ItemModify;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
 import net.bluemind.core.api.ImportStats;
@@ -72,36 +70,27 @@ public class ICSImportTask implements IServerTask {
 		monitor.begin(events.size(), "Import " + events.size() + " events");
 
 		VEventChanges changes = new VEventChanges();
-		changes.add = new ArrayList<VEventChanges.ItemAdd>();
-		changes.modify = new ArrayList<VEventChanges.ItemModify>();
-		changes.delete = new ArrayList<VEventChanges.ItemDelete>();
+		changes.add = new ArrayList<>();
+		changes.modify = new ArrayList<>();
+		changes.delete = new ArrayList<>();
 
 		for (ItemValue<VEventSeries> itemValue : events) {
 			VEventSeries event = itemValue.value;
-			ItemValue<VEventSeries> existingEvent = calendarService.getComplete(itemValue.uid);
-			if (existingEvent == null) {
-				changes.add.add(ItemAdd.create(itemValue.uid != null ? itemValue.uid : UUID.randomUUID().toString(),
-						event, false));
-			} else {
-				if (itemValue.updated != null) {
-					if (itemValue.updated.after(existingEvent.updated)) {
-						logger.info("Event uid {} was sent as created but already exists. We update it", itemValue.uid);
-						changes.modify.add(ItemModify.create(existingEvent.uid, event, false));
-					}
-				} else {
-					changes.modify.add(ItemModify.create(existingEvent.uid, event, false));
-				}
+			List<ItemValue<VEventSeries>> byIcsUid = calendarService.getByIcsUid(itemValue.uid);
+			if (itemValue.updated == null || //
+					byIcsUid.isEmpty() || //
+					itemValue.updated.after(byIcsUid.get(0).updated)) {
+				VEventChanges eventChanges = EventChangesMerge.getStrategy(byIcsUid, event).merge(byIcsUid, event);
+				changes.addAll(eventChanges);
 			}
 			monitor.progress(1, "in progress");
 		}
 		ContainerUpdatesResult result = calendarService.updates(changes);
 		ImportStats ret = new ImportStats();
-		ret.total = events.size();
 		ret.uids = new ArrayList<String>();
 		ret.uids.addAll(result.added);
 		ret.uids.addAll(result.updated);
-		// ret.uids.addAll(result.removed);
-
+		ret.total = ret.uids.size();
 		return ret;
 	}
 
