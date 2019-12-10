@@ -19,18 +19,18 @@
             variant="info-dark"
             @shown="setFocus"
         >
-            <div class="text-white mt-1 mb-2 ml-2">{{ $t("banner.main.apps") }} </div>
+            <div class="text-white mb-2 mx-3">{{ $t("banner.main.apps") }} </div>
             <bm-row class="bm-apps">
                 <bm-col v-for="app in applications" :key="app.href" cols="6" class="text-white">
                     <a v-if="app.external" :href="app.href">
                         <div class="pl-3 my-2 bm-app">
                             <bm-banner-app-icon :icon-app="app.icon" />
-                            <span class="pl-2 text-uppercase">{{ app.name }}</span>
+                            <span class="pl-2 text-uppercase align-middle">{{ app.name }}</span>
                         </div>
                     </a>
                     <router-link v-else :to="app.href" tag="div" class="pl-3 my-2 bm-app" @click.native="closePopover">
                         <bm-banner-app-icon :icon-app="app.icon" />
-                        <span class="pl-2 text-uppercase">{{ app.name }}</span>
+                        <span class="pl-2 text-uppercase align-middle">{{ app.name }}</span>
                     </router-link>
                 </bm-col>
             </bm-row>
@@ -147,6 +147,10 @@ export default {
     margin-right: 0;
 }
 
+.bm-banner #all-apps-popover:focus{
+    outline: 1px dotted $white;
+}
+
 .bm-banner #all-apps-popover:focus, .bm-banner #all-apps-popover:hover {
     background-color: unset;
 }
@@ -162,15 +166,17 @@ export default {
 
 .apps-popover .bm-apps {
     width: 22rem;
+    a:focus{
+        outline: 1px dotted $light;
+    }
 }
 
-.apps-popover .bm-app {
-    border-left: transparent solid 3px;
-}
-
-.apps-popover .bm-app:hover, .apps-popover .bm-app.router-link-active {
+.apps-popover .bm-app:hover, .apps-popover a:focus, .apps-popover .bm-app.router-link-active {
     color: $primary;
-    border-left: $primary solid 3px;
+}
+
+.apps-popover .bm-app.router-link-active{
+    font-weight: $font-weight-bold;
 }
 
 .apps-popover a, .apps-popover a:hover {
