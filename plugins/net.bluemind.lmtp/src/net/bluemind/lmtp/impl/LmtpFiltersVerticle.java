@@ -141,6 +141,7 @@ public class LmtpFiltersVerticle extends Verticle {
 		} else {
 			logger.debug("mail body has been modified");
 			ByteBuf data = writeFilteredMessage(filtered);
+			filtered.dispose();
 			return new MailMessage(body.getEnvelope(), data);
 		}
 

@@ -77,14 +77,10 @@ public class ResourceFilter implements IMessageFilter {
 	public Message filter(LmtpEnvelope env, Message message, long messageSize) throws FilterException {
 		IIMIPParser parser = IMIPParserFactory.create();
 
-		try (Message pureIcs = new PureICSRewriter().rewrite(message)) {
-
-			IMIPInfos infos = parser.parse(pureIcs);
-			if (infos != null) {
-				return null;
-			}
-		} catch (Exception e) {
-			logger.warn("Error disposing message: {}", e.getMessage());
+		Message pureIcs = new PureICSRewriter().rewrite(message);
+		IMIPInfos infos = parser.parse(pureIcs);
+		if (infos != null) {
+			return null;
 		}
 
 		IServiceProvider provider = ClientSideServiceProvider.getProvider(getCoreUrl(), Token.admin0());
