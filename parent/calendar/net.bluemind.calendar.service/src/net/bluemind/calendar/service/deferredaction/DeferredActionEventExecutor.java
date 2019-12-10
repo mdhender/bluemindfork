@@ -48,6 +48,7 @@ import net.bluemind.deferredaction.registry.IDeferredActionExecutor;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.user.api.IUserSettings;
@@ -84,41 +85,43 @@ public class DeferredActionEventExecutor implements IDeferredActionExecutor {
 
 			logger.info("Found {} deferred actions of type {}", deferredActions.size(), EventDeferredAction.ACTION_ID);
 
-			deferredActions.stream().map(DeferredActionEventExecutor::from)
-					.forEach(executeAction(deferredActionService, mailboxesService, userSettingsService));
+			deferredActions.stream().map(DeferredActionEventExecutor::from).forEach(action -> {
+				VertxPlatform.getVertx().setTimer(
+						Math.max(1, action.value.executionDate.getTime() - new Date().getTime()),
+						(timerId) -> executeAction(deferredActionService, action, mailboxesService,
+								userSettingsService));
+			});
 		};
 	}
 
-	private Consumer<ItemValue<EventDeferredAction>> executeAction(IDeferredAction deferredActionService,
+	private void executeAction(IDeferredAction deferredActionService, ItemValue<EventDeferredAction> deferredAction,
 			IMailboxes mailboxesService, IUserSettings userSettingsService) {
-		return deferredAction -> {
+		try {
+			ItemValue<net.bluemind.mailbox.api.Mailbox> userMailbox = mailboxesService
+					.getComplete(deferredAction.value.ownerUid);
+
+			VEvent event = deferredAction.value.vevent;
+			VAlarm alarm = deferredAction.value.valarm;
+
+			Map<String, String> userSettings = userSettingsService.get(userMailbox.uid);
+			Map<String, Object> data = buildData(event, alarm, userSettings);
+			logger.info("Send deferred action to {} for entity {}", userMailbox.displayName, deferredAction.uid);
+			sendNotificationEmail(data, userMailbox, userSettings);
+		} catch (Exception e) {
+			logger.error("Impossible to send deferred action for entity: {}", deferredAction.uid, e);
+		} finally {
 			try {
-				ItemValue<net.bluemind.mailbox.api.Mailbox> userMailbox = mailboxesService
-						.getComplete(deferredAction.value.ownerUid);
-
-				VEvent event = deferredAction.value.vevent;
-				VAlarm alarm = deferredAction.value.valarm;
-
-				Map<String, String> userSettings = userSettingsService.get(userMailbox.uid);
-				Map<String, Object> data = buildData(event, alarm, userSettings);
-				logger.info("Send deferred action to {} for entity {}", userMailbox.displayName, deferredAction.uid);
-				sendNotificationEmail(data, userMailbox, userSettings);
-			} catch (Exception e) {
-				logger.error("Impossible to send deferred action for entity: {}", deferredAction.uid, e);
-			} finally {
-				try {
-					if (deferredAction.value.isRecurringEvent()) {
-						storeTrigger(deferredAction.value, deferredActionService);
-					}
-				} catch (Exception e) {
-					logger.error("Error when registering the next alarm trigger for entity: {}", deferredAction.uid, e);
-				} finally {
-					logger.info("Delete deferred action {} for {}: {}", deferredAction.value.actionId,
-							deferredAction.value.executionDate, deferredAction.uid);
-					deferredActionService.delete(deferredAction.uid);
+				if (deferredAction.value.isRecurringEvent()) {
+					storeTrigger(deferredAction.value, deferredActionService);
 				}
+			} catch (Exception e) {
+				logger.error("Error when registering the next alarm trigger for entity: {}", deferredAction.uid, e);
+			} finally {
+				logger.info("Delete deferred action {} for {}: {}", deferredAction.value.actionId,
+						deferredAction.value.executionDate, deferredAction.uid);
+				deferredActionService.delete(deferredAction.uid);
 			}
-		};
+		}
 	}
 
 	private void storeTrigger(EventDeferredAction deferredAction, IDeferredAction service) {
