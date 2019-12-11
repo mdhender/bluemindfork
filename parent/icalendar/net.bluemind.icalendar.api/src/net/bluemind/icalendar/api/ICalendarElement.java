@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
 import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.date.BmDateTime;
@@ -54,10 +55,15 @@ public class ICalendarElement {
 
 	@BMApi(version = "3")
 	public static class VAlarm {
-		public Action action;
+		public Action action = Action.Display;
 
 		/**
-		 * relative to ICalendarelement.dtstart. in SECOND
+		 * Relative to ICalendarelement.dtstart. In SECOND
+		 * 
+		 * Either a positive or negative duration may be specified for the "TRIGGER"
+		 * property. An alarm with a positive duration is triggered after the associated
+		 * start or end of the event or to-do. An alarm with a negative duration is
+		 * triggered before the associated start or end of the event or to-do.
 		 */
 		public Integer trigger;
 		public String description;
@@ -78,7 +84,7 @@ public class ICalendarElement {
 		}
 
 		/**
-		 * Simple Email alarm
+		 * Simple alarm
 		 * 
 		 * @param action
 		 * @param trigger
@@ -86,13 +92,12 @@ public class ICalendarElement {
 		 */
 		public static VAlarm create(Integer trigger) {
 			VAlarm ret = new VAlarm();
-			ret.action = Action.Email;
 			ret.trigger = trigger;
 			return ret;
 		}
 
 		/**
-		 * Simple Email alarm with summary
+		 * Simple alarm with summary
 		 * 
 		 * @param trigger
 		 * @param summary
@@ -100,7 +105,6 @@ public class ICalendarElement {
 		 */
 		public static VAlarm create(Integer trigger, String summary) {
 			VAlarm ret = new VAlarm();
-			ret.action = Action.Email;
 			ret.trigger = trigger;
 			ret.summary = summary;
 			return ret;
@@ -441,7 +445,7 @@ public class ICalendarElement {
 		/** required **/
 		public Frequency frequency;
 
-		/** count and until must or occur in the same recur **/
+		/** count and until must not occur in the same recur **/
 		public Integer count;
 		public BmDateTime until;
 

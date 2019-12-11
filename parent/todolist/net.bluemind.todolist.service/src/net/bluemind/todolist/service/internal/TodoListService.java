@@ -20,7 +20,6 @@ package net.bluemind.todolist.service.internal;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -30,8 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.ListResult;
-import net.bluemind.core.api.date.BmDateTime;
-import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Ack;
@@ -54,11 +51,9 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sanitizer.Sanitizer;
 import net.bluemind.core.validator.Validator;
-import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.todolist.api.ITodoList;
 import net.bluemind.todolist.api.ITodoUids;
-import net.bluemind.todolist.api.Reminder;
 import net.bluemind.todolist.api.VTodo;
 import net.bluemind.todolist.api.VTodoChanges;
 import net.bluemind.todolist.api.VTodoQuery;
@@ -384,45 +379,6 @@ public class TodoListService implements ITodoList {
 		storeService.deleteAll();
 		indexStore.deleteAll();
 		eventProducer.changed();
-	}
-
-	@Override
-	public List<Reminder> getReminder(BmDateTime dtalarm) throws ServerFault {
-		rbacManager.check(Verb.Read.name());
-		List<String> todos = storeService.getReminder(dtalarm);
-		List<Reminder> ret = new LinkedList<>();
-
-		for (String uid : todos) {
-			ItemValue<VTodo> item = storeService.get(uid, null);
-			VTodo todo = item.value;
-			if (todo.alarm != null && todo.alarm.size() > 0) {
-				if (todo.rrule == null) {
-					for (VAlarm valarm : todo.alarm) {
-						BmDateTime expected = BmDateTimeWrapper.fromTimestamp(
-								new BmDateTimeWrapper(dtalarm).toUTCTimestamp() - (valarm.trigger * 1000),
-								todo.due.timezone);
-						if (expected.equals(todo.dtstart)) {
-							ret.add(Reminder.create(null, item, valarm));
-						}
-					}
-				} else {
-					for (VAlarm valarm : todo.alarm) {
-						VTodo occurrence = OccurrenceHelper.getOccurrence(todo,
-								BmDateTimeWrapper.fromTimestamp(
-										new BmDateTimeWrapper(dtalarm).toUTCTimestamp() - (valarm.trigger * 1000),
-										todo.due.timezone));
-
-						if (occurrence != null) {
-							ret.add(Reminder.create(null, ItemValue.create(item.uid, occurrence), valarm));
-						}
-					}
-				}
-			}
-
-		}
-
-		return ret;
-
 	}
 
 	@Override

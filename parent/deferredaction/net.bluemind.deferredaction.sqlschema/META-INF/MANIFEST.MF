@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.deferredaction.sqlschema
+Bundle-SymbolicName: net.bluemind.deferredaction.sqlschema;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Require-Bundle: net.bluemind.core.container.sqlschema;bundle-version="1.0.0",
+ net.bluemind.core.sqlschema;bundle-version="1.0.0"
+Automatic-Module-Name: net.bluemind.deferredaction.sqlschema

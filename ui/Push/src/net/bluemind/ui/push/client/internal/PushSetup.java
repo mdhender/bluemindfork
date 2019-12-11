@@ -53,9 +53,6 @@ public class PushSetup {
 		OnlineListener cl = new OnlineListener() {
 
 			public void onOpen() {
-
-				register(mailboxUid + ".notifications.reminders", new ReminderNotificationHandler());
-
 				register(mailboxUid + ".notifications.mails", new MailNotificationHandler());
 
 				// open session

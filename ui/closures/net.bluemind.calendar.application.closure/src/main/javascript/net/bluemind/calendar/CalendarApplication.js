@@ -97,6 +97,11 @@ goog.require("net.bluemind.resource.sync.ResourcesSync");
 goog.require("net.bluemind.resource.sync.UnitaryResourcesSync");
 goog.require("net.bluemind.resource.sync.ResourcesClientSync");
 goog.require('net.bluemind.resource.service.ResourcesService');
+goog.require('net.bluemind.deferredaction.sync.UnitaryDeferredActionSync');
+goog.require('net.bluemind.deferredaction.service.DeferredActionService');
+goog.require('net.bluemind.deferredaction.persistence.schema');
+goog.require('net.bluemind.deferredaction.reminder.DeferredActionScheduler');
+
 
 /**
  * Calendar application
@@ -228,6 +233,10 @@ net.bluemind.calendar.CalendarApplication.prototype.postBootstrap = function(ctx
   var sync = net.bluemind.sync.SyncEngine.getInstance();
   var settings = new net.bluemind.container.sync.ContainerSettingsSync(ctx);
   var calView = new net.bluemind.calendar.sync.CalendarViewSync(ctx);
+  var deferredaction = new net.bluemind.deferredaction.sync.UnitaryDeferredActionSync(
+    ctx,
+    "deferredaction-" + ctx.user["uid"]
+  );
 
   net.bluemind.tag.sync.UnitaryTagSync.registerAll(ctx, sync);
 
@@ -240,7 +249,12 @@ net.bluemind.calendar.CalendarApplication.prototype.postBootstrap = function(ctx
   ctx.service("addressbooks-sync-manager").refreshBooks();
   ctx.service("calendars-sync-manager").refresh();
 
+  sync.registerService(deferredaction);
+
   sync.start(1);
+
+  new net.bluemind.deferredaction.reminder.DeferredActionScheduler(ctx);
+
   goog.log.info(this.logger,'Synchronization started');
 
 };
@@ -293,6 +307,7 @@ net.bluemind.calendar.CalendarApplication.prototype.registerServices = function(
   ctx.service("metadataMgmt", net.bluemind.calendar.MetadataMgmt);
   ctx.service("pendingEventsMgmt", net.bluemind.calendar.PendingEventsMgmt);
   ctx.service("resources", net.bluemind.resource.service.ResourcesService);
+  ctx.service("deferredaction", net.bluemind.deferredaction.service.DeferredActionService);
 };
 
 /** @override */
@@ -327,5 +342,8 @@ net.bluemind.calendar.CalendarApplication.prototype.getDbSchemas = function(ctx)
 	}, {
 		name : 'resources',
 		schema : net.bluemind.resource.persistence.schema
+	}, {
+		name : 'deferredaction',
+		schema : net.bluemind.deferredaction.persistence.schema
 	} ]);
 };

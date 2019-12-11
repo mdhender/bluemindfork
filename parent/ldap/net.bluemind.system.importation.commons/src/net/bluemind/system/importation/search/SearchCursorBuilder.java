@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.api.ldap.model.message.SearchRequest;
@@ -32,6 +31,8 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Strings;
 
 import net.bluemind.system.importation.commons.Parameters;
 
@@ -65,7 +66,7 @@ public class SearchCursorBuilder {
 		}
 		List<String> attributesAsList = new ArrayList<>();
 		attributesAsList.addAll(Arrays.asList(new String[] { "*", "+", "modifyTimestamp" }));
-		if (StringUtils.isNotEmpty(ldapParameters.ldapDirectory.extIdAttribute)) {
+		if (!Strings.isNullOrEmpty(ldapParameters.ldapDirectory.extIdAttribute)) {
 			attributesAsList.add(ldapParameters.ldapDirectory.extIdAttribute);
 		}
 		this.attributes = attributesAsList.toArray(new String[0]);

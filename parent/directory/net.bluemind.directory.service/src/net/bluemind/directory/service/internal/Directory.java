@@ -30,10 +30,11 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.json.JsonObject;
+
+import com.google.common.base.Strings;
 
 import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.VCard;
@@ -187,11 +188,11 @@ public class Directory {
 		checkReadAccess();
 
 		ParametersValidator.notNull(query);
-		if (StringUtils.isNotEmpty(query.emailFilter) && !Regex.EMAIL.validate(query.emailFilter)) {
+		if (!Strings.isNullOrEmpty(query.emailFilter) && !Regex.EMAIL.validate(query.emailFilter)) {
 			throw new ServerFault("emailFilter is not valid ", ErrorCode.INVALID_PARAMETER);
 		}
 
-		if (StringUtils.isNotEmpty(query.emailFilter)) {
+		if (!Strings.isNullOrEmpty(query.emailFilter)) {
 			String[] parts = query.emailFilter.split("@");
 			if (!domain.uid.equals(parts[1]) && !domain.value.aliases.contains(parts[1])) {
 				return ListResult.create(Collections.emptyList());

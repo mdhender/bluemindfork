@@ -18,6 +18,8 @@
  */
 package net.bluemind.calendar.service.internal;
 
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -29,6 +31,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Strings;
 
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventSeries;
@@ -166,6 +170,21 @@ public class VEventSanitizer {
 			}
 		}
 
+		/*
+		 * RFC 5545 3.8.2.2. The value type of the "DTEND" property MUST be the same as
+		 * the "DTSTART" property
+		 */
+		if (vevent.dtstart != null && vevent.dtend != null && vevent.dtend.precision != vevent.dtstart.precision) {
+			vevent.dtend.precision = vevent.dtstart.precision;
+			if (vevent.dtend.precision == Precision.Date) {
+				vevent.dtend.iso8601 = new SimpleDateFormat("yyyy-MM-dd")
+						.format(new BmDateTimeWrapper(vevent.dtend).toDate());
+			} else {
+				vevent.dtend.iso8601 = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+						.format(new BmDateTimeWrapper(vevent.dtend).toDateTime());
+			}
+		}
+
 		// cleanup alarm
 		if (vevent.alarm != null) {
 			ArrayList<VAlarm> cl = new ArrayList<>(vevent.alarm.size());
@@ -250,7 +269,7 @@ public class VEventSanitizer {
 			return;
 		}
 
-		if (StringUtils.isNotEmpty(organizer.mailto)) {
+		if (!Strings.isNullOrEmpty(organizer.mailto)) {
 			if (!Regex.EMAIL.validate(organizer.mailto)) {
 				organizer.mailto = null;
 			}
@@ -287,7 +306,7 @@ public class VEventSanitizer {
 				attendee.commonName = attendee.mailto;
 			}
 
-			if (StringUtils.isNotEmpty(attendee.mailto) && !Regex.EMAIL.validate(attendee.mailto)) {
+			if (!Strings.isNullOrEmpty(attendee.mailto) && !Regex.EMAIL.validate(attendee.mailto)) {
 				attendee.mailto = null;
 			}
 			DirEntry dir = resolve(attendee.dir, attendee.mailto);

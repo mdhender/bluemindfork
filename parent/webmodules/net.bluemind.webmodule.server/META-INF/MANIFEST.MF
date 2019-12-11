@@ -24,4 +24,3 @@ Export-Package: net.bluemind.webmodule.server,
  net.bluemind.webmodule.server.filters,
  net.bluemind.webmodule.server.handlers
 Bundle-Activator: net.bluemind.webmodule.server.WebModuleServerActivator
-Import-Package: org.apache.xml.resolver.apps

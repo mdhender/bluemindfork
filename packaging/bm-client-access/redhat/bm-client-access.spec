@@ -69,16 +69,15 @@ generateDhParam() {
     echo -e "\n"
 }
 
-if [ $1 -eq 1 ]; then
-    # Installation
-    BM_EXTERNALURL="configure.your.external.url"    
-    /usr/share/bm-client-access/bin/createcert.sh ${BM_EXTERNALURL}
-fi
-
 if [ -f "/etc/bm/bm.ini" ]; then
   externalurl=`cat /etc/bm/bm.ini | grep external-url | sed -e 's/ //g' | cut -d'=' -f2`
 else
-  externalurl="configure.your.external.url"
+  externalurl=$(hostname -f)
+fi
+
+if [ $1 -eq 1 ]; then
+    # Installation
+    /usr/share/bm-client-access/bin/createcert.sh configure.your.external.url ${externalurl} $(hostname -I)
 fi
 
 echo "server_name $externalurl;" > /etc/nginx/bm-servername.conf

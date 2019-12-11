@@ -64,6 +64,7 @@ goog.require("net.bluemind.date.Date");
 goog.require("net.bluemind.date.DateTime");
 goog.require("bluemind.calendar.fx.AlldayResizer");
 goog.require("goog.net.Cookies");
+goog.require('net.bluemind.calendar.vevent.defaultValues');
 /**
  * View class for Calendar days view.
  * 
@@ -1159,7 +1160,7 @@ net.bluemind.calendar.day.DayView.prototype.handleInDayMouseDown_ = function(e) 
     if (this.ctx.settings.get('default_event_alert') && !isNaN(parseInt(this.ctx.settings.get('default_event_alert')))) {
       event.alarm = [{
         trigger : this.ctx.settings.get('default_event_alert'),
-        action : 'Email'
+        action : net.bluemind.calendar.vevent.defaultValues.action
       }]
     }
     
@@ -1298,7 +1299,7 @@ net.bluemind.calendar.day.DayView.prototype.createAlldayEvent_ = function(start,
   if (this.ctx.settings.get('default_allday_event_alert') && !isNaN(parseInt(this.ctx.settings.get('default_allday_event_alert')))) {
     evt.alarm = [{
       trigger : this.ctx.settings.get('default_allday_event_alert'),
-      action : 'Email'
+      action : net.bluemind.calendar.vevent.defaultValues.action
     }]
   }
 

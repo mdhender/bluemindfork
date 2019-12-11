@@ -265,8 +265,6 @@ public class MailBackend extends CoreConnect {
 				return null;
 			}
 
-			item.value.systemFlags.removeIf(f -> f == SystemFlag.seen);
-
 			MSEmail email = (MSEmail) data;
 			if (email.isRead() != null) {
 				if (email.isRead()) {

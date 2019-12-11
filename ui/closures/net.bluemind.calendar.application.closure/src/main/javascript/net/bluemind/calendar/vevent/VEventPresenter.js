@@ -19,7 +19,7 @@
 
 /** @fileoverview Presenter for the list view */
 
-goog.provide("net.bluemind.calendar.vevent.VEventPresenter");
+goog.provide('net.bluemind.calendar.vevent.VEventPresenter');
 
 goog.require("goog.Promise");
 goog.require("goog.array");
@@ -29,6 +29,7 @@ goog.require("goog.date.Date");
 goog.require("goog.date.Interval");
 goog.require("net.bluemind.calendar.api.PublicFreebusyClient");
 goog.require("net.bluemind.calendar.api.VFreebusyClient");
+goog.require('net.bluemind.calendar.vevent.defaultValues');
 goog.require("net.bluemind.calendar.vevent.EventType");
 goog.require("net.bluemind.calendar.vevent.VEventSeriesAdaptor");
 goog.require("net.bluemind.calendar.vevent.VEventActions");
@@ -374,7 +375,7 @@ net.bluemind.calendar.vevent.VEventPresenter.prototype.newVEvent_ = function() {
   if (this.ctx.settings.get('default_event_alert') && !isNaN(parseInt(this.ctx.settings.get('default_event_alert')))) {
     evt['alarm'] = [ {
       'trigger' : -1 * this.ctx.settings.get('default_event_alert'),
-      'action' : 'Email'
+      'action' : net.bluemind.calendar.vevent.defaultValues.action
     } ];
   }
 

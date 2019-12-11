@@ -78,7 +78,7 @@ public class ContainerRepair implements IDirEntryRepairSupport {
 
 	@Override
 	public Set<MaintenanceOperation> availableOperations(Kind kind) {
-		if (kind == Kind.USER || kind == Kind.RESOURCE || kind == Kind.MAILSHARE || kind == Kind.GROUP) {
+		if (supportedKind(kind)) {
 			return ImmutableSet.of(containerOp);
 		} else {
 			return Collections.emptySet();
@@ -87,11 +87,16 @@ public class ContainerRepair implements IDirEntryRepairSupport {
 
 	@Override
 	public Set<InternalMaintenanceOperation> ops(Kind kind) {
-		if (kind == Kind.USER || kind == Kind.RESOURCE || kind == Kind.MAILSHARE || kind == Kind.GROUP) {
+		if (supportedKind(kind)) {
 			return ImmutableSet.of(new ContainerMaintenance(context));
 		} else {
 			return Collections.emptySet();
 		}
+	}
+
+	private boolean supportedKind(Kind kind) {
+		return kind == Kind.USER || kind == Kind.RESOURCE || kind == Kind.MAILSHARE || kind == Kind.GROUP
+				|| kind == Kind.DOMAIN;
 	}
 
 }

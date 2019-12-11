@@ -21,12 +21,10 @@ package net.bluemind.calendar.auditlog;
 import java.util.List;
 
 import net.bluemind.calendar.api.ICalendar;
-import net.bluemind.calendar.api.Reminder;
 import net.bluemind.calendar.api.VEventChanges;
 import net.bluemind.calendar.api.VEventQuery;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.api.ListResult;
-import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.api.Count;
@@ -148,12 +146,6 @@ public class CalendarAuditProxy implements ICalendar {
 	public ListResult<ItemValue<VEventSeries>> list() throws ServerFault {
 		return auditor.action("list").readOnly().audit(() -> calendar.list());
 
-	}
-
-	@Override
-	public List<Reminder> getReminder(BmDateTime dtalarm) throws ServerFault {
-		return auditor.action("getReminder").addActionMetadata("dtalarm", dtalarm).readOnly()
-				.audit(() -> calendar.getReminder(dtalarm));
 	}
 
 	@Override

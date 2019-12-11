@@ -7,11 +7,4 @@
             implementation="net.bluemind.calendar.job.CalendarIndexJob">
       </scheduledjob_provider>
    </extension>
-   <extension
-         point="net.bluemind.reminder.job">
-      <job_provider
-            implementation="net.bluemind.calendar.job.CalendarAlarmSupport">
-      </job_provider>
-   </extension>
-
 </plugin>

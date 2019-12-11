@@ -25,7 +25,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.TimeZone;
 
-import org.apache.commons.lang.StringUtils;
+import com.google.common.base.Strings;
 
 import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.core.api.fault.ErrorCode;
@@ -38,7 +38,7 @@ public class BmDateTimeValidator {
 			return;
 		}
 
-		if (StringUtils.isEmpty(date.iso8601)) {
+		if (Strings.isNullOrEmpty(date.iso8601)) {
 			throw new ServerFault("Date is null or empty", ErrorCode.INVALID_PARAMETER);
 		}
 
@@ -56,7 +56,7 @@ public class BmDateTimeValidator {
 
 	private void validateDateTime(BmDateTime date) {
 
-		if (StringUtils.isEmpty(date.timezone)) {
+		if (Strings.isNullOrEmpty(date.timezone)) {
 			try {
 				LocalDateTime.parse(date.iso8601, DateTimeFormatter.ISO_DATE_TIME);
 			} catch (DateTimeParseException e) {
@@ -102,7 +102,7 @@ public class BmDateTimeValidator {
 			throw new ServerFault("Fail to parse date ISO8601: " + date.iso8601, ErrorCode.INVALID_PARAMETER);
 		}
 
-		if (StringUtils.isNotEmpty(date.timezone)) {
+		if (!Strings.isNullOrEmpty(date.timezone)) {
 			throw new ServerFault("Precision is Date but timezone is set", ErrorCode.INVALID_PARAMETER);
 		}
 

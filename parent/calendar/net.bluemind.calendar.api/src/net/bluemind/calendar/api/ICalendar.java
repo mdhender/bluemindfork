@@ -30,7 +30,6 @@ import javax.ws.rs.QueryParam;
 
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.ListResult;
-import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.api.IChangelogSupport;
@@ -237,17 +236,6 @@ public interface ICalendar extends IChangelogSupport, ICrudByIdSupport<VEventSer
 	@GET
 	@Path("_list")
 	public ListResult<ItemValue<VEventSeries>> list() throws ServerFault;
-
-	/**
-	 * Retrieve {@link Reminder}s matching the given {@link BmDateTime}.
-	 * 
-	 * @param dtalarm
-	 *            the {@link BmDateTime} to match
-	 * @return the matching {@link Reminder}s
-	 */
-	@POST
-	@Path("_remimder")
-	public List<Reminder> getReminder(BmDateTime dtalarm) throws ServerFault;
 
 	/**
 	 * Remove all events from this calendar.

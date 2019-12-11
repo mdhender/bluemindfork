@@ -37,32 +37,36 @@ public class CalendarHookVerticle extends Verticle {
 
 		RunnableExtensionLoader<ICalendarHook> loader = new RunnableExtensionLoader<>();
 
-		List<ICalendarHook> hooks = loader.loadExtensions("net.bluemind.calendar", "hook", "hook", "impl");
+		List<ICalendarHook> hooks = loader.loadExtensionsWithPriority("net.bluemind.calendar", "hook", "hook", "impl");
 
 		EventBus eventBus = vertx.eventBus();
 
-		for (final ICalendarHook hook : hooks) {
-			eventBus.registerHandler(CalendarHookAddress.EVENT_CREATED,
-					new Handler<Message<LocalJsonObject<VEventMessage>>>() {
-						public void handle(Message<LocalJsonObject<VEventMessage>> message) {
+		eventBus.registerHandler(CalendarHookAddress.EVENT_CREATED,
+				new Handler<Message<LocalJsonObject<VEventMessage>>>() {
+					public void handle(Message<LocalJsonObject<VEventMessage>> message) {
+						for (final ICalendarHook hook : hooks) {
 							hook.onEventCreated(message.body().getValue());
 						}
-					});
+					}
+				});
 
-			eventBus.registerHandler(CalendarHookAddress.EVENT_UPDATED,
-					new Handler<Message<LocalJsonObject<VEventMessage>>>() {
-						public void handle(Message<LocalJsonObject<VEventMessage>> message) {
+		eventBus.registerHandler(CalendarHookAddress.EVENT_UPDATED,
+				new Handler<Message<LocalJsonObject<VEventMessage>>>() {
+					public void handle(Message<LocalJsonObject<VEventMessage>> message) {
+						for (final ICalendarHook hook : hooks) {
 							hook.onEventUpdated(message.body().getValue());
 						}
-					});
+					}
+				});
 
-			eventBus.registerHandler(CalendarHookAddress.EVENT_DELETED,
-					new Handler<Message<LocalJsonObject<VEventMessage>>>() {
-						public void handle(Message<LocalJsonObject<VEventMessage>> message) {
+		eventBus.registerHandler(CalendarHookAddress.EVENT_DELETED,
+				new Handler<Message<LocalJsonObject<VEventMessage>>>() {
+					public void handle(Message<LocalJsonObject<VEventMessage>> message) {
+						for (final ICalendarHook hook : hooks) {
 							hook.onEventDeleted(message.body().getValue());
 						}
-					});
-		}
+					}
+				});
 
 	}
 }

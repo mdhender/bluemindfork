@@ -380,7 +380,7 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 		return ret;
 	}
 
-	private static <T extends VEvent> net.fortuna.ical4j.model.component.VEvent parse(String uid, T vevent) {
+	public static <T extends VEvent> net.fortuna.ical4j.model.component.VEvent parse(String uid, T vevent) {
 		net.fortuna.ical4j.model.component.VEvent ret = new net.fortuna.ical4j.model.component.VEvent();
 		parseICalendarElement(uid, ret, vevent);
 

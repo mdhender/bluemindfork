@@ -412,7 +412,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 				+ ":mailto:" + testUser.value.login + "@bm.lan"));
 		assertTrue(export.contains("BEGIN:VALARM"));
 		assertTrue(export.contains("TRIGGER;VALUE=DURATION:-PT600S"));
-		assertTrue(export.contains("ACTION:EMAIL"));
+		assertTrue(export.contains("ACTION:DISPLAY"));
 		assertTrue(export.contains("END:VEVENT"));
 
 		assertTrue(export.contains("END:VCALENDAR"));

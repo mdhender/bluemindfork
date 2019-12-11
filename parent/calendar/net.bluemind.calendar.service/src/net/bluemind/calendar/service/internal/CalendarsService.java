@@ -30,11 +30,9 @@ import net.bluemind.calendar.api.CalendarsVEventQuery;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.ICalendars;
-import net.bluemind.calendar.api.Reminder;
 import net.bluemind.calendar.api.VEventQuery;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.api.ListResult;
-import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerQuery;
@@ -43,7 +41,6 @@ import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ItemContainerValue;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.Verb;
-import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -57,25 +54,6 @@ public class CalendarsService implements ICalendars {
 
 	public CalendarsService(BmContext context) {
 		this.context = context;
-	}
-
-	@Override
-	public List<Reminder> getReminder(BmDateTime dtalarm) throws ServerFault {
-		// FIXME not used ? maybe by a client
-		System.err.println("ctx: " + context.getSecurityContext());
-		List<ContainerSubscriptionDescriptor> containers = context.getServiceProvider()
-				.instance(IUserSubscription.class, context.getSecurityContext().getContainerUid())
-				.listSubscriptions(context.getSecurityContext().getSubject(), ICalendarUids.TYPE);
-		System.err.println("Found " + containers.size() + " subscriptions");
-		List<Reminder> ret = new ArrayList<Reminder>();
-		for (ContainerSubscriptionDescriptor container : containers) {
-			if (RBACManager.forContext(context).forContainer(container.containerUid).can(Verb.Read.name())) {
-				ICalendar cal = context.provider().instance(ICalendar.class, container.containerUid);
-				ret.addAll(cal.getReminder(dtalarm));
-			}
-		}
-
-		return ret;
 	}
 
 	@Override

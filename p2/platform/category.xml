@@ -299,8 +299,6 @@
    <bundle id="net.bluemind.pool" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.pool.dockerconfig" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.proxy.http" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.reminder.job" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.reminder.mail" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.resource.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.resource.api.gwt" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.resource.api.php" version="4.1.0.qualifier"/>

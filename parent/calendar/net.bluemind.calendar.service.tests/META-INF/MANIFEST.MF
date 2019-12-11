@@ -37,5 +37,7 @@ Require-Bundle: org.junit,
  net.bluemind.resource.service;bundle-version="4.1.0",
  net.bluemind.filehosting.filesystem.service;bundle-version="4.1.0",
  net.bluemind.attachment.service;bundle-version="4.1.0",
- net.bluemind.dockerclient
+ net.bluemind.dockerclient,
+ net.bluemind.deferredaction.service;bundle-version="4.1.0",
+ net.bluemind.domain.service;bundle-version="4.1.0"
 

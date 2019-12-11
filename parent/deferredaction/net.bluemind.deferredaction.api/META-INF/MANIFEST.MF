@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.deferredaction.api
+Bundle-SymbolicName: net.bluemind.deferredaction.api;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: blue-mind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.deferredaction.api
+Require-Bundle: net.bluemind.core.commons,
+ net.bluemind.core.container.api,
+ javax.validation.api,
+ com.google.guava
+Export-Package: net.bluemind.deferredaction.api

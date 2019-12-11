@@ -19,5 +19,17 @@
             impl="net.bluemind.cti.service.internal.CTIPresenceHandler$PresFactory">
       </verticle>
    </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.cti.service.internal.CTIUserSettingsVerticle$CTIUserSettingsVerticleFactory">
+      </verticle>
+   </extension>
+   <extension
+         point="net.bluemind.deferredaction.registry.executor">
+      <executor
+            implementation="net.bluemind.cti.service.internal.DeferredActionCTIExecutorFactory">
+      </executor>
+   </extension>
 
 </plugin>

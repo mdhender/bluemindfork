@@ -161,7 +161,7 @@ public class BodyStreamProcessor {
 				p.address = "1";
 				p.size = mb.size;
 				mb.structure = p;
-				p.charset = parsed.getCharset();
+				p.charset = p.mime.startsWith("text/") ? parsed.getCharset() : null;
 				p.encoding = parsed.getContentTransferEncoding();
 			} else {
 				Multipart mpBody = (Multipart) parsed.getBody();

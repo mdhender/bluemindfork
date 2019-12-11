@@ -38,11 +38,6 @@ Require-Bundle: org.junit,
  net.bluemind.user.service,
  net.bluemind.mailbox.service,
  net.bluemind.icalendar.parser,
- org.apache.commons.io
-Import-Package: net.bluemind.addressbook.domainbook,
- net.bluemind.addressbook.persistence,
- net.bluemind.core.tests,
- net.bluemind.document.persistence.fs,
- net.bluemind.document.storage,
- net.bluemind.mailbox.persistence,
- net.bluemind.resource.persistence
+ org.apache.commons.io,
+ net.bluemind.core.tests.testshelper,
+ net.bluemind.document.persistence.fs

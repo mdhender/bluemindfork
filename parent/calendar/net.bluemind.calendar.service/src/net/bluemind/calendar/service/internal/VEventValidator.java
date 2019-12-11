@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
+import com.google.common.base.Strings;
 
 import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.calendar.api.VEvent;
@@ -139,7 +139,7 @@ public class VEventValidator implements IValidator<VEventSeries> {
 		}
 
 		// FIXME allow empty title?
-		if (StringUtils.isEmpty(vevent.summary)) {
+		if (Strings.isNullOrEmpty(vevent.summary)) {
 			throw new ServerFault("Event title is empty", ErrorCode.EMPTY_EVENT_TITLE);
 		}
 
@@ -149,7 +149,7 @@ public class VEventValidator implements IValidator<VEventSeries> {
 	private void validateAttachments(List<AttachedFile> attachments) {
 		if (attachments != null && !attachments.isEmpty()) {
 			for (AttachedFile attachment : attachments) {
-				if (StringUtils.isEmpty(attachment.name) || StringUtils.isEmpty(attachment.publicUrl)) {
+				if (Strings.isNullOrEmpty(attachment.name) || Strings.isNullOrEmpty(attachment.publicUrl)) {
 					throw new ServerFault("Event attachment value is empty", ErrorCode.EMPTY_EVENT_ATTACHMENT_VALUE);
 				}
 			}

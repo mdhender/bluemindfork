@@ -42,7 +42,7 @@ is_initial_configuration() {
 }
 
 manageSystemUserGroup() {
-    addgroup --system bluemind
+    getent group bluemind > /dev/null || addgroup --system bluemind
 
     # Add user cyrus to group bluemind, if such group and user exists
     adduser cyrus bluemind || true

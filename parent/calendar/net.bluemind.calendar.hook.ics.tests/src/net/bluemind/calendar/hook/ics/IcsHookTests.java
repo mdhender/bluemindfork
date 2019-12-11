@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -95,6 +96,7 @@ import net.bluemind.icalendar.api.ICalendarElement.Organizer;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 import net.bluemind.icalendar.api.ICalendarElement.RRule;
 import net.bluemind.icalendar.api.ICalendarElement.RRule.Frequency;
+import net.bluemind.icalendar.api.ICalendarElement.RRule.WeekDay;
 import net.bluemind.icalendar.api.ICalendarElement.Role;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
@@ -1798,6 +1800,59 @@ public class IcsHookTests {
 		assertNull(series.value.main);
 		assertNotNull(series.value.occurrences);
 		assertEquals(1, series.value.occurrences.size());
+	}
+
+	@Test
+	public void o2a_MasterAttendee$OccurrenceAttendee_MasterAttendee$OccurrenceAttendee_cancel_OccurrenceAttendee()
+			throws Exception {
+		ItemValue<VEventSeries> oldEvent = defaultVEventWithAttendee("invite", "u2", "u2@test.lan");
+
+		VEvent event = oldEvent.value.main;
+		event.dtstart = new BmDateTime("2019-12-02T12:00:00.000+01:00", "Europe/Paris", Precision.DateTime);
+		event.dtend = new BmDateTime("2019-12-02T14:00:00.000+01:00", "Europe/Paris", Precision.DateTime);
+		event.rrule = new RRule();
+		event.rrule.frequency = Frequency.WEEKLY;
+		event.rrule.byDay = Arrays.asList(WeekDay.WE);
+		event.rrule.interval = 1;
+
+		BmDateTime recurId = new BmDateTime(event.dtstart.iso8601, event.dtstart.timezone, event.dtstart.precision);
+		VEventOccurrence occurr = VEventOccurrence.fromEvent(event, recurId);
+		occurr.dtstart = BmDateTimeWrapper.create(new BmDateTimeWrapper(event.dtstart).toDateTime().minusDays(1),
+				Precision.DateTime);
+		occurr.dtend = BmDateTimeWrapper.create(new BmDateTimeWrapper(event.dtend).toDateTime().minusDays(1),
+				Precision.DateTime);
+
+		oldEvent.value.occurrences = Arrays.asList(occurr);
+
+		ItemValue<VEventSeries> newEvent = ItemValue.create(oldEvent.uid, oldEvent.value.copy());
+		newEvent.value.occurrences = null;
+		newEvent.value.main.exdate = new LinkedHashSet<BmDateTime>(Arrays.asList(newEvent.value.main.dtstart));
+
+		SecurityContext securityContext = Sessions.get().getIfPresent(user1.login);
+		VEventSanitizer eventSanitizer = new VEventSanitizer(new BmTestContext(securityContext), "test.lan");
+		eventSanitizer.sanitize(oldEvent.value);
+		eventSanitizer.sanitize(newEvent.value);
+
+		FakeSendmail fakeSendmail = icsHookOnUpdate(securityContext, user1.login, oldEvent, newEvent);
+
+		assertTrue(fakeSendmail.mailSent);
+		assertEquals(1, fakeSendmail.messages.size());
+		TestMail tm = fakeSendmail.messages.get(0);
+		Message m = tm.message;
+
+		String ics = getIcsPartAsText(m);
+		System.err.println(ics);
+
+		String method = getIcsPartMethod(m);
+		assertEquals("CANCEL", method);
+
+		List<ItemValue<VEventSeries>> seriesList = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
+
+		assertEquals(1, seriesList.size());
+
+		ItemValue<VEventSeries> series = seriesList.get(0);
+		assertNotNull(series.value.occurrences);
+		assertEquals(occurr.dtstart, series.value.occurrences.get(0).dtstart);
 	}
 
 	private FakeSendmail icsHookOnCreate(SecurityContext securityContext, String userUid, ItemValue<VEventSeries> event)

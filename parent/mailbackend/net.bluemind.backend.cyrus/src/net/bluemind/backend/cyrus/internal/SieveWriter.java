@@ -35,6 +35,8 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
+
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -127,7 +129,7 @@ public class SieveWriter {
 		for (MailFilter.Rule f : filter.rules) {
 			if (f.active) {
 				String criteria = f.criteria;
-				if (StringUtils.isEmpty(criteria)) {
+				if (Strings.isNullOrEmpty(criteria)) {
 					// COAX-8, l’import des règles de Zimbra vers Bluemind.
 					// Certains
 					// filtres avaient une action de défini mais pas de critères

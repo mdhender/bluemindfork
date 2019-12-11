@@ -47,7 +47,6 @@
 		<module>monitoring</module>
 		<module>resource</module>
 		<module>device</module>
-		<module>reminder</module>
 		<module>document</module>
 		<module>documentfolder</module>
 		<module>hsm</module>
@@ -69,6 +68,7 @@
 		<module>contentanalysis</module>
 		<module>topology</module>
 		<module>cloud</module>
+		<module>deferredaction</module>
 	</modules>
 
 	<build>

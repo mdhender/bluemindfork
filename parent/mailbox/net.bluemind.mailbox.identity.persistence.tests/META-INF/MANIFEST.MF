@@ -12,4 +12,3 @@ Require-Bundle: net.bluemind.core.jdbc.testshelper,
  net.bluemind.config,
  net.bluemind.mailbox.persistence,
  net.bluemind.user.persistence
-Import-Package: net.bluemind.user.api

@@ -41,6 +41,8 @@ import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.api.date.BmDateTime;
+import net.bluemind.core.api.date.BmDateTime.Precision;
+import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.RRule.Frequency;
@@ -530,6 +532,51 @@ public class OccurrenceHelperTest {
 		recurid = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 15, 0, 0, 0, 0, tz));
 		occ = OccurrenceHelper.getOccurrenceByRecurId(series, recurid);
 		assertTrue(occ.isPresent());
+	}
+
+	@Test
+	public void getNextOccurrenceTest() {
+		ZonedDateTime eventDate = ZonedDateTime.now();
+		ZonedDateTime startDate = eventDate.plusSeconds(1);
+
+		VEvent main = new VEvent();
+		main.dtstart = BmDateTimeWrapper.create(eventDate, Precision.DateTime);
+		main.dtend = BmDateTimeWrapper.create(eventDate.plusHours(2), Precision.DateTime);
+
+		main.rrule = new VEvent.RRule();
+		main.rrule.frequency = VEvent.RRule.Frequency.YEARLY;
+		main.rrule.count = 2;
+
+		VEventSeries event = new VEventSeries();
+		event.main = main;
+		ItemValue<VEventSeries> eventIV = ItemValue.create(UUID.randomUUID().toString(), event);
+
+		List<VEvent> occs = OccurrenceHelper.list(eventIV, BmDateTimeWrapper.create(startDate, Precision.DateTime),
+				BmDateTimeWrapper.create(startDate.plusYears(3), Precision.DateTime));
+		Optional<VEventOccurrence> occ = OccurrenceHelper
+				.getNextOccurrence(BmDateTimeWrapper.create(startDate, Precision.DateTime), main);
+		assertEquals(occs.get(1).dtstart, occ.get().dtstart);
+	}
+
+	@Test
+	public void getNextOccurrenceAllDayTest() {
+		ZonedDateTime eventDate = ZonedDateTime.now();
+		VEvent main = new VEvent();
+		main.dtstart = BmDateTimeWrapper.create(eventDate, Precision.Date);
+		main.dtend = BmDateTimeWrapper.create(eventDate.plusDays(1), Precision.Date);
+
+		main.rrule = new VEvent.RRule();
+		main.rrule.frequency = VEvent.RRule.Frequency.YEARLY;
+		main.rrule.count = 2;
+
+		Optional<VEventOccurrence> nextYearOccurrence = OccurrenceHelper
+				.getNextOccurrence(BmDateTimeWrapper.create(eventDate, Precision.DateTime), main);
+		assertEquals(BmDateTimeWrapper.create(eventDate.plusYears(1), Precision.Date),
+				nextYearOccurrence.get().dtstart);
+
+		Optional<VEventOccurrence> nextOccurrence = OccurrenceHelper
+				.getNextOccurrence(BmDateTimeWrapper.create(eventDate, Precision.Date), main);
+		assertEquals(nextYearOccurrence.get().dtstart, nextOccurrence.get().dtstart);
 	}
 
 	protected ItemValue<VEventSeries> defaultVEvent() {

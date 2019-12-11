@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 
 import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.VCard;
@@ -435,7 +436,7 @@ public class ContactConverter {
 	 * @param msPhone
 	 */
 	private void addPhone(VCard vcard, String msPhone, String... labels) {
-		if (StringUtils.isNotEmpty(msPhone)) {
+		if (!Strings.isNullOrEmpty(msPhone)) {
 			List<Parameter> labelParameters = new ArrayList<>();
 			for (String label : labels) {
 				labelParameters.add(Parameter.create("TYPE", label));

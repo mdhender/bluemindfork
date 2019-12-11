@@ -21,7 +21,6 @@ Require-Bundle: net.bluemind.slf4j;bundle-version="1.0.0",
  net.bluemind.core.rest,
  net.bluemind.user.api,
  net.bluemind.addressbook.api,
- net.bluemind.reminder.mail;bundle-version="1.0.0",
  net.bluemind.core.container.api,
  net.bluemind.common.freemarker,
  net.bluemind.icalendar.parser,
@@ -29,5 +28,4 @@ Require-Bundle: net.bluemind.slf4j;bundle-version="1.0.0",
  net.bluemind.core.auditlog,
  net.bluemind.attachment.api,
  net.bluemind.system.api
-Import-Package: net.bluemind.directory.api
 

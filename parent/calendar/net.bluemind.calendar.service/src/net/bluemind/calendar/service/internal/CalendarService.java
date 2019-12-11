@@ -29,25 +29,24 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.eventbus.EventBus;
 
+import com.google.common.base.Strings;
+
 import net.bluemind.calendar.api.ICalendar;
-import net.bluemind.calendar.api.Reminder;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventChanges;
+import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventQuery;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.auditlog.CalendarAuditor;
-import net.bluemind.calendar.occurrence.OccurrenceHelper;
 import net.bluemind.calendar.persistence.VEventIndexStore;
 import net.bluemind.calendar.persistence.VEventSeriesStore;
 import net.bluemind.calendar.service.cache.PendingEventsCache;
 import net.bluemind.core.api.ListResult;
-import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -188,7 +187,7 @@ public class CalendarService implements ICalendar {
 			throws ServerFault {
 		rbacManager.check(Verb.Write.name());
 
-		if (StringUtils.isEmpty(event.icsUid)) {
+		if (Strings.isNullOrEmpty(event.icsUid)) {
 			event.icsUid = uid;
 		}
 
@@ -650,62 +649,6 @@ public class CalendarService implements ICalendar {
 			}
 
 		});
-	}
-
-	@Override
-	public List<Reminder> getReminder(BmDateTime dtalarm) throws ServerFault {
-		rbacManager.check(Verb.Read.name());
-
-		List<String> events = storeService.getReminder(dtalarm);
-
-		logger.debug("Found {} event candidates for reminder email", events.size());
-
-		List<Reminder> ret = new LinkedList<>();
-		Set<String> eventUids = new HashSet<>();
-		for (String uid : events) {
-
-			ItemValue<VEventSeries> item = storeService.get(uid, null);
-			if (eventUids.contains(item.uid)) {
-				continue;
-			}
-
-			eventUids.add(item.uid);
-			ItemValue<VEventSeries> evt = storeService.get(item.uid, null);
-
-			VEvent event = evt.value.main;
-			if (event != null && event.alarm != null && event.alarm.size() > 0) {
-				logger.debug("Event {} has {} alarms", uid, event.alarm.size());
-				if (event.rrule == null) {
-					logger.debug("Event {} has no RRule", uid);
-					for (VAlarm valarm : event.alarm) {
-						BmDateTime expected = BmDateTimeWrapper.fromTimestamp(
-								new BmDateTimeWrapper(dtalarm).toUTCTimestamp() - (valarm.trigger * 1000),
-								event.dtstart.timezone);
-						logger.debug("Comparing Expected {} to events dtstart {}", expected.toString(),
-								event.dtstart.toString());
-						if (expected.equals(event.dtstart)) {
-							ret.add(Reminder.create(ItemValue.create(evt, event), valarm));
-						}
-					}
-				} else {
-					logger.debug("Event {} has occurrences", uid);
-					for (VAlarm valarm : event.alarm) {
-						VEvent occurrence = OccurrenceHelper.getOccurrence(evt,
-								BmDateTimeWrapper.fromTimestamp(
-										new BmDateTimeWrapper(dtalarm).toUTCTimestamp() - (valarm.trigger * 1000),
-										event.dtstart.timezone));
-
-						if (occurrence != null) {
-							ret.add(Reminder.create(ItemValue.create(evt, occurrence), valarm));
-						}
-					}
-				}
-			}
-
-		}
-
-		logger.debug("Returning {} reminders to client", ret.size());
-		return ret;
 	}
 
 	@Override

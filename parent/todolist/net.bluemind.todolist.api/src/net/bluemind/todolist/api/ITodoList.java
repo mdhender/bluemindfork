@@ -30,7 +30,6 @@ import javax.ws.rs.QueryParam;
 
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.ListResult;
-import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.api.IChangelogSupport;
@@ -189,18 +188,6 @@ public interface ITodoList
 	@POST
 	@Path("_reset")
 	void reset() throws ServerFault;
-
-	/**
-	 * Retrieve planified {@link VTodo} reminders
-	 * 
-	 * @param dtalarm {@link net.bluemind.core.api.date.BmDateTime} the requested
-	 *                date
-	 * @return list of {@link net.bluemind.todolist.api.Reminder}s
-	 * @throws ServerFault common error object
-	 */
-	@POST
-	@Path("_remimder")
-	public List<Reminder> getReminder(BmDateTime dtalarm) throws ServerFault;
 
 	/**
 	 * Get {@link net.bluemind.core.container.model.ItemValue} containing a

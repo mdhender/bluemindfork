@@ -91,11 +91,11 @@ public class ImportLdapJob implements IScheduledJob {
 		if (ldapParameters != null) {
 			rid = sched.requestSlot(domainName, this, startDate);
 
-			if (ldapParameters.lastUpdate != null) {
+			if (ldapParameters.lastUpdate.isPresent()) {
 				sched.info(rid, "en",
 						"LDAP incremental update for domain: " + domainName + " since: " + ldapParameters.lastUpdate);
 				sched.info(rid, "fr", "Import LDAP incrémental pour le domaine : " + domainName + " depuis: "
-						+ ldapParameters.lastUpdate);
+						+ ldapParameters.lastUpdate.get());
 			} else {
 				sched.info(rid, "en", "LDAP global import for domain: " + domainName);
 				sched.info(rid, "fr", "Import LDAP global pour le domaine : " + domainName);

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.core.rest.apiEndpoint">
+      <endpoint
+            api="net.bluemind.deferredaction.api.IDeferredAction">
+      </endpoint>
+      <endpoint
+            api="net.bluemind.deferredaction.api.IDeferredActionContainerUids"
+            inline="true">
+      </endpoint>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.serviceFactory">
+      <serviceFactory
+            class="net.bluemind.deferredaction.service.DeferredActionFactory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.deferredaction.service.internal.DeferredActionMgmtFactory">
+      </serviceFactory>
+   </extension>
+   <extension
+         point="net.bluemind.core.validatorfactory">
+      <validatorfactory implementation="net.bluemind.deferredaction.service.internal.DeferredActionValidatorFactory"></validatorfactory>
+   </extension>
+   <extension
+         point="net.bluemind.core.container.sharding.sharded">
+      <container
+            type="deferredaction">
+      </container>
+   </extension>
+   <extension
+         point="net.bluemind.user.hook.userhook">
+      <hook
+            impl="net.bluemind.deferredaction.service.internal.DeferredActionUserHook">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.domain.domainHook">
+      <hook
+            class="net.bluemind.deferredaction.service.internal.DeferredActionDomainHook">
+      </hook>
+   </extension>
+   
+</plugin>

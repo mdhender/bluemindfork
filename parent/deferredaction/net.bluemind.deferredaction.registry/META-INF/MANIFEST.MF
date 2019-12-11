@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.deferredaction.registry
+Bundle-SymbolicName: net.bluemind.deferredaction.registry;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: blue-mind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.deferredaction.registry
+Require-Bundle: net.bluemind.core.commons,
+ net.bluemind.deferredaction.api,
+ net.bluemind.core.container.persistence,
+ net.bluemind.eclipse.common,
+ slf4j.api
+Bundle-Activator: net.bluemind.deferredaction.registry.DeferredActionPluginLoader
+Export-Package: net.bluemind.deferredaction.registry
+Bundle-ActivationPolicy: lazy
