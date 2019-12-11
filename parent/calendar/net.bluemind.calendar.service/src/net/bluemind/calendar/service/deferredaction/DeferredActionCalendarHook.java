@@ -82,6 +82,13 @@ public class DeferredActionCalendarHook implements ICalendarHook {
 	}
 
 	private void addTrigger(VAlarm valarm, VEvent occurrence, VEventMessage message) {
+		Optional<VEvent> currentOccurrence = Optional.of(occurrence);
+		do {
+			currentOccurrence = storeTrigger(valarm, currentOccurrence.get(), message);
+		} while (currentOccurrence.isPresent());
+	}
+
+	private Optional<VEvent> storeTrigger(VAlarm valarm, VEvent occurrence, VEventMessage message) {
 		Optional<Date> trigger = calculateAlarmDate(valarm, occurrence.dtstart);
 		if (trigger.isPresent()) {
 			IDeferredAction service = getService(valarm, message);
@@ -90,13 +97,15 @@ public class DeferredActionCalendarHook implements ICalendarHook {
 		} else if (occurrence.rrule != null) {
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime beginOfNextPeriod = now.plusSeconds(valarm.trigger);
-			OccurrenceHelper
-					.getNextOccurrence(BmDateTimeWrapper.create(beginOfNextPeriod, Precision.DateTime), occurrence)
-					.ifPresent(nextOccurrence -> {
-						nextOccurrence.recurid = null;
-						addTrigger(valarm, nextOccurrence, message);
-					});
+			Optional<VEventOccurrence> nextOccurrence = OccurrenceHelper
+					.getNextOccurrence(BmDateTimeWrapper.create(beginOfNextPeriod, Precision.DateTime), occurrence);
+			if (nextOccurrence.isPresent()) {
+				VEventOccurrence vEventOccurrence = nextOccurrence.get();
+				vEventOccurrence.recurid = null;
+				return Optional.of(vEventOccurrence);
+			}
 		}
+		return Optional.empty();
 	}
 
 	@Override
