@@ -110,9 +110,9 @@ public class DeferredActionEventExecutorTests {
 		ICalendar calendar = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
 				ICalendarUids.defaultUserCalendar("testuser"));
 
-		final ZonedDateTime eventDate = ZonedDateTime.now().plusHours(1);
+		final ZonedDateTime eventDate = ZonedDateTime.now().plusNanos(2000000000);
 
-		EventCreator.defaultVEvent(eventDate).withAlarm(-600).saveOnCalendar(calendar);
+		EventCreator.defaultVEvent(eventDate).withAlarm(-1).saveOnCalendar(calendar);
 
 		MockedSendmail mailer = new MockedSendmail();
 		DeferredActionEventExecutor executor = new DeferredActionEventExecutor();
@@ -120,6 +120,7 @@ public class DeferredActionEventExecutorTests {
 
 		assertEquals(1, getDeferredActions(eventDate).size());
 		executor.execute(eventDate);
+		Thread.sleep(1001);
 		assertEquals(0, getDeferredActions(eventDate).size());
 		assertTrue(mailer.wasCalled);
 	}
@@ -129,9 +130,9 @@ public class DeferredActionEventExecutorTests {
 		ICalendar calendar = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
 				ICalendarUids.defaultUserCalendar("testuser"));
 
-		final ZonedDateTime eventDate = ZonedDateTime.now().plusHours(1);
+		final ZonedDateTime eventDate = ZonedDateTime.now().plusNanos(2000000000);
 
-		int trigger = -600;
+		int trigger = -1;
 		EventCreator.defaultVEvent(eventDate).withRecurrence(VEvent.RRule.Frequency.DAILY).withAlarm(trigger)
 				.saveOnCalendar(calendar);
 
@@ -145,7 +146,7 @@ public class DeferredActionEventExecutorTests {
 				ZonedDateTime.ofInstant(beforeExecute.get(0).value.executionDate.toInstant(), ZoneId.systemDefault()));
 
 		executor.execute(eventDate);
-
+		Thread.sleep(1001);
 		List<ItemValue<DeferredAction>> afterExecute = getDeferredActions(eventDate.plusDays(1));
 		assertEquals(1, afterExecute.size());
 		assertEquals(eventDate.plusDays(1).plusSeconds(trigger).truncatedTo(ChronoUnit.SECONDS),
