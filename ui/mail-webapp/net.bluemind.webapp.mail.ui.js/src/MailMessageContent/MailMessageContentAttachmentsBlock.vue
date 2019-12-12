@@ -1,14 +1,16 @@
 <template>
-    <bm-container v-if="hasAttachments" class="mail-message-content-attachments-block pt-2 pb-0 bg-extra-light">
-        <bm-row class="mb-2">
+    <bm-container v-if="hasAttachments" class="mail-message-content-attachments-block p-2 bg-extra-light">
+        <bm-row>
             <bm-col cols="12" class="pl-2">
                 <button
+                    v-bm-tooltip.ds500
                     class="btn p-0 bg-transparent border-0 caret-btn align-text-bottom"
                     :aria-label="$t('common.toggleAttachments')"
+                    :title="$t('common.toggleAttachments')"
                 >
                     <bm-icon :icon="isExpanded ? 'caret-down' : 'caret-right'" @click="toggleExpand" />
                 </button>
-                <bm-icon icon="paper-clip" class="mr-1 ml-3" size="lg" />
+                <bm-icon icon="paper-clip" class="mx-1" size="lg" />
                 <span class="font-weight-bold pr-2">
                     {{ $tc("common.attachments", attachments.length, { count: attachments.length }) }}
                 </span>
@@ -21,17 +23,17 @@
             <bm-col cols="4">
                 <mail-message-content-attachment-item :attachment="attachments[1]" @save="save(1)" />
             </bm-col>
-            <bm-col cols="4" class="mb-2">
-                <bm-row class="border border-transparent">
-                    <bm-button
-                        variant="outline-secondary"
-                        class="w-100 mail-message-content-attachments-block-toggle py-2"
-                        :aria-label="$t('common.toggleAttachments')"
-                        @click="toggleExpand"
-                    >
-                        + {{ $tc("common.attachments", attachments.length - 2, { count: attachments.length - 2 }) }}
-                    </bm-button>
-                </bm-row>
+            <bm-col cols="4" class="pt-2 border-transparent">
+                <bm-button
+                    v-bm-tooltip.ds500
+                    variant="outline-secondary"
+                    class="w-100 h-100 mail-message-content-attachments-block-toggle py-2"
+                    :title="$t('common.toggleAttachments')"
+                    :aria-label="$t('common.toggleAttachments')"
+                    @click="toggleExpand"
+                >
+                    + {{ $tc("common.attachments", attachments.length - 2, { count: attachments.length - 2 }) }}
+                </bm-button>
             </bm-col>
         </bm-row>
         <bm-row v-else class="ml-3 mr-1">
@@ -62,7 +64,7 @@
 </template>
 
 <script>
-import { BmButton, BmCol, BmContainer, BmIcon, BmRow } from "@bluemind/styleguide";
+import { BmButton, BmCol, BmContainer, BmIcon, BmRow, BmTooltip } from "@bluemind/styleguide";
 import { mapActions, mapState, mapGetters } from "vuex";
 import { MimeType } from "@bluemind/email";
 import MailMessageContentAttachmentItem from "./MailMessageContentAttachmentItem";
@@ -77,6 +79,7 @@ export default {
         BmRow,
         MailMessageContentAttachmentItem
     },
+    directives: { BmTooltip },
     data() {
         return {
             isExpanded: false,
@@ -174,11 +177,7 @@ export default {
     box-shadow: unset;
 }
 
-.mail-message-content-attachments-block-toggle {
-    line-height: #{$line-height-base * 2} !important;
-}
-
 .border-transparent {
-    border-color: transparent;
+    border: 1px solid transparent !important;
 }
 </style>

@@ -1,18 +1,20 @@
 <template>
-    <bm-container class="mb-2 mail-message-content-attachment-item bg-white border border-light">
+    <bm-container
+        class="mail-message-content-attachment-item bg-white border border-light text-condensed py-1 px-2 mt-2"
+    >
         <bm-row v-if="isExpanded" class="pt-1">
             <bm-col cols="12" class="px-1">
-                <img v-if="hasPreview" :src="preview" class="w-100 preview">
-                <div v-else class="preview w-100 d-flex align-items-center">
-                    <bm-icon :icon="fileTypeIcon" size="7x" class="m-auto" />
+                <img v-if="hasPreview" :src="preview" class="w-100 preview mb-1" :alt="$tc('common.attachmentPreview')">
+                <div v-else class="preview w-100 d-flex align-items-center mb-1 bg-light p-1">
+                    <bm-icon :icon="fileTypeIcon" size="6x" class="m-auto bg-white preview-file-type" />
                 </div>
             </bm-col>
         </bm-row>
-        <bm-row class="p-2">
-            <bm-col class="col-auto pl-0">
-                <bm-icon :icon="fileTypeIcon" size="lg" class="align-bottom" />
+        <bm-row class="no-gutters">
+            <bm-col class="col-auto">
+                <bm-icon :icon="fileTypeIcon" size="2x" class="align-bottom pt-1" />
             </bm-col>
-            <bm-col class="text-nowrap text-truncate flex-grow-1">
+            <bm-col class="text-nowrap text-truncate flex-grow-1 px-1">
                 <span 
                     v-bm-tooltip.ds500
                     :title="attachment.filename"
@@ -23,15 +25,17 @@
                 <br>
                 {{ fileSize }}
             </bm-col>
-            <bm-col class="col-auto pr-0">
+            <bm-col class="col-auto py-1">
                 <bm-button 
+                    v-bm-tooltip.ds500
                     variant="light"
-                    class="p-2 h-100"
-                    size="lg"
-                    :aria-label="$tc('commons.downloadAttachement')" 
+                    class="p-0"
+                    size="md"
+                    :title="$tc('common.downloadAttachment')"
+                    :aria-label="$tc('common.downloadAttachment')" 
                     @click="$emit('save')"
                 >
-                    <bm-icon icon="download" size="lg" />
+                    <bm-icon icon="download" size="2x" class="p-1" />
                 </bm-button>
             </bm-col>
         </bm-row>
@@ -97,8 +101,14 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
+@import "@bluemind/styleguide/css/_variables.scss";
+
 .mail-message-content-attachment-item .preview {
-    height: 18vh;
+    height: 7em;
+}
+
+ .preview-file-type {
+     color: $light !important;
 }
 </style>
