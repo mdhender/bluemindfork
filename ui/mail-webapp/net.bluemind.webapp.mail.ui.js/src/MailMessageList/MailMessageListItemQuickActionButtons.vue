@@ -10,7 +10,7 @@
                 @click.shift.exact.prevent="openPurgeModal"
                 @click.exact.prevent="remove(message.key)"
             >
-                <bm-icon icon="trash" size="md" />
+                <bm-icon icon="trash" size="sm" />
             </bm-button>
             <bm-button
                 v-if="message.states.includes('not-seen')"
@@ -21,7 +21,8 @@
                 variant="link"
                 @click.prevent="markAsRead(message.key)"
             >
-                <bm-icon icon="read" size="md" />
+                POUET
+                <bm-icon icon="read" size="sm" />
             </bm-button>
             <bm-button
                 v-else
@@ -32,7 +33,7 @@
                 variant="link"
                 @click.prevent="markAsUnread(message.key)"
             >
-                <bm-icon icon="unread" size="md" />
+                <bm-icon icon="unread" size="sm" />
             </bm-button>
         </bm-button-group>
     </bm-button-toolbar>
