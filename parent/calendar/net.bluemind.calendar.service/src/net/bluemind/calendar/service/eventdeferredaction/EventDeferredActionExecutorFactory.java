@@ -15,19 +15,19 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.calendar.service.deferredaction;
+package net.bluemind.calendar.service.eventdeferredaction;
 
 import net.bluemind.deferredaction.registry.IDeferredActionExecutor;
 import net.bluemind.deferredaction.registry.IDeferredActionExecutorFactory;
 
-public class DeferredActionEventExecutorFactory implements IDeferredActionExecutorFactory {
+public class EventDeferredActionExecutorFactory implements IDeferredActionExecutorFactory {
 
 	public String getSupportedActionId() {
 		return EventDeferredAction.ACTION_ID;
 	}
 
 	public IDeferredActionExecutor create() {
-		return new DeferredActionEventExecutor();
+		return new EventDeferredActionExecutor();
 	}
 
 }

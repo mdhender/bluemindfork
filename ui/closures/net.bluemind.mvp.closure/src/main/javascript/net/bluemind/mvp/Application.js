@@ -1,4 +1,5 @@
-/* BEGIN LICENSE
+/**
+ * /* BEGIN LICENSE
  * Copyright © Blue Mind SAS, 2012-2016
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
@@ -15,6 +16,8 @@
  *
  * See LICENSE.txt
  * END LICENSE
+ *
+ * @format
  */
 
 /**
@@ -28,7 +31,7 @@ goog.require("goog.log");
 goog.require("goog.debug.Console");
 goog.require("goog.net.Cookies");
 goog.require("goog.structs.Map");
-goog.require('goog.Timer');
+goog.require("goog.Timer");
 goog.require("net.bluemind.commons.ui.Loader");
 goog.require("net.bluemind.authentication.schema");
 goog.require("net.bluemind.authentication.service.AuthService");
@@ -56,213 +59,249 @@ goog.require("bluemind.storage.StorageHelper");
 goog.require("net.bluemind.container.persistence.DBItemHome");
 goog.require("net.bluemind.persistence.DatabaseService");
 goog.require("goog.net.Cookies");
-goog.require('net.bluemind.net.OnlineHandler');
+goog.require("net.bluemind.net.OnlineHandler");
 goog.require("net.bluemind.debug.RemoteLogger");
-
 
 /**
  * Application
- * 
+ *
  * @param {string} application Application id
  * @param {string} base Application base url
  * @param {Array.<net.bluemind.mvp.Router.Route>} routes Application routes
  * @constructor
  */
 net.bluemind.mvp.Application = function(application, base, routes) {
+    var loader = new net.bluemind.commons.ui.Loader();
+    loader.start();
 
-  var loader = new net.bluemind.commons.ui.Loader();
-  loader.start();
+    if (goog.DEBUG) {
+        var debugConsole = new goog.debug.Console();
+        debugConsole.setCapturing(true);
+    }
 
-  if (goog.DEBUG) {
-    var debugConsole = new goog.debug.Console();
-    debugConsole.setCapturing(true);
-  }
+    net.bluemind.debug.RemoteLogger.getInstance().setCapturing(true);
+    var ctx = new net.bluemind.mvp.ApplicationContext();
+    ctx.application = application;
+    ctx.base = base || "";
+    ctx.cookies = new goog.net.Cookies(document);
+    if (!goog.global["bmcSessionInfos"]) {
+        goog.global["bmcSessionInfos"] = {
+            "sid": null,
+            "bmVersion": null,
+            "userId": null
+        };
+    }
+    ctx.version = goog.global["applicationVersion"] || null;
+    ctx.rpc = new relief.rpc.RPCService(
+        new relief.cache.Cache(),
+        new goog.structs.Map({
+            "X-BM-ApiKey": goog.global["bmcSessionInfos"]["sid"],
+            "Accept": "application/json"
+        })
+    );
 
-  net.bluemind.debug.RemoteLogger.getInstance().setCapturing(true);
-  var ctx = new net.bluemind.mvp.ApplicationContext();
-  ctx.application = application;
-  ctx.base = base;
-  ctx.cookies = new goog.net.Cookies(document);
-  if (!goog.global['bmcSessionInfos']) {
-    goog.global['bmcSessionInfos'] = {
-      'sid' : null,
-      'bmVersion' : null,
-      'userId' : null
-    };
-  }
-  ctx.version = goog.global['applicationVersion'] || null;
-  ctx.rpc = new relief.rpc.RPCService(new relief.cache.Cache(), new goog.structs.Map({
-    'X-BM-ApiKey' : goog.global['bmcSessionInfos']['sid'],
-    'Accept' : 'application/json'
-  }));
+    ctx.privacy = new goog.net.Cookies(document).get("BMPRIVACY") != "false";
+    ctx.databaseAvailable = true;
 
-  ctx.privacy = (new goog.net.Cookies(document).get('BMPRIVACY')) != 'false';
-  ctx.databaseAvailable = true;
+    if (Array.isArray(routes) && routes.length > 0) {
+        var router = new net.bluemind.mvp.Router(ctx, routes);
+        var helper = new net.bluemind.mvp.helper.URLHelper(router);
+        ctx.helper("url", helper);
+        this.registerFilters(router);
+    }
 
-  var router = new net.bluemind.mvp.Router(ctx, routes);
-  var helper = new net.bluemind.mvp.helper.URLHelper(router);
-  ctx.helper('url', helper);
-  this.registerFilters(router);
+    ctx.online = true;
 
-  ctx.online = true;
-
-  this.bootstrap(ctx).then(function() {
-    loader.stop();
-    router.start();
-    this.postBootstrap(ctx);
-  }, null, this);
-
+    this.bootstrap(ctx).then(
+        function() {
+            loader.stop();
+            router && router.start();
+            this.postBootstrap(ctx);
+        },
+        null,
+        this
+    );
 };
 
 /**
  * @protected
  * @type {goog.debug.Logger}
  */
-net.bluemind.mvp.Application.prototype.logger = goog.log.getLogger('net.bluemind.mvp.Application');
+net.bluemind.mvp.Application.prototype.logger = goog.log.getLogger("net.bluemind.mvp.Application");
 
 /**
  * Application bootstrap
- * 
+ *
  * @suppress {missingProperties}
  * @param {net.bluemind.mvp.ApplicationContext} ctx Application context
  */
 net.bluemind.mvp.Application.prototype.bootstrap = function(ctx) {
-  this.registerClients(ctx);
-  var online = net.bluemind.net.OnlineHandler.getInstance();
-  goog.events.listen(online, ['online', 'offline'], function(state) {
-    ctx.online = state.type == 'online';
-  });
-  ctx.online = online.isOnline();
-  var waitForConnection = new goog.Promise(function(resolve) {
-    if (!ctx.privacy && !ctx.online) {
-      goog.log.warning(this.logger, "Public mode, we must wait to be online to proceed");
-      goog.events.listenOnce(online, 'online', resolve);
-    } else {
-      resolve();
-    }
-  }, this);
-  ctx.service('database', net.bluemind.persistence.DatabaseService);
-  goog.log.info(this.logger, 'Initializing databases');
+    this.registerClients(ctx);
+    var online = net.bluemind.net.OnlineHandler.getInstance();
+    goog.events.listen(online, ["online", "offline"], function(state) {
+        ctx.online = state.type == "online";
+    });
+    ctx.online = online.isOnline();
+    var waitForConnection = new goog.Promise(function(resolve) {
+        if (!ctx.privacy && !ctx.online) {
+            goog.log.warning(this.logger, "Public mode, we must wait to be online to proceed");
+            goog.events.listenOnce(online, "online", resolve);
+        } else {
+            resolve();
+        }
+    }, this);
+    ctx.service("database", net.bluemind.persistence.DatabaseService);
+    goog.log.info(this.logger, "Initializing databases");
 
-  return ctx.service('database').initialize().then(function() {
-    return ctx.service('database').regsiterSchemas([ {
-      name : 'context',
-      schema : net.bluemind.authentication.schema,
-      options : {
-        mechanisms : [ 'database', 'webstorage' ]
-      }
-    } ]);
-  }, null, this).then(function() {
-    return ctx.service('database').regsiterSchemas(this.getDbSchemas(ctx));
-  }, null, this).then(function() {
-    return ctx.service('database').checkVersionAndUser();
-  }, null, this).thenCatch(function(e) {
-    goog.log.error(this.logger, 'No database, synchronous mode used', e);
-  }, this).then(function() {
-    goog.log.info(this.logger, 'Initializing authentication context');
-    ctx.service('auth', net.bluemind.authentication.service.AuthService);
-    return ctx.service('auth').loadContext(goog.global['bmcSessionInfos']['userId'], ctx);
-  }, null, this).then(function() {
-    this.registerServices(ctx);
-    this.registerHelpers(ctx);
-    this.registerHandlers(ctx);
-  }, null, this).thenCatch(function(e) {
-    // FIXME ...
-    goog.log.error(this.logger, 'error during initialisation', e);
-    ctx.notifyError("error during initiliasiation", e);
-  }).then(function() {
-    return waitForConnection;
-  }, null, this);
+    return ctx
+        .service("database")
+        .initialize()
+        .then(
+            function() {
+                return ctx.service("database").regsiterSchemas([
+                    {
+                        name: "context",
+                        schema: net.bluemind.authentication.schema,
+                        options: {
+                            mechanisms: ["database", "webstorage"]
+                        }
+                    }
+                ]);
+            },
+            null,
+            this
+        )
+        .then(
+            function() {
+                return ctx.service("database").regsiterSchemas(this.getDbSchemas(ctx));
+            },
+            null,
+            this
+        )
+        .then(
+            function() {
+                return ctx.service("database").checkVersionAndUser();
+            },
+            null,
+            this
+        )
+        .thenCatch(function(e) {
+            goog.log.error(this.logger, "No database, synchronous mode used", e);
+        }, this)
+        .then(
+            function() {
+                goog.log.info(this.logger, "Initializing authentication context");
+                ctx.service("auth", net.bluemind.authentication.service.AuthService);
+                return ctx.service("auth").loadContext(goog.global["bmcSessionInfos"]["userId"], ctx);
+            },
+            null,
+            this
+        )
+        .then(
+            function() {
+                this.registerServices(ctx);
+                this.registerHelpers(ctx);
+                this.registerHandlers(ctx);
+            },
+            null,
+            this
+        )
+        .thenCatch(function(e) {
+            // FIXME ...
+            goog.log.error(this.logger, "error during initialisation", e);
+            ctx.notifyError("error during initiliasiation", e);
+        })
+        .then(
+            function() {
+                return waitForConnection;
+            },
+            null,
+            this
+        );
 };
 
 /**
  * Actions after routing start
- * 
- * @param {net.bluemind.mvp.ApplicationContext} ctx Application context
+ *
  * @protected
  */
-net.bluemind.mvp.Application.prototype.postBootstrap = function(ctx) {
-};
+net.bluemind.mvp.Application.prototype.postBootstrap = function() {};
 
 /**
  * Register navigation filters.
- * 
- * @param {net.bluemind.mvp.Router} router Application router
+ *
  * @protected
  */
-net.bluemind.mvp.Application.prototype.registerFilters = function(router) {
-};
+net.bluemind.mvp.Application.prototype.registerFilters = function() {};
 
 /**
  * Register clients in context
- * 
+ *
  * @param {net.bluemind.mvp.ApplicationContext} ctx Application context
  * @protected
  */
 net.bluemind.mvp.Application.prototype.registerClients = function(ctx) {
-  ctx.client('auth', net.bluemind.authentication.api.AuthClient);
-  ctx.client('containers', net.bluemind.core.container.api.ContainersClient);
+    ctx.client("auth", net.bluemind.authentication.api.AuthClient);
+    ctx.client("containers", net.bluemind.core.container.api.ContainersClient);
 };
 
 /**
  * Register service in context
- * 
+ *
  * @param {net.bluemind.mvp.ApplicationContext} ctx Application context
  * @protected
  */
 net.bluemind.mvp.Application.prototype.registerServices = function(ctx) {
-  ctx.service("containersObserver", net.bluemind.container.service.ContainersObserver);
+    ctx.service("containersObserver", net.bluemind.container.service.ContainersObserver);
 };
 
 /**
  * Register helpers in context
- * 
+ *
  * @param {net.bluemind.mvp.ApplicationContext} ctx Application context
  * @protected
  */
 net.bluemind.mvp.Application.prototype.registerHelpers = function(ctx) {
-  var helper = new net.bluemind.i18n.DateTimeHelper(ctx.settings.get('date'), ctx.settings.get('timeformat'));
-  ctx.helper('dateformat', helper);
-  helper = new net.bluemind.timezone.TimeZoneHelper(ctx.settings.get('timezone'));
-  ctx.helper('timezone', helper);
-  helper = new net.bluemind.date.DateHelper(helper);
-  ctx.helper('date', helper);
-  var esHelper = new net.bluemind.elasticsearch.ElasticSearchHelper();
-  console.log('adding ES helper');
-  ctx.helper('elasticsearch', esHelper);
+    var helper = new net.bluemind.i18n.DateTimeHelper(ctx.settings.get("date"), ctx.settings.get("timeformat"));
+    ctx.helper("dateformat", helper);
+    helper = new net.bluemind.timezone.TimeZoneHelper(ctx.settings.get("timezone"));
+    ctx.helper("timezone", helper);
+    helper = new net.bluemind.date.DateHelper(helper);
+    ctx.helper("date", helper);
+    var esHelper = new net.bluemind.elasticsearch.ElasticSearchHelper();
+    ctx.helper("elasticsearch", esHelper);
 };
 
 /**
  * Register handlers in context
- * 
+ *
  * @param {net.bluemind.mvp.ApplicationContext} ctx Application context
  * @protected
  */
 net.bluemind.mvp.Application.prototype.registerHandlers = function(ctx) {
-  var links = new net.bluemind.events.LinkHandler(goog.global.document.body);
-  if (goog.array.contains(ctx.user['roles'], 'hasMail')) {
-    links.registerProtocolHandler('mailto', new net.bluemind.events.MailToWebmailHandler());
-  } else {
-    links.registerProtocolHandler('mailto', new net.bluemind.events.MailToDefaultHandler());
-  }
+    var links = new net.bluemind.events.LinkHandler(goog.global.document.body);
+    if (goog.array.contains(ctx.user["roles"], "hasMail")) {
+        links.registerProtocolHandler("mailto", new net.bluemind.events.MailToWebmailHandler());
+    } else {
+        links.registerProtocolHandler("mailto", new net.bluemind.events.MailToDefaultHandler());
+    }
 
-  if (goog.array.contains(ctx.user['roles'], 'hasCTI')) {
-    links.registerProtocolHandler('tel', new net.bluemind.events.CallToCTIHandler(ctx));
-  } else {
-    links.registerProtocolHandler('tel', new net.bluemind.events.CallToDefaultHandler());
-  }
-  ctx.handler('link', links);
+    if (goog.array.contains(ctx.user["roles"], "hasCTI")) {
+        links.registerProtocolHandler("tel", new net.bluemind.events.CallToCTIHandler(ctx));
+    } else {
+        links.registerProtocolHandler("tel", new net.bluemind.events.CallToDefaultHandler());
+    }
+    ctx.handler("link", links);
 };
 
 /**
  * Register databases in context
- * 
- * @param {net.bluemind.mvp.ApplicationContext} ctx Application context
+ *
  * @protected
  */
-net.bluemind.mvp.Application.prototype.getDbSchemas = function(ctx) {
-  return [];
-}
+net.bluemind.mvp.Application.prototype.getDbSchemas = function() {
+    return [];
+};
 
 /**
  * @private
@@ -279,22 +318,22 @@ net.bluemind.mvp.Application.lock_ = false;
  * Naive lock mechanism for refresh prevention
  */
 net.bluemind.mvp.Application.lock = function(enabled) {
-  if (!enabled && net.bluemind.mvp.Application.reloadPending_) {
-    goog.dom.getWindow().location.reload();
-  }
-  net.bluemind.mvp.Application.lock_ = enabled;
-}
+    if (!enabled && net.bluemind.mvp.Application.reloadPending_) {
+        goog.dom.getWindow().location.reload();
+    }
+    net.bluemind.mvp.Application.lock_ = enabled;
+};
 
 /**
  * Reload the all application (location.reload().
  * This method is mean to add a lock to prevent refresh during sensitive operation
- * 
+ *
  * @protected
  */
 net.bluemind.mvp.Application.reload = function() {
-  if (net.bluemind.mvp.Application.lock_) {
-    net.bluemind.mvp.Application.reloadPending_ = true;
-  } else {
-    goog.dom.getWindow().location.reload();
-  }
-}
+    if (net.bluemind.mvp.Application.lock_) {
+        net.bluemind.mvp.Application.reloadPending_ = true;
+    } else {
+        goog.dom.getWindow().location.reload();
+    }
+};

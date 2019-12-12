@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.calendar.service.deferredaction;
+package net.bluemind.calendar.helper.mail;
 
 import java.io.IOException;
 import java.util.Date;
@@ -36,8 +36,6 @@ import org.apache.james.mime4j.message.MessageImpl;
 import org.apache.james.mime4j.message.MultipartImpl;
 
 import freemarker.template.TemplateException;
-import net.bluemind.calendar.helper.mail.CalendarMailHelper;
-import net.bluemind.calendar.helper.mail.Messages;
 import net.bluemind.common.freemarker.MessagesResolver;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.sendmail.ISendmail;

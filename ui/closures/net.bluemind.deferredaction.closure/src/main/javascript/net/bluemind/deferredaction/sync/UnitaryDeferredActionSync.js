@@ -23,6 +23,7 @@
 goog.provide("net.bluemind.deferredaction.sync.UnitaryDeferredActionSync");
 
 goog.require("net.bluemind.deferredaction.sync.DeferredActionClientSync");
+goog.require("net.bluemind.container.sync.UnitaryContainerSync");
 
 /**
  * @constructor

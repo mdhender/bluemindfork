@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.calendar.service.deferredaction;
+package net.bluemind.calendar.service.eventdeferredaction;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -42,6 +42,9 @@ import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
+import net.bluemind.calendar.helper.mail.EventMailHelper;
+import net.bluemind.calendar.service.eventdeferredaction.EventDeferredAction;
+import net.bluemind.calendar.service.eventdeferredaction.EventDeferredActionExecutor;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -58,7 +61,7 @@ import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
-public class DeferredActionEventExecutorTests {
+public class EventDeferredActionExecutorTests {
 
 	private static final String domainUid = "defbm.lan";
 
@@ -115,14 +118,14 @@ public class DeferredActionEventExecutorTests {
 		EventCreator.defaultVEvent(eventDate).withAlarm(-1).saveOnCalendar(calendar);
 
 		MockedSendmail mailer = new MockedSendmail();
-		DeferredActionEventExecutor executor = new DeferredActionEventExecutor();
+		EventDeferredActionExecutor executor = new EventDeferredActionExecutor();
 		executor.mailHelper = new EventMailHelper(mailer);
 
 		assertEquals(1, getDeferredActions(eventDate).size());
 		executor.execute(eventDate);
 		Thread.sleep(1001);
 		assertEquals(0, getDeferredActions(eventDate).size());
-		assertTrue(mailer.wasCalled);
+		assertTrue(mailer.hasBeenCalled());
 	}
 
 	@Test
@@ -137,7 +140,7 @@ public class DeferredActionEventExecutorTests {
 				.saveOnCalendar(calendar);
 
 		MockedSendmail mailer = new MockedSendmail();
-		DeferredActionEventExecutor executor = new DeferredActionEventExecutor();
+		EventDeferredActionExecutor executor = new EventDeferredActionExecutor();
 		executor.mailHelper = new EventMailHelper(mailer);
 
 		List<ItemValue<DeferredAction>> beforeExecute = getDeferredActions(eventDate.plusDays(1));
@@ -161,16 +164,15 @@ public class DeferredActionEventExecutorTests {
 
 	private List<ItemValue<DeferredAction>> getDeferredActions(ZonedDateTime executionDate) {
 		IDeferredAction deferredActionService = getService();
-		List<ItemValue<DeferredAction>> deferredActions = deferredActionService
-				.getByActionId(EventDeferredAction.ACTION_ID, executionDate.toInstant().toEpochMilli());
-		return deferredActions;
+		return deferredActionService.getByActionId(EventDeferredAction.ACTION_ID,
+				executionDate.toInstant().toEpochMilli());
 	}
 
 }
 
 class MockedSendmail implements ISendmail {
 
-	public boolean wasCalled;
+	private boolean wasCalled;
 
 	public MockedSendmail() {
 	}
@@ -203,6 +205,10 @@ class MockedSendmail implements ISendmail {
 
 	private void wasCalled() {
 		wasCalled = true;
+	}
+
+	public boolean hasBeenCalled() {
+		return wasCalled;
 	}
 
 }

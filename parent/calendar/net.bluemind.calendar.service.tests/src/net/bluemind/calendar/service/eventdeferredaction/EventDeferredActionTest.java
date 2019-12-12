@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.calendar.service.deferredaction;
+package net.bluemind.calendar.service.eventdeferredaction;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -34,6 +34,7 @@ import java.util.Set;
 import org.junit.Test;
 
 import net.bluemind.calendar.api.VEventSeries;
+import net.bluemind.calendar.service.eventdeferredaction.EventDeferredAction;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.core.api.date.BmDateTimeWrapper;

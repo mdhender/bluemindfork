@@ -50,7 +50,7 @@ import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
-import net.bluemind.calendar.service.deferredaction.EventDeferredAction;
+import net.bluemind.calendar.service.eventdeferredaction.EventDeferredAction;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.container.model.ItemValue;

@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.calendar.service.deferredaction;
+package net.bluemind.calendar.service.eventdeferredaction;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;

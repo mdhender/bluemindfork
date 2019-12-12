@@ -37,14 +37,13 @@ var notify = browserNotify;
  */
 net.bluemind.deferredaction.reminder.DeferredActionScheduler = function(ctx) {
     var deferredaction = ctx.service("deferredaction");
-    var calendar = ctx.service("calendar");
     var userDateTimeFormater = createUserDateTimeFormater(
         ctx.helper("date").create.bind(ctx.helper("date")),
         ctx.helper("timezone").getDefaultTimeZone,
         ctx.helper("dateformat").formatter.datetime.format.bind(ctx.helper("dateformat").formatter.datetime)
     );
-    checkDeferredActions(ctx, deferredaction, calendar, userDateTimeFormater)();
-    window.setInterval(checkDeferredActions(ctx, deferredaction, calendar, userDateTimeFormater), DELAY);
+    checkDeferredActions(deferredaction, userDateTimeFormater)();
+    window.setInterval(checkDeferredActions(deferredaction, userDateTimeFormater), DELAY);
 };
 
 function createUserDateTimeFormater(BmDateTimeCreator, getTimezone, formater) {
@@ -53,15 +52,14 @@ function createUserDateTimeFormater(BmDateTimeCreator, getTimezone, formater) {
     };
 }
 
-function checkDeferredActions(ctx, deferredaction, calendar, userDateTimeFormater) {
+function checkDeferredActions(deferredaction, userDateTimeFormater) {
     return function() {
         goog.log.info(logger, "Checking reminders…");
         deferredaction
             .getItems(Date.now() + DELAY)
             .then(deleteOverdues(deferredaction))
-            .then(appendEvents(calendar))
             .then(scheduleNotifications(deferredaction, userDateTimeFormater))
-            .then(calculateNextDeferredAction(ctx, deferredaction));
+            .then(createAndSaveNextDeferredAction(deferredaction));
     };
 }
 
@@ -83,41 +81,6 @@ function deleteOverdue(deferredaction) {
 
 function overdue(item) {
     return item.value["executionDate"] < Date.now();
-}
-
-function appendEvents(calendar) {
-    return function(items) {
-        goog.log.info(logger, "Getting related events…");
-        return goog.Promise.all(items.map(promiseWithEvents(calendar)));
-    };
-}
-
-function promiseWithEvents(calendar) {
-    return function(item) {
-        var uids = getUids(item.value["reference"]);
-        var containerUid = uids.containerUid;
-        var itemUid = uids.itemUid;
-        return getEvent(calendar, containerUid, itemUid).then(appendEvent(item));
-    };
-}
-
-function getUids(reference) {
-    var uids = reference.split("#");
-    return {
-        containerUid: uids[0],
-        itemUid: uids[1]
-    };
-}
-
-function getEvent(calendar, containerUid, itemUid) {
-    return calendar.getItem(containerUid, itemUid);
-}
-
-function appendEvent(item) {
-    return function(event) {
-        item.event = event;
-        return item;
-    };
 }
 
 function scheduleNotifications(deferredaction, userDateTimeFormater) {
@@ -145,9 +108,13 @@ function scheduleNotification(userDateTimeFormater, deferredaction) {
 }
 
 function getNotificationText(userDateTimeFormater, item) {
-    var datetimestart = userDateTimeFormater(item.event.value["main"]["dtstart"]);
-    var datetimeend = userDateTimeFormater(item.event.value["main"]["dtend"]);
-    return item.event.name + "\n" + datetimestart + " → " + datetimeend;
+    return (
+        item.value["configuration"]["summary"] +
+        " (" +
+        item.value["configuration"]["location"] +
+        ") - " +
+        userDateTimeFormater(item.value["configuration"]["dtstart"])
+    );
 }
 
 function browserNotify(text) {
@@ -167,6 +134,31 @@ function browserNotify(text) {
     }
 }
 
+function createAndSaveNextDeferredAction(deferredaction) {
+    return function(items) {
+        return items
+            .filter(isrecurrent)
+            .map(createNextDeferredAction)
+            .forEach(saveItem(deferredaction));
+    };
+}
+
+function saveItem(deferredaction) {
+    return function(item) {
+        deferredaction.createItem(item);
+    };
+}
+
+function createNextDeferredAction(prevItem) {
+    var item = Object.assign({}, prevItem);
+    item.value["executionDate"] = prevItem.value["configuration"]["nextExecutionDate"];
+    return item;
+}
+
+function isrecurrent(item) {
+    return item.value["configuration"]["nextExecutionDate"];
+}
+
 /**
  * Change implementation of notif, used by Thunderbird connector
  *
@@ -177,37 +169,3 @@ net.bluemind.deferredaction.reminder.DeferredActionScheduler.setNotificationImpl
     goog.log.info(logger, "Changing notification implementation");
     notify = fn;
 };
-
-function calculateNextDeferredAction(ctx, deferredaction) {
-    return function(items) {
-        return items
-            .filter(isrecurrent)
-            .map(getNextDeferredAction(ctx))
-            .forEach(createDeferredAction(deferredaction));
-    };
-}
-
-function createDeferredAction(deferredaction) {
-    return function(item) {
-        deferredaction.createItem(item);
-    };
-}
-
-function getNextDeferredAction(ctx) {
-    return function(prevItem) {
-        var occurrenceHelper = new net.bluemind.rrule.OccurrencesHelper();
-        var nextOccurrenceDate = occurrenceHelper.getNextOccurrence(
-            ctx,
-            prevItem.event,
-            prevItem.value["executionDate"]
-        );
-        var item = Object.assign({}, prevItem);
-        item.value["executionDate"] =
-            nextOccurrenceDate.getTime() + parseInt(prevItem.value["configuration"]["trigger"], 10) * 1000;
-        return item;
-    };
-}
-
-function isrecurrent(item) {
-    return item.event.value["main"]["rrule"];
-}

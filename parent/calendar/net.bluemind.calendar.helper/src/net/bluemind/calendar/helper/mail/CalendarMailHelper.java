@@ -69,7 +69,7 @@ public class CalendarMailHelper extends ReminderMailHelper<VEvent> {
 	 * @return a {@link Map} containing the {@link VEvent} data
 	 */
 	public Map<String, Object> extractVEventDataToMap(VEvent vevent, VAlarm valarm) {
-		Map<String, Object> data = new HashMap<String, Object>();
+		Map<String, Object> data = new HashMap<>();
 
 		Long duration = vevent.dtend != null
 				? (new BmDateTimeWrapper(vevent.dtend).toUTCTimestamp()
@@ -103,7 +103,7 @@ public class CalendarMailHelper extends ReminderMailHelper<VEvent> {
 
 		data.put("allday", vevent.allDay() ? "true" : "false");
 
-		List<String> attendees = new LinkedList<String>();
+		List<String> attendees = new LinkedList<>();
 		for (VEvent.Attendee attendee : vevent.attendees) {
 			if (Strings.isNullOrEmpty(attendee.commonName)) {
 				attendees.add(attendee.mailto);
@@ -129,9 +129,7 @@ public class CalendarMailHelper extends ReminderMailHelper<VEvent> {
 	 * @return
 	 */
 	public Map<String, Object> extractVEventData(VEvent vevent) {
-		Map<String, Object> data = extractVEventDataToMap(vevent, null);
-
-		return data;
+		return extractVEventDataToMap(vevent, null);
 	}
 
 	/**

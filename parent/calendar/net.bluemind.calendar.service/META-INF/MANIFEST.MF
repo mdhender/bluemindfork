@@ -62,7 +62,7 @@ Require-Bundle: net.bluemind.calendar.api;bundle-version="1.0.0",
  net.bluemind.core.commons,
  net.bluemind.cti.service
 Export-Package: net.bluemind.calendar.service,
- net.bluemind.calendar.service.deferredaction,
+ net.bluemind.calendar.service.eventdeferredaction,
  net.bluemind.calendar.service.internal
 Bundle-Activator: net.bluemind.calendar.service.CalendarActivator
 Bundle-ActivationPolicy: lazy

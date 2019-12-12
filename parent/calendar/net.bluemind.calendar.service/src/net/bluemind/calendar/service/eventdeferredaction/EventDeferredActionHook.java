@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.calendar.service.deferredaction;
+package net.bluemind.calendar.service.eventdeferredaction;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -51,19 +51,24 @@ import net.bluemind.cti.service.CTIDeferredAction;
 import net.bluemind.deferredaction.api.DeferredAction;
 import net.bluemind.deferredaction.api.IDeferredAction;
 import net.bluemind.deferredaction.api.IDeferredActionContainerUids;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm.Action;
 
-public class DeferredActionCalendarHook implements ICalendarHook {
+public class EventDeferredActionHook implements ICalendarHook {
 
 	@Override
 	public void onEventCreated(VEventMessage message) {
+		DirEntry dirEntry = getOwnerDirEntry(message.container.domainUid, message.container.owner);
+		if (dirEntry.kind != Kind.USER) {
+			return;
+		}
 		VEventSeries event = message.vevent;
 		List<VEvent> occurrences = flatten(event);
-		String ownerDirEntryPath = getOwnerDirEntryPath(message.container.domainUid, message.container.owner);
+		String ownerDirEntryPath = dirEntry.path;
 		for (VEvent occurrence : occurrences) {
 			if (attends(occurrence, ownerDirEntryPath)) {
 				handleOccurence(occurrence, message);
@@ -92,30 +97,52 @@ public class DeferredActionCalendarHook implements ICalendarHook {
 		Optional<Date> trigger = calculateAlarmDate(valarm, occurrence.dtstart);
 		if (trigger.isPresent()) {
 			IDeferredAction service = getService(valarm, message);
-			storeTrigger(EventDeferredAction.getReference(message.container.uid, message.itemUid),
-					getConfig(message, occurrence, valarm.trigger), service, trigger.get());
-		} else if (occurrence.rrule != null) {
-			LocalDateTime now = LocalDateTime.now();
-			LocalDateTime beginOfNextPeriod = now.plusSeconds(valarm.trigger);
-			Optional<VEventOccurrence> nextOccurrence = OccurrenceHelper
-					.getNextOccurrence(BmDateTimeWrapper.create(beginOfNextPeriod, Precision.DateTime), occurrence);
-			if (nextOccurrence.isPresent()) {
-				VEventOccurrence vEventOccurrence = nextOccurrence.get();
-				vEventOccurrence.recurid = null;
-				return Optional.of(vEventOccurrence);
-			}
+			String reference = EventDeferredAction.getReference(message.container.uid, message.itemUid);
+			Optional<ZonedDateTime> nextExecutionDate = getNextExecutionDate(valarm, occurrence);
+			Map<String, String> config = getConfig(message, occurrence, valarm.trigger, nextExecutionDate);
+			storeTrigger(reference, config, service, trigger.get());
+			return Optional.empty();
 		}
-		return Optional.empty();
+
+		return getNextOccurrence(valarm, occurrence).map(vEventOccurrence -> {
+			vEventOccurrence.recurid = null;
+			return vEventOccurrence;
+		});
+	}
+
+	private Optional<ZonedDateTime> getNextExecutionDate(VAlarm valarm, VEvent occurrence) {
+		Optional<VEventOccurrence> nextOccurrence = getNextOccurrence(valarm, occurrence);
+		return nextOccurrence.map(event -> new BmDateTimeWrapper(event.dtstart).toDateTime())
+				.map(dtstart -> dtstart.plusSeconds(valarm.trigger));
+	}
+
+	private Optional<VEventOccurrence> getNextOccurrence(VAlarm valarm, VEvent occurrence) {
+		if (occurrence.rrule == null) {
+			return Optional.empty();
+		}
+
+		LocalDateTime now = LocalDateTime.now();
+		LocalDateTime beginOfNextPeriod = now.plusSeconds(valarm.trigger);
+		return OccurrenceHelper.getNextOccurrence(BmDateTimeWrapper.create(beginOfNextPeriod, Precision.DateTime),
+				occurrence);
 	}
 
 	@Override
 	public void onEventUpdated(VEventMessage message) {
+		DirEntry dirEntry = getOwnerDirEntry(message.container.domainUid, message.container.owner);
+		if (dirEntry.kind != Kind.USER) {
+			return;
+		}
 		onEventDeleted(message);
 		onEventCreated(message);
 	}
 
 	@Override
 	public void onEventDeleted(VEventMessage message) {
+		DirEntry dirEntry = getOwnerDirEntry(message.container.domainUid, message.container.owner);
+		if (dirEntry.kind != Kind.USER) {
+			return;
+		}
 		SecurityContext securityContext = SecurityContext.SYSTEM;
 		List<IDeferredAction> services = Arrays.asList(
 				ServerSideServiceProvider.getProvider(securityContext).instance(IDeferredAction.class,
@@ -125,9 +152,7 @@ public class DeferredActionCalendarHook implements ICalendarHook {
 
 		services.forEach(service -> service
 				.getByReference(EventDeferredAction.getReference(message.container.uid, message.itemUid))
-				.forEach(trigger -> {
-					service.delete(trigger.uid);
-				}));
+				.forEach(trigger -> service.delete(trigger.uid)));
 	}
 
 	private void updateCtiTrigger(VEventMessage message, List<VEvent> occurrences) {
@@ -158,10 +183,9 @@ public class DeferredActionCalendarHook implements ICalendarHook {
 		}
 	}
 
-	private String getOwnerDirEntryPath(String domainUid, String owner) {
-		DirEntry entry = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IDirectory.class, domainUid).findByEntryUid(owner);
-		return entry.path;
+	private DirEntry getOwnerDirEntry(String domainUid, String owner) {
+		return ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDirectory.class, domainUid)
+				.findByEntryUid(owner);
 	}
 
 	private boolean attends(VEvent occ, String dir) {
@@ -170,16 +194,24 @@ public class DeferredActionCalendarHook implements ICalendarHook {
 				.anyMatch(a -> a.partStatus != ParticipationStatus.Declined && owner.equals(a.dir));
 	}
 
-	private Map<String, String> getConfig(VEventMessage message, VEvent occurrence, Integer trigger) {
-		@SuppressWarnings("serial")
-		Map<String, String> config = new HashMap<String, String>() {
-			{
-				put("trigger", trigger + "");
-				put("owner", message.container.owner);
-			}
-		};
+	private Map<String, String> getConfig(VEventMessage message, VEvent occurrence, Integer trigger,
+			Optional<ZonedDateTime> nextExecutionDate) {
+		Map<String, String> config = new HashMap<>();
+		config.put("trigger", Integer.toString(trigger));
+		config.put("owner", message.container.owner);
+		nextExecutionDate
+				.ifPresent(next -> config.put("nextExecutionDate", Long.toString(next.toInstant().toEpochMilli())));
 		if (occurrence.exception()) {
 			config.put("recurid", ((VEventOccurrence) occurrence).recurid.iso8601);
+			config.put("summary", ((VEventOccurrence) occurrence).summary);
+			config.put("location", ((VEventOccurrence) occurrence).location);
+			config.put("dtstart", Long.toString(new BmDateTimeWrapper(((VEventOccurrence) occurrence).dtstart)
+					.toDateTime().toInstant().toEpochMilli()));
+		} else {
+			config.put("summary", message.vevent.main.summary);
+			config.put("location", message.vevent.main.location);
+			config.put("dtstart", Long.toString(
+					new BmDateTimeWrapper(message.vevent.main.dtstart).toDateTime().toInstant().toEpochMilli()));
 		}
 		return config;
 	}
@@ -235,6 +267,6 @@ public class DeferredActionCalendarHook implements ICalendarHook {
 	public static void init(Container container, ItemValue<VEventSeries> series) {
 		VEventMessage message = new VEventMessage(series.value, series.uid, false, SecurityContext.SYSTEM, "",
 				container);
-		new DeferredActionCalendarHook().onEventCreated(message);
+		new EventDeferredActionHook().onEventCreated(message);
 	}
 }

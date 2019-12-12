@@ -15,10 +15,10 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.calendar.service.deferredaction;
+package net.bluemind.calendar.service.eventdeferredaction;
 
-import static net.bluemind.calendar.service.deferredaction.DeferredActionEventExecutor.getLocale;
-import static net.bluemind.calendar.service.deferredaction.DeferredActionEventExecutor.getValue;
+import static net.bluemind.calendar.service.eventdeferredaction.EventDeferredActionExecutor.getLocale;
+import static net.bluemind.calendar.service.eventdeferredaction.EventDeferredActionExecutor.getValue;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
@@ -29,7 +29,7 @@ import java.util.Map;
 
 import org.junit.Test;
 
-public class DeferredActionEventExecutorTest {
+public class EventDeferredActionExecutorTest {
 
 	@Test
 	public void getLocaleFromSettingsOrDefaultTest() {

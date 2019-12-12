@@ -233,10 +233,6 @@ net.bluemind.calendar.CalendarApplication.prototype.postBootstrap = function(ctx
   var sync = net.bluemind.sync.SyncEngine.getInstance();
   var settings = new net.bluemind.container.sync.ContainerSettingsSync(ctx);
   var calView = new net.bluemind.calendar.sync.CalendarViewSync(ctx);
-  var deferredaction = new net.bluemind.deferredaction.sync.UnitaryDeferredActionSync(
-    ctx,
-    "deferredaction-" + ctx.user["uid"]
-  );
 
   net.bluemind.tag.sync.UnitaryTagSync.registerAll(ctx, sync);
 
@@ -249,11 +245,7 @@ net.bluemind.calendar.CalendarApplication.prototype.postBootstrap = function(ctx
   ctx.service("addressbooks-sync-manager").refreshBooks();
   ctx.service("calendars-sync-manager").refresh();
 
-  sync.registerService(deferredaction);
-
   sync.start(1);
-
-  new net.bluemind.deferredaction.reminder.DeferredActionScheduler(ctx);
 
   goog.log.info(this.logger,'Synchronization started');
 

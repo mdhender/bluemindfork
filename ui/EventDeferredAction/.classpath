@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="src/main/javascript/|target/|src/main/|src/" kind="src" path=""/>
+	<classpathentry kind="src" path="src/main/javascript"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

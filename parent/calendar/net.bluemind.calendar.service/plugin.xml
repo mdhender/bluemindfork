@@ -164,13 +164,13 @@
    </extension>
    <extension point="net.bluemind.deferredaction.registry.executor">
       <executor
-            implementation="net.bluemind.calendar.service.deferredaction.DeferredActionEventExecutorFactory">
+            implementation="net.bluemind.calendar.service.eventdeferredaction.EventDeferredActionExecutorFactory">
       </executor>
    </extension>
    <extension
          point="net.bluemind.calendar.hook">
       <hook
-            impl="net.bluemind.calendar.service.deferredaction.DeferredActionCalendarHook">
+            impl="net.bluemind.calendar.service.eventdeferredaction.EventDeferredActionHook">
       </hook>
    </extension>
 </plugin>

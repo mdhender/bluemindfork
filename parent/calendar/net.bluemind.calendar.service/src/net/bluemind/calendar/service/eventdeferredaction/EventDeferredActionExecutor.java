@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.calendar.service.deferredaction;
+package net.bluemind.calendar.service.eventdeferredaction;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import freemarker.template.TemplateException;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.helper.mail.CalendarMailHelper;
+import net.bluemind.calendar.helper.mail.EventMailHelper;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.IServiceProvider;
@@ -53,15 +54,15 @@ import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.user.api.IUserSettings;
 
-public class DeferredActionEventExecutor implements IDeferredActionExecutor {
+public class EventDeferredActionExecutor implements IDeferredActionExecutor {
 
-	private static final Logger logger = LoggerFactory.getLogger(DeferredActionEventExecutor.class);
+	private static final Logger logger = LoggerFactory.getLogger(EventDeferredActionExecutor.class);
 
 	private IServiceProvider provider;
 	private IDomains domainsService;
 	EventMailHelper mailHelper;
 
-	public DeferredActionEventExecutor() {
+	public EventDeferredActionExecutor() {
 		provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		domainsService = provider.instance(IDomains.class);
 		mailHelper = new EventMailHelper();
@@ -69,7 +70,7 @@ public class DeferredActionEventExecutor implements IDeferredActionExecutor {
 
 	@Override
 	public void execute(ZonedDateTime executionDate) {
-		domainsService.all().stream().filter(DeferredActionEventExecutor::isNotGlobalVirt)
+		domainsService.all().stream().filter(EventDeferredActionExecutor::isNotGlobalVirt)
 				.forEach(executeForDomain(executionDate));
 	}
 
@@ -85,12 +86,13 @@ public class DeferredActionEventExecutor implements IDeferredActionExecutor {
 
 			logger.info("Found {} deferred actions of type {}", deferredActions.size(), EventDeferredAction.ACTION_ID);
 
-			deferredActions.stream().map(DeferredActionEventExecutor::from).forEach(action -> {
-				VertxPlatform.getVertx().setTimer(
-						Math.max(1, action.value.executionDate.getTime() - new Date().getTime()),
-						(timerId) -> executeAction(deferredActionService, action, mailboxesService,
-								userSettingsService));
-			});
+			deferredActions.stream().map(EventDeferredActionExecutor::from).filter(Optional::isPresent)
+					.map(Optional::get).forEach(action -> {
+						VertxPlatform.getVertx().setTimer(
+								Math.max(1, action.value.executionDate.getTime() - new Date().getTime()),
+								(timerId) -> executeAction(deferredActionService, action, mailboxesService,
+										userSettingsService));
+					});
 		};
 	}
 
@@ -180,8 +182,13 @@ public class DeferredActionEventExecutor implements IDeferredActionExecutor {
 		return new Locale(language);
 	}
 
-	public static ItemValue<EventDeferredAction> from(ItemValue<DeferredAction> deferredAction) {
-		EventDeferredAction eventDeferredAction = new EventDeferredAction(deferredAction.value);
-		return ItemValue.create(deferredAction.uid, eventDeferredAction);
+	static Optional<ItemValue<EventDeferredAction>> from(ItemValue<DeferredAction> deferredAction) {
+		try {
+			EventDeferredAction eventDeferredAction = new EventDeferredAction(deferredAction.value);
+			return Optional.ofNullable(ItemValue.create(deferredAction.uid, eventDeferredAction));
+		} catch (Exception e) {
+			logger.error("An error occured while getting event's data.", e);
+		}
+		return Optional.empty();
 	}
 }

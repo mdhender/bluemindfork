@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.calendar.service.deferredaction;
+package net.bluemind.calendar.service.eventdeferredaction;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -79,11 +79,11 @@ public class EventDeferredAction extends DeferredAction {
 	}
 
 	public static String getContainerUid(String reference) {
-		return reference.substring(0, reference.indexOf("#"));
+		return reference.substring(0, reference.indexOf('#'));
 	}
 
 	public static String getItemUid(String reference) {
-		return reference.substring(reference.indexOf("#") + 1);
+		return reference.substring(reference.indexOf('#') + 1);
 	}
 
 	public boolean isNotOccurrenceException() {
@@ -93,14 +93,10 @@ public class EventDeferredAction extends DeferredAction {
 	public Optional<ZonedDateTime> nextExecutionDate() {
 		ZonedDateTime zonedExecutionDate = ZonedDateTime.ofInstant(executionDate.toInstant(), ZoneId.systemDefault());
 		ZonedDateTime beginOfNextPeriod = zonedExecutionDate.minusSeconds(valarm.trigger);
-		BmDateTime BmBeginOfNextPeriod = BmDateTimeWrapper.create(beginOfNextPeriod, Precision.DateTime);
-		return OccurrenceHelper.getNextOccurrence(BmBeginOfNextPeriod, vevent)//
-				.map(this::getDtStart)//
+		BmDateTime bmBeginOfNextPeriod = BmDateTimeWrapper.create(beginOfNextPeriod, Precision.DateTime);
+		return OccurrenceHelper.getNextOccurrence(bmBeginOfNextPeriod, vevent)//
+				.map(t -> new BmDateTimeWrapper(t.dtstart).toDateTime())//
 				.map(this::getTriggerDate);
-	}
-
-	private ZonedDateTime getDtStart(VEvent event) {
-		return new BmDateTimeWrapper(event.dtstart).toDateTime();
 	}
 
 	/**
@@ -128,7 +124,7 @@ public class EventDeferredAction extends DeferredAction {
 
 	public static Set<BmDateTime> excludeKnownExceptions(VEventSeries event, Set<BmDateTime> knownExdate) {
 		if (knownExdate == null) {
-			knownExdate = new HashSet<BmDateTime>();
+			knownExdate = new HashSet<>();
 		}
 		Set<BmDateTime> exdate = event.occurrences.stream().map(occurrence -> occurrence.recurid)
 				.collect(Collectors.toSet());
@@ -143,7 +139,7 @@ public class EventDeferredAction extends DeferredAction {
 		if (recurid.isPresent()) {
 			return event.occurrence(BmDateTimeWrapper.create(recurid.get()));
 		} else {
-			if (!(event.main.rrule != null)) {
+			if (event.main.rrule == null) {
 				return event.main;
 			}
 			VEvent main = event.main.copy();
