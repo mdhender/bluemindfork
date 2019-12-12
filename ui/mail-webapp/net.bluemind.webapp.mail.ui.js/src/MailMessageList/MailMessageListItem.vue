@@ -157,7 +157,7 @@ export default {
     cursor: pointer;
 }
 
-.bm-avatar {
+.mail-message-list-item .bm-avatar {
     width: 1.3rem !important;
     height: 1.3rem !important;
 }
