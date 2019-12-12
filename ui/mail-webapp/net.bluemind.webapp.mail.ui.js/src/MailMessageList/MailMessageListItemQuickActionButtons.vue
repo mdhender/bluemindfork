@@ -21,7 +21,6 @@
                 variant="link"
                 @click.prevent="markAsRead(message.key)"
             >
-                POUET
                 <bm-icon icon="read" size="sm" />
             </bm-button>
             <bm-button
