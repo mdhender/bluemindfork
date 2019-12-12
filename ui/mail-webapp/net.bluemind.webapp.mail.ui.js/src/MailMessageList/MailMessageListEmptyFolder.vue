@@ -1,33 +1,29 @@
 <template>
-    <div class="h-100 bg-extra-light d-flex flex-column align-items-center justify-content-center">
-        <div class="pb-5">
-            <h3 class="d-inline">
-                {{ $t("mail.folder") }}
+    <mail-message-list-empty :image="emptyFolderIllustration">
+        <h3 class="d-inline">
+            {{ $t("mail.folder") }}
                 <mail-folder-icon
                     v-if="currentFolder"
                     :shared="currentMailbox.type == 'mailshare'"
                     :folder="currentFolder.value"
                     class="font-weight-bold"
                 />
-            </h3>
-            <h3 class="text-center">{{ $t("mail.empty") }}</h3>
-        </div>
-        <div
-            class="empty-folder-illustration"
-            :style="'background: url(' + emptyFolderIllustration + ') no-repeat center top'"
-        />
-    </div>
+        </h3>
+        <h3 class="text-center">{{ $t("mail.empty") }}</h3>
+    </mail-message-list-empty>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
 import emptyFolderIllustration from "../../assets/empty-folder.png";
 import MailFolderIcon from "../MailFolderIcon";
+import MailMessageListEmpty from "./MailMessageListEmpty";
 
 export default {
     name: "MailMessageListEmptyFolder",
     components: {
-        MailFolderIcon
+        MailFolderIcon,
+        MailMessageListEmpty
     },
     data() {
         return {
@@ -39,10 +35,3 @@ export default {
     }
 };
 </script>
-
-<style scoped>
-.empty-folder-illustration {
-    height: 250px;
-    width: 235px;
-}
-</style>

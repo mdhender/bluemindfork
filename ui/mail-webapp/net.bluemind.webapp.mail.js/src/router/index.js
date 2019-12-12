@@ -1,12 +1,13 @@
 import MailApp, { MailThread, MailMessageNew, MailMessageStarter } from "@bluemind/webapp.mail.ui.vuejs";
 
 const actionsOnMailConsult = {
-    folder: (store, value) => store.dispatch("mail-webapp/selectFolder", value),
+    folder: (store, toParam, fromParam, to) => store.dispatch("mail-webapp/selectFolder",
+        { folderKey: toParam, filter: to.query.filter }),
     mail: (store, value) => store.dispatch("mail-webapp/selectMessage", value)
 };
 
-function actionOnSearch(store, value) {
-    return store.dispatch("mail-webapp/search", value);
+function actionOnSearch(store, toParam, fromParam, to) {
+    return store.dispatch("mail-webapp/search", { pattern: toParam, filter: to.query.filter });
 }
 
 export default [
@@ -26,7 +27,7 @@ export default [
                 name: "search",
                 meta: {
                     $actions: {
-                        pattern: actionOnSearch
+                        pattern: { call: actionOnSearch, force: true }
                     }
                 }
             },
@@ -48,7 +49,8 @@ export default [
                 meta: {
                     $actions: {
                         folder: {
-                            call: (store, value) => store.dispatch("mail-webapp/selectFolder", value),
+                            call: (store, toParam, fromParam, to) => store.dispatch("mail-webapp/selectFolder",
+                                { folderKey: toParam, filter: to.query.filter }),
                             force: true
                         }
                     }

@@ -4,16 +4,25 @@ import ItemUri from "@bluemind/item-uri";
 
 const MAX_SEARCH_RESULTS = 500;
 
-export function search({ state, commit, dispatch, getters }, pattern) {
+export function search({ state, commit, dispatch, getters }, { pattern, filter }) {
     commit("messages/clearItems");
     commit("clearCurrentMessage");
-    const folderUid = ItemUri.item(state.currentFolderKey);
+    
+    // FIXME state.currentFolderKey should not be undefined/null at this point
+    const folderUid = state.currentFolderKey ? ItemUri.item(state.currentFolderKey): "";
+
+    if (state.messageFilter != filter) {
+        commit("setMessageFilter", filter);
+    }
+    // TODO complete this once ES stuff had been fixed on core side
+    const excludedFlagsESPattern = filter == "unread" ? " ": "";
+    
     return ServiceLocator.getProvider("MailboxFoldersPersistence")
         .get(getters.currentMailbox.mailboxUid)
         .searchItems({
             query: {
                 searchSessionId: undefined,
-                query: pattern,
+                query: pattern + excludedFlagsESPattern,
                 maxResults: MAX_SEARCH_RESULTS,
                 offset: undefined,
                 scope: {

@@ -28,6 +28,9 @@ describe("[Mail-WebappStore][state] : initial state", () => {
             error: false
         });
     });
+    test("contains a 'messageFilter'", () => {
+        expect(state.messageFilter).toBeUndefined();
+    });
     test("not to contain anything else", () => {
         expect(Object.keys(state).sort()).toEqual(
             [
@@ -37,7 +40,8 @@ describe("[Mail-WebappStore][state] : initial state", () => {
                 "draft",
                 "foldersData",
                 "login",
-                "search"
+                "search",
+                "messageFilter",
             ].sort()
         );
     });

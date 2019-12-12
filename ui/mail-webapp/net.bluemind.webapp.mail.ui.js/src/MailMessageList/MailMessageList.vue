@@ -27,7 +27,7 @@
             :item-key="'key'"
             item-size="dynamic"
             scrollbar
-            class="h-100 bg-extra-light"
+            class="h-100 bg-extra-light slide-in-from-left"
             @scroll="loadMessages"
         >
             <template #item="f">
@@ -50,7 +50,9 @@
                 <mail-message-list-loading style="cursor: pointer;" />
             </template>
         </bm-infinite-scroll>
-        <mail-message-list-empty-folder v-else-if="count === 0 && mode == 'default'" />
+
+        <mail-message-list-empty-folder v-else-if="count === 0 && mode == 'default' && !areMessagesFiltered" />
+        <mail-message-list-empty-filter v-else-if="count === 0 && mode == 'default' && areMessagesFiltered" />
         <bm-list-group-item v-else-if="mode === 'search'" class="bg-extra-light text-center h-100 pr-0">
             <div class="pt-5 font-size-lg">
                 <template v-if="search.error === true">
@@ -88,6 +90,7 @@ import { mapGetters, mapState, mapActions } from "vuex";
 import { DateRange } from "@bluemind/date";
 import last from "lodash.last";
 import MailMessageListEmptyFolder from "./MailMessageListEmptyFolder";
+import MailMessageListEmptyFilter from "./MailMessageListEmptyFilter";
 import MailMessageListHeader from "./MailMessageListHeader";
 import MailMessageListItem from "./MailMessageListItem";
 import MailMessageListLoading from "./MailMessageListLoading";
@@ -118,6 +121,7 @@ export default {
         BmRow,
         BmSpinner,
         MailMessageListEmptyFolder,
+        MailMessageListEmptyFilter,
         MailMessageListHeader,
         MailMessageListItem,
         MailMessageListLoading
@@ -129,9 +133,9 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail-webapp", ["nextMessageKey", "my"]),
+        ...mapGetters("mail-webapp", ["nextMessageKey", "my", "areMessagesFiltered"]),
         ...mapGetters("mail-webapp/messages", ["messages", "count", "indexOf"]),
-        ...mapState("mail-webapp", ["currentFolderKey", "currentMessageKey", "search"]),
+        ...mapState("mail-webapp", ["currentFolderKey", "currentMessageKey", "search", "messageFilter"]),
         mode() {
             return this.search.pattern ? "search" : "default";
         },
@@ -211,12 +215,13 @@ export default {
         messageRoute(key) {
             const path = this.$route.path;
             key = key || "";
+            const filter = this.areMessagesFiltered ? "?filter=" + this.messageFilter : "";
             if (this.$route.params.mail) {
-                return path.replace(new RegExp("/" + this.$route.params.mail + "/?.*"), "/" + key);
+                return path.replace(new RegExp("/" + this.$route.params.mail + "/?.*"), "/" + key) + filter;
             } else if (path == "/mail/" || path == "/mail/new") {
-                return "/mail/" + this.currentFolderKey + "/" + key;
+                return "/mail/" + this.currentFolderKey + "/" + key + filter;
             }
-            return path + key;
+            return path + key + filter;
         },
         openPurgeModal() {
             this.$bus.$emit(SHOW_PURGE_MODAL);

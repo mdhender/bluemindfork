@@ -9,3 +9,4 @@ export * from "./my";
 export * from "./nextMessageKey";
 export * from "./tree";
 export * from "./unreadCount";
+export * from "./areMessagesFiltered";

@@ -1,6 +1,7 @@
 import { AddressBooksClient } from "@bluemind/addressbook.api";
 import { AlertFactory } from "@bluemind/alert.store";
-import { MailboxFoldersClient, MailboxItemsClient, OutboxClient } from "@bluemind/backend.mail.api";
+import { MailboxFoldersClient, OutboxClient } from "@bluemind/backend.mail.api";
+import { MailboxItemsService } from "@bluemind/backend.mail.service";
 import { TaskClient } from "@bluemind/core.task.api";
 import MailWebAppStore from "@bluemind/webapp.mail.store";
 import { ContainersClient } from "@bluemind/core.container.api";
@@ -28,7 +29,6 @@ function registerStores() {
 
 function registerAPIClients() {
     injector.register({
-        // FIXME in fact it is not the persistence layer, use XxxAPI or XxxService instead
         provide: "MailboxFoldersPersistence",
         factory: mailboxUid => {
             const userSession = injector.getProvider("UserSession").get();
@@ -42,13 +42,11 @@ function registerAPIClients() {
     });
 
     injector.register({
-        // FIXME in fact it is not the persistence layer, use XxxAPI or XxxService instead
         provide: "MailboxItemsPersistence",
-        factory: uid => new MailboxItemsClient(injector.getProvider("UserSession").get().sid, uid)
+        factory: uid => new MailboxItemsService(injector.getProvider("UserSession").get().sid, uid)
     });
 
     injector.register({
-        // FIXME in fact it is not the persistence layer, use XxxAPI or XxxService instead
         provide: "OutboxPersistence",
         factory: () => {
             const userSession = injector.getProvider("UserSession").get();
@@ -62,7 +60,6 @@ function registerAPIClients() {
     });
 
     injector.register({
-        // FIXME in fact it is not the persistence layer, use XxxAPI or XxxService instead
         provide: "AddressBooksPersistence",
         factory: () => new AddressBooksClient(injector.getProvider("UserSession").get().sid)
     });

@@ -97,4 +97,53 @@ describe("[MailboxItemsStore] Vuex store", () => {
             }
         );
     });
+    test("can filter a folder ('unread')", done => {
+        const folderUid = "folder:uid";
+        const sorted = { dir: "desc", column: "internal_date" };
+        service.sortedIds.mockReturnValueOnce(Promise.resolve(messages.map(message => message.internalId)));
+        service.filteredChangesetById.mockReturnValueOnce(
+            Promise.resolve({ created: [{ id: "4." }, { id: "7." }, { id: "11." }] }));
+        const filteredMessages = [messages[3], messages[4], messages[7]];
+        service.multipleById.mockReturnValueOnce(Promise.resolve([messages[3], messages[4], messages[7]]));
+        const store = new Vuex.Store(cloneDeep(MailboxItemsStore));
+
+        store
+            .dispatch("list", { sorted, folderUid, filter: "unread" })
+            .then(() => {
+                expect(store.state.itemKeys.length).toEqual(3);
+                return store.dispatch("multipleByKey", store.state.itemKeys);
+            })
+            .then(() => {
+                filteredMessages.forEach((item) => {
+                    const key = ItemUri.encode(item.internalId, folderUid);
+                    const message = new Message(key, item);
+                    expect(store.getters.getMessageByKey(key)).toEqual(message);
+                });
+                done();
+            });
+    });
+    test("filter a folder with 'all' filter is handled as no filter", done => {
+        const folderUid = "folder:uid";
+        const sorted = { direction: "desc", column: "internal_date" };
+        service.sortedIds.mockReturnValueOnce(Promise.resolve(messages.map(message => message.internalId)));
+        service.multipleById.mockReturnValueOnce(Promise.resolve(messages));
+        const store = new Vuex.Store(cloneDeep(MailboxItemsStore));
+
+        store
+            .dispatch("list", { sorted, folderUid, filter: "all" })
+            .then(() => {
+                expect(store.state.itemKeys.length).toEqual(messages.length);
+                return store.dispatch("multipleByKey", store.state.itemKeys);
+            })
+            .then(() => {
+                messages.forEach((item, index) => {
+                    const key = ItemUri.encode(item.internalId, folderUid);
+                    expect(store.getters.indexOf(key)).toEqual(index);
+                    const message = new Message(key, item);
+                    expect(store.getters.getMessageByKey(key)).toEqual(message);
+                });
+                expect(store.getters.count).toEqual(messages.length);
+                done();
+            });
+    });
 });

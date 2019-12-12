@@ -80,10 +80,33 @@ describe("[MailWebAppStore] Vuex store", () => {
         itemsService.multipleById.mockImplementationOnce(ids =>
             Promise.resolve(aliceInbox.filter(message => ids.includes(message.internalId)))
         );
-        store.dispatch("selectFolder", folderKey).then(() => {
+        store.dispatch("selectFolder", { folderKey }).then(() => {
             expect(store.state.currentFolderKey).toEqual(folderKey);
             expect(store.state.messages.itemKeys.length).toEqual(aliceInbox.length);
             expect(store.state.messages.itemKeys).toEqual(aliceInbox.map(m => ItemUri.encode(m.internalId, folderUid)));
+            expect(store.state.messages.items[store.state.messages.itemKeys[0]]).not.toBeUndefined();
+
+            done();
+        });
+    });
+    test("select a folder with 'unread' filter", done => {
+        store.commit("folders/storeItems", { items: aliceFolders, mailboxUid: "user.alice" });
+        const folderUid = "050ca560-37ae-458a-bd52-c40fedf4068d";
+        const folderKey = ItemUri.encode(folderUid, "user.alice");
+        itemsService.filteredChangesetById.mockReturnValueOnce(Promise.resolve({
+            created: aliceInbox.filter(message => !message.value.systemFlags.includes("seen"))
+                .map(message => { return { id: message.internalId }; })
+        }));
+        itemsService.multipleById.mockImplementationOnce(ids =>
+            Promise.resolve(aliceInbox.filter(message => !message.value.systemFlags.includes("seen")
+                && ids.includes(message.internalId + "")))
+        );
+        store.dispatch("selectFolder", { folderKey, filter: "unread" }).then(() => {
+            expect(store.state.currentFolderKey).toEqual(folderKey);
+            expect(store.state.messages.itemKeys.length).toEqual(5);
+            expect(store.state.messages.itemKeys).toEqual(aliceInbox
+                .filter(message => !message.value.systemFlags.includes("seen"))
+                .map(m => ItemUri.encode(m.internalId, folderUid)));
             expect(store.state.messages.items[store.state.messages.itemKeys[0]]).not.toBeUndefined();
             expect(store.state.foldersData[folderUid].unread).toBe(4);
             expect(store.getters.currentMailbox.mailboxUid).toEqual("user.alice");
