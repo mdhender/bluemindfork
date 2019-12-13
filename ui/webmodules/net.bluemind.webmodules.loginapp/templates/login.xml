@@ -11,7 +11,7 @@
 	<body>
 		<div id="header">
 			<img id="logo" src="images/logo-bluemind.png" alt="BlueMind" />
-			<img id="orangePeel" src="40_orange.png" alt="" />
+			<img id="orangePeel" src="4.png" alt="" />
 		</div>
 		<#if authErrorMsg??>
 		<div id="error">${authErrorMsg}</div>
