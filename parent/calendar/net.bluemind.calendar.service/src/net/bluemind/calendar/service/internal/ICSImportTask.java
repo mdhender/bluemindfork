@@ -90,7 +90,7 @@ public class ICSImportTask implements IServerTask {
 		ret.uids = new ArrayList<String>();
 		ret.uids.addAll(result.added);
 		ret.uids.addAll(result.updated);
-		ret.total = ret.uids.size();
+		ret.total = events.size();
 		return ret;
 	}
 
