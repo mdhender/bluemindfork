@@ -218,7 +218,7 @@ public class VacationEdit extends Composite {
 
 	private BmDateTime asBmDate(Date value) {
 		if (value != null) {
-			return new BmDateTime(ISO_DATE.format(value), null, Precision.DateTime);
+			return new BmDateTime(ISO_DATE.format(value), null, Precision.Date);
 		} else {
 			return null;
 		}
