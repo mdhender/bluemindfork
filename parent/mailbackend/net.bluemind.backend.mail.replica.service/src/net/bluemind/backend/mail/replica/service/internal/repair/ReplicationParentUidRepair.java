@@ -204,7 +204,7 @@ public class ReplicationParentUidRepair implements IDirEntryRepairSupport {
 					String fn = f.getName();
 
 					if (!f.isSelectable() || fn.startsWith("Dossiers partagés/")
-							|| fn.startsWith("Autres utilisateurs/")) {
+							|| fn.startsWith("Autres utilisateurs/") || fn.equals("Alt Folders/INBOX")) {
 						continue;
 					}
 					try {
