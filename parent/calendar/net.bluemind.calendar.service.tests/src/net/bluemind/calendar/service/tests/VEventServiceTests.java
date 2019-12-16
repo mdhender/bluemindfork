@@ -721,7 +721,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 
 		assertNotNull(stats);
 		assertEquals(4, stats.importedCount());
-		assertEquals(4, stats.expectedCount());
+		assertEquals(5, stats.expectedCount());
 
 		ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer)
 				.getComplete("a6f213213232112313124214124124214212bc");
@@ -760,7 +760,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 
 		assertNotNull(stats);
 		assertEquals(1, stats.importedCount());
-		assertEquals(1, stats.expectedCount());
+		assertEquals(5, stats.expectedCount());
 
 		ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer)
 				.getComplete("a6f213213232112313124214124124214212bc");
