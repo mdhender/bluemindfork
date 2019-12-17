@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: eventdeferredaction
-Bundle-SymbolicName: eventdeferredaction;singleton:=true
+Bundle-Name: net.bluemind.ui.eventdeferredaction
+Bundle-SymbolicName: net.bluemind.ui.eventdeferredaction;singleton:=true
 Bundle-Vendor: BlueMind
 Bundle-Version: 4.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -10,7 +10,7 @@ Closure-Inputs: eventdeferredaction.js
 Web-Resources: web-resources
 Bundle-ClassPath: js.jar,
  .
-Automatic-Module-Name: eventdeferredaction
+Automatic-Module-Name: net.bluemind.ui.eventdeferredaction
 Require-Bundle: net.bluemind.mvp.closure;bundle-version="4.1.0",
  net.bluemind.deferredaction.closure;bundle-version="4.1.0",
  net.bluemind.deferredaction.reminder.closure;bundle-version="4.1.0",

@@ -6,7 +6,7 @@
       <web-module-provider
             module="*">
          <web-resource
-               bundle="eventdeferredaction">
+               bundle="net.bluemind.ui.eventdeferredaction">
          </web-resource>
          <js
                path="js/compile/eventdeferredaction.js"
