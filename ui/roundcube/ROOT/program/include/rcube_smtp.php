@@ -107,7 +107,15 @@ class rcube_smtp
     // IDNA Support
     $smtp_host = rcube_idn_to_ascii($smtp_host);
 
-    $this->conn = new Net_SMTP($smtp_host, $smtp_port, $helo_host);
+    $options = [
+        'ssl' => [
+	    'verify_peer_name' => false,
+	    'verify_peer' => false,
+	    'allow_self_signed' => true,
+	],
+    ];
+
+    $this->conn = new Net_SMTP($smtp_host, $smtp_port, $helo_host, false, 10, $options);
 
     if ($RCMAIL->config->get('smtp_debug'))
       $this->conn->setDebug(true, array($this, 'debug_handler'));
