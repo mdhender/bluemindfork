@@ -35,7 +35,5 @@
    <bundle id="net.bluemind.todolist.api.closure" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.resource.api.closure" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.resource.closure" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.deferredaction.api.closure"/>
-   <bundle id="net.bluemind.deferredaction.closure"/>
-   <bundle id="net.bluemind.deferredaction.reminder.closure"/>
+   <bundle id="net.bluemind.ui.eventdeferredaction" version="4.1.0.qualifier"/>
 </site>
