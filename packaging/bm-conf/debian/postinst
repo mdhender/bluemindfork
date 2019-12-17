@@ -48,6 +48,8 @@ manageSystemUserGroup() {
     adduser cyrus bluemind || true
     # Add user www-data to group bluemind, if such group and user exists
     adduser www-data bluemind || true
+    # Add user telegraf to group bluemind, if such group and user exists
+    adduser telegraf bluemind || true
 }
 
 manageSystemUserGroup
