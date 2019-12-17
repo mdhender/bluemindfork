@@ -110,33 +110,20 @@ net.bluemind.calendar.vevent.ui.Form = function(ctx, opt_domHelper) {
   this.warnings_.set('master', new Array());
 
   this.alarm_ = new goog.structs.Map();
-  
-  function isValueSet(ctx, key) {
-    return ctx.settings.get(key) && !isNaN(parseInt(ctx.settings.get(key)));
+
+  var setDefaultTrigger = function(settingName, alarmSetting) {
+    if (this.ctx.settings.get(settingName) && !isNaN(parseInt(this.ctx.settings.get(settingName)))) {
+        this.alarm_.set(alarmSetting, [
+            {
+                trigger: this.ctx.settings.get(settingName),
+                action: net.bluemind.calendar.vevent.defaultValues.action
+            }
+        ]);
+    }
   }
 
-  var alerts = [
-      {
-          default: "default_event_alert",
-          type: "inday"
-      },
-      {
-          default: "default_allday_event_alert",
-          type: "allday"
-      }
-  ];
-  alerts
-      .filter(function(alert) {
-          isValueSet(this.ctx, alert.default);
-      }.bind(this))
-      .forEach(function(alert) {
-          this.alarm_.set(alert.type, [
-              {
-                  trigger: this.ctx.settings.get(alert.default),
-                  action: net.bluemind.calendar.vevent.defaultValues.action
-              }
-          ]);
-      }.bind(this));
+  setDefaultTrigger("default_event_alert", "inday");
+  setDefaultTrigger("default_allday_event_alert", "allday");
   
   var child = new goog.ui.Toolbar();
   child.setId('toolbar');
