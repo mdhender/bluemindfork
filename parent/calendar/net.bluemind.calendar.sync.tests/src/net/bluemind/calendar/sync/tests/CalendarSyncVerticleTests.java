@@ -97,8 +97,8 @@ public class CalendarSyncVerticleTests {
 	private String previousIcsContent;
 
 	/**
-	 * The next HTTP response the embedded server will do. It is 'prepared' by
-	 * each test.
+	 * The next HTTP response the embedded server will do. It is 'prepared' by each
+	 * test.
 	 */
 	private PreparedResponse nextResponse;
 	private boolean lastSyncHasUpdatedCalendar;
@@ -199,8 +199,8 @@ public class CalendarSyncVerticleTests {
 	}
 
 	/**
-	 * Trigger several times the sync for a never-changing ics ("MD5 mechanism"
-	 * is triggered).
+	 * Trigger several times the sync for a never-changing ics ("MD5 mechanism" is
+	 * triggered).
 	 */
 	@Test
 	public void testNoChanges() throws InterruptedException {
@@ -217,8 +217,7 @@ public class CalendarSyncVerticleTests {
 	}
 
 	/**
-	 * Trigger several times the sync for a changing ics (one more event each
-	 * time).
+	 * Trigger several times the sync for a changing ics (one more event each time).
 	 */
 	@Test
 	public void testWithChanges() throws InterruptedException {
@@ -238,8 +237,8 @@ public class CalendarSyncVerticleTests {
 	}
 
 	/**
-	 * Due to a big minimum delay between synchronizations, no more than one
-	 * sync should be done.
+	 * Due to a big minimum delay between synchronizations, no more than one sync
+	 * should be done.
 	 */
 	@Test
 	public void testWithChangesBigDelay() throws InterruptedException {
@@ -262,8 +261,8 @@ public class CalendarSyncVerticleTests {
 	 * Test an ICS with too much changes, it should not be sync-able the 4th
 	 * time.<br>
 	 * <i>Note: In this test, {@link #icsHttpServer} will alternatively return a
-	 * calendar with 51 events or just 1 each time a sync is requested (in order
-	 * to reach the 'too much changes error' limit</i>
+	 * calendar with 51 events or just 1 each time a sync is requested (in order to
+	 * reach the 'too much changes error' limit</i>
 	 */
 	@Test
 	public void testTooMuchChanges() throws InterruptedException {
@@ -289,8 +288,8 @@ public class CalendarSyncVerticleTests {
 	}
 
 	/**
-	 * Test updating a calendar with bad ICS content. Change ICS content to
-	 * avoid "MD5 mechanism".
+	 * Test updating a calendar with bad ICS content. Change ICS content to avoid
+	 * "MD5 mechanism".
 	 */
 	@Test
 	public void testBadIcsContent() throws InterruptedException {
@@ -317,8 +316,8 @@ public class CalendarSyncVerticleTests {
 	}
 
 	/**
-	 * Check we do not change the ICS content when the entity-tag (a.k.a. ETag)
-	 * has not changed.
+	 * Check we do not change the ICS content when the entity-tag (a.k.a. ETag) has
+	 * not changed.
 	 */
 	@Test
 	public void testETagNoChange() throws InterruptedException {
@@ -470,8 +469,8 @@ public class CalendarSyncVerticleTests {
 	}
 
 	/**
-	 * Check we change the ICS content when
-	 * Content-Disposition/modification-date (If-Modified-Since) changes.
+	 * Check we change the ICS content when Content-Disposition/modification-date
+	 * (If-Modified-Since) changes.
 	 */
 	@Test
 	public void testLastModifiedModificationDateChanges() throws InterruptedException {
@@ -510,8 +509,8 @@ public class CalendarSyncVerticleTests {
 
 	/**
 	 * Check we do not sync when the Expire header is set to tomorrow.<br>
-	 * <i>Note: 'Expire' races against the min delay (set in domain settings).
-	 * We always take the longer.</i>
+	 * <i>Note: 'Expire' races against the min delay (set in domain settings). We
+	 * always take the longer.</i>
 	 */
 	@Test
 	public void testNextSyncExpireTomorrow() throws InterruptedException {
@@ -560,8 +559,8 @@ public class CalendarSyncVerticleTests {
 	/**
 	 * Check we do not sync when the Cache-Control/max-age header is set to
 	 * tomorrow.<br>
-	 * <i>Note: 'max-age' races against the min delay (set in domain settings).
-	 * We always take the longer.</i>
+	 * <i>Note: 'max-age' races against the min delay (set in domain settings). We
+	 * always take the longer.</i>
 	 */
 	@Test
 	public void testNextSyncMaxAgeTomorrow() throws InterruptedException {
@@ -610,8 +609,8 @@ public class CalendarSyncVerticleTests {
 	}
 
 	/**
-	 * Check we do not update a calendar when its MD5 checksum has not changed,
-	 * even if we receive a 200 response.
+	 * Check we do not update a calendar when its MD5 checksum has not changed, even
+	 * if we receive a 200 response.
 	 */
 	@Test
 	public void testMd5NoChanges() throws InterruptedException {
@@ -630,8 +629,8 @@ public class CalendarSyncVerticleTests {
 	}
 
 	/**
-	 * Test the priority mechanism. The less errors and the older syncs should
-	 * go first. Error count is more important than last sync date.
+	 * Test the priority mechanism. The less errors and the older syncs should go
+	 * first. Error count is more important than last sync date.
 	 */
 	@Test
 	public void testPriority() {
@@ -764,7 +763,8 @@ public class CalendarSyncVerticleTests {
 	}
 
 	/** Sync done, calendar updated and changes are made. */
-	private void checkSyncOkWithChanges(final long syncWait) throws InterruptedException {
+	private void checkSyncOkWithChanges(long syncWait) throws InterruptedException {
+		syncWait += 500;
 		final String previousIcsContent = this.retrieveCurrentIcsContent();
 		final Date lastSync2 = this.triggerSync(syncWait);
 		final String icsContent = this.retrieveCurrentIcsContent();

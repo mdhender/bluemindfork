@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.calendar.EventChangesMerge;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.VEventChanges;
+import net.bluemind.calendar.api.VEventChanges.ItemDelete;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
 import net.bluemind.core.api.ImportStats;
@@ -44,13 +45,16 @@ public class ICSImportTask implements IServerTask {
 	private static final Logger logger = LoggerFactory.getLogger(ICSImportTask.class);
 
 	private final String ics;
-	private final ICalendar calendarService;
+	private final ICalendar service;
 	private final Optional<CalendarOwner> owner;
+	private final int STEP = 50;
+	private final Mode mode;
 
-	public ICSImportTask(ICalendar calendar, String ics, Optional<CalendarOwner> owner) {
-		this.calendarService = calendar;
+	public ICSImportTask(ICalendar calendar, String ics, Optional<CalendarOwner> owner, Mode mode) {
+		this.service = calendar;
 		this.ics = ics;
 		this.owner = owner;
+		this.mode = mode;
 	}
 
 	@Override
@@ -59,39 +63,72 @@ public class ICSImportTask implements IServerTask {
 
 		List<ItemValue<VEventSeries>> events = VEventServiceHelper.convertToVEventList(ics, owner);
 		monitor.progress(1, "ICS parsed ( " + events.size() + " events )");
-		ImportStats ret = importEvents(events, monitor.subWork("", 2));
-		// FIXME ret should be returned as ImportStats
-		monitor.end(true, ret.total + " events imported", JsonUtils.asString(ret));
+		ContainerUpdatesResult ret = importEvents(events, monitor.subWork("", 2));
 
+		if (mode == Mode.IMPORT) {
+			ImportStats asStats = new ImportStats();
+			asStats.uids = new ArrayList<String>();
+			asStats.uids.addAll(ret.added);
+			asStats.uids.addAll(ret.updated);
+			asStats.total = events.size();
+			monitor.end(true, ret.total() + " events synchronized", JsonUtils.asString(asStats));
+		} else {
+			monitor.end(true, ret.total() + " events synchronized", JsonUtils.asString(ret));
+		}
 	}
 
-	private ImportStats importEvents(List<ItemValue<VEventSeries>> events, IServerTaskMonitor monitor)
+	private ContainerUpdatesResult importEvents(List<ItemValue<VEventSeries>> events, IServerTaskMonitor monitor)
 			throws ServerFault {
 		monitor.begin(events.size(), "Import " + events.size() + " events");
+		ContainerUpdatesResult ret = new ContainerUpdatesResult();
 
+		ArrayList<String> icsUids = new ArrayList<String>(events.size());
 		VEventChanges changes = new VEventChanges();
 		changes.add = new ArrayList<>();
 		changes.modify = new ArrayList<>();
 		changes.delete = new ArrayList<>();
 
+		int index = 0;
 		for (ItemValue<VEventSeries> itemValue : events) {
 			VEventSeries event = itemValue.value;
-			List<ItemValue<VEventSeries>> byIcsUid = calendarService.getByIcsUid(itemValue.uid);
+			icsUids.add(itemValue.uid);
+			List<ItemValue<VEventSeries>> byIcsUid = service.getByIcsUid(itemValue.uid);
 			if (itemValue.updated == null || //
 					byIcsUid.isEmpty() || //
 					itemValue.updated.after(byIcsUid.get(0).updated)) {
 				VEventChanges eventChanges = EventChangesMerge.getStrategy(byIcsUid, event).merge(byIcsUid, event);
 				changes.addAll(eventChanges);
 			}
-			monitor.progress(1, "in progress");
+			if (index++ % STEP == 0) {
+				ContainerUpdatesResult result = service.updates(changes);
+				monitor.progress(index, null);
+				ret.added.addAll(result.added);
+				ret.updated.addAll(result.updated);
+				changes.add = new ArrayList<>();
+				changes.modify = new ArrayList<>();
+				changes.delete = new ArrayList<>();
+			}
 		}
-		ContainerUpdatesResult result = calendarService.updates(changes);
-		ImportStats ret = new ImportStats();
-		ret.uids = new ArrayList<String>();
-		ret.uids.addAll(result.added);
-		ret.uids.addAll(result.updated);
-		ret.total = events.size();
+
+		if (mode == Mode.SYNC) {
+			List<String> uids = service.all();
+			uids.removeAll(icsUids);
+			for (String uid : uids) {
+				changes.delete.add(ItemDelete.create(uid, false));
+			}
+		}
+
+		ContainerUpdatesResult result = service.updates(changes);
+		monitor.progress(index, null);
+
+		ret.added.addAll(result.added);
+		ret.updated.addAll(result.updated);
+		ret.removed.addAll(result.removed);
 		return ret;
+	}
+
+	public static enum Mode {
+		SYNC, IMPORT
 	}
 
 }

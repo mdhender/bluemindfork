@@ -55,6 +55,20 @@ public interface IVEvent {
 	public TaskRef importIcs(Stream ics) throws ServerFault;
 
 	/**
+	 * Sync an ICS.
+	 * 
+	 * @param stream
+	 *                   ics content
+	 * @return {@link net.bluemind.core.task.api.TaskRef} indicating the import
+	 *         process
+	 * @throws ServerFault
+	 *                         common error object
+	 */
+	@PUT
+	@Path("_sync")
+	public TaskRef syncIcs(Stream stream) throws ServerFault;
+
+	/**
 	 * Exports all the {@link VEvent} of the container
 	 * 
 	 * @return

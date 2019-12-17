@@ -18,7 +18,7 @@
   */
 package net.bluemind.core.container.model;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import net.bluemind.core.api.BMApi;
@@ -27,9 +27,9 @@ import net.bluemind.core.api.fault.ErrorCode;
 @BMApi(version = "3")
 public class ContainerUpdatesResult {
 
-	public List<String> added = Collections.emptyList();
-	public List<String> updated = Collections.emptyList();
-	public List<String> removed = Collections.emptyList();
+	public List<String> added = new ArrayList<>();
+	public List<String> updated = new ArrayList<>();
+	public List<String> removed = new ArrayList<>();
 
 	public List<InError> errors;
 
@@ -48,5 +48,9 @@ public class ContainerUpdatesResult {
 			ret.errorCode = errorCode;
 			return ret;
 		}
+	}
+
+	public int total() {
+		return added.size() + updated.size() + removed.size();
 	}
 }
