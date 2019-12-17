@@ -350,7 +350,7 @@ net.bluemind.rrule.OccurrencesHelper.prototype.getNextOccurrence = function(ctx,
     var date = dtstart;
     do {
         date = rrule.after(date, false);
-    } while (exdates.includes(date));
+    } while (exdates.indexOf(date) >= 0);
     return date;
 };
 

@@ -484,7 +484,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.enterDocument = function() {
     handler.listen(dom.getElement('bm-ui-form-delete-attachment-'+attachment.index), goog.events.EventType.CLICK, this.delAttachment(attachment));
   }, this);
   
-  var canRemoteAttach = goog.global['bmcSessionInfos']['roles'].split(',').includes('canRemoteAttach');
+  var canRemoteAttach = goog.global['bmcSessionInfos']['roles'].split(',').indexOf('canRemoteAttach') >= 0;
   if (!canRemoteAttach){
     this.getDomHelper().removeNode(dom.getElement('bm-ui-form-no-attachment-block'));
     this.getDomHelper().removeNode(dom.getElement('add-attachment-label'));
@@ -1087,7 +1087,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onEditorChange_ = function(e) {
 
 /**
  * Show reminder fields
- *
+ * 
  * @param {{trigger:number, action:string}} value Reminder in seconds
  * @private
  */
