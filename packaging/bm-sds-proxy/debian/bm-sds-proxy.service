@@ -22,6 +22,7 @@ ExecStartPre=/bin/chmod 775 /etc/bm-sds-proxy /var/lib/bm-sds-proxy /var/log/bm-
 ExecStartPre=/bin/chgrp -R bluemind /etc/bm-sds-proxy /var/lib/bm-sds-proxy /var/log/bm-sds-proxy /usr/share/bm-sds-proxy/plugins /var/log/garbage-collector/bm-sds-proxy /var/run/bm-metrics /var/log/bm-metrics /usr/share/bm-sds-proxy/main /usr/share/bm-sds-proxy/extensions
 ExecStartPre=/bin/chmod -R g+w /etc/bm-sds-proxy /var/lib/bm-sds-proxy /var/log/bm-sds-proxy /usr/share/bm-sds-proxy/plugins /var/log/garbage-collector/bm-sds-proxy /var/run/bm-metrics /var/log/bm-metrics /usr/share/bm-sds-proxy/main /usr/share/bm-sds-proxy/extensions
 ExecStart=/usr/share/bm-sds-proxy/bm-sds-proxy /var/run/bm-sds-proxy.pid
+ExecStartPost=/bin/chgrp bluemind /var/run/bm-metrics/metrics-bm-sds-proxy.sock
 Restart=on-abnormal
 
 [Install]
