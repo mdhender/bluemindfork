@@ -175,6 +175,12 @@ public class RestTestServiceTests {
 	}
 
 	@Test
+	public void testRootParamEncodingGoodMorning() {
+		String resp = getRestPathTestService(SecurityContext.ANONYMOUS, "root/sub:ok", "2").goodMorning("jojo");
+		assertEquals("[root/sub:ok][2]good morning jojo", resp);
+	}
+
+	@Test
 	public void testPutTime() throws Exception {
 		ObjectWithTime t = new ObjectWithTime();
 		t.subject = "test";
