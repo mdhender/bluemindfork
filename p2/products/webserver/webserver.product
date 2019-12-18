@@ -68,7 +68,6 @@
       <plugin id="net.bluemind.deferredaction.api"/>
       <plugin id="net.bluemind.deferredaction.api.closure"/>
       <plugin id="net.bluemind.deferredaction.closure"/>
-      <plugin id="net.bluemind.deferredaction.reminder.closure"/>
       <plugin id="net.bluemind.directory.api"/>
       <plugin id="net.bluemind.domain.api"/>
       <plugin id="net.bluemind.eclipse.common"/>

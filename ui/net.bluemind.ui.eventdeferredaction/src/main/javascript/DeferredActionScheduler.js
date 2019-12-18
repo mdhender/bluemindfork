@@ -20,7 +20,7 @@
  * @format
  */
 
-goog.provide("net.bluemind.deferredaction.reminder.DeferredActionScheduler");
+goog.provide("net.bluemind.ui.eventdeferredaction.DeferredActionScheduler");
 
 goog.require("net.bluemind.deferredaction.service.DeferredActionService");
 goog.require("net.bluemind.rrule.OccurrencesHelper");
@@ -28,16 +28,17 @@ goog.require("goog.log");
 goog.require("goog.Promise");
 
 var DELAY = 10 * 60 * 1000;
-var logger = goog.log.getLogger("net.bluemind.deferredaction.reminder.DeferredActionScheduler");
+var logger = goog.log.getLogger("net.bluemind.ui.eventdeferredaction.DeferredActionScheduler");
 
 var notify = browserNotify;
 
 /**
  * @constructor
  */
-net.bluemind.deferredaction.reminder.DeferredActionScheduler = function(ctx) {
+net.bluemind.ui.eventdeferredaction.DeferredActionScheduler = function(ctx) {
     var deferredaction = ctx.service("deferredaction");
     var userDateTimeFormater = createUserDateTimeFormater(
+        ctx.helper("date").toBMDateTime.bind(ctx.helper("date")),
         ctx.helper("date").create.bind(ctx.helper("date")),
         ctx.helper("timezone").getDefaultTimeZone,
         ctx.helper("dateformat").formatter.datetime.format.bind(ctx.helper("dateformat").formatter.datetime)
@@ -46,9 +47,10 @@ net.bluemind.deferredaction.reminder.DeferredActionScheduler = function(ctx) {
     window.setInterval(checkDeferredActions(deferredaction, userDateTimeFormater), DELAY);
 };
 
-function createUserDateTimeFormater(BmDateTimeCreator, getTimezone, formater) {
-    return function(dtstart) {
-        return formater(BmDateTimeCreator(dtstart, getTimezone()));
+function createUserDateTimeFormater(toBMDateTime, dateTimeCreator, getTimezone, formater) {
+    return function(timestamp) {
+        var bmDateTime = toBMDateTime(new net.bluemind.date.DateTime(timestamp))
+        return formater(dateTimeCreator(bmDateTime, getTimezone()));
     };
 }
 
@@ -108,12 +110,13 @@ function scheduleNotification(userDateTimeFormater, deferredaction) {
 }
 
 function getNotificationText(userDateTimeFormater, item) {
+    var location = item.value["configuration"]["location"] ? 
+      " (" + item.value["configuration"]["location"] + ")" :
+      "";
     return (
         item.value["configuration"]["summary"] +
-        " (" +
-        item.value["configuration"]["location"] +
-        ") - " +
-        userDateTimeFormater(item.value["configuration"]["dtstart"])
+        location + " - " +
+        userDateTimeFormater(parseInt(item.value["configuration"]["dtstart"], 10))
     );
 }
 
@@ -165,7 +168,7 @@ function isrecurrent(item) {
  * @export
  * @param {Function} new implementation, a function with a String param
  */
-net.bluemind.deferredaction.reminder.DeferredActionScheduler.setNotificationImpl = function(fn) {
+net.bluemind.ui.eventdeferredaction.DeferredActionScheduler.setNotificationImpl = function(fn) {
     goog.log.info(logger, "Changing notification implementation");
     notify = fn;
 };

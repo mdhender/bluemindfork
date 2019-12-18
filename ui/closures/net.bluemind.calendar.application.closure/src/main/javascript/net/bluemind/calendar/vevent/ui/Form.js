@@ -120,7 +120,7 @@ net.bluemind.calendar.vevent.ui.Form = function(ctx, opt_domHelper) {
             }
         ]);
     }
-  }
+  }.bind(this);
 
   setDefaultTrigger("default_event_alert", "inday");
   setDefaultTrigger("default_allday_event_alert", "allday");

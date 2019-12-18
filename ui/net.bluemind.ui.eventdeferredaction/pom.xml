@@ -31,6 +31,7 @@
 								"progid:DXImageTransform.Microsoft.gradient",
 								"-moz-radial-gradient"
 								],
+								"output-wrapper": "// Copyright 2011\n(function(){%output%})();",
 								"css-allowed-unrecognized-properties": [
 								"-khtml-opacity",
 								"-moz-border-bottom-right-radius",

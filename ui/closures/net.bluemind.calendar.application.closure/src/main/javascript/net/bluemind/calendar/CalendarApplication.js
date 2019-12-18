@@ -97,11 +97,6 @@ goog.require("net.bluemind.resource.sync.ResourcesSync");
 goog.require("net.bluemind.resource.sync.UnitaryResourcesSync");
 goog.require("net.bluemind.resource.sync.ResourcesClientSync");
 goog.require('net.bluemind.resource.service.ResourcesService');
-goog.require('net.bluemind.deferredaction.sync.UnitaryDeferredActionSync');
-goog.require('net.bluemind.deferredaction.service.DeferredActionService');
-goog.require('net.bluemind.deferredaction.persistence.schema');
-goog.require('net.bluemind.deferredaction.reminder.DeferredActionScheduler');
-
 
 /**
  * Calendar application
@@ -299,7 +294,6 @@ net.bluemind.calendar.CalendarApplication.prototype.registerServices = function(
   ctx.service("metadataMgmt", net.bluemind.calendar.MetadataMgmt);
   ctx.service("pendingEventsMgmt", net.bluemind.calendar.PendingEventsMgmt);
   ctx.service("resources", net.bluemind.resource.service.ResourcesService);
-  ctx.service("deferredaction", net.bluemind.deferredaction.service.DeferredActionService);
 };
 
 /** @override */
@@ -334,8 +328,5 @@ net.bluemind.calendar.CalendarApplication.prototype.getDbSchemas = function(ctx)
 	}, {
 		name : 'resources',
 		schema : net.bluemind.resource.persistence.schema
-	}, {
-		name : 'deferredaction',
-		schema : net.bluemind.deferredaction.persistence.schema
-	} ]);
+	}]);
 };

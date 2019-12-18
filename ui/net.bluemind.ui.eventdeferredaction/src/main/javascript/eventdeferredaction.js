@@ -18,14 +18,15 @@
  *
  * @format
  */
-goog.provide("net.bluemind.ui.EventDeferredAction");
+goog.provide("net.bluemind.ui.eventdeferredaction.EventDeferredAction");
+
 goog.require("net.bluemind.mvp.ApplicationContext");
 goog.require("net.bluemind.mvp.Application");
 goog.require("net.bluemind.sync.SyncEngine");
 goog.require("net.bluemind.deferredaction.sync.UnitaryDeferredActionSync");
 goog.require("net.bluemind.deferredaction.service.DeferredActionService");
 goog.require("net.bluemind.deferredaction.persistence.schema");
-goog.require("net.bluemind.deferredaction.reminder.DeferredActionScheduler");
+goog.require("net.bluemind.ui.eventdeferredaction.DeferredActionScheduler");
 goog.require("net.bluemind.container.sync.UnitaryContainerSync");
 
 /**
@@ -34,18 +35,18 @@ goog.require("net.bluemind.container.sync.UnitaryContainerSync");
  * @constructor
  * @extends {net.bluemind.mvp.Application}
  */
-net.bluemind.ui.EventDeferredAction = function() {
+net.bluemind.ui.eventdeferredaction.EventDeferredAction = function() {
     goog.base(this, "EventDeferredAction");
 };
-goog.inherits(net.bluemind.ui.EventDeferredAction, net.bluemind.mvp.Application);
+goog.inherits(net.bluemind.ui.eventdeferredaction.EventDeferredAction, net.bluemind.mvp.Application);
 
 /** @override */
-net.bluemind.ui.EventDeferredAction.prototype.bootstrap = function(ctx) {
+net.bluemind.ui.eventdeferredaction.EventDeferredAction.prototype.bootstrap = function(ctx) {
     return goog.base(this, "bootstrap", ctx);
 };
 
 /** @override */
-net.bluemind.ui.EventDeferredAction.prototype.postBootstrap = function(ctx) {
+net.bluemind.ui.eventdeferredaction.EventDeferredAction.prototype.postBootstrap = function(ctx) {
     goog.base(this, "postBootstrap", ctx);
     var sync = net.bluemind.sync.SyncEngine.getInstance();
     var deferredaction = new net.bluemind.deferredaction.sync.UnitaryDeferredActionSync(
@@ -53,16 +54,16 @@ net.bluemind.ui.EventDeferredAction.prototype.postBootstrap = function(ctx) {
         "deferredaction-" + ctx.user["uid"]
     );
     sync.registerService(deferredaction);
-    new net.bluemind.deferredaction.reminder.DeferredActionScheduler(ctx);
+    new net.bluemind.ui.eventdeferredaction.DeferredActionScheduler(ctx);
 };
 
 /** @override */
-net.bluemind.ui.EventDeferredAction.prototype.registerServices = function(ctx) {
+net.bluemind.ui.eventdeferredaction.EventDeferredAction.prototype.registerServices = function(ctx) {
     ctx.service("deferredaction", net.bluemind.deferredaction.service.DeferredActionService);
 };
 
 /** @override */
-net.bluemind.ui.EventDeferredAction.prototype.getDbSchemas = function(ctx) {
+net.bluemind.ui.eventdeferredaction.EventDeferredAction.prototype.getDbSchemas = function(ctx) {
     var root = goog.base(this, "getDbSchemas", ctx);
     return goog.array.concat(root, [
         {
@@ -72,4 +73,4 @@ net.bluemind.ui.EventDeferredAction.prototype.getDbSchemas = function(ctx) {
     ]);
 };
 
-new net.bluemind.ui.EventDeferredAction();
+new net.bluemind.ui.eventdeferredaction.EventDeferredAction();
