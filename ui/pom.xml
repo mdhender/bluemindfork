@@ -33,7 +33,7 @@
 		<module>net.bluemind.gwtconsoleapp.base</module>
 		<module>settings-webapp</module>
 		<module>mail-webapp</module>
-	        <module>EventDeferredAction</module>
+		<module>net.bluemind.ui.eventdeferredaction</module>
 	</modules>
 
     <build>

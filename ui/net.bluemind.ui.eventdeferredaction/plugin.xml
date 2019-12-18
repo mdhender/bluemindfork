@@ -9,7 +9,7 @@
                bundle="net.bluemind.ui.eventdeferredaction">
          </web-resource>
          <js
-               path="js/compile/eventdeferredaction.js"
+               path="js/compile/net.bluemind.ui.eventdeferredaction.js"
                translation="false">
          </js>
       </web-module-provider>
