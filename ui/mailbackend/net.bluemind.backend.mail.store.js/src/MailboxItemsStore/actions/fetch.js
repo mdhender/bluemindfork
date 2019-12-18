@@ -11,10 +11,13 @@ export function fetch({ state, commit }, { messageKey, part, isAttachment }) {
         .fetch(item.value.imapUid, part.address, part.encoding, part.mime, part.charset)
         .then(stream => {
             if (!isAttachment && (MimeType.isText(part) || MimeType.isHtml(part))) {
-                const reader = new FileReader();
-                reader.readAsText(stream, part.encoding);
-                reader.addEventListener('loadend', (e) => {
-                    commit("storePartContent", { messageKey, address: part.address, content: e.target.result });
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.readAsText(stream, part.encoding);
+                    reader.addEventListener('loadend', (e) => {
+                        commit("storePartContent", { messageKey, address: part.address, content: e.target.result });
+                        resolve();
+                    });
                 });
             } else {
                 commit("storePartContent", { messageKey, address: part.address, content: stream });
