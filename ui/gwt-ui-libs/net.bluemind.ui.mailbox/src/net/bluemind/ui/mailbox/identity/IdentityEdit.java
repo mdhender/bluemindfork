@@ -213,7 +213,6 @@ public class IdentityEdit extends CommonForm implements ICommonEditor {
 			i++;
 		}
 		setFormData();
-		setFormTemplate();
 	}
 
 	private void setSignatureFormat(SignatureFormat format) {
@@ -275,8 +274,9 @@ public class IdentityEdit extends CommonForm implements ICommonEditor {
 		if (name.getText() == null || name.getText().isEmpty()) {
 			name.setText(id.name);
 		}
-		sent.setText(IdentityConstants.INST.useEntitySent(id.email + " (" + id.name + ")"));
 		sigContent.setText(id.signature);
+
+		sent.setText(IdentityConstants.INST.useEntitySent(id.email + " (" + id.name + ")"));
 		sent.setVisible(true);
 	}
 
@@ -287,6 +287,8 @@ public class IdentityEdit extends CommonForm implements ICommonEditor {
 		name.setText(identity.name);
 		setEmail(identity.email);
 		sent.setValue(!"Sent".equals(identity.sentFolder));
+		sent.setText(IdentityConstants.INST.useEntitySent(identity.email + " (" + identity.email + ")"));
+		sent.setVisible(true);
 	}
 
 	private void setEmail(String email) {
