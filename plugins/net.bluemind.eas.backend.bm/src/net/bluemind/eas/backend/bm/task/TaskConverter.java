@@ -110,12 +110,12 @@ public class TaskConverter {
 
 		VTodo ret = new VTodo();
 
-		if (task.utcStartDate != null) {
-			ret.dtstart = BmDateTimeWrapper.fromTimestamp(task.utcStartDate.getTime(), null, Precision.Date);
+		if (task.startDate != null) {
+			ret.dtstart = BmDateTimeWrapper.fromTimestamp(task.startDate.getTime(), null, Precision.Date);
 		}
 
-		if (task.utcDueDate != null) {
-			ret.due = BmDateTimeWrapper.fromTimestamp(task.utcDueDate.getTime(), null, Precision.Date);
+		if (task.dueDate != null) {
+			ret.due = BmDateTimeWrapper.fromTimestamp(task.dueDate.getTime(), null, Precision.Date);
 		}
 		ret.summary = task.subject;
 		ret.classification = getClassification(task.sensitivity);
