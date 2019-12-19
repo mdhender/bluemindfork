@@ -91,18 +91,13 @@ public class AltFoldersMaintenanceOperation extends MailboxMaintenanceOperation 
 				return;
 			}
 
-			Collection<Integer> content = sc.uidSearch(new SearchQuery());
-
-			if (content.isEmpty()) {
-				monitor.end(true, String.format("Nothing to do for %s", mailboxName), "");
-				return;
-			}
-
 			if (repair) {
-				monitor.progress(1,
-						String.format("'%s' has %d emails. Copy to %s", ALT_FOLDERS_INBOX, content.size(), INBOX));
-				sc.uidCopy(content, INBOX);
-
+				Collection<Integer> content = sc.uidSearch(new SearchQuery());
+				if (!content.isEmpty()) {
+					monitor.progress(1,
+							String.format("'%s' has %d emails. Copy to %s", ALT_FOLDERS_INBOX, content.size(), INBOX));
+					sc.uidCopy(content, INBOX);
+				}
 				monitor.progress(1, String.format("remove '%s'", ALT_FOLDERS_INBOX));
 				sc.select(INBOX);
 				sc.deleteMailbox(folder.name);
