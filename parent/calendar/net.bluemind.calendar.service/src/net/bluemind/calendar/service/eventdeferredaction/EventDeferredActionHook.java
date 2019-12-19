@@ -203,6 +203,8 @@ public class EventDeferredActionHook implements ICalendarHook {
 				.ifPresent(next -> config.put("nextExecutionDate", Long.toString(next.toInstant().toEpochMilli())));
 		if (occurrence.exception()) {
 			config.put("recurid", ((VEventOccurrence) occurrence).recurid.iso8601);
+			config.put("recurid_timezone", ((VEventOccurrence) occurrence).recurid.timezone);
+			config.put("recurid_precision", ((VEventOccurrence) occurrence).recurid.precision.name());
 			config.put("summary", ((VEventOccurrence) occurrence).summary);
 			config.put("location", ((VEventOccurrence) occurrence).location);
 			config.put("dtstart", Long.toString(new BmDateTimeWrapper(((VEventOccurrence) occurrence).dtstart)

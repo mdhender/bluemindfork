@@ -187,7 +187,7 @@ public class EventDeferredActionExecutor implements IDeferredActionExecutor {
 			EventDeferredAction eventDeferredAction = new EventDeferredAction(deferredAction.value);
 			return Optional.ofNullable(ItemValue.create(deferredAction.uid, eventDeferredAction));
 		} catch (Exception e) {
-			logger.error("An error occured while getting event's data.", e);
+			logger.error("An error occured while getting event data of action: {}", deferredAction.uid, e);
 		}
 		return Optional.empty();
 	}

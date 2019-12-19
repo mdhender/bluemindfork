@@ -21,6 +21,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -48,7 +49,7 @@ public class EventDeferredAction extends DeferredAction {
 	public final String ownerUid;
 	private final String containerUid;
 	private final String eventUid;
-	private final Optional<String> recurid;
+	private final Optional<BmDateTime> recurid;
 
 	public EventDeferredAction(DeferredAction deferredAction) {
 		this.actionId = deferredAction.actionId;
@@ -59,7 +60,7 @@ public class EventDeferredAction extends DeferredAction {
 		this.containerUid = EventDeferredAction.getContainerUid(deferredAction.reference);
 		this.eventUid = EventDeferredAction.getItemUid(deferredAction.reference);
 		this.ownerUid = deferredAction.configuration.get("owner");
-		this.recurid = Optional.ofNullable(deferredAction.configuration.get("recurid"));
+		this.recurid = getRecurId(deferredAction.configuration);
 
 		this.vevent = retrieveEvent(containerUid, eventUid, recurid);
 		this.valarm = getAlarm(Integer.parseInt(configuration.get("trigger")));
@@ -72,6 +73,15 @@ public class EventDeferredAction extends DeferredAction {
 		this.eventUid = "";
 		this.vevent = vevent;
 		this.valarm = getAlarm(trigger);
+	}
+
+	private Optional<BmDateTime> getRecurId(Map<String, String> configuration) {
+		if (!configuration.containsKey("recurid") || !configuration.containsKey("recurid_timezone")) {
+			return Optional.empty();
+		}
+
+		return Optional.of(new BmDateTime(configuration.get("recurid"), configuration.get("recurid_timezone"),
+				BmDateTime.Precision.valueOf(configuration.get("recurid_precision"))));
 	}
 
 	public static String getReference(String containerUid, String itemUid) {
@@ -132,12 +142,12 @@ public class EventDeferredAction extends DeferredAction {
 		return Collections.unmodifiableSet(exdate);
 	}
 
-	private static VEvent retrieveEvent(String containerUid, String eventUid, Optional<String> recurid) {
+	private static VEvent retrieveEvent(String containerUid, String eventUid, Optional<BmDateTime> recurid) {
 		ServerSideServiceProvider servicesProvider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		ICalendar calendar = servicesProvider.instance(ICalendar.class, containerUid);
 		VEventSeries event = calendar.getComplete(eventUid).value;
 		if (recurid.isPresent()) {
-			return event.occurrence(BmDateTimeWrapper.create(recurid.get()));
+			return event.occurrence(recurid.get());
 		} else {
 			if (event.main.rrule == null) {
 				return event.main;
