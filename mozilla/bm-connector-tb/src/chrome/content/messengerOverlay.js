@@ -297,7 +297,7 @@ var gBMOverlay = {
 					let self = this;
 					options.onLoad = function(event, browser) {
 						let win = browser.contentWindow.wrappedJSObject;
-						win.net.bluemind.deferredaction.reminder.DeferredActionScheduler.setNotificationImpl(function(text) {
+						win.net.bluemind.ui.eventdeferredaction.DeferredActionScheduler.setNotificationImpl(function(text) {
 							let notif = new Notification(bmUtils.getLocalizedString("notification.title"), {body: text});
 							notif.onclick = function() {
 								let calTab = self._getBmTab("/cal");
