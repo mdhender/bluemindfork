@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -227,9 +226,7 @@ public class ReplyHandler extends DontTouchHandler {
 					"Replied message has no MESSAGE_ID header. Does replied message still in INBOX? Original part may not be append");
 		}
 
-		SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z");
-		Field date = new RawField(FieldName.DATE, sdf.format(new Date()));
-		h.setField(date);
+		ret.setDate(new Date());
 
 		return ret;
 	}
