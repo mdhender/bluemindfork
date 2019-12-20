@@ -94,17 +94,16 @@ public class MailboxRepairSupport implements IDirEntryRepairSupport {
 				new MailboxIndexExistsMaintenanceOperation(context),
 				new MailboxPostfixMapsMaintenanceOperation(context),
 				new MailboxHsmMigrationMaintenanceOperation(context),
-				new MailboxDefaultFoldersMaintenanceOperation(context), new AltFoldersMaintenanceOperation(context)));
+				new MailboxDefaultFoldersMaintenanceOperation(context)));
 	}
 
 	public static abstract class MailboxMaintenanceOperation extends InternalMaintenanceOperation {
 		private static final Logger logger = LoggerFactory.getLogger(MailboxMaintenanceOperation.class);
 
 		public static enum DiagnosticReportCheckId {
-			mailboxExists(true), mailboxIndexExists(true), mailboxAclsContainer(true), mailboxAcls(true),
-			mailboxHsm(false), mailboxFilesystem(true), altFolders(true), mailboxImapHierarchy(true),
-			mailboxQuota(true), mailboxFilters(true), mailboxPostfixMaps(true), mailboxSubscription(true),
-			mailboxDefaultFolders(true);
+			mailboxExists(true), mailboxIndexExists(true), mailboxAclsContainer(true), mailboxAcls(true), mailboxHsm(
+					false), mailboxFilesystem(true), mailboxImapHierarchy(true), mailboxQuota(true), mailboxFilters(
+							true), mailboxPostfixMaps(true), mailboxSubscription(true), mailboxDefaultFolders(true);
 
 			private DiagnosticReportCheckId(boolean sortable) {
 				this.sortable = sortable;

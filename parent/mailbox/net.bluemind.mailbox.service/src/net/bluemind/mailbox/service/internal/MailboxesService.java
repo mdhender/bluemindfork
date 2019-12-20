@@ -583,9 +583,9 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 				DiagnosticReportCheckId.mailboxIndexExists.name(), DiagnosticReportCheckId.mailboxAclsContainer.name(),
 				DiagnosticReportCheckId.mailboxAcls.name(), DiagnosticReportCheckId.mailboxHsm.name(),
 				DiagnosticReportCheckId.mailboxFilters.name(), DiagnosticReportCheckId.mailboxPostfixMaps.name(),
-				DiagnosticReportCheckId.mailboxAcls.name(), DiagnosticReportCheckId.altFolders.name(),
-				DiagnosticReportCheckId.mailboxImapHierarchy.name(), DiagnosticReportCheckId.mailboxFilters.name(),
-				DiagnosticReportCheckId.mailboxPostfixMaps.name(), DiagnosticReportCheckId.mailboxSubscription.name()));
+				DiagnosticReportCheckId.mailboxAcls.name(), DiagnosticReportCheckId.mailboxImapHierarchy.name(),
+				DiagnosticReportCheckId.mailboxFilters.name(), DiagnosticReportCheckId.mailboxPostfixMaps.name(),
+				DiagnosticReportCheckId.mailboxSubscription.name()));
 
 		TaskRef tr = null;
 		if (repair) {

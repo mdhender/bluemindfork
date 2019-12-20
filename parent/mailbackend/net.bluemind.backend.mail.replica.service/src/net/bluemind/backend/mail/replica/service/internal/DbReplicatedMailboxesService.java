@@ -147,12 +147,6 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 		}
 
 		ItemValue<MailboxReplica> replicaToDelete = getCompleteReplica(uid);
-
-		if (replicaToDelete.value.fullName.equals("INBOX")) {
-			logger.warn("Skip INBOX deletion {}", replicaToDelete);
-			return;
-		}
-
 		logger.info("***** Will delete {}", replicaToDelete);
 		// is it root ??? should we drop the subtree ?
 		ItemVersion deleted = storeService.delete(uid);

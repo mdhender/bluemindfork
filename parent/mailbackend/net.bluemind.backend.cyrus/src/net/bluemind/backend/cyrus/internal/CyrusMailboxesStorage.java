@@ -525,7 +525,6 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 
 			String inbox = "user/" + mailbox.value.name + "/INBOX@" + domainUid;
 			done.add(inbox);
-
 			ListResult lr = sc.listSubFoldersMailbox(boxname(mailbox.value, domainUid));
 			// list returns /a, /a/b, /a/b/c
 			// reverse the list to /a/b/c, /a/b, /a so we only check /a/b/c
@@ -557,31 +556,28 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 					mailboxBuilder.append(path);
 					String mailboxName = mailboxBuilder.toString() + "@" + domainUid;
 
-					if (!done.contains(mailboxName)) {
-						done.add(mailboxName);
-						try {
-							if (!sc.select(mailboxName)) {
-								logger.error("{} does not exist. create it", mailboxName);
-								MailFolder f = new MailFolder();
-								f.name = mailboxBuilder.toString();
-								f.type = MailFolder.Type.normal;
-								f.rootUri = "imap://" + mailbox.uid;
-								ret.add(f);
-								if (repair) {
-									if (!sc.create(mailboxName)) {
-										logger.error("Fail to create {}", mailboxName);
-									}
-								} else {
-									logger.info("need to repair {}", mailboxName);
+					done.add(mailboxName);
+
+					try {
+						if (!sc.select(mailboxName)) {
+							logger.error("{} does not exist. create it", mailboxName);
+							MailFolder f = new MailFolder();
+							f.name = mailboxBuilder.toString();
+							f.type = MailFolder.Type.normal;
+							f.rootUri = "imap://" + mailbox.uid;
+							ret.add(f);
+							if (repair) {
+								if (!sc.create(mailboxName)) {
+									logger.error("Fail to create {}", mailboxName);
 								}
+							} else {
+								logger.info("need to repair {}", mailboxName);
 							}
-						} catch (IMAPException e) {
-							throw new ServerFault(e);
 						}
+					} catch (IMAPException e) {
+						throw new ServerFault(e);
 					}
-
 					mailboxBuilder.append("/");
-
 				});
 			}
 
