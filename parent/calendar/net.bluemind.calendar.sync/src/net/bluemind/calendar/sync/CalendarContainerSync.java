@@ -45,6 +45,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
 import com.google.common.hash.Hashing;
 
 import net.bluemind.calendar.api.IVEvent;
@@ -200,8 +201,8 @@ public class CalendarContainerSync implements ISyncableContainer {
 			return ret;
 		}
 
-		if (response.status == 304) {
-			logger.debug("{} 304 Not Modified", icsUrl);
+		if (this.isNotModified(modifiedSince, response)) {
+			logger.debug("{} Not Modified (304 or header)", icsUrl);
 			ret.modifiedSince = Long.toString(response.lastModified);
 			ret.etag = response.etag;
 			return ret;
@@ -236,6 +237,16 @@ public class CalendarContainerSync implements ISyncableContainer {
 		}
 		ret.ics = get.data;
 		return ret;
+	}
+
+	/**
+	 * @return <code>true</code> if <code>response</code> is considered as not
+	 *         modified
+	 */
+	private boolean isNotModified(String lastModificationTimestamp, ResponseData response) {
+		Long lastModification = Strings.isNullOrEmpty(lastModificationTimestamp) ? 0
+				: Long.parseLong(lastModificationTimestamp);
+		return response.status == 304 || (response.lastModified > 0 && response.lastModified <= lastModification);
 	}
 
 	private ResponseData requestIcs(String icsUrl, String method, String syncToken, String etag) throws Exception {
@@ -342,8 +353,8 @@ public class CalendarContainerSync implements ISyncableContainer {
 	}
 
 	/**
-	 * @return the time in milliseconds when the response is considered as obsolete
-	 *         or zero if not found
+	 * @return the time in milliseconds when the response is considered as
+	 *         obsolete or zero if not found
 	 */
 	private long extractExpires(final HttpURLConnection connection) {
 		final String expiresString = connection.getHeaderField("Expires");
@@ -360,8 +371,8 @@ public class CalendarContainerSync implements ISyncableContainer {
 	private static final Pattern MAX_AGE_PATTERN = Pattern.compile("(?<!s-)max-age=(\\d+)");
 
 	/**
-	 * @return the time in milliseconds when the content's cache expires or zero if
-	 *         not found
+	 * @return the time in milliseconds when the content's cache expires or zero
+	 *         if not found
 	 */
 	private long extractCacheControlMaxAge(final HttpURLConnection connection) {
 		// retrieve Cache-Control directives and extract max-age if present
