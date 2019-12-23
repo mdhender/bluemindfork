@@ -31,7 +31,6 @@ goog.require("net.bluemind.addressbook.persistence.schema");
 goog.require("net.bluemind.todolist.persistence.schema");
 goog.require("net.bluemind.calendar.persistence.schema");
 goog.require("net.bluemind.authentication.schema");
-goog.require("net.bluemind.resource.persistence.schema");
 goog.require("net.bluemind.deferredaction.persistence.schema");
 goog.require("net.bluemind.mvp.ApplicationContext");
 goog.require("net.bluemind.persistence.DatabaseService");
@@ -81,9 +80,6 @@ net.bluemind.databases.DatabasesUtils.prototype.reset = function() {
     }, {
       name : 'auth',
       schema : net.bluemind.authentication.schema
-    }, {
-      name : 'resources',
-      schema : net.bluemind.resource.persistence.schema
     }, {
       name : 'deferredaction',
       schema : net.bluemind.deferredaction.persistence.schema

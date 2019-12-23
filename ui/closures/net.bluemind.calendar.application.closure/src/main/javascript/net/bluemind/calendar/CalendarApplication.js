@@ -92,10 +92,6 @@ goog.require("net.bluemind.tag.sync.UnitaryTagSync");
 goog.require("net.bluemind.todolist.service.TodolistsSyncManager");
 goog.require("net.bluemind.calendar.service.CalendarsSyncManager");
 goog.require("net.bluemind.calendar.PendingEventsMgmt");
-goog.require("net.bluemind.resource.persistence.schema");
-goog.require("net.bluemind.resource.sync.ResourcesSync");
-goog.require("net.bluemind.resource.sync.UnitaryResourcesSync");
-goog.require("net.bluemind.resource.sync.ResourcesClientSync");
 goog.require('net.bluemind.resource.service.ResourcesService');
 
 /**
@@ -325,8 +321,5 @@ net.bluemind.calendar.CalendarApplication.prototype.getDbSchemas = function(ctx)
 	}, {
 		name : 'todolist',
 		schema : net.bluemind.todolist.persistence.schema
-	}, {
-		name : 'resources',
-		schema : net.bluemind.resource.persistence.schema
 	}]);
 };
