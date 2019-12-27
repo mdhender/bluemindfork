@@ -22,10 +22,19 @@ appid=net.bluemind.sds.proxy.launcher.sds-proxy
 
 product=`basename $0`
 curdir=`dirname $0`
-pidfile=$1
 
 export DEFAULT_MEM=128
 
-source ${curdir}/equinox-systemd.lib ${product} ${pidfile}
+source ${curdir}/equinox-systemd.lib ${product}
 
-bm_equinox_run_server_appid ${curdir} ${appid}
+case "$1" in
+    "pre-start")
+        bm_pre_start bluemind
+        ;;
+    "post-start")
+        bm_post_start bluemind
+        ;;
+    *)
+        bm_equinox_run_server_appid ${curdir} ${appid}
+        ;;
+esac

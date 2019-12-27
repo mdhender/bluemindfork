@@ -8,7 +8,8 @@ ConditionPathExists=!/etc/bm/bm-sds-proxy.disabled
 
 [Service]
 Type=notify
-PermissionsStartOnly=true
+Restart=on-abnormal
+
 User=cyrus
 Group=mail
 WorkingDirectory=/var/log
@@ -16,14 +17,15 @@ TimeoutStartSec=90s
 GuessMainPID=no
 RemainAfterExit=no
 SuccessExitStatus=129 143
+
+LimitCORE=infinity
+LimitNOFILE=65535
+
+PermissionsStartOnly=true
 Environment=JAVA_HOME=/usr/lib/jvm/bm-jdk
-ExecStartPre=/bin/mkdir -p /etc/bm-sds-proxy /var/lib/bm-sds-proxy /var/log/bm-sds-proxy /usr/share/bm-sds-proxy/plugins /var/log/garbage-collector/bm-sds-proxy /var/run/bm-metrics /var/log/bm-metrics
-ExecStartPre=/bin/chmod 775 /etc/bm-sds-proxy /var/lib/bm-sds-proxy /var/log/bm-sds-proxy /usr/share/bm-sds-proxy/plugins /var/log/garbage-collector/bm-sds-proxy /var/run/bm-metrics /var/log/bm-metrics
-ExecStartPre=/bin/chgrp -R bluemind /etc/bm-sds-proxy /var/lib/bm-sds-proxy /var/log/bm-sds-proxy /usr/share/bm-sds-proxy/plugins /var/log/garbage-collector/bm-sds-proxy /var/run/bm-metrics /var/log/bm-metrics /usr/share/bm-sds-proxy/main /usr/share/bm-sds-proxy/extensions
-ExecStartPre=/bin/chmod -R g+w /etc/bm-sds-proxy /var/lib/bm-sds-proxy /var/log/bm-sds-proxy /usr/share/bm-sds-proxy/plugins /var/log/garbage-collector/bm-sds-proxy /var/run/bm-metrics /var/log/bm-metrics /usr/share/bm-sds-proxy/main /usr/share/bm-sds-proxy/extensions
-ExecStart=/usr/share/bm-sds-proxy/bm-sds-proxy /var/run/bm-sds-proxy.pid
-ExecStartPost=/bin/chgrp bluemind /var/run/bm-metrics/metrics-bm-sds-proxy.sock
-Restart=on-abnormal
+ExecStartPre=/usr/share/bm-sds-proxy/bm-sds-proxy pre-start
+ExecStart=/usr/share/bm-sds-proxy/bm-sds-proxy
+ExecStartPost=/usr/share/bm-sds-proxy/bm-sds-proxy post-start
 
 [Install]
 WantedBy=multi-user.target
