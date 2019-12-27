@@ -25,6 +25,7 @@ goog.require("net.bluemind.mvp.Application");
 goog.require("net.bluemind.sync.SyncEngine");
 goog.require("net.bluemind.deferredaction.sync.UnitaryDeferredActionSync");
 goog.require("net.bluemind.deferredaction.service.DeferredActionService");
+goog.require("net.bluemind.folder.service.FoldersService");
 goog.require("net.bluemind.deferredaction.persistence.schema");
 goog.require("net.bluemind.ui.eventdeferredaction.DeferredActionScheduler");
 goog.require("net.bluemind.container.sync.UnitaryContainerSync");
@@ -41,11 +42,6 @@ net.bluemind.ui.eventdeferredaction.EventDeferredAction = function() {
 goog.inherits(net.bluemind.ui.eventdeferredaction.EventDeferredAction, net.bluemind.mvp.Application);
 
 /** @override */
-net.bluemind.ui.eventdeferredaction.EventDeferredAction.prototype.bootstrap = function(ctx) {
-    return goog.base(this, "bootstrap", ctx);
-};
-
-/** @override */
 net.bluemind.ui.eventdeferredaction.EventDeferredAction.prototype.postBootstrap = function(ctx) {
     goog.base(this, "postBootstrap", ctx);
     var sync = net.bluemind.sync.SyncEngine.getInstance();
@@ -54,11 +50,14 @@ net.bluemind.ui.eventdeferredaction.EventDeferredAction.prototype.postBootstrap 
         "deferredaction-" + ctx.user["uid"]
     );
     sync.registerService(deferredaction);
+    sync.start(1);
     new net.bluemind.ui.eventdeferredaction.DeferredActionScheduler(ctx);
 };
 
 /** @override */
 net.bluemind.ui.eventdeferredaction.EventDeferredAction.prototype.registerServices = function(ctx) {
+    goog.base(this, "registerServices", ctx);
+    ctx.service("folders", net.bluemind.folder.service.FoldersService);
     ctx.service("deferredaction", net.bluemind.deferredaction.service.DeferredActionService);
 };
 
@@ -68,7 +67,10 @@ net.bluemind.ui.eventdeferredaction.EventDeferredAction.prototype.getDbSchemas =
     return goog.array.concat(root, [
         {
             name: "deferredaction",
-            schema: net.bluemind.deferredaction.persistence.schema
+            schema: net.bluemind.deferredaction.persistence.schema,
+            options: {
+                mechanisms: ["database"]
+            }
         }
     ]);
 };

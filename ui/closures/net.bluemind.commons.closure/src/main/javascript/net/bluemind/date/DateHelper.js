@@ -168,6 +168,8 @@ net.bluemind.date.DateHelper.prototype.create = function(datetime, opt_timezone)
       d = this.changeTimeZone(d, opt_timezone);
     }
     return d;
+  } else if (typeof datetime == 'number') {
+    return this.fromTime(datetime, 'DateTime', opt_timezone);
   }
   return null;
 };

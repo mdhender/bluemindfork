@@ -199,7 +199,7 @@ public class OccurrenceHelper {
 		if (event.rrule.until != null) {
 			to = VEventServiceHelper.convertToIcsDate(event.rrule.until);
 		} else {
-			LocalDateTime now = LocalDateTime.now();
+			LocalDateTime now = LocalDateTime.now(); 
 			LocalDateTime twoYears = now.plusYears(2);
 			to = new net.fortuna.ical4j.model.DateTime(
 					twoYears.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());

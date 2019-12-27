@@ -23,8 +23,12 @@
 goog.provide("net.bluemind.deferredaction.service.DeferredActionService");
 
 goog.require("net.bluemind.container.service.ContainerService");
+goog.require('net.bluemind.deferredaction.api.DeferredActionClient');
 goog.require("net.bluemind.mvp.helper.ServiceHelper");
+goog.require("goog.array");
 
+
+var CACHE_EXPIRATION = 9 * 60 * 1000;
 /**
  * @constructor
  * @extends {goog.events.EventTarget}
@@ -32,103 +36,129 @@ goog.require("net.bluemind.mvp.helper.ServiceHelper");
 net.bluemind.deferredaction.service.DeferredActionService = function(ctx) {
     goog.base(this);
     this.ctx = ctx;
-
+    this.cache_ = { ts: 0, values: [] }
     this.cs_ = new net.bluemind.container.service.ContainerService(ctx, "deferredaction");
     this.css_ = new net.bluemind.container.service.ContainersService(ctx, "deferredaction");
 };
 
 goog.inherits(net.bluemind.deferredaction.service.DeferredActionService, goog.events.EventTarget);
 
+
 net.bluemind.deferredaction.service.DeferredActionService.prototype.isLocal = function() {
     return this.cs_.available();
-};
+  };
 
+/**
+ * Execute the right method depending on application state.
+ * 
+ * @param {Object.<string, Function>} states
+ * @param {Array.<*>} params Array of function parameters
+ * @return {!goog.Promise<*>}
+ */
 net.bluemind.deferredaction.service.DeferredActionService.prototype.handleByState = function(states, params) {
-    return net.bluemind.mvp.helper.ServiceHelper.handleByState(this.ctx, this, states, params);
+    var localState = [];
+    if (this.cs_.available()) {
+        localState.push('local');
+    }
+    if (this.ctx.online) {
+        localState.push('remote');
+    }
+    try  {
+        return net.bluemind.mvp.helper.ServiceHelper.handleByState(this.ctx, this, states, params, localState);
+    } catch(e) {
+        return net.bluemind.mvp.helper.ServiceHelper.handleByState(this.ctx, this, states, params, ['remote']);
+    }
+  };
+
+net.bluemind.deferredaction.service.DeferredActionService.prototype.getItemsByDate = function(executionDate) {
+    return this.handleByState({
+        'local' : this.getItemsByDateLocal, //
+        'remote' : this.getItemsByDateRemote
+      //
+    }, [ executionDate ]);
 };
 
-net.bluemind.deferredaction.service.DeferredActionService.prototype.getItems = function(executionDate) {
-    var containerId = "deferredaction-" + this.ctx.user["uid"];
-    return this.handleByState(
-        {
-            local: this.getItemsLocal,
-            remote: this.getItemsRemote
-        },
-        [containerId, executionDate]
-    );
-};
-
-net.bluemind.deferredaction.service.DeferredActionService.prototype.getItemsLocal = function(
-    containerId,
-    executionDate
-) {
-    return this.cs_.getItems(containerId).then(function(items) {
-        return items.filter(function(item) {
-            return item["value"]["executionDate"] <= executionDate;
+net.bluemind.deferredaction.service.DeferredActionService.prototype.getItemsByDateRemote = function(executionDate) {
+    if (this.cache_.ts < executionDate)  {
+        var container = "deferredaction-" + this.ctx.user["uid"];
+        var client = new net.bluemind.deferredaction.api.DeferredActionClient(this.ctx.rpc, '', container);
+        var promise = client.getByActionId("EVENT", executionDate + CACHE_EXPIRATION).then(function(items) {
+            this.cache_.ts = executionDate + CACHE_EXPIRATION;
+            this.cache_.values = items;
+            return items;
+        }, null, this);
+    } else {
+        var promise = goog.Promise.resolve(this.cache_.values);
+    }
+    return promise.then(function(items) {
+        return goog.array.filter(items, function(item) {
+            return item['value']['executionDate'] < executionDate;
         });
     });
 };
 
-net.bluemind.deferredaction.service.DeferredActionService.prototype.getItemsRemote = function(
-    containerId,
-    executionDate
-) {
-    var client = new net.bluemind.deferredaction.api.DeferredActionClient(this.ctx.rpc, "", containerId);
-    return client.getByActionId("EVENT", executionDate).then(normalize(containerId));
+net.bluemind.deferredaction.service.DeferredActionService.prototype.getItemsByDateLocal = function(executionDate) {
+    var query = [["value.executionDate", "<", executionDate]];
+    return this.css_.searchItems(query).then(function(items) {
+        return items.filter(function(item) {
+            return item && item['value']['actionId'] == "EVENT";
+        });
+    });
+};
+
+net.bluemind.deferredaction.service.DeferredActionService.prototype.getItem = function(id) {
+    return this.handleByState({
+        'local' : this.getItemLocal, //
+        'remote' : function(id) {
+            return goog.Promise.resolve(null);
+        }
+      //
+    }, [ id ]);
+};
+
+net.bluemind.deferredaction.service.DeferredActionService.prototype.getItemLocal = function(id) {
+    var containerId = "deferredaction-" + this.ctx.user["uid"];
+    return this.cs_.getItem(containerId, id);
 };
 
 net.bluemind.deferredaction.service.DeferredActionService.prototype.deleteItem = function(item) {
+    return this.handleByState({
+        'local' : this.deleteItemLocal, //
+        'remote' : this.deleteItemRemote
+      //
+    }, [ item ]);
+};
+
+net.bluemind.deferredaction.service.DeferredActionService.prototype.deleteItemLocal = function(item) {
     var containerId = "deferredaction-" + this.ctx.user["uid"];
-    return this.handleByState(
-        {
-            local: this.deleteItemLocal,
-            remote: this.deleteItemRemote
-        },
-        [containerId, item]
-    );
+    return this.cs_.deleteItem(containerId, item["uid"]);
 };
 
-net.bluemind.deferredaction.service.DeferredActionService.prototype.deleteItemLocal = function(containerId, item) {
-    this.cs_.deleteItem(containerId, item["uid"]);
+net.bluemind.deferredaction.service.DeferredActionService.prototype.deleteItemRemote = function(item) {
+    var container = "deferredaction-" + this.ctx.user["uid"];
+    var client = new net.bluemind.deferredaction.api.DeferredActionClient(this.ctx.rpc, '', container);
+    goog.array.removeIf(this.cache_.values, function(value) {
+        return value['uid'] == item["uid"];
+    });
+    return client.delete_(item['uid']);
 };
 
-net.bluemind.deferredaction.service.DeferredActionService.prototype.deleteItemRemote = function(containerId, item) {
-    var client = new net.bluemind.deferredaction.api.DeferredActionClient(this.ctx.rpc, "", containerId);
-    client.delete_(item["uid"]);
-};
 
 net.bluemind.deferredaction.service.DeferredActionService.prototype.createItem = function(item) {
-    var containerId = "deferredaction-" + this.ctx.user["uid"];
-    return this.handleByState(
-        {
-            local: this.createItemLocal,
-            remote: this.createItemRemote
-        },
-        [containerId, item]
-    );
+    return this.handleByState({
+        'local' : this.createItemLocal, //
+        'remote' : this.createItemRemote
+      //
+    }, [ item ]);
 };
 
-net.bluemind.deferredaction.service.DeferredActionService.prototype.createItemLocal = function(containerId, item) {
-    item["container"] = containerId;
+net.bluemind.deferredaction.service.DeferredActionService.prototype.createItemLocal = function(item) {
+    item["container"] = "deferredaction-" + this.ctx.user["uid"];
     return this.cs_.storeItem(item);
 };
 
-net.bluemind.deferredaction.service.DeferredActionService.prototype.createItemRemote = function(containerId, item) {
-    var value = item.value;
-    var client = new net.bluemind.deferredaction.api.DeferredActionClient(this.ctx.rpc, "", containerId);
-    return client.create(item["uid"], value);
+net.bluemind.deferredaction.service.DeferredActionService.prototype.createItemRemote = function(item) {
+    var container = "deferredaction-" + this.ctx.user["uid"];
+    var client = new net.bluemind.deferredaction.api.DeferredActionClient(this.ctx.rpc, '', container);
+    return client.create(item['uid'], item["value"]).then(function(){}, function(){});
 };
-
-function normalize(containerId) {
-    return function(items) {
-        return items
-            .filter(function(item) {
-                return item["value"] !== null;
-            })
-            .map(function(item) {
-                item["name"] = item["displayName"];
-                item["container"] = containerId;
-                return item;
-            });
-    };
-}

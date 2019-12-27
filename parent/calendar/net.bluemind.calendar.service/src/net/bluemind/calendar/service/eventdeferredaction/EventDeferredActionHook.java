@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEvent.Transparency;
@@ -47,6 +48,7 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.cti.service.CTIDeferredAction;
 import net.bluemind.deferredaction.api.DeferredAction;
 import net.bluemind.deferredaction.api.IDeferredAction;
@@ -94,13 +96,12 @@ public class EventDeferredActionHook implements ICalendarHook {
 	}
 
 	private Optional<VEvent> storeTrigger(VAlarm valarm, VEvent occurrence, VEventMessage message) {
-		Optional<Date> trigger = calculateAlarmDate(valarm, occurrence.dtstart);
-		if (trigger.isPresent()) {
+		if (notInPast(occurrence.dtend)) {
+			Date trigger = calculateAlarmDate(valarm, occurrence.dtstart);
 			IDeferredAction service = getService(valarm, message);
 			String reference = EventDeferredAction.getReference(message.container.uid, message.itemUid);
-			Optional<ZonedDateTime> nextExecutionDate = getNextExecutionDate(valarm, occurrence);
-			Map<String, String> config = getConfig(message, occurrence, valarm.trigger, nextExecutionDate);
-			storeTrigger(reference, config, service, trigger.get());
+			Map<String, String> config = getConfig(message, occurrence, valarm.trigger);
+			storeTrigger(reference, config, service, trigger);
 			return Optional.empty();
 		}
 
@@ -108,12 +109,6 @@ public class EventDeferredActionHook implements ICalendarHook {
 			vEventOccurrence.recurid = null;
 			return vEventOccurrence;
 		});
-	}
-
-	private Optional<ZonedDateTime> getNextExecutionDate(VAlarm valarm, VEvent occurrence) {
-		Optional<VEventOccurrence> nextOccurrence = getNextOccurrence(valarm, occurrence);
-		return nextOccurrence.map(event -> new BmDateTimeWrapper(event.dtstart).toDateTime())
-				.map(dtstart -> dtstart.plusSeconds(valarm.trigger));
 	}
 
 	private Optional<VEventOccurrence> getNextOccurrence(VAlarm valarm, VEvent occurrence) {
@@ -194,37 +189,37 @@ public class EventDeferredActionHook implements ICalendarHook {
 				.anyMatch(a -> a.partStatus != ParticipationStatus.Declined && owner.equals(a.dir));
 	}
 
-	private Map<String, String> getConfig(VEventMessage message, VEvent occurrence, Integer trigger,
-			Optional<ZonedDateTime> nextExecutionDate) {
+	private Map<String, String> getConfig(VEventMessage message, VEvent occurrence, Integer trigger) {
 		Map<String, String> config = new HashMap<>();
 		config.put("trigger", Integer.toString(trigger));
 		config.put("owner", message.container.owner);
-		nextExecutionDate
-				.ifPresent(next -> config.put("nextExecutionDate", Long.toString(next.toInstant().toEpochMilli())));
+		config.put("summary", occurrence.summary);
+		config.put("location", occurrence.location);
+		config.put("dtstart", JsonUtils.asString(occurrence.dtstart));
+		config.put("dtend", JsonUtils.asString(occurrence.dtend));
+		if (occurrence.rrule != null) {
+			config.put("rrule", JsonUtils.asString(occurrence.rrule));
+			config.put("exdates", JsonUtils.asString(occurrence.exdate.stream().filter(this::notInPast)
+					.map(d -> d.iso8601).collect(Collectors.toList())));
+		}
 		if (occurrence.exception()) {
 			config.put("recurid", ((VEventOccurrence) occurrence).recurid.iso8601);
 			config.put("recurid_timezone", ((VEventOccurrence) occurrence).recurid.timezone);
 			config.put("recurid_precision", ((VEventOccurrence) occurrence).recurid.precision.name());
-			config.put("summary", ((VEventOccurrence) occurrence).summary);
-			config.put("location", ((VEventOccurrence) occurrence).location);
-			config.put("dtstart", Long.toString(new BmDateTimeWrapper(((VEventOccurrence) occurrence).dtstart)
-					.toDateTime().toInstant().toEpochMilli()));
-		} else {
-			config.put("summary", message.vevent.main.summary);
-			config.put("location", message.vevent.main.location);
-			config.put("dtstart", Long.toString(
-					new BmDateTimeWrapper(message.vevent.main.dtstart).toDateTime().toInstant().toEpochMilli()));
+
 		}
 		return config;
 	}
 
-	private Optional<Date> calculateAlarmDate(VAlarm valarm, BmDateTime eventDate) {
+	private boolean notInPast(BmDateTime dt) {
+		ZonedDateTime asZonedDt = new BmDateTimeWrapper(dt).toDateTime();
+		return !asZonedDt.isBefore(ZonedDateTime.now());
+	}
+
+	private Date calculateAlarmDate(VAlarm valarm, BmDateTime eventDate) {
 		ZonedDateTime event = new BmDateTimeWrapper(eventDate).toDateTime();
 		ZonedDateTime alarm = event.plusSeconds(valarm.trigger);
-		if (alarm.isBefore(ZonedDateTime.now())) {
-			return Optional.empty();
-		}
-		return Optional.of(Date.from(alarm.toInstant()));
+		return Date.from(alarm.toInstant());
 	}
 
 	private void storeTrigger(String reference, Map<String, String> config, IDeferredAction service,
@@ -252,6 +247,8 @@ public class EventDeferredActionHook implements ICalendarHook {
 		List<VEvent> evts = new ArrayList<>();
 		Set<BmDateTime> exdate = new HashSet<>();
 		event.occurrences.forEach(occurrence -> {
+			// Some exceptions seems to have a rrule 
+			occurrence.rrule = null;
 			evts.add(occurrence);
 			exdate.add(occurrence.recurid);
 		});

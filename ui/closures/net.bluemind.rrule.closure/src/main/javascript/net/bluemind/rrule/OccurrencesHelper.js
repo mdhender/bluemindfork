@@ -201,7 +201,8 @@ net.bluemind.rrule.OccurrencesHelper.prototype.getOccurrences = function(ctx, vs
     }
 
     if (main["rrule"]) {
-        var opt = toRRuleOptions(dtstart, main["rrule"], dateHelperCreate);
+        var untilDate = dateHelperCreate(main["rrule"]["until"], dtstart.getTimeZone());
+        var opt = toRRuleOptions(dtstart, main["rrule"], untilDate);
         var json = JSON.stringify(opt);
         var rule = net.bluemind.rrule.OccurrencesHelper.cache_[json] || new RRule(opt, false);
         net.bluemind.rrule.OccurrencesHelper.cache_[json] = rule;
@@ -231,13 +232,13 @@ net.bluemind.rrule.OccurrencesHelper.prototype.getOccurrences = function(ctx, vs
     return dates;
 };
 
-function toRRuleOptions(dtstart, rrule, formatDate) {
+function toRRuleOptions(dtstart, rrule, untilDate) {
     return {
         dtstart: dtstart,
         freq: freq_(rrule["frequency"]),
         interval: rrule["interval"] || 1,
         count: rrule["count"],
-        until: formatDate(rrule["until"], dtstart.getTimeZone()),
+        until: untilDate,
         bysecond: intList_(rrule["bySecond"]),
         byminute: intList_(rrule["byMinute"]),
         byhour: intList_(rrule["byHour"]),
@@ -333,7 +334,7 @@ function isAnExDate_(exdates, iso8601) {
     });
 }
 
-net.bluemind.rrule.OccurrencesHelper.prototype.getNextOccurrence = function(ctx, vseries, dtstart) {
+net.bluemind.rrule.OccurrencesHelper.prototype.getNextOccurrence = function(ctx, vseries, dtstart, from) {
     var dateHelperCreate = getDateHelperCreate(ctx);
     var exdates = deepClone(vseries.value["main"]["exdate"]);
     goog.array.extend(
@@ -346,11 +347,25 @@ net.bluemind.rrule.OccurrencesHelper.prototype.getNextOccurrence = function(ctx,
         dtstart = new net.bluemind.date.DateTime(dtstart);
     }
     dtstart.setMilliseconds(0);
-    var rrule = new RRule(toRRuleOptions(dtstart, vseries.value["main"]["rrule"], dateHelperCreate), false);
-    var date = dtstart;
+    var rruleObject = vseries.value["main"]["rrule"];
+    var untilDate = dateHelperCreate(rruleObject["until"], dtstart.getTimeZone());
+    var date = this.findNextOccurrenceDate(dtstart, rruleObject, exdates, untilDate, from);
+    return date;
+};
+
+net.bluemind.rrule.OccurrencesHelper.prototype.findNextOccurrenceDate = function(
+    dtstart,
+    rruleObject,
+    exdates,
+    untilDate,
+    from
+) {
+    var rruleOptions = toRRuleOptions(dtstart, rruleObject, untilDate);
+    var rrule = new RRule(rruleOptions, false);
+    var date = from;
     do {
-        date = rrule.after(date, false);
-    } while (exdates.indexOf(date) >= 0);
+        date.set(rrule.after(date.clone(), false));
+    } while (isAnExDate_(exdates, date.toIsoString(true, true)));
     return date;
 };
 
