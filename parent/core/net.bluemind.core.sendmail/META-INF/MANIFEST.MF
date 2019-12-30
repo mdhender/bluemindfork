@@ -12,7 +12,9 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.locator.client;bundle-version="1.0.0",
  net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.lib.vertx,
- net.bluemind.core.rest
+ net.bluemind.core.rest,
+ net.bluemind.config,
+ net.bluemind.network.topology
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.core.sendmail

@@ -16,14 +16,16 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Iterables;
 
 import io.netty.buffer.ByteBufInputStream;
+import net.bluemind.authentication.api.AuthUser;
+import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxFoldersByContainer;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.IOutbox;
 import net.bluemind.backend.mail.api.ImportMailboxItemSet;
 import net.bluemind.backend.mail.api.ImportMailboxItemSet.MailboxItemId;
-import net.bluemind.backend.mail.api.ImportMailboxItemsStatus.ImportedMailboxItem;
 import net.bluemind.backend.mail.api.ImportMailboxItemsStatus;
+import net.bluemind.backend.mail.api.ImportMailboxItemsStatus.ImportedMailboxItem;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
@@ -36,6 +38,7 @@ import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.sendmail.ISendmail;
+import net.bluemind.core.sendmail.SendmailCredentials;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
@@ -48,6 +51,7 @@ public class OutboxService implements IOutbox {
 
 	private static final Logger logger = LoggerFactory.getLogger(OutboxService.class);
 
+	private final BmContext context;
 	private final String domainUid;
 	private final ItemValue<Mailbox> mailboxItem;
 	private final IServiceProvider serviceProvider;
@@ -56,6 +60,7 @@ public class OutboxService implements IOutbox {
 	private ISendmail mailer;
 
 	public OutboxService(BmContext context, String domainUid, ItemValue<Mailbox> mailboxItem, ISendmail mailer) {
+		this.context = context;
 		this.domainUid = domainUid;
 		this.mailboxItem = mailboxItem;
 		this.serviceProvider = context.getServiceProvider();
@@ -83,6 +88,8 @@ public class OutboxService implements IOutbox {
 		List<ItemValue<MailboxItem>> mails = retrieveOutboxItems(mailboxItemsService);
 		monitor.begin(mails.size(), "FLUSHING OUTBOX - have " + mails.size() + " mails to send.");
 
+		AuthUser user = serviceProvider.instance(IAuthentication.class).getCurrentUser();
+
 		List<CompletableFuture<Void>> promises = new ArrayList<>();
 		final List<ImportedMailboxItem> importedMailboxItems = new ArrayList<>(mails.size());
 		mails.forEach(item -> {
@@ -90,7 +97,8 @@ public class OutboxService implements IOutbox {
 					SyncStreamDownload.read(mailboxItemsService.fetchComplete(item.value.imapUid)).thenAccept(buf -> {
 						InputStream in = new ByteBufInputStream(buf);
 						try (Message msg = Mime4JHelper.parse(in)) {
-							mailer.send(domainUid, msg);
+							mailer.send(SendmailCredentials.as(String.format("%s@%s", user.value.login, domainUid),
+									context.getSecurityContext().getSessionId()), domainUid, msg);
 
 							final ImportMailboxItemsStatus importMailboxItemsStatus = mailboxFoldersService
 									.importItems(sentInternalId, ImportMailboxItemSet.moveIn(outboxInternalId,

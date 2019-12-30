@@ -72,6 +72,7 @@ import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.sendmail.testhelper.FakeSendmail;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.core.tests.vertx.VertxEventChecker;
 import net.bluemind.domain.api.Domain;
@@ -90,7 +91,6 @@ import net.bluemind.lmtp.backend.PermissionDeniedException.MailboxInvitationDeni
 import net.bluemind.lmtp.filter.imip.EventCancelHandler;
 import net.bluemind.lmtp.filter.imip.EventReplyHandler;
 import net.bluemind.lmtp.filter.imip.FakeEventRequestHandlerFactory;
-import net.bluemind.lmtp.filter.imip.FakeSendmail;
 import net.bluemind.lmtp.filter.imip.IIMIPHandler;
 import net.bluemind.lmtp.filter.imip.IMIPResponse;
 import net.bluemind.mailbox.api.IMailboxes;

@@ -40,6 +40,7 @@ import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.core.sendmail.ISendmail;
 import net.bluemind.core.sendmail.Sendmail;
+import net.bluemind.core.sendmail.SendmailCredentials;
 import net.bluemind.core.sendmail.SendmailHelper;
 import net.bluemind.directory.api.BaseDirEntry;
 import net.bluemind.directory.api.DirEntry;
@@ -149,7 +150,7 @@ public class ResourceFilter implements IMessageFilter {
 			message.setTo(admins);
 		}
 
-		mailer.send(domainUid, message);
+		mailer.send(SendmailCredentials.asAdmin0(), domainUid, message);
 	}
 
 	private Collection<Address> getResourcesAdmins(IServiceProvider provider, String domainUid, String mailbox) {

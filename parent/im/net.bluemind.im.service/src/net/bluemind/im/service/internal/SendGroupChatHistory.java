@@ -43,6 +43,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sendmail.ISendmail;
 import net.bluemind.core.sendmail.Sendmail;
+import net.bluemind.core.sendmail.SendmailCredentials;
 import net.bluemind.core.sendmail.SendmailHelper;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
@@ -70,7 +71,7 @@ public class SendGroupChatHistory implements Runnable {
 	public void run() {
 		try {
 			Message m = getMessage();
-			mailer.send(sender, m);
+			mailer.send(SendmailCredentials.asAdmin0(), sender, m);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}

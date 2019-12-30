@@ -62,6 +62,7 @@ import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sendmail.SendmailHelper;
+import net.bluemind.core.sendmail.testhelper.FakeSendmail;
 import net.bluemind.core.sessions.Sessions;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.directory.api.DirEntry;
@@ -325,14 +326,16 @@ public class ResourceFilterTests {
 		assertNull(m2);
 
 		assertTrue(mailer.mailSent);
-		assertEquals(origSubject, mailer.subject);
 
-		assertEquals(1, mailer.from.size());
-		assertTrue(mailer.from.contains(((Mailbox) m.getFrom().iterator().next()).getAddress()));
+		assertEquals(1, mailer.messages.size());
+		assertEquals(origSubject, mailer.messages.get(0).message.getSubject());
 
-		assertEquals(2, mailer.to.size());
-		assertTrue(mailer.to.contains(user1.emails.iterator().next().address));
-		assertTrue(mailer.to.contains(user2.emails.iterator().next().address));
+		assertEquals(1, mailer.messagesFrom().size());
+		assertTrue(mailer.messagesFrom().contains(((Mailbox) m.getFrom().iterator().next()).getAddress()));
+
+		assertEquals(2, mailer.messagesTo().size());
+		assertTrue(mailer.messagesTo().contains(user1.emails.iterator().next().address));
+		assertTrue(mailer.messagesTo().contains(user2.emails.iterator().next().address));
 	}
 
 	@Test
@@ -355,12 +358,14 @@ public class ResourceFilterTests {
 
 		assertTrue(mailer.mailSent);
 
-		assertEquals(1, mailer.from.size());
-		assertTrue(mailer.from.contains(((Mailbox) m.getFrom().iterator().next()).getAddress()));
+		assertEquals(1, mailer.messages.size());
 
-		assertEquals(2, mailer.to.size());
-		assertTrue(mailer.to.contains(user1.emails.iterator().next().address));
-		assertTrue(mailer.to.contains(user2.emails.iterator().next().address));
+		assertEquals(1, mailer.messagesFrom().size());
+		assertTrue(mailer.messagesFrom().contains(((Mailbox) m.getFrom().iterator().next()).getAddress()));
+
+		assertEquals(2, mailer.messagesTo().size());
+		assertTrue(mailer.messagesTo().contains(user1.emails.iterator().next().address));
+		assertTrue(mailer.messagesTo().contains(user2.emails.iterator().next().address));
 	}
 
 	@Test
@@ -383,12 +388,14 @@ public class ResourceFilterTests {
 
 		assertTrue(mailer.mailSent);
 
-		assertEquals(1, mailer.from.size());
-		assertTrue(mailer.from.contains(((Mailbox) m.getFrom().iterator().next()).getAddress()));
+		assertEquals(1, mailer.messages.size());
 
-		assertEquals(2, mailer.to.size());
-		assertTrue(mailer.to.contains(user1.emails.iterator().next().address));
-		assertTrue(mailer.to.contains(user2.emails.iterator().next().address));
+		assertEquals(1, mailer.messagesFrom().size());
+		assertTrue(mailer.messagesFrom().contains(((Mailbox) m.getFrom().iterator().next()).getAddress()));
+
+		assertEquals(2, mailer.messagesTo().size());
+		assertTrue(mailer.messagesTo().contains(user1.emails.iterator().next().address));
+		assertTrue(mailer.messagesTo().contains(user2.emails.iterator().next().address));
 	}
 
 	@Test
@@ -410,12 +417,16 @@ public class ResourceFilterTests {
 		assertNull(m2);
 
 		assertTrue(mailer.mailSent);
-		assertEquals("[Unable to deliver mail to resource address] " + origSubject, mailer.subject);
 
-		assertEquals(1, mailer.from.size());
-		assertTrue(mailer.from.contains(((Mailbox) m.getFrom().iterator().next()).getAddress()));
+		assertEquals(1, mailer.messages.size());
 
-		assertEquals(1, mailer.to.size());
-		assertTrue(mailer.from.contains(((Mailbox) m.getTo().iterator().next()).getAddress()));
+		assertEquals("[Unable to deliver mail to resource address] " + origSubject,
+				mailer.messages.get(0).message.getSubject());
+
+		assertEquals(1, mailer.messagesFrom().size());
+		assertTrue(mailer.messagesFrom().contains(((Mailbox) m.getFrom().iterator().next()).getAddress()));
+
+		assertEquals(1, mailer.messagesTo().size());
+		assertTrue(mailer.messagesFrom().contains(((Mailbox) m.getTo().iterator().next()).getAddress()));
 	}
 }

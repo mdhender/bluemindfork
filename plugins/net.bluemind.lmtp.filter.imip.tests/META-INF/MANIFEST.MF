@@ -29,4 +29,5 @@ Require-Bundle: org.junit,
  net.bluemind.core.tests.testshelper,
  net.bluemind.tag.persistence,
  net.bluemind.core.container.persistence,
- net.bluemind.calendar.hook
+ net.bluemind.calendar.hook,
+ net.bluemind.core.sendmail.testhelper

@@ -53,6 +53,7 @@ import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.sendmail.Sendmail;
+import net.bluemind.core.sendmail.SendmailCredentials;
 import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.backend.MailFolder;
 import net.bluemind.eas.backend.bm.impl.CoreConnect;
@@ -190,7 +191,7 @@ public class EmailManager extends CoreConnect {
 
 			Sendmail sm = new Sendmail();
 			MSUser u = bs.getUser();
-			sm.send(u.getDefaultEmail(), u.getDomain(), m);
+			sm.send(SendmailCredentials.as(u.getLoginAtDomain(), u.getSid()), u.getDefaultEmail(), u.getDomain(), m);
 
 		} catch (Exception e) {
 			// TODO rm sent item

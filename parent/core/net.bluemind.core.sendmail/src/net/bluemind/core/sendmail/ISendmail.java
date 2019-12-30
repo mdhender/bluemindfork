@@ -27,16 +27,19 @@ import net.bluemind.core.api.fault.ServerFault;
 public interface ISendmail {
 
 	/**
-	 * Send an email. This API is usable from outside core JVM.
+	 * Send an email using specific SMTP authentication. This API is usable from
+	 * outside core JVM.
 	 * 
+	 * @param creds
+	 *                       SMTP credentials
 	 * @param fromEmail
-	 *            Envelope from
+	 *                       Envelope from
 	 * @param userDomain
-	 *            Used to locate a valid SMTP
+	 *                       Used to locate a valid SMTP
 	 * @param m
 	 * @throws ServerFault
 	 */
-	void send(String fromEmail, String userDomain, Message m) throws ServerFault;
+	public void send(SendmailCredentials creds, String fromEmail, String userDomain, Message m);
 
 	/**
 	 * @param m
@@ -52,17 +55,29 @@ public interface ISendmail {
 	void send(Mailbox from, Message m) throws ServerFault;
 
 	/**
+	 * @param creds
+	 *                      SMTP credentials
+	 * @param domainUid
 	 * @param m
 	 * @throws ServerFault
 	 */
-	void send(String domainUid, Message m) throws ServerFault;
+	void send(SendmailCredentials creds, String domainUid, Message m) throws ServerFault;
 
 	/**
+	 * Send an email using specific SMTP authentication. This API is usable from
+	 * outside core JVM.
+	 * 
+	 * @param creds
+	 *                       SMTP credentials
 	 * @param fromEmail
+	 *                       Envelope from
 	 * @param userDomain
+	 *                       Used to locate a valid SMTP
 	 * @param rcptTo
+	 *                       the real recipients
 	 * @param m
 	 * @throws ServerFault
 	 */
-	void send(String fromEmail, String userDomain, MailboxList rcptTo, Message m) throws ServerFault;
+	void send(SendmailCredentials creds, String fromEmail, String userDomain, MailboxList rcptTo, Message m)
+			throws ServerFault;
 }

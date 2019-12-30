@@ -43,8 +43,6 @@ import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.helper.mail.EventMailHelper;
-import net.bluemind.calendar.service.eventdeferredaction.EventDeferredAction;
-import net.bluemind.calendar.service.eventdeferredaction.EventDeferredActionExecutor;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -53,6 +51,7 @@ import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sendmail.ISendmail;
 import net.bluemind.core.sendmail.Mail;
+import net.bluemind.core.sendmail.SendmailCredentials;
 import net.bluemind.deferredaction.api.DeferredAction;
 import net.bluemind.deferredaction.api.IDeferredAction;
 import net.bluemind.deferredaction.api.IDeferredActionContainerUids;
@@ -178,7 +177,7 @@ class MockedSendmail implements ISendmail {
 	}
 
 	@Override
-	public void send(String fromEmail, String userDomain, Message m) throws ServerFault {
+	public void send(SendmailCredentials creds, String fromEmail, String userDomain, Message m) {
 		wasCalled();
 	}
 
@@ -194,12 +193,13 @@ class MockedSendmail implements ISendmail {
 	}
 
 	@Override
-	public void send(String domainUid, Message m) throws ServerFault {
+	public void send(SendmailCredentials creds, String domainUid, Message m) throws ServerFault {
 		wasCalled();
 	}
 
 	@Override
-	public void send(String fromEmail, String userDomain, MailboxList rcptTo, Message m) throws ServerFault {
+	public void send(SendmailCredentials creds, String fromEmail, String userDomain, MailboxList rcptTo, Message m)
+			throws ServerFault {
 		wasCalled();
 	}
 
@@ -210,5 +210,4 @@ class MockedSendmail implements ISendmail {
 	public boolean hasBeenCalled() {
 		return wasCalled;
 	}
-
 }

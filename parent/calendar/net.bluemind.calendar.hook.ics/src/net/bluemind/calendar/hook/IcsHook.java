@@ -72,6 +72,7 @@ import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sendmail.ISendmail;
 import net.bluemind.core.sendmail.Sendmail;
+import net.bluemind.core.sendmail.SendmailCredentials;
 import net.bluemind.core.sendmail.SendmailHelper;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
@@ -737,8 +738,8 @@ public class IcsHook implements ICalendarHook {
 				try (Message mail = buildMailMessage(from, from, attendeeListTo, attendeeListCc, subjectTemplate,
 						template, messagesResolverProvider.getResolver(new Locale(getLocale(settings))), data,
 						createBodyPart(message.itemUid, ics), settings, event, method, attachments)) {
-					mailer.send(from.getAddress(), from.getDomain(), new MailboxList(Arrays.asList(recipient), true),
-							mail);
+					mailer.send(SendmailCredentials.asAdmin0(), from.getAddress(), from.getDomain(),
+							new MailboxList(Arrays.asList(recipient), true), mail);
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
