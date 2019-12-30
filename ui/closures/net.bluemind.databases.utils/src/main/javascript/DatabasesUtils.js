@@ -32,6 +32,7 @@ goog.require("net.bluemind.todolist.persistence.schema");
 goog.require("net.bluemind.calendar.persistence.schema");
 goog.require("net.bluemind.authentication.schema");
 goog.require("net.bluemind.resource.persistence.schema");
+goog.require("net.bluemind.deferredaction.persistence.schema");
 goog.require("net.bluemind.mvp.ApplicationContext");
 goog.require("net.bluemind.persistence.DatabaseService");
 goog.require('net.bluemind.mvp.Application');

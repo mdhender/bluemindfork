@@ -63,12 +63,15 @@ function checkDeferredActions(deferredaction, userDateTimeFormater, dateHelperCr
             .getItemsByDate(Date.now() + DELAY)
             .then(deleteOverdues(deferredaction, dateHelperCreate))
             .then(scheduleNotifications(deferredaction, userDateTimeFormater, dateHelperCreate));
+        goog.log.info(logger, "End of checking reminders…");
     };
 }
 
 function deleteOverdues(deferredaction, dateHelperCreate) {
     return function(items) {
-        goog.log.info(logger, "Deleting overdue reminders…");
+        if (items) {
+            goog.log.info(logger, "Deleting overdue reminders");
+        }
         return items.filter(deleteOverdue(deferredaction, dateHelperCreate));
     };
 }
@@ -116,7 +119,9 @@ function overdue(item, dateHelperCreate) {
 
 function scheduleNotifications(deferredaction, userDateTimeFormater, dateHelperCreate) {
     return function(items) {
-        goog.log.info(logger, "Scheduling reminders notifications…");
+        if (items) {
+            goog.log.info(logger, "Scheduling reminders notifications");
+        }
         if (!("Notification" in window)) {
             // eslint-disable-next-line no-console
             console.log("This browser does not support notifications.");

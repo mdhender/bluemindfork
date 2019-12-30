@@ -98,11 +98,13 @@ public class EventDeferredActionHook implements ICalendarHook {
 	private Optional<VEvent> storeTrigger(VAlarm valarm, VEvent occurrence, VEventMessage message) {
 		if (notInPast(occurrence.dtend)) {
 			Date trigger = calculateAlarmDate(valarm, occurrence.dtstart);
-			IDeferredAction service = getService(valarm, message);
-			String reference = EventDeferredAction.getReference(message.container.uid, message.itemUid);
-			Map<String, String> config = getConfig(message, occurrence, valarm.trigger);
-			storeTrigger(reference, config, service, trigger);
-			return Optional.empty();
+			if (!trigger.before(new Date())) {
+				IDeferredAction service = getService(valarm, message);
+				String reference = EventDeferredAction.getReference(message.container.uid, message.itemUid);
+				Map<String, String> config = getConfig(message, occurrence, valarm.trigger);
+				storeTrigger(reference, config, service, trigger);
+				return Optional.empty();
+			}
 		}
 
 		return getNextOccurrence(valarm, occurrence).map(vEventOccurrence -> {
@@ -247,8 +249,7 @@ public class EventDeferredActionHook implements ICalendarHook {
 		List<VEvent> evts = new ArrayList<>();
 		Set<BmDateTime> exdate = new HashSet<>();
 		event.occurrences.forEach(occurrence -> {
-			// Some exceptions seems to have a rrule 
-			occurrence.rrule = null;
+			occurrence.rrule = null; // Some exceptions seems to have a rrule
 			evts.add(occurrence);
 			exdate.add(occurrence.recurid);
 		});

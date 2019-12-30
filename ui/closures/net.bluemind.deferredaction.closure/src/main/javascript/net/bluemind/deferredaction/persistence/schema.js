@@ -26,7 +26,7 @@
 goog.provide("net.bluemind.deferredaction.persistence.schema");
 
 net.bluemind.deferredaction.persistence.schema = {
-    resetTags: ['4.1.47208'],
+    resetTags: ["4.1.47208"],
     stores: [
         {
             name: "item",
