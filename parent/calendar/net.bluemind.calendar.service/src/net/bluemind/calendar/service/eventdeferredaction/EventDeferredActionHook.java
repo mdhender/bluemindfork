@@ -118,10 +118,15 @@ public class EventDeferredActionHook implements ICalendarHook {
 			return Optional.empty();
 		}
 
-		LocalDateTime now = LocalDateTime.now();
-		LocalDateTime beginOfNextPeriod = now.plusSeconds(valarm.trigger);
-		return OccurrenceHelper.getNextOccurrence(BmDateTimeWrapper.create(beginOfNextPeriod, Precision.DateTime),
-				occurrence);
+		BmDateTime beginOfNextPeriod = occurrence.dtend;
+		// minusSeconds to make sure we handle positive trigger values (reminders after
+		// the actual event)
+		LocalDateTime now = LocalDateTime.now().minusSeconds(valarm.trigger);
+		if (now.isAfter(new BmDateTimeWrapper(occurrence.dtend).toDateTime().toLocalDateTime())) {
+			beginOfNextPeriod = BmDateTimeWrapper.create(now, Precision.DateTime);
+		}
+
+		return OccurrenceHelper.getNextOccurrence(beginOfNextPeriod, occurrence);
 	}
 
 	@Override
