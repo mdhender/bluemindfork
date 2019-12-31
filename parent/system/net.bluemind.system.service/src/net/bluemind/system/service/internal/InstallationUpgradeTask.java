@@ -54,10 +54,10 @@ public class InstallationUpgradeTask implements IServerTask {
 		monitor.begin(ServerSideServiceProvider.mailboxDataSource.size() + 1, "Begin upgrade");
 		notifyUpgradeStatus("core.upgrade.start");
 
-		doUpgradeForDataSource(pool, false, monitor.subWork(1));
 		for (DataSource mbDS : ServerSideServiceProvider.mailboxDataSource.values()) {
 			doUpgradeForDataSource(mbDS, true, monitor.subWork(1));
 		}
+		doUpgradeForDataSource(pool, false, monitor.subWork(1));
 		upgraders(monitor);
 		notifyUpgradeStatus("core.upgrade.end");
 	}
