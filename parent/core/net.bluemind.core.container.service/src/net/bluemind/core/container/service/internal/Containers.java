@@ -312,8 +312,16 @@ public class Containers implements IContainers {
 		}).collect(Collectors.toList());
 	}
 
-	private boolean isSharded(ContainerDescriptor container) {
-		return Sharding.containerTypes().contains(container.type);
+	private boolean isSharded(BaseContainerDescriptor container) {
+		return isShardedType(container.type);
+	}
+
+	private boolean isShardedContainer(Container container) {
+		return isShardedType(container.type);
+	}
+
+	private boolean isShardedType(String type) {
+		return Sharding.containerTypes().contains(type);
 	}
 
 	private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
@@ -329,28 +337,13 @@ public class Containers implements IContainers {
 	public List<BaseContainerDescriptor> allLight(ContainerQuery query) throws ServerFault {
 		RBACManager.forContext(context).checkNotAnoynmous();
 
-		Collection<DataSource> dataSources = DataSourceRouter.getAll(context);
-		List<BaseContainerDescriptor> ret = new ArrayList<BaseContainerDescriptor>();
+		List<Container> ret = new ArrayList<>();
+		ret.addAll(queryContainer(query, context.getAllMailboxDataSource(), this::isShardedContainer, query.readonly,
+				securityContext));
+		ret.addAll(queryContainer(query, Arrays.asList(context.getDataSource()), c -> !isShardedContainer(c),
+				query.readonly, securityContext));
 
-		dataSources.forEach(ds -> {
-			try {
-				ContainerStore containerStore = new ContainerStore(context, ds, securityContext);
-				if (query.owner != null) {
-					// FIXME not everybody should be able to call this
-					ret.addAll(asDescriptorsLight(doOrFail(
-							() -> containerStore.findByTypeOwnerReadOnly(query.type, query.owner, query.readonly)),
-							securityContext));
-				} else {
-					ret.addAll(asDescriptorsLight(doOrFail(() -> containerStore.findAccessiblesByType(query)),
-							securityContext));
-				}
-			} catch (Exception e) {
-				logger.warn("Fail to fetch containers on datasource {}", ds);
-			}
-
-		});
-
-		return dedup(ret);
+		return dedup(asDescriptorsLight(ret, securityContext));
 	}
 
 	@Override
@@ -363,25 +356,33 @@ public class Containers implements IContainers {
 
 		SecurityContext sc = context.provider().instance(IInCoreAuthentication.class).buildContext(domainUid, userUid);
 
-		Collection<DataSource> dataSources = DataSourceRouter.getAll(context);
-		List<ContainerDescriptor> ret = new ArrayList<ContainerDescriptor>();
+		List<Container> ret = new ArrayList<>();
+		ret.addAll(queryContainer(query, context.getAllMailboxDataSource(), this::isShardedContainer, null, sc));
+		ret.addAll(
+				queryContainer(query, Arrays.asList(context.getDataSource()), c -> !isShardedContainer(c), null, sc));
 
+		return dedup(asDescriptors(ret, sc));
+	}
+
+	private List<Container> queryContainer(ContainerQuery query, Collection<DataSource> dataSources,
+			Predicate<Container> filter, Boolean readOnly, SecurityContext ctx) {
+		List<Container> containers = new ArrayList<>();
 		dataSources.forEach(ds -> {
 			try {
-				ContainerStore suContainerStore = new ContainerStore(context, ds, sc);
-				if (query.owner != null && query.type != null) {
-					ret.addAll(asDescriptors(
-							doOrFail(() -> suContainerStore.findByTypeAndOwner(query.type, query.owner)), sc));
+				ContainerStore containerStore = new ContainerStore(context, ds, ctx);
+				if (query.owner != null) {
+					// FIXME not everybody should be able to call this
+					containers.addAll(
+							doOrFail(() -> containerStore.findByTypeOwnerReadOnly(query.type, query.owner, readOnly)));
 				} else {
-					ret.addAll(asDescriptors(doOrFail(() -> suContainerStore.findAccessiblesByType(query)), sc));
+					containers.addAll(doOrFail(() -> containerStore.findAccessiblesByType(query)));
 				}
 			} catch (Exception e) {
-				logger.warn("Fail to fetch containers for user {} on datasource {}", userUid, ds);
+				logger.warn("Fail to fetch containers on datasource {}", ds);
 			}
 
 		});
-		return dedup(ret);
-
+		return containers.stream().filter(filter).collect(Collectors.toList());
 	}
 
 	@Override

@@ -18,10 +18,7 @@
 package net.bluemind.core.container.persistence;
 
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.Optional;
-import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -77,17 +74,6 @@ public class DataSourceRouter {
 			}
 		}
 		return loc == null ? null : loc.orElse(null);
-	}
-
-	public static Collection<DataSource> getAll(BmContext context) {
-		// dedup because test contexts map data ds to multiple aliases
-		// ensure ordering because we want to find on containers on shards first
-		Set<DataSource> ret = new LinkedHashSet<DataSource>();
-
-		ret.addAll(context.getAllMailboxDataSource());
-		ret.add(context.getDataSource());
-
-		return ret;
 	}
 
 	public static void invalidateContainer(String containerUid) {
