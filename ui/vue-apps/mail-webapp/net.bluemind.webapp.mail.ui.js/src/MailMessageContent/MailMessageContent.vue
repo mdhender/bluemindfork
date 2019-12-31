@@ -1,5 +1,5 @@
 <template>
-    <bm-container class="mail-message-content bg-surface px-5 d-flex flex-column py-2">
+    <bm-container class="mail-message-content bg-surface px-lg-5 px-4 d-flex flex-column py-2 flex-grow-1">
         <bm-row>
             <bm-col cols="12">
                 <mail-message-content-toolbar />
@@ -116,3 +116,9 @@ export default {
     }
 };
 </script>
+
+<style scoped>
+.mail-message-content {
+    z-index: 20;
+}
+</style>

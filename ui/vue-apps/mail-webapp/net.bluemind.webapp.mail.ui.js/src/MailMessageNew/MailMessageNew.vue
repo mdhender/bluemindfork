@@ -1,6 +1,13 @@
 <template>
-    <bm-form class="mail-message-new p-3 flex-grow-1 d-flex">
-        <bm-panel :title="panelTitle" :closeable="false">
+    <bm-form class="mail-message-new p-lg-3 flex-grow-1 d-flex">
+        <bm-panel>
+            <template #header>
+                <span
+                    v-bm-tooltip.hover.ds500
+                    class="d-none d-lg-flex text-nowrap text-truncate card-header" 
+                    :title="panelTitle"
+                >{{ panelTitle }}</span>
+            </template>
             <template #body>
                 <div class="px-3">
                     <bm-row class="align-items-center">
@@ -320,6 +327,6 @@ export default {
 
 .mail-message-new .ProseMirror,
 .mail-message-new .mail-content {
-    padding: map-get($spacers, 2) map-get($spacers, 3);
+    padding: $sp-2 $sp-3;
 }
 </style>

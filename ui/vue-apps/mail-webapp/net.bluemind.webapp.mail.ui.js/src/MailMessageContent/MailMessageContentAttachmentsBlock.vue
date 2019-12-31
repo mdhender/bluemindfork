@@ -169,8 +169,8 @@ export default {
 @import "@bluemind/styleguide/css/_variables.scss";
 
 .mail-message-content-attachments-block .col-4 {
-    padding-right: map-get($spacers, 1) !important;
-    padding-left: map-get($spacers, 1) !important;
+    padding-right: $sp-1 !important;
+    padding-left: $sp-1 !important;
 }
 
 .mail-message-content-attachments-block .caret-btn:focus {

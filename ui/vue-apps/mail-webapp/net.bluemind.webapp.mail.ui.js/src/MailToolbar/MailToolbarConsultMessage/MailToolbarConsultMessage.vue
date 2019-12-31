@@ -1,6 +1,6 @@
 <template>
     <div class="mail-toolbar-consult-message">
-        <global-events @keydown.tab.capture="forceCloseMoveAutocomplete" />
+        <global-events @keydown.tab.capture="forceCloseMoveAutocomplete" /> 
         <bm-button
             v-if="currentMessage.states.includes('not-seen')"
             v-bm-tooltip.bottom.ds500
@@ -10,7 +10,8 @@
             :aria-label="$tc('mail.actions.mark_read.aria')"
             @click="markAsRead(currentMessage.key)"
         >
-            <bm-icon icon="read" size="2x" /> {{ $tc("mail.actions.mark_read") }}
+            <bm-icon icon="read" size="2x" />
+            <span class="d-none d-lg-block"> {{ $tc("mail.actions.mark_read") }}</span>
         </bm-button>
         <bm-button
             v-else
@@ -21,7 +22,8 @@
             :aria-label="$tc('mail.actions.mark_unread.aria')"
             @click="markAsUnread(currentMessage.key)"
         >
-            <bm-icon icon="unread" size="2x" /> {{ $tc("mail.actions.mark_unread") }}
+            <bm-icon icon="unread" size="2x" /> 
+            <span class="d-none d-lg-block">{{ $tc("mail.actions.mark_unread") }}</span>
         </bm-button>
         <mail-toolbar-consult-message-move-action />
         <bm-button
@@ -31,7 +33,7 @@
             :aria-label="$tc('mail.actions.spam.aria')"
         >
             <bm-icon icon="forbidden" size="2x" />
-            {{ $tc("mail.actions.spam") }}
+            <span class="d-none d-lg-block">{{ $tc("mail.actions.spam") }}</span>
         </bm-button>
         <bm-button
             v-bm-tooltip.bottom.ds500
@@ -42,7 +44,7 @@
             @click.shift.exact="openPurgeModal"
         >
             <bm-icon icon="trash" size="2x" />
-            {{ $tc("mail.actions.remove") }}
+            <span class="d-none d-lg-block">{{ $tc("mail.actions.remove") }}</span>
         </bm-button>
         <mail-toolbar-consult-message-other-actions />
     </div>
@@ -92,6 +94,8 @@ export default {
 
 .mail-toolbar-consult-message .unread,
 .mail-toolbar-consult-message .read {
-    width: 8rem;
+    @media (min-width: map-get($grid-breakpoints, 'lg')) {
+        width: 8rem;
+    }
 }
 </style>

@@ -2,7 +2,7 @@
     <div class="mail-folder-tree">
         <bm-button
             variant="link"
-            class="collapse-mailbox-btn d-none d-xl-flex align-items-center pb-2 pt-3 border-0 pl-1 w-100"
+            class="collapse-mailbox-btn d-flex align-items-center pb-2 pt-3 border-0 pl-1 w-100"
             aria-controls="collapse-mailbox"
             :aria-expanded="isMailboxExpanded"
             @click="isMailboxExpanded = !isMailboxExpanded"
@@ -19,23 +19,25 @@
                 breakpoint="xl"
                 @expand="expandFolder"
                 @collapse="collapseFolder"
-                @select="key => $router.push({ path: '/mail/' + key + '/' })"
+                @select="selectFolder"
             >
                 <template v-slot="f">
-                    <mail-folder-icon :folder="f.value" breakpoint="xl" class="flex-fill" />
-                    <bm-counter-badge
-                        v-if="f.value.unread > 0"
-                        :value="f.value.unread"
-                        :variant="f.value.key != currentFolderKey ? 'secondary' : 'primary'"
-                        class="mr-1 position-sticky"
-                    />
+                    <div class="w-100 d-flex align-items-center">
+                        <mail-folder-icon :folder="f.value" breakpoint="xl" class="flex-fill" />
+                        <bm-counter-badge
+                            v-if="f.value.unread > 0"
+                            :value="f.value.unread"
+                            :variant="f.value.key != currentFolderKey ? 'secondary' : 'primary'"
+                            class="mr-1 position-sticky"
+                        />
+                    </div>
                 </template>
             </bm-tree>
         </bm-collapse>
         <bm-button
             v-if="mailshares.length > 0"
             variant="link"
-            class="collapse-mailbox-btn d-none d-xl-flex align-items-center pb-2 pt-3 border-0 pl-1 w-100"
+            class="collapse-mailbox-btn d-flex align-items-center pb-2 pt-3 border-0 pl-1 w-100"
             aria-controls="collapse-mailbox"
             :aria-expanded="areMailsharesExpanded"
             @click="areMailsharesExpanded = !areMailsharesExpanded"
@@ -52,16 +54,18 @@
                 breakpoint="xl"
                 @expand="expandFolder"
                 @collapse="collapseFolder"
-                @select="key => $router.push({ path: '/mail/' + key + '/' })"
+                @select="selectFolder"
             >
                 <template v-slot="f">
-                    <mail-folder-icon shared :folder="f.value" breakpoint="xl" class="flex-fill" />
-                    <bm-counter-badge
-                        v-if="f.value.unread > 0"
-                        :value="f.value.unread"
-                        :variant="f.value.key != currentFolderKey ? 'secondary' : 'primary'"
-                        class="mr-1 position-sticky"
-                    />
+                    <div class="w-100 d-flex align-items-center">
+                        <mail-folder-icon shared :folder="f.value" breakpoint="xl" class="flex-fill" />
+                        <bm-counter-badge
+                            v-if="f.value.unread > 0"
+                            :value="f.value.unread"
+                            :variant="f.value.key != currentFolderKey ? 'secondary' : 'primary'"
+                            class="mr-1 position-sticky"
+                        />
+                    </div>
                 </template>
             </bm-tree>
         </bm-collapse>
@@ -96,7 +100,11 @@ export default {
         ...mapState("mail-webapp", ["currentFolderKey"])
     },
     methods: {
-        ...mapActions("mail-webapp", ["expandFolder", "collapseFolder"])
+        ...mapActions("mail-webapp", ["expandFolder", "collapseFolder"]),
+        selectFolder(key) {
+            this.$emit('toggle-folders');
+            this.$router.push({ path: "/mail/" + key + "/" });
+        }
     }
 };
 </script>
@@ -116,7 +124,7 @@ export default {
 
 .bm-counter-badge {
     // work around to avoid parent padding
-    margin-top: -(map-get($spacers, 1));
-    margin-bottom: -(map-get($spacers, 1));
+    margin-top: -($sp-1);
+    margin-bottom: -($sp-1);
 }
 </style>

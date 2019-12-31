@@ -11,7 +11,8 @@
         @hide="pattern = ''"
     >
         <template slot="button-content">
-            <bm-icon icon="folder" size="2x" /> {{ $tc("mail.toolbar.move") }}
+            <bm-icon icon="folder" size="2x" /> <span class="d-none d-lg-block">
+                {{ $tc("mail.toolbar.move") }}</span>
         </template>
         <bm-autocomplete
             ref="moveAutocomplete"
@@ -153,14 +154,15 @@ function toFolderItem(folder, isShared, path) {
 }
 
 .move-message .btn.dropdown-toggle {
-    padding: 0;
+    padding-top: 0;
+    padding-bottom: 0;
     border: none;
 }
 
 .move-message .dropdown-menu {
     border: none !important;
     padding: 0 !important;
-    margin-top: map-get($spacers, 1) !important;
+    margin-top: $sp-1 !important;
 }
 
 .move-message .btn.dropdown-toggle:hover {

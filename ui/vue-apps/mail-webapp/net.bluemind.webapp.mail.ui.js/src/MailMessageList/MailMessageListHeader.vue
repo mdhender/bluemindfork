@@ -1,5 +1,5 @@
 <template>
-    <bm-list-group-item class="mail-message-list-header bg-surface pb-0 pt-1">
+    <bm-list-group-item class="mail-message-list-header bg-surface pb-0 pt-1 d-none d-lg-block">
         <bm-row align-v="center" class="no-gutters">
             <bm-col cols="1">
                 <bm-check />

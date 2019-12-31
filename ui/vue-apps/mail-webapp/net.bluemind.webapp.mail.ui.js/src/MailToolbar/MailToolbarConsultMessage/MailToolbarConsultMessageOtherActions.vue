@@ -7,14 +7,16 @@
             :aria-label="$tc('mail.toolbar.more.aria')"
             :title="$tc('mail.toolbar.more.aria')"
             class="other_actions h-100"
+            right
         >
             <template slot="button-content">
-                <bm-icon icon="3dots" size="2x" /> {{ $tc("mail.toolbar.more") }}
+                <bm-icon icon="3dots" size="2x" /> 
+                <span class="d-none d-lg-block">{{ $tc("mail.toolbar.more") }}</span>
             </template>
             <bm-dropdown-item class="shadow-sm" @click="deletionConfirmed">
-                <div class="py-1">
-                    <span class="font-weight-bold">{{ $t("mail.actions.purge") }}</span>
-                    <span class="shortcuts float-right"> {{ $t("mail.shortcuts.purge") }}</span>
+                <div class="d-flex justify-content-between py-1">
+                    <span class="font-weight-bold pr-4">{{ $t("mail.actions.purge") }}</span>
+                    <span> {{ $t("mail.shortcuts.purge") }}</span>
                 </div>
             </bm-dropdown-item>
         </bm-dropdown>
@@ -52,8 +54,7 @@ export default {
 
 .other_actions .dropdown-menu {
     border: none !important;
-    margin-top: map-get($spacers, 1) !important;
+    margin-top: $sp-1 !important;
     padding: 0 !important;
-    min-width: 20vw;
 }
 </style>

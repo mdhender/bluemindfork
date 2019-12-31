@@ -27,7 +27,7 @@
             :item-key="'key'"
             item-size="dynamic"
             scrollbar
-            class="h-100 bg-extra-light slide-in-from-left"
+            class="h-100 bg-extra-light"
             @scroll="loadMessages"
         >
             <template #item="f">
@@ -253,7 +253,7 @@ export default {
 }
 
 .mail-message-list .list-group-separator {
-    padding: map-get($spacers, 1);
     border-bottom: $border-width solid $light;
+    padding: $sp-1;
 }
 </style>

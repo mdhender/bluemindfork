@@ -9,7 +9,7 @@
             @click="doSend()"
         >
             <bm-icon icon="send" size="2x" />
-            {{ $tc("mail.actions.send") }}
+            <span class="d-none d-lg-block">{{ $tc("mail.actions.send") }}</span>
         </bm-button>
         <bm-button
             v-bm-tooltip.bottom.ds500
@@ -20,7 +20,7 @@
             @click="openFilePicker()"
         >
             <bm-icon icon="paper-clip" size="2x" />
-            {{ $tc("mail.actions.attach") }}
+            <span class="d-none d-lg-block">{{ $tc("mail.actions.attach") }}</span>
         </bm-button>
         <input ref="attachInputRef" type="file" multiple hidden @change="doAttach" />
         <bm-button
@@ -32,7 +32,7 @@
             @click="saveDraft()"
         >
             <bm-icon icon="save" size="2x" />
-            {{ $tc("mail.actions.save") }}
+            <span class="d-none d-lg-block">{{ $tc("mail.actions.save") }}</span>
         </bm-button>
         <bm-button
             v-bm-tooltip.bottom.ds500
@@ -43,7 +43,7 @@
             @click="doDelete()"
         >
             <bm-icon icon="trash" size="2x" />
-            {{ $tc("mail.actions.remove") }}
+            <span class="d-none d-lg-block">{{ $tc("mail.actions.remove") }}</span>
         </bm-button>
     </div>
 </template>

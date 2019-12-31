@@ -1,5 +1,5 @@
 <template>
-    <bm-navbar type="dark" variant="info-dark" toggleable="lg" class="bm-banner p-0 align-items-stretch">
+    <bm-navbar type="dark" variant="info-dark" class="bm-banner p-0 align-items-stretch d-none d-lg-flex">
         <bm-button 
             id="all-apps-popover"
             v-bm-tooltip.ds500
