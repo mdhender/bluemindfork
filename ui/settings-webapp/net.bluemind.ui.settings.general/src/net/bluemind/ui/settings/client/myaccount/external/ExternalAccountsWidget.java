@@ -135,6 +135,7 @@ public class ExternalAccountsWidget extends CompositeGwtWidgetElement {
 		final JsMapStringJsObject map = model.cast();
 
 		JsArray<JsCompleteExternalSystem> externalSystems = map.get("external-systems").cast();
+
 		for (int i = 0; i < externalSystems.length(); i++) {
 			JsCompleteExternalSystem system = externalSystems.get(i);
 			logos.put(system.getIdentifier(), system.getLogo());
@@ -145,14 +146,27 @@ public class ExternalAccountsWidget extends CompositeGwtWidgetElement {
 		JsArray<JsUserAccountInfo> accounts = map.get("external-accounts").cast();
 		for (int i = 0; i < accounts.length(); i++) {
 			JsUserAccountInfo account = accounts.get(i);
+			Image img = null;
+			if (systemIsPresent(account.getExternalSystemId())) {
+				img = new Image(logos.get(account.getExternalSystemId()));
+			}
 			myAccountList.add(new AccountInfoEdit(account));
 			loginMap.put(account.getLogin(), account.getLogin());
-			addAccountEntry(account.getExternalSystemId(), account.getLogin(), myAccounts,
-					new Image(logos.get(account.getExternalSystemId())), account.getLogin());
+			addAccountEntry(account.getExternalSystemId(), account.getLogin(), myAccounts, img, account.getLogin());
 			unconfiguredSystems.remove(account.getExternalSystemId());
+
 		}
 
 		checkAddAccountButton();
+	}
+
+	private boolean systemIsPresent(String externalSystemId) {
+		for (JsCompleteExternalSystem sys : systems) {
+			if (sys.getIdentifier().equals(externalSystemId)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void save(String login, boolean create, String systemIdentifier, String newLogin, String credentials,
@@ -191,14 +205,16 @@ public class ExternalAccountsWidget extends CompositeGwtWidgetElement {
 		Anchor identifier = new Anchor(systemIdentifier);
 		Anchor description = new Anchor(label);
 		AccountClickHandler handler = new AccountClickHandler(this, getSystem(systemIdentifier), login, loginMap);
-		identifier.addClickHandler(handler);
-		description.addClickHandler(handler);
 
-		icon.setStyleName(style.systemIcon());
 		int row = table.getRowCount();
 		rowMap.put(systemIdentifier, row);
-		handlerMap.put(systemIdentifier, icon.addClickHandler(handler));
-		table.setWidget(row, 0, icon);
+		if (icon != null) {
+			identifier.addClickHandler(handler);
+			description.addClickHandler(handler);
+			icon.setStyleName(style.systemIcon());
+			handlerMap.put(systemIdentifier, icon.addClickHandler(handler));
+			table.setWidget(row, 0, icon);
+		}
 		table.setWidget(row, 1, identifier);
 		table.setWidget(row, 2, new Label(login));
 
@@ -208,10 +224,12 @@ public class ExternalAccountsWidget extends CompositeGwtWidgetElement {
 		table.getFlexCellFormatter().setStyleName(row, 3, style.account_tbl_button());
 		table.getFlexCellFormatter().setStyleName(row, 4, style.account_tbl_col_trash());
 
-		Button edit = new Button(constants.edit());
-		edit.setStyleName("button");
-		edit.addClickHandler(handler);
-		table.setWidget(row, 3, edit);
+		if (icon != null) {
+			Button edit = new Button(constants.edit());
+			edit.setStyleName("button");
+			edit.addClickHandler(handler);
+			table.setWidget(row, 3, edit);
+		}
 
 		Trash delete = new Trash();
 		delete.addClickHandler(c -> {
@@ -225,7 +243,9 @@ public class ExternalAccountsWidget extends CompositeGwtWidgetElement {
 					}
 					iter.remove();
 					table.removeRow(row);
-					unconfiguredSystems.add(accountInfo.account.getExternalSystemId());
+					if (systemIsPresent(accountInfo.account.getExternalSystemId())) {
+						unconfiguredSystems.add(accountInfo.account.getExternalSystemId());
+					}
 					break;
 				}
 			}
