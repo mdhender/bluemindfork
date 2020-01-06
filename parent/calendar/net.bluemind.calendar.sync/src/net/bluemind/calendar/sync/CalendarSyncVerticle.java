@@ -61,8 +61,7 @@ import net.bluemind.lib.vertx.IVerticleFactory;
  * <li><i>Waiting</i> means: the number of days since the last
  * synchronization</li>
  * <li>When {@link #syncErrorLimit()} synchronization errors is reached, a
- * calendar is excluded from the synchronization mechanism FIXME how to
- * recover?</li>
+ * calendar is excluded from the synchronization mechanism</li>
  * <li>Each synchronization of a same calendar is delayed by
  * {@link CalendarContainerSync#nextSyncDelay()} milliseconds</li>
  * </ul>

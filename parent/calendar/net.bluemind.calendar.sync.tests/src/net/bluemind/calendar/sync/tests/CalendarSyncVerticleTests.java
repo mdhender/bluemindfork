@@ -17,6 +17,10 @@
  */
 package net.bluemind.calendar.sync.tests;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -39,6 +43,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
 import org.vertx.java.core.AsyncResult;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServer;
@@ -77,6 +82,7 @@ public class CalendarSyncVerticleTests {
 	private static final String ICS_FILE_52_EVENTS = "resources/ics-test-52-events.ics";
 	private static final String ICS_FILE_BAD_CONTENT = "resources/ics-test-bad-content.ics";
 	private static final String ICS_FILE_BAD_CONTENT_2 = "resources/ics-test-bad-content-2.ics";
+	private static final String ICS_FILE_GOOGLE = "resources/ics-test-google.ics";
 	private static final String ICS_URL = "http://localhost:8091/ics";
 	private static final String CALENDAR_UID = "bluemind-test-calendar-id";
 	private static final String ETAG_1 = "W/\"etag-1-token\"";
@@ -169,7 +175,14 @@ public class CalendarSyncVerticleTests {
 		});
 
 		router.head("/ics", this::handleHead);
-		router.get("/ics", this::handleGet);
+		router.get("/ics", event -> {
+			try {
+				handleGet(event);
+			} catch (IOException e) {
+				LoggerFactory.getLogger(CalendarSyncVerticleTests.class).error("Unable to handle GET request.", e);
+				Assert.fail(e.getMessage());
+			}
+		});
 
 		icsHttpServer.requestHandler(router).listen(8091);
 	}
@@ -179,9 +192,29 @@ public class CalendarSyncVerticleTests {
 		event.response().setStatusCode(this.computeStatus(event)).end();
 	}
 
-	private void handleGet(final HttpServerRequest event) {
+	private void handleGet(final HttpServerRequest event) throws IOException {
 		this.nextResponse.headers.forEach((key, value) -> event.response().putHeader(key, value));
-		event.response().setStatusCode(this.computeStatus(event)).sendFile(this.nextResponse.returnedIcs).end();
+		event.response().setStatusCode(this.computeStatus(event))
+				.sendFile(this.handleIcsVariables(this.nextResponse.returnedIcs)).end();
+	}
+
+	private String handleIcsVariables(String icsFile) throws IOException {
+		String icsContent = new String(Files.readAllBytes(new File(icsFile).toPath()), StandardCharsets.UTF_8);
+		String timestampVariable = "${timestamp}";
+		if (icsContent.contains(timestampVariable)) {
+			LocalDateTime dateTime = LocalDateTime.now();
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'");
+			String dateTimeString = dateTime.format(formatter);
+			icsContent = icsContent.replaceAll(Pattern.quote(timestampVariable), dateTimeString);
+			// create file to send
+			File newFile = File
+					.createTempFile("icsTest-" + this.getClass().getSimpleName() + System.currentTimeMillis(), ".ics");
+			Files.write(newFile.toPath(), icsContent.getBytes());
+			return newFile.getAbsolutePath();
+		} else {
+			// no variables, use the original file
+			return icsFile;
+		}
 	}
 
 	private int computeStatus(final HttpServerRequest event) {
@@ -543,7 +576,35 @@ public class CalendarSyncVerticleTests {
 		this.nextResponse.headers.put("Last-Modified", formattedDate);
 		this.nextResponse.headers.put(FORCE_STATUS_HEADER, "200");
 		this.checkSyncOkNoUpdates(1500);
+	}
 
+	/**
+	 * Check we do not update the ICS content when dealing with a google
+	 * calendar which changes at each request because of the DTSTAMP line.
+	 */
+	@Test
+	public void testLastModifiedGoogle() throws InterruptedException {
+		this.init();
+
+		final ZonedDateTime utcLastModified = LAST_MODIF_DATE
+				.withZoneSameInstant(ZoneId.ofOffset("UTC", ZoneOffset.UTC));
+		final String formattedDate = DateTimeFormatter.RFC_1123_DATE_TIME.format(utcLastModified);
+
+		// first sync replaces the initial empty ics
+		this.nextResponse = new PreparedResponse(ICS_FILE_GOOGLE);
+		this.nextResponse.headers.put("Last-Modified", formattedDate);
+		// RFC_1123 dates drop milliseconds, so add at least 1sec sleep to see
+		// differences in times comparisons
+		this.checkSyncOkWithChanges(1500);
+
+		// other syncs are done but calendars not updated
+		// should also check the ICS parsing has not be done, but there is no
+		// way to do that currently
+		this.nextResponse = new PreparedResponse(ICS_FILE_GOOGLE);
+		this.checkSyncOkNoUpdates(1500);
+
+		this.nextResponse = new PreparedResponse(ICS_FILE_GOOGLE);
+		this.checkSyncOkNoUpdates(1500);
 	}
 
 	/**
