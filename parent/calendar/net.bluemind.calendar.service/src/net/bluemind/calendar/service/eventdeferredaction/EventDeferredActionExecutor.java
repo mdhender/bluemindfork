@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import org.apache.james.mime4j.MimeException;
@@ -108,7 +109,13 @@ public class EventDeferredActionExecutor implements IDeferredActionExecutor {
 			Map<String, String> userSettings = userSettingsService.get(userMailbox.uid);
 			Map<String, Object> data = buildData(event, alarm, userSettings);
 			logger.info("Send deferred action to {} for entity {}", userMailbox.displayName, deferredAction.uid);
-			sendNotificationEmail(data, userMailbox, userSettings);
+			CompletableFuture.runAsync(() -> {
+				try {
+					sendNotificationEmail(data, userMailbox, userSettings);
+				} catch (Exception e) {
+					logger.error("Impossible to send deferred action for entity: {}", deferredAction.uid, e);
+				}
+			});
 		} catch (Exception e) {
 			logger.error("Impossible to send deferred action for entity: {}", deferredAction.uid, e);
 		} finally {
