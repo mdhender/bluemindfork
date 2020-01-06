@@ -10,4 +10,6 @@ Require-Bundle: net.bluemind.announcement.api,
  net.bluemind.core.rest,
  com.google.guava;bundle-version="19.0.0",
  net.bluemind.eclipse.common,
- net.bluemind.announcement.provider
+ net.bluemind.announcement.provider,
+ org.eclipse.osgi
+Bundle-Activator: net.bluemind.announcement.service.UserAnnouncementsActivator

@@ -110,7 +110,7 @@ public class BmConfIni extends IniFile {
 			return overrideValue;
 		}
 
-		String value = getData().get(string);
+		String value = getProperty(string);
 		if (value != null) {
 			return value.replace("\"", "");
 		} else {

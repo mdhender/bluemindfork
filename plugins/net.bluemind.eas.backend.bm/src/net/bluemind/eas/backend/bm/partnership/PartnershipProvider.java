@@ -191,7 +191,7 @@ public class PartnershipProvider implements IDevicePartnershipProvider {
 				return null;
 			}
 		};
-		String freeForAll = ini.getData().get("allow.unknown.pda");
+		String freeForAll = ini.getProperty("allow.unknown.pda");
 		if ("true".equals(freeForAll)) {
 			return true;
 		}

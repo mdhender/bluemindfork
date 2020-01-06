@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.core.bo.report.provider
+Bundle-SymbolicName: net.bluemind.core.bo.report.provider;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Automatic-Module-Name: net.bluemind.core.bo.report.provider
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.eclipse.common,
+ net.bluemind.core.rest
+Export-Package: net.bluemind.core.bo.report.provider

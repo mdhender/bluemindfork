@@ -135,4 +135,12 @@ public interface IInstallation extends ICustomTheme {
 	@Path("_subscriptionContacts")
 	public void setSubscriptionContacts(List<String> emails) throws ServerFault;
 
+	@GET
+	@Path("_hostReport")
+	public String getHostReport();
+
+	@POST
+	@Path("_hostReport")
+	public String sendHostReport();
+
 }

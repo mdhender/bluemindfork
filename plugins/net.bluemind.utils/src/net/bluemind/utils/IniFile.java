@@ -20,8 +20,10 @@ package net.bluemind.utils;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -33,41 +35,52 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public abstract class IniFile {
-
-	private Map<String, String> settings;
-	private Logger logger;
+	private static final String DEFAULT_COMMENT = "";
+	private final String path;
+	private Properties properties;
+	private static final Logger logger = LoggerFactory.getLogger(IniFile.class);
 
 	public IniFile(String path) {
-		logger = LoggerFactory.getLogger(getClass());
-		settings = new HashMap<>();
-		File f = new File(path);
-		if (f.exists()) {
-			loadIniFile(f);
-		} else {
-			logger.warn("{} does not exist.", path);
+		this.path = path;
+	}
+
+	public String getProperty(String key) {
+		return getProperties().getProperty(key);
+	}
+
+	public void setProperty(String key, String value) {
+		getProperties().setProperty(key, value);
+	}
+
+	protected abstract String getCategory();
+
+	protected String getComment() {
+		return DEFAULT_COMMENT;
+	};
+
+	private static Properties load(String path) {
+		Properties properties = new Properties();
+		try (InputStream is = new FileInputStream(new File(path))) {
+			properties.load(is);
+		} catch (IOException e) {
+			logger.error("Unable to load '{}'", path, e);
+		}
+		return properties;
+	}
+
+	protected void save() {
+		try (OutputStream out = new FileOutputStream(new File(this.path))) {
+			this.getProperties().store(out, getComment());
+		} catch (IOException e) {
+			logger.error("Unable to save '{}'", this.path, e);
 		}
 	}
 
-	protected String getSetting(String settingName) {
-		return settings.get(settingName);
-	}
-
-	public Map<String, String> getData() {
-		return settings;
-	}
-
-	public abstract String getCategory();
-
-	private void loadIniFile(File f) {
-		try (FileInputStream in = new FileInputStream(f)) {
-			Properties p = new Properties();
-			p.load(in);
-			for (Object key : p.keySet()) {
-				settings.put((String) key, p.getProperty((String) key));
-			}
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+	public Properties getProperties() {
+		if (properties == null) {
+			properties = load(this.path);
 		}
+		return properties;
 	}
 
 }

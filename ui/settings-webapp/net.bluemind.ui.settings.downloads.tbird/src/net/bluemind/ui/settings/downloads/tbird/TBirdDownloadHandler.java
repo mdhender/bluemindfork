@@ -56,7 +56,7 @@ public class TBirdDownloadHandler implements Handler<HttpServerRequest> {
 
 		};
 
-		String externalUrl = ini.getData().get("external-url");
+		String externalUrl = ini.getProperty("external-url");
 		StringBuilder sb = new StringBuilder(40);
 		sb.append("https://");
 		sb.append(externalUrl);
