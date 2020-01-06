@@ -110,7 +110,15 @@ public class BmDateTimeValidatorTest {
 
 	@Test
 	public void testInvalidTZ() {
-		BmDateTime date = new BmDateTime("1983-02-13T21:00:00+01:00", "Pacific/Honolulu", Precision.DateTime);
+		BmDateTime date = new BmDateTime("2018-10-23T07:56:21", "Europe/Paris", Precision.Date);
+		try {
+			validator.validate(date);
+			fail("Date should not have tz");
+		} catch (ServerFault e) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, e.getCode());
+		}
+
+		date = new BmDateTime("1983-02-13T21:00:00+01:00", "Pacific/Honolulu", Precision.DateTime);
 		try {
 			validator.validate(date);
 			fail("invalid tz");

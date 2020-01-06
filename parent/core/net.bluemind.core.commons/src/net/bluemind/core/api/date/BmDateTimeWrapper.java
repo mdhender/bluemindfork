@@ -257,7 +257,7 @@ public class BmDateTimeWrapper {
 		ZoneId tz = hasValidTz ? ZoneId.of(timezone) : null;
 		boolean isoContainsValidTz = (detectTimeZone(iso8601) != null);
 
-		if (precision == Precision.Date && hasTime && hasValidTz) {
+		if (precision == Precision.Date && hasTime && hasValidTz && isoContainsValidTz) {
 			return ZonedDateTime.parse(iso8601, complexParser).format(printer);
 		} else if (precision == Precision.Date) {
 			if (hasTime) {

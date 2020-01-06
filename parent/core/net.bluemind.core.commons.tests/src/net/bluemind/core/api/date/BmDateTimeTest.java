@@ -463,6 +463,25 @@ public class BmDateTimeTest {
 	}
 
 	@Test
+	public void testAmbigiousISO8601DateWithTimeZone() {
+		String iso8601 = "2018-10-23T07:56:21";
+		Precision precision = Precision.Date;
+		String timezone = "Europe/Paris";
+
+		BmDateTime dt = BmDateTimeWrapper.create(iso8601, timezone, precision);
+
+		assertNotNull(dt);
+		assertEquals(Precision.Date, dt.precision);
+		assertEquals("2018-10-23", dt.iso8601);
+		assertNull(dt.timezone);
+
+		BmDateTime dt2 = BmDateTimeWrapper.create(iso8601, "Asia/Beirut", precision);
+		assertEquals(dt2.precision, dt.precision);
+		assertEquals(dt2.iso8601, dt.iso8601);
+		assertNull(dt2.timezone);
+	}
+
+	@Test
 	public void testISO8601WithTimeZone() {
 		String iso8601 = "2015-05-29T00:00:0.000+02:00";
 		BmDateTime dt = BmDateTimeWrapper.create(iso8601);
