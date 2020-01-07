@@ -50,16 +50,19 @@ public class VEventOccurrence extends VEvent {
 		return occurrence;
 	}
 
+	@Override
 	public VEventOccurrence copy() {
 		VEvent evt = super.copy();
 		return fromEvent(evt, this.recurid);
 	}
 
+	@Override
 	public VEventOccurrence filtered() {
 		VEvent f = super.filtered();
 		return fromEvent(f, this.recurid);
 	}
 
+	@Override
 	public boolean exception() {
 		return null != recurid;
 	}

@@ -6,7 +6,7 @@ Standards-Version: 3.9.1
 
 Package: bm-tick-node
 Architecture: amd64
-Depends: bm-telegraf (= 1.11.1.bm4-1), bm-metrics-agent
+Depends: bm-telegraf (= 1.11.1.bm5-1), bm-metrics-agent
 Description: BlueMind TICK stack
  Installs TICK monitoring stack for BlueMind
 

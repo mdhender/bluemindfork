@@ -56,7 +56,9 @@ public abstract class AbstractReplicatedMailboxesServiceFactory<T>
 	}
 
 	protected T getService(BmContext context, CyrusPartition partition, MailboxReplicaRootDescriptor mailboxRoot) {
-		logger.debug("Replicated mailboxes for {}", mailboxRoot.fullName());
+		if (logger.isDebugEnabled()) {
+			logger.debug("Replicated mailboxes for {}", mailboxRoot.fullName());
+		}
 		Subtree sub = DeletedDataMementos.cachedSubtree(context, partition.domainUid, mailboxRoot);
 		if (sub == null) {
 			sub = SubtreeContainer.mailSubtreeUid(context, partition.domainUid, mailboxRoot);
@@ -76,7 +78,7 @@ public abstract class AbstractReplicatedMailboxesServiceFactory<T>
 			mailboxRoot.dataLocation = datalocation;
 			ContainerStoreService<MailboxReplica> storeService = new ContainerStoreService<>(ds,
 					context.getSecurityContext(), foldersContainer, "mbox_replica", mboxReplicaStore, flagProvider,
-					(v) -> 0L, seed -> seed);
+					v -> 0L, seed -> seed);
 			return create(mailboxRoot, foldersContainer, context, mboxReplicaStore, storeService, containerStore);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
@@ -93,14 +95,14 @@ public abstract class AbstractReplicatedMailboxesServiceFactory<T>
 	}
 
 	@Override
-	public T instance(BmContext context, String... params) throws ServerFault {
+	public T instance(BmContext context, String... params) {
 		if (params == null || params.length < 2) {
 			throw new ServerFault("wrong number of instance parameters");
 		}
 		CyrusPartition partition = CyrusPartition.forName(params[0]);
 		String root = params[1];
 		if (logger.isDebugEnabled()) {
-			logger.debug("params[0]: " + params[0] + ", params[1]: " + params[1]);
+			logger.debug("params[0]: {}, params[1]: {}", params[0], params[1]);
 		}
 		MailboxReplicaRootDescriptor rootDesc = null;
 		if (root.startsWith("user.")) {

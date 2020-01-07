@@ -16,73 +16,75 @@
  *
  * See LICENSE.txt
  * END LICENSE
+ *
+ * @format
  */
 
 /**
  * @fileoverview Provides schema for container item persistence
  */
-goog.provide('net.bluemind.deferredaction.persistence.schema');
+goog.provide("net.bluemind.deferredaction.persistence.schema");
 
 net.bluemind.deferredaction.persistence.schema = {
-  resetTags: [],
-  stores: [
-    {
-      name: 'item',
-      keyPath: 'id',
-      type: 'TEXT',
-      indexes: [
+    resetTags: ["4.1.47208"],
+    stores: [
         {
-          name: 'container',
-          keyPath: 'container'
+            name: "item",
+            keyPath: "id",
+            type: "TEXT",
+            indexes: [
+                {
+                    name: "container",
+                    keyPath: "container"
+                },
+                {
+                    name: "container, uid",
+                    keyPath: ["container", "uid"]
+                },
+                {
+                    name: "container, order, uid",
+                    keyPath: ["container", "order", "uid"]
+                },
+                {
+                    name: "value.executionDate",
+                    keyPath: "value.executionDate"
+                },
+                {
+                    name: "value.reference",
+                    keyPath: "value.reference"
+                }
+            ]
         },
         {
-          name: 'container, uid',
-          keyPath: ['container', 'uid']
+            name: "changes",
+            keyPath: "uid",
+            type: "TEXT",
+            indexes: [
+                {
+                    name: "container",
+                    keyPath: "container",
+                    type: "TEXT"
+                }
+            ]
         },
         {
-          name: 'container, order, uid',
-          keyPath: ['container', 'order', 'uid']
+            name: "container",
+            keyPath: "uid",
+            type: "TEXT"
         },
         {
-          name: 'container, end',
-          keyPath: ['container', 'end']
+            name: "last_sync",
+            keyPath: "container",
+            type: "TEXT"
         },
         {
-          name: 'value.uid',
-          keyPath: 'value.uid'
+            name: "configuration",
+            keyPath: "property"
+        },
+        {
+            name: "csettings",
+            keyPath: "uid",
+            type: "TEXT"
         }
-      ]
-    },
-    {
-      name: 'changes',
-      keyPath: 'uid',
-      type: 'TEXT',
-      indexes: [
-        {
-          name: 'container',
-          keyPath: 'container',
-          type: 'TEXT'
-        }
-      ]
-    },
-    {
-      name: 'container',
-      keyPath: 'uid',
-      type: 'TEXT'
-    },
-    {
-      name: 'last_sync',
-      keyPath: 'container',
-      type: 'TEXT'
-    },
-    {
-      name: 'configuration',
-      keyPath: 'property'
-    },
-    {
-      name: 'csettings',
-      keyPath: 'uid',
-      type: 'TEXT'
-    }
-  ]
+    ]
 };

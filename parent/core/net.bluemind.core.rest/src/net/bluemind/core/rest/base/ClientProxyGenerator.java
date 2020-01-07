@@ -67,6 +67,15 @@ public class ClientProxyGenerator<S, T> {
 	List<PathComponent> rootPathComponents;
 	Map<String, EventMethodInvoker> methodsMap = new HashMap<>();
 
+	static final String URL_PATH_OTHER_SAFE_CHARS_LACKING_PLUS = //
+			"-._~" + // Unreserved characters.
+					"!$'()*,;&=" + // The subdelim characters (excluding
+									// '+').
+					"@:"; // The gendelim characters permitted in paths.
+
+	private static final Escaper URL_PATH_SEGMENT_ESCAPER = new PercentEscaper(URL_PATH_OTHER_SAFE_CHARS_LACKING_PLUS,
+			true);
+
 	public ClientProxyGenerator(Class<S> api, Class<T> asyncApi) {
 		this.api = api;
 		this.asyncApi = asyncApi;
@@ -297,7 +306,7 @@ public class ClientProxyGenerator<S, T> {
 		int iParamsPos = 0;
 		for (PathComponent comp : rootPathComponents) {
 			if (comp.substitute) {
-				params.put(comp.value, instanceParams[iParamsPos]);
+				params.put(comp.value, URL_PATH_SEGMENT_ESCAPER.escape(instanceParams[iParamsPos]));
 				iParamsPos++;
 			}
 		}
@@ -312,15 +321,6 @@ public class ClientProxyGenerator<S, T> {
 	private static class PathParameter implements Parameter {
 		private final int index;
 		private String name;
-
-		static final String URL_PATH_OTHER_SAFE_CHARS_LACKING_PLUS = //
-				"-._~" + // Unreserved characters.
-						"!$'()*,;&=" + // The subdelim characters (excluding
-										// '+').
-						"@:"; // The gendelim characters permitted in paths.
-
-		private static final Escaper URL_PATH_SEGMENT_ESCAPER = new PercentEscaper(
-				URL_PATH_OTHER_SAFE_CHARS_LACKING_PLUS, true);
 
 		public PathParameter(int index, String name) {
 			this.index = index;

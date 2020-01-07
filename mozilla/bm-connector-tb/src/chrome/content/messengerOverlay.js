@@ -297,7 +297,7 @@ var gBMOverlay = {
 					let self = this;
 					options.onLoad = function(event, browser) {
 						let win = browser.contentWindow.wrappedJSObject;
-						win.net.bluemind.deferredaction.reminder.DeferredActionScheduler.setNotificationImpl(function(text) {
+						win.net.bluemind.ui.eventdeferredaction.DeferredActionScheduler.setNotificationImpl(function(text) {
 							let notif = new Notification(bmUtils.getLocalizedString("notification.title"), {body: text});
 							notif.onclick = function() {
 								let calTab = self._getBmTab("/cal");
@@ -305,6 +305,22 @@ var gBMOverlay = {
 							};
 						});
 					};
+				}
+				if (aAskedUri == "/settings") {
+					this.settingsClickHandlder = function(aEvent) {
+						if (!aEvent.isTrusted || aEvent.defaultPrevented || aEvent.button) {
+							return true;
+						}
+						let href = hRefForClickEvent(aEvent, true)[0];
+						if (href) {
+							let uri = makeURI(href);
+							if (uri.spec.endsWith("/settings/index.html")) {
+								tabmail.closeTab(tabBm);
+							}
+						}
+						specialTabs.siteClickHandler(aEvent, gBMOverlay._clickRegExp);
+					}
+					options.clickHandler = "gBMOverlay.settingsClickHandlder(event);"
 				}
 				tabmail.openTab("bmTab", options);
 			} else {
@@ -321,7 +337,7 @@ var gBMOverlay = {
     },
     _reloadBmTabs: function() {
 		if (bmUtils.getBoolPref("extensions.bm.openInTab", false)) {
-			let apps = ["/cal", "/task"];
+			let apps = ["/cal", "/task", "/settings"];
 			let toReOpen = [];
 			apps.forEach(function(app) {
 				let tab = this._getBmTab(app);
@@ -341,7 +357,7 @@ var gBMOverlay = {
     },
     _closeBmTabs: function() {
 		if (bmUtils.getBoolPref("extensions.bm.openInTab", false)) {
-			let apps = ["/cal", "/task"];
+			let apps = ["/cal", "/task", "/settings"];
 			apps.forEach(function(app) {
 				let tab = this._getBmTab(app);
 				if (tab) {
@@ -356,6 +372,8 @@ var gBMOverlay = {
 			this._reloadBmTabs();
 		} else if (aTopic == "close-bm-tabs") {
 			this._closeBmTabs();
+		} else if (aTopic == "open-bm-settings") {
+			this.openBmApp('/settings', false);
 		}
     },
     registerTabObserver: function() {
@@ -363,12 +381,14 @@ var gBMOverlay = {
 			.getService(Components.interfaces.nsIObserverService);
 		obs.addObserver(this, "reload-bm-tabs", false);
 		obs.addObserver(this, "close-bm-tabs", false);
+		obs.addObserver(this, "open-bm-settings", false);
     },
     unregisterTabObserver: function() {
 		let obs = Components.classes["@mozilla.org/observer-service;1"]
 			.getService(Components.interfaces.nsIObserverService);
 		obs.removeObserver(this, "reload-bm-tabs");
 		obs.removeObserver(this, "close-bm-tabs");
+		obs.removeObserver(this, "open-bm-settings");
     },
     registerAddonObserver: function() {
         AddonManager.addAddonListener({

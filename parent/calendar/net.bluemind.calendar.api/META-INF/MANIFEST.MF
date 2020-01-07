@@ -11,7 +11,7 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.user.api;bundle-version="1.0.0",
  net.bluemind.tag.api,
  net.bluemind.lib.jackson;bundle-version="1.0.0",
- net.bluemind.slf4j;bundle-version="1.0.0",
+ slf4j.api,
  net.bluemind.core.task.api,
  net.bluemind.icalendar.api;bundle-version="1.0.0";visibility:=reexport,
  net.bluemind.attachment.api

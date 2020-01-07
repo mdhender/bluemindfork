@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.core.rest.http.vertx
 Bundle-SymbolicName: net.bluemind.core.rest.http.vertx;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Require-Bundle: org.eclipse.core.runtime,
- net.bluemind.slf4j;bundle-version="1.0.0",
+ slf4j.api,
  net.bluemind.lib.vertx;bundle-version="1.0.0",
  net.bluemind.core.rest;bundle-version="1.0.0",
  net.bluemind.core.sessions;bundle-version="1.0.0",

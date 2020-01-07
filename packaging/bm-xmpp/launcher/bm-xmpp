@@ -27,6 +27,6 @@ pidfile=$1
 export BM_JVM_CUSTOM_OPTS="-Djdk.tls.ephemeralDHKeySize=2048"
 
 export DEFAULT_MEM=128
-source ${curdir}/equinox-systemd.lib ${product} ${pidfile}
+source ${curdir}/equinox-systemd.lib ${product}
 
 bm_equinox_run_server_appid ${curdir} ${appid}

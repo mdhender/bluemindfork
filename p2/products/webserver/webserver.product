@@ -66,6 +66,8 @@
       <plugin id="net.bluemind.core.sessions"/>
       <plugin id="net.bluemind.core.task.api"/>
       <plugin id="net.bluemind.deferredaction.api"/>
+      <plugin id="net.bluemind.deferredaction.api.closure"/>
+      <plugin id="net.bluemind.deferredaction.closure"/>
       <plugin id="net.bluemind.directory.api"/>
       <plugin id="net.bluemind.domain.api"/>
       <plugin id="net.bluemind.eclipse.common"/>

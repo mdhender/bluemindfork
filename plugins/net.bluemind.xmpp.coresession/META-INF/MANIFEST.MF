@@ -6,7 +6,7 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.xmpp.coresession.Activator
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.lib.vertx,
- net.bluemind.slf4j,
+ slf4j.api,
  net.bluemind.locator.client,
  net.bluemind.hornetq.client,
  com.google.guava;bundle-version="19.0.0",

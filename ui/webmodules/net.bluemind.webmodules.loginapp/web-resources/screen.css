@@ -24,11 +24,14 @@ body {
 	direction: ltr;
 	background-repeat: no-repeat;
 	background-position: bottom;
-	margin: 1px 0px 80px 1px;
-        padding-top: 30px;
-	line-height: 161px;
+	margin: 80px 0px 80px 1px;
 }
 
+#header img {
+  display: inline;
+  height: 100%;
+  vertical-align: middle;	
+}
 
 #bottomLogo {
 	display:none;

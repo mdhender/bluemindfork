@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.locator;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.locator.Activator
 Bundle-Vendor: blue-mind.net
-Require-Bundle: net.bluemind.slf4j,
+Require-Bundle: slf4j.api,
  net.bluemind.lib.vertx;bundle-version="1.0.0",
  net.bluemind.pool;bundle-version="1.0.0",
  net.bluemind.core.jdbc;bundle-version="4.1.0",

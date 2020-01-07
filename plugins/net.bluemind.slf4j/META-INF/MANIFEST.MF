@@ -6,10 +6,10 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: bluemind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .
-Require-Bundle: slf4j.api;bundle-version="1.7.25";visibility:=reexport,
- ch.qos.logback.classic;bundle-version="1.2.3";visibility:=reexport,
- ch.qos.logback.core;bundle-version="1.2.3";visibility:=reexport,
- jcl.over.slf4j;bundle-version="1.7.25";visibility:=reexport,
- jul.to.slf4j;bundle-version="1.7.25";visibility:=reexport
+Require-Bundle: slf4j.api;bundle-version="1.7.25",
+ ch.qos.logback.classic;bundle-version="1.2.3",
+ ch.qos.logback.core;bundle-version="1.2.3",
+ jcl.over.slf4j;bundle-version="1.7.25",
+ jul.to.slf4j;bundle-version="1.7.25"
 Automatic-Module-Name: net.bluemind.slf4j
 

@@ -12,7 +12,7 @@ Require-Bundle: net.bluemind.hsm.api;bundle-version="1.0.0",
  net.bluemind.core.container.persistence,
  net.bluemind.domain.api,
  net.bluemind.core.jdbc;bundle-version="1.0.0",
- net.bluemind.slf4j;bundle-version="1.0.0",
+ slf4j.api,
  net.bluemind.mailmessage.api,
  net.bluemind.eclipse.common
 Export-Package: net.bluemind.mailmessage.service

@@ -19,8 +19,8 @@ package net.bluemind.system.helper.distrib;
 
 import java.io.File;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.bluemind.system.helper.distrib.list.Debian;
 import net.bluemind.system.helper.distrib.list.RedHat;
@@ -28,8 +28,8 @@ import net.bluemind.system.helper.distrib.list.Ubuntu;
 
 public class OsVersionDetectionFactory {
 
-	private static final Log logger = LogFactory.getLog(OsVersionDetectionFactory.class);
-	
+	private static final Logger logger = LoggerFactory.getLogger(OsVersionDetectionFactory.class);
+
 	private OsVersionDetectionFactory() {
 		// use create method
 	}

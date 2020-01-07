@@ -32,6 +32,7 @@ import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.IVEvent;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
+import net.bluemind.calendar.service.internal.ICSImportTask.Mode;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
@@ -80,10 +81,19 @@ public class VEventService implements IVEvent {
 
 	@Override
 	public TaskRef importIcs(Stream stream) throws ServerFault {
+		return icsImport(stream, ICSImportTask.Mode.IMPORT);
+	}
+
+	@Override
+	public TaskRef syncIcs(Stream stream) throws ServerFault {
+		return icsImport(stream, ICSImportTask.Mode.SYNC);
+	}
+
+	private TaskRef icsImport(Stream stream, Mode mode) {
 		rbacManager.check(Verb.Write.name());
 		String ics = GenericStream.streamToString(stream);
 		return context.provider().instance(ITasksManager.class).run(new ICSImportTask(calendarService, ics,
-				Optional.of(new CalendarOwner(container.domainUid, container.owner))));
+				Optional.of(new CalendarOwner(container.domainUid, container.owner)), mode));
 	}
 
 	@Override

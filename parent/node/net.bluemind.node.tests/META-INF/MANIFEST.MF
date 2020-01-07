@@ -11,7 +11,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.node.client,
  net.bluemind.node.api,
  net.bluemind.core.task.api,
- net.bluemind.slf4j;bundle-version="4.1.0",
+ slf4j.api,
  com.google.guava,
  net.bluemind.tests.defaultdata,
  net.bluemind.lib.vertx

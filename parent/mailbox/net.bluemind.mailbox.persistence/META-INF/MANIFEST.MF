@@ -8,7 +8,7 @@ Require-Bundle: net.bluemind.core.jdbc,
  net.bluemind.mailbox.api,
  net.bluemind.core.commons,
  net.bluemind.core.container.api,
- net.bluemind.slf4j,
+ slf4j.api,
  net.bluemind.server.api,
  net.bluemind.mailbox.sqlschema
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

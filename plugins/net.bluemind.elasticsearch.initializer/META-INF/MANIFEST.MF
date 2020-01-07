@@ -7,7 +7,7 @@ Bundle-Activator: net.bluemind.elasticsearch.initializer.Activator
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.lib.elasticsearch;bundle-version="1.0.0",
  com.google.guava;bundle-version="19.0.0",
- net.bluemind.slf4j;bundle-version="1.0.0",
+ slf4j.api,
  net.bluemind.eclipse.common,
  net.bluemind.server.hook,
  net.bluemind.server.api,

@@ -303,7 +303,11 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 		calendar.setEndTime(endTime);
 
 		calendar.setAllDayEvent(parseDOMInt2Boolean(DOMUtils.getUniqueElement(domSource, "AllDayEvent")));
-		calendar.setReminder(parseDOMInt(DOMUtils.getUniqueElement(domSource, "ReminderMinsBefore")));
+
+		// AS-CAL 2.2.2.38
+		// Reminder: number of minutes before the calendar item's start
+		calendar.setReminder(parseDOMInt(DOMUtils.getUniqueElement(domSource, "Reminder")));
+
 		calendar.setCategories(
 				parseDOMStringCollection(DOMUtils.getUniqueElement(domSource, "Categories"), "Category"));
 

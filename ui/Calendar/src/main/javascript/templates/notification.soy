@@ -63,23 +63,10 @@
  * @param result Events count
  */
 {template .importOk}
-  {if $result['uids'].length > 1 and $result['uids'].length == $result['total']}
-    {msg desc="Ics import success"}{$result['uids'].length} events succesfully imported.{/msg}
-  {elseif $result['uids'].length == 1 and $result['uids'].length == $result['total']}
-    {msg desc="Ics import success"}The event have been succesfully imported.{/msg}
-  {elseif $result['uids'].length > 1}
-    {msg desc="Ics import success"}{$result['uids'].length} / {$result['total']} events succesfully imported.{/msg}
-  {elseif $result['uids'].length == 1}
-    {msg desc="Ics import success"}1 / {$result['total']} event succesfully imported.{/msg}
+  {if $result['uids'].length == $result['total']}
+  	{msg desc="Ics import success"}{$result['uids'].length} of $result['total'] events imported.{/msg}
   {else}
-    {call .importKo /}
+  	{msg desc="Ics import success"}{$result['uids'].length} of $result['total'] events updated.{/msg}
   {/if}
-{/template}
-
-/**
- * ICS import ko
- */
-{template .importKo}
-  {msg desc="Ics import error"}Fail to import ICS.{/msg}
 {/template}
 

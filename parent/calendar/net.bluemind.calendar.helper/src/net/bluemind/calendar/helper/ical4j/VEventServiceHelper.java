@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -41,7 +40,6 @@ import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEvent.Transparency;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
-import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.icalendar.parser.CalendarOwner;
@@ -120,13 +118,8 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 			List<net.fortuna.ical4j.model.component.VEvent> evts = convertToIcal4jVEvent(event.icsUid, event);
 
 			if (eventItem.updated != null) {
-				String iso8601 = BmDateTimeWrapper.toIso8601(eventItem.updated.getTime(), "UTC");
 				evts.forEach(evt -> {
-					try {
-						evt.getProperties().add(new LastModified(iso8601));
-					} catch (ParseException e) {
-						logger.warn("Cannot parse ICS Last modified date {}:{}", eventItem.updated, e.getMessage());
-					}
+					evt.getProperties().add(new LastModified(new DateTime(eventItem.updated)));
 				});
 			}
 
@@ -342,6 +335,7 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 			}
 		}
 		VEventSeries series = new VEventSeries();
+		series.icsUid = uid;
 		series.main = null != master ? master.value : null;
 		series.occurrences = copy.stream().map(v -> (VEventOccurrence) v.value).collect(Collectors.toList());
 		ItemValue<VEventSeries> reduced = ItemValue.create(uid, series);

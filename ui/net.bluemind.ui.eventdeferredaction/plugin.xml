@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.webmodule">
+      <web-module-provider
+            module="*">
+         <web-resource
+               bundle="net.bluemind.ui.eventdeferredaction">
+         </web-resource>
+         <js
+               path="js/compile/net.bluemind.ui.eventdeferredaction.js"
+               translation="false">
+         </js>
+      </web-module-provider>
+   </extension>
+</plugin>

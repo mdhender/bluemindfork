@@ -79,7 +79,7 @@ public class EmlBuilder {
 		logger.info("Subject is '{}'", mb.subject);
 		msg.setSubject(mb.subject);
 		try {
-			fillHeader(msg.getHeader(), mb.headers);
+			fillHeader(msg.getHeader(), mb.headers, true);
 		} catch (MimeException e1) {
 			logger.error(e1.getMessage(), e1);
 		}
@@ -204,7 +204,7 @@ public class EmlBuilder {
 				}
 				Header partHeader = bp.getHeader();
 				try {
-					fillHeader(partHeader, p.headers);
+					fillHeader(partHeader, p.headers, true);
 				} catch (MimeException e) {
 					logger.error(e.getMessage(), e);
 				}
@@ -215,11 +215,10 @@ public class EmlBuilder {
 		return body;
 	}
 
-	private static void fillHeader(Header partHeader, List<net.bluemind.backend.mail.api.MessageBody.Header> headers)
-			throws MimeException {
+	private static void fillHeader(Header partHeader, List<net.bluemind.backend.mail.api.MessageBody.Header> headers,
+			boolean replace) throws MimeException {
 		for (net.bluemind.backend.mail.api.MessageBody.Header h : headers) {
-			if (h.name.equals("Content-Type") || h.name.equals("Content-Transfer-Encoding")) {
-				// remove previous one, only one "Content-Type" or "Content-Transfer-Encoding" allowed
+			if (replace || h.name.equals("Content-Type") || h.name.equals("Content-Transfer-Encoding")) {
 				partHeader.removeFields(h.name);
 			}
 			if (h.values.size() == 1) {
@@ -258,7 +257,7 @@ public class EmlBuilder {
 				toAdd = Arrays.asList(idHeader, prevHeader);
 			}
 			asMessage.setDate(date);
-			fillHeader(asMessage.getHeader(), toAdd);
+			fillHeader(asMessage.getHeader(), toAdd, true);
 			return Mime4JHelper.asSizedStream(asMessage);
 		} catch (RuntimeException e) {
 			throw e;

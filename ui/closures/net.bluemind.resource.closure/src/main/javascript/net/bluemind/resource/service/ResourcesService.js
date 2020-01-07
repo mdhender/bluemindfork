@@ -18,6 +18,7 @@
  */
 
 goog.provide("net.bluemind.resource.service.ResourcesService");
+goog.require("net.bluemind.resource.api.ResourcesClient");
 goog.require("net.bluemind.i18n.AlphabetIndexSymbols");
 goog.require("net.bluemind.string");
 goog.require("net.bluemind.container.service.ContainerService");

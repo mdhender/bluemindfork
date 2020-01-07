@@ -83,6 +83,7 @@ public class CalendarSyncVerticleTests {
 	private static final String ETAG_2 = "W/\"etag-2-token\"";
 	private static final String ETAG_3 = "W/\"etag-3-token\"";
 	private static final ZonedDateTime LAST_MODIF_DATE = ZonedDateTime.of(LocalDateTime.now(), ZoneId.systemDefault());
+	private static final String FORCE_STATUS_HEADER = "FORCE-STATUS";
 	/** This embedded HTTP server simulates an external calendar server. */
 	private static HttpServer icsHttpServer;
 	private String domain = "bm.lan";
@@ -184,8 +185,11 @@ public class CalendarSyncVerticleTests {
 	}
 
 	private int computeStatus(final HttpServerRequest event) {
+		String forcedStatus = this.nextResponse.headers.get(FORCE_STATUS_HEADER);
 		final int status;
-		if (this.lastModifiedHasNotChanged(event) || this.sameEtag(event)) {
+		if (forcedStatus != null) {
+			status = Integer.valueOf(forcedStatus);
+		} else if (this.lastModifiedHasNotChanged(event) || this.sameEtag(event)) {
 			status = 304;
 		} else {
 			status = 200;
@@ -509,6 +513,40 @@ public class CalendarSyncVerticleTests {
 	}
 
 	/**
+	 * Check we do not change the ICS content when lastModified timestamp has
+	 * not changed even if we do not receive a 304 response status.
+	 */
+	@Test
+	public void testLastModifiedNo304() throws InterruptedException {
+		this.init();
+
+		final ZonedDateTime utcLastModified = LAST_MODIF_DATE
+				.withZoneSameInstant(ZoneId.ofOffset("UTC", ZoneOffset.UTC));
+		final String formattedDate = DateTimeFormatter.RFC_1123_DATE_TIME.format(utcLastModified);
+
+		// first sync replaces the initial empty ics
+		this.nextResponse = new PreparedResponse();
+		this.nextResponse.headers.put("Last-Modified", formattedDate);
+		// RFC_1123 dates drop milliseconds, so add at least 1sec sleep to see
+		// differences in times comparisons
+		this.checkSyncOkWithChanges(1500);
+
+		// other syncs are done but calendars not updated
+		this.nextResponse = new PreparedResponse(ICS_FILE_2_EVENTS);
+		this.nextResponse.lastModified = utcLastModified;
+		this.nextResponse.headers.put("Last-Modified", formattedDate);
+		this.nextResponse.headers.put(FORCE_STATUS_HEADER, "200");
+		this.checkSyncOkNoUpdates(1500);
+
+		this.nextResponse = new PreparedResponse(ICS_FILE_3_EVENTS);
+		this.nextResponse.lastModified = utcLastModified;
+		this.nextResponse.headers.put("Last-Modified", formattedDate);
+		this.nextResponse.headers.put(FORCE_STATUS_HEADER, "200");
+		this.checkSyncOkNoUpdates(1500);
+
+	}
+
+	/**
 	 * Check we do not sync when the Expire header is set to tomorrow.<br>
 	 * <i>Note: 'Expire' races against the min delay (set in domain settings).
 	 * We always take the longer.</i>
@@ -764,7 +802,8 @@ public class CalendarSyncVerticleTests {
 	}
 
 	/** Sync done, calendar updated and changes are made. */
-	private void checkSyncOkWithChanges(final long syncWait) throws InterruptedException {
+	private void checkSyncOkWithChanges(long syncWait) throws InterruptedException {
+		syncWait += 500;
 		final String previousIcsContent = this.retrieveCurrentIcsContent();
 		final Date lastSync2 = this.triggerSync(syncWait);
 		final String icsContent = this.retrieveCurrentIcsContent();

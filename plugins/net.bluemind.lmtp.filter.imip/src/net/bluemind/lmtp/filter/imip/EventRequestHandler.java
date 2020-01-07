@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -32,7 +31,6 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.TextBody;
@@ -46,13 +44,10 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 import freemarker.template.TemplateException;
+import net.bluemind.calendar.EventChangesMerge;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventChanges;
-import net.bluemind.calendar.api.VEventChanges.ItemAdd;
-import net.bluemind.calendar.api.VEventChanges.ItemDelete;
-import net.bluemind.calendar.api.VEventChanges.ItemModify;
-import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
 import net.bluemind.calendar.helper.mail.CalendarMail;
@@ -65,7 +60,6 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.sendmail.ISendmail;
 import net.bluemind.core.sendmail.Sendmail;
 import net.bluemind.core.sendmail.SendmailHelper;
-import net.bluemind.core.utils.UIDGenerator;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.CUType;
@@ -146,7 +140,7 @@ public class EventRequestHandler extends RequestHandler implements IIMIPHandler 
 
 			setDefaultAlarm(domain, recipientMailbox.uid, series);
 
-			VEventChanges changes = new CoreStrategyFactory().getStrategy(vseries, series).merge(vseries, series, imip);
+			VEventChanges changes = EventChangesMerge.getStrategy(vseries, series).merge(vseries, series);
 
 			cal.updates(changes);
 			logger.info("[{}] {} new series, {} updated series, {} deleted series in BM (calendar {})", imip.messageId,
@@ -345,198 +339,4 @@ public class EventRequestHandler extends RequestHandler implements IIMIPHandler 
 		}
 	}
 
-	private static class StoreOrphans implements IVEventSeriesMerge {
-
-		@Override
-		public VEventChanges merge(List<ItemValue<VEventSeries>> bmSeries, VEventSeries imipSeries, IMIPInfos imip) {
-
-			VEventChanges changes = VEventChanges.create(new ArrayList<ItemAdd>(), new ArrayList<ItemModify>(), null);
-			logger.info("[{}] No series in BM nor impi, Update/create orphan exceptions", imip.messageId);
-			for (VEventOccurrence occ : imipSeries.occurrences) {
-				boolean found = false;
-				for (ItemValue<VEventSeries> oldOcc : bmSeries) {
-					if (oldOcc.value.occurrence(occ.recurid) != null) {
-						oldOcc.value.occurrences = Arrays.asList(occ);
-						changes.modify.add(ItemModify.create(oldOcc.uid, oldOcc.value, false));
-						found = true;
-						break;
-					}
-				}
-
-				if (!found) {
-					VEventSeries oneOcc = new VEventSeries();
-					oneOcc.icsUid = imipSeries.icsUid;
-					oneOcc.occurrences = Arrays.asList(occ);
-					changes.add.add(ItemAdd.create(UIDGenerator.uid(), oneOcc, false));
-				}
-			}
-			return changes;
-		}
-
-	}
-
-	private static class UpdateSeries implements IVEventSeriesMerge {
-
-		@Override
-		public VEventChanges merge(List<ItemValue<VEventSeries>> bmSeries, VEventSeries imipSeries, IMIPInfos imip) {
-
-			ItemValue<VEventSeries> vevent = bmSeries.get(0);
-			vevent.value = updateMain(vevent.value, imipSeries.main);
-			for (VEventOccurrence imipEvent : imipSeries.occurrences) {
-				List<VEventOccurrence> occ = vevent.value.occurrences.stream()
-						.filter(r -> !r.recurid.equals(imipEvent.recurid)).collect(Collectors.toList());
-				occ.add(imipEvent);
-				vevent.value.occurrences = occ;
-			}
-			logger.info("[{}] There is a series in BM, updated it with imip info (id: {})", imip.messageId, imip.uid);
-			return VEventChanges.create(null, Arrays.asList(ItemModify.create(vevent.uid, vevent.value, false)), null);
-		}
-
-		private VEventSeries updateMain(VEventSeries series, VEvent main) throws ServerFault {
-			if (main == null) {
-				return series;
-			}
-			if (eventDatesChanged(series.main, main)) {
-				main.exdate = null;
-				series.occurrences = Collections.emptyList();
-			} else {
-				adjustEventExceptionsValues(series, main);
-			}
-
-			adjustAlarms(series.main, main);
-			series.main = main;
-			return series;
-		}
-
-		private void adjustAlarms(VEvent bmEvent, VEvent evt) {
-			if (bmEvent.hasAlarm()) {
-				evt.alarm = bmEvent.alarm;
-			}
-		}
-
-		private void adjustEventExceptionsValues(final VEventSeries oldEvent, final VEvent imipVEvent)
-				throws ServerFault {
-
-			VEventChanges changes = new VEventChanges();
-			changes.modify = new ArrayList<>();
-
-			VEvent existingEvent = oldEvent.main;
-
-			oldEvent.occurrences.forEach(evt -> {
-				evt.location = adjustEventValue(existingEvent.location, imipVEvent.location, evt.location);
-				evt.summary = adjustEventValue(existingEvent.summary, imipVEvent.summary, evt.summary);
-				evt.classification = adjustEventValue(existingEvent.classification, imipVEvent.classification,
-						evt.classification);
-				evt.organizer = adjustEventValue(existingEvent.organizer, imipVEvent.organizer, evt.organizer);
-				evt.description = adjustEventValue(existingEvent.description, imipVEvent.description, evt.description);
-				evt.categories = adjustEventValue(existingEvent.categories, imipVEvent.categories, evt.categories);
-				adjustAttendees(existingEvent.attendees, imipVEvent.attendees, evt.attendees);
-				adjustAlarms(evt, imipVEvent);
-
-			});
-		}
-
-		private <T extends Object> T adjustEventValue(T oldValue, T newValue, T exceptionValue) {
-
-			if (oldValue == null && newValue == null) {
-				return exceptionValue;
-			}
-
-			if (oldValue != null) {
-				if (oldValue.equals(newValue)) {
-					// value not modified
-					return exceptionValue;
-				}
-			}
-
-			if ((oldValue == null && exceptionValue != null) || (oldValue != null && exceptionValue == null)) {
-				return exceptionValue;
-			}
-
-			if (oldValue != null) {
-				if (!oldValue.equals(exceptionValue)) {
-					// value has already been modified in exception, don't
-					// overwrite
-					return exceptionValue;
-				}
-			}
-
-			// updating value
-			return newValue;
-
-		}
-
-		private void adjustAttendees(List<Attendee> oldValue, List<Attendee> newValue, List<Attendee> exceptionValue) {
-
-			for (Attendee attendee : newValue) {
-				if (!oldValue.contains(attendee) && !exceptionValue.contains(attendee)) {
-					exceptionValue.add(attendee);
-				}
-			}
-
-			for (Attendee attendee : oldValue) {
-				if (!newValue.contains(attendee)) {
-					exceptionValue.remove(attendee);
-				}
-			}
-
-		}
-
-		private boolean eventDatesChanged(VEvent value, VEvent imipVEvent) {
-			if ((null == value.dtstart && imipVEvent.dtstart != null)
-					|| (null != value.dtstart && imipVEvent.dtstart == null)) {
-				return true;
-			}
-
-			if (!value.dtstart.equals(imipVEvent.dtstart)) {
-				return true;
-			}
-
-			if ((null == value.dtend && imipVEvent.dtend != null)
-					|| (null != value.dtend && imipVEvent.dtend == null)) {
-				return true;
-			}
-
-			if (!value.dtend.equals(imipVEvent.dtend)) {
-				return true;
-			}
-
-			return false;
-		}
-
-	}
-
-	private static class CreateSeries implements IVEventSeriesMerge {
-
-		@Override
-		public VEventChanges merge(List<ItemValue<VEventSeries>> bmSeries, VEventSeries imipSeries, IMIPInfos imip) {
-
-			VEventChanges changes = VEventChanges.create(new ArrayList<ItemAdd>(), null, new ArrayList<ItemDelete>());
-
-			logger.info("[{}] No series in BM, reset orphan exceptions and create series", imip.messageId);
-			for (ItemValue<VEventSeries> toDelete : bmSeries) {
-				changes.delete.add(ItemDelete.create(toDelete.uid, false));
-			}
-			changes.add.add(ItemAdd.create(imipSeries.icsUid, imipSeries, false));
-			return changes;
-		}
-
-	}
-
-	private static interface IVEventSeriesMerge {
-		public VEventChanges merge(List<ItemValue<VEventSeries>> bmSeries, VEventSeries imipSeries, IMIPInfos imip);
-	}
-
-	private static class CoreStrategyFactory {
-
-		public IVEventSeriesMerge getStrategy(List<ItemValue<VEventSeries>> bmSeries, VEventSeries imipSeries) {
-			if (!bmSeries.isEmpty() && bmSeries.get(0).value.main != null) {
-				return new UpdateSeries();
-			} else if (imipSeries.main != null) {
-				return new CreateSeries();
-			} else {
-				return new StoreOrphans();
-			}
-		}
-	}
 }

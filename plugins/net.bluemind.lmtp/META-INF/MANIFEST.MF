@@ -6,7 +6,7 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.lmtp.Activator
 Bundle-Vendor: blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
- net.bluemind.slf4j;bundle-version="1.0.0",
+ slf4j.api,
  net.bluemind.mime4j.common;bundle-version="1.0.0",
  net.bluemind.lib.vertx;bundle-version="1.0.0",
  io.netty;bundle-version="4.0.33",

@@ -7,7 +7,7 @@ Bundle-Vendor: www.blue-mind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.filehosting.api,
- net.bluemind.slf4j,
+ slf4j.api,
  net.bluemind.core.rest,
  org.eclipse.equinox.registry,
  net.bluemind.core.context;bundle-version="1.0.0",

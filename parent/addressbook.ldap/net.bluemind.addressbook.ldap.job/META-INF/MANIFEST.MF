@@ -7,7 +7,7 @@ Bundle-Vendor: www.bluemind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.scheduledjob.scheduler,
  net.bluemind.core.commons,
- net.bluemind.slf4j;bundle-version="4.1.0",
+ slf4j.api,
  net.bluemind.core.rest,
  net.bluemind.core.container.persistence,
  net.bluemind.addressbook.api;bundle-version="4.1.0"

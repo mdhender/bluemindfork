@@ -10,7 +10,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.eas.utils,
  net.bluemind.vertx.common;bundle-version="1.0.0",
  net.bluemind.eas.config.global,
- net.bluemind.slf4j;bundle-version="1.0.0"
+ slf4j.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.eas.validation

@@ -6,7 +6,7 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.tika.server.TikaActivator
 Bundle-Vendor: blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
- net.bluemind.slf4j;bundle-version="1.0.0",
+ slf4j.api,
  net.bluemind.lib.vertx;bundle-version="1.0.0",
  com.google.guava;bundle-version="19.0.0",
  org.apache.tika.bundle;bundle-version="1.13.0",

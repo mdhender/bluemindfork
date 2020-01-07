@@ -8,7 +8,7 @@ Automatic-Module-Name: net.bluemind.authentication.mgmt.service
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.authentication.mgmt.api,
  net.bluemind.core.rest,
- net.bluemind.slf4j,
+ slf4j.api,
  net.bluemind.core.container.service,
  net.bluemind.role.api,
  net.bluemind.user.api,

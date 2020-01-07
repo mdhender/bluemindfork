@@ -22,8 +22,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.bluemind.system.helper.distrib.list.Distribution;
 import net.bluemind.system.helper.distrib.list.RedHat;
@@ -32,19 +32,19 @@ import net.bluemind.system.helper.distrib.list.RedHat8;
 
 public class RedHatOSVersion implements IOsVersionDetection {
 
-	private static final Log logger = LogFactory.getLog(RedHatOSVersion.class);
+	private static final Logger logger = LoggerFactory.getLogger(RedHatOSVersion.class);
 
 	public Distribution detect() {
 		File distributionFile = new File(new RedHat().getDistributionFile());
 		Distribution distrib = null;
 
 		distrib = checkVersion(distributionFile, distrib);
-		
+
 		if (distrib == null) {
 			logger.info("Unable to determine RedHat version.");
 			distrib = new RedHat();
 		}
-		
+
 		logger.info("Detected distribution is: " + distrib.getName());
 		return distrib;
 	}

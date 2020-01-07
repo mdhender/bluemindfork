@@ -31,12 +31,9 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -48,27 +45,26 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
 import com.google.common.hash.Hashing;
 
-import net.bluemind.calendar.api.ICalendar;
-import net.bluemind.calendar.api.VEventChanges;
-import net.bluemind.calendar.api.VEventChanges.ItemAdd;
-import net.bluemind.calendar.api.VEventChanges.ItemDelete;
-import net.bluemind.calendar.api.VEventChanges.ItemModify;
-import net.bluemind.calendar.api.VEventSeries;
-import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
+import net.bluemind.calendar.api.IVEvent;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerSyncResult;
 import net.bluemind.core.container.model.ContainerSyncStatus;
 import net.bluemind.core.container.model.ContainerSyncStatus.Status;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
-import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerSettingsStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.sync.ISyncableContainer;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.base.GenericStream;
+import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.service.IServerTaskMonitor;
+import net.bluemind.core.task.service.TaskUtils;
+import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.utils.Trust;
 
@@ -84,8 +80,6 @@ public class CalendarContainerSync implements ISyncableContainer {
 	private static final String SYNC_TOKEN_KEY_MODIFIED_SINCE = "modified-since";
 
 	private static final String SYNC_TOKEN_KEY_MD5_HASH = "md5";
-
-	private static final int STEP = 50;
 
 	private class SyncData {
 		public long timestamp;
@@ -161,95 +155,26 @@ public class CalendarContainerSync implements ISyncableContainer {
 		ret.status.syncStatus = Status.ERROR;
 
 		if (data.ics != null && !data.ics.isEmpty()) {
-			List<ItemValue<VEventSeries>> events = new ArrayList<>();
 			try {
-				events = VEventServiceHelper.convertToVEventList(data.ics, Optional.empty());
-			} catch (ServerFault sf) {
-				logger.error(sf.getMessage(), sf);
-				return ret;
+				IVEvent service = context.provider().instance(IVEvent.class, container.uid);
+
+				TaskRef syncIcs = service.syncIcs(GenericStream.simpleValue(data.ics, s -> s.getBytes()));
+				TaskStatus status = TaskUtils.wait(context.provider(), syncIcs);
+
+				System.err.println(status.result);
+
+				ContainerUpdatesResult result = JsonUtils.read(status.result, ContainerUpdatesResult.class);
+
+				ret.added = result.added.size();
+				ret.updated = result.updated.size();
+				ret.removed = result.removed.size();
+				ret.status.lastSync = new Date();
+				ret.status.syncStatus = Status.SUCCESS;
+			} catch (Exception e) {
+				logger.warn("Cannot sync ics", e);
+				ret.status.syncStatus = Status.ERROR;
 			}
-			monitor.begin(events.size(), "Going to import " + events.size() + " events");
-
-			ICalendar service = context.provider().instance(ICalendar.class, container.uid);
-
-			List<String> uids = service.all();
-			ArrayList<String> icsUids = new ArrayList<String>(events.size());
-			VEventChanges changes = new VEventChanges();
-			changes.add = new ArrayList<VEventChanges.ItemAdd>();
-			changes.modify = new ArrayList<VEventChanges.ItemModify>();
-			changes.delete = new ArrayList<VEventChanges.ItemDelete>();
-
-			int added = 0;
-			int updated = 0;
-			int removed = 0;
-			int i = 0;
-
-			for (ItemValue<VEventSeries> itemValue : events) {
-				VEventSeries event = itemValue.value;
-				ItemValue<VEventSeries> oldEvent = service.getComplete(itemValue.uid);
-
-				String uid = itemValue.uid;
-
-				if (uid != null) {
-					icsUids.add(uid);
-				} else {
-					uid = UUID.randomUUID().toString();
-				}
-
-				if (oldEvent == null) {
-					changes.add.add(ItemAdd.create(uid, event, false));
-					i++;
-				} else {
-					if (itemValue.updated == null || itemValue.updated.after(oldEvent.updated)) {
-						changes.modify.add(ItemModify.create(oldEvent.uid, event, false));
-						i++;
-					}
-				}
-
-				if (i == STEP) {
-					ContainerUpdatesResult result = service.updates(changes);
-					monitor.progress(i, null);
-					added += result.added.size();
-					updated += result.updated.size();
-					changes.add = new ArrayList<VEventChanges.ItemAdd>();
-					changes.modify = new ArrayList<VEventChanges.ItemModify>();
-					changes.delete = new ArrayList<VEventChanges.ItemDelete>();
-					i = 0;
-				}
-			}
-
-			uids.removeAll(icsUids);
-			for (String uid : uids) {
-				changes.delete.add(ItemDelete.create(uid, false));
-				i++;
-				if (i == STEP) {
-					ContainerUpdatesResult result = service.updates(changes);
-					monitor.progress(i, null);
-					added += result.added.size();
-					updated += result.updated.size();
-					removed += result.removed.size();
-					changes.add = new ArrayList<VEventChanges.ItemAdd>();
-					changes.modify = new ArrayList<VEventChanges.ItemModify>();
-					changes.delete = new ArrayList<VEventChanges.ItemDelete>();
-					i = 0;
-				}
-			}
-
-			if (i > 0) {
-				ContainerUpdatesResult result = service.updates(changes);
-				monitor.progress(i, null);
-				removed += result.removed.size();
-				added += result.added.size();
-				updated += result.updated.size();
-			}
-
-			ret.added = added;
-			ret.updated = updated;
-			ret.removed = removed;
-			ret.status.lastSync = new Date();
 		}
-
-		ret.status.syncStatus = Status.SUCCESS;
 		return ret;
 	}
 
@@ -276,8 +201,8 @@ public class CalendarContainerSync implements ISyncableContainer {
 			return ret;
 		}
 
-		if (response.status == 304) {
-			logger.debug("{} 304 Not Modified", icsUrl);
+		if (this.isNotModified(modifiedSince, response)) {
+			logger.debug("{} Not Modified (304 or header)", icsUrl);
 			ret.modifiedSince = Long.toString(response.lastModified);
 			ret.etag = response.etag;
 			return ret;
@@ -312,6 +237,16 @@ public class CalendarContainerSync implements ISyncableContainer {
 		}
 		ret.ics = get.data;
 		return ret;
+	}
+
+	/**
+	 * @return <code>true</code> if <code>response</code> is considered as not
+	 *         modified
+	 */
+	private boolean isNotModified(String lastModificationTimestamp, ResponseData response) {
+		Long lastModification = Strings.isNullOrEmpty(lastModificationTimestamp) ? 0
+				: Long.parseLong(lastModificationTimestamp);
+		return response.status == 304 || (response.lastModified > 0 && response.lastModified <= lastModification);
 	}
 
 	private ResponseData requestIcs(String icsUrl, String method, String syncToken, String etag) throws Exception {

@@ -7,7 +7,7 @@ Bundle-Activator: net.bluemind.lib.ical4j.Activator
 Bundle-Vendor: blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
  org.apache.commons.codec;bundle-version="1.3.0",
- net.bluemind.slf4j;bundle-version="1.0.0",
+ slf4j.api,
  net.bluemind.core.commons,
  org.apache.commons.lang;bundle-version="2.4.0",
  org.mnode.ical4j;bundle-version="1.0.3";visibility:=reexport,

@@ -97,11 +97,15 @@ net.bluemind.container.persistence.DBItemHome.prototype.getItem = function(conta
 
 /** @private */
 net.bluemind.container.persistence.DBItemHome.prototype.get_ = function(uids) {
-  return this.storage_.values('item', uids);
+  return this.storage_.values('item', uids).then(function(items) {
+    return goog.array.filter(items, goog.isDef);
+  });
 };
 
 net.bluemind.container.persistence.DBItemHome.prototype.all = function() {
-  return this.storage_.values('item');
+  return this.storage_.values('item').then(function(items) {
+    return goog.array.filter(items, goog.isDef);
+  });
 };
 
 /** @override */
@@ -313,9 +317,13 @@ net.bluemind.container.persistence.DBItemHome.prototype.getPosition = function(c
 net.bluemind.container.persistence.DBItemHome.prototype.getLocalChangeSet = function(containerId) {
   if (containerId) {
     var range = ydn.db.KeyRange.starts(containerId);
-    return this.storage_.values('changes', 'container', range, 1000, 0);
+    return this.storage_.values('changes', 'container', range, 1000, 0).then(function(items) {
+      return goog.array.filter(items, goog.isDef);
+    });
   } else {
-    return this.storage_.values('changes');
+    return this.storage_.values('changes').then(function(items) {
+      return goog.array.filter(items, goog.isDef);
+    });
   }
 };
 
@@ -389,9 +397,45 @@ net.bluemind.container.persistence.DBItemHome.prototype.clearChangelog = functio
   return goog.async.Deferred.fromPromise(succeed);
 } 
 
+net.bluemind.container.persistence.DBItemHome.prototype.filterItems = function(query) {
+  switch(query[1]) {
+    case '=': 
+      var upper = query[2];
+      var upperIncluded = true;
+    case '>=':
+      var lowerIncluded = true;
+    case '>':
+      var lower = query[2];
+      break;
+    case '<=':
+      var upperIncluded = true;
+    case '<':
+      var upper = query[2];
+  }
+  switch(query[3]) {
+    case '>=':
+      var lowerIncluded = true;
+    case '>':
+      var lower = query[4];
+      break;
+    case '<=':
+      var upperIncluded = true;
+    case '<':
+      var upper = query[4];
+  }
+  var key = new ydn.db.KeyRange(lower, upper, !lowerIncluded, !upperIncluded); 
+  return this.storage_.valuesByIndex("item", query[0], key).then(function(items) {
+    return goog.array.filter(items, goog.isDef);
+  });
+
+};
+
 
 /** @override */
 net.bluemind.container.persistence.DBItemHome.prototype.searchItems = function(query, opt_offset, opt_limit) {
+  if (query.length == 1) {
+    return this.filterItems(query[0]);
+  }
   // FIXME: Query parser && refactoring
   var filters = [], iterators = [];
   goog.array.forEach(query, function(part) {

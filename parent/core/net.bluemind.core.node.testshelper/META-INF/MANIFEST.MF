@@ -5,6 +5,6 @@ Bundle-SymbolicName: net.bluemind.core.node.testshelper;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.pool;bundle-version="1.0.0",
- net.bluemind.slf4j;bundle-version="1.0.0"
+ slf4j.api
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.core.node

@@ -21,7 +21,7 @@ rcmail.addEventListener('init', function(evt) {
 rcube_webmail.prototype.bm_signature_enable = function(args) {
   var identity = args['from'], enable = args['enable'], value = args['value'], uid = args['uid'], placeholder = args['placeholder'];
   if (enable) {
-    var signature = this.env.signatures[identity];
+    var signature = this.bm_signature.signatures[identity];
   } else if (placeholder) {
     var label = this.get_label('bm_signature.signature_placeholder');
     var signature = {html: "--X-BM-SIGNATURE--", text:"--X-BM-SIGNATURE--"};

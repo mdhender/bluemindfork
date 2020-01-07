@@ -6,7 +6,7 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.server.hook,
- net.bluemind.slf4j,
+ slf4j.api,
  net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.server.api,
  net.bluemind.core.container.persistence,

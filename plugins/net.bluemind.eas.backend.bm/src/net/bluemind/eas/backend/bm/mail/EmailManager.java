@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -162,8 +163,11 @@ public class EmailManager extends CoreConnect {
 			logger.info("Sending mail...");
 
 			Message m = email.renderAs(Message.class);
+			if (m.getDate() == null) {
+				m.setDate(new Date());
+			}
 
-			if (saveInSent) {
+			if (Boolean.TRUE.equals(saveInSent)) {
 
 				try (InputStream is = email.renderAsMimeStream()) {
 					MailFolder sent = Backends.internalStorage().getMailFolderByName(bs, "Sent");

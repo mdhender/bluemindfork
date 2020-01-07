@@ -527,6 +527,10 @@ namespace core2client
 
         public static String WindowsTimezoneIdToStandardTzid(String winTimezoneId)
         {
+            if (winTimezoneId == null)
+            {
+                return "Europe/Paris";
+            }
             return WindowsTimezonesByOlsonTz.ContainsKey(winTimezoneId)
                 ? winTimezoneId
                 : WindowsTimezonesByOlsonTz.FirstOrDefault(pair => pair.Value == winTimezoneId).Key;

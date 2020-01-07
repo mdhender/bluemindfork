@@ -25,8 +25,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -236,8 +234,8 @@ public class CalendarBuilder extends net.fortuna.ical4j.data.CalendarBuilder {
 				((DateListProperty) property).setTimeZone(timezone);
 			} catch (ClassCastException e2) {
 				if (CompatibilityHints.isHintEnabled(CompatibilityHints.KEY_RELAXED_PARSING)) {
-					Log log = LogFactory.getLog(CalendarBuilder.class);
-					log.warn("Error setting timezone [" + timezone.getID() + "] on property [" + property.getName()
+					final Logger logger = LoggerFactory.getLogger(CalendarBuilder.class);
+					logger.warn("Error setting timezone [" + timezone.getID() + "] on property [" + property.getName()
 							+ "]", e);
 				} else {
 					throw e2;

@@ -7,7 +7,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: 
  net.bluemind.core.container.api;bundle-version="1.0.0",
  net.bluemind.core.rest;bundle-version="1.0.0",
- net.bluemind.slf4j;bundle-version="1.0.0",
+ slf4j.api,
  net.bluemind.user.hook,
  net.bluemind.user.api;bundle-version="1.0.0",
  net.bluemind.tag.api;bundle-version="1.0.0",

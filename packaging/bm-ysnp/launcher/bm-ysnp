@@ -26,6 +26,6 @@ pidfile=$1
 
 export DEFAULT_MEM=128
 export NO_YJP=true
-source ${curdir}/equinox-systemd.lib ${product} ${pidfile}
+source ${curdir}/equinox-systemd.lib ${product}
 
 bm_equinox_run_server_appid ${curdir} ${appid}

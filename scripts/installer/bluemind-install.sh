@@ -82,6 +82,13 @@ sanity_install() {
         exit 1
     fi
     
+    if [ -e /etc/sudoers ] \
+        && which sudo > /dev/null 2>&1 \
+        && ! su -l root -c "sudo echo '' > /dev/null"; then
+        display_error "${txt_disable_sudo_requiretty}"
+        exit 1
+    fi
+
     os_sanity_install
 }
 

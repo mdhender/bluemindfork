@@ -170,7 +170,7 @@ public class BodyAccumulator {
 					ret.estimatedDataSize = plain.totalChars;
 					ret.truncated = plain.truncated;
 				} else {
-					ret.data = DisposableByteSource.wrap("<html><body>...</body></html>");
+					ret.data = DisposableByteSource.wrap("");
 				}
 				break;
 			case PlainText:

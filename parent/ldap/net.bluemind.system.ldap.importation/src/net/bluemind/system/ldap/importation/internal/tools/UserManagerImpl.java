@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -165,7 +165,7 @@ public class UserManagerImpl extends UserManager {
 			Attribute memberOfAttr = entry.get(LDAP_MEMBER_OF);
 			String splitGroupName = "=" + ldapParameters.splitDomain.relayMailboxGroup + ",";
 
-			Stream.generate(memberOfAttr.iterator()::next)
+			StreamSupport.stream(memberOfAttr.spliterator(), false)
 					.filter(memberOf -> memberOf.getString().trim().contains(splitGroupName)).findFirst()
 					.ifPresent(memberOf -> setExternalMailRouting());
 		}

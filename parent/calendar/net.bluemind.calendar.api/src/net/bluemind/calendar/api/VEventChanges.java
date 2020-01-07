@@ -18,6 +18,7 @@
  */
 package net.bluemind.calendar.api;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.bluemind.core.api.BMApi;
@@ -79,6 +80,21 @@ public class VEventChanges {
 			ret.sendNotification = sendNotification;
 
 			return ret;
+		}
+	}
+
+	public void addAll(VEventChanges eventChanges) {
+		if (eventChanges.add != null) {
+			add = add == null ? new ArrayList<>() : add;
+			add.addAll(eventChanges.add);
+		}
+		if (eventChanges.modify != null) {
+			modify = modify == null ? new ArrayList<>() : modify;
+			modify.addAll(eventChanges.modify);
+		}
+		if (eventChanges.delete != null) {
+			delete = delete == null ? new ArrayList<>() : delete;
+			delete.addAll(eventChanges.delete);
 		}
 	}
 

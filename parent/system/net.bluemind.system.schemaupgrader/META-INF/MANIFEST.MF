@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.system.schemaupgrader
 Bundle-SymbolicName: net.bluemind.system.schemaupgrader;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.12.0",
- net.bluemind.slf4j,
+ slf4j.api,
  net.bluemind.eclipse.common,
  net.bluemind.system.api,
  com.google.guava,

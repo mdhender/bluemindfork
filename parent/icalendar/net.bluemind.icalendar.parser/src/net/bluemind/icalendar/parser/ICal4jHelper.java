@@ -1268,7 +1268,8 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		return (s != null && !s.isEmpty());
 	}
 
-	public static Date convertToIcsDate(BmDateTime date) {
+	@SuppressWarnings("unchecked")
+	public static <T extends Date> T convertToIcsDate(BmDateTime date) {
 		BmDateTimeWrapper bmDate = new BmDateTimeWrapper(date);
 		if (date.precision == Precision.DateTime) {
 			DateTime dt = new DateTime(bmDate.toUTCTimestamp());
@@ -1278,9 +1279,9 @@ public class ICal4jHelper<T extends ICalendarElement> {
 			} else {
 				dt.setTimeZone(tzRegistry.getTimeZone(utcTz.getId()));
 			}
-			return dt;
+			return (T) dt;
 		} else {
-			return new Date(bmDate.toTimestamp(utcTz.getId()));
+			return (T) new Date(bmDate.toTimestamp(utcTz.getId()));
 		}
 	}
 

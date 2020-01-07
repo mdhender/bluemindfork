@@ -7,7 +7,7 @@ Bundle-Activator: net.bluemind.neko.common.Activator
 Bundle-Vendor: blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
  com.google.guava;bundle-version="19.0.0",
- net.bluemind.slf4j;bundle-version="1.0.0",
+ slf4j.api,
  org.apache.commons.lang;bundle-version="2.4.0",
  net.sourceforge.nekohtml,
  org.apache.xerces;bundle-version="2.9.0",

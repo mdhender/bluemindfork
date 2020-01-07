@@ -49,13 +49,19 @@ net.bluemind.deferredaction.sync.DeferredActionClientSync.prototype.changeset = 
  * @return {goog.Promise|null|undefined}
  */
 net.bluemind.deferredaction.sync.DeferredActionClientSync.prototype.updates = function(updates) {
+    var result = { "updated": [], "removed": [] };
     updates["delete"].forEach(
-        function(uid) {
-            this.client.delete_(uid);
+        function(item) {
+            result["removed"].push(item["uid"]);
+            this.client.delete_(item["uid"]);
         }.bind(this)
     );
-    var result = {};
-    result["removed"] = updates["delete"];
+    updates["modify"].forEach(
+        function(item) {
+            result["updated"].push(item["uid"]);
+            this.client.create(item["uid"], item["value"]);
+        }.bind(this)
+    );
     result["errors"] = [];
     return /** @type {goog.Promise|null|undefined} */ (goog.Promise.resolve(result));
 };

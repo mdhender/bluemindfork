@@ -87,9 +87,7 @@ public class VCardService implements IVCardService {
 		List<ItemValue<VCard>> cards = addressbookService.all();
 
 		for (ItemValue<VCard> vcard : cards) {
-			net.fortuna.ical4j.vcard.VCard ret = VCardAdapter.adaptCard(container.uid, vcard.value, VCardVersion.v3);
-			sb.append(ret.toString());
-
+			sb.append(adaptCard(vcard).toString());
 		}
 		return sb.toString();
 	}
@@ -103,19 +101,22 @@ public class VCardService implements IVCardService {
 
 		for (ItemValue<VCard> vcard : vcards) {
 			if (vcard != null) {
-				net.fortuna.ical4j.vcard.VCard ret = VCardAdapter.adaptCard(container.uid, vcard.value,
-						VCardVersion.v3);
-				try {
-					Uid cardUid = new Uid(new LinkedList<Parameter>(), container.uid + "," + vcard.uid);
-					ret.getProperties().add(cardUid);
-				} catch (URISyntaxException e) {
-					LOGGER.error(e.getMessage(), e);
-				}
-				sb.append(ret.toString());
+				sb.append(adaptCard(vcard).toString());
 			}
 		}
 
 		return sb.toString();
+	}
+
+	private net.fortuna.ical4j.vcard.VCard adaptCard(ItemValue<VCard> vcard) {
+		net.fortuna.ical4j.vcard.VCard ret = VCardAdapter.adaptCard(container.uid, vcard.value, VCardVersion.v3);
+		try {
+			Uid cardUid = new Uid(new LinkedList<Parameter>(), container.uid + "," + vcard.uid);
+			ret.getProperties().add(cardUid);
+		} catch (URISyntaxException e) {
+			LOGGER.error(e.getMessage(), e);
+		}
+		return ret;
 	}
 
 	@Override

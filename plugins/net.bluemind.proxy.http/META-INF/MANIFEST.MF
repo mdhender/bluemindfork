@@ -6,7 +6,7 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.proxy.http.Activator
 Bundle-Vendor: www.blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
- net.bluemind.slf4j;bundle-version="1.0.0",
+ slf4j.api,
  net.bluemind.locator.client;bundle-version="1.0.0",
  org.freemarker.freemarker;bundle-version="2.3.20",
  net.bluemind.lib.vertx;bundle-version="1.0.0",

@@ -45,7 +45,7 @@
 		</g:HTMLPanel>
 		
 		<g:HTMLPanel ui:field="subscriptionAvailable">
-		<table border="0">
+		<table border="0" style="border-collapse: separate; border-spacing: 0 10px;">
 			<tr>
 				<td colspan="2">
 				<g:Label styleName="{style.updateToLatestHelp}" text="{c.updateToLatestHelp}" />

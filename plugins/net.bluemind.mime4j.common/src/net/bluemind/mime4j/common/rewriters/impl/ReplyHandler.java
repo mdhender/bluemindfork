@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -97,7 +96,7 @@ public class ReplyHandler extends DontTouchHandler {
 
 	@Override
 	protected Message firstRewrite(Message parsed) {
-		logger.info("Rewrite message: " + parsed.getClass().getCanonicalName());
+		logger.info("Rewrite message: {}", parsed.getClass().getCanonicalName());
 
 		Message ret = parsed;
 
@@ -131,8 +130,8 @@ public class ReplyHandler extends DontTouchHandler {
 		bp.setMultipart(relatedParent);
 		mixedParent.addBodyPart(bp);
 
-		Map<String, Set<Entity>> allParts = new HashMap<String, Set<Entity>>();
-		List<Entity> attachments = new ArrayList<Entity>();
+		Map<String, Set<Entity>> allParts = new HashMap<>();
+		List<Entity> attachments = new ArrayList<>();
 
 		for (Entity e : expParts) {
 			if (e.getMimeType() != null && e.getMimeType().startsWith("text/") && !Mime4JHelper.isAttachment(e)) {
@@ -227,9 +226,7 @@ public class ReplyHandler extends DontTouchHandler {
 					"Replied message has no MESSAGE_ID header. Does replied message still in INBOX? Original part may not be append");
 		}
 
-		SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z");
-		Field date = new RawField(FieldName.DATE, sdf.format(new Date()));
-		h.setField(date);
+		ret.setDate(new Date());
 
 		return ret;
 	}
@@ -264,7 +261,7 @@ public class ReplyHandler extends DontTouchHandler {
 		String anwser = "";
 
 		BasicBodyFactory bodyFactory = new BasicBodyFactory();
-		List<Entity> attachments = new ArrayList<Entity>();
+		List<Entity> attachments = new ArrayList<>();
 		if (replied.isMultipart()) {
 			Multipart repMulti = (Multipart) replied.getBody();
 			List<Entity> parts = repMulti.getBodyParts();
@@ -290,11 +287,12 @@ public class ReplyHandler extends DontTouchHandler {
 				anwser = insertQuotePart(parsedBodyHtml, reply, htmlPart);
 			} else if (textPart != null) {
 				anwser = insertQuotePart(parsedBodyHtml, reply, textPart);
+			} else {
+				anwser = reply;
 			}
 		} else {
 			anwser = insertQuotePart(parsedBodyHtml, reply, replied);
 		}
-
 		TextBody body = bodyFactory.textBody(anwser, CharsetUtil.UTF_8);
 		BodyPart bodyPart = new BodyPart();
 		bodyPart.setBody(body);
@@ -308,7 +306,7 @@ public class ReplyHandler extends DontTouchHandler {
 		bodyPart.setHeader(h);
 		bodyPart.setContentTransferEncoding("base64");
 
-		Set<Entity> ret = new LinkedHashSet<Entity>();
+		Set<Entity> ret = new LinkedHashSet<>();
 		ret.add(bodyPart);
 		ret.addAll(attachments);
 		return ret;

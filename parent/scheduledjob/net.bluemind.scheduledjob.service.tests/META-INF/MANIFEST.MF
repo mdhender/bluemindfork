@@ -7,7 +7,7 @@ Bundle-Vendor: www.blue-mind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.junit,
  net.bluemind.core.jdbc.testshelper,
- net.bluemind.slf4j;bundle-version="1.0.0",
+ slf4j.api,
  net.bluemind.tests.defaultdata,
  net.bluemind.lib.vertx,
  com.google.guava;bundle-version="19.0.0",

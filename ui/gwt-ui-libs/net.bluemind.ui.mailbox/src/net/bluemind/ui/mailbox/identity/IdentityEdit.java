@@ -141,10 +141,6 @@ public class IdentityEdit extends CommonForm implements ICommonEditor {
 		loadUI();
 	}
 
-	/**
-	 * @param at
-	 * @param entity
-	 */
 	private void loadUI() {
 		form = binder.createAndBindUi(this);
 
@@ -219,9 +215,6 @@ public class IdentityEdit extends CommonForm implements ICommonEditor {
 		setFormData();
 	}
 
-	/**
-	 * @param format2
-	 */
 	private void setSignatureFormat(SignatureFormat format) {
 		if (format.equals(SignatureFormat.HTML) != this.format.getValue().booleanValue()) {
 			this.format.setValue(format.equals(SignatureFormat.HTML));
@@ -246,9 +239,6 @@ public class IdentityEdit extends CommonForm implements ICommonEditor {
 		return false;
 	}
 
-	/**
-	 * @return
-	 */
 	private String getEmail() {
 		final String email;
 		if (unrestricted.getValue()) {
@@ -278,32 +268,18 @@ public class IdentityEdit extends CommonForm implements ICommonEditor {
 		return true;
 	}
 
-	/**
-	 * @param id
-	 */
 	private void setFormTemplate() {
 		int index = emails.getSelectedIndex();
 		IdentityDescription id = templates.get(index);
 		if (name.getText() == null || name.getText().isEmpty()) {
 			name.setText(id.name);
 		}
-
-		if (id.mboxName != null && !id.mboxName.isEmpty()) {
-			sent.setText(IdentityConstants.INST.useEntitySent(id.mboxName));
-		} else if (id.name != null && !id.name.isEmpty()) {
-			sent.setText(IdentityConstants.INST.useEntitySent(id.name));
-		} else {
-			sent.setText(IdentityConstants.INST.useEntitySent(id.email));
-		}
-
 		sigContent.setText(id.signature);
 
+		sent.setText(IdentityConstants.INST.useEntitySent(id.email + " (" + id.name + ")"));
 		sent.setVisible(true);
 	}
 
-	/**
-	 * @param id
-	 */
 	private void setFormData() {
 		setSignatureFormat(identity.format);
 		sigContent.setText(identity.signature);
@@ -311,11 +287,10 @@ public class IdentityEdit extends CommonForm implements ICommonEditor {
 		name.setText(identity.name);
 		setEmail(identity.email);
 		sent.setValue(!"Sent".equals(identity.sentFolder));
+		sent.setText(IdentityConstants.INST.useEntitySent(identity.email + " (" + identity.email + ")"));
+		sent.setVisible(true);
 	}
 
-	/**
-	 * @param email
-	 */
 	private void setEmail(String email) {
 		if (null == email || email.isEmpty()) {
 			setUnrestricted(false);

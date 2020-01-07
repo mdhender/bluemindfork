@@ -8,8 +8,34 @@ uid: user00
 sn: Nom00
 cn: Prenom00 Nom00
 givenName: Prenom00
-description: Description Prenom00 Nom00
+description: MemberOf grptest00
 mail: user00@memberof.virt
+
+dn: uid=user01,dc=local
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetLocalMailRecipient
+objectClass: inetOrgPerson
+uid: user01
+sn: Nom01
+cn: Prenom01 Nom01
+givenName: Prenom01
+description: MemberOf grptest01
+mail: user01@memberof.virt
+
+dn: uid=user02,dc=local
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetLocalMailRecipient
+objectClass: inetOrgPerson
+uid: user02
+sn: Nom02
+cn: Prenom02 Nom02
+givenName: Prenom02
+description: MemberOf nothing
+mail: user02@memberof.virt
 
 dn: cn=grptest00,dc=local
 objectClass: bmGroup
@@ -19,3 +45,12 @@ cn: grptest00
 gidNumber: 10000
 description: Test group 00
 member: uid=user00,dc=local
+
+dn: cn=grptest01,dc=local
+objectClass: bmGroup
+objectClass: top
+objectClass: posixGroup
+cn: grptest01
+gidNumber: 10001
+description: Test group 01
+member: uid=user01,dc=local

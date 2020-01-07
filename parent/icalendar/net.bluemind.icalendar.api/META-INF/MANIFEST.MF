@@ -7,7 +7,7 @@ Bundle-Vendor: www.blue-mind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: net.bluemind.icalendar.api
 Require-Bundle: net.bluemind.core.commons,
- net.bluemind.slf4j,
+ slf4j.api,
  net.bluemind.tag.api,
  net.bluemind.lib.ical4j,
  net.bluemind.neko.common,

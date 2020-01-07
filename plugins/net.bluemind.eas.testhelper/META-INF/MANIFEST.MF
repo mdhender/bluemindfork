@@ -7,7 +7,7 @@ Bundle-Vendor: blue-mind.net
 Require-Bundle: net.bluemind.lib.vertx;bundle-version="1.0.0",
  net.bluemind.vertx.common,
  net.bluemind.eas.http;bundle-version="1.0.0",
- net.bluemind.slf4j,
+ slf4j.api,
  com.google.guava;bundle-version="19.0.0",
  net.bluemind.core.commons,
  net.bluemind.core.context,

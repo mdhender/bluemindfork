@@ -6,7 +6,7 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.core.password.bruteforce.Activator
 Bundle-Vendor: BlueMind
 Require-Bundle: org.eclipse.core.runtime,
- net.bluemind.slf4j,
+ slf4j.api,
  com.google.guava;bundle-version="19.0.0",
  net.bluemind.authentication.provider;bundle-version="1.0.0",
  net.bluemind.core.container.api;bundle-version="1.0.0",

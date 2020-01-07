@@ -6,7 +6,7 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: blue-mind.net
 Bundle-Activator: net.bluemind.index.MailIndexActivator
 Require-Bundle: org.eclipse.core.runtime,
- net.bluemind.slf4j;bundle-version="1.0.0",
+ slf4j.api,
  net.bluemind.imap;bundle-version="1.0.0",
  net.bluemind.mime4j.common;bundle-version="1.0.0",
  net.bluemind.lib.elasticsearch;bundle-version="1.0.0",
@@ -22,8 +22,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.mailshare.api,
  net.bluemind.hsm.api,
  net.bluemind.core.sessions,
- net.bluemind.mime4j.common;bundle-version="1.0.0",
- net.bluemind.slf4j;bundle-version="1.0.0",
  net.bluemind.neko.common;bundle-version="1.0.0",
  net.bluemind.hornetq.client;bundle-version="1.0.0",
  net.bluemind.lib.elasticsearch;bundle-version="1.0.0",

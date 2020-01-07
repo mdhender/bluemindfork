@@ -14,7 +14,7 @@
 }
 
 #orangePeel {
-  display: none;
+  display: none !important;
 }
 
 .bmLogoSlide {

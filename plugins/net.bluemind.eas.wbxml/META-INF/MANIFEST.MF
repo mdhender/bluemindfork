@@ -8,5 +8,5 @@ Export-Package: net.bluemind.eas.wbxml;uses:="org.xml.sax",
  net.bluemind.eas.wbxml.writers
 Require-Bundle: net.bluemind.eas.utils;bundle-version="1.0.0",
  com.google.guava;bundle-version="19.0.0",
- net.bluemind.slf4j;bundle-version="1.0.0"
+ slf4j.api
 Bundle-Vendor: blue-mind.net

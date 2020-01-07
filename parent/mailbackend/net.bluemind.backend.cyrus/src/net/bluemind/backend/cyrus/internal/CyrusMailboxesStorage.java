@@ -519,9 +519,9 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 			if (!sc.login()) {
 				throw new ServerFault(String.format("Fail to login: admin0", domainUid));
 			}
-			List<MailFolder> ret = new ArrayList<MailFolder>();
+			List<MailFolder> ret = new ArrayList<>();
 
-			Set<String> done = new HashSet<String>();
+			Set<String> done = new HashSet<>();
 
 			String inbox = "user/" + mailbox.value.name + "/INBOX@" + domainUid;
 			done.add(inbox);

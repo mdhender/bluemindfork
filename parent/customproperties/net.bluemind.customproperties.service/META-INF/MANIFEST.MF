@@ -9,4 +9,4 @@ Require-Bundle: net.bluemind.customproperties.api,
  net.bluemind.eclipse.common,
  net.bluemind.core.rest,
  net.bluemind.core.commons;bundle-version="1.0.0",
- net.bluemind.slf4j;bundle-version="1.0.0"
+ slf4j.api

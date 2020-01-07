@@ -110,33 +110,20 @@ net.bluemind.calendar.vevent.ui.Form = function(ctx, opt_domHelper) {
   this.warnings_.set('master', new Array());
 
   this.alarm_ = new goog.structs.Map();
-  
-  function isValueSet(ctx, key) {
-    return ctx.settings.get(key) && !isNaN(parseInt(ctx.settings.get(key)));
-  }
 
-  var alerts = [
-      {
-          default: "default_event_alert",
-          type: "inday"
-      },
-      {
-          default: "default_allday_event_alert",
-          type: "allday"
-      }
-  ];
-  alerts
-      .filter(function(alert) {
-          isValueSet(this.ctx, alert.default);
-      }.bind(this))
-      .forEach(function(alert) {
-          this.alarm_.set(alert.type, [
-              {
-                  trigger: this.ctx.settings.get(alert.default),
-                  action: net.bluemind.calendar.vevent.defaultValues.action
-              }
-          ]);
-      }.bind(this));
+  var setDefaultTrigger = function(settingName, alarmSetting) {
+    if (this.ctx.settings.get(settingName) && !isNaN(parseInt(this.ctx.settings.get(settingName)))) {
+        this.alarm_.set(alarmSetting, [
+            {
+                trigger: this.ctx.settings.get(settingName),
+                action: net.bluemind.calendar.vevent.defaultValues.action
+            }
+        ]);
+    }
+  }.bind(this);
+
+  setDefaultTrigger("default_event_alert", "inday");
+  setDefaultTrigger("default_allday_event_alert", "allday");
   
   var child = new goog.ui.Toolbar();
   child.setId('toolbar');
@@ -484,7 +471,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.enterDocument = function() {
     handler.listen(dom.getElement('bm-ui-form-delete-attachment-'+attachment.index), goog.events.EventType.CLICK, this.delAttachment(attachment));
   }, this);
   
-  var canRemoteAttach = goog.global['bmcSessionInfos']['roles'].split(',').includes('canRemoteAttach');
+  var canRemoteAttach = goog.global['bmcSessionInfos']['roles'].split(',').indexOf('canRemoteAttach') >= 0;
   if (!canRemoteAttach){
     this.getDomHelper().removeNode(dom.getElement('bm-ui-form-no-attachment-block'));
     this.getDomHelper().removeNode(dom.getElement('add-attachment-label'));
@@ -1087,7 +1074,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onEditorChange_ = function(e) {
 
 /**
  * Show reminder fields
- *
+ * 
  * @param {{trigger:number, action:string}} value Reminder in seconds
  * @private
  */

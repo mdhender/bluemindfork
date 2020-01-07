@@ -8,7 +8,7 @@ Bundle-Vendor: blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.mime4j.common;bundle-version="1.0.0",
  net.bluemind.lib.ristretto;bundle-version="1.0.0",
- net.bluemind.slf4j;bundle-version="1.0.0",
+ slf4j.api,
  net.bluemind.locator.client;bundle-version="1.0.0",
  net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.lib.vertx,

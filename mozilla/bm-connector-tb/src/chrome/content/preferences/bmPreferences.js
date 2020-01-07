@@ -147,9 +147,12 @@ var gBMPreferences = {
             this.reset();
         }
     },
-    openCalendarPrefDialog: function() {
+    openSettingsTab: function() {
         gBMPreferences.saveBmPrefs();
-        window.openDialog("chrome://bm/content/preferences/bmCalendarPreferences.xul", "", "modal,centerscreen,resizable=no" , null);
+        let observerService = Components.classes["@mozilla.org/observer-service;1"]
+                        .getService(Components.interfaces.nsIObserverService);
+        observerService.notifyObservers(null, "open-bm-settings", "please");
+        window.close();
     },
     importCollected: function() {
         if (!bmUtils.promptService.confirm(null, bmUtils.getLocalizedString("dialogs.title"),

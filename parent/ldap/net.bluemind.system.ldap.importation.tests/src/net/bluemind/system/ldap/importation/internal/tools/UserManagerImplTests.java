@@ -481,6 +481,24 @@ public class UserManagerImplTests {
 		userManager.update(importLogger, null, null);
 		assertNotNull(userManager.user);
 		assertEquals(Routing.external, userManager.user.value.routing);
+
+		testUserEntry = getTestUserEntry(
+				"uid=user01," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
+		userManager = UserManagerImpl.build(LdapParameters.build(domain.value, settings), domain, testUserEntry).get();
+
+		importLogger = getImportLogger();
+		userManager.update(importLogger, null, null);
+		assertNotNull(userManager.user);
+		assertEquals(Routing.internal, userManager.user.value.routing);
+
+		testUserEntry = getTestUserEntry(
+				"uid=user02," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
+		userManager = UserManagerImpl.build(LdapParameters.build(domain.value, settings), domain, testUserEntry).get();
+
+		importLogger = getImportLogger();
+		userManager.update(importLogger, null, null);
+		assertNotNull(userManager.user);
+		assertEquals(Routing.internal, userManager.user.value.routing);
 	}
 
 	@Test

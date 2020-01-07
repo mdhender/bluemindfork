@@ -8,7 +8,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.scheduledjob.scheduler,
  net.bluemind.scheduledjob.api,
  net.bluemind.core.commons;bundle-version="1.0.0",
- net.bluemind.slf4j;bundle-version="1.0.0",
+ slf4j.api,
  net.bluemind.core.sendmail;bundle-version="1.0.0",
  net.bluemind.mime4j.common;bundle-version="1.0.0",
  org.freemarker.freemarker;bundle-version="2.3.20",

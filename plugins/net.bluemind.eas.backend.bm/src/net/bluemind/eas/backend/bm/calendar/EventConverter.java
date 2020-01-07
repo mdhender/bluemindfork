@@ -688,7 +688,7 @@ public class EventConverter {
 		e.dtstart = BmDateTimeWrapper.fromTimestamp(data.getStartTime().getTime(), data.getTimeZone().getID(), p);
 		e.dtend = BmDateTimeWrapper.fromTimestamp(data.getEndTime().getTime(), data.getTimeZone().getID(), p);
 		if (data.getReminder() != null && data.getReminder() >= 0) {
-			VAlarm alarm = ICalendarElement.VAlarm.create(data.getReminder() * 60);
+			VAlarm alarm = ICalendarElement.VAlarm.create(-data.getReminder() * 60);
 			alarm.action = Action.Display;
 			e.alarm = new ArrayList<ICalendarElement.VAlarm>(1);
 			e.alarm.add(alarm);

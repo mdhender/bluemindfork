@@ -26,12 +26,12 @@
         </groupbox>
         <groupbox>
             <hbox class="groupbox-title">
-                <label class="header" value="&bm.preferences.calendar.label;"/>
+                <label class="header" value="&bm.preferences.settings.label;"/>
             </hbox>
             <hbox align="center">
-                <label value="&bm.preferences.calendar.calendar.label;"/>
+                <label value="&bm.preferences.settings.settings.label;"/>
                 <spacer flex="1"/>
-                <button label="&bm.preferences.calendar.button.label;" oncommand="gBMPreferences.openCalendarPrefDialog();"/>
+                <button label="&bm.preferences.settings.button.label;" oncommand="gBMPreferences.openSettingsTab();"/>
             </hbox>
         </groupbox>
         <groupbox>
@@ -42,16 +42,6 @@
                 <label value="&bm.preferences.im.add.label;"/>
                 <spacer flex="1"/>
                 <button label="&bm.preferences.im.button.add.label;" oncommand="gBMPreferences.addXMPPAccount();"/>
-            </hbox>
-        </groupbox>
-        <groupbox>
-            <hbox class="groupbox-title">
-                <label class="header" value="&bm.preferences.mail.label;"/>
-            </hbox>
-            <hbox align="center">
-                <label value="&bm.preferences.mail.vacation.label;"/>
-                <spacer flex="1"/>
-                <button label="&bm.preferences.mail.button.vacation.label;" oncommand="gBMPreferences.openVacationDialog();"/>
             </hbox>
         </groupbox>
         <groupbox>

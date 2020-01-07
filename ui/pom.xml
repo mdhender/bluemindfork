@@ -20,7 +20,6 @@
 		<module>net.bluemind.ui.gwtcommon.forms</module>
 		<module>net.bluemind.ui.resources</module>
 		<module>net.bluemind.ui.dynresources</module>
-		<!--module>GWTCommon</module-->
 		<module>closures</module>
 		<module>Contact</module>
 		<module>Calendar</module>
@@ -34,6 +33,7 @@
 		<module>net.bluemind.gwtconsoleapp.base</module>
 		<module>settings-webapp</module>
 		<module>mail-webapp</module>
+		<module>net.bluemind.ui.eventdeferredaction</module>
 	</modules>
 
     <build>

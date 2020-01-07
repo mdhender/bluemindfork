@@ -65,7 +65,6 @@ import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
-import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.imap.Flag;
 import net.bluemind.imap.FlagsList;
@@ -73,21 +72,18 @@ import net.bluemind.imap.IMAPException;
 import net.bluemind.imap.ListResult;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.imap.vertx.VXStoreClient;
-import net.bluemind.mailbox.api.IMailboxAclUids;
 
 public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesService
 		implements IMailboxFolders, IMailboxFoldersByContainer {
 
 	private static final Logger logger = LoggerFactory.getLogger(ImapReplicatedMailboxesService.class);
 	private final ImapContext imapContext;
-	private final RBACManager rbac;
 
 	public ImapReplicatedMailboxesService(MailboxReplicaRootDescriptor root, Container cont, BmContext context,
 			MailboxReplicaStore store, ContainerStoreService<MailboxReplica> mboxReplicaStore,
 			ContainerStore contStore) {
 		super(root, cont, context, store, mboxReplicaStore, contStore);
 		this.imapContext = ImapContext.of(context);
-		this.rbac = RBACManager.forContext(context).forContainer(IMailboxAclUids.uidForMailbox(container.owner));
 		logger.debug("Created.");
 	}
 

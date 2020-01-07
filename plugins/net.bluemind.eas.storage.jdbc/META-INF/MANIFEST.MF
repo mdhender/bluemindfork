@@ -6,7 +6,7 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.eas.storage.jdbc.Activator
 Require-Bundle: net.bluemind.eas;bundle-version="1.0.0",
  net.bluemind.eas.dto,
- net.bluemind.slf4j;bundle-version="1.0.0",
+ slf4j.api,
  net.bluemind.core.commons,
  net.bluemind.core.rest.http,
  net.bluemind.domain.api,

@@ -18,9 +18,12 @@
   */
 package net.bluemind.calendar.helper.mail;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+
+import javax.mail.internet.MimeUtility;
 
 import org.apache.james.mime4j.MimeException;
 import org.apache.james.mime4j.dom.Header;
@@ -116,12 +119,13 @@ public class CalendarMail {
 		attachments.ifPresent(atts -> {
 			for (EventAttachment att : atts) {
 				if (att.isBinaryAttachment()) {
+					String name = safeEncode(att.name);
 					BodyPart attBody = new BodyPart();
 					attBody.setBody(att.part.get().getBody());
-					attBody.setFilename(att.name);
+					attBody.setFilename(name);
 					Header header = builder.newHeader();
-					header.setField(Fields.contentType(att.contentType + "; name=\"" + att.name + "\""));
-					header.setField(Fields.contentDisposition("attachment; filename=\"" + att.name + "\""));
+					header.setField(Fields.contentType(att.contentType + "; name=\"" + name + "\""));
+					header.setField(Fields.contentDisposition("attachment; filename=\"" + name + "\""));
 					header.setField(Fields.contentTransferEncoding("base64"));
 					attBody.setHeader(header);
 					mixed.addBodyPart(attBody);
@@ -214,6 +218,15 @@ public class CalendarMail {
 		public CalendarMailBuilder attachments(List<EventAttachment> attachments) {
 			this.attachments = attachments;
 			return this;
+		}
+	}
+
+	private static String safeEncode(String s) {
+		try {
+			return MimeUtility.encodeWord(s, "utf-8", "Q");
+		} catch (UnsupportedEncodingException e) {
+			// should not happen as utf-8 is always available
+			return s;
 		}
 	}
 }
