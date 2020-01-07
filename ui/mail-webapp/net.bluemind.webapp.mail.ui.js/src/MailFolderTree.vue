@@ -111,6 +111,7 @@ export default {
 .mail-folder-tree button.collapse-mailbox-btn {
     color: $info-dark;
     text-decoration-line: none;
+    border-bottom: 1px solid $light !important;
 }
 
 .bm-counter-badge {
