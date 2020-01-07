@@ -579,6 +579,23 @@ public class OccurrenceHelperTest {
 		assertEquals(nextYearOccurrence.get().dtstart, nextOccurrence.get().dtstart);
 	}
 
+	@Test
+	public void testGetNextOccurrenceAllDayUsingToBeforeFromShouldNotFail() {
+		ZonedDateTime eventDate = ZonedDateTime.now().minusDays(365);
+		VEvent main = new VEvent();
+		main.dtstart = BmDateTimeWrapper.create(eventDate, Precision.Date);
+		main.dtend = BmDateTimeWrapper.create(eventDate.plusHours(1), Precision.Date);
+
+		main.rrule = new VEvent.RRule();
+		main.rrule.frequency = VEvent.RRule.Frequency.DAILY;
+		main.rrule.until = BmDateTimeWrapper.create(eventDate.plusDays(10), Precision.Date);
+
+		Optional<VEventOccurrence> nextYearOccurrence = OccurrenceHelper
+				.getNextOccurrence(BmDateTimeWrapper.create(ZonedDateTime.now(), Precision.DateTime), main);
+
+		assertFalse(nextYearOccurrence.isPresent());
+	}
+
 	protected ItemValue<VEventSeries> defaultVEvent() {
 
 		VEventSeries series = new VEventSeries();

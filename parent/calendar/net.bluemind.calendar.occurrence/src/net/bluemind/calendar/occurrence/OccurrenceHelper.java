@@ -199,10 +199,13 @@ public class OccurrenceHelper {
 		if (event.rrule.until != null) {
 			to = VEventServiceHelper.convertToIcsDate(event.rrule.until);
 		} else {
-			LocalDateTime now = LocalDateTime.now(); 
+			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime twoYears = now.plusYears(2);
 			to = new net.fortuna.ical4j.model.DateTime(
 					twoYears.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
+		}
+		if (to.before(from)) {
+			return Optional.empty();
 		}
 		Period period = new Period(new DateTime(from), new DateTime(to));
 		net.fortuna.ical4j.model.component.VEvent ical4jVEvent = VEventServiceHelper.parse(null, event);
