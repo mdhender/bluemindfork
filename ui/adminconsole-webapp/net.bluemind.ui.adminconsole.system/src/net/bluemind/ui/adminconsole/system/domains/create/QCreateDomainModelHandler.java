@@ -34,6 +34,7 @@ import com.google.gwt.dom.client.Document;
 import com.google.gwt.user.client.ui.RootPanel;
 
 import net.bluemind.addressbook.api.VCard;
+import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.commons.gwt.JsMapStringJsObject;
 import net.bluemind.core.container.model.ItemValue;
@@ -206,6 +207,7 @@ public class QCreateDomainModelHandler implements IGwtModelHandler {
 		user.login = model.adminLogin;
 		user.password = model.adminPassword;
 		user.contactInfos = new VCard();
+		user.contactInfos.identification.name = Name.create(model.adminLogin, null, null, null, null, null);
 		user.dataLocation = model.selectedServer.getUid();
 		IGroupPromise groups = new GroupGwtEndpoint(Ajax.TOKEN.getSessionId(), model.domainUid).promiseApi();
 		return users.create(uid, user).thenCompose((v) -> {
