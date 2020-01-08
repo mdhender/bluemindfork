@@ -50,9 +50,12 @@ getent passwd www-data >/dev/null || /usr/sbin/useradd -c "Nginx web server" -d 
 
 # create 'bluemind' group on target host
 getent group %{_bluemindgroup} >/dev/null || /usr/sbin/groupadd -g %{bluemindgid} -r %{_bluemindgroup}
-getent passwd cyrus >/dev/null && usermod -a -G %{_bluemindgroup} cyrus
-getent passwd www-data >/dev/null && usermod -a -G %{_bluemindgroup} www-data
-getent passwd telegraf >/dev/null && usermod -a -G %{_bluemindgroup} telegraf
+getent passwd cyrus >/dev/null && /usr/sbin/usermod -a -G %{_bluemindgroup} cyrus
+getent passwd www-data >/dev/null && /usr/sbin/usermod -a -G %{_bluemindgroup} www-data
+getent passwd telegraf >/dev/null && /usr/sbin/usermod -a -G %{_bluemindgroup} telegraf
+
+# Needed to ensure pre script quit with 0 as return value
+exit 0
 
 %post
 for file in /etc/bm/nodeclient_cert.pem \
