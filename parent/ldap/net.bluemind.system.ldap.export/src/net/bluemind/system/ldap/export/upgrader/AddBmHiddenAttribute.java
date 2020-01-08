@@ -47,17 +47,17 @@ import net.bluemind.system.schemaupgrader.IVersionedUpdater;
 import net.bluemind.system.schemaupgrader.UpdateAction;
 import net.bluemind.system.schemaupgrader.UpdateResult;
 
-public class AddBmHiddentAttribute implements IVersionedUpdater {
-	private static final Logger logger = LoggerFactory.getLogger(AddBmHiddentAttribute.class);
+public class AddBmHiddenAttribute implements IVersionedUpdater {
+	private static final Logger logger = LoggerFactory.getLogger(AddBmHiddenAttribute.class);
 
 	@Override
 	public int major() {
-		return 4;
+		return 5;
 	}
 
 	@Override
 	public int buildNumber() {
-		return 44932;
+		return 47721;
 	}
 
 	@Override
