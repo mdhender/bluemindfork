@@ -26,7 +26,7 @@ export default {
 
 <style scoped>
 .empty-folder-illustration {
-    height: 250px;
-    width: 235px;
+    flex: auto 1 1;
+    width: 100%;
 }
 </style>
