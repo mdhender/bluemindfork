@@ -28,7 +28,8 @@ export function selectFolder({ dispatch, commit, state }, { folderKey, filter })
         commit("messages/clearParts");
     }
 
-    return dispatch("messages/list", { sorted: state.sorted, folderUid, filter }).then(() => {
+    return dispatch("messages/list", { sorted: state.sorted, folderUid, filter })
+        .then(() => {
             const sorted = state.messages.itemKeys;
             return dispatch("messages/multipleByKey", sorted.slice(0, 100));
         })
