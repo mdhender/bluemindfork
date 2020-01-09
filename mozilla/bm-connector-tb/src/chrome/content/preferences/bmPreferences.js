@@ -58,11 +58,11 @@ var gBMPreferences = {
     reset: function() {
         this._logger.info("RESET");
         bmService.reset();
+        this._clearCacheAndCookies();
+        this._clearIndexedDB();
         let observerService = Components.classes["@mozilla.org/observer-service;1"]
                         .getService(Components.interfaces.nsIObserverService);
         observerService.notifyObservers(null, "reload-bm-tabs", "please");
-        this._clearCacheAndCookies();
-        this._clearIndexedDB();
     },
     _clearCacheAndCookies: function() {
         this._logger.info("Clear cookies and cache");
@@ -86,7 +86,12 @@ var gBMPreferences = {
 				this._logger.info("Clear indexedDB for uri:" + serverUrl);
 				let baseURI = Services.io.newURI(serverUrl, null, null);
 				let principal = Services.scriptSecurityManager.createCodebasePrincipal(baseURI, {});
-				Services.qms.clearStoragesForPrincipal(principal, null, true);
+                try {
+                    Services.qms.clearStoragesForPrincipal(principal, null, true);
+                } catch(e) {
+                    //TB 68.3.1
+                    Services.qms.clearStoragesForPrincipal(principal);
+                }
 			}
 		} catch(e) {
 			this._logger.error(e);

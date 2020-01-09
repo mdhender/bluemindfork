@@ -352,7 +352,9 @@ var gBMOverlay = {
 					});
 				}
 			}, this);
-			this.openBmApps(toReOpen);
+			if (toReOpen.length > 0) {
+				this.openBmApps(toReOpen);
+			}
 		}
     },
     _closeBmTabs: function() {
