@@ -57,7 +57,7 @@ public class AddBmHiddenAttribute implements IVersionedUpdater {
 
 	@Override
 	public int buildNumber() {
-		return 47721;
+		return 47221;
 	}
 
 	@Override
