@@ -8,4 +8,5 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Web-Resources: web-resources
 Require-Bundle: io.vertx.core,
  slf4j.api,
- com.google.guava
+ com.google.guava,
+ net.bluemind.webmodule;bundle-version="4.1.0"

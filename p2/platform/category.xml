@@ -451,6 +451,7 @@
    <bundle id="net.bluemind.webmodules.loginapp" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.webmodules.sample" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.webmodules.todolist" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.webmodules.webapp" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.webmodules.webmail" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.xivo.bridge" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.xivo.calendar.hook" version="4.1.0.qualifier"/>

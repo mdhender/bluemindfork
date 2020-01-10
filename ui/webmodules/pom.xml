@@ -16,7 +16,6 @@
 		<module>net.bluemind.webmodules.calendar</module>
 		<module>net.bluemind.webmodules.chooser</module>
 		<module>net.bluemind.webmodules.todolist</module>
-		<module>net.bluemind.webmodules.vue</module>
 		<module>net.bluemind.webmodules.webmail</module>
 		<module>net.bluemind.webmodules.webapp</module>
 		<module>net.bluemind.webmodules.loginapp</module>

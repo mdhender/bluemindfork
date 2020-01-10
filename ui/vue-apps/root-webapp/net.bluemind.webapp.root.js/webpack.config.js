@@ -4,10 +4,10 @@ const prod = require("./node_modules/@bluemind/conf/webpack.prod.js");
 const dev = require("./node_modules/@bluemind/conf/webpack.dev.js");
 
 const myConf = {
-    entry: "./src/js/run.js",
+    entry: "./src/run.js",
     output: {
         path: path.resolve(__dirname, "./web-resources/js/compile"),
-        filename: "net.bluemind.webmodules.webapp.js"
+        filename: "net.bluemind.webapp.root.js"
     }
 };
 

@@ -11,6 +11,7 @@
 		<artifactId>net.bluemind.parent</artifactId>
 		<version>4.1.0-SNAPSHOT</version>
 	</parent>
+    
 	<modules>
 		<module>gwt-libs</module>
 		<module>3-party</module>
@@ -32,47 +33,7 @@
 		<module>adminconsole-webapp</module>
 		<module>net.bluemind.gwtconsoleapp.base</module>
 		<module>settings-webapp</module>
-		<module>mail-webapp</module>
 		<module>net.bluemind.ui.eventdeferredaction</module>
 	</modules>
 
-    <build>
-        <pluginManagement>
-			<plugins>
-                <plugin>
-                    <groupId>com.github.eirslett</groupId>
-                    <artifactId>frontend-maven-plugin</artifactId>
-                    <version>1.6</version>
-                    <executions>
-                        <execution>
-                            <id>Install JS build tools</id>
-                            <goals>
-                                <goal>install-node-and-yarn</goal>
-                            </goals>
-                            <configuration>
-                                <nodeVersion>v8.11.0</nodeVersion>
-                                <yarnVersion>v1.6.0</yarnVersion>
-                            </configuration>
-                        </execution>
-                        <execution>
-                            <id>Install JS dependencies</id>
-                            <goals>
-                                <goal>yarn</goal>
-                            </goals>
-                        </execution>
-                        <execution>
-                            <id>Build JS resources</id>
-                            <goals>
-                                <goal>yarn</goal>
-                            </goals>
-                            <phase>generate-resources</phase>
-                            <configuration>
-                                <arguments>run build</arguments>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
 </project>

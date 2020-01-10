@@ -29,11 +29,10 @@
 	  <module>bm-todolist</module>
 	  <module>bm-push</module>
 	  <module>bm-default-app</module>
-          <module>bm-calendar</module>
-          <module>bm-chooser</module>
+      <module>bm-calendar</module>
+      <module>bm-chooser</module>
 	  <module>bm-settings</module>
 	  <module>bm-webmail</module>
-	  <module>bm-mail-app</module>
 	  <module>bm-client-access</module>
 	  <module>bm-conf</module>
 	  <module>bm-cyrus</module>

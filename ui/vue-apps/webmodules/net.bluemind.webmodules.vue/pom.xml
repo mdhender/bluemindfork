@@ -4,11 +4,12 @@
 	<parent>
 		<groupId>net.bluemind</groupId>
 		<version>4.1.0-SNAPSHOT</version>
-		<artifactId>net.bluemind.ui.webmodules</artifactId>
+		<artifactId>net.bluemind.vue-apps.webmodules</artifactId>
 	</parent>
 	<artifactId>net.bluemind.webmodules.vue</artifactId>
 	<packaging>eclipse-plugin</packaging>
-	<build>
+
+    <build>
 		<plugins>
 			<plugin>
 				<groupId>com.github.eirslett</groupId>

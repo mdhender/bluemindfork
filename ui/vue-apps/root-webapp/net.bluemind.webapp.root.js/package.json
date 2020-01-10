@@ -1,10 +1,10 @@
 {
-    "name": "@bluemind/webmodules.webapp",
+    "name": "@bluemind/webapp.root",
     "version": "4.1.0",
-    "description": "Bluemind webapps webmodule",
+    "description": "Bluemind root application",
     "author": "Blue Mind SAS",
     "license": "GPLv3",
-    "main": "src/js/run.js",
+    "main": "src/run.js",
     "dependencies": {
         "@bluemind/banner.ui.vuejs": "^4.1.0",
         "@bluemind/inject": "^4.1.0",

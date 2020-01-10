@@ -9,4 +9,4 @@ Require-Bundle: net.bluemind.webmodule,
  net.bluemind.webmodule.server,
  net.bluemind.lib.vertx,
  net.bluemind.extensions.closure
-Web-Resources: web-resources
+Bundle-ActivationPolicy: lazy
