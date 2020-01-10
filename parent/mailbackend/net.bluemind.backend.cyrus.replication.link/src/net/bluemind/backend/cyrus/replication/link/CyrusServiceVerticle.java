@@ -29,11 +29,13 @@ import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.backend.cyrus.replication.link.probe.ReplicationLatencyTimer;
 import net.bluemind.backend.cyrus.replication.link.probe.SharedMailboxProbe;
 import net.bluemind.config.InstallationId;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.server.api.Assignment;
 import net.bluemind.server.api.IServer;
+import net.bluemind.server.api.Server;
 
 public class CyrusServiceVerticle extends Verticle {
 
@@ -44,30 +46,40 @@ public class CyrusServiceVerticle extends Verticle {
 		EventBus eventBus = vertx.eventBus();
 
 		eventBus.registerHandler("mailreplica.receiver.ready", message -> {
-			IServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-			IServer service = prov.instance(IServer.class, InstallationId.getIdentifier());
+			probe(0);
+		});
+	}
 
-			service.allComplete().stream().filter(s -> s.value.tags.contains("mail/imap")).forEach(s -> {
-				CyrusService cyrusService = new CyrusService(s.value.address());
-				cyrusService.reload();
+	private void probe(long id) {
+		IServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+		IServer service = prov.instance(IServer.class, InstallationId.getIdentifier());
 
-				List<Assignment> assignments = service.getServerAssignments(s.uid).stream()
-						.filter(as -> "mail/imap".equals(as.tag)).collect(Collectors.toList());
-				for (Assignment domainServerPair : assignments) {
-					try {
-						SharedMailboxProbe probe = new SharedMailboxProbe.Builder()//
-								.forBackend(domainServerPair)//
-								.server(s)//
-								.provider(prov)//
-								.build();
-						logger.info("Probe mailbox is {}", probe);
-						new ReplicationLatencyTimer(vertx, probe).start();
-					} catch (Exception e) {
-						logger.error(e.getMessage(), e);
-					}
+		List<ItemValue<Server>> servers = service.allComplete().stream().filter(s -> s.value.tags.contains("mail/imap"))
+				.collect(Collectors.toList());
+		if (servers.isEmpty()) {
+			vertx.setTimer(60000, this::probe);
+			return;
+		}
+
+		servers.forEach(s -> {
+			CyrusService cyrusService = new CyrusService(s.value.address());
+			cyrusService.reload();
+
+			List<Assignment> assignments = service.getServerAssignments(s.uid).stream()
+					.filter(as -> "mail/imap".equals(as.tag)).collect(Collectors.toList());
+			for (Assignment domainServerPair : assignments) {
+				try {
+					SharedMailboxProbe probe = new SharedMailboxProbe.Builder()//
+							.forBackend(domainServerPair)//
+							.server(s)//
+							.provider(prov)//
+							.build();
+					logger.info("Probe mailbox is {}", probe);
+					new ReplicationLatencyTimer(vertx, probe).start();
+				} catch (Exception e) {
+					logger.error(e.getMessage(), e);
 				}
-			});
-
+			}
 		});
 	}
 
