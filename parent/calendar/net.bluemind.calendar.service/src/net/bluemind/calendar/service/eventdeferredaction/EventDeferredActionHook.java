@@ -89,10 +89,18 @@ public class EventDeferredActionHook implements ICalendarHook {
 	}
 
 	private void addTrigger(VAlarm valarm, VEvent occurrence, VEventMessage message) {
-		Optional<VEvent> currentOccurrence = Optional.of(occurrence);
-		do {
+		Optional<VEvent> currentOccurrence = getFirstOccurence(occurrence);
+		while (currentOccurrence.isPresent()) {
 			currentOccurrence = storeTrigger(valarm, currentOccurrence.get(), message);
-		} while (currentOccurrence.isPresent());
+		}
+	}
+
+	private Optional<VEvent> getFirstOccurence(VEvent occurrence) {
+		if (occurrence.rrule == null || !occurrence.exdate.contains(occurrence.dtstart)) {
+			return Optional.of(occurrence);
+		} else {
+			return OccurrenceHelper.getNextOccurrence(occurrence.dtstart, occurrence).map(occ -> (VEvent) occ);
+		}
 	}
 
 	private Optional<VEvent> storeTrigger(VAlarm valarm, VEvent occurrence, VEventMessage message) {

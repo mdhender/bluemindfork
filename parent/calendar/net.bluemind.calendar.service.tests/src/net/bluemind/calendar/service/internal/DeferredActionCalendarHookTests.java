@@ -29,6 +29,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.CompletableFuture;
@@ -191,6 +192,35 @@ public class DeferredActionCalendarHookTests {
 		assertEquals(3, byActionId.size());
 
 		checkDate(defaultVEvent.main.dtstart, byActionId, 120, 240, 10);
+	}
+
+	@Test
+	public void testCreatingARecurrentEventstartingWithExdates() throws Exception {
+		ICalendar ab = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
+				ICalendarUids.defaultUserCalendar("testuser"));
+
+		VEventSeries defaultVEvent = defaultVEvent();
+		addAlarm(defaultVEvent.main, 120);
+		VEvent.RRule rrule = new VEvent.RRule();
+		rrule.frequency = VEvent.RRule.Frequency.DAILY;
+		defaultVEvent.main.rrule = rrule;
+
+		ZoneId tz = ZoneId.of("Europe/Paris");
+		BmDateTime ex1 = BmDateTimeHelper.time(ZonedDateTime.of(2021, 2, 13, 8, 0, 0, 0, tz));
+		BmDateTime ex2 = BmDateTimeHelper.time(ZonedDateTime.of(2021, 2, 14, 8, 0, 0, 0, tz));
+		BmDateTime ex3 = BmDateTimeHelper.time(ZonedDateTime.of(2021, 2, 15, 8, 0, 0, 0, tz));
+		defaultVEvent.main.exdate = new HashSet<>(Arrays.asList(ex1, ex2, ex3));
+
+		CompletableFuture<Void> wait = registerOnHook("uid2");
+		ab.create("uid2", defaultVEvent, false);
+		wait.get(5, TimeUnit.SECONDS);
+
+		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
+				new Date(200, 0, 0).getTime());
+		assertEquals(1, byActionId.size());
+
+		BmDateTime expected = BmDateTimeHelper.time(ZonedDateTime.of(2021, 2, 16, 8, 0, 0, 0, tz));
+		checkDate(expected, byActionId, 120);
 	}
 
 	@Test
