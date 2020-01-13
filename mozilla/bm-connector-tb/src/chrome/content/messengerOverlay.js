@@ -410,7 +410,7 @@ var gBMOverlay = {
 		let self = this;
 		AddonManager.addInstallListener({
 			onInstallEnded: function(addonInstall, addon) {
-				if (addon && addon.id == "bm-connector-tb@blue-mind.net" && addon.pendingOperations) {
+				if (addon && addon.id == "bm-connector-tb@blue-mind.net") {
                     gBMOverlay._logger.info("bm-connector-tb@blue-mind.net install postponed -> ask for restart");
 					self._timer.init(function() {
 						let ps = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
