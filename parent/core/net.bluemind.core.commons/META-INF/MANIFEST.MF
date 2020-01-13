@@ -18,7 +18,7 @@ Require-Bundle: net.bluemind.lib.jackson;bundle-version="1.0.0",
  org.apache.commons.lang,
  net.bluemind.common.io;bundle-version="4.1.0"
 Bundle-ClassPath: .
-X-BM-Version: 4.1.0
+X-BM-Version: 4.1.1
 Bundle-Activator: net.bluemind.core.api.CommonsActivator
 Bundle-ActivationPolicy: lazy
 
