@@ -387,13 +387,17 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 							return version;
 						});
 
-				if (sc.select(sourceFolder.value.fullName)) {
-					Map<Integer, Integer> result = sc.uidCopy(allImapUids, destinationFolder.value.fullName);
+				String srcFolder = imapPath(sourceFolder.value);
+				String dstFolder = imapPath(destinationFolder.value);
+
+				logger.info("Copying {} items from {} to {}", allImapUids.size(), srcFolder, dstFolder);
+
+				if (sc.select(srcFolder)) {
+					Map<Integer, Integer> result = sc.uidCopy(allImapUids, dstFolder);
 					if (result.isEmpty()) {
 						// nothing was copied, so the replication promise will
 						// never resolve
-						logger.warn("[{}] None of {} was copied to {}", imapContext.latd, allImapUids,
-								destinationFolder.value.fullName);
+						logger.warn("[{}] None of {} was copied to {}", imapContext.latd, allImapUids, dstFolder);
 						return ret;
 					} else {
 						result.forEach((imapUid, newImapUid) -> {
@@ -416,7 +420,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 							fl.add(Flag.DELETED);
 
 							try {
-								sc.select(sourceFolder.value.fullName);
+								sc.select(srcFolder);
 								sc.uidStore(allImapUids, fl, true);
 								sc.uidExpunge(allImapUids);
 							} catch (IMAPException e) {
@@ -452,6 +456,21 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		}
 
 		return finalResult;
+	}
+
+	private String imapPath(MailboxFolder folder) {
+		Namespace ns = root.ns;
+		if (ns == Namespace.users) {
+			return folder.fullName;
+		} else {
+			if (root.name.equals(folder.fullName)) {
+				// root
+				return "Dossiers partagés/" + root.name;
+			} else {
+				String root = container.name.substring(7);
+				return "Dossiers partagés/" + root + "/" + folder.fullName;
+			}
+		}
 	}
 
 }

@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
 import org.junit.After;
@@ -54,17 +55,26 @@ import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.backend.mail.replica.api.MailApiHeaders;
 import net.bluemind.backend.mail.replica.service.tests.ReplicationEventsRecorder.Hierarchy;
 import net.bluemind.config.InstallationId;
+import net.bluemind.core.api.Email;
 import net.bluemind.core.api.Stream;
+import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IOfflineMgmt;
 import net.bluemind.core.container.api.IdRange;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.model.acl.AccessControlEntry;
+import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.IServiceProvider;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.sessions.Sessions;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.mime.MimeTree;
+import net.bluemind.mailbox.api.IMailboxAclUids;
+import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.mailshare.api.IMailshare;
+import net.bluemind.mailshare.api.Mailshare;
 
 public class InboxSubFolderReplicationTests extends AbstractRollingReplicationTests {
 
@@ -242,6 +252,164 @@ public class InboxSubFolderReplicationTests extends AbstractRollingReplicationTe
 		item = itemApi.getCompleteById(expectedId2);
 		assertNotNull(item);
 
+	}
+
+	@Test
+	public void testMailshareCopyFromSubFolderToSubFolder() throws IOException {
+		IMailshare ms = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IMailshare.class,
+				domainUid);
+		String msUid = UUID.randomUUID().toString();
+		Mailshare mailshare = new Mailshare();
+		mailshare.emails = Arrays.asList(Email.create("ms@" + domainUid, true));
+		mailshare.name = "ms";
+		mailshare.routing = Routing.internal;
+		ms.create(msUid, mailshare);
+
+		IContainerManagement cs = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IContainerManagement.class, IMailboxAclUids.uidForMailbox(msUid));
+		AccessControlEntry acl = AccessControlEntry.create(userUid, Verb.Write);
+		cs.setAccessControlList(Arrays.asList(acl));
+
+		IOfflineMgmt idAllocator = provider().instance(IOfflineMgmt.class, domainUid, userUid);
+		IdRange ids = idAllocator.allocateOfflineIds(7);
+		long offlineId = ids.globalCounter;
+
+		String src = "src" + System.currentTimeMillis();
+		String dest = "dest" + System.currentTimeMillis();
+		imapAsUser(sc -> {
+			sc.create("Dossiers partagés/ms/" + src);
+			sc.create("Dossiers partagés/ms/" + dest);
+			Thread.sleep(2000);
+			return null;
+		});
+
+		// append mail into src
+		IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, "ms");
+		ItemValue<MailboxFolder> srcFolder = mboxesApi.byName(src);
+		long id = offlineId++;
+		addDraft(srcFolder, id, msUid);
+
+		ItemValue<MailboxFolder> destFolder = mboxesApi.byName(dest);
+		// copy into sub folder
+		long expectedId = offlineId++;
+
+		ImportMailboxItemSet toCopy = ImportMailboxItemSet.copyIn(srcFolder.internalId,
+				Arrays.asList(MailboxItemId.of(id)), Arrays.asList(MailboxItemId.of(expectedId)));
+
+		ImportMailboxItemsStatus ret = mboxesApi.importItems(destFolder.internalId, toCopy);
+
+		assertEquals(ImportStatus.SUCCESS, ret.status);
+		assertEquals(1, ret.doneIds.size());
+		assertEquals(expectedId, ret.doneIds.get(0).destination);
+
+		// check
+		IMailboxItems itemApi = provider().instance(IMailboxItems.class, destFolder.uid);
+		ItemValue<MailboxItem> item = itemApi.getCompleteById(expectedId);
+		assertNotNull(item);
+	}
+
+	@Test
+	public void testMailshareCopyFromSubFolderToRootFolder() throws IOException {
+		IMailshare ms = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IMailshare.class,
+				domainUid);
+		String msUid = UUID.randomUUID().toString();
+		Mailshare mailshare = new Mailshare();
+		mailshare.emails = Arrays.asList(Email.create("ms@" + domainUid, true));
+		mailshare.name = "ms";
+		mailshare.routing = Routing.internal;
+		ms.create(msUid, mailshare);
+
+		IContainerManagement cs = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IContainerManagement.class, IMailboxAclUids.uidForMailbox(msUid));
+		AccessControlEntry acl = AccessControlEntry.create(userUid, Verb.Write);
+		cs.setAccessControlList(Arrays.asList(acl));
+
+		IOfflineMgmt idAllocator = provider().instance(IOfflineMgmt.class, domainUid, userUid);
+		IdRange ids = idAllocator.allocateOfflineIds(7);
+		long offlineId = ids.globalCounter;
+
+		String src = "src" + System.currentTimeMillis();
+		imapAsUser(sc -> {
+			sc.create("Dossiers partagés/ms/" + src);
+			Thread.sleep(2000);
+			return null;
+		});
+
+		// append mail into src
+		IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, "ms");
+		ItemValue<MailboxFolder> srcFolder = mboxesApi.byName(src);
+		long id = offlineId++;
+		addDraft(srcFolder, id, msUid);
+
+		ItemValue<MailboxFolder> destFolder = mboxesApi.byName("ms");
+		// copy into sub folder
+		long expectedId = offlineId++;
+
+		ImportMailboxItemSet toCopy = ImportMailboxItemSet.copyIn(srcFolder.internalId,
+				Arrays.asList(MailboxItemId.of(id)), Arrays.asList(MailboxItemId.of(expectedId)));
+
+		ImportMailboxItemsStatus ret = mboxesApi.importItems(destFolder.internalId, toCopy);
+
+		assertEquals(ImportStatus.SUCCESS, ret.status);
+		assertEquals(1, ret.doneIds.size());
+		assertEquals(expectedId, ret.doneIds.get(0).destination);
+
+		// check
+		IMailboxItems itemApi = provider().instance(IMailboxItems.class, destFolder.uid);
+		ItemValue<MailboxItem> item = itemApi.getCompleteById(expectedId);
+		assertNotNull(item);
+	}
+
+	@Test
+	public void testMailshareCopyFromRootFolderToSubFolder() throws IOException {
+		IMailshare ms = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IMailshare.class,
+				domainUid);
+		String msUid = UUID.randomUUID().toString();
+		Mailshare mailshare = new Mailshare();
+		mailshare.emails = Arrays.asList(Email.create("ms@" + domainUid, true));
+		mailshare.name = "ms";
+		mailshare.routing = Routing.internal;
+		ms.create(msUid, mailshare);
+
+		IContainerManagement cs = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IContainerManagement.class, IMailboxAclUids.uidForMailbox(msUid));
+		AccessControlEntry acl = AccessControlEntry.create(userUid, Verb.Write);
+		cs.setAccessControlList(Arrays.asList(acl));
+
+		IOfflineMgmt idAllocator = provider().instance(IOfflineMgmt.class, domainUid, userUid);
+		IdRange ids = idAllocator.allocateOfflineIds(7);
+		long offlineId = ids.globalCounter;
+
+		String dest = "dest" + System.currentTimeMillis();
+		imapAsUser(sc -> {
+			sc.create("Dossiers partagés/ms/" + dest);
+			Thread.sleep(2000);
+			return null;
+		});
+
+		// append mail into src
+		IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, "ms");
+		ItemValue<MailboxFolder> srcFolder = mboxesApi.byName("ms");
+		long id = offlineId++;
+		addDraft(srcFolder, id, msUid);
+
+		ItemValue<MailboxFolder> destFolder = mboxesApi.byName(dest);
+		// copy into sub folder
+		long expectedId = offlineId++;
+
+		ImportMailboxItemSet toCopy = ImportMailboxItemSet.copyIn(srcFolder.internalId,
+				Arrays.asList(MailboxItemId.of(id)), Arrays.asList(MailboxItemId.of(expectedId)));
+
+		ImportMailboxItemsStatus ret = mboxesApi.importItems(destFolder.internalId, toCopy);
+
+		assertEquals(ImportStatus.SUCCESS, ret.status);
+		assertEquals(1, ret.doneIds.size());
+		assertEquals(expectedId, ret.doneIds.get(0).destination);
+
+		// check
+		IMailboxItems itemApi = provider().instance(IMailboxItems.class, destFolder.uid);
+		ItemValue<MailboxItem> item = itemApi.getCompleteById(expectedId);
+		assertNotNull(item);
 	}
 
 	@Test
