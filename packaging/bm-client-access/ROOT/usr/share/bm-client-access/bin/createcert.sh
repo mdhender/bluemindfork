@@ -22,8 +22,8 @@
 ca_root=/tmp/bm-ca
 certs_out=/etc/bm/certs
 
-days="-days 9999"
-cadays="-days 10000"
+days="-days 499"
+cadays="-days 500"
 REQ="openssl req"
 CA="openssl ca"
 CERT="openssl x509"
