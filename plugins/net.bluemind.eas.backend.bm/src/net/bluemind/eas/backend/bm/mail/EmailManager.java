@@ -177,6 +177,7 @@ public class EmailManager extends CoreConnect {
 					String partAddr = service.uploadPart(VertxStream.stream(new Buffer(data)));
 					try {
 						MailboxItem mi = MailboxItem.of(m.getSubject(), Part.create(null, "message/rfc822", partAddr));
+						mi.body.date = new Date();
 						mi.systemFlags = Arrays.asList(SystemFlag.seen);
 						service.create(mi);
 					} catch (ServerFault serverFault) {
