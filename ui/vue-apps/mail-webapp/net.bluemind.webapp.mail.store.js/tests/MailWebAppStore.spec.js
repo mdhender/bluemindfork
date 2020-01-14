@@ -90,17 +90,19 @@ describe("[MailWebAppStore] Vuex store", () => {
         });
     });
     test("select a folder with 'unread' filter", done => {
+        store.commit("setUserLogin", "alice@blue-mind.loc");
         store.commit("folders/storeItems", { items: aliceFolders, mailboxUid: "user.alice" });
         const folderUid = "050ca560-37ae-458a-bd52-c40fedf4068d";
         const folderKey = ItemUri.encode(folderUid, "user.alice");
-        itemsService.filteredChangesetById.mockReturnValueOnce(Promise.resolve({
+        itemsService.getPerUserUnread.mockReturnValue(Promise.resolve({ total: 5 }));
+        itemsService.filteredChangesetById.mockReturnValue(Promise.resolve({
             created: aliceInbox.filter(message => !message.value.systemFlags.includes("seen"))
                 .map(message => { return { id: message.internalId }; })
         }));
-        itemsService.multipleById.mockImplementationOnce(ids =>
-            Promise.resolve(aliceInbox.filter(message => !message.value.systemFlags.includes("seen")
-                && ids.includes(message.internalId + "")))
+        itemsService.multipleById.mockImplementation(() =>
+            Promise.resolve(aliceInbox.filter(message => !message.value.systemFlags.includes("seen")))
         );
+
         store.dispatch("selectFolder", { folderKey, filter: "unread" }).then(() => {
             expect(store.state.currentFolderKey).toEqual(folderKey);
             expect(store.state.messages.itemKeys.length).toEqual(5);
@@ -108,7 +110,7 @@ describe("[MailWebAppStore] Vuex store", () => {
                 .filter(message => !message.value.systemFlags.includes("seen"))
                 .map(m => ItemUri.encode(m.internalId, folderUid)));
             expect(store.state.messages.items[store.state.messages.itemKeys[0]]).not.toBeUndefined();
-            expect(store.state.foldersData[folderUid].unread).toBe(4);
+            expect(store.state.foldersData[folderUid].unread).toBe(5);
             expect(store.getters.currentMailbox.mailboxUid).toEqual("user.alice");
             done();
         });
@@ -118,7 +120,7 @@ describe("[MailWebAppStore] Vuex store", () => {
         const messageKey = ItemUri.encode(872, folderUid);
         const text = "Text content...";
         itemsService.mockFetch(text);
-        
+
         store.commit("messages/storeItems", { items: aliceInbox, folderUid });
         store.dispatch("selectMessage", messageKey).then(() => {
             expect(store.getters.currentMessage).toBe(store.getters["messages/getMessageByKey"](messageKey));

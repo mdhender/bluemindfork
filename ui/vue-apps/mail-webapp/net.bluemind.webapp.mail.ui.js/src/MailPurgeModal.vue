@@ -29,7 +29,7 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail-webapp", ["currentFolderUid", "currentMessageKey"]),
+        ...mapState("mail-webapp", ["currentMessageKey"]),
         ...mapGetters("mail-webapp", ["nextMessageKey"])
     },
     bus: {

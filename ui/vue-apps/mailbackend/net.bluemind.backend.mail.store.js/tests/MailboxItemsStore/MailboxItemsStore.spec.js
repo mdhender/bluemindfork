@@ -100,11 +100,12 @@ describe("[MailboxItemsStore] Vuex store", () => {
     test("can filter a folder ('unread')", done => {
         const folderUid = "folder:uid";
         const sorted = { dir: "desc", column: "internal_date" };
-        service.sortedIds.mockReturnValueOnce(Promise.resolve(messages.map(message => message.internalId)));
-        service.filteredChangesetById.mockReturnValueOnce(
+        mockedClient.sortedIds.mockReturnValueOnce(Promise.resolve(exampleMessages.map(message => message.internalId)));
+        mockedClient.filteredChangesetById.mockReturnValueOnce(
             Promise.resolve({ created: [{ id: "4." }, { id: "7." }, { id: "11." }] }));
-        const filteredMessages = [messages[3], messages[4], messages[7]];
-        service.multipleById.mockReturnValueOnce(Promise.resolve([messages[3], messages[4], messages[7]]));
+        const filteredMessages = [exampleMessages[3], exampleMessages[4], exampleMessages[7]];
+        mockedClient.multipleById.mockReturnValueOnce(
+            Promise.resolve([exampleMessages[3], exampleMessages[4], exampleMessages[7]]));
         const store = new Vuex.Store(cloneDeep(MailboxItemsStore));
 
         store
@@ -125,24 +126,24 @@ describe("[MailboxItemsStore] Vuex store", () => {
     test("filter a folder with 'all' filter is handled as no filter", done => {
         const folderUid = "folder:uid";
         const sorted = { direction: "desc", column: "internal_date" };
-        service.sortedIds.mockReturnValueOnce(Promise.resolve(messages.map(message => message.internalId)));
-        service.multipleById.mockReturnValueOnce(Promise.resolve(messages));
+        mockedClient.sortedIds.mockReturnValueOnce(Promise.resolve(exampleMessages.map(message => message.internalId)));
+        mockedClient.multipleById.mockReturnValueOnce(Promise.resolve(exampleMessages));
         const store = new Vuex.Store(cloneDeep(MailboxItemsStore));
 
         store
             .dispatch("list", { sorted, folderUid, filter: "all" })
             .then(() => {
-                expect(store.state.itemKeys.length).toEqual(messages.length);
+                expect(store.state.itemKeys.length).toEqual(exampleMessages.length);
                 return store.dispatch("multipleByKey", store.state.itemKeys);
             })
             .then(() => {
-                messages.forEach((item, index) => {
+                exampleMessages.forEach((item, index) => {
                     const key = ItemUri.encode(item.internalId, folderUid);
                     expect(store.getters.indexOf(key)).toEqual(index);
                     const message = new Message(key, item);
                     expect(store.getters.getMessageByKey(key)).toEqual(message);
                 });
-                expect(store.getters.count).toEqual(messages.length);
+                expect(store.getters.count).toEqual(exampleMessages.length);
                 done();
             });
     });

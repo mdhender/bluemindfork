@@ -1,15 +1,18 @@
 import UUIDGenerator from "@bluemind/uuid";
 import ItemUri from "@bluemind/item-uri";
 
-export function remove({ dispatch, getters, commit }, messageKey) {
+export function remove({ dispatch, getters, commit, state }, messageKey) {
     let subject,
+        message,
         loadingAlertUid = UUIDGenerator.generate();
 
-    if (getters.my.TRASH.uid == ItemUri.container(messageKey)) {
+    const folderUid = ItemUri.container(messageKey);
+    if (getters.my.TRASH.uid === folderUid) {
         return dispatch("purge", messageKey);
     }
     return dispatch("$_getIfNotPresent", messageKey)
-        .then(message => {
+        .then(m => {
+            message = m;
             subject = message.subject;
             commit(
                 "alert/add",
@@ -22,7 +25,12 @@ export function remove({ dispatch, getters, commit }, messageKey) {
             );
             return dispatch("$_move", { messageKey, destinationKey: getters.my.TRASH.key });
         })
-        .then(() => commit("alert/add", { code: "MSG_REMOVED_OK", props: { subject } }, { root: true }))
+        .then(() => {
+            if (message.states.includes("not-seen")) {
+                commit("setUnreadCount", { folderUid, count: state.foldersData[folderUid].unread - 1 });
+            }
+            commit("alert/add", { code: "MSG_REMOVED_OK", props: { subject } }, { root: true });
+        })
         .catch(reason => commit("alert/add", { code: "MSG_REMOVED_ERROR", props: { subject, reason } }, { root: true }))
         .finally(() => commit("alert/remove", loadingAlertUid, { root: true }));
 }

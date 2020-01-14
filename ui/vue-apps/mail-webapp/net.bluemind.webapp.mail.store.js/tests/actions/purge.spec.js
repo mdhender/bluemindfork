@@ -1,26 +1,36 @@
 import { purge as purgeAction } from "../../src/actions/purge";
+import ItemUri from "@bluemind/item-uri";
 
 let isMessageRemoveActionSuccessfull = true;
+let mockMessage;
+const messageKey = ItemUri.encode("message-id", "inbox-uid");
 const context = {
     dispatch: jest.fn().mockImplementation(arg => {
-        if (arg == "$_getIfNotPresent") {
-            return Promise.resolve({});
-        } else if (arg == "messages/remove") {
+        if (arg === "$_getIfNotPresent") {
+            return Promise.resolve(mockMessage);
+        } else if (arg === "messages/remove") {
             return isMessageRemoveActionSuccessfull ? Promise.resolve({}) : Promise.reject();
         }
     }),
-    commit: jest.fn()
+    commit: jest.fn(),
+    state: {
+        foldersData: {
+            ["inbox-uid"]: {
+                unread: 10
+            }
+        }
+    }
 };
 
 describe("MailApp Store: Purge message action", () => {
-    const messageKey = "message-key";
-
     const expectedLoadingAlert = {
         code: "MSG_PURGE_LOADING",
         props: { subject: undefined }
     };
 
     beforeEach(() => {
+        isMessageRemoveActionSuccessfull = true;
+        mockMessage = { subject: undefined, states: "not-a-valid-state" };
         context.dispatch.mockClear();
         context.commit.mockClear();
     });
@@ -83,5 +93,21 @@ describe("MailApp Store: Purge message action", () => {
             );
             done();
         });
+    });
+    test("update the unread counter if necessary", done => {
+        // call remove without any unread mail, do not expect to update the unread counter
+        mockMessage = { subject: "dummy", states: "not-a-valid-state hello-there" };
+        purgeAction(context, messageKey)
+            .then(() => {
+                expect(context.commit).not.toHaveBeenCalledWith("setUnreadCount");
+
+                // call remove with unread mails, expect to update the unread counter
+                mockMessage = { subject: "dummy", states: "not-a-valid-state not-seen" };
+                return purgeAction(context, messageKey);
+            })
+            .then(() => {
+                expect(context.commit).toHaveBeenCalledWith("setUnreadCount", { folderUid: "inbox-uid", count: 9 });
+                done();
+            });
     });
 });

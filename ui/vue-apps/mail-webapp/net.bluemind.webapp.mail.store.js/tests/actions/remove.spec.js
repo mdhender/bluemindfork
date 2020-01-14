@@ -1,19 +1,36 @@
 import { remove } from "../../src/actions/remove";
 import ItemUri from "@bluemind/item-uri";
 
+let mockMessage;
+
 const context = {
     commit: jest.fn(),
-    dispatch: jest.fn().mockReturnValue(Promise.resolve({ subject: "dummy" })),
+    dispatch: jest.fn().mockImplementation(arg => {
+        if (arg === "$_getIfNotPresent") {
+            return Promise.resolve(mockMessage);
+        }
+    }),
     getters: {
-        my: { mailboxUid: "mailbox-uid", TRASH: { key: "trash-key", uid: "trash-uid" } },
+        my: {
+            mailboxUid: "mailbox-uid",
+            TRASH: { key: "trash-key", uid: "trash-uid" }, INBOX: { key: "inbox-key", uid: "inbox-uid" }
+        },
         "folders/getFolderByKey": jest.fn().mockReturnValue({
             internalId: 10
         })
+    },
+    state: {
+        foldersData: {
+            ["inbox-uid"]: {
+                unread: 10
+            }
+        }
     }
 };
 
 describe("[Mail-WebappStore][actions] : remove", () => {
     beforeEach(() => {
+        mockMessage = { subject: "dummy", states: "not-a-valid-state" };
         context.commit.mockClear();
         context.dispatch.mockClear();
     });
@@ -56,5 +73,23 @@ describe("[Mail-WebappStore][actions] : remove", () => {
         const messageKey = ItemUri.encode("message-id", "trash-uid");
         remove(context, messageKey);
         expect(context.dispatch).toHaveBeenCalledWith("purge", messageKey);
+    });
+    test("update the unread counter if necessary", done => {
+        const messageKey = ItemUri.encode("message-id", "inbox-uid");
+
+        // call remove without any unread mail, do not expect to update the unread counter
+        mockMessage = { subject: "dummy", states: "not-a-valid-state hello-there" };
+        remove(context, messageKey)
+            .then(() => {
+                expect(context.commit).not.toHaveBeenCalledWith("setUnreadCount");
+
+                // call remove with unread mails, expect to update the unread counter
+                mockMessage = { subject: "dummy", states: "not-a-valid-state not-seen" };
+                return remove(context, messageKey);
+            })
+            .then(() => {
+                expect(context.commit).toHaveBeenCalledWith("setUnreadCount", { folderUid: "inbox-uid", count: 9 });
+                done();
+            });
     });
 });

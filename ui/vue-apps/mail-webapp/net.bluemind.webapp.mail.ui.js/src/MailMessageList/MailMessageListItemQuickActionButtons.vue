@@ -75,7 +75,7 @@ export default {
             this.$store.dispatch("mail-webapp/remove", this.message.key);
         },
         openPurgeModal() {
-            this.$bus.$emit(SHOW_PURGE_MODAL, [this.message.key]);
+            this.$bus.$emit(SHOW_PURGE_MODAL, this.message.key);
         }
     }
 };
