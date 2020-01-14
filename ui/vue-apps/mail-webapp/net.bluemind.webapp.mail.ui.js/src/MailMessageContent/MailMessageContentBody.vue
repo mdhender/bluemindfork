@@ -1,6 +1,11 @@
 <template>
-    <div class="mail-message-content-body min-h-100">
-        <iframe ref="iFrameMailContent" class="w-100 border-0" scrolling="no" @load="resizeIFrame" />
+    <div class="mail-message-content-body min-h-100 py-2">
+        <iframe
+            ref="iFrameMailContent"
+            :title="$t('mail.content.body')" 
+            class="w-100 border-0"
+            @load="resizeIFrame"
+        />
     </div>
 </template>
 
@@ -33,7 +38,7 @@ export default {
             if (this.parts) {
                 let html = "";
                 this.parts.forEach((part, index) => {
-                    if (index != 0) {
+                    if (index !== 0) {
                         html += `<hr style='margin: 1rem 0;
                                             border: 0;
                                             border-top: 1px solid rgba(0, 0, 0, 0.3);
@@ -66,7 +71,16 @@ export default {
         addStyle(iframeDoc) {
             // add style for 'reply' and 'forward' rendering
             // add style to enable <pre> content to wrap in order to see all of it
-            const css = `.reply {
+            const css = `
+                        @import url('https://fonts.googleapis.com/css?family=Montserrat:300,400,600');
+                        body {
+                            font-family: 'Montserrat', sans-serif;
+                            font-size: 0.75rem;
+                            font-weight: 400;
+                            color: #2f2f2f;
+                            margin: 0;
+                        } 
+                        .reply {
                             margin-left: 1rem;
                             padding-left: 1rem;
                             border-left: 2px solid black;

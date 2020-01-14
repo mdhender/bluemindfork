@@ -51,6 +51,7 @@
     "mail.content.reply.aria": "Répondre à l'expéditeur",
     "mail.content.reply_all.aria": "Répondre à tous les destinataires",
     "mail.content.forward.aria": "Transférer ce message",
+    "mail.content.body": "Contenu du message",
     "mail.list.search.no_result": "Aucun message contenant",
     "mail.list.search.no_result.found": "n'a été trouvé.",
     "mail.list.search.no_result.try_otherwise": "Essayez un terme plus générique.",
