@@ -451,7 +451,7 @@ var gBMIcsBandal = {
 }
 
 gBMIcsBandal.init();
-if (document.getElementById("msgHeaderView") && document.getElementById("msgHeaderView")._loaded) {
+if (document.getElementById("msgHeaderView") && document.getElementById("msgHeaderView").loaded) {
     gBMIcsBandal.onLoad();
 } else {
     window.addEventListener("messagepane-loaded", gBMIcsBandal.onLoad, true);
