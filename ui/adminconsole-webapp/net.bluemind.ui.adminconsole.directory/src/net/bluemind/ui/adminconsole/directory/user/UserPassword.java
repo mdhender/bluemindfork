@@ -18,13 +18,18 @@
  */
 package net.bluemind.ui.adminconsole.directory.user;
 
+import java.util.Date;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.i18n.shared.DateTimeFormat;
+import com.google.gwt.i18n.shared.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.HTMLPanel;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PasswordTextBox;
 
 import net.bluemind.core.api.AsyncHandler;
@@ -39,6 +44,7 @@ import net.bluemind.ui.adminconsole.directory.user.l10n.UserConstants;
 import net.bluemind.ui.common.client.forms.Ajax;
 import net.bluemind.user.api.ChangePassword;
 import net.bluemind.user.api.gwt.endpoint.UserGwtEndpoint;
+import net.bluemind.user.api.gwt.js.JsUser;
 
 public class UserPassword extends CompositeGwtWidgetElement implements IGwtWidgetElement {
 
@@ -60,6 +66,9 @@ public class UserPassword extends CompositeGwtWidgetElement implements IGwtWidge
 	@UiField
 	PasswordTextBox confirmPassword;
 
+	@UiField
+	Label passwordLastChange;
+
 	private String userUid;
 
 	private String domainUid;
@@ -78,6 +87,8 @@ public class UserPassword extends CompositeGwtWidgetElement implements IGwtWidge
 				public void success(Void value) {
 					// FIXME i18n
 					Notification.get().reportInfo("Password changed !");
+					passwordLastChange
+							.setText(DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_FULL).format(new Date()));
 				}
 
 				@Override
@@ -104,6 +115,19 @@ public class UserPassword extends CompositeGwtWidgetElement implements IGwtWidge
 		JsMapStringJsObject map = model.cast();
 		domainUid = map.getString("domainUid");
 		userUid = map.getString("userId");
+
+		if (map.get("user") == null) {
+			GWT.log("user not found..");
+			return;
+		}
+
+		final JsUser user = map.get("user").cast();
+		if (user.getPasswordLastChange() == null) {
+			passwordLastChange.setText("-");
+		} else {
+			passwordLastChange.setText(DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_FULL)
+					.format(new Date((long) user.getPasswordLastChange().getTime())));
+		}
 	}
 
 	public static void registerType() {

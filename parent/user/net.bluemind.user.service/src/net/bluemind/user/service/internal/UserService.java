@@ -21,6 +21,7 @@ package net.bluemind.user.service.internal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -163,6 +164,7 @@ public class UserService implements IInCoreUser, IUser {
 		String prevPass = user.password;
 		if (StringUtils.isNotBlank(user.password)) {
 			user.password = HashFactory.getDefault().create(user.password);
+			user.passwordLastChange = new Date();
 		}
 
 		storeService.createWithExtId(uid, extId, user);
@@ -249,6 +251,7 @@ public class UserService implements IInCoreUser, IUser {
 		}
 
 		user.password = previous.value.password;
+		user.passwordLastChange = previous.value.passwordLastChange;
 
 		if (!globalVirt && !user.system) {
 			mailboxes.validate(uid, mailboxAdapter.asMailbox(domainName, uid, user));
@@ -307,6 +310,7 @@ public class UserService implements IInCoreUser, IUser {
 		if (user != null) {
 			user.value.password = null;
 		}
+
 		return user;
 	}
 

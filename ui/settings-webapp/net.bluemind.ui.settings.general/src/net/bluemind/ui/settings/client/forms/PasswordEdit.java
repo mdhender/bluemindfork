@@ -18,9 +18,14 @@
  */
 package net.bluemind.ui.settings.client.forms;
 
+import java.util.Date;
+
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.i18n.shared.DateTimeFormat;
+import com.google.gwt.i18n.shared.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Label;
@@ -29,6 +34,7 @@ import com.google.gwt.user.client.ui.PasswordTextBox;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.gwtconsoleapp.base.editor.WidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.CompositeGwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
@@ -38,6 +44,7 @@ import net.bluemind.gwtconsoleapp.base.notification.Notification;
 import net.bluemind.ui.common.client.forms.Ajax;
 import net.bluemind.user.api.ChangePassword;
 import net.bluemind.user.api.IUserAsync;
+import net.bluemind.user.api.User;
 import net.bluemind.user.api.gwt.endpoint.UserGwtEndpoint;
 
 public class PasswordEdit extends CompositeGwtWidgetElement {
@@ -52,6 +59,7 @@ public class PasswordEdit extends CompositeGwtWidgetElement {
 	private FlexTable pwdContainer;
 	private Label currentErrLabel;
 	private Label newErrLabel;
+	private Label passwordLastChange = new Label();
 
 	private FlexTable table;
 
@@ -93,6 +101,10 @@ public class PasswordEdit extends CompositeGwtWidgetElement {
 		});
 
 		int i = 0;
+		pwdContainer.setWidget(i, 0, new Label(constants.passwordLastChanged()));
+		pwdContainer.setWidget(i, 1, passwordLastChange);
+
+		i++;
 		pwdContainer.setWidget(i, 0, new Label(constants.currentPassword()));
 		pwdContainer.setWidget(i, 1, current);
 		pwdContainer.setWidget(i, 2, currentErrLabel);
@@ -115,6 +127,26 @@ public class PasswordEdit extends CompositeGwtWidgetElement {
 		table.getCellFormatter().setStyleName(i, 0, "label");
 		table.getCellFormatter().setStyleName(i, 1, "form");
 
+		setPasswordLastChange();
+	}
+
+	private void setPasswordLastChange() {
+		new UserGwtEndpoint(Ajax.TOKEN.getSessionId(), Ajax.TOKEN.getContainerUid())
+				.getComplete(Ajax.TOKEN.getSubject(), new AsyncHandler<ItemValue<User>>() {
+					@Override
+					public void success(ItemValue<User> user) {
+						if (user.value.passwordLastChange == null) {
+							passwordLastChange.setText("-");
+						} else {
+							passwordLastChange.setText(DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_FULL)
+									.format(user.value.passwordLastChange));
+						}
+					}
+
+					@Override
+					public void failure(Throwable e) {
+					}
+				});
 	}
 
 	protected void savePassword(String oldValue, String newValue) {
@@ -126,6 +158,9 @@ public class PasswordEdit extends CompositeGwtWidgetElement {
 					@Override
 					public void success(Void value) {
 						Notification.get().reportInfo(constants.passwordChanged());
+
+						passwordLastChange
+								.setText(DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_FULL).format(new Date()));
 					}
 
 					@Override
@@ -178,5 +213,12 @@ public class PasswordEdit extends CompositeGwtWidgetElement {
 				return new PasswordEdit();
 			}
 		});
+	}
+
+	@Override
+	public void loadModel(JavaScriptObject model) {
+		GWT.log("load Model ------------------");
+//		domainUid = map.getString("domainUid");
+//		userUid = map.getString("userId");
 	}
 }

@@ -127,16 +127,17 @@ public class UserStore extends AbstractItemValueStore<User> {
 	}
 
 	public void setPassword(final Item item, final String password) throws SQLException {
-		update("update t_domain_user set password = ? where item_id = ?", password, new StatementValues<String>() {
+		update("update t_domain_user set password = ?, password_lastchange = now() where item_id = ?", password,
+				new StatementValues<String>() {
 
-			@Override
-			public int setValues(Connection con, PreparedStatement statement, int index, int currentRow, String value)
-					throws SQLException {
-				statement.setString(index++, value);
-				statement.setLong(index++, item.id);
-				return index;
-			}
-		});
+					@Override
+					public int setValues(Connection con, PreparedStatement statement, int index, int currentRow,
+							String value) throws SQLException {
+						statement.setString(index++, value);
+						statement.setLong(index++, item.id);
+						return index;
+					}
+				});
 	}
 
 	public List<String> allUids() throws SQLException {
