@@ -16,37 +16,22 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.ui.adminconsole.system.l10n;
+package net.bluemind.ui.adminconsole.system.maintenance.reindex.l10n;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.ConstantsWithLookup;
 
-public interface SystemMenuConstants extends ConstantsWithLookup {
+public interface ReindexConstants extends ConstantsWithLookup {
 
-	public String systemManagement();
+	public static final ReindexConstants INST = GWT.create(ReindexConstants.class);
 
-	public String servers();
+	public String reindex();
 
-	public String applicationServers();
+	public String mailspool();
 
-	public String systemConfiguration();
+	public String contact();
 
-	public String subscriptionInstallation();
+	public String calendar();
 
-	public String domains();
-
-	public String createDomain();
-
-	public String domainsManager();
-
-	public String maintenance();
-
-	public String maintainEmails();
-
-	public String documentation();
-
-	public String uploadDocumentation();
-
-	public String updateBluemind();
-
-	public String reindexing();
+	public String todolist();
 }

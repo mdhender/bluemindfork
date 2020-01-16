@@ -17,7 +17,6 @@
 		<module>net.bluemind.todolist.service</module>
 		<module>net.bluemind.todolist.service.tests</module>
 		<module>net.bluemind.todolist.feature</module>
-		<module>net.bluemind.todolist.job</module>
 		<module>net.bluemind.todolist.hook</module>
 		<module>net.bluemind.todolist.hook.acl</module>
 		<module>net.bluemind.todolist.usertodolist</module>
