@@ -27,7 +27,7 @@ import javax.naming.directory.InitialDirContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bluemind.eas.utils.IniFile;
+import net.bluemind.utils.IniFile;
 
 class Configuration {
 
