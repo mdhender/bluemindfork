@@ -26,4 +26,23 @@ pushd $BM_ROOT
 mvn -Dbm-runtime.url=https://forge.bluemind.net/staging/p2/bluemind/$BM_VERSION/ clean tycho-versions:set-version -DnewVersion=$BM_VERSION
 mvn -Dbm-runtime.url=https://forge.bluemind.net/staging/p2/bluemind/$BM_VERSION/ clean install
 
+yarn install
+rm -f jest.json jest.xml
+yarn test || true
+python3 ./ci/jest_json2xml.py jest.json jest.xml
+
+if [ "$2" == "--publish-npm" ]; then
+    for path in $(find . -path ./node_modules -prune -o -name package.json -print); do
+        if [[ $path != *"target/classes"* ]]; then
+            if grep -q "name\": \"@bluemind" $path; then
+                pushd $(dirname $path)
+                echo "Publishing $path"
+                yarn publish --no-git-tag-version --no-commit-hooks --new-version $BM_VERSION
+                popd
+            fi
+        fi
+    done
+fi
+
+
 popd
