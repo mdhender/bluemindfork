@@ -282,4 +282,8 @@ public class BasicRoles {
 	 * Permission to manage restores.
 	 */
 	public static final String ROLE_MANAGE_RESTORE = "manageRestore";
+	/**
+	 * Permission to access Roundcube webmail.
+	 */
+	public static final String ROLE_WEBMAIL = "hasWebmail";
 }

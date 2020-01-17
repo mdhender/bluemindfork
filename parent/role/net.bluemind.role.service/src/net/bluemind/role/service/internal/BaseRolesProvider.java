@@ -47,7 +47,6 @@ import com.google.common.collect.ImmutableSet;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
-import net.bluemind.directory.api.DirEntry;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.role.api.RoleDescriptor;
 import net.bluemind.role.api.RolesCategory;
@@ -155,7 +154,7 @@ public class BaseRolesProvider implements IRolesProvider {
 				RoleDescriptor
 						.create(ROLE_ADMIN, CATEGORY_ADMINISTRATION, rb.getString("role.admin.label"),
 								rb.getString("role.admin.description"))
-						.forDirEntry(DirEntry.Kind.DOMAIN).withParent(BasicRoles.ROLE_MANAGE_DOMAIN)
+						.forDirEntry(Kind.DOMAIN).withParent(BasicRoles.ROLE_MANAGE_DOMAIN)
 						.giveRoles(BasicRoles.ROLE_MANAGER), //
 
 				RoleDescriptor.create(BasicRoles.ROLE_DOMAIN_MAX_VALUES, CATEGORY_ADMINISTRATION,
@@ -174,14 +173,14 @@ public class BaseRolesProvider implements IRolesProvider {
 				RoleDescriptor
 						.create(BasicRoles.ROLE_SUDO, CATEGORY_ADMINISTRATION, rb.getString("role.sudo.label"),
 								rb.getString("role.sudo.description")) //
-						.forDirEntry(DirEntry.Kind.USER) //
+						.forDirEntry(Kind.USER) //
 						.withParent(SecurityContext.ROLE_SYSTEM), //
 
 				RoleDescriptor
 						.create(BasicRoles.ROLE_MANAGE_USER_PASSWORD, CATEGORY_ADMINISTRATION,
 								rb.getString("role.manageUserPassword.label"),
 								rb.getString("role.manageUserPassword.description"))
-						.forDirEntry(DirEntry.Kind.USER) //
+						.forDirEntry(Kind.USER) //
 						.withParent(BasicRoles.ROLE_MANAGE_USER) //
 						.giveRoles(BasicRoles.ROLE_MANAGER), //
 
@@ -189,7 +188,7 @@ public class BaseRolesProvider implements IRolesProvider {
 						.create(BasicRoles.ROLE_MANAGE_USER_VCARD, CATEGORY_ADMINISTRATION,
 								rb.getString("role.manageUserVCard.label"),
 								rb.getString("role.manageUserVCard.description"))
-						.forDirEntry(DirEntry.Kind.USER) //
+						.forDirEntry(Kind.USER) //
 						.withParent(BasicRoles.ROLE_MANAGE_USER) //
 						.giveRoles(BasicRoles.ROLE_MANAGER), //
 
@@ -197,7 +196,7 @@ public class BaseRolesProvider implements IRolesProvider {
 						.create(BasicRoles.ROLE_MANAGE_EXTERNAL_ACCOUNTS, CATEGORY_ADMINISTRATION,
 								rb.getString("role.manageExternalAccounts.label"),
 								rb.getString("role.manageExternalAccounts.description"))
-						.forDirEntry(DirEntry.Kind.USER) //
+						.forDirEntry(Kind.USER) //
 						.withParent(BasicRoles.ROLE_MANAGE_USER),
 
 				RoleDescriptor.create(BasicRoles.ROLE_MANAGER, CATEGORY_ADMINISTRATION, "fake", "fake").notVisible(),
@@ -206,7 +205,7 @@ public class BaseRolesProvider implements IRolesProvider {
 						.create(BasicRoles.ROLE_MANAGE_USER_SETTINGS, CATEGORY_ADMINISTRATION,
 								rb.getString("role.manageUserSettings.label"),
 								rb.getString("role.manageUserSettings.description"))
-						.forDirEntry(DirEntry.Kind.USER) //
+						.forDirEntry(Kind.USER) //
 						.giveRoles(BasicRoles.ROLE_MANAGER) //
 						.withParent(BasicRoles.ROLE_MANAGE_USER), //
 
@@ -214,7 +213,7 @@ public class BaseRolesProvider implements IRolesProvider {
 						.create(BasicRoles.ROLE_MANAGE_USER_DEVICE, CATEGORY_ADMINISTRATION,
 								rb.getString("role.manageUserDevice.label"),
 								rb.getString("role.manageUserDevice.description"))
-						.forDirEntry(DirEntry.Kind.USER) //
+						.forDirEntry(Kind.USER) //
 						.giveRoles(BasicRoles.ROLE_MANAGER) //
 						.withParent(BasicRoles.ROLE_MANAGE_USER), //
 
@@ -223,7 +222,7 @@ public class BaseRolesProvider implements IRolesProvider {
 								rb.getString("role.manageUserSharings.label"),
 								rb.getString("role.manageUserSharings.description"))
 						.withParent(BasicRoles.ROLE_MANAGE_USER) //
-						.forDirEntry(DirEntry.Kind.USER) //
+						.forDirEntry(Kind.USER) //
 						.giveRoles(BasicRoles.ROLE_MANAGER) //
 						.withContainerRoles(Verb.Manage.name()), //
 
@@ -231,7 +230,7 @@ public class BaseRolesProvider implements IRolesProvider {
 						.create(BasicRoles.ROLE_MANAGE_USER_SUBSCRIPTIONS, CATEGORY_ADMINISTRATION,
 								rb.getString("role.manageUserSubscriptions.label"),
 								rb.getString("role.manageUserSubscriptions.description"))
-						.forDirEntry(DirEntry.Kind.USER) //
+						.forDirEntry(Kind.USER) //
 						.giveRoles(BasicRoles.ROLE_MANAGER) //
 						.withParent(BasicRoles.ROLE_MANAGE_USER) //
 						.withContainerRoles(Verb.Manage.name()), //
@@ -245,14 +244,14 @@ public class BaseRolesProvider implements IRolesProvider {
 								rb.getString("role.manageUserMailIdentities.label"),
 								rb.getString("role.manageUserMailIdentities.description"))
 						.withParent(BasicRoles.ROLE_MANAGE_USER) //
-						.forDirEntry(DirEntry.Kind.USER) //
+						.forDirEntry(Kind.USER) //
 						.giveRoles(BasicRoles.ROLE_MANAGE_MAILBOX, BasicRoles.ROLE_MANAGER),
 
 				RoleDescriptor
 						.create(ROLE_EXTERNAL_IDENTITY, CATEGORY_MAIL, rb.getString("role.externalidentity.label"),
 								rb.getString("role.admin.description"))
 						.withParent(BasicRoles.ROLE_MANAGE_USER) //
-						.forDirEntry(DirEntry.Kind.USER) //
+						.forDirEntry(Kind.USER) //
 						.giveRoles(BasicRoles.ROLE_MANAGE_MAILBOX_IDENTITIES, BasicRoles.ROLE_MANAGER), //
 
 				RoleDescriptor
@@ -263,7 +262,7 @@ public class BaseRolesProvider implements IRolesProvider {
 				RoleDescriptor
 						.create(BasicRoles.ROLE_MANAGE_GROUP, CATEGORY_ADMINISTRATION,
 								rb.getString("role.manageGroup.label"), rb.getString("role.manageGroup.description"))
-						.forDirEntry(DirEntry.Kind.GROUP) //
+						.forDirEntry(Kind.GROUP) //
 						.withParent(BasicRoles.ROLE_ADMIN) //
 						.giveRoles(BasicRoles.ROLE_MANAGE_MAILBOX, BasicRoles.ROLE_MANAGER) //
 						.withContainerRoles(Verb.Manage.name()), //
@@ -274,13 +273,13 @@ public class BaseRolesProvider implements IRolesProvider {
 								rb.getString("role.manageGroupMembers.description"))
 						.withParent(BasicRoles.ROLE_MANAGE_GROUP) //
 						.giveRoles(BasicRoles.ROLE_MANAGER) //
-						.forDirEntry(DirEntry.Kind.GROUP), //
+						.forDirEntry(Kind.GROUP), //
 
 				RoleDescriptor
 						.create(BasicRoles.ROLE_MANAGE_GROUP_SHARINGS, CATEGORY_ADMINISTRATION,
 								rb.getString("role.manageGroupSharings.label"),
 								rb.getString("role.manageGroupSharings.description"))
-						.withParent(BasicRoles.ROLE_MANAGE_GROUP).forDirEntry(DirEntry.Kind.GROUP) //
+						.withParent(BasicRoles.ROLE_MANAGE_GROUP).forDirEntry(Kind.GROUP) //
 						.giveRoles(BasicRoles.ROLE_MANAGER) //
 						.withContainerRoles(Verb.Manage.name()), //
 
@@ -310,7 +309,7 @@ public class BaseRolesProvider implements IRolesProvider {
 						.create(BasicRoles.ROLE_MANAGE_RESOURCE, CATEGORY_ADMINISTRATION,
 								rb.getString("role.manageResource.label"),
 								rb.getString("role.manageResource.description"))
-						.forDirEntry(DirEntry.Kind.RESOURCE) //
+						.forDirEntry(Kind.RESOURCE) //
 						.giveRoles(BasicRoles.ROLE_MANAGER) //
 						.withParent(BasicRoles.ROLE_ADMIN) //
 						.withContainerRoles(Verb.Manage.name()),
@@ -319,7 +318,7 @@ public class BaseRolesProvider implements IRolesProvider {
 						.create(BasicRoles.ROLE_MANAGE_RESOURCE_SHARINGS, CATEGORY_ADMINISTRATION,
 								rb.getString("role.manageResourceSharings.label"),
 								rb.getString("role.manageResourceSharings.description"))
-						.forDirEntry(DirEntry.Kind.RESOURCE) //
+						.forDirEntry(Kind.RESOURCE) //
 						.withParent(BasicRoles.ROLE_MANAGE_RESOURCE) //
 						.giveRoles(BasicRoles.ROLE_MANAGER) //
 						.withContainerRoles(Verb.Manage.name()), //
@@ -328,7 +327,7 @@ public class BaseRolesProvider implements IRolesProvider {
 						.create(BasicRoles.ROLE_MANAGE_RESOURCE_TYPE, CATEGORY_ADMINISTRATION,
 								rb.getString("role.manageResourceType.label"),
 								rb.getString("role.manageResourceType.description"))
-						.forDirEntry(DirEntry.Kind.DOMAIN) //
+						.forDirEntry(Kind.DOMAIN) //
 						.giveRoles(BasicRoles.ROLE_MANAGER) //
 						.withParent(BasicRoles.ROLE_ADMIN), //
 
@@ -337,7 +336,7 @@ public class BaseRolesProvider implements IRolesProvider {
 								rb.getString("role.manageMailshare.label"),
 								rb.getString("role.manageMailshare.description"))
 						.withParent(BasicRoles.ROLE_ADMIN)//
-						.forDirEntry(DirEntry.Kind.MAILSHARE) //
+						.forDirEntry(Kind.MAILSHARE) //
 						.giveRoles(BasicRoles.ROLE_MANAGE_MAILBOX, BasicRoles.ROLE_MANAGER) //
 						.withContainerRoles(Verb.Manage.name()), //
 
@@ -345,7 +344,7 @@ public class BaseRolesProvider implements IRolesProvider {
 						.create(BasicRoles.ROLE_MANAGE_MAILSHARE_SHARINGS, CATEGORY_ADMINISTRATION,
 								rb.getString("role.manageMailshareSharings.label"),
 								rb.getString("role.manageMailshareSharings.description"))
-						.forDirEntry(DirEntry.Kind.MAILSHARE) //
+						.forDirEntry(Kind.MAILSHARE) //
 						.withParent(BasicRoles.ROLE_MANAGE_MAILSHARE)// *
 						.giveRoles(BasicRoles.ROLE_MANAGER) //
 						.withContainerRoles(Verb.Manage.name()), //
@@ -354,7 +353,7 @@ public class BaseRolesProvider implements IRolesProvider {
 						.create(BasicRoles.ROLE_MANAGE_DOMAIN_AB, CATEGORY_ADMINISTRATION,
 								rb.getString("role.manageDomainAB.label"),
 								rb.getString("role.manageDomainAB.description"))
-						.forDirEntry(DirEntry.Kind.ADDRESSBOOK) //
+						.forDirEntry(Kind.ADDRESSBOOK) //
 						.withParent(BasicRoles.ROLE_ADMIN) //
 						.giveRoles(BasicRoles.ROLE_MANAGER) //
 						.withContainerRoles(Verb.Manage.name()), //
@@ -363,7 +362,7 @@ public class BaseRolesProvider implements IRolesProvider {
 						.create(BasicRoles.ROLE_MANAGE_DOMAIN_LDAP_AB, CATEGORY_ADMINISTRATION,
 								rb.getString("role.manageDomainLDAPAB.label"),
 								rb.getString("role.manageDomainLDAPAB.description"))
-						.forDirEntry(DirEntry.Kind.ADDRESSBOOK) //
+						.forDirEntry(Kind.ADDRESSBOOK) //
 						.giveRoles(BasicRoles.ROLE_MANAGER) //
 						.withParent(BasicRoles.ROLE_ADMIN), //
 
@@ -371,7 +370,7 @@ public class BaseRolesProvider implements IRolesProvider {
 						.create(BasicRoles.ROLE_MANAGE_DOMAIN_AB_SHARING, CATEGORY_ADMINISTRATION,
 								rb.getString("role.manageDomainABSharings.label"),
 								rb.getString("role.manageDomainABSharings.description"))
-						.forDirEntry(DirEntry.Kind.ADDRESSBOOK)//
+						.forDirEntry(Kind.ADDRESSBOOK)//
 						.withParent(BasicRoles.ROLE_MANAGE_DOMAIN_AB)//
 						.giveRoles(BasicRoles.ROLE_MANAGER) //
 						.withContainerRoles(Verb.Manage.name()), //
@@ -380,7 +379,7 @@ public class BaseRolesProvider implements IRolesProvider {
 						.create(BasicRoles.ROLE_MANAGE_DOMAIN_CAL, CATEGORY_ADMINISTRATION,
 								rb.getString("role.manageDomainCal.label"),
 								rb.getString("role.manageDomainCal.description"))
-						.forDirEntry(DirEntry.Kind.CALENDAR) //
+						.forDirEntry(Kind.CALENDAR) //
 						.withParent(BasicRoles.ROLE_ADMIN) //
 						.giveRoles(BasicRoles.ROLE_MANAGER) //
 						.withContainerRoles(Verb.Manage.name()), //
@@ -389,7 +388,7 @@ public class BaseRolesProvider implements IRolesProvider {
 						.create(BasicRoles.ROLE_MANAGE_DOMAIN_CAL_SHARING, CATEGORY_ADMINISTRATION,
 								rb.getString("role.manageDomainCalSharings.label"),
 								rb.getString("role.manageDomainCalSharings.description"))
-						.forDirEntry(DirEntry.Kind.CALENDAR) //
+						.forDirEntry(Kind.CALENDAR) //
 						.giveRoles(BasicRoles.ROLE_MANAGER) //
 						.withParent(BasicRoles.ROLE_MANAGE_DOMAIN_CAL) //
 						.withContainerRoles(Verb.Manage.name()), //
@@ -421,7 +420,7 @@ public class BaseRolesProvider implements IRolesProvider {
 						.create(BasicRoles.ROLE_MANAGE_OU, CATEGORY_ADMINISTRATION, rb.getString("role.manageOU.label"),
 								rb.getString("role.manageOU.description"))
 						.withParent(BasicRoles.ROLE_ADMIN)//
-						.forDirEntry(DirEntry.Kind.ORG_UNIT) //
+						.forDirEntry(Kind.ORG_UNIT) //
 						.giveRoles(BasicRoles.ROLE_MANAGER), //
 
 				RoleDescriptor
@@ -429,11 +428,12 @@ public class BaseRolesProvider implements IRolesProvider {
 								rb.getString("role.manageDataProtect.label"),
 								rb.getString("role.manageDataProtect.description"))
 						.withParent(BasicRoles.ROLE_SYSTEM_MANAGER),
+				
 				RoleDescriptor
 						.create(BasicRoles.ROLE_MANAGE_RESTORE, CATEGORY_ADMINISTRATION,
 								rb.getString("role.manageRestore.label"),
 								rb.getString("role.manageRestore.description"))
-						.forDirEntry(DirEntry.Kind.DOMAIN) //
+						.forDirEntry(Kind.DOMAIN) //
 						.giveRoles(BasicRoles.ROLE_MANAGER) //
 						.withParent(BasicRoles.ROLE_ADMIN), //
 
@@ -441,13 +441,20 @@ public class BaseRolesProvider implements IRolesProvider {
 						.create(BasicRoles.ROLE_MANAGE_EXTERNAL_USER, CATEGORY_ADMINISTRATION,
 								rb.getString("role.manageExternalUser.label"),
 								rb.getString("role.manageExternalUser.description"))
-						.forDirEntry(DirEntry.Kind.EXTERNALUSER) //
+						.forDirEntry(Kind.EXTERNALUSER) //
 						.withParent(BasicRoles.ROLE_ADMIN), //
 						
 			    RoleDescriptor
 						.create(BasicRoles.ROLE_READ_DOMAIN_FILTER, CATEGORY_MAIL,
 								rb.getString("role.readDomainFilters.label"),
-								rb.getString("role.readDomainFilters.description"))
+								rb.getString("role.readDomainFilters.description")),
+						
+				RoleDescriptor
+						.create(BasicRoles.ROLE_WEBMAIL, CATEGORY_MAIL,
+								rb.getString("role.accessRoundcubeWebmail.label"),
+								rb.getString("role.accessRoundcubeWebmail.description"))
+						.withParent(BasicRoles.ROLE_MANAGE_USER) //
+						.giveRoles(BasicRoles.ROLE_MAIL)
 
 		).build();
 	}

@@ -187,11 +187,9 @@ public class UserService implements IInCoreUser, IUser {
 				if (logger.isDebugEnabled()) {
 					logger.error("error during executing onUserCreated {}/{} hook {}}", domainName, uid,
 							uh.getClass().getName(), e);
-
 				} else {
 					logger.error("error during executing onUserCreated {}/{} hook {} : message: {}", domainName, uid,
 							uh.getClass().getName(), e.getMessage());
-
 				}
 			}
 		}

@@ -168,15 +168,16 @@ public class OrgUnitsAdministratorEditor extends CompositeGwtWidgetElement {
 
 		@Override
 		public boolean test(RoleDescriptor r) {
-			if (r.selfPromote && r.childsRole != null && r.childsRole.stream().anyMatch(cr -> roles.contains(cr))) {
-				return !true;
+			if (r.selfPromote && includeRole(r)) {
+				return false;
 			}
+			return !(roles.contains(r.id) || r.delegable);
+		}
 
-			if (r.selfPromote && r.parentRoleId != null && roles.contains(r.parentRoleId)) {
-				return !true;
-			}
-
-			return !roles.contains(r.id) && !r.delegable;
+		private boolean includeRole(RoleDescriptor roleDesc) {
+			boolean checkChildren = roleDesc.childsRole != null && roleDesc.childsRole.stream().anyMatch(roles::contains);
+			boolean checkParent = roleDesc.parentRoleId != null && roles.contains(roleDesc.parentRoleId);
+			return checkChildren || checkParent;
 		}
 	}
 

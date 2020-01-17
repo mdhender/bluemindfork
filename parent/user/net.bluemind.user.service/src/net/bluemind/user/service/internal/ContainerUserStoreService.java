@@ -28,8 +28,8 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.service.DirEntryAndValue;
 import net.bluemind.directory.service.DirValueStoreService;
@@ -49,22 +49,17 @@ public class ContainerUserStoreService extends DirValueStoreService<User> {
 
 		@Override
 		public DirEntry asDirEntry(String domainUid, String uid, User user) {
-			return DirEntry.create(user.orgUnitUid, domainUid + "/users/" + uid, DirEntry.Kind.USER, uid,
+			return DirEntry.create(user.orgUnitUid, domainUid + "/users/" + uid, Kind.USER, uid,
 					getSummary(user), user.defaultEmail() != null ? user.defaultEmail().address : null, user.hidden,
 					user.system, user.archived, user.dataLocation, user.accountType);
 		}
-
-	}
-
-	/**
-	 * @param user
-	 * @return
-	 */
-	private static String getSummary(User user) {
-		if (user.contactInfos != null && user.contactInfos.identification.formatedName.value != null) {
-			return user.contactInfos.identification.formatedName.value;
-		} else {
-			return user.login;
+		
+		private static String getSummary(User user) {
+			if (user.contactInfos != null && user.contactInfos.identification.formatedName.value != null) {
+				return user.contactInfos.identification.formatedName.value;
+			} else {
+				return user.login;
+			}
 		}
 	}
 
@@ -73,8 +68,6 @@ public class ContainerUserStoreService extends DirValueStoreService<User> {
 	private UserSettingsStore userSettingsStore;
 
 	private UserStore userStore;
-
-	private ContainerStore containerStore;
 
 	private UserSubscriptionStore userSubscriptionStore;
 
@@ -85,7 +78,7 @@ public class ContainerUserStoreService extends DirValueStoreService<User> {
 	public ContainerUserStoreService(BmContext context, Container container, ItemValue<Domain> domain,
 			boolean globalVirt) {
 		super(context, context.getDataSource(), context.getSecurityContext(), domain, container, "user",
-				DirEntry.Kind.USER, new UserStore(context.getDataSource(), container), new UserDirEntryAdapter(),
+				Kind.USER, new UserStore(context.getDataSource(), container), new UserDirEntryAdapter(),
 				new UserVCardAdapter(), UserMailboxAdapter.create(globalVirt));
 		identityStore = new UserMailIdentityStore(context.getDataSource(), container);
 
@@ -94,8 +87,6 @@ public class ContainerUserStoreService extends DirValueStoreService<User> {
 		userSettingsStore = new UserSettingsStore(context.getDataSource(), container);
 
 		roleStore = new RoleStore(context.getDataSource(), container);
-
-		containerStore = new ContainerStore(context, context.getDataSource(), context.getSecurityContext());
 
 		userSubscriptionStore = new UserSubscriptionStore(context.getSecurityContext(), context.getDataSource(),
 				container);
@@ -128,14 +119,6 @@ public class ContainerUserStoreService extends DirValueStoreService<User> {
 
 	protected void deleteValues() throws ServerFault {
 		throw new ServerFault("Should not be called !");
-		// try {
-		// roleStore.deleteAll();
-		// identityStore.deleteAll();
-		// userSettingsStore.deleteAll();
-		// } catch (SQLException e) {
-		// throw ServerFault.sqlFault(e);
-		// }
-		// super.deleteValues();
 	}
 
 	public void createIdentity(String uid, String id, UserMailIdentity identity) throws ServerFault {

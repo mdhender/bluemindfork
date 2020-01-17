@@ -48,6 +48,8 @@
     <role
                id="readDomainFilters">
          </role>
+    <role
+          id="accessRoundcubeWebmail"></role>
       </profile>
          <profile
             id="admin"

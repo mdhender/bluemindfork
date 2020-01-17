@@ -29,13 +29,14 @@ public class DefaultRoles {
 	/**
 	 * Default roles of a simple user accounts.
 	 */
-	public static final Set<String> SIMPLE_USER_DEFAULT_ROLES = ImmutableSet.<String>builder().add(BasicRoles.ROLE_MAIL, //
+	public static final Set<String> SIMPLE_USER_DEFAULT_ROLES = ImmutableSet.<String>builder().add(
 			BasicRoles.ROLE_MAIL_FORWARDING, //
 			BasicRoles.SELF_CHANGE_PASSWORD, //
 			BasicRoles.ROLE_SELF_CHANGE_SETTINGS, //
 			BasicRoles.ROLE_SELF_CHANGE_MAIL_IDENTITIES, //
 			BasicRoles.ROLE_SELF_CHANGE_MAILBOX_FILTER, //
-			BasicRoles.ROLE_READ_DOMAIN_FILTER).build();
+			BasicRoles.ROLE_READ_DOMAIN_FILTER, //
+			BasicRoles.ROLE_WEBMAIL).build();
 
 	/**
 	 * Additional FULL user account roles (includes simple user account roles).

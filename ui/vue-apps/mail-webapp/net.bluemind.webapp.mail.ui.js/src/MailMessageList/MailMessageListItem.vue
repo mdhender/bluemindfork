@@ -192,7 +192,7 @@ a.list-group-item.mail-message-list-item {
 .list-group-item.mail-message-list-item:focus {
    outline: $outline;
    &:hover {
-    background-color: darken($component-active-bg, 10%);
+    background-color: $component-active-bg-darken;
    }
 }
 
