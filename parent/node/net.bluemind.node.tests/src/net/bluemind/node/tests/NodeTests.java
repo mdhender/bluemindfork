@@ -27,7 +27,6 @@ import static org.junit.Assert.fail;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -41,14 +40,12 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.vertx.java.platform.PlatformManager;
 
 import com.google.common.io.ByteStreams;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
-import net.bluemind.lib.vertx.Constructor;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.node.api.ExitList;
 import net.bluemind.node.api.FileDescription;
@@ -64,6 +61,7 @@ import net.bluemind.node.shared.ActiveExecQuery;
 import net.bluemind.node.shared.ExecDescriptor;
 import net.bluemind.node.shared.ExecRequest;
 import net.bluemind.node.shared.ExecRequest.Options;
+import net.bluemind.vertx.testhelper.Deploy;
 
 public class NodeTests {
 
@@ -73,24 +71,17 @@ public class NodeTests {
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 
-		PlatformManager pm = VertxPlatform.getPlatformManager();
-
 		int procs = Runtime.getRuntime().availableProcessors();
 		int instances = Math.max(10, procs);
-		CountDownLatch cdl = new CountDownLatch(2);
-		pm.deployVerticle(Constructor.of(BlueMindNode::new, BlueMindNode.class), null, new URL[0], instances, null,
-				ar -> cdl.countDown());
-
-		pm.deployWorkerVerticle(true, Constructor.of(SysCommand::new, SysCommand.class), null, new URL[0], 1, null,
-				ar -> cdl.countDown());
+		Deploy.verticles(false, BlueMindNode::new).get(5, TimeUnit.SECONDS);
+		Deploy.verticles(true, SysCommand::new).get(5, TimeUnit.SECONDS);
 
 		factory = new AHCNodeClientFactory();
-		cdl.await(10, TimeUnit.SECONDS);
 	}
 
 	@AfterClass
 	public static void afterClass() {
-		VertxPlatform.getPlatformManager().stop();
+		VertxPlatform.getVertx().close();
 	}
 
 	@Before

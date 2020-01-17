@@ -20,13 +20,15 @@ package net.bluemind.xivo.bridge.http.v1;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpServer;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.RouteMatcher;
-import org.vertx.java.platform.Verticle;
 
-public class HttpEndpointV1Router extends Verticle {
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.http.HttpServerRequest;
+import net.bluemind.lib.vertx.RouteMatcher;
+
+public class HttpEndpointV1Router extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(HttpEndpointV1Router.class);
 
@@ -36,14 +38,11 @@ public class HttpEndpointV1Router extends Verticle {
 
 	@Override
 	public void start() {
-		super.start();
 
-		HttpServer srv = vertx.createHttpServer();
-		srv.setAcceptBacklog(1024).setReuseAddress(true);
-		srv.setTCPNoDelay(true);
-		srv.setUsePooledBuffers(true);
+		HttpServer srv = vertx.createHttpServer(new HttpServerOptions().setTcpNoDelay(true).setAcceptBacklog(1024)
+				.setReuseAddress(true).setUsePooledBuffers(true));
 
-		RouteMatcher rm = new RouteMatcher();
+		RouteMatcher rm = new RouteMatcher(vertx);
 		rm.post("/xivo/1.0/event/:domain/dropbox/", new EventsDropboxHandler(vertx.eventBus()));
 		rm.get("/xivo/1.0/status/:domain/:login/", new GetStatusHandler());
 

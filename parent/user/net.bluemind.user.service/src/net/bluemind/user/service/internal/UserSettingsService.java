@@ -25,8 +25,8 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
@@ -77,9 +77,7 @@ public class UserSettingsService implements IUserSettings {
 		sanitizer.sanitize(settings);
 		userSettingsStoreService.update(uid, null, settings);
 
-		JsonObject event = new JsonObject();
-		event.putString("containerUid", userSettings.uid);
-		event.putString("itemUid", uid);
+		JsonObject event = new JsonObject().put("containerUid", userSettings.uid).put("itemUid", uid);
 		VertxPlatform.eventBus().publish("usersettings.updated", event);
 	}
 

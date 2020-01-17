@@ -19,22 +19,20 @@
 package net.bluemind.core.rest.http.internal;
 
 import java.nio.ByteBuffer;
-import java.util.List;
 import java.util.Map.Entry;
 
+import org.asynchttpclient.AsyncCompletionHandlerBase;
+import org.asynchttpclient.HttpResponseBodyPart;
+import org.asynchttpclient.HttpResponseStatus;
+import org.asynchttpclient.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.CaseInsensitiveMultiMap;
-import org.vertx.java.core.streams.ReadStream;
-
-import com.ning.http.client.AsyncCompletionHandlerBase;
-import com.ning.http.client.HttpResponseBodyPart;
-import com.ning.http.client.HttpResponseHeaders;
-import com.ning.http.client.HttpResponseStatus;
-import com.ning.http.client.Response;
 
 import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.HttpHeaders;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.CaseInsensitiveHeaders;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.rest.base.RestResponse;
 
@@ -49,30 +47,31 @@ public class AsyncCompletionHandler extends AsyncCompletionHandlerBase {
 	}
 
 	@Override
-	public STATE onHeadersReceived(final HttpResponseHeaders headers) throws Exception {
-		chunked = "chunked".equals(headers.getHeaders().getFirstValue("Transfer-Encoding"));
+	public State onHeadersReceived(final HttpHeaders headers) throws Exception {
+
+		chunked = "chunked".equals(headers.get("Transfer-Encoding"));
 		if (chunked) {
 			logger.debug("chuncked response");
 			bufferedStream = new BufferedStream();
-			responseHandler.success(RestResponse.stream((ReadStream<?>) bufferedStream));
+			responseHandler.success(RestResponse.stream((ReadStream<Buffer>) bufferedStream));
 		}
 		return super.onHeadersReceived(headers);
 	}
 
 	@Override
-	public STATE onBodyPartReceived(HttpResponseBodyPart content) throws Exception {
+	public State onBodyPartReceived(HttpResponseBodyPart content) throws Exception {
 		if (chunked) {
-			Buffer chunk = new Buffer(Unpooled.wrappedBuffer(content.getBodyByteBuffer()));
+			Buffer chunk = Buffer.buffer(Unpooled.wrappedBuffer(content.getBodyByteBuffer()));
 			logger.debug("recieve chunk of chuncked response {}", chunk);
 			bufferedStream.write(chunk);
-			return STATE.CONTINUE;
+			return State.CONTINUE;
 		} else {
 			return super.onBodyPartReceived(content);
 		}
 	}
 
 	@Override
-	public STATE onStatusReceived(HttpResponseStatus status) throws Exception {
+	public State onStatusReceived(HttpResponseStatus status) throws Exception {
 		logger.debug("stat receive {}", status);
 		return super.onStatusReceived(status);
 	}
@@ -87,21 +86,22 @@ public class AsyncCompletionHandler extends AsyncCompletionHandlerBase {
 			} else {
 				logger.debug("normal response  {}", response.getStatusCode());
 				RestResponse resp = new RestResponse(response.getStatusCode());
-				CaseInsensitiveMultiMap h = new CaseInsensitiveMultiMap();
-				for (Entry<String, List<String>> he : response.getHeaders().entrySet()) {
+
+				CaseInsensitiveHeaders h = new CaseInsensitiveHeaders();
+				for (Entry<String, String> he : response.getHeaders().entries()) {
 					h.add(he.getKey(), he.getValue());
 				}
 				resp.headers = h;
 
 				ByteBuffer responseBody = response.getResponseBodyAsByteBuffer();
 				if (responseBody != null) {
-					resp.data = new Buffer(Unpooled.wrappedBuffer(responseBody));
+					resp.data = Buffer.buffer(Unpooled.wrappedBuffer(responseBody));
 				}
 
 				responseHandler.success(resp);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 		return response;
 	}

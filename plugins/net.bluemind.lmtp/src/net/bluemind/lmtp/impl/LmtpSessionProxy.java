@@ -28,11 +28,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.net.NetSocket;
 
 import com.netflix.spectator.api.Registry;
 import com.netflix.spectator.api.Timer;
@@ -40,6 +35,12 @@ import com.netflix.spectator.api.patterns.PolledMeter;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.net.NetSocket;
 import net.bluemind.lmtp.backend.DeliveredVersion;
 import net.bluemind.lmtp.backend.LmtpAddress;
 import net.bluemind.lmtp.backend.LmtpEnvelope;
@@ -91,7 +92,7 @@ public class LmtpSessionProxy implements LmtpRequestHandler, LmtpResponseHandler
 
 	private final Registry registry;
 	private final IdFactory idFactory;
-	private final static AtomicInteger numConnections = PolledMeter.using(MetricsRegistry.get())
+	private static final AtomicInteger numConnections = PolledMeter.using(MetricsRegistry.get())
 			.withId(new IdFactory(MetricsRegistry.get(), LmtpSessionProxy.class).name("activeConnections"))
 			.monitorValue(new AtomicInteger(0));
 
@@ -100,7 +101,7 @@ public class LmtpSessionProxy implements LmtpRequestHandler, LmtpResponseHandler
 		this.idFactory = new IdFactory(reg, this);
 
 		this.eventBus = eventBus;
-		this.remoteAddress = client.remoteAddress().getAddress().toString();
+		this.remoteAddress = client.remoteAddress().host();
 
 		this.client = client;
 		this.backend = backend;
@@ -123,8 +124,8 @@ public class LmtpSessionProxy implements LmtpRequestHandler, LmtpResponseHandler
 
 		lmtpRequestParser = new LmtpRequestParser(client.writeHandlerID(), this);
 
-		client.dataHandler(lmtpRequestParser);
-		backend.dataHandler(new LmtpResponseParser(backend.writeHandlerID(), this));
+		client.handler(lmtpRequestParser);
+		backend.handler(new LmtpResponseParser(backend.writeHandlerID(), this));
 
 		client.endHandler(new Handler<Void>() {
 
@@ -256,7 +257,7 @@ public class LmtpSessionProxy implements LmtpRequestHandler, LmtpResponseHandler
 	@Override
 	public void handleDataBuffer(Buffer ori) {
 		final ByteBuf data = ori.getByteBuf();
-		final Buffer header = new Buffer(getAdditionalHeaders());
+		final Buffer header = Buffer.buffer(getAdditionalHeaders());
 
 		registry.distributionSummary(idFactory.name("emailSize")).record(data.readableBytes());
 
@@ -274,34 +275,30 @@ public class LmtpSessionProxy implements LmtpRequestHandler, LmtpResponseHandler
 			mEnvelope.addRecipient(tmp);
 		}
 
-		eventBus.send("lmtp.filters", new MailMessage(mEnvelope, data), new Handler<Message<MailMessage>>() {
+		eventBus.request("lmtp.filters", new MailMessage(mEnvelope, data), (AsyncResult<Message<MailMessage>> ar) -> {
+			Message<MailMessage> event = ar.result();
+			// remove recipients
+			// recipients will be added on delivered response
+			mEnvelope.getRecipients().clear();
+			ByteBuf finalDataBuffer = Unpooled.wrappedBuffer(header.getByteBuf(), event.body().getData(),
+					CRLF_DOT_CRLF);
 
-			@Override
-			public void handle(Message<MailMessage> event) {
-				// remove recipients
-				// recipients will be added on delivered response
-				mEnvelope.getRecipients().clear();
-				ByteBuf finalDataBuffer = Unpooled.wrappedBuffer(header.getByteBuf(), event.body().getData(),
-						CRLF_DOT_CRLF);
+			Buffer buf = Buffer.buffer(finalDataBuffer);
+			logger.debug("send data body  (size: {}) to backend ", buf.length());
+			backend.write(buf);
 
-				Buffer buf = new Buffer(finalDataBuffer);
-				logger.debug("send data body  (size: {}) to backend ", buf.length());
-				backend.write(buf);
+			if (backend.writeQueueFull()) {
+				logger.debug("backend socket is full, put a drainHandler");
+				backend.drainHandler(new Handler<Void>() {
 
-				if (backend.writeQueueFull()) {
-					logger.debug("backend socket is full, put a drainHandler");
-					backend.drainHandler(new Handler<Void>() {
+					@Override
+					public void handle(Void event) {
+						logger.debug("ready to recieve more command from client");
+					}
 
-						@Override
-						public void handle(Void event) {
-							logger.debug("ready to recieve more command from client");
-						}
-
-					});
-				} else {
-					logger.debug("ready to recieve more command from client");
-				}
-
+				});
+			} else {
+				logger.debug("ready to recieve more command from client");
 			}
 		});
 
@@ -462,7 +459,7 @@ public class LmtpSessionProxy implements LmtpRequestHandler, LmtpResponseHandler
 
 	private void forwardCmd(String cmd, String params) {
 
-		Buffer cmdBuf = new Buffer();
+		Buffer cmdBuf = Buffer.buffer();
 		if (params == null || params.length() == 0) {
 			cmdBuf.appendString(cmd);
 			cmdBuf.appendString("\r\n");
@@ -478,7 +475,7 @@ public class LmtpSessionProxy implements LmtpRequestHandler, LmtpResponseHandler
 	}
 
 	private void forwardResponse(LmtpResponse resp) {
-		Buffer respBuffer = new Buffer();
+		Buffer respBuffer = Buffer.buffer();
 		for (String line : resp.getLines()) {
 			respBuffer.appendString(line);
 			respBuffer.appendString("\r\n");

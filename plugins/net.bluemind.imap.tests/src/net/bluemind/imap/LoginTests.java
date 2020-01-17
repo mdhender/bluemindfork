@@ -20,11 +20,10 @@ package net.bluemind.imap;
 
 import java.util.concurrent.CountDownLatch;
 
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-
 import com.google.common.collect.Lists;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.config.Token;
@@ -57,7 +56,7 @@ public class LoginTests extends IMAPTestCase {
 	public void testSIDLoginLogout() throws Exception {
 
 		JdbcTestHelper.getInstance().beforeTest();
-		
+
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
 		final CountDownLatch launched = new CountDownLatch(1);

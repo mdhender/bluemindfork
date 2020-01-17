@@ -18,8 +18,7 @@
  */
 package net.bluemind.core.rest.vertx;
 
-import org.vertx.java.core.Vertx;
-
+import io.vertx.core.Vertx;
 import net.bluemind.core.rest.base.BasicClientProxy;
 
 public class VertxEventBusClientFactory<S, T> extends BasicClientProxy<S, T> {

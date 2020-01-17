@@ -22,14 +22,15 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.file.FileSystem;
-import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.mods.web.Headers;
 
 import com.netflix.spectator.api.Registry;
 
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.file.FileSystem;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.webmodule.server.WebModuleServerActivator;
@@ -147,7 +148,7 @@ public class StaticFileHandler implements Handler<HttpServerRequest> {
 							error = 412;
 					}
 					// wildcards are allowed
-					else if ("*".equals(checkEtags) && !fileSystem.existsSync(fileName)) {
+					else if ("*".equals(checkEtags) && !fileSystem.existsBlocking(fileName)) {
 						error = 412;
 					} else if (etag.equals(checkEtags)) {
 						error = 304;
@@ -159,7 +160,7 @@ public class StaticFileHandler implements Handler<HttpServerRequest> {
 					String checkEtags = req.headers().get(Headers.IF_NONE_MATCH);
 
 					// only HEAD or GET are allowed
-					if ("HEAD".equals(req.method()) || "GET".equals(req.method())) {
+					if (HttpMethod.HEAD == req.method() || HttpMethod.GET == req.method()) {
 						if (checkEtags.indexOf(',') > -1) {
 							// there may be multiple etags
 							LOOP: for (String checkEtag : checkEtags.split(", *")) {
@@ -194,11 +195,15 @@ public class StaticFileHandler implements Handler<HttpServerRequest> {
 			if (error != 200) {
 				sendError(req, error);
 			} else {
-				if ("HEAD".equals(req.method())) {
+				if (HttpMethod.HEAD == req.method()) {
 					req.response().end();
 				} else {
 					registry.counter(idFactory.name("requests", "status", "200")).increment();
-					req.response().sendFile(fileName);
+					req.response().sendFile(fileName, res -> {
+						if (res.failed()) {
+							req.response().setStatusCode(404).end();
+						}
+					});
 				}
 			}
 

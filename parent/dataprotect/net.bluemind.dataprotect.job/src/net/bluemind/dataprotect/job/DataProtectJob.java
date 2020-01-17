@@ -27,9 +27,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
@@ -91,7 +91,7 @@ public class DataProtectJob implements IScheduledJob {
 				ITask taskApi = sp.instance(ITask.class, String.format("%s", ref.id));
 				Stream logsStream = taskApi.log();
 
-				VertxStream.read(logsStream).dataHandler(log -> displayLogs(sched, slot, log));
+				VertxStream.<Buffer>read(logsStream).handler(log -> displayLogs(sched, slot, log));
 
 				TaskStatus taskResult = TaskUtils.wait(sp, ref);
 				if (!taskResult.state.succeed) {
@@ -129,10 +129,10 @@ public class DataProtectJob implements IScheduledJob {
 			return;
 		}
 
-		logger.info("{} {} {} {}", log.getNumber("done"), log.getNumber("total"), message, log.getBoolean("end"));
+		logger.info("{} {} {} {}", log.getInteger("done"), log.getInteger("total"), message, log.getBoolean("end"));
 
-		String formatedMessage = String.format("%d/%d: %s", log.getNumber("done").intValue() + 1,
-				log.getNumber("total").intValue() + 1, message);
+		String formatedMessage = String.format("%d/%d: %s", log.getInteger("done").intValue() + 1,
+				log.getInteger("total").intValue() + 1, message);
 		sched.info(slot, "en", formatedMessage);
 		sched.info(slot, "fr", formatedMessage);
 	}

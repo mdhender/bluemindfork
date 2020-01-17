@@ -21,9 +21,8 @@ package net.bluemind.node.client.impl.ahc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.netty.handler.codec.http.HttpHeaders;
 import net.bluemind.common.io.FileBackedOutputStream;
-import com.ning.http.client.HttpResponseHeaders;
-
 import net.bluemind.node.shared.ExecDescriptor;
 
 public class InterruptHandler extends DefaultAsyncHandler<Void> {
@@ -37,7 +36,7 @@ public class InterruptHandler extends DefaultAsyncHandler<Void> {
 	}
 
 	@Override
-	protected Void getResult(int status, HttpResponseHeaders headers, FileBackedOutputStream body) {
+	protected Void getResult(int status, HttpHeaders headers, FileBackedOutputStream body) {
 		if (status != 200) {
 			logger.warn("Interrupt of {} failed: {}", desc, status);
 		}

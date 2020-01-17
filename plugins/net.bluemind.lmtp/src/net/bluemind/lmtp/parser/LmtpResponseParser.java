@@ -23,10 +23,10 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.parsetools.RecordParser;
 
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.parsetools.RecordParser;
 import net.bluemind.lmtp.impl.LmtpResponse;
 
 /**

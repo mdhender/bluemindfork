@@ -20,13 +20,14 @@ package net.bluemind.webmodules.calendar.handlers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
-import org.vertx.java.core.streams.Pump;
-import org.vertx.java.core.streams.ReadStream;
 
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.streams.Pump;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.container.api.IContainerManagementAsync;
@@ -111,7 +112,7 @@ public class ExportVTodoHandler implements Handler<HttpServerRequest>, NeedVertx
 		};
 	}
 
-	protected void stream(ReadStream<?> exportStream, final HttpServerRequest request) {
+	protected void stream(ReadStream<Buffer> exportStream, final HttpServerRequest request) {
 		exportStream.endHandler(new Handler<Void>() {
 
 			@Override
@@ -121,7 +122,7 @@ public class ExportVTodoHandler implements Handler<HttpServerRequest>, NeedVertx
 			}
 		});
 
-		Pump.createPump(exportStream, request.response()).start();
+		Pump.pump(exportStream, request.response()).start();
 
 	}
 

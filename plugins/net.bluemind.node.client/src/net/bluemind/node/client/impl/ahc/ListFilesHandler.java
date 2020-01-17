@@ -22,16 +22,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.asynchttpclient.HttpResponseStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.base.Throwables;
-import net.bluemind.common.io.FileBackedOutputStream;
-import com.ning.http.client.HttpResponseHeaders;
-import com.ning.http.client.HttpResponseStatus;
 
+import io.netty.handler.codec.http.HttpHeaders;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import net.bluemind.common.io.FileBackedOutputStream;
 import net.bluemind.node.api.FileDescription;
 import net.bluemind.node.client.impl.DoesNotExist;
 
@@ -45,15 +45,15 @@ public class ListFilesHandler extends DefaultAsyncHandler<List<FileDescription>>
 	}
 
 	@Override
-	protected List<FileDescription> getResult(int status, HttpResponseHeaders headers, FileBackedOutputStream body) {
+	protected List<FileDescription> getResult(int status, HttpHeaders headers, FileBackedOutputStream body) {
 		try {
 			byte[] bytes = body.asByteSource().read();
 			JsonObject jso = new JsonObject(new String(bytes));
-			JsonArray descs = jso.getArray("descriptions");
+			JsonArray descs = jso.getJsonArray("descriptions");
 			int len = descs.size();
 			List<FileDescription> ret = new ArrayList<>(len);
 			for (int i = 0; i < len; i++) {
-				JsonObject fdo = descs.get(i);
+				JsonObject fdo = descs.getJsonObject(i);
 				FileDescription desc = new FileDescription(fdo.getString("path"));
 				boolean isDir = fdo.getBoolean("dir");
 				desc.setDirectory(isDir);
@@ -74,8 +74,7 @@ public class ListFilesHandler extends DefaultAsyncHandler<List<FileDescription>>
 	}
 
 	@Override
-	public com.ning.http.client.AsyncHandler.STATE onStatusReceived(HttpResponseStatus responseStatus)
-			throws Exception {
+	public State onStatusReceived(HttpResponseStatus responseStatus) throws Exception {
 		int st = responseStatus.getStatusCode();
 		if (st != 200) {
 			RuntimeException t = null;

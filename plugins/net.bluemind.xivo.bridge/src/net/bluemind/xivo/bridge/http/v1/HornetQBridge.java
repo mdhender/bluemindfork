@@ -18,20 +18,21 @@
  */
 package net.bluemind.xivo.bridge.http.v1;
 
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.busmods.BusModBase;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.core.shareddata.ConcurrentSharedMap;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.OOPMessage;
 import net.bluemind.hornetq.client.Topic;
 import net.bluemind.xivo.common.PhoneStatus;
 
-public class HornetQBridge extends BusModBase {
+public class HornetQBridge extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(HornetQBridge.class);
 
@@ -40,25 +41,24 @@ public class HornetQBridge extends BusModBase {
 
 	@Override
 	public void start() {
-		super.start();
 		Handler<Message<JsonObject>> phoneStatus = new Handler<Message<JsonObject>>() {
 			@Override
 			public void handle(Message<JsonObject> msg) {
 				forwardStatus(msg);
 			}
 		};
-		eb.registerHandler(Topic.XIVO_PHONE_STATUS, phoneStatus);
+		vertx.eventBus().consumer(Topic.XIVO_PHONE_STATUS, phoneStatus);
 	}
 
 	private void forwardStatus(Message<JsonObject> msg) {
 		JsonObject jso = msg.body();
 
 		// BM-10768
-		if (jso.containsField("status")) {
+		if (jso.containsKey("status")) {
 			String latd = jso.getString("username") + "@" + jso.getString("domain");
-			PhoneStatus status = PhoneStatus.fromCode(jso.getNumber("status").intValue());
+			PhoneStatus status = PhoneStatus.fromCode(jso.getInteger("status"));
 
-			ConcurrentSharedMap<String, Integer> sharedStatus = vertx.sharedData().getMap("phone_status");
+			Map<String, Integer> sharedStatus = vertx.sharedData().getLocalMap("phone_status");
 			sharedStatus.put(latd, status.code());
 
 			logger.info("[{}] forward to MQ {} => {}...", Thread.currentThread().getName(), latd, status);
@@ -68,14 +68,10 @@ public class HornetQBridge extends BusModBase {
 			hqMsg.putStringProperty("operation", "xivo.updatePhoneStatus");
 			MQ.getProducer(Topic.XIVO_PHONE_STATUS).send(hqMsg);
 			logger.debug("[{}] sent.", Thread.currentThread().getName());
-			sendOK(msg);
+			msg.reply("yeah");
 		} else {
-			sendError(msg, "missing status in received body " + jso.encode());
+			msg.fail(500, "missing status in received body");
 		}
-	}
-
-	public void stop() {
-		super.stop();
 	}
 
 }

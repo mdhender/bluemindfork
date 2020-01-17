@@ -21,8 +21,7 @@ package net.bluemind.core.rest.base.codec;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.vertx.java.core.MultiMap;
-
+import io.vertx.core.MultiMap;
 import net.bluemind.core.rest.base.codec.QueryParameterCodec.Factory;
 
 public class DefaultQueryParameterCodecs {

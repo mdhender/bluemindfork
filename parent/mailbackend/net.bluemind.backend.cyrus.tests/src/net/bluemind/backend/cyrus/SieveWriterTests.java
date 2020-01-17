@@ -51,14 +51,14 @@ import org.apache.jsieve.util.check.ScriptChecker.Results;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 
 import freemarker.template.TemplateException;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.backend.cyrus.internal.SieveWriter;
 import net.bluemind.backend.cyrus.internal.SieveWriter.Type;
 import net.bluemind.backend.cyrus.utils.Copy;

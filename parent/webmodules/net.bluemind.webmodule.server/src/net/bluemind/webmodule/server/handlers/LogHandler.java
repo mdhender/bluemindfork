@@ -20,14 +20,14 @@ package net.bluemind.webmodule.server.handlers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.MultiMap;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
-import org.vertx.java.core.json.JsonObject;
 
 import com.netflix.spectator.api.Registry;
 
+import io.vertx.core.Handler;
+import io.vertx.core.MultiMap;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 
@@ -39,7 +39,7 @@ public class LogHandler implements Handler<HttpServerRequest> {
 
 	@Override
 	public void handle(final HttpServerRequest request) {
-		request.expectMultiPart(true);
+		request.setExpectMultipart(true);
 		request.endHandler(new Handler<Void>() {
 
 			@Override

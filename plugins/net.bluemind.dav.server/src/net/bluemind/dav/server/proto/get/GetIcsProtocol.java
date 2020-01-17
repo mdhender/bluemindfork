@@ -23,11 +23,11 @@ import java.util.regex.Matcher;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
 
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
@@ -90,7 +90,7 @@ public class GetIcsProtocol implements IDavProtocol<GetQuery, GetResponse<?>> {
 
 	@Override
 	public void write(GetResponse<?> response, HttpServerResponse sr) {
-		Buffer b = new Buffer();
+		Buffer b = Buffer.buffer();
 		if (response.getValue() != null) {
 			Object r = response.getValue();
 			if (r instanceof List<?>) {

@@ -21,8 +21,7 @@ package net.bluemind.todolist.service.internal;
 import java.util.Iterator;
 import java.util.List;
 
-import org.vertx.java.core.buffer.Buffer;
-
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -75,7 +74,7 @@ public class VTodoService implements IVTodo {
 
 			@Override
 			protected Buffer serialize(String n) throws Exception {
-				return new Buffer(n);
+				return Buffer.buffer(n);
 			}
 
 			@Override

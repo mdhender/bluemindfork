@@ -27,8 +27,8 @@ import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
@@ -134,7 +134,7 @@ public class MapiFAIService implements IMapiFolderAssociatedInformation {
 
 	private String getPreloadExtId(MapiFAI fai) {
 		JsonObject js = new JsonObject(fai.faiJson);
-		JsonObject props = js.getObject("setProperties");
+		JsonObject props = js.getJsonObject("setProperties");
 		if (props != null) {
 			String mClass = props.getString("PidTagMessageClass");
 			return localReplicaGuid + "-" + "preload-" + mClass;

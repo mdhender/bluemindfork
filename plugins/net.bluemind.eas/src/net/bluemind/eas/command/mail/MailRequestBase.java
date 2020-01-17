@@ -20,10 +20,10 @@ package net.bluemind.eas.command.mail;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
 
 import com.google.common.io.ByteSource;
 
+import io.vertx.core.Handler;
 import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.backend.IBackend;
 import net.bluemind.eas.http.AuthorizedDeviceQuery;

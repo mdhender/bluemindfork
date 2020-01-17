@@ -18,7 +18,7 @@
  */
 package net.bluemind.core.task.service.internal;
 
-import org.vertx.java.core.json.JsonObject;
+import io.vertx.core.json.JsonObject;
 
 public class MonitorMessage {
 
@@ -28,24 +28,24 @@ public class MonitorMessage {
 
 	public static JsonObject begin(double work, String message) {
 		JsonObject m = new JsonObject();
-		m.putString("type", MessageType.begin.name());
-		m.putNumber("work", work);
-		m.putString("message", message);
+		m.put("type", MessageType.begin.name());
+		m.put("work", work);
+		m.put("message", message);
 		return m;
 	}
 
 	public static JsonObject progress(double step, String message) {
 		JsonObject m = new JsonObject();
-		m.putString("type", MessageType.progress.name());
-		m.putNumber("step", step);
-		m.putString("message", message);
+		m.put("type", MessageType.progress.name());
+		m.put("step", step);
+		m.put("message", message);
 		return m;
 	}
 
 	public static JsonObject log(String message) {
 		JsonObject m = new JsonObject();
-		m.putString("type", MessageType.log.name());
-		m.putString("message", message);
+		m.put("type", MessageType.log.name());
+		m.put("message", message);
 		return m;
 	}
 
@@ -55,12 +55,12 @@ public class MonitorMessage {
 
 	public static JsonObject end(boolean success, String message, String result) {
 		JsonObject m = new JsonObject();
-		m.putString("type", MessageType.end.name());
-		m.putBoolean("success", success);
-		m.putString("message", message);
+		m.put("type", MessageType.end.name());
+		m.put("success", success);
+		m.put("message", message);
 
 		if (result != null) {
-			m.putString("result", result);
+			m.put("result", result);
 		}
 		return m;
 	}

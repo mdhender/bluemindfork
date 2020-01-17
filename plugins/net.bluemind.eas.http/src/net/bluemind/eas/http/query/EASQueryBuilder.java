@@ -23,11 +23,11 @@ import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.MultiMap;
-import org.vertx.java.core.http.HttpServerRequest;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.vertx.core.MultiMap;
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.eas.dto.OptionalParams;
 import net.bluemind.eas.http.AuthenticatedEASQuery;
 import net.bluemind.eas.http.EasHeaders;

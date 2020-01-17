@@ -24,10 +24,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
 
 import com.netflix.spectator.api.Registry;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -124,8 +124,7 @@ public class ProductChecksService implements IProductChecks {
 				if (ex != null) {
 					monitor.end(false, "check request failed: " + ex.getMessage(), "{}");
 				} else {
-					MQ.getProducer(Topic.PRODUCT_CHECK_REQUESTS)
-							.send(new JsonObject().putString("validator", checkName));
+					MQ.getProducer(Topic.PRODUCT_CHECK_REQUESTS).send(new JsonObject().put("validator", checkName));
 					monitor.end(true, "check was requested", "{}");
 				}
 

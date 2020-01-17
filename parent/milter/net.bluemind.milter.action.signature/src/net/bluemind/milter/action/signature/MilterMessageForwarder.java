@@ -18,9 +18,8 @@
  */
 package net.bluemind.milter.action.signature;
 
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.hornetq.client.OOPMessage;
 import net.bluemind.hornetq.client.Topic;
 import net.bluemind.hornetq.client.vertx.IMessageForwarder;
@@ -44,8 +43,8 @@ public class MilterMessageForwarder implements IMessageForwarder {
 		switch (event) {
 		case "dir.changed":
 			msg = new JsonObject();
-			msg.putString("domain", domain);
-			msg.putString("uid", message.getStringProperty("uid"));
+			msg.put("domain", domain);
+			msg.put("uid", message.getStringProperty("uid"));
 			vertx.eventBus().send(eventAddressChanged, msg);
 			break;
 		}

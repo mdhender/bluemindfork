@@ -19,11 +19,11 @@ package net.bluemind.ui.dynresources;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
 
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.system.api.CustomLogo;
 import net.bluemind.webmodule.server.WebModule;
 import net.bluemind.webmodule.server.handlers.IWebModuleConsumer;
@@ -41,7 +41,7 @@ public class LogoHandler implements Handler<HttpServerRequest>, IWebModuleConsum
 			HttpServerResponse response = event.response();
 			response.putHeader("Content-Length", "" + logo.content.length);
 			response.putHeader("ContentType", "image/png");
-			response.write(new Buffer(logo.content));
+			response.write(Buffer.buffer(logo.content));
 			response.setStatusCode(200);
 			response.end();
 		} else {

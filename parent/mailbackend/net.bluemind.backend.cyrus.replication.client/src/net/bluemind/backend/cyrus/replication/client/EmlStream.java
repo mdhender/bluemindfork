@@ -21,14 +21,14 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.streams.ReadStream;
 
 import io.netty.util.internal.ThreadLocalRandom;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.lib.vertx.VertxPlatform;
 
-public class EmlStream implements ReadStream<EmlStream> {
+public class EmlStream implements ReadStream<Buffer> {
 
 	private static final Logger logger = LoggerFactory.getLogger(EmlStream.class);
 
@@ -47,7 +47,7 @@ public class EmlStream implements ReadStream<EmlStream> {
 	}
 
 	@Override
-	public EmlStream dataHandler(Handler<Buffer> handler) {
+	public EmlStream handler(Handler<Buffer> handler) {
 		this.dh = handler;
 		return this;
 	}
@@ -61,21 +61,25 @@ public class EmlStream implements ReadStream<EmlStream> {
 	@Override
 	public EmlStream resume() {
 		paused = false;
-		VertxPlatform.getVertx().setTimer(1, tid -> pumpData());
+		VertxPlatform.getVertx().setTimer(1, tid -> {
+			logger.info("Pump data...");
+			pumpData();
+		});
 		return this;
 	}
 
 	private void pumpData() {
 		while (remaining > 0) {
-			logger.info("writing... {}", remaining);
+			logger.info("writing... {} to {}", remaining, dh);
 			String prefix = "%{" + partition + " " + UUID.randomUUID().toString().replace("-", "") + " " + rand.length
 					+ "}\r\n";
-			dh.handle(new Buffer(prefix));
-			dh.handle(new Buffer(rand));
-			remaining--;
-			if (remaining > 0) {
-				dh.handle(new Buffer(" "));
+			Buffer toWrite = Buffer.buffer();
+			toWrite.appendBuffer(Buffer.buffer(prefix));
+			toWrite.appendBuffer(Buffer.buffer(rand));
+			if (--remaining > 0) {
+				toWrite.appendString(" ");
 			}
+			dh.handle(toWrite);
 			if (paused) {
 				return;
 			}
@@ -91,6 +95,11 @@ public class EmlStream implements ReadStream<EmlStream> {
 	@Override
 	public EmlStream endHandler(Handler<Void> endHandler) {
 		this.end = endHandler;
+		return this;
+	}
+
+	@Override
+	public ReadStream<Buffer> fetch(long amount) {
 		return this;
 	}
 

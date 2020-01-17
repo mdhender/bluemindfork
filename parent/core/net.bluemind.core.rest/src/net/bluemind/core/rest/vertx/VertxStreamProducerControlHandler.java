@@ -20,22 +20,25 @@ package net.bluemind.core.rest.vertx;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.streams.Pump;
-import org.vertx.java.core.streams.ReadStream;
+
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.streams.Pump;
+import io.vertx.core.streams.ReadStream;
 
 public class VertxStreamProducerControlHandler {
 
 	private Logger logger = LoggerFactory.getLogger(VertxStreamProducerControlHandler.class);
 	private String controlAdr;
 	private Vertx vertx;
-	private ReadStream<?> bodyStream;
+	private ReadStream<Buffer> bodyStream;
 	private VertxStreamProducer producer;
-	private Handler<Message<String>> handler;
+	private MessageConsumer<String> cons;
 
-	public VertxStreamProducerControlHandler(Vertx vertx, String controlAdr, ReadStream<?> bodyStream) {
+	public VertxStreamProducerControlHandler(Vertx vertx, String controlAdr, ReadStream<Buffer> bodyStream) {
 		this.vertx = vertx;
 		this.controlAdr = controlAdr;
 		this.bodyStream = bodyStream;
@@ -43,21 +46,9 @@ public class VertxStreamProducerControlHandler {
 
 	public void stream() {
 		bodyStream.pause();
-		handler = new Handler<Message<String>>() {
-
-			@Override
-			public void handle(final Message<String> msg) {
-				vertx.runOnContext(new Handler<Void>() {
-
-					@Override
-					public void handle(Void event) {
-						handleControlMessage(msg);
-					}
-				});
-
-			}
-		};
-		vertx.eventBus().registerHandler(controlAdr, handler);
+		Handler<Message<String>> handler = (final Message<String> msg) -> vertx
+				.runOnContext((Void event) -> handleControlMessage(msg));
+		this.cons = vertx.eventBus().consumer(controlAdr, handler);
 	}
 
 	protected void handleControlMessage(Message<String> msg) {
@@ -73,7 +64,7 @@ public class VertxStreamProducerControlHandler {
 		} else if (b.equals("resume")) {
 			producer.drain();
 		} else if (b.equals("pause")) {
-			producer.writeQueueFull = true;
+			producer.markQueueFull();
 		} else if (b.equals("close")) {
 			logger.info("close before completion !");
 			// something want wrong
@@ -87,9 +78,9 @@ public class VertxStreamProducerControlHandler {
 
 	private void close() {
 		logger.debug("closestream {}", controlAdr);
-		if (handler != null) {
-			vertx.eventBus().unregisterHandler(controlAdr, handler);
-			handler = null;
+		if (cons != null) {
+			cons.unregister();
+			cons = null;
 		}
 	}
 
@@ -106,11 +97,10 @@ public class VertxStreamProducerControlHandler {
 			}
 		});
 
-		Pump pump = Pump.createPump(bodyStream, producer);
+		Pump pump = Pump.pump(bodyStream, producer);
 		pump.start();
 
 		if (resume) {
-
 			bodyStream.resume();
 		}
 	}

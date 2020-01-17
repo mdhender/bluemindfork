@@ -18,14 +18,15 @@
  */
 package net.bluemind.eas.client.commands;
 
+import java.util.List;
+import java.util.Map.Entry;
+
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.BoundRequestBuilder;
+import org.asynchttpclient.ListenableFuture;
+import org.asynchttpclient.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClient.BoundRequestBuilder;
-import com.ning.http.client.FluentCaseInsensitiveStringsMap;
-import com.ning.http.client.ListenableFuture;
-import com.ning.http.client.Response;
 
 import net.bluemind.eas.client.AccountInfos;
 import net.bluemind.eas.client.IEasCommand;
@@ -36,25 +37,22 @@ public class Options implements IEasCommand<Void> {
 	private static final Logger logger = LoggerFactory.getLogger(Options.class);
 
 	@Override
-	public Void run(AccountInfos ai, OPClient opc, AsyncHttpClient hc)
-			throws Exception {
-		BoundRequestBuilder om = hc.prepareOptions(ai.getUrl() + "?User="
-				+ ai.getLogin() + "&DeviceId=" + ai.getDevId() + "&DeviceType="
-				+ ai.getDevType());
+	public Void run(AccountInfos ai, OPClient opc, AsyncHttpClient hc) throws Exception {
+		BoundRequestBuilder om = hc.prepareOptions(ai.getUrl() + "?User=" + ai.getLogin() + "&DeviceId=" + ai.getDevId()
+				+ "&DeviceType=" + ai.getDevType());
 
 		om.setHeader("User-Agent", ai.getUserAgent());
 		om.setHeader("Authorization", ai.authValue());
 		ListenableFuture<Response> future = om.execute();
 		Response r = future.get();
 		if (r.getStatusCode() != 200) {
-			logger.error("method failed:\n" + r.getStatusText() + "\n"
-					+ r.getResponseBody());
+			logger.error("method failed:\n" + r.getStatusText() + "\n" + r.getResponseBody());
 		} else {
 			logger.info("Options OK");
 		}
-		FluentCaseInsensitiveStringsMap heads = r.getHeaders();
-		for (String h : heads.keySet()) {
-			System.out.println("S: Header " + h + " => " + heads.get(h));
+		List<Entry<String, String>> heads = r.getHeaders().entries();
+		for (Entry<String, String> entry : heads) {
+			System.out.println("S: Header " + entry.getKey() + " => " + entry.getValue());
 		}
 		return null;
 	}

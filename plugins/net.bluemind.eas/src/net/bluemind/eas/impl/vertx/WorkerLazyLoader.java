@@ -20,23 +20,23 @@ package net.bluemind.eas.impl.vertx;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.busmods.BusModBase;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
 import net.bluemind.eas.dto.base.AirSyncBaseResponse;
 import net.bluemind.eas.dto.base.BodyOptions;
 import net.bluemind.eas.dto.base.Callback;
 import net.bluemind.eas.dto.base.LazyLoaded;
 import net.bluemind.vertx.common.LocalJsonObject;
 
-public class WorkerLazyLoader extends BusModBase {
+public class WorkerLazyLoader extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(WorkerLazyLoader.class);
 
 	public void start() {
-		super.start();
-		eb.registerHandler("eas.backend.lazyloader",
+
+		vertx.eventBus().consumer("eas.backend.lazyloader",
 				new Handler<Message<LocalJsonObject<LazyLoaded<BodyOptions, AirSyncBaseResponse>>>>() {
 
 					@Override

@@ -33,11 +33,12 @@ import java.util.concurrent.TimeoutException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.http.HttpClient;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class SdsProxyTests {
@@ -59,14 +60,19 @@ public class SdsProxyTests {
 		Files.createFile(new File("/dummy-sds/orig.txt").toPath());
 	}
 
+	private HttpClient client() {
+		return VertxPlatform.getVertx()
+				.createHttpClient(new HttpClientOptions().setDefaultHost("127.0.0.1").setDefaultPort(8091));
+	}
+
 	@After
 	public void after() {
 		Arrays.stream(new File("/dummy-sds").listFiles(file -> file.isFile())).forEach(File::delete);
 		new File("/dummy-sds").delete();
 
 		CompletableFuture<Integer> waitResp = new CompletableFuture<>();
-		HttpClient client = VertxPlatform.getVertx().createHttpClient().setHost("127.0.0.1").setPort(8091);
-		JsonObject payload = new JsonObject().putString("storeType", "dummy");
+		HttpClient client = client();
+		JsonObject payload = new JsonObject().put("storeType", "dummy");
 		client.post("/configuration", resp -> {
 			System.err.println("resp " + resp);
 			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
@@ -74,7 +80,7 @@ public class SdsProxyTests {
 				System.err.println(resp.statusCode());
 				waitResp.complete(resp.statusCode());
 			});
-		}).setChunked(true).write(new Buffer(payload.encode())).end();
+		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
 		try {
 			waitResp.get(30, TimeUnit.SECONDS);
 		} catch (InterruptedException | ExecutionException | TimeoutException e) {
@@ -84,8 +90,8 @@ public class SdsProxyTests {
 
 	@Test
 	public void testHeadCall() throws InterruptedException, ExecutionException, TimeoutException {
-		HttpClient client = VertxPlatform.getVertx().createHttpClient().setHost("127.0.0.1").setPort(8091);
-		JsonObject payload = new JsonObject().putString("mailbox", "yeah").putString("guid", "123");
+		HttpClient client = client();
+		JsonObject payload = new JsonObject().put("mailbox", "yeah").put("guid", "123");
 		CompletableFuture<Integer> waitResp = new CompletableFuture<>();
 		client.head("/sds", resp -> {
 			System.err.println("resp " + resp);
@@ -94,7 +100,7 @@ public class SdsProxyTests {
 				System.err.println(resp.statusCode());
 				waitResp.complete(resp.statusCode());
 			});
-		}).setChunked(true).write(new Buffer(payload.encode())).end();
+		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
 		System.err.println("started");
 		int httpStatus = waitResp.get(5, TimeUnit.SECONDS);
 		assertEquals(200, httpStatus);
@@ -103,8 +109,8 @@ public class SdsProxyTests {
 	@Test
 	public void testHeadMissingCall() throws InterruptedException, ExecutionException, TimeoutException {
 		CompletableFuture<Integer> waitResp = new CompletableFuture<>();
-		HttpClient client = VertxPlatform.getVertx().createHttpClient().setHost("127.0.0.1").setPort(8091);
-		JsonObject payload = new JsonObject().putString("mailbox", "yeah").putString("guid", "789");
+		HttpClient client = client();
+		JsonObject payload = new JsonObject().put("mailbox", "yeah").put("guid", "789");
 		client.head("/sds", resp -> {
 			System.err.println("resp " + resp);
 			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
@@ -112,7 +118,7 @@ public class SdsProxyTests {
 				System.err.println(resp.statusCode());
 				waitResp.complete(resp.statusCode());
 			});
-		}).setChunked(true).write(new Buffer(payload.encode())).end();
+		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
 		System.err.println("started");
 		int httpStatus = waitResp.get(5, TimeUnit.SECONDS);
 		assertEquals(404, httpStatus);
@@ -121,8 +127,8 @@ public class SdsProxyTests {
 	@Test
 	public void testDeleteCall() throws InterruptedException, ExecutionException, TimeoutException {
 		CompletableFuture<Integer> waitResp = new CompletableFuture<>();
-		HttpClient client = VertxPlatform.getVertx().createHttpClient().setHost("127.0.0.1").setPort(8091);
-		JsonObject payload = new JsonObject().putString("mailbox", "yeah").putString("guid", "123");
+		HttpClient client = client();
+		JsonObject payload = new JsonObject().put("mailbox", "yeah").put("guid", "123");
 		client.delete("/sds", resp -> {
 			System.err.println("resp " + resp);
 			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
@@ -130,7 +136,7 @@ public class SdsProxyTests {
 				System.err.println(resp.statusCode());
 				waitResp.complete(resp.statusCode());
 			});
-		}).setChunked(true).write(new Buffer(payload.encode())).end();
+		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
 		System.err.println("started");
 		int httpStatus = waitResp.get(5, TimeUnit.SECONDS);
 		assertEquals(200, httpStatus);
@@ -139,9 +145,9 @@ public class SdsProxyTests {
 	@Test
 	public void testPutCall() throws InterruptedException, ExecutionException, TimeoutException {
 		CompletableFuture<Integer> waitResp = new CompletableFuture<>();
-		HttpClient client = VertxPlatform.getVertx().createHttpClient().setHost("127.0.0.1").setPort(8091);
-		JsonObject payload = new JsonObject().putString("mailbox", "yeah").putString("guid", "put.dest")
-				.putString("filename", "/dummy-sds/orig.txt");
+		HttpClient client = client();
+		JsonObject payload = new JsonObject().put("mailbox", "yeah").put("guid", "put.dest").put("filename",
+				"/dummy-sds/orig.txt");
 		client.put("/sds", resp -> {
 			System.err.println("resp " + resp);
 			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
@@ -149,7 +155,7 @@ public class SdsProxyTests {
 				System.err.println(resp.statusCode());
 				waitResp.complete(resp.statusCode());
 			});
-		}).setChunked(true).write(new Buffer(payload.encode())).end();
+		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
 		System.err.println("started");
 		int httpStatus = waitResp.get(5, TimeUnit.SECONDS);
 		assertEquals(200, httpStatus);
@@ -159,9 +165,9 @@ public class SdsProxyTests {
 	@Test
 	public void testGetCall() throws InterruptedException, ExecutionException, TimeoutException {
 		CompletableFuture<Integer> waitResp = new CompletableFuture<>();
-		HttpClient client = VertxPlatform.getVertx().createHttpClient().setHost("127.0.0.1").setPort(8091);
-		JsonObject payload = new JsonObject().putString("mailbox", "yeah").putString("guid", "123")
-				.putString("filename", "/dummy-sds/dest.txt");
+		HttpClient client = client();
+		JsonObject payload = new JsonObject().put("mailbox", "yeah").put("guid", "123").put("filename",
+				"/dummy-sds/dest.txt");
 		client.get("/sds", resp -> {
 			System.err.println("resp " + resp);
 			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
@@ -169,7 +175,7 @@ public class SdsProxyTests {
 				System.err.println(resp.statusCode());
 				waitResp.complete(resp.statusCode());
 			});
-		}).setChunked(true).write(new Buffer(payload.encode())).end();
+		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
 		System.err.println("started");
 		int httpStatus = waitResp.get(5, TimeUnit.SECONDS);
 		assertEquals(200, httpStatus);
@@ -179,26 +185,26 @@ public class SdsProxyTests {
 	@Test
 	public void testConfigureCall() throws InterruptedException, ExecutionException, TimeoutException {
 		CompletableFuture<Integer> waitResp = new CompletableFuture<>();
-		HttpClient client = VertxPlatform.getVertx().createHttpClient().setHost("127.0.0.1").setPort(8091);
+		HttpClient client = client();
 		CompletableFuture<Boolean> reconfigured = new CompletableFuture<>();
-		VertxPlatform.eventBus().registerHandler("sds.events.configuration.updated", (Message<Boolean> msg) -> {
+		VertxPlatform.eventBus().consumer("sds.events.configuration.updated", (Message<Boolean> msg) -> {
 			System.err.println("reconfigured.");
 			reconfigured.complete(msg.body());
 		});
 
 		CompletableFuture<JsonObject> storeMsg = new CompletableFuture<>();
-		VertxPlatform.eventBus().registerHandler("test.store.configured", (Message<JsonObject> msg) -> {
+		VertxPlatform.eventBus().consumer("test.store.configured", (Message<JsonObject> msg) -> {
 			System.err.println("reconfigured with " + msg.body());
 			storeMsg.complete(msg.body());
 		});
 
 		CompletableFuture<String> existCall = new CompletableFuture<>();
-		VertxPlatform.eventBus().registerHandler("test.store.exists", (Message<String> msg) -> {
+		VertxPlatform.eventBus().consumer("test.store.exists", (Message<String> msg) -> {
 			System.err.println("exist test with " + msg.body());
 			existCall.complete(msg.body());
 		});
 
-		JsonObject payload = new JsonObject().putString("storeType", "test");
+		JsonObject payload = new JsonObject().put("storeType", "test");
 		client.post("/configuration", resp -> {
 			System.err.println("resp " + resp);
 			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
@@ -206,17 +212,17 @@ public class SdsProxyTests {
 				System.err.println(resp.statusCode());
 				waitResp.complete(resp.statusCode());
 			});
-		}).setChunked(true).write(new Buffer(payload.encode())).end();
+		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
 
 		System.err.println("started");
 		int httpStatus = waitResp.get(5, TimeUnit.SECONDS);
 		assertEquals(200, httpStatus);
 
-		payload = new JsonObject().putString("mailbox", "yeah").putString("guid", "123");
+		payload = new JsonObject().put("mailbox", "yeah").put("guid", "123");
 		client.head("/sds", resp -> {
 			resp.endHandler(v -> {
 			});
-		}).setChunked(true).write(new Buffer(payload.encode())).end();
+		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
 
 		assertTrue(reconfigured.get(5, TimeUnit.SECONDS));
 		assertNotNull(storeMsg.get(5, TimeUnit.SECONDS));

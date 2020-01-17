@@ -18,11 +18,10 @@
  */
 package net.bluemind.webmodule.server.testswebmodule;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpServerRequest;
-
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.webmodule.server.NeedVertx;
 
 public class ThrowInRequestHandlingContextHandler implements Handler<HttpServerRequest>, NeedVertx {

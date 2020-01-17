@@ -35,12 +35,12 @@ import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.addressbook.api.VCard.Identification.Gender;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -217,7 +217,7 @@ public class RestoreUserTests {
 		assertEquals(State.Success, status.state);
 	}
 
-	@Test
+	@Test(timeout = 120000)
 	public void testRestoreDeletedUser() throws Exception {
 		doBackup();
 		TaskRef tr = testContext.provider().instance(IUser.class, domain).delete(changUid);
@@ -236,7 +236,7 @@ public class RestoreUserTests {
 		assertTrue(userServerService.checkPassword(restoredUser.value.login, restoredUser.value.login));
 	}
 
-	@Test
+	@Test(timeout = 120000)
 	public void testRestoreExistantUser() throws Exception {
 		doBackup();
 		ItemValue<User> restoredUser = testContext.provider().instance(IUser.class, domain).getComplete(changUid);
@@ -254,7 +254,7 @@ public class RestoreUserTests {
 		assertTrue("restore failed", monitor.success);
 	}
 
-	@Test
+	@Test(timeout = 120000)
 	public void testRestoreSettings() throws Exception {
 
 		IUserSettings userSettingService = testContext.provider().instance(IUserSettings.class, domain);
@@ -278,7 +278,7 @@ public class RestoreUserTests {
 		assertTrue("restore failed", monitor.success);
 	}
 
-	@Test
+	@Test(timeout = 120000)
 	public void testRestoreTags() throws Exception {
 
 		ITags tagsService = testContext.provider().instance(ITags.class, "tags_" + changUid);
@@ -307,7 +307,7 @@ public class RestoreUserTests {
 		assertTrue("restore failed", monitor.success);
 	}
 
-	@Test
+	@Test(timeout = 120000)
 	public void testRestoreSieve() throws Exception {
 		IMailboxes mboxesService = testContext.provider().instance(IMailboxes.class, domain);
 

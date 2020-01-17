@@ -31,12 +31,12 @@ import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.SettableFuture;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Communications.Email;
@@ -76,7 +76,7 @@ public class DomainAddressBookTests {
 
 		DomainBookVerticle.suspended = true;
 		JdbcTestHelper.getInstance().beforeTest();
-		
+
 		ElasticsearchTestHelper.getInstance().beforeTest();
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
@@ -246,17 +246,20 @@ public class DomainAddressBookTests {
 
 		ItemValue<VCard> vcard = domainBook.getComplete("test1");
 		assertNotNull(vcard);
-		Optional<Email> privateEmail = vcard.value.communications.emails.stream().filter(e -> e.value.equals("test-private@" + domainUid)).findFirst();
+		Optional<Email> privateEmail = vcard.value.communications.emails.stream()
+				.filter(e -> e.value.equals("test-private@" + domainUid)).findFirst();
 		assertFalse(privateEmail.isPresent());
-		
-		
-		usersStoreService().update("test1", TestUser.of(domainUid).login("test1").alias("notprivate@" + domainUid).build());
+
+		usersStoreService().update("test1",
+				TestUser.of(domainUid).login("test1").alias("notprivate@" + domainUid).build());
 		testContext.provider().instance(IDomainAddressBook.class, domainUid).sync();
 		vcard = domainBook.getComplete("test1");
 		assertNotNull(vcard);
-		privateEmail = vcard.value.communications.emails.stream().filter(e -> e.value.equals("test-private@" + domainUid)).findFirst();
+		privateEmail = vcard.value.communications.emails.stream()
+				.filter(e -> e.value.equals("test-private@" + domainUid)).findFirst();
 		assertFalse(privateEmail.isPresent());
-		privateEmail = vcard.value.communications.emails.stream().filter(e -> e.value.equals("notprivate@" + domainUid)).findFirst();
+		privateEmail = vcard.value.communications.emails.stream().filter(e -> e.value.equals("notprivate@" + domainUid))
+				.findFirst();
 		assertTrue(privateEmail.isPresent());
 	}
 

@@ -27,17 +27,18 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.MultiMap;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
 
 import com.netflix.spectator.api.Registry;
 
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
+import io.vertx.core.Handler;
+import io.vertx.core.MultiMap;
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -69,8 +70,8 @@ public class WebModuleProtocol implements IAuthProtocol {
 		logger.debug("proceed {}...", uri);
 
 		// form data
-		if (req.method().equals("POST") && (uri.endsWith("index.html") || uri.endsWith("native"))) {
-			req.expectMultiPart(true);
+		if (req.method() == HttpMethod.POST && (uri.endsWith("index.html") || uri.endsWith("native"))) {
+			req.setExpectMultipart(true);
 			req.endHandler(new Handler<Void>() {
 
 				@Override
@@ -129,7 +130,7 @@ public class WebModuleProtocol implements IAuthProtocol {
 		final HttpServerResponse resp = req.response();
 
 		List<String> forwadedFor = new ArrayList<>(req.headers().getAll("X-Forwarded-For"));
-		forwadedFor.add(req.remoteAddress().getAddress().getHostAddress());
+		forwadedFor.add(req.remoteAddress().host());
 		prov.sessionId(login, pass, privateComputer, forwadedFor, new AsyncHandler<String>() {
 
 			@Override

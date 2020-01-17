@@ -49,7 +49,6 @@ import net.bluemind.exchange.mapi.api.IMapiMailbox;
 import net.bluemind.exchange.mapi.api.IMapiMailboxes;
 import net.bluemind.exchange.mapi.api.MapiFAIContainer;
 import net.bluemind.exchange.mapi.api.MapiReplica;
-import net.bluemind.lib.vertx.Constructor;
 import net.bluemind.locator.LocatorVerticle;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
@@ -71,7 +70,7 @@ public class MapiMailboxServiceTests {
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
 
-		Deploy.verticles(false, Constructor.of(LocatorVerticle::new, LocatorVerticle.class)).get(5, TimeUnit.SECONDS);
+		Deploy.verticles(false, LocatorVerticle::new).get(5, TimeUnit.SECONDS);
 
 		BmConfIni ini = new BmConfIni();
 

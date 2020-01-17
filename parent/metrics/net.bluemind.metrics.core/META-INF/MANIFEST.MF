@@ -22,7 +22,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.eclipse.common,
  net.bluemind.system.api,
  io.netty,
- com.ning.async-http-client,
  net.bluemind.network.utils,
  net.bluemind.network.topology,
  net.bluemind.core.jdbc;bundle-version="4.1.0",
@@ -30,7 +29,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.metrics.registry,
  net.bluemind.system.validation,
  net.bluemind.hornetq.client,
- io.vertx.platform
+ org.asynchttpclient.async-http-client;bundle-version="2.10.4",
+ org.reactivestreams.reactive-streams;bundle-version="1.0.3"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.metrics.core
 Bundle-ActivationPolicy: lazy

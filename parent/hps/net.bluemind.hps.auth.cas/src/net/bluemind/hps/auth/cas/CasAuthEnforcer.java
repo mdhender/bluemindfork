@@ -26,10 +26,11 @@ import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.http.HttpClient;
-import org.vertx.java.core.http.HttpServerRequest;
 
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.proxy.http.NeedVertx;
 import net.bluemind.proxy.http.auth.api.AuthRequirements;
 import net.bluemind.proxy.http.auth.api.IAuthEnforcer;
@@ -73,7 +74,7 @@ public class CasAuthEnforcer implements IAuthEnforcer, NeedVertx {
 		if (req.path().startsWith("/login/") && !req.path().equals("/login/index.html")) {
 			return AuthRequirements.notHandle();
 		}
-		if ("GET".equals(req.method())) {
+		if (io.vertx.core.http.HttpMethod.GET == req.method()) {
 			// only redirect GET to not pass
 			CasProtocol protocol = new CasProtocol(httpClient, casURL, baseUri, casDomain, callbackURL);
 			return AuthRequirements.needSession(protocol);
@@ -85,7 +86,6 @@ public class CasAuthEnforcer implements IAuthEnforcer, NeedVertx {
 	@Override
 	public void setVertx(Vertx vertx) {
 		if (casEnabled) {
-			httpClient = vertx.createHttpClient();
 			URL url = null;
 			try {
 				url = new URL(casURL);
@@ -93,14 +93,18 @@ public class CasAuthEnforcer implements IAuthEnforcer, NeedVertx {
 				throw new RuntimeException(e);
 			}
 			baseUri = url.getPath();
-			httpClient.setHost(url.getHost());
-			httpClient.setSSL(url.getProtocol().equals("https"));
-			httpClient.setPort(url.getPort() != -1 ? url.getPort() : (url.getProtocol().equals("https") ? 443 : 80));
-			if (httpClient.isSSL()) {
-				httpClient.setTrustAll(true);
-				httpClient.setVerifyHost(false);
+
+			HttpClientOptions opts = new HttpClientOptions();
+			opts.setDefaultHost(url.getHost());
+			opts.setSsl(url.getProtocol().equals("https"));
+			opts.setDefaultPort(url.getPort() != -1 ? url.getPort() : (url.getProtocol().equals("https") ? 443 : 80));
+			if (opts.isSsl()) {
+				opts.setTrustAll(true);
+				opts.setVerifyHost(false);
 			}
-			logger.info("cas client {} {}", httpClient.getHost(), httpClient.getPort());
+			logger.info("cas client {} {}", opts.getDefaultHost(), opts.getDefaultPort());
+
+			httpClient = vertx.createHttpClient(opts);
 
 		}
 	}

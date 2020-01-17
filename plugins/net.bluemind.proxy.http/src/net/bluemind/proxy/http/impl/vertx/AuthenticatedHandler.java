@@ -24,22 +24,23 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.MultiMap;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.VoidHandler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpClient;
-import org.vertx.java.core.http.HttpClientRequest;
-import org.vertx.java.core.http.HttpClientResponse;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
 
 import com.netflix.spectator.api.Registry;
 
 import io.netty.handler.codec.http.cookie.ClientCookieDecoder;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
+import io.vertx.core.Handler;
+import io.vertx.core.MultiMap;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.http.HttpClientRequest;
+import io.vertx.core.http.HttpClientResponse;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.http.RequestOptions;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.proxy.http.IDecorableRequest;
@@ -66,20 +67,13 @@ public final class AuthenticatedHandler implements Handler<UserReq> {
 	}
 
 	private HttpClient createClient(Vertx vertx, ForwardedLocation fl) {
-		HttpClient client = vertx.createHttpClient().setHost(fl.getHost()).setPort(fl.getPort());
-		client.setTCPNoDelay(true);
-		client.setUsePooledBuffers(true);
-		client.setKeepAlive(true);
-		client.setMaxPoolSize(200);
-		client.exceptionHandler(new Handler<Throwable>() {
-
-			@Override
-			public void handle(Throwable event) {
-				logger.error(event.getMessage(), event);
-			}
-		});
-
-		return new WrappedClient(client);
+		HttpClientOptions opts = new HttpClientOptions();
+		opts.setTcpNoDelay(true);
+		opts.setUsePooledBuffers(true);
+		opts.setKeepAlive(true);
+		opts.setMaxPoolSize(200);
+		opts.setDefaultHost(fl.getHost()).setDefaultPort(fl.getPort());
+		return vertx.createHttpClient(opts);
 	}
 
 	public void handle(final UserReq userReq) {
@@ -117,53 +111,54 @@ public final class AuthenticatedHandler implements Handler<UserReq> {
 			return;
 		}
 		final HttpServerResponse clientResp = clientReq.response();
-		final HttpClientRequest upstreamReq = client.request(clientReq.method(), clientReq.uri(),
-				new Handler<HttpClientResponse>() {
-					public void handle(final HttpClientResponse upstreamResp) {
-						MultiMap upstreamHeaders = upstreamResp.headers();
 
-						addAndSecureUpstreamHeaders(clientResp, upstreamHeaders);
+		RequestOptions reqOpts = new RequestOptions();
+		reqOpts.setHost(fl.getHost()).setPort(fl.getPort());
+		reqOpts.setURI(clientReq.uri());
+		final HttpClientRequest upstreamReq = client.request(clientReq.method(), reqOpts);
+		upstreamReq.handler(new Handler<HttpClientResponse>() {
+			public void handle(final HttpClientResponse upstreamResp) {
+				MultiMap upstreamHeaders = upstreamResp.headers();
 
-						upstreamResp.exceptionHandler(h -> {
-							logger.error("upstream error forwarding {} {} error : {}", clientReq.method(),
-									clientReq.uri(), h.getMessage(), h);
-							String message = h.getMessage();
-							if (message == null) {
-								message = "Internal Server Error";
-							}
-							clientResp.setStatusCode(500).setStatusMessage(message).end();
-						});
+				addAndSecureUpstreamHeaders(clientResp, upstreamHeaders);
 
-						clientResp.setStatusCode(upstreamResp.statusCode());
-						final AtomicLong writtenToClient = new AtomicLong();
-						upstreamResp.dataHandler(new Handler<Buffer>() {
-							public void handle(Buffer data) {
-								writtenToClient.addAndGet(data.length());
-								clientResp.write(data);
-								if (clientResp.writeQueueFull()) {
-									upstreamResp.pause();
-									clientResp.drainHandler(event -> {
-										upstreamResp.resume();
-									});
-								}
-							}
-						});
-						upstreamResp.endHandler(new VoidHandler() {
-							public void handle() {
-								clientResp.end();
-								long nanos = System.nanoTime() - time;
-								logger.debug("U: [{}][{}bytes] {} {} took {}ms.", upstreamResp.statusCode(),
-										writtenToClient.get(), clientReq.method(), clientReq.uri(),
-										TimeUnit.NANOSECONDS.toMillis(nanos));
-								registry.distributionSummary(
-										idFactory.name("upstreamRequestSize", "path", fl.getPathPrefix()))
-										.record(writtenToClient.get());
-								registry.timer(idFactory.name("upstreamRequestTime", "path", fl.getPathPrefix()))
-										.record(nanos, TimeUnit.NANOSECONDS);
-							}
-						});
+				upstreamResp.exceptionHandler(h -> {
+					logger.error("upstream error forwarding {} {} error : {}", clientReq.method(), clientReq.uri(),
+							h.getMessage(), h);
+					String message = h.getMessage();
+					if (message == null) {
+						message = "Internal Server Error";
+					}
+					clientResp.setStatusCode(500).setStatusMessage(message).end();
+				});
+
+				clientResp.setStatusCode(upstreamResp.statusCode());
+				final AtomicLong writtenToClient = new AtomicLong();
+				upstreamResp.handler(new Handler<Buffer>() {
+					public void handle(Buffer data) {
+						writtenToClient.addAndGet(data.length());
+						clientResp.write(data);
+						if (clientResp.writeQueueFull()) {
+							upstreamResp.pause();
+							clientResp.drainHandler(event -> {
+								upstreamResp.resume();
+							});
+						}
 					}
 				});
+				upstreamResp.endHandler(v -> {
+					clientResp.end();
+					long nanos = System.nanoTime() - time;
+					logger.debug("U: [{}][{}bytes] {} {} took {}ms.", upstreamResp.statusCode(), writtenToClient.get(),
+							clientReq.method(), clientReq.uri(), TimeUnit.NANOSECONDS.toMillis(nanos));
+					registry.distributionSummary(idFactory.name("upstreamRequestSize", "path", fl.getPathPrefix()))
+							.record(writtenToClient.get());
+					registry.timer(idFactory.name("upstreamRequestTime", "path", fl.getPathPrefix())).record(nanos,
+							TimeUnit.NANOSECONDS);
+
+				});
+			}
+		});
 		final MultiMap cHeaders = clientReq.headers();
 		if (userReq.provider != null) {
 			try {
@@ -197,7 +192,7 @@ public final class AuthenticatedHandler implements Handler<UserReq> {
 		});
 		cHeaders.remove("Connection");
 
-		upstreamReq.headers().set(cHeaders);
+		upstreamReq.headers().setAll(cHeaders);
 		final AtomicLong writtenToUpstream = new AtomicLong();
 		clientReq.exceptionHandler(new Handler<Throwable>() {
 
@@ -207,7 +202,7 @@ public final class AuthenticatedHandler implements Handler<UserReq> {
 				clientResp.setStatusCode(500).setStatusMessage("Internal Server Error").end();
 			}
 		});
-		clientReq.dataHandler(new Handler<Buffer>() {
+		clientReq.handler(new Handler<Buffer>() {
 			public void handle(Buffer data) {
 				writtenToUpstream.addAndGet(data.length());
 				upstreamReq.write(data);
@@ -220,13 +215,15 @@ public final class AuthenticatedHandler implements Handler<UserReq> {
 			}
 		});
 
-		clientReq.endHandler(new VoidHandler() {
-			public void handle() {
-				upstreamReq.end();
-				long nanos = System.nanoTime() - time;
-				logger.debug("C: {} {} {}b forwarded in {}ms.", clientReq.method(), clientReq.uri(),
-						writtenToUpstream.get(), TimeUnit.NANOSECONDS.toMillis(nanos));
-			}
+		clientReq.endHandler(v -> {
+			upstreamReq.end(result -> {
+				if (result.failed()) {
+					logger.error("Forward failure", result.cause());
+				}
+			});
+			long nanos = System.nanoTime() - time;
+			logger.debug("C: {} {} {}b forwarded in {}ms.", clientReq.method(), clientReq.uri(),
+					writtenToUpstream.get(), TimeUnit.NANOSECONDS.toMillis(nanos));
 		});
 	}
 
@@ -279,7 +276,7 @@ public final class AuthenticatedHandler implements Handler<UserReq> {
 					HttpServerResponse resp = req.response();
 					resp.setStatusCode(200);
 					resp.headers().set("Content-Type", tpl.getContentType());
-					resp.end(new Buffer(tpl.getContent()));
+					resp.end(Buffer.buffer(tpl.getContent()));
 				} catch (IOException e) {
 					logger.error(e.getMessage(), e);
 					req.response().setStatusCode(503).setStatusMessage(e.getMessage() != null ? e.getMessage() : "null")

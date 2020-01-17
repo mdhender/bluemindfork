@@ -25,11 +25,13 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.core.streams.ReadStream;
 
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.service.internal.MonitorMessage.MessageType;
 
@@ -46,12 +48,19 @@ public class TaskManager implements Handler<Message<JsonObject>> {
 	private double steps;
 	private double currentStep;
 	private String taskId;
+	private MessageConsumer<JsonObject> cons;
 
-	public TaskManager(String taskId) {
+	public TaskManager(String taskId, MessageConsumer<JsonObject> cons) {
 		this.taskId = taskId;
+		this.cons = cons;
+		cons.handler(this);
 	}
 
-	public ReadStream<?> log() {
+	public void cleanUp() {
+		cons.unregister();
+	}
+
+	public ReadStream<Buffer> log() {
 		synchronized (lock) {
 			LogStream reader = new LogStream();
 
@@ -92,10 +101,10 @@ public class TaskManager implements Handler<Message<JsonObject>> {
 		synchronized (lock) {
 
 			if (type == MessageType.begin) {
-				steps = event.body().getNumber("work").doubleValue();
+				steps = event.body().getDouble("work");
 				currentStep = 0;
 			} else if (type == MessageType.progress) {
-				currentStep += event.body().getNumber("step").doubleValue();
+				currentStep += event.body().getDouble("step");
 			}
 
 			boolean end = type == MessageType.end;
@@ -109,10 +118,10 @@ public class TaskManager implements Handler<Message<JsonObject>> {
 
 	private void pushLog(double currentStep2, double steps2, String message, boolean end) {
 		JsonObject log = new JsonObject();
-		log.putNumber("done", currentStep2);
-		log.putNumber("total", steps2);
-		log.putString("message", message);
-		log.putBoolean("end", end);
+		log.put("done", currentStep2);
+		log.put("total", steps2);
+		log.put("message", message);
+		log.put("end", end);
 		logs.add(log);
 		for (LogStream reader : readers) {
 			reader.pushData(log);

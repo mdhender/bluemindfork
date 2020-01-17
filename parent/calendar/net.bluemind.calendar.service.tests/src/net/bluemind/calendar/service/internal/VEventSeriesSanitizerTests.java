@@ -35,12 +35,12 @@ import java.util.UUID;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.SettableFuture;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.FormatedName;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
@@ -140,7 +140,6 @@ public class VEventSeriesSanitizerTests {
 				+ "FR Hello! I am a template mate! John Doe invites you to this wonderful event with the property My Custom Prop One Value and also My Custom Prop Two Value and the even better My Custom Prop Three Value !!! How lucky you!\nThis line should be kept."
 				+ "\n" + resourceTemplateHelper.tagEnd();
 	}
-
 
 	private void createCyrusPartition(final Server imapServer, final String domainUid) {
 		final CyrusService cyrusService = new CyrusService(imapServer.ip);
@@ -247,8 +246,8 @@ public class VEventSeriesSanitizerTests {
 	}
 
 	/**
-	 * Test {@link ResourceDescriptionAdapterHook#onEventUpdated(VEventMessage)}
-	 * : create a resource already having the template in its description.
+	 * Test {@link ResourceDescriptionAdapterHook#onEventUpdated(VEventMessage)} :
+	 * create a resource already having the template in its description.
 	 */
 	@Test
 	public void onEventCreatedAlreadyHavingTemplate() {

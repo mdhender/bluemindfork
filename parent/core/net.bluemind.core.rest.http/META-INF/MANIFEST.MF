@@ -11,9 +11,9 @@ Require-Bundle: slf4j.api,
  com.google.guava;bundle-version="19.0.0",
  net.bluemind.lib.jackson;bundle-version="1.0.0",
  net.bluemind.utils,
- com.ning.async-http-client;bundle-version="1.9.26";visibility:=reexport,
- org.jboss.netty;bundle-version="3.10.3",
- net.bluemind.core.rest.common
+ net.bluemind.core.rest.common,
+ org.asynchttpclient.async-http-client;bundle-version="2.10.4";visibility:=reexport,
+ org.reactivestreams.reactive-streams;bundle-version="1.0.3"
 Bundle-Activator: net.bluemind.core.rest.http.RestHttpActivator
 Export-Package: net.bluemind.core.rest.http,
  net.bluemind.core.rest.http.internal

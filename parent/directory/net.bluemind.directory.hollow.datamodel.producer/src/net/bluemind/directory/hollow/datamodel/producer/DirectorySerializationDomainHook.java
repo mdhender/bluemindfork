@@ -18,8 +18,7 @@
  */
 package net.bluemind.directory.hollow.datamodel.producer;
 
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.domain.api.Domain;
@@ -33,16 +32,16 @@ public class DirectorySerializationDomainHook extends DomainHookAdapter {
 	@Override
 	public void onCreated(BmContext context, ItemValue<Domain> domain) {
 		JsonObject msg = new JsonObject();
-		msg.putString("domain", domain.uid);
-		msg.putString("action", "create");
+		msg.put("domain", domain.uid);
+		msg.put("action", "create");
 		VertxPlatform.eventBus().send(DOMAIN_CHANGE_EVENT, msg);
 	}
 
 	@Override
 	public void onDeleted(BmContext context, ItemValue<Domain> domain) {
 		JsonObject msg = new JsonObject();
-		msg.putString("domain", domain.uid);
-		msg.putString("action", "delete");
+		msg.put("domain", domain.uid);
+		msg.put("action", "delete");
 		VertxPlatform.eventBus().send(DOMAIN_CHANGE_EVENT, msg);
 	}
 

@@ -19,6 +19,7 @@
 package net.bluemind.xmpp.coresession.internal;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jivesoftware.smack.PacketListener;
@@ -32,10 +33,12 @@ import org.jivesoftware.smackx.muc.Occupant;
 import org.jivesoftware.smackx.muc.ParticipantStatusListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
+
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.json.JsonObject;
 
 public class MucSession {
 
@@ -45,6 +48,7 @@ public class MucSession {
 	private String mucAddr;
 	private Handler<Void> closeHandler;
 	private XMPPConnection xmppConn;
+	private List<MessageConsumer<?>> consumers;
 	private PacketListener packedListener = new PacketListener() {
 
 		@Override
@@ -65,6 +69,7 @@ public class MucSession {
 		mucAddr = "xmpp/muc/" + sessionId;
 		this.closeHandler = closeHandler;
 		this.xmppConn = xmppConn;
+		consumers = new LinkedList<>();
 	}
 
 	private void messageReceived(org.jivesoftware.smack.packet.Message msg) {
@@ -83,10 +88,10 @@ public class MucSession {
 
 		muc.addParticipantStatusListener(participantStatusListener);
 
-		eventBus.registerHandler(mucAddr + "/" + muc.getRoom() + ":invite", inviteHandler);
-		eventBus.registerHandler(mucAddr + "/" + muc.getRoom() + ":leave", leaveHandler);
-		eventBus.registerHandler(mucAddr + "/" + muc.getRoom() + ":participants", participantsHandler);
-		eventBus.registerHandler(mucAddr + "/" + muc.getRoom() + ":message", messageHandler);
+		consumers.add(eventBus.consumer(mucAddr + "/" + muc.getRoom() + ":invite", inviteHandler));
+		consumers.add(eventBus.consumer(mucAddr + "/" + muc.getRoom() + ":leave", leaveHandler));
+		consumers.add(eventBus.consumer(mucAddr + "/" + muc.getRoom() + ":participants", participantsHandler));
+		consumers.add(eventBus.consumer(mucAddr + "/" + muc.getRoom() + ":message", messageHandler));
 	}
 
 	public void stop() {
@@ -100,11 +105,8 @@ public class MucSession {
 				logger.error(e.getMessage(), e);
 			}
 		}
-
-		eventBus.unregisterHandler(mucAddr + "/" + muc.getRoom() + ":invite", inviteHandler);
-		eventBus.unregisterHandler(mucAddr + "/" + muc.getRoom() + ":leave", leaveHandler);
-		eventBus.unregisterHandler(mucAddr + "/" + muc.getRoom() + ":participants", participantsHandler);
-		eventBus.unregisterHandler(mucAddr + "/" + muc.getRoom() + ":message", messageHandler);
+		consumers.forEach(MessageConsumer::unregister);
+		consumers.clear();
 	}
 
 	private Handler<Message<JsonObject>> inviteHandler = new Handler<Message<JsonObject>>() {

@@ -23,8 +23,8 @@ import java.util.TimerTask;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.system.api.SystemState;
 
@@ -39,7 +39,7 @@ public class StateContext {
 	}
 
 	public static void start() {
-		JsonObject stateObject = new JsonObject().putString("operation", currentState.getSystemState().operation());
+		JsonObject stateObject = new JsonObject().put("operation", currentState.getSystemState().operation());
 		publishOperation(stateObject);
 
 		// BM-12022: re-publish our active state periodically to ensure we don't
@@ -52,7 +52,7 @@ public class StateContext {
 			@Override
 			public void run() {
 				logger.info("Core state heartbeat : {}", getState().operation());
-				publishOperation(new JsonObject().putString("operation", getState().operation()));
+				publishOperation(new JsonObject().put("operation", getState().operation()));
 			}
 
 		}, 4000L, 4000L);
@@ -74,9 +74,9 @@ public class StateContext {
 	public static void setState(String operation) {
 		logger.info("Core state transition from {} to {}", currentState.getSystemState().operation(), operation);
 		JsonObject stateObject = new JsonObject();
-		stateObject.putString("previousState", currentState.getSystemState().name());
+		stateObject.put("previousState", currentState.getSystemState().name());
 		currentState = currentState.stateChange(operation);
-		stateObject.putString("operation", currentState.getSystemState().operation());
+		stateObject.put("operation", currentState.getSystemState().operation());
 		publishOperation(stateObject);
 	}
 

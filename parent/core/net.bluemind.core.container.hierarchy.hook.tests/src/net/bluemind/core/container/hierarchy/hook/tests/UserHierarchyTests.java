@@ -41,7 +41,6 @@ import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.TaskUtils;
-import net.bluemind.lib.vertx.Constructor;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.locator.LocatorVerticle;
 import net.bluemind.mailbox.api.Mailbox.Routing;
@@ -60,7 +59,7 @@ public class UserHierarchyTests {
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
 
-		Deploy.verticles(false, Constructor.of(LocatorVerticle::new, LocatorVerticle.class)).get(20, TimeUnit.SECONDS);
+		Deploy.verticles(false, LocatorVerticle::new).get(20, TimeUnit.SECONDS);
 
 		BmConfIni ini = new BmConfIni();
 

@@ -34,15 +34,16 @@ import java.util.concurrent.TimeoutException;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.DeliveryOptions;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.replication.client.UnparsedResponse;
 import net.bluemind.backend.cyrus.replication.protocol.parsing.ParenObjectParser;
 import net.bluemind.core.context.SecurityContext;
@@ -102,10 +103,10 @@ public class ManyMailboxesTests extends AbstractRollingReplicationTests {
 		System.err.println("Connecting in 2sec...");
 		Thread.sleep(2000);
 		CountDownLatch cdl = new CountDownLatch(1);
-		VertxPlatform.eventBus().send("sc.connect", "hello", new Handler<Message<Void>>() {
+		VertxPlatform.eventBus().request("sc.connect", "hello", new Handler<AsyncResult<Message<Void>>>() {
 
 			@Override
-			public void handle(Message<Void> event) {
+			public void handle(AsyncResult<Message<Void>> event) {
 				cdl.countDown();
 			}
 		});
@@ -119,9 +120,9 @@ public class ManyMailboxesTests extends AbstractRollingReplicationTests {
 			return ret;
 		}
 		JsonArray js = new JsonArray();
-		Arrays.stream(mboxes).forEach(js::addString);
-		VertxPlatform.eventBus().sendWithTimeout("sc.mailboxes", new JsonObject().putArray("mboxes", js), 10000,
-				(AsyncResult<Message<JsonArray>> result) -> {
+		Arrays.stream(mboxes).forEach(js::add);
+		VertxPlatform.eventBus().request("sc.mailboxes", new JsonObject().put("mboxes", js),
+				new DeliveryOptions().setSendTimeout(10000), (AsyncResult<Message<JsonArray>> result) -> {
 					if (result.succeeded()) {
 						JsonArray dataLines = result.result().body();
 						List<String> asList = new ArrayList<>(dataLines.size());
@@ -136,7 +137,7 @@ public class ManyMailboxesTests extends AbstractRollingReplicationTests {
 
 	private static CompletableFuture<UnparsedResponse> fullMailbox(String mbox) {
 		CompletableFuture<UnparsedResponse> ret = new CompletableFuture<>();
-		VertxPlatform.eventBus().sendWithTimeout("sc.fullMailbox", mbox, 10000,
+		VertxPlatform.eventBus().request("sc.fullMailbox", mbox, new DeliveryOptions().setSendTimeout(10000),
 				(AsyncResult<Message<JsonArray>> result) -> {
 					if (result.succeeded()) {
 						JsonArray dataLines = result.result().body();
@@ -153,8 +154,8 @@ public class ManyMailboxesTests extends AbstractRollingReplicationTests {
 	@Override
 	public void after() throws Exception {
 		CountDownLatch cdl = new CountDownLatch(1);
-		VertxPlatform.eventBus().send("sc.disconnect", "bye", new Handler<Message<Void>>() {
-			public void handle(Message<Void> event) {
+		VertxPlatform.eventBus().request("sc.disconnect", "bye", new Handler<AsyncResult<Message<Void>>>() {
+			public void handle(AsyncResult<Message<Void>> event) {
 				cdl.countDown();
 			}
 		});
@@ -180,7 +181,7 @@ public class ManyMailboxesTests extends AbstractRollingReplicationTests {
 			assertTrue(idx > 0);
 
 			JsonObject mailboxObj = parser.parse(l.substring(idx)).asObject();
-			assertTrue(mailboxObj.containsField("MBOXNAME"));
+			assertTrue(mailboxObj.containsKey("MBOXNAME"));
 			String fetched = mailboxObj.getString("MBOXNAME");
 			assertTrue(fetched + " is not an expected mailbox", expectedInResponse.contains(fetched));
 		}

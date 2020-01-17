@@ -20,6 +20,7 @@ package net.bluemind.ysnp.bmcore.internal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.vertx.core.Vertx;
 import net.bluemind.system.api.SystemState;
 import net.bluemind.system.stateobserver.IStateListener;
 
@@ -34,6 +35,12 @@ public class CoreStateListener implements IStateListener {
 	public void stateChanged(SystemState newState) {
 		logger.info("new state is {}", newState);
 		current = (newState == SystemState.CORE_STATE_RUNNING) ? PERMIT : REJECT;
+	}
+
+	@Override
+	public void init(Vertx vx) {
+		// yeah
+
 	}
 
 }

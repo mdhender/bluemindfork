@@ -25,13 +25,14 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
 
 import com.netflix.spectator.api.Registry;
 
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.proxy.http.Activator;
@@ -139,7 +140,7 @@ public final class ProtectedLocationHandler implements Handler<HttpServerRequest
 			}
 			// maintenance => show /login/index.html
 			// when maintenance=true param is present
-			if (coreState.maintenace() && event.method().equals("GET") && ( //
+			if (coreState.maintenace() && event.method() == HttpMethod.GET && ( //
 			!(event.path().equals("/login/index.html") && "true".equals(event.params().get("maintenance")))
 					&& !(!event.path().equals("/login/index.html") && event.path().startsWith("/login"))//
 			)) {
@@ -189,7 +190,7 @@ public final class ProtectedLocationHandler implements Handler<HttpServerRequest
 
 	private AuthRequirements authenticated(HttpServerRequest event) {
 
-		if (event.absoluteURI().getPath().endsWith("bluemind_sso_security")) {
+		if (event.absoluteURI().endsWith("bluemind_sso_security")) {
 			return AuthRequirements.needSession(authKeyProtocol);
 		}
 

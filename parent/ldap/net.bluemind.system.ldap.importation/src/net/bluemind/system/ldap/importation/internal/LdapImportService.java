@@ -33,8 +33,8 @@ import net.bluemind.scheduledjob.api.IJob;
 import net.bluemind.system.ldap.importation.api.ILdapImport;
 import net.bluemind.system.ldap.importation.api.LdapConstants;
 import net.bluemind.system.ldap.importation.api.LdapProperties;
-import net.bluemind.system.ldap.importation.internal.tools.LdapParameters;
 import net.bluemind.system.ldap.importation.internal.tools.LdapHelper;
+import net.bluemind.system.ldap.importation.internal.tools.LdapParameters;
 import net.bluemind.system.ldap.importation.internal.tools.LdapParametersValidator;
 
 public class LdapImportService implements ILdapImport {

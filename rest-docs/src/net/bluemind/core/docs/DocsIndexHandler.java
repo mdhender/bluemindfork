@@ -20,8 +20,7 @@ package net.bluemind.core.docs;
 
 import java.util.Map;
 
-import org.vertx.java.core.http.HttpServerRequest;
-
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.webmodule.server.handlers.AbstractFtlHandler;
 
 public class DocsIndexHandler extends AbstractFtlHandler {

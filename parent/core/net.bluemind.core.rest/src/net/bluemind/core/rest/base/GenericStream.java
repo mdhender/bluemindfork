@@ -30,16 +30,17 @@ import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.streams.Pump;
-import org.vertx.java.core.streams.ReadStream;
-import org.vertx.java.core.streams.WriteStream;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.Pump;
+import io.vertx.core.streams.ReadStream;
+import io.vertx.core.streams.WriteStream;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.rest.vertx.VertxStream;
 
-public abstract class GenericStream<T> implements ReadStream<GenericStream<T>> {
+public abstract class GenericStream<T> implements ReadStream<Buffer> {
 
 	private static Logger logger = LoggerFactory.getLogger(GenericStream.class);
 
@@ -50,9 +51,13 @@ public abstract class GenericStream<T> implements ReadStream<GenericStream<T>> {
 	private boolean ended;
 
 	@Override
-	public GenericStream<T> dataHandler(Handler<Buffer> dataHandler) {
+	public GenericStream<T> handler(Handler<Buffer> dataHandler) {
 		this.dataHandler = dataHandler;
 		read();
+		return this;
+	}
+
+	public GenericStream<T> fetch(long amount) {
 		return this;
 	}
 
@@ -126,36 +131,30 @@ public abstract class GenericStream<T> implements ReadStream<GenericStream<T>> {
 	}
 
 	public static String streamToString(Stream stream) {
-		final ReadStream<?> reader = VertxStream.read(stream);
+		final ReadStream<Buffer> reader = VertxStream.read(stream);
 		final AccumulatorStream writer = new AccumulatorStream();
 		stream(reader, writer);
 		return writer.buffer().toString();
 	}
 
-	public static CompletableFuture<Buffer> asyncStreamToBuffer(Stream stream) {
-		final ReadStream<?> reader = VertxStream.read(stream);
+	public static <T> CompletableFuture<Buffer> asyncStreamToBuffer(Stream stream) {
+		final ReadStream<Buffer> reader = VertxStream.read(stream);
 		final AccumulatorStream writer = new AccumulatorStream();
 		return asyncStream(reader, writer).thenApply(v -> writer.buffer());
 	}
 
-	public static void streamToFile(Stream stream, File file) {
-		final ReadStream<?> reader = VertxStream.read(stream);
+	public static <T> void streamToFile(Stream stream, File file) {
+		final ReadStream<Buffer> reader = VertxStream.read(stream);
 		try (FileWriterStream writer = new FileWriterStream(file)) {
 			stream(reader, writer);
 		}
 	}
 
-	private static void stream(final ReadStream<?> reader, final WriteStream<?> writer) {
+	private static <T> void stream(final ReadStream<T> reader, final WriteStream<T> writer) {
 		final CountDownLatch latch = new CountDownLatch(1);
-		reader.endHandler(new Handler<Void>() {
+		reader.endHandler(v -> latch.countDown());
 
-			@Override
-			public void handle(Void event) {
-				latch.countDown();
-			}
-		});
-
-		Pump pump = Pump.createPump(reader, writer);
+		Pump pump = Pump.pump(reader, writer);
 		pump.start();
 		reader.resume();
 		try {
@@ -166,17 +165,17 @@ public abstract class GenericStream<T> implements ReadStream<GenericStream<T>> {
 		}
 	}
 
-	private static CompletableFuture<Void> asyncStream(final ReadStream<?> reader, final WriteStream<?> writer) {
+	private static <T> CompletableFuture<Void> asyncStream(final ReadStream<T> reader, final WriteStream<T> writer) {
 		CompletableFuture<Void> prom = new CompletableFuture<>();
 		reader.endHandler(new Handler<Void>() {
 
 			@Override
 			public void handle(Void event) {
-				prom.complete(event);
+				prom.complete(null);
 			}
 		});
 
-		Pump pump = Pump.createPump(reader, writer);
+		Pump pump = Pump.pump(reader, writer);
 		pump.start();
 		reader.resume();
 		return prom;
@@ -185,13 +184,13 @@ public abstract class GenericStream<T> implements ReadStream<GenericStream<T>> {
 	private abstract static class BaseStream<T> implements WriteStream<T> {
 
 		@Override
-		public T exceptionHandler(Handler<Throwable> handler) {
-			return (T) this;
+		public BaseStream<T> exceptionHandler(Handler<Throwable> handler) {
+			return this;
 		}
 
 		@Override
-		public T setWriteQueueMaxSize(int maxSize) {
-			return (T) this;
+		public BaseStream<T> setWriteQueueMaxSize(int maxSize) {
+			return this;
 		}
 
 		@Override
@@ -200,19 +199,34 @@ public abstract class GenericStream<T> implements ReadStream<GenericStream<T>> {
 		}
 
 		@Override
-		public T drainHandler(Handler<Void> handler) {
-			return (T) this;
+		public BaseStream<T> drainHandler(Handler<Void> handler) {
+			return this;
 		}
 
 		@Override
-		public abstract T write(Buffer data);
+		public abstract BaseStream<T> write(T data);
+
+		@Override
+		public BaseStream<T> write(T data, Handler<AsyncResult<Void>> handler) {
+			write(data);
+			handler.handle(null);
+			return this;
+		}
+
+		@Override
+		public void end() {
+		}
+
+		@Override
+		public void end(Handler<AsyncResult<Void>> handler) {
+			handler.handle(null);
+		}
 
 	}
 
-	private static class AccumulatorStream extends BaseStream<AccumulatorStream>
-			implements WriteStream<AccumulatorStream> {
+	public static class AccumulatorStream extends BaseStream<Buffer> {
 
-		private Buffer buffer = new Buffer();
+		private Buffer buffer = Buffer.buffer();
 
 		@Override
 		public AccumulatorStream write(Buffer data) {
@@ -226,10 +240,10 @@ public abstract class GenericStream<T> implements ReadStream<GenericStream<T>> {
 		public Buffer buffer() {
 			return buffer;
 		}
+
 	}
 
-	private static class FileWriterStream extends BaseStream<FileWriterStream>
-			implements WriteStream<FileWriterStream>, AutoCloseable {
+	private static class FileWriterStream extends BaseStream<Buffer> implements AutoCloseable {
 
 		private OutputStream out;
 		private Logger logger = LoggerFactory.getLogger(FileWriterStream.class);
@@ -303,7 +317,7 @@ public abstract class GenericStream<T> implements ReadStream<GenericStream<T>> {
 
 			@Override
 			protected Buffer serialize(T n) throws Exception {
-				return new Buffer(toByteArray.apply(n));
+				return Buffer.buffer(toByteArray.apply(n));
 			}
 		};
 

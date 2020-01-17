@@ -20,8 +20,8 @@ package net.bluemind.calendar.service;
 
 import java.sql.SQLException;
 
-import net.bluemind.calendar.api.IFreebusyUids;
 import net.bluemind.calendar.api.IFreebusyMgmt;
+import net.bluemind.calendar.api.IFreebusyUids;
 import net.bluemind.calendar.service.internal.FreebusyMgmtService;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;

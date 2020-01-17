@@ -18,9 +18,8 @@
  */
 package net.bluemind.todolist.service.internal;
 
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.LocalJsonObject;
@@ -62,13 +61,12 @@ public class TodoListEventProducer {
 
 	public void changed() {
 		JsonObject body = new JsonObject();
-		body.putString("loginAtDomain", loginAtDomain);
+		body.put("loginAtDomain", loginAtDomain);
 		eventBus.publish(TodoListHookAddress.getChangedEventAddress(container.uid), body);
 
 		eventBus.publish(TodoListHookAddress.CHANGED,
-				new JsonObject().putString("container", container.uid).putString("type", container.type)
-						.putString("loginAtDomain", loginAtDomain)
-						.putString("domainUid", securityContext.getContainerUid()));
+				new JsonObject().put("container", container.uid).put("type", container.type)
+						.put("loginAtDomain", loginAtDomain).put("domainUid", securityContext.getContainerUid()));
 	}
 
 	private VTodoMessage getVTodoMessage(String uid, VTodo vtodo) {

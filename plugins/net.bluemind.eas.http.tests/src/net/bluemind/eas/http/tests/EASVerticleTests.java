@@ -18,14 +18,13 @@
  */
 package net.bluemind.eas.http.tests;
 
+import java.util.Base64;
 import java.util.Set;
 
-import org.vertx.java.core.MultiMap;
-import org.vertx.java.core.http.HttpClient;
-import org.vertx.java.core.http.HttpClientRequest;
-import org.vertx.java.core.json.impl.Base64;
-import org.vertx.java.platform.VerticleConstructor;
-
+import io.vertx.core.MultiMap;
+import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.http.HttpClientRequest;
 import junit.framework.TestCase;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.LoginResponse;
@@ -44,7 +43,7 @@ import net.bluemind.eas.http.tests.mocks.DummyFilter1;
 import net.bluemind.eas.http.tests.mocks.DummyFilter2;
 import net.bluemind.eas.http.tests.vertx.TestResponseHandler;
 import net.bluemind.eas.testhelper.vertx.Deploy;
-import net.bluemind.lib.vertx.Constructor;
+import net.bluemind.eas.testhelper.vertx.Deploy.VerticleConstructor;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
@@ -60,12 +59,9 @@ public class EASVerticleTests extends TestCase {
 	private String password = "admin";
 	private String coreUrl = "http://core2.bm.lan:8090";
 
-	private VerticleConstructor[] verticlesClasses = new VerticleConstructor[] {
-			Constructor.of(EASHttpVerticle::new, EASHttpVerticle.class) };
+	private VerticleConstructor[] verticlesClasses = VerticleConstructor.of(EASHttpVerticle::new);
 
-	private VerticleConstructor[] workerClasses = new VerticleConstructor[] {
-			Constructor.of(CoreAuth::new, CoreAuth.class),
-			Constructor.of(DeviceValidationVerticle::new, DeviceValidationVerticle.class) };
+	private VerticleConstructor[] workerClasses = VerticleConstructor.of(CoreAuth::new, DeviceValidationVerticle::new);
 
 	public void setUp() {
 		GlobalConfig.DISABLE_POLICIES = true;
@@ -196,16 +192,15 @@ public class EASVerticleTests extends TestCase {
 
 	private void addClientHeaders(HttpClientRequest req, boolean windowsStyle) {
 		MultiMap headers = req.headers();
-		String authHeader = "Basic " + Base64.encodeBytes(
+		String authHeader = "Basic " + Base64.getEncoder().encodeToString(
 				(windowsStyle ? domain + "\\" + login + ":" + password : latd + ":" + password).getBytes());
 		headers.add("Authorization", authHeader);
 		headers.add(EasHeaders.Client.PROTOCOL_VERSION, "14.1");
 	}
 
 	private HttpClient client() {
-		HttpClient client = VertxPlatform.getVertx().createHttpClient();
-		client.setHost("127.0.0.1").setPort(8082);
-		return client;
+		return VertxPlatform.getVertx()
+				.createHttpClient(new HttpClientOptions().setDefaultHost("127.0.0.1").setDefaultPort(8082));
 	}
 
 	public void tearDown() {

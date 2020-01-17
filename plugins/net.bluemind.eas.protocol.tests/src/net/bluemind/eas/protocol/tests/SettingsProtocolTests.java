@@ -20,9 +20,9 @@ package net.bluemind.eas.protocol.tests;
 
 import java.util.concurrent.TimeUnit;
 
-import org.vertx.java.core.buffer.Buffer;
 import org.w3c.dom.Document;
 
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.eas.command.settings.SettingsProtocol;
 import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.eas.protocol.ProtocolExecutor;

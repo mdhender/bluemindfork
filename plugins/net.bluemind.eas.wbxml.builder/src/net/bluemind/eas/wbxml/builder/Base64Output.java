@@ -24,8 +24,8 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.buffer.Buffer;
 
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.eas.wbxml.WbxmlOutput;
 
 public class Base64Output extends WbxmlOutput {
@@ -158,7 +158,7 @@ public class Base64Output extends WbxmlOutput {
 
 	private void flush0() {
 		if (position > 0) {
-			Buffer slide = new Buffer().appendBytes(encoded, 0, position);
+			Buffer slide = Buffer.buffer().appendBytes(encoded, 0, position);
 			try {
 				out.write(slide.getBytes());
 			} catch (IOException e) {

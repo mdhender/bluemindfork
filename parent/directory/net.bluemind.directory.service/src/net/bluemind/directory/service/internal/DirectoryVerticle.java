@@ -1,19 +1,20 @@
 package net.bluemind.directory.service.internal;
 
 import org.apache.commons.lang.StringUtils;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Verticle;
 
 import com.netflix.spectator.api.Registry;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.Verticle;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 
-public class DirectoryVerticle extends Verticle {
+public class DirectoryVerticle extends AbstractVerticle {
 	private static final Registry registry = MetricsRegistry.get();
 	private static final IdFactory idFactory = new IdFactory(MetricsRegistry.get(), DirectoryVerticle.class);
 
@@ -33,7 +34,7 @@ public class DirectoryVerticle extends Verticle {
 
 	@Override
 	public void start() {
-		getVertx().eventBus().registerHandler("dir.changed", new Handler<Message<JsonObject>>() {
+		getVertx().eventBus().consumer("dir.changed", new Handler<Message<JsonObject>>() {
 			@Override
 			public void handle(Message<JsonObject> event) {
 				String domain = event.body().getString("domain");

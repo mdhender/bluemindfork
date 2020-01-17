@@ -28,11 +28,11 @@ import java.util.concurrent.CountDownLatch;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.collect.Lists;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
@@ -55,7 +55,7 @@ public class DomainValidatorTests {
 	@Before
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
-		
+
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 		ElasticsearchTestHelper.getInstance().beforeTest();
 		ContainerStore containerStore = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
@@ -84,7 +84,7 @@ public class DomainValidatorTests {
 
 	@Test
 	public void testNominal() {
-		validateNotFail(Domain.create("test.lan", "test", null, Collections.<String> emptySet()));
+		validateNotFail(Domain.create("test.lan", "test", null, Collections.<String>emptySet()));
 
 		validateNotFail(Domain.create("test.lan.org", "test", "desc", new HashSet<>(Arrays.asList("test.lan"))));
 	}
@@ -96,7 +96,7 @@ public class DomainValidatorTests {
 
 	@Test
 	public void testDomainName() {
-		Domain testData = Domain.create("test.lan", "test", null, Collections.<String> emptySet());
+		Domain testData = Domain.create("test.lan", "test", null, Collections.<String>emptySet());
 		testData.name = null;
 		validateFail(testData);
 
@@ -114,7 +114,7 @@ public class DomainValidatorTests {
 
 	@Test
 	public void testDomainLabel() {
-		Domain testData = Domain.create("test.lan", null, null, Collections.<String> emptySet());
+		Domain testData = Domain.create("test.lan", null, null, Collections.<String>emptySet());
 		validateFail(testData);
 
 		testData.label = "";

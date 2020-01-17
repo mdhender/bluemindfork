@@ -28,8 +28,9 @@ import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
+
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 public class WebExtensionsResolver {
 
@@ -80,12 +81,12 @@ public class WebExtensionsResolver {
 			JsonArray jsExtensions = new JsonArray();
 			for (IExtension extension : export.getExtensions()) {
 				JsonObject jsonExt = new JsonObject();
-				jsonExt.putString("bundle", extension.getContributor().getName());
+				jsonExt.put("bundle", extension.getContributor().getName());
 				loadConfiguration(jsonExt, extension.getConfigurationElements());
-				jsExtensions.addObject(jsonExt);
+				jsExtensions.add(jsonExt);
 			}
 
-			ret.putArray(export.getUniqueIdentifier(), jsExtensions);
+			ret.put(export.getUniqueIdentifier(), jsExtensions);
 		}
 
 		return ret;
@@ -97,19 +98,18 @@ public class WebExtensionsResolver {
 		for (IConfigurationElement ce : elts) {
 			JsonObject jsonCe = new JsonObject();
 			for (String att : ce.getAttributeNames()) {
-				jsonCe.putString(att, ce.getAttribute(att, lang));
+				jsonCe.put(att, ce.getAttribute(att, lang));
 			}
 			if (ce.getValue() != null) {
-				jsonCe.putString("body", ce.getValue());
+				jsonCe.put("body", ce.getValue());
 			}
 
-				
 			if (ce.getChildren() != null) {
 				JsonObject child = new JsonObject();
 				loadConfiguration(child, ce.getChildren());
-				jsonCe.putObject("children", child);
+				jsonCe.put("children", child);
 			}
-			jsonExt.putObject(ce.getName(), jsonCe);
+			jsonExt.put(ce.getName(), jsonCe);
 		}
 
 	}

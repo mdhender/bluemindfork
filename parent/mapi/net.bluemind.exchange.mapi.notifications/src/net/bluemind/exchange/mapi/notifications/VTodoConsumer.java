@@ -23,9 +23,9 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.model.ItemDescriptor;
@@ -51,10 +51,10 @@ public class VTodoConsumer implements ITodoListHook {
 			List<ItemDescriptor> descriptors = cm.getItems(Arrays.asList(message.itemUid));
 			for (ItemDescriptor id : descriptors) {
 				JsonObject js = new JsonObject();
-				js.putString("messageClass", "IPM.Task");
-				js.putString("containerUid", message.container.uid);
-				js.putNumber("internalId", id.internalId);
-				js.putString("operation", op.name());
+				js.put("messageClass", "IPM.Task");
+				js.put("containerUid", message.container.uid);
+				js.put("internalId", id.internalId);
+				js.put("operation", op.name());
 				eb.send(Topic.MAPI_ITEM_NOTIFICATIONS, js);
 			}
 		} catch (ServerFault sf) {
@@ -75,10 +75,10 @@ public class VTodoConsumer implements ITodoListHook {
 	@Override
 	public void onTodoDeleted(VTodoMessage message) {
 		JsonObject js = new JsonObject();
-		js.putString("messageClass", "IPM.Task");
-		js.putString("containerUid", message.container.uid);
-		js.putNumber("internalId", 0L);
-		js.putString("operation", CrudOperation.Delete.name());
+		js.put("messageClass", "IPM.Task");
+		js.put("containerUid", message.container.uid);
+		js.put("internalId", 0L);
+		js.put("operation", CrudOperation.Delete.name());
 		eb.send(Topic.MAPI_ITEM_NOTIFICATIONS, js);
 	}
 

@@ -22,6 +22,7 @@ import java.io.Closeable;
 import java.io.IOException;
 
 import com.google.common.io.ByteSource;
+
 import net.bluemind.common.io.FileBackedOutputStream;
 
 public abstract class IMAPByteSource implements Closeable {

@@ -33,11 +33,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.base.Strings;
 
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.postfix.internal.PostfixPaths;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.fault.ErrorCode;

@@ -21,10 +21,10 @@ package net.bluemind.eas.endpoint.tests;
 import java.io.IOException;
 import java.util.UUID;
 
-import org.vertx.java.core.buffer.Buffer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.eas.command.mail.sendmail.SendMailEndpoint;
 import net.bluemind.eas.dto.sendmail.SendMailResponse;
 import net.bluemind.eas.http.wbxml.WbxmlHandlerBase;

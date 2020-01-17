@@ -20,14 +20,13 @@ package net.bluemind.core.task.service.internal;
 
 import java.util.concurrent.ConcurrentLinkedDeque;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.core.streams.ReadStream;
-
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.api.Stream;
 
-public class LogStream implements ReadStream<LogStream>, Stream {
+public class LogStream implements ReadStream<Buffer>, Stream {
 
 	private Handler<Buffer> handler;
 
@@ -39,7 +38,7 @@ public class LogStream implements ReadStream<LogStream>, Stream {
 	private Handler<Void> endHandler;
 
 	@Override
-	public LogStream dataHandler(Handler<Buffer> handler) {
+	public LogStream handler(Handler<Buffer> handler) {
 
 		this.handler = handler;
 		read();
@@ -97,7 +96,7 @@ public class LogStream implements ReadStream<LogStream>, Stream {
 	}
 
 	public void pushData(JsonObject logMessage) {
-		queue.add(new Buffer(logMessage.encode()));
+		queue.add(Buffer.buffer(logMessage.encode()));
 		if (!paused && handler != null) {
 			read();
 		}
@@ -106,5 +105,10 @@ public class LogStream implements ReadStream<LogStream>, Stream {
 	public void end() {
 		ended = true;
 		ended();
+	}
+
+	@Override
+	public ReadStream<Buffer> fetch(long amount) {
+		return this;
 	}
 }

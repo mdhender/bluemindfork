@@ -20,9 +20,10 @@ package net.bluemind.vertx.common;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpServerRequest;
+
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpServerRequest;
 
 public final class Body {
 
@@ -30,9 +31,9 @@ public final class Body {
 	private static final Logger logger = LoggerFactory.getLogger(Body.class);
 
 	public static final void handle(HttpServerRequest r, final Handler<Buffer> bh) {
-		final Buffer body = new Buffer(1024);
+		final Buffer body = Buffer.buffer(1024);
 
-		r.dataHandler(new Handler<Buffer>() {
+		r.handler(new Handler<Buffer>() {
 
 			@Override
 			public void handle(Buffer event) {

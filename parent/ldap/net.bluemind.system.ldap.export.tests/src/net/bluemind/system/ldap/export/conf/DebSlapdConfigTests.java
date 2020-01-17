@@ -50,7 +50,6 @@ import net.bluemind.node.api.NodeActivator;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.ldap.export.LdapHelper;
-import net.bluemind.system.ldap.export.conf.DebSlapdConfig;
 
 public class DebSlapdConfigTests {
 	private String ldapRoleServerIp = new BmConfIni().get("bluemind/ldap");

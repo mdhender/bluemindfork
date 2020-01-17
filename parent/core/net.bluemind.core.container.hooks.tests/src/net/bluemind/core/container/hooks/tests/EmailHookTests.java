@@ -26,8 +26,8 @@ import java.util.UUID;
 
 import org.apache.james.mime4j.stream.RawField;
 import org.junit.Test;
-import org.vertx.java.core.eventbus.Message;
 
+import io.vertx.core.eventbus.Message;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.model.ItemValue;

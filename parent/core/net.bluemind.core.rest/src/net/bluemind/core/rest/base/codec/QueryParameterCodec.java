@@ -18,7 +18,7 @@
  */
 package net.bluemind.core.rest.base.codec;
 
-import org.vertx.java.core.MultiMap;
+import io.vertx.core.MultiMap;
 
 public interface QueryParameterCodec<T> {
 

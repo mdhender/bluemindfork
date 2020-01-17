@@ -23,17 +23,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.vertx.java.core.buffer.Buffer;
-
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 
 import io.netty.buffer.Unpooled;
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.rest.base.RestRequest;
 import net.bluemind.core.rest.vertx.VertxStream;
 
 public class DefaultBodyParameterCodecs {
+
+	private DefaultBodyParameterCodecs() {
+	}
 
 	private static final List<BodyParameterCodec.Factory<?>> codecs = new ArrayList<>();
 
@@ -153,7 +155,7 @@ public class DefaultBodyParameterCodecs {
 
 		@Override
 		public void encode(String object, RestRequest request) {
-			request.body = new Buffer(object);
+			request.body = Buffer.buffer(object);
 		}
 
 	}
@@ -167,7 +169,7 @@ public class DefaultBodyParameterCodecs {
 
 		@Override
 		public void encode(byte[] object, RestRequest request) {
-			request.body = new Buffer(Unpooled.wrappedBuffer(object));
+			request.body = Buffer.buffer(Unpooled.wrappedBuffer(object));
 		}
 
 	}

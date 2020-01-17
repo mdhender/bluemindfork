@@ -24,8 +24,7 @@ package net.bluemind.cli.directory.common;
  */
 import java.util.List;
 
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.container.api.ContainerQuery;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
@@ -44,9 +43,9 @@ public abstract class ListCommand extends SingleOrDomainOperation {
 
 		for (BaseContainerDescriptor baseContainerDescriptor : containerList) {
 			JsonObject containerJson = new JsonObject();
-			containerJson.putString("owner", baseContainerDescriptor.owner);
-			containerJson.putString("uid", baseContainerDescriptor.uid);
-			containerJson.putString("name", baseContainerDescriptor.name);
+			containerJson.put("owner", baseContainerDescriptor.owner);
+			containerJson.put("uid", baseContainerDescriptor.uid);
+			containerJson.put("name", baseContainerDescriptor.name);
 			ctx.info(containerJson.toString());
 		}
 	}

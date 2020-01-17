@@ -495,7 +495,8 @@ public class DevicePanel extends CompositeGwtWidgetElement {
 		JsUser user = map.get("user").cast();
 		this.user = DirEntry.create(null, null, Kind.USER, map.getString("userId"), user.getLogin(), null, false, false,
 				false);
-		boolean easSyncUnknown = "true".equals(map.get(SysConfKeys.eas_sync_unknown.name())) ? true : false;
+		String val = map.get(SysConfKeys.eas_sync_unknown.name()).toString();
+		boolean easSyncUnknown = "true".equals(val) ? true : false;
 		setDisplay(this.user, easSyncUnknown);
 	}
 

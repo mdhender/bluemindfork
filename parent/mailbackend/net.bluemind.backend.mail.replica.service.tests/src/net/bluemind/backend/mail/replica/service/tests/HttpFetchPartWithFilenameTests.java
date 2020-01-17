@@ -28,14 +28,14 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClient;
+import org.asynchttpclient.RequestBuilder;
+import org.asynchttpclient.Response;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.RequestBuilder;
-import com.ning.http.client.Response;
 
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.IMailboxFolders;
@@ -117,7 +117,7 @@ public class HttpFetchPartWithFilenameTests extends AbstractRollingReplicationTe
 
 		ItemValue<MailboxItem> item = this.addDraft(inbox);
 
-		AsyncHttpClient httpClient = new AsyncHttpClient();
+		AsyncHttpClient httpClient = new DefaultAsyncHttpClient();
 
 		RequestBuilder requestBuilder = new RequestBuilder();
 		requestBuilder.setMethod("GET");

@@ -21,11 +21,10 @@ package net.bluemind.core.serialization;
 import java.io.File;
 import java.nio.file.Path;
 
-import org.vertx.java.core.json.JsonObject;
-
 import com.netflix.hollow.api.producer.HollowProducer;
 import com.netflix.hollow.api.producer.fs.HollowFilesystemAnnouncer;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Topic;
 
@@ -46,9 +45,9 @@ public class HzHollowAnnouncer extends HollowFilesystemAnnouncer implements Holl
 	public void announce(long stateVersion) {
 		super.announce(stateVersion);
 		JsonObject data = new JsonObject();
-		data.putString("action", "version_announcement");
-		data.putString("dataset", dataset);
-		data.putNumber("version", stateVersion);
+		data.put("action", "version_announcement");
+		data.put("dataset", dataset);
+		data.put("version", stateVersion);
 		MQ.getProducer(Topic.DATA_SERIALIZATION_NOTIFICATIONS).send(data);
 	}
 

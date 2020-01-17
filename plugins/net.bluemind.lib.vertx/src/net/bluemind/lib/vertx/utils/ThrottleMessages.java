@@ -23,28 +23,28 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.eventbus.Message;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.Message;
 
-public class ThrottleMessages<T> implements Handler<Message<? extends T>> {
+public class ThrottleMessages<T> implements Handler<Message<T>> {
 
 	private Vertx vertx;
 	private int interval;
 
 	private Map<Object, Throttle<T>> timersMap = new ConcurrentHashMap<>();
-	private Handler<Message<? extends T>> wrappredHandler;
-	private Function<Message<? extends T>, Object> eventToKey;
-	private BiFunction<Message<? extends T>, Message<? extends T>, Message<? extends T>> msgAccumulator;
+	private Handler<Message<T>> wrappredHandler;
+	private Function<Message<T>, Object> eventToKey;
+	private BiFunction<Message<T>, Message<T>, Message<T>> msgAccumulator;
 
-	public ThrottleMessages(Function<Message<? extends T>, Object> eventToKey,
-			Handler<Message<? extends T>> wrappedHandler, Vertx vertx, int throttleTimeInMs) {
+	public ThrottleMessages(Function<Message<T>, Object> eventToKey, Handler<Message<T>> wrappedHandler, Vertx vertx,
+			int throttleTimeInMs) {
 		this(eventToKey, Throttle.lastAccumulator(), wrappedHandler, vertx, throttleTimeInMs);
 	}
 
-	public ThrottleMessages(Function<Message<? extends T>, Object> eventToKey,
-			BiFunction<Message<? extends T>, Message<? extends T>, Message<? extends T>> msgAccu,
-			Handler<Message<? extends T>> wrappedHandler, Vertx vertx, int throttleTimeInMs) {
+	public ThrottleMessages(Function<Message<T>, Object> eventToKey,
+			BiFunction<Message<T>, Message<T>, Message<T>> msgAccu, Handler<Message<T>> wrappedHandler, Vertx vertx,
+			int throttleTimeInMs) {
 		this.eventToKey = eventToKey;
 		this.vertx = vertx;
 		this.interval = throttleTimeInMs;
@@ -53,7 +53,7 @@ public class ThrottleMessages<T> implements Handler<Message<? extends T>> {
 	}
 
 	@Override
-	public void handle(Message<? extends T> event) {
+	public void handle(Message<T> event) {
 		Throttle<T> handler = timersMap.computeIfAbsent(eventToKey.apply(event),
 				k -> new Throttle<>(this.wrappredHandler, msgAccumulator, vertx, this.interval));
 		handler.handle(event);

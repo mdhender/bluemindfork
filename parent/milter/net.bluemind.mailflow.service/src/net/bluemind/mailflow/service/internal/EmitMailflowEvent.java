@@ -18,8 +18,7 @@
  */
 package net.bluemind.mailflow.service.internal;
 
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.json.JsonObject;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.OOPMessage;
 import net.bluemind.hornetq.client.Topic;
@@ -37,7 +36,7 @@ public class EmitMailflowEvent {
 			}
 		});
 
-		VertxPlatform.eventBus().registerHandler("core.mailflow.context.changed", (message) -> {
+		VertxPlatform.eventBus().consumer("core.mailflow.context.changed", (message) -> {
 			OOPMessage cm = new OOPMessage((JsonObject) message.body());
 			MQ.getProducer(Topic.MAILFLOW_NOTIFICATIONS).send(cm);
 		});
@@ -45,15 +44,15 @@ public class EmitMailflowEvent {
 
 	public static void invalidateConfig(String domainUid) {
 		JsonObject message = new JsonObject();
-		message.putString("domainUid", domainUid);
-		message.putString("event", "assignments.changed");
+		message.put("domainUid", domainUid);
+		message.put("event", "assignments.changed");
 		VertxPlatform.eventBus().publish("core.mailflow.context.changed", message);
 	}
 
 	public static void invalidateDomainAliasCache(String domainUid) {
 		JsonObject message = new JsonObject();
-		message.putString("domainUid", domainUid);
-		message.putString("event", "domain.config.changed");
+		message.put("domainUid", domainUid);
+		message.put("event", "domain.config.changed");
 		VertxPlatform.eventBus().publish("core.mailflow.context.changed", message);
 	}
 

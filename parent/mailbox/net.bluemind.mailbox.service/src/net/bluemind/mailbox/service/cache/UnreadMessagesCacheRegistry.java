@@ -18,13 +18,11 @@
  */
 package net.bluemind.mailbox.service.cache;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
-
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -37,14 +35,8 @@ public class UnreadMessagesCacheRegistry implements ICacheRegistration {
 	public void registerCaches(CacheRegistry cr) {
 		cr.register(UnreadMessagesCacheRegistry.class, contCache);
 
-		VertxPlatform.getVertx().eventBus().registerHandler("bm.mailbox.hook.changed",
-				new Handler<Message<JsonObject>>() {
-
-					@Override
-					public void handle(Message<JsonObject> event) {
-						invalidate(event.body().getString("container"));
-					}
-				});
+		VertxPlatform.getVertx().eventBus().consumer("bm.mailbox.hook.changed",
+				(Message<JsonObject> event) -> invalidate(event.body().getString("container")));
 	}
 
 	public static Integer getIfPresent(String uid) {

@@ -33,14 +33,16 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.file.AsyncFile;
-import org.vertx.java.core.streams.Pump;
-import org.vertx.java.core.streams.ReadStream;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
 
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.file.AsyncFile;
+import io.vertx.core.file.OpenOptions;
+import io.vertx.core.streams.Pump;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.BMVersion;
@@ -330,8 +332,9 @@ public class InstallationService implements IInstallation {
 		File archiveFile = new File(ArchiveHelper.SUBSCRIPTION_ARCHIVE_PATH);
 		archiveFile.delete();
 
-		ReadStream<?> read = VertxStream.read(archive);
-		final AsyncFile aFile = VertxPlatform.getVertx().fileSystem().openSync(archiveFile.getAbsolutePath());
+		ReadStream<Buffer> read = VertxStream.read(archive);
+		final AsyncFile aFile = VertxPlatform.getVertx().fileSystem().openBlocking(archiveFile.getAbsolutePath(),
+				new OpenOptions());
 
 		read.endHandler(new Handler<Void>() {
 
@@ -346,7 +349,7 @@ public class InstallationService implements IInstallation {
 			}
 		});
 
-		Pump pump = Pump.createPump(read, aFile);
+		Pump pump = Pump.pump(read, aFile);
 		pump.start();
 	}
 

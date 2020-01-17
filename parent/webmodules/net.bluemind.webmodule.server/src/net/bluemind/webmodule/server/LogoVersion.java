@@ -20,7 +20,7 @@ package net.bluemind.webmodule.server;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.vertx.java.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerRequest;
 
 // FIXME move me in the correct plugin
 public class LogoVersion {

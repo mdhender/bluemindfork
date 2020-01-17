@@ -32,10 +32,8 @@
       <plugin id="com.hazelcast"/>
       <plugin id="com.hazelcast.client" fragment="true"/>
       <plugin id="com.netflix.spectator.api"/>
-      <plugin id="com.ning.async-http-client"/>
       <plugin id="io.netty"/>
       <plugin id="io.vertx.core"/>
-      <plugin id="io.vertx.platform"/>
       <plugin id="javax.validation.api"/>
       <plugin id="javax.ws.rs"/>
       <plugin id="jcl.over.slf4j"/>
@@ -96,7 +94,6 @@
       <plugin id="org.eclipse.osgi"/>
       <plugin id="org.eclipse.osgi.services"/>
       <plugin id="org.eclipse.update.configurator"/>
-      <plugin id="org.jboss.netty"/>
       <plugin id="slf4j.api"/>
       <plugin id="tigase-server"/>
       <plugin id="tigase.extras"/>

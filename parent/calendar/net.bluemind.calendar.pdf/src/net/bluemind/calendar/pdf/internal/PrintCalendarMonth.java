@@ -32,8 +32,8 @@ import org.w3c.dom.Element;
 
 import net.bluemind.calendar.api.PrintOptions;
 import net.bluemind.calendar.api.VEvent;
-import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.date.BmDateTime.Precision;
+import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemContainerValue;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;

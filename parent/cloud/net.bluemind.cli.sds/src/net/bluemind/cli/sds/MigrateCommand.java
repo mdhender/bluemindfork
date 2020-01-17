@@ -9,16 +9,17 @@ import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import org.vertx.java.core.json.JsonObject;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClient;
+import org.asynchttpclient.ListenableFuture;
+import org.asynchttpclient.Response;
 
 import com.google.common.hash.Hashing;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.ListenableFuture;
-import com.ning.http.client.Response;
 
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
@@ -82,7 +83,7 @@ public class MigrateCommand implements ICmdLet, Runnable {
 	}
 
 	private void migrate(CyrusPartition partition) throws IOException {
-		AsyncHttpClient ahc = new AsyncHttpClient();
+		AsyncHttpClient ahc = new DefaultAsyncHttpClient();
 		Files.walk(partition.archiveParent(), FileVisitOption.FOLLOW_LINKS).filter(p -> {
 			File asFile = p.toFile();
 			return asFile.isFile() && asFile.getName().endsWith(".");
@@ -96,8 +97,7 @@ public class MigrateCommand implements ICmdLet, Runnable {
 			String fn = p.toFile().getAbsolutePath();
 			@SuppressWarnings("deprecation")
 			String guid = com.google.common.io.Files.asByteSource(p.toFile()).hash(Hashing.sha1()).toString();
-			JsonObject upload = new JsonObject().putString("mailbox", "migration").putString("guid", guid)
-					.putString("filename", fn);
+			JsonObject upload = new JsonObject().put("mailbox", "migration").put("guid", guid).put("filename", fn);
 			if (!dry) {
 				ListenableFuture<Response> resp = ahc.preparePut("http://127.0.0.1:8091/sds")
 						.setBody(upload.encode().getBytes()).setHeader("Content-Type", "application/json").execute();

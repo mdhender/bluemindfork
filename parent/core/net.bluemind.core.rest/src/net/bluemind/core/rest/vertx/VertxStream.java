@@ -22,11 +22,10 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.streams.ReadStream;
-
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.api.Stream;
 
 public class VertxStream {
@@ -34,18 +33,18 @@ public class VertxStream {
 	private VertxStream() {
 	}
 
-	public static class ReadStreamStream implements Stream, ReadStream<ReadStreamStream> {
+	public static class ReadStreamStream implements Stream, ReadStream<Buffer> {
 
-		private final ReadStream<?> stream;
+		private final ReadStream<Buffer> stream;
 		private final Optional<String> mime;
 		private final Optional<String> charset;
 		private final Optional<String> fileName;
 
-		public ReadStreamStream(ReadStream<?> delegate) {
+		public ReadStreamStream(ReadStream<Buffer> delegate) {
 			this(delegate, Optional.empty(), Optional.empty(), Optional.empty());
 		}
 
-		public ReadStreamStream(ReadStream<?> delegate, Optional<String> mime, Optional<String> charset,
+		public ReadStreamStream(ReadStream<Buffer> delegate, Optional<String> mime, Optional<String> charset,
 				Optional<String> filename) {
 			this.stream = delegate;
 			this.mime = mime;
@@ -75,8 +74,8 @@ public class VertxStream {
 		}
 
 		@Override
-		public ReadStreamStream dataHandler(Handler<Buffer> handler) {
-			stream.dataHandler(handler);
+		public ReadStreamStream handler(Handler<Buffer> handler) {
+			stream.handler(handler);
 			return this;
 		}
 
@@ -98,9 +97,14 @@ public class VertxStream {
 			return this;
 		}
 
+		@Override
+		public ReadStream<Buffer> fetch(long amount) {
+			return this;
+		}
+
 	}
 
-	public static <T> Stream stream(ReadStream<T> stream) {
+	public static Stream stream(ReadStream<Buffer> stream) {
 		if (stream instanceof Stream) {
 			return (Stream) stream;
 		} else {
@@ -108,7 +112,7 @@ public class VertxStream {
 		}
 	}
 
-	public static <T> Stream stream(ReadStream<T> stream, String mime, String charset, String fileName) {
+	public static Stream stream(ReadStream<Buffer> stream, String mime, String charset, String fileName) {
 		if (stream instanceof Stream) {
 			return (Stream) stream;
 		} else {
@@ -116,13 +120,13 @@ public class VertxStream {
 		}
 	}
 
-	private static <T> Stream wrap(ReadStream<?> stream, String mime, String charset, String fileName) {
+	private static Stream wrap(ReadStream<Buffer> stream, String mime, String charset, String fileName) {
 		return new ReadStreamStream(stream, Optional.ofNullable(mime), Optional.ofNullable(charset),
 				Optional.ofNullable(fileName));
 	}
 
-	public static ReadStream<?> read(Stream stream) {
-		return (ReadStream<?>) stream;
+	public static <T> ReadStream<T> read(Stream stream) {
+		return (ReadStream<T>) stream;
 	}
 
 	public static CompletableFuture<Void> sink(Stream stream) {
@@ -131,7 +135,7 @@ public class VertxStream {
 		} else {
 			ReadStream<?> vxStream = (ReadStream<?>) stream;
 			CompletableFuture<Void> ret = new CompletableFuture<Void>();
-			vxStream.dataHandler(b -> {
+			vxStream.handler(b -> {
 			});
 			vxStream.endHandler(v -> ret.complete(null));
 			vxStream.exceptionHandler(ex -> ret.completeExceptionally(ex));
@@ -140,43 +144,48 @@ public class VertxStream {
 		}
 	}
 
-	public static ReadStream<?> readInContext(final Vertx vertx, Stream stream) {
-		ReadStream<?> rs = (ReadStream<?>) stream;
-		return new ReadStream<Void>() {
+	public static <T> ReadStream<T> readInContext(final Vertx vertx, Stream stream) {
+		ReadStream<T> rs = (ReadStream<T>) stream;
+		return new ReadStream<T>() {
 
 			@Override
-			public Void dataHandler(Handler<Buffer> handler) {
-				vertx.runOnContext((Void) -> rs.dataHandler(handler));
-				return null;
+			public ReadStream<T> handler(Handler<T> handler) {
+				vertx.runOnContext((v) -> rs.handler(handler));
+				return this;
 			}
 
 			@Override
-			public Void pause() {
+			public ReadStream<T> pause() {
 				vertx.runOnContext((Void) -> rs.pause());
-				return null;
+				return this;
 			}
 
 			@Override
-			public Void resume() {
+			public ReadStream<T> resume() {
 				vertx.runOnContext((Void) -> rs.resume());
-				return null;
+				return this;
 			}
 
 			@Override
-			public Void exceptionHandler(Handler<Throwable> handler) {
+			public ReadStream<T> exceptionHandler(Handler<Throwable> handler) {
 				rs.exceptionHandler(handler);
-				return null;
+				return this;
 			}
 
 			@Override
-			public Void endHandler(Handler<Void> endHandler) {
+			public ReadStream<T> endHandler(Handler<Void> endHandler) {
 				rs.endHandler(endHandler);
-				return null;
+				return this;
+			}
+
+			@Override
+			public ReadStream<T> fetch(long amount) {
+				return this;
 			}
 		};
 	}
 
-	public static class LocalPathStream implements Stream, ReadStream<LocalPathStream> {
+	public static class LocalPathStream implements Stream, ReadStream<Buffer> {
 
 		private final Path path;
 
@@ -189,7 +198,7 @@ public class VertxStream {
 		}
 
 		@Override
-		public LocalPathStream dataHandler(Handler<Buffer> handler) {
+		public LocalPathStream handler(Handler<Buffer> handler) {
 			return this;
 		}
 
@@ -210,6 +219,11 @@ public class VertxStream {
 
 		@Override
 		public LocalPathStream endHandler(Handler<Void> endHandler) {
+			return this;
+		}
+
+		@Override
+		public LocalPathStream fetch(long amount) {
 			return this;
 		}
 

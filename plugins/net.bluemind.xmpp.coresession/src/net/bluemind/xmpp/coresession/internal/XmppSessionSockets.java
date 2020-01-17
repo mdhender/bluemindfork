@@ -24,11 +24,13 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
+
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.json.JsonObject;
 
 public class XmppSessionSockets {
 
@@ -36,7 +38,7 @@ public class XmppSessionSockets {
 
 	private long timer = -1;
 	private String sessionId;
-	private Map<String, Handler<Message<Boolean>>> sockets = new HashMap<>();
+	private Map<String, MessageConsumer<Boolean>> sockets = new HashMap<>();
 
 	private EventBus eventBus;
 
@@ -56,9 +58,9 @@ public class XmppSessionSockets {
 	}
 
 	private void unregister(String socketId) {
-		Handler<Message<Boolean>> entry = sockets.get(socketId);
-		if (entry != null) {
-			eventBus.unregisterHandler("websocket." + socketId + ".closed", entry);
+		MessageConsumer<Boolean> cons = sockets.get(socketId);
+		if (cons != null) {
+			cons.unregister();
 			sockets.remove(socketId);
 		}
 
@@ -75,8 +77,8 @@ public class XmppSessionSockets {
 			timer = -1;
 		}
 		Handler<Message<Boolean>> handler = closedHandler(socketId);
-		sockets.put(socketId, handler);
-		eventBus.registerHandler("websocket." + socketId + ".closed", handler);
+		MessageConsumer<Boolean> cons = eventBus.consumer("websocket." + socketId + ".closed", handler);
+		sockets.put(socketId, cons);
 	}
 
 	private Handler<Message<Boolean>> closedHandler(final String socketId) {

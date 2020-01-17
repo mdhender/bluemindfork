@@ -5,12 +5,15 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.MultiMap;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.CaseInsensitiveMultiMap;
-import org.vertx.java.core.http.HttpServerResponse;
+
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.MultiMap;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.CaseInsensitiveHeaders;
+import io.vertx.core.http.Cookie;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.HttpServerResponse;
 
 public class ResponseObject implements HttpServerResponse {
 
@@ -18,16 +21,16 @@ public class ResponseObject implements HttpServerResponse {
 
 	private int statusCode;
 	private String statusMessage;
-	private final CaseInsensitiveMultiMap headers;
-	private final CaseInsensitiveMultiMap trailers;
+	private final CaseInsensitiveHeaders headers;
+	private final CaseInsensitiveHeaders trailers;
 	public final Buffer content;
 
 	private final CountDownLatch latch;
 
 	public ResponseObject() {
-		this.headers = new CaseInsensitiveMultiMap();
-		this.trailers = new CaseInsensitiveMultiMap();
-		this.content = new Buffer();
+		this.headers = new CaseInsensitiveHeaders();
+		this.trailers = new CaseInsensitiveHeaders();
+		this.content = Buffer.buffer();
 		this.statusCode = 200;
 		this.statusMessage = "OK";
 		this.latch = new CountDownLatch(1);
@@ -209,22 +212,167 @@ public class ResponseObject implements HttpServerResponse {
 	}
 
 	@Override
-	public HttpServerResponse sendFile(String filename, String notFoundFile) {
-		throw new RuntimeException("Not implemented.");
-	}
-
-	@Override
-	public HttpServerResponse sendFile(String filename, Handler<AsyncResult<Void>> resultHandler) {
-		throw new RuntimeException("Not implemented.");
-	}
-
-	@Override
-	public HttpServerResponse sendFile(String filename, String notFoundFile, Handler<AsyncResult<Void>> resultHandler) {
-		throw new RuntimeException("Not implemented.");
-	}
-
-	@Override
 	public void close() {
+	}
+
+	@Override
+	public void end(Handler<AsyncResult<Void>> handler) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public HttpServerResponse write(Buffer data, Handler<AsyncResult<Void>> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse endHandler(Handler<Void> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse write(String chunk, String enc, Handler<AsyncResult<Void>> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse write(String chunk, Handler<AsyncResult<Void>> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse writeContinue() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void end(String chunk, Handler<AsyncResult<Void>> handler) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void end(String chunk, String enc, Handler<AsyncResult<Void>> handler) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void end(Buffer chunk, Handler<AsyncResult<Void>> handler) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public HttpServerResponse sendFile(String filename, long offset, long length) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse sendFile(String filename, long offset, long length,
+			Handler<AsyncResult<Void>> resultHandler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean ended() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean closed() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean headWritten() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public HttpServerResponse headersEndHandler(Handler<Void> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse bodyEndHandler(Handler<Void> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public long bytesWritten() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int streamId() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public HttpServerResponse push(HttpMethod method, String host, String path,
+			Handler<AsyncResult<HttpServerResponse>> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse push(HttpMethod method, String path, MultiMap headers,
+			Handler<AsyncResult<HttpServerResponse>> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse push(HttpMethod method, String path, Handler<AsyncResult<HttpServerResponse>> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse push(HttpMethod method, String host, String path, MultiMap headers,
+			Handler<AsyncResult<HttpServerResponse>> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void reset(long code) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public HttpServerResponse writeCustomFrame(int type, int flags, Buffer payload) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpServerResponse addCookie(Cookie cookie) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Cookie removeCookie(String name, boolean invalidate) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

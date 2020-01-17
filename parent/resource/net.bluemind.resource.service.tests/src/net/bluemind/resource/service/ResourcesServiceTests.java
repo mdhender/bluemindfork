@@ -35,11 +35,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.io.ByteStreams;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.addressbook.domainbook.verticle.DomainBookVerticle;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.core.api.Email;

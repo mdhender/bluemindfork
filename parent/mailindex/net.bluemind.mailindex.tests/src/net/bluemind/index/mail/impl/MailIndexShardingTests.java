@@ -40,10 +40,10 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.buffer.Buffer;
 
 import com.google.common.io.Files;
 
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.backend.mail.api.MailboxItem.SystemFlag;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.indexing.IndexedMessageBody;
@@ -172,7 +172,7 @@ public class MailIndexShardingTests {
 
 			@Override
 			protected Buffer serialize(byte[] n) throws Exception {
-				return new Buffer(n);
+				return Buffer.buffer(n);
 			}
 
 			@Override

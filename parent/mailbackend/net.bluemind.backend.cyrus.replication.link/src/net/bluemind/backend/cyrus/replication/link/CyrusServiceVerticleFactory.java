@@ -17,8 +17,7 @@
   */
 package net.bluemind.backend.cyrus.replication.link;
 
-import org.vertx.java.platform.Verticle;
-
+import io.vertx.core.Verticle;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
 public class CyrusServiceVerticleFactory implements IVerticleFactory {

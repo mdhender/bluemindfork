@@ -25,10 +25,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
-import org.vertx.java.core.Vertx;
 
 import com.google.common.collect.Lists;
 
+import io.vertx.core.Vertx;
 import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.core.container.model.ItemValue;
@@ -38,7 +38,6 @@ import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.StoreClient;
-import net.bluemind.lib.vertx.Constructor;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.lmtp.testhelper.client.VertxLmtpClient;
 import net.bluemind.lmtp.testhelper.model.FakeMailbox;
@@ -72,7 +71,7 @@ public class CyrusLmtpTests extends AbstractChainTest {
 	public void setupMailServices(MailboxesModel mdl) throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
-		Deploy.verticles(false, Constructor.of(LocatorVerticle::new, LocatorVerticle.class)).get(5, TimeUnit.SECONDS);
+		Deploy.verticles(false, LocatorVerticle::new).get(5, TimeUnit.SECONDS);
 
 		BmConfIni ini = new BmConfIni();
 

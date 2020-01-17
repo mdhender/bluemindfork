@@ -33,11 +33,11 @@
       <plugin id="com.hazelcast"/>
       <plugin id="com.hazelcast.client" fragment="true"/>
       <plugin id="com.netflix.spectator.api"/>
-      <plugin id="com.ning.async-http-client"/>
+      <plugin id="com.typesafe.netty.reactive-streams"/>
       <plugin id="font-awesome"/>
       <plugin id="io.netty"/>
       <plugin id="io.vertx.core"/>
-      <plugin id="io.vertx.platform"/>
+      <plugin id="io.vertx.web"/>
       <plugin id="javax.validation.api"/>
       <plugin id="javax.ws.rs"/>
       <plugin id="javax.xml"/>
@@ -46,13 +46,17 @@
       <plugin id="net.bluemind.addressbook.api"/>
       <plugin id="net.bluemind.authentication.api"/>
       <plugin id="net.bluemind.backend.cyrus.partitions"/>
+      <plugin id="net.bluemind.backend.mail.api"/>
+      <plugin id="net.bluemind.backend.mail.replica.api"/>
       <plugin id="net.bluemind.common.freemarker"/>
+      <plugin id="net.bluemind.common.io"/>
       <plugin id="net.bluemind.common.reflect"/>
       <plugin id="net.bluemind.config"/>
       <plugin id="net.bluemind.core.commons"/>
       <plugin id="net.bluemind.core.container.api"/>
       <plugin id="net.bluemind.core.context"/>
       <plugin id="net.bluemind.core.rest"/>
+      <plugin id="net.bluemind.core.rest.common"/>
       <plugin id="net.bluemind.core.rest.http"/>
       <plugin id="net.bluemind.core.sessions"/>
       <plugin id="net.bluemind.core.task.api"/>
@@ -69,12 +73,14 @@
       <plugin id="net.bluemind.mailbox.api"/>
       <plugin id="net.bluemind.mailbox.identity.api"/>
       <plugin id="net.bluemind.metrics.registry"/>
+      <plugin id="net.bluemind.network.topology"/>
       <plugin id="net.bluemind.network.topology.consumer"/>
       <plugin id="net.bluemind.osgi.log"/>
       <plugin id="net.bluemind.proxy.http"/>
       <plugin id="net.bluemind.proxy.http.launcher"/>
       <plugin id="net.bluemind.server.api"/>
       <plugin id="net.bluemind.slf4j"/>
+      <plugin id="net.bluemind.slf4j.configuration" fragment="true"/>
       <plugin id="net.bluemind.system.api"/>
       <plugin id="net.bluemind.system.stateobserver"/>
       <plugin id="net.bluemind.systemd.notify"/>
@@ -91,6 +97,8 @@
       <plugin id="org.apache.commons.compress"/>
       <plugin id="org.apache.commons.lang"/>
       <plugin id="org.apache.xml.resolver"/>
+      <plugin id="org.asynchttpclient.async-http-client"/>
+      <plugin id="org.asynchttpclient.async-http-client-netty-utils"/>
       <plugin id="org.eclipse.core.contenttype"/>
       <plugin id="org.eclipse.core.jobs"/>
       <plugin id="org.eclipse.core.runtime"/>
@@ -102,7 +110,7 @@
       <plugin id="org.eclipse.update.configurator"/>
       <plugin id="org.freemarker.freemarker"/>
       <plugin id="org.ini4j"/>
-      <plugin id="org.jboss.netty"/>
+      <plugin id="org.reactivestreams.reactive-streams"/>
       <plugin id="slf4j.api"/>
    </plugins>
 

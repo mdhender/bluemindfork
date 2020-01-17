@@ -27,15 +27,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.streams.ReadStream;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
 
 public class ReadInputStream extends InputStream {
 
 	private BlockingDeque<ByteBuf> queue;
-	private ReadStream<?> inputStream;
+	private ReadStream<Buffer> inputStream;
 	private AtomicBoolean paused = new AtomicBoolean(false);
 	private static final int MAX_QUEUE_SIZE = 100;
 	private static final int QUEUE_RESUME_SIZE = 20;
@@ -45,13 +46,13 @@ public class ReadInputStream extends InputStream {
 	private ByteBuf currentBuff;
 	public Exception exception;
 
-	public ReadInputStream(ReadStream<?> inputStream) {
+	public ReadInputStream(ReadStream<Buffer> inputStream) {
 		this.inputStream = inputStream;
 		queue = new LinkedBlockingDeque<>();
 		this.inputStream.endHandler(endHandle -> {
 			queue.offerLast(Unpooled.buffer());
 		});
-		this.inputStream.dataHandler(handleBuffer -> {
+		this.inputStream.handler(handleBuffer -> {
 
 			ByteBuf byteBuf = handleBuffer.getByteBuf();
 			queue.offerLast(byteBuf);

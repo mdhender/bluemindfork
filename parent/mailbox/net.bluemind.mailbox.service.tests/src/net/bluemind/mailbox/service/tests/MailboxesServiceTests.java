@@ -31,11 +31,11 @@ import java.util.List;
 import java.util.UUID;
 
 import org.junit.Test;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.collect.ImmutableMap;
 
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.core.api.Email;
@@ -60,11 +60,11 @@ import net.bluemind.directory.api.DirEntry;
 import net.bluemind.imap.sieve.SieveClient;
 import net.bluemind.imap.sieve.SieveClient.SieveConnectionData;
 import net.bluemind.imap.sieve.SieveScript;
+import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
-import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.MailboxBusAddresses;
 import net.bluemind.mailbox.api.MailboxConfig;
 import net.bluemind.mailshare.api.IMailshare;

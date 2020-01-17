@@ -9,12 +9,12 @@ Require-Bundle: org.eclipse.core.runtime,
  org.junit;bundle-version="3.8.2",
  net.bluemind.proxy.http;bundle-version="1.0.0",
  net.bluemind.utils;bundle-version="1.0.0",
- com.ning.async-http-client;bundle-version="1.9.26",
  slf4j.api,
  net.bluemind.locator.client;bundle-version="1.0.0",
  net.bluemind.core.rest.http,
  net.bluemind.config,
- net.bluemind.core.rest
+ net.bluemind.core.rest,
+ org.reactivestreams.reactive-streams;bundle-version="1.0.3"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.proxy.http.tests

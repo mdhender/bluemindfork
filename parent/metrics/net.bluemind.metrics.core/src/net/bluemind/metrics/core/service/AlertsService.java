@@ -22,10 +22,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.core.streams.ReadStream;
 
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
@@ -47,10 +47,10 @@ public class AlertsService implements IAlerts {
 	public void receive(Stream payload) {
 		logger.info("Got stream {}", payload);
 		CompletableFuture<Void> handled = new CompletableFuture<>();
-		ReadStream<?> toRead = VertxStream.read(payload);
-		Buffer content = new Buffer();
+		ReadStream<Buffer> toRead = VertxStream.read(payload);
+		Buffer content = Buffer.buffer();
 		toRead.endHandler(v -> handled.complete(null));
-		toRead.dataHandler(b -> content.appendBuffer(b));
+		toRead.handler(b -> content.appendBuffer(b));
 		toRead.resume();
 
 		try {

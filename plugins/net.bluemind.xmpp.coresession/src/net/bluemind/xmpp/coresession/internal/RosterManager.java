@@ -20,6 +20,8 @@ package net.bluemind.xmpp.coresession.internal;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -32,12 +34,14 @@ import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Presence.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
+
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 public class RosterManager {
 
@@ -52,6 +56,7 @@ public class RosterManager {
 
 	protected long cleanupTimer = -1;
 	private Vertx vertx;
+	private List<MessageConsumer<?>> consumers;
 
 	public RosterManager(Vertx vertx, String sessionId, XMPPConnection xmppConn) {
 		this.vertx = vertx;
@@ -61,6 +66,7 @@ public class RosterManager {
 		this.roster = xmppConn.getRoster();
 		// user have to accept subscription
 		roster.setSubscriptionMode(SubscriptionMode.manual);
+		consumers = new LinkedList<>();
 
 		uglyCleanup();
 	}
@@ -103,9 +109,9 @@ public class RosterManager {
 	public void start() {
 		roster.addRosterListener(rosterListener);
 
-		eventBus.registerHandler(busAddr + ":entries", entriesHandler);
-		eventBus.registerHandler(busAddr + ":add-buddy", addBuddyHandler);
-		eventBus.registerHandler(busAddr + ":remove-buddy", removeBuddyHandler);
+		consumers.add(eventBus.consumer(busAddr + ":entries", entriesHandler));
+		consumers.add(eventBus.consumer(busAddr + ":add-buddy", addBuddyHandler));
+		consumers.add(eventBus.consumer(busAddr + ":remove-buddy", removeBuddyHandler));
 	}
 
 	public void stop() {
@@ -113,10 +119,8 @@ public class RosterManager {
 			vertx.cancelTimer(cleanupTimer);
 		}
 		roster.removeRosterListener(rosterListener);
-		eventBus.unregisterHandler(busAddr + ":entries", entriesHandler);
-		eventBus.unregisterHandler(busAddr + ":add-buddy", addBuddyHandler);
-		eventBus.unregisterHandler(busAddr + ":remove-buddy", removeBuddyHandler);
-
+		consumers.forEach(MessageConsumer::unregister);
+		consumers.clear();
 	}
 
 	private Handler<Message<JsonObject>> addBuddyHandler = new Handler<Message<JsonObject>>() {
@@ -177,7 +181,7 @@ public class RosterManager {
 
 			logger.debug("[{}] roster:entries called {}", xmppConn.getUser(), msg.body());
 
-			JsonArray entries = msg.body().getArray("entries");
+			JsonArray entries = msg.body().getJsonArray("entries");
 			JsonArray array = new JsonArray();
 
 			if (entries != null) {
@@ -198,7 +202,7 @@ public class RosterManager {
 				}
 			}
 
-			JsonObject replyMsg = new JsonObject().putArray("entries", array);
+			JsonObject replyMsg = new JsonObject().put("entries", array);
 			msg.reply(replyMsg);
 		}
 
@@ -207,31 +211,32 @@ public class RosterManager {
 
 			if (item != null) {
 				JsonObject ret = new JsonObject();
-				ret.putString("user", entry.getUser());
-				ret.putString("userUid", item.user.uid);
-				ret.putString("name", item.user.displayName);
-				ret.putString("latd", item.user.value.defaultEmail().address);
+				ret.put("user", entry.getUser());
+				ret.put("userUid", item.user.uid);
+				ret.put("name", item.user.displayName);
+				ret.put("latd", item.user.value.defaultEmail().address);
 				if (item.photo != null) {
-					ret.putString("photo", item.photo);
+					ret.put("photo", item.photo);
 				}
 
 				Presence userPresence = roster.getPresence(entry.getUser());
 				JsonObject presence = new JsonObject();
-				presence.putString("type", userPresence.getType().name());
+				presence.put("type", userPresence.getType().name());
 				if (userPresence.getMode() != null) {
-					presence.putString("mode", userPresence.getMode().name());
+					presence.put("mode", userPresence.getMode().name());
 				}
 				if (userPresence.getStatus() != null) {
-					presence.putString("status", userPresence.getStatus());
+					presence.put("status", userPresence.getStatus());
 				}
-				ret.putObject("presence", presence);
+				ret.put("presence", presence);
 
 				if (entry.getType() != null) {
-					ret.putString("subs", entry.getType().name());
+					ret.put("subs", entry.getType().name());
 				}
 
 				logger.debug("[{}] roster entry: {} / {}, presence {}, subs: {}", xmppConn.getUser(),
-						ret.getString("user"), ret.getString("name"), ret.getObject("presence"), ret.getString("subs"));
+						ret.getString("user"), ret.getString("name"), ret.getJsonObject("presence"),
+						ret.getString("subs"));
 
 				return ret;
 			}

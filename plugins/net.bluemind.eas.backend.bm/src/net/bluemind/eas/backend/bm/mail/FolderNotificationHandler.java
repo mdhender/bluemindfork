@@ -20,8 +20,8 @@ package net.bluemind.eas.backend.bm.mail;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.eventbus.EventBus;
 
+import io.vertx.core.eventbus.EventBus;
 import net.bluemind.eas.dto.EasBusEndpoints;
 import net.bluemind.eas.dto.push.PushTrigger;
 import net.bluemind.hornetq.client.OOPMessage;

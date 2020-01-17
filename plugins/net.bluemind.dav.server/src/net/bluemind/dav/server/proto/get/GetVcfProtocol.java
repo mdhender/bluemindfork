@@ -23,11 +23,11 @@ import java.util.regex.Matcher;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
 
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.addressbook.adapter.VCardAdapter;
 import net.bluemind.addressbook.adapter.VCardVersion;
 import net.bluemind.addressbook.api.IAddressBook;
@@ -87,7 +87,7 @@ public class GetVcfProtocol implements IDavProtocol<GetQuery, GetResponse<String
 
 	@Override
 	public final void write(GetResponse<String> response, HttpServerResponse sr) {
-		Buffer b = new Buffer();
+		Buffer b = Buffer.buffer();
 		if (response.getValue() != null) {
 			String vcfString = response.getValue();
 			b.appendString(vcfString);

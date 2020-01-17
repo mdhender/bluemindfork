@@ -8,7 +8,8 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.lib.vertx,
  slf4j.api,
- com.google.guava
+ com.google.guava,
+ io.vertx.core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.backend.cyrus.replication.client

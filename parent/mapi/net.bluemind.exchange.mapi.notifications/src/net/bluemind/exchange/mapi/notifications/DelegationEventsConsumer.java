@@ -21,8 +21,8 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.core.container.hooks.IAclHook;
@@ -60,8 +60,8 @@ public class DelegationEventsConsumer implements IAclHook {
 
 	private void triggerRefresh(ContainerDescriptor container) {
 		JsonObject js = new JsonObject();
-		js.putString("domain", container.domainUid).putString("owner", container.owner);
-		js.putString("containerUid", container.uid).putString("type", container.type);
+		js.put("domain", container.domainUid).put("owner", container.owner);
+		js.put("containerUid", container.uid).put("type", container.type);
 		logger.info("Trigger DIO refresh after ACL change on {} ({})", container.uid, container.type);
 		VertxPlatform.eventBus().publish(Topic.MAPI_DELEGATION_NOTIFICATIONS, js);
 	}

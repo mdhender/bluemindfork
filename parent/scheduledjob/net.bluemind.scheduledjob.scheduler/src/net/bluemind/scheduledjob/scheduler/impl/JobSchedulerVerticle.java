@@ -24,16 +24,16 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.scheduledjob.scheduler.IScheduledJob;
 import net.bluemind.system.api.IInstallation;
 import net.bluemind.system.api.InstallationVersion;
 
-public class JobSchedulerVerticle extends Verticle {
+public class JobSchedulerVerticle extends AbstractVerticle {
 	private static final Logger logger = LoggerFactory.getLogger(JobSchedulerVerticle.class);
 
 	private Map<String, IScheduledJob> jobs;

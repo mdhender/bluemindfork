@@ -29,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.xml.transform.TransformerException;
 
-import org.vertx.java.platform.VerticleConstructor;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -42,20 +41,20 @@ import net.bluemind.eas.serdes.AsyncBuildHelper;
 import net.bluemind.eas.serdes.AsyncBuildHelper.IBuildOperation;
 import net.bluemind.eas.serdes.IResponseBuilder;
 import net.bluemind.eas.testhelper.vertx.Deploy;
+import net.bluemind.eas.testhelper.vertx.Deploy.VerticleConstructor;
 import net.bluemind.eas.utils.DOMUtils;
 import net.bluemind.eas.wbxml.WBXMLTools;
 import net.bluemind.eas.wbxml.WbxmlOutput;
 import net.bluemind.eas.wbxml.builder.WbxmlResponseBuilder;
 import net.bluemind.eas.wbxml.builder.vertx.ByteSourceEventProducer;
-import net.bluemind.lib.vertx.Constructor;
 
 public class ResponseBuilderTests extends TestCase {
 
 	private Set<String> deployements;
 
 	public void setUp() {
-		deployements = Deploy.beforeTest(new VerticleConstructor[0], new VerticleConstructor[] {
-				Constructor.of(ByteSourceEventProducer::new, ByteSourceEventProducer.class) });
+		deployements = Deploy.beforeTest(new VerticleConstructor[0],
+				VerticleConstructor.of(ByteSourceEventProducer::new));
 	}
 
 	private static final class LatchCountdown implements Callback<Void> {

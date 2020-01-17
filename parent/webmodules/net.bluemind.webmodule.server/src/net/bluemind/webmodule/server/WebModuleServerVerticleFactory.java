@@ -18,8 +18,7 @@
  */
 package net.bluemind.webmodule.server;
 
-import org.vertx.java.platform.Verticle;
-
+import io.vertx.core.Verticle;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
 public class WebModuleServerVerticleFactory implements IVerticleFactory {

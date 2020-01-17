@@ -1,7 +1,6 @@
 package net.bluemind.proxy.http.auth.api;
 
-import org.vertx.java.core.http.HttpServerRequest;
-
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.proxy.http.IAuthProvider;
 
 public interface IAuthEnforcer {

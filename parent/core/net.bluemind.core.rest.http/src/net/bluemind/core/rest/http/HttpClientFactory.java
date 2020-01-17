@@ -18,7 +18,7 @@
  */
 package net.bluemind.core.rest.http;
 
-import com.ning.http.client.AsyncHttpClient;
+import org.asynchttpclient.AsyncHttpClient;
 
 import net.bluemind.core.rest.base.BasicClientProxy;
 import net.bluemind.core.rest.http.internal.AsyncHttpCallHandler;
@@ -33,7 +33,7 @@ public class HttpClientFactory<S, T> extends BasicClientProxy<S, T> {
 		return ClientSideServiceProvider.defaultClient;
 	}
 
-	public HttpClientFactory(Class<S> api, Class<T> asyncApi, String baseUrl, AsyncHttpClient client) {
+	HttpClientFactory(Class<S> api, Class<T> asyncApi, String baseUrl, AsyncHttpClient client) {
 		super(new AsyncHttpCallHandler(client, baseUrl), api, asyncApi);
 	}
 

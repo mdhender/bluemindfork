@@ -27,12 +27,13 @@ import javax.xml.transform.TransformerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.eventbus.Message;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
 import net.bluemind.eas.config.global.GlobalConfig;
 import net.bluemind.eas.dto.NamespaceMapping;
 import net.bluemind.eas.dto.base.Callback;
@@ -145,7 +146,7 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 		return text(currentNS, name, value);
 	}
 
-	private final class NextChunk implements Handler<Message<LocalJsonObject<Chunk>>> {
+	private final class NextChunk implements Handler<AsyncResult<Message<LocalJsonObject<Chunk>>>> {
 
 		private EventBus eb;
 		private IResponseBuilder self;
@@ -164,9 +165,9 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 		}
 
 		@Override
-		public void handle(Message<LocalJsonObject<Chunk>> event) {
+		public void handle(AsyncResult<Message<LocalJsonObject<Chunk>>> event) {
 			MDC.put("user", loginForSifting);
-			Chunk c = event.body().getValue();
+			Chunk c = event.result().body().getValue();
 			if (c == Chunk.LAST) {
 				logger.debug("Last chunk after receiving {}bytes.", total);
 				end.onResult(self);
@@ -192,7 +193,7 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Asking for nextChunk....");
 			}
-			eb.send(ByteSourceEventProducer.NEXT_CHUNK, streamId, this);
+			eb.request(ByteSourceEventProducer.NEXT_CHUNK, streamId, this);
 		}
 
 	}
@@ -201,12 +202,12 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 		LocalJsonObject<DisposableByteSource> source = new LocalJsonObject<>(streamable);
 		final EventBus eb = VertxPlatform.eventBus();
 		final IResponseBuilder self = this;
-		eb.send(ByteSourceEventProducer.REGISTER, source, new Handler<Message<String>>() {
+		eb.request(ByteSourceEventProducer.REGISTER, source, new Handler<AsyncResult<Message<String>>>() {
 
 			@Override
-			public void handle(Message<String> streamIdMsg) {
+			public void handle(AsyncResult<Message<String>> streamIdMsg) {
 				MDC.put("user", loginForSifting);
-				String stream = streamIdMsg.body();
+				String stream = streamIdMsg.result().body();
 				logger.debug("Stream {} ready to go", stream);
 				containerNamesStack.peek().setTextContent("[binary " + stream + "]");
 				NextChunk nc = new NextChunk(eb, stream, output, self, completion);
@@ -232,12 +233,12 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 			}
 
 		};
-		eb.send(ByteSourceEventProducer.REGISTER, source, new Handler<Message<String>>() {
+		eb.request(ByteSourceEventProducer.REGISTER, source, new Handler<AsyncResult<Message<String>>>() {
 
 			@Override
-			public void handle(Message<String> streamIdMsg) {
+			public void handle(AsyncResult<Message<String>> streamIdMsg) {
 				MDC.put("user", loginForSifting);
-				String stream = streamIdMsg.body();
+				String stream = streamIdMsg.result().body();
 				logger.info("Stream {} ready to go as base64", stream);
 				containerNamesStack.peek().setTextContent("[base64 " + stream + "]");
 				NextChunk nc = new NextChunk(eb, stream, b64, self, preComplete);

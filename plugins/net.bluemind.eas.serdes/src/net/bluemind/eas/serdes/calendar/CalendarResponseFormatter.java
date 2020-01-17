@@ -18,13 +18,10 @@
  */
 package net.bluemind.eas.serdes.calendar;
 
-import java.nio.charset.Charset;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
 
 import net.bluemind.eas.dto.NamespaceMapping;
 import net.bluemind.eas.dto.base.Callback;
@@ -379,9 +376,7 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 	}
 
 	private static String toB64(byte[] bytes) {
-		ChannelBuffer src = ChannelBuffers.wrappedBuffer(bytes);
-		ChannelBuffer result = org.jboss.netty.handler.codec.base64.Base64.encode(src, false);
-		return result.toString(Charset.defaultCharset());
+		return Base64.getEncoder().encodeToString(bytes);
 	}
 
 	private void appendAttendees(IResponseBuilder b, List<Attendee> attendees) {

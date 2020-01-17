@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
-import net.bluemind.lib.vertx.Constructor;
 import net.bluemind.lmtp.testhelper.model.MockServerStats;
 import net.bluemind.vertx.testhelper.Deploy;
 
@@ -35,8 +34,7 @@ public class MockServer {
 	public static final List<CompletableFuture<Void>> closeListeners = new LinkedList<>();
 
 	public static void start() {
-		Deploy.verticles(false, Constructor.of(MockServerVerticle::new, MockServerVerticle.class))
-				.thenAccept(depIds -> deployed.addAll(depIds)).join();
+		Deploy.verticles(false, MockServerVerticle::new).thenAccept(depIds -> deployed.addAll(depIds)).join();
 	}
 
 	public static void stop() {

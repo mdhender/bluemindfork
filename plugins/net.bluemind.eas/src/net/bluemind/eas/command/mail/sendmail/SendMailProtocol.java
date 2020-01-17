@@ -20,12 +20,13 @@ package net.bluemind.eas.command.mail.sendmail;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
 import org.w3c.dom.Document;
 
 import com.google.common.io.ByteSource;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
 import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.backend.SendMailData;
 import net.bluemind.eas.dto.EasBusEndpoints;
@@ -79,22 +80,26 @@ public class SendMailProtocol implements IEasProtocol<SendMailRequest, SendMailR
 			mail.mailContent = ByteSource.wrap(bytes);
 			mail.saveInSent = query.saveInSentItems;
 
-			VertxPlatform.eventBus().send(EasBusEndpoints.SEND_MAIL, new LocalJsonObject<SendMailData>(mail),
-					new Handler<Message<String>>() {
-						@Override
-						public void handle(Message<String> event) {
-							String resp = event.body();
-
-							if (resp == null) {
-								store.insertClientId(query.clientId);
-								responseHandler.handle(null);
-							} else {
-								Status status = Status.valueOf(resp);
-								SendMailResponse response = new SendMailResponse();
-								response.status = status;
-								responseHandler.handle(response);
-							}
+			VertxPlatform.eventBus().request(EasBusEndpoints.SEND_MAIL, new LocalJsonObject<SendMailData>(mail),
+					(AsyncResult<Message<String>> event) -> {
+						if (event.failed()) {
+							SendMailResponse response = new SendMailResponse();
+							response.status = Status.MailSubmissionFailed;
+							responseHandler.handle(response);
+							return;
 						}
+						String resp = event.result().body();
+
+						if (resp == null) {
+							store.insertClientId(query.clientId);
+							responseHandler.handle(null);
+						} else {
+							Status status = Status.valueOf(resp);
+							SendMailResponse response = new SendMailResponse();
+							response.status = status;
+							responseHandler.handle(response);
+						}
+
 					});
 
 		} else {

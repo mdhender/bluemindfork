@@ -31,8 +31,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.Vertx;
 
+import io.vertx.core.Vertx;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.rest.tests.services.ComplexRequest;
 import net.bluemind.core.rest.tests.services.ComplexResponse;

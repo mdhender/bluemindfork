@@ -29,9 +29,10 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
 
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.IAddressBooksMgmt;
 import net.bluemind.addressbook.api.IAddressBooksMgmt.ChangesetItem;
@@ -153,8 +154,8 @@ public class MgntTests extends AbstractServiceTests {
 		getService(container, defaultSecurityContext).create("testUid3", card);
 
 		Stream backupStream = getBooksMgmt().backup(container.uid, 0L);
-
-		VertxStream.read(backupStream).dataHandler(new Handler<Buffer>() {
+		ReadStream<Buffer> rs = VertxStream.read(backupStream);
+		rs.handler(new Handler<Buffer>() {
 
 			@Override
 			public void handle(Buffer arg0) {
@@ -198,7 +199,7 @@ public class MgntTests extends AbstractServiceTests {
 
 			@Override
 			protected Buffer serialize(ChangesetItem n) throws Exception {
-				return new Buffer(JsonUtils.asString(n));
+				return Buffer.buffer(JsonUtils.asString(n));
 			}
 
 		};

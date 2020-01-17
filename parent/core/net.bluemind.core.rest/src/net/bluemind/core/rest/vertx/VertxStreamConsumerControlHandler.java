@@ -22,10 +22,11 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.impl.DefaultContext;
+
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageConsumer;
 
 public class VertxStreamConsumerControlHandler {
 
@@ -34,8 +35,8 @@ public class VertxStreamConsumerControlHandler {
 	private String recvAddress = null;
 	private Vertx vertx;
 	private VertxStreamConsumer stream;
-	private DefaultContext context;
-	private Handler<Message<VertxRestStreamObject>> handler;
+	private MessageConsumer<VertxRestStreamObject> cons;
+	// private DefaultContext context;
 
 	public VertxStreamConsumerControlHandler(Vertx vertx, VertxStreamConsumer vertxStreamConsumer,
 			String controlAddress) {
@@ -64,7 +65,7 @@ public class VertxStreamConsumerControlHandler {
 	}
 
 	private void handleData(final String recvAddress) {
-		handler = new Handler<Message<VertxRestStreamObject>>() {
+		Handler<Message<VertxRestStreamObject>> handler = new Handler<Message<VertxRestStreamObject>>() {
 
 			@Override
 			public void handle(final Message<VertxRestStreamObject> msg) {
@@ -80,7 +81,7 @@ public class VertxStreamConsumerControlHandler {
 
 			}
 		};
-		vertx.eventBus().registerHandler(recvAddress, handler);
+		cons = vertx.eventBus().consumer(recvAddress, handler);
 	}
 
 	protected void handleStreamObject(Message<VertxRestStreamObject> event) {
@@ -115,8 +116,9 @@ public class VertxStreamConsumerControlHandler {
 	}
 
 	private void close() {
-		if (handler != null) {
-			vertx.eventBus().unregisterHandler(recvAddress, handler);
+		if (cons != null) {
+			cons.unregister();
+			cons = null;
 		}
 	}
 }

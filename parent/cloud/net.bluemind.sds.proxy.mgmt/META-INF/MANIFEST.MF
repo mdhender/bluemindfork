@@ -7,7 +7,8 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  io.vertx.core,
  slf4j.api,
- com.ning.async-http-client
+ org.asynchttpclient.async-http-client;bundle-version="2.10.4",
+ org.reactivestreams.reactive-streams;bundle-version="1.0.3"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.sds.proxy.mgmt
 Export-Package: net.bluemind.sds.proxy.mgmt

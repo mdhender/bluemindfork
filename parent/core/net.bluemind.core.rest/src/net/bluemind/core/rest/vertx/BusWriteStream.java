@@ -20,14 +20,16 @@ package net.bluemind.core.rest.vertx;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.streams.WriteStream;
 
-public class BusWriteStream implements WriteStream<BusWriteStream> {
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.eventbus.DeliveryOptions;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.streams.WriteStream;
+
+public class BusWriteStream implements WriteStream<Buffer> {
 	private static final Logger logger = LoggerFactory.getLogger(BusWriteStream.class);
 	protected String streamAddress;
 	private Handler<Void> drainHandler;
@@ -67,7 +69,7 @@ public class BusWriteStream implements WriteStream<BusWriteStream> {
 				logger.debug("writestream [{}] send end ", streamAddress);
 
 				if (replyEvent != null) {
-					replyEvent.reply();
+					replyEvent.reply(null);
 					replyEvent = null;
 				}
 
@@ -90,7 +92,7 @@ public class BusWriteStream implements WriteStream<BusWriteStream> {
 		ended = true;
 		if (!queueFull && replyEvent != null) {
 			logger.debug("writestream [{}] send end ", streamAddress);
-			replyEvent.reply();
+			replyEvent.reply(null);
 			replyEvent = null;
 		}
 	}
@@ -132,18 +134,31 @@ public class BusWriteStream implements WriteStream<BusWriteStream> {
 		queueFull = true;
 		logger.debug(" stream producer[{}]:{} reply data {}", streamAddress, queueFull, data);
 
-		current.replyWithTimeout(data, 10000, new Handler<AsyncResult<Message<Void>>>() {
-
-			@Override
-			public void handle(AsyncResult<Message<Void>> event) {
-				if (event.succeeded()) {
-					busHandler().handle(event.result());
-				} else {
-					logger.error("stream producer [{}] : write timeout", streamAddress);
-				}
-			}
-		});
+		current.replyAndRequest(data, new DeliveryOptions().setSendTimeout(10000),
+				(AsyncResult<Message<Void>> event) -> {
+					if (event.succeeded()) {
+						busHandler().handle(event.result());
+					} else {
+						logger.error("stream producer [{}] : write timeout", streamAddress);
+					}
+				});
 
 		return this;
+	}
+
+	@Override
+	public WriteStream<Buffer> write(Buffer data, Handler<AsyncResult<Void>> handler) {
+		write(data);
+		handler.handle(null);
+		return this;
+	}
+
+	@Override
+	public void end() {
+	}
+
+	@Override
+	public void end(Handler<AsyncResult<Void>> handler) {
+		handler.handle(null);
 	}
 }

@@ -18,9 +18,8 @@
  */
 package net.bluemind.addressbook.service.internal;
 
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.addressbook.api.AddressBookBusAddresses;
 import net.bluemind.addressbook.hook.internal.VCardMessage;
 import net.bluemind.core.container.model.Container;
@@ -56,12 +55,12 @@ public class AddressBookEventProducer {
 
 	public void changed() {
 		JsonObject body = new JsonObject();
-		body.putString("loginAtDomain", securityContext.getSubject());
+		body.put("loginAtDomain", securityContext.getSubject());
 		eventBus.publish(AddressBookBusAddresses.getChangedEventAddress(container.uid), body);
 		eventBus.publish(AddressBookBusAddresses.CHANGED,
-				new JsonObject().putString("container", container.uid).putString("type", container.type)
-						.putString("loginAtDomain", securityContext.getSubject())
-						.putString("domainUid", securityContext.getContainerUid()));
+				new JsonObject().put("container", container.uid).put("type", container.type)
+						.put("loginAtDomain", securityContext.getSubject())
+						.put("domainUid", securityContext.getContainerUid()));
 	}
 
 	private VCardMessage getMessage(String vcardUid) {

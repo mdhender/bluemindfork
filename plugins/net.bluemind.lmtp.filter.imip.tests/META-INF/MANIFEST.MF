@@ -4,7 +4,6 @@ Bundle-Name: net.bluemind.lmtp.filter.imip.tests
 Bundle-SymbolicName: net.bluemind.lmtp.filter.imip.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
-Fragment-Host: net.bluemind.lmtp.filter.imip;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.junit,
  net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
@@ -30,4 +29,12 @@ Require-Bundle: org.junit,
  net.bluemind.tag.persistence,
  net.bluemind.core.container.persistence,
  net.bluemind.calendar.hook,
- net.bluemind.core.sendmail.testhelper
+ net.bluemind.core.sendmail.testhelper,
+ net.bluemind.lmtp.filter.imip;bundle-version="4.1.0",
+ net.bluemind.core.sendmail,
+ net.bluemind.imip.parser,
+ net.bluemind.calendar.api,
+ net.bluemind.lmtp,
+ org.apache.james.apache-mime4j-core,
+ net.bluemind.calendar.helper,
+ net.bluemind.icalendar.parser;bundle-version="4.1.0"

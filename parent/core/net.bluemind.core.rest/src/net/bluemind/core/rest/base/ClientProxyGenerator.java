@@ -38,13 +38,14 @@ import javax.ws.rs.QueryParam;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.MultiMap;
-import org.vertx.java.core.http.CaseInsensitiveMultiMap;
-import org.vertx.java.core.http.HttpHeaders;
 
 import com.google.common.escape.Escaper;
 import com.google.common.net.PercentEscaper;
 
+import io.vertx.core.MultiMap;
+import io.vertx.core.http.CaseInsensitiveHeaders;
+import io.vertx.core.http.HttpHeaders;
+import io.vertx.core.http.HttpMethod;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -206,7 +207,7 @@ public class ClientProxyGenerator<S, T> {
 				final AsyncHandler<Object> responseHandler) throws Exception {
 
 			RestRequest request = callBuilder.build(instanceParams, args);
-			request.headers.add(defaultHeaders);
+			request.headers.addAll(defaultHeaders);
 			request.remoteAddresses = remoteAddresses;
 			request.origin = origin;
 			logger.debug("send request {}", request);
@@ -374,13 +375,13 @@ public class ClientProxyGenerator<S, T> {
 
 		private PatternBinding binding;
 		private List<Parameter> params;
-		private String methodName;
+		private HttpMethod methodName;
 		private String mimeType;
 		private ResponseCodec<?> responseCodec;
 
 		public MethodCallBuilder(String httpMethodName, List<Parameter> params, PatternBinding binding,
 				String[] produces, ResponseCodec<?> responseCodec) {
-			this.methodName = httpMethodName;
+			this.methodName = HttpMethod.valueOf(httpMethodName);
 			this.params = params;
 			this.binding = binding;
 			this.mimeType = produces[0];
@@ -390,7 +391,7 @@ public class ClientProxyGenerator<S, T> {
 		public RestRequest build(String[] instanceParams, Object[] args) throws Exception {
 			MultiMap headers = RestHeaders.newMultimap();
 			headers.add(HttpHeaders.ACCEPT, mimeType);
-			MultiMap queryParams = new CaseInsensitiveMultiMap();
+			MultiMap queryParams = new CaseInsensitiveHeaders();
 
 			RestRequest request = new RestRequest(null, null, methodName, headers, null, queryParams, null, null);
 			HttpRequestBuilder builder = new HttpRequestBuilder();

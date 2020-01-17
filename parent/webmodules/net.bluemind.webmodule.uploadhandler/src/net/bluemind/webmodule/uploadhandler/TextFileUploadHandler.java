@@ -23,12 +23,12 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpServerFileUpload;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
 
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpServerFileUpload;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.core.utils.JsonUtils;
 
 public class TextFileUploadHandler implements Handler<HttpServerRequest> {
@@ -36,19 +36,19 @@ public class TextFileUploadHandler implements Handler<HttpServerRequest> {
 
 	@Override
 	public void handle(final HttpServerRequest request) {
-		request.expectMultiPart(true);
+		request.setExpectMultipart(true);
 		final List<FileUpload> files = new LinkedList<>();
 		request.uploadHandler(new Handler<HttpServerFileUpload>() {
 
 			@Override
 			public void handle(HttpServerFileUpload upload) {
-				final Buffer buffer = new Buffer();
+				final Buffer buffer = Buffer.buffer();
 				final String name = upload.name();
 				final String filename = upload.filename();
 
 				logger.info("Handling text file-upload. filename: {} for field {}", filename, name);
 
-				upload.dataHandler(new Handler<Buffer>() {
+				upload.handler(new Handler<Buffer>() {
 
 					@Override
 					public void handle(Buffer buff) {

@@ -20,8 +20,8 @@ package net.bluemind.webmodule.dav;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.http.HttpServerRequest;
 
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.dav.server.DavRouter;
 import net.bluemind.webmodule.server.IWebFilter;
 

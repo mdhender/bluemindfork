@@ -34,12 +34,12 @@ import org.apache.james.mime4j.dom.address.Mailbox;
 import org.apache.james.mime4j.field.Fields;
 import org.apache.james.mime4j.message.BasicBodyFactory;
 import org.apache.james.mime4j.util.MimeUtil;
-import org.vertx.java.core.buffer.Buffer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.eas.command.folder.crud.FolderCreateEndpoint;
 import net.bluemind.eas.command.folder.sync.FolderSyncEndpoint;
 import net.bluemind.eas.command.moveitems.MoveItemsEndpoint;

@@ -32,9 +32,9 @@ import org.eclipse.equinox.app.IApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.BMVersion;
 import net.bluemind.core.container.model.ItemValue;
@@ -97,7 +97,8 @@ public class ApplicationLauncher implements IApplication {
 	public void stop() {
 		logger.info("Stopping BlueMind Core...");
 		notifyCoreStatus("core.stopped");
-		VertxPlatform.getPlatformManager().stop();
+		VertxPlatform.undeployVerticles(ar -> {
+		});
 		logger.info("BlueMind Core stopped.");
 	}
 
@@ -113,7 +114,7 @@ public class ApplicationLauncher implements IApplication {
 
 			@Override
 			public void handle(AsyncResult<Void> event) {
-				VertxPlatform.getVertx().eventBus().registerHandler("mailbox.ds.lookup", (message) -> {
+				VertxPlatform.getVertx().eventBus().consumer("mailbox.ds.lookup", (message) -> {
 					loadMailboxDataSource();
 					message.reply("ok");
 				});

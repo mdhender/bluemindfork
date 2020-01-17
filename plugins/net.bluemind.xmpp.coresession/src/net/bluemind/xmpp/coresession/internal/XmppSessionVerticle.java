@@ -23,18 +23,18 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Verticle;
 
 import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.locator.client.LocatorClient;
 
-public class XmppSessionVerticle extends Verticle {
+public class XmppSessionVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(XmppSessionVerticle.class);
 
@@ -45,7 +45,7 @@ public class XmppSessionVerticle extends Verticle {
 
 	@Override
 	public void start() {
-		getVertx().eventBus().registerHandler("xmpp/session:initiate", initiateHandler());
+		getVertx().eventBus().consumer("xmpp/session:initiate", initiateHandler());
 	}
 
 	private Handler<Message<JsonObject>> initiateHandler() {

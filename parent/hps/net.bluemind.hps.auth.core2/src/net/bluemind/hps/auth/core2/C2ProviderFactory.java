@@ -20,14 +20,14 @@ package net.bluemind.hps.auth.core2;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.hornetq.client.Topic;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.proxy.http.IAuthProvider;
@@ -45,7 +45,7 @@ public class C2ProviderFactory implements IAuthProviderFactory {
 	private ILogoutListener logoutListener;
 
 	public C2ProviderFactory() {
-		VertxPlatform.eventBus().registerHandler(Topic.CORE_SESSIONS,
+		VertxPlatform.eventBus().consumer(Topic.CORE_SESSIONS,
 
 				new Handler<Message<JsonObject>>() {
 
@@ -68,7 +68,7 @@ public class C2ProviderFactory implements IAuthProviderFactory {
 					}
 				});
 
-		VertxPlatform.eventBus().registerHandler(IStateListener.STATE_BUS_ADDRESS, new Handler<Message<String>>() {
+		VertxPlatform.eventBus().consumer(IStateListener.STATE_BUS_ADDRESS, new Handler<Message<String>>() {
 
 			@Override
 			public void handle(Message<String> event) {

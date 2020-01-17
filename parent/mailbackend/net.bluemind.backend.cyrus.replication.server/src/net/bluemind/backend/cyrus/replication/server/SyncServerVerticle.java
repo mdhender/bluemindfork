@@ -26,20 +26,21 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Future;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.core.net.NetServer;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Future;
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.net.NetServer;
+import io.vertx.core.net.NetServerOptions;
 import net.bluemind.backend.cyrus.replication.observers.IReplicationObserver;
 import net.bluemind.backend.cyrus.replication.observers.ReplicationObservers;
 import net.bluemind.backend.cyrus.replication.server.state.ReadyStateNotifier;
 import net.bluemind.core.rest.http.HttpClientProvider;
 import net.bluemind.system.api.SystemState;
 
-public class SyncServerVerticle extends Verticle {
+public class SyncServerVerticle extends AbstractVerticle {
 
 	// 2500 conflicts with bm-milter
 	public static final int PORT = 2501;
@@ -49,7 +50,7 @@ public class SyncServerVerticle extends Verticle {
 	private boolean started = false;
 
 	public void start(Future<Void> start) {
-		super.vertx.eventBus().registerHandler(SystemState.BROADCAST, (Message<JsonObject> m) -> {
+		super.vertx.eventBus().consumer(SystemState.BROADCAST, (Message<JsonObject> m) -> {
 			if (!started) {
 				SystemState state = SystemState.fromOperation(m.body().getString("operation"));
 				if (state == SystemState.CORE_STATE_RUNNING) {
@@ -59,12 +60,15 @@ public class SyncServerVerticle extends Verticle {
 			}
 		});
 
-		start.setResult(null);
+		start.complete(null);
 	}
 
 	private void startSyncServer() {
-		NetServer srv = vertx.createNetServer();
-		srv.setAcceptBacklog(1024).setTCPNoDelay(true).setTCPKeepAlive(true).setReuseAddress(true);
+		NetServerOptions syncOpts = new NetServerOptions().setAcceptBacklog(1024).setTcpNoDelay(true)
+				.setTcpKeepAlive(true).setReuseAddress(true);
+		syncOpts.setReceiveBufferSize(4 * 1024 * 1024).setUsePooledBuffers(true);
+
+		NetServer srv = vertx.createNetServer(syncOpts);
 		HttpClientProvider prov = new HttpClientProvider(vertx);
 		List<IReplicationObserver> observers = ReplicationObservers.create(vertx);
 		srv.connectHandler(new SyncServerConnection(vertx, prov, observers));

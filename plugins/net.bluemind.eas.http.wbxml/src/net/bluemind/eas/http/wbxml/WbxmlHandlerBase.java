@@ -20,11 +20,11 @@ package net.bluemind.eas.http.wbxml;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.MultiMap;
-import org.vertx.java.core.http.HttpServerRequest;
 import org.w3c.dom.Document;
 
+import io.vertx.core.Handler;
+import io.vertx.core.MultiMap;
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.eas.http.IEasRequestEndpoint;
 import net.bluemind.eas.http.wbxml.internal.StreamConsumer;
@@ -49,13 +49,13 @@ public abstract class WbxmlHandlerBase implements Handler<AuthorizedDeviceQuery>
 			}
 		}
 		WbxmlRequestComplete rc = new WbxmlRequestComplete(this, consumer, event);
-		httpReq.dataHandler(consumer);
+		httpReq.handler(consumer);
 		httpReq.endHandler(rc);
 	}
 
 	/**
-	 * The body of the request has been read when this is called. The parsed
-	 * wbxml tree is available.
+	 * The body of the request has been read when this is called. The parsed wbxml
+	 * tree is available.
 	 * 
 	 * Nothing has been sent to the client yet.
 	 * 

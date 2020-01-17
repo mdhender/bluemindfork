@@ -32,13 +32,14 @@ import java.util.concurrent.CountDownLatch;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
@@ -71,6 +72,11 @@ public class DomainsServiceTests {
 	private Container domainsContainer;
 	private BmContext testContext;
 	private DomainStoreService storeService;
+
+	@BeforeClass
+	public static void oneShotBefore() {
+		System.setProperty("es.mailspool.count", "1");
+	}
 
 	@Before
 	public void before() throws Exception {
@@ -240,7 +246,7 @@ public class DomainsServiceTests {
 		}
 	}
 
-	@Test
+	@Test(timeout = 45000)
 	public void testDelete() throws ServerFault {
 		Domain d = createDomain("test" + System.currentTimeMillis() + ".lan");
 

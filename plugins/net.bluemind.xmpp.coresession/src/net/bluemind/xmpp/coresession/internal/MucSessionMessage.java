@@ -21,48 +21,48 @@ package net.bluemind.xmpp.coresession.internal;
 import java.util.Collection;
 
 import org.jivesoftware.smackx.muc.Occupant;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
+
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 public class MucSessionMessage {
 
 	public static JsonObject participantsChanged(String room) {
-		return new JsonObject().putString("category", "muc").putString("action", "participants").putString("room",
-				room);
+		return new JsonObject().put("category", "muc").put("action", "participants").put("room", room);
 	}
 
 	public static JsonObject participants(Collection<Occupant> participants) {
 
 		JsonArray array = new JsonArray();
 		for (Occupant occ : participants) {
-			array.addString(occ.getNick());
+			array.add(occ.getNick());
 		}
 
-		return new JsonObject().putNumber("status", XmppSessionMessage.OK).putArray("participants", array);
+		return new JsonObject().put("status", XmppSessionMessage.OK).put("participants", array);
 	}
 
 	public static JsonObject error(String message) {
-		return new JsonObject().putNumber("status", XmppSessionMessage.KO).putString("message", message);
+		return new JsonObject().put("status", XmppSessionMessage.KO).put("message", message);
 	}
 
 	public static JsonObject ok() {
-		return new JsonObject().putNumber("status", XmppSessionMessage.OK);
+		return new JsonObject().put("status", XmppSessionMessage.OK);
 	}
 
 	public static JsonObject message(String from, String body) {
-		return new JsonObject().putString("category", "muc").putString("action", "message").putObject("body",
-				new JsonObject().putString("from", from).putString("message", body));
+		return new JsonObject().put("category", "muc").put("action", "message").put("body",
+				new JsonObject().put("from", from).put("message", body));
 
 	}
 
 	public static JsonObject join(String room, String participant) {
-		return new JsonObject().putString("category", "muc").putString("action", "join").putString("room", room)
-				.putString("participant", participant);
+		return new JsonObject().put("category", "muc").put("action", "join").put("room", room).put("participant",
+				participant);
 	}
 
 	public static JsonObject leave(String room, String participant) {
-		return new JsonObject().putString("category", "muc").putString("action", "leave").putString("room", room)
-				.putString("participant", participant);
+		return new JsonObject().put("category", "muc").put("action", "leave").put("room", room).put("participant",
+				participant);
 
 	}
 }

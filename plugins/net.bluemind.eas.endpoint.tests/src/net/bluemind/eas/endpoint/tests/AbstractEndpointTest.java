@@ -25,12 +25,11 @@ import org.apache.james.mime4j.dom.address.Mailbox;
 import org.apache.james.mime4j.field.Fields;
 import org.apache.james.mime4j.message.BasicBodyFactory;
 import org.apache.james.mime4j.util.MimeUtil;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.platform.VerticleConstructor;
 import org.w3c.dom.Document;
 
 import com.google.common.collect.ImmutableMap;
 
+import io.vertx.core.buffer.Buffer;
 import junit.framework.TestCase;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.device.api.Device;
@@ -48,6 +47,7 @@ import net.bluemind.eas.testhelper.mock.RequestObject;
 import net.bluemind.eas.testhelper.mock.RequestsFactory;
 import net.bluemind.eas.testhelper.mock.ResponseObject;
 import net.bluemind.eas.testhelper.vertx.Deploy;
+import net.bluemind.eas.testhelper.vertx.Deploy.VerticleConstructor;
 import net.bluemind.eas.utils.DOMUtils;
 import net.bluemind.eas.validation.IProtocolValidator;
 import net.bluemind.eas.validation.Validator;
@@ -61,7 +61,6 @@ import net.bluemind.imap.IMAPByteSource;
 import net.bluemind.imap.IMAPException;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
-import net.bluemind.lib.vertx.Constructor;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.user.api.User;
 
@@ -99,11 +98,8 @@ public abstract class AbstractEndpointTest extends TestCase {
 		this.endpoint = createEndpoint();
 
 		deploymentIDs = Deploy.beforeTest(new VerticleConstructor[0],
-				new VerticleConstructor[] { Constructor.of(ProtocolWorker::new, ProtocolWorker.class),
-						Constructor.of(WorkerLazyLoader::new, WorkerLazyLoader.class),
-						Constructor.of(ByteSourceEventProducer::new, ByteSourceEventProducer.class),
-						Constructor.of(SendMailVerticle::new, SendMailVerticle.class),
-						Constructor.of(CollectionListenerVerticle::new, CollectionListenerVerticle.class) });
+				VerticleConstructor.of(ProtocolWorker::new, WorkerLazyLoader::new, ByteSourceEventProducer::new,
+						SendMailVerticle::new, CollectionListenerVerticle::new));
 		CountDownLatch cdl = new CountDownLatch(1);
 		MQ.init(new IMQConnectHandler() {
 

@@ -22,15 +22,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-
-import com.google.common.util.concurrent.SettableFuture;
-import com.ning.http.client.AsyncHttpClient;
 
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -42,30 +40,21 @@ import net.bluemind.lib.vertx.VertxPlatform;
 public class RestSecuredTestServiceTests {
 	private AsyncHttpClient httpClient;
 
-	private SecurityContext masterSC = new SecurityContext("master", "master", Arrays.<String> asList(),
+	private SecurityContext masterSC = new SecurityContext("master", "master", Arrays.<String>asList(),
 			Arrays.asList("master", "role1"), "gg");
 
-	private SecurityContext slaveSC = new SecurityContext("slave", "slave", Arrays.<String> asList(),
+	private SecurityContext slaveSC = new SecurityContext("slave", "slave", Arrays.<String>asList(),
 			Arrays.asList("slave", "role1"), "gg");
 
-	private SecurityContext simpelSC = new SecurityContext("simple", "simple", Arrays.<String> asList(),
+	private SecurityContext simpelSC = new SecurityContext("simple", "simple", Arrays.<String>asList(),
 			Arrays.asList("role1"), "gg");
 
 	@Before
 	public void setup() throws Exception {
 
-		final SettableFuture<Void> future = SettableFuture.<Void> create();
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
+		VertxPlatform.spawnBlocking(20, TimeUnit.SECONDS);
 
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				future.set(null);
-			}
-		};
-		VertxPlatform.spawnVerticles(done);
-		future.get();
-
-		httpClient = new AsyncHttpClient();
+		httpClient = new DefaultAsyncHttpClient();
 		Sessions.get().put(masterSC.getSessionId(), masterSC);
 		Sessions.get().put(slaveSC.getSessionId(), slaveSC);
 		Sessions.get().put(simpelSC.getSessionId(), simpelSC);

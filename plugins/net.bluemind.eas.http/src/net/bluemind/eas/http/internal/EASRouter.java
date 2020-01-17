@@ -24,16 +24,16 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
-import org.vertx.java.core.http.RouteMatcher;
 
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.eas.http.AuthenticatedEASQuery;
 import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.eas.http.EasUrls;
 import net.bluemind.eas.http.IEasRequestEndpoint;
+import net.bluemind.lib.vertx.RouteMatcher;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.system.api.SystemState;
 import net.bluemind.vertx.common.http.BasicAuthHandler;
@@ -70,7 +70,7 @@ public final class EASRouter implements Handler<HttpServerRequest> {
 
 	public EASRouter(Vertx vertx) {
 		this.vertx = vertx;
-		rm = new RouteMatcher();
+		rm = new RouteMatcher(vertx);
 		rm.noMatch(new NoMatch());
 		rm.get(EasUrls.ROOT, new BrokenGet());
 		Handler<HttpServerRequest> optionsChain = nonValidatingQueryHandler(new OptionsHandler());
@@ -120,7 +120,7 @@ public final class EASRouter implements Handler<HttpServerRequest> {
 		}
 
 		final HttpServerRequest wrapped = Requests.wrap(event);
-		Requests.tag(wrapped, "m", event.method());
+		Requests.tag(wrapped, "m", event.method().name());
 		Requests.tag(wrapped, "rid", Long.toString(requestId.incrementAndGet()));
 		Requests.tag(wrapped, "ua", event.headers().get("User-Agent"));
 		wrapped.exceptionHandler(new Handler<Throwable>() {

@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -57,11 +58,13 @@ import org.jivesoftware.smackx.muc.HostedRoom;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
+
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.json.JsonObject;
 
 public class XmppSession {
 
@@ -81,6 +84,7 @@ public class XmppSession {
 
 	private Set<org.jivesoftware.smack.packet.Message> unread;
 	private Set<String> pendingSubscription;
+	private List<MessageConsumer<?>> consumers;
 
 	public XmppSession(XMPPConnection connection, String sessionId, Vertx vertx) {
 
@@ -100,7 +104,7 @@ public class XmppSession {
 
 		unread = new LinkedHashSet<org.jivesoftware.smack.packet.Message>();
 		pendingSubscription = new HashSet<String>();
-
+		this.consumers = new LinkedList<>();
 		registerHandlers();
 
 	}
@@ -131,8 +135,8 @@ public class XmppSession {
 
 					logger.debug("[{}] {} asks for prescence subscription", xmppConn.getUser(), pres.getFrom());
 
-					eventBus.publish(busAddr, message("presence", "subscribe").putObject("body", new JsonObject()//
-							.putString("from", pres.getFrom())));
+					eventBus.publish(busAddr, message("presence", "subscribe").put("body", new JsonObject()//
+							.put("from", pres.getFrom())));
 
 					// send notification
 					String from = pres.getFrom();
@@ -145,8 +149,8 @@ public class XmppSession {
 
 					pendingSubscription.add(pres.getFrom());
 
-					eventBus.publish(busAddr + "/notification", message("presence", "subscribe").putObject("body",
-							new JsonObject().putString("from", from).putString("pic", pic)));
+					eventBus.publish(busAddr + "/notification", message("presence", "subscribe").put("body",
+							new JsonObject().put("from", from).put("pic", pic)));
 
 				} else if (pres.getType().equals(Presence.Type.available)) {
 					if (xmppConn.getUser().equals(pres.getFrom())) {
@@ -183,17 +187,17 @@ public class XmppSession {
 
 		xmppConn.addPacketListener(presenceSubscribeListener, new PacketTypeFilter(Presence.class));
 
-		eventBus.registerHandler(busAddr + ":ownPresence", ownPresenceHandler);
-		eventBus.registerHandler(busAddr + ":presence", presenceHandler);
-		eventBus.registerHandler(busAddr + ":close", closeHandler);
-		eventBus.registerHandler(busAddr + ":chat", chatHandler);
-		eventBus.registerHandler(busAddr + ":accept-subscribe", acceptSubscribeHandler);
+		consumers.add(eventBus.consumer(busAddr + ":ownPresence", ownPresenceHandler));
+		consumers.add(eventBus.consumer(busAddr + ":presence", presenceHandler));
+		consumers.add(eventBus.consumer(busAddr + ":close", closeHandler));
+		consumers.add(eventBus.consumer(busAddr + ":chat", chatHandler));
+		consumers.add(eventBus.consumer(busAddr + ":accept-subscribe", acceptSubscribeHandler));
 
-		eventBus.registerHandler(busAddr + ":discard-subscribe", discardSubscribeHandler);
-		eventBus.registerHandler(busAddr + ":ask-subscribe", askSubscribeHandler);
+		consumers.add(eventBus.consumer(busAddr + ":discard-subscribe", discardSubscribeHandler));
+		consumers.add(eventBus.consumer(busAddr + ":ask-subscribe", askSubscribeHandler));
 
-		eventBus.registerHandler(busAddr + ":unread", unreadHandler);
-		eventBus.registerHandler(busAddr + ":mark-all-as-read", markAllAsReadHandler);
+		consumers.add(eventBus.consumer(busAddr + ":unread", unreadHandler));
+		consumers.add(eventBus.consumer(busAddr + ":mark-all-as-read", markAllAsReadHandler));
 
 		roster.start();
 		mucManager.start();
@@ -206,20 +210,11 @@ public class XmppSession {
 
 		xmppConn.removePacketListener(presenceSubscribeListener);
 
-		eventBus.unregisterHandler(busAddr + ":ownPresence", ownPresenceHandler);
-		eventBus.unregisterHandler(busAddr + ":presence", presenceHandler);
-		eventBus.unregisterHandler(busAddr + ":close", closeHandler);
-		eventBus.unregisterHandler(busAddr + ":chat", chatHandler);
-		eventBus.unregisterHandler(busAddr + ":accept-subscribe", acceptSubscribeHandler);
-
-		eventBus.unregisterHandler(busAddr + ":discard-subscribe", discardSubscribeHandler);
-		eventBus.unregisterHandler(busAddr + ":ask-subscribe", askSubscribeHandler);
-
-		eventBus.unregisterHandler(busAddr + ":unread", unreadHandler);
-		eventBus.unregisterHandler(busAddr + ":mark-all-as-read", markAllAsReadHandler);
+		consumers.forEach(MessageConsumer::unregister);
 
 		for (String thread : chatThreadList) {
-			eventBus.unregisterHandler(busAddr + "/chat/" + thread + ":message", messageHandler);
+			// eventBus.unregisterHandler(busAddr + "/chat/" + thread + ":message",
+			// messageHandler);
 
 			Chat chat = chatManager.getThreadChat(thread);
 			if (chat != null) {
@@ -259,8 +254,8 @@ public class XmppSession {
 							pendingSubscription.size());
 
 					for (String from : pendingSubscription) {
-						eventBus.publish(busAddr, message("presence", "subscribe").putObject("body",
-								new JsonObject().putString("from", from)));
+						eventBus.publish(busAddr,
+								message("presence", "subscribe").put("body", new JsonObject().put("from", from)));
 
 					}
 
@@ -302,7 +297,7 @@ public class XmppSession {
 			unregisterHandlers();
 			xmppConn = null;
 
-			eventBus.send("xmpp/sessions-manager:internal-close", new JsonObject().putString("sessionId", sessionId));
+			eventBus.send("xmpp/sessions-manager:internal-close", new JsonObject().put("sessionId", sessionId));
 
 			presence = new Presence(Presence.Type.unavailable);
 			pushState();
@@ -527,7 +522,7 @@ public class XmppSession {
 
 			chat.addMessageListener(messageListener);
 
-			eventBus.registerHandler(busAddr + "/chat/" + threadID + ":message", messageHandler);
+			eventBus.consumer(busAddr + "/chat/" + threadID + ":message", messageHandler);
 
 			chatThreadList.add(threadID);
 
@@ -583,8 +578,8 @@ public class XmppSession {
 
 	private JsonObject message(String category, String action) {
 		JsonObject message = new JsonObject();
-		message.putString("category", category);
-		message.putString("action", action);
+		message.put("category", category);
+		message.put("action", action);
 		return message;
 	}
 
@@ -626,7 +621,7 @@ public class XmppSession {
 	}
 
 	private void pushState() {
-		eventBus.publish(busAddr, new JsonObject().putString("category", "ownPresence").putObject("presence",
+		eventBus.publish(busAddr, new JsonObject().put("category", "ownPresence").put("presence",
 				XmppSessionMessage.presence(presence.getType(), presence.getStatus(), presence.getMode())));
 
 	}

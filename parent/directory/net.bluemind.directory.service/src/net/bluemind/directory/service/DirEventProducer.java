@@ -22,8 +22,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.json.JsonObject;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 
 public class DirEventProducer {
 
@@ -39,10 +39,8 @@ public class DirEventProducer {
 	}
 
 	public void changed(String uid, Map<String, String> additionalValues) {
-		JsonObject data = new JsonObject().putString("domain", domainUid).putString("uid", uid);
-		additionalValues.forEach((k, v) -> {
-			data.putString(k, v);
-		});
+		JsonObject data = new JsonObject().put("domain", domainUid).put("uid", uid);
+		additionalValues.forEach(data::put);
 		eventBus.publish(address, data);
 	}
 

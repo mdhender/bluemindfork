@@ -25,23 +25,24 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.net.NetClient;
-import org.vertx.java.core.net.NetSocket;
-import org.vertx.java.core.parsetools.RecordParser;
-import org.vertx.java.core.streams.ReadStream;
 
 import com.google.common.io.ByteStreams;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.base64.Base64;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.net.NetClient;
+import io.vertx.core.net.NetClientOptions;
+import io.vertx.core.net.NetSocket;
+import io.vertx.core.parsetools.RecordParser;
+import io.vertx.core.streams.Pump;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class SyncClient {
@@ -65,7 +66,7 @@ public class SyncClient {
 	public SyncClient(Vertx vertx, String host, int port) {
 		this.host = host;
 		this.port = port;
-		this.client = vertx.createNetClient().setSSL(false).setTrustAll(true).setTCPNoDelay(false);
+		this.client = vertx.createNetClient(new NetClientOptions().setSsl(false).setTcpNoDelay(true));
 	}
 
 	private void setupSocket(NetSocket server) {
@@ -95,7 +96,7 @@ public class SyncClient {
 				}
 			}
 		});
-		server.dataHandler(b -> parser.handle(b));
+		server.handler(b -> parser.handle(b));
 	}
 
 	private CompletableFuture<UnparsedResponse> onResponse(String... expected) {
@@ -127,7 +128,7 @@ public class SyncClient {
 		server.write("STARTTLS\r\n");
 		onResponse("OK ", "NO ").thenAccept(okTls -> {
 			logger.info("TLS RESP: {}", okTls);
-			server.ssl(v -> {
+			server.upgradeToSsl(v -> {
 				logger.info("TLS negociated.");
 				onResponse("* OK").thenAccept(secBanner -> {
 					logger.info("POST TLS banner received: '{}'", secBanner);
@@ -158,29 +159,18 @@ public class SyncClient {
 
 	public CompletableFuture<UnparsedResponse> getUser(String loginAtDomain) {
 		String getUser = String.format("GET USER %s\r\n", loginAtDomain);
-		server.write(new Buffer(getUser));
+		server.write(Buffer.buffer(getUser));
 		return onResponse("OK", "NO", "BAD");
 	}
 
-	public CompletableFuture<UnparsedResponse> applyMessages(ReadStream<EmlStream> stream) {
-		AtomicInteger dataSent = new AtomicInteger();
+	public CompletableFuture<UnparsedResponse> applyMessages(ReadStream<Buffer> stream) {
 		String start = "APPLY MESSAGE (";
 		server.write(start);
-		stream.dataHandler(buf -> {
-			server.write(buf);
-			dataSent.addAndGet(buf.length());
-			if (server.writeQueueFull()) {
-				stream.pause();
-				server.drainHandler(v -> {
-					stream.resume();
-					logger.info("Resuming after queue full ({} sent at this point)", dataSent.get());
-				});
-			}
-		});
+		Pump pump = Pump.pump(stream, server);
 		stream.endHandler(v -> {
 			server.write(END_OF_COMMAND);
-			logger.info("end after sending {}byte(s)", dataSent.get());
 		});
+		pump.start();
 
 		return onResponse("OK", "NO", "BAD");
 	}
@@ -193,7 +183,7 @@ public class SyncClient {
 			throw new RuntimeException(e);
 		}
 		String apply = "APPLY MESSAGE (%{" + partition + " " + guid + " " + bytes.length + "}\r\n";
-		Buffer forServer = new Buffer(apply);
+		Buffer forServer = Buffer.buffer(apply);
 		forServer.appendBytes(bytes);
 		forServer.appendString(END_OF_COMMAND);
 		server.write(forServer);
@@ -202,7 +192,7 @@ public class SyncClient {
 
 	public CompletableFuture<UnparsedResponse> rawCommand(String cmd) {
 		String withCrLf = cmd + "\r\n";
-		Buffer forServer = new Buffer(withCrLf);
+		Buffer forServer = Buffer.buffer(withCrLf);
 		server.write(forServer);
 		return onResponse("OK", "NO", "BAD");
 	}
@@ -212,7 +202,7 @@ public class SyncClient {
 		// bytes.length + "}\r\n";
 		String apply = "APPLY ANNOTATION %(MBOXNAME " + mboxToken(mbox) + " ENTRY " + entry + " USERID " + userId
 				+ " VALUE " + value + END_OF_COMMAND;
-		Buffer forServer = new Buffer(apply);
+		Buffer forServer = Buffer.buffer(apply);
 		server.write(forServer);
 		return onResponse("OK", "NO", "BAD");
 	}
@@ -223,20 +213,20 @@ public class SyncClient {
 
 	public CompletableFuture<UnparsedResponse> getMeta(String loginAtDomain) {
 		String getUser = String.format("GET META %s\r\n", loginAtDomain);
-		server.write(new Buffer(getUser));
+		server.write(Buffer.buffer(getUser));
 		return onResponse("OK", "NO", "BAD");
 	}
 
 	public CompletableFuture<UnparsedResponse> getMailboxes(String... mboxes) {
 		String quotedBoxes = Arrays.stream(mboxes).map(s -> "\"" + s + "\"").collect(Collectors.joining(" "));
 		String getUser = String.format("GET MAILBOXES (%s)\r\n", quotedBoxes);
-		server.write(new Buffer(getUser));
+		server.write(Buffer.buffer(getUser));
 		return onResponse("OK", "NO", "BAD");
 	}
 
 	public CompletableFuture<UnparsedResponse> getFullMailbox(String mbox) {
 		String getUser = String.format("GET FULLMAILBOX \"%s\"\r\n", mbox);
-		server.write(new Buffer(getUser));
+		server.write(Buffer.buffer(getUser));
 		return onResponse("OK", "NO", "BAD");
 	}
 
@@ -259,12 +249,16 @@ public class SyncClient {
 			long imapUid) {
 		String getUser = String.format("GET FETCH %c(MBOXNAME %s PARTITION %s UNIQUEID %s GUID %s UID %s)\r\n", '%',
 				mbox, partition, uniqueId, bodyGuid, Long.toString(imapUid));
-		server.write(new Buffer(getUser));
+		server.write(Buffer.buffer(getUser));
 		return onResponse("OK", "NO", "BAD");
 	}
 
 	public CompletableFuture<Void> disconnect() {
-		server.close();
+		if (server != null) {
+			server.close();
+		} else {
+			logger.warn("Not connected to {}:{}", host, port);
+		}
 		return CompletableFuture.completedFuture(null);
 	}
 
@@ -273,7 +267,7 @@ public class SyncClient {
 		String applyReserve = "APPLY RESERVE %(PARTITION " + partition + " MBOXNAME (" + String.join(" ", mailboxes)
 				+ ") GUID (" + String.join(" ", guids) + ")" + END_OF_COMMAND;
 		logger.info("C: '" + applyReserve + "'");
-		server.write(new Buffer(applyReserve));
+		server.write(Buffer.buffer(applyReserve));
 		return onResponse("OK", "NO", "BAD");
 	}
 }

@@ -25,14 +25,16 @@ import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Context;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.net.NetClient;
-import org.vertx.java.core.net.NetSocket;
-import org.vertx.java.core.streams.Pump;
-import org.vertx.java.core.streams.ReadStream;
 
 import io.netty.buffer.ByteBuf;
+import io.vertx.core.Context;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.net.NetClient;
+import io.vertx.core.net.NetClientOptions;
+import io.vertx.core.net.NetSocket;
+import io.vertx.core.streams.Pump;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.imap.vertx.ImapResponseStatus.Status;
 import net.bluemind.imap.vertx.cmd.AppendCommandHelper;
 import net.bluemind.imap.vertx.cmd.AppendListener;
@@ -87,9 +89,9 @@ public class VXStoreClient {
 		this.closeFuture = new CompletableFuture<>();
 		this.setupFuture = new CompletableFuture<>();
 
-		client = vertx.createNetClient();
+		client = vertx.createNetClient(new NetClientOptions().setReuseAddress(true).setTcpNoDelay(true)
+				.setTcpKeepAlive(true).setUsePooledBuffers(true));
 		logger.debug("NetClient created {}", client);
-		client.setReuseAddress(true).setTCPNoDelay(true).setTCPKeepAlive(true).setUsePooledBuffers(true);
 		recordParser = new ImapRecordParser();
 
 		ImapProtocolListener<ConnectionState> bannerListener = new ImapProtocolListener<ConnectionState>(setupFuture) {
@@ -99,7 +101,7 @@ public class VXStoreClient {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Got banner {}", banner.toString(StandardCharsets.US_ASCII));
 				}
-				future.complete(new ConnectionState(vertx.currentContext(), connectFuture.join()));
+				future.complete(new ConnectionState(Vertx.currentContext(), connectFuture.join()));
 			}
 
 		};
@@ -109,7 +111,7 @@ public class VXStoreClient {
 		client.connect(port, host, ar -> {
 			if (ar.succeeded()) {
 				NetSocket sock = ar.result();
-				sock.dataHandler(recordParser);
+				sock.handler(recordParser);
 				sock.closeHandler(v -> {
 					logger.info("Closed.");
 					closeFuture.complete(null);
@@ -148,8 +150,8 @@ public class VXStoreClient {
 		return tl.future;
 	}
 
-	private <T, W> CompletableFuture<ImapResponseStatus<T>> runLiteralAtEnd(Consumer<StringBuilder> cmdCons,
-			ImapProtocolListener<T> listener, ReadStream<W> literal) {
+	private <T> CompletableFuture<ImapResponseStatus<T>> runLiteralAtEnd(Consumer<StringBuilder> cmdCons,
+			ImapProtocolListener<T> listener, ReadStream<Buffer> literal) {
 		String tag = "V" + (++tags);
 
 		Runnable onGoAhead = () -> setupFuture.thenAccept(conState -> {
@@ -158,7 +160,7 @@ public class VXStoreClient {
 					logger.debug("Finished streaming literal {}.", literal);
 					conState.socket.write("\r\n");
 				});
-				Pump pump = Pump.createPump(literal, conState.socket);
+				Pump pump = Pump.pump(literal, conState.socket);
 				pump.start();
 			});
 		});
@@ -216,8 +218,8 @@ public class VXStoreClient {
 		}, new FetchListener());
 	}
 
-	public <W> CompletableFuture<ImapResponseStatus<AppendResponse>> append(String mailbox, Date receivedDate,
-			Collection<String> flags, int streamSize, ReadStream<W> eml) {
+	public CompletableFuture<ImapResponseStatus<AppendResponse>> append(String mailbox, Date receivedDate,
+			Collection<String> flags, int streamSize, ReadStream<Buffer> eml) {
 		String quotedUtf7 = UTF7Converter.encode(mailbox);
 		return runLiteralAtEnd(sb -> {
 			sb.append("APPEND \"").append(quotedUtf7).append("\" ");

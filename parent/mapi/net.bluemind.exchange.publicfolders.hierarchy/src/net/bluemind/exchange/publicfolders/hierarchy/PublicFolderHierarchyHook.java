@@ -29,13 +29,13 @@ import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.collect.Sets;
 import com.netflix.spectator.api.Counter;
 import com.netflix.spectator.api.Registry;
 
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ServerFault;
@@ -201,9 +201,9 @@ public class PublicFolderHierarchyHook implements IContainersHook, IAclHook {
 					removed.stream().map(subject -> subject + "," + "REMOVE")).collect(Collectors.toSet());
 
 			JsonObject notif = new JsonObject() //
-					.putArray("subjects", new JsonArray(new ArrayList<>(subjects))) //
-					.putString("domain", cd.domainUid) //
-					.putString("uid", cd.uid);
+					.put("subjects", new JsonArray(new ArrayList<>(subjects))) //
+					.put("domain", cd.domainUid) //
+					.put("uid", cd.uid);
 
 			VertxPlatform.eventBus().publish(Topic.MAPI_PF_ACL_UPDATE, notif);
 		});

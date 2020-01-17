@@ -4,11 +4,11 @@ import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpServerResponse;
 
 import com.google.common.io.ByteSource;
 
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.eas.http.wbxml.BlobHandlerBase;
 

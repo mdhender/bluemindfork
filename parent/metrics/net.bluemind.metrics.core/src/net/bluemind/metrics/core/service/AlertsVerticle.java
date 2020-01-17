@@ -8,13 +8,14 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.busmods.BusModBase;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Verticle;
 
 import com.google.common.io.ByteStreams;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Verticle;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -30,7 +31,7 @@ import net.bluemind.server.api.CommandStatus;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 
-public class AlertsVerticle extends BusModBase {
+public class AlertsVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(AlertsVerticle.class);
 
@@ -52,8 +53,8 @@ public class AlertsVerticle extends BusModBase {
 
 	@Override
 	public void start() {
-		super.start();
-		eb.registerHandler("kapacitor.configuration", (Message<JsonObject> msg) -> {
+		EventBus eb = vertx.eventBus();
+		eb.consumer("kapacitor.configuration", (Message<JsonObject> msg) -> {
 			ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 			IServer serverApi = prov.instance(IServer.class, InstallationId.getIdentifier());
 
@@ -62,7 +63,7 @@ public class AlertsVerticle extends BusModBase {
 
 			if (!kapacitor.isPresent()) {
 				logger.warn("Missing kapacitor server");
-				msg.reply(new JsonObject().putString("status", "ko"));
+				msg.reply(new JsonObject().put("status", "ko"));
 				return;
 			} else {
 				logger.info("Kapacitor server is {}", kapacitor.get().value.address());
@@ -86,7 +87,7 @@ public class AlertsVerticle extends BusModBase {
 					loadTemplate(tpl, servers, kapaSrv, prov.getContext());
 				});
 			}
-			msg.reply(new JsonObject().putString("status", "ok"));
+			msg.reply(new JsonObject().put("status", "ok"));
 		});
 
 	}

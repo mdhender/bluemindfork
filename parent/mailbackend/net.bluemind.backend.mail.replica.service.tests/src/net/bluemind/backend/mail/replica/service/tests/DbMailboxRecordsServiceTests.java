@@ -27,10 +27,10 @@ import static org.junit.Assert.assertNotNull;
 import java.util.Date;
 
 import org.junit.Test;
-import org.vertx.java.core.streams.ReadStream;
 
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.backend.cyrus.replication.testhelper.CyrusGUID;
-import net.bluemind.backend.cyrus.replication.testhelper.InputStreamWrapper;
 import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
@@ -47,7 +47,7 @@ public class DbMailboxRecordsServiceTests extends AbstractMailboxRecordsServiceT
 	public void createBodyAndRecord() {
 		IDbMessageBodies mboxes = getBodies(SecurityContext.SYSTEM);
 		assertNotNull(mboxes);
-		ReadStream<InputStreamWrapper> emlReadStream = openResource("data/with_inlines.eml");
+		ReadStream<Buffer> emlReadStream = openResource("data/with_inlines.eml");
 		Stream bmStream = VertxStream.stream(emlReadStream);
 		String bodyUid = CyrusGUID.randomGuid();
 		mboxes.create(bodyUid, bmStream);

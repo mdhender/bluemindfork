@@ -29,11 +29,11 @@ import org.apache.james.mime4j.dom.address.Mailbox;
 import org.apache.james.mime4j.stream.RawField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.eventbus.EventBus;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import io.vertx.core.eventbus.EventBus;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.acl.AccessControlEntry;

@@ -23,14 +23,14 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.MultiMap;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpHeaders;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.streams.Pump;
 
+import io.vertx.core.Handler;
+import io.vertx.core.MultiMap;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpHeaders;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.streams.Pump;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -48,9 +48,8 @@ public class RestHttpProxyHandler implements Handler<HttpServerRequest> {
 
 	private static final CharSequence HEADER_PRAGMA = HttpHeaders.createOptimized("Pragma");
 	private static final CharSequence HEADER_PRAGMA_VALUE = HttpHeaders.createOptimized("no-cache");
-	private static final List<CharSequence> HEADER_CACHE_CONTROL_VALUE = Arrays.asList(
-			HttpHeaders.createOptimized("no-cache"), HttpHeaders.createOptimized("no-store"),
-			HttpHeaders.createOptimized("must-revalidate"));
+	private static final List<CharSequence> HEADER_CACHE_CONTROL_VALUE = Arrays.asList("no-cache", "no-store",
+			"must-revalidate");
 
 	public RestHttpProxyHandler(Vertx vertx, IRestCallHandler proxy) {
 		this.vertx = vertx;
@@ -87,7 +86,7 @@ public class RestHttpProxyHandler implements Handler<HttpServerRequest> {
 			}
 		}
 
-		String remoteAddress = request.remoteAddress().getAddress().getHostAddress();
+		String remoteAddress = request.remoteAddress().host();
 		final RestRequest rr = RestRequest.create(remoteAddress, request.method(), request.headers(), request.path(),
 				request.params(), null, null);
 
@@ -121,7 +120,7 @@ public class RestHttpProxyHandler implements Handler<HttpServerRequest> {
 			public void success(RestResponse value) {
 				request.response().setStatusCode(value.statusCode);
 				MultiMap headers = request.response().headers();
-				headers.add(value.headers);
+				headers.addAll(value.headers);
 
 				headers.add(HttpHeaders.CACHE_CONTROL, HEADER_CACHE_CONTROL_VALUE);
 				headers.add(HEADER_PRAGMA, HEADER_PRAGMA_VALUE);
@@ -134,7 +133,7 @@ public class RestHttpProxyHandler implements Handler<HttpServerRequest> {
 						}
 					});
 					request.response().setChunked(true);
-					Pump.createPump(value.responseStream, request.response()).start();
+					Pump.pump(value.responseStream, request.response()).start();
 					value.responseStream.resume();
 				} else {
 					logger.debug("send response {}", value);

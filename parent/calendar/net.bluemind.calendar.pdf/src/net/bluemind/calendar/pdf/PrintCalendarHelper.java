@@ -18,12 +18,8 @@
  */
 package net.bluemind.calendar.pdf;
 
-import java.nio.charset.Charset;
 import java.util.List;
 
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.handler.codec.base64.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,9 +90,7 @@ public class PrintCalendarHelper {
 			break;
 		}
 
-		ChannelBuffer cb = ChannelBuffers.copiedBuffer(b);
-		ChannelBuffer encoded = Base64.encode(cb);
-		pdata.data = encoded.toString(Charset.forName("ascii"));
+		pdata.data = java.util.Base64.getEncoder().encodeToString(b);
 		pdata.pages = pc.pages.size();
 		return pdata;
 	}

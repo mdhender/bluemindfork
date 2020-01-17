@@ -8,15 +8,15 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalCause;
 import com.google.common.cache.RemovalNotification;
 
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.config.Token;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -58,7 +58,7 @@ public class Sessions implements BundleActivator {
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
 		Vertx vx = VertxPlatform.getVertx();
-		vx.eventBus().registerHandler(SystemState.BROADCAST, (Message<JsonObject> event) -> {
+		vx.eventBus().consumer(SystemState.BROADCAST, (Message<JsonObject> event) -> {
 			String op = event.body().getString("operation");
 			SystemState state = SystemState.fromOperation(op);
 			if (state == SystemState.CORE_STATE_MAINTENANCE) {

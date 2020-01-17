@@ -20,10 +20,14 @@ package net.bluemind.backend.postfix.internal.maps.events;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.vertx.java.busmods.BusModBase;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.postfix.Activator;
 import net.bluemind.backend.postfix.internal.maps.PostfixMapUpdater;
 import net.bluemind.core.api.fault.ServerFault;
@@ -31,20 +35,22 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.lib.vertx.utils.ThrottleMessages;
 
-public class DirtyMapEvent extends BusModBase {
+public class DirtyMapEvent extends AbstractVerticle {
+	private static final Logger logger = LoggerFactory.getLogger(DirtyMapEvent.class);
 	public static final String dirtyMaps = "postfix.map.dirty";
 	private static final Lock oneAtATime = new ReentrantLock(false);
+	private EventBus eb;
 
 	@Override
 	public void start() {
-		super.start();
+		this.eb = vertx.eventBus();
 		logger.info("Registering postfix dirty map listener");
 
-		Handler<Message<?>> h = (message) -> doUpdate();
-		ThrottleMessages<?> tm = new ThrottleMessages<>((msg) -> "postfixMaps", h, vertx, 10000);
+		Handler<Message<JsonObject>> h = (message) -> doUpdate();
+		ThrottleMessages<JsonObject> tm = new ThrottleMessages<>((msg) -> "postfixMaps", h, vertx, 10000);
 
-		super.eb.registerHandler(dirtyMaps, tm);
-		super.eb.registerHandler("dir.entry.deleted", tm);
+		eb.consumer(dirtyMaps, tm);
+		eb.consumer("dir.entry.deleted", tm);
 	}
 
 	private void doUpdate() {

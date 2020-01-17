@@ -21,20 +21,17 @@ package net.bluemind.eas.protocol.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-import org.vertx.java.busmods.BusModBase;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.eventbus.Message;
 import net.bluemind.eas.protocol.IEasProtocol;
 import net.bluemind.vertx.common.LocalJsonObject;
 
-public class ProtocolWorker extends BusModBase {
+public class ProtocolWorker extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(ProtocolWorker.class);
 
 	public void start() {
-		super.start();
 		for (IEasProtocol<?, ?> proto : Protocols.get()) {
 			registerProtocol(proto);
 		}
@@ -45,70 +42,18 @@ public class ProtocolWorker extends BusModBase {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Registering protocol @ {} ({})", protocol.address(), protocol);
 		}
-		eb.registerHandler(protocol.address(), new Handler<Message<LocalJsonObject<ExecutionPayload<Q>>>>() {
-
-			@Override
-			public void handle(final Message<LocalJsonObject<ExecutionPayload<Q>>> queryMsg) {
-				ExecutionPayload<Q> payload = queryMsg.body().getValue();
-				try {
-					MDC.put("user", payload.bs.getLoginAtDomain().replace("@", "_at_"));
-					protocol.execute(payload.bs, payload.query, new Handler<R>() {
-
-						@Override
-						public void handle(final R protocolResponse) {
-							AsyncResult<R> result = new AsyncResult<R>() {
-
-								@Override
-								public R result() {
-									return protocolResponse;
-								}
-
-								@Override
-								public Throwable cause() {
-									return null;
-								}
-
-								@Override
-								public boolean succeeded() {
-									return true;
-								}
-
-								@Override
-								public boolean failed() {
-									return false;
-								}
-							};
-							queryMsg.reply(new LocalJsonObject<AsyncResult<R>>(result));
-						}
-					});
-					MDC.put("user", "anonymous");
-				} catch (final Exception t) {
-					AsyncResult<R> result = new AsyncResult<R>() {
-
-						@Override
-						public R result() {
-							return null;
-						}
-
-						@Override
-						public Throwable cause() {
-							return t;
-						}
-
-						@Override
-						public boolean succeeded() {
-							return false;
-						}
-
-						@Override
-						public boolean failed() {
-							return true;
-						}
-					};
-					queryMsg.reply(new LocalJsonObject<AsyncResult<R>>(result));
-				}
-			}
-		});
+		vertx.eventBus().consumer(protocol.address(),
+				(final Message<LocalJsonObject<ExecutionPayload<Q>>> queryMsg) -> {
+					ExecutionPayload<Q> payload = queryMsg.body().getValue();
+					try {
+						MDC.put("user", payload.bs.getLoginAtDomain().replace("@", "_at_"));
+						protocol.execute(payload.bs, payload.query,
+								(R protocolResponse) -> queryMsg.reply(new LocalJsonObject<R>(protocolResponse)));
+						MDC.put("user", "anonymous");
+					} catch (final Exception t) {
+						queryMsg.fail(500, t.getMessage());
+					}
+				});
 	}
 
 }

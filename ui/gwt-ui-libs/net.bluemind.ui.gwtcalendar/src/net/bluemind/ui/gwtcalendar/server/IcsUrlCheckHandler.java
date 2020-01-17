@@ -29,11 +29,11 @@ import javax.net.ssl.SSLContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpServerRequest;
 
 import com.google.common.io.CharStreams;
 
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.utils.Trust;
 import net.fortuna.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.data.CalendarParser;

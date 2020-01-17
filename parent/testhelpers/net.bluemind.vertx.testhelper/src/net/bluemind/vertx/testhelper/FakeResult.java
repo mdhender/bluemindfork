@@ -18,7 +18,7 @@
  */
 package net.bluemind.vertx.testhelper;
 
-import org.vertx.java.core.AsyncResult;
+import io.vertx.core.AsyncResult;
 
 public class FakeResult<T> implements AsyncResult<T> {
 

@@ -20,8 +20,8 @@ package net.bluemind.core.rest.http.internal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.http.HttpClient;
 
+import io.vertx.core.http.HttpClient;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.rest.base.BasicClientProxy;
 import net.bluemind.core.rest.base.IRestCallHandler;

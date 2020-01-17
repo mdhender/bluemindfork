@@ -19,13 +19,14 @@ package net.bluemind.backend.cyrus.replication.server.metrics;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Verticle;
 import net.bluemind.backend.cyrus.replication.server.ReplicationSession;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
-public class MetricVerticle extends Verticle {
+public class MetricVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(MetricVerticle.class);
 

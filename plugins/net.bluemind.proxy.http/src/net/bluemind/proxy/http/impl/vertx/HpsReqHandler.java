@@ -22,13 +22,13 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.RouteMatcher;
 
 import com.netflix.spectator.api.Registry;
 
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpServerRequest;
+import net.bluemind.lib.vertx.RouteMatcher;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.proxy.http.auth.api.IAuthEnforcer;
@@ -47,18 +47,18 @@ public final class HpsReqHandler implements Handler<HttpServerRequest> {
 	private static final IdFactory idFactory = new IdFactory(MetricsRegistry.get(), HpsReqHandler.class);
 
 	public HpsReqHandler(Vertx vertx, HPSConfiguration conf, SessionStore ss, CoreState coreState) {
-		rm = new RouteMatcher();
+		rm = new RouteMatcher(vertx);
 		List<IAuthEnforcer> enforcers = Enforcers.enforcers(vertx);
 		for (ForwardedLocation fl : conf.getForwardedLocations()) {
 			ProtectedLocationHandler plh = new ProtectedLocationHandler(vertx, enforcers, fl, ss, coreState);
-			rm.all(fl.getPathPrefix(), plh);
+			rm.regex(fl.getPathPrefix(), plh);
 			if (!fl.getPathPrefix().endsWith("/")) {
-				rm.allWithRegEx(fl.getPathPrefix() + "/.*", plh);
+				rm.regex(fl.getPathPrefix() + "/.*", plh);
 			} else if (fl.getPathPrefix().equals("/")) {
-				rm.allWithRegEx("/[^/]+", plh);
+				rm.regex("/[^/]+", plh);
 			}
 		}
-		rm.all("/maintenance/.*", new MaintenanceRequestHandler(coreState));
+		rm.regex("/maintenance/.*", new MaintenanceRequestHandler(coreState));
 		rm.noMatch(noMatch);
 	}
 

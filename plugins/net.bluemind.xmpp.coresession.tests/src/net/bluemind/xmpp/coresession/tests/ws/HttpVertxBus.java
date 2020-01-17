@@ -23,13 +23,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.eventbus.impl.BaseMessage;
-import org.vertx.java.core.http.WebSocket;
+import org.asynchttpclient.AsyncHttpClient;
 
-import com.ning.http.client.AsyncHttpClient;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.http.WebSocket;
 
 @SuppressWarnings("rawtypes")
 public class HttpVertxBus {
@@ -57,43 +55,6 @@ public class HttpVertxBus {
 			}
 		}
 
-	}
-
-	static class MessageImpl<T> extends BaseMessage<T> {
-
-		protected MessageImpl(boolean send, String address, T body) {
-			super(send, address, body);
-		}
-
-		@Override
-		protected byte type() {
-			// TODO Auto-generated method stub
-			return 0;
-		}
-
-		@Override
-		protected Message<T> copy() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		protected void readBody(int pos, Buffer readBuff) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		protected void writeBody(Buffer buff) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		protected int getBodyLength() {
-			// TODO Auto-generated method stub
-			return 0;
-		}
 	}
 
 	public HttpVertxBus(AsyncHttpClient client, String ws)

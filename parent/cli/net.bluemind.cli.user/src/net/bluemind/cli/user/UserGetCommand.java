@@ -23,9 +23,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import com.google.common.base.Strings;
+
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
-import com.google.common.base.Strings;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.directory.common.SingleOrDomainOperation;
@@ -35,8 +38,6 @@ import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
 
 @Command(name = "get", description = "display users")
 public class UserGetCommand extends SingleOrDomainOperation {
@@ -53,14 +54,14 @@ public class UserGetCommand extends SingleOrDomainOperation {
 			return UserGetCommand.class;
 		}
 	}
-	
+
 	@Option(name = "--display", description = "attributes to display separated by spaces can be :"
 			+ "email, uid, extId, quota, aliases, familyNames, givenNames")
 	public String display = null;
-	
+
 	@Option(name = "--archived", description = "only get archived users")
 	public boolean archived = false;
-	
+
 	@Option(name = "--hidden", description = "only get hidden users")
 	public boolean hidden = false;
 
@@ -73,7 +74,7 @@ public class UserGetCommand extends SingleOrDomainOperation {
 		if (de.value.system) {
 			return;
 		}
-		
+
 		IUser userApi = ctx.adminApi().instance(IUser.class, domainUid);
 		if (display == null) {
 			System.out.println(JsonUtils.asString(userApi.getComplete(de.uid)));
@@ -85,46 +86,46 @@ public class UserGetCommand extends SingleOrDomainOperation {
 
 			List<String> itemValues = Arrays.asList("uid", "email", "extId");
 			boolean fast = displaySet.stream().allMatch(v -> itemValues.contains(v));
-						
+
 			JsonObject userJson = new JsonObject();
 			if (displaySet.contains("uid")) {
-				userJson.putString("uid", de.uid);
+				userJson.put("uid", de.uid);
 			}
 			if (displaySet.contains("email")) {
-				userJson.putString("email", de.value.email);
+				userJson.put("email", de.value.email);
 			}
 			if (displaySet.contains("extId")) {
-				userJson.putString("extId", de.externalId);
-			}				
-			
+				userJson.put("extId", de.externalId);
+			}
+
 			if (!fast) {
 				ItemValue<User> user = userApi.getComplete(de.uid);
 				if (displaySet.contains("login")) {
-					userJson.putString("login", user.value.login);
+					userJson.put("login", user.value.login);
 				}
 				if (displaySet.contains("quota")) {
-					userJson.putNumber("quota", user.value.quota);
+					userJson.put("quota", user.value.quota);
 				}
 				if (displaySet.contains("familyNames")) {
-					userJson.putString("familyNames", user.value.contactInfos.identification.name.familyNames);
+					userJson.put("familyNames", user.value.contactInfos.identification.name.familyNames);
 				}
 				if (displaySet.contains("givenNames")) {
-					userJson.putString("givenNames", user.value.contactInfos.identification.name.givenNames);
+					userJson.put("givenNames", user.value.contactInfos.identification.name.givenNames);
 				}
 				if (displaySet.contains("aliases")) {
-					userJson.putString("aliases", user.value.login);
+					userJson.put("aliases", user.value.login);
 					JsonArray aliasJson = new JsonArray();
 					user.value.contactInfos.communications.emails.forEach(e -> aliasJson.add(e.value));
-					userJson.putArray("aliases", aliasJson);
+					userJson.put("aliases", aliasJson);
 				}
 			}
-			System.out.println(userJson);
+			ctx.info(userJson.encode());
 		}
 	}
 
 	@Override
 	public Kind[] getDirEntryKind() {
-		return new Kind[] {Kind.USER};
+		return new Kind[] { Kind.USER };
 	}
 
 }

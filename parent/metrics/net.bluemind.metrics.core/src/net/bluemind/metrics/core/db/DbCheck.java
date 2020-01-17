@@ -26,10 +26,11 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.platform.Verticle;
 
 import com.netflix.spectator.api.Registry;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Verticle;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
@@ -37,7 +38,7 @@ import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.network.topology.Topology;
 
-public class DbCheck extends Verticle implements BundleActivator {
+public class DbCheck extends AbstractVerticle implements BundleActivator {
 
 	private Registry metricRegistry;
 	private IdFactory idFactory;
@@ -46,7 +47,6 @@ public class DbCheck extends Verticle implements BundleActivator {
 
 	@Override
 	public void start() {
-		super.start();
 
 		metricRegistry = MetricsRegistry.get();
 		idFactory = new IdFactory("jdbc", metricRegistry, DbCheck.class);

@@ -24,16 +24,16 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import org.asynchttpclient.BoundRequestBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.common.escape.Escaper;
-import net.bluemind.common.io.FileBackedOutputStream;
 import com.google.common.net.UrlEscapers;
-import com.ning.http.client.AsyncHttpClient.BoundRequestBuilder;
 
+import net.bluemind.common.io.FileBackedOutputStream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;

@@ -54,7 +54,6 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.api.IGroup;
-import net.bluemind.lib.vertx.Constructor;
 import net.bluemind.locator.LocatorVerticle;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
@@ -82,7 +81,7 @@ public class ProducerTests {
 	@Before
 	public void setup() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
-		Deploy.verticles(false, Constructor.of(LocatorVerticle::new, LocatorVerticle.class)).get(5, TimeUnit.SECONDS);
+		Deploy.verticles(false, LocatorVerticle::new).get(5, TimeUnit.SECONDS);
 		ElasticsearchTestHelper.getInstance().beforeTest();
 
 		domainUid = "dom" + System.currentTimeMillis() + ".test";

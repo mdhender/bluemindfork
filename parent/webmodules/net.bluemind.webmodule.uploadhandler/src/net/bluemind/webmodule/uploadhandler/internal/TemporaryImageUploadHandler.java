@@ -34,16 +34,18 @@ import javax.imageio.stream.ImageInputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.file.AsyncFile;
-import org.vertx.java.core.http.HttpServerFileUpload;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
-import org.vertx.java.core.streams.Pump;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.file.AsyncFile;
+import io.vertx.core.file.OpenOptions;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.HttpServerFileUpload;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.streams.Pump;
 import net.bluemind.webmodule.server.NeedVertx;
 import net.bluemind.webmodule.uploadhandler.TemporaryUploadRepository;
 import net.bluemind.webmodule.uploadhandler.TemporaryUploadRepository.UniqueFile;
@@ -60,7 +62,7 @@ public class TemporaryImageUploadHandler implements Handler<HttpServerRequest>, 
 	public void handle(final HttpServerRequest request) {
 		request.exceptionHandler(exceptionHandler(request));
 
-		if (request.method().equals("GET")) {
+		if (request.method() == HttpMethod.GET) {
 			String uuidAsString = request.params().get("uuid");
 			UUID parsed = null;
 			try {
@@ -78,7 +80,7 @@ public class TemporaryImageUploadHandler implements Handler<HttpServerRequest>, 
 			}
 
 		} else {
-			request.expectMultiPart(true);
+			request.setExpectMultipart(true);
 			request.uploadHandler(upload -> {
 				upload.exceptionHandler(exceptionHandler(request));
 				upload.pause();
@@ -115,22 +117,23 @@ public class TemporaryImageUploadHandler implements Handler<HttpServerRequest>, 
 		}
 
 		logger.debug("create temp file {}", file.file.getAbsolutePath());
-		vertx.fileSystem().open(repository.getTempFile(file.uuid).getPath(), (AsyncResult<AsyncFile> res) -> {
-			if (res.failed()) {
-				sendError("system error", request.response());
-				return;
-			}
-			upload.endHandler(new Handler<Void>() {
+		vertx.fileSystem().open(repository.getTempFile(file.uuid).getPath(), new OpenOptions(),
+				(AsyncResult<AsyncFile> res) -> {
+					if (res.failed()) {
+						sendError("system error", request.response());
+						return;
+					}
+					upload.endHandler(new Handler<Void>() {
 
-				@Override
-				public void handle(Void arg0) {
-					doResize(request, file.uuid);
-				}
+						@Override
+						public void handle(Void arg0) {
+							doResize(request, file.uuid);
+						}
 
-			});
-			Pump.createPump(upload, res.result()).start();
-			upload.resume();
-		});
+					});
+					Pump.pump(upload, res.result()).start();
+					upload.resume();
+				});
 
 	}
 
@@ -193,7 +196,7 @@ public class TemporaryImageUploadHandler implements Handler<HttpServerRequest>, 
 			ImageIO.write(dbi, "png", ret);
 
 			UniqueFile rf = repository.createTempFile();
-			vertx.fileSystem().writeFile(rf.file.getAbsolutePath(), new Buffer(ret.toByteArray()),
+			vertx.fileSystem().writeFile(rf.file.getAbsolutePath(), Buffer.buffer(ret.toByteArray()),
 					new Handler<AsyncResult<Void>>() {
 
 						@Override

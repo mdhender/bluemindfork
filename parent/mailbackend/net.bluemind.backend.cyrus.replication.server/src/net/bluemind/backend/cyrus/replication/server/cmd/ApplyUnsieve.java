@@ -21,8 +21,8 @@ import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.replication.protocol.parsing.ParenObjectParser;
 import net.bluemind.backend.cyrus.replication.server.ReplicationFrame;
 import net.bluemind.backend.cyrus.replication.server.ReplicationSession;

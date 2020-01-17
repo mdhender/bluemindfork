@@ -23,12 +23,11 @@ import java.util.function.BiConsumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.platform.Verticle;
-import org.vertx.java.platform.VerticleConstructor;
 
+import io.vertx.core.AbstractVerticle;
 import net.bluemind.lib.vertx.BlockingCode;
 
-public class SimpleHttpServer extends Verticle {
+public class SimpleHttpServer extends AbstractVerticle {
 
 	public static final Logger logger = LoggerFactory.getLogger(BlockingCodeTests.class);
 
@@ -71,18 +70,4 @@ public class SimpleHttpServer extends Verticle {
 		}).listen(6666);
 	}
 
-	public static VerticleConstructor contructor() {
-		return new VerticleConstructor() {
-
-			@Override
-			public Verticle newInstance() throws Exception {
-				return new SimpleHttpServer();
-			}
-
-			@Override
-			public String className() {
-				return SimpleHttpServer.class.getCanonicalName();
-			}
-		};
-	}
 }

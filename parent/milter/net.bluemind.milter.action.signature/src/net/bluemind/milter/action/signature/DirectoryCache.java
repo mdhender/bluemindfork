@@ -26,12 +26,13 @@ import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.busmods.BusModBase;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.fault.ServerFault;
@@ -44,7 +45,7 @@ import net.bluemind.directory.api.IDirectory;
 import net.bluemind.mailflow.rbe.IClientContext;
 import net.bluemind.network.topology.Topology;
 
-public class DirectoryCache extends BusModBase {
+public class DirectoryCache extends AbstractVerticle {
 
 	private static Optional<IServiceProvider> provider = Optional.empty();
 	private static Map<String, Long> changesetVersion = new ConcurrentHashMap<>();
@@ -58,10 +59,9 @@ public class DirectoryCache extends BusModBase {
 	@Override
 	public void start() {
 
-		super.start();
 		logger.info("Registering directory cache listener");
-
-		super.eb.registerHandler(MilterMessageForwarder.eventAddressChanged, (message) -> {
+		EventBus eb = vertx.eventBus();
+		eb.consumer(MilterMessageForwarder.eventAddressChanged, (message) -> {
 			if (!provider.isPresent()) {
 				String host = "http://" + Topology.get().core().value.address() + ":8090";
 				provider = Optional.ofNullable(ClientSideServiceProvider.getProvider(host, Token.admin0()));

@@ -28,21 +28,19 @@ import java.io.PrintWriter;
 import java.nio.channels.Channels;
 import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 
+import io.vertx.core.buffer.Buffer;
 import jnr.unixsocket.UnixSocketAddress;
 import jnr.unixsocket.UnixSocketChannel;
 import net.bluemind.backend.cyrus.CyrusService;
@@ -61,7 +59,8 @@ public class GroupProtocolTests {
 
 	@BeforeClass
 	public static void init() throws IOException {
-		GroupProtocolVerticle.SOCKET_PATH = File.createTempFile("socket", "pt").getAbsolutePath();
+		System.setProperty("es.mailspool.count", "1");
+		GroupProtocolVerticle.socketPath(File.createTempFile("socket", "pt").getAbsolutePath());
 	}
 
 	private ItemValue<Domain> domain;
@@ -82,16 +81,9 @@ public class GroupProtocolTests {
 
 		PopulateHelper.initGlobalVirt(imapServer);
 
-		final CountDownLatch launched = new CountDownLatch(1);
-		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				launched.countDown();
-			}
-		});
-		launched.await();
+		VertxPlatform.spawnBlocking(20, TimeUnit.SECONDS);
 		Topology.get();
-		
+
 		domain = PopulateHelper.createTestDomain(domainUid, imapServer);
 
 		// create domain parititon on cyrus
@@ -107,7 +99,7 @@ public class GroupProtocolTests {
 	public void testRequestUser() throws InterruptedException, IOException {
 
 		long time = System.currentTimeMillis();
-		UnixSocketAddress address = new UnixSocketAddress(new File(GroupProtocolVerticle.SOCKET_PATH));
+		UnixSocketAddress address = new UnixSocketAddress(new File(GroupProtocolVerticle.socketPath()));
 		try (UnixSocketChannel channel = UnixSocketChannel.open(address)) {
 			assertTrue(channel.isConnected());
 			System.err.println("time to connect " + (System.currentTimeMillis() - time));
@@ -120,7 +112,7 @@ public class GroupProtocolTests {
 				byte[] read = ByteStreams.toByteArray(in);
 				assertNotNull(read);
 				assertTrue(read.length >= 2);
-				Buffer data = new Buffer(read);
+				Buffer data = Buffer.buffer(read);
 				System.err.println("read data " + data);
 				System.err.println("time to response " + (System.currentTimeMillis() - time));
 				short length = data.getShort(0);

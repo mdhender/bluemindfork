@@ -21,7 +21,7 @@ package net.bluemind.core.rest.base;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.vertx.java.core.Vertx;
+import io.vertx.core.Vertx;
 
 public class DirectClientProxy<S, T> extends BasicClientProxy<S, T> {
 

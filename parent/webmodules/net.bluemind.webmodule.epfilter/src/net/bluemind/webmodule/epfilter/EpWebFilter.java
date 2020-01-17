@@ -20,9 +20,8 @@ package net.bluemind.webmodule.epfilter;
 
 import java.io.IOException;
 
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.webmodule.server.IWebFilter;
 import net.bluemind.webmodule.server.WebExtensionsResolver;
 

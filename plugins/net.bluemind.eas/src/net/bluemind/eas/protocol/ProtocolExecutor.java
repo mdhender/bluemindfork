@@ -25,15 +25,15 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
 import org.w3c.dom.Document;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.eas.impl.vertx.compat.SessionWrapper;
@@ -116,24 +116,24 @@ public final class ProtocolExecutor {
 			LocalJsonObject<ExecutionPayload<Q>> payload = new LocalJsonObject<ExecutionPayload<Q>>(
 					new ExecutionPayload<Q>(bs, protocolQuery));
 			MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
-			eb.send(protocol.address(), payload, new Handler<Message<LocalJsonObject<AsyncResult<R>>>>() {
+			eb.request(protocol.address(), payload, new Handler<AsyncResult<Message<LocalJsonObject<R>>>>() {
 
 				@Override
-				public void handle(Message<LocalJsonObject<AsyncResult<R>>> protoResponseMsg) {
+				public void handle(AsyncResult<Message<LocalJsonObject<R>>> protoResponseMsg) {
 					MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
-					AsyncResult<R> asyncResult = protoResponseMsg.body().getValue();
 					vertxReq.resume();
-					if (asyncResult.succeeded()) {
+					if (protoResponseMsg.succeeded()) {
 						VertxResponder responder = new VertxResponder(vertxReq, vertxReq.response(), vertx);
 						try {
-							protocol.write(bs, responder, asyncResult.result(), new Handler<Void>() {
+							protocol.write(bs, responder, protoResponseMsg.result().body().getValue(),
+									new Handler<Void>() {
 
-								@Override
-								public void handle(Void event) {
-									MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
-									MDC.put("user", "anonymous");
-								}
-							});
+										@Override
+										public void handle(Void event) {
+											MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
+											MDC.put("user", "anonymous");
+										}
+									});
 						} catch (Exception e) {
 							logger.error(e.getMessage(), e);
 							HttpServerResponse resp = vertxReq.response();
@@ -141,7 +141,7 @@ public final class ProtocolExecutor {
 									.end();
 						}
 					} else {
-						Throwable t = asyncResult.cause();
+						Throwable t = protoResponseMsg.cause();
 						logger.error(t.getMessage(), t);
 						HttpServerResponse resp = vertxReq.response();
 						resp.setStatusCode(500).setStatusMessage(String.format("Throwable: %s", t.getMessage())).end();

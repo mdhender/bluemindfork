@@ -24,10 +24,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcTestHelper;
@@ -57,10 +57,10 @@ public class AlertsServiceTests {
 		ClientSideServiceProvider prov = ClientSideServiceProvider.getProvider("http://127.0.0.1:8090", apiKey);
 		IAlerts alertsApi = prov.instance(IAlerts.class);
 		assertNotNull(alertsApi);
-		JsonObject payload = new JsonObject().putString("alerte", "générale");
-		Stream payloadStream = VertxStream.stream(new Buffer(payload.encode().getBytes()));
+		JsonObject payload = new JsonObject().put("alerte", "générale");
+		Stream payloadStream = VertxStream.stream(Buffer.buffer(payload.encode().getBytes()));
 		CountDownLatch cdl = new CountDownLatch(1);
-		VertxPlatform.eventBus().registerHandler("kapacitor.alert", (Message<JsonObject> msg) -> {
+		VertxPlatform.eventBus().consumer("kapacitor.alert", (Message<JsonObject> msg) -> {
 			cdl.countDown();
 		});
 		alertsApi.receive(payloadStream);

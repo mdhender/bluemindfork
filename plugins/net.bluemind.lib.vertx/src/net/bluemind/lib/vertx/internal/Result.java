@@ -1,6 +1,6 @@
 package net.bluemind.lib.vertx.internal;
 
-import org.vertx.java.core.AsyncResult;
+import io.vertx.core.AsyncResult;
 
 public class Result<T> implements AsyncResult<T> {
 

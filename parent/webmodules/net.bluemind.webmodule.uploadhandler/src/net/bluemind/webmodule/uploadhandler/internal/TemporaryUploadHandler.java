@@ -23,15 +23,17 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.file.AsyncFile;
-import org.vertx.java.core.http.HttpServerFileUpload;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
-import org.vertx.java.core.streams.Pump;
 
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.file.AsyncFile;
+import io.vertx.core.file.OpenOptions;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.HttpServerFileUpload;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.streams.Pump;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.webmodule.server.NeedVertx;
 import net.bluemind.webmodule.uploadhandler.TemporaryUploadRepository;
@@ -47,7 +49,7 @@ public class TemporaryUploadHandler implements Handler<HttpServerRequest>, NeedV
 	public void handle(final HttpServerRequest request) {
 		request.exceptionHandler(exceptionHandler(request));
 
-		if (request.method().equals("GET")) {
+		if (request.method() == HttpMethod.GET) {
 			String uuidAsString = request.params().get("uuid");
 			UUID parsed = null;
 			try {
@@ -64,7 +66,7 @@ public class TemporaryUploadHandler implements Handler<HttpServerRequest>, NeedV
 			}
 
 		} else {
-			request.expectMultiPart(true);
+			request.setExpectMultipart(true);
 			request.uploadHandler(upload -> {
 				upload.exceptionHandler(exceptionHandler(request));
 				upload.pause();
@@ -76,9 +78,9 @@ public class TemporaryUploadHandler implements Handler<HttpServerRequest>, NeedV
 
 	private void sendFile(final HttpServerRequest request, File f) {
 
-		vertx.fileSystem().open(f.getAbsolutePath(), aFile -> {
+		vertx.fileSystem().open(f.getAbsolutePath(), new OpenOptions(), aFile -> {
 			final AsyncFile file = aFile.result();
-			final Buffer ret = new Buffer();
+			final Buffer ret = Buffer.buffer();
 			file.endHandler(v -> {
 				file.close();
 				if ("application/json".equals(request.headers().get("Accept"))) {
@@ -87,7 +89,7 @@ public class TemporaryUploadHandler implements Handler<HttpServerRequest>, NeedV
 					request.response().end(ret);
 				}
 			});
-			file.dataHandler(buffer -> ret.appendBuffer(buffer));
+			file.handler(buffer -> ret.appendBuffer(buffer));
 		});
 
 	}
@@ -114,7 +116,7 @@ public class TemporaryUploadHandler implements Handler<HttpServerRequest>, NeedV
 		}
 
 		logger.debug("create temp file {}", file.file.getAbsolutePath());
-		vertx.fileSystem().open(repository.getTempFile(file.uuid).getPath(), res -> {
+		vertx.fileSystem().open(repository.getTempFile(file.uuid).getPath(), new OpenOptions(), res -> {
 			if (res.failed()) {
 				sendError("system error", request.response());
 				return;
@@ -126,7 +128,7 @@ public class TemporaryUploadHandler implements Handler<HttpServerRequest>, NeedV
 				resp.headers().add("Content-Type", "text/plain");
 				resp.setStatusCode(200).end(file.uuid.toString());
 			});
-			Pump.createPump(upload, res.result()).start();
+			Pump.pump(upload, res.result()).start();
 			upload.resume();
 
 		});

@@ -24,12 +24,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.vertx.java.busmods.BusModBase;
-import org.vertx.java.core.Future;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Verticle;
-
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Verticle;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -40,16 +39,18 @@ import net.bluemind.deferredaction.api.IDeferredActionContainerUids;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.user.api.IUserSettings;
 
-public class CTIUserSettingsVerticle extends BusModBase {
+public class CTIUserSettingsVerticle extends AbstractVerticle {
+
+	private EventBus eb;
 
 	@Override
-	public void start(Future<Void> startedResult) {
-		super.start(startedResult);
+	public void start() {
+		this.eb = vertx.eventBus();
 		registerSettingsHandler();
 	}
 
 	private void registerSettingsHandler() {
-		super.eb.registerHandler("usersettings.updated", this::checkUpdatedUserSettings);
+		eb.consumer("usersettings.updated", this::checkUpdatedUserSettings);
 	}
 
 	private void checkUpdatedUserSettings(Message<JsonObject> msg) {

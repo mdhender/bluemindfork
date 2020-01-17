@@ -20,29 +20,33 @@ package net.bluemind.vertx.testhelper;
 
 import java.util.concurrent.CompletableFuture;
 
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.DeliveryOptions;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class Bus {
 
-	public static <PAYLOAD> CompletableFuture<JsonObject> fetchJson(String dest, PAYLOAD msg) {
+	private Bus() {
+	}
+
+	public static <P> CompletableFuture<JsonObject> fetchJson(String dest, P msg) {
 		CompletableFuture<JsonObject> result = new CompletableFuture<>();
-		VertxPlatform.eventBus().sendWithTimeout(dest, msg, 10000, (AsyncResult<Message<JsonObject>> vertxRes) -> {
-			if (vertxRes.succeeded()) {
-				result.complete(vertxRes.result().body());
-			} else {
-				result.completeExceptionally(vertxRes.cause());
-			}
-		});
+		VertxPlatform.eventBus().request(dest, msg, new DeliveryOptions().setSendTimeout(10000),
+				(AsyncResult<Message<JsonObject>> vertxRes) -> {
+					if (vertxRes.succeeded()) {
+						result.complete(vertxRes.result().body());
+					} else {
+						result.completeExceptionally(vertxRes.cause());
+					}
+				});
 		return result;
 	}
 
 	public static void onMessage(String addr, Handler<Void> onNotif) {
-		VertxPlatform.eventBus().registerLocalHandler(addr, (Message<?> msg) -> onNotif.handle(null));
+		VertxPlatform.eventBus().consumer(addr, msg -> onNotif.handle(null));
 	}
 
 }

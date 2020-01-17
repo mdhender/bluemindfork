@@ -20,8 +20,8 @@ package net.bluemind.proxy.http.tests;
 
 import java.net.MalformedURLException;
 
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.Response;
 
 public class StartupTests extends ProxyTestCase {
 

@@ -22,10 +22,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.webmodule.server.IWebFilter;
 import net.bluemind.webmodule.server.JsEntry;
 import net.bluemind.webmodule.server.NeedWebModules;
@@ -49,17 +48,17 @@ public class WebModuleResourcesFilter implements IWebFilter, NeedWebModules {
 			return null;
 		}
 		JsonObject ret = new JsonObject();
-		ret.putElement("css", new JsonArray(module.css));
+		ret.put("css", new JsonArray(module.css));
 
 		JsonArray js = new JsonArray();
 		for (JsEntry jEntry : module.js) {
 			JsonObject entry = new JsonObject();
-			entry.putString("bundle", jEntry.bundle);
-			entry.putString("path", jEntry.getTranslation(lang).path);
-			entry.putBoolean("lifecycle", jEntry.lifecycle);
-			js.addElement(entry);
+			entry.put("bundle", jEntry.bundle);
+			entry.put("path", jEntry.getTranslation(lang).path);
+			entry.put("lifecycle", jEntry.lifecycle);
+			js.add(entry);
 		}
-		ret.putElement("js", js);
+		ret.put("js", js);
 		request.response().putHeader("Content-type", "application/json; charset=utf-8");
 		request.response().setStatusCode(200).end(ret.encode());
 		return null;

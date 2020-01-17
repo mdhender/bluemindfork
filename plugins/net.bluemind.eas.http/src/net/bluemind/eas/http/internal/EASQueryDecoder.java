@@ -18,8 +18,7 @@
  */
 package net.bluemind.eas.http.internal;
 
-import org.vertx.java.core.Handler;
-
+import io.vertx.core.Handler;
 import net.bluemind.eas.http.AuthenticatedEASQuery;
 import net.bluemind.eas.http.query.EASQueryBuilder;
 import net.bluemind.vertx.common.http.BasicAuthHandler.AuthenticatedRequest;

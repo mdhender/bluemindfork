@@ -19,21 +19,19 @@
 package net.bluemind.locator;
 
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.MultiMap;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.http.HttpServerRequest;
 
 import com.google.common.base.Joiner;
 import com.netflix.spectator.api.Registry;
-import com.netflix.spectator.impl.Config;
 
-import net.bluemind.lib.vertx.BlockingCode;
+import io.vertx.core.Handler;
+import io.vertx.core.MultiMap;
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.locator.impl.LocatorDbHelper;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
@@ -50,14 +48,9 @@ public class HostLocationHandler implements Handler<HttpServerRequest> {
 	private final Registry registry;
 	private final IdFactory idFactory;
 	private final Vertx vertx;
-	private final ExecutorService blockingPool;
 
-	public HostLocationHandler(Vertx v, ExecutorService blockingPool) {
+	public HostLocationHandler(Vertx v) {
 		this.vertx = v;
-		this.blockingPool = blockingPool;
-		ClassLoader configCl = Config.class.getClassLoader();
-		ClassLoader contextCl = Thread.currentThread().getContextClassLoader();
-		logger.info("************ configCl: {}, contextCl: {}", configCl, contextCl);
 		registry = MetricsRegistry.get();
 		idFactory = new IdFactory(registry, HostLocationHandler.class);
 	}
@@ -72,39 +65,47 @@ public class HostLocationHandler implements Handler<HttpServerRequest> {
 		String loginAtDomain = params.get("latd");
 		String origin = Optional.ofNullable(req.headers().get("X-Bm-Origin")).orElse("unknown");
 
-		BlockingCode.forVertx(vertx).withExecutor(blockingPool)
-				.run(() -> LocatorDbHelper.findUserAssignedHosts(loginAtDomain, service + "/" + property))
-				.exceptionally(t -> {
-					registry.counter(idFactory.name("requestsCount", "statusCode", "500", "origin", origin))
+		vertx.<Set<String>>executeBlocking(prom -> {
+			try {
+				Set<String> ips = LocatorDbHelper.findUserAssignedHosts(loginAtDomain, service + "/" + property);
+				prom.complete(ips);
+			} catch (Exception e) {
+				prom.fail(e);
+			}
+		}, res -> {
+			if (res.failed()) {
+				registry.counter(idFactory.name("requestsCount", "statusCode", "500", "origin", origin)).increment();
+				req.response().setStatusCode(500);
+				req.response().setStatusMessage(res.cause().getMessage() != null ? res.cause().getMessage() : "null");
+				req.response().end();
+				final long end = registry.clock().monotonicTime();
+				registry.timer(idFactory.name("executionTime")).record(end - start, TimeUnit.NANOSECONDS);
+			} else {
+				Set<String> ips = res.result();
+				final long end = registry.clock().monotonicTime();
+				registry.timer(idFactory.name("executionTime")).record(end - start, TimeUnit.NANOSECONDS);
+				if (ips == null) {
+					// exceptionnaly triggered
+				} else if (!ips.isEmpty()) {
+					registry.counter(idFactory.name("requestsCount", "statusCode", "200", "origin", origin))
 							.increment();
-					req.response().setStatusCode(500);
-					req.response().setStatusMessage(t.getMessage() != null ? t.getMessage() : "null");
-					req.response().end();
-					final long end = registry.clock().monotonicTime();
-					registry.timer(idFactory.name("executionTime")).record(end - start, TimeUnit.NANOSECONDS);
-					return null;
-				}).thenAccept(ips -> {
-					final long end = registry.clock().monotonicTime();
-					registry.timer(idFactory.name("executionTime")).record(end - start, TimeUnit.NANOSECONDS);
-					if (ips == null) {
-						// exceptionnaly triggered
-					} else if (!ips.isEmpty()) {
-						registry.counter(idFactory.name("requestsCount", "statusCode", "200", "origin", origin))
-								.increment();
-						if (logger.isDebugEnabled()) {
-							logger.debug("{} => {}", req.path(), ips);
-						}
-						req.response().end(Joiner.on('\n').join(ips));
-					} else {
-						registry.counter(idFactory.name("requestsCount", "statusCode", "404", "origin", origin))
-								.increment();
-						String error = "Could not find " + service + "/" + property + " for " + loginAtDomain;
-						logger.error(error);
-						req.response().setStatusCode(404);
-						req.response().setStatusMessage(error);
-						req.response().end();
+					if (logger.isDebugEnabled()) {
+						logger.debug("{} => {}", req.path(), ips);
 					}
-				});
+					req.response().end(Joiner.on('\n').join(ips));
+				} else {
+					registry.counter(idFactory.name("requestsCount", "statusCode", "404", "origin", origin))
+							.increment();
+					String error = "Could not find " + service + "/" + property + " for " + loginAtDomain;
+					logger.error(error);
+					req.response().setStatusCode(404);
+					req.response().setStatusMessage(error);
+					req.response().end();
+				}
+			}
+
+		});
+
 	}
 
 }

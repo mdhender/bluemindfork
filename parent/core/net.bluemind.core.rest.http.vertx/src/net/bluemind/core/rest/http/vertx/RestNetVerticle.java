@@ -20,19 +20,20 @@ package net.bluemind.core.rest.http.vertx;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Future;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpServer;
-import org.vertx.java.core.http.RouteMatcher;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.core.sockjs.SockJSServer;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerOptions;
+import io.vertx.ext.web.handler.sockjs.SockJSHandler;
+import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
 import net.bluemind.core.rest.base.RestRootHandler;
 import net.bluemind.core.rest.sockjs.vertx.RestSockJSProxyServer;
+import net.bluemind.lib.vertx.RouteMatcher;
 
-public class RestNetVerticle extends Verticle {
+public class RestNetVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(RestNetVerticle.class);
 
@@ -40,14 +41,10 @@ public class RestNetVerticle extends Verticle {
 
 	@Override
 	public void start(Future<Void> started) {
-		HttpServer httpServer = vertx.createHttpServer();
-		httpServer.setAcceptBacklog(1024);
-		httpServer.setTCPKeepAlive(true);
-		httpServer.setTCPNoDelay(true);
-		httpServer.setReuseAddress(true);
-		httpServer.setUsePooledBuffers(true);
+		HttpServer httpServer = vertx.createHttpServer(new HttpServerOptions().setAcceptBacklog(1024)
+				.setTcpKeepAlive(true).setTcpNoDelay(true).setReuseAddress(true).setUsePooledBuffers(true));
 
-		RouteMatcher routeMatcher = new RouteMatcher();
+		RouteMatcher routeMatcher = new RouteMatcher(vertx);
 		RestRootHandler rootHandler = new RestRootHandler(vertx);
 		routeMatcher.noMatch(new RestHttpProxyHandler(getVertx(), rootHandler));
 		// new VertxClientCallHandler(vertx)));
@@ -55,14 +52,11 @@ public class RestNetVerticle extends Verticle {
 		HttpRoutes.bindRoutes(vertx, rootHandler.executor(), routeMatcher);
 
 		httpServer.requestHandler(routeMatcher);
-		SockJSServer sockServer = vertx.createSockJSServer(httpServer);
-
-		JsonObject rconfig = new JsonObject();
-		rconfig.putString("prefix", "/eventbus");
-		rconfig.putBoolean("insert_JSESSIONID", false);
-		rconfig.putString("library_url", "https://cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js");
-		rconfig.putNumber("heartbeat_period", 10 * 1000);
-		sockServer.installApp(rconfig, new RestSockJSProxyServer(vertx, rootHandler, rootHandler));
+		SockJSHandler wsHandler = routeMatcher.websocket("/eventbus",
+				new SockJSHandlerOptions().setInsertJSESSIONID(false)
+						.setLibraryURL("https://cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js")
+						.setHeartbeatInterval(10000));
+		wsHandler.socketHandler(new RestSockJSProxyServer(vertx, rootHandler, rootHandler));
 
 		httpServer.listen(PORT, new Handler<AsyncResult<HttpServer>>() {
 
@@ -70,10 +64,10 @@ public class RestNetVerticle extends Verticle {
 			public void handle(AsyncResult<HttpServer> event) {
 				if (event.succeeded()) {
 					logger.info("Bound to port {}.", PORT);
-					started.setResult(null);
+					started.complete(null);
 				} else {
 					logger.error("Failed to bind to port {}.", PORT, event.cause());
-					started.setFailure(event.cause());
+					started.fail(event.cause());
 				}
 			}
 		});

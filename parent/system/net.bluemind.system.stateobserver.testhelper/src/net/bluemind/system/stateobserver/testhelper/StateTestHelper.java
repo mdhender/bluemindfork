@@ -22,9 +22,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.hornetq.client.Topic;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.system.state.StateContext;
@@ -48,11 +47,9 @@ public class StateTestHelper {
 		StateContext.setState("core.upgrade.end");
 		Vertx vertx = VertxPlatform.getVertx();
 		// simulate how the hearbeat would flow from one component to another
-		vertx.eventBus().publish(Topic.CORE_NOTIFICATIONS,
-				new JsonObject().putString("operation", "core.state.running"));
+		vertx.eventBus().publish(Topic.CORE_NOTIFICATIONS, new JsonObject().put("operation", "core.state.running"));
 		vertx.setPeriodic(4000, tid -> {
-			vertx.eventBus().publish(Topic.CORE_NOTIFICATIONS,
-					new JsonObject().putString("operation", "core.state.running"));
+			vertx.eventBus().publish(Topic.CORE_NOTIFICATIONS, new JsonObject().put("operation", "core.state.running"));
 		});
 		try {
 			runningLatch.get(1, TimeUnit.MINUTES);

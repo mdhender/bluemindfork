@@ -20,12 +20,11 @@ package net.bluemind.eas.client.commands;
 
 import java.io.InputStream;
 
+import org.asynchttpclient.AsyncHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import com.ning.http.client.AsyncHttpClient;
 
 import net.bluemind.eas.client.AccountInfos;
 import net.bluemind.eas.client.IEasCommand;
@@ -64,8 +63,7 @@ public abstract class TemplateBasedCommand<T> implements IEasCommand<T> {
 	}
 
 	@Override
-	public T run(AccountInfos ai, OPClient opc, AsyncHttpClient hc)
-			throws Exception {
+	public T run(AccountInfos ai, OPClient opc, AsyncHttpClient hc) throws Exception {
 		if (fromTemplate) {
 			customizeTemplate(ai, opc);
 		}
@@ -79,8 +77,7 @@ public abstract class TemplateBasedCommand<T> implements IEasCommand<T> {
 	protected abstract T parseResponse(Element responseRootElem);
 
 	private InputStream loadDataFile(String name) {
-		return TemplateBasedCommand.class.getClassLoader().getResourceAsStream(
-				"data/" + name);
+		return TemplateBasedCommand.class.getClassLoader().getResourceAsStream("data/" + name);
 	}
 
 }

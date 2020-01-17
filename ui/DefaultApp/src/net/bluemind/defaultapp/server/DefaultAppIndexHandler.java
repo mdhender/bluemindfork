@@ -29,8 +29,8 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.http.HttpServerRequest;
 
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.webmodule.server.handlers.AbstractFtlHandler;
 
@@ -49,7 +49,7 @@ public class DefaultAppIndexHandler extends AbstractFtlHandler {
 		String rolesAsString = (String) model.get("BMRoles");
 		Set<String> roles = rolesAsString != null ? //
 				new HashSet<>(Arrays.asList(rolesAsString.split(","))) //
-				: Collections.<String> emptySet();
+				: Collections.<String>emptySet();
 
 		if (defaultApp == null) {
 			defaultApp = "/webmail/";

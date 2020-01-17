@@ -18,12 +18,11 @@
  */
 package net.bluemind.proxy.http.tests;
 
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.BoundRequestBuilder;
+import org.asynchttpclient.ListenableFuture;
+import org.asynchttpclient.Response;
 import org.eclipse.core.runtime.Platform;
-
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClient.BoundRequestBuilder;
-import com.ning.http.client.ListenableFuture;
-import com.ning.http.client.Response;
 
 import net.bluemind.proxy.http.config.ForwardedLocation;
 import net.bluemind.proxy.http.config.HPSConfiguration;

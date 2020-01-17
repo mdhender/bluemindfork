@@ -20,13 +20,14 @@ package net.bluemind.core.rest.base;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.streams.WriteStream;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.WriteStream;
 import net.bluemind.core.utils.JsonUtils;
 
-public abstract class GenericJsonObjectWriteStream<T> implements WriteStream<GenericJsonObjectWriteStream<T>> {
+public abstract class GenericJsonObjectWriteStream<T> implements WriteStream<Buffer> {
 
 	private static Logger logger = LoggerFactory.getLogger(GenericJsonObjectWriteStream.class);
 
@@ -63,6 +64,22 @@ public abstract class GenericJsonObjectWriteStream<T> implements WriteStream<Gen
 			error(e);
 		}
 		return this;
+	}
+
+	@Override
+	public GenericJsonObjectWriteStream<T> write(Buffer buffer, Handler<AsyncResult<Void>> res) {
+		write(buffer);
+		res.handle(null);
+		return this;
+	}
+
+	@Override
+	public void end(Handler<AsyncResult<Void>> res) {
+		res.handle(null);
+	}
+
+	@Override
+	public void end() {
 	}
 
 	protected abstract void next(T value) throws Exception;

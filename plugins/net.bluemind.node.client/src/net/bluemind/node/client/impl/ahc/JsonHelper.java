@@ -17,9 +17,8 @@
   */
 package net.bluemind.node.client.impl.ahc;
 
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.node.shared.ExecRequest;
 import net.bluemind.node.shared.ExecRequest.Options;
 
@@ -27,15 +26,15 @@ public class JsonHelper {
 
 	public static JsonObject toJson(ExecRequest execReq) {
 		JsonObject jso = new JsonObject();
-		jso.putString("command", execReq.command);
-		jso.putString("group", execReq.group).putString("name", execReq.name);
+		jso.put("command", execReq.command);
+		jso.put("group", execReq.group).put("name", execReq.name);
 		JsonArray options = new JsonArray();
 		for (ExecRequest.Options opt : execReq.options) {
-			options.addString(opt.name());
+			options.add(opt.name());
 		}
-		jso.putArray("options", options);
+		jso.put("options", options);
 		// for compat with older server versions
-		jso.putBoolean("withOutput", !options.contains(Options.DISCARD_OUTPUT));
+		jso.put("withOutput", !options.contains(Options.DISCARD_OUTPUT));
 		return jso;
 	}
 

@@ -23,9 +23,9 @@ import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.replication.observers.IReplicationObserver;
 import net.bluemind.backend.cyrus.replication.protocol.parsing.JsUtils;
 import net.bluemind.backend.cyrus.replication.protocol.parsing.ParenObjectParser;
@@ -88,12 +88,12 @@ public class ApplyMailbox implements IAsyncReplicationCommand {
 		}
 
 		return state.registerFolder(folder).thenCompose(v1 -> {
-			JsonArray emails = parsed.getArray("RECORD");
+			JsonArray emails = parsed.getJsonArray("RECORD");
 			int len = emails.size();
 
 			final List<MailboxRecord> mboxState = new LinkedList<>();
 			for (int i = 0; i < len; i++) {
-				JsonObject mailRecord = emails.get(i);
+				JsonObject mailRecord = emails.getJsonObject(i);
 				String guid = mailRecord.getString("GUID");
 				long recordUid = Long.parseLong(mailRecord.getString("UID"));
 				MessageRecordBuilder builder = MboxRecord.builder();
@@ -102,7 +102,7 @@ public class ApplyMailbox implements IAsyncReplicationCommand {
 				builder.modseq(Long.parseLong(mailRecord.getString("MODSEQ")));
 				builder.internalDate(Long.parseLong(mailRecord.getString("INTERNALDATE")));
 				builder.lastUpdated(Long.parseLong(mailRecord.getString("LAST_UPDATED")));
-				builder.flags(JsUtils.asList(mailRecord.getArray("FLAGS"), (String in) -> in));
+				builder.flags(JsUtils.asList(mailRecord.getJsonArray("FLAGS"), (String in) -> in));
 				mboxState.add(DtoConverters.from(builder.build()));
 			}
 			if (logger.isDebugEnabled()) {

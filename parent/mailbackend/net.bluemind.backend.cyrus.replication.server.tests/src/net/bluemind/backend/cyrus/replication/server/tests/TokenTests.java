@@ -31,9 +31,9 @@ import java.util.LinkedList;
 import java.util.concurrent.CompletableFuture;
 
 import org.junit.Test;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.file.FileSystem;
 
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.file.FileSystem;
 import net.bluemind.backend.cyrus.replication.server.ReplicationFrame;
 import net.bluemind.backend.cyrus.replication.server.Token;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -43,12 +43,12 @@ public class TokenTests {
 	@Test
 	public void testToken() {
 		FileSystem fs = VertxPlatform.getVertx().fileSystem();
-		Token token = Token.of(new Buffer("toto {12+}"), false, fs);
+		Token token = Token.of(Buffer.buffer("toto {12+}"), false, fs);
 		assertNotNull(token);
 		assertNotNull(token.followup());
 		assertEquals(12, token.followup().size());
 
-		Token noPlus = Token.of(new Buffer("titi {14}"), false, fs);
+		Token noPlus = Token.of(Buffer.buffer("titi {14}"), false, fs);
 		assertNotNull(noPlus);
 		assertNotNull(noPlus.followup());
 		assertEquals(14, noPlus.followup().size());
@@ -58,8 +58,8 @@ public class TokenTests {
 	@Test
 	public void testTokenMerge() {
 		FileSystem fs = VertxPlatform.getVertx().fileSystem();
-		Token text1 = Token.of(new Buffer("apply "), false, fs);
-		Token text2 = Token.of(new Buffer("mailbox"), false, fs);
+		Token text1 = Token.of(Buffer.buffer("apply "), false, fs);
+		Token text2 = Token.of(Buffer.buffer("mailbox"), false, fs);
 		LinkedList<Token> tokenList = new LinkedList<>(Arrays.asList(text1, text2));
 		ReplicationFrame frame = new ReplicationFrame(0, tokenList, CompletableFuture.completedFuture(null));
 		assertEquals(1, frame.size());
@@ -67,11 +67,11 @@ public class TokenTests {
 		Token merged = frame.next();
 		assertEquals(merged.value(), "apply mailbox");
 
-		Token t1 = Token.of(new Buffer("apply "), false, fs);
-		Token t2 = Token.of(new Buffer("message %{coucou 3}"), false, fs);
-		Token b1 = Token.of(new Buffer("xxx"), true, fs);
-		Token t3 = Token.of(new Buffer(" after"), false, fs);
-		Token t4 = Token.of(new Buffer(" bin"), false, fs);
+		Token t1 = Token.of(Buffer.buffer("apply "), false, fs);
+		Token t2 = Token.of(Buffer.buffer("message %{coucou 3}"), false, fs);
+		Token b1 = Token.of(Buffer.buffer("xxx"), true, fs);
+		Token t3 = Token.of(Buffer.buffer(" after"), false, fs);
+		Token t4 = Token.of(Buffer.buffer(" bin"), false, fs);
 		LinkedList<Token> tokenList2 = new LinkedList<>(Arrays.asList(t1, t2, b1, t3, t4));
 		ReplicationFrame complexFrame = new ReplicationFrame(1, tokenList2, CompletableFuture.completedFuture(null));
 		assertEquals(1, complexFrame.size());

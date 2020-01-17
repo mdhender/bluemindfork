@@ -20,24 +20,25 @@ package net.bluemind.eas.client;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.zip.GZIPInputStream;
 
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.AsyncHttpClientConfig;
+import org.asynchttpclient.BoundRequestBuilder;
+import org.asynchttpclient.DefaultAsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClientConfig;
+import org.asynchttpclient.ListenableFuture;
+import org.asynchttpclient.Realm;
+import org.asynchttpclient.Realm.AuthScheme;
+import org.asynchttpclient.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClient.BoundRequestBuilder;
-import com.ning.http.client.AsyncHttpClientConfig;
-import com.ning.http.client.FluentCaseInsensitiveStringsMap;
-import com.ning.http.client.ListenableFuture;
-import com.ning.http.client.Realm;
-import com.ning.http.client.Realm.AuthScheme;
-import com.ning.http.client.Response;
 
 import net.bluemind.eas.client.commands.Autodiscover;
 import net.bluemind.eas.client.commands.FetchItemSync;
@@ -86,9 +87,9 @@ public class OPClient {
 	}
 
 	private AsyncHttpClient createHttpClient() {
-		AsyncHttpClientConfig config = new AsyncHttpClientConfig.Builder().setFollowRedirect(false).setMaxRedirects(0)
-				.setMaxRequestRetry(0).setRequestTimeout(180000).setAllowPoolingConnections(false).build();
-		return new AsyncHttpClient(config);
+		AsyncHttpClientConfig config = new DefaultAsyncHttpClientConfig.Builder().setFollowRedirect(false)
+				.setMaxRedirects(0).setMaxRequestRetry(0).setRequestTimeout(180000).build();
+		return new DefaultAsyncHttpClient(config);
 	}
 
 	public void autodiscover() throws Exception {
@@ -144,8 +145,8 @@ public class OPClient {
 		pm.setBody(data);
 		pm.setHeader("Content-Length", "" + data.length);
 		pm.setHeader("Content-Type", "application/vnd.ms-sync.wbxml");
-		Realm realm = new Realm.RealmBuilder().setPrincipal(ai.getLogin()).setPassword(ai.getPassword())
-				.setScheme(AuthScheme.BASIC).setCharset(Charset.forName("UTF-8")).build();
+		Realm realm = new Realm.Builder(ai.getLogin(), ai.getPassword()).setScheme(AuthScheme.BASIC)
+				.setCharset(StandardCharsets.UTF_8).build();
 		pm.setRealm(realm);
 		pm.setHeader("User-Agent", ai.getUserAgent());
 		pm.setHeader("Ms-ASProtocolVersion", protocolVersion.toString());
@@ -226,8 +227,8 @@ public class OPClient {
 		pm.setBody(data);
 		pm.setHeader("Content-Length", "" + data.length);
 		pm.setHeader("Content-Type", "application/vnd.ms-sync.wbxml");
-		Realm realm = new Realm.RealmBuilder().setPrincipal(ai.getLogin()).setPassword(ai.getPassword())
-				.setScheme(AuthScheme.BASIC).setCharset(Charset.forName("UTF-8")).build();
+		Realm realm = new Realm.Builder(ai.getLogin(), ai.getPassword()).setScheme(AuthScheme.BASIC)
+				.setCharset(StandardCharsets.UTF_8).build();
 		pm.setRealm(realm);
 		pm.setHeader("User-Agent", ai.getUserAgent());
 		pm.setHeader("Ms-ASProtocolVersion", protocolVersion.toString());
@@ -253,9 +254,9 @@ public class OPClient {
 				return null;
 			} else {
 				logger.info("HTTP Status: " + code);
-				FluentCaseInsensitiveStringsMap srvHeaders = response.getHeaders();
-				for (String headerName : srvHeaders.keySet()) {
-					logger.info("S: Header '{}' => '{}'", headerName, srvHeaders.getFirstValue(headerName));
+				List<Entry<String, String>> srvHeaders = response.getHeaders().entries();
+				for (Entry<String, String> entry : srvHeaders) {
+					logger.info("S: Header '{}' => '{}'", entry.getKey(), entry.getValue());
 				}
 				InputStream in = response.getResponseBodyAsStream();
 				if (response.getHeader("Content-Encoding") != null

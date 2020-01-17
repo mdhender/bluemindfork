@@ -18,13 +18,13 @@
  */
 package net.bluemind.proxy.http.tests;
 
+import org.asynchttpclient.AsyncHandler;
+import org.asynchttpclient.HttpResponseBodyPart;
+import org.asynchttpclient.HttpResponseStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ning.http.client.AsyncHandler;
-import com.ning.http.client.HttpResponseBodyPart;
-import com.ning.http.client.HttpResponseHeaders;
-import com.ning.http.client.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpHeaders;
 
 public class SizeHandler implements AsyncHandler<Long> {
 
@@ -41,22 +41,21 @@ public class SizeHandler implements AsyncHandler<Long> {
 	}
 
 	@Override
-	public com.ning.http.client.AsyncHandler.STATE onBodyPartReceived(HttpResponseBodyPart bodyPart) throws Exception {
+	public State onBodyPartReceived(HttpResponseBodyPart bodyPart) throws Exception {
 		int length = bodyPart.getBodyPartBytes().length;
 		size += length;
-		return STATE.CONTINUE;
+		return State.CONTINUE;
 	}
 
 	@Override
-	public com.ning.http.client.AsyncHandler.STATE onStatusReceived(HttpResponseStatus responseStatus)
-			throws Exception {
+	public State onStatusReceived(HttpResponseStatus responseStatus) throws Exception {
 		logger.info("status received: " + responseStatus.getStatusCode());
-		return STATE.CONTINUE;
+		return State.CONTINUE;
 	}
 
 	@Override
-	public com.ning.http.client.AsyncHandler.STATE onHeadersReceived(HttpResponseHeaders headers) throws Exception {
-		return STATE.CONTINUE;
+	public State onHeadersReceived(HttpHeaders headers) throws Exception {
+		return State.CONTINUE;
 	}
 
 	@Override

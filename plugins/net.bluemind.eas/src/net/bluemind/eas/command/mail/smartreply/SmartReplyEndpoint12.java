@@ -20,12 +20,12 @@ package net.bluemind.eas.command.mail.smartreply;
 
 import java.util.Collection;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteSource;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
 import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.backend.SendMailData;
 import net.bluemind.eas.backend.SendMailData.Mode;
@@ -57,19 +57,20 @@ public class SmartReplyEndpoint12 extends MailRequestBase implements IEasRequest
 		mail.serverId = dq.optionalParams().itemId();
 		mail.mode = Mode.Reply;
 
-		VertxPlatform.eventBus().send(EasBusEndpoints.SEND_MAIL, new LocalJsonObject<SendMailData>(mail),
-				new Handler<Message<String>>() {
+		VertxPlatform.eventBus().request(EasBusEndpoints.SEND_MAIL, new LocalJsonObject<SendMailData>(mail),
+				(AsyncResult<Message<String>> event) -> {
 
-					@Override
-					public void handle(Message<String> event) {
-						if (event.body() == null) {
-							completion.handle(null);
-							responder.sendStatus(200);
-						} else {
-							completion.handle(null);
-							responder.sendStatus(500);
-						}
+					if (event.failed()) {
+						completion.handle(null);
+						responder.sendStatus(500);
+					} else if (event.result().body() == null) {
+						completion.handle(null);
+						responder.sendStatus(200);
+					} else {
+						completion.handle(null);
+						responder.sendStatus(500);
 					}
+
 				});
 	}
 

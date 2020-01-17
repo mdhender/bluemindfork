@@ -20,11 +20,10 @@ package net.bluemind.eas.http.tests.mocks;
 
 import java.util.Collection;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpServerResponse;
-
 import com.google.common.collect.ImmutableList;
 
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.eas.http.IEasRequestEndpoint;
 

@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.locator.client.tests
 Bundle-SymbolicName: net.bluemind.locator.client.tests
 Bundle-Version: 4.1.0.qualifier
-Bundle-Activator: net.bluemind.locator.client.tests.Activator
 Bundle-Vendor: www.blue-mind.net
 Require-Bundle: net.bluemind.locator.client;bundle-version="1.0.0",
  org.junit;bundle-version="3.8.2",

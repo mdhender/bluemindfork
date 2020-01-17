@@ -25,9 +25,11 @@ import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.net.NetClient;
+
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.net.NetClient;
+import io.vertx.core.net.NetClientOptions;
 
 public class VertxLmtpClient {
 
@@ -40,7 +42,7 @@ public class VertxLmtpClient {
 
 	public VertxLmtpClient(Vertx vx, String host, int port) {
 		this.vertx = vx;
-		client = this.vertx.createNetClient().setTCPNoDelay(true);
+		client = this.vertx.createNetClient(new NetClientOptions().setTcpNoDelay(true));
 		this.host = host;
 		this.port = port;
 		logger.info("LMTP client for {}:{}", host, port);
@@ -117,7 +119,7 @@ public class VertxLmtpClient {
 	}
 
 	public CompletableFuture<List<Response>> batchOneChunk(Request... requests) {
-		Buffer batched = new Buffer();
+		Buffer batched = Buffer.buffer();
 		for (int i = 0; i < requests.length; i++) {
 			batched.appendString(requests[i].cmd()).appendString("\r\n");
 		}

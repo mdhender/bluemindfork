@@ -18,7 +18,7 @@
  */
 package net.bluemind.dav.server.proto;
 
-import org.vertx.java.core.MultiMap;
+import io.vertx.core.MultiMap;
 
 public class DavHeaders {
 

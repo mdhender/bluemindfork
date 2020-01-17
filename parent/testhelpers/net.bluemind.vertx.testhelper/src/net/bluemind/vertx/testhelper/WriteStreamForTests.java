@@ -22,11 +22,12 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.streams.WriteStream;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.WriteStream;
 
-public class WriteStreamForTests implements WriteStream<WriteStreamForTests> {
+public class WriteStreamForTests implements WriteStream<Buffer> {
 
 	public final Queue<Buffer> received = new LinkedList<>();
 	public final CompletableFuture<Void> responseFuture = new CompletableFuture<>();
@@ -58,6 +59,23 @@ public class WriteStreamForTests implements WriteStream<WriteStreamForTests> {
 			responseFuture.complete(null);
 		}
 		return this;
+	}
+
+	@Override
+	public WriteStream<Buffer> write(Buffer data, Handler<AsyncResult<Void>> handler) {
+		write(data);
+		handler.handle(FakeResult.ok(null));
+		return this;
+	}
+
+	@Override
+	public void end() {
+		// yeah
+	}
+
+	@Override
+	public void end(Handler<AsyncResult<Void>> handler) {
+		handler.handle(FakeResult.ok(null));
 	}
 
 }

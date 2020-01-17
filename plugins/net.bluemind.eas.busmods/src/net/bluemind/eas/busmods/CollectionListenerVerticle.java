@@ -31,20 +31,21 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.busmods.BusModBase;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.eas.dto.EasBusEndpoints;
 import net.bluemind.eas.dto.push.PushRegistrationRequest;
 import net.bluemind.eas.dto.push.PushTrigger;
 import net.bluemind.vertx.common.LocalJsonObject;
 
-public class CollectionListenerVerticle extends BusModBase {
+public class CollectionListenerVerticle extends AbstractVerticle {
 	private static final Logger logger = LoggerFactory.getLogger(CollectionListenerVerticle.class);
 
 	private Handler<Message<LocalJsonObject<PushRegistrationRequest>>> registrationHandler;
@@ -69,7 +70,7 @@ public class CollectionListenerVerticle extends BusModBase {
 	private Handler<Message<LocalJsonObject<PushTrigger>>> triggerHandler;
 
 	public void start() {
-		super.start();
+		EventBus eb = vertx.eventBus();
 
 		registrationHandler = new Handler<Message<LocalJsonObject<PushRegistrationRequest>>>() {
 
@@ -117,7 +118,7 @@ public class CollectionListenerVerticle extends BusModBase {
 			}
 
 		};
-		eb.registerHandler(EasBusEndpoints.PUSH_REGISTRATION, registrationHandler);
+		eb.consumer(EasBusEndpoints.PUSH_REGISTRATION, registrationHandler);
 
 		triggerHandler = new Handler<Message<LocalJsonObject<PushTrigger>>>() {
 
@@ -172,13 +173,13 @@ public class CollectionListenerVerticle extends BusModBase {
 			}
 
 		};
-		eb.registerHandler(EasBusEndpoints.PUSH_TRIGGER, triggerHandler);
+		eb.consumer(EasBusEndpoints.PUSH_TRIGGER, triggerHandler);
 
-		eb.registerHandler(EasBusEndpoints.PUSH_KILLER, new Handler<Message<JsonObject>>() {
+		eb.consumer(EasBusEndpoints.PUSH_KILLER, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
-				Map<String, Object> m = event.body().toMap();
+				Map<String, Object> m = event.body().getMap();
 				Set<String> replyAddr = new HashSet<String>();
 				for (String k : m.keySet()) {
 					String partnershipId = (String) m.get(k);
@@ -202,12 +203,12 @@ public class CollectionListenerVerticle extends BusModBase {
 					eb.send(addr, new LocalJsonObject<>(PushTrigger.noChanges()));
 				}
 
-				event.reply();
+				event.reply(null);
 			}
 
 		});
 
-		eb.registerHandler(EasBusEndpoints.PUSH_UNREGISTRATION, new Handler<Message<JsonObject>>() {
+		eb.consumer(EasBusEndpoints.PUSH_UNREGISTRATION, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {

@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,8 +36,6 @@ import javax.imageio.ImageIO;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.json.impl.Base64;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -47,6 +46,7 @@ import com.google.common.io.ByteStreams;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.eas.command.folder.sync.FolderSyncEndpoint;
 import net.bluemind.eas.command.itemoperations.ItemOperationsEndpoint;
 import net.bluemind.eas.command.sync.SyncEndpoint;
@@ -353,7 +353,7 @@ public class ItemOperationsEndpointTests extends AbstractEndpointTest {
 		NodeList nodes = doc.getElementsByTagNameNS(NamespaceMapping.ItemOperations.namespace(), "Data");
 		assertEquals(1, nodes.getLength());
 		Element dataNode = (Element) nodes.item(0);
-		byte[] imageBytes = Base64.decode(dataNode.getTextContent());
+		byte[] imageBytes = Base64.getDecoder().decode(dataNode.getTextContent());
 		checkJPEG(imageBytes);
 	}
 
@@ -376,7 +376,7 @@ public class ItemOperationsEndpointTests extends AbstractEndpointTest {
 		assertEquals(15, typeNodes.getLength());
 		for (int i = 0; i < dataNodes.getLength(); i++) {
 			Element dataNode = (Element) dataNodes.item(i);
-			checkJPEG(Base64.decode(dataNode.getTextContent()));
+			checkJPEG(Base64.getDecoder().decode(dataNode.getTextContent()));
 			dataNode.setTextContent("[base64 of jpeg file]");
 		}
 		DOMUtils.logDom(doc);

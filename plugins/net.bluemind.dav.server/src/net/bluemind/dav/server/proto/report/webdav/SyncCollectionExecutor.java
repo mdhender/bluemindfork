@@ -27,9 +27,9 @@ import javax.xml.namespace.QName;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.http.HttpServerResponse;
 import org.w3c.dom.Element;
 
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.core.container.model.ContainerChangeset;

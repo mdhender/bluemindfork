@@ -13,7 +13,6 @@ Require-Bundle: org.apache.james.apache-mime4j-dom,
  net.bluemind.mailflow.api,
  net.bluemind.core.sanitizer,
  net.bluemind.core.rest,
- org.apache.commons.codec,
  net.bluemind.mailmessage.api,
  net.bluemind.directory.api
 Export-Package: net.bluemind.signature.commons.action

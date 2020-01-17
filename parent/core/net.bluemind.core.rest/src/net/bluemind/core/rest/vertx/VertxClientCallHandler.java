@@ -20,10 +20,11 @@ package net.bluemind.core.rest.vertx;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.eventbus.Message;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.Message;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.rest.base.IRestCallHandler;
 import net.bluemind.core.rest.base.RestRequest;
@@ -49,16 +50,20 @@ public class VertxClientCallHandler implements IRestCallHandler {
 			logger.debug("no body stream");
 		}
 
-		vertx.eventBus().send("bm-core", vrr, new Handler<Message<VertxRestResponse>>() {
+		vertx.eventBus().request("bm-core", vrr, new Handler<AsyncResult<Message<VertxRestResponse>>>() {
 
 			@Override
-			public void handle(Message<VertxRestResponse> msg) {
-				VertxRestResponse resp = msg.body();
-				if (resp.responseStreamAdr != null) {
-					responseHandler
-							.success(RestResponse.stream(new VertxStreamConsumer(vertx, resp.responseStreamAdr)));
+			public void handle(AsyncResult<Message<VertxRestResponse>> msg) {
+				if (msg.succeeded()) {
+					VertxRestResponse resp = msg.result().body();
+					if (resp.responseStreamAdr != null) {
+						responseHandler
+								.success(RestResponse.stream(new VertxStreamConsumer(vertx, resp.responseStreamAdr)));
+					} else {
+						responseHandler.success(resp.asResponse());
+					}
 				} else {
-					responseHandler.success(resp.asResponse());
+					responseHandler.failure(msg.cause());
 				}
 			}
 		});

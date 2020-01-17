@@ -32,8 +32,8 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.system.persistence.SchemaVersion;
 import net.bluemind.system.persistence.SchemaVersion.UpgradePhase;
-import net.bluemind.system.schemaupgrader.ComponentVersion;
 import net.bluemind.system.persistence.SchemaVersionStore;
+import net.bluemind.system.schemaupgrader.ComponentVersion;
 
 public class SchemaVersionStoreTests {
 	private static Logger logger = LoggerFactory.getLogger(SchemaVersionStoreTests.class);

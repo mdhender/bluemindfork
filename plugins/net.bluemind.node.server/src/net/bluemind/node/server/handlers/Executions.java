@@ -20,13 +20,14 @@ package net.bluemind.node.server.handlers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.DeliveryOptions;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class Executions implements Handler<HttpServerRequest> {
@@ -37,9 +38,9 @@ public class Executions implements Handler<HttpServerRequest> {
 	public void handle(HttpServerRequest req) {
 		req.endHandler(v -> {
 			JsonObject js = new JsonObject();
-			js.putString("group", req.params().get("group"));
-			js.putString("name", req.params().get("name"));
-			VertxPlatform.eventBus().sendWithTimeout("cmd.executions", js, 2000,
+			js.put("group", req.params().get("group"));
+			js.put("name", req.params().get("name"));
+			VertxPlatform.eventBus().request("cmd.executions", js, new DeliveryOptions().setSendTimeout(2000),
 					(AsyncResult<Message<JsonObject>> ar) -> {
 						if (ar.succeeded()) {
 							Message<JsonObject> msg = ar.result();

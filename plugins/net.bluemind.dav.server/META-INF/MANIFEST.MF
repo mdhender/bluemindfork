@@ -27,7 +27,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.directory.api,
  net.bluemind.system.api,
  net.bluemind.system.stateobserver,
- net.bluemind.role.api
+ net.bluemind.role.api,
+ net.bluemind.network.topology
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx

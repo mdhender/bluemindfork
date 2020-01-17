@@ -23,13 +23,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.vertx.java.core.buffer.Buffer;
-
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
 import io.netty.buffer.Unpooled;
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.base.RestRequest;
@@ -195,7 +194,7 @@ public class DefaultResponseCodecs {
 			if (response == null) {
 				return RestResponse.ok(204, null);
 			} else {
-				return RestResponse.ok(defaultMimeType, 200, new Buffer(response));
+				return RestResponse.ok(defaultMimeType, 200, Buffer.buffer(response));
 			}
 		}
 
@@ -225,7 +224,7 @@ public class DefaultResponseCodecs {
 			if (response == null) {
 				return RestResponse.ok(204, null);
 			} else {
-				return RestResponse.ok(defaultMimeType, 200, new Buffer(Unpooled.wrappedBuffer(response)));
+				return RestResponse.ok(defaultMimeType, 200, Buffer.buffer(Unpooled.wrappedBuffer(response)));
 			}
 		}
 
@@ -283,7 +282,7 @@ public class DefaultResponseCodecs {
 
 		@Override
 		public RestResponse encode(RestRequest request, String defaultMimeType, Void response) {
-			RestResponse resp = RestResponse.ok(200, new Buffer());
+			RestResponse resp = RestResponse.ok(200, Buffer.buffer());
 			resp.headers.add("Content-Type", defaultMimeType);
 			return resp;
 		}

@@ -18,10 +18,8 @@ package net.bluemind.serialization.client;
  * END LICENSE
  */
 
-
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.hornetq.client.OOPMessage;
 import net.bluemind.hornetq.client.Topic;
 import net.bluemind.hornetq.client.vertx.IMessageForwarder;
@@ -46,8 +44,8 @@ public class HollowMessageForwarder implements IMessageForwarder {
 		switch (action) {
 		case "version_announcement":
 			msg = new JsonObject();
-			msg.putString("dataset", dataset);
-			msg.putNumber("version", version);
+			msg.put("dataset", dataset);
+			msg.put("version", version);
 			vertx.eventBus().publish(dataSetChanged, msg);
 			break;
 		}

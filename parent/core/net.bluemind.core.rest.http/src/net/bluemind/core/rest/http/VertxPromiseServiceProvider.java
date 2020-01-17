@@ -25,8 +25,8 @@ import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.http.HttpServerRequest;
 
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.core.api.BMPromiseApi;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.IServiceProvider;

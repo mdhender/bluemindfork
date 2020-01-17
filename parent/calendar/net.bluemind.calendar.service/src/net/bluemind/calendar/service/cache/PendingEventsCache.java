@@ -18,13 +18,12 @@
  */
 package net.bluemind.calendar.service.cache;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
-
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.hook.CalendarHookAddress;
 import net.bluemind.core.api.ListResult;
@@ -42,14 +41,13 @@ public class PendingEventsCache implements ICacheRegistration {
 	public void registerCaches(CacheRegistry cr) {
 		cr.register(PendingEventsCache.class, contCache);
 
-		VertxPlatform.getVertx().eventBus().registerHandler(CalendarHookAddress.CHANGED,
-				new Handler<Message<JsonObject>>() {
+		VertxPlatform.getVertx().eventBus().consumer(CalendarHookAddress.CHANGED, new Handler<Message<JsonObject>>() {
 
-					@Override
-					public void handle(Message<JsonObject> event) {
-						invalidate(event.body().getString("container"));
-					}
-				});
+			@Override
+			public void handle(Message<JsonObject> event) {
+				invalidate(event.body().getString("container"));
+			}
+		});
 	}
 
 	public static ListResult<ItemValue<VEventSeries>> getIfPresent(String uid) {

@@ -34,9 +34,9 @@ import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
+import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
-import net.bluemind.mailbox.api.IMailboxAclUids;
 
 public class EmailHook extends AbstractEmailHook {
 

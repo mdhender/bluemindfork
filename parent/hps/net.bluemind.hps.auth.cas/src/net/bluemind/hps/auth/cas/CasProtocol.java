@@ -32,11 +32,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpClient;
-import org.vertx.java.core.http.HttpClientRequest;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -46,6 +41,12 @@ import com.google.common.base.Strings;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpClientRequest;
+import io.vertx.core.http.HttpHeaders;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.proxy.http.ExternalCreds;
 import net.bluemind.proxy.http.IAuthProvider;
@@ -76,9 +77,8 @@ public class CasProtocol implements IAuthProtocol {
 	public void proceed(AuthRequirements authState, ISessionStore ss, IAuthProvider prov, HttpServerRequest req) {
 		if (req.params().get("ticket") == null) {
 			if (req.path().endsWith("bluemind_sso_logout")
-					&& !Strings.isNullOrEmpty(req.headers().get(org.vertx.java.core.http.HttpHeaders.REFERER))
-					&& req.headers().get(org.vertx.java.core.http.HttpHeaders.REFERER).toLowerCase()
-							.equals(getCasLogoutUrl())) {
+					&& !Strings.isNullOrEmpty(req.headers().get(HttpHeaders.REFERER))
+					&& req.headers().get(HttpHeaders.REFERER).toLowerCase().equals(getCasLogoutUrl())) {
 				HttpServerResponse resp = req.response();
 				resp.setStatusCode(200);
 				resp.end();
@@ -94,7 +94,7 @@ public class CasProtocol implements IAuthProtocol {
 
 	private void validateTicket(HttpServerRequest req, IAuthProtocol protocol, IAuthProvider prov, ISessionStore ss) {
 		List<String> forwadedFor = new ArrayList<>(req.headers().getAll("X-Forwarded-For"));
-		forwadedFor.add(req.remoteAddress().getAddress().getHostAddress());
+		forwadedFor.add(req.remoteAddress().host());
 
 		String ticket = req.params().get("ticket");
 		String validationURI = baseUri + "serviceValidate?service=" + callbackTo(req) + "&ticket=" + ticket;
@@ -139,7 +139,7 @@ public class CasProtocol implements IAuthProtocol {
 					if (sid == null) {
 						logger.error("Error during cas auth, {} login not valid (not found/archived or not user)",
 								creds.getLoginAtDomain());
-						req.response().headers().add(org.vertx.java.core.http.HttpHeaders.LOCATION,
+						req.response().headers().add(HttpHeaders.LOCATION,
 								String.format("/errors-pages/deniedAccess.html?login=%s", creds.getLoginAtDomain()));
 						req.response().setStatusCode(302);
 						req.response().end();
@@ -157,7 +157,7 @@ public class CasProtocol implements IAuthProtocol {
 					if (CookieHelper.secureCookies()) {
 						co.setSecure(true);
 					}
-					req.response().headers().add(org.vertx.java.core.http.HttpHeaders.LOCATION, "/");
+					req.response().headers().add(HttpHeaders.LOCATION, "/");
 					req.response().setStatusCode(302);
 
 					req.response().headers().add("Set-Cookie", ServerCookieEncoder.LAX.encode(co));
@@ -226,7 +226,7 @@ public class CasProtocol implements IAuthProtocol {
 		String location = casURL + "login?service=";
 
 		location += callbackTo(req);
-		req.response().headers().add(org.vertx.java.core.http.HttpHeaders.LOCATION, location);
+		req.response().headers().add(HttpHeaders.LOCATION, location);
 		req.response().setStatusCode(302);
 		req.response().end();
 	}
@@ -252,8 +252,8 @@ public class CasProtocol implements IAuthProtocol {
 
 	@Override
 	public void logout(HttpServerRequest event) {
-		if (!Strings.isNullOrEmpty(event.headers().get(org.vertx.java.core.http.HttpHeaders.REFERER)) && event.headers()
-				.get(org.vertx.java.core.http.HttpHeaders.REFERER).toLowerCase().equals(getCasLogoutUrl())) {
+		if (!Strings.isNullOrEmpty(event.headers().get(HttpHeaders.REFERER))
+				&& event.headers().get(HttpHeaders.REFERER).toLowerCase().equals(getCasLogoutUrl())) {
 			HttpServerResponse resp = event.response();
 			resp.setStatusCode(200);
 			resp.end();
@@ -261,7 +261,7 @@ public class CasProtocol implements IAuthProtocol {
 		}
 
 		HttpServerResponse resp = event.response();
-		resp.headers().add(org.vertx.java.core.http.HttpHeaders.LOCATION, getCasLogoutUrl());
+		resp.headers().add(HttpHeaders.LOCATION, getCasLogoutUrl());
 		resp.setStatusCode(302);
 		resp.end();
 	}

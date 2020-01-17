@@ -18,9 +18,8 @@
  */
 package net.bluemind.webmodule.server.filters;
 
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
-
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.webmodule.server.IWebFilter;
 
 public class BlankFilter implements IWebFilter {

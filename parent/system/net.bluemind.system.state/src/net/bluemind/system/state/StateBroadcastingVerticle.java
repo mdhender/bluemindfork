@@ -24,16 +24,17 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.busmods.BusModBase;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Verticle;
 
 import com.google.common.io.Files;
 import com.netflix.spectator.api.Counter;
 import com.netflix.spectator.api.Gauge;
 import com.netflix.spectator.api.Registry;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Verticle;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Producer;
 import net.bluemind.hornetq.client.Topic;
@@ -42,7 +43,7 @@ import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.system.api.SystemState;
 
-public class StateBroadcastingVerticle extends BusModBase {
+public class StateBroadcastingVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(StateBroadcastingVerticle.class);
 
@@ -62,8 +63,9 @@ public class StateBroadcastingVerticle extends BusModBase {
 
 	private static final AtomicLong lastSend = new AtomicLong();
 
+	@Override
 	public void start() {
-		super.start();
+		EventBus eb = vertx.eventBus();
 		logger.info("State broadcast verticle starting...");
 		lastSend.set(MQ.clusterTime());
 
@@ -80,13 +82,13 @@ public class StateBroadcastingVerticle extends BusModBase {
 		if (loc.exists()) {
 			try {
 				String location = Files.asCharSource(loc, StandardCharsets.UTF_8).readFirstLine();
-				origin.putString("datalocation", location);
+				origin.put("datalocation", location);
 			} catch (IOException e) {
 			}
 		}
-		origin.putString("product", metricsId.product());
+		origin.put("product", metricsId.product());
 
-		eb.registerHandler(SystemState.BROADCAST, (Message<JsonObject> msg) -> {
+		eb.consumer(SystemState.BROADCAST, (Message<JsonObject> msg) -> {
 			JsonObject forCluster = msg.body().copy();
 			String operation = forCluster.getString("operation", "undefined");
 
@@ -95,8 +97,8 @@ public class StateBroadcastingVerticle extends BusModBase {
 			long latency = Math.abs(clusterTime - previousTime);
 			latencyValue.set(latency);
 			maxLatency.set(latency);
-			forCluster.putNumber("send-time", clusterTime);
-			forCluster.putObject("origin", origin);
+			forCluster.put("send-time", clusterTime);
+			forCluster.put("origin", origin);
 
 			Counter heartbeatsCounter = reg.counter(metricsId.name("broadcast", "state", operation));
 			heartbeatsCounter.increment();

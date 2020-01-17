@@ -1,6 +1,6 @@
 package net.bluemind.vertx.common;
 
-import org.vertx.java.core.json.JsonObject;
+import io.vertx.core.json.JsonObject;
 
 @SuppressWarnings("serial")
 public final class LocalJsonObject<T> extends JsonObject {

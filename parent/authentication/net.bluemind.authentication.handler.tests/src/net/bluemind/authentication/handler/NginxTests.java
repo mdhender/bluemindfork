@@ -22,25 +22,27 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.AsyncHttpClientConfig;
+import org.asynchttpclient.DefaultAsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClientConfig;
+import org.asynchttpclient.RequestBuilder;
+import org.asynchttpclient.Response;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.collect.Lists;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClientConfig;
-import com.ning.http.client.RequestBuilder;
-import com.ning.http.client.Response;
-import com.ning.http.util.Base64;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -57,7 +59,6 @@ import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
-import net.bluemind.utils.Trust;
 
 public class NginxTests {
 	private User user;
@@ -131,7 +132,7 @@ public class NginxTests {
 		assertEquals("OK", response.getHeader("Auth-Status"));
 		assertEquals(cyrus.ip, response.getHeader("Auth-Server"));
 		assertEquals("1143", response.getHeader("Auth-Port"));
-		assertFalse(response.getHeaders().containsKey("Auth-User"));
+		assertFalse(response.getHeaders().contains("Auth-User"));
 	}
 
 	@Test
@@ -143,7 +144,7 @@ public class NginxTests {
 			assertEquals("OK", response.getHeader("Auth-Status"));
 			assertEquals(cyrus.ip, response.getHeader("Auth-Server"));
 			assertEquals("1143", response.getHeader("Auth-Port"));
-			assertTrue(response.getHeaders().containsKey("Auth-User"));
+			assertTrue(response.getHeaders().contains("Auth-User"));
 		}
 	}
 
@@ -155,7 +156,7 @@ public class NginxTests {
 		assertEquals("OK", response.getHeader("Auth-Status"));
 		assertEquals(cyrus.ip, response.getHeader("Auth-Server"));
 		assertEquals("1110", response.getHeader("Auth-Port"));
-		assertFalse(response.getHeaders().containsKey("Auth-User"));
+		assertFalse(response.getHeaders().contains("Auth-User"));
 	}
 
 	@Test
@@ -202,7 +203,7 @@ public class NginxTests {
 		assertEquals("OK", response.getHeader("Auth-Status"));
 		assertEquals(cyrus.ip, response.getHeader("Auth-Server"));
 		assertEquals("1143", response.getHeader("Auth-Port"));
-		assertFalse(response.getHeaders().containsKey("Auth-User"));
+		assertFalse(response.getHeaders().contains("Auth-User"));
 	}
 
 	private ItemValue<Domain> initDomain(String domainUid, Server... servers) throws Exception {
@@ -233,33 +234,29 @@ public class NginxTests {
 	}
 
 	private AsyncHttpClient getHttpClient() {
-		AsyncHttpClientConfig config = new AsyncHttpClientConfig.Builder().setSSLContext(Trust.createSSLContext()) //
-				.setHostnameVerifier(Trust.acceptAllVerifier()) //
-				.setConnectTimeout(120 * 1000) //
+		AsyncHttpClientConfig config = new DefaultAsyncHttpClientConfig.Builder().setConnectTimeout(120 * 1000) //
 				.setReadTimeout(120 * 1000) //
 				.setRequestTimeout(120 * 1000) //
 				.setFollowRedirect(false) //
 				.setMaxRedirects(0) //
 				.setMaxRequestRetry(0) //
-				.setAllowPoolingConnections(true)//
-				.setSSLContext(Trust.createSSLContext()) //
-				.setAcceptAnyCertificate(true)//
 				.build();
-		return new AsyncHttpClient(config);
+		return new DefaultAsyncHttpClient(config);
 	}
 
 	private Response doNginxAuthenticationQuery(String protocol, String port, String login, String password)
 			throws InterruptedException, ExecutionException, TimeoutException {
 		RequestBuilder requestBuilder = new RequestBuilder();
 		requestBuilder.setMethod("GET");
-		requestBuilder.setBodyEncoding("utf-8");
 		requestBuilder.setUrl("http://localhost:8090/nginx");
 
 		requestBuilder.addHeader("Client-IP", "10.0.0.34");
 		requestBuilder.addHeader("Auth-Protocol", protocol);
 		requestBuilder.addHeader("X-Auth-Port", port);
-		requestBuilder.addHeader("Auth-User", login == null ? login : Base64.encode(login.getBytes()));
-		requestBuilder.addHeader("Auth-Pass", password == null ? password : Base64.encode(password.getBytes()));
+		requestBuilder.addHeader("Auth-User",
+				login == null ? login : Base64.getEncoder().encodeToString(login.getBytes()));
+		requestBuilder.addHeader("Auth-Pass",
+				password == null ? password : Base64.getEncoder().encodeToString(password.getBytes()));
 
 		AsyncHttpClient httpClient = getHttpClient();
 		return httpClient.executeRequest(requestBuilder.build()).get(10, TimeUnit.SECONDS);

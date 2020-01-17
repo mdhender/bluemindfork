@@ -24,11 +24,11 @@ import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.ResourceLeakDetector.Level;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class DavApplication implements IApplication {

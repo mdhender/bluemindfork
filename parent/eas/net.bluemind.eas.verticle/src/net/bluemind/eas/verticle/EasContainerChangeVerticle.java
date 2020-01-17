@@ -20,11 +20,11 @@ package net.bluemind.eas.verticle;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.busmods.BusModBase;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.addressbook.api.AddressBookBusAddresses;
 import net.bluemind.calendar.hook.CalendarHookAddress;
 import net.bluemind.hornetq.client.MQ;
@@ -33,7 +33,7 @@ import net.bluemind.hornetq.client.Producer;
 import net.bluemind.hornetq.client.Topic;
 import net.bluemind.todolist.hook.TodoListHookAddress;
 
-public class EasContainerChangeVerticle extends BusModBase {
+public class EasContainerChangeVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(EasContainerChangeVerticle.class);
 	private Producer calendarProducer;
@@ -42,8 +42,6 @@ public class EasContainerChangeVerticle extends BusModBase {
 
 	@Override
 	public void start() {
-		super.start();
-
 		MQ.init(new MQ.IMQConnectHandler() {
 
 			@Override
@@ -55,7 +53,7 @@ public class EasContainerChangeVerticle extends BusModBase {
 			}
 		});
 
-		vertx.eventBus().registerHandler(CalendarHookAddress.CHANGED, new Handler<Message<JsonObject>>() {
+		vertx.eventBus().consumer(CalendarHookAddress.CHANGED, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
@@ -72,7 +70,7 @@ public class EasContainerChangeVerticle extends BusModBase {
 
 		});
 
-		vertx.eventBus().registerHandler(AddressBookBusAddresses.CHANGED, new Handler<Message<JsonObject>>() {
+		vertx.eventBus().consumer(AddressBookBusAddresses.CHANGED, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
@@ -88,7 +86,7 @@ public class EasContainerChangeVerticle extends BusModBase {
 
 		});
 
-		vertx.eventBus().registerHandler(TodoListHookAddress.CHANGED, new Handler<Message<JsonObject>>() {
+		vertx.eventBus().consumer(TodoListHookAddress.CHANGED, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {

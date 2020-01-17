@@ -33,11 +33,11 @@ import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.collect.Lists;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ServerFault;
@@ -54,8 +54,8 @@ import net.bluemind.group.api.Group;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.Member;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.IMailboxAclUids;
+import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.identity.api.IdentityDescription;
 import net.bluemind.mailbox.identity.api.SignatureFormat;
 import net.bluemind.pool.impl.BmConfIni;
@@ -78,7 +78,7 @@ public class UserMailIdentitiesHookTests {
 		domainUid = "bm.lan";
 
 		JdbcTestHelper.getInstance().beforeTest();
-		
+
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 		final CountDownLatch launched = new CountDownLatch(1);
 		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {

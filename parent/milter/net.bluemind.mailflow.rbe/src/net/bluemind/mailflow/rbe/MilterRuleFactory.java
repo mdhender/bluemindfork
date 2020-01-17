@@ -18,8 +18,6 @@
  */
 package net.bluemind.mailflow.rbe;
 
-import net.bluemind.mailflow.rbe.MailRule;
-
 public interface MilterRuleFactory {
 
 	MailRule create();

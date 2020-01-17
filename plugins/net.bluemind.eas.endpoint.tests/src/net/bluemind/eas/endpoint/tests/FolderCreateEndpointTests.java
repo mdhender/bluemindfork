@@ -20,10 +20,10 @@ package net.bluemind.eas.endpoint.tests;
 
 import java.io.IOException;
 
-import org.vertx.java.core.buffer.Buffer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.eas.command.folder.crud.FolderCreateEndpoint;
 import net.bluemind.eas.command.folder.sync.FolderSyncEndpoint;
 import net.bluemind.eas.dto.foldercreate.FolderCreateResponse;

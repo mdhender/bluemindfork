@@ -19,13 +19,15 @@ package net.bluemind.milter.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Future;
-import org.vertx.java.core.net.NetServer;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Promise;
+import io.vertx.core.Verticle;
+import io.vertx.core.net.NetServer;
+import io.vertx.core.net.NetServerOptions;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
-public class MilterMainVerticle extends Verticle {
+public class MilterMainVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(MilterMainVerticle.class);
 
@@ -43,9 +45,10 @@ public class MilterMainVerticle extends Verticle {
 
 	}
 
-	public void start(Future<Void> start) {
-		NetServer srv = vertx.createNetServer();
-		srv.setUsePooledBuffers(true).setTCPNoDelay(true).setTCPKeepAlive(true);
+	@Override
+	public void start(Promise<Void> start) {
+		NetServer srv = vertx.createNetServer(new NetServerOptions().setUsePooledBuffers(true).setTcpNoDelay(true)
+				.setTcpKeepAlive(true).setTcpFastOpen(true).setTcpQuickAck(true));
 
 		srv.connectHandler(socket -> {
 			MilterSession session = new MilterSession(vertx, socket);
@@ -54,9 +57,9 @@ public class MilterMainVerticle extends Verticle {
 		srv.listen(2500, ar -> {
 			if (ar.succeeded()) {
 				logger.info("Milter verticle listening.");
-				start.setResult(null);
+				start.complete();
 			} else {
-				start.setFailure(ar.cause());
+				start.fail(ar.cause());
 			}
 		});
 

@@ -49,8 +49,8 @@ import net.bluemind.system.importation.search.DirectorySearch;
 import net.bluemind.system.importation.search.LdapSearchCursor;
 import net.bluemind.system.ldap.importation.api.LdapConstants;
 import net.bluemind.system.ldap.importation.api.LdapProperties;
-import net.bluemind.system.ldap.importation.internal.tools.LdapParameters;
 import net.bluemind.system.ldap.importation.internal.tools.LdapHelper;
+import net.bluemind.system.ldap.importation.internal.tools.LdapParameters;
 import net.bluemind.system.ldap.tests.helpers.LdapDockerTestHelper;
 
 public class LdapSearchTestHelper {

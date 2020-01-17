@@ -18,10 +18,10 @@
  */
 package net.bluemind.node.client.impl.ahc;
 
-import net.bluemind.common.io.FileBackedOutputStream;
-import com.ning.http.client.HttpResponseHeaders;
-import com.ning.http.client.HttpResponseStatus;
+import org.asynchttpclient.HttpResponseStatus;
 
+import io.netty.handler.codec.http.HttpHeaders;
+import net.bluemind.common.io.FileBackedOutputStream;
 import net.bluemind.node.client.impl.DoesNotExist;
 
 public class ReadHandler extends DefaultAsyncHandler<FileBackedOutputStream> {
@@ -31,13 +31,12 @@ public class ReadHandler extends DefaultAsyncHandler<FileBackedOutputStream> {
 	}
 
 	@Override
-	protected FileBackedOutputStream getResult(int status, HttpResponseHeaders headers, FileBackedOutputStream body) {
+	protected FileBackedOutputStream getResult(int status, HttpHeaders headers, FileBackedOutputStream body) {
 		return body;
 	}
 
 	@Override
-	public com.ning.http.client.AsyncHandler.STATE onStatusReceived(HttpResponseStatus responseStatus)
-			throws Exception {
+	public State onStatusReceived(HttpResponseStatus responseStatus) throws Exception {
 		if (responseStatus.getStatusCode() == 404) {
 			throw new DoesNotExist();
 		} else {

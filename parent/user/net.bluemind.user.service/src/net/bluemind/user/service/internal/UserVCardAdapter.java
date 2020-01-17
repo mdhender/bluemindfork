@@ -21,6 +21,7 @@ package net.bluemind.user.service.internal;
 import java.util.Optional;
 
 import net.bluemind.addressbook.api.VCard;
+import net.bluemind.addressbook.api.VCard.Communications.Email;
 import net.bluemind.addressbook.api.VCard.Identification.FormatedName;
 import net.bluemind.addressbook.api.VCard.Kind;
 import net.bluemind.addressbook.api.VCard.Parameter;
@@ -28,7 +29,6 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.directory.service.AbstractVCardAdapter;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.user.api.User;
-import net.bluemind.addressbook.api.VCard.Communications.Email;
 
 public class UserVCardAdapter extends AbstractVCardAdapter<User> {
 

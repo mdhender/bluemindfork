@@ -33,6 +33,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.vertx.core.file.OpenOptions;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ErrorCode;
@@ -268,7 +269,8 @@ public class FileSystemFileHostingService implements IFileHostingService {
 
 	private Stream getFileStream(File file) throws ServerFault {
 		if (file.exists()) {
-			return VertxStream.stream(VertxPlatform.getVertx().fileSystem().openSync(file.getAbsolutePath()));
+			return VertxStream.stream(
+					VertxPlatform.getVertx().fileSystem().openBlocking(file.getAbsolutePath(), new OpenOptions()));
 		} else {
 			InputStream openStream = getNodeClient().openStream(file.getAbsolutePath());
 			return VertxStream.stream(new InputReadStream(openStream));

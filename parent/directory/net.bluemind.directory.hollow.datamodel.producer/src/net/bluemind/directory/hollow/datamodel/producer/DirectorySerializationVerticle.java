@@ -20,18 +20,19 @@ package net.bluemind.directory.hollow.datamodel.producer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.Verticle;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.lib.vertx.utils.ThrottleMessages;
 
-public class DirectorySerializationVerticle extends Verticle {
+public class DirectorySerializationVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(DirectorySerializationVerticle.class);
 	private static final String DOMAIN_FIELD = "domain";
@@ -59,7 +60,7 @@ public class DirectorySerializationVerticle extends Verticle {
 	}
 
 	private void registerDomainChangeHandler() {
-		vertx.eventBus().registerHandler(DirectorySerializationDomainHook.DOMAIN_CHANGE_EVENT, msg -> {
+		vertx.eventBus().consumer(DirectorySerializationDomainHook.DOMAIN_CHANGE_EVENT, msg -> {
 			JsonObject data = (JsonObject) msg.body();
 			String domain = data.getString(DOMAIN_FIELD);
 			String action = data.getString("action");
@@ -79,7 +80,7 @@ public class DirectorySerializationVerticle extends Verticle {
 	}
 
 	private void registerDirectoryChangeHandler() {
-		Handler<Message<? extends JsonObject>> dirChangeHandler = (Message<? extends JsonObject> msg) -> {
+		Handler<Message<JsonObject>> dirChangeHandler = (Message<JsonObject> msg) -> {
 			String dom = msg.body().getString(DOMAIN_FIELD);
 			DirectorySerializer ser = Serializers.forDomain(dom);
 			if (ser != null) {
@@ -90,7 +91,7 @@ public class DirectorySerializationVerticle extends Verticle {
 		};
 		ThrottleMessages<JsonObject> tm = new ThrottleMessages<>(msg -> msg.body().getString(DOMAIN_FIELD),
 				dirChangeHandler, vertx, 1000);
-		vertx.eventBus().registerHandler("dir.changed", tm);
+		vertx.eventBus().consumer("dir.changed", tm);
 	}
 
 	public static class DirectorySerializationVerticleFactory implements IVerticleFactory {

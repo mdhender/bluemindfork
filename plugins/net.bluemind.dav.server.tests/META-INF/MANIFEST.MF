@@ -6,7 +6,6 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.dav.server.tests.Activator
 Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
- com.ning.async-http-client;bundle-version="1.9.26",
  com.google.guava;bundle-version="19.0.0",
  org.junit;bundle-version="3.8.2",
  net.bluemind.dav.server;bundle-version="1.0.0",
@@ -17,6 +16,9 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.addressbook.adapter;bundle-version="1.0.0",
  net.bluemind.core.jdbc.testshelper,
  net.bluemind.tests.defaultdata,
- net.bluemind.calendar.api
+ net.bluemind.calendar.api,
+ net.bluemind.vertx.testhelper,
+ org.asynchttpclient.async-http-client;bundle-version="2.10.4",
+ org.reactivestreams.reactive-streams;bundle-version="1.0.3"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

@@ -20,14 +20,18 @@ package net.bluemind.core.rest.http;
 
 import java.util.List;
 
+import javax.net.ssl.SSLException;
+
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClientConfig;
-
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.IServiceProvider;
-import net.bluemind.utils.Trust;
 
 public class ClientSideServiceProvider implements IServiceProvider {
 
@@ -44,19 +48,33 @@ public class ClientSideServiceProvider implements IServiceProvider {
 	}
 
 	private static AsyncHttpClient createClient(boolean pooled, int timeoutInSeconds) {
-		AsyncHttpClientConfig config = new AsyncHttpClientConfig.Builder().setSSLContext(Trust.createSSLContext()) //
-				.setHostnameVerifier(Trust.acceptAllVerifier()) //
-				.setConnectTimeout(timeoutInSeconds * 1000) //
-				.setReadTimeout(timeoutInSeconds * 1000) //
-				.setRequestTimeout(timeoutInSeconds * 1000) //
-				.setFollowRedirect(false) //
-				.setMaxRedirects(0) //
-				.setMaxRequestRetry(0) //
-				.setAllowPoolingConnections(pooled)//
-				.setSSLContext(Trust.createSSLContext()) //
-				.setAcceptAnyCertificate(true)//
-				.build();
-		return new AsyncHttpClient(config);
+
+		DefaultAsyncHttpClientConfig.Builder builder = new DefaultAsyncHttpClientConfig.Builder();
+		try {
+			builder.setSslContext(
+					SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build());
+		} catch (SSLException e) {
+			throw new ServerFault(e);
+		}
+		builder.setUseNativeTransport(true);
+		int to = timeoutInSeconds * 1000;
+		builder.setConnectTimeout(to).setReadTimeout(to).setRequestTimeout(to).setFollowRedirect(false);
+		builder.setTcpNoDelay(true).setThreadPoolName("client-side-provider-ahc");
+		return new DefaultAsyncHttpClient(builder.build());
+//
+//		AsyncHttpClientConfig config = new AsyncHttpClientConfig.Builder().setSSLContext(Trust.createSSLContext()) //
+//				.setHostnameVerifier(Trust.acceptAllVerifier()) //
+//				.setConnectTimeout(timeoutInSeconds * 1000) //
+//				.setReadTimeout(timeoutInSeconds * 1000) //
+//				.setRequestTimeout(timeoutInSeconds * 1000) //
+//				.setFollowRedirect(false) //
+//				.setMaxRedirects(0) //
+//				.setMaxRequestRetry(0) //
+//				.setAllowPoolingConnections(pooled)//
+//				.setSSLContext(Trust.createSSLContext()) //
+//				.setAcceptAnyCertificate(true)//
+//				.build();
+//		return new AsyncHttpClient(config);
 	}
 
 	public static ClientSideServiceProvider getProvider(String base, String apiKey) {
@@ -76,7 +94,7 @@ public class ClientSideServiceProvider implements IServiceProvider {
 	@Override
 	public <T> T instance(Class<T> interfaceClass, String... params) {
 		logger.debug("Creating with base: {}", base);
-		HttpClientFactory<T, Object> factory = new HttpClientFactory<>(interfaceClass, null, base, client);
+		HttpClientFactory<T, Object> factory = new HttpClientFactory<T, Object>(interfaceClass, null, base, client);
 		if (remoteIps != null) {
 			factory.setRemoteIps(remoteIps);
 		}
@@ -87,7 +105,7 @@ public class ClientSideServiceProvider implements IServiceProvider {
 	}
 
 	public <T, A> A instance(Class<T> interfaceClass, Class<A> asyncInterface, String... params) {
-		HttpClientFactory<T, A> factory = new HttpClientFactory<>(interfaceClass, asyncInterface, base, client);
+		HttpClientFactory<T, A> factory = new HttpClientFactory<T, A>(interfaceClass, asyncInterface, base, client);
 		if (remoteIps != null) {
 			factory.setRemoteIps(remoteIps);
 		}

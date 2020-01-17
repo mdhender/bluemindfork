@@ -21,16 +21,14 @@ package net.bluemind.core.rest.http;
 import static org.junit.Assert.assertEquals;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClient;
+import org.asynchttpclient.Response;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-
-import com.google.common.util.concurrent.SettableFuture;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
 
 import net.bluemind.core.rest.tests.services.IRestStreamTestService;
 import net.bluemind.core.rest.tests.services.IRestStreamTestServiceAsync;
@@ -44,18 +42,9 @@ public class RestHttpStreamTests extends RestStreamServiceTests {
 	@Before
 	public void setup() throws Exception {
 
-		final SettableFuture<Void> future = SettableFuture.<Void>create();
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
+		VertxPlatform.spawnBlocking(20, TimeUnit.SECONDS);
 
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				future.set(null);
-			}
-		};
-		VertxPlatform.spawnVerticles(done);
-		future.get();
-
-		httpClient = new AsyncHttpClient();
+		httpClient = new DefaultAsyncHttpClient();
 	}
 
 	@After

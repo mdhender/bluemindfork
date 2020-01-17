@@ -2,13 +2,15 @@ package net.bluemind.tika.server.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpServer;
-import org.vertx.java.core.http.RouteMatcher;
-import org.vertx.java.platform.Verticle;
 
-public final class ReceiveDocumentVerticle extends Verticle {
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerOptions;
+import net.bluemind.lib.vertx.RouteMatcher;
+
+public final class ReceiveDocumentVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(ReceiveDocumentVerticle.class);
 	private HttpServer srv;
@@ -18,10 +20,11 @@ public final class ReceiveDocumentVerticle extends Verticle {
 	}
 
 	public void start() {
-		this.srv = vertx.createHttpServer();
-		srv.setAcceptBacklog(1024).setReuseAddress(true);
-		srv.setTCPNoDelay(true);
-		srv.setUsePooledBuffers(true);
+		HttpServerOptions opts = new HttpServerOptions();
+		opts.setAcceptBacklog(1024).setReuseAddress(true);
+		opts.setTcpNoDelay(true);
+		opts.setUsePooledBuffers(true);
+		this.srv = vertx.createHttpServer(opts);
 
 		RouteMatcher rm = createRouter();
 		srv.requestHandler(rm).listen(8087, new Handler<AsyncResult<HttpServer>>() {
@@ -34,7 +37,7 @@ public final class ReceiveDocumentVerticle extends Verticle {
 	}
 
 	private RouteMatcher createRouter() {
-		RouteMatcher rm = new RouteMatcher();
+		RouteMatcher rm = new RouteMatcher(vertx);
 		rm.post("/tika", new TikaPostHandler(vertx));
 		rm.get("/tika/:hash/", new TikaGetHashHandler(vertx));
 		return rm;

@@ -49,8 +49,6 @@ import org.apache.james.mime4j.codec.QuotedPrintableInputStream;
 import org.apache.james.mime4j.dom.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.streams.ReadStream;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.Lists;
@@ -59,6 +57,8 @@ import com.google.common.io.ByteStreams;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.Unpooled;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.backend.mail.api.MailboxItem.SystemFlag;
@@ -335,7 +335,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			List<String> allFlags = new LinkedList<>();
 			newValue.systemFlags.forEach(sf -> allFlags.add(sf.imapName));
 			allFlags.addAll(newValue.otherFlags);
-			ReadStream<VertxInputReadStream> asStream = new VertxInputReadStream(fast.vertx(), updatedEml.input);
+			ReadStream<Buffer> asStream = new VertxInputReadStream(fast.vertx(), updatedEml.input);
 			CompletableFuture<ImapResponseStatus<AppendResponse>> append = fast.append(imapFolder,
 					current.value.body.date, allFlags, updatedEml.size, asStream);
 			try {
@@ -621,13 +621,13 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		Buffer buffer = null;
 		if (encoding != null) {
 			try (InputStream in = dec(downloaded, encoding)) {
-				buffer = new Buffer(Unpooled.wrappedBuffer(ByteStreams.toByteArray(in)));
+				buffer = Buffer.buffer(Unpooled.wrappedBuffer(ByteStreams.toByteArray(in)));
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
-				buffer = new Buffer();
+				buffer = Buffer.buffer();
 			}
 		} else {
-			buffer = new Buffer(downloaded);
+			buffer = Buffer.buffer(downloaded);
 		}
 
 		return VertxStream.stream(buffer, mime, charset, filename);

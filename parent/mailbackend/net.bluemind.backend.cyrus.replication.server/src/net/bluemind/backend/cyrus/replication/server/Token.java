@@ -30,13 +30,13 @@ import java.util.regex.Matcher;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.file.FileSystem;
 
 import com.google.common.io.Files;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.file.FileSystem;
 import net.bluemind.backend.cyrus.replication.server.state.ReplicationException;
 import net.bluemind.backend.cyrus.replication.server.utils.LiteralSize;
 import net.bluemind.backend.cyrus.replication.server.utils.Patterns;

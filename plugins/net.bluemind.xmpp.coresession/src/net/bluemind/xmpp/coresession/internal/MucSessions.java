@@ -19,6 +19,8 @@
 package net.bluemind.xmpp.coresession.internal;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -30,10 +32,12 @@ import org.jivesoftware.smackx.muc.InvitationListener;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
+
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.json.JsonObject;
 
 public class MucSessions {
 
@@ -45,11 +49,13 @@ public class MucSessions {
 	private String busAddr;
 	private ConcurrentHashMap<String, MucSession> mucs = new ConcurrentHashMap<>();
 	private Map<String, PendingMucInvite> pending;
+	private List<MessageConsumer<?>> consumers;
 
 	public MucSessions(EventBus eventBus, String sessionId, XMPPConnection xmppConn) {
 		this.eventBus = eventBus;
 		this.sessionId = sessionId;
 		this.xmppConn = xmppConn;
+		consumers = new LinkedList<>();
 
 		busAddr = "xmpp/muc/" + sessionId;
 
@@ -59,18 +65,16 @@ public class MucSessions {
 
 	public void start() {
 		MultiUserChat.addInvitationListener(xmppConn, invitationListener);
-		eventBus.registerHandler(busAddr + ":pending", pendingHandler);
-		eventBus.registerHandler(busAddr + ":create", createHandler);
-		eventBus.registerHandler(busAddr + ":join", joinHandler);
-		eventBus.registerHandler(busAddr + ":close", closeHandler);
+		consumers.add(eventBus.consumer(busAddr + ":pending", pendingHandler));
+		consumers.add(eventBus.consumer(busAddr + ":create", createHandler));
+		consumers.add(eventBus.consumer(busAddr + ":join", joinHandler));
+		consumers.add(eventBus.consumer(busAddr + ":close", closeHandler));
 	}
 
 	public void stop() {
 		MultiUserChat.removeInvitationListener(xmppConn, invitationListener);
-		eventBus.unregisterHandler(busAddr + ":pending", pendingHandler);
-		eventBus.unregisterHandler(busAddr + ":create", createHandler);
-		eventBus.unregisterHandler(busAddr + ":join", joinHandler);
-		eventBus.unregisterHandler(busAddr + ":close", closeHandler);
+		consumers.forEach(MessageConsumer::unregister);
+		consumers.clear();
 
 		for (MucSession muc : mucs.values()) {
 			muc.stop();

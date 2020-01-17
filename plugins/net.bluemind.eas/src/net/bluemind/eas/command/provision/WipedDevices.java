@@ -20,8 +20,8 @@ package net.bluemind.eas.command.provision;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.impl.ConcurrentHashSet;
 
+import io.vertx.core.impl.ConcurrentHashSet;
 import net.bluemind.eas.http.AuthenticatedEASQuery;
 import net.bluemind.eas.impl.Backends;
 

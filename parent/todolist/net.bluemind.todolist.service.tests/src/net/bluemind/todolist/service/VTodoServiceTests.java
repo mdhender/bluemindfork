@@ -36,8 +36,8 @@ import java.util.LinkedList;
 import java.util.Set;
 
 import org.junit.Test;
-import org.vertx.java.core.Vertx;
 
+import io.vertx.core.Vertx;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTime.Precision;

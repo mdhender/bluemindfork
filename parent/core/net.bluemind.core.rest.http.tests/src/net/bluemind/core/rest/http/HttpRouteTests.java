@@ -23,16 +23,17 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClient;
+import org.asynchttpclient.Response;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.util.concurrent.SettableFuture;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class HttpRouteTests {
@@ -42,7 +43,7 @@ public class HttpRouteTests {
 	@Before
 	public void setup() throws Exception {
 
-		final SettableFuture<Void> future = SettableFuture.<Void> create();
+		final SettableFuture<Void> future = SettableFuture.<Void>create();
 		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
 
 			@Override
@@ -53,12 +54,12 @@ public class HttpRouteTests {
 		VertxPlatform.spawnVerticles(done);
 		future.get();
 
-		httpClient = new AsyncHttpClient();
+		httpClient = new DefaultAsyncHttpClient();
 
 	}
 
 	@After
-	public void after() {
+	public void after() throws IOException {
 		httpClient.close();
 	}
 

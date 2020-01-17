@@ -20,26 +20,26 @@ package net.bluemind.core.rest.base;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.streams.ReadStream;
 
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.lib.vertx.BMExecutor.BMTaskMonitor;
 
-public class MonitoredReadStream implements ReadStream<MonitoredReadStream> {
+public class MonitoredReadStream implements ReadStream<Buffer> {
 
 	private static final Logger logger = LoggerFactory.getLogger(MonitoredReadStream.class);
-	private ReadStream<?> monitored;
+	private ReadStream<Buffer> monitored;
 	private BMTaskMonitor monitor;
 
-	public MonitoredReadStream(ReadStream<?> stream, BMTaskMonitor monitor) {
+	public MonitoredReadStream(ReadStream<Buffer> stream, BMTaskMonitor monitor) {
 		this.monitored = stream;
 		this.monitor = monitor;
 	}
 
 	@Override
-	public MonitoredReadStream dataHandler(Handler<Buffer> handler) {
-		monitored.dataHandler(buff -> {
+	public MonitoredReadStream handler(Handler<Buffer> handler) {
+		monitored.handler(buff -> {
 			if (!monitor.alive()) {
 				logger.warn("stream out during data transfer");
 				throw new RuntimeException("call timouted");
@@ -70,6 +70,11 @@ public class MonitoredReadStream implements ReadStream<MonitoredReadStream> {
 	@Override
 	public MonitoredReadStream endHandler(Handler<Void> endHandler) {
 		monitored.endHandler(endHandler);
+		return this;
+	}
+
+	@Override
+	public ReadStream<Buffer> fetch(long amount) {
 		return this;
 	}
 

@@ -20,11 +20,11 @@ package net.bluemind.authentication.service.tokens;
 
 import java.util.concurrent.TimeUnit;
 
-import org.vertx.java.platform.Verticle;
-
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Verticle;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
-public class TokenExpireVerticle extends Verticle {
+public class TokenExpireVerticle extends AbstractVerticle {
 
 	public static class Factory implements IVerticleFactory {
 

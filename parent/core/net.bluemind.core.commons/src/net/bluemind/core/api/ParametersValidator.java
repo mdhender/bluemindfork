@@ -20,7 +20,7 @@ package net.bluemind.core.api;
 
 import java.util.Collection;
 
-import org.apache.commons.lang.StringUtils;
+import com.google.common.base.Strings;
 
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -33,7 +33,7 @@ public class ParametersValidator {
 	}
 
 	public static void notNullAndNotEmpty(String str) throws ServerFault {
-		if (StringUtils.isBlank(str)) {
+		if (Strings.isNullOrEmpty(str)) {
 			throw new ServerFault("Invalid parameter", ErrorCode.INVALID_PARAMETER);
 		}
 	}

@@ -17,9 +17,9 @@
   */
 package net.bluemind.hornetq.client;
 
-import org.vertx.java.core.json.JsonObject;
-
 import com.hazelcast.core.ITopic;
+
+import io.vertx.core.json.JsonObject;
 
 public class Producer {
 

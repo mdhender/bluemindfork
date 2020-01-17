@@ -23,14 +23,16 @@ import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.http.CaseInsensitiveMultiMap;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.Handler;
+import io.vertx.core.MultiMap;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.http.CaseInsensitiveHeaders;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.rest.base.RestRequest;
 import net.bluemind.core.rest.base.RestResponse;
@@ -50,20 +52,20 @@ public class RestJsonVertxRootHandler implements Handler<Message<JsonObject>> {
 	@Override
 	public void handle(Message<JsonObject> request) {
 		JsonObject body = request.body();
-		Map h = body.getObject("headers").toMap();
-		Map p = body.getObject("params").toMap();
-		CaseInsensitiveMultiMap params = new CaseInsensitiveMultiMap();
-		params.add(p);
+		Map h = body.getJsonObject("headers").getMap();
+		Map p = body.getJsonObject("params").getMap();
+		MultiMap params = new CaseInsensitiveHeaders();
+		params.addAll(p);
 
-		CaseInsensitiveMultiMap headers = new CaseInsensitiveMultiMap();
-		headers.add(h);
+		MultiMap headers = new CaseInsensitiveHeaders();
+		headers.addAll(h);
 		byte[] br = body.getBinary("body");
 		Buffer b = null;
 		if (br != null) {
-			b = new Buffer(br);
+			b = Buffer.buffer(br);
 		}
-		RestRequest r = RestRequest.create(null, body.getString("verb"), headers, body.getString("path"), params, b,
-				null);
+		RestRequest r = RestRequest.create(null, HttpMethod.valueOf(body.getString("verb")), headers,
+				body.getString("path"), params, b, null);
 
 		rootHandler.call(r, new AsyncHandler<RestResponse>() {
 
@@ -90,21 +92,21 @@ public class RestJsonVertxRootHandler implements Handler<Message<JsonObject>> {
 	protected JsonObject buildResponse(RestResponse value) {
 		JsonObject ret = new JsonObject();
 		if (value.data != null) {
-			ret.putBinary("data", value.data.getBytes());
+			ret.put("data", value.data.getBytes());
 		}
 
 		JsonObject headers = new JsonObject();
 		for (Entry<String, String> entry : value.headers.entries()) {
-			JsonArray values = headers.getArray(entry.getKey());
+			JsonArray values = headers.getJsonArray(entry.getKey());
 			if (values == null) {
 				values = new JsonArray();
-				headers.putArray(entry.getKey(), values);
+				headers.put(entry.getKey(), values);
 			}
 			values.add(entry.getValue());
 		}
 
-		ret.putObject("headers", headers);
-		ret.putNumber("statusCode", value.statusCode);
+		ret.put("headers", headers);
+		ret.put("statusCode", value.statusCode);
 		return ret;
 	}
 

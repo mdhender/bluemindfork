@@ -30,12 +30,12 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
 
 import com.google.common.util.concurrent.SettableFuture;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
 import jnr.unixsocket.UnixSocketAddress;
 import jnr.unixsocket.UnixSocketChannel;
 import net.bluemind.core.jdbc.JdbcTestHelper;
@@ -102,7 +102,7 @@ public class YsnpTests {
 		try (UnixSocketChannel channel = UnixSocketChannel.open(address)) {
 			assertTrue(channel.isConnected());
 
-			Buffer b = new Buffer();
+			Buffer b = Buffer.buffer();
 			b.appendShort((short) login.length());
 			b.appendString(login);
 			b.appendShort((short) password.length());

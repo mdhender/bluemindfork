@@ -23,9 +23,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
+
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 
 public class XmppChatTests extends BaseXmppTests {
 
@@ -34,7 +35,7 @@ public class XmppChatTests extends BaseXmppTests {
 		final String sessionId = login(user1);
 		initiateConnection(user1, sessionId);
 
-		eventBus.registerHandler("xmpp/session/" + sessionId, new Handler<Message<JsonObject>>() {
+		eventBus.consumer("xmpp/session/" + sessionId, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
@@ -42,12 +43,12 @@ public class XmppChatTests extends BaseXmppTests {
 			}
 		});
 
-		eventBus.send("xmpp/session/" + sessionId + ":chat", new JsonObject().putString("userJID", "david@bm.lan"));
+		eventBus.send("xmpp/session/" + sessionId + ":chat", new JsonObject().put("userJID", "david@bm.lan"));
 
 		// create chat
 		JsonObject jsonObject = waitAssert(sessionId);
 		assertNotNull(jsonObject);
-		assertEquals(0, jsonObject.getNumber("status"));
+		assertEquals(0, jsonObject.getInteger("status").intValue());
 		assertEquals("chat", jsonObject.getString("category"));
 
 		eventBus.send("xmpp/session/" + sessionId + ":close", "Good bye!");
@@ -59,7 +60,7 @@ public class XmppChatTests extends BaseXmppTests {
 		final String sessionId = login(user1);
 		initiateConnection(user1, sessionId);
 
-		eventBus.registerHandler("xmpp/session/" + sessionId, new Handler<Message<JsonObject>>() {
+		eventBus.consumer("xmpp/session/" + sessionId, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
@@ -71,7 +72,7 @@ public class XmppChatTests extends BaseXmppTests {
 
 		JsonObject jsonObject = waitAssert(sessionId);
 		assertNotNull(jsonObject);
-		assertEquals(1, jsonObject.getNumber("status"));
+		assertEquals(1, jsonObject.getInteger("status").intValue());
 		assertEquals("chat", jsonObject.getString("category"));
 
 		eventBus.send("xmpp/session/" + sessionId + ":close", "Good bye!");
@@ -85,7 +86,7 @@ public class XmppChatTests extends BaseXmppTests {
 		final String sessionUser2 = login(user2);
 		initiateConnection(user2, sessionUser2);
 
-		eventBus.registerHandler("xmpp/session/" + sessionUser1, new Handler<Message<JsonObject>>() {
+		eventBus.consumer("xmpp/session/" + sessionUser1, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
@@ -94,7 +95,7 @@ public class XmppChatTests extends BaseXmppTests {
 			}
 		});
 
-		eventBus.registerHandler("xmpp/session/" + sessionUser2, new Handler<Message<JsonObject>>() {
+		eventBus.consumer("xmpp/session/" + sessionUser2, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
@@ -104,12 +105,12 @@ public class XmppChatTests extends BaseXmppTests {
 		});
 
 		eventBus.send("xmpp/session/" + sessionUser1 + ":chat",
-				new JsonObject().putString("userJID", user2.login + "@" + domainName));
+				new JsonObject().put("userJID", user2.login + "@" + domainName));
 
 		// create chat
 		JsonObject jsonObject = waitAssert(sessionUser1);
 		assertNotNull(jsonObject);
-		assertEquals(0, jsonObject.getNumber("status"));
+		assertEquals(0, jsonObject.getInteger("status").intValue());
 		assertEquals("chat", jsonObject.getString("category"));
 
 		// user2 does not receive new chat creation because of no message sent
@@ -122,12 +123,12 @@ public class XmppChatTests extends BaseXmppTests {
 
 		// user1 sends message 'marco'
 		eventBus.send("xmpp/session/" + sessionUser1 + "/chat/" + threadId + ":message",
-				new JsonObject().putString("message", "marco"));
+				new JsonObject().put("message", "marco"));
 
 		// user1 receives 'marco' too
 		jsonObject = waitAssert(sessionUser1);
 		assertNotNull(jsonObject);
-		assertEquals(0, jsonObject.getNumber("status"));
+		assertEquals(0, jsonObject.getInteger("status").intValue());
 		assertEquals("message", jsonObject.getString("category"));
 		assertEquals(threadId, jsonObject.getString("threadId"));
 		assertEquals("marco", jsonObject.getString("body"));
@@ -135,25 +136,25 @@ public class XmppChatTests extends BaseXmppTests {
 		// user2 receives new chat
 		jsonObject = waitAssert(sessionUser2);
 		assertNotNull(jsonObject);
-		assertEquals(0, jsonObject.getNumber("status"));
+		assertEquals(0, jsonObject.getInteger("status").intValue());
 		assertEquals("chat", jsonObject.getString("category"));
 
 		// user2 receives message 'marco'
 		jsonObject = waitAssert(sessionUser2);
 		assertNotNull(jsonObject);
-		assertEquals(0, jsonObject.getNumber("status"));
+		assertEquals(0, jsonObject.getInteger("status").intValue());
 		assertEquals("message", jsonObject.getString("category"));
 		assertEquals(threadId, jsonObject.getString("threadId"));
 		assertEquals("marco", jsonObject.getString("body"));
 
 		// user2 replies 'polo'
 		eventBus.send("xmpp/session/" + sessionUser2 + "/chat/" + threadId + ":message",
-				new JsonObject().putString("message", "polo"));
+				new JsonObject().put("message", "polo"));
 
 		// user2 receives message 'polo' too
 		jsonObject = waitAssert(sessionUser2);
 		assertNotNull(jsonObject);
-		assertEquals(0, jsonObject.getNumber("status"));
+		assertEquals(0, jsonObject.getInteger("status").intValue());
 		assertEquals("message", jsonObject.getString("category"));
 		assertEquals(threadId, jsonObject.getString("threadId"));
 		assertEquals("polo", jsonObject.getString("body"));
@@ -161,7 +162,7 @@ public class XmppChatTests extends BaseXmppTests {
 		// user1 receives message 'polo'
 		jsonObject = waitAssert(sessionUser1);
 		assertNotNull(jsonObject);
-		assertEquals(0, jsonObject.getNumber("status"));
+		assertEquals(0, jsonObject.getInteger("status").intValue());
 		assertEquals("message", jsonObject.getString("category"));
 		assertEquals(threadId, jsonObject.getString("threadId"));
 		assertEquals("polo", jsonObject.getString("body"));
@@ -179,7 +180,7 @@ public class XmppChatTests extends BaseXmppTests {
 		final String sessionUser2 = login(user2);
 		initiateConnection(user2, sessionUser2);
 
-		eventBus.registerHandler("xmpp/session/" + sessionUser1, new Handler<Message<JsonObject>>() {
+		eventBus.consumer("xmpp/session/" + sessionUser1, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
@@ -187,7 +188,7 @@ public class XmppChatTests extends BaseXmppTests {
 			}
 		});
 
-		eventBus.registerHandler("xmpp/session/" + sessionUser2, new Handler<Message<JsonObject>>() {
+		eventBus.consumer("xmpp/session/" + sessionUser2, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
@@ -196,12 +197,12 @@ public class XmppChatTests extends BaseXmppTests {
 		});
 
 		eventBus.send("xmpp/session/" + sessionUser1 + ":chat",
-				new JsonObject().putString("userJID", user2.login + "@" + domainName).putString("message", "marco"));
+				new JsonObject().put("userJID", user2.login + "@" + domainName).put("message", "marco"));
 
 		// create chat
 		JsonObject jsonObject = waitAssert(sessionUser1);
 		assertNotNull(jsonObject);
-		assertEquals(0, jsonObject.getNumber("status"));
+		assertEquals(0, jsonObject.getInteger("status").intValue());
 		assertEquals("chat", jsonObject.getString("category"));
 
 		String threadId = jsonObject.getString("threadId");
@@ -210,7 +211,7 @@ public class XmppChatTests extends BaseXmppTests {
 		// user1 receives 'marco'
 		jsonObject = waitAssert(sessionUser1);
 		assertNotNull(jsonObject);
-		assertEquals(0, jsonObject.getNumber("status"));
+		assertEquals(0, jsonObject.getInteger("status").intValue());
 		assertEquals("message", jsonObject.getString("category"));
 		assertEquals(threadId, jsonObject.getString("threadId"));
 		assertEquals("marco", jsonObject.getString("body"));
@@ -218,24 +219,24 @@ public class XmppChatTests extends BaseXmppTests {
 		// user2 receives new chat from user1 with message 'marco'
 		jsonObject = waitAssert(sessionUser2);
 		assertNotNull(jsonObject);
-		assertEquals(0, jsonObject.getNumber("status"));
+		assertEquals(0, jsonObject.getInteger("status").intValue());
 		assertEquals("chat", jsonObject.getString("category"));
 
 		jsonObject = waitAssert(sessionUser2);
 		assertNotNull(jsonObject);
-		assertEquals(0, jsonObject.getNumber("status"));
+		assertEquals(0, jsonObject.getInteger("status").intValue());
 		assertEquals("message", jsonObject.getString("category"));
 		assertEquals(threadId, jsonObject.getString("threadId"));
 		assertEquals("marco", jsonObject.getString("body"));
 
 		// user2 replies 'polo'
 		eventBus.send("xmpp/session/" + sessionUser2 + "/chat/" + threadId + ":message",
-				new JsonObject().putString("message", "polo"));
+				new JsonObject().put("message", "polo"));
 
 		// user1 receives 'marco'
 		jsonObject = waitAssert(sessionUser2);
 		assertNotNull(jsonObject);
-		assertEquals(0, jsonObject.getNumber("status"));
+		assertEquals(0, jsonObject.getInteger("status").intValue());
 		assertEquals("message", jsonObject.getString("category"));
 		assertEquals(threadId, jsonObject.getString("threadId"));
 		assertEquals("polo", jsonObject.getString("body"));
@@ -243,7 +244,7 @@ public class XmppChatTests extends BaseXmppTests {
 		// user1 receives message 'polo'
 		jsonObject = waitAssert(sessionUser1);
 		assertNotNull(jsonObject);
-		assertEquals(0, jsonObject.getNumber("status"));
+		assertEquals(0, jsonObject.getInteger("status").intValue());
 		assertEquals("message", jsonObject.getString("category"));
 		assertEquals(threadId, jsonObject.getString("threadId"));
 		assertEquals("polo", jsonObject.getString("body"));

@@ -20,9 +20,9 @@ package net.bluemind.proxy.http.impl.vertx;
 
 import java.util.Base64;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpServerRequest;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpServerRequest;
 
 public final class FaviconHandler implements Handler<HttpServerRequest> {
 
@@ -35,7 +35,7 @@ public final class FaviconHandler implements Handler<HttpServerRequest> {
 	}
 
 	private static Buffer icon() {
-		return new Buffer(Base64.getDecoder().decode(icon));
+		return Buffer.buffer(Base64.getDecoder().decode(icon));
 	}
 
 }

@@ -21,8 +21,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.json.JsonObject;
+
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 
 public class ReadyStateNotifier {
 

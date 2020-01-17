@@ -2,23 +2,25 @@ package net.bluemind.lib.vertx.internal;
 
 import java.util.ArrayDeque;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Future;
-import org.vertx.java.core.Handler;
-import org.vertx.java.platform.Verticle;
-import org.vertx.java.platform.VerticleConstructor;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.DeploymentOptions;
+import io.vertx.core.Handler;
+import io.vertx.core.Promise;
+import io.vertx.core.Verticle;
+import io.vertx.core.Vertx;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.lib.vertx.IVerticlePriority;
 
-public class BMModule extends Verticle {
+public class BMModule extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(BMModule.class);
 
@@ -26,30 +28,26 @@ public class BMModule extends Verticle {
 		logger.info("BM module created.");
 	}
 
-	public void start(final Future<Void> future) {
+	public void start(final Promise<Void> future) {
 		logger.info("Starting...");
 		RunnableExtensionLoader<IVerticleFactory> vfLoader = new RunnableExtensionLoader<IVerticleFactory>();
 		List<IVerticleFactory> factos = vfLoader.loadExtensions("net.bluemind.lib.vertx", "verticles", "verticle",
 				"impl");
 
 		// sort verticle factories by priority
-		Collections.sort(factos, new Comparator<IVerticleFactory>() {
-
-			@Override
-			public int compare(IVerticleFactory o1, IVerticleFactory o2) {
-				int priority1 = 0;
-				int priority2 = 0;
-				if (o1 instanceof IVerticlePriority) {
-					priority1 = ((IVerticlePriority) o1).getPriority();
-				}
-
-				if (o2 instanceof IVerticlePriority) {
-					priority2 = ((IVerticlePriority) o2).getPriority();
-				}
-
-				int diff = priority2 - priority1;
-				return diff;
+		Collections.sort(factos, (IVerticleFactory o1, IVerticleFactory o2) -> {
+			int priority1 = 0;
+			int priority2 = 0;
+			if (o1 instanceof IVerticlePriority) {
+				priority1 = ((IVerticlePriority) o1).getPriority();
 			}
+
+			if (o2 instanceof IVerticlePriority) {
+				priority2 = ((IVerticlePriority) o2).getPriority();
+			}
+
+			return priority2 - priority1;
+
 		});
 
 		logger.debug("start factories in this order");
@@ -75,62 +73,36 @@ public class BMModule extends Verticle {
 		deploy(firstOne, future, oneByOne);
 	}
 
-	private void deploy(IVerticleFactory vf, Future<Void> future, final Handler<AsyncResult<String>> done) {
+	private void deploy(IVerticleFactory vf, Promise<Void> future, final Handler<AsyncResult<String>> done) {
 		if (vf == null) {
 			logger.info("============ VERTICLES SPAWNED =========");
-			future.setResult(null);
+			future.complete();
 			return;
 		}
-		VerticleConstructor vc = fromFactory(vf);
-		final String klass = vc.className();
+		Supplier<Verticle> vc = fromFactory(vf);
+		Vertx vx = getVertx();
 
-		logger.info("deploying {} verticle {}", vf.isWorker() ? "worker" : "std", klass);
+		logger.info("deploying {} verticle {}", vf.isWorker() ? "worker" : "std", vf);
 		if (vf.isWorker()) {
+			DeploymentOptions workerOpts = new DeploymentOptions().setInstances(1).setWorker(true);
 			if (vf instanceof IUniqueVerticleFactory) {
-				container.deployWorkerVerticle(vc, null, 1, false, done);
+				vx.deployVerticle(vc, workerOpts, done);
 			} else {
-				container.deployWorkerVerticle(vc, null, 1, true, done);
+				vx.deployVerticle(vc, workerOpts.setMultiThreaded(true), done);
 			}
 		} else {
 
 			if (vf instanceof IUniqueVerticleFactory) {
-				container.deployVerticle(vc, 1, done);
+				vx.deployVerticle(vc, new DeploymentOptions().setInstances(1), done);
 			} else {
-				// deploy 1, then deploy others so that osgi bundles are
-				// resolved
-				// when the first one is loaded
-				container.deployVerticle(vc, 1, new Handler<AsyncResult<String>>() {
-
-					@Override
-					public void handle(AsyncResult<String> event) {
-						if (event.succeeded()) {
-							int inst = Runtime.getRuntime().availableProcessors() * 2 - 1;
-							logger.info("********* Time for {} more {}.... ", inst, klass);
-							container.deployVerticle(vc, inst - 1, done);
-						} else {
-							Throwable t = event.cause();
-							logger.error("Load Error: " + t.getMessage(), t);
-						}
-					}
-				});
+				vx.deployVerticle(vc,
+						new DeploymentOptions().setInstances(Runtime.getRuntime().availableProcessors() * 2), done);
 			}
 		}
 	}
 
-	private VerticleConstructor fromFactory(IVerticleFactory vf) {
-		return new VerticleConstructor() {
-			private final String className = vf.newInstance().getClass().getCanonicalName();
-
-			@Override
-			public Verticle newInstance() throws Exception {
-				return vf.newInstance();
-			}
-
-			@Override
-			public String className() {
-				return className;
-			}
-		};
+	private Supplier<Verticle> fromFactory(IVerticleFactory vf) {
+		return () -> vf.newInstance();
 	}
 
 	public void stop() {

@@ -29,8 +29,8 @@ import java.util.concurrent.TimeoutException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.Vertx;
 
+import io.vertx.core.Vertx;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.lmtp.testhelper.client.VertxLmtpClient;
 import net.bluemind.lmtp.testhelper.model.MailboxesModel;

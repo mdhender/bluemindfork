@@ -36,10 +36,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.vertx.java.core.buffer.Buffer;
 
 import com.google.common.io.ByteStreams;
 
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxItems;
@@ -85,6 +85,7 @@ public class InboxSubFolderReplicationTests extends AbstractRollingReplicationTe
 	@BeforeClass
 	public static void oneShotBefore() {
 		System.setProperty("es.mailspool.count", "1");
+
 	}
 
 	@Before
@@ -467,7 +468,7 @@ public class InboxSubFolderReplicationTests extends AbstractRollingReplicationTe
 		assertNotNull(inbox);
 		IMailboxItems recordsApi = provider().instance(IMailboxItems.class, inbox.uid);
 		try (InputStream in = testEml()) {
-			Stream forUpload = VertxStream.stream(new Buffer(ByteStreams.toByteArray(in)));
+			Stream forUpload = VertxStream.stream(Buffer.buffer(ByteStreams.toByteArray(in)));
 			String partId = recordsApi.uploadPart(forUpload);
 			assertNotNull(partId);
 			System.out.println("Got partId " + partId);

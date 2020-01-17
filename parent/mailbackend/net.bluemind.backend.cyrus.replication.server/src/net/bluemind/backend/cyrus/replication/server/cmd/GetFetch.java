@@ -21,9 +21,9 @@ import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.replication.protocol.parsing.ParenObjectParser;
 import net.bluemind.backend.cyrus.replication.server.ReplicationFrame;
 import net.bluemind.backend.cyrus.replication.server.ReplicationSession;
@@ -69,7 +69,7 @@ public class GetFetch implements IAsyncReplicationCommand {
 		}).thenApply(optBuf -> {
 			return optBuf.map(buf -> {
 				logger.info("Success response with EML ({} byte(s))", buf.length());
-				Buffer fullResp = new Buffer();
+				Buffer fullResp = Buffer.buffer();
 				fullResp.appendString("* MESSAGE %{" + recordJs.getString("PARTITION") + " " + bodyGuid + " "
 						+ buf.length() + "}\r\n");
 				fullResp.appendBuffer(buf);

@@ -24,13 +24,13 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.MultiMap;
-import org.vertx.java.core.http.HttpServerRequest;
 
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
+import io.vertx.core.MultiMap;
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.proxy.http.auth.api.IAuthEnforcer.ISessionStore;
 
 public final class CookieHelper {
@@ -92,7 +92,7 @@ public final class CookieHelper {
 				}
 			}
 		}
-			
+
 		if (bmhps != null && ss.getSessionId(bmhps) != null) {
 			return CookieStatus.ok(bmhps, ss.getSessionId(bmhps));
 		}

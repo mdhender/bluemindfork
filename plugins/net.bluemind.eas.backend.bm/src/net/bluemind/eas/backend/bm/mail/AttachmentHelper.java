@@ -21,12 +21,10 @@ package net.bluemind.eas.backend.bm.mail;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,15 +77,11 @@ public class AttachmentHelper {
 	}
 
 	private static String toB64(String s) {
-		ChannelBuffer src = ChannelBuffers.wrappedBuffer(s.getBytes());
-		ChannelBuffer result = org.jboss.netty.handler.codec.base64.Base64.encode(src, false);
-		return result.toString(Charset.defaultCharset());
+		return Base64.getEncoder().encodeToString(s.getBytes());
 	}
 
 	private static String fromB64(String s) {
-		ChannelBuffer src = ChannelBuffers.wrappedBuffer(s.getBytes());
-		ChannelBuffer result = org.jboss.netty.handler.codec.base64.Base64.decode(src);
-		return result.toString(Charset.defaultCharset());
+		return new String(Base64.getDecoder().decode(s));
 	}
 
 }

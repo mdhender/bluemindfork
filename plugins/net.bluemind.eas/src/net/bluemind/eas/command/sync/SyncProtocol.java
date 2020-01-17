@@ -35,16 +35,16 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.google.common.collect.Sets;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.backend.Changes;
 import net.bluemind.eas.backend.HierarchyNode;
@@ -193,12 +193,12 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 		if (sr.waitIntervalSeconds == null) {
 			JsonObject jso = new JsonObject();
 			for (CollectionSyncRequest sc : sr.collections) {
-				jso.putString(sc.getCollectionId().toString(), bs.getDeviceId().getInternalId());
+				jso.put(sc.getCollectionId().toString(), bs.getDeviceId().getInternalId());
 			}
 			EventBus eb = VertxPlatform.eventBus();
-			eb.send(EasBusEndpoints.PUSH_KILLER, jso, new Handler<Message<Void>>() {
+			eb.send(EasBusEndpoints.PUSH_KILLER, jso, new Handler<AsyncResult<Message<Void>>>() {
 				@Override
-				public void handle(Message<Void> event) {
+				public void handle(AsyncResult<Message<Void>> event) {
 					executeSync(bs, sr, responseHandler);
 				}
 			});

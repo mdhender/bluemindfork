@@ -26,15 +26,13 @@ import java.util.ResourceBundle;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.http.HttpHeaders;
-import org.vertx.java.core.http.HttpServerRequest;
 
 import freemarker.template.Configuration;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpHeaders;
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.BMVersion;
@@ -176,14 +174,7 @@ public class LoginHandler extends AbstractFtlHandler implements NeedVertx {
 		clientProvider = new HttpClientProvider(vertx);
 		loadVersion();
 
-		vertx.eventBus().registerHandler("bm.defaultdomain.changed", new Handler<Message>() {
-
-			@Override
-			public void handle(Message event) {
-				loadDomain();
-			}
-		});
-
+		vertx.eventBus().consumer("bm.defaultdomain.changed", ev -> loadDomain());
 	}
 
 	private void loadDomain() {

@@ -21,11 +21,11 @@ import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufProcessor;
 import io.netty.buffer.Unpooled;
+import io.vertx.core.Handler;
 import net.bluemind.imap.vertx.BuffersStream;
 
 public final class QuickParser {

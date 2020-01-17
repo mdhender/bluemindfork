@@ -34,17 +34,15 @@
       <plugin id="com.fasterxml.jackson.core.jackson-annotations"/>
       <plugin id="com.fasterxml.jackson.core.jackson-core"/>
       <plugin id="com.fasterxml.jackson.core.jackson-databind"/>
-      <plugin id="com.fasterxml.jackson.jaxrs.jackson-jaxrs-base"/>
-      <plugin id="com.fasterxml.jackson.jaxrs.jackson-jaxrs-json-provider"/>
       <plugin id="com.google.guava"/>
       <plugin id="com.hazelcast"/>
       <plugin id="com.netflix.spectator.api"/>
-      <plugin id="com.ning.async-http-client"/>
       <plugin id="com.robbypond.boilerpipe"/>
       <plugin id="com.sun.mail.javax.mail"/>
+      <plugin id="com.typesafe.netty.reactive-streams"/>
       <plugin id="io.netty"/>
       <plugin id="io.vertx.core"/>
-      <plugin id="io.vertx.platform"/>
+      <plugin id="io.vertx.web"/>
       <plugin id="javax.annotation"/>
       <plugin id="javax.inject"/>
       <plugin id="javax.servlet"/>
@@ -54,6 +52,7 @@
       <plugin id="jcl.over.slf4j"/>
       <plugin id="jul.to.slf4j"/>
       <plugin id="net.bluemind.addressbook.api"/>
+      <plugin id="net.bluemind.attachment.api"/>
       <plugin id="net.bluemind.authentication.api"/>
       <plugin id="net.bluemind.backend.cyrus.partitions"/>
       <plugin id="net.bluemind.backend.mail.api"/>
@@ -101,6 +100,7 @@
       <plugin id="net.bluemind.eas.wbxml.builder"/>
       <plugin id="net.bluemind.eclipse.common"/>
       <plugin id="net.bluemind.elastic.client"/>
+      <plugin id="net.bluemind.filehosting.api"/>
       <plugin id="net.bluemind.group.api"/>
       <plugin id="net.bluemind.hornetq.client"/>
       <plugin id="net.bluemind.i18n.labels"/>
@@ -153,6 +153,8 @@
       <plugin id="org.apache.xerces"/>
       <plugin id="org.apache.xml.resolver"/>
       <plugin id="org.apache.xml.serializer"/>
+      <plugin id="org.asynchttpclient.async-http-client"/>
+      <plugin id="org.asynchttpclient.async-http-client-netty-utils"/>
       <plugin id="org.eclipse.core.contenttype"/>
       <plugin id="org.eclipse.core.jobs"/>
       <plugin id="org.eclipse.core.runtime"/>
@@ -167,10 +169,10 @@
       <plugin id="org.eclipse.osgi.services"/>
       <plugin id="org.eclipse.update.configurator"/>
       <plugin id="org.freemarker.freemarker"/>
-      <plugin id="org.jboss.netty"/>
       <plugin id="org.mnode.ical4j"/>
       <plugin id="org.mnode.ical4j.vcard"/>
       <plugin id="org.mnode.ical4j.zoneinfo-outlook"/>
+      <plugin id="org.reactivestreams.reactive-streams"/>
       <plugin id="slf4j.api"/>
    </plugins>
 

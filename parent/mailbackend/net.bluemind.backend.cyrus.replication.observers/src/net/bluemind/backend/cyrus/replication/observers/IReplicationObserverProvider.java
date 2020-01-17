@@ -17,10 +17,10 @@
   */
 package net.bluemind.backend.cyrus.replication.observers;
 
-import org.vertx.java.core.Vertx;
+import io.vertx.core.Vertx;
 
 public interface IReplicationObserverProvider {
-	
+
 	IReplicationObserver create(Vertx vertx);
 
 }

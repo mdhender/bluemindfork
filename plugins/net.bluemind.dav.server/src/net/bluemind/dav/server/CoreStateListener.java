@@ -17,7 +17,7 @@
   */
 package net.bluemind.dav.server;
 
-import net.bluemind.dav.server.routing.AuthHandler;
+import io.vertx.core.Vertx;
 import net.bluemind.system.api.SystemState;
 import net.bluemind.system.stateobserver.IStateListener;
 
@@ -27,8 +27,13 @@ public class CoreStateListener implements IStateListener {
 
 	@Override
 	public void stateChanged(SystemState newState) {
-		AuthHandler.invalidateAll();
 		state = newState;
+	}
+
+	@Override
+	public void init(Vertx vx) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

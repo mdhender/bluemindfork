@@ -22,9 +22,9 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.eventbus.EventBus;
 import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.backend.cyrus.replication.link.probe.ReplicationLatencyTimer;
 import net.bluemind.backend.cyrus.replication.link.probe.SharedMailboxProbe;
@@ -37,7 +37,7 @@ import net.bluemind.server.api.Assignment;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 
-public class CyrusServiceVerticle extends Verticle {
+public class CyrusServiceVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(CyrusServiceVerticle.class);
 
@@ -45,7 +45,7 @@ public class CyrusServiceVerticle extends Verticle {
 	public void start() {
 		EventBus eventBus = vertx.eventBus();
 
-		eventBus.registerHandler("mailreplica.receiver.ready", message -> {
+		eventBus.consumer("mailreplica.receiver.ready", message -> {
 			probe(0);
 		});
 	}

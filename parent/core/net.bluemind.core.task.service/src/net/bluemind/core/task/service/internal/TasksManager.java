@@ -19,18 +19,17 @@
 package net.bluemind.core.task.service.internal;
 
 import java.util.UUID;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.impl.VertxThreadFactory;
 
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.task.api.ITask;
@@ -38,6 +37,7 @@ import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.core.task.service.LoggingTaskMonitor;
+import net.bluemind.lib.vertx.WorkerExecutorService;
 
 public class TasksManager implements ITasksManager {
 
@@ -45,8 +45,7 @@ public class TasksManager implements ITasksManager {
 	private ConcurrentHashMap<String, TaskManager> tasks = new ConcurrentHashMap<>();
 	private Vertx vertx;
 	public static final int MAX_TASK_COUNT = 10;
-	private ExecutorService executer = new ThreadPoolExecutor(MAX_TASK_COUNT, MAX_TASK_COUNT, 15L, TimeUnit.SECONDS,
-			new ArrayBlockingQueue<>(MAX_TASK_COUNT * 3), new VertxThreadFactory("bm-task"));
+	private ExecutorService executer = new WorkerExecutorService("bm-tasks", 15, 1, TimeUnit.DAYS);
 
 	public TasksManager(Vertx vertx) {
 		this.vertx = vertx;
@@ -54,7 +53,8 @@ public class TasksManager implements ITasksManager {
 
 	@Override
 	public TaskRef run(final String taskId, final IServerTask serverTask) throws ServerFault {
-		final TaskManager task = new TaskManager(taskId);
+		MessageConsumer<JsonObject> cons = vertx.eventBus().consumer(addr(taskId));
+		final TaskManager task = new TaskManager(taskId, cons);
 		final TaskMonitor monitor = new TaskMonitor(vertx.eventBus(), addr(taskId));
 		final LoggingTaskMonitor loggingMonitor = new LoggingTaskMonitor(null, monitor, 0);
 		TaskManager oldTask = tasks.putIfAbsent(taskId, task);
@@ -66,7 +66,6 @@ public class TasksManager implements ITasksManager {
 				throw new ServerFault("task " + taskId + " already running");
 			}
 		}
-		vertx.eventBus().registerHandler(addr(taskId), task);
 		try {
 			executeTask(taskId, serverTask, loggingMonitor, task);
 		} catch (RejectedExecutionException e) {
@@ -99,8 +98,10 @@ public class TasksManager implements ITasksManager {
 	}
 
 	private void cleanupTask(TaskManager task) {
-		tasks.remove(task.getId());
-		vertx.eventBus().unregisterHandler(addr(task.getId()), task);
+		TaskManager tsk = tasks.remove(task.getId());
+		if (tsk != null) {
+			tsk.cleanUp();
+		}
 	}
 
 	@Override

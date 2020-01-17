@@ -20,11 +20,11 @@ package net.bluemind.dav.server.xml;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.http.HttpServerResponse;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import io.netty.handler.codec.http.HttpHeaders.Names;
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.dav.server.DavActivator;
 import net.bluemind.dav.server.proto.NS;
 

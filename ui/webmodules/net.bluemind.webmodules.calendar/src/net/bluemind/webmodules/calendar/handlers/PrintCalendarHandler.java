@@ -21,14 +21,12 @@ package net.bluemind.webmodules.calendar.handlers;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.codec.binary.Base64;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
-import org.vertx.java.core.json.JsonArray;
-
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonArray;
 import net.bluemind.calendar.api.IPrintAsync;
 import net.bluemind.calendar.api.PrintData;
 import net.bluemind.calendar.api.PrintOptions;
@@ -118,7 +116,7 @@ public class PrintCalendarHandler implements Handler<HttpServerRequest>, NeedVer
 				HttpServerResponse resp = request.response();
 				resp.headers().add("Content-Disposition", "attachment; filename=\"calendar.pdf\"");
 				resp.headers().add("Content-Type", "application/pdf");
-				resp.end(new Buffer(Base64.decodeBase64(value.data.getBytes())));
+				resp.end(Buffer.buffer(java.util.Base64.getDecoder().decode(value.data.getBytes())));
 			}
 
 			@Override

@@ -23,8 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.vertx.java.core.json.impl.Json;
-
+import io.vertx.core.json.Json;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;

@@ -18,15 +18,19 @@
  */
 package net.bluemind.vertx.testhelper;
 
-import java.net.InetSocketAddress;
 import java.util.UUID;
 
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.net.NetSocket;
-import org.vertx.java.core.streams.WriteStream;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
+import javax.security.cert.X509Certificate;
+
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.net.NetSocket;
+import io.vertx.core.net.SocketAddress;
+import io.vertx.core.streams.WriteStream;
 
 public class FakeNetSocket implements NetSocket {
 
@@ -36,9 +40,9 @@ public class FakeNetSocket implements NetSocket {
 	private Handler<Buffer> data;
 	private Handler<Throwable> ex;
 	private Vertx vx;
-	private WriteStream<?> writeHandler;
+	private WriteStream<Buffer> writeHandler;
 
-	public FakeNetSocket(Vertx vx, WriteStream<?> writeHandler) {
+	public FakeNetSocket(Vertx vx, WriteStream<Buffer> writeHandler) {
 		this.vx = vx;
 		this.id = UUID.randomUUID().toString();
 		this.writeHandler = writeHandler;
@@ -51,7 +55,7 @@ public class FakeNetSocket implements NetSocket {
 	}
 
 	@Override
-	public NetSocket dataHandler(Handler<Buffer> handler) {
+	public NetSocket handler(Handler<Buffer> handler) {
 		this.data = handler;
 		return this;
 	}
@@ -103,12 +107,12 @@ public class FakeNetSocket implements NetSocket {
 
 	@Override
 	public NetSocket write(String str) {
-		return write(new Buffer(str));
+		return write(Buffer.buffer(str));
 	}
 
 	@Override
 	public NetSocket write(String str, String enc) {
-		return write(new Buffer(str, enc));
+		return write(Buffer.buffer(str, enc));
 	}
 
 	@Override
@@ -123,13 +127,13 @@ public class FakeNetSocket implements NetSocket {
 	}
 
 	@Override
-	public InetSocketAddress remoteAddress() {
-		return InetSocketAddress.createUnresolved("127.0.0.1", 42);
+	public SocketAddress remoteAddress() {
+		return SocketAddress.inetSocketAddress(42, "127.0.0.1");
 	}
 
 	@Override
-	public InetSocketAddress localAddress() {
-		return InetSocketAddress.createUnresolved("127.0.0.1", 4200);
+	public SocketAddress localAddress() {
+		return SocketAddress.inetSocketAddress(4200, "127.0.0.1");
 	}
 
 	@Override
@@ -146,13 +150,80 @@ public class FakeNetSocket implements NetSocket {
 	}
 
 	@Override
-	public NetSocket ssl(Handler<Void> handler) {
+	public boolean isSsl() {
+		return false;
+	}
+
+	@Override
+	public NetSocket fetch(long amount) {
 		return this;
 	}
 
 	@Override
-	public boolean isSsl() {
-		return false;
+	public NetSocket write(String str, Handler<AsyncResult<Void>> handler) {
+		return write(Buffer.buffer(str), handler);
+	}
+
+	@Override
+	public NetSocket write(String str, String enc, Handler<AsyncResult<Void>> handler) {
+		return write(Buffer.buffer(str, enc), handler);
+	}
+
+	@Override
+	public NetSocket write(Buffer message, Handler<AsyncResult<Void>> handler) {
+		write(message);
+		handler.handle(FakeResult.ok(null));
+		return this;
+	}
+
+	@Override
+	public NetSocket sendFile(String filename, long offset, long length) {
+		return this;
+	}
+
+	@Override
+	public NetSocket sendFile(String filename, long offset, long length, Handler<AsyncResult<Void>> resultHandler) {
+		return this;
+	}
+
+	@Override
+	public void end() {
+		// yeah
+	}
+
+	@Override
+	public void end(Handler<AsyncResult<Void>> handler) {
+		handler.handle(FakeResult.ok(null));
+	}
+
+	@Override
+	public void close(Handler<AsyncResult<Void>> handler) {
+		handler.handle(FakeResult.ok(null));
+	}
+
+	@Override
+	public NetSocket upgradeToSsl(Handler<Void> handler) {
+		return this;
+	}
+
+	@Override
+	public NetSocket upgradeToSsl(String serverName, Handler<Void> handler) {
+		return this;
+	}
+
+	@Override
+	public SSLSession sslSession() {
+		return null;
+	}
+
+	@Override
+	public X509Certificate[] peerCertificateChain() throws SSLPeerUnverifiedException {
+		return new X509Certificate[0];
+	}
+
+	@Override
+	public String indicatedServerName() {
+		return null;
 	}
 
 }

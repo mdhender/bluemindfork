@@ -20,10 +20,10 @@ package net.bluemind.vertx.common.request;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.http.HttpServerRequest;
 
 import com.netflix.spectator.api.Registry;
 
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.vertx.common.request.impl.WrappedRequest;

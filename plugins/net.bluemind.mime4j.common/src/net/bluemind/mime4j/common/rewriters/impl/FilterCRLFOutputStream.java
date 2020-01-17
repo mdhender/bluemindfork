@@ -25,11 +25,11 @@ public class FilterCRLFOutputStream extends FilterOutputStream {
 
 	int last = 0;
 
-	public static final int CR = 13;
+	private static final int CR = 13;
 
-	public static final int LF = 10;
+	private static final int LF = 10;
 
-	public static final byte[] CRLF = { CR, LF };
+	private static final byte[] CRLF = { CR, LF };
 
 	public FilterCRLFOutputStream(OutputStream out) {
 		super(out);

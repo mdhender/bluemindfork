@@ -23,14 +23,14 @@ import static org.junit.Assert.fail;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
 
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageConsumer;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class VertxEventChecker<T> {
@@ -81,20 +81,19 @@ public class VertxEventChecker<T> {
 				futureMessage.set(event);
 			}
 		};
-		VertxPlatform.eventBus().registerHandler(address, handler);
+		MessageConsumer<T> cons = VertxPlatform.eventBus().consumer(address, handler);
 
 		Futures.addCallback(futureMessage, new FutureCallback<Message<?>>() {
 
 			@Override
 			public void onSuccess(Message<?> result) {
-				VertxPlatform.eventBus().unregisterHandler(address, handler);
+				cons.unregister();
 
 			}
 
 			@Override
 			public void onFailure(Throwable t) {
-				VertxPlatform.eventBus().unregisterHandler(address, handler);
-
+				cons.unregister();
 			}
 		}, MoreExecutors.directExecutor());
 

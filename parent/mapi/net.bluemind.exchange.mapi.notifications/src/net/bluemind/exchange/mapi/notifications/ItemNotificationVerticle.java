@@ -20,11 +20,12 @@ package net.bluemind.exchange.mapi.notifications;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.busmods.BusModBase;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Verticle;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.context.SecurityContext;
@@ -35,7 +36,7 @@ import net.bluemind.hornetq.client.Producer;
 import net.bluemind.hornetq.client.Topic;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
-public class ItemNotificationVerticle extends BusModBase {
+public class ItemNotificationVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(ItemNotificationVerticle.class);
 
@@ -53,12 +54,12 @@ public class ItemNotificationVerticle extends BusModBase {
 
 	}
 
+	@Override
 	public void start() {
-		super.start();
-
+		EventBus eb = vertx.eventBus();
 		MQ.init(() -> {
 			final Producer producer = MQ.registerProducer(Topic.MAPI_ITEM_NOTIFICATIONS);
-			eb.registerHandler(Topic.MAPI_ITEM_NOTIFICATIONS, (Message<JsonObject> msg) -> {
+			eb.consumer(Topic.MAPI_ITEM_NOTIFICATIONS, (Message<JsonObject> msg) -> {
 				JsonObject body = msg.body();
 				OOPMessage mqMsg = MQ.newMessage();
 				IContainers contApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
@@ -68,7 +69,7 @@ public class ItemNotificationVerticle extends BusModBase {
 				mqMsg.putStringProperty("containerUid", contUid);
 				mqMsg.putStringProperty("owner", descriptor.owner);
 				mqMsg.putStringProperty("domain", descriptor.domainUid);
-				mqMsg.putLongProperty("internalId", body.getNumber("internalId").longValue());
+				mqMsg.putLongProperty("internalId", body.getLong("internalId"));
 				mqMsg.putStringProperty("messageClass", body.getString("messageClass"));
 				mqMsg.putStringProperty("operation", body.getString("operation"));
 				producer.send(mqMsg);
@@ -78,7 +79,7 @@ public class ItemNotificationVerticle extends BusModBase {
 			});
 
 			final Producer hierProducer = MQ.registerProducer(Topic.MAPI_HIERARCHY_NOTIFICATIONS);
-			eb.registerHandler(Topic.MAPI_HIERARCHY_NOTIFICATIONS, (Message<JsonObject> msg) -> {
+			eb.consumer(Topic.MAPI_HIERARCHY_NOTIFICATIONS, (Message<JsonObject> msg) -> {
 				JsonObject body = msg.body();
 				hierProducer.send(body);
 				if (logger.isDebugEnabled()) {
@@ -87,12 +88,12 @@ public class ItemNotificationVerticle extends BusModBase {
 			});
 
 			final Producer dioProducer = MQ.registerProducer(Topic.MAPI_DELEGATION_NOTIFICATIONS);
-			eb.registerHandler(Topic.MAPI_DELEGATION_NOTIFICATIONS, (Message<JsonObject> msg) -> {
+			eb.consumer(Topic.MAPI_DELEGATION_NOTIFICATIONS, (Message<JsonObject> msg) -> {
 				dioProducer.send(msg.body());
 			});
 
 			final Producer pfAclUpdateProducer = MQ.registerProducer(Topic.MAPI_PF_ACL_UPDATE);
-			eb.registerHandler(Topic.MAPI_PF_ACL_UPDATE, (Message<JsonObject> msg) -> {
+			eb.consumer(Topic.MAPI_PF_ACL_UPDATE, (Message<JsonObject> msg) -> {
 				pfAclUpdateProducer.send(msg.body());
 			});
 		});

@@ -24,8 +24,7 @@ package net.bluemind.backend.cyrus.replication.server.state;
 
 import java.util.Optional;
 
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.mail.replica.api.SieveScript;
 
 public class SieveData {

@@ -18,8 +18,7 @@
  */
 package net.bluemind.proxy.http.impl.vertx;
 
-import org.vertx.java.core.http.HttpServerRequest;
-
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.proxy.http.IAuthProvider;
 import net.bluemind.proxy.http.auth.api.IAuthEnforcer.ISessionStore;
 

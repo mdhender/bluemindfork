@@ -18,17 +18,15 @@
  */
 package net.bluemind.xivo.bridge;
 
-import java.net.URL;
-
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.platform.PlatformManager;
 
+import io.vertx.core.DeploymentOptions;
+import io.vertx.core.Vertx;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Topic;
-import net.bluemind.lib.vertx.Constructor;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.xivo.bridge.http.v1.HornetQBridge;
 import net.bluemind.xivo.bridge.http.v1.HttpEndpointV1Router;
@@ -48,16 +46,15 @@ public class BridgeApplication implements IApplication {
 			public void connected() {
 				MQ.registerProducer(Topic.XIVO_PHONE_STATUS);
 
-				PlatformManager pm = VertxPlatform.getPlatformManager();
+				Vertx pm = VertxPlatform.getVertx();
 
 				DepDoneHandler depDone = new DepDoneHandler();
 				int procs = Runtime.getRuntime().availableProcessors();
 				int instances = Math.max(10, procs);
-				pm.deployVerticle(Constructor.of(HttpEndpointV1Router::new, HttpEndpointV1Router.class), null,
-						new URL[0], instances, null, depDone);
 
-				pm.deployWorkerVerticle(false, Constructor.of(HornetQBridge::new, HornetQBridge.class), null,
-						new URL[0], instances, null, depDone);
+				pm.deployVerticle(HttpEndpointV1Router::new, new DeploymentOptions().setInstances(instances), depDone);
+				pm.deployVerticle(HornetQBridge::new, new DeploymentOptions().setInstances(instances).setWorker(true),
+						depDone);
 
 			}
 		});

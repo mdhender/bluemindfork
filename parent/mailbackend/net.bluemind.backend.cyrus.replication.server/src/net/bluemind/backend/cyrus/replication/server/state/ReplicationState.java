@@ -29,13 +29,13 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
 
 import com.google.common.collect.Lists;
 import com.netflix.spectator.api.Counter;
 import com.netflix.spectator.api.Registry;
 
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.backend.cyrus.partitions.CyrusBoxes.ReplicatedBox;
 import net.bluemind.backend.cyrus.replication.server.Token;
 import net.bluemind.backend.cyrus.replication.server.utils.LiteralTokens;
@@ -162,7 +162,8 @@ public class ReplicationState {
 
 	public CompletableFuture<Optional<Buffer>> record(MailboxFolder folder, String bodyGuid, long imapUid) {
 		if (folder == null) {
-			return CompletableFuture.completedFuture(null);
+			logger.warn("Null folder provided for loading {}/{}", bodyGuid, imapUid);
+			return CompletableFuture.completedFuture(Optional.empty());
 		}
 		AtomicReference<IDbMailboxRecordsPromise> apiRef = new AtomicReference<>();
 		return storage.mailboxRecords(folder.getUniqueId()).thenCompose(recApi -> {
@@ -170,13 +171,12 @@ public class ReplicationState {
 			return recApi.getCompleteByImapUid(imapUid);
 		}).thenCompose((ItemValue<MailboxRecord> rec) -> {
 			if (rec == null || !rec.value.messageBody.equals(bodyGuid)) {
+				logger.warn("Not found or guid missmatch {} vs {}", rec, bodyGuid);
 				throw new ServerFault("Not found or guid mismatch " + rec + " vs " + bodyGuid);
 			} else {
 				return apiRef.get().fetchComplete(rec.value.imapUid);
 			}
-		}).thenCompose((Stream stream) -> {
-			return GenericStream.asyncStreamToBuffer(stream);
-		}).exceptionally(ex -> null).thenApply((Buffer buf) -> Optional.ofNullable(buf));
+		}).thenCompose(GenericStream::asyncStreamToBuffer).exceptionally(ex -> null).thenApply(Optional::ofNullable);
 	}
 
 	public CompletableFuture<List<MailboxFolder>> foldersByUser(String userName) {

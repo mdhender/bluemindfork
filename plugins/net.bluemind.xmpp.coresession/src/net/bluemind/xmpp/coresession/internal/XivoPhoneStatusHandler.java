@@ -20,9 +20,9 @@ package net.bluemind.xmpp.coresession.internal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.hornetq.client.OOPMessage;
 import net.bluemind.hornetq.client.OutOfProcessMessageHandler;
 
@@ -46,11 +46,13 @@ public class XivoPhoneStatusHandler implements OutOfProcessMessageHandler {
 			String status = message.getStringProperty("status");
 
 			JsonObject msg = new JsonObject();
-			msg.putString("category", "xivo");
-			msg.putString("latd", latd);
-			msg.putString("status", status);
+			msg.put("category", "xivo");
+			msg.put("latd", latd);
+			msg.put("status", status);
 
-			logger.debug(msg.encodePrettily());
+			if (logger.isDebugEnabled()) {
+				logger.debug(msg.encodePrettily());
+			}
 
 			eventBus.publish(busAddr, msg);
 		}

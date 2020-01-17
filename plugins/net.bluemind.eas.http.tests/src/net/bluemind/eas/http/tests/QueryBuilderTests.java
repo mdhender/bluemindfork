@@ -18,13 +18,12 @@
  */
 package net.bluemind.eas.http.tests;
 
+import java.util.Base64;
 import java.util.HashMap;
-
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.json.impl.Base64;
 
 import com.google.common.collect.ImmutableMap;
 
+import io.vertx.core.http.HttpServerRequest;
 import junit.framework.TestCase;
 import net.bluemind.eas.http.AuthenticatedEASQuery;
 import net.bluemind.eas.http.EasUrls;
@@ -76,7 +75,7 @@ public class QueryBuilderTests extends TestCase {
 		assertNull(decoded.policyKey());
 		assertEquals(14.0, decoded.protocolVersion());
 		assertEquals("Sync", decoded.command());
-		String plainDevId = new String(Base64.decode(decoded.deviceIdentifier()));
+		String plainDevId = new String(Base64.getDecoder().decode(decoded.deviceIdentifier()));
 		assertEquals("v140Device", plainDevId);
 		assertEquals("SmartPhone", decoded.deviceType());
 	}

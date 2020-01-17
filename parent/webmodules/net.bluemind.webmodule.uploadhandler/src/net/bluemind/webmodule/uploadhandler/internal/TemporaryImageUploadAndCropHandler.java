@@ -34,12 +34,12 @@ import javax.imageio.stream.ImageInputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
 
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.webmodule.server.NeedVertx;
 import net.bluemind.webmodule.uploadhandler.TemporaryUploadRepository;
 import net.bluemind.webmodule.uploadhandler.TemporaryUploadRepository.UniqueFile;
@@ -98,7 +98,7 @@ public class TemporaryImageUploadAndCropHandler implements Handler<HttpServerReq
 			ByteArrayOutputStream ret = new ByteArrayOutputStream();
 			ImageIO.write(dbi, "png", ret);
 			UniqueFile rf = repository.createTempFile();
-			vertx.fileSystem().writeFile(rf.file.getAbsolutePath(), new Buffer(ret.toByteArray()), res -> {
+			vertx.fileSystem().writeFile(rf.file.getAbsolutePath(), Buffer.buffer(ret.toByteArray()), res -> {
 				HttpServerResponse resp = request.response();
 				resp.headers().add("Content-Type", "text/plain");
 				resp.setStatusCode(200).end(rf.uuid.toString());

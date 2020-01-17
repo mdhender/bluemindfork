@@ -24,15 +24,15 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.net.NetSocket;
 
 import com.netflix.spectator.api.Registry;
 import com.sendmail.jilter.JilterProcessor;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.net.NetSocket;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 
@@ -53,7 +53,7 @@ public class MilterSession {
 		this.vertx = vertx;
 		MilterHandler handler = new MilterHandler(MLRegistry.getFactories());
 		this.jp = new JilterProcessor(handler);
-		buffer = new Buffer();
+		buffer = Buffer.buffer();
 	}
 
 	public void start() {
@@ -74,7 +74,7 @@ public class MilterSession {
 			public int write(ByteBuffer src) throws IOException {
 				ByteBuf netty = Unpooled.wrappedBuffer(src);
 				int size = netty.readableBytes();
-				buffer.appendBuffer(new Buffer(netty));
+				buffer.appendBuffer(Buffer.buffer(netty));
 				doWrite();
 				return size;
 			}
@@ -83,8 +83,7 @@ public class MilterSession {
 		socket.drainHandler((v) -> {
 			doWrite();
 		});
-
-		socket.dataHandler(buf -> {
+		socket.handler(buf -> {
 			ByteBuf nettyBuffer = buf.getByteBuf();
 			logger.debug("Process {}", nettyBuffer);
 			ByteBuffer nioBuffer = nettyBuffer.nioBuffer();
@@ -109,9 +108,9 @@ public class MilterSession {
 
 	public void doWrite() {
 		if (!socket.writeQueueFull()) {
-			vertx.currentContext().runOnContext(v -> {
+			Vertx.currentContext().runOnContext(v -> {
 				socket.write(buffer);
-				buffer = new Buffer();
+				buffer = Buffer.buffer();
 			});
 		}
 	}

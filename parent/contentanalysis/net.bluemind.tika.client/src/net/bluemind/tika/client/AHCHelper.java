@@ -18,18 +18,15 @@
  */
 package net.bluemind.tika.client;
 
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClientConfig;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClient;
 
 public final class AHCHelper {
 
 	private static AsyncHttpClient client;
 
 	static {
-		AsyncHttpClientConfig config = new AsyncHttpClientConfig.Builder().setFollowRedirect(false).setMaxRedirects(0)
-				.setPooledConnectionIdleTimeout(60000).setMaxRequestRetry(0).setRequestTimeout(30000)
-				.setAllowPoolingConnections(true).build();
-		client = new AsyncHttpClient(config);
+		client = new DefaultAsyncHttpClient();
 	}
 
 	public static AsyncHttpClient get() {

@@ -25,9 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.locator.client.LocatorClient;
-import net.bluemind.proxy.http.impl.IConfigLoader;
 import net.bluemind.proxy.http.impl.ExtensionConfigLoader;
 import net.bluemind.proxy.http.impl.FSConfigLoader;
+import net.bluemind.proxy.http.impl.IConfigLoader;
 import net.bluemind.proxy.http.impl.InBundleConfigLoader;
 import net.bluemind.utils.IniFile;
 

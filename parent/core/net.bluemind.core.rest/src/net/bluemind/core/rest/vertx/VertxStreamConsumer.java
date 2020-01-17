@@ -22,14 +22,14 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.streams.ReadStream;
 
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.api.Stream;
 
-public class VertxStreamConsumer implements ReadStream<VertxStreamConsumer>, Stream {
+public class VertxStreamConsumer implements ReadStream<Buffer>, Stream {
 
 	private static final Logger logger = LoggerFactory.getLogger(VertxStreamConsumer.class);
 
@@ -59,7 +59,7 @@ public class VertxStreamConsumer implements ReadStream<VertxStreamConsumer>, Str
 	}
 
 	@Override
-	public VertxStreamConsumer dataHandler(Handler<Buffer> handler) {
+	public VertxStreamConsumer handler(Handler<Buffer> handler) {
 
 		this.dataHandler = handler;
 		controlHandler.start(true);
@@ -117,5 +117,10 @@ public class VertxStreamConsumer implements ReadStream<VertxStreamConsumer>, Str
 
 	public void fail(Throwable e) {
 		controlHandler.sendClose();
+	}
+
+	@Override
+	public ReadStream<Buffer> fetch(long amount) {
+		return this;
 	}
 }

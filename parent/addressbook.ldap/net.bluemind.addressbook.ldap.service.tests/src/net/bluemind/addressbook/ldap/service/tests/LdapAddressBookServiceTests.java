@@ -31,11 +31,11 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.util.concurrent.SettableFuture;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.addressbook.ldap.api.ConnectionStatus;
 import net.bluemind.addressbook.ldap.api.ILdapAddressBook;
 import net.bluemind.addressbook.ldap.api.LdapParameters;

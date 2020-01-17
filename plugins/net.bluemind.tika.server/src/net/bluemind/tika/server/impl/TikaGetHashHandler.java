@@ -20,13 +20,14 @@ package net.bluemind.tika.server.impl;
 
 import java.io.File;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.MultiMap;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.file.AsyncFile;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
-import org.vertx.java.core.streams.Pump;
+import io.vertx.core.Handler;
+import io.vertx.core.MultiMap;
+import io.vertx.core.Vertx;
+import io.vertx.core.file.AsyncFile;
+import io.vertx.core.file.OpenOptions;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.streams.Pump;
 
 public class TikaGetHashHandler implements Handler<HttpServerRequest> {
 
@@ -47,8 +48,8 @@ public class TikaGetHashHandler implements Handler<HttpServerRequest> {
 			headers.add("Content-Type", "text/plain; charset=utf-8");
 			headers.add("X-BM-TikaHash", hash);
 			resp.setChunked(true);
-			AsyncFile asyncFile = vertx.fileSystem().openSync(f.getAbsolutePath());
-			Pump pump = Pump.createPump(asyncFile, resp);
+			AsyncFile asyncFile = vertx.fileSystem().openBlocking(f.getAbsolutePath(), new OpenOptions());
+			Pump pump = Pump.pump(asyncFile, resp);
 			pump.start();
 			asyncFile.endHandler(new Handler<Void>() {
 

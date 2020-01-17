@@ -23,9 +23,9 @@ import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpServerRequest;
 
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.dav.server.proto.delete.DeleteProtocol;
 import net.bluemind.dav.server.proto.get.GetIcsProtocol;
 import net.bluemind.dav.server.proto.get.GetVcfProtocol;
@@ -42,23 +42,22 @@ import net.bluemind.dav.server.proto.proppatch.PropPatchProtocol;
 import net.bluemind.dav.server.proto.put.PutProtocol;
 import net.bluemind.dav.server.proto.report.ReportProtocol;
 import net.bluemind.dav.server.proto.sharing.SharingProtocol;
-import net.bluemind.dav.server.routing.AuthHandler;
 import net.bluemind.dav.server.routing.MethodRouter;
 import net.bluemind.dav.server.store.ResType;
 import net.bluemind.system.api.SystemState;
+import net.bluemind.vertx.common.http.BasicAuthHandler;
 
 public final class DavRouter implements Handler<HttpServerRequest> {
 
 	private static final Logger logger = LoggerFactory.getLogger(DavRouter.class);
 
-	private final AuthHandler auth;
+	private final BasicAuthHandler auth;
 	public static final String CAL_REDIR = "/.well-known/caldav";
 	public static final String CARD_REDIR = "/.well-known/carddav";
 
 	private static Pattern preV35Url = Pattern.compile(Proxy.path + "/principals/__uids__/([0-9]+)/");
 
 	public DavRouter() {
-		this.auth = new AuthHandler();
 		MethodRouter mr = new MethodRouter();
 		ResType[] types = ResType.values();
 		for (ResType rt : types) {
@@ -100,7 +99,7 @@ public final class DavRouter implements Handler<HttpServerRequest> {
 
 		mr.moveHandler(ResType.VSTUFF, new MoveProtocol());
 
-		auth.successHandler(mr);
+		this.auth = new BasicAuthHandler("dav", mr);
 	}
 
 	@Override

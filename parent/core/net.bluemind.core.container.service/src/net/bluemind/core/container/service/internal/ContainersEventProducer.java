@@ -18,9 +18,8 @@
  */
 package net.bluemind.core.container.service.internal;
 
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.context.SecurityContext;
 
 public class ContainersEventProducer {
@@ -35,7 +34,7 @@ public class ContainersEventProducer {
 
 	public void changed(String type, String uid) {
 		JsonObject body = new JsonObject();
-		body.putString("loginAtDomain", securityContext.getSubject());
+		body.put("loginAtDomain", securityContext.getSubject());
 		eventBus.publish("bm." + type + ".hook." + uid + ".changed", body);
 	}
 }

@@ -25,13 +25,13 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.utils.IniFile;
 
 public class TBirdUpdateRdf implements Handler<HttpServerRequest> {
@@ -75,7 +75,7 @@ public class TBirdUpdateRdf implements Handler<HttpServerRequest> {
 		String body = sw.toString();
 		byte[] data = body.getBytes();
 		resp.setStatusCode(200);
-		resp.end(new Buffer(data));
+		resp.end(Buffer.buffer(data));
 
 	}
 

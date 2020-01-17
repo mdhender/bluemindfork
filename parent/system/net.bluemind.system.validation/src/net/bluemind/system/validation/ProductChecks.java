@@ -24,8 +24,8 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Producer;
@@ -90,10 +90,10 @@ public class ProductChecks {
 		ValidationResult result = validator.validate();
 		logger.info("Validator {} : Valid: {}, Message: {}", validator.getName(), result.valid, result.message);
 		JsonObject toPublish = new JsonObject()//
-				.putString("validator", validator.getName())//
-				.putBoolean("valid", result.valid)//
-				.putBoolean("blocking", result.blocking)//
-				.putString("origin", System.getProperty("net.bluemind.property.product", "unknown"));
+				.put("validator", validator.getName())//
+				.put("valid", result.valid)//
+				.put("blocking", result.blocking)//
+				.put("origin", System.getProperty("net.bluemind.property.product", "unknown"));
 		prod.send(toPublish);
 		return result;
 	}

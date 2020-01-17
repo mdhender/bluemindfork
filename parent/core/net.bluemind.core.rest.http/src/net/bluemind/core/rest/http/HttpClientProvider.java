@@ -23,8 +23,10 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.http.HttpClient;
+
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpClientOptions;
 
 public class HttpClientProvider {
 	private static final Logger logger = LoggerFactory.getLogger(HttpClientProvider.class);
@@ -41,8 +43,8 @@ public class HttpClientProvider {
 		HttpClient ret = clients.get(key);
 		if (ret == null) {
 			logger.debug("create client for {}:{}", hostname, port);
-			ret = vertx.createHttpClient().setHost(hostname).setPort(port).setKeepAlive(true).setTCPKeepAlive(true)
-					.setTCPNoDelay(true).setMaxPoolSize(200);
+			ret = vertx.createHttpClient(new HttpClientOptions().setKeepAlive(true).setTcpKeepAlive(true)
+					.setTcpNoDelay(true).setMaxPoolSize(200).setDefaultHost(hostname).setDefaultPort(port));
 			clients.put(key, ret);
 		}
 

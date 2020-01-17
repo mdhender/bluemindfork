@@ -22,8 +22,9 @@ import java.util.concurrent.CountDownLatch;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
+
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 
 public class DepDoneHandler implements Handler<AsyncResult<String>> {
 

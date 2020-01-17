@@ -10,12 +10,13 @@ import java.util.concurrent.TimeoutException;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpClient;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.collect.Lists;
 
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.network.topology.Topology;
@@ -53,7 +54,7 @@ public class SdsCyrusValidationTests {
 
 	@Test
 	public void headCallNoPayload() throws InterruptedException, ExecutionException, TimeoutException {
-		HttpClient client = VertxPlatform.getVertx().createHttpClient().setHost("127.0.0.1").setPort(8091);
+		HttpClient client = client();
 		CompletableFuture<Integer> async = new CompletableFuture<>();
 		client.head("/mailbox", resp -> {
 			async.complete(resp.statusCode());
@@ -63,16 +64,21 @@ public class SdsCyrusValidationTests {
 		assertEquals(403, httpStatus);
 	}
 
+	private HttpClient client() {
+		return VertxPlatform.getVertx()
+				.createHttpClient(new HttpClientOptions().setDefaultHost("127.0.0.1").setDefaultPort(8091));
+	}
+
 	@Test
 	public void headCallInvalidPayload() throws InterruptedException, ExecutionException, TimeoutException {
-		JsonObject payload = new JsonObject().putString("invalidproperty", "anyvalue");
+		JsonObject payload = new JsonObject().put("invalidproperty", "anyvalue");
 
-		HttpClient client = VertxPlatform.getVertx().createHttpClient().setHost("127.0.0.1").setPort(8091);
+		HttpClient client = client();
 		CompletableFuture<Integer> asyncStatusCode = new CompletableFuture<Integer>();
 
 		client.head("/mailbox", resp -> {
 			asyncStatusCode.complete(resp.statusCode());
-		}).setChunked(true).write(new Buffer(payload.encode())).end();
+		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
 
 		int statusCode = asyncStatusCode.get(5, TimeUnit.SECONDS);
 		assertEquals(403, statusCode);
@@ -80,14 +86,14 @@ public class SdsCyrusValidationTests {
 
 	@Test
 	public void headCallMissingPartition() throws InterruptedException, ExecutionException, TimeoutException {
-		JsonObject payload = new JsonObject().putString("mailbox", "mailboxvalue");
+		JsonObject payload = new JsonObject().put("mailbox", "mailboxvalue");
 
-		HttpClient client = VertxPlatform.getVertx().createHttpClient().setHost("127.0.0.1").setPort(8091);
+		HttpClient client = client();
 		CompletableFuture<Integer> asyncStatusCode = new CompletableFuture<Integer>();
 
 		client.head("/mailbox", resp -> {
 			asyncStatusCode.complete(resp.statusCode());
-		}).setChunked(true).write(new Buffer(payload.encode())).end();
+		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
 
 		int statusCode = asyncStatusCode.get(5, TimeUnit.SECONDS);
 		assertEquals(403, statusCode);
@@ -95,14 +101,14 @@ public class SdsCyrusValidationTests {
 
 	@Test
 	public void headCallMissingMailbox() throws InterruptedException, ExecutionException, TimeoutException {
-		JsonObject payload = new JsonObject().putString("partition", "partitionvalue");
+		JsonObject payload = new JsonObject().put("partition", "partitionvalue");
 
-		HttpClient client = VertxPlatform.getVertx().createHttpClient().setHost("127.0.0.1").setPort(8091);
+		HttpClient client = client();
 		CompletableFuture<Integer> asyncStatusCode = new CompletableFuture<Integer>();
 
 		client.head("/mailbox", resp -> {
 			asyncStatusCode.complete(resp.statusCode());
-		}).setChunked(true).write(new Buffer(payload.encode())).end();
+		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
 
 		int statusCode = asyncStatusCode.get(5, TimeUnit.SECONDS);
 		assertEquals(403, statusCode);
@@ -111,15 +117,15 @@ public class SdsCyrusValidationTests {
 	@Test
 	public void headCallValidPayload() throws InterruptedException, ExecutionException, TimeoutException {
 		JsonObject payload = new JsonObject()//
-				.putString("mailbox", "mailboxvalue")//
-				.putString("partition", "partitionvalue");
+				.put("mailbox", "mailboxvalue")//
+				.put("partition", "partitionvalue");
 
-		HttpClient client = VertxPlatform.getVertx().createHttpClient().setHost("127.0.0.1").setPort(8091);
+		HttpClient client = client();
 		CompletableFuture<Integer> asyncStatusCode = new CompletableFuture<Integer>();
 
 		client.head("/mailbox", resp -> {
 			asyncStatusCode.complete(resp.statusCode());
-		}).setChunked(true).write(new Buffer(payload.encode())).end();
+		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
 
 		int statusCode = asyncStatusCode.get(5, TimeUnit.SECONDS);
 		assertEquals(200, statusCode);

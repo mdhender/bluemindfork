@@ -18,8 +18,7 @@
  */
 package net.bluemind.proxy.http.impl.vertx;
 
-import org.vertx.java.core.Vertx;
-
+import io.vertx.core.Vertx;
 import net.bluemind.system.api.SystemState;
 
 public class CoreState {

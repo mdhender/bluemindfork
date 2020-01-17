@@ -14,7 +14,8 @@ Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  com.google.guava,
  net.bluemind.tests.defaultdata,
- net.bluemind.lib.vertx
+ net.bluemind.lib.vertx,
+ net.bluemind.vertx.testhelper
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.node.tests

@@ -18,9 +18,9 @@
  */
 package net.bluemind.eas.impl.vertx;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
 import net.bluemind.eas.dto.base.AirSyncBaseResponse;
 import net.bluemind.eas.dto.base.BodyOptions;
 import net.bluemind.eas.dto.base.Callback;
@@ -39,11 +39,11 @@ public final class VertxLazyLoader {
 			public void load(final Callback<AirSyncBaseResponse> onLoad) {
 				LocalJsonObject<LazyLoaded<BodyOptions, AirSyncBaseResponse>> jso = new LocalJsonObject<>(toWrap);
 				VertxPlatform.eventBus().send("eas.backend.lazyloader", jso,
-						new Handler<Message<LocalJsonObject<AirSyncBaseResponse>>>() {
+						new Handler<AsyncResult<Message<LocalJsonObject<AirSyncBaseResponse>>>>() {
 
 							@Override
-							public void handle(Message<LocalJsonObject<AirSyncBaseResponse>> event) {
-								onLoad.onResult(event.body().getValue());
+							public void handle(AsyncResult<Message<LocalJsonObject<AirSyncBaseResponse>>> event) {
+								onLoad.onResult(event.result().body().getValue());
 							}
 						});
 			}

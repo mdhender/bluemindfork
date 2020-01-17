@@ -18,10 +18,12 @@
  */
 package net.bluemind.eas.busmods;
 
-import org.vertx.java.busmods.BusModBase;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
 import net.bluemind.eas.backend.SendMailData;
 import net.bluemind.eas.dto.EasBusEndpoints;
 import net.bluemind.eas.dto.sendmail.SendMailResponse;
@@ -29,11 +31,12 @@ import net.bluemind.eas.exception.ActiveSyncException;
 import net.bluemind.eas.impl.Backends;
 import net.bluemind.vertx.common.LocalJsonObject;
 
-public class SendMailVerticle extends BusModBase {
+public class SendMailVerticle extends AbstractVerticle {
+
+	private static final Logger logger = LoggerFactory.getLogger(SendMailVerticle.class);
 
 	@Override
 	public void start() {
-		super.start();
 
 		Handler<Message<LocalJsonObject<SendMailData>>> sendMailHandler = new Handler<Message<LocalJsonObject<SendMailData>>>() {
 
@@ -62,7 +65,7 @@ public class SendMailVerticle extends BusModBase {
 
 			}
 		};
-		eb.registerHandler(EasBusEndpoints.SEND_MAIL, sendMailHandler);
+		vertx.eventBus().consumer(EasBusEndpoints.SEND_MAIL, sendMailHandler);
 
 	}
 

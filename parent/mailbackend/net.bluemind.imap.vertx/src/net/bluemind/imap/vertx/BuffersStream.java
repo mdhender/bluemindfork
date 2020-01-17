@@ -17,9 +17,8 @@
   */
 package net.bluemind.imap.vertx;
 
-import org.vertx.java.core.Handler;
-
 import io.netty.buffer.ByteBuf;
+import io.vertx.core.Handler;
 
 public interface BuffersStream {
 

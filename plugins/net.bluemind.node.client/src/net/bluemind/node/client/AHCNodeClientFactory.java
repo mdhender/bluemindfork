@@ -21,11 +21,10 @@ package net.bluemind.node.client;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.node.api.INodeClient;
@@ -41,9 +40,6 @@ public final class AHCNodeClientFactory implements INodeClientFactory {
 
 	private static final ConcurrentHashMap<String, HostPortClient> clients = new ConcurrentHashMap<>();
 
-	public AHCNodeClientFactory() {
-	}
-
 	@Override
 	public INodeClient create(String hostIpAddress) throws ServerFault {
 		return new AHCHttpNodeClient(getClient(hostIpAddress));
@@ -56,10 +52,7 @@ public final class AHCNodeClientFactory implements INodeClientFactory {
 
 	private synchronized HostPortClient getClient(final String hostIpAddress) {
 		HostPortClient cli = clients.get(hostIpAddress);
-		if (cli == null) {
-			cli = createNew(hostIpAddress);
-			clients.put(hostIpAddress, cli);
-		} else if (!cli.isSSL() && AHCHelper.mayRebuild()) {
+		if (cli == null || (!cli.isSSL() && AHCHelper.mayRebuild())) {
 			cli = createNew(hostIpAddress);
 			clients.put(hostIpAddress, cli);
 		}
@@ -83,7 +76,7 @@ public final class AHCNodeClientFactory implements INodeClientFactory {
 					hpc.setPort(8022);
 				}
 			} catch (Exception ioe) {
-				logger.info("Error testing SSL connection to " + hostIpAddress + ": " + ioe);
+				logger.info("Error testing SSL connection to {}", hostIpAddress, ioe);
 			}
 		}
 		WebsocketLink ws = new WebsocketLink(hpc);

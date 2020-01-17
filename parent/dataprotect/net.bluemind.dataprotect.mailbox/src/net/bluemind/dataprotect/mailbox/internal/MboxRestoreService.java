@@ -163,9 +163,11 @@ public class MboxRestoreService {
 			logger.info("RECONSTRUCT: " + e);
 		}
 
+		logger.info("[{}] Restore hsm for {}", mbox, dpg);
 		restoreHsm(dpg, restTool, domain, mbox);
 
 		monitor.end(true, "finished", "{ \"status\": \"not_implemented\" }");
+		logger.info("ending task with mon {}", monitor);
 
 	}
 

@@ -22,25 +22,26 @@ import java.io.InputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpHeaders;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
 
 import com.google.common.io.ByteStreams;
+
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpHeaders;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 
 public class VueHandler implements Handler<HttpServerRequest> {
 
 	private static final Logger logger = LoggerFactory.getLogger(VueHandler.class);
-	
+
 	private static boolean vueDevFileExists = new File("/root/dev-vue").exists();
-	private static Buffer vueFileContent = new Buffer(loadVueFile());
+	private static Buffer vueFileContent = Buffer.buffer(loadVueFile());
 
 	@Override
 	public void handle(HttpServerRequest event) {
 		logger.debug("VueHandler {}", event.path());
-		
+
 		HttpServerResponse response = event.response();
 		response.putHeader(HttpHeaders.CONTENT_TYPE, "application/javascript");
 		response.putHeader(HttpHeaders.CONTENT_LENGTH, "" + vueFileContent.length());
@@ -48,20 +49,21 @@ public class VueHandler implements Handler<HttpServerRequest> {
 		response.setStatusCode(200);
 		response.end();
 	}
-	
+
 	private static byte[] loadVueFile() {
 		String vueFileName = "vue.min.js";
 		if (vueDevFileExists) {
 			vueFileName = "vue.js";
 		}
 
-		try (InputStream in = VueHandler.class.getClassLoader().getResourceAsStream("web-resources/js/" + vueFileName)) {
+		try (InputStream in = VueHandler.class.getClassLoader()
+				.getResourceAsStream("web-resources/js/" + vueFileName)) {
 			logger.debug("Found file " + vueFileName);
 			return ByteStreams.toByteArray(in);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
-		
+
 		return new byte[0];
 	}
 

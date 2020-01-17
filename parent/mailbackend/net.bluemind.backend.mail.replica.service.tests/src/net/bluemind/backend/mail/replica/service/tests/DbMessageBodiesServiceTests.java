@@ -27,10 +27,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
-import org.vertx.java.core.streams.ReadStream;
 
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.backend.cyrus.replication.testhelper.CyrusGUID;
-import net.bluemind.backend.cyrus.replication.testhelper.InputStreamWrapper;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
 import net.bluemind.core.api.Stream;
@@ -44,7 +44,7 @@ public class DbMessageBodiesServiceTests extends AbstractMessageBodiesServiceTes
 	public void crudFromStream() {
 		IDbMessageBodies mboxes = getService(SecurityContext.SYSTEM);
 		assertNotNull(mboxes);
-		ReadStream<InputStreamWrapper> emlReadStream = openResource("data/with_inlines.eml");
+		ReadStream<Buffer> emlReadStream = openResource("data/with_inlines.eml");
 		Stream bmStream = VertxStream.stream(emlReadStream);
 		String uid = CyrusGUID.randomGuid();
 		mboxes.create(uid, bmStream);
@@ -67,7 +67,7 @@ public class DbMessageBodiesServiceTests extends AbstractMessageBodiesServiceTes
 	public void storeFromStreamBM14964Subject() {
 		IDbMessageBodies mboxes = getService(SecurityContext.SYSTEM);
 		assertNotNull(mboxes);
-		ReadStream<InputStreamWrapper> emlReadStream = openResource("data/mail.eml");
+		ReadStream<Buffer> emlReadStream = openResource("data/mail.eml");
 		Stream bmStream = VertxStream.stream(emlReadStream);
 		String uid = CyrusGUID.randomGuid();
 		mboxes.create(uid, bmStream);
@@ -92,7 +92,7 @@ public class DbMessageBodiesServiceTests extends AbstractMessageBodiesServiceTes
 	public void storeFromStreamBM15193() {
 		IDbMessageBodies mboxes = getService(SecurityContext.SYSTEM);
 		assertNotNull(mboxes);
-		ReadStream<InputStreamWrapper> emlReadStream = openResource("data/bm-15193.eml");
+		ReadStream<Buffer> emlReadStream = openResource("data/bm-15193.eml");
 		Stream bmStream = VertxStream.stream(emlReadStream);
 		String uid = "d2d5876ba2d00d2c1290e46323adefa48567f0a7";
 		mboxes.create(uid, bmStream);
@@ -106,7 +106,7 @@ public class DbMessageBodiesServiceTests extends AbstractMessageBodiesServiceTes
 	public void storeFromStreamBM15245() {
 		IDbMessageBodies mboxes = getService(SecurityContext.SYSTEM);
 		assertNotNull(mboxes);
-		ReadStream<InputStreamWrapper> emlReadStream = openResource("data/BM-15245.eml");
+		ReadStream<Buffer> emlReadStream = openResource("data/BM-15245.eml");
 		Stream bmStream = VertxStream.stream(emlReadStream);
 		String uid = CyrusGUID.randomGuid();
 		mboxes.create(uid, bmStream);

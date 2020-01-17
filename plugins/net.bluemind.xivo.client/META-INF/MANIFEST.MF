@@ -6,12 +6,13 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.xivo.client.Activator
 Bundle-Vendor: blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
- com.ning.async-http-client;bundle-version="1.9.26",
  slf4j.api,
  net.bluemind.xivo.common;bundle-version="1.0.0",
  net.bluemind.lib.vertx;bundle-version="1.0.0",
  com.google.guava;bundle-version="19.0.0",
- net.bluemind.utils;bundle-version="1.0.0"
+ net.bluemind.utils;bundle-version="1.0.0",
+ org.asynchttpclient.async-http-client;bundle-version="2.10.4",
+ org.reactivestreams.reactive-streams;bundle-version="1.0.3"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.xivo.client

@@ -26,13 +26,12 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
-import com.ning.http.util.Base64;
 
+import io.vertx.core.Vertx;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.authentication.api.IAuthenticationPromise;
 import net.bluemind.authentication.api.LoginResponse;
@@ -289,7 +288,7 @@ public class C2Provider implements IAuthProvider {
 
 	private boolean addIfPresent(IDecorableRequest proxyReq, String value, String headerKey) {
 		if (value != null) {
-			proxyReq.addHeader(headerKey, Base64.encode(value.getBytes()));
+			proxyReq.addHeader(headerKey, java.util.Base64.getEncoder().encodeToString(value.getBytes()));
 			return true;
 		} else {
 			return false;

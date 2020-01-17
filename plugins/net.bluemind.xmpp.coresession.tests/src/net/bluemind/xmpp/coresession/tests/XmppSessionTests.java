@@ -25,10 +25,11 @@ import static org.junit.Assert.assertNull;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Presence.Mode;
 import org.junit.Test;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.xmpp.coresession.internal.XmppSessionMessage;
 
 public class XmppSessionTests extends BaseXmppTests {
@@ -39,20 +40,20 @@ public class XmppSessionTests extends BaseXmppTests {
 
 		assertNotNull(sessionId);
 
-		eventBus.registerHandler("xmpp/session/" + sessionId, new Handler<Message<JsonObject>>() {
+		eventBus.consumer("xmpp/session/" + sessionId, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
 				queueAssertValue("session", event.body());
 			}
 		});
-		eventBus.send("xmpp/sessions-manager:open",
-				new JsonObject().putString("sessionId", sessionId).putString("latd", user1.login + "@" + domainName),
-				new Handler<Message<Void>>() {
+		eventBus.request("xmpp/sessions-manager:open",
+				new JsonObject().put("sessionId", sessionId).put("latd", user1.login + "@" + domainName),
+				new Handler<AsyncResult<Message<Void>>>() {
 
 					@Override
-					public void handle(Message<Void> event) {
-						queueAssertValue("conn", event.body());
+					public void handle(AsyncResult<Message<Void>> event) {
+						queueAssertValue("conn", event.result().body());
 					}
 				});
 
@@ -65,7 +66,7 @@ public class XmppSessionTests extends BaseXmppTests {
 	public void testXmppConnNoTimeout() throws Exception {
 		String sessionId = login(user1);
 
-		eventBus.registerHandler("xmpp/session/" + sessionId, new Handler<Message<JsonObject>>() {
+		eventBus.consumer("xmpp/session/" + sessionId, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
@@ -73,21 +74,21 @@ public class XmppSessionTests extends BaseXmppTests {
 			}
 		});
 
-		eventBus.registerHandler("xmpp/session/" + sessionId + "/ping", new Handler<Message<JsonObject>>() {
+		eventBus.consumer("xmpp/session/" + sessionId + "/ping", new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
-				event.reply();
+				event.reply("yeah");
 			}
 		});
 
-		eventBus.send("xmpp/sessions-manager:open",
-				new JsonObject().putString("sessionId", sessionId).putString("latd", user1.login + "@" + domainName),
-				new Handler<Message<Void>>() {
+		eventBus.request("xmpp/sessions-manager:open",
+				new JsonObject().put("sessionId", sessionId).put("latd", user1.login + "@" + domainName),
+				new Handler<AsyncResult<Message<Void>>>() {
 
 					@Override
-					public void handle(Message<Void> event) {
-						queueAssertValue("conn", event.body());
+					public void handle(AsyncResult<Message<Void>> event) {
+						queueAssertValue("conn", event.result().body());
 					}
 				});
 
@@ -110,13 +111,13 @@ public class XmppSessionTests extends BaseXmppTests {
 	@Test
 	public void testXmppConnNotOk() throws Exception {
 		String sessionId = "badId";
-		eventBus.send("xmpp/sessions-manager:open",
-				new JsonObject().putString("sessionId", sessionId).putString("latd", "fakeuser@bm.lan"),
-				new Handler<Message<Void>>() {
+		eventBus.request("xmpp/sessions-manager:open",
+				new JsonObject().put("sessionId", sessionId).put("latd", "fakeuser@bm.lan"),
+				new Handler<AsyncResult<Message<Void>>>() {
 
 					@Override
-					public void handle(Message<Void> event) {
-						queueAssertValue("conn", event.body());
+					public void handle(AsyncResult<Message<Void>> event) {
+						queueAssertValue("conn", event.result().body());
 					}
 				});
 
@@ -127,7 +128,7 @@ public class XmppSessionTests extends BaseXmppTests {
 	public void testDisconnect() throws Exception {
 		String sessionId = login(user1);
 		initiateConnection(user1, sessionId);
-		eventBus.registerHandler("xmpp/session/" + sessionId, new Handler<Message<JsonObject>>() {
+		eventBus.consumer("xmpp/session/" + sessionId, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
@@ -139,8 +140,8 @@ public class XmppSessionTests extends BaseXmppTests {
 
 		JsonObject state = null;
 		assertNotNull(state = waitAssert("session"));
-		assertNotNull(state.getObject("presence"));
-		assertEquals(Presence.Type.unavailable.name(), state.getObject("presence").getString("type"));
+		assertNotNull(state.getJsonObject("presence"));
+		assertEquals(Presence.Type.unavailable.name(), state.getJsonObject("presence").getString("type"));
 
 	}
 
@@ -150,7 +151,7 @@ public class XmppSessionTests extends BaseXmppTests {
 
 		initiateConnection(user1, sessionId);
 
-		eventBus.registerHandler("xmpp/session/" + sessionId, new Handler<Message<JsonObject>>() {
+		eventBus.consumer("xmpp/session/" + sessionId, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
@@ -159,13 +160,13 @@ public class XmppSessionTests extends BaseXmppTests {
 		});
 
 		eventBus.send("xmpp/session/" + sessionId + ":presence",
-				new JsonObject().putString("status", "Pas là").putString("mode", Mode.dnd.name()));
+				new JsonObject().put("status", "Pas là").put("mode", Mode.dnd.name()));
 
 		JsonObject state = null;
 		assertNotNull(state = waitAssert("session"));
-		assertNotNull(state.getObject("presence"));
-		assertEquals("Pas là", state.getObject("presence").getString("status"));
-		assertEquals(Mode.dnd.name(), state.getObject("presence").getString("mode"));
+		assertNotNull(state.getJsonObject("presence"));
+		assertEquals("Pas là", state.getJsonObject("presence").getString("status"));
+		assertEquals(Mode.dnd.name(), state.getJsonObject("presence").getString("mode"));
 	}
 
 	@Test
@@ -177,7 +178,7 @@ public class XmppSessionTests extends BaseXmppTests {
 		String sessionId2 = login(user2);
 		initiateConnection(user2, sessionId2);
 
-		eventBus.registerHandler("xmpp/session/" + sessionId, new Handler<Message<JsonObject>>() {
+		eventBus.consumer("xmpp/session/" + sessionId, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
@@ -186,14 +187,14 @@ public class XmppSessionTests extends BaseXmppTests {
 		});
 
 		eventBus.send("xmpp/session/" + sessionId2 + "/roster:add-buddy",
-				new JsonObject().putString("user", user1.login + "@" + domainName));
+				new JsonObject().put("user", user1.login + "@" + domainName));
 
 		JsonObject state = null;
 		assertNotNull(state = waitAssert("session"));
 		assertEquals("presence", state.getString("category"));
 		assertEquals("subscribe", state.getString("action"));
-		assertNotNull(state.getObject("body"));
-		assertEquals(user2.login + "@" + domainName, state.getObject("body").getString("from"));
+		assertNotNull(state.getJsonObject("body"));
+		assertEquals(user2.login + "@" + domainName, state.getJsonObject("body").getString("from"));
 	}
 
 	@Test
@@ -205,7 +206,7 @@ public class XmppSessionTests extends BaseXmppTests {
 		String sessionId2 = login(user2);
 		initiateConnection(user2, sessionId2);
 
-		eventBus.registerHandler("xmpp/session/" + sessionId, new Handler<Message<JsonObject>>() {
+		eventBus.consumer("xmpp/session/" + sessionId, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
@@ -214,14 +215,14 @@ public class XmppSessionTests extends BaseXmppTests {
 		});
 
 		eventBus.send("xmpp/session/" + sessionId2 + ":ask-subscribe",
-				new JsonObject().putString("to", user1.login + "@" + domainName));
+				new JsonObject().put("to", user1.login + "@" + domainName));
 
 		JsonObject state = null;
 		assertNotNull(state = waitAssert("session"));
 		assertEquals("presence", state.getString("category"));
 		assertEquals("subscribe", state.getString("action"));
-		assertNotNull(state.getObject("body"));
-		assertEquals(user2.login + "@" + domainName, state.getObject("body").getString("from"));
+		assertNotNull(state.getJsonObject("body"));
+		assertEquals(user2.login + "@" + domainName, state.getJsonObject("body").getString("from"));
 	}
 
 	@Test
@@ -233,7 +234,7 @@ public class XmppSessionTests extends BaseXmppTests {
 		String sessionId2 = login(user2);
 		initiateConnection(user2, sessionId2);
 
-		eventBus.registerHandler("xmpp/session/" + sessionId, new Handler<Message<JsonObject>>() {
+		eventBus.consumer("xmpp/session/" + sessionId, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
@@ -241,7 +242,7 @@ public class XmppSessionTests extends BaseXmppTests {
 			}
 		});
 
-		eventBus.registerHandler("xmpp/session/" + sessionId2 + "/roster", new Handler<Message<JsonObject>>() {
+		eventBus.consumer("xmpp/session/" + sessionId2 + "/roster", new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
@@ -249,26 +250,27 @@ public class XmppSessionTests extends BaseXmppTests {
 			}
 		});
 		eventBus.send("xmpp/session/" + sessionId2 + "/roster:add-buddy",
-				new JsonObject().putString("user", user1.login + "@" + domainName));
+				new JsonObject().put("user", user1.login + "@" + domainName));
 
 		assertNotNull(waitAssert("session"));
 
 		// now we can accept sub
-		eventBus.send("xmpp/session/" + sessionId + ":accept-subscribe",
-				new JsonObject().putString("to", user2.login + "@" + domainName), new Handler<Message<JsonObject>>() {
+		eventBus.request("xmpp/session/" + sessionId + ":accept-subscribe",
+				new JsonObject().put("to", user2.login + "@" + domainName),
+				new Handler<AsyncResult<Message<JsonObject>>>() {
 
 					@Override
-					public void handle(Message<JsonObject> event) {
-						queueAssertValue("sub", event.body());
+					public void handle(AsyncResult<Message<JsonObject>> event) {
+						queueAssertValue("sub", event.result().body());
 					}
 				});
 
 		JsonObject resp = null;
 		assertNotNull((resp = waitAssert("sub")));
-		assertEquals(XmppSessionMessage.OK, resp.getNumber("status"));
+		assertEquals(XmppSessionMessage.OK, resp.getInteger("status"));
 
 		JsonObject rosterEvent = waitRosterAssert("rosterEvent", "presence");
-		assertEquals("available", rosterEvent.getObject("change").getString("subscription-type"));
+		assertEquals("available", rosterEvent.getJsonObject("change").getString("subscription-type"));
 
 	}
 
@@ -281,7 +283,7 @@ public class XmppSessionTests extends BaseXmppTests {
 		String sessionId2 = login(user2);
 		initiateConnection(user2, sessionId2);
 
-		eventBus.registerHandler("xmpp/session/" + sessionId, new Handler<Message<JsonObject>>() {
+		eventBus.consumer("xmpp/session/" + sessionId, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
@@ -289,7 +291,7 @@ public class XmppSessionTests extends BaseXmppTests {
 			}
 		});
 
-		eventBus.registerHandler("xmpp/session/" + sessionId2 + "/roster", new Handler<Message<JsonObject>>() {
+		eventBus.consumer("xmpp/session/" + sessionId2 + "/roster", new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
@@ -297,18 +299,19 @@ public class XmppSessionTests extends BaseXmppTests {
 			}
 		});
 		eventBus.send("xmpp/session/" + sessionId2 + "/roster:add-buddy",
-				new JsonObject().putString("user", user1.login + "@" + domainName));
+				new JsonObject().put("user", user1.login + "@" + domainName));
 
 		// user2 asked subscribe to user1
 		waitAssert("session");
 
 		// now we can accept sub
-		eventBus.send("xmpp/session/" + sessionId + ":accept-subscribe",
-				new JsonObject().putString("to", user2.login + "@" + domainName), new Handler<Message<JsonObject>>() {
+		eventBus.request("xmpp/session/" + sessionId + ":accept-subscribe",
+				new JsonObject().put("to", user2.login + "@" + domainName),
+				new Handler<AsyncResult<Message<JsonObject>>>() {
 
 					@Override
-					public void handle(Message<JsonObject> event) {
-						queueAssertValue("sub", event.body());
+					public void handle(AsyncResult<Message<JsonObject>> event) {
+						queueAssertValue("sub", event.result().body());
 					}
 				});
 
@@ -320,19 +323,21 @@ public class XmppSessionTests extends BaseXmppTests {
 		waitRosterAssert("rosterEvent", "presence");
 
 		// now we can discard sub
-		eventBus.send("xmpp/session/" + sessionId + ":discard-subscribe",
-				new JsonObject().putString("to", user2.login + "@" + domainName), new Handler<Message<JsonObject>>() {
+		eventBus.request("xmpp/session/" + sessionId + ":discard-subscribe",
+				new JsonObject().put("to", user2.login + "@" + domainName),
+				new Handler<AsyncResult<Message<JsonObject>>>() {
 
 					@Override
-					public void handle(Message<JsonObject> event) {
-						queueAssertValue("sub", event.body());
+					public void handle(AsyncResult<Message<JsonObject>> event) {
+						queueAssertValue("sub", event.result().body());
 					}
 				});
 
 		// now user1 should be unavailable to user2
 		// wait for roster of user2 update
 		JsonObject rosterEvent = waitRosterAssert("rosterEvent", "entries-updated");
-		assertEquals(user1.login + "@" + domainName, rosterEvent.getObject("change").getArray("entries").get(0));
+		assertEquals(user1.login + "@" + domainName,
+				rosterEvent.getJsonObject("change").getJsonArray("entries").getValue(0));
 	}
 
 	private JsonObject waitRosterAssert(String key, String type) {
@@ -342,8 +347,8 @@ public class XmppSessionTests extends BaseXmppTests {
 		while (true) {
 			rosterEvent = waitAssert(key);
 			System.out.println(rosterEvent);
-			assertNotNull(rosterEvent.getObject("change"));
-			if (type.equals(rosterEvent.getObject("change").getString("type"))) {
+			assertNotNull(rosterEvent.getJsonObject("change"));
+			if (type.equals(rosterEvent.getJsonObject("change").getString("type"))) {
 				break;
 			}
 		}

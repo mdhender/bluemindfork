@@ -32,17 +32,18 @@ import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.busmods.BusModBase;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.node.shared.ExecRequest;
 import net.bluemind.node.shared.ExecRequest.Options;
 
-public class SysCommand extends BusModBase {
+public class SysCommand extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(SysCommand.class);
 
@@ -51,7 +52,7 @@ public class SysCommand extends BusModBase {
 	private static final AtomicLong pid = new AtomicLong();
 
 	public void start() {
-		super.start();
+		EventBus eb = vertx.eventBus();
 		Handler<Message<JsonObject>> crHandler = new Handler<Message<JsonObject>>() {
 
 			@Override
@@ -59,7 +60,7 @@ public class SysCommand extends BusModBase {
 				newRequest(event);
 			}
 		};
-		eb.registerHandler("cmd.request", crHandler);
+		eb.consumer("cmd.request", crHandler);
 
 		Handler<Message<JsonObject>> csHandler = new Handler<Message<JsonObject>>() {
 
@@ -68,7 +69,7 @@ public class SysCommand extends BusModBase {
 				reqStatus(event);
 			}
 		};
-		eb.registerHandler("cmd.status", csHandler);
+		eb.consumer("cmd.status", csHandler);
 
 		Handler<Message<JsonObject>> stopHandler = new Handler<Message<JsonObject>>() {
 
@@ -78,7 +79,7 @@ public class SysCommand extends BusModBase {
 			}
 
 		};
-		eb.registerHandler("cmd.interrupt", stopHandler);
+		eb.consumer("cmd.interrupt", stopHandler);
 
 		Handler<Message<JsonObject>> queryHandler = new Handler<Message<JsonObject>>() {
 
@@ -87,7 +88,7 @@ public class SysCommand extends BusModBase {
 				executions(event);
 			}
 		};
-		eb.registerHandler("cmd.executions", queryHandler);
+		eb.consumer("cmd.executions", queryHandler);
 
 		setupStaleWatcher();
 	}
@@ -123,7 +124,7 @@ public class SysCommand extends BusModBase {
 	private void interrupt(Message<JsonObject> event) {
 		JsonObject interruptReq = event.body();
 		logger.info("INTERRUPT {}", interruptReq.encodePrettily());
-		long pid = interruptReq.getNumber("pid", 0).longValue();
+		long pid = interruptReq.getLong("pid", 0L);
 		interrupt(pid);
 		event.reply(new JsonObject());
 	}
@@ -150,18 +151,18 @@ public class SysCommand extends BusModBase {
 		logger.info("req: {}", req.encodePrettily());
 		JsonObject js = new JsonObject();
 		JsonArray execs = new JsonArray();
-		js.putArray("descriptors", execs);
+		js.put("descriptors", execs);
 		String group = req.getString("group");
 		String name = req.getString("name");
 		Predicate<RunningCommand> match = matcher(group, name);
 
 		active.values().stream().filter(match).forEach(cmd -> {
 			JsonObject desc = new JsonObject();
-			desc.putString("group", cmd.group);
-			desc.putString("name", cmd.name);
-			desc.putString("command", cmd.cmd);
-			desc.putString("pid", Long.toString(cmd.getPid()));
-			execs.addObject(desc);
+			desc.put("group", cmd.group);
+			desc.put("name", cmd.name);
+			desc.put("command", cmd.cmd);
+			desc.put("pid", Long.toString(cmd.getPid()));
+			execs.add(desc);
 		});
 		event.reply(js);
 	}
@@ -189,7 +190,7 @@ public class SysCommand extends BusModBase {
 		long rid;
 
 		public WsEndpoint write(String kind, JsonObject js) {
-			js.putNumber("ws-rid", rid).putString("kind", kind);
+			js.put("ws-rid", rid).put("kind", kind);
 			VertxPlatform.eventBus().send(writeAddress, js.encode());
 			return this;
 		}
@@ -203,13 +204,13 @@ public class SysCommand extends BusModBase {
 		JsonObject jso = event.body();
 		logger.info("run: {}", jso.encodePrettily());
 		String cmd = jso.getString("command");
-		JsonArray optionsJs = jso.getArray("options");
+		JsonArray optionsJs = jso.getJsonArray("options");
 		Set<Options> options = new HashSet<>();
 		if (optionsJs != null) {
 			for (int i = 0; i < optionsJs.size(); i++) {
-				options.add(ExecRequest.Options.valueOf(optionsJs.get(i)));
+				options.add(ExecRequest.Options.valueOf(optionsJs.getString(i)));
 			}
-		} else if (jso.containsField("withOutput")) {
+		} else if (jso.containsKey("withOutput")) {
 			// the old execute request format
 			boolean recordOutput = jso.getBoolean("withOutput");
 			if (!recordOutput) {
@@ -247,26 +248,26 @@ public class SysCommand extends BusModBase {
 		RunningCommand rc = active.get(pid);
 		JsonObject rep = new JsonObject();
 		if (rc == null) {
-			rep.putBoolean("complete", true);
-			rep.putBoolean("successful", true);
+			rep.put("complete", true);
+			rep.put("successful", true);
 			logger.warn("Status on expired command {}", pid);
 		} else {
 			Integer ev = rc.getExitValue();
 			boolean comp = ev != null;
-			rep.putBoolean("complete", comp);
+			rep.put("complete", comp);
 			if (comp) {
 				logger.info("[{}] finished, exitCode: {}", pid, ev);
-				rep.putNumber("exitCode", ev);
+				rep.put("exitCode", ev);
 				active.remove(pid);
 				// that's what ncutils.waitFor expects
-				rep.putBoolean("successful", true);
+				rep.put("successful", true);
 			} else {
-				rep.putBoolean("successful", false);
+				rep.put("successful", false);
 			}
 			rc.setLastCheck(System.currentTimeMillis());
 			JsonArray out = rc.drainOutput();
 			logger.debug("Drained {} output lines.", out.size());
-			rep.putArray("output", out);
+			rep.put("output", out);
 		}
 		event.reply(rep);
 	}
@@ -306,7 +307,7 @@ public class SysCommand extends BusModBase {
 			Process proc = ps.start();
 			rc.setProcess(proc);
 			if (wsEP != null) {
-				wsEP.write("start", new JsonObject().putNumber("task", procId));
+				wsEP.write("start", new JsonObject().put("task", procId));
 			}
 			boolean recordOutput = !options.contains(Options.DISCARD_OUTPUT);
 			final StdoutPump pump = new StdoutPump(proc, rc, recordOutput, wsEP);

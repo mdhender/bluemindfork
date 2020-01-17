@@ -18,9 +18,8 @@
  */
 package net.bluemind.core.task.service.internal;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.EventBus;
-
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.EventBus;
 import net.bluemind.core.task.service.AbstractTaskMonitor;
 import net.bluemind.core.task.service.LoggingTaskMonitor;
 

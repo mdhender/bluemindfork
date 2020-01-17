@@ -19,15 +19,16 @@ package net.bluemind.network.topology.consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Verticle;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Producer;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
-public class ConsumerStart extends Verticle {
+public class ConsumerStart extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(ConsumerStart.class);
 
@@ -48,12 +49,12 @@ public class ConsumerStart extends Verticle {
 	@Override
 	public void start() {
 		MQ.init(() -> {
-			Producer prod = MQ.registerProducer("topology.requests");
 			TopologyConsumer consumer = new TopologyConsumer();
 			MQ.registerConsumer("topology.updates", consumer);
 			String jvmId = System.getProperty("net.bluemind.property.product", "unknown-jvm");
 			logger.info("Consumer registered on topology.updates, requesting changes for {}", jvmId);
-			prod.send(new JsonObject().putString("origin", jvmId));
+			Producer prod = MQ.registerProducer("topology.requests");
+			prod.send(new JsonObject().put("origin", jvmId));
 		});
 	}
 

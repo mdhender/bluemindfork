@@ -26,12 +26,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.streams.Pump;
-import org.vertx.java.core.streams.ReadStream;
 
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.Pump;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -57,14 +57,14 @@ public class RestStreamServiceTests {
 		}
 	}
 
-	private static class GenericReadStream implements ReadStream<GenericReadStream> {
+	private static class GenericReadStream implements ReadStream<Buffer> {
 
 		private Handler<Buffer> dataHandler;
 		private Handler<Void> endHandler;
 		private int count;
 		private boolean ended;
 		private boolean paused;
-		private Buffer content = new Buffer();
+		private Buffer content = Buffer.buffer();
 		private int size;
 		private int packetSize;
 
@@ -74,7 +74,7 @@ public class RestStreamServiceTests {
 		}
 
 		@Override
-		public GenericReadStream dataHandler(Handler<Buffer> handler) {
+		public GenericReadStream handler(Handler<Buffer> handler) {
 			this.dataHandler = handler;
 
 			if (!paused) {
@@ -115,7 +115,7 @@ public class RestStreamServiceTests {
 			for (int i = 0; i < packetSize; i++) {
 				v += (count % 9);
 			}
-			return new Buffer(v);
+			return Buffer.buffer(v);
 		}
 
 		@Override
@@ -146,6 +146,11 @@ public class RestStreamServiceTests {
 			return this;
 		}
 
+		@Override
+		public ReadStream<Buffer> fetch(long amount) {
+			return this;
+		}
+
 	}
 
 	@Test
@@ -162,7 +167,7 @@ public class RestStreamServiceTests {
 		long time = System.nanoTime();
 		Stream out = service.inout(VertxStream.stream(stream));
 
-		final ReadStream<?> readStream = VertxStream.read(out);
+		final ReadStream<Buffer> readStream = VertxStream.read(out);
 
 		Handler<Void> endHandler = new Handler<Void>() {
 
@@ -174,7 +179,7 @@ public class RestStreamServiceTests {
 		};
 		readStream.endHandler(endHandler);
 
-		Pump.createPump(readStream, accu).start();
+		Pump.pump(readStream, accu).start();
 		// readStream.resume();
 
 		assertTrue(latch.await(4, TimeUnit.SECONDS));
@@ -201,7 +206,7 @@ public class RestStreamServiceTests {
 				count++;
 				String v = "" + (count % 10);
 				sb.append(v);
-				stream.queue(new Buffer(v));
+				stream.queue(Buffer.buffer(v));
 
 				if (count > 5) {
 					stream.end();
@@ -257,7 +262,7 @@ public class RestStreamServiceTests {
 		final AccumulatorStream accu = new AccumulatorStream();
 
 		final CountDownLatch latch = new CountDownLatch(1);
-		final ReadStream<?> readStream = VertxStream.read(streamOut);
+		final ReadStream<Buffer> readStream = VertxStream.read(streamOut);
 
 		Handler<Void> endHandler = new Handler<Void>() {
 
@@ -269,7 +274,7 @@ public class RestStreamServiceTests {
 		};
 		readStream.endHandler(endHandler);
 
-		Pump.createPump(readStream, accu).start();
+		Pump.pump(readStream, accu).start();
 		assertTrue(latch.await(5, TimeUnit.SECONDS));
 
 		assertEquals(sb.toString(), accu.buffer().toString());
@@ -284,7 +289,7 @@ public class RestStreamServiceTests {
 
 		Stream in = service.in();
 
-		final ReadStream<?> readStream = VertxStream.read(in);
+		final ReadStream<Buffer> readStream = VertxStream.read(in);
 
 		Handler<Void> endHandler = new Handler<Void>() {
 
@@ -296,7 +301,7 @@ public class RestStreamServiceTests {
 		};
 		readStream.endHandler(endHandler);
 
-		Pump.createPump(readStream, accu).start();
+		Pump.pump(readStream, accu).start();
 		// readStream.resume();
 
 		latch.await();
@@ -322,7 +327,7 @@ public class RestStreamServiceTests {
 				count++;
 				String v = "" + (count % 10);
 				sb.append(v);
-				stream.queue(new Buffer(v));
+				stream.queue(Buffer.buffer(v));
 
 				if (count > 25) {
 					stream.end();

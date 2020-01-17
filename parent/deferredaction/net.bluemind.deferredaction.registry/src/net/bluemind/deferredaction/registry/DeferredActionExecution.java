@@ -25,9 +25,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.platform.Verticle;
 
-public class DeferredActionExecution extends Verticle {
+import io.vertx.core.AbstractVerticle;
+
+public class DeferredActionExecution extends AbstractVerticle {
 
 	private static final Executor executor = Executors.newSingleThreadExecutor();
 	private static final Logger logger = LoggerFactory.getLogger(DeferredActionExecution.class);

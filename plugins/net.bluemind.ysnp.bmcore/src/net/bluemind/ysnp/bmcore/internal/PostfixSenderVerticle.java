@@ -19,14 +19,14 @@ package net.bluemind.ysnp.bmcore.internal;
 
 import java.util.concurrent.TimeUnit;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.net.NetServer;
-import org.vertx.java.core.net.NetSocket;
-import org.vertx.java.core.parsetools.RecordParser;
-import org.vertx.java.platform.Verticle;
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.net.NetServer;
+import io.vertx.core.net.NetSocket;
+import io.vertx.core.parsetools.RecordParser;
 
-public class PostfixSenderVerticle extends Verticle {
+public class PostfixSenderVerticle extends AbstractVerticle {
 
 	private class SmtpdSenderRestrictionsBuffer implements Handler<Buffer> {
 		private final long IDLE_TIMEOUT = TimeUnit.HOURS.toMillis(1);
@@ -62,7 +62,7 @@ public class PostfixSenderVerticle extends Verticle {
 				SmtpdSenderRestrictionsBuffer ssrb = new SmtpdSenderRestrictionsBuffer(event);
 				ssrb.setTimeout();
 
-				event.dataHandler(RecordParser.newDelimited("\n", ssrb));
+				event.handler(RecordParser.newDelimited("\n", ssrb));
 			}
 		});
 

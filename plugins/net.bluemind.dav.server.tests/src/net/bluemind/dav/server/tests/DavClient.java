@@ -8,11 +8,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLSession;
-
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClientConfig;
+import org.asynchttpclient.Realm;
+import org.asynchttpclient.Realm.AuthScheme;
+import org.asynchttpclient.Request;
+import org.asynchttpclient.RequestBuilder;
+import org.asynchttpclient.Response;
+import org.asynchttpclient.request.body.generator.InputStreamBodyGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -21,14 +28,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.google.common.base.Throwables;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClientConfig;
-import com.ning.http.client.Realm;
-import com.ning.http.client.Realm.AuthScheme;
-import com.ning.http.client.Request;
-import com.ning.http.client.RequestBuilder;
-import com.ning.http.client.Response;
-import com.ning.http.client.generators.InputStreamBodyGenerator;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -41,20 +40,9 @@ public class DavClient {
 	private static final Logger logger = LoggerFactory.getLogger(DavClient.class);
 
 	private static final AsyncHttpClient newClient(String login, String password) {
-		Realm realm = new Realm.RealmBuilder().setPrincipal(login).setPassword(password).setUsePreemptiveAuth(true)
-				.setScheme(AuthScheme.BASIC).build();
-
-		AsyncHttpClientConfig config = new AsyncHttpClientConfig.Builder().setFollowRedirect(false).setMaxRedirects(0)
-				.setPooledConnectionIdleTimeout(60000).setMaxRequestRetry(0).setRequestTimeout(30000).setRealm(realm)
-				.setAllowPoolingConnections(true).setAllowPoolingSslConnections(true)
-				.setHostnameVerifier(new HostnameVerifier() {
-
-					@Override
-					public boolean verify(String hostname, SSLSession session) {
-						return true;
-					}
-				}).setAcceptAnyCertificate(true).build();
-		AsyncHttpClient client = new AsyncHttpClient(config);
+		Realm realm = new Realm.Builder(login, password).setUsePreemptiveAuth(true).setScheme(AuthScheme.BASIC).build();
+		DefaultAsyncHttpClientConfig conf = new DefaultAsyncHttpClientConfig.Builder().setRealm(realm).build();
+		AsyncHttpClient client = new DefaultAsyncHttpClient(conf);
 		return client;
 	}
 
@@ -93,9 +81,8 @@ public class DavClient {
 			Response r = client.executeRequest(req).get();
 			time = System.currentTimeMillis() - time;
 			logger.info("S[{}]: {} {} in {}ms.", rid, r.getStatusCode(), r.getStatusText(), time);
-			for (String hn : r.getHeaders().keySet()) {
-				String hv = r.getHeader(hn);
-				logger.info("S[{}]: HEADER {}: {}", rid, hn, hv);
+			for (Entry<String, String> hn : r.getHeaders().entries()) {
+				logger.info("S[{}]: HEADER {}: {}", rid, hn.getKey(), hn.getValue());
 			}
 			String ct = r.getContentType();
 			if (ct != null && (ct.startsWith("text/") || ct.contains("/xml"))) {
@@ -122,10 +109,8 @@ public class DavClient {
 			rb.addHeader("Depth", depth.toString());
 		}
 		if (template.endsWith(".xml")) {
-			rb.setBodyEncoding("utf-8");
 			rb.setHeader("Content-Type", "text/xml");
 		} else if (template.endsWith(".ics")) {
-			rb.setBodyEncoding("utf-8");
 			rb.setHeader("Content-Type", "text/calendar");
 		} else {
 			logger.error("Missing type for {}", template);
@@ -211,11 +196,7 @@ public class DavClient {
 	public String get(String href) {
 		RequestBuilder theReq = req("GET", href);
 		Response response = run(theReq.build());
-		try {
-			return response.getResponseBody();
-		} catch (IOException e) {
-			throw Throwables.propagate(e);
-		}
+		return response.getResponseBody();
 	}
 
 	public List<String> listAddressbooks(UserResources res) {
@@ -262,7 +243,11 @@ public class DavClient {
 	public synchronized void close() {
 		if (!closed) {
 			closed = true;
-			client.close();
+			try {
+				client.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

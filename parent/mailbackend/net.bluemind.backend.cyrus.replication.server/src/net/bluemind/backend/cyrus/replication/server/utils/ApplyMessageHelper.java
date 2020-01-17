@@ -24,11 +24,11 @@ import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.buffer.Buffer;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.backend.cyrus.replication.server.Token;
 import net.bluemind.backend.cyrus.replication.server.state.MailboxMessage;
 import net.bluemind.backend.cyrus.replication.server.state.MailboxMessage.MailboxMessageBuilder;
@@ -76,7 +76,7 @@ public class ApplyMessageHelper {
 			builder.partition(partition);
 			builder.guid(guid);
 			builder.length(len);
-			builder.content(Token.of(new Buffer(tokRef), false, null));
+			builder.content(Token.of(Buffer.buffer(tokRef), false, null));
 			return builder.build();
 		}).filter(Objects::nonNull).collect(Collectors.toList());
 

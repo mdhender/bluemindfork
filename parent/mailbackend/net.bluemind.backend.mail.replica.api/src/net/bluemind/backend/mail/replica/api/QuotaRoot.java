@@ -24,8 +24,7 @@ package net.bluemind.backend.mail.replica.api;
 
 import java.math.BigInteger;
 
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")

@@ -20,15 +20,14 @@ package net.bluemind.node.client.impl.ahc;
 
 import java.io.IOException;
 
+import org.asynchttpclient.AsyncHandler;
+import org.asynchttpclient.BoundRequestBuilder;
+import org.asynchttpclient.HttpResponseBodyPart;
+import org.asynchttpclient.HttpResponseStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ning.http.client.AsyncHandler;
-import com.ning.http.client.AsyncHttpClient.BoundRequestBuilder;
-import com.ning.http.client.HttpResponseBodyPart;
-import com.ning.http.client.HttpResponseHeaders;
-import com.ning.http.client.HttpResponseStatus;
-
+import io.netty.handler.codec.http.HttpHeaders;
 import net.bluemind.common.io.FileBackedOutputStream;
 
 public abstract class DefaultAsyncHandler<T> implements AsyncHandler<T> {
@@ -38,7 +37,7 @@ public abstract class DefaultAsyncHandler<T> implements AsyncHandler<T> {
 	protected final FileBackedOutputStream body;
 	protected int status;
 
-	private HttpResponseHeaders headers;
+	private HttpHeaders headers;
 
 	protected DefaultAsyncHandler(boolean bodyExpected) {
 		if (bodyExpected) {
@@ -61,25 +60,24 @@ public abstract class DefaultAsyncHandler<T> implements AsyncHandler<T> {
 	}
 
 	@Override
-	public com.ning.http.client.AsyncHandler.STATE onBodyPartReceived(HttpResponseBodyPart bodyPart) throws Exception {
+	public State onBodyPartReceived(HttpResponseBodyPart bodyPart) throws Exception {
 		if (body != null) {
-			bodyPart.writeTo(body);
+			body.write(bodyPart.getBodyPartBytes());
 		}
-		return STATE.CONTINUE;
+		return State.CONTINUE;
 	}
 
 	@Override
-	public com.ning.http.client.AsyncHandler.STATE onStatusReceived(HttpResponseStatus responseStatus)
-			throws Exception {
+	public State onStatusReceived(HttpResponseStatus responseStatus) throws Exception {
 		this.status = responseStatus.getStatusCode();
 		logger.debug("status: {}", status);
-		return STATE.CONTINUE;
+		return State.CONTINUE;
 	}
 
 	@Override
-	public com.ning.http.client.AsyncHandler.STATE onHeadersReceived(HttpResponseHeaders headers) throws Exception {
+	public State onHeadersReceived(HttpHeaders headers) throws Exception {
 		this.headers = headers;
-		return STATE.CONTINUE;
+		return State.CONTINUE;
 	}
 
 	@Override
@@ -91,7 +89,7 @@ public abstract class DefaultAsyncHandler<T> implements AsyncHandler<T> {
 		return getResult(status, headers, body);
 	}
 
-	protected abstract T getResult(int status, HttpResponseHeaders headers, FileBackedOutputStream body);
+	protected abstract T getResult(int status, HttpHeaders headers, FileBackedOutputStream body);
 
 	public BoundRequestBuilder prepare(BoundRequestBuilder rb) {
 		return rb;

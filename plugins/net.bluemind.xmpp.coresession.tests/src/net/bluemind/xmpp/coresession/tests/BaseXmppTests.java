@@ -25,11 +25,13 @@ import java.util.Arrays;
 
 import org.junit.After;
 import org.junit.Before;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.authentication.api.IAuthentication;
@@ -121,34 +123,33 @@ public class BaseXmppTests extends AsyncTestMethods {
 	}
 
 	protected void initiateConnection(User user, final String sessionId, boolean handlePing) {
-
+		MessageConsumer<JsonObject> cons = eventBus.consumer("xmpp/session/" + sessionId);
 		Handler<Message<JsonObject>> sessionHandler = new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
-				eventBus.unregisterHandler("xmpp/session/" + sessionId, this);
+				cons.unregister();
 				queueAssertValue("session", event.body());
 			}
 		};
-
-		eventBus.registerHandler("xmpp/session/" + sessionId, sessionHandler);
+		cons.handler(sessionHandler);
 
 		if (handlePing) {
-			eventBus.registerHandler("xmpp/session/" + sessionId + "/ping", new Handler<Message<Void>>() {
+			eventBus.consumer("xmpp/session/" + sessionId + "/ping", new Handler<Message<Void>>() {
 
 				@Override
 				public void handle(Message<Void> event) {
-					event.reply();
+					event.reply("yeah");
 				}
 			});
 		}
 		eventBus.send("xmpp/sessions-manager:open",
-				new JsonObject().putString("sessionId", sessionId).putString("latd", user.login + "@" + domainName),
-				new Handler<Message<Void>>() {
+				new JsonObject().put("sessionId", sessionId).put("latd", user.login + "@" + domainName),
+				new Handler<AsyncResult<Message<Void>>>() {
 
 					@Override
-					public void handle(Message<Void> event) {
-						queueAssertValue("conn", event.body());
+					public void handle(AsyncResult<Message<Void>> event) {
+						queueAssertValue("conn", event.result().body());
 					}
 				});
 
@@ -157,7 +158,7 @@ public class BaseXmppTests extends AsyncTestMethods {
 		JsonObject sessionObject = waitAssert("session");
 		assertNotNull(sessionObject);
 
-		eventBus.unregisterHandler("xmpp/session/" + sessionId, sessionHandler);
+		cons.unregister();
 	}
 
 	private ItemValue<User> defaultUser(String login) {

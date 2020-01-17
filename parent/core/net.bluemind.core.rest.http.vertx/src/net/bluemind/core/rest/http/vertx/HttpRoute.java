@@ -22,9 +22,10 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.RouteMatcher;
+
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServerRequest;
+import net.bluemind.lib.vertx.RouteMatcher;
 
 public class HttpRoute {
 

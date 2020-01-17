@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
@@ -1367,11 +1368,16 @@ public class VEventServiceTests extends AbstractCalendarTests {
 	}
 
 	private ImportStats waitImportEnd(TaskRef taskRef) throws ServerFault {
+		long end = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(1);
 		ITask task = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ITask.class, taskRef.id);
 		while (!task.status().state.ended) {
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
+				throw new ServerFault("interrupted");
+			}
+			if (System.currentTimeMillis() > end) {
+				throw new ServerFault("import took more than 1min");
 			}
 		}
 

@@ -34,10 +34,10 @@ import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.collect.Lists;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.api.Count;
 import net.bluemind.core.container.api.IContainersFlatHierarchy;
@@ -57,7 +57,6 @@ import net.bluemind.exchange.mapi.api.IMapiMailbox;
 import net.bluemind.exchange.mapi.api.MapiFolder;
 import net.bluemind.exchange.mapi.api.MapiRawMessage;
 import net.bluemind.exchange.mapi.api.MapiReplica;
-import net.bluemind.lib.vertx.Constructor;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.locator.LocatorVerticle;
 import net.bluemind.mailbox.api.IMailboxes;
@@ -82,7 +81,7 @@ public class MapiFolderServiceTests {
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
 
-		Deploy.verticles(false, Constructor.of(LocatorVerticle::new, LocatorVerticle.class)).get(5, TimeUnit.SECONDS);
+		Deploy.verticles(false, LocatorVerticle::new).get(5, TimeUnit.SECONDS);
 
 		BmConfIni ini = new BmConfIni();
 
@@ -168,7 +167,7 @@ public class MapiFolderServiceTests {
 	public void testCrud() throws Exception {
 		MapiRawMessage raw = new MapiRawMessage();
 		String dn = "xxx" + System.currentTimeMillis();
-		JsonObject js = new JsonObject().putString("PidTagDisplayName", dn);
+		JsonObject js = new JsonObject().put("PidTagDisplayName", dn);
 		raw.contentJson = js.encode();
 		IMapiFolder api = mapiFolderApi();
 		IdRange oneId = mapiOfflineApi().allocateOfflineIds(1);
@@ -179,7 +178,7 @@ public class MapiFolderServiceTests {
 		assertEquals(found.version, version.version);
 		String upd = "ggg" + System.currentTimeMillis();
 
-		js.putString("updated", upd);
+		js.put("updated", upd);
 		System.err.print("js: " + js.encode());
 		System.err.println("found: " + found);
 		found.value.contentJson = js.encode();

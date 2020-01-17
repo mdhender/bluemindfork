@@ -36,12 +36,12 @@ import java.util.concurrent.TimeoutException;
 import org.apache.james.mime4j.dom.Message;
 import org.junit.Assert;
 import org.junit.Test;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.io.ByteStreams;
 
 import io.netty.buffer.ByteBufUtil;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.mail.api.DispositionType;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.MessageBody.Part;
@@ -60,7 +60,7 @@ public class BodyStreamProcessorTests {
 		InputStream inputStream = AbstractReplicatedMailboxesServiceTests.class.getClassLoader()
 				.getResourceAsStream(path);
 		Objects.requireNonNull(inputStream, "Failed to open resource @ " + path);
-		Buffer buf = new Buffer(ByteStreams.toByteArray(inputStream));
+		Buffer buf = Buffer.buffer(ByteStreams.toByteArray(inputStream));
 		inputStream.close();
 		return VertxStream.stream(buf);
 	}

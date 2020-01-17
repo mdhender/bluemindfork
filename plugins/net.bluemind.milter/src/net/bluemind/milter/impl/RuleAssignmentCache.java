@@ -24,16 +24,16 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailflow.api.IMailflowRules;
 import net.bluemind.mailflow.api.MailRuleActionAssignment;
 import net.bluemind.mailflow.rbe.IClientContext;
 import net.bluemind.milter.mq.MilterMessageForwarder;
 
-public class RuleAssignmentCache extends Verticle {
+public class RuleAssignmentCache extends AbstractVerticle {
 
 	private static Map<String, List<MailRuleActionAssignment>> cache = new ConcurrentHashMap<>();
 
@@ -42,7 +42,7 @@ public class RuleAssignmentCache extends Verticle {
 	@Override
 	public void start() {
 		logger.info("Registering rule assignment cache listener");
-		VertxPlatform.eventBus().registerHandler(MilterMessageForwarder.eventAddressChanged, (message) -> {
+		VertxPlatform.eventBus().consumer(MilterMessageForwarder.eventAddressChanged, (message) -> {
 			String domainUid = ((JsonObject) message.body()).getString("domainUid");
 			logger.info("Invalidating rule assignment cache for domain {}", domainUid);
 			cache.remove(domainUid);

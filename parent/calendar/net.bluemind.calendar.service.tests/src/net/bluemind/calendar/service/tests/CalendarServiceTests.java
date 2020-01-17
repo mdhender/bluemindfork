@@ -44,11 +44,11 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.collect.ImmutableMap;
 
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventChanges;
@@ -1499,20 +1499,20 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 	}
 
-	@Test
+	@Test(timeout = 360000)
 	public void testParallel() throws Exception {
 
 		ExecutorService ee = Executors.newFixedThreadPool(20);
 
 		LinkedList<Future<?>> futures = new LinkedList<>();
-		int EXECS = 10000;
-		CompletableFuture<?>[] creates = new CompletableFuture<?>[EXECS];
-		CompletableFuture<?>[] updates = new CompletableFuture<?>[EXECS];
-		for (int i = 0; i < EXECS; i++) {
-			creates[i] = new CompletableFuture<Void>();
-			updates[i] = new CompletableFuture<Void>();
+		int execs = 1000;
+		CompletableFuture<?>[] creates = new CompletableFuture<?>[execs];
+		CompletableFuture<?>[] updates = new CompletableFuture<?>[execs];
+		for (int i = 0; i < execs; i++) {
+			creates[i] = new CompletableFuture<>();
+			updates[i] = new CompletableFuture<>();
 		}
-		for (int i = 0; i < EXECS; i++) {
+		for (int i = 0; i < execs; i++) {
 			final int t = i;
 			Future<?> futre = ee.submit(new Runnable() {
 

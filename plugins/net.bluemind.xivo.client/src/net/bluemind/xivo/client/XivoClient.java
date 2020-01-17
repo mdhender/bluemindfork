@@ -18,13 +18,12 @@
  */
 package net.bluemind.xivo.client;
 
+import org.asynchttpclient.BoundRequestBuilder;
+import org.asynchttpclient.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
 
-import com.ning.http.client.AsyncHttpClient.BoundRequestBuilder;
-import com.ning.http.client.Response;
-
+import io.vertx.core.json.JsonObject;
 import net.bluemind.xivo.client.impl.AHCHelper;
 import net.bluemind.xivo.common.Auth;
 
@@ -65,7 +64,7 @@ public final class XivoClient {
 		String url = url().append("dnd/").append(domain).append('/').append(login).append('/').toString();
 
 		JsonObject jso = new JsonObject();
-		jso.putBoolean("state", doNotDisturb);
+		jso.put("state", doNotDisturb);
 
 		try {
 			Response resp = post(url, jso).execute().get();
@@ -83,7 +82,7 @@ public final class XivoClient {
 		String url = url().append("dial/").append(domain).append('/').append(login).append('/').toString();
 
 		JsonObject jso = new JsonObject();
-		jso.putString("number", phoneNumber);
+		jso.put("number", phoneNumber);
 
 		try {
 			logger.info("Dialing {} for user {}@{}...", phoneNumber, login, domain);
@@ -136,9 +135,7 @@ public final class XivoClient {
 		String url = url().append("uncForward/").append(domain).append('/').append(login).append('/').toString();
 
 		boolean enabled = !phoneNumber.isEmpty();
-		JsonObject jso = new JsonObject();
-		jso.putString("destination", phoneNumber);
-		jso.putBoolean("state", enabled);
+		JsonObject jso = new JsonObject().put("destination", phoneNumber).put("state", enabled);
 
 		try {
 			logger.info("Forward {} for user {}@{}...", enabled ? phoneNumber : "disabled", login, domain);

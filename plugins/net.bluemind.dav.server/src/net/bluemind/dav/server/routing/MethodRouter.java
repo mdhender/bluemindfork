@@ -23,8 +23,10 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.http.HttpServerRequest;
 
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServerRequest;
+import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.dav.server.proto.DavMethod;
 import net.bluemind.dav.server.proto.IDavProtocol;
 import net.bluemind.dav.server.proto.IProtocolFactory;
@@ -36,8 +38,10 @@ import net.bluemind.dav.server.store.DavResource;
 import net.bluemind.dav.server.store.DavStore;
 import net.bluemind.dav.server.store.LoggedCore;
 import net.bluemind.dav.server.store.ResType;
+import net.bluemind.network.topology.Topology;
+import net.bluemind.vertx.common.http.BasicAuthHandler.AuthenticatedRequest;
 
-public final class MethodRouter implements IPostAuthHandler {
+public final class MethodRouter implements Handler<AuthenticatedRequest> {
 
 	private final DavMethod<UnknownQuery, UnknownResponse> notimplemented = new DavMethod<>(new MissingProtocol());
 	private static final Logger logger = LoggerFactory.getLogger(MethodRouter.class);
@@ -136,9 +140,14 @@ public final class MethodRouter implements IPostAuthHandler {
 		return this;
 	}
 
-	@Override
+	public void handle(AuthenticatedRequest r) {
+		String coreBase = "http://" + Topology.get().core().value.address() + ":8090";
+		ClientSideServiceProvider sp = ClientSideServiceProvider.getProvider(coreBase, r.sid);
+		handle(new LoggedCore(sp), r.req);
+	}
+
 	public void handle(LoggedCore lc, HttpServerRequest r) {
-		String method = r.method();
+		String method = r.rawMethod();
 		DavStore ds = new DavStore(lc);
 		DavResource res = ds.from(r.path());
 		if (!"CREATE".equals(method) && !"MKCALENDAR".equals(method) && !ds.existingResource(res)) {

@@ -23,13 +23,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.vertx.java.core.json.JsonObject;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
@@ -107,7 +106,7 @@ public class ProfileInfosCommand implements ICmdLet, Runnable {
 					.collect(Collectors.toList());
 			ctx.info("FAIs found for replica " + parsedReplica + " => " + allFais.size() + " message(s)");
 			for (ItemValue<MapiFAI> fai : allFais) {
-				JsonObject content = new JsonObject(fai.value.faiJson).getObject("setProperties");
+				JsonObject content = new JsonObject(fai.value.faiJson).getJsonObject("setProperties");
 				String mClass = content.getString("PidTagMessageClass");
 				ctx.info("\t* FAI " + mClass + " in folder " + fai.value.folderId);
 			}

@@ -18,13 +18,14 @@
  */
 package net.bluemind.core.rest.tests.services;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.streams.WriteStream;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.WriteStream;
 
-public class AccumulatorStream implements WriteStream<AccumulatorStream> {
+public class AccumulatorStream implements WriteStream<Buffer> {
 
-	private Buffer buffer = new Buffer();
+	private Buffer buffer = Buffer.buffer();
 
 	@Override
 	public AccumulatorStream exceptionHandler(Handler<Throwable> handler) {
@@ -55,5 +56,21 @@ public class AccumulatorStream implements WriteStream<AccumulatorStream> {
 
 	public Buffer buffer() {
 		return buffer;
+	}
+
+	@Override
+	public WriteStream<Buffer> write(Buffer data, Handler<AsyncResult<Void>> handler) {
+		write(data);
+		handler.handle(null);
+		return this;
+	}
+
+	@Override
+	public void end() {
+	}
+
+	@Override
+	public void end(Handler<AsyncResult<Void>> handler) {
+		handler.handle(null);
 	}
 }

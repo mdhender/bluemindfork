@@ -35,12 +35,13 @@ import org.elasticsearch.client.transport.TransportClient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.SettableFuture;
 
+import io.vertx.core.AsyncResult;
 import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
@@ -79,6 +80,7 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sessions.Sessions;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.core.utils.UIDGenerator;
+import net.bluemind.deferredaction.api.IDeferredActionContainerUids;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.service.DirEntryHandlers;
 import net.bluemind.dockerclient.DockerEnv;
@@ -156,27 +158,27 @@ public abstract class AbstractCalendarTests {
 	protected Container domainContainer;
 	protected String datalocation;
 
+	private Container userDefActionContainer;
+
 	@BeforeClass
 	public static void oneShotBefore() {
 		System.setProperty("es.mailspool.count", "1");
 	}
 
+	@Rule
+	public final TestName junitName = new TestName();
+
 	@Before
 	public void beforeBefore() throws Exception {
 		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-		ElasticsearchTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().beforeTest();
 
 		final SettableFuture<Void> future = SettableFuture.<Void>create();
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				future.set(null);
-			}
-		};
-		VertxPlatform.spawnVerticles(done);
+		VertxPlatform.spawnVerticles((AsyncResult<Void> event) -> {
+			future.set(null);
+		});
 		future.get();
+		ElasticsearchTestHelper.getInstance().beforeTest();
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
@@ -241,6 +243,8 @@ public abstract class AbstractCalendarTests {
 				ICalendarUids.TYPE + ":Default:" + testUser.uid, testUser.uid);
 		userCalendarViewContainer = createTestContainer(userSecurityContext, "calendarview", "views",
 				"calendarview:" + testUser.uid, testUser.uid);
+		userDefActionContainer = createTestContainer(userSecurityContext, IDeferredActionContainerUids.TYPE,
+				"defActions", IDeferredActionContainerUids.uidForUser(testUser.uid), testUser.uid);
 
 		userFreebusyContainer = createTestContainer(userSecurityContext, IFreebusyUids.TYPE, "John Doe",
 				IFreebusyUids.getFreebusyContainerUid(testUser.uid), testUser.uid);
@@ -358,6 +362,7 @@ public abstract class AbstractCalendarTests {
 		aclStoreData.store(userCalendarViewContainer, ace);
 		aclStoreData.store(userFreebusyContainer, ace);
 		aclStoreData.store(userTagContainer, ace);
+		aclStoreData.store(userDefActionContainer, ace);
 		aclStoreData.store(contactsContainer, ace);
 		aclStoreData.store(collectedContactsContainer, ace);
 
@@ -395,7 +400,7 @@ public abstract class AbstractCalendarTests {
 
 		// elasticsearch
 		esearchClient = ElasticsearchTestHelper.getInstance().getClient();
-
+		System.out.println("vx3 before() " + junitName.getMethodName());
 	}
 
 	@After

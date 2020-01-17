@@ -31,10 +31,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.http.HttpServerRequest;
 
 import com.google.common.collect.ImmutableMap;
 
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.device.DeviceId;
 import net.bluemind.eas.dto.sync.CollectionSyncRequest;

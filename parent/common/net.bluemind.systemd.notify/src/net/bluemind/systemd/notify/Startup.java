@@ -5,6 +5,7 @@ import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.vertx.core.eventbus.DeliveryOptions;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class Startup {
@@ -25,13 +26,14 @@ public class Startup {
 	public static CompletableFuture<Void> notifyReady() {
 		logger.info("Notifying startup of {}...", System.getProperty("net.bluemind.property.product", "unknown-jvm"));
 		CompletableFuture<Void> ret = new CompletableFuture<>();
-		VertxPlatform.eventBus().sendWithTimeout(NotifyStartupVerticle.ADDR, payload, 1000L, replyStatus -> {
-			if (replyStatus.succeeded()) {
-				ret.complete(null);
-			} else {
-				ret.completeExceptionally(replyStatus.cause());
-			}
-		});
+		VertxPlatform.eventBus().request(NotifyStartupVerticle.ADDR, payload,
+				new DeliveryOptions().setSendTimeout(1000), replyStatus -> {
+					if (replyStatus.succeeded()) {
+						ret.complete(null);
+					} else {
+						ret.completeExceptionally(replyStatus.cause());
+					}
+				});
 		return ret;
 	}
 

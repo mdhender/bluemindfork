@@ -21,11 +21,11 @@ import java.nio.CharBuffer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonElement;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.base.CharMatcher;
+
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 public final class ZeroCopyParenObjectParser implements ParenObjectParser {
 
@@ -100,18 +100,18 @@ public final class ZeroCopyParenObjectParser implements ParenObjectParser {
 		switch (firstChar) {
 		case '%':
 			// logger.info("parseObject");
-			ret = new JsonObject();
+			ret = JsonElement.of(new JsonObject());
 			sub = matchParen(1, s);
 			fillObject(ret.asObject(), sub);
 			if (parent != null && parent.isArray()) {
-				parent.asArray().addObject(ret.asObject());
+				parent.asArray().add(ret.asObject());
 			}
 			int afterObject = "%()".length() + sub.length();
 			remainder = s.subSequence(afterObject, s.length());
 			break;
 		case '(':
 			// logger.info("parseArray");
-			ret = new JsonArray();
+			ret = JsonElement.of(new JsonArray());
 			sub = matchParen(0, s);
 			fillArray(ret.asArray(), trimLeadingWhitespace(sub));
 			int afterArray = "()".length() + sub.length();
@@ -144,7 +144,7 @@ public final class ZeroCopyParenObjectParser implements ParenObjectParser {
 				CharBuffer inParens = matchParen(remainderIdx, sub);
 				CharBuffer copy = CharBuffer.wrap("%(" + inParens.toString() + ")");
 				int elemLen = copy.length();
-				parse(ParsingResult.of(array, copy));
+				parse(ParsingResult.of(JsonElement.of(array), copy));
 				// jump to the opening paren that starts the next object in the array
 				remainderIdx += elemLen;
 				while (remainderIdx < remainderLen && sub.charAt(remainderIdx) != '(') {
@@ -168,7 +168,7 @@ public final class ZeroCopyParenObjectParser implements ParenObjectParser {
 					next = total;
 				}
 				CharBuffer tok = sub.subSequence(curIdx, next);
-				array.addString(atomOrValue(tok.toString()));
+				array.add(atomOrValue(tok.toString()));
 				curIdx = next + 1;
 				if (bumpCur) {
 					curIdx++;
@@ -178,7 +178,7 @@ public final class ZeroCopyParenObjectParser implements ParenObjectParser {
 	}
 
 	private void fillObject(JsonObject obj, CharBuffer props) {
-		parse(ParsingResult.of(obj, props));
+		parse(ParsingResult.of(JsonElement.of(obj), props));
 	}
 
 	private CharBuffer keyAndValue(JsonElement parent, CharBuffer s) {
@@ -204,14 +204,14 @@ public final class ZeroCopyParenObjectParser implements ParenObjectParser {
 			ParsingResult parsedObject = parse(ParsingResult.of(parent, remaining));
 			// the call to parse will deal with the stuff after the object
 			end = remaining.length();
-			parent.asObject().putObject(key.toString(), parsedObject.el.asObject());
+			parent.asObject().put(key.toString(), parsedObject.el.asObject());
 			break;
 		case '(':
 			// logger.debug("inArrayValue: '{}'", remaining);
 			ParsingResult parsedArray = parse(ParsingResult.of(parent, remaining));
 			// the call to parse will deal with the stuff after the array
 			end = remaining.length();
-			parent.asObject().putArray(key.toString(), parsedArray.el.asArray());
+			parent.asObject().put(key.toString(), parsedArray.el.asArray());
 			break;
 		default:
 			end = indexOf(remaining, ' ', 1);
@@ -239,7 +239,7 @@ public final class ZeroCopyParenObjectParser implements ParenObjectParser {
 
 	private void putValue(JsonElement parent, String key, String value) {
 		String v = atomOrValue(value);
-		parent.asObject().putString(key, v);
+		parent.asObject().put(key, v);
 	}
 
 	private String atomOrValue(String value) {

@@ -26,14 +26,14 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Sets;
 
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.calendar.api.IVFreebusy;
 import net.bluemind.calendar.api.VFreebusy;
 import net.bluemind.dav.server.ics.FreeBusy.CalRequest;

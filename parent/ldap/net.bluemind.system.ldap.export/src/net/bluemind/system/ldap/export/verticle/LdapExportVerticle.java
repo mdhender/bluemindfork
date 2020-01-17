@@ -20,21 +20,21 @@ package net.bluemind.system.ldap.export.verticle;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.system.ldap.export.LdapExportService;
 
-public class LdapExportVerticle extends Verticle {
+public class LdapExportVerticle extends AbstractVerticle {
 	private static final Logger logger = LoggerFactory.getLogger(LdapExportVerticle.class);
 
 	public static boolean suspended = false;
 
 	@Override
 	public void start() {
-		getVertx().eventBus().registerHandler("dir.changed", new Handler<Message<JsonObject>>() {
+		vertx.eventBus().consumer("dir.changed", new Handler<Message<JsonObject>>() {
 			@Override
 			public void handle(Message<JsonObject> event) {
 				if (suspended) {

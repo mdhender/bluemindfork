@@ -22,16 +22,17 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.busmods.BusModBase;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Verticle;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.hornetq.client.Topic;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
-public class MailboxEventsConsumer extends BusModBase {
+public class MailboxEventsConsumer extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(MailboxEventsConsumer.class);
 
@@ -49,42 +50,39 @@ public class MailboxEventsConsumer extends BusModBase {
 
 	}
 
+	@Override
 	public void start() {
-		super.start();
-
-		eb.registerHandler("mailreplica.mailbox.updated", (Message<JsonObject> msg) -> {
+		EventBus eb = vertx.eventBus();
+		eb.consumer("mailreplica.mailbox.updated", (Message<JsonObject> msg) -> {
 			JsonObject replicaNotif = msg.body();
 			String cont = replicaNotif.getString("container");
 			Set<Long> changed = new HashSet<>();
 			Set<Long> created = new HashSet<>();
-			JsonArray changedIds = replicaNotif.getArray("itemIds");
-			JsonArray createdIds = replicaNotif.getArray("createdIds");
+			JsonArray changedIds = replicaNotif.getJsonArray("itemIds");
+			JsonArray createdIds = replicaNotif.getJsonArray("createdIds");
 			long messageId = 1L;
 			int len = changedIds.size();
 			for (int i = 0; i < len; i++) {
-				Number n = changedIds.get(i);
-				changed.add(n.longValue());
+				changed.add(changedIds.getLong(i));
 			}
 			for (int i = 0; i < createdIds.size(); i++) {
-				Number n = createdIds.get(i);
-				created.add(n.longValue());
+				created.add(createdIds.getLong(i));
 			}
 			changed.removeAll(created);
 			len = changed.size();
 			if (len > 0) {
-				Number n = changedIds.get(0);
-				messageId = n.longValue();
+				messageId = changedIds.getLong(0);
 			} else {
 				logger.debug("Using fake messageId 1L on {}", cont);
 			}
 
 			if (len > 0 || created.isEmpty()) {
 				JsonObject asMapiNotif = new JsonObject();
-				asMapiNotif.putString("containerUid", cont);
-				asMapiNotif.putArray("itemIds", changedIds);
-				asMapiNotif.putString("messageClass", "IPM.Note");
-				asMapiNotif.putNumber("internalId", messageId);
-				asMapiNotif.putString("operation", CrudOperation.Update.name());
+				asMapiNotif.put("containerUid", cont);
+				asMapiNotif.put("itemIds", changedIds);
+				asMapiNotif.put("messageClass", "IPM.Note");
+				asMapiNotif.put("internalId", messageId);
+				asMapiNotif.put("operation", CrudOperation.Update.name());
 				if (logger.isDebugEnabled()) {
 					logger.debug("Re-publish notification {} for mapi on container {}", replicaNotif.encode(), cont);
 				}
@@ -93,11 +91,11 @@ public class MailboxEventsConsumer extends BusModBase {
 
 			if (!created.isEmpty()) {
 				JsonObject asCreateNotif = new JsonObject();
-				asCreateNotif.putString("containerUid", cont);
-				asCreateNotif.putString("messageClass", "IPM.Note");
-				asCreateNotif.putNumber("internalId", created.iterator().next());
-				asCreateNotif.putArray("itemIds", createdIds);
-				asCreateNotif.putString("operation", CrudOperation.Create.name());
+				asCreateNotif.put("containerUid", cont);
+				asCreateNotif.put("messageClass", "IPM.Note");
+				asCreateNotif.put("internalId", created.iterator().next());
+				asCreateNotif.put("itemIds", createdIds);
+				asCreateNotif.put("operation", CrudOperation.Create.name());
 				eb.publish(Topic.MAPI_ITEM_NOTIFICATIONS, asCreateNotif);
 			}
 

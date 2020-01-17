@@ -18,7 +18,7 @@
  */
 package net.bluemind.webmodule.server;
 
-import org.vertx.java.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerRequest;
 
 public interface IWebFilter {
 

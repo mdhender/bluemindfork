@@ -22,9 +22,9 @@ import java.nio.ByteOrder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
 
 import io.netty.buffer.ByteBuf;
+import io.vertx.core.json.JsonObject;
 
 /**
  * 
@@ -94,24 +94,24 @@ public class SystemTime {
 	public JsonObject toJson() {
 		JsonObject js = new JsonObject();
 		boolean recurring = year == 0;
-		js.putString("kind", recurring ? "RECURRING" : "FIXED");
-		js.putNumber("year", year);
-		js.putNumber("month", month);
+		js.put("kind", recurring ? "RECURRING" : "FIXED");
+		js.put("year", year);
+		js.put("month", month);
 		String dow = dayOfWeek(dayOfWeek);
-		js.putString("dayOfWeek", dow);
+		js.put("dayOfWeek", dow);
 		if (!recurring) {
-			js.putNumber("day", day);
+			js.put("day", day);
 		} else {
 			if (day == 5) {
-				js.putString("day", "last_" + dow + "_of_month");
+				js.put("day", "last_" + dow + "_of_month");
 			} else {
-				js.putString("day", day + "th_" + dow + "_of_month");
+				js.put("day", day + "th_" + dow + "_of_month");
 			}
 		}
-		js.putNumber("hour", hour);
-		js.putNumber("minute", minute);
-		js.putNumber("second", second);
-		js.putNumber("ms", ms);
+		js.put("hour", hour);
+		js.put("minute", minute);
+		js.put("second", second);
+		js.put("ms", ms);
 		return js;
 	}
 

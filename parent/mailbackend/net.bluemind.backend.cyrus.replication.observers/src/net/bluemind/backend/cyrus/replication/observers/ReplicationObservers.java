@@ -21,8 +21,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.vertx.java.core.Vertx;
-
+import io.vertx.core.Vertx;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 
 public class ReplicationObservers {

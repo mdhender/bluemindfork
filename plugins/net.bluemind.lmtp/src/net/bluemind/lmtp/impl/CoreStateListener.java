@@ -18,6 +18,7 @@
  */
 package net.bluemind.lmtp.impl;
 
+import io.vertx.core.Vertx;
 import net.bluemind.system.api.SystemState;
 import net.bluemind.system.stateobserver.IStateListener;
 
@@ -27,5 +28,10 @@ public class CoreStateListener implements IStateListener {
 
 	public void stateChanged(SystemState newState) {
 		state = newState;
+	}
+
+	@Override
+	public void init(Vertx vx) {
+		// yeah
 	}
 }

@@ -28,13 +28,14 @@ import java.util.UUID;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.SettableFuture;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.calendar.api.CalendarDescriptor;
 import net.bluemind.calendar.api.ICalendarsMgmt;
 import net.bluemind.core.api.fault.ServerFault;
@@ -63,6 +64,11 @@ public class CalendarSyncTests {
 	private String domain = "bm.lan";
 	private String userUid = "admin";
 	protected SecurityContext context;
+
+	@BeforeClass
+	public static void oneShotBefore() {
+		System.setProperty("es.mailspool.count", "1");
+	}
 
 	@Before
 	public void before() throws Exception {
@@ -104,7 +110,7 @@ public class CalendarSyncTests {
 	public void testSync() throws Exception {
 		sync("https://www.mozilla.org/media/caldata/FrenchHolidays.ics");
 	}
-	
+
 	@Test
 	public void testInternalSync() throws Exception {
 		internalSync("https://www.mozilla.org/media/caldata/FrenchHolidays.ics");

@@ -20,47 +20,48 @@ package net.bluemind.node.server.handlers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class SubmitCommand implements Handler<HttpServerRequest> {
 
 	private static final Logger logger = LoggerFactory.getLogger(SubmitCommand.class);
 
-	public SubmitCommand() {
-	}
-
 	@Override
 	public void handle(final HttpServerRequest event) {
-		event.bodyHandler(new Handler<Buffer>() {
+		event.bodyHandler((Buffer body) -> {
+			JsonObject jso = new JsonObject(body.toString());
+			logger.debug("EB cmd.request ! {}", jso);
+			event.pause();
+			VertxPlatform.eventBus().request("cmd.request", jso, new Handler<AsyncResult<Message<Long>>>() {
 
-			@Override
-			public void handle(Buffer body) {
-				JsonObject jso = new JsonObject(body.toString());
-				logger.debug("EB cmd.request ! {}", jso);
-				event.pause();
-				VertxPlatform.eventBus().send("cmd.request", jso, new Handler<Message<Long>>() {
+				@Override
+				public void handle(AsyncResult<Message<Long>> ebr) {
 
-					@Override
-					public void handle(Message<Long> ebr) {
-						event.resume();
-						long pid = ebr.body();
-						HttpServerResponse r = event.response();
-						if (pid > 0) {
-							r.headers().add("Pid", String.valueOf(pid));
-							event.response().setStatusCode(201).end();
-						} else {
-							event.response().setStatusCode(503).end();
-						}
+					event.resume();
+					if (ebr.failed()) {
+						event.response().setStatusCode(503).end();
+						return;
 					}
-				});
-			}
+
+					long pid = ebr.result().body();
+					HttpServerResponse r = event.response();
+					if (pid > 0) {
+						r.headers().add("Pid", String.valueOf(pid));
+						event.response().setStatusCode(201).end();
+					} else {
+						event.response().setStatusCode(503).end();
+					}
+				}
+			});
+
 		});
 
 	}

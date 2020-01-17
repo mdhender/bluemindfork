@@ -23,21 +23,19 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
-import java.security.SecureRandom;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
 
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.AsyncHttpClientConfig;
+import org.asynchttpclient.DefaultAsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClientConfig;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 
 public final class AHCHelper {
 
@@ -55,58 +53,47 @@ public final class AHCHelper {
 		client = newClient();
 	}
 
+	private AHCHelper() {
+	}
+
 	private static AsyncHttpClient newClient() {
-		AsyncHttpClientConfig config = new AsyncHttpClientConfig.Builder().setFollowRedirect(false).setMaxRedirects(0)
-				.setPooledConnectionIdleTimeout(60000).setMaxRequestRetry(0).setRequestTimeout(TIMEOUT)
-				.setReadTimeout(DEFAULT_IDLE_TIMEOUT).setSSLContext(buildSSLContext()).setAcceptAnyCertificate(true)
-				.setAllowPoolingConnections(true).setHostnameVerifier(new HostnameVerifier() {
-					@Override
-					public boolean verify(String hostname, SSLSession session) {
-						return true;
-					}
-				}).setAllowPoolingSslConnections(true).build();
-		AsyncHttpClient httpClient = new AsyncHttpClient(config);
-		return httpClient;
+		AsyncHttpClientConfig config = new DefaultAsyncHttpClientConfig.Builder().setFollowRedirect(false)
+				.setMaxRedirects(0).setPooledConnectionIdleTimeout(60000).setMaxRequestRetry(0)
+				.setRequestTimeout(TIMEOUT).setReadTimeout(DEFAULT_IDLE_TIMEOUT).setSslContext(buildSSLContext())
+				.build();
+		return new DefaultAsyncHttpClient(config);
 	}
 
 	public static AsyncHttpClient get() {
 		return client;
 	}
 
-	private static SSLContext buildSSLContext() {
+	private static SslContext buildSSLContext() {
 		File ks = KEYSTORE;
 		File ts = TRUSTSTORE;
-		if (ts.exists() && ks.exists()) {
-			try {
-				SSLContext context = SSLContext.getInstance("TLS");
-				KeyManager[] keyMgrs = getKeyMgrs(ks.getAbsolutePath(), "password");
-				TrustManager[] trustMgrs = getTrustMgrs(ts.getAbsolutePath(), "bluemind");
-				context.init(keyMgrs, trustMgrs, new SecureRandom());
+		try {
+			if (ts.exists() && ks.exists()) {
+
+				SslContext ctx = SslContextBuilder.forClient().keyManager(getKeyMgrs(ks.getAbsolutePath(), "password"))
+						.trustManager(InsecureTrustManagerFactory.INSTANCE).build();
 				logger.info("secure context created.");
+
 				ssl = true;
-				return context;
-			} catch (Exception e) {
-				logger.error("Failed to create secure context", e);
-				throw new RuntimeException(e.getMessage());
+				return ctx;
+			} else {
+				logger.info("unsecure context created.");
+				return SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
 			}
-		} else {
-			logger.info("unsecure context created.");
-			return Trust.createSSLContext();
+		} catch (Exception e) {
+			throw new RuntimeException(e.getMessage());
 		}
 	}
 
-	private static TrustManager[] getTrustMgrs(final String tsPath, final String tsPassword) throws Exception {
-		TrustManagerFactory fact = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-		KeyStore ts = loadStore(tsPath, tsPassword);
-		fact.init(ts);
-		return fact.getTrustManagers();
-	}
-
-	private static KeyManager[] getKeyMgrs(final String ksPath, final String ksPassword) throws Exception {
+	private static KeyManagerFactory getKeyMgrs(final String ksPath, final String ksPassword) throws Exception {
 		KeyManagerFactory fact = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 		KeyStore ks = loadStore(ksPath, ksPassword);
 		fact.init(ks, ksPassword != null ? ksPassword.toCharArray() : null);
-		return fact.getKeyManagers();
+		return fact;
 	}
 
 	private static KeyStore loadStore(String path, final String ksPassword) throws Exception {
@@ -134,9 +121,13 @@ public final class AHCHelper {
 		return KEYSTORE.exists();
 	}
 
-	public synchronized static AsyncHttpClient rebuild() {
+	public static synchronized AsyncHttpClient rebuild() {
 		if (KEYSTORE.exists()) {
-			client.close();
+			try {
+				client.close();
+			} catch (IOException e) {
+				// ok
+			}
 			client = newClient();
 		}
 		return client;

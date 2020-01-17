@@ -26,11 +26,12 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.io.ByteStreams;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -104,15 +105,17 @@ public class TickConfigurationService implements IInCoreTickConfiguration {
 		}
 		CountDownLatch reconf = new CountDownLatch(2);
 		final IServerTaskMonitor kapa = monitor.subWork("kapacitor", 1);
-		VertxPlatform.eventBus().send("kapacitor.configuration", new JsonObject(), (Message<JsonObject> reply) -> {
-			reconf.countDown();
-			kapa.progress(1, "Kapacitor reconfigured.");
-		});
+		VertxPlatform.eventBus().request("kapacitor.configuration", new JsonObject(),
+				(AsyncResult<Message<JsonObject>> reply) -> {
+					reconf.countDown();
+					kapa.progress(1, "Kapacitor reconfigured.");
+				});
 		final IServerTaskMonitor chrono = monitor.subWork("chronograf", 1);
-		VertxPlatform.eventBus().send("chronograf.configuration", new JsonObject(), (Message<JsonObject> reply) -> {
-			reconf.countDown();
-			chrono.progress(1, "Chronograf reconfigured.");
-		});
+		VertxPlatform.eventBus().request("chronograf.configuration", new JsonObject(),
+				(AsyncResult<Message<JsonObject>> reply) -> {
+					reconf.countDown();
+					chrono.progress(1, "Chronograf reconfigured.");
+				});
 		try {
 			reconf.await(1, TimeUnit.MINUTES);
 		} catch (InterruptedException e) {

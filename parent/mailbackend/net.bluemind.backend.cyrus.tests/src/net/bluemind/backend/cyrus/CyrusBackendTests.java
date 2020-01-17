@@ -25,7 +25,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
@@ -33,11 +32,11 @@ import java.util.concurrent.CountDownLatch;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.collect.Lists;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.config.InstallationId;
@@ -53,7 +52,6 @@ import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.imap.ListResult;
 import net.bluemind.imap.StoreClient;
-import net.bluemind.lib.vertx.Constructor;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.locator.LocatorVerticle;
 import net.bluemind.mailbox.api.Mailbox.Routing;
@@ -64,6 +62,7 @@ import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
+import net.bluemind.vertx.testhelper.Deploy;
 
 public class CyrusBackendTests {
 
@@ -127,18 +126,7 @@ public class CyrusBackendTests {
 	@Test
 	public void testHooksAreCalled() throws Exception {
 
-		final CountDownLatch cdl = new CountDownLatch(1);
-		VertxPlatform.getPlatformManager().deployVerticle(Constructor.of(LocatorVerticle::new, LocatorVerticle.class),
-				null, new URL[0], 1, null, new Handler<AsyncResult<String>>() {
-
-					@Override
-					public void handle(AsyncResult<String> event) {
-						System.out.println("Locator, successful: " + event.succeeded());
-						cdl.countDown();
-					}
-				});
-
-		cdl.await();
+		Deploy.verticles(false, LocatorVerticle::new).get();
 
 		IUser userService = getService();
 		String uid = "u" + System.currentTimeMillis();

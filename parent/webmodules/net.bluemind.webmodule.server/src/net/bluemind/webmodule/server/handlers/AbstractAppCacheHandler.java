@@ -31,15 +31,15 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
 
 import com.netflix.spectator.api.Registry;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.webmodule.server.JsEntry;
@@ -107,7 +107,7 @@ public abstract class AbstractAppCacheHandler implements Handler<HttpServerReque
 		resp.putHeader("Content-Length", "" + data.length);
 		resp.putHeader("ContentType", "text/cache-manifest").putHeader("Cache-Control", "no-cache")
 				.putHeader("Pragma", "no-cache").putHeader("Expires", "0");
-		resp.write(new Buffer(data));
+		resp.write(Buffer.buffer(data));
 		resp.setStatusCode(200);
 		resp.end();
 		registry.timer(idFactory.name("requestTime")).record(registry.clock().monotonicTime() - start,
@@ -117,8 +117,8 @@ public abstract class AbstractAppCacheHandler implements Handler<HttpServerReque
 
 	/**
 	 * 
-	 * Remove translated js from appcache (because retrieving toto.js by a
-	 * french user will fetch toto_fr.js)
+	 * Remove translated js from appcache (because retrieving toto.js by a french
+	 * user will fetch toto_fr.js)
 	 * 
 	 * @param resource
 	 * @param module

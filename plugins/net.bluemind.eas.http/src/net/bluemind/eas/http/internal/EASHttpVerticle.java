@@ -20,26 +20,23 @@ package net.bluemind.eas.http.internal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Future;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpServer;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerOptions;
 import net.bluemind.eas.config.global.GlobalConfig;
 
-public class EASHttpVerticle extends Verticle {
+public class EASHttpVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(EASHttpVerticle.class);
 
 	@Override
 	public void start(final Future<Void> future) {
-		HttpServer httpServer = vertx.createHttpServer();
-		httpServer.setAcceptBacklog(1024);
-		httpServer.setUsePooledBuffers(true);
-		httpServer.setTCPNoDelay(true);
-		httpServer.setReuseAddress(true);
-		httpServer.setCompressionSupported(true);
+		HttpServer httpServer = vertx.createHttpServer(new HttpServerOptions().setAcceptBacklog(1024)
+				.setUsePooledBuffers(true).setTcpNoDelay(true).setReuseAddress(true).setCompressionSupported(true));
 
 		EASRouter router = new EASRouter(vertx);
 
@@ -51,11 +48,11 @@ public class EASHttpVerticle extends Verticle {
 			public void handle(AsyncResult<HttpServer> event) {
 				if (event.succeeded()) {
 					logger.info("Bound to port {}", GlobalConfig.EAS_PORT);
-					future.setResult(null);
+					future.complete(null);
 				} else {
 					Throwable t = event.cause();
 					logger.error(t.getMessage(), t);
-					future.setFailure(t);
+					future.fail(t);
 				}
 			}
 		});

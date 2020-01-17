@@ -26,29 +26,28 @@ import org.elasticsearch.join.query.JoinQueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.index.mail.BulkData.UnitDelete;
 import net.bluemind.lib.vertx.utils.ThrottleMessages;
 
-public class ExpungeVerticle extends Verticle {
+public class ExpungeVerticle extends AbstractVerticle {
 
 	private Logger logger = LoggerFactory.getLogger(ExpungeVerticle.class);
 
 	@Override
-	public void start() {
+	public void start() throws Exception {
 		super.start();
 
 		ThrottleMessages<JsonObject> tm = new ThrottleMessages<JsonObject>((msg) -> msg.body().getString("index"),
 				this::expunge, vertx, 10000);
 
-		super.vertx.eventBus().registerHandler("index.mailspool.cleanup",
-				(Message<? extends JsonObject> msg) -> tm.handle(msg));
+		super.vertx.eventBus().consumer("index.mailspool.cleanup", (Message<JsonObject> msg) -> tm.handle(msg));
 	}
 
-	private void expunge(Message<? extends JsonObject> message) {
+	private void expunge(Message<JsonObject> message) {
 		String index = message.body().getString("index");
 		logger.info(" *** cleanup parents begin. indice {}", index);
 

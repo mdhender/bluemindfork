@@ -22,29 +22,30 @@ import java.util.Base64;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpServerFileUpload;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
-import org.vertx.java.core.json.JsonObject;
+
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpServerFileUpload;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonObject;
 
 public class FileUploadHandler implements Handler<HttpServerRequest> {
 	Logger logger = LoggerFactory.getLogger(FileUploadHandler.class);
 
 	@Override
 	public void handle(final HttpServerRequest request) {
-		request.expectMultiPart(true);
+		request.setExpectMultipart(true);
 		request.uploadHandler(new Handler<HttpServerFileUpload>() {
 
 			@Override
 			public void handle(HttpServerFileUpload upload) {
-				final Buffer buffer = new Buffer();
+				final Buffer buffer = Buffer.buffer();
 				final String filename = upload.filename();
 
 				logger.info("Handling file-upload. filename: {}", filename.toString());
 
-				upload.dataHandler(new Handler<Buffer>() {
+				upload.handler(new Handler<Buffer>() {
 
 					@Override
 					public void handle(Buffer buff) {
@@ -57,8 +58,8 @@ public class FileUploadHandler implements Handler<HttpServerRequest> {
 					@Override
 					public void handle(Void arg0) {
 						JsonObject fileUploadResponse = new JsonObject();
-						fileUploadResponse.putString("filename", filename);
-						fileUploadResponse.putString("data", getBase64Content(buffer));
+						fileUploadResponse.put("filename", filename);
+						fileUploadResponse.put("data", getBase64Content(buffer));
 						logger.info("Sending file-upload response for filename {}", filename);
 						HttpServerResponse resp = request.response();
 						resp.putHeader("Content-Type", "application/json");

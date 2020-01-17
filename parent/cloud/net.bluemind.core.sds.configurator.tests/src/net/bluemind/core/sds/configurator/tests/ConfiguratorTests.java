@@ -24,11 +24,12 @@ import java.util.concurrent.TimeoutException;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.eventbus.DeliveryOptions;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class ConfiguratorTests {
@@ -50,18 +51,19 @@ public class ConfiguratorTests {
 	public void reconfigure() throws InterruptedException, ExecutionException, TimeoutException {
 		EventBus eb = VertxPlatform.eventBus();
 		JsonObject payload = new JsonObject()//
-				.putString("backend", "127.0.0.1")//
-				.putObject("config", new JsonObject())//
+				.put("backend", "127.0.0.1")//
+				.put("config", new JsonObject())//
 		;
 
 		CompletableFuture<Void> cf = new CompletableFuture<>();
-		eb.sendWithTimeout("sds.sysconf.changed", payload, 1000, (AsyncResult<Message<Boolean>> result) -> {
-			if (result.succeeded()) {
-				cf.complete(null);
-			} else {
-				cf.completeExceptionally(result.cause());
-			}
-		});
+		eb.request("sds.sysconf.changed", payload, new DeliveryOptions().setSendTimeout(5000),
+				(AsyncResult<Message<Boolean>> result) -> {
+					if (result.succeeded()) {
+						cf.complete(null);
+					} else {
+						cf.completeExceptionally(result.cause());
+					}
+				});
 		cf.get(10, TimeUnit.SECONDS);
 	}
 

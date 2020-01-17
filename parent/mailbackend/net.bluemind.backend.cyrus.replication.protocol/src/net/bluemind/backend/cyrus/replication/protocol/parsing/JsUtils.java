@@ -31,13 +31,13 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.vertx.java.core.json.JsonArray;
+import io.vertx.core.json.JsonArray;
 
 public final class JsUtils {
 
 	/**
-	 * Converts an array of enum-based strings to a set. If array is null,
-	 * returns an empty set.
+	 * Converts an array of enum-based strings to a set. If array is null, returns
+	 * an empty set.
 	 * 
 	 * @param enumKlass
 	 * @param array
@@ -53,7 +53,7 @@ public final class JsUtils {
 		}
 		ArrayList<E> asList = new ArrayList<>(len);
 		for (int i = 0; i < len; i++) {
-			String s = array.get(i);
+			String s = array.getString(i);
 			E value = E.valueOf(enumKlass, s);
 			asList.add(value);
 		}
@@ -76,7 +76,7 @@ public final class JsUtils {
 		}
 		int len = array.size();
 		for (int i = 0; i < len; i++) {
-			String s = array.get(i);
+			String s = array.getString(i);
 			asList.add(s);
 		}
 		return asList;
@@ -93,7 +93,7 @@ public final class JsUtils {
 		int len = array.size();
 		List<R> ret = new ArrayList<>(len);
 		for (int i = 0; i < len; i++) {
-			T val = array.get(i);
+			T val = (T) array.getValue(i);
 			ret.add(f.apply(val));
 		}
 		return ret;
@@ -110,7 +110,7 @@ public final class JsUtils {
 		int len = array.size();
 		List<R> ret = new ArrayList<>(len);
 		for (int i = 0; i < len; i++) {
-			T val = array.get(i);
+			T val = (T) array.getValue(i);
 			ret.add(f.apply(val));
 		}
 		@SuppressWarnings("unchecked")
@@ -125,7 +125,7 @@ public final class JsUtils {
 		}
 		int len = array.size();
 		for (int i = 0; i < len; i++) {
-			V val = array.get(i);
+			V val = (V) array.getValue(i);
 			K key = keyForArrayValue.apply(val);
 			indexed.put(key, val);
 		}
@@ -135,7 +135,7 @@ public final class JsUtils {
 	public static JsonArray toArray(String... strings) {
 		JsonArray ret = new JsonArray();
 		for (String s : strings) {
-			ret.addString(s);
+			ret.add(s);
 		}
 		return ret;
 	}
@@ -153,7 +153,7 @@ public final class JsUtils {
 	public static <V> void forEach(JsonArray array, BiConsumer<V, Integer> toApply) {
 		int len = array.size();
 		for (int i = 0; i < len; i++) {
-			toApply.accept(array.get(i), i);
+			toApply.accept((V) array.getValue(i), i);
 		}
 	}
 

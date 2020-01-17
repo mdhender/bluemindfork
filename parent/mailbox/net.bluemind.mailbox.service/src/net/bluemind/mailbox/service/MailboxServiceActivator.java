@@ -22,8 +22,8 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.OOPMessage;
 import net.bluemind.hornetq.client.Topic;
@@ -56,11 +56,11 @@ public class MailboxServiceActivator implements BundleActivator {
 			}
 		});
 
-		VertxPlatform.eventBus().registerHandler(MailboxBusAddresses.CHANGED, (message) -> {
+		VertxPlatform.eventBus().consumer(MailboxBusAddresses.CHANGED, (message) -> {
 			JsonObject body = (JsonObject) message.body();
 			JsonObject mapped = new JsonObject() //
-					.putString("mailbox", body.getString("itemUid")) //
-					.putString("domain", body.getString("containerUid"));
+					.put("mailbox", body.getString("itemUid")) //
+					.put("domain", body.getString("containerUid"));
 			OOPMessage cm = new OOPMessage(mapped);
 			MQ.getProducer(Topic.MAILBOX_NOTIFICATIONS).send(cm);
 		});

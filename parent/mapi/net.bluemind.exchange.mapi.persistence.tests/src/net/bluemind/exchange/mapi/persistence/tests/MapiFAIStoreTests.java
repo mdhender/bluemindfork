@@ -23,8 +23,8 @@ import static org.junit.Assert.assertEquals;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.persistence.ContainerStore;
@@ -86,13 +86,13 @@ public class MapiFAIStoreTests {
 		fai.folderId = "42";
 		fai.faiJson = "{}";
 		mapiFAIStore.create(item, fai);
-		String jsContent = new JsonObject().putString("toto", "titi").putNumber("poum", 42).encode();
+		String jsContent = new JsonObject().put("toto", "titi").put("poum", 42).encode();
 		fai.faiJson = jsContent;
 		mapiFAIStore.update(item, fai);
 		MapiFAI got = mapiFAIStore.get(item);
 		JsonObject parsed = new JsonObject(got.faiJson);
 		assertEquals("titi", parsed.getString("toto"));
-		assertEquals(42, parsed.getNumber("poum").intValue());
+		assertEquals(42, parsed.getInteger("poum").intValue());
 	}
 
 }

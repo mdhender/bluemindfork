@@ -20,10 +20,10 @@ package net.bluemind.eas.busmods;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.busmods.BusModBase;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
 import net.bluemind.eas.dto.EasBusEndpoints;
 import net.bluemind.eas.dto.device.DeviceValidationRequest;
 import net.bluemind.eas.dto.device.DeviceValidationResponse;
@@ -31,14 +31,13 @@ import net.bluemind.eas.partnership.IDevicePartnershipProvider;
 import net.bluemind.eas.partnership.Provider;
 import net.bluemind.vertx.common.LocalJsonObject;
 
-public class DeviceValidationVerticle extends BusModBase {
+public class DeviceValidationVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(DeviceValidationVerticle.class);
 	private Handler<Message<LocalJsonObject<DeviceValidationRequest>>> validationHandler;
 
 	@Override
 	public void start() {
-		super.start();
 
 		validationHandler = new Handler<Message<LocalJsonObject<DeviceValidationRequest>>>() {
 
@@ -60,7 +59,7 @@ public class DeviceValidationVerticle extends BusModBase {
 
 			}
 		};
-		eb.registerHandler(EasBusEndpoints.DEVICE_VALIDATION, validationHandler);
+		vertx.eventBus().consumer(EasBusEndpoints.DEVICE_VALIDATION, validationHandler);
 	}
 
 }

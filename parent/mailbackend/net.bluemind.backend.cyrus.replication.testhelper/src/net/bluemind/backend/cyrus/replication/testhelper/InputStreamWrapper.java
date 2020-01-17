@@ -23,12 +23,13 @@ import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.streams.ReadStream;
 
-public class InputStreamWrapper implements ReadStream<InputStreamWrapper> {
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
+
+public class InputStreamWrapper implements ReadStream<Buffer> {
 
 	private static final Logger logger = LoggerFactory.getLogger(InputStreamWrapper.class);
 	private Handler<Buffer> data;
@@ -47,7 +48,7 @@ public class InputStreamWrapper implements ReadStream<InputStreamWrapper> {
 	}
 
 	@Override
-	public InputStreamWrapper dataHandler(Handler<Buffer> handler) {
+	public InputStreamWrapper handler(Handler<Buffer> handler) {
 		logger.debug("Setting dataHandler with {}", handler);
 		this.data = handler;
 		checkReadable();
@@ -88,7 +89,7 @@ public class InputStreamWrapper implements ReadStream<InputStreamWrapper> {
 	}
 
 	private void doReadLoop() {
-		if (vertx.currentContext() != null) {
+		if (Vertx.currentContext() != null) {
 			vertx.runOnContext(xxx -> {
 				loop();
 			});
@@ -109,12 +110,17 @@ public class InputStreamWrapper implements ReadStream<InputStreamWrapper> {
 			} else {
 				byte[] validBytes = new byte[read];
 				System.arraycopy(buf, 0, validBytes, 0, read);
-				data.handle(new Buffer(validBytes));
+				data.handle(Buffer.buffer(validBytes));
 				checkReadable();
 			}
 		} catch (IOException e) {
 			error.handle(e);
 		}
+	}
+
+	@Override
+	public ReadStream<Buffer> fetch(long amount) {
+		return this;
 	}
 
 }

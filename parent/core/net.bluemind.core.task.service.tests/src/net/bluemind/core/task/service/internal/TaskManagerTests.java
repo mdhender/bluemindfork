@@ -29,11 +29,11 @@ import java.util.concurrent.CountDownLatch;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.core.streams.ReadStream;
 
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.service.IServerTask;
@@ -75,10 +75,10 @@ public class TaskManagerTests {
 		TaskManager task = taskManager.getTaskManager(taskRef.id);
 		assertNotNull(task);
 
-		ReadStream<?> reader = task.log();
+		ReadStream<Buffer> reader = task.log();
 		final List<JsonObject> result = new ArrayList<>();
 
-		reader.dataHandler(new Handler<Buffer>() {
+		reader.handler(new Handler<Buffer>() {
 
 			@Override
 			public void handle(Buffer event) {
@@ -177,9 +177,9 @@ public class TaskManagerTests {
 		TaskStatus status = task.status();
 		assertEquals(TaskStatus.State.Success, status.state);
 
-		ReadStream<?> log = task.log();
+		ReadStream<Buffer> log = task.log();
 		final List<JsonObject> logs = new LinkedList<>();
-		log.dataHandler(new Handler<Buffer>() {
+		log.handler(new Handler<Buffer>() {
 
 			@Override
 			public void handle(Buffer arg0) {
@@ -227,9 +227,9 @@ public class TaskManagerTests {
 		TaskStatus status = task.status();
 		assertEquals(TaskStatus.State.Success, status.state);
 
-		ReadStream<?> log = task.log();
+		ReadStream<Buffer> log = task.log();
 		final List<JsonObject> logs = new LinkedList<>();
-		log.dataHandler(new Handler<Buffer>() {
+		log.handler(new Handler<Buffer>() {
 
 			@Override
 			public void handle(Buffer arg0) {

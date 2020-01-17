@@ -25,8 +25,8 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.resource.api.type.IResourceTypes;
 import net.bluemind.resource.api.type.IResourceTypeUids;
+import net.bluemind.resource.api.type.IResourceTypes;
 import net.bluemind.resource.service.internal.ResourceTypesService;
 
 public class ResourceTypesServiceFactory

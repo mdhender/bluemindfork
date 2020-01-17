@@ -29,11 +29,11 @@ import java.util.concurrent.CountDownLatch;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.collect.Lists;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
@@ -64,7 +64,7 @@ public class DomainSettingsValidatorTests {
 		domainUid = "bm.lan";
 
 		JdbcTestHelper.getInstance().beforeTest();
-		
+
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
 		Server esServer = new Server();
@@ -104,7 +104,7 @@ public class DomainSettingsValidatorTests {
 	@Test
 	public void splitDomainValidatorTests() {
 		try {
-			validator.create(Collections.<String, String> emptyMap());
+			validator.create(Collections.<String, String>emptyMap());
 		} catch (ServerFault e) {
 			fail();
 		}
