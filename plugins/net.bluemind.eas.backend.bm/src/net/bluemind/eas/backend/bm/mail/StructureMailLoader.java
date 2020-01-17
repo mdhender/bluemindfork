@@ -44,6 +44,7 @@ import net.bluemind.eas.backend.bm.calendar.EventConverter;
 import net.bluemind.eas.backend.bm.compat.OldFormats;
 import net.bluemind.eas.backend.bm.impl.CoreConnect;
 import net.bluemind.eas.backend.bm.mail.loader.EventProvider;
+import net.bluemind.eas.dto.calendar.CalendarResponse;
 import net.bluemind.eas.dto.calendar.CalendarResponse.InstanceType;
 import net.bluemind.eas.dto.email.EmailResponse;
 import net.bluemind.eas.dto.email.EmailResponse.Flag.Status;
@@ -61,12 +62,10 @@ public class StructureMailLoader extends CoreConnect {
 	private final BackendSession bs;
 
 	/**
-	 * @param bf
-	 *            the body factory used to process the body parts
+	 * @param bf    the body factory used to process the body parts
 	 * @param bs
 	 * @param mbox
-	 * @param store
-	 *            must be in selected state
+	 * @param store must be in selected state
 	 */
 	public StructureMailLoader(BackendSession bs, MailFolder folder) {
 		this.folder = folder;
@@ -136,6 +135,16 @@ public class StructureMailLoader extends CoreConnect {
 		}
 
 		if (!"INBOX".equals(folder.fullName)) {
+			return ret;
+		}
+
+		Optional<Header> cancel = item.body.headers.stream().filter(h -> "x-bm-event-canceled".equalsIgnoreCase(h.name))
+				.findFirst();
+		if (cancel.isPresent()) {
+			String uid = cancel.get().firstValue();
+			ret.meetingRequest = new CalendarResponse();
+			ret.meetingRequest.uid = uid;
+			ret.messageClass = MessageClass.ScheduleMeetingCanceled;
 			return ret;
 		}
 

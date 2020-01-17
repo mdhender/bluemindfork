@@ -263,7 +263,10 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 			b.text(NamespaceMapping.Email, "EndTime", MeetingRequestFastDateFormat.format(calendar.endTime));
 		}
 
-		b.text(NamespaceMapping.Email, "InstanceType", calendar.instanceType.xmlValue());
+		if (calendar.instanceType != null) {
+			b.text(NamespaceMapping.Email, "InstanceType", calendar.instanceType.xmlValue());
+		}
+
 		if (calendar.instanceType == InstanceType.exceptionToRecurring) {
 			b.text(NamespaceMapping.Email, "RecurrenceId", MeetingRequestFastDateFormat.format(calendar.recurrenceId));
 		}
@@ -292,8 +295,10 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 
 		boolean responseRequested = false;
 		Date now = new Date();
-		if (now.before(calendar.startTime)) {
-			responseRequested = true;
+		if (calendar.startTime != null) {
+			if (now.before(calendar.startTime)) {
+				responseRequested = true;
+			}
 		}
 		if (calendar.recurrence != null) {
 			if (calendar.recurrence.until != null && calendar.recurrence.until.before(now)) {
