@@ -36,6 +36,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import javax.mail.internet.MimeUtility;
+
 import org.apache.james.mime4j.dom.Body;
 import org.apache.james.mime4j.dom.Entity;
 import org.apache.james.mime4j.dom.Message;
@@ -106,6 +108,8 @@ public class BodyStreamProcessor {
 	public static final int BODY_VERSION;
 
 	static {
+		System.setProperty("mail.mime.decodetext.strict", "false");
+
 		// initialization in a separate static bloc enables tests to modify this final
 		// field using reflection
 		BODY_VERSION = 4;
@@ -139,7 +143,9 @@ public class BodyStreamProcessor {
 			String subject = parsed.getSubject();
 			if (subject != null) {
 				mb.subject = subject.replace("\u0000", "");
+				mb.subject = MimeUtility.decodeText(mb.subject);
 			}
+
 			mb.date = parsed.getDate();
 			mb.size = (int) emlInput.getCount();
 			Multimap<String, String> mmapHeaders = MultimapBuilder.hashKeys().linkedListValues().build();
