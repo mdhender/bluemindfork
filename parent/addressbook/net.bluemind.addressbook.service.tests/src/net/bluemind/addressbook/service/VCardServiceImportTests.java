@@ -35,6 +35,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 
@@ -342,6 +343,75 @@ public class VCardServiceImportTests extends AbstractServiceTests {
 		Property title = export.getProperty(Id.TITLE);
 		assertNotNull(title);
 		assertEquals(card.organizational.title, title.getValue());
+	}
+
+	@Test
+	public void testExportImportHtmlNote() throws ServerFault {
+		VCard card = defaultVCard();
+		card.explanatory.note = "<div><span>Coucou</span></div>";
+		String uid = "junit-" + System.nanoTime();
+		VCardContainerStoreService vStore = getVCardStore();
+		vStore.create(uid, "blabla", card);
+
+		IVCardService service = getVCardService();
+		String vcard = service.exportCards(Arrays.asList(uid));
+		assertTrue(vcard.contains("NOTE:Coucou"));
+		assertTrue(vcard.contains("X-NOTE-HTML:<div><span>Coucou</span></div>"));
+
+		String cleaned = String.join("\n", Arrays.asList(vcard.split("\n")).stream()
+				.filter(line -> !line.startsWith("UID")).collect(Collectors.toList()).toArray(new String[0]));
+
+		List<String> uids = getVCardService().directImportCards(cleaned).uids;
+
+		ItemValue<VCard> imported = getVCardStore().get(uids.get(0), null);
+
+		assertEquals("<div><span>Coucou</span></div>", imported.value.explanatory.note);
+	}
+
+	@Test
+	public void testExportImportBrokenHtmlNote() throws ServerFault {
+		VCard card = defaultVCard();
+		card.explanatory.note = "<div><span>Coucou</div";
+		String uid = "junit-" + System.nanoTime();
+		VCardContainerStoreService vStore = getVCardStore();
+		vStore.create(uid, "blabla", card);
+
+		IVCardService service = getVCardService();
+		String vcard = service.exportCards(Arrays.asList(uid));
+		assertTrue(vcard.contains("NOTE:Coucou"));
+		assertTrue(vcard.contains("X-NOTE-HTML:<div><span>Coucou</div"));
+
+		String cleaned = String.join("\n", Arrays.asList(vcard.split("\n")).stream()
+				.filter(line -> !line.startsWith("UID")).collect(Collectors.toList()).toArray(new String[0]));
+
+		List<String> uids = getVCardService().directImportCards(cleaned).uids;
+
+		ItemValue<VCard> imported = getVCardStore().get(uids.get(0), null);
+
+		assertEquals("<div><span>Coucou</div", imported.value.explanatory.note);
+	}
+
+	@Test
+	public void testExportPlainNote() throws ServerFault {
+		VCard card = defaultVCard();
+		card.explanatory.note = "Coucou";
+		String uid = "junit-" + System.nanoTime();
+		VCardContainerStoreService vStore = getVCardStore();
+		vStore.create(uid, "blabla", card);
+
+		IVCardService service = getVCardService();
+		String vcard = service.exportCards(Arrays.asList(uid));
+		assertTrue(vcard.contains("NOTE:Coucou"));
+		assertFalse(vcard.contains("X-NOTE-HTML"));
+
+		String cleaned = String.join("\n", Arrays.asList(vcard.split("\n")).stream()
+				.filter(line -> !line.startsWith("UID")).collect(Collectors.toList()).toArray(new String[0]));
+
+		List<String> uids = getVCardService().directImportCards(cleaned).uids;
+
+		ItemValue<VCard> imported = getVCardStore().get(uids.get(0), null);
+
+		assertEquals("Coucou", imported.value.explanatory.note);
 	}
 
 	@Test

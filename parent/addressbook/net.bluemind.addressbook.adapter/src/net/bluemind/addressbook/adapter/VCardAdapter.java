@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.codec.DecoderException;
 import org.apache.james.mime4j.dom.address.Mailbox;
 import org.apache.james.mime4j.field.address.AddressBuilder;
+import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +51,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.utils.UIDGenerator;
 import net.bluemind.lib.ical4j.vcard.property.AddressbookServerKind;
 import net.bluemind.lib.ical4j.vcard.property.AddressbookServerMember;
+import net.bluemind.lib.ical4j.vcard.property.NoteAsHtml;
 import net.bluemind.tag.api.TagRef;
 import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.vcard.ParameterFactory;
@@ -269,7 +271,12 @@ public final class VCardAdapter {
 
 		Note noteProp = (Note) card.getProperty(Id.NOTE);
 		if (noteProp != null) {
-			retCard.explanatory.note = noteProp.getValue();
+			Property noteAsHtml = card.getExtendedProperty("NOTE-HTML");
+			if (noteAsHtml != null) {
+				retCard.explanatory.note = noteAsHtml.getValue();
+			} else {
+				retCard.explanatory.note = noteProp.getValue();
+			}
 		}
 
 		// handle X-Macintosh
@@ -425,7 +432,14 @@ public final class VCardAdapter {
 			}
 		}
 		if (vcard.explanatory.note != null) {
-			properties.add(new Note(vcard.explanatory.note));
+			String noteAsPlainText = Jsoup.parse(vcard.explanatory.note).text();
+			if (!vcard.explanatory.note.equals(noteAsPlainText)) {
+				properties.add(new NoteAsHtml(vcard.explanatory.note));
+				properties.add(new Note(noteAsPlainText));
+			} else {
+				properties.add(new Note(vcard.explanatory.note));
+			}
+
 		}
 
 		if (vcard.security.key != null && vcard.security.key.value != null) {
