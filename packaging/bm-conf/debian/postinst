@@ -17,6 +17,8 @@
 #
 # See LICENSE.txt
 
+set -e
+
 # Source debconf library.
 . /usr/share/debconf/confmodule
 
@@ -47,6 +49,8 @@ manageSystemUserGroup() {
     getent passwd www-data >/dev/null && adduser www-data bluemind
     # Add user telegraf to group bluemind, if such group and user exists
     getent passwd telegraf >/dev/null && adduser telegraf bluemind
+
+    return 0
 }
 
 manageSystemUserGroup
