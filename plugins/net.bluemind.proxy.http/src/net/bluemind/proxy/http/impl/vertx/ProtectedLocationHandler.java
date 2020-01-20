@@ -77,6 +77,18 @@ public final class ProtectedLocationHandler implements Handler<HttpServerRequest
 		registry.counter(idFactory.name("requestsCount", "kind", "protected")).increment();
 		logger.debug("Protected location {}:{}{}", fl.getHost(), fl.getPort(), fl.getPathPrefix());
 
+		event.response().putHeader("Content-Security-Policy",
+				"default-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: ");
+
+		event.response().putHeader("Feature-Policy",
+				"accelerometer 'none'; ambient-light-sensor 'none'; autoplay 'self'; battery 'none';"
+						+ " camera 'none'; display-capture 'none'; document-domain 'none'; encrypted-media 'none';"
+						+ " execution-while-not-rendered 'self'; execution-while-out-of-viewport 'self';"
+						+ " fullscreen 'self'; geolocation 'none'; gyroscope 'none'; layout-animations 'none'; layout-animations 'none';"
+						+ " layout-animations 'none'; legacy-image-formats 'none'; magnetometer 'none'; microphone 'none';"
+						+ " midi 'none'; navigation-override 'none'; oversized-images 'none'; payment 'none'; picture-in-picture 'none';"
+						+ " publickey-credentials 'none'; sync-xhr 'none'; usb 'none'; vr 'none'; wake-lock 'none'; xr-spatial-tracking 'none'; ");
+
 		AuthRequirements reqs = authenticated(event);
 		if (!reqs.authNeeded && reqs.sessionId != null) {
 			if (event.path().equals("/login/index.html") || event.path().equals("/login/native")) {
