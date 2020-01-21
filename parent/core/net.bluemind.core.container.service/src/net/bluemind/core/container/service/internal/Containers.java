@@ -395,13 +395,12 @@ public class Containers implements IContainers {
 		SecurityContext userContext = context.provider().instance(IInCoreAuthentication.class).buildContext(domainUid,
 				userUid);
 
-		ContainerStore suContainerStore = new ContainerStore(context, context.getDataSource(), userContext);
+		ContainerStore suContainerStore = new ContainerStore(context, DataSourceRouter.get(context, uid), userContext);
 		Container c = doOrFail(() -> suContainerStore.get(uid));
 		if (c == null) {
 			throw new ServerFault("Container '" + uid + "' not found", ErrorCode.NOT_FOUND);
 		}
-		ContainerDescriptor descriptor = asDescriptor(c, userContext);
-		return descriptor;
+		return asDescriptor(c, userContext);
 
 	}
 
