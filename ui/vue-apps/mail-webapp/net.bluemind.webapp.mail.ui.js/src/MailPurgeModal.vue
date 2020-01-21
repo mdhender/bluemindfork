@@ -47,7 +47,7 @@ export default {
             this.messageKey = null;
         },
         deletionConfirmed() {
-            if (this.currentMessageKey == this.messageKey) {
+            if (this.currentMessageKey === this.messageKey) {
                 this.$router.push("" + (this.nextMessageKey || ""));
             }
             this.purge(this.messageKey);

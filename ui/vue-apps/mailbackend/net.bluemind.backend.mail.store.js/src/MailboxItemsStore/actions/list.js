@@ -8,7 +8,7 @@ export function list({ commit }, { sorted, folderUid, filter }) {
             const filters = { must: [], mustNot: [ItemFlag.Deleted, ItemFlag.Seen] };
             return service.filteredChangesetById(0, filters).then(changeset => {
                 const ids = changeset.created.map(itemVersion => itemVersion.id);
-                if (sorted && sorted.dir.toLowerCase() == "asc") {
+                if (sorted && sorted.dir.toLowerCase() === "asc") {
                     return ids.reverse();
                 }
                 commit("setItemKeys", { ids, folderUid });

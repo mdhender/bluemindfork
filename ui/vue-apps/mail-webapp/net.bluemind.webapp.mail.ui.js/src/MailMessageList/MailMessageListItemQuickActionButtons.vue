@@ -65,11 +65,11 @@ export default {
     methods: {
         ...mapActions("mail-webapp", ["markAsRead", "markAsUnread"]),
         remove() {
-            if (this.currentFolderKey == this.my.TRASH.key) {
+            if (this.currentFolderKey === this.my.TRASH.key) {
                 this.openPurgeModal();
                 return;
             }
-            if (this.currentMessageKey == this.message.key) {
+            if (this.currentMessageKey === this.message.key) {
                 this.$router.push("" + (this.nextMessageKey || ""));
             }
             this.$store.dispatch("mail-webapp/remove", this.message.key);

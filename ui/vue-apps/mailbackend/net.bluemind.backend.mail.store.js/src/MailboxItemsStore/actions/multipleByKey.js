@@ -2,7 +2,7 @@ import ServiceLocator from "@bluemind/inject";
 import ItemUri from "@bluemind/item-uri";
 
 export function multipleByKey({ commit }, messageKeys) {
-    if (messageKeys.length == 0) return Promise.resolve();
+    if (messageKeys.length === 0) return Promise.resolve();
     const messagesByFolder = {};
     messageKeys.forEach(key => {
         const [id, folder] = ItemUri.decode(key);

@@ -86,7 +86,7 @@ export default class GetInlinePartsVisitor {
 
     /** @return the already computed results of the given Alternative part */
     getChildrenResults(part) {
-        const address = part.address == this.root.address ? "": part.address;
+        const address = part.address === this.root.address ? "": part.address;
         return this.results.filter(result => result.lastForkAddress.startsWith(address));
     }
 
@@ -111,7 +111,7 @@ export default class GetInlinePartsVisitor {
         const root = this.getBranchRoot(part, ancestors);
         this.getChildrenResults(root).forEach(result => {
             result.parts.push(part);
-            if (capability != null && !result.capabilities.includes(capability)) {
+            if (capability !== null && !result.capabilities.includes(capability)) {
                 result.capabilities.push(capability);
             }
         });
@@ -137,7 +137,7 @@ export default class GetInlinePartsVisitor {
             const prior = findLast(this.results, (reverse =>
                 reverse.capabilities.every(capability => result.capabilities.includes(capability))
             ));
-            return result == prior;
+            return result === prior;
         }).map(result => {
             return {
                 capabilities: result.capabilities,

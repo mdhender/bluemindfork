@@ -4,7 +4,7 @@ import ItemUri from "@bluemind/item-uri";
 export function selectFolder({ dispatch, commit, state }, { folderKey, filter }) {
     const folderUid = ItemUri.item(folderKey);
     let shouldClearMessages = false;
-    if (state.currentFolderKey != folderKey) {
+    if (state.currentFolderKey !== folderKey) {
         if (state.currentFolderKey) {
             ContainerObserver.forget("mailbox_records", ItemUri.item(state.currentFolderKey));
         }
@@ -18,7 +18,7 @@ export function selectFolder({ dispatch, commit, state }, { folderKey, filter })
     commit("setSearchPattern", null);
     commit("clearCurrentMessage");
 
-    if (state.messageFilter != filter) {
+    if (state.messageFilter !== filter) {
         commit("setMessageFilter", filter);
         shouldClearMessages = true;
     }

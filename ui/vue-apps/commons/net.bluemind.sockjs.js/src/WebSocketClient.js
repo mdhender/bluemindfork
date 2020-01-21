@@ -89,7 +89,7 @@ function init(url) {
 
 function createSockJsClient() {
     clearTimeout(websocket.timers.connect);
-    if (websocket.client != null && websocket.client.readyState != SockJS.CLOSED) {
+    if (websocket.client !== null && websocket.client.readyState !== SockJS.CLOSED) {
         return websocket.client;
     }
     //FIXME: Use the real client
@@ -129,13 +129,13 @@ function send(request, listener) {
     request.params = request.params || {};
 
     if (listener) {
-        if (request.method == Method.REGISTER) {
+        if (request.method === Method.REGISTER) {
             websocket.handler.register(request.path, listener);
         } else {
             websocket.handler.addReplyListener(request.requestId, listener);
         }
     }
-    if (request.method == Method.UNREGISTER) {
+    if (request.method === Method.UNREGISTER) {
         websocket.handler.unregister(request.path);
     }
 
@@ -154,7 +154,7 @@ function ping(callback) {
     if (callback) {
         websocket.handler.register(PING_ID, callback);
     }
-    if (websocket.timers.ping != null) {
+    if (websocket.timers.ping !== null) {
         clearTimeout(websocket.timers.ping);
         websocket.timers.ping = null;
         websocket.handler.addReplyListener(PING_ID, () => (websocket.timers.ping = setTimeout(ping, 20 * 1000)));
@@ -180,7 +180,7 @@ function offline() {
 }
 
 function setOnline(state) {
-    if (websocket.online != state) {
+    if (websocket.online !== state) {
         websocket.online = state;
         websocket.handler.dispatchEvent(new OnlineEvent(state));
         return true;
@@ -194,7 +194,7 @@ function reconnect() {
 
 function resolver(requestId, resolve, reject) {
     websocket.handler.addReplyListener(requestId, event => {
-        if (event.data.statusCode != 200) {
+        if (event.data.statusCode !== 200) {
             reject(event.data);
         } else {
             resolve(event.data);

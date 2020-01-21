@@ -54,7 +54,7 @@ export function send({ state, commit, getters, dispatch }) {
         })
         .then(moveResult => {
             // flush the outbox
-            if (!moveResult || moveResult.status != "SUCCESS") {
+            if (!moveResult || moveResult.status !== "SUCCESS") {
                 throw "Unable to flush the Outbox.";
             }
             draftId = moveResult.doneIds[0].destination;
@@ -69,7 +69,7 @@ export function send({ state, commit, getters, dispatch }) {
         .then(taskResult => {
             // compute and return the IMAP id of the mail inside the sentbox
             if (taskResult.result && Array.isArray(taskResult.result)) {
-                let importedMailboxItem = taskResult.result.find(r => r.source == draftId);
+                let importedMailboxItem = taskResult.result.find(r => r.source === draftId);
                 sentbox = getters.my.SENT;
                 const sentboxItemsService = injector.getProvider("MailboxItemsPersistence").get(sentbox.uid);
                 return sentboxItemsService.getCompleteById(importedMailboxItem.destination);
@@ -116,7 +116,7 @@ function validate(messageToSend) {
 function retrieveTaskResult(taskService, delayTime, maxTries, iteration = 1) {
     return new Promise(resolve => setTimeout(() => resolve(taskService.status()), delayTime)).then(taskStatus => {
         const taskEnded =
-            taskStatus && taskStatus.state && taskStatus.state != "InProgress" && taskStatus.state != "NotStarted";
+            taskStatus && taskStatus.state && taskStatus.state !== "InProgress" && taskStatus.state !== "NotStarted";
         if (taskEnded) {
             return JSON.parse(taskStatus.result);
         } else {

@@ -11,11 +11,11 @@ export function search({ state, commit, dispatch, getters }, { pattern, filter }
     // FIXME state.currentFolderKey should not be undefined/null at this point
     const folderUid = state.currentFolderKey ? ItemUri.item(state.currentFolderKey): "";
 
-    if (state.messageFilter != filter) {
+    if (state.messageFilter !== filter) {
         commit("setMessageFilter", filter);
     }
     // TODO complete this once ES stuff had been fixed on core side
-    const excludedFlagsESPattern = filter == "unread" ? " ": "";
+    const excludedFlagsESPattern = filter === "unread" ? " ": "";
     
     return ServiceLocator.getProvider("MailboxFoldersPersistence")
         .get(getters.currentMailbox.mailboxUid)

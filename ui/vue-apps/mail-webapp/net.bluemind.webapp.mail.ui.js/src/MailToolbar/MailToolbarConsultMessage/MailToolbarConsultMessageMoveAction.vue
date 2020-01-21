@@ -69,18 +69,18 @@ export default {
         ...mapGetters("mail-webapp/folders", ["folders"]),
         matchingFolders() {
             let pattern = this.pattern.trim();
-            if (pattern != "") {
+            if (pattern !== "") {
                 const matches = [this.my].concat(this.mailshares).reduce((matches, mailbox) => {
                     return matches.concat(this.filter(mailbox, pattern, this.maxFolders - matches.length));
                 }, []);
                 pattern = pattern.replace(/\/+/, "/").replace(/^\/?(.*)\/?$/g, "$1");
-                if (pattern && !matches.some(match => match.value.fullName.toLowerCase() == pattern.toLowerCase())) {
+                if (pattern && !matches.some(match => match.value.fullName.toLowerCase() === pattern.toLowerCase())) {
                     matches.push({ value: { fullName: pattern, path: pattern } });
                 }
                 return matches;
             } else {
                 return [this.my.INBOX, this.my.TRASH]
-                    .filter(folder => folder && folder.key != this.currentFolderKey)
+                    .filter(folder => folder && folder.key !== this.currentFolderKey)
                     .map(f => toFolderItem(f));
             }
         }
@@ -105,12 +105,12 @@ export default {
             if (mailbox.writable) {
                 for (let i = 0; i < mailbox.folders.length && matches.length < max; i++) {
                     const folder = mailbox.folders[i];
-                    const root = folder.value.parentUid != null ? mailbox.root : "";
+                    const root = folder.value.parentUid !== null ? mailbox.root : "";
                     if (folder.key !== this.currentFolderKey && folder.match(pattern.replace(root, ""))) {
                         matches.push(
                             toFolderItem(
                                 folder,
-                                mailbox.type == "mailshare",
+                                mailbox.type === "mailshare",
                                 root && root + "/" + folder.value.fullName
                             )
                         );

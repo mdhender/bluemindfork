@@ -140,9 +140,9 @@ function sanitize(messageToSend) {
  * @param {Number} iteration DO NOT SET. Only used internally for recursivity
  */
 function waitUntilDraftNotSaving(draft, delayTime, maxTries, iteration = 1) {
-    if (draft.status == DraftStatus.SAVING) {
+    if (draft.status === DraftStatus.SAVING) {
         return new Promise(resolve => setTimeout(() => resolve(draft.status), delayTime)).then(status => {
-            if (status != DraftStatus.SAVING) {
+            if (status !== DraftStatus.SAVING) {
                 return Promise.resolve();
             } else {
                 if (iteration < maxTries) {

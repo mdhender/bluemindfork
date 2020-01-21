@@ -63,16 +63,16 @@ export default {
     computed: {
         ...mapState("mail-webapp", ["draft"]),
         isSending() {
-            return this.draft.status == DraftStatus.SENDING;
+            return this.draft.status === DraftStatus.SENDING;
         },
         isSaving() {
-            return this.draft.status == DraftStatus.SAVING;
+            return this.draft.status === DraftStatus.SAVING;
         },
         isDeleting() {
-            return this.draft.status == DraftStatus.DELETING;
+            return this.draft.status === DraftStatus.DELETING;
         },
         errorOccuredOnSave() {
-            return this.draft.status == DraftStatus.SAVE_ERROR;
+            return this.draft.status === DraftStatus.SAVE_ERROR;
         },
     },
     methods: {

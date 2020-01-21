@@ -76,7 +76,7 @@ export default {
             this.$bus.$emit(SHOW_PURGE_MODAL);
         },
         remove() {
-            if (this.currentFolderKey == this.my.TRASH.key) {
+            if (this.currentFolderKey === this.my.TRASH.key) {
                 this.openPurgeModal();
                 return;
             }

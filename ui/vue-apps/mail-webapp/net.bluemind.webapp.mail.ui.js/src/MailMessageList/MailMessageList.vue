@@ -169,7 +169,7 @@ export default {
     methods: {
         ...mapActions("mail-webapp", { loadMessages: "loadRange" }),
         remove() {
-            if (this.currentFolderKey == this.my.TRASH.key) {
+            if (this.currentFolderKey === this.my.TRASH.key) {
                 this.openPurgeModal();
                 return;
             }
@@ -218,7 +218,7 @@ export default {
             const filter = this.areMessagesFiltered ? "?filter=" + this.messageFilter : "";
             if (this.$route.params.mail) {
                 return path.replace(new RegExp("/" + this.$route.params.mail + "/?.*"), "/" + key) + filter;
-            } else if (path == "/mail/" || path == "/mail/new") {
+            } else if (path === "/mail/" || path === "/mail/new") {
                 return "/mail/" + this.currentFolderKey + "/" + key + filter;
             }
             return path + key + filter;

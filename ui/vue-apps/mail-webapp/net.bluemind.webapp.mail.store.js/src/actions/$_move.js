@@ -6,7 +6,7 @@ export function $_move({ getters, commit, dispatch }, { messageKey, destinationK
     const destination = getters["folders/getFolderByKey"](destinationKey);
     const source = getters["folders/getFolderByKey"](ItemUri.encode(sourceUid, getters.currentMailbox.mailboxUid));
     const destinationMailbox = ItemUri.container(destinationKey);
-    if (getters.currentMailbox.mailboxUid == destinationMailbox) {
+    if (getters.currentMailbox.mailboxUid === destinationMailbox) {
         return ServiceLocator.getProvider("MailboxFoldersPersistence")
             .get(destinationMailbox)
             .importItems(destination.internalId, {

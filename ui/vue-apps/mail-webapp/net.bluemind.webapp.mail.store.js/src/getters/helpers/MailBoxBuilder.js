@@ -12,7 +12,7 @@ export const MailBoxBuilder = {
         mailbox.uid = item.owner;
         mailbox.name = item.name;
         mailbox.writable = item.writable;
-        if (mailbox.type == "user") {
+        if (mailbox.type === "user") {
             mailbox.mailboxUid = "user." + mailbox.name;
             mailbox.root = "";
         } else {
@@ -24,12 +24,12 @@ export const MailBoxBuilder = {
     },
 
     isMailshare(mailbox) {
-        return mailbox.type == "mailboxacl" && mailbox.ownerDirEntryPath.split("/")[1] == "mailshares";
+        return mailbox.type === "mailboxacl" && mailbox.ownerDirEntryPath.split("/")[1] === "mailshares";
     },
     isUser(mailbox) {
-        return mailbox.type == "mailboxacl" && mailbox.ownerDirEntryPath.split("/")[1] == "users";
+        return mailbox.type === "mailboxacl" && mailbox.ownerDirEntryPath.split("/")[1] === "users";
     },
     isMe(mailbox, name) {
-        return this.isUser(mailbox) && mailbox.name == name;
+        return this.isUser(mailbox) && mailbox.name === name;
     }
 };

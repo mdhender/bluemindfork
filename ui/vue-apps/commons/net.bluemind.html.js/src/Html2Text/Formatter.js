@@ -4,10 +4,10 @@ import startsWith from 'lodash.startswith';
 export function visit(node, context, options) {
     if (!context) context = defaultContext();
     let result = '';
-    if (node.nodeType == Node.ELEMENT_NODE) {
+    if (node.nodeType === Node.ELEMENT_NODE) {
         const fn = mapping[node.name] || mapping[node.display] || visitChildren;
         result = fn(node, context, options);
-    } else if (node.nodeType == Node.TEXT_NODE) {
+    } else if (node.nodeType === Node.TEXT_NODE) {
         result = text(node.data, context, options);
     } else {
         result = visitChildren(node, context, options);
@@ -30,7 +30,7 @@ function visitChildren(node, context, options) {
 }
 
 function sp(context) {
-    if (!context.clear && context.spacer != '\n') {
+    if (!context.clear && context.spacer !== '\n') {
         context.spacer = ' ';
     }
 }
@@ -43,7 +43,7 @@ function nl(context) {
 
 function spacer(context, force) {
     if (!force && (!context.spacer || context.clear)) return '';
-    if (context.spacer == '\n') {
+    if (context.spacer === '\n') {
         context.clear = true;
     }
     const val = context.spacer;

@@ -113,10 +113,10 @@ function fromMailboxItem(item, message) {
     const mailboxItem = item.value;
     message.subject = mailboxItem.body.subject;
     message.preview = mailboxItem.body.preview;
-    message.from = mailboxItem.body.recipients.find(rcpt => rcpt.kind == RecipientKind.Originator);
-    message.to = mailboxItem.body.recipients.filter(rcpt => rcpt.kind == RecipientKind.Primary);
-    message.cc = mailboxItem.body.recipients.filter(rcpt => rcpt.kind == RecipientKind.CarbonCopy);
-    message.bcc = mailboxItem.body.recipients.filter(rcpt => rcpt.kind == RecipientKind.BlindCarbonCopy);
+    message.from = mailboxItem.body.recipients.find(rcpt => rcpt.kind === RecipientKind.Originator);
+    message.to = mailboxItem.body.recipients.filter(rcpt => rcpt.kind === RecipientKind.Primary);
+    message.cc = mailboxItem.body.recipients.filter(rcpt => rcpt.kind === RecipientKind.CarbonCopy);
+    message.bcc = mailboxItem.body.recipients.filter(rcpt => rcpt.kind === RecipientKind.BlindCarbonCopy);
     message.date = new Date(mailboxItem.body.date);
     message.structure = mailboxItem.body.structure;
     message.headers = mailboxItem.body.headers;
@@ -168,11 +168,11 @@ function buildRecipientsForKind(kind, addresses) {
  * Compute the list of recipients depending on the action (reply, reply all...) and the 'Cc' recipient field.
  */
 function computeRecipientsCC(action, message) {
-    if (action == message.actions.FORWARD) {
+    if (action === message.actions.FORWARD) {
         return [];
     }
 
-    if (action == message.actions.REPLYALL) {
+    if (action === message.actions.REPLYALL) {
         const mailFollowUpTo = message.headers.find(
             header => header.name === message.recipientHeaders.MAIL_FOLLOWUP_TO
         );
@@ -187,11 +187,11 @@ function computeRecipientsCC(action, message) {
  * Compute the list of recipients depending on the action (reply, reply all...) and the 'To' recipient field.
  */
 function computeRecipientsTO(action, message) {
-    if (action == message.actions.FORWARD) {
+    if (action === message.actions.FORWARD) {
         return [];
     }
 
-    const isReplyAll = action == message.actions.REPLYALL;
+    const isReplyAll = action === message.actions.REPLYALL;
 
     if (isReplyAll) {
         const mailFollowUpTo = header(message.recipientHeaders.MAIL_FOLLOWUP_TO, message);
@@ -216,17 +216,17 @@ function computeRecipientsTO(action, message) {
     if (isReplyAll) {
         // respond to sender and all recipients except myself
         recipients.push(...message.to.map(to => to.address));
-        recipients = recipients.filter(address => address != myEmail);
+        recipients = recipients.filter(address => address !== myEmail);
         // avoid duplicates
         recipients = Array.from(new Set(recipients));
-        if (recipients.length == 0) {
+        if (recipients.length === 0) {
             // I was alone, respond to myself then
             recipients = [myEmail];
         }
     } else if (recipients.includes(myEmail)) {
         // all recipients except myself
-        recipients = message.to.map(to => to.address).filter(address => address != myEmail);
-        if (recipients.length == 0) {
+        recipients = message.to.map(to => to.address).filter(address => address !== myEmail);
+        if (recipients.length === 0) {
             // I was alone, respond to myself then
             recipients = [myEmail];
         } else {

@@ -69,7 +69,7 @@ function buildDate(fullYear, month, date) {
 }
 
 function fixDST(date, expected) {
-    if (date.getDate() != expected) {
+    if (date.getDate() !== expected) {
         var dir = date.getDate() < expected ? 1 : -1;
         date.setUTCHours(date.getUTCHours() + dir);
     }

@@ -22,7 +22,7 @@ export default class EventTarget {
     }
 
     dispatchEvent(event) {
-        if (typeof event == "string") {
+        if (typeof event === "string") {
             event = new Event(event);
         }
         if (this.listeners[event.type]) {

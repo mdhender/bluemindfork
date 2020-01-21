@@ -69,14 +69,14 @@ function skip(element, options) {
     if (options.ignore.indexOf(element.name) > -1 || SKIPTAGS.indexOf(element.name) > -1) {
         return true;
     }
-    if (element.nodeType == Node.ELEMENT_NODE) {
+    if (element.nodeType === Node.ELEMENT_NODE) {
         for (const attr in SKIPATTRIBUTES) {
-            if (element.attributes[attr] && element.attributes[attr].value == SKIPATTRIBUTES[attr]) {
+            if (element.attributes[attr] && element.attributes[attr].value === SKIPATTRIBUTES[attr]) {
                 return true;
             }
         }
         for (const style in SKIPSTYLES) {
-            if (element.style[style] && element.style[style] == SKIPSTYLES[style]) {
+            if (element.style[style] && element.style[style] === SKIPSTYLES[style]) {
                 return true;
             }
         }

@@ -3,7 +3,7 @@ import { MimeType } from "@bluemind/email";
 const CAPABILITIES = [MimeType.TEXT_HTML, MimeType.TEXT_PLAIN];
 
 export function selectMessage({ dispatch, commit, state }, messageKey) {
-    if (state.currentMessageKey != messageKey) {
+    if (state.currentMessageKey !== messageKey) {
         return dispatch("$_getIfNotPresent", messageKey).then(message => {
             commit("setCurrentMessage", messageKey);
             const parts = message.computeParts();

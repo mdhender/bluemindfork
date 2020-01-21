@@ -5,7 +5,7 @@ import injector from "@bluemind/inject";
 export function deleteDraft({ commit, state, getters }) {
     const draft = state.draft;
 
-    if (!draft.id || draft.status == DraftStatus.DELETED) {
+    if (!draft.id || draft.status === DraftStatus.DELETED) {
         // no saved draft to delete, just close the composer
         return Promise.resolve();
     }

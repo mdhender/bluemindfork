@@ -142,7 +142,7 @@ export default {
             //FIXME
             const attachment = this.attachments[index];
             // attachment content may be already fetched (if its preview has been displayed)
-            if (attachment.content != undefined) {
+            if (attachment.content !== undefined) {
                 this.triggerDownload(index);
             } else {
                 this.fetch({

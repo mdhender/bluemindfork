@@ -4,7 +4,7 @@ export function getFolderByPath(state, getters) {
 
 function get(folders, hierarchy, parentUid) {
     const name = hierarchy.shift();
-    const folder = folders.find(folder => folder.value.parentUid == parentUid && name == folder.value.name);
+    const folder = folders.find(folder => folder.value.parentUid === parentUid && name === folder.value.name);
     if (!folder) {
         return null;
     }

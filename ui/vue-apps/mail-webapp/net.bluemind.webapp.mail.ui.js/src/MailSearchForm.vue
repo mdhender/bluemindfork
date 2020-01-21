@@ -45,7 +45,7 @@ export default {
     methods: {
         ...mapMutations("mail-webapp", ["setSearchPattern", "setSearchLoading", "setSearchError"]),
         doSearch() {
-            if (this.searchedPattern != "") {
+            if (this.searchedPattern !== "") {
                 this.$router.push("/mail/search/" + this.searchedPattern + "/");
             }
         },

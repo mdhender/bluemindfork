@@ -59,9 +59,9 @@ export default {
             const action = this.pathSuffix();
             return (
                 this.message &&
-                (action == this.message.actions.REPLY ||
-                    action == this.message.actions.REPLYALL ||
-                    action == this.message.actions.FORWARD)
+                (action === this.message.actions.REPLY ||
+                    action === this.message.actions.REPLYALL ||
+                    action === this.message.actions.FORWARD)
             );
         }
     },
@@ -71,7 +71,7 @@ export default {
             return this.$store.state.route.path.substring(indexOfLastSlash + 1);
         },
         isReplyAll() {
-            return this.pathSuffix() == this.message.actions.REPLYALL;
+            return this.pathSuffix() === this.message.actions.REPLYALL;
         }
     }
 };

@@ -4,7 +4,7 @@ export function $_createFolder({ dispatch, getters }, folder) {
     let parent = getNearestFolder(folder, getters);
     let hierarchy = folder.value.fullName;
     let mailbox = getters.my.mailboxUid;
-    if (parent != null) {
+    if (parent !== null) {
         hierarchy = hierarchy.replace(parent.value.fullName, "");
         mailbox = ItemUri.container(parent.key);
     }
@@ -38,7 +38,7 @@ function get(folders, hierarchy, parent) {
 }
 
 function equal(folder, { name, parentUid }) {
-    return folder.value.parentUid == parentUid && name.toLowerCase() == folder.value.name.toLowerCase();
+    return folder.value.parentUid === parentUid && name.toLowerCase() === folder.value.name.toLowerCase();
 }
 
 function getNearestFolder(folder, getters) {
