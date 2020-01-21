@@ -504,6 +504,35 @@ public class VEventServiceTests extends AbstractCalendarTests {
 	}
 
 	@Test
+	public void testBrokenGoogleAttachmentImportShouldIgnoreAttachment() throws ServerFault, IOException {
+		Stream ics = getIcsFromFile("google_attachment.ics");
+
+		TaskRef taskRef = getVEventService(userSecurityContext, userCalendarContainer).importIcs(ics);
+		ImportStats stats = waitImportEnd(taskRef);
+		assertNotNull(stats);
+		assertEquals(1, stats.importedCount());
+
+		ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer)
+				.getComplete("95c659b1-eaf8-4145-a314-9cb4566636b8");
+
+		VEvent vevent = item.value.main;
+		assertNotNull(vevent);
+
+		assertEquals("TestAttachmentImport", vevent.summary);
+		assertEquals(1, vevent.attachments.size());
+
+		List<AttachedFile> attachments = vevent.attachments;
+		int checked = 0;
+		for (AttachedFile attachedFile : attachments) {
+			if (attachedFile.name.equals("test.gif")) {
+				assertEquals("http://somewhere/1", attachedFile.publicUrl);
+				checked++;
+			}
+		}
+		assertEquals(1, checked);
+	}
+
+	@Test
 	public void testBinaryAttachmentImport() throws ServerFault, IOException {
 		Stream ics = getIcsFromFile("testBinaryAttachmentImport.ics");
 
