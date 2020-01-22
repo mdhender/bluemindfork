@@ -5,9 +5,25 @@ Bundle-SymbolicName: net.bluemind.filehosting.service.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: net.bluemind.filehosting.service,
- org.junit,
+Require-Bundle: net.bluemind.core.jdbc.testshelper,
+ net.bluemind.lib.vertx,
  net.bluemind.core.context,
+ net.bluemind.core.container.persistence,
+ net.bluemind.core.container.api,
+ net.bluemind.core.rest.http,
+ net.bluemind.core.rest.http.vertx;bundle-version="1.0.0",
+ net.bluemind.config,
+ org.mockito.mockito-core;bundle-version="1.10.17",
+ org.objenesis;bundle-version="1.0.0",
+ net.bluemind.document.service;bundle-version="4.1.0",
+ net.bluemind.system.api,
+ net.bluemind.system.service,
+ net.bluemind.system.hook,
+ net.bluemind.system.persistence,
  net.bluemind.core.commons;bundle-version="4.1.0",
  net.bluemind.filehosting.api,
- org.mockito.mockito-all;bundle-version="2.0.2"
+ org.mockito.mockito-all;bundle-version="2.0.2",
+ net.bluemind.core.sqlschema,
+ org.junit,
+ net.bluemind.filehosting.service,
+ net.bluemind.tests.defaultdata
