@@ -131,7 +131,11 @@ public class SchemaUpgrade {
 		List<Updater> phase2 = pathToGlory.stream().filter(u -> u.afterSchemaUpgrade() && !onlySchema)
 				.collect(Collectors.toList());
 
-		executeUpdates(subWork, report, handledActions, UpgradePhase.SCHEMA_UPGRADE, phase1);
+		UpdateResult phase1Result = executeUpdates(subWork, report, handledActions, UpgradePhase.SCHEMA_UPGRADE,
+				phase1);
+		if (phase1Result.equals(UpdateResult.failed())) {
+			return UpdateResult.failed();
+		}
 
 		CompletableFuture<Void> ret = new CompletableFuture<>();
 		if (ServerSideServiceProvider.mailboxDataSource == null
