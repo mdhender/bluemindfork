@@ -34,7 +34,9 @@ import org.elasticsearch.search.SearchHit;
 import org.junit.Test;
 
 import io.vertx.core.json.JsonObject;
-import net.bluemind.backend.mail.api.MailboxItem.SystemFlag;
+import net.bluemind.backend.mail.api.flags.SystemFlag.AnsweredFlag;
+import net.bluemind.backend.mail.api.flags.SystemFlag.FlaggedFlag;
+import net.bluemind.backend.mail.api.flags.SystemFlag.SeenFlag;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 
 public class WebmailStyleSearchTests extends AbstractSearchTests {
@@ -42,9 +44,9 @@ public class WebmailStyleSearchTests extends AbstractSearchTests {
 	@Test
 	public void addTwoMailsThenSearch() throws IOException {
 		System.err.println("Test starts....");
-		addEml(1L, "data/test.eml", SystemFlag.seen, SystemFlag.answered);
+		addEml(1L, "data/test.eml", new SeenFlag(), new AnsweredFlag());
 		System.err.println("Second eml");
-		addEml(2L, "data/testAttach.eml", SystemFlag.flagged);
+		addEml(2L, "data/testAttach.eml", new FlaggedFlag());
 		System.err.println("EMLs added.");
 		ESearchActivator.refreshIndex(INDEX_NAME);
 		QueryBuilder q = QueryBuilders.boolQuery()//
@@ -71,9 +73,9 @@ public class WebmailStyleSearchTests extends AbstractSearchTests {
 	@Test
 	public void addTwoMailsRmOneRecordFindOrphan() throws IOException {
 		System.err.println("Test starts....");
-		addEml(1L, "data/test.eml", SystemFlag.seen, SystemFlag.answered);
+		addEml(1L, "data/test.eml", new SeenFlag(), new AnsweredFlag());
 		System.err.println("Second eml");
-		addEml(2L, "data/testAttach.eml", SystemFlag.flagged);
+		addEml(2L, "data/testAttach.eml", new FlaggedFlag());
 		System.err.println("EMLs added.");
 		ESearchActivator.refreshIndex(INDEX_NAME);
 		QueryBuilder q = QueryBuilders.boolQuery()//

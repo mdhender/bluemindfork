@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -43,7 +42,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -67,11 +65,14 @@ import net.bluemind.backend.mail.api.ImportMailboxItemsStatus;
 import net.bluemind.backend.mail.api.ImportMailboxItemsStatus.ImportStatus;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MailboxItem;
-import net.bluemind.backend.mail.api.MailboxItem.SystemFlag;
+import net.bluemind.backend.mail.api.flags.SystemFlag.AnsweredFlag;
+import net.bluemind.backend.mail.api.flags.SystemFlag.DeletedFlag;
+import net.bluemind.backend.mail.api.flags.SystemFlag.SeenFlag;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.MessageBody.Header;
 import net.bluemind.backend.mail.api.MessageBody.Part;
-import net.bluemind.backend.mail.api.SeenUpdate;
+import net.bluemind.backend.mail.api.flags.FlagUpdate;
+import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.api.utils.PartsWalker;
 import net.bluemind.backend.mail.replica.api.ICyrusReplicationAnnotations;
 import net.bluemind.backend.mail.replica.api.ICyrusReplicationArtifacts;
@@ -230,20 +231,16 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 			break;
 		}
 		assertNotNull(item);
-		for (SystemFlag f : item.value.systemFlags) {
-			System.out.println("uid " + item.value.imapUid + ", f: " + f.name());
-		}
 
 		IMailboxItems userRecordsApi = prov.instance(IMailboxItems.class, inbox.uid);
 		MailboxItem updated = item.value;
-		updated.systemFlags = Collections.emptyList();
-		updated.otherFlags = Arrays.asList("$Junit" + System.currentTimeMillis());
+		updated.flags = Arrays.asList(new MailboxItemFlag("$Junit" + System.currentTimeMillis()));
 		System.out.println("UPDATE STARTS...............");
 		userRecordsApi.updateById(item.internalId, updated);
 		int count = 2;
 		long time = System.currentTimeMillis();
 		for (int i = 0; i < count; i++) {
-			updated.otherFlags = Arrays.asList("$Roberto" + System.currentTimeMillis());
+			updated.flags = Arrays.asList(new MailboxItemFlag("$Roberto" + System.currentTimeMillis()));
 			Ack ack = userRecordsApi.updateById(item.internalId, updated);
 			System.out.println("Item version is now " + ack.version);
 		}
@@ -272,27 +269,40 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		ContainerChangeset<Long> allById = recordsApi.changesetById(0L);
 		long version = allById.version;
 		System.out.println("Version is at " + version);
-		ItemValue<MailboxItem> item = null;
-		List<SeenUpdate> toUpdate = new LinkedList<>();
-		for (Long rec : allById.created) {
-			item = recordsApi.getCompleteById(rec);
-			SeenUpdate su = new SeenUpdate();
-			su.itemId = item.internalId;
-			su.seen = !item.value.systemFlags.contains(SystemFlag.seen);
-			System.out
-					.println("uid " + item.value.imapUid + ", f: " + item.value.systemFlags + ", su.seen: " + su.seen);
-			toUpdate.add(su);
-		}
-		assertNotNull(item);
+		
+		List<Long> itemsId = allById.created.stream().map(rec -> recordsApi.getCompleteById(rec))
+			.filter(mailboxItem -> !mailboxItem.value.flags.contains(new SeenFlag()))
+			.map(mailboxItem -> mailboxItem.internalId).collect(Collectors.toList());
+		
+		assertNotNull(itemsId);
 
 		IMailboxItems userRecordsApi = prov.instance(IMailboxItems.class, inbox.uid);
-		System.out.println("**** Will update " + toUpdate.size() + " item(s).");
-		Ack updatedVersion = userRecordsApi.updateSeens(toUpdate);
+		System.out.println("**** Will update " + itemsId.size() + " item(s).");
+		Ack updatedVersion = userRecordsApi.addFlag(FlagUpdate.of(itemsId, new SeenFlag()));
 		System.out.println("Version is now " + updatedVersion.version);
+	}
+	
+	@Test
+	public void updateAnsweredFlag() {
+		IServiceProvider prov = provider();
+
+		IMailboxFolders userMboxesApi = prov.instance(IMailboxFolders.class, partition, mboxRoot);
+		List<ItemValue<MailboxFolder>> found = userMboxesApi.all();
+		assertNotNull(found);
+		
+		ItemValue<MailboxFolder> inbox = found.stream().filter(iv -> iv.value.name.equals("INBOX")).findFirst().get();
+		assertNotNull(inbox);
+		
+		IMailboxItems recordsApi = prov.instance(IMailboxItems.class, inbox.uid);
+		ContainerChangeset<Long> allById = recordsApi.changesetById(0L);
+		
+		long oneMailId = allById.created.stream().findFirst().get().longValue();
+		recordsApi.addFlag(FlagUpdate.of(oneMailId, new AnsweredFlag()));
+		assertTrue(recordsApi.getCompleteById(oneMailId).value.flags.contains(new AnsweredFlag()));
 	}
 
 	@Test
-	public void createDraft() throws IMAPException, InterruptedException, IOException {
+	public void createDraft() throws InterruptedException, IOException {
 		IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
 		ItemValue<MailboxFolder> inbox = mboxesApi.byName("INBOX");
 		assertNotNull(inbox);
@@ -319,7 +329,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		int retry = 0;
 		do {
 			ItemValue<MailboxItem> refetched = recs.getCompleteById(added.internalId);
-			if (refetched.value.systemFlags.contains(SystemFlag.deleted)) {
+			if (refetched.value.flags.contains(new DeletedFlag())) {
 				break;
 			}
 			Thread.sleep(200);
@@ -338,7 +348,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		assertNotNull(partId);
 		System.out.println("Got partId " + partId);
 		MailboxItem item = MailboxItem.of("toto", Part.create(null, "text/plain", partId));
-		item.otherFlags = Arrays.asList("Pouic");
+		item.flags = Arrays.asList(new MailboxItemFlag("Pouic"));
 		IOfflineMgmt idAllocator = provider().instance(IOfflineMgmt.class, domainUid, userUid);
 		IdRange oneId = idAllocator.allocateOfflineIds(1);
 		long expectedId = oneId.globalCounter;
@@ -1102,9 +1112,9 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		System.err.println("Found " + unread.size() + " unread item(s).");
 		assertFalse(unread.isEmpty());
 		List<ItemValue<MailboxItem>> refetch = itemsApi.multipleById(unread);
-		List<SeenUpdate> forUpdate = refetch.stream().map(iv -> SeenUpdate.of(iv.internalId, true, true))
-				.collect(Collectors.toList());
-		Ack ack = itemsApi.updateSeens(forUpdate);
+		List<Long> itemsId = refetch.stream().map(iv -> iv.internalId).collect(Collectors.toList());
+		itemsApi.addFlag(FlagUpdate.of(itemsId, new SeenFlag()));
+		Ack ack = itemsApi.addFlag(FlagUpdate.of(itemsId, new MailboxItemFlag("$MDNSent")));
 		System.err.println("Got ack " + ack);
 		refetch = itemsApi.multipleById(unread);
 		unread = itemsApi.unreadItems();
@@ -1854,10 +1864,10 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		itemApi = provider().instance(IMailboxItems.class, src.uid);
 		ItemValue<MailboxItem> deleted = itemApi.getCompleteById(id);
 		System.err.println("Deleted: " + deleted);
-		assertTrue(deleted.value.systemFlags.contains(SystemFlag.deleted));
+		assertTrue(deleted.value.flags.contains(new DeletedFlag()));
 
 		deleted = itemApi.getCompleteById(id2);
-		assertTrue(deleted.value.systemFlags.contains(SystemFlag.deleted));
+		assertTrue(deleted.value.flags.contains(new DeletedFlag()));
 
 	}
 
@@ -1922,9 +1932,9 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		// check delete from source
 		itemApi = provider().instance(IMailboxItems.class, src.uid);
 		ItemValue<MailboxItem> deleted = itemApi.getCompleteById(id);
-		assertTrue(deleted.value.systemFlags.contains(SystemFlag.deleted));
+		assertTrue(deleted.value.flags.contains(new DeletedFlag()));
 		deleted = itemApi.getCompleteById(id2);
-		assertTrue(deleted.value.systemFlags.contains(SystemFlag.deleted));
+		assertTrue(deleted.value.flags.contains(new DeletedFlag()));
 	}
 
 	@Test
@@ -2265,7 +2275,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 
 		changeset.updated.forEach(up -> {
 			ItemValue<MailboxItem> record = recordsApi.getCompleteById(up);
-			assertTrue(record.value.systemFlags.contains(SystemFlag.deleted));
+			assertTrue(record.value.flags.contains(new DeletedFlag()));
 		});
 
 	}

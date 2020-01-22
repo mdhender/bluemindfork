@@ -65,7 +65,7 @@ public class DbMailboxRecordsServiceTests extends AbstractMailboxRecordsServiceT
 		ItemValue<MailboxRecord> loaded = records.getComplete(mailUid);
 		assertNotNull(loaded);
 		MailboxItem value = loaded.value;
-		System.out.println("Reloaded " + value.imapUid + ", flags: " + value.systemFlags + ", body: " + value.body);
+		System.out.println("Reloaded " + value.imapUid + ", flags: " + value.flags + ", body: " + value.body);
 	}
 
 	protected IDbMailboxRecords getService(SecurityContext ctx) {

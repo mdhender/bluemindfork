@@ -46,6 +46,7 @@ import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.MessageBody.Header;
 import net.bluemind.backend.mail.api.MessageBody.Part;
+import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.MailApiHeaders;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Stream;
@@ -212,7 +213,7 @@ public abstract class AbstractRollingReplicationTests {
 			brandNew.structure = fullEml;
 			MailboxItem item = new MailboxItem();
 			item.body = brandNew;
-			item.otherFlags = Arrays.asList("Pouic");
+			item.flags = Arrays.asList(new MailboxItemFlag("Pouic"));
 			long expectedId = id;
 			System.err.println("Before create by id....." + id);
 			recordsApi.createById(expectedId, item);

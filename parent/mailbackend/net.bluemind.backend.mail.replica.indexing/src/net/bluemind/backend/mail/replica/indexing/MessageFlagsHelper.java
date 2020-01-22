@@ -22,7 +22,8 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import net.bluemind.backend.mail.api.MailboxItem.SystemFlag;
+import net.bluemind.backend.mail.api.flags.SystemFlag.SeenFlag;
+import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 
 public class MessageFlagsHelper {
 
@@ -32,9 +33,9 @@ public class MessageFlagsHelper {
 	private static final String UNREAD = "unread";
 	private static final String UNSEEN = "unseen";
 
-	public static Set<String> asFlags(Collection<SystemFlag> imapFlags) {
-		Set<String> basicSet = imapFlags.stream().map(Enum::name).collect(Collectors.toSet());
-		if (!basicSet.contains(SystemFlag.seen.name())) {
+	public static Set<String> asFlags(Collection<MailboxItemFlag> imapFlags) {
+		Set<String> basicSet = imapFlags.stream().map(item -> item.flag).collect(Collectors.toSet());
+		if (!basicSet.contains(new SeenFlag().flag)) {
 			basicSet.add(UNREAD);
 			basicSet.add(UNSEEN);
 		}

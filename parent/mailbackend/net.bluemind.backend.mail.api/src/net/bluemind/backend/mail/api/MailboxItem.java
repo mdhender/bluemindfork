@@ -22,13 +22,12 @@
  */
 package net.bluemind.backend.mail.api;
 
-import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
 import net.bluemind.backend.mail.api.MessageBody.Part;
+import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.core.api.BMApi;
 
 /**
@@ -39,69 +38,13 @@ import net.bluemind.core.api.BMApi;
 @BMApi(version = "3")
 public class MailboxItem {
 
-	@BMApi(version = "3")
-	public static enum SystemFlag {
-
-		/**
-		 * 
-		 */
-		answered(1 << 0, "\\Answered"),
-
-		/**
-		 * 
-		 */
-		flagged(1 << 1, "\\Flagged"),
-
-		/**
-		 * 
-		 */
-		deleted(1 << 2, "\\Deleted"),
-
-		/**
-		 * 
-		 */
-		draft(1 << 3, "\\Draft"),
-
-		/**
-		 * 
-		 */
-		seen(1 << 4, "\\Seen");
-
-		public final int value;
-		public final String imapName;
-
-		private SystemFlag(int v, String imap) {
-			this.value = v;
-			this.imapName = imap;
-		}
-
-		public static Collection<SystemFlag> of(int value) {
-			EnumSet<SystemFlag> ret = EnumSet.noneOf(SystemFlag.class);
-			for (SystemFlag sf : SystemFlag.values()) {
-				if ((sf.value & value) == sf.value) {
-					ret.add(sf);
-				}
-			}
-			return ret;
-		}
-
-		public static int valueOf(Iterable<SystemFlag> flags) {
-			int ret = 0;
-			for (SystemFlag sf : flags) {
-				ret |= sf.value;
-			}
-			return ret;
-		}
-	}
-
 	/**
 	 * UID of the {@link MessageBody}, guid in replication protocol
 	 */
 	public MessageBody body;
 
 	public long imapUid;
-	public Collection<SystemFlag> systemFlags = EnumSet.noneOf(SystemFlag.class);
-	public List<String> otherFlags = Collections.emptyList();
+	public List<MailboxItemFlag> flags = Collections.emptyList();
 
 	public static MailboxItem of(String subject, Part structure) {
 		MailboxItem mi = new MailboxItem();
@@ -112,6 +55,6 @@ public class MailboxItem {
 	@Override
 	public String toString() {
 		return "[rec imap: " + imapUid + ", body: " + Optional.ofNullable(body).map(b -> b.guid).orElse("NULL BODY")
-				+ ", flags: " + systemFlags + "]";
+				+ ", flags: " + flags + "]";
 	}
 }

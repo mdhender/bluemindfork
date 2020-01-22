@@ -40,8 +40,11 @@ import org.junit.Test;
 
 import net.bluemind.backend.cyrus.replication.testhelper.CyrusGUID;
 import net.bluemind.backend.cyrus.replication.testhelper.MailboxUniqueId;
-import net.bluemind.backend.mail.api.MailboxItem.SystemFlag;
 import net.bluemind.backend.mail.api.MessageBody;
+import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
+import net.bluemind.backend.mail.api.flags.SystemFlag.AnsweredFlag;
+import net.bluemind.backend.mail.api.flags.SystemFlag.DeletedFlag;
+import net.bluemind.backend.mail.api.flags.SystemFlag.SeenFlag;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
@@ -93,7 +96,7 @@ public class MailboxRecordStoreTests {
 	@Test
 	public void testFlagsMatch() throws SQLException {
 		MailboxRecord mb = simpleRecord();
-		mb.systemFlags = Arrays.asList(SystemFlag.seen, SystemFlag.deleted);
+		mb.flags = Arrays.asList(new SeenFlag(), new DeletedFlag());
 
 		String uniqueId = "rec" + System.currentTimeMillis();
 		Item it = Item.create(uniqueId, null);
@@ -104,7 +107,7 @@ public class MailboxRecordStoreTests {
 		boxRecordStore.create(it, mb);
 		MailboxRecord reloaded = boxRecordStore.get(it);
 		assertNotNull(reloaded);
-		assertNotNull(reloaded.systemFlags);
+		assertNotNull(reloaded.flags);
 		List<ImapBinding> unread = boxRecordStore.unreadItems();
 		assertTrue(unread.isEmpty());
 
@@ -122,21 +125,21 @@ public class MailboxRecordStoreTests {
 		boxRecordStore.create(it, mb);
 		MailboxRecord reloaded = boxRecordStore.get(it);
 		assertNotNull(reloaded);
-		assertNotNull(reloaded.systemFlags);
+		assertNotNull(reloaded.flags);
 		assertEquals(mb.messageBody, reloaded.messageBody);
 
 		List<MailboxRecord> multiple = boxRecordStore.getMultiple(Arrays.asList(it));
 		assertTrue(multiple.size() == 1);
 
-		System.out.println("beforeFlags: " + reloaded.systemFlags);
-		reloaded.systemFlags = EnumSet.of(SystemFlag.answered);
+		System.out.println("beforeFlags: " + reloaded.flags);
+		reloaded.flags = Arrays.asList(new AnsweredFlag());
 		reloaded.internalFlags = EnumSet.of(InternalFlag.expunged);
-		reloaded.otherFlags = Arrays.asList("$john", "$bang");
+		reloaded.flags.addAll(Arrays.asList(new MailboxItemFlag("$john"), new MailboxItemFlag("$bang")));
 		boxRecordStore.update(it, reloaded);
 		MailboxRecord reloaded2 = boxRecordStore.get(it);
-		assertEquals(reloaded.systemFlags, reloaded2.systemFlags);
+		assertEquals(reloaded.flags, reloaded2.flags);
 		assertEquals(reloaded.internalFlags, reloaded2.internalFlags);
-		System.out.println("afterFlags: " + reloaded2.systemFlags + ", internal: " + reloaded2.internalFlags);
+		System.out.println("afterFlags: " + reloaded2.flags + ", internal: " + reloaded2.internalFlags);
 
 		List<ImapBinding> asBindings = boxRecordStore.bindings(Arrays.asList(it.id));
 		assertNotNull(asBindings);
@@ -165,7 +168,7 @@ public class MailboxRecordStoreTests {
 		boxRecordStore.create(it, mb);
 		MailboxRecord reloaded = boxRecordStore.get(it);
 		assertNotNull(reloaded);
-		assertNotNull(reloaded.systemFlags);
+		assertNotNull(reloaded.flags);
 
 		List<ImapBinding> existing = boxRecordStore.recentItems(new Date(0));
 		Optional<ImapBinding> optRec = existing.stream().filter(ib -> ib.itemId == it.id).findAny();
@@ -272,7 +275,7 @@ public class MailboxRecordStoreTests {
 		record.messageBody = CyrusGUID.randomGuid();
 		record.internalDate = new Date();
 		record.lastUpdated = new Date();
-		record.systemFlags = EnumSet.of(SystemFlag.seen);
+		record.flags = Arrays.asList(new SeenFlag());
 		return record;
 	}
 

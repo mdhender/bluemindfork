@@ -43,8 +43,8 @@ import net.bluemind.backend.mail.api.ImportMailboxItemSet.MailboxItemId;
 import net.bluemind.backend.mail.api.ImportMailboxItemsStatus;
 import net.bluemind.backend.mail.api.ImportMailboxItemsStatus.ImportStatus;
 import net.bluemind.backend.mail.api.MailboxItem;
-import net.bluemind.backend.mail.api.MailboxItem.SystemFlag;
 import net.bluemind.backend.mail.api.MessageBody.Part;
+import net.bluemind.backend.mail.api.flags.SystemFlag.SeenFlag;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ContainerChangeset;
@@ -178,7 +178,7 @@ public class EmailManager extends CoreConnect {
 					try {
 						MailboxItem mi = MailboxItem.of(m.getSubject(), Part.create(null, "message/rfc822", partAddr));
 						mi.body.date = new Date();
-						mi.systemFlags = Arrays.asList(SystemFlag.seen);
+						mi.flags = Arrays.asList(new SeenFlag());
 						service.create(mi);
 					} catch (ServerFault serverFault) {
 						if (serverFault.getCode() != ErrorCode.TIMEOUT) {

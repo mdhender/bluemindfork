@@ -44,8 +44,11 @@ import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MailboxItem;
-import net.bluemind.backend.mail.api.MailboxItem.SystemFlag;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
+import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
+import net.bluemind.backend.mail.api.flags.SystemFlag.AnsweredFlag;
+import net.bluemind.backend.mail.api.flags.SystemFlag.FlaggedFlag;
+import net.bluemind.backend.mail.api.flags.SystemFlag.SeenFlag;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
@@ -268,17 +271,17 @@ public class MailBackend extends CoreConnect {
 			MSEmail email = (MSEmail) data;
 			if (email.isRead() != null) {
 				if (email.isRead()) {
-					item.value.systemFlags.add(SystemFlag.seen);
+					item.value.flags.add(new SeenFlag());
 				} else {
-					item.value.systemFlags.removeIf(f -> f == SystemFlag.seen);
+					item.value.flags.removeIf(f -> f == new SeenFlag());
 				}
 			}
 
 			if (email.isStarred() != null) {
 				if (email.isStarred()) {
-					item.value.systemFlags.add(SystemFlag.flagged);
+					item.value.flags.add(new FlaggedFlag());
 				} else {
-					item.value.systemFlags.removeIf(f -> f == SystemFlag.flagged);
+					item.value.flags.removeIf(f -> f.equals(new FlaggedFlag()));
 				}
 			}
 			try {
@@ -415,7 +418,7 @@ public class MailBackend extends CoreConnect {
 			}
 			IMailboxItems service = getMailboxItemsService(bs, folder.uid);
 			ItemValue<MailboxItem> item = service.getCompleteById(uid);
-			item.value.systemFlags.add(SystemFlag.answered);
+			item.value.flags.add(new AnsweredFlag());
 			service.updateById(uid, item.value);
 
 			send(bs, mailContent, rewriter, saveInSent);
@@ -448,7 +451,7 @@ public class MailBackend extends CoreConnect {
 
 			IMailboxItems service = getMailboxItemsService(bs, folder.uid);
 			ItemValue<MailboxItem> item = service.getCompleteById(uid);
-			item.value.otherFlags.add("$Forwarded");
+			item.value.flags.add(new MailboxItemFlag("$Forwarded"));
 			service.updateById(uid, item.value);
 
 			send(bs, mailContent, rewriter, saveInSent);

@@ -23,7 +23,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -39,7 +38,7 @@ import com.google.common.io.Files;
 
 import io.vertx.core.buffer.Buffer;
 import net.bluemind.backend.mail.api.MailboxFolder;
-import net.bluemind.backend.mail.api.MailboxItem.SystemFlag;
+import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.indexing.IndexedMessageBody;
 import net.bluemind.core.api.fault.ServerFault;
@@ -254,13 +253,13 @@ public class MailIndexShardingITTests {
 	}
 
 	private void storeMessage(String mailboxUniqueId, String userUid, String folderUid, String bodyUid, long imapUid,
-			Collection<SystemFlag> flags) {
+			List<MailboxItemFlag> flags) {
 		MailboxFolder folderValue = new MailboxFolder();
 		ItemValue<MailboxFolder> folder = ItemValue.create(folderUid, folderValue);
 		MailboxRecord mail = new MailboxRecord();
 		mail.messageBody = bodyUid;
 		mail.imapUid = imapUid;
-		mail.systemFlags = flags;
+		mail.flags = flags;
 
 		ItemValue<MailboxRecord> item = new ItemValue<>();
 		item.internalId = 44L;

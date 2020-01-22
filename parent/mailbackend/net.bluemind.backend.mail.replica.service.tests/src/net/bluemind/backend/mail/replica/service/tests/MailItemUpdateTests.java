@@ -34,6 +34,7 @@ import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MailboxItem;
+import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemFlag;
@@ -134,7 +135,7 @@ public class MailItemUpdateTests extends AbstractRollingReplicationTests {
 	@Test
 	public void simpleFlagsUpdateStillWorks() {
 		String newFlag = "fresh" + System.currentTimeMillis();
-		mailObject.value.otherFlags = Arrays.asList(newFlag);
+		mailObject.value.flags = Arrays.asList(new MailboxItemFlag(newFlag));
 		Ack ack = mailApi.updateById(mailObject.internalId, mailObject.value);
 		assertEquals("version was not bumped", mailObject.version + 1, ack.version);
 	}

@@ -38,9 +38,10 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.MailboxFolder;
-import net.bluemind.backend.mail.api.MailboxItem.SystemFlag;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.MessageBody.RecipientKind;
+import net.bluemind.backend.mail.api.flags.SystemFlag.DeletedFlag;
+import net.bluemind.backend.mail.api.flags.SystemFlag.SeenFlag;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
@@ -375,8 +376,8 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 
 				pushToIndex.add(idxAndNotif);
 				if ("INBOX".equals(recordsLocation.boxName) && recordsLocation.namespace() == Namespace.users
-						&& !idxAndNotif.value.systemFlags.contains(SystemFlag.seen)
-						&& !idxAndNotif.value.systemFlags.contains(SystemFlag.deleted)) {
+						&& !idxAndNotif.value.flags.contains(new SeenFlag())
+						&& !idxAndNotif.value.flags.contains(new DeletedFlag())) {
 					newMailNotification.add(idxAndNotif);
 				}
 			});
@@ -390,7 +391,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 					upNotifs.add(UpdateNotif.of(vanished.version, mr));
 				} else {
 					ItemVersion upd = storeService.update(uid, uid, mr);
-					if (mr.systemFlags.contains(SystemFlag.deleted)) {
+					if (mr.flags.contains(new DeletedFlag())) {
 						softDelete.incrementAndGet();
 					}
 

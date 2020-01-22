@@ -30,6 +30,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
 import net.bluemind.backend.mail.api.MessageBody.Part;
+import net.bluemind.backend.mail.api.flags.FlagUpdate;
+import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.container.api.Ack;
@@ -139,7 +141,6 @@ public interface IMailboxItems
 	 * Fetch a single part from an email mime tree. The address, encoding & charset
 	 * are specified in the {@link Part} objects from {@link MessageBody#structure}.
 	 * 
-	 * 
 	 * @param imapUid
 	 * @param address
 	 * @param encoding set null to fetch pristine part
@@ -165,14 +166,24 @@ public interface IMailboxItems
 	Stream fetchComplete(@PathParam("imapUid") long imapUid);
 
 	/**
-	 * Batch update of seen flags
+	 * Add one flag to multiple {@link MailboxItem}.
 	 * 
-	 * @param updates
+	 * @param flagUpdate
+	 * @return the new container version
+	 */
+	@PUT
+	@Path("_addFlag")
+	Ack addFlag(FlagUpdate flagUpdate);
+	
+	/**
+	 * Delete one flag to multiple {@link MailboxItem}.
+	 * 
+	 * @param flagUpdate
 	 * @return the new container version
 	 */
 	@POST
-	@Path("_updateSeens")
-	Ack updateSeens(List<SeenUpdate> updates);
+	@Path("_deleteFlag")
+	Ack deleteFlag(FlagUpdate flagUpdate);
 
 	@POST
 	@Path("_sorted")

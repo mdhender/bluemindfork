@@ -27,8 +27,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -39,7 +39,6 @@ import org.junit.Test;
 import net.bluemind.backend.cyrus.replication.testhelper.CyrusGUID;
 import net.bluemind.backend.cyrus.replication.testhelper.MailboxUniqueId;
 import net.bluemind.backend.mail.api.DispositionType;
-import net.bluemind.backend.mail.api.MailboxItem.SystemFlag;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.MessageBody.Header;
 import net.bluemind.backend.mail.api.MessageBody.Part;
@@ -200,7 +199,7 @@ public class MessageBodyStoreTests {
 		record.messageBody = guid;
 		record.internalDate = new Date();
 		record.lastUpdated = new Date();
-		record.systemFlags = EnumSet.of(SystemFlag.seen);
+		record.flags = Collections.emptyList();
 		String uniqueId = "rec" + System.currentTimeMillis();
 		itemStore.create(Item.create(uniqueId, null));
 		Item it = itemStore.get(uniqueId);

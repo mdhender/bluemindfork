@@ -202,7 +202,7 @@ public class MailIndexService implements IMailIndexService {
 
 		Client client = getIndexClient();
 		String userAlias = getIndexAliasName(user);
-		Set<String> is = MessageFlagsHelper.asFlags(mail.systemFlags);
+		Set<String> is = MessageFlagsHelper.asFlags(mail.flags);
 
 		Map<String, Object> parentDoc = null;
 		GetResponse response = client.prepareGet(INDEX_PENDING, PENDING_TYPE, parentUid).get();

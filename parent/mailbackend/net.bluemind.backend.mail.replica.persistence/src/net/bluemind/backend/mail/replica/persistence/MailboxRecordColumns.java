@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
-  * Copyright © Blue Mind SAS, 2012-2017
+  * Copyright © Blue Mind SAS, 2012-2020
   *
   * This file is part of BlueMind. BlueMind is a messaging and collaborative
   * solution.
@@ -26,8 +26,10 @@ import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import net.bluemind.backend.mail.api.MailboxItem.SystemFlag;
+import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
+import net.bluemind.backend.mail.api.flags.SystemFlag;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.core.container.model.Item;
@@ -57,9 +59,10 @@ public class MailboxRecordColumns {
 				value.lastUpdated = rs.getTimestamp(index++);
 				value.internalDate = rs.getTimestamp(index++);
 				int encodedFlags = rs.getInt(index++);
-				value.systemFlags = SystemFlag.of(encodedFlags);
+				value.flags = SystemFlag.of(encodedFlags);
 				value.internalFlags = InternalFlag.of(encodedFlags);
-				value.otherFlags = toList(rs.getArray(index++));
+				value.flags.addAll(toList(rs.getArray(index++)).stream()
+						.map(MailboxItemFlag::new).collect(Collectors.toList()));
 				return index;
 			}
 		};
@@ -85,9 +88,14 @@ public class MailboxRecordColumns {
 				statement.setLong(index++, value.modSeq);
 				statement.setTimestamp(index++, new Timestamp(value.lastUpdated.getTime()));
 				statement.setTimestamp(index++, new Timestamp(value.internalDate.getTime()));
-				int compoundFlags = SystemFlag.valueOf(value.systemFlags) | InternalFlag.valueOf(value.internalFlags);
+				List<SystemFlag> allSystemFlags = SystemFlag.all();
+				List<SystemFlag> systemFlags = value.flags.stream().filter(f -> f.isSystem).map(systemFlag -> {
+					return allSystemFlags.stream().filter(asf -> asf.flag.equals(systemFlag.flag)).findFirst().get();
+				}).collect(Collectors.toList());
+				int compoundFlags = SystemFlag.valueOf(systemFlags) | InternalFlag.valueOf(value.internalFlags);
 				statement.setInt(index++, compoundFlags);
-				statement.setArray(index++, con.createArrayOf("text", value.otherFlags.toArray()));
+				List<MailboxItemFlag> otherFlags = value.flags.stream().filter(f -> !f.isSystem).collect(Collectors.toList());
+				statement.setArray(index++, con.createArrayOf("text", otherFlags.toArray()));
 				statement.setLong(index++, item.id);
 				return 0;
 			}

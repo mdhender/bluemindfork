@@ -29,7 +29,10 @@ import com.google.common.base.Splitter;
 
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MailboxItem;
-import net.bluemind.backend.mail.api.MailboxItem.SystemFlag;
+import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
+import net.bluemind.backend.mail.api.flags.SystemFlag.AnsweredFlag;
+import net.bluemind.backend.mail.api.flags.SystemFlag.FlaggedFlag;
+import net.bluemind.backend.mail.api.flags.SystemFlag.SeenFlag;
 import net.bluemind.backend.mail.api.MessageBody.Header;
 import net.bluemind.backend.mail.api.MessageBody.Recipient;
 import net.bluemind.backend.mail.api.MessageBody.RecipientKind;
@@ -118,19 +121,19 @@ public class StructureMailLoader extends CoreConnect {
 
 		ret.dateReceived = item.body.date;
 
-		ret.read = item.systemFlags.contains(SystemFlag.seen);
+		ret.read = item.flags.contains(new SeenFlag());
 		ret.flag = new EmailResponse.Flag();
 
-		if (item.systemFlags.contains(SystemFlag.flagged)) {
+		if (item.flags.contains(new FlaggedFlag())) {
 			ret.flag.flagType = "Flag for follow-up";
 			ret.flag.status = Status.Active;
 		} else {
 			ret.flag.status = Status.Cleared;
 		}
 
-		if (item.systemFlags.contains(SystemFlag.answered)) {
+		if (item.flags.contains(new AnsweredFlag())) {
 			ret.lastVerbExecuted = LastVerbExecuted.ReplyToSender;
-		} else if (item.otherFlags.contains("$Forwarded")) {
+		} else if (item.flags.contains(new MailboxItemFlag("$Forwarded"))) {
 			ret.lastVerbExecuted = LastVerbExecuted.Forward;
 		}
 

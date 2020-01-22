@@ -41,7 +41,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import net.bluemind.backend.mail.api.MailboxFolder;
-import net.bluemind.backend.mail.api.MailboxItem.SystemFlag;
+import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
@@ -166,13 +166,15 @@ public class BoxIndexing {
 		for (List<Long> partialList : partitioned) {
 			long lowestUid = Long.MAX_VALUE;
 			long highestUid = Long.MIN_VALUE;
-			Map<Record, Collection<SystemFlag>> flagMapping = new HashMap<>();
+			Map<Record, Collection<MailboxItemFlag>> flagMapping = new HashMap<>();
 			for (Long createdMail : partialList) {
 				ItemValue<MailboxRecord> completeById = mbItems.getCompleteById(createdMail);
 				long imapUid = completeById.value.imapUid;
 				lowestUid = Math.min(lowestUid, imapUid);
 				highestUid = Math.max(highestUid, imapUid);
-				flagMapping.put(new Record(imapUid, completeById.uid), completeById.value.systemFlags);
+				Collection<MailboxItemFlag> systemFlags = completeById.value.flags.stream()
+						.filter(item -> item.isSystem).collect(Collectors.toList());
+				flagMapping.put(new Record(imapUid, completeById.uid), systemFlags);
 				handledDbEntries.add((int) imapUid);
 			}
 			logger.info("Folder {}:{}, resyncing from {} to {}", f.uid, f.value.name, lowestUid, highestUid);
@@ -193,7 +195,7 @@ public class BoxIndexing {
 	}
 
 	private Set<Integer> resyncUidRange(ItemValue<Mailbox> mailbox, ItemValue<MailboxFolder> f, int lowUid, int highUid,
-			Map<Record, Collection<SystemFlag>> flagMapping) {
+			Map<Record, Collection<MailboxItemFlag>> flagMapping) {
 		String set = lowUid + ":" + highUid;
 		// retrieve mails summary from es
 		IDSet asSet = IDSet.parse(set);
@@ -212,7 +214,7 @@ public class BoxIndexing {
 					// index it !
 					toIndex.add(imapRecord);
 				} else {
-					Collection<SystemFlag> imapFlags = flagMapping.get(imapRecord);
+					Collection<MailboxItemFlag> imapFlags = flagMapping.get(imapRecord);
 					if (!flagsEqual(imapFlags, esSum.flags)) {
 						// flags are desynchronized
 						// Synchronize them !
@@ -244,7 +246,7 @@ public class BoxIndexing {
 		return esSums.keySet();
 	}
 
-	private boolean flagsEqual(Collection<SystemFlag> imapFlags, Set<String> flags) {
+	private boolean flagsEqual(Collection<MailboxItemFlag> imapFlags, Set<String> flags) {
 		return new HashSet<>(MessageFlagsHelper.asFlags(imapFlags)).equals(flags);
 	}
 

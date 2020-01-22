@@ -18,7 +18,6 @@
 package net.bluemind.backend.cyrus.replication.server.state;
 
 import java.util.Date;
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,7 +30,12 @@ import com.google.common.base.Splitter;
 
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.cyrus.replication.server.state.MboxRecord.MessageRecordBuilder;
-import net.bluemind.backend.mail.api.MailboxItem.SystemFlag;
+import net.bluemind.backend.mail.api.flags.SystemFlag.AnsweredFlag;
+import net.bluemind.backend.mail.api.flags.SystemFlag.DeletedFlag;
+import net.bluemind.backend.mail.api.flags.SystemFlag.DraftFlag;
+import net.bluemind.backend.mail.api.flags.SystemFlag.FlaggedFlag;
+import net.bluemind.backend.mail.api.flags.SystemFlag.SeenFlag;
+import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
@@ -157,12 +161,7 @@ public class DtoConverters {
 		b.internalDate(mr.internalDate.getTime() / 1000).lastUpdated(mr.lastUpdated.getTime() / 1000);
 		b.body(mr.messageBody);
 		List<String> flags = new LinkedList<>();
-		for (SystemFlag sf : mr.systemFlags) {
-			if (sf.imapName != null) {
-				flags.add(sf.imapName);
-			}
-		}
-		flags.addAll(mr.otherFlags);
+		flags.addAll(mr.flags.stream().map(item -> item.flag).collect(Collectors.toList()));
 		b.flags(flags);
 		return b.build();
 	}
@@ -174,24 +173,23 @@ public class DtoConverters {
 		mr.lastUpdated = new Date(replRec.lastUpdated() * 1000);
 		mr.messageBody = replRec.bodyGuid();
 		mr.modSeq = replRec.modseq();
-		mr.systemFlags = EnumSet.noneOf(MailboxRecord.SystemFlag.class);
-		mr.otherFlags = new LinkedList<>();
+		mr.flags = new LinkedList<>();
 		for (String f : replRec.flags()) {
 			switch (f.toLowerCase()) {
 			case "\\answered":
-				mr.systemFlags.add(SystemFlag.answered);
+				mr.flags.add(new AnsweredFlag());
 				break;
 			case "\\flagged":
-				mr.systemFlags.add(SystemFlag.flagged);
+				mr.flags.add(new FlaggedFlag());
 				break;
 			case "\\deleted":
-				mr.systemFlags.add(SystemFlag.deleted);
+				mr.flags.add(new DeletedFlag());
 				break;
 			case "\\draft":
-				mr.systemFlags.add(SystemFlag.draft);
+				mr.flags.add(new DraftFlag());
 				break;
 			case "\\seen":
-				mr.systemFlags.add(SystemFlag.seen);
+				mr.flags.add(new SeenFlag());
 				break;
 			case "\\needscleanup":
 				mr.internalFlags.add(InternalFlag.needsCleanup);
@@ -206,7 +204,7 @@ public class DtoConverters {
 				mr.internalFlags.add(InternalFlag.expunged);
 				break;
 			default:
-				mr.otherFlags.add(f);
+				mr.flags.add(new MailboxItemFlag(f));
 				break;
 			}
 		}
