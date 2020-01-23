@@ -192,7 +192,7 @@ public class SchemaUpgrade {
 
 			}
 
-			subWork.progress(1, "Updater " + u + " complete (result: " + ur + ")");
+			subWork.progress(1, "Updater " + u + " complete (result: " + ur.result.name() + ")");
 		}
 		return ur;
 	}
