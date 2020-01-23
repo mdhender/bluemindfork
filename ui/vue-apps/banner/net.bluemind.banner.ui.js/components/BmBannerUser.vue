@@ -89,7 +89,8 @@ $contrasted-color : color-yiq(theme-color("info-dark")) !important;
 }
 
 .bm-banner-user .dropdown-item {
-    padding: map-get($spacers, 2) map-get($spacers, 3);
+    padding-right: map-get($spacers, 3);
+    padding-left: map-get($spacers, 3);
     color: $contrasted-color;
     &:focus, &:hover, &:active, &:active:focus {
         background-color: unset;
