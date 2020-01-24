@@ -56,5 +56,9 @@ export default {
     "MSG_DRAFT_DELETE_ERROR": {
         type: AlertTypes.ERROR,
         key: "alert.mail.message.draft.delete.error"
+    },
+    "MSG_DRAFT_ATTACH_ERROR": {
+        type: AlertTypes.ERROR,
+        key: "alert.mail.message.draft.attach.error"
     }
 };

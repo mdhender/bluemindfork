@@ -96,7 +96,18 @@ export function saveDraft({ commit, state, getters }) {
                     ]
                 };
             }
+
+            if (state.draft.attachments.length > 0) {
+                let children = [structure];
+                children.push(...state.draft.attachments);
+                structure = {
+                    mime: MimeType.MULTIPART_MIXED,
+                    children
+                };
+            }
+
             const key = ItemUri.encode(draft.id, getters.my.DRAFTS.uid);
+
             return service.create(
                 new Message(key, draft).toMailboxItem(
                     userSession.defaultEmail,

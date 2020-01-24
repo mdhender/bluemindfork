@@ -8,6 +8,7 @@ export function setDraft(state, { draft, isNew }) {
         draftCopy.status = DraftStatus.NEW;
         draftCopy.id = null;
         draftCopy.saveDate = null;
+        draftCopy.attachments = [];
     }
     updateDraft(state, draftCopy);
 }

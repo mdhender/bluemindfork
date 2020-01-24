@@ -1,5 +1,5 @@
 <template>
-    <div class="d-flex justify-content-between">
+    <div class="mail-message-new-footer d-flex justify-content-between align-items-center">
         <div>
             <bm-button
                 type="submit"
@@ -18,15 +18,41 @@
                 {{ $t("common.delete") }}
             </bm-button>
         </div>
-        <span 
-            v-if="errorOccuredOnSave"
-            v-bm-tooltip.bottom.ds500
-            class="d-flex align-items-center pr-2 text-danger"
-            :title="$t('mail.draft.save.error.reason')"
-        >
-            <bm-icon icon="exclamation-circle" class="mr-1" />{{ saveMessage }}
-        </span>
-        <span v-else class="text-muted pr-2 align-self-center">{{ saveMessage }}</span>
+        <div class="d-flex align-items-center">
+            <span
+                v-if="errorOccuredOnSave"
+                v-bm-tooltip.bottom.ds500
+                class="pr-2 text-danger"
+                :title="$t('mail.draft.save.error.reason')"
+            >
+                <!-- trick: modify the viewBox attribute to have a correct vertical alignment -->
+                <!-- eslint-disable-next-line vue/attribute-hyphenation -->
+                <bm-icon icon="exclamation-circle" class="mr-1" viewBox="0 -1 12 12" />{{ saveMessage }}
+            </span>
+            <span v-else class="text-muted pr-2">{{ saveMessage }}</span>
+            <bm-button
+                v-bm-tooltip.bottom.ds500
+                variant="link"
+                class="p-2"
+                :aria-label="textFormatterLabel"
+                :title="textFormatterLabel"
+                :disabled="isSending || isDeleting"
+            >
+                <bm-icon icon="text-format" size="lg" />
+            </bm-button>
+            <input ref="attachInputRef" type="file" multiple hidden @change="doAttach" />
+            <bm-button
+                v-bm-tooltip.bottom.ds500
+                variant="link"
+                class="p-2"
+                :aria-label="$tc('mail.actions.attach.aria')"
+                :title="$tc('mail.actions.attach.aria')"
+                :disabled="isSending || isDeleting"
+                @click="openFilePicker()"
+            >
+                <bm-icon icon="paper-clip" size="lg" />
+            </bm-button>
+        </div>
     </div>
 </template>
 
@@ -34,7 +60,7 @@
 import { BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
 import { DateComparator } from "@bluemind/date";
 import { DraftStatus } from "@bluemind/backend.mail.store";
-import { mapState } from "vuex";
+import { mapState, mapActions } from "vuex";
 
 export default {
     name: "MailMessageNewFooter",
@@ -74,9 +100,30 @@ export default {
         formattedDraftSaveDate() {
             const saveDate = this.draft.saveDate || new Date();
             if (DateComparator.isToday(saveDate)) {
-                return this.$t("mail.draft.save.date.time", { time: this.$d(saveDate, 'short_time') });
+                return this.$t("mail.draft.save.date.time", { time: this.$d(saveDate, "short_time") });
             }
-            return this.$t("mail.draft.save.date", { date: this.$d(saveDate, 'short_date') });
+            return this.$t("mail.draft.save.date", { date: this.$d(saveDate, "short_date") });
+        },
+        isTextFormatterOpened() {
+            return false; // TODO change this once @kevin refactor about BmRichEditor is done
+        },
+        textFormatterLabel() {
+            return this.isTextFormatterOpened
+                ? this.$tc("mail.actions.textformat.hide.aria")
+                : this.$tc("mail.actions.textformat.show.aria");
+        }
+    },
+    methods: {
+        ...mapActions("mail-webapp", ["addAttachment"]),
+        openFilePicker() {
+            this.$refs.attachInputRef.click();
+        },
+        doAttach(event) {
+            if (event.target.files.length > 0) {
+                for (let file of event.target.files) {
+                    this.addAttachment(file);
+                }
+            }
         }
     }
 };

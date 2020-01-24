@@ -40,8 +40,8 @@ describe("[Mail-WebappStore][actions] :  selectFolder", () => {
         expect(context.commit).toHaveBeenCalledWith("setSearchPattern", null);
         expect(context.commit).toHaveBeenCalledWith("clearCurrentMessage");
     });
-    test("clear the current folder selection only if folder changed", () => {
-        selectFolder(context, { folderKey });
+    test("clear the current folder selection only if folder or filter changed", () => {
+        selectFolder(context, { folderKey, filter: null });
         expect(context.commit).not.toHaveBeenCalledWith("messages/clearItems");
         expect(context.commit).not.toHaveBeenCalledWith("setCurrentFolder", expect.anything());
         expect(ContainerObserver.observe).not.toHaveBeenCalledWith("mailbox_records", folderUid);

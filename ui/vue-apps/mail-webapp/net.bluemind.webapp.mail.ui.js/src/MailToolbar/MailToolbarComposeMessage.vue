@@ -14,6 +14,18 @@
         <bm-button
             v-bm-tooltip.bottom.ds500
             variant="link"
+            :aria-label="$tc('mail.actions.attach.aria')"
+            :title="$tc('mail.actions.attach.aria')"
+            :disabled="isSending || isDeleting"
+            @click="openFilePicker()"
+        >
+            <bm-icon icon="paper-clip" size="2x" />
+            {{ $tc("mail.actions.attach") }}
+        </bm-button>
+        <input ref="attachInputRef" type="file" multiple hidden @change="doAttach" />
+        <bm-button
+            v-bm-tooltip.bottom.ds500
+            variant="link"
             :aria-label="$tc('mail.actions.save.aria')"
             :title="$tc('mail.actions.save.aria')"
             :disabled="isSaving || isSending || isDeleting"
@@ -32,16 +44,6 @@
         >
             <bm-icon icon="trash" size="2x" />
             {{ $tc("mail.actions.remove") }}
-        </bm-button> 
-        <bm-button
-            v-bm-tooltip.bottom.ds500
-            variant="link"
-            :aria-label="$tc('mail.actions.attach.aria')"
-            :title="$tc('mail.actions.attach.aria')"
-            :disabled="isSending || isDeleting"
-        >
-            <bm-icon icon="paper-clip" size="2x" />
-            {{ $tc("mail.actions.attach") }}
         </bm-button>
     </div>
 </template>
@@ -59,7 +61,7 @@ export default {
         BmIcon
     },
     directives: { BmTooltip },
-    mixins: [ RouterMixin ],
+    mixins: [RouterMixin],
     computed: {
         ...mapState("mail-webapp", ["draft"]),
         isSending() {
@@ -73,15 +75,25 @@ export default {
         },
         errorOccuredOnSave() {
             return this.draft.status === DraftStatus.SAVE_ERROR;
-        },
+        }
     },
     methods: {
-        ...mapActions("mail-webapp", ["deleteDraft", "saveDraft", "send"]),
+        ...mapActions("mail-webapp", ["deleteDraft", "saveDraft", "send", "addAttachment"]),
         doDelete() {
             this.deleteDraft().then(() => this.navigateToParent());
         },
         doSend() {
             this.send().then(() => this.navigateToParent());
+        },
+        openFilePicker() {
+            this.$refs.attachInputRef.click();
+        },
+        doAttach(event) {
+            if (event.target.files.length > 0) {
+                for (let file of event.target.files) {
+                    this.addAttachment(file);
+                }
+            }
         }
     }
 };

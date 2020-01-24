@@ -1,6 +1,7 @@
 export * from "./$_createFolder";
 export * from "./$_getIfNotPresent";
 export * from "./$_move";
+export * from "./addAttachment";
 export * from "./bootstrap";
 export * from "./collapseFolder";
 export * from "./deleteDraft";

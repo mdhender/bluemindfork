@@ -15,7 +15,8 @@ describe("[Mail-WebappStore][state] : initial state", () => {
         expect(state.draft).toEqual({
             id: null,
             status: DraftStatus.NEW,
-            saveDate: null
+            saveDate: null,
+            attachments: []
         });
     });
     test("contains a empty object 'foldersData'", () => {

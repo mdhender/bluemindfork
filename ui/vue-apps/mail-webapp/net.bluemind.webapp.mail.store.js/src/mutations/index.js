@@ -1,3 +1,4 @@
+export * from "./addAttachmentToDraft";
 export * from "./clearCurrentMessage";
 export * from "./collapseFolder";
 export * from "./expandFolder";
