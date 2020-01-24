@@ -37,14 +37,6 @@
 					<g:ListBox multipleSelect="true" ui:field="mailboxStorageServer"></g:ListBox>
 				</td>
 			</tr>
-			<tr>
-				<td style='width:250px'>
-					<g:Label text="{c.mailboxConnectionServer}:"></g:Label>
-				</td>
-				<td style='width:350px'>
-					<g:ListBox multipleSelect="true" ui:field="mailboxConnectionServer"></g:ListBox>
-				</td>
-			</tr>
 		</table>
 		<f:FieldSetPanel name="{c.mailStorage}" />
 		<table border="0">
