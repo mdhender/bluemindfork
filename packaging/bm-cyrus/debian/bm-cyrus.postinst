@@ -46,13 +46,4 @@ if [ ! -d /run ]; then
     mkdir /run
 fi
 
-if [ ! -e /run/cyrus ]; then
-    ln -s /var/lib/cyrus /run/cyrus
-fi
-
-
-
-
 exit 0
-
-
