@@ -2,7 +2,7 @@ create type t_calendarview_type as enum
   ('DAY', 'WEEK', 'MONTH', 'LIST');
   
 create table t_calendarview (
-    item_id int4 references t_container_item(id),
+    item_id int4 references t_container_item(id) on delete cascade,
 
     id  serial primary key,
     label text,

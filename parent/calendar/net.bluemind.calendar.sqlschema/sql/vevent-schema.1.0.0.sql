@@ -128,7 +128,7 @@ create table t_calendar_vevent (
    attach_uri text[],
    attach_name text[],
 
-  item_id int4 references t_container_item(id)
+  item_id int4 references t_container_item(id) on delete cascade
 );
 
 CREATE INDEX tcv_item_id_fkey ON t_calendar_vevent(item_id);
@@ -138,7 +138,7 @@ CREATE INDEX idx_calendar_vevent_valarm_trigger ON t_calendar_vevent (valarm_tri
 create table t_calendar_series (
   ics_uid text NOT NULL,
   properties hstore,
-  item_id int4 references t_container_item(id) UNIQUE
+  item_id int4 references t_container_item(id) on delete cascade UNIQUE
 );
 CREATE INDEX idx_calendar_series_itemid ON t_calendar_series(item_id);
 CREATE INDEX idx_calendar_series_icsuid ON t_calendar_series(ics_uid);

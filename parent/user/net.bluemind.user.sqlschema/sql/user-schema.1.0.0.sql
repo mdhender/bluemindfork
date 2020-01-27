@@ -5,7 +5,7 @@ create type t_domain_routing as enum
 
 
 create table t_domain_user (
-	item_id 	  	int4 references t_container_item(id) primary key,
+	item_id 	  	int4 references t_container_item(id) on delete cascade primary key,
 	login 		  	varchar(64) not null,
 	password 	  	varchar(255),
 	password_lastchange	timestamp,
@@ -24,7 +24,7 @@ CREATE INDEX idx_domain_user_login ON t_domain_user(login);
 CREATE EXTENSION IF NOT EXISTS hstore;
 
 create table t_settings_user (
-  item_id   int4 references t_container_item(id) primary key,
+  item_id   int4 references t_container_item(id) on delete cascade primary key,
   settings  hstore
 );
 CREATE INDEX idx_settings_user_item_id ON t_settings_user(item_id);

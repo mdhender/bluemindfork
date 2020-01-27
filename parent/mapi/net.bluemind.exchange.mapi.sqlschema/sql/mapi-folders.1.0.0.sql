@@ -1,4 +1,4 @@
-CREATE TABLE t_mapi_folders (
+CREATE TABLE if not exists t_mapi_folders (
 	replica_guid varchar(36) not null,
 	container_uid text not null,
 	parent_container_uid text,
@@ -7,9 +7,9 @@ CREATE TABLE t_mapi_folders (
 	primary key (replica_guid, container_uid)
 );
 
-CREATE TABLE t_mapi_raw_message (
+CREATE TABLE if not exists t_mapi_raw_message (
 	content jsonb,
-	item_id int4 references t_container_item(id)
+	item_id int4 references t_container_item(id) on delete cascade
 );
-create index tmrm_item_id_fkey on t_mapi_raw_message(item_id);
+create index if not exists tmrm_item_id_fkey on t_mapi_raw_message(item_id);
 

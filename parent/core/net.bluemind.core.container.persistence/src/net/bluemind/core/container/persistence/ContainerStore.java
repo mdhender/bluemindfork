@@ -361,4 +361,29 @@ public class ContainerStore extends JdbcAbstractStore {
 		}
 	}
 
+	/**
+	 * Returns all container uids belonging to a different server
+	 * 
+	 * @param serverUid
+	 * @return
+	 * @throws SQLException
+	 */
+	private List<String> getForeignContainers(String location) throws SQLException {
+		if (location == null) {
+			return select(
+					"select container_uid from t_container_location where not location is null and location <> ''",
+					StringCreator.FIRST, Collections.emptyList(), new Object[0]);
+		} else {
+			return select(
+					"select c.uid from t_container c left join t_container_location cl on c.uid = cl.container_uid where cl.location is null or cl.location = '' or cl.location <> ?",
+					StringCreator.FIRST, Collections.emptyList(), new Object[] { location });
+		}
+	}
+
+	public Set<String> getObsoleteContainers(String location) throws SQLException {
+		List<String> containers = select("select c.uid from t_container c where c.container_type = ?", StringCreator.FIRST,
+				Collections.emptyList(), new Object[] { "t_folder" });
+		containers.addAll(getForeignContainers(location));
+		return new HashSet<>(containers);
+	}
 }

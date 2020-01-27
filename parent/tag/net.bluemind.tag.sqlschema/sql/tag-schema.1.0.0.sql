@@ -4,7 +4,7 @@
 create table t_tagvalue (
 	label	text,
 	color	varchar(6),
-	item_id int4 references t_container_item(id)
+	item_id int4 references t_container_item(id) on delete cascade
 );
 CREATE INDEX idx_tagvalue_item_id_fkey ON t_tagvalue(item_id);
 

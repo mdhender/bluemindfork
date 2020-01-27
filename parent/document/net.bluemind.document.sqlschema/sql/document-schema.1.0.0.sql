@@ -5,7 +5,7 @@ create table t_document (
   name varchar(256),
   description text,
   mime varchar(64),
-  item_id int4 references t_container_item(id)
+  item_id int4 references t_container_item(id) on delete cascade
 );
 
 

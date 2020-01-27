@@ -1,5 +1,5 @@
 create table t_server (
-	item_id 	  int4 references t_container_item(id) primary key,
+	item_id 	  int4 references t_container_item(id) on delete cascade primary key,
 	ip			  varchar(32),	
 	fqdn		  text,
 	name		  varchar(255),
