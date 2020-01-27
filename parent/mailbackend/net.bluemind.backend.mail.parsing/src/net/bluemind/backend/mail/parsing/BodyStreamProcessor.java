@@ -20,6 +20,7 @@ package net.bluemind.backend.mail.parsing;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.StandardCharsets;
@@ -143,7 +144,11 @@ public class BodyStreamProcessor {
 			String subject = parsed.getSubject();
 			if (subject != null) {
 				mb.subject = subject.replace("\u0000", "");
-				mb.subject = MimeUtility.decodeText(mb.subject);
+				try {
+					mb.subject = MimeUtility.decodeText(mb.subject);
+				} catch (UnsupportedEncodingException | UnsupportedCharsetException e) {
+					logger.warn("Cannot decode subject {}", e.getMessage());
+				}
 			}
 
 			mb.date = parsed.getDate();
