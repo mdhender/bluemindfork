@@ -1,0 +1,7 @@
+# https://github.com/systemd/systemd/issues/4909#issuecomment-269383232
+[Unit]
+Description=BlueMind services
+
+[Install]
+# Components of this application should be started at boot time
+WantedBy=multi-user.target

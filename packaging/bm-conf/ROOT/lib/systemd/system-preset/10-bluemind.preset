@@ -3,9 +3,9 @@ enable bm-cyrus-imapd.service
 enable bm-cyrus-syncclient.service
 enable bm-eas.service
 enable bm-mapi.service
+enable bm-forest-node.service
 enable bm-elasticsearch.service
 enable bm-hps.service
-enable bm-ips.service
 enable bm-lmtpd.service
 enable bm-locator.service
 enable bm-milter.service
@@ -22,6 +22,10 @@ enable bm-iptables.service
 enable bm-postgresql.service
 enable postgresql.service
 enable bm-sds-proxy.service
+enable influxdb.service
+enable telegraf.service
+enable kapacitor.service
+enable chronograf.service
 disable postgresql-9.6.service
 disable postgresql-11.service
 disable postgresql@.service

@@ -1,10 +1,8 @@
 [Unit]
-Description=BlueMind forest node.
-Before=runlevel2.target runlevel3.target runlevel4.target runlevel5.target shutdown.target
-After=systemd-journald-dev-log.socket network-online.target
-Wants=network-online.target
-Conflicts=shutdown.target
+Description=BlueMind forest node
 ConditionPathExists=!/etc/bm/bm-forest-node.disabled
+After=bm-core.service
+PartOf=bluemind.target
 
 [Service]
 Type=notify
@@ -18,4 +16,4 @@ ExecStart=/usr/share/bm-forest-node/bm-forest-node /var/run/bm-forest-node.pid
 Restart=on-abnormal
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=bluemind.target

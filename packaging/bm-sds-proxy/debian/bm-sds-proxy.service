@@ -1,10 +1,8 @@
 [Unit]
-Description=BlueMind SDS Proxy Server.
-Before=runlevel2.target runlevel3.target runlevel4.target runlevel5.target shutdown.target
-After=systemd-journald-dev-log.socket network-online.target
-Wants=network-online.target
-Conflicts=shutdown.target
+Description=BlueMind SDS Proxy Server
 ConditionPathExists=!/etc/bm/bm-sds-proxy.disabled
+After=bm-core.service
+PartOf=bluemind.target
 
 [Service]
 Type=notify
@@ -28,4 +26,4 @@ ExecStart=/usr/share/bm-sds-proxy/bm-sds-proxy
 ExecStartPost=/usr/share/bm-sds-proxy/bm-sds-proxy post-start
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=bluemind.target

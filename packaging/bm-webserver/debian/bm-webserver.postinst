@@ -19,7 +19,7 @@
 
 case "$1" in
 	triggered)
-		invoke-rc.d bm-webserver restart 0>/dev/null 1>/dev/null 2>/dev/null 3>/dev/null || true
+		systemctl restart bm-webserver || true
 		exit $?
 		;;
 esac
@@ -28,13 +28,6 @@ esac
 update-rc.d -f bm-webserver remove > /dev/null 2>&1
 
 rm -fr /var/lib/bm-webserver/*
-
-# Needed for wheezy support
-if [ ! -x "/usr/bin/deb-systemd-helper" ]; then
-deb-systemd-helper() {
-    echo "Systemd disabled, manage systemv only!"
-}
-fi
 
 #DEBHELPER#
 

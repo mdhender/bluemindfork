@@ -1,6 +1,6 @@
 [Unit]
-Description=BM PIMP
-Before=bm-nginx.service bm-php-fpm.service bm-cyrus-imapd.service postgresql.service bm-node.service bm-locator.service bm-core.service
+Description=BlueMind system configuration PIMP
+PartOf=bluemind.target
 
 [Service]
 Type=oneshot
@@ -10,4 +10,4 @@ RemainAfterExit=yes
 TimeoutStartSec=1h
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=bluemind.target

@@ -34,47 +34,13 @@ function product() {
 
 start_bm() {
   echo "Start BlueMind Services"
-  product bm-locator start
-  sleep 1
-  product bm-core start
-  ret=$?
-  sleep 5
-  product bm-ysnp start
-  product bm-elasticsearch start
-  sleep 1
-  product bm-lmtpd start
-  sleep 1
-  product bm-hps start
-  product bm-eas start
-  product bm-tika start
-  product bm-webserver start
-  product bm-xmpp start
-  product bm-sds-proxy start
-  product bm-cyrus-imapd start
-  product bm-milter start
-  product bm-mapi start
-  product bm-php-fpm start
+  systemctl start bluemind.target
   return $ret
 }
 
 stop_bm() {
   echo "Stop BlueMind Services"
-  product bm-mapi stop
-  product bm-eas stop
-  product bm-milter stop
-  product bm-tika stop
-  product bm-hps stop
-  product bm-xmpp stop
-  product bm-webserver stop
-  product bm-core stop
-  ret=$?
-  product bm-locator stop
-  product bm-lmtpd stop
-  product bm-elasticsearch stop
-  product bm-ysnp stop
-  product bm-sds-proxy stop
-  product bm-cyrus-imapd stop
-  product bm-php-fpm stop
+  systemctl stop bluemind.target
   return $ret
 }
 
@@ -91,39 +57,38 @@ function memory_report() {
   echo "Total Blue Mind JVM memory: $total_mem ($mega MB)"
 }
 
+# Wainting for https://github.com/systemd/systemd/issues/3174
 function status_bm() {
-  product bm-core status
+  if systemctl status bluemind.target > /dev/null 2>&1; then
+    status_bm_started
+  else
+    status_bm_stopped
+  fi
 }
 
-function bm_all_status() {
-  show_status bm-locator
-  show_status bm-core
-  show_status bm-elasticsearch
-  show_status bm-tika
-  show_status bm-lmtpd
-  show_status bm-sds-proxy
-  show_status bm-cyrus-imapd
-  show_status bm-webserver
-  show_status bm-php-fpm
-  show_status bm-xmpp
-  show_status bm-milter
-  show_status bm-ysnp
-  show_status bm-eas
-  show_status bm-hps
-  show_status bm-mapi
+function status_bm_stopped() {
+  ret=0
+  for service in $(systemctl list-dependencies --plain bluemind.target|grep -v bluemind.target | sort | uniq); do
+    if systemctl status ${service} > /dev/null 2>&1; then
+      ret=1
+      echo ${service}" started while BlueMind is stopped - please restart bluemind: systemctl restart bluemind.target"
+    fi
+  done
+  
+  return ${ret}
 }
 
-function show_status() {
-  product $1 status > /dev/null 2>&1
-  ret=$?
-  case "${ret}" in
-  0)
-      echo "BlueMind $1 is running."
-    ;;
-  *)
-    echo "BlueMind $1 is down."
-    ;;
-  esac
+function status_bm_started() {
+  ret=0
+  for service in $(systemctl list-dependencies --plain bluemind.target|grep -v bluemind.target | sort | uniq); do
+    if ! [ -e "/etc/bm/"$(echo ${service} | sed -e 's/\.service$/.disabled/') ] \
+        && ! systemctl status ${service} > /dev/null 2>&1; then
+      ret=1
+      echo ${service}" fail - check systemctl status "${service}" and journalctl -xe -u "${service}
+    fi
+  done
+  
+  return ${ret}
 }
 
 help() {
@@ -132,7 +97,6 @@ help() {
   echo -e "\tstop: stop Blue Mind services"
   echo -e "\tstatus: display Blue Mind core service status"
   echo -e "\treload|restart: restart Blue Mind services"
-  echo -e "\tall_status: Check all Blue Mind services status"
   echo -e "\tmemory: display Blue Mind memory usage"
 }
 
@@ -143,11 +107,8 @@ case "$1" in
   stop)
       stop_bm
       ;;
-  status)
+  status|all_status)
       status_bm
-      ;;
-  all_status)
-      bm_all_status
       ;;
   reload)
       stop_bm
