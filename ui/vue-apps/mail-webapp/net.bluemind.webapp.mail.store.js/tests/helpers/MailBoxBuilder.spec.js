@@ -1,4 +1,5 @@
 import { MailBoxBuilder } from "../../src/getters/helpers/MailBoxBuilder";
+import { Verb } from "@bluemind/core.container.api";
 
 const getters = {
     "folders/getFoldersByMailbox": jest.fn()
@@ -7,7 +8,7 @@ const user = {
     type: "mailboxacl",
     ownerDirEntryPath: "bm.lan/users/941ED8F6",
     owner: "941ED8F6",
-    writable: true,
+    verbs: [Verb.All],
     name: "alice"
 };
 const mailshare = {
@@ -15,7 +16,7 @@ const mailshare = {
     ownerDirEntryPath: "bm.lan/mailshares/D5030EE3",
     name: "mailshare",
     owner: "D5030EE3",
-    writable: false
+    verbs: [Verb.Read]
 };
 const calendar = {
     type: "calendar"
@@ -55,8 +56,8 @@ describe("[Mail-WebappStore][getters] : mailshares ", () => {
         expect(getters["folders/getFoldersByMailbox"]).toHaveBeenCalledWith(mailshare.owner);
     });
     test("set the writable state", () => {
-        expect(MailBoxBuilder.build(user, getters).writable).toEqual(user.writable);
-        expect(MailBoxBuilder.build(mailshare, getters).writable).toEqual(mailshare.writable);
+        expect(MailBoxBuilder.build(user, getters).writable).toEqual(true);
+        expect(MailBoxBuilder.build(mailshare, getters).writable).toEqual(false);
     });
     test("set mailbox name", () => {
         expect(MailBoxBuilder.build(user, getters).name).toEqual(user.name);

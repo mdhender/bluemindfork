@@ -1,4 +1,5 @@
 import { MailBoxBuilder } from "./helpers/MailBoxBuilder";
+import { Verb } from "@bluemind/core.container.api";
 
 export function my(state, getters) {
     let my;
@@ -7,7 +8,7 @@ export function my(state, getters) {
     if (mailbox) {
         my = MailBoxBuilder.build(mailbox, getters);
     } else {
-        const fake = { ownerDirEntryPath: "/users/", owner: "", writable: true, name };
+        const fake = { ownerDirEntryPath: "/users/", owner: "", verbs: [Verb.All], name };
         my = MailBoxBuilder.build(fake, getters);
     }
     Object.assign(my, getters["folders/getDefaultFolders"](my.mailboxUid));

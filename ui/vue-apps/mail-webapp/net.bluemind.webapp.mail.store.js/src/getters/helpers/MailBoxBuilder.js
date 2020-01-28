@@ -1,3 +1,5 @@
+import { Verb } from "@bluemind/core.container.api";
+
 export const MailBoxBuilder = {
     build(item, getters) {
         const mailbox = {};
@@ -11,7 +13,7 @@ export const MailBoxBuilder = {
         }
         mailbox.uid = item.owner;
         mailbox.name = item.name;
-        mailbox.writable = item.writable;
+        mailbox.writable = item.verbs.includes(Verb.Write) || item.verbs.includes(Verb.All);
         if (mailbox.type === "user") {
             mailbox.mailboxUid = "user." + mailbox.name;
             mailbox.root = "";

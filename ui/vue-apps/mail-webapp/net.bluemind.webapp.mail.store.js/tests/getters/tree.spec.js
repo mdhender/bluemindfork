@@ -9,8 +9,11 @@ describe("[Mail-WebappStore][getters] : tree ", () => {
     beforeEach(() => {
         getters.my.folders = [{ uid: "1" }, { uid: "2" }];
         getters["folders/getFoldersByMailbox"] = uid => [{ uid: uid }, { uid: uid + "-1" }];
-        getters.mailshares = [{ mailboxUid: "ms1" }, { mailboxUid: "ms2" }];
-        state.foldersData = { "1": { expand: true, unread: 2 }, "ms1-1": { expand: true, unread: 4 } };
+        getters.mailshares = [
+            { mailboxUid: "ms1", writable: true },
+            { mailboxUid: "ms2", writable: false }
+        ];
+        state.foldersData = { "1": { expand: true, unread: 2 }, ms1: { expand: true, unread: 4 } };
         TreeBuilder.toTreeItem.mockClear();
         TreeBuilder.build.mockClear();
         TreeBuilder.build.mockReturnValueOnce("my");
@@ -21,17 +24,15 @@ describe("[Mail-WebappStore][getters] : tree ", () => {
         TreeBuilder.build.mockReturnValueOnce("my");
         TreeBuilder.build.mockReturnValueOnce("mailshares");
         const val = tree(state, getters);
-        expect(TreeBuilder.toTreeItem).toHaveBeenCalledWith({ uid: "1" }, { expand: true, unread: 2 });
+        expect(TreeBuilder.toTreeItem).toHaveBeenCalledWith({ uid: "1" }, { expand: true, unread: 2 }, true);
         expect(TreeBuilder.build).toHaveBeenCalledWith(["node", "node"]);
         expect(val.my).toEqual("my");
     });
     test("Use TreeBuilder to build a tree from mailshares's folders", () => {
         TreeBuilder.toTreeItem.mockReturnValue("node");
         const val = tree(state, getters);
-        expect(TreeBuilder.toTreeItem).toHaveBeenCalledWith({ uid: "ms1" }, {});
-        expect(TreeBuilder.toTreeItem).toHaveBeenCalledWith({ uid: "ms1-1" }, { expand: true, unread: 4 });
-        expect(TreeBuilder.toTreeItem).toHaveBeenCalledWith({ uid: "ms2" }, {});
-        expect(TreeBuilder.toTreeItem).toHaveBeenCalledWith({ uid: "ms2-1" }, {});
+        expect(TreeBuilder.toTreeItem).toHaveBeenCalledWith({ uid: "ms1" }, { expand: true, unread: 4 }, true);
+        expect(TreeBuilder.toTreeItem).toHaveBeenCalledWith({ uid: "ms2" }, {}, false);
         expect(TreeBuilder.build).toHaveBeenCalledWith(["node", "node", "node", "node"]);
         expect(val.mailshares).toEqual("mailshares");
     });

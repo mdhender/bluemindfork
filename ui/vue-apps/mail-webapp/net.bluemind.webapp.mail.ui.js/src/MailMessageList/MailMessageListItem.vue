@@ -1,50 +1,75 @@
 <template>
-    <bm-list-group-item
-        :class="message.states"
-        :to="to"
-        class="mail-message-list-item"
-        active-class="active"
-        @mouseenter.native="quickActionButtonsVisible = true"
-        @mouseleave.native="quickActionButtonsVisible = false"
+    <bm-draggable
+        :tooltip="tooltip"
+        name="message"
+        :data="message"
+        @dragenter="e => setTooltip(e.relatedData)"
+        @dragleave="resetTooltip"
+        @drop="e => moveMessage(e.relatedData)"
     >
-        <bm-row class="align-items-center flex-nowrap no-gutters">
-            <bm-col cols="1" class="selector">
-                <bm-avatar :alt="from" />
-                <bm-check @click.native.stop />
-            </bm-col>
-            <bm-col cols="8" class="text-overflow">
-                <div v-bm-tooltip.ds500.viewport :title="from" class="text-overflow mw-100 sender h3 text-dark">
-                    {{ from }}
-                </div>
-            </bm-col>
-            <bm-col cols="3">
-                <transition name="fade" mode="out-in">
-                    <div v-if="!quickActionButtonsVisible" class="float-right">
-                        <component :is="widget" v-for="widget in widgets" :key="widget.template" />
+        <bm-list-group-item
+            :class="message.states"
+            :to="to"
+            class="mail-message-list-item"
+            active-class="active"
+            @mousedown.prevent
+            @mouseenter.native="quickActionButtonsVisible = true"
+            @mouseleave.native="quickActionButtonsVisible = false"
+        >
+            <bm-row class="align-items-center flex-nowrap no-gutters">
+                <bm-col cols="1" class="selector">
+                    <bm-avatar :alt="from" />
+                </bm-col>
+                <bm-col cols="8" class="text-overflow">
+                    <div v-bm-tooltip.ds500.viewport :title="from" class="text-overflow mw-100 sender h3 text-dark">
+                        {{ from }}
                     </div>
-                    <mail-message-list-item-quick-action-buttons v-if="quickActionButtonsVisible" :message="message" />
-                </transition>
-            </bm-col>
-        </bm-row>
-        <bm-row class="no-gutters">
-            <bm-col cols="1" class="mail-attachment">
-                <component :is="state" v-if="!!state" class="ml-1" />
-            </bm-col>
-            <bm-col class="text-overflow ">
-                <div
-                    v-bm-tooltip.ds500.bottom.viewport
-                    :title="message.subject"
-                    class="text-overflow mw-100 h3 subject"
-                >
+                </bm-col>
+                <bm-col cols="3">
+                    <transition name="fade" mode="out-in">
+                        <div v-if="!quickActionButtonsVisible" class="float-right">
+                            <component :is="widget" v-for="widget in widgets" :key="widget.template" />
+                        </div>
+                        <mail-message-list-item-quick-action-buttons
+                            v-if="quickActionButtonsVisible"
+                            :message="message"
+                        />
+                    </transition>
+                </bm-col>
+            </bm-row>
+            <bm-row class="no-gutters">
+                <bm-col cols="1" class="mail-attachment">
+                    <component :is="state" v-if="!!state" class="ml-1" />
+                </bm-col>
+                <bm-col class="text-overflow ">
+                    <div
+                        v-bm-tooltip.ds500.bottom.viewport
+                        :title="message.subject"
+                        class="text-overflow mw-100 h3 subject"
+                    >
+                        {{ message.subject }}
+                    </div>
+                </bm-col>
+                <bm-col cols="3" class="text-right">
+                    <span class="text-nowrap d-none d-sm-block d-md-none d-xl-block">{{ displayedDate }}</span>
+                    <span class="text-nowrap d-sm-none d-md-block d-xl-none">{{ smallerDisplayedDate }}</span>
+                </bm-col>
+            </bm-row>
+        </bm-list-group-item>
+        <template v-slot:shadow>
+            <bm-row class="mail-message-list-item-drag-shadow py-2 no-gutters align-items-center">
+                <bm-col cols="1" class="text-right">
+                    <bm-icon icon="6dots-v" class="bm-drag-handle" />
+                </bm-col>
+                <bm-col cols="2" class="pl-1">
+                    <bm-avatar :alt="from" />
+                </bm-col>
+                <bm-col cols="9" class="text-overflow font-weight-bold ">
                     {{ message.subject }}
-                </div>
-            </bm-col>
-            <bm-col cols="3" class="text-right">
-                <span class="text-nowrap d-none d-sm-block d-md-none d-xl-block">{{ displayedDate }}</span>
-                <span class="text-nowrap d-sm-none d-md-block d-xl-none">{{ smallerDisplayedDate }}</span>
-            </bm-col>
-        </bm-row>
-    </bm-list-group-item>
+                </bm-col>
+            </bm-row>
+        </template>
+    </bm-draggable>
 </template>
 
 <script>
@@ -70,8 +95,10 @@ const FLAG_COMPONENT = {
     }
 };
 
-import { BmAvatar, BmCheck, BmCol, BmIcon, BmListGroupItem, BmRow, BmTooltip } from "@bluemind/styleguide";
+import { BmAvatar, BmCheck, BmCol, BmIcon, BmListGroupItem, BmRow, BmTooltip, BmDraggable } from "@bluemind/styleguide";
 import { DateComparator } from "@bluemind/date";
+import { mapGetters, mapActions, mapState } from "vuex";
+import ItemUri from "@bluemind/item-uri";
 import MailMessageListItemQuickActionButtons from "./MailMessageListItemQuickActionButtons";
 
 export default {
@@ -80,6 +107,7 @@ export default {
         BmAvatar,
         BmCheck,
         BmCol,
+        BmDraggable,
         BmIcon,
         BmListGroupItem,
         BmRow,
@@ -99,10 +127,18 @@ export default {
     },
     data() {
         return {
+            tooltip: {
+                cursor: "cursor",
+                text: this.$t("mail.actions.move")
+            },
             quickActionButtonsVisible: false
         };
     },
     computed: {
+        ...mapState("mail-webapp", ["currentMessageKey"]),
+        ...mapGetters("mail-webapp", ["nextMessageKey"]),
+        ...mapGetters("mail-webapp/folders", ["getFolderByKey"]),
+
         displayedDate: function() {
             const today = new Date();
             const messageDate = this.message.date;
@@ -128,6 +164,48 @@ export default {
         },
         from() {
             return this.message.from.dn ? this.message.from.dn : this.message.from.address;
+        }
+    },
+    methods: {
+        ...mapActions("mail-webapp", ["move"]),
+
+        setTooltip(folder) {
+            if (folder) {
+                const draggedMessageFolderUid = ItemUri.container(this.message.key);
+                const dropzoneFolderUid = ItemUri.item(folder.key);
+                const dropzoneFolderIsReadOnly = !folder.writable;
+
+                if (draggedMessageFolderUid === dropzoneFolderUid) {
+                    this.tooltip.text = this.$t("mail.actions.move.item.warning.self", {
+                        path: folder.fullName
+                    });
+                    this.tooltip.cursor = "forbidden";
+                } else if (dropzoneFolderIsReadOnly) {
+                    this.tooltip.text = this.$t("mail.actions.move.item.warning.readonly", {
+                        path: folder.fullName
+                    });
+                    this.tooltip.cursor = "forbidden";
+                } else {
+                    this.tooltip.text = this.$t("mail.actions.move.item", { path: folder.fullName });
+                    this.tooltip.cursor = "cursor";
+                }
+            }
+        },
+        resetTooltip() {
+            this.tooltip.text = this.$t("mail.actions.move");
+            this.tooltip.cursor = "cursor";
+        },
+        moveMessage(folder) {
+            const draggedMessageFolderUid = ItemUri.container(this.message.key);
+            const dropzoneFolderUid = ItemUri.item(folder.key);
+            const dropzoneFolderIsReadOnly = !folder.writable;
+
+            if (draggedMessageFolderUid !== dropzoneFolderUid && !dropzoneFolderIsReadOnly) {
+                if (this.message.key === this.currentMessageKey) {
+                    this.$router.push("" + (this.nextMessageKey || ""));
+                }
+                this.move({ messageKey: this.message.key, folder: this.getFolderByKey(folder.key) });
+            }
         }
     }
 };
@@ -178,6 +256,17 @@ a.list-group-item.mail-message-list-item {
     &:hover {
         background-color: $component-active-bg-darken;
     }
+}
+
+.mail-message-list-item-drag-shadow {
+    width: 240px;
+    background-color: $surface-bg;
+}
+
+//FIXME: All those class should not be here or should be scoped...
+.custom-control-label::after,
+.custom-control-label::before {
+    top: 0.2rem !important;
 }
 
 .not-seen .sender,

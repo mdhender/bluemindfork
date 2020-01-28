@@ -188,11 +188,6 @@ export default {
 </script>
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
-body > div {
-    display: flex;
-    flex-direction: column;
-}
-
 .flex-fill {
     min-height: 0;
 }

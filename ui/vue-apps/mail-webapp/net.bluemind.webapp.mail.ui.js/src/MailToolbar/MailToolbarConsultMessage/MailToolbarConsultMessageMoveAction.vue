@@ -6,13 +6,13 @@
         class="h-100 move-message"
         variant="link"
         :title="$tc('mail.toolbar.move.tooltip')"
-        :aria-label="$tc('mail.toolbar.move.aria')"
+        :aria-label="$tc('mail.actions.move.aria')"
         @shown="openMoveAutocomplete"
         @hide="pattern = ''"
     >
         <global-events @keydown.tab.capture="forceCloseMoveAutocomplete" />
         <template slot="button-content">
-            <bm-icon icon="folder" size="2x" /> <span class="d-none d-lg-block"> {{ $tc("mail.toolbar.move") }}</span>
+            <bm-icon icon="folder" size="2x" /> <span class="d-none d-lg-block"> {{ $tc("mail.actions.move") }}</span>
         </template>
         <bm-autocomplete
             ref="moveAutocomplete"
@@ -28,8 +28,8 @@
                 <div
                     v-bm-tooltip.bottom.ds500
                     class="text-nowrap text-truncate"
-                    :aria-label="$tc('mail.toolbar.move.item.aria', 1, f.item.value)"
-                    :title="$tc('mail.toolbar.move.item', 1, { path: f.item.value.path })"
+                    :aria-label="$tc('mail.actions.move.item.aria', 1, f.item.value)"
+                    :title="$tc('mail.actions.move.item', 1, { path: f.item.value.path })"
                 >
                     <mail-folder-icon v-if="f.item.key" :shared="f.item.isShared" :folder="f.item.value">
                         {{ f.item.value.path }}
