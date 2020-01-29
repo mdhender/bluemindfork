@@ -63,35 +63,27 @@ function registerDependencies(userSession) {
 }
 
 function getDateTimeFormats() {
-    return {
-        'fr': {
-            short_date: {
-                day: '2-digit', month: '2-digit', year: 'numeric'
-            },
-            short_time: {
-                hour: '2-digit', minute: '2-digit'
-            },
-            relative_date: {
-                weekday: 'short', day: '2-digit', month: '2-digit'
-            },
-            full_date: {
-                weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric'
-            }
+    const formats = {
+        short_date: {
+            day: '2-digit', month: '2-digit', year: 'numeric'
         },
-        'en': {
-            short_date: {
-                day: '2-digit', month: '2-digit', year: 'numeric'
-            },
-            short_time: {
-                hour: '2-digit', minute: '2-digit'
-            },
-            relative_date: {
-                weekday: 'short', day: '2-digit', month: '2-digit'
-            },
-            full_date: {
-                weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric'
-            }
+        short_time: {
+            hour: '2-digit', minute: '2-digit'
+        },
+        relative_date: {
+            weekday: 'short', day: '2-digit', month: '2-digit'
+        },
+        full_date: {
+            weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric'
+        },
+        full_date_time: {
+            weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
         }
+    };
+    
+    return {
+        'fr': formats,
+        'en': formats
     };
 }
 //Ajouter des data via des plugins

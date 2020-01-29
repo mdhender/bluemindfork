@@ -75,7 +75,7 @@
                         :rows="10"
                         :max-rows="10000"
                         :aria-label="$t('mail.new.content.aria')"
-                        class="mail-content h-100"
+                        class="mail-content"
                         no-resize
                     />
                     <bm-rich-editor
@@ -83,11 +83,19 @@
                         ref="message-content"
                         v-model="message_.content"
                         :is-menu-bar-opened="userPrefIsMenuBarOpened"
-                        class="h-100"
-                    />
+                    >
+                        <bm-button
+                            v-if="previousMessage && !message_.isReplyExpanded"
+                            variant="outline-dark"
+                            class="align-self-start"
+                            @click="displayPreviousMessages"
+                        >
+                            <bm-icon icon="3dots" size="sm" />
+                        </bm-button>
+                    </bm-rich-editor>
                 </div>
                 <bm-button
-                    v-if="previousMessage && previousMessage.content && !expandPreviousMessages"
+                    v-if="userPrefTextOnly && previousMessage && !message_.isReplyExpanded"
                     variant="outline-dark"
                     class="align-self-start"
                     @click="displayPreviousMessages"
@@ -96,7 +104,7 @@
                 </bm-button>
             </template>
             <template #footer>
-                <mail-message-new-footer @save="saveDraft" @delete="deleteDraft" @send="send" />
+                <mail-message-new-footer @delete="deleteDraft" @send="send" />
             </template>
         </bm-panel>
     </bm-form>
@@ -152,18 +160,20 @@ export default {
         previousMessage: {
             type: Object,
             default: null
+        },
+        userPrefTextOnly: {
+            type: Boolean,
+            default: false
         }
     },
     data() {
         return {
-            expandPreviousMessages: false,
             modes: MailMessageNewModes,
             autocompleteResults: [],
             autocompleteResultsTo: [],
             autocompleteResultsCc: [],
             autocompleteResultsBcc: [],
             debouncedSave: debounce(this.saveDraft, 1000),
-            userPrefTextOnly: false, // TODO: initialize this with user setting
             userPrefIsMenuBarOpened: false, // TODO: initialize this with user setting
             mode_: this.mode,
             message_: {
@@ -174,7 +184,8 @@ export default {
                 content: "",
                 headers: [],
                 previousMessage: this.previousMessage,
-                type: undefined
+                type: undefined,
+                isReplyExpanded: false
             }
         };
     },
@@ -213,8 +224,17 @@ export default {
         ...mapActions("mail-webapp", ["saveDraft"]),
         ...mapMutations("mail-webapp", ["setDraft"]),
         displayPreviousMessages() {
-            this.message_.content += "\n\n\n" + this.previousMessage.content;
-            this.expandPreviousMessages = true;
+            this.message_.content += this.previousMessage.content;
+            this.$nextTick(() => {
+                if (!this.userPrefTextOnly) {
+                    this.$refs['message-content'].updateContent();
+                    this.$refs['message-content'].focus('start');
+                } else {
+                    this.$refs['message-content'].focus();
+                    this.$refs['message-content'].setSelectionRange(0,0);
+                }
+            });
+            this.message_.isReplyExpanded = true;
         },
         send() {
             this.debouncedSave.cancel();

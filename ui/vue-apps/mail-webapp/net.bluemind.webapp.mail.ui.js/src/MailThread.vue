@@ -6,6 +6,7 @@
             :message="preparedAnswer"
             :previous-message="previousMessage"
             :mode="mode"
+            :user-pref-text-only="userPrefTextOnly"
             @close="mode = 'default'"
         />
         <mail-message-content v-if="message" />
@@ -15,6 +16,7 @@
 
 <script>
 import { mapGetters } from "vuex";
+import { MimeType } from "@bluemind/email";
 import { computeSubject, previousMessageContent } from "./MessageBuilder";
 import MailMessageContent from "./MailMessageContent/MailMessageContent";
 import MailMessageNew from "./MailMessageNew";
@@ -26,6 +28,11 @@ export default {
         MailMessageContent,
         MailMessageNew
     },
+    data() {
+        return {
+            userPrefTextOnly: false, // TODO: initialize this with user setting
+        };
+    },
     computed: {
         ...mapGetters("mail-webapp", {
             message: "currentMessage",
@@ -33,7 +40,12 @@ export default {
         }),
         previousMessage() {
             return {
-                content: previousMessageContent(this.pathSuffix(), this.inlineParts, this.message),
+                content: previousMessageContent(
+                    this.pathSuffix(), 
+                    this.inlineParts, 
+                    this.message, 
+                    this.userPrefTextOnly ? MimeType.TEXT_PLAIN : MimeType.TEXT_HTML
+                ),
                 messageId: this.message.messageId,
                 references: this.message.references
             };

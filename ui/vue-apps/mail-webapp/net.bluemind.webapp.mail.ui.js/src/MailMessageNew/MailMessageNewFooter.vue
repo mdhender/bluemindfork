@@ -10,14 +10,6 @@
                 {{ $t("common.send") }}
             </bm-button>
             <bm-button
-                variant="outline-primary"
-                class="ml-2"
-                :disabled="isSaving || isSending || isDeleting"
-                @click.prevent="$emit('save')"
-            >
-                {{ $t("common.save") }}
-            </bm-button>
-            <bm-button
                 variant="link"
                 class="ml-2"
                 :disabled="isSaving || isSending || isDeleting"

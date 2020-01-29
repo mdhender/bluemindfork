@@ -1,66 +1,54 @@
 import { html2text } from "@bluemind/html-utils";
+import { mailText2Html, MimeType } from "@bluemind/email";
 import injector from "@bluemind/inject";
 
 /**
      * Build the text representing this message as a previous message.
-     * Like:
-     * @example
+     * @example TEXT
      * `On Tuesday 2019 01 01, John Doe wrote:
      * > Dear Jane,
      * >  I could not bear to see you with Tarzan anymore,
      * > it will kill me! Please come back!
      * ...`
+     * @example HTML
+     * `On Tuesday 2019 01 01, John Doe wrote:
+     * <blockquote>
+     * Dear Jane,
+     * I could not bear to see you with Tarzan anymore,
+     * it will kill me! Please come back!
+     * ...
+     * </blockquote>`
      */
-export function previousMessageContent(action, parts, message) {
-    let previousMessage = "";
+export function previousMessageContent(action, parts, message, expected) {
+    const vueI18n = injector.getProvider("i18n").get();
+    const lineBreakSeparator = MimeType.equals(expected, MimeType.TEXT_PLAIN) ? "\n" : "<br>";
+    
+    const separator = (action === message.actions.FORWARD) ? 
+        buildSeparatorForForward(message, vueI18n, lineBreakSeparator) : buildSeparatorForReply(vueI18n, message);
+    
+    let previousMessage;
     parts.forEach(part => {
-        if (part.mime === "text/html") {
-            previousMessage += html2text(part.content);
-        } else if (part.mime === "text/plain") {
-            previousMessage += part.content;
+        if (MimeType.equals(part.mime, expected)) {
+            previousMessage = part.content;
+        } else if (MimeType.equals(part.mime, MimeType.TEXT_PLAIN)) {
+            previousMessage = mailText2Html(part.content);
+        } else if (MimeType.equals(part.mime, MimeType.TEXT_HTML)) {
+            previousMessage = html2text(part.content);
         }
     });
 
-    let previousMessageSeparator = "";
-    const vueI18n = injector.getProvider("i18n").get();
-
-    switch (action) {
-        case message.actions.REPLY:
-        case message.actions.REPLYALL:
-            previousMessage = previousMessage
-                .split("\n")
-                .map(line => "> " + line)
-                .join("\n");
-            previousMessageSeparator = vueI18n.t("mail.compose.reply.body", {
-                date: message.date,
-                name: nameAndAddress(message.from)
-            });
-            break;
-        case message.actions.FORWARD:
-            previousMessageSeparator = buildPreviousMessageSeparatorForForward(message, vueI18n);
-            break;
-        default:
-            break;
+    if (action === message.actions.REPLY || action === message.actions.REPLYALL) {
+        previousMessage = adaptPreviousMessageForReply(expected, previousMessage);
     }
 
-    return previousMessageSeparator + "\n\n" + previousMessage;
+    return lineBreakSeparator + lineBreakSeparator + lineBreakSeparator + separator + previousMessage;
 }
 
 /** Compute the subject in function of the current action (like "Re: My Subject" when Reply). */
 export function computeSubject(action, message) {
-    let subjectPrefix;
     const vueI18n = injector.getProvider("i18n").get();
-    switch (action) {
-        case message.actions.REPLY:
-        case message.actions.REPLYALL:
-            subjectPrefix = vueI18n.t("mail.compose.reply.subject");
-            break;
-        case message.actions.FORWARD:
-            subjectPrefix = vueI18n.t("mail.compose.forward.subject");
-            break;
-        default:
-            break;
-    }
+    const subjectPrefix = action === message.actions.FORWARD ? 
+        vueI18n.t("mail.compose.forward.subject") : vueI18n.t("mail.compose.reply.subject");
 
     // avoid subject prefix repetitions (like "Re: Re: Re: Re: My Subject")
     if (subjectPrefix !== message.subject.substring(0, subjectPrefix.length)) {
@@ -69,28 +57,52 @@ export function computeSubject(action, message) {
     return message.subject;
 }
 
-/** A separator before the previous message containing basic info. */
-function buildPreviousMessageSeparatorForForward(message, vueI18n) {
-    let previousMessageSeparator = vueI18n.t("mail.compose.forward.body");
-    previousMessageSeparator += "\n";
+/**
+ *  A separator before the previous message (forward). 
+*/
+function buildSeparatorForForward(message, vueI18n, lineBreakSeparator) {
+    let previousMessageSeparator = vueI18n.t("mail.compose.forward.body") + lineBreakSeparator;
     previousMessageSeparator += vueI18n.t("mail.compose.forward.prev.message.info.subject");
-    previousMessageSeparator += ": ";
-    previousMessageSeparator += message.subject;
-    previousMessageSeparator += "\n";
+    previousMessageSeparator += ": " + message.subject + lineBreakSeparator;
     previousMessageSeparator += vueI18n.t("mail.compose.forward.prev.message.info.to");
-    previousMessageSeparator += ": ";
-    previousMessageSeparator += message.to.map(to => nameAndAddress(to));
-    previousMessageSeparator += "\n";
+    previousMessageSeparator += ": " + message.to.map(to => nameAndAddress(to)) + lineBreakSeparator;
     previousMessageSeparator += vueI18n.t("mail.compose.forward.prev.message.info.date");
-    previousMessageSeparator += ": ";
-    previousMessageSeparator += message.date;
-    previousMessageSeparator += "\n";
+    previousMessageSeparator += ": " + vueI18n.d(message.date, 'full_date_time') + lineBreakSeparator;
     previousMessageSeparator += vueI18n.t("mail.compose.forward.prev.message.info.from");
-    previousMessageSeparator += ": ";
-    previousMessageSeparator += nameAndAddress(message.from);
+    previousMessageSeparator += ": " + nameAndAddress(message.from) + lineBreakSeparator + lineBreakSeparator;
     return previousMessageSeparator;
 }
 
+/**
+ *  A separator before the previous message (reply). 
+*/
+function buildSeparatorForReply(vueI18n, message) {
+    return vueI18n.t("mail.compose.reply.body", {
+        date: vueI18n.d(message.date, 'full_date_time'),
+        name: nameAndAddress(message.from)
+    });
+}
+
+function adaptPreviousMessageForReply(expected, previousMessage) {
+    if (MimeType.equals(expected, MimeType.TEXT_PLAIN)) {
+        return "\n\n" + previousMessage
+            .split("\n")
+            .map(line => "> " + line)
+            .join("\n");
+    } else if (MimeType.equals(expected, MimeType.TEXT_HTML)) {
+        return `<br>
+            <style>
+                .reply {
+                    margin-left: 1rem;
+                    padding-left: 1rem;
+                    border-left: 2px solid black;
+                }
+            </style>
+            <blockquote class="reply">`
+            + previousMessage + 
+            "</blockquote>";
+    }
+}
 
 /** @return like "John Doe <jdoe@bluemind.net>" */
 function nameAndAddress(recipient) {

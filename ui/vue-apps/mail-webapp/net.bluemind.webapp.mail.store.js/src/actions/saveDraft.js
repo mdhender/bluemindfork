@@ -21,17 +21,17 @@ export function saveDraft({ commit, state, getters }) {
             draft = JSON.parse(JSON.stringify(state.draft));
 
             const previousMessage = draft.previousMessage;
-            const isAReply = !!previousMessage;
+            const isAReplyOrForward = !!previousMessage;
 
             delete draft.id;
             delete draft.status;
             delete draft.saveDate;
 
-            if (previousMessage && previousMessage.content && !draft.content.includes(previousMessage.content)) {
-                draft.content += "\n\n\n" + previousMessage.content;
-            }
-
-            if (isAReply) {
+            if (isAReplyOrForward) {
+                if (previousMessage.content && !draft.isReplyExpanded) {
+                    draft.content += previousMessage.content;
+                }
+                
                 if (previousMessage.messageId) {
                     draft.headers.push({ name: "In-Reply-To", values: [previousMessage.messageId] });
                     draft.references = [previousMessage.messageId].concat(previousMessage.references);
