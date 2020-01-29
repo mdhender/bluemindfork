@@ -11,7 +11,7 @@ export default {
                 client.$emit(event.type, event.online);
             });
             socket.ping(event => {
-                if (event.statusCode != 200) {
+                if (event.statusCode !== 200) {
                     client.$emit("disconnected");
                 }
             });

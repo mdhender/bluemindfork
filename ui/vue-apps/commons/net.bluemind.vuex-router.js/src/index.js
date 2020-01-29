@@ -34,7 +34,7 @@ function executeParamsGuards(to, from, store, isBefore) {
     if (to.meta && to.meta.$actions) {
         for (const parameter in to.meta.$actions) {
             const action = normalize(to.meta.$actions[parameter]);
-            if (action.isBefore == isBefore && (from.params[parameter] != to.params[parameter] || action.force))
+            if (action.isBefore === isBefore && (from.params[parameter] !== to.params[parameter] || action.force))
                 promise = promise.then(() =>
                     action.call(store, to.params[parameter], from.params[parameter], to, from)
                 );
@@ -44,7 +44,7 @@ function executeParamsGuards(to, from, store, isBefore) {
 
 function normalize(action) {
     const defaults = { call: undefined, force: false, isBefore: true };
-    if (typeof action == "function") {
+    if (typeof action === "function") {
         action = { call: action };
     }
     return Object.assign(defaults, action);
