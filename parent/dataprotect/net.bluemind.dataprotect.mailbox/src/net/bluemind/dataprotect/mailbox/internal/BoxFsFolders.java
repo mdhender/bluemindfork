@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import net.bluemind.backend.cyrus.partitions.CyrusFileSystemPathHelper;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.dataprotect.api.DataProtectGeneration;
@@ -55,10 +56,7 @@ public class BoxFsFolders {
 
 		List<Character> letters = new LinkedList<>();
 		if (mbox.value.type == Type.user) {
-			char letter = mbox.value.name.charAt(0);
-			if (!Character.isLetter(letter)) {
-				letter = 'q';
-			}
+			char letter = CyrusFileSystemPathHelper.mapLetter(mbox.value.name.charAt(0));
 
 			letters.add(letter);
 
@@ -103,11 +101,7 @@ public class BoxFsFolders {
 		String dn = d.name;
 		String part = CyrusPartition.forServerAndDomain(mbox.value.dataLocation, dn).name;
 		cmd.append(root).append("/").append(part);
-		char domainLetter = dn.charAt(0);
-		if (!Character.isLetter(domainLetter)) {
-			domainLetter = 'q';
-		}
-		cmd.append("/domain/").append(domainLetter);
+		cmd.append("/domain/").append(CyrusFileSystemPathHelper.mapLetter(dn.charAt(0)));
 		cmd.append("/");
 		cmd.append(dn);
 		cmd.append("/");

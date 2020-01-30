@@ -47,6 +47,7 @@ import net.bluemind.backend.cyrus.internal.files.Cyrus;
 import net.bluemind.backend.cyrus.internal.files.CyrusHsm;
 import net.bluemind.backend.cyrus.internal.files.CyrusProxyPassword;
 import net.bluemind.backend.cyrus.internal.files.CyrusReplication;
+import net.bluemind.backend.cyrus.partitions.CyrusFileSystemPathHelper;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.config.InstallationId;
 import net.bluemind.config.Token;
@@ -694,11 +695,7 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 	}
 
 	private char getLetterPath(char letter) {
-		if (!Character.isLetter(letter)) {
-			letter = 'q';
-		}
-
-		return letter;
+		return CyrusFileSystemPathHelper.mapLetter(letter);
 	}
 
 	@Override
