@@ -340,8 +340,8 @@ public class Containers implements IContainers {
 		List<Container> ret = new ArrayList<>();
 		ret.addAll(queryContainer(query, context.getAllMailboxDataSource(), this::isShardedContainer, query.readonly,
 				securityContext));
-		ret.addAll(queryContainer(query, Arrays.asList(context.getDataSource()), c -> !isShardedContainer(c),
-				query.readonly, securityContext));
+		ret.addAll(queryContainer(query, Arrays.asList(context.getDataSource()), c -> true, query.readonly,
+				securityContext));
 
 		return dedup(asDescriptorsLight(ret, securityContext));
 	}
@@ -358,8 +358,7 @@ public class Containers implements IContainers {
 
 		List<Container> ret = new ArrayList<>();
 		ret.addAll(queryContainer(query, context.getAllMailboxDataSource(), this::isShardedContainer, null, sc));
-		ret.addAll(
-				queryContainer(query, Arrays.asList(context.getDataSource()), c -> !isShardedContainer(c), null, sc));
+		ret.addAll(queryContainer(query, Arrays.asList(context.getDataSource()), c -> true, null, sc));
 
 		return dedup(asDescriptors(ret, sc));
 	}
