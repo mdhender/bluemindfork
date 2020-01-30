@@ -38,11 +38,21 @@
                 class="d-md-inline-block d-lg-block h-100"
                 cols="12"
                 md="6"
-                lg="7"
-                order="last"
+                lg="5"
+                order="2"
                 :class="composerOrMessageIsDisplayed ? '' : 'd-none'"
             >
                 <mail-toolbar class="mx-auto mx-xl-0" />
+            </bm-col>
+            <bm-col v-if="canSwitchWebmail" cols="2" order="last" class="d-none d-xl-block">
+                <bm-form-checkbox 
+                    switch
+                    checked="true"
+                    class="switch-webmail text-condensed text-right mr-4"
+                    @change="switchWebmail()"
+                >
+                    {{ $t("mail.main.switch.webmail") }}
+                </bm-form-checkbox>
             </bm-col>
         </bm-row>
         <bm-row class="flex-fill position-relative flex-nowrap">
@@ -88,8 +98,16 @@
 </template>
 
 <script>
-import { BmApplicationAlert, BmLabelIcon, BmIcon, BmButton, BmCol, BmContainer, BmRow, MakeUniq } 
-    from "@bluemind/styleguide";
+import { 
+    BmApplicationAlert, 
+    BmFormCheckbox, 
+    BmLabelIcon, 
+    BmButton, 
+    BmCol, 
+    BmContainer, 
+    BmIcon,
+    BmRow, 
+    MakeUniq } from "@bluemind/styleguide";
 import MailAlertRenderer from "./MailAlertRenderer";
 import { mapActions, mapState } from "vuex";
 import MailAppL10N from "@bluemind/webapp.mail.l10n";
@@ -104,6 +122,7 @@ export default {
     name: "MailApp",
     components: {
         BmApplicationAlert,
+        BmFormCheckbox,
         BmButton,
         BmCol,
         BmContainer,
@@ -120,18 +139,14 @@ export default {
 
     mixins: [MakeUniq],
     componentI18N: { messages: MailAppL10N },
-    data(){
+    data() {
         return {
-            windowWidth: window.innerWidth,
-            showFolders: this.windowWidth >= 768
+            userSession: injector.getProvider("UserSession").get()
         };
     },
     computed: {
         ...mapState("alert", ["alerts"]),
         ...mapState("mail-webapp", ["currentMessageKey"]),
-        getWindowWidth(){
-            return window.innerWidth;
-        },
         isMessageComposerDisplayed() {
             const routePath = this.$route.path;
             return (
@@ -144,15 +159,13 @@ export default {
         composerOrMessageIsDisplayed(){
             return this.isMessageComposerDisplayed || this.currentMessageKey;
         },
+        canSwitchWebmail() {
+            return this.userSession && this.userSession.roles.includes("hasMailWebapp") 
+                && this.userSession.roles.includes("hasWebmail");
+        }
     },
     created: function() {
-        const userSession = injector.getProvider("UserSession").get();
-        this.bootstrap(userSession.login);
-    },
-    mounted(){
-        window.onresize = () => {
-            this.windowWidth = window.innerWidth;
-        };
+        this.bootstrap(this.userSession.login);
     },
     methods: {
         ...mapActions("mail-webapp", ["bootstrap"]),
@@ -161,6 +174,11 @@ export default {
         },
         toggleFolders (){
             this.showFolders = !this.showFolders;
+        },
+        switchWebmail() {
+            injector.getProvider("UserSettingsPersistence").get()
+                .setOne(this.userSession.userId, "try_new_webmail", "false");
+            location.replace("/webmail/");
         }
     }
 };
@@ -176,31 +194,38 @@ body > div {
     min-height: 0;
 }
 
-.mail-app .topbar {
-    flex: 0 0 4em;
-
-    @media (max-width: map-get($grid-breakpoints, 'lg')) {
-        background-color: $info-dark;
+.mail-app {
+    .topbar {
+        flex: 0 0 4em;
+        @media (max-width: map-get($grid-breakpoints, 'lg')) {
+            background-color: $info-dark;
         
-        .btn-link{
-            background-color: none;
-            color: $light; 
+            .btn-link{
+                background-color: none;
+                color: $light; 
+            }
+        }
+    }
+    .bm-application-alert {
+        bottom: $sp-1;
+    }
+    .switch-webmail label {
+        max-width: $custom-switch-width * 3;
+        &::before {
+            top: $custom-control-indicator-size / 2 !important;
+        }
+        &::after {
+            top: #{($custom-switch-indicator-size + $custom-control-indicator-size) / 2} !important;
+        }
+    }
+    .mail-folder-tree {
+        min-width: 100%;
+    }
+    .mail-folder-tree-wrapper {
+        @media (max-width: map-get($grid-breakpoints, 'lg')) {
+            box-shadow: $box-shadow-lg;
         }
     }
 }
 
-.mail-app .bm-application-alert {
-    position: absolute;
-    bottom: $sp-1;
-}
-
-.mail-folder-tree {
-    min-width: 100%;
-}
-
-.mail-folder-tree-wrapper {
-     @media (max-width: map-get($grid-breakpoints, 'lg')) {
-         box-shadow: $box-shadow-lg;
-    }
-}
 </style>

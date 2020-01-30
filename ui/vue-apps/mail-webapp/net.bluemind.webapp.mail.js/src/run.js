@@ -3,6 +3,7 @@ import { AlertFactory } from "@bluemind/alert.store";
 import { MailboxFoldersClient, OutboxClient } from "@bluemind/backend.mail.api";
 import { MailboxItemsService } from "@bluemind/backend.mail.service";
 import { TaskClient } from "@bluemind/core.task.api";
+import { UserSettingsClient } from "@bluemind/user.api";
 import MailWebAppStore from "@bluemind/webapp.mail.store";
 import { ContainersClient } from "@bluemind/core.container.api";
 import AlertStore from "@bluemind/alert.store";
@@ -28,16 +29,13 @@ function registerStores() {
 }
 
 function registerAPIClients() {
+    
+    
     injector.register({
         provide: "MailboxFoldersPersistence",
         factory: mailboxUid => {
             const userSession = injector.getProvider("UserSession").get();
-            return new MailboxFoldersClient(
-                userSession.sid,
-                userSession.domain.replace(".", "_"),
-                mailboxUid
-                // "user." + userSession.login.split("@")[0]
-            );
+            return new MailboxFoldersClient(userSession.sid, userSession.domain.replace(".", "_"), mailboxUid);
         }
     });
 
@@ -67,5 +65,13 @@ function registerAPIClients() {
     injector.register({
         provide: "TaskService",
         factory: taskId => new TaskClient(injector.getProvider("UserSession").get().sid, taskId)
+    });
+
+    injector.register({
+        provide: "UserSettingsPersistence",
+        factory: () => {
+            const userSession = injector.getProvider("UserSession").get();
+            return new UserSettingsClient(userSession.sid, userSession.domain);
+        }
     });
 }

@@ -85,5 +85,6 @@
     "mail.compose.forward.prev.message.info.subject": "Subject",
     "mail.compose.forward.prev.message.info.to": "To",
     "mail.compose.forward.prev.message.info.date": "Date",
-    "mail.compose.forward.prev.message.info.from": "From"
+    "mail.compose.forward.prev.message.info.from": "From",
+    "mail.main.switch.webmail": "Try the new webmail"
 }

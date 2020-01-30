@@ -40,7 +40,7 @@ new Vue({
     router,
     store
 });
-
+        
 function setVuePlugins() {
     Vue.use(VueI18n);
     Vue.use(VueBus, { store });
