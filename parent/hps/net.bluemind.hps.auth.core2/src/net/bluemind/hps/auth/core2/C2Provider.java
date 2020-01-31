@@ -130,7 +130,7 @@ public class C2Provider implements IAuthProvider {
 			return;
 		}
 
-		String domainName = getDomainName(externalCreds);
+		String domainName = externalCreds.getLoginAtDomain().split("@")[1];
 
 		IMailboxesPromise mailboxClient = getProvider(externalCreds.getLoginAtDomain(), Token.admin0(), remoteIps)
 				.instance(IMailboxesPromise.class, domainName);
@@ -184,23 +184,14 @@ public class C2Provider implements IAuthProvider {
 	}
 
 	/**
-	 * Get domain name from external credential loginAtDomain
-	 * 
-	 * @param externalCreds
-	 * @return
-	 */
-	private String getDomainName(ExternalCreds externalCreds) {
-		return externalCreds.domainName
-				.orElse(externalCreds.getLoginAtDomain().substring(externalCreds.getLoginAtDomain().indexOf('@')));
-	}
-
-	/**
 	 * Do sudo using
 	 * {@link net.bluemind.proxy.http.ExternalCreds#getLoginAtDomain()} as login
 	 * 
-	 * @param checkLatdOnBadAuth if true and sudo login response is bad, check if
-	 *                           {@link net.bluemind.proxy.http.ExternalCreds#getLoginAtDomain()}
-	 *                           is the real loginAtDomain
+	 * @param checkLatdOnBadAuth
+	 *                               if true and sudo login response is bad, check
+	 *                               if
+	 *                               {@link net.bluemind.proxy.http.ExternalCreds#getLoginAtDomain()}
+	 *                               is the real loginAtDomain
 	 * @param remoteIps
 	 * @param handler
 	 * @param sp

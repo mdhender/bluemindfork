@@ -203,12 +203,12 @@ public class CasProtocol implements IAuthProtocol {
 				// OK we've got an user
 				logger.info("[CAS] Ticket validation successful for user : " + userName);
 
-				ExternalCreds creds = new ExternalCreds(casDomain);
+				ExternalCreds creds = new ExternalCreds();
 				creds.setTicket(ticket);
 				if (userName.contains("@")) {
 					creds.setLoginAtDomain(userName.toLowerCase());
 				} else {
-					creds.setLoginAtDomain(userName.toLowerCase() + "@" + casDomain.toLowerCase());
+					creds.setLoginAtDomain(String.format("%s@%s", userName.toLowerCase(), casDomain.toLowerCase()));
 				}
 
 				return Optional.of(creds);
