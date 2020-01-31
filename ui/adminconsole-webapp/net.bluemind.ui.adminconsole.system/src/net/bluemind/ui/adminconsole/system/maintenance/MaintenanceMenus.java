@@ -38,7 +38,7 @@ public class MaintenanceMenus {
 		screens.push(Contributed.create("maintenance",
 				Screen.create("updateBluemind", v2.updateBluemind(), BasicRoles.ROLE_SYSTEM_MANAGER, false)));
 		screens.push(Contributed.create("maintenance",
-				Screen.create("emailMaintenance", v2.maintainEmails(), BasicRoles.ROLE_SYSTEM_MANAGER, true)));
+				Screen.create("emailMaintenance", v2.maintainEmails(), BasicRoles.ROLE_SYSTEM_MANAGER, false)));
 		screens.push(Contributed.create("maintenance",
 				Screen.create("indexMaintenance", v2.reindexing(), BasicRoles.ROLE_SYSTEM_MANAGER, true)));
 
