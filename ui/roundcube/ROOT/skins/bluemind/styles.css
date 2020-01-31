@@ -1751,3 +1751,39 @@ fieldset.tab {
 	cursor: auto;
 }
 
+#switch-webmail {
+	position: absolute;
+	top: 50px;
+	right: 24px;
+	cursor: pointer;
+}
+
+#switch-webmail:hover #switch-webmail-input {
+	background-image: url("images/switch-off-hover.png");
+}
+
+#switch-webmail-text {
+	display: inline-block;
+	vertical-align: middle;
+	max-width: 135px;
+	color: #00AAEB;
+	text-align: right;
+	padding-right: 8px;
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 16.8px;
+}
+
+#switch-webmail-input {
+	display: inline-block;
+	height: 18px;
+	width: 45px;
+	background-image: url("images/switch-off.png");
+	background-size: 100%;
+	vertical-align: middle;
+}
+
+#switch-webmail-input:after {
+	visibility: hidden;
+	content: url("images/switch-off-hover.png");
+}

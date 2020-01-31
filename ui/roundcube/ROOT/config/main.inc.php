@@ -414,7 +414,9 @@ $rcmail_config['plugins'] = array(
 		'contextmenu',
 		'jqueryui',
 		'vcard_attachments',
-		'zipdownload', 'bm_webmail');
+        'zipdownload', 
+        'bm_webmail',
+        'bm_switch_webmail');
 
 // ----------------------------------
 // USER INTERFACE
