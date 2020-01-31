@@ -18,9 +18,7 @@
  */
 package net.bluemind.user.service.internal;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -47,26 +45,17 @@ public class UserSettingsService implements IUserSettings {
 	private final UserSettingsStore userSettingsStore;
 	private final IDomainSettings domainSettingsService;
 	private final UserSettingsSanitizer sanitizer;
-
 	private RBACManager rbacManager;
-
-	private BmContext bmContext;
-
-	private String domainUid;
 
 	public UserSettingsService(BmContext context, IDomainSettings domainSettingsService, Container userSettings,
 			String domainUid) throws ServerFault {
-		this.bmContext = context;
-		this.domainUid = domainUid;
 		this.userSettings = userSettings;
 		this.sanitizer = new UserSettingsSanitizer();
 		this.domainSettingsService = domainSettingsService;
-		userSettingsStore = new UserSettingsStore(context.getDataSource(), userSettings);
-		userSettingsStoreService = new ContainerStoreService<>(context.getDataSource(), context.getSecurityContext(),
+		this.userSettingsStore = new UserSettingsStore(context.getDataSource(), userSettings);
+		this.userSettingsStoreService = new ContainerStoreService<>(context.getDataSource(), context.getSecurityContext(),
 				userSettings, "usersettings", userSettingsStore);
-
-		rbacManager = new RBACManager(context).forDomain(domainUid);
-
+		this.rbacManager = new RBACManager(context).forDomain(domainUid);
 	}
 
 	@Override
@@ -74,20 +63,18 @@ public class UserSettingsService implements IUserSettings {
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_USER_SETTINGS);
 
 		logger.debug("Update user settings: {}", uid);
-		sanitizer.sanitize(settings);
+		sanitizer.sanitize(settings,domainSettingsService);
 		userSettingsStoreService.update(uid, null, settings);
 
-		JsonObject event = new JsonObject().put("containerUid", userSettings.uid).put("itemUid", uid);
-		VertxPlatform.eventBus().publish("usersettings.updated", event);
+		VertxPlatform.eventBus().publish("usersettings.updated", getVertXEvent(uid));
 	}
 
 	@Override
 	public Map<String, String> get(String uid) throws ServerFault {
-		logger.debug("Get user settings: {}", uid);
-
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_SELF, BasicRoles.ROLE_MANAGER);
 
-		Map<String, String> userSettings = new HashMap<String, String>();
+		logger.debug("Get user settings: {}", uid);
+		Map<String, String> userSettings = new HashMap<>();
 
 		Map<String, String> ds = domainSettingsService.get();
 		if (ds != null && ds.size() > 0) {
@@ -103,26 +90,27 @@ public class UserSettingsService implements IUserSettings {
 
 		return userSettings;
 	}
+	
+	@Override
+	public void setOne(String uid, String name, String value) throws ServerFault {
+		rbacManager.forEntry(uid).check(BasicRoles.ROLE_SELF, BasicRoles.ROLE_MANAGER);
 
-	class UserSettingsSanitizer {
-
-		public void sanitize(Map<String, String> settings) {
-			Map<String, String> domainSettings = domainSettingsService.get();
-			List<String> duplicateKeys = new ArrayList<>();
-			settings.keySet().forEach(key -> {
-				if (domainSettings.containsKey(key) && settingsEquals(domainSettings.get(key), settings.get(key))) {
-					duplicateKeys.add(key);
-				}
-			});
-
-			duplicateKeys.forEach(key -> settings.remove(key));
-
-		}
-
-		private boolean settingsEquals(String value1, String value2) {
-			return value1 == null ? value2 == null : value1.equals(value2);
-		}
-
+		logger.debug("Set setting {} with value {} for user {}", name, value, uid);
+		Map<String, String> settings = this.get(uid);
+		settings.put(name, value);
+		
+		this.set(uid, settings);
+		VertxPlatform.eventBus().publish("usersettings.updated", getVertXEvent(uid));
 	}
 
+	@Override
+	public String getOne(String uid, String name) throws ServerFault {
+		rbacManager.forEntry(uid).check(BasicRoles.ROLE_SELF, BasicRoles.ROLE_MANAGER);
+		logger.debug("Get setting {} for user {}", name, uid);
+		return this.get(uid).get(name);
+	}
+	
+	private JsonObject getVertXEvent(String uid) {
+		return new JsonObject().put("containerUid", userSettings.uid).put("itemUid", uid);
+	}
 }

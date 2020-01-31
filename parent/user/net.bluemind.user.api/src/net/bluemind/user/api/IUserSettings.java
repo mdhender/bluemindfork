@@ -55,4 +55,34 @@ public interface IUserSettings {
 	@GET
 	@Path("{uid}/_settings")
 	public Map<String, String> get(@PathParam(value = "uid") String uid) throws ServerFault;
+	
+	/**
+	 * Create or update one {@link User} setting
+	 * 
+	 * @param uid
+	 *            uid of the user
+	 * @param name
+	 *            setting name
+	 * @param value
+	 *            setting value
+	 * @throws ServerFault
+	 */
+	@POST
+	@Path("{uid}/_setting/{name}")
+	public void setOne(@PathParam(value = "uid") String uid,
+			@PathParam(value = "name") String name, String value) throws ServerFault;
+
+	/**
+	 * Get one {@link User} setting value
+	 * 
+	 * @param uid
+	 *            uid of the user
+	 * @param name
+	 * 				setting name
+	 * @return String setting value
+	 * @throws ServerFault
+	 */
+	@GET
+	@Path("{uid}/_setting/{name}")
+	public String getOne(@PathParam(value = "uid") String uid, @PathParam(value = "name") String name) throws ServerFault;
 }

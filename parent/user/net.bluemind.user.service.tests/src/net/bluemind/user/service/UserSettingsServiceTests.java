@@ -74,7 +74,6 @@ public class UserSettingsServiceTests {
 	@Before
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
-
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
 		ContainerStore containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
@@ -208,7 +207,7 @@ public class UserSettingsServiceTests {
 	}
 
 	@Test
-	public void testU1SetU2Settings() throws ServerFault, InterruptedException, SQLException {
+	public void user1SetUser2Settings() throws ServerFault, InterruptedException, SQLException {
 		try {
 			HashMap<String, String> userSettings = new HashMap<String, String>();
 			userSettings.put("lang", "en");
@@ -221,7 +220,7 @@ public class UserSettingsServiceTests {
 	}
 
 	@Test
-	public void testAdminGetU1Settings() throws ServerFault, InterruptedException, SQLException {
+	public void adminGetUserSettings() throws ServerFault, InterruptedException, SQLException {
 		Map<String, String> us = getSettingsService(adminSecurityContext).get(user1);
 		assertNotNull(us);
 		assertTrue(us.size() > 0);
@@ -230,7 +229,7 @@ public class UserSettingsServiceTests {
 	}
 
 	@Test
-	public void testAdminSetU1Settings() throws ServerFault, InterruptedException, SQLException {
+	public void adminSetUserSettings() throws ServerFault, InterruptedException, SQLException {
 		HashMap<String, String> userSettings = new HashMap<String, String>();
 		userSettings.put("lang", "en");
 
@@ -244,7 +243,7 @@ public class UserSettingsServiceTests {
 	}
 
 	@Test
-	public void testDomainSettingsDontDescendToUserSettings() throws ServerFault, InterruptedException, SQLException {
+	public void domainSettingsDontDescendToUserSettings() throws ServerFault, InterruptedException, SQLException {
 		HashMap<String, String> userSettings = new HashMap<String, String>();
 		userSettings.put("lang", "en");
 		userSettings.put("work_hours_end", "12");
@@ -273,5 +272,21 @@ public class UserSettingsServiceTests {
 		assertEquals("12", us.get("work_hours_end"));
 		assertEquals("en", us.get("lang"));
 		assertEquals(2, us.size());
+	}
+	
+	@Test
+	public void setAndGetUserSettingOneByOne() {
+		System.err.println(getSettingsService(adminSecurityContext).get(user1));
+		
+		String name = "myName";
+		String value = "myValue";
+		getSettingsService(adminSecurityContext).setOne(user1, name, value);
+		assertEquals(value, getSettingsService(adminSecurityContext).getOne(user1, name));
+		
+		String secondName = "secondName";
+		String secondValue = "secondValue";
+		getSettingsService(adminSecurityContext).setOne(user1, secondName, secondValue);
+		assertEquals(secondValue, getSettingsService(adminSecurityContext).getOne(user1, secondName));
+		assertEquals(value, getSettingsService(adminSecurityContext).getOne(user1, name));
 	}
 }
