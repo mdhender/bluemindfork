@@ -41,6 +41,7 @@ import net.bluemind.backend.cyrus.replication.server.Token;
 import net.bluemind.backend.cyrus.replication.server.utils.LiteralTokens;
 import net.bluemind.backend.cyrus.replication.server.utils.ReplicatedBoxes;
 import net.bluemind.backend.mail.api.MessageBody;
+import net.bluemind.backend.mail.replica.api.ICyrusReplicationArtifactsPromise;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecordsPromise;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxesPromise;
 import net.bluemind.backend.mail.replica.api.MailboxAnnotation;
@@ -52,6 +53,7 @@ import net.bluemind.backend.mail.replica.api.QuotaRoot;
 import net.bluemind.backend.mail.replica.api.SeenOverlay;
 import net.bluemind.backend.mail.replica.api.SieveScript;
 import net.bluemind.core.api.Stream;
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.base.GenericStream;
@@ -322,9 +324,7 @@ public class ReplicationState {
 			LiteralTokens.export(litToken, dest);
 			dest.delete();
 		});
-		return storage.cyrusArtifacts(sieve.userId).thenCompose(api -> {
-			return api.deleteScript(sieve);
-		});
+		return storage.cyrusArtifacts(sieve.userId).thenCompose(api -> api.deleteScript(sieve));
 	}
 
 	public CompletableFuture<List<SieveScript>> sieveByUser(String userName) {
@@ -347,15 +347,26 @@ public class ReplicationState {
 	}
 
 	public CompletableFuture<List<SeenOverlay>> seenOverlayByUser(String userName) {
-		return storage.cyrusArtifacts(userName).thenCompose(api -> api.seens());
+		return storage.cyrusArtifacts(userName).thenCompose(ICyrusReplicationArtifactsPromise::seens);
 	}
 
 	public CompletableFuture<Void> updateRecords(String boxUniqueId, List<MailboxRecord> mboxState) {
 		return storage.mailboxRecords(boxUniqueId).thenCompose(recApi -> {
 			CompletableFuture<Void> chain = CompletableFuture.completedFuture(null);
 			for (List<MailboxRecord> chunk : Lists.partition(mboxState, 200)) {
-				chain = chain.thenCompose(v -> recApi.updates(chunk))
-						.thenAccept(v -> recordUpdates.increment(chunk.size()));
+				chain = chain.thenCompose(v -> recApi.updates(chunk)).exceptionally(t -> {
+					if (t instanceof ServerFault) {
+						if (((ServerFault) t).getCode() == ErrorCode.TIMEOUT) {
+							logger.info("Ignoring timeout {}", t.getMessage());
+							return null;
+						}
+					} else if (t instanceof RuntimeException) {
+						throw (RuntimeException) t;
+					} else {
+						throw new RuntimeException(t);
+					}
+					return null;
+				}).thenAccept(v -> recordUpdates.increment(chunk.size()));
 			}
 			return chain;
 		});
@@ -414,13 +425,8 @@ public class ReplicationState {
 	}
 
 	public CompletableFuture<List<MboxRecord>> records(MailboxFolder known) {
-		return storage.mailboxRecords(known.getUniqueId()).thenCompose(recApi -> {
-			return recApi.all().thenApply(records -> {
-				List<MboxRecord> recs = records.stream().map(r -> DtoConverters.from(r.value))
-						.collect(Collectors.toList());
-				return recs;
-			});
-		});
+		return storage.mailboxRecords(known.getUniqueId()).thenCompose(recApi -> recApi.all().thenApply(
+				records -> records.stream().map(r -> DtoConverters.from(r.value)).collect(Collectors.toList())));
 	}
 
 	public CompletableFuture<Void> expunge(String mbox, List<Long> uid) {
@@ -430,19 +436,18 @@ public class ReplicationState {
 			ret.completeExceptionally(ReplicationException.malformedMailboxName("mailbox " + mbox + " not found."));
 			return ret;
 		}
-		return storage.replicatedMailboxes(userFrom).thenCompose(apiDesc -> {
-			return apiDesc.mboxApi.byName(userFrom.folderName).thenAccept(mboxItem -> {
-				if (mboxItem != null) {
-					storage.mailboxRecords(mboxItem.uid).thenAccept(recordsApi -> {
-						recordsApi.deleteImapUids(uid).whenComplete((v, ex) -> {
-							if (ex != null) {
-								logger.error(ex.getMessage(), ex);
-							}
-						});
-					});
-				}
-			});
-		});
+		return storage.replicatedMailboxes(userFrom)
+				.thenCompose(apiDesc -> apiDesc.mboxApi.byName(userFrom.folderName).thenAccept(mboxItem -> {
+					if (mboxItem != null) {
+						storage.mailboxRecords(mboxItem.uid)
+								.thenAccept(recordsApi -> recordsApi.deleteImapUids(uid).whenComplete((v, ex) -> {
+									if (ex != null) {
+										logger.error(ex.getMessage(), ex);
+									}
+								}));
+					}
+				}));
+
 	}
 
 	public CompletableFuture<Boolean> checkCredentials(String login, String secret) {
