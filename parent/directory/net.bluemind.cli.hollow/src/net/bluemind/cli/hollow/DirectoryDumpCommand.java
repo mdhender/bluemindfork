@@ -73,7 +73,7 @@ public class DirectoryDumpCommand implements ICmdLet, Runnable {
 	private String stringify(AddressBookRecord abr) {
 		return MoreObjects.toStringHelper("Rec")//
 				.add("uid", hstring(abr.getUid()))//
-				.add("displayName", hstring(abr.getGivenName()) + " " + hstring(abr.getSurname()))//
+				.add("displayName", hstring(abr.getName()))//
 				.add("email", hstring(abr.getEmail()))//
 				.add("dn", hstring(abr.getDistinguishedName()))//
 				.toString();

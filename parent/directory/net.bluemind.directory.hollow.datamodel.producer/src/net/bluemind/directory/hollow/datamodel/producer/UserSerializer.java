@@ -44,7 +44,7 @@ public class UserSerializer extends DirEntrySerializer {
 			return new StringValue(user.displayName);
 		case Surname:
 			return new StringValue(
-					Optional.ofNullable(user.value.contactInfos.identification.name.givenNames).orElse(null));
+					Optional.ofNullable(user.value.contactInfos.identification.name.familyNames).orElse(null));
 		case SmtpAddress:
 			return getDefaultSmtp();
 		case GivenName:
