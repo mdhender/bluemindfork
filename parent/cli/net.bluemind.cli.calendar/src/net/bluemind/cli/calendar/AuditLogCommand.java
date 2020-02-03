@@ -174,7 +174,7 @@ public class AuditLogCommand implements ICmdLet, Runnable {
 				return !success(type);
 			}
 			if (action.equals("send-mail")) {
-				additionalData.add("mailto:" + getParam(actionPart, "mailTo").get());
+				additionalData.add("mailto:" + getParam(actionPart, "mailTo").orElse(""));
 			}
 			getParam(actionPart, "sendNotif").ifPresent(n -> additionalData.add("Send-Notification:" + n));
 			String date = formatDate(m.group(1) + " " + m.group(2));
@@ -185,13 +185,22 @@ public class AuditLogCommand implements ICmdLet, Runnable {
 			if (!StringUtil.isNullOrEmpty(dataByDate) && date.startsWith(dataByDate)) {
 				showData = true;
 			}
-			actionData = formatAction(action, actionPart);
+			try {
+				actionData = formatAction(action, actionPart);
+			} catch (Exception e) {
+				actionData = "Undecodeable action data";
+			}
 			if (!StringUtil.isNullOrEmpty(eventQuery) && !((actionPart + actionData).contains(eventQuery))) {
 				return !success(type);
 			}
 
 			String result = m.group(7);
-			String entity = formatEntity(m.group(6));
+			String entity;
+			try {
+				entity = formatEntity(m.group(6));
+			} catch (Exception e) {
+				entity = "";
+			}
 			if (!StringUtil.isNullOrEmpty(calendarQuery) && !entity.contains(calendarQuery)) {
 				return !success(type);
 			}
