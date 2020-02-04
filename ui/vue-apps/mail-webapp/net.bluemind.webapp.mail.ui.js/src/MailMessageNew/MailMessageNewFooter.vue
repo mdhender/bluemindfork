@@ -123,15 +123,17 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail-webapp", ["addAttachment"]),
+        ...mapActions("mail-webapp", ["addAttachment", "saveDraft"]),
         openFilePicker() {
             this.$refs.attachInputRef.click();
         },
         doAttach(event) {
             if (event.target.files.length > 0) {
+                let promises = [];
                 for (let file of event.target.files) {
-                    this.addAttachment(file);
+                    promises.push(this.addAttachment(file));
                 }
+                Promise.all(promises).then(() => this.saveDraft());
             }
         }
     }

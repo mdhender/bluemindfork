@@ -70,7 +70,8 @@ export default {
     directives: { BmTooltip },
     computed: {
         ...mapState("mail-webapp", ["currentFolderKey"]),
-        ...mapGetters("mail-webapp", ["currentMessage", "nextMessageKey", "my"])
+        ...mapGetters("mail-webapp", ["nextMessageKey", "my"]),
+        ...mapGetters("mail-webapp/currentMessage", { currentMessage: "message" })
     },
     methods: {
         ...mapActions("mail-webapp", ["markAsRead", "markAsUnread"]),

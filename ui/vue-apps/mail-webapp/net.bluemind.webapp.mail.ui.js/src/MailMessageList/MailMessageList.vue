@@ -135,7 +135,8 @@ export default {
     computed: {
         ...mapGetters("mail-webapp", ["nextMessageKey", "my", "areMessagesFiltered"]),
         ...mapGetters("mail-webapp/messages", ["messages", "count", "indexOf"]),
-        ...mapState("mail-webapp", ["currentFolderKey", "currentMessageKey", "search", "messageFilter"]),
+        ...mapState("mail-webapp", ["currentFolderKey", "search", "messageFilter"]),
+        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         mode() {
             return this.search.pattern ? "search" : "default";
         },

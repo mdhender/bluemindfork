@@ -33,7 +33,7 @@ export default {
     },
     directives: { BmTooltip },
     computed: {
-        ...mapState("mail-webapp", ["currentMessageKey"]),
+        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapGetters("mail-webapp", ["nextMessageKey"])
     },
     methods: {

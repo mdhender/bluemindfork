@@ -42,7 +42,7 @@
         <bm-row>
             <bm-col cols="12">
                 <hr class="bg-dark my-0" />
-                <mail-message-content-attachments-block />
+                <mail-message-content-attachments-block :attachments="parts.attachments" />
             </bm-col>
         </bm-row>
         <bm-row ref="scrollableContainerForMailMessageContentBody" class="pt-1 flex-fill">
@@ -75,8 +75,8 @@ export default {
         MailMessageContentToolbar
     },
     computed: {
-        ...mapGetters("mail-webapp", { message: "currentMessage" }),
-        ...mapState("mail-webapp", ["currentMessageKey"]),
+        ...mapGetters("mail-webapp/currentMessage", ["message"]),
+        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key", parts: "parts" }),
         to() {
             if (this.message.to.length > 0) {
                 return this.message.to.map(dest => (dest.dn ? dest.dn : dest.address));

@@ -9,7 +9,8 @@ const context = {
         my: {
             DRAFTS: { key: "draft-key", uid: "trash-uid" }
         }
-    }
+    },
+    state: { currentMessage: { parts: { attachments: [] } } }
 };
 
 const mockedClient = new MockMailboxItemsClient();
@@ -28,15 +29,13 @@ describe("[Mail-WebappStore][actions] : addAttachment", () => {
     test("Attach text file", async () => {
         await addAttachment(context, file);
         expect(mockedClient.uploadPart).toHaveBeenCalledWith(expect.anything());
-        expect(context.commit).toHaveBeenCalledWith("addAttachmentToDraft", expect.anything());
-        expect(context.dispatch).toHaveBeenCalledWith("saveDraft");
+        expect(context.commit).toHaveBeenCalledWith("draft/addAttachment", expect.anything());
     });
     test("With error", async () => {
         mockedClient.uploadPart.mockImplementation(() => Promise.reject("error-reason"));
         await addAttachment(context, file);
         expect(mockedClient.uploadPart).toHaveBeenCalledWith(expect.anything());
-        expect(context.commit).not.toHaveBeenCalledWith("addAttachmentToDraft", expect.anything());
-        expect(context.dispatch).not.toHaveBeenCalledWith("saveDraft");
+        expect(context.commit).toHaveBeenCalledWith("draft/addAttachment", expect.anything());
         expect(context.commit).toHaveBeenCalledWith(
             "alert/add",
             {

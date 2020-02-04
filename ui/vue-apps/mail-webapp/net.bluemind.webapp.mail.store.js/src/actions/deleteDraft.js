@@ -4,7 +4,6 @@ import injector from "@bluemind/inject";
 /** Delete the draft (hard delete, not moved in Trash box). */
 export function deleteDraft({ commit, state, getters }) {
     const draft = state.draft;
-
     if (!draft.id || draft.status === DraftStatus.DELETED) {
         // no saved draft to delete, just close the composer
         return Promise.resolve();
@@ -17,7 +16,7 @@ export function deleteDraft({ commit, state, getters }) {
         const draftbox = getters.my.DRAFTS;
 
         service = injector.getProvider("MailboxItemsPersistence").get(draftbox.uid);
-        commit("updateDraft", { status: DraftStatus.DELETING });
+        commit("draft/update", { status: DraftStatus.DELETING });
         return resolve();
     })
         .then(() => {
@@ -26,7 +25,9 @@ export function deleteDraft({ commit, state, getters }) {
         })
         .then(() => {
             commit("alert/add", { code: "MSG_DRAFT_DELETE_OK", props: { subject: draft.subject } }, { root: true });
-            commit("updateDraft", { status: DraftStatus.DELETED });
+            commit("draft/update", { status: DraftStatus.DELETED });
+            commit("draft/clear");
+            commit("messages/clearParts");
         })
         .catch(reason => {
             commit(
@@ -37,6 +38,6 @@ export function deleteDraft({ commit, state, getters }) {
                 },
                 { root: true }
             );
-            commit("updateDraft", { status: DraftStatus.DELETE_ERROR });
+            commit("draft/update", { status: DraftStatus.DELETE_ERROR });
         });
 }

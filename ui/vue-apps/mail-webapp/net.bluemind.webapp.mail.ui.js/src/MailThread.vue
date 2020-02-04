@@ -37,10 +37,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail-webapp", {
-            message: "currentMessage",
-            inlineParts: "currentMessageContent"
-        }),
+        ...mapGetters("mail-webapp/currentMessage", { message: "message", inlineParts: "content" }),
         previousMessage() {
             return {
                 content: previousMessageContent(

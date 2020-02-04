@@ -9,7 +9,7 @@ describe("[Mail-WebappStore][getters] : nextMessageKey ", () => {
         getters["messages/indexOf"].mockClear();
         getters["messages/count"] = 4;
         Object.assign(state, {
-            currentMessageKey: "whatever",
+            currentMessage: { key: "whatever" },
             messages: { itemKeys: ["key1", "key2", "key3", "key4"] }
         });
     });

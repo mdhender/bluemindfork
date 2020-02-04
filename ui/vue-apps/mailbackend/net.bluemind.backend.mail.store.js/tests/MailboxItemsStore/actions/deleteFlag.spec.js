@@ -35,14 +35,14 @@ describe("[MailItemsStore][actions] : deleteFlag", () => {
             done();
         });
         expect(get).toHaveBeenCalledWith(folderUid);
-        expect(service.deleteFlag).toHaveBeenCalledWith([{ itemsId: [messageId], mailboxItemFlag }]);
+        expect(service.deleteFlag).toHaveBeenCalledWith({ itemsId: [messageId], mailboxItemFlag });
 
         deleteFlag(context, { messageKey, mailboxItemFlag }).then(() => {
             expect(context.commit).toHaveBeenCalledWith("deleteFlag", { messageKey, mailboxItemFlag });
             done();
         });
         expect(get).toHaveBeenCalledWith(folderUid);
-        expect(service.deleteFlag).toHaveBeenCalledWith([{ itemsId: [messageId], mailboxItemFlag }]);
+        expect(service.deleteFlag).toHaveBeenCalledWith({ itemsId: [messageId], mailboxItemFlag });
     });
 
     test("fail if deleteFlag call fail", () => {

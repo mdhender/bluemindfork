@@ -12,7 +12,7 @@ import { sanitizeHtml } from "@bluemind/html-utils";
 export default {
     name: "MailMessageContentBody",
     computed: {
-        ...mapGetters("mail-webapp", { parts: "currentMessageContent" })
+        ...mapGetters("mail-webapp/currentMessage", { parts: "content" })
     },
     watch: {
         parts: {

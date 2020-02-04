@@ -35,14 +35,14 @@ describe("[MailItemsStore][actions] : addFlag", () => {
             done();
         });
         expect(get).toHaveBeenCalledWith(folderUid);
-        expect(service.addFlag).toHaveBeenCalledWith([{ itemsId: [messageId], mailboxItemFlag }]);
+        expect(service.addFlag).toHaveBeenCalledWith({ itemsId: [messageId], mailboxItemFlag });
 
         addFlag(context, { messageKey, mailboxItemFlag }).then(() => {
             expect(context.commit).toHaveBeenCalledWith("addFlag", { messageKey, mailboxItemFlag });
             done();
         });
         expect(get).toHaveBeenCalledWith(folderUid);
-        expect(service.addFlag).toHaveBeenCalledWith([{ itemsId: [messageId], mailboxItemFlag }]);
+        expect(service.addFlag).toHaveBeenCalledWith({ itemsId: [messageId], mailboxItemFlag });
     });
 
     test("fail if addFlag call fail", () => {

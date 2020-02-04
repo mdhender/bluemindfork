@@ -60,7 +60,8 @@ export default {
     },
     computed: {
         ...mapGetters("mail-webapp", ["nextMessageKey", "my"]),
-        ...mapState("mail-webapp", ["currentMessageKey", "currentFolderKey"])
+        ...mapState("mail-webapp", ["currentFolderKey"]),
+        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" })
     },
     methods: {
         ...mapActions("mail-webapp", ["markAsRead", "markAsUnread"]),

@@ -77,6 +77,11 @@
                     />
                 </div>
                 <bm-row class="d-block m-0"><hr class="bg-dark m-0"/></bm-row>
+                <bm-row>
+                    <bm-col cols="12">
+                        <mail-message-content-attachments-block :attachments="parts.attachments" />
+                    </bm-col>
+                </bm-row>
                 <div class="flex-grow-1">
                     <bm-form-textarea
                         v-if="userPrefTextOnly"
@@ -128,7 +133,7 @@
 </template>
 
 <script>
-import { mapGetters, mapActions, mapMutations } from "vuex";
+import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
 import { OrderBy } from "@bluemind/addressbook.api";
 import { VCardInfoAdaptor } from "@bluemind/contact";
 import {
@@ -141,13 +146,15 @@ import {
     BmIcon,
     BmPanel,
     BmRichEditor,
-    BmRow
+    BmRow,
+    BmTooltip
 } from "@bluemind/styleguide";
 import { RouterMixin } from "@bluemind/router";
 import debounce from "lodash/debounce";
 import MailMessageNewFooter from "./MailMessageNewFooter";
 import MailMessageNewModes from "./MailMessageNewModes";
 import ServiceLocator from "@bluemind/inject";
+import MailMessageContentAttachmentsBlock from "../MailMessageContent/MailMessageContentAttachmentsBlock";
 
 export default {
     name: "MailMessageNew",
@@ -162,8 +169,10 @@ export default {
         BmPanel,
         BmRichEditor,
         BmRow,
-        MailMessageNewFooter
+        MailMessageNewFooter,
+        MailMessageContentAttachmentsBlock
     },
+    directives: { BmTooltip },
     mixins: [RouterMixin],
     props: {
         message: {
@@ -208,6 +217,7 @@ export default {
     },
     computed: {
         ...mapGetters("mail-webapp", ["lastRecipients"]),
+        ...mapState("mail-webapp/draft", ["parts"]),
         panelTitle() {
             return this.message_.subject ? this.message_.subject : this.$t("mail.main.new");
         }
@@ -220,15 +230,15 @@ export default {
         },
         message_: {
             handler: function() {
-                this.setDraft({ draft: this.message_ });
+                this.updateDraft(this.message_);
                 this.debouncedSave();
             },
             deep: true
         }
     },
     created: function() {
-        this.setDraft({ draft: this.message_, isNew: true });
         this.message_.type = this.userPrefTextOnly ? "text" : "html";
+        this.updateDraft(Object.assign(this.message_, { isNew: true }));
     },
     mounted: function() {
         if (this.message && (this.message.to.length > 0 || this.message.cc.length > 0)) {
@@ -237,9 +247,12 @@ export default {
             this.$refs.to.focus();
         }
     },
+    destroyed: function() {
+        this.clearDraft();
+    },
     methods: {
         ...mapActions("mail-webapp", ["saveDraft"]),
-        ...mapMutations("mail-webapp", ["setDraft"]),
+        ...mapMutations("mail-webapp/draft", { clearDraft: "clear", updateDraft: "update" }),
         displayPreviousMessages() {
             this.message_.content += this.previousMessage.content;
             this.$nextTick(() => {

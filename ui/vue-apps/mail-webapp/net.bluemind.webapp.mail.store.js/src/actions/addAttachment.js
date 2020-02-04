@@ -1,10 +1,21 @@
 import injector from "@bluemind/inject";
+import UUIDGenerator from "@bluemind/uuid";
 
-const updateDraft = function({ commit, dispatch }, addrPart, file) {
+const errorAlert = function({ commit }, file, reason) {
+    commit("alert/add", { code: "MSG_DRAFT_ATTACH_ERROR", props: { filename: file.name, reason } }, { root: true });
+};
+
+export function addAttachment({ getters, commit, dispatch }, file) {
+    // read the local file
+    const reader = new FileReader();
+    reader.readAsArrayBuffer(file);
+
+    // build our DTO representing an attachment
     const attachment = {
-        address: addrPart,
+        uid: UUIDGenerator.generate(),
         mime: file.type || "application/octet-stream",
-        fileName: file.name,
+        filename: file.name,
+        size: file.size,
         headers: [
             {
                 name: "Content-Disposition",
@@ -16,17 +27,12 @@ const updateDraft = function({ commit, dispatch }, addrPart, file) {
             }
         ]
     };
-    commit("addAttachmentToDraft", attachment);
-    return dispatch("saveDraft");
-};
 
-const errorAlert = function({ commit }, file, reason) {
-    commit("alert/add", { code: "MSG_DRAFT_ATTACH_ERROR", props: { filename: file.name, reason } }, { root: true });
-};
+    // enable the preview of this attachment
+    attachment.content = file;
+    commit("draft/addAttachment", attachment);
 
-export function addAttachment({ getters, commit, dispatch }, file) {
-    const reader = new FileReader();
-    reader.readAsArrayBuffer(file);
+    // upload this attachment then save the draft
     return new Promise((resolve, reject) => {
         reader.onload = resolve;
         reader.onerror = reject;
@@ -35,7 +41,10 @@ export function addAttachment({ getters, commit, dispatch }, file) {
             const service = injector.getProvider("MailboxItemsPersistence").get(getters.my.DRAFTS.uid);
             return service.uploadPart(reader.result);
         })
-        .then(addrPart => updateDraft({ commit, dispatch }, addrPart, file))
+        .then(addrPart => {
+            attachment.address = addrPart;
+            commit("draft/updateAttachment", attachment);
+        })
         .catch(reason => {
             errorAlert({ commit }, file, reason);
         });

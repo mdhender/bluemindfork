@@ -1,7 +1,4 @@
 export * from "./currentFolder";
-export * from "./currentMessage";
-export * from "./currentMessageAttachments";
-export * from "./currentMessageContent";
 export * from "./currentMailbox";
 export * from "./lastRecipients";
 export * from "./mailshares";

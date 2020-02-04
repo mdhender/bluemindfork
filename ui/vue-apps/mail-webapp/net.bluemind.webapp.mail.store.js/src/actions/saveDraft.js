@@ -8,14 +8,13 @@ import ItemUri from "@bluemind/item-uri";
 
 /** Save the current draft: create it into Drafts box, delete the previous one. */
 export function saveDraft({ commit, state, getters }) {
-    const previousDraftId = state.draft.id;
-    let service, draft, userSession;
+    let previousDraftId, service, draft, userSession;
 
     // only one saveDraft at a time
-    return waitUntilDraftNotSaving(state.draft, 250, 5)
+    return waitUntilDraftNotSaving(getters, 250, 5)
         .then(() => {
-            // prepare the message content and initialize services
-            commit("updateDraft", { status: DraftStatus.SAVING });
+            previousDraftId = state.draft.id;
+            commit("draft/update", { status: DraftStatus.SAVING });
 
             // deep clone
             draft = JSON.parse(JSON.stringify(state.draft));
@@ -97,9 +96,9 @@ export function saveDraft({ commit, state, getters }) {
                 };
             }
 
-            if (state.draft.attachments.length > 0) {
+            if (state.draft.parts.attachments.length > 0) {
                 let children = [structure];
-                children.push(...state.draft.attachments);
+                children.push(...state.draft.parts.attachments);
                 structure = {
                     mime: MimeType.MULTIPART_MIXED,
                     children
@@ -120,11 +119,12 @@ export function saveDraft({ commit, state, getters }) {
         .then(itemIdentifier => {
             // update the draft properties
             draft.id = itemIdentifier.id;
-            commit("updateDraft", { status: DraftStatus.SAVED, saveDate: new Date(), id: itemIdentifier.id });
+            commit("draft/update", { status: DraftStatus.SAVED, saveDate: new Date(), id: itemIdentifier.id });
             if (previousDraftId) {
                 // delete the previous draft
                 return service.deleteById(previousDraftId);
             }
+
             return Promise.resolve();
         })
         .then(() => {
@@ -132,7 +132,7 @@ export function saveDraft({ commit, state, getters }) {
             return draft.id;
         })
         .catch(() => {
-            commit("updateDraft", { status: DraftStatus.SAVE_ERROR, saveDate: null });
+            commit("draft/update", { status: DraftStatus.SAVE_ERROR, saveDate: null });
         });
 }
 
@@ -140,7 +140,9 @@ function sanitize(messageToSend) {
     if (messageToSend.subject === "") {
         messageToSend.subject = "(No subject)";
     }
-    messageToSend.content = messageToSend.content.replace(/[\n\r]/g, String.fromCharCode(13, 10));
+    if (messageToSend.content) {
+        messageToSend.content = messageToSend.content.replace(/[\n\r]/g, String.fromCharCode(13, 10));
+    }
 }
 
 /**
@@ -150,15 +152,16 @@ function sanitize(messageToSend) {
  * @param {Number} maxTries the maximum number of checks
  * @param {Number} iteration DO NOT SET. Only used internally for recursivity
  */
-function waitUntilDraftNotSaving(draft, delayTime, maxTries, iteration = 1) {
-    if (draft.status === DraftStatus.SAVING) {
-        return new Promise(resolve => setTimeout(() => resolve(draft.status), delayTime)).then(status => {
+function waitUntilDraftNotSaving(getters, delayTime, maxTries, iteration = 1) {
+    const draftStatus = getters["draft/status"];
+    if (draftStatus === DraftStatus.SAVING) {
+        return new Promise(resolve => setTimeout(() => resolve(draftStatus), delayTime)).then(status => {
             if (status !== DraftStatus.SAVING) {
                 return Promise.resolve();
             } else {
                 if (iteration < maxTries) {
                     // 'smart' delay: add 250ms each retry
-                    return waitUntilDraftNotSaving(draft, delayTime + 250, maxTries, ++iteration);
+                    return waitUntilDraftNotSaving(getters, delayTime + 250, maxTries, ++iteration);
                 } else {
                     return Promise.reject("Timeout while waiting for the draft to be saved");
                 }

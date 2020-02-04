@@ -15,7 +15,7 @@ export function selectFolder({ dispatch, commit, state }, { folderKey, filter })
 
     commit("setSearchLoading", null);
     commit("setSearchPattern", null);
-    commit("clearCurrentMessage");
+    commit("currentMessage/clear");
 
     if (state.messageFilter !== filter) {
         commit("setMessageFilter", filter);

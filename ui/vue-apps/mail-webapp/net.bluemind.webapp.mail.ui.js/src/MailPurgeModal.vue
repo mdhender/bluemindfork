@@ -29,7 +29,7 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail-webapp", ["currentMessageKey"]),
+        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapGetters("mail-webapp", ["nextMessageKey"])
     },
     bus: {

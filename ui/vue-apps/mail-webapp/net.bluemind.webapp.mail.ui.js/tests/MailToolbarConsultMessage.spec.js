@@ -12,14 +12,28 @@ function createStore(overrides) {
                 namespaced: true,
                 state: { currentFolderKey: "" },
                 getters: {
-                    currentMessage: jest.fn(() => {
-                        return { key: "", states: [] };
-                    }),
                     my: jest.fn(() => {
                         return {};
                     })
                 },
                 actions: {}
+            },
+            "mail-webapp/currentMessage": {
+                namespaced: true,
+                state() {
+                    return {
+                        id: undefined,
+                        key: undefined,
+                        parts: { attachments: [], inlines: [] },
+                        saveDate: null,
+                        status: null
+                    };
+                },
+                getters: {
+                    message: jest.fn(() => {
+                        return { key: "", states: [] };
+                    })
+                }
             }
         }
     };
@@ -63,9 +77,9 @@ describe("MailToolbarConsultMessage", () => {
     test("should display 'mark read' button if the message is unread", () => {
         const storeWithReadMessage = createStore({
             modules: {
-                "mail-webapp": {
+                "mail-webapp/currentMessage": {
                     getters: {
-                        currentMessage: jest.fn(() => {
+                        message: jest.fn(() => {
                             return { key: "", states: ["not-seen"] };
                         })
                     }

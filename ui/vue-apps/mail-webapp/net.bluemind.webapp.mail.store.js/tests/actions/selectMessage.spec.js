@@ -19,6 +19,7 @@ const context = {
     commit: jest.fn(),
     state: {
         currentFolderKey: "key",
+        currentMessage: {},
         messages: { itemKeys: [1, 2, 3] },
         sorted: "up to down"
     }
@@ -31,7 +32,7 @@ describe("[Mail-WebappStore][actions] : selectMessage", () => {
     beforeEach(() => {
         context.dispatch.mockClear();
         context.commit.mockClear();
-        context.state.currentMessageKey = messageKey;
+        context.state.currentMessage.key = messageKey;
         context.state.messages.itemKeys = [1, 2, 3];
     });
     test("do nothing if message key is the same", () => {
@@ -49,8 +50,8 @@ describe("[Mail-WebappStore][actions] : selectMessage", () => {
     test("set the current message in state", done => {
         const another = ItemUri.encode(20, folderUid);
         selectMessage(context, another).then(() => {
-            expect(context.commit).toHaveBeenCalledWith("setCurrentMessage", another);
-            expect(context.commit).toHaveBeenCalledWith("setCurrentMessageParts", {
+            expect(context.commit).toHaveBeenCalledWith("currentMessage/update", { key: another });
+            expect(context.commit).toHaveBeenCalledWith("currentMessage/setParts", {
                 attachments: "All attachments",
                 inlines: ["The", "good", "one"]
             });

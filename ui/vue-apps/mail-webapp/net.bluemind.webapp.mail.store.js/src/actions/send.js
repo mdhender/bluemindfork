@@ -27,7 +27,7 @@ export function send({ state, commit, getters, dispatch }) {
     return dispatch("saveDraft")
         .then(newDraftId => {
             draftId = newDraftId;
-            commit("updateDraft", { status: DraftStatus.SENDING });
+            commit("draft/update", { status: DraftStatus.SENDING });
 
             // validation
             if (!validate(draft)) {
@@ -101,7 +101,7 @@ export function send({ state, commit, getters, dispatch }) {
                 },
                 { root: true }
             );
-            commit("updateDraft", { status: DraftStatus.SENT, id: null, saveDate: null });
+            commit("draft/update", { status: DraftStatus.SENT, id: null, saveDate: null });
         })
         .catch(reason => {
             commit("alert/remove", loadingAlertUid, { root: true });
@@ -113,7 +113,7 @@ export function send({ state, commit, getters, dispatch }) {
                 },
                 { root: true }
             );
-            commit("updateDraft", { status: DraftStatus.SENT });
+            commit("draft/update", { status: DraftStatus.SENT });
         });
 }
 

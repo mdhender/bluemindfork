@@ -32,13 +32,13 @@ describe("[Mail-WebappStore][actions] :  selectFolder", () => {
         selectFolder(context, { folderKey });
         expect(context.commit).toHaveBeenCalledWith("setSearchLoading", null);
         expect(context.commit).toHaveBeenCalledWith("setSearchPattern", null);
-        expect(context.commit).toHaveBeenCalledWith("clearCurrentMessage");
+        expect(context.commit).toHaveBeenCalledWith("currentMessage/clear");
         context.commit.mockClear();
         const another = ItemUri.encode("folderUid", "mailboxUid");
         selectFolder(context, { folderKey: another });
         expect(context.commit).toHaveBeenCalledWith("setSearchLoading", null);
         expect(context.commit).toHaveBeenCalledWith("setSearchPattern", null);
-        expect(context.commit).toHaveBeenCalledWith("clearCurrentMessage");
+        expect(context.commit).toHaveBeenCalledWith("currentMessage/clear");
     });
     test("clear the current folder selection only if folder or filter changed", () => {
         selectFolder(context, { folderKey, filter: null });

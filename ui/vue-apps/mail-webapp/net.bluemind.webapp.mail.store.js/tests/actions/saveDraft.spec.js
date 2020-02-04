@@ -31,7 +31,7 @@ describe("[Mail-WebappStore][actions] :  saveDraft", () => {
             id: null,
             status: DraftStatus.NEW,
             saveDate: null,
-            attachments: [],
+            parts: { attachments: [], inlines: [] },
             content: "Bla blabla bla.",
             previousMessage: "",
             type: "html",
@@ -72,10 +72,10 @@ describe("[Mail-WebappStore][actions] :  saveDraft", () => {
             flags: [Flag.SEEN]
         };
     });
-    test.only("Save new draft", async () => {
+    test("Save new draft", async () => {
         await saveDraft(context);
-        expect(context.commit).toHaveBeenNthCalledWith(1, "updateDraft", { status: DraftStatus.SAVING });
-        expect(context.commit).toHaveBeenNthCalledWith(2, "updateDraft", {
+        expect(context.commit).toHaveBeenNthCalledWith(1, "draft/update", { status: DraftStatus.SAVING });
+        expect(context.commit).toHaveBeenNthCalledWith(2, "draft/update", {
             status: DraftStatus.SAVED,
             saveDate: expect.anything(),
             id: expect.anything()
@@ -86,8 +86,8 @@ describe("[Mail-WebappStore][actions] :  saveDraft", () => {
         const contentText = "My wonderful content!";
         context.state.draft.content = contentText;
         await saveDraft(context);
-        expect(context.commit).toHaveBeenNthCalledWith(1, "updateDraft", { status: DraftStatus.SAVING });
-        expect(context.commit).toHaveBeenNthCalledWith(2, "updateDraft", {
+        expect(context.commit).toHaveBeenNthCalledWith(1, "draft/update", { status: DraftStatus.SAVING });
+        expect(context.commit).toHaveBeenNthCalledWith(2, "draft/update", {
             status: DraftStatus.SAVED,
             saveDate: expect.anything(),
             id: expect.anything()
@@ -98,8 +98,8 @@ describe("[Mail-WebappStore][actions] :  saveDraft", () => {
         context.state.draft.content = newContentText;
         context.state.draft.subject = "ModifiedSubject";
         await saveDraft(context);
-        expect(context.commit).toHaveBeenNthCalledWith(1, "updateDraft", { status: DraftStatus.SAVING });
-        expect(context.commit).toHaveBeenNthCalledWith(2, "updateDraft", {
+        expect(context.commit).toHaveBeenNthCalledWith(1, "draft/update", { status: DraftStatus.SAVING });
+        expect(context.commit).toHaveBeenNthCalledWith(2, "draft/update", {
             status: DraftStatus.SAVED,
             saveDate: expect.anything(),
             id: expect.anything()
@@ -108,11 +108,11 @@ describe("[Mail-WebappStore][actions] :  saveDraft", () => {
         expect(itemsService.create).toHaveBeenCalledWith(expectedMailItem);
     });
     test("With attachments", async () => {
-        context.state.draft.attachments.push("attachment1");
-        context.state.draft.attachments.push("attachment2");
+        context.state.draft.parts.attachments.push("attachment1");
+        context.state.draft.parts.attachments.push("attachment2");
         await saveDraft(context);
-        expect(context.commit).toHaveBeenNthCalledWith(1, "updateDraft", { status: DraftStatus.SAVING });
-        expect(context.commit).toHaveBeenNthCalledWith(2, "updateDraft", {
+        expect(context.commit).toHaveBeenNthCalledWith(1, "draft/update", { status: DraftStatus.SAVING });
+        expect(context.commit).toHaveBeenNthCalledWith(2, "draft/update", {
             status: DraftStatus.SAVED,
             saveDate: expect.anything(),
             id: expect.anything()
@@ -148,10 +148,10 @@ describe("[Mail-WebappStore][actions] :  saveDraft", () => {
             throw new Error();
         });
         await saveDraft(context);
-        expect(context.commit).toHaveBeenNthCalledWith(1, "updateDraft", { status: DraftStatus.SAVING });
+        expect(context.commit).toHaveBeenNthCalledWith(1, "draft/update", { status: DraftStatus.SAVING });
         expect(itemsService.create).toHaveBeenCalledWith(expectedMailItem);
         expect(itemsService.create).toThrow(new Error());
-        expect(context.commit).toHaveBeenNthCalledWith(2, "updateDraft", {
+        expect(context.commit).toHaveBeenNthCalledWith(2, "draft/update", {
             status: DraftStatus.SAVE_ERROR,
             saveDate: null,
             id: undefined

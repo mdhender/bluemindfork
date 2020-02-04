@@ -28,7 +28,7 @@ export default {
         MailToolbarConsultMessage
     },
     computed: {
-        ...mapState("mail-webapp", ["currentMessageKey", "currentFolderKey"]),
+        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         isMessageComposerDisplayed() {
             const routePath = this.$route.path;
             return (

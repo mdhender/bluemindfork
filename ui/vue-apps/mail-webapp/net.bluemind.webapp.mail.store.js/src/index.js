@@ -4,6 +4,7 @@ import * as mutations from "./mutations";
 import * as state from "./state";
 import { MailboxItemsStore as messages, MailboxFoldersStore as folders } from "@bluemind/backend.mail.store";
 import { ContainersStore as mailboxes } from "@bluemind/core.container.store";
+import MessageStore from "./MessageStore/";
 
 export default {
     namespaced: true,
@@ -14,6 +15,8 @@ export default {
     modules: {
         messages,
         folders,
-        mailboxes
+        mailboxes,
+        currentMessage: MessageStore,
+        draft: MessageStore
     }
 };

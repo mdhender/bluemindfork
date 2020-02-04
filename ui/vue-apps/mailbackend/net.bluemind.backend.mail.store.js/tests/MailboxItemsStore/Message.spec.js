@@ -40,7 +40,8 @@ describe("Message", () => {
                     mime: "text/plain",
                     address: "TEXT"
                 }
-            }
+            },
+            flags: []
         };
 
         // FIXME for now message recipients are just addresses (when sending message)

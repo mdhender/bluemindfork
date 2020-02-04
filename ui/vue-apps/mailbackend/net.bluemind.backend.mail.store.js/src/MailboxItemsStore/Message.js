@@ -66,11 +66,9 @@ export default class Message {
                 messageId: this.messageId,
                 references: this.references,
                 structure
-            }
+            },
+            flags: isSeen ? [Flag.SEEN] : []
         };
-        if (isSeen) {
-            mailboxItem.flags.push[Flag.SEEN];
-        }
         return mailboxItem;
     }
 
@@ -122,7 +120,7 @@ function fromMailboxItem(item, message) {
     message.headers = mailboxItem.body.headers;
     message.messageId = mailboxItem.body.messageId;
     message.references = mailboxItem.body.references;
-    message.flags = mailboxItem.flags;
+    message.flags = mailboxItem.flags || [];
     message.states = [];
     message.uid = item.uid;
     message.id = item.internalId;
@@ -131,7 +129,7 @@ function fromMailboxItem(item, message) {
     if (mailboxItem.body.smartAttach) {
         message.states.push("has-attachment");
     }
-    if (mailboxItem.flags.find(mailboxItemFlag => mailboxItemFlag.flag === Flag.SEEN.flag) === undefined) {
+    if (message.flags.find(mailboxItemFlag => mailboxItemFlag.flag === Flag.SEEN.flag) === undefined) {
         message.states.push("not-seen");
     }
 }
