@@ -60,10 +60,7 @@ public class EasContainerChangeVerticle extends BusModBase {
 			@Override
 			public void handle(Message<JsonObject> event) {
 				if (calendarProducer != null) {
-					OOPMessage msg = MQ.newMessage();
-					msg.putStringProperty("container", event.body().getString("container"));
-					msg.putStringProperty("userUid", event.body().getString("loginAtDomain"));
-					msg.putStringProperty("domainUid", event.body().getString("domainUid"));
+					OOPMessage msg = buildMessage(event);
 					calendarProducer.send(msg);
 					logger.info("Wake up {} devices for calendar changes", event.body().getString("loginAtDomain"));
 
@@ -80,10 +77,7 @@ public class EasContainerChangeVerticle extends BusModBase {
 			@Override
 			public void handle(Message<JsonObject> event) {
 				if (addressbookProducer != null) {
-					OOPMessage msg = MQ.newMessage();
-					msg.putStringProperty("container", event.body().getString("container"));
-					msg.putStringProperty("userUid", event.body().getString("loginAtDomain"));
-					msg.putStringProperty("domainUid", event.body().getString("domainUid"));
+					OOPMessage msg = buildMessage(event);
 					addressbookProducer.send(msg);
 					logger.info("Wake up {} devices for contacts changes", event.body().getString("loginAtDomain"));
 				} else {
@@ -99,10 +93,7 @@ public class EasContainerChangeVerticle extends BusModBase {
 			@Override
 			public void handle(Message<JsonObject> event) {
 				if (todolistProducer != null) {
-					OOPMessage msg = MQ.newMessage();
-					msg.putStringProperty("container", event.body().getString("container"));
-					msg.putStringProperty("userUid", event.body().getString("loginAtDomain"));
-					msg.putStringProperty("domainUid", event.body().getString("domainUid"));
+					OOPMessage msg = buildMessage(event);
 					todolistProducer.send(msg);
 					logger.info("Wake up {} devices for todolist changes", event.body().getString("loginAtDomain"));
 
@@ -113,6 +104,14 @@ public class EasContainerChangeVerticle extends BusModBase {
 			}
 		});
 
+	}
+
+	private OOPMessage buildMessage(Message<JsonObject> event) {
+		OOPMessage msg = MQ.newMessage();
+		msg.putStringProperty("container", event.body().getString("container"));
+		msg.putStringProperty("userUid", event.body().getString("loginAtDomain"));
+		msg.putStringProperty("domainUid", event.body().getString("domainUid"));
+		return msg;
 	}
 
 }

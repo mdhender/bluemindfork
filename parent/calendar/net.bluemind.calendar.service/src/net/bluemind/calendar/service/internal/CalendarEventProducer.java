@@ -30,7 +30,6 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.LocalJsonObject;
 
 public class CalendarEventProducer {
-	private String loginAtDomain;
 	private EventBus eventBus;
 	private Container container;
 	private SecurityContext securityContext;
@@ -40,20 +39,18 @@ public class CalendarEventProducer {
 			EventBus ev) {
 		this.auditor = auditor;
 		this.container = container;
-		this.loginAtDomain = securityContext.getSubject();
 		this.eventBus = ev;
 		this.securityContext = securityContext;
 	}
 
 	public void changed() {
 		JsonObject body = new JsonObject();
-		body.putString("loginAtDomain", loginAtDomain);
+		body.putString("loginAtDomain", container.owner);
 		eventBus.publish(CalendarHookAddress.getChangedEventAddress(container.uid), body);
 
 		eventBus.publish(CalendarHookAddress.CHANGED,
 				new JsonObject().putString("container", container.uid).putString("type", container.type)
-						.putString("loginAtDomain", loginAtDomain)
-						.putString("domainUid", securityContext.getContainerUid()));
+						.putString("loginAtDomain", container.owner).putString("domainUid", container.domainUid));
 
 	}
 
