@@ -18,9 +18,9 @@
  */
 package net.bluemind.ui.im.server;
 
-import net.bluemind.webmodule.server.handlers.AbstractFtlHandler;
+import net.bluemind.webmodule.server.handlers.AbstractIndexHandler;
 
-public class IMIndexHandler extends AbstractFtlHandler {
+public class IMIndexHandler extends AbstractIndexHandler {
 
 	@Override
 	protected String getTemplateName() {

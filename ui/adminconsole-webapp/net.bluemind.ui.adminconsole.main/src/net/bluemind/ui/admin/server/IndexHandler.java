@@ -23,9 +23,9 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 import io.vertx.core.http.HttpServerRequest;
-import net.bluemind.webmodule.server.handlers.AbstractFtlHandler;
+import net.bluemind.webmodule.server.handlers.AbstractIndexHandler;
 
-public class IndexHandler extends AbstractFtlHandler {
+public class IndexHandler extends AbstractIndexHandler {
 
 	@Override
 	protected String getTemplateName() {

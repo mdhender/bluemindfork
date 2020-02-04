@@ -48,7 +48,6 @@ public class WebModuleResolver {
 
 	public List<WebModuleBuilder> loadExtensions() {
 		IExtensionPoint point = Platform.getExtensionRegistry().getExtensionPoint("net.bluemind.webmodule");
-
 		if (point == null) {
 			logger.error("point net.bluemind.webmodule not found.");
 			return Collections.emptyList();
@@ -56,30 +55,19 @@ public class WebModuleResolver {
 
 		IExtension[] extensions = point.getExtensions();
 
-		// load webmodules
-		Map<String, WebModuleBuilder> modules = new HashMap<>();
-		for (IExtension ie : extensions) {
-			for (IConfigurationElement e : ie.getConfigurationElements()) {
-				if (!e.getName().equals("web-module")) {
-					continue;
-				}
+		Map<String, WebModuleBuilder> modules = loadWebmodules(extensions);
 
-				String root = e.getAttribute("root");
-				logger.debug("webmodule {}", root);
+		loadWebModulesProvider(extensions, modules);
 
-				WebModuleBuilder module = new WebModuleBuilder();
-				module.root = root;
-				if (e.getAttribute("index") != null) {
-					module.index = e.getAttribute("index");
-				}
-
-				provide(module, e);
-				modules.put(module.root, module);
-			}
-
+		List<WebModuleBuilder> ret = new ArrayList<>();
+		for (WebModuleBuilder b : modules.values()) {
+			b.resolveJsBundles();
+			ret.add(b);
 		}
+		return new ArrayList<>(modules.values());
+	}
 
-		// load web-module-provider
+	private void loadWebModulesProvider(IExtension[] extensions, Map<String, WebModuleBuilder> modules) {
 		for (IExtension ie : extensions) {
 			for (IConfigurationElement e : ie.getConfigurationElements()) {
 				if (!e.getName().equals("web-module-provider")) {
@@ -105,42 +93,54 @@ public class WebModuleResolver {
 						provide(module, e);
 					}
 				}
-
 			}
 		}
+	}
 
-		List<WebModuleBuilder> ret = new ArrayList<WebModuleBuilder>();
-		for (WebModuleBuilder b : modules.values()) {
-			b.resolveJsBundles();
-			ret.add(b);
+	private Map<String, WebModuleBuilder> loadWebmodules(IExtension[] extensions) {
+		Map<String, WebModuleBuilder> modules = new HashMap<>();
+		for (IExtension ie : extensions) {
+			for (IConfigurationElement e : ie.getConfigurationElements()) {
+				if (!e.getName().equals("web-module")) {
+					continue;
+				}
+
+				String root = e.getAttribute("root");
+				logger.debug("webmodule {}", root);
+
+				WebModuleBuilder module = new WebModuleBuilder();
+				module.root = root;
+				if (e.getAttribute("index") != null) {
+					module.index = e.getAttribute("index");
+				}
+
+				provide(module, e);
+				modules.put(module.root, module);
+			}
 		}
-		return new ArrayList<>(modules.values());
+		return modules;
 	}
 
 	public void logModules(Collection<WebModuleBuilder> modules) {
-
 		StringJoiner sj = new StringJoiner("\n");
 		for (WebModuleBuilder module : modules) {
 			sj.add(module.toString());
 		}
-
-		logger.info("WebServer modules :\n{}", sj.toString());
+		logger.info("WebServer modules :\n{}", sj);
 	}
 
 	private void provide(WebModuleBuilder module, IConfigurationElement e) {
-
 		List<WebResource> resources = loadWebResources(e);
 		module.resources.addAll(resources);
 
 		module.js.addAll(0, loadJs(e));
 		module.css.addAll(0, loadCss(e));
 
-		Map<String, HandlerFactory<HttpServerRequest>> handlers = loadHandlers(e, module);
+		Map<String, HandlerFactory<HttpServerRequest>> handlers = loadHandlers(e);
 		module.handlers.putAll(handlers);
 
 		logger.debug("  * provide {} => js files: {}, css files: {}, handlers: {}", module.root, module.js.size(),
 				module.css.size(), module.handlers.size());
-
 	}
 
 	private List<String> loadCss(IConfigurationElement e) {
@@ -171,8 +171,7 @@ public class WebModuleResolver {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String, HandlerFactory<HttpServerRequest>> loadHandlers(IConfigurationElement e,
-			WebModuleBuilder module) {
+	private Map<String, HandlerFactory<HttpServerRequest>> loadHandlers(IConfigurationElement e) {
 		Map<String, HandlerFactory<HttpServerRequest>> handlers = new HashMap<>();
 		for (final IConfigurationElement handlerConf : e.getChildren("handler")) {
 			if (handlerConf.getAttribute("provider") != null) {
@@ -199,9 +198,7 @@ public class WebModuleResolver {
 						@Override
 						public Handler<HttpServerRequest> create(Vertx vertx) {
 							try {
-								Handler<HttpServerRequest> handler = (Handler<HttpServerRequest>) handlerConf
-										.createExecutableExtension("class");
-								return handler;
+								return (Handler<HttpServerRequest>) handlerConf.createExecutableExtension("class");
 							} catch (CoreException e) {
 								logger.error("error during handler {}" + " instantiation for path {}",
 										handlerConf.getAttribute("class"), handlerConf.getAttribute("path"), e);
@@ -209,10 +206,8 @@ public class WebModuleResolver {
 							}
 						}
 					});
-
 					logger.debug("handler {} for path {}", handlerConf.getAttribute("class"),
 							handlerConf.getAttribute("path"));
-
 				} catch (InvalidRegistryObjectException e1) {
 					logger.error("error during handler {}" + " instantiation for path {}",
 							handlerConf.getAttribute("class"), handlerConf.getAttribute("path"), e1);
@@ -225,7 +220,6 @@ public class WebModuleResolver {
 	private List<WebResource> loadWebResources(IConfigurationElement e) {
 		List<WebResource> resources = new ArrayList<>();
 		for (IConfigurationElement r : e.getChildren("web-resource")) {
-
 			String b = r.getAttribute("bundle");
 			Bundle bundle = Platform.getBundle(b);
 
@@ -241,7 +235,6 @@ public class WebModuleResolver {
 				logger.warn("didnt find bundle {}", b);
 			}
 		}
-
 		return resources;
 	}
 
@@ -251,7 +244,6 @@ public class WebModuleResolver {
 			WebModule m = builder.build(vertx);
 			m.defaultHandler = new StaticFileHandler(vertx, m.root, m.index, m.resources, true, true);
 			ret.add(m);
-
 		}
 		return ret;
 	}

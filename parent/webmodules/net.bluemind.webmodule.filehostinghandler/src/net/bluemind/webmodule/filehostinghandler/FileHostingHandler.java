@@ -46,7 +46,6 @@ import net.bluemind.webmodule.server.NeedVertx;
 
 public class FileHostingHandler implements IWebFilter, NeedVertx {
 	Logger logger = LoggerFactory.getLogger(FileHostingHandler.class);
-	private Vertx vertx;
 	private HttpClientProvider clientProvider;
 
 	@Override
@@ -156,7 +155,6 @@ public class FileHostingHandler implements IWebFilter, NeedVertx {
 
 	@Override
 	public void setVertx(Vertx vertx) {
-		this.vertx = vertx;
 		clientProvider = new HttpClientProvider(vertx);
 	}
 

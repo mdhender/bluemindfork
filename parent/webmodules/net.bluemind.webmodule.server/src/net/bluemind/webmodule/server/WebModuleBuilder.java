@@ -129,30 +129,31 @@ public class WebModuleBuilder {
 
 	private void resolve(JsEntry j, Set<String> resolved, List<String> unresolved) {
 		unresolved.add(j.path);
-		for (String depBundle : j.dependencies) {
+		for (String depBundle : j.getDependencies()) {
 			// should resolve every jsEntry of depBundle
-			logger.debug("resolve dependency {} for {}", depBundle, j.bundle);
-
+			logger.debug("resolve dependency {} for {}", depBundle, j.getBundle());
+			
 			for (JsEntry entry : getEntriesByBundle(depBundle)) {
 				if (!resolved.contains(entry.path)) {
 					if (unresolved.contains(entry.path)) {
-						throw new RuntimeException("circular dependency " + j.bundle + " -> " + depBundle);
+						throw new RuntimeException("circular dependency " + j.getBundle() + " -> " + depBundle);
 					}
 					resolve(entry, resolved, unresolved);
 				}
 			}
 		}
 
-		if (j.bundle != null) {
+		if (j.getBundle() != null) {
 			resolved.add(j.path);
 		} else {
 			logger.warn("js {} has no bundle", j.path);
 		}
 	}
 
-	private List<JsEntry> getEntriesByBundle(String bundle) {
-		List<JsEntry> result = js.stream().filter(entry -> bundle.equals(entry.bundle)).collect(Collectors.toList());
-		if (result.size() > 0) {
+	private List<JsEntry> getEntriesByBundle(String bundle) {		
+		List<JsEntry> result = js.stream()
+				.filter(entry -> bundle.equals(entry.getBundle())).collect(Collectors.toList());
+		if (!result.isEmpty()) {
 			return result;
 		}
 		throw new RuntimeException("dependency " + bundle + " not found");
@@ -160,7 +161,6 @@ public class WebModuleBuilder {
 
 	private JsEntry getEntryByPath(String path) {
 		for (JsEntry j : js) {
-
 			if (j.path != null && j.path.equals(path)) {
 				return j;
 			}
@@ -169,7 +169,6 @@ public class WebModuleBuilder {
 	}
 
 	private WebResource findResourceBundle(String path) {
-
 		for (WebResource r : this.resources) {
 			if (r.getResource(path) != null) {
 				return r;
@@ -185,11 +184,11 @@ public class WebModuleBuilder {
 			if (webResourceBundle != null) {
 				Bundle bundle = webResourceBundle.getBundle();
 
-				j.bundle = bundle.getSymbolicName();
+				j.setBundle(bundle.getSymbolicName());
 				String value = bundle.getHeaders().get("Web-Dependencies");
 				if (value != null) {
-					logger.debug("bundle {} depencies {}", j.bundle, value);
-					j.dependencies = Arrays.asList(value.split(","));
+					logger.debug("bundle {} depencies {}", j.getBundle(), value);
+					j.setDependencies(Arrays.asList(value.split(",")));
 				}
 				if (j.hasTranslation()) {
 					loadTranslations(j, webResourceBundle);
@@ -214,8 +213,7 @@ public class WebModuleBuilder {
 				translations.put(lang, r);
 			}
 		}
-
-		j.translations = translations;
+		j.setTranslations(translations);
 	}
 
 }

@@ -45,9 +45,9 @@ import net.bluemind.system.api.InstallationVersion;
 import net.bluemind.utils.IniFile;
 import net.bluemind.webmodule.server.NeedVertx;
 import net.bluemind.webmodule.server.WebModule;
-import net.bluemind.webmodule.server.handlers.AbstractFtlHandler;
+import net.bluemind.webmodule.server.handlers.AbstractIndexHandler;
 
-public class LoginHandler extends AbstractFtlHandler implements NeedVertx {
+public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 
 	private static final Logger logger = LoggerFactory.getLogger(LoginHandler.class);
 	static Configuration cfg;

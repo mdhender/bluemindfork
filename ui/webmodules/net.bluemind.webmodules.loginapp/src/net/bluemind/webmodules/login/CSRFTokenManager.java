@@ -33,9 +33,9 @@ import net.bluemind.proxy.http.auth.api.CookieHelper;
 
 public class CSRFTokenManager {
 
-	private static final Logger logger = LoggerFactory.getLogger(CSRFTokenManager.class);
-
 	public final static CSRFTokenManager INSTANCE = new CSRFTokenManager();
+
+	private static final Logger logger = LoggerFactory.getLogger(CSRFTokenManager.class);
 
 	public String initRequest(HttpServerRequest request) {
 		String sessionId = UUID.randomUUID().toString();

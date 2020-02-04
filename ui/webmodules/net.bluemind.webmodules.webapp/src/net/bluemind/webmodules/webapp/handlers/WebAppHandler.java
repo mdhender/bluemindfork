@@ -19,9 +19,9 @@
 
 package net.bluemind.webmodules.webapp.handlers;
 
-import net.bluemind.webmodule.server.handlers.AbstractFtlHandler;
+import net.bluemind.webmodule.server.handlers.AbstractIndexHandler;
 
-public class WebAppHandler extends AbstractFtlHandler {
+public class WebAppHandler extends AbstractIndexHandler {
 
 	public WebAppHandler() {
 	}

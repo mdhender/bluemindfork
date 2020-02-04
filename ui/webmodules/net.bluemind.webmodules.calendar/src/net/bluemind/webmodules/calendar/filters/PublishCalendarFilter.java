@@ -20,6 +20,7 @@ package net.bluemind.webmodules.calendar.filters;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,10 +55,10 @@ public class PublishCalendarFilter implements IWebFilter, NeedVertx {
 	}
 
 	@Override
-	public HttpServerRequest filter(HttpServerRequest request) {
+	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
 		String path = request.path();
 		if (!path.startsWith("/cal/calendar/publish")) {
-			return request;
+			return CompletableFuture.completedFuture(request);
 		}
 
 		// request /cal/calendar/publish/container/token
@@ -75,7 +76,7 @@ public class PublishCalendarFilter implements IWebFilter, NeedVertx {
 
 		provider.instance("bm/core", IPublishCalendarAsync.class, container).publish(params[5], handler(request));
 
-		return null;
+		return CompletableFuture.completedFuture(null);
 	}
 
 	private AsyncHandler<Stream> handler(final HttpServerRequest request) {

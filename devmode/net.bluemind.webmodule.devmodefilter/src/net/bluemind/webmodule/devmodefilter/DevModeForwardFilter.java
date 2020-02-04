@@ -85,7 +85,7 @@ public class DevModeForwardFilter implements IWebFilter, NeedVertx, IHasPriority
 		HttpClient client = clientProvider.getClient(ff.serverPort.ip, ff.serverPort.port);
 
 		HttpClientRequest remoteRequest = client.request(request.method(), uri, r -> {
-			logger.info("response for request http://{}:{}{}{} : {} {}", ff.serverPort.ip, ff.serverPort.port, uri,
+			logger.info("response for request http://{}:{}{}{} : {}", ff.serverPort.ip, ff.serverPort.port, uri,
 					r.statusCode(), r.statusMessage());
 
 			request.response().headers().addAll(r.headers());
@@ -178,10 +178,7 @@ public class DevModeForwardFilter implements IWebFilter, NeedVertx, IHasPriority
 
 	public static void main(String[] args) {
 		Pattern p = Pattern.compile("/adminconsole/net.bluemind.ui.adminconsole.main/(.*+)?");
-		Matcher m = p.matcher("/cal/index.html?reload-devmode");
-
-		System.out.println(m.replaceAll("/api/$1"));
-		System.out.println(m.matches());
+		p.matcher("/cal/index.html?reload-devmode");
 	}
 
 	@Override

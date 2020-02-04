@@ -32,9 +32,9 @@ import org.slf4j.LoggerFactory;
 
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.role.api.BasicRoles;
-import net.bluemind.webmodule.server.handlers.AbstractFtlHandler;
+import net.bluemind.webmodule.server.handlers.AbstractIndexHandler;
 
-public class DefaultAppIndexHandler extends AbstractFtlHandler {
+public class DefaultAppIndexHandler extends AbstractIndexHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(DefaultAppIndexHandler.class);
 

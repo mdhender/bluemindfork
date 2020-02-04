@@ -27,7 +27,6 @@ public class PermanentRedirectHandler implements Handler<HttpServerRequest> {
 
 	public PermanentRedirectHandler(String to) {
 		this.to = to;
-
 	}
 
 	@Override

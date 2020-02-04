@@ -50,45 +50,39 @@ import net.bluemind.webmodule.server.JsEntry;
 import net.bluemind.webmodule.server.WebExtensionsResolver;
 import net.bluemind.webmodule.server.WebModule;
 
-// TODO : rename to AbstractIndexHandle ?
-public abstract class AbstractFtlHandler implements IWebModuleConsumer, Handler<HttpServerRequest> {
+public abstract class AbstractIndexHandler implements IWebModuleConsumer, Handler<HttpServerRequest> {
 
-	private static final Logger logger = LoggerFactory.getLogger(AbstractFtlHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractIndexHandler.class);
 
 	private final Registry registry = MetricsRegistry.get();
-	private final IdFactory idFactory = new IdFactory("ftlTemplates", registry, AbstractFtlHandler.class);
+	private final IdFactory idFactory = new IdFactory("ftlTemplates", registry, AbstractIndexHandler.class);
 
 	private WebModule module;
 
 	private String cssLibs;
-
-	private Configuration privateFreemarkerCfg;
-
-	private Configuration freemarkerCfg;
 
 	private Template jsRuntimeTemplate;
 	private Template jsLibTemplate;
 
 	private Template mainTemplate;
 
-	public static final String jsRuntimeLib;
+	public static final String JS_RUNTIME_LIB;
 
 	static {
 		String js = "";
 
-		try (InputStream in = AbstractFtlHandler.class
+		try (InputStream in = AbstractIndexHandler.class
 				.getResourceAsStream("/web-resources/js/compile/net.bluemind.webmodule.server.js")) {
 			js = new String(com.google.common.io.ByteStreams.toByteArray(in));
 		} catch (Exception e) {
 			logger.error("error during loading script ", e);
 		}
 
-		jsRuntimeLib = js;
+		JS_RUNTIME_LIB = js;
 	}
 
 	private void init() {
-
-		freemarkerCfg = new Configuration();
+		Configuration freemarkerCfg = new Configuration();
 		freemarkerCfg.setTemplateLoader(new EquinoxTemplateLoader(this.getClass().getClassLoader(), "/templates/"));
 		freemarkerCfg.setTagSyntax(Configuration.AUTO_DETECT_TAG_SYNTAX);
 
@@ -98,8 +92,8 @@ public abstract class AbstractFtlHandler implements IWebModuleConsumer, Handler<
 			logger.error(e.getMessage(), e);
 		}
 
-		privateFreemarkerCfg = new Configuration();
-		privateFreemarkerCfg.setClassForTemplateLoading(AbstractFtlHandler.class, "/templates");
+		Configuration privateFreemarkerCfg = new Configuration();
+		privateFreemarkerCfg.setClassForTemplateLoading(AbstractIndexHandler.class, "/templates");
 		privateFreemarkerCfg.setTagSyntax(Configuration.AUTO_DETECT_TAG_SYNTAX);
 		try {
 			jsRuntimeTemplate = privateFreemarkerCfg.getTemplate("jsRuntime.ftl");
@@ -139,7 +133,7 @@ public abstract class AbstractFtlHandler implements IWebModuleConsumer, Handler<
 		List<JsEntry> js = new ArrayList<>(module.js.size());
 
 		for (JsEntry one : module.js) {
-			if (one.bundle == null) {
+			if (one.getBundle() == null) {
 				logger.error("no bundle found for {}", one.path);
 				continue;
 			}
@@ -151,7 +145,7 @@ public abstract class AbstractFtlHandler implements IWebModuleConsumer, Handler<
 			}
 		}
 
-		model.put("runtime", jsRuntimeLib);
+		model.put("runtime", JS_RUNTIME_LIB);
 		model.put("jsLinks", js);
 
 		StringWriter sw = new StringWriter();

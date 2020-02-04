@@ -31,12 +31,11 @@ public class JsEntry {
 	public final String path;
 	public final boolean lifecycle;
 	private boolean translation;
-	public String bundle;
-	public Map<String, String> translations;
-	public List<String> dependencies = Collections.emptyList();
+	private String bundle;
+	private Map<String, String> translations;
+	private List<String> dependencies = Collections.emptyList();
 
 	public JsEntry(String path, boolean lifecycle, boolean translation) {
-
 		this.path = path;
 		this.lifecycle = lifecycle;
 		this.translation = translation;
@@ -48,6 +47,22 @@ public class JsEntry {
 
 	public String getPath() {
 		return path;
+	}
+	
+	public List<String> getDependencies() {
+		return dependencies;
+	}
+	
+	public void setDependencies(List<String> dependencies) {
+		this.dependencies = dependencies;
+	}
+	
+	public void setTranslations(Map<String, String> translations) {
+		this.translations = translations;
+	}
+	
+	public void setBundle(String bundle) {
+		this.bundle = bundle;
 	}
 
 	public boolean isLifecycle() {

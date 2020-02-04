@@ -49,13 +49,12 @@ public class InputFilter implements IWebFilter {
 			if (bundle != null) {
 				URL url = bundle.getResource(rp);
 
-				logger.info("resoruce {}", url);
+				logger.info("resource {}", url);
 				try {
 					request.response().end(Buffer.buffer(Resources.toByteArray(url)));
 				} catch (IOException e) {
-
 					request.response().setStatusCode(500).end();
-					e.printStackTrace();
+					logger.error(e.getStackTrace().toString());
 				}
 			} else {
 				request.response().setStatusCode(500).end();

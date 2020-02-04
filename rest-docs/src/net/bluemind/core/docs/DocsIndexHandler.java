@@ -21,9 +21,9 @@ package net.bluemind.core.docs;
 import java.util.Map;
 
 import io.vertx.core.http.HttpServerRequest;
-import net.bluemind.webmodule.server.handlers.AbstractFtlHandler;
+import net.bluemind.webmodule.server.handlers.AbstractIndexHandler;
 
-public class DocsIndexHandler extends AbstractFtlHandler {
+public class DocsIndexHandler extends AbstractIndexHandler {
 
 	@Override
 	protected String getTemplateName() {

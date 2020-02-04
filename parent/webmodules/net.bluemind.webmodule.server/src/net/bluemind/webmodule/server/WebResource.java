@@ -121,7 +121,8 @@ public class WebResource {
 
 	public File getResource(String path) {
 		File f = resources.get(path);
-		logger.debug("try to find {} into {} : {} ", path, getBundleName(), (f != null) ? "found" : "not found");
+		String isFound = (f != null) ? "found" : "not found";
+		logger.debug("try to find {} into {} : {} ", path, getBundleName(), isFound);
 		if (f == null && !preload) {
 			f = load(path);
 		}
