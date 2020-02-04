@@ -7,6 +7,7 @@
     "common.delete": "Supprimer",
     "common.attachments": "1 pièce jointe | {count} pièces jointes",
     "common.downloadAttachment": "Télécharger la pièce jointe",
+    "common.removeAttachment": "Supprimer la pièce jointe",
     "common.save_all": "Tout enregistrer",
     "common.toggleAttachments": "Afficher/cacher les pièces jointes",
     "common.attachmentPreview": "Aperçu de la pièce jointe",

@@ -7,6 +7,7 @@
     "common.delete": "Delete",
     "common.attachments": "1 attachment | {count} attachments",
     "common.downloadAttachment": "Download attachment",
+    "common.removeAttachment": "Remove attachment",
     "common.save_all": "Save all",
     "common.toggleAttachments": "Display/hide attachments",
     "common.attachmentPreview": "Attachment preview",

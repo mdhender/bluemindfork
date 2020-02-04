@@ -22,7 +22,7 @@
             <bm-icon icon="paper-clip" size="2x" />
             <span class="d-none d-lg-block">{{ $tc("mail.actions.attach") }}</span>
         </bm-button>
-        <input ref="attachInputRef" type="file" multiple hidden @change="doAttach" />
+        <input ref="attachInputRef" type="file" multiple hidden @change="addAttachments($event.target.files)" />
         <bm-button
             v-bm-tooltip.bottom.ds500
             variant="link"
@@ -78,7 +78,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail-webapp", ["deleteDraft", "saveDraft", "send", "addAttachment"]),
+        ...mapActions("mail-webapp", ["deleteDraft", "saveDraft", "send", "addAttachments"]),
         doDelete() {
             this.deleteDraft().then(() => this.navigateToParent());
         },
@@ -87,13 +87,6 @@ export default {
         },
         openFilePicker() {
             this.$refs.attachInputRef.click();
-        },
-        doAttach(event) {
-            if (event.target.files.length > 0) {
-                for (let file of event.target.files) {
-                    this.addAttachment(file);
-                }
-            }
         }
     }
 };

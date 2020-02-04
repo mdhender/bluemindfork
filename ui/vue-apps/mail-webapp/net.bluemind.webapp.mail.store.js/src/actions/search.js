@@ -6,8 +6,8 @@ const MAX_SEARCH_RESULTS = 500;
 
 export function search({ state, commit, dispatch, getters }, { pattern, filter }) {
     commit("messages/clearItems");
-    commit("clearCurrentMessage");
-
+    commit("currentMessage/clear");
+    commit("messages/clearParts");
     // FIXME state.currentFolderKey should not be undefined/null at this point
     const folderUid = state.currentFolderKey ? ItemUri.item(state.currentFolderKey) : "";
 

@@ -36,7 +36,8 @@ describe("[Mail-WebappStore][actions] :  saveDraft", () => {
             previousMessage: "",
             type: "html",
             subject: "TestSubject",
-            recipients: ["toto@toto.pom"]
+            recipients: ["toto@toto.pom"],
+            attachmentStatuses: {}
         };
         expectedMailItem = {
             body: {
@@ -108,8 +109,8 @@ describe("[Mail-WebappStore][actions] :  saveDraft", () => {
         expect(itemsService.create).toHaveBeenCalledWith(expectedMailItem);
     });
     test("With attachments", async () => {
-        context.state.draft.parts.attachments.push("attachment1");
-        context.state.draft.parts.attachments.push("attachment2");
+        context.state.draft.parts.attachments.push({ uid: "attachment1" });
+        context.state.draft.parts.attachments.push({ uid: "attachment2" });
         await saveDraft(context);
         expect(context.commit).toHaveBeenNthCalledWith(1, "draft/update", { status: DraftStatus.SAVING });
         expect(context.commit).toHaveBeenNthCalledWith(2, "draft/update", {
@@ -137,8 +138,8 @@ describe("[Mail-WebappStore][actions] :  saveDraft", () => {
                         }
                     ]
                 },
-                "attachment1",
-                "attachment2"
+                { uid: "attachment1" },
+                { uid: "attachment2" }
             ]
         };
         expect(itemsService.create).toHaveBeenCalledWith(expectedMailItem);

@@ -13,7 +13,7 @@
                 </button>
                 <bm-icon icon="paper-clip" class="mx-1" size="lg" />
                 <span class="font-weight-bold pr-2">
-                    {{ $tc('common.attachments', attachments.length, {count: attachments.length}) }}
+                    {{ $tc("common.attachments", attachments.length, { count: attachments.length }) }}
                 </span>
             </bm-col>
         </bm-row>
@@ -33,7 +33,7 @@
                     :aria-label="$t('common.toggleAttachments')"
                     @click="toggleExpand"
                 >
-                    + {{ $tc('common.attachments', attachments.length - 2, {count: attachments.length - 2}) }}
+                    + {{ $tc("common.attachments", attachments.length - 2, { count: attachments.length - 2 }) }}
                 </bm-button>
             </bm-col>
         </bm-row>
@@ -42,7 +42,10 @@
                 <mail-message-content-attachment-item
                     :attachment="attachment"
                     :is-expanded="isExpanded"
+                    :is-removable="editable"
+                    :is-downloadable="!editable"
                     @save="save(index)"
+                    @remove="remove(index)"
                 />
             </bm-col>
         </bm-row>
@@ -65,38 +68,48 @@
 </template>
 
 <script>
-import {BmButton, BmCol, BmContainer, BmIcon, BmRow, BmTooltip} from '@bluemind/styleguide';
-import {mapActions, mapState, mapGetters} from 'vuex';
-import {MimeType} from '@bluemind/email';
-import MailMessageContentAttachmentItem from './MailMessageContentAttachmentItem';
+import { BmButton, BmCol, BmContainer, BmIcon, BmRow, BmTooltip } from "@bluemind/styleguide";
+import { mapActions, mapState, mapGetters } from "vuex";
+import { MimeType } from "@bluemind/email";
+import MailMessageContentAttachmentItem from "./MailMessageContentAttachmentItem";
 
 export default {
-    name: 'MailMessageContentAttachmentsBlock',
+    name: "MailMessageContentAttachmentsBlock",
     components: {
         BmButton,
         BmCol,
         BmContainer,
         BmIcon,
         BmRow,
-        MailMessageContentAttachmentItem,
+        MailMessageContentAttachmentItem
     },
-    directives: {BmTooltip},
+    directives: { BmTooltip },
     props: {
         attachments: {
             type: Array,
-            default: () => [],
+            default: () => []
         },
+        editable: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+        expanded: {
+            type: Boolean,
+            required: false,
+            default: false
+        }
     },
     data() {
         return {
-            isExpanded: false,
+            isExpanded: this.expanded,
             attachmentsContentFetched: false,
-            downloadAttachmentFilename: '',
-            downloadAttachmentBlob: '',
+            downloadAttachmentFilename: "",
+            downloadAttachmentBlob: ""
         };
     },
     computed: {
-        ...mapState('mail-webapp/currentMessage', {currentMessageKey: 'key'}),
+        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         hasAttachments() {
             return this.attachments.length > 0;
         },
@@ -108,17 +121,17 @@ export default {
         },
         hasAnyAttachmentWithPreview() {
             return this.attachments.some(a => this.hasPreview(a));
-        },
+        }
     },
     watch: {
         currentMessageKey() {
-            this.isExpanded = false;
+            this.isExpanded = this.expanded;
             this.attachmentsContentFetched = false;
-        },
+        }
     },
     methods: {
-        ...mapActions('mail-webapp/messages', ['fetch']),
-        ...mapGetters('mail-webapp/messages', ['getPartContent']),
+        ...mapActions("mail-webapp/messages", ["fetch"]),
+        ...mapGetters("mail-webapp/messages", ["getPartContent"]),
         toggleExpand() {
             if (!this.isExpanded && this.hasAnyAttachmentWithPreview && !this.attachmentsContentFetched) {
                 let promises = this.attachments
@@ -129,7 +142,7 @@ export default {
                         this.attachmentsContentFetched = true;
                         this.isExpanded = !this.isExpanded;
                     })
-                    .catch(() => console.error('fail to fetch attachment content'));
+                    .catch(() => console.error("fail to fetch attachment content"));
             } else {
                 this.isExpanded = !this.isExpanded;
             }
@@ -153,7 +166,7 @@ export default {
             this.downloadAttachmentFilename = attachment.filename;
             this.downloadAttachmentBlob = URL.createObjectURL(attachment.content);
 
-            this.$nextTick(() => this.$refs['download-attachment-link'].click());
+            this.$nextTick(() => this.$refs["download-attachment-link"].click());
         },
         loadContentIfMissing(attachment) {
             if (!attachment.content) {
@@ -162,20 +175,20 @@ export default {
                 return this.fetch({
                     messageKey: this.currentMessageKey,
                     part: attachment,
-                    isAttachment: true,
+                    isAttachment: true
                 }).then(() => {
                     attachment.content = this.getPartContent()(this.currentMessageKey, attachment.address);
                 });
             } else {
                 return Promise.resolve();
             }
-        },
-    },
+        }
+    }
 };
 </script>
 
 <style lang="scss">
-@import '@bluemind/styleguide/css/_variables.scss';
+@import "@bluemind/styleguide/css/_variables.scss";
 
 .mail-message-content-attachments-block .col-4 {
     padding-right: $sp-1 !important;

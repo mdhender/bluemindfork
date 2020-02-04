@@ -72,7 +72,7 @@
     "mail.draft.save.error.reason": "You may be disconnected",
     "alert.mail.message.draft.delete.ok": "\"{subject}\" successfuly deleted!",
     "alert.mail.message.draft.delete.error": "\"{subject}\" has not been deleted.{br}{reason}",
-    "alert.mail.message.draft.attach.error": "Unable to attach '{filename}'.{br}{reason}",
+    "alert.mail.message.draft.attach.error": "Attachment error. Try again.",
     "alert.mail.send.loading": "Sending \"{subject}\" in progress...",
     "mail.folder": "Folder",
     "mail.empty": "is empty",

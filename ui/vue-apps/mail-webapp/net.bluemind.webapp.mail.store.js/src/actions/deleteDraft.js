@@ -24,9 +24,7 @@ export function deleteDraft({ commit, state, getters }) {
             return service.deleteById(draft.id);
         })
         .then(() => {
-            commit("alert/add", { code: "MSG_DRAFT_DELETE_OK", props: { subject: draft.subject } }, { root: true });
             commit("draft/update", { status: DraftStatus.DELETED });
-            commit("draft/clear");
             commit("messages/clearParts");
         })
         .catch(reason => {

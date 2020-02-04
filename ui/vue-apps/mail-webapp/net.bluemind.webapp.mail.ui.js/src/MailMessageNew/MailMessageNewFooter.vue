@@ -42,7 +42,7 @@
             >
                 <bm-icon icon="text-format" size="lg" />
             </bm-button>
-            <input ref="attachInputRef" type="file" multiple hidden @change="doAttach" />
+            <input ref="attachInputRef" type="file" multiple hidden @change="addAttachments($event.target.files)" />
             <bm-button
                 v-bm-tooltip.bottom.ds500
                 variant="link"
@@ -123,18 +123,9 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail-webapp", ["addAttachment", "saveDraft"]),
+        ...mapActions("mail-webapp", ["addAttachments", "saveDraft"]),
         openFilePicker() {
             this.$refs.attachInputRef.click();
-        },
-        doAttach(event) {
-            if (event.target.files.length > 0) {
-                let promises = [];
-                for (let file of event.target.files) {
-                    promises.push(this.addAttachment(file));
-                }
-                Promise.all(promises).then(() => this.saveDraft());
-            }
         }
     }
 };

@@ -11,7 +11,8 @@ const context = {
         currentFolderKey: "key",
         messages: { itemKeys: [1, 2, 3] },
         sorted: "up to down",
-        messageFilter: null
+        messageFilter: null,
+        draft: { parts: { attachments: [] } }
     }
 };
 

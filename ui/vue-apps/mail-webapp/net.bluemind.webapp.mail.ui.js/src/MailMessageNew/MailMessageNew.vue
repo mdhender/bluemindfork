@@ -79,7 +79,7 @@
                 <bm-row class="d-block m-0"><hr class="bg-dark m-0"/></bm-row>
                 <bm-row>
                     <bm-col cols="12">
-                        <mail-message-content-attachments-block :attachments="parts.attachments" />
+                        <mail-message-content-attachments-block :attachments="parts.attachments" editable expanded />
                     </bm-col>
                 </bm-row>
                 <div class="flex-grow-1">
@@ -238,7 +238,8 @@ export default {
     },
     created: function() {
         this.message_.type = this.userPrefTextOnly ? "text" : "html";
-        this.updateDraft(Object.assign(this.message_, { isNew: true }));
+        this.clearDraft();
+        this.updateDraft(this.message_);
     },
     mounted: function() {
         if (this.message && (this.message.to.length > 0 || this.message.cc.length > 0)) {

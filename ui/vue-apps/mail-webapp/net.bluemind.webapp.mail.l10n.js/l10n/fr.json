@@ -72,7 +72,7 @@
     "mail.draft.save.error.reason": "Vous êtes peut-être déconnecté",
     "alert.mail.message.draft.delete.ok": "\"{subject}\" a bien été supprimé!",
     "alert.mail.message.draft.delete.error": "\"{subject}\" n'a pas été supprimé.{br}{reason}",
-    "alert.mail.message.draft.attach.error": "Impossible d'attacher le fichier '{filename}'.{br}{reason}",
+    "alert.mail.message.draft.attach.error": "Pièce-jointe en erreur. Réessayez.",
     "alert.mail.send.loading": "Envoi de \"{subject}\" en cours...",
     "mail.folder": "Le dossier",
     "mail.empty": "est vide",

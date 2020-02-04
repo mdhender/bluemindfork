@@ -98,7 +98,9 @@ export function saveDraft({ commit, state, getters }) {
 
             if (state.draft.parts.attachments.length > 0) {
                 let children = [structure];
-                children.push(...state.draft.parts.attachments);
+                children.push(
+                    ...state.draft.parts.attachments.filter(a => state.draft.attachmentStatuses[a.uid] !== "ERROR")
+                );
                 structure = {
                     mime: MimeType.MULTIPART_MIXED,
                     children
