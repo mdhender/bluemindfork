@@ -17,6 +17,13 @@
       
    </extension>
 
+   <extension
+         point="net.bluemind.webmodule.server">
+      <web-filter
+            class="net.bluemind.webmodules.webapp.webfilters.TryMailAppFilter">
+      </web-filter>
+   </extension>
+
     <extension
          point="net.bluemind.extensions">
       <export-extension-point

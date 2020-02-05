@@ -18,6 +18,8 @@
  */
 package net.bluemind.webmodule.dav;
 
+import java.util.concurrent.CompletableFuture;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,14 +38,14 @@ public class DavFilter implements IWebFilter {
 	}
 
 	@Override
-	public HttpServerRequest filter(HttpServerRequest request) {
+	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
 		String path = request.path();
 
 		if (path.equals(DavRouter.CAL_REDIR) || path.equals(DavRouter.CARD_REDIR) || path.startsWith("/dav")) {
 			davRouter.handle(request);
-			return null;
+			return CompletableFuture.completedFuture(null);
 		} else {
-			return request;
+			return CompletableFuture.completedFuture(request);
 		}
 	}
 

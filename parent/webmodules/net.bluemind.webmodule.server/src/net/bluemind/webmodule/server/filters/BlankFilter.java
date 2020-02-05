@@ -20,20 +20,22 @@ package net.bluemind.webmodule.server.filters;
 
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
+import java.util.concurrent.CompletableFuture;
+
 import net.bluemind.webmodule.server.IWebFilter;
 
 public class BlankFilter implements IWebFilter {
 
 	@Override
-	public HttpServerRequest filter(HttpServerRequest request) {
+	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
 		if (request.path().endsWith("blank.html")) {
 			HttpServerResponse resp = request.response();
 			resp.headers().set("Content-Type", "text/html; charset=UTF-8");
 			resp.headers().set("Cache-Control", "no-cache");
 			resp.end("<html><body></body></html>");
-			return null;
+			return CompletableFuture.completedFuture(null);
 		} else {
-			return request;
+			return CompletableFuture.completedFuture(request);
 		}
 	}
 

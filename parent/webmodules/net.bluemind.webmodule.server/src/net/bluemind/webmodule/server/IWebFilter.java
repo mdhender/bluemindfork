@@ -19,6 +19,7 @@
 package net.bluemind.webmodule.server;
 
 import io.vertx.core.http.HttpServerRequest;
+import java.util.concurrent.CompletableFuture;
 
 public interface IWebFilter {
 
@@ -27,5 +28,5 @@ public interface IWebFilter {
 	 * @param request
 	 * @return null if the filter want to completly handle the request
 	 */
-	public HttpServerRequest filter(HttpServerRequest request);
+	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request);
 }

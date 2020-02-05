@@ -18,6 +18,8 @@
  */
 package net.bluemind.webmodule.devmodefilter;
 
+import java.util.concurrent.CompletableFuture;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,20 +46,20 @@ public class DevModeApiFilter implements IWebFilter, NeedVertx {
 	}
 
 	@Override
-	public HttpServerRequest filter(HttpServerRequest request) {
+	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
 		if (!request.uri().endsWith("reload-devmode")) {
-			return request;
+			return CompletableFuture.completedFuture(request);
 		}
 
 		logger.info("reload devmode state");
 		vertx.eventBus().request("devmode.state:reload", true, (AsyncResult<Message<Boolean>> m) -> {
-			if (m.succeeded() && m.result().body()) {
+			if (m.succeeded() && Boolean.TRUE.equals(m.result().body())) {
 				request.response().setStatusCode(200).setStatusMessage("reloaded").end();
 			} else {
 				request.response().setStatusCode(500).setStatusMessage("reload failed").end();
 			}
 		});
-		return null;
+		return CompletableFuture.completedFuture(null);
 	}
 
 	@Override

@@ -20,6 +20,7 @@ package net.bluemind.webmodule.inputfilter;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
@@ -37,7 +38,7 @@ public class InputFilter implements IWebFilter {
 	private static final Logger logger = LoggerFactory.getLogger(InputFilter.class);
 
 	@Override
-	public HttpServerRequest filter(HttpServerRequest request) {
+	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
 		String path = request.path();
 		if (path.startsWith("/input/")) {
 			String b = path.substring("/input/".length());
@@ -59,9 +60,9 @@ public class InputFilter implements IWebFilter {
 			} else {
 				request.response().setStatusCode(500).end();
 			}
-			return null;
+			return CompletableFuture.completedFuture(null);
 		} else {
-			return request;
+			return CompletableFuture.completedFuture(request);
 		}
 	}
 }

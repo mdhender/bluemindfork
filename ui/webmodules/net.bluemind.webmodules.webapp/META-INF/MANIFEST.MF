@@ -8,5 +8,11 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: net.bluemind.webmodule,
  net.bluemind.webmodule.server,
  net.bluemind.lib.vertx,
- net.bluemind.extensions.closure
+ net.bluemind.extensions.closure,
+ slf4j.api,
+ net.bluemind.core.commons,
+ net.bluemind.user.api,
+ net.bluemind.core.rest.http,
+ io.vertx.core,
+ net.bluemind.locator.vertxclient
 Bundle-ActivationPolicy: lazy

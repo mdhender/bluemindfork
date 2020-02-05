@@ -21,6 +21,7 @@ package net.bluemind.webmodule.devmodefilter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,19 +59,19 @@ public class DevModeForwardFilter implements IWebFilter, NeedVertx, IHasPriority
 	}
 
 	@Override
-	public HttpServerRequest filter(HttpServerRequest request) {
+	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
 		String path = request.path();
 
 		if (denyFilters.stream().anyMatch(f -> f.matcher(path).matches())) {
 			request.response().setStatusCode(404).setStatusMessage("denied by devfilter").end();
-			return null;
+			return CompletableFuture.completedFuture(null);
 		}
 
 		Optional<ForwardFilter> match = forwardFilters.stream().filter(f -> f.match(path) != null).findFirst();
 
 		if (!match.isPresent()) {
 			logger.debug("no devmode for path {}", path);
-			return request;
+			return CompletableFuture.completedFuture(request);
 		}
 
 		request.exceptionHandler(e -> {
@@ -123,8 +124,7 @@ public class DevModeForwardFilter implements IWebFilter, NeedVertx, IHasPriority
 		});
 
 		Pump.pump(request, remoteRequest).start();
-		return null;
-
+		return CompletableFuture.completedFuture(null);
 	}
 
 	@Override

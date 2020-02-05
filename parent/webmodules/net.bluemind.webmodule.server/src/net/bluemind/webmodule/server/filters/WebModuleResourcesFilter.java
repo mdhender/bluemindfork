@@ -21,6 +21,7 @@ package net.bluemind.webmodule.server.filters;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
@@ -34,10 +35,10 @@ public class WebModuleResourcesFilter implements IWebFilter, NeedWebModules {
 	private Map<String, WebModule> modules;
 
 	@Override
-	public HttpServerRequest filter(HttpServerRequest request) {
+	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
 		String path = request.path();
 		if (!path.endsWith("module-webresources")) {
-			return request;
+			return CompletableFuture.completedFuture(request);
 		}
 
 		String lang = request.headers().get("BMLang");
@@ -45,7 +46,7 @@ public class WebModuleResourcesFilter implements IWebFilter, NeedWebModules {
 		WebModule module = modules.get(moduleName);
 		if (module == null) {
 			request.response().setStatusCode(404).end("module " + moduleName + " not found");
-			return null;
+			return CompletableFuture.completedFuture(null);
 		}
 		JsonObject ret = new JsonObject();
 		ret.put("css", new JsonArray(module.css));
@@ -53,7 +54,7 @@ public class WebModuleResourcesFilter implements IWebFilter, NeedWebModules {
 		JsonArray js = new JsonArray();
 		for (JsEntry jEntry : module.js) {
 			JsonObject entry = new JsonObject();
-			entry.put("bundle", jEntry.bundle);
+			entry.put("bundle", jEntry.getBundle());
 			entry.put("path", jEntry.getTranslation(lang).path);
 			entry.put("lifecycle", jEntry.lifecycle);
 			js.add(entry);
@@ -61,7 +62,7 @@ public class WebModuleResourcesFilter implements IWebFilter, NeedWebModules {
 		ret.put("js", js);
 		request.response().putHeader("Content-type", "application/json; charset=utf-8");
 		request.response().setStatusCode(200).end(ret.encode());
-		return null;
+		return CompletableFuture.completedFuture(null);
 
 	}
 

@@ -25,6 +25,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,10 +56,10 @@ public class WebModuleSessionInfosFilter implements IWebFilter {
 	}
 
 	@Override
-	public HttpServerRequest filter(HttpServerRequest request) {
+	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
 		String path = request.path();
 		if (!path.endsWith("session-infos.js")) {
-			return request;
+			return CompletableFuture.completedFuture(request);
 		}
 
 		Map<String, Object> model = new HashMap<>();
@@ -77,7 +78,7 @@ public class WebModuleSessionInfosFilter implements IWebFilter {
 
 		request.response().putHeader("Content-type", "application/javascript; charset=utf-8");
 		request.response().setStatusCode(200).end(sw.toString());
-		return null;
+		return CompletableFuture.completedFuture(null);
 
 	}
 

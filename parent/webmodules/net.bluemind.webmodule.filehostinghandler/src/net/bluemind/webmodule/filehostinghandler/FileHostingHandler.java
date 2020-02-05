@@ -20,6 +20,7 @@ package net.bluemind.webmodule.filehostinghandler;
 
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +50,7 @@ public class FileHostingHandler implements IWebFilter, NeedVertx {
 	private HttpClientProvider clientProvider;
 
 	@Override
-	public HttpServerRequest filter(HttpServerRequest request) {
+	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
 		final HttpServerResponse resp = request.response();
 
 		String path = request.path();
@@ -71,10 +72,10 @@ public class FileHostingHandler implements IWebFilter, NeedVertx {
 				}
 			});
 
-			return null;
+			return CompletableFuture.completedFuture(null);
 		}
 
-		return request;
+		return CompletableFuture.completedFuture(request);
 	}
 
 	private void loadSharedFile(final HttpServerRequest request, final HttpServerResponse resp, final String uid,

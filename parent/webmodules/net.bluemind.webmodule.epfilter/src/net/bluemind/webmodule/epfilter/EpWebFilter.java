@@ -19,6 +19,7 @@
 package net.bluemind.webmodule.epfilter;
 
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
@@ -28,7 +29,7 @@ import net.bluemind.webmodule.server.WebExtensionsResolver;
 public class EpWebFilter implements IWebFilter {
 
 	@Override
-	public HttpServerRequest filter(HttpServerRequest request) {
+	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
 		String path = request.path();
 		if (path.endsWith("uiextension")) {
 			String lang = request.headers().get("BMLang");
@@ -41,9 +42,9 @@ public class EpWebFilter implements IWebFilter {
 				request.response().setStatusCode(500).end();
 			}
 
-			return null;
+			return CompletableFuture.completedFuture(null);
 		} else {
-			return request;
+			return CompletableFuture.completedFuture(request);
 		}
 	}
 }

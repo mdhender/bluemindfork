@@ -20,8 +20,8 @@ package net.bluemind.webmodule.server;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +38,6 @@ public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 	private final RouteMatcher modulesRouter;
 
 	private List<WebModule> modules;
-
 	private List<IWebFilter> filters;
 
 	@SuppressWarnings("unused")
@@ -51,13 +50,7 @@ public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 		modules = new ArrayList<>(roots);
 		this.filters = filters;
 		// shorter is last
-		Collections.sort(modules, new Comparator<WebModule>() {
-
-			@Override
-			public int compare(WebModule o1, WebModule o2) {
-				return o2.root.length() - o1.root.length();
-			}
-		});
+		Collections.sort(modules, (WebModule o1, WebModule o2) -> o2.root.length() - o1.root.length());
 
 		for (WebModule module : modules) {
 			modulesRouter.allWithRegEx(module.root + ".*", moduleHandler(module));
@@ -66,13 +59,7 @@ public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 	}
 
 	private Handler<HttpServerRequest> moduleHandler(final WebModule module) {
-		return new Handler<HttpServerRequest>() {
-
-			@Override
-			public void handle(HttpServerRequest event) {
-				handleModule(event, module);
-			}
-		};
+		return event -> handleModule(event, module);
 	}
 
 	protected void handleModule(HttpServerRequest request, WebModule module) {
@@ -121,32 +108,37 @@ public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 		request.exceptionHandler(error);
 		vertx.getOrCreateContext().exceptionHandler(error);
 
-		String path = request.path();
-		logger.debug("handle {} request [{}]", request.method(), path);
-		HttpServerRequest fRequest = request;
-		for (IWebFilter filter : filters) {
+        CompletableFuture<HttpServerRequest> root = CompletableFuture.completedFuture(request);
+		
+        for (IWebFilter filter : filters) {
 			try {
-				fRequest = filter.filter(fRequest);
+				root = root.thenCompose(req -> {
+					if (req == null) {
+						return CompletableFuture.completedFuture(null);
+					}
+					return filter.filter(req);
+				});
 			} catch (Exception e) {
 				onError(request, e);
 				return;
 			}
-			if (fRequest == null) {
-				logger.debug("request [{}] ended by filter {}", path, filter);
+		}
+        
+		root.whenComplete((completedRequest, ex) -> {
+			if (completedRequest == null) {
 				return;
 			}
-		}
-
-		logger.debug("handle {} request [{}] => modules router", request.method(), path);
-		try {
-			modulesRouter.handle(fRequest);
-		} catch (Exception t) {
-			onError(request, t);
-		}
+			try {
+				modulesRouter.handle(completedRequest);
+			} catch (Exception t) {					
+				onError(completedRequest, t);
+			}
+		});
 	}
 
 	private void onError(HttpServerRequest request, Throwable t) {
-		logger.error("error during handling request: " + request.path(), t);
+		String path = request.path();
+		logger.error("error during handling request: {} {}", path, t);
 		request.response().setStatusCode(500);
 		request.response().setStatusMessage("server error: " + t.getMessage());
 		request.response().end();
@@ -177,7 +169,6 @@ public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 			}
 		}
 
-		WebModuleRootHandler rootHandler = new WebModuleRootHandler(vertx, roots, filters);
-		return rootHandler;
+		return new WebModuleRootHandler(vertx, roots, filters);
 	}
 }

@@ -90,10 +90,7 @@ public class PublishCalendarFilter implements IWebFilter, NeedVertx {
 				Pump pump = Pump.pump(read, resp);
 				resp.setChunked(true);
 				pump.start();
-				read.endHandler((v) -> {
-					resp.end();
-				});
-
+				read.endHandler(v -> resp.end());
 			}
 
 			@Override
