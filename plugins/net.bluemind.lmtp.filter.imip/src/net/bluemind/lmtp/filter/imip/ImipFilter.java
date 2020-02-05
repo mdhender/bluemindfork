@@ -180,7 +180,8 @@ public class ImipFilter extends AbstractLmtpHandler implements IMessageFilter {
 		}
 	}
 
-	private ItemValue<Mailbox> getRecipientMailbox(LmtpAddress recipient, ItemValue<Domain> domain) throws ServerFault {
+	private ItemValue<Mailbox> getRecipientMailbox(LmtpAddress recipient, ItemValue<Domain> domain)
+			throws ServerFault, MailboxInvitationDeniedException {
 		String box = null;
 		if (recipient.getEmailAddress().startsWith("+")) {
 			box = recipient.getNormalizedLocalPart().substring(1, recipient.getNormalizedLocalPart().length());
@@ -195,8 +196,9 @@ public class ImipFilter extends AbstractLmtpHandler implements IMessageFilter {
 		}
 
 		if (mailbox.get().value.type != Mailbox.Type.user && mailbox.get().value.type != Mailbox.Type.resource) {
-			throw new ServerFault("Unsuported entry kind: " + mailbox.get().value.type.toString() + " for email: "
-					+ recipient.getEmailAddress());
+			logger.warn("Unsuported entry kind: {} for email {}", mailbox.get().value.type.toString(),
+					recipient.getEmailAddress());
+			throw new MailboxInvitationDeniedException(mailbox.get().uid);
 		}
 
 		return mailbox.get();
