@@ -80,7 +80,7 @@ public class MyNetworksValidator implements ISystemConfigurationValidator {
 				// BM-11162 - remove literal ip6 brackets
 				InetAddresses.forString(subParts[0].replaceAll("[\\[\\]]", ""));
 			} catch (IllegalArgumentException iae) {
-				throw new ServerFault("Invalid mynetworks: " + modifications.get(PARAMETER),
+				throw new ServerFault(String.format("Invalid mynetworks: %s - must contain only IP or subnet", part),
 						ErrorCode.INVALID_PARAMETER);
 			}
 		}
