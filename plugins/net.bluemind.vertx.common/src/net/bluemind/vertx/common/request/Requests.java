@@ -63,12 +63,13 @@ public final class Requests {
 	 * @param tag
 	 * @param value
 	 */
-	public static void tag(HttpServerRequest sr, String tag, String value) {
+	public static void tag(HttpServerRequest r, String tag, String value) {
+		HttpServerRequest sr = Unwrapper.unwrap(r);
 		if (sr instanceof WrappedRequest) {
 			WrappedRequest wr = (WrappedRequest) sr;
 			wr.putLogAttribute(tag, value);
 		} else {
-			logger.warn("Not a wrapped request");
+			logger.warn("Not a wrapped request {}", sr, new Throwable("call loc"));
 		}
 	}
 

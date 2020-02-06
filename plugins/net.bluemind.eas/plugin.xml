@@ -104,15 +104,6 @@
       </filter>
    </extension>
    <extension
-         point="net.bluemind.lib.vertx.verticles">
-      <verticle
-            impl="net.bluemind.eas.protocol.impl.ProtocolWorkerFactory">
-      </verticle>
-      <verticle
-            impl="net.bluemind.eas.impl.vertx.WorkerLazyLoaderFactory">
-      </verticle>
-   </extension>
-   <extension
          point="net.bluemind.eas.protocol">
       <protocol
             impl="net.bluemind.eas.command.settings.SettingsProtocol">

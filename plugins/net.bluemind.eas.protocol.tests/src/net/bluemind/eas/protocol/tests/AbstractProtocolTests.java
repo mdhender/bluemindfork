@@ -37,12 +37,10 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.eas.command.settings.SettingsProtocol;
 import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.eas.http.EasHeaders;
-import net.bluemind.eas.protocol.impl.ProtocolWorker;
 import net.bluemind.eas.testhelper.device.TestDeviceHelper;
 import net.bluemind.eas.testhelper.device.TestDeviceHelper.TestDevice;
 import net.bluemind.eas.testhelper.mock.RequestsFactory;
 import net.bluemind.eas.testhelper.vertx.Deploy;
-import net.bluemind.eas.testhelper.vertx.Deploy.VerticleConstructor;
 import net.bluemind.eas.utils.DOMUtils;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.MQ.IMQConnectHandler;
@@ -66,7 +64,6 @@ public abstract class AbstractProtocolTests extends TestCase {
 			}
 		});
 		mqLatch.await(5, TimeUnit.SECONDS);
-		deploymentIDs = Deploy.beforeTest(new VerticleConstructor[0], VerticleConstructor.of(ProtocolWorker::new));
 
 	}
 

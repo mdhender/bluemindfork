@@ -18,37 +18,28 @@
  */
 package net.bluemind.eas.impl.vertx;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
-import io.vertx.core.eventbus.Message;
+import io.vertx.core.Promise;
 import net.bluemind.eas.dto.base.AirSyncBaseResponse;
 import net.bluemind.eas.dto.base.BodyOptions;
 import net.bluemind.eas.dto.base.Callback;
 import net.bluemind.eas.dto.base.LazyLoaded;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.vertx.common.LocalJsonObject;
 
 public final class VertxLazyLoader {
 
+	private VertxLazyLoader() {
+	}
+
 	public static final LazyLoaded<BodyOptions, AirSyncBaseResponse> wrap(
 			final LazyLoaded<BodyOptions, AirSyncBaseResponse> toWrap) {
-		LazyLoaded<BodyOptions, AirSyncBaseResponse> ret = new LazyLoaded<BodyOptions, AirSyncBaseResponse>(
-				toWrap.query) {
+		return new LazyLoaded<BodyOptions, AirSyncBaseResponse>(toWrap.query) {
 
 			@Override
 			public void load(final Callback<AirSyncBaseResponse> onLoad) {
-				LocalJsonObject<LazyLoaded<BodyOptions, AirSyncBaseResponse>> jso = new LocalJsonObject<>(toWrap);
-				VertxPlatform.eventBus().send("eas.backend.lazyloader", jso,
-						new Handler<AsyncResult<Message<LocalJsonObject<AirSyncBaseResponse>>>>() {
-
-							@Override
-							public void handle(AsyncResult<Message<LocalJsonObject<AirSyncBaseResponse>>> event) {
-								onLoad.onResult(event.result().body().getValue());
-							}
-						});
+				VertxPlatform.getVertx().executeBlocking((Promise<AirSyncBaseResponse> p) -> toWrap.load(p::complete),
+						r -> onLoad.onResult(r.result()));
 			}
 		};
-		return ret;
 	}
 
 }

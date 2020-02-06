@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2020
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -8,7 +8,6 @@
  * it under the terms of either the GNU Affero General Public License as
  * published by the Free Software Foundation (version 3 of the License).
  *
- *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
@@ -16,21 +15,28 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.eas.impl.vertx;
+package net.bluemind.vertx.common.request;
 
-import io.vertx.core.Verticle;
-import net.bluemind.lib.vertx.IVerticleFactory;
+import java.lang.reflect.Field;
 
-public final class WorkerLazyLoaderFactory implements IVerticleFactory {
+import io.vertx.core.http.HttpServerRequest;
 
-	@Override
-	public boolean isWorker() {
-		return true;
+public class Unwrapper {
+
+	private Unwrapper() {
 	}
 
-	@Override
-	public Verticle newInstance() {
-		return new WorkerLazyLoader();
+	public static HttpServerRequest unwrap(HttpServerRequest sr) {
+		try {
+			if (sr.getClass().getCanonicalName().equals("io.vertx.ext.web.impl.HttpServerRequestWrapper")) {
+				Field f = sr.getClass().getDeclaredField("delegate");
+				f.setAccessible(true);
+				return (HttpServerRequest) f.get(sr);
+			}
+		} catch (Exception e) {
+			return sr;
+		}
+		return sr;
 	}
 
 }

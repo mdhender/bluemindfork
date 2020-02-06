@@ -43,9 +43,6 @@ import net.bluemind.vertx.common.LocalJsonObject;
  */
 public class SendMailEndpoint12 extends MailRequestBase implements IEasRequestEndpoint {
 
-	public SendMailEndpoint12() {
-	}
-
 	@Override
 	public void process(AuthorizedDeviceQuery dq, BackendSession bs, ByteSource mailContent, boolean saveInSent,
 			final Responder responder, Handler<Void> completion) {

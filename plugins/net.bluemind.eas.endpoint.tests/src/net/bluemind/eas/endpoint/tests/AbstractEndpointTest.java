@@ -39,8 +39,6 @@ import net.bluemind.eas.endpoint.tests.helpers.TestMail;
 import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.eas.http.EasHeaders;
 import net.bluemind.eas.http.wbxml.WbxmlHandlerBase;
-import net.bluemind.eas.impl.vertx.WorkerLazyLoader;
-import net.bluemind.eas.protocol.impl.ProtocolWorker;
 import net.bluemind.eas.testhelper.device.TestDeviceHelper;
 import net.bluemind.eas.testhelper.device.TestDeviceHelper.TestDevice;
 import net.bluemind.eas.testhelper.mock.RequestObject;
@@ -97,9 +95,8 @@ public abstract class AbstractEndpointTest extends TestCase {
 		this.domainUid = testDevice.domainUid;
 		this.endpoint = createEndpoint();
 
-		deploymentIDs = Deploy.beforeTest(new VerticleConstructor[0],
-				VerticleConstructor.of(ProtocolWorker::new, WorkerLazyLoader::new, ByteSourceEventProducer::new,
-						SendMailVerticle::new, CollectionListenerVerticle::new));
+		deploymentIDs = Deploy.beforeTest(new VerticleConstructor[0], VerticleConstructor
+				.of(ByteSourceEventProducer::new, SendMailVerticle::new, CollectionListenerVerticle::new));
 		CountDownLatch cdl = new CountDownLatch(1);
 		MQ.init(new IMQConnectHandler() {
 
