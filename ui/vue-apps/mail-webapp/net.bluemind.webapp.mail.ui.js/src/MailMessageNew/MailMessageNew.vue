@@ -2,71 +2,73 @@
     <bm-form class="mail-message-new p-3 flex-grow-1 d-flex">
         <bm-panel :title="panelTitle" :closeable="false">
             <template #body>
-                <bm-row class="align-items-center">
-                    <bm-col cols="11">
-                        <bm-contact-input
-                            ref="to"
-                            :contacts.sync="message_.to"
-                            :autocomplete-results="autocompleteResultsTo"
-                            @search="searchedPattern => onSearch('to', searchedPattern)"
-                        >
-                            {{ $t("common.to") }}
-                        </bm-contact-input>
-                    </bm-col>
-                    <bm-col cols="1" class="text-center">
-                        <bm-button
-                            v-if="mode_ == modes.TO"
-                            variant="link"
-                            class="text-blue"
-                            @click="mode_ = modes.TO | modes.CC | modes.BCC"
-                        >
-                            <bm-icon icon="chevron" />
-                        </bm-button>
-                    </bm-col>
-                </bm-row>
-                <hr class="m-0" />
+                <div class="px-3">
+                    <bm-row class="align-items-center">
+                        <bm-col cols="11">
+                            <bm-contact-input
+                                ref="to"
+                                :contacts.sync="message_.to"
+                                :autocomplete-results="autocompleteResultsTo"
+                                @search="searchedPattern => onSearch('to', searchedPattern)"
+                            >
+                                {{ $t("common.to") }}
+                            </bm-contact-input>
+                        </bm-col>
+                        <bm-col cols="1" class="text-center">
+                            <bm-button
+                                v-if="mode_ == modes.TO"
+                                variant="link"
+                                class="text-blue"
+                                @click="mode_ = modes.TO | modes.CC | modes.BCC"
+                            >
+                                <bm-icon icon="chevron" />
+                            </bm-button>
+                        </bm-col>
+                    </bm-row>
+                    <hr class="m-0" />
 
-                <bm-row v-if="mode_ > modes.TO">
-                    <bm-col cols="11">
-                        <bm-contact-input
-                            :contacts.sync="message_.cc"
-                            :autocomplete-results="autocompleteResultsCc"
-                            @search="searchedPattern => onSearch('cc', searchedPattern)"
-                        >
-                            {{ $t("common.cc") }}
-                        </bm-contact-input>
-                    </bm-col>
-                    <bm-col cols="1" class="text-center">
-                        <bm-button
-                            v-if="mode_ == (modes.TO | modes.CC)"
-                            variant="link"
-                            class="text-blue"
-                            @click="mode_ = modes.TO | modes.CC | modes.BCC"
-                        >
-                            {{ $t("common.bcc") }}
-                        </bm-button>
-                    </bm-col>
-                </bm-row>
-                <hr v-if="mode_ > modes.TO" class="m-0" />
+                    <bm-row v-if="mode_ > modes.TO">
+                        <bm-col cols="11">
+                            <bm-contact-input
+                                :contacts.sync="message_.cc"
+                                :autocomplete-results="autocompleteResultsCc"
+                                @search="searchedPattern => onSearch('cc', searchedPattern)"
+                            >
+                                {{ $t("common.cc") }}
+                            </bm-contact-input>
+                        </bm-col>
+                        <bm-col cols="1" class="text-center">
+                            <bm-button
+                                v-if="mode_ == (modes.TO | modes.CC)"
+                                variant="link"
+                                class="text-blue"
+                                @click="mode_ = modes.TO | modes.CC | modes.BCC"
+                            >
+                                {{ $t("common.bcc") }}
+                            </bm-button>
+                        </bm-col>
+                    </bm-row>
+                    <hr v-if="mode_ > modes.TO" class="m-0" />
 
-                <bm-contact-input
-                    v-if="mode_ == (modes.TO | modes.CC | modes.BCC)"
-                    :contacts.sync="message_.bcc"
-                    :autocomplete-results="autocompleteResultsBcc"
-                    @search="searchedPattern => onSearch('bcc', searchedPattern)"
-                >
-                    {{ $t("common.bcc") }}
-                </bm-contact-input>
-                <hr v-if="mode_ == (modes.TO | modes.CC | modes.BCC)" class="m-0" />
+                    <bm-contact-input
+                        v-if="mode_ == (modes.TO | modes.CC | modes.BCC)"
+                        :contacts.sync="message_.bcc"
+                        :autocomplete-results="autocompleteResultsBcc"
+                        @search="searchedPattern => onSearch('bcc', searchedPattern)"
+                    >
+                        {{ $t("common.bcc") }}
+                    </bm-contact-input>
+                    <hr v-if="mode_ == (modes.TO | modes.CC | modes.BCC)" class="m-0" />
 
-                <bm-form-input
-                    v-model="message_.subject"
-                    :placeholder="$t('mail.new.subject.placeholder')"
-                    :aria-label="$t('mail.new.subject.aria')"
-                    type="text"
-                    @keydown.enter.native.prevent
-                />
-                <bm-row class="d-block"><hr class="bg-dark m-0" /></bm-row>
+                    <bm-form-input
+                        v-model="message_.subject"
+                        :placeholder="$t('mail.new.subject.placeholder')"
+                        :aria-label="$t('mail.new.subject.aria')"
+                        type="text"
+                        @keydown.enter.native.prevent
+                    />
+                </div>
+                <bm-row class="d-block m-0"><hr class="bg-dark m-0" /></bm-row>
                 <div class="flex-grow-1">
                     <bm-form-textarea
                         v-if="userPrefTextOnly"
@@ -83,11 +85,12 @@
                         ref="message-content"
                         v-model="message_.content"
                         :is-menu-bar-opened="userPrefIsMenuBarOpened"
+                        class="h-100"
                     >
                         <bm-button
                             v-if="previousMessage && !message_.isReplyExpanded"
                             variant="outline-dark"
-                            class="align-self-start"
+                            class="align-self-start ml-3 mb-2"
                             @click="displayPreviousMessages"
                         >
                             <bm-icon icon="3dots" size="sm" />
@@ -104,7 +107,13 @@
                 </bm-button>
             </template>
             <template #footer>
-                <mail-message-new-footer @delete="deleteDraft" @send="send" />
+                <mail-message-new-footer 
+                    :user-pref-text-only="userPrefTextOnly"
+                    :user-pref-is-menu-bar-opened="userPrefIsMenuBarOpened"
+                    @toggleTextFormat="userPrefIsMenuBarOpened = !userPrefIsMenuBarOpened"
+                    @delete="deleteDraft"
+                    @send="send"
+                />
             </template>
         </bm-panel>
     </bm-form>

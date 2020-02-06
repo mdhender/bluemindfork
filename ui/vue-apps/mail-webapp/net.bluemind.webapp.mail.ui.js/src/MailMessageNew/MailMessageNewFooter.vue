@@ -31,12 +31,14 @@
             </span>
             <span v-else class="text-muted pr-2">{{ saveMessage }}</span>
             <bm-button
-                v-bm-tooltip.bottom.ds500
+                v-if="!userPrefTextOnly"
+                v-bm-tooltip.left.ds500
                 variant="link"
                 class="p-2"
                 :aria-label="textFormatterLabel"
                 :title="textFormatterLabel"
                 :disabled="isSending || isDeleting"
+                @click="$emit('toggleTextFormat')"
             >
                 <bm-icon icon="text-format" size="lg" />
             </bm-button>
@@ -69,6 +71,16 @@ export default {
         BmIcon
     },
     directives: { BmTooltip },
+    props: {
+        userPrefTextOnly: {
+            type: Boolean,
+            default: false
+        },
+        userPrefIsMenuBarOpened: {
+            type: Boolean,
+            default: false
+        }
+    },
     computed: {
         ...mapState("mail-webapp", ["draft"]),
         isSending() {
@@ -104,11 +116,8 @@ export default {
             }
             return this.$t("mail.draft.save.date", { date: this.$d(saveDate, "short_date") });
         },
-        isTextFormatterOpened() {
-            return false; // TODO change this once @kevin refactor about BmRichEditor is done
-        },
         textFormatterLabel() {
-            return this.isTextFormatterOpened
+            return this.userPrefIsMenuBarOpened
                 ? this.$tc("mail.actions.textformat.hide.aria")
                 : this.$tc("mail.actions.textformat.show.aria");
         }
@@ -128,3 +137,10 @@ export default {
     }
 };
 </script>
+
+<style>
+.mail-message-new-footer {
+    z-index: 2;
+    position: relative;
+}
+</style>
