@@ -39,15 +39,14 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.streams.Pump;
-import org.vertx.java.core.streams.ReadStream;
-import org.vertx.java.core.streams.WriteStream;
 
 import com.google.common.collect.Lists;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.Pump;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.core.api.Stream;
@@ -57,6 +56,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.rest.base.GenericStream.AccumulatorStream;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.dockerclient.DockerEnv;
@@ -573,7 +573,7 @@ public class FileSystemFileHostingServiceTests {
 	}
 
 	private Stream bytesToStream(byte[] b) throws IOException {
-		return VertxStream.stream(new Buffer(b));
+		return VertxStream.stream(Buffer.buffer(b));
 	}
 
 	private Stream bytesToTimeoutStream(int secs) throws IOException {
@@ -583,7 +583,7 @@ public class FileSystemFileHostingServiceTests {
 
 	private String streamToString(Stream stream) {
 		final CountDownLatch latch = new CountDownLatch(1);
-		final ReadStream<?> reader = VertxStream.read(stream);
+		final ReadStream<Buffer> reader = VertxStream.read(stream);
 		final AccumulatorStream writer = new AccumulatorStream();
 
 		reader.endHandler(new Handler<Void>() {
@@ -594,7 +594,7 @@ public class FileSystemFileHostingServiceTests {
 			}
 		});
 
-		Pump pump = Pump.createPump(reader, writer);
+		Pump pump = Pump.pump(reader, writer);
 		pump.start();
 		reader.resume();
 		try {
@@ -606,45 +606,7 @@ public class FileSystemFileHostingServiceTests {
 		return writer.buffer().toString();
 	}
 
-	private static class AccumulatorStream implements WriteStream<AccumulatorStream> {
-
-		private Buffer buffer = new Buffer();
-
-		@Override
-		public AccumulatorStream exceptionHandler(Handler<Throwable> handler) {
-			return this;
-		}
-
-		@Override
-		public AccumulatorStream setWriteQueueMaxSize(int maxSize) {
-			return this;
-		}
-
-		@Override
-		public boolean writeQueueFull() {
-			return false;
-		}
-
-		@Override
-		public AccumulatorStream drainHandler(Handler<Void> handler) {
-			return this;
-		}
-
-		@Override
-		public AccumulatorStream write(Buffer data) {
-			synchronized (this) {
-				buffer.appendBuffer(data);
-			}
-			return this;
-
-		}
-
-		public Buffer buffer() {
-			return buffer;
-		}
-	}
-
-	private static class TimeoutReadStream implements ReadStream<TimeoutReadStream> {
+	private static class TimeoutReadStream implements ReadStream<Buffer> {
 
 		private Handler<Buffer> dh;
 		private Handler<Void> eh;
@@ -657,7 +619,7 @@ public class FileSystemFileHostingServiceTests {
 		}
 
 		@Override
-		public TimeoutReadStream dataHandler(Handler<Buffer> handler) {
+		public TimeoutReadStream handler(Handler<Buffer> handler) {
 			this.dh = handler;
 			new Thread(() -> {
 				try {
@@ -672,7 +634,7 @@ public class FileSystemFileHostingServiceTests {
 				while (System.currentTimeMillis() < until) {
 					if (!paused.get()) {
 						totalWrote++;
-						dh.handle(new Buffer(chunk));
+						dh.handle(Buffer.buffer(chunk));
 					}
 					try {
 						Thread.sleep(50);
@@ -711,6 +673,11 @@ public class FileSystemFileHostingServiceTests {
 			if (sent) {
 				eh.handle(null);
 			}
+			return this;
+		}
+
+		@Override
+		public ReadStream<Buffer> fetch(long amount) {
 			return this;
 		}
 

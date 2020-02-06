@@ -1,7 +1,6 @@
 package net.bluemind.metrics.core.tick;
 
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.json.JsonObject;
 import net.bluemind.metrics.core.Product;
 import net.bluemind.metrics.core.tick.ITickTemplateProvider.TemplateDefinition;
 
@@ -10,34 +9,31 @@ public class TickTemplateDefBuilder {
 
 	public TickTemplateDefBuilder(String alertId) {
 		this.def = new TemplateDefinition(alertId);
-		def.variables.putObject("name", new JsonObject().putString("type", "string").putString("value", alertId));
+		def.variables.put("name", new JsonObject().put("type", "string").put("value", alertId));
 	}
 
 	public TickTemplateDefBuilder withDatalocation(String dataloc) {
-		def.variables.putObject("datalocation",
-				new JsonObject().putString("type", "string").putString("value", dataloc));
+		def.variables.put("datalocation", new JsonObject().put("type", "string").put("value", dataloc));
 		return this;
 	}
 
 	public TickTemplateDefBuilder withProduct(Product prod) {
-		def.variables.putObject("bmProduct",
-				new JsonObject().putString("type", "string").putString("value", prod.name));
+		def.variables.put("bmProduct", new JsonObject().put("type", "string").put("value", prod.name));
 		return this;
 	}
 
 	public TickTemplateDefBuilder withEndPoint(String alertsEndPoint) {
-		def.variables.putObject("alertsEndPoint",
-				new JsonObject().putString("type", "string").putString("value", alertsEndPoint));
+		def.variables.put("alertsEndPoint", new JsonObject().put("type", "string").put("value", alertsEndPoint));
 		return this;
 	}
 
 	public TickTemplateDefBuilder withVariable(String varName, int value) {
-		def.variables.putObject(varName, new JsonObject().putString("type", "int").putNumber("value", value));
+		def.variables.put(varName, new JsonObject().put("type", "int").put("value", value));
 		return this;
 	}
 
 	public TickTemplateDefBuilder withVariable(String varName, String value) {
-		def.variables.putObject(varName, new JsonObject().putString("type", "string").putString("value", value));
+		def.variables.put(varName, new JsonObject().put("type", "string").put("value", value));
 		return this;
 	}
 

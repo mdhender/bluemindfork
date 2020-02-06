@@ -29,7 +29,7 @@
             code="net.bluemind.system.ldap.export.upgrader.AddBmUuidIndex">
       </java>
       <java
-            code="net.bluemind.system.ldap.export.upgrader.AddBmHiddentAttribute">
+            code="net.bluemind.system.ldap.export.upgrader.AddBmHiddenAttribute">
       </java>
    </extension>
 </plugin>

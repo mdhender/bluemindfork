@@ -20,15 +20,14 @@ package net.bluemind.tag.service;
 
 import java.util.List;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Verticle;
-
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 
-public class TagEventVerticle extends Verticle {
+public class TagEventVerticle extends AbstractVerticle {
 
 	private List<ITagEventConsumer> consumers;
 
@@ -40,7 +39,7 @@ public class TagEventVerticle extends Verticle {
 
 		EventBus eventBus = vertx.eventBus();
 
-		eventBus.registerHandler("tags.changed", new Handler<Message<JsonObject>>() {
+		eventBus.consumer("tags.changed", new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {

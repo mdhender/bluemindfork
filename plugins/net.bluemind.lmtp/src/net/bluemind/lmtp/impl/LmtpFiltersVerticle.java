@@ -30,14 +30,15 @@ import org.apache.james.mime4j.message.MessageServiceFactoryImpl;
 import org.apache.james.mime4j.stream.RawField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.platform.Verticle;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageConsumer;
 import net.bluemind.lmtp.backend.FilterException;
 import net.bluemind.lmtp.backend.IMessageFilter;
 import net.bluemind.lmtp.backend.LmtpReply;
@@ -45,7 +46,7 @@ import net.bluemind.lmtp.backend.PermissionDeniedException;
 import net.bluemind.lmtp.impl.busmessages.MailMessage;
 import net.bluemind.mime4j.common.Mime4JHelper;
 
-public class LmtpFiltersVerticle extends Verticle {
+public class LmtpFiltersVerticle extends AbstractVerticle {
 
 	public static final String ADDR = "lmtp.filters";
 
@@ -54,59 +55,57 @@ public class LmtpFiltersVerticle extends Verticle {
 	private Handler<Message<MailMessage>> filtersHandler;
 	private LmtpConfig config;
 
+	private MessageConsumer<MailMessage> consumer;
+
 	@Override
 	public void start() {
 		config = new LmtpConfig();
-		filtersHandler = new Handler<Message<MailMessage>>() {
+		filtersHandler = (Message<MailMessage> event) -> {
 
-			@Override
-			public void handle(Message<MailMessage> event) {
-
+			try {
+				MailMessage tm = applyFilters(event.body());
+				event.reply(tm);
+			} catch (PermissionDeniedException e) {
+				// BM-8652
+				logger.error("Permission denied, add X-BM-Discard header");
+				RawField rf = new RawField("X-BM-Discard", e.toHeaderValue());
+				UnstructuredField discard = UnstructuredFieldImpl.PARSER.parse(rf, DecodeMonitor.SILENT);
 				try {
-					MailMessage tm = applyFilters(event.body());
-					event.reply(tm);
-				} catch (PermissionDeniedException e) {
-					// BM-8652
-					logger.error("Permission denied, add X-BM-Discard header");
-					RawField rf = new RawField("X-BM-Discard", e.toHeaderValue());
-					UnstructuredField discard = UnstructuredFieldImpl.PARSER.parse(rf, DecodeMonitor.SILENT);
-					try {
-						MailMessage mm = addHeader(event.body(), discard);
-						event.reply(mm);
-					} catch (FilterException e1) {
-						logger.error("error during setting X-BM-Discard header", e);
-						event.reply(event.body());
-					}
-				} catch (FilterException e) {
-					logger.error("error during filtering message body", e);
-					// BM-7152 add X-BM-Error header
-					RawField rf = new RawField("X-BM-Error", e.getErrorCode());
-					UnstructuredField error = UnstructuredFieldImpl.PARSER.parse(rf, DecodeMonitor.SILENT);
-					try {
-						MailMessage mm = addHeader(event.body(), error);
-						event.reply(mm);
-					} catch (FilterException e1) {
-						logger.error("error during setting X-BM-Error header", e);
-						event.reply(event.body());
-
-					}
+					MailMessage mm = addHeader(event.body(), discard);
+					event.reply(mm);
+				} catch (FilterException e1) {
+					logger.error("error during setting X-BM-Discard header", e);
+					event.reply(event.body());
+				}
+			} catch (FilterException e) {
+				logger.error("error during filtering message body", e);
+				// BM-7152 add X-BM-Error header
+				RawField rf = new RawField("X-BM-Error", e.getErrorCode());
+				UnstructuredField error = UnstructuredFieldImpl.PARSER.parse(rf, DecodeMonitor.SILENT);
+				try {
+					MailMessage mm = addHeader(event.body(), error);
+					event.reply(mm);
+				} catch (FilterException e1) {
+					logger.error("error during setting X-BM-Error header", e);
+					event.reply(event.body());
 
 				}
+
 			}
 
 		};
 
-		getVertx().eventBus().registerHandler(ADDR, filtersHandler);
+		this.consumer = vertx.eventBus().consumer(ADDR, filtersHandler);
 	}
 
 	@Override
 	public void stop() {
-		getVertx().eventBus().unregisterHandler(ADDR, filtersHandler);
+		consumer.unregister();
 	}
 
 	protected MailMessage applyFilters(MailMessage body) throws FilterException {
 
-		if (config.getFilters().size() == 0) {
+		if (config.getFilters().isEmpty()) {
 			return body;
 		}
 

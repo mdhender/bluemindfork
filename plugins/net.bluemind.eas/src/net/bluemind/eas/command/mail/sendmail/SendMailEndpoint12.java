@@ -20,12 +20,12 @@ package net.bluemind.eas.command.mail.sendmail;
 
 import java.util.Collection;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteSource;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
 import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.backend.SendMailData;
 import net.bluemind.eas.backend.SendMailData.Mode;
@@ -43,9 +43,6 @@ import net.bluemind.vertx.common.LocalJsonObject;
  */
 public class SendMailEndpoint12 extends MailRequestBase implements IEasRequestEndpoint {
 
-	public SendMailEndpoint12() {
-	}
-
 	@Override
 	public void process(AuthorizedDeviceQuery dq, BackendSession bs, ByteSource mailContent, boolean saveInSent,
 			final Responder responder, Handler<Void> completion) {
@@ -56,18 +53,22 @@ public class SendMailEndpoint12 extends MailRequestBase implements IEasRequestEn
 		mail.saveInSent = saveInSent;
 		mail.mode = Mode.Send;
 
-		VertxPlatform.eventBus().send(EasBusEndpoints.SEND_MAIL, new LocalJsonObject<SendMailData>(mail),
-				new Handler<Message<String>>() {
+		VertxPlatform.eventBus().request(EasBusEndpoints.SEND_MAIL, new LocalJsonObject<SendMailData>(mail),
+				new Handler<AsyncResult<Message<String>>>() {
 
 					@Override
-					public void handle(Message<String> event) {
-						if (event.body() == null) {
-							completion.handle(null);
-
-							responder.sendStatus(200);
-						} else {
+					public void handle(AsyncResult<Message<String>> event) {
+						if (event.failed()) {
 							completion.handle(null);
 							responder.sendStatus(500);
+						} else {
+							if (event.result().body() == null) {
+								completion.handle(null);
+								responder.sendStatus(200);
+							} else {
+								completion.handle(null);
+								responder.sendStatus(500);
+							}
 						}
 					}
 				});

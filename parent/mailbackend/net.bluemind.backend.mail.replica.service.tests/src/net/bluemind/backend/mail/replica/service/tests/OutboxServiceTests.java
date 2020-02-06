@@ -20,10 +20,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.vertx.java.core.buffer.Buffer;
 
 import com.google.common.io.ByteStreams;
 
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.cyrus.replication.testhelper.ExpectCommand;
 import net.bluemind.backend.mail.api.IMailboxFolders;
@@ -130,7 +130,7 @@ public class OutboxServiceTests extends AbstractRollingReplicationTests {
 		assertNotNull(mailboxUid);
 
 		try (InputStream in = testEml()) {
-			Stream forUpload = VertxStream.stream(new Buffer(ByteStreams.toByteArray(in)));
+			Stream forUpload = VertxStream.stream(Buffer.buffer(ByteStreams.toByteArray(in)));
 			IMailboxItems recordsApi = provider.instance(IMailboxItems.class, mailboxUid);
 			String partId = recordsApi.uploadPart(forUpload);
 			assertNotNull(partId);

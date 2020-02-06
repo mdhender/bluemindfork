@@ -21,11 +21,15 @@ package net.bluemind.xmpp.coresession.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.Arrays;
+
 import org.junit.Test;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
+
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 public class RosterManagerTests extends BaseXmppTests {
 
@@ -36,7 +40,7 @@ public class RosterManagerTests extends BaseXmppTests {
 
 		String addr = "xmpp/session/" + sessionId + "/roster";
 
-		eventBus.registerHandler(addr, new Handler<Message<JsonObject>>() {
+		eventBus.consumer(addr, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
@@ -44,21 +48,22 @@ public class RosterManagerTests extends BaseXmppTests {
 			}
 		});
 
-		eventBus.send(addr + ":add-buddy", new JsonObject().putString("user", user2.login + "@" + domainName),
-				new Handler<Message<JsonObject>>() {
+		eventBus.request(addr + ":add-buddy", new JsonObject().put("user", user2.login + "@" + domainName),
+				new Handler<AsyncResult<Message<JsonObject>>>() {
 
 					@Override
-					public void handle(Message<JsonObject> response) {
-						queueAssertValue("roster", response.body());
+					public void handle(AsyncResult<Message<JsonObject>> response) {
+						queueAssertValue("roster", response.result().body());
 					}
 				});
 
 		waitAssert("roster");
 		JsonObject rosterEvent = waitRosterAssert("rosterEvent", "entries-added");
 
-		assertEquals(1, rosterEvent.getObject("change").getArray("entries").size());
+		assertEquals(1, rosterEvent.getJsonObject("change").getJsonArray("entries").size());
 
-		assertEquals(user2.login + "@" + domainName, rosterEvent.getObject("change").getArray("entries").get(0));
+		assertEquals(user2.login + "@" + domainName,
+				rosterEvent.getJsonObject("change").getJsonArray("entries").getValue(0));
 
 		// after entries-added, we should receive entries-updated
 
@@ -72,7 +77,7 @@ public class RosterManagerTests extends BaseXmppTests {
 
 		String addr = "xmpp/session/" + sessionId + "/roster";
 
-		eventBus.registerHandler(addr, new Handler<Message<JsonObject>>() {
+		eventBus.consumer(addr, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
@@ -81,31 +86,32 @@ public class RosterManagerTests extends BaseXmppTests {
 		});
 
 		// add
-		eventBus.send(addr + ":add-buddy", new JsonObject().putString("user", user2.login + "@" + domainName),
-				new Handler<Message<JsonObject>>() {
+		eventBus.request(addr + ":add-buddy", new JsonObject().put("user", user2.login + "@" + domainName),
+				new Handler<AsyncResult<Message<JsonObject>>>() {
 
 					@Override
-					public void handle(Message<JsonObject> response) {
-						queueAssertValue("roster", response.body());
+					public void handle(AsyncResult<Message<JsonObject>> response) {
+						queueAssertValue("roster", response.result().body());
 					}
 				});
 		waitAssert("roster");
 
 		// remove
-		eventBus.send(addr + ":remove-buddy", new JsonObject().putString("user", user2.login + "@" + domainName),
-				new Handler<Message<JsonObject>>() {
+		eventBus.request(addr + ":remove-buddy", new JsonObject().put("user", user2.login + "@" + domainName),
+				new Handler<AsyncResult<Message<JsonObject>>>() {
 
 					@Override
-					public void handle(Message<JsonObject> response) {
-						queueAssertValue("roster", response.body());
+					public void handle(AsyncResult<Message<JsonObject>> response) {
+						queueAssertValue("roster", response.result().body());
 					}
 				});
 
 		JsonObject rosterEvent = waitRosterAssert("rosterEvent", "entries-deleted");
 
-		assertEquals(1, rosterEvent.getObject("change").getArray("entries").size());
+		assertEquals(1, rosterEvent.getJsonObject("change").getJsonArray("entries").size());
 
-		assertEquals(user2.login + "@" + domainName, rosterEvent.getObject("change").getArray("entries").get(0));
+		assertEquals(user2.login + "@" + domainName,
+				rosterEvent.getJsonObject("change").getJsonArray("entries").getValue(0));
 
 	}
 
@@ -117,58 +123,58 @@ public class RosterManagerTests extends BaseXmppTests {
 
 		String addr = "xmpp/session/" + sessionId + "/roster";
 
-		eventBus.send(addr + ":entries", new JsonObject(), new Handler<Message<JsonObject>>() {
+		eventBus.request(addr + ":entries", new JsonObject(), new Handler<AsyncResult<Message<JsonObject>>>() {
 
 			@Override
-			public void handle(Message<JsonObject> response) {
-				queueAssertValue("roster", response.body());
+			public void handle(AsyncResult<Message<JsonObject>> response) {
+				queueAssertValue("roster", response.result().body());
 			}
 		});
 
 		JsonObject jsonObject = waitAssert("roster");
 		assertNotNull(jsonObject);
-		assertNotNull(jsonObject.getArray("entries"));
-		assertEquals(0, jsonObject.getArray("entries").size());
+		assertNotNull(jsonObject.getJsonArray("entries"));
+		assertEquals(0, jsonObject.getJsonArray("entries").size());
 
 		// add
-		eventBus.send(addr + ":add-buddy", new JsonObject().putString("user", user2.login + "@" + domainName),
-				new Handler<Message<JsonObject>>() {
+		eventBus.request(addr + ":add-buddy", new JsonObject().put("user", user2.login + "@" + domainName),
+				new Handler<AsyncResult<Message<JsonObject>>>() {
 
 					@Override
-					public void handle(Message<JsonObject> response) {
-						queueAssertValue("roster", response.body());
+					public void handle(AsyncResult<Message<JsonObject>> response) {
+						queueAssertValue("roster", response.result().body());
 					}
 				});
 		waitAssert("roster");
 
-		eventBus.send(addr + ":entries", new JsonObject(), new Handler<Message<JsonObject>>() {
+		eventBus.request(addr + ":entries", new JsonObject(), new Handler<AsyncResult<Message<JsonObject>>>() {
 
 			@Override
-			public void handle(Message<JsonObject> response) {
-				queueAssertValue("roster", response.body());
+			public void handle(AsyncResult<Message<JsonObject>> response) {
+				queueAssertValue("roster", response.result().body());
 			}
 		});
 
 		jsonObject = waitAssert("roster");
 		assertNotNull(jsonObject);
-		assertNotNull(jsonObject.getArray("entries"));
-		assertEquals(1, jsonObject.getArray("entries").size());
+		assertNotNull(jsonObject.getJsonArray("entries"));
+		assertEquals(1, jsonObject.getJsonArray("entries").size());
 
 		// retrieve only one
-		eventBus.send(addr + ":entries",
-				new JsonObject().putArray("entries", new JsonArray(new Object[] { user2.login + "@" + domainName })),
-				new Handler<Message<JsonObject>>() {
+		eventBus.request(addr + ":entries",
+				new JsonObject().put("entries", new JsonArray(Arrays.asList(user2.login + "@" + domainName))),
+				new Handler<AsyncResult<Message<JsonObject>>>() {
 
 					@Override
-					public void handle(Message<JsonObject> response) {
-						queueAssertValue("roster", response.body());
+					public void handle(AsyncResult<Message<JsonObject>> response) {
+						queueAssertValue("roster", response.result().body());
 					}
 				});
 
 		jsonObject = waitAssert("roster");
 		assertNotNull(jsonObject);
-		assertNotNull(jsonObject.getArray("entries"));
-		assertEquals(1, jsonObject.getArray("entries").size());
+		assertNotNull(jsonObject.getJsonArray("entries"));
+		assertEquals(1, jsonObject.getJsonArray("entries").size());
 
 	}
 
@@ -179,19 +185,19 @@ public class RosterManagerTests extends BaseXmppTests {
 
 		String addr = "xmpp/session/" + sessionId + "/roster";
 
-		eventBus.registerHandler(addr, new Handler<Message<JsonObject>>() {
+		eventBus.consumer(addr, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
 				queueAssertValue("event", event.body());
 			}
 		});
-		eventBus.send(addr + ":add-buddy", new JsonObject().putString("user", user2.login + "@" + domainName),
-				new Handler<Message<JsonObject>>() {
+		eventBus.request(addr + ":add-buddy", new JsonObject().put("user", user2.login + "@" + domainName),
+				new Handler<AsyncResult<Message<JsonObject>>>() {
 
 					@Override
-					public void handle(Message<JsonObject> response) {
-						queueAssertValue("roster", response.body());
+					public void handle(AsyncResult<Message<JsonObject>> response) {
+						queueAssertValue("roster", response.result().body());
 					}
 				});
 
@@ -210,8 +216,8 @@ public class RosterManagerTests extends BaseXmppTests {
 		while (true) {
 			rosterEvent = waitAssert(key);
 			System.out.println(rosterEvent);
-			assertNotNull(rosterEvent.getObject("change"));
-			if (type.equals(rosterEvent.getObject("change").getString("type"))) {
+			assertNotNull(rosterEvent.getJsonObject("change"));
+			if (type.equals(rosterEvent.getJsonObject("change").getString("type"))) {
 				break;
 			}
 		}

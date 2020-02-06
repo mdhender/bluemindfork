@@ -21,26 +21,6 @@
 			</arguments>
 		</buildCommand>
 		<buildCommand>
-			<name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>
-			<triggers>full,incremental,</triggers>
-			<arguments>
-				<dictionary>
-					<key>LaunchConfigHandle</key>
-					<value>&lt;project&gt;/.externalToolBuilders/com.google.gdt.eclipse.core.webAppProjectValidator (23).launch</value>
-				</dictionary>
-			</arguments>
-		</buildCommand>
-		<buildCommand>
-			<name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>
-			<triggers>full,incremental,</triggers>
-			<arguments>
-				<dictionary>
-					<key>LaunchConfigHandle</key>
-					<value>&lt;project&gt;/.externalToolBuilders/com.google.gwt.eclipse.core.gwtProjectValidator (23).launch</value>
-				</dictionary>
-			</arguments>
-		</buildCommand>
-		<buildCommand>
 			<name>com.gwtplugins.gdt.eclipse.core.webAppProjectValidator</name>
 			<arguments>
 			</arguments>
@@ -54,7 +34,6 @@
 	<natures>
 		<nature>org.eclipse.pde.PluginNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
-		<nature>com.google.gwt.eclipse.core.gwtNature</nature>
 		<nature>com.gwtplugins.gwt.eclipse.core.gwtNature</nature>
 	</natures>
 </projectDescription>

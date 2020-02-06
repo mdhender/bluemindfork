@@ -18,15 +18,16 @@
  */
 package net.bluemind.proxy.http.tests;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClient.BoundRequestBuilder;
-import com.ning.http.client.ListenableFuture;
-import com.ning.http.client.Response;
-import com.ning.http.client.cookie.Cookie;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.BoundRequestBuilder;
+import org.asynchttpclient.ListenableFuture;
+import org.asynchttpclient.Response;
 
+import io.netty.handler.codec.http.cookie.Cookie;
 import net.bluemind.proxy.http.HttpProxyServer;
 
 public class AppLoginHelper {
@@ -81,8 +82,8 @@ public class AppLoginHelper {
 		this.cm = new LinkedHashMap<String, Cookie>();
 		System.err.println("Cookies count is " + cookies.size());
 		for (Cookie c : cookies) {
-			System.err.println("S: cookie " + c.getName() + " = " + c.getValue());
-			cm.put(c.getName(), c);
+			System.err.println("S: cookie " + c.name() + " = " + c.value());
+			cm.put(c.name(), c);
 		}
 		String location = response.getHeader("Location");
 		System.err.println("Location: " + location);
@@ -97,7 +98,7 @@ public class AppLoginHelper {
 			response = future.get();
 			List<Cookie> rc = response.getCookies();
 			for (Cookie c : rc) {
-				cm.put(c.getName(), c);
+				cm.put(c.name(), c);
 			}
 			location = response.getHeader("Location");
 		}
@@ -144,7 +145,11 @@ public class AppLoginHelper {
 	}
 
 	public void dispose() {
-		this.ahc.close();
+		try {
+			this.ahc.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		this.ahc = null;
 	}
 

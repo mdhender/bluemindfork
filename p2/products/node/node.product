@@ -32,15 +32,14 @@
       <plugin id="com.netflix.spectator.api"/>
       <plugin id="io.netty"/>
       <plugin id="io.vertx.core"/>
-      <plugin id="io.vertx.platform"/>
+      <plugin id="io.vertx.web"/>
       <plugin id="javax.ws.rs"/>
       <plugin id="javax.xml"/>
       <plugin id="jcl.over.slf4j"/>
       <plugin id="jul.to.slf4j"/>
+      <plugin id="net.bluemind.common.io"/>
       <plugin id="net.bluemind.core.commons"/>
       <plugin id="net.bluemind.eclipse.common"/>
-      <plugin id="net.bluemind.lib.jackson"/>
-      <plugin id="net.bluemind.lib.jta"/>
       <plugin id="net.bluemind.lib.vertx"/>
       <plugin id="net.bluemind.metrics.registry"/>
       <plugin id="net.bluemind.node.server"/>

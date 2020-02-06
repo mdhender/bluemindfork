@@ -24,14 +24,14 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
 import org.w3c.dom.Document;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
 import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.OptionalParams;

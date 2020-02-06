@@ -30,10 +30,11 @@ import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.streams.ReadStream;
 
 import com.google.common.io.CountingInputStream;
 
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.rest.vertx.VertxStream.LocalPathStream;
@@ -144,7 +145,7 @@ public class EZInputStreamAdapter {
 
 		CompletableFuture<T> ret = new CompletableFuture<>();
 		try {
-			ReadStream<?> vxStream = VertxStream.read(stream);
+			ReadStream<Buffer> vxStream = VertxStream.read(stream);
 			setupStreamHandlers(streamConsumer, ret, vxStream);
 		} catch (Exception e) {
 			logger.error("Error setting up stream handlers " + e.getMessage(), e);
@@ -154,7 +155,7 @@ public class EZInputStreamAdapter {
 	}
 
 	private static <T> void setupStreamHandlers(final Function<CountingInputStream, T> streamConsumer,
-			CompletableFuture<T> ret, ReadStream<?> vxStream) {
+			CompletableFuture<T> ret, ReadStream<Buffer> vxStream) {
 		if (vxStream instanceof LocalPathStream) {
 			LocalPathStream lps = (LocalPathStream) vxStream;
 			try (CountingInputStream toConsume = new CountingInputStream(Files.newInputStream(lps.path()))) {
@@ -182,7 +183,7 @@ public class EZInputStreamAdapter {
 			}
 
 		});
-		vxStream.dataHandler(buf -> {
+		vxStream.handler(buf -> {
 			try {
 				diskCopy.write(buf.getByteBuf().nioBuffer());
 			} catch (IOException e) {

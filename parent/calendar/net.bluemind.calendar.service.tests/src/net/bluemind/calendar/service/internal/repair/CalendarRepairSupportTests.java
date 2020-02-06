@@ -33,16 +33,16 @@ import javax.sql.DataSource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.SettableFuture;
 
-import net.bluemind.calendar.api.ICalendarUids;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.backend.cyrus.CyrusAdmins;
 import net.bluemind.backend.cyrus.CyrusService;
+import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;

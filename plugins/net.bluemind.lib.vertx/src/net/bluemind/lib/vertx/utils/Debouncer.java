@@ -25,8 +25,7 @@ package net.bluemind.lib.vertx.utils;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
-import org.vertx.java.core.Handler;
-
+import io.vertx.core.Handler;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 /**

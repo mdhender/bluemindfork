@@ -90,7 +90,7 @@ public class EventRequestHandler extends RequestHandler implements IIMIPHandler 
 
 	}
 
-	EventRequestHandler(ISendmail mailer) {
+	public EventRequestHandler(ISendmail mailer) {
 		super();
 		this.mailer = mailer;
 	}

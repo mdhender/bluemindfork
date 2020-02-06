@@ -31,6 +31,7 @@ import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.directory.hollow.datamodel.consumer.AddressBookRecord;
 import net.bluemind.directory.hollow.datamodel.consumer.DirectorySearchFactory;
+import net.bluemind.directory.hollow.datamodel.consumer.HString;
 import net.bluemind.directory.hollow.datamodel.consumer.SerializedDirectorySearch;
 
 @Command(name = "directory", description = "List items in hollow directory")
@@ -63,19 +64,23 @@ public class DirectoryDumpCommand implements ICmdLet, Runnable {
 		}
 		SerializedDirectorySearch hollow = DirectorySearchFactory.get(domUid);
 		Collection<AddressBookRecord> bookItems = hollow.all();
-		System.out.println("Hollow directory of '" + domUid + "' has " + bookItems.size() + " item(s).");
+		ctx.info("Hollow directory of '" + domUid + "' has " + bookItems.size() + " item(s).");
 		for (AddressBookRecord abr : bookItems) {
-			System.out.println(stringify(abr));
+			ctx.info(stringify(abr));
 		}
 	}
 
 	private String stringify(AddressBookRecord abr) {
-		return MoreObjects.toStringHelper("Record")//
-				.add("uid", Optional.ofNullable(abr.getUid()).map(v -> v.getValue()).orElse("<uid is missing>"))//
-				.add("dn",
-						Optional.ofNullable(abr.getDistinguishedName()).map(v -> v.getValue())
-								.orElse("<dn is missing>"))//
+		return MoreObjects.toStringHelper("Rec")//
+				.add("uid", hstring(abr.getUid()))//
+				.add("displayName", hstring(abr.getName()))//
+				.add("email", hstring(abr.getEmail()))//
+				.add("dn", hstring(abr.getDistinguishedName()))//
 				.toString();
+	}
+
+	private String hstring(HString s) {
+		return Optional.ofNullable(s).map(HString::getValue).orElse("");
 	}
 
 	@Override

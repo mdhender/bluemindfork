@@ -18,19 +18,20 @@
 package net.bluemind.sds.proxy.mgmt;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.BoundRequestBuilder;
+import org.asynchttpclient.DefaultAsyncHttpClient;
+import org.asynchttpclient.ListenableFuture;
+import org.asynchttpclient.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Context;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.json.JsonObject;
 
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClient.BoundRequestBuilder;
-import com.ning.http.client.ListenableFuture;
-import com.ning.http.client.Response;
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 
 public class SdsProxyManager implements Closeable {
 
@@ -48,12 +49,12 @@ public class SdsProxyManager implements Closeable {
 	 * @param sdsProxyAddress ip address or FQDN of the target sds-proxy
 	 */
 	public SdsProxyManager(Vertx vertx, String sdsProxyAddress) {
-		client = new AsyncHttpClient();
+		client = new DefaultAsyncHttpClient();
 		this.confUrl = "http://" + sdsProxyAddress + ":8091/configuration";
-		final Context context = vertx.currentContext();
-		if (context != null) {
+
+		if (vertx != null) {
 			this.contextExecutor = command -> {
-				context.runOnContext(theVoid -> {
+				vertx.runOnContext(theVoid -> {
 					command.run();
 				});
 			};
@@ -94,7 +95,11 @@ public class SdsProxyManager implements Closeable {
 
 	@Override
 	public void close() {
-		client.close();
+		try {
+			client.close();
+		} catch (IOException e) {
+			// ok
+		}
 	}
 
 }

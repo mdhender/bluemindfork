@@ -340,8 +340,8 @@ public class Containers implements IContainers {
 		List<Container> ret = new ArrayList<>();
 		ret.addAll(queryContainer(query, context.getAllMailboxDataSource(), this::isShardedContainer, query.readonly,
 				securityContext));
-		ret.addAll(queryContainer(query, Arrays.asList(context.getDataSource()), c -> !isShardedContainer(c),
-				query.readonly, securityContext));
+		ret.addAll(queryContainer(query, Arrays.asList(context.getDataSource()), c -> true, query.readonly,
+				securityContext));
 
 		return dedup(asDescriptorsLight(ret, securityContext));
 	}
@@ -358,8 +358,7 @@ public class Containers implements IContainers {
 
 		List<Container> ret = new ArrayList<>();
 		ret.addAll(queryContainer(query, context.getAllMailboxDataSource(), this::isShardedContainer, null, sc));
-		ret.addAll(
-				queryContainer(query, Arrays.asList(context.getDataSource()), c -> !isShardedContainer(c), null, sc));
+		ret.addAll(queryContainer(query, Arrays.asList(context.getDataSource()), c -> true, null, sc));
 
 		return dedup(asDescriptors(ret, sc));
 	}
@@ -395,13 +394,12 @@ public class Containers implements IContainers {
 		SecurityContext userContext = context.provider().instance(IInCoreAuthentication.class).buildContext(domainUid,
 				userUid);
 
-		ContainerStore suContainerStore = new ContainerStore(context, context.getDataSource(), userContext);
+		ContainerStore suContainerStore = new ContainerStore(context, DataSourceRouter.get(context, uid), userContext);
 		Container c = doOrFail(() -> suContainerStore.get(uid));
 		if (c == null) {
 			throw new ServerFault("Container '" + uid + "' not found", ErrorCode.NOT_FOUND);
 		}
-		ContainerDescriptor descriptor = asDescriptor(c, userContext);
-		return descriptor;
+		return asDescriptor(c, userContext);
 
 	}
 

@@ -9,12 +9,13 @@ Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  com.google.guava;bundle-version="19.0.0",
  net.bluemind.lib.vertx;bundle-version="1.0.0",
- com.ning.async-http-client;bundle-version="1.9.26",
  net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.node.api;bundle-version="1.0.0",
  net.bluemind.core.task.api,
  net.bluemind.node.shared,
- net.bluemind.common.io;bundle-version="4.1.0"
+ net.bluemind.common.io;bundle-version="4.1.0",
+ org.asynchttpclient.async-http-client;bundle-version="2.10.4",
+ org.reactivestreams.reactive-streams;bundle-version="1.0.3"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .

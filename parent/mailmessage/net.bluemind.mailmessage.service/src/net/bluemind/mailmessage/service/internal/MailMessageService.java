@@ -31,12 +31,12 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.mailflow.common.api.Recipient;
 import net.bluemind.mailmessage.api.IMailTip;
 import net.bluemind.mailmessage.api.IMailTipEvaluation;
+import net.bluemind.mailmessage.api.IMailTipEvaluation.EvaluationResult;
 import net.bluemind.mailmessage.api.MailTip;
 import net.bluemind.mailmessage.api.MailTipContext;
 import net.bluemind.mailmessage.api.MailTipFilter;
 import net.bluemind.mailmessage.api.MailTipFilter.FilterType;
 import net.bluemind.mailmessage.api.MailTips;
-import net.bluemind.mailmessage.api.IMailTipEvaluation.EvaluationResult;
 import net.bluemind.mailmessage.service.Activator;
 
 public class MailMessageService implements IMailTip {

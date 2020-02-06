@@ -22,8 +22,8 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.replication.protocol.parsing.JsUtils;
 import net.bluemind.backend.cyrus.replication.server.Token;
 import net.bluemind.backend.cyrus.replication.server.utils.MailboxNameHelper;
@@ -65,8 +65,8 @@ public class MailboxFolder {
 		mf.acl = mbox.getString("ACL");
 		mf.options = mbox.getString("OPTIONS");
 		// brand new in cyrus 3
-		if (mbox.containsField("ANNOTATIONS")) {
-			mf.annotations = JsUtils.asList(mbox.getArray("ANNOTATIONS"), (JsonObject obj) -> {
+		if (mbox.containsKey("ANNOTATIONS")) {
+			mf.annotations = JsUtils.asList(mbox.getJsonArray("ANNOTATIONS"), (JsonObject obj) -> {
 				MailboxAnnotation ma = MailboxAnnotation.of(obj);
 				ma.mailbox = mf.name;
 				ma.value = Token.atomOrValue(ma.value);

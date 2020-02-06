@@ -35,11 +35,11 @@ import java.util.concurrent.CountDownLatch;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.collect.Lists;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.calendar.api.ICalendarUids;
@@ -68,6 +68,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.sendmail.testhelper.FakeSendmail;
 import net.bluemind.core.sessions.Sessions;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.domain.api.Domain;
@@ -353,12 +354,12 @@ public class IcsHookTests {
 		new ResourceIcsHook(fakeSendmail).onEventCreated(veventMessage);
 		assertTrue(fakeSendmail.mailSent);
 
-		assertEquals(1, fakeSendmail.from.size());
-		assertEquals(rd.emails.iterator().next().address, fakeSendmail.from.iterator().next());
+		assertEquals(1, fakeSendmail.messagesFrom().size());
+		assertEquals(rd.emails.iterator().next().address, fakeSendmail.messagesFrom().iterator().next());
 
-		assertEquals(2, fakeSendmail.to.size());
-		assertTrue(fakeSendmail.to.contains(user1.value.emails.iterator().next().address));
-		assertTrue(fakeSendmail.to.contains(user2.value.emails.iterator().next().address));
+		assertEquals(2, fakeSendmail.messagesTo().size());
+		assertTrue(fakeSendmail.messagesTo().contains(user1.value.emails.iterator().next().address));
+		assertTrue(fakeSendmail.messagesTo().contains(user2.value.emails.iterator().next().address));
 	}
 
 	@Test
@@ -383,12 +384,12 @@ public class IcsHookTests {
 		FakeSendmail fakeSendmail = new FakeSendmail();
 		new ResourceIcsHook(fakeSendmail).onEventUpdated(veventMessage);
 
-		assertEquals(1, fakeSendmail.from.size());
-		assertEquals(rd.emails.iterator().next().address, fakeSendmail.from.iterator().next());
+		assertEquals(1, fakeSendmail.messagesFrom().size());
+		assertEquals(rd.emails.iterator().next().address, fakeSendmail.messagesFrom().iterator().next());
 
-		assertEquals(2, fakeSendmail.to.size());
-		assertTrue(fakeSendmail.to.contains(user1.value.emails.iterator().next().address));
-		assertTrue(fakeSendmail.to.contains(user2.value.emails.iterator().next().address));
+		assertEquals(2, fakeSendmail.messagesTo().size());
+		assertTrue(fakeSendmail.messagesTo().contains(user1.value.emails.iterator().next().address));
+		assertTrue(fakeSendmail.messagesTo().contains(user2.value.emails.iterator().next().address));
 	}
 
 	@Test
@@ -443,12 +444,12 @@ public class IcsHookTests {
 		FakeSendmail fakeSendmail = new FakeSendmail();
 		new ResourceIcsHook(fakeSendmail).onEventUpdated(veventMessage);
 
-		assertEquals(1, fakeSendmail.from.size());
-		assertEquals(rd.emails.iterator().next().address, fakeSendmail.from.iterator().next());
+		assertEquals(1, fakeSendmail.messagesFrom().size());
+		assertEquals(rd.emails.iterator().next().address, fakeSendmail.messagesFrom().iterator().next());
 
-		assertEquals(2, fakeSendmail.to.size());
-		assertTrue(fakeSendmail.to.contains(user1.value.emails.iterator().next().address));
-		assertTrue(fakeSendmail.to.contains(user2.value.emails.iterator().next().address));
+		assertEquals(2, fakeSendmail.messagesTo().size());
+		assertTrue(fakeSendmail.messagesTo().contains(user1.value.emails.iterator().next().address));
+		assertTrue(fakeSendmail.messagesTo().contains(user2.value.emails.iterator().next().address));
 	}
 
 	private VEventOccurrence createSimpleOccur(VEvent event) {

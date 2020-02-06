@@ -19,12 +19,12 @@ package net.bluemind.node.server.handlers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.http.ServerWebSocket;
-import org.vertx.java.core.http.WebSocketFrame;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.http.ServerWebSocket;
+import io.vertx.core.http.WebSocketFrame;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class SocketFrameHandler implements Handler<WebSocketFrame> {
@@ -48,7 +48,7 @@ public class SocketFrameHandler implements Handler<WebSocketFrame> {
 			return;
 		}
 		current.append(event.textData());
-		if (!event.isFinalFrame()) {
+		if (!event.isFinal()) {
 			return;
 		}
 		JsonObject msg = new JsonObject(current.toString());
@@ -62,7 +62,7 @@ public class SocketFrameHandler implements Handler<WebSocketFrame> {
 		}
 		long rid = msg.getLong("ws-rid", 0L);
 		if (rid > 0) {
-			msg.putString("ws-target", ws.textHandlerID());
+			msg.put("ws-target", ws.textHandlerID());
 			VertxPlatform.eventBus().send("cmd.request", msg);
 		} else {
 			logger.warn("Command over websocket without ws-rid.");

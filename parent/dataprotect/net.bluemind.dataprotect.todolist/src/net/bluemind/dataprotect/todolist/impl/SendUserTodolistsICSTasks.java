@@ -38,12 +38,13 @@ import org.apache.james.mime4j.message.MultipartImpl;
 import org.apache.james.mime4j.util.MimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.streams.Pump;
-import org.vertx.java.core.streams.ReadStream;
-import org.vertx.java.core.streams.WriteStream;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.Pump;
+import io.vertx.core.streams.ReadStream;
+import io.vertx.core.streams.WriteStream;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerQuery;
@@ -130,7 +131,7 @@ public class SendUserTodolistsICSTasks implements IServerTask {
 
 	private String streamToString(Stream stream) {
 		final CountDownLatch latch = new CountDownLatch(1);
-		final ReadStream<?> reader = VertxStream.read(stream);
+		final ReadStream<Buffer> reader = VertxStream.read(stream);
 		final AccumulatorStream writer = new AccumulatorStream();
 
 		reader.endHandler(new Handler<Void>() {
@@ -141,7 +142,7 @@ public class SendUserTodolistsICSTasks implements IServerTask {
 			}
 		});
 
-		Pump pump = Pump.createPump(reader, writer);
+		Pump pump = Pump.pump(reader, writer);
 		pump.start();
 		reader.resume();
 		try {
@@ -153,9 +154,9 @@ public class SendUserTodolistsICSTasks implements IServerTask {
 		return writer.buffer().toString();
 	}
 
-	private static class AccumulatorStream implements WriteStream<AccumulatorStream> {
+	private static class AccumulatorStream implements WriteStream<Buffer> {
 
-		private Buffer buffer = new Buffer();
+		private Buffer buffer = Buffer.buffer();
 
 		@Override
 		public AccumulatorStream exceptionHandler(Handler<Throwable> handler) {
@@ -179,15 +180,29 @@ public class SendUserTodolistsICSTasks implements IServerTask {
 
 		@Override
 		public AccumulatorStream write(Buffer data) {
-			synchronized (this) {
-				buffer.appendBuffer(data);
-			}
+			buffer.appendBuffer(data);
 			return this;
 
 		}
 
 		public Buffer buffer() {
 			return buffer;
+		}
+
+		@Override
+		public WriteStream<Buffer> write(Buffer data, Handler<AsyncResult<Void>> handler) {
+			write(data);
+			handler.handle(null);
+			return this;
+		}
+
+		@Override
+		public void end() {
+		}
+
+		@Override
+		public void end(Handler<AsyncResult<Void>> handler) {
+			handler.handle(null);
 		}
 	}
 

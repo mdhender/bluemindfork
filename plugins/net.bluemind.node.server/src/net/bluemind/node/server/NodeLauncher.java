@@ -18,16 +18,13 @@
  */
 package net.bluemind.node.server;
 
-import java.net.URL;
-
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.platform.PlatformManager;
 
-import net.bluemind.lib.vertx.Constructor;
+import io.vertx.core.DeploymentOptions;
+import io.vertx.core.Vertx;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.node.server.busmod.SysCommand;
 import net.bluemind.node.server.handlers.DepDoneHandler;
@@ -42,19 +39,17 @@ public class NodeLauncher implements IApplication {
 	@Override
 	public Object start(IApplicationContext context) throws Exception {
 		logger.info("Starting BlueMind Node on port {}...", Activator.NODE_PORT);
-		PlatformManager pm = VertxPlatform.getPlatformManager();
+		Vertx pm = VertxPlatform.getVertx();
 
 		int procs = Runtime.getRuntime().availableProcessors();
 		int instances = Math.max(10, procs);
 		DepDoneHandler httpDep = new DepDoneHandler();
-		pm.deployVerticle(Constructor.of(BlueMindNode::new, BlueMindNode.class), null, new URL[0], instances, null,
-				httpDep);
+		pm.deployVerticle(BlueMindNode::new, new DeploymentOptions().setInstances(instances), httpDep);
 
 		DepDoneHandler workerDep = new DepDoneHandler();
-		pm.deployWorkerVerticle(true, Constructor.of(SysCommand::new, SysCommand.class), null, new URL[0], 1, null,
-				workerDep);
+		pm.deployVerticle(SysCommand::new, new DeploymentOptions().setInstances(1).setWorker(true), workerDep);
 
-		this.tikaTimer = pm.vertx().setPeriodic(10000, new TikaMonitor());
+		this.tikaTimer = pm.setPeriodic(10000, new TikaMonitor());
 
 		httpDep.await();
 		workerDep.await();
@@ -69,7 +64,8 @@ public class NodeLauncher implements IApplication {
 		Vertx vertx = VertxPlatform.getVertx();
 		vertx.cancelTimer(tikaTimer);
 		logger.info("Stopping BlueMind Node {}...", this);
-		VertxPlatform.getPlatformManager().stop();
+		VertxPlatform.undeployVerticles(ar -> {
+		});
 	}
 
 }

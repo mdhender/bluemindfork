@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
@@ -501,6 +502,35 @@ public class VEventServiceTests extends AbstractCalendarTests {
 			}
 		}
 		assertEquals(2, checked);
+	}
+
+	@Test
+	public void testBrokenGoogleAttachmentImportShouldIgnoreAttachment() throws ServerFault, IOException {
+		Stream ics = getIcsFromFile("google_attachment.ics");
+
+		TaskRef taskRef = getVEventService(userSecurityContext, userCalendarContainer).importIcs(ics);
+		ImportStats stats = waitImportEnd(taskRef);
+		assertNotNull(stats);
+		assertEquals(1, stats.importedCount());
+
+		ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer)
+				.getComplete("95c659b1-eaf8-4145-a314-9cb4566636b8");
+
+		VEvent vevent = item.value.main;
+		assertNotNull(vevent);
+
+		assertEquals("TestAttachmentImport", vevent.summary);
+		assertEquals(1, vevent.attachments.size());
+
+		List<AttachedFile> attachments = vevent.attachments;
+		int checked = 0;
+		for (AttachedFile attachedFile : attachments) {
+			if (attachedFile.name.equals("test.gif")) {
+				assertEquals("http://somewhere/1", attachedFile.publicUrl);
+				checked++;
+			}
+		}
+		assertEquals(1, checked);
 	}
 
 	@Test
@@ -1338,11 +1368,16 @@ public class VEventServiceTests extends AbstractCalendarTests {
 	}
 
 	private ImportStats waitImportEnd(TaskRef taskRef) throws ServerFault {
+		long end = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(1);
 		ITask task = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ITask.class, taskRef.id);
 		while (!task.status().state.ended) {
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
+				throw new ServerFault("interrupted");
+			}
+			if (System.currentTimeMillis() > end) {
+				throw new ServerFault("import took more than 1min");
 			}
 		}
 

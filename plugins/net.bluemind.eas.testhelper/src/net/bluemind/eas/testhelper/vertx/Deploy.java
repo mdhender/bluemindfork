@@ -18,19 +18,25 @@
  */
 package net.bluemind.eas.testhelper.vertx;
 
-import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.PlatformManager;
-import org.vertx.java.platform.VerticleConstructor;
-
+import io.vertx.core.DeploymentOptions;
+import io.vertx.core.Verticle;
+import io.vertx.core.Vertx;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class Deploy {
 
-	private static PlatformManager pm = VertxPlatform.getPlatformManager();
+	private static Vertx pm = VertxPlatform.getVertx();
+
+	public interface VerticleConstructor {
+		Verticle create();
+
+		public static VerticleConstructor[] of(VerticleConstructor... constructors) {
+			return constructors;
+		}
+	}
 
 	public static Set<String> beforeTest(VerticleConstructor[] classes, VerticleConstructor[] workerClasses) {
 		Set<String> deploymentIDs = new HashSet<>();
@@ -46,10 +52,12 @@ public class Deploy {
 	private static void deploy(Set<String> deployed, VerticleConstructor[] classes, boolean worker) {
 		DoneHandler<String> done = new DoneHandler<>(classes.length);
 		for (int i = 0; i < classes.length; i++) {
+			final int idx = i;
 			if (worker) {
-				pm.deployWorkerVerticle(true, classes[i], new JsonObject(), new URL[0], 1, null, done);
+				pm.deployVerticle(() -> classes[idx].create(), new DeploymentOptions().setWorker(true).setInstances(1),
+						done);
 			} else {
-				pm.deployVerticle(classes[i], new JsonObject(), new URL[0], 1, null, done);
+				pm.deployVerticle(() -> classes[idx].create(), new DeploymentOptions().setInstances(1), done);
 			}
 		}
 		deployed.addAll(done.waitForIt());

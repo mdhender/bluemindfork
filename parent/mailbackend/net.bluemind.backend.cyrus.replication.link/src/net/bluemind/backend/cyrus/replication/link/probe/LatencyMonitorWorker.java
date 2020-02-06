@@ -26,13 +26,14 @@ import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Verticle;
 
 import com.netflix.spectator.api.Gauge;
 import com.netflix.spectator.api.Registry;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Verticle;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.config.Token;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.imap.Annotation;
@@ -47,7 +48,7 @@ import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.Server;
 
-public class LatencyMonitorWorker extends Verticle {
+public class LatencyMonitorWorker extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(LatencyMonitorWorker.class);
 
@@ -61,12 +62,12 @@ public class LatencyMonitorWorker extends Verticle {
 
 	@Override
 	public void start() {
-		vertx.eventBus().registerHandler("replication.latency.probe", (Message<JsonObject> msg) -> {
+		vertx.eventBus().consumer("replication.latency.probe", (Message<JsonObject> msg) -> {
 			Probe probe = Probe.of(msg.body());
 			doProbe(probe).whenComplete((lat, ex) -> {
 				if (ex == null) {
 					logger.info("Replication latency is {}ms.", lat);
-					msg.reply();
+					msg.reply(null);
 				} else {
 					msg.fail(1, ex.getMessage());
 				}
@@ -86,8 +87,7 @@ public class LatencyMonitorWorker extends Verticle {
 		}
 
 		public JsonObject toJson() {
-			return new JsonObject().putString("datalocation", datalocation).putString("name", name)
-					.putString("domainUid", domainUid);
+			return new JsonObject().put("datalocation", datalocation).put("name", name).put("domainUid", domainUid);
 		}
 
 		public static Probe of(JsonObject js) {

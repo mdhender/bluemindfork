@@ -18,28 +18,15 @@
  */
 package net.bluemind.vertx.common;
 
-import org.vertx.java.core.eventbus.EventBus;
-
+import io.vertx.core.eventbus.EventBus;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public final class CoreSession {
 
 	private static final EventBus eb = VertxPlatform.eventBus();
 
-	public static final void attempt(String login, String pass, String orig, LoginHandler lh) {
-		eb.send("core.login", LoginRequest.of(login, pass, orig), lh);
-	}
-
 	public static final void attemptWithRole(String login, String pass, String orig, String role, LoginHandler lh) {
 		eb.send("core.login", LoginRequest.of(login, pass, orig, role), lh);
-	}
-
-	public static final void validate(String login, String pass, String orig, ValidationHandler vh) {
-		eb.send("core.validate", LoginRequest.of(login, pass, orig), vh);
-	}
-
-	public static final void logout(String token) {
-		eb.send("core.logout", token);
 	}
 
 }

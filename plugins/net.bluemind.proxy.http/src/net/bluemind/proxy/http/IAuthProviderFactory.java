@@ -18,7 +18,7 @@
  */
 package net.bluemind.proxy.http;
 
-import org.vertx.java.core.Vertx;
+import io.vertx.core.Vertx;
 
 public interface IAuthProviderFactory {
 

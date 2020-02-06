@@ -30,9 +30,9 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.impl.ConcurrentHashSet;
 
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.impl.ConcurrentHashSet;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
@@ -58,8 +58,8 @@ public class BMVHostsRepo implements ComponentRepository<VHostItem> {
 		// domIdx = new ConcurrentHashMap<String, Domain>();
 		doms = new ConcurrentHashSet<String>();
 
-		VertxPlatform.eventBus().registerHandler("refreshDomains", (msg) -> refreshDomains());
-		VertxPlatform.eventBus().registerHandler(IStateListener.STATE_BUS_ADDRESS, (Message<String> msg) -> {
+		VertxPlatform.eventBus().consumer("refreshDomains", (msg) -> refreshDomains());
+		VertxPlatform.eventBus().consumer(IStateListener.STATE_BUS_ADDRESS, (Message<String> msg) -> {
 			SystemState state = SystemState.valueOf(msg.body());
 			if (state == SystemState.CORE_STATE_RUNNING) {
 				logger.info("core is ready, load domains list");

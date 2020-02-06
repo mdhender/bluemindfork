@@ -31,12 +31,12 @@ import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.vertx.java.core.buffer.Buffer;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.backend.cyrus.replication.testhelper.CyrusReplicationHelper;
 import net.bluemind.backend.cyrus.replication.testhelper.SyncServerHelper;
@@ -60,7 +60,6 @@ import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.imap.StoreClient;
-import net.bluemind.lib.vertx.Constructor;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.locator.LocatorVerticle;
 import net.bluemind.mailbox.api.Mailbox.Routing;
@@ -95,7 +94,7 @@ public abstract class AbstractRollingReplicationTests {
 	public void before() throws Exception {
 
 		JdbcTestHelper.getInstance().beforeTest();
-		Deploy.verticles(false, Constructor.of(LocatorVerticle::new, LocatorVerticle.class)).get(5, TimeUnit.SECONDS);
+		Deploy.verticles(false, LocatorVerticle::new).get(5, TimeUnit.SECONDS);
 
 		BmConfIni ini = new BmConfIni();
 
@@ -203,7 +202,7 @@ public abstract class AbstractRollingReplicationTests {
 		assertNotNull(inbox);
 		IMailboxItems recordsApi = provider().instance(IMailboxItems.class, inbox.uid);
 		try (InputStream in = testEml()) {
-			Stream forUpload = VertxStream.stream(new Buffer(ByteStreams.toByteArray(in)));
+			Stream forUpload = VertxStream.stream(Buffer.buffer(ByteStreams.toByteArray(in)));
 			String partId = recordsApi.uploadPart(forUpload);
 			assertNotNull(partId);
 			System.out.println("Got partId " + partId);

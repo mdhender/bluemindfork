@@ -1,6 +1,6 @@
 [Unit]
 Description=BlueMind iptables rules
-After=firewalld.service
+After=bluemind.target firewalld.service
 PartOf=firewalld.service
 
 [Service]
@@ -10,5 +10,5 @@ RemainAfterExit=yes
 TimeoutStartSec=1h
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=bluemind.target firewalld.service
 

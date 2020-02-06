@@ -20,9 +20,8 @@ package net.bluemind.cli.index;
 import java.util.List;
 import java.util.Optional;
 
-import org.vertx.java.core.json.JsonArray;
-
 import io.airlift.airline.Command;
+import io.vertx.core.json.JsonArray;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;

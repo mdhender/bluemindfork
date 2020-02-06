@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import net.bluemind.backend.cyrus.partitions.CyrusFileSystemPathHelper;
 import net.bluemind.mailbox.api.Mailbox.Type;
 
 public class MailboxEntry {
@@ -37,7 +38,7 @@ public class MailboxEntry {
 	}
 
 	public Stream<String> filesystemPrefixes() {
-		String letter = ShardingLetter.letter(name);
+		char letter = CyrusFileSystemPathHelper.mapLetter(name.charAt(0));
 		Set<String> prefs = new HashSet<>(128);
 		for (char c = 'a'; c <= 'z'; c++) {
 			prefs.add(Character.toString(c));

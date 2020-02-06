@@ -18,18 +18,23 @@
  */
 package net.bluemind.milter;
 
-import org.vertx.java.core.json.JsonObject;
-
-import net.bluemind.lib.vertx.VertxPlatform;
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.milter.mq.MilterMessageForwarder;
 import net.bluemind.system.api.SystemState;
 import net.bluemind.system.stateobserver.IStateListener;
 
 public class CoreStateListener implements IStateListener {
 
+	private Vertx vx;
+
+	public void init(Vertx vx) {
+		this.vx = vx;
+	}
+
 	public void stateChanged(SystemState newState) {
 		if (newState == SystemState.CORE_STATE_RUNNING) {
-			VertxPlatform.eventBus().send(MilterMessageForwarder.domainChanged, new JsonObject());
+			vx.eventBus().send(MilterMessageForwarder.domainChanged, new JsonObject());
 		}
 	}
 }

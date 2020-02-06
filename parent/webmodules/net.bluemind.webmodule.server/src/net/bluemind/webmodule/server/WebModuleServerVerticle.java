@@ -20,12 +20,14 @@ package net.bluemind.webmodule.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpServer;
-import org.vertx.java.platform.Verticle;
 
-public class WebModuleServerVerticle extends Verticle {
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerOptions;
+
+public class WebModuleServerVerticle extends AbstractVerticle {
 	private static final Logger logger = LoggerFactory.getLogger(WebModuleServerVerticle.class);
 
 	public static final int PORT = 8080;
@@ -33,11 +35,8 @@ public class WebModuleServerVerticle extends Verticle {
 	@Override
 	public void start() {
 
-		HttpServer httpServer = vertx.createHttpServer();
-		httpServer.setAcceptBacklog(1024);
-		httpServer.setTCPNoDelay(true);
-		httpServer.setReuseAddress(true);
-		httpServer.setUsePooledBuffers(true);
+		HttpServer httpServer = vertx.createHttpServer(new HttpServerOptions().setAcceptBacklog(1024)
+				.setTcpNoDelay(true).setReuseAddress(true).setUsePooledBuffers(true));
 
 		WebModuleRootHandler rootHandler = WebModuleRootHandler.build(getVertx());
 

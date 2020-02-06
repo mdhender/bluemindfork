@@ -29,6 +29,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.CompletableFuture;
@@ -38,12 +39,12 @@ import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.SettableFuture;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarUids;
@@ -52,6 +53,7 @@ import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.service.eventdeferredaction.EventDeferredAction;
 import net.bluemind.core.api.date.BmDateTime;
+import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -123,11 +125,11 @@ public class DeferredActionCalendarHookTests {
 
 	@Test
 	public void testCreatingAnEventWithoutAlarmShouldNotCreateATrigger() throws Exception {
-		ICalendar ab = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
+		ICalendar cal = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
 				ICalendarUids.defaultUserCalendar("testuser"));
 
 		CompletableFuture<Void> wait = registerOnHook("uid1");
-		ab.create("uid1", defaultVEvent(), false);
+		cal.create("uid1", defaultVEvent(), false);
 		wait.get(5, TimeUnit.SECONDS);
 
 		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
@@ -137,13 +139,13 @@ public class DeferredActionCalendarHookTests {
 
 	@Test
 	public void testCreatingASimpleEventWithAlarmShouldCreateATrigger() throws Exception {
-		ICalendar ab = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
+		ICalendar cal = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
 				ICalendarUids.defaultUserCalendar("testuser"));
 
 		VEventSeries defaultVEvent = defaultVEvent();
 		addAlarm(defaultVEvent.main, 120);
 		CompletableFuture<Void> wait = registerOnHook("uid1");
-		ab.create("uid1", defaultVEvent, false);
+		cal.create("uid1", defaultVEvent, false);
 		wait.get(5, TimeUnit.SECONDS);
 
 		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
@@ -158,14 +160,14 @@ public class DeferredActionCalendarHookTests {
 
 	@Test
 	public void testCreatingAnAnnulationShouldNotCreateATrigger() throws Exception {
-		ICalendar ab = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
+		ICalendar cal = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
 				ICalendarUids.defaultUserCalendar("testuser"));
 
 		VEventSeries defaultVEvent = defaultVEvent();
 		defaultVEvent.main.attendees.get(0).partStatus = ParticipationStatus.Declined;
 		addAlarm(defaultVEvent.main, 120);
 		CompletableFuture<Void> wait = registerOnHook("uid1");
-		ab.create("uid1", defaultVEvent, false);
+		cal.create("uid1", defaultVEvent, false);
 		wait.get(5, TimeUnit.SECONDS);
 
 		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
@@ -175,7 +177,7 @@ public class DeferredActionCalendarHookTests {
 
 	@Test
 	public void testCreatingASimpleEventWithMultipleAlarmsShouldCreateAllTriggers() throws Exception {
-		ICalendar ab = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
+		ICalendar cal = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
 				ICalendarUids.defaultUserCalendar("testuser"));
 
 		VEventSeries defaultVEvent = defaultVEvent();
@@ -183,7 +185,7 @@ public class DeferredActionCalendarHookTests {
 		addAlarm(defaultVEvent.main, 240);
 		addAlarm(defaultVEvent.main, 10);
 		CompletableFuture<Void> wait = registerOnHook("uid2");
-		ab.create("uid2", defaultVEvent, false);
+		cal.create("uid2", defaultVEvent, false);
 		wait.get(5, TimeUnit.SECONDS);
 
 		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
@@ -194,9 +196,68 @@ public class DeferredActionCalendarHookTests {
 	}
 
 	@Test
+	public void testCreatingARecurrentEventstartingWithExdates() throws Exception {
+		ICalendar cal = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
+				ICalendarUids.defaultUserCalendar("testuser"));
+
+		VEventSeries defaultVEvent = defaultVEvent();
+		addAlarm(defaultVEvent.main, 120);
+		VEvent.RRule rrule = new VEvent.RRule();
+		rrule.frequency = VEvent.RRule.Frequency.DAILY;
+		defaultVEvent.main.rrule = rrule;
+
+		ZoneId tz = ZoneId.of("Europe/Paris");
+		BmDateTime ex1 = BmDateTimeHelper.time(ZonedDateTime.of(2021, 2, 13, 8, 0, 0, 0, tz));
+		BmDateTime ex2 = BmDateTimeHelper.time(ZonedDateTime.of(2021, 2, 14, 8, 0, 0, 0, tz));
+		BmDateTime ex3 = BmDateTimeHelper.time(ZonedDateTime.of(2021, 2, 15, 8, 0, 0, 0, tz));
+		defaultVEvent.main.exdate = new HashSet<>(Arrays.asList(ex1, ex2, ex3));
+
+		CompletableFuture<Void> wait = registerOnHook("uid2");
+		cal.create("uid2", defaultVEvent, false);
+		wait.get(5, TimeUnit.SECONDS);
+
+		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
+				new Date(200, 0, 0).getTime());
+		assertEquals(1, byActionId.size());
+
+		BmDateTime expected = BmDateTimeHelper.time(ZonedDateTime.of(2021, 2, 16, 8, 0, 0, 0, tz));
+		checkDate(expected, byActionId, 120);
+	}
+
+	@Test
+	public void testCreatingARecurrentEventAllDay() throws Exception {
+		ICalendar cal = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
+				ICalendarUids.defaultUserCalendar("testuser"));
+
+		VEventSeries defaultVEvent = defaultVEvent();
+		defaultVEvent.main.dtstart = new BmDateTime("2024-01-16", null, Precision.Date);
+		addAlarm(defaultVEvent.main, 15 * 60 * 60);
+		VEvent.RRule rrule = new VEvent.RRule();
+		rrule.frequency = VEvent.RRule.Frequency.WEEKLY;
+		rrule.byDay = Arrays.asList(WeekDay.SA);
+		rrule.interval = 2;
+		defaultVEvent.main.rrule = rrule;
+
+		CompletableFuture<Void> wait = registerOnHook("uid2");
+		cal.create("uid2", defaultVEvent, false);
+		wait.get(5, TimeUnit.SECONDS);
+
+		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
+				new Date(200, 0, 0).getTime());
+
+		System.err.println(byActionId.get(0).value.executionDate);
+
+		assertEquals(1, byActionId.size());
+		ZoneId tz = ZoneId.of("Europe/Paris");
+
+		BmDateTime expected = BmDateTimeHelper.time(ZonedDateTime.of(2024, 1, 16, 0, 0, 0, 0, tz));
+		checkDate(expected, byActionId, 15 * 60 * 60);
+	}
+
+	@Test
 	public void testCreatingASimpleEventWithMultipleAlarmOfTypeEmailsShouldCreateAllTriggersInTheDomainContainer()
 			throws Exception {
-		ICalendar ab = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
+		ICalendar cal = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
 				ICalendarUids.defaultUserCalendar("testuser"));
 
 		VEventSeries defaultVEvent = defaultVEvent();
@@ -208,7 +269,7 @@ public class DeferredActionCalendarHookTests {
 			return ala;
 		}).collect(Collectors.toList());
 		CompletableFuture<Void> wait = registerOnHook("uid2");
-		ab.create("uid2", defaultVEvent, false);
+		cal.create("uid2", defaultVEvent, false);
 		wait.get(5, TimeUnit.SECONDS);
 
 		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
@@ -224,7 +285,7 @@ public class DeferredActionCalendarHookTests {
 
 	@Test
 	public void testCreatingASimpleEventWithMultipleAlarmsShouldNotCreateTriggersInThePast() throws Exception {
-		ICalendar ab = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
+		ICalendar cal = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
 				ICalendarUids.defaultUserCalendar("testuser"));
 
 		VEventSeries defaultVEvent = defaultVEvent();
@@ -232,7 +293,7 @@ public class DeferredActionCalendarHookTests {
 		addAlarm(defaultVEvent.main, 525600000);
 		addAlarm(defaultVEvent.main, 10);
 		CompletableFuture<Void> wait = registerOnHook("uid2");
-		ab.create("uid2", defaultVEvent, false);
+		cal.create("uid2", defaultVEvent, false);
 		wait.get(5, TimeUnit.SECONDS);
 
 		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
@@ -244,7 +305,7 @@ public class DeferredActionCalendarHookTests {
 
 	@Test
 	public void testUpdatingAnEventShouldRecreateAllTriggers() throws Exception {
-		ICalendar ab = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
+		ICalendar cal = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
 				ICalendarUids.defaultUserCalendar("testuser"));
 
 		VEventSeries defaultVEvent = defaultVEvent();
@@ -252,7 +313,7 @@ public class DeferredActionCalendarHookTests {
 		addAlarm(defaultVEvent.main, 240);
 		addAlarm(defaultVEvent.main, 10);
 		CompletableFuture<Void> wait = registerOnHook("uid2");
-		ab.create("uid2", defaultVEvent, false);
+		cal.create("uid2", defaultVEvent, false);
 		wait.get(5, TimeUnit.SECONDS);
 
 		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
@@ -261,12 +322,12 @@ public class DeferredActionCalendarHookTests {
 
 		checkDate(defaultVEvent.main.dtstart, byActionId, 120, 240, 10);
 
-		ItemValue<VEventSeries> storedEvent = ab.getComplete("uid2");
+		ItemValue<VEventSeries> storedEvent = cal.getComplete("uid2");
 		storedEvent.value.main.alarm = new ArrayList<>();
 		addAlarm(storedEvent.value.main, 420);
 		addAlarm(storedEvent.value.main, 11);
 		wait = registerOnHook("uid2");
-		ab.update("uid2", storedEvent.value, false);
+		cal.update("uid2", storedEvent.value, false);
 		wait.get(5, TimeUnit.SECONDS);
 
 		byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID, new Date(200, 0, 0).getTime());
@@ -277,7 +338,7 @@ public class DeferredActionCalendarHookTests {
 
 	@Test
 	public void testDeletingAnEventShouldDeleteAllAssociatedTriggers() throws Exception {
-		ICalendar ab = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
+		ICalendar cal = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
 				ICalendarUids.defaultUserCalendar("testuser"));
 
 		VEventSeries defaultVEvent = defaultVEvent();
@@ -285,7 +346,7 @@ public class DeferredActionCalendarHookTests {
 		addAlarm(defaultVEvent.main, 240);
 		addAlarm(defaultVEvent.main, 10);
 		CompletableFuture<Void> wait = registerOnHook("uid2");
-		ab.create("uid2", defaultVEvent, false);
+		cal.create("uid2", defaultVEvent, false);
 		wait.get(5, TimeUnit.SECONDS);
 
 		VEventSeries defaultVEvent2 = defaultVEvent();
@@ -293,7 +354,7 @@ public class DeferredActionCalendarHookTests {
 		addAlarm(defaultVEvent2.main, 240);
 		addAlarm(defaultVEvent2.main, 10);
 		wait = registerOnHook("uid3");
-		ab.create("uid3", defaultVEvent, false);
+		cal.create("uid3", defaultVEvent, false);
 		wait.get(5, TimeUnit.SECONDS);
 
 		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
@@ -301,7 +362,7 @@ public class DeferredActionCalendarHookTests {
 		assertEquals(6, byActionId.size());
 
 		wait = registerOnHook("uid2");
-		ab.delete("uid2", false);
+		cal.delete("uid2", false);
 		wait.get(5, TimeUnit.SECONDS);
 
 		byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID, new Date(200, 0, 0).getTime());
@@ -310,7 +371,7 @@ public class DeferredActionCalendarHookTests {
 
 	@Test
 	public void testCreatingARecurringEventShouldCalculateTheNextTrigger() throws Exception {
-		ICalendar ab = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
+		ICalendar cal = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
 				ICalendarUids.defaultUserCalendar("testuser"));
 
 		VEventSeries defaultVEvent = defaultVEvent();
@@ -324,7 +385,7 @@ public class DeferredActionCalendarHookTests {
 		defaultVEvent.main.rrule.until = BmDateTimeHelper.time(ZonedDateTime.of(2025, 2, 13, 0, 0, 0, 1, tz));
 		addAlarm(defaultVEvent.main, 60 * 60 * 2);
 		CompletableFuture<Void> wait = registerOnHook("uid2");
-		ab.create("uid2", defaultVEvent, false);
+		cal.create("uid2", defaultVEvent, false);
 		wait.get(5, TimeUnit.SECONDS);
 
 		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
@@ -341,7 +402,7 @@ public class DeferredActionCalendarHookTests {
 
 	@Test
 	public void testCreatingAnExceptionShouldIncludeRecurId() throws Exception {
-		ICalendar ab = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
+		ICalendar cal = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
 				ICalendarUids.defaultUserCalendar("testuser"));
 
 		VEventSeries defaultVEvent = defaultVEvent();
@@ -352,7 +413,7 @@ public class DeferredActionCalendarHookTests {
 
 		addAlarm(defaultVEvent.occurrences.get(0), 120);
 		CompletableFuture<Void> wait = registerOnHook("uid1");
-		ab.create("uid1", defaultVEvent, false);
+		cal.create("uid1", defaultVEvent, false);
 		wait.get(5, TimeUnit.SECONDS);
 
 		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
@@ -369,7 +430,7 @@ public class DeferredActionCalendarHookTests {
 
 	@Test
 	public void testCreatingARecurringEventWithoutEndDateShouldnotStackoverflow() throws Exception {
-		ICalendar ab = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
+		ICalendar cal = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
 				ICalendarUids.defaultUserCalendar("testuser"));
 
 		VEventSeries defaultVEvent = defaultVEvent();
@@ -383,7 +444,7 @@ public class DeferredActionCalendarHookTests {
 		defaultVEvent.main.rrule.until = null;
 		addAlarm(defaultVEvent.main, 120);
 		CompletableFuture<Void> wait = registerOnHook("uid2");
-		ab.create("uid2", defaultVEvent, false);
+		cal.create("uid2", defaultVEvent, false);
 		wait.get(15, TimeUnit.SECONDS);
 
 		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
@@ -393,7 +454,7 @@ public class DeferredActionCalendarHookTests {
 
 	@Test
 	public void testCreatingAnExceptionShouldIncludeRecuId() throws Exception {
-		ICalendar ab = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
+		ICalendar cal = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
 				ICalendarUids.defaultUserCalendar("testuser"));
 
 		VEventSeries defaultVEvent = defaultVEvent();
@@ -407,7 +468,7 @@ public class DeferredActionCalendarHookTests {
 		defaultVEvent.main.rrule.until = null;
 		addAlarm(defaultVEvent.main, 120);
 		CompletableFuture<Void> wait = registerOnHook("uid2");
-		ab.create("uid2", defaultVEvent, false);
+		cal.create("uid2", defaultVEvent, false);
 		wait.get(15, TimeUnit.SECONDS);
 
 		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,
@@ -417,7 +478,7 @@ public class DeferredActionCalendarHookTests {
 
 	@Test
 	public void testCreatingATriggerForEveryException() throws Exception {
-		ICalendar ab = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
+		ICalendar cal = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ICalendar.class,
 				ICalendarUids.defaultUserCalendar("testuser"));
 
 		ZoneId tz = ZoneId.of("Europe/Paris");
@@ -437,7 +498,7 @@ public class DeferredActionCalendarHookTests {
 		addAlarm(event2, 240);
 
 		CompletableFuture<Void> wait = registerOnHook("uid2");
-		ab.create("uid2", event, false);
+		cal.create("uid2", event, false);
 		wait.get(5, TimeUnit.SECONDS);
 
 		List<ItemValue<DeferredAction>> byActionId = service("testuser").getByActionId(EventDeferredAction.ACTION_ID,

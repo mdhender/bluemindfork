@@ -20,9 +20,9 @@ package net.bluemind.dav.server.proto.report;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.MultiMap;
-import org.vertx.java.core.buffer.Buffer;
 
+import io.vertx.core.MultiMap;
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.dav.server.DavActivator;
 import net.bluemind.dav.server.proto.DavHeaders;
 import net.bluemind.dav.server.store.DavResource;

@@ -22,11 +22,11 @@ import java.net.URLDecoder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
 
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.dav.server.proto.DavHeaders;
 import net.bluemind.dav.server.proto.IDavProtocol;

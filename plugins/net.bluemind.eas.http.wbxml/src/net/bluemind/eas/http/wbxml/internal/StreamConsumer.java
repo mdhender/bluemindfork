@@ -4,12 +4,12 @@ import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
 
 import com.google.common.io.ByteSource;
 import com.google.common.io.CountingOutputStream;
 
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.common.io.FileBackedOutputStream;
 import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.vertx.common.request.Requests;

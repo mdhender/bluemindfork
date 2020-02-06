@@ -19,8 +19,8 @@
 <!ENTITY bm.preferences.settings.label "Préférences BlueMind">
 <!ENTITY bm.preferences.settings.settings.label "Configurez vos préférences BlueMind">
 <!ENTITY bm.preferences.settings.button.label "Préférences...">
-<!ENTITY bm.preferences.im.label "Messagerie instantannée">
-<!ENTITY bm.preferences.im.add.label "Compte de messagerie instantannée BlueMind">
+<!ENTITY bm.preferences.im.label "Messagerie instantanée">
+<!ENTITY bm.preferences.im.add.label "Compte de messagerie instantanée BlueMind">
 <!ENTITY bm.preferences.im.button.add.label "Configurer...">
 <!ENTITY bm.preferences.log.label "Journalisation">
 <!ENTITY bm.preferences.log.pref.label "Activer la journalisation détaillée">

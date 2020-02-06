@@ -19,16 +19,18 @@
 
 package net.bluemind.proxy.http.tests;
 
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClientConfig;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.AsyncHttpClientConfig;
+import org.asynchttpclient.DefaultAsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClientConfig;
 
 public class AHCHelper {
 
 	public static final AsyncHttpClient get() {
-		AsyncHttpClientConfig config = new AsyncHttpClientConfig.Builder().setFollowRedirect(false).setMaxRedirects(0)
-				.setMaxRequestRetry(0).setRequestTimeout(60000).setPooledConnectionIdleTimeout(70000)
-				.setAllowPoolingConnections(false).build();
-		return new AsyncHttpClient(config);
+		AsyncHttpClientConfig config = new DefaultAsyncHttpClientConfig.Builder().setFollowRedirect(false)
+				.setMaxRedirects(0).setMaxRequestRetry(0).setRequestTimeout(60000).setPooledConnectionIdleTimeout(70000)
+				.build();
+		return new DefaultAsyncHttpClient(config);
 	}
 
 }

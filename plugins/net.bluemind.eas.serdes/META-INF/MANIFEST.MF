@@ -12,7 +12,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.lib.globalid,
  net.bluemind.lib.ristretto,
  com.google.guava;bundle-version="19.0.0",
- org.jboss.netty;bundle-version="3.10.3",
  io.netty
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy

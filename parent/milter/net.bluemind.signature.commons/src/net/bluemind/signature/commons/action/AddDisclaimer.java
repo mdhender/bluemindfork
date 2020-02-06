@@ -29,7 +29,6 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.james.mime4j.dom.Body;
 import org.apache.james.mime4j.dom.Entity;
 import org.apache.james.mime4j.dom.Header;
@@ -278,7 +277,7 @@ public class AddDisclaimer {
 			String cid, String mime) {
 		BodyPart bpInlineImg = new BodyPart();
 		String b64 = data.substring(data.indexOf(",") + 1);
-		bpInlineImg.setBody(bodyFactory.binaryBody(Base64.decodeBase64(b64)));
+		bpInlineImg.setBody(bodyFactory.binaryBody(java.util.Base64.getDecoder().decode(b64)));
 		Header h = new HeaderImpl();
 		h.addField(Fields.contentType(mime + "; charset=utf-8; name=\"" + filename + "\""));
 		h.addField(Fields.contentTransferEncoding("base64"));

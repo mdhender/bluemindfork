@@ -18,7 +18,7 @@
  */
 package net.bluemind.lmtp.parser;
 
-import org.vertx.java.core.buffer.Buffer;
+import io.vertx.core.buffer.Buffer;
 
 /**
  * lmtp request handler

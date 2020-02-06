@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -80,31 +81,38 @@ public class ToolSession implements IToolSession {
 		NCUtils.execNoOut(nc, "mkdir -p " + bd.toString());
 		NCUtils.execNoOut(nc, "chmod +x /usr/share/bm-node/rsync-backup.sh");
 
-		StringBuilder cmd = new StringBuilder();
-		cmd.append(
-				"/usr/share/bm-node/rsync-backup.sh --exclude-from=/etc/bm-node/rsync.excludes -rltDH --delete --numeric-ids --relative --delete-excluded");
-		if (previous != null) {
-			cmd.append(" --link-dest=");
-			appendDir(cmd).append(previous.id).append('/');
-		}
+		cfg.getDirs().stream().map(dir -> makeBackupCommand(nc, previous, next, dir)).filter(Optional::isPresent)
+				.forEach(cmd -> runBackupCommand(nc, next, cmd.get()));
 
-		for (String dir : cfg.getDirs()) {
-			// check if file exists
-			String command = String.format("/usr/bin/test -d %s", dir);
-			if (NCUtils.exec(nc, command).getExitCode() != 0) {
-				logger.warn("Skipping non-existing directory {}", dir);
+		logger.info("Detecting backup size of {}", bd.toString());
+		ExitList output = NCUtils.exec(nc, "du -sBM " + bd.toString());
+		StringBuilder duOut = new StringBuilder();
+		for (String out : output) {
+			duOut.append(out);
+		}
+		String duOutput = duOut.toString();
+
+		logger.info("Output of {}:{}", bd.toString(), duOutput);
+		if (StringUtils.isNotBlank(duOutput)) {
+			int mCommeMa = duOutput.indexOf('M');
+			if (mCommeMa != -1) {
+				duOutput = duOutput.substring(0, mCommeMa);
+				next.size = Long.parseLong(duOutput);
 			} else {
-				cmd.append(' ').append(dir.endsWith("/") ? dir : dir + "/");
+				next.size = 0l;
 			}
+		} else {
+			logger.info("du -sBM returned no output for {}", bd.toString());
 		}
-		cmd.append(' ');
-		appendDir(cmd).append(next.id).append('/');
 
-		String c = cmd.toString();
-		logger.info("=====> " + c + " <=====");
-		ctx.info("en", "RSYNC: " + c);
-		ctx.info("fr", "RSYNC: " + c);
-		ExitList output = NCUtils.exec(nc, c);
+		return next;
+	}
+
+	private void runBackupCommand(INodeClient nc, PartGeneration next, String cmd) {
+		logger.info("=====> " + cmd + " <=====");
+		ctx.info("en", "RSYNC: " + cmd);
+		ctx.info("fr", "RSYNC: " + cmd);
+		ExitList output = NCUtils.exec(nc, cmd);
 		for (String s : output) {
 			if (!StringUtils.isBlank(s)) {
 				ctx.info("en", "RSYNC: " + s);
@@ -121,26 +129,30 @@ public class ToolSession implements IToolSession {
 				}
 			}
 		}
-		logger.info("Detecting backup size of {}", bd.toString());
-		output = NCUtils.exec(nc, "du -sBM " + bd.toString());
-		StringBuilder duOut = new StringBuilder();
-		for (String out : output) {
-			duOut.append(out);
+	}
+
+	private Optional<String> makeBackupCommand(INodeClient nc, PartGeneration previous, PartGeneration next,
+			String dir) {
+		// check if file exists
+		String command = String.format("/usr/bin/test -d %s", dir);
+		if (NCUtils.exec(nc, command).getExitCode() != 0) {
+			logger.warn("Skipping non-existing directory {}", dir);
+			return Optional.empty();
 		}
-		String duOutput = duOut.toString();
-		logger.info("Output of {}:{}", bd.toString(), duOutput);
-		if (StringUtils.isNotBlank(duOutput)) {
-			int mCommeMa = duOutput.indexOf('M');
-			if (mCommeMa != -1) {
-				duOutput = duOutput.substring(0, mCommeMa);
-				next.size = Long.parseLong(duOutput);
-			} else {
-				next.size = 0l;
-			}
-		} else {
-			logger.info("du -sBM returned no output for {}", bd.toString());
+
+		StringBuilder cmd = new StringBuilder();
+		cmd.append(
+				"/usr/share/bm-node/rsync-backup.sh --exclude-from=/etc/bm-node/rsync.excludes -rltDH --delete --numeric-ids --relative --delete-excluded");
+		if (previous != null) {
+			cmd.append(" --link-dest=");
+			appendDir(cmd).append(previous.id).append('/');
 		}
-		return next;
+
+		cmd.append(' ').append(dir.endsWith("/") ? dir : dir + "/").append(' ');
+
+		appendDir(cmd).append(next.id).append('/');
+
+		return Optional.of(cmd.toString());
 	}
 
 	@Override

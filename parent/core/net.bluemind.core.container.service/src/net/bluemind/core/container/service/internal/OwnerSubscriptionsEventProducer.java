@@ -22,9 +22,8 @@
  */
 package net.bluemind.core.container.service.internal;
 
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.container.api.OwnerSubscriptionsBusAddresses;
 
 public class OwnerSubscriptionsEventProducer {
@@ -40,8 +39,8 @@ public class OwnerSubscriptionsEventProducer {
 	}
 
 	public void changed(long version) {
-		JsonObject change = new JsonObject().putNumber("version", version);
-		change.putString("domain", domainUid).putString("owner", ownerUid);
+		JsonObject change = new JsonObject().put("version", version);
+		change.put("domain", domainUid).put("owner", ownerUid);
 		eventBus.publish(OwnerSubscriptionsBusAddresses.ALL_SUBSCRIPTION_CHANGES, change);
 		eventBus.publish(OwnerSubscriptionsBusAddresses.ownerSubscriptionChanges(ownerUid, domainUid), change);
 

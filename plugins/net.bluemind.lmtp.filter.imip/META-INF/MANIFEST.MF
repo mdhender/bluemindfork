@@ -38,4 +38,5 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: blue-mind.net
 Automatic-Module-Name: net.bluemind.lmtp.filter.imip
-Export-Package: net.bluemind.lmtp.filter.imip.cache
+Export-Package: net.bluemind.lmtp.filter.imip,
+ net.bluemind.lmtp.filter.imip.cache

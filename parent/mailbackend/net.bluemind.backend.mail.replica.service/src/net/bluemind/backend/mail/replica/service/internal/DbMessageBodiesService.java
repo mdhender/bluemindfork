@@ -105,17 +105,11 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 						}
 					}
 				}
-				try {
-					bodyStore.create(body);
-					BodiesCache.bodies.put(body.guid, body);
-					RecordIndexActivator.getIndexer().ifPresent(service -> {
-						IndexedMessageBody indexData = IndexedMessageBody.createIndexBody(body.guid, bodyData);
-						service.storeBody(indexData);
-					});
-				} catch (SQLException e) {
-					throw ServerFault.sqlFault(e);
-				}
-
+				update(body);
+				RecordIndexActivator.getIndexer().ifPresent(service -> {
+					IndexedMessageBody indexData = IndexedMessageBody.createIndexBody(body.guid, bodyData);
+					service.storeBody(indexData);
+				});
 			}
 		});
 		try {

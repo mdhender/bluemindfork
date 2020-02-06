@@ -25,16 +25,17 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.RouteMatcher;
+
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpServerRequest;
+import net.bluemind.lib.vertx.RouteMatcher;
 
 public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 
 	private static final Logger logger = LoggerFactory.getLogger(WebModuleRootHandler.class);
 
-	private RouteMatcher modulesRouter = new RouteMatcher();
+	private final RouteMatcher modulesRouter;
 
 	private List<WebModule> modules;
 
@@ -45,6 +46,7 @@ public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 
 	public WebModuleRootHandler(Vertx vertx, List<WebModule> roots, List<IWebFilter> filters) {
 		this.vertx = vertx;
+		this.modulesRouter = new RouteMatcher(vertx);
 		logger.debug("modules {}, filters {}", roots.size(), filters.size());
 		modules = new ArrayList<>(roots);
 		this.filters = filters;
@@ -60,6 +62,7 @@ public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 		for (WebModule module : modules) {
 			modulesRouter.allWithRegEx(module.root + ".*", moduleHandler(module));
 		}
+
 	}
 
 	private Handler<HttpServerRequest> moduleHandler(final WebModule module) {
@@ -112,13 +115,12 @@ public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 
 	@Override
 	public void handle(final HttpServerRequest request) {
-		request.exceptionHandler(new Handler<Throwable>() {
+		Handler<Throwable> error = (Throwable t) -> {
+			onError(request, t);
+		};
+		request.exceptionHandler(error);
+		vertx.getOrCreateContext().exceptionHandler(error);
 
-			@Override
-			public void handle(Throwable t) {
-				onError(request, t);
-			}
-		});
 		String path = request.path();
 		logger.debug("handle {} request [{}]", request.method(), path);
 		HttpServerRequest fRequest = request;

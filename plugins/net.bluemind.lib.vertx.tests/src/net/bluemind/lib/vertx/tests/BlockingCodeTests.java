@@ -20,7 +20,6 @@ package net.bluemind.lib.vertx.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.net.URL;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -29,11 +28,12 @@ import java.util.concurrent.TimeoutException;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.http.HttpClient;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.PlatformManager;
 
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpClientOptions;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.vertx.testhelper.Deploy;
 
 public class BlockingCodeTests {
 
@@ -51,16 +51,9 @@ public class BlockingCodeTests {
 
 	@Test
 	public void testBlockingCodeFromEventLoop() throws InterruptedException, ExecutionException, TimeoutException {
-		PlatformManager pm = VertxPlatform.getPlatformManager();
+		Vertx pm = VertxPlatform.getVertx();
 		CompletableFuture<String> deployement = new CompletableFuture<>();
-
-		pm.deployVerticle(SimpleHttpServer.contructor(), new JsonObject(), new URL[0], 2, null, result -> {
-			if (result.succeeded()) {
-				deployement.complete(result.result());
-			} else {
-				deployement.completeExceptionally(result.cause());
-			}
-		});
+		Deploy.verticles(false, SimpleHttpServer::new);
 		String depId = deployement.get(1, TimeUnit.SECONDS);
 		assertNotNull(depId);
 
@@ -71,7 +64,8 @@ public class BlockingCodeTests {
 			pair.complete(new ThreadPair(t1, t2));
 		});
 		CompletableFuture<Integer> httpResponseStatus = new CompletableFuture<>();
-		HttpClient client = VertxPlatform.getVertx().createHttpClient().setHost("127.0.0.1").setPort(6666);
+		HttpClient client = VertxPlatform.getVertx()
+				.createHttpClient(new HttpClientOptions().setDefaultHost("127.0.0.1").setDefaultPort(6666));
 		client.get("/", httpResp -> {
 			httpResp.bodyHandler(buf -> {
 				httpResponseStatus.complete(httpResp.statusCode());

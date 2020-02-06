@@ -22,10 +22,11 @@ import java.io.File;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
+
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 public abstract class AbstractListFiles implements Handler<HttpServerRequest> {
 
@@ -40,7 +41,7 @@ public abstract class AbstractListFiles implements Handler<HttpServerRequest> {
 		// this does not list content if path is a directory..
 		JsonObject jso = new JsonObject();
 		JsonArray descs = new JsonArray();
-		jso.putArray("descriptions", descs);
+		jso.put("descriptions", descs);
 		try {
 			File asked = new File(path);
 			if (asked.exists()) {
@@ -48,11 +49,11 @@ public abstract class AbstractListFiles implements Handler<HttpServerRequest> {
 					String[] content = asked.list();
 					for (String p : content) {
 						if (extension == null || p.endsWith(extension)) {
-							descs.addObject(json(new File(asked, p)));
+							descs.add(json(new File(asked, p)));
 						}
 					}
 				} else {
-					descs.addObject(json(asked));
+					descs.add(json(asked));
 				}
 			}
 			req.response().end(jso.encode());
@@ -63,10 +64,10 @@ public abstract class AbstractListFiles implements Handler<HttpServerRequest> {
 
 	private JsonObject json(File fp) {
 		JsonObject fdo = new JsonObject();
-		fdo.putString("path", fp.getAbsolutePath());
-		fdo.putBoolean("dir", fp.isDirectory());
+		fdo.put("path", fp.getAbsolutePath());
+		fdo.put("dir", fp.isDirectory());
 		if (!fp.isDirectory()) {
-			fdo.putNumber("size", fp.length());
+			fdo.put("size", fp.length());
 		}
 		return fdo;
 	}

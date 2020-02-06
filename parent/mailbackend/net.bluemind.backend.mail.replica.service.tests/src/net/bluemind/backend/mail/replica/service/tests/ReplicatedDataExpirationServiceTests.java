@@ -34,10 +34,10 @@ import java.util.Date;
 import java.util.List;
 
 import org.junit.Test;
-import org.vertx.java.core.streams.ReadStream;
 
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.backend.cyrus.replication.testhelper.CyrusGUID;
-import net.bluemind.backend.cyrus.replication.testhelper.InputStreamWrapper;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
 import net.bluemind.backend.mail.replica.api.IReplicatedDataExpiration;
@@ -97,7 +97,7 @@ public class ReplicatedDataExpirationServiceTests extends AbstractMailboxRecords
 	private void createRecord(long imapUid, int lastUpdated, boolean expunged) {
 		IDbMessageBodies mboxes = getBodies(SecurityContext.SYSTEM);
 		assertNotNull(mboxes);
-		ReadStream<InputStreamWrapper> emlReadStream = openResource("data/with_inlines.eml");
+		ReadStream<Buffer> emlReadStream = openResource("data/with_inlines.eml");
 		Stream bmStream = VertxStream.stream(emlReadStream);
 		String bodyUid = CyrusGUID.randomGuid();
 		mboxes.create(bodyUid, bmStream);

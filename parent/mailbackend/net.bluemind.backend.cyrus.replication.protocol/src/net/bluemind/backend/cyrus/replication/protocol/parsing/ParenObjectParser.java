@@ -17,9 +17,8 @@
   */
 package net.bluemind.backend.cyrus.replication.protocol.parsing;
 
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonElement;
-import org.vertx.java.core.json.JsonObject;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 /**
  * Parses cyrus paren-based object notation into a json object tree.

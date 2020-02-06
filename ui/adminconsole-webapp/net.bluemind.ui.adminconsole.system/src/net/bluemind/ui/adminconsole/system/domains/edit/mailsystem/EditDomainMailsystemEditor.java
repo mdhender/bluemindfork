@@ -59,9 +59,6 @@ public class EditDomainMailsystemEditor extends AssignmentWidget {
 	ListBox mailboxStorageServer;
 
 	@UiField
-	ListBox mailboxConnectionServer;
-
-	@UiField
 	QuotaEdit maxUserQuota;
 
 	@UiField

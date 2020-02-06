@@ -19,8 +19,7 @@ package net.bluemind.backend.cyrus.replication.server.state;
 
 import java.util.concurrent.CompletableFuture;
 
-import org.vertx.java.core.Vertx;
-
+import io.vertx.core.Vertx;
 import net.bluemind.core.rest.http.HttpClientProvider;
 
 public interface StorageLinkFactory {

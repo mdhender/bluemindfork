@@ -12,7 +12,6 @@
 		<module>net.bluemind.addressbook.api</module>
 		<module>net.bluemind.addressbook.hook</module>
 		<module>net.bluemind.addressbook.hook.acl</module>
-		<module>net.bluemind.addressbook.job</module>
 		<module>net.bluemind.addressbook.sqlschema</module>
 		<module>net.bluemind.addressbook.persistence</module>
 		<module>net.bluemind.addressbook.persistence.tests</module>

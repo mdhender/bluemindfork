@@ -312,7 +312,7 @@ public final class ServerService implements IServer {
 
 		boolean alreadyAssigned = false;
 		for (Assignment ass : storeService.getAssignments(domainUid)) {
-			if (ass.serverUid.equals(server) && ass.tag.equals(tag)) {
+			if (ass.serverUid.equals(serverUid) && ass.tag.equals(tag)) {
 				alreadyAssigned = true;
 				break;
 			}

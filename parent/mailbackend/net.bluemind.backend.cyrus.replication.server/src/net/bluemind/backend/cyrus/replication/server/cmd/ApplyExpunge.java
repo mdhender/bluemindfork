@@ -22,9 +22,9 @@ import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.replication.protocol.parsing.JsUtils;
 import net.bluemind.backend.cyrus.replication.protocol.parsing.ParenObjectParser;
 import net.bluemind.backend.cyrus.replication.server.ReplicationFrame;
@@ -51,7 +51,7 @@ public class ApplyExpunge implements IAsyncReplicationCommand {
 		ParenObjectParser parser = ParenObjectParser.create();
 		JsonObject parsed = parser.parse(toReserve).asObject();
 		String mbox = parsed.getString("MBOXNAME");
-		JsonArray uid = parsed.getArray("UID");
+		JsonArray uid = parsed.getJsonArray("UID");
 		List<Long> toExpunge = JsUtils.asList(uid, (String s) -> Long.parseLong(s));
 		session.state().expunge(mbox, toExpunge).whenComplete((v, ex) -> {
 			if (ex != null) {

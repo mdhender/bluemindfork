@@ -21,13 +21,14 @@ import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.annotations.VisibleForTesting;
 
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
 import net.bluemind.core.container.model.ItemIdentifier;
@@ -61,18 +62,18 @@ public class ReplicationEvents {
 		long time = System.currentTimeMillis();
 		CompletableFuture<ItemChange> done = new CompletableFuture<>();
 		String addr = "mailreplica.record.updated." + mboxUniqueId + "." + imapUid;
+		MessageConsumer<JsonObject> cons = eb.consumer(addr);
 		Handler<Message<JsonObject>> handler = new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> msg) {
 				long latency = System.currentTimeMillis() - time;
 				JsonObject change = msg.body();
-				done.complete(ItemChange.create(change.getNumber("version").longValue(),
-						change.getNumber("itemId").longValue(), latency));
-				eb.unregisterHandler(addr, this);
+				done.complete(ItemChange.create(change.getLong("version"), change.getLong("itemId"), latency));
+				cons.unregister();
 			}
 		};
-		eb.registerLocalHandler(addr, handler);
+		cons.handler(handler);
 		return done;
 	}
 
@@ -80,75 +81,80 @@ public class ReplicationEvents {
 		long time = System.currentTimeMillis();
 		CompletableFuture<ItemChange> done = new CompletableFuture<>();
 		String addr = "mailreplica.record.created." + mboxUniqueId;
+		MessageConsumer<JsonObject> cons = eb.consumer(addr);
 		Handler<Message<JsonObject>> handler = new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> msg) {
 				long latency = System.currentTimeMillis() - time;
 				JsonObject change = msg.body();
-				long version = change.getNumber("version").longValue();
-				long itemId = change.getNumber("itemId").longValue();
+				long version = change.getLong("version");
+				long itemId = change.getLong("itemId");
 				if (itemId == expectedId) {
 					logger.info("itemCreated id {}, version {}", itemId, version);
 					done.complete(ItemChange.create(version, itemId, latency));
-					eb.unregisterHandler(addr, this);
+					cons.unregister();
 				} else {
 					logger.info("We got a create, but it is for {} instead of {}", itemId, expectedId);
 				}
 			}
 		};
-		eb.registerLocalHandler(addr, handler);
+		cons.handler(handler);
 		return done;
 	}
 
 	public static CompletableFuture<ItemIdentifier> onSubtreeUpdate(String subtreeContainerUid) {
 		CompletableFuture<ItemIdentifier> ret = new CompletableFuture<>();
 		String addr = HIER_UPD_ADDR + "." + subtreeContainerUid;
+		MessageConsumer<JsonObject> cons = eb.consumer(addr);
 		Handler<Message<JsonObject>> handler = new Handler<Message<JsonObject>>() {
 			@Override
 			public void handle(Message<JsonObject> event) {
 				JsonObject idJs = event.body();
-				ItemIdentifier iid = ItemIdentifier.of(idJs.getString("itemUid"), idJs.getNumber("itemId").longValue(),
-						idJs.getNumber("version").longValue());
+				ItemIdentifier iid = ItemIdentifier.of(idJs.getString("itemUid"), idJs.getLong("itemId"),
+						idJs.getLong("version"));
 				ret.complete(iid);
-				eb.unregisterHandler(addr, this);
+				cons.unregister();
 			}
 		};
-		eb.registerLocalHandler(addr, handler);
+		eb.consumer(addr, handler);
 		return ret;
 	}
 
 	public static CompletableFuture<Long> onMailboxChanged(String mboxUniqueId) {
 		CompletableFuture<Long> ret = new CompletableFuture<>();
 		String addr = MBOX_UPD_ADDR + "." + mboxUniqueId;
+		MessageConsumer<JsonObject> cons = eb.consumer(addr);
 		Handler<Message<JsonObject>> handler = new Handler<Message<JsonObject>>() {
 			@Override
 			public void handle(Message<JsonObject> event) {
-				ret.complete(event.body().getNumber("version").longValue());
-				eb.unregisterHandler(addr, this);
+				ret.complete(event.body().getLong("version"));
+				cons.unregister();
 			}
 		};
-		eb.registerLocalHandler(addr, handler);
+		cons.handler(handler);
 		return ret;
 	}
 
 	public static CompletableFuture<Void> onRecordDeleted(String mailboxUniqueId) {
 		CompletableFuture<Void> ret = new CompletableFuture<>();
 		String addr = REC_DEL_ADDR + mailboxUniqueId;
+		MessageConsumer<JsonObject> cons = eb.consumer(addr);
 		Handler<Message<JsonObject>> handler = new Handler<Message<JsonObject>>() {
 			@Override
 			public void handle(Message<JsonObject> event) {
 				ret.complete(null);
-				eb.unregisterHandler(addr, this);
+				cons.unregister();
 			}
 		};
-		eb.registerLocalHandler(addr, handler);
+		cons.handler(handler);
 		return ret;
 	}
 
 	public static CompletableFuture<MailboxReplicaRootDescriptor> onMailboxRootCreated() {
 		CompletableFuture<MailboxReplicaRootDescriptor> ret = new CompletableFuture<>();
 		String addr = ROOTS_CREATE_ADDR;
+		MessageConsumer<JsonObject> cons = eb.consumer(addr);
 		Handler<Message<JsonObject>> handler = new Handler<Message<JsonObject>>() {
 			@Override
 			public void handle(Message<JsonObject> event) {
@@ -156,10 +162,10 @@ public class ReplicationEvents {
 				MailboxReplicaRootDescriptor root = MailboxReplicaRootDescriptor
 						.create(Namespace.valueOf(js.getString("ns")), js.getString("name"));
 				ret.complete(root);
-				eb.unregisterHandler(addr, this);
+				cons.unregister();
 			}
 		};
-		eb.registerLocalHandler(addr, handler);
+		cons.handler(handler);
 		return ret;
 	}
 

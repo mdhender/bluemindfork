@@ -26,14 +26,14 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpServerResponse;
 
 import com.google.common.io.ByteSource;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.eas.dto.base.AirSyncBaseResponse;
 import net.bluemind.eas.dto.base.BodyOptions;
 import net.bluemind.eas.dto.base.Callback;
@@ -103,7 +103,7 @@ public class MultipartBuilder {
 
 			try {
 				ByteSource bs = p.fbos.source();
-				output.write(new Buffer(bs.read()));
+				output.write(Buffer.buffer(bs.read()));
 				p.fbos.dispose();
 			} catch (IOException e) {
 				logger.error(e.getMessage(), e);
@@ -179,7 +179,7 @@ public class MultipartBuilder {
 					byteBuf.writeInt(p.size);
 					offset += p.size;
 				}
-				resp.write(new Buffer(byteBuf));
+				resp.write(Buffer.buffer(byteBuf));
 				WriteParts wp = new WriteParts(parts.iterator(), resp, completion);
 				wp.next();
 			}

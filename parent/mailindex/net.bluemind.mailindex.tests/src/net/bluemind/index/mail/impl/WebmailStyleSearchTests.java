@@ -32,8 +32,8 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.join.query.JoinQueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Test;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.mail.api.MailboxItem.SystemFlag;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 

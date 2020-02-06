@@ -1,10 +1,8 @@
 [Unit]
-Description=LSB: BM xivobridge Server.
-Before=runlevel2.target runlevel3.target runlevel4.target runlevel5.target shutdown.target
-After=systemd-journald-dev-log.socket network-online.target bm-core.service
-Wants=network-online.target
-Conflicts=shutdown.target
+Description=BlueMind xivobridge Server
 ConditionPathExists=!/etc/bm/bm-xivobridge.disabled
+After=bm-core.service
+PartOf=bluemind.target
 
 [Service]
 Type=forking
@@ -20,4 +18,4 @@ ExecStart=/etc/init.d/bm-xivobridge start
 ExecStop=/etc/init.d/bm-xivobridge stop
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=bluemind.target

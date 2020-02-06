@@ -23,8 +23,7 @@ import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.vertx.java.core.Vertx;
-
+import io.vertx.core.Vertx;
 import net.bluemind.backend.cyrus.syncclient.mgmt.MultiClientManager;
 import net.bluemind.backend.cyrus.syncclient.mgmt.SyncClientMgmt;
 import net.bluemind.node.api.NCUtils;

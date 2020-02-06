@@ -24,6 +24,6 @@
 	<natures>
 		<nature>org.eclipse.pde.PluginNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
-		<nature>com.google.gwt.eclipse.core.gwtNature</nature>
+		<nature>com.gwtplugins.gwt.eclipse.core.gwtNature</nature>
 	</natures>
 </projectDescription>

@@ -20,8 +20,8 @@ package net.bluemind.eas.backend.bm.calendar;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.eventbus.EventBus;
 
+import io.vertx.core.eventbus.EventBus;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.eas.backend.HierarchyNode;

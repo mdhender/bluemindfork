@@ -82,16 +82,12 @@ public class TaskDecoder extends Decoder implements IDataDecoder {
 		task.utcDueDate = parseDOMDate(DOMUtils.getUniqueElement(syncData, "UtcDueDate"));
 		task.dueDate = parseDOMDate(DOMUtils.getUniqueElement(syncData, "DueDate"));
 		task.categories = parseDOMStringCollection(DOMUtils.getUniqueElement(syncData, "Categories"), "Category");
-
-		// appendRecurrence(syncData, task);
-
 		task.complete = parseDOMInt2Boolean(DOMUtils.getUniqueElement(syncData, "Complete"));
 		task.dateCompleted = parseDOMDate(DOMUtils.getUniqueElement(syncData, "DateCompleted"));
 		task.sensitivity = getCalendarSensitivity(syncData);
 		task.reminderTime = parseDOMDate(DOMUtils.getUniqueElement(syncData, "ReminderTime"));
 		task.reminderSet = parseDOMInt2Boolean(DOMUtils.getUniqueElement(syncData, "ReminderSet"));
 
-		logger.info("Decode task to " + task);
 		return task;
 	}
 

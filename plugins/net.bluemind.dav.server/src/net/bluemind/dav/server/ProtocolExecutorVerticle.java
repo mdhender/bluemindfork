@@ -2,12 +2,12 @@ package net.bluemind.dav.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.rest.LocalJsonObject;
 import net.bluemind.dav.server.proto.IDavProtocol;
 import net.bluemind.dav.server.proto.IProtocolFactory;
@@ -29,7 +29,7 @@ import net.bluemind.dav.server.proto.report.ReportProtocol;
 import net.bluemind.dav.server.proto.sharing.SharingProtocol;
 import net.bluemind.dav.server.store.LoggedCore;
 
-public final class ProtocolExecutorVerticle extends Verticle {
+public final class ProtocolExecutorVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(ProtocolExecutorVerticle.class);
 
@@ -53,7 +53,7 @@ public final class ProtocolExecutorVerticle extends Verticle {
 	private <Q, R> void registerProtocol(EventBus eb, IDavProtocol<Q, R> proto) {
 		final IProtocolFactory<Q, R> factory = new ProtocolFactory<Q, R>(proto);
 		logger.debug("Registered {} on bus for proto.", factory.getExecutorAddress());
-		eb.registerHandler(factory.getExecutorAddress(), new Handler<Message<JsonObject>>() {
+		eb.consumer(factory.getExecutorAddress(), new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(final Message<JsonObject> event) {

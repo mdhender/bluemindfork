@@ -81,28 +81,4 @@
          version="0.0.0"
          fragment="true"/>
 
-   <plugin
-         id="org.asynchttpclient.netty-codec-dns"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"
-         unpack="false"/>
-
-   <plugin
-         id="org.asynchttpclient.netty-resolver"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"
-         unpack="false"/>
-
-   <plugin
-         id="org.asynchttpclient.netty-resolver-dns"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"
-         unpack="false"/>
-
 </feature>

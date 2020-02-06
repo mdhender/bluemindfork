@@ -5,11 +5,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
 import net.bluemind.systemd.notify.SystemD;
 
-public final class SystemdWatchdogVerticle extends Verticle {
+public final class SystemdWatchdogVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(SystemdWatchdogVerticle.class);
 

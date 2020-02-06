@@ -18,8 +18,7 @@
  */
 package net.bluemind.eas.http.internal;
 
-import org.vertx.java.platform.Verticle;
-
+import io.vertx.core.Verticle;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
 public class EASVerticleFactory implements IVerticleFactory {

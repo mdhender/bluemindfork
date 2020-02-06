@@ -23,10 +23,10 @@ import java.net.URL;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.io.ByteStreams;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.cti.api.Status;

@@ -37,11 +37,9 @@
       <plugin id="com.google.gwt.servlet"/>
       <plugin id="com.hazelcast"/>
       <plugin id="com.hazelcast.client" fragment="true"/>
-      <plugin id="com.ning.async-http-client"/>
       <plugin id="com.sun.mail.javax.mail"/>
       <plugin id="io.netty"/>
       <plugin id="io.vertx.core"/>
-      <plugin id="io.vertx.platform"/>
       <plugin id="javax.servlet"/>
       <plugin id="javax.validation.api"/>
       <plugin id="javax.ws.rs"/>
@@ -138,7 +136,6 @@
       <plugin id="org.eclipse.osgi.services"/>
       <plugin id="org.eclipse.update.configurator"/>
       <plugin id="org.freemarker.freemarker"/>
-      <plugin id="org.jboss.netty"/>
       <plugin id="org.mnode.ical4j"/>
       <plugin id="org.mnode.ical4j.vcard"/>
       <plugin id="org.mnode.ical4j.zoneinfo-outlook"/>
@@ -148,8 +145,8 @@
 
    <configurations>
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
-      <property name="osgi.configuration.area" value="/var/lib/bm-core/" />
       <property name="osgi.noShutdown" value="true" />
+      <property name="osgi.configuration.area" value="/var/lib/bm-core/" />
    </configurations>
 
 </product>

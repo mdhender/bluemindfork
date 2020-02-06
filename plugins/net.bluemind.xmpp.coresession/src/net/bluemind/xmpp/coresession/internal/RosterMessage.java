@@ -18,56 +18,61 @@
  */
 package net.bluemind.xmpp.coresession.internal;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.jivesoftware.smack.packet.Presence;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
+
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 public class RosterMessage {
 
 	public static JsonObject error(String message) {
-		return new JsonObject().putNumber("status", XmppSessionMessage.KO).putString("message", message);
+		return new JsonObject().put("status", XmppSessionMessage.KO).put("message", message);
 	}
 
 	public static JsonObject ok() {
-		return new JsonObject().putNumber("status", XmppSessionMessage.OK);
+		return new JsonObject().put("status", XmppSessionMessage.OK);
 	}
 
 	public static JsonObject presenceChanged(Presence presence) {
 		JsonObject ret = rosterChanged("presence");
-		JsonObject change = ret.getObject("change");
+		JsonObject change = ret.getJsonObject("change");
 
-		change.putString("user", XmppSessionMessage.parseJabberId(presence.getFrom())).putString("status",
-				presence.getStatus());
+		change.put("user", XmppSessionMessage.parseJabberId(presence.getFrom())).put("status", presence.getStatus());
 
 		if (presence.getMode() != null) {
-			change.putString("mode", presence.getMode().name());
+			change.put("mode", presence.getMode().name());
 		}
-		change.putString("subscription-type", presence.getType().name());
+		change.put("subscription-type", presence.getType().name());
 		return ret;
 	}
 
 	public static JsonObject entriesUpdated(Collection<String> addresses) {
 		JsonObject ret = rosterChanged("entries-updated");
-		ret.getObject("change").putArray("entries", new JsonArray(addresses.toArray()));
+		ret.getJsonObject("change").put("entries", array(addresses));
 		return ret;
+	}
+
+	private static JsonArray array(Collection<String> str) {
+		return new JsonArray(new ArrayList<>(str));
 	}
 
 	public static JsonObject entriesDeleted(Collection<String> addresses) {
 		JsonObject ret = rosterChanged("entries-deleted");
-		ret.getObject("change").putArray("entries", new JsonArray(addresses.toArray()));
+		ret.getJsonObject("change").put("entries", array(addresses));
 		return ret;
 	}
 
 	public static JsonObject entriesAdded(Collection<String> addresses) {
 		JsonObject ret = rosterChanged("entries-added");
-		ret.getObject("change").putArray("entries", new JsonArray(addresses.toArray()));
+		ret.getJsonObject("change").put("entries", array(addresses));
 		return ret;
 	}
 
 	private static JsonObject rosterChanged(String type) {
-		return new JsonObject().putString("category", "roster").putString("action", "changed").putObject("change",
-				new JsonObject().putString("type", type));
+		return new JsonObject().put("category", "roster").put("action", "changed").put("change",
+				new JsonObject().put("type", type));
 	}
 }

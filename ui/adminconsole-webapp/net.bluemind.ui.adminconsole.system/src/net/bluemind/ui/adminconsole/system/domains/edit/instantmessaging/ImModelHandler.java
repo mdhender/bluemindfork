@@ -258,7 +258,7 @@ public class ImModelHandler implements IGwtModelHandler {
 	private boolean contains(JSONArray array, DirEntry entry) {
 		for (int i = 0; i < array.size(); i++) {
 			JsDirEntry e = array.get(i).isObject().getJavaScriptObject().cast();
-			if (e.getKind().equals(entry.kind) && e.getEntryUid().equals(entry.entryUid)) {
+			if (e.getKind().value().equals(entry.kind.name()) && e.getEntryUid().equals(entry.entryUid)) {
 				return true;
 			}
 		}

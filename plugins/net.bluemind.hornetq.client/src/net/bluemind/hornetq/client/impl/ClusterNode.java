@@ -33,7 +33,6 @@ import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ITopic;
@@ -48,6 +47,7 @@ import com.hazelcast.core.MembershipListener;
 import com.hazelcast.core.Message;
 import com.hazelcast.core.MessageListener;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.config.BmIni;
 import net.bluemind.hornetq.client.Consumer;
 import net.bluemind.hornetq.client.MQ;
@@ -125,10 +125,10 @@ public abstract class ClusterNode {
 				String memberJvm = memberJvm(newMember);
 				logger.info("JVM {} {} left cluster.", memberJvm, newMember.getUuid());
 				VertxPlatform.eventBus().publish(MQ.MEMBERSHIP_EVENTS_ADDRESS, new JsonObject() //
-						.putString("type", "memberRemoved") //
-						.putString("memberKind", memberJvm) //
-						.putString("memberUuid", newMember.getUuid())
-						.putString("memberAddress", newMember.getAddress().toString()));
+						.put("type", "memberRemoved") //
+						.put("memberKind", memberJvm) //
+						.put("memberUuid", newMember.getUuid())
+						.put("memberAddress", newMember.getAddress().toString()));
 			}
 
 			@Override
@@ -142,10 +142,10 @@ public abstract class ClusterNode {
 				String memberJvm = memberJvm(newMember);
 				logger.info("JVM {} {} joined cluster.", memberJvm, newMember.getUuid());
 				VertxPlatform.eventBus().publish(MQ.MEMBERSHIP_EVENTS_ADDRESS, new JsonObject() //
-						.putString("type", "memberAdded") //
-						.putString("memberKind", memberJvm) //
-						.putString("memberUuid", newMember.getUuid())
-						.putString("memberAddress", newMember.getAddress().toString()));
+						.put("type", "memberAdded") //
+						.put("memberKind", memberJvm) //
+						.put("memberUuid", newMember.getUuid())
+						.put("memberAddress", newMember.getAddress().toString()));
 			}
 		});
 		logger.info("Connected through {}", hz);

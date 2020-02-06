@@ -8,13 +8,13 @@ import java.security.NoSuchAlgorithmException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
 
 import com.google.common.base.Throwables;
 
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
 
 public final class BinaryFileDataHandler implements Handler<Buffer> {
 

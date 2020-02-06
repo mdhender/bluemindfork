@@ -26,11 +26,12 @@ import javax.sql.DataSource;
 
 import org.junit.After;
 import org.junit.Before;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
+import org.junit.BeforeClass;
 
 import com.google.common.collect.Lists;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.backend.cyrus.CyrusAdmins;
 import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.config.InstallationId;
@@ -81,10 +82,15 @@ public abstract class AbstractMailboxServiceTests {
 	protected String testUserUid;
 	BmTestContext testContext;
 
+	@BeforeClass
+	public static void oneShotBefore() {
+		System.setProperty("es.mailspool.count", "1");
+	}
+
 	@Before
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
-		
+
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 		final CountDownLatch launched = new CountDownLatch(1);
 		VertxPlatform.spawnVerticles(new Handler<AsyncResult<Void>>() {

@@ -32,10 +32,10 @@ import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.base.Strings;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;

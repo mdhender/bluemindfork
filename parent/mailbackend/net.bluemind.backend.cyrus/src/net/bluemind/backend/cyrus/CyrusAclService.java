@@ -23,13 +23,10 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.impl.VertxThreadFactory;
 
 import net.bluemind.config.Token;
 import net.bluemind.core.api.fault.ServerFault;
@@ -44,8 +41,7 @@ public abstract class CyrusAclService {
 	protected final String backendAddress;
 	protected static final Logger logger = LoggerFactory.getLogger(CyrusAclService.class);
 	public static final int MAX_TASK_COUNT = 10;
-	private static final ExecutorService executer = new ThreadPoolExecutor(MAX_TASK_COUNT, MAX_TASK_COUNT, 15L,
-			TimeUnit.MINUTES, new LinkedBlockingQueue<>(), new VertxThreadFactory("bm-acl"));
+	private static final ExecutorService executer = Executors.newCachedThreadPool();
 
 	private CyrusAclService(String backendAddress) {
 		this.backendAddress = backendAddress;

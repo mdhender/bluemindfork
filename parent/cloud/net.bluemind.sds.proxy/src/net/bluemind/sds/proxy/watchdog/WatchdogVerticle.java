@@ -21,12 +21,13 @@ import java.io.File;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Verticle;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.systemd.notify.SystemD;
 
-public class WatchdogVerticle extends Verticle {
+public class WatchdogVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(WatchdogVerticle.class);
 

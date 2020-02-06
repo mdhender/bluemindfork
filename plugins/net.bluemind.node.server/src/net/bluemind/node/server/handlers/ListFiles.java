@@ -20,7 +20,8 @@ package net.bluemind.node.server.handlers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.http.HttpServerRequest;
+
+import io.vertx.core.http.HttpServerRequest;
 
 public class ListFiles extends AbstractListFiles {
 

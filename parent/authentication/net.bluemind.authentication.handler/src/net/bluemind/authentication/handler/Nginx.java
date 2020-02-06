@@ -24,15 +24,15 @@ import java.util.concurrent.ExecutorService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.MultiMap;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
 
 import com.google.common.base.Splitter;
 
+import io.vertx.core.Handler;
+import io.vertx.core.MultiMap;
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.ValidationKind;
 import net.bluemind.core.container.model.ItemValue;
@@ -229,10 +229,10 @@ public final class Nginx implements Handler<HttpServerRequest>, NeedVertxExecuto
 		this.blocking = BlockingCode.forVertx(this.vertx).withExecutor(bmExecutor);
 		logger.info("Init with {}", vertx);
 
-		vertx.eventBus().registerHandler("bm.defaultdomain.changed", new Handler<Message<?>>() {
+		vertx.eventBus().consumer("bm.defaultdomain.changed", new Handler<Message<Object>>() {
 
 			@Override
-			public void handle(Message<?> event) {
+			public void handle(Message<Object> event) {
 				loadDefaultDomain();
 			}
 		});

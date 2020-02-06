@@ -18,6 +18,7 @@
  */
 package net.bluemind.user.api;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,6 +54,11 @@ public final class User extends DirBaseValue {
 	 * never fetched and only a hash of it is stored in the database.
 	 */
 	public String password;
+
+	/**
+	 * Last password update date.
+	 */
+	public Date passwordLastChange;
 
 	/**
 	 * Contact informations for the user (firstname, lastname, phones, etc)

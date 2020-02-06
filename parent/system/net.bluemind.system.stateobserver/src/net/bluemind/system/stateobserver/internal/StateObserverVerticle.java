@@ -25,15 +25,14 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Verticle;
 
 import com.netflix.spectator.api.Counter;
 import com.netflix.spectator.api.Gauge;
 import com.netflix.spectator.api.Registry;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.rest.http.HttpClientProvider;
 import net.bluemind.core.rest.http.ILocator;
@@ -50,7 +49,7 @@ import net.bluemind.system.api.IInstallationPromise;
 import net.bluemind.system.api.SystemState;
 import net.bluemind.system.stateobserver.IStateListener;
 
-public class StateObserverVerticle extends Verticle {
+public class StateObserverVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(StateObserverVerticle.class);
 
@@ -121,35 +120,26 @@ public class StateObserverVerticle extends Verticle {
 			hearbeatCheck();
 		});
 
-		vertx.eventBus().registerHandler(Topic.CORE_NOTIFICATIONS, new Handler<Message<JsonObject>>() {
-			@Override
-			public void handle(Message<JsonObject> event) {
-				JsonObject msg = event.body();
-				SystemState newState = SystemState.fromOperation(msg.getString("operation"));
-				updateState(newState, StateUpdateOrigin.BUS_EVENT);
-			}
-		}, (v) -> refreshState());
-
-		vertx.eventBus().registerHandler(IStateListener.STATE_BUS_EP_ADDRESS, new Handler<Message<Void>>() {
-
-			@Override
-			public void handle(Message<Void> event) {
-				event.reply(state.name());
-			}
+		vertx.eventBus().consumer(Topic.CORE_NOTIFICATIONS, (Message<JsonObject> event) -> {
+			JsonObject msg = event.body();
+			SystemState newState = SystemState.fromOperation(msg.getString("operation"));
+			updateState(newState, StateUpdateOrigin.BUS_EVENT);
+			refreshState();
 		});
 
-		vertx.eventBus().registerHandler(MQ.MEMBERSHIP_EVENTS_ADDRESS, new Handler<Message<JsonObject>>() {
+		vertx.eventBus().consumer(IStateListener.STATE_BUS_EP_ADDRESS, (Message<Void> event) -> {
+			event.reply(state.name());
+		});
 
-			@Override
-			public void handle(Message<JsonObject> event) {
-				JsonObject eventBody = event.body();
-				if ("memberRemoved".equals(eventBody.getString("type"))
-						&& "bm-core".equals(eventBody.getString("memberKind"))) {
+		vertx.eventBus().consumer(MQ.MEMBERSHIP_EVENTS_ADDRESS, (
 
-					updateState(SystemState.CORE_STATE_MAINTENANCE, StateUpdateOrigin.UPDATE_STATE_MEMBERSHIP_ADDRESS);
-					refreshState();
-				}
+				Message<JsonObject> event) -> {
+			JsonObject eventBody = event.body();
+			if ("memberRemoved".equals(eventBody.getString("type"))
+					&& "bm-core".equals(eventBody.getString("memberKind"))) {
 
+				updateState(SystemState.CORE_STATE_MAINTENANCE, StateUpdateOrigin.UPDATE_STATE_MEMBERSHIP_ADDRESS);
+				refreshState();
 			}
 		});
 
@@ -192,7 +182,9 @@ public class StateObserverVerticle extends Verticle {
 			RunnableExtensionLoader<IStateListener> loader = new RunnableExtensionLoader<IStateListener>();
 			List<IStateListener> listeners = loader.loadExtensions("net.bluemind.system", "state", "state-listener",
 					"class");
+
 			for (IStateListener listener : listeners) {
+				listener.init(vertx);
 				listener.stateChanged(newState);
 			}
 

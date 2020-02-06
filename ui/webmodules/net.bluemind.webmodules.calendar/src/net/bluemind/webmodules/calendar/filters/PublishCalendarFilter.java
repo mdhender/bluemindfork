@@ -23,12 +23,13 @@ import java.net.URLDecoder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
-import org.vertx.java.core.streams.Pump;
-import org.vertx.java.core.streams.ReadStream;
 
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.streams.Pump;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.calendar.api.IPublishCalendarAsync;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.Stream;
@@ -84,8 +85,8 @@ public class PublishCalendarFilter implements IWebFilter, NeedVertx {
 				HttpServerResponse resp = request.response();
 				resp.headers().set("Content-Type", "text/calendar;charset=UTF-8");
 				resp.headers().set("Content-Disposition", "attachment; filename=\"calendar.ics\"");
-				ReadStream<?> read = VertxStream.read(value);
-				Pump pump = Pump.createPump(read, resp);
+				ReadStream<Buffer> read = VertxStream.read(value);
+				Pump pump = Pump.pump(read, resp);
 				resp.setChunked(true);
 				pump.start();
 				read.endHandler((v) -> {

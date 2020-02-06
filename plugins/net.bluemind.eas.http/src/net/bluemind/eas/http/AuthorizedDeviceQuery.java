@@ -18,9 +18,8 @@
  */
 package net.bluemind.eas.http;
 
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.http.HttpServerRequest;
-
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.eas.dto.OptionalParams;
 
 public class AuthorizedDeviceQuery {

@@ -27,10 +27,10 @@ import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.buffer.Buffer;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.common.io.FileBackedOutputStream;
 import net.bluemind.core.api.Stream;

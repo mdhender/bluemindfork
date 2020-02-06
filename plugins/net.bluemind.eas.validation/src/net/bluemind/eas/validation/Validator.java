@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.http.HttpServerRequest;
 import org.w3c.dom.Document;
 
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.eas.config.global.GlobalConfig;
 import net.bluemind.eas.utils.RunnableExtensionLoader;
 import net.bluemind.vertx.common.request.Requests;

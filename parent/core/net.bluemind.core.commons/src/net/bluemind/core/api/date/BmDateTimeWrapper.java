@@ -257,7 +257,7 @@ public class BmDateTimeWrapper {
 		ZoneId tz = hasValidTz ? ZoneId.of(timezone) : null;
 		boolean isoContainsValidTz = (detectTimeZone(iso8601) != null);
 
-		if (precision == Precision.Date && hasTime && hasValidTz) {
+		if (precision == Precision.Date && hasTime && hasValidTz && isoContainsValidTz) {
 			return ZonedDateTime.parse(iso8601, complexParser).format(printer);
 		} else if (precision == Precision.Date) {
 			if (hasTime) {
@@ -438,10 +438,20 @@ public class BmDateTimeWrapper {
 		return DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(ldt);
 	}
 
-	public ZonedDateTime toDateTime() {
+	/**
+	 * transform the {@link BmDateTime} instance to an
+	 * {@link java.time.ZonedDateTime}
+	 * 
+	 * @param timezone a Fallback timezone which is used if either the instance is
+	 *                 of precision Date, the instance contains no timezone or the
+	 *                 timezone contained in the ISO8601 value is not valid
+	 * @return the {@link java.time.ZonedDateTime} corresponding to the
+	 *         {@link BmDateTime}
+	 */
+	public ZonedDateTime toDateTime(String timezone) {
 		String iso8601 = bmDateTime.iso8601;
 
-		ZoneId utcTz = ZoneId.of("UTC");
+		ZoneId requestedTimeZone = ZoneId.of(timezone);
 		boolean isTzParamValid = containsTimeZone(bmDateTime.timezone);
 		ZoneId tz = isTzParamValid ? ZoneId.of(bmDateTime.timezone) : null;
 		boolean isoContainsValidTz = (detectTimeZone(iso8601) != null);
@@ -453,12 +463,24 @@ public class BmDateTimeWrapper {
 			} else {
 				ld = LocalDate.parse(iso8601);
 			}
-			return ZonedDateTime.of(ld.atStartOfDay(), utcTz);
+			return ZonedDateTime.of(ld.atStartOfDay(), requestedTimeZone);
 		} else if (isTzParamValid && isoContainsValidTz) {
 			return ZonedDateTime.parse(iso8601).withZoneSameInstant(tz);
 		} else {
-			return ZonedDateTime.of(LocalDateTime.parse(iso8601), utcTz);
+			return ZonedDateTime.of(LocalDateTime.parse(iso8601), requestedTimeZone);
 		}
+
+	}
+
+	/**
+	 * transform the {@link BmDateTime} instance to an
+	 * {@link java.time.ZonedDateTime}}. Uses the timezone GMT as fallback.
+	 * 
+	 * @return the {@link java.time.ZonedDateTime} corresponding to the
+	 *         {@link BmDateTime}
+	 */
+	public ZonedDateTime toDateTime() {
+		return toDateTime("UTC");
 	}
 
 	public boolean isBefore(BmDateTime date) {

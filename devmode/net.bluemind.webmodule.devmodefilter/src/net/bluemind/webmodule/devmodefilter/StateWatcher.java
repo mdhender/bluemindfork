@@ -2,10 +2,10 @@ package net.bluemind.webmodule.devmodefilter;
 
 import java.util.function.Function;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.eventbus.Message;
-
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.Message;
 import net.bluemind.core.utils.JsonUtils;
 
 public class StateWatcher {
@@ -20,10 +20,11 @@ public class StateWatcher {
 	}
 
 	public void start() {
-		Handler<Message<String>> reponseHander = (msg) -> updateState(msg.body());
-		vertx.eventBus().registerHandler("devmode.state", reponseHander);
+		Handler<Message<String>> basic = (msg) -> updateState(msg.body());
+		Handler<AsyncResult<Message<String>>> canFail = (msg) -> updateState(msg.result().body());
+		vertx.eventBus().consumer("devmode.state", basic);
 
-		vertx.eventBus().send("devmode.state:get", true, reponseHander);
+		vertx.eventBus().request("devmode.state:get", true, canFail);
 	}
 
 	protected void updateState(String body) {

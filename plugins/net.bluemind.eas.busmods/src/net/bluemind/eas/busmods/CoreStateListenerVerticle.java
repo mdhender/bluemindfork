@@ -17,19 +17,18 @@
   */
 package net.bluemind.eas.busmods;
 
-import org.vertx.java.busmods.BusModBase;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
 import net.bluemind.eas.dto.EasBusEndpoints;
 import net.bluemind.eas.impl.Backends;
 
-public class CoreStateListenerVerticle extends BusModBase {
+public class CoreStateListenerVerticle extends AbstractVerticle {
 
 	@Override
 	public void start() {
-		super.start();
-		eb.registerHandler(EasBusEndpoints.PURGE_SESSIONS, new Handler<Message<Object>>() {
+
+		vertx.eventBus().consumer(EasBusEndpoints.PURGE_SESSIONS, new Handler<Message<Object>>() {
 
 			@Override
 			public void handle(Message<Object> event) {

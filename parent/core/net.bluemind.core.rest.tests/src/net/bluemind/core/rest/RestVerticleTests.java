@@ -21,12 +21,12 @@ package net.bluemind.core.rest;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.Before;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
 
 import com.google.common.util.concurrent.SettableFuture;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.tests.services.IRestTestService;
 import net.bluemind.core.rest.tests.services.IRestTestServiceAsync;
@@ -41,7 +41,7 @@ public class RestVerticleTests extends RestTestServiceTests {
 	@Before
 	public void setup() throws InterruptedException, ExecutionException {
 		eventBus = VertxPlatform.getVertx();
-		final SettableFuture<Void> future = SettableFuture.<Void> create();
+		final SettableFuture<Void> future = SettableFuture.<Void>create();
 		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
 
 			@Override

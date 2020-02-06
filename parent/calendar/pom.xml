@@ -25,7 +25,6 @@
 		<module>net.bluemind.calendar.helper.tests</module>
 		<module>net.bluemind.calendar.usercalendar</module>
 		<module>net.bluemind.calendar.usercalendar.tests</module>
-		<module>net.bluemind.calendar.job</module>
 		<module>net.bluemind.calendar.pdf</module>
 		<module>net.bluemind.calendar.pdf.tests</module>
 		<module>net.bluemind.calendar.feature</module>

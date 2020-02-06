@@ -24,12 +24,12 @@ import java.util.concurrent.CountDownLatch;
 
 import org.junit.After;
 import org.junit.Before;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
 
 import com.google.common.collect.Lists;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;

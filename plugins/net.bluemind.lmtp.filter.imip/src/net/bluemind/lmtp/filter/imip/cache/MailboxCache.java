@@ -25,18 +25,18 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Verticle;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 
-public class MailboxCache extends Verticle {
+public class MailboxCache extends AbstractVerticle {
 	private static final Logger logger = LoggerFactory.getLogger(MailboxCache.class);
 	private static Cache<String, Optional<ItemValue<Mailbox>>> nameToMailbox;
 	private static Map<String, String> uidToName = new ConcurrentHashMap<>();
@@ -51,7 +51,7 @@ public class MailboxCache extends Verticle {
 	public void start() {
 		logger.info("Registering mailbox cache listener");
 
-		vertx.eventBus().registerHandler(MailboxMessageForwarder.mailboxChanged, (message) -> {
+		vertx.eventBus().consumer(MailboxMessageForwarder.mailboxChanged, message -> {
 			JsonObject eventData = (JsonObject) message.body();
 			String uid = key(eventData.getString("mailbox"), eventData.getString("domain"));
 			logger.debug("Invalidating mailbox {}", uid);

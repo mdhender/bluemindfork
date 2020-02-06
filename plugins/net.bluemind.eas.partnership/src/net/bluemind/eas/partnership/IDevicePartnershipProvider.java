@@ -18,8 +18,7 @@
  */
 package net.bluemind.eas.partnership;
 
-import org.vertx.java.core.Handler;
-
+import io.vertx.core.Handler;
 import net.bluemind.eas.dto.device.DeviceValidationRequest;
 import net.bluemind.eas.dto.device.DeviceValidationResponse;
 

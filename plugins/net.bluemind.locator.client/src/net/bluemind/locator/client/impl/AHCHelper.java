@@ -18,18 +18,19 @@
  */
 package net.bluemind.locator.client.impl;
 
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClientConfig;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.AsyncHttpClientConfig;
+import org.asynchttpclient.DefaultAsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClientConfig;
 
 public final class AHCHelper {
 
 	private static AsyncHttpClient client;
 
 	static {
-		AsyncHttpClientConfig config = new AsyncHttpClientConfig.Builder().setFollowRedirect(false).setMaxRedirects(0)
-				.setMaxRequestRetry(0).setRequestTimeout(5000).setExecutorService(AHCExecutors.reqPool())
-				.setAllowPoolingConnections(true).build();
-		client = new AsyncHttpClient(config);
+		AsyncHttpClientConfig config = new DefaultAsyncHttpClientConfig.Builder().setFollowRedirect(false)
+				.setMaxRedirects(0).setMaxRequestRetry(0).setRequestTimeout(5000).build();
+		client = new DefaultAsyncHttpClient(config);
 	}
 
 	public static AsyncHttpClient get() {

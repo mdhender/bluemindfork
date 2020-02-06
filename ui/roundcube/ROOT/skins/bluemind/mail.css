@@ -888,7 +888,7 @@ div.message-htmlpart {
 	border-top: 2px solid #f0f0f0;
 }
 
-#messagebody div:first-child {
+#messagebody > div:first-child {
 	border-top: 0;
 	position: relative !important;
 }

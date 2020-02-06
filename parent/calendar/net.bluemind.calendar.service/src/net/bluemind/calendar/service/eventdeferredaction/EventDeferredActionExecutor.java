@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import org.apache.james.mime4j.MimeException;
@@ -46,6 +47,7 @@ import net.bluemind.deferredaction.api.DeferredAction;
 import net.bluemind.deferredaction.api.IDeferredAction;
 import net.bluemind.deferredaction.api.IDeferredActionContainerUids;
 import net.bluemind.deferredaction.registry.IDeferredActionExecutor;
+import net.bluemind.directory.api.IDirectory;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
@@ -80,6 +82,7 @@ public class EventDeferredActionExecutor implements IDeferredActionExecutor {
 			IDeferredAction deferredActionService = provider.instance(IDeferredAction.class, deferredActionUid);
 			IMailboxes mailboxesService = provider.instance(IMailboxes.class, domain.uid);
 			IUserSettings userSettingsService = provider.instance(IUserSettings.class, domain.uid);
+			IDirectory directoryService = provider.instance(IDirectory.class, domain.uid);
 
 			List<ItemValue<DeferredAction>> deferredActions = deferredActionService
 					.getByActionId(EventDeferredAction.ACTION_ID, executionDate.toInstant().toEpochMilli());
@@ -91,24 +94,32 @@ public class EventDeferredActionExecutor implements IDeferredActionExecutor {
 						VertxPlatform.getVertx().setTimer(
 								Math.max(1, action.value.executionDate.getTime() - new Date().getTime()),
 								(timerId) -> executeAction(deferredActionService, action, mailboxesService,
-										userSettingsService));
+										userSettingsService, directoryService));
 					});
 		};
 	}
 
 	private void executeAction(IDeferredAction deferredActionService, ItemValue<EventDeferredAction> deferredAction,
-			IMailboxes mailboxesService, IUserSettings userSettingsService) {
+			IMailboxes mailboxesService, IUserSettings userSettingsService, IDirectory directoryService) {
 		try {
-			ItemValue<net.bluemind.mailbox.api.Mailbox> userMailbox = mailboxesService
-					.getComplete(deferredAction.value.ownerUid);
+			if (userIsNotArchived(directoryService, deferredAction.value.ownerUid)) {
+				ItemValue<net.bluemind.mailbox.api.Mailbox> userMailbox = mailboxesService
+						.getComplete(deferredAction.value.ownerUid);
 
-			VEvent event = deferredAction.value.vevent;
-			VAlarm alarm = deferredAction.value.valarm;
+				VEvent event = deferredAction.value.vevent;
+				VAlarm alarm = deferredAction.value.valarm;
 
-			Map<String, String> userSettings = userSettingsService.get(userMailbox.uid);
-			Map<String, Object> data = buildData(event, alarm, userSettings);
-			logger.info("Send deferred action to {} for entity {}", userMailbox.displayName, deferredAction.uid);
-			sendNotificationEmail(data, userMailbox, userSettings);
+				Map<String, String> userSettings = userSettingsService.get(userMailbox.uid);
+				Map<String, Object> data = buildData(event, alarm, userSettings);
+				logger.info("Send deferred action to {} for entity {}", userMailbox.displayName, deferredAction.uid);
+				CompletableFuture.runAsync(() -> {
+					try {
+						sendNotificationEmail(data, userMailbox, userSettings);
+					} catch (Exception e) {
+						logger.error("Impossible to send deferred action for entity: {}", deferredAction.uid, e);
+					}
+				});
+			}
 		} catch (Exception e) {
 			logger.error("Impossible to send deferred action for entity: {}", deferredAction.uid, e);
 		} finally {
@@ -124,6 +135,10 @@ public class EventDeferredActionExecutor implements IDeferredActionExecutor {
 				deferredActionService.delete(deferredAction.uid);
 			}
 		}
+	}
+
+	private boolean userIsNotArchived(IDirectory directoryService, String ownerUid) {
+		return !directoryService.findByEntryUid(ownerUid).archived;
 	}
 
 	private void storeTrigger(EventDeferredAction deferredAction, IDeferredAction service) {

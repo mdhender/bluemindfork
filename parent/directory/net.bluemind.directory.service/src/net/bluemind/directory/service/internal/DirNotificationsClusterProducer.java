@@ -17,15 +17,14 @@
   */
 package net.bluemind.directory.service.internal;
 
-import org.vertx.java.busmods.BusModBase;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Verticle;
-
 import com.netflix.spectator.api.Counter;
 import com.netflix.spectator.api.Registry;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.Verticle;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.directory.service.DirEventProducer;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.OOPMessage;
@@ -43,7 +42,7 @@ import net.bluemind.metrics.registry.MetricsRegistry;
  * Known users include ysnp & milter for some cache invalidation purposes.
  *
  */
-public class DirNotificationsClusterProducer extends BusModBase {
+public class DirNotificationsClusterProducer extends AbstractVerticle {
 
 	public static class Factory implements IVerticleFactory, IUniqueVerticleFactory {
 
@@ -60,14 +59,13 @@ public class DirNotificationsClusterProducer extends BusModBase {
 	}
 
 	public void start() {
-		super.start();
 
 		Registry reg = MetricsRegistry.get();
 		IdFactory metricsId = new IdFactory("directory", reg, DirNotificationsClusterProducer.class);
 		Counter sentEvents = reg.counter(metricsId.name("cluster.events"));
 		Producer producer = MQ.getProducer(Topic.DIRECTORY_NOTIFICATIONS);
 
-		Handler<Message<? extends JsonObject>> ebMessageHandler = (message) -> {
+		Handler<Message<JsonObject>> ebMessageHandler = (message) -> {
 			OOPMessage cm = new OOPMessage(message.body());
 			cm.putStringProperty("event", DirEventProducer.address);
 			producer.send(cm);
@@ -75,10 +73,10 @@ public class DirNotificationsClusterProducer extends BusModBase {
 		};
 
 		// throttle messages by domain, as we do for DomainBookVerticle
-		ThrottleMessages<JsonObject> tm = new ThrottleMessages<JsonObject>((msg) -> msg.body().getString("domain"),
+		ThrottleMessages<JsonObject> tm = new ThrottleMessages<>((msg) -> msg.body().getString("domain"),
 				ebMessageHandler, vertx, 2000);
 
-		eb.registerHandler(DirEventProducer.address, (Message<JsonObject> msg) -> tm.handle(msg));
+		vertx.eventBus().consumer(DirEventProducer.address, (Message<JsonObject> msg) -> tm.handle(msg));
 	}
 
 }

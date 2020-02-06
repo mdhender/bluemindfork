@@ -1,11 +1,8 @@
 [Unit]
-Description=LSB: BM WEB Server.
-Before=runlevel2.target runlevel3.target runlevel4.target runlevel5.target shutdown.target
-After=systemd-journald-dev-log.socket network-online.target bm-core.service
-Wants=network-online.target
-Conflicts=shutdown.target
+Description=BlueMind WEB Server
 ConditionPathExists=!/etc/bm/bm-webserver.disabled
-
+After=bm-node.service
+PartOf=bluemind.target
 
 [Service]
 Type=notify
@@ -18,4 +15,4 @@ Environment=JAVA_HOME=/usr/lib/jvm/bm-jdk
 ExecStart=/usr/share/bm-webserver/bm-webserver /var/run/bm-webserver.pid
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=bluemind.target

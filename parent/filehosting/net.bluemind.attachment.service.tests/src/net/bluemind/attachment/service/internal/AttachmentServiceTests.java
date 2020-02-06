@@ -31,13 +31,13 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.streams.ReadStream;
 
 import com.google.common.collect.Lists;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.attachment.api.IAttachment;
 import net.bluemind.core.api.Stream;
@@ -67,8 +67,6 @@ public class AttachmentServiceTests {
 	@Before
 	public void setup() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
-
-		
 
 		final CountDownLatch latch = new CountDownLatch(1);
 		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
@@ -233,7 +231,7 @@ public class AttachmentServiceTests {
 		return VertxStream.stream(stream);
 	}
 
-	private static class SimpleReadStream implements ReadStream<SimpleReadStream> {
+	private static class SimpleReadStream implements ReadStream<Buffer> {
 
 		private Handler<Buffer> dh;
 		private Handler<Void> eh;
@@ -246,9 +244,9 @@ public class AttachmentServiceTests {
 		}
 
 		@Override
-		public SimpleReadStream dataHandler(Handler<Buffer> handler) {
+		public SimpleReadStream handler(Handler<Buffer> handler) {
 			this.dh = handler;
-			dh.handle(new Buffer(data));
+			dh.handle(Buffer.buffer(data));
 			sent = true;
 			if (null != eh) {
 				eh.handle(null);
@@ -278,6 +276,11 @@ public class AttachmentServiceTests {
 			if (sent) {
 				eh.handle(null);
 			}
+			return this;
+		}
+
+		@Override
+		public ReadStream<Buffer> fetch(long amount) {
 			return this;
 		}
 

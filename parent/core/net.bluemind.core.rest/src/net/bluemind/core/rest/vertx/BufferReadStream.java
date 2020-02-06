@@ -18,11 +18,11 @@
  */
 package net.bluemind.core.rest.vertx;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.streams.ReadStream;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
 
-public class BufferReadStream implements ReadStream<Void> {
+public class BufferReadStream implements ReadStream<Buffer> {
 
 	private Buffer data;
 	private boolean finished;
@@ -35,10 +35,10 @@ public class BufferReadStream implements ReadStream<Void> {
 	}
 
 	@Override
-	public Void dataHandler(Handler<Buffer> handler) {
+	public BufferReadStream handler(Handler<Buffer> handler) {
 		this.dataHandler = handler;
 		read();
-		return null;
+		return this;
 	}
 
 	private void read() {
@@ -62,29 +62,34 @@ public class BufferReadStream implements ReadStream<Void> {
 	}
 
 	@Override
-	public Void pause() {
+	public BufferReadStream pause() {
 		running = false;
 		return null;
 	}
 
 	@Override
-	public Void resume() {
+	public BufferReadStream resume() {
 		running = true;
 		if (!finished) {
 			read();
 		}
-		return null;
+		return this;
 	}
 
 	@Override
-	public Void exceptionHandler(Handler<Throwable> handler) {
-		return null;
+	public BufferReadStream exceptionHandler(Handler<Throwable> handler) {
+		return this;
 	}
 
 	@Override
-	public Void endHandler(Handler<Void> endHandler) {
+	public BufferReadStream endHandler(Handler<Void> endHandler) {
 		this.endHandler = endHandler;
-		return null;
+		return this;
+	}
+
+	@Override
+	public ReadStream<Buffer> fetch(long amount) {
+		return this;
 	}
 
 }

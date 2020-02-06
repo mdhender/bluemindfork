@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpServerRequest;
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServerRequest;
 
 public class WebModule {
 

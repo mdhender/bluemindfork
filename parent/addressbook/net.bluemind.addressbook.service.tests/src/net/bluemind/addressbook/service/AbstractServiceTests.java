@@ -33,14 +33,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.SettableFuture;
 
-import net.bluemind.addressbook.api.IAddressBookUids;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.addressbook.api.IAddressBook;
+import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.persistence.VCardIndexStore;
 import net.bluemind.addressbook.persistence.VCardStore;
@@ -64,9 +64,9 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.server.api.Server;
+import net.bluemind.tag.api.ITagUids;
 import net.bluemind.tag.api.Tag;
 import net.bluemind.tag.api.TagRef;
-import net.bluemind.tag.api.ITagUids;
 import net.bluemind.tag.persistence.ItemTagRef;
 import net.bluemind.tag.persistence.TagRefStore;
 import net.bluemind.tag.persistence.TagStore;
@@ -167,8 +167,8 @@ public abstract class AbstractServiceTests {
 		String containerId = "tags_" + domainUid;
 		domainTagContainer = containerHome.get(containerId);
 		if (domainTagContainer == null) {
-			domainTagContainer = Container.create(containerId, ITagUids.TYPE, "domain tags", domainUid,
-					domainUid, true);
+			domainTagContainer = Container.create(containerId, ITagUids.TYPE, "domain tags", domainUid, domainUid,
+					true);
 			domainTagContainer = containerHome.create(domainTagContainer);
 		}
 
@@ -214,8 +214,7 @@ public abstract class AbstractServiceTests {
 		ContainerStore containerHome = new ContainerStore(context, dataDataSource, defaultSecurityContext);
 
 		String containerId = "test_" + System.nanoTime();
-		Container container = Container.create(containerId, IAddressBookUids.TYPE, "test", userUid, domainUid,
-				true);
+		Container container = Container.create(containerId, IAddressBookUids.TYPE, "test", userUid, domainUid, true);
 		container = containerHome.create(container);
 		assertNotNull(container);
 

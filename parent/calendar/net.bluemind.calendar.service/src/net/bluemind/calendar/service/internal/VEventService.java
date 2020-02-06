@@ -24,10 +24,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.buffer.Buffer;
 
 import com.google.common.collect.Lists;
 
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.IVEvent;
 import net.bluemind.calendar.api.VEventSeries;
@@ -130,7 +130,7 @@ public class VEventService implements IVEvent {
 
 			@Override
 			protected Buffer serialize(String n) throws Exception {
-				return new Buffer(n.getBytes());
+				return Buffer.buffer(n.getBytes());
 			}
 		};
 

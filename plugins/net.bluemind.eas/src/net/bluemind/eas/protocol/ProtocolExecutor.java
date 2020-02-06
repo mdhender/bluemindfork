@@ -18,57 +18,54 @@
  */
 package net.bluemind.eas.protocol;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
 import org.w3c.dom.Document;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.Promise;
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.eas.impl.vertx.compat.SessionWrapper;
 import net.bluemind.eas.impl.vertx.compat.VertxResponder;
-import net.bluemind.eas.protocol.impl.ExecutionPayload;
-import net.bluemind.lib.vertx.BlockingCode;
-import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.vertx.common.LocalJsonObject;
 
 public final class ProtocolExecutor {
 
 	private static final Logger logger = LoggerFactory.getLogger(ProtocolExecutor.class);
-	private static final EventBus eb = VertxPlatform.eventBus();
 
-	private static final ExecutorService backendInit = Executors.newFixedThreadPool(4);
+	private ProtocolExecutor() {
+	}
 
 	public static <Q, R> void run(AuthorizedDeviceQuery query, Document document, final IEasProtocol<Q, R> protocol) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("[{}] Running protocol {}", query.loginAtDomain(), protocol);
 		}
 		query.request().pause();
-		CompletableFuture<BackendSession> futureSession = BlockingCode.forVertx(query.vertx()).withExecutor(backendInit)
-				.run(() -> SessionWrapper.wrap(query));
-		futureSession.whenComplete((bs, e) -> {
-			if (e != null) {
-				errorOut(query, e);
+
+		query.vertx().executeBlocking((Promise<BackendSession> p) -> {
+			try {
+				p.complete(SessionWrapper.wrap(query));
+			} catch (Exception e) {
+				p.fail(e);
+			}
+		}, r -> {
+			if (r.failed()) {
+				errorOut(query, r.cause());
 			} else {
-				RequestDTOHandler<Q, R> requestHandler = new RequestDTOHandler<Q, R>(bs, query, protocol);
+				RequestDTOHandler<Q, R> requestHandler = new RequestDTOHandler<>(r.result(), query, protocol);
 				try {
-					protocol.parse(query.optionalParams(), document, bs, requestHandler);
+					protocol.parse(query.optionalParams(), document, r.result(), requestHandler);
 				} catch (Exception ex) {
 					errorOut(query, ex);
 				}
 			}
 		});
+
 	}
 
 	private static void errorOut(AuthorizedDeviceQuery query, Throwable e) {
@@ -113,43 +110,44 @@ public final class ProtocolExecutor {
 		}
 
 		private void callProtocol(Q protocolQuery) {
-			LocalJsonObject<ExecutionPayload<Q>> payload = new LocalJsonObject<ExecutionPayload<Q>>(
-					new ExecutionPayload<Q>(bs, protocolQuery));
-			MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
-			eb.send(protocol.address(), payload, new Handler<Message<LocalJsonObject<AsyncResult<R>>>>() {
-
-				@Override
-				public void handle(Message<LocalJsonObject<AsyncResult<R>>> protoResponseMsg) {
-					MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
-					AsyncResult<R> asyncResult = protoResponseMsg.body().getValue();
-					vertxReq.resume();
-					if (asyncResult.succeeded()) {
-						VertxResponder responder = new VertxResponder(vertxReq, vertxReq.response(), vertx);
-						try {
-							protocol.write(bs, responder, asyncResult.result(), new Handler<Void>() {
-
-								@Override
-								public void handle(Void event) {
-									MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
-									MDC.put("user", "anonymous");
-								}
-							});
-						} catch (Exception e) {
-							logger.error(e.getMessage(), e);
-							HttpServerResponse resp = vertxReq.response();
-							resp.setStatusCode(500).setStatusMessage(e.getMessage() != null ? e.getMessage() : "null")
-									.end();
-						}
-					} else {
-						Throwable t = asyncResult.cause();
-						logger.error(t.getMessage(), t);
-						HttpServerResponse resp = vertxReq.response();
-						resp.setStatusCode(500).setStatusMessage(String.format("Throwable: %s", t.getMessage())).end();
-					}
-					MDC.put("user", "anonymous");
+			String mdcVal = bs.getLoginAtDomain().replace("@", "_at_");
+			MDC.put("user", mdcVal);
+			vertx.executeBlocking((Promise<R> rProm) -> {
+				MDC.put("user", mdcVal);
+				try {
+					protocol.execute(bs, protocolQuery, rProm::complete);
+				} catch (Exception e) {
+					rProm.fail(e);
 				}
+				MDC.put("user", "anonymous");
+			}, (AsyncResult<R> res) -> {
+				MDC.put("user", mdcVal);
+				vertxReq.resume();
+				if (res.succeeded()) {
+					VertxResponder responder = new VertxResponder(vertxReq, vertxReq.response(), vertx);
+					try {
+						protocol.write(bs, responder, res.result(), new Handler<Void>() {
+
+							@Override
+							public void handle(Void event) {
+								MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
+								MDC.put("user", "anonymous");
+							}
+						});
+					} catch (Exception e) {
+						logger.error(e.getMessage(), e);
+						HttpServerResponse resp = vertxReq.response();
+						resp.setStatusCode(500).setStatusMessage(e.getMessage() != null ? e.getMessage() : "null")
+								.end();
+					}
+				} else {
+					Throwable t = res.cause();
+					logger.error(t.getMessage(), t);
+					HttpServerResponse resp = vertxReq.response();
+					resp.setStatusCode(500).setStatusMessage(String.format("Throwable: %s", t.getMessage())).end();
+				}
+				MDC.put("user", "anonymous");
 			});
-			MDC.put("user", "anonymous");
 		}
 
 	}

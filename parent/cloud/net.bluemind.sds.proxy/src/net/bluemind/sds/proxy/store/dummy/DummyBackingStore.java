@@ -23,9 +23,9 @@ import java.nio.file.Files;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.sds.proxy.dto.DeleteRequest;
 import net.bluemind.sds.proxy.dto.ExistRequest;
 import net.bluemind.sds.proxy.dto.ExistResponse;

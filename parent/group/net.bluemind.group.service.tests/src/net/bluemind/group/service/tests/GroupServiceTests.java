@@ -39,13 +39,13 @@ import java.util.concurrent.CountDownLatch;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.addressbook.domainbook.verticle.DomainBookVerticle;

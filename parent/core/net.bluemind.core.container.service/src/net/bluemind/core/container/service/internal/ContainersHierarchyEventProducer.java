@@ -22,9 +22,8 @@
  */
 package net.bluemind.core.container.service.internal;
 
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.container.api.ContainersFlatHierarchyBusAddresses;
 
 public class ContainersHierarchyEventProducer {
@@ -40,8 +39,8 @@ public class ContainersHierarchyEventProducer {
 	}
 
 	public void changed(long version) {
-		JsonObject change = new JsonObject().putNumber("version", version);
-		change.putString("domain", domainUid).putString("owner", ownerUid);
+		JsonObject change = new JsonObject().put("version", version);
+		change.put("domain", domainUid).put("owner", ownerUid);
 		eventBus.publish(ContainersFlatHierarchyBusAddresses.ALL_HIERARCHY_CHANGES, change);
 		eventBus.publish(ContainersFlatHierarchyBusAddresses.containersHierarchyChanges(ownerUid, domainUid), change);
 

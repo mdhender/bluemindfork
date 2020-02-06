@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -66,9 +67,9 @@ public class FileHostingCleanUpJob implements IScheduledJob {
 			rid = sched.requestSlot(domainName, this, startDate);
 			final IScheduledJobRunId ridRef = rid;
 
-			IFileHostingService service = lookupExtensionPoint();
-			if (service == null || !(service instanceof FileSystemFileHostingService)) {
-				logger.warn("FileHosting implementation is not compatible with this Job...Exiting");
+			Optional<IFileHostingService> service = getFileHostingService();
+			if (!service.isPresent()) {
+				logger.info("No FileHosting implementation found...Exiting");
 				sched.finish(rid, JobExitStatus.COMPLETED_WITH_WARNINGS);
 				return;
 			}
@@ -83,7 +84,7 @@ public class FileHostingCleanUpJob implements IScheduledJob {
 								Map<String, String> values = getDomainSettings(domain.uid);
 								int retentionTime = intValue(values, GlobalSettingsKeys.filehosting_retention.name(),
 										365);
-								int domainCount = ((FileSystemFileHostingService) service).cleanup(retentionTime,
+								int domainCount = ((FileSystemFileHostingService) service.get()).cleanup(retentionTime,
 										domain.uid);
 								count.set(count.get() + domainCount);
 							} catch (Exception e) {
@@ -124,11 +125,11 @@ public class FileHostingCleanUpJob implements IScheduledJob {
 		return settings.get();
 	}
 
-	private IFileHostingService lookupExtensionPoint() {
+	private Optional<IFileHostingService> getFileHostingService() {
 		RunnableExtensionLoader<IFileHostingService> epLoader = new RunnableExtensionLoader<>();
-		List<IFileHostingService> extensions = epLoader.loadExtensions("net.bluemind.filehosting", "service", "service",
+		List<IFileHostingService> services = epLoader.loadExtensions("net.bluemind.filehosting", "service", "service",
 				"api");
-		return extensions.isEmpty() ? null : extensions.get(0);
+		return services.stream().filter(service -> service instanceof FileSystemFileHostingService).findAny();
 	}
 
 	@Override

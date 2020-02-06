@@ -18,7 +18,7 @@
  */
 package net.bluemind.webmodule.server;
 
-import org.vertx.java.core.Vertx;
+import io.vertx.core.Vertx;
 
 public interface NeedVertx {
 

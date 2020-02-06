@@ -20,10 +20,10 @@ package net.bluemind.core.rest.vertx;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.eventbus.Message;
 
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.Message;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.rest.base.RestRequest;
 import net.bluemind.core.rest.base.RestResponse;

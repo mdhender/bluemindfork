@@ -26,9 +26,9 @@ import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
@@ -42,10 +42,10 @@ import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.tag.api.ITagUids;
 import net.bluemind.tag.api.ITags;
 import net.bluemind.tag.api.Tag;
 import net.bluemind.tag.api.TagChanges;
-import net.bluemind.tag.api.ITagUids;
 import net.bluemind.tag.persistence.TagStore;
 
 public class Tags implements ITags {
@@ -67,8 +67,8 @@ public class Tags implements ITags {
 		this.context = context;
 		this.container = container;
 		eventBus = VertxPlatform.eventBus();
-		this.storeService = new ContainerStoreService<>(ds, context.getSecurityContext(), container,
-				ITagUids.TYPE, new TagStore(ds, container));
+		this.storeService = new ContainerStoreService<>(ds, context.getSecurityContext(), container, ITagUids.TYPE,
+				new TagStore(ds, container));
 		this.rbacManager = RBACManager.forContext(context).forContainer(container);
 		this.validator = new TagValidator();
 	}
@@ -136,21 +136,21 @@ public class Tags implements ITags {
 
 	private void fireEventChanged(String uid) {
 		JsonObject body = new JsonObject();
-		body.putString("loginAtDomain", context.getSecurityContext().getSubject());
+		body.put("loginAtDomain", context.getSecurityContext().getSubject());
 		eventBus.publish("tags." + container.uid, body);
 
 		body = new JsonObject();
-		body.putString("containerUid", container.uid);
-		body.putString("itemUid", uid);
+		body.put("containerUid", container.uid);
+		body.put("itemUid", uid);
 		eventBus.publish("tags.changed", body);
 	}
 
 	private void fireChanged() {
 		JsonObject body = new JsonObject();
-		body.putString("loginAtDomain", context.getSecurityContext().getSubject());
+		body.put("loginAtDomain", context.getSecurityContext().getSubject());
 		eventBus.publish("bm.todolist.hook." + container.uid + ".changed", body);
 		eventBus.publish("bm.todolist.hook.all",
-				new JsonObject().putString("container", container.uid).putString("type", container.type));
+				new JsonObject().put("container", container.uid).put("type", container.type));
 
 	}
 

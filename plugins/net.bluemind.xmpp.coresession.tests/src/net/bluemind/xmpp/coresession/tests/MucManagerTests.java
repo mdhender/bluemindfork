@@ -26,10 +26,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Test;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.xmpp.coresession.internal.XmppSessionMessage;
 
 public class MucManagerTests extends BaseXmppTests {
@@ -45,18 +46,18 @@ public class MucManagerTests extends BaseXmppTests {
 	private String createMuc(String sessionId, String roomName, String nickname) {
 		String addr = "xmpp/muc/" + sessionId;
 
-		eventBus.send(addr + ":create", new JsonObject().putString("name", roomName).putString("nickname", nickname),
-				new Handler<Message<JsonObject>>() {
+		eventBus.request(addr + ":create", new JsonObject().put("name", roomName).put("nickname", nickname),
+				new Handler<AsyncResult<Message<JsonObject>>>() {
 
 					@Override
-					public void handle(Message<JsonObject> reply) {
-						queueAssertValue("muc", reply.body());
+					public void handle(AsyncResult<Message<JsonObject>> reply) {
+						queueAssertValue("muc", reply.result().body());
 					}
 				});
 
 		JsonObject value = waitAssert("muc");
 		assertNotNull(value);
-		assertEquals(XmppSessionMessage.OK, value.getNumber("status"));
+		assertEquals(XmppSessionMessage.OK, value.getInteger("status"));
 		assertNotNull(value.getString("roomName"));
 		assertTrue(value.getString("roomName").startsWith(roomName));
 		return value.getString("roomName");
@@ -71,7 +72,7 @@ public class MucManagerTests extends BaseXmppTests {
 		String sessionId2 = login(user2);
 		initiateConnection(user2, sessionId2);
 
-		eventBus.registerHandler("xmpp/muc/" + sessionId2, new Handler<Message<JsonObject>>() {
+		eventBus.consumer("xmpp/muc/" + sessionId2, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
@@ -81,17 +82,17 @@ public class MucManagerTests extends BaseXmppTests {
 
 		String room = createMuc(sessionId, "mucroom" + System.nanoTime(), user1.login);
 
-		eventBus.send("xmpp/muc/" + sessionId + "/" + room + ":invite", new JsonObject()
-				.putString("latd", user2.login + "@" + domainName).putString("reason", "come on buddy !"));
+		eventBus.send("xmpp/muc/" + sessionId + "/" + room + ":invite",
+				new JsonObject().put("latd", user2.login + "@" + domainName).put("reason", "come on buddy !"));
 
 		JsonObject value = waitAssert("muc");
 
 		assertNotNull(value);
 		assertEquals("muc", value.getString("category"));
 		assertEquals("invite", value.getString("action"));
-		assertNotNull(value.getObject("body"));
+		assertNotNull(value.getJsonObject("body"));
 
-		assertEquals("come on buddy !", value.getObject("body").getString("reason"));
+		assertEquals("come on buddy !", value.getJsonObject("body").getString("reason"));
 
 	}
 
@@ -104,7 +105,7 @@ public class MucManagerTests extends BaseXmppTests {
 		String sessionId2 = login(user2);
 		initiateConnection(user2, sessionId2);
 
-		eventBus.registerHandler("xmpp/muc/" + sessionId2, new Handler<Message<JsonObject>>() {
+		eventBus.consumer("xmpp/muc/" + sessionId2, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
@@ -114,20 +115,20 @@ public class MucManagerTests extends BaseXmppTests {
 
 		String room = createMuc(sessionId, "mucroom" + System.nanoTime(), user1.login);
 
-		eventBus.send("xmpp/muc/" + sessionId2 + ":join",
-				new JsonObject().putString("room", room).putString("nickname", user2.login),
-				new Handler<Message<JsonObject>>() {
+		eventBus.request("xmpp/muc/" + sessionId2 + ":join",
+				new JsonObject().put("room", room).put("nickname", user2.login),
+				new Handler<AsyncResult<Message<JsonObject>>>() {
 
 					@Override
-					public void handle(Message<JsonObject> event) {
-						queueAssertValue("mucJoin", event.body());
+					public void handle(AsyncResult<Message<JsonObject>> event) {
+						queueAssertValue("mucJoin", event.result().body());
 					}
 				});
 
 		JsonObject value = waitAssert("mucJoin");
 
 		assertNotNull(value);
-		assertEquals(XmppSessionMessage.OK, value.getNumber("status"));
+		assertEquals(XmppSessionMessage.OK, value.getInteger("status"));
 	}
 
 	@Test
@@ -139,7 +140,7 @@ public class MucManagerTests extends BaseXmppTests {
 		String sessionId2 = login(user2);
 		initiateConnection(user2, sessionId2);
 
-		eventBus.registerHandler("xmpp/muc/" + sessionId2, new Handler<Message<JsonObject>>() {
+		eventBus.consumer("xmpp/muc/" + sessionId2, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
@@ -149,24 +150,24 @@ public class MucManagerTests extends BaseXmppTests {
 
 		String room = createMuc(sessionId, "mucroom" + System.nanoTime(), user1.login);
 
-		eventBus.send("xmpp/muc/" + sessionId + "/" + room + ":participants", new JsonObject(),
-				new Handler<Message<JsonObject>>() {
+		eventBus.request("xmpp/muc/" + sessionId + "/" + room + ":participants", new JsonObject(),
+				new Handler<AsyncResult<Message<JsonObject>>>() {
 
 					@Override
-					public void handle(Message<JsonObject> event) {
-						queueAssertValue("participants", event.body());
+					public void handle(AsyncResult<Message<JsonObject>> event) {
+						queueAssertValue("participants", event.result().body());
 					}
 
 				});
 
 		JsonObject participtantsResp = waitAssert("participants");
 		assertNotNull(participtantsResp);
-		assertEquals(XmppSessionMessage.OK, participtantsResp.getNumber("status"));
+		assertEquals(XmppSessionMessage.OK, participtantsResp.getInteger("status"));
 
-		assertNotNull(participtantsResp.getArray("participants"));
+		assertNotNull(participtantsResp.getJsonArray("participants"));
 
 		Set<String> pset = new HashSet<>();
-		for (Object p : participtantsResp.getArray("participants")) {
+		for (Object p : participtantsResp.getJsonArray("participants")) {
 			pset.add((String) p);
 		}
 
@@ -183,7 +184,7 @@ public class MucManagerTests extends BaseXmppTests {
 		String sessionId2 = login(user2);
 		initiateConnection(user2, sessionId2);
 
-		eventBus.registerHandler("xmpp/muc/" + sessionId2, new Handler<Message<JsonObject>>() {
+		eventBus.consumer("xmpp/muc/" + sessionId2, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
@@ -193,7 +194,7 @@ public class MucManagerTests extends BaseXmppTests {
 
 		String room = createMuc(sessionId, "mucroom" + System.nanoTime(), user1.login);
 
-		eventBus.registerHandler("xmpp/muc/" + sessionId, new Handler<Message<JsonObject>>() {
+		eventBus.consumer("xmpp/muc/" + sessionId, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
@@ -202,13 +203,13 @@ public class MucManagerTests extends BaseXmppTests {
 			}
 		});
 
-		eventBus.send("xmpp/muc/" + sessionId2 + ":join",
-				new JsonObject().putString("room", room).putString("nickname", user2.login),
-				new Handler<Message<JsonObject>>() {
+		eventBus.request("xmpp/muc/" + sessionId2 + ":join",
+				new JsonObject().put("room", room).put("nickname", user2.login),
+				new Handler<AsyncResult<Message<JsonObject>>>() {
 
 					@Override
-					public void handle(Message<JsonObject> event) {
-						queueAssertValue("mucJoin", event.body());
+					public void handle(AsyncResult<Message<JsonObject>> event) {
+						queueAssertValue("mucJoin", event.result().body());
 					}
 				});
 
@@ -218,25 +219,25 @@ public class MucManagerTests extends BaseXmppTests {
 		assertNotNull(value);
 		assertEquals("participants", value.getString("action"));
 
-		eventBus.send("xmpp/muc/" + sessionId + "/" + room + ":participants", new JsonObject(),
-				new Handler<Message<JsonObject>>() {
+		eventBus.request("xmpp/muc/" + sessionId + "/" + room + ":participants", new JsonObject(),
+				new Handler<AsyncResult<Message<JsonObject>>>() {
 
 					@Override
-					public void handle(Message<JsonObject> event) {
-						System.out.println(event.body());
-						queueAssertValue("participants", event.body());
+					public void handle(AsyncResult<Message<JsonObject>> event) {
+						System.out.println(event.result().body());
+						queueAssertValue("participants", event.result().body());
 					}
 
 				});
 
 		JsonObject participtantsResp = waitAssert("participants");
 		assertNotNull(participtantsResp);
-		assertEquals(XmppSessionMessage.OK, participtantsResp.getNumber("status"));
+		assertEquals(XmppSessionMessage.OK, participtantsResp.getInteger("status"));
 
-		assertNotNull(participtantsResp.getArray("participants"));
+		assertNotNull(participtantsResp.getJsonArray("participants"));
 
 		Set<String> pset = new HashSet<>();
-		for (Object p : participtantsResp.getArray("participants")) {
+		for (Object p : participtantsResp.getJsonArray("participants")) {
 			pset.add((String) p);
 		}
 
@@ -256,19 +257,19 @@ public class MucManagerTests extends BaseXmppTests {
 
 		String room = createMuc(sessionId, "mucroom" + System.nanoTime(), user1.login);
 
-		eventBus.send("xmpp/muc/" + sessionId2 + ":join",
-				new JsonObject().putString("room", room).putString("nickname", user2.login),
-				new Handler<Message<JsonObject>>() {
+		eventBus.request("xmpp/muc/" + sessionId2 + ":join",
+				new JsonObject().put("room", room).put("nickname", user2.login),
+				new Handler<AsyncResult<Message<JsonObject>>>() {
 
 					@Override
-					public void handle(Message<JsonObject> event) {
-						queueAssertValue("mucJoin", event.body());
+					public void handle(AsyncResult<Message<JsonObject>> event) {
+						queueAssertValue("mucJoin", event.result().body());
 					}
 				});
 
 		waitAssert("mucJoin");
 
-		eventBus.registerHandler("xmpp/muc/" + sessionId, new Handler<Message<JsonObject>>() {
+		eventBus.consumer("xmpp/muc/" + sessionId, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
@@ -277,11 +278,11 @@ public class MucManagerTests extends BaseXmppTests {
 			}
 		});
 
-		eventBus.send("xmpp/muc/" + sessionId2 + "/" + room + ":leave", new JsonObject(),
-				new Handler<Message<JsonObject>>() {
+		eventBus.request("xmpp/muc/" + sessionId2 + "/" + room + ":leave", new JsonObject(),
+				new Handler<AsyncResult<Message<JsonObject>>>() {
 
 					@Override
-					public void handle(Message<JsonObject> event) {
+					public void handle(AsyncResult<Message<JsonObject>> event) {
 						queueAssertValue("leave", Boolean.TRUE);
 					}
 
@@ -301,7 +302,7 @@ public class MucManagerTests extends BaseXmppTests {
 
 		String room = createMuc(sessionId, "mucroom" + System.nanoTime(), user1.login);
 
-		eventBus.registerHandler("xmpp/muc/" + sessionId, new Handler<Message<JsonObject>>() {
+		eventBus.consumer("xmpp/muc/" + sessionId, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
@@ -310,13 +311,12 @@ public class MucManagerTests extends BaseXmppTests {
 			}
 		});
 
-		eventBus.send("xmpp/muc/" + sessionId + "/" + room + ":message",
-				new JsonObject().putString("message", "yeah ha !"));
+		eventBus.send("xmpp/muc/" + sessionId + "/" + room + ":message", new JsonObject().put("message", "yeah ha !"));
 
 		JsonObject message = waitAssert("mucSession");
 		assertNotNull(message);
 		assertEquals("message", message.getString("action"));
-		assertNotNull(message.getObject("body"));
-		assertEquals("yeah ha !", message.getObject("body").getString("message"));
+		assertNotNull(message.getJsonObject("body"));
+		assertEquals("yeah ha !", message.getJsonObject("body").getString("message"));
 	}
 }

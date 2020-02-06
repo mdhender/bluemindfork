@@ -18,14 +18,14 @@
  */
 package net.bluemind.eas.testhelper.mock;
 
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.http.HttpServerRequest;
-
 import com.google.common.collect.ImmutableMap;
 
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.eas.http.AuthenticatedEASQuery;
 import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.eas.http.EasUrls;
@@ -76,7 +76,7 @@ public class RequestsFactory {
 	}
 
 	private String b64(byte[] bytes) {
-		return org.vertx.java.core.json.impl.Base64.encodeBytes(bytes);
+		return Base64.getEncoder().encodeToString(bytes);
 	}
 
 	/**
@@ -87,7 +87,7 @@ public class RequestsFactory {
 	 * @return
 	 */
 	public AuthenticatedRequest authenticated(ImmutableMap<String, String> headers, String query) {
-		Map<String, String> mutableHeaders = new HashMap<String, String>(headers);
+		Map<String, String> mutableHeaders = new HashMap<>(headers);
 		mutableHeaders.put("Authorization", "Basic " + b64((latd + ":" + pass).getBytes()));
 
 		HttpServerRequest req = new RequestObject(HttpMethod.POST, mutableHeaders, baseUrl, EasUrls.ROOT, query);

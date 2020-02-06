@@ -25,11 +25,12 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.CaseInsensitiveMultiMap;
-import org.vertx.java.core.http.WebSocket;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.MultiMap;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.CaseInsensitiveHeaders;
+import io.vertx.core.http.WebSocket;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.rest.base.IRestCallHandler;
 import net.bluemind.core.rest.base.RestRequest;
@@ -67,30 +68,30 @@ public class VertxSockJsCallHandler implements IRestCallHandler {
 		sockJsProvider.registerResponseHandler(id, data -> {
 			handleResponse(response, data);
 		});
-		ws.write(new Buffer(jsRequest.encode()));
+		ws.write(Buffer.buffer(jsRequest.encode()));
 	}
 
 	private JsonObject buildRequest(RestRequest request) {
 		String rId = UIDGenerator.uid();
 		JsonObject msg = new JsonObject();
-		msg.putString("requestId", rId);
-		msg.putString("method", request.method);
-		msg.putString("path", request.path);
+		msg.put("requestId", rId);
+		msg.put("method", request.method);
+		msg.put("path", request.path);
 
 		JsonObject headers = new JsonObject();
 		request.headers.forEach(entry -> {
-			headers.putString(entry.getKey(), entry.getValue());
+			headers.put(entry.getKey(), entry.getValue());
 		});
 
 		JsonObject params = new JsonObject();
 		request.params.forEach(entry -> {
-			params.putString(entry.getKey(), entry.getValue());
+			params.put(entry.getKey(), entry.getValue());
 		});
-		msg.putObject("headers", headers);
-		msg.putObject("params", params);
+		msg.put("headers", headers);
+		msg.put("params", params);
 
 		if (request.body != null) {
-			msg.putBinary("body", request.body.getBytes());
+			msg.put("body", request.body.getBytes());
 		}
 		return msg;
 	}
@@ -109,13 +110,13 @@ public class VertxSockJsCallHandler implements IRestCallHandler {
 			throw new IllegalArgumentException("requestId is null");
 		}
 
-		CaseInsensitiveMultiMap headers = new CaseInsensitiveMultiMap();
-		headers.add(asMap(msg.getObject("headers")));
+		MultiMap headers = new CaseInsensitiveHeaders();
+		headers.addAll(asMap(msg.getJsonObject("headers")));
 
 		Buffer body = null;
 		byte[] bodyb = msg.getBinary("body");
 		if (bodyb != null) {
-			body = new Buffer(bodyb);
+			body = Buffer.buffer(bodyb);
 		}
 
 		RestResponse response = RestResponse.ok(headers, msg.getInteger("statusCode"), body);
@@ -125,7 +126,7 @@ public class VertxSockJsCallHandler implements IRestCallHandler {
 	private Map<String, String> asMap(JsonObject object) {
 
 		return Optional.of(object).map((o) -> {
-			Map<String, String> v = o.toMap().entrySet().stream().collect(Collectors.toMap(a -> {
+			Map<String, String> v = o.getMap().entrySet().stream().collect(Collectors.toMap(a -> {
 				return a.getKey();
 			}, b -> {
 				return (String) b.getValue();

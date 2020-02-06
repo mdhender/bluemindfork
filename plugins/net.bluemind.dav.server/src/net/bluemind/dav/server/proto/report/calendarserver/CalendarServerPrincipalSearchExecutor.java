@@ -26,9 +26,9 @@ import javax.xml.namespace.QName;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.http.HttpServerResponse;
 import org.w3c.dom.Element;
 
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.container.model.ItemValue;
@@ -40,8 +40,8 @@ import net.bluemind.dav.server.proto.report.ReportResponse;
 import net.bluemind.dav.server.store.LoggedCore;
 import net.bluemind.dav.server.xml.DOMUtils;
 import net.bluemind.dav.server.xml.MultiStatusBuilder;
-import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
+import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.DirEntryQuery;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.user.api.IUser;

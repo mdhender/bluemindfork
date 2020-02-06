@@ -20,6 +20,7 @@ package net.bluemind.backend.mail.parsing;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.StandardCharsets;
@@ -35,6 +36,8 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import javax.mail.internet.MimeUtility;
 
 import org.apache.james.mime4j.dom.Body;
 import org.apache.james.mime4j.dom.Entity;
@@ -87,8 +90,8 @@ public class BodyStreamProcessor {
 	// copied from UidFetchCommand
 	private static final Set<String> fromSummaryClass = Sets.newHashSet("DATE", "FROM", "TO", "CC", "SUBJECT",
 			"CONTENT-TYPE", "REPLY-TO", "MAIL-REPLY-TO", "MAIL-FOLLOWUP-TO", "LIST-POST", "DISPOSITION-NOTIFICATION-TO",
-			"X-PRIORITY", "X-BM_HSM_ID", "X-BM_HSM_DATETIME", "X-BM-EVENT", "X-BM-RESOURCEBOOKING",
-			"X-BM-FOLDERSHARING", "X-ASTERISK-CALLERID");
+			"X-PRIORITY", "X-BM_HSM_ID", "X-BM_HSM_DATETIME", "X-BM-EVENT", "X-BM-EVENT-CANCELED",
+			"X-BM-RESOURCEBOOKING", "X-BM-FOLDERSHARING", "X-ASTERISK-CALLERID");
 
 	private static final Set<String> fromMailApi = Sets.newHashSet(MailApiHeaders.ALL);
 
@@ -106,6 +109,8 @@ public class BodyStreamProcessor {
 	public static final int BODY_VERSION;
 
 	static {
+		System.setProperty("mail.mime.decodetext.strict", "false");
+
 		// initialization in a separate static bloc enables tests to modify this final
 		// field using reflection
 		BODY_VERSION = 4;
@@ -139,7 +144,13 @@ public class BodyStreamProcessor {
 			String subject = parsed.getSubject();
 			if (subject != null) {
 				mb.subject = subject.replace("\u0000", "");
+				try {
+					mb.subject = MimeUtility.decodeText(mb.subject);
+				} catch (UnsupportedEncodingException | UnsupportedCharsetException e) {
+					logger.warn("Cannot decode subject {}", e.getMessage());
+				}
 			}
+
 			mb.date = parsed.getDate();
 			mb.size = (int) emlInput.getCount();
 			Multimap<String, String> mmapHeaders = MultimapBuilder.hashKeys().linkedListValues().build();

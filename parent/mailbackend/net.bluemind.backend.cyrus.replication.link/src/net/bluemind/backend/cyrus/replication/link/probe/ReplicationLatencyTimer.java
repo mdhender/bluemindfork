@@ -18,13 +18,12 @@
  */
 package net.bluemind.backend.cyrus.replication.link.probe;
 
-import java.util.concurrent.TimeUnit;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.DeliveryOptions;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.replication.link.probe.LatencyMonitorWorker.Probe;
 
 public class ReplicationLatencyTimer {
@@ -44,12 +43,13 @@ public class ReplicationLatencyTimer {
 	}
 
 	private void triggerProbe() {
-		vertx.eventBus().sendWithTimeout("replication.latency.probe", probe, TimeUnit.SECONDS.toMillis(90), result -> {
-			if (result.failed()) {
-				logger.error("probing failed: {}", result.cause().getMessage());
-			}
-			start();
-		});
+		vertx.eventBus().request("replication.latency.probe", probe, new DeliveryOptions().setSendTimeout(90000),
+				result -> {
+					if (result.failed()) {
+						logger.error("probing failed: {}", result.cause().getMessage());
+					}
+					start();
+				});
 	}
 
 }

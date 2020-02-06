@@ -26,13 +26,13 @@ import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.http.HttpClient;
-import org.vertx.java.core.http.HttpClientRequest;
-import org.vertx.java.core.http.HttpHeaders;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.streams.Pump;
 
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpClientRequest;
+import io.vertx.core.http.HttpHeaders;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.streams.Pump;
 import net.bluemind.core.rest.http.HttpClientProvider;
 import net.bluemind.eclipse.common.IHasPriority;
 import net.bluemind.webmodule.devmodefilter.DevModeState.ServerPort;
@@ -83,19 +83,12 @@ public class DevModeForwardFilter implements IWebFilter, NeedVertx, IHasPriority
 		logger.info("forward request {} to {}:{}/{}", request.uri(), ff.serverPort.ip, ff.serverPort.port, uri);
 
 		HttpClient client = clientProvider.getClient(ff.serverPort.ip, ff.serverPort.port);
-		if (client.isKeepAlive()) {
-			client.setKeepAlive(false);
-		}
-
-		client.exceptionHandler(e -> {
-			logger.error("Client Error: " + e.getMessage(), e);
-		});
 
 		HttpClientRequest remoteRequest = client.request(request.method(), uri, r -> {
 			logger.info("response for request http://{}:{}{}{} : {} {}", ff.serverPort.ip, ff.serverPort.port, uri,
 					r.statusCode(), r.statusMessage());
 
-			request.response().headers().add(r.headers());
+			request.response().headers().addAll(r.headers());
 
 			request.response().setStatusCode(r.statusCode());
 			request.response().setStatusMessage(r.statusMessage());
@@ -112,12 +105,12 @@ public class DevModeForwardFilter implements IWebFilter, NeedVertx, IHasPriority
 				request.response().setStatusCode(500).setStatusMessage(e.getMessage() != null ? e.getMessage() : "null")
 						.end();
 			});
-			Pump p = Pump.createPump(r, request.response());
+			Pump p = Pump.pump(r, request.response());
 			r.endHandler(v -> request.response().end());
 			p.start();
 		});
 
-		remoteRequest.headers().add(request.headers());
+		remoteRequest.headers().addAll(request.headers());
 		remoteRequest.exceptionHandler(h -> {
 			logger.error("Remote error: " + h.getMessage(), h);
 			request.response().setStatusCode(500).setStatusMessage(h.getMessage() != null ? h.getMessage() : "null")
@@ -129,7 +122,7 @@ public class DevModeForwardFilter implements IWebFilter, NeedVertx, IHasPriority
 			remoteRequest.end();
 		});
 
-		Pump.createPump(request, remoteRequest).start();
+		Pump.pump(request, remoteRequest).start();
 		return null;
 
 	}

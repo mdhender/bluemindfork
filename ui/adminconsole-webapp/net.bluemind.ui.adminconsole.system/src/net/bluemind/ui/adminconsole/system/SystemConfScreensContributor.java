@@ -29,6 +29,7 @@ import net.bluemind.ui.adminconsole.system.hosts.HostsScreenContributor;
 import net.bluemind.ui.adminconsole.system.hosts.create.CreateHostScreenContributor;
 import net.bluemind.ui.adminconsole.system.hosts.edit.EditHostScreens;
 import net.bluemind.ui.adminconsole.system.maintenance.MaintenanceScreen;
+import net.bluemind.ui.adminconsole.system.maintenance.reindex.ReindexScreen;
 import net.bluemind.ui.adminconsole.system.maintenance.update.UpdateScreen;
 import net.bluemind.ui.adminconsole.system.subscription.SubscriptionWidget;
 import net.bluemind.ui.adminconsole.system.systemconf.SystemConfScreenContributor;
@@ -53,6 +54,7 @@ public class SystemConfScreensContributor implements ScreenElementContributorUnw
 		join.push(ScreenElementContribution.create(null, null, SubscriptionWidget.screenModel()));
 		join.push(ScreenElementContribution.create(null, null, MaintenanceScreen.screenModel()));
 		join.push(ScreenElementContribution.create(null, null, UpdateScreen.screenModel()));
+		join.push(ScreenElementContribution.create(null, null, ReindexScreen.screenModel()));
 
 		for (int i = 0; i < join.length(); i++) {
 			ScreenElementContribution c = join.get(i);

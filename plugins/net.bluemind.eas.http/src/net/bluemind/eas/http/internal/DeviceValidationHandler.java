@@ -20,12 +20,13 @@ package net.bluemind.eas.http.internal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.http.HttpServerRequest;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.eas.dto.EasBusEndpoints;
 import net.bluemind.eas.dto.device.DeviceValidationRequest;
 import net.bluemind.eas.dto.device.DeviceValidationResponse;
@@ -68,14 +69,26 @@ public class DeviceValidationHandler implements Handler<AuthenticatedEASQuery> {
 			logger.debug("Sending to validation: {}", event.deviceIdentifier());
 		}
 
-		eb.send(EasBusEndpoints.DEVICE_VALIDATION, new LocalJsonObject<>(validationRequest),
-				new Handler<Message<LocalJsonObject<DeviceValidationResponse>>>() {
+		eb.request(EasBusEndpoints.DEVICE_VALIDATION, new LocalJsonObject<>(validationRequest),
+				new Handler<AsyncResult<Message<LocalJsonObject<DeviceValidationResponse>>>>() {
 
 					@Override
-					public void handle(Message<LocalJsonObject<DeviceValidationResponse>> msg) {
-						DeviceValidationResponse validationResponse = msg.body().getValue();
+					public void handle(AsyncResult<Message<LocalJsonObject<DeviceValidationResponse>>> msg) {
 						final HttpServerRequest httpReq = event.request();
 						httpReq.resume();
+						if (msg.failed()) {
+							httpReq.endHandler(new Handler<Void>() {
+
+								@Override
+								public void handle(Void event) {
+									httpReq.response().setStatusCode(500).setStatusMessage(msg.cause().getMessage())
+											.end();
+								}
+							});
+							return;
+						}
+
+						DeviceValidationResponse validationResponse = msg.result().body().getValue();
 						if (validationResponse.success) {
 							AuthorizedDeviceQuery authorized = new AuthorizedDeviceQuery(vertx, event,
 									validationResponse.internalId);

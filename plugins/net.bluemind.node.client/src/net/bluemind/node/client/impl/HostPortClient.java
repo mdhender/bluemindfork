@@ -18,7 +18,7 @@
  */
 package net.bluemind.node.client.impl;
 
-import com.ning.http.client.AsyncHttpClient;
+import org.asynchttpclient.AsyncHttpClient;
 
 public class HostPortClient {
 

@@ -23,8 +23,8 @@ import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.replication.protocol.parsing.JsUtils;
 import net.bluemind.backend.cyrus.replication.protocol.parsing.ParenObjectParser;
 import net.bluemind.backend.cyrus.replication.server.ReplicationFrame;
@@ -73,9 +73,9 @@ public class ApplyReserve implements IAsyncReplicationCommand {
 		ParenObjectParser parser = ParenObjectParser.create();
 		JsonObject parsed = parser.parse(toReserve).asObject();
 		if (logger.isDebugEnabled()) {
-			logger.debug("Should RESERVE {}", parsed.asObject().encodePrettily());
+			logger.debug("Should RESERVE {}", parsed.encodePrettily());
 		}
-		List<String> guids = JsUtils.asList(parsed.getArray("GUID"), (String s) -> s);
+		List<String> guids = JsUtils.asList(parsed.getJsonArray("GUID"), (String s) -> s);
 		String partition = parsed.getString("PARTITION");
 
 		return session.state().missingGuids(partition, guids).thenApply(missing -> {

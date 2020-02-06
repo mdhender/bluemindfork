@@ -5,18 +5,19 @@ create type t_domain_routing as enum
 
 
 create table t_domain_user (
-	item_id 	  int4 references t_container_item(id) primary key,
-	login 		  varchar(64) not null,
-	password 	  varchar(255),
+	item_id 	  	int4 references t_container_item(id) primary key,
+	login 		  	varchar(64) not null,
+	password 	  	varchar(255),
+	password_lastchange	timestamp,
 
-	archived	  boolean default false,
-	system		  boolean default false,
-	hidden		  boolean default false,
+	archived	  	boolean default false,
+	system		  	boolean default false,
+	hidden		  	boolean default false,
 
-	routing		  t_domain_routing,
-	server_id	  text, -- uid
+	routing		  	t_domain_routing,
+	server_id	  	text, -- uid
 	properties hstore,
-	password_algorithm 	  varchar(64)
+	password_algorithm 	varchar(64)
 );
 CREATE INDEX idx_domain_user_login ON t_domain_user(login);
 

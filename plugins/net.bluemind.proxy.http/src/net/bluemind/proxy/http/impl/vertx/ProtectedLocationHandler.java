@@ -25,13 +25,14 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
 
 import com.netflix.spectator.api.Registry;
 
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.proxy.http.Activator;
@@ -76,6 +77,18 @@ public final class ProtectedLocationHandler implements Handler<HttpServerRequest
 	public void handle(HttpServerRequest event) {
 		registry.counter(idFactory.name("requestsCount", "kind", "protected")).increment();
 		logger.debug("Protected location {}:{}{}", fl.getHost(), fl.getPort(), fl.getPathPrefix());
+
+		event.response().putHeader("Content-Security-Policy",
+				"default-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: ");
+
+		event.response().putHeader("Feature-Policy",
+				"accelerometer 'none'; ambient-light-sensor 'none'; autoplay 'self'; battery 'none';"
+						+ " camera 'none'; display-capture 'none'; document-domain 'none'; encrypted-media 'none';"
+						+ " execution-while-not-rendered 'self'; execution-while-out-of-viewport 'self';"
+						+ " fullscreen 'self'; geolocation 'none'; gyroscope 'none'; layout-animations 'none'; layout-animations 'none';"
+						+ " layout-animations 'none'; legacy-image-formats 'none'; magnetometer 'none'; microphone 'none';"
+						+ " midi 'none'; navigation-override 'none'; oversized-images 'none'; payment 'none'; picture-in-picture 'none';"
+						+ " publickey-credentials 'none'; sync-xhr 'none'; usb 'none'; vr 'none'; wake-lock 'none'; xr-spatial-tracking 'none'; ");
 
 		AuthRequirements reqs = authenticated(event);
 		if (!reqs.authNeeded && reqs.sessionId != null) {
@@ -127,7 +140,7 @@ public final class ProtectedLocationHandler implements Handler<HttpServerRequest
 			}
 			// maintenance => show /login/index.html
 			// when maintenance=true param is present
-			if (coreState.maintenace() && event.method().equals("GET") && ( //
+			if (coreState.maintenace() && event.method() == HttpMethod.GET && ( //
 			!(event.path().equals("/login/index.html") && "true".equals(event.params().get("maintenance")))
 					&& !(!event.path().equals("/login/index.html") && event.path().startsWith("/login"))//
 			)) {
@@ -177,7 +190,7 @@ public final class ProtectedLocationHandler implements Handler<HttpServerRequest
 
 	private AuthRequirements authenticated(HttpServerRequest event) {
 
-		if (event.absoluteURI().getPath().endsWith("bluemind_sso_security")) {
+		if (event.absoluteURI().endsWith("bluemind_sso_security")) {
 			return AuthRequirements.needSession(authKeyProtocol);
 		}
 

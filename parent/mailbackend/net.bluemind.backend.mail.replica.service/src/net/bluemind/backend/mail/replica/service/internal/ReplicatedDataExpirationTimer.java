@@ -26,8 +26,8 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
 import net.bluemind.backend.mail.replica.api.IReplicatedDataExpiration;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -36,7 +36,7 @@ import net.bluemind.network.topology.Topology;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 
-public class ReplicatedDataExpirationTimer extends Verticle {
+public class ReplicatedDataExpirationTimer extends AbstractVerticle {
 
 	ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 	private static final int default_expiration = 7;
@@ -45,7 +45,7 @@ public class ReplicatedDataExpirationTimer extends Verticle {
 
 	@Override
 	public void start() {
-		super.vertx.setPeriodic(TimeUnit.HOURS.toMillis(2), this::execute);
+		vertx.setPeriodic(TimeUnit.HOURS.toMillis(2), this::execute);
 	}
 
 	private void execute(Long timerId) {

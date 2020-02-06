@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.core.sendmail.testhelper
+Bundle-SymbolicName: net.bluemind.core.sendmail.testhelper;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Automatic-Module-Name: net.bluemind.core.sendmail.testhelper
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: net.bluemind.core.sendmail,
+ net.bluemind.core.commons,
+ org.apache.james.apache-mime4j-dom
+Export-Package: net.bluemind.core.sendmail.testhelper

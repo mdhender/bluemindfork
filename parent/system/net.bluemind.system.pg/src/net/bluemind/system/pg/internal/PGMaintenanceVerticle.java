@@ -27,8 +27,9 @@ import java.time.temporal.ChronoUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Verticle;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -38,7 +39,7 @@ import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.system.pg.api.IInternalPostgresMaintenance;
 
-public class PGMaintenanceVerticle extends Verticle {
+public class PGMaintenanceVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(PGMaintenanceVerticle.class);
 

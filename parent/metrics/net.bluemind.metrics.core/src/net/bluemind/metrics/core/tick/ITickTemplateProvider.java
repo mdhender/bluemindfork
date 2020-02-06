@@ -20,8 +20,7 @@ package net.bluemind.metrics.core.tick;
 import java.io.InputStream;
 import java.util.List;
 
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.server.api.Server;
@@ -60,12 +59,11 @@ public interface ITickTemplateProvider {
 	/**
 	 * 
 	 * @param ctx
-	 * @param endPointUrl
-	 *            Used to send alerts back to Bluemind product for self-healing.
-	 * @param server
-	 *            Server where the alerts are created. AlertsVerticle iterates over
-	 *            all servers, you can use the enum Product to filter the servers
-	 *            where your alert is created.
+	 * @param endPointUrl Used to send alerts back to Bluemind product for
+	 *                    self-healing.
+	 * @param server      Server where the alerts are created. AlertsVerticle
+	 *                    iterates over all servers, you can use the enum Product to
+	 *                    filter the servers where your alert is created.
 	 * @return All alerts created for the server.
 	 */
 	List<TemplateDefinition> createDefinitions(BmContext ctx, String endPointUrl, ItemValue<Server> server);

@@ -33,11 +33,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.collect.Lists;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.backend.mail.replica.api.ICyrusReplicationAnnotations;
 import net.bluemind.backend.mail.replica.api.ICyrusReplicationArtifacts;
 import net.bluemind.backend.mail.replica.api.MailboxAnnotation;

@@ -30,12 +30,12 @@ import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.streams.Pump;
-import org.vertx.java.core.streams.ReadStream;
 
 import com.google.common.collect.Lists;
 
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.Pump;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.addressbook.api.AddressBookDescriptor;
 import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.addressbook.api.IAddressBooksMgmt;
@@ -273,7 +273,7 @@ public class AddressBooksMgmt implements IAddressBooksMgmt, IInCoreAddressBooksM
 
 			@Override
 			protected Buffer serialize(ChangesetItem n) throws Exception {
-				return new Buffer(JsonUtils.asString(n));
+				return Buffer.buffer(JsonUtils.asString(n));
 			}
 		};
 		return VertxStream.stream(stream);
@@ -310,8 +310,8 @@ public class AddressBooksMgmt implements IAddressBooksMgmt, IInCoreAddressBooksM
 			storeService.deleteAll();
 		}
 
-		ReadStream<?> s = VertxStream.read(restoreStream);
-		GenericJsonObjectWriteStream<ChangesetItem> stream = new GenericJsonObjectWriteStream<IAddressBooksMgmt.ChangesetItem>(
+		ReadStream<Buffer> s = VertxStream.read(restoreStream);
+		GenericJsonObjectWriteStream<ChangesetItem> stream = new GenericJsonObjectWriteStream<ChangesetItem>(
 				IAddressBooksMgmt.ChangesetItem.class) {
 
 			@Override
@@ -327,7 +327,7 @@ public class AddressBooksMgmt implements IAddressBooksMgmt, IInCoreAddressBooksM
 			}
 		};
 
-		Pump.createPump(s, stream).start();
+		Pump.pump(s, stream).start();
 
 	}
 

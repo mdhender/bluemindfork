@@ -20,7 +20,8 @@ package net.bluemind.dav.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.AsyncResult;
+
+import io.vertx.core.AsyncResult;
 
 public final class Results {
 

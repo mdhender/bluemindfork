@@ -23,11 +23,12 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.eventbus.Message;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.DeliveryOptions;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
 import net.bluemind.eas.dto.EasBusEndpoints;
 import net.bluemind.eas.dto.push.PushRegistrationRequest;
 import net.bluemind.eas.dto.push.PushTrigger;
@@ -54,7 +55,8 @@ public class PushSupport {
 		logger.info("[{}] Setting up push on collections {}, with a timeout of {}s.", latd, collections,
 				pushReq.timeoutMs / 1000);
 
-		eb.sendWithTimeout(EasBusEndpoints.PUSH_REGISTRATION, jso, timeoutMs, replyHandler);
+		eb.request(EasBusEndpoints.PUSH_REGISTRATION, jso, new DeliveryOptions().setSendTimeout(timeoutMs),
+				replyHandler);
 	}
 
 }

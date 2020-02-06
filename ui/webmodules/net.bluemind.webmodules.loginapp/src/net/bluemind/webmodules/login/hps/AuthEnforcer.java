@@ -18,9 +18,8 @@
  */
 package net.bluemind.webmodules.login.hps;
 
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.http.HttpServerRequest;
-
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.proxy.http.NeedVertx;
 import net.bluemind.proxy.http.auth.api.AuthRequirements;
 import net.bluemind.proxy.http.auth.api.CookieHelper;

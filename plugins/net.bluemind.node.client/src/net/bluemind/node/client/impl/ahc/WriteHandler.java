@@ -20,14 +20,13 @@ package net.bluemind.node.client.impl.ahc;
 
 import java.io.InputStream;
 
+import org.asynchttpclient.BoundRequestBuilder;
+import org.asynchttpclient.request.body.generator.InputStreamBodyGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.netty.handler.codec.http.HttpHeaders;
 import net.bluemind.common.io.FileBackedOutputStream;
-import com.ning.http.client.AsyncHttpClient.BoundRequestBuilder;
-import com.ning.http.client.HttpResponseHeaders;
-import com.ning.http.client.generators.InputStreamBodyGenerator;
-
 import net.bluemind.core.api.fault.ServerFault;
 
 public class WriteHandler extends DefaultAsyncHandler<Void> {
@@ -44,7 +43,7 @@ public class WriteHandler extends DefaultAsyncHandler<Void> {
 	}
 
 	@Override
-	protected Void getResult(int status, HttpResponseHeaders headers, FileBackedOutputStream body) {
+	protected Void getResult(int status, HttpHeaders headers, FileBackedOutputStream body) {
 		if (status != 200) {
 			logger.warn("PUT {} error: {}", path, status);
 			throw new ServerFault();

@@ -25,8 +25,9 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
+
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
 
 public class StreamThread extends Thread {
 	public Handler<Buffer> dh;
@@ -74,7 +75,7 @@ public class StreamThread extends Thread {
 	private void tryWrite() throws InterruptedException {
 		if (!paused && !buffer.isEmpty()) {
 			byte[] bs = buffer.get(0);
-			dh.handle(new Buffer(bs));
+			dh.handle(Buffer.buffer(bs));
 			buffer.remove(0);
 		} else {
 			Thread.sleep(10);

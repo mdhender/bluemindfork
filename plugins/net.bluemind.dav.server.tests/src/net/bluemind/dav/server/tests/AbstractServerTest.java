@@ -2,27 +2,23 @@ package net.bluemind.dav.server.tests;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.transform.TransformerException;
 
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.platform.PlatformManager;
-import org.vertx.java.platform.VerticleConstructor;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 
+import io.vertx.core.Verticle;
 import junit.framework.TestCase;
 import net.bluemind.addressbook.adapter.VCardAdapter;
 import net.bluemind.calendar.api.ICalendarUids;
@@ -31,7 +27,7 @@ import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.dav.server.proto.Depth;
 import net.bluemind.dav.server.proto.NS;
 import net.bluemind.dav.server.xml.DOMUtils;
-import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.vertx.testhelper.Deploy;
 import net.fortuna.ical4j.vcard.VCard;
 
 public abstract class AbstractServerTest extends TestCase {
@@ -75,40 +71,10 @@ public abstract class AbstractServerTest extends TestCase {
 
 	}
 
-	private void verticle(VerticleConstructor ctor, boolean worker) throws InterruptedException {
-		CountDownLatch cdl = new CountDownLatch(1);
-		if (worker) {
-			worker(cdl, ctor);
-		} else {
-			verticle(cdl, ctor);
-		}
-		cdl.await();
+	private void verticle(Supplier<Verticle> ctor, boolean worker) throws InterruptedException {
+		Deploy.verticles(worker, ctor);
 		Thread.sleep(1000);
-		System.err.println("Done with " + ctor.className());
-	}
-
-	private void verticle(final CountDownLatch cdl, final VerticleConstructor klass) {
-		PlatformManager pm = VertxPlatform.getPlatformManager();
-		pm.deployVerticle(klass, null, new URL[0], 1, null, new Handler<AsyncResult<String>>() {
-
-			@Override
-			public void handle(AsyncResult<String> event) {
-				System.out.println(klass + ", successful: " + event.succeeded());
-				cdl.countDown();
-			}
-		});
-	}
-
-	private void worker(final CountDownLatch cdl, final VerticleConstructor klass) {
-		PlatformManager pm = VertxPlatform.getPlatformManager();
-		pm.deployWorkerVerticle(true, klass, null, new URL[0], 1, null, new Handler<AsyncResult<String>>() {
-
-			@Override
-			public void handle(AsyncResult<String> event) {
-				System.out.println(klass + ", successful: " + event.succeeded());
-				cdl.countDown();
-			}
-		});
+		System.err.println("Done with " + ctor);
 	}
 
 	public void testSetupIsOk() {

@@ -27,13 +27,13 @@ import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.collect.Sets;
 import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.flakeidgen.FlakeIdGenerator;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.hornetq.client.impl.ClusterClient;
 import net.bluemind.hornetq.client.impl.ClusterMember;
 import net.bluemind.hornetq.client.impl.ClusterNode;

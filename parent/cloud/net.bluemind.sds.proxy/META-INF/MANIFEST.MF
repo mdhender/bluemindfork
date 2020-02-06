@@ -6,7 +6,6 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Activator: net.bluemind.sds.proxy.SdsProxyActivator
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
- io.vertx.platform,
  slf4j.api,
  net.bluemind.lib.vertx;visibility:=reexport,
  com.fasterxml.jackson.core.jackson-databind,

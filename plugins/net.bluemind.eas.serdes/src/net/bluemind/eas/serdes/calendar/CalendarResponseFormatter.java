@@ -18,13 +18,10 @@
  */
 package net.bluemind.eas.serdes.calendar;
 
-import java.nio.charset.Charset;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
 
 import net.bluemind.eas.dto.NamespaceMapping;
 import net.bluemind.eas.dto.base.Callback;
@@ -263,7 +260,10 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 			b.text(NamespaceMapping.Email, "EndTime", MeetingRequestFastDateFormat.format(calendar.endTime));
 		}
 
-		b.text(NamespaceMapping.Email, "InstanceType", calendar.instanceType.xmlValue());
+		if (calendar.instanceType != null) {
+			b.text(NamespaceMapping.Email, "InstanceType", calendar.instanceType.xmlValue());
+		}
+
 		if (calendar.instanceType == InstanceType.exceptionToRecurring) {
 			b.text(NamespaceMapping.Email, "RecurrenceId", MeetingRequestFastDateFormat.format(calendar.recurrenceId));
 		}
@@ -292,8 +292,10 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 
 		boolean responseRequested = false;
 		Date now = new Date();
-		if (now.before(calendar.startTime)) {
-			responseRequested = true;
+		if (calendar.startTime != null) {
+			if (now.before(calendar.startTime)) {
+				responseRequested = true;
+			}
 		}
 		if (calendar.recurrence != null) {
 			if (calendar.recurrence.until != null && calendar.recurrence.until.before(now)) {
@@ -374,9 +376,7 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 	}
 
 	private static String toB64(byte[] bytes) {
-		ChannelBuffer src = ChannelBuffers.wrappedBuffer(bytes);
-		ChannelBuffer result = org.jboss.netty.handler.codec.base64.Base64.encode(src, false);
-		return result.toString(Charset.defaultCharset());
+		return Base64.getEncoder().encodeToString(bytes);
 	}
 
 	private void appendAttendees(IResponseBuilder b, List<Attendee> attendees) {

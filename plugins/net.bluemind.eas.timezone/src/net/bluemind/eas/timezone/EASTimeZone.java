@@ -21,11 +21,10 @@ package net.bluemind.eas.timezone;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 
-import org.vertx.java.core.json.JsonObject;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.base64.Base64;
+import io.vertx.core.json.JsonObject;
 
 public class EASTimeZone {
 
@@ -70,13 +69,13 @@ public class EASTimeZone {
 
 	public JsonObject toJson() {
 		JsonObject ret = new JsonObject();
-		ret.putNumber("bias", bias);
-		ret.putString("standardName", standardName);
-		ret.putObject("standardDate", standardDate.toJson());
-		ret.putNumber("standardBias", standardBias);
-		ret.putString("daylightName", daylightName);
-		ret.putObject("daylightDate", daylightDate.toJson());
-		ret.putNumber("daylightBias", daylightBias);
+		ret.put("bias", bias);
+		ret.put("standardName", standardName);
+		ret.put("standardDate", standardDate.toJson());
+		ret.put("standardBias", standardBias);
+		ret.put("daylightName", daylightName);
+		ret.put("daylightDate", daylightDate.toJson());
+		ret.put("daylightBias", daylightBias);
 		return ret;
 	}
 

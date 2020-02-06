@@ -17,6 +17,10 @@
  */
 package net.bluemind.calendar.sync.tests;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -39,15 +43,15 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpServer;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.RouteMatcher;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.SettableFuture;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.calendar.api.CalendarDescriptor;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarsMgmt;
@@ -64,6 +68,7 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.base.GenericStream;
 import net.bluemind.core.sessions.Sessions;
 import net.bluemind.domain.api.IDomainSettings;
+import net.bluemind.lib.vertx.RouteMatcher;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -77,6 +82,7 @@ public class CalendarSyncVerticleTests {
 	private static final String ICS_FILE_52_EVENTS = "resources/ics-test-52-events.ics";
 	private static final String ICS_FILE_BAD_CONTENT = "resources/ics-test-bad-content.ics";
 	private static final String ICS_FILE_BAD_CONTENT_2 = "resources/ics-test-bad-content-2.ics";
+	private static final String ICS_FILE_GOOGLE = "resources/ics-test-google.ics";
 	private static final String ICS_URL = "http://localhost:8091/ics";
 	private static final String CALENDAR_UID = "bluemind-test-calendar-id";
 	private static final String ETAG_1 = "W/\"etag-1-token\"";
@@ -98,8 +104,8 @@ public class CalendarSyncVerticleTests {
 	private String previousIcsContent;
 
 	/**
-	 * The next HTTP response the embedded server will do. It is 'prepared' by
-	 * each test.
+	 * The next HTTP response the embedded server will do. It is 'prepared' by each
+	 * test.
 	 */
 	private PreparedResponse nextResponse;
 	private boolean lastSyncHasUpdatedCalendar;
@@ -155,7 +161,7 @@ public class CalendarSyncVerticleTests {
 		this.systemProvider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 
 		// here we can detect if a calendar update has been made
-		VertxPlatform.eventBus().registerLocalHandler("bm.calendar.hook.changed", event -> {
+		VertxPlatform.eventBus().consumer("bm.calendar.hook.changed", event -> {
 			this.lastSyncHasUpdatedCalendar = true;
 		});
 	}
@@ -163,13 +169,20 @@ public class CalendarSyncVerticleTests {
 	@Before
 	public void startIcsHttpServer() {
 		icsHttpServer = VertxPlatform.getVertx().createHttpServer();
-		RouteMatcher router = new RouteMatcher();
+		RouteMatcher router = new RouteMatcher(VertxPlatform.getVertx());
 		router.noMatch(req -> {
 			req.response().setStatusCode(400).end();
 		});
 
 		router.head("/ics", this::handleHead);
-		router.get("/ics", this::handleGet);
+		router.get("/ics", event -> {
+			try {
+				handleGet(event);
+			} catch (IOException e) {
+				LoggerFactory.getLogger(CalendarSyncVerticleTests.class).error("Unable to handle GET request.", e);
+				Assert.fail(e.getMessage());
+			}
+		});
 
 		icsHttpServer.requestHandler(router).listen(8091);
 	}
@@ -179,9 +192,29 @@ public class CalendarSyncVerticleTests {
 		event.response().setStatusCode(this.computeStatus(event)).end();
 	}
 
-	private void handleGet(final HttpServerRequest event) {
+	private void handleGet(final HttpServerRequest event) throws IOException {
 		this.nextResponse.headers.forEach((key, value) -> event.response().putHeader(key, value));
-		event.response().setStatusCode(this.computeStatus(event)).sendFile(this.nextResponse.returnedIcs).end();
+		event.response().setStatusCode(this.computeStatus(event))
+				.sendFile(this.handleIcsVariables(this.nextResponse.returnedIcs)).end();
+	}
+
+	private String handleIcsVariables(String icsFile) throws IOException {
+		String icsContent = new String(Files.readAllBytes(new File(icsFile).toPath()), StandardCharsets.UTF_8);
+		String timestampVariable = "${timestamp}";
+		if (icsContent.contains(timestampVariable)) {
+			LocalDateTime dateTime = LocalDateTime.now();
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'");
+			String dateTimeString = dateTime.format(formatter);
+			icsContent = icsContent.replaceAll(Pattern.quote(timestampVariable), dateTimeString);
+			// create file to send
+			File newFile = File
+					.createTempFile("icsTest-" + this.getClass().getSimpleName() + System.currentTimeMillis(), ".ics");
+			Files.write(newFile.toPath(), icsContent.getBytes());
+			return newFile.getAbsolutePath();
+		} else {
+			// no variables, use the original file
+			return icsFile;
+		}
 	}
 
 	private int computeStatus(final HttpServerRequest event) {
@@ -203,8 +236,8 @@ public class CalendarSyncVerticleTests {
 	}
 
 	/**
-	 * Trigger several times the sync for a never-changing ics ("MD5 mechanism"
-	 * is triggered).
+	 * Trigger several times the sync for a never-changing ics ("MD5 mechanism" is
+	 * triggered).
 	 */
 	@Test
 	public void testNoChanges() throws InterruptedException {
@@ -221,8 +254,7 @@ public class CalendarSyncVerticleTests {
 	}
 
 	/**
-	 * Trigger several times the sync for a changing ics (one more event each
-	 * time).
+	 * Trigger several times the sync for a changing ics (one more event each time).
 	 */
 	@Test
 	public void testWithChanges() throws InterruptedException {
@@ -242,8 +274,8 @@ public class CalendarSyncVerticleTests {
 	}
 
 	/**
-	 * Due to a big minimum delay between synchronizations, no more than one
-	 * sync should be done.
+	 * Due to a big minimum delay between synchronizations, no more than one sync
+	 * should be done.
 	 */
 	@Test
 	public void testWithChangesBigDelay() throws InterruptedException {
@@ -266,8 +298,8 @@ public class CalendarSyncVerticleTests {
 	 * Test an ICS with too much changes, it should not be sync-able the 4th
 	 * time.<br>
 	 * <i>Note: In this test, {@link #icsHttpServer} will alternatively return a
-	 * calendar with 51 events or just 1 each time a sync is requested (in order
-	 * to reach the 'too much changes error' limit</i>
+	 * calendar with 51 events or just 1 each time a sync is requested (in order to
+	 * reach the 'too much changes error' limit</i>
 	 */
 	@Test
 	public void testTooMuchChanges() throws InterruptedException {
@@ -293,8 +325,8 @@ public class CalendarSyncVerticleTests {
 	}
 
 	/**
-	 * Test updating a calendar with bad ICS content. Change ICS content to
-	 * avoid "MD5 mechanism".
+	 * Test updating a calendar with bad ICS content. Change ICS content to avoid
+	 * "MD5 mechanism".
 	 */
 	@Test
 	public void testBadIcsContent() throws InterruptedException {
@@ -321,8 +353,8 @@ public class CalendarSyncVerticleTests {
 	}
 
 	/**
-	 * Check we do not change the ICS content when the entity-tag (a.k.a. ETag)
-	 * has not changed.
+	 * Check we do not change the ICS content when the entity-tag (a.k.a. ETag) has
+	 * not changed.
 	 */
 	@Test
 	public void testETagNoChange() throws InterruptedException {
@@ -474,8 +506,8 @@ public class CalendarSyncVerticleTests {
 	}
 
 	/**
-	 * Check we change the ICS content when
-	 * Content-Disposition/modification-date (If-Modified-Since) changes.
+	 * Check we change the ICS content when Content-Disposition/modification-date
+	 * (If-Modified-Since) changes.
 	 */
 	@Test
 	public void testLastModifiedModificationDateChanges() throws InterruptedException {
@@ -513,8 +545,8 @@ public class CalendarSyncVerticleTests {
 	}
 
 	/**
-	 * Check we do not change the ICS content when lastModified timestamp has
-	 * not changed even if we do not receive a 304 response status.
+	 * Check we do not change the ICS content when lastModified timestamp has not
+	 * changed even if we do not receive a 304 response status.
 	 */
 	@Test
 	public void testLastModifiedNo304() throws InterruptedException {
@@ -543,13 +575,41 @@ public class CalendarSyncVerticleTests {
 		this.nextResponse.headers.put("Last-Modified", formattedDate);
 		this.nextResponse.headers.put(FORCE_STATUS_HEADER, "200");
 		this.checkSyncOkNoUpdates(1500);
+	}
 
+	/**
+	 * Check we do not update the ICS content when dealing with a google calendar
+	 * which changes at each request because of the DTSTAMP line.
+	 */
+	@Test
+	public void testLastModifiedGoogle() throws InterruptedException {
+		this.init();
+
+		final ZonedDateTime utcLastModified = LAST_MODIF_DATE
+				.withZoneSameInstant(ZoneId.ofOffset("UTC", ZoneOffset.UTC));
+		final String formattedDate = DateTimeFormatter.RFC_1123_DATE_TIME.format(utcLastModified);
+
+		// first sync replaces the initial empty ics
+		this.nextResponse = new PreparedResponse(ICS_FILE_GOOGLE);
+		this.nextResponse.headers.put("Last-Modified", formattedDate);
+		// RFC_1123 dates drop milliseconds, so add at least 1sec sleep to see
+		// differences in times comparisons
+		this.checkSyncOkWithChanges(1500);
+
+		// other syncs are done but calendars not updated
+		// should also check the ICS parsing has not be done, but there is no
+		// way to do that currently
+		this.nextResponse = new PreparedResponse(ICS_FILE_GOOGLE);
+		this.checkSyncOkNoUpdates(1500);
+
+		this.nextResponse = new PreparedResponse(ICS_FILE_GOOGLE);
+		this.checkSyncOkNoUpdates(1500);
 	}
 
 	/**
 	 * Check we do not sync when the Expire header is set to tomorrow.<br>
-	 * <i>Note: 'Expire' races against the min delay (set in domain settings).
-	 * We always take the longer.</i>
+	 * <i>Note: 'Expire' races against the min delay (set in domain settings). We
+	 * always take the longer.</i>
 	 */
 	@Test
 	public void testNextSyncExpireTomorrow() throws InterruptedException {
@@ -598,8 +658,8 @@ public class CalendarSyncVerticleTests {
 	/**
 	 * Check we do not sync when the Cache-Control/max-age header is set to
 	 * tomorrow.<br>
-	 * <i>Note: 'max-age' races against the min delay (set in domain settings).
-	 * We always take the longer.</i>
+	 * <i>Note: 'max-age' races against the min delay (set in domain settings). We
+	 * always take the longer.</i>
 	 */
 	@Test
 	public void testNextSyncMaxAgeTomorrow() throws InterruptedException {
@@ -648,8 +708,8 @@ public class CalendarSyncVerticleTests {
 	}
 
 	/**
-	 * Check we do not update a calendar when its MD5 checksum has not changed,
-	 * even if we receive a 200 response.
+	 * Check we do not update a calendar when its MD5 checksum has not changed, even
+	 * if we receive a 200 response.
 	 */
 	@Test
 	public void testMd5NoChanges() throws InterruptedException {
@@ -668,8 +728,8 @@ public class CalendarSyncVerticleTests {
 	}
 
 	/**
-	 * Test the priority mechanism. The less errors and the older syncs should
-	 * go first. Error count is more important than last sync date.
+	 * Test the priority mechanism. The less errors and the older syncs should go
+	 * first. Error count is more important than last sync date.
 	 */
 	@Test
 	public void testPriority() {

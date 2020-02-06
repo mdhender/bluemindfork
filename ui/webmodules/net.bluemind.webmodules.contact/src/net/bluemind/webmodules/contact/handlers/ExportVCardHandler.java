@@ -26,13 +26,13 @@ import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.MultiMap;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
-import org.vertx.java.core.streams.Pump;
 
+import io.vertx.core.Handler;
+import io.vertx.core.MultiMap;
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.streams.Pump;
 import net.bluemind.addressbook.api.IAddressBookPromise;
 import net.bluemind.addressbook.api.IAddressBooksPromise;
 import net.bluemind.addressbook.api.VCardInfo;
@@ -146,7 +146,7 @@ public class ExportVCardHandler implements Handler<HttpServerRequest>, NeedVertx
 				request.response().end();
 			}
 		});
-		Pump.createPump(vcardStream, request.response()).start();
+		Pump.pump(vcardStream, request.response()).start();
 	}
 
 	private void prepareResponse(final HttpServerRequest request, String filename) {

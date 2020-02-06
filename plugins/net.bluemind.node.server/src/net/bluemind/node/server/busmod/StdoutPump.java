@@ -22,11 +22,11 @@ import java.io.InputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.core.parsetools.RecordParser;
 
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.parsetools.RecordParser;
 import net.bluemind.node.server.busmod.SysCommand.WsEndpoint;
 
 public final class StdoutPump implements Runnable {
@@ -46,7 +46,7 @@ public final class StdoutPump implements Runnable {
 		this.in = proc.getInputStream();
 		this.rc = rc;
 		this.record = recordOutput;
-		this.rp = RecordParser.newDelimited(LF, new Handler<Buffer>() {
+		this.rp = RecordParser.newDelimited(Buffer.buffer(LF), new Handler<Buffer>() {
 
 			@Override
 			public void handle(Buffer event) {
@@ -61,7 +61,7 @@ public final class StdoutPump implements Runnable {
 		logger.debug("[{}]: {}", rc.getPid(), line);
 		rc.out(line);
 		if (wsEndpoint != null) {
-			JsonObject log = new JsonObject().putString("log", line);
+			JsonObject log = new JsonObject().put("log", line);
 			wsEndpoint.write("log", log);
 		}
 	}
@@ -87,7 +87,7 @@ public final class StdoutPump implements Runnable {
 					break;
 				}
 				if (record && read > 0) {
-					Buffer chunk = new Buffer(chunk(buf, read));
+					Buffer chunk = Buffer.buffer(chunk(buf, read));
 					rp.handle(chunk);
 				}
 				logger.debug("[{}] pumped {}bytes.", rc.getPid(), read);
@@ -97,7 +97,7 @@ public final class StdoutPump implements Runnable {
 			try {
 				exit = proc.waitFor();
 				if (wsEndpoint != null) {
-					wsEndpoint.write("completion", new JsonObject().putNumber("exit", exit));
+					wsEndpoint.write("completion", new JsonObject().put("exit", exit));
 					wsEndpoint.complete(rc.getPid());
 				}
 				rc.setExitValue(exit, time);
@@ -108,7 +108,7 @@ public final class StdoutPump implements Runnable {
 				// thrown by exitValue() when not finished
 			}
 		} catch (Exception e) {
-			rp.handle(new Buffer(e.getMessage()));
+			rp.handle(Buffer.buffer(e.getMessage()));
 			logger.error("[{}] {}", rc.getPid(), e.getMessage());
 			rc.setExitValue(1, time);
 		}

@@ -34,6 +34,8 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
+
 import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.attachment.api.IAttachment;
 import net.bluemind.calendar.api.VEventOccurrence;
@@ -305,7 +307,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 			Attach prop = (Attach) attachments.get(i);
 			byte[] binary = prop.getBinary();
 			if (binary == null && prop.getUri() != null) {
-				atts.add(addUriAttachment(prop));
+				addUriAttachment(prop).ifPresent(uriAttachment -> atts.add(uriAttachment));
 			} else if (binary != null && owner.isPresent()) {
 				AttachedFile addBinaryAttachment = addBinaryAttachment(prop, binary, i, owner);
 				if (addBinaryAttachment != null) {
@@ -339,7 +341,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		return null;
 	}
 
-	private AttachedFile addUriAttachment(Attach prop) {
+	private Optional<AttachedFile> addUriAttachment(Attach prop) {
 		String url = prop.getUri().toString();
 		String filename = null;
 		if (prop.getParameter("X-FILE-NAME") != null) {
@@ -351,7 +353,11 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		att.expirationDate = 0l;
 		att.name = filename;
 		att.publicUrl = url;
-		return att;
+		if (Strings.isNullOrEmpty(att.name) || Strings.isNullOrEmpty(att.publicUrl)) {
+			logger.info("Skipping broken attachment property {}:{}", att.name, att.publicUrl);
+			return Optional.empty();
+		}
+		return Optional.of(att);
 	}
 
 	/**

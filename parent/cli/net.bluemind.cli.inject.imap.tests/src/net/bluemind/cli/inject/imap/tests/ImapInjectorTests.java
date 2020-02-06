@@ -42,7 +42,6 @@ import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.hornetq.client.MQ;
-import net.bluemind.lib.vertx.Constructor;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.locator.LocatorVerticle;
 import net.bluemind.mailbox.api.Mailbox.Routing;
@@ -65,7 +64,7 @@ public class ImapInjectorTests {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
-		Deploy.verticles(false, Constructor.of(LocatorVerticle::new, LocatorVerticle.class)).get(5, TimeUnit.SECONDS);
+		Deploy.verticles(false, LocatorVerticle::new).get(5, TimeUnit.SECONDS);
 
 		BmConfIni ini = new BmConfIni();
 

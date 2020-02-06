@@ -18,9 +18,9 @@
  */
 package net.bluemind.eas.protocol.tests;
 
-import org.vertx.java.core.Handler;
 import org.w3c.dom.Document;
 
+import io.vertx.core.Handler;
 import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.OptionalParams;

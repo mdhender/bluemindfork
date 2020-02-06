@@ -4,11 +4,12 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Verticle;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.mail.replica.api.ICyrusValidationPromise;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.AsyncHandler;
@@ -20,7 +21,7 @@ import net.bluemind.network.topology.IServiceTopology;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.network.topology.TopologyException;
 
-public class SdsCyrusValidationHandlerVerticle extends Verticle {
+public class SdsCyrusValidationHandlerVerticle extends AbstractVerticle {
 	private static final Logger logger = LoggerFactory.getLogger(SdsCyrusValidationHandlerVerticle.class);
 	private static final int CORE_EXCEPTION = 0;
 	static ICyrusValidationPromise cli;
@@ -42,7 +43,7 @@ public class SdsCyrusValidationHandlerVerticle extends Verticle {
 	public void start() {
 		cli = getProvider();
 
-		vertx.eventBus().registerHandler(SdsAddresses.VALIDATION, (Message<Buffer> message) -> {
+		vertx.eventBus().consumer(SdsAddresses.VALIDATION, (Message<Buffer> message) -> {
 			JsonObject json = JsonHelper.getJsonFromString(message.body().toString());
 
 			if (JsonHelper.isValidJson(json, "mailbox", "partition")) {

@@ -18,8 +18,7 @@
  */
 package net.bluemind.scheduledjob.scheduler;
 
-import org.vertx.java.platform.Verticle;
-
+import io.vertx.core.Verticle;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.scheduledjob.scheduler.impl.JobRegistry;
 import net.bluemind.scheduledjob.scheduler.impl.JobSchedulerVerticle;

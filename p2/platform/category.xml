@@ -10,7 +10,6 @@
    <bundle id="net.bluemind.addressbook.domainbook" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.addressbook.hook" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.addressbook.hook.acl" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.addressbook.job" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.addressbook.persistence" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.addressbook.persistence.tests" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.addressbook.service" version="4.1.0.qualifier"/>
@@ -66,7 +65,6 @@
    <bundle id="net.bluemind.calendar.hook" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.calendar.hook.acl" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.calendar.hook.ics" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.calendar.job" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.calendar.pdf" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.calendar.persistence" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.calendar.service" version="4.1.0.qualifier"/>
@@ -374,7 +372,6 @@
    <bundle id="net.bluemind.todolist.closure" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.todolist.hook" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.todolist.hook.acl" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.todolist.job" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.todolist.persistence" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.todolist.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.todolist.sqlschema" version="4.1.0.qualifier"/>

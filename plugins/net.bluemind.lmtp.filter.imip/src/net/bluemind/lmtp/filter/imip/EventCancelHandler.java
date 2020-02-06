@@ -118,7 +118,7 @@ public class EventCancelHandler extends CancelHandler implements IIMIPHandler {
 					cal.delete(oneOccurence.uid, false);
 				}
 			}
-			return new IMIPResponse();
+			return IMIPResponse.createCanceledResponse(imip.uid);
 		} catch (Exception e) {
 			throw e;
 		}

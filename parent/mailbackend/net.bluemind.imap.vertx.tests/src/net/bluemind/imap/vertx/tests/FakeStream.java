@@ -17,12 +17,12 @@
   */
 package net.bluemind.imap.vertx.tests;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.streams.ReadStream;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
 
-public class FakeStream implements ReadStream<FakeStream> {
+public class FakeStream implements ReadStream<Buffer> {
 
 	Handler<Buffer> dh;
 	Handler<Void> end;
@@ -36,7 +36,7 @@ public class FakeStream implements ReadStream<FakeStream> {
 	}
 
 	@Override
-	public FakeStream dataHandler(Handler<Buffer> handler) {
+	public FakeStream handler(Handler<Buffer> handler) {
 		this.dh = handler;
 		gogoIfSet();
 		return this;
@@ -49,7 +49,7 @@ public class FakeStream implements ReadStream<FakeStream> {
 		if (dh != null && end != null) {
 			System.out.println(Thread.currentThread() + " GOGO stream");
 			vx.runOnContext(gg -> {
-				dh.handle(new Buffer(payload));
+				dh.handle(Buffer.buffer(payload));
 				end.handle(null);
 			});
 		}
@@ -77,6 +77,11 @@ public class FakeStream implements ReadStream<FakeStream> {
 	public FakeStream endHandler(Handler<Void> endHandler) {
 		this.end = endHandler;
 		gogoIfSet();
+		return this;
+	}
+
+	@Override
+	public ReadStream<Buffer> fetch(long amount) {
 		return this;
 	}
 

@@ -31,4 +31,5 @@ Require-Bundle: org.junit,
  net.bluemind.core.rest.http.vertx;bundle-version="1.0.0",
  net.bluemind.core.tests.testshelper,
  net.bluemind.user.service,
- net.bluemind.group.service
+ net.bluemind.group.service,
+ net.bluemind.core.sendmail.testhelper

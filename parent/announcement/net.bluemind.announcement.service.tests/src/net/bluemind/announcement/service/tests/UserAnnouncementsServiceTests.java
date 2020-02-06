@@ -25,11 +25,11 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.util.concurrent.SettableFuture;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.announcement.api.Announcement;
 import net.bluemind.announcement.api.Announcement.Target;
 import net.bluemind.announcement.api.IUserAnnouncements;
@@ -44,9 +44,8 @@ public class UserAnnouncementsServiceTests {
 	@Before
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
-		
 
-		final SettableFuture<Void> future = SettableFuture.<Void> create();
+		final SettableFuture<Void> future = SettableFuture.<Void>create();
 		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
 
 			@Override

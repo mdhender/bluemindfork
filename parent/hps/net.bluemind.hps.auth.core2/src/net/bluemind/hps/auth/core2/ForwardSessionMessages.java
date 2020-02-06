@@ -18,9 +18,8 @@
  */
 package net.bluemind.hps.auth.core2;
 
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.hornetq.client.OOPMessage;
 import net.bluemind.hornetq.client.Topic;
 import net.bluemind.hornetq.client.vertx.IMessageForwarder;
@@ -39,7 +38,7 @@ public class ForwardSessionMessages implements IMessageForwarder {
 		for (String name : message.getPropertyNames()) {
 			String m = message.getStringProperty(name);
 			if (m != null) {
-				vmessage.putString(name.toString(), m);
+				vmessage.put(name.toString(), m);
 			}
 		}
 		vertx.eventBus().publish(Topic.CORE_SESSIONS, vmessage);

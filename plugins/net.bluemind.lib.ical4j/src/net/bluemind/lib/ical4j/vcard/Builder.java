@@ -23,6 +23,7 @@ import java.io.Reader;
 
 import net.bluemind.lib.ical4j.vcard.property.AddressbookServerKind;
 import net.bluemind.lib.ical4j.vcard.property.AddressbookServerMember;
+import net.bluemind.lib.ical4j.vcard.property.NoteAsHtml;
 import net.fortuna.ical4j.vcard.GroupRegistry;
 import net.fortuna.ical4j.vcard.ParameterFactory;
 import net.fortuna.ical4j.vcard.ParameterFactoryRegistry;
@@ -38,6 +39,7 @@ public class Builder {
 		pfr.register(Id.BDAY.toString(), BMBDay.FACTORY);
 		pfr.register("X-ADDRESSBOOKSERVER-KIND", AddressbookServerKind.FACTORY);
 		pfr.register("X-ADDRESSBOOKSERVER-MEMBER", AddressbookServerMember.FACTORY);
+		pfr.register("X-NOTE-HTML", NoteAsHtml.FACTORY);
 
 		VCardBuilder builder = new VCardBuilder(reader, new GroupRegistry(), pfr, new ParameterFactoryRegistry() {
 

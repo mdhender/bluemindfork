@@ -24,10 +24,10 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
 import net.bluemind.lmtp.Activator;
 import net.bluemind.lmtp.backend.DeliveredVersion;
 import net.bluemind.lmtp.backend.IDeliveryDoneAction;
@@ -36,7 +36,7 @@ import net.bluemind.lmtp.backend.LmtpEnvelope;
 import net.bluemind.lmtp.backend.LmtpReply;
 import net.bluemind.lmtp.impl.busmessages.DeliveredMailMessage;
 
-public class LmtpDoneActionVerticle extends Verticle {
+public class LmtpDoneActionVerticle extends AbstractVerticle {
 
 	public static final String ADDR = "lmtp.doneActions";
 
@@ -53,7 +53,7 @@ public class LmtpDoneActionVerticle extends Verticle {
 				done(event.body().getEnvelope());
 			}
 		};
-		getVertx().eventBus().registerHandler(ADDR, doneHandler);
+		getVertx().eventBus().consumer(ADDR, doneHandler);
 	}
 
 	protected void done(LmtpEnvelope mEnvelope) {

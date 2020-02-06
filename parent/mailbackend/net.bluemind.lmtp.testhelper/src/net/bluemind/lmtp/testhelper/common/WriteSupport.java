@@ -19,8 +19,8 @@ package net.bluemind.lmtp.testhelper.common;
 
 import java.util.concurrent.CompletableFuture;
 
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.net.NetSocket;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.net.NetSocket;
 
 public class WriteSupport {
 
@@ -31,7 +31,7 @@ public class WriteSupport {
 	}
 
 	public CompletableFuture<Void> writeWithCRLF(String s) {
-		Buffer buf = new Buffer(s).appendString("\r\n");
+		Buffer buf = Buffer.buffer(s).appendString("\r\n");
 		return writeRaw(buf);
 	}
 

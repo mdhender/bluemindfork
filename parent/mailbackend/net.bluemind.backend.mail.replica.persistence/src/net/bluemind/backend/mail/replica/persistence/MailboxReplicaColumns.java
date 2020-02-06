@@ -26,9 +26,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.backend.mail.replica.api.MailboxReplica.Acl;
 import net.bluemind.core.container.model.Item;
@@ -118,7 +117,7 @@ public class MailboxReplicaColumns {
 		} else {
 			List<Acl> ret = new ArrayList<>(size);
 			for (int i = 0; i < size; i++) {
-				JsonObject js = jsonArray.get(i);
+				JsonObject js = jsonArray.getJsonObject(i);
 				ret.add(Acl.create(js.getString("subject"), js.getString("rights")));
 			}
 			return ret;
@@ -128,7 +127,7 @@ public class MailboxReplicaColumns {
 	private static JsonArray acls(MailboxReplica replica) {
 		JsonArray ret = new JsonArray();
 		for (Acl acl : replica.acls) {
-			ret.addObject(new JsonObject().putString("subject", acl.subject).putString("rights", acl.rights));
+			ret.add(new JsonObject().put("subject", acl.subject).put("rights", acl.rights));
 		}
 		return ret;
 	}

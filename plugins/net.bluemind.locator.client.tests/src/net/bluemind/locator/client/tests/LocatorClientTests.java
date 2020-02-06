@@ -29,11 +29,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.collect.Lists;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
@@ -53,7 +53,6 @@ public class LocatorClientTests {
 		JdbcTestHelper.getInstance().beforeTest();
 		testDomainUid = "test.lan";
 
-		
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
 		Server esServer = new Server();

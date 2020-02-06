@@ -22,9 +22,8 @@
  */
 package net.bluemind.core.container.service.internal;
 
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.lib.vertx.utils.DebouncedEventPublisher;
@@ -45,7 +44,7 @@ public class ContainerChangeEventProducer {
 		final String loginAtDomain = securityContext.getSubject();
 		this.address = String.format("bm.%s.hook.%s.changed", container.type, container.uid);
 		this.message = new JsonObject();
-		message.putString("loginAtDomain", loginAtDomain);
+		message.put("loginAtDomain", loginAtDomain);
 		debouncedEventPublisher = new DebouncedEventPublisher(eventBus, DEBOUNCE_TIME_MILLIS);
 	}
 

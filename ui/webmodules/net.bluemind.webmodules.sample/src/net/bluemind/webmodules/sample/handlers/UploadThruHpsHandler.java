@@ -20,12 +20,13 @@ package net.bluemind.webmodules.sample.handlers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpServerFileUpload;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
-import org.vertx.java.core.parsetools.RecordParser;
+
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpServerFileUpload;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.parsetools.RecordParser;
 
 public class UploadThruHpsHandler implements Handler<HttpServerRequest> {
 
@@ -33,7 +34,7 @@ public class UploadThruHpsHandler implements Handler<HttpServerRequest> {
 
 	@Override
 	public void handle(final HttpServerRequest request) {
-		request.expectMultiPart(true);
+		request.setExpectMultipart(true);
 		request.uploadHandler(new Handler<HttpServerFileUpload>() {
 
 			private int count = 0;
@@ -42,7 +43,7 @@ public class UploadThruHpsHandler implements Handler<HttpServerRequest> {
 			@Override
 			public void handle(HttpServerFileUpload upload) {
 
-				upload.dataHandler(RecordParser.newDelimited("END:VCARD", new Handler<Buffer>() {
+				upload.handler(RecordParser.newDelimited("END:VCARD", new Handler<Buffer>() {
 
 					@Override
 					public void handle(Buffer buff) {

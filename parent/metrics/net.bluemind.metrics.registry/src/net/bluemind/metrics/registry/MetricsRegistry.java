@@ -1,8 +1,6 @@
 package net.bluemind.metrics.registry;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,11 +8,10 @@ import org.slf4j.LoggerFactory;
 import com.netflix.spectator.api.Registry;
 import com.netflix.spectator.api.Spectator;
 
-import net.bluemind.metrics.registry.client.HttpClient;
 import net.bluemind.metrics.registry.impl.BMRegistry;
 
 public class MetricsRegistry {
-	private static HttpClient httpClient = null;
+
 	private static final Logger logger = LoggerFactory.getLogger(MetricsRegistry.class);
 	private static boolean available = false;
 
@@ -24,6 +21,9 @@ public class MetricsRegistry {
 		} else {
 			tryInit();
 		}
+	}
+
+	private MetricsRegistry() {
 	}
 
 	public static Registry get() {
@@ -49,16 +49,4 @@ public class MetricsRegistry {
 		available = b;
 	}
 
-	public static CompletableFuture<String> getMetrics() {
-		try {
-			if (httpClient == null) {
-				httpClient = new HttpClient();
-				httpClient.open();
-			}
-			return httpClient.getMetrics();
-		} catch (FileNotFoundException | InterruptedException e) {
-			logger.error("Could not open http client or get metrics {}", e);
-			throw new RuntimeException(e);
-		}
-	}
 }

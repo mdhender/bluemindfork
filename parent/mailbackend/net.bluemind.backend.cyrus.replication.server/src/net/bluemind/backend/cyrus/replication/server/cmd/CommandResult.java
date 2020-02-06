@@ -20,7 +20,7 @@ package net.bluemind.backend.cyrus.replication.server.cmd;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.vertx.java.core.buffer.Buffer;
+import io.vertx.core.buffer.Buffer;
 
 public class CommandResult {
 
@@ -82,7 +82,7 @@ public class CommandResult {
 	}
 
 	public Buffer responseBuffer() {
-		return fullResponse.map(b -> b).orElse(new Buffer(responseString()));
+		return fullResponse.map(b -> b).orElse(Buffer.buffer(responseString()));
 	}
 
 }

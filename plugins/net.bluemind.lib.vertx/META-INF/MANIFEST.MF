@@ -8,16 +8,17 @@ Bundle-Vendor: blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  io.netty;bundle-version="4.0.33",
- net.bluemind.lib.jackson;bundle-version="1.0.0",
  net.bluemind.eclipse.common;bundle-version="1.0.0",
  com.google.guava;bundle-version="19.0.0",
  io.vertx.core;bundle-version="2.1.6";visibility:=reexport,
- io.vertx.platform;bundle-version="2.1.6";visibility:=reexport,
- net.bluemind.metrics.registry
+ io.vertx.web;bundle-version="3.8.4",
+ net.bluemind.metrics.registry,
+ com.fasterxml.jackson.core.jackson-annotations;bundle-version="2.10.1",
+ com.fasterxml.jackson.core.jackson-core;bundle-version="2.10.1",
+ com.fasterxml.jackson.core.jackson-databind;bundle-version="2.10.1"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Export-Package: net.bluemind.lib.vertx,
- net.bluemind.lib.vertx.domainsocket,
  net.bluemind.lib.vertx.utils
 Automatic-Module-Name: net.bluemind.lib.vertx

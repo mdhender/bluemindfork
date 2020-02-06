@@ -23,13 +23,13 @@ import java.io.InputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpHeaders;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
 import org.w3c.dom.Document;
 
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpHeaders;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.eas.dto.NamespaceMapping;
 import net.bluemind.eas.http.EasHeaders;
 import net.bluemind.eas.impl.Responder;
@@ -104,7 +104,7 @@ public final class VertxResponder implements Responder {
 		byte[] b = FileUtils.streamBytes(file, true);
 		resp.headers().add(HttpHeaders.CONTENT_TYPE, contentType);
 		setASHeaders(ConnectionHeader.close);
-		resp.end(new Buffer(b));
+		resp.end(Buffer.buffer(b));
 	}
 
 	@Override

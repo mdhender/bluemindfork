@@ -20,16 +20,17 @@ package net.bluemind.proxy.http.impl.vertx;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.http.HttpServer;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerOptions;
 import net.bluemind.proxy.http.Activator;
 import net.bluemind.proxy.http.ILogoutListener;
 import net.bluemind.proxy.http.config.ConfigBuilder;
 import net.bluemind.proxy.http.config.HPSConfiguration;
 import net.bluemind.proxy.http.impl.SessionStore;
 
-public class ProxyVerticle extends Verticle {
+public class ProxyVerticle extends AbstractVerticle {
 
 	@SuppressWarnings("unused")
 	private final Logger logger = LoggerFactory.getLogger(ProxyVerticle.class);
@@ -67,10 +68,12 @@ public class ProxyVerticle extends Verticle {
 	public void start() {
 		coreState = new CoreState(vertx);
 		coreState.start();
-		HttpServer proxy = vertx.createHttpServer();
-		proxy.setTCPNoDelay(true);
-		proxy.setUsePooledBuffers(true);
-		proxy.setTCPKeepAlive(true);
+		HttpServerOptions opts = new HttpServerOptions();
+		opts.setTcpNoDelay(true);
+		opts.setUsePooledBuffers(true);
+		opts.setTcpKeepAlive(true);
+		HttpServer proxy = vertx.createHttpServer(opts);
+
 		HpsReqHandler rh = new HpsReqHandler(vertx, conf, ss, coreState);
 		proxy.requestHandler(rh);
 		proxy.listen(8079);

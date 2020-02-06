@@ -20,10 +20,10 @@ package net.bluemind.vertx.common.request;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.http.HttpServerRequest;
 
 import com.netflix.spectator.api.Registry;
 
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.vertx.common.request.impl.WrappedRequest;
@@ -63,12 +63,13 @@ public final class Requests {
 	 * @param tag
 	 * @param value
 	 */
-	public static void tag(HttpServerRequest sr, String tag, String value) {
+	public static void tag(HttpServerRequest r, String tag, String value) {
+		HttpServerRequest sr = Unwrapper.unwrap(r);
 		if (sr instanceof WrappedRequest) {
 			WrappedRequest wr = (WrappedRequest) sr;
 			wr.putLogAttribute(tag, value);
 		} else {
-			logger.warn("Not a wrapped request");
+			logger.warn("Not a wrapped request {}", sr, new Throwable("call loc"));
 		}
 	}
 

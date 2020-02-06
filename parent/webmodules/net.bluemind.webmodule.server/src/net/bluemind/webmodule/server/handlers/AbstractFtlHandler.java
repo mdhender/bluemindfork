@@ -31,17 +31,17 @@ import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpHeaders;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
-import org.vertx.java.core.json.JsonObject;
 
 import com.netflix.spectator.api.Registry;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpHeaders;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.common.freemarker.EquinoxTemplateLoader;
 import net.bluemind.core.api.BMVersion;
 import net.bluemind.metrics.registry.IdFactory;
@@ -191,7 +191,7 @@ public abstract class AbstractFtlHandler implements IWebModuleConsumer, Handler<
 			resp.setStatusCode(200);
 		}
 		resp.headers().add(HttpHeaders.CONTENT_TYPE, "text/html");
-		resp.end(new Buffer(data));
+		resp.end(Buffer.buffer(data));
 	}
 
 	private void buildJsRuntime(HttpServerRequest request, Map<String, Object> model) {

@@ -18,7 +18,7 @@
  */
 package net.bluemind.lib.vertx;
 
-import org.vertx.java.platform.Verticle;
+import io.vertx.core.Verticle;
 
 public interface IVerticleFactory {
 

@@ -17,11 +17,15 @@
   */
 package net.bluemind.system.stateobserver;
 
+import io.vertx.core.Vertx;
 import net.bluemind.system.api.SystemState;
 
 public interface IStateListener {
 	public static final String STATE_BUS_ADDRESS = "system.stateObserver.stateChanged";
 	public static final String STATE_BUS_EP_ADDRESS = "system.coreState";
+
+	default void init(Vertx vx) {
+	}
 
 	public void stateChanged(SystemState newState);
 }

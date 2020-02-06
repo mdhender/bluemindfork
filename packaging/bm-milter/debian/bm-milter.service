@@ -1,10 +1,8 @@
 [Unit]
-Description=BlueMind Milter Server.
-Before=runlevel2.target runlevel3.target runlevel4.target runlevel5.target shutdown.target bm-lmtpd.service
-After=systemd-journald-dev-log.socket network-online.target bm-core.service
-Wants=network-online.target
-Conflicts=shutdown.target
+Description=BlueMind Milter Server
 ConditionPathExists=!/etc/bm/bm-milter.disabled
+After=bm-ysnp.service
+PartOf=bluemind.target
 
 [Service]
 Type=notify
@@ -17,4 +15,4 @@ Environment=JAVA_HOME=/usr/lib/jvm/bm-jdk
 ExecStart=/usr/share/bm-milter/bm-milter /var/run/bm-milter.pid
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=bluemind.target

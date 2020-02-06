@@ -22,16 +22,15 @@ import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Throwables;
-import net.bluemind.common.io.FileBackedOutputStream;
-import com.ning.http.client.HttpResponseHeaders;
 
+import io.netty.handler.codec.http.HttpHeaders;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import net.bluemind.common.io.FileBackedOutputStream;
 import net.bluemind.core.task.api.TaskStatus;
-import net.bluemind.core.task.api.TaskStatus.State;
 
 public class StatusHandler extends DefaultAsyncHandler<TaskStatus> {
 
@@ -46,16 +45,16 @@ public class StatusHandler extends DefaultAsyncHandler<TaskStatus> {
 	}
 
 	@Override
-	protected TaskStatus getResult(int status, HttpResponseHeaders headers, FileBackedOutputStream body) {
+	protected TaskStatus getResult(int status, HttpHeaders headers, FileBackedOutputStream body) {
 		try {
 			byte[] bytes = body.asByteSource().read();
 			JsonObject jso = new JsonObject(new String(bytes));
 			boolean complete = jso.getBoolean("complete");
 			boolean successfull = jso.getBoolean("successful");
 			int exitCode = jso.getInteger("exitCode", 1);
-			JsonArray output = jso.getArray("output", EMPTY_ARRAY);
+			JsonArray output = jso.getJsonArray("output", EMPTY_ARRAY);
 			String lastLogEntry = Joiner.on('\n').join(output);
-			State state = fromBooleans(complete, successfull);
+			TaskStatus.State state = fromBooleans(complete, successfull);
 			TaskStatus ts = TaskStatus.create(10, state.ended ? 10 : 1, lastLogEntry, state, "" + exitCode);
 			return ts;
 		} catch (Exception e) {
@@ -70,11 +69,11 @@ public class StatusHandler extends DefaultAsyncHandler<TaskStatus> {
 	}
 
 	private TaskStatus.State fromBooleans(boolean complete, boolean successfull) {
-		for (State st : TaskStatus.State.values()) {
+		for (TaskStatus.State st : TaskStatus.State.values()) {
 			if (st.ended == complete && st.succeed == successfull) {
 				return st;
 			}
 		}
-		return State.InError;
+		return TaskStatus.State.InError;
 	}
 }

@@ -30,15 +30,15 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.core.net.NetSocket;
 
 import com.google.common.base.Splitter;
 import com.netflix.spectator.api.Registry;
 import com.netflix.spectator.api.patterns.PolledMeter;
 
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.net.NetSocket;
 import net.bluemind.backend.cyrus.replication.observers.IReplicationObserver;
 import net.bluemind.backend.cyrus.replication.server.cmd.ApplyActivateSieve;
 import net.bluemind.backend.cyrus.replication.server.cmd.ApplyAnnotation;
@@ -121,7 +121,7 @@ public class ReplicationSession {
 	public void start() {
 		logger.info("Starting session with {} ({})", client.remoteAddress(), client.writeHandlerID());
 		activeSessions.incrementAndGet();
-		client.dataHandler(clientFramesParser);
+		client.handler(clientFramesParser);
 		client.closeHandler(nothing -> {
 			long currentSessions = activeSessions.decrementAndGet();
 			storage.release();
@@ -137,14 +137,14 @@ public class ReplicationSession {
 
 	private void uplink(String remoteIp) {
 		JsonObject payload = new JsonObject();
-		payload.putString("master", remoteIp).putString("status", "UP");
+		payload.put("master", remoteIp).put("status", "UP");
 		VertxPlatform.eventBus().publish("mailreplica.uplink", payload);
 	}
 
 	private void downlink() {
 		if (activeSessions.get() == 0) {
 			JsonObject payload = new JsonObject();
-			payload.putString("status", "DOWN");
+			payload.put("status", "DOWN");
 			VertxPlatform.eventBus().publish("mailreplica.uplink", payload);
 			logger.info("DownLink notification.");
 		}
@@ -155,7 +155,7 @@ public class ReplicationSession {
 	}
 
 	private Buffer banner(Tag t, String... capabilities) {
-		Buffer banner = new Buffer();
+		Buffer banner = Buffer.buffer();
 		for (String capa : capabilities) {
 			banner.appendString("* ").appendString(capa).appendString("\r\n");
 		}
@@ -218,7 +218,7 @@ public class ReplicationSession {
 	}
 
 	private CompletableFuture<Void> write(String s) {
-		Buffer buf = new Buffer(s).appendBytes(CRLF);
+		Buffer buf = Buffer.buffer(s).appendBytes(CRLF);
 		return write(buf);
 	}
 

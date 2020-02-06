@@ -37,6 +37,7 @@ import net.bluemind.filehosting.api.FileHostingPublicLink;
 import net.bluemind.filehosting.api.IFileHosting;
 import net.bluemind.filehosting.service.export.IFileHostingService;
 import net.bluemind.system.api.GlobalSettingsKeys;
+import net.bluemind.system.api.IGlobalSettings;
 
 public class FileHostingService implements IFileHosting {
 	public final List<IFileHostingService> delegates;
@@ -123,9 +124,16 @@ public class FileHostingService implements IFileHosting {
 
 	@Override
 	public Configuration getConfiguration() throws ServerFault {
-		IDomainSettings settings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+		IGlobalSettings settingsGlobal = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IGlobalSettings.class);
+		Map<String, String> values = settingsGlobal.get();
+
+		IDomainSettings settingsDomain = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDomainSettings.class, domainUid);
-		Map<String, String> values = settings.get();
+		Map<String, String> valuesDomain = settingsDomain.get();
+
+		values.putAll(valuesDomain);
+
 		Configuration config = new Configuration();
 		config.maxFilesize = longValue(values, GlobalSettingsKeys.filehosting_max_filesize.name(), 0);
 		config.retentionTime = longValue(values, GlobalSettingsKeys.filehosting_retention.name(), 365).intValue();

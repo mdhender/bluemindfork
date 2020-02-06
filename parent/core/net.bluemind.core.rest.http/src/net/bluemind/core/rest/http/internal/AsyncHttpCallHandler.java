@@ -18,11 +18,10 @@
  */
 package net.bluemind.core.rest.http.internal;
 
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.RequestBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.RequestBuilder;
 
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.rest.base.IRestCallHandler;
@@ -47,13 +46,12 @@ public class AsyncHttpCallHandler implements IRestCallHandler {
 	public void call(RestRequest request, final AsyncHandler<RestResponse> responseHandler) {
 
 		RequestBuilder requestBuilder = new RequestBuilder();
-		requestBuilder.setMethod(request.method);
-		requestBuilder.setBodyEncoding("utf-8");
+		requestBuilder.setMethod(request.method.name());
 
 		String path = request.path;
 		requestBuilder.setUrl(baseUri + path);
 
-		request.headers.forEachEntries(entry -> requestBuilder.addHeader(entry.getKey(), entry.getValue()));
+		request.headers.forEach(entry -> requestBuilder.addHeader(entry.getKey(), entry.getValue()));
 
 		for (String val : request.remoteAddresses) {
 			requestBuilder.addHeader("X-Forwarded-For", val);
@@ -63,7 +61,7 @@ public class AsyncHttpCallHandler implements IRestCallHandler {
 			requestBuilder.addHeader("X-BM-Origin", request.origin);
 		}
 
-		request.params.forEachEntries(entry -> requestBuilder.addQueryParam(entry.getKey(), entry.getValue()));
+		request.params.forEach(entry -> requestBuilder.addQueryParam(entry.getKey(), entry.getValue()));
 
 		if (request.body != null) {
 			requestBuilder.setBody(request.body.getBytes());

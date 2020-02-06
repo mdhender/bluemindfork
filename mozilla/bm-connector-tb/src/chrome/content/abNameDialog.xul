@@ -8,7 +8,4 @@
     <hbox align="left">
         <label id="sharedBy" value="" flex="1"/>
     </hbox>
-    <hbox align="left">
-        <checkbox id="local" label="&bm.abnamedialog.local;" checked="false" flex="1"/>
-    </hbox>
 </overlay>

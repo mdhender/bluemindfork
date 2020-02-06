@@ -18,8 +18,7 @@
  */
 package net.bluemind.webmodule.server.tests;
 
-import org.vertx.java.platform.Verticle;
-
+import io.vertx.core.Verticle;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
 public class SimpleTestVerticleFactory implements IVerticleFactory {

@@ -23,13 +23,14 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
-import org.vertx.java.core.streams.Pump;
-import org.vertx.java.core.streams.ReadStream;
 
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.streams.Pump;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.rest.http.HttpClientProvider;
@@ -101,7 +102,7 @@ public class FileHostingHandler implements IWebFilter, NeedVertx {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void streamFile(final HttpServerResponse resp, final Stream stream) {
 		resp.setStatusCode(200);
-		ReadStream readStream = (ReadStream) stream;
+		ReadStream<Buffer> readStream = (ReadStream) stream;
 		Handler<Void> endHandler = new Handler<Void>() {
 			@Override
 			public void handle(Void v) {
@@ -109,7 +110,7 @@ public class FileHostingHandler implements IWebFilter, NeedVertx {
 			}
 		};
 		readStream.endHandler(endHandler);
-		Pump pump = Pump.createPump(readStream, resp);
+		Pump pump = Pump.pump(readStream, resp);
 		pump.start();
 	}
 

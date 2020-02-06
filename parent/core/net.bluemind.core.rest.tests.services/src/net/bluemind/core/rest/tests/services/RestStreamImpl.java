@@ -20,12 +20,11 @@ package net.bluemind.core.rest.tests.services;
 
 import java.util.concurrent.CountDownLatch;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.streams.Pump;
-import org.vertx.java.core.streams.ReadStream;
-
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.Pump;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.rest.vertx.VertxStream;
 
@@ -41,7 +40,7 @@ public class RestStreamImpl implements IRestStreamTestService {
 	public String out(Stream stream) {
 
 		final CountDownLatch latch = new CountDownLatch(1);
-		final ReadStream<?> reader = VertxStream.read(stream);
+		final ReadStream<Buffer> reader = VertxStream.read(stream);
 		final AccumulatorStream writer = new AccumulatorStream();
 
 		if (stream == null) {
@@ -55,7 +54,7 @@ public class RestStreamImpl implements IRestStreamTestService {
 			}
 		});
 
-		Pump pump = Pump.createPump(reader, writer);
+		Pump pump = Pump.pump(reader, writer);
 		pump.start();
 		reader.resume();
 		try {
@@ -79,7 +78,7 @@ public class RestStreamImpl implements IRestStreamTestService {
 			public void handle(Long event) {
 				count++;
 
-				b.queue(new Buffer("" + count));
+				b.queue(Buffer.buffer("" + count));
 
 				if (count >= 9) {
 					vertx.cancelTimer(event);
@@ -102,7 +101,7 @@ public class RestStreamImpl implements IRestStreamTestService {
 			public void handle(Long event) {
 				count++;
 
-				b.queue(new Buffer("" + count));
+				b.queue(Buffer.buffer("" + count));
 
 				if (count >= 9) {
 					vertx.cancelTimer(event);
@@ -118,7 +117,7 @@ public class RestStreamImpl implements IRestStreamTestService {
 	public Stream inout(Stream stream) {
 
 		final QueueReadStream q = new QueueReadStream();
-		final ReadStream<?> rStream = VertxStream.readInContext(vertx, stream);
+		final ReadStream<Buffer> rStream = VertxStream.readInContext(vertx, stream);
 		rStream.endHandler(new Handler<Void>() {
 
 			@Override
@@ -127,7 +126,7 @@ public class RestStreamImpl implements IRestStreamTestService {
 			}
 		});
 
-		rStream.dataHandler(new Handler<Buffer>() {
+		rStream.handler(new Handler<Buffer>() {
 
 			@Override
 			public void handle(Buffer event) {
@@ -143,7 +142,7 @@ public class RestStreamImpl implements IRestStreamTestService {
 	public String notTimeout(Stream stream) {
 
 		final CountDownLatch latch = new CountDownLatch(1);
-		final ReadStream<?> reader = VertxStream.read(stream);
+		final ReadStream<Buffer> reader = VertxStream.read(stream);
 		final AccumulatorStream writer = new AccumulatorStream();
 
 		if (stream == null) {
@@ -157,7 +156,7 @@ public class RestStreamImpl implements IRestStreamTestService {
 			}
 		});
 
-		Pump pump = Pump.createPump(reader, writer);
+		Pump pump = Pump.pump(reader, writer);
 		pump.start();
 		reader.resume();
 		try {

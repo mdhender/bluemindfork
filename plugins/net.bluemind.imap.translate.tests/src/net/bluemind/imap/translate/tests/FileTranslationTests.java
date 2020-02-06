@@ -21,10 +21,9 @@ package net.bluemind.imap.translate.tests;
 import java.io.File;
 import java.io.IOException;
 
-import org.vertx.java.core.json.JsonObject;
-
 import com.google.common.io.Files;
 
+import io.vertx.core.json.JsonObject;
 import junit.framework.TestCase;
 import net.bluemind.imap.translate.impl.FileTranslation;
 
@@ -33,9 +32,9 @@ public class FileTranslationTests extends TestCase {
 	public void setUp() throws Exception {
 		System.out.println("Writing new version of translation");
 		JsonObject jso = new JsonObject();
-		jso.putString("Sent", "Ma prose");
-		jso.putString("Trash", "La poubelle");
-		jso.putString("Dossiers partagés", "Dossiers partagés");
+		jso.put("Sent", "Ma prose");
+		jso.put("Trash", "La poubelle");
+		jso.put("Dossiers partagés", "Dossiers partagés");
 		jso.encodePrettily();
 		Files.write(jso.encodePrettily().getBytes(), new File("/etc/bm/imap.i18n.fr"));
 	}

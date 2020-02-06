@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Splitter;
 
+import net.bluemind.backend.cyrus.partitions.CyrusFileSystemPathHelper;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 
 public class SpoolDirectoryValidator {
@@ -50,8 +51,9 @@ public class SpoolDirectoryValidator {
 		}
 
 		public SpoolDirectoryValidator build() {
-			Set<String> domainPrefixes = parts.stream()
-					.map(cp -> cp.name + "/domain/" + ShardingLetter.letter(cp.domainUid) + "/" + cp.domainUid)
+			Set<String> domainPrefixes = parts
+					.stream().map(cp -> cp.name + "/domain/"
+							+ CyrusFileSystemPathHelper.mapLetter(cp.domainUid.charAt(0)) + "/" + cp.domainUid)
 					.collect(Collectors.toSet());
 			Map<String, List<MailboxEntry>> rootsByDomain = entries.stream()
 					.collect(Collectors.groupingBy(me -> me.domain, Collectors.toList()));
@@ -63,6 +65,14 @@ public class SpoolDirectoryValidator {
 			return new SpoolDirectoryValidator(domainPrefixes, prefixesByDomain);
 		}
 
+	}
+
+	public static String letter(String domainOrMailbox) {
+		char ret = Character.toLowerCase(domainOrMailbox.charAt(0));
+		if (ret < 'a' || ret > 'z') {
+			ret = 'q';
+		}
+		return Character.toString(ret);
 	}
 
 	public static Builder builder() {
@@ -114,8 +124,10 @@ public class SpoolDirectoryValidator {
 
 			// s/bang^bus/Sent
 			if (trailParts.length == 3 && !trailParts[1].equals("user")) {
-				boolean letterIsRight = trailParts[0].equals(ShardingLetter.letter(trailParts[2]));
-				String basePrefix = ShardingLetter.letter(trailParts[1]) + "/" + trailParts[1];
+				boolean letterIsRight = trailParts[0]
+						.equals(String.valueOf(CyrusFileSystemPathHelper.mapLetter(trailParts[2].charAt(0))));
+				String basePrefix = CyrusFileSystemPathHelper.mapLetter(trailParts[1].charAt(0)) + "/" + trailParts[1];
+
 				logger.debug("letter is right: {}, base: {}", letterIsRight, basePrefix);
 				return letterIsRight && roots.contains(basePrefix);
 			}

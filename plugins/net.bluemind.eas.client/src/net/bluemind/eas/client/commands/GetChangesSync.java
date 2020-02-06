@@ -100,10 +100,8 @@ public class GetChangesSync extends Sync {
 			Element commands = DOMUtils.createElement(col, "Commands");
 			for (Long l : toFlag) {
 				Element flag = DOMUtils.createElement(commands, "Change");
-				DOMUtils.createElementAndText(flag, "ServerId", f.getServerId()
-						+ ":" + l);
-				Element appData = DOMUtils.createElement(flag,
-						"ApplicationData");
+				DOMUtils.createElementAndText(flag, "ServerId", f.getServerId() + ":" + l);
+				Element appData = DOMUtils.createElement(flag, "ApplicationData");
 				Element ef = DOMUtils.createElement(appData, "Email:Flag");
 				DOMUtils.createElementAndText(ef, "Email:FlagStatus", "1");
 			}
@@ -126,10 +124,8 @@ public class GetChangesSync extends Sync {
 		DOMUtils.createElementAndText(opts, "MIMESupport", "0");
 
 		Element bp = DOMUtils.createElement(opts, "AirSyncBase:BodyPreference");
-		DOMUtils.createElementAndText(bp, "AirSyncBase:Type", asHTML ? "2"
-				: "1");
-		DOMUtils.createElementAndText(bp, "AirSyncBase:TruncationSize",
-				asHTML ? "5120" : "500");
+		DOMUtils.createElementAndText(bp, "AirSyncBase:Type", asHTML ? "2" : "1");
+		DOMUtils.createElementAndText(bp, "AirSyncBase:TruncationSize", asHTML ? "5120" : "500");
 
 	}
 
@@ -142,7 +138,7 @@ public class GetChangesSync extends Sync {
 	}
 
 	public void setHtml(boolean asHTML) {
-		this.asHTML = true;
+		this.asHTML = asHTML;
 	}
 
 	public void setToFlag(List<Long> toFlag) {

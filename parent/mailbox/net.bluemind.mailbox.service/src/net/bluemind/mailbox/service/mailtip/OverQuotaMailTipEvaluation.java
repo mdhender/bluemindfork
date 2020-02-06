@@ -34,7 +34,6 @@ import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.MailboxQuota;
 import net.bluemind.mailflow.common.api.Recipient;
-
 import net.bluemind.mailmessage.api.IMailTipEvaluation;
 import net.bluemind.mailmessage.api.MessageContext;
 

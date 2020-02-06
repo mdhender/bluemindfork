@@ -25,9 +25,9 @@ import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.metrics.sum.InternalSum;
-import org.vertx.java.core.json.JsonObject;
 
 import io.airlift.airline.Command;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.directory.common.SingleOrDomainOperation;
@@ -62,20 +62,20 @@ public class MailboxInfoCommand extends SingleOrDomainOperation {
 		}
 
 		JsonObject userJson = new JsonObject();
-		userJson.putString("email", de.value.email);
+		userJson.put("email", de.value.email);
 
 		Optional<Long> esQuota = getESQuota(de.uid);
 		if (esQuota.isPresent()) {
-			userJson.putNumber("ESQuotaKiB", esQuota.get());
+			userJson.put("ESQuotaKiB", esQuota.get());
 		} else {
-			userJson.putString("ESQuotaKiB", "Failed to fetch ES quota");
+			userJson.put("ESQuotaKiB", "Failed to fetch ES quota");
 		}
 
 		long imapQuota = getImapQuota(domainUid, de);
-		userJson.putNumber("IMAPQuotaKiB", imapQuota);
+		userJson.put("IMAPQuotaKiB", imapQuota);
 
 		if (esQuota.isPresent() && imapQuota != 0) {
-			userJson.putNumber("ratio", (esQuota.get() / imapQuota * 100));
+			userJson.put("ratio", (esQuota.get() / imapQuota * 100));
 		}
 
 		ctx.info(userJson.encode());

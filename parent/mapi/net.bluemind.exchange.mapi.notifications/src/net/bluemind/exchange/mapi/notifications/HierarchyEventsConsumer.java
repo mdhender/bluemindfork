@@ -19,16 +19,17 @@ package net.bluemind.exchange.mapi.notifications;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.busmods.BusModBase;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Verticle;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.container.api.ContainersFlatHierarchyBusAddresses;
 import net.bluemind.hornetq.client.Topic;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
-public class HierarchyEventsConsumer extends BusModBase {
+public class HierarchyEventsConsumer extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(HierarchyEventsConsumer.class);
 
@@ -46,18 +47,20 @@ public class HierarchyEventsConsumer extends BusModBase {
 
 	}
 
+	@Override
 	public void start() {
-		super.start();
 
-		eb.registerHandler(ContainersFlatHierarchyBusAddresses.ALL_HIERARCHY_CHANGES, (Message<JsonObject> msg) -> {
-			JsonObject flatNotification = msg.body();
-			String owner = flatNotification.getString("owner");
-			long version = flatNotification.getNumber("version").longValue();
-			JsonObject forMapi = new JsonObject();
-			forMapi.putString("owner", owner).putNumber("version", version);
-			logger.info("MAPI hierarchy notification {}", forMapi.encode());
-			eb.publish(Topic.MAPI_HIERARCHY_NOTIFICATIONS, forMapi);
-		});
+		EventBus eb = vertx.eventBus();
+		vertx.eventBus().consumer(ContainersFlatHierarchyBusAddresses.ALL_HIERARCHY_CHANGES,
+				(Message<JsonObject> msg) -> {
+					JsonObject flatNotification = msg.body();
+					String owner = flatNotification.getString("owner");
+					long version = flatNotification.getLong("version");
+					JsonObject forMapi = new JsonObject();
+					forMapi.put("owner", owner).put("version", version);
+					logger.info("MAPI hierarchy notification {}", forMapi.encode());
+					eb.publish(Topic.MAPI_HIERARCHY_NOTIFICATIONS, forMapi);
+				});
 
 	}
 

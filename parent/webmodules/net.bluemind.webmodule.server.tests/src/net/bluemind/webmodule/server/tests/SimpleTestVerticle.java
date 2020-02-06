@@ -21,12 +21,13 @@ package net.bluemind.webmodule.server.tests;
 import java.io.IOException;
 
 import org.eclipse.core.runtime.FileLocator;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpServer;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.platform.Verticle;
 
-public class SimpleTestVerticle extends Verticle {
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerRequest;
+
+public class SimpleTestVerticle extends AbstractVerticle {
 
 	@Override
 	public void start() {
@@ -43,12 +44,15 @@ public class SimpleTestVerticle extends Verticle {
 		System.out.println(p);
 
 		HttpServer httpServer = vertx.createHttpServer();
-		httpServer.setTrafficClass(3);
 		httpServer.requestHandler(new Handler<HttpServerRequest>() {
 
 			@Override
 			public void handle(HttpServerRequest r) {
-				r.response().sendFile(p);
+				r.response().sendFile(p, res -> {
+					if (res.failed()) {
+						r.response().setStatusCode(404).end();
+					}
+				});
 
 			}
 		}).listen(8081);

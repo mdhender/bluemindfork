@@ -20,32 +20,31 @@ package net.bluemind.lib.vertx.utils;
 
 import java.util.function.BiFunction;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.eventbus.Message;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.Message;
 
-public class Throttle<T> implements Handler<Message<? extends T>> {
+public class Throttle<T> implements Handler<Message<T>> {
 
-	private Message<? extends T> throttleEvent;
+	private Message<T> throttleEvent;
 	private Vertx vertx;
 	private int interval;
 
 	private volatile Long timerId;
-	private Handler<Message<? extends T>> wrappredHandler;
+	private Handler<Message<T>> wrappredHandler;
 
-	private BiFunction<Message<? extends T>, Message<? extends T>, Message<? extends T>> msgAccumulator;
+	private BiFunction<Message<T>, Message<T>, Message<T>> msgAccumulator;
 
-	public static <T> BiFunction<Message<? extends T>, Message<? extends T>, Message<? extends T>> lastAccumulator() {
+	public static <T> BiFunction<Message<T>, Message<T>, Message<T>> lastAccumulator() {
 		return (currentMessage, newMessage) -> newMessage;
 	};
 
-	public static <T> BiFunction<Message<? extends T>, Message<? extends T>, Message<? extends T>> firstAccumulator() {
+	public static <T> BiFunction<Message<T>, Message<T>, Message<T>> firstAccumulator() {
 		return (currentMessage, newMessage) -> currentMessage != null ? currentMessage : newMessage;
 	};
 
-	public Throttle(Handler<Message<? extends T>> wrappedHandler,
-			BiFunction<Message<? extends T>, Message<? extends T>, Message<? extends T>> accu, Vertx vertx,
-			int throttleTimeInMs) {
+	public Throttle(Handler<Message<T>> wrappedHandler, BiFunction<Message<T>, Message<T>, Message<T>> accu,
+			Vertx vertx, int throttleTimeInMs) {
 		this.vertx = vertx;
 		this.interval = throttleTimeInMs;
 		this.timerId = null;
@@ -53,14 +52,14 @@ public class Throttle<T> implements Handler<Message<? extends T>> {
 		this.msgAccumulator = accu;
 	}
 
-	public Throttle(Handler<Message<? extends T>> wrappedHandler, Vertx vertx, int throttleTimeInMs) {
+	public Throttle(Handler<Message<T>> wrappedHandler, Vertx vertx, int throttleTimeInMs) {
 		this(wrappedHandler, lastAccumulator(), vertx, throttleTimeInMs);
 	}
 
 	private static final boolean DISABLED = "true".equals(System.getProperty("throttle.disabled", "false"));
 
 	@Override
-	public void handle(Message<? extends T> event) {
+	public void handle(Message<T> event) {
 
 		if (DISABLED) {
 			fireEvent(event);
@@ -74,7 +73,7 @@ public class Throttle<T> implements Handler<Message<? extends T>> {
 				timerId = vertx.setTimer(this.interval, (id) -> {
 					synchronized (this) {
 						timerId = null;
-						Message<? extends T> t = throttleEvent;
+						Message<T> t = throttleEvent;
 						throttleEvent = null;
 						fireEvent(t);
 					}
@@ -84,7 +83,7 @@ public class Throttle<T> implements Handler<Message<? extends T>> {
 		}
 	}
 
-	private void fireEvent(Message<? extends T> event) {
+	private void fireEvent(Message<T> event) {
 		if (event != null) {
 			wrappredHandler.handle(event);
 		}

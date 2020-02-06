@@ -43,12 +43,12 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.SettableFuture;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.backend.cyrus.CyrusAdmins;
 import net.bluemind.backend.cyrus.CyrusService;
@@ -72,6 +72,7 @@ import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.sendmail.testhelper.FakeSendmail;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.core.tests.vertx.VertxEventChecker;
 import net.bluemind.domain.api.Domain;
@@ -90,7 +91,6 @@ import net.bluemind.lmtp.backend.PermissionDeniedException.MailboxInvitationDeni
 import net.bluemind.lmtp.filter.imip.EventCancelHandler;
 import net.bluemind.lmtp.filter.imip.EventReplyHandler;
 import net.bluemind.lmtp.filter.imip.FakeEventRequestHandlerFactory;
-import net.bluemind.lmtp.filter.imip.FakeSendmail;
 import net.bluemind.lmtp.filter.imip.IIMIPHandler;
 import net.bluemind.lmtp.filter.imip.IMIPResponse;
 import net.bluemind.mailbox.api.IMailboxes;
@@ -168,6 +168,7 @@ public class ImipFilterVEventTests {
 
 			@Override
 			public void handle(AsyncResult<Void> event) {
+				System.err.println("****** event.succ : " + event.succeeded());
 				future.set(null);
 			}
 		};

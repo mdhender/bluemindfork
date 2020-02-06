@@ -17,12 +17,12 @@
   */
 package net.bluemind.network.topology.producer;
 
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Verticle;
-
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Verticle;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
-public class TopologyStarter extends Verticle {
+public class TopologyStarter extends AbstractVerticle {
 
 	public static class Factory implements IVerticleFactory {
 

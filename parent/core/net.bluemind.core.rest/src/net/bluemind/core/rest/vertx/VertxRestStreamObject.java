@@ -18,8 +18,8 @@
  */
 package net.bluemind.core.rest.vertx;
 
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.json.JsonObject;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.JsonObject;
 
 @SuppressWarnings("serial")
 public class VertxRestStreamObject extends JsonObject {

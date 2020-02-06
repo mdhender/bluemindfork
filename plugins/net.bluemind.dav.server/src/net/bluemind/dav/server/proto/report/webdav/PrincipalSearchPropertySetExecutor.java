@@ -22,8 +22,8 @@ import javax.xml.namespace.QName;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.http.HttpServerResponse;
 
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.dav.server.Proxy;
 import net.bluemind.dav.server.proto.NS;
 import net.bluemind.dav.server.proto.report.IReportExecutor;

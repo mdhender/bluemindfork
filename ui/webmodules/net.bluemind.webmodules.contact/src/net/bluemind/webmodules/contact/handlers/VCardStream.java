@@ -26,15 +26,15 @@ import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.streams.ReadStream;
 
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.addressbook.api.IVCardServicePromise;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.http.VertxPromiseServiceProvider;
 
-public class VCardStream implements ReadStream<VCardStream> {
+public class VCardStream implements ReadStream<Buffer> {
 
 	private static Logger logger = LoggerFactory.getLogger(VCardStream.class);
 
@@ -59,7 +59,7 @@ public class VCardStream implements ReadStream<VCardStream> {
 	}
 
 	@Override
-	public VCardStream dataHandler(Handler<Buffer> handler) {
+	public VCardStream handler(Handler<Buffer> handler) {
 		check();
 		this.dataHandler = handler;
 		if (dataHandler != null && !paused && !closed) {
@@ -126,7 +126,7 @@ public class VCardStream implements ReadStream<VCardStream> {
 			CompletableFuture<String> exportCards = currentService.exportCards(toRead);
 			exportCards.thenAccept(value -> {
 				readInProgress = false;
-				dataHandler.handle(new Buffer(value));
+				dataHandler.handle(Buffer.buffer(value));
 				if (!currentCardIterator.hasNext() && !serviceIterator.hasNext()) {
 					handleEnd();
 				} else {
@@ -158,5 +158,10 @@ public class VCardStream implements ReadStream<VCardStream> {
 		} else {
 			logger.error("Unhandled exception", t);
 		}
+	}
+
+	@Override
+	public ReadStream<Buffer> fetch(long amount) {
+		return this;
 	}
 }

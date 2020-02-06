@@ -19,9 +19,9 @@ package net.bluemind.backend.cyrus.replication.testhelper.internal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.replication.observers.IReplicationObserver;
 import net.bluemind.backend.cyrus.replication.observers.IReplicationObserverProvider;
 
@@ -47,7 +47,7 @@ public class CommandObserver implements IReplicationObserver {
 	@Override
 	public void onApplyMessages(int count) {
 		logger.debug("On APPLY MESSAGE {} message(s)", count);
-		vertx.eventBus().publish("replication.apply.message", new JsonObject().putNumber("count", count));
+		vertx.eventBus().publish("replication.apply.message", new JsonObject().put("count", count));
 	}
 
 	@Override

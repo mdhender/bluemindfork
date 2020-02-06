@@ -18,9 +18,8 @@
  */
 package net.bluemind.calendar.service.internal;
 
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.auditlog.CalendarAuditor;
 import net.bluemind.calendar.hook.CalendarHookAddress;
@@ -30,7 +29,6 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.LocalJsonObject;
 
 public class CalendarEventProducer {
-	private String loginAtDomain;
 	private EventBus eventBus;
 	private Container container;
 	private SecurityContext securityContext;
@@ -40,21 +38,18 @@ public class CalendarEventProducer {
 			EventBus ev) {
 		this.auditor = auditor;
 		this.container = container;
-		this.loginAtDomain = securityContext.getSubject();
 		this.eventBus = ev;
 		this.securityContext = securityContext;
 	}
 
 	public void changed() {
 		JsonObject body = new JsonObject();
-		body.putString("loginAtDomain", loginAtDomain);
+		body.put("loginAtDomain", container.owner);
 		eventBus.publish(CalendarHookAddress.getChangedEventAddress(container.uid), body);
 
 		eventBus.publish(CalendarHookAddress.CHANGED,
-				new JsonObject().putString("container", container.uid).putString("type", container.type)
-						.putString("loginAtDomain", loginAtDomain)
-						.putString("domainUid", securityContext.getContainerUid()));
-
+				new JsonObject().put("container", container.uid).put("type", container.type)
+						.put("loginAtDomain", container.owner).put("domainUid", container.domainUid));
 	}
 
 	public void veventCreated(VEventSeries event, String uid, boolean sendNotifications) {
@@ -78,9 +73,9 @@ public class CalendarEventProducer {
 
 	public void serviceAccessed(final String calendarUid, final String origin, final boolean isRemote) {
 		final JsonObject message = new JsonObject();
-		message.putString("calendarUid", calendarUid);
-		message.putString("origin", origin);
-		message.putBoolean("isRemote", isRemote);
+		message.put("calendarUid", calendarUid);
+		message.put("origin", origin);
+		message.put("isRemote", isRemote);
 		eventBus.publish("bm.calendar.service.accessed", message);
 	}
 

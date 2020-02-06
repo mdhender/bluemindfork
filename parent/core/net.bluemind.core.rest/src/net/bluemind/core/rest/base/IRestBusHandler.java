@@ -20,17 +20,16 @@ package net.bluemind.core.rest.base;
 
 import java.util.function.Function;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ServerFault;
 
 public interface IRestBusHandler {
 
-	void register(RestRequest request, Function<Void, Handler<Message<?>>> msgHandler, Handler<ServerFault> reject);
-
-	void unregisterHandler(String path, Handler<Message<?>> handler);
+	<T> MessageConsumer<T> register(RestRequest request, Function<Void, Handler<Message<T>>> msgHandler,
+			Handler<ServerFault> reject);
 
 	void sendEvent(RestRequest request, JsonObject evt);
 

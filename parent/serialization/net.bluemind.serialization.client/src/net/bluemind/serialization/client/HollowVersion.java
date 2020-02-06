@@ -26,13 +26,14 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Verticle;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
-public class HollowVersion extends Verticle {
+public class HollowVersion extends AbstractVerticle {
 
 	public static final Logger logger = LoggerFactory.getLogger(HollowVersion.class);
 
@@ -55,13 +56,12 @@ public class HollowVersion extends Verticle {
 
 	@Override
 	public void start() {
-		super.start();
-		vertx.eventBus().registerHandler(HollowMessageForwarder.dataSetChanged, (message) -> {
+		vertx.eventBus().consumer(HollowMessageForwarder.dataSetChanged, (message) -> {
 			JsonObject data = (JsonObject) message.body();
 			String dataset = data.getString("dataset");
 			String set = dataset.substring(0, dataset.indexOf("/"));
 			String subset = dataset.substring(dataset.indexOf("/") + 1);
-			long version = data.getNumber("version").longValue();
+			long version = data.getLong("version");
 			logger.info("Received hollow version update. New version: {}:{}", dataset, version);
 			versions.put(dataset, version);
 			observers.forEach(o -> o.onUpdate(set, subset, version));

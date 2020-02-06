@@ -18,8 +18,8 @@
  */
 package net.bluemind.webmodule.server;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 
 public interface HandlerFactory<T> {
 

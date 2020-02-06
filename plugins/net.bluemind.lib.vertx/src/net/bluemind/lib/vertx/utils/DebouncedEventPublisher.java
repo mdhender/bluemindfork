@@ -24,8 +24,8 @@ package net.bluemind.lib.vertx.utils;
 
 import java.util.function.BiConsumer;
 
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.json.JsonObject;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 
 /**
  * Publish events on the Vert.x event bus in a <i>debounce-like</i> way (we use

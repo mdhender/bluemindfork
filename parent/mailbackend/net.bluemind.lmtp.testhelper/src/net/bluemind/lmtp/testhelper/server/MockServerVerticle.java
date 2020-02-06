@@ -19,17 +19,18 @@ package net.bluemind.lmtp.testhelper.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Future;
-import org.vertx.java.core.net.NetServer;
-import org.vertx.java.platform.Verticle;
 
-public class MockServerVerticle extends Verticle {
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Future;
+import io.vertx.core.net.NetServer;
+import io.vertx.core.net.NetServerOptions;
+
+public class MockServerVerticle extends AbstractVerticle {
 	private static final Logger logger = LoggerFactory.getLogger(MockServerVerticle.class);
 	private NetServer srv;
 
 	public void start(Future<Void> done) {
-		this.srv = vertx.createNetServer();
-		srv.setTCPNoDelay(true);
+		this.srv = vertx.createNetServer(new NetServerOptions().setTcpNoDelay(true));
 		srv.connectHandler(sock -> {
 			LmtpServerSession session = new LmtpServerSession(vertx, sock);
 			session.start();
@@ -37,16 +38,16 @@ public class MockServerVerticle extends Verticle {
 		srv.listen(2424, asyncRes -> {
 			if (asyncRes.succeeded()) {
 				logger.info("Listening on 2424.");
-				done.setResult(null);
+				done.complete(null);
 			} else {
 				logger.error(asyncRes.cause().getMessage(), asyncRes);
-				done.setFailure(asyncRes.cause());
+				done.fail(asyncRes.cause());
 			}
 		});
 	}
 
 	@Override
-	public void stop() {
+	public void stop() throws Exception {
 		srv.close();
 		super.stop();
 	}

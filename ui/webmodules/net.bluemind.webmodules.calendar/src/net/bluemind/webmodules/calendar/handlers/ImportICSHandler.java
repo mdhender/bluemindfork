@@ -18,13 +18,12 @@
  */
 package net.bluemind.webmodules.calendar.handlers;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpServerFileUpload;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
-
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpServerFileUpload;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.calendar.api.IVEventAsync;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.rest.base.GenericStream;
@@ -41,14 +40,14 @@ public class ImportICSHandler implements Handler<HttpServerRequest>, NeedVertx {
 	@Override
 	public void handle(final HttpServerRequest request) {
 		request.exceptionHandler(errorHandler(request));
-		request.expectMultiPart(true);
+		request.setExpectMultipart(true);
 		request.uploadHandler(new Handler<HttpServerFileUpload>() {
 
 			@Override
 			public void handle(HttpServerFileUpload upload) {
 
-				final Buffer data = new Buffer();
-				upload.dataHandler(new Handler<Buffer>() {
+				final Buffer data = Buffer.buffer();
+				upload.handler(new Handler<Buffer>() {
 
 					@Override
 					public void handle(Buffer event) {

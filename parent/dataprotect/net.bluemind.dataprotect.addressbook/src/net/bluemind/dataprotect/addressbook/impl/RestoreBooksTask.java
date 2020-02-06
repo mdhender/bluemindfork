@@ -27,8 +27,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
-import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.addressbook.api.IAddressBook;
+import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCardChanges;
 import net.bluemind.core.container.api.ContainerQuery;

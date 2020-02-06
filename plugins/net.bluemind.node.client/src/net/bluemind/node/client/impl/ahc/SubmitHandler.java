@@ -18,12 +18,11 @@
  */
 package net.bluemind.node.client.impl.ahc;
 
-import org.vertx.java.core.json.JsonObject;
+import org.asynchttpclient.BoundRequestBuilder;
 
+import io.netty.handler.codec.http.HttpHeaders;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.common.io.FileBackedOutputStream;
-import com.ning.http.client.AsyncHttpClient.BoundRequestBuilder;
-import com.ning.http.client.HttpResponseHeaders;
-
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.node.shared.ExecRequest;
 
@@ -45,9 +44,9 @@ public class SubmitHandler extends DefaultAsyncHandler<TaskRef> {
 	}
 
 	@Override
-	protected TaskRef getResult(int status, HttpResponseHeaders headers, FileBackedOutputStream body) {
+	protected TaskRef getResult(int status, HttpHeaders headers, FileBackedOutputStream body) {
 		if (status == 201) {
-			String pid = headers.getHeaders().getFirstValue("Pid");
+			String pid = headers.get("Pid");
 			return TaskRef.create(pid);
 		} else {
 			throw new RuntimeException("Submit error: " + status);

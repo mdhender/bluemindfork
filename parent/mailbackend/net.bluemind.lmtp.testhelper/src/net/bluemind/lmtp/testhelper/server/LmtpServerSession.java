@@ -28,11 +28,11 @@ import org.apache.james.mime4j.field.address.AddressBuilder;
 import org.apache.james.mime4j.field.address.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.net.NetSocket;
-import org.vertx.java.core.parsetools.RecordParser;
 
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.net.NetSocket;
+import io.vertx.core.parsetools.RecordParser;
 import net.bluemind.lmtp.testhelper.common.WriteSupport;
 import net.bluemind.lmtp.testhelper.model.FakeMailbox;
 import net.bluemind.lmtp.testhelper.model.FakeMailbox.State;
@@ -74,7 +74,7 @@ public class LmtpServerSession {
 			}
 		});
 		expectedContent = ParseState.Cmd;
-		sock.dataHandler(buf -> {
+		sock.handler(buf -> {
 			logger.debug("{} C: {}", expectedContent, buf);
 			recordParser.handle(buf);
 		});

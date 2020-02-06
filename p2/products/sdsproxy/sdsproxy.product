@@ -32,10 +32,10 @@
       <plugin id="com.hazelcast"/>
       <plugin id="com.hazelcast.client" fragment="true"/>
       <plugin id="com.netflix.spectator.api"/>
-      <plugin id="com.ning.async-http-client"/>
+      <plugin id="com.typesafe.netty.reactive-streams"/>
       <plugin id="io.netty"/>
       <plugin id="io.vertx.core"/>
-      <plugin id="io.vertx.platform"/>
+      <plugin id="io.vertx.web"/>
       <plugin id="javax.validation.api"/>
       <plugin id="javax.ws.rs"/>
       <plugin id="javax.xml"/>
@@ -83,6 +83,8 @@
       <plugin id="net.bluemind.vertx.common"/>
       <plugin id="net.java.dev.jna"/>
       <plugin id="org.apache.commons.lang"/>
+      <plugin id="org.asynchttpclient.async-http-client"/>
+      <plugin id="org.asynchttpclient.async-http-client-netty-utils"/>
       <plugin id="org.eclipse.core.contenttype"/>
       <plugin id="org.eclipse.core.jobs"/>
       <plugin id="org.eclipse.core.runtime"/>
@@ -93,7 +95,7 @@
       <plugin id="org.eclipse.equinox.registry"/>
       <plugin id="org.eclipse.osgi"/>
       <plugin id="org.eclipse.update.configurator"/>
-      <plugin id="org.jboss.netty"/>
+      <plugin id="org.reactivestreams.reactive-streams"/>
       <plugin id="slf4j.api"/>
    </plugins>
 

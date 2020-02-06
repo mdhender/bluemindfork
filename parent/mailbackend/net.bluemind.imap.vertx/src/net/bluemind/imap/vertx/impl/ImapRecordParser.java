@@ -21,11 +21,11 @@ import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.imap.vertx.ImapProtocolListener;
 import net.bluemind.imap.vertx.utils.LiteralSize;
 import net.bluemind.imap.vertx.utils.QuickParser;

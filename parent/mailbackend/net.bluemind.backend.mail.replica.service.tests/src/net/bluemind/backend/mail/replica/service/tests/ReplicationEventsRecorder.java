@@ -32,16 +32,16 @@ import java.util.concurrent.atomic.LongAdder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Iterables;
 
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.backend.mail.api.events.MailEventAddresses;
@@ -102,7 +102,7 @@ public class ReplicationEventsRecorder {
 		IAuthentication authApi = prov.instance(IAuthentication.class);
 		String latd = login + "@" + domainUid;
 		Supplier<LoginResponse> logonProv = Suppliers.memoize(() -> authApi.su(latd));
-		eb.registerHandler(hierChange, (Message<JsonObject> msg) -> {
+		eb.consumer(hierChange, (Message<JsonObject> msg) -> {
 			LoginResponse asUser = logonProv.get();
 			logger.debug("asUser: {} {}", latd, asUser.status);
 			if (asUser.status != LoginResponse.Status.Ok) {
@@ -123,7 +123,7 @@ public class ReplicationEventsRecorder {
 			} else {
 				stats.majorHierarchyChanges.increment();
 			}
-			hier.exactVersion = body.getNumber("version").longValue();
+			hier.exactVersion = body.getLong("version");
 			if (!minor) {
 				logger.info("MAJOR change, getting hierarchy changeset");
 				ContainerChangeset<String> changes = mailFoldersApi.changeset(hier.version);

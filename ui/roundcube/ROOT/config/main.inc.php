@@ -150,7 +150,7 @@ $rcmail_config['messages_cache'] = false;
 // %d - domain (http hostname without the first part)
 // %z - IMAP domain (IMAP hostname without the first part)
 // For example %n = mail.domain.tld, %d = domain.tld
-$rcmail_config['smtp_server'] = 'ssl://localhost';
+$rcmail_config['smtp_server'] = 'ssl://127.0.0.1';
 
 // SMTP port (default is 25; use 587 for STARTTLS or 465 for the
 // deprecated SSL over SMTP (aka SMTPS))

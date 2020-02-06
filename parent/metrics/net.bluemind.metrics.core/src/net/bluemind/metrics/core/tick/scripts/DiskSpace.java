@@ -8,8 +8,8 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
@@ -55,8 +55,7 @@ public class DiskSpace implements ITickTemplateProvider {
 				String alertId = TickTemplateHelper.newId(prod, "disk-space." + mountpoint.replace('/', '-'), server);
 				TemplateDefinition def = new TickTemplateDefBuilder(alertId).withDatalocation(server.uid)
 						.withEndPoint(endPointUrl).withProduct(prod).build();
-				def.variables.putObject("device",
-						new JsonObject().putString("type", "string").putString("value", device));
+				def.variables.put("device", new JsonObject().put("type", "string").put("value", device));
 				logger.info("Definition is {}", def.variables.encodePrettily());
 				defs.add(def);
 			}

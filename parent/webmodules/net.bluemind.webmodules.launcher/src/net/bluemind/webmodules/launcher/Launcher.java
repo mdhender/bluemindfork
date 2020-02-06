@@ -21,9 +21,9 @@ package net.bluemind.webmodules.launcher;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.systemd.notify.Startup;
 

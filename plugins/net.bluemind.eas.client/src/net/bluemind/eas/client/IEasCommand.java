@@ -18,7 +18,7 @@
  */
 package net.bluemind.eas.client;
 
-import com.ning.http.client.AsyncHttpClient;
+import org.asynchttpclient.AsyncHttpClient;
 
 public interface IEasCommand<T> {
 

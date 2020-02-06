@@ -20,11 +20,12 @@ package net.bluemind.todolist.service.internal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.streams.ReadStream;
 
-public abstract class GenericObjectStream<T> implements ReadStream<GenericObjectStream<T>> {
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
+
+public abstract class GenericObjectStream<T> implements ReadStream<Buffer> {
 
 	private static Logger logger = LoggerFactory.getLogger(GenericObjectStream.class);
 
@@ -35,7 +36,7 @@ public abstract class GenericObjectStream<T> implements ReadStream<GenericObject
 	private boolean ended;
 
 	@Override
-	public GenericObjectStream<T> dataHandler(Handler<Buffer> dataHandler) {
+	public GenericObjectStream<T> handler(Handler<Buffer> dataHandler) {
 		this.dataHandler = dataHandler;
 		read();
 		return this;
@@ -98,6 +99,11 @@ public abstract class GenericObjectStream<T> implements ReadStream<GenericObject
 	protected abstract Buffer serialize(T n) throws Exception;
 
 	protected abstract T next() throws Exception;
+
+	@Override
+	public GenericObjectStream<T> fetch(long amount) {
+		return this;
+	}
 
 	private void error(Exception e) {
 		if (exceptionHandler != null) {

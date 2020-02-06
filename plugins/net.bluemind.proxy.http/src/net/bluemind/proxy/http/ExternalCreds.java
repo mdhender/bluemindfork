@@ -18,25 +18,10 @@
  */
 package net.bluemind.proxy.http;
 
-import java.util.Optional;
-
 public class ExternalCreds {
-
-	public final Optional<String> domainName;
 	private String loginAtDomain;
 	// Base64 ticket for KerberosAuth
 	private String ticket;
-
-	/**
-	 * @param domainName BlueMind domain name
-	 */
-	public ExternalCreds(String domainName) {
-		this.domainName = Optional.ofNullable(domainName);
-	}
-
-	public ExternalCreds() {
-		this.domainName = Optional.empty();
-	}
 
 	public String getLoginAtDomain() {
 		return loginAtDomain;

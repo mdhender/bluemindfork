@@ -5,17 +5,18 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.vertx.java.core.json.JsonObject;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClient;
+import org.asynchttpclient.Response;
 
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
+import io.vertx.core.json.JsonObject;
 
 public class JsonHttpHelper implements AutoCloseable {
 
 	private final AsyncHttpClient client;
 
 	public JsonHttpHelper() {
-		this.client = new AsyncHttpClient();
+		this.client = new DefaultAsyncHttpClient();
 	}
 
 	public JsonObject get(String url) throws InterruptedException, ExecutionException, TimeoutException, IOException {
@@ -32,7 +33,11 @@ public class JsonHttpHelper implements AutoCloseable {
 	}
 
 	public void close() {
-		client.close();
+		try {
+			client.close();
+		} catch (IOException e) {
+			// ok
+		}
 	}
 
 }

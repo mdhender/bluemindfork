@@ -18,8 +18,7 @@
  */
 package net.bluemind.core.rest.http.internal;
 
-import org.vertx.java.core.http.HttpClient;
-
+import io.vertx.core.http.HttpClient;
 import net.bluemind.core.rest.base.BasicClientProxy;
 
 public class VertxHttpClientFactory<S, T> extends BasicClientProxy<S, T> {

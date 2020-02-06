@@ -20,17 +20,16 @@ package net.bluemind.todolist.hook.internal;
 
 import java.util.List;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.platform.Verticle;
-
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
 import net.bluemind.core.rest.LocalJsonObject;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.todolist.hook.ITodoListHook;
 import net.bluemind.todolist.hook.TodoListHookAddress;
 
-public class TodoListHookVerticle extends Verticle {
+public class TodoListHookVerticle extends AbstractVerticle {
 
 	@Override
 	public void start() {
@@ -42,26 +41,23 @@ public class TodoListHookVerticle extends Verticle {
 		EventBus eventBus = vertx.eventBus();
 
 		for (final ITodoListHook hook : hooks) {
-			eventBus.registerHandler(TodoListHookAddress.CREATED,
-					new Handler<Message<LocalJsonObject<VTodoMessage>>>() {
-						public void handle(Message<LocalJsonObject<VTodoMessage>> message) {
-							hook.onTodoCreated(message.body().getValue());
-						}
-					});
+			eventBus.consumer(TodoListHookAddress.CREATED, new Handler<Message<LocalJsonObject<VTodoMessage>>>() {
+				public void handle(Message<LocalJsonObject<VTodoMessage>> message) {
+					hook.onTodoCreated(message.body().getValue());
+				}
+			});
 
-			eventBus.registerHandler(TodoListHookAddress.UPDATED,
-					new Handler<Message<LocalJsonObject<VTodoMessage>>>() {
-						public void handle(Message<LocalJsonObject<VTodoMessage>> message) {
-							hook.onTodoUpdated(message.body().getValue());
-						}
-					});
+			eventBus.consumer(TodoListHookAddress.UPDATED, new Handler<Message<LocalJsonObject<VTodoMessage>>>() {
+				public void handle(Message<LocalJsonObject<VTodoMessage>> message) {
+					hook.onTodoUpdated(message.body().getValue());
+				}
+			});
 
-			eventBus.registerHandler(TodoListHookAddress.DELETED,
-					new Handler<Message<LocalJsonObject<VTodoMessage>>>() {
-						public void handle(Message<LocalJsonObject<VTodoMessage>> message) {
-							hook.onTodoDeleted(message.body().getValue());
-						}
-					});
+			eventBus.consumer(TodoListHookAddress.DELETED, new Handler<Message<LocalJsonObject<VTodoMessage>>>() {
+				public void handle(Message<LocalJsonObject<VTodoMessage>> message) {
+					hook.onTodoDeleted(message.body().getValue());
+				}
+			});
 		}
 
 	}

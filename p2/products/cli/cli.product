@@ -39,12 +39,12 @@
       <plugin id="com.hazelcast.client" fragment="true"/>
       <plugin id="com.netflix.hollow"/>
       <plugin id="com.netflix.spectator.api"/>
-      <plugin id="com.ning.async-http-client"/>
       <plugin id="com.sun.mail.javax.mail"/>
+      <plugin id="com.typesafe.netty.reactive-streams"/>
       <plugin id="io.airlift.airline"/>
       <plugin id="io.netty"/>
       <plugin id="io.vertx.core"/>
-      <plugin id="io.vertx.platform"/>
+      <plugin id="io.vertx.web"/>
       <plugin id="javax.inject"/>
       <plugin id="javax.servlet"/>
       <plugin id="javax.transaction" fragment="true"/>
@@ -144,6 +144,8 @@
       <plugin id="org.apache.xerces"/>
       <plugin id="org.apache.xml.resolver"/>
       <plugin id="org.apache.xml.serializer"/>
+      <plugin id="org.asynchttpclient.async-http-client"/>
+      <plugin id="org.asynchttpclient.async-http-client-netty-utils"/>
       <plugin id="org.eclipse.core.contenttype"/>
       <plugin id="org.eclipse.core.jobs"/>
       <plugin id="org.eclipse.core.runtime"/>
@@ -162,11 +164,11 @@
       <plugin id="org.hamcrest.core"/>
       <plugin id="org.ini4j"/>
       <plugin id="org.iq80.snappy"/>
-      <plugin id="org.jboss.netty"/>
       <plugin id="org.junit"/>
       <plugin id="org.mnode.ical4j"/>
       <plugin id="org.mnode.ical4j.vcard"/>
       <plugin id="org.mnode.ical4j.zoneinfo-outlook"/>
+      <plugin id="org.reactivestreams.reactive-streams"/>
       <plugin id="org.yaml.snakeyaml"/>
       <plugin id="slf4j.api"/>
    </plugins>

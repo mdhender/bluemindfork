@@ -20,21 +20,23 @@ package net.bluemind.core.rest.vertx;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.streams.ReadStream;
-import org.vertx.java.core.streams.WriteStream;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
+import io.vertx.core.streams.WriteStream;
 import net.bluemind.core.api.Stream;
+import net.bluemind.lib.vertx.Result;
 
-public class VertxStreamProducer implements WriteStream<VertxStreamProducer>, Stream {
+public class VertxStreamProducer implements WriteStream<Buffer>, Stream {
 	private static final Logger logger = LoggerFactory.getLogger(VertxStreamProducer.class);
 
 	private Vertx vertx;
 	private String dataStream;
 	private Handler<Throwable> exceptionHandler;
-	public boolean writeQueueFull = false;
+	private boolean queueFull = false;
 
 	private Handler<Void> drainHandler;
 
@@ -58,7 +60,7 @@ public class VertxStreamProducer implements WriteStream<VertxStreamProducer>, St
 
 	@Override
 	public boolean writeQueueFull() {
-		return writeQueueFull;
+		return queueFull;
 	}
 
 	@Override
@@ -69,14 +71,14 @@ public class VertxStreamProducer implements WriteStream<VertxStreamProducer>, St
 
 	@Override
 	public VertxStreamProducer write(Buffer data) {
-		logger.debug("send data {} to stream {} queueFull {} ended : {}", data, dataStream, writeQueueFull, ended);
+		logger.debug("send data {} to stream {} queueFull {} ended : {}", data, dataStream, queueFull, ended);
 
 		vertx.eventBus().send(dataStream, new VertxRestStreamObject(data, false));
 		return this;
 	}
 
 	protected void drain() {
-		logger.debug("drain producer (stream {}, queueFull {} , ended : {})", dataStream, writeQueueFull, ended);
+		logger.debug("drain producer (stream {}, queueFull {} , ended : {})", dataStream, queueFull, ended);
 
 		if (ended) {
 			sendEnd();
@@ -87,11 +89,11 @@ public class VertxStreamProducer implements WriteStream<VertxStreamProducer>, St
 
 	public void sendEnd() {
 		ended = true;
-		logger.info("send ended  to stream {} queueFull {} ended : {}", dataStream, writeQueueFull, ended);
+		logger.info("send ended  to stream {} queueFull {} ended : {}", dataStream, queueFull, ended);
 		vertx.eventBus().send(dataStream, new VertxRestStreamObject(null, true));
 	}
 
-	public static void stream(final Vertx vertx, String controlAdr, final ReadStream<?> bodyStream) {
+	public static void stream(final Vertx vertx, String controlAdr, final ReadStream<Buffer> bodyStream) {
 		new VertxStreamProducerControlHandler(vertx, controlAdr, bodyStream).stream();
 	}
 
@@ -99,6 +101,28 @@ public class VertxStreamProducer implements WriteStream<VertxStreamProducer>, St
 		if (exceptionHandler != null) {
 			exceptionHandler.handle(new Exception("closed before end"));
 		}
+	}
+
+	@Override
+	public WriteStream<Buffer> write(Buffer data, Handler<AsyncResult<Void>> handler) {
+		write(data);
+		handler.handle(Result.success());
+		return this;
+	}
+
+	@Override
+	public void end() {
+		// that's ok
+	}
+
+	@Override
+	public void end(Handler<AsyncResult<Void>> handler) {
+		handler.handle(Result.success());
+
+	}
+
+	public void markQueueFull() {
+		queueFull = true;
 	}
 
 }

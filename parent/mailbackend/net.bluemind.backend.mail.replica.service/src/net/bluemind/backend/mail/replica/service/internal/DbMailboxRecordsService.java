@@ -34,8 +34,8 @@ import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MailboxItem.SystemFlag;
@@ -462,8 +462,8 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 		String from = idxAndNotif.value.body.recipients.stream().filter(r -> r.kind == RecipientKind.Originator)
 				.findFirst().map(Object::toString).orElse("??");
 		JsonObject js = new JsonObject();
-		js.putString("title", from).putString("body", idxAndNotif.value.body.subject);
-		js.putString("uid", Long.toString(idxAndNotif.value.imapUid));
+		js.put("title", from).put("body", idxAndNotif.value.body.subject);
+		js.put("uid", Long.toString(idxAndNotif.value.imapUid));
 		if (logger.isDebugEnabled()) {
 			logger.debug("HTML5 Notification attempt with {}", js.encode());
 		}

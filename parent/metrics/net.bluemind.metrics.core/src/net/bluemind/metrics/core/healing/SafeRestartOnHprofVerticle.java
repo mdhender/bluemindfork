@@ -6,11 +6,12 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.busmods.BusModBase;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Verticle;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -22,7 +23,7 @@ import net.bluemind.metrics.core.tick.TickTemplateHelper.AlertId;
 import net.bluemind.server.api.CommandStatus;
 import net.bluemind.server.api.IServer;
 
-public class SafeRestartOnHprofVerticle extends BusModBase {
+public class SafeRestartOnHprofVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(SafeRestartOnHprofVerticle.class);
 	private static final Set<Product> handledProds = EnumSet.of(Product.EAS, Product.LMTPD, Product.MILTER);
@@ -42,8 +43,8 @@ public class SafeRestartOnHprofVerticle extends BusModBase {
 
 	@Override
 	public void start() {
-		super.start();
-		eb.registerHandler("kapacitor.alert", (Message<JsonObject> msg) -> {
+		EventBus eb = vertx.eventBus();
+		eb.consumer("kapacitor.alert", (Message<JsonObject> msg) -> {
 			JsonObject obj = msg.body();
 			String newLevel = obj.getString("level");
 			if ("OK".equals(newLevel)) {

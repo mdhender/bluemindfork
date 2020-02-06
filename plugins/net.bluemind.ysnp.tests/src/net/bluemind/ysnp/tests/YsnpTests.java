@@ -25,66 +25,47 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
 
-import com.google.common.util.concurrent.SettableFuture;
-
+import io.vertx.core.buffer.Buffer;
 import jnr.unixsocket.UnixSocketAddress;
 import jnr.unixsocket.UnixSocketChannel;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.tests.defaultdata.PopulateHelper;
-import net.bluemind.unixsocket.UnixServerSocket;
 import net.bluemind.ysnp.YSNPConfiguration;
-import net.bluemind.ysnp.impl.AuthChainBuilder;
 
 public class YsnpTests {
 
-	private AuthChainBuilder at;
 	private String socketPath;
 
 	@Before
 	public void setup() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
+		socketPath = File.createTempFile("ysnp", "").getAbsolutePath();
+		System.setProperty("ysnp.sock", socketPath);
+
 		PopulateHelper.initGlobalVirt();
 		PopulateHelper.addDomainAdmin("admin0", "global.virt");
 
-		final SettableFuture<Void> future = SettableFuture.<Void>create();
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				future.set(null);
-			}
-		};
-		VertxPlatform.spawnVerticles(done);
-		future.get();
+		VertxPlatform.spawnBlocking(1, TimeUnit.MINUTES);
 		Topology.get();
 
-		YSNPConfiguration conf = new YSNPConfiguration();
+		YSNPConfiguration conf = YSNPConfiguration.INSTANCE;
+		System.out.println("path " + conf.getSocketPath());
 
-		new File("target").mkdirs();
-		socketPath = File.createTempFile("ysnp", "").getAbsolutePath();
-		System.out.println("path " + socketPath);
-		// let's create the unix socket
-		UnixServerSocket socket = new UnixServerSocket(socketPath);
-		// and handle incoming authenfication requests
-		at = new AuthChainBuilder(conf, socket);
-		at.start();
 	}
 
 	@After
 	public void after() throws Exception {
-		at.shutdown();
+
 	}
 
 	@Test
@@ -102,7 +83,7 @@ public class YsnpTests {
 		try (UnixSocketChannel channel = UnixSocketChannel.open(address)) {
 			assertTrue(channel.isConnected());
 
-			Buffer b = new Buffer();
+			Buffer b = Buffer.buffer();
 			b.appendShort((short) login.length());
 			b.appendString(login);
 			b.appendShort((short) password.length());

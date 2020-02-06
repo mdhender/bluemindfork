@@ -29,8 +29,8 @@ import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.utils.JsonUtils;

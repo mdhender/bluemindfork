@@ -6,15 +6,16 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.net.NetServer;
-import org.vertx.java.core.net.NetSocket;
-import org.vertx.java.core.streams.Pump;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Verticle;
+import io.vertx.core.net.NetServer;
+import io.vertx.core.net.NetSocket;
+import io.vertx.core.streams.Pump;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.webmodule.devmodefilter.DevModeState.ServerPort;
 
-public class PortsForward extends Verticle {
+public class PortsForward extends AbstractVerticle {
 
 	public static class Factory implements IVerticleFactory {
 
@@ -27,9 +28,9 @@ public class PortsForward extends Verticle {
 		public Verticle newInstance() {
 			return new PortsForward();
 		}
-		
+
 	}
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(PortsForward.class);
 	private StateWatcher stateWatcher;
 	private DevModeState state;
@@ -72,8 +73,8 @@ public class PortsForward extends Verticle {
 	}
 
 	protected void biPump(NetSocket a, NetSocket b) {
-		Pump p1 = Pump.createPump(a, b);
-		Pump p2 = Pump.createPump(b, a);
+		Pump p1 = Pump.pump(a, b);
+		Pump p2 = Pump.pump(b, a);
 		a.closeHandler(v -> b.close());
 		b.closeHandler(v -> a.close());
 		a.exceptionHandler(v -> a.close());

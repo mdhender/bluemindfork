@@ -22,11 +22,12 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.streams.ReadStream;
 
-public class QueueReadStream implements ReadStream<QueueReadStream> {
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
+
+public class QueueReadStream implements ReadStream<Buffer> {
 
 	private Logger logger = LoggerFactory.getLogger(QueueReadStream.class);
 	private ConcurrentLinkedDeque<Buffer> queue = new ConcurrentLinkedDeque<>();
@@ -36,7 +37,7 @@ public class QueueReadStream implements ReadStream<QueueReadStream> {
 	private boolean ended;
 
 	@Override
-	public QueueReadStream dataHandler(Handler<Buffer> handler) {
+	public QueueReadStream handler(Handler<Buffer> handler) {
 		this.dataHandler = handler;
 		read();
 		return this;
@@ -80,7 +81,7 @@ public class QueueReadStream implements ReadStream<QueueReadStream> {
 	@Override
 	public synchronized QueueReadStream resume() {
 		if (paused) {
-			logger.debug(" resume " + Thread.currentThread());
+			logger.debug(" resume {}", Thread.currentThread());
 			this.paused = false;
 			read();
 		} else {
@@ -97,6 +98,11 @@ public class QueueReadStream implements ReadStream<QueueReadStream> {
 	@Override
 	public QueueReadStream endHandler(Handler<Void> endHandler) {
 		this.endHandler = endHandler;
+		return this;
+	}
+
+	@Override
+	public ReadStream<Buffer> fetch(long amount) {
 		return this;
 	}
 

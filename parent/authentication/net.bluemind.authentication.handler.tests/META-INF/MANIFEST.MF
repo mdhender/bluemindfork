@@ -8,12 +8,13 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.junit,
  net.bluemind.core.jdbc.testshelper,
  net.bluemind.tests.defaultdata,
- com.ning.async-http-client,
  net.bluemind.core.tests.testshelper,
  net.bluemind.config,
  net.bluemind.authentication.service;bundle-version="4.1.0",
  net.bluemind.core.container.persistence,
  net.bluemind.authentication.handler;bundle-version="4.1.0",
  net.bluemind.network.topology.producer;bundle-version="4.1.0",
- net.bluemind.network.topology
+ net.bluemind.network.topology,
+ org.asynchttpclient.async-http-client;bundle-version="2.10.4",
+ org.reactivestreams.reactive-streams;bundle-version="1.0.3"
 Automatic-Module-Name: net.bluemind.authentication.handler.tests

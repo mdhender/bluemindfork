@@ -25,8 +25,8 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
@@ -103,9 +103,7 @@ public class DomainSettingsService implements IDomainSettings {
 			hook.onSettingsUpdated(context, domain, oldValues.value, settings);
 		}
 
-		JsonObject event = new JsonObject();
-		event.putString("containerUid", domainUid);
-		VertxPlatform.eventBus().publish("domainsettings.updated", event);
+		VertxPlatform.eventBus().publish("domainsettings.updated", new JsonObject().put("containerUid", domainUid));
 	}
 
 	@Override

@@ -22,17 +22,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.asynchttpclient.BoundRequestBuilder;
+import org.asynchttpclient.HttpResponseStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.base.Throwables;
-import net.bluemind.common.io.FileBackedOutputStream;
-import com.ning.http.client.AsyncHttpClient.BoundRequestBuilder;
-import com.ning.http.client.HttpResponseHeaders;
-import com.ning.http.client.HttpResponseStatus;
 
+import io.netty.handler.codec.http.HttpHeaders;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import net.bluemind.common.io.FileBackedOutputStream;
 import net.bluemind.node.client.impl.DoesNotExist;
 import net.bluemind.node.shared.ActiveExecQuery;
 import net.bluemind.node.shared.ExecDescriptor;
@@ -59,16 +59,16 @@ public class ActiveExecutionsHandler extends DefaultAsyncHandler<List<ExecDescri
 	}
 
 	@Override
-	protected List<ExecDescriptor> getResult(int status, HttpResponseHeaders headers, FileBackedOutputStream body) {
+	protected List<ExecDescriptor> getResult(int status, HttpHeaders headers, FileBackedOutputStream body) {
 		try {
 			byte[] bytes = body.asByteSource().read();
 			JsonObject jso = new JsonObject(new String(bytes));
 			logger.info("Got {}", jso.encodePrettily());
-			JsonArray descs = jso.getArray("descriptors");
+			JsonArray descs = jso.getJsonArray("descriptors");
 			int len = descs.size();
 			List<ExecDescriptor> ret = new ArrayList<>(len);
 			for (int i = 0; i < len; i++) {
-				JsonObject descJs = descs.get(i);
+				JsonObject descJs = descs.getJsonObject(i);
 				ExecDescriptor desc = new ExecDescriptor();
 				desc.command = descJs.getString("command");
 				desc.group = descJs.getString("group");
@@ -88,8 +88,7 @@ public class ActiveExecutionsHandler extends DefaultAsyncHandler<List<ExecDescri
 	}
 
 	@Override
-	public com.ning.http.client.AsyncHandler.STATE onStatusReceived(HttpResponseStatus responseStatus)
-			throws Exception {
+	public State onStatusReceived(HttpResponseStatus responseStatus) throws Exception {
 		int st = responseStatus.getStatusCode();
 		if (st != 200) {
 			RuntimeException t = null;

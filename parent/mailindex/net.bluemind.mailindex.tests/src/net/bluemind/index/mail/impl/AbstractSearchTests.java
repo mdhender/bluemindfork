@@ -29,15 +29,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Before;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
 
 import com.google.common.collect.Lists;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
 import com.google.common.io.Files;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.backend.mail.api.MailboxItem.SystemFlag;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.indexing.IndexedMessageBody;
@@ -111,7 +111,7 @@ public class AbstractSearchTests {
 
 			@Override
 			protected Buffer serialize(byte[] n) throws Exception {
-				return new Buffer(n);
+				return Buffer.buffer(n);
 			}
 
 			@Override

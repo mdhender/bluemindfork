@@ -19,16 +19,16 @@ package net.bluemind.lmtp.parser;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.buffer.Buffer;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.CompositeByteBuf;
 import io.netty.buffer.Unpooled;
+import io.vertx.core.buffer.Buffer;
 
 public class BufferedLineParser {
 
 	private static final Logger logger = LoggerFactory.getLogger(BufferedLineParser.class);
-	public static final Buffer NEED_MORE = new Buffer();
+	public static final Buffer NEED_MORE = Buffer.buffer();
 	private CompositeByteBuf currentBuffer = Unpooled.compositeBuffer();
 	private int pos;
 	private int delimPos;
@@ -51,7 +51,7 @@ public class BufferedLineParser {
 			if (currentBuffer.getByte(pos + currentBuffer.readerIndex()) == delim[delimPos]) {
 				delimPos++;
 				if (delimPos == delim.length) {
-					Buffer ret = new Buffer(currentBuffer.readSlice(pos + 1 - delim.length).copy());
+					Buffer ret = Buffer.buffer(currentBuffer.readSlice(pos + 1 - delim.length).copy());
 					currentBuffer.skipBytes(delim.length);
 					currentBuffer.discardReadBytes();
 					pos = 0;

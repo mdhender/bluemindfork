@@ -31,11 +31,11 @@ import java.util.Collections;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.util.concurrent.SettableFuture;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.calendar.api.CalendarSettingsData;
 import net.bluemind.calendar.api.CalendarSettingsData.Day;
 import net.bluemind.calendar.api.ICalendarSettings;

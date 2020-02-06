@@ -22,10 +22,11 @@ import java.io.File;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Verticle;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -33,7 +34,7 @@ import net.bluemind.system.api.SystemState;
 import net.bluemind.system.iptables.IptablesPath;
 import net.bluemind.system.iptables.tools.RulesUpdater;
 
-public class MQIptablesListener extends Verticle {
+public class MQIptablesListener extends AbstractVerticle {
 	private static final Logger logger = LoggerFactory.getLogger(MQIptablesListener.class);
 	private String currentState;
 
@@ -52,7 +53,7 @@ public class MQIptablesListener extends Verticle {
 	}
 
 	public void start() {
-		VertxPlatform.eventBus().registerHandler(SystemState.BROADCAST, (Message<JsonObject> m) -> {
+		VertxPlatform.eventBus().consumer(SystemState.BROADCAST, (Message<JsonObject> m) -> {
 			stateChanged(m.body().getString("operation"));
 		});
 	}

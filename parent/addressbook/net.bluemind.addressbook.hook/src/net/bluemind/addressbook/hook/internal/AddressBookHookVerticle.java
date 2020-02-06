@@ -20,22 +20,21 @@ package net.bluemind.addressbook.hook.internal;
 
 import java.util.List;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.platform.Verticle;
-
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
 import net.bluemind.addressbook.api.AddressBookBusAddresses;
 import net.bluemind.addressbook.hook.IAddressBookEventConsumer;
 import net.bluemind.core.rest.LocalJsonObject;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 
-public class AddressBookHookVerticle extends Verticle {
+public class AddressBookHookVerticle extends AbstractVerticle {
 
 	@Override
 	public void start() {
 
-		RunnableExtensionLoader<IAddressBookEventConsumer> loader = new RunnableExtensionLoader<IAddressBookEventConsumer>();
+		RunnableExtensionLoader<IAddressBookEventConsumer> loader = new RunnableExtensionLoader<>();
 
 		List<IAddressBookEventConsumer> hooks = loader.loadExtensions("net.bluemind.addressbook", "hook", "hook",
 				"impl");
@@ -43,26 +42,23 @@ public class AddressBookHookVerticle extends Verticle {
 		EventBus eventBus = vertx.eventBus();
 
 		for (final IAddressBookEventConsumer hook : hooks) {
-			eventBus.registerHandler(AddressBookBusAddresses.CREATED,
-					new Handler<Message<LocalJsonObject<VCardMessage>>>() {
-						public void handle(Message<LocalJsonObject<VCardMessage>> message) {
-							hook.vcardCreated(message.body().getValue());
-						}
-					});
+			eventBus.consumer(AddressBookBusAddresses.CREATED, new Handler<Message<LocalJsonObject<VCardMessage>>>() {
+				public void handle(Message<LocalJsonObject<VCardMessage>> message) {
+					hook.vcardCreated(message.body().getValue());
+				}
+			});
 
-			eventBus.registerHandler(AddressBookBusAddresses.UPDATED,
-					new Handler<Message<LocalJsonObject<VCardMessage>>>() {
-						public void handle(Message<LocalJsonObject<VCardMessage>> message) {
-							hook.vcardUpdated(message.body().getValue());
-						}
-					});
+			eventBus.consumer(AddressBookBusAddresses.UPDATED, new Handler<Message<LocalJsonObject<VCardMessage>>>() {
+				public void handle(Message<LocalJsonObject<VCardMessage>> message) {
+					hook.vcardUpdated(message.body().getValue());
+				}
+			});
 
-			eventBus.registerHandler(AddressBookBusAddresses.DELETED,
-					new Handler<Message<LocalJsonObject<VCardMessage>>>() {
-						public void handle(Message<LocalJsonObject<VCardMessage>> message) {
-							hook.vcardDeleted(message.body().getValue());
-						}
-					});
+			eventBus.consumer(AddressBookBusAddresses.DELETED, new Handler<Message<LocalJsonObject<VCardMessage>>>() {
+				public void handle(Message<LocalJsonObject<VCardMessage>> message) {
+					hook.vcardDeleted(message.body().getValue());
+				}
+			});
 		}
 
 	}

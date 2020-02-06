@@ -34,6 +34,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -46,14 +47,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.addressbook.api.AddressBookBusAddresses;
 import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.VCard;
@@ -262,6 +263,8 @@ public class UserServiceTests {
 
 		ItemValue<User> full = userStoreService.get(uid);
 		assertUserEquals(user, full.value);
+		assertNotNull(full.value.password);
+		assertNotNull(full.value.passwordLastChange);
 
 		// user mailbox is created
 		assertNotNull(testContext.provider().instance(IMailboxes.class, domainUid).getComplete(uid));
@@ -447,6 +450,7 @@ public class UserServiceTests {
 		User user = defaultUser("test." + System.nanoTime());
 		String uid = create(user);
 		assertNotNull(uid);
+		Date passwordUpdated = getPasswordLastChange(user);
 
 		// flush dir events..
 		try {
@@ -463,9 +467,18 @@ public class UserServiceTests {
 		User updated = userStore.get(item);
 		assertNotNull(updated);
 		assertEquals(user.login, updated.login);
+
+		// Check password from store
+		assertNotNull(updated.password);
+		assertEquals(passwordUpdated, updated.passwordLastChange);
+
 		ItemValue<User> itemValue = getService(domainAdminSecurityContext).getComplete(uid);
 		assertUserEquals(user, itemValue.value);
 		assertEquals(1, itemValue.value.contactInfos.communications.emails.size());
+
+		// Check password from service
+		assertNull(itemValue.value.password);
+		assertEquals(passwordUpdated, itemValue.value.passwordLastChange);
 
 		// check direntry and vcard update
 
@@ -476,7 +489,7 @@ public class UserServiceTests {
 		getService(domainAdminSecurityContext).update(uid, itemValue.value);
 		itemValue = getService(domainAdminSecurityContext).getComplete(uid);
 		assertEquals(2, itemValue.value.contactInfos.communications.emails.size());
-		// check two time te be sure that email DOES NOT ACCUMULATE
+		// check two time to be sure that email DOES NOT ACCUMULATE
 		itemValue = getService(domainAdminSecurityContext).getComplete(uid);
 
 		// add bad email
@@ -488,6 +501,9 @@ public class UserServiceTests {
 		assertEquals(2, itemValue.value.contactInfos.communications.emails.size());
 		assertNotNull(itemValue.value.contactInfos.communications.emails.get(0).getParameterValue("SYSTEM"));
 		assertEquals("check@" + domainUid, itemValue.value.contactInfos.communications.emails.get(1).value);
+
+		// Check password from store
+		assertEquals(passwordUpdated, itemValue.value.passwordLastChange);
 	}
 
 	@Test
@@ -535,11 +551,15 @@ public class UserServiceTests {
 		String uid = create(user);
 		System.out.println("Password from bean: " + user.password);
 		String prevPass = getPassword(user).split(":")[2];
+		Date prevDate = getPasswordLastChange(user);
 		user.password = null;
 
 		getService(domainAdminSecurityContext).update(uid, user);
 		String currentPass = getPassword(user).split(":")[2];
 		assertEquals(currentPass, prevPass);
+
+		Date currentDate = getPasswordLastChange(user);
+		assertEquals(prevDate, currentDate);
 
 		Item item = userItemStore.get(uid);
 		assertNotNull(item);
@@ -659,6 +679,22 @@ public class UserServiceTests {
 			}
 		}
 		return currentPass;
+	}
+
+	private Date getPasswordLastChange(User user) throws SQLException {
+		Date passwordUpdate = null;
+		try (Connection con = JdbcTestHelper.getInstance().getDataSource().getConnection()) {
+			try (Statement st = con.createStatement()) {
+				try (ResultSet rs = st.executeQuery(
+						"SELECT password_lastchange FROM t_domain_user WHERE login='" + user.login + "'")) {
+					if (rs.next()) {
+						passwordUpdate = rs.getTimestamp(1) == null ? null : new Date(rs.getTimestamp(1).getTime());
+					}
+				}
+			}
+		}
+
+		return passwordUpdate;
 	}
 
 	@Test
@@ -782,6 +818,9 @@ public class UserServiceTests {
 		assertNotNull(userItem);
 		assertEquals(uid, userItem.uid);
 		assertUserEquals(user, userItem.value);
+
+		assertNull(userItem.value.password);
+		assertNotNull(userItem.value.passwordLastChange);
 
 		userItem = getService(domainAdminSecurityContext).getComplete("nonExistant");
 		assertNull(userItem);
@@ -1318,6 +1357,9 @@ public class UserServiceTests {
 		} catch (ServerFault sf) {
 			fail();
 		}
+
+		assertNull(getPassword(user));
+		assertNull(getPasswordLastChange(user));
 	}
 
 	@Test

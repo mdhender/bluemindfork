@@ -18,6 +18,8 @@
  */
 package net.bluemind.xmpp.coresession.internal;
 
+import java.util.Optional;
+
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
@@ -35,7 +37,8 @@ public class RosterItemUserHook extends DefaultUserHook {
 	public void onUserUpdated(BmContext context, String domainUid, ItemValue<User> previous, ItemValue<User> current)
 			throws ServerFault {
 
-		if ("admin0@global.virt".equals(current.value.defaultEmail())) {
+		if ("admin0@global.virt"
+				.equals(Optional.ofNullable(current.value.defaultEmail()).map(e -> e.address).orElse(""))) {
 			RosterItemCache.getInstance().invalidate(context, current.value);
 		}
 

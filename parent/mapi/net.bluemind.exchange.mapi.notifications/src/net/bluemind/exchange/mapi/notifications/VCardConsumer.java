@@ -20,9 +20,9 @@ package net.bluemind.exchange.mapi.notifications;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.hook.IAddressBookEventConsumer;
@@ -63,10 +63,10 @@ public class VCardConsumer implements IAddressBookEventConsumer {
 			IAddressBook book = prov.instance(IAddressBook.class, message.container.uid);
 			ItemValue<VCard> cardItem = book.getComplete(message.itemUid);
 			JsonObject js = new JsonObject();
-			js.putString("messageClass", messageClass(cardItem));
-			js.putString("containerUid", message.container.uid);
-			js.putNumber("internalId", cardItem != null ? cardItem.internalId : 0L);
-			js.putString("operation", op.name());
+			js.put("messageClass", messageClass(cardItem));
+			js.put("containerUid", message.container.uid);
+			js.put("internalId", cardItem != null ? cardItem.internalId : 0L);
+			js.put("operation", op.name());
 			eb.send(Topic.MAPI_ITEM_NOTIFICATIONS, js);
 		} catch (ServerFault sf) {
 			logger.error(sf.getMessage(), sf);

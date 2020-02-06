@@ -17,8 +17,8 @@
  */
 package net.bluemind.sds.proxy.store;
 
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.json.JsonObject;
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 
 public interface ISdsBackingStoreFactory {
 

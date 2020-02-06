@@ -23,12 +23,13 @@ import java.io.InputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.streams.ReadStream;
 
-public class VertxInputReadStream implements ReadStream<VertxInputReadStream> {
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
+
+public class VertxInputReadStream implements ReadStream<Buffer> {
 
 	private final InputStream strem;
 	private final Vertx vertx;
@@ -44,7 +45,7 @@ public class VertxInputReadStream implements ReadStream<VertxInputReadStream> {
 	}
 
 	@Override
-	public VertxInputReadStream dataHandler(Handler<Buffer> handler) {
+	public VertxInputReadStream handler(Handler<Buffer> handler) {
 		dataHandler = handler;
 		read();
 		return this;
@@ -96,7 +97,7 @@ public class VertxInputReadStream implements ReadStream<VertxInputReadStream> {
 				if (size == -1) {
 					break;
 				}
-				Buffer buff = new Buffer().appendBytes(buffer, 0, size);
+				Buffer buff = Buffer.buffer().appendBytes(buffer, 0, size);
 
 				vertx.runOnContext(v -> {
 					dataHandler.handle(buff);
@@ -125,5 +126,10 @@ public class VertxInputReadStream implements ReadStream<VertxInputReadStream> {
 		vertx.runOnContext(v -> {
 			endHandler.handle(null);
 		});
+	}
+
+	@Override
+	public ReadStream<Buffer> fetch(long amount) {
+		return this;
 	}
 }

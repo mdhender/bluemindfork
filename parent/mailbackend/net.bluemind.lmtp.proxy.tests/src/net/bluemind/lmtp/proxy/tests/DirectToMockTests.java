@@ -19,8 +19,7 @@ package net.bluemind.lmtp.proxy.tests;
 
 import java.util.concurrent.CompletableFuture;
 
-import org.vertx.java.core.Vertx;
-
+import io.vertx.core.Vertx;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.lmtp.testhelper.client.VertxLmtpClient;
 

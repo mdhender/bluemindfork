@@ -32,11 +32,11 @@ import java.util.concurrent.CountDownLatch;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.collect.ImmutableMap;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -73,7 +73,6 @@ public class DomainSettingsServiceTests {
 
 		testDomainUid = "test.lan";
 
-		
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
 		PopulateHelper.initGlobalVirt();

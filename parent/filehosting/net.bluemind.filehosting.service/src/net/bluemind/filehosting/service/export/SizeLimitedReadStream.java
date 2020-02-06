@@ -20,18 +20,19 @@ package net.bluemind.filehosting.service.export;
 
 import java.io.IOException;
 
-import org.vertx.java.core.streams.ReadStream;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
 
 public class SizeLimitedReadStream extends net.bluemind.core.rest.utils.ReadInputStream {
 
 	private final long maxDataSize;
 	private int bytesRead = 0;
 
-	public SizeLimitedReadStream(ReadStream<?> inputStream) {
+	public SizeLimitedReadStream(ReadStream<Buffer> inputStream) {
 		this(inputStream, -1);
 	}
 
-	public SizeLimitedReadStream(ReadStream<?> inputStream, long maxDataSize) {
+	public SizeLimitedReadStream(ReadStream<Buffer> inputStream, long maxDataSize) {
 		super(inputStream);
 		this.maxDataSize = maxDataSize;
 	}

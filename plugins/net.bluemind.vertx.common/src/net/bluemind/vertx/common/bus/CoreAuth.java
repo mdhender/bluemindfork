@@ -22,10 +22,11 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.busmods.BusModBase;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
@@ -35,17 +36,18 @@ import net.bluemind.vertx.common.LocalJsonObject;
 import net.bluemind.vertx.common.LoginRequest;
 import net.bluemind.vertx.common.impl.LoginResponse;
 
-public final class CoreAuth extends BusModBase {
+public final class CoreAuth extends AbstractVerticle {
 
 	private Handler<Message<LocalJsonObject<LoginRequest>>> loginHandler;
 	private Handler<Message<String>> logoutHandler;
 	private Handler<Message<LocalJsonObject<LoginRequest>>> validateHandler;
+	private EventBus eb;
 
 	private static final Logger logger = LoggerFactory.getLogger(CoreAuth.class);
 
 	@Override
 	public void start() {
-		super.start();
+		this.eb = vertx.eventBus();
 
 		loginHandler = new Handler<Message<LocalJsonObject<LoginRequest>>>() {
 			@Override
@@ -53,7 +55,7 @@ public final class CoreAuth extends BusModBase {
 				login(msg);
 			}
 		};
-		eb.registerHandler("core.login", loginHandler);
+		eb.consumer("core.login", loginHandler);
 
 		validateHandler = new Handler<Message<LocalJsonObject<LoginRequest>>>() {
 			@Override
@@ -61,7 +63,7 @@ public final class CoreAuth extends BusModBase {
 				validate(msg);
 			}
 		};
-		eb.registerHandler("core.validate", validateHandler);
+		eb.consumer("core.validate", validateHandler);
 
 		logoutHandler = new Handler<Message<String>>() {
 			@Override
@@ -69,7 +71,7 @@ public final class CoreAuth extends BusModBase {
 				logout(msg);
 			}
 		};
-		eb.registerHandler("core.logout", logoutHandler);
+		eb.consumer("core.logout", logoutHandler);
 		logger.info("CoreAuth started.");
 
 	}
@@ -142,6 +144,6 @@ public final class CoreAuth extends BusModBase {
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
-		outMsg.reply();
+		outMsg.reply(null);
 	}
 }

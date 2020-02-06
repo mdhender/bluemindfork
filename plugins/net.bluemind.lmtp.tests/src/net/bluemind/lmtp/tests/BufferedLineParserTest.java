@@ -24,12 +24,12 @@ import java.util.Random;
 
 import org.apache.james.mime4j.dom.Message;
 import org.junit.Test;
-import org.vertx.java.core.buffer.Buffer;
 
 import com.google.common.base.Strings;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.lmtp.parser.BufferedLineParser;
 import net.bluemind.mime4j.common.Mime4JHelper;
 
@@ -58,7 +58,7 @@ public class BufferedLineParserTest {
 			int some = 1 + r.nextInt(32);
 			ByteBuf slice = asBuffer.readSlice(Math.min(asBuffer.readableBytes(), some));
 			System.out.println("Feed with " + slice.readableBytes() + "bytes");
-			parser.feed(new Buffer(slice));
+			parser.feed(Buffer.buffer(slice));
 			Buffer next = parser.next();
 			while (next != BufferedLineParser.NEED_MORE && next != null) {
 				String chunk = next.toString();

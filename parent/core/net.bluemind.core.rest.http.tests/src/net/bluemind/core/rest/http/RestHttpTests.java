@@ -18,13 +18,12 @@
  */
 package net.bluemind.core.rest.http;
 
+import java.util.concurrent.TimeUnit;
+
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClient;
 import org.junit.After;
 import org.junit.Before;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-
-import com.google.common.util.concurrent.SettableFuture;
-import com.ning.http.client.AsyncHttpClient;
 
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.tests.services.IRestPathTestService;
@@ -41,18 +40,9 @@ public class RestHttpTests extends RestTestServiceTests {
 	@Before
 	public void setup() throws Exception {
 
-		final SettableFuture<Void> future = SettableFuture.<Void> create();
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
+		VertxPlatform.spawnBlocking(20, TimeUnit.SECONDS);
 
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				future.set(null);
-			}
-		};
-		VertxPlatform.spawnVerticles(done);
-		future.get();
-
-		httpClient = new AsyncHttpClient();
+		httpClient = new DefaultAsyncHttpClient();
 	}
 
 	@After

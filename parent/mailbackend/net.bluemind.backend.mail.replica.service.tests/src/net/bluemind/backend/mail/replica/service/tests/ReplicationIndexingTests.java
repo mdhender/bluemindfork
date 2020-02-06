@@ -46,10 +46,10 @@ import org.elasticsearch.join.query.JoinQueryBuilders;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.io.ByteStreams;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.cyrus.replication.testhelper.ExpectCommand;
 import net.bluemind.backend.mail.api.IMailboxFolders;

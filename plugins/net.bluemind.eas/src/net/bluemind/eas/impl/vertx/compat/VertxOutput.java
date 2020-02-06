@@ -22,11 +22,11 @@ import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
 
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.eas.wbxml.WbxmlOutput;
 import net.bluemind.vertx.common.request.Requests;
 
@@ -43,7 +43,7 @@ public class VertxOutput extends WbxmlOutput {
 	public VertxOutput(HttpServerRequest req) {
 		this.req = req;
 		this.resp = req.response();
-		this.pending = new Buffer();
+		this.pending = Buffer.buffer();
 	}
 
 	@Override
@@ -57,7 +57,7 @@ public class VertxOutput extends WbxmlOutput {
 	private void flushIfNecessary(final QueueDrained drained) {
 		if (count > THRESHOLD) {
 			resp.write(pending);
-			pending = new Buffer();
+			pending = Buffer.buffer();
 			count = 0;
 			if (drained != null) {
 				if (resp.writeQueueFull()) {

@@ -29,16 +29,20 @@ import net.bluemind.eas.utils.RunnableExtensionLoader;
 public class Protocols {
 
 	private static final Logger logger = LoggerFactory.getLogger(Protocols.class);
-	private static List<IEasProtocol<?, ?>> protocols;
+	private static final List<IEasProtocol<?, ?>> loadedProtocols = registerProtocols();
 
-	public static void registerProtocols() {
+	private Protocols() {
+	}
+
+	public static List<IEasProtocol<?, ?>> registerProtocols() {
 		RunnableExtensionLoader<IEasProtocol<?, ?>> rel = new RunnableExtensionLoader<>();
-		protocols = rel.loadExtensions("net.bluemind.eas", "protocol", "protocol", "impl");
-		logger.info("Found {} EAS protocols", protocols.size());
+		List<IEasProtocol<?, ?>> prots = rel.loadExtensions("net.bluemind.eas", "protocol", "protocol", "impl");
+		logger.info("Found {} EAS protocols", prots.size());
+		return prots;
 	}
 
 	public static List<IEasProtocol<?, ?>> get() {
-		return protocols;
+		return loadedProtocols;
 	}
 
 }

@@ -20,7 +20,7 @@ package net.bluemind.eas.http;
 
 import java.util.Collection;
 
-import org.vertx.java.core.Handler;
+import io.vertx.core.Handler;
 
 public interface IEasRequestEndpoint extends Handler<AuthorizedDeviceQuery> {
 

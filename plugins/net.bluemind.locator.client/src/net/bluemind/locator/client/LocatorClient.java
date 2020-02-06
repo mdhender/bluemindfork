@@ -27,14 +27,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.BoundRequestBuilder;
+import org.asynchttpclient.ListenableFuture;
+import org.asynchttpclient.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClient.BoundRequestBuilder;
-import com.ning.http.client.ListenableFuture;
-import com.ning.http.client.Response;
-
+import io.netty.util.AsciiString;
 import net.bluemind.locator.client.impl.AHCHelper;
 
 public final class LocatorClient {
@@ -42,6 +42,7 @@ public final class LocatorClient {
 	private static final Logger logger = LoggerFactory.getLogger(LocatorClient.class);
 
 	private final String locUrl;
+	private static final CharSequence ORIGIN_HEADER = new AsciiString("X-Bm-Origin");
 	private static final String ORIGIN_VALUE = System.getProperty("net.bluemind.property.product", "unknown");
 
 	public LocatorClient() {
@@ -55,7 +56,7 @@ public final class LocatorClient {
 		AsyncHttpClient cl = AHCHelper.get();
 		try {
 			BoundRequestBuilder prepared = cl.prepareGet(url);
-			prepared.addHeader("X-Bm-Origin", ORIGIN_VALUE);
+			prepared.addHeader(ORIGIN_HEADER, ORIGIN_VALUE);
 			ListenableFuture<Response> future = prepared.execute();
 			Response response = future.get();
 
@@ -67,7 +68,7 @@ public final class LocatorClient {
 			ip = r.readLine();
 			r.close();
 		} catch (FileNotFoundException fnfe) {
-			logger.warn("host not found " + serviceSlashProperty + " for " + loginAtDomain);
+			logger.warn("host not found {} for {}", serviceSlashProperty, loginAtDomain);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -97,7 +98,7 @@ public final class LocatorClient {
 			}
 			r.close();
 		} catch (FileNotFoundException fnfe) {
-			logger.warn("host not found " + serviceSlashProperty + " for " + loginAtDomain);
+			logger.warn("host not found {} for {}", serviceSlashProperty, loginAtDomain);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}

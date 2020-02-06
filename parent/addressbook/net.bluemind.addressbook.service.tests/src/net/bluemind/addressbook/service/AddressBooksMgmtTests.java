@@ -36,12 +36,12 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.SettableFuture;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.addressbook.api.AddressBookDescriptor;
 import net.bluemind.addressbook.api.IAddressBooksMgmt;
 import net.bluemind.core.api.fault.ErrorCode;

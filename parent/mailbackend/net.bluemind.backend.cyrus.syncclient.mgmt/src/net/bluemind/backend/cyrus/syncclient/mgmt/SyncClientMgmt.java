@@ -22,13 +22,14 @@ import java.util.concurrent.Executor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.collect.ImmutableList;
 
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.syncclient.mgmt.api.ISyncClientMgmt;
 import net.bluemind.backend.cyrus.syncclient.mgmt.api.ISyncClientObserver;
 import net.bluemind.core.api.fault.ServerFault;
@@ -53,6 +54,7 @@ public class SyncClientMgmt implements ISyncClientMgmt, ProcessHandler {
 	private String activeTask;
 	private final Handler<Message<JsonObject>> uplinkHandler;
 	private final int shardIndex;
+	private MessageConsumer<JsonObject> cons;
 
 	public SyncClientMgmt(Vertx vertx, String cyrusBackendAddress, String replicationChannel, int shardIndex,
 			List<ISyncClientObserver> obs, Executor observersPool) {
@@ -80,7 +82,7 @@ public class SyncClientMgmt implements ISyncClientMgmt, ProcessHandler {
 		if (timerId != null) {
 			vertx.cancelTimer(timerId);
 		}
-		vertx.eventBus().registerLocalHandler("mailreplica.uplink", uplinkHandler);
+		this.cons = vertx.eventBus().consumer("mailreplica.uplink", uplinkHandler);
 
 		ExecRequest syncClientReq = ExecRequest.named("mail_replication_" + shardIndex, "sync_client",
 				"/usr/sbin/sync_client -n " + replicationChannel + " -i " + shardIndex + " -R -l -v",
@@ -95,7 +97,7 @@ public class SyncClientMgmt implements ISyncClientMgmt, ProcessHandler {
 
 	public void stopRollingReplication() {
 		this.stopped = true;
-		vertx.eventBus().unregisterHandler("mailreplica.uplink", uplinkHandler);
+		cons.unregister();
 		node.interrupt(ExecDescriptor.forTask(activeTask));
 	}
 

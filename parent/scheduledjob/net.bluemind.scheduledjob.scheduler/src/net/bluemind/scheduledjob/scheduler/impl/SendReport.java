@@ -39,6 +39,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sendmail.ISendmail;
 import net.bluemind.core.sendmail.Sendmail;
+import net.bluemind.core.sendmail.SendmailCredentials;
 import net.bluemind.core.sendmail.SendmailHelper;
 import net.bluemind.scheduledjob.api.IJob;
 import net.bluemind.scheduledjob.api.Job;
@@ -76,7 +77,7 @@ public class SendReport implements Runnable {
 				String from = "no-reply@" + getNoReplyDomainName(domain);
 				logger.info("Sending report using sender address {}", from);
 				Message m = getMessage(rid, job, from);
-				mailer.send(from, domain, m);
+				mailer.send(SendmailCredentials.asAdmin0(), from, domain, m);
 			}
 		} catch (ServerFault e) {
 			logger.error(e.getMessage(), e);

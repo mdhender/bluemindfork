@@ -7,8 +7,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .
 Export-Package: net.bluemind.dockerclient
 Require-Bundle: slf4j.api;bundle-version="1.7.5",
- org.apache.httpcomponents.httpclient;bundle-version="4.4.1",
- org.apache.httpcomponents.httpcore;bundle-version="4.4.1",
  com.fasterxml.jackson.core.jackson-databind,
- com.fasterxml.jackson.core.jackson-core
+ com.fasterxml.jackson.core.jackson-core,
+ org.asynchttpclient.async-http-client;bundle-version="2.10.4"
 Automatic-Module-Name: net.bluemind.dockerclient

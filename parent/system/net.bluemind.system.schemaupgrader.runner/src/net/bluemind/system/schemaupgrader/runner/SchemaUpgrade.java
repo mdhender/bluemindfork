@@ -31,12 +31,13 @@ import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.collect.ImmutableList;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.eventbus.DeliveryOptions;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.VersionInfo;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
@@ -131,13 +132,17 @@ public class SchemaUpgrade {
 		List<Updater> phase2 = pathToGlory.stream().filter(u -> u.afterSchemaUpgrade() && !onlySchema)
 				.collect(Collectors.toList());
 
-		executeUpdates(subWork, report, handledActions, UpgradePhase.SCHEMA_UPGRADE, phase1);
+		UpdateResult phase1Result = executeUpdates(subWork, report, handledActions, UpgradePhase.SCHEMA_UPGRADE,
+				phase1);
+		if (phase1Result.equals(UpdateResult.failed())) {
+			return UpdateResult.failed();
+		}
 
 		CompletableFuture<Void> ret = new CompletableFuture<>();
 		if (ServerSideServiceProvider.mailboxDataSource == null
 				|| ServerSideServiceProvider.mailboxDataSource.isEmpty()) {
-			VertxPlatform.getVertx().eventBus().sendWithTimeout("mailbox.ds.lookup", new JsonObject(), 7000l,
-					(AsyncResult<Message<String>> event) -> {
+			VertxPlatform.getVertx().eventBus().request("mailbox.ds.lookup", new JsonObject(),
+					new DeliveryOptions().setSendTimeout(7000), (AsyncResult<Message<String>> event) -> {
 						if (event.failed()) {
 							ret.completeExceptionally(event.cause());
 						} else {
@@ -188,7 +193,7 @@ public class SchemaUpgrade {
 
 			}
 
-			subWork.progress(1, "Updater " + u + " complete (result: " + ur + ")");
+			subWork.progress(1, "Updater " + u + " complete (result: " + ur.result.name() + ")");
 		}
 		return ur;
 	}

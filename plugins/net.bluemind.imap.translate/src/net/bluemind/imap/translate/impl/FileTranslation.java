@@ -26,13 +26,13 @@ import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.io.Files;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.lib.jutf7.UTF7Converter;
 
 public class FileTranslation implements Translation {
@@ -43,7 +43,7 @@ public class FileTranslation implements Translation {
 	public FileTranslation(File props) throws IOException {
 		byte[] bytes = Files.toByteArray(props);
 		JsonObject jso = new JsonObject(new String(bytes, "utf-8"));
-		Map<String, Object> p = jso.toMap();
+		Map<String, Object> p = jso.getMap();
 		for (Entry<String, Object> entry : p.entrySet()) {
 			String key = UTF7Converter.encode(entry.getKey());
 			String value = UTF7Converter.encode(entry.getValue().toString());

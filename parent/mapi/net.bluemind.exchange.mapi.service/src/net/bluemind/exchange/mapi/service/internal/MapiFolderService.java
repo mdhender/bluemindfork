@@ -24,8 +24,8 @@ import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.api.Count;
@@ -84,14 +84,14 @@ public class MapiFolderService implements IMapiFolder {
 
 	private String displayName(long id, MapiRawMessage value) {
 		JsonObject js = new JsonObject(value.contentJson);
-		JsonObject props = js.getObject("setProperties");
+		JsonObject props = js.getJsonObject("setProperties");
 		String dn = "mapi-raw:" + id;
 		if (props != null) {
-			if (props.containsField("PidTagDisplayName")) {
+			if (props.containsKey("PidTagDisplayName")) {
 				dn = js.getString("PidTagDisplayName");
-			} else if (props.containsField("PidTagNormalizedSubject")) {
+			} else if (props.containsKey("PidTagNormalizedSubject")) {
 				dn = js.getString("PidTagNormalizedSubject");
-			} else if (props.containsField("PidTagConversationTopic")) {
+			} else if (props.containsKey("PidTagConversationTopic")) {
 				dn = js.getString("PidTagConversationTopic");
 			}
 		}

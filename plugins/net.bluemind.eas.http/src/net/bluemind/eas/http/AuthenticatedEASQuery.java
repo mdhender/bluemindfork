@@ -18,8 +18,7 @@
  */
 package net.bluemind.eas.http;
 
-import org.vertx.java.core.http.HttpServerRequest;
-
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.eas.dto.OptionalParams;
 import net.bluemind.vertx.common.http.BasicAuthHandler.AuthenticatedRequest;
 

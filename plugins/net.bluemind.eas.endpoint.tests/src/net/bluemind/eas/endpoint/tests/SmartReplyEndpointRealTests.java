@@ -29,7 +29,6 @@ import org.apache.james.mime4j.dom.Body;
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.Multipart;
 import org.apache.james.mime4j.dom.TextBody;
-import org.vertx.java.core.buffer.Buffer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -38,6 +37,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
 
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.eas.command.folder.sync.FolderSyncEndpoint;
 import net.bluemind.eas.command.mail.sendmail.SendMailEndpoint;
 import net.bluemind.eas.command.mail.smartreply.SmartReplyEndpoint;

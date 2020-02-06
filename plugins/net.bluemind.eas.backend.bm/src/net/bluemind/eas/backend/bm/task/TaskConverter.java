@@ -131,8 +131,7 @@ public class TaskConverter {
 
 		ret.percent = task.complete ? 100 : 0;
 		if (task.dateCompleted != null) {
-			ret.completed = BmDateTimeWrapper.fromTimestamp(task.dateCompleted.getTime());
-			ret.completed.precision = Precision.Date;
+			ret.completed = BmDateTimeWrapper.fromTimestamp(task.dateCompleted.getTime(), null, Precision.Date);
 		}
 		ret.description = task.description;
 

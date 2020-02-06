@@ -73,7 +73,7 @@ public enum MessageClass {
 	/**
 	 * Notification of a canceled meeting
 	 */
-	ScheduleMeetingCanceled("IPM.Schedule.Meeting.Canceled", null),
+	ScheduleMeetingCanceled("IPM.Schedule.Meeting.Canceled", "IPM.Schedule.Meeting.Canceled"),
 
 	/**
 	 * Accepted meeting request

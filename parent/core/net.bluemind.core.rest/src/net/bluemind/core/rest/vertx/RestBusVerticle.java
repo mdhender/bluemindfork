@@ -18,18 +18,15 @@
  */
 package net.bluemind.core.rest.vertx;
 
-import org.vertx.java.platform.Verticle;
-
+import io.vertx.core.AbstractVerticle;
 import net.bluemind.core.rest.base.RestRootHandler;
 
-public class RestBusVerticle extends Verticle {
+public class RestBusVerticle extends AbstractVerticle {
 
 	@Override
 	public void start() {
-		getVertx().eventBus().registerHandler("bm-core",
-				new RestVertxRootHandler(vertx, new RestRootHandler(getVertx())));
-		getVertx().eventBus().registerHandler("bm-core-json",
-				new RestJsonVertxRootHandler(vertx, new RestRootHandler(vertx)));
+		getVertx().eventBus().consumer("bm-core", new RestVertxRootHandler(vertx, new RestRootHandler(getVertx())));
+		getVertx().eventBus().consumer("bm-core-json", new RestJsonVertxRootHandler(vertx, new RestRootHandler(vertx)));
 
 	}
 

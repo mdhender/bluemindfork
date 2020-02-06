@@ -20,12 +20,13 @@ package net.bluemind.node.server.handlers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.DeliveryOptions;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class Interrupt implements Handler<HttpServerRequest> {
@@ -37,8 +38,8 @@ public class Interrupt implements Handler<HttpServerRequest> {
 		req.endHandler(v -> {
 			try {
 				long pid = Long.parseLong(req.params().get("reqId"));
-				VertxPlatform.eventBus().sendWithTimeout("cmd.interrupt", new JsonObject().putNumber("pid", pid), 2000,
-						(AsyncResult<Message<JsonObject>> ar) -> {
+				VertxPlatform.eventBus().request("cmd.interrupt", new JsonObject().put("pid", pid),
+						new DeliveryOptions().setSendTimeout(2000), (AsyncResult<Message<JsonObject>> ar) -> {
 							if (ar.succeeded()) {
 								logger.info("{} interrupted.", pid);
 								req.response().setStatusCode(200).end();

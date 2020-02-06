@@ -18,37 +18,31 @@
  */
 package net.bluemind.locator;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Future;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpServer;
-import org.vertx.java.core.http.RouteMatcher;
-import org.vertx.java.platform.Verticle;
 
-public class LocatorVerticle extends Verticle {
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.Promise;
+import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerOptions;
+import net.bluemind.lib.vertx.RouteMatcher;
+
+public class LocatorVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(LocatorVerticle.class);
 
-	private static final ExecutorService blockingPool = Executors
-			.newFixedThreadPool(2 * Runtime.getRuntime().availableProcessors());
-
-	public LocatorVerticle() {
-	}
-
-	public void start(Future<Void> startedResult) {
+	@Override
+	public void start(Promise<Void> startedResult) {
 		logger.info("Spawing a locator server instance...");
-		HttpServer httpServer = vertx.createHttpServer();
-		httpServer.setUsePooledBuffers(true).setTCPNoDelay(true).setReuseAddress(true);
-		httpServer.setAcceptBacklog(1024);
+		HttpServer httpServer = vertx.createHttpServer(new HttpServerOptions().setUsePooledBuffers(true)
+				.setTcpNoDelay(true).setAcceptBacklog(1024).setReuseAddress(true));
 
-		RouteMatcher rm = new RouteMatcher();
-		HostLocationHandler hls = new HostLocationHandler(vertx, blockingPool);
+		RouteMatcher rm = new RouteMatcher(vertx);
+		HostLocationHandler hls = new HostLocationHandler(vertx);
 		rm.get("/location/host/:kind/:tag/:latd", hls);
+		rm.noMatch(req -> req.response().setStatusCode(404).end());
 
 		httpServer.requestHandler(rm).listen(LocatorService.LOCATOR_PORT, new Handler<AsyncResult<HttpServer>>() {
 
@@ -56,10 +50,10 @@ public class LocatorVerticle extends Verticle {
 			public void handle(AsyncResult<HttpServer> event) {
 				if (event.succeeded()) {
 					logger.info("Bound to {}", LocatorService.LOCATOR_PORT);
-					startedResult.setResult(null);
+					startedResult.complete(null);
 				} else {
 					logger.error(event.cause().getMessage(), event.cause());
-					startedResult.setFailure(event.cause());
+					startedResult.fail(event.cause());
 				}
 			}
 		});

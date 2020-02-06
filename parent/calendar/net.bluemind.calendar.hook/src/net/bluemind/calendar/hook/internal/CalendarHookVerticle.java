@@ -20,17 +20,16 @@ package net.bluemind.calendar.hook.internal;
 
 import java.util.List;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.platform.Verticle;
-
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
 import net.bluemind.calendar.hook.CalendarHookAddress;
 import net.bluemind.calendar.hook.ICalendarHook;
 import net.bluemind.core.rest.LocalJsonObject;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 
-public class CalendarHookVerticle extends Verticle {
+public class CalendarHookVerticle extends AbstractVerticle {
 
 	@Override
 	public void start() {
@@ -41,32 +40,29 @@ public class CalendarHookVerticle extends Verticle {
 
 		EventBus eventBus = vertx.eventBus();
 
-		eventBus.registerHandler(CalendarHookAddress.EVENT_CREATED,
-				new Handler<Message<LocalJsonObject<VEventMessage>>>() {
-					public void handle(Message<LocalJsonObject<VEventMessage>> message) {
-						for (final ICalendarHook hook : hooks) {
-							hook.onEventCreated(message.body().getValue());
-						}
-					}
-				});
+		eventBus.consumer(CalendarHookAddress.EVENT_CREATED, new Handler<Message<LocalJsonObject<VEventMessage>>>() {
+			public void handle(Message<LocalJsonObject<VEventMessage>> message) {
+				for (final ICalendarHook hook : hooks) {
+					hook.onEventCreated(message.body().getValue());
+				}
+			}
+		});
 
-		eventBus.registerHandler(CalendarHookAddress.EVENT_UPDATED,
-				new Handler<Message<LocalJsonObject<VEventMessage>>>() {
-					public void handle(Message<LocalJsonObject<VEventMessage>> message) {
-						for (final ICalendarHook hook : hooks) {
-							hook.onEventUpdated(message.body().getValue());
-						}
-					}
-				});
+		eventBus.consumer(CalendarHookAddress.EVENT_UPDATED, new Handler<Message<LocalJsonObject<VEventMessage>>>() {
+			public void handle(Message<LocalJsonObject<VEventMessage>> message) {
+				for (final ICalendarHook hook : hooks) {
+					hook.onEventUpdated(message.body().getValue());
+				}
+			}
+		});
 
-		eventBus.registerHandler(CalendarHookAddress.EVENT_DELETED,
-				new Handler<Message<LocalJsonObject<VEventMessage>>>() {
-					public void handle(Message<LocalJsonObject<VEventMessage>> message) {
-						for (final ICalendarHook hook : hooks) {
-							hook.onEventDeleted(message.body().getValue());
-						}
-					}
-				});
+		eventBus.consumer(CalendarHookAddress.EVENT_DELETED, new Handler<Message<LocalJsonObject<VEventMessage>>>() {
+			public void handle(Message<LocalJsonObject<VEventMessage>> message) {
+				for (final ICalendarHook hook : hooks) {
+					hook.onEventDeleted(message.body().getValue());
+				}
+			}
+		});
 
 	}
 }

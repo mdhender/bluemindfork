@@ -27,9 +27,9 @@ import java.util.concurrent.TimeoutException;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
 
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.lmtp.testhelper.client.Request;
 import net.bluemind.lmtp.testhelper.client.VertxLmtpClient;
@@ -105,7 +105,7 @@ public class BmLmtpProxyTests extends AbstractChainTest {
 				return client.rcptTo("recip2@bm.lan");
 			}).thenCompose(rcptResp -> {
 				checkCode(rcptResp, 250);
-				return client.data(3, new Buffer("From: tcataldo@gmail.com\r\n"));
+				return client.data(3, Buffer.buffer("From: tcataldo@gmail.com\r\n"));
 			}).thenCompose(dataResp -> {
 				assertEquals(3, dataResp.length);
 				return checkCode(dataResp, 250, 451);

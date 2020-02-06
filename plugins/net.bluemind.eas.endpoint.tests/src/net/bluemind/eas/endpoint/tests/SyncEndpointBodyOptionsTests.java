@@ -36,13 +36,13 @@ import org.apache.james.mime4j.field.LenientFieldParser;
 import org.apache.james.mime4j.message.BasicBodyFactory;
 import org.apache.james.mime4j.message.MessageImpl;
 import org.apache.james.mime4j.stream.Field;
-import org.vertx.java.core.buffer.Buffer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import com.google.common.io.CharStreams;
 
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.eas.command.folder.sync.FolderSyncEndpoint;
 import net.bluemind.eas.command.sync.SyncEndpoint;
 import net.bluemind.eas.endpoint.tests.bodyoptions.ISyncOptionsProvider;

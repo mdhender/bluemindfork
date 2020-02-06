@@ -17,11 +17,11 @@
  */
 package net.bluemind.metrics.core.service;
 
-import org.vertx.java.platform.Verticle;
-
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Verticle;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
-public class ChecksConsumerVerticle extends Verticle {
+public class ChecksConsumerVerticle extends AbstractVerticle {
 	@Override
 	public void start() {
 		ProductChecksService.initConsumer();

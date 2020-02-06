@@ -32,8 +32,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.aws.s3.utils.S3Configuration;
 import net.bluemind.dockerclient.DockerEnv;
 import net.bluemind.lib.vertx.VertxPlatform;

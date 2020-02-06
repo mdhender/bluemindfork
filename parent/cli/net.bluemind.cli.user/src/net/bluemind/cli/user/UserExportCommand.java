@@ -20,6 +20,7 @@ package net.bluemind.cli.user;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -68,7 +69,7 @@ public class UserExportCommand extends SingleOrDomainOperation {
 
 	@Override
 	public void synchronousDirOperation(String domainUid, ItemValue<DirEntry> de) {
-		outputDir = rootDir + "/" + UUID.randomUUID();  //BM-15290: Needed when using --match [a-c].*
+		outputDir = rootDir + "/" + UUID.randomUUID(); // BM-15290: Needed when using --match [a-c].*
 		File dir = new File(outputDir);
 		try {
 			dir.mkdirs();
@@ -112,8 +113,10 @@ public class UserExportCommand extends SingleOrDomainOperation {
 		tOut.putArchiveEntry(tarEntry);
 
 		if (f.isFile()) {
-			IOUtils.copy(Files.newInputStream(f.toPath()), tOut);
-			tOut.closeArchiveEntry();
+			try (InputStream in = Files.newInputStream(f.toPath())) {
+				IOUtils.copy(in, tOut);
+				tOut.closeArchiveEntry();
+			}
 		} else {
 			tOut.closeArchiveEntry();
 			File[] children = f.listFiles();

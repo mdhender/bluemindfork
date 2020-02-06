@@ -24,8 +24,8 @@ import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
 
+import io.vertx.core.Vertx;
 import net.bluemind.backend.cyrus.partitions.CyrusBoxes.ReplicatedBox;
 import net.bluemind.backend.cyrus.replication.server.state.StorageApiLink;
 import net.bluemind.backend.mail.replica.api.ICyrusReplicationAnnotationsPromise;

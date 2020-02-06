@@ -18,8 +18,7 @@
  */
 package net.bluemind.eas.http.query.internal;
 
-import org.vertx.java.core.MultiMap;
-
+import io.vertx.core.MultiMap;
 import net.bluemind.eas.dto.OptionalParams;
 import net.bluemind.eas.http.EasHeaders;
 

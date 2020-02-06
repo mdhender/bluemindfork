@@ -18,17 +18,21 @@
  */
 package net.bluemind.vertx.common;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
 import net.bluemind.vertx.common.impl.LoginResponse;
 
-public abstract class ValidationHandler implements Handler<Message<LocalJsonObject<LoginResponse>>> {
+public abstract class ValidationHandler implements Handler<AsyncResult<Message<LocalJsonObject<LoginResponse>>>> {
 
 	@Override
-	public final void handle(Message<LocalJsonObject<LoginResponse>> loginResp) {
-		LoginResponse lrb = loginResp.body().getValue();
-		onValidation(lrb.isOk());
+	public final void handle(AsyncResult<Message<LocalJsonObject<LoginResponse>>> loginResp) {
+		if (loginResp.succeeded()) {
+			LoginResponse lrb = loginResp.result().body().getValue();
+			onValidation(lrb.isOk());
+		} else {
+			onValidation(false);
+		}
 	}
 
 	public abstract void onValidation(boolean validated);

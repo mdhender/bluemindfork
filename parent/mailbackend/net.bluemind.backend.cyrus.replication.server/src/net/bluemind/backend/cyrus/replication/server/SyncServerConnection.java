@@ -26,10 +26,10 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.net.NetSocket;
 
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.net.NetSocket;
 import net.bluemind.backend.cyrus.replication.observers.IReplicationObserver;
 import net.bluemind.backend.cyrus.replication.server.state.StorageApiLink;
 import net.bluemind.core.rest.http.HttpClientProvider;
@@ -49,7 +49,7 @@ public class SyncServerConnection implements Handler<NetSocket> {
 
 	@Override
 	public void handle(NetSocket client) {
-		String remoteIp = client.remoteAddress().getHostString();
+		String remoteIp = client.remoteAddress().host();
 		logger.info("Connected {}", remoteIp);
 		StorageApiLink.create(vertx, http, remoteIp).whenComplete((storage, ex) -> {
 			if (ex == null) {

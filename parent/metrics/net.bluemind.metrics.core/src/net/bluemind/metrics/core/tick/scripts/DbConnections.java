@@ -26,8 +26,8 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.metrics.core.Product;
@@ -74,9 +74,8 @@ public class DbConnections implements ITickTemplateProvider {
 		TemplateDefinition def = new TickTemplateDefBuilder(alertId).withDatalocation(server.uid)
 				.withEndPoint(endPointUrl).withProduct(Product.POSTGRESQL).build();
 
-		def.variables.putObject("targetdatalocation",
-				new JsonObject().putString("type", "string").putString("value", server.uid));
-		def.variables.putObject("dbkind", new JsonObject().putString("type", "string").putString("value", kind));
+		def.variables.put("targetdatalocation", new JsonObject().put("type", "string").put("value", server.uid));
+		def.variables.put("dbkind", new JsonObject().put("type", "string").put("value", kind));
 		logger.info("Alert definition for {} {}", server.value, kind);
 		return def;
 	}

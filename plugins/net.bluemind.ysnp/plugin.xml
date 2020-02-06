@@ -27,5 +27,11 @@
          </property>
       </product>
    </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.ysnp.impl.SaslAuthdVerticle$Factory">
+      </verticle>
+   </extension>
 
 </plugin>

@@ -28,10 +28,9 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
-import org.vertx.java.core.buffer.Buffer;
-
 import com.google.common.collect.Lists;
 
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.calendar.api.IPublishCalendar;
 import net.bluemind.calendar.api.PublishMode;
 import net.bluemind.calendar.api.VEventSeries;
@@ -222,7 +221,7 @@ public class PublishCalendarService implements IPublishCalendar {
 
 			@Override
 			protected Buffer serialize(String n) throws Exception {
-				return new Buffer(n.getBytes());
+				return Buffer.buffer(n.getBytes());
 			}
 
 		};

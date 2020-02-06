@@ -10,11 +10,11 @@ import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
@@ -38,10 +38,10 @@ public class ChronografClient implements AutoCloseable {
 		List<DashInfos> existingDashboards = new ArrayList<DashInfos>();
 		String request = apiEndpoint + "/dashboards";
 		JsonObject json = jsonHelper.get(request);
-		JsonArray dashBoards = json.getArray("dashboards");
+		JsonArray dashBoards = json.getJsonArray("dashboards");
 		if (dashBoards != null) {
 			for (int i = 0; i < dashBoards.size(); i++) {
-				JsonObject dashBoard = dashBoards.get(i);
+				JsonObject dashBoard = dashBoards.getJsonObject(i);
 				existingDashboards.add(new DashInfos(dashBoard.getString("name"), dashBoard.getInteger("id")));
 			}
 		}
@@ -50,11 +50,11 @@ public class ChronografClient implements AutoCloseable {
 
 	public void annotate(String name, Date start, Date end) {
 		JsonObject annot = new JsonObject();
-		annot.putString("id", UUID.randomUUID().toString());
-		annot.putString("text", name).putString("type", "");
+		annot.put("id", UUID.randomUUID().toString());
+		annot.put("text", name).put("type", "");
 		BmDateTime startDT = BmDateTimeWrapper.fromTimestamp(start.getTime());
 		BmDateTime endDT = end != null ? BmDateTimeWrapper.fromTimestamp(end.getTime()) : startDT;
-		annot.putString("startTime", startDT.iso8601).putString("endTime", endDT.iso8601);
+		annot.put("startTime", startDT.iso8601).put("endTime", endDT.iso8601);
 		try {
 			jsonHelper.sendPost(apiEndpoint + "/sources/0/annotations", annot);
 		} catch (Exception e) {

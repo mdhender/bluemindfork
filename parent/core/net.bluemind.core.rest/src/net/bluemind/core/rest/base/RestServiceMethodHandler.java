@@ -33,9 +33,9 @@ import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.http.HttpHeaders;
 
 import io.netty.handler.codec.http.QueryStringDecoder;
+import io.vertx.core.http.HttpHeaders;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;

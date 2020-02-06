@@ -17,7 +17,7 @@
  */
 package net.bluemind.aws.s3.utils;
 
-import org.vertx.java.core.json.JsonObject;
+import io.vertx.core.json.JsonObject;
 
 public class S3Configuration {
 
@@ -47,12 +47,12 @@ public class S3Configuration {
 	public JsonObject asJson() {
 
 		return new JsonObject()//
-				.putString("storeType", "s3")//
-				.putString("endpoint", endpoint)//
-				.putString("region", region)//
-				.putString("accessKey", accessKey)//
-				.putString("secretKey", secretKey)//
-				.putString("bucket", bucket)//
+				.put("storeType", "s3")//
+				.put("endpoint", endpoint)//
+				.put("region", region)//
+				.put("accessKey", accessKey)//
+				.put("secretKey", secretKey)//
+				.put("bucket", bucket)//
 		;
 	}
 

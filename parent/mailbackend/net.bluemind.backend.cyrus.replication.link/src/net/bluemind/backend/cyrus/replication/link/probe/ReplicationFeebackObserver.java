@@ -23,8 +23,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
 
-import org.vertx.java.core.Vertx;
-
+import io.vertx.core.Vertx;
 import net.bluemind.backend.cyrus.replication.observers.IReplicationObserver;
 import net.bluemind.backend.cyrus.replication.observers.IReplicationObserverProvider;
 

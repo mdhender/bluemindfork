@@ -33,10 +33,10 @@ import java.util.stream.Collectors;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.http.HttpServerRequest;
 
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.webmodule.server.handlers.IWebModuleConsumer;
 
 public class WebModuleBuilder {
@@ -132,7 +132,7 @@ public class WebModuleBuilder {
 		for (String depBundle : j.dependencies) {
 			// should resolve every jsEntry of depBundle
 			logger.debug("resolve dependency {} for {}", depBundle, j.bundle);
-			
+
 			for (JsEntry entry : getEntriesByBundle(depBundle)) {
 				if (!resolved.contains(entry.path)) {
 					if (unresolved.contains(entry.path)) {
@@ -150,15 +150,14 @@ public class WebModuleBuilder {
 		}
 	}
 
-	private List<JsEntry> getEntriesByBundle(String bundle) {		
-		List<JsEntry> result = js.stream()
-				.filter(entry -> bundle.equals(entry.bundle)).collect(Collectors.toList());
+	private List<JsEntry> getEntriesByBundle(String bundle) {
+		List<JsEntry> result = js.stream().filter(entry -> bundle.equals(entry.bundle)).collect(Collectors.toList());
 		if (result.size() > 0) {
 			return result;
 		}
 		throw new RuntimeException("dependency " + bundle + " not found");
 	}
-	
+
 	private JsEntry getEntryByPath(String path) {
 		for (JsEntry j : js) {
 

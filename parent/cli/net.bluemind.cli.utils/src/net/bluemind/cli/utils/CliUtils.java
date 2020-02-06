@@ -6,8 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import org.vertx.java.core.buffer.Buffer;
-
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.core.api.Stream;
@@ -88,7 +87,7 @@ public class CliUtils {
 
 			@Override
 			protected Buffer serialize(byte[] data) throws Exception {
-				return new Buffer(data);
+				return Buffer.buffer(data);
 			}
 
 			@Override

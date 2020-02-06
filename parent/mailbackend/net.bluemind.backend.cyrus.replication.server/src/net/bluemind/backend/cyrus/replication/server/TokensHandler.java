@@ -27,8 +27,9 @@ import java.util.Queue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.parsetools.RecordParser;
 
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.parsetools.RecordParser;
 import net.bluemind.backend.cyrus.replication.server.Token.LiteralFollowUp;
 
 public class TokensHandler {
@@ -74,7 +75,7 @@ public class TokensHandler {
 
 			}
 		} else {
-			parser.delimitedMode(DELIM);
+			parser.delimitedMode(Buffer.buffer(DELIM));
 			delimitedMode = true;
 		}
 

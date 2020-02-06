@@ -30,10 +30,10 @@ import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
 
 import io.netty.buffer.Unpooled;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.authentication.api.IAuthenticationPromise;
 import net.bluemind.backend.cyrus.partitions.CyrusBoxes.ReplicatedBox;
 import net.bluemind.backend.cyrus.replication.server.state.StorageApiLink;
@@ -98,7 +98,7 @@ public class CoreStorageBackend implements StorageApiLink {
 				StorageApiLink apiLink = new CoreStorageBackend(prov, remoteIp, path -> {
 					try (FileChannel channel = (FileChannel) Files.newByteChannel(path, StandardOpenOption.READ)) {
 						MappedByteBuffer mapped = channel.map(MapMode.READ_ONLY, 0, channel.size());
-						return VertxStream.stream(new Buffer(Unpooled.wrappedBuffer(mapped)));
+						return VertxStream.stream(Buffer.buffer(Unpooled.wrappedBuffer(mapped)));
 					} catch (IOException ie) {
 						throw new RuntimeException(ie);
 					}

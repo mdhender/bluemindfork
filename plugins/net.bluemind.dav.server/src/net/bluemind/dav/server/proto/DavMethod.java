@@ -22,12 +22,13 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.rest.LocalJsonObject;
 import net.bluemind.dav.server.routing.ErrorHandler;
 import net.bluemind.dav.server.store.DavResource;
@@ -70,15 +71,19 @@ public final class DavMethod<Q, R> {
 			private void busCall(final LoggedCore lc, final HttpServerRequest r, Q parsed) {
 				final long start = System.nanoTime();
 				JsonObject asJson = asJson(lc, parsed);
-				VertxPlatform.eventBus().send(busAddress, asJson, new Handler<Message<JsonObject>>() {
+				VertxPlatform.eventBus().request(busAddress, asJson, new Handler<AsyncResult<Message<JsonObject>>>() {
 
 					@Override
-					public void handle(Message<JsonObject> event) {
+					public void handle(AsyncResult<Message<JsonObject>> event) {
+						HttpServerResponse httpResp = r.response();
+						if (event.failed()) {
+							httpResp.setStatusCode(500).setStatusMessage("" + event.cause().getMessage()).end();
+							return;
+						}
 						long end = System.nanoTime();
 						long totalMs = TimeUnit.NANOSECONDS.toMillis(end - start);
 						logger.info("{} in {}ms.", busAddress, totalMs);
-						LocalJsonObject<?> obj = (LocalJsonObject<?>) event.body();
-						HttpServerResponse httpResp = r.response();
+						LocalJsonObject<?> obj = (LocalJsonObject<?>) event.result().body();
 						if (obj.getValue() != null && Throwable.class.isAssignableFrom(obj.getValue().getClass())) {
 							Throwable t = (Throwable) obj.getValue();
 							logger.error(t.getMessage(), t);

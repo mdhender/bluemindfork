@@ -18,16 +18,16 @@
  */
 package net.bluemind.backend.mail.replica.service.tests;
 
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Verticle;
-
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Verticle;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.replication.client.SyncClient;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
-public class LocalSyncClientVerticle extends Verticle {
+public class LocalSyncClientVerticle extends AbstractVerticle {
 
 	public static class ScReg implements IVerticleFactory, IUniqueVerticleFactory {
 
@@ -49,7 +49,7 @@ public class LocalSyncClientVerticle extends Verticle {
 	public void start() {
 		this.client = new SyncClient(vertx, "127.0.0.1", 2501);
 
-		vertx.eventBus().registerLocalHandler("sc.connect", msg -> {
+		vertx.eventBus().consumer("sc.connect", msg -> {
 			System.err.println(Thread.currentThread().getName() + " connect");
 			client.connect().whenComplete((v, ex) -> {
 				if (ex != null) {
@@ -58,7 +58,7 @@ public class LocalSyncClientVerticle extends Verticle {
 				msg.reply(ex == null);
 			});
 		});
-		vertx.eventBus().registerLocalHandler("sc.disconnect", msg -> {
+		vertx.eventBus().consumer("sc.disconnect", msg -> {
 			System.err.println(Thread.currentThread().getName() + " disconnect");
 			client.disconnect().whenComplete((v, ex) -> {
 				if (ex != null) {
@@ -67,9 +67,9 @@ public class LocalSyncClientVerticle extends Verticle {
 				msg.reply(ex == null);
 			});
 		});
-		vertx.eventBus().registerLocalHandler("sc.mailboxes", (Message<JsonObject> msg) -> {
+		vertx.eventBus().consumer("sc.mailboxes", (Message<JsonObject> msg) -> {
 			System.err.println(Thread.currentThread().getName() + " getMailboxes " + msg.body());
-			JsonArray js = msg.body().getArray("mboxes");
+			JsonArray js = msg.body().getJsonArray("mboxes");
 			if (js.size() == 0) {
 				msg.reply(false);
 				System.err.println("Call without mailbox");
@@ -77,7 +77,7 @@ public class LocalSyncClientVerticle extends Verticle {
 			}
 			String[] mb = new String[js.size()];
 			for (int i = 0; i < js.size(); i++) {
-				mb[i] = js.get(i);
+				mb[i] = js.getString(i);
 			}
 			client.getMailboxes(mb).whenComplete((ur, ex) -> {
 				if (ex != null) {
@@ -85,13 +85,13 @@ public class LocalSyncClientVerticle extends Verticle {
 				}
 				JsonArray lines = new JsonArray();
 				for (String l : ur.dataLines) {
-					lines.addString(l);
+					lines.add(l);
 				}
 				msg.reply(lines);
 			});
 		});
 
-		vertx.eventBus().registerLocalHandler("sc.fullMailbox", (Message<String> msg) -> {
+		vertx.eventBus().consumer("sc.fullMailbox", (Message<String> msg) -> {
 			System.err.println(Thread.currentThread().getName() + " fullMailbox " + msg.body());
 			client.getFullMailbox(msg.body()).whenComplete((ur, ex) -> {
 				if (ex != null) {
@@ -99,7 +99,7 @@ public class LocalSyncClientVerticle extends Verticle {
 				}
 				JsonArray lines = new JsonArray();
 				for (String l : ur.dataLines) {
-					lines.addString(l);
+					lines.add(l);
 				}
 				msg.reply(lines);
 			});

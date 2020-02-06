@@ -19,8 +19,7 @@ package net.bluemind.cli.inject.imap.tests;
 
 import java.util.concurrent.atomic.LongAdder;
 
-import org.vertx.java.core.Vertx;
-
+import io.vertx.core.Vertx;
 import net.bluemind.backend.cyrus.replication.observers.IReplicationObserver;
 import net.bluemind.backend.cyrus.replication.observers.IReplicationObserverProvider;
 

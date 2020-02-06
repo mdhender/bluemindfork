@@ -19,7 +19,7 @@ package net.bluemind.hornetq.client;
 
 import java.util.Collection;
 
-import org.vertx.java.core.json.JsonObject;
+import io.vertx.core.json.JsonObject;
 
 public class OOPMessage {
 
@@ -30,12 +30,12 @@ public class OOPMessage {
 	}
 
 	public OOPMessage putStringProperty(String key, String value) {
-		payload.putString(key, value);
+		payload.put(key, value);
 		return this;
 	}
 
 	public Collection<String> getPropertyNames() {
-		return payload.getFieldNames();
+		return payload.fieldNames();
 	}
 
 	public String getStringProperty(String prop) {
@@ -43,25 +43,25 @@ public class OOPMessage {
 	}
 
 	public long getLongProperty(String key) {
-		return payload.getNumber(key).longValue();
+		return payload.getLong(key);
 	}
 
 	public OOPMessage putLongProperty(String key, long value) {
-		payload.putNumber(key, value);
+		payload.put(key, value);
 		return this;
 	}
 
 	public boolean containsProperty(String key) {
-		return payload.containsField(key);
+		return payload.containsKey(key);
 	}
 
 	public OOPMessage putIntProperty(String key, int value) {
-		payload.putNumber(key, value);
+		payload.put(key, value);
 		return this;
 	}
 
 	public int getIntProperty(String key) {
-		return payload.getNumber(key).intValue();
+		return payload.getInteger(key);
 	}
 
 	public JsonObject toJson() {

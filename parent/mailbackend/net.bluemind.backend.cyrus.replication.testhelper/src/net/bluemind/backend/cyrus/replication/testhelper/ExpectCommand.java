@@ -21,11 +21,12 @@ import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class ExpectCommand {
@@ -40,34 +41,39 @@ public class ExpectCommand {
 	public CompletableFuture<Void> onNextApplyMessage() {
 		CompletableFuture<Void> ret = new CompletableFuture<>();
 		long start = System.currentTimeMillis();
+
+		MessageConsumer<JsonObject> cons = vertx.eventBus().consumer("replication.apply.message");
 		Handler<Message<JsonObject>> handler = new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
-				vertx.eventBus().unregisterHandler("replication.apply.message", this);
+
+				cons.unregister();
 				long elapsed = System.currentTimeMillis() - start;
 				logger.info("APPLY MESSAGE after {}ms", elapsed);
 				ret.complete(null);
 			}
 		};
-		vertx.eventBus().registerLocalHandler("replication.apply.message", handler);
+		cons.handler(handler);
 		return ret;
 	}
 
 	public CompletableFuture<Void> onNextApplyMailbox(String mboxUniqueId) {
 		CompletableFuture<Void> ret = new CompletableFuture<>();
 		long start = System.currentTimeMillis();
+
+		MessageConsumer<JsonObject> cons = vertx.eventBus().consumer("replication.apply.mailbox." + mboxUniqueId);
 		Handler<Message<JsonObject>> handler = new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
-				vertx.eventBus().unregisterHandler("replication.apply.mailbox." + mboxUniqueId, this);
+				cons.unregister();
 				long elapsed = System.currentTimeMillis() - start;
 				logger.info("APPLY MAILBOX completion received for {} after {}ms", mboxUniqueId, elapsed);
 				ret.complete(null);
 			}
 		};
-		vertx.eventBus().registerLocalHandler("replication.apply.mailbox." + mboxUniqueId, handler);
+		cons.handler(handler);
 		logger.info("Handler registered for {}", mboxUniqueId);
 		return ret;
 	}

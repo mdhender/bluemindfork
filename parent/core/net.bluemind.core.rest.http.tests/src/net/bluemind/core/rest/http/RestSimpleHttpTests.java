@@ -23,17 +23,15 @@ import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClient;
+import org.asynchttpclient.Response;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-
-import com.google.common.util.concurrent.SettableFuture;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
 
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -52,19 +50,8 @@ public class RestSimpleHttpTests {
 
 	@Before
 	public void setup() throws Exception {
-
-		final SettableFuture<Void> future = SettableFuture.<Void>create();
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				future.set(null);
-			}
-		};
-		VertxPlatform.spawnVerticles(done);
-		future.get();
-
-		httpClient = new AsyncHttpClient();
+		VertxPlatform.spawnBlocking(20, TimeUnit.SECONDS);
+		httpClient = new DefaultAsyncHttpClient();
 	}
 
 	@After

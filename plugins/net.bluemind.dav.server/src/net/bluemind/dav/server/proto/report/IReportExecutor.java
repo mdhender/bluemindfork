@@ -20,8 +20,7 @@ package net.bluemind.dav.server.proto.report;
 
 import javax.xml.namespace.QName;
 
-import org.vertx.java.core.http.HttpServerResponse;
-
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.dav.server.store.LoggedCore;
 
 public interface IReportExecutor {

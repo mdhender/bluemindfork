@@ -24,13 +24,13 @@ import java.util.regex.Matcher;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.shareddata.Shareable;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 
-import net.bluemind.addressbook.api.IAddressBookUids;
+import io.vertx.core.shareddata.Shareable;
 import net.bluemind.addressbook.api.IAddressBook;
+import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.authentication.api.AuthUser;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.calendar.api.ICalendar;

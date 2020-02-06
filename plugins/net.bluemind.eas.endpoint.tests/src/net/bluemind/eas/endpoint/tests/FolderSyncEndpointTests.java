@@ -2,12 +2,12 @@ package net.bluemind.eas.endpoint.tests;
 
 import java.util.concurrent.TimeUnit;
 
-import org.vertx.java.core.buffer.Buffer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.google.common.collect.ImmutableMap;
 
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.eas.command.folder.sync.FolderSyncEndpoint;
 import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.eas.http.wbxml.WbxmlHandlerBase;
@@ -21,11 +21,11 @@ import net.bluemind.lib.vertx.VertxPlatform;
 public class FolderSyncEndpointTests extends AbstractEndpointTest {
 
 	/**
-	 * Checks that even if the request is clearly broken, we get at least an
-	 * error response.
+	 * Checks that even if the request is clearly broken, we get at least an error
+	 * response.
 	 * 
-	 * This one should be rejected by {@link WbxmlHandlerBase} as the wbxml
-	 * fails to parse.
+	 * This one should be rejected by {@link WbxmlHandlerBase} as the wbxml fails to
+	 * parse.
 	 */
 	public void testEmptyDocument() {
 		ImmutableMap<String, String> headers = ImmutableMap.of("titi", "tata");
@@ -56,8 +56,8 @@ public class FolderSyncEndpointTests extends AbstractEndpointTest {
 	}
 
 	/**
-	 * This one should work. As the response is validated by {@link Validator},
-	 * we don't need to check it.
+	 * This one should work. As the response is validated by {@link Validator}, we
+	 * don't need to check it.
 	 */
 	public void testInitialFolderSync() {
 		Document document = DOMUtils.createDoc("FolderHierarchy", "FolderSync");

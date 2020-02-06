@@ -37,12 +37,13 @@ import org.apache.kafka.common.KafkaFuture;
 import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Verticle;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hazelcast.core.IMap;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Verticle;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.forest.cloud.api.Instance;
 import net.bluemind.forest.cloud.api.Instance.Partition;
@@ -61,7 +62,7 @@ import net.bluemind.lib.vertx.IVerticleFactory;
  * if ok.
  *
  */
-public class JoiningInstancesProcessor extends Verticle {
+public class JoiningInstancesProcessor extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(JoiningInstancesProcessor.class);
 	private KafkaConsumer<String, String> consumer;

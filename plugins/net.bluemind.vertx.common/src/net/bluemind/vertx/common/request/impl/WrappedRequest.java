@@ -18,23 +18,32 @@
  */
 package net.bluemind.vertx.common.request.impl;
 
-import java.net.InetSocketAddress;
-import java.net.URI;
+import java.util.Map;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
 import javax.security.cert.X509Certificate;
-
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.MultiMap;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpServerFileUpload;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
-import org.vertx.java.core.http.HttpVersion;
-import org.vertx.java.core.net.NetSocket;
 
 import com.netflix.spectator.api.Registry;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.MultiMap;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.Cookie;
+import io.vertx.core.http.HttpConnection;
+import io.vertx.core.http.HttpFrame;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.HttpServerFileUpload;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.http.HttpVersion;
+import io.vertx.core.http.ServerWebSocket;
+import io.vertx.core.http.StreamPriority;
+import io.vertx.core.net.NetSocket;
+import io.vertx.core.net.SocketAddress;
+import io.vertx.core.streams.Pipe;
+import io.vertx.core.streams.WriteStream;
 import net.bluemind.metrics.registry.IdFactory;
 
 public class WrappedRequest implements HttpServerRequest {
@@ -64,11 +73,6 @@ public class WrappedRequest implements HttpServerRequest {
 		return this;
 	}
 
-	public HttpServerRequest dataHandler(Handler<Buffer> handler) {
-		impl.dataHandler(handler);
-		return this;
-	}
-
 	public HttpServerRequest pause() {
 		impl.pause();
 		return this;
@@ -86,10 +90,6 @@ public class WrappedRequest implements HttpServerRequest {
 
 	public HttpVersion version() {
 		return impl.version();
-	}
-
-	public String method() {
-		return impl.method();
 	}
 
 	public String uri() {
@@ -116,20 +116,12 @@ public class WrappedRequest implements HttpServerRequest {
 		return impl.params();
 	}
 
-	public InetSocketAddress remoteAddress() {
+	public SocketAddress remoteAddress() {
 		return impl.remoteAddress();
-	}
-
-	public InetSocketAddress localAddress() {
-		return impl.localAddress();
 	}
 
 	public X509Certificate[] peerCertificateChain() throws SSLPeerUnverifiedException {
 		return impl.peerCertificateChain();
-	}
-
-	public URI absoluteURI() {
-		return impl.absoluteURI();
 	}
 
 	public HttpServerRequest bodyHandler(Handler<Buffer> bodyHandler) {
@@ -141,11 +133,6 @@ public class WrappedRequest implements HttpServerRequest {
 		return impl.netSocket();
 	}
 
-	public HttpServerRequest expectMultiPart(boolean expect) {
-		impl.expectMultiPart(expect);
-		return this;
-	}
-
 	public HttpServerRequest uploadHandler(Handler<HttpServerFileUpload> uploadHandler) {
 		impl.uploadHandler(uploadHandler);
 		return this;
@@ -153,6 +140,127 @@ public class WrappedRequest implements HttpServerRequest {
 
 	public MultiMap formAttributes() {
 		return impl.formAttributes();
+	}
+
+	public HttpServerRequest handler(Handler<Buffer> handler) {
+		impl.handler(handler);
+		return this;
+	}
+
+	public HttpServerRequest fetch(long amount) {
+		impl.fetch(amount);
+		return this;
+	}
+
+	public HttpMethod method() {
+		return impl.method();
+	}
+
+	public String rawMethod() {
+		return impl.rawMethod();
+	}
+
+	public boolean isSSL() {
+		return impl.isSSL();
+	}
+
+	public String scheme() {
+		return impl.scheme();
+	}
+
+	public String host() {
+		return impl.host();
+	}
+
+	public long bytesRead() {
+		return impl.bytesRead();
+	}
+
+	public String getHeader(String headerName) {
+		return impl.getHeader(headerName);
+	}
+
+	public String getHeader(CharSequence headerName) {
+		return impl.getHeader(headerName);
+	}
+
+	public Pipe<Buffer> pipe() {
+		return impl.pipe();
+	}
+
+	public String getParam(String paramName) {
+		return impl.getParam(paramName);
+	}
+
+	public void pipeTo(WriteStream<Buffer> dst) {
+		impl.pipeTo(dst);
+	}
+
+	public void pipeTo(WriteStream<Buffer> dst, Handler<AsyncResult<Void>> handler) {
+		impl.pipeTo(dst, handler);
+	}
+
+	public SocketAddress localAddress() {
+		return impl.localAddress();
+	}
+
+	public SSLSession sslSession() {
+		return impl.sslSession();
+	}
+
+	public String absoluteURI() {
+		return impl.absoluteURI();
+	}
+
+	public HttpServerRequest setExpectMultipart(boolean expect) {
+		impl.setExpectMultipart(expect);
+		return this;
+	}
+
+	public boolean isExpectMultipart() {
+		return impl.isExpectMultipart();
+	}
+
+	public String getFormAttribute(String attributeName) {
+		return impl.getFormAttribute(attributeName);
+	}
+
+	public ServerWebSocket upgrade() {
+		return impl.upgrade();
+	}
+
+	public boolean isEnded() {
+		return impl.isEnded();
+	}
+
+	public HttpServerRequest customFrameHandler(Handler<HttpFrame> handler) {
+		impl.customFrameHandler(handler);
+		return this;
+	}
+
+	public HttpConnection connection() {
+		return impl.connection();
+	}
+
+	public StreamPriority streamPriority() {
+		return impl.streamPriority();
+	}
+
+	public HttpServerRequest streamPriorityHandler(Handler<StreamPriority> handler) {
+		impl.streamPriorityHandler(handler);
+		return this;
+	}
+
+	public Cookie getCookie(String name) {
+		return impl.getCookie(name);
+	}
+
+	public int cookieCount() {
+		return impl.cookieCount();
+	}
+
+	public Map<String, Cookie> cookieMap() {
+		return impl.cookieMap();
 	}
 
 }

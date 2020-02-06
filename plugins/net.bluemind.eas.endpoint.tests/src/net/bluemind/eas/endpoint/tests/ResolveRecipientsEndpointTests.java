@@ -21,11 +21,11 @@ package net.bluemind.eas.endpoint.tests;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import org.vertx.java.core.buffer.Buffer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.eas.command.resolverecipients.ResolveRecipientsEndpoint;
 import net.bluemind.eas.http.wbxml.WbxmlHandlerBase;
 import net.bluemind.eas.testhelper.mock.ResponseObject;

@@ -20,11 +20,12 @@ package net.bluemind.dav.server.xml;
 
 import java.io.ByteArrayInputStream;
 
-import org.vertx.java.core.buffer.Buffer;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
+
+import io.vertx.core.buffer.Buffer;
 
 public class SAXUtils {
 

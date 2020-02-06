@@ -144,8 +144,8 @@ public class TaskBackend extends CoreConnect {
 					try {
 						service.update(uid, todo);
 						ret = CollectionItem.of(collectionId, uid);
-						logger.info("Update todo bs:" + bs.getLoginAtDomain() + ", collection: " + folder.containerUid
-								+ ", serverId: " + serverId + ", summary:" + todo.summary);
+						logger.info("Update todo bs: {}, collection: {}, serverId: {}, summary: {}, completed: {}",
+								bs.getLoginAtDomain(), folder.containerUid, serverId, todo.summary, todo.completed);
 					} catch (Exception e) {
 						logger.error("Fail to update todo bs:" + bs.getLoginAtDomain() + ", collection: "
 								+ folder.containerUid + ", serverId: " + serverId + ", summary:" + todo.summary);

@@ -39,12 +39,12 @@ public abstract class IniFile {
 
 	public IniFile(String path) {
 		logger = LoggerFactory.getLogger(getClass());
-		settings = new HashMap<String, String>();
+		settings = new HashMap<>();
 		File f = new File(path);
 		if (f.exists()) {
 			loadIniFile(f);
 		} else {
-			logger.warn(path + " does not exist.");
+			logger.warn("{} does not exist.", path);
 		}
 	}
 

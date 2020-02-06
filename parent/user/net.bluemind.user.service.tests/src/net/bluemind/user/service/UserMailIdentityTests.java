@@ -28,11 +28,11 @@ import java.util.concurrent.CountDownLatch;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.collect.Lists;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -47,8 +47,8 @@ import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.directory.api.IOrgUnits;
 import net.bluemind.directory.api.OrgUnit;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.IMailboxAclUids;
+import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.identity.api.IdentityDescription;
 import net.bluemind.mailbox.identity.api.SignatureFormat;
 import net.bluemind.pool.impl.BmConfIni;

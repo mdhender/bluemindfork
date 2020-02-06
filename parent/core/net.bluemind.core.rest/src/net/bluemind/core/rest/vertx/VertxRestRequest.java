@@ -21,11 +21,11 @@ package net.bluemind.core.rest.vertx;
 import java.util.List;
 import java.util.UUID;
 
-import org.vertx.java.core.MultiMap;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.core.streams.ReadStream;
-
+import io.vertx.core.MultiMap;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.rest.base.RestRequest;
 
 @SuppressWarnings("serial")
@@ -34,13 +34,13 @@ public class VertxRestRequest extends JsonObject {
 	public final MultiMap params;
 	public final String path;
 	public final MultiMap headers;
-	public final String method;
+	public final HttpMethod method;
 	public final List<String> remoteAddresses;
 	public final String bodyStreamAdr;
 	public String origin;
 
-	public VertxRestRequest(String origin, List<String> remoteAddresses, String method, MultiMap headers, String path,
-			MultiMap params, Buffer body, String bodyStreamAdr) {
+	public VertxRestRequest(String origin, List<String> remoteAddresses, HttpMethod method, MultiMap headers,
+			String path, MultiMap params, Buffer body, String bodyStreamAdr) {
 		this.origin = origin;
 		this.remoteAddresses = remoteAddresses;
 		this.method = method;
@@ -78,7 +78,7 @@ public class VertxRestRequest extends JsonObject {
 		}
 	}
 
-	public RestRequest asRestRequest(ReadStream<?> bodyStream) {
+	public RestRequest asRestRequest(ReadStream<Buffer> bodyStream) {
 		return new RestRequest(origin, remoteAddresses, method, headers, path, params, body, bodyStream);
 	}
 

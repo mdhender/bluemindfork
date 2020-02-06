@@ -17,68 +17,55 @@
   */
 package net.bluemind.lib.vertx;
 
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Context;
-import org.vertx.java.core.Vertx;
 
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
+import io.vertx.core.Vertx;
 
 /**
  * Helper inspired by vertx 3 to run blocking code from an event loop context.
+ * 
+ * @deprecated use
+ *             {@link Vertx#executeBlocking(io.vertx.core.Handler, io.vertx.core.Handler)}
+ *             instead
  *
  */
 public class BlockingCode {
 
 	private static final Logger logger = LoggerFactory.getLogger(BlockingCode.class);
 
-	private ListeningExecutorService workerService;
+	private final Vertx vertx;
 
-	private final Executor contextExecutor;
-
-	private BlockingCode(Executor contextExecutor) {
-		this.contextExecutor = contextExecutor;
+	private BlockingCode(Vertx v) {
+		this.vertx = v;
 	}
 
 	/**
 	 * Provide your own executor where the blocking code will run.
 	 * 
+	 * @deprecated the executor is not used anymore
 	 * @param pool
 	 * @return
 	 */
 	public BlockingCode withExecutor(ExecutorService pool) {
-		this.workerService = MoreExecutors.listeningDecorator(pool);
 		return this;
 	}
 
 	/**
 	 * Creates a BlockingCode executor to use in a vertx event loop.
 	 * 
-	 * DISCLAIMER: Do not call that with {@link VertxPlatform#getVertx()} but
-	 * with the vertx instance from your verticle
+	 * DISCLAIMER: Do not call that with {@link VertxPlatform#getVertx()} but with
+	 * the vertx instance from your verticle
 	 * 
 	 * @param v
 	 * @return
 	 */
 	public static BlockingCode forVertx(Vertx v) {
-		final Context context = v.currentContext();
-		Executor contextExecutor = command -> {
-			context.runOnContext(theVoid -> {
-				logger.debug("Executing completion in the originating vertx context.");
-				command.run();
-			});
-		};
-		return new BlockingCode(contextExecutor);
+		return new BlockingCode(v);
 	}
 
 	/**
@@ -89,23 +76,20 @@ public class BlockingCode {
 	 * @return a future for with the result of the given supplier
 	 */
 	public <T> CompletableFuture<T> run(Supplier<T> supplier) {
-		Objects.requireNonNull(workerService,
-				"You must supply an executor service through withExecutor before calling run.");
+
 		CompletableFuture<T> result = new CompletableFuture<>();
-		ListenableFuture<T> listenable = workerService.submit(() -> supplier.get());
-		Futures.addCallback(listenable, new FutureCallback<T>() {
-
-			@Override
-			public void onSuccess(T value) {
-				result.complete(value);
+		vertx.executeBlocking(prom -> {
+			try {
+				T r = supplier.get();
+				prom.complete(result);
+				result.complete(r);
+			} catch (Exception e) {
+				prom.fail(e);
+				result.completeExceptionally(e);
 			}
+		}, true, ar -> {
 
-			@Override
-			public void onFailure(Throwable t) {
-				logger.error("Complete exceptionally: ", t.getMessage(), t);
-				result.completeExceptionally(t);
-			}
-		}, contextExecutor);
+		});
 		return result;
 	}
 

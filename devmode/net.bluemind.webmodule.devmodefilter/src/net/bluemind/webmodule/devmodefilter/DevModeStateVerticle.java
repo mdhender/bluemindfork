@@ -6,16 +6,17 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.platform.Verticle;
 
 import com.google.common.io.Files;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Verticle;
+import io.vertx.core.eventbus.Message;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
-public class DevModeStateVerticle extends Verticle {
+public class DevModeStateVerticle extends AbstractVerticle {
 
 	public static class Factory implements IVerticleFactory, IUniqueVerticleFactory {
 
@@ -40,9 +41,9 @@ public class DevModeStateVerticle extends Verticle {
 		state = new DevModeState();
 
 		loadStateFromFile();
-		vertx.eventBus().registerHandler("devmode.state:get", (msg) -> msg.reply(JsonUtils.asString(state)));
-		vertx.eventBus().registerHandler("devmode.state:put", (Message<String> msg) -> handlePut(msg));
-		vertx.eventBus().registerHandler("devmode.state:reload", (msg) -> {
+		vertx.eventBus().consumer("devmode.state:get", (msg) -> msg.reply(JsonUtils.asString(state)));
+		vertx.eventBus().consumer("devmode.state:put", (Message<String> msg) -> handlePut(msg));
+		vertx.eventBus().consumer("devmode.state:reload", (msg) -> {
 			loadStateFromFile();
 			msg.reply(true);
 		});

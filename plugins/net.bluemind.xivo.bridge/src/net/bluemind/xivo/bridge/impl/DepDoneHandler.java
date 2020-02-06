@@ -25,9 +25,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.config.InstallationId;
 import net.bluemind.config.Token;
 import net.bluemind.core.container.model.ItemValue;

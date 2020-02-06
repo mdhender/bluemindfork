@@ -2,15 +2,16 @@ package net.bluemind.systemd.notify;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.Verticle;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
-public class NotifyStartupVerticle extends Verticle {
+public class NotifyStartupVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(NotifyStartupVerticle.class);
 
@@ -34,13 +35,12 @@ public class NotifyStartupVerticle extends Verticle {
 	public void start() {
 		EventBus eb = vertx.eventBus();
 		if (SystemD.isAvailable()) {
-			Handler<Message<?>> h = (Message<?> msg) -> {
+			Handler<Message<Object>> h = (Message<Object> msg) -> {
 				SystemD.Api api = SystemD.get();
 				api.notifyReady();
-				msg.reply();
+				msg.reply(null);
 			};
-			eb.registerHandler(ADDR, h);
-			eb.registerLocalHandler("systemd.notify.unreg", msg -> eb.unregisterHandler(ADDR, h));
+			eb.consumer(ADDR, h);
 		} else {
 			logger.warn("SystemD support is missing {}.",
 					System.getProperty("net.bluemind.property.product", "unknown-jvm"));

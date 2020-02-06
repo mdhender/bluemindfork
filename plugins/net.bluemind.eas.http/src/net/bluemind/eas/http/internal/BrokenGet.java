@@ -20,8 +20,9 @@ package net.bluemind.eas.http.internal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpServerRequest;
+
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServerRequest;
 
 public class BrokenGet implements Handler<HttpServerRequest> {
 

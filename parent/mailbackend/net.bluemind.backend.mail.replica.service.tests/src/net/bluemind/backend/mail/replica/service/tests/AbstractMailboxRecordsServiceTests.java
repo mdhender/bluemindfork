@@ -32,11 +32,12 @@ import java.util.concurrent.CountDownLatch;
 
 import org.junit.After;
 import org.junit.Before;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.streams.ReadStream;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.backend.cyrus.replication.testhelper.InputStreamWrapper;
 import net.bluemind.backend.cyrus.replication.testhelper.MailboxUniqueId;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
@@ -66,7 +67,7 @@ public abstract class AbstractMailboxRecordsServiceTests<T> {
 
 	protected Vertx vertx;
 
-	protected ReadStream<InputStreamWrapper> openResource(String path) {
+	protected ReadStream<Buffer> openResource(String path) {
 		InputStream inputStream = AbstractReplicatedMailboxesServiceTests.class.getClassLoader()
 				.getResourceAsStream(path);
 		Objects.requireNonNull(inputStream, "Failed to open resource @ " + path);

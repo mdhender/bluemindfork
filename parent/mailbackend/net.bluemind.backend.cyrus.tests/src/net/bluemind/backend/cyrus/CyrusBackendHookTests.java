@@ -34,11 +34,11 @@ import java.util.concurrent.CountDownLatch;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.collect.Lists;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.config.InstallationId;
 import net.bluemind.config.Token;
@@ -54,8 +54,8 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
+import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.persistence.DirEntryStore;
 import net.bluemind.imap.Acl;
 import net.bluemind.imap.StoreClient;

@@ -17,8 +17,7 @@
   */
 package net.bluemind.backend.postfix.internal.maps.events;
 
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.json.JsonObject;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class EventProducer {

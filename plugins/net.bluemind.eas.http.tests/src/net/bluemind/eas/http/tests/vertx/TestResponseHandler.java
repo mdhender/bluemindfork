@@ -20,11 +20,10 @@ package net.bluemind.eas.http.tests.vertx;
 
 import java.util.concurrent.CountDownLatch;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.MultiMap;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpClientResponse;
-
+import io.vertx.core.Handler;
+import io.vertx.core.MultiMap;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpClientResponse;
 import net.bluemind.eas.testhelper.vertx.Wait;
 
 public class TestResponseHandler implements Handler<HttpClientResponse> {

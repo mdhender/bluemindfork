@@ -21,9 +21,9 @@ package net.bluemind.eas.impl;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.vertx.java.core.Vertx;
 import org.w3c.dom.Document;
 
+import io.vertx.core.Vertx;
 import net.bluemind.eas.dto.NamespaceMapping;
 import net.bluemind.eas.wbxml.WbxmlOutput;
 

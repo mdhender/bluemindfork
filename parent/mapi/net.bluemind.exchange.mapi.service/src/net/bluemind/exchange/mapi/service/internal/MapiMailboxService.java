@@ -27,8 +27,8 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerQuery;
 import net.bluemind.core.container.api.IContainerManagement;
@@ -169,8 +169,7 @@ public class MapiMailboxService implements IMapiMailbox {
 		ItemValue<User> asUser = userApi.getComplete(mailboxUid);
 		String latd = asUser.value.login + "@" + domainUid;
 
-		JsonObject msg = new JsonObject().putString("product", "bm-mapi").putString("user", latd).putBoolean("enabled",
-				enable);
+		JsonObject msg = new JsonObject().put("product", "bm-mapi").put("user", latd).put("enabled", enable);
 		logger.info("Reconfiguring logs for {}, enable: {}", latd, enable);
 		MQ.getProducer(Topic.LOGBACK_CONFIG).send(msg);
 	}

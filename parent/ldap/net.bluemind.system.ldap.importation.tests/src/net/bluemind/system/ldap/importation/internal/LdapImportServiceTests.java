@@ -35,9 +35,9 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -81,7 +81,7 @@ public class LdapImportServiceTests {
 	@Before
 	public void setup() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
-		
+
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
 		// Vertx vs Eclipse

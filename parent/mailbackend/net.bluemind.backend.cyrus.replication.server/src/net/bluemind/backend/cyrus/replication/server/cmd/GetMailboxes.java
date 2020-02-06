@@ -24,8 +24,8 @@ import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonArray;
 
+import io.vertx.core.json.JsonArray;
 import net.bluemind.backend.cyrus.replication.protocol.parsing.ParenObjectParser;
 import net.bluemind.backend.cyrus.replication.server.ReplicationFrame;
 import net.bluemind.backend.cyrus.replication.server.ReplicationSession;
@@ -95,7 +95,7 @@ public class GetMailboxes implements IAsyncReplicationCommand {
 		long start = System.currentTimeMillis();
 		List<String> boxNames = new ArrayList<>(requestedMboxes.size());
 		for (int i = 0; i < len; i++) {
-			String mboxName = Token.atomOrValue(requestedMboxes.get(i));
+			String mboxName = Token.atomOrValue(requestedMboxes.getString(i));
 			boxNames.add(mboxName);
 		}
 		return state.foldersByName(boxNames).thenApply(folders -> {

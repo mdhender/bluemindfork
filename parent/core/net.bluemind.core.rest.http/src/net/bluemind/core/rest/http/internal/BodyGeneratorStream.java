@@ -20,55 +20,59 @@ package net.bluemind.core.rest.http.internal;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.asynchttpclient.request.body.Body;
+import org.asynchttpclient.request.body.generator.BodyChunk;
+import org.asynchttpclient.request.body.generator.BodyGenerator;
+import org.asynchttpclient.request.body.generator.QueueBasedFeedableBodyGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.streams.Pump;
-import org.vertx.java.core.streams.ReadStream;
-import org.vertx.java.core.streams.WriteStream;
 
-import com.ning.http.client.Body;
-import com.ning.http.client.BodyGenerator;
+import io.netty.buffer.Unpooled;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.Pump;
+import io.vertx.core.streams.ReadStream;
+import io.vertx.core.streams.WriteStream;
+import net.bluemind.lib.vertx.Result;
 
-public class BodyGeneratorStream extends FeedableBodyGenerator
-		implements BodyGenerator, WriteStream<BodyGeneratorStream> {
+public class BodyGeneratorStream extends QueueBasedFeedableBodyGenerator<ConcurrentLinkedQueue<BodyChunk>>
+		implements BodyGenerator, WriteStream<Buffer> {
 
 	private static final Logger logger = LoggerFactory.getLogger(BodyGeneratorStream.class);
-	private ReadStream<?> bodyStream;
+	private ReadStream<Buffer> bodyStream;
 	private Handler<Void> drainHandler;
 	private final static byte[] ZERO = "".getBytes(US_ASCII);
 
-	public BodyGeneratorStream(ReadStream<?> bodyStream) {
+	public BodyGeneratorStream(ReadStream<Buffer> bodyStream) {
+		super(new ConcurrentLinkedQueue<>());
 		this.bodyStream = bodyStream;
 	}
 
 	@Override
-	public Body createBody() throws IOException {
-		bodyStream.endHandler(new Handler<Void>() {
-
-			@Override
-			public void handle(Void event) {
-				logger.debug("send end of stream");
-				try {
-					feed(ByteBuffer.wrap(ZERO), true);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
+	public Body createBody() {
+		bodyStream.endHandler((Void event) -> {
+			logger.debug("send end of stream {}", event);
+			try {
+				feed(Unpooled.EMPTY_BUFFER, true);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
 			}
 		});
-		Pump.createPump(bodyStream, this).start();
+		Pump.pump(bodyStream, this).start();
 		return super.createBody();
 	}
 
 	@Override
+	protected boolean offer(BodyChunk chunk) {
+		return queue.offer(chunk);
+	}
+
+	@Override
 	public BodyGeneratorStream exceptionHandler(Handler<Throwable> handler) {
-		// TODO Auto-generated method stub
-		return null;
+		return this;
 	}
 
 	@Override
@@ -91,11 +95,28 @@ public class BodyGeneratorStream extends FeedableBodyGenerator
 	public BodyGeneratorStream write(Buffer data) {
 		logger.debug("send chunck of data {}", data);
 		try {
-			feed(ByteBuffer.wrap(data.getBytes()), false);
-		} catch (IOException e) {
-			e.printStackTrace();
+			feed(Unpooled.wrappedBuffer(data.getBytes()), false);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
 		}
 		return this;
+	}
+
+	@Override
+	public WriteStream<Buffer> write(Buffer data, Handler<AsyncResult<Void>> handler) {
+		write(data);
+		handler.handle(Result.success());
+		return this;
+	}
+
+	@Override
+	public void end() {
+		// that's ok
+	}
+
+	@Override
+	public void end(Handler<AsyncResult<Void>> handler) {
+		handler.handle(Result.success());
 	}
 
 }

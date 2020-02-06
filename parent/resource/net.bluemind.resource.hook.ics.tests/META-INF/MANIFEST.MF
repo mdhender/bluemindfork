@@ -36,4 +36,5 @@ Require-Bundle: org.junit,
  net.bluemind.group.persistence,
  net.bluemind.user.service,
  net.bluemind.core.tests.testshelper,
- net.bluemind.group.service
+ net.bluemind.group.service,
+ net.bluemind.core.sendmail.testhelper

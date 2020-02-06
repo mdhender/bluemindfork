@@ -24,13 +24,16 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpServer;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.RouteMatcher;
-import org.vertx.java.platform.Verticle;
 
-import net.bluemind.lib.vertx.VertxPlatform;
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.http.ClientAuth;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.net.JksOptions;
+import net.bluemind.lib.vertx.RouteMatcher;
 import net.bluemind.node.server.handlers.DeleteFile;
 import net.bluemind.node.server.handlers.Executions;
 import net.bluemind.node.server.handlers.GetStatus;
@@ -42,7 +45,7 @@ import net.bluemind.node.server.handlers.SubmitCommand;
 import net.bluemind.node.server.handlers.WebSocketProcessHandler;
 import net.bluemind.node.server.handlers.WriteFile;
 
-public class BlueMindNode extends Verticle {
+public class BlueMindNode extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(BlueMindNode.class);
 
@@ -57,50 +60,55 @@ public class BlueMindNode extends Verticle {
 	public BlueMindNode() {
 	}
 
+	@Override
 	public void start() {
-		this.srv = vertx.createHttpServer();
-		configureAndStart(srv);
+		reconfigure();
 		selfRefs.add(this);
 	}
 
-	private void configureAndStart(HttpServer srv) {
-		srv.setAcceptBacklog(1024).setReuseAddress(true);
-		srv.setTCPNoDelay(true);
-		srv.setUsePooledBuffers(true);
+	private void reconfigure() {
+		HttpServerOptions options = prepareOptions();
+		this.srv = vertx.createHttpServer(prepareOptions());
+		final RouteMatcher rm = createRouter(options.isSsl());
+		srv.requestHandler((HttpServerRequest event) -> {
+			logger.debug("{} {}...", event.method(), event.path());
+			rm.handle(event);
+		});
+		srv.websocketHandler(new WebSocketProcessHandler(vertx));
+		logger.info("NODE is SSL: {}", options.isSsl());
+		srv.listen(options.isSsl() ? Activator.NODE_PORT : 8021);
+	}
 
-		if (serverJks.exists() && trustClientCert.exists()) {
-			srv.setKeyStorePath("/etc/bm/bm.jks").setKeyStorePassword("bluemind").setSSL(true);
-			srv.setTrustStorePath("/etc/bm/nodeclient_truststore.jks").setTrustStorePassword("password")
-					.setClientAuthRequired(true);
+	private HttpServerOptions prepareOptions() {
+		HttpServerOptions options = new HttpServerOptions();
+		options.setAcceptBacklog(1024).setReuseAddress(true);
+		options.setTcpNoDelay(true);
+		options.setUsePooledBuffers(true);
+		boolean ssl = serverJks.exists() && trustClientCert.exists();
+		if (ssl) {
+			options.setKeyStoreOptions(new JksOptions().setPath("/etc/bm/bm.jks").setPassword("bluemind"));
+			options.setSsl(true);
+			options.setTrustStoreOptions(
+					new JksOptions().setPath("/etc/bm/nodeclient_truststore.jks").setPassword("password"));
+			options.setClientAuth(ClientAuth.REQUIRED);
 			logger.info("Configured in secure mode");
 		} else {
 			logger.info("Unsecure mode on 8021, node can be claimed");
 		}
-
-		final RouteMatcher rm = createRouter(srv);
-		srv.requestHandler(new Handler<HttpServerRequest>() {
-
-			@Override
-			public void handle(HttpServerRequest event) {
-				logger.debug("{} {}...", event.method(), event.path());
-				rm.handle(event);
-			}
-		});
-		srv.websocketHandler(new WebSocketProcessHandler(vertx));
-		srv.listen(srv.isSSL() ? Activator.NODE_PORT : 8021);
+		return options;
 	}
 
-	private RouteMatcher createRouter(final HttpServer srv) {
-		RouteMatcher rm = new RouteMatcher();
+	private RouteMatcher createRouter(boolean ssl) {
+		RouteMatcher rm = new RouteMatcher(vertx);
 		rm.post("/cmd", new SubmitCommand());
 		rm.get("/cmd/:reqId", new GetStatus());
 		rm.get("/cmd", new Executions());
 		rm.delete("/cmd/:reqId", new Interrupt());
-		rm.getWithRegEx("/fs(/.*)", new SendFile());
-		rm.putWithRegEx("/fs(/.*)", new WriteFile());
-		rm.deleteWithRegEx("/fs(/.*)", new DeleteFile());
-		rm.getWithRegEx("/list(/.*)", new ListFiles());
-		rm.getWithRegEx("/match/([^/]*)(/.*)", new ListMatches());
+		rm.regex(HttpMethod.GET, "/fs(/.*)", new SendFile());
+		rm.regex(HttpMethod.PUT, "/fs(/.*)", new WriteFile());
+		rm.regex(HttpMethod.DELETE, "/fs(/.*)", new DeleteFile());
+		rm.regex(HttpMethod.GET, "/list(/.*)", new ListFiles());
+		rm.regex(HttpMethod.GET, "/match/([^/]*)(/.*)", new ListMatches());
 		rm.options("/", new Handler<HttpServerRequest>() {
 
 			@Override
@@ -109,7 +117,7 @@ public class BlueMindNode extends Verticle {
 				event.response().end();
 			}
 		});
-		if (srv.isSSL()) {
+		if (ssl) {
 			rm.options("/ping", new Handler<HttpServerRequest>() {
 
 				@Override
@@ -133,27 +141,18 @@ public class BlueMindNode extends Verticle {
 	}
 
 	private void plainTextPing(RouteMatcher rm) {
-		rm.options("/ping", new Handler<HttpServerRequest>() {
-
-			@Override
-			public void handle(HttpServerRequest event) {
-				if (serverJks.exists() && trustClientCert.exists()) {
-					logger.info("Certs are here, time to secure and restart...");
-					vertx.setTimer(100, new Handler<Long>() {
-
-						@Override
-						public void handle(Long event) {
-							logger.info("Restarting all servers...");
-							restartAllServers();
-						}
-					});
-					event.response().setStatusCode(201).end();
-				} else {
-					logger.warn("Ping on unsecure BUT certs are not there yet");
-					event.response().setStatusCode(200).end();
-				}
+		rm.options("/ping", (HttpServerRequest event) -> {
+			if (serverJks.exists() && trustClientCert.exists()) {
+				logger.info("Certs are here, time to secure and restart...");
+				vertx.setTimer(100, tid -> {
+					logger.info("Restarting all {} servers...", selfRefs.size());
+					restartAllServers();
+				});
+				event.response().setStatusCode(201).end();
+			} else {
+				logger.warn("Ping on unsecure BUT certs are not there yet");
+				event.response().setStatusCode(200).end();
 			}
-
 		});
 	}
 
@@ -163,14 +162,13 @@ public class BlueMindNode extends Verticle {
 		for (BlueMindNode bmn : selfRefs) {
 			final BlueMindNode theNode = bmn;
 			theNode.srv.close();
-			theNode.srv = VertxPlatform.getVertx().createHttpServer();
-			theNode.configureAndStart(theNode.srv);
+			theNode.reconfigure();
 		}
 	}
 
 	@Override
-	public void stop() {
-		logger.info("Stopping.");
+	public void stop() throws Exception {
+		logger.info("Stopping {}", this);
 		super.stop();
 	}
 }

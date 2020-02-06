@@ -18,15 +18,16 @@
 
 package net.bluemind.xivo.bridge.http.v1;
 
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.MultiMap;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.core.shareddata.ConcurrentSharedMap;
 
+import io.vertx.core.Handler;
+import io.vertx.core.MultiMap;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.xivo.common.PhoneStatus;
 
@@ -46,16 +47,15 @@ public class GetStatusHandler implements Handler<HttpServerRequest> {
 						.append('@') //
 						.append(p.get("domain")) //
 						.toString();
-				ConcurrentSharedMap<String, Integer> sharedStatus = VertxPlatform.getVertx().sharedData()
-						.getMap("phone_status");
+				Map<String, Integer> sharedStatus = VertxPlatform.getVertx().sharedData().getLocalMap("phone_status");
 				Integer statusCode = sharedStatus.get(latd);
 				JsonObject status = new JsonObject();
 
 				if (statusCode == null) {
 					logger.warn("Unknown status for '{}'", latd);
-					status.putString("status", "UNKNOWN");
+					status.put("status", "UNKNOWN");
 				} else {
-					status.putString("status", PhoneStatus.fromCode(statusCode).name());
+					status.put("status", PhoneStatus.fromCode(statusCode).name());
 				}
 				logger.info("Fetch status of '{}' => {}", latd, status.encodePrettily());
 				HttpServerResponse resp = event.response();

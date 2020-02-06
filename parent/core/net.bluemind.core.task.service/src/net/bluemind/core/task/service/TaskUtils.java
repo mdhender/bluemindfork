@@ -28,6 +28,7 @@ import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
+import net.bluemind.core.task.api.TaskStatus.State;
 
 public class TaskUtils {
 
@@ -83,6 +84,10 @@ public class TaskUtils {
 			} catch (InterruptedException e) {
 				logger.warn("error during sleep", e);
 				Thread.currentThread().interrupt();
+				if (ts != null) {
+					ts.state = State.InError;
+					break;
+				}
 			}
 			ts = taskApi.status();
 		} while (!ts.state.ended);

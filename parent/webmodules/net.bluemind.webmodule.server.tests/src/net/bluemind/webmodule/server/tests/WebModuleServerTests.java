@@ -20,16 +20,13 @@ package net.bluemind.webmodule.server.tests;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClient;
+import org.asynchttpclient.Response;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-
-import com.google.common.util.concurrent.SettableFuture;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
 
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.webmodule.server.WebModuleServerVerticle;
@@ -39,19 +36,9 @@ public class WebModuleServerTests {
 	private AsyncHttpClient client;
 
 	@Before
-	public void setup() throws InterruptedException, ExecutionException {
-
-		final SettableFuture<Void> future = SettableFuture.<Void>create();
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				future.set(null);
-			}
-		};
-		VertxPlatform.spawnVerticles(done);
-		future.get();
-		client = new AsyncHttpClient();
+	public void setup() {
+		VertxPlatform.spawnBlocking(1, TimeUnit.MINUTES);
+		client = new DefaultAsyncHttpClient();
 	}
 
 	@Test

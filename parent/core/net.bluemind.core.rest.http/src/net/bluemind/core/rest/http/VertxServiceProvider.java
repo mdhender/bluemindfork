@@ -22,8 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.vertx.java.core.http.HttpServerRequest;
-
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.core.api.BMAsyncApi;
 import net.bluemind.core.rest.http.internal.LocateJITVertxHttpClientFactory;
 
@@ -40,7 +39,7 @@ public class VertxServiceProvider implements ITaggedServiceProvider {
 
 	public VertxServiceProvider from(HttpServerRequest req) {
 		List<String> forwadedFor = new ArrayList<>(req.headers().getAll("X-Forwarded-For"));
-		forwadedFor.add(req.remoteAddress().getAddress().getHostAddress());
+		forwadedFor.add(req.remoteAddress().host());
 		this.remoteIps = forwadedFor;
 		return this;
 

@@ -21,18 +21,18 @@ package net.bluemind.core.rest.http;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.streams.ReadStream;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
 
 public class ReadStreamInputStream extends InputStream {
 	private boolean ended;
-	private ReadStream<?> stream;
+	private ReadStream<Buffer> stream;
 
 	private Buffer currentBuffer;
 	private int pos;
 
-	public ReadStreamInputStream(ReadStream<?> stream2) {
+	public ReadStreamInputStream(ReadStream<Buffer> stream2) {
 		this.stream = stream2;
 	}
 
@@ -45,7 +45,7 @@ public class ReadStreamInputStream extends InputStream {
 			}
 		});
 
-		stream.dataHandler(new Handler<Buffer>() {
+		stream.handler(new Handler<Buffer>() {
 
 			@Override
 			public void handle(Buffer event) {

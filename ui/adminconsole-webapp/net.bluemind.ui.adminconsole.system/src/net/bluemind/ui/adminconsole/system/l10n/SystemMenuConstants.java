@@ -47,4 +47,6 @@ public interface SystemMenuConstants extends ConstantsWithLookup {
 	public String uploadDocumentation();
 
 	public String updateBluemind();
+
+	public String reindexing();
 }

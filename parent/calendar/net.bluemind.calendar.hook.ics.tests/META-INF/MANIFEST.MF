@@ -40,4 +40,5 @@ Require-Bundle: org.junit,
  net.bluemind.icalendar.parser,
  org.apache.commons.io,
  net.bluemind.core.tests.testshelper,
- net.bluemind.document.persistence.fs
+ net.bluemind.document.persistence.fs,
+ net.bluemind.core.sendmail.testhelper

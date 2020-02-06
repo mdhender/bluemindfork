@@ -6,10 +6,10 @@ import java.io.InputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpServerResponse;
 import org.w3c.dom.Document;
 
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.eas.config.global.GlobalConfig;
 import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.eas.http.wbxml.WbxmlHandlerBase;
@@ -47,11 +47,8 @@ public class WbxmlRequestComplete implements Handler<Void> {
 				Document document = WBXMLTools.toXml(in);
 				boolean valid = Validator.check(event.request(), event.protocolVersion(), document);
 				if (!valid || GlobalConfig.DATA_IN_LOGS) {
-					DOMDumper
-							.dumpXml(logger,
-									"rid: " + Requests.tag(event.request(), "rid")
-											+ (valid ? ", Valid document" : ", INVALID document") + " from pda:\n",
-									document);
+					DOMDumper.dumpXml(logger, "rid: " + Requests.tag(event.request(), "rid")
+							+ (valid ? ", Valid document" : ", INVALID document") + " from pda:\n", document);
 				}
 				if (valid) {
 					// Validator.check will provide a bad request response if

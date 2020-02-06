@@ -32,11 +32,11 @@ import java.util.concurrent.CountDownLatch;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.collect.Lists;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -74,7 +74,7 @@ public class UserSettingsServiceTests {
 	@Before
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
-		
+
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
 		ContainerStore containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),

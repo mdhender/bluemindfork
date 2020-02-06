@@ -15,7 +15,6 @@
 	</parent>
 	<modules>
 	  <module>net.bluemind.hornetq.client</module>
-		<module>net.bluemind.core.sendmail</module>
 		<module>net.bluemind.cti.core</module>
 		<module>net.bluemind.custom.password.bruteforce</module>
 		<module>net.bluemind.custom.password.sizestrength</module>

@@ -18,8 +18,7 @@
  */
 package net.bluemind.lib.globalid.tests;
 
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
+import java.util.Base64;
 
 import junit.framework.TestCase;
 import net.bluemind.lib.globalid.ExtIdConverter;
@@ -83,9 +82,7 @@ public class ExtIdConverterTests extends TestCase {
 	}
 
 	private static byte[] fromB64(String s) {
-		ChannelBuffer src = ChannelBuffers.wrappedBuffer(s.getBytes());
-		ChannelBuffer result = org.jboss.netty.handler.codec.base64.Base64.decode(src);
-		return result.array();
+		return Base64.getDecoder().decode(s);
 	}
 
 }

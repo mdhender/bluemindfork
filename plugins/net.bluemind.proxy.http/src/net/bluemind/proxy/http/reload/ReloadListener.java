@@ -19,8 +19,8 @@ package net.bluemind.proxy.http.reload;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.eventbus.EventBus;
 
+import io.vertx.core.eventbus.EventBus;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.OOPMessage;
 import net.bluemind.hornetq.client.OutOfProcessMessageHandler;

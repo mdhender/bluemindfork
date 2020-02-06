@@ -79,26 +79,27 @@ function deleteOverdues(deferredaction, dateHelperCreate) {
 function deleteOverdue(deferredaction, dateHelperCreate) {
     return function(item) {
         if (overdue(item, dateHelperCreate)) {
-            deleteAndCreateNext(deferredaction, dateHelperCreate, item);
+            try {
+                createNext(deferredaction, dateHelperCreate, item);
+            } catch(e) {
+                goog.log.error("Failed to create next event reminder.", e);
+            } finally {
+                deferredaction.deleteItem(item);
+            }
         }
         return !overdue(item, dateHelperCreate);
     };
 }
 
-function deleteAndCreateNext(deferredaction, dateHelperCreate, item) {
+function createNext(deferredaction, dateHelperCreate, item) {
     if (isrecurrent(item)) {
-        createNextDeferredAction(deferredaction, dateHelperCreate, item);
+        var nextItem = getNextDeferredAction(prevItem, dateHelperCreate);
+        deferredaction.getItem(nextItem["uid"]).then(function(item) {
+            if (!item) {
+                return deferredaction.createItem(nextItem);
+            }
+        });
     }
-    deferredaction.deleteItem(item);
-}
-
-function createNextDeferredAction(deferredaction, dateHelperCreate, prevItem) {
-    var nextItem = getNextDeferredAction(prevItem, dateHelperCreate);
-    deferredaction.getItem(nextItem["uid"]).then(function(item) {
-        if (!item) {
-            return deferredaction.createItem(nextItem);
-        }
-    });
 }
 
 function startOfEvent(item, dateHelperCreate) {
@@ -138,7 +139,13 @@ function scheduleNotification(userDateTimeFormater, deferredaction, dateHelperCr
         var text = getNotificationText(userDateTimeFormater, item, dateHelperCreate);
         setTimeout(function() {
             notify(text);
-            deleteAndCreateNext(deferredaction, dateHelperCreate, item);
+            try {
+                createNext(deferredaction, dateHelperCreate, item);
+            } catch(e) {
+                goog.log.error("Failed to create next event reminder.", e);
+            } finally {
+                deferredaction.deleteItem(item);
+            }
         }, delay);
     };
 }
@@ -177,6 +184,9 @@ function getNextDeferredAction(prevItem, dateHelperCreate) {
 
 function getNextExecutionTime(prevItem, dateHelperCreate) {
     var dtstart = dateHelperCreate(JSON.parse(prevItem["value"]["configuration"]["dtstart"]));
+    if (!(dtstart instanceof goog.date.DateTime)) {
+        dtstart = new net.bluemind.date.DateTime(dtstart);
+    }
 
     var rruleObject = JSON.parse(prevItem["value"]["configuration"]["rrule"]);
     var exdates = JSON.parse(prevItem["value"]["configuration"]["exdates"]);

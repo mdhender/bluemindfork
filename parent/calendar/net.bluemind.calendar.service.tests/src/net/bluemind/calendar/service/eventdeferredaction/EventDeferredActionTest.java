@@ -34,7 +34,6 @@ import java.util.Set;
 import org.junit.Test;
 
 import net.bluemind.calendar.api.VEventSeries;
-import net.bluemind.calendar.service.eventdeferredaction.EventDeferredAction;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.core.api.date.BmDateTimeWrapper;

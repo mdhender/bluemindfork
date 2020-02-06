@@ -30,8 +30,8 @@ import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.buffer.Buffer;
 
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.backend.cyrus.replication.server.ReplicationFrame;
 import net.bluemind.backend.cyrus.replication.server.ReplicationSession;
 import net.bluemind.backend.cyrus.replication.server.Token;
@@ -53,11 +53,11 @@ public class Authenticate implements IAsyncReplicationCommand {
 		String base64Creds = verbToken.value().substring("AUTHENTICATE PLAIN ".length());
 		byte[] decoded = Base64.getDecoder().decode(base64Creds);
 		List<String> creds = new LinkedList<>();
-		Buffer cur = new Buffer();
+		Buffer cur = Buffer.buffer();
 		for (int i = 1; i < decoded.length; i++) {
 			if (decoded[i] == 0) {
 				creds.add(cur.toString());
-				cur = new Buffer();
+				cur = Buffer.buffer();
 			} else {
 				cur.appendByte(decoded[i]);
 			}

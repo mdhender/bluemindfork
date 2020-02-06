@@ -19,22 +19,13 @@
 package net.bluemind.eas.command.getattachment;
 
 import java.util.Collection;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.eventbus.Message;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
 
+import io.vertx.core.WorkerExecutor;
 import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.backend.IBackend;
 import net.bluemind.eas.backend.MSAttachementData;
@@ -50,8 +41,8 @@ public final class GetAttachmentEndpoint implements IEasRequestEndpoint {
 
 	private static final Logger logger = LoggerFactory.getLogger(GetAttachmentEndpoint.class);
 
-	private static final ListeningExecutorService getAttachExecutor = MoreExecutors
-			.listeningDecorator(Executors.newCachedThreadPool());
+	private static final WorkerExecutor getAttachExecutor = VertxPlatform.getVertx()
+			.createSharedWorkerExecutor("get-attach", 4);
 
 	@Override
 	public void handle(AuthorizedDeviceQuery dq) {
@@ -60,49 +51,29 @@ public final class GetAttachmentEndpoint implements IEasRequestEndpoint {
 		final Responder responder = new VertxResponder(dq.request(), dq.request().response());
 
 		final String an = dq.optionalParams().attachmentName();
-		final String localAddr = "future." + an + "." + System.nanoTime();
 		logger.info("GetAttachment, submit");
-		final ListenableFuture<MSAttachementData> future = getAttachExecutor.submit(new Callable<MSAttachementData>() {
 
-			@Override
-			public MSAttachementData call() throws Exception {
-				logger.info("getEmailAttachment from executor service");
-				MSAttachementData attach = backend.getContentsExporter(bs).getEmailAttachement(bs, an);
-				return attach;
+		getAttachExecutor.<MSAttachementData>executeBlocking((prom) -> {
+			MSAttachementData attach;
+			try {
+				attach = backend.getContentsExporter(bs).getEmailAttachement(bs, an);
+				prom.complete(attach);
+			} catch (Exception e) {
+				prom.fail(e);
 			}
-		});
-		final EventBus eb = VertxPlatform.eventBus();
-		Handler<Message<Boolean>> futureResolved = new Handler<Message<Boolean>>() {
-
-			@Override
-			public void handle(Message<Boolean> event) {
-				logger.info("Future resolved.");
+		}, false, (result) -> {
+			if (result.succeeded()) {
 				try {
-					MSAttachementData attach = future.get();
+					MSAttachementData attach = result.result();
 					responder.sendResponseFile(attach.getContentType(), attach.getFile().source().openStream());
 					attach.getFile().dispose();
 				} catch (Exception e) {
 					logger.error(e.getMessage(), e);
 					responder.sendStatus(500);
 				}
-				eb.unregisterHandler(localAddr, this);
-			}
-		};
-		eb.registerLocalHandler(localAddr, futureResolved);
-
-		Futures.addCallback(future, new FutureCallback<MSAttachementData>() {
-			public void reply() {
-				eb.send(localAddr, true);
-			}
-
-			@Override
-			public void onSuccess(MSAttachementData attach) {
-				reply();
-			}
-
-			@Override
-			public void onFailure(Throwable t) {
-				reply();
+			} else {
+				logger.error(result.cause().getMessage(), result.cause());
+				responder.sendStatus(500);
 			}
 		});
 

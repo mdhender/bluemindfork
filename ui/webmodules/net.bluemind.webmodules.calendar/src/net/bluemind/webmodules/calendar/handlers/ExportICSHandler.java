@@ -25,13 +25,14 @@ import java.time.format.DateTimeFormatter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
-import org.vertx.java.core.streams.Pump;
-import org.vertx.java.core.streams.ReadStream;
 
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.streams.Pump;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.calendar.api.IVEventPromise;
 import net.bluemind.core.container.api.IContainersPromise;
 import net.bluemind.core.rest.http.HttpClientProvider;
@@ -84,8 +85,8 @@ public class ExportICSHandler implements Handler<HttpServerRequest>, NeedVertx {
 				resp.headers().set("Content-Disposition", "attachment; filename=\"" + filename + "\"");
 			}
 
-			ReadStream<?> read = VertxStream.read(ics);
-			Pump pump = Pump.createPump(read, resp);
+			ReadStream<Buffer> read = VertxStream.read(ics);
+			Pump pump = Pump.pump(read, resp);
 			resp.setChunked(true);
 			pump.start();
 			read.endHandler((v) -> {

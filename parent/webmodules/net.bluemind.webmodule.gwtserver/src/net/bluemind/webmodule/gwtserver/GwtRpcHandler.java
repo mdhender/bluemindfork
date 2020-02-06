@@ -20,13 +20,6 @@ package net.bluemind.webmodule.gwtserver;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Context;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.impl.DefaultContext;
-import org.vertx.java.core.impl.VertxInternal;
 
 import com.google.gwt.user.client.rpc.IncompatibleRemoteServiceException;
 import com.google.gwt.user.client.rpc.RpcTokenException;
@@ -35,6 +28,11 @@ import com.google.gwt.user.server.rpc.RPC;
 import com.google.gwt.user.server.rpc.RPCRequest;
 import com.google.gwt.user.server.rpc.SerializationPolicyProvider;
 
+import io.vertx.core.Context;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.lib.vertx.BMExecutor;
 import net.bluemind.lib.vertx.BMExecutor.BMTaskMonitor;
 import net.bluemind.webmodule.server.HandlerFactory;
@@ -72,12 +70,13 @@ public class GwtRpcHandler implements Handler<HttpServerRequest>, NeedVertx {
 			@Override
 			public void handle(Buffer buf) {
 
-				Context context = vertx.currentContext();
+				Context context = Vertx.currentContext();
 				executor.execute(new BMExecutor.BMTask() {
 
 					@Override
 					public void run(BMTaskMonitor monitor) {
-						((VertxInternal) vertx).setContext((DefaultContext) context);
+
+						// ((VertxInternal) vertx).setContext((DefaultContext) context);
 						ClassLoader prevCl = Thread.currentThread().getContextClassLoader();
 
 						try {
@@ -86,7 +85,7 @@ public class GwtRpcHandler implements Handler<HttpServerRequest>, NeedVertx {
 						} catch (SerializationException e) {
 							throw new RuntimeException(e);
 						} finally {
-							((VertxInternal) vertx).setContext(null);
+							// ((VertxInternal) vertx).setContext(null);
 							Thread.currentThread().setContextClassLoader(prevCl);
 						}
 					}

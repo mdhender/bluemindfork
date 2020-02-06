@@ -40,6 +40,18 @@ public class IMIPResponse {
 		return createNeedResponse(itemUid, calElement, true);
 	}
 
+	public static IMIPResponse createCanceledResponse(String itemUid) {
+		IMIPResponse ret = new IMIPResponse();
+
+		StringBuilder eventIcsUid = new StringBuilder(itemUid);
+
+		RawField rf = new RawField("X-BM-Event-Canceled", eventIcsUid.toString());
+		UnstructuredField bmExtId = UnstructuredFieldImpl.PARSER.parse(rf, DecodeMonitor.SILENT);
+		ret.headerFields = Arrays.asList(bmExtId);
+		return ret;
+
+	}
+
 	public static IMIPResponse createNeedResponse(String itemUid, ICalendarElement calElement, boolean needResponse) {
 		LoggerFactory.getLogger(IMIPResponse.class).info("need resp {} {}", itemUid, needResponse);
 		IMIPResponse ret = new IMIPResponse();

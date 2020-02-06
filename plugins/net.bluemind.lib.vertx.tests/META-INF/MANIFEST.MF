@@ -9,7 +9,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.junit;bundle-version="4.8.2",
  net.bluemind.vertx.common;bundle-version="1.0.0",
  io.netty;bundle-version="4.0.33",
- slf4j.api
+ slf4j.api,
+ net.bluemind.vertx.testhelper
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx
 Export-Package: net.bluemind.lib.vertx.tests

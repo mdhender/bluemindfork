@@ -21,9 +21,8 @@ package net.bluemind.user.service.internal;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.directory.service.DirEventProducer;
 import net.bluemind.user.api.User;
 import net.bluemind.user.api.UsersHookAddress;
@@ -39,13 +38,13 @@ public class UserEventProducer extends DirEventProducer {
 		Map<String, String> data = new HashMap<>();
 		data.put("login", user.login);
 		super.changed(uid, data);
-		eventBus.publish(UsersHookAddress.BASE_ADDRESS, new JsonObject().putString("domain", domainUid));
+		eventBus.publish(UsersHookAddress.BASE_ADDRESS, new JsonObject().put("domain", domainUid));
 	}
 
 	public void deleted(String uid, User user) {
 		Map<String, String> data = new HashMap<>();
 		data.put("login", user.login);
 		super.deleted(uid, data);
-		eventBus.publish(UsersHookAddress.BASE_ADDRESS, new JsonObject().putString("domain", domainUid));
+		eventBus.publish(UsersHookAddress.BASE_ADDRESS, new JsonObject().put("domain", domainUid));
 	}
 }

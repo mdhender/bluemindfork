@@ -17,13 +17,12 @@
   */
 package net.bluemind.system.stateobserver.internal;
 
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.json.JsonObject;
-
 import com.netflix.spectator.api.Counter;
 import com.netflix.spectator.api.Gauge;
 import com.netflix.spectator.api.Registry;
 
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.OOPMessage;
 import net.bluemind.hornetq.client.Topic;

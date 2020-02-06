@@ -31,10 +31,10 @@ import java.util.stream.Collectors;
 import org.apache.james.mime4j.dom.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.buffer.Buffer;
 
 import com.google.common.io.ByteStreams;
 
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxItems;
@@ -53,6 +53,7 @@ import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.sendmail.Sendmail;
+import net.bluemind.core.sendmail.SendmailCredentials;
 import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.backend.MailFolder;
 import net.bluemind.eas.backend.bm.impl.CoreConnect;
@@ -173,9 +174,10 @@ public class EmailManager extends CoreConnect {
 					MailFolder sent = Backends.internalStorage().getMailFolderByName(bs, "Sent");
 					IMailboxItems service = getMailboxItemsService(bs, sent.uid);
 					byte[] data = ByteStreams.toByteArray(is);
-					String partAddr = service.uploadPart(VertxStream.stream(new Buffer(data)));
+					String partAddr = service.uploadPart(VertxStream.stream(Buffer.buffer(data)));
 					try {
 						MailboxItem mi = MailboxItem.of(m.getSubject(), Part.create(null, "message/rfc822", partAddr));
+						mi.body.date = new Date();
 						mi.systemFlags = Arrays.asList(SystemFlag.seen);
 						service.create(mi);
 					} catch (ServerFault serverFault) {
@@ -190,7 +192,7 @@ public class EmailManager extends CoreConnect {
 
 			Sendmail sm = new Sendmail();
 			MSUser u = bs.getUser();
-			sm.send(u.getDefaultEmail(), u.getDomain(), m);
+			sm.send(SendmailCredentials.as(u.getLoginAtDomain(), u.getSid()), u.getDefaultEmail(), u.getDomain(), m);
 
 		} catch (Exception e) {
 			// TODO rm sent item

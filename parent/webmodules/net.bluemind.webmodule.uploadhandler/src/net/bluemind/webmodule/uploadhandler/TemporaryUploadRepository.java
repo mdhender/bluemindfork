@@ -25,8 +25,9 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
+
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 
 public class TemporaryUploadRepository {
 

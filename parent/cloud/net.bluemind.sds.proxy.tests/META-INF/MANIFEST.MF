@@ -9,7 +9,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.lib.vertx,
  org.junit,
  net.bluemind.network.topology,
- com.google.guava
+ com.google.guava,
+ io.vertx.core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.sds.proxy.tests
 Bundle-ActivationPolicy: lazy

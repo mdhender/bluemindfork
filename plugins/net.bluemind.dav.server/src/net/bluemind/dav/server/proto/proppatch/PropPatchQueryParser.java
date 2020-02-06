@@ -27,13 +27,13 @@ import javax.xml.namespace.QName;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.MultiMap;
-import org.vertx.java.core.buffer.Buffer;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import com.google.common.base.Throwables;
 
+import io.vertx.core.MultiMap;
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.dav.server.proto.NS;
 import net.bluemind.dav.server.proto.QN;

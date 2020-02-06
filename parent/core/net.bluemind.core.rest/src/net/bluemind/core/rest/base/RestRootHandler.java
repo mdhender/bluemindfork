@@ -28,18 +28,19 @@ import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Context;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.impl.DefaultContext;
-import org.vertx.java.core.impl.VertxInternal;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.collect.ImmutableMap;
 import com.netflix.spectator.api.Registry;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Context;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.DeliveryOptions;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -85,7 +86,7 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 		rules = EventBusAccessRules.getInstance().getEventBusRules();
 		for (RestService service : Endpoints.getEndpoints()) {
 			for (MethodDescriptor m : service.descriptor.methods) {
-				TreePathNode rootNode = pathsByMethod.get(m.httpMethodName);
+				TreePathNode rootNode = pathsByMethod.get(HttpMethod.valueOf(m.httpMethodName));
 				rootNode.insert(m.path, new TreePathLeaf(RestServiceMethodHandler.getInstance(service, m, filters)));
 			}
 
@@ -139,7 +140,7 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 
 		};
 
-		Context context = vertx.currentContext();
+		Context context = Vertx.currentContext();
 		RestCallRunnable r = new RestCallRunnable(request, wrappedHandler, leaf, context);
 		if (!directExec) {
 			executor.execute(r);
@@ -249,7 +250,6 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 				CallLogger.logger.trace("{} call {} {} took {}ms to start", "BM-Core", request.method, request.path,
 						System.currentTimeMillis() - creationTime);
 			}
-			((VertxInternal) vertx).setContext((DefaultContext) context);
 			logger.debug("do call: request {}", request);
 
 			if (request.bodyStream != null) {
@@ -264,7 +264,6 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 
 			leaf.call(request, response);
 
-			((VertxInternal) vertx).setContext(null);
 		}
 
 		@Override
@@ -281,11 +280,11 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 		}
 	}
 
-	private Map<String, TreePathNode> pathsByMethod = new ImmutableMap.Builder<String, TreePathNode>()
-			.put("GET", new TreePathNode())//
-			.put("POST", new TreePathNode()) //
-			.put("PUT", new TreePathNode()) //
-			.put("DELETE", new TreePathNode()) //
+	private Map<HttpMethod, TreePathNode> pathsByMethod = new ImmutableMap.Builder<HttpMethod, TreePathNode>()
+			.put(HttpMethod.GET, new TreePathNode())//
+			.put(HttpMethod.POST, new TreePathNode()) //
+			.put(HttpMethod.PUT, new TreePathNode()) //
+			.put(HttpMethod.DELETE, new TreePathNode()) //
 			.build();
 
 	public static class TreePathNode {
@@ -373,10 +372,12 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 	}
 
 	@Override
-	public void register(RestRequest request, Function<Void, Handler<Message<?>>> msgHandler,
+	public <T> MessageConsumer<T> register(RestRequest request, Function<Void, Handler<Message<T>>> msgHandler,
 			Handler<ServerFault> reject) {
 		// FIXME to remove
-		applyRules(request, reject, v -> vertx.eventBus().registerHandler(request.path, msgHandler.apply(null)));
+		MessageConsumer<T> cons = vertx.eventBus().consumer(request.path);
+		applyRules(request, reject, v -> cons.handler(msgHandler.apply(null)));
+		return cons;
 
 	}
 
@@ -390,7 +391,7 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 		}
 		SecurityContext ctx = securityContext;
 
-		Context vertxCtx = vertx.currentContext();
+		Context vertxCtx = Vertx.currentContext();
 		for (IEventBusAccessRule r : rules) {
 			if (r.match(request.path)) {
 				executor.execute(new BMTask() {
@@ -457,12 +458,6 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 	}
 
 	@Override
-	public void unregisterHandler(String path, Handler<Message<?>> handler) {
-		// FIXME to remove
-		vertx.eventBus().unregisterHandler(path, handler);
-	}
-
-	@Override
 	public void sendEvent(RestRequest request, JsonObject evt) {
 		// FIXME to remove
 		logger.debug("send event to {} : {}", request.path, evt);
@@ -479,14 +474,14 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 			logger.error("cannot send event to {}", request.path);
 			handler.handle(null);
 		}, v -> {
-
-			vertx.eventBus().sendWithTimeout(request.path, evt, 10000, (AsyncResult<Message<JsonObject>> m) -> {
-				if (m.failed()) {
-					handler.handle(null);
-				} else {
-					handler.handle(m.result());
-				}
-			});
+			vertx.eventBus().request(request.path, evt, new DeliveryOptions().setSendTimeout(10000),
+					(AsyncResult<Message<JsonObject>> m) -> {
+						if (m.failed()) {
+							handler.handle(null);
+						} else {
+							handler.handle(m.result());
+						}
+					});
 			return null;
 		});
 	}

@@ -17,7 +17,6 @@
 #
 # See LICENSE.txt
 
-
 set -e
 
 # Source debconf library.
@@ -45,11 +44,13 @@ manageSystemUserGroup() {
     getent group bluemind > /dev/null || addgroup --system bluemind
 
     # Add user cyrus to group bluemind, if such group and user exists
-    adduser cyrus bluemind || true
+    getent passwd cyrus >/dev/null && adduser cyrus bluemind
     # Add user www-data to group bluemind, if such group and user exists
-    adduser www-data bluemind || true
+    getent passwd www-data >/dev/null && adduser www-data bluemind
     # Add user telegraf to group bluemind, if such group and user exists
-    adduser telegraf bluemind || true
+    getent passwd telegraf >/dev/null && adduser telegraf bluemind
+
+    return 0
 }
 
 manageSystemUserGroup
@@ -69,5 +70,17 @@ if [ -e /etc/bm/bm-core.tok ]; then
     chmod 440 /etc/bm/bm-core.tok
     chown root:bluemind /etc/bm/bm-core.tok
 fi
+
+#DEBHELPER#
+
+systemctl daemon-reload
+
+for service in $(grep "enable" /lib/systemd/system-preset/10-bluemind.preset |cut -d ' ' -f 2); do
+    if systemctl is-enabled ${service} > /dev/null 2>&1; then
+        echo -n "Re-enabling "${service}": "
+        systemctl reenable ${service} > /dev/null 2>&1 || true
+        echo "done"
+    fi
+done
 
 exit 0

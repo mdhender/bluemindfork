@@ -26,12 +26,13 @@ import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.file.FileSystem;
-import org.vertx.java.core.net.NetSocket;
-import org.vertx.java.core.parsetools.RecordParser;
+
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.file.FileSystem;
+import io.vertx.core.net.NetSocket;
+import io.vertx.core.parsetools.RecordParser;
 
 public class ClientFramesHandler implements Handler<Buffer> {
 

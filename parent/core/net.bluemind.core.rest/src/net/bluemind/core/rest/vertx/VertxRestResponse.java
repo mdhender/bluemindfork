@@ -20,10 +20,9 @@ package net.bluemind.core.rest.vertx;
 
 import java.util.UUID;
 
-import org.vertx.java.core.MultiMap;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.MultiMap;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.rest.base.RestResponse;
 
 @SuppressWarnings("serial")

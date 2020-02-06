@@ -23,14 +23,15 @@ import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Verticle;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.Verticle;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -45,7 +46,7 @@ import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.lib.vertx.utils.ThrottleMessages;
 import net.bluemind.user.api.IUserSettings;
 
-public class CTIPresenceHandler extends Verticle {
+public class CTIPresenceHandler extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(CTIPresenceHandler.class);
 	private final Cache<String, String> uidForEmail = CacheBuilder.newBuilder()//
@@ -70,10 +71,10 @@ public class CTIPresenceHandler extends Verticle {
 
 	@Override
 	public void start() {
-		Function<Message<? extends JsonObject>, Object> eventToKey = (msg) -> msg.body().getString("user", "anon");
-		Handler<Message<? extends JsonObject>> presHandler = this::handle;
+		Function<Message<JsonObject>, Object> eventToKey = (msg) -> msg.body().getString("user", "anon");
+		Handler<Message<JsonObject>> presHandler = this::handle;
 		ThrottleMessages<JsonObject> tm = new ThrottleMessages<JsonObject>(eventToKey, presHandler, vertx, 2000);
-		vertx.eventBus().registerHandler(ADDR, tm);
+		vertx.eventBus().consumer(ADDR, tm);
 	}
 
 	private void handle(Message<? extends JsonObject> msg) {

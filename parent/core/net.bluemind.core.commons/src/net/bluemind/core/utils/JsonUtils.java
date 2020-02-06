@@ -52,7 +52,7 @@ public class JsonUtils {
 	public static Object read(String value, Type type) throws Exception {
 		JavaType typ = objectMapper.getTypeFactory().constructType(type);
 
-		return objectMapper.reader(typ).readValue(value);
+		return objectMapper.readerFor(typ).readValue(value);
 	}
 
 	public static <T> T read(String value, Class<T> type) {

@@ -9,16 +9,16 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.MultiMap;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.http.CaseInsensitiveMultiMap;
-import org.vertx.java.core.json.JsonElement;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.core.sockjs.SockJSSocket;
 
+import io.vertx.core.Handler;
+import io.vertx.core.MultiMap;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.http.CaseInsensitiveHeaders;
+import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.handler.sockjs.SockJSSocket;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.base.IRestBusHandler;
@@ -30,7 +30,7 @@ import net.bluemind.core.utils.JsonUtils;
 public class RestSockJsProxyHandler implements Handler<Buffer> {
 	private static final Logger logger = LoggerFactory.getLogger(RestSockJsProxyHandler.class);
 	final SockJSSocket sock;
-	final Map<String, Handler<Message<?>>> handlers = new HashMap<>();
+	final Map<String, MessageConsumer<JsonObject>> handlers = new HashMap<>();
 	private final List<String> remoteAddress;
 	private final IRestBusHandler restbus;
 	private Vertx vertx;
@@ -53,16 +53,16 @@ public class RestSockJsProxyHandler implements Handler<Buffer> {
 
 		RestRequestWithId request = parseRequest(msg);
 		Optional<String> id = request.id;
-		if ("register".equals(request.method)) {
+		if ("register".equals(request.verb)) {
 			registerHandler(request);
-		} else if ("unregister".equals(request.method)) {
+		} else if ("unregister".equals(request.verb)) {
 			unregisterHandler(request.path);
-		} else if ("log".equals(request.method)) {
+		} else if ("log".equals(request.verb)) {
 			SecurityContext session = getSession(request);
 			if (!session.isAnonymous()) {
 				log(session, request);
 			}
-		} else if ("event".equals(request.method)) {
+		} else if ("event".equals(request.verb)) {
 			sendEvent(request);
 		} else {
 			proxy.call(request, new AsyncHandler<RestResponse>() {
@@ -101,10 +101,10 @@ public class RestSockJsProxyHandler implements Handler<Buffer> {
 		id.ifPresent(requestId -> {
 			if (sock.writeQueueFull()) {
 				sock.drainHandler((v) -> {
-					sock.write(new Buffer(response(requestId, value)));
+					sock.write(Buffer.buffer(response(requestId, value)));
 				});
 			} else {
-				sock.write(new Buffer(response(requestId, value)));
+				sock.write(Buffer.buffer(response(requestId, value)));
 			}
 		});
 	}
@@ -142,9 +142,9 @@ public class RestSockJsProxyHandler implements Handler<Buffer> {
 
 	public void unregisterHandler(String path) {
 		logger.debug("unregister handler at {} ", path);
-		Handler<Message<?>> handler = handlers.get(path);
+		MessageConsumer<JsonObject> handler = handlers.get(path);
 		if (handler != null) {
-			restbus.unregisterHandler(path, handler);
+			handler.unregister();
 			handlers.remove(path);
 		} else {
 			logger.warn("unregiter handler {} not found", path);
@@ -156,7 +156,8 @@ public class RestSockJsProxyHandler implements Handler<Buffer> {
 
 		handlers.forEach((path, handler) -> {
 			logger.debug("unregister handler on {}", path);
-			restbus.unregisterHandler(path, handler);
+			handler.unregister();
+
 		});
 		handlers.clear();
 	}
@@ -165,21 +166,18 @@ public class RestSockJsProxyHandler implements Handler<Buffer> {
 		logger.debug("register handler at {} for {}", request.path, request.id);
 		String path = request.path;
 		if (handlers.containsKey(path)) {
-			restbus.unregisterHandler(path, handlers.get(path));
+			handlers.get(path).unregister();
 			handlers.remove(path);
 		}
-		Handler<Message<?>> handler = (msg) -> {
-			@SuppressWarnings("unchecked")
-			Message<JsonObject> m = (Message<JsonObject>) msg;
-			JsonObject body = m.body();
+		Handler<Message<JsonObject>> handler = (msg) -> {
+			JsonObject body = msg.body();
 			Buffer data = null;
 			if (body != null) {
-				data = new Buffer(body.encode());
+				data = Buffer.buffer(body.encode());
 			}
 			sendResponse(Optional.of(path), RestResponse.ok(200, data));
 		};
-		restbus.register(request, (v) -> {
-			handlers.put(path, handler);
+		MessageConsumer<JsonObject> cons = restbus.register(request, (v) -> {
 			sendResponse(request.id, RestResponse.ok(200, null));
 			return handler;
 		}, (e) -> {
@@ -190,6 +188,7 @@ public class RestSockJsProxyHandler implements Handler<Buffer> {
 			}
 			sendFault(request.id, e);
 		});
+		handlers.put(path, cons);
 	}
 
 	public void sendEvent(RestRequestWithId request) {
@@ -201,7 +200,7 @@ public class RestSockJsProxyHandler implements Handler<Buffer> {
 		}
 
 		logger.debug("send event {} to {} , {}", request.id.orElse("<unknown id>"), request.path, jsBody);
-		jsBody.putString("sockId", sock.writeHandlerID());
+		jsBody.put("sockId", sock.writeHandlerID());
 		if (request.id.isPresent()
 				&& (request.path.equals("xmpp/sessions-manager:open")
 						|| (request.path.startsWith("xmpp/session/") && request.path.endsWith("/roster:entries")))
@@ -210,7 +209,7 @@ public class RestSockJsProxyHandler implements Handler<Buffer> {
 				JsonObject body = m != null ? m.body() : null;
 				Buffer data = null;
 				if (body != null) {
-					data = new Buffer(body.encode());
+					data = Buffer.buffer(body.encode());
 				}
 				logger.debug("send RESPONSE {} WITH id !!! {} {}", request.path, request.id, body);
 				sendResponse(request.id, RestResponse.ok(200, data));
@@ -234,13 +233,13 @@ public class RestSockJsProxyHandler implements Handler<Buffer> {
 		if (path == null) {
 			throw new IllegalArgumentException("path is null");
 		}
-		CaseInsensitiveMultiMap headers = new CaseInsensitiveMultiMap();
-		headers.add(asMap(msg.getObject("headers")));
+		CaseInsensitiveHeaders headers = new CaseInsensitiveHeaders();
+		headers.addAll(asMap(msg.getJsonObject("headers")));
 
-		CaseInsensitiveMultiMap params = new CaseInsensitiveMultiMap();
-		params.add(asMap(msg.getObject("params")));
-		JsonElement jsonBody = msg.getElement("body");
-		Buffer body = jsonBody != null ? new Buffer(jsonBody.toString()) : null;
+		CaseInsensitiveHeaders params = new CaseInsensitiveHeaders();
+		params.addAll(asMap(msg.getJsonObject("params")));
+		Object jsonBody = msg.getValue("body");
+		Buffer body = jsonBody != null ? Buffer.buffer(jsonBody.toString()) : null;
 		RestRequestWithId request = new RestRequestWithId(requestId, "sockjs", remoteAddress, verb, headers, path,
 				params, body);
 		return request;
@@ -248,8 +247,8 @@ public class RestSockJsProxyHandler implements Handler<Buffer> {
 
 	private Map<String, String> asMap(JsonObject object) {
 		if (object != null) {
-			Map<String, String> v = object.toMap().entrySet().stream()
-					.filter(a -> a.getValue() != null && a.getKey() != null).collect(Collectors.toMap(a -> {
+			Map<String, String> v = object.stream().filter(a -> a.getValue() != null && a.getKey() != null)
+					.collect(Collectors.toMap(a -> {
 						return a.getKey();
 					}, b -> {
 						return (String) b.getValue();

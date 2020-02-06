@@ -24,8 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
 import net.bluemind.config.Token;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
@@ -35,7 +35,7 @@ import net.bluemind.domain.api.IDomains;
 import net.bluemind.milter.mq.MilterMessageForwarder;
 import net.bluemind.network.topology.Topology;
 
-public class DomainAliasCache extends Verticle {
+public class DomainAliasCache extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(DomainAliasCache.class);
 	private static Map<String, Optional<ItemValue<Domain>>> domainCache = new ConcurrentHashMap<>();
@@ -54,7 +54,7 @@ public class DomainAliasCache extends Verticle {
 	@Override
 	public void start() {
 		logger.info("Starting domain cache {}", this);
-		vertx.eventBus().registerHandler(MilterMessageForwarder.domainChanged, (message) -> {
+		vertx.eventBus().consumer(MilterMessageForwarder.domainChanged, (message) -> {
 			logger.info("Invalidating domain <-> alias cache with {} entries", domainCache.size());
 			domainCache.clear();
 		});

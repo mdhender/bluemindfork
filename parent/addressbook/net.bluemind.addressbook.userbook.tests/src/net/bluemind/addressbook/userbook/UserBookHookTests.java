@@ -26,15 +26,15 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.SettableFuture;
 
-import net.bluemind.addressbook.api.IAddressBookUids;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.addressbook.api.AddressBookDescriptor;
 import net.bluemind.addressbook.api.IAddressBook;
+import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.addressbook.api.IAddressBooksMgmt;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.FormatedName;
@@ -118,8 +118,7 @@ public class UserBookHookTests {
 		assertNotNull(directory);
 
 		IUserSubscription userSubService = bmContext.getServiceProvider().instance(IUserSubscription.class, domainUid);
-		List<ContainerSubscriptionDescriptor> subs = userSubService.listSubscriptions(userUid,
-				IAddressBookUids.TYPE);
+		List<ContainerSubscriptionDescriptor> subs = userSubService.listSubscriptions(userUid, IAddressBookUids.TYPE);
 
 		verifyContainerSubAndSync(subs, contacts, true);
 		verifyContainerSubAndSync(subs, collected, true);

@@ -18,11 +18,9 @@
  */
 package net.bluemind.core.rest.base;
 
-import org.vertx.java.core.MultiMap;
-import org.vertx.java.core.http.HttpHeaders;
-import org.vertx.java.core.http.impl.HttpHeadersAdapter;
-
-import io.netty.handler.codec.http.DefaultHttpHeaders;
+import io.vertx.core.MultiMap;
+import io.vertx.core.http.CaseInsensitiveHeaders;
+import io.vertx.core.http.HttpHeaders;
 
 public class RestHeaders {
 
@@ -34,7 +32,7 @@ public class RestHeaders {
 	}
 
 	public static MultiMap newMultimap() {
-		return new HttpHeadersAdapter(new DefaultHttpHeaders(false));
+		return new CaseInsensitiveHeaders();
 	}
 
 }

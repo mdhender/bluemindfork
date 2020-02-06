@@ -21,8 +21,8 @@ package net.bluemind.node.server.busmod;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 public final class RunningCommand {
 
@@ -49,7 +49,7 @@ public final class RunningCommand {
 
 	public JsonObject asJson() {
 		JsonObject jso = new JsonObject();
-		jso.putNumber("pid", pid);
+		jso.put("pid", pid);
 		return jso;
 	}
 

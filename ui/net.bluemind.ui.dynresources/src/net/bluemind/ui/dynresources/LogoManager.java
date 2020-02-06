@@ -23,12 +23,12 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.io.ByteStreams;
 
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
@@ -50,7 +50,7 @@ public class LogoManager {
 
 		loadInstallationLogo();
 
-		VertxPlatform.eventBus().registerHandler(Topic.UI_RESOURCES_NOTIFICATIONS, new Handler<Message<JsonObject>>() {
+		VertxPlatform.eventBus().consumer(Topic.UI_RESOURCES_NOTIFICATIONS, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {

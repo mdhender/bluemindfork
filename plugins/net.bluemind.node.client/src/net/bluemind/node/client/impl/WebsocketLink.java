@@ -30,19 +30,18 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.asynchttpclient.ws.WebSocket;
+import org.asynchttpclient.ws.WebSocketListener;
+import org.asynchttpclient.ws.WebSocketUpgradeHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
 
-import com.ning.http.client.ws.WebSocket;
-import com.ning.http.client.ws.WebSocketTextListener;
-import com.ning.http.client.ws.WebSocketUpgradeHandler;
-
+import io.vertx.core.json.JsonObject;
 import net.bluemind.node.api.ProcessHandler;
 
 public class WebsocketLink {
 
-	private static class NodeTextListener implements WebSocketTextListener {
+	private static class NodeTextListener implements WebSocketListener {
 
 		private final AtomicReference<WebSocket> wsRef;
 		private final WebsocketLink link;
@@ -71,8 +70,8 @@ public class WebsocketLink {
 		}
 
 		@Override
-		public void onClose(WebSocket websocket) {
-			logger.info("ws closed {}", websocket);
+		public void onClose(WebSocket websocket, int code, String reason) {
+			logger.info("ws closed {} ({})", websocket, reason);
 			retryLater();
 		}
 
@@ -80,7 +79,6 @@ public class WebsocketLink {
 			if (!link.isSecure()) {
 				return;
 			}
-			logger.info("Queue retry in 1sec...");
 			new Timer("ws-retry-" + System.nanoTime(), true).schedule(new TimerTask() {
 
 				@Override
@@ -91,7 +89,7 @@ public class WebsocketLink {
 		}
 
 		@Override
-		public void onMessage(String message) {
+		public void onTextFrame(String message, boolean finalFragment, int rsv) {
 			link.onMessage(message);
 		}
 
@@ -133,6 +131,7 @@ public class WebsocketLink {
 
 	public void retry() {
 		String wsUrl = (cli.isSSL() ? "wss" : "ws") + "://" + cli.getHost() + ":" + cli.getPort() + "/ws";
+		logger.info("Retry con to {}", wsUrl);
 		cli.getClient().prepareGet(wsUrl).execute(upgradeHandler);
 	}
 
@@ -188,9 +187,9 @@ public class WebsocketLink {
 				ph.completed(1);
 			} else {
 				long rid = wsIdGen.incrementAndGet();
-				wsReq.putNumber("ws-rid", rid);
+				wsReq.put("ws-rid", rid);
 				execHandlers.put(rid, ph);
-				ws.sendMessage(wsReq.encode());
+				ws.sendTextFrame(wsReq.encode());
 			}
 		}
 

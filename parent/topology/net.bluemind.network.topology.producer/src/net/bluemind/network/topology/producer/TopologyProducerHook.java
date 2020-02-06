@@ -24,9 +24,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -64,7 +64,7 @@ public class TopologyProducerHook extends DefaultServerHook {
 			});
 			return prod;
 		});
-		this.vertx.eventBus().registerLocalHandler("topology.internal.startup", msg -> {
+		this.vertx.eventBus().consumer("topology.internal.startup", msg -> {
 			logger.info("Topology startup event: {}", msg.body());
 			start();
 		});

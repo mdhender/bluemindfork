@@ -37,12 +37,12 @@ import org.ietf.jgss.GSSName;
 import org.ietf.jgss.Oid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
 
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.proxy.http.ExternalCreds;
 import net.bluemind.proxy.http.IAuthProvider;
@@ -69,7 +69,7 @@ public class KrbProtocol implements IAuthProtocol {
 			return;
 		}
 		List<String> forwadedFor = new ArrayList<>(req.headers().getAll("X-Forwarded-For"));
-		forwadedFor.add(req.remoteAddress().getAddress().getHostAddress());
+		forwadedFor.add(req.remoteAddress().host());
 
 		String b64 = authHeader.substring(10);
 		byte[] ticket = Base64.getDecoder().decode(b64);

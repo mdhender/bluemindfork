@@ -25,11 +25,11 @@ import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpServerRequest;
 
 import com.google.common.io.Resources;
 
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.webmodule.server.IWebFilter;
 
 public class InputFilter implements IWebFilter {
@@ -51,7 +51,7 @@ public class InputFilter implements IWebFilter {
 
 				logger.info("resoruce {}", url);
 				try {
-					request.response().end(new Buffer(Resources.toByteArray(url)));
+					request.response().end(Buffer.buffer(Resources.toByteArray(url)));
 				} catch (IOException e) {
 
 					request.response().setStatusCode(500).end();

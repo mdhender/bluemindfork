@@ -129,8 +129,6 @@ public interface DomainConstants extends Messages {
 
 	String mailboxStorageServer();
 
-	String mailboxConnectionServer();
-
 	String mailArchiveServer();
 
 	String mailSystemInfo();

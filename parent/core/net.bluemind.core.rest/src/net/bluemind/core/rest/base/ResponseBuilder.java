@@ -22,9 +22,9 @@ import java.lang.reflect.Type;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.base.codec.DefaultResponseCodecs;
@@ -44,21 +44,21 @@ public abstract class ResponseBuilder {
 		if (e instanceof ServerFault) {
 			ServerFault fault = (ServerFault) e;
 			if (((ServerFault) e).getCode() != null) {
-				object.putString("errorCode", fault.getCode().toString());
+				object.put("errorCode", fault.getCode().toString());
 
 			} else {
-				object.putString("errorCode", ErrorCode.UNKNOWN.toString());
+				object.put("errorCode", ErrorCode.UNKNOWN.toString());
 			}
 		} else {
-			object.putString("errorCode", ErrorCode.UNKNOWN.toString());
+			object.put("errorCode", ErrorCode.UNKNOWN.toString());
 		}
-		object.putString("errorType", e.getClass().getSimpleName());
-		object.putString("message", e.getMessage());
+		object.put("errorType", e.getClass().getSimpleName());
+		object.put("message", e.getMessage());
 		return object;
 	}
 
 	public static RestResponse replyFault(int statusCode, String statusMessage, JsonObject body) {
-		return RestResponse.fault(statusCode, statusMessage, new Buffer(body.encode()));
+		return RestResponse.fault(statusCode, statusMessage, Buffer.buffer(body.encode()));
 	}
 
 	public static RestResponse replyFault(int statusCode, String statusMessage, Throwable e) {

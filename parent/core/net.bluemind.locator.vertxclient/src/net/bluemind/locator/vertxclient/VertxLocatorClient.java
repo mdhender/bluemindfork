@@ -22,13 +22,14 @@ import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpClient;
-import org.vertx.java.core.http.HttpClientRequest;
-import org.vertx.java.core.http.HttpClientResponse;
-import org.vertx.java.core.http.HttpHeaders;
 
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpClientRequest;
+import io.vertx.core.http.HttpClientResponse;
+import io.vertx.core.http.HttpHeaders;
+import io.vertx.core.http.HttpMethod;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.http.HttpClientProvider;
@@ -68,7 +69,7 @@ public class VertxLocatorClient implements ILocator {
 	@Override
 	public void locate(String service, final AsyncHandler<String[]> asyncHandler) {
 		logger.debug("locate {} for {}", service, login);
-		HttpClientRequest req = client.request("GET", "/location/host/" + service + "/" + login,
+		HttpClientRequest req = client.request(HttpMethod.GET, "/location/host/" + service + "/" + login,
 				handleResponse(asyncHandler));
 		// to be able to identify which component is asking for a location
 		req.headers().add(ORIGIN_HEADER, ORIGIN_VALUE);

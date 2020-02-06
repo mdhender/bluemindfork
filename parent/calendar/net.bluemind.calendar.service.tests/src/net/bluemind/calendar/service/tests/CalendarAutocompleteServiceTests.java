@@ -29,12 +29,12 @@ import java.util.UUID;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.SettableFuture;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.addressbook.domainbook.IDomainAddressBook;
@@ -154,7 +154,7 @@ public class CalendarAutocompleteServiceTests {
 	protected Container createTestContainer(String uid, String name, Verb verb, boolean isDefault) throws Exception {
 
 		Container container = Container.create(uid, ICalendarUids.TYPE, name, defaultSecurityContext.getSubject(),
-				 DOMAIN, isDefault);
+				DOMAIN, isDefault);
 		container = containerStore.create(container);
 		assertNotNull(container);
 

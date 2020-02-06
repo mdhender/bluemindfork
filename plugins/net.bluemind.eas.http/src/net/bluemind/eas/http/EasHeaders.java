@@ -18,7 +18,7 @@
  */
 package net.bluemind.eas.http;
 
-import org.vertx.java.core.http.HttpHeaders;
+import io.vertx.core.http.HttpHeaders;
 
 public class EasHeaders {
 

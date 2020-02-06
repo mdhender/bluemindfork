@@ -32,11 +32,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.io.ByteStreams;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
@@ -69,7 +69,6 @@ public class ResourcesTypeServiceTests {
 	@Before
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
-		
 
 		testDomainUid = "test.lan";
 		PopulateHelper.initGlobalVirt();
@@ -78,7 +77,6 @@ public class ResourcesTypeServiceTests {
 		ContainerStore containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
 				SecurityContext.SYSTEM);
 
-		
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
 		domainAdminSC = BmTestContext.contextWithSession("d1", "admin", testDomainUid, SecurityContext.ROLE_ADMIN)

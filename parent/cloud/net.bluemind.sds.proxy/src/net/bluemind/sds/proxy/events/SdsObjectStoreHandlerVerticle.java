@@ -39,10 +39,11 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Verticle;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.sds.proxy.dto.ConfigureResponse;
@@ -58,7 +59,7 @@ import net.bluemind.sds.proxy.store.ISdsBackingStoreFactory;
 import net.bluemind.sds.proxy.store.SdsException;
 import net.bluemind.sds.proxy.store.dummy.DummyBackingStore;
 
-public class SdsObjectStoreHandlerVerticle extends Verticle {
+public class SdsObjectStoreHandlerVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(SdsObjectStoreHandlerVerticle.class);
 	private static final Path config = new File("/etc/bm-sds-proxy/config.json").toPath();
@@ -230,7 +231,7 @@ public class SdsObjectStoreHandlerVerticle extends Verticle {
 
 	private <T extends SdsRequest, R extends SdsResponse> void registerForJsonSdsRequest(String address,
 			Class<T> reqType, UnsafeFunction<T, R> process) {
-		vertx.eventBus().registerHandler(address, (Message<JsonObject> msg) -> {
+		vertx.eventBus().consumer(address, (Message<JsonObject> msg) -> {
 			String jsonString = msg.body().encode();
 			try {
 				T sdsReq = JsMapper.get().readValue(jsonString, reqType);
@@ -246,7 +247,7 @@ public class SdsObjectStoreHandlerVerticle extends Verticle {
 
 	private <R extends SdsResponse> void registerForJsonSdsRequest(String address,
 			UnsafeFunction<JsonObject, R> process) {
-		vertx.eventBus().registerHandler(address, (Message<JsonObject> msg) -> {
+		vertx.eventBus().consumer(address, (Message<JsonObject> msg) -> {
 			try {
 				R sdsResp = process.apply(msg.body());
 				JsonObject jsResp = new JsonObject(JsMapper.get().writeValueAsString(sdsResp));

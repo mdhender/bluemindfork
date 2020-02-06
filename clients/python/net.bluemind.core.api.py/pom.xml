@@ -52,7 +52,8 @@
 						<apiName>net.bluemind.tag.api</apiName>
 						<apiName>net.bluemind.todolist.api</apiName>
 						<apiName>net.bluemind.user.api</apiName>
-                        <apiName>net.bluemind.externaluser.api</apiName>
+						<apiName>net.bluemind.externaluser.api</apiName>
+						<apiName>net.bluemind.attachment.api</apiName>
 					</apiNames>
 				</configuration>
 				<executions>

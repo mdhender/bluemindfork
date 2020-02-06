@@ -18,9 +18,8 @@
  */
 package net.bluemind.mailbox.service.internal;
 
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.mailbox.api.MailboxBusAddresses;
 
@@ -50,12 +49,11 @@ public class MailboxesEventProducer {
 
 	private void changed(String uid, String address) {
 		JsonObject body = new JsonObject();
-		body.putString("loginAtDomain", loginAtDomain);
-		JsonObject eventData = new JsonObject().putString("container", containerUid)
-				.putString("containerUid", containerUid).putString("itemUid", uid)
-				.putString("loginAtDomain", loginAtDomain);
+		body.put("loginAtDomain", loginAtDomain);
+		JsonObject eventData = new JsonObject().put("container", containerUid).put("containerUid", containerUid)
+				.put("itemUid", uid).put("loginAtDomain", loginAtDomain);
 		eventBus.publish(address, eventData);
-		eventData.putString("type", "mailboxacl");
+		eventData.put("type", "mailboxacl");
 		eventBus.publish(MailboxBusAddresses.getChangedEventAddress(containerUid), body);
 		eventBus.publish(MailboxBusAddresses.CHANGED, eventData);
 

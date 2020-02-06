@@ -21,22 +21,23 @@ package net.bluemind.core.rest.base;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.vertx.java.core.MultiMap;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.streams.ReadStream;
+import io.vertx.core.MultiMap;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.core.streams.ReadStream;
 
 public class RestRequest {
 	public Buffer body;
-	public ReadStream<?> bodyStream;
+	public ReadStream<Buffer> bodyStream;
 	public MultiMap params;
 	public String path;
 	public MultiMap headers;
-	public String method;
+	public HttpMethod method;
 	public List<String> remoteAddresses;
 	public String origin;
 
-	public RestRequest(String origin, List<String> remoteAddresses, String method, MultiMap headers, String path,
-			MultiMap params, Buffer body, ReadStream<?> bodyStream) {
+	public RestRequest(String origin, List<String> remoteAddresses, HttpMethod method, MultiMap headers, String path,
+			MultiMap params, Buffer body, ReadStream<Buffer> bodyStream) {
 		this.origin = origin;
 		this.remoteAddresses = remoteAddresses;
 		this.method = method;
@@ -53,11 +54,11 @@ public class RestRequest {
 				path, method, headers.toString(), params, remoteAddresses, origin);
 	}
 
-	public static RestRequest create(String remoteAddress, String method, MultiMap headers, String path,
-			MultiMap params, Buffer body, ReadStream<?> bodyStream) {
+	public static RestRequest create(String remoteAddress, HttpMethod method, MultiMap headers, String path,
+			MultiMap params, Buffer body, ReadStream<Buffer> bodyStream) {
 		// would it break if we replace this copy by wrapping into an immutable ?
 		MultiMap fastMultimapForHeaders = RestHeaders.newMultimap();
-		fastMultimapForHeaders.add(headers);
+		fastMultimapForHeaders.addAll(headers);
 
 		List<String> forwardedFor = new ArrayList<>(headers.getAll(RestHeaders.X_FORWARDED_FOR));
 		forwardedFor.add(remoteAddress);

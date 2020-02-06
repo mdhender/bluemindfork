@@ -25,10 +25,10 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<tycho-version>1.4.0</tycho-version>
-		<tycho-extras-version>1.4.0</tycho-extras-version>
-		<bm-plugins-version>1.0.356</bm-plugins-version>
-		<bm.metrics.agent>1.18.0</bm.metrics.agent>
+		<tycho-version>1.6.0</tycho-version>
+		<tycho-extras-version>1.6.0</tycho-extras-version>
+		<bm-plugins-version>1.0.358</bm-plugins-version>
+		<bm.metrics.agent>1.19.0</bm.metrics.agent>
 		<maven.test.failure.ignore>true</maven.test.failure.ignore>
 		<sonar.language>java</sonar.language>
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -43,7 +43,7 @@
 		<repository>
 			<id>bluemind-deps</id>
 			<layout>p2</layout>
-			<url>http://forge.blue-mind.net/staging/p2/dependencies/452/</url>
+			<url>http://forge.blue-mind.net/staging/p2/dependencies/461/</url>
 		</repository>
 		<repository>
 			<id>tigase</id>
@@ -217,6 +217,7 @@
 						<useUIThread>false</useUIThread>
 						<failIfNoTests>false</failIfNoTests>
 						<product>org.eclipse.platform.ide</product>
+						<forkedProcessTimeoutInSeconds>1800</forkedProcessTimeoutInSeconds>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -233,6 +234,7 @@
 								</includes>
 								<testClassesDirectory>${basedir}/target/classes</testClassesDirectory>
 								<argLine>${tycho.testArgLine}</argLine>
+								<forkedProcessTimeoutInSeconds>1800</forkedProcessTimeoutInSeconds>
 							</configuration>
 							<goals>
 								<goal>test</goal>

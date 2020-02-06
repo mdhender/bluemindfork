@@ -22,7 +22,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,6 +37,7 @@ public class UserColumns {
 	public static final Columns cols = Columns.create() //
 			.col("login") //
 			.col("password") //
+			.col("password_lastchange") //
 			.col("routing", "t_domain_routing") //
 			.col("hidden") //
 			.col("archived") //
@@ -53,6 +56,8 @@ public class UserColumns {
 					throws SQLException {
 				statement.setString(index++, u.login);
 				statement.setString(index++, u.password);
+				statement.setTimestamp(index++,
+						u.passwordLastChange == null ? null : new Timestamp(u.passwordLastChange.getTime()));
 				statement.setString(index++, u.routing.name());
 				statement.setBoolean(index++, u.hidden);
 				statement.setBoolean(index++, u.archived);
@@ -78,6 +83,10 @@ public class UserColumns {
 			public int populate(ResultSet rs, int index, User value) throws SQLException {
 				value.login = rs.getString(index++);
 				value.password = rs.getString(index++);
+
+				Timestamp passwordLastChange = rs.getTimestamp(index++);
+				value.passwordLastChange = passwordLastChange == null ? null : new Date(passwordLastChange.getTime());
+
 				value.routing = Mailbox.Routing.valueOf(rs.getString(index++));
 				value.hidden = rs.getBoolean(index++);
 				value.archived = rs.getBoolean(index++);

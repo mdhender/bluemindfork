@@ -15,8 +15,7 @@ Require-Bundle: net.bluemind.ui.adminconsole.base;bundle-version="4.1.0";visibil
  net.bluemind.webmodule;bundle-version="4.1.0",
  net.bluemind.filehosting.api.gwt;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.system.api.gwt;visibility:=reexport,
- net.bluemind.ui.gwtcommon.forms;visibility:=reexport,
- com.ning.async-http-client
+ net.bluemind.ui.gwtcommon.forms;visibility:=reexport
 Export-Package: net.bluemind.ui.adminconsole.filehosting.settings
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.ui.adminconsole.filehosting.settings

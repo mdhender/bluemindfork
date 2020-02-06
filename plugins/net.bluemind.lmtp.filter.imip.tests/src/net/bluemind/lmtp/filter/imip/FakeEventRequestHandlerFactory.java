@@ -19,13 +19,14 @@
 package net.bluemind.lmtp.filter.imip;
 
 import net.bluemind.core.sendmail.ISendmail;
+import net.bluemind.core.sendmail.testhelper.FakeSendmail;
 
 public class FakeEventRequestHandlerFactory {
-
 	public EventRequestHandler create() {
 		return create(new FakeSendmail());
 	}
-	public EventRequestHandler create(ISendmail mailer)  {
+
+	public EventRequestHandler create(ISendmail mailer) {
 		return new EventRequestHandler(mailer);
 	}
 }

@@ -22,8 +22,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.replication.client.SyncClient;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.system.api.SystemState;
@@ -33,7 +32,7 @@ public class SyncServerHelper {
 	public static void waitFor() throws InterruptedException {
 
 		VertxPlatform.eventBus().publish(SystemState.BROADCAST,
-				new JsonObject().putString("operation", SystemState.CORE_STATE_RUNNING.operation()));
+				new JsonObject().put("operation", SystemState.CORE_STATE_RUNNING.operation()));
 
 		CountDownLatch latch = new CountDownLatch(1);
 		check(latch);

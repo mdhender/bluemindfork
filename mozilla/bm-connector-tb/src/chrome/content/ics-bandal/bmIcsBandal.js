@@ -108,24 +108,25 @@ var gBMIcsBandal = {
         let f = dispMessage.folder;
         if (!f) return;
         gBMIcsBandal._logger.debug("f.URI:" + f.URI);
-        let folderPart = "\"" + f.URI.split("/")[3] + "/\"";
-        let imapFolder;
+        let imapFolder = null;
+        let otherLogin = null;
         try {
             imapFolder = f.QueryInterface(Components.interfaces.nsIMsgImapMailFolder);
         } catch(e) {
             this._logger.debug("cannot query interface to IMAP folder: " + f.URI + ", " + e);
-            return;
         }
-        let inComServer = imapFolder.imapIncomingServer;
-        let otherLogin = null;
-        if (folderPart == inComServer.publicNamespace) {
-            gBMIcsBandal._logger.debug("in a shared public folder -> do not display ics bandal");
-            return;
-        } else {
-            if (folderPart == inComServer.otherUsersNamespace) {
-                //imap://nico%40test.lan@edge.test.lan/Autres%20utilisateurs/mehdi
-                otherLogin = f.folderURL.split("/")[4];
-                gBMIcsBandal._logger.debug("in a shared folder of user: " + otherLogin);
+        if (imapFolder) {
+            let folderPart = "\"" + f.URI.split("/")[3] + "/\"";
+            let inComServer = imapFolder.imapIncomingServer;
+            if (folderPart == inComServer.publicNamespace) {
+                gBMIcsBandal._logger.debug("in a shared public folder -> do not display ics bandal");
+                return;
+            } else {
+                if (folderPart == inComServer.otherUsersNamespace) {
+                    //imap://nico%40test.lan@edge.test.lan/Autres%20utilisateurs/mehdi
+                    otherLogin = f.folderURL.split("/")[4];
+                    gBMIcsBandal._logger.debug("in a shared folder of user: " + otherLogin);
+                }
             }
         }
         MsgHdrToMimeMessage(dispMessage, null, function(aMsgHdr, aMimeMsg) {
@@ -451,7 +452,7 @@ var gBMIcsBandal = {
 }
 
 gBMIcsBandal.init();
-if (document.getElementById("msgHeaderView") && document.getElementById("msgHeaderView")._loaded) {
+if (document.getElementById("msgHeaderView") && document.getElementById("msgHeaderView").loaded) {
     gBMIcsBandal.onLoad();
 } else {
     window.addEventListener("messagepane-loaded", gBMIcsBandal.onLoad, true);

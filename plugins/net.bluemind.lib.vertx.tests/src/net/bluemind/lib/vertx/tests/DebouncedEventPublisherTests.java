@@ -27,10 +27,10 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.lib.vertx.utils.DebouncedEventPublisher;
 
@@ -81,7 +81,7 @@ public class DebouncedEventPublisherTests {
 		final String address = "my.address";
 		final String containerUid = "my-container-uid";
 
-		VertxPlatform.eventBus().registerHandler(address, new Handler<Message<JsonObject>>() {
+		VertxPlatform.eventBus().consumer(address, new Handler<Message<JsonObject>>() {
 
 			@Override
 			public void handle(Message<JsonObject> event) {
@@ -94,7 +94,7 @@ public class DebouncedEventPublisherTests {
 
 		for (int i = 0; i < maxSuccesiveCalls; i++) {
 			final JsonObject message = new JsonObject();
-			message.putString(myPropKey, myPropValuePrefix + i);
+			message.put(myPropKey, myPropValuePrefix + i);
 			debouncedEventPublisher.publish(address, message, containerUid);
 			try {
 				Thread.sleep(delayBetweenEvents);

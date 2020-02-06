@@ -21,7 +21,6 @@ package net.bluemind.mailmessage.api;
 import java.util.List;
 
 import net.bluemind.mailflow.common.api.Recipient;
-import net.bluemind.mailmessage.api.MessageContext;
 
 public interface IMailTipEvaluation {
 

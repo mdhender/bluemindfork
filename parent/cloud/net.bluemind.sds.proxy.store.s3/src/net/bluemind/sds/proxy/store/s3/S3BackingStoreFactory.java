@@ -19,11 +19,11 @@ package net.bluemind.sds.proxy.store.s3;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.json.JsonObject;
 
 import com.netflix.spectator.api.Registry;
 
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.aws.s3.utils.S3Configuration;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;

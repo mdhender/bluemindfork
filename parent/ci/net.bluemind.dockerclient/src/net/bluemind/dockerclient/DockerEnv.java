@@ -29,12 +29,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClient;
+import org.asynchttpclient.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +47,21 @@ public class DockerEnv {
 	private static List<Image> images;
 	private static Map<String, String> imageIp = new HashMap<String, String>();
 
-	private static CloseableHttpClient httpClient;
+	private static AsyncHttpClient httpClient;
+
+	private static class HttpHost {
+		String host;
+		int port;
+
+		public HttpHost(String h, int p) {
+			this.host = h;
+			this.port = p;
+		}
+
+		public String path(String p) {
+			return "http://" + host + ":" + port + p;
+		}
+	}
 
 	private static HttpHost dockerHost;
 
@@ -75,7 +86,7 @@ public class DockerEnv {
 		String home = System.getProperty("user.home");
 		File f = new File(home + "/.docker.io.properties");
 
-		httpClient = HttpClientBuilder.create().build();
+		httpClient = new DefaultAsyncHttpClient();
 		URL dockerUrl = new URL("http://localhost:4243");
 		if (f.exists()) {
 			logger.info("load docker conf from ~/.docker.io.properties");
@@ -115,14 +126,12 @@ public class DockerEnv {
 		name = name + "-junit";
 
 		try {
-			CloseableHttpResponse resp = httpClient.execute(dockerHost,
-					RequestBuilder.get().setUri("/containers/" + name + "/json").build());
-			HttpEntity e = resp.getEntity();
+			Response resp = httpClient.prepareGet(dockerHost.path("/containers/" + name + "/json")).execute().get();
 			logger.debug("containers/{}/json", name);
 
 			// NetworkSettings
 			// IPAddress
-			JsonNode c = mapper.readTree(e.getContent());
+			JsonNode c = mapper.readTree(resp.getResponseBody());
 			logger.debug("{}", c);
 			if (c.get("NetworkSettings") == null) {
 				return null;

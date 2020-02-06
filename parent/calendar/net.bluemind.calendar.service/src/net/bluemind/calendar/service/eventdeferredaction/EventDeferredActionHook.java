@@ -59,12 +59,14 @@ import net.bluemind.directory.api.IDirectory;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm.Action;
+import net.bluemind.user.api.IUserSettings;
 
 public class EventDeferredActionHook implements ICalendarHook {
 
 	@Override
 	public void onEventCreated(VEventMessage message) {
 		DirEntry dirEntry = getOwnerDirEntry(message.container.domainUid, message.container.owner);
+
 		if (dirEntry.kind != Kind.USER) {
 			return;
 		}
@@ -89,15 +91,29 @@ public class EventDeferredActionHook implements ICalendarHook {
 	}
 
 	private void addTrigger(VAlarm valarm, VEvent occurrence, VEventMessage message) {
-		Optional<VEvent> currentOccurrence = Optional.of(occurrence);
-		do {
-			currentOccurrence = storeTrigger(valarm, currentOccurrence.get(), message);
-		} while (currentOccurrence.isPresent());
+		IUserSettings userSettingsService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IUserSettings.class, message.container.domainUid);
+		Optional<String> userTimezone = Optional
+				.ofNullable(userSettingsService.get(message.container.owner).get("timezone"));
+
+		Optional<VEvent> currentOccurrence = getFirstOccurence(occurrence);
+		while (currentOccurrence.isPresent()) {
+			currentOccurrence = storeTrigger(valarm, currentOccurrence.get(), message, userTimezone);
+		}
 	}
 
-	private Optional<VEvent> storeTrigger(VAlarm valarm, VEvent occurrence, VEventMessage message) {
+	private Optional<VEvent> getFirstOccurence(VEvent occurrence) {
+		if (occurrence.rrule == null || !occurrence.exdate.contains(occurrence.dtstart)) {
+			return Optional.of(occurrence);
+		} else {
+			return OccurrenceHelper.getNextOccurrence(occurrence.dtstart, occurrence).map(occ -> (VEvent) occ);
+		}
+	}
+
+	private Optional<VEvent> storeTrigger(VAlarm valarm, VEvent occurrence, VEventMessage message,
+			Optional<String> userTimezone) {
 		if (notInPast(occurrence.dtend)) {
-			Date trigger = calculateAlarmDate(valarm, occurrence.dtstart);
+			Date trigger = calculateAlarmDate(valarm, occurrence.dtstart, userTimezone);
 			if (!trigger.before(new Date())) {
 				IDeferredAction service = getService(valarm, message);
 				String reference = EventDeferredAction.getReference(message.container.uid, message.itemUid);
@@ -223,8 +239,10 @@ public class EventDeferredActionHook implements ICalendarHook {
 		return !asZonedDt.isBefore(ZonedDateTime.now());
 	}
 
-	private Date calculateAlarmDate(VAlarm valarm, BmDateTime eventDate) {
-		ZonedDateTime event = new BmDateTimeWrapper(eventDate).toDateTime();
+	private Date calculateAlarmDate(VAlarm valarm, BmDateTime eventDate, Optional<String> userTimezone) {
+		ZonedDateTime event = eventDate.precision == Precision.Date && userTimezone.isPresent()
+				? new BmDateTimeWrapper(eventDate).toDateTime(userTimezone.get())
+				: new BmDateTimeWrapper(eventDate).toDateTime();
 		ZonedDateTime alarm = event.plusSeconds(valarm.trigger);
 		return Date.from(alarm.toInstant());
 	}

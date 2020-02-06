@@ -1,7 +1,6 @@
 package net.bluemind.dav.server;
 
-import org.vertx.java.platform.Verticle;
-
+import io.vertx.core.Verticle;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
 public final class ProtoExecVerticleFactory implements IVerticleFactory {

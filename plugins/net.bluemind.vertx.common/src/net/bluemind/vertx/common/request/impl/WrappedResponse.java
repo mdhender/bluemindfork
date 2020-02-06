@@ -27,17 +27,21 @@ import java.util.concurrent.atomic.LongAdder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.MultiMap;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpServerResponse;
 
 import com.google.common.base.Optional;
 import com.netflix.spectator.api.DistributionSummary;
 import com.netflix.spectator.api.Registry;
 import com.netflix.spectator.api.Timer;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.MultiMap;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.Cookie;
+import io.vertx.core.http.HttpFrame;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.http.StreamPriority;
 import net.bluemind.metrics.registry.IdFactory;
 
 final class WrappedResponse implements HttpServerResponse {
@@ -234,40 +238,148 @@ final class WrappedResponse implements HttpServerResponse {
 		return this;
 	}
 
-	public HttpServerResponse sendFile(String filename, String notFoundFile) {
-		File toSend = new File(filename);
-		if (toSend.exists()) {
-			respSize.add(toSend.length());
-		} else {
-			toSend = new File(notFoundFile);
-			if (toSend.exists()) {
-				respSize.add(toSend.length());
-			}
-		}
-		impl.sendFile(filename, notFoundFile);
-		return this;
-	}
-
-	public HttpServerResponse sendFile(String filename, Handler<AsyncResult<Void>> resultHandler) {
-		File toSend = new File(filename);
-		if (toSend.exists()) {
-			respSize.add(toSend.length());
-		}
-		impl.sendFile(filename, resultHandler);
-		return this;
-	}
-
-	public HttpServerResponse sendFile(String filename, String notFoundFile, Handler<AsyncResult<Void>> resultHandler) {
-		impl.sendFile(filename, notFoundFile, resultHandler);
-		return this;
-	}
-
 	public void close() {
 		impl.close();
 	}
 
 	public String getLogAttribute(String k) {
 		return logAttributes.get(k);
+	}
+
+	public HttpServerResponse write(Buffer data, Handler<AsyncResult<Void>> handler) {
+		return impl.write(data, handler);
+	}
+
+	public void end(Handler<AsyncResult<Void>> handler) {
+		impl.end(handler);
+	}
+
+	public HttpServerResponse endHandler(Handler<Void> handler) {
+		return impl.endHandler(handler);
+	}
+
+	public HttpServerResponse write(String chunk, String enc, Handler<AsyncResult<Void>> handler) {
+		return impl.write(chunk, enc, handler);
+	}
+
+	public HttpServerResponse write(String chunk, Handler<AsyncResult<Void>> handler) {
+		return impl.write(chunk, handler);
+	}
+
+	public HttpServerResponse writeContinue() {
+		return impl.writeContinue();
+	}
+
+	public void end(String chunk, Handler<AsyncResult<Void>> handler) {
+		impl.end(chunk, handler);
+	}
+
+	public void end(String chunk, String enc, Handler<AsyncResult<Void>> handler) {
+		impl.end(chunk, enc, handler);
+	}
+
+	public void end(Buffer chunk, Handler<AsyncResult<Void>> handler) {
+		impl.end(chunk, handler);
+	}
+
+	public HttpServerResponse sendFile(String filename, long offset) {
+		return impl.sendFile(filename, offset);
+	}
+
+	public HttpServerResponse sendFile(String filename, long offset, long length) {
+		return impl.sendFile(filename, offset, length);
+	}
+
+	public HttpServerResponse sendFile(String filename, Handler<AsyncResult<Void>> resultHandler) {
+		return impl.sendFile(filename, resultHandler);
+	}
+
+	public HttpServerResponse sendFile(String filename, long offset, Handler<AsyncResult<Void>> resultHandler) {
+		return impl.sendFile(filename, offset, resultHandler);
+	}
+
+	public HttpServerResponse sendFile(String filename, long offset, long length,
+			Handler<AsyncResult<Void>> resultHandler) {
+		return impl.sendFile(filename, offset, length, resultHandler);
+	}
+
+	public boolean ended() {
+		return impl.ended();
+	}
+
+	public boolean closed() {
+		return impl.closed();
+	}
+
+	public boolean headWritten() {
+		return impl.headWritten();
+	}
+
+	public HttpServerResponse headersEndHandler(Handler<Void> handler) {
+		return impl.headersEndHandler(handler);
+	}
+
+	public HttpServerResponse bodyEndHandler(Handler<Void> handler) {
+		return impl.bodyEndHandler(handler);
+	}
+
+	public long bytesWritten() {
+		return impl.bytesWritten();
+	}
+
+	public int streamId() {
+		return impl.streamId();
+	}
+
+	public HttpServerResponse push(HttpMethod method, String host, String path,
+			Handler<AsyncResult<HttpServerResponse>> handler) {
+		return impl.push(method, host, path, handler);
+	}
+
+	public HttpServerResponse push(HttpMethod method, String path, MultiMap headers,
+			Handler<AsyncResult<HttpServerResponse>> handler) {
+		return impl.push(method, path, headers, handler);
+	}
+
+	public HttpServerResponse push(HttpMethod method, String path, Handler<AsyncResult<HttpServerResponse>> handler) {
+		return impl.push(method, path, handler);
+	}
+
+	public HttpServerResponse push(HttpMethod method, String host, String path, MultiMap headers,
+			Handler<AsyncResult<HttpServerResponse>> handler) {
+		return impl.push(method, host, path, headers, handler);
+	}
+
+	public void reset() {
+		impl.reset();
+	}
+
+	public void reset(long code) {
+		impl.reset(code);
+	}
+
+	public HttpServerResponse writeCustomFrame(int type, int flags, Buffer payload) {
+		return impl.writeCustomFrame(type, flags, payload);
+	}
+
+	public HttpServerResponse writeCustomFrame(HttpFrame frame) {
+		return impl.writeCustomFrame(frame);
+	}
+
+	public HttpServerResponse setStreamPriority(StreamPriority streamPriority) {
+		return impl.setStreamPriority(streamPriority);
+	}
+
+	public HttpServerResponse addCookie(Cookie cookie) {
+		return impl.addCookie(cookie);
+	}
+
+	public Cookie removeCookie(String name) {
+		return impl.removeCookie(name);
+	}
+
+	public Cookie removeCookie(String name, boolean invalidate) {
+		return impl.removeCookie(name, invalidate);
 	}
 
 }

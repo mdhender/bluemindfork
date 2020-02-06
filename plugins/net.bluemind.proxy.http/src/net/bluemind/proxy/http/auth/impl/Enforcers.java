@@ -20,8 +20,7 @@ package net.bluemind.proxy.http.auth.impl;
 
 import java.util.List;
 
-import org.vertx.java.core.Vertx;
-
+import io.vertx.core.Vertx;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.proxy.http.NeedVertx;
 import net.bluemind.proxy.http.auth.api.IAuthEnforcer;

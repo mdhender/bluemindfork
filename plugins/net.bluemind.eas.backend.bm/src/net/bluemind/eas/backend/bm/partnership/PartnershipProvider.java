@@ -24,7 +24,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
 
 import com.google.common.base.Splitter;
 import com.google.common.cache.Cache;
@@ -32,6 +31,7 @@ import com.google.common.cache.CacheBuilder;
 import com.netflix.spectator.api.Registry;
 import com.netflix.spectator.api.patterns.PolledMeter;
 
+import io.vertx.core.Handler;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;

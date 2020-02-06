@@ -27,11 +27,11 @@ import java.util.Collection;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.util.concurrent.SettableFuture;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
@@ -61,17 +61,16 @@ public class JobLockingTests {
 	public void before() throws Exception {
 
 		JdbcTestHelper.getInstance().beforeTest();
-		
 
-		SecurityContext admin = new SecurityContext("testUser", "test", Arrays.<String> asList(),
-				Arrays.<String> asList(SecurityContext.ROLE_ADMIN), "bm.lan");
+		SecurityContext admin = new SecurityContext("testUser", "test", Arrays.<String>asList(),
+				Arrays.<String>asList(SecurityContext.ROLE_ADMIN), "bm.lan");
 
 		PopulateHelper.initGlobalVirt();
 
 		PopulateHelper.createTestDomain("bm.lan");
 		PopulateHelper.domainAdmin("bm.lan", admin.getSubject());
 
-		final SettableFuture<Void> future = SettableFuture.<Void> create();
+		final SettableFuture<Void> future = SettableFuture.<Void>create();
 		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
 
 			@Override

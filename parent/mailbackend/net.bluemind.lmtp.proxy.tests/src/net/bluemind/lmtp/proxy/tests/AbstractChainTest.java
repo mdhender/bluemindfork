@@ -37,10 +37,10 @@ import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.buffer.Buffer;
 
 import com.google.common.io.ByteStreams;
 
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.lmtp.impl.CoreStateListener;
 import net.bluemind.lmtp.testhelper.client.Request;
 import net.bluemind.lmtp.testhelper.client.Response;
@@ -197,7 +197,7 @@ public abstract class AbstractChainTest {
 				return client.rcptTo("recip@bm.lan");
 			}).thenCompose(rcptResp -> {
 				checkCode(rcptResp, 250);
-				return client.data(1, new Buffer("From: tcataldo@gmail.com\r\n"));
+				return client.data(1, Buffer.buffer("From: tcataldo@gmail.com\r\n"));
 			}).thenCompose(dataResp -> {
 				return checkCode(dataResp, 250);
 			});
@@ -219,7 +219,7 @@ public abstract class AbstractChainTest {
 				return client.rcptTo("recip2@bm.lan");
 			}).thenCompose(rcptResp -> {
 				checkCode(rcptResp, 250);
-				return client.data(2, new Buffer("From: tcataldo@gmail.com\r\n"));
+				return client.data(2, Buffer.buffer("From: tcataldo@gmail.com\r\n"));
 			}).thenCompose(dataResp -> {
 				assertEquals(2, dataResp.length);
 				return checkCode(dataResp, 250);
@@ -242,7 +242,7 @@ public abstract class AbstractChainTest {
 				return client.rcptTo("overq@bm.lan");
 			}).thenCompose(rcptResp -> {
 				checkCode(rcptResp, 452);
-				return client.data(1, new Buffer("From: tcataldo@gmail.com\r\n"));
+				return client.data(1, Buffer.buffer("From: tcataldo@gmail.com\r\n"));
 			}).thenCompose(dataResp -> {
 				return checkCode(dataResp, 250);
 			});
@@ -261,7 +261,7 @@ public abstract class AbstractChainTest {
 				return client.rcptTo("overq@bm.lan");
 			}).thenCompose(rcptResp -> {
 				checkCode(rcptResp, 452);
-				return client.data(0, new Buffer("From: tcataldo@gmail.com\r\n"));
+				return client.data(0, Buffer.buffer("From: tcataldo@gmail.com\r\n"));
 			}).thenCompose(dataResp -> {
 				return checkCode(dataResp, 503);
 			});
@@ -269,7 +269,7 @@ public abstract class AbstractChainTest {
 	}
 
 	protected Buffer resourceBuffer(String path) {
-		Buffer ret = new Buffer();
+		Buffer ret = Buffer.buffer();
 		try (InputStream in = resourceStream(path)) {
 			Objects.requireNonNull(in, "Can't open resource with path " + path);
 			byte[] data = ByteStreams.toByteArray(in);

@@ -27,12 +27,12 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
 import org.junit.Test;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonElement;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.io.CharStreams;
 
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import net.bluemind.backend.cyrus.replication.protocol.parsing.JsonElement;
 import net.bluemind.backend.cyrus.replication.protocol.parsing.ParenObjectParser;
 
 public class ParenObjectParserTests {
@@ -97,7 +97,7 @@ public class ParenObjectParserTests {
 		assertTrue(parsed.isObject());
 		JsonObject js = parsed.asObject();
 		System.out.println("parsed:\n" + parsed.asObject().encodePrettily());
-		JsonArray record = js.getArray("RECORD");
+		JsonArray record = js.getJsonArray("RECORD");
 		assertEquals(5, record.size());
 	}
 
@@ -138,8 +138,8 @@ public class ParenObjectParserTests {
 		assertNotNull(parsed);
 		assertTrue(parsed.isObject());
 		JsonObject obj = parsed.asObject();
-		assertEquals(2, obj.getArray("john").size());
-		assertEquals("bar", obj.getObject("key").getString("foo"));
+		assertEquals(2, obj.getJsonArray("john").size());
+		assertEquals("bar", obj.getJsonObject("key").getString("foo"));
 		System.out.println("parsed:\n" + obj.encodePrettily());
 	}
 

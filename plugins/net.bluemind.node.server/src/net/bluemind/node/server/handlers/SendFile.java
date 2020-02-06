@@ -22,9 +22,10 @@ import java.io.File;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
+
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 
 public class SendFile implements Handler<HttpServerRequest> {
 

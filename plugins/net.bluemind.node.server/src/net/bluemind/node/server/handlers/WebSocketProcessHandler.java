@@ -19,9 +19,10 @@ package net.bluemind.node.server.handlers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.http.ServerWebSocket;
+
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.http.ServerWebSocket;
 
 public class WebSocketProcessHandler implements Handler<ServerWebSocket> {
 
@@ -43,6 +44,7 @@ public class WebSocketProcessHandler implements Handler<ServerWebSocket> {
 			logger.error(t.getMessage(), t);
 		});
 		logger.info("Accepted websocket connection {}", ws);
+
 		ws.frameHandler(new SocketFrameHandler(ws, vertx));
 	}
 

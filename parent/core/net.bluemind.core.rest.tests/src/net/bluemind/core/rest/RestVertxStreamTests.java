@@ -20,11 +20,11 @@ package net.bluemind.core.rest;
 
 import org.junit.After;
 import org.junit.Before;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.util.concurrent.SettableFuture;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.tests.services.IRestStreamTestService;
 import net.bluemind.core.rest.tests.services.IRestStreamTestServiceAsync;
@@ -38,7 +38,7 @@ public class RestVertxStreamTests extends RestStreamServiceTests {
 	public void setup() throws Exception {
 		super.before();
 
-		final SettableFuture<Void> future = SettableFuture.<Void> create();
+		final SettableFuture<Void> future = SettableFuture.<Void>create();
 		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
 
 			@Override

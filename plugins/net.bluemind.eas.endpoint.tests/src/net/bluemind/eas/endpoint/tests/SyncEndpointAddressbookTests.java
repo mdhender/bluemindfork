@@ -21,11 +21,11 @@ package net.bluemind.eas.endpoint.tests;
 import java.io.IOException;
 import java.util.UUID;
 
-import org.vertx.java.core.buffer.Buffer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.authentication.api.IAuthentication;

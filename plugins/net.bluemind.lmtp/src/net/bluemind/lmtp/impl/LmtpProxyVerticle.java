@@ -24,20 +24,22 @@ import java.nio.charset.StandardCharsets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Future;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.net.NetClient;
-import org.vertx.java.core.net.NetServer;
-import org.vertx.java.core.net.NetSocket;
-import org.vertx.java.platform.Verticle;
 
 import com.google.common.io.Files;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
+import io.vertx.core.Handler;
+import io.vertx.core.net.NetClient;
+import io.vertx.core.net.NetClientOptions;
+import io.vertx.core.net.NetServer;
+import io.vertx.core.net.NetServerOptions;
+import io.vertx.core.net.NetSocket;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.system.api.SystemState;
 
-public class LmtpProxyVerticle extends Verticle {
+public class LmtpProxyVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(LmtpProxyVerticle.class);
 
@@ -84,19 +86,11 @@ public class LmtpProxyVerticle extends Verticle {
 		try {
 			config = new LmtpConfig();
 
-			netClient = vertx.createNetClient();
+			netClient = vertx.createNetClient(new NetClientOptions().setTcpNoDelay(true).setReuseAddress(true)
+					.setUsePooledBuffers(true).setTcpKeepAlive(true));
 
-			netClient.setTCPNoDelay(true);
-			netClient.setTCPKeepAlive(true);
-			netClient.setUsePooledBuffers(true);
-			netClient.setReuseAddress(true);
-
-			NetServer srv = vertx.createNetServer();
-			srv.setAcceptBacklog(4096);
-			srv.setTCPNoDelay(true);
-			srv.setTCPKeepAlive(true);
-			srv.setUsePooledBuffers(true);
-			srv.setReuseAddress(true);
+			NetServer srv = vertx.createNetServer(new NetServerOptions().setTcpNoDelay(true).setReuseAddress(true)
+					.setUsePooledBuffers(true).setTcpKeepAlive(true).setAcceptBacklog(4096));
 
 			srv.connectHandler(onConnect());
 
@@ -148,7 +142,7 @@ public class LmtpProxyVerticle extends Verticle {
 				if (event.succeeded()) {
 					logger.debug("connected to {}", LMTP_HOST);
 					NetSocket backend = event.result();
-					LmtpSessionProxy proxy = new LmtpSessionProxy(MetricsRegistry.get(), getVertx().eventBus(), socket,
+					LmtpSessionProxy proxy = new LmtpSessionProxy(MetricsRegistry.get(), vertx.eventBus(), socket,
 							backend, config);
 
 					proxy.start();
@@ -170,9 +164,10 @@ public class LmtpProxyVerticle extends Verticle {
 			public void handle(AsyncResult<NetServer> event) {
 				logger.info("listen, success: " + event.succeeded());
 				if (event.succeeded()) {
-					start.setResult(null);
+					start.complete(null);
+
 				} else {
-					start.setFailure(event.cause());
+					start.fail(event.cause());
 				}
 			}
 		};

@@ -18,12 +18,10 @@
  */
 package net.bluemind.lmtp.impl.busmessages;
 
-import org.vertx.java.core.json.JsonObject;
-
 import io.netty.buffer.ByteBuf;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.lmtp.backend.LmtpEnvelope;
 
-@SuppressWarnings("serial")
 public class MailMessage extends JsonObject {
 
 	private LmtpEnvelope envelope;

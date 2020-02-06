@@ -20,11 +20,12 @@ package net.bluemind.eas.client.commands;
 
 import java.io.InputStream;
 
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.BoundRequestBuilder;
+import org.asynchttpclient.ListenableFuture;
+import org.asynchttpclient.Response;
+
 import com.google.common.io.ByteStreams;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClient.BoundRequestBuilder;
-import com.ning.http.client.ListenableFuture;
-import com.ning.http.client.Response;
 
 import net.bluemind.eas.client.AccountInfos;
 import net.bluemind.eas.client.IEasCommand;
@@ -33,18 +34,15 @@ import net.bluemind.eas.client.OPClient;
 public class Autodiscover implements IEasCommand<Void> {
 
 	@Override
-	public Void run(AccountInfos ai, OPClient opc, AsyncHttpClient hc)
-			throws Exception {
+	public Void run(AccountInfos ai, OPClient opc, AsyncHttpClient hc) throws Exception {
 
-		BoundRequestBuilder om = hc.preparePost(ai.getUrl() + "?User="
-				+ ai.getLogin() + "&DeviceId=" + ai.getDevId() + "&DeviceType="
-				+ ai.getDevType());
+		BoundRequestBuilder om = hc.preparePost(ai.getUrl() + "?User=" + ai.getLogin() + "&DeviceId=" + ai.getDevId()
+				+ "&DeviceType=" + ai.getDevType());
 		om.setHeader("User-Agent", ai.getUserAgent());
 		om.setHeader("Authorization", ai.authValue());
 		om.setHeader("Content-Type", "text/xml");
 
-		InputStream is = Autodiscover.class.getClassLoader()
-				.getResourceAsStream("data/autodiscover.xml");
+		InputStream is = Autodiscover.class.getClassLoader().getResourceAsStream("data/autodiscover.xml");
 		String tpl = new String(ByteStreams.toByteArray(is));
 		tpl = tpl.replace("${email}", ai.getLogin());
 		System.out.println(tpl);

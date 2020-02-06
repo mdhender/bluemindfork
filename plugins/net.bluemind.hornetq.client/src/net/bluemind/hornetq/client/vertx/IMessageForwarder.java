@@ -1,7 +1,6 @@
 package net.bluemind.hornetq.client.vertx;
 
-import org.vertx.java.core.Vertx;
-
+import io.vertx.core.Vertx;
 import net.bluemind.hornetq.client.OOPMessage;
 
 /**

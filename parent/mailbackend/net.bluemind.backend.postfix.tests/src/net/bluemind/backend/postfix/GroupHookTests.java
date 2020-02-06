@@ -23,12 +23,12 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.util.concurrent.SettableFuture;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.tests.vertx.VertxEventChecker;
 import net.bluemind.group.hook.GroupMessage;

@@ -57,12 +57,12 @@ import org.elasticsearch.search.aggregations.metrics.sum.SumAggregationBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.json.JsonObject;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.netflix.spectator.api.Registry;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MailboxFolderSearchQuery;
 import net.bluemind.backend.mail.api.MessageSearchResult;
@@ -426,7 +426,7 @@ public class MailIndexService implements IMailIndexService {
 		 */
 		String index = getUserAliasIndex(alias, getIndexClient());
 		logger.info("Cleaning up parent-child hierarchie of alias/index {}/{}", alias, index);
-		VertxPlatform.eventBus().publish("index.mailspool.cleanup", new JsonObject().putString("index", index));
+		VertxPlatform.eventBus().publish("index.mailspool.cleanup", new JsonObject().put("index", index));
 	}
 
 	private String getUserAliasIndex(String alias, Client client) {

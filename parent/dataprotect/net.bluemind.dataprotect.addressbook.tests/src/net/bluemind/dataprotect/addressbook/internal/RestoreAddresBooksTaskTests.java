@@ -32,16 +32,16 @@ import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
-import net.bluemind.addressbook.api.IAddressBookUids;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.addressbook.api.AddressBookDescriptor;
 import net.bluemind.addressbook.api.IAddressBook;
+import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.addressbook.api.IAddressBooksMgmt;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.core.api.fault.ServerFault;
@@ -223,8 +223,7 @@ public class RestoreAddresBooksTaskTests {
 
 		new RestoreBooksTask(latestGen, restorable).run(new TestMonitor());
 
-		ab = testContext.provider().instance(IAddressBook.class,
-				IAddressBookUids.defaultUserAddressbook(changUid));
+		ab = testContext.provider().instance(IAddressBook.class, IAddressBookUids.defaultUserAddressbook(changUid));
 		assertEquals(ImmutableSet.of("test1", "test2", "test3"), ImmutableSet.copyOf(ab.allUids()));
 	}
 

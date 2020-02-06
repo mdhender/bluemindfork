@@ -17,9 +17,8 @@
   */
 package net.bluemind.ui.dynresources;
 
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.hornetq.client.OOPMessage;
 import net.bluemind.hornetq.client.Topic;
 import net.bluemind.hornetq.client.vertx.IMessageForwarder;
@@ -35,9 +34,9 @@ public class BmUiResourcesMessageForwarder implements IMessageForwarder {
 	public void forward(Vertx vertx, OOPMessage message) {
 		JsonObject msg = new JsonObject();
 
-		msg.putString("operation", message.getStringProperty("operation"));
-		msg.putString("entity", message.getStringProperty("entity"));
-		msg.putString("version", message.getStringProperty("version"));
+		msg.put("operation", message.getStringProperty("operation"));
+		msg.put("entity", message.getStringProperty("entity"));
+		msg.put("version", message.getStringProperty("version"));
 
 		vertx.eventBus().publish(getTopic(), msg);
 	}

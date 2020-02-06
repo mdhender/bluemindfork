@@ -20,20 +20,21 @@ package net.bluemind.core.rest.http.internal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.streams.ReadStream;
 
-public class BufferedStream implements ReadStream<BufferedStream> {
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
+
+public class BufferedStream implements ReadStream<Buffer> {
 	private static final Logger logger = LoggerFactory.getLogger(BufferedStream.class);
 	private Handler<Void> endHandler;
 	private boolean pause;
 	private Handler<Buffer> dataHandler;
-	private Buffer buffer = new Buffer();
+	private Buffer buffer = Buffer.buffer();
 	private boolean end;
 
 	@Override
-	public BufferedStream dataHandler(Handler<Buffer> handler) {
+	public BufferedStream handler(Handler<Buffer> handler) {
 		this.dataHandler = handler;
 		logger.debug("datahadler drain");
 		drain();
@@ -61,7 +62,7 @@ public class BufferedStream implements ReadStream<BufferedStream> {
 	private synchronized void drain() {
 		if (!pause && dataHandler != null && buffer.length() > 0) {
 			Buffer oldBuffer = buffer;
-			buffer = new Buffer();
+			buffer = Buffer.buffer();
 			dataHandler.handle(oldBuffer);
 		}
 
@@ -91,6 +92,11 @@ public class BufferedStream implements ReadStream<BufferedStream> {
 		end = true;
 		logger.debug("endcall drain");
 		drain();
+	}
+
+	@Override
+	public ReadStream<Buffer> fetch(long amount) {
+		return this;
 	}
 
 }

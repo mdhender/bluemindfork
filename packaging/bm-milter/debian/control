@@ -6,6 +6,6 @@ Standards-Version: 3.9.1
 
 Package: bm-milter
 Architecture: amd64
-Depends: bm-jdk (= 8u232-bluemind31), bm-conf (= ${binary:Version})
+Depends: bm-jdk (= 8u242-bluemind32), bm-conf (= ${binary:Version})
 Description: BlueMind Milter
  BlueMind Milter filters

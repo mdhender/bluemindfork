@@ -21,13 +21,14 @@ import java.io.InputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpHeaders;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
 
 import com.google.common.io.ByteStreams;
+
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpHeaders;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 
 public class CustomStyleHandler implements Handler<HttpServerRequest> {
 	private static final Logger logger = LoggerFactory.getLogger(CustomStyleHandler.class);
@@ -58,7 +59,7 @@ public class CustomStyleHandler implements Handler<HttpServerRequest> {
 
 		response.setStatusCode(200);
 		// FIXME make buffer static
-		response.end(new Buffer(customCss));
+		response.end(Buffer.buffer(customCss));
 	}
 
 	private static byte[] loadCustomLogoCss() {

@@ -19,23 +19,24 @@ package net.bluemind.backend.mail.replica.service.internal;
 
 import java.util.concurrent.CompletableFuture;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.streams.Pump;
-import org.vertx.java.core.streams.ReadStream;
-import org.vertx.java.core.streams.WriteStream;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.Pump;
+import io.vertx.core.streams.ReadStream;
+import io.vertx.core.streams.WriteStream;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.rest.vertx.VertxStream;
+import net.bluemind.lib.vertx.Result;
 
 public class SyncStreamDownload {
 
 	private SyncStreamDownload() {
 	}
 
-	private static class TargetStream implements WriteStream<TargetStream> {
+	private static class TargetStream implements WriteStream<Buffer> {
 
 		public final ByteBuf out = Unpooled.buffer();
 
@@ -65,15 +66,32 @@ public class SyncStreamDownload {
 			return this;
 		}
 
+		@Override
+		public WriteStream<Buffer> write(Buffer data, Handler<AsyncResult<Void>> handler) {
+			write(data);
+			handler.handle(Result.success());
+			return this;
+		}
+
+		@Override
+		public void end() {
+			// yeah
+		}
+
+		@Override
+		public void end(Handler<AsyncResult<Void>> handler) {
+			handler.handle(Result.success());
+		}
+
 	}
 
 	public static CompletableFuture<ByteBuf> read(Stream s) {
 		CompletableFuture<ByteBuf> ret = new CompletableFuture<>();
 		TargetStream out = new TargetStream();
-		ReadStream<?> toRead = VertxStream.read(s);
-		toRead.exceptionHandler(t -> ret.completeExceptionally(t));
+		ReadStream<Buffer> toRead = VertxStream.read(s);
+		toRead.exceptionHandler(ret::completeExceptionally);
 		toRead.endHandler(v -> ret.complete(out.out));
-		Pump pump = Pump.createPump(toRead, out);
+		Pump pump = Pump.pump(toRead, out);
 		pump.start();
 		toRead.resume();
 		return ret;

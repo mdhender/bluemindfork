@@ -37,9 +37,9 @@ import java.util.TimeZone;
 import java.util.UUID;
 
 import org.junit.Test;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTime.Precision;

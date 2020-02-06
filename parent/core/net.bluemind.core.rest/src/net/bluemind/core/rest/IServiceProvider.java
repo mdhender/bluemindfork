@@ -29,11 +29,9 @@ public interface IServiceProvider {
 	/**
 	 * Instantiate a service
 	 * 
-	 * @param interfaceClass
-	 *            service interface
+	 * @param interfaceClass service interface
 	 * @return service instance
-	 * @throws ServerFault
-	 *             service instantiation failed
+	 * @throws ServerFault service instantiation failed
 	 */
 	public <T> T instance(Class<T> interfaceClass, String... params) throws ServerFault;
 

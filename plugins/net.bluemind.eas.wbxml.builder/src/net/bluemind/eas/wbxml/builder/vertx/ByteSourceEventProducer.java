@@ -27,14 +27,14 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.busmods.BusModBase;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
 import net.bluemind.eas.dto.base.DisposableByteSource;
 import net.bluemind.vertx.common.LocalJsonObject;
 
-public class ByteSourceEventProducer extends BusModBase {
+public class ByteSourceEventProducer extends AbstractVerticle {
 
 	public static final String REGISTER = "wbxml.bytesource.register";
 	public static final String NEXT_CHUNK = "wbxml.stream.next.chunk";
@@ -47,9 +47,8 @@ public class ByteSourceEventProducer extends BusModBase {
 
 	@Override
 	public void start() {
-		super.start();
 
-		eb.registerHandler(REGISTER, new Handler<Message<LocalJsonObject<DisposableByteSource>>>() {
+		vertx.eventBus().consumer(REGISTER, new Handler<Message<LocalJsonObject<DisposableByteSource>>>() {
 
 			@Override
 			public void handle(Message<LocalJsonObject<DisposableByteSource>> event) {
@@ -69,7 +68,7 @@ public class ByteSourceEventProducer extends BusModBase {
 			}
 		});
 
-		eb.registerHandler(NEXT_CHUNK, nextHandler);
+		vertx.eventBus().consumer(NEXT_CHUNK, nextHandler);
 
 	}
 

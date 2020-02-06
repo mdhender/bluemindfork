@@ -20,14 +20,15 @@ package net.bluemind.xivo.bridge.http.v1;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.eventbus.DeliveryOptions;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.hornetq.client.Topic;
 
 public class EventsDropboxHandler implements Handler<HttpServerRequest> {
@@ -57,23 +58,24 @@ public class EventsDropboxHandler implements Handler<HttpServerRequest> {
 				}
 
 				String domain = req.params().get("domain");
-				jso.putString("domain", domain);
+				jso.put("domain", domain);
 				if (logger.isDebugEnabled()) {
 					logger.debug("[{}] json: {}", Thread.currentThread().getName(), jso.encodePrettily());
 				}
 
-				eb.sendWithTimeout(Topic.XIVO_PHONE_STATUS, jso, 5000, new Handler<AsyncResult<Message<JsonObject>>>() {
+				eb.request(Topic.XIVO_PHONE_STATUS, jso, new DeliveryOptions().setSendTimeout(5000),
+						new Handler<AsyncResult<Message<JsonObject>>>() {
 
-					@Override
-					public void handle(AsyncResult<Message<JsonObject>> fwd) {
-						if (fwd.failed()) {
-							req.response().setStatusCode(500).end();
-						} else {
-							logger.info("[{}] Forwarded to hornetq", Thread.currentThread().getName());
-							req.response().end();
-						}
-					}
-				});
+							@Override
+							public void handle(AsyncResult<Message<JsonObject>> fwd) {
+								if (fwd.failed()) {
+									req.response().setStatusCode(500).end();
+								} else {
+									logger.info("[{}] Forwarded to hornetq", Thread.currentThread().getName());
+									req.response().end();
+								}
+							}
+						});
 			}
 		});
 	}

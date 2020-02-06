@@ -27,7 +27,6 @@ import com.google.common.collect.ImmutableList;
 import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.service.AbstractServiceTests;
-import net.bluemind.addressbook.service.internal.repair.ABRepairSupport;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.container.model.ItemValue;

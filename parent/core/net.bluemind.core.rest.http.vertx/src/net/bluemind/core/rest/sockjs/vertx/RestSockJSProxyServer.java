@@ -5,11 +5,10 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.VoidHandler;
-import org.vertx.java.core.sockjs.SockJSSocket;
 
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.ext.web.handler.sockjs.SockJSSocket;
 import net.bluemind.core.rest.base.IRestBusHandler;
 import net.bluemind.core.rest.base.IRestCallHandler;
 
@@ -34,21 +33,15 @@ public class RestSockJSProxyServer implements Handler<SockJSSocket> {
 
 		logger.debug("connected clients {}", clients.size());
 
-		sock.exceptionHandler(new Handler<Throwable>() {
-
-			@Override
-			public void handle(Throwable e) {
-				logger.error("error in sock {}: {}", sock, e);
-				sock.close();
-			}
+		sock.exceptionHandler((Throwable e) -> {
+			logger.error("error in sock {}: {}", sock, e);
+			sock.close();
 		});
-		sock.endHandler(new VoidHandler() {
-			public void handle() {
-				handleSocketClosed(client);
-			}
+		sock.endHandler(v -> {
+			handleSocketClosed(client);
 		});
 
-		sock.dataHandler(client);
+		sock.handler(client);
 	}
 
 	protected void handleSocketClosed(RestSockJsProxyHandler client) {

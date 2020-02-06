@@ -24,11 +24,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.HttpClient;
-import org.vertx.java.core.http.WebSocket;
-import org.vertx.java.core.json.JsonObject;
+
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.WebSocket;
+import io.vertx.core.json.JsonObject;
 
 public class SockJsProvider {
 	private static final Logger logger = LoggerFactory.getLogger(SockJsProvider.class);
@@ -51,20 +52,25 @@ public class SockJsProvider {
 			waiters.add(handler);
 			if (!connecting) {
 				connecting = true;
+				client.webSocket(uri, sockResult -> {
+					if (sockResult.succeeded()) {
+						WebSocket retSock = sockResult.result();
+						logger.info("Connected to sockjs server");
+						ws = retSock;
 
-				client.connectWebsocket(uri, retSock -> {
-					logger.info("Connected to sockjs server");
-					ws = retSock;
+						ws.handler(buffer -> {
+							handleData(buffer);
+						});
 
-					ws.dataHandler(buffer -> {
-						handleData(buffer);
-					});
+						waiters.forEach(w -> {
+							w.handle(retSock);
+						});
 
-					waiters.forEach(w -> {
-						w.handle(retSock);
-					});
+						waiters.clear();
+					} else {
+						logger.error(sockResult.cause().getMessage(), sockResult.cause());
+					}
 
-					waiters.clear();
 				});
 			}
 		}
@@ -85,7 +91,7 @@ public class SockJsProvider {
 					"{\"method\":\"register\", \"headers\":{ \"X-BM-ApiKey\":\"%s\"}, \"params\":{}, \"path\":\"%s\"}",
 					credentials, id);
 			// FIXME control backpressure
-			ws.write(new Buffer(regJson));
+			ws.write(Buffer.buffer(regJson));
 		}
 	}
 
@@ -95,7 +101,7 @@ public class SockJsProvider {
 				"{\"method\":\"unregister\", \"headers\":{ \"X-BM-ApiKey\":\"%s\"}, \"params\":{}, \"path\":\"%s\"}",
 				credentials, id);
 		// FIXME control backpressure
-		ws.write(new Buffer(regJson));
+		ws.write(Buffer.buffer(regJson));
 	}
 
 	private void handleData(Buffer data) {

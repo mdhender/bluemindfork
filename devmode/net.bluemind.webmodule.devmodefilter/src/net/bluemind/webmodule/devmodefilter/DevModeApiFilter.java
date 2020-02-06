@@ -20,10 +20,11 @@ package net.bluemind.webmodule.devmodefilter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.http.HttpServerRequest;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.webmodule.server.IWebFilter;
 import net.bluemind.webmodule.server.NeedVertx;
 
@@ -49,12 +50,10 @@ public class DevModeApiFilter implements IWebFilter, NeedVertx {
 		}
 
 		logger.info("reload devmode state");
-		vertx.eventBus().send("devmode.state:reload", true, (Message<Boolean> m) -> {
-			Boolean r = m.body();
-			if (r == true) {
+		vertx.eventBus().request("devmode.state:reload", true, (AsyncResult<Message<Boolean>> m) -> {
+			if (m.succeeded() && m.result().body()) {
 				request.response().setStatusCode(200).setStatusMessage("reloaded").end();
 			} else {
-
 				request.response().setStatusCode(500).setStatusMessage("reload failed").end();
 			}
 		});

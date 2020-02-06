@@ -30,11 +30,11 @@ import java.util.concurrent.CountDownLatch;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
 
 import com.google.common.collect.Lists;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
@@ -72,7 +72,6 @@ public class ServerDomainHookTests {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
-		
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
 		defaultSecurityContext = new SecurityContext("testId", "testSubject", Arrays.<String>asList(),
@@ -166,8 +165,7 @@ public class ServerDomainHookTests {
 
 	/**
 	 * @param fqdn
-	 * @param ip
-	 *            TODO
+	 * @param ip   TODO
 	 * @return
 	 */
 	private Server defaultServer(String fqdn, String ip) {

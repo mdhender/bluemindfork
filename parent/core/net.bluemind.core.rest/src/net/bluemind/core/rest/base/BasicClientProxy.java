@@ -21,9 +21,8 @@ package net.bluemind.core.rest.base;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.vertx.java.core.MultiMap;
-import org.vertx.java.core.http.HttpHeaders;
-
+import io.vertx.core.MultiMap;
+import io.vertx.core.http.HttpHeaders;
 import net.bluemind.core.api.BMVersion;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.internal.LocalIP;

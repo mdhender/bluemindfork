@@ -25,44 +25,31 @@ import com.google.common.cache.Cache;
 
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.OOPMessage;
-import net.bluemind.hornetq.client.OutOfProcessMessageHandler;
 import net.bluemind.hornetq.client.Topic;
 
 public class TokenCacheSync {
 
 	private static final Logger logger = LoggerFactory.getLogger(TokenCacheSync.class);
 
-	public TokenCacheSync() {
-	}
-
 	public void start(final Cache<String, String> cache) {
 
-		MQ.init(new MQ.IMQConnectHandler() {
-
-			@Override
-			public void connected() {
-				MQ.registerConsumer(Topic.CORE_SESSIONS, new OutOfProcessMessageHandler() {
-					@Override
-					public void handle(OOPMessage cm) {
-
-						String operation = cm.getStringProperty("operation");
-						if ("login".equals(operation)) {
-							String latd = cm.getStringProperty("login") + "@" + cm.getStringProperty("domain");
-							cache.put(cm.getStringProperty("sid"), latd);
-							if (logger.isDebugEnabled()) {
-								logger.debug(
-										"cached token for " + latd + ", origin: " + cm.getStringProperty("origin"));
-							}
-						} else if ("logout".equals(operation)) {
-							String sid = cm.getStringProperty("sid");
-							cache.invalidate(sid);
-							if (logger.isDebugEnabled()) {
-								logger.debug("invalidate token " + sid);
-							}
-						}
+		MQ.init(() -> {
+			MQ.registerConsumer(Topic.CORE_SESSIONS, (OOPMessage cm) -> {
+				String operation = cm.getStringProperty("operation");
+				if ("login".equals(operation)) {
+					String latd = cm.getStringProperty("login") + "@" + cm.getStringProperty("domain");
+					cache.put(cm.getStringProperty("sid"), latd);
+					if (logger.isDebugEnabled()) {
+						logger.debug("cached token for {}, origin: {}", latd, cm.getStringProperty("origin"));
 					}
-				});
-			}
+				} else if ("logout".equals(operation)) {
+					String sid = cm.getStringProperty("sid");
+					cache.invalidate(sid);
+					if (logger.isDebugEnabled()) {
+						logger.debug("invalidate token {}", sid);
+					}
+				}
+			});
 		});
 	}
 

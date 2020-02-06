@@ -18,8 +18,7 @@
  */
 package net.bluemind.proxy.http.impl.vertx;
 
-import org.vertx.java.platform.Verticle;
-
+import io.vertx.core.Verticle;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
 public class ProxyVerticleFactory implements IVerticleFactory {

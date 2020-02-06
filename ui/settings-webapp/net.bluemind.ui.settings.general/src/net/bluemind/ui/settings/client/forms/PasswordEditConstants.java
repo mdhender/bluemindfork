@@ -29,6 +29,8 @@ public interface PasswordEditConstants extends Messages {
 
 	String password();
 
+	String passwordLastChanged();
+
 	String confirmPassword();
 
 	String updatePassword();

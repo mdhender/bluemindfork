@@ -92,7 +92,7 @@ public class GetFullMailbox implements IAsyncReplicationCommand {
 		String withVerb = t.value();
 		String mboxName = withVerb.substring("GET FULLMAILBOX ".length());
 		ParenObjectParser pop = ParenObjectParser.create();
-		mboxName = pop.parse("(" + mboxName + ")").asArray().get(0);
+		mboxName = pop.parse("(" + mboxName + ")").asArray().getString(0);
 		ReplicationState state = session.state();
 		GetFullResponse resp = new GetFullResponse();
 		final String fBoxName = mboxName;

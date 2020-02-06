@@ -23,9 +23,6 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.RandomStringUtils;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.core.api.Email;

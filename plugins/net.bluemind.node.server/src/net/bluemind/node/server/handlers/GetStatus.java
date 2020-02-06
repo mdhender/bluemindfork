@@ -20,12 +20,13 @@ package net.bluemind.node.server.handlers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class GetStatus implements Handler<HttpServerRequest> {
@@ -42,19 +43,15 @@ public class GetStatus implements Handler<HttpServerRequest> {
 			@Override
 			public void handle(Void v) {
 				long pid = Long.parseLong(event.params().get("reqId"));
-				JsonObject jso = new JsonObject().putNumber("pid", pid);
+				JsonObject jso = new JsonObject().put("pid", pid);
 				event.pause();
-				VertxPlatform.eventBus().send("cmd.status", jso, new Handler<Message<JsonObject>>() {
-
-					@Override
-					public void handle(Message<JsonObject> jsRep) {
-						String json = jsRep.body().encode();
-						logger.debug("status received: {}", json);
-						HttpServerResponse r = event.response();
-						r.headers().add("Content-Type", "application/json");
-						r.end(json);
-						event.resume();
-					}
+				VertxPlatform.eventBus().request("cmd.status", jso, (AsyncResult<Message<JsonObject>> jsRep) -> {
+					String json = jsRep.result().body().encode();
+					logger.debug("status received: {}", json);
+					HttpServerResponse r = event.response();
+					r.headers().add("Content-Type", "application/json");
+					r.end(json);
+					event.resume();
 				});
 			}
 

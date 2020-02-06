@@ -20,11 +20,8 @@ package net.bluemind.calendar.service.internal;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
@@ -32,14 +29,13 @@ import javax.sql.DataSource;
 import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.eventbus.EventBus;
 
 import com.google.common.base.Strings;
 
+import io.vertx.core.eventbus.EventBus;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventChanges;
-import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventQuery;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.auditlog.CalendarAuditor;
@@ -80,7 +76,6 @@ import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.icalendar.api.ICalendarElement.Classification;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
-import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class CalendarService implements ICalendar {

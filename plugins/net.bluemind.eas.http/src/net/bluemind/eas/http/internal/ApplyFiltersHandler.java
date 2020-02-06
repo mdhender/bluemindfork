@@ -23,8 +23,8 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
 
+import io.vertx.core.Handler;
 import net.bluemind.eas.http.AuthenticatedEASQuery;
 import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.eas.http.IEasRequestFilter;

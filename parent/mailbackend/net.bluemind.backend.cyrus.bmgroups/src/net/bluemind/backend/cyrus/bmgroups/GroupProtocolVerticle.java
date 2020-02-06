@@ -18,60 +18,67 @@
  */
 package net.bluemind.backend.cyrus.bmgroups;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.impl.VertxInternal;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.core.net.NetSocket;
-import org.vertx.java.platform.Verticle;
 
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.net.NetServer;
+import io.vertx.core.net.NetSocket;
+import io.vertx.core.net.SocketAddress;
 import net.bluemind.core.rest.http.HttpClientProvider;
-import net.bluemind.lib.vertx.domainsocket.DomainSocketServer;
 
-public class GroupProtocolVerticle extends Verticle {
+public class GroupProtocolVerticle extends AbstractVerticle {
 	private static Logger logger = LoggerFactory.getLogger(GroupProtocolVerticle.class);
 
-	public static String SOCKET_PATH = "/var/run/cyrus/socket/bm-ptsock";
+	private static String SOCKET_PATH = socketPath("/var/run/cyrus/socket/bm-ptsock");
+
+	public static String socketPath() {
+		return SOCKET_PATH;
+	}
+
+	public static String socketPath(String p) {
+		try {
+			SOCKET_PATH = p;
+			Files.deleteIfExists(Paths.get(p));
+		} catch (IOException e) {
+			logger.error(e.getMessage(), e);
+		}
+		return p;
+	}
 
 	@Override
-	public void start() {
-		DomainSocketServer server = new DomainSocketServer((VertxInternal) vertx);
+	public void start() throws IOException {
+		NetServer server = vertx.createNetServer();
 		final HttpClientProvider clientProvider = new HttpClientProvider(getVertx());
-		server.connectHandler(new Handler<NetSocket>() {
-
-			@Override
-			public void handle(NetSocket socket) {
-				socket.exceptionHandler(new Handler<Throwable>() {
-
-					@Override
-					public void handle(Throwable event) {
-						logger.error("error ", event);
-						if (event.getCause() != null) {
-							logger.error("error ", event.getCause());
-						}
-						socket.close();
-					}
-				});
-				socket.dataHandler(new GroupProtocolHandler(clientProvider, socket));
-			}
-		});
-
-		server.listen(SOCKET_PATH, new Handler<AsyncResult<DomainSocketServer>>() {
-
-			@Override
-			public void handle(AsyncResult<DomainSocketServer> res) {
-				if (res.failed()) {
-					Throwable t = res.cause();
-					logger.error("failed to create domain socket at {} : {}", SOCKET_PATH, t.getMessage(), t);
-				} else {
-					logger.info("Socket binded at {}", SOCKET_PATH);
+		server.connectHandler((NetSocket socket) -> {
+			socket.exceptionHandler((Throwable event) -> {
+				logger.error("error ", event);
+				if (event.getCause() != null) {
+					logger.error("error ", event.getCause());
 				}
+				socket.close();
+			});
+			socket.handler(new GroupProtocolHandler(clientProvider, socket));
+		});
+
+		server.listen(SocketAddress.domainSocketAddress(SOCKET_PATH), (
+
+				AsyncResult<NetServer> res) -> {
+			if (res.failed()) {
+				Throwable t = res.cause();
+				logger.error("failed to create domain socket at {} : {}", SOCKET_PATH, t.getMessage(), t);
+			} else {
+				logger.info("Socket bound at {}", SOCKET_PATH);
 			}
 		});
 
-		vertx.eventBus().registerHandler("invalidate.cache", msg -> {
+		vertx.eventBus().consumer("invalidate.cache", msg -> {
 			JsonObject cm = (JsonObject) msg.body();
 			String login = cm.getString("login");
 			String domain = cm.getString("domain");

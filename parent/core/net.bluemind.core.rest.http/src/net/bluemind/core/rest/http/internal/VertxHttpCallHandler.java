@@ -22,12 +22,11 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Map;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpClient;
-import org.vertx.java.core.http.HttpClientRequest;
-import org.vertx.java.core.http.HttpClientResponse;
-import org.vertx.java.core.streams.Pump;
-
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpClientRequest;
+import io.vertx.core.http.HttpClientResponse;
+import io.vertx.core.streams.Pump;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.rest.base.IRestCallHandler;
 import net.bluemind.core.rest.base.RestRequest;
@@ -81,7 +80,7 @@ public class VertxHttpCallHandler implements IRestCallHandler {
 		};
 
 		final HttpClientRequest req = client.request(request.method, p, responseHandler);
-		req.headers().add(request.headers);
+		req.headers().addAll(request.headers);
 
 		req.headers().add("X-Forwarded-For", request.remoteAddresses);
 
@@ -95,7 +94,7 @@ public class VertxHttpCallHandler implements IRestCallHandler {
 		} else if (request.bodyStream != null) {
 			req.setChunked(true);
 			request.bodyStream.endHandler(v -> req.end());
-			Pump.createPump(request.bodyStream, req).start();
+			Pump.pump(request.bodyStream, req).start();
 		} else {
 			req.end();
 		}

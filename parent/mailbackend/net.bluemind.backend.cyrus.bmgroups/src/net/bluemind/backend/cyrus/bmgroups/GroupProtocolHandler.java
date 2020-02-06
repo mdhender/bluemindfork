@@ -25,13 +25,13 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.net.NetSocket;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.net.NetSocket;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.fault.ErrorCode;
@@ -212,12 +212,12 @@ public class GroupProtocolHandler implements Handler<Buffer> {
 
 	private Buffer ok(String msg) {
 		logger.debug("ok {}", msg);
-		Buffer message = new Buffer();
+		Buffer message = Buffer.buffer();
 		message.appendString("OK");
 		if (msg != null) {
 			message.appendString(msg);
 		}
-		Buffer ret = new Buffer();
+		Buffer ret = Buffer.buffer();
 		ret.appendShort((short) message.length());
 		ret.appendBuffer(message);
 		logger.debug("return message {}", ret);
@@ -226,9 +226,9 @@ public class GroupProtocolHandler implements Handler<Buffer> {
 
 	private Buffer ko(String msg) {
 		logger.error("ko {}", msg);
-		Buffer message = new Buffer();
+		Buffer message = Buffer.buffer();
 		message.appendString("KO ").appendString(msg);
-		Buffer ret = new Buffer().appendShort((short) message.length()).appendBuffer(message);
+		Buffer ret = Buffer.buffer().appendShort((short) message.length()).appendBuffer(message);
 		logger.error("return message {}", ret);
 		return ret;
 	}

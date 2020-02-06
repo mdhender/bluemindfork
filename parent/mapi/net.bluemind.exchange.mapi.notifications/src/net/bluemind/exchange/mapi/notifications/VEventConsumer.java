@@ -23,9 +23,9 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.json.JsonObject;
 
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.calendar.hook.internal.VEventMessage;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainerManagement;
@@ -56,10 +56,10 @@ public class VEventConsumer implements net.bluemind.calendar.hook.ICalendarHook 
 	@Override
 	public void onEventDeleted(VEventMessage message) {
 		JsonObject js = new JsonObject();
-		js.putString("messageClass", "IPM.Appointment");
-		js.putString("containerUid", message.container.uid);
-		js.putNumber("internalId", 0L);
-		js.putString("operation", CrudOperation.Delete.name());
+		js.put("messageClass", "IPM.Appointment");
+		js.put("containerUid", message.container.uid);
+		js.put("internalId", 0L);
+		js.put("operation", CrudOperation.Delete.name());
 		eb.send(Topic.MAPI_ITEM_NOTIFICATIONS, js);
 	}
 
@@ -70,10 +70,10 @@ public class VEventConsumer implements net.bluemind.calendar.hook.ICalendarHook 
 			List<ItemDescriptor> descriptors = cm.getItems(Arrays.asList(message.itemUid));
 			for (ItemDescriptor id : descriptors) {
 				JsonObject js = new JsonObject();
-				js.putString("messageClass", "IPM.Appointment");
-				js.putString("containerUid", message.container.uid);
-				js.putNumber("internalId", id.internalId);
-				js.putString("operation", op.name());
+				js.put("messageClass", "IPM.Appointment");
+				js.put("containerUid", message.container.uid);
+				js.put("internalId", id.internalId);
+				js.put("operation", op.name());
 				eb.send(Topic.MAPI_ITEM_NOTIFICATIONS, js);
 			}
 		} catch (ServerFault sf) {

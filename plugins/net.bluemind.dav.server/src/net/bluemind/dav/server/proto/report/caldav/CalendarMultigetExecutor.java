@@ -27,11 +27,11 @@ import javax.xml.namespace.QName;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.http.HttpServerResponse;
 import org.w3c.dom.Element;
 
 import com.google.common.collect.ImmutableList;
 
+import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;

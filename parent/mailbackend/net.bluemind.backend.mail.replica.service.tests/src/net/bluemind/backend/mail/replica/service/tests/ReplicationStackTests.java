@@ -47,15 +47,16 @@ import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.core.streams.ReadStream;
 
 import com.google.common.collect.ImmutableMap;
 
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.streams.ReadStream;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.DispositionType;
 import net.bluemind.backend.mail.api.IMailboxFolders;
@@ -332,7 +333,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		ItemValue<MailboxFolder> inbox = mboxesApi.byName("INBOX");
 		assertNotNull(inbox);
 		IMailboxItems recordsApi = provider().instance(IMailboxItems.class, inbox.uid);
-		Stream forUpload = VertxStream.stream(new Buffer("Coucou\r\n".getBytes()));
+		Stream forUpload = VertxStream.stream(Buffer.buffer("Coucou\r\n".getBytes()));
 		String partId = recordsApi.uploadPart(forUpload);
 		assertNotNull(partId);
 		System.out.println("Got partId " + partId);
@@ -369,7 +370,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		assertNotNull(folderItem);
 		System.err.println("folder, id " + folderItem.internalId + ", " + folderItem);
 		IMailboxItems recordsApi = provider().instance(IMailboxItems.class, folderItem.uid);
-		Stream forUpload = VertxStream.stream(new Buffer("Coucou\r\n".getBytes()));
+		Stream forUpload = VertxStream.stream(Buffer.buffer("Coucou\r\n".getBytes()));
 		String partId = recordsApi.uploadPart(forUpload);
 		assertNotNull(partId);
 		MailboxItem item = MailboxItem.of("toto", Part.create(null, "text/plain", partId));
@@ -530,16 +531,14 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 	}
 
 	private Buffer fetchPart(Stream s) throws InterruptedException {
-		ReadStream<?> vertxPart = VertxStream.read(s);
+		ReadStream<Buffer> vertxPart = VertxStream.read(s);
 		CountDownLatch cdl = new CountDownLatch(1);
-		Buffer fullPartContent = new Buffer();
+		Buffer fullPartContent = Buffer.buffer();
 		Vertx vx = VertxPlatform.getVertx();
 		vx.setTimer(1, tid -> {
 			System.out.println("In timer..." + tid);
 			vertxPart.endHandler(v -> cdl.countDown());
-			vertxPart.dataHandler(b -> {
-				fullPartContent.appendBuffer(b);
-			});
+			vertxPart.handler(fullPartContent::appendBuffer);
 			vertxPart.endHandler(v -> cdl.countDown());
 			vertxPart.resume();
 		});
@@ -1213,6 +1212,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 	private CountDownLatch expectMessages(String vertxAddress, int count, Predicate<JsonObject> msgFilter) {
 		CountDownLatch msgLock = new CountDownLatch(count);
 		AtomicReference<Handler<Message<JsonObject>>> ref = new AtomicReference<>();
+		MessageConsumer<JsonObject> cons = VertxPlatform.eventBus().consumer(vertxAddress);
 		Handler<Message<JsonObject>> h = (Message<JsonObject> msg) -> {
 			JsonObject payload = msg.body();
 			boolean matches = msgFilter.test(payload);
@@ -1221,12 +1221,12 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 			if (matches) {
 				msgLock.countDown();
 				if (msgLock.getCount() == 0) {
-					VertxPlatform.eventBus().unregisterHandler(vertxAddress, ref.get());
+					cons.unregister();
 				}
 			}
 		};
 		ref.set(h);
-		VertxPlatform.eventBus().registerHandler(vertxAddress, h);
+		cons.handler(h);
 		return msgLock;
 	}
 

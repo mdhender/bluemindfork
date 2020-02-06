@@ -18,26 +18,27 @@
  */
 package net.bluemind.lib.vertx;
 
-import java.net.URL;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.function.Supplier;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.AsyncResult;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.PlatformManager;
-import org.vertx.java.platform.Verticle;
-import org.vertx.java.platform.VerticleConstructor;
 
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Slf4JLoggerFactory;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.DeploymentOptions;
+import io.vertx.core.Handler;
+import io.vertx.core.Verticle;
+import io.vertx.core.Vertx;
+import io.vertx.core.VertxOptions;
+import io.vertx.core.eventbus.EventBus;
 import net.bluemind.lib.vertx.internal.BMModule;
-import net.bluemind.lib.vertx.internal.BMPlatformManagerFactory;
 import net.bluemind.lib.vertx.internal.Result;
 
 public final class VertxPlatform implements BundleActivator {
@@ -47,13 +48,8 @@ public final class VertxPlatform implements BundleActivator {
 	private static CompletableFuture<Void> future;
 	private static String deploymentId;
 
-	private static PlatformManager pm;
 	private static Vertx vertx;
 	private static final Logger logger = LoggerFactory.getLogger(VertxPlatform.class);
-
-	static {
-
-	}
 
 	static BundleContext getContext() {
 		return context;
@@ -66,7 +62,7 @@ public final class VertxPlatform implements BundleActivator {
 	 * org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext )
 	 */
 	public void start(BundleContext bundleContext) throws Exception {
-		if (pm != null) {
+		if (vertx != null) {
 			return;
 		}
 		logger.info("Starting vertx platform");
@@ -75,13 +71,8 @@ public final class VertxPlatform implements BundleActivator {
 
 		System.setProperty("org.vertx.logger-delegate-factory-class-name",
 				"org.vertx.java.core.logging.impl.SLF4JLogDelegateFactory");
-		pm = new BMPlatformManagerFactory().createPlatformManager();
-		vertx = pm.vertx();
+		vertx = Vertx.vertx(new VertxOptions().setPreferNativeTransport(true));
 		VertxPlatform.context = bundleContext;
-	}
-
-	public static PlatformManager getPlatformManager() {
-		return pm;
 	}
 
 	public synchronized static void spawnVerticles(final Handler<AsyncResult<Void>> complete) {
@@ -96,20 +87,9 @@ public final class VertxPlatform implements BundleActivator {
 		}
 
 		future = new CompletableFuture<>();
-		JsonObject config = new JsonObject();
-		VerticleConstructor bmModule = new VerticleConstructor() {
+		Supplier<Verticle> bmModule = () -> new BMModule();
 
-			@Override
-			public Verticle newInstance() throws Exception {
-				return new BMModule();
-			}
-
-			@Override
-			public String className() {
-				return BMModule.class.getCanonicalName();
-			}
-		};
-		pm.deployVerticle(bmModule, config, new URL[0], 1, null, new Handler<AsyncResult<String>>() {
+		vertx.deployVerticle(bmModule, new DeploymentOptions().setInstances(1), new Handler<AsyncResult<String>>() {
 
 			@Override
 			public void handle(AsyncResult<String> event) {
@@ -128,12 +108,37 @@ public final class VertxPlatform implements BundleActivator {
 		});
 	}
 
+	@SuppressWarnings("serial")
+	private static class SpawnException extends RuntimeException {
+
+		public SpawnException(Exception e) {
+			super(e);
+		}
+
+	}
+
+	public static void spawnBlocking(long t, TimeUnit u) {
+		CompletableFuture<Void> v = new CompletableFuture<>();
+		spawnVerticles(r -> {
+			if (r.succeeded()) {
+				v.complete(null);
+			} else {
+				v.completeExceptionally(r.cause());
+			}
+		});
+		try {
+			v.get(t, u);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			Thread.currentThread().interrupt();
+			throw new SpawnException(e);
+		}
+	}
+
 	public static void undeployVerticles(final Handler<AsyncResult<Void>> complete) {
 		if (deploymentId == null) {
 			complete.handle(new Result<>(new RuntimeException("No deploymentId, you need to spawn verticles first")));
 		}
-		// pm.undeploy("net.bluemind~app~3.0.0", complete);
-		pm.undeploy(deploymentId, complete);
+		vertx.undeploy(deploymentId, complete);
 	}
 
 	public static Vertx getVertx() {

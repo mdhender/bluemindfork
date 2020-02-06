@@ -22,8 +22,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import org.vertx.java.core.http.HttpServerRequest;
-
+import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.webmodule.server.handlers.AbstractFtlHandler;
 
 public class CalendarOfflineHandler extends AbstractFtlHandler {

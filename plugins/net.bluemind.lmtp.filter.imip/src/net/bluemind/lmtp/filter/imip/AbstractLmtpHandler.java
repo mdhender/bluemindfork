@@ -24,8 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.slf4j.LoggerFactory;
-
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventOccurrence;
@@ -33,7 +31,6 @@ import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.api.ContainerQuery;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
@@ -53,7 +50,6 @@ import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 
 public abstract class AbstractLmtpHandler {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(AbstractLmtpHandler.class);
 
 	public AbstractLmtpHandler() {
 
@@ -77,26 +73,12 @@ public abstract class AbstractLmtpHandler {
 		return container.verbs.stream().anyMatch(v -> v.can(Verb.Invitation));
 	}
 
-	protected String getCalendarUid(ItemValue<Mailbox> recipientMailbox) throws ServerFault {
+	protected String getCalendarUid(ItemValue<Mailbox> recipientMailbox) {
 		if (recipientMailbox.value.type == Mailbox.Type.resource) {
-			return ICalendarUids.TYPE + ":" + recipientMailbox.uid;
+			return ICalendarUids.resourceCalendar(recipientMailbox.uid);
 		}
 
-		List<ContainerDescriptor> calendars = provider().instance(IContainers.class)
-				.all(ContainerQuery.ownerAndType(recipientMailbox.uid, ICalendarUids.TYPE));
-
-		ContainerDescriptor cal = null;
-		for (ContainerDescriptor cont : calendars) {
-			if (cont.defaultContainer) {
-				cal = cont;
-			}
-		}
-
-		if (cal == null) {
-			throw new ServerFault("Unable to find default calendar container for: " + recipientMailbox.uid);
-		}
-
-		return cal.uid;
+		return ICalendarUids.defaultUserCalendar(recipientMailbox.uid);
 	}
 
 	/**

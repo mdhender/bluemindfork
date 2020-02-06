@@ -23,11 +23,11 @@ import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.net.NetSocket;
-import org.vertx.java.core.parsetools.RecordParser;
 
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.net.NetSocket;
+import io.vertx.core.parsetools.RecordParser;
 import net.bluemind.lmtp.testhelper.client.Response.ResponseBuilder;
 import net.bluemind.lmtp.testhelper.common.WriteSupport;
 
@@ -176,7 +176,7 @@ public class LmtpClientSession {
 	}
 
 	public CompletableFuture<String> start() {
-		sock.dataHandler(recordParser);
+		sock.handler(recordParser);
 		sock.closeHandler(v -> {
 			logger.info("Client socket {} closed.", sock.writeHandlerID());
 			closeFuture.complete(null);

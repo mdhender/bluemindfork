@@ -1,0 +1,51 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:bj="urn:import:net.bluemind.ui.admin.client" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui" xmlns:common="urn:import:net.bluemind.ui.common.client.forms">
+
+	<ui:with field="c"
+		type="net.bluemind.ui.adminconsole.system.maintenance.reindex.l10n.ReindexConstants" />
+
+
+	<g:HTMLPanel>
+	
+		<f:FieldSetPanel name="{c.mailspool}" />
+		<table border="0">
+			<tr>
+				<td style='width:400px'>
+					<g:Button ui:field="mails" text="{c.reindex}"></g:Button>
+				</td>
+			</tr>
+		</table>
+		
+		<f:FieldSetPanel name="{c.contact}" />
+		<table border="0">
+			<tr>
+				<td style='width:400px'>
+					<g:Button ui:field="contacts" text="{c.reindex}"></g:Button>
+				</td>
+			</tr>
+		</table>
+		
+		<f:FieldSetPanel name="{c.calendar}" />
+		<table border="0">
+			<tr>
+				<td style='width:400px'>
+					<g:Button ui:field="calendar" text="{c.reindex}"></g:Button>
+				</td>
+			</tr>
+		</table>
+		
+		<f:FieldSetPanel name="{c.todolist}" />
+		<table border="0">
+			<tr>
+				<td style='width:400px'>
+					<g:Button ui:field="todolist" text="{c.reindex}"></g:Button>
+				</td>
+			</tr>
+		</table>
+	
+	</g:HTMLPanel>
+</ui:UiBinder>

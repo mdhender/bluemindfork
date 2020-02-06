@@ -21,6 +21,7 @@ package net.bluemind.eas.command.provision;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.vertx.core.http.HttpMethod;
 import net.bluemind.eas.config.global.GlobalConfig;
 import net.bluemind.eas.http.AuthenticatedEASQuery;
 import net.bluemind.eas.http.AuthorizedDeviceQuery;
@@ -64,6 +65,6 @@ public class ProvisionFilter implements IEasRequestFilter {
 	private boolean skipProvision(AuthorizedDeviceQuery query) {
 		// No provision for Ping and Autodiscover command
 		return GlobalConfig.DISABLE_POLICIES || "Ping".equals(query.command()) || "Autodiscover".equals(query.command())
-				|| "OPTIONS".equals(query.request().method()) || Policies.hasValidPolicy(query);
+				|| HttpMethod.OPTIONS == query.request().method() || Policies.hasValidPolicy(query);
 	}
 }

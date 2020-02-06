@@ -4,7 +4,6 @@ Bundle-Name: Rest Http Tests
 Bundle-SymbolicName: net.bluemind.authentication.service.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Require-Bundle: org.junit,
- com.ning.async-http-client;bundle-version="1.9.26",
  net.bluemind.core.rest.http;bundle-version="1.0.0",
  com.google.guava;bundle-version="19.0.0",
  net.bluemind.core.jdbc,

@@ -18,9 +18,8 @@
  */
 package net.bluemind.lmtp.filter.imip.cache;
 
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.json.JsonObject;
-
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.hornetq.client.OOPMessage;
 import net.bluemind.hornetq.client.Topic;
 import net.bluemind.hornetq.client.vertx.IMessageForwarder;
@@ -40,8 +39,8 @@ public class MailboxMessageForwarder implements IMessageForwarder {
 		String domain = message.getStringProperty("domain");
 
 		JsonObject msg = new JsonObject();
-		msg.putString("mailbox", mailbox);
-		msg.putString("domain", domain);
+		msg.put("mailbox", mailbox);
+		msg.put("domain", domain);
 
 		vertx.eventBus().send(mailboxChanged, msg);
 
