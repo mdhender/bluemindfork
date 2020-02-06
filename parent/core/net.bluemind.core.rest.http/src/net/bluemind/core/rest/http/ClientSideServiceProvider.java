@@ -28,6 +28,8 @@ import org.asynchttpclient.DefaultAsyncHttpClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.netty.channel.epoll.Epoll;
+import io.netty.channel.kqueue.KQueue;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import net.bluemind.core.api.fault.ServerFault;
@@ -56,7 +58,7 @@ public class ClientSideServiceProvider implements IServiceProvider {
 		} catch (SSLException e) {
 			throw new ServerFault(e);
 		}
-		builder.setUseNativeTransport(true);
+		builder.setUseNativeTransport(Epoll.isAvailable() || KQueue.isAvailable());
 		int to = timeoutInSeconds * 1000;
 		builder.setConnectTimeout(to).setReadTimeout(to).setRequestTimeout(to).setFollowRedirect(false);
 		builder.setTcpNoDelay(true).setThreadPoolName("client-side-provider-ahc");
