@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
+import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.core.api.AsyncHandler;
@@ -109,10 +110,20 @@ public class KrbProtocol implements IAuthProtocol {
 				if ("thomas cataldo@willow.lan".equals(ret.getLoginAtDomain())) {
 					ret.setLoginAtDomain("tom@willow.vmw");
 				}
-				prov.sessionId(ret, forwadedFor, new AsyncHandler<String>() {
 
+				prov.sessionId(ret, forwadedFor, new AsyncHandler<String>() {
 					@Override
 					public void success(String sid) {
+						if (sid == null) {
+							logger.error(
+									"Error during kerberos auth, {} login not valid (not found/archived or not user)",
+									ret.getLoginAtDomain());
+							req.response().headers().add(HttpHeaders.LOCATION,
+									String.format("/errors-pages/deniedAccess.html?login=%s", ret.getLoginAtDomain()));
+							req.response().setStatusCode(302);
+							req.response().end();
+							return;
+						}
 
 						// get cookie...
 						String proxySid = ss.newSession(sid, authState.protocol);
