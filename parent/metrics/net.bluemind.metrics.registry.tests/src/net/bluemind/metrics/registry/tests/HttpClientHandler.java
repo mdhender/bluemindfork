@@ -1,4 +1,4 @@
-package net.bluemind.metrics.registry.client;
+package net.bluemind.metrics.registry.tests;
 
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;

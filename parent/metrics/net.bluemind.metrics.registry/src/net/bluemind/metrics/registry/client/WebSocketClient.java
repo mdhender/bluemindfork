@@ -15,7 +15,6 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.unix.DomainSocketChannel;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
@@ -28,6 +27,7 @@ public class WebSocketClient {
 
 	public WebSocketClient() throws URISyntaxException {
 		uri = new URI("ws://metrics.socket");
+
 	}
 
 	public void open() throws FileNotFoundException, InterruptedException {
@@ -47,11 +47,6 @@ public class WebSocketClient {
 		ch = bootstrap.connect().sync().channel();
 		handler.handshakeFuture().sync();
 		logger.info("Websocket created");
-	}
-
-	public void close() throws InterruptedException {
-		ch.writeAndFlush(new CloseWebSocketFrame());
-		ch.closeFuture().sync();
 	}
 
 	public void sendTextFrame(final String text) throws IOException {

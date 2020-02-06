@@ -3,8 +3,11 @@ package net.bluemind.metrics.registry.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Mapper {
-	static ObjectMapper mapper = new ObjectMapper();
-	
+	private static final ObjectMapper mapper = new ObjectMapper();
+
+	private Mapper() {
+	}
+
 	public static ObjectMapper get() {
 		return mapper;
 	}

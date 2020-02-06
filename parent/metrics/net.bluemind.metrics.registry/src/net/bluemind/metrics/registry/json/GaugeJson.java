@@ -3,16 +3,11 @@ package net.bluemind.metrics.registry.json;
 import com.netflix.spectator.api.Id;
 
 public class GaugeJson extends RegJson {
-	private static final String METRICTYPE = "Gauge";
-	private Double value;
+
+	private final Double value;
 
 	public GaugeJson(Id id, Double value) {
-		super(METRICTYPE, id);
-		this.value = value;
-	}
-
-	public GaugeJson(String id, Double value) {
-		super(METRICTYPE, id);
+		super("Gauge", id);
 		this.value = value;
 	}
 

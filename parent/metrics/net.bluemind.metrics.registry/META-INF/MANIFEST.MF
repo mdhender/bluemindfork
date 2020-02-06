@@ -13,5 +13,6 @@ Require-Bundle: slf4j.api;bundle-version="1.7.5",
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.metrics.registry
 Bundle-ActivationPolicy: lazy
-Export-Package: net.bluemind.metrics.registry
+Export-Package: net.bluemind.metrics.registry,
+ net.bluemind.metrics.registry.client
 Bundle-ClassPath: .

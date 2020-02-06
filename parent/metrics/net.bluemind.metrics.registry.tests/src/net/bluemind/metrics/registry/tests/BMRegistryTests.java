@@ -3,7 +3,10 @@ package net.bluemind.metrics.registry.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.FileNotFoundException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
@@ -16,6 +19,12 @@ import com.netflix.spectator.api.patterns.PolledMeter;
 import net.bluemind.metrics.registry.MetricsRegistry;
 
 public class BMRegistryTests {
+
+	private String metrics() throws InterruptedException, ExecutionException, TimeoutException, FileNotFoundException {
+		HttpClient client = new HttpClient();
+		client.open();
+		return client.getMetrics().get(10, TimeUnit.SECONDS);
+	}
 
 	@Test
 	public void testCounters() throws Exception {
@@ -31,7 +40,7 @@ public class BMRegistryTests {
 		registry.counter("test.amount").increment(12);
 		registry.counter("test.amount").increment(100);
 		Thread.sleep(2000);
-		String metrics = MetricsRegistry.getMetrics().get(10, TimeUnit.SECONDS);
+		String metrics = metrics();
 		int testedMetrics = 0;
 		for (String metric : metrics.split("\n")) {
 			InfluxMetric met = InfluxMetric.fromLineProtocol(metric);
@@ -66,7 +75,7 @@ public class BMRegistryTests {
 		registry.distributionSummary(requests.withTag("status", "ok")).record(-312213);
 		registry.distributionSummary(requests.withTag("status", "ko")).record(-123);
 		Thread.sleep(2000);
-		String metrics = MetricsRegistry.getMetrics().get(10, TimeUnit.SECONDS);
+		String metrics = metrics();
 
 		int testedMetrics = 0;
 		for (String metric : metrics.split("\n")) {
@@ -100,7 +109,7 @@ public class BMRegistryTests {
 		registry.timer(id1).record(300, TimeUnit.MILLISECONDS);
 		registry.timer(id1).record(1, TimeUnit.NANOSECONDS);
 		Thread.sleep(2000);
-		String metrics = MetricsRegistry.getMetrics().get(10, TimeUnit.SECONDS);
+		String metrics = metrics();
 
 		int testedMetrics = 0;
 		for (String metric : metrics.split("\n")) {
@@ -139,7 +148,7 @@ public class BMRegistryTests {
 		registry.gauge("qwerty").set(666.666);
 		registry.gauge("server.gauge").set(4269.111);
 		Thread.sleep(2000);
-		String metrics = MetricsRegistry.getMetrics().get(10, TimeUnit.SECONDS);
+		String metrics = metrics();
 		int testedMetrics = 0;
 		for (String metric : metrics.split("\n")) {
 			InfluxMetric met = InfluxMetric.fromLineProtocol(metric);
