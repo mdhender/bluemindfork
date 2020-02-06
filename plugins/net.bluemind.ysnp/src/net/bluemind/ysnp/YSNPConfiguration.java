@@ -19,9 +19,10 @@
 package net.bluemind.ysnp;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -33,20 +34,30 @@ public class YSNPConfiguration {
 	private Properties conf;
 	private static final Logger logger = LoggerFactory.getLogger(YSNPConfiguration.class);
 
-	public YSNPConfiguration() throws FileNotFoundException, IOException, InterruptedException {
-		initSaslauthdSocketDir();
-		initPtsockSocketDir();
+	public static YSNPConfiguration INSTANCE = new YSNPConfiguration();
 
+	private YSNPConfiguration() {
+		try {
+			initSaslauthdSocketDir();
+			initPtsockSocketDir();
+		} catch (Exception e) {
+			throw new YSNPError(e);
+		}
 		conf = new Properties();
-		conf.put("daemon.socket.path", "/var/run/saslauthd/mux");
+		conf.put("daemon.socket.path", System.getProperty("ysnp.sock", "/var/run/saslauthd/mux"));
 		conf.put("bmpt-daemon.socket.path", "/var/run/cyrus/socket/bm-ptsock");
 		conf.put("daemon.threads", 2 + Runtime.getRuntime().availableProcessors() + "");
-		try {
-			FileInputStream in = new FileInputStream(CFG);
+		try (InputStream in = Files.newInputStream(Paths.get(CFG))) {
 			conf.load(in);
-			in.close();
 		} catch (Exception e) {
-			logger.warn(CFG + " file not found. using default settings");
+			logger.warn("{} file not found. using default settings", CFG);
+		}
+	}
+
+	@SuppressWarnings("serial")
+	private static class YSNPError extends RuntimeException {
+		public YSNPError(Throwable t) {
+			super(t);
 		}
 	}
 
@@ -59,7 +70,7 @@ public class YSNPConfiguration {
 			try {
 				p.waitFor();
 			} catch (InterruptedException e) {
-				logger.warn("Unable to remove: " + cyrusDir.getPath());
+				logger.warn("Unable to remove: {}", cyrusDir.getPath());
 				throw e;
 			}
 		}
@@ -69,7 +80,7 @@ public class YSNPConfiguration {
 			try {
 				p.waitFor();
 			} catch (InterruptedException e) {
-				logger.warn("Unable to remove: " + socketDir.getPath());
+				logger.warn("Unable to remove: {}", socketDir.getPath());
 				throw e;
 			}
 
@@ -83,7 +94,7 @@ public class YSNPConfiguration {
 			p = Runtime.getRuntime().exec("chown cyrus:mail " + socketDir.getPath());
 			p.waitFor();
 		} catch (InterruptedException e) {
-			logger.warn("Unable to set permissions on: " + socketDir.getPath());
+			logger.warn("Unable to set permissions on: {}", socketDir.getPath());
 			throw e;
 		}
 	}
@@ -95,7 +106,7 @@ public class YSNPConfiguration {
 			try {
 				p.waitFor();
 			} catch (InterruptedException e) {
-				logger.warn("Unable to remove: " + runDir.getPath());
+				logger.warn("Unable to remove: {}", runDir.getPath());
 				throw e;
 			}
 		}
@@ -118,7 +129,7 @@ public class YSNPConfiguration {
 			p = Runtime.getRuntime().exec("chmod a+x " + postfixChrootDir.getPath());
 			p.waitFor();
 		} catch (InterruptedException e) {
-			logger.warn("Unable to configure: " + postfixChrootDir.getPath());
+			logger.warn("Unable to configure: {}", postfixChrootDir.getPath());
 			throw e;
 		}
 
