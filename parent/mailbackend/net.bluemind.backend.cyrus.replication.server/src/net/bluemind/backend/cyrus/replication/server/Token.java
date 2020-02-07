@@ -46,12 +46,7 @@ public abstract class Token {
 	private static final String FN_BASE = "t";
 
 	private static final String rootPath() {
-		File shm = new File("/dev/shm");
-		if (shm.exists() && shm.isDirectory()) {
-			return "/dev/shm/bm-cyrus-replication/";
-		} else {
-			return "/var/spool/bm-cyrus-replication/";
-		}
+		return "/var/spool/bm-cyrus-replication/";
 	}
 
 	private static final AtomicLong counter = new AtomicLong();
