@@ -76,17 +76,17 @@
 		<encoder>
 			<pattern>%d [%thread] %c{1} %p - %m\n</pattern>
 		</encoder>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-          <fileNamePattern>/var/log/bm/replication.log.%d{yyyy-MM-dd}.gz</fileNamePattern>
-          <maxHistory>7</maxHistory>
-          <totalSizeCap>250MB</totalSizeCap>
-        </rollingPolicy>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>/var/log/bm/replication.log.%d{yyyy-MM-dd}.gz</fileNamePattern>
+			<maxHistory>7</maxHistory>
+			<totalSizeCap>250MB</totalSizeCap>
+	</rollingPolicy>
 	</appender>
 	<appender name="AsyncRepl" class="ch.qos.logback.classic.AsyncAppender">
-      <queueSize>500</queueSize>
-      <discardingThreshold>0</discardingThreshold>
-      <appender-ref ref="Replication" />
-    </appender>  
+		<queueSize>500</queueSize>
+		<discardingThreshold>0</discardingThreshold>
+		<appender-ref ref="Replication" />
+	</appender>  
 	<logger name="net.bluemind.backend.cyrus.replication.server" level="INFO" additivity="false">
 		<appender-ref ref="AsyncRepl" />
 	</logger>
@@ -114,24 +114,43 @@
 		<appender-ref ref="SlowRestCall" />
 	</logger>
 
-        <!-- RestSockJsProxyHandler -->
-        <appender name="RestSockJsProxyHandler"
-                class="ch.qos.logback.core.rolling.RollingFileAppender">
-                <File>/var/log/bm/js.log</File>
-                <encoder>
-                        <pattern>%d [%thread] %c{1} %p - %m\n</pattern>
-                </encoder>
-                <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-                        <maxIndex>20</maxIndex>
-                        <FileNamePattern>/var/log/bm/js.log.%i.gz</FileNamePattern>
-                </rollingPolicy>
-                <triggeringPolicy
-                        class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-                        <MaxFileSize>60000KB</MaxFileSize>
-                </triggeringPolicy>
-        </appender>
-        <logger name="net.bluemind.core.rest.sockjs.vertx.RestSockJsProxyHandler" level="INFO" additivity="false">
-                <appender-ref ref="RestSockJsProxyHandler" />
-        </logger>
+	<!-- RestSockJsProxyHandler -->
+	<appender name="RestSockJsProxyHandler"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>/var/log/bm/js.log</File>
+		<encoder>
+			<pattern>%d [%thread] %c{1} %p - %m\n</pattern>
+		</encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<maxIndex>20</maxIndex>
+			<FileNamePattern>/var/log/bm/js.log.%i.gz</FileNamePattern>
+		</rollingPolicy>
+		<triggeringPolicy
+			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<MaxFileSize>60000KB</MaxFileSize>
+		</triggeringPolicy>
+	</appender>
+	<logger name="net.bluemind.core.rest.sockjs.vertx.RestSockJsProxyHandler" level="INFO" additivity="false">
+		<appender-ref ref="RestSockJsProxyHandler" />
+	</logger>
 
+ 	<!-- SendmailHandler -->
+	<appender name="SendmailHandler"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>/var/log/bm/sendmail.log</File>
+		<encoder>
+			<pattern>%d [%thread] %c{1} %p - %m\n</pattern>
+		</encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<maxIndex>20</maxIndex>
+			<FileNamePattern>/var/log/bm/sendmail.log.%i.gz</FileNamePattern>
+		</rollingPolicy>
+		<triggeringPolicy
+			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<MaxFileSize>60000KB</MaxFileSize>
+		</triggeringPolicy>
+	</appender>
+	<logger name="net.bluemind.core.sendmail" level="INFO" additivity="false">
+		<appender-ref ref="SendmailHandler" />
+	</logger>
 </configuration>

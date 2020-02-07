@@ -65,18 +65,13 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Timo Stich <tstich@users.sourceforge.net>
  */
-public class SMTPProtocol implements AuthenticationServer {
+public class SMTPProtocol implements AuthenticationServer, AutoCloseable {
 
 	private static final Logger logger = LoggerFactory.getLogger(SMTPProtocol.class);
 
 	private static final byte[] STOPWORD = { '\r', '\n', '.', '\r', '\n' };
 
 	private static final int DEFAULTPORT = 25;
-
-	/**
-	 * @deprecated Use NOT_CONNECTED instead
-	 */
-	public static final int NO_CONNECTION = 0;
 
 	/**
 	 * Protocol state.
@@ -118,8 +113,10 @@ public class SMTPProtocol implements AuthenticationServer {
 	/**
 	 * Constructs the SMTPProtocol.
 	 * 
-	 * @param host the sever name to connect to
-	 * @param port the port to connect to
+	 * @param host
+	 *                 the sever name to connect to
+	 * @param port
+	 *                 the port to connect to
 	 */
 	public SMTPProtocol(String host, int port) {
 		this.host = host;
@@ -130,7 +127,8 @@ public class SMTPProtocol implements AuthenticationServer {
 	 * Constructs the SMTPProtocol. Uses the default port 25 to connect to the
 	 * server.
 	 * 
-	 * @param host the sever name to connect to
+	 * @param host
+	 *                 the sever name to connect to
 	 */
 	public SMTPProtocol(String host) {
 		this(host, DEFAULTPORT);
@@ -168,13 +166,8 @@ public class SMTPProtocol implements AuthenticationServer {
 
 			return domain;
 		} catch (SocketException e) {
-			logger.error("Error connecting to " + host + ":" + port, e);
-			// Catch the exception if it was caused by
-			// dropping the connection
-			if (state != NOT_CONNECTED)
-				throw e;
-			else
-				return "";
+			logger.error(String.format("Error connecting to %s:%s", host, port));
+			throw e;
 		}
 	}
 
@@ -245,7 +238,8 @@ public class SMTPProtocol implements AuthenticationServer {
 	 * 
 	 * @see #helo(InetAddress)
 	 * 
-	 * @param domain the domain name of the client
+	 * @param domain
+	 *                   the domain name of the client
 	 * @return the capabilities of the server
 	 * @throws IOException
 	 * @throws SMTPException
@@ -325,10 +319,13 @@ public class SMTPProtocol implements AuthenticationServer {
 	 * @param algorithm
 	 * 
 	 * @link{org.columba.ristretto.auth.AuthenticationFactory .
-	 * @param algorithm the algorithm used to authenticate the user (e.g. PLAIN,
-	 *                  DIGEST-MD5)
-	 * @param user      the user name
-	 * @param password  the password
+	 * @param algorithm
+	 *                      the algorithm used to authenticate the user (e.g. PLAIN,
+	 *                      DIGEST-MD5)
+	 * @param user
+	 *                      the user name
+	 * @param password
+	 *                      the password
 	 * @throws IOException
 	 * @throws SMTPException
 	 * @throws AuthenticationException
@@ -367,7 +364,8 @@ public class SMTPProtocol implements AuthenticationServer {
 	 * @see #rcpt(Address)
 	 * @see #data(InputStream)
 	 * 
-	 * @param from the email address of the sender
+	 * @param from
+	 *                 the email address of the sender
 	 * @throws IOException
 	 * @throws SMTPException
 	 */
@@ -396,7 +394,8 @@ public class SMTPProtocol implements AuthenticationServer {
 	 * @see #mail(Address)
 	 * @see #data(InputStream)
 	 * 
-	 * @param address the email address of a recipient.
+	 * @param address
+	 *                    the email address of a recipient.
 	 * @throws IOException
 	 * @throws SMTPException
 	 */
@@ -424,7 +423,8 @@ public class SMTPProtocol implements AuthenticationServer {
 	 * @see #mail(Address)
 	 * @see #data(InputStream)
 	 * 
-	 * @param address the email address of a recipient.
+	 * @param address
+	 *                    the email address of a recipient.
 	 * @throws IOException
 	 * @throws SMTPException
 	 */
@@ -456,7 +456,8 @@ public class SMTPProtocol implements AuthenticationServer {
 	 * @see #TO
 	 * @see #CC
 	 * 
-	 * @param address the email address of a recipient.
+	 * @param address
+	 *                    the email address of a recipient.
 	 * @throws IOException
 	 * @throws SMTPException
 	 */
@@ -493,17 +494,21 @@ public class SMTPProtocol implements AuthenticationServer {
 	 * @see #mail(Address)
 	 * @see #rcpt(Address)
 	 * 
-	 * @param data the mail
+	 * @param data
+	 *                 the mail
+	 * 
+	 * @return SMTP response on success
 	 * @throws IOException
 	 * @throws SMTPException
 	 */
-	public void data(InputStream data) throws IOException, SMTPException {
+	public SMTPResponse data(InputStream data) throws IOException, SMTPException {
 		ensureState(PLAIN);
 
+		SMTPResponse response = null;
 		try {
 			sendCommand("DATA", null);
 
-			SMTPResponse response = readSingleLineResponse();
+			response = readSingleLineResponse();
 			if (response.getCode() == 354) {
 				try {
 					copyStream(new StopWordSafeInputStream(data), out);
@@ -520,30 +525,26 @@ public class SMTPProtocol implements AuthenticationServer {
 			response = readSingleLineResponse();
 			if (response.isERR())
 				throw new SMTPException(response);
+
 		} catch (SocketException e) {
 			// Catch the exception if it was caused by
 			// dropping the connection
 			if (state != NOT_CONNECTED)
 				throw e;
 		}
+
+		return response;
 	}
 
 	/**
 	 * Sends the QUIT command and closes the socket.
 	 * 
-	 * @throws IOException
-	 * @throws SMTPException
+	 * @throws Exception
 	 */
-	public void quit() throws IOException, SMTPException {
+	public void quit() throws Exception {
 		try {
 			sendCommand("QUIT", null);
-
-			socket.close();
-			in = null;
-			out = null;
-			socket = null;
-
-			state = NOT_CONNECTED;
+			close();
 		} catch (SocketException e) {
 			// Catch the exception if it was caused by
 			// dropping the connection
@@ -577,7 +578,8 @@ public class SMTPProtocol implements AuthenticationServer {
 	/**
 	 * Sends a VRFY command which verifies the given email address.
 	 * 
-	 * @param address email address to verify
+	 * @param address
+	 *                    email address to verify
 	 * @throws IOException
 	 * @throws SMTPException
 	 */
@@ -600,7 +602,8 @@ public class SMTPProtocol implements AuthenticationServer {
 	/**
 	 * Expands a given mailinglist address to all members of that list.
 	 * 
-	 * @param mailinglist the mailinglist address
+	 * @param mailinglist
+	 *                        the mailinglist address
 	 * @return the members of the mailinglist
 	 * @throws IOException
 	 * @throws SMTPException
@@ -734,17 +737,12 @@ public class SMTPProtocol implements AuthenticationServer {
 	/**
 	 * Drops the connection.
 	 * 
-	 * @throws IOException
+	 * @throws Exception
 	 * 
 	 */
-	public void dropConnection() throws IOException {
+	public void dropConnection() throws Exception {
 		if (state != NOT_CONNECTED) {
-			state = NOT_CONNECTED;
-
-			socket.close();
-			in = null;
-			out = null;
-			socket = null;
+			close();
 		}
 	}
 
@@ -760,5 +758,18 @@ public class SMTPProtocol implements AuthenticationServer {
 			state = NOT_CONNECTED;
 			throw e;
 		}
+	}
+
+	@Override
+	public void close() throws Exception {
+		if (socket != null) {
+			socket.close();
+		}
+
+		in = null;
+		out = null;
+		socket = null;
+
+		state = NOT_CONNECTED;
 	}
 }

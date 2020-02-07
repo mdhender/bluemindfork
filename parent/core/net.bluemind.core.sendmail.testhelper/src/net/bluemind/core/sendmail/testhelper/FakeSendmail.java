@@ -9,10 +9,10 @@ import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.address.Mailbox;
 import org.apache.james.mime4j.dom.address.MailboxList;
 
-import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.sendmail.ISendmail;
 import net.bluemind.core.sendmail.Mail;
 import net.bluemind.core.sendmail.SendmailCredentials;
+import net.bluemind.core.sendmail.SendmailResponse;
 
 public class FakeSendmail implements ISendmail {
 	public boolean mailSent = false;
@@ -27,30 +27,34 @@ public class FakeSendmail implements ISendmail {
 	}
 
 	@Override
-	public void send(Mail m) throws ServerFault {
+	public SendmailResponse send(Mail m) {
 		mailSent = true;
+		return SendmailResponse.success();
 	}
 
 	@Override
-	public void send(Mailbox sender, Message m) throws ServerFault {
-		mailSent = true;
-		messages.add(TestMail.fromMessage(m));
-	}
-
-	@Override
-	public void send(SendmailCredentials creds, String domainUid, Message m) throws ServerFault {
+	public SendmailResponse send(Mailbox sender, Message m) {
 		mailSent = true;
 		messages.add(TestMail.fromMessage(m));
+		return SendmailResponse.success();
 	}
 
 	@Override
-	public void send(SendmailCredentials creds, String fromEmail, String userDomain, Message m) {
+	public SendmailResponse send(SendmailCredentials creds, String domainUid, Message m) {
 		mailSent = true;
+		messages.add(TestMail.fromMessage(m));
+		return SendmailResponse.success();
 	}
 
 	@Override
-	public void send(SendmailCredentials creds, String fromEmail, String userDomain, MailboxList rcptTo, Message m)
-			throws ServerFault {
+	public SendmailResponse send(SendmailCredentials creds, String fromEmail, String userDomain, Message m) {
+		mailSent = true;
+		return SendmailResponse.success();
+	}
+
+	@Override
+	public SendmailResponse send(SendmailCredentials creds, String fromEmail, String userDomain, MailboxList rcptTo,
+			Message m) {
 		mailSent = true;
 
 		TestMail tm = new TestMail();
@@ -61,5 +65,6 @@ public class FakeSendmail implements ISendmail {
 
 		tm.message = m;
 		messages.add(tm);
+		return SendmailResponse.success();
 	}
 }

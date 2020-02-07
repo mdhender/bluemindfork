@@ -20,6 +20,8 @@ package net.bluemind.core.sendmail;
 
 import java.net.InetAddress;
 import java.util.LinkedList;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.address.AddressList;
@@ -45,8 +47,8 @@ public class Sendmail implements ISendmail {
 	 * java.lang.String, java.lang.String, org.apache.james.mime4j.dom.Message)
 	 */
 	@Override
-	public void send(SendmailCredentials creds, String domainUid, Message m) throws ServerFault {
-		send(creds, m.getFrom().iterator().next().getAddress(), domainUid, allRecipients(m), m);
+	public SendmailResponse send(SendmailCredentials creds, String domainUid, Message m) {
+		return send(creds, m.getFrom().iterator().next().getAddress(), domainUid, allRecipients(m), m);
 	}
 
 	/*
@@ -56,8 +58,8 @@ public class Sendmail implements ISendmail {
 	 * java.lang.String, org.apache.james.mime4j.dom.Message)
 	 */
 	@Override
-	public void send(SendmailCredentials creds, String fromEmail, String userDomain, Message m) throws ServerFault {
-		send(creds, fromEmail, userDomain, allRecipients(m), m);
+	public SendmailResponse send(SendmailCredentials creds, String fromEmail, String userDomain, Message m) {
+		return send(creds, fromEmail, userDomain, allRecipients(m), m);
 	}
 
 	/*
@@ -67,8 +69,8 @@ public class Sendmail implements ISendmail {
 	 * Mail)
 	 */
 	@Override
-	public void send(Mail m) throws ServerFault {
-		send(m.from, m.getMessage());
+	public SendmailResponse send(Mail m) {
+		return send(m.from, m.getMessage());
 	}
 
 	/*
@@ -78,11 +80,11 @@ public class Sendmail implements ISendmail {
 	 * address.Mailbox, org.apache.james.mime4j.dom.Message)
 	 */
 	@Override
-	public void send(Mailbox from, Message m) throws ServerFault {
-		send(SendmailCredentials.asAdmin0(), from.getAddress(), from.getDomain(), allRecipients(m), m);
+	public SendmailResponse send(Mailbox from, Message m) {
+		return send(SendmailCredentials.asAdmin0(), from.getAddress(), from.getDomain(), allRecipients(m), m);
 	}
 
-	private MailboxList allRecipients(Message m) throws ServerFault {
+	private MailboxList allRecipients(Message m) {
 		LinkedList<Mailbox> rcpt = new LinkedList<>();
 		AddressList tos = m.getTo();
 		if (tos != null) {
@@ -112,16 +114,16 @@ public class Sendmail implements ISendmail {
 	 * org.apache.james.mime4j.dom.Message)
 	 */
 	@Override
-	public void send(SendmailCredentials creds, String fromEmail, String userDomain, MailboxList rcptTo, Message m)
-			throws ServerFault {
+	public SendmailResponse send(SendmailCredentials creds, String fromEmail, String userDomain, MailboxList rcptTo,
+			Message m) {
 		if (rcptTo == null) {
 			throw new ServerFault("null To: field in message");
 		}
 
-		String ip = Topology.get().any("mail/smtp").value.address();
-		try {
-			SMTPProtocol smtp = new SMTPProtocol(ip, 587);
+		SendmailResponse sendmailResponse = null;
 
+		String ip = Topology.get().any("mail/smtp").value.address();
+		try (SMTPProtocol smtp = new SMTPProtocol(ip, 587)) {
 			smtp.openPort();
 			smtp.startTLS();
 			smtp.auth("PLAIN", creds.loginAtDomain, creds.authKey.toCharArray());
@@ -132,12 +134,24 @@ public class Sendmail implements ISendmail {
 				smtp.rcpt(new Address(to.getAddress()));
 			}
 
-			smtp.data(Mime4JHelper.asStream(m));
+			sendmailResponse = new SendmailResponse(smtp.data(Mime4JHelper.asStream(m)));
 			smtp.quit();
 
+			logger.info("Email sent {}", getLog(creds, fromEmail, rcptTo, sendmailResponse, Optional.empty()));
+			return sendmailResponse;
 		} catch (Exception se) {
+			logger.error("Email not sent {}",
+					getLog(creds, fromEmail, rcptTo, sendmailResponse, Optional.of(se.getMessage())));
 			logger.error(se.getMessage(), se);
-			throw new ServerFault(se.getMessage());
+
+			return SendmailResponse.fail(se.getMessage());
 		}
+	}
+
+	private String getLog(SendmailCredentials creds, String fromEmail, MailboxList rcptTo,
+			SendmailResponse sendmailResponse, Optional<String> exceptionMessage) {
+		return String.format("as: %s, from: %s, to %s, response: %s", creds.loginAtDomain, fromEmail,
+				String.join(",", rcptTo.stream().map(rcpt -> rcpt.getAddress()).collect(Collectors.toList())),
+				sendmailResponse != null ? sendmailResponse.toString() : exceptionMessage.orElse("Fail"));
 	}
 }
