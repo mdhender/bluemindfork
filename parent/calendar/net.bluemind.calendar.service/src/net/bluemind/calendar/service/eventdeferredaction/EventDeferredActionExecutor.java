@@ -28,7 +28,6 @@ import java.util.Optional;
 import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 
 import org.apache.james.mime4j.MimeException;
 import org.elasticsearch.common.Strings;
@@ -73,30 +72,28 @@ public class EventDeferredActionExecutor implements IDeferredActionExecutor {
 	@Override
 	public void execute(ZonedDateTime executionDate) {
 		domainsService.all().stream().filter(EventDeferredActionExecutor::isNotGlobalVirt)
-				.forEach(executeForDomain(executionDate));
+				.forEach(d -> executeForDomain(d, executionDate));
 	}
 
-	private Consumer<? super ItemValue<Domain>> executeForDomain(ZonedDateTime executionDate) {
-		return domain -> {
-			String deferredActionUid = IDeferredActionContainerUids.uidForDomain(domain.uid);
-			IDeferredAction deferredActionService = provider.instance(IDeferredAction.class, deferredActionUid);
-			IMailboxes mailboxesService = provider.instance(IMailboxes.class, domain.uid);
-			IUserSettings userSettingsService = provider.instance(IUserSettings.class, domain.uid);
-			IDirectory directoryService = provider.instance(IDirectory.class, domain.uid);
+	private void executeForDomain(ItemValue<Domain> domain, ZonedDateTime executionDate) {
+		String deferredActionUid = IDeferredActionContainerUids.uidForDomain(domain.uid);
+		IDeferredAction deferredActionService = provider.instance(IDeferredAction.class, deferredActionUid);
+		IMailboxes mailboxesService = provider.instance(IMailboxes.class, domain.uid);
+		IUserSettings userSettingsService = provider.instance(IUserSettings.class, domain.uid);
+		IDirectory directoryService = provider.instance(IDirectory.class, domain.uid);
 
-			List<ItemValue<DeferredAction>> deferredActions = deferredActionService
-					.getByActionId(EventDeferredAction.ACTION_ID, executionDate.toInstant().toEpochMilli());
+		List<ItemValue<DeferredAction>> deferredActions = deferredActionService
+				.getByActionId(EventDeferredAction.ACTION_ID, executionDate.toInstant().toEpochMilli());
 
-			logger.info("Found {} deferred actions of type {}", deferredActions.size(), EventDeferredAction.ACTION_ID);
+		logger.info("Found {} deferred actions of type {}", deferredActions.size(), EventDeferredAction.ACTION_ID);
 
-			deferredActions.stream().map(EventDeferredActionExecutor::from).filter(Optional::isPresent)
-					.map(Optional::get).forEach(action -> {
-						VertxPlatform.getVertx().setTimer(
-								Math.max(1, action.value.executionDate.getTime() - new Date().getTime()),
-								(timerId) -> executeAction(deferredActionService, action, mailboxesService,
-										userSettingsService, directoryService));
-					});
-		};
+		deferredActions.stream().map(EventDeferredActionExecutor::from).filter(Optional::isPresent).map(Optional::get)
+				.forEach(action -> {
+					VertxPlatform.getVertx().setTimer(
+							Math.max(1, action.value.executionDate.getTime() - new Date().getTime()),
+							(timerId) -> executeAction(deferredActionService, action, mailboxesService,
+									userSettingsService, directoryService));
+				});
 	}
 
 	private void executeAction(IDeferredAction deferredActionService, ItemValue<EventDeferredAction> deferredAction,

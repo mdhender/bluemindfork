@@ -31,6 +31,7 @@ import org.apache.james.mime4j.dom.address.Mailbox;
 import org.apache.james.mime4j.dom.address.MailboxList;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -63,6 +64,11 @@ import net.bluemind.tests.defaultdata.PopulateHelper;
 public class EventDeferredActionExecutorTests {
 
 	private static final String domainUid = "defbm.lan";
+
+	@BeforeClass
+	public static void oneShotBefore() {
+		System.setProperty("es.mailspool.count", "1");
+	}
 
 	@Before
 	public void setup() throws Exception {
