@@ -60,7 +60,6 @@
       <plugin id="net.bluemind.group.api"/>
       <plugin id="net.bluemind.hornetq.client"/>
       <plugin id="net.bluemind.lib.jackson"/>
-      <plugin id="net.bluemind.lib.jta"/>
       <plugin id="net.bluemind.lib.vertx"/>
       <plugin id="net.bluemind.locator.vertxclient"/>
       <plugin id="net.bluemind.mailbox.api"/>
@@ -76,13 +75,11 @@
       <plugin id="net.bluemind.system.stateobserver"/>
       <plugin id="net.bluemind.systemd.notify"/>
       <plugin id="net.bluemind.tag.api"/>
-      <plugin id="net.bluemind.unixsocket"/>
       <plugin id="net.bluemind.user.api"/>
       <plugin id="net.bluemind.utils"/>
       <plugin id="net.bluemind.ysnp"/>
       <plugin id="net.bluemind.ysnp.bmcore"/>
       <plugin id="net.java.dev.jna"/>
-      <plugin id="org.apache.commons.lang"/>
       <plugin id="org.asynchttpclient.async-http-client"/>
       <plugin id="org.asynchttpclient.async-http-client-netty-utils"/>
       <plugin id="org.eclipse.core.contenttype"/>
@@ -100,8 +97,8 @@
 
    <configurations>
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
-      <property name="osgi.noShutdown" value="true" />
       <property name="osgi.configuration.area" value="/var/lib/ysnp/" />
+      <property name="osgi.noShutdown" value="true" />
    </configurations>
 
 </product>
