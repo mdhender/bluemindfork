@@ -19,7 +19,8 @@
 		<module>mapi-support</module>
 		<module>password-bruteforce</module>
 		<module>password-sizestrength</module>
-		<module>monitoring</module>
+		<module>mailapp</module>
+        <module>monitoring</module>
 		<module>ldap-export</module>
 	</modules>
 </project>
