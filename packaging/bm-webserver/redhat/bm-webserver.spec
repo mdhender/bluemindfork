@@ -40,10 +40,6 @@ fi
 systemctl daemon-reload
 systemctl enable bm-webserver
 
-if [ -d /var/lib/bm-webserver ]; then
-    rm -fr /var/lib/bm-webserver/*
-fi
-
 if [ $1 -eq 1 ]; then
     # Installation
     systemctl start bm-webserver
