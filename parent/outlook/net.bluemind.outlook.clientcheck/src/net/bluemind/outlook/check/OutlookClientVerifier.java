@@ -83,7 +83,7 @@ public class OutlookClientVerifier extends RestFilterAdapter {
 		Matcher clientVersionMatcher = clientVersion.matcher(origin);
 		if (clientVersionMatcher.find()) {
 			VersionInfo client = VersionInfo.create(clientVersionMatcher.group(1));
-			return client.greaterThan(VersionInfo.create("3.1.26308"));
+			return client.greaterThan(VersionInfo.create("4.1.47241"));
 		}
 		return false;
 	}
