@@ -17,9 +17,6 @@
 #
 # See LICENSE.txt
 
-chown root:bluemind /var/lib/bm-metrics-agent/state/
-chmod 775 /var/lib/bm-metrics-agent/state/
-
 #DEBHELPER#
 
 exit 0
