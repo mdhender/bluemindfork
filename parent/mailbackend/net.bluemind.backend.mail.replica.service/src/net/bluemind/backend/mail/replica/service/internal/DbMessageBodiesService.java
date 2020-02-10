@@ -182,6 +182,7 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 						try {
 							Files.deleteIfExists(tmpFromSDS);
 						} catch (IOException e) {
+							// ok
 						}
 					}
 				}
@@ -202,11 +203,7 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 	@Override
 	public void update(MessageBody mb) {
 		try {
-			if (exists(mb.guid)) {
-				bodyStore.update(mb);
-			} else {
-				bodyStore.create(mb);
-			}
+			bodyStore.store(mb);
 			BodiesCache.bodies.put(mb.guid, mb);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);

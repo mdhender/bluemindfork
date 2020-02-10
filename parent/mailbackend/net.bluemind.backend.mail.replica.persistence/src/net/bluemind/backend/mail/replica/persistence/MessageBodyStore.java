@@ -18,6 +18,7 @@
 package net.bluemind.backend.mail.replica.persistence;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -38,17 +39,13 @@ public class MessageBodyStore extends JdbcAbstractStore {
 	}
 
 	private static final String CREATE_QUERY = "INSERT INTO t_message_body ( " + MessageBodyColumns.COLUMNS.names()
-			+ ", guid) VALUES (" + MessageBodyColumns.COLUMNS.values() + ", decode(?, 'hex'))";
+			+ ", guid) VALUES (" + MessageBodyColumns.COLUMNS.values()
+			+ ", decode(?, 'hex')) ON CONFLICT (guid) DO UPDATE SET (" + MessageBodyColumns.COLUMNS.names() + ") = ("
+			+ MessageBodyColumns.COLUMNS.values() + " )";
 
-	public void create(MessageBody value) throws SQLException {
-		insert(CREATE_QUERY, value, MessageBodyColumns.values(value.guid));
-	}
-
-	private static final String UPD_QUERY = "UPDATE t_message_body SET ( " + MessageBodyColumns.COLUMNS.names()
-			+ ") = (" + MessageBodyColumns.COLUMNS.values() + " )" + " WHERE guid = decode(?, 'hex')";
-
-	public void update(MessageBody value) throws SQLException {
-		update(UPD_QUERY, value, MessageBodyColumns.values(value.guid));
+	public void store(MessageBody value) throws SQLException {
+		insert(CREATE_QUERY, value,
+				Arrays.asList(MessageBodyColumns.values(value.guid), MessageBodyColumns.values(null)));
 	}
 
 	public void delete(String guid) throws SQLException {

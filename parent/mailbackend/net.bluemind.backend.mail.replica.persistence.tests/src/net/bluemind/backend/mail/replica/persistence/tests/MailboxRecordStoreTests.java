@@ -157,7 +157,7 @@ public class MailboxRecordStoreTests {
 	public void testRecentItems() throws SQLException {
 		MailboxRecord mb = simpleRecord();
 		MessageBody body = body(mb.messageBody, new Date());
-		bodyStore.create(body);
+		bodyStore.store(body);
 
 		String uniqueId = "rec" + System.currentTimeMillis();
 		itemStore.create(Item.create(uniqueId, null));

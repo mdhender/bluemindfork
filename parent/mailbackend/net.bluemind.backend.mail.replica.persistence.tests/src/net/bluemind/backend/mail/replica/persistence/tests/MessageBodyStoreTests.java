@@ -81,7 +81,7 @@ public class MessageBodyStoreTests {
 	public void testExisting() throws SQLException {
 		String guid = CyrusGUID.randomGuid();
 		MessageBody mb = simpleTextBody(guid);
-		bodyStore.create(mb);
+		bodyStore.store(mb);
 
 		assertTrue(bodyStore.exists(guid));
 		List<String> existing = bodyStore.existing(Arrays.asList(guid, "DEADDEAD"));
@@ -94,7 +94,7 @@ public class MessageBodyStoreTests {
 	public void testDelete() throws SQLException {
 		String guid = CyrusGUID.randomGuid();
 		MessageBody mb = simpleTextBody(guid);
-		bodyStore.create(mb);
+		bodyStore.store(mb);
 		MessageBody reloaded = bodyStore.get(guid);
 		assertNotNull(reloaded);
 
@@ -108,7 +108,7 @@ public class MessageBodyStoreTests {
 	public void testCrudSimple() throws SQLException {
 		String guid = CyrusGUID.randomGuid();
 		MessageBody mb = simpleTextBody(guid);
-		bodyStore.create(mb);
+		bodyStore.store(mb);
 		MessageBody reloaded = bodyStore.get(guid);
 		assertNotNull(reloaded);
 		assertEquals(1, reloaded.headers.size());
@@ -129,7 +129,7 @@ public class MessageBodyStoreTests {
 		assertEquals(1, mget2.size());
 
 		reloaded.subject = "updated";
-		bodyStore.update(reloaded);
+		bodyStore.store(reloaded);
 		MessageBody reloaded2 = bodyStore.get(guid);
 		assertEquals("updated", reloaded2.subject);
 		assertEquals(guid, reloaded2.guid);
@@ -148,7 +148,7 @@ public class MessageBodyStoreTests {
 		for (int i = 0; i < CNT; i++) {
 			String guid = CyrusGUID.randomGuid();
 			MessageBody mb = simpleTextBody(guid);
-			bodyStore.create(mb);
+			bodyStore.store(mb);
 			existing[i] = guid;
 		}
 		time = System.currentTimeMillis() - time;
@@ -191,7 +191,7 @@ public class MessageBodyStoreTests {
 
 		String guid = CyrusGUID.randomGuid();
 		MessageBody mb = simpleTextBody(guid);
-		bodyStore.create(mb);
+		bodyStore.store(mb);
 		MessageBody reloaded = bodyStore.get(guid);
 		assertNotNull(reloaded);
 
@@ -209,14 +209,14 @@ public class MessageBodyStoreTests {
 		String guid2 = CyrusGUID.randomGuid();
 		mb = simpleTextBody(guid2);
 		mb.subject = "expired";
-		bodyStore.create(mb);
+		bodyStore.store(mb);
 		adjustCreationDate(mb.subject);
 		reloaded = bodyStore.get(guid2);
 		assertNotNull(reloaded);
 
 		String guid3 = CyrusGUID.randomGuid();
 		mb = simpleTextBody(guid3);
-		bodyStore.create(mb);
+		bodyStore.store(mb);
 		reloaded = bodyStore.get(guid3);
 		assertNotNull(reloaded);
 
@@ -240,12 +240,12 @@ public class MessageBodyStoreTests {
 	public void testDeleteAll() throws SQLException {
 		String guid = CyrusGUID.randomGuid();
 		MessageBody mb = simpleTextBody(guid);
-		bodyStore.create(mb);
+		bodyStore.store(mb);
 		assertNotNull(bodyStore.get(guid));
 
 		String guid2 = CyrusGUID.randomGuid();
 		mb = simpleTextBody(guid2);
-		bodyStore.create(mb);
+		bodyStore.store(mb);
 		assertNotNull(bodyStore.get(guid2));
 
 		bodyStore.deleteAll();
@@ -259,7 +259,7 @@ public class MessageBodyStoreTests {
 		String guid = CyrusGUID.randomGuid();
 		MessageBody mb = simpleTextBody(guid);
 		mb.structure.children.add(Part.create("mia_callista.png", "image/png", "1.2"));
-		bodyStore.create(mb);
+		bodyStore.store(mb);
 		MessageBody reloaded = bodyStore.get(guid);
 		assertNotNull(reloaded);
 		assertFalse(reloaded.structure.children.isEmpty());
