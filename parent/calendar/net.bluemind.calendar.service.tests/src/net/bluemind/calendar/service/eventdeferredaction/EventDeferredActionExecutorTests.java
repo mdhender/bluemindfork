@@ -128,9 +128,13 @@ public class EventDeferredActionExecutorTests {
 
 		assertEquals(1, getDeferredActions(eventDate).size());
 		executor.execute(eventDate);
-		Thread.sleep(1001);
-		assertEquals(0, getDeferredActions(eventDate).size());
+		long time = System.currentTimeMillis();
+		while (!mailer.hasBeenCalled() && System.currentTimeMillis() - time < 10000) {
+			Thread.sleep(100);
+		}
 		assertTrue(mailer.hasBeenCalled());
+		assertEquals(0, getDeferredActions(eventDate).size());
+		System.err.println("Took " + (System.currentTimeMillis() - time) + "ms to occur");
 	}
 
 	@Test
