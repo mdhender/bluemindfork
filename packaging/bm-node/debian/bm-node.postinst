@@ -18,13 +18,6 @@
 # See LICENSE.txt
 
 
-# clear osgi configuration area. This is important when plugins with
-# embedded jars are updated.
-mkdir -p /var/lib/bm-node/
-rm -fr /var/lib/bm-node/org.*
-rm -fr /var/lib/bm-node/net.*
-rm -fr /var/lib/bm-node/fr.*
-
 mkdir -p /var/lib/bm-ca
 
 if [ -d /etc/apt/preferences.d/bm ]; then
