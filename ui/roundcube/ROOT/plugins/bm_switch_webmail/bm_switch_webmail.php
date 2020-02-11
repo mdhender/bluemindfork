@@ -34,7 +34,7 @@ class bm_switch_webmail extends rcube_plugin {
   }
 
   public function startup($args) {
-    if (isset($_SESSION['bm']['settings']) && $_SESSION['bm']['settings']['try_new_webmail'] == 'true') {
+    if (isset($_SESSION['bm']['settings']) && $_SESSION['bm']['settings']['mail-application'] == 'mail-webapp') {
         header("Location: /webapp/mail/");
     }
   }
@@ -42,7 +42,7 @@ class bm_switch_webmail extends rcube_plugin {
   function click() {
     $rcmail = rcmail::get_instance();
     $userSettingsClient = new BM\UserSettingsClient($_SESSION['bm']['core'], $rcmail->decrypt($_SESSION['password']), $_SESSION['bm_sso']['bmDomain']);
-    $userSettingsClient->setOne($_SESSION['bm_sso']['bmUserId'], "try_new_webmail", "true");
+    $userSettingsClient->setOne($_SESSION['bm_sso']['bmUserId'], "mail-application", "mail-webapp");
     header("Location: /webapp/mail/");
   }
 }

@@ -53,11 +53,11 @@ public class TryMailAppFilter implements IWebFilter, NeedVertx {
 			VertxServiceProvider provider = new VertxServiceProvider(clientProvider,
 					new VertxLocatorClient(clientProvider, SecurityContext.ANONYMOUS.getSubject()), null).from(request);
 
-			provider.instance("bm/core", IUserSettingsAsync.class, domainUid).getOne(userUid, "try_new_webmail", new AsyncHandler<String>() {
+			provider.instance("bm/core", IUserSettingsAsync.class, domainUid).getOne(userUid, "mail-application", new AsyncHandler<String>() {
 					
 				@Override
 				public void success(String value) {
-					boolean tryNewWebmail = Boolean.parseBoolean(value);
+					boolean tryNewWebmail = value.equals("mail-webapp");
 					
 					if (!tryNewWebmail) {
 						logger.info("Redirecting /webapp/index.html to /webmail/ for user {} on domain {}", 

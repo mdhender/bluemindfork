@@ -177,7 +177,7 @@ export default {
         },
         switchWebmail() {
             injector.getProvider("UserSettingsPersistence").get()
-                .setOne(this.userSession.userId, "try_new_webmail", "false");
+                .setOne(this.userSession.userId, "mail-application", "webmail");
             location.replace("/webmail/");
         }
     }
