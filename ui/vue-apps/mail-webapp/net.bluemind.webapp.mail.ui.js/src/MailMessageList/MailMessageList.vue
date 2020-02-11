@@ -254,5 +254,6 @@ export default {
 
 .mail-message-list .list-group-separator {
     padding: map-get($spacers, 1);
+    border-bottom: $border-width solid $light;
 }
 </style>

@@ -13,7 +13,7 @@
                 <bm-check @click.native.stop />
             </bm-col>
             <bm-col cols="8" class="text-overflow">
-                <div v-bm-tooltip.ds500.viewport :title="from" class="text-overflow mw-100 sender">
+                <div v-bm-tooltip.ds500.viewport :title="from" class="text-overflow mw-100 sender h3 text-dark">
                     {{ from }}
                 </div>
             </bm-col>
@@ -37,11 +37,11 @@
             <bm-col cols="1" class="mail-attachment">
                 <component :is="state" v-if="!!state" class="ml-1" />
             </bm-col>
-            <bm-col class="text-secondary text-overflow subject">
+            <bm-col class="text-overflow ">
                 <div 
                     v-bm-tooltip.ds500.bottom.viewport
                     :title="message.subject"
-                    class="text-overflow mw-100"
+                    class="text-overflow mw-100 h3 subject"
                 >
                     {{ message.subject }}
                 </div>
@@ -187,8 +187,8 @@ export default {
 
 a.list-group-item.mail-message-list-item {
     border-left: transparent solid 4px !important;
-    font-size: $font-size-lg;
 }
+
 .list-group-item.mail-message-list-item:focus {
    outline: $outline;
    &:hover {
