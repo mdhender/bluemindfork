@@ -21,6 +21,7 @@ package net.bluemind.system.validation;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,7 @@ import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Producer;
 import net.bluemind.hornetq.client.Topic;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.system.validation.IProductValidator.ValidationResult;
 
 public class ProductChecks {
@@ -50,40 +52,46 @@ public class ProductChecks {
 	}
 
 	public static void validate() {
+		blockingCheck();
+	}
 
+	public static CompletableFuture<Void> asyncValidate() {
+		CompletableFuture<Void> ret = new CompletableFuture<>();
 		logger.info("Loaded {} product validators", validators.size());
-		MQ.init(() -> {
-			Producer prod = MQ.getProducer(Topic.PRODUCT_CHECK_RESULTS);
-			boolean failed = false;
-			boolean blocking = false;
-			List<String> failedChecks = new LinkedList<>();
-			for (IProductValidator validator : validators) {
-				try {
-					ValidationResult result = validateAndPublishResult(prod, validator);
-					failed |= !result.valid;
-					failedChecks.add(validator.getName());
-					if (result.blocking) {
-						blocking = true;
-						break;
-					}
-				} catch (Exception e) {
-					logger.error("Check {} failed ({}), skipping it for now", validator.getName(), e.getMessage());
+		MQ.init(() -> VertxPlatform.getVertx().executeBlocking(prom -> blockingCheck(), res -> ret.complete(null)));
+		return ret;
+
+	}
+
+	private static void blockingCheck() {
+		Producer prod = MQ.getProducer(Topic.PRODUCT_CHECK_RESULTS);
+		boolean failed = false;
+		boolean blocking = false;
+		List<String> failedChecks = new LinkedList<>();
+		for (IProductValidator validator : validators) {
+			try {
+				ValidationResult result = validateAndPublishResult(prod, validator);
+				failed |= !result.valid;
+				failedChecks.add(validator.getName());
+				if (result.blocking) {
+					blocking = true;
+					break;
 				}
+			} catch (Exception e) {
+				logger.error("Check {} failed ({}), skipping it for now", validator.getName(), e.getMessage());
 			}
+		}
 
-			if (failed) {
-				if (dryMode()) {
-					logger.warn("Validation checks have failed ({}) but dry mode is active.", failedChecks);
-				} else if (blocking) {
-					logger.error("Validation checks have failed ({}). Exiting application....", failedChecks);
-					System.exit(1);
-				} else {
-					logger.error("Non-blocking Validation checks have failed ({}).", failedChecks);
-				}
+		if (failed) {
+			if (dryMode()) {
+				logger.warn("Validation checks have failed ({}) but dry mode is active.", failedChecks);
+			} else if (blocking) {
+				logger.error("Validation checks have failed ({}). Exiting application....", failedChecks);
+				System.exit(1);
+			} else {
+				logger.error("Non-blocking Validation checks have failed ({}).", failedChecks);
 			}
-
-		});
-
+		}
 	}
 
 	private static ValidationResult validateAndPublishResult(Producer prod, IProductValidator validator) {
