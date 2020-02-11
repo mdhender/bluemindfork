@@ -29,7 +29,7 @@ import com.netflix.spectator.api.Registry;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.Verticle;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.Message;
@@ -70,7 +70,7 @@ public class SdsProxyHttpVerticle extends AbstractVerticle {
 	private static final IdFactory idFactory = new IdFactory("http", MetricsRegistry.get(), SdsProxyHttpVerticle.class);
 
 	@Override
-	public void start(Future<Void> startedResult) {
+	public void start(Promise<Void> startedResult) {
 
 		HttpServer srv = vertx.createHttpServer();
 		RouteMatcher router = new RouteMatcher(vertx);
@@ -122,14 +122,15 @@ public class SdsProxyHttpVerticle extends AbstractVerticle {
 			vertx.eventBus().request(SdsAddresses.VALIDATION, payload, new DeliveryOptions().setSendTimeout(3000),
 					(AsyncResult<Message<Boolean>> result) -> {
 						if (result.failed()) {
-							logger.info("Unable to get a result, accept by default");
-							request.response().setStatusCode(200).end();
+							logger.info("Unable to get a result ({}), accept by default", result.cause().getMessage());
+							req.response().setStatusCode(200).end();
 						} else {
 							boolean isAccepted = result.result().body();
 							if (isAccepted) {
-								request.response().setStatusCode(200).end();
+								req.response().setStatusCode(200).end();
 							} else {
-								request.response().setStatusCode(403).end();
+								logger.warn("Refusing for {}", payload);
+								req.response().setStatusCode(403).end();
 							}
 						}
 
