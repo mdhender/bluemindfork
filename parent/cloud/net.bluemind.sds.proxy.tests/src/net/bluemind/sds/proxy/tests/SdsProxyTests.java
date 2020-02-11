@@ -93,7 +93,7 @@ public class SdsProxyTests {
 		HttpClient client = client();
 		JsonObject payload = new JsonObject().put("mailbox", "yeah").put("guid", "123");
 		CompletableFuture<Integer> waitResp = new CompletableFuture<>();
-		client.head("/sds", resp -> {
+		client.options("/sds", resp -> {
 			System.err.println("resp " + resp);
 			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
 			resp.endHandler(v -> {
@@ -111,7 +111,7 @@ public class SdsProxyTests {
 		CompletableFuture<Integer> waitResp = new CompletableFuture<>();
 		HttpClient client = client();
 		JsonObject payload = new JsonObject().put("mailbox", "yeah").put("guid", "789");
-		client.head("/sds", resp -> {
+		client.options("/sds", resp -> {
 			System.err.println("resp " + resp);
 			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
 			resp.endHandler(v -> {
@@ -219,7 +219,7 @@ public class SdsProxyTests {
 		assertEquals(200, httpStatus);
 
 		payload = new JsonObject().put("mailbox", "yeah").put("guid", "123");
-		client.head("/sds", resp -> {
+		client.options("/sds", resp -> {
 			resp.endHandler(v -> {
 			});
 		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();

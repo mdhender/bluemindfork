@@ -78,12 +78,12 @@ public class SdsProxyHttpVerticle extends AbstractVerticle {
 			logger.warn("Unknown request to {} {}", req.method(), req.absoluteURI());
 			req.response().setStatusCode(400).end();
 		});
-		router.head("/sds", this::exist);
+		router.options("/sds", this::exist);
 		router.delete("/sds", this::delete);
 		router.put("/sds", this::put);
 		router.get("/sds", this::get);
 		router.post("/configuration", this::configure);
-		router.head("/mailbox", this::validateMailbox);
+		router.post("/mailbox", this::validateMailbox);
 
 		srv.requestHandler(router).listen(8091, result -> {
 			if (result.succeeded()) {
