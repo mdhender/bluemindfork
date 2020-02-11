@@ -4386,6 +4386,11 @@ lodash.last@^3.0.0:
   version "3.0.0"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/lodash.last/-/lodash.last-3.0.0.tgz#242f663112dd4c6e63728c60a3c909d1bdadbd4c"
 
+lodash.merge@^4.6.2:
+  version "4.6.2"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/lodash.merge/-/lodash.merge-4.6.2.tgz#558aa53b43b661e1925a0afdfa36a9a1085fe57a"
+  integrity sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==
+
 lodash.repeat@^4.1.0:
   version "4.1.0"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/lodash.repeat/-/lodash.repeat-4.1.0.tgz#fc7de8131d8c8ac07e4b49f74ffe829d1f2bec44"

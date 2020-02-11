@@ -20,7 +20,13 @@
         "lodash.last": "^3.0.0",
         "vue-global-events": "^1.1.2"
     },
+    "devDependencies": {
+        "@bluemind/conf": "^4.1.0",
+        "@vue/test-utils": "^1.0.0-beta.25",
+        "lodash.merge": "^4.6.2"
+    },
     "scripts": {
-        "lint": "eslint src/**/*.{js,vue}"
+        "lint": "eslint src/**/*.{js,vue}",
+        "test": "jest --config node_modules/@bluemind/conf/jest.config.js"
     }
 }

@@ -48,6 +48,7 @@
         "vue": "^2.6.0"
     },
     "scripts": {
-        "test": "jest --ci --json --config node_modules/@bluemind/conf/jest.config.js > jest.json"
+        "test": "jest --ci --json --config node_modules/@bluemind/conf/jest.config.js > jest.json",
+        "test-dev": "jest --watch --config node_modules/@bluemind/conf/jest.config.js"
     }
 }

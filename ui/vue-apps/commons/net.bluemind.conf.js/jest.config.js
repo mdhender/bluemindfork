@@ -7,7 +7,7 @@ module.exports = {
     modulePathIgnorePatterns: ["open/clients/js/target/"],
     transform: {
         "^.+\\.js$": "babel-jest",
-        ".+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2)$": "jest-transform-stub",
+        ".+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2|svg)$": "jest-transform-stub",
         ".*\\.(vue)$": "vue-jest"
     },
     transformIgnorePatterns: [
