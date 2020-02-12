@@ -24,6 +24,6 @@
     },
     "scripts": {
         "build": "webpack --env production --progress --profile --colors",
-        "dev": "webpack-dev-server --env development --progress --colors"
+        "dev": "webpack-dev-server --env development --progress --colors --port 9181"
     }
 }
