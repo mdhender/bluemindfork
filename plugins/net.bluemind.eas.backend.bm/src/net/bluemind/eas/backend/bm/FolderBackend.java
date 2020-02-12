@@ -328,6 +328,11 @@ public class FolderBackend extends CoreConnect {
 		long parentId = 0;
 		if (folderChangeRef.itemType == FolderType.USER_CREATED_EMAIL_FOLDER) {
 
+			if (Translate.isTranslated(bs.getLang(), dn)) {
+				logger.error("Folder '{}' conflicts with system folder, skip it", dn);
+				return null;
+			}
+
 			String uniqueId = IMailReplicaUids.uniqueId(h.value.containerUid);
 			ItemValue<MailboxFolder> folder = mboxFolders.getComplete(uniqueId);
 			if (folder == null || folder.value == null) {
