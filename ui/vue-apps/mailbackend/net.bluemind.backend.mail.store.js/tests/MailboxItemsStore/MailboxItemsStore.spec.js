@@ -1,4 +1,5 @@
 import { createLocalVue } from "@vue/test-utils";
+import { Flag } from "@bluemind/email";
 import { MockMailboxItemsClient } from "@bluemind/test-mocks";
 import cloneDeep from "lodash.clonedeep";
 import exampleMessages from "./data/messages";
@@ -59,10 +60,10 @@ describe("[MailboxItemsStore] Vuex store", () => {
         const folderUid = "folder:uid";
         store.commit("storeItems", { items: exampleMessages, folderUid });
         const messageKey = ItemUri.encode(exampleMessages[0].internalId, folderUid);
-        expect(exampleMessages[0].value.systemFlags.includes("seen")).toBeTruthy();
-        store.dispatch("updateSeen", { messageKey, isSeen: false }).then(() => {
+        expect(exampleMessages[0].value.flags.map(f => f.flag).includes(Flag.SEEN.flag)).toBeTruthy();
+        store.dispatch("addFlag", { messageKey, mailboxItemFlag: Flag.SEEN }).then(() => {
             const message = store.getters.getMessageByKey(messageKey);
-            expect(message.states.includes("not-seen")).toBeTruthy();
+            expect(message.states.includes("not-seen")).not.toBeTruthy();
             expect(message.flags.includes("seen")).not.toBeTruthy();
             done();
         });
@@ -72,11 +73,11 @@ describe("[MailboxItemsStore] Vuex store", () => {
         const folderUid = "folder:uid";
         store.commit("storeItems", { items: exampleMessages, folderUid });
         const messageKey = ItemUri.encode(exampleMessages[5].internalId, folderUid);
-        expect(exampleMessages[3].value.systemFlags.includes("seen")).not.toBeTruthy();
-        store.dispatch("updateSeen", { messageKey, isSeen: true }).then(() => {
+        expect(exampleMessages[3].value.flags.includes(Flag.SEEN)).not.toBeTruthy();
+        store.dispatch("deleteFlag", { messageKey, mailboxItemFlag: Flag.SEEN }).then(() => {
             const message = store.getters.getMessageByKey(messageKey);
-            expect(message.states.includes("not-seen")).not.toBeTruthy();
-            expect(message.flags.includes("seen")).toBeTruthy();
+            expect(message.states.includes("not-seen")).toBeTruthy();
+            expect(message.flags.includes("seen")).not.toBeTruthy();
             done();
         });
     });

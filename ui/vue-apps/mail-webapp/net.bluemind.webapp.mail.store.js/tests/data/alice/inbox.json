@@ -25,8 +25,7 @@
                 "bodyVersion": 3
             },
             "imapUid": 12,
-            "systemFlags": ["seen"],
-            "otherFlags": [],
+            "flags": [{ "flag": "\\Seen", "value": 16 }],
             "internalFlags": [],
             "messageBody": "d86cd1cd846e46f3fc6b95baa2ed421cd838d58f",
             "modSeq": 16,
@@ -70,8 +69,7 @@
                 "bodyVersion": 3
             },
             "imapUid": 13,
-            "systemFlags": ["seen"],
-            "otherFlags": [],
+            "flags": [{ "flag": "\\Seen", "value": 16 }],
             "internalFlags": [],
             "messageBody": "f60fdb10c24e19ef1de81d32fde088a0b1446937",
             "modSeq": 17,
@@ -117,8 +115,7 @@
                 "bodyVersion": 3
             },
             "imapUid": 10,
-            "systemFlags": [],
-            "otherFlags": [],
+            "flags": [],
             "internalFlags": [],
             "messageBody": "dbb15e0cfdee060e3e6d410afdb66a31d3418db2",
             "modSeq": 18,
@@ -163,8 +160,7 @@
                 "bodyVersion": 3
             },
             "imapUid": 11,
-            "systemFlags": [],
-            "otherFlags": [],
+            "flags": [],
             "internalFlags": [],
             "messageBody": "76f1be457508ab89cda352ce9351b4d11af78cc1",
             "modSeq": 19,
@@ -208,8 +204,7 @@
                 "bodyVersion": 3
             },
             "imapUid": 7,
-            "systemFlags": [],
-            "otherFlags": [],
+            "flags": [],
             "internalFlags": [],
             "messageBody": "1ca6884bea9c470a34b28346b50db5bb345bdbc9",
             "modSeq": 20,
@@ -253,8 +248,7 @@
                 "bodyVersion": 3
             },
             "imapUid": 8,
-            "systemFlags": ["seen"],
-            "otherFlags": [],
+            "flags": [{ "flag": "\\Seen", "value": 16 }],
             "internalFlags": [],
             "messageBody": "5e3df3a162aa10b695c10bb3cf29fc4038531d9f",
             "modSeq": 12,
@@ -298,8 +292,7 @@
                 "bodyVersion": 3
             },
             "imapUid": 9,
-            "systemFlags": ["seen"],
-            "otherFlags": [],
+            "flags": [{ "flag": "\\Seen", "value": 16 }],
             "internalFlags": [],
             "messageBody": "092c763a36f53af51084c377cbba9a3d5f065057",
             "modSeq": 13,
@@ -345,8 +338,7 @@
                 "bodyVersion": 3
             },
             "imapUid": 4,
-            "systemFlags": [],
-            "otherFlags": [],
+            "flags": [],
             "internalFlags": [],
             "messageBody": "ce1bc14706764e38495b4ac3be7fb75bb67fa790",
             "modSeq": 21,
@@ -390,8 +382,7 @@
                 "bodyVersion": 3
             },
             "imapUid": 5,
-            "systemFlags": ["seen"],
-            "otherFlags": [],
+            "flags": [{ "flag": "\\Seen", "value": 16 }],
             "internalFlags": [],
             "messageBody": "a0676dd324df846c3b2ca19870e2c0642fe68e8a",
             "modSeq": 9,
@@ -437,8 +428,7 @@
                 "bodyVersion": 3
             },
             "imapUid": 6,
-            "systemFlags": [],
-            "otherFlags": [],
+            "flags": [],
             "internalFlags": [],
             "messageBody": "47efc2e9730e1771d91f5f3e152ad679757eb55c",
             "modSeq": 22,
@@ -483,8 +473,7 @@
                 "bodyVersion": 3
             },
             "imapUid": 2,
-            "systemFlags": ["seen"],
-            "otherFlags": [],
+            "flags": [{ "flag": "\\Seen", "value": 16 }],
             "internalFlags": [],
             "messageBody": "45633cc73947eef61c2d107a6b26079caa0fe1f8",
             "modSeq": 6,
@@ -532,8 +521,7 @@
                 "bodyVersion": 3
             },
             "imapUid": 3,
-            "systemFlags": ["seen"],
-            "otherFlags": [],
+            "flags": [{ "flag": "\\Seen", "value": 16 }],
             "internalFlags": [],
             "messageBody": "d7e3e7192427ed93f1b259564336591ba6be54a8",
             "modSeq": 7,
@@ -577,8 +565,7 @@
                 "bodyVersion": 3
             },
             "imapUid": 1,
-            "systemFlags": ["seen"],
-            "otherFlags": [],
+            "flags": [{ "flag": "\\Seen", "value": 16 }],
             "internalFlags": [],
             "messageBody": "a0676dd324df846c3b2ca19870e2c0642fe68e8a",
             "modSeq": 5,
@@ -638,8 +625,7 @@
                 "bodyVersion": 3
             },
             "imapUid": 15,
-            "systemFlags": ["seen"],
-            "otherFlags": [],
+            "flags": [{ "flag": "\\Seen", "value": 16 }],
             "internalFlags": [],
             "messageBody": "ab181638725cd9949a7c28ad7f4e7ea569e0bea2",
             "modSeq": 37,

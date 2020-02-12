@@ -1,9 +1,11 @@
+import { Flag } from "@bluemind/email";
 import { markAsRead } from "../../src/actions/markAsRead";
 import ItemUri from "@bluemind/item-uri";
 
 const messageId = "74515",
     folderUid = "2da34601-8c78-4cc3-baf0-1ae3dfe24a23";
 const messageKey = ItemUri.encode(messageId, folderUid);
+const mailboxItemFlag = Flag.SEEN;
 const context = {
     commit: jest.fn(),
     dispatch: jest.fn().mockReturnValue(Promise.resolve({ states: ["not-seen"] })),
@@ -25,7 +27,7 @@ describe("[Mail-WebappStore][actions] : markAsRead", () => {
     test("call update seen for a given message and mutate state", done => {
         markAsRead(context, messageKey).then(() => {
             expect(context.dispatch).toHaveBeenCalledWith("$_getIfNotPresent", messageKey);
-            expect(context.dispatch).toHaveBeenCalledWith("messages/updateSeen", { messageKey, isSeen: true });
+            expect(context.dispatch).toHaveBeenCalledWith("messages/addFlag", { messageKey, mailboxItemFlag });
             expect(context.commit).toHaveBeenCalledWith("setUnreadCount", { folderUid, count: 9 });
             done();
         });
@@ -35,7 +37,7 @@ describe("[Mail-WebappStore][actions] : markAsRead", () => {
         context.dispatch.mockReturnValueOnce(Promise.resolve({ states: ["seen"] }));
         markAsRead(context, messageKey).then(() => {
             expect(context.commit).not.toHaveBeenCalled();
-            expect(context.dispatch).not.toHaveBeenCalledWith("folder/updateSeen", { messageKey, isSeen: true });
+            expect(context.dispatch).not.toHaveBeenCalledWith("folder/addFlag", { messageKey, mailboxItemFlag });
             done();
         });
     });

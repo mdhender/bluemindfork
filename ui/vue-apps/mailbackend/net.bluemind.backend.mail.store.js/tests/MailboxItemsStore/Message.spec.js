@@ -24,7 +24,7 @@ describe("Message", () => {
 
         expect(message.messageId).toEqual(mailboxItem.value.body.messageId);
         expect(message.uid).toEqual(mailboxItem.uid);
-        expect(message.flags.map(f => f.toLowerCase())).toEqual(mailboxItem.flags.map(f => f.toLowerCase()));
+        message.flags.forEach((messageFlag, index) => expect(messageFlag).toEqual(mailboxItem.value.flags[index]));
 
         const expectedItem = {
             body: {
@@ -32,7 +32,7 @@ describe("Message", () => {
                 headers: mailboxItem.value.body.headers,
                 // FIXME we do not handle the displayed name (aka distinguished name) yet (except fo Originator)
                 recipients: mailboxItem.value.body.recipients.map(r =>
-                    r.kind == "Originator" ? r : { kind: r.kind, address: r.address, dn: "" }
+                    r.kind === "Originator" ? r : { kind: r.kind, address: r.address, dn: "" }
                 ),
                 messageId: mailboxItem.value.body.messageId,
                 references: mailboxItem.value.body.references,

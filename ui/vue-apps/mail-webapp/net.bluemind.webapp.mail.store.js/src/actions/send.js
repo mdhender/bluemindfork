@@ -1,7 +1,7 @@
 //FIXME: Refactor this...
 
 import { DraftStatus } from "@bluemind/backend.mail.store";
-import { EmailValidator } from "@bluemind/email";
+import { EmailValidator, Flag } from "@bluemind/email";
 import injector from "@bluemind/inject";
 import UUIDGenerator from "@bluemind/uuid";
 import ItemUri from "@bluemind/item-uri";
@@ -78,6 +78,16 @@ export function send({ state, commit, getters, dispatch }) {
             }
         })
         .then(mailItem => {
+            if (draft.previousMessage && draft.previousMessage.action) {
+                let action = draft.previousMessage.action;
+                let mailboxItemFlag;
+                if (action === "replyAll" || action === "reply") {
+                    mailboxItemFlag = Flag.ANSWERED;
+                } else if (action === "forward") {
+                    mailboxItemFlag = Flag.FORWARDED;
+                }
+                dispatch("messages/addFlag", { messageKey: draft.previousMessage.messageKey, mailboxItemFlag });
+            }
             const messageKey = ItemUri.encode(mailItem.internalId, getters.my.SENT.uid);
             commit("alert/remove", loadingAlertUid, { root: true });
             commit(

@@ -4,4 +4,5 @@ export * from "./removeItems";
 export * from "./setItemKeys";
 export * from "./storeItems";
 export * from "./storePartContent";
-export * from "./updateSeen";
+export * from "./addFlag";
+export * from "./deleteFlag";

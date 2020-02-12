@@ -1,29 +1,33 @@
+import { computeSubject, previousMessageContent } from "../src/MessageBuilder";
+import { MimeType } from "@bluemind/email";
 import { Message } from "@bluemind/backend.mail.store";
 import mailboxItem from "./data/mailbox-item.json";
-import { computeSubject, previousMessageContent } from "../src/MessageBuilder";
 import injector from "@bluemind/inject";
 
 jest.mock("@bluemind/inject");
 injector.getProvider.mockReturnValue({
     get: jest.fn().mockReturnValue({
         t: (key, params) => {
-            if (key == "mail.compose.reply.subject") {
+            if (key === "mail.compose.reply.subject") {
                 return "Re: ";
-            } else if (key == "mail.compose.forward.subject") {
+            } else if (key === "mail.compose.forward.subject") {
                 return "Fw: ";
-            } else if (key == "mail.compose.reply.body") {
+            } else if (key === "mail.compose.reply.body") {
                 return "On " + params.date + ", " + params.name + " wrote:";
-            } else if (key == "mail.compose.forward.body") {
+            } else if (key === "mail.compose.forward.body") {
                 return "---- Original Message ----";
-            } else if (key == "mail.compose.forward.prev.message.info.from") {
+            } else if (key === "mail.compose.forward.prev.message.info.from") {
                 return "From";
-            } else if (key == "mail.compose.forward.prev.message.info.to") {
+            } else if (key === "mail.compose.forward.prev.message.info.to") {
                 return "To";
-            } else if (key == "mail.compose.forward.prev.message.info.date") {
+            } else if (key === "mail.compose.forward.prev.message.info.date") {
                 return "Date";
-            } else if (key == "mail.compose.forward.prev.message.info.subject") {
+            } else if (key === "mail.compose.forward.prev.message.info.subject") {
                 return "Subject";
             }
+        },
+        d: (key) => {
+            return key;
         }
     })
 });
@@ -78,18 +82,18 @@ function checkComputePreviousMessage(message, action) {
             uid: "59."
         }
     ];
-    const previousMessage = previousMessageContent(action, parts, message);
+    const previousMessage = previousMessageContent(action, parts, message, MimeType.TEXT_PLAIN);
 
     let expectedPreviousMessage;
     switch (action) {
         case message.actions.REPLY:
         case message.actions.REPLYALL:
             expectedPreviousMessage =
-                "On " + message.date + ", John Doe <jdoe@vm40.net> wrote:\n\n> messageContent\n> ";
+                "\n\n\nOn " + message.date + ", John Doe <jdoe@vm40.net> wrote:\n\n> messageContent\n> ";
             break;
         case message.actions.FORWARD:
             expectedPreviousMessage =
-                "---- Original Message ----\nSubject: " +
+                "\n\n\n---- Original Message ----\nSubject: " +
                 message.subject +
                 "\nTo: John Doe <jdoe@vm40.net>\nDate: " +
                 message.date +

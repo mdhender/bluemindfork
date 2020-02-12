@@ -57,7 +57,9 @@ export default {
                     this.userPrefTextOnly ? MimeType.TEXT_PLAIN : MimeType.TEXT_HTML
                 ),
                 messageId: this.message.messageId,
-                references: this.message.references
+                references: this.message.references,
+                messageKey: this.message.key,
+                action: this.pathSuffix()
             };
         },
         preparedAnswer() {

@@ -1,7 +1,8 @@
-import { saveDraft } from "../../src/actions/saveDraft";
 import { DraftStatus } from "@bluemind/backend.mail.store";
-import ServiceLocator from "@bluemind/inject";
+import { Flag } from "@bluemind/email";
 import { MockMailboxItemsClient } from "@bluemind/test-mocks";
+import { saveDraft } from "../../src/actions/saveDraft";
+import ServiceLocator from "@bluemind/inject";
 
 let itemsService;
 ServiceLocator.register({ provide: "MailboxItemsPersistence", factory: () => itemsService });
@@ -63,10 +64,10 @@ describe("[Mail-WebappStore][actions] :  saveDraft", () => {
                     }]
                 }
             },
-            systemFlags: ['seen']
+            flags: [Flag.SEEN]
         };
     });
-    test("Save new draft", async () => {
+    test.only("Save new draft", async () => {
         await saveDraft(context);
         expect(context.commit).toHaveBeenNthCalledWith(1, "updateDraft", { status: DraftStatus.SAVING });
         expect(context.commit).toHaveBeenNthCalledWith(2, "updateDraft",

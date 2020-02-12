@@ -15,8 +15,8 @@
  * See LICENSE.txt
  * END LICENSE
  */
-import { EmailExtractor } from "@bluemind/email";
-import { RecipientKind, SystemFlag } from "@bluemind/backend.mail.api";
+import { EmailExtractor, Flag } from "@bluemind/email";
+import { RecipientKind } from "@bluemind/backend.mail.api";
 import GetAttachmentPartsVisitor from "./GetAttachmentPartsVisitor";
 import GetInlinePartsVisitor from "./GetInlinePartsVisitor";
 import injector from "@bluemind/inject";
@@ -69,7 +69,7 @@ export default class Message {
             }
         };
         if (isSeen) {
-            mailboxItem.systemFlags = [SystemFlag.seen];
+            mailboxItem.flags.push[Flag.SEEN];
         }
         return mailboxItem;
     }
@@ -122,16 +122,16 @@ function fromMailboxItem(item, message) {
     message.headers = mailboxItem.body.headers;
     message.messageId = mailboxItem.body.messageId;
     message.references = mailboxItem.body.references;
-    message.flags = mailboxItem.systemFlags.concat(mailboxItem.otherFlags).map(flag => flag.toLowerCase());
+    message.flags = mailboxItem.flags;
     message.states = [];
     message.uid = item.uid;
     message.id = item.internalId;
-    message.imapUid = item.value.imapUid;
+    message.imapUid = mailboxItem.imapUid;
 
-    if (item.value.body.smartAttach) {
+    if (mailboxItem.body.smartAttach) {
         message.states.push("has-attachment");
     }
-    if (item.value.systemFlags.indexOf(SystemFlag.seen) === -1) {
+    if (mailboxItem.flags.find(mailboxItemFlag => mailboxItemFlag.flag === Flag.SEEN.flag) === undefined) {
         message.states.push("not-seen");
     }
 }

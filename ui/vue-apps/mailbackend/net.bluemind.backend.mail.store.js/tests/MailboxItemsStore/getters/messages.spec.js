@@ -3,51 +3,51 @@ import Message from "../../../src/MailboxItemsStore/Message";
 const items = {
     key1: {
         internalId: "a",
-        value: { name: "A", systemFlags: [], otherFlags: [], data: null, body: { recipients: [] } }
+        value: { name: "A", flags: [], data: null, body: { recipients: [] } }
     },
     key2: {
         internalId: "b",
-        value: { name: "B", systemFlags: [], otherFlags: [], data: null, body: { recipients: [] } }
+        value: { name: "B", flags: [], data: null, body: { recipients: [] } }
     },
     key3: {
         internalId: "c",
-        value: { name: "C", systemFlags: [], otherFlags: [], data: null, body: { recipients: [] } }
+        value: { name: "C", flags: [], data: null, body: { recipients: [] } }
     },
     key4: {
         internalId: "a.d",
-        value: { name: "D", systemFlags: [], otherFlags: [], data: "a", body: { recipients: [] } }
+        value: { name: "D", flags: [], data: "a", body: { recipients: [] } }
     },
     key5: {
         internalId: "a.e",
-        value: { name: "E", systemFlags: [], otherFlags: [], data: "a", body: { recipients: [] } }
+        value: { name: "E", flags: [], data: "a", body: { recipients: [] } }
     },
     key6: {
         internalId: "b.f",
-        value: { name: "F", systemFlags: [], otherFlags: [], data: "b", body: { recipients: [] } }
+        value: { name: "F", flags: [], data: "b", body: { recipients: [] } }
     },
     key7: {
         internalId: "b.g",
-        value: { name: "G", systemFlags: [], otherFlags: [], data: "b", body: { recipients: [] } }
+        value: { name: "G", flags: [], data: "b", body: { recipients: [] } }
     },
     key8: {
         internalId: "b.h",
-        value: { name: "H", systemFlags: [], otherFlags: [], data: "b", body: { recipients: [] } }
+        value: { name: "H", flags: [], data: "b", body: { recipients: [] } }
     },
     key9: {
         internalId: "b.h.i",
-        value: { name: "I", systemFlags: [], otherFlags: [], data: "b.h", body: { recipients: [] } }
+        value: { name: "I", flags: [], data: "b.h", body: { recipients: [] } }
     },
     key10: {
         internalId: "b.h.j",
-        value: { name: "J", systemFlags: [], otherFlags: [], data: "b.h", body: { recipients: [] } }
+        value: { name: "J", flags: [], data: "b.h", body: { recipients: [] } }
     },
     key11: {
         internalId: "b.h.j.k",
-        value: { name: "K", systemFlags: [], otherFlags: [], data: "b.h.j", body: { recipients: [] } }
+        value: { name: "K", flags: [], data: "b.h.j", body: { recipients: [] } }
     },
     key12: {
         internalId: "a.e.l",
-        value: { name: "L", systemFlags: [], otherFlags: [], data: "a.e", body: { recipients: [] } }
+        value: { name: "L", flags: [], data: "a.e", body: { recipients: [] } }
     }
 };
 const itemKeys = ["key1", "key4", "key5", "key12", "key2", "key6", "key7", "key8", "key9", "key10", "key11"];

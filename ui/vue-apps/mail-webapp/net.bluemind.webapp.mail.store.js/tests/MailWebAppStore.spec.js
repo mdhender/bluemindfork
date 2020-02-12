@@ -11,6 +11,7 @@ import readOnlyFolders from "./data/read.only/folders";
 import ServiceLocator from "@bluemind/inject";
 import sharedFolders from "./data/shared/folders";
 import Vuex from "vuex";
+import { Flag } from "@bluemind/email";
 
 jest.mock("@bluemind/core.container.api");
 
@@ -96,18 +97,19 @@ describe("[MailWebAppStore] Vuex store", () => {
         const folderKey = ItemUri.encode(folderUid, "user.alice");
         itemsService.getPerUserUnread.mockReturnValue(Promise.resolve({ total: 5 }));
         itemsService.filteredChangesetById.mockReturnValue(Promise.resolve({
-            created: aliceInbox.filter(message => !message.value.systemFlags.includes("seen"))
+            created: aliceInbox.filter(message => !message.value.flags.map(f => f.flag).includes(Flag.SEEN.flag))
                 .map(message => { return { id: message.internalId }; })
         }));
         itemsService.multipleById.mockImplementation(() =>
-            Promise.resolve(aliceInbox.filter(message => !message.value.systemFlags.includes("seen")))
+            Promise.resolve(aliceInbox.filter(message => 
+                !message.value.flags.map(f => f.flag).includes(Flag.SEEN.flag)))
         );
 
         store.dispatch("selectFolder", { folderKey, filter: "unread" }).then(() => {
             expect(store.state.currentFolderKey).toEqual(folderKey);
             expect(store.state.messages.itemKeys.length).toEqual(5);
             expect(store.state.messages.itemKeys).toEqual(aliceInbox
-                .filter(message => !message.value.systemFlags.includes("seen"))
+                .filter(message => !message.value.flags.map(f => f.flag).includes(Flag.SEEN.flag))
                 .map(m => ItemUri.encode(m.internalId, folderUid)));
             expect(store.state.messages.items[store.state.messages.itemKeys[0]]).not.toBeUndefined();
             expect(store.state.foldersData[folderUid].unread).toBe(5);

@@ -13,7 +13,6 @@ export function selectFolder({ dispatch, commit, state }, { folderKey, filter })
         ContainerObserver.observe("mailbox_records", folderUid);
     }
 
-    //FIXME
     commit("setSearchLoading", null);
     commit("setSearchPattern", null);
     commit("clearCurrentMessage");
