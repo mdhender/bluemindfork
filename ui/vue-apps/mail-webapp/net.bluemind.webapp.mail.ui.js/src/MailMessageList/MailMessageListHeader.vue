@@ -17,7 +17,7 @@
             <bm-col class="d-none d-sm-block d-md-none d-xl-block text-right" cols="4">
                 <span class="text-nowrap">
                     {{ $t("common.sort_by") }}
-                    <span class="fake-select">{{ $t("common.date") }} <bm-icon icon="caret-down" /></span>
+                    <span class="fake-select">{{ $t("common.date") }} <bm-icon icon="caret-down"/></span>
                 </span>
             </bm-col>
         </bm-row>
@@ -77,7 +77,7 @@ export default {
                 case "search":
                     return "/" + pathArray[1] + "/" + pathArray[2] + "/" + pathArray[3] + "/";
                 default: {
-                    if(!pathArray[2]) {
+                    if (!pathArray[2]) {
                         // add missing default folder
                         pathArray[2] = this.currentFolderKey;
                     }

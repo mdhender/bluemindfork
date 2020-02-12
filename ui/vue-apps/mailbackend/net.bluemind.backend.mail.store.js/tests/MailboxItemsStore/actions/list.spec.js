@@ -8,7 +8,8 @@ const filteredResult = { created: [{ id: 2 }] };
 const sortedIds = jest.fn().mockReturnValue(Promise.resolve(result));
 const filteredChangesetById = jest.fn().mockReturnValue(Promise.resolve(filteredResult));
 const get = jest.fn().mockReturnValue({
-    sortedIds, filteredChangesetById
+    sortedIds,
+    filteredChangesetById
 });
 ServiceLocator.getProvider.mockReturnValue({
     get

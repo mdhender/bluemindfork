@@ -40,7 +40,7 @@ export default {
         }
     },
     methods: {
-        back(){
+        back() {
             this.$router.push("/mail/" + this.currentFolderKey + "/");
         }
     }
@@ -51,7 +51,7 @@ export default {
 @import "~@bluemind/styleguide/css/variables";
 
 .mail-toolbar {
-    @media (max-width: map-get($grid-breakpoints, 'lg')) {
+    @media (max-width: map-get($grid-breakpoints, "lg")) {
         justify-content: end;
     }
 }
@@ -62,7 +62,7 @@ export default {
     height: 100%;
     min-width: 5.5rem;
     font-weight: $font-weight-normal;
-    @media (max-width: map-get($grid-breakpoints, 'lg')) {
+    @media (max-width: map-get($grid-breakpoints, "lg")) {
         min-width: auto;
     }
 }

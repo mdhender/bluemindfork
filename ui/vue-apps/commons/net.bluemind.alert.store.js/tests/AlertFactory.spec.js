@@ -5,21 +5,20 @@ import ServiceLocator from "@bluemind/inject";
 jest.mock("@bluemind/inject");
 ServiceLocator.getProvider.mockReturnValue({
     get: jest.fn().mockReturnValue({
-        t : jest.fn().mockReturnValue("blabla")
+        t: jest.fn().mockReturnValue("blabla")
     })
 });
 
 describe("[AlertStore][mutations] : AlertFactory", () => {
-    
     const alerts = {
-        "MSG_LOADING": {
+        MSG_LOADING: {
             type: AlertTypes.LOADING,
             key: "msg.loading"
         },
-        "MSG_SUCCESS": {
+        MSG_SUCCESS: {
             type: AlertTypes.SUCCESS,
             key: "msg.ok"
-        },
+        }
     };
 
     beforeEach(() => {
@@ -34,7 +33,7 @@ describe("[AlertStore][mutations] : AlertFactory", () => {
     test("create alert", () => {
         AlertFactory.register(alerts);
         const props = { subject: "My Subject" };
-        const alert = AlertFactory.create("MSG_LOADING", props );
+        const alert = AlertFactory.create("MSG_LOADING", props);
 
         expect(alert.code).toEqual("MSG_LOADING");
         expect(alert.type).toEqual(AlertTypes.LOADING);
@@ -43,5 +42,4 @@ describe("[AlertStore][mutations] : AlertFactory", () => {
         expect(alert.props).toEqual(props);
         expect(alert.uid).not.toEqual(undefined);
     });
-
 });

@@ -102,7 +102,7 @@ export default {
     methods: {
         ...mapActions("mail-webapp", ["expandFolder", "collapseFolder"]),
         selectFolder(key) {
-            this.$emit('toggle-folders');
+            this.$emit("toggle-folders");
             this.$router.push({ path: "/mail/" + key + "/" });
         }
     }

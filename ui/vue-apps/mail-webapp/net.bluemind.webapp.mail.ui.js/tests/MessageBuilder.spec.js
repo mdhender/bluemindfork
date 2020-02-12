@@ -26,7 +26,7 @@ injector.getProvider.mockReturnValue({
                 return "Subject";
             }
         },
-        d: (key) => {
+        d: key => {
             return key;
         }
     })

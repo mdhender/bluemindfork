@@ -40,28 +40,33 @@ describe("[Mail-WebappStore][actions] :  saveDraft", () => {
         };
         expectedMailItem = {
             body: {
-                subject: 'TestSubject',
+                subject: "TestSubject",
                 headers: undefined,
-                recipients: [{
-                    "address": undefined,
-                    "dn": undefined,
-                    "kind": "Originator",
-                }],
+                recipients: [
+                    {
+                        address: undefined,
+                        dn: undefined,
+                        kind: "Originator"
+                    }
+                ],
                 messageId: undefined,
                 references: undefined,
                 structure: {
-                    mime: 'multipart/alternative',
-                    children: [{
-                        "address": undefined,
-                        "charset": "utf-8",
-                        "encoding": "quoted-printable",
-                        "mime": "text/plain",
-                    }, {
-                        "address": undefined,
-                        "charset": "utf-8",
-                        "encoding": "quoted-printable",
-                        "mime": "text/html",
-                    }]
+                    mime: "multipart/alternative",
+                    children: [
+                        {
+                            address: undefined,
+                            charset: "utf-8",
+                            encoding: "quoted-printable",
+                            mime: "text/plain"
+                        },
+                        {
+                            address: undefined,
+                            charset: "utf-8",
+                            encoding: "quoted-printable",
+                            mime: "text/html"
+                        }
+                    ]
                 }
             },
             flags: [Flag.SEEN]
@@ -70,8 +75,11 @@ describe("[Mail-WebappStore][actions] :  saveDraft", () => {
     test.only("Save new draft", async () => {
         await saveDraft(context);
         expect(context.commit).toHaveBeenNthCalledWith(1, "updateDraft", { status: DraftStatus.SAVING });
-        expect(context.commit).toHaveBeenNthCalledWith(2, "updateDraft",
-            { status: DraftStatus.SAVED, saveDate: expect.anything(), id: expect.anything() });
+        expect(context.commit).toHaveBeenNthCalledWith(2, "updateDraft", {
+            status: DraftStatus.SAVED,
+            saveDate: expect.anything(),
+            id: expect.anything()
+        });
         expect(itemsService.create).toHaveBeenCalledWith(expectedMailItem);
     });
     test("Modify existing draft", async () => {
@@ -79,8 +87,11 @@ describe("[Mail-WebappStore][actions] :  saveDraft", () => {
         context.state.draft.content = contentText;
         await saveDraft(context);
         expect(context.commit).toHaveBeenNthCalledWith(1, "updateDraft", { status: DraftStatus.SAVING });
-        expect(context.commit).toHaveBeenNthCalledWith(2, "updateDraft",
-            { status: DraftStatus.SAVED, saveDate: expect.anything(), id: expect.anything() });
+        expect(context.commit).toHaveBeenNthCalledWith(2, "updateDraft", {
+            status: DraftStatus.SAVED,
+            saveDate: expect.anything(),
+            id: expect.anything()
+        });
         expect(itemsService.create).toHaveBeenCalledWith(expectedMailItem);
 
         const newContentText = contentText + " Deal with it bee hatch!";
@@ -88,8 +99,11 @@ describe("[Mail-WebappStore][actions] :  saveDraft", () => {
         context.state.draft.subject = "ModifiedSubject";
         await saveDraft(context);
         expect(context.commit).toHaveBeenNthCalledWith(1, "updateDraft", { status: DraftStatus.SAVING });
-        expect(context.commit).toHaveBeenNthCalledWith(2, "updateDraft",
-            { status: DraftStatus.SAVED, saveDate: expect.anything(), id: expect.anything() });
+        expect(context.commit).toHaveBeenNthCalledWith(2, "updateDraft", {
+            status: DraftStatus.SAVED,
+            saveDate: expect.anything(),
+            id: expect.anything()
+        });
         expectedMailItem.body.subject = "ModifiedSubject";
         expect(itemsService.create).toHaveBeenCalledWith(expectedMailItem);
     });
@@ -98,23 +112,30 @@ describe("[Mail-WebappStore][actions] :  saveDraft", () => {
         context.state.draft.attachments.push("attachment2");
         await saveDraft(context);
         expect(context.commit).toHaveBeenNthCalledWith(1, "updateDraft", { status: DraftStatus.SAVING });
-        expect(context.commit).toHaveBeenNthCalledWith(2, "updateDraft",
-            { status: DraftStatus.SAVED, saveDate: expect.anything(), id: expect.anything() });
+        expect(context.commit).toHaveBeenNthCalledWith(2, "updateDraft", {
+            status: DraftStatus.SAVED,
+            saveDate: expect.anything(),
+            id: expect.anything()
+        });
         expectedMailItem.body.structure = {
-            mime: "multipart/mixed", children: [
+            mime: "multipart/mixed",
+            children: [
                 {
                     mime: "multipart/alternative",
-                    children: [{
-                        "address": undefined,
-                        "charset": "utf-8",
-                        "encoding": "quoted-printable",
-                        "mime": "text/plain",
-                    }, {
-                        "address": undefined,
-                        "charset": "utf-8",
-                        "encoding": "quoted-printable",
-                        "mime": "text/html",
-                    }]
+                    children: [
+                        {
+                            address: undefined,
+                            charset: "utf-8",
+                            encoding: "quoted-printable",
+                            mime: "text/plain"
+                        },
+                        {
+                            address: undefined,
+                            charset: "utf-8",
+                            encoding: "quoted-printable",
+                            mime: "text/html"
+                        }
+                    ]
                 },
                 "attachment1",
                 "attachment2"
@@ -130,7 +151,10 @@ describe("[Mail-WebappStore][actions] :  saveDraft", () => {
         expect(context.commit).toHaveBeenNthCalledWith(1, "updateDraft", { status: DraftStatus.SAVING });
         expect(itemsService.create).toHaveBeenCalledWith(expectedMailItem);
         expect(itemsService.create).toThrow(new Error());
-        expect(context.commit).toHaveBeenNthCalledWith(2, "updateDraft",
-            { status: DraftStatus.SAVE_ERROR, saveDate: null, id: undefined });
+        expect(context.commit).toHaveBeenNthCalledWith(2, "updateDraft", {
+            status: DraftStatus.SAVE_ERROR,
+            saveDate: null,
+            id: undefined
+        });
     });
 });

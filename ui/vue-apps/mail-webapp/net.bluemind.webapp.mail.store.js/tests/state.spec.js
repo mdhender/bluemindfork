@@ -42,7 +42,7 @@ describe("[Mail-WebappStore][state] : initial state", () => {
                 "foldersData",
                 "login",
                 "search",
-                "messageFilter",
+                "messageFilter"
             ].sort()
         );
     });

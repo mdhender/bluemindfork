@@ -116,41 +116,51 @@ function matchingIcon(mimeType) {
         return "file-type-pdf";
     } else if (mimeType.startsWith(VIDEO)) {
         return "file-type-video";
-    } else if (equals(mimeType, ZIP) ||
-            equals(mimeType, TAR) || 
-            equals(mimeType, BZIP) || 
-            equals(mimeType, BZIP2) ||
-            equals(mimeType, RAR) || 
-            equals(mimeType, ZIP_7) ||
-            equals(mimeType, TGZ)) {
+    } else if (
+        equals(mimeType, ZIP) ||
+        equals(mimeType, TAR) ||
+        equals(mimeType, BZIP) ||
+        equals(mimeType, BZIP2) ||
+        equals(mimeType, RAR) ||
+        equals(mimeType, ZIP_7) ||
+        equals(mimeType, TGZ)
+    ) {
         return "file-type-compressed";
-    } else if (equals(mimeType, XML) || 
-            equals(mimeType, JSON) || 
-            equals(mimeType, CSV) || 
-            equals(mimeType, TEXT_PLAIN) ||
-            mimeType.startsWith(MESSAGE)) {
+    } else if (
+        equals(mimeType, XML) ||
+        equals(mimeType, JSON) ||
+        equals(mimeType, CSV) ||
+        equals(mimeType, TEXT_PLAIN) ||
+        mimeType.startsWith(MESSAGE)
+    ) {
         return "file-type-data";
-    } else if (equals(mimeType, MS_EXCEL) || 
-            equals(mimeType, MS_EXCEL_XML) || 
-            equals(mimeType, OPEN_DOCUMENT_CALC) || 
-            equals(mimeType, TEXT_CALENDAR)) {
+    } else if (
+        equals(mimeType, MS_EXCEL) ||
+        equals(mimeType, MS_EXCEL_XML) ||
+        equals(mimeType, OPEN_DOCUMENT_CALC) ||
+        equals(mimeType, TEXT_CALENDAR)
+    ) {
         return "file-type-excel";
-    } else if (equals(mimeType, MS_POWERPOINT) || 
-            equals(mimeType, MS_POWERPOINT_XML) || 
-            equals(mimeType, OPEN_DOCUMENT_PRESENTATION)) {
+    } else if (
+        equals(mimeType, MS_POWERPOINT) ||
+        equals(mimeType, MS_POWERPOINT_XML) ||
+        equals(mimeType, OPEN_DOCUMENT_PRESENTATION)
+    ) {
         return "file-type-presentation";
     } else if (equals(mimeType, OPEN_DOCUMENT_TEXT) || equals(mimeType, MS_WORD) || equals(mimeType, MS_WORD_XML)) {
         return "file-type-word";
     } else if (mimeType.startsWith(FONT) || equals(mimeType, BINARY)) {
         return "file-type-system";
-    } else if (equals(mimeType, JAVASCRIPT) || 
-            equals(mimeType, JAVA_JAR) || 
-            equals(mimeType, TYPESCRIPT) || 
-            equals(mimeType, CSS) || 
-            equals(mimeType, SHELL) || 
-            equals(mimeType, CSHELL) || 
-            equals(mimeType, XHTML) ||
-            equals(mimeType, TEXT_HTML)) {
+    } else if (
+        equals(mimeType, JAVASCRIPT) ||
+        equals(mimeType, JAVA_JAR) ||
+        equals(mimeType, TYPESCRIPT) ||
+        equals(mimeType, CSS) ||
+        equals(mimeType, SHELL) ||
+        equals(mimeType, CSHELL) ||
+        equals(mimeType, XHTML) ||
+        equals(mimeType, TEXT_HTML)
+    ) {
         return "file-type-code";
     } else {
         return "file-type-unknown";

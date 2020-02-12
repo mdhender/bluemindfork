@@ -1,15 +1,14 @@
 import TranslationHelper from "../src/TranslationHelper";
 
-describe('TranslationHelper', () => {
-    
-    test('mergeTranslations can merge multiple langs', () => {
+describe("TranslationHelper", () => {
+    test("mergeTranslations can merge multiple langs", () => {
         const lang1 = {
-            "en": {
+            en: {
                 "my.key": "my.value"
             }
         };
         const lang2 = {
-            "fr": {
+            fr: {
                 "my.key": "ma.valeur"
             }
         };
@@ -18,33 +17,35 @@ describe('TranslationHelper', () => {
         expect(mergedTranslations).toHaveProperty("fr");
     });
 
-    test('mergeTranslations can merge keys for a same language', () => {
+    test("mergeTranslations can merge keys for a same language", () => {
         const trad1 = {
-            "en": {
+            en: {
                 "my.first.key": "my.value"
             }
         };
         const trad2 = {
-            "en": {
+            en: {
                 "my.second.key": "my.value"
             }
         };
         const mergedTranslations = TranslationHelper.mergeTranslations(trad1, trad2);
         expect(mergedTranslations).toHaveProperty("en");
-        expect(mergedTranslations["en"]).toEqual(expect.objectContaining({
-            'my.first.key': expect.any(String),
-            'my.second.key': expect.any(String),
-        }));
+        expect(mergedTranslations["en"]).toEqual(
+            expect.objectContaining({
+                "my.first.key": expect.any(String),
+                "my.second.key": expect.any(String)
+            })
+        );
     });
 
-    test('mergeTranslations merge 2nd parameter value when both parameters have a same key for a same lang', () => {
+    test("mergeTranslations merge 2nd parameter value when both parameters have a same key for a same lang", () => {
         const trad1 = {
-            "en": {
+            en: {
                 "my.key": "my.first.value"
             }
         };
         const trad2 = {
-            "en": {
+            en: {
                 "my.key": "my.second.value"
             }
         };
@@ -56,5 +57,4 @@ describe('TranslationHelper', () => {
     // test('loadTranslations merge 2 translations files in one object', () => {
     //     let result = TranslationHelper.loadTranslations(require.context('./l10n', false, /\.json$/));
     // });
-
 });

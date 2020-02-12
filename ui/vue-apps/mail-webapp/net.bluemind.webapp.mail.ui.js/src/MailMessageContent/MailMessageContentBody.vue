@@ -1,11 +1,6 @@
 <template>
     <div class="mail-message-content-body min-h-100 py-2">
-        <iframe
-            ref="iFrameMailContent"
-            :title="$t('mail.content.body')" 
-            class="w-100 border-0"
-            @load="resizeIFrame"
-        />
+        <iframe ref="iFrameMailContent" :title="$t('mail.content.body')" class="w-100 border-0" @load="resizeIFrame" />
     </div>
 </template>
 
@@ -17,7 +12,7 @@ import { sanitizeHtml } from "@bluemind/html-utils";
 export default {
     name: "MailMessageContentBody",
     computed: {
-        ...mapGetters("mail-webapp", { parts: "currentMessageContent" }),
+        ...mapGetters("mail-webapp", { parts: "currentMessageContent" })
     },
     watch: {
         parts: {
@@ -59,7 +54,7 @@ export default {
                 const iframeDoc = this.$refs.iFrameMailContent.contentWindow.document;
                 iframeDoc.open();
                 // all links should be opened in an other tab by default
-                iframeDoc.write("<head><base target=\"_blank\"></head>");
+                iframeDoc.write('<head><base target="_blank"></head>');
                 iframeDoc.write("<body>" + html + "</body>");
                 iframeDoc.close();
 

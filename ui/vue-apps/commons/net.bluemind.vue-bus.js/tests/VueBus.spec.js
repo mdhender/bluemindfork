@@ -19,13 +19,13 @@ describe("VueBus", () => {
             }
         };
     }),
-    test("VueProxy is installed", () => {
-        const wrapper = shallowMount(TestComponent, {
-            localVue: Vue
-        });
+        test("VueProxy is installed", () => {
+            const wrapper = shallowMount(TestComponent, {
+                localVue: Vue
+            });
 
-        expect(wrapper.vm.$bus).toBeDefined();
-    });
+            expect(wrapper.vm.$bus).toBeDefined();
+        });
     test("VuexProxy is started", () => {
         new VueBus.Client().$emit("dummy", {});
         expect(mutations.$_VueBus_dummy).toBeCalled();

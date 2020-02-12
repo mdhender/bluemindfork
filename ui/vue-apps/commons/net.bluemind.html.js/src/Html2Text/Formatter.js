@@ -1,9 +1,9 @@
-import repeat from 'lodash.repeat';
-import startsWith from 'lodash.startswith';
+import repeat from "lodash.repeat";
+import startsWith from "lodash.startswith";
 
 export function visit(node, context, options) {
     if (!context) context = defaultContext();
-    let result = '';
+    let result = "";
     if (node.nodeType === Node.ELEMENT_NODE) {
         const fn = mapping[node.name] || mapping[node.display] || visitChildren;
         result = fn(node, context, options);
@@ -17,46 +17,48 @@ export function visit(node, context, options) {
 }
 
 function visitChildren(node, context, options) {
-    let result = '';
-    node.nodes.forEach(function (child) {
-        result += node.accept(child, {
-            visit,
-            context
-        }, options);
-
+    let result = "";
+    node.nodes.forEach(function(child) {
+        result += node.accept(
+            child,
+            {
+                visit,
+                context
+            },
+            options
+        );
     });
 
     return result;
 }
 
 function sp(context) {
-    if (!context.clear && context.spacer !== '\n') {
-        context.spacer = ' ';
+    if (!context.clear && context.spacer !== "\n") {
+        context.spacer = " ";
     }
 }
 
 function nl(context) {
     if (!context.clear) {
-        context.spacer = '\n';
+        context.spacer = "\n";
     }
 }
 
 function spacer(context, force) {
-    if (!force && (!context.spacer || context.clear)) return '';
-    if (context.spacer === '\n') {
+    if (!force && (!context.spacer || context.clear)) return "";
+    if (context.spacer === "\n") {
         context.clear = true;
     }
     const val = context.spacer;
-    context.spacer = '';
+    context.spacer = "";
     return val;
 }
-
 
 function text(txt, context) {
     let content = txt;
     if (!context.pre) {
         if (/^\s/.test(txt)) sp(context);
-        content = content.replace(/\s+/g, ' ').trim();
+        content = content.replace(/\s+/g, " ").trim();
     }
     if (content.length > 0) {
         content = spacer(context) + content;
@@ -69,7 +71,7 @@ function text(txt, context) {
 }
 
 function ignore() {
-    return '';
+    return "";
 }
 
 function pushContext(context, key, value) {
@@ -96,21 +98,20 @@ function a(node, context, options) {
     // Always get the anchor text
     let content = visitChildren(node, context, options);
     let href = node.href;
-    if (!options.noHref && href && !startsWith(node.href, 'tel:')) {
+    if (!options.noHref && href && !startsWith(node.href, "tel:")) {
         // Get the href, if present
-        href.replace(/^mailto:/, '');
+        href.replace(/^mailto:/, "");
         if (href) {
-            if (context.base && href.indexOf('/') === 0) {
+            if (context.base && href.indexOf("/") === 0) {
                 href = options.linkHrefBaseUrl + href;
             }
-            if (href !== content.replace('\n', '')) {
-                content += text(' [' + href + ']', context, options);
+            if (href !== content.replace("\n", "")) {
+                content += text(" [" + href + "]", context, options);
             }
         }
     }
     return content;
 }
-
 
 function base(node, context) {
     context.url = node.src;
@@ -135,69 +136,68 @@ function heading(node, context, options) {
 }
 
 function img(node) {
-    let result = '';
+    let result = "";
     if (node.alt) {
         result += node.alt;
         if (node.src) {
-            result += ' ';
+            result += " ";
         }
     }
     if (node.src) {
-        result += '[' + node.src + ']';
+        result += "[" + node.src + "]";
     }
-    return (result);
+    return result;
 }
 
 function p(node, context, options) {
-    return block(node, context, options) + '\n';
+    return block(node, context, options) + "\n";
 }
 
 function pre(node, context, options) {
-    pushContext(context, 'pre', true);
+    pushContext(context, "pre", true);
     const content = block(node, context, options);
-    popContext(context, 'pre');
+    popContext(context, "pre");
     return content;
 }
 
 function hr(node, context, options) {
     nl(context);
-    const content = text(repeat('-', options.lineLength, context, options));
+    const content = text(repeat("-", options.lineLength, context, options));
     nl(context);
     return content;
 }
 
 function li(node, context, options) {
     nl(context);
-    pushContext(context, 'pre', true);
+    pushContext(context, "pre", true);
     const prefix = text(context.prefix, context, options);
-    popContext(context, 'pre');
+    popContext(context, "pre");
     let content = visitChildren(node, context, options);
-    content = content.replace(/\n/g, '\n' + repeat(' ', context.prefix.length));
+    content = content.replace(/\n/g, "\n" + repeat(" ", context.prefix.length));
     nl(context);
     return prefix + content;
 }
 
 function ul(node, context, options) {
-    pushContext(context, 'prefix', ' * ');
+    pushContext(context, "prefix", " * ");
     const content = block(node, context, options);
-    popContext(context, 'prefix');
+    popContext(context, "prefix");
     return content;
 }
 
 function ol(node, context) {
-    context.prefix += ' % ';
-    context.count.push((node.type || '1').charCodeAt(0) + (node.start || 1) - 1);
+    context.prefix += " % ";
+    context.count.push((node.type || "1").charCodeAt(0) + (node.start || 1) - 1);
     const content = visitChildren();
     context.prefix = context.prefix.substring(context.prefix.length - 3, 3);
     context.count.pop();
-    return content + '\n';
+    return content + "\n";
 }
-
 
 function formatAsTable(node, options) {
     if (options.tables === true) return true;
-    var classes = options.tables.filter(t => startsWith(t, '.')).map(t => t.substr(1));
-    var ids = options.tables.filter(t => startsWith(t, '#')).map(t => t.substr(1));
+    var classes = options.tables.filter(t => startsWith(t, ".")).map(t => t.substr(1));
+    var ids = options.tables.filter(t => startsWith(t, "#")).map(t => t.substr(1));
     return classes.indexOf(node.className) > -1 || ids.indexOf(node.id) > -1;
 }
 
@@ -237,7 +237,6 @@ function tr(node, context, options) {
         return block(node, context, options);
     }
 }
-
 
 const mapping = {
     inline,
@@ -306,11 +305,11 @@ function defaultContext() {
     return {
         count: [],
         clear: true,
-        space: '',
+        space: "",
         pre: false,
-        prefix: '',
+        prefix: "",
         table: false,
-        spacer: '',
+        spacer: "",
         _shadow: {}
     };
 }

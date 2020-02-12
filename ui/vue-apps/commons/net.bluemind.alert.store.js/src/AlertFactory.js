@@ -3,8 +3,7 @@ import deepClone from "lodash.clonedeep";
 import injector from "@bluemind/inject";
 
 export default {
-    
-    alerts : {},
+    alerts: {},
 
     register(alerts) {
         Object.assign(this.alerts, alerts);

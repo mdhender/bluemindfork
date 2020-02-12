@@ -1,21 +1,25 @@
 import { mount, createLocalVue } from "@vue/test-utils";
-import merge from 'lodash.merge';
-import Vuex from 'vuex';
+import merge from "lodash.merge";
+import Vuex from "vuex";
 import MailToolbarConsultMessage from "../src/MailToolbar/MailToolbarConsultMessage";
-jest.mock('@bluemind/styleguide/css/_variables.scss', () => ({ iconsColors: '' }));
+jest.mock("@bluemind/styleguide/css/_variables.scss", () => ({ iconsColors: "" }));
 
 function createStore(overrides) {
     const storeOptions = {
         state: {},
         modules: {
-            'mail-webapp': {
+            "mail-webapp": {
                 namespaced: true,
-                state: { currentFolderKey: '' },
+                state: { currentFolderKey: "" },
                 getters: {
-                    currentMessage: jest.fn(() => { return { key: '', states: [] }; }),
-                    my: jest.fn(() => { return {}; }),
+                    currentMessage: jest.fn(() => {
+                        return { key: "", states: [] };
+                    }),
+                    my: jest.fn(() => {
+                        return {};
+                    })
                 },
-                actions: {},
+                actions: {}
             }
         }
     };
@@ -31,17 +35,15 @@ function createWrapper(overrides) {
         store: createStore(),
         propsData: {},
         mocks: {
-            $t: () => { },
-            $tc: () => { }
+            $t: () => {},
+            $tc: () => {}
         }
     };
     const mergedMountingOptions = merge(defaultMountingOptions, overrides);
     return mount(MailToolbarConsultMessage, mergedMountingOptions);
 }
 
-
 describe("MailToolbarConsultMessage", () => {
-
     test("is a Vue instance", () => {
         const wrapper = createWrapper();
         expect(wrapper.isVueInstance()).toBeTruthy();
@@ -54,26 +56,25 @@ describe("MailToolbarConsultMessage", () => {
 
     test("should display 'mark unread' button if the message is read", () => {
         const wrapper = createWrapper();
-        expect(wrapper.contains('.btn.read')).toBeTruthy();
-        expect(!wrapper.contains('.btn.unread')).toBeTruthy();
+        expect(wrapper.contains(".btn.read")).toBeTruthy();
+        expect(!wrapper.contains(".btn.unread")).toBeTruthy();
     });
 
     test("should display 'mark read' button if the message is unread", () => {
-        const storeWithReadMessage = createStore(
-            {
-                modules: {
-                    'mail-webapp': {
-                        getters: {
-                            currentMessage: jest.fn(() => {
-                                return { key: '', states: ['not-seen'] };
-                            })
-                        }
+        const storeWithReadMessage = createStore({
+            modules: {
+                "mail-webapp": {
+                    getters: {
+                        currentMessage: jest.fn(() => {
+                            return { key: "", states: ["not-seen"] };
+                        })
                     }
                 }
-            });
+            }
+        });
 
         const wrapper = createWrapper({ store: storeWithReadMessage });
-        expect(wrapper.contains('.btn.unread')).toBeTruthy();
-        expect(!wrapper.contains('.btn.read')).toBeTruthy();
+        expect(wrapper.contains(".btn.unread")).toBeTruthy();
+        expect(!wrapper.contains(".btn.read")).toBeTruthy();
     });
 });

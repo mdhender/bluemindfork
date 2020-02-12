@@ -1,4 +1,4 @@
-process.env.TZ = 'GMT';
+process.env.TZ = "GMT";
 
 module.exports = {
     rootDir: process.cwd() + "/",
@@ -10,11 +10,7 @@ module.exports = {
         ".+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2|svg)$": "jest-transform-stub",
         ".*\\.(vue)$": "vue-jest"
     },
-    transformIgnorePatterns: [
-        "/node_modules/(?!@bluemind/|storybook-addon-vue-info|storybook-addon-designs)",
-    ],
+    transformIgnorePatterns: ["/node_modules/(?!@bluemind/|storybook-addon-vue-info|storybook-addon-designs)"],
     testURL: "http://localhost",
-    setupFiles: [
-        "./.jest/register-context.js"
-    ]
+    setupFiles: ["./.jest/register-context.js"]
 };

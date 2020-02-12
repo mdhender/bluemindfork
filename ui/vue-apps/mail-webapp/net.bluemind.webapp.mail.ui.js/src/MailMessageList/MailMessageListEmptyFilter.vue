@@ -3,7 +3,7 @@
         <h3 class="d-inline text-center">
             <p>{{ $t("mail.list.unread.none") }}</p>
             <p>
-                <router-link :to="{ path: '', query: { filter: undefined }}">
+                <router-link :to="{ path: '', query: { filter: undefined } }">
                     {{ $t("mail.list.filter.remove") }}
                 </router-link>
             </p>

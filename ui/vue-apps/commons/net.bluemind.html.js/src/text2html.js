@@ -1,9 +1,9 @@
 /*eslint no-control-regex: 0*/
 /*eslint no-useless-escape: 0*/
-import BoldTransformer from './transformers/BoldTransformer';
-import LinkifyTransformer from './transformers/LinkifyTransformer';
-import CallToTransformer from './transformers/CallToTransformer';
-import PreTransformer from './transformers/PreTransformer';
+import BoldTransformer from "./transformers/BoldTransformer";
+import LinkifyTransformer from "./transformers/LinkifyTransformer";
+import CallToTransformer from "./transformers/CallToTransformer";
+import PreTransformer from "./transformers/PreTransformer";
 
 export default function(text, additionnalTransformer) {
     let transformer = new LinkifyTransformer(additionnalTransformer); // must be the first transformer to run
@@ -26,4 +26,3 @@ export default function(text, additionnalTransformer) {
     //     "</p></div>"
     // );
 }
-

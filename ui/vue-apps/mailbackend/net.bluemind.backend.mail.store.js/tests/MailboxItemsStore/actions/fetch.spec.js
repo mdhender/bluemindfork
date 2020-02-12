@@ -15,7 +15,7 @@ const part = {
 const mockedClient = new MockMailboxItemsClient();
 mockedClient.mockFetch(partTextContent);
 const get = jest.fn().mockReturnValue(mockedClient);
-ServiceLocator.register({ provide: "MailboxItemsPersistence", factory: (uid) => get(uid) });
+ServiceLocator.register({ provide: "MailboxItemsPersistence", factory: uid => get(uid) });
 
 const context = mockVuexContext();
 
@@ -29,7 +29,7 @@ describe("[MailItemsStore][actions] : fetch", () => {
             expect(context.commit).toHaveBeenCalledWith("storePartContent", {
                 messageKey,
                 address: part.address,
-                content: new Blob([partTextContent], { type : "text/plain" })
+                content: new Blob([partTextContent], { type: "text/plain" })
             });
             done();
         });
@@ -49,14 +49,16 @@ describe("[MailItemsStore][actions] : fetch", () => {
     });
 
     test("fail if sortedIds call fail", () => {
-        ServiceLocator.getProvider("MailboxItemsPersistence").get().fetch.mockReturnValueOnce(Promise.reject("Error!"));
+        ServiceLocator.getProvider("MailboxItemsPersistence")
+            .get()
+            .fetch.mockReturnValueOnce(Promise.reject("Error!"));
         expect(fetch(context, { messageKey, part, isAttachment: false })).rejects.toBe("Error!");
     });
 
     function checkFetchCall() {
         expect(get).toHaveBeenCalledWith("folderUid");
         expect(ServiceLocator.getProvider("MailboxItemsPersistence").get().fetch).toHaveBeenCalledWith(
-            context.state.items[messageKey].value.imapUid, 
+            context.state.items[messageKey].value.imapUid,
             part.address,
             part.encoding,
             part.mime,

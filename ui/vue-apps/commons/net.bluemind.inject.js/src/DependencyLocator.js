@@ -61,8 +61,8 @@ function annotateProvider(provider) {
 }
 
 function apply(providerFn, thisArg) {
-    const deps = providerFn.$inject.map(
-        arg => (dependencies.has(arg) ? apply(dependencies.get(arg), thisArg) : undefined)
+    const deps = providerFn.$inject.map(arg =>
+        dependencies.has(arg) ? apply(dependencies.get(arg), thisArg) : undefined
     );
     return (...args) => {
         const finals = providerFn.$inject.map((key, index) => {

@@ -1,6 +1,6 @@
 <template>
     <div class="mail-toolbar-consult-message">
-        <global-events @keydown.tab.capture="forceCloseMoveAutocomplete" /> 
+        <global-events @keydown.tab.capture="forceCloseMoveAutocomplete" />
         <bm-button
             v-if="currentMessage.states.includes('not-seen')"
             v-bm-tooltip.bottom.ds500
@@ -22,7 +22,7 @@
             :aria-label="$tc('mail.actions.mark_unread.aria')"
             @click="markAsUnread(currentMessage.key)"
         >
-            <bm-icon icon="unread" size="2x" /> 
+            <bm-icon icon="unread" size="2x" />
             <span class="d-none d-lg-block">{{ $tc("mail.actions.mark_unread") }}</span>
         </bm-button>
         <mail-toolbar-consult-message-move-action />
@@ -94,7 +94,7 @@ export default {
 
 .mail-toolbar-consult-message .unread,
 .mail-toolbar-consult-message .read {
-    @media (min-width: map-get($grid-breakpoints, 'lg')) {
+    @media (min-width: map-get($grid-breakpoints, "lg")) {
         width: 8rem;
     }
 }

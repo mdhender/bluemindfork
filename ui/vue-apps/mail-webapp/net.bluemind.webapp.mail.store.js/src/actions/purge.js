@@ -10,11 +10,15 @@ export function purge({ dispatch, commit, state }, messageKey) {
             message = m;
             subject = message.subject;
 
-            commit("alert/add", {
-                code: "MSG_PURGE_LOADING",
-                uid: loadingAlertUid,
-                props: { subject }
-            }, { root: true });
+            commit(
+                "alert/add",
+                {
+                    code: "MSG_PURGE_LOADING",
+                    uid: loadingAlertUid,
+                    props: { subject }
+                },
+                { root: true }
+            );
 
             return dispatch("messages/remove", messageKey);
         })

@@ -1,36 +1,35 @@
 <template>
     <bm-button-toolbar key-nav class="mail-message-content-toolbar float-right">
         <bm-button
-            v-bm-tooltip.ds500 
+            v-bm-tooltip.ds500
             variant="outline-primary"
             :aria-label="$t('mail.content.reply.aria')"
             :title="$t('mail.content.reply.aria')"
-
-            :to="{ name: 'replyTo'}"
+            :to="{ name: 'replyTo' }"
         >
             <bm-icon icon="reply" size="2x" />
         </bm-button>
         <bm-button
-            v-bm-tooltip.ds500 
+            v-bm-tooltip.ds500
             variant="outline-primary"
             :aria-label="$t('mail.content.reply_all.aria')"
             :title="$t('mail.content.reply_all.aria')"
-            :to="{ name: 'replyToAll'}"
+            :to="{ name: 'replyToAll' }"
         >
             <bm-icon icon="reply-all" size="2x" />
         </bm-button>
         <bm-button
-            v-bm-tooltip.ds500 
+            v-bm-tooltip.ds500
             variant="outline-primary"
             :aria-label="$t('mail.content.forward.aria')"
             :title="$t('mail.content.forward.aria')"
-            :to="{ name: 'forwardTo'}"
+            :to="{ name: 'forwardTo' }"
         >
             <bm-icon icon="forward" size="2x" />
         </bm-button>
     </bm-button-toolbar>
 </template>
-    
+
 <script>
 import { BmButton, BmButtonToolbar, BmIcon, BmTooltip } from "@bluemind/styleguide";
 
@@ -49,5 +48,4 @@ export default {
 .mail-message-content-toolbar .btn.btn-outline-primary {
     border: none;
 }
-
 </style>

@@ -1,1 +1,1 @@
-export {default} from './MailToolbar';
+export { default } from "./MailToolbar";

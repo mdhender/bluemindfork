@@ -1,1 +1,1 @@
-export {default} from './MailMessageNew';
+export { default } from "./MailMessageNew";

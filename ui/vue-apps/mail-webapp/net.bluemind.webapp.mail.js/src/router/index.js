@@ -1,8 +1,8 @@
 import MailApp, { MailThread, MailMessageNew, MailMessageStarter } from "@bluemind/webapp.mail.ui.vuejs";
 
 const actionsOnMailConsult = {
-    folder: (store, toParam, fromParam, to) => store.dispatch("mail-webapp/selectFolder",
-        { folderKey: toParam, filter: to.query.filter }),
+    folder: (store, toParam, fromParam, to) =>
+        store.dispatch("mail-webapp/selectFolder", { folderKey: toParam, filter: to.query.filter }),
     mail: (store, value) => store.dispatch("mail-webapp/selectMessage", value)
 };
 
@@ -49,8 +49,11 @@ export default [
                 meta: {
                     $actions: {
                         folder: {
-                            call: (store, toParam, fromParam, to) => store.dispatch("mail-webapp/selectFolder",
-                                { folderKey: toParam, filter: to.query.filter }),
+                            call: (store, toParam, fromParam, to) =>
+                                store.dispatch("mail-webapp/selectFolder", {
+                                    folderKey: toParam,
+                                    filter: to.query.filter
+                                }),
                             force: true
                         }
                     }

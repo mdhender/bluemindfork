@@ -1,9 +1,9 @@
 <template>
     <bm-navbar-nav fill class="bm-banner-applications align-items-end">
-        <bm-nav-item 
-            v-for="app in applications" 
-            :key="app.href" 
-            :to="app.external ? '' : app.href" 
+        <bm-nav-item
+            v-for="app in applications"
+            :key="app.href"
+            :to="app.external ? '' : app.href"
             :href="app.external ? app.href : ''"
             class="px-2"
         >
@@ -25,7 +25,7 @@ export default {
         BmBadge,
         BmBannerAppIcon,
         BmNavbarNav,
-        BmNavItem,
+        BmNavItem
     },
     props: {
         applications: {
@@ -39,7 +39,8 @@ export default {
 <style lang="scss">
 @import "@bluemind/styleguide/css/_variables.scss";
 
-.bm-banner-applications .router-link-active, .bm-banner-applications .nav-link:hover {
+.bm-banner-applications .router-link-active,
+.bm-banner-applications .nav-link:hover {
     color: $primary !important;
     border-color: $primary !important;
 }

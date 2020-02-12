@@ -1,7 +1,6 @@
 import { Event } from "@bluemind/event";
 
-export default class RestEvent extends Event { 
-
+export default class RestEvent extends Event {
     constructor(type, data) {
         super(type);
         this.data = data;

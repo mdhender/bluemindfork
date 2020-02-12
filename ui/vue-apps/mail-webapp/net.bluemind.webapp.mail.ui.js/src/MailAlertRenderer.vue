@@ -28,14 +28,15 @@ export default {
                 )
             );
             children.push(createElement("i", { attrs: { place: "subject" } }, [alert.props.subject]));
-            const mailFolderIcon = createElement("mail-folder-icon", 
-                { attrs: { place: "icon", folder: alert.props.folder } });
+            const mailFolderIcon = createElement("mail-folder-icon", {
+                attrs: { place: "icon", folder: alert.props.folder }
+            });
             children.push(
                 createElement(
                     "router-link",
                     {
-                        attrs: { 
-                            place: "folderNameWithLink", 
+                        attrs: {
+                            place: "folderNameWithLink",
                             style: "font-style: normal !important; font-weight: bold;"
                         },
                         props: { to: alert.props.folderNameLink }
@@ -53,7 +54,8 @@ export default {
 <style lang="scss" scoped>
 @import "@bluemind/styleguide/css/_variables.scss";
 
-a, a:visited {
+a,
+a:visited {
     font-style: italic !important;
     color: theme-color("dark") !important;
 }

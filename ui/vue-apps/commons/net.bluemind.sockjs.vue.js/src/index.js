@@ -1,1 +1,1 @@
-export {default} from "./VuePlugin";
+export { default } from "./VuePlugin";

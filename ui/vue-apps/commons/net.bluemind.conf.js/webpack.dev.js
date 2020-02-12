@@ -1,14 +1,14 @@
-const merge = require('webpack-merge');
-const common = require('./webpack.common.js');
+const merge = require("webpack-merge");
+const common = require("./webpack.common.js");
 
 module.exports = merge(common, {
-    mode: 'development',
+    mode: "development",
     devServer: {
         historyApiFallback: true,
         overlay: true,
         port: 9180,
-        host: '0.0.0.0',
+        host: "0.0.0.0",
         disableHostCheck: true
     },
-    devtool: '#eval-source-map'
+    devtool: "#eval-source-map"
 });

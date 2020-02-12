@@ -15,7 +15,9 @@ import { Flag } from "@bluemind/email";
 
 jest.mock("@bluemind/core.container.api");
 
-let containerService, foldersService = new MockMailboxFoldersClient(), itemsService = new MockMailboxItemsClient();
+let containerService,
+    foldersService = new MockMailboxFoldersClient(),
+    itemsService = new MockMailboxItemsClient();
 ServiceLocator.register({ provide: "ContainersPersistence", factory: () => containerService });
 ServiceLocator.register({ provide: "MailboxItemsPersistence", factory: () => itemsService });
 ServiceLocator.register({ provide: "MailboxFoldersPersistence", factory: () => foldersService });
@@ -96,21 +98,29 @@ describe("[MailWebAppStore] Vuex store", () => {
         const folderUid = "050ca560-37ae-458a-bd52-c40fedf4068d";
         const folderKey = ItemUri.encode(folderUid, "user.alice");
         itemsService.getPerUserUnread.mockReturnValue(Promise.resolve({ total: 5 }));
-        itemsService.filteredChangesetById.mockReturnValue(Promise.resolve({
-            created: aliceInbox.filter(message => !message.value.flags.map(f => f.flag).includes(Flag.SEEN.flag))
-                .map(message => { return { id: message.internalId }; })
-        }));
+        itemsService.filteredChangesetById.mockReturnValue(
+            Promise.resolve({
+                created: aliceInbox
+                    .filter(message => !message.value.flags.map(f => f.flag).includes(Flag.SEEN.flag))
+                    .map(message => {
+                        return { id: message.internalId };
+                    })
+            })
+        );
         itemsService.multipleById.mockImplementation(() =>
-            Promise.resolve(aliceInbox.filter(message => 
-                !message.value.flags.map(f => f.flag).includes(Flag.SEEN.flag)))
+            Promise.resolve(
+                aliceInbox.filter(message => !message.value.flags.map(f => f.flag).includes(Flag.SEEN.flag))
+            )
         );
 
         store.dispatch("selectFolder", { folderKey, filter: "unread" }).then(() => {
             expect(store.state.currentFolderKey).toEqual(folderKey);
             expect(store.state.messages.itemKeys.length).toEqual(5);
-            expect(store.state.messages.itemKeys).toEqual(aliceInbox
-                .filter(message => !message.value.flags.map(f => f.flag).includes(Flag.SEEN.flag))
-                .map(m => ItemUri.encode(m.internalId, folderUid)));
+            expect(store.state.messages.itemKeys).toEqual(
+                aliceInbox
+                    .filter(message => !message.value.flags.map(f => f.flag).includes(Flag.SEEN.flag))
+                    .map(m => ItemUri.encode(m.internalId, folderUid))
+            );
             expect(store.state.messages.items[store.state.messages.itemKeys[0]]).not.toBeUndefined();
             expect(store.state.foldersData[folderUid].unread).toBe(5);
             expect(store.getters.currentMailbox.mailboxUid).toEqual("user.alice");

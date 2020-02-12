@@ -26,7 +26,7 @@ extend(router, store);
 
 Vue.mixin(InheritTranslationsMixin);
 
-const i18n = new VueI18n({ locale: userSession.lang, fallbackLocale: 'en', dateTimeFormats: getDateTimeFormats() });
+const i18n = new VueI18n({ locale: userSession.lang, fallbackLocale: "en", dateTimeFormats: getDateTimeFormats() });
 
 injector.register({
     provide: "i18n",
@@ -40,11 +40,11 @@ new Vue({
     router,
     store
 });
-        
+
 function setVuePlugins() {
     Vue.use(VueI18n);
     Vue.use(VueBus, { store });
-    Vue.use(VueSockjsPlugin, { url: '/eventbus/', VueBus });
+    Vue.use(VueSockjsPlugin, { url: "/eventbus/", VueBus });
 }
 
 function registerDependencies(userSession) {
@@ -65,25 +65,38 @@ function registerDependencies(userSession) {
 function getDateTimeFormats() {
     const formats = {
         short_date: {
-            day: '2-digit', month: '2-digit', year: 'numeric'
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric"
         },
         short_time: {
-            hour: '2-digit', minute: '2-digit'
+            hour: "2-digit",
+            minute: "2-digit"
         },
         relative_date: {
-            weekday: 'short', day: '2-digit', month: '2-digit'
+            weekday: "short",
+            day: "2-digit",
+            month: "2-digit"
         },
         full_date: {
-            weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric'
+            weekday: "short",
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric"
         },
         full_date_time: {
-            weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+            weekday: "long",
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
         }
     };
-    
+
     return {
-        'fr': formats,
-        'en': formats
+        fr: formats,
+        en: formats
     };
 }
 //Ajouter des data via des plugins

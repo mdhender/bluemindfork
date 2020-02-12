@@ -1,4 +1,4 @@
-import { EmptyTransformer } from '@bluemind/html-utils';
+import { EmptyTransformer } from "@bluemind/html-utils";
 
 export default class {
     constructor(transformer) {
@@ -17,14 +17,14 @@ function processReplies(text) {
     const replySymbol = "&gt;";
 
     let newReplyParsingNeeded = true;
-    
+
     while (newReplyParsingNeeded) {
         let preIsBlockQuote = false;
         newReplyParsingNeeded = false;
-        for (let i = 0; i < lines.length ; i++) {
+        for (let i = 0; i < lines.length; i++) {
             let parsedLine = lines[i];
             let keepMe = "";
-        
+
             while (parsedLine.startsWith(blockquoteReplyBlock)) {
                 keepMe += blockquoteReplyBlock;
                 parsedLine = parsedLine.substring(blockquoteReplyBlock.length, parsedLine.length);
@@ -44,7 +44,7 @@ function processReplies(text) {
             if ((preIsBlockQuote && lineIsBlockQuote) || (!preIsBlockQuote && !lineIsBlockQuote)) {
                 lines[i] = keepMe + parsedLine;
                 continue;
-            } 
+            }
             if (!preIsBlockQuote && lineIsBlockQuote) {
                 preIsBlockQuote = true;
                 parsedLine = blockquoteReplyBlock + parsedLine;

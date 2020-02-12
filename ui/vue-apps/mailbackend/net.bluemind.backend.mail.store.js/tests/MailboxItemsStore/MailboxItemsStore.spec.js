@@ -10,7 +10,6 @@ import plainTextPart from "./data/plainTextPart";
 import ServiceLocator from "@bluemind/inject";
 import Vuex from "vuex";
 
-
 const mockedClient = new MockMailboxItemsClient();
 ServiceLocator.register({ provide: "MailboxItemsPersistence", factory: () => mockedClient });
 
@@ -103,10 +102,12 @@ describe("[MailboxItemsStore] Vuex store", () => {
         const sorted = { dir: "desc", column: "internal_date" };
         mockedClient.sortedIds.mockReturnValueOnce(Promise.resolve(exampleMessages.map(message => message.internalId)));
         mockedClient.filteredChangesetById.mockReturnValueOnce(
-            Promise.resolve({ created: [{ id: "4." }, { id: "7." }, { id: "11." }] }));
+            Promise.resolve({ created: [{ id: "4." }, { id: "7." }, { id: "11." }] })
+        );
         const filteredMessages = [exampleMessages[3], exampleMessages[4], exampleMessages[7]];
         mockedClient.multipleById.mockReturnValueOnce(
-            Promise.resolve([exampleMessages[3], exampleMessages[4], exampleMessages[7]]));
+            Promise.resolve([exampleMessages[3], exampleMessages[4], exampleMessages[7]])
+        );
         const store = new Vuex.Store(cloneDeep(MailboxItemsStore));
 
         store
@@ -116,7 +117,7 @@ describe("[MailboxItemsStore] Vuex store", () => {
                 return store.dispatch("multipleByKey", store.state.itemKeys);
             })
             .then(() => {
-                filteredMessages.forEach((item) => {
+                filteredMessages.forEach(item => {
                     const key = ItemUri.encode(item.internalId, folderUid);
                     const message = new Message(key, item);
                     expect(store.getters.getMessageByKey(key)).toEqual(message);

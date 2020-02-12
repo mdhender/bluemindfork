@@ -1,6 +1,6 @@
-import { text2html, EmptyTransformer } from '@bluemind/html-utils';
-import ForwardTextTransformer from './transformers/ForwardTextTransformer';
-import ReplyTextTransformer from './transformers/ReplyTextTransformer';
+import { text2html, EmptyTransformer } from "@bluemind/html-utils";
+import ForwardTextTransformer from "./transformers/ForwardTextTransformer";
+import ReplyTextTransformer from "./transformers/ReplyTextTransformer";
 
 export default function(mailText) {
     let textTransformer = new EmptyTransformer();

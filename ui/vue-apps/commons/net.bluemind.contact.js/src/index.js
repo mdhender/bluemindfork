@@ -1,5 +1,3 @@
-import VCardInfoAdaptor from './VCardInfoAdaptor';
+import VCardInfoAdaptor from "./VCardInfoAdaptor";
 
-export {
-    VCardInfoAdaptor
-};
+export { VCardInfoAdaptor };

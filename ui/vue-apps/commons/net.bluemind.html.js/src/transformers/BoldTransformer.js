@@ -1,4 +1,4 @@
-import EmptyTransformer from './EmptyTransformer';
+import EmptyTransformer from "./EmptyTransformer";
 
 export default class {
     constructor(transformer) {

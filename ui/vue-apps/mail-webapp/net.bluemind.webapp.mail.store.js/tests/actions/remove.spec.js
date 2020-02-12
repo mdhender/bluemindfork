@@ -13,7 +13,8 @@ const context = {
     getters: {
         my: {
             mailboxUid: "mailbox-uid",
-            TRASH: { key: "trash-key", uid: "trash-uid" }, INBOX: { key: "inbox-key", uid: "inbox-uid" }
+            TRASH: { key: "trash-key", uid: "trash-uid" },
+            INBOX: { key: "inbox-key", uid: "inbox-uid" }
         },
         "folders/getFolderByKey": jest.fn().mockReturnValue({
             internalId: 10

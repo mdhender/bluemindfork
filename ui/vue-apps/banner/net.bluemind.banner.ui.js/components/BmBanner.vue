@@ -1,6 +1,6 @@
 <template>
     <bm-navbar type="dark" variant="info-dark" class="bm-banner p-0 align-items-stretch d-none d-lg-flex">
-        <bm-button 
+        <bm-button
             id="all-apps-popover"
             v-bm-tooltip.ds500
             variant="link"
@@ -19,7 +19,7 @@
             variant="info-dark"
             @shown="setFocus"
         >
-            <div class="text-white mb-2 mx-3">{{ $t("banner.main.apps") }} </div>
+            <div class="text-white mb-2 mx-3">{{ $t("banner.main.apps") }}</div>
             <bm-row class="bm-apps">
                 <bm-col v-for="app in applications" :key="app.href" cols="6" class="text-white">
                     <a v-if="app.external" :href="app.href">
@@ -53,16 +53,17 @@ import BannerL10N from "@bluemind/banner.l10n";
 import BmBannerApplications from "./BmBannerApplications";
 import BmBannerAppIcon from "./BmBannerAppIcon";
 import BmBannerUser from "./BmBannerUser";
-import { 
-    BmButton, 
-    BmCol, 
-    BmIcon, 
-    BmLogo, 
-    BmNavbar, 
-    BmNavbarBrand, 
-    BmPopover, 
-    BmRow, 
-    BmTooltip } from "@bluemind/styleguide";
+import {
+    BmButton,
+    BmCol,
+    BmIcon,
+    BmLogo,
+    BmNavbar,
+    BmNavbarBrand,
+    BmPopover,
+    BmRow,
+    BmTooltip
+} from "@bluemind/styleguide";
 
 export default {
     name: "BmBanner",
@@ -112,14 +113,14 @@ export default {
             return this.selectedApp ? this.selectedApp.href : "/";
         },
         defaultApps() {
-            return this.applications.filter(app => 
-                app.href === "/mail/" || app.href === "/contact/" || app.href === "/cal/"
+            return this.applications.filter(
+                app => app.href === "/mail/" || app.href === "/contact/" || app.href === "/cal/"
             );
         }
     },
     methods: {
         closePopover() {
-            this.$root.$emit('bv::hide::popover', 'all-apps-popover');
+            this.$root.$emit("bv::hide::popover", "all-apps-popover");
         },
         setFocus() {
             this.$nextTick(() => document.getElementsByClassName("apps-popover")[0].focus());
@@ -129,29 +130,31 @@ export default {
 </script>
 
 <style lang="scss">
-@import '~@bluemind/styleguide/css/_variables';
+@import "~@bluemind/styleguide/css/_variables";
 
 .bm-banner .app-title {
     color: $primary;
 }
 
-.bm-banner .fa-9dots, .apps-popover .bm-app {
+.bm-banner .fa-9dots,
+.apps-popover .bm-app {
     cursor: pointer;
 }
 
 .bm-banner .fa-9dots {
-    color: color-yiq(theme-color("info-dark")) !important;   
+    color: color-yiq(theme-color("info-dark")) !important;
 }
 
 .bm-banner .navbar-brand {
     margin-right: 0;
 }
 
-.bm-banner #all-apps-popover:focus{
+.bm-banner #all-apps-popover:focus {
     outline: 1px dotted $white;
 }
 
-.bm-banner #all-apps-popover:focus, .bm-banner #all-apps-popover:hover {
+.bm-banner #all-apps-popover:focus,
+.bm-banner #all-apps-popover:hover {
     background-color: unset;
 }
 
@@ -166,20 +169,23 @@ export default {
 
 .apps-popover .bm-apps {
     width: 22rem;
-    a:focus{
+    a:focus {
         outline: 1px dotted $light;
     }
 }
 
-.apps-popover .bm-app:hover, .apps-popover a:focus, .apps-popover .bm-app.router-link-active {
+.apps-popover .bm-app:hover,
+.apps-popover a:focus,
+.apps-popover .bm-app.router-link-active {
     color: $primary;
 }
 
-.apps-popover .bm-app.router-link-active{
+.apps-popover .bm-app.router-link-active {
     font-weight: $font-weight-bold;
 }
 
-.apps-popover a, .apps-popover a:hover {
+.apps-popover a,
+.apps-popover a:hover {
     all: unset;
 }
 

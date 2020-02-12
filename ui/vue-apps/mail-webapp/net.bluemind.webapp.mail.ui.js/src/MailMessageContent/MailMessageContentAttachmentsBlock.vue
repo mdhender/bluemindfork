@@ -45,7 +45,7 @@
                 />
             </bm-col>
         </bm-row>
-        <a 
+        <a
             ref="download-attachment-link"
             class="d-none"
             :download="downloadAttachmentFilename"
@@ -154,8 +154,8 @@ export default {
         },
         triggerDownload(index) {
             const attachment = this.attachments[index];
-            const attachmentBlob = new Blob([attachment.content], { type : attachment.mime });
-            
+            const attachmentBlob = new Blob([attachment.content], { type: attachment.mime });
+
             this.downloadAttachmentFilename = attachment.filename;
             this.downloadAttachmentBlob = URL.createObjectURL(attachmentBlob);
 

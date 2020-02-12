@@ -4,9 +4,10 @@
             <template #header>
                 <span
                     v-bm-tooltip.hover.ds500
-                    class="d-none d-lg-flex text-nowrap text-truncate card-header" 
+                    class="d-none d-lg-flex text-nowrap text-truncate card-header"
                     :title="panelTitle"
-                >{{ panelTitle }}</span>
+                    >{{ panelTitle }}</span
+                >
             </template>
             <template #body>
                 <div class="px-3">
@@ -75,7 +76,7 @@
                         @keydown.enter.native.prevent
                     />
                 </div>
-                <bm-row class="d-block m-0"><hr class="bg-dark m-0" /></bm-row>
+                <bm-row class="d-block m-0"><hr class="bg-dark m-0"/></bm-row>
                 <div class="flex-grow-1">
                     <bm-form-textarea
                         v-if="userPrefTextOnly"
@@ -114,7 +115,7 @@
                 </bm-button>
             </template>
             <template #footer>
-                <mail-message-new-footer 
+                <mail-message-new-footer
                     :user-pref-text-only="userPrefTextOnly"
                     :user-pref-is-menu-bar-opened="userPrefIsMenuBarOpened"
                     @toggleTextFormat="userPrefIsMenuBarOpened = !userPrefIsMenuBarOpened"
@@ -163,7 +164,7 @@ export default {
         BmRow,
         MailMessageNewFooter
     },
-    mixins: [ RouterMixin ],
+    mixins: [RouterMixin],
     props: {
         message: {
             type: Object,
@@ -243,11 +244,11 @@ export default {
             this.message_.content += this.previousMessage.content;
             this.$nextTick(() => {
                 if (!this.userPrefTextOnly) {
-                    this.$refs['message-content'].updateContent();
-                    this.$refs['message-content'].focus('start');
+                    this.$refs["message-content"].updateContent();
+                    this.$refs["message-content"].focus("start");
                 } else {
-                    this.$refs['message-content'].focus();
-                    this.$refs['message-content'].setSelectionRange(0,0);
+                    this.$refs["message-content"].focus();
+                    this.$refs["message-content"].setSelectionRange(0, 0);
                 }
             });
             this.message_.isReplyExpanded = true;

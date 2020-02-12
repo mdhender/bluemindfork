@@ -20,16 +20,9 @@
             <bm-col cols="3">
                 <transition name="fade" mode="out-in">
                     <div v-if="!quickActionButtonsVisible" class="float-right">
-                        <component
-                            :is="widget"
-                            v-for="widget in widgets"
-                            :key="widget.template"
-                        />
+                        <component :is="widget" v-for="widget in widgets" :key="widget.template" />
                     </div>
-                    <mail-message-list-item-quick-action-buttons
-                        v-if="quickActionButtonsVisible" 
-                        :message="message"
-                    />
+                    <mail-message-list-item-quick-action-buttons v-if="quickActionButtonsVisible" :message="message" />
                 </transition>
             </bm-col>
         </bm-row>
@@ -38,7 +31,7 @@
                 <component :is="state" v-if="!!state" class="ml-1" />
             </bm-col>
             <bm-col class="text-overflow ">
-                <div 
+                <div
                     v-bm-tooltip.ds500.bottom.viewport
                     :title="message.subject"
                     class="text-overflow mw-100 h3 subject"
@@ -77,15 +70,7 @@ const FLAG_COMPONENT = {
     }
 };
 
-import {
-    BmAvatar,
-    BmCheck,
-    BmCol,
-    BmIcon,
-    BmListGroupItem,
-    BmRow,
-    BmTooltip
-} from "@bluemind/styleguide";
+import { BmAvatar, BmCheck, BmCol, BmIcon, BmListGroupItem, BmRow, BmTooltip } from "@bluemind/styleguide";
 import { DateComparator } from "@bluemind/date";
 import MailMessageListItemQuickActionButtons from "./MailMessageListItemQuickActionButtons";
 
@@ -122,11 +107,11 @@ export default {
             const today = new Date();
             const messageDate = this.message.date;
             if (DateComparator.isSameDay(messageDate, today)) {
-                return this.$d(messageDate, 'short_time');
+                return this.$d(messageDate, "short_time");
             } else if (DateComparator.isSameYear(messageDate, today)) {
-                return this.$d(messageDate, 'relative_date');
+                return this.$d(messageDate, "relative_date");
             }
-            return this.$d(messageDate, 'short_date');
+            return this.$d(messageDate, "short_date");
         },
         smallerDisplayedDate: function() {
             return this.displayedDate.substring(this.displayedDate.indexOf(" ") + 1);
@@ -142,9 +127,7 @@ export default {
                 .shift();
         },
         from() {
-            return this.message.from.dn
-                ? this.message.from.dn
-                : this.message.from.address;
+            return this.message.from.dn ? this.message.from.dn : this.message.from.address;
         }
     }
 };
@@ -177,7 +160,8 @@ export default {
     display: block !important;
 }
 
-.custom-control-label::after, .custom-control-label::before{
+.custom-control-label::after,
+.custom-control-label::before {
     top: 0.2rem !important;
 }
 
@@ -190,13 +174,14 @@ a.list-group-item.mail-message-list-item {
 }
 
 .list-group-item.mail-message-list-item:focus {
-   outline: $outline;
-   &:hover {
-    background-color: $component-active-bg-darken;
-   }
+    outline: $outline;
+    &:hover {
+        background-color: $component-active-bg-darken;
+    }
 }
 
-.not-seen .sender, .not-seen .subject {
+.not-seen .sender,
+.not-seen .subject {
     font-weight: $font-weight-bold;
 }
 

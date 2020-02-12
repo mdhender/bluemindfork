@@ -1,1 +1,1 @@
-export {default} from './MailToolbarConsultMessage';
+export { default } from "./MailToolbarConsultMessage";

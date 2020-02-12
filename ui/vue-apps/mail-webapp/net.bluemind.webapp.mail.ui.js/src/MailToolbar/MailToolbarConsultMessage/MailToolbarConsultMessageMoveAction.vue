@@ -11,8 +11,7 @@
         @hide="pattern = ''"
     >
         <template slot="button-content">
-            <bm-icon icon="folder" size="2x" /> <span class="d-none d-lg-block">
-                {{ $tc("mail.toolbar.move") }}</span>
+            <bm-icon icon="folder" size="2x" /> <span class="d-none d-lg-block"> {{ $tc("mail.toolbar.move") }}</span>
         </template>
         <bm-autocomplete
             ref="moveAutocomplete"

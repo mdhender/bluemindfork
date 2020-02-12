@@ -1,13 +1,13 @@
-var path = require('path');
-const merge = require('webpack-merge');
-const prod = require('./node_modules/@bluemind/conf/webpack.prod.js');
-const dev = require('./node_modules/@bluemind/conf/webpack.dev.js');
+var path = require("path");
+const merge = require("webpack-merge");
+const prod = require("./node_modules/@bluemind/conf/webpack.prod.js");
+const dev = require("./node_modules/@bluemind/conf/webpack.dev.js");
 
 const myConf = {
-    entry: './src/run.js',
+    entry: "./src/run.js",
     output: {
-        path: path.resolve(__dirname, './web-resources/js/compile'),
-        filename: 'net.bluemind.webapp.mail.js'    
+        path: path.resolve(__dirname, "./web-resources/js/compile"),
+        filename: "net.bluemind.webapp.mail.js"
     }
 };
 

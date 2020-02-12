@@ -31,7 +31,7 @@ export function saveDraft({ commit, state, getters }) {
                 if (previousMessage.content && !draft.isReplyExpanded) {
                     draft.content += previousMessage.content;
                 }
-                
+
                 if (previousMessage.messageId) {
                     draft.headers.push({ name: "In-Reply-To", values: [previousMessage.messageId] });
                     draft.references = [previousMessage.messageId].concat(previousMessage.references);

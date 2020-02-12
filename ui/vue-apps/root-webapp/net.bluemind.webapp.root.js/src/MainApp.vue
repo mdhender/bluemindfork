@@ -25,13 +25,11 @@ export default {
                 const entry = extension.application;
                 data.applications.push({
                     icon: {
-                        name: entry.children['icon-name'] && entry.children['icon-name'].body,
-                        svg: entry.children['icon-svg'] && entry.children['icon-svg'].body,
-                        url: entry.children['icon-url'] && entry.children['icon-url'].body
+                        name: entry.children["icon-name"] && entry.children["icon-name"].body,
+                        svg: entry.children["icon-svg"] && entry.children["icon-svg"].body,
+                        url: entry.children["icon-url"] && entry.children["icon-url"].body
                     },
-                    href: entry.href.match(/^\/webapp/)
-                        ? entry.href.replace("/webapp", "")
-                        : entry.href,
+                    href: entry.href.match(/^\/webapp/) ? entry.href.replace("/webapp", "") : entry.href,
                     external: !entry.href.match(/^\/webapp/),
                     name: entry.name,
                     description: entry.description,

@@ -5,7 +5,7 @@ export default {
         for (let lang in translation1) {
             let tmp = translation1[lang];
             if (translation2[lang]) {
-                tmp = {...translation1[lang], ...translation2[lang] };
+                tmp = { ...translation1[lang], ...translation2[lang] };
             }
             res[lang] = tmp;
         }
@@ -20,7 +20,7 @@ export default {
         let res = {};
         context.keys().forEach(key => {
             const adapted = {};
-            adapted[key.substring(2,4)] = { ...context(key) }; // extracting lang ("en" for example)
+            adapted[key.substring(2, 4)] = { ...context(key) }; // extracting lang ("en" for example)
             res = this.mergeTranslations(res, adapted);
         });
         return res;

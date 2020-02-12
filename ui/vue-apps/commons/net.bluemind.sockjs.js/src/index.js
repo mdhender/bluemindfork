@@ -1,1 +1,1 @@
-export {default as default} from "./WebSocketClient";
+export { default } from "./WebSocketClient";

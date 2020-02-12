@@ -1,23 +1,24 @@
 import mailText2Html from "../src/mailText2Html";
 import ForwardTextTransformer from "../src/transformers/ForwardTextTransformer";
 
-describe('mailText2Html', () => {
-
-    test('all text mail transformations apply and produce expected HTML', () => {
+describe("mailText2Html", () => {
+    test("all text mail transformations apply and produce expected HTML", () => {
         let mailTextContent = `Test mailto : zefze@mail.com
             Test link : https://bm.blue-mind.net/webmail/?_task=mail
             Test bold : *zefzefzef*
             Test callto 1 : 0625486518`;
         const res = mailText2Html(mailTextContent);
         expect(res).toContain('<a href="mailto:zefze@mail.com" class="linkified">zefze@mail.com</a>');
-        expect(res).toContain('<a href="https://bm.blue-mind.net/webmail/?_task=mail" ' +
-            'class="linkified" target="_blank">https://bm.blue-mind.net/webmail/?_task=mail</a>');
+        expect(res).toContain(
+            '<a href="https://bm.blue-mind.net/webmail/?_task=mail" ' +
+                'class="linkified" target="_blank">https://bm.blue-mind.net/webmail/?_task=mail</a>'
+        );
         expect(res).toContain('<a href="callto:+33625486518">0625486518</a>');
-        expect(res).toContain('<strong>*zefzefzef*</strong>');
+        expect(res).toContain("<strong>*zefzefzef*</strong>");
         // TODO: expect(res).toMatch("<pre>*</pre>");
     });
 
-    test('FIXME : problem with callTo transformer', () => {
+    test("FIXME : problem with callTo transformer", () => {
         let mailTextContent = `Test callto 1 : 0625486518
 
             Test callto 2 : +33425786541`;
@@ -26,7 +27,7 @@ describe('mailText2Html', () => {
         expect(res).toContain('<a href="callto:+33425786541">+33425786541</a>');
     });
 
-    test('replyTransformer', () => {
+    test("replyTransformer", () => {
         let mailTextContent = `Réponse 3
 Le 14/03/2019 à 17:53, test a écrit :
 > Réponse 2
@@ -49,7 +50,7 @@ Le 14/03/2019 à 17:53, test a écrit :
         expect(res).toContain(expectedHTML);
     });
 
-    test('forwardTransformer', () => {
+    test("forwardTransformer", () => {
         const transformer = new ForwardTextTransformer(null);
         let mailTextContent = `-------- Message transféré --------
             Sujet : blabla

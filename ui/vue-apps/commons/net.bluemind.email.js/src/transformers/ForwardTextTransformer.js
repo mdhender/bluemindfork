@@ -1,4 +1,4 @@
-import { EmptyTransformer } from '@bluemind/html-utils';
+import { EmptyTransformer } from "@bluemind/html-utils";
 
 export default class {
     constructor(transformer) {
@@ -14,9 +14,10 @@ function processForward(text) {
     const forwardRegex = /-{8,9}.+-{8,9}/g;
     const i = text.search(forwardRegex);
     if (i !== -1) {
-        text = text.substring(0, i-1) + 
-            "<blockquote class='forwarded'>" + 
-            text.substring(i, text.length) + 
+        text =
+            text.substring(0, i - 1) +
+            "<blockquote class='forwarded'>" +
+            text.substring(i, text.length) +
             "</blockquote>";
     }
     return text;

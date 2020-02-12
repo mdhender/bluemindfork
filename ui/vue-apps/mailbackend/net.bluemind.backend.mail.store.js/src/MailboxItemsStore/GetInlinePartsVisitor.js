@@ -6,7 +6,7 @@ import findLast from "lodash.findlast";
  * Pass this and a body.structure to TreeWalker to build an array of maps of inline parts keyed by capabilities.
  * For each possible display possibilities due to multipart/alternative parts, there is an entry in the result.
  * When there is only one possibility then 'capabilities' is kept empty.
- * 
+ *
  * @example // having this structure:
  *          //
  *          // multipart/alternative
@@ -25,7 +25,7 @@ import findLast from "lodash.findlast";
  *          return visitor.result(); // => [ { "capabilities" : ["text/plain"], "parts" : [ <MyPlainPartObject> ] },
  *                                   //      { "capabilities" : ["text/html"],
  *                                   //        "parts" : [ <MyHtmlPartObject>, <MyImagePartObject> ] } ]
- * 
+ *
  * @example // just one possibility:
  *          //
  *          // multipart/mixed
@@ -39,13 +39,13 @@ import findLast from "lodash.findlast";
  *          const visitor = new GetInlinePartsVisitor();
  *          const walker = new TreeWalker(rootPart, visitor);
  *          walker.walk();
- *          return visitor.result(); // => [ { "capabilities" : [], "parts" : [ 
+ *          return visitor.result(); // => [ { "capabilities" : [], "parts" : [
  *                                   //            <MyHtmlPartObject>, <MyPlainPartObject, <MyImagePartObject> ] } ]
  * @see TreeWalker
  */
 export default class GetInlinePartsVisitor {
     constructor() {
-        this.results = [{  parts: [], capabilities: [], lastForkAddress: "" }];
+        this.results = [{ parts: [], capabilities: [], lastForkAddress: "" }];
     }
 
     visit(part, ancestors) {
@@ -86,7 +86,7 @@ export default class GetInlinePartsVisitor {
 
     /** @return the already computed results of the given Alternative part */
     getChildrenResults(part) {
-        const address = part.address === this.root.address ? "": part.address;
+        const address = part.address === this.root.address ? "" : part.address;
         return this.results.filter(result => result.lastForkAddress.startsWith(address));
     }
 
@@ -96,7 +96,7 @@ export default class GetInlinePartsVisitor {
             if (MimeType.isAlternative(ancestors[i])) {
                 return part.mime;
             }
-            if ((MimeType.isRelated(ancestors[i])) && this.isNotFirstChild(child, ancestors[i])) {
+            if (MimeType.isRelated(ancestors[i]) && this.isNotFirstChild(child, ancestors[i])) {
                 // we do not want to add the capability of a non-first Related child
                 return null;
             }
@@ -133,16 +133,19 @@ export default class GetInlinePartsVisitor {
 
     /** @return the sorted results */
     result() {
-        return this.results.filter((result) => {
-            const prior = findLast(this.results, (reverse =>
-                reverse.capabilities.every(capability => result.capabilities.includes(capability))
-            ));
-            return result === prior;
-        }).map(result => {
-            return {
-                capabilities: result.capabilities,
-                parts: result.parts
-            };
-        }).reverse();
+        return this.results
+            .filter(result => {
+                const prior = findLast(this.results, reverse =>
+                    reverse.capabilities.every(capability => result.capabilities.includes(capability))
+                );
+                return result === prior;
+            })
+            .map(result => {
+                return {
+                    capabilities: result.capabilities,
+                    parts: result.parts
+                };
+            })
+            .reverse();
     }
 }

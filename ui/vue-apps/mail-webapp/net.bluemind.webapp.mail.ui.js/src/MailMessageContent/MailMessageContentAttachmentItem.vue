@@ -4,7 +4,12 @@
     >
         <bm-row v-if="isExpanded" class="pt-1">
             <bm-col cols="12" class="px-1">
-                <img v-if="hasPreview" :src="preview" class="w-100 preview mb-1" :alt="$tc('common.attachmentPreview')">
+                <img
+                    v-if="hasPreview"
+                    :src="preview"
+                    class="w-100 preview mb-1"
+                    :alt="$tc('common.attachmentPreview')"
+                />
                 <div v-else class="preview w-100 d-flex align-items-center mb-1 bg-light p-1">
                     <bm-icon :icon="fileTypeIcon" size="6x" class="m-auto bg-white preview-file-type" />
                 </div>
@@ -15,24 +20,20 @@
                 <bm-icon :icon="fileTypeIcon" size="2x" class="align-bottom pt-1" />
             </bm-col>
             <bm-col class="text-nowrap text-truncate flex-grow-1 px-1">
-                <span 
-                    v-bm-tooltip.ds500
-                    :title="attachment.filename"
-                    class="font-weight-bold"
-                >
+                <span v-bm-tooltip.ds500 :title="attachment.filename" class="font-weight-bold">
                     {{ filename }}
                 </span>
-                <br>
+                <br />
                 {{ fileSize }}
             </bm-col>
             <bm-col class="col-auto py-1">
-                <bm-button 
+                <bm-button
                     v-bm-tooltip.ds500
                     variant="light"
                     class="p-0"
                     size="md"
                     :title="$tc('common.downloadAttachment')"
-                    :aria-label="$tc('common.downloadAttachment')" 
+                    :aria-label="$tc('common.downloadAttachment')"
                     @click="$emit('save')"
                 >
                     <bm-icon icon="download" size="2x" class="p-1" />
@@ -76,16 +77,17 @@ export default {
             return MimeType.matchingIcon(this.attachment.mime);
         },
         filename() {
-            return this.attachment.filename ? 
-                this.attachment.filename : this.$t("mail.attachment.untitled", { mimeType: this.attachment.mime});
+            return this.attachment.filename
+                ? this.attachment.filename
+                : this.$t("mail.attachment.untitled", { mimeType: this.attachment.mime });
         },
         fileSize() {
             let size = this.attachment.size;
-            if ((size / Math.pow(10, 9)) >=  1) {
+            if (size / Math.pow(10, 9) >= 1) {
                 return roundTo1Decimal(size / Math.pow(10, 9)) + " Go";
-            } else if ((size / Math.pow(10, 6)) >=  1) {
+            } else if (size / Math.pow(10, 6) >= 1) {
                 return roundTo1Decimal(size / Math.pow(10, 6)) + " Mo";
-            } else if (((size / Math.pow(10, 3)) >=  1)) {
+            } else if (size / Math.pow(10, 3) >= 1) {
                 return roundTo1Decimal(size / Math.pow(10, 3)) + " Ko";
             } else {
                 return size + " o";
@@ -108,7 +110,7 @@ export default {
     height: 7em;
 }
 
- .preview-file-type {
-     color: $light !important;
+.preview-file-type {
+    color: $light !important;
 }
 </style>

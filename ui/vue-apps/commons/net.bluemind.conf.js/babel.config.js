@@ -1,17 +1,14 @@
-module.exports = function (api, otherPlugins = []) {
+module.exports = function(api, otherPlugins = []) {
     api.cache(true);
 
     const presets = [
-        ["@babel/preset-env",
+        [
+            "@babel/preset-env",
             {
-                "modules": "auto",
-                "targets": {
-                    "browsers": [
-                        "> 0.25%",
-                        "not dead",
-                        "not ie <= 8"
-                    ],
-                    "node": 8
+                modules: "auto",
+                targets: {
+                    browsers: ["> 0.25%", "not dead", "not ie <= 8"],
+                    node: 8
                 }
             }
         ]

@@ -7,7 +7,7 @@
                     {{ user.displayname }}
                 </span>
             </template>
-            <bm-dropdown-item 
+            <bm-dropdown-item
                 v-bm-tooltip.left.ds500="$t('banner.menu.settings.aria')"
                 href="/settings/"
                 :aria-label="$t('banner.menu.settings.aria')"
@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import { BmAvatar, BmDropdownItem, BmLabelIcon, BmNavbarNav, BmNavItemDropdown, BmTooltip} from "@bluemind/styleguide";
+import { BmAvatar, BmDropdownItem, BmLabelIcon, BmNavbarNav, BmNavItemDropdown, BmTooltip } from "@bluemind/styleguide";
 
 export default {
     name: "BmBannerUser",
@@ -33,7 +33,7 @@ export default {
         BmNavbarNav,
         BmNavItemDropdown
     },
-    directives: {BmTooltip},
+    directives: { BmTooltip },
     props: {
         user: {
             required: true,
@@ -46,7 +46,7 @@ export default {
 <style lang="scss">
 @import "@bluemind/styleguide/css/_variables.scss";
 
-$contrasted-color : color-yiq(theme-color("info-dark")) !important;
+$contrasted-color: color-yiq(theme-color("info-dark")) !important;
 
 .bm-banner-user .bm-avatar {
     position: relative;
@@ -57,7 +57,8 @@ $contrasted-color : color-yiq(theme-color("info-dark")) !important;
     color: $contrasted-color;
 }
 
-.bm-banner-user, .bm-banner-user .dropdown-menu {
+.bm-banner-user,
+.bm-banner-user .dropdown-menu {
     background-color: theme-color-level("info-dark", 4) !important;
 }
 
@@ -66,7 +67,8 @@ $contrasted-color : color-yiq(theme-color("info-dark")) !important;
     margin-top: 0 !important;
 }
 
-.bm-banner-user .dropdown-toggle, .bm-banner-user .dropdown-menu {
+.bm-banner-user .dropdown-toggle,
+.bm-banner-user .dropdown-menu {
     min-width: 10rem;
     max-width: 15rem;
 }
@@ -74,9 +76,12 @@ $contrasted-color : color-yiq(theme-color("info-dark")) !important;
 .bm-banner-user .dropdown-toggle {
     display: flex;
     align-items: center;
-    padding-left: 0!important;
+    padding-left: 0 !important;
     text-decoration: none;
-    &:active, &:visited, &:hover, &:focus {
+    &:active,
+    &:visited,
+    &:hover,
+    &:focus {
         text-decoration: none;
     }
     &:after {
@@ -92,7 +97,10 @@ $contrasted-color : color-yiq(theme-color("info-dark")) !important;
     padding-right: $sp-3;
     padding-left: $sp-3;
     color: $contrasted-color;
-    &:focus, &:hover, &:active, &:active:focus {
+    &:focus,
+    &:hover,
+    &:active,
+    &:active:focus {
         background-color: unset;
         color: $primary !important;
     }

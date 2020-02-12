@@ -27,10 +27,13 @@ describe("PartsHelper insertInlineImages", () => {
         const expectedSrcContent = mockedBlobAsURLObject + imagePart2Content;
         const expected = [
             {
-                content: `
+                content:
+                    `
                 <html>
                     <body>
-                        This is my referenced image:<img alt="myImage" src="` + expectedSrcContent + `">
+                        This is my referenced image:<img alt="myImage" src="` +
+                    expectedSrcContent +
+                    `">
                     </body>
                 </html>`
             }
@@ -71,15 +74,22 @@ describe("PartsHelper insertInlineImages", () => {
         // build expected result
         const expected = [
             {
-                content: `
+                content:
+                    `
                 <html>
                     <body>
-                        <p><img src="`+ mockedBlobAsURLObject + imagePart1Content +`"></p>
+                        <p><img src="` +
+                    mockedBlobAsURLObject +
+                    imagePart1Content +
+                    `"></p>
                         <img src="http://... " />
                         Salut Kévin j'ai un src="cid:123456789@test.com" dans mon mail c'est normal ?
                         <div>
                             <img alt="alternative text" width="42px" 
-                                src="`+ mockedBlobAsURLObject + imagePart2Content +`" height="42px">
+                                src="` +
+                    mockedBlobAsURLObject +
+                    imagePart2Content +
+                    `" height="42px">
                         </div>
                         <p><img src="cid:DOESNOTEXIST"></p>
                     </body>

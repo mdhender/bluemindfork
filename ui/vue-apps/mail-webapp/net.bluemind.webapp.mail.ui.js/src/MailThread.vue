@@ -1,12 +1,5 @@
 <template>
-    <bm-col
-        cols="12"
-        md="8"
-        lg="7"
-        xl="7"
-        class="px-0 h-100 flex-column overflow-auto"
-        :class="'d-flex'"
-    >
+    <bm-col cols="12" md="8" lg="7" xl="7" class="px-0 h-100 flex-column overflow-auto" :class="'d-flex'">
         <div class="mail-thread h-100 overflow-auto d-flex flex-column">
             <mail-message-new
                 v-if="showComposer"
@@ -40,7 +33,7 @@ export default {
     },
     data() {
         return {
-            userPrefTextOnly: false, // TODO: initialize this with user setting
+            userPrefTextOnly: false // TODO: initialize this with user setting
         };
     },
     computed: {
@@ -51,9 +44,9 @@ export default {
         previousMessage() {
             return {
                 content: previousMessageContent(
-                    this.pathSuffix(), 
-                    this.inlineParts, 
-                    this.message, 
+                    this.pathSuffix(),
+                    this.inlineParts,
+                    this.message,
                     this.userPrefTextOnly ? MimeType.TEXT_PLAIN : MimeType.TEXT_HTML
                 ),
                 messageId: this.message.messageId,
@@ -104,7 +97,7 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .mail-thread .mail-message-new ~ .mail-message-content {
-    @media (max-width: map-get($grid-breakpoints, 'lg')) {
+    @media (max-width: map-get($grid-breakpoints, "lg")) {
         display: none !important;
     }
 }

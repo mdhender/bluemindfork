@@ -1,11 +1,5 @@
 <template>
-    <bm-col
-        cols="12"
-        md="8"
-        lg="7"
-        xl="7"
-        class=" d-none d-md-flex px-0 h-100 flex-column overflow-auto"
-    >
+    <bm-col cols="12" md="8" lg="7" xl="7" class=" d-none d-md-flex px-0 h-100 flex-column overflow-auto">
         <div class="mail-message-starter h-100">
             <div class="d-flex flex-column justify-content-center h-100 text-center w-100">
                 <div class="d-flex flex-grow-1 flex-shrink-0 flex-column justify-space-evenly">

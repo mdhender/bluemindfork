@@ -5,15 +5,11 @@
                 cols="2"
                 md="4"
                 lg="2"
-                order="0" 
+                order="0"
                 class="d-lg-block"
                 :class="composerOrMessageIsDisplayed ? 'd-none' : ''"
             >
-                <bm-button
-                    variant="link"
-                    class="d-inline-block d-lg-none btn-transparent-bg" 
-                    @click="toggleFolders"
-                >
+                <bm-button variant="link" class="d-inline-block d-lg-none btn-transparent-bg" @click="toggleFolders">
                     <bm-icon icon="burger-menu" size="2x" />
                 </bm-button>
                 <bm-button
@@ -45,7 +41,7 @@
                 <mail-toolbar class="mx-auto mx-xl-0" />
             </bm-col>
             <bm-col v-if="canSwitchWebmail" cols="2" order="last" class="d-none d-lg-block">
-                <bm-form-checkbox 
+                <bm-form-checkbox
                     switch
                     checked="true"
                     class="switch-webmail text-condensed text-right mr-4"
@@ -58,7 +54,7 @@
         <bm-row class="flex-fill position-relative flex-nowrap">
             <!-- v-show is overridden by d-lg-block in large devices -->
             <bm-row
-                v-show="showFolders" 
+                v-show="showFolders"
                 class="position-lg-static position-absolute d-lg-block px-0 
                 h-100 col col-lg-2 z-index-200 overlay no-gutters top-0 bottom-0"
             >
@@ -72,12 +68,12 @@
                 cols="12"
                 md="4"
                 lg="3"
-                class="pl-lg-2 px-0 d-lg-block" 
+                class="pl-lg-2 px-0 d-lg-block"
                 :class="composerOrMessageIsDisplayed ? 'd-none' : ''"
             >
                 <mail-message-list class="h-100" />
             </bm-col>
-            
+
             <router-view />
         </bm-row>
         <bm-button
@@ -98,16 +94,17 @@
 </template>
 
 <script>
-import { 
-    BmApplicationAlert, 
-    BmFormCheckbox, 
-    BmLabelIcon, 
-    BmButton, 
-    BmCol, 
-    BmContainer, 
+import {
+    BmApplicationAlert,
+    BmFormCheckbox,
+    BmLabelIcon,
+    BmButton,
+    BmCol,
+    BmContainer,
     BmIcon,
-    BmRow, 
-    MakeUniq } from "@bluemind/styleguide";
+    BmRow,
+    MakeUniq
+} from "@bluemind/styleguide";
 import MailAlertRenderer from "./MailAlertRenderer";
 import { mapActions, mapState } from "vuex";
 import MailAppL10N from "@bluemind/webapp.mail.l10n";
@@ -156,12 +153,15 @@ export default {
                 routePath.endsWith("forward")
             );
         },
-        composerOrMessageIsDisplayed(){
+        composerOrMessageIsDisplayed() {
             return this.isMessageComposerDisplayed || this.currentMessageKey;
         },
         canSwitchWebmail() {
-            return this.userSession && this.userSession.roles.includes("hasMailWebapp") 
-                && this.userSession.roles.includes("hasWebmail");
+            return (
+                this.userSession &&
+                this.userSession.roles.includes("hasMailWebapp") &&
+                this.userSession.roles.includes("hasWebmail")
+            );
         }
     },
     created: function() {
@@ -172,11 +172,13 @@ export default {
         composeNewMessage() {
             this.$router.push({ name: "newMessage" });
         },
-        toggleFolders (){
+        toggleFolders() {
             this.showFolders = !this.showFolders;
         },
         switchWebmail() {
-            injector.getProvider("UserSettingsPersistence").get()
+            injector
+                .getProvider("UserSettingsPersistence")
+                .get()
                 .setOne(this.userSession.userId, "mail-application", "webmail");
             location.replace("/webmail/");
         }
@@ -197,12 +199,12 @@ body > div {
 .mail-app {
     .topbar {
         flex: 0 0 4em;
-        @media (max-width: map-get($grid-breakpoints, 'lg')) {
+        @media (max-width: map-get($grid-breakpoints, "lg")) {
             background-color: $info-dark;
-        
-            .btn-link{
+
+            .btn-link {
                 background-color: none;
-                color: $light; 
+                color: $light;
             }
         }
     }
@@ -222,10 +224,9 @@ body > div {
         min-width: 100%;
     }
     .mail-folder-tree-wrapper {
-        @media (max-width: map-get($grid-breakpoints, 'lg')) {
+        @media (max-width: map-get($grid-breakpoints, "lg")) {
             box-shadow: $box-shadow-lg;
         }
     }
 }
-
 </style>

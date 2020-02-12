@@ -15,7 +15,7 @@ const VueBus = {
 
 const socket = {
     onOnline(listener) {
-        listener({ type: 'online', online: true });
+        listener({ type: "online", online: true });
     },
     ping(listener) {
         listener({ statusCode: 401 });
@@ -35,12 +35,12 @@ describe("SockjsVuePlugin", () => {
             }
         };
     }),
-    test("A WebSocketClient is installed in Vue instance", () => {
-        const wrapper = shallowMount(TestComponent, {
-            localVue: Vue
+        test("A WebSocketClient is installed in Vue instance", () => {
+            const wrapper = shallowMount(TestComponent, {
+                localVue: Vue
+            });
+            expect(wrapper.vm.$socket).toBeDefined();
         });
-        expect(wrapper.vm.$socket).toBeDefined();
-    });
     test("On ping error, a disconnected message is sent on the bus", () => {
         expect(emit).toHaveBeenNthCalledWith(2, "disconnected");
     });

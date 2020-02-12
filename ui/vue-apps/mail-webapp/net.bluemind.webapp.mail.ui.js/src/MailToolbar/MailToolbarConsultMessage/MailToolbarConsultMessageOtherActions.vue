@@ -10,14 +10,10 @@
             right
         >
             <template slot="button-content">
-                <bm-icon icon="3dots" size="2x" /> 
+                <bm-icon icon="3dots" size="2x" />
                 <span class="d-none d-lg-block">{{ $tc("mail.toolbar.more") }}</span>
             </template>
-            <bm-dropdown-item
-                class="shadow-sm" 
-                :data-shortcut="$t('mail.shortcuts.purge')"
-                @click="deletionConfirmed"
-            >
+            <bm-dropdown-item class="shadow-sm" :data-shortcut="$t('mail.shortcuts.purge')" @click="deletionConfirmed">
                 {{ $t("mail.actions.purge") }}
             </bm-dropdown-item>
         </bm-dropdown>

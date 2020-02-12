@@ -37,10 +37,13 @@ describe("[Mail-WebappStore][actions] : addAttachment", () => {
         expect(mockedClient.uploadPart).toHaveBeenCalledWith(expect.anything());
         expect(context.commit).not.toHaveBeenCalledWith("addAttachmentToDraft", expect.anything());
         expect(context.dispatch).not.toHaveBeenCalledWith("saveDraft");
-        expect(context.commit).toHaveBeenCalledWith("alert/add",
+        expect(context.commit).toHaveBeenCalledWith(
+            "alert/add",
             {
                 code: "MSG_DRAFT_ATTACH_ERROR",
                 props: { filename: "TestFile.txt", reason: "error-reason" }
-            }, { root: true });
+            },
+            { root: true }
+        );
     });
 });

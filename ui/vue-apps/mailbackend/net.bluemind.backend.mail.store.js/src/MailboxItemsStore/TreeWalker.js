@@ -14,7 +14,7 @@ export default class TreeWalker {
 
     _walk(node, ancestors) {
         this.visitors.forEach(visitor => visitor.visit(node, ancestors));
-        // Ancestors reference must not be modified by children. 
+        // Ancestors reference must not be modified by children.
         // Indeed, we must not share the same ancestors in the different branches
         const localAncestors = ancestors.slice(0);
         localAncestors.push(node);

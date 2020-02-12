@@ -29,8 +29,6 @@ function registerStores() {
 }
 
 function registerAPIClients() {
-    
-    
     injector.register({
         provide: "MailboxFoldersPersistence",
         factory: mailboxUid => {
