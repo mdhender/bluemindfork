@@ -60,6 +60,7 @@ import net.bluemind.server.api.gwt.serder.ServerGwtSerDer;
 import net.bluemind.system.api.DomainTemplate;
 import net.bluemind.system.api.IDomainTemplatePromise;
 import net.bluemind.system.api.gwt.endpoint.DomainTemplateGwtEndpoint;
+import net.bluemind.ui.adminconsole.system.domains.l10n.DomainConstants;
 import net.bluemind.ui.adminconsole.system.hosts.HostKeys;
 import net.bluemind.ui.common.client.forms.Ajax;
 import net.bluemind.user.api.IUserPromise;
@@ -130,6 +131,10 @@ public class QCreateDomainModelHandler implements IGwtModelHandler {
 		domain.name = dmodel.name;
 		domain.label = dmodel.name;
 		domain.aliases = Collections.emptySet();
+
+		if (dmodel.createAdmin && !checkAdminUser(wrappedHandler, dmodel)) {
+			return;
+		}
 
 		IDomainsPromise service = new DomainsGwtEndpoint(Ajax.TOKEN.getSessionId()).promiseApi();
 
@@ -219,6 +224,20 @@ public class QCreateDomainModelHandler implements IGwtModelHandler {
 		}).thenAccept((v) -> {
 			Notification.get().reportInfo("Successfully created admin user " + user.login);
 		});
-
 	}
+
+	private boolean checkAdminUser(AsyncHandler<Void> wrappedHandler, QCreateDomainModel model) {
+		if (model.adminLogin == null || model.adminLogin.isEmpty()) {
+			wrappedHandler.failure(new RuntimeException(DomainConstants.INST.invalidAdminLogin()));
+			return false;
+		}
+
+		if (model.adminPassword == null || model.adminPassword.isEmpty()) {
+			wrappedHandler.failure(new RuntimeException(DomainConstants.INST.invalidAdminPassword()));
+			return false;
+		}
+
+		return true;
+	}
+
 }
