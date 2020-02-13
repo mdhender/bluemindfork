@@ -52,11 +52,28 @@ public class LdapAddressBookSyncJob implements IScheduledJob {
 
 	@Override
 	public void tick(IScheduler sched, boolean forced, String domainName, Date startDate) throws ServerFault {
+		Calendar from = Calendar.getInstance();
+		from.setTimeZone(TimeZone.getTimeZone("UTC"));
+		from.set(Calendar.SECOND, 0);
+		from.set(Calendar.MILLISECOND, 0);
+
+		BmContext context = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
+		List<String> uids = context.getAllMailboxDataSource().stream().flatMap(dataSource -> {
+			ContainersSyncStore store = new ContainersSyncStore(dataSource);
+			return ContainersSyncStore
+					.doOrFail(() -> store.list(IAddressBookUids.TYPE, from.getTime().getTime(), MAX, "baseDn"))
+					.stream();
+		}).collect(Collectors.toList());
+
+		if (uids.isEmpty() && !forced) {
+			return;
+		}
+
 		IScheduledJobRunId rid = sched.requestSlot(domainName, this, startDate);
 
 		if (rid != null) {
 			try {
-				boolean res = run(sched, rid);
+				boolean res = run(uids, context, sched, rid);
 				if (res) {
 					sched.finish(rid, JobExitStatus.SUCCESS);
 				} else {
@@ -72,25 +89,12 @@ public class LdapAddressBookSyncJob implements IScheduledJob {
 
 	}
 
-	private boolean run(IScheduler sched, IScheduledJobRunId rid) {
-		boolean ret = true;
-		long begin = System.currentTimeMillis();
-		Calendar from = Calendar.getInstance();
-		from.setTimeZone(TimeZone.getTimeZone("UTC"));
-		from.set(Calendar.SECOND, 0);
-		from.set(Calendar.MILLISECOND, 0);
-
+	private boolean run(List<String> uids, BmContext context, IScheduler sched, IScheduledJobRunId rid) {
 		IContainers containerService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IContainers.class);
+		long begin = System.currentTimeMillis();
 
-		BmContext context = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
-
-		List<String> uids = context.getAllMailboxDataSource().stream().flatMap(dataSource -> {
-			ContainersSyncStore store = new ContainersSyncStore(dataSource);
-			return ContainersSyncStore
-					.doOrFail(() -> store.list(IAddressBookUids.TYPE, from.getTime().getTime(), MAX, "baseDn"))
-					.stream();
-		}).collect(Collectors.toList());
+		boolean ret = true;
 
 		if (uids.size() > 0) {
 			double total = 100d / uids.size();
