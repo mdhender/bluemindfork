@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -83,6 +84,8 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 		return name;
 	}
 
+	private static final Map<String, Pattern> patternsCache = new ConcurrentHashMap<>();
+
 	public static RestServiceMethodHandler getInstance(RestService service, MethodDescriptor methodDescriptor,
 			List<IRestFilter> filters) {
 		Method method = methodDescriptor.interfaceMethod;
@@ -101,9 +104,9 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 			matcher.appendReplacement(sb, "(?<$1>[^\\/]+)");
 		}
 		matcher.appendTail(sb);
-		Pattern pathRegexp = Pattern.compile(sb.toString());
+		Pattern pathRegexp = patternsCache.computeIfAbsent(sb.toString(), Pattern::compile);
 
-		ParameterBuilder<? extends Object>[] parameterBuilders = new ParameterBuilder[method
+		ParameterBuilder<? extends Object>[] parameterBuilders = new ParameterBuilder<?>[method
 				.getParameterTypes().length];
 		int parameterIndex = 0;
 		for (Parameter param : method.getParameters()) {
@@ -167,7 +170,7 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 	}
 
 	protected void handle(final SecurityContext securityContext, final RestRequest request,
-			final AsyncHandler<RestResponse> response) throws ServerFault {
+			final AsyncHandler<RestResponse> response) {
 		RestInvocation invocation = buildInvocation(request);
 		invocation.invoke(endpoint, securityContext, new AsyncHandler<Object>() {
 
@@ -197,7 +200,7 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 
 	}
 
-	private RestInvocation buildInvocation(RestRequest request) throws ServerFault {
+	private RestInvocation buildInvocation(RestRequest request) {
 
 		Matcher m = pathRegexp.matcher(request.path);
 		m.matches();

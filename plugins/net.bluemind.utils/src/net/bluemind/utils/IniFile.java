@@ -19,11 +19,13 @@
 package net.bluemind.utils;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -60,10 +62,13 @@ public abstract class IniFile {
 
 	private static Properties load(String path) {
 		Properties properties = new Properties();
-		try (InputStream is = new FileInputStream(new File(path))) {
-			properties.load(is);
-		} catch (IOException e) {
-			logger.error("Unable to load '{}'", path, e);
+		Path ini = Paths.get(path);
+		if (ini.toFile().exists()) {
+			try (InputStream is = Files.newInputStream(ini)) {
+				properties.load(is);
+			} catch (IOException e) {
+				logger.error("Unable to load '{}'", path, e);
+			}
 		}
 		return properties;
 	}
