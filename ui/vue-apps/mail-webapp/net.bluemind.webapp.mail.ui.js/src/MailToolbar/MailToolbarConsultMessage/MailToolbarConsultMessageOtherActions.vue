@@ -13,11 +13,12 @@
                 <bm-icon icon="3dots" size="2x" /> 
                 <span class="d-none d-lg-block">{{ $tc("mail.toolbar.more") }}</span>
             </template>
-            <bm-dropdown-item class="shadow-sm" @click="deletionConfirmed">
-                <div class="d-flex justify-content-between py-1">
-                    <span class="font-weight-bold pr-4">{{ $t("mail.actions.purge") }}</span>
-                    <span> {{ $t("mail.shortcuts.purge") }}</span>
-                </div>
+            <bm-dropdown-item
+                class="shadow-sm" 
+                :data-shortcut="$t('mail.shortcuts.purge')"
+                @click="deletionConfirmed"
+            >
+                {{ $t("mail.actions.purge") }}
             </bm-dropdown-item>
         </bm-dropdown>
     </div>
