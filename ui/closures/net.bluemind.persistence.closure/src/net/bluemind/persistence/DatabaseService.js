@@ -198,8 +198,8 @@ net.bluemind.persistence.DatabaseService.prototype.capabilities_ = function() {
   } else if (goog.userAgent.product.OPERA) {
     capabilities = ['indexeddb', 'localstorage', 'sessionstorage'];
   } else if (goog.userAgent.product.SAFARI) {
-    if (goog.userAgent.product.isVersion('10')) {
-      capabilities = ['websql', 'localstorage', 'sessionstorage'];
+    if (goog.userAgent.product.isVersion('13')) {
+      capabilities = ['indexeddb', 'localstorage', 'sessionstorage'];
     } else {
       capabilities = ['websql', 'localstorage', 'sessionstorage'];
     }
