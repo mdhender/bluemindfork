@@ -39,6 +39,7 @@ BM_SERVICE="BlueMind iptables rules"
 cyrus="24 1110 1143 2000 2502"
 lmtp="2400"
 milter="2500"
+mapi=5001
 xmpp="5280 5290"
 pg="5432"
 hazelcast="5701 5702:5715"
@@ -64,6 +65,7 @@ fi
 bmPorts="${r"${cyrus}"} \
 	 ${r"${lmtp}"} \
 	 ${r"${milter}"} \
+	 ${r"${mapi}"} \
 	 ${r"${xmpp}"} \
 	 ${r"${pg}"} \
 	 ${r"${hazelcast}"} \
