@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.backend.mail.api.IUserInbox;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -70,14 +71,11 @@ import net.bluemind.mailbox.persistence.MailboxStore;
 import net.bluemind.mailbox.service.IInCoreMailboxes;
 import net.bluemind.mailbox.service.IMailboxesStorage;
 import net.bluemind.mailbox.service.MailboxesStorageFactory;
-import net.bluemind.mailbox.service.cache.UnreadMessagesCacheRegistry;
 import net.bluemind.mailbox.service.internal.repair.MailboxRepairSupport.MailboxMaintenanceOperation.DiagnosticReportCheckId;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
-import net.bluemind.user.api.IUser;
-import net.bluemind.user.api.User;
 
 public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 	private static final Logger logger = LoggerFactory.getLogger(MailboxesService.class);
@@ -348,27 +346,8 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 	@Override
 	public Integer getUnreadMessagesCount() throws ServerFault {
 		String userUid = context.getSecurityContext().getSubject();
-		rbacManager.forContainer(IMailboxAclUids.uidForMailbox(userUid)).check(Verb.Read.name());
-
-		Integer ret = UnreadMessagesCacheRegistry.getIfPresent(userUid);
-		if (ret != null) {
-			return ret;
-		}
-		ItemValue<User> userItem = context.provider().instance(IUser.class, domainUid).getComplete(userUid);
-
-		if (userItem.value.routing == Routing.internal) {
-			try {
-				ret = mailboxStorage.getUnreadMessagesCount(domainUid, userItem);
-				UnreadMessagesCacheRegistry.put(userUid, ret);
-				return ret;
-			} catch (Exception e) {
-				logger.warn("Cannot detect unread messages of user {}@{}: {}", userItem.uid,
-						context.getSecurityContext().getContainerUid(), e.getMessage());
-			}
-		}
-
-		UnreadMessagesCacheRegistry.put(userUid, 0);
-		return 0;
+		IUserInbox userInboxApi = context.provider().instance(IUserInbox.class, domainUid, userUid);
+		return userInboxApi.unseen();
 	}
 
 	@Override

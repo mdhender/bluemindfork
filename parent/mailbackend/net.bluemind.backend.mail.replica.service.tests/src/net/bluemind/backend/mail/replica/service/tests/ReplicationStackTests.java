@@ -61,6 +61,7 @@ import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.DispositionType;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxItems;
+import net.bluemind.backend.mail.api.IUserInbox;
 import net.bluemind.backend.mail.api.ImportMailboxItemSet;
 import net.bluemind.backend.mail.api.ImportMailboxItemSet.MailboxItemId;
 import net.bluemind.backend.mail.api.ImportMailboxItemsStatus;
@@ -834,6 +835,32 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 
 		assertTrue(mbUpdLock.await(5, TimeUnit.SECONDS));
 
+	}
+
+	@Test
+	public void unseenViaApi() throws InterruptedException {
+		IServiceProvider prov = provider();
+		IUserInbox inboxApi = prov.instance(IUserInbox.class, domainUid, userUid);
+		imapAsUser(sc -> {
+			sc.select("INBOX");
+			FlagsList fl = new FlagsList();
+			fl.add(Flag.SEEN);
+			sc.uidStore("1:*", fl, true);
+			return null;
+		});
+		Thread.sleep(500);
+		int unseen = inboxApi.unseen();
+		imapAsUser(sc -> {
+			sc.select("INBOX");
+			FlagsList fl = new FlagsList();
+			fl.add(Flag.SEEN);
+			sc.uidStore("1:*", fl, false);
+			return null;
+		});
+		Thread.sleep(500);
+		Integer newValue = inboxApi.unseen();
+		System.err.println("unseen before: " + unseen + ", after " + newValue);
+		assertTrue(newValue > unseen);
 	}
 
 	@Test

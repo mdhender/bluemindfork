@@ -53,12 +53,6 @@
          </access-rule>
       </extension>
       <extension
-            point="net.bluemind.core.caches.registry.registration">
-         <reg
-               impl="net.bluemind.mailbox.service.cache.UnreadMessagesCacheRegistry">
-         </reg>
-      </extension>
-      <extension
             point="net.bluemind.mailmessage.mailtip">
          <evaluation
                impl="net.bluemind.mailbox.service.mailtip.OverQuotaMailTipEvaluation">

@@ -505,4 +505,5 @@
    <bundle id="net.bluemind.forest.instance.api"/>
    <bundle id="net.bluemind.forest.instance.service"/>
    <bundle id="net.bluemind.system.schemaupgrader.runner"/>
+   <bundle id="net.bluemind.core.sendmail.testhelper"/>
 </site>

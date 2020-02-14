@@ -16,7 +16,7 @@ import net.bluemind.core.sendmail.SendmailResponse;
 
 public class FakeSendmail implements ISendmail {
 	public boolean mailSent = false;
-	public List<TestMail> messages = new ArrayList<TestMail>();
+	public List<TestMail> messages = new ArrayList<>();
 
 	public Set<String> messagesTo() {
 		return messages.stream().flatMap(m -> m.to.stream()).collect(Collectors.toSet());
