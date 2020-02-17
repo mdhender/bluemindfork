@@ -79,7 +79,7 @@ public final class ProtectedLocationHandler implements Handler<HttpServerRequest
 		logger.debug("Protected location {}:{}{}", fl.getHost(), fl.getPort(), fl.getPathPrefix());
 
 		event.response().putHeader("Content-Security-Policy",
-				"default-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: ");
+				"connect-src 'self'; default-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: ");
 
 		event.response().putHeader("Feature-Policy",
 				"accelerometer 'none'; ambient-light-sensor 'none'; autoplay 'self'; battery 'none';"
