@@ -18,6 +18,7 @@
  */
 package net.bluemind.backend.mail.replica.indexing;
 
+import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
@@ -74,6 +75,9 @@ public class RecordIndexActivator implements BundleActivator {
 	}
 
 	private static void loadIndexer() {
+		if (new File("/etc/bm/no.mail.indexing").exists()) {
+			return;
+		}
 		RunnableExtensionLoader<MailRecordIndexingFactory> epLoader = new RunnableExtensionLoader<>();
 		List<MailRecordIndexingFactory> extensions = epLoader
 				.loadExtensions("net.bluemind.backend.mail.replica.indexing", "indexer", "indexer", "factory");
@@ -84,6 +88,11 @@ public class RecordIndexActivator implements BundleActivator {
 			logger.warn("Mail replica indexing is not available.");
 		}
 
+	}
+
+	public static void reloadImplementation() {
+		indexer = Optional.empty();
+		loadIndexer();
 	}
 
 }

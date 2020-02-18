@@ -18,6 +18,7 @@
  */
 package net.bluemind.content.analysis;
 
+import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,6 +40,18 @@ public class ContentAnalyzerFactory implements BundleActivator {
 
 	@Override
 	public void start(BundleContext context) throws Exception {
+		loadImplementation();
+	}
+
+	@Override
+	public void stop(BundleContext context) throws Exception {
+
+	}
+
+	private static void loadImplementation() {
+		if (new File("/etc/bm/no.mail.indexing").exists()) {
+			return;
+		}
 		RunnableExtensionLoader<ContentAnalyzer> epLoader = new RunnableExtensionLoader<>();
 		List<ContentAnalyzer> extensions = epLoader.loadExtensionsWithPriority("net.bluemind.content.analysis",
 				"analyzer", "analyzer", "impl");
@@ -48,9 +61,9 @@ public class ContentAnalyzerFactory implements BundleActivator {
 		}
 	}
 
-	@Override
-	public void stop(BundleContext context) throws Exception {
-
+	public static void reloadImplementation() {
+		analyzer = null;
+		loadImplementation();
 	}
 
 }
