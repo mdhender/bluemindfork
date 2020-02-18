@@ -38,10 +38,22 @@ public interface SubscriptionConstants extends Messages {
 	String outlookConnector();
 
 	String removeSubscriptionAction();
-	
+
 	String subscriptionContacts();
-	
+
 	String noSubscriptionContact();
-	
+
 	String addContact();
+
+	String sendReportNoLastUpdate();
+
+	String sendReportLastUpdate();
+
+	String sendReportLastUpdateWaiting();
+
+	String sendReportButtonDetails();
+
+	String sendReportButton();
+
+	String sendReportAbout();
 }

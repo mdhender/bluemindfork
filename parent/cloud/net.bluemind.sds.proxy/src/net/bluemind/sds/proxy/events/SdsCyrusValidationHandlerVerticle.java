@@ -24,7 +24,7 @@ import net.bluemind.network.topology.TopologyException;
 public class SdsCyrusValidationHandlerVerticle extends AbstractVerticle {
 	private static final Logger logger = LoggerFactory.getLogger(SdsCyrusValidationHandlerVerticle.class);
 	private static final int CORE_EXCEPTION = 0;
-	static ICyrusValidationPromise cli;
+	private ICyrusValidationPromise cli;
 
 	public static class SdsCoreAPIFactory implements IVerticleFactory {
 

@@ -27,6 +27,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -56,6 +57,7 @@ import com.netflix.hollow.api.producer.fs.HollowFilesystemPublisher;
 import com.netflix.hollow.core.write.objectmapper.RecordPrimaryKey;
 
 import net.bluemind.config.InstallationId;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -168,8 +170,7 @@ public class DirectorySerializer implements DataSerializer {
 		logger.info("Sync from v{} gave +{} / -{} uid(s)", version, allUids.size(), changeset.deleted.size());
 		Map<String, DataLocation> locationCache = new HashMap<>();
 		for (List<String> dirPartition : Lists.partition(allUids, 100)) {
-			List<ItemValue<DirEntry>> entries = dirApi.getMultiple(dirPartition).stream().filter(this::supportedType)
-					.collect(Collectors.toList());
+			List<ItemValue<DirEntry>> entries = loadEntries(dirApi, dirPartition);
 			List<String> uidWithEmails = entries.stream().filter(iv -> iv.value.email != null).map(iv -> iv.uid)
 					.collect(Collectors.toList());
 
@@ -194,6 +195,23 @@ public class DirectorySerializer implements DataSerializer {
 		logger.info("Created new incremental hollow snap (dir v{}, hollow v{})", changeset.version, hollowVersion);
 		DomainVersions.get().put(domainUid, changeset.version);
 		return hollowVersion;
+	}
+
+	private List<ItemValue<DirEntry>> loadEntries(IDirectory dirApi, List<String> dirPartition) {
+		List<ItemValue<DirEntry>> entries;
+		try {
+			entries = dirApi.getMultiple(dirPartition);
+		} catch (ServerFault e) {
+			entries = new ArrayList<>();
+			for (String uid : dirPartition) {
+				try {
+					entries.add(dirApi.getMultiple(Arrays.asList(uid)).get(0));
+				} catch (ServerFault e1) {
+					logger.warn("Skipping broken item {}", uid, e1);
+				}
+			}
+		}
+		return entries.stream().filter(this::supportedType).collect(Collectors.toList());
 	}
 
 	private boolean supportedType(ItemValue<DirEntry> iv) {

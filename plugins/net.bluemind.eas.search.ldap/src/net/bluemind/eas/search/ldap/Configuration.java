@@ -64,16 +64,15 @@ class Configuration {
 	}
 
 	public void init(IniFile ini) {
-		String url = ini.getData().get(SEARCH_LDAP_URL);
-		baseDn = ini.getData().get(SEARCH_LDAP_BASE);
-		filter = ini.getData().get(SEARCH_LDAP_FILTER);
+		String url = ini.getProperty(SEARCH_LDAP_URL);
+		baseDn = ini.getProperty(SEARCH_LDAP_BASE);
+		filter = ini.getProperty(SEARCH_LDAP_FILTER);
 
 		env = new Properties();
 		if (url != null && baseDn != null && filter != null) {
 			validConf = true;
 		} else {
-			logger.warn("Can not find data in file " + LDAP_CONF_FILE
-					+ ", research in ldap will not be activated");
+			logger.warn("Can not find data in file " + LDAP_CONF_FILE + ", research in ldap will not be activated");
 			return;
 		}
 
@@ -81,13 +80,11 @@ class Configuration {
 			url = "ldap://" + url;
 		}
 
-		env.put("java.naming.factory.initial",
-				"com.sun.jndi.ldap.LdapCtxFactory");
+		env.put("java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory");
 		env.put("java.naming.provider.url", url);
 
-		logger.info("EAS LDAP search initialised, url: " + url + " basedn: "
-				+ baseDn + " filter: " + filter + " (valid conf: " + validConf
-				+ ")");
+		logger.info("EAS LDAP search initialised, url: " + url + " basedn: " + baseDn + " filter: " + filter
+				+ " (valid conf: " + validConf + ")");
 	}
 
 	public String getBaseDn() {

@@ -74,6 +74,7 @@ import net.bluemind.core.sendmail.ISendmail;
 import net.bluemind.core.sendmail.Sendmail;
 import net.bluemind.core.sendmail.SendmailCredentials;
 import net.bluemind.core.sendmail.SendmailHelper;
+import net.bluemind.core.sendmail.SendmailResponse;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.icalendar.api.ICalendarElement;
@@ -738,21 +739,23 @@ public class IcsHook implements ICalendarHook {
 				try (Message mail = buildMailMessage(from, from, attendeeListTo, attendeeListCc, subjectTemplate,
 						template, messagesResolverProvider.getResolver(new Locale(getLocale(settings))), data,
 						createBodyPart(message.itemUid, ics), settings, event, method, attachments)) {
-					mailer.send(SendmailCredentials.asAdmin0(), from.getAddress(), from.getDomain(),
-							new MailboxList(Arrays.asList(recipient), true), mail);
+					SendmailResponse sendmailResponse = mailer.send(SendmailCredentials.asAdmin0(), from.getAddress(),
+							from.getDomain(), new MailboxList(Arrays.asList(recipient), true), mail);
+					auditor.actionSend(message.itemUid, recipient.getAddress(), ics, sendmailResponse.toString());
 				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
+					auditor.actionSend(message.itemUid, recipient.getAddress(), ics,
+							String.format("Unable to send email %s", e.getMessage()));
+					if (e instanceof ServerFault) {
+						throw (ServerFault) e;
+					}
 
-				auditor.actionSend(message.itemUid, recipient.getAddress(), ics);
+					throw new ServerFault(e);
+				}
 			});
 
-		} catch (
-
-		ServerFault e) {
+		} catch (ServerFault e) {
 			logger.error(e.getMessage(), e);
 		}
-
 	}
 
 	private static Map<String, String> getSenderSettings(VEventMessage message, DirEntry fromDirEntry)
@@ -765,7 +768,7 @@ public class IcsHook implements ICalendarHook {
 	private Message buildMailMessage(Mailbox from, Mailbox sender, List<Mailbox> attendeeListTo,
 			List<Mailbox> attendeeListCc, String subjectTemplate, String templateName,
 			MessagesResolver messagesResolver, Map<String, Object> data, BodyPart ics, Map<String, String> settings,
-			VEvent vevent, Method method, List<EventAttachment> attachments) throws ServerFault {
+			VEvent vevent, Method method, List<EventAttachment> attachments) {
 		try {
 			String subject = new CalendarMailHelper().buildSubject(subjectTemplate, settings.get("lang"),
 					messagesResolver, data);
@@ -786,7 +789,6 @@ public class IcsHook implements ICalendarHook {
 
 			return getMessage(from, sender, attendeeListTo, attendeeListCc, subject, templateName, settings.get("lang"),
 					messagesResolver, data, ics, method, attachments);
-
 		} catch (TemplateException e) {
 			throw new ServerFault(e);
 		} catch (IOException e) {

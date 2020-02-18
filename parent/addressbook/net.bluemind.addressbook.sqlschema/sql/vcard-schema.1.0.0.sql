@@ -140,7 +140,7 @@ create table t_addressbook_vcard (
    	pem text,
    	pem_parameters text,
 
-	item_id int4 references t_container_item(id)
+	item_id int4 references t_container_item(id) on delete cascade
 );
 
 create index i_addressbook_vcard_item on t_addressbook_vcard (item_id);

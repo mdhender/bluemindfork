@@ -23,13 +23,10 @@ import java.util.List;
 import net.bluemind.announcement.api.IUserAnnouncements;
 import net.bluemind.announcement.provider.IAnnouncementProvider;
 import net.bluemind.announcement.service.internal.UserAnnouncementService;
-import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.eclipse.common.RunnableExtensionLoader;
+import net.bluemind.core.rest.ServerSideServiceProvider.IServerSideServiceFactory;
 
-public class UserAnnouncementsServiceFactory
-		implements ServerSideServiceProvider.IServerSideServiceFactory<IUserAnnouncements> {
+public class UserAnnouncementsServiceFactory implements IServerSideServiceFactory<IUserAnnouncements> {
 
 	@Override
 	public Class<IUserAnnouncements> factoryClass() {
@@ -37,12 +34,9 @@ public class UserAnnouncementsServiceFactory
 	}
 
 	@Override
-	public IUserAnnouncements instance(BmContext context, String... params) throws ServerFault {
+	public IUserAnnouncements instance(BmContext context, String... params) {
 
-		RunnableExtensionLoader<IAnnouncementProvider> rel = new RunnableExtensionLoader<IAnnouncementProvider>();
-
-		List<IAnnouncementProvider> providers = rel.loadExtensions("net.bluemind.announcement.provider",
-				"announcementprovider", "announcement_provider", "impl");
+		List<IAnnouncementProvider> providers = UserAnnouncementsActivator.getProviders();
 
 		return new UserAnnouncementService(context, providers);
 	}

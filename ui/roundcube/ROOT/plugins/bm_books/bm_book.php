@@ -91,6 +91,15 @@ class bm_book extends rcube_addressbook {
 
     return $rcContact;
   }
+  private function isDefault($email) {
+          $parameters = $email->parameters;
+          foreach($parameters as $parameter){
+                  if($parameter->label == 'DEFAULT') {
+                    return $parameter->value == "true";
+                  }
+          }
+          return false;
+  }
 
   private function convertBMContactToRCContact($contactItem, $cols = null) {
     $contact = $contactItem->value;
@@ -98,8 +107,7 @@ class bm_book extends rcube_addressbook {
     $bmEmails = $contact->communications->emails;
     if ($bmEmails) {
       foreach($bmEmails as $bmEmail) {
-        // FIXME
-        if ($bmEmail->value->isDefault) {
+        if ($this->isDefault($bmEmail)) {
           array_unshift($rcEmails, $bmEmail->value);
 	} else {
           array_push($rcEmails, $bmEmail->value);

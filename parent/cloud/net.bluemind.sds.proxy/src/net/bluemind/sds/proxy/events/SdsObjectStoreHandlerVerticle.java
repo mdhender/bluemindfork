@@ -21,19 +21,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.GroupPrincipal;
-import java.nio.file.attribute.PosixFileAttributeView;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.nio.file.attribute.UserPrincipal;
 import java.nio.file.attribute.UserPrincipalLookupService;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -135,8 +129,6 @@ public class SdsObjectStoreHandlerVerticle extends AbstractVerticle {
 		} catch (IOException e) {
 			logger.warn("Error looking up cyrus user: {}", e.getMessage());
 		}
-		final Optional<UserPrincipal> optCyrusUser = Optional.ofNullable(cyrusUser);
-		final Optional<GroupPrincipal> optMailGroup = Optional.ofNullable(mailGroup);
 
 		registerForJsonSdsRequest(SdsAddresses.EXIST, ExistRequest.class, r -> sdsStore.get().exists(r));
 
@@ -147,33 +139,10 @@ public class SdsObjectStoreHandlerVerticle extends AbstractVerticle {
 		registerForJsonSdsRequest(SdsAddresses.CONFIG, this::reConfigure);
 
 		registerForJsonSdsRequest(SdsAddresses.GET, GetRequest.class, get -> {
-			String finalPath = get.filename;
-			Path tmp = Files.createTempFile("sds", ".eml");
-			get.filename = tmp.toFile().getAbsolutePath();
-			SdsResponse resp = sdsStore.get().download(get);
-			if (resp.succeeded()) {
-				optCyrusUser.ifPresent(cyrus -> {
-					optMailGroup.ifPresent(mail -> {
-						File tempFile = tmp.toFile();
-						mkdirAndChown(tempFile, cyrus, mail);
-						move(tmp, Paths.get(finalPath));
-					});
-				});
-				if (!optCyrusUser.isPresent() || !optMailGroup.isPresent()) {
-					move(tmp, Paths.get(finalPath));
-				}
-			}
-			return resp;
+			new File(get.filename).getParentFile().mkdirs();
+			return sdsStore.get().download(get);
 		});
 
-	}
-
-	private static void move(Path src, Path dest) {
-		try {
-			Files.move(src, dest, StandardCopyOption.REPLACE_EXISTING);
-		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
-		}
 	}
 
 	private ConfigureResponse reConfigure(JsonObject req) {
@@ -192,37 +161,6 @@ public class SdsObjectStoreHandlerVerticle extends AbstractVerticle {
 		vertx.eventBus().publish("sds.events.configuration.updated", true);
 
 		return new ConfigureResponse();
-	}
-
-	private void mkdirAndChown(File dest, UserPrincipal user, GroupPrincipal g) {
-		try {
-			createParentDirs(dest, user, g);
-			PosixFileAttributeView view = Files.getFileAttributeView(dest.toPath(), PosixFileAttributeView.class,
-					LinkOption.NOFOLLOW_LINKS);
-			view.setOwner(user);
-			view.setGroup(g);
-			if (logger.isDebugEnabled()) {
-				logger.debug("{} owner set to {} {}", dest.getAbsolutePath(), user, g);
-			}
-		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
-		}
-
-	}
-
-	private void createParentDirs(File dest, UserPrincipal user, GroupPrincipal g) throws IOException {
-		File parentDir = dest.getParentFile();
-		if (!parentDir.exists()) {
-			Files.createDirectories(parentDir.toPath(),
-					PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---")));
-			while (!parentDir.getAbsolutePath().equals("/var/spool/cyrus/data")) {
-				PosixFileAttributeView view = Files.getFileAttributeView(parentDir.toPath(),
-						PosixFileAttributeView.class, LinkOption.NOFOLLOW_LINKS);
-				view.setOwner(user);
-				view.setGroup(g);
-				parentDir = parentDir.getParentFile();
-			}
-		}
 	}
 
 	private static interface UnsafeFunction<T, R> {

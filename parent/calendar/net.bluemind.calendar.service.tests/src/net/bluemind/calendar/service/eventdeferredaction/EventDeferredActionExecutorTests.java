@@ -31,6 +31,7 @@ import org.apache.james.mime4j.dom.address.Mailbox;
 import org.apache.james.mime4j.dom.address.MailboxList;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -43,7 +44,6 @@ import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.helper.mail.EventMailHelper;
-import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
@@ -52,6 +52,7 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sendmail.ISendmail;
 import net.bluemind.core.sendmail.Mail;
 import net.bluemind.core.sendmail.SendmailCredentials;
+import net.bluemind.core.sendmail.SendmailResponse;
 import net.bluemind.deferredaction.api.DeferredAction;
 import net.bluemind.deferredaction.api.IDeferredAction;
 import net.bluemind.deferredaction.api.IDeferredActionContainerUids;
@@ -63,6 +64,11 @@ import net.bluemind.tests.defaultdata.PopulateHelper;
 public class EventDeferredActionExecutorTests {
 
 	private static final String domainUid = "defbm.lan";
+
+	@BeforeClass
+	public static void oneShotBefore() {
+		System.setProperty("es.mailspool.count", "1");
+	}
 
 	@Before
 	public void setup() throws Exception {
@@ -122,9 +128,13 @@ public class EventDeferredActionExecutorTests {
 
 		assertEquals(1, getDeferredActions(eventDate).size());
 		executor.execute(eventDate);
-		Thread.sleep(1001);
-		assertEquals(0, getDeferredActions(eventDate).size());
+		long time = System.currentTimeMillis();
+		while (!mailer.hasBeenCalled() && System.currentTimeMillis() - time < 10000) {
+			Thread.sleep(100);
+		}
 		assertTrue(mailer.hasBeenCalled());
+		assertEquals(0, getDeferredActions(eventDate).size());
+		System.err.println("Took " + (System.currentTimeMillis() - time) + "ms to occur");
 	}
 
 	@Test
@@ -177,30 +187,35 @@ class MockedSendmail implements ISendmail {
 	}
 
 	@Override
-	public void send(SendmailCredentials creds, String fromEmail, String userDomain, Message m) {
+	public SendmailResponse send(SendmailCredentials creds, String fromEmail, String userDomain, Message m) {
 		wasCalled();
+		return SendmailResponse.success();
 	}
 
 	@Override
-	public void send(Mail m) throws ServerFault {
+	public SendmailResponse send(Mail m) {
 		wasCalled();
+		return SendmailResponse.success();
 	}
 
 	@Override
-	public void send(Mailbox from, Message m) throws ServerFault {
+	public SendmailResponse send(Mailbox from, Message m) {
 		// TODO Write a test to check Message and Mailbox
 		wasCalled();
+		return SendmailResponse.success();
 	}
 
 	@Override
-	public void send(SendmailCredentials creds, String domainUid, Message m) throws ServerFault {
+	public SendmailResponse send(SendmailCredentials creds, String domainUid, Message m) {
 		wasCalled();
+		return SendmailResponse.success();
 	}
 
 	@Override
-	public void send(SendmailCredentials creds, String fromEmail, String userDomain, MailboxList rcptTo, Message m)
-			throws ServerFault {
+	public SendmailResponse send(SendmailCredentials creds, String fromEmail, String userDomain, MailboxList rcptTo,
+			Message m) {
 		wasCalled();
+		return SendmailResponse.success();
 	}
 
 	private void wasCalled() {

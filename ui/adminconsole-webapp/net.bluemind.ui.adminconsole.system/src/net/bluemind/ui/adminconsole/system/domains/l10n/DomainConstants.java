@@ -245,4 +245,7 @@ public interface DomainConstants extends Messages {
 
 	String other();
 
+	String invalidAdminLogin();
+
+	String invalidAdminPassword();
 }

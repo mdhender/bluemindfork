@@ -55,6 +55,11 @@ public final class VertxPlatform implements BundleActivator {
 		return context;
 	}
 
+	static {
+		InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
+		System.setProperty("vertx.logger-delegate-factory-class-name", "io.vertx.core.logging.SLF4JLogDelegateFactory");
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -67,17 +72,13 @@ public final class VertxPlatform implements BundleActivator {
 		}
 		logger.info("Starting vertx platform");
 
-		InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
-
-		System.setProperty("org.vertx.logger-delegate-factory-class-name",
-				"org.vertx.java.core.logging.impl.SLF4JLogDelegateFactory");
 		vertx = Vertx.vertx(new VertxOptions().setPreferNativeTransport(true));
 		VertxPlatform.context = bundleContext;
 	}
 
 	public synchronized static void spawnVerticles(final Handler<AsyncResult<Void>> complete) {
 		if (future != null) {
-			logger.info("============ VERTICLES ALREADY SPAWNED =========");
+			logger.info("============ VERTICLES ALREADY SPAWNED ({}) =========", deploymentId);
 			if (future.isDone()) {
 				complete.handle(new Result<Void>());
 			} else {

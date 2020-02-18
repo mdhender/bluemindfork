@@ -17,7 +17,6 @@
   */
 package net.bluemind.backend.mail.parsing;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -106,25 +105,9 @@ public class EZInputStreamAdapter {
 
 	}
 
-	private static final Path shmParent = new File("/dev/shm/sync.bodies/").toPath();
-	private static final boolean shm = isShmAvailable();
-
-	private static boolean isShmAvailable() {
-		File shm = new File("/dev/shm");
-		boolean ret = shm.exists() && shm.isDirectory();
-		if (ret) {
-			shmParent.toFile().mkdirs();
-		}
-		return ret;
-	}
-
 	private static ResetableOutput output() {
 		try {
-			if (shm) {
-				return new ResetableOutput(Files.createTempFile(shmParent, "ez-is-adapt", ".stream"));
-			} else {
-				return new ResetableOutput(Files.createTempFile("ez-is-adapt", ".stream"));
-			}
+			return new ResetableOutput(Files.createTempFile("ez-is-adapt", ".stream"));
 		} catch (IOException e) {
 			throw new AdaptException(e);
 		}

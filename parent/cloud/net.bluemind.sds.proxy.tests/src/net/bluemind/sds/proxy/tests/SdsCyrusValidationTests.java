@@ -56,7 +56,7 @@ public class SdsCyrusValidationTests {
 	public void headCallNoPayload() throws InterruptedException, ExecutionException, TimeoutException {
 		HttpClient client = client();
 		CompletableFuture<Integer> async = new CompletableFuture<>();
-		client.head("/mailbox", resp -> {
+		client.post("/mailbox", resp -> {
 			async.complete(resp.statusCode());
 		}).setChunked(true).end();
 
@@ -76,7 +76,7 @@ public class SdsCyrusValidationTests {
 		HttpClient client = client();
 		CompletableFuture<Integer> asyncStatusCode = new CompletableFuture<Integer>();
 
-		client.head("/mailbox", resp -> {
+		client.post("/mailbox", resp -> {
 			asyncStatusCode.complete(resp.statusCode());
 		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
 
@@ -91,7 +91,7 @@ public class SdsCyrusValidationTests {
 		HttpClient client = client();
 		CompletableFuture<Integer> asyncStatusCode = new CompletableFuture<Integer>();
 
-		client.head("/mailbox", resp -> {
+		client.post("/mailbox", resp -> {
 			asyncStatusCode.complete(resp.statusCode());
 		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
 
@@ -106,7 +106,7 @@ public class SdsCyrusValidationTests {
 		HttpClient client = client();
 		CompletableFuture<Integer> asyncStatusCode = new CompletableFuture<Integer>();
 
-		client.head("/mailbox", resp -> {
+		client.post("/mailbox", resp -> {
 			asyncStatusCode.complete(resp.statusCode());
 		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
 
@@ -123,7 +123,7 @@ public class SdsCyrusValidationTests {
 		HttpClient client = client();
 		CompletableFuture<Integer> asyncStatusCode = new CompletableFuture<Integer>();
 
-		client.head("/mailbox", resp -> {
+		client.post("/mailbox", resp -> {
 			asyncStatusCode.complete(resp.statusCode());
 		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
 

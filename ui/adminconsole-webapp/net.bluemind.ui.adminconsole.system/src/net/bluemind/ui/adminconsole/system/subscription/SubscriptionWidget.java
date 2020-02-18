@@ -18,6 +18,8 @@
  */
 package net.bluemind.ui.adminconsole.system.subscription;
 
+import java.util.Date;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayString;
@@ -58,10 +60,12 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtScreenRoot;
 import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
 import net.bluemind.gwtconsoleapp.base.notification.Notification;
 import net.bluemind.system.api.SubscriptionInformations;
+import net.bluemind.system.api.gwt.endpoint.InstallationGwtEndpoint;
 import net.bluemind.system.api.gwt.serder.SubscriptionInformationsGwtSerDer;
 import net.bluemind.ui.adminconsole.base.SubscriptionInfoHolder;
 import net.bluemind.ui.adminconsole.system.subscription.l10n.InstallLicenseConstants;
 import net.bluemind.ui.adminconsole.system.subscription.l10n.SubscriptionConstants;
+import net.bluemind.ui.common.client.forms.Ajax;
 
 public class SubscriptionWidget extends Composite implements IGwtScreenRoot {
 
@@ -135,6 +139,15 @@ public class SubscriptionWidget extends Composite implements IGwtScreenRoot {
 	@UiField
 	SubContactTable mailTable;
 
+	@UiField
+	Button sendReportButton;
+
+	@UiField
+	Label sendReportLastUpdate;
+
+	@UiField
+	Label sendReportError;
+
 	public interface BBBundle extends ClientBundle {
 		@Source("SubscriptionWidget.css")
 		BBStyle getStyle();
@@ -183,6 +196,28 @@ public class SubscriptionWidget extends Composite implements IGwtScreenRoot {
 
 		mailTable.setInformationsPanels(aboutSubContacts, noSubContacts);
 		mailTable.setStyleName(style.mailContact());
+
+		AsyncHandler<String> handler = new AsyncHandler<String>() {
+			public void success(String value) {
+				sendReportError.setText("");
+				if (value.isEmpty()) {
+					sendReportLastUpdate.setText(SubscriptionConstants.INST.sendReportNoLastUpdate());
+				} else {
+					String isoDate = value.substring(0, value.indexOf("[GMT]"));
+					Date date = DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).parse(isoDate);
+					String dateText = DateTimeFormat.getFormat(PredefinedFormat.DATE_LONG).format(date);
+					sendReportLastUpdate.setText(SubscriptionConstants.INST.sendReportLastUpdate() + " " + dateText);
+				}
+			}
+
+			public void failure(Throwable e) {
+				sendReportError.setText(e.getMessage());
+			}
+		};
+
+		InstallationGwtEndpoint serviceGWT = new InstallationGwtEndpoint(Ajax.TOKEN.getSessionId());
+		sendReportButton.addClickHandler(event -> serviceGWT.sendHostReport(handler));
+		serviceGWT.getHostReport(handler);
 	}
 
 	public static ScreenElement screenModel() {

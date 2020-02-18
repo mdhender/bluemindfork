@@ -7,7 +7,8 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  net.bluemind.eclipse.common,
- net.bluemind.hornetq.client
+ net.bluemind.hornetq.client,
+ net.bluemind.lib.vertx
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: system.validation
 Bundle-ActivationPolicy: lazy

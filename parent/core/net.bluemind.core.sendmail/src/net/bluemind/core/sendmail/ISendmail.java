@@ -39,20 +39,20 @@ public interface ISendmail {
 	 * @param m
 	 * @throws ServerFault
 	 */
-	public void send(SendmailCredentials creds, String fromEmail, String userDomain, Message m);
+	public SendmailResponse send(SendmailCredentials creds, String fromEmail, String userDomain, Message m);
 
 	/**
 	 * @param m
 	 * @throws ServerFault
 	 */
-	void send(Mail m) throws ServerFault;
+	public SendmailResponse send(Mail m);
 
 	/**
 	 * @param from
 	 * @param m
 	 * @throws ServerFault
 	 */
-	void send(Mailbox from, Message m) throws ServerFault;
+	public SendmailResponse send(Mailbox from, Message m);
 
 	/**
 	 * @param creds
@@ -61,7 +61,7 @@ public interface ISendmail {
 	 * @param m
 	 * @throws ServerFault
 	 */
-	void send(SendmailCredentials creds, String domainUid, Message m) throws ServerFault;
+	public SendmailResponse send(SendmailCredentials creds, String domainUid, Message m);
 
 	/**
 	 * Send an email using specific SMTP authentication. This API is usable from
@@ -78,6 +78,6 @@ public interface ISendmail {
 	 * @param m
 	 * @throws ServerFault
 	 */
-	void send(SendmailCredentials creds, String fromEmail, String userDomain, MailboxList rcptTo, Message m)
-			throws ServerFault;
+	public SendmailResponse send(SendmailCredentials creds, String fromEmail, String userDomain, MailboxList rcptTo,
+			Message m);
 }

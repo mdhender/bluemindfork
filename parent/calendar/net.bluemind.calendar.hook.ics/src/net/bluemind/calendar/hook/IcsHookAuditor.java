@@ -33,11 +33,12 @@ public class IcsHookAuditor extends ContainerAuditor<IcsHookAuditor> {
 				.forContainer(message.container);
 	}
 
-	public IcsHookAuditor actionSend(String itemUid, String to, String ics) {
+	public IcsHookAuditor actionSend(String itemUid, String to, String ics, String smtpResponse) {
 		return action("send-mail") //
 				.addActionMetadata("item-uid", itemUid) //
 				.addActionMetadata("mailTo", to) //
-				.addActionMetadata("ics", ics);
+				.addActionMetadata("ics", ics) //
+				.addActionMetadata("smtp-response", smtpResponse);
 	}
 
 }

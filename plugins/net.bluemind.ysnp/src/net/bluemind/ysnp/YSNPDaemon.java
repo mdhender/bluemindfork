@@ -48,6 +48,12 @@ public class YSNPDaemon implements IApplication {
 
 		VertxPlatform.spawnBlocking(1, TimeUnit.MINUTES);
 
+		Process p = Runtime.getRuntime().exec("chmod 777 " + YSNPConfiguration.INSTANCE.getSocketPath());
+		p.waitFor();
+
+		p = Runtime.getRuntime().exec("chown cyrus:mail " + YSNPConfiguration.INSTANCE.getPtSocketPath());
+		p.waitFor();
+
 		Startup.notifyReady();
 
 		return EXIT_OK;

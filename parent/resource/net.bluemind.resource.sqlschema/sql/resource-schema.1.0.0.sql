@@ -26,7 +26,7 @@ create type resource_reservation_mode_type as enum
   ('OWNER_MANAGED', 'AUTO_ACCEPT', 'AUTO_ACCEPT_REFUSE');
 
 create table t_resource (
-  item_id   int4 references t_container_item(id) primary key,
+  item_id   int4 references t_container_item(id) on delete cascade primary key,
   label text NOT NULL,
   type_id  varchar(255),
   description text NULL,

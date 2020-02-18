@@ -6,7 +6,7 @@ create type enum_mailbox_routing as enum
 
 
 create table t_mailbox (
-	item_id 	  int4 references t_container_item(id) primary key,
+	item_id 	  int4 references t_container_item(id) on delete cascade primary key,
 	name 		  text not null,
 
 	type		  enum_mailbox_type not null,
@@ -19,7 +19,7 @@ create table t_mailbox (
 CREATE INDEX idx_mailbox_name ON t_mailbox(name);
 
 create table t_mailbox_email (
-  item_id     int4 references t_container_item(id) NOT NULL,
+  item_id     int4 references t_container_item(id) on delete cascade NOT NULL,
   left_address     text,
   right_address     text,
   all_aliases boolean default false,
@@ -47,7 +47,7 @@ CREATE TABLE t_domainmailfilter_rule (
 CREATE INDEX idx_domainfilter_rule_item_id ON t_domainmailfilter_rule(container_id);
 
 CREATE TABLE t_mailfilter_rule (
-    item_id		int4 references t_container_item(id),
+    item_id		int4 references t_container_item(id) on delete cascade,
     criteria 	text NOT NULL,
     star 		boolean NOT NULL,
     mark_read 	boolean NOT NULL,
@@ -62,7 +62,7 @@ CREATE TABLE t_mailfilter_rule (
 CREATE INDEX idx_mailfilter_rule_item_id ON t_mailfilter_rule(item_id);
 
 CREATE TABLE t_mailfilter_vacation (
-    item_id		int4 references t_container_item(id) primary key,
+    item_id		int4 references t_container_item(id) on delete cascade primary key,
     active  	boolean NOT NULL,
     start_date  timestamp,
     end_date    timestamp,
@@ -72,7 +72,7 @@ CREATE TABLE t_mailfilter_vacation (
 );
 
 CREATE TABLE t_mailfilter_forwarding (
-    item_id		int4 references t_container_item(id) primary key,
+    item_id		int4 references t_container_item(id) on delete cascade primary key,
     active	 	boolean NOT NULL,
     local_copy  boolean NOT NULL,
     email		text

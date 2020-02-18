@@ -1,7 +1,7 @@
 CREATE EXTENSION IF NOT EXISTS hstore WITH SCHEMA pg_catalog;
 
 CREATE TABLE IF NOT EXISTS t_domain_deferredaction (
-  item_id                int4 REFERENCES t_container_item(id) PRIMARY KEY,
+  item_id                int4 REFERENCES t_container_item(id) on delete cascade PRIMARY KEY,
   action_id              TEXT NOT NULL,
   reference              TEXT NOT NULL,
   execution_date         TIMESTAMP WITHOUT TIME ZONE NOT NULL,

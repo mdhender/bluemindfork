@@ -53,6 +53,9 @@
        <endpoint
              api="net.bluemind.backend.mail.replica.api.ICyrusValidation">
        </endpoint>
+       <endpoint
+             api="net.bluemind.backend.mail.api.IUserInbox">
+       </endpoint>
    </extension>
    <extension
          point="net.bluemind.core.rest.serviceFactory">
@@ -100,6 +103,9 @@
       </serviceFactory>
       <serviceFactory
             class="net.bluemind.backend.mail.replica.service.CyrusValidationServiceFactory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.backend.mail.replica.service.UserInboxServiceFactory">
       </serviceFactory>
    </extension>
    <extension

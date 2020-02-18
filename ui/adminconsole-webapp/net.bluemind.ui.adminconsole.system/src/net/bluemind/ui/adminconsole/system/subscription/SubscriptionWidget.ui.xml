@@ -110,13 +110,15 @@
 		max-width: 45%;
 	}
 	
-	.contactPanel {
+	.panel {
 		margin-top: 30px;
 	}
 	</ui:style>
 
 	<ui:with field="ilc"
 		type="net.bluemind.ui.adminconsole.system.subscription.l10n.InstallLicenseConstants" />
+	<ui:with field="sc"
+		type="net.bluemind.ui.adminconsole.system.subscription.l10n.SubscriptionConstants" />
 
 	<g:DockLayoutPanel unit='EM'>
 		<g:north size="4.5">
@@ -260,12 +262,20 @@
 						ui:field="deleteLicenseButton" />
 				</g:HorizontalPanel>
 
-				<g:VerticalPanel styleName="{style.contactPanel}">
+				<g:VerticalPanel styleName="{style.panel}">
 					<g:HTML ui:field="noSubContacts" styleName="{style.noSubContact}"></g:HTML>
 					<g:Label ui:field="aboutSubContacts"></g:Label>
 					<s:SubContactTable ui:field="mailTable"></s:SubContactTable>
 				</g:VerticalPanel>
-
+				
+				<g:VerticalPanel styleName="{style.panel}">
+					<g:Label text="{sc.sendReportAbout}"></g:Label>
+					<g:Label ui:field="sendReportLastUpdate" text="{sc.sendReportLastUpdateWaiting}"></g:Label>
+					<g:Label ui:field="sendReportError" styleName="error"></g:Label>
+					<g:Label text="{sc.sendReportButtonDetails}"></g:Label>
+					<g:Button styleName="button primary" ui:field="sendReportButton" text="{sc.sendReportButton}"></g:Button>	
+				</g:VerticalPanel>
+				
 			</g:VerticalPanel>
 		</g:center>
 	</g:DockLayoutPanel>

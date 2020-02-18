@@ -57,7 +57,7 @@ public final class ConfigBuilder {
 				return "bm";
 			}
 		};
-		String defaultDomain = ini.getData().get("default-domain");
+		String defaultDomain = ini.getProperty("default-domain");
 		if (defaultDomain != null && defaultDomain.trim().length() > 0) {
 			conf.getTemplatesConfiguration().setDefaultDomain(defaultDomain.trim());
 			logger.debug("Default domain set to " + defaultDomain);

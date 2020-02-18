@@ -68,20 +68,17 @@ public class ApplicationLauncher implements IApplication {
 	public Object start(IApplicationContext context) throws Exception {
 		logger.info("Starting BlueMind Application...");
 
-		MQ.init(new MQ.IMQConnectHandler() {
-
-			@Override
-			public void connected() {
-				try {
-					mqConnected();
-				} catch (Exception e) {
-					logger.error(e.getMessage(), e);
-				}
+		MQ.init(() -> {
+			try {
+				mqConnected();
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
 			}
 		});
 		logger.info("BlueMind Application started");
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
 			public void run() {
 				try {
 					ApplicationLauncher.this.stop();
@@ -102,7 +99,7 @@ public class ApplicationLauncher implements IApplication {
 		logger.info("BlueMind Core stopped.");
 	}
 
-	private void mqConnected() throws Exception {
+	private void mqConnected() {
 		MQ.registerProducer(Topic.CORE_NOTIFICATIONS);
 		StateContext.start();
 		DataSource ds = JdbcActivator.getInstance().getDataSource();
@@ -110,17 +107,13 @@ public class ApplicationLauncher implements IApplication {
 
 		loadMailboxDataSource();
 
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				VertxPlatform.getVertx().eventBus().consumer("mailbox.ds.lookup", (message) -> {
-					loadMailboxDataSource();
-					message.reply("ok");
-				});
-				logger.info("Verticles deployement complete for {}, starting product checks...",
-						BMVersion.getVersion());
-				ProductChecks.validate();
+		Handler<AsyncResult<Void>> done = (AsyncResult<Void> event) -> {
+			VertxPlatform.getVertx().eventBus().consumer("mailbox.ds.lookup", message -> {
+				loadMailboxDataSource();
+				message.reply("ok");
+			});
+			logger.info("Verticles deployement complete for {}, starting product checks...", BMVersion.getVersion());
+			ProductChecks.asyncValidate().whenComplete((v, ex) -> {
 				Startup.notifyReady();
 				notifyCoreStatus("core.started");
 				TimeRangeAnnotation.annotate("CORE Start", new Date(), Optional.empty());
@@ -129,7 +122,7 @@ public class ApplicationLauncher implements IApplication {
 					StateContext.setState("core.upgrade.start");
 					StateContext.setState("core.upgrade.end");
 				}
-			}
+			});
 		};
 		VertxPlatform.spawnVerticles(done);
 	}

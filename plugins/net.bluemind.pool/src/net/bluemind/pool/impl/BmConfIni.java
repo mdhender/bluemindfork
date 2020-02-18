@@ -42,7 +42,7 @@ public class BmConfIni extends IniFile {
 	}
 
 	public String get(String string) {
-		String value = getData().get(string);
+		String value = getProperty(string);
 		if (value != null) {
 			return value.replace("\"", "");
 		} else {

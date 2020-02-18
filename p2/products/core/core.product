@@ -3,28 +3,28 @@
 
 <product name="bluemind.core" uid="core" id="net.bluemind.application.launcher.core" application="net.bluemind.application.launcher.coreLauncher" version="4.1.0.qualifier" useFeatures="false" includeLaunchers="true">
 
-   <configIni use="default">
-   </configIni>
+    <configIni use="default">
+    </configIni>
 
-   <launcherArgs>
-      <programArgs>-consoleLog -debug
-      </programArgs>
-      <vmArgs>-Dosgi.noShutdown=true -Duser.timezone=GMT -Djava.awt.headless=true -Xmx1024m -Dnet.bluemind.property.product=bm-core
-      </vmArgs>
-      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
-      </vmArgsMac>
-   </launcherArgs>
+    <launcherArgs>
+        <programArgs>-consoleLog -debug
+        </programArgs>
+        <vmArgs>-Dosgi.noShutdown=true -Duser.timezone=GMT -Djava.awt.headless=true -Xmx1024m -Dnet.bluemind.property.product=bm-core
+        </vmArgs>
+        <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+        </vmArgsMac>
+    </launcherArgs>
 
-   <windowImages/>
+    <windowImages/>
 
-   <launcher name="core">
-      <win useIco="false">
-         <bmp/>
-      </win>
-   </launcher>
+    <launcher name="core">
+        <win useIco="false">
+            <bmp/>
+        </win>
+    </launcher>
 
-   <vm>
-   </vm>
+    <vm>
+    </vm>
 
    <plugins>
       <plugin id="backport-util-concurrent"/>
@@ -457,17 +457,17 @@
       <plugin id="xpp3"/>
    </plugins>
 
-   <configurations>
-      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
-      <property name="osgi.noShutdown" value="true" />
-      <property name="osgi.configuration.area" value="/var/lib/bm-core/" />
-   </configurations>
+    <configurations>
+        <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
+        <property name="osgi.configuration.area" value="/var/lib/bm-core/" />
+        <property name="osgi.noShutdown" value="true" />
+    </configurations>
 
-   <preferencesInfo>
-      <targetfile overwrite="false"/>
-   </preferencesInfo>
+    <preferencesInfo>
+        <targetfile overwrite="false"/>
+    </preferencesInfo>
 
-   <cssInfo>
-   </cssInfo>
+    <cssInfo>
+    </cssInfo>
 
 </product>

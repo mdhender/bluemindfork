@@ -176,6 +176,9 @@ public class AuditLogCommand implements ICmdLet, Runnable {
 				additionalData.add("mailto:" + getParam(actionPart, "mailTo").orElse(""));
 			}
 			getParam(actionPart, "sendNotif").ifPresent(n -> additionalData.add("Send-Notification:" + n));
+			getParam(actionPart, "smtp-response")
+					.ifPresent(smtpResponse -> additionalData.add("SMTP response:" + smtpResponse));
+
 			String date = formatDate(m.group(1) + " " + m.group(2));
 			String actor = formatActor(m.group(4));
 			String actionData = "";

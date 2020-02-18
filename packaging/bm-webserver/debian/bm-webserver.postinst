@@ -27,8 +27,6 @@ esac
 # Force startup link install
 update-rc.d -f bm-webserver remove > /dev/null 2>&1
 
-rm -fr /var/lib/bm-webserver/*
-
 #DEBHELPER#
 
 exit 0

@@ -50,6 +50,7 @@ import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.VersionInfo;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.bo.report.provider.HostReportProvider;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.service.internal.RBACManager;
@@ -487,5 +488,15 @@ public class InstallationService implements IInstallation {
 
 	private ISystemConfiguration systemConfService() {
 		return context.su().provider().instance(ISystemConfiguration.class);
+	}
+
+	@Override
+	public String getHostReport() {
+		return HostReportProvider.getHostReportService().get().getHostReport(context);
+	}
+
+	@Override
+	public String sendHostReport() {
+		return HostReportProvider.getHostReportService().get().sendHostReport(context);
 	}
 }

@@ -1,7 +1,7 @@
 CREATE EXTENSION IF NOT EXISTS hstore WITH schema pg_catalog;
 
 create table t_user_account (
-	item_id 	  int4 references t_container_item(id),
+	item_id 	  int4 references t_container_item(id) on delete cascade,
 	login 		  varchar(64) not null,
 	credentials 	  text,
 	system		  varchar(255),

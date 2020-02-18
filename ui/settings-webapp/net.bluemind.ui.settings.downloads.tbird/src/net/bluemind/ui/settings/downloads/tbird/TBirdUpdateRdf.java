@@ -63,7 +63,7 @@ public class TBirdUpdateRdf implements Handler<HttpServerRequest> {
 
 		Map<String, Object> model = new HashMap<>();
 		model.put("version", Activator.bundle.getVersion().toString());
-		model.put("url", "https://" + ini.getData().get("external-url") + "/settings/settings/download/tbird.xpi");
+		model.put("url", "https://" + ini.getProperty("external-url") + "/settings/settings/download/tbird.xpi");
 
 		try {
 			template.process(model, sw);

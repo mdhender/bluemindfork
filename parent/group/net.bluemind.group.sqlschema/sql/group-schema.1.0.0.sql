@@ -26,19 +26,19 @@ CREATE TABLE t_group_groupmember (
 
 CREATE TABLE t_group_usermember  (
   group_id     int4 references t_group(item_id),
-  user_id     int4 references t_container_item(id),
+  user_id     int4 references t_container_item(id) on delete cascade,
   PRIMARY KEY(group_id, user_id)
 );
 
 CREATE TABLE t_group_externalusermember  (
   group_id     int4 references t_group(item_id),
-  external_user_id     int4 references t_container_item(id),
+  external_user_id     int4 references t_container_item(id) on delete cascade,
   PRIMARY KEY(group_id, external_user_id)
 );
 
 CREATE TABLE t_group_flat_members (
   group_id        int4 references t_group(item_id),
-  user_id     int4 references t_container_item(id),
+  user_id     int4 references t_container_item(id) on delete cascade,
   PRIMARY KEY(group_id, user_id)
 );
 

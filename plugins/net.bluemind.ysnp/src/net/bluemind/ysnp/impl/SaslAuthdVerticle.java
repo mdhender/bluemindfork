@@ -55,7 +55,7 @@ public class SaslAuthdVerticle extends AbstractVerticle {
 				return null;
 			}
 		};
-		defaultDomain = ini.getData().get("default-domain");
+		defaultDomain = ini.getProperty("default-domain");
 		ValidationPolicy vp = new ValidationPolicy(YSNPConfiguration.INSTANCE);
 
 		NetServerOptions nso = new NetServerOptions().setTcpNoDelay(true);

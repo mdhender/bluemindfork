@@ -25,6 +25,7 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
@@ -49,7 +50,9 @@ public class YsnpTests {
 	public void setup() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
-		socketPath = File.createTempFile("ysnp", "").getAbsolutePath();
+		File tmpSock = File.createTempFile("ysnp", ".sock");
+		socketPath = tmpSock.getAbsolutePath();
+		Files.deleteIfExists(tmpSock.toPath());
 		System.setProperty("ysnp.sock", socketPath);
 
 		PopulateHelper.initGlobalVirt();

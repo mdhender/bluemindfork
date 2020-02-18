@@ -185,7 +185,7 @@ public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 				return "bm";
 			}
 		};
-		defaultDomain = ini.getData().get("default-domain");
+		defaultDomain = ini.getProperty("default-domain");
 	}
 
 	private void loadVersion() {

@@ -155,7 +155,7 @@ create table t_todolist_vtodo (
    attach_uri text[],
    attach_name text[],
 
-  item_id int4 references t_container_item(id) primary key
+  item_id int4 references t_container_item(id) on delete cascade primary key 
 );
 
 create index idx_todolist_uid on t_todolist_vtodo (uid);

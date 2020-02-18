@@ -107,8 +107,10 @@ public class MessageBodyColumns {
 				statement.setString(index++, value.preview);
 				statement.setInt(index++, value.bodyVersion);
 
-				statement.setString(index++, guid);
-				return 0;
+				if (guid != null) {
+					statement.setString(index++, guid);
+				}
+				return index;
 			}
 
 		};
