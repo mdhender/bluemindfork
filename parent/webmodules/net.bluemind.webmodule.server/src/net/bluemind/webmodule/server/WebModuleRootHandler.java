@@ -111,17 +111,15 @@ public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
         CompletableFuture<HttpServerRequest> root = CompletableFuture.completedFuture(request);
 		
         for (IWebFilter filter : filters) {
-			try {
-				root = root.thenCompose(req -> {
-					if (req == null) {
-						return CompletableFuture.completedFuture(null);
-					}
-					return filter.filter(req);
-				});
-			} catch (Exception e) {
+			root = root.thenCompose(req -> {
+				if (req == null) {
+					return CompletableFuture.completedFuture(null);
+				}
+				return filter.filter(req);
+			}).exceptionally(e -> {
 				onError(request, e);
-				return;
-			}
+				return null;
+			});
 		}
         
 		root.whenComplete((completedRequest, ex) -> {

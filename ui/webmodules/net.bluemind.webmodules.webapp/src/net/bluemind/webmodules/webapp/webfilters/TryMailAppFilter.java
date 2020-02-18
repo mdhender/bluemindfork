@@ -47,7 +47,10 @@ public class TryMailAppFilter implements IWebFilter, NeedVertx {
 		String userUid = request.headers().get("BMUserId");
 		String domainUid = request.headers().get("BMUserDomainId");
 		String roles = request.headers().get("BMRoles");
-		boolean hasBothWebmailRoles = roles.contains("hasWebmail") && roles.contains("hasMailWebapp");
+		boolean hasBothWebmailRoles = false;
+		if (roles != null) {
+			hasBothWebmailRoles = roles.contains("hasWebmail") && roles.contains("hasMailWebapp");
+		}
 		
 		if (request.path().equals("/webapp/index.html") && hasBothWebmailRoles) {
 			VertxServiceProvider provider = new VertxServiceProvider(clientProvider,
