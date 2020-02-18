@@ -1,7 +1,7 @@
 import { Flag } from "@bluemind/email";
 import { addFlag } from "../../../src/MailboxItemsStore/mutations/addFlag";
 
-describe("[MailItemsStore][mutations] : updateSeen", () => {
+describe("[MailItemsStore][mutations] : addFlag", () => {
     test("add seen flag to mark a message as seen", () => {
         const messageKey = "key1";
         const state = { items: { [messageKey]: { value: { flags: [] } } } };

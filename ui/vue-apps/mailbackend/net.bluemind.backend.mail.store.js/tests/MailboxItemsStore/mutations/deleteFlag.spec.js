@@ -1,7 +1,7 @@
 import { Flag } from "@bluemind/email";
 import { deleteFlag } from "../../../src/MailboxItemsStore/mutations/deleteFlag";
 
-describe("[MailItemsStore][mutations] : updateSeen", () => {
+describe("[MailItemsStore][mutations] : deleteFlag", () => {
     test("delete an existing seen flag", () => {
         const messageKey = "key1";
         const state = { items: { [messageKey]: { value: { flags: [Flag.SEEN] } } } };
