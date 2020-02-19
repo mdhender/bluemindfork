@@ -29,8 +29,9 @@ public interface IServerTaskMonitor {
 	 * Create a sub task monitor that uses a given amount of work unit from the task
 	 * 
 	 * @param logPrefix
-	 * @param work      the total number of work units given to the sub task monitor
-	 *                  task.
+	 * @param work
+	 *                      the total number of work units given to the sub task
+	 *                      monitor task.
 	 * @return a sub task monitor. Begin must be called on the return monitor
 	 */
 	public IServerTaskMonitor subWork(String logPrefix, double work);
@@ -39,15 +40,17 @@ public interface IServerTaskMonitor {
 	 * Notifies that the task is beginning. This must only be called once on a given
 	 * monitor instance.
 	 * 
-	 * @param totalWork the total number of work units into which the task is been
-	 *                  subdivided.
+	 * @param totalWork
+	 *                      the total number of work units into which the task is
+	 *                      been subdivided.
 	 */
 	public void begin(double totalWork, String log);
 
 	/**
 	 * Notifies that a given number of work unit of the task has been completed.
 	 *
-	 * @param doneWork number of work units just completed
+	 * @param doneWork
+	 *                     number of work units just completed
 	 * @param log
 	 */
 	public void progress(double doneWork, String log);

@@ -93,5 +93,4 @@ public class SubTaskMonitor extends AbstractTaskMonitor {
 	public void log(String log) {
 		parentMonitor.log(log);
 	}
-
 }

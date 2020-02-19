@@ -18,9 +18,13 @@
  */
 package net.bluemind.scheduledjob.scheduler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.bluemind.core.task.service.IServerTaskMonitor;
 
 public class SchedulerTaskMonitor implements IServerTaskMonitor {
+	private static final Logger logger = LoggerFactory.getLogger(SchedulerTaskMonitor.class);
 
 	private IScheduler sched;
 	private IScheduledJobRunId jobRunId;
@@ -67,5 +71,4 @@ public class SchedulerTaskMonitor implements IServerTaskMonitor {
 			sched.info(jobRunId, "en", log);
 		}
 	}
-
 }

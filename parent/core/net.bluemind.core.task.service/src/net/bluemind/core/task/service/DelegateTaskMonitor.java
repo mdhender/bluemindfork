@@ -18,8 +18,6 @@
  */
 package net.bluemind.core.task.service;
 
-import net.bluemind.core.task.service.IServerTaskMonitor;
-
 public class DelegateTaskMonitor extends AbstractTaskMonitor {
 
 	private final IServerTaskMonitor delegate;
@@ -48,5 +46,4 @@ public class DelegateTaskMonitor extends AbstractTaskMonitor {
 	public void log(String log) {
 		delegate.log(log);
 	}
-
 }

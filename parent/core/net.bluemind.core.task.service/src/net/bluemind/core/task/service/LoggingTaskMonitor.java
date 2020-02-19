@@ -21,8 +21,6 @@ package net.bluemind.core.task.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bluemind.core.task.service.IServerTaskMonitor;
-
 public class LoggingTaskMonitor extends AbstractTaskMonitor {
 	private static final String[] depthPattern;
 	public static final Logger logger = LoggerFactory.getLogger(LoggingTaskMonitor.class);
@@ -79,5 +77,4 @@ public class LoggingTaskMonitor extends AbstractTaskMonitor {
 		instanceLogger.debug("{}LOG: {}", depthPattern[childDepth], log);
 		delegate.log(log);
 	}
-
 }

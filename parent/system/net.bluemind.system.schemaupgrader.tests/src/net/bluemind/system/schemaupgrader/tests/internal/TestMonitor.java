@@ -24,39 +24,28 @@ public class TestMonitor implements IServerTaskMonitor {
 
 	@Override
 	public IServerTaskMonitor subWork(double work) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public IServerTaskMonitor subWork(String logPrefix, double work) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void begin(double totalWork, String log) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void progress(double doneWork, String log) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void end(boolean success, String log, String result) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void log(String log) {
 		System.out.println(log);
-		// TODO Auto-generated method stub
-
 	}
-
 }

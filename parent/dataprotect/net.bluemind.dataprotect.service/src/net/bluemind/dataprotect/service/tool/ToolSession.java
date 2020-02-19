@@ -109,19 +109,15 @@ public class ToolSession implements IToolSession {
 	}
 
 	private void runBackupCommand(INodeClient nc, PartGeneration next, String cmd) {
-		logger.info("=====> " + cmd + " <=====");
 		ctx.info("en", "RSYNC: " + cmd);
-		ctx.info("fr", "RSYNC: " + cmd);
 		ExitList output = NCUtils.exec(nc, cmd);
 		for (String s : output) {
 			if (!StringUtils.isBlank(s)) {
 				ctx.info("en", "RSYNC: " + s);
-				ctx.info("fr", "RSYNC: " + s);
 			}
 		}
 		if (output.getExitCode() > 0) {
 			ctx.warn("en", "RSYNC: error code on exit " + output.getExitCode());
-			ctx.warn("fr", "RSYNC: code erreur " + output.getExitCode());
 			if (output.getExitCode() != 24) {
 				next.withWarnings = true;
 				if (output.getExitCode() == 12) {
@@ -196,10 +192,8 @@ public class ToolSession implements IToolSession {
 			for (String s : output) {
 				if (eCode == 0) {
 					ctx.info("en", "RESTORE[" + generation + "]: " + s);
-					ctx.info("fr", "RESTORE[" + generation + "]: " + s);
 				} else {
 					ctx.error("en", "RESTORE[" + generation + "]: " + s);
-					ctx.error("fr", "RESTORE[" + generation + "]: " + s);
 				}
 			}
 
@@ -212,8 +206,6 @@ public class ToolSession implements IToolSession {
 				}
 			} catch (IOException e) {
 				ctx.error("en", String.format("Unable to get restore log file %s, from %s: %s", restoreLogFile,
-						cfg.getSource().value.address(), e.getMessage()));
-				ctx.error("fr", String.format("Unable to get restore log file %s, from %s: %s", restoreLogFile,
 						cfg.getSource().value.address(), e.getMessage()));
 			}
 

@@ -80,10 +80,10 @@ public class SaveAllTask implements IServerTask {
 
 	private enum BackupStatus {
 		OK(true, "Backup finished successfully"), //
-		WARNING(false, "Backup finished with warnings"), //
+		WARNING(true, "Backup finished with warnings"), //
 		ERROR(false, "Backup finished with errors"), //
 		INVALID_STATE(false, "/var/backups/bluemind/ is not suitable for backup.", "Backup finished with errors"), //
-		POSTOPS_ERROR(false, "Post backup script ending with error.", "Post backup script ending with error");
+		POSTOPS_ERROR(true, "Post backup script ending with error.", "Post backup script ending with error");
 
 		public final boolean state;
 		public final String log;
