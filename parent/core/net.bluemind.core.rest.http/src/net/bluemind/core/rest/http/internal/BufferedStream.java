@@ -18,6 +18,9 @@
  */
 package net.bluemind.core.rest.http.internal;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,43 +33,43 @@ public class BufferedStream implements ReadStream<Buffer> {
 	private Handler<Void> endHandler;
 	private boolean pause;
 	private Handler<Buffer> dataHandler;
-	private Buffer buffer = Buffer.buffer();
+	private final Queue<Buffer> q = new LinkedList<>();
 	private boolean end;
 
 	@Override
 	public BufferedStream handler(Handler<Buffer> handler) {
 		this.dataHandler = handler;
-		logger.debug("datahadler drain");
+		logger.debug("handler {}", this);
 		drain();
 		return this;
 	}
 
 	@Override
 	public BufferedStream pause() {
-		logger.debug("pause");
+		if (logger.isDebugEnabled()) {
+			logger.debug("pause {}", this);
+		}
 		this.pause = true;
 		return this;
 	}
 
 	@Override
 	public BufferedStream resume() {
-		if (pause) {
-			logger.debug("resume");
-			pause = false;
-			logger.debug("resume drain");
-			drain();
-		}
+		pause = false;
+		drain();
 		return this;
 	}
 
-	private synchronized void drain() {
-		if (!pause && dataHandler != null && buffer.length() > 0) {
-			Buffer oldBuffer = buffer;
-			buffer = Buffer.buffer();
-			dataHandler.handle(oldBuffer);
+	private void drain() {
+		if (dataHandler != null) {
+			synchronized (q) {
+				while (!pause && !q.isEmpty()) {
+					dataHandler.handle(q.poll());
+				}
+			}
 		}
 
-		if (!pause && endHandler != null && buffer.length() == 0 && end) {
+		if (!pause && endHandler != null && end) {
 			endHandler.handle(null);
 		}
 	}
@@ -83,14 +86,19 @@ public class BufferedStream implements ReadStream<Buffer> {
 	}
 
 	public void write(Buffer data) {
-		this.buffer.appendBuffer(data);
-		logger.debug("writecall drain");
-		drain();
+		if (data != null && data.length() > 0) {
+			synchronized (q) {
+				q.add(data);
+				drain();
+			}
+		}
 	}
 
 	public void end() {
 		end = true;
-		logger.debug("endcall drain");
+		if (logger.isDebugEnabled()) {
+			logger.debug("endcall drain {}", this);
+		}
 		drain();
 	}
 

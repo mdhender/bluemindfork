@@ -26,6 +26,7 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  io.vertx.core,
  net.bluemind.core.validator,
  net.bluemind.system.domaintemplate;bundle-version="4.1.0"
-Export-Package: net.bluemind.filehosting.filesystem.service.internal
+Export-Package: net.bluemind.filehosting.filesystem.service.internal,
+ net.bluemind.filehosting.filesystem.service.internal.persistence
 Bundle-ActivationPolicy: lazy
 

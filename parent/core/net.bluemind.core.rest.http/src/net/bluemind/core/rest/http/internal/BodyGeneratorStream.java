@@ -18,8 +18,6 @@
  */
 package net.bluemind.core.rest.http.internal;
 
-import static java.nio.charset.StandardCharsets.US_ASCII;
-
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.asynchttpclient.request.body.Body;
@@ -42,9 +40,7 @@ public class BodyGeneratorStream extends QueueBasedFeedableBodyGenerator<Concurr
 		implements BodyGenerator, WriteStream<Buffer> {
 
 	private static final Logger logger = LoggerFactory.getLogger(BodyGeneratorStream.class);
-	private ReadStream<Buffer> bodyStream;
-	private Handler<Void> drainHandler;
-	private final static byte[] ZERO = "".getBytes(US_ASCII);
+	private final ReadStream<Buffer> bodyStream;
 
 	public BodyGeneratorStream(ReadStream<Buffer> bodyStream) {
 		super(new ConcurrentLinkedQueue<>());
@@ -87,7 +83,6 @@ public class BodyGeneratorStream extends QueueBasedFeedableBodyGenerator<Concurr
 
 	@Override
 	public BodyGeneratorStream drainHandler(Handler<Void> handler) {
-		this.drainHandler = handler;
 		return this;
 	}
 
@@ -95,7 +90,7 @@ public class BodyGeneratorStream extends QueueBasedFeedableBodyGenerator<Concurr
 	public BodyGeneratorStream write(Buffer data) {
 		logger.debug("send chunck of data {}", data);
 		try {
-			feed(Unpooled.wrappedBuffer(data.getBytes()), false);
+			feed(data.getByteBuf(), false);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}

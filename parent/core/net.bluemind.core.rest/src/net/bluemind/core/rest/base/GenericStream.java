@@ -226,12 +226,14 @@ public abstract class GenericStream<T> implements ReadStream<Buffer> {
 
 	public static class AccumulatorStream extends BaseStream<Buffer> {
 
-		private Buffer buffer = Buffer.buffer();
+		private final Buffer buffer = Buffer.buffer();
 
 		@Override
 		public AccumulatorStream write(Buffer data) {
-			synchronized (this) {
-				buffer.appendBuffer(data);
+			if (data != null) {
+				synchronized (this) {
+					buffer.appendBuffer(data);
+				}
 			}
 			return this;
 

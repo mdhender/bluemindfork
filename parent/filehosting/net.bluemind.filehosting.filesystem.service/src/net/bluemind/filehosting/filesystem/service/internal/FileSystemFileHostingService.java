@@ -18,6 +18,7 @@
  */
 package net.bluemind.filehosting.filesystem.service.internal;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -32,6 +33,8 @@ import java.util.TimeZone;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.io.CountingInputStream;
 
 import io.vertx.core.file.OpenOptions;
 import net.bluemind.core.api.Stream;
@@ -210,16 +213,19 @@ public class FileSystemFileHostingService implements IFileHostingService {
 	public void store(SecurityContext context, String path, Stream document) throws ServerFault {
 		long maxAttachmentSize = getConfiguration(context).maxFilesize;
 		File file = createFilePath(path, context, false);
-		logger.info(String.format("Storing file to %s", file.getAbsolutePath()));
-		try (SizeLimitedReadStream readInputStream = new SizeLimitedReadStream(VertxStream.read(document),
-				maxAttachmentSize)) {
+		logger.info("Storing file to {}", file.getAbsolutePath());
+		try (SizeLimitedReadStream sl = new SizeLimitedReadStream(VertxStream.read(document), maxAttachmentSize);
+				CountingInputStream readInputStream = new CountingInputStream(new BufferedInputStream(sl))) {
 			String relativePath = rootFolder.toPath().relativize(file.toPath()).toString();
 			FileHostingEntityInfo info = new FileHostingEntityInfo(relativePath, context.getSubject());
 			store.create(info);
 
 			getNodeClient().writeFile(file.getAbsolutePath(), readInputStream);
-			if (readInputStream.exception != null) {
-				throw readInputStream.exception;
+			logger.info("Wrote {} byte(s) to {}", readInputStream.getCount(), file.getAbsolutePath());
+			if (sl.exception != null) {
+				throw sl.exception;
+			} else if (maxAttachmentSize > 0 && readInputStream.getCount() > maxAttachmentSize) {
+				throw new FileSizeExceededException(maxAttachmentSize);
 			}
 		} catch (FileSizeExceededException e) {
 			logger.warn("Cannot write file. File {} exceeds max file size", file.getAbsolutePath());
