@@ -174,6 +174,14 @@ public class BodyStreamProcessor {
 				mb.structure = p;
 				p.charset = p.mime.startsWith("text/") ? parsed.getCharset() : null;
 				p.encoding = parsed.getContentTransferEncoding();
+				if (fetchContent) {
+					SingleBody body = (SingleBody) parsed.getBody();
+					try (InputStream partStream = body.getInputStream()) {
+						p.content = ByteStreams.toByteArray(partStream);
+					} catch (IOException e) {
+						logger.warn("Failed to fetch content", e.getMessage());
+					}
+				}
 			} else {
 				Multipart mpBody = (Multipart) parsed.getBody();
 				processMultipart(mb, mpBody, filenames, bodyTxt, fetchContent);
