@@ -693,6 +693,11 @@
   dependencies:
     axios "^0.18.0"
 
+"@bluemind/eslint-config@^1.0.0":
+  version "1.0.0"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/eslint-config/-/eslint-config-1.0.0.tgz#44b67811b60a71421e410b124e5cf560bbf5d750"
+  integrity sha512-EtujsdxKuuEakjgU2cIgA09iDM1PIO57+jEp3YYuCKvdwZ3QCYvAfVvdgyPISO+FFOLjIKKYh+5CjFyFgZ6QiQ==
+
 "@bluemind/styleguide@^0.1.0":
   version "0.1.841"
   resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.841.tgz#0357752167fd164914ea2ddad2f145950051651d"

@@ -1,1 +1,3 @@
-commons/net.bluemind.conf.js/.eslintrc.json
+{
+    "extends": ["@bluemind"]
+}
