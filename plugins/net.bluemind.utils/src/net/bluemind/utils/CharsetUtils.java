@@ -18,9 +18,7 @@
 package net.bluemind.utils;
 
 import java.nio.charset.Charset;
-import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.StandardCharsets;
-import java.nio.charset.UnsupportedCharsetException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,11 +27,14 @@ public class CharsetUtils {
 
 	private static final Logger logger = LoggerFactory.getLogger(CharsetUtils.class);
 
+	private CharsetUtils() {
+	}
+
 	public static Charset forName(String charsetName) {
 		Charset charset = StandardCharsets.UTF_8;
 		try {
 			charset = Charset.forName(charsetName);
-		} catch (IllegalCharsetNameException | UnsupportedCharsetException e) {
+		} catch (IllegalArgumentException e) {
 			logger.info("Unsupported charset {}", charsetName);
 		}
 		return charset;
