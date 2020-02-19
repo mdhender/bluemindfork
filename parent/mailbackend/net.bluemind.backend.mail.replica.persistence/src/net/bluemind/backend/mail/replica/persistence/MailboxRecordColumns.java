@@ -94,7 +94,8 @@ public class MailboxRecordColumns {
 				}).collect(Collectors.toList());
 				int compoundFlags = SystemFlag.valueOf(systemFlags) | InternalFlag.valueOf(value.internalFlags);
 				statement.setInt(index++, compoundFlags);
-				List<MailboxItemFlag> otherFlags = value.flags.stream().filter(f -> !f.isSystem).collect(Collectors.toList());
+				List<String> otherFlags = value.flags.stream().filter(f -> !f.isSystem)
+						.map(f -> f.flag).collect(Collectors.toList());
 				statement.setArray(index++, con.createArrayOf("text", otherFlags.toArray()));
 				statement.setLong(index++, item.id);
 				return 0;

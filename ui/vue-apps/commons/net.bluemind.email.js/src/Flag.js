@@ -1,5 +1,5 @@
 export default {
-    SEEN: { flag: "\\Seen", value: 16 },
-    ANSWERED: { flag: "\\Answered", value: 1 },
-    FORWARDED: { flag: "$Forwarded" }
+    SEEN: { flag: "\\Seen", isSystem: "true" },
+    ANSWERED: { flag: "\\Answered", isSystem: "true" },
+    FORWARDED: { flag: "$Forwarded", isSystem: "false" }
 };

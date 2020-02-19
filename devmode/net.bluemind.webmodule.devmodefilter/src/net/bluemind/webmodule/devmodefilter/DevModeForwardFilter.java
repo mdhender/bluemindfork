@@ -99,8 +99,6 @@ public class DevModeForwardFilter implements IWebFilter, NeedVertx, IHasPriority
 						.end();
 			});
 
-			request.response().setChunked(true);
-
 			r.exceptionHandler(e -> {
 				logger.error("Client response error", e);
 				request.response().setStatusCode(500).setStatusMessage(e.getMessage() != null ? e.getMessage() : "null")

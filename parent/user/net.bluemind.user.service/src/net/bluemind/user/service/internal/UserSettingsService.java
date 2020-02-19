@@ -93,7 +93,7 @@ public class UserSettingsService implements IUserSettings {
 	
 	@Override
 	public void setOne(String uid, String name, String value) throws ServerFault {
-		rbacManager.forEntry(uid).check(BasicRoles.ROLE_SELF, BasicRoles.ROLE_MANAGER);
+		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_USER_SETTINGS);
 
 		logger.debug("Set setting {} with value {} for user {}", name, value, uid);
 		Map<String, String> settings = this.get(uid);

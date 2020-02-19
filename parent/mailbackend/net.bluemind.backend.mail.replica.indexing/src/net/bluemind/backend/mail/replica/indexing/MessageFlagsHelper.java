@@ -34,7 +34,8 @@ public class MessageFlagsHelper {
 	private static final String UNSEEN = "unseen";
 
 	public static Set<String> asFlags(Collection<MailboxItemFlag> imapFlags) {
-		Set<String> basicSet = imapFlags.stream().map(item -> item.flag).collect(Collectors.toSet());
+		Set<String> basicSet = imapFlags.stream().filter(item -> item.isSystem)
+				.map(item -> item.flag.toLowerCase().replaceAll("\\\\", "")).collect(Collectors.toSet());
 		if (!basicSet.contains(new SeenFlag().flag)) {
 			basicSet.add(UNREAD);
 			basicSet.add(UNSEEN);

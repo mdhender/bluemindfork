@@ -179,8 +179,8 @@ export default {
             injector
                 .getProvider("UserSettingsPersistence")
                 .get()
-                .setOne(this.userSession.userId, "mail-application", "webmail");
-            location.replace("/webmail/");
+                .setOne(this.userSession.userId, "mail-application", '"webmail"')
+                .then(() => location.replace("/webmail/"));
         }
     }
 };

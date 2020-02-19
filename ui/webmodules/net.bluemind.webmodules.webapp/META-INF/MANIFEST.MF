@@ -14,5 +14,6 @@ Require-Bundle: net.bluemind.webmodule,
  net.bluemind.user.api,
  net.bluemind.core.rest.http,
  io.vertx.core,
- net.bluemind.locator.vertxclient
+ net.bluemind.locator.vertxclient,
+ net.bluemind.config
 Bundle-ActivationPolicy: lazy

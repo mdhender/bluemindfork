@@ -710,9 +710,9 @@
     vue-i18n "^8.14.0"
 
 "@bluemind/user.api@^4.1.0":
-  version "4.1.48320"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/user.api/-/user.api-4.1.48320.tgz#0c89e7cac28029ae49e488fe77f236ce5803c1f3"
-  integrity sha512-q665FFikn/uwtf3FhIOCXrIe8+pWvRNHTJ2cwNhXN/lETeaxPs6oBmpcGSo6WIjpbrBFE65Buv3iRGAv36ZiQQ==
+  version "4.1.48590"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/user.api/-/user.api-4.1.48590.tgz#7c1db8bc58ef35e551b94fd111750f852eb6fa20"
+  integrity sha512-xdOcCNXXzeGCzr7p5Dk00wXxKpwhSPAbv16g7wq6Z1SNp7CtfgPyuHugVKKlxykRqxopVX67x45TCzKS4CQONQ==
   dependencies:
     axios "^0.18.0"
 

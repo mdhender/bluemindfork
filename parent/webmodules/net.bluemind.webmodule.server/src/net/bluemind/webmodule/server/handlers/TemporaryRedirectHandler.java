@@ -18,10 +18,10 @@
  */
 package net.bluemind.webmodule.server.handlers;
 
-public class PermanentRedirectHandler extends RedirectHandler {
+public class TemporaryRedirectHandler extends RedirectHandler {
 
-	public PermanentRedirectHandler(String to) {
+	public TemporaryRedirectHandler(String to) {
 		super(to);
-		super.statusCode = 301;
+		super.statusCode = 302;
 	}
 }

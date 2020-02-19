@@ -18,10 +18,23 @@
  */
 package net.bluemind.webmodule.server.handlers;
 
-public class PermanentRedirectHandler extends RedirectHandler {
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServerRequest;
 
-	public PermanentRedirectHandler(String to) {
-		super(to);
-		super.statusCode = 301;
+public class RedirectHandler implements Handler<HttpServerRequest> {
+
+	private String to;
+	protected int statusCode;
+
+	public RedirectHandler(String to) {
+		this.to = to;
 	}
+
+	@Override
+	public void handle(HttpServerRequest req) {
+		req.response().headers().add("Location", to);
+		req.response().setStatusCode(statusCode);
+		req.response().end();
+	}
+
 }

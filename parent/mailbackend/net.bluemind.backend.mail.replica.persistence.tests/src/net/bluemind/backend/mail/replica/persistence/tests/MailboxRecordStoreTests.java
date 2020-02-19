@@ -132,9 +132,8 @@ public class MailboxRecordStoreTests {
 		assertTrue(multiple.size() == 1);
 
 		System.out.println("beforeFlags: " + reloaded.flags);
-		reloaded.flags = Arrays.asList(new AnsweredFlag());
 		reloaded.internalFlags = EnumSet.of(InternalFlag.expunged);
-		reloaded.flags.addAll(Arrays.asList(new MailboxItemFlag("$john"), new MailboxItemFlag("$bang")));
+		reloaded.flags = Arrays.asList(new AnsweredFlag(), new MailboxItemFlag("$john"), new MailboxItemFlag("$bang"));
 		boxRecordStore.update(it, reloaded);
 		MailboxRecord reloaded2 = boxRecordStore.get(it);
 		assertEquals(reloaded.flags, reloaded2.flags);

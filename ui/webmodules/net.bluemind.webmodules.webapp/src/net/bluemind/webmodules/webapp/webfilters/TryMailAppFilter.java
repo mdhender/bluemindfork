@@ -26,14 +26,13 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.core.api.AsyncHandler;
-import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.http.HttpClientProvider;
 import net.bluemind.core.rest.http.VertxServiceProvider;
 import net.bluemind.locator.vertxclient.VertxLocatorClient;
 import net.bluemind.user.api.IUserSettingsAsync;
 import net.bluemind.webmodule.server.IWebFilter;
 import net.bluemind.webmodule.server.NeedVertx;
-import net.bluemind.webmodule.server.handlers.PermanentRedirectHandler;
+import net.bluemind.webmodule.server.handlers.TemporaryRedirectHandler;
 
 public class TryMailAppFilter implements IWebFilter, NeedVertx {
 
@@ -47,6 +46,7 @@ public class TryMailAppFilter implements IWebFilter, NeedVertx {
 		String userUid = request.headers().get("BMUserId");
 		String domainUid = request.headers().get("BMUserDomainId");
 		String roles = request.headers().get("BMRoles");
+		String apiKey = request.headers().get("BMSessionId");
 		boolean hasBothWebmailRoles = false;
 		if (roles != null) {
 			hasBothWebmailRoles = roles.contains("hasWebmail") && roles.contains("hasMailWebapp");
@@ -54,7 +54,7 @@ public class TryMailAppFilter implements IWebFilter, NeedVertx {
 		
 		if (request.path().equals("/webapp/index.html") && hasBothWebmailRoles) {
 			VertxServiceProvider provider = new VertxServiceProvider(clientProvider,
-					new VertxLocatorClient(clientProvider, SecurityContext.ANONYMOUS.getSubject()), null).from(request);
+					new VertxLocatorClient(clientProvider, null), apiKey).from(request);
 
 			provider.instance("bm/core", IUserSettingsAsync.class, domainUid).getOne(userUid, "mail-application", new AsyncHandler<String>() {
 					
@@ -65,7 +65,7 @@ public class TryMailAppFilter implements IWebFilter, NeedVertx {
 					if (!tryNewWebmail) {
 						logger.info("Redirecting /webapp/index.html to /webmail/ for user {} on domain {}", 
 								userUid, domainUid);
-						new PermanentRedirectHandler("/webmail/").handle(request);
+						new TemporaryRedirectHandler("/webmail/").handle(request);
 						completableFuture.complete(null);
 					} else {
 						completableFuture.complete(request);

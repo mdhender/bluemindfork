@@ -43,7 +43,7 @@ class bm_switch_webmail extends rcube_plugin {
     $rcmail = rcmail::get_instance();
     $userSettingsClient = new BM\UserSettingsClient($_SESSION['bm']['core'], $rcmail->decrypt($_SESSION['password']), $_SESSION['bm_sso']['bmDomain']);
     $userSettingsClient->setOne($_SESSION['bm_sso']['bmUserId'], "mail-application", "mail-webapp");
-    header("Location: /webapp/mail/");
+    $rcmail->output->command('redirect', "/webapp/mail/");
   }
 }
 
