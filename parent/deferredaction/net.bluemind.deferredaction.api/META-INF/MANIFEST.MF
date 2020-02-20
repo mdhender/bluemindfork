@@ -11,3 +11,4 @@ Require-Bundle: net.bluemind.core.commons,
  javax.validation.api,
  com.google.guava
 Export-Package: net.bluemind.deferredaction.api
+Eclipse-RegisterBuddy: net.bluemind.core.rest

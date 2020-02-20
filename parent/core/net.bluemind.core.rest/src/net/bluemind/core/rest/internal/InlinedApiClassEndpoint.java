@@ -42,6 +42,7 @@ public class InlinedApiClassEndpoint implements Endpoint {
 
 	@Override
 	public Object getInstance(SecurityContext sc, String[] pathParams) throws ServerFault {
+
 		return apiClass.cast(Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
 				new Class[] { apiClass }, (Object proxy, Method method, Object[] arguments) -> {
 					Constructor<Lookup> constructor = Lookup.class.getDeclaredConstructor(Class.class);
@@ -49,6 +50,7 @@ public class InlinedApiClassEndpoint implements Endpoint {
 					return constructor.newInstance(apiClass).in(apiClass).unreflectSpecial(method, apiClass)
 							.bindTo(proxy).invokeWithArguments(arguments);
 				}));
+
 	}
 
 }

@@ -7,7 +7,9 @@
       <endpoint
             api="net.bluemind.core.rest.tests.services.IRestTestService">
       </endpoint>
-      
+      <endpoint
+            api="net.bluemind.core.rest.tests.services.IRestTestInlineService" inline="true">
+      </endpoint>
       <endpoint
             api="net.bluemind.core.rest.tests.services.IRestPathTestService">
       </endpoint>
