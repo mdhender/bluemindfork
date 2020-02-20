@@ -138,7 +138,8 @@ export default {
     componentI18N: { messages: MailAppL10N },
     data() {
         return {
-            userSession: injector.getProvider("UserSession").get()
+            userSession: injector.getProvider("UserSession").get(),
+            showFolders: false
         };
     },
     computed: {
