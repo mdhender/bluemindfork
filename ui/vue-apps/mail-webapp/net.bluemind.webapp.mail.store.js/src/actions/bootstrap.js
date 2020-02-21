@@ -1,6 +1,8 @@
 import { Verb } from "@bluemind/core.container.api";
-export function bootstrap({ dispatch, state, getters, commit }, login) {
-    commit("setUserLogin", login);
+import injector from "@bluemind/inject";
+
+export function bootstrap({ dispatch, state, getters, commit }, userSession) {
+    commit("setUserLogin", userSession.login);
 
     return dispatch("folders/all", getters.my.mailboxUid)
         .then(() => {
@@ -13,5 +15,14 @@ export function bootstrap({ dispatch, state, getters, commit }, login) {
             dispatch("mailboxes/all", { verb: [Verb.Read, Verb.Write], type: "mailboxacl" }).then(() => {
                 getters.mailshares.forEach(mailshare => dispatch("folders/all", mailshare.mailboxUid));
             });
+        })
+        .then(() => {
+            return injector
+                .getProvider("MailboxesPersistence")
+                .get()
+                .getMailboxConfig(userSession.userId);
+        })
+        .then(mailboxConfig => {
+            commit("setMaxMessageSize", mailboxConfig.messageMaxSize);
         });
 }

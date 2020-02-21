@@ -1,0 +1,9 @@
+{
+    "name": "@bluemind/file-utils",
+    "description": "File utils : compute file size units",
+    "version": "4.1.0",
+    "license": "GPL-3.0",
+    "author": "Blue Mind SAS",
+    "main": "src/index.js",
+    "module": "src/index.js"
+}

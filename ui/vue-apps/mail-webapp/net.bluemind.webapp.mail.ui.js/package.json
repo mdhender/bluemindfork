@@ -11,6 +11,7 @@
         "@bluemind/backend.mail.api": "^4.1.0",
         "@bluemind/contact": "^4.1.0",
         "@bluemind/date": "^4.1.0",
+        "@bluemind/file-utils": "^4.1.0",
         "@bluemind/html-utils": "^4.1.0",
         "@bluemind/i18n": "^4.1.0",
         "@bluemind/l10n": "^4.1.0",

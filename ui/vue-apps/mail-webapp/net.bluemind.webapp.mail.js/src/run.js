@@ -1,5 +1,6 @@
 import { AddressBooksClient } from "@bluemind/addressbook.api";
 import { AlertFactory } from "@bluemind/alert.store";
+import { MailboxesClient } from "@bluemind/mailbox.api";
 import { MailboxFoldersClient, OutboxClient } from "@bluemind/backend.mail.api";
 import { MailboxItemsService } from "@bluemind/backend.mail.service";
 import { TaskClient } from "@bluemind/core.task.api";
@@ -70,6 +71,14 @@ function registerAPIClients() {
         factory: () => {
             const userSession = injector.getProvider("UserSession").get();
             return new UserSettingsClient(userSession.sid, userSession.domain);
+        }
+    });
+
+    injector.register({
+        provide: "MailboxesPersistence",
+        factory: () => {
+            const userSession = injector.getProvider("UserSession").get();
+            return new MailboxesClient(userSession.sid, userSession.domain);
         }
     });
 }

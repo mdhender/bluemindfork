@@ -76,12 +76,9 @@ import {
     BmButtonClose,
     BmAlert
 } from "@bluemind/styleguide";
+import { computeUnit } from "@bluemind/file-utils";
 import { MimeType } from "@bluemind/email";
 import { mapGetters } from "vuex";
-
-function roundTo1Decimal(number) {
-    return Math.round(number * 10) / 10;
-}
 
 export default {
     name: "MailMessageContentAttachmentItem",
@@ -131,16 +128,7 @@ export default {
                 : this.$t("mail.attachment.untitled", { mimeType: this.attachment.mime });
         },
         fileSize() {
-            let size = this.attachment.size;
-            if (size / Math.pow(10, 9) >= 1) {
-                return roundTo1Decimal(size / Math.pow(10, 9)) + " Go";
-            } else if (size / Math.pow(10, 6) >= 1) {
-                return roundTo1Decimal(size / Math.pow(10, 6)) + " Mo";
-            } else if (size / Math.pow(10, 3) >= 1) {
-                return roundTo1Decimal(size / Math.pow(10, 3)) + " Ko";
-            } else {
-                return size + " o";
-            }
+            return computeUnit(this.attachment.size);
         },
         hasPreview() {
             return MimeType.previewAvailable(this.attachment.mime);

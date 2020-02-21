@@ -698,6 +698,13 @@
   resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/eslint-config/-/eslint-config-1.0.0.tgz#44b67811b60a71421e410b124e5cf560bbf5d750"
   integrity sha512-EtujsdxKuuEakjgU2cIgA09iDM1PIO57+jEp3YYuCKvdwZ3QCYvAfVvdgyPISO+FFOLjIKKYh+5CjFyFgZ6QiQ==
 
+"@bluemind/mailbox.api@^4.1.0":
+  version "4.1.48693"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/mailbox.api/-/mailbox.api-4.1.48693.tgz#b01a670ce422536a27f75dc0b3e7a3b642eadee4"
+  integrity sha512-nP8up1N1oE7p2YED5U/rxZkPyJwxwrqHUVsfy+Tou5W34SjuT/3GxQD4dm5Rln6nYFbeeZm3fabNUBnl2yyI0w==
+  dependencies:
+    axios "^0.18.0"
+
 "@bluemind/prettier-config@^1.0.0":
   version "1.0.0"
   resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/prettier-config/-/prettier-config-1.0.0.tgz#6e9a61d2ad5c80c58b8cf387f6d4240e8902c96c"
