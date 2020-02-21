@@ -27,7 +27,11 @@ exports[`MailToolbarConsultMessage should match snapshot 1`] = `
       />
     </svg>
      
-    
+    <span
+      class="d-none d-lg-block"
+    >
+      
+    </span>
   </button>
    
   <div
@@ -57,7 +61,11 @@ exports[`MailToolbarConsultMessage should match snapshot 1`] = `
         />
       </svg>
        
-    
+      <span
+        class="d-none d-lg-block"
+      >
+         
+      </span>
     </button>
     <ul
       class="dropdown-menu"
@@ -129,9 +137,12 @@ exports[`MailToolbarConsultMessage should match snapshot 1`] = `
         fill="currentColor"
       />
     </svg>
-    
-        
-    
+     
+    <span
+      class="d-none d-lg-block"
+    >
+      
+    </span>
   </button>
    
   <button
@@ -154,9 +165,12 @@ exports[`MailToolbarConsultMessage should match snapshot 1`] = `
         fill="currentColor"
       />
     </svg>
-    
-        
-    
+     
+    <span
+      class="d-none d-lg-block"
+    >
+      
+    </span>
   </button>
    
   <div
@@ -189,10 +203,14 @@ exports[`MailToolbarConsultMessage should match snapshot 1`] = `
           />
         </svg>
          
-        
+        <span
+          class="d-none d-lg-block"
+        >
+          
+        </span>
       </button>
       <ul
-        class="dropdown-menu"
+        class="dropdown-menu dropdown-menu-right"
         role="menu"
         tabindex="-1"
       >
@@ -207,21 +225,9 @@ exports[`MailToolbarConsultMessage should match snapshot 1`] = `
             role="menuitem"
             target="_self"
           >
-            <div
-              class="py-1"
-            >
-              <span
-                class="font-weight-bold"
-              >
-                
-              </span>
-               
-              <span
-                class="shortcuts float-right"
-              >
-                 
-              </span>
-            </div>
+            
+            
+        
           </a>
         </li>
       </ul>

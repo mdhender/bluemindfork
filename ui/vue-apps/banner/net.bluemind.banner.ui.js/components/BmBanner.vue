@@ -156,6 +156,9 @@ export default {
 .bm-banner #all-apps-popover:focus,
 .bm-banner #all-apps-popover:hover {
     background-color: unset;
+    &::before {
+        opacity: 0;
+    }
 }
 
 .apps-popover {
