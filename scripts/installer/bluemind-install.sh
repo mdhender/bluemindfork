@@ -89,6 +89,22 @@ sanity_install() {
         exit 1
     fi
 
+    # Check local package install (2 GiB)
+    # Don't check INSTALL_PKGS_TO because df will crash if the
+    # folder does not exists.
+    display_message "${txt_diskspace_label}" "/var/spool"
+    if ! check_diskfree "/var/spool" $((2 * 1024 * 1024)); then
+      # Don't use whitespaces in the label
+      display_error "${txt_diskspace_error}" "2GiB"  "/var/spool"
+      exit 1
+    fi
+    # Check /usr (8 GiB)
+    display_message "${txt_diskspace_label}" "/usr"
+    if ! check_diskfree "/usr" $((8 * 1024 * 1024)); then
+      display_error "${txt_diskspace_error}" "8GiB" "/usr"
+      exit 1
+    fi
+
     os_sanity_install
 }
 

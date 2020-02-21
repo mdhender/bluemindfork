@@ -1,1 +1,3 @@
 txt_welcome="Bienvenue dans l'installateur BlueMind"
+txt_diskspace_label="Vérification de l'espace disque sur %s"
+txt_diskspace_error="Au moins %s doivent être disponibles sur %s"
