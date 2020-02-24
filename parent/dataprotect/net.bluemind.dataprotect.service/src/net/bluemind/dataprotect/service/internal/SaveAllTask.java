@@ -231,10 +231,9 @@ public class SaveAllTask implements IServerTask {
 			for (ItemValue<Server> server : servers) {
 				logger.info("Starting backup on server {}", server.value.address());
 
-				List<String> tags = new ArrayList<>(server.value.tags);
-				for (String tag : skipTags) {
-					tags.remove(tag);
-				}
+				Set<String> tags = server.value.tags.stream().filter(tag -> skipTags.contains(tag))
+						.collect(Collectors.toSet());
+				tags.add("bm/conf");
 
 				backupStatus = doBackupByTags(monitor.subWork(1), dpCtx, server, tags, backupStatus, dpg);
 
@@ -258,7 +257,7 @@ public class SaveAllTask implements IServerTask {
 	}
 
 	private BackupStatus doBackupByTags(IServerTaskMonitor monitor, IDPContext dpCtx, ItemValue<Server> serverToBackup,
-			List<String> tags, BackupStatus backupStatus, DataProtectGeneration dpg) throws SQLException {
+			Set<String> tags, BackupStatus backupStatus, DataProtectGeneration dpg) throws SQLException {
 		monitor.begin(2L * tags.size(), String.format("Backup tags %s", String.join(",", tags)));
 
 		for (String tag : tags) {

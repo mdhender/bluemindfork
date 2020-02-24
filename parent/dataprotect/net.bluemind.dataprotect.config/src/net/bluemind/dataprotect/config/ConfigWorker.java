@@ -40,11 +40,11 @@ import net.bluemind.server.api.Server;
 
 public class ConfigWorker extends DefaultWorker {
 
-	private static final String dir = "/var/backups/bluemind/conf";
+	private static final String dir = "/var/backups/bluemind/work/conf";
 
 	@Override
 	public boolean supportsTag(String tag) {
-		return "bm/core".equals(tag);
+		return "bm/conf".equals(tag);
 	}
 
 	@Override
