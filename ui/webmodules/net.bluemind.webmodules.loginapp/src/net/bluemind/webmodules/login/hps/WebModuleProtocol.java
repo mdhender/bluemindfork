@@ -46,9 +46,9 @@ import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.proxy.http.IAuthProvider;
 import net.bluemind.proxy.http.auth.api.AuthRequirements;
-import net.bluemind.proxy.http.auth.api.CookieHelper;
 import net.bluemind.proxy.http.auth.api.IAuthEnforcer.IAuthProtocol;
 import net.bluemind.proxy.http.auth.api.IAuthEnforcer.ISessionStore;
+import net.bluemind.proxy.http.auth.api.SecurityConfig;
 import net.bluemind.webmodule.server.WebModuleRootHandler;
 import net.bluemind.webmodules.login.CSRFTokenManager;
 
@@ -145,13 +145,13 @@ public class WebModuleProtocol implements IAuthProtocol {
 				Cookie co = new DefaultCookie("BMHPS", proxySid);
 				co.setPath("/");
 				co.setHttpOnly(true);
-				if (CookieHelper.secureCookies()) {
+				if (SecurityConfig.secureCookies) {
 					co.setSecure(true);
 				}
 
 				Cookie privacyCo = new DefaultCookie("BMPRIVACY", Boolean.toString(privateComputer));
 				privacyCo.setPath("/");
-				if (CookieHelper.secureCookies()) {
+				if (SecurityConfig.secureCookies) {
 					privacyCo.setSecure(true);
 				}
 				resp.headers().add("Set-Cookie", ServerCookieEncoder.LAX.encode(co));
@@ -232,7 +232,7 @@ public class WebModuleProtocol implements IAuthProtocol {
 
 		Cookie privacyCo = new DefaultCookie("BMPRIVACY", Boolean.toString(privateComputer));
 		privacyCo.setPath("/");
-		if (CookieHelper.secureCookies()) {
+		if (SecurityConfig.secureCookies) {
 			privacyCo.setSecure(true);
 		}
 		HttpServerResponse resp = req.response();

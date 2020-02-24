@@ -43,6 +43,7 @@ import net.bluemind.proxy.http.auth.api.AuthRequirements;
 import net.bluemind.proxy.http.auth.api.CookieHelper;
 import net.bluemind.proxy.http.auth.api.CookieHelper.CookieState;
 import net.bluemind.proxy.http.auth.api.IAuthEnforcer;
+import net.bluemind.proxy.http.auth.api.SecurityConfig;
 import net.bluemind.proxy.http.config.ForwardedLocation;
 import net.bluemind.proxy.http.impl.SessionStore;
 
@@ -78,17 +79,9 @@ public final class ProtectedLocationHandler implements Handler<HttpServerRequest
 		registry.counter(idFactory.name("requestsCount", "kind", "protected")).increment();
 		logger.debug("Protected location {}:{}{}", fl.getHost(), fl.getPort(), fl.getPathPrefix());
 
-		event.response().putHeader("Content-Security-Policy",
-				"connect-src 'self'; default-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src * ");
-
-		event.response().putHeader("Feature-Policy",
-				"accelerometer 'none'; ambient-light-sensor 'none'; autoplay 'self'; battery 'none';"
-						+ " camera 'none'; display-capture 'none'; document-domain 'none'; encrypted-media 'none';"
-						+ " execution-while-not-rendered 'self'; execution-while-out-of-viewport 'self';"
-						+ " fullscreen 'self'; geolocation 'none'; gyroscope 'none'; layout-animations 'none'; layout-animations 'none';"
-						+ " layout-animations 'none'; legacy-image-formats 'none'; magnetometer 'none'; microphone 'none';"
-						+ " midi 'none'; navigation-override 'none'; oversized-images 'none'; payment 'none'; picture-in-picture 'none';"
-						+ " publickey-credentials 'none'; sync-xhr 'none'; usb 'none'; vr 'none'; wake-lock 'none'; xr-spatial-tracking 'none'; ");
+		if (SecurityConfig.cspHeader) {
+			addCspHeader(event);
+		}
 
 		AuthRequirements reqs = authenticated(event);
 		if (!reqs.authNeeded && reqs.sessionId != null) {
@@ -152,6 +145,20 @@ public final class ProtectedLocationHandler implements Handler<HttpServerRequest
 			reqs.protocol.proceed(reqs, ss, authProv, event);
 		}
 
+	}
+
+	private void addCspHeader(HttpServerRequest event) {
+		event.response().putHeader("Content-Security-Policy",
+				"connect-src 'self'; default-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src * ");
+
+		event.response().putHeader("Feature-Policy",
+				"accelerometer 'none'; ambient-light-sensor 'none'; autoplay 'self'; battery 'none';"
+						+ " camera 'none'; display-capture 'none'; document-domain 'none'; encrypted-media 'none';"
+						+ " execution-while-not-rendered 'self'; execution-while-out-of-viewport 'self';"
+						+ " fullscreen 'self'; geolocation 'none'; gyroscope 'none'; layout-animations 'none'; layout-animations 'none';"
+						+ " layout-animations 'none'; legacy-image-formats 'none'; magnetometer 'none'; microphone 'none';"
+						+ " midi 'none'; navigation-override 'none'; oversized-images 'none'; payment 'none'; picture-in-picture 'none';"
+						+ " publickey-credentials 'none'; sync-xhr 'none'; usb 'none'; vr 'none'; wake-lock 'none'; xr-spatial-tracking 'none'; ");
 	}
 
 	private void handleAuthenticated(HttpServerRequest event, AuthRequirements reqs) {
