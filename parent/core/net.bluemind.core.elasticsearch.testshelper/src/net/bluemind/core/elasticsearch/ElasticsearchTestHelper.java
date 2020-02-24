@@ -44,6 +44,10 @@ public class ElasticsearchTestHelper implements BundleActivator {
 	private static final Logger logger = LoggerFactory.getLogger(ElasticsearchTestHelper.class);
 	private static ElasticsearchTestHelper instance;
 
+	static {
+		System.setProperty("es.set.netty.runtime.available.processors", "false");
+	}
+
 	private TransportClient cli;
 
 	@Override

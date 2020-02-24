@@ -1,10 +1,10 @@
 BMCYRUS="3.0.8-bluemind221"
 BMSDS="1.0.0-221"
 
-BMES="6.4.3-bluemind75"
+BMES="6.8.6-bluemind76"
 
-KAFKA="2.3.0-bluemind7"
-MINIO="2019.10.12-bluemind7"
+KAFKA="2.4.0-bluemind9"
+MINIO="2019.10.12-bluemind9"
 
 BMJDK="8u242-bluemind32"
 BMSNZIP="1.0.4-bluemind4"
@@ -12,7 +12,7 @@ BMNGINX="1.16.1-bluemind84"
 BMPHP="5.6.40-bluemind86"
 BMPHPMEMCACHE="3.0.8-bluemind86"
 
-BMPOSTGRESQL="11.6-bluemind106"
+BMPOSTGRESQL="11.7-bluemind108"
 
 # tick
 TELEGRAF="1.11.1.bm5-1"
@@ -30,8 +30,8 @@ PG_BUSTER="11.6-1.pgdg100+1"
 PGCOMMON_BUSTER="210.pgdg100+1"
 PG_XENIAL="11.6-1.pgdg16.04+1"
 PGCOMMON_XENIAL="210.pgdg16.04+1"
-PG_BIONIC="11.6-1.pgdg18.04+1"
-PGCOMMON_BIONIC="210.pgdg18.04+1"
+PG_BIONIC="11.7-2.pgdg18.04+1"
+PGCOMMON_BIONIC="213.pgdg18.04+1"
 PG_RHEL7="11.6-2PGDG.rhel7"
 
 # Cyrus

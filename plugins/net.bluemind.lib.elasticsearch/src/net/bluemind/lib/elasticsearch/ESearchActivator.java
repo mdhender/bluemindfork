@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
@@ -74,6 +75,7 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 
 import net.bluemind.locator.client.LocatorClient;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.network.utils.NetworkHelper;
 
 public final class ESearchActivator implements BundleActivator {
@@ -85,9 +87,7 @@ public final class ESearchActivator implements BundleActivator {
 	private static Logger logger = LoggerFactory.getLogger(ESearchActivator.class);
 
 	static {
-		logger.info("Switch Netty default allocator to unpooled, current: {}",
-				System.getProperty("io.netty.allocator.type"));
-		System.setProperty("io.netty.allocator.type", "unpooled");
+		System.setProperty("es.set.netty.runtime.available.processors", "false");
 	}
 
 	static BundleContext getContext() {
@@ -286,8 +286,7 @@ public final class ESearchActivator implements BundleActivator {
 	}
 
 	private static Client initClient(String tag) {
-		LocatorClient lc = new LocatorClient();
-		Collection<String> hosts = lc.locateHosts(tag, "fake@global.virt");
+		Collection<String> hosts = new LocatorClient().locateHosts(tag, "fake@global.virt");
 		if (hosts == null || hosts.isEmpty()) {
 			return null;
 		}
@@ -367,8 +366,14 @@ public final class ESearchActivator implements BundleActivator {
 		}
 	}
 
+	private static Collection<String> hosts(String tag) {
+		return Topology.get().nodes().stream().filter(iv -> iv.value.tags.contains(tag)).map(iv -> iv.value.address())
+				.collect(Collectors.toList());
+	}
+
 	public static void resetIndex(String index) {
 		Collection<String> hosts = new LocatorClient().locateHosts("bm/es", "fake@global.virt");
+		;
 		if (hosts != null) {
 			for (String host : hosts) {
 				new NetworkHelper(host).waitForListeningPort(9300, 30, TimeUnit.SECONDS);
