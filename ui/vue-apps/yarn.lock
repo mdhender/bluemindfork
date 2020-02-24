@@ -693,10 +693,10 @@
   dependencies:
     axios "^0.18.0"
 
-"@bluemind/eslint-config@^1.0.0":
+"@bluemind/eslint-config@^1.0.0", "@bluemind/prettier-config@^1.0.0":
   version "1.0.0"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/eslint-config/-/eslint-config-1.0.0.tgz#44b67811b60a71421e410b124e5cf560bbf5d750"
-  integrity sha512-EtujsdxKuuEakjgU2cIgA09iDM1PIO57+jEp3YYuCKvdwZ3QCYvAfVvdgyPISO+FFOLjIKKYh+5CjFyFgZ6QiQ==
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/prettier-config/-/prettier-config-1.0.0.tgz#4484e5fa2e9d4b7037e4f80f54baa1a68ae480f3"
+  integrity sha512-5y98vfvxKriGFr4SafMLdCT9v32VtY6us/hy6W3pjV/Nhh8/zffazlSNzgK2R5RYJ8g3Zgv24WcoipdbotjRxw==
 
 "@bluemind/styleguide@^0.1.0":
   version "0.1.841"

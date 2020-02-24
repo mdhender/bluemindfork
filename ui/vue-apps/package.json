@@ -19,6 +19,7 @@
         "@babel/preset-env": "^7.4.5",
         "@bluemind/conf": "4.1.0",
         "@bluemind/eslint-config": "^1.0.0",
+        "@bluemind/prettier-config": "^1.0.0",
         "@vue/eslint-config-prettier": "^6.0.0",
         "@vue/test-utils": "^1.0.0-beta.16",
         "babel-core": "^6.26.3",
@@ -57,5 +58,6 @@
         "root": "(cd root-webapp/net.bluemind.webapp.root.js && yarn dev)",
         "mail": "(cd mail-webapp/net.bluemind.webapp.mail.js && yarn dev)",
         "test-dev": "jest --watch --config node_modules/@bluemind/conf/jest.config.js"
-    }
+    },
+    "prettier": "@bluemind/prettier-config"
 }
