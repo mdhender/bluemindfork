@@ -9,10 +9,7 @@ module.exports = {
                 enforce: "pre",
                 test: /\.(js|vue)$/,
                 loader: "eslint-loader",
-                exclude: /node_modules/,
-                options: {
-                    configFile: "./node_modules/@bluemind/conf/.eslintrc.json"
-                }
+                exclude: /node_modules/
             },
             {
                 test: /\.vue$/,
