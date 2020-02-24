@@ -467,6 +467,7 @@ net.bluemind.calendar.month.MonthView.prototype.createEvent_ = function(start, r
     location : '',
     start : start,
     end : end,
+    draft: true,
     timezones: {
       start: null,
       end: null
@@ -481,7 +482,8 @@ net.bluemind.calendar.month.MonthView.prototype.createEvent_ = function(start, r
       past : (end.getTime() < goog.now()),
       meeting : false,
       main: true,
-      owned : true
+      owned : true,
+      draft : true
     },
     tags : [],
     uid: net.bluemind.mvp.UID.generate(),

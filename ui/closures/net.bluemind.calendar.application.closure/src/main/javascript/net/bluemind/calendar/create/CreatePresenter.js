@@ -25,6 +25,8 @@ goog.require("goog.ui.Button");
 goog.require("goog.ui.Component.EventType");
 goog.require("net.bluemind.mvp.Presenter");
 goog.require("bluemind.ui.style.PrimaryActionButtonRenderer");
+goog.require("net.bluemind.calendar.vevent.VEventSeriesAdaptor");
+goog.require("net.bluemind.calendar.vevent.VEventActions");
 
 /**
  * @constructor
@@ -36,6 +38,8 @@ net.bluemind.calendar.create.CreatePresenter = function(ctx) {
   net.bluemind.mvp.Presenter.call(this, ctx);
   /** @meaning calendar.newEvent */
   var MSG_NEW_CONTACT = goog.getMsg('New event');
+  this.adaptor_ = new net.bluemind.calendar.vevent.VEventSeriesAdaptor(ctx);
+  this.actions_ = new net.bluemind.calendar.vevent.VEventActions(ctx, this.adaptor_);
   this.view_ = new goog.ui.Button(MSG_NEW_CONTACT, bluemind.ui.style.PrimaryActionButtonRenderer.getInstance())
   this.registerDisposable(this.view_);
 };
@@ -97,9 +101,29 @@ net.bluemind.calendar.create.CreatePresenter.prototype.handleAction_ = function(
     }
 
     if (cal) {
-      var url = '/vevent/?container=' + cal['uid'];
-      this.ctx.helper('url').goTo(url);
+      var container = this.calendarToMV_(cal);
+      var series = this.adaptor_.createSeries(cal['uid']);
+      var type = net.bluemind.calendar.vevent.EventType.DETAILS;
+      var evt = new net.bluemind.calendar.vevent.VEventEvent(type, this.adaptor_.toModelView(series, container));
+      this.actions_.details(evt);
      }
 
   }, null, this);
+};
+
+net.bluemind.calendar.create.CreatePresenter.prototype.calendarToMV_ = function(calendar) {
+  var mv = {};
+  mv.name = calendar['name'];
+  mv.uid = calendar['uid'];
+  mv.states = {};
+  mv.states.writable = calendar['writable'] && !calendar['readOnly'];
+  mv.states.defaultCalendar = calendar['defaultContainer'];
+  mv.owner = calendar['owner'];
+  if (calendar['dir'] && calendar['dir']['path']) {
+    var dir = 'bm://' + calendar['dir']['path'];
+    mv.dir = dir.toString();
+  }
+  mv.settings = calendar['settings'];
+  mv.verbs = calendar['verbs'];
+  return mv;
 };

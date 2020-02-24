@@ -90,6 +90,7 @@ net.bluemind.rrule.OccurrencesHelper.prototype.expandSeries = function(ctx, vser
                 }
 
                 var occurrence = deepClone(vseries["value"]["main"]);
+                occurrence['draft'] = true;
                 occurrence["dtstart"]["iso8601"] = iso8601;
                 date.setTime(date.getTime(utc) + duration, utc);
                 occurrence["dtend"]["iso8601"] = date.toIsoString(true, true);

@@ -380,12 +380,10 @@
           <div {if not $states.occurrence}style="display:none"{/if} class="{css goog-menuitem} {css goog-menuitem-disabled} {css accept-series}">{msg meaning="calendar.event.recurringEvent.action.all" desc="All events in the series"}All events in the series{/msg}</div>
           <div {if $states.exception}style="display:none"{/if} class="{css eb-btn-event-accepted-default-notification-series} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation" desc="Send response now"}Send response now{/msg}</div>
           <div {if $states.exception}style="display:none"{/if} class="{css eb-btn-event-accepted-edit-notification-series} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation.note" desc="Add a note to the response before sending"}Add a note to the response before sending{/msg}</div>
-          <div {if $states.exception}style="display:none"{/if} class="{css eb-btn-event-accepted-no-notification-series} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation.silent" desc="Do not send response"}Do not send response{/msg}</div>
           <div {if $states.exception}style="display:none"{/if} class="{css goog-menuitem} {css goog-menuitem-disabled}" {if not $states.occurrence}style="display:none"{/if}>&nbsp;</div>
           <div {if not $states.occurrence}style="display:none"{/if} class="{css accept-instance} {css goog-menuitem} {css goog-menuitem-disabled}">{msg meaning="calendar.event.recurringEvent.action.onlyThisOne" desc="calendar.event.recurringEvent.action.onlyThisOne"}Only this instance{/msg}</div>
           <div {if $states.main}style="display:none"{/if} class="{css eb-btn-event-accepted-default-notification} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation" desc="Send response now"}Send response now{/msg}</div>
           <div {if $states.main}style="display:none"{/if} class="{css eb-btn-event-accepted-edit-notification} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation.note" desc="Add a note to the response before sending"}Add a note to the response before sending{/msg}</div>
-          <div {if $states.main}style="display:none"{/if} class="{css eb-btn-event-accepted-no-notification} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation.silent" desc="Do not send response"}Do not send response{/msg}</div>
         </div>
       </span>
       <span class="{css ecb-form-participation}">
@@ -394,12 +392,10 @@
           <div {if not $states.occurrence}style="display:none"{/if} class="{css tentative-series} {css goog-menuitem} {css goog-menuitem-disabled}">{msg meaning="calendar.event.recurringEvent.action.all" desc="All events in the series"}All events in the series{/msg}</div>
           <div {if $states.exception}style="display:none"{/if} class="{css eb-btn-event-tentative-default-notification-series} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation" desc="Send response now"}Send response now{/msg}</div>
           <div {if $states.exception}style="display:none"{/if} class="{css eb-btn-event-tentative-edit-notification-series} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation.note" desc="Add a note to the response before sending"}Add a note to the response before sending{/msg}</div>
-          <div {if $states.exception}style="display:none"{/if} class="{css eb-btn-event-tentative-no-notification-series} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation.silent" desc="Do not send response"}Do not send response{/msg}</div>
           <div {if $states.exception}style="display:none"{/if} class="{css goog-menuitem} {css goog-menuitem-disabled}" {if not $states.occurrence}style="display:none"{/if}>&nbsp;</div>
           <div {if not $states.occurrence}style="display:none"{/if} class="{css tentative-instance} {css goog-menuitem} {css goog-menuitem-disabled}">{msg meaning="calendar.event.recurringEvent.action.onlyThisOne" desc="calendar.event.recurringEvent.action.onlyThisOne"}Only this instance{/msg}</div>
           <div {if $states.main}style="display:none"{/if}class="{css eb-btn-event-tentative-default-notification} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation" desc="Send response now"}Send response now{/msg}</div>
           <div {if $states.main}style="display:none"{/if} class="{css eb-btn-event-tentative-edit-notification} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation.note" desc="Add a note to the response before sending"}Add a note to the response before sending{/msg}</div>
-          <div {if $states.main}style="display:none"{/if} class="{css eb-btn-event-tentative-no-notification} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation.silent" desc="Do not send response"}Do not send response{/msg}</div>
         </div>
       </span>
       <span class="{css ecb-form-participation}">
@@ -408,12 +404,10 @@
           <div {if not $states.occurrence}style="display:none"{/if} class="{css decline-series} {css goog-menuitem} {css goog-menuitem-disabled}">{msg meaning="calendar.event.recurringEvent.action.all" desc="All events in the series"}All events in the series{/msg}</div>
           <div {if $states.exception}style="display:none"{/if} class="{css eb-btn-event-declined-default-notification-series} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation" desc="Send response now"}Send response now{/msg}</div>
           <div {if $states.exception}style="display:none"{/if} class="{css eb-btn-event-declined-edit-notification-series} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation.note" desc="Add a note to the response before sending"}Add a note to the response before sending{/msg}</div>
-          <div {if $states.exception}style="display:none"{/if} class="{css eb-btn-event-declined-no-notification-series} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation.silent" desc="Do not send response"}Do not send response{/msg}</div>
           <div {if $states.exception}style="display:none"{/if} class="{css goog-menuitem} {css goog-menuitem-disabled}" {if not $states.exception}style="display:none"{/if}>&nbsp;</div>
           <div {if not $states.occurrence}style="display:none"{/if} class="{css decline-instance} {css goog-menuitem} {css goog-menuitem-disabled}">{msg meaning="calendar.event.recurringEvent.action.onlyThisOne" desc="calendar.event.recurringEvent.action.onlyThisOne"}Only this instance{/msg}</div>
           <div {if $states.main}style="display:none"{/if} class="{css eb-btn-event-declined-default-notification} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation" desc="Send response now"}Send response now{/msg}</div>
           <div {if $states.main}style="display:none"{/if} class="{css eb-btn-event-declined-edit-notification} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation.note" desc="Add a note to the response before sending"}Add a note to the response before sending{/msg}</div>
-          <div {if $states.main}style="display:none"{/if} class="{css eb-btn-event-declined-no-notification} {css goog-menuitem}">{msg meaning="calendar.popup.updateParticipation.silent" desc="Do not send response"}Do not send response{/msg}</div>
         </div>
       </span>
 {/template}
