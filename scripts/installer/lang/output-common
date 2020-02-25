@@ -3,7 +3,7 @@ BLUEMIND_INSTALLER_LOG="/tmp/"${BLUEMIND_INSTALLER}".log"
 display_welcome() {
     clear
     echo "#############################" 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
-    echo "#          "${txt_warning}"          #" 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
+    echo "#          "${txt_warning}" " 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
     echo "#############################" 2>&1 | tee -a ${BLUEMIND_INSTALLER_LOG}
     echo -en "\n"${txt_warning_log}"\n"${txt_confirm_continue}" "
     continue_response=$(read_stdin y)
