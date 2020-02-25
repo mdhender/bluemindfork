@@ -56,4 +56,6 @@ public interface SubscriptionConstants extends Messages {
 	String sendReportButton();
 
 	String sendReportAbout();
+
+	String sendReportError(String errorMessage);
 }

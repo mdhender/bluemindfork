@@ -268,12 +268,12 @@
 					<s:SubContactTable ui:field="mailTable"></s:SubContactTable>
 				</g:VerticalPanel>
 				
-				<g:VerticalPanel styleName="{style.panel}">
+				<g:VerticalPanel ui:field="hostReportPanel" styleName="{style.panel}">
 					<g:Label text="{sc.sendReportAbout}"></g:Label>
-					<g:Label ui:field="sendReportLastUpdate" text="{sc.sendReportLastUpdateWaiting}"></g:Label>
-					<g:Label ui:field="sendReportError" styleName="error"></g:Label>
 					<g:Label text="{sc.sendReportButtonDetails}"></g:Label>
-					<g:Button styleName="button primary" ui:field="sendReportButton" text="{sc.sendReportButton}"></g:Button>	
+					<g:Button styleName="button primary" ui:field="sendReportButton" text="{sc.sendReportButton}"></g:Button>
+					<g:Label ui:field="sendReportLastUpdate" text="{sc.sendReportLastUpdateWaiting}"></g:Label>
+					<g:Label ui:field="sendReportError" styleName="error"></g:Label>	
 				</g:VerticalPanel>
 				
 			</g:VerticalPanel>
