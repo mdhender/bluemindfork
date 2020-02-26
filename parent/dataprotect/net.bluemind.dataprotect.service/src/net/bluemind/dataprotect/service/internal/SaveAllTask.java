@@ -231,7 +231,7 @@ public class SaveAllTask implements IServerTask {
 			for (ItemValue<Server> server : servers) {
 				logger.info("Starting backup on server {}", server.value.address());
 
-				Set<String> tags = server.value.tags.stream().filter(tag -> skipTags.contains(tag))
+				Set<String> tags = server.value.tags.stream().filter(tag -> !skipTags.contains(tag))
 						.collect(Collectors.toSet());
 				tags.add("bm/conf");
 
