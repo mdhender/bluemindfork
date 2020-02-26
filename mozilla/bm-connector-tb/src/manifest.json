@@ -5,9 +5,10 @@
   "version": "1.0.0-dev",
   "author": "BlueMind",
   "legacy": {
+    "type" : "xul",
     "options" : {
-    "page" : "chrome://bm/content/preferences/bmPrefWindow.xul",
-    "open_in_tab" : false
+      "page" : "chrome://bm/content/preferences/bmPrefWindow.xul",
+      "open_in_tab" : false
     }
   },
   "applications": {
@@ -18,6 +19,9 @@
     }
   },
   "icons": {
-    "48": "skin/BM_Icone01_48.png"
+    "48": "skin/BM_Icone01_48.png",
+    "32": "skin/BM_Icone01_32.png",
+    "24": "skin/BM_Icone01_24.png",
+    "16": "skin/BM_Icone01_16.png"
   }
 }
