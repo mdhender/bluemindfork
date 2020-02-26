@@ -172,9 +172,9 @@ public class SysCommand extends AbstractVerticle {
 		if (group == null && name == null) {
 			match = cmd -> true;
 		} else if (group != null && name == null) {
-			match = cmd -> cmd.group.equals(group);
+			match = cmd -> group.equals(cmd.group);
 		} else {
-			match = cmd -> cmd.group.equals(group) && cmd.name.equals(name);
+			match = cmd -> group.equals(cmd.group) && name.equals(cmd.name);
 		}
 		return match;
 	}

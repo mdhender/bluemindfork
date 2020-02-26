@@ -38,7 +38,6 @@ import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.node.api.ProcessHandler;
 import net.bluemind.node.shared.ExecRequest;
-import net.bluemind.node.shared.ExecRequest.Options;
 import net.bluemind.server.api.Server;
 
 /**
@@ -95,6 +94,7 @@ public class CyrusFilesystemCheck {
 		INodeClient node = NodeActivator.get(backend.value.address());
 		try {
 			deploySpoolTreeScript(node);
+			System.err.println("Deployed in container.");
 		} catch (IOException e) {
 			CompletableFuture<List<String>> ret = new CompletableFuture<>();
 			ret.completeExceptionally(e);
@@ -102,13 +102,13 @@ public class CyrusFilesystemCheck {
 		}
 
 		CompletableFuture<Integer> exit = new CompletableFuture<>();
-		ExecRequest spoolTreeCommand = ExecRequest.named("cyrus", "fs-check", "/usr/share/bm-node/spool_tree.sh",
-				Options.FAIL_IF_EXISTS);
+		ExecRequest spoolTreeCommand = ExecRequest.anonymous("/usr/share/bm-node/spool_tree.sh");
 		List<String> notVerified = new LinkedList<>();
 		node.asyncExecute(spoolTreeCommand, new ProcessHandler() {
 
 			@Override
 			public void log(String spoolDirectory) {
+				System.err.println("" + spoolDirectory);
 				boolean verified = spv.verify(spoolDirectory);
 				if (!verified) {
 					notVerified.add(spoolDirectory);
@@ -117,6 +117,7 @@ public class CyrusFilesystemCheck {
 
 			@Override
 			public void completed(int exitCode) {
+				System.err.println("exit " + exitCode);
 				exit.complete(exitCode);
 			}
 
