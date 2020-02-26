@@ -89,7 +89,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 	@Test
 	public void testExportOne() throws ServerFault {
 		VEventSeries vevent = defaultVEvent();
-
+		vevent.main.sequence = 1;
 		VEvent.Attendee john = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.RequiredParticipant,
 				VEvent.ParticipationStatus.NeedsAction, false, "", "", "", "John Bang", "", "", null,
 				"john.bang@domain.lan");
@@ -197,6 +197,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertTrue(export.contains("UID:" + uid));
 		assertTrue(export.contains("DTSTART;TZID=Asia/Ho_Chi_Minh:19830213T020000"));
 		assertTrue(export.contains("SUMMARY:" + vevent.main.summary));
+		assertTrue(export.contains("SEQUENCE:1"));
 		assertTrue(export.contains("CLASS:PRIVATE"));
 		assertTrue(export.contains("TRANSP:OPAQUE"));
 		assertTrue(export.contains("DESCRIPTION:Lorem ipsum"));
@@ -469,6 +470,8 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertNull(vevent.rrule);
 		assertNotNull(vevent.categories);
 		assertTrue(vevent.categories.isEmpty());
+		assertEquals(0, vevent.sequence.intValue());
+
 
 	}
 
@@ -600,8 +603,9 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertEquals(9, vevent.priority.intValue());
 		assertEquals(VEvent.Status.Confirmed, vevent.status);
 		assertEquals("Europe/Paris", vevent.timezone());
-
 		assertEquals(2, vevent.attendees.size());
+		assertEquals(2, vevent.sequence.intValue());
+
 		boolean johnFound = false;
 		boolean janeFound = false;
 		for (VEvent.Attendee attendee : vevent.attendees) {

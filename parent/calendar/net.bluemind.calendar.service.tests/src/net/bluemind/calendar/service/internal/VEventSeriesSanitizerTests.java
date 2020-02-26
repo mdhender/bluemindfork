@@ -17,6 +17,7 @@
   */
 package net.bluemind.calendar.service.internal;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import java.sql.SQLException;
@@ -64,7 +65,8 @@ import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sessions.Sessions;
 import net.bluemind.core.tests.BmTestContext;
-import net.bluemind.directory.api.BaseDirEntry;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
+import net.bluemind.directory.api.IDirEntryPath;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.CUType;
@@ -266,6 +268,15 @@ public class VEventSeriesSanitizerTests {
 		this.checkDescription(vEvents, expectedResult);
 	}
 
+	@Test
+	public void draftCannotBeUpdateToTrue() throws ServerFault {
+		ItemValue<VEventSeries> item = defaultVEvent("Summer y", "De scription");
+		VEventSeries old = item.value.copy();
+		item.value.main.draft = true;
+		new VEventSeriesSanitizer(new BmTestContext(Sessions.get().getIfPresent(user.login))).update(old, item.value);
+		assertFalse(item.value.main.draft);
+	}
+
 	private void checkDescription(final List<VEvent> vEvents, final String expectedResult) {
 		vEvents.forEach(vEvent -> {
 			Assert.assertNotNull(vEvent.description);
@@ -423,7 +434,7 @@ public class VEventSeriesSanitizerTests {
 		event.description = description;
 		event.priority = 1;
 		event.organizer = new VEvent.Organizer("John Doe", this.user.defaultEmailAddress());
-		event.organizer.dir = "bm://" + this.domainUid + "/" + BaseDirEntry.Kind.USER.name() + "/" + this.user.login;
+		event.organizer.dir = "bm://" + IDirEntryPath.path(domainUid, user.login, Kind.USER);
 		event.attendees = new ArrayList<>();
 		event.categories = new ArrayList<TagRef>(0);
 

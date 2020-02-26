@@ -50,6 +50,8 @@ public class VTodo extends ICalendarElement {
 		copy.percent = percent;
 		copy.completed = completed;
 		copy.uid = uid;
+		copy.sequence = sequence;
+		
 		return copy;
 	}
 

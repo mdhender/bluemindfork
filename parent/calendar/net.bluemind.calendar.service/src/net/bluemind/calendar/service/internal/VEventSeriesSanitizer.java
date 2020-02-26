@@ -31,8 +31,8 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.ISanitizer;
 import net.bluemind.core.sanitizer.ISanitizerFactory;
-import net.bluemind.directory.api.DirEntry;
-import net.bluemind.directory.api.IDirectory;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
+import net.bluemind.directory.api.IDirEntryPath;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 
 /**
@@ -78,28 +78,47 @@ public class VEventSeriesSanitizer implements ISanitizer<VEventSeries> {
 
 	// mostly a copy from IcsHook
 	private boolean isMasterVersionAndHasAttendees(final VEventSeries message) throws ServerFault {
-		VEvent ref = message.main;
-		if (null == ref) {
-			ref = message.occurrences.get(0);
-		}
-
-		if (ref.attendees.isEmpty()) {
-			return false;
-		}
-
-		if (ref.organizer == null || ref.organizer.dir == null) {
-			return false;
-		}
-
-		final IDirectory directoryService = this.bmContext.getServiceProvider().instance(IDirectory.class,
-				this.bmContext.getSecurityContext().getContainerUid());
-		final DirEntry dirEntry = directoryService.getEntry(ref.organizer.dir.substring("bm://".length()));
-
-		return dirEntry != null && dirEntry.entryUid.equals(this.bmContext.getSecurityContext().getSubject());
+		String path = IDirEntryPath.path(bmContext.getSecurityContext().getContainerUid(), bmContext.getSecurityContext().getSubject(),
+				Kind.USER);
+		return message.meeting() && message.master(path);
 	}
 
 	// mostly a copy from IcsHook
 	private void onMasterVersionUpdated(VEventSeries currentVEventSeries, VEventSeries oldEventSeries,
+			final String domainUid) {
+		sanitizeSequence(currentVEventSeries, oldEventSeries);
+		sanitizeDraft(currentVEventSeries, oldEventSeries);
+		sanitizeResourceTemplate(currentVEventSeries, oldEventSeries, domainUid);
+	}
+
+	private void sanitizeSequence(VEventSeries currentVEventSeries, VEventSeries oldEventSeries) {
+		sanitizeSequence(currentVEventSeries.main, oldEventSeries.main);
+		currentVEventSeries.occurrences
+				.forEach(current -> sanitizeSequence(current, oldEventSeries.occurrence(current.recurid)));
+	}
+
+	private void sanitizeSequence(VEvent current, VEvent old) {
+		if (old != null && current.sequence == null) {
+			current.sequence = old.sequence;
+		}
+	}
+
+	private void sanitizeDraft(VEventSeries currentVEventSeries, VEventSeries oldEventSeries) {
+		sanitizeDraft(currentVEventSeries.main, oldEventSeries.main, null);
+		currentVEventSeries.occurrences
+				.forEach(current -> sanitizeDraft(current, oldEventSeries.occurrence(current.recurid),
+						currentVEventSeries.main.draft));
+	}
+
+	private void sanitizeDraft(VEvent current, VEvent old, Boolean forceDraft) {
+		if (current.draft && old != null && !old.draft) {
+			current.draft = false;
+		} else if (!current.draft && forceDraft != null) {
+			current.draft = forceDraft;
+		}
+	}
+
+	private void sanitizeResourceTemplate(VEventSeries currentVEventSeries, VEventSeries oldEventSeries,
 			final String domainUid) {
 		final List<VEvent> flatten = currentVEventSeries.flatten();
 		Set<Attendee> userAttendingToSeries = new HashSet<>();

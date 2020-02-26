@@ -19,6 +19,7 @@
 package net.bluemind.calendar.service.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -40,6 +41,7 @@ import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.backend.cyrus.CyrusAdmins;
 import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.calendar.api.VEvent;
+import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.service.internal.VEventSanitizer;
 import net.bluemind.core.api.Email;
@@ -162,7 +164,7 @@ public class VEventSanitizerTests {
 		// summary != null
 		vevent.summary = "event " + System.currentTimeMillis();
 
-		sanitizer.sanitize(vevent);
+		sanitizer.sanitize(vevent, true);
 		// fixed
 		assertNull(vevent.priority);
 		assertTrue(vevent.allDay());
@@ -180,7 +182,7 @@ public class VEventSanitizerTests {
 		vevent.dtstart = BmDateTimeWrapper.create(date1, Precision.Date);
 		vevent.dtend = BmDateTimeWrapper.create(date1, Precision.DateTime);
 
-		sanitizer.sanitize(vevent);
+		sanitizer.sanitize(vevent, true);
 		assertEquals(vevent.dtstart.precision, vevent.dtend.precision);
 		assertEquals(Precision.Date, vevent.dtstart.precision);
 	}
@@ -201,7 +203,7 @@ public class VEventSanitizerTests {
 		vevent.organizer.commonName = "check";
 		vevent.organizer.mailto = null;
 		vevent.attendees = Arrays.asList(simpleAttendee());
-		sanitizer.sanitize(vevent);
+		sanitizer.sanitize(vevent, true);
 
 		assertEquals(0, vevent.attendees.size());
 		assertNull(vevent.organizer);
@@ -223,7 +225,7 @@ public class VEventSanitizerTests {
 		vevent.organizer.commonName = "check";
 		vevent.organizer.mailto = "test1@" + this.domainUid;
 		vevent.attendees = Arrays.asList(simpleAttendee());
-		sanitizer.sanitize(vevent);
+		sanitizer.sanitize(vevent, true);
 
 		assertEquals("test1@" + this.domainUid, vevent.organizer.mailto);
 		assertEquals("test1 test1", vevent.organizer.commonName);
@@ -237,7 +239,7 @@ public class VEventSanitizerTests {
 		vevent.organizer.commonName = "check";
 		vevent.organizer.dir = "bm://" + this.domainUid + "/users/test1";
 		vevent.attendees = Arrays.asList(simpleAttendee());
-		sanitizer.sanitize(vevent);
+		sanitizer.sanitize(vevent, true);
 
 		assertEquals("test1 test1", vevent.organizer.commonName);
 		assertEquals("test1@" + this.domainUid, vevent.organizer.mailto);
@@ -247,7 +249,7 @@ public class VEventSanitizerTests {
 		vevent.organizer = new Organizer();
 		vevent.organizer.commonName = "check";
 		vevent.organizer.mailto = "fake@" + this.domainUid;
-		sanitizer.sanitize(vevent);
+		sanitizer.sanitize(vevent, true);
 
 		assertEquals("fake@" + this.domainUid, vevent.organizer.mailto);
 		assertEquals("check", vevent.organizer.commonName);
@@ -258,7 +260,7 @@ public class VEventSanitizerTests {
 		vevent.organizer.commonName = "check";
 		vevent.organizer.mailto = "fake@" + this.domainUid;
 		vevent.organizer.dir = "bm://" + this.domainUid + "/users/fake";
-		sanitizer.sanitize(vevent);
+		sanitizer.sanitize(vevent, true);
 
 		assertEquals("fake@" + this.domainUid, vevent.organizer.mailto);
 		assertEquals("check", vevent.organizer.commonName);
@@ -275,7 +277,7 @@ public class VEventSanitizerTests {
 		vevent.organizer = new Organizer();
 		vevent.organizer.commonName = "check";
 		vevent.organizer.mailto = "test1@" + this.domainUid;
-		sanitizer.sanitize(vevent);
+		sanitizer.sanitize(vevent, true);
 		assertNull(vevent.organizer);
 	}
 
@@ -295,7 +297,7 @@ public class VEventSanitizerTests {
 		vevent.organizer.commonName = "check";
 		vevent.organizer.mailto = "test1";
 		vevent.attendees = Arrays.asList(simpleAttendee());
-		sanitizer.sanitize(vevent);
+		sanitizer.sanitize(vevent, true);
 		assertNull(vevent.organizer);
 		assertTrue(vevent.attendees.isEmpty());
 	}
@@ -325,7 +327,7 @@ public class VEventSanitizerTests {
 		attendee.mailto = "test1@" + this.domainUid;
 		vevent.attendees = Arrays.asList(attendee);
 		vevent.organizer = new Organizer("chef@bad-company.com");
-		sanitizer.sanitize(vevent);
+		sanitizer.sanitize(vevent, true);
 
 		assertEquals(1, vevent.attendees.size());
 		assertEquals("test1@" + this.domainUid, vevent.attendees.get(0).mailto);
@@ -342,7 +344,7 @@ public class VEventSanitizerTests {
 		attendee.dir = "bm://" + this.domainUid + "/users/test1";
 		vevent.attendees = Arrays.asList(attendee);
 		vevent.organizer = new Organizer("chef@bad-company.com");
-		sanitizer.sanitize(vevent);
+		sanitizer.sanitize(vevent, true);
 
 		// BM-9907 returns user default email
 		assertEquals("test1@" + this.domainUid, vevent.attendees.get(0).mailto);
@@ -361,7 +363,7 @@ public class VEventSanitizerTests {
 		vevent.attendees = Arrays.asList(attendee);
 		vevent.organizer = new Organizer("chef@bad-company.com");
 
-		sanitizer.sanitize(vevent);
+		sanitizer.sanitize(vevent, true);
 		// not modified
 		assertEquals("fake@" + this.domainUid, vevent.attendees.get(0).mailto);
 		assertEquals("check", vevent.attendees.get(0).commonName);
@@ -378,7 +380,7 @@ public class VEventSanitizerTests {
 		attendee.dir = "bm://" + this.domainUid + "/users/fake";
 		vevent.attendees = Arrays.asList(attendee);
 		vevent.organizer = new Organizer("chef@bad-company.com");
-		sanitizer.sanitize(vevent);
+		sanitizer.sanitize(vevent, true);
 
 		assertEquals("fake@" + this.domainUid, vevent.attendees.get(0).mailto);
 		assertEquals("check", vevent.attendees.get(0).commonName);
@@ -401,7 +403,7 @@ public class VEventSanitizerTests {
 		vevent.attendees = Arrays.asList(attendee);
 		vevent.organizer = new Organizer("chef@bad-company.com");
 
-		new VEventSanitizer(test1Context, this.domainUid).sanitize(vevent);
+		new VEventSanitizer(test1Context, this.domainUid).sanitize(vevent, true);
 		assertEquals("fake_/email.com", attendee.commonName);
 		assertNull(attendee.mailto);
 	}
@@ -419,7 +421,7 @@ public class VEventSanitizerTests {
 		vevent.summary = "event " + System.currentTimeMillis();
 		vevent.exdate = ImmutableSet
 				.of(BmDateTimeWrapper.create(ZonedDateTime.of(2015, 05, 02, 0, 0, 0, 0, defaultTz), Precision.Date));
-		sanitizer.sanitize(vevent);
+		sanitizer.sanitize(vevent, true);
 		// fixed
 		assertNull(vevent.exdate);
 
@@ -440,10 +442,39 @@ public class VEventSanitizerTests {
 
 		VEventSeries series = VEventSeries.create(vevent);
 
-		sanitizer.sanitize(series);
+		sanitizer.sanitize(series, true);
 
 		assertNull(vevent.organizer);
 		assertTrue(vevent.attendees.isEmpty());
 
+	}
+
+	@Test
+	public void draftIsSetToFalseIfNotificationsAreSent() throws ServerFault {
+		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, this.domainUid);
+		VEvent vevent = new VEvent();
+		vevent.dtstart = BmDateTimeWrapper.create(date1, Precision.Date);
+		vevent.summary = "event " + System.currentTimeMillis();
+		vevent.draft = true;
+		VEventOccurrence exception = VEventOccurrence.fromEvent(vevent, vevent.dtstart);
+		exception.draft = true;
+		VEventSeries series = VEventSeries.create(vevent, exception);
+		sanitizer.sanitize(series, true);
+		assertFalse(series.main.draft);
+		assertFalse(series.occurrences.get(0).draft);
+	}
+
+	@Test
+	public void draftExceptionIsADraft() throws ServerFault {
+		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, this.domainUid);
+		VEvent vevent = new VEvent();
+		vevent.dtstart = BmDateTimeWrapper.create(date1, Precision.Date);
+		vevent.summary = "event " + System.currentTimeMillis();
+		vevent.draft = true;
+		VEventOccurrence exception = VEventOccurrence.fromEvent(vevent, vevent.dtstart);
+		exception.draft = false;
+		VEventSeries series = VEventSeries.create(vevent, exception);
+		sanitizer.sanitize(series, false);
+		assertTrue(series.main.draft);
 	}
 }

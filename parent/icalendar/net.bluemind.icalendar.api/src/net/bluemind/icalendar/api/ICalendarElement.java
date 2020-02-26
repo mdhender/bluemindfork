@@ -53,6 +53,18 @@ public class ICalendarElement {
 	public String url;
 	public List<AttachedFile> attachments = Collections.emptyList();
 
+	/**
+	 *  When a ICalendarElement is created, its sequence number is 0.  
+	 *  It is monotonically incremented by the "Organizer's" each time 
+	 *  the "Organizer" makes a significant revision to the calendar component.
+	 */
+	public Integer sequence = 0;
+	
+	/**
+	 * Indicates whether invitations have been already sent at least once.
+	 */
+	public boolean draft;
+
 	@BMApi(version = "3")
 	public static class VAlarm {
 		public Action action = Action.Display;
@@ -194,10 +206,10 @@ public class ICalendarElement {
 					mailto, null);
 		}
 
+		
 		public static Attendee create(CUType cuType, String member, Role role, ParticipationStatus partStatus,
-				Boolean rsvp, String delTo, String delFrom, String sentBy, String commonName, String dir, String lang,
+					Boolean rsvp, String delTo, String delFrom, String sentBy, String commonName, String dir, String lang,
 				String uri, String mailto, String responseComment) {
-
 			Attendee attendee = new Attendee();
 			attendee.cutype = cuType;
 			attendee.member = member;
@@ -272,6 +284,8 @@ public class ICalendarElement {
 			return Attendee.create(cutype, member, role, partStatus, rsvp, delTo, delFrom, sentBy, commonName, dir,
 					lang, uri, mailto, responseComment);
 		}
+
+
 
 	}
 
@@ -609,5 +623,17 @@ public class ICalendarElement {
 
 	public boolean hasRecurrence() {
 		return rrule != null && rrule.frequency != null;
+	}
+	
+	public boolean meeting() {
+		return
+		// a meeting contains an organiser
+		organizer != null && //
+				( // no attenddee
+				!attendees.isEmpty()
+						// or organizer == first attendee and only one attendee
+						// (caldav)
+						|| !(attendees.size() == 1 && organizer != null
+								&& attendees.get(0).mailto.equals(organizer.mailto)));
 	}
 }

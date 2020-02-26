@@ -47,6 +47,8 @@ public class VEventOccurrence extends VEvent {
 		occurrence.recurid = recurid;
 		occurrence.rrule = evt.rrule;
 		occurrence.attachments = evt.attachments;
+		occurrence.sequence = evt.sequence;
+		occurrence.draft = evt.draft;
 		return occurrence;
 	}
 

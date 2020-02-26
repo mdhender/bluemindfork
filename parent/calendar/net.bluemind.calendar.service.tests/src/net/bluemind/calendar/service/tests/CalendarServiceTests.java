@@ -77,6 +77,7 @@ import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.api.TaskStatus.State;
 import net.bluemind.core.tests.vertx.VertxEventChecker;
+import net.bluemind.core.utils.UIDGenerator;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.RRule;
 import net.bluemind.icalendar.api.ICalendarElement.RRule.Frequency;
@@ -1631,4 +1632,59 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		assertTrue(found.contains(ZonedDateTime.of(2014, 2, 16, 8, 0, 0, 0, tz)));
 		assertTrue(found.contains(ZonedDateTime.of(2014, 2, 17, 8, 0, 0, 0, tz)));
 	}
+	
+	/**
+	 * 
+	 * @throws ServerFault
+	 */
+	@Test
+	public void sequenceDefaultValueIsZero() throws ServerFault {
+		VEventSeries event = defaultVEvent();
+		String uid = UIDGenerator.uid();
+		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);	
+		ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer).getComplete(uid);
+		assertEquals(new Integer(0), item.value.main.sequence);
+		event.main.summary = "Breaking Changes!";
+		event.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2020, 12, 28, 1, 0, 0, 0, tz));
+		event.main.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2020, 12, 28, 1, 0, 0, 0, tz));
+		getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
+		item = getCalendarService(userSecurityContext, userCalendarContainer).getComplete(uid);
+		assertEquals(new Integer(0), item.value.main.sequence);
+	}
+	
+	@Test
+	public void sequenceCanBeHandledByClient() throws ServerFault {
+		VEventSeries event = defaultVEvent();
+		String uid = UIDGenerator.uid();
+		event.main.sequence = 1;
+		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
+		ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer).getComplete(uid);
+		assertEquals(new Integer(1), item.value.main.sequence);
+		event.main.sequence = 10;
+		getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
+		item = getCalendarService(userSecurityContext, userCalendarContainer).getComplete(uid);
+		assertEquals(new Integer(10), item.value.main.sequence);
+		event.main.sequence = 3;
+		getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, sendNotifications);
+		item = getCalendarService(userSecurityContext, userCalendarContainer).getComplete(uid);
+		assertEquals(new Integer(3), item.value.main.sequence);
+	}
+	/**
+	 * 
+	 * @throws ServerFault
+	 */
+	@Test
+	public void draftDefaultValueIsFalse() throws ServerFault {
+		VEventSeries event = defaultVEvent();
+		String uid = UIDGenerator.uid();
+		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, false);
+		ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer).getComplete(uid);
+		assertFalse(item.value.main.draft);
+		getCalendarService(userSecurityContext, userCalendarContainer).update(uid, event, false);
+		item = getCalendarService(userSecurityContext, userCalendarContainer).getComplete(uid);
+		assertFalse(item.value.main.draft);
+
+	}
+
+	
 }

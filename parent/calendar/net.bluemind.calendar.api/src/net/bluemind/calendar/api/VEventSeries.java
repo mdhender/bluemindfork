@@ -27,6 +27,7 @@ import java.util.Map;
 
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.date.BmDateTime;
+import net.bluemind.icalendar.api.ICalendarElement;
 
 @BMApi(version = "3")
 public class VEventSeries {
@@ -107,4 +108,28 @@ public class VEventSeries {
 		return "VEventSeries{icsUid: " + icsUid + ", main: " + main + ", occs: " + occurrences + "}";
 	}
 
+	/**
+	 * @param event
+	 * @return
+	 */
+	public boolean meeting() {
+		return mainOccurrence().meeting() || occurrences.stream().anyMatch(ICalendarElement::meeting);
+	}
+	
+	public boolean master(String ownerPath) {
+		
+		if (main == null) {
+			return false;
+		}
+		
+		if (!mainOccurrence().meeting()) {
+			return true;
+		}
+
+		if (main.organizer == null || main.organizer.dir == null) {
+			return false;
+		}
+
+		return ownerPath.equals(main.organizer.dir.substring("bm://".length()));
+	}
 }

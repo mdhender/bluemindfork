@@ -128,6 +128,13 @@ create table t_calendar_vevent (
    attach_uri text[],
    attach_name text[],
 
+  /*
+   * 4.8.7.4.  Sequence Number
+   */
+  sequence int,
+
+  draft boolean, 
+
   item_id int4 references t_container_item(id) on delete cascade
 );
 

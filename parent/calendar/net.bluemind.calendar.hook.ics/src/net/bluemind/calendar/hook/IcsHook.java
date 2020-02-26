@@ -75,7 +75,9 @@ import net.bluemind.core.sendmail.Sendmail;
 import net.bluemind.core.sendmail.SendmailCredentials;
 import net.bluemind.core.sendmail.SendmailHelper;
 import net.bluemind.core.sendmail.SendmailResponse;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.IDirEntryPath;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
@@ -220,9 +222,8 @@ public class IcsHook implements ICalendarHook {
 		// Update invitation to other attendees
 		List<VEvent.Attendee> updatedAttendees = VEvent.same(updatedEventAttendees, oldEventAttendees);
 		if (!updatedAttendees.isEmpty() && VEventUtil.eventChanged(oldEvent, evt)) {
-			updatedAttendees = updatedAttendees.stream().filter(a -> {
-				return !userAttendingToSeries.contains(a);
-			}).collect(Collectors.toList());
+			updatedAttendees = updatedAttendees.stream().filter(a -> !userAttendingToSeries.contains(a))
+					.collect(Collectors.toList());
 			if (!evt.exception()) {
 				sendUpdateToAttendees(message, evt, updatedAttendees);
 				userAttendingToSeries.addAll(updatedAttendees);
@@ -236,6 +237,7 @@ public class IcsHook implements ICalendarHook {
 			List<VEvent.Attendee> oldEventAttendees, List<VEvent.Attendee> updatedEventAttendees) {
 		// Cancel invitation to removed attendees
 		List<VEvent.Attendee> deletedAttendees = VEvent.diff(oldEventAttendees, updatedEventAttendees);
+
 		if (!deletedAttendees.isEmpty()) {
 			deletedAttendees = deletedAttendees.stream().filter(a -> {
 				return !userDeletedFromSeries.contains(a);
@@ -252,7 +254,7 @@ public class IcsHook implements ICalendarHook {
 			Set<Attendee> userAttendingToSeries, VEvent evt, List<VEvent.Attendee> oldEventAttendees,
 			List<VEvent.Attendee> updatedEventAttendees) {
 		// Send invitation to added attendees
-		List<VEvent.Attendee> addedAttendees = VEvent.diff(updatedEventAttendees, oldEventAttendees);
+		Set<VEvent.Attendee> addedAttendees = new HashSet<>(VEvent.diff(updatedEventAttendees, oldEventAttendees));
 		if (!addedAttendees.isEmpty()) {
 			if (!evt.exception()) {
 				VEventMessage copy = message.copy();
@@ -266,9 +268,9 @@ public class IcsHook implements ICalendarHook {
 				userAttendingToSeries.addAll(addedAttendees);
 			} else {
 				addedAttendees = addedAttendees.stream().filter(a -> !userAttendingToSeries.contains(a))
-						.collect(Collectors.toList());
+						.collect(Collectors.toSet());
 				String ics = getIcsPart(message.vevent.icsUid, Method.REQUEST, evt);
-				sendInvitationToAttendees(message, addedAttendees, evt, ics);
+				sendInvitationToAttendees(message, new ArrayList<>(addedAttendees), evt, ics);
 			}
 		}
 	}
@@ -303,7 +305,7 @@ public class IcsHook implements ICalendarHook {
 		}
 		try {
 			if (isMasterVersion(message.vevent, message.container)) {
-				if (message.vevent.main != null) {
+				if (message.vevent.main != null && !message.vevent.main.draft) {
 					sendCancelSeries(message, message.vevent);
 					sendCancelExceptions(message);
 				}
@@ -336,17 +338,16 @@ public class IcsHook implements ICalendarHook {
 	}
 
 	private VEvent findCorrespondingEvent(VEventSeries otherSeries, VEvent evt) {
+		VEvent match = null;
 		if (evt instanceof VEventOccurrence) {
-			VEventOccurrence match = otherSeries.occurrence(((VEventOccurrence) evt).recurid);
-			if (match != null) {
-				return match;
-			}
+			match = otherSeries.occurrence(((VEventOccurrence) evt).recurid);
 		} else {
-			if (null != otherSeries.main) {
-				return otherSeries.main;
-			}
+			match = otherSeries.main;
 		}
-		return null;
+		if (match != null && match.draft) {
+			return null;
+		}
+		return match;
 	}
 
 	private void sendSeriesInvitation(VEventMessage message, VEventSeries vevent) {
@@ -859,30 +860,15 @@ public class IcsHook implements ICalendarHook {
 
 		if (message.vevent.main == null) {
 			VEvent ref = message.vevent.occurrences.get(0);
-			return isMeeting(ref);
+			return ref.meeting();
 		}
 
-		boolean isMeeting = true;
-		if ((!isMeeting(message.vevent.main) && (message.oldEvent == null || !isMeeting(message.oldEvent.main)))
-				|| !isDefaultContainer(message)) {
-			logger.debug("Do not send notification email for non-meeting events. Event uid: {} icsUid: {}",
-					message.itemUid, message.vevent.icsUid);
-			isMeeting = false;
+		if (!isDefaultContainer(message)) {
+			return false;
 		}
 
-		if (!isMeeting) {
-			for (VEvent occurrence : message.vevent.occurrences) {
-				isMeeting = isMeeting || isMeeting(occurrence);
-			}
-		}
+		return message.vevent.meeting() || (message.oldEvent != null && message.oldEvent.meeting());
 
-		if (!isMeeting && null != message.oldEvent && null != message.oldEvent.occurrences) {
-			for (VEvent occurrence : message.oldEvent.occurrences) {
-				isMeeting = isMeeting || isMeeting(occurrence);
-			}
-		}
-
-		return isMeeting;
 	}
 
 	private VEventSeries getSeriesForAttendee(VEventSeries updatedEvent, Attendee attendee) {
@@ -919,25 +905,6 @@ public class IcsHook implements ICalendarHook {
 			}
 			return series;
 		};
-	}
-
-	/**
-	 * @param event
-	 * @return
-	 */
-	private boolean isMeeting(VEvent event) {
-		if (event == null) {
-			return false;
-		}
-		return
-		// a meeting contains an organiser
-		event.organizer != null && //
-				( // no attenddee
-				!event.attendees.isEmpty()
-						// or organizer == first attendee and only one attendee
-						// (caldav)
-						|| !(event.attendees.size() == 1 && event.organizer != null
-								&& event.attendees.get(0).mailto.equals(event.organizer.mailto)));
 	}
 
 	/**
@@ -1105,23 +1072,7 @@ public class IcsHook implements ICalendarHook {
 	 * @throws ServerFault
 	 */
 	private boolean isMasterVersion(VEventSeries message, Container container) throws ServerFault {
-		VEvent ref = message.main;
-		if (null == ref) {
-			ref = message.occurrences.get(0);
-		}
-
-		if (ref.attendees.isEmpty()) {
-			return true;
-		}
-
-		if (ref.organizer == null || ref.organizer.dir == null) {
-			return false;
-		}
-
-		IDirectory directoryService = provider().instance(IDirectory.class, container.domainUid);
-		DirEntry dirEntry = directoryService.getEntry(ref.organizer.dir.substring("bm://".length()));
-
-		return dirEntry.entryUid.equals(container.owner);
+		return message.master(IDirEntryPath.path(container.domainUid, container.owner, Kind.USER));
 	}
 
 	private IServiceProvider provider() {

@@ -58,7 +58,9 @@ public class ICalendarElementColumns {
 			.col("rdate_timezone") //
 			.col("rdate_precision", "e_datetime_precision") //
 			.col("attach_uri") //
-			.col("attach_name");
+			.col("attach_name") //
+			.col("draft") //
+			.col("sequence");
 
 	public static StatementValues<ICalendarElement> values() {
 		return new StatementValues<ICalendarElement>() {
@@ -121,6 +123,13 @@ public class ICalendarElementColumns {
 				statement.setArray(index++, conn.createArrayOf("text", attachmentUrls));
 				statement.setArray(index++, conn.createArrayOf("text", attachmentNames));
 
+				statement.setBoolean(index++, value.draft);
+
+				if (value.sequence == null) {
+					statement.setNull(index++, Types.INTEGER);
+				} else {
+					statement.setInt(index++, value.sequence);
+				}
 				return index;
 
 			}
@@ -188,6 +197,10 @@ public class ICalendarElementColumns {
 
 				value.attachments = attachments;
 
+				value.draft = rs.getBoolean(index++);
+
+				value.sequence = rs.getInt(index++);
+				
 				return index;
 			}
 

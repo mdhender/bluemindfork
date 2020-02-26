@@ -102,6 +102,7 @@ import net.fortuna.ical4j.model.property.RDate;
 import net.fortuna.ical4j.model.property.RRule;
 import net.fortuna.ical4j.model.property.RecurrenceId;
 import net.fortuna.ical4j.model.property.Repeat;
+import net.fortuna.ical4j.model.property.Sequence;
 import net.fortuna.ical4j.model.property.Status;
 import net.fortuna.ical4j.model.property.Summary;
 import net.fortuna.ical4j.model.property.Trigger;
@@ -297,6 +298,9 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		// ATTACH
 		iCalendarElement.attachments = parseAttachments(cc.getProperties(Property.ATTACH), owner);
 
+		// SEQUENCE
+		iCalendarElement.sequence = parseIcsSequence(cc.getProperty(Property.SEQUENCE));
+		
 		return ItemValue.create(uid, iCalendarElement);
 	}
 
@@ -759,6 +763,21 @@ public class ICal4jHelper<T extends ICalendarElement> {
 	}
 
 	/**
+	 * @param summary
+	 * @return
+	 */
+	private static Integer parseIcsSequence(Property sequence) {
+		Integer result = 0;
+		if (sequence != null) {
+			String value = sequence.getValue();
+			try {
+					result = Integer.parseInt(value);
+			} catch (NumberFormatException e) {}
+		}
+		return result;
+	}
+	
+	/**
 	 * @param organizer
 	 * @return
 	 */
@@ -915,6 +934,9 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		// ATTACH
 		parseICalendarElementAttachments(properties, iCalendarElement);
 
+		// SEQUENCE
+		parseICalendarElementSequence(properties, iCalendarElement);
+		
 		return properties;
 	}
 
@@ -939,7 +961,12 @@ public class ICal4jHelper<T extends ICalendarElement> {
 			properties.add(recurId);
 		}
 	}
-
+	private static void parseICalendarElementSequence(PropertyList properties, ICalendarElement iCalendarElement) {
+		if (iCalendarElement.sequence != null && iCalendarElement.sequence > 0) {
+			properties.add(new Sequence(iCalendarElement.sequence));
+		}
+	}
+	
 	private static void parseICalendarElementRRule(PropertyList properties, ICalendarElement iCalendarElement) {
 		if (iCalendarElement.rrule != null) {
 			Recur recur = new Recur();
