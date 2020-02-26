@@ -164,7 +164,7 @@ public class BMPoolActivator extends Plugin {
 				return new Pool(lastIdQuery, ds);
 			}
 		} catch (Exception t) {
-			logger.error(t.getMessage(), t);
+			logger.error("Unable to connect to pool {}/{}, schema: {}, dbtype: {}", dbHost, dbName, schema, dbType, t);
 			throw t;
 		} finally {
 			// restore previous context classloader
