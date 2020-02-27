@@ -94,19 +94,24 @@ public class ElasticWorker extends DefaultWorker {
 		SnapshotInfo snap = snaps.getSnapshots().get(0);
 
 		long ts = System.currentTimeMillis();
-		while (snap.state() != SnapshotState.SUCCESS) {
+		while (!snap.state().completed()) {
+			logger.info("Waiting for ES snapshot. Current state: {}", snap.state());
 			try {
 				Thread.sleep(2000);
 			} catch (InterruptedException e) {
 				logger.error(e.getMessage(), e);
 				Thread.currentThread().interrupt();
 			}
-			logger.info("Wait for es snapshot...");
 			snaps = cluster.prepareGetSnapshots(repository).addSnapshots(snapshot).get();
 			snap = snaps.getSnapshots().get(0);
 		}
 
-		logger.info("ES snapshot done in {}s", (System.currentTimeMillis() - ts) / 1000);
+		logger.info("ES snapshot done in {}s, state: {}", (System.currentTimeMillis() - ts) / 1000,
+				snap.state().name());
+
+		if (snap.state() != SnapshotState.SUCCESS) {
+			throw new ServerFault("Cannot create ES Snapshot: " + snap.state().name());
+		}
 
 		// copy es repo to backup location
 		IServer serverApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class,
