@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +58,34 @@ public class CollectionListenerVerticle extends AbstractVerticle {
 		PushRegKey(String pid, int cid) {
 			this.partnershipId = pid;
 			this.collectionId = cid;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + collectionId;
+			result = prime * result + ((partnershipId == null) ? 0 : partnershipId.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			PushRegKey other = (PushRegKey) obj;
+			if (collectionId != other.collectionId)
+				return false;
+			if (partnershipId == null) {
+				if (other.partnershipId != null)
+					return false;
+			} else if (!partnershipId.equals(other.partnershipId))
+				return false;
+			return true;
 		}
 
 	}
@@ -131,8 +160,10 @@ public class CollectionListenerVerticle extends AbstractVerticle {
 				int count = 0;
 
 				if (!pt.folderSyncRequired) {
-					Collection<PushRegKey> matchingKeys = idxByCollectionId.get(pt.collectionId);
+					Collection<PushRegKey> matchingKeys = idxByCollectionId.get(pt.collectionId).stream().distinct()
+							.collect(Collectors.toList());
 					Iterator<PushRegKey> it = matchingKeys.iterator();
+
 					while (it.hasNext()) {
 						PushRegKey pushKey = it.next();
 						PushRegistrationRequest value = keyToReplyAddress.get(pushKey);
@@ -148,7 +179,8 @@ public class CollectionListenerVerticle extends AbstractVerticle {
 						idxByCollectionId.remove(pushKey.collectionId, pushKey);
 					}
 				} else {
-					Collection<PushRegKey> matchingKeys = idxByPartnershipId.get(pt.userUid);
+					Collection<PushRegKey> matchingKeys = idxByPartnershipId.get(pt.userUid).stream().distinct()
+							.collect(Collectors.toList());
 					Iterator<PushRegKey> it = matchingKeys.iterator();
 					while (it.hasNext()) {
 						PushRegKey pushKey = it.next();
