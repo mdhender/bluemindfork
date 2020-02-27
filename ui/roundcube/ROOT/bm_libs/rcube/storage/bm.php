@@ -233,7 +233,7 @@ class rcube_storage_bm extends rcube_imap {
     if (($decode = @base64_decode($uid, true))) {
       $uid = $decode;
     }
-    return (preg_match("/^([0-9a-f-]+)[#:]([0-9]+)$/", $uid) == 1);
+    return (preg_match("/^([0-9a-z-]+)[#:]([0-9]+)$/", $uid) == 1);
   }
 
   private function isAll($uid) {
@@ -244,7 +244,7 @@ class rcube_storage_bm extends rcube_imap {
     if (($decode = @base64_decode($uid, true))) {
       $uid = $decode;
     }
-    preg_match("/^([0-9a-f-]+)[#:]([0-9]+)$/", $uid, $match);
+    preg_match("/^([0-9a-z-]+)[#:]([0-9]+)$/", $uid, $match);
     return array('folder' => $this->getFolderByUid($match[1]), 'uid' => $match[2]);
   }
 
