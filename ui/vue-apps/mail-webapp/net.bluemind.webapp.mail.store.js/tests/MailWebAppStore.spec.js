@@ -1,4 +1,5 @@
 import { ContainersClient } from "@bluemind/core.container.api";
+import { MailboxesClient } from "@bluemind/mailbox.api";
 import { createLocalVue } from "@vue/test-utils";
 import { MockMailboxItemsClient, MockMailboxFoldersClient } from "@bluemind/test-mocks";
 import aliceFolders from "./data/alice/folders";
@@ -14,11 +15,14 @@ import Vuex from "vuex";
 import { Flag } from "@bluemind/email";
 
 jest.mock("@bluemind/core.container.api");
+jest.mock("@bluemind/mailbox.api");
 
 let containerService,
+    mailboxesService,
     foldersService = new MockMailboxFoldersClient(),
     itemsService = new MockMailboxItemsClient();
 ServiceLocator.register({ provide: "ContainersPersistence", factory: () => containerService });
+ServiceLocator.register({ provide: "MailboxesPersistence", factory: () => mailboxesService });
 ServiceLocator.register({ provide: "MailboxItemsPersistence", factory: () => itemsService });
 ServiceLocator.register({ provide: "MailboxFoldersPersistence", factory: () => foldersService });
 ServiceLocator.register({ provide: "UserSession", factory: () => "" });
@@ -32,9 +36,11 @@ describe("[MailWebAppStore] Vuex store", () => {
         store = new Vuex.Store();
         store.registerModule("mail-webapp", cloneDeep(MailWebAppStore));
         ContainersClient.mockClear();
+        MailboxesClient.mockClear();
         foldersService = new MockMailboxFoldersClient();
         itemsService = new MockMailboxItemsClient();
         containerService = new ContainersClient();
+        mailboxesService = new MailboxesClient();
     });
     test("bootstrap load folders into store with unread count", done => {
         let letsEndThis;
@@ -53,6 +59,7 @@ describe("[MailWebAppStore] Vuex store", () => {
         itemsService.getPerUserUnread.mockReturnValueOnce(Promise.resolve({ count: 10 }));
         itemsService.getPerUserUnread.mockReturnValueOnce(Promise.resolve({ count: 15 }));
         containerService.all.mockReturnValueOnce(Promise.resolve(containers));
+        mailboxesService.getMailboxConfig.mockReturnValue(Promise.resolve({}));
         store
             .dispatch("mail-webapp/bootstrap", "alice@blue-mind.loc", { root: true })
             .then(() => {
@@ -178,7 +185,7 @@ describe("[MailWebAppStore] Vuex store", () => {
                     size: 28
                 }
             ];
-            expect(store.getters["mail-webapp/currentMessage/attachments"]).toEqual(parts);
+            expect(store.state["mail-webapp"].currentMessage.parts.attachments).toEqual(parts);
 
             done();
         });

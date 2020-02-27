@@ -46,7 +46,7 @@
                     :is-removable="editable"
                     :is-downloadable="!editable"
                     @save="save(0)"
-                    @remove="remove(0)"
+                    @remove="removeAttachment(attachments[0].uid)"
                 />
             </bm-col>
             <bm-col cols="4">
@@ -56,7 +56,7 @@
                     :is-removable="editable"
                     :is-downloadable="!editable"
                     @save="save(1)"
-                    @remove="remove(1)"
+                    @remove="removeAttachment(attachments[1].uid)"
                 />
             </bm-col>
             <bm-col cols="4" class="pt-2 border-transparent">
@@ -85,7 +85,7 @@
                     :is-removable="editable"
                     :is-downloadable="!editable"
                     @save="save(index)"
-                    @remove="remove(index)"
+                    @remove="removeAttachment(attachment.uid)"
                 />
             </bm-col>
         </bm-row>
@@ -203,6 +203,7 @@ export default {
     },
     methods: {
         ...mapActions("mail-webapp/messages", ["fetch"]),
+        ...mapActions("mail-webapp", ["removeAttachment"]),
         ...mapGetters("mail-webapp/messages", ["getPartContent"]),
         toggleExpand() {
             if (!this.isExpanded && this.hasAnyAttachmentWithPreview && !this.attachmentsContentFetched) {

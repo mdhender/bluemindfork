@@ -3,6 +3,7 @@ import Vuex from "vuex";
 import { mount, createLocalVue } from "@vue/test-utils";
 import cloneDeep from "lodash.clonedeep";
 import MessageStore from "@bluemind/webapp.mail.store/src/MessageStore";
+import MailboxItemsStore from "@bluemind/backend.mail.store/src/MailboxItemsStore";
 
 export function createStore(overrides) {
     const storeOptions = {
@@ -15,16 +16,21 @@ export function createStore(overrides) {
                     maxMessageSize: 10
                 },
                 getters: {
-                    currentMessage: jest.fn(() => {
-                        return { key: "", states: [] };
-                    }),
                     my: jest.fn(() => ({})),
                     currentMessageAttachments: jest.fn(() => [{ mime: "" }]),
                     draft: jest.fn(() => {})
                 },
                 modules: {
-                    currentMessage: cloneDeep(MessageStore),
-                    draft: cloneDeep(MessageStore)
+                    currentMessage: {
+                        namespaced: true,
+                        getters: {
+                            message: jest.fn(() => {
+                                return { key: "", states: [] };
+                            })
+                        }
+                    },
+                    draft: cloneDeep(MessageStore),
+                    messages: cloneDeep(MailboxItemsStore)
                 },
                 actions: {}
             }
@@ -35,7 +41,6 @@ export function createStore(overrides) {
 }
 
 export function createWrapper(component, overrides, propsData = {}) {
-    console.log("propsData : ", propsData);
     const localVue = createLocalVue();
     localVue.use(Vuex);
     const defaultMountingOptions = {
@@ -48,6 +53,5 @@ export function createWrapper(component, overrides, propsData = {}) {
         }
     };
     const mergedMountingOptions = merge(defaultMountingOptions, overrides);
-    console.log("propsData : ", mergedMountingOptions.propsData);
     return mount(component, mergedMountingOptions);
 }

@@ -166,7 +166,7 @@ export default {
         }
     },
     created: function() {
-        this.bootstrap(this.userSession);
+        this.bootstrap(this.userSession.login);
     },
     methods: {
         ...mapActions("mail-webapp", ["bootstrap"]),

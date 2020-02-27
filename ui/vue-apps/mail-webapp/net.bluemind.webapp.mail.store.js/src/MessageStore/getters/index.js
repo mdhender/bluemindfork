@@ -1,4 +1,3 @@
-export * from "./attachments";
 export * from "./content";
 export * from "./getAttachmentProgress";
 export * from "./getAttachmentStatus";

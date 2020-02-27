@@ -22,11 +22,15 @@ describe("MailToolbarConsultMessage", () => {
     test("should display 'mark read' button if the message is unread", () => {
         const storeWithReadMessage = createStore({
             modules: {
-                "mail-webapp/currentMessage": {
-                    getters: {
-                        message: jest.fn(() => {
-                            return { key: "", states: ["not-seen"] };
-                        })
+                "mail-webapp": {
+                    modules: {
+                        currentMessage: {
+                            getters: {
+                                message: jest.fn(() => {
+                                    return { key: "", states: ["not-seen"] };
+                                })
+                            }
+                        }
                     }
                 }
             }

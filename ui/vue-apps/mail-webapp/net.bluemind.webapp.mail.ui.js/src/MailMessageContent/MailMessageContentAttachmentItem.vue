@@ -46,9 +46,9 @@
                         variant="light"
                         class="p-0"
                         size="md"
-                        :title="uploadProgressEntry ? $tc('common.cancel') : $tc('common.removeAttachment')"
-                        :aria-label="uploadProgressEntry ? $tc('common.cancel') : $tc('common.removeAttachment')"
-                        @click="uploadProgressEntry ? cancel() : $emit('remove')"
+                        :title="isCancellable ? $tc('common.cancel') : $tc('common.removeAttachment')"
+                        :aria-label="isCancellable ? $tc('common.cancel') : $tc('common.removeAttachment')"
+                        @click="isCancellable ? cancel() : $emit('remove')"
                     />
                 </bm-col>
             </bm-row>
@@ -139,6 +139,9 @@ export default {
         errorMessage() {
             const status = this.getAttachmentStatus(this.attachment.uid);
             return status === "ERROR" ? this.$t("alert.mail.message.draft.attach.error") : undefined;
+        },
+        isCancellable() {
+            return this.uploadProgressEntry && this.getAttachmentStatus(this.attachment.uid) !== "ERROR";
         }
     },
     methods: {

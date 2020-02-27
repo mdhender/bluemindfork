@@ -1,8 +1,8 @@
 import { Verb } from "@bluemind/core.container.api";
 import injector from "@bluemind/inject";
 
-export function bootstrap({ dispatch, state, getters, commit }, userSession) {
-    commit("setUserLogin", userSession.login);
+export function bootstrap({ dispatch, state, getters, commit }, login) {
+    commit("setUserLogin", login);
 
     return dispatch("folders/all", getters.my.mailboxUid)
         .then(() => {
@@ -20,7 +20,7 @@ export function bootstrap({ dispatch, state, getters, commit }, userSession) {
             return injector
                 .getProvider("MailboxesPersistence")
                 .get()
-                .getMailboxConfig(userSession.userId);
+                .getMailboxConfig(getters.my.uid);
         })
         .then(mailboxConfig => {
             commit("setMaxMessageSize", mailboxConfig.messageMaxSize);

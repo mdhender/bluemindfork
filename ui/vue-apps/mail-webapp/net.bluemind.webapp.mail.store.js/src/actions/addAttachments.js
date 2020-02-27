@@ -36,8 +36,6 @@ const buildAttachment = function(file) {
 
 async function addAttachment({ getters, commit }, file) {
     const attachment = buildAttachment(file);
-
-    // read the local file (async, see reader.onload)
     const reader = new FileReader();
 
     // this will contain a function for cancelling the upload
@@ -54,29 +52,13 @@ async function addAttachment({ getters, commit }, file) {
         reader.readAsArrayBuffer(file);
     })
         .then(() => {
-            // create a progress entry for the upload
             commit("draft/setAttachmentProgress", { attachmentUid: attachment.uid, loaded: 0, total: 100, canceller });
-
-            // the upload progress callback
-            const onUploadProgress = progress => {
-                commit("draft/setAttachmentProgress", {
-                    attachmentUid: attachment.uid,
-                    loaded: progress.loaded,
-                    total: progress.total,
-                    canceller
-                });
-                if (progress.loaded === progress.total) {
-                    setTimeout(() => {
-                        if (getters["draft/getAttachmentStatus"](attachment.uid) !== "ERROR") {
-                            commit("draft/removeAttachmentProgress", attachment.uid);
-                        }
-                    }, CLEAN_UP_DELAY);
-                }
-            };
-
-            // launch the upload
             const service = injector.getProvider("MailboxItemsPersistence").get(getters.my.DRAFTS.uid);
-            return service.uploadPart(reader.result, canceller, onUploadProgress);
+            return service.uploadPart(
+                reader.result,
+                canceller,
+                createOnUploadProgress(commit, getters, attachment, canceller)
+            );
         })
         .then(addrPart => {
             attachment.address = addrPart;
@@ -84,19 +66,38 @@ async function addAttachment({ getters, commit }, file) {
         })
         .catch(event => {
             const error = event.target && event.target.error ? event.target.error : event;
-
-            if (error.message === "CANCELLED_BY_CLIENT") {
-                // clean-up / make this attachment disappear in the UI
-                commit("draft/removeAttachmentProgress", attachment.uid);
-                commit("draft/removeAttachment", attachment.uid);
-            } else {
-                commit("draft/setAttachmentProgress", {
-                    attachmentUid: attachment.uid,
-                    loaded: 100,
-                    total: 100,
-                    canceller
-                });
-                commit("draft/setAttachmentStatus", { attachmentUid: attachment.uid, status: "ERROR" });
-            }
+            handleError(commit, error, attachment, canceller);
         });
+}
+
+function createOnUploadProgress(commit, getters, attachment, canceller) {
+    return progress => {
+        commit("draft/setAttachmentProgress", {
+            attachmentUid: attachment.uid,
+            loaded: progress.loaded,
+            total: progress.total,
+            canceller
+        });
+        if (progress.loaded === progress.total) {
+            setTimeout(() => {
+                if (getters["draft/getAttachmentStatus"](attachment.uid) !== "ERROR") {
+                    commit("draft/removeAttachmentProgress", attachment.uid);
+                }
+            }, CLEAN_UP_DELAY);
+        }
+    };
+}
+
+function handleError(commit, error, attachment, canceller) {
+    if (error.message === "CANCELLED_BY_CLIENT") {
+        commit("draft/removeAttachment", attachment.uid);
+    } else {
+        commit("draft/setAttachmentProgress", {
+            attachmentUid: attachment.uid,
+            loaded: 100,
+            total: 100,
+            canceller
+        });
+        commit("draft/setAttachmentStatus", { attachmentUid: attachment.uid, status: "ERROR" });
+    }
 }

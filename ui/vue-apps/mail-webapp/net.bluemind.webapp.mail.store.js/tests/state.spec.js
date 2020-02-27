@@ -22,7 +22,7 @@ describe("[Mail-WebappStore][state] : initial state", () => {
     });
     test("not to contain anything else", () => {
         expect(Object.keys(state).sort()).toEqual(
-            ["currentFolderKey", "foldersData", "login", "search", "messageFilter"].sort()
+            ["currentFolderKey", "foldersData", "login", "search", "messageFilter", "maxMessageSize"].sort()
         );
     });
 });

@@ -39,20 +39,20 @@ describe("[Mail-WebappStore][actions] :  bootstrap", () => {
         context.state.currentFolderKey = "key";
     });
     test("load all folders from my mailbox", done => {
-        bootstrap(context, {}).then(() => {
+        bootstrap(context).then(() => {
             expect(context.dispatch).toHaveBeenNthCalledWith(1, "folders/all", "mailbox:uid");
             done();
         });
     });
     test("load all folders from mailshares", done => {
         context.mailshares = [{ uid: "a" }, { uid: "b" }, { uid: "c" }];
-        bootstrap(context, {}).then(() => {
+        bootstrap(context).then(() => {
             expect(context.dispatch).toHaveBeenNthCalledWith(1, "folders/all", "mailbox:uid");
             done();
         });
     });
     test("load unread count on all", done => {
-        bootstrap(context, {}).then(() => {
+        bootstrap(context).then(() => {
             context.getters.my.folders.forEach((folder, index) => {
                 expect(context.dispatch).toHaveBeenNthCalledWith(index + 2, "loadUnreadCount", folder.uid);
             });
@@ -60,7 +60,7 @@ describe("[Mail-WebappStore][actions] :  bootstrap", () => {
         });
     });
     test("set default folder to inbox if not present", done => {
-        bootstrap(context, {})
+        bootstrap(context)
             .then(() => {
                 expect(context.dispatch).not.toHaveBeenCalledWith("selectFolder", { folderKey: "inbox_key" });
                 context.state.currentFolderKey = undefined;
@@ -72,12 +72,12 @@ describe("[Mail-WebappStore][actions] :  bootstrap", () => {
             });
     });
     test("set login", () => {
-        bootstrap(context, { login: "mylogin@bluemind.lan" });
+        bootstrap(context, "mylogin@bluemind.lan");
         expect(context.commit).toHaveBeenCalledWith("setUserLogin", "mylogin@bluemind.lan");
     });
 
     test("set max message size", async () => {
-        await bootstrap(context, {});
+        await bootstrap(context);
         expect(context.commit).toHaveBeenCalledWith("setMaxMessageSize", mockedMessageMaxSize);
     });
 });

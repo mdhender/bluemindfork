@@ -49,7 +49,6 @@ describe("[Mail-WebappStore][actions] : addAttachments", () => {
         expect(context.commit).toHaveBeenCalledWith("draft/addAttachment", expect.anything());
         expect(context.commit).toHaveBeenCalledWith("draft/setAttachmentProgress", expect.anything());
         jest.runAllTimers();
-        expect(context.commit).toHaveBeenCalledWith("draft/removeAttachmentProgress", expect.anything());
         expect(context.commit).toHaveBeenCalledWith("draft/removeAttachment", expect.anything());
     });
 });
