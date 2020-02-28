@@ -30,7 +30,7 @@ import org.junit.Test;
 
 import net.bluemind.lib.vertx.VertxPlatform;
 
-public class InlineApiTest {
+public class InlineApiTests {
 
 	private AsyncHttpClient httpClient;
 
