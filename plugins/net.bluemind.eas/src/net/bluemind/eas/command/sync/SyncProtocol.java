@@ -24,12 +24,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -38,12 +41,11 @@ import org.slf4j.MDC;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.google.common.collect.Sets;
-
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.backend.Changes;
@@ -58,7 +60,6 @@ import net.bluemind.eas.data.ContactDecoder;
 import net.bluemind.eas.data.EmailDecoder;
 import net.bluemind.eas.data.IDataDecoder;
 import net.bluemind.eas.data.TaskDecoder;
-import net.bluemind.eas.dto.EasBusEndpoints;
 import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.OptionalParams;
 import net.bluemind.eas.dto.base.AppData;
@@ -66,7 +67,6 @@ import net.bluemind.eas.dto.base.BodyOptions;
 import net.bluemind.eas.dto.base.Callback;
 import net.bluemind.eas.dto.base.ChangeType;
 import net.bluemind.eas.dto.base.CollectionItem;
-import net.bluemind.eas.dto.push.PushTrigger;
 import net.bluemind.eas.dto.sync.CollectionSyncRequest;
 import net.bluemind.eas.dto.sync.CollectionSyncResponse;
 import net.bluemind.eas.dto.sync.CollectionSyncResponse.ServerChange;
@@ -84,7 +84,6 @@ import net.bluemind.eas.impl.Responder;
 import net.bluemind.eas.impl.vertx.VertxLazyLoader;
 import net.bluemind.eas.protocol.IEasProtocol;
 import net.bluemind.eas.protocol.ProtocolCircuitBreaker;
-import net.bluemind.eas.push.PushSupport;
 import net.bluemind.eas.serdes.IResponseBuilder;
 import net.bluemind.eas.serdes.sync.SyncRequestParser;
 import net.bluemind.eas.serdes.sync.SyncResponseFormatter;
@@ -92,7 +91,6 @@ import net.bluemind.eas.state.StateMachine;
 import net.bluemind.eas.utils.DOMUtils;
 import net.bluemind.eas.wbxml.builder.WbxmlResponseBuilder;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.vertx.common.LocalJsonObject;
 import net.bluemind.vertx.common.request.Requests;
 
 //<?xml version="1.0" encoding="UTF-8"?>
@@ -196,11 +194,9 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 				jso.put(sc.getCollectionId().toString(), bs.getDeviceId().getInternalId());
 			}
 			EventBus eb = VertxPlatform.eventBus();
-			eb.send(EasBusEndpoints.PUSH_KILLER, jso, new Handler<AsyncResult<Message<Void>>>() {
-				@Override
-				public void handle(AsyncResult<Message<Void>> event) {
-					executeSync(bs, sr, responseHandler);
-				}
+			eb.request("eas.push.killer." + bs.getUser().getUid(), jso, (AsyncResult<Message<Void>> event) -> {
+				logger.info("Push stopped for " + bs.getUser().getUid());
+				executeSync(bs, sr, responseHandler);
 			});
 		} else {
 			logger.info("Sync push mode. user: {}, device: {}, collections size: {}", bs.getLoginAtDomain(),
@@ -214,15 +210,74 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 			Requests.tagAsync(bs.getRequest());
 			Requests.tag(bs.getRequest(), "timeout", sr.waitIntervalSeconds + "s");
 
-			for (CollectionSyncRequest csr : bs.getLastMonitored()) {
-				cols.add(csr.getCollectionId());
-			}
+			prepareAsyncResponse(bs, sr, responseHandler);
 
-			PushSupport.register(bs.getUser().getUid(), bs.getLoginAtDomain(), sr.waitIntervalSeconds * 1000,
-					bs.getDeviceId().getInternalId(), cols,
-					new SyncReplyHandler(this, bs, responseHandler, Sets.newHashSet(bs.getLastMonitored())));
 		}
 
+	}
+
+	private void prepareAsyncResponse(final BackendSession bs, final SyncRequest sr,
+			final Handler<SyncResponse> responseHandler) {
+		final Set<CollectionSyncRequest> collections = new LinkedHashSet<>(bs.getLastMonitored());
+		final List<MessageConsumer<JsonObject>> consumers = new LinkedList<>();
+
+		long noChangesTimer = VertxPlatform.getVertx().setTimer(TimeUnit.SECONDS.toMillis(sr.waitIntervalSeconds),
+				tid -> {
+					MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
+					// noChanges
+					consumers.forEach(MessageConsumer::unregister);
+					responseHandler.handle(noChangesResponse(collections));
+				});
+
+		for (CollectionSyncRequest colId : collections) {
+			MessageConsumer<JsonObject> cons = VertxPlatform.eventBus()
+					.consumer("eas.collection." + colId.getCollectionId());
+			consumers.add(cons);
+			Handler<Message<JsonObject>> colChangeHandler = (Message<JsonObject> msg) -> {
+				MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
+				// syncRequired
+				consumers.forEach(MessageConsumer::unregister);
+				VertxPlatform.getVertx().cancelTimer(noChangesTimer);
+
+				SyncResponse syncResponse = new SyncResponse();
+				for (CollectionSyncRequest sc : collections) {
+					CollectionSyncResponse csr = new CollectionSyncResponse();
+					csr.collectionId = sc.getCollectionId();
+					CollectionChanges serverChanges = serverChanges(bs, sc, new ArrayList<String>());
+					csr.commands = serverChanges.commands;
+					csr.status = serverChanges.status;
+					csr.syncKey = serverChanges.syncKey;
+					csr.moreAvailable = serverChanges.moreAvailable;
+					syncResponse.collections.add(csr);
+				}
+				responseHandler.handle(syncResponse);
+
+			};
+			cons.handler(colChangeHandler);
+		}
+
+		MessageConsumer<JsonObject> pushKiller = VertxPlatform.eventBus()
+				.consumer("eas.push.killer." + bs.getUser().getUid());
+		consumers.add(pushKiller);
+		pushKiller.handler(msg -> {
+			MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
+			consumers.forEach(MessageConsumer::unregister);
+			VertxPlatform.getVertx().cancelTimer(noChangesTimer);
+			responseHandler.handle(noChangesResponse(collections));
+			msg.reply("ok");
+		});
+	}
+
+	private SyncResponse noChangesResponse(final Set<CollectionSyncRequest> collections) {
+		SyncResponse syncResponse = new SyncResponse();
+		for (CollectionSyncRequest sc : collections) {
+			CollectionSyncResponse csr = new CollectionSyncResponse();
+			csr.collectionId = sc.getCollectionId();
+			csr.status = SyncStatus.OK;
+			csr.syncKey = sc.getSyncKey();
+			syncResponse.collections.add(csr);
+		}
+		return syncResponse;
 	}
 
 	private void executeSync(BackendSession bs, SyncRequest sr, Handler<SyncResponse> responseHandler) {
@@ -372,59 +427,6 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 		return "eas.protocol.sync";
 	}
 
-	private static class SyncReplyHandler implements Handler<AsyncResult<Message<LocalJsonObject<PushTrigger>>>> {
-
-		private final Handler<SyncResponse> r;
-		private final Set<CollectionSyncRequest> collections;
-		private final BackendSession bs;
-		private final SyncProtocol endpoint;
-
-		public SyncReplyHandler(SyncProtocol syncEndpoint, BackendSession bs, Handler<SyncResponse> r,
-				Set<CollectionSyncRequest> set) {
-			this.r = r;
-			this.bs = bs;
-			this.collections = set;
-			this.endpoint = syncEndpoint;
-		}
-
-		@Override
-		public void handle(AsyncResult<Message<LocalJsonObject<PushTrigger>>> event) {
-			MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
-			if (event.failed()) {
-				logger.info("[{}] Sync timed-out", bs.getLoginAtDomain());
-				endpoint.sendError(r, SyncStatus.NEED_RETRY);
-			} else {
-				PushTrigger pt = event.result().body().getValue();
-				if (pt.noChanges) {
-					SyncResponse syncResponse = new SyncResponse();
-					for (CollectionSyncRequest sc : collections) {
-						CollectionSyncResponse csr = new CollectionSyncResponse();
-						csr.collectionId = sc.getCollectionId();
-						csr.status = SyncStatus.OK;
-						csr.syncKey = sc.getSyncKey();
-						syncResponse.collections.add(csr);
-					}
-					r.handle(syncResponse);
-				} else {
-					SyncResponse syncResponse = new SyncResponse();
-					for (CollectionSyncRequest sc : collections) {
-						CollectionSyncResponse csr = new CollectionSyncResponse();
-						csr.collectionId = sc.getCollectionId();
-						CollectionChanges serverChanges = endpoint.serverChanges(bs, sc, new ArrayList<String>());
-						csr.commands = serverChanges.commands;
-						csr.status = serverChanges.status;
-						csr.syncKey = serverChanges.syncKey;
-						csr.moreAvailable = serverChanges.moreAvailable;
-						syncResponse.collections.add(csr);
-					}
-					r.handle(syncResponse);
-				}
-			}
-			MDC.put("user", "anonymous");
-		}
-
-	}
-
 	/**
 	 * Returns the list of items for which we sent an 'Add' command.
 	 * 
@@ -436,7 +438,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 
 		IContentsExporter contentExporter = backend.getContentsExporter(bs);
 
-		if (bs.getUnSynchronizedItemChange(c.getCollectionId()).size() == 0) {
+		if (bs.getUnSynchronizedItemChange(c.getCollectionId()).isEmpty()) {
 			changes = contentExporter.getChanged(bs, state, c.options.filterType, c.getCollectionId());
 		} else {
 			changes.version = state.version;
