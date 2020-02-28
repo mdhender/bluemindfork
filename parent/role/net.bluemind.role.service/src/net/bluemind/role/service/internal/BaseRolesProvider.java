@@ -454,6 +454,7 @@ public class BaseRolesProvider implements IRolesProvider {
 								rb.getString("role.accessRoundcubeWebmail.label"),
 								rb.getString("role.accessRoundcubeWebmail.description"))
 						.giveRoles(BasicRoles.ROLE_MAIL)
+						.delegable()
 
 		).build();
 	}

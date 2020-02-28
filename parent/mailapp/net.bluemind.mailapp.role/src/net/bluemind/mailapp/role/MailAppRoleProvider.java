@@ -32,7 +32,7 @@ public class MailAppRoleProvider implements IRolesProvider {
 				.create(ROLE_MAIL_WEBAPP, BasicRoles.CATEGORY_MAIL,
 						rb.getString("role.accessMailWebapp.label"),
 						rb.getString("role.accessMailWebapp.description"))
-				.giveRoles(BasicRoles.ROLE_MAIL);
+				.giveRoles(BasicRoles.ROLE_MAIL).delegable();
 
 		return ImmutableSet.<RoleDescriptor>builder().add(accessBluemindWebmail).build();
 	}
