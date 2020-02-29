@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -169,9 +170,12 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 			Requests.tag(bs.getRequest(), "timeout", intervalSeconds + "s");
 
 			final List<MessageConsumer<JsonObject>> consumers = new LinkedList<>();
-
+			final AtomicBoolean responseSent = new AtomicBoolean();
 			long noChangesTimer = VertxPlatform.getVertx().setTimer(TimeUnit.SECONDS.toMillis(intervalSeconds), tid -> {
 				// noChanges
+				if (responseSent.getAndSet(true)) {
+					return;
+				}
 				consumers.forEach(MessageConsumer::unregister);
 				responseHandler.handle(noChangesResponse());
 			});
@@ -181,6 +185,9 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 				consumers.add(cons);
 				Handler<Message<JsonObject>> colChangeHandler = (Message<JsonObject> msg) -> {
 					// syncRequired
+					if (responseSent.getAndSet(true)) {
+						return;
+					}
 					consumers.forEach(MessageConsumer::unregister);
 					VertxPlatform.getVertx().cancelTimer(noChangesTimer);
 					PingResponse pr = new PingResponse();
@@ -196,6 +203,9 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 			consumers.add(hierCons);
 			Handler<Message<JsonObject>> hierChangeHandler = (Message<JsonObject> msg) -> {
 				// folderSyncRequired
+				if (responseSent.getAndSet(true)) {
+					return;
+				}
 				consumers.forEach(MessageConsumer::unregister);
 				VertxPlatform.getVertx().cancelTimer(noChangesTimer);
 				PingResponse pr = new PingResponse();
@@ -208,6 +218,9 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 					.consumer("eas.push.killer." + bs.getUser().getUid());
 			consumers.add(pushKiller);
 			pushKiller.handler(msg -> {
+				if (responseSent.getAndSet(true)) {
+					return;
+				}
 				consumers.forEach(MessageConsumer::unregister);
 				VertxPlatform.getVertx().cancelTimer(noChangesTimer);
 				responseHandler.handle(noChangesResponse());

@@ -33,6 +33,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -220,9 +221,13 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 			final Handler<SyncResponse> responseHandler) {
 		final Set<CollectionSyncRequest> collections = new LinkedHashSet<>(bs.getLastMonitored());
 		final List<MessageConsumer<JsonObject>> consumers = new LinkedList<>();
-
+		final AtomicBoolean responseSent = new AtomicBoolean();
 		long noChangesTimer = VertxPlatform.getVertx().setTimer(TimeUnit.SECONDS.toMillis(sr.waitIntervalSeconds),
 				tid -> {
+					if (responseSent.getAndSet(true)) {
+						return;
+					}
+
 					MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
 					// noChanges
 					consumers.forEach(MessageConsumer::unregister);
@@ -234,6 +239,9 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 					.consumer("eas.collection." + colId.getCollectionId());
 			consumers.add(cons);
 			Handler<Message<JsonObject>> colChangeHandler = (Message<JsonObject> msg) -> {
+				if (responseSent.getAndSet(true)) {
+					return;
+				}
 				MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
 				// syncRequired
 				consumers.forEach(MessageConsumer::unregister);
@@ -260,6 +268,9 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 				.consumer("eas.push.killer." + bs.getUser().getUid());
 		consumers.add(pushKiller);
 		pushKiller.handler(msg -> {
+			if (responseSent.getAndSet(true)) {
+				return;
+			}
 			MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
 			consumers.forEach(MessageConsumer::unregister);
 			VertxPlatform.getVertx().cancelTimer(noChangesTimer);
