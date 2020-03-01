@@ -19,6 +19,13 @@
 
 set -e
 
+case "$1" in
+	triggered)
+		systemctl start bluemind.target || true
+		exit $?
+		;;
+esac
+
 # Source debconf library.
 . /usr/share/debconf/confmodule
 
