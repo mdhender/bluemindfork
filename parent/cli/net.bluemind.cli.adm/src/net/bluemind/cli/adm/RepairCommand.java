@@ -69,15 +69,16 @@ public class RepairCommand extends SingleOrDomainOperation {
 			Splitter splitter = Splitter.on(',').trimResults().omitEmptyStrings();
 			Set<String> toRun = Sets.newHashSet(splitter.split(ops));
 			filteredOps = Sets.intersection(toRun, opsIds);
-			ctx.info("Selected ops: " + filteredOps);
 
 			if (filteredOps.isEmpty()) {
 				return;
 			}
-		}
-		TaskRef ref = dry ? demService.check(filteredOps) : demService.repair(filteredOps);
-		Tasks.follow(ctx, ref);
 
+			ctx.info("Selected ops: " + filteredOps);
+		}
+
+		TaskRef ref = dry ? demService.check(filteredOps) : demService.repair(filteredOps);
+		Tasks.follow(ctx, ref, String.format("Fail to repair entry %s", de));
 	}
 
 	@Override

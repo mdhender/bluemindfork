@@ -26,8 +26,8 @@ import net.bluemind.cli.directory.common.SingleOrDomainOperation;
 import net.bluemind.cli.utils.Tasks;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.task.api.TaskRef;
-import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
+import net.bluemind.directory.api.DirEntry;
 import net.bluemind.mailbox.api.IMailboxMgmt;
 
 @Command(name = "consolidateIndex", description = "Consolidate a mailbox index")
@@ -50,11 +50,11 @@ public class ConsolidateIndexCommand extends SingleOrDomainOperation {
 	public void synchronousDirOperation(String domainUid, ItemValue<DirEntry> de) {
 		IMailboxMgmt imboxesMgmt = ctx.adminApi().instance(IMailboxMgmt.class, domainUid);
 		TaskRef ref = imboxesMgmt.consolidateMailbox(de.uid);
-		Tasks.follow(ctx, ref);
+		Tasks.follow(ctx, ref, String.format("Fail to consolidate mailbox index for entry %s", de));
 	}
-	
+
 	@Override
 	public Kind[] getDirEntryKind() {
-		return new Kind[] {Kind.GROUP, Kind.MAILSHARE, Kind.USER};
+		return new Kind[] { Kind.GROUP, Kind.MAILSHARE, Kind.USER };
 	}
 }

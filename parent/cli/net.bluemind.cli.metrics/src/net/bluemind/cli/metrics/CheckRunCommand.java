@@ -65,11 +65,11 @@ public class CheckRunCommand implements ICmdLet, Runnable {
 	public void run() {
 		IProductChecks checks = ctx.adminApi().instance(IProductChecks.class);
 		TaskRef ref = checks.check(check);
-		TaskStatus ckeckTaskStatus = Tasks.follow(ctx, ref);
+		TaskStatus ckeckTaskStatus = Tasks.follow(ctx, ref, "Ckeck request failed.");
 		if (!ckeckTaskStatus.state.succeed) {
-			ctx.error("Ckeck request failed.");
 			return;
 		}
+
 		ctx.info("'" + check + "' was requested.");
 		int i = 0;
 		Set<String> avail = checks.availableChecks();
