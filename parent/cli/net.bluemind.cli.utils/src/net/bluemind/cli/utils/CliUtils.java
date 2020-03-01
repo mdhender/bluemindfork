@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import io.vertx.core.buffer.Buffer;
 import net.bluemind.cli.cmd.api.CliContext;
@@ -42,12 +44,18 @@ public class CliUtils {
 		if ("global.virt".equals(domainString)) {
 			return "global.virt";
 		}
-		IDomains domaineService = cliContext.adminApi().instance(IDomains.class);
-		ItemValue<Domain> domain = domaineService.findByNameOrAliases(domainString);
+		IDomains domainService = cliContext.adminApi().instance(IDomains.class);
+		ItemValue<Domain> domain = domainService.findByNameOrAliases(domainString);
 		if (domain == null) {
 			throw new CliException("Invalid or unknown domain : " + domainString);
 		}
 		return domain.uid;
+	}
+
+	public List<String> getDomainUids() {
+		IDomains domainService = cliContext.adminApi().instance(IDomains.class);
+		return domainService.all().stream().map(domain -> domain.uid)
+				.filter(domainUid -> !domainUid.equals("global.virt")).collect(Collectors.toList());
 	}
 
 	public String getUserUidFromEmail(String email) {

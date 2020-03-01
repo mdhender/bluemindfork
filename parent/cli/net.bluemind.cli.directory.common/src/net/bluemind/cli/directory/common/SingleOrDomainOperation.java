@@ -1,6 +1,7 @@
 package net.bluemind.cli.directory.common;
 
 import java.text.Normalizer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -32,10 +33,20 @@ import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 
 public abstract class SingleOrDomainOperation implements ICmdLet, Runnable {
+	private class DirEntryWithDomain {
+		public final String domainUid;
+		public final ItemValue<DirEntry> dirEntry;
+
+		public DirEntryWithDomain(String domainUid, ItemValue<DirEntry> dirEntry) {
+			this.domainUid = domainUid;
+			this.dirEntry = dirEntry;
+		}
+	}
+
 	protected CliContext ctx;
 	protected CliUtils cliUtils;
 
-	@Arguments(required = true, description = "email address or domain name")
+	@Arguments(required = true, description = "email address, domain name or 'all' for all domains")
 	public String target;
 
 	@Option(name = "--workers", description = "run with X workers")
@@ -56,12 +67,8 @@ public abstract class SingleOrDomainOperation implements ICmdLet, Runnable {
 	}
 
 	public void run() {
-		String domainUid = cliUtils.getDomainUidFromEmailOrDomain(target);
-
-		Optional<String> email = getDefaultEmailFromTarget(domainUid);
-
-		List<ItemValue<DirEntry>> entries = getEntries(domainUid, email);
-		if (entries.isEmpty()) {
+		List<DirEntryWithDomain> entriesWithDomainUid = getEntries();
+		if (entriesWithDomainUid.isEmpty()) {
 			throw new CliException(String.format("Your search for '%s', filtered by '%s' did not match anything",
 					target, match.isEmpty() ? "" : match));
 		}
@@ -70,28 +77,47 @@ public abstract class SingleOrDomainOperation implements ICmdLet, Runnable {
 		ExecutorService pool = Executors.newFixedThreadPool(workers);
 		CompletionService<Void> opsWatcher = new ExecutorCompletionService<>(pool);
 
-		entries.forEach(de -> opsWatcher.submit(() -> {
+		entriesWithDomainUid.forEach(de -> opsWatcher.submit(() -> {
 			try {
-				synchronousDirOperation(domainUid, de);
+				synchronousDirOperation(de.domainUid, de.dirEntry);
 			} catch (Exception e) {
-				throw new CliException(String.format("Error handling dirEntry : %s", de.uid), e);
+				throw new CliException(String.format("Error handling dirEntry : %s", de.dirEntry.uid), e);
 			}
 
 			return null;
 		}));
 
 		int ended = 0;
-		for (int i = 0; i < entries.size(); i++) {
+		for (int i = 0; i < entriesWithDomainUid.size(); i++) {
 			try {
 				opsWatcher.take().get();
-				ctx.progress(entries.size(), ++ended);
+				ctx.progress(entriesWithDomainUid.size(), ++ended);
 			} catch (Exception e) {
 				throw new CliException(e);
 			}
 		}
 	}
 
-	private List<ItemValue<DirEntry>> getEntries(String domainUid, Optional<String> email) {
+	private List<DirEntryWithDomain> getEntries() {
+		List<String> domainUids = new ArrayList<>();
+		Optional<String> email = Optional.empty();
+
+		if (target.equals("all")) {
+			domainUids.addAll(cliUtils.getDomainUids());
+		} else {
+			domainUids.add(cliUtils.getDomainUidFromEmailOrDomain(target));
+			email = getDefaultEmailFromTarget(domainUids.get(0));
+		}
+
+		return getEntries(domainUids, email);
+	}
+
+	private List<DirEntryWithDomain> getEntries(List<String> domainUids, Optional<String> email) {
+		return domainUids.stream().map(domainUid -> getDomainEntries(domainUid, email))
+				.flatMap(entries -> entries.stream()).collect(Collectors.toList());
+	}
+
+	private List<DirEntryWithDomain> getDomainEntries(String domainUid, Optional<String> email) {
 		IDirectory dirApi = ctx.adminApi().instance(IDirectory.class, domainUid);
 
 		List<ItemValue<DirEntry>> rootEntry = Collections.emptyList();
@@ -116,7 +142,8 @@ public abstract class SingleOrDomainOperation implements ICmdLet, Runnable {
 					.collect(Collectors.toList());
 		}
 
-		return Stream.of(rootEntry, entries.values).flatMap(x -> x.stream()).collect(Collectors.toList());
+		return Stream.of(rootEntry, entries.values).flatMap(x -> x.stream())
+				.map(de -> new DirEntryWithDomain(domainUid, de)).collect(Collectors.toList());
 	}
 
 	/**
