@@ -56,6 +56,7 @@ import net.bluemind.eas.backend.IBackend;
 import net.bluemind.eas.backend.IContentsExporter;
 import net.bluemind.eas.backend.IContentsImporter;
 import net.bluemind.eas.backend.ItemChangeReference;
+import net.bluemind.eas.command.folder.sync.FolderSyncProtocol;
 import net.bluemind.eas.data.CalendarDecoder;
 import net.bluemind.eas.data.ContactDecoder;
 import net.bluemind.eas.data.EmailDecoder;
@@ -731,6 +732,10 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 				cc.status = SyncStatus.INVALID_SYNC_KEY;
 				c.forceResponse = true;
 			} else {
+				if (needsGlobalsync(bs.getDevId(), StateMachine.extractTimestamp(syncKey))) {
+					st.version = 0;
+				}
+
 				Changes changes = null;
 				if (shouldFetchChanges(c)) {
 					changes = doSync(bs, c, st, clientAddedServerIds);
@@ -760,6 +765,15 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 			logger.error(e.getMessage(), e);
 		}
 		return cc;
+	}
+
+	private boolean needsGlobalsync(String deviceId, long syncKeyTimestamp) {
+		long reset = FolderSyncProtocol.getLastReset(deviceId);
+		if (syncKeyTimestamp < reset) {
+			logger.info("Pending reset for {}, time: {}, sync key ts: {}", deviceId, reset, syncKeyTimestamp);
+			return true;
+		}
+		return false;
 	}
 
 	private ServerChange asServerChange(ItemChangeReference cr) {
