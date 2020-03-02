@@ -189,8 +189,6 @@ net.bluemind.calendar.vevent.ui.Form = function(ctx, opt_domHelper) {
 
   /** @meaning calendar.event.leave.dialog */
   var MSG_LEAVE_TITLE = goog.getMsg('Do you really want to leave ?');
-  /** @meaning calendar.event.leave.dialog.caption */
-  var MSG_LEAVE_CONTENT = goog.getMsg('You have unsent modifications, changes you made may not be saved or sent to attendees. Do you really want to leave ?');
     /** @meaning calendar.event.leave.dialog.button.leave */
   var MSG_LEAVE = goog.getMsg('Leave');
     /** @meaning calendar.event.leave.dialog.button.stay */
@@ -199,15 +197,36 @@ net.bluemind.calendar.vevent.ui.Form = function(ctx, opt_domHelper) {
   child.setDraggable(false);
   child.setTitle(MSG_LEAVE_TITLE);
   var buttons = new goog.ui.Dialog.ButtonSet().addButton({
-    key: 'yes',
+    key: goog.ui.Dialog.DefaultButtonKeys.YES,
     caption: MSG_LEAVE
-  }, true).addButton({
-    key: 'cancel',
-    caption: MSG_STAY
-  }, false, true);
+  }, true).addButton(goog.ui.Dialog.ButtonSet.DefaultButtons.CANCEL, false, true);
   child.setButtonSet(buttons);
   child.setId('leave-dialog');
   this.addChild(child);
+
+    /** @meaning calendar.event.change_attendees.dialog */
+    var MSG_CHANGE_ATT_TITLE = goog.getMsg('You have added or deleted attendees');
+    /** @meaning calendar.event.change_attendees.caption */
+    var MSG_CHANGE_ATT_CONTENT = goog.getMsg('Do you want to send an update only to changed attendees, or to all attendees ?');
+      /** @meaning calendar.event.change_attendees.button.send_all */
+    var MSG_SEND_ALL = goog.getMsg('Send to All');
+      /** @meaning calendar.event.change_attendees.button.send_changed */
+    var MSG_SEND_CHANGED = goog.getMsg('Send to Changed');
+    child = new goog.ui.Dialog();
+    child.setDraggable(false);
+    child.setTitle(MSG_CHANGE_ATT_TITLE);
+    child.setContent(MSG_CHANGE_ATT_CONTENT);
+    var buttons = new goog.ui.Dialog.ButtonSet().addButton({
+      key: goog.ui.Dialog.DefaultButtonKeys.NO,
+      caption: MSG_SEND_ALL
+    }, true).addButton({
+      key: goog.ui.Dialog.DefaultButtonKeys.YES,
+      caption: MSG_SEND_CHANGED
+    }).addButton(goog.ui.Dialog.ButtonSet.DefaultButtons.CANCEL, false, true);
+    child.setButtonSet(buttons);
+    child.setId('attendee-dialog');
+    this.addChild(child);
+
 
   child = new net.bluemind.calendar.vevent.ui.Form.Notification();
   child.setId('notifications')
@@ -442,29 +461,37 @@ net.bluemind.calendar.vevent.ui.Form.prototype.enterDocument = function() {
     }
   });
   
-    handler.listen(this.getChild('toolbar').getChild('back'), goog.ui.Component.EventType.ACTION, function(e) {
-      var model = this.getModel();
-      if (this.adaptor.isModified(model.old, model)) {
-        /** @meaning calendar.event.leave.dialog.unsaved */
-        var MSG_UNSAVED_MODIFICATION = goog.getMsg('You have unsaved modifications, changes you made will be lost. Do you really want to leave ?');
-        this.getChild('leave-dialog').setContent(MSG_UNSAVED_MODIFICATION);        
-        this.getChild('leave-dialog').setVisible(true);
-      } else if (model.states.meeting && model.states.draft) {
-          /** @meaning calendar.event.leave.dialog.unsent */
-        var MSG_UNSENT_MODIFICATION = goog.getMsg('You have unsent modifications, changes you made will not be sent to attendees. Do you really want to leave ?');
-        this.getChild('leave-dialog').setContent(MSG_UNSENT_MODIFICATION);
-        this.getChild('leave-dialog').setVisible(true);
-      } else  {
-        this.dispatchEvent(net.bluemind.calendar.vevent.EventType.BACK);
-      }
-
-    });
-    handler.listen(this.getChild('leave-dialog'), goog.ui.Dialog.EventType.SELECT, function(e) {
-      if (e.key == 'yes') {
-        this.dispatchEvent(net.bluemind.calendar.vevent.EventType.BACK);
-      }
-    });
-
+  handler.listen(this.getChild('toolbar').getChild('back'), goog.ui.Component.EventType.ACTION, function(e) {
+    var model = this.getModel();
+    if (this.adaptor.isModified(model.old, model)) {
+      /** @meaning calendar.event.leave.dialog.unsaved */
+      var MSG_UNSAVED_MODIFICATION = goog.getMsg('You have unsaved modifications, changes you made will be lost. Do you really want to leave ?');
+      this.getChild('leave-dialog').setContent(MSG_UNSAVED_MODIFICATION);        
+      this.getChild('leave-dialog').setVisible(true);
+    } else if (model.states.meeting && model.states.draft) {
+        /** @meaning calendar.event.leave.dialog.unsent */
+      var MSG_UNSENT_MODIFICATION = goog.getMsg('You have unsent modifications, changes you made will not be sent to attendees. Do you really want to leave ?');
+      this.getChild('leave-dialog').setContent(MSG_UNSENT_MODIFICATION);
+      this.getChild('leave-dialog').setVisible(true);
+    } else  {
+      this.dispatchEvent(net.bluemind.calendar.vevent.EventType.BACK);
+    }
+  });
+  handler.listen(this.getChild('leave-dialog'), goog.ui.Dialog.EventType.SELECT, function(e) {
+    if (e.key == goog.ui.Dialog.DefaultButtonKeys.YES) {
+      this.dispatchEvent(net.bluemind.calendar.vevent.EventType.BACK);
+    }
+  });
+  handler.listen(this.getChild('attendee-dialog'), goog.ui.Dialog.EventType.SELECT, function(e) {
+    if (e.key == goog.ui.Dialog.DefaultButtonKeys.NO) {
+      this.getModel().sequence = (this.getModel().sequence || 0) + 1;
+    }
+    if (e.key != goog.ui.Dialog.DefaultButtonKeys.CANCEL ) {
+      var type = net.bluemind.calendar.vevent.EventType.SEND;
+      var evt = new net.bluemind.calendar.vevent.VEventEvent(type, this.getModel());
+      this.dispatchEvent(evt);
+    }
+  });
   handler.listen(this.getChild('toolbar').getChild('save'), goog.ui.Component.EventType.ACTION, function(e) {
     var type = net.bluemind.calendar.vevent.EventType.SAVE;
     var evt = new net.bluemind.calendar.vevent.VEventEvent(type, this.getModel());
@@ -472,9 +499,14 @@ net.bluemind.calendar.vevent.ui.Form.prototype.enterDocument = function() {
   });
 
   handler.listen(this.getChild('toolbar').getChild('send'), goog.ui.Component.EventType.ACTION, function(e) {
-    var type = net.bluemind.calendar.vevent.EventType.SEND;
-    var evt = new net.bluemind.calendar.vevent.VEventEvent(type, this.getModel());
-    this.dispatchEvent(evt);
+    var model = this.getModel();
+    if (!model.states.draft && this.adaptor.isPublicChanges(model.old, model) && !this.adaptor.contentHasBeenModified(model.old, model)) {
+      this.getChild('attendee-dialog').setVisible(true);
+    } else {
+      var type = net.bluemind.calendar.vevent.EventType.SEND;
+      var evt = new net.bluemind.calendar.vevent.VEventEvent(type, this.getModel());
+      this.dispatchEvent(evt);
+    }
   });
 
 

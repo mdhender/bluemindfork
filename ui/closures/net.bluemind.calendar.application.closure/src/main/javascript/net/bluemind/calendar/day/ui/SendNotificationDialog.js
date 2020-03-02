@@ -81,9 +81,6 @@ net.bluemind.calendar.day.ui.SendNotificationDialog.prototype.setModel = functio
     } else {
       this.setContent(MSG_CONTENT_CREATE_ATTENDEES);
     }
-  } else {
-
-    this.setContent(MSG_CONTENT_ORGANIZER);
   }
 };
 

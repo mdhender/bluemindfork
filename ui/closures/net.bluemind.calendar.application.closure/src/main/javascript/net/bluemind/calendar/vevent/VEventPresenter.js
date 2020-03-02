@@ -278,12 +278,12 @@ net.bluemind.calendar.vevent.VEventPresenter.prototype.adaptModelView_ = functio
   };
   
   goog.array.forEach(model.flat, function(vevent, index) {
-    // if (vevent.states.main) {
-    //   var old = model.old && model.old['main'];
-    // } else {
-    //   var old = model.old && model.old['occurrences'][index];
-    // }
-    this.adaptVEvent_(vevent, model, !!model.old && vevent.old);
+    if (vevent.states.main) {
+      var old = model.old && model.old['main'];
+    } else {
+      var old = model.old && model.old['occurrences'][index];
+    }
+    this.adaptVEvent_(vevent, model, old);
   }, this)
   return model;
 };
@@ -302,7 +302,7 @@ net.bluemind.calendar.vevent.VEventPresenter.prototype.adaptVEvent_ = function(v
   vevent.states.repeatable = vevent.states.main && vevent.states.master;
   vevent.states.updating = !!old;
   vevent.states.removable = !!old;
-  vevent.old = old;
+  vevent.old = old ? old: vevent.old;
 };
 /**
  * Build calendar model for view

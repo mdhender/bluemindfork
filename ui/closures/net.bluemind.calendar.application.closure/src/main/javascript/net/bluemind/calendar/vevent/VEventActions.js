@@ -263,8 +263,7 @@ net.bluemind.calendar.vevent.VEventActions.prototype.save = function(e) {
 net.bluemind.calendar.vevent.VEventActions.prototype.remove = function(e) {
   var model = e.vevent;
   return this.ctx_.service('calendar').getItem(model.calendar, model.uid).then(function(vseries) {
-    var isPublic = this.adaptor_.isPublicChanges(vseries, model);
-    model.sendNotification = isPublic;
+    model.sendNotification = true;
     if (!this.checkRecurringState_(vseries, model)) {
       this.showReccurringDeleteDialog_(vseries, model);
     } else if (!model.states.main && vseries['value']['main']) {
