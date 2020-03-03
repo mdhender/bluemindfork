@@ -67,7 +67,8 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail-webapp", ["currentMessageKey", "currentFolderKey"]),
+        ...mapState("mail-webapp", ["currentFolderKey"]),
+        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         ...mapGetters("mail-webapp", ["nextMessageKey", "my", "mailshares"]),
         ...mapGetters("mail-webapp/folders", ["folders"]),
         matchingFolders() {

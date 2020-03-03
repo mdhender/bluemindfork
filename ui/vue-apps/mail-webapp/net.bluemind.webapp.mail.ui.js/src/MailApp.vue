@@ -144,7 +144,7 @@ export default {
     },
     computed: {
         ...mapState("alert", ["alerts"]),
-        ...mapState("mail-webapp", ["currentMessageKey"]),
+        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         isMessageComposerDisplayed() {
             const routePath = this.$route.path;
             return (
