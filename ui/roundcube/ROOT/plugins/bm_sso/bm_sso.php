@@ -172,14 +172,15 @@ class bm_sso extends rcube_plugin {
     $uiExtensionService = new UiExtentionService($this->getHost("bm/core"), $_SESSION['bm_sso']['bmLang']);
     $this->rcmail->output->set_env('bmExtensions', $uiExtensionService->get(), false);
 
+    $_SESSION['bm']['core'] = "http://" . $this->getHost('bm/core') . ":8090";
+
     return $args;
   }
 
-  private function _loadDomainAliases() {
+  private function _loadDomainAliases($args) {
     $rcmail = $this->rcmail;
     $token = file_get_contents('/etc/bm/bm-core.tok');
-    $client = new \BM\DomainsClient($_SESSION['bm']['core'], 
-      $token);
+    $client = new \BM\DomainsClient($args['core'], $token);
     $domain = $client->get($this->domain);
     $_SESSION['bm_sso']['domainAliases'] = array($this->domain);
     foreach($domain->value->aliases as $alias) {
@@ -194,10 +195,9 @@ class bm_sso extends rcube_plugin {
     $args['token'] = $this->ssoToken;
     $args['valid'] = true;
     $args['host'] = $this->getHost('mail/imap');
-    $args['core'] = "http://" . $this->getHost('bm/core') . ":8090";
-    $_SESSION['bm']['core'] = $args['core'];
     $_SESSION['bm_sso']['bmUserUid'] = $this->ssoUserUid;
     $args['cookiecheck'] = false;
+    $args['core'] = "http://" . $this->getHost('bm/core') . ":8090";
 
     $sc = new BM\UserSettingsClient($args['core'], $this->ssoToken, $this->ssoDomain);
     $settings = $sc->get($this->ssoUserUid);
@@ -207,7 +207,7 @@ class bm_sso extends rcube_plugin {
       $_SESSION['bm']['settings'][$key] = $value;
     }
     $_SESSION['language'] = $this->lang;
-    $this->_loadDomainAliases();
+    $this->_loadDomainAliases($args);
     
     return $args;
   }

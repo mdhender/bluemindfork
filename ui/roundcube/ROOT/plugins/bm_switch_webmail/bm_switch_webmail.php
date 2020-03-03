@@ -29,12 +29,14 @@ class bm_switch_webmail extends rcube_plugin {
         $this->add_hook('startup', array($this, 'startup'));
         $this->add_texts('localization', true);
         $this->include_script('bm_switch_webmail.js');
-        $this->register_action('plugin.bm_switch_webmail.click', array($this, 'click'));    
+        $this->register_action('plugin.bm_switch_webmail.click', array($this, 'click'));
     }
   }
 
   public function startup($args) {
-    if (isset($_SESSION['bm']['settings']) && $_SESSION['bm']['settings']['mail-application'] == 'mail-webapp') {
+    $sc = new BM\UserSettingsClient($_SESSION['bm']['core'], $_SESSION['bm_sso']['bmSid'], $_SESSION['bm_sso']['bmDomain']);
+    $defaultMailApplication = $sc->getOne($_SESSION['bm_sso']['bmUserId'], "mail-application");
+    if ($defaultMailApplication == 'mail-webapp') {
         header("Location: /webapp/mail/");
     }
   }
