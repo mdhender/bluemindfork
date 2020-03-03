@@ -10,6 +10,7 @@
         @shown="openMoveAutocomplete"
         @hide="pattern = ''"
     >
+        <global-events @keydown.tab.capture="forceCloseMoveAutocomplete" />
         <template slot="button-content">
             <bm-icon icon="folder" size="2x" /> <span class="d-none d-lg-block"> {{ $tc("mail.toolbar.move") }}</span>
         </template>
@@ -45,6 +46,7 @@
 <script>
 import { BmAutocomplete, BmDropdown, BmIcon, BmLabelIcon, BmTooltip } from "@bluemind/styleguide";
 import { mapActions, mapGetters, mapState } from "vuex";
+import GlobalEvents from "vue-global-events";
 import MailFolderIcon from "../../MailFolderIcon";
 
 export default {
@@ -54,6 +56,7 @@ export default {
         BmDropdown,
         BmIcon,
         BmLabelIcon,
+        GlobalEvents,
         MailFolderIcon
     },
     directives: { BmTooltip },

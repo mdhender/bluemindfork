@@ -1,6 +1,5 @@
 <template>
     <div class="mail-toolbar-consult-message">
-        <global-events @keydown.tab.capture="forceCloseMoveAutocomplete" />
         <bm-button
             v-if="currentMessage.states.includes('not-seen')"
             v-bm-tooltip.bottom.ds500
@@ -53,7 +52,6 @@
 <script>
 import { BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
 import { mapActions, mapGetters, mapState } from "vuex";
-import GlobalEvents from "vue-global-events";
 import MailToolbarConsultMessageMoveAction from "./MailToolbarConsultMessageMoveAction";
 import MailToolbarConsultMessageOtherActions from "./MailToolbarConsultMessageOtherActions";
 import { SHOW_PURGE_MODAL } from "../../VueBusEventTypes";
@@ -63,7 +61,6 @@ export default {
     components: {
         BmButton,
         BmIcon,
-        GlobalEvents,
         MailToolbarConsultMessageMoveAction,
         MailToolbarConsultMessageOtherActions
     },
