@@ -283,4 +283,21 @@ public class Messages {
 		messages.put("fr", String.format("Opérations après l'import %s terminées en %dms", kind, duration));
 		return messages;
 	}
+
+	public static Map<String, String> manageUserPhotoFailed(Entry entry, Exception e) {
+		Map<String, String> messages = new HashMap<String, String>(2);
+		messages.put("en", "Fail to manage user DN: " + entry.getDn().getName() + " photo, error: " + e.getMessage());
+		messages.put("fr", "Impossible de gérer la photo de l'utilisateur DN: " + entry.getDn().getName() + ", erreur: "
+				+ e.getMessage());
+		return messages;
+	}
+
+	public static Map<String, String> manageUserGroupsMemberships(Entry entry, Exception e) {
+		Map<String, String> messages = new HashMap<String, String>(2);
+		messages.put("en",
+				"Fail to manage user DN: " + entry.getDn().getName() + " groups membership, error: " + e.getMessage());
+		messages.put("fr", "Impossible de gérer appartenance aux groupes de l'utilisateur DN: "
+				+ entry.getDn().getName() + ", erreur: " + e.getMessage());
+		return messages;
+	}
 }
