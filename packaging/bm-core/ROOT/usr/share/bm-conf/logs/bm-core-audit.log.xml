@@ -20,7 +20,7 @@
 	  <MaxFileSize>5000KB</MaxFileSize>
 	</triggeringPolicy>
         <encoder>
-          <pattern>%d %p - %m\n</pattern>
+          <pattern>%m\n</pattern>
         </encoder>
       </appender>
     </sift>
