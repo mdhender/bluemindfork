@@ -36,7 +36,6 @@ const buildAttachment = function(file) {
 
 async function addAttachment({ getters, commit }, file) {
     const attachment = buildAttachment(file);
-    const reader = new FileReader();
 
     // this will contain a function for cancelling the upload
     let canceller = { cancel: undefined };
@@ -44,25 +43,12 @@ async function addAttachment({ getters, commit }, file) {
     // this will make the attachment component appear in the UI
     commit("draft/addAttachment", attachment);
 
-    // upload this attachment then save the draft
-    return new Promise((resolve, reject) => {
-        // here we bind the FileReader's callbacks to the Promise API
-        reader.onload = resolve;
-        reader.onerror = reject;
-        reader.readAsArrayBuffer(file);
-    })
-        .then(() => {
-            commit("draft/setAttachmentProgress", { attachmentUid: attachment.uid, loaded: 0, total: 100, canceller });
-            const service = injector.getProvider("MailboxItemsPersistence").get(getters.my.DRAFTS.uid);
-            return service.uploadPart(
-                reader.result,
-                canceller,
-                createOnUploadProgress(commit, getters, attachment, canceller)
-            );
-        })
-        .then(addrPart => {
-            attachment.address = addrPart;
-            commit("draft/updateAttachment", attachment);
+    commit("draft/setAttachmentProgress", { attachmentUid: attachment.uid, loaded: 0, total: 100, canceller });
+    const service = injector.getProvider("MailboxItemsPersistence").get(getters.my.DRAFTS.uid);
+    return service
+        .uploadPart(file, canceller, createOnUploadProgress(commit, getters, attachment, canceller))
+        .then(address => {
+            commit("draft/updateAttachment", { ...attachment, address });
         })
         .catch(event => {
             const error = event.target && event.target.error ? event.target.error : event;
