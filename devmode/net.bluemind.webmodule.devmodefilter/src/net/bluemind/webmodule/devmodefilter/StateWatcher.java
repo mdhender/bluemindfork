@@ -21,9 +21,13 @@ public class StateWatcher {
 
 	public void start() {
 		Handler<Message<String>> basic = (msg) -> updateState(msg.body());
-		Handler<AsyncResult<Message<String>>> canFail = (msg) -> updateState(msg.result().body());
-		vertx.eventBus().consumer("devmode.state", basic);
+		Handler<AsyncResult<Message<String>>> canFail = msg -> {
+			if (msg.succeeded()) {
+				updateState(msg.result().body());
+			}
+		};
 
+		vertx.eventBus().consumer("devmode.state", basic);
 		vertx.eventBus().request("devmode.state:get", true, canFail);
 	}
 
