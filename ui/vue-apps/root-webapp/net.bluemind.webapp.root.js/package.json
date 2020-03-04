@@ -20,9 +20,11 @@
         "vuex-router-sync": "^5.0.0"
     },
     "devDependencies": {
-        "@bluemind/conf": "^4.1.0"
+        "@bluemind/conf": "^4.1.0",
+        "webpack-bundle-analyzer": "^3.6.0"
     },
     "scripts": {
+        "analyze-bundle": "webpack --profile --json > stats.json && webpack-bundle-analyzer --port 4200 stats.json",
         "build": "webpack --env production --progress --profile --colors",
         "dev": "webpack-dev-server --env development --progress --colors --port 9181"
     }
