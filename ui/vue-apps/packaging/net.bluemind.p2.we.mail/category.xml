@@ -3,5 +3,6 @@
    <bundle id="net.bluemind.webapp.mail.js" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.webapp.root.js" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.webmodules.vue"/>
+   <bundle id="net.bluemind.webmodules.fonts"/>
    <bundle id="net.bluemind.webmodules.webapp"/>
 </site>

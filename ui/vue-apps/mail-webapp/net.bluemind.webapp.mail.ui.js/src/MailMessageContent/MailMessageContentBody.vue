@@ -67,7 +67,6 @@ export default {
             // add style for 'reply' and 'forward' rendering
             // add style to enable <pre> content to wrap in order to see all of it
             const css = `
-                        @import url('https://fonts.googleapis.com/css?family=Montserrat:300,400,600');
                         body {
                             font-family: 'Montserrat', sans-serif;
                             font-size: 0.75rem;

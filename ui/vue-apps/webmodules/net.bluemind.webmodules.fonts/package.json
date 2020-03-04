@@ -1,0 +1,13 @@
+{
+    "name": "@bluemind/webmodules.fonts",
+    "description": "Bluemind webmodule to provide fonts",
+    "version": "4.1.0",
+    "license": "GPL-3.0",
+    "author": "Blue Mind SAS",
+    "scripts": {
+        "build": "rm -fr ./web-resources/* && mkdir -p ./web-resources/css/montserrat && cp -r ./node_modules/typeface-montserrat/* ./web-resources/css/montserrat/"
+    },
+    "dependencies": {
+        "typeface-montserrat": "0.0.75"
+    }
+}
