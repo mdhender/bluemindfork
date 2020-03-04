@@ -82,7 +82,11 @@
                         <mail-message-content-attachments-block :attachments="parts.attachments" editable expanded />
                     </bm-col>
                 </bm-row>
-                <div class="flex-grow-1">
+                <bm-file-drop-zone
+                    class="flex-grow-1 z-index-110"
+                    :text="$t('mail.new.attachments.drop.zone')"
+                    @dropFiles="addAttachments($event)"
+                >
                     <bm-form-textarea
                         v-if="userPrefTextOnly"
                         ref="message-content"
@@ -109,7 +113,7 @@
                             <bm-icon icon="3dots" size="sm" />
                         </bm-button>
                     </bm-rich-editor>
-                </div>
+                </bm-file-drop-zone>
                 <bm-button
                     v-if="userPrefTextOnly && previousMessage && !message_.isReplyExpanded"
                     variant="outline-dark"
@@ -147,7 +151,8 @@ import {
     BmPanel,
     BmRichEditor,
     BmRow,
-    BmTooltip
+    BmTooltip,
+    BmFileDropZone
 } from "@bluemind/styleguide";
 import { RouterMixin } from "@bluemind/router";
 import debounce from "lodash/debounce";
@@ -162,6 +167,7 @@ export default {
         BmButton,
         BmCol,
         BmContactInput,
+        BmFileDropZone,
         BmFormInput,
         BmForm,
         BmFormTextarea,
@@ -252,7 +258,7 @@ export default {
         this.clearDraft();
     },
     methods: {
-        ...mapActions("mail-webapp", ["saveDraft"]),
+        ...mapActions("mail-webapp", ["saveDraft", "addAttachments"]),
         ...mapMutations("mail-webapp/draft", { clearDraft: "clear", updateDraft: "update" }),
         displayPreviousMessages() {
             this.message_.content += this.previousMessage.content;

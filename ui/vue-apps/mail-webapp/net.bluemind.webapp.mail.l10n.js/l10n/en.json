@@ -41,6 +41,7 @@
     "mail.new.subject.placeholder": "Define your message subject",
     "mail.new.subject.aria": "Message subject",
     "mail.new.content.aria": "Message content",
+    "mail.new.attachments.drop.zone": "Drop your files as attachments",
     "mail.toolbar.move.tooltip": "Move message",
     "mail.toolbar.more": "Others",
     "mail.toolbar.more.aria": "Others actions for selected messages",

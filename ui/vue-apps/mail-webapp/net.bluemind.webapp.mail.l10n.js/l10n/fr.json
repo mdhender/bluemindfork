@@ -41,6 +41,7 @@
     "mail.new.subject.placeholder": "Objet",
     "mail.new.subject.aria": "Sujet du message",
     "mail.new.content.aria": "Contenu du message",
+    "mail.new.attachments.drop.zone": "Déposer vos fichiers en tant que pièces jointes",
     "mail.toolbar.move.tooltip": "Déplacer le message",
     "mail.toolbar.more": "Autres",
     "mail.toolbar.more.aria": "Autres actions possibles sur la sélection",
