@@ -109,7 +109,7 @@ public class ElasticWorker extends DefaultWorker {
 		logger.info("ES snapshot done in {}s, state: {}", (System.currentTimeMillis() - ts) / 1000,
 				snap.state().name());
 
-		if (snap.state() != SnapshotState.SUCCESS) {
+		if (snap.state() == SnapshotState.FAILED || snap.state() == SnapshotState.INCOMPATIBLE) {
 			throw new ServerFault("Cannot create ES Snapshot: " + snap.state().name());
 		}
 
