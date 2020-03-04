@@ -340,18 +340,21 @@ public class BodyStreamProcessor {
 		if (body instanceof Multipart) {
 			Multipart mp = (Multipart) body;
 			List<AddressableEntity> parts = Mime4JHelper.expandParts(mp.getBodyParts());
-			String html = null;
 
-			for (AddressableEntity ae : parts) {
-				String mime = ae.getMimeType();
-				if (Mime4JHelper.TEXT_PLAIN.equals(mime) && !Mime4JHelper.isAttachment(ae)) {
-					return CharMatcher.whitespace().collapseFrom(getBodyContent(ae), ' ').trim();
-				} else if (html == null && Mime4JHelper.TEXT_HTML.equals(mime) && !Mime4JHelper.isAttachment(ae)) {
-					html = getBodyContent(ae);
-				}
+			Optional<AddressableEntity> htmlPart = parts.stream().filter(
+					part -> Mime4JHelper.TEXT_HTML.equals(part.getMimeType()) && !Mime4JHelper.isAttachment(part))
+					.findFirst();
+
+			if (htmlPart.isPresent()) {
+				return htmlToText(getBodyContent(htmlPart.get()));
 			}
-			if (html != null) {
-				return htmlToText(html);
+
+			Optional<AddressableEntity> txtPart = parts.stream().filter(
+					part -> Mime4JHelper.TEXT_PLAIN.equals(part.getMimeType()) && !Mime4JHelper.isAttachment(part))
+					.findFirst();
+
+			if (txtPart.isPresent()) {
+				return CharMatcher.whitespace().collapseFrom(getBodyContent(txtPart.get()), ' ').trim();
 			}
 
 		} else {
