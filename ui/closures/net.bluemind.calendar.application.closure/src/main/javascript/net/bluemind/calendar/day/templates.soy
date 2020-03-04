@@ -450,7 +450,8 @@
     <span class="{css modal-dialog-title-text}">{msg meaning="calendar.event.recurringEvent.update.title" desc="update dialog title"}Update recurring event{/msg}</span>
     <span class="{css modal-dialog-title-close}"></span>
   </div>
-  <div class="{css modal-dialog-content}">{msg meaning="calendar.event.recurringEvent.update.content" desc="update recurring dialog content"}Would you like to change only this event, all events in the series, or this and all following events in the series?{/msg}
+  <div class="{css modal-dialog-content}">
+  
     <table>
       <tr>
         <td><button id="rud-btn-this-instance" class="{css goog-button-base}">{msg meaning="calendar.event.recurringEvent.action.onlyThisOne" desc="button only this instance"}Only this instance{/msg}</button></td>
@@ -484,7 +485,7 @@
     <span class="{css modal-dialog-title-text}">{msg meaning="calendar.event.recurringEvent.delete.title" desc="delete dialog title"}Delete recurring event{/msg}</span>
     <span class="{css modal-dialog-title-close}"></span>
   </div>
-  <div class="{css modal-dialog-content}">{msg meaning="calendar.event.recurringEvent.delete.content" desc="delete recurring dialog content"}Would you like to delete only this event, all events in the series or this and all future events in the series?{/msg}
+  <div class="{css modal-dialog-content}">
     <table>
       <tr>
         <td><button id="rdd-btn-this-instance" class="{css goog-button-base}">{msg meaning="calendar.event.recurringEvent.action.onlyThisOne" desc="button only this instance"}Only this instance{/msg}</button></td>
@@ -516,11 +517,15 @@
     <span class="{css modal-dialog-title-text}">{msg meaning="calendar.event.recurringEvent.update.title" desc="update dialog title"}Update recurring event{/msg}</span>
     <span class="{css modal-dialog-title-close}"></span>
   </div>
-  <div class="{css modal-dialog-content}">{msg meaning="calendar.event.recurringEvent.updateWithoutFollowing.content" desc="update recurring dialog content"}Would you like to change only this event or all events in the series ?{/msg}
+  <div class="{css modal-dialog-content}">
     <table>
       <tr>
         <td><button id="rfd-btn-this-instance" class="{css goog-button-base}">{msg meaning="calendar.event.recurringEvent.action.onlyThisOne" desc="button only this instance"}Only this instance{/msg}</button></td>
         <td>{msg meaning="calendar.event.recurringEvent.action.allOtherRemainSame" desc="all other events in the series will remain the same"}All other events in the series will remain the same.{/msg}</td>
+      </tr>
+            <tr>
+        <td><button id="rfd-btn-all-the-following" class="{css goog-button-base}">{msg meaning="calendar.event.recurringEvent.action.allFollowing" desc="button update all the following"}All the following{/msg}</button></td>
+        <td>{msg meaning="calendar.event.recurringEvent.info.allFollowingWillBeChanged" desc="this and all the following events will be changed"}This and all the following events will be changed.{/msg}</td>
       </tr>
       <tr>
         <td><button id="rfd-btn-goto-serie" class="{css goog-button-base}">{msg meaning="calendar.event.recurringEvent.action.all" desc="button update serie"}All events in the series{/msg}</button></td>

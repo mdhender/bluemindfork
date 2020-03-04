@@ -215,9 +215,11 @@ net.bluemind.calendar.vevent.VEventPresenter.prototype.loadItem_ = function(cont
  * @private
  */
 net.bluemind.calendar.vevent.VEventPresenter.prototype.loadModelView_ = function(vseries, calendar) {
-
-  return this.ctx.service('calendar').getLocalChangeSet(calendar.uid).then(function(changes) {
-    var model = this.vseriesToMV_(calendar, vseries);
+  var changes; 
+  return this.ctx.service('calendar').getLocalChangeSet(calendar.uid).then(function(veventChanges) {
+    changes = veventChanges;
+    return this.vseriesToMV_(calendar, vseries);
+  }, null, this).then(function (model) {
     model = this.adaptModelView_(changes, model)
     return this.adaptor_.getOccurrence(this.ctx.params.get('recurrence-id'), model);
   }, null, this);
@@ -249,7 +251,8 @@ net.bluemind.calendar.vevent.VEventPresenter.prototype.exit = function() {
  */
 net.bluemind.calendar.vevent.VEventPresenter.prototype.vseriesToMV_ = function(calendar, vseries) {
   var uid = this.ctx.params.get('uid');
-  if (this.ctx.params.get('draft'), uid) {
+  var originUid = this.ctx.params.get('origin-uid');
+  if (this.ctx.params.get('draft')) {
     var draft = bluemind.storage.StorageHelper.getExpiringStorage().get(uid);
   }  
   if (draft) {
@@ -257,11 +260,36 @@ net.bluemind.calendar.vevent.VEventPresenter.prototype.vseriesToMV_ = function(c
     model.old = vseries && vseries['value'];
   } else if (vseries) {
     var model = this.adaptor_.toModelView(vseries, calendar);
+  } else if (originUid) {
+    return this.cloneVSeries_(calendar, originUid, uid)
   } else {
     var model = this.adaptor_.toModelView(this.adaptor_.createSeries(calendar.uid, uid), calendar);
     model.old = null;
   }
   return model;
+}
+
+net.bluemind.calendar.vevent.VEventPresenter.prototype.cloneVSeries_ = function(calendar, originUid, uid) {
+  var thisAndFuture = this.ctx.params.get('this-and-future')
+  return this.ctx.service('calendar').getItem(calendar.uid, originUid).thenCatch(function() {
+    return null;
+  }).then(function(originalSeries) {
+    if (!originalSeries) {
+      return this.adaptor_.createSeries(calendar.uid, uid);
+    }
+  }, null, this).then(function(vseries) {
+    vseries['uid'] = uid;
+    vseries['value']['occurrences'] = [];
+    return this.vseriesToMV_(calendar, vseries);
+  }, null, this).then(function(model) {
+    if (thisAndFuture) {
+      var main = model.main;
+      var old = main.dtstart;
+      main.dtstart = this.ctx_.helper('date').fromIsoString(model.thisAndFuture, old.timezone);
+      this.adaptor_.adjustDTend(main, old);
+    }
+    return model;
+  });
 }
 
 net.bluemind.calendar.vevent.VEventPresenter.prototype.adaptModelView_ = function(changes, model) {
@@ -487,6 +515,8 @@ net.bluemind.calendar.vevent.VEventPresenter.prototype.saveDraft_ = function(e) 
  */
 net.bluemind.calendar.vevent.VEventPresenter.prototype.send_ = function(e) {
   e.vevent.sendNotification = true;
+  e.vevent.thisAndFuture = this.ctx.params.get('this-and-future');
+  e.vevent.originUid = this.ctx.params.get('origin-uid')
   this.save_(e).then(this.back_, null, this);
 }
 

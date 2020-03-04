@@ -66,11 +66,24 @@ net.bluemind.calendar.day.ui.RecurringUpdateDialog.prototype.enterDocument = fun
   this.getHandler().listen(goog.dom.getElement('rud-btn-this-instance'), goog.events.EventType.CLICK,
       this.updateInstance_, false, this);
 
-  this.getHandler().listen(goog.dom.getElement('rud-btn-all-the-following'), goog.events.EventType.CLICK,
-      this.updateFollowing_, false, this);
+  this.getHandler().listen(goog.dom.getElement('rud-btn-all-the-following'), goog.events.EventType.CLICK, function() {
+    var model = this.getModel();
+    if (goog.date.isSameDay(this.vseries_.main.dtstart, model.recurrenceId)) {
+      this.updateSerie_();
 
-  this.getHandler().listen(goog.dom.getElement('rud-btn-update-serie'), goog.events.EventType.CLICK, this.updateSerie_,
-      false, this);
+    } else {
+      this.updateFollowing_();
+    }
+  });
+
+  this.getHandler().listen(goog.dom.getElement('rud-btn-update-serie'), goog.events.EventType.CLICK, function() {
+    var model = this.getModel();
+    if (!goog.date.isSameDay(model.recurrenceId, model.dtstart)) {
+      this.gotoSerie_();
+    } else {
+      this.updateSerie_();
+    }
+  });
 
   this.getHandler().listen(this, goog.ui.Dialog.EventType.SELECT, this.cancelUpdate_, false, this);
 };
@@ -83,16 +96,14 @@ net.bluemind.calendar.day.ui.RecurringUpdateDialog.prototype.setVSeries = functi
 /** @override */
 net.bluemind.calendar.day.ui.RecurringUpdateDialog.prototype.setVisible = function(visible) {
   goog.base(this, 'setVisible', visible);
-  if (visible) {
-    var model = this.getModel();
-    if (!goog.date.isSameDay(model.recurrenceId, model.dtstart) || model.states.exception) {
-      this.updateInstance_();
-    }
-    var el = this.getDomHelper().getElement('rud-btn-all-the-following');
-    el = el.parentElement.parentElement;
-    var following = !goog.date.isSameDay(this.vseries_.main.dtstart, model.recurrenceId) && model.states.master;
-    goog.style.setElementShown(el, following)
-  }
+  var model = this.getModel();
+  var el = this.getDomHelper().getElement('rud-btn-all-the-following');
+  el = el.parentElement.parentElement;
+  goog.style.setElementShown(el, model.states.master)
+  el = this.getDomHelper().getElement('rud-btn-update-serie');
+  el = el.parentElement.parentElement;
+  goog.style.setElementShown(el, goog.date.isSameDay(model.recurrenceId, model.dtstart))
+
 };
 
 /**
@@ -118,13 +129,17 @@ net.bluemind.calendar.day.ui.RecurringUpdateDialog.prototype.updateFollowing_ = 
   var model = this.getModel();
   var main = this.vseries_.main;
   main.recurringDone = true;
-  main.updateFollowing = true;
+  main.thisAndFuture =  model.recurrenceId.toIsoString(true, true);
+  main.originUid = main.uid;
+  main.uid = net.bluemind.mvp.UID.generate();
   main.dtstart = model.dtstart;
   main.dtend = model.dtend;
   main.summary = model.summary;
   main.attendee = model.attendee;
   main.participation = model.participation;
   main.sendNotification = model.sendNotification;
+  var adaptor = new net.bluemind.calendar.vevent.VEventAdaptor();
+  adaptor.adjustRepeatDays(main, model.recurrenceId);
   var e = new net.bluemind.calendar.vevent.VEventEvent(net.bluemind.calendar.vevent.EventType.SAVE, main);
   this.dispatchEvent(e);
 };
@@ -153,6 +168,53 @@ net.bluemind.calendar.day.ui.RecurringUpdateDialog.prototype.updateSerie_ = func
   main.recurringDone = true;
   var e = new net.bluemind.calendar.vevent.VEventEvent(net.bluemind.calendar.vevent.EventType.SAVE, main);
   this.dispatchEvent(e);
+};
+
+/**
+ * goto this instance
+ * 
+ * @private
+ */
+net.bluemind.calendar.day.ui.RecurringUpdateDialog.prototype.gotoFollowing_ = function() {
+  this.setVisible(false);
+  var model = this.getModel();
+  var main = this.vseries_.main;
+  main.recurringDone = true;
+  main.draft = false;
+  main.thisAndFuture = model.recurrenceId.toIsoString(true, true);
+  main.originUid = main.uid;
+  main.uid = net.bluemind.mvp.UID.generate();
+  main.dtstart = model.dtstart;
+  main.dtend = model.dtend;
+  main.summary = model.summary;
+  main.attendee = model.attendee;
+  main.participation = model.participation;
+  var adaptor = new net.bluemind.calendar.vevent.VEventAdaptor();
+  adaptor.adjustRepeatDays(main, model.recurrenceId);
+  var e = new net.bluemind.calendar.vevent.VEventEvent(net.bluemind.calendar.vevent.EventType.DETAILS, main);
+  this.dispatchEvent(e);
+};
+
+/**
+ * goto serie
+ * 
+ * @private
+ */
+net.bluemind.calendar.day.ui.RecurringUpdateDialog.prototype.gotoSerie_ = function() {
+  this.setVisible(false);
+  if (!this.vseries_.main) {
+    var model = this.getModel();
+    model.recurringDone = false;
+    var e = new net.bluemind.calendar.vevent.VEventEvent(net.bluemind.calendar.vevent.EventType.DETAILS, this
+        .getModel());
+    this.dispatchEvent(e);
+  } else {
+    this.vseries_.main.summary = this.getModel().summary;
+    this.vseries_.main.recurringDone = true;
+    var e = new net.bluemind.calendar.vevent.VEventEvent(net.bluemind.calendar.vevent.EventType.DETAILS,
+        this.vseries_.main);
+    this.dispatchEvent(e);
+  }
 };
 
 /**

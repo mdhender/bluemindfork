@@ -269,89 +269,98 @@ net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.propagateInException_
  */
 net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.adjustEventValues_ = function(oldValue, newValue,
   exceptionValue) {
-    
-    if (oldValue === newValue) {
-      // value not modified
-      return exceptionValue;
-    }
-    
-    if (oldValue !== exceptionValue) {
-      // value has already been modified in exception, don't overwrite
-      return exceptionValue;
-    }
-    
-    // updating value
-    return newValue;
-    
+   
+  if (oldValue === newValue) {
+    // value not modified
+    return exceptionValue;
   }
-  
-  /**
-   * @private
-   * @param {Array.<*>} oldValue Old array value
-   * @param {Array.<*>} newValue New array value
-   * @param {Array.<*>} exceptionValue Exception array value
-   * @return {Array.<*>} Modified exception array value
-   */
-  net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.adjustArrayValues_ = function(oldValue, newValue,
-    exceptionValue, opt_compare) {
-      var compare = opt_compare || goog.array.defaultCompareEquality;
-      oldValue = oldValue || [];
-      newValue = newValue || [];
-      exceptionValue = exceptionValue || [];
-      
-      goog.array.forEach(newValue, function(obj) {
-        var equalObj = goog.partial(compare, obj)
-        if (goog.array.findIndex(oldValue, equalObj) < 0 && goog.array.findIndex(exceptionValue, equalObj) < 0) {
-          exceptionValue.push(obj);
-        }
-      });
-      goog.array.filter(oldValue, function(obj) {
-        var equalObj = goog.partial(compare, obj)
-        if (goog.array.findIndex(newValue, equalObj) < 0) {
-          goog.array.removeIf(exceptionValue, equalObj);
-        }
-      });
-      return exceptionValue;
-    }
+   
+  if (oldValue !== exceptionValue) {
+    // value has already been modified in exception, don't overwrite
+    return exceptionValue;
+  }
+   
+  // updating value
+  return newValue;
     
-    /**
-     * Set or update states depending on model data.
-     * 
-     * @private
-     * @param {Object} model Vevent model view
-     * @param {Object} vseries VSeries model
-     * @return {Object} updated vseries
-     */
-    net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.newVSeries = function(container, name, opt_uid) {
-      return {
-        'container' : container,
-        'uid' : opt_uid || net.bluemind.mvp.UID.generate(),
-        'name' : name,
-        'value' : {
-          'icsUid' : net.bluemind.mvp.UID.generate(),
-          'main' : null,
-          'occurrences' : []
-        }
-      }
-    };
+}  
+/**
+ * @private
+ * @param {Array.<*>} oldValue Old array value
+ * @param {Array.<*>} newValue New array value
+ * @param {Array.<*>} exceptionValue Exception array value
+ * @return {Array.<*>} Modified exception array value
+ */
+net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.adjustArrayValues_ = function(oldValue, newValue,
+  exceptionValue, opt_compare) {
+  var compare = opt_compare || goog.array.defaultCompareEquality;
+  oldValue = oldValue || [];
+  newValue = newValue || [];
+  exceptionValue = exceptionValue || [];
+  
+  goog.array.forEach(newValue, function(obj) {
+    var equalObj = goog.partial(compare, obj)
+    if (goog.array.findIndex(oldValue, equalObj) < 0 && goog.array.findIndex(exceptionValue, equalObj) < 0) {
+      exceptionValue.push(obj);
+    }
+  });
+  goog.array.filter(oldValue, function(obj) {
+    var equalObj = goog.partial(compare, obj)
+    if (goog.array.findIndex(newValue, equalObj) < 0) {
+      goog.array.removeIf(exceptionValue, equalObj);
+    }
+  });
+  return exceptionValue;
+}
 
-    /**
-     * Test if the vevent has been modified
-     * 
-     * @param {Object=} remote Stored version of the vevent
-     * @param {Object} modified Modified version of the vevent
-     * @return {Object} Empty Serie
-     */
-    net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.createSeries = function(container, opt_uid) {
+/**
+ * create a empty series without event
+ * 
+ * @private
+ * @param {Object} container Serie container
+ * @param {string} name VSeries name
+ * @param {string=} opt_uid VSeries optional uid
+ * @return {Object}  vseries
+ */
+net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.newVSeries = function(container, name, opt_uid) {
+  return {
+    'container' : container,
+    'uid' : opt_uid || net.bluemind.mvp.UID.generate(),
+    'name' : name,
+    'value' : {
+      'icsUid' : net.bluemind.mvp.UID.generate(),
+      'main' : null,
+      'occurrences' : []
+    }
+  }
+};
+/**
+ * create a empty series with an empty main event
+ * 
+ * @private
+ * @param {Object} container Serie container
+ * @param {string=} opt_uid VSeries optional uid
+ * @return {Object}  vseries
+ */
+net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.createSeries = function(container, opt_uid) {
+  var template = {
+    'uid' : opt_uid || net.bluemind.mvp.UID.generate(),
+    'container' : container,
+    'value' : {
+      'icsUid' : net.bluemind.mvp.UID.generate(),
+      'main' : this.veventAdaptor_.createVEvent(),
+      'occurrences' : []
+    }
+  };
+  return template;
+};
 
-      var template = {
-        'uid' : opt_uid || net.bluemind.mvp.UID.generate(),
-        'container' : container,
-        'value' : {
-          'icsUid' : net.bluemind.mvp.UID.generate(),
-          'main' : this.veventAdaptor_.createVEvent(),
-          'occurrences' : []
-        }
-      };
-      return template;
-    };
+/**
+ * Auto set event end after a dtstart change
+ * 
+ * @param {Object} model Vevent Model view object
+ * @param {Object} old Old date
+ */
+net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.adjustDTend = function(model, dtstart) {
+  return this.veventAdaptor_.adtjustDTend(model, dtstart);
+}

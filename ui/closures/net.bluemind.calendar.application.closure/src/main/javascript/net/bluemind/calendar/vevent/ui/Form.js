@@ -1674,14 +1674,11 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onDTEndChange_ = function() {
 net.bluemind.calendar.vevent.ui.Form.prototype.onDTStartChange_ = function(old) {
   var e, model = this.getModel();
 
-  var diff = (model.dtstart.getTime() - old.getTime()) / 1000;
+  this.adaptor.adjustDTend(model, old);
   if (!model.states.allday) {
-    model.dtend.add(new goog.date.Interval(goog.date.Interval.SECONDS, diff));
     this.getChild('tend').setValue(this.formatter.time.format(model.dtend));
     e = model.dtend;
   } else {
-    diff = Math.round(diff / 86400);
-    model.dtend.add(new goog.date.Interval(goog.date.Interval.DAYS, diff));
     e = model.dtend.clone();
     e.add(new goog.date.Interval(goog.date.Interval.DAYS, -1));
   }

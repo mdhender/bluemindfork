@@ -345,6 +345,8 @@ net.bluemind.calendar.vevent.VEventActions.prototype.create_ = function(e) {
   } else if (!this.checkSendNotification_(model, isPublic)) {
     model.states.updating = false;
     return this.showSendNotification_(model, e.type);
+  } else if (model.thisAndFuture) {
+    return this.createThisAndFutureException_(model).then(this.resolve_, this.reject_, this);
   } else {
     var vseries = this.adaptor_.fromVEventModelView(model);
     this.collectAttendees_(model.attendees);
@@ -363,17 +365,15 @@ net.bluemind.calendar.vevent.VEventActions.prototype.update_ = function(e, vseri
   if (!isPublic) {
     model.sendNotification = false;
   }
-  if (goog.isDefAndNotNull(model.addNote) && model.addNote) {
+  if (!this.checkRecurringState_(vseries, model)) {
+    this.showReccurringUpdateDialog_(vseries, model);
+  } else if (goog.isDefAndNotNull(model.addNote) && model.addNote) {
     return this.showSendNote_(model);
   } else if (!this.checkSendNotification_(model, isPublic)) {
     model.states.updating = true;
     this.showSendNotification_(model, e.type);
-  } else if (!this.checkRecurringState_(vseries, model)) {
-    this.showReccurringUpdateDialog_(vseries, model);
   } else if (!this.checkPrivateState_(model, e.force, isPublic)) {
     this.showPrivateChangesDialog_(e);
-  } else if (model.updateFollowing) {
-    return this.doUpdateFollowing_(model, vseries).then(this.resolve_, this.reject_, this);
   } else {
     var old = this.adaptor_.getRawOccurrence(model.recurrenceId, vseries);
     vseries = this.adaptor_.fromVEventModelView(model, vseries);
@@ -429,18 +429,18 @@ net.bluemind.calendar.vevent.VEventActions.prototype.sanitizeDraft_ = function(v
  * @return {goog.Promise}
  * @private
  */
-net.bluemind.calendar.vevent.VEventActions.prototype.doUpdateFollowing_ = function(model, vseries) {
-  var helper = this.ctx_.helper('date');
-  var dtstart = helper.create(vseries['value']['main']['dtstart']);
-  var until = model.dtstart.clone();
-  until.add(new goog.date.Interval(0, 0, -1));
-  vseries['value']['main']['rrule']['until'] = this.adaptor_.adaptUntil(dtstart, until);
-  model.uid = net.bluemind.mvp.UID.generate();
-  var neo = this.adaptor_.fromVEventModelView(model);
-  this.sanitizeDraft_(vseries, model.sendNotification);
-  return this.doUpdate_(vseries, model.sendNotification).then(function() {
-    this.sanitizeDraft_(neo, model.sendNotification);
-    return this.doCreate_(neo, model.sendNotification);
+net.bluemind.calendar.vevent.VEventActions.prototype.createThisAndFutureException_ = function(model) {
+  return this.ctx_.service('calendar').getItem(model.calendar, model.originUid).then(function(vseries) {
+    var dtstart = this.ctx_.helper('date').create(vseries['value']['main']['dtstart']);
+    var until = this.ctx_.helper('date').fromIsoString(model.thisAndFuture, dtstart.timezone);
+    until.add(new goog.date.Interval(0, 0, -1));
+    vseries['value']['main']['rrule']['until'] = this.adaptor_.adaptUntil(dtstart, until);
+    this.sanitizeDraft_(vseries, model.sendNotification);
+    return this.doUpdate_(vseries, model.sendNotification)
+  }, null, this).then(function() {
+    var vseries = this.adaptor_.fromVEventModelView(model);
+    this.sanitizeDraft_(vseries, model.sendNotification);
+    return this.doCreate_(vseries, model.sendNotification);
   }, null, this);
 };
 
@@ -533,15 +533,21 @@ net.bluemind.calendar.vevent.VEventActions.prototype.reject_ = function(message)
 net.bluemind.calendar.vevent.VEventActions.prototype.goToForm_ = function(model, opt_vseries) {
 
   var uri = new goog.Uri('/vevent/');
+  if (model.thisAndFuture) {
+    uri.getQueryData().set('this-and-future', model.thisAndFuture);
+  }
+  if (model.originUid) {
+    uri.getQueryData().set('origin-uid', model.originUid);
+  }
   uri.getQueryData().set('uid', model.uid);
   if (model.recurrenceId) {
     uri.getQueryData().set('recurrence-id', model.recurrenceId.toIsoString(true, true))
   }
   uri.getQueryData().set('container', model.calendar);
-  // FIXME
+
   if (model.states.updatable) {
-    var storage = bluemind.storage.StorageHelper.getExpiringStorage();
     var vseries = this.adaptor_.fromVEventModelView(model, opt_vseries);
+    var storage = bluemind.storage.StorageHelper.getExpiringStorage();
     storage.set(model.uid, vseries, goog.now() + 600);
     uri.getQueryData().set('draft', true);
   }

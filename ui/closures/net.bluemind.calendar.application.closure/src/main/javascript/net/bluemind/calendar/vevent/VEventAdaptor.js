@@ -568,8 +568,14 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.isModified = function(remot
   ret = ret || this.attendeesHasBeenModified(remote, modified);
   return ret;
 }
+
+
 /**
+ * Test if the vevent content (everything but attendees) has been modified
  * 
+ * @param {Object=} remote Stored version of the vevent
+ * @param {Object} modified Modified version of the vevent
+ * @return {boolean} Is notification needed
  */
 net.bluemind.calendar.vevent.VEventAdaptor.prototype.contentHasBeenModified = function(remote, modified) {
   var isModified = remote == null;
@@ -587,7 +593,11 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.contentHasBeenModified = fu
 }
 
 /**
+ * Test if the vevent's organizer has been modified
  * 
+ * @param {Object=} remote Stored version of the vevent
+ * @param {Object} modified Modified version of the vevent
+ * @return {boolean} Is notification needed
  */
 net.bluemind.calendar.vevent.VEventAdaptor.prototype.organiserHasBeeModified = function(remote, modified) {
   if (!modified.states.meeting) {
@@ -598,8 +608,13 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.organiserHasBeeModified = f
   }
   return remote['organizer'] != modified.organizer && remote['organizer']['dir'] != modified.organizer['dir'];
 }
+
 /**
+ * Test if the vevent's attachments has been modified
  * 
+ * @param {Object=} remote Stored version of the vevent
+ * @param {Object} modified Modified version of the vevent
+ * @return {boolean} Is notification needed
  */
 net.bluemind.calendar.vevent.VEventAdaptor.prototype.attachmentsHasBeenModified = function(remote, modified) {
   if ((remote['attachments'] == null || remote['attachments'].length == 0) && (modified.attachments == null || modified.attachments.length == 0)) {
@@ -617,16 +632,26 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.attachmentsHasBeenModified 
     });
   }
 }
+
 /**
+ * Test if the vevent's exdates has been modified
  * 
+ * @param {Object=} remote Stored version of the vevent
+ * @param {Object} modified Modified version of the vevent
+ * @return {boolean} Is notification needed
  */
 net.bluemind.calendar.vevent.VEventAdaptor.prototype.exdatesHasBeenModified = function(remote, modified) {
   var remoteLength = goog.isArray(remote['exdate']) ? remote['exdate'].length : 0;
   var modifiedLength = goog.isArray(modified.exdate) ? modified.exdate.length : 0;
   return modifiedLength != remoteLength;
 }
+
 /**
+ * Test if the vevent's attendees has been modified
  * 
+ * @param {Object=} remote Stored version of the vevent
+ * @param {Object} modified Modified version of the vevent
+ * @return {boolean} Is notification needed
  */
 net.bluemind.calendar.vevent.VEventAdaptor.prototype.attendeesHasBeenModified = function(remote, modified) {
   if ((remote['attendees'] == null || remote['attendees'].length == 0) && (modified.attendees == null || modified.attendees.length == 0)) {
@@ -643,8 +668,12 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.attendeesHasBeenModified = 
   }
 }
 
-  /**
+/**
+ * Test if the vevent's dates or rrule has been modified
  * 
+ * @param {Object=} remote Stored version of the vevent
+ * @param {Object} modified Modified version of the vevent
+ * @return {boolean} Is notification needed
  */
 net.bluemind.calendar.vevent.VEventAdaptor.prototype.dateHasBeenModified = function(remote, modified) {
   var equalFn = function(a, b) {
@@ -719,3 +748,56 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.createVEvent = function() {
 
   return evt;
 };
+
+
+
+/**
+ * Auto set event end after a dtstart change
+ * 
+ * @param {Object} model Vevent Model view object
+ * @param {Object} old Old date
+ */
+net.bluemind.calendar.vevent.VEventAdaptor.prototype.adjustDTend = function(model, old) {
+  var diff = (model.dtstart.getTime() - old.getTime()) / 1000;
+  if (!model.states.allday) {
+    model.dtend.add(new goog.date.Interval(goog.date.Interval.SECONDS, diff));
+  } else {
+    diff = Math.round(diff / 86400);
+    model.dtend.add(new goog.date.Interval(goog.date.Interval.DAYS, diff));
+  }
+}
+
+
+/**
+ * Auto set the repetition day
+ * 
+ * @param {Object} model Vevent Model view object
+ * @param {Object} old Old date
+ */
+net.bluemind.calendar.vevent.VEventAdaptor.prototype.adjustRepeatDays = function(model, old) {
+  if (! model.rrule.byday || model.rrule.byday.length == 0) {
+    return;
+  }
+  var weekdays = goog.array.clone(goog.i18n.DateTimeSymbols_en.WEEKDAYS);
+  var fdow = (goog.i18n.DateTimeSymbols.FIRSTDAYOFWEEK + 1) % 7;
+
+  goog.array.rotate(weekdays, -fdow);
+  if (!goog.date.isSameDay(old, model.dtstart)) {
+    var day = weekdays[model.dtstart.getWeekday()];
+    if (model.rrule.freq == 'WEEKLY') {
+      if(goog.array.findIndex(model.rrule.byday, function(element) {return element.day == day}) < 0) {
+        model.rrule.byday.push({day : day, offset : 0});
+        day = weekdays[old.getWeekday()];
+        goog.array.removeIf(model.rrule.byday, function(element) {return element.day == day});
+      }
+    } else if (model.rrule.freq = 'MONTHLY' || model.rrule.freq == 'YEARLY') {
+        model.rrule.byday = [];
+        var pos = Math.ceil(model.dtstart.getDate() / 7);
+        if (pos == 5) pos = -1
+        model.rrule.byday = [ {day : day, offset : pos} ];
+        if (model.rrule.freq == 'YEARLY') {
+          model.rrule.bymonth = model.dtstart.getMonth();
+        }
+    }
+  }
+}
