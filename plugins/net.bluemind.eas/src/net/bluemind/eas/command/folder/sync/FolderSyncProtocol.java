@@ -112,7 +112,7 @@ public class FolderSyncProtocol implements IEasProtocol<FolderSyncRequest, Folde
 				} else if (ic.changeType == ChangeType.CHANGE) {
 					response.changes.update.add(toFolderSyncChange(ic));
 				} else if (ic.changeType == ChangeType.DELETE) {
-					response.changes.delete.add(Long.toString(ic.folderId));
+					response.changes.delete.add(ic.folderId);
 				}
 			}
 
@@ -133,8 +133,8 @@ public class FolderSyncProtocol implements IEasProtocol<FolderSyncRequest, Folde
 
 	private Change toFolderSyncChange(FolderChangeReference sf) {
 		Change c = new Change();
-		c.serverId = Long.toString(sf.folderId);
-		c.parentId = Long.toString(sf.parentId);
+		c.serverId = sf.folderId;
+		c.parentId = sf.parentId;
 		c.displayName = sf.displayName;
 		c.type = sf.itemType;
 		return c;

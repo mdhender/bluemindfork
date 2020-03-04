@@ -197,7 +197,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 			}
 			EventBus eb = VertxPlatform.eventBus();
 			eb.request("eas.push.killer." + bs.getUser().getUid(), jso, (AsyncResult<Message<Void>> event) -> {
-				logger.info("Push stopped for " + bs.getUser().getUid());
+				logger.info("Push stopped for {}", bs.getUser().getUid());
 				executeSync(bs, sr, responseHandler);
 			});
 		} else {
@@ -251,7 +251,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 				SyncResponse syncResponse = new SyncResponse();
 				for (CollectionSyncRequest sc : collections) {
 					CollectionSyncResponse csr = new CollectionSyncResponse();
-					csr.collectionId = sc.getCollectionId();
+					csr.collectionId = Integer.toString(sc.getCollectionId());
 					CollectionChanges serverChanges = serverChanges(bs, sc, new ArrayList<String>());
 					csr.commands = serverChanges.commands;
 					csr.status = serverChanges.status;
@@ -284,7 +284,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 		SyncResponse syncResponse = new SyncResponse();
 		for (CollectionSyncRequest sc : collections) {
 			CollectionSyncResponse csr = new CollectionSyncResponse();
-			csr.collectionId = sc.getCollectionId();
+			csr.collectionId = Integer.toString(sc.getCollectionId());
 			csr.status = SyncStatus.OK;
 			csr.syncKey = sc.getSyncKey();
 			syncResponse.collections.add(csr);
@@ -298,21 +298,21 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 
 		for (CollectionSyncRequest sc : sr.collections) {
 			CollectionSyncResponse csr = new CollectionSyncResponse();
-			csr.collectionId = sc.getCollectionId();
+			int collectionId = sc.getCollectionId();
+			csr.collectionId = Integer.toString(collectionId);
 
 			try {
 				// ensure the collectionExists
 
-				HierarchyNode f = Backends.internalStorage().getHierarchyNode(bs, csr.collectionId);
+				HierarchyNode f = Backends.internalStorage().getHierarchyNode(bs, collectionId);
 				ItemDataType dataClass = ItemDataType.getValue(f.containerType);
 
 				List<ServerResponse> clientChangeResults = executeClientCommands(bs, sc, dataClass);
 
-				List<String> clientAddedServerIds = new ArrayList<String>(clientChangeResults.size());
-				List<ServerResponse> clientConflictedServerIds = new ArrayList<ServerResponse>(
-						clientChangeResults.size());
+				List<String> clientAddedServerIds = new ArrayList<>(clientChangeResults.size());
+				List<ServerResponse> clientConflictedServerIds = new ArrayList<>(clientChangeResults.size());
 
-				List<ServerResponse> clientErrorServerIds = new ArrayList<ServerResponse>(clientChangeResults.size());
+				List<ServerResponse> clientErrorServerIds = new ArrayList<>(clientChangeResults.size());
 
 				for (ServerResponse ssr : clientChangeResults) {
 					if (ssr.ackStatus == SyncStatus.OK) {
@@ -374,7 +374,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 				csr.syncKey = serverChanges.syncKey;
 				csr.moreAvailable = serverChanges.moreAvailable;
 			} catch (CollectionNotFoundException cnf) {
-				logger.error(cnf.getMessage(), cnf);
+				logger.error("Collection {} not found, sync OK", collectionId);
 
 				// Sync OK to prevent android synchronization loop
 				csr.status = SyncStatus.OK;
@@ -391,6 +391,17 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 
 			syncResponse.collections.add(csr);
 		}
+
+		sr.invalidCollections.forEach(collectionId -> {
+			// Sync OK, prevent sync loop
+			CollectionSyncResponse csr = new CollectionSyncResponse();
+			csr.collectionId = collectionId;
+			csr.status = SyncStatus.OK;
+			csr.syncKey = "0";
+			csr.commands = Collections.emptyList();
+			csr.responses = Collections.emptyList();
+			syncResponse.collections.add(csr);
+		});
 
 		if (syncErrors > 0) {
 			ProtocolCircuitBreaker.INSTANCE.noticeError(bs);
