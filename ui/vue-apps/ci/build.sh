@@ -23,8 +23,14 @@ BM_VERSION=$1
 BM_ROOT=$BASEDIR/..
 
 pushd $BM_ROOT
-mvn -Dbm-runtime.url=https://forge.bluemind.net/staging/p2/bluemind/$BM_VERSION/ clean tycho-versions:set-version -DnewVersion=$BM_VERSION
-mvn -Dbm-runtime.url=https://forge.bluemind.net/staging/p2/bluemind/$BM_VERSION/ clean install
+
+if [ "$BM_VERSION" == "" ]; then
+    # Test-only build if no version provided
+    mvn clean install
+else
+    mvn -Dbm-runtime.url=https://forge.bluemind.net/staging/p2/bluemind/$BM_VERSION/ clean tycho-versions:set-version -DnewVersion=$BM_VERSION
+    mvn -Dbm-runtime.url=https://forge.bluemind.net/staging/p2/bluemind/$BM_VERSION/ clean install
+fi
 
 yarn install
 rm -f jest.json jest.xml
