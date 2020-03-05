@@ -82,7 +82,7 @@ public final class Requests {
 			WrappedRequest wr = (WrappedRequest) sr;
 			return wr.logAttribute(tag);
 		} else {
-			logger.warn("Not a wrapped request");
+			logger.warn("Not a wrapped request {}", sr, new Throwable("call loc"));
 			return null;
 		}
 	}
