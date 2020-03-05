@@ -35,7 +35,7 @@ fi
 yarn install
 rm -f jest.json jest.xml
 yarn test || true
-python3 ./ci/jest_json2xml.py jest.json jest.xml
+mv report.xml jest.xml
 
 if [ "$2" == "--publish-npm" ]; then
     for path in $(find . -path ./node_modules -prune -o -name package.json -print); do

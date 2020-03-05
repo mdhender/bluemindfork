@@ -3,4 +3,5 @@ deploy.sh
 *.ow
 generated
 WEB-INF
+coverage
 
