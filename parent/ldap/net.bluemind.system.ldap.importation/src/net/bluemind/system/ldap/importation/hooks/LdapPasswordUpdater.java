@@ -32,7 +32,7 @@ public class LdapPasswordUpdater implements IPasswordUpdater {
 	public boolean update(SecurityContext context, String domainUid, ItemValue<User> user, ChangePassword password)
 			throws ServerFault {
 		if (user.externalId != null && user.externalId.startsWith(LdapConstants.EXTID_PREFIX)) {
-			throw new ServerFault("Operation forbidden", ErrorCode.FORBIDDEN);
+			throw new ServerFault("Operation forbidden. Password must be changed in LDAP.", ErrorCode.FORBIDDEN);
 		}
 		return false;
 	}
