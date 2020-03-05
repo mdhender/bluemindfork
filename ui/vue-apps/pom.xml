@@ -14,7 +14,8 @@
 	</parent>
 
 	<properties>
-		<bm-runtime.url>https://forge.bluemind.net/staging/p2/bluemind/latest/</bm-runtime.url>
+        <!-- Set this build number to the last locked webmail build. It is used by CI "bm-vue-apps" when param BM_VERSION is not supplied. -->
+		<bm-runtime.url>https://forge.bluemind.net/staging/p2/bluemind/4.1.48618/</bm-runtime.url>
 	</properties>
 
 	<repositories>
