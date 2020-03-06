@@ -77,7 +77,8 @@ public final class Requests {
 		tag(sr, "async", "true");
 	}
 
-	public static String tag(HttpServerRequest sr, String tag) {
+	public static String tag(HttpServerRequest r, String tag) {
+		HttpServerRequest sr = Unwrapper.unwrap(r);
 		if (sr instanceof WrappedRequest) {
 			WrappedRequest wr = (WrappedRequest) sr;
 			return wr.logAttribute(tag);
