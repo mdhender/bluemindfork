@@ -266,6 +266,7 @@ public class UserServiceTests {
 		assertUserEquals(user, full.value);
 		assertNotNull(full.value.password);
 		assertNotNull(full.value.passwordLastChange);
+		assertFalse(full.value.passwordMustChange);
 
 		// user mailbox is created
 		assertNotNull(testContext.provider().instance(IMailboxes.class, domainUid).getComplete(uid));
@@ -472,6 +473,7 @@ public class UserServiceTests {
 		// Check password from store
 		assertNotNull(updated.password);
 		assertEquals(passwordUpdated, updated.passwordLastChange);
+		assertFalse(updated.passwordMustChange);
 
 		ItemValue<User> itemValue = getService(domainAdminSecurityContext).getComplete(uid);
 		assertUserEquals(user, itemValue.value);
@@ -480,6 +482,7 @@ public class UserServiceTests {
 		// Check password from service
 		assertNull(itemValue.value.password);
 		assertEquals(passwordUpdated, itemValue.value.passwordLastChange);
+		assertFalse(itemValue.value.passwordMustChange);
 
 		// check direntry and vcard update
 
@@ -822,6 +825,7 @@ public class UserServiceTests {
 
 		assertNull(userItem.value.password);
 		assertNotNull(userItem.value.passwordLastChange);
+		assertFalse(userItem.value.passwordMustChange);
 
 		userItem = getService(domainAdminSecurityContext).getComplete("nonExistant");
 		assertNull(userItem);
@@ -1192,9 +1196,16 @@ public class UserServiceTests {
 		String uid = create(user);
 		assertNotNull(uid);
 
+		ItemValue<User> userItemValue = getService(domainAdminSecurityContext).getComplete(uid);
+		assertFalse(userItemValue.value.passwordMustChange);
+		Date passwordTime = userItemValue.value.passwordLastChange;
+
 		getService(domainAdminSecurityContext).setPassword(uid, ChangePassword.create("checkpass"));
 		assertTrue(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInCoreUser.class, domainUid)
 				.checkPassword(user.login, "checkpass"));
+
+		userItemValue = getService(domainAdminSecurityContext).getComplete(uid);
+		assertTrue(passwordTime.before(userItemValue.value.passwordLastChange));
 
 		getService(domainAdminSecurityContext).setPassword(uid, ChangePassword.create("checkpass", "np"));
 
@@ -1202,8 +1213,14 @@ public class UserServiceTests {
 			getService(domainAdminSecurityContext).setPassword(uid, ChangePassword.create("checkpass", "np"));
 			fail("should fail because old pass is not good");
 		} catch (ServerFault e) {
-
 		}
+
+		userItemValue.value.passwordMustChange = true;
+		getService(domainAdminSecurityContext).update(userItemValue.uid, userItemValue.value);
+		getService(domainAdminSecurityContext).setPassword(uid, ChangePassword.create("np", "checkpass"));
+
+		userItemValue = getService(domainAdminSecurityContext).getComplete(uid);
+		assertFalse(userItemValue.value.passwordMustChange);
 	}
 
 	@Test
@@ -1554,5 +1571,34 @@ public class UserServiceTests {
 		after = dirService.changeset(before.version);
 
 		assertEquals(before.version, after.version);
+	}
+
+	@Test
+	public void testUpdatePasswordMustChange() throws ServerFault, SQLException {
+		String login = "test." + System.nanoTime();
+		User user = defaultUser(login);
+		String uid = create(user);
+
+		Item item = userItemStore.get(uid);
+		assertNotNull(item);
+		User updated = userStore.get(item);
+		assertNotNull(updated);
+		assertFalse(updated.passwordMustChange);
+
+		System.out.println("Set password must change");
+		user.passwordMustChange = true;
+		getService(domainAdminSecurityContext).update(uid, user);
+
+		updated = userStore.get(item);
+		assertNotNull(updated);
+		assertTrue(user.passwordMustChange);
+
+		System.out.println("Unset password must change");
+		user.passwordMustChange = false;
+		getService(domainAdminSecurityContext).update(uid, user);
+
+		updated = userStore.get(item);
+		assertNotNull(updated);
+		assertFalse(user.passwordMustChange);
 	}
 }

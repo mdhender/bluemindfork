@@ -127,8 +127,8 @@ public class UserStore extends AbstractItemValueStore<User> {
 	}
 
 	public void setPassword(final Item item, final String password) throws SQLException {
-		update("update t_domain_user set password = ?, password_lastchange = now() where item_id = ?", password,
-				new StatementValues<String>() {
+		update("update t_domain_user set password = ?, password_lastchange = now(), password_mustchange = false where item_id = ?",
+				password, new StatementValues<String>() {
 
 					@Override
 					public int setValues(Connection con, PreparedStatement statement, int index, int currentRow,

@@ -45,6 +45,8 @@ public interface UserConstants extends Messages {
 
 	String passwordLastChange();
 
+	String passwordMustChange();
+
 	String direction();
 
 	String desc();

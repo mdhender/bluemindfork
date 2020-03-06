@@ -28,6 +28,7 @@ import com.google.gwt.i18n.shared.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PasswordTextBox;
@@ -68,6 +69,9 @@ public class UserPassword extends CompositeGwtWidgetElement implements IGwtWidge
 
 	@UiField
 	Label passwordLastChange;
+
+	@UiField
+	CheckBox passwordMustChange;
 
 	private String userUid;
 
@@ -128,6 +132,15 @@ public class UserPassword extends CompositeGwtWidgetElement implements IGwtWidge
 			passwordLastChange.setText(DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_FULL)
 					.format(new Date((long) user.getPasswordLastChange().getTime())));
 		}
+
+		passwordMustChange.setValue(user.getPasswordMustChange());
+	}
+
+	@Override
+	public void saveModel(JavaScriptObject model) {
+		JsMapStringJsObject map = model.cast();
+		final JsUser user = map.get("user").cast();
+		user.setPasswordMustChange(passwordMustChange.getValue());
 	}
 
 	public static void registerType() {
