@@ -19,8 +19,41 @@
 set -e
 
 BASEDIR=$(dirname $0)
-BM_VERSION=$1
 BM_ROOT=$BASEDIR/..
+
+BM_VERSION=""
+PUBLISH_NPM="false"
+TRIGGER_SONAR="false"
+SONAR_BRANCH_FLAG=""
+
+while [[ $# -gt 0 ]]
+do
+    key="$1"
+    case $key in
+        --bm-version)
+            BM_VERSION="$2"
+            shift
+            shift
+            ;;
+        --trigger-sonar)
+            TRIGGER_SONAR="true"
+            shift
+            ;;
+        --publish-npm)
+            PUBLISH_NPM="true"
+            shift
+            ;;
+        --branch-name)
+            SONAR_BRANCH_FLAG="-Dsonar.branch.name=$2"
+            shift
+            shift
+            ;;
+        *)
+            BM_VERSION="$1"
+            shift
+            ;;
+    esac
+done
 
 pushd $BM_ROOT
 
@@ -37,7 +70,7 @@ rm -f jest.json jest.xml
 yarn test || true
 mv report.xml jest.xml
 
-if [ "$2" == "--publish-npm" ]; then
+if [ "$PUBLISH_NPM" == "true" ]; then
     for path in $(find . -path ./node_modules -prune -o -name package.json -print); do
         if [[ $path != *"target/classes"* ]]; then
             if grep -q "name\": \"@bluemind" $path; then
@@ -48,6 +81,11 @@ if [ "$2" == "--publish-npm" ]; then
             fi
         fi
     done
+fi
+
+if [ "$TRIGGER_SONAR" == "true" ]; then
+    yarn add sonarqube-scanner --dev -W
+    ./node_modules/sonarqube-scanner/dist/bin/sonar-scanner -Dsonar.host.url=http://sonar.blue-mind.loc:9000/sonar/ -Dsonar.projectKey=vue-apps -Dsonar.login=1f83913160353db8f1dab30c05326c79ef5d8428 $SONAR_BRANCH_FLAG -Dsonar.exclusions="**/node/**,**/node_modules/**"
 fi
 
 
