@@ -191,7 +191,7 @@ public class BodyStreamProcessor {
 			extractedBody = extractedBody.replace("\u0000", "");
 			bodyTxt.append(extractedBody);
 			mb.preview = CharMatcher.whitespace()
-					.collapseFrom(extractedBody.substring(0, Math.min(160, extractedBody.length())), ' ');
+					.collapseFrom(extractedBody.substring(0, Math.min(160, extractedBody.length())), ' ').trim();
 
 			List<String> with = new LinkedList<>();
 			if (parsed.getFrom() != null && !parsed.getFrom().isEmpty()) {
