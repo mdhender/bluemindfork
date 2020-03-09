@@ -47,9 +47,9 @@ export default {
     getters
 };
 
-async function search({ commit, dispatch, rootGetters, rootState }, { pattern, filter }) {
+async function search({ state, commit, dispatch, rootGetters, rootState }, { pattern, filter }) {
     try {
-        clearSomeUnrelatedState({ commit });
+        clearSomeUnrelatedState({ commit, state }, pattern);
         updateUnrelatedFilter({ commit }, filter);
         const folderUid = getterForFolderUidThatShouldBeGivenToTheAction(rootState);
         const mailboxUid = rootGetters["mail-webapp/currentMailbox"].mailboxUid;
@@ -92,10 +92,13 @@ function updateUnrelatedFilter({ commit }, filter) {
     commit("mail-webapp/setMessageFilter", filter, { root: true });
 }
 
-function clearSomeUnrelatedState({ commit }) {
+function clearSomeUnrelatedState({ commit, state }, pattern) {
     commit("mail-webapp/messages/clearItems", { root: true });
     commit("mail-webapp/currentMessage/clear", { root: true });
     commit("mail-webapp/messages/clearParts", { root: true });
+    if (state.pattern !== pattern) {
+        commit("mail-webapp/deleteAllSelectedMessages");
+    }
 }
 
 function toItemKeys(searchResults, folderUid) {

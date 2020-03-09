@@ -6,3 +6,4 @@ export let foldersData = {};
 export let login;
 export let maxMessageSize;
 export const status = STATUS.IDLE;
+export let selectedMessageKeys = [];

@@ -2,10 +2,8 @@
     <div class="mail-message-starter h-100 d-none d-md-flex">
         <div class="d-flex flex-column justify-content-center h-100 text-center w-100">
             <div class="d-flex flex-grow-1 flex-shrink-0 flex-column justify-space-evenly">
-                <h1 class="">
-                    {{ $t("mail.message.starter") }}
-                </h1>
-                <h1 class=" ">{{ $t("common.or") }}</h1>
+                <h1>{{ $t("mail.message.starter") }}</h1>
+                <h1>{{ $t("common.or") }}</h1>
             </div>
             <div class="flex-grow-1 flex-shrink-0 overflow-hidden d-flex flex-column align-items-center">
                 <div class="bg-white py-3 d-table ">

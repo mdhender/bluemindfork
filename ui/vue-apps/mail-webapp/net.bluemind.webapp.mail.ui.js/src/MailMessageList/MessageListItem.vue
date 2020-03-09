@@ -18,11 +18,22 @@
         >
             <bm-row class="align-items-center flex-nowrap no-gutters">
                 <bm-col cols="1" class="selector">
-                    <bm-avatar :alt="from" />
+                    <bm-avatar :alt="from" :class="[isMessageSelected(message.key) ? 'd-none' : '']" />
+                    <bm-check
+                        :checked="isMessageSelected(message.key)"
+                        :class="[isMessageSelected(message.key) ? 'd-block' : 'd-none']"
+                        @click.native.prevent="toggleSelect"
+                    />
                 </bm-col>
                 <bm-col cols="8" class="text-overflow">
                     <div v-bm-tooltip.ds500.viewport :title="from" class="text-overflow mw-100 sender h3 text-dark">
                         {{ from }}
+                    </div>
+                </bm-col>
+                <bm-col cols="3">
+                <transition name="fade" mode="out-in">
+                    <div v-if="!quickActionButtonsVisible" class="float-right">
+                        <component :is="widget" v-for="widget in widgets" :key="widget.template" />
                     </div>
                 </bm-col>
                 <bm-col cols="3">
@@ -94,7 +105,8 @@ const FLAG_COMPONENT = {
 
 import { BmAvatar, BmCheck, BmCol, BmIcon, BmListGroupItem, BmRow, BmTooltip, BmDraggable } from "@bluemind/styleguide";
 import { DateComparator } from "@bluemind/date";
-import { mapGetters, mapActions, mapState } from "vuex";
+import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
+import { RouterMixin } from "@bluemind/router";
 import ItemUri from "@bluemind/item-uri";
 import MessageListItemQuickActionButtons from "./MessageListItemQuickActionButtons";
 
@@ -111,6 +123,7 @@ export default {
         MessageListItemQuickActionButtons
     },
     directives: { BmTooltip },
+    mixins: [RouterMixin],
     props: {
         to: {
             required: false,
@@ -132,10 +145,9 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail-webapp", ["currentMessageKey"]),
-        ...mapGetters("mail-webapp", ["nextMessageKey"]),
+        ...mapState("mail-webapp", ["currentMessageKey", "selectedMessageKeys"]),
+        ...mapGetters("mail-webapp", ["nextMessageKey", "isMessageSelected"]),
         ...mapGetters("mail-webapp/folders", ["getFolderByKey"]),
-
         displayedDate: function() {
             const today = new Date();
             const messageDate = this.message.date;
@@ -165,6 +177,7 @@ export default {
     },
     methods: {
         ...mapActions("mail-webapp", ["move"]),
+        ...mapMutations("mail-webapp", ["addSelectedMessageKey", "deleteSelectedMessageKey"]),
 
         setTooltip(folder) {
             if (folder) {
@@ -202,6 +215,18 @@ export default {
                     this.$router.push("" + (this.nextMessageKey || ""));
                 }
                 this.move({ messageKey: this.message.key, folder: this.getFolderByKey(folder.key) });
+            }
+        },
+        toggleSelect() {
+            if (this.isMessageSelected(this.message.key)) {
+                this.deleteSelectedMessageKey(this.message.key);
+            } else {
+                this.addSelectedMessageKey(this.message.key);
+                if (this.selectedMessageKeys.length === 1) {
+                    this.$router.push(this.to);
+                } else {
+                    this.navigateToParent();
+                }
             }
         }
     }

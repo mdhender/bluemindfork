@@ -36,7 +36,7 @@
                 md="6"
                 lg="5"
                 order="2"
-                :class="composerOrMessageIsDisplayed ? '' : 'd-none'"
+                :class="shouldDisplayToolbar ? '' : 'd-none'"
             >
                 <mail-toolbar class="mx-auto mx-xl-0" />
             </bm-col>
@@ -144,6 +144,7 @@ export default {
     },
     computed: {
         ...mapState("alert", ["alerts"]),
+        ...mapState("mail-webapp", ["selectedMessageKeys"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         isMessageComposerDisplayed() {
             const routePath = this.$route.path;
@@ -163,6 +164,9 @@ export default {
                 this.userSession.roles.includes("hasMailWebapp") &&
                 this.userSession.roles.includes("hasWebmail")
             );
+        },
+        shouldDisplayToolbar() {
+            return this.composerOrMessageIsDisplayed || this.selectedMessageKeys.length > 1;
         }
     },
     created: function() {

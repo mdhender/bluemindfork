@@ -1,4 +1,4 @@
-import MailApp, { MailThread, MailMessageNew, MailMessageStarter } from "@bluemind/webapp.mail.ui.vuejs";
+import MailApp, { MailThread, MailMessageNew, MailActionsPanel } from "@bluemind/webapp.mail.ui.vuejs";
 
 const actionsOnMailConsult = {
     folder: (store, toParam, fromParam, to) =>
@@ -23,7 +23,7 @@ export default [
             },
             {
                 path: "search/:pattern",
-                component: MailMessageStarter,
+                component: MailActionsPanel,
                 name: "search",
                 meta: {
                     $actions: {
@@ -45,7 +45,7 @@ export default [
             {
                 path: ":folder/",
                 name: "folder",
-                component: MailMessageStarter,
+                component: MailActionsPanel,
                 meta: {
                     $actions: {
                         folder: {
@@ -94,7 +94,7 @@ export default [
             },
             {
                 path: "",
-                component: MailMessageStarter
+                component: MailActionsPanel
             }
         ]
     }

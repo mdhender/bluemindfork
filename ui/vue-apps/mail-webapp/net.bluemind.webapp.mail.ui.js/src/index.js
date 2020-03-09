@@ -1,6 +1,6 @@
 import MailMessageNew from "./MailMessageNew";
-import MailMessageStarter from "./MailMessageStarter";
+import MailActionsPanel from "./MailActionsPanel";
 import MailThread from "./MailThread";
 
 export { default } from "./MailApp";
-export { MailMessageNew, MailMessageStarter, MailThread };
+export { MailMessageNew, MailActionsPanel, MailThread };
