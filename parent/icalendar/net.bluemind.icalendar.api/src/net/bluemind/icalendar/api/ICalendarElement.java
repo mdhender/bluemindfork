@@ -54,12 +54,12 @@ public class ICalendarElement {
 	public List<AttachedFile> attachments = Collections.emptyList();
 
 	/**
-	 *  When a ICalendarElement is created, its sequence number is 0.  
-	 *  It is monotonically incremented by the "Organizer's" each time 
-	 *  the "Organizer" makes a significant revision to the calendar component.
+	 * When a ICalendarElement is created, its sequence number is 0. It is
+	 * monotonically incremented by the "Organizer's" each time the "Organizer"
+	 * makes a significant revision to the calendar component.
 	 */
 	public Integer sequence = 0;
-	
+
 	/**
 	 * Indicates whether invitations have been already sent at least once.
 	 */
@@ -206,9 +206,8 @@ public class ICalendarElement {
 					mailto, null);
 		}
 
-		
 		public static Attendee create(CUType cuType, String member, Role role, ParticipationStatus partStatus,
-					Boolean rsvp, String delTo, String delFrom, String sentBy, String commonName, String dir, String lang,
+				Boolean rsvp, String delTo, String delFrom, String sentBy, String commonName, String dir, String lang,
 				String uri, String mailto, String responseComment) {
 			Attendee attendee = new Attendee();
 			attendee.cutype = cuType;
@@ -284,8 +283,6 @@ public class ICalendarElement {
 			return Attendee.create(cutype, member, role, partStatus, rsvp, delTo, delFrom, sentBy, commonName, dir,
 					lang, uri, mailto, responseComment);
 		}
-
-
 
 	}
 
@@ -414,7 +411,21 @@ public class ICalendarElement {
 		/** A room resource **/
 		Room, //
 		/** Otherwise not known **/
-		Unknown
+		Unknown;
+
+		public static ICalendarElement.CUType byName(String name) {
+			if (Individual.name().equalsIgnoreCase(name)) {
+				return ICalendarElement.CUType.Individual;
+			} else if (Group.name().equalsIgnoreCase(name)) {
+				return ICalendarElement.CUType.Group;
+			} else if (Resource.name().equalsIgnoreCase(name)) {
+				return ICalendarElement.CUType.Resource;
+			} else if (Room.name().equalsIgnoreCase(name)) {
+				return ICalendarElement.CUType.Room;
+			} else {
+				return ICalendarElement.CUType.Unknown;
+			}
+		}
 	}
 
 	// TODO: Forbidden status yay
@@ -624,7 +635,7 @@ public class ICalendarElement {
 	public boolean hasRecurrence() {
 		return rrule != null && rrule.frequency != null;
 	}
-	
+
 	public boolean meeting() {
 		return
 		// a meeting contains an organiser

@@ -48,6 +48,7 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.base.GenericStream;
 import net.bluemind.core.utils.DateTimeComparator;
 import net.bluemind.icalendar.api.ICalendarElement;
+import net.bluemind.icalendar.api.ICalendarElement.CUType;
 import net.bluemind.icalendar.api.ICalendarElement.Classification;
 import net.bluemind.lib.ical4j.util.IcalConverter;
 import net.bluemind.neko.common.NekoHelper;
@@ -300,7 +301,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 
 		// SEQUENCE
 		iCalendarElement.sequence = parseIcsSequence(cc.getProperty(Property.SEQUENCE));
-		
+
 		return ItemValue.create(uid, iCalendarElement);
 	}
 
@@ -401,7 +402,6 @@ public class ICal4jHelper<T extends ICalendarElement> {
 	 * @return
 	 */
 	private static List<ICalendarElement.Attendee> parseIcsAttendee(PropertyList attendeePropList) {
-
 		if (attendeePropList != null && attendeePropList.size() > 0) {
 			List<ICalendarElement.Attendee> attendees = new ArrayList<>(attendeePropList.size());
 			for (@SuppressWarnings("unchecked")
@@ -410,19 +410,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 				Parameter cuTypeParam = prop.getParameter(Parameter.CUTYPE);
 				ICalendarElement.CUType cuType = null;
 				if (isParamNotNull(cuTypeParam)) {
-					String value = cuTypeParam.getValue().toLowerCase();
-					if ("individual".equals(value)) {
-						cuType = ICalendarElement.CUType.Individual;
-					} else if ("group".equals(value)) {
-						cuType = ICalendarElement.CUType.Group;
-					} else if ("Resource".equals(value)) {
-						cuType = ICalendarElement.CUType.Resource;
-					} else if ("Room".equals(value)) {
-						cuType = ICalendarElement.CUType.Room;
-					} else {
-						cuType = ICalendarElement.CUType.Unknown;
-					}
-
+					cuType = CUType.byName(cuTypeParam.getValue());
 				}
 
 				Parameter memberParam = prop.getParameter(Parameter.MEMBER);
@@ -771,12 +759,13 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		if (sequence != null) {
 			String value = sequence.getValue();
 			try {
-					result = Integer.parseInt(value);
-			} catch (NumberFormatException e) {}
+				result = Integer.parseInt(value);
+			} catch (NumberFormatException e) {
+			}
 		}
 		return result;
 	}
-	
+
 	/**
 	 * @param organizer
 	 * @return
@@ -936,7 +925,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 
 		// SEQUENCE
 		parseICalendarElementSequence(properties, iCalendarElement);
-		
+
 		return properties;
 	}
 
@@ -961,12 +950,13 @@ public class ICal4jHelper<T extends ICalendarElement> {
 			properties.add(recurId);
 		}
 	}
+
 	private static void parseICalendarElementSequence(PropertyList properties, ICalendarElement iCalendarElement) {
 		if (iCalendarElement.sequence != null && iCalendarElement.sequence > 0) {
 			properties.add(new Sequence(iCalendarElement.sequence));
 		}
 	}
-	
+
 	private static void parseICalendarElementRRule(PropertyList properties, ICalendarElement iCalendarElement) {
 		if (iCalendarElement.rrule != null) {
 			Recur recur = new Recur();
