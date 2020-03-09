@@ -29,6 +29,7 @@ public class SdsConfigurationObserver implements ISystemConfigurationObserver {
 		String accessKey = current.stringValue(SysConfKeys.sds_s3_access_key.name());
 		String secretKey = current.stringValue(SysConfKeys.sds_s3_secret_key.name());
 		String bucket = current.stringValue(SysConfKeys.sds_s3_bucket.name());
+		String region = current.stringValue(SysConfKeys.sds_s3_region.name());
 
 		JsonObject json = new JsonObject()//
 				.put("storeType", "s3")//
@@ -36,6 +37,7 @@ public class SdsConfigurationObserver implements ISystemConfigurationObserver {
 				.put("region", "")//
 				.put("accessKey", accessKey)//
 				.put("secretKey", secretKey)//
+				.put("region", region)//
 				.put("bucket", bucket);
 
 		Topology.get().nodes().stream().filter(iv -> iv.value.tags.contains("mail/imap")).forEach(iv -> {

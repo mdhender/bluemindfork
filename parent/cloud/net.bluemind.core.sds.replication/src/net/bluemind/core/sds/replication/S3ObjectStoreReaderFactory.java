@@ -54,14 +54,15 @@ public class S3ObjectStoreReaderFactory implements IObjectStoreReader.Factory {
 	@Override
 	public IObjectStoreReader create(SystemConf conf) {
 		String endpoint = conf.stringValue(SysConfKeys.sds_s3_endpoint.name());
+		String region = conf.stringValue(SysConfKeys.sds_s3_region.name());
 		String accessKey = conf.stringValue(SysConfKeys.sds_s3_access_key.name());
 		String secretKey = conf.stringValue(SysConfKeys.sds_s3_secret_key.name());
 		String bucket = conf.stringValue(SysConfKeys.sds_s3_bucket.name());
-		String cacheKey = String.join(";", endpoint, accessKey, secretKey);
+		String cacheKey = String.join(";", endpoint, accessKey, secretKey, region);
 
 		AmazonS3 client = s3ClientCache.computeIfAbsent(cacheKey, key -> {
 			logger.info("Creating S3 client for {}", endpoint);
-			S3Configuration config = S3Configuration.withEndpointBucketKeys(endpoint, bucket, accessKey, secretKey);
+			S3Configuration config = S3Configuration.withEndpointBucketKeys(endpoint, bucket, accessKey, secretKey, region);
 			return S3ClientFactory.create(config);
 		});
 

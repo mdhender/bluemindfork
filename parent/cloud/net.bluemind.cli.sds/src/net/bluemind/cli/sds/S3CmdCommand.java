@@ -62,6 +62,7 @@ public class S3CmdCommand implements ICmdLet, Runnable {
 		}
 		String accesskey = sysconf.stringValue(SysConfKeys.sds_s3_access_key.name());
 		String secretkey = sysconf.stringValue(SysConfKeys.sds_s3_secret_key.name());
+		String region = sysconf.stringValue(SysConfKeys.sds_s3_region.name());
 
 		String cfg = stringbuilder//
 				.append("host_base = ").append(endpoint).append("\n")//
@@ -69,6 +70,7 @@ public class S3CmdCommand implements ICmdLet, Runnable {
 				.append("access_key = ").append(accesskey).append("\n")//
 				.append("secret_key = ").append(secretkey).append("\n")//
 				.append("use_https = ").append(endpointValue.startsWith("https") ? "True" : "False").append("\n")//
+				.append("bucket_location = ").append(region).append("\n")//
 				.append("signature_v2 = False").append("\n").toString();
 
 		if (dry) {

@@ -22,7 +22,7 @@ import io.vertx.core.json.JsonObject;
 public class S3Configuration {
 
 	public String endpoint;
-	public String region = "";
+	public String region;
 	public String accessKey;
 	public String secretKey;
 	public String bucket;
@@ -36,11 +36,16 @@ public class S3Configuration {
 	}
 
 	public static S3Configuration withEndpointBucketKeys(String endpoint, String bucket, String ak, String sk) {
+		return withEndpointBucketKeys(endpoint, bucket, ak, sk, "");
+	}
+
+	public static S3Configuration withEndpointBucketKeys(String endpoint, String bucket, String ak, String sk, String region) {
 		S3Configuration sc = new S3Configuration();
 		sc.endpoint = endpoint;
 		sc.bucket = bucket;
 		sc.accessKey = ak;
 		sc.secretKey = sk;
+		sc.region = region;
 		return sc;
 	}
 
