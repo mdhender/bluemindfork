@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -14,6 +15,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 
 import io.airlift.airline.Arguments;
@@ -43,6 +45,25 @@ public abstract class SingleOrDomainOperation implements ICmdLet, Runnable {
 		}
 	}
 
+	private class OperationResult {
+		public final DirEntryWithDomain dirEntryWithDomain;
+		public final Exception exception;
+
+		public OperationResult(DirEntryWithDomain dirEntryWithDomain) {
+			this.dirEntryWithDomain = dirEntryWithDomain;
+			this.exception = null;
+		}
+
+		public OperationResult(DirEntryWithDomain dirEntryWithDomain, Exception exception) {
+			this.dirEntryWithDomain = dirEntryWithDomain;
+			this.exception = exception;
+		}
+
+		public boolean isError() {
+			return exception != null;
+		}
+	}
+
 	protected CliContext ctx;
 	protected CliUtils cliUtils;
 
@@ -54,6 +75,9 @@ public abstract class SingleOrDomainOperation implements ICmdLet, Runnable {
 
 	@Option(name = "--match", description = "regex that entity must match, for example : [a-c].*")
 	public String match = "";
+
+	@Option(name = "--no-progress", description = "don't display progress messages")
+	public boolean noProgress = false;
 
 	public abstract void synchronousDirOperation(String domainUid, ItemValue<DirEntry> de) throws Exception;
 
@@ -75,25 +99,41 @@ public abstract class SingleOrDomainOperation implements ICmdLet, Runnable {
 
 		// create executor & completion service with workers thread
 		ExecutorService pool = Executors.newFixedThreadPool(workers);
-		CompletionService<Void> opsWatcher = new ExecutorCompletionService<>(pool);
+		CompletionService<OperationResult> opsWatcher = new ExecutorCompletionService<OperationResult>(pool);
 
 		entriesWithDomainUid.forEach(de -> opsWatcher.submit(() -> {
 			try {
 				synchronousDirOperation(de.domainUid, de.dirEntry);
 			} catch (Exception e) {
-				throw new CliException(String.format("Error handling dirEntry : %s", de.dirEntry.uid), e);
+				return new OperationResult(de, e);
 			}
 
-			return null;
+			return new OperationResult(de);
 		}));
 
 		int ended = 0;
 		for (int i = 0; i < entriesWithDomainUid.size(); i++) {
+			OperationResult operationResult = null;
 			try {
-				opsWatcher.take().get();
+				operationResult = opsWatcher.take().get();
+			} catch (InterruptedException | ExecutionException e) {
+				throw new RuntimeException(e);
+			}
+
+			if (operationResult.isError()) {
+				ctx.error(String.format("Error handling %s: %s",
+						Strings.isNullOrEmpty(operationResult.dirEntryWithDomain.dirEntry.value.email)
+								? operationResult.dirEntryWithDomain.dirEntry.uid
+								: operationResult.dirEntryWithDomain.dirEntry.value.email,
+						operationResult.exception.getMessage()));
+
+				if (operationResult.exception instanceof CliException) {
+					throw (CliException) operationResult.exception;
+				}
+			}
+
+			if (!noProgress) {
 				ctx.progress(entriesWithDomainUid.size(), ++ended);
-			} catch (Exception e) {
-				throw new CliException(e);
 			}
 		}
 	}

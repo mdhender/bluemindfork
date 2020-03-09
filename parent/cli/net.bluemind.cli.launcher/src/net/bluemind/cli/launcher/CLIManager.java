@@ -69,7 +69,6 @@ public class CLIManager {
 			ctx.error(String.format("Invalid input: %s", e.getMessage()));
 			airliftCli.parse(new String[] {}).forContext(null).run();
 		} catch (CliException c) {
-			ctx.error(c.getMessage());
 		} catch (Exception e) {
 			ctx.error(e.getMessage());
 			throw e;
