@@ -74,9 +74,4 @@ public class ContainerAuditor<V extends ContainerAuditor<V>> extends Auditor<V> 
 	public V actionDeleteOn(String uid) {
 		return action("delete").actionItemUid(uid);
 	}
-
-	public V actionUpdates() {
-		return action("updates");
-	}
-
 }

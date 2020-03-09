@@ -128,7 +128,7 @@ public class CalendarAuditProxy implements ICalendar {
 
 	@Override
 	public ContainerUpdatesResult updates(VEventChanges changes) throws ServerFault {
-		return auditor.actionUpdates().addActionMetadata("changes", changes).audit(() -> calendar.updates(changes));
+		return calendar.updates(changes);
 	}
 
 	@Override
