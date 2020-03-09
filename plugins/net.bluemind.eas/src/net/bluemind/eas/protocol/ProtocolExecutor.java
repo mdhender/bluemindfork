@@ -121,9 +121,14 @@ public final class ProtocolExecutor {
 					rProm.tryFail(e);
 				}
 				MDC.put("user", "anonymous");
-			}, (AsyncResult<R> res) -> {
+			}, false, (AsyncResult<R> res) -> {
 				MDC.put("user", mdcVal);
 				vertxReq.resume();
+				if (vertxReq.response().closed()) {
+					logger.warn("Skip response to closed connection with {}", protocol);
+					return;
+				}
+
 				if (res.succeeded()) {
 					VertxResponder responder = new VertxResponder(vertxReq, vertxReq.response(), vertx);
 					try {
