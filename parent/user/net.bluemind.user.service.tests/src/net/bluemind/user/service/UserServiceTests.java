@@ -267,6 +267,7 @@ public class UserServiceTests {
 		assertNotNull(full.value.password);
 		assertNotNull(full.value.passwordLastChange);
 		assertFalse(full.value.passwordMustChange);
+		assertFalse(full.value.passwordNeverExpires);
 
 		// user mailbox is created
 		assertNotNull(testContext.provider().instance(IMailboxes.class, domainUid).getComplete(uid));
@@ -474,6 +475,7 @@ public class UserServiceTests {
 		assertNotNull(updated.password);
 		assertEquals(passwordUpdated, updated.passwordLastChange);
 		assertFalse(updated.passwordMustChange);
+		assertFalse(updated.passwordNeverExpires);
 
 		ItemValue<User> itemValue = getService(domainAdminSecurityContext).getComplete(uid);
 		assertUserEquals(user, itemValue.value);
@@ -483,6 +485,7 @@ public class UserServiceTests {
 		assertNull(itemValue.value.password);
 		assertEquals(passwordUpdated, itemValue.value.passwordLastChange);
 		assertFalse(itemValue.value.passwordMustChange);
+		assertFalse(itemValue.value.passwordNeverExpires);
 
 		// check direntry and vcard update
 
@@ -1600,5 +1603,34 @@ public class UserServiceTests {
 		updated = userStore.get(item);
 		assertNotNull(updated);
 		assertFalse(user.passwordMustChange);
+	}
+
+	@Test
+	public void testUpdatePasswordNeverExpire() throws ServerFault, SQLException {
+		String login = "test." + System.nanoTime();
+		User user = defaultUser(login);
+		String uid = create(user);
+
+		Item item = userItemStore.get(uid);
+		assertNotNull(item);
+		User updated = userStore.get(item);
+		assertNotNull(updated);
+		assertFalse(updated.passwordNeverExpires);
+
+		System.out.println("Set password never expire");
+		user.passwordNeverExpires = true;
+		getService(domainAdminSecurityContext).update(uid, user);
+
+		updated = userStore.get(item);
+		assertNotNull(updated);
+		assertTrue(user.passwordNeverExpires);
+
+		System.out.println("Set password may expire");
+		user.passwordNeverExpires = false;
+		getService(domainAdminSecurityContext).update(uid, user);
+
+		updated = userStore.get(item);
+		assertNotNull(updated);
+		assertFalse(user.passwordNeverExpires);
 	}
 }

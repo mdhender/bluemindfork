@@ -291,6 +291,7 @@ public class NewUser extends CompositeGwtWidgetElement {
 		user.setLogin(login.getText());
 		user.setPassword(password.getText());
 		user.setPasswordMustChange(false);
+		user.setPasswordNeverExpires(false);
 		user.setHidden(hidden.getValue());
 		user.setDataLocation(mailBackend.getSelectedValue());
 		if (mailAddressTab.getValue().length() > 0) {

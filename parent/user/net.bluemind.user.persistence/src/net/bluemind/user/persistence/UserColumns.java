@@ -39,6 +39,7 @@ public class UserColumns {
 			.col("password") //
 			.col("password_lastchange") //
 			.col("password_mustchange") //
+			.col("password_neverexpires") //
 			.col("routing", "t_domain_routing") //
 			.col("hidden") //
 			.col("archived") //
@@ -60,6 +61,7 @@ public class UserColumns {
 				statement.setTimestamp(index++,
 						u.passwordLastChange == null ? null : new Timestamp(u.passwordLastChange.getTime()));
 				statement.setBoolean(index++, u.passwordMustChange);
+				statement.setBoolean(index++, u.passwordNeverExpires);
 				statement.setString(index++, u.routing.name());
 				statement.setBoolean(index++, u.hidden);
 				statement.setBoolean(index++, u.archived);
@@ -90,6 +92,7 @@ public class UserColumns {
 				value.passwordLastChange = passwordLastChange == null ? null : new Date(passwordLastChange.getTime());
 
 				value.passwordMustChange = rs.getBoolean(index++);
+				value.passwordNeverExpires = rs.getBoolean(index++);
 				value.routing = Mailbox.Routing.valueOf(rs.getString(index++));
 				value.hidden = rs.getBoolean(index++);
 				value.archived = rs.getBoolean(index++);

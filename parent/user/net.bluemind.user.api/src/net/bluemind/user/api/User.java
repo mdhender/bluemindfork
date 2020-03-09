@@ -66,6 +66,11 @@ public final class User extends DirBaseValue {
 	public boolean passwordMustChange = false;
 
 	/**
+	 * Password never expire
+	 */
+	public boolean passwordNeverExpires = false;
+
+	/**
 	 * Contact informations for the user (firstname, lastname, phones, etc)
 	 */
 	public VCard contactInfos; // "user_" + uid

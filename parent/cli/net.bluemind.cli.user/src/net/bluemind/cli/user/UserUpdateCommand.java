@@ -31,6 +31,7 @@ import net.bluemind.cli.directory.common.SingleOrDomainOperation;
 import net.bluemind.cli.user.update.ExternalId;
 import net.bluemind.cli.user.update.Password;
 import net.bluemind.cli.user.update.PasswordMustChange;
+import net.bluemind.cli.user.update.PasswordNeverExpires;
 import net.bluemind.cli.user.update.Quota;
 import net.bluemind.cli.user.update.UpdateCommand;
 import net.bluemind.core.container.model.ItemValue;
@@ -64,6 +65,12 @@ public class UserUpdateCommand extends SingleOrDomainOperation {
 	@Option(name = "--unset-password-must-change", description = "unset user password must change")
 	public boolean unsetPasswordMustChange = false;
 
+	@Option(name = "--set-password-never-expires", description = "set user password never expires")
+	public boolean setPasswordNeverExpires = false;
+
+	@Option(name = "--unset-password-never-expires", description = "unset user password never expires")
+	public boolean unsetPasswordNeverExpires = false;
+
 	@Option(name = "--external-id", description = "update user external id (used by AD/LDAP synchronisaion), empty to unset")
 	public String extId = null;
 
@@ -76,6 +83,7 @@ public class UserUpdateCommand extends SingleOrDomainOperation {
 		commands.add(new ExternalId(ctx, this));
 		commands.add(new Password(ctx, this));
 		commands.add(new PasswordMustChange(ctx, this));
+		commands.add(new PasswordNeverExpires(ctx, this));
 		commands.add(new Quota(ctx, this));
 	}
 

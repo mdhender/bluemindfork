@@ -73,6 +73,9 @@ public class UserPassword extends CompositeGwtWidgetElement implements IGwtWidge
 	@UiField
 	CheckBox passwordMustChange;
 
+	@UiField
+	CheckBox passwordNeverExpires;
+
 	private String userUid;
 
 	private String domainUid;
@@ -134,6 +137,7 @@ public class UserPassword extends CompositeGwtWidgetElement implements IGwtWidge
 		}
 
 		passwordMustChange.setValue(user.getPasswordMustChange());
+		passwordNeverExpires.setValue(user.getPasswordNeverExpires());
 	}
 
 	@Override
@@ -141,6 +145,7 @@ public class UserPassword extends CompositeGwtWidgetElement implements IGwtWidge
 		JsMapStringJsObject map = model.cast();
 		final JsUser user = map.get("user").cast();
 		user.setPasswordMustChange(passwordMustChange.getValue());
+		user.setPasswordNeverExpires(passwordNeverExpires.getValue());
 	}
 
 	public static void registerType() {
