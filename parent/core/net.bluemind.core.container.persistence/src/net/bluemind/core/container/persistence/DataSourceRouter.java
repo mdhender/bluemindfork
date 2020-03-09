@@ -29,12 +29,23 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.core.rest.BmContext;
 
 public class DataSourceRouter {
 
 	private static final Logger logger = LoggerFactory.getLogger(DataSourceRouter.class);
 	private static final Cache<String, Optional<String>> cache = CacheBuilder.newBuilder().build();
+
+	public static class CacheReg implements ICacheRegistration {
+
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.register("datasource-router-locations", cache);
+		}
+
+	}
 
 	public static DataSource get(BmContext context, String containerUid) {
 

@@ -31,4 +31,9 @@ public class ResolvedMailbox {
 	public ItemValue<MailboxReplica> replica;
 	public List<MailboxAnnotation> annotations = Collections.emptyList();
 
+	@Override
+	public String toString() {
+		return "ResolvedMailbox{rd: " + desc + ", p: " + partition + ", repl: " + replica + "}";
+	}
+
 }
