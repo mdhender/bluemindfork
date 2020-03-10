@@ -28,5 +28,6 @@ public enum DomainSettingsKeys {
 	mail_routing_relay, //
 	mail_forward_unknown_to_relay, //
 	domain_max_users, //
-	domain_max_basic_account
+	domain_max_basic_account, //
+	password_lifetime
 }

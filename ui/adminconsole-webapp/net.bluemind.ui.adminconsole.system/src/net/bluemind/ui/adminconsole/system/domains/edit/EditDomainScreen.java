@@ -50,6 +50,7 @@ import net.bluemind.ui.adminconsole.system.domains.edit.filters.EditDomainFilter
 import net.bluemind.ui.adminconsole.system.domains.edit.filters.FiltersModelHandler;
 import net.bluemind.ui.adminconsole.system.domains.edit.general.DomainMaxBasicAccountEditor;
 import net.bluemind.ui.adminconsole.system.domains.edit.general.DomainMaxUserEditor;
+import net.bluemind.ui.adminconsole.system.domains.edit.general.DomainPasswordLifetimeEditor;
 import net.bluemind.ui.adminconsole.system.domains.edit.general.EditDomainGeneralEditor;
 import net.bluemind.ui.adminconsole.system.domains.edit.indexing.EditDomainIndexingEditor;
 import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.EditMailflowRulesEditor;
@@ -171,6 +172,8 @@ public class EditDomainScreen extends Composite implements IGwtCompositeScreenRo
 				.withRole(BasicRoles.ROLE_DOMAIN_MAX_VALUES));
 		editDomainGeneralContents.push(ScreenElement.create(null, DomainMaxBasicAccountEditor.TYPE).readOnly()
 				.withRole(BasicRoles.ROLE_DOMAIN_MAX_VALUES));
+		editDomainGeneralContents.push(ScreenElement.create(null, DomainPasswordLifetimeEditor.TYPE).readOnly()
+				.withRole(BasicRoles.ROLE_MANAGE_DOMAIN));
 		ContainerElement editDomainGeneral = ContainerElement.create("editDomainGeneral", editDomainGeneralContents);
 		tabs.push(Tab.create(null, c.generalTab(), editDomainGeneral));
 
