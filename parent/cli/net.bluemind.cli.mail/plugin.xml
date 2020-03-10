@@ -16,9 +16,14 @@
             priority="60">
       </registration>
       <registration
+            impl="net.bluemind.cli.mail.IndexedMailCountCommand$Reg"
+            priority="60">
+      </registration>
+      <registration
             impl="net.bluemind.cli.mail.MailCountCommand$Reg"
             priority="60">
       </registration>
+
    </extension>
 
 </plugin>
