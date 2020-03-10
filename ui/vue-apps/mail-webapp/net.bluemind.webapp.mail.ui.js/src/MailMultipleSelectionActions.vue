@@ -10,15 +10,26 @@
 
         <div class="bg-white py-2 px-3 actions-button w-75 mt-4">
             <div class="arrow-up" />
-            <bm-button variant="outline-secondary" @click="markAsUnread(selectedMessageKeys)">
-                <bm-label-icon icon="unread"> {{ $tc("mail.actions.mark_as_unread") }} </bm-label-icon>
-            </bm-button>
-            <bm-button variant="outline-secondary" @click="markAsRead(selectedMessageKeys)">
-                <bm-label-icon icon="read">
-                    {{ $tc("mail.actions.mark_as_read") }}
+            <bm-button
+                v-if="!areAllSelectedMessagesUnread"
+                variant="outline-secondary"
+                @click="markAsUnread(selectedMessageKeys)"
+            >
+                <bm-label-icon icon="unread">
+                    {{ $tc("mail.actions.mark_as_unread", selectedMessageKeys.length) }}
                 </bm-label-icon>
             </bm-button>
-            <bm-button variant="outline-secondary">
+            <bm-button
+                v-if="!areAllSelectedMessagesRead"
+                variant="outline-secondary"
+                @click="markAsRead(selectedMessageKeys)"
+            >
+                <bm-label-icon icon="read">{{
+                    $tc("mail.actions.mark_as_read", selectedMessageKeys.length)
+                }}</bm-label-icon>
+            </bm-button>
+            <!-- TODO: uncomment when ready
+             <bm-button variant="outline-secondary">
                 <bm-label-icon icon="forbidden"> {{ $t("mail.actions.spam") }} </bm-label-icon>
             </bm-button>
             <bm-button variant="outline-secondary">
@@ -29,7 +40,7 @@
             </bm-button>
             <bm-button variant="outline-secondary">
                 <bm-label-icon icon="flag-outline"> {{ $t("mail.actions.followup") }} </bm-label-icon>
-            </bm-button>
+            </bm-button>-->
         </div>
 
         <bm-button variant="link" class="my-4" @click="deleteAllSelectedMessages">
@@ -76,7 +87,7 @@ export default {
     computed: {
         ...mapState("mail-webapp", ["selectedMessageKeys", "search"]),
         ...mapState("mail-webapp/messages", ["itemKeys"]),
-        ...mapGetters("mail-webapp", ["currentFolder"]),
+        ...mapGetters("mail-webapp", ["currentFolder", "areAllSelectedMessagesRead", "areAllSelectedMessagesUnread"]),
         isSearch() {
             return this.$route.path.includes("/search");
         },

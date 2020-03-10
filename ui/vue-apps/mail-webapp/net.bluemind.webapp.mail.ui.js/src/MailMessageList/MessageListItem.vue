@@ -31,12 +31,6 @@
                     </div>
                 </bm-col>
                 <bm-col cols="3">
-                <transition name="fade" mode="out-in">
-                    <div v-if="!quickActionButtonsVisible" class="float-right">
-                        <component :is="widget" v-for="widget in widgets" :key="widget.template" />
-                    </div>
-                </bm-col>
-                <bm-col cols="3">
                     <transition name="fade" mode="out-in">
                         <div v-if="!quickActionButtonsVisible" class="float-right">
                             <component :is="widget" v-for="widget in widgets" :key="widget.template" />
@@ -108,6 +102,7 @@ import { DateComparator } from "@bluemind/date";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { RouterMixin } from "@bluemind/router";
 import ItemUri from "@bluemind/item-uri";
+import MailRouterMixin from "../MailRouterMixin";
 import MessageListItemQuickActionButtons from "./MessageListItemQuickActionButtons";
 
 export default {
@@ -123,7 +118,7 @@ export default {
         MessageListItemQuickActionButtons
     },
     directives: { BmTooltip },
-    mixins: [RouterMixin],
+    mixins: [MailRouterMixin, RouterMixin],
     props: {
         to: {
             required: false,
@@ -145,7 +140,7 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail-webapp", ["currentMessageKey", "selectedMessageKeys"]),
+        ...mapState("mail-webapp", ["currentMessageKey", "selectedMessageKeys", "currentFolderKey", "messageFilter"]),
         ...mapGetters("mail-webapp", ["nextMessageKey", "isMessageSelected"]),
         ...mapGetters("mail-webapp/folders", ["getFolderByKey"]),
         displayedDate: function() {
@@ -220,6 +215,11 @@ export default {
         toggleSelect() {
             if (this.isMessageSelected(this.message.key)) {
                 this.deleteSelectedMessageKey(this.message.key);
+                if (this.selectedMessageKeys.length === 1) {
+                    this.$router.push(
+                        this.computeMessageRoute(this.currentFolderKey, this.selectedMessageKeys[0], this.messageFilter)
+                    );
+                }
             } else {
                 this.addSelectedMessageKey(this.message.key);
                 if (this.selectedMessageKeys.length === 1) {

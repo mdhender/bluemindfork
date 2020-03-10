@@ -1,5 +1,7 @@
 export * from "./areMessagesFiltered";
 export * from "./areAllMessagesSelected";
+export * from "./areAllSelectedMessagesRead";
+export * from "./areAllSelectedMessagesUnread";
 export * from "./currentFolder";
 export * from "./currentMailbox";
 export * from "./isMessageSelected";

@@ -5,6 +5,35 @@ exports[`MailToolbarConsultMessage should match snapshot 1`] = `
   class="mail-toolbar-consult-message"
 >
   <button
+    class="btn unread btn-link"
+    style="display: none;"
+    type="button"
+  >
+    <svg
+      aria-hidden="true"
+      class="svg-inline--fa fa-read fa-w-16 fa-2x"
+      data-icon="read"
+      data-prefix="fas"
+      focusable="false"
+      role="img"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        class=""
+        d="M5.70239,0.0982214 c 0.17679,-0.1309619 0.41843,-0.1309619 0.59522,0 L 10.7976,3.43155 C 10.9249,3.52585 11,3.67491 11,3.83333 V 10.5 c 0,0.2761 -0.2239,0.5 -0.5,0.5 h -9 C 1.22386,11 1,10.7761 1,10.5 V 3.83333 C 1,3.67491 1.07508,3.52585 1.20239,3.43155 Z M 10,10 V 4.43427 L 6.00001,7.10093 2,4.43426 V 10 Z M 9.20998,3.5 6,1.12223 2.79002,3.5 h 6.41996"
+        fill="currentColor"
+      />
+    </svg>
+     
+    <span
+      class="d-none d-lg-block"
+    >
+       
+    </span>
+  </button>
+   
+  <button
     class="btn read btn-link"
     type="button"
   >
@@ -115,34 +144,6 @@ exports[`MailToolbarConsultMessage should match snapshot 1`] = `
       </div>
     </ul>
   </div>
-   
-  <button
-    class="btn btn-link"
-    type="button"
-  >
-    <svg
-      aria-hidden="true"
-      class="svg-inline--fa fa-forbidden fa-w-16 fa-2x"
-      data-icon="forbidden"
-      data-prefix="fas"
-      focusable="false"
-      role="img"
-      viewBox="0 0 12 12"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        class=""
-        d="M 5.5,0 C 2.46243,0 0,2.46243 0,5.5 0,8.53757 2.46243,11 5.5,11 8.53757,11 11,8.53757 11,5.5 11,2.46243 8.53757,0 5.5,0 Z M 1,5.5 C 1,3.01472 3.01472,1 5.5,1 6.5625,1 7.53899,1.36823 8.30883,1.98404 L 1.98404,8.30883 C 1.36823,7.53899 1,6.5625 1,5.5 Z M 9.01594,2.69114 C 9.63176,3.46098 10,4.43749 10,5.5 10,7.98528 7.98528,10 5.5,10 4.43749,10 3.46098,9.63176 2.69114,9.01594 Z"
-        fill="currentColor"
-      />
-    </svg>
-     
-    <span
-      class="d-none d-lg-block"
-    >
-      
-    </span>
-  </button>
    
   <button
     class="btn btn-link"

@@ -31,12 +31,12 @@
                 <mail-search-form />
             </bm-col>
             <bm-col
+                v-if="shouldDisplayToolbar"
                 class="d-md-inline-block d-lg-block h-100"
                 cols="12"
                 md="6"
                 lg="5"
                 order="2"
-                :class="shouldDisplayToolbar ? '' : 'd-none'"
             >
                 <mail-toolbar class="mx-auto mx-xl-0" />
             </bm-col>

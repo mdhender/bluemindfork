@@ -1,13 +1,16 @@
 <template>
     <bm-list-group
         class="message-list"
+        tabindex="0"
         @scroll="onScroll"
-        @keyup.up="moveUp()"
-        @keyup.down="moveDown()"
-        @keyup.home="moveStart()"
-        @keyup.end="moveEnd()"
-        @keyup.page-up="movePageUp()"
-        @keyup.page-down="movePageDown()"
+        @keyup.shift.delete.exact.prevent="openPurgeModal"
+        @keyup.delete.exact.prevent="remove"
+        @keyup.up="goToByDiff(-1)"
+        @keyup.down="goToByDiff(+1)"
+        @keyup.page-down="goToByDiff(+PAGE)"
+        @keyup.page-up="goToByDiff(-PAGE)"
+        @keyup.home="goTo(0)"
+        @keyup.end="goTo(length - 1)"
     >
         <div v-for="(message, index) in messages" :key="index">
             <message-list-separator v-if="message.hasSeparator" :text="$t(message.range.name)" />
@@ -23,16 +26,15 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapActions } from "vuex";
 import { BmListGroup, BmListGroupItem } from "@bluemind/styleguide";
-import throttle from "lodash.throttle";
+import { mapState, mapGetters, mapActions } from "vuex";
+import { SHOW_PURGE_MODAL } from "../VueBusEventTypes";
+import MailRouterMixin from "../MailRouterMixin";
 import MessageListItem from "./MessageListItem";
 import MessageListSeparator from "./MessageListSeparator";
+import throttle from "lodash.throttle";
 
 const PAGE = 9;
-function getCurrentMessageIndex(messages, key) {
-    return messages.map(message => message.key).indexOf(key);
-}
 
 export default {
     name: "MessageList",
@@ -41,6 +43,12 @@ export default {
         BmListGroupItem,
         MessageListItem,
         MessageListSeparator
+    },
+    mixins: [MailRouterMixin],
+    data() {
+        return {
+            PAGE
+        };
     },
     computed: {
         ...mapState("mail-webapp", ["currentMessageKey", "currentFolderKey"]),
@@ -75,29 +83,26 @@ export default {
                 this.loadMore();
             }
         }, 300),
-        moveUp() {
-            moveTo(getCurrentMessageIndex(this.messages, this.currentMessageKey) - 1);
+        goToByDiff(diff) {
+            if (this.currentMessageKey) {
+                let index = this.indexOf(this.currentMessageKey) + diff;
+                this.goTo(index);
+            }
         },
-        moveDown() {
-            moveTo(getCurrentMessageIndex(this.messages, this.currentMessageKey) + 1);
+        goTo(index) {
+            // FIXME
+            this.$router.push({ path: index });
         },
-        moveEnd() {
-            moveTo(this.messages.length - 1);
+        remove() {
+            if (this.currentFolderKey === this.my.TRASH.key) {
+                this.openPurgeModal();
+                return;
+            }
+            this.$router.push(this.computeMessageRoute(this.currentFolderKey, this.nextMessageKey, this.messageFilter));
+            this.$store.dispatch("mail-webapp/remove", this.currentMessageKey);
         },
-        moveStart() {
-            moveTo(0);
-        },
-        movePageUp() {
-            moveTo(getCurrentMessageIndex(this.messages, this.currentMessageKey) - PAGE);
-        },
-        movePageDown() {
-            moveTo(getCurrentMessageIndex(this.messages, this.currentMessageKey) + PAGE);
-        },
-        moveTo(index) {
-            this.goTo(this.messages[index].key);
-        },
-        goTo(key) {
-            this.$router.push({ path: key });
+        openPurgeModal() {
+            this.$bus.$emit(SHOW_PURGE_MODAL);
         }
     }
 };

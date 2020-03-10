@@ -1,22 +1,22 @@
-import MailToolbarConsultMessage from "../src/MailToolbar/MailToolbarConsultMessage";
+import MailToolbarSelectedMessages from "../src/MailToolbar/MailToolbarSelectedMessages";
 jest.mock("@bluemind/styleguide/css/_variables.scss", () => ({ iconsColors: "" }));
 import { createWrapper, createStore } from "./testUtils";
 
 describe("MailToolbarConsultMessage", () => {
     test("is a Vue instance", () => {
-        const wrapper = createWrapper(MailToolbarConsultMessage);
+        const wrapper = createWrapper(MailToolbarSelectedMessages);
         expect(wrapper.isVueInstance()).toBeTruthy();
     });
 
     test("should match snapshot", () => {
-        const wrapper = createWrapper(MailToolbarConsultMessage);
+        const wrapper = createWrapper(MailToolbarSelectedMessages);
         expect(wrapper.element).toMatchSnapshot();
     });
 
     test("should display 'mark unread' button if the message is read", () => {
-        const wrapper = createWrapper(MailToolbarConsultMessage);
-        expect(wrapper.contains(".btn.read")).toBeTruthy();
-        expect(!wrapper.contains(".btn.unread")).toBeTruthy();
+        const wrapper = createWrapper(MailToolbarSelectedMessages);
+        expect(wrapper.find(".btn.read").isVisible()).toBe(true);
+        expect(wrapper.find(".btn.unread").isVisible()).toBe(false);
     });
 
     test("should display 'mark read' button if the message is unread", () => {
@@ -36,8 +36,8 @@ describe("MailToolbarConsultMessage", () => {
             }
         });
 
-        const wrapper = createWrapper(MailToolbarConsultMessage, { store: storeWithReadMessage });
-        expect(wrapper.contains(".btn.unread")).toBeTruthy();
-        expect(!wrapper.contains(".btn.read")).toBeTruthy();
+        const wrapper = createWrapper(MailToolbarSelectedMessages, { store: storeWithReadMessage });
+        expect(wrapper.find(".btn.unread").isVisible()).toBe(true);
+        expect(wrapper.find(".btn.read").isVisible()).toBe(false);
     });
 });

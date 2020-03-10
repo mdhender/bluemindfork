@@ -11,19 +11,17 @@ export function bootstrap({ dispatch, state, getters, commit }, login) {
             }
         })
         .then(() => getters.my.folders.forEach(folder => dispatch("loadUnreadCount", folder.uid)))
+        .then(() => dispatch("mailboxes/all", { verb: [Verb.Read, Verb.Write, Verb.All], type: "mailboxacl" }))
         .then(() => {
-            dispatch("mailboxes/all", { verb: [Verb.Read, Verb.Write, Verb.All], type: "mailboxacl" })
-                .then(() => {
-                    getters.mailshares.forEach(mailshare => dispatch("folders/all", mailshare.mailboxUid));
-                })
-                .then(() => {
-                    return injector
-                        .getProvider("MailboxesPersistence")
-                        .get()
-                        .getMailboxConfig(getters.my.uid);
-                })
-                .then(mailboxConfig => {
-                    commit("setMaxMessageSize", mailboxConfig.messageMaxSize);
-                })
-        );
+            getters.mailshares.forEach(mailshare => dispatch("folders/all", mailshare.mailboxUid));
+        })
+        .then(() => {
+            return injector
+                .getProvider("MailboxesPersistence")
+                .get()
+                .getMailboxConfig(getters.my.uid);
+        })
+        .then(mailboxConfig => {
+            commit("setMaxMessageSize", mailboxConfig.messageMaxSize);
+        });
 }

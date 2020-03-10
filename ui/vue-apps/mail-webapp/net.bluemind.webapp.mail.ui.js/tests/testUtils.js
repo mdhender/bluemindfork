@@ -13,7 +13,8 @@ export function createStore(overrides) {
                 namespaced: true,
                 state: {
                     currentFolderKey: "",
-                    maxMessageSize: 10
+                    maxMessageSize: 10,
+                    selectedMessageKeys: []
                 },
                 getters: {
                     my: jest.fn(() => ({})),

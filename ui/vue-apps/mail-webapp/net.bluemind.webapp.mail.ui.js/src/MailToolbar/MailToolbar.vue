@@ -1,14 +1,10 @@
 <template>
-    <bm-button-toolbar
-        v-if="currentMessageKey || isMessageComposerDisplayed"
-        key-nav
-        class="mail-toolbar flex-nowrap h-100"
-    >
+    <bm-button-toolbar key-nav class="mail-toolbar flex-nowrap h-100">
         <bm-button variant="link" class="d-md-none btn-sm mr-auto" @click="back()">
             <bm-icon icon="arrow-back" size="2x" />
         </bm-button>
         <mail-toolbar-compose-message v-if="isMessageComposerDisplayed" />
-        <mail-toolbar-consult-message v-else />
+        <mail-toolbar-selected-messages v-else />
     </bm-button-toolbar>
 </template>
 
@@ -16,7 +12,7 @@
 import { BmButton, BmIcon, BmButtonToolbar } from "@bluemind/styleguide";
 import { mapState } from "vuex";
 import MailToolbarComposeMessage from "./MailToolbarComposeMessage";
-import MailToolbarConsultMessage from "./MailToolbarConsultMessage";
+import MailToolbarSelectedMessages from "./MailToolbarSelectedMessages";
 
 export default {
     name: "MailToolbar",
@@ -25,10 +21,10 @@ export default {
         BmButtonToolbar,
         BmIcon,
         MailToolbarComposeMessage,
-        MailToolbarConsultMessage
+        MailToolbarSelectedMessages
     },
     computed: {
-        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
+        ...mapState("mail-webapp", ["currentFolderKey"]),
         isMessageComposerDisplayed() {
             const routePath = this.$route.path;
             return (
