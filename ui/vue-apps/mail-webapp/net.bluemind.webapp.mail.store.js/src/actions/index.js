@@ -15,7 +15,6 @@ export * from "./purge";
 export * from "./remove";
 export * from "./removeAttachment";
 export * from "./saveDraft";
-export * from "./search";
 export * from "./selectFolder";
 export * from "./selectMessage";
 export * from "./send";

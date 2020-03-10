@@ -3,8 +3,5 @@ export * from "./expandFolder";
 export * from "./setCurrentFolder";
 export * from "./setMaxMessageSize";
 export * from "./setMessageFilter";
-export * from "./setSearchError";
-export * from "./setSearchLoading";
-export * from "./setSearchPattern";
 export * from "./setUnreadCount";
 export * from "./setUserLogin";

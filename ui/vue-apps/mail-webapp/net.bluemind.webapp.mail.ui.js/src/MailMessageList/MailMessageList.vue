@@ -12,10 +12,10 @@
         @keyup.end="goTo(length - 1)"
     >
         <mail-message-list-header />
-        <bm-list-group-item v-if="mode === 'search'" class="font-size-lg pl-4">
+        <bm-list-group-item v-if="isSearchEnabled" class="font-size-lg pl-4">
             {{ $t("common.search") }} : {{ $tc("common.messages", count, { count }) }}
         </bm-list-group-item>
-        <div v-if="displaySpinner" class="pt-5 text-center">
+        <div v-if="isLoading" class="pt-5 text-center">
             {{ $t("common.searching") }}
             <bm-spinner class="pt-3" />
         </div>
@@ -51,11 +51,11 @@
             </template>
         </bm-infinite-scroll>
 
-        <mail-message-list-empty-folder v-else-if="count === 0 && mode == 'default' && !areMessagesFiltered" />
-        <mail-message-list-empty-filter v-else-if="count === 0 && mode == 'default' && areMessagesFiltered" />
-        <bm-list-group-item v-else-if="mode === 'search'" class="bg-extra-light text-center h-100 pr-0">
+        <mail-message-list-empty-folder v-else-if="count === 0 && !isSearchEnabled && !areMessagesFiltered" />
+        <mail-message-list-empty-filter v-else-if="count === 0 && !isSearchEnabled && areMessagesFiltered" />
+        <bm-list-group-item v-else-if="isSearchEnabled" class="bg-extra-light text-center h-100 pr-0">
             <div class="pt-5 font-size-lg">
-                <template v-if="search.error === true">
+                <template v-if="isError">
                     {{ $t("common.search.error") }} <br /><br />
                     {{ $t("common.check.connection") }}
                 </template>
@@ -64,12 +64,10 @@
                     <div class="search-pattern">"{{ search.pattern }}"</div>
                     {{ $t("mail.list.search.no_result.found") }} <br /><br />
                     {{ $t("mail.list.search.no_result.try_otherwise") }}
-                    <!-- eslint-disable vue/no-v-html -->
                     <div
                         class="float-right pt-5 no-search-results-illustration w-50"
                         v-html="noSearchResultsIllustration"
                     />
-                    <!-- eslint-enable vue/no-v-html -->
                 </template>
             </div>
         </bm-list-group-item>
@@ -137,11 +135,9 @@ export default {
         ...mapGetters("mail-webapp/messages", ["messages", "count", "indexOf"]),
         ...mapState("mail-webapp", ["currentFolderKey", "search", "messageFilter"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
-        mode() {
-            return this.search.pattern ? "search" : "default";
-        },
-        displaySpinner() {
-            return this.search.loading === true;
+        ...mapGetters("mail-webapp/search", ["isLoading", "isError"]),
+        isSearchEnabled() {
+            return this.search.pattern;
         }
     },
     watch: {

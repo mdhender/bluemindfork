@@ -10,19 +10,12 @@ describe("[Mail-WebappStore][state] : initial state", () => {
     test("contains a empty object 'foldersData'", () => {
         expect(state.foldersData).toEqual({});
     });
-    test("contains a 'search'", () => {
-        expect(state.search).toEqual({
-            pattern: null,
-            loading: false,
-            error: false
-        });
-    });
     test("contains a 'messageFilter'", () => {
         expect(state.messageFilter).toBeUndefined();
     });
     test("not to contain anything else", () => {
         expect(Object.keys(state).sort()).toEqual(
-            ["currentFolderKey", "foldersData", "login", "search", "messageFilter", "maxMessageSize"].sort()
+            ["currentFolderKey", "foldersData", "login", "messageFilter", "maxMessageSize"].sort()
         );
     });
 });

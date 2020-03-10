@@ -1,21 +1,26 @@
 import ServiceLocator from "@bluemind/inject";
 import ItemUri from "@bluemind/item-uri";
 
-export function multipleByKey({ commit }, messageKeys) {
-    if (messageKeys.length === 0) return Promise.resolve();
-    const messagesByFolder = {};
-    messageKeys.forEach(key => {
-        const [id, folder] = ItemUri.decode(key);
-        if (!messagesByFolder[folder]) messagesByFolder[folder] = [];
-        messagesByFolder[folder].push(id);
+export async function multipleByKey({ commit }, messageKeys) {
+    const idsByFolderUid = getIdsByFolderUid(messageKeys);
+    const promises = Object.entries(idsByFolderUid).map(async ([folderUid, ids]) => {
+        const items = await getMessages(folderUid, ids);
+        commit("storeItems", {
+            folderUid,
+            items
+        });
     });
-    const folders = Object.keys(messagesByFolder);
-    return Promise.all(folders.map(folderUid => getFolderMessages(folderUid, messagesByFolder[folderUid], commit)));
+    return Promise.all(promises);
 }
 
-function getFolderMessages(folderUid, messages, commit) {
+function getIdsByFolderUid(messageKeys) {
+    return messageKeys
+        .map(key => ItemUri.decode(key))
+        .reduce((items, [item, key]) => ({ ...items, [key]: items[key] ? [...items[key], item] : [item] }), {});
+}
+
+function getMessages(folderUid, ids) {
     return ServiceLocator.getProvider("MailboxItemsPersistence")
         .get(folderUid)
-        .multipleById(messages)
-        .then(items => commit("storeItems", { items, folderUid }));
+        .multipleById(ids);
 }

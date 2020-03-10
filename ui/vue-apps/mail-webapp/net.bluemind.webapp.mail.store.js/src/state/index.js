@@ -1,4 +1,3 @@
-export * from "./search";
 export let currentFolderKey;
 export let messageFilter;
 export let foldersData = {};

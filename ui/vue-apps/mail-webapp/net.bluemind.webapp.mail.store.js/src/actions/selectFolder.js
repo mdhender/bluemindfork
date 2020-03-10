@@ -13,8 +13,8 @@ export function selectFolder({ dispatch, commit, state }, { folderKey, filter })
         ContainerObserver.observe("mailbox_records", folderUid);
     }
 
-    commit("setSearchLoading", null);
-    commit("setSearchPattern", null);
+    commit("search/setStatus", "idle");
+    commit("search/setPattern", null);
     commit("currentMessage/clear");
 
     if (state.messageFilter !== filter) {

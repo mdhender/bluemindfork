@@ -11,13 +11,13 @@ export function list({ commit }, { sorted, folderUid, filter }) {
                 if (sorted && sorted.dir.toLowerCase() === "asc") {
                     return ids.reverse();
                 }
-                commit("setItemKeys", { ids, folderUid });
+                commit("setItemKeysByIdsFolderUid", { ids, folderUid });
             });
         }
         case "all":
         default:
             return service.sortedIds(sorted).then(ids => {
-                commit("setItemKeys", { ids, folderUid });
+                commit("setItemKeysByIdsFolderUid", { ids, folderUid });
             });
     }
 }

@@ -27,7 +27,7 @@ describe("[MailItemsStore][actions] : list", () => {
         const sorted = "sorted",
             folderUid = "containerUid";
         list(context, { sorted, folderUid }).then(() => {
-            expect(context.commit).toHaveBeenCalledWith("setItemKeys", { ids: result, folderUid });
+            expect(context.commit).toHaveBeenCalledWith("setItemKeysByIdsFolderUid", { ids: result, folderUid });
             done();
         });
         expect(get).toHaveBeenCalledWith("containerUid");
@@ -43,7 +43,7 @@ describe("[MailItemsStore][actions] : list", () => {
         const sorted = "sorted",
             folderUid = "containerUid";
         list(context, { sorted, folderUid, filter: "all" }).then(() => {
-            expect(context.commit).toHaveBeenCalledWith("setItemKeys", { ids: result, folderUid });
+            expect(context.commit).toHaveBeenCalledWith("setItemKeysByIdsFolderUid", { ids: result, folderUid });
             done();
         });
         expect(get).toHaveBeenCalledWith("containerUid");
@@ -53,7 +53,7 @@ describe("[MailItemsStore][actions] : list", () => {
         const sorted = { column: "internal_date", dir: "Desc" },
             folderUid = "containerUid";
         list(context, { sorted, folderUid, filter: "unread" }).then(() => {
-            expect(context.commit).toHaveBeenCalledWith("setItemKeys", { ids: [2], folderUid });
+            expect(context.commit).toHaveBeenCalledWith("setItemKeysByIdsFolderUid", { ids: [2], folderUid });
             done();
         });
         expect(get).toHaveBeenCalledWith("containerUid");

@@ -7,7 +7,7 @@ const actionsOnMailConsult = {
 };
 
 function actionOnSearch(store, toParam, fromParam, to) {
-    return store.dispatch("mail-webapp/search", { pattern: toParam, filter: to.query.filter });
+    return store.dispatch("mail-webapp/search/search", { pattern: toParam, filter: to.query.filter });
 }
 
 export default [

@@ -5,6 +5,7 @@ import * as state from "./state";
 import { MailboxItemsStore as messages, MailboxFoldersStore as folders } from "@bluemind/backend.mail.store";
 import { ContainersStore as mailboxes } from "@bluemind/core.container.store";
 import MessageStore from "./MessageStore/";
+import search from "./modules/search";
 
 export default {
     namespaced: true,
@@ -13,6 +14,7 @@ export default {
     mutations,
     getters,
     modules: {
+        search,
         messages,
         folders,
         mailboxes,
