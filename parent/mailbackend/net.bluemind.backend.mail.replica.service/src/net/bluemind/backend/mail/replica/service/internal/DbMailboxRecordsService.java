@@ -433,7 +433,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 	private void updateIndex(long contVersion, List<ItemValue<MailboxRecord>> pushToIndex) {
 		if (!pushToIndex.isEmpty()) {
 			ITasksManager runner = context.provider().instance(ITasksManager.class);
-			runner.run(mailboxUniqueId + "-" + contVersion, monitor -> {
+			runner.run(mailboxUniqueId + "-" + contVersion + "-" + System.nanoTime(), monitor -> {
 				long esTime = System.currentTimeMillis();
 				Optional<BulkOperation> bulkOp = Optional.of(indexService.startBulk());
 				for (ItemValue<MailboxRecord> forIndex : pushToIndex) {

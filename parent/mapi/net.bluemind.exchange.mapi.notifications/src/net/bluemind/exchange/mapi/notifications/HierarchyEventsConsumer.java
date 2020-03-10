@@ -57,7 +57,8 @@ public class HierarchyEventsConsumer extends AbstractVerticle {
 					String owner = flatNotification.getString("owner");
 					long version = flatNotification.getLong("version");
 					JsonObject forMapi = new JsonObject();
-					forMapi.put("owner", owner).put("version", version);
+					forMapi.put("owner", owner).put("version", version).put("domain",
+							flatNotification.getString("domain"));
 					logger.info("MAPI hierarchy notification {}", forMapi.encode());
 					eb.publish(Topic.MAPI_HIERARCHY_NOTIFICATIONS, forMapi);
 				});
