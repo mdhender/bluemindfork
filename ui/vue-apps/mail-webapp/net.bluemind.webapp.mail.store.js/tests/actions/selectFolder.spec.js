@@ -12,7 +12,10 @@ const context = {
         messages: { itemKeys: [1, 2, 3] },
         sorted: "up to down",
         messageFilter: null,
-        draft: { parts: { attachments: [] } }
+        draft: { parts: { attachments: [] } },
+        search: {
+            pattern: ""
+        }
     }
 };
 

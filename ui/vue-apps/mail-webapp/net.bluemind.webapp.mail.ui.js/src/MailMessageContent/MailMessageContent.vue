@@ -96,7 +96,7 @@ export default {
         currentMessageKey: {
             handler: function() {
                 this.resetScroll();
-                this.markAsRead(this.currentMessageKey);
+                this.markAsRead([this.currentMessageKey]);
             },
             immediate: true
         }

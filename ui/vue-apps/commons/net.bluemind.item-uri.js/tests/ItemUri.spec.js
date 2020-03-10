@@ -35,4 +35,40 @@ describe("ItemUri", () => {
         uri = ItemUri.encode(undefined, undefined);
         expect(ItemUri.decode(uri)).toEqual([null, null]);
     });
+    test("sort items by container", () => {
+        const container = "c1";
+        const container2 = "c2";
+
+        const uris = [
+            ItemUri.encode("item1", container),
+            ItemUri.encode("item2", container),
+            ItemUri.encode("item3", container2),
+            ItemUri.encode("item4", container),
+            ItemUri.encode("item5", container2)
+        ];
+
+        const result = ItemUri.itemsByContainer(uris);
+        expect(result[container]).toEqual(["item1", "item2", "item4"]);
+        expect(result[container2]).toEqual(["item3", "item5"]);
+    });
+    test("sort uris by container", () => {
+        const container = "c1";
+        const container2 = "c2";
+
+        const uris = [
+            ItemUri.encode("item1", container),
+            ItemUri.encode("item2", container),
+            ItemUri.encode("item3", container2),
+            ItemUri.encode("item4", container),
+            ItemUri.encode("item5", container2)
+        ];
+
+        const result = ItemUri.urisByContainer(uris);
+        expect(result[container]).toEqual([
+            ItemUri.encode("item1", container),
+            ItemUri.encode("item2", container),
+            ItemUri.encode("item4", container)
+        ]);
+        expect(result[container2]).toEqual([ItemUri.encode("item3", container2), ItemUri.encode("item5", container2)]);
+    });
 });

@@ -10,9 +10,9 @@ export function remove({ dispatch, getters, commit, state }, messageKey) {
     if (getters.my.TRASH.uid === folderUid) {
         return dispatch("purge", messageKey);
     }
-    return dispatch("$_getIfNotPresent", messageKey)
-        .then(m => {
-            message = m;
+    return dispatch("$_getIfNotPresent", [messageKey])
+        .then(messages => {
+            message = messages[0];
             subject = message.subject;
             commit(
                 "alert/add",

@@ -30,15 +30,15 @@ describe("[MailItemsStore][actions] : addFlag", () => {
     });
 
     test("call add flag for a given messageId and folderUid  and mutate state", done => {
-        addFlag(context, { messageKey, mailboxItemFlag }).then(() => {
-            expect(context.commit).toHaveBeenCalledWith("addFlag", { messageKey, mailboxItemFlag });
+        addFlag(context, { messageKeys: [messageKey], mailboxItemFlag }).then(() => {
+            expect(context.commit).toHaveBeenCalledWith("addFlag", { messageKeys: [messageKey], mailboxItemFlag });
             done();
         });
         expect(get).toHaveBeenCalledWith(folderUid);
         expect(service.addFlag).toHaveBeenCalledWith({ itemsId: [messageId], mailboxItemFlag });
 
-        addFlag(context, { messageKey, mailboxItemFlag }).then(() => {
-            expect(context.commit).toHaveBeenCalledWith("addFlag", { messageKey, mailboxItemFlag });
+        addFlag(context, { messageKeys: [messageKey], mailboxItemFlag }).then(() => {
+            expect(context.commit).toHaveBeenCalledWith("addFlag", { messageKeys: [messageKey], mailboxItemFlag });
             done();
         });
         expect(get).toHaveBeenCalledWith(folderUid);
@@ -47,6 +47,6 @@ describe("[MailItemsStore][actions] : addFlag", () => {
 
     test("fail if addFlag call fail", () => {
         service.addFlag.mockReturnValueOnce(Promise.reject("Error!"));
-        expect(addFlag(context, { messageKey, mailboxItemFlag })).rejects.toBe("Error!");
+        expect(addFlag(context, { messageKeys: [messageKey], mailboxItemFlag })).rejects.toBe("Error!");
     });
 });

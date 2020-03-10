@@ -6,7 +6,7 @@ describe("[MailItemsStore][mutations] : deleteFlag", () => {
         const messageKey = "key1";
         const state = { items: { [messageKey]: { value: { flags: [Flag.SEEN] } } } };
 
-        deleteFlag(state, { messageKey, mailboxItemFlag: Flag.SEEN });
+        deleteFlag(state, { messageKeys: [messageKey], mailboxItemFlag: Flag.SEEN });
 
         expect(state.items[messageKey].value.flags.length).toEqual(0);
     });
@@ -14,13 +14,13 @@ describe("[MailItemsStore][mutations] : deleteFlag", () => {
         const messageKey = "key1";
         const state = { items: { [messageKey]: { value: { flags: [Flag.ANSWERED] } } } };
 
-        deleteFlag(state, { messageKey, mailboxItemFlag: Flag.SEEN });
+        deleteFlag(state, { messageKeys: [messageKey], mailboxItemFlag: Flag.SEEN });
         expect(state.items[messageKey].value.flags.length).toEqual(1);
     });
     test("do not change the other flags", () => {
         const messageKey = "key1";
         const state = { items: { [messageKey]: { value: { flags: [Flag.FORWARDED, Flag.ANSWERED, Flag.SEEN] } } } };
-        deleteFlag(state, { messageKey, mailboxItemFlag: Flag.SEEN });
+        deleteFlag(state, { messageKeys: [messageKey], mailboxItemFlag: Flag.SEEN });
         expect(state.items[messageKey].value.flags).toEqual(expect.arrayContaining([Flag.FORWARDED, Flag.ANSWERED]));
         expect(state.items[messageKey].value.flags.length).toEqual(2);
     });

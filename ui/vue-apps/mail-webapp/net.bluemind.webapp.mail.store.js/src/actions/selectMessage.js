@@ -4,9 +4,9 @@ const CAPABILITIES = [MimeType.TEXT_HTML, MimeType.TEXT_PLAIN];
 
 export function selectMessage({ dispatch, commit, state }, messageKey) {
     if (state.currentMessage.key !== messageKey) {
-        return dispatch("$_getIfNotPresent", messageKey).then(message => {
+        return dispatch("$_getIfNotPresent", [messageKey]).then(messages => {
             commit("currentMessage/update", { key: messageKey });
-            const parts = message.computeParts();
+            const parts = messages[0].computeParts();
             const inlines = parts.inlines.find(part =>
                 part.capabilities.every(capability => CAPABILITIES.includes(capability))
             );

@@ -24,6 +24,6 @@ export function bootstrap({ dispatch, state, getters, commit }, login) {
                 })
                 .then(mailboxConfig => {
                     commit("setMaxMessageSize", mailboxConfig.messageMaxSize);
-                });
-        });
+                })
+        );
 }

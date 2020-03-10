@@ -13,7 +13,7 @@ describe("[Mail-WebappStore][actions] : move", () => {
     beforeEach(() => {
         context.commit.mockClear();
         context.dispatch.mockClear();
-        context.dispatch.mockReturnValueOnce(Promise.resolve({ subject: "dummy" }));
+        context.dispatch.mockReturnValueOnce(Promise.resolve([{ subject: "dummy" }]));
         context.dispatch.mockReturnValueOnce("folder-key");
         context.getters["folders/getFolderByKey"].mockClear();
     });
@@ -25,7 +25,7 @@ describe("[Mail-WebappStore][actions] : move", () => {
             expect(context.dispatch).toHaveBeenCalledWith("$_move", { messageKey, destinationKey: "folder-key" });
             done();
         });
-        expect(context.dispatch).toHaveBeenCalledWith("$_getIfNotPresent", messageKey);
+        expect(context.dispatch).toHaveBeenCalledWith("$_getIfNotPresent", [messageKey]);
     });
     test("display alerts", done => {
         const messageKey = "message-key",

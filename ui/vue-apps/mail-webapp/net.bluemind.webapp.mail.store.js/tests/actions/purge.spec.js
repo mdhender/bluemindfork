@@ -7,7 +7,7 @@ const messageKey = ItemUri.encode("message-id", "inbox-uid");
 const context = {
     dispatch: jest.fn().mockImplementation(arg => {
         if (arg === "$_getIfNotPresent") {
-            return Promise.resolve(mockMessage);
+            return Promise.resolve([mockMessage]);
         } else if (arg === "messages/remove") {
             return isMessageRemoveActionSuccessfull ? Promise.resolve({}) : Promise.reject();
         }
@@ -37,7 +37,7 @@ describe("MailApp Store: Purge message action", () => {
 
     test("dispatch right actions and mutate alerts state when action is successful", done => {
         purgeAction(context, messageKey).then(() => {
-            expect(context.dispatch).toHaveBeenCalledWith("$_getIfNotPresent", messageKey);
+            expect(context.dispatch).toHaveBeenCalledWith("$_getIfNotPresent", [messageKey]);
             expect(context.dispatch).toHaveBeenCalledWith("messages/remove", messageKey);
 
             expect(context.commit).toHaveBeenCalledTimes(3);
@@ -69,7 +69,7 @@ describe("MailApp Store: Purge message action", () => {
         isMessageRemoveActionSuccessfull = false;
 
         purgeAction(context, messageKey).then(() => {
-            expect(context.dispatch).toHaveBeenCalledWith("$_getIfNotPresent", messageKey);
+            expect(context.dispatch).toHaveBeenCalledWith("$_getIfNotPresent", [messageKey]);
             expect(context.dispatch).toHaveBeenCalledWith("messages/remove", messageKey);
 
             expect(context.commit).toHaveBeenCalledTimes(3);

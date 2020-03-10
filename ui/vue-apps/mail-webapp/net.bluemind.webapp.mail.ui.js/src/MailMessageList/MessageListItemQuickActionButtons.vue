@@ -19,7 +19,7 @@
                 :aria-label="$tc('mail.actions.mark_read.aria')"
                 :title="$tc('mail.actions.mark_read.aria')"
                 variant="link"
-                @click.prevent="markAsRead(message.key)"
+                @click.prevent="markAsRead([message.key])"
             >
                 <bm-icon icon="read" size="sm" />
             </bm-button>
@@ -30,7 +30,7 @@
                 :aria-label="$tc('mail.actions.mark_unread.aria')"
                 :title="$tc('mail.actions.mark_unread.aria')"
                 variant="link"
-                @click.prevent="markAsUnread(message.key)"
+                @click.prevent="markAsUnread([message.key])"
             >
                 <bm-icon icon="unread" size="sm" />
             </bm-button>

@@ -1,9 +1,7 @@
-export function $_getIfNotPresent({ state, dispatch, getters }, messageKey) {
+export function $_getIfNotPresent({ state, dispatch, getters }, messageKeys) {
     const items = state.messages.items;
-    if (!items[messageKey]) {
-        return dispatch("messages/getCompleteByKey", messageKey).then(() =>
-            getters["messages/getMessageByKey"](messageKey)
-        );
-    }
-    return Promise.resolve(getters["messages/getMessageByKey"](messageKey));
+    const missingMessageKeys = messageKeys.filter(messageKey => !items[messageKey]);
+    return dispatch("messages/multipleByKey", missingMessageKeys).then(() =>
+        getters["messages/getMessagesByKey"](messageKeys)
+    );
 }

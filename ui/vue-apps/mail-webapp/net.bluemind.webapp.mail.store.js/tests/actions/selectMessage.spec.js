@@ -4,17 +4,19 @@ import { MimeType } from "@bluemind/email";
 
 const context = {
     dispatch: jest.fn().mockReturnValue(
-        Promise.resolve({
-            computeParts() {
-                return {
-                    attachments: "All attachments",
-                    inlines: [
-                        { capabilities: [MimeType.TEXT_CALENDAR], parts: ["The bad one"] },
-                        { capabilities: [MimeType.TEXT_PLAIN], parts: ["The", "good", "one"] }
-                    ]
-                };
+        Promise.resolve([
+            {
+                computeParts() {
+                    return {
+                        attachments: "All attachments",
+                        inlines: [
+                            { capabilities: [MimeType.TEXT_CALENDAR], parts: ["The bad one"] },
+                            { capabilities: [MimeType.TEXT_PLAIN], parts: ["The", "good", "one"] }
+                        ]
+                    };
+                }
             }
-        })
+        ])
     ),
     commit: jest.fn(),
     state: {
@@ -43,7 +45,7 @@ describe("[Mail-WebappStore][actions] : selectMessage", () => {
     test("to load the selected message", done => {
         const another = ItemUri.encode(20, folderUid);
         selectMessage(context, another).then(() => {
-            expect(context.dispatch).toHaveBeenCalledWith("$_getIfNotPresent", another);
+            expect(context.dispatch).toHaveBeenCalledWith("$_getIfNotPresent", [another]);
             done();
         });
     });

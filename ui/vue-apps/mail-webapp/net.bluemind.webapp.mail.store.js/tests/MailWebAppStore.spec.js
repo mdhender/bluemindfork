@@ -162,7 +162,7 @@ describe("[MailWebAppStore] Vuex store", () => {
         store.commit("mail-webapp/messages/storeItems", { items: aliceInbox, folderUid }, { root: true });
         store.dispatch("mail-webapp/selectMessage", messageKey, { root: true }).then(() => {
             expect(store.getters["mail-webapp/currentMessage/message"]).toStrictEqual(
-                store.getters["mail-webapp/messages/getMessageByKey"](messageKey)
+                store.getters["mail-webapp/messages/getMessagesByKey"]([messageKey])[0]
             );
             let parts = [
                 {

@@ -13,7 +13,7 @@
     "mail.actions.move.item.aria": "Move message {subject} to {path} | Move selected messages to {path}",
     "mail.actions.move.item.warning.self": "This message is already in {path}",
     "mail.actions.move.item.warning.readonly": "Can't move message in {path} (read only)",
-    "mail.actions.stared": "Stare",
+    "mail.actions.followup": "Follow-up",
     "mail.actions.remove": "Remove",
     "mail.actions.remove.aria": "Remove {subject} | Remove selected messages",
     "mail.actions.remove.compose.aria": "Remove message being written",

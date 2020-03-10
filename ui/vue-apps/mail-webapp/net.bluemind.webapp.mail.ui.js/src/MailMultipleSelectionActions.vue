@@ -10,11 +10,13 @@
 
         <div class="bg-white py-2 px-3 actions-button w-75 mt-4">
             <div class="arrow-up" />
-            <bm-button variant="outline-secondary">
+            <bm-button variant="outline-secondary" @click="markAsUnread(selectedMessageKeys)">
                 <bm-label-icon icon="unread"> {{ $tc("mail.actions.mark_as_unread") }} </bm-label-icon>
             </bm-button>
-            <bm-button variant="outline-secondary">
-                <bm-label-icon icon="read"> {{ $tc("mail.actions.mark_as_read") }} </bm-label-icon>
+            <bm-button variant="outline-secondary" @click="markAsRead(selectedMessageKeys)">
+                <bm-label-icon icon="read">
+                    {{ $tc("mail.actions.mark_as_read") }}
+                </bm-label-icon>
             </bm-button>
             <bm-button variant="outline-secondary">
                 <bm-label-icon icon="forbidden"> {{ $t("mail.actions.spam") }} </bm-label-icon>
@@ -26,7 +28,7 @@
                 <bm-label-icon icon="forward"> {{ $t("common.forward") }} </bm-label-icon>
             </bm-button>
             <bm-button variant="outline-secondary">
-                <bm-label-icon icon="flag-outline"> {{ $t("mail.actions.stared") }} </bm-label-icon>
+                <bm-label-icon icon="flag-outline"> {{ $t("mail.actions.followup") }} </bm-label-icon>
             </bm-button>
         </div>
 
@@ -47,14 +49,14 @@
                 {{ $t("mail.message.select.all.search") }}
                 <bm-icon icon="search" /> <span class="font-weight-bold">"{{ search.pattern }}"</span>
             </h3>
-            <bm-button @click="addAllToSelectedMessages">{{ $t("common.select.all") }}</bm-button>
+            <bm-button @click="addAllToSelectedMessages(itemKeys)">{{ $t("common.select.all") }}</bm-button>
         </div>
     </div>
 </template>
 
 <script>
 import { BmButton, BmLabelIcon, BmIcon } from "@bluemind/styleguide";
-import { mapState, mapGetters, mapMutations } from "vuex";
+import { mapActions, mapState, mapGetters, mapMutations } from "vuex";
 import MailFolderIcon from "./MailFolderIcon";
 import multipleSelectionIllustration from "../assets/multiple-selection.png";
 
@@ -83,6 +85,7 @@ export default {
         }
     },
     methods: {
+        ...mapActions("mail-webapp", ["markAsRead", "markAsUnread"]),
         ...mapMutations("mail-webapp", ["addAllToSelectedMessages", "deleteAllSelectedMessages"])
     }
 };

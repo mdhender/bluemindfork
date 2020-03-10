@@ -5,9 +5,9 @@ export function purge({ dispatch, commit, state }, messageKey) {
     let subject,
         message,
         loadingAlertUid = UUIDGenerator.generate();
-    return dispatch("$_getIfNotPresent", messageKey)
-        .then(m => {
-            message = m;
+    return dispatch("$_getIfNotPresent", [messageKey])
+        .then(messages => {
+            message = messages[0];
             subject = message.subject;
 
             commit(

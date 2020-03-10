@@ -3,9 +3,9 @@ import UUIDGenerator from "@bluemind/uuid";
 export function move({ dispatch, commit, getters }, { messageKey, folder }) {
     let subject, destination;
     const alertUid = UUIDGenerator.generate();
-    return dispatch("$_getIfNotPresent", messageKey)
-        .then(message => {
-            subject = message.subject;
+    return dispatch("$_getIfNotPresent", [messageKey])
+        .then(messages => {
+            subject = messages[0].subject;
             addLoadingAlert(commit, subject, alertUid);
             return dispatch("$_createFolder", folder);
         })

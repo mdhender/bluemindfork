@@ -1,5 +1,5 @@
 export * from "./count";
-export * from "./getMessageByKey";
+export * from "./getMessagesByKey";
 export * from "./getPartContent";
 export * from "./indexOf";
 export * from "./messages";

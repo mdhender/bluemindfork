@@ -7,7 +7,7 @@
             class="unread"
             :title="$tc('mail.actions.mark_read.aria')"
             :aria-label="$tc('mail.actions.mark_read.aria')"
-            @click="markAsRead(currentMessage.key)"
+            @click="markAsRead([currentMessage.key])"
         >
             <bm-icon icon="read" size="2x" />
             <span class="d-none d-lg-block"> {{ $tc("mail.actions.mark_read") }}</span>
@@ -19,7 +19,7 @@
             class="read"
             :title="$tc('mail.actions.mark_unread.aria')"
             :aria-label="$tc('mail.actions.mark_unread.aria')"
-            @click="markAsUnread(currentMessage.key)"
+            @click="markAsUnread([currentMessage.key])"
         >
             <bm-icon icon="unread" size="2x" />
             <span class="d-none d-lg-block">{{ $tc("mail.actions.mark_unread") }}</span>

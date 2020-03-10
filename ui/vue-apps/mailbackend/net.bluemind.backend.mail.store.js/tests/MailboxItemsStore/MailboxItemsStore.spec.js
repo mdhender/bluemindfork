@@ -33,7 +33,7 @@ describe("[MailboxItemsStore] Vuex store", () => {
                 exampleMessages.forEach((item, index) => {
                     const key = ItemUri.encode(item.internalId, folderUid);
                     expect(store.getters.indexOf(key)).toEqual(index);
-                    expect(store.getters.getMessageByKey(key)).toMatchSnapshot();
+                    expect(store.getters.getMessagesByKey([key])[0]).toMatchSnapshot();
                 });
                 expect(store.getters.count).toEqual(exampleMessages.length);
                 done();
@@ -48,7 +48,7 @@ describe("[MailboxItemsStore] Vuex store", () => {
         store.dispatch("remove", key).then(() => {
             expect(store.state.itemKeys.includes(key)).not.toBeTruthy();
             expect(store.getters.indexOf(key)).toEqual(-1);
-            expect(store.getters.getMessageByKey(key)).toBeUndefined();
+            expect(store.getters.getMessagesByKey([key])[0]).toBeUndefined();
             done();
         });
     });
@@ -58,8 +58,8 @@ describe("[MailboxItemsStore] Vuex store", () => {
         store.commit("storeItems", { items: exampleMessages, folderUid });
         const messageKey = ItemUri.encode(exampleMessages[0].internalId, folderUid);
         expect(exampleMessages[0].value.flags.includes(Flag.SEEN)).toBe(true);
-        store.dispatch("addFlag", { messageKey, mailboxItemFlag: Flag.SEEN }).then(() => {
-            const message = store.getters.getMessageByKey(messageKey);
+        store.dispatch("addFlag", { messageKeys: [messageKey], mailboxItemFlag: Flag.SEEN }).then(() => {
+            const message = store.getters.getMessagesByKey(messageKey)[0];
             expect(message.states.includes("not-seen")).not.toBe(true);
             expect(message.flags.includes("seen")).not.toBe(true);
             done();
@@ -71,8 +71,8 @@ describe("[MailboxItemsStore] Vuex store", () => {
         store.commit("storeItems", { items: exampleMessages, folderUid });
         const messageKey = ItemUri.encode(exampleMessages[5].internalId, folderUid);
         expect(exampleMessages[0].value.flags.includes(Flag.SEEN)).toBe(true);
-        store.dispatch("deleteFlag", { messageKey, mailboxItemFlag: Flag.SEEN }).then(() => {
-            const message = store.getters.getMessageByKey(messageKey);
+        store.dispatch("deleteFlag", { messageKeys: [messageKey], mailboxItemFlag: Flag.SEEN }).then(() => {
+            const message = store.getters.getMessagesByKey(messageKey)[0];
             expect(message.states.includes("not-seen")).toBe(true);
             expect(message.flags.includes("seen")).not.toBe(true);
             done();
@@ -84,7 +84,7 @@ describe("[MailboxItemsStore] Vuex store", () => {
         mockedClient.mockFetch(plainTextPart);
         store.commit("storeItems", { items: exampleMessages, folderUid });
         const messageKey = ItemUri.encode(exampleMessages[5].internalId, folderUid);
-        const message = store.getters.getMessageByKey(messageKey);
+        const message = store.getters.getMessagesByKey([messageKey])[0];
         const inlines = message.computeParts().inlines[0];
         Promise.all(inlines.parts.map(part => store.dispatch("fetch", { messageKey, part, isAttachment: false }))).then(
             () => {
@@ -117,7 +117,7 @@ describe("[MailboxItemsStore] Vuex store", () => {
             .then(() => {
                 filteredMessages.forEach(item => {
                     const key = ItemUri.encode(item.internalId, folderUid);
-                    expect(store.getters.getMessageByKey(key)).toMatchSnapshot();
+                    expect(store.getters.getMessagesByKey([key])[0]).toMatchSnapshot();
                 });
                 done();
             });
@@ -139,7 +139,7 @@ describe("[MailboxItemsStore] Vuex store", () => {
                 exampleMessages.forEach((item, index) => {
                     const key = ItemUri.encode(item.internalId, folderUid);
                     expect(store.getters.indexOf(key)).toEqual(index);
-                    expect(store.getters.getMessageByKey(key)).toMatchSnapshot();
+                    expect(store.getters.getMessagesByKey([key])[0]).toMatchSnapshot();
                 });
                 expect(store.getters.count).toEqual(exampleMessages.length);
                 done();

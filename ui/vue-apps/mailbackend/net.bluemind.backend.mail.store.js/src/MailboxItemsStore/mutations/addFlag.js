@@ -1,6 +1,11 @@
-export function addFlag(state, { messageKey, mailboxItemFlag }) {
-    let flags = state.items[messageKey].value.flags;
-    if (flags.find(flag => flag === mailboxItemFlag) === undefined) {
-        state.items[messageKey].value.flags.push(mailboxItemFlag);
-    }
+export function addFlag(state, { messageKeys, mailboxItemFlag }) {
+    messageKeys.forEach(messageKey => {
+        const message = state.items[messageKey];
+        if (message) {
+            let flags = message.value.flags;
+            if (flags.find(flag => flag === mailboxItemFlag) === undefined) {
+                message.value.flags.push(mailboxItemFlag);
+            }
+        }
+    });
 }

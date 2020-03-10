@@ -17,11 +17,11 @@ export function $_move({ getters, commit, dispatch }, { messageKey, destinationK
             })
             .then(() => commit("messages/removeItems", [messageKey]));
     } else {
-        return dispatch("$_getIfNotPresent", messageKey)
-            .then(message => {
+        return dispatch("$_getIfNotPresent", [messageKey])
+            .then(messages => {
                 return ServiceLocator.getProvider("MailboxItemsPersistence")
                     .get(sourceUid)
-                    .fetchComplete(message.imapUid);
+                    .fetchComplete(messages[0].imapUid);
             })
             .then(eml =>
                 ServiceLocator.getProvider("MailboxItemsPersistence")

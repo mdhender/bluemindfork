@@ -30,15 +30,15 @@ describe("[MailItemsStore][actions] : deleteFlag", () => {
     });
 
     test("call delete flag for a given messageId and folderUid  and mutate state", done => {
-        deleteFlag(context, { messageKey, mailboxItemFlag }).then(() => {
-            expect(context.commit).toHaveBeenCalledWith("deleteFlag", { messageKey, mailboxItemFlag });
+        deleteFlag(context, { messageKeys: [messageKey], mailboxItemFlag }).then(() => {
+            expect(context.commit).toHaveBeenCalledWith("deleteFlag", { messageKeys: [messageKey], mailboxItemFlag });
             done();
         });
         expect(get).toHaveBeenCalledWith(folderUid);
         expect(service.deleteFlag).toHaveBeenCalledWith({ itemsId: [messageId], mailboxItemFlag });
 
-        deleteFlag(context, { messageKey, mailboxItemFlag }).then(() => {
-            expect(context.commit).toHaveBeenCalledWith("deleteFlag", { messageKey, mailboxItemFlag });
+        deleteFlag(context, { messageKeys: [messageKey], mailboxItemFlag }).then(() => {
+            expect(context.commit).toHaveBeenCalledWith("deleteFlag", { messageKeys: [messageKey], mailboxItemFlag });
             done();
         });
         expect(get).toHaveBeenCalledWith(folderUid);
@@ -47,6 +47,6 @@ describe("[MailItemsStore][actions] : deleteFlag", () => {
 
     test("fail if deleteFlag call fail", () => {
         service.deleteFlag.mockReturnValueOnce(Promise.reject("Error!"));
-        expect(deleteFlag(context, { messageKey, mailboxItemFlag })).rejects.toBe("Error!");
+        expect(deleteFlag(context, { messageKeys: [messageKey], mailboxItemFlag })).rejects.toBe("Error!");
     });
 });

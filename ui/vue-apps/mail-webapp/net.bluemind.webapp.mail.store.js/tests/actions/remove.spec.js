@@ -7,7 +7,7 @@ const context = {
     commit: jest.fn(),
     dispatch: jest.fn().mockImplementation(arg => {
         if (arg === "$_getIfNotPresent") {
-            return Promise.resolve(mockMessage);
+            return Promise.resolve([mockMessage]);
         }
     }),
     getters: {
@@ -41,7 +41,7 @@ describe("[Mail-WebappStore][actions] : remove", () => {
             expect(context.dispatch).toHaveBeenCalledWith("$_move", { messageKey, destinationKey: "trash-key" });
             done();
         });
-        expect(context.dispatch).toHaveBeenCalledWith("$_getIfNotPresent", messageKey);
+        expect(context.dispatch).toHaveBeenCalledWith("$_getIfNotPresent", [messageKey]);
     });
     test("display alerts", done => {
         const messageKey = ItemUri.encode("message-id", "source-uid");

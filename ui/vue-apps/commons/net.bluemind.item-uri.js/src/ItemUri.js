@@ -10,5 +10,27 @@ export const ItemUri = {
     },
     decode(uri) {
         return JSON.parse(atob(uri));
+    },
+    itemsByContainer(uris) {
+        const itemsByContainer = {};
+        uris.forEach(uri => {
+            const [item, container] = this.decode(uri);
+            if (!itemsByContainer[container]) {
+                itemsByContainer[container] = [];
+            }
+            itemsByContainer[container].push(item);
+        });
+        return itemsByContainer;
+    },
+    urisByContainer(uris) {
+        const urisByContainer = {};
+        uris.forEach(uri => {
+            const [, container] = this.decode(uri);
+            if (!urisByContainer[container]) {
+                urisByContainer[container] = [];
+            }
+            urisByContainer[container].push(uri);
+        });
+        return urisByContainer;
     }
 };

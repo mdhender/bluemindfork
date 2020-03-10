@@ -46,6 +46,7 @@ export default {
     directives: { BmTooltip },
     computed: {
         ...mapState("mail-webapp", ["currentFolderKey", "messageFilter", "selectedMessageKeys"]),
+        ...mapState("mail-webapp/messages", ["itemKeys"]),
         ...mapGetters("mail-webapp", ["areAllMessagesSelected"]),
         filters() {
             return [
@@ -91,7 +92,7 @@ export default {
             }
         },
         toggleAll(checked) {
-            checked ? this.addAllToSelectedMessages() : this.deleteAllSelectedMessages();
+            checked ? this.addAllToSelectedMessages(this.itemKeys) : this.deleteAllSelectedMessages();
         }
     }
 };

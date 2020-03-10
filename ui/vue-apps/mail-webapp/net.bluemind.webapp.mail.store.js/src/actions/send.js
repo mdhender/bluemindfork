@@ -86,7 +86,7 @@ export function send({ state, commit, getters, dispatch }) {
                 } else if (action === "forward") {
                     mailboxItemFlag = Flag.FORWARDED;
                 }
-                dispatch("messages/addFlag", { messageKey: draft.previousMessage.messageKey, mailboxItemFlag });
+                dispatch("messages/addFlag", { messageKeys: [draft.previousMessage.messageKey], mailboxItemFlag });
             }
             const messageKey = ItemUri.encode(mailItem.internalId, getters.my.SENT.uid);
             commit("alert/remove", loadingAlertUid, { root: true });
