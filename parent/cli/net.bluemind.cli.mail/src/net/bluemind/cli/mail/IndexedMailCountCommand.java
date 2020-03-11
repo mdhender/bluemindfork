@@ -18,6 +18,8 @@
  */
 package net.bluemind.cli.mail;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 import org.elasticsearch.action.admin.indices.stats.IndexStats;
@@ -32,20 +34,30 @@ import net.bluemind.lib.elasticsearch.ESearchActivator;
 @Command(name = "indexed", description = "Shows the number of indexed messages")
 public class IndexedMailCountCommand implements ICmdLet, Runnable {
 	private CliContext ctx;
+	DateTimeFormatter df = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
 	@Option(required = false, name = "--progress", description = "Value indicating the total mails waiting to be indexed")
-	public Integer progress;
+	public Long progress;
 
 	@Override
 	public void run() {
-		IndexStats stat = ESearchActivator.getClient().admin().indices().prepareStats("mailspool_pending").get()
-				.getIndex("mailspool_pending");
-		long docs = stat.getTotal().docs.getCount();
-		ctx.info("Found " + docs + " indexed mails");
-		if (progress != null) {
-			double perc = (double) docs / progress * 100;
-			ctx.info("Indexed " + docs + " of " + progress + " mails: " + Math.round(perc) + "%");
-		}
+		long docs = 0;
+		do {
+			IndexStats stat = ESearchActivator.getClient().admin().indices().prepareStats("mailspool_pending").get()
+					.getIndex("mailspool_pending");
+			docs = stat.getTotal().docs.getCount();
+			ctx.info("Found " + docs + " indexed mails");
+			if (progress != null) {
+				double perc = (double) docs / progress * 100;
+				ctx.info(df.format(LocalDateTime.now()) + ": Indexed " + docs + " of " + progress + " mails: "
+						+ Math.round(perc) + "%");
+				try {
+					Thread.sleep(60000);
+				} catch (InterruptedException e) {
+					System.exit(0);
+				}
+			}
+		} while (progress != null && docs < progress);
 	}
 
 	@Override
