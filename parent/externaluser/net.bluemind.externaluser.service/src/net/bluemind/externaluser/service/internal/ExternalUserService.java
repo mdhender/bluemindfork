@@ -64,7 +64,7 @@ public class ExternalUserService implements IInCoreExternalUser {
 
 	public ExternalUserService(BmContext context, ItemValue<Domain> domain, Container externalUserContainer) {
 		storeService = new ExternalUserContainerStoreService(context, domain, externalUserContainer);
-		rbacManager = new RBACManager(context).forContainer(externalUserContainer);
+		rbacManager = new RBACManager(context).forDomain(domain.uid);
 		validator = new ExternalUserValidator();
 		sanitizer = new Sanitizer(context);
 		domainUid = domain.uid;
@@ -82,7 +82,7 @@ public class ExternalUserService implements IInCoreExternalUser {
 
 	@Override
 	public void createWithExtId(String uid, String extId, ExternalUser externalUser) throws ServerFault {
-		rbacManager.check(BasicRoles.ROLE_MANAGE_EXTERNAL_USER);
+		rbacManager.forOrgUnit(externalUser.orgUnitUid).check(BasicRoles.ROLE_MANAGE_EXTERNAL_USER);
 		ParametersValidator.notNullAndNotEmpty(uid);
 
 		sanitizer.create(externalUser);
@@ -94,23 +94,26 @@ public class ExternalUserService implements IInCoreExternalUser {
 	}
 
 	@Override
-	public void update(String uid, ExternalUser eu) throws ServerFault {
-		rbacManager.check(BasicRoles.ROLE_MANAGE_EXTERNAL_USER);
+	public void update(String uid, ExternalUser externalUser) throws ServerFault {
+		rbacManager.forOrgUnit(externalUser.orgUnitUid).check(BasicRoles.ROLE_MANAGE_EXTERNAL_USER);
 		ParametersValidator.notNullAndNotEmpty(uid);
 
 		ExternalUser previous = storeService.get(uid).value;
 
-		sanitizer.update(previous, eu);
-		sanitizer.update(new DirDomainValue<>(domainUid, uid, previous), new DirDomainValue<>(domainUid, uid, eu));
-		validator.validate(eu, uid, domainUid, bmContext);
+		sanitizer.update(previous, externalUser);
+		sanitizer.update(new DirDomainValue<>(domainUid, uid, previous),
+				new DirDomainValue<>(domainUid, uid, externalUser));
+		validator.validate(externalUser, uid, domainUid, bmContext);
 
-		storeService.update(uid, eu);
+		storeService.update(uid, externalUser);
 		eventProducer.changed(uid, storeService.getVersion());
 	}
 
 	@Override
 	public void delete(String externalUserUid) throws ServerFault {
-		rbacManager.check(BasicRoles.ROLE_MANAGE_EXTERNAL_USER);
+		ItemValue<ExternalUser> extUser = getComplete(externalUserUid);
+		String ou = extUser != null ? extUser.value.orgUnitUid : null;
+		rbacManager.forOrgUnit(ou).check(BasicRoles.ROLE_MANAGE_EXTERNAL_USER);
 		ParametersValidator.notNullAndNotEmpty(externalUserUid);
 
 		// remove group memberships
@@ -125,13 +128,13 @@ public class ExternalUserService implements IInCoreExternalUser {
 
 	@Override
 	public ItemValue<ExternalUser> getComplete(String uid) throws ServerFault {
-		rbacManager.check(BasicRoles.ROLE_MANAGE_EXTERNAL_USER);
 		ParametersValidator.notNullAndNotEmpty(uid);
 
 		ItemValue<ExternalUser> item = storeService.get(uid);
 		if (item == null) {
 			return null;
 		}
+		rbacManager.forOrgUnit(item.value.orgUnitUid).check(BasicRoles.ROLE_MANAGE_EXTERNAL_USER);
 		return item;
 	}
 
@@ -151,7 +154,9 @@ public class ExternalUserService implements IInCoreExternalUser {
 
 	@Override
 	public List<ItemValue<Group>> memberOf(String uid) throws ServerFault {
-		rbacManager.check(BasicRoles.ROLE_MANAGE_EXTERNAL_USER, BasicRoles.ROLE_MANAGE_GROUP_MEMBERS);
+		ItemValue<ExternalUser> extUser = getComplete(uid);
+		String ou = extUser != null ? extUser.value.orgUnitUid : null;
+		rbacManager.forOrgUnit(ou).check(BasicRoles.ROLE_MANAGE_EXTERNAL_USER, BasicRoles.ROLE_MANAGE_GROUP_MEMBERS);
 
 		List<String> groupsUid = memberOfGroupUid(uid);
 
@@ -166,7 +171,9 @@ public class ExternalUserService implements IInCoreExternalUser {
 
 	@Override
 	public List<String> memberOfGroups(String uid) throws ServerFault {
-		rbacManager.check(BasicRoles.ROLE_MANAGE_EXTERNAL_USER, BasicRoles.ROLE_MANAGE_GROUP_MEMBERS);
+		ItemValue<ExternalUser> extUser = getComplete(uid);
+		String ou = extUser != null ? extUser.value.orgUnitUid : null;
+		rbacManager.forOrgUnit(ou).check(BasicRoles.ROLE_MANAGE_EXTERNAL_USER, BasicRoles.ROLE_MANAGE_GROUP_MEMBERS);
 
 		return memberOfGroupUid(uid);
 	}
