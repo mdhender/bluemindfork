@@ -1,5 +1,11 @@
-[{ 
- 	"name":"bluemind/postgres-tests"
-},{
- 	"name":"bluemind/node-tests"
-}]
+[
+	{
+		"name": "bluemind/postgres-tests"
+	},
+	{
+		"name": "bluemind/node-tests"
+	},
+	{
+		"name": "bluemind/imap-role"
+	}
+]

@@ -114,15 +114,21 @@ public final class ProtocolExecutor {
 			MDC.put("user", mdcVal);
 			vertx.executeBlocking((Promise<R> rProm) -> {
 				MDC.put("user", mdcVal);
+				vertxReq.exceptionHandler(rProm::tryFail);
 				try {
-					protocol.execute(bs, protocolQuery, rProm::complete);
+					protocol.execute(bs, protocolQuery, rProm::tryComplete);
 				} catch (Exception e) {
-					rProm.fail(e);
+					rProm.tryFail(e);
 				}
 				MDC.put("user", "anonymous");
-			}, (AsyncResult<R> res) -> {
+			}, false, (AsyncResult<R> res) -> {
 				MDC.put("user", mdcVal);
 				vertxReq.resume();
+				if (vertxReq.response().closed()) {
+					logger.warn("Skip response to closed connection with {}", protocol);
+					return;
+				}
+
 				if (res.succeeded()) {
 					VertxResponder responder = new VertxResponder(vertxReq, vertxReq.response(), vertx);
 					try {
@@ -135,19 +141,23 @@ public final class ProtocolExecutor {
 							}
 						});
 					} catch (Exception e) {
-						logger.error(e.getMessage(), e);
-						HttpServerResponse resp = vertxReq.response();
-						resp.setStatusCode(500).setStatusMessage(e.getMessage() != null ? e.getMessage() : "null")
-								.end();
+						failSilently(e);
 					}
 				} else {
-					Throwable t = res.cause();
-					logger.error(t.getMessage(), t);
-					HttpServerResponse resp = vertxReq.response();
-					resp.setStatusCode(500).setStatusMessage(String.format("Throwable: %s", t.getMessage())).end();
+					failSilently(res.cause());
 				}
 				MDC.put("user", "anonymous");
 			});
+		}
+
+		private void failSilently(Throwable e) {
+			try {
+				logger.error(e.getMessage(), e);
+				HttpServerResponse resp = vertxReq.response();
+				resp.setStatusCode(500).setStatusMessage(e.getMessage() != null ? e.getMessage() : "null").end();
+			} catch (Exception ex) {
+				// don't report if the connection is already closed
+			}
 		}
 
 	}

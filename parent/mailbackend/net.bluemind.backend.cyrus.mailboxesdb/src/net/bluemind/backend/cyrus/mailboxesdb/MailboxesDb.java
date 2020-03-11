@@ -97,10 +97,12 @@ public class MailboxesDb {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		mailboxesDb.getFlatMailboxesDb(out);
 		nodeClient.writeFile(tmpFile.toString(), new ByteArrayInputStream(out.toByteArray()));
+		exec(nodeClient, "chown cyrus:mail " + tmpFile);
 
 		String mailBoxesDbBackup = mailBoxesDb + "-" + System.currentTimeMillis();
 		logger.info("Backuping {} to {}", mailBoxesDb, mailBoxesDbBackup);
 		exec(nodeClient, "cp " + mailBoxesDb + " " + mailBoxesDbBackup);
+		exec(nodeClient, "chown cyrus:mail " + mailBoxesDb);
 
 		logger.info("Converting {} plain text to {} twoskip text on {}", tmpFile, mailBoxesDb, mailboxesDb.serverIp);
 		exec(nodeClient, cmdFlatToTwoSkip);

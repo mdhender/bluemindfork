@@ -18,10 +18,14 @@
  */
 package net.bluemind.core.rest.tests.services;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Queue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
@@ -33,6 +37,7 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.api.Stream;
+import net.bluemind.core.rest.base.GenericStream;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.lib.vertx.VertxPlatform;
 
@@ -57,20 +62,41 @@ public class RestStreamServiceTests {
 		}
 	}
 
+	@Test
+	public void testFlakyInOut() throws Exception {
+		int ok = 0;
+		for (int i = 0; i < 500; i++) {
+			System.err.println("RUN " + i);
+			try {
+				testInOut();
+				ok++;
+			} catch (AssertionError e) {
+				System.err.println("ERROR after " + ok + " loops.");
+				throw e;
+			}
+		}
+	}
+
 	private static class GenericReadStream implements ReadStream<Buffer> {
 
 		private Handler<Buffer> dataHandler;
 		private Handler<Void> endHandler;
-		private int count;
-		private boolean ended;
 		private boolean paused;
-		private Buffer content = Buffer.buffer();
-		private int size;
-		private int packetSize;
+		private byte[] content;
+		private Queue<Buffer> toStream = new LinkedBlockingDeque<>();
 
-		public GenericReadStream(int i, int packetSize) {
-			this.size = i;
-			this.packetSize = packetSize;
+		public GenericReadStream(int chunks, int packetSize) {
+			byte[] b = new byte[packetSize];
+			ThreadLocalRandom rd = ThreadLocalRandom.current();
+			Buffer total = Buffer.buffer();
+			for (int i = 0; i < chunks; i++) {
+				for (int j = 0; j < packetSize; j++) {
+					b[j] = (byte) rd.nextInt((int) 'a', (int) 'z');
+				}
+				total.appendBytes(b);
+				toStream.add(Buffer.buffer(b));
+			}
+			content = total.getBytes();
 		}
 
 		@Override
@@ -85,37 +111,19 @@ public class RestStreamServiceTests {
 
 		private void next() {
 
-			while (!paused && !ended) {
-				count++;
-				Buffer value = produce(count);
-				dataHandler.handle(value);
-				content.appendBuffer(value);
-				if (count > size) {
-					ended = true;
-				}
+			while (!paused && !toStream.isEmpty()) {
+				dataHandler.handle(toStream.poll());
 			}
 
-			if (ended) {
-				System.out.println("ended");
-				if (endHandler != null) {
-					endHandler.handle(null);
-				} else {
-					System.err.println("no end handler");
-				}
+			if (toStream.isEmpty() && endHandler != null) {
+				endHandler.handle(null);
+				endHandler = null;
 			}
 
 		}
 
-		public Buffer content() {
+		public byte[] content() {
 			return content;
-		}
-
-		protected Buffer produce(int count) {
-			String v = "";
-			for (int i = 0; i < packetSize; i++) {
-				v += (count % 9);
-			}
-			return Buffer.buffer(v);
 		}
 
 		@Override
@@ -130,8 +138,8 @@ public class RestStreamServiceTests {
 			if (paused) {
 				System.out.println("resume !!");
 				paused = false;
-				next();
 			}
+			next();
 			return this;
 		}
 
@@ -158,9 +166,7 @@ public class RestStreamServiceTests {
 		IRestStreamTestService service = getService();
 		int packetCount = 10;
 		int packetSize = 1;
-		GenericReadStream stream = new GenericReadStream(packetCount, packetSize);// *
-																					// 1000,
-		// 400);
+		GenericReadStream stream = new GenericReadStream(packetCount, packetSize);
 		final AccumulatorStream accu = new AccumulatorStream();
 		final CountDownLatch latch = new CountDownLatch(1);
 
@@ -188,7 +194,7 @@ public class RestStreamServiceTests {
 				.println("time to transfert " + stream.content.toString().length() + " " + ((f - time) / (1000 * 1000))
 						+ " time per packet " + (((double) (f - time)) / (1000.0 * 1000.0 * packetCount)));
 
-		assertEquals(stream.content().toString(), accu.buffer().toString());
+		assertEquals(new String(stream.content()), accu.buffer().toString());
 
 	}
 
@@ -223,61 +229,24 @@ public class RestStreamServiceTests {
 	public void testOut2() {
 		IRestStreamTestService service = getService();
 
-		final StringBuilder sb = new StringBuilder();
-
-		GenericReadStream stream = new GenericReadStream(5000, 1) {
-
-			@Override
-			protected Buffer produce(int count) {
-				Buffer v = super.produce(count);
-				sb.append(v);
-				return v;
-			}
-
-		};
+		GenericReadStream stream = new GenericReadStream(5000, 1);
 
 		String ret = service.out(VertxStream.stream(stream));
-		assertEquals(sb.toString(), ret);
+		assertEquals(new String(stream.content()), ret);
 	}
 
 	@Test
 	public void testInOut() throws Exception {
 		IRestStreamTestService service = getService();
 
-		final StringBuilder sb = new StringBuilder();
+		GenericReadStream stream = new GenericReadStream(20000, 1024);
+		Stream input = VertxStream.stream(stream);
 
-		GenericReadStream stream = new GenericReadStream(2000, 1) {
+		Stream streamOut = service.inout(input);
 
-			@Override
-			protected Buffer produce(int count) {
-				Buffer v = super.produce(count);
-				sb.append(v);
-				return v;
-			}
-
-		};
-
-		Stream streamOut = service.inout(VertxStream.stream(stream));
-
-		final AccumulatorStream accu = new AccumulatorStream();
-
-		final CountDownLatch latch = new CountDownLatch(1);
-		final ReadStream<Buffer> readStream = VertxStream.read(streamOut);
-
-		Handler<Void> endHandler = new Handler<Void>() {
-
-			@Override
-			public void handle(Void event) {
-				latch.countDown();
-			}
-
-		};
-		readStream.endHandler(endHandler);
-
-		Pump.pump(readStream, accu).start();
-		assertTrue(latch.await(5, TimeUnit.SECONDS));
-
-		assertEquals(sb.toString(), accu.buffer().toString());
+		Buffer out = GenericStream.asyncStreamToBuffer(streamOut).get(15, TimeUnit.SECONDS);
+		System.err.println("accu.buffer.length: " + out.length());
+		assertArrayEquals(stream.content(), out.getBytes());
 	}
 
 	@Test
@@ -302,8 +271,6 @@ public class RestStreamServiceTests {
 		readStream.endHandler(endHandler);
 
 		Pump.pump(readStream, accu).start();
-		// readStream.resume();
-
 		latch.await();
 
 		assertEquals("123456789", accu.buffer().toString());

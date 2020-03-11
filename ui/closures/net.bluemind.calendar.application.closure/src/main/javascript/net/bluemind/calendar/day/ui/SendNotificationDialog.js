@@ -38,7 +38,22 @@ net.bluemind.calendar.day.ui.SendNotificationDialog = function(opt_domHelper) {
   /** @meaning calendar.sendNotification.title */
   var MSG_TITLE = goog.getMsg('Send notification ?');
   this.setTitle(MSG_TITLE);
-  this.setButtonSet(goog.ui.Dialog.ButtonSet.createYesNo());
+  /** @meaning calendar.dialog.more*/
+  var MSG_MORE = goog.getMsg('More options')
+    /** @meaning general.send*/
+    var MSG_SEND = goog.getMsg('Send')
+  var buttons = new goog.ui.Dialog.ButtonSet()
+    .addButton({
+      key: goog.ui.Dialog.DefaultButtonKeys.YES,
+      caption: MSG_SEND
+    }, true)
+    .addButton({
+      key: 'details',
+      caption: MSG_MORE
+    })
+    .addButton(goog.ui.Dialog.ButtonSet.DefaultButtons.CANCEL, false, true)
+
+  this.setButtonSet(buttons);
 }
 goog.inherits(net.bluemind.calendar.day.ui.SendNotificationDialog, goog.ui.Dialog);
 
@@ -60,17 +75,12 @@ net.bluemind.calendar.day.ui.SendNotificationDialog.prototype.setModel = functio
   var MSG_CONTENT_CREATE_ATTENDEES = goog.getMsg('Would you like to send invitations to attendees ?');
   /** @meaning calendar.sendNotification.toAttendees */
   var MSG_CONTENT_ATTENDEES = goog.getMsg('Would you like to notify attendees of your changes ?');
-  /** @meaning calendar.sendNotification.toOrganizer */
-  var MSG_CONTENT_ORGANIZER = goog.getMsg('Would you like to notify organizer of your changes ?');
   if (model.states.master) {
     if (model.states.updating) {
       this.setContent(MSG_CONTENT_ATTENDEES);
     } else {
       this.setContent(MSG_CONTENT_CREATE_ATTENDEES);
     }
-  } else {
-
-    this.setContent(MSG_CONTENT_ORGANIZER);
   }
 };
 
@@ -87,13 +97,19 @@ net.bluemind.calendar.day.ui.SendNotificationDialog.prototype.setOrigin = functi
  */
 net.bluemind.calendar.day.ui.SendNotificationDialog.prototype.handle_ = function(e) {
   e.stopPropagation();
-
   if (e.key == goog.ui.Dialog.DefaultButtonKeys.YES) {
     this.getModel().sendNotification = true;
-  } else {
-    this.getModel().sendNotification = false;
+    var e = new net.bluemind.calendar.vevent.VEventEvent(this.origin_, this.getModel());
+    this.dispatchEvent(e);
+  } else if (e.key == 'details') {
+    var e = new net.bluemind.calendar.vevent.VEventEvent(net.bluemind.calendar.vevent.EventType.DETAILS, this.getModel());
+    this.dispatchEvent(e)
+  } else if (e.key == 'cancel') {
+    this.setVisible(false);
+    var e = new net.bluemind.calendar.vevent.VEventEvent(net.bluemind.calendar.vevent.EventType.REFRESH, this.getModel());
+    this.dispatchEvent(e);
   }
-  
-  var e = new net.bluemind.calendar.vevent.VEventEvent(this.origin_, this.getModel());
-  this.dispatchEvent(e);
 };
+
+
+

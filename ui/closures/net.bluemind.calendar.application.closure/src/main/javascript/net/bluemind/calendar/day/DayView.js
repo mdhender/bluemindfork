@@ -1131,6 +1131,7 @@ net.bluemind.calendar.day.DayView.prototype.handleInDayMouseDown_ = function(e) 
       summary : '',
       tooltip : '',
       location : '',
+      draft: true,
       dtstart : date,
       dtend : end,
       start : date,
@@ -1149,7 +1150,8 @@ net.bluemind.calendar.day.DayView.prototype.handleInDayMouseDown_ = function(e) 
         past : (end.getTime() < goog.now()),
         meeting : false,
         main: true,
-        master : true
+        master : true,
+        draft: true
       },
       tags : [],
       duration : duration.getTotalSeconds(),
@@ -1274,6 +1276,7 @@ net.bluemind.calendar.day.DayView.prototype.createAlldayEvent_ = function(start,
     location : '',
     start : start,
     end : end,
+    draft: true,
     timezones: {
       start: null,
       end: null
@@ -1288,7 +1291,8 @@ net.bluemind.calendar.day.DayView.prototype.createAlldayEvent_ = function(start,
       past : (end.getTime() < goog.now()),
       meeting : false,
       master: true,
-      main: true
+      main: true,
+      draft: true
     },
     tags : [],
     calendars : calendars,

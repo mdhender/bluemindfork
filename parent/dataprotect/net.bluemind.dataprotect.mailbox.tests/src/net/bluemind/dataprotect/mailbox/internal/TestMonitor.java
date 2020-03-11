@@ -60,5 +60,4 @@ public class TestMonitor implements IServerTaskMonitor {
 	public void log(String log) {
 		logs.add(log);
 	}
-
 }

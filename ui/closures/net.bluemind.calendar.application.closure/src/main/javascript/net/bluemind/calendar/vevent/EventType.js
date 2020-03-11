@@ -29,9 +29,11 @@ net.bluemind.calendar.vevent.EventType = {
   REFRESH : goog.events.getUniqueId('refresh'),
   CHANGE : goog.events.getUniqueId('change'),
   SAVE : goog.events.getUniqueId('save'),
+  SEND : goog.events.getUniqueId('send'),
   BACK : goog.events.getUniqueId('back'),
   CANCEL : goog.events.getUniqueId('cancel'),
   REMOVE : goog.events.getUniqueId('remove'),
   DETAILS : goog.events.getUniqueId('details'),
   PART : goog.events.getUniqueId('participation')
+
 };

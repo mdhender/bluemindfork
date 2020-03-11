@@ -7,9 +7,6 @@
             impl="net.bluemind.eas.busmods.DeviceValidationFactory">
       </verticle>
       <verticle
-            impl="net.bluemind.eas.busmods.CollectionListenerVerticleFactory">
-      </verticle>
-      <verticle
             impl="net.bluemind.eas.busmods.SendMailVerticleFactory">
       </verticle>
       <verticle

@@ -18,16 +18,16 @@
  */
 package net.bluemind.core.auditlog.appender.slf4j;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.auditlog.AuditEvent;
 import net.bluemind.core.auditlog.appender.IAuditEventAppender;
+import net.bluemind.core.utils.JsonUtils;
 
 public class Slf4jEventAppender implements IAuditEventAppender {
 
@@ -40,41 +40,29 @@ public class Slf4jEventAppender implements IAuditEventAppender {
 		MDC.put("readOnly", Boolean.toString(event.isReadOnly()));
 
 		if (event.isReadOnly()) {
-			logger.debug("{} {} : (actor:{} meta: {}) -> (action:{}, ro:{}, meta: {}) on (object:{} meta: {}) succeed",
-					event.getTimestamp(), event.getId(), filter(event.getActor()), filter(event.getActorMeta()), //
-					filter(event.getAction()), event.isReadOnly(), filter(event.getActionMeta()),
-					filter(event.getObject()), filter(event.getObjectMeta()));
+			logger.debug(toLog(new LogEntry(event)));
 		} else if (event.succeed()) {
-			logger.info("{} {} : (actor:{} meta: {}) -> (action:{}, ro:{}, meta: {}) on (object:{} meta: {}) succeed",
-					event.getTimestamp(), event.getId(), filter(event.getActor()), filter(event.getActorMeta()), //
-					filter(event.getAction()), event.isReadOnly(), filter(event.getActionMeta()),
-					filter(event.getObject()), filter(event.getObjectMeta()));
+			logger.info(toLog(new LogEntry(event)));
 		} else {
-			logger.warn("{} {} : (actor:{} meta: {}) -> (action:{}, ro:{}, meta: {}) on (object:{} meta: {}) failed",
-					event.getTimestamp(), event.getId(), filter(event.getActor()), filter(event.getActorMeta()), //
-					filter(event.getAction()), event.isReadOnly(), filter(event.getActionMeta()),
-					filter(event.getObject()), filter(event.getObjectMeta()), event.getFailure());
+			logger.warn(toLog(new LogEntry(event, event.getFailure())));
 		}
 		MDC.clear();
 	}
 
-	private Map<String, String> filter(Map<String, String> data) {
-		Map<String, String> filtered = new HashMap<>();
-		for (Entry<String, String> entry : data.entrySet()) {
-			String key = filter(entry.getKey());
-			String value = filter(entry.getValue());
-			filtered.put(key, value);
-		}
-		return filtered;
+	private String toLog(LogEntry logEntry) {
+		String asString = JsonUtils.asString(logEntry);
+		JsonObject asObject = new JsonObject(asString);
+
+		asObject.put("actionMeta", mapToJson(logEntry.actionMeta));
+		asObject.put("objectMeta", mapToJson(logEntry.objectMeta));
+
+		return asObject.encode();
 	}
 
-	private String filter(String data) {
-		if (data == null) {
-			return null;
-		}
-		data = data.replace("(", "[");
-		data = data.replace(")", "]");
-		return data;
+	private JsonObject mapToJson(Map<String, JsonObject> map) {
+		JsonObject asObject = new JsonObject();
+		map.entrySet().forEach(entry -> asObject.put(entry.getKey(), entry.getValue()));
+		return asObject;
 	}
 
 }

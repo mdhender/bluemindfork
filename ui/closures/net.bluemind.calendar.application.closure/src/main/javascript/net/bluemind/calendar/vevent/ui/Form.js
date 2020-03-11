@@ -143,15 +143,19 @@ net.bluemind.calendar.vevent.ui.Form = function(ctx, opt_domHelper) {
   /** @meaning general.save */
   var MSG_SAVE = goog.getMsg('Save');
   child = new goog.ui.Button(MSG_SAVE, bluemind.ui.style.PrimaryActionButtonRenderer.getInstance());
-  child.setId('save');
+  child.setId('send');
   this.getChild('toolbar').addChild(child, true);
 
   this.getChild('toolbar').addChild(new goog.ui.ToolbarSeparator(), true);
 
-  /** @meaning general.cancel */
-  var MSG_CANCEL = goog.getMsg('Cancel');
-  child = new goog.ui.Button(MSG_CANCEL, goog.ui.style.app.ButtonRenderer.getInstance());
-  child.setId('cancel');
+  /** @meaning calendar.save_draft */
+  var MSG_SAVE_DRAFT = goog.getMsg('Save draft');
+  child = new goog.ui.Button(goog.dom.createDom('div', [ goog.getCssName('goog-button-icon'), goog.getCssName('fa'),
+  goog.getCssName('fa-lg'), goog.getCssName('fa-download') ]), goog.ui.style.app.ButtonRenderer.getInstance());
+  child.setTooltip(MSG_SAVE_DRAFT);
+  child.setId('save');
+  child.setVisible(false);
+
   this.getChild('toolbar').addChild(child, true);
 
   this.getChild('toolbar').addChild(new goog.ui.ToolbarSeparator(), true);
@@ -182,6 +186,47 @@ net.bluemind.calendar.vevent.ui.Form = function(ctx, opt_domHelper) {
   child.setButtonSet(goog.ui.Dialog.ButtonSet.YES_NO);
   child.setId('delete-dialog');
   this.addChild(child);
+
+  /** @meaning calendar.event.leave.dialog */
+  var MSG_LEAVE_TITLE = goog.getMsg('Do you really want to leave ?');
+    /** @meaning calendar.event.leave.dialog.button.leave */
+  var MSG_LEAVE = goog.getMsg('Leave');
+    /** @meaning calendar.event.leave.dialog.button.stay */
+  var MSG_STAY = goog.getMsg('Stay');
+  child = new goog.ui.Dialog();
+  child.setDraggable(false);
+  child.setTitle(MSG_LEAVE_TITLE);
+  var buttons = new goog.ui.Dialog.ButtonSet().addButton({
+    key: goog.ui.Dialog.DefaultButtonKeys.YES,
+    caption: MSG_LEAVE
+  }, true).addButton(goog.ui.Dialog.ButtonSet.DefaultButtons.CANCEL, false, true);
+  child.setButtonSet(buttons);
+  child.setId('leave-dialog');
+  this.addChild(child);
+
+    /** @meaning calendar.event.change_attendees.dialog */
+    var MSG_CHANGE_ATT_TITLE = goog.getMsg('You have added or deleted attendees');
+    /** @meaning calendar.event.change_attendees.caption */
+    var MSG_CHANGE_ATT_CONTENT = goog.getMsg('Do you want to send an update only to changed attendees, or to all attendees ?');
+      /** @meaning calendar.event.change_attendees.button.send_all */
+    var MSG_SEND_ALL = goog.getMsg('Send to All');
+      /** @meaning calendar.event.change_attendees.button.send_changed */
+    var MSG_SEND_CHANGED = goog.getMsg('Send to Changed');
+    child = new goog.ui.Dialog();
+    child.setDraggable(false);
+    child.setTitle(MSG_CHANGE_ATT_TITLE);
+    child.setContent(MSG_CHANGE_ATT_CONTENT);
+    var buttons = new goog.ui.Dialog.ButtonSet().addButton({
+      key: goog.ui.Dialog.DefaultButtonKeys.NO,
+      caption: MSG_SEND_ALL
+    }, true).addButton({
+      key: goog.ui.Dialog.DefaultButtonKeys.YES,
+      caption: MSG_SEND_CHANGED
+    }).addButton(goog.ui.Dialog.ButtonSet.DefaultButtons.CANCEL, false, true);
+    child.setButtonSet(buttons);
+    child.setId('attendee-dialog');
+    this.addChild(child);
+
 
   child = new net.bluemind.calendar.vevent.ui.Form.Notification();
   child.setId('notifications')
@@ -405,7 +450,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.enterDocument = function() {
   });
 
   handler.listen(this.getChild('toolbar').getChild('delete'), goog.ui.Component.EventType.ACTION, function(e) {
-    this.getChild('delete-dialog').setVisible(true);
+      this.getChild('delete-dialog').setVisible(true);
   });
 
   handler.listen(this.getChild('delete-dialog'), goog.ui.Dialog.EventType.SELECT, function(e) {
@@ -415,23 +460,59 @@ net.bluemind.calendar.vevent.ui.Form.prototype.enterDocument = function() {
       this.dispatchEvent(evt);
     }
   });
-
+  
+  handler.listen(this.getChild('toolbar').getChild('back'), goog.ui.Component.EventType.ACTION, function(e) {
+    var model = this.getModel();
+    if (this.adaptor.isModified(model.old, model)) {
+      /** @meaning calendar.event.leave.dialog.unsaved */
+      var MSG_UNSAVED_MODIFICATION = goog.getMsg('You have unsaved modifications, changes you made will be lost. Do you really want to leave ?');
+      this.getChild('leave-dialog').setContent(MSG_UNSAVED_MODIFICATION);        
+      this.getChild('leave-dialog').setVisible(true);
+    } else if (model.states.meeting && model.states.draft) {
+        /** @meaning calendar.event.leave.dialog.unsent */
+      var MSG_UNSENT_MODIFICATION = goog.getMsg('You have unsent modifications, changes you made will not be sent to attendees. Do you really want to leave ?');
+      this.getChild('leave-dialog').setContent(MSG_UNSENT_MODIFICATION);
+      this.getChild('leave-dialog').setVisible(true);
+    } else  {
+      this.dispatchEvent(net.bluemind.calendar.vevent.EventType.BACK);
+    }
+  });
+  handler.listen(this.getChild('leave-dialog'), goog.ui.Dialog.EventType.SELECT, function(e) {
+    if (e.key == goog.ui.Dialog.DefaultButtonKeys.YES) {
+      this.dispatchEvent(net.bluemind.calendar.vevent.EventType.BACK);
+    }
+  });
+  handler.listen(this.getChild('attendee-dialog'), goog.ui.Dialog.EventType.SELECT, function(e) {
+    if (e.key == goog.ui.Dialog.DefaultButtonKeys.NO) {
+      this.getModel().sequence = (this.getModel().sequence || 0) + 1;
+    }
+    if (e.key != goog.ui.Dialog.DefaultButtonKeys.CANCEL ) {
+      var type = net.bluemind.calendar.vevent.EventType.SEND;
+      var evt = new net.bluemind.calendar.vevent.VEventEvent(type, this.getModel());
+      this.dispatchEvent(evt);
+    }
+  });
   handler.listen(this.getChild('toolbar').getChild('save'), goog.ui.Component.EventType.ACTION, function(e) {
     var type = net.bluemind.calendar.vevent.EventType.SAVE;
     var evt = new net.bluemind.calendar.vevent.VEventEvent(type, this.getModel());
     this.dispatchEvent(evt);
   });
 
-  handler.listen(this.getChild('toolbar').getChild('cancel'), goog.ui.Component.EventType.ACTION, function(e) {
-    this.dispatchEvent(net.bluemind.calendar.vevent.EventType.CANCEL);
+  handler.listen(this.getChild('toolbar').getChild('send'), goog.ui.Component.EventType.ACTION, function(e) {
+    var model = this.getModel();
+    if (!model.states.draft && this.adaptor.isPublicChanges(model.old, model) && !this.adaptor.contentHasBeenModified(model.old, model)) {
+      this.getChild('attendee-dialog').setVisible(true);
+    } else {
+      var type = net.bluemind.calendar.vevent.EventType.SEND;
+      var evt = new net.bluemind.calendar.vevent.VEventEvent(type, this.getModel());
+      this.dispatchEvent(evt);
+    }
   });
+
+
 
   handler.listen(this.getChild('toolbar').getChild('history'), goog.ui.Component.EventType.ACTION, function(e) {
     this.dispatchEvent('history');
-  });
-
-  handler.listen(this.getChild('toolbar').getChild('back'), goog.ui.Component.EventType.ACTION, function(e) {
-    this.dispatchEvent(net.bluemind.calendar.vevent.EventType.BACK);
   });
 
   // DTSTART
@@ -451,6 +532,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.enterDocument = function() {
   handler.listen(el, goog.events.EventType.BLUR, this.checkTitle_);
   handler.listen(el, goog.events.InputHandler.EventType.INPUT, function(e) {
     this.getModel().summary = goog.dom.forms.getValue(e.target);
+    this.setFormActions_();
   });
 
   // REMINDER
@@ -555,6 +637,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.enterDocument = function() {
   this.registerDisposable(ih);
   handler.listen(el, goog.events.InputHandler.EventType.INPUT, function(e) {
     this.getModel().location = goog.dom.forms.getValue(e.target);
+    this.setFormActions_();
   });
 
   // URL
@@ -564,6 +647,8 @@ net.bluemind.calendar.vevent.ui.Form.prototype.enterDocument = function() {
   handler.listen(el, goog.events.InputHandler.EventType.INPUT, function(e) {
     var url = goog.dom.forms.getValue(e.target);
     this.getModel().url = url;
+    this.setFormActions_();
+
     if( url ) {
       if (!goog.Uri.parse(url).hasScheme()) {
         url = 'http://' + url;
@@ -581,19 +666,26 @@ net.bluemind.calendar.vevent.ui.Form.prototype.enterDocument = function() {
   handler.listen(dom.getElement('bm-ui-form-opacity-busy'), goog.events.EventType.CHANGE, function(e) {
     this.getModel().transp = 'Opaque';
     this.getModel().states.busy = true;
+    this.setFormActions_();
     this.getChild('freebusy').checkAvailability();
   }).listen(dom.getElement('bm-ui-form-opacity-free'), goog.events.EventType.CHANGE, function(e) {
     this.getModel().transp = 'Transparent';
     this.getModel().states.busy = false;
+    this.setFormActions_();
+
     this.availabilityWarn(false);
   });
   // PRIVACY
   handler.listen(dom.getElement('bm-ui-form-privacy-private'), goog.events.EventType.CHANGE, function(e) {
     this.getModel().class = 'Private';
     this.getModel().states.private_ = true;
+    this.setFormActions_();
+
   }).listen(dom.getElement('bm-ui-form-privacy-public'), goog.events.EventType.CHANGE, function(e) {
     this.getModel().class = 'Public';
     this.getModel().states.private_ = false;
+    this.setFormActions_();
+
   });
   // DESCRIPTION
   handler.listen(this.editor_, goog.editor.Field.EventType.DELAYEDCHANGE, this.onEditorChange_);
@@ -630,6 +722,8 @@ net.bluemind.calendar.vevent.ui.Form.prototype.enterDocument = function() {
   handler.listen(element, goog.events.EventType.CHANGE, this.onRepeatByChange_);
 
   handler.listen(this.getChild('tags'), goog.ui.Component.EventType.CHANGE, function() {
+    this.setFormActions_();
+
     this.getModel().tags = this.getChild('tags').getValue();
   });
 
@@ -666,6 +760,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.addAttachment = function(that, re
 
   that.getDomHelper().appendChild(dom.getElement('bm-attachment-list'), entry);
   that.getHandler().listen(dom.getElement('bm-ui-form-delete-attachment-'+newAttachment.index), goog.events.EventType.CLICK, that.delAttachment(newAttachment));
+  this.setFormActions_();
 
 }
 
@@ -680,6 +775,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.delAttachment = function(attachme
       }
     }
     this.getDomHelper().removeNode(this.getDomHelper().getElement('div-bm-ui-form-delete-attachment-'+attachment.index));
+    this.setFormActions_();
    }
 }
 
@@ -824,11 +920,11 @@ net.bluemind.calendar.vevent.ui.Form.prototype.setModelValues_ = function() {
 
     this.getChild('freebusy').initToolbar();
     this.getChild('freebusy').initGrid();
-
     if (model.states.meeting) {
       goog.array.forEach(model.attendees, function(attendee) {
         this.addAttendee_(attendee);
       }, this);
+      this.onAttendeeChange_();
     }
 
     this.getChild('reminder').forEachChild(function(child) {
@@ -873,6 +969,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.setModelValues_ = function() {
   }
 
 };
+
 
 net.bluemind.calendar.vevent.ui.Form.prototype.updateReminderForm_ = function() {
   var elem = this.getElementByClass(goog.getCssName('bm-ui-form-reminder'))
@@ -1069,6 +1166,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onEditorChange_ = function(e) {
     this.editor_.setValue(this.getModel().description || '');
   } else {
     this.getModel().description = value;
+    this.setFormActions_();
   }
 };
 
@@ -1205,6 +1303,8 @@ net.bluemind.calendar.vevent.ui.Form.prototype.updateModel_ = function() {
       });
     }
   }, this);
+  this.setFormActions_();
+
 }
 
 /**
@@ -1230,6 +1330,8 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onRepeatPeriodChange_ = function(
   var input = goog.dom.getElement('bm-ui-form-repeat-periodicity');
   var value = goog.dom.forms.getValue(input);
   this.getModel().rrule.interval = value
+  this.setFormActions_();
+
   if (this.checkRepeat_()) {
     this.autoSetRepeatSentence_();
   }
@@ -1270,6 +1372,8 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onRepeatEndOnChange_ = function(e
         this.autoSetEndRepeat_();
       }
     }
+    this.setFormActions_();
+
   }
 
 };
@@ -1285,6 +1389,8 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onCountChange_ = function(e) {
   var value = parseInt(goog.dom.forms.getValue(input), 10);
   this.getModel().rrule.count = value;
   this.getModel().rrule.until = null;
+  this.setFormActions_();
+
   if (this.checkRepeat_()) {
     this.autoSetRepeatSentence_();
   }
@@ -1306,6 +1412,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onUntilChange_ = function(e) {
     rrule.until = null;
   }
   rrule.count = null;
+  this.setFormActions_();
 
   if (this.checkRepeat_()) {
     this.autoSetRepeatSentence_();
@@ -1387,6 +1494,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onRepeatChange_ = function(e) {
   }
 
   model.states.repeat = (model.rrule != null);
+  this.setFormActions_();
 
   if (this.checkRepeat_()) {
     this.autoSetRepeatSentence_();
@@ -1474,6 +1582,8 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onAllDayChange_ = function() {
     this.getChild('tend').setValue(this.formatter.time.format(model.dtend));
 
   }
+  this.setFormActions_();
+  
   this.getChild('freebusy').updateDummyEventOnFormUpdate(model.dtstart, model.dtend, true);
 
   this.checkDate_();
@@ -1500,6 +1610,8 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onRepeatDaysChange_ = function(e)
       goog.dom.classlist.remove(el.parentNode, goog.getCssName('active'));
     }
   }
+  this.setFormActions_();
+
   if (this.checkRepeat_()) {
     this.autoSetRepeatSentence_();
   }
@@ -1532,6 +1644,8 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onRepeatByChange_ = function(e) {
       model.rrule.bymonth = model.dtstart.getMonth();
     }
   }
+  this.setFormActions_();
+
   if (this.checkRepeat_()) {
     this.autoSetRepeatSentence_();
   }
@@ -1548,6 +1662,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onDTEndChange_ = function() {
       this.getChild('freebusy').checkAvailability();
     }
   }
+  this.setFormActions_();
   this.getChild('freebusy').updateDummyEventOnFormUpdate(this.getModel().dtstart, this.getModel().dtend, false);
 };
 
@@ -1559,25 +1674,23 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onDTEndChange_ = function() {
 net.bluemind.calendar.vevent.ui.Form.prototype.onDTStartChange_ = function(old) {
   var e, model = this.getModel();
 
-  var diff = (model.dtstart.getTime() - old.getTime()) / 1000;
+  this.adaptor.adjustDTend(model, old);
   if (!model.states.allday) {
-    model.dtend.add(new goog.date.Interval(goog.date.Interval.SECONDS, diff));
     this.getChild('tend').setValue(this.formatter.time.format(model.dtend));
     e = model.dtend;
   } else {
-    diff = Math.round(diff / 86400);
-    model.dtend.add(new goog.date.Interval(goog.date.Interval.DAYS, diff));
     e = model.dtend.clone();
     e.add(new goog.date.Interval(goog.date.Interval.DAYS, -1));
   }
   this.getChild('dend').setDate(e)
-
+  
   if (this.checkDate_()) {
     if (model.states.busy && bluemind.net.OnlineHandler.getInstance().isOnline()) {
       this.getChild('freebusy').checkAvailability();
     }
   }
-
+  
+  this.setFormActions_();
   this.checkRepeat_();
   this.getChild('freebusy').updateDummyEventOnFormUpdate(model.dtstart, model.dtend, false);
 };
@@ -1618,6 +1731,8 @@ net.bluemind.calendar.vevent.ui.Form.prototype.autoSetEndRepeat_ = function() {
   } else {
     model.rrule.until = new net.bluemind.date.DateTime(model.rrule.until);
   }
+  this.setFormActions_();
+
 };
 
 /**
@@ -2206,6 +2321,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onOwnerChange_ = function() {
       'mailto' : model.organizer['mailto']
     } ]);
   }
+  this.setFormActions_();
 
   this.updateAttendeeBox_();
   this.updateReminderForm_();
@@ -2382,18 +2498,20 @@ net.bluemind.calendar.vevent.ui.Form.prototype.handleAddAttendee_ = function(e) 
       // default participation => RequiredParticipant
       attendee['role'] = 'RequiredParticipant';
       this.addAttendee_(attendee);
-
+      
       if(attendee['cutype'] == "Resource") {
         this.addResourceTemplateToDescription(attendee);
       }
-
+      
       this.getModel().attendees.push(attendee);
     }, this);
+    this.getModel().states.meeting = this.getModel().attendees.length !== 0;
     this.ac_.setAttendees(this.getModel().attendees);
     if (e.row['cutype'] == 'Group') {
       var uid = e.row['uri'];
       this.ac_.addGroupAttendee(uid, attendees);
     }
+    this.onAttendeeChange_();
   }, null, this);
 };
 
@@ -2404,6 +2522,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.handleRemoveAttendee_ = function(
   goog.array.removeIf(this.getModel().attendees, function(a) {
     return attendee['mailto'] == a['mailto'];
   });
+  this.getModel().states.meeting = this.getModel().attendees.length !== 0;
   this.getChild('freebusy').removeAttendee({
     'commonName' : attendee['commonName'],
     'dir' : attendee['dir'],
@@ -2411,11 +2530,12 @@ net.bluemind.calendar.vevent.ui.Form.prototype.handleRemoveAttendee_ = function(
   });
   this.ac_.setAttendees(this.getModel().attendees);
   this.ac_.sanitizeGroups(attendee);
-  
   if(attendee['cutype'] == "Resource") {
     this.removeResourceTemplateFromDescription(attendee);
   }
+  this.onAttendeeChange_();
 };
+
 
 /**
  * Add attendee to form
@@ -2482,6 +2602,32 @@ net.bluemind.calendar.vevent.ui.Form.prototype.addOrRemoveResourceTemplateFromDe
       .then(function (result) {
         descriptionEditor.setValue(result);
       });
+  }
+}
+
+net.bluemind.calendar.vevent.ui.Form.prototype.onAttendeeChange_ = function() {
+  this.setFormActions_();
+}
+
+net.bluemind.calendar.vevent.ui.Form.prototype.setFormActions_ = function() {
+  var model = this.getModel();
+  this.setFormButtons_(this.adaptor.isPublic(model.old, model), model.states.draft);
+}
+
+net.bluemind.calendar.vevent.ui.Form.prototype.setFormButtons_ = function(isMeeting, isDraft) {
+  if (isMeeting) {
+    /** @meaning general.send */
+    var MSG_SEND = goog.getMsg('Send');
+    this.getChild('toolbar').getChild("send").setCaption(MSG_SEND);
+    /** @meaning general.save */
+    if (isDraft) {
+      this.getChild('toolbar').getChild("save").setVisible(true);
+    } else {
+      this.getChild('toolbar').getChild("save").setVisible(false);
+    }
+  } else {
+    var MSG_SAVE = goog.getMsg('Save');
+    this.getChild('toolbar').getChild("send").setCaption(MSG_SAVE);
   }
 }
 

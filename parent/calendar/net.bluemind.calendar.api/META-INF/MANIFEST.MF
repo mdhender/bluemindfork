@@ -15,4 +15,4 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.core.task.api,
  net.bluemind.icalendar.api;bundle-version="1.0.0";visibility:=reexport,
  net.bluemind.attachment.api
-
+Eclipse-RegisterBuddy: net.bluemind.core.rest

@@ -29,7 +29,7 @@ import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.vertx.core.http.HttpServerRequest;
-import net.bluemind.proxy.http.auth.api.CookieHelper;
+import net.bluemind.proxy.http.auth.api.SecurityConfig;
 
 public class CSRFTokenManager {
 
@@ -41,7 +41,7 @@ public class CSRFTokenManager {
 		String sessionId = UUID.randomUUID().toString();
 		Cookie co = new DefaultCookie("HPSSESSION", sessionId);
 		co.setPath("/");
-		if (CookieHelper.secureCookies()) {
+		if (SecurityConfig.secureCookies) {
 			co.setSecure(true);
 		}
 		co.setHttpOnly(true);

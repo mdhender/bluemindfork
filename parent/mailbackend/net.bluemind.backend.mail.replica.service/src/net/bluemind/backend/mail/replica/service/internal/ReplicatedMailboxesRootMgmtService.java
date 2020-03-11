@@ -23,6 +23,7 @@
 package net.bluemind.backend.mail.replica.service.internal;
 
 import java.sql.SQLException;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -48,6 +49,7 @@ import net.bluemind.backend.mail.replica.persistence.MailboxReplicaStore;
 import net.bluemind.backend.mail.replica.service.internal.hooks.DeletedDataMementos;
 import net.bluemind.backend.mail.replica.utils.SubtreeContainer;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.api.IFlatHierarchyUids;
 import net.bluemind.core.container.model.Container;
@@ -137,6 +139,8 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 			ItemValue<User> found = userApi.byLogin(mailboxName);
 			if (found != null) {
 				owner = found.uid;
+			} else {
+				logger.warn("Login '{}' not found in domain '{}'", mailboxName, domainUid);
 			}
 		} else {
 			IMailshare shareApi = context.provider().instance(IMailshare.class, domainUid);
@@ -176,14 +180,26 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 	public void delete(String namespace, String mailboxName) {
 		String owner = owner(namespace, mailboxName, partition.domainUid, null);
 		if (owner != null) {
-			DataSource ds = DataSourceRouter.get(context, IFlatHierarchyUids.getIdentifier(owner, partition.domainUid));
-			reset((lookup -> {
+			List<DataSource> allDs = new LinkedList<>();
+			allDs.add(context.getDataSource());
+			allDs.add(DataSourceRouter.get(context, IFlatHierarchyUids.getIdentifier(owner, partition.domainUid)));
+			for (DataSource ds : allDs) {
+				logger.info("Deleting replicated stuff for ns: {}, box: {} on ds {}", namespace, mailboxName, ds);
 				try {
-					return lookup.store.findByTypeAndOwner(lookup.containerType, owner);
-				} catch (SQLException e) {
-					throw new ServerFault(e);
+					reset((lookup -> {
+						try {
+							return lookup.store.findByTypeAndOwner(lookup.containerType, owner);
+						} catch (SQLException e) {
+							throw new ServerFault(e);
+						}
+					}), ds);
+				} catch (Exception e) {
+					logger.error("Reset error: {}", e.getMessage(), e);
 				}
-			}), ds);
+			}
+			CacheRegistry.get().invalidateAll();
+		} else {
+			logger.warn("Owner ns: {}, mbox: {} not found.", namespace, mailboxName);
 		}
 	}
 

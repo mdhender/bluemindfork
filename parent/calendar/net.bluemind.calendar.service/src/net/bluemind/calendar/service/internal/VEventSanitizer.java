@@ -64,17 +64,19 @@ public class VEventSanitizer {
 		this.tagsSanitizer = new TagsSanitizer(ctx);
 	}
 
-	public void sanitize(VEventSeries vevent) throws ServerFault {
-		if (null != vevent.main) {
-			sanitize(vevent.main);
-		}
+	public void sanitize(VEventSeries vevent, boolean sendNotification) throws ServerFault {
 		if (null == vevent.occurrences) {
 			vevent.occurrences = Collections.emptyList();
 		}
-		vevent.occurrences.forEach(this::sanitize);
+		if (null != vevent.main) {
+			sanitize(vevent.main, sendNotification);
+			vevent.occurrences.forEach(e -> e.draft |= vevent.main.draft);
+		}
+
+		vevent.occurrences.forEach(e -> sanitize(e, sendNotification));
 	}
 
-	public void sanitize(VEvent vevent) throws ServerFault {
+	public void sanitize(VEvent vevent, boolean sendNotification) throws ServerFault {
 
 		// 3.8.1.9. Priority
 		// This priority is specified as an integer in the range 0
@@ -224,6 +226,7 @@ public class VEventSanitizer {
 			vevent.description = removeOuterMarkups(vevent.description);
 		}
 
+		vevent.draft &= !sendNotification;
 	}
 
 	private String removeOuterMarkups(String html) {

@@ -28,11 +28,11 @@ import net.bluemind.core.task.api.TaskStatus;
 
 public class Tasks {
 
-	public static TaskStatus follow(CliContext ctx, TaskRef ref) {
-		return follow(ctx, true, ref);
+	public static TaskStatus follow(CliContext ctx, TaskRef ref, String errorMessage) {
+		return follow(ctx, true, ref, errorMessage);
 	}
 
-	public static TaskStatus follow(CliContext ctx, boolean shouldLog, TaskRef ref) {
+	public static TaskStatus follow(CliContext ctx, boolean shouldLog, TaskRef ref, String errorMessage) {
 		ITask trackApi = ctx.adminApi().instance(ITask.class, ref.id);
 		TaskStatus ts = null;
 		int logIdx = 0;
@@ -56,8 +56,12 @@ public class Tasks {
 				}
 			}
 		} while (!ts.state.ended);
-		return ts;
 
+		if (!ts.state.succeed) {
+			ctx.error(errorMessage);
+		}
+
+		return ts;
 	}
 
 }

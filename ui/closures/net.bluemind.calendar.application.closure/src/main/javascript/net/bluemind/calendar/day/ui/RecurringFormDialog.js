@@ -67,6 +67,15 @@ net.bluemind.calendar.day.ui.RecurringFormDialog.prototype.enterDocument = funct
   this.getHandler().listen(goog.dom.getElement('rfd-btn-goto-serie'), goog.events.EventType.CLICK, this.gotoSerie_,
       false, this);
 
+  this.getHandler().listen(goog.dom.getElement('rfd-btn-all-the-following'), goog.events.EventType.CLICK, function() {
+    var model = this.getModel();
+    if (goog.date.isSameDay(this.vseries_.main.dtstart, model.recurrenceId)) {
+      this.gotoSerie_();
+    } else  {
+      this.gotoFollowing_();
+    }
+  });
+
   this.getHandler().listen(this, goog.ui.Dialog.EventType.SELECT, this.cancelForm_, false, this);
 };
 
@@ -80,6 +89,9 @@ net.bluemind.calendar.day.ui.RecurringFormDialog.prototype.setVisible = function
   goog.base(this, 'setVisible', visible);
   if (visible) {
     var model = this.getModel();
+    var el = this.getDomHelper().getElement('rfd-btn-all-the-following');
+    el = el.parentElement.parentElement;
+    goog.style.setElementShown(el, model.states.master)
     if (!goog.date.isSameDay(model.recurrenceId, model.dtstart)) {
       this.gotoInstance_();
     }
@@ -99,6 +111,29 @@ net.bluemind.calendar.day.ui.RecurringFormDialog.prototype.gotoInstance_ = funct
   var model = this.getModel();
   model.recurringDone = true;
   var e = new net.bluemind.calendar.vevent.VEventEvent(net.bluemind.calendar.vevent.EventType.DETAILS, this.getModel());
+  this.dispatchEvent(e);
+};
+
+
+/**
+ * goto this instance
+ * 
+ * @private
+ */
+net.bluemind.calendar.day.ui.RecurringFormDialog.prototype.gotoFollowing_ = function() {
+  this.setVisible(false);
+  var model = this.getModel();
+  var main = this.vseries_.main;
+  main.draft = false;
+  main.thisAndFuture =  model.dtstart.toIsoString(true, true);
+  main.originUid = main.uid;
+  main.uid = net.bluemind.mvp.UID.generate();
+  main.dtstart = model.dtstart;
+  main.dtend = model.dtend;
+  main.summary = model.summary;
+  main.attendee = model.attendee;
+  main.participation = model.participation;
+  var e = new net.bluemind.calendar.vevent.VEventEvent(net.bluemind.calendar.vevent.EventType.DETAILS, main);
   this.dispatchEvent(e);
 };
 

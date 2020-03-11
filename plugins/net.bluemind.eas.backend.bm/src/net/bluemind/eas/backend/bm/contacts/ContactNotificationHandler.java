@@ -22,17 +22,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.eas.backend.HierarchyNode;
-import net.bluemind.eas.dto.EasBusEndpoints;
-import net.bluemind.eas.dto.push.PushTrigger;
 import net.bluemind.eas.exception.CollectionNotFoundException;
 import net.bluemind.eas.store.ISyncStorage;
 import net.bluemind.hornetq.client.OOPMessage;
 import net.bluemind.hornetq.client.OutOfProcessMessageHandler;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.vertx.common.LocalJsonObject;
 
 public class ContactNotificationHandler implements OutOfProcessMessageHandler {
 
@@ -60,9 +58,7 @@ public class ContactNotificationHandler implements OutOfProcessMessageHandler {
 		try {
 			HierarchyNode node = store.getHierarchyNode(domainUid, userUid,
 					ContainerHierarchyNode.uidFor(container, IAddressBookUids.TYPE, domainUid));
-			PushTrigger pt = PushTrigger.forCollection((int) node.collectionId);
-			LocalJsonObject<PushTrigger> jso = new LocalJsonObject<>(pt);
-			eb.send(EasBusEndpoints.PUSH_TRIGGER, jso);
+			eb.publish("eas.collection." + node.collectionId, new JsonObject());
 		} catch (CollectionNotFoundException e) {
 			logger.error(e.getMessage(), e);
 		}

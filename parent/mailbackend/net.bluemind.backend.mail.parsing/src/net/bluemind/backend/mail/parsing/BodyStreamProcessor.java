@@ -174,6 +174,14 @@ public class BodyStreamProcessor {
 				mb.structure = p;
 				p.charset = p.mime.startsWith("text/") ? parsed.getCharset() : null;
 				p.encoding = parsed.getContentTransferEncoding();
+				if (fetchContent) {
+					SingleBody body = (SingleBody) parsed.getBody();
+					try (InputStream partStream = body.getInputStream()) {
+						p.content = ByteStreams.toByteArray(partStream);
+					} catch (IOException e) {
+						logger.warn("Failed to fetch content", e.getMessage());
+					}
+				}
 			} else {
 				Multipart mpBody = (Multipart) parsed.getBody();
 				processMultipart(mb, mpBody, filenames, bodyTxt, fetchContent);
@@ -183,7 +191,7 @@ public class BodyStreamProcessor {
 			extractedBody = extractedBody.replace("\u0000", "");
 			bodyTxt.append(extractedBody);
 			mb.preview = CharMatcher.whitespace()
-					.collapseFrom(extractedBody.substring(0, Math.min(160, extractedBody.length())), ' ');
+					.collapseFrom(extractedBody.substring(0, Math.min(160, extractedBody.length())), ' ').trim();
 
 			List<String> with = new LinkedList<>();
 			if (parsed.getFrom() != null && !parsed.getFrom().isEmpty()) {
@@ -332,18 +340,21 @@ public class BodyStreamProcessor {
 		if (body instanceof Multipart) {
 			Multipart mp = (Multipart) body;
 			List<AddressableEntity> parts = Mime4JHelper.expandParts(mp.getBodyParts());
-			String html = null;
 
-			for (AddressableEntity ae : parts) {
-				String mime = ae.getMimeType();
-				if (Mime4JHelper.TEXT_PLAIN.equals(mime) && !Mime4JHelper.isAttachment(ae)) {
-					return CharMatcher.whitespace().collapseFrom(getBodyContent(ae), ' ').trim();
-				} else if (html == null && Mime4JHelper.TEXT_HTML.equals(mime) && !Mime4JHelper.isAttachment(ae)) {
-					html = getBodyContent(ae);
-				}
+			Optional<AddressableEntity> htmlPart = parts.stream().filter(
+					part -> Mime4JHelper.TEXT_HTML.equals(part.getMimeType()) && !Mime4JHelper.isAttachment(part))
+					.findFirst();
+
+			if (htmlPart.isPresent()) {
+				return htmlToText(getBodyContent(htmlPart.get()));
 			}
-			if (html != null) {
-				return htmlToText(html);
+
+			Optional<AddressableEntity> txtPart = parts.stream().filter(
+					part -> Mime4JHelper.TEXT_PLAIN.equals(part.getMimeType()) && !Mime4JHelper.isAttachment(part))
+					.findFirst();
+
+			if (txtPart.isPresent()) {
+				return CharMatcher.whitespace().collapseFrom(getBodyContent(txtPart.get()), ' ').trim();
 			}
 
 		} else {

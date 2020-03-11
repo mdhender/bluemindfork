@@ -161,7 +161,8 @@ public class MessageBody {
 		}
 
 		private static List<Part> nonInlineAttachments(Part structure, Part parent, List<Part> attach) {
-			if (parent != null && structure.dispositionType != DispositionType.INLINE && structure.fileName != null) {
+			if (parent != null && ((structure.dispositionType != DispositionType.INLINE && structure.fileName != null)
+					|| structure.mime.equalsIgnoreCase("message/rfc822"))) {
 				attach.add(structure);
 			}
 			for (Part p : structure.children) {

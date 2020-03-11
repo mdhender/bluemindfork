@@ -22,6 +22,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -31,20 +34,25 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.file.AsyncFile;
+import io.vertx.core.file.OpenOptions;
 import io.vertx.core.streams.Pump;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.authentication.api.IAuthentication;
@@ -56,6 +64,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.rest.base.GenericStream;
 import net.bluemind.core.rest.base.GenericStream.AccumulatorStream;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
@@ -76,7 +85,6 @@ import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.node.api.FileDescription;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
-import net.bluemind.pool.impl.docker.DockerContainer;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.api.GlobalSettingsKeys;
 import net.bluemind.system.api.IGlobalSettings;
@@ -91,22 +99,17 @@ public class FileSystemFileHostingServiceTests {
 	public void setup() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
-		final CountDownLatch latch = new CountDownLatch(1);
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				latch.countDown();
-			}
-		};
-		VertxPlatform.spawnVerticles(done);
-		latch.await();
+		VertxPlatform.spawnBlocking(1, TimeUnit.MINUTES);
 
 		Server nodeServer = new Server();
-		nodeServer.ip = DockerEnv.getIp(DockerContainer.NODE.getName());
+		nodeServer.ip = DockerEnv.getIp("bluemind/node-tests");
 		nodeServer.tags = Lists.newArrayList("filehosting/data");
 
-		PopulateHelper.initGlobalVirt(nodeServer);
+		Server imapServer = new Server();
+		imapServer.ip = DockerEnv.getIp("bluemind/imap-role");
+		imapServer.tags = Lists.newArrayList("mail/imap");
+
+		PopulateHelper.initGlobalVirt(nodeServer, imapServer);
 
 		IGlobalSettings settings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IGlobalSettings.class);
@@ -287,24 +290,29 @@ public class FileSystemFileHostingServiceTests {
 
 	@Test
 	public void testGettingABigFile() throws Exception {
-		String testString = "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < 10000; i++) {
-			sb.append(testString);
+		System.err.println("gettingABigFile starts....");
+		Path tmpStuff = Files.createTempFile("yeah", ".bin");
+		tmpStuff.toFile().deleteOnExit();
+		Random rd = ThreadLocalRandom.current();
+		byte[] holder = new byte[1024 * 1024];
+		for (int i = 0; i < 100; i++) {
+			rd.nextBytes(holder);
+			Files.write(tmpStuff, holder, StandardOpenOption.APPEND);
 		}
-		String target = sb.toString();
+		AsyncFile stream = VertxPlatform.getVertx().fileSystem().openBlocking(tmpStuff.toFile().getAbsolutePath(),
+				new OpenOptions());
 		String path = "/test.txt";
 		long time = System.currentTimeMillis();
-		service.store(path, bytesToStream(target.getBytes()));
-		System.out.println("took " + (System.currentTimeMillis() - time) + " ms to write "
-				+ (10000 * testString.length()) + " bytes");
-
-		time = System.currentTimeMillis();
-		String fetched = streamToString(service.get(path));
-		System.out.println("took " + (System.currentTimeMillis() - time) + " ms to read "
-				+ (10000 * testString.length()) + " bytes");
-
-		Assert.assertEquals(target, fetched);
+		service.store(path, VertxStream.stream(stream));
+		System.out.println("took " + (System.currentTimeMillis() - time) + " ms to write " + tmpStuff.toFile().length()
+				+ " bytes");
+		System.err.println("Getting file " + path);
+		Stream retreived = service.get(path);
+		System.err.println("Got " + retreived);
+		CompletableFuture<Buffer> futBuf = GenericStream.asyncStreamToBuffer(retreived);
+		Buffer content = futBuf.get(40, TimeUnit.SECONDS);
+		assertEquals(tmpStuff.toFile().length(), content.length());
+		Files.delete(tmpStuff);
 	}
 
 	@Test
@@ -334,6 +342,7 @@ public class FileSystemFileHostingServiceTests {
 			service.store(path, bytesToStream(data));
 			Assert.fail();
 		} catch (Exception e) {
+			System.err.println("msg " + e.getMessage() + " class " + e.getClass());
 			Assert.assertTrue(e.getMessage().contains("The filesize exceeds the maximum"));
 		}
 	}
@@ -629,7 +638,7 @@ public class FileSystemFileHostingServiceTests {
 				int totalWrote = 0;
 				long until = System.currentTimeMillis() + (this.secs * 1000);
 
-				String chunk = StringUtils.leftPad("", 128, 'x');
+				String chunk = Strings.padStart("", 128, 'x');
 
 				while (System.currentTimeMillis() < until) {
 					if (!paused.get()) {

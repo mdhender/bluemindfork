@@ -36,14 +36,14 @@
 		<sonar.jacoco.excludes>**/*Test*,**/generated/**/*</sonar.jacoco.excludes>
 		<l10n.list>"en", "fr"</l10n.list>
 		<gwt-version>2.8.2</gwt-version>
-                <docker.devenv.tag>4.1.46885</docker.devenv.tag>
+                <docker.devenv.tag>4.1.48730</docker.devenv.tag>
 	</properties>
 
 	<repositories>
 		<repository>
 			<id>bluemind-deps</id>
 			<layout>p2</layout>
-			<url>http://forge.blue-mind.net/staging/p2/dependencies/461/</url>
+			<url>http://forge.blue-mind.net/staging/p2/dependencies/467/</url>
 		</repository>
 		<repository>
 			<id>tigase</id>

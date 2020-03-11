@@ -117,22 +117,9 @@ public class RestStreamImpl implements IRestStreamTestService {
 	public Stream inout(Stream stream) {
 
 		final QueueReadStream q = new QueueReadStream();
-		final ReadStream<Buffer> rStream = VertxStream.readInContext(vertx, stream);
-		rStream.endHandler(new Handler<Void>() {
-
-			@Override
-			public void handle(Void event) {
-				q.end();
-			}
-		});
-
-		rStream.handler(new Handler<Buffer>() {
-
-			@Override
-			public void handle(Buffer event) {
-				q.queue(event);
-			}
-		});
+		final ReadStream<Buffer> rStream = VertxStream.read(stream);
+		rStream.endHandler(v -> q.end());
+		rStream.handler(q::queue);
 		rStream.resume();
 
 		return VertxStream.stream(q);

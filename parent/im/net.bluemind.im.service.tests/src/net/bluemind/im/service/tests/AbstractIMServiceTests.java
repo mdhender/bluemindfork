@@ -107,7 +107,7 @@ public abstract class AbstractIMServiceTests {
 
 	@Test
 	public void testGetLastMessagesBetween() throws ServerFault {
-		Map<String, Object> map = new HashMap<String, Object>();
+		Map<String, Object> map = new HashMap<>();
 		map.put("id", UUID.randomUUID().toString());
 		map.put("timecreate", Calendar.getInstance().getTimeInMillis());
 		map.put("from", "test@bm.lan");

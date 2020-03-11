@@ -13,4 +13,10 @@
             impl="net.bluemind.core.container.persistence.AclCache$Registration">
       </reg>
    </extension>
+   <extension
+         point="net.bluemind.core.caches.registry.registration">
+      <reg
+            impl="net.bluemind.core.container.persistence.DataSourceRouter$CacheReg">
+      </reg>
+   </extension>
 </plugin>

@@ -19,11 +19,7 @@ package net.bluemind.cli.launcher;
 
 import java.util.List;
 
-import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.Ansi.Color;
 import org.osgi.framework.Version;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ArrayListMultimap;
 
@@ -32,14 +28,12 @@ import io.airlift.airline.Cli.CliBuilder;
 import io.airlift.airline.ParseArgumentsUnexpectedException;
 import io.airlift.airline.ParseCommandUnrecognizedException;
 import net.bluemind.cli.cmd.api.CliContext;
+import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.cmd.api.CmdLets;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 
 public class CLIManager {
-
-	private static final Logger logger = LoggerFactory.getLogger(CLIManager.class);
-
 	private final Cli<ICmdLet> airliftCli;
 
 	public CLIManager(Version v) {
@@ -65,16 +59,18 @@ public class CLIManager {
 	}
 
 	public void processArgs(String... args) {
+		CliContext ctx = CliContext.get();
+
 		try {
 			ICmdLet parsed = airliftCli.parse(args);
-			CliContext ctx = CliContext.get();
 			Runnable toRun = parsed.forContext(ctx);
 			toRun.run();
 		} catch (ParseArgumentsUnexpectedException | ParseCommandUnrecognizedException e) {
-			logger.error("Invalid input: {}", e.getMessage());
+			ctx.error(String.format("Invalid input: %s", e.getMessage()));
 			airliftCli.parse(new String[] {}).forContext(null).run();
+		} catch (CliException c) {
 		} catch (Exception e) {
-			System.out.println(Ansi.ansi().fg(Color.RED).a(e.getMessage()).reset());
+			ctx.error(e.getMessage());
 			throw e;
 		}
 	}

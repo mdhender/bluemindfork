@@ -69,6 +69,7 @@ var gBMPreferences = {
         try {
             Services.prefs.setBoolPref("privacy.cpd.cache", true);
             Services.prefs.setBoolPref("privacy.cpd.cookies", true);
+            Services.prefs.setBoolPref("privacy.cpd.offlineApps", true);
             let s = new Sanitizer();
             s.prefDomain = "privacy.cpd.";
             s.range = Sanitizer.getClearRange(Sanitizer.TIMESPAN_EVERYTHING);

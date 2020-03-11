@@ -18,8 +18,6 @@
  */
 package net.bluemind.proxy.http.auth.api;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -34,12 +32,6 @@ import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.proxy.http.auth.api.IAuthEnforcer.ISessionStore;
 
 public final class CookieHelper {
-
-	private static final boolean secureCookie;
-
-	static {
-		secureCookie = !Files.exists(Paths.get("/root/dev-unsecure-cookies"));
-	}
 
 	@SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory.getLogger(CookieHelper.class);
@@ -76,7 +68,7 @@ public final class CookieHelper {
 			Cookie co = new DefaultCookie("BMHPS", bmhps);
 			co.setPath("/");
 			co.setHttpOnly(true);
-			if (CookieHelper.secureCookies()) {
+			if (SecurityConfig.secureCookies) {
 				co.setSecure(true);
 			}
 			event.response().headers().add("Set-Cookie", ServerCookieEncoder.LAX.encode(co));
@@ -105,14 +97,10 @@ public final class CookieHelper {
 		co.setPath("/");
 		co.setMaxAge(0);
 		co.setHttpOnly(true);
-		if (CookieHelper.secureCookies()) {
+		if (SecurityConfig.secureCookies) {
 			co.setSecure(true);
 		}
 		headers.add("Set-Cookie", ServerCookieEncoder.LAX.encode(co));
-	}
-
-	public static boolean secureCookies() {
-		return secureCookie;
 	}
 
 }

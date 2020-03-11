@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
@@ -154,10 +155,15 @@ public class ReplicationState {
 
 	public CompletableFuture<List<MailboxFolder>> foldersByName(List<String> names) {
 		return storage.resolveNames(names).thenApply(resolved -> resolved.stream().map(v -> {
-			MailboxFolder ret = DtoConverters.from(v.partition, v.desc, v.replica);
-			ret.setAnnotations(v.annotations);
-			return ret;
-		}).collect(Collectors.toList()));
+			try {
+				MailboxFolder ret = DtoConverters.from(v.partition, v.desc, v.replica);
+				ret.setAnnotations(v.annotations);
+				return ret;
+			} catch (Exception e) {
+				logger.error("Resolved mailbox {} is incorrect ({}), skipping it.", v, e.getMessage());
+				return null;
+			}
+		}).filter(Objects::nonNull).collect(Collectors.toList()));
 	}
 
 	public CompletableFuture<Optional<Buffer>> record(MailboxFolder folder, String bodyGuid, long imapUid) {

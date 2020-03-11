@@ -18,8 +18,16 @@
  */
 package net.bluemind.core.auditlog;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import com.google.common.base.Throwables;
 
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
@@ -104,7 +112,7 @@ public class Auditor<T extends Auditor<T>> {
 
 	public T addObjectMetadata(String key, Object value) {
 		if (value != null) {
-			event.addObjectMetadata(key, JsonUtils.asString(value));
+			event.addObjectMetadata(key, valueAsObject(value));
 		} else {
 			event.addObjectMetadata(key, null);
 		}
@@ -114,11 +122,34 @@ public class Auditor<T extends Auditor<T>> {
 
 	public T addActionMetadata(String key, Object value) {
 		if (value != null) {
-			event.addActionMetadata(key, JsonUtils.asString(value));
+			event.addActionMetadata(key, valueAsObject(value));
 		} else {
 			event.addActionMetadata(key, null);
 		}
 		return getThis();
+	}
+
+	private JsonObject valueAsObject(Object value) {
+		if (isPrimitive(value)) {
+			return primitiveValueToJson(value);
+		} else if (value instanceof List) {
+			JsonObject val = new JsonObject();
+			val.put("values", new JsonArray((List<?>) value));
+			return val;
+		} else {
+			try {
+				return JsonObject.mapFrom(value);
+			} catch (Exception e) {
+				return primitiveValueToJson("Undecodable value : " + e.getMessage());
+			}
+		}
+	}
+
+	private JsonObject primitiveValueToJson(Object value) {
+		Map<String, Object> params = new HashMap<>();
+		params.put("value", value);
+		String payload = JsonUtils.asString(params);
+		return new JsonObject(payload);
 	}
 
 	@FunctionalInterface
@@ -168,4 +199,25 @@ public class Auditor<T extends Auditor<T>> {
 		event = event.createChildEvent();
 		return getThis();
 	}
+
+	private static final Set<Class<?>> wrapperTypes = getWrapperTypes();
+
+	private static boolean isPrimitive(Object obj) {
+		return wrapperTypes.contains(obj.getClass());
+	}
+
+	private static Set<Class<?>> getWrapperTypes() {
+		Set<Class<?>> ret = new HashSet<>();
+		ret.add(String.class);
+		ret.add(Boolean.class);
+		ret.add(Character.class);
+		ret.add(Byte.class);
+		ret.add(Short.class);
+		ret.add(Integer.class);
+		ret.add(Long.class);
+		ret.add(Float.class);
+		ret.add(Double.class);
+		return ret;
+	}
+
 }

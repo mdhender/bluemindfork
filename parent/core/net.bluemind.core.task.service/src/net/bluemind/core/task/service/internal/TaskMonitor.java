@@ -52,7 +52,6 @@ public class TaskMonitor extends AbstractTaskMonitor {
 	public void log(String log) {
 		LoggingTaskMonitor.logger.debug("send log {} {}", address, log);
 		eventBus.publish(address, MonitorMessage.log(log));
-
 	}
 
 	@Override
@@ -75,5 +74,4 @@ public class TaskMonitor extends AbstractTaskMonitor {
 	public boolean ended() {
 		return ended;
 	}
-
 }

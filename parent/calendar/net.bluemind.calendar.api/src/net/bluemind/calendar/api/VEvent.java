@@ -100,7 +100,8 @@ public class VEvent extends ICalendarElement {
 		}).collect(Collectors.toList());
 
 		copy.transparency = transparency;
-
+		copy.sequence = sequence;
+		copy.draft = draft;
 		return copy;
 	}
 

@@ -52,5 +52,4 @@ public class SchedulerProgressMonitor extends AbstractTaskMonitor {
 	public void log(String log) {
 		sch.info(runId, "en", log);
 	}
-
 }

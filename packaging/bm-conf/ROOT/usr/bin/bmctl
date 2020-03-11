@@ -72,6 +72,8 @@ function status_bm_stopped() {
     if systemctl status ${service} > /dev/null 2>&1; then
       ret=1
       echo ${service}" started while BlueMind is stopped - please restart bluemind: systemctl restart bluemind.target"
+    else
+      echo ${service}" is stopped."
     fi
   done
   
@@ -85,6 +87,8 @@ function status_bm_started() {
         && ! systemctl status ${service} > /dev/null 2>&1; then
       ret=1
       echo ${service}" fail - check systemctl status "${service}" and journalctl -xe -u "${service}
+    else
+      echo ${service}" is running."
     fi
   done
   

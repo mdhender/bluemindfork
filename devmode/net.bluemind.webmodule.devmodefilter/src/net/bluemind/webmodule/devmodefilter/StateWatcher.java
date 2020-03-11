@@ -21,6 +21,7 @@ public class StateWatcher {
 
 	public void start() {
 		Handler<Message<String>> basic = msg -> updateState(msg.body());
+
 		Handler<AsyncResult<Message<String>>> canFail = msg -> {
 			if (msg.succeeded()) {
 				updateState(msg.result().body());

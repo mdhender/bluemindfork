@@ -29,7 +29,9 @@ import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.api.report.DiagnosticReport;
 import net.bluemind.core.api.report.DiagnosticReport.State;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider.IServerSideServiceFactory;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.IServerTaskMonitor;
@@ -69,6 +71,11 @@ public class DirEntryMaintenance implements IDirEntryMaintenance, IInternalDirEn
 
 			if (entry == null) {
 				throw new ServerFault("entry " + entryUid + "@" + domainUid + " not found", ErrorCode.NOT_FOUND);
+			}
+
+			// make maintenance task executable for domain admins
+			if (context.getSecurityContext().isDomainAdmin(domainUid)) {
+				context = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
 			}
 
 			return new DirEntryMaintenance(context, domainUid, entry);

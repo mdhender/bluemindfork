@@ -43,23 +43,14 @@ public class MailboxGroupSharingEditor extends BaseSharingEditor implements IMai
 	public MailboxGroupSharingEditor() {
 		super(MailboxGroupSharingModelHandler.MODEL_ID, "mailboxacl");
 		edit.registerValidator(new CrossShardSharingValidator(this));
-
+		edit.setPublicSharingVisible(false);
 	}
 
 	@Override
 	public void loadModel(JavaScriptObject model) {
 		super.loadModel(model);
-		JsMapStringJsObject map = model.cast();
-		JsGroup group = map.get("group").cast();
 		SharingModel sm = SharingModel.get(model, MailboxGroupSharingModelHandler.MODEL_ID);
 		dataLocation = sm.getDataLocation();
-		if (group.getMailArchived()) {
-			edit.setVisible(false);
-		} else {
-			edit.setPublicSharingVisible(false);
-			edit.setVisible(true);
-		}
-
 	}
 
 	@Override
@@ -90,7 +81,6 @@ public class MailboxGroupSharingEditor extends BaseSharingEditor implements IMai
 			}
 		});
 	}
-	
 
 	@Override
 	public String getMailboxDataLocation() {

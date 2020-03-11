@@ -49,7 +49,7 @@ public class CyrusHsm extends AbstractConfFile {
 	@Override
 	public void write() throws ServerFault {
 		Template cyrusConf = openTemplate("backend.hsm.conf");
-		Map<String, Object> data = new HashMap<String, Object>();
+		Map<String, Object> data = new HashMap<>();
 
 		HsmConfig config = getHsmConfig();
 

@@ -26,5 +26,6 @@ Export-Package: net.bluemind.core.rest,
  net.bluemind.core.rest.vertx
 Bundle-Activator: net.bluemind.core.rest.RestActivator
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx
+Eclipse-BuddyPolicy: registered
 Bundle-ActivationPolicy: lazy
 

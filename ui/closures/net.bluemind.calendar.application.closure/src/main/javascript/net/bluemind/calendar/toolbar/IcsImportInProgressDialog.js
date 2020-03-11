@@ -26,15 +26,13 @@ goog.provide('net.bluemind.calendar.toolbar.IcsImportInProgressDialog');
 goog.require('net.bluemind.calendar.toolbar.templates');
 goog.require('net.bluemind.core.task.api.TaskClient');
 /**
- * 
  * @param {net.bluemind.mvp.ApplicationContext} context
  * @param {string} opt_class CSS class name for the dialog element, also used as
- *          a class name prefix for related elements; defaults to modal-dialog.
+ * a class name prefix for related elements; defaults to modal-dialog.
  * @param {boolean} opt_useIframeMask Work around windowed controls z-index
- *          issue by using an iframe instead of a div for bg element.
+ * issue by using an iframe instead of a div for bg element.
  * @param {goog.dom.DomHelper} opt_domHelper Optional DOM helper; see {@link
- *          goog.ui.Component} for semantics.
- * 
+ * goog.ui.Component} for semantics.
  * @constructor
  * @extends {goog.ui.Dialog}
  */
@@ -155,6 +153,9 @@ net.bluemind.calendar.toolbar.IcsImportInProgressDialog.prototype.watch = functi
             'all' : all
           });
           msg = MSG_ICS_ONE;
+        } else if (ok == 0) {
+          var MSG_ICS_NONE = goog.getMsg('No modified events have been found.');
+          msg = MSG_ICS_NONE;
         } else {
           msg = MSG_ICS_KO;
         }

@@ -58,6 +58,9 @@ public class SyncRequestParser implements IEasRequestParser<SyncRequest> {
 				CollectionSyncRequest collec = parseCollection(col);
 				if (collec != null) {
 					sr.collections.add(collec);
+				} else {
+					Element collectionId = DOMUtils.getUniqueElement(col, "CollectionId");
+					sr.invalidCollections.add(collectionId.getTextContent());
 				}
 			}
 
@@ -72,8 +75,10 @@ public class SyncRequestParser implements IEasRequestParser<SyncRequest> {
 			}
 
 			if (query.getElementsByTagName("Partial").getLength() > 0) {
-				logger.info("Partial element has been found. " + previousKnowledge.getLastMonitored().size()
-						+ " collection(s) are loaded from cache");
+				if (logger.isInfoEnabled()) {
+					logger.info("Partial element has been found. {} collection(s) are loaded from cache",
+							previousKnowledge.getLastMonitored().size());
+				}
 				sr.partial = true;
 				sr.collections.addAll(previousKnowledge.getLastMonitored());
 			}
@@ -91,7 +96,7 @@ public class SyncRequestParser implements IEasRequestParser<SyncRequest> {
 			try {
 				collection.setCollectionId(Integer.parseInt(fid.getTextContent()));
 			} catch (NumberFormatException e) {
-				logger.error(e.getMessage(), e);
+				logger.info("Invalid collectionId {}", fid.getTextContent());
 				return null;
 			}
 

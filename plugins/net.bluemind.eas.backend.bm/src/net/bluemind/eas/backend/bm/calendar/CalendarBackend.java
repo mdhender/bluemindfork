@@ -279,6 +279,7 @@ public class CalendarBackend extends CoreConnect {
 				}
 
 				String uid = UUID.randomUUID().toString();
+				event.main.sequence = 0;
 				service.create(uid, event, true);
 				ret = CollectionItem.of(collectionId, uid);
 				logger.info("Create event bs:" + bs.getLoginAtDomain() + ", collection: " + folder.containerUid
@@ -335,7 +336,6 @@ public class CalendarBackend extends CoreConnect {
 							bs.getUser().getDomain()));
 
 			ItemValue<VEventSeries> vevent = cs.getComplete(eventUid);
-
 			ParticipationStatus partStatus = fromStatus(status);
 			boolean rsvp = (partStatus == ParticipationStatus.NeedsAction);
 			if (instanceId == null) {
@@ -373,6 +373,7 @@ public class CalendarBackend extends CoreConnect {
 
 					vevent.value.occurrences = ImmutableList.<VEventOccurrence>builder()
 							.addAll(vevent.value.occurrences).add(exception).build();
+
 					cs.update(vevent.uid, vevent.value, true);
 				} else {
 					Iterator<Attendee> it = rec.attendees.iterator();
@@ -383,6 +384,7 @@ public class CalendarBackend extends CoreConnect {
 							a.rsvp = rsvp;
 						}
 					}
+
 					cs.update(vevent.uid, vevent.value, true);
 				}
 
@@ -543,6 +545,7 @@ public class CalendarBackend extends CoreConnect {
 
 				service = getService(bs, dstFolder.containerUid);
 				String uid = UUID.randomUUID().toString();
+				evt.value.main.sequence = 0;
 				service.create(uid, evt.value, false);
 
 				resp.status = Status.Success;

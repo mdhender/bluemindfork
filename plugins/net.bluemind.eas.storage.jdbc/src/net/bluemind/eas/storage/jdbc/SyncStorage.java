@@ -202,8 +202,15 @@ public class SyncStorage implements ISyncStorage {
 		if (mailFolder == null) {
 			throw new CollectionNotFoundException("mailbox '" + name + "' not found");
 		}
-		return new MailFolder((int) mailFolder.internalId, mailFolder.uid, mailFolder.value.name,
-				mailFolder.value.fullName, mailFolder.value.parentUid);
+		String cont = IMailReplicaUids.mboxRecords(mailFolder.uid);
+		String hNodeUid = ContainerHierarchyNode.uidFor(cont, IMailReplicaUids.MAILBOX_RECORDS,
+				bs.getUser().getDomain());
+		ItemValue<ContainerHierarchyNode> hNode = getIContainersFlatHierarchyService(bs).getComplete(hNodeUid);
+		if (hNode == null) {
+			throw new CollectionNotFoundException("mailbox '" + name + "' not found");
+		}
+		return new MailFolder((int) hNode.internalId, mailFolder.uid, mailFolder.value.name, mailFolder.value.fullName,
+				mailFolder.value.parentUid);
 	}
 
 	@Override

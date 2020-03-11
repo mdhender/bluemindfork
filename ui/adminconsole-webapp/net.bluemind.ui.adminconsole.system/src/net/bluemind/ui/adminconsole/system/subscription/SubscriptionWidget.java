@@ -148,6 +148,9 @@ public class SubscriptionWidget extends Composite implements IGwtScreenRoot {
 	@UiField
 	Label sendReportError;
 
+	@UiField
+	VerticalPanel hostReportPanel;
+
 	public interface BBBundle extends ClientBundle {
 		@Source("SubscriptionWidget.css")
 		BBStyle getStyle();
@@ -196,7 +199,9 @@ public class SubscriptionWidget extends Composite implements IGwtScreenRoot {
 
 		mailTable.setInformationsPanels(aboutSubContacts, noSubContacts);
 		mailTable.setStyleName(style.mailContact());
+	}
 
+	private void setupHostReportTool() {
 		AsyncHandler<String> handler = new AsyncHandler<String>() {
 			public void success(String value) {
 				sendReportError.setText("");
@@ -211,7 +216,7 @@ public class SubscriptionWidget extends Composite implements IGwtScreenRoot {
 			}
 
 			public void failure(Throwable e) {
-				sendReportError.setText(e.getMessage());
+				sendReportError.setText(SubscriptionConstants.INST.sendReportError(e.getMessage()));
 			}
 		};
 
@@ -334,6 +339,13 @@ public class SubscriptionWidget extends Composite implements IGwtScreenRoot {
 				os.show();
 			}
 		});
+
+		if (sub.kind == SubscriptionInformations.Kind.HOST) {
+			hostReportPanel.setVisible(true);
+			setupHostReportTool();
+		} else {
+			hostReportPanel.setVisible(false);
+		}
 	}
 
 	private void save(String licence, String filename) {

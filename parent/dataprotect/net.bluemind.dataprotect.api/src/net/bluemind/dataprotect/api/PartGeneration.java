@@ -74,6 +74,8 @@ public class PartGeneration {
 	public void validate() {
 		if (withErrors) {
 			valid = GenerationStatus.INVALID;
+		} else if (withWarnings) {
+			valid = GenerationStatus.UNKNOWN;
 		} else {
 			valid = GenerationStatus.VALID;
 		}

@@ -27,6 +27,8 @@ import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.calendar.api.ICalendar;
+import net.bluemind.core.api.fault.ErrorCode;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.task.api.ITask;
@@ -67,7 +69,7 @@ public class DeleteProtocol implements IDavProtocol<DeleteQuery, DeleteResponse>
 		try {
 			ContainerDescriptor cd = lc.vStuffContainer(dres);
 			if (rt == ResType.VSTUFF_CONTAINER) {
-				logger.info("Should delete container " + cd.uid + " " + cd.type);
+				logger.info("Should delete container {} {}", cd.uid, cd.type);
 				if ("calendar".equals(cd.type)) {
 					ICalendar calApi = lc.getCore().instance(net.bluemind.calendar.api.ICalendar.class, cd.uid);
 					TaskRef tr = calApi.reset();
@@ -104,10 +106,17 @@ public class DeleteProtocol implements IDavProtocol<DeleteQuery, DeleteResponse>
 				ITodoList calApi = lc.getCore().instance(ITodoList.class, cd.uid);
 				calApi.delete(veventUid);
 			} else {
-				logger.error("Not supported path " + dres.getPath());
+				logger.error("Not supported path {}", dres.getPath());
 				resp.setStatus(404);
 			}
 
+		} catch (ServerFault sf) {
+			if (sf.getCode() != ErrorCode.NOT_FOUND) {
+				logger.error(sf.getMessage(), sf);
+				resp.setStatus(500);
+			} else {
+				logger.warn(sf.getMessage());
+			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			resp.setStatus(500);

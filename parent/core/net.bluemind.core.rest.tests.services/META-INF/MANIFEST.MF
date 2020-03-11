@@ -13,5 +13,6 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  io.netty;bundle-version="4.0.33",
  net.bluemind.core.rest;bundle-version="1.0.0",
  org.junit
+Eclipse-RegisterBuddy: net.bluemind.core.rest
 Export-Package: net.bluemind.core.rest.tests.services
 

@@ -246,11 +246,11 @@ net.bluemind.calendar.vevent.VEventActions.prototype.save = function(e) {
   return this.ctx_.service('calendar').getItem(model.initalContainer || model.calendar, model.uid).then(
       function(existing) {
         if (existing && model.initalContainer && model.calendar != model.initalContainer) {
-          this.move_(e, existing);
+          return this.move_(e, existing);
         } else if (!existing) {
-          this.create_(e);
+          return this.create_(e);
         } else {
-          this.update_(e, existing);
+          return this.update_(e, existing);
         }
       }, null, this);
 };
@@ -262,18 +262,16 @@ net.bluemind.calendar.vevent.VEventActions.prototype.save = function(e) {
  */
 net.bluemind.calendar.vevent.VEventActions.prototype.remove = function(e) {
   var model = e.vevent;
-  this.ctx_.service('calendar').getItem(model.calendar, model.uid).then(function(vseries) {
-    var isPublic = this.adaptor_.isPublicChanges(vseries, model);
-    if (!this.checkSendNotification_(model, isPublic, true)) {
-      model.states.updating = true;
-      this.showSendNotification_(model, e.type);
-    } else if (!this.checkRecurringState_(vseries, model)) {
+  return this.ctx_.service('calendar').getItem(model.calendar, model.uid).then(function(vseries) {
+    model.sendNotification = true;
+    if (!this.checkRecurringState_(vseries, model)) {
       this.showReccurringDeleteDialog_(vseries, model);
     } else if (!model.states.main && vseries['value']['main']) {
       var recurrence = this.ctx_.helper('date').toBMDateTime(model.recurrenceId, model.timezones.recurrence);
       vseries['value']['main']['exdate'] = vseries['value']['main']['exdate'] || [];
       vseries['value']['main']['exdate'].push(recurrence);
       this.adaptor_.addExdate(recurrence, vseries);
+      this.sanitizeDraft_(vseries, model.sendNotification);
       return this.doUpdate_(vseries, model.sendNotification).then(this.resolve_, this.reject_, this);
     } else {
       return this.doRemove_(model.calendar, model.uid, model.sendNotification).then(this.resolve_, this.reject_, this);
@@ -312,6 +310,9 @@ net.bluemind.calendar.vevent.VEventActions.prototype.move_ = function(e, existin
   var model = e.vevent;
 
   var isPublic = this.adaptor_.isPublicChanges(null, model);
+  if (!isPublic) {
+    model.sendNotification = false;
+  }
   if (goog.isDefAndNotNull(model.addNote) && model.addNote) {
     return this.showSendNote_(model);
   } else if (!this.checkSendNotification_(model, isPublic)) {
@@ -320,7 +321,8 @@ net.bluemind.calendar.vevent.VEventActions.prototype.move_ = function(e, existin
   } else {
     var vseries = this.adaptor_.fromVEventModelView(model);
     vseries['value']['icsUid'] = existing['value']['icsUid'];
-    this.doCreate_(vseries, model.sendNotification).then(function() {
+    this.sanitizeDraft_(vseries, model.sendNotification);
+    return this.doCreate_(vseries, model.sendNotification).then(function() {
       return this.doRemove_(model.initalContainer, vseries.uid, false);
     }, null, this).then(function() {
       return net.bluemind.calendar.Messages.successMove();
@@ -335,14 +337,20 @@ net.bluemind.calendar.vevent.VEventActions.prototype.move_ = function(e, existin
 net.bluemind.calendar.vevent.VEventActions.prototype.create_ = function(e) {
   var model = e.vevent;
   var isPublic = this.adaptor_.isPublicChanges(null, model);
+  if (!isPublic) {
+    model.sendNotification = false;
+  }
   if (goog.isDefAndNotNull(model.addNote) && model.addNote) {
     return this.showSendNote_(model);
   } else if (!this.checkSendNotification_(model, isPublic)) {
     model.states.updating = false;
     return this.showSendNotification_(model, e.type);
+  } else if (model.thisAndFuture) {
+    return this.createThisAndFutureException_(model).then(this.resolve_, this.reject_, this);
   } else {
     var vseries = this.adaptor_.fromVEventModelView(model);
     this.collectAttendees_(model.attendees);
+    this.sanitizeDraft_(vseries, model.sendNotification);
     return this.doCreate_(vseries, model.sendNotification).then(this.resolve_, this.reject_, this);
   }
 };
@@ -354,23 +362,26 @@ net.bluemind.calendar.vevent.VEventActions.prototype.create_ = function(e) {
 net.bluemind.calendar.vevent.VEventActions.prototype.update_ = function(e, vseries) {
   var model = e.vevent;
   var isPublic = this.adaptor_.isPublicChanges(vseries, model);
-  if (goog.isDefAndNotNull(model.addNote) && model.addNote) {
+  if (!isPublic) {
+    model.sendNotification = false;
+  }
+  if (!this.checkRecurringState_(vseries, model)) {
+    this.showReccurringUpdateDialog_(vseries, model);
+  } else if (goog.isDefAndNotNull(model.addNote) && model.addNote) {
     return this.showSendNote_(model);
   } else if (!this.checkSendNotification_(model, isPublic)) {
     model.states.updating = true;
     this.showSendNotification_(model, e.type);
-  } else if (!this.checkRecurringState_(vseries, model)) {
-    this.showReccurringUpdateDialog_(vseries, model);
   } else if (!this.checkPrivateState_(model, e.force, isPublic)) {
     this.showPrivateChangesDialog_(e);
-  } else if (model.updateFollowing) {
-    return this.doUpdateFollowing_(model, vseries).then(this.resolve_, this.reject_, this);
   } else {
     var old = this.adaptor_.getRawOccurrence(model.recurrenceId, vseries);
     vseries = this.adaptor_.fromVEventModelView(model, vseries);
     var updated = this.adaptor_.getRawOccurrence(model.recurrenceId, vseries);
+    model.old = updated;
     if (goog.isDefAndNotNull(model.sendNotification) && model.sendNotification) {
-      if (model.states.master && this.requiresAttendeesReset_(old, updated)) {
+      var adaptor = new net.bluemind.calendar.vevent.VEventAdaptor(this.ctx_);
+      if (model.states.master && adaptor.isSignificantlyModified(old, model)) {        
         goog.array.forEach(updated['attendees'], function(a) {
           a['partStatus'] = 'NeedsAction';
           // BM-12048 rsvp on attendees reset
@@ -386,25 +397,28 @@ net.bluemind.calendar.vevent.VEventActions.prototype.update_ = function(e, vseri
       }
 
     }
+    this.sanitizeDraft_(vseries, model.sendNotification, old, updated);
     this.collectAttendees_(model.attendees);
     return this.doUpdate_(vseries, model.sendNotification).then(this.resolve_, this.reject_, this);
   }
 
 };
 
-/**
- * @param {net.bluemind.calendar.vevent.VEventEvent} oldVersion
- * @param {net.bluemind.calendar.vevent.VEventEvent} newVersion
- * @private
- */
-net.bluemind.calendar.vevent.VEventActions.prototype.requiresAttendeesReset_ = function(oldVersion, newVersion) {
-  if (!newVersion['attendees']) return false;
-  var reset = (oldVersion == null);
-
-  reset = reset || (oldVersion['location'] != newVersion['location']);
-  reset = reset || this.adaptor_.recurrenceHasChanged(oldVersion, newVersion);
-
-  return reset;
+net.bluemind.calendar.vevent.VEventActions.prototype.sanitizeDraft_ = function(vseries, sendNotification, old, updated) {
+  if (sendNotification) {
+    vseries['value']['main']['draft'] = false;
+    goog.array.forEach(vseries['value']['occurrences'], function(occurrence) {
+      occurrence['draft'] = false;
+    });
+  }
+  if (old && !old['draft']) {
+    updated['draft'] = false;
+  }
+  if (vseries['value']['main']['draft']) {
+    goog.array.forEach(vseries['value']['occurrences'], function(occurrence) {
+      occurrence['draft'] = true;
+    });
+  }
 }
 
 /**
@@ -415,16 +429,18 @@ net.bluemind.calendar.vevent.VEventActions.prototype.requiresAttendeesReset_ = f
  * @return {goog.Promise}
  * @private
  */
-net.bluemind.calendar.vevent.VEventActions.prototype.doUpdateFollowing_ = function(model, vseries) {
-  var helper = this.ctx_.helper('date');
-  var dtstart = helper.create(vseries['value']['main']['dtstart']);
-  var until = model.dtstart.clone();
-  until.add(new goog.date.Interval(0, 0, -1));
-  vseries['value']['main']['rrule']['until'] = this.adaptor_.adaptUntil(dtstart, until);
-  model.uid = net.bluemind.mvp.UID.generate();
-  var neo = this.adaptor_.fromVEventModelView(model);
-  return this.doUpdate_(vseries, model.sendNotification).then(function() {
-    return this.doCreate_(neo, model.sendNotification);
+net.bluemind.calendar.vevent.VEventActions.prototype.createThisAndFutureException_ = function(model) {
+  return this.ctx_.service('calendar').getItem(model.calendar, model.originUid).then(function(vseries) {
+    var dtstart = this.ctx_.helper('date').create(vseries['value']['main']['dtstart']);
+    var until = this.ctx_.helper('date').fromIsoString(model.thisAndFuture, dtstart.timezone);
+    until.add(new goog.date.Interval(0, 0, -1));
+    vseries['value']['main']['rrule']['until'] = this.adaptor_.adaptUntil(dtstart, until);
+    this.sanitizeDraft_(vseries, model.sendNotification);
+    return this.doUpdate_(vseries, model.sendNotification)
+  }, null, this).then(function() {
+    var vseries = this.adaptor_.fromVEventModelView(model);
+    this.sanitizeDraft_(vseries, model.sendNotification);
+    return this.doCreate_(vseries, model.sendNotification);
   }, null, this);
 };
 
@@ -517,15 +533,21 @@ net.bluemind.calendar.vevent.VEventActions.prototype.reject_ = function(message)
 net.bluemind.calendar.vevent.VEventActions.prototype.goToForm_ = function(model, opt_vseries) {
 
   var uri = new goog.Uri('/vevent/');
+  if (model.thisAndFuture) {
+    uri.getQueryData().set('this-and-future', model.thisAndFuture);
+  }
+  if (model.originUid) {
+    uri.getQueryData().set('origin-uid', model.originUid);
+  }
   uri.getQueryData().set('uid', model.uid);
   if (model.recurrenceId) {
     uri.getQueryData().set('recurrence-id', model.recurrenceId.toIsoString(true, true))
   }
   uri.getQueryData().set('container', model.calendar);
-  // FIXME
+
   if (model.states.updatable) {
-    var storage = bluemind.storage.StorageHelper.getExpiringStorage();
     var vseries = this.adaptor_.fromVEventModelView(model, opt_vseries);
+    var storage = bluemind.storage.StorageHelper.getExpiringStorage();
     storage.set(model.uid, vseries, goog.now() + 600);
     uri.getQueryData().set('draft', true);
   }
@@ -556,10 +578,8 @@ net.bluemind.calendar.vevent.VEventActions.prototype.showPrivateChangesDialog_ =
  * @return {boolean}
  */
 net.bluemind.calendar.vevent.VEventActions.prototype.checkSendNotification_ = function(model, isPublic, isDeleteAction) {
-  if (this.popups_.containsKey('notification') && !goog.isDefAndNotNull(model.sendNotification) && isPublic) {
-    var needNotif = isDeleteAction
-        || this.needNotification(model.oldValue, this.adaptor_.veventAdaptor_.fromModelView(model));
-    return !needNotif;
+  if (this.popups_.containsKey('notification') && !goog.isDefAndNotNull(model.sendNotification)) {
+    return !(isPublic || isDeleteAction);
   }
   return true;
 };
@@ -591,7 +611,7 @@ net.bluemind.calendar.vevent.VEventActions.prototype.checkRecurringState_ = func
  * @return {boolean}
  */
 net.bluemind.calendar.vevent.VEventActions.prototype.checkPrivateState_ = function(model, force, isPublic) {
-  if (this.popups_.containsKey('private') && model.states.meeting && !force && !isPublic) {
+  if (this.popups_.containsKey('private') && model.states.meeting && !model.states.master && !force) {
     return false;
   }
   return true;
@@ -673,63 +693,3 @@ net.bluemind.calendar.vevent.VEventActions.prototype.showReccurringFormDialog_ =
   this.popups_.get('recurring-form').setVSeries(vseries);
   this.popups_.get('recurring-form').setVisible(true);
 };
-
-net.bluemind.calendar.vevent.VEventActions.prototype.needNotification = function(oldValue, actual) {
-  var compareOrganizer = function(old, actual) {
-    if (!old && actual || !actual && old) {
-      return false;
-    }
-    return old == actual || old['dir'] == actual['dir'];
-  };
-
-  var compareAttendees = function(old, actual) {
-    if (old == null && actual == null) {
-      return true;
-    } else if ((old == null && actual != null) || (old != null && actual == null)) {
-      return false;
-    } else if (old.length != actual.length) {
-      return false;
-    } else {
-      return goog.array.equals(old, actual, function(oldAttendee, actualAttendee) {
-        return oldAttendee['mailto'] == actualAttendee['mailto']
-            && oldAttendee['partStatus'] == actualAttendee['partStatus'];
-      });
-    }
-
-  };
-
-  var compareAttachments = function(old, actual) {
-    if (old == null && actual == null) {
-      return true;
-    } else if ((old == null && actual != null) || (old != null && actual == null)) {
-      return false;
-    } else if (old.length != actual.length) {
-      return false;
-    } else {
-      return goog.array.equals(old, actual, function(oldAttachment, actualAttachment) {
-        return oldAttachment['name'] == actualAttachment['name']
-            && oldAttachment['publicUrl'] == actualAttachment['publicUrl'];
-      });
-    }
-
-  };
-
-  var compareExdate = function(old, actual) {
-    var oldLength = goog.isDefAndNotNull(old) && goog.isArray(old) ? old.length : 0;
-    var actualLength = goog.isDefAndNotNull(actual) && goog.isArray(actual) ? actual.length : 0;
-    return actualLength == oldLength;
-  }
-  var ret = false;
-  ret |= oldValue['summary'] != actual['summary'];
-  ret |= oldValue['description'] != actual['description'];
-  ret |= oldValue['classification'] != actual['classification'];
-  ret |= oldValue['location'] != actual['location'];
-  ret |= oldValue['priority'] != actual['priority'];
-  ret |= !compareExdate(oldValue['exdate'], actual['exdate']);
-  ret |= !compareAttendees(oldValue['attendees'], actual['attendees']);
-  ret |= !compareAttachments(oldValue['attachments'], actual['attachments']);
-  ret |= !compareOrganizer(oldValue['organizer'], actual['organizer']);
-
-  ret |= this.adaptor_.recurrenceHasChanged(oldValue, actual);
-  return ret;
-}

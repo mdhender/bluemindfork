@@ -495,22 +495,38 @@ public abstract class Scanner {
 				coreService.updateUser(userManager.user);
 			}
 
-			if (userManager.userPhoto != null) {
-				coreService.userSetPhoto(userManager.user.uid, userManager.userPhoto);
-			} else {
-				coreService.userDeletePhoto(userManager.user.uid);
-			}
-
 			userManager.getUpdatedMailFilter().ifPresent(mf -> coreService.setMailboxFilter(userManager.user.uid, mf));
 
 			if (userManager.mailboxQuota != null) {
 				coreService.setMailboxQuota(userManager.user.uid, userManager.mailboxQuota);
 			}
-
-			manageUserGroups(userManager);
 		} catch (Exception e) {
 			logger.error(String.format("Error on managing user DN: %s", userManager.entry.getDn().getName()), e);
 			importLogger.error(Messages.manageUserFailed(userManager.entry, e));
+			return;
+		}
+
+		manageUserPhoto(userManager);
+
+		try {
+			manageUserGroups(userManager);
+		} catch (Exception e) {
+			logger.error(String.format("Error on managing user DN: %s groups membership",
+					userManager.entry.getDn().getName()), e);
+			importLogger.error(Messages.manageUserGroupsMemberships(userManager.entry, e));
+		}
+	}
+
+	private void manageUserPhoto(UserManager userManager) {
+		try {
+			if (userManager.userPhoto != null) {
+				coreService.userSetPhoto(userManager.user.uid, userManager.userPhoto);
+			} else {
+				coreService.userDeletePhoto(userManager.user.uid);
+			}
+		} catch (Exception e) {
+			logger.warn(String.format("Error on managing user DN: %s photo", userManager.entry.getDn()), e);
+			importLogger.warning(Messages.manageUserPhotoFailed(userManager.entry, e));
 		}
 	}
 

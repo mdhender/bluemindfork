@@ -897,6 +897,33 @@ public class VEventSeriesStoreTests {
 		assertEquals(event.uid, res.get(0));
 	}
 
+	@Test
+	public void testSetSequence() throws SQLException {
+		ItemValue<VEventSeries> event = defaultVEvent();
+		event.value.main.sequence = 5;
+		itemStore.create(Item.create(event.uid, UUID.randomUUID().toString()));
+		Item item = itemStore.get(event.uid);
+		vEventStore.create(item, event.value);
+		VEventSeries evt = vEventStore.get(item);
+		assertEquals(5, evt.main.sequence.intValue());
+
+	}
+
+	@Test
+	public void testSetDraft() throws SQLException {
+		ItemValue<VEventSeries> event = defaultVEvent();
+		itemStore.create(Item.create(event.uid, UUID.randomUUID().toString()));
+		Item item = itemStore.get(event.uid);
+		event.value.main.draft = true;
+		vEventStore.create(item, event.value);
+		VEventSeries evt = vEventStore.get(item);
+		assertTrue(evt.main.draft);
+		event.value.main.draft = false;
+		vEventStore.update(item, event.value);
+		evt = vEventStore.get(item);
+		assertFalse(evt.main.draft);
+	}
+
 	private ItemValue<VEventSeries> defaultVEvent() {
 		VEventSeries series = new VEventSeries();
 		VEvent event = new VEvent();

@@ -18,8 +18,6 @@
  */
 package net.bluemind.core.task.service;
 
-import net.bluemind.core.task.service.IServerTaskMonitor;
-
 public class NullTaskMonitor implements IServerTaskMonitor {
 
 	public NullTaskMonitor() {
@@ -54,5 +52,4 @@ public class NullTaskMonitor implements IServerTaskMonitor {
 	public void log(String log) {
 
 	}
-
 }

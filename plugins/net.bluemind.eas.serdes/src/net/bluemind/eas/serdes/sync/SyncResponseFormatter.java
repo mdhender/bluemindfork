@@ -72,7 +72,7 @@ public class SyncResponseFormatter implements IEasResponseFormatter<SyncResponse
 					final Callback<IResponseBuilder> forAsync) {
 				b.container(NamespaceMapping.Sync, "Collection");
 				b.text(NamespaceMapping.Sync, "SyncKey", csr.syncKey);
-				b.text(NamespaceMapping.Sync, "CollectionId", Integer.toString(csr.collectionId));
+				b.text(NamespaceMapping.Sync, "CollectionId", csr.collectionId);
 				b.text(NamespaceMapping.Sync, "Status", csr.status.asXmlValue());
 
 				if (csr.moreAvailable) {

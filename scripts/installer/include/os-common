@@ -63,6 +63,19 @@ check_debian_stretch() {
     return 1
 }
 
+check_diskfree() {
+    path="$1"
+    minimum_kb="$2"
+    [ -z "$path" ] || [ -z "$minimum_kb" ] && return 0
+    avail=$(df -k --output=avail "$path" 2>/dev/null | tail -n+2)
+    if [ "$avail" -gt "$minimum_kb" ]; then
+        return 0
+    else
+        return 1
+    fi
+
+}
+
 detect_os() {
     if [ -e "./rhel7" ]; then
         INSTALLER_VERSION=${REDHAT7}

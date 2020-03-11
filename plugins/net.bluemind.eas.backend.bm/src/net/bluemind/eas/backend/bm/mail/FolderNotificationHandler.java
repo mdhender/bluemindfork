@@ -21,21 +21,14 @@ package net.bluemind.eas.backend.bm.mail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.vertx.core.eventbus.EventBus;
-import net.bluemind.eas.dto.EasBusEndpoints;
-import net.bluemind.eas.dto.push.PushTrigger;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.hornetq.client.OOPMessage;
 import net.bluemind.hornetq.client.OutOfProcessMessageHandler;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.vertx.common.LocalJsonObject;
 
 public class FolderNotificationHandler implements OutOfProcessMessageHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(FolderNotificationHandler.class);
-	private static final EventBus eb = VertxPlatform.eventBus();
-
-	public FolderNotificationHandler() {
-	}
 
 	@Override
 	public void handle(OOPMessage m) {
@@ -43,10 +36,7 @@ public class FolderNotificationHandler implements OutOfProcessMessageHandler {
 
 		String owner = m.getStringProperty("owner");
 
-		PushTrigger pt = PushTrigger.hierarchyChanged(owner);
-		LocalJsonObject<PushTrigger> jso = new LocalJsonObject<>(pt);
-		eb.send(EasBusEndpoints.PUSH_TRIGGER, jso);
-
+		VertxPlatform.eventBus().publish("eas.hierarchy." + owner, new JsonObject());
 	}
 
 }

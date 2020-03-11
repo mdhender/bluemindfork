@@ -179,7 +179,9 @@ namespace net.bluemind.icalendar.api
                     .CombineHashCodeForOrderNoMatterList(attendees)
                     .CombineHashCodeForOrderNoMatterList(categories)
                     .CombineHashCodeForOrderNoMatterList(exdate)
-                    .CombineHashCodeForOrderNoMatterList(rdate);
+                    .CombineHashCodeForOrderNoMatterList(rdate)
+                    .CombineHashCode(draft)
+                    .CombineHashCode(sequence);
             }
         }
     }

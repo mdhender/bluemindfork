@@ -71,8 +71,7 @@ public class RulesUpdater {
 		}
 	};
 
-	public static void updateIptablesScript(BmContext bc, Server removedHost, Server newHost)
-			throws ServerFault {
+	public static void updateIptablesScript(BmContext bc, Server removedHost, Server newHost) throws ServerFault {
 		updateIptablesScript(bc.su().provider(), FAKE_MONITOR, removedHost, newHost);
 	}
 
@@ -127,8 +126,7 @@ public class RulesUpdater {
 
 	}
 
-	private static void addAdditionalAddresses(IServiceProvider ssp, Set<String> hostsAddresses)
-			throws  ServerFault {
+	private static void addAdditionalAddresses(IServiceProvider ssp, Set<String> hostsAddresses) throws ServerFault {
 		String fwAdditionalIPs = ssp.instance(ISystemConfiguration.class, InstallationId.getIdentifier()).getValues()
 				.stringValue(SysConfKeys.fwAdditionalIPs.name());
 

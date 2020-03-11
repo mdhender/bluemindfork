@@ -16,3 +16,4 @@ Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.backend.mail.replica.api,
  net.bluemind.backend.mail.replica.api.utils
 Automatic-Module-Name: net.bluemind.backend.mail.replica.api
+Eclipse-RegisterBuddy: net.bluemind.core.rest

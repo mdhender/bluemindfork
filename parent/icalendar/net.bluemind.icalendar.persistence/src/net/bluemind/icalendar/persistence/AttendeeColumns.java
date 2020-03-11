@@ -110,6 +110,7 @@ public class AttendeeColumns {
 
 					statement.setArray(index++, conn.createArrayOf("text", uid));
 					statement.setArray(index++, conn.createArrayOf("text", comment));
+
 				} else {
 					statement.setNull(index++, Types.ARRAY);
 					statement.setNull(index++, Types.ARRAY);
@@ -151,6 +152,7 @@ public class AttendeeColumns {
 				String[] mailto = arrayOfString(rs.getArray(index++));
 				String[] uid = arrayOfString(rs.getArray(index++));
 				String[] comment = arrayOfString(rs.getArray(index++));
+
 				if (uid.length > 0) {
 					List<ICalendarElement.Attendee> attendees = new ArrayList<>(uid.length);
 					for (int i = 0; i < member.length; i++) {

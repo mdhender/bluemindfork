@@ -18,6 +18,9 @@
  */
 package net.bluemind.eas.command.folder.sync;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -51,6 +54,7 @@ public class FolderSyncProtocol implements IEasProtocol<FolderSyncRequest, Folde
 
 	private static final Logger logger = LoggerFactory.getLogger(FolderSyncProtocol.class);
 	private IBackend backend;
+	private static final Map<String, Long> resets = new ConcurrentHashMap<>();
 
 	public FolderSyncProtocol() {
 		backend = Backends.dataAccess();
@@ -92,6 +96,7 @@ public class FolderSyncProtocol implements IEasProtocol<FolderSyncRequest, Folde
 
 		if (state == null) {
 			logger.error("SyncState is not valid. Send Invalid SyncKey to device: {}, key: {}", bs.getDevId(), syncKey);
+			resets.put(bs.getDevId(), System.currentTimeMillis());
 			response.status = Status.InvalidSyncKey;
 			responseHandler.handle(response);
 			return;
@@ -107,7 +112,7 @@ public class FolderSyncProtocol implements IEasProtocol<FolderSyncRequest, Folde
 				} else if (ic.changeType == ChangeType.CHANGE) {
 					response.changes.update.add(toFolderSyncChange(ic));
 				} else if (ic.changeType == ChangeType.DELETE) {
-					response.changes.delete.add(Long.toString(ic.folderId));
+					response.changes.delete.add(ic.folderId);
 				}
 			}
 
@@ -128,8 +133,8 @@ public class FolderSyncProtocol implements IEasProtocol<FolderSyncRequest, Folde
 
 	private Change toFolderSyncChange(FolderChangeReference sf) {
 		Change c = new Change();
-		c.serverId = Long.toString(sf.folderId);
-		c.parentId = Long.toString(sf.parentId);
+		c.serverId = sf.folderId;
+		c.parentId = sf.parentId;
 		c.displayName = sf.displayName;
 		c.type = sf.itemType;
 		return c;
@@ -162,6 +167,10 @@ public class FolderSyncProtocol implements IEasProtocol<FolderSyncRequest, Folde
 	@Override
 	public String address() {
 		return "eas.protocol.foldersync";
+	}
+
+	public static Long getLastReset(String deviceId) {
+		return resets.computeIfAbsent(deviceId, k -> 0l);
 	}
 
 }

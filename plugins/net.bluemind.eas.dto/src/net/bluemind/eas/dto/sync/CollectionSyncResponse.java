@@ -69,7 +69,7 @@ public class CollectionSyncResponse {
 	 */
 	public SyncStatus status;
 
-	public int collectionId;
+	public String collectionId;
 
 	/**
 	 * Holds the changes that occured on server

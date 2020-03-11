@@ -133,6 +133,20 @@ public class StateMachine {
 		return sk.toString();
 	}
 
+	public static long extractTimestamp(String syncKey) {
+		if ("0".equals(syncKey)) {
+			return 0L;
+		}
+		try {
+			Iterator<String> iter = Splitter.on("-").split(syncKey).iterator();
+			iter.next();
+			return Long.valueOf(iter.next());
+		} catch (Exception e) {
+			logger.warn("Cannot extract timestamp of sync key {}", syncKey);
+			return 0L;
+		}
+	}
+
 	public String generateSyncKey(ItemDataType type, long version, long subscriptionVersion) {
 
 		StringBuilder sk = new StringBuilder(64);

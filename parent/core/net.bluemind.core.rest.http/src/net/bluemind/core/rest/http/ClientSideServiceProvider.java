@@ -63,20 +63,7 @@ public class ClientSideServiceProvider implements IServiceProvider {
 		builder.setConnectTimeout(to).setReadTimeout(to).setRequestTimeout(to).setFollowRedirect(false);
 		builder.setTcpNoDelay(true).setThreadPoolName("client-side-provider-ahc");
 		return new DefaultAsyncHttpClient(builder.build());
-//
-//		AsyncHttpClientConfig config = new AsyncHttpClientConfig.Builder().setSSLContext(Trust.createSSLContext()) //
-//				.setHostnameVerifier(Trust.acceptAllVerifier()) //
-//				.setConnectTimeout(timeoutInSeconds * 1000) //
-//				.setReadTimeout(timeoutInSeconds * 1000) //
-//				.setRequestTimeout(timeoutInSeconds * 1000) //
-//				.setFollowRedirect(false) //
-//				.setMaxRedirects(0) //
-//				.setMaxRequestRetry(0) //
-//				.setAllowPoolingConnections(pooled)//
-//				.setSSLContext(Trust.createSSLContext()) //
-//				.setAcceptAnyCertificate(true)//
-//				.build();
-//		return new AsyncHttpClient(config);
+
 	}
 
 	public static ClientSideServiceProvider getProvider(String base, String apiKey) {

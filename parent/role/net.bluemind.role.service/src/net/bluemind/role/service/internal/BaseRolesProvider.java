@@ -443,11 +443,12 @@ public class BaseRolesProvider implements IRolesProvider {
 								rb.getString("role.manageExternalUser.description"))
 						.forDirEntry(Kind.EXTERNALUSER) //
 						.withParent(BasicRoles.ROLE_ADMIN), //
-						
-			    RoleDescriptor
+
+				RoleDescriptor
 						.create(BasicRoles.ROLE_READ_DOMAIN_FILTER, CATEGORY_MAIL,
 								rb.getString("role.readDomainFilters.label"),
-								rb.getString("role.readDomainFilters.description")),
+								rb.getString("role.readDomainFilters.description")) //
+								.withParent(BasicRoles.ROLE_ADMIN),
 						
 				RoleDescriptor
 						.create(BasicRoles.ROLE_WEBMAIL, CATEGORY_MAIL,

@@ -1,10 +1,10 @@
-BMCYRUS="3.0.8-bluemind221"
-BMSDS="1.0.0-221"
+BMCYRUS="3.0.13-bluemind224"
+BMSDS="1.0.0-224"
 
-BMES="6.4.3-bluemind75"
+BMES="6.8.6-bluemind83"
 
-KAFKA="2.3.0-bluemind7"
-MINIO="2019.10.12-bluemind7"
+KAFKA="2.4.0-bluemind9"
+MINIO="2019.10.12-bluemind9"
 
 BMJDK="8u242-bluemind32"
 BMSNZIP="1.0.4-bluemind4"
@@ -12,7 +12,6 @@ BMNGINX="1.16.1-bluemind84"
 BMPHP="5.6.40-bluemind86"
 BMPHPMEMCACHE="3.0.8-bluemind86"
 
-BMPOSTGRESQL="11.6-bluemind106"
 
 # tick
 TELEGRAF="1.11.1.bm5-1"
@@ -21,18 +20,24 @@ CHRONOGRAF="1.7.12.bm1~81b47b2c2"
 INFLUXDB="1.7.7.bm3~0f9bc7512"
 
 
+# PostgreSQL
+# Use EXTDEPS-getlastpg.sh if you need to modify (requires python3 + requests for RHEL)
+# Example: ./EXTDEPS-getlastpg.sh 11 # for PostgreSQL 11
+BMPOSTGRESQL="11.7-bluemind108"
+
+PG_XENIAL="11.7-2.pgdg16.04+1"
+PGCOMMON_XENIAL="213.pgdg16.04+1"
+PG_BIONIC="11.7-2.pgdg18.04+1"
+PGCOMMON_BIONIC="213.pgdg18.04+1"
+PG_JESSIE="11.7-2.pgdg80+1"
+PGCOMMON_JESSIE="213.pgdg80+1"
+PG_STRETCH="11.7-2.pgdg90+1"
+PGCOMMON_STRETCH="213.pgdg90+1"
+PG_BUSTER="11.7-2.pgdg100+1"
+PGCOMMON_BUSTER="213.pgdg100+1"
 PGKEYRING="2018.2"
-PG_JESSIE="11.6-1.pgdg80+1"
-PGCOMMON_JESSIE="210.pgdg80+1"
-PG_STRETCH="11.6-1.pgdg90+1"
-PGCOMMON_STRETCH="210.pgdg90+1"
-PG_BUSTER="11.6-1.pgdg100+1"
-PGCOMMON_BUSTER="210.pgdg100+1"
-PG_XENIAL="11.6-1.pgdg16.04+1"
-PGCOMMON_XENIAL="210.pgdg16.04+1"
-PG_BIONIC="11.6-1.pgdg18.04+1"
-PGCOMMON_BIONIC="210.pgdg18.04+1"
-PG_RHEL7="11.6-2PGDG.rhel7"
+PG_RHEL7="11.7-1PGDG.rhel7"
+
 
 # Cyrus
 BMCYRUSDEB="bm-cyrus-imapd=${BMCYRUS} \

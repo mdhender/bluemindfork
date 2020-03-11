@@ -51,9 +51,9 @@ import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.proxy.http.ExternalCreds;
 import net.bluemind.proxy.http.IAuthProvider;
 import net.bluemind.proxy.http.auth.api.AuthRequirements;
-import net.bluemind.proxy.http.auth.api.CookieHelper;
 import net.bluemind.proxy.http.auth.api.IAuthEnforcer.IAuthProtocol;
 import net.bluemind.proxy.http.auth.api.IAuthEnforcer.ISessionStore;
+import net.bluemind.proxy.http.auth.api.SecurityConfig;
 import net.bluemind.utils.DOMUtils;
 
 public class CasProtocol implements IAuthProtocol {
@@ -154,7 +154,7 @@ public class CasProtocol implements IAuthProtocol {
 					Cookie co = new DefaultCookie("BMHPS", proxySid);
 					co.setPath("/");
 					co.setHttpOnly(true);
-					if (CookieHelper.secureCookies()) {
+					if (SecurityConfig.secureCookies) {
 						co.setSecure(true);
 					}
 					req.response().headers().add(HttpHeaders.LOCATION, "/");

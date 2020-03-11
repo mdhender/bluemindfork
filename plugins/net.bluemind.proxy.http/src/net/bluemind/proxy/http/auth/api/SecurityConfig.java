@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2020
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -16,25 +16,19 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.eas.dto.push;
+package net.bluemind.proxy.http.auth.api;
 
-import java.util.Set;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
-public class PushRegistrationRequest {
+public class SecurityConfig {
 
-	public String pushKey;
-	public String userUid;
-	public Set<Integer> collectionIds;
-	public long timeoutMs;
+	public static final boolean secureCookies;
+	public static final boolean cspHeader;
 
-	/**
-	 * Set by worker verticle
-	 */
-	public String replyAddress;
-
-	/**
-	 * Set by worker verticle
-	 */
-	public long expirationTimerId;
+	static {
+		secureCookies = !Files.exists(Paths.get("/root/dev-unsecure-cookies"));
+		cspHeader = !Files.exists(Paths.get("/root/dev-no-csp"));
+	}
 
 }

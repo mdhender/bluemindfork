@@ -16,24 +16,20 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.eas.busmods;
+package net.bluemind.core.rest.tests.services;
 
-import io.vertx.core.Verticle;
-import net.bluemind.lib.vertx.IVerticleFactory;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
 
-public class CollectionListenerVerticleFactory implements IVerticleFactory {
+import net.bluemind.core.api.BMApi;
 
-	public CollectionListenerVerticleFactory() {
-	}
+@Path("/testinline")
+@BMApi(version = "3")
+public interface IRestTestInlineService {
 
-	@Override
-	public boolean isWorker() {
-		return true;
-	}
-
-	@Override
-	public Verticle newInstance() {
-		return new CollectionListenerVerticle();
+	@GET
+	public default String sayHello() {
+		return "hello";
 	}
 
 }

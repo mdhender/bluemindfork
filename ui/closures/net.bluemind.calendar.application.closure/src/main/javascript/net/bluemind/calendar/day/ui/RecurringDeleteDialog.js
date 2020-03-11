@@ -64,8 +64,14 @@ net.bluemind.calendar.day.ui.RecurringDeleteDialog.prototype.enterDocument = fun
   this.getHandler().listen(goog.dom.getElement('rdd-btn-this-instance'), goog.events.EventType.CLICK,
       this.deleteInstance_, false, this);
 
-  this.getHandler().listen(goog.dom.getElement('rdd-btn-all-the-following'), goog.events.EventType.CLICK,
-      this.deleteFollowing_, false, this);
+  this.getHandler().listen(goog.dom.getElement('rdd-btn-all-the-following'), goog.events.EventType.CLICK, function() {
+    var model = this.getModel();
+    if (goog.date.isSameDay(this.vseries_.main.dtstart, model.recurrenceId)) {
+      this.deleteSerie_();
+    } else  {
+      this.deleteFollowing_();
+    }
+  });
 
   this.getHandler().listen(goog.dom.getElement('rdd-btn-delete-serie'), goog.events.EventType.CLICK, this.deleteSerie_,
       false, this);
@@ -88,7 +94,7 @@ net.bluemind.calendar.day.ui.RecurringDeleteDialog.prototype.setVisible = functi
     }
     var el = this.getDomHelper().getElement('rdd-btn-all-the-following');
     el = el.parentElement.parentElement;
-    var following = !goog.date.isSameDay(this.vseries_.main.dtstart, model.recurrenceId) && model.states.master;
+    var following = model.states.master;
     goog.style.setElementShown(el, following)
   }
 };

@@ -19,7 +19,6 @@
 package net.bluemind.core.auditlog;
 
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.utils.JsonUtils;
 
 public class ContainerAuditor<V extends ContainerAuditor<V>> extends Auditor<V> {
 
@@ -31,7 +30,7 @@ public class ContainerAuditor<V extends ContainerAuditor<V>> extends Auditor<V> 
 
 	public V forContainer(Container container) {
 		object(container.uid + "@" + container.domainUid);
-		addObjectMetadata(CONTAINER, JsonUtils.asString(container));
+		addObjectMetadata(CONTAINER, container);
 		return (V) getThis();
 	}
 
@@ -42,7 +41,7 @@ public class ContainerAuditor<V extends ContainerAuditor<V>> extends Auditor<V> 
 
 	public V actionValue(Object value) {
 		if (value != null) {
-			return addActionMetadata("value", JsonUtils.asString(value));
+			return addActionMetadata("value", value);
 		} else {
 			return addActionMetadata("value", null);
 		}
@@ -50,7 +49,7 @@ public class ContainerAuditor<V extends ContainerAuditor<V>> extends Auditor<V> 
 
 	public V actionValueSanitized(Object value) {
 		if (value != null) {
-			return addActionMetadata("sanitized-value", JsonUtils.asString(value));
+			return addActionMetadata("sanitized-value", value);
 		} else {
 			return addActionMetadata("sanitized-value", null);
 		}
@@ -58,7 +57,7 @@ public class ContainerAuditor<V extends ContainerAuditor<V>> extends Auditor<V> 
 
 	public V previousValue(Object value) {
 		if (value != null) {
-			return addActionMetadata("previous-value", JsonUtils.asString(value));
+			return addActionMetadata("previous-value", value);
 		} else {
 			return addActionMetadata("previous-value", null);
 		}
@@ -75,9 +74,4 @@ public class ContainerAuditor<V extends ContainerAuditor<V>> extends Auditor<V> 
 	public V actionDeleteOn(String uid) {
 		return action("delete").actionItemUid(uid);
 	}
-
-	public V actionUpdates() {
-		return action("updates");
-	}
-
 }

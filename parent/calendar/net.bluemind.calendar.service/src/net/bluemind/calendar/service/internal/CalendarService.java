@@ -186,7 +186,7 @@ public class CalendarService implements ICalendar {
 			event.icsUid = uid;
 		}
 
-		sanitizer.sanitize(event);
+		sanitizer.sanitize(event, sendNotifications);
 		extSanitizer.create(event);
 
 		auditor.actionValueSanitized(event);
@@ -286,7 +286,7 @@ public class CalendarService implements ICalendar {
 			logger.error("ics uid was {} and is now {}", old.value.icsUid, event.icsUid);
 			throw new ServerFault("cannot modify ics uid", ErrorCode.INVALID_PARAMETER);
 		}
-		sanitizer.sanitize(event);
+		sanitizer.sanitize(event, sendNotifications);
 		extSanitizer.update(old.value, event);
 
 		auditor.actionValueSanitized(event);

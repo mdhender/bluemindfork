@@ -34,9 +34,9 @@ import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.proxy.http.IAuthProvider;
 import net.bluemind.proxy.http.auth.api.AuthRequirements;
-import net.bluemind.proxy.http.auth.api.CookieHelper;
 import net.bluemind.proxy.http.auth.api.IAuthEnforcer.IAuthProtocol;
 import net.bluemind.proxy.http.auth.api.IAuthEnforcer.ISessionStore;
+import net.bluemind.proxy.http.auth.api.SecurityConfig;
 
 public class SudoProtocol implements IAuthProtocol {
 
@@ -89,12 +89,12 @@ public class SudoProtocol implements IAuthProtocol {
 				Cookie co = new DefaultCookie("BMHPS", proxySid);
 				co.setPath("/");
 				co.setHttpOnly(true);
-				if (CookieHelper.secureCookies()) {
+				if (SecurityConfig.secureCookies) {
 					co.setSecure(true);
 				}
 				Cookie privacyCo = new DefaultCookie("BMPRIVACY", Boolean.toString(privateComputer));
 				privacyCo.setPath("/");
-				if (CookieHelper.secureCookies()) {
+				if (SecurityConfig.secureCookies) {
 					privacyCo.setSecure(true);
 				}
 

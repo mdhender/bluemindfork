@@ -209,6 +209,11 @@ public class BodyStreamProcessorTests {
 
 		// multipart mail
 		this.testMessageBodyPreview("data/with_inlines.eml", "Some text, An inline image : And a PDF.");
+
+		// preview should not contain html tags
+		this.testMessageBodyPreview("data/BM-15740.eml",
+				"RELAI D’INFORMATION DE LA MAIRIE AUX ETABLISSEMENTS PUBLICS ET PRIVES DE LABEGE Mesdames, Messieurs, Vous trouverez en Pièce Jointe une note de recommandati");
+
 	}
 
 	private void testMessageBodyPreview(final String file, final String expectedPreview)

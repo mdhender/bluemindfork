@@ -33,7 +33,6 @@ import io.vertx.core.buffer.Buffer;
 import junit.framework.TestCase;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.device.api.Device;
-import net.bluemind.eas.busmods.CollectionListenerVerticle;
 import net.bluemind.eas.busmods.SendMailVerticle;
 import net.bluemind.eas.endpoint.tests.helpers.TestMail;
 import net.bluemind.eas.http.AuthorizedDeviceQuery;
@@ -95,8 +94,8 @@ public abstract class AbstractEndpointTest extends TestCase {
 		this.domainUid = testDevice.domainUid;
 		this.endpoint = createEndpoint();
 
-		deploymentIDs = Deploy.beforeTest(new VerticleConstructor[0], VerticleConstructor
-				.of(ByteSourceEventProducer::new, SendMailVerticle::new, CollectionListenerVerticle::new));
+		deploymentIDs = Deploy.beforeTest(new VerticleConstructor[0],
+				VerticleConstructor.of(ByteSourceEventProducer::new, SendMailVerticle::new));
 		CountDownLatch cdl = new CountDownLatch(1);
 		MQ.init(new IMQConnectHandler() {
 

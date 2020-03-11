@@ -78,12 +78,6 @@ net.bluemind.calendar.day.ui.ReplyInvitation.prototype.enterDocument = function(
       goog.events.EventType.MOUSEDOWN, function(e) {
         this.updateInstancePartStatus_('Accepted', null, true, rrule);
       });
-
-  // Accept silent
-  this.getHandler().listen(this.getElementByClass('eb-btn-event-accepted-no-notification'),
-      goog.events.EventType.MOUSEDOWN, function(e) {
-        this.updateInstancePartStatus_('Accepted', false, false, rrule);
-      });
   
   // Accept
   this.getHandler().listen(
@@ -96,12 +90,6 @@ net.bluemind.calendar.day.ui.ReplyInvitation.prototype.enterDocument = function(
   this.getHandler().listen(this.getElementByClass('eb-btn-event-accepted-edit-notification-series'),
       goog.events.EventType.MOUSEDOWN, function(e) {
         this.updateSeriesPartStatus_('Accepted', null, true);
-      });
-
-  // Accept silent
-  this.getHandler().listen(this.getElementByClass('eb-btn-event-accepted-no-notification-series'),
-      goog.events.EventType.MOUSEDOWN, function(e) {
-        this.updateSeriesPartStatus_('Accepted', false, false);
       });
 
   var pmNeedsAction = new goog.ui.PopupMenu();
@@ -123,27 +111,18 @@ net.bluemind.calendar.day.ui.ReplyInvitation.prototype.enterDocument = function(
         this.updateInstancePartStatus_('Tentative', null, true, rrule);
       });
 
-  // Tentative silent
-  this.getHandler().listen(this.getElementByClass('eb-btn-event-tentative-no-notification'),
-      goog.events.EventType.MOUSEDOWN, function(e) {
-        this.updateInstancePartStatus_('Tentative', false, false, rrule);
-      });
   // Tentative
   this.getHandler().listen(this.getElementByClass('eb-btn-event-tentative-default-notification-series'),
       goog.events.EventType.MOUSEDOWN, function(e) {
         this.updateSeriesPartStatus_('Tentative', true, false);
       });
+
   // Tentative + note
   this.getHandler().listen(this.getElementByClass('eb-btn-event-tentative-edit-notification-series'),
       goog.events.EventType.MOUSEDOWN, function(e) {
         this.updateSeriesPartStatus_('Tentative', null, true);
       });
 
-  // Tentative silent
-  this.getHandler().listen(this.getElementByClass('eb-btn-event-tentative-no-notification-series'),
-      goog.events.EventType.MOUSEDOWN, function(e) {
-        this.updateSeriesPartStatus_('Tentative', false, false);
-      });
 
   var pmDeclined = new goog.ui.PopupMenu();
   pmDeclined.setToggleMode(true);
@@ -164,11 +143,7 @@ net.bluemind.calendar.day.ui.ReplyInvitation.prototype.enterDocument = function(
         this.updateInstancePartStatus_('Declined', null, true, rrule);
       });
 
-  // Decline silent
-  this.getHandler().listen(this.getElementByClass('eb-btn-event-declined-no-notification'),
-      goog.events.EventType.MOUSEDOWN, function(e) {
-        this.updateInstancePartStatus_('Declined', false, false, rrule);
-      });
+
   // Decline
   this.getHandler().listen(this.getElementByClass('eb-btn-event-declined-default-notification-series'),
       goog.events.EventType.MOUSEDOWN, function(e) {
@@ -181,11 +156,6 @@ net.bluemind.calendar.day.ui.ReplyInvitation.prototype.enterDocument = function(
         this.updateSeriesPartStatus_('Declined', null, true);
       });
 
-  // Decline silent
-  this.getHandler().listen(this.getElementByClass('eb-btn-event-declined-no-notification-series'),
-      goog.events.EventType.MOUSEDOWN, function(e) {
-        this.updateSeriesPartStatus_('Declined', false, false);
-      });
 
 };
 

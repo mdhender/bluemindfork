@@ -19,19 +19,23 @@
 package net.bluemind.eas.command.ping;
 
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 import org.w3c.dom.Document;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.OptionalParams;
@@ -40,17 +44,15 @@ import net.bluemind.eas.dto.ping.PingRequest;
 import net.bluemind.eas.dto.ping.PingRequest.Folders.Folder;
 import net.bluemind.eas.dto.ping.PingResponse;
 import net.bluemind.eas.dto.ping.PingResponse.Status;
-import net.bluemind.eas.dto.push.PushTrigger;
 import net.bluemind.eas.dto.sync.CollectionSyncRequest;
 import net.bluemind.eas.impl.Backends;
 import net.bluemind.eas.impl.Responder;
 import net.bluemind.eas.protocol.IEasProtocol;
-import net.bluemind.eas.push.PushSupport;
 import net.bluemind.eas.serdes.ping.PingRequestParser;
 import net.bluemind.eas.serdes.ping.PingResponseFormatter;
 import net.bluemind.eas.store.ISyncStorage;
 import net.bluemind.eas.wbxml.builder.WbxmlResponseBuilder;
-import net.bluemind.vertx.common.LocalJsonObject;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.vertx.common.request.Requests;
 
 public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
@@ -167,8 +169,63 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 			Requests.tagAsync(bs.getRequest());
 			Requests.tag(bs.getRequest(), "timeout", intervalSeconds + "s");
 
-			PushSupport.register(bs.getUser().getUid(), bs.getLoginAtDomain(), intervalSeconds * 1000,
-					bs.getDeviceId().getInternalId(), cols, new PingReplyHandler(bs, responseHandler));
+			final List<MessageConsumer<JsonObject>> consumers = new LinkedList<>();
+			final AtomicBoolean responseSent = new AtomicBoolean();
+			long noChangesTimer = VertxPlatform.getVertx().setTimer(TimeUnit.SECONDS.toMillis(intervalSeconds), tid -> {
+				// noChanges
+				if (responseSent.getAndSet(true)) {
+					return;
+				}
+				consumers.forEach(MessageConsumer::unregister);
+				responseHandler.handle(noChangesResponse());
+			});
+
+			for (int colId : cols) {
+				MessageConsumer<JsonObject> cons = VertxPlatform.eventBus().consumer("eas.collection." + colId);
+				consumers.add(cons);
+				Handler<Message<JsonObject>> colChangeHandler = (Message<JsonObject> msg) -> {
+					// syncRequired
+					if (responseSent.getAndSet(true)) {
+						return;
+					}
+					consumers.forEach(MessageConsumer::unregister);
+					VertxPlatform.getVertx().cancelTimer(noChangesTimer);
+					PingResponse pr = new PingResponse();
+					pr.status = Status.ChangesOccurred;
+					pr.folders = new PingResponse.Folders();
+					pr.folders.folders.add(Integer.toString(colId));
+					responseHandler.handle(pr);
+				};
+				cons.handler(colChangeHandler);
+			}
+			MessageConsumer<JsonObject> hierCons = VertxPlatform.eventBus()
+					.consumer("eas.hierarchy." + bs.getUser().getUid());
+			consumers.add(hierCons);
+			Handler<Message<JsonObject>> hierChangeHandler = (Message<JsonObject> msg) -> {
+				// folderSyncRequired
+				if (responseSent.getAndSet(true)) {
+					return;
+				}
+				consumers.forEach(MessageConsumer::unregister);
+				VertxPlatform.getVertx().cancelTimer(noChangesTimer);
+				PingResponse pr = new PingResponse();
+				pr.status = Status.FolderSyncRequired;
+				responseHandler.handle(pr);
+			};
+			hierCons.handler(hierChangeHandler);
+
+			MessageConsumer<JsonObject> pushKiller = VertxPlatform.eventBus()
+					.consumer("eas.push.killer." + bs.getUser().getUid());
+			consumers.add(pushKiller);
+			pushKiller.handler(msg -> {
+				if (responseSent.getAndSet(true)) {
+					return;
+				}
+				consumers.forEach(MessageConsumer::unregister);
+				VertxPlatform.getVertx().cancelTimer(noChangesTimer);
+				responseHandler.handle(noChangesResponse());
+				msg.reply("ok");
+			});
 
 		} else {
 			logger.error("[{}][{}] Don't know what to monitor, interval is null", bs.getLoginAtDomain(), bs.getDevId());
@@ -177,6 +234,12 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 			return;
 		}
 
+	}
+
+	private PingResponse noChangesResponse() {
+		PingResponse pr = new PingResponse();
+		pr.status = Status.NoChanges;
+		return pr;
 	}
 
 	private long getLastHeartbeat(BackendSession bs) {
@@ -204,43 +267,6 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 		}
 
 		return ret;
-	}
-
-	private static class PingReplyHandler implements Handler<AsyncResult<Message<LocalJsonObject<PushTrigger>>>> {
-
-		private final Handler<PingResponse> responder;
-		private BackendSession bs;
-
-		public PingReplyHandler(BackendSession bs, Handler<PingResponse> responseHandler) {
-			this.responder = responseHandler;
-			this.bs = bs;
-		}
-
-		@Override
-		public void handle(AsyncResult<Message<LocalJsonObject<PushTrigger>>> event) {
-			MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
-			PingResponse response = new PingResponse();
-			if (event.failed()) {
-				logger.info("[{}] Ping timed-out {}", bs.getLoginAtDomain(), Status.NoChanges);
-				response.status = Status.NoChanges;
-			} else {
-				PushTrigger pt = event.result().body().getValue();
-				if (pt.folderSyncRequired) {
-					response.status = Status.FolderSyncRequired;
-				} else if (pt.noChanges) {
-					response.status = Status.NoChanges;
-				} else {
-					response.status = Status.ChangesOccurred;
-					response.folders = new PingResponse.Folders();
-					response.folders.folders.add(Integer.toString(pt.collectionId));
-				}
-				logger.info("[{}] Ping response {}", bs.getLoginAtDomain(), response.status);
-
-			}
-			responder.handle(response);
-			MDC.put("user", "anonymous");
-		}
-
 	}
 
 	@Override

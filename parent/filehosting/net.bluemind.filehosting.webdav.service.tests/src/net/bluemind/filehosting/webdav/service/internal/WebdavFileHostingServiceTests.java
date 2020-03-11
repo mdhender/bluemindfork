@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -129,10 +130,10 @@ public class WebdavFileHostingServiceTests {
 		String path1 = parent + "/sub1/su b2/te st1.txt";
 		String path2 = parent + "/sub1/su b2/te st2.txt";
 		String testString = "test";
-		Stream bytesToStream = bytesToStream(testString.getBytes());
-		service.store(path1, bytesToStream);
-		service.store(path2, bytesToStream);
+		service.store(path1, bytesToStream(testString.getBytes()));
+		service.store(path2, bytesToStream(testString.getBytes()));
 
+		System.err.println("listing...");
 		List<FileHostingItem> list = service.list(parent + "/sub1/su b2/");
 
 		for (FileHostingItem fileHostingItem : list) {
@@ -147,9 +148,8 @@ public class WebdavFileHostingServiceTests {
 		String path1 = parent + "/sub1/sub2/tes t1.txt";
 		String path2 = parent + "/sub1/sub2/tes t2.txt";
 		String testString = "test";
-		Stream bytesToStream = bytesToStream(testString.getBytes());
-		service.store(path1, bytesToStream);
-		service.store(path2, bytesToStream);
+		service.store(path1, bytesToStream(testString.getBytes()));
+		service.store(path2, bytesToStream(testString.getBytes()));
 
 		List<FileHostingItem> list = service.find("tes t");
 		Assert.assertTrue(list.size() >= 2);
@@ -194,7 +194,10 @@ public class WebdavFileHostingServiceTests {
 		pump.start();
 		reader.resume();
 		try {
-			latch.await();
+			boolean ok = latch.await(10, TimeUnit.MINUTES);
+			if (!ok) {
+				throw new ServerFault("streamToString failed to complete in 1 minute");
+			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

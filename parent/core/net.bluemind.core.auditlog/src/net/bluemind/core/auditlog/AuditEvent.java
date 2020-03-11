@@ -22,14 +22,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import io.vertx.core.json.JsonObject;
+
 public class AuditEvent {
 
 	private String actor;
 	private Map<String, String> actorMetadatas = new HashMap<>();
 	private String action;
-	private Map<String, String> actionMetadatas = new HashMap<>();
+	private Map<String, JsonObject> actionMetadatas = new HashMap<>();
 	private String object;
-	private Map<String, String> objectMetadatas = new HashMap<>();
+	private Map<String, JsonObject> objectMetadatas = new HashMap<>();
 	private AuditEvent parent;
 	private Throwable failure;
 	private final String eventId;
@@ -101,12 +103,12 @@ public class AuditEvent {
 		actorMetadatas.put(key, value);
 	}
 
-	public void addObjectMetadata(String key, String value) {
+	public void addObjectMetadata(String key, JsonObject value) {
 		objectMetadatas.put(key, value);
 
 	}
 
-	public void addActionMetadata(String key, String value) {
+	public void addActionMetadata(String key, JsonObject value) {
 		actionMetadatas.put(key, value);
 	}
 
@@ -151,11 +153,11 @@ public class AuditEvent {
 		return actorMetadatas;
 	}
 
-	public Map<String, String> getActionMeta() {
+	public Map<String, JsonObject> getActionMeta() {
 		return actionMetadatas;
 	}
 
-	public Map<String, String> getObjectMeta() {
+	public Map<String, JsonObject> getObjectMeta() {
 		return objectMetadatas;
 	}
 

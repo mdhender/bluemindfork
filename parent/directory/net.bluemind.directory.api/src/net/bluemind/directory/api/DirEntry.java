@@ -108,8 +108,7 @@ public class DirEntry extends BaseDirEntry {
 	 * Adds an array of {@link net.bluemind.core.api.Email}s to this
 	 * {@link DirEntry}
 	 * 
-	 * @param emails
-	 *                   array of {@link net.bluemind.core.api.Email}s
+	 * @param emails array of {@link net.bluemind.core.api.Email}s
 	 * @return the {@link DirEntry} itself
 	 */
 	public DirEntry withEmails(String... emails) {
@@ -127,8 +126,7 @@ public class DirEntry extends BaseDirEntry {
 	/**
 	 * Adds a list of {@link net.bluemind.core.api.Email}s to this {@link DirEntry}
 	 * 
-	 * @param emails
-	 *                   list of {@link net.bluemind.core.api.Email}s
+	 * @param emails list of {@link net.bluemind.core.api.Email}s
 	 * @return the {@link DirEntry} itself
 	 */
 	public DirEntry withEmails(List<Email> emails) {

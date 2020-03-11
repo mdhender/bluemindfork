@@ -20,15 +20,11 @@ package net.bluemind.cli.launcher;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.fusesource.jansi.Ansi;
+import org.fusesource.jansi.Ansi.Color;
 import org.fusesource.jansi.AnsiConsole;
 import org.osgi.framework.Version;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class CLIEntryPoint implements IApplication {
-
-	private static final Logger logger = LoggerFactory.getLogger(CLIEntryPoint.class);
-
 	public CLIEntryPoint() {
 	}
 
@@ -37,16 +33,17 @@ public class CLIEntryPoint implements IApplication {
 		try {
 			AnsiConsole.systemInstall();
 			Version version = context.getBrandingBundle().getVersion();
-			
+
 			String[] args = (String[]) context.getArguments().get(IApplicationContext.APPLICATION_ARGS);
 			if (args.length == 0) {
 				System.out.println(
-					Ansi.ansi().fgBrightBlue().a("Blue").fgBrightCyan().a("Mind").reset().a(" CLI " + version));
+						Ansi.ansi().fgBrightBlue().a("Blue").fgBrightCyan().a("Mind").reset().a(" CLI " + version));
 			}
 			CLIManager cm = new CLIManager(version);
 			cm.processArgs(args);
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			System.err.println(Ansi.ansi().fg(Color.RED).a(e.getMessage()).reset());
+			e.printStackTrace();
 		} finally {
 			AnsiConsole.systemUninstall();
 		}
@@ -55,7 +52,6 @@ public class CLIEntryPoint implements IApplication {
 
 	@Override
 	public void stop() {
-		logger.info("CLI stopped.");
+		System.out.println("CLI stopped.");
 	}
-
 }

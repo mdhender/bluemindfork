@@ -18,7 +18,8 @@
  */
 package net.bluemind.core.rest.tests.services;
 
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,7 @@ import io.vertx.core.streams.ReadStream;
 public class QueueReadStream implements ReadStream<Buffer> {
 
 	private Logger logger = LoggerFactory.getLogger(QueueReadStream.class);
-	private ConcurrentLinkedDeque<Buffer> queue = new ConcurrentLinkedDeque<>();
+	private Queue<Buffer> queue = new LinkedList<>();
 	private Handler<Buffer> dataHandler;
 	private Handler<Void> endHandler;
 	private boolean paused;
@@ -43,7 +44,7 @@ public class QueueReadStream implements ReadStream<Buffer> {
 		return this;
 	}
 
-	public void queue(Buffer buffer) {
+	public synchronized void queue(Buffer buffer) {
 		queue.add(buffer);
 		read();
 	}
@@ -66,27 +67,23 @@ public class QueueReadStream implements ReadStream<Buffer> {
 			dataHandler.handle(data);
 		}
 
-		if (!paused && ended) {
+		if (!paused && ended && endHandler != null) {
 			endHandler.handle(null);
+			endHandler = null;
+			logger.debug("Ending {}", this);
 		}
 	}
 
 	@Override
 	public QueueReadStream pause() {
-		logger.debug(" pause " + Thread.currentThread());
 		this.paused = true;
 		return this;
 	}
 
 	@Override
 	public synchronized QueueReadStream resume() {
-		if (paused) {
-			logger.debug(" resume {}", Thread.currentThread());
-			this.paused = false;
-			read();
-		} else {
-			logger.warn("was already resumed!");
-		}
+		this.paused = false;
+		read();
 		return this;
 	}
 

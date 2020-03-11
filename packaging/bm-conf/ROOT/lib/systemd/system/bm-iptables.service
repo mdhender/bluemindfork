@@ -1,7 +1,7 @@
 [Unit]
 Description=BlueMind iptables rules
 After=bluemind.target firewalld.service
-PartOf=firewalld.service
+PartOf=bluemind.target firewalld.service
 
 [Service]
 Type=oneshot

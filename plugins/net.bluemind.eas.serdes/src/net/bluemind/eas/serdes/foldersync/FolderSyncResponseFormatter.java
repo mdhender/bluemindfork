@@ -49,23 +49,23 @@ public class FolderSyncResponseFormatter implements IEasResponseFormatter<Folder
 				Collections.sort(response.changes.update, c());
 				for (Change c : response.changes.update) {
 					builder.container("Update");
-					builder.text("ServerId", c.serverId);
-					builder.text("ParentId", c.parentId);
+					builder.text("ServerId", Long.toString(c.serverId));
+					builder.text("ParentId", Long.toString(c.parentId));
 					builder.text("DisplayName", c.displayName);
 					builder.text("Type", Integer.toString(c.type.asInt()));
 					builder.endContainer();
 				}
 				Collections.sort(response.changes.delete, cs());
-				for (String s : response.changes.delete) {
+				for (Long s : response.changes.delete) {
 					builder.container("Delete");
-					builder.text("ServerId", s);
+					builder.text("ServerId", Long.toString(s));
 					builder.endContainer();
 				}
 				Collections.sort(response.changes.add, c());
 				for (Change c : response.changes.add) {
 					builder.container("Add");
-					builder.text("ServerId", c.serverId);
-					builder.text("ParentId", c.parentId);
+					builder.text("ServerId", Long.toString(c.serverId));
+					builder.text("ParentId", Long.toString(c.parentId));
 					builder.text("DisplayName", c.displayName);
 					builder.text("Type", Integer.toString(c.type.asInt()));
 					builder.endContainer();
@@ -79,14 +79,12 @@ public class FolderSyncResponseFormatter implements IEasResponseFormatter<Folder
 		builder.end(completion);
 	}
 
-	private Comparator<? super String> cs() {
-		return new Comparator<String>() {
+	private Comparator<? super Long> cs() {
+		return new Comparator<Long>() {
 
 			@Override
-			public int compare(String o1, String o2) {
-				int s1 = Integer.parseInt(o1);
-				int s2 = Integer.parseInt(o2);
-				return (s1 < s2) ? -1 : 1;
+			public int compare(Long o1, Long o2) {
+				return (o1 < o2) ? -1 : 1;
 			}
 		};
 	}
@@ -96,8 +94,8 @@ public class FolderSyncResponseFormatter implements IEasResponseFormatter<Folder
 
 			@Override
 			public int compare(Change o1, Change o2) {
-				int s1 = Integer.parseInt(o1.serverId);
-				int s2 = Integer.parseInt(o2.serverId);
+				long s1 = o1.serverId;
+				long s2 = o2.serverId;
 				return (s1 < s2) ? -1 : 1;
 			}
 		};

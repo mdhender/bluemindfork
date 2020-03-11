@@ -29,36 +29,37 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
+import io.netty.buffer.ByteBufInputStream;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
 
 public class ReadInputStream extends InputStream {
 
-	private BlockingDeque<ByteBuf> queue;
-	private ReadStream<Buffer> inputStream;
-	private AtomicBoolean paused = new AtomicBoolean(false);
+	private static final Logger logger = LoggerFactory.getLogger(ReadInputStream.class);
 	private static final int MAX_QUEUE_SIZE = 100;
 	private static final int QUEUE_RESUME_SIZE = 20;
 
-	Logger logger = LoggerFactory.getLogger(ReadInputStream.class);
+	private final BlockingDeque<ByteBufInputStream> queue;
+	private final ReadStream<Buffer> inputStream;
+	private AtomicBoolean paused = new AtomicBoolean(false);
 
-	private ByteBuf currentBuff;
+	private ByteBufInputStream currentBuff;
 	public Exception exception;
+	private AtomicBoolean ended = new AtomicBoolean();
 
 	public ReadInputStream(ReadStream<Buffer> inputStream) {
 		this.inputStream = inputStream;
 		queue = new LinkedBlockingDeque<>();
 		this.inputStream.endHandler(endHandle -> {
-			queue.offerLast(Unpooled.buffer());
+			ended.set(true);
 		});
 		this.inputStream.handler(handleBuffer -> {
-
 			ByteBuf byteBuf = handleBuffer.getByteBuf();
-			queue.offerLast(byteBuf);
+			queue.offerLast(new ByteBufInputStream(byteBuf));
 			checkQueueSize();
 		});
 		inputStream.resume();
+		logger.debug("created {}", this);
 	}
 
 	@Override
@@ -69,34 +70,35 @@ public class ReadInputStream extends InputStream {
 	@Override
 	public int read(byte[] arr, int off, int len) throws IOException {
 
-		ByteBuf b = currentBuffer();
+		InputStream b = currentStream();
 		if (b == null) {
 			return -1;
 		}
-		int r = Math.min(len, b.readableBytes());
-
-		beforeRead(r);
-
-		b.readBytes(arr, off, r);
-
-		checkQueueSize();
-		return r;
+		int qty = Math.min(len, b.available());
+		beforeRead(qty);
+		int ret = b.read(arr, off, len);
+		if (ret == -1 && !ended.get()) {
+			ret = 0;
+		}
+		return ret;
 	}
 
-	protected void beforeRead(int bytesToRead) throws IOException {
-
+	protected void beforeRead(@SuppressWarnings("unused") int bytesToRead) throws IOException {
+		// override if needed
 	}
 
 	@Override
 	public int read() throws IOException {
-
-		ByteBuf b = currentBuffer();
+		InputStream b = currentStream();
 		if (b == null) {
 			return -1;
 		}
-
-		checkQueueSize();
-		return b.readByte();
+		beforeRead(1);
+		int ret = b.read();
+		if (ret == -1 && !ended.get()) {
+			ret = 0;
+		}
+		return ret;
 
 	}
 
@@ -112,25 +114,15 @@ public class ReadInputStream extends InputStream {
 		}
 	}
 
-	private ByteBuf currentBuffer() throws IOException {
-
-		if (currentBuff == null || currentBuff.readableBytes() == 0) {
-			if (queue == null) {
-				return null;
-			} else {
-				try {
-					currentBuff = queue.poll(10000, TimeUnit.MILLISECONDS);
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-					throw new IOException(e);
-				}
-				if (currentBuff != null) {
-					currentBuff.resetReaderIndex().resetWriterIndex();
-					if (currentBuff.readableBytes() == 0) {
-						currentBuff = null;
-						queue = null;
-					}
-				}
+	private InputStream currentStream() throws IOException {
+		if (currentBuff == null || currentBuff.available() == 0) {
+			try {
+				do {
+					currentBuff = queue.poll(10, TimeUnit.MILLISECONDS);
+					checkQueueSize();
+				} while (currentBuff == null && !ended.get());
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
 			}
 		}
 
@@ -140,18 +132,12 @@ public class ReadInputStream extends InputStream {
 
 	@Override
 	public void close() throws IOException {
-		logger.info("Server is closing the connection");
-		super.close();
+		// that's fine
 	}
 
 	@Override
 	public int available() throws IOException {
-		ByteBuf b = currentBuffer();
-		if (b == null) {
-			return 0;
-		} else {
-			return b.readableBytes();
-		}
+		return queue.isEmpty() ? 0 : currentStream().available();
 	}
 
 }

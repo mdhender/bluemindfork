@@ -24,6 +24,7 @@ import java.util.Set;
 public class SyncRequest {
 
 	public Set<CollectionSyncRequest> collections = new HashSet<>();
+	public Set<String> invalidCollections = new HashSet<>();
 	public boolean partial;
 	public Integer waitIntervalSeconds;
 	public Integer heartbeatInterval;
