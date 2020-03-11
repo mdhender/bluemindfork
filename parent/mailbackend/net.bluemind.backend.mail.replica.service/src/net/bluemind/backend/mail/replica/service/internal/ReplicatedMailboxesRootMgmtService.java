@@ -51,11 +51,13 @@ import net.bluemind.backend.mail.replica.utils.SubtreeContainer;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.container.api.IContainers;
+import net.bluemind.core.container.api.IFlatHierarchyUids;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ContainerModifiableDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
@@ -180,8 +182,9 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 		if (owner != null) {
 			List<DataSource> allDs = new LinkedList<>();
 			allDs.add(context.getDataSource());
-			allDs.addAll(context.getAllMailboxDataSource());
+			allDs.add(DataSourceRouter.get(context, IFlatHierarchyUids.getIdentifier(owner, partition.domainUid)));
 			for (DataSource ds : allDs) {
+				logger.info("Deleting replicated stuff for ns: {}, box: {} on ds {}", namespace, mailboxName, ds);
 				try {
 					reset((lookup -> {
 						try {
