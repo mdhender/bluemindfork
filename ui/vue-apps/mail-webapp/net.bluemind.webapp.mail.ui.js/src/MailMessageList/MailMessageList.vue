@@ -19,34 +19,24 @@
             {{ $t("common.searching") }}
             <bm-spinner class="pt-3" />
         </div>
-        <bm-infinite-scroll
-            v-else-if="count > 0"
-            ref="bmInfiniteScroll"
-            :items="messages"
-            :total="count"
-            :item-key="'key'"
-            item-size="dynamic"
-            scrollbar
-            class="h-100 bg-extra-light"
-            @scroll="loadMessages"
-        >
-            <template #item="f">
-                <bm-list-group-separator v-if="hasSeparator(f.item.key)" class="mail-list-separator px-2 py-0">
-                    <div class="text-right text-muted font-weight-bold">
-                        {{ $t(getSeparator(f.item.date)) }}
-                    </div>
-                </bm-list-group-separator>
-                <mail-message-list-item
-                    :ref="'message-' + f.item.key"
-                    :message="f.item"
-                    :to="messageRoute(f.item.key)"
-                    style="cursor: pointer;"
-                />
-            </template>
-            <template #loading>
-                <mail-message-list-loading style="cursor: pointer;" />
-            </template>
-        </bm-infinite-scroll>
+        <div v-else-if="count > 0" class="h-100 bg-extra-light mail-message-list__list">
+            <div v-for="(message, index) in messages" :key="index">
+                <div v-if="!message"><mail-message-list-loading style="cursor: pointer;" /></div>
+                <div v-else>
+                    <bm-list-group-separator v-if="hasSeparator(message.key)" class="mail-list-separator px-2 py-0">
+                        <div class="text-right text-muted font-weight-bold">
+                            {{ $t(getSeparator(message.date)) }}
+                        </div>
+                    </bm-list-group-separator>
+                    <mail-message-list-item
+                        :ref="'message-' + message.key"
+                        :message="message"
+                        :to="messageRoute(message.key)"
+                        style="cursor: pointer;"
+                    />
+                </div>
+            </div>
+        </div>
 
         <mail-message-list-empty-folder v-else-if="count === 0 && !isSearchEnabled && !areMessagesFiltered" />
         <mail-message-list-empty-filter v-else-if="count === 0 && !isSearchEnabled && areMessagesFiltered" />
@@ -72,8 +62,8 @@
 </template>
 
 <script>
-import { BmListGroup, BmListGroupItem, BmListGroupSeparator, BmInfiniteScroll, BmSpinner } from "@bluemind/styleguide";
-import { mapGetters, mapState, mapActions } from "vuex";
+import { BmListGroup, BmListGroupItem, BmListGroupSeparator, BmSpinner } from "@bluemind/styleguide";
+import { mapGetters, mapState } from "vuex";
 import { DateRange } from "@bluemind/date";
 import last from "lodash.last";
 import MailMessageListEmptyFolder from "./MailMessageListEmptyFolder";
@@ -103,7 +93,6 @@ export default {
         BmListGroup,
         BmListGroupItem,
         BmListGroupSeparator,
-        BmInfiniteScroll,
         BmSpinner,
         MailMessageListEmptyFolder,
         MailMessageListEmptyFilter,
@@ -127,31 +116,7 @@ export default {
             return this.search.pattern;
         }
     },
-    watch: {
-        currentMessageKey() {
-            if (this.currentMessageKey && this.$refs.bmInfiniteScroll) {
-                this.$refs.bmInfiniteScroll.goto(this.indexOf(this.currentMessageKey));
-            }
-            if (this.currentMessageKey && this.$refs["message-" + this.currentMessageKey]) {
-                this.$nextTick(() => {
-                    this.$refs["message-" + this.currentMessageKey];
-                    this.$refs["message-" + this.currentMessageKey].$el.focus();
-                });
-            }
-        },
-        currentFolderKey() {
-            if (this.$refs.bmInfiniteScroll) {
-                this.$refs.bmInfiniteScroll.goto(0);
-            }
-        }
-    },
-    created() {
-        if (this.currentMessageKey && this.$refs.bmInfiniteScroll) {
-            this.$refs.bmInfiniteScroll.goto(this.indexOf(this.currentMessageKey));
-        }
-    },
     methods: {
-        ...mapActions("mail-webapp", { loadMessages: "loadRange" }),
         remove() {
             if (this.currentFolderKey === this.my.TRASH.key) {
                 this.openPurgeModal();
@@ -167,18 +132,6 @@ export default {
                 }
             }
             return last(RANGES);
-        },
-        moveTo(diff) {
-            if (this.currentMessageKey) {
-                let index = this.indexOf(this.currentMessageKey) + diff;
-                this.goTo(index);
-            }
-        },
-        goTo(index) {
-            if (this.currentMessageKey) {
-                index = Math.min(Math.max(0, index), this.count - 1);
-                this.$router.push({ path: "" + this.messages[index].key });
-            }
         },
         hasSeparator(key) {
             let index = this.indexOf(key);
@@ -196,9 +149,8 @@ export default {
         getSeparator(date) {
             return this.getRange(date)[I18N];
         },
-        messageRoute(key) {
+        messageRoute(key = "") {
             const path = this.$route.path;
-            key = key || "";
             const filter = this.areMessagesFiltered ? "?filter=" + this.messageFilter : "";
             if (this.$route.params.mail) {
                 return path.replace(new RegExp("/" + this.$route.params.mail + "/?.*"), "/" + key) + filter;
@@ -219,6 +171,10 @@ export default {
 
 .mail-message-list {
     outline: none;
+}
+
+.mail-message-list__list {
+    overflow-y: scroll;
 }
 
 .mail-message-list .font-size-lg {
