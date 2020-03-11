@@ -37,6 +37,7 @@ export default {
             }
         }, UPDATE_ROUTE_TIMEOUT),
         cancel() {
+            this.setStatus("idle");
             this.$router.push("/mail/" + this.currentFolderKey + "/");
         },
         showSpinner: debounce(function() {

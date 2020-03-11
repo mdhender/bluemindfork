@@ -31,8 +31,11 @@ export const getters = {
     isLoading(state) {
         return state.status === STATUS.LOADING;
     },
-    isError(state) {
+    isRejected: function(state) {
         return state.status === STATUS.REJECTED;
+    },
+    isResolved: function(state) {
+        return state.status === STATUS.RESOLVED;
     }
 };
 
@@ -73,6 +76,7 @@ async function doTheSearch({ commit, dispatch }, { pattern, filter, folderUid, m
         commit("setStatus", STATUS.RESOLVED);
         return result;
     } catch (err) {
+        // eslint-disable-next-line no-console
         console.error(err);
         commit("setStatus", STATUS.REJECTED);
     }

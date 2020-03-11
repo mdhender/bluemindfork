@@ -20,7 +20,7 @@ import MailFolderIcon from "../MailFolderIcon";
 import MailMessageListEmpty from "./MailMessageListEmpty";
 
 export default {
-    name: "MailMessageListEmptyFolder",
+    name: "FolderResultContentEmptyFolder",
     components: {
         MailFolderIcon,
         MailMessageListEmpty

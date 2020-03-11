@@ -10,7 +10,8 @@ export async function multipleByKey({ commit }, messageKeys) {
             items
         });
     });
-    return Promise.all(promises);
+    const multipleByKeyResults = await Promise.all(promises);
+    return multipleByKeyResults;
 }
 
 function getIdsByFolderUid(messageKeys) {

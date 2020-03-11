@@ -1,5 +1,5 @@
 <template>
-    <bm-button-toolbar class="mail-message-list-item-quick-action-buttons justify-content-end">
+    <bm-button-toolbar class="message-list-item-quick-action-buttons justify-content-end">
         <bm-button-group>
             <bm-button
                 v-bm-tooltip.ds500.top.viewport
@@ -44,7 +44,7 @@ import { mapActions, mapGetters, mapState } from "vuex";
 import { SHOW_PURGE_MODAL } from "../VueBusEventTypes";
 
 export default {
-    name: "MailMessageListItemQuickActionButtons",
+    name: "MessageListItemQuickActionButtons",
     components: {
         BmButtonToolbar,
         BmButtonGroup,
@@ -82,7 +82,7 @@ export default {
 };
 </script>
 <style>
-.mail-message-list-item-quick-action-buttons .hovershadow:hover {
+.message-list-item-quick-action-buttons .hovershadow:hover {
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
 }
 </style>

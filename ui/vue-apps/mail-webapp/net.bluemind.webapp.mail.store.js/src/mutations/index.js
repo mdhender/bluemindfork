@@ -5,3 +5,4 @@ export * from "./setMaxMessageSize";
 export * from "./setMessageFilter";
 export * from "./setUnreadCount";
 export * from "./setUserLogin";
+export * from "./setStatus";

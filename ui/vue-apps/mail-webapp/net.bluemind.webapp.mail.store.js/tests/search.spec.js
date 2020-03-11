@@ -32,18 +32,24 @@ describe("[Mail-WebappStore][search]", () => {
     });
 
     describe("getters", () => {
-        const { isLoading, isError } = getters;
+        const { isLoading, isResolved, isRejected } = getters;
         test("isLoading", () => {
             const state = {
                 status: STATUS.LOADING
             };
             expect(isLoading(state)).toBe(true);
         });
-        test("isError", () => {
+        test("isResolved", () => {
+            const state = {
+                status: STATUS.RESOLVED
+            };
+            expect(isResolved(state)).toBe(true);
+        });
+        test("isRejected", () => {
             const state = {
                 status: STATUS.REJECTED
             };
-            expect(isError(state)).toBe(true);
+            expect(isRejected(state)).toBe(true);
         });
     });
 

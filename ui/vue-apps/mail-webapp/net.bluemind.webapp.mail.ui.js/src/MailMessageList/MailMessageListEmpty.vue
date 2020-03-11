@@ -13,7 +13,7 @@
 
 <script>
 export default {
-    name: "MailMessageListEmptyFolder",
+    name: "MailMessageListEmpty",
     props: {
         image: {
             type: String,

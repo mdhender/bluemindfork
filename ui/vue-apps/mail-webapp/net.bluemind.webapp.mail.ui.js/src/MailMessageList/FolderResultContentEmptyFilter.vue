@@ -1,5 +1,5 @@
 <template>
-    <mail-message-list-empty :image="image_">
+    <mail-message-list-empty :image="emptyFolderIllustrationUnreadFilter">
         <h3 class="d-inline text-center">
             <p>{{ $t("mail.list.unread.none") }}</p>
             <p>
@@ -17,7 +17,7 @@ import emptyFolderIllustrationUnreadFilter from "../../assets/empty-folder-unrea
 import MailMessageListEmpty from "./MailMessageListEmpty";
 
 export default {
-    name: "MailMessageListEmptyFolder",
+    name: "FolderResultContentEmptyFilter",
     components: {
         MailMessageListEmpty
     },
@@ -27,16 +27,7 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail-webapp", ["messageFilter"]),
-        image_() {
-            switch (this.messageFilter) {
-                case "unread":
-                    return this.emptyFolderIllustrationUnreadFilter;
-                case "all":
-                default:
-                    return null;
-            }
-        }
+        ...mapState("mail-webapp", ["messageFilter"])
     }
 };
 </script>

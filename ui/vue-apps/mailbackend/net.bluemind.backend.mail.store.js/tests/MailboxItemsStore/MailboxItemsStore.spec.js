@@ -5,7 +5,6 @@ import cloneDeep from "lodash.clonedeep";
 import exampleMessages from "./data/messages";
 import ItemUri from "@bluemind/item-uri";
 import MailboxItemsStore from "../../src/MailboxItemsStore";
-import Message from "../../src/MailboxItemsStore/Message";
 import plainTextPart from "./data/plainTextPart";
 import ServiceLocator from "@bluemind/inject";
 import Vuex from "vuex";
@@ -34,8 +33,7 @@ describe("[MailboxItemsStore] Vuex store", () => {
                 exampleMessages.forEach((item, index) => {
                     const key = ItemUri.encode(item.internalId, folderUid);
                     expect(store.getters.indexOf(key)).toEqual(index);
-                    const message = new Message(key, item);
-                    expect(store.getters.getMessageByKey(key)).toEqual(message);
+                    expect(store.getters.getMessageByKey(key)).toMatchSnapshot();
                 });
                 expect(store.getters.count).toEqual(exampleMessages.length);
                 done();
@@ -119,8 +117,7 @@ describe("[MailboxItemsStore] Vuex store", () => {
             .then(() => {
                 filteredMessages.forEach(item => {
                     const key = ItemUri.encode(item.internalId, folderUid);
-                    const message = new Message(key, item);
-                    expect(store.getters.getMessageByKey(key)).toEqual(message);
+                    expect(store.getters.getMessageByKey(key)).toMatchSnapshot();
                 });
                 done();
             });
@@ -142,8 +139,7 @@ describe("[MailboxItemsStore] Vuex store", () => {
                 exampleMessages.forEach((item, index) => {
                     const key = ItemUri.encode(item.internalId, folderUid);
                     expect(store.getters.indexOf(key)).toEqual(index);
-                    const message = new Message(key, item);
-                    expect(store.getters.getMessageByKey(key)).toEqual(message);
+                    expect(store.getters.getMessageByKey(key)).toMatchSnapshot();
                 });
                 expect(store.getters.count).toEqual(exampleMessages.length);
                 done();

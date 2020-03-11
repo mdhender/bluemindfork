@@ -1,7 +1,9 @@
 import ContainerObserver from "@bluemind/containerobserver";
 import ItemUri from "@bluemind/item-uri";
+import { STATUS } from "../constants";
 
-export function selectFolder({ dispatch, commit, state }, { folderKey, filter }) {
+export async function selectFolder({ dispatch, commit, state }, { folderKey, filter }) {
+    commit("setStatus", STATUS.LOADING);
     const folderUid = ItemUri.item(folderKey);
     let shouldClearMessages = false;
     if (state.currentFolderKey !== folderKey) {
@@ -27,10 +29,11 @@ export function selectFolder({ dispatch, commit, state }, { folderKey, filter })
         commit("messages/clearParts");
     }
 
-    return dispatch("messages/list", { sorted: state.sorted, folderUid, filter })
-        .then(() => {
-            const sorted = state.messages.itemKeys;
-            return dispatch("messages/multipleByKey", sorted.slice(0, 100));
-        })
-        .then(() => dispatch("loadUnreadCount", folderUid));
+    await dispatch("messages/list", { sorted: state.sorted, folderUid, filter });
+    const sorted = state.messages.itemKeys;
+    await dispatch("messages/multipleByKey", sorted.slice(0, 100));
+    const result = await dispatch("loadUnreadCount", folderUid);
+
+    commit("setStatus", STATUS.RESOLVED);
+    return result;
 }

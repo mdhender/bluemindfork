@@ -19,8 +19,7 @@
             "type": "chrome",
             "request": "launch",
             "name": "vuejs: chrome",
-            "runtimeExecutable": "/usr/bin/chromium",
-            "url": "http://bm4.local/webapp/mail/index.html",
+            "url": "${env:BM_HOST}/webapp/mail/index.html",
             "webRoot": "${workspaceFolder}/src",
             "breakOnLoad": true,
             "sourceMapPathOverrides": {
@@ -31,16 +30,12 @@
             "type": "firefox",
             "request": "launch",
             "name": "vuejs: firefox",
-            "url": "http://bm4.local/webapp/mail/index.html",
+            "url": "${env:BM_HOST}/webapp/mail/index.html",
             "webRoot": "${workspaceFolder}/src",
             "pathMappings": [
                 {
-                    "url": "webpack:///net.bluemind.webapp.mail.ui.js",
-                    "path": "${workspaceFolder}/mail-webapp/net.bluemind.webapp.mail.ui.js"
-                },
-                {
-                    "url": "webpack:///src/",
-                    "path": "${webRoot}/"
+                    "url": "webpack:///",
+                    "path": "${workspaceFolder}/mail-webapp/"
                 }
             ]
         }

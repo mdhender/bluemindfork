@@ -1,36 +1,45 @@
 import { computeSubject, previousMessageContent } from "../src/MessageBuilder";
 import { MimeType } from "@bluemind/email";
-import { Message } from "@bluemind/backend.mail.store";
 import mailboxItem from "./data/mailbox-item.json";
-import injector from "@bluemind/inject";
-
-jest.mock("@bluemind/inject");
-injector.getProvider.mockReturnValue({
-    get: jest.fn().mockReturnValue({
-        t: (key, params) => {
-            if (key === "mail.compose.reply.subject") {
-                return "Re: ";
-            } else if (key === "mail.compose.forward.subject") {
-                return "Fw: ";
-            } else if (key === "mail.compose.reply.body") {
-                return "On " + params.date + ", " + params.name + " wrote:";
-            } else if (key === "mail.compose.forward.body") {
-                return "---- Original Message ----";
-            } else if (key === "mail.compose.forward.prev.message.info.from") {
-                return "From";
-            } else if (key === "mail.compose.forward.prev.message.info.to") {
-                return "To";
-            } else if (key === "mail.compose.forward.prev.message.info.date") {
-                return "Date";
-            } else if (key === "mail.compose.forward.prev.message.info.subject") {
-                return "Subject";
-            }
-        },
-        d: key => {
-            return key;
+jest.mock("@bluemind/inject", () => {
+    return {
+        getProvider() {
+            return {
+                get: val => {
+                    if (val === "Environment") {
+                        return { firstDayOfWeek: 1 };
+                    } else {
+                        return {
+                            t: (key, params) => {
+                                if (key === "mail.compose.reply.subject") {
+                                    return "Re: ";
+                                } else if (key === "mail.compose.forward.subject") {
+                                    return "Fw: ";
+                                } else if (key === "mail.compose.reply.body") {
+                                    return "On " + params.date + ", " + params.name + " wrote:";
+                                } else if (key === "mail.compose.forward.body") {
+                                    return "---- Original Message ----";
+                                } else if (key === "mail.compose.forward.prev.message.info.from") {
+                                    return "From";
+                                } else if (key === "mail.compose.forward.prev.message.info.to") {
+                                    return "To";
+                                } else if (key === "mail.compose.forward.prev.message.info.date") {
+                                    return "Date";
+                                } else if (key === "mail.compose.forward.prev.message.info.subject") {
+                                    return "Subject";
+                                }
+                            },
+                            d: key => {
+                                return key;
+                            }
+                        };
+                    }
+                }
+            };
         }
-    })
+    };
 });
+import { Message } from "@bluemind/backend.mail.store";
 
 describe("MessageBuilder", () => {
     let message = null;

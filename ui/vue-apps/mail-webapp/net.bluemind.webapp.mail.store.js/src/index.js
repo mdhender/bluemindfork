@@ -9,7 +9,7 @@ import search from "./modules/search";
 
 export default {
     namespaced: true,
-    state: Object.assign({}, state),
+    state: { ...state },
     actions,
     mutations,
     getters,

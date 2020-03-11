@@ -10,7 +10,7 @@
         <bm-list-group-item
             :class="message.states"
             :to="to"
-            class="mail-message-list-item"
+            class="message-list-item"
             active-class="active"
             @mousedown.prevent
             @mouseenter.native="quickActionButtonsVisible = true"
@@ -30,10 +30,7 @@
                         <div v-if="!quickActionButtonsVisible" class="float-right">
                             <component :is="widget" v-for="widget in widgets" :key="widget.template" />
                         </div>
-                        <mail-message-list-item-quick-action-buttons
-                            v-if="quickActionButtonsVisible"
-                            :message="message"
-                        />
+                        <message-list-item-quick-action-buttons v-if="quickActionButtonsVisible" :message="message" />
                     </transition>
                 </bm-col>
             </bm-row>
@@ -57,7 +54,7 @@
             </bm-row>
         </bm-list-group-item>
         <template v-slot:shadow>
-            <bm-row class="mail-message-list-item-drag-shadow py-2 no-gutters align-items-center">
+            <bm-row class="message-list-item-drag-shadow py-2 no-gutters align-items-center">
                 <bm-col cols="1" class="text-right">
                     <bm-icon icon="6dots-v" class="bm-drag-handle" />
                 </bm-col>
@@ -99,10 +96,10 @@ import { BmAvatar, BmCheck, BmCol, BmIcon, BmListGroupItem, BmRow, BmTooltip, Bm
 import { DateComparator } from "@bluemind/date";
 import { mapGetters, mapActions, mapState } from "vuex";
 import ItemUri from "@bluemind/item-uri";
-import MailMessageListItemQuickActionButtons from "./MailMessageListItemQuickActionButtons";
+import MessageListItemQuickActionButtons from "./MessageListItemQuickActionButtons";
 
 export default {
-    name: "MailMessageListItem",
+    name: "MessageListItem",
     components: {
         BmAvatar,
         BmCheck,
@@ -111,7 +108,7 @@ export default {
         BmIcon,
         BmListGroupItem,
         BmRow,
-        MailMessageListItemQuickActionButtons
+        MessageListItemQuickActionButtons
     },
     directives: { BmTooltip },
     props: {
@@ -214,27 +211,27 @@ export default {
 <style lang="scss">
 @import "~@bluemind/styleguide/css/variables";
 
-.mail-message-list-item {
+.message-list-item {
     cursor: pointer;
 }
 
-.mail-message-list-item .bm-avatar {
+.message-list-item .bm-avatar {
     width: 1.3rem !important;
     height: 1.3rem !important;
 }
 
-.mail-message-list-item .selector .custom-check {
+.message-list-item .selector .custom-check {
     display: none !important;
     margin-left: 0.825rem;
     padding-left: 0.825rem;
     min-height: 1.4rem;
 }
 
-.mail-message-list-item .selector:hover .bm-avatar {
+.message-list-item .selector:hover .bm-avatar {
     display: none !important;
 }
 
-.mail-message-list-item .selector:hover .custom-check {
+.message-list-item .selector:hover .custom-check {
     display: block !important;
 }
 
@@ -243,22 +240,22 @@ export default {
     top: 0.2rem !important;
 }
 
-.list-group-item.mail-message-list-item.not-seen {
+.list-group-item.message-list-item.not-seen {
     border-left: theme-color("primary") 4px solid !important;
 }
 
-a.list-group-item.mail-message-list-item {
+a.list-group-item.message-list-item {
     border-left: transparent solid 4px !important;
 }
 
-.list-group-item.mail-message-list-item:focus {
+.list-group-item.message-list-item:focus {
     outline: $outline;
     &:hover {
         background-color: $component-active-bg-darken;
     }
 }
 
-.mail-message-list-item-drag-shadow {
+.message-list-item-drag-shadow {
     width: 240px;
     background-color: $surface-bg;
 }

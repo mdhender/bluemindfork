@@ -64,3 +64,15 @@ Pour servir les fichiers de la bannière et de l'application, il faut démarrer 
 ## Configuration de l'environnement de développement
 
 Il est recommandé d'utiliser vscode. Il est indispensable de suivre les guidelines et styleguides de développement (si une règle n'est pas définie ou n'est pas claire, il faudra l'expliciter et l'intégrer aux règles existantes).
+
+## Debug
+
+Une configuration est disponible dans `.vscode/launch.json` pour brancher un debugger vscode à l'application servie par la VM.
+
+Pour profiter du debugger, il faut installer les extensions Chrome/Chromium ou Firefox:
+
+-   Chrome/Chromium : https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome
+-   Firefox : https://marketplace.visualstudio.com/items?itemName=firefox-devtools.vscode-firefox-debug
+
+Afin de ne pas stipuler sur l'URL servie par votre VM, nous utilisons une variable d'environnement : `BM_HOST`.
+Veillez à la déclarer avec la valeur de votre domaine, exemple pour bash `export BM_HOST="http://bm4.local"` ou pour fish `set -x BM_HOST http://bm4.local`.

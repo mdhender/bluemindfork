@@ -1,5 +1,5 @@
 <template>
-    <bm-list-group-item class="mail-message-list-header bg-surface pb-0 pt-1 d-none d-lg-block">
+    <div class="mail-message-list-header bg-surface pb-0 pt-1 d-none d-lg-block">
         <bm-row align-v="center" class="no-gutters">
             <bm-col cols="1">
                 <bm-check />
@@ -22,11 +22,11 @@
                 </span> -->
             </bm-col>
         </bm-row>
-    </bm-list-group-item>
+    </div>
 </template>
 
 <script>
-import { BmCheck, BmCol, BmListGroupItem, BmRow, BmChoiceGroup, BmTooltip } from "@bluemind/styleguide";
+import { BmCheck, BmCol, BmRow, BmChoiceGroup, BmTooltip } from "@bluemind/styleguide";
 import { mapState } from "vuex";
 
 const FILTER_INDEXES = { all: 0, unread: 1 };
@@ -36,7 +36,6 @@ export default {
     components: {
         BmCheck,
         BmCol,
-        BmListGroupItem,
         BmRow,
         BmChoiceGroup
     },
@@ -90,6 +89,10 @@ export default {
 </script>
 <style lang="scss">
 @import "~@bluemind/styleguide/css/variables";
+.mail-message-list-header {
+    border-bottom: 1px solid $gray-300;
+    padding: 0.5rem;
+}
 
 .mail-message-list-header .bm-check {
     margin-left: 6px;
