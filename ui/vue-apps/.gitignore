@@ -2,4 +2,4 @@ stats.json
 node_modules/
 node/
 jest.json
-jest.xml
+report.xml

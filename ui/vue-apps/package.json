@@ -56,7 +56,7 @@
         "vue": "^2.6.0"
     },
     "scripts": {
-        "test": "jest --ci --json --config node_modules/@bluemind/conf/jest.config.js > jest.json",
+        "test": "jest --ci --json --config node_modules/@bluemind/conf/jest.config.js --testResultsProcessor jest-jenkins-reporter --coverage --coverageReporters cobertura > jest.json",
         "root": "(cd root-webapp/net.bluemind.webapp.root.js && yarn dev)",
         "mail": "(cd mail-webapp/net.bluemind.webapp.mail.js && yarn dev)",
         "test-dev": "jest --watch --config node_modules/@bluemind/conf/jest.config.js"
