@@ -2626,6 +2626,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.setFormButtons_ = function(isMeet
       this.getChild('toolbar').getChild("save").setVisible(false);
     }
   } else {
+    /** @meaning general.save */
     var MSG_SAVE = goog.getMsg('Save');
     this.getChild('toolbar').getChild("send").setCaption(MSG_SAVE);
   }
