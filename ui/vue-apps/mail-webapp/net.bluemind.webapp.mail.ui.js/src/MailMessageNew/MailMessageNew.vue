@@ -241,6 +241,7 @@ export default {
         }
     },
     created: function() {
+        this.deleteAllSelectedMessages();
         this.clearDraft();
         this.message_.type = this.userPrefTextOnly ? "text" : "html";
         this.message_.previousMessage = this.previousMessage;
@@ -258,6 +259,7 @@ export default {
     },
     methods: {
         ...mapActions("mail-webapp", { save: "saveDraft", addAttachments: "addAttachments" }),
+        ...mapMutations("mail-webapp", ["deleteAllSelectedMessages"]),
         ...mapMutations("mail-webapp/draft", { clearDraft: "clear", updateDraft: "update" }),
         ...mapGetters("mail-webapp/draft", { isMessageEmpty: "isEmpty" }),
         displayPreviousMessages() {

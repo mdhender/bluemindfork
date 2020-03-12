@@ -9,16 +9,38 @@
         @keyup.down="goToByDiff(+1)"
         @keyup.page-down="goToByDiff(+PAGE)"
         @keyup.page-up="goToByDiff(-PAGE)"
-        @keyup.home="goTo(0)"
-        @keyup.end="goTo(length - 1)"
+        @keyup.home="goToByIndex(0)"
+        @keyup.end="goToByIndex(count - 1)"
+        @keyup.space.exact="goToByKey(lastFocusedMessage)"
+        @keyup.ctrl.exact.space="toggleSelect(lastFocusedMessage)"
+        @keyup.ctrl.exact.65="toggleAll()"
+        @keyup.ctrl.exact.up="focusByDiff(-1)"
+        @keyup.ctrl.exact.down="focusByDiff(+1)"
+        @keyup.ctrl.exact.home="focusByIndex(0)"
+        @keyup.ctrl.exact.end="focusByIndex(count - 1)"
+        @keyup.shift.exact.space="selectRange(lastFocusedMessage, true)"
+        @keyup.shift.exact.up="selectRangeByDiff(-1, true)"
+        @keyup.shift.exact.down="selectRangeByDiff(+1, true)"
+        @keyup.shift.exact.home="selectRange(messages[0].key, true)"
+        @keyup.shift.exact.end="selectRange(messages[count - 1].key, true)"
+        @keyup.shift.ctrl.exact.space="selectRange(lastFocusedMessage)"
+        @keyup.shift.ctrl.exact.up="selectRangeByDiff(-1)"
+        @keyup.shift.ctrl.exact.down="selectRangeByDiff(+1)"
+        @keyup.shift.ctrl.exact.home="selectRange(messages[0].key)"
+        @keyup.shift.ctrl.exact.end="selectRange(messages[count - 1].key)"
     >
         <div v-for="(message, index) in messages" :key="index">
             <message-list-separator v-if="message.hasSeparator" :text="$t(message.range.name)" />
             <message-list-item
                 :ref="'message-' + message.key"
                 :message="message"
-                :to="messageRoute(message.key)"
+                :to="computeMessageRoute(currentFolderKey, message.key, messageFilter)"
                 class="message-list-item"
+                @toggleSelect="toggleSelect"
+                @click.exact.native="unselectAllIfNeeded(message.key)"
+                @click.ctrl.exact.native.prevent="toggleSelect(message.key)"
+                @click.shift.exact.native.prevent="selectRange(message.key, true)"
+                @click.shift.exact.ctrl.exact.native.prevent="selectRange(message.key)"
             />
         </div>
         <bm-list-group-item v-if="hasMore">Loading…</bm-list-group-item>
@@ -27,7 +49,8 @@
 
 <script>
 import { BmListGroup, BmListGroupItem } from "@bluemind/styleguide";
-import { mapState, mapGetters, mapActions } from "vuex";
+import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
+import { RouterMixin } from "@bluemind/router";
 import { SHOW_PURGE_MODAL } from "../VueBusEventTypes";
 import MailRouterMixin from "../MailRouterMixin";
 import MessageListItem from "./MessageListItem";
@@ -44,31 +67,53 @@ export default {
         MessageListItem,
         MessageListSeparator
     },
-    mixins: [MailRouterMixin],
+    mixins: [MailRouterMixin, RouterMixin],
     data() {
         return {
-            PAGE
+            PAGE,
+            lastFocusedMessage: null,
+            anchoredMessageForShift: null
         };
     },
     computed: {
-        ...mapState("mail-webapp", ["currentMessageKey", "currentFolderKey"]),
-        ...mapGetters("mail-webapp/messages", ["messages", "count"]),
+        ...mapGetters("mail-webapp", [
+            "nextMessageKey",
+            "my",
+            "areMessagesFiltered",
+            "isMessageSelected",
+            "areAllMessagesSelected"
+        ]),
+        ...mapState("mail-webapp/messages", ["itemKeys"]),
+        ...mapGetters("mail-webapp/messages", ["messages", "count", "indexOf"]),
+        ...mapState("mail-webapp", ["currentFolderKey", "messageFilter", "selectedMessageKeys"]),
+        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         hasMore: function() {
             return this.messages.length < this.count;
         }
     },
+    watch: {
+        currentMessageKey() {
+            this.focusByKey(this.currentMessageKey);
+        },
+        currentFolderKey() {
+            if (this.$refs.bmInfiniteScroll) {
+                this.$refs.bmInfiniteScroll.goto(0);
+            }
+            this.lastFocusedMessage = null;
+            this.anchoredMessageForShift = null;
+        }
+    },
+    created() {
+        this.focusByKey(this.currentMessageKey);
+    },
     methods: {
         ...mapActions("mail-webapp", ["loadRange"]),
-        messageRoute(key = "") {
-            const path = this.$route.path;
-            const filter = this.areMessagesFiltered ? "?filter=" + this.messageFilter : "";
-            if (this.$route.params.mail) {
-                return path.replace(new RegExp("/" + this.$route.params.mail + "/?.*"), "/" + key) + filter;
-            } else if (path === "/mail/" || path === "/mail/new") {
-                return "/mail/" + this.currentFolderKey + "/" + key + filter;
-            }
-            return path + key + filter;
-        },
+        ...mapMutations("mail-webapp", [
+            "addSelectedMessageKey",
+            "deleteSelectedMessageKey",
+            "addAllToSelectedMessages",
+            "deleteAllSelectedMessages"
+        ]),
         loadMore: function() {
             const range = {
                 start: this.messages.length,
@@ -83,16 +128,6 @@ export default {
                 this.loadMore();
             }
         }, 300),
-        goToByDiff(diff) {
-            if (this.currentMessageKey) {
-                let index = this.indexOf(this.currentMessageKey) + diff;
-                this.goTo(index);
-            }
-        },
-        goTo(index) {
-            // FIXME
-            this.$router.push({ path: index });
-        },
         remove() {
             if (this.currentFolderKey === this.my.TRASH.key) {
                 this.openPurgeModal();
@@ -103,6 +138,108 @@ export default {
         },
         openPurgeModal() {
             this.$bus.$emit(SHOW_PURGE_MODAL);
+        },
+        goToByDiff(diff) {
+            this.goToByIndex(this.indexOf(this.lastFocusedMessage) + diff);
+        },
+        goToByIndex(index) {
+            index = Math.min(Math.max(0, index), this.count - 1);
+            this.goToByKey(this.messages[index].key);
+        },
+        goToByKey(key) {
+            this.$router.push({ path: "" + key });
+            this.deleteAllSelectedMessages();
+        },
+        focusByKey(key) {
+            this.focusByIndex(this.indexOf(key));
+        },
+        focusByDiff(diff) {
+            this.focusByIndex(this.indexOf(this.lastFocusedMessage) + diff);
+        },
+        focusByIndex(index) {
+            if (index !== -1 && this.messages[index]) {
+                const messageKeyToFocus = this.messages[index].key;
+                if (this.$refs.bmInfiniteScroll) {
+                    this.$refs.bmInfiniteScroll.goto(index);
+                }
+                this.$nextTick(() => {
+                    const htmlElement = this.$refs["message-" + messageKeyToFocus];
+                    if (htmlElement) {
+                        htmlElement.$el.focus();
+                    } else {
+                        console.log("not in DOM..");
+                    }
+                });
+                this.lastFocusedMessage = messageKeyToFocus;
+            }
+        },
+        selectRangeByDiff(diff, shouldReset = false) {
+            const index = this.indexOf(this.lastFocusedMessage) + diff;
+            const message = this.messages[index];
+            if (message) {
+                this.selectRange(message.key, shouldReset);
+            }
+        },
+        selectRange(destinationMessageKey, shouldReset = false) {
+            this.checkReset(shouldReset);
+            this.initAnchored();
+            if (this.anchoredMessageForShift && destinationMessageKey) {
+                const startIndex = this.indexOf(this.anchoredMessageForShift);
+                const endIndex = this.indexOf(destinationMessageKey);
+                this.addMessageKeysBetween(startIndex, endIndex);
+                this.focusByKey(destinationMessageKey);
+                this.navigateAfterSelection();
+            }
+        },
+        checkReset(shouldReset) {
+            if (shouldReset) {
+                this.deleteAllSelectedMessages();
+            }
+        },
+        addMessageKeysBetween(start, end) {
+            const realStart = start < end ? start : end;
+            const realEnd = start < end ? end : start;
+            return this.messages
+                .slice(realStart, realEnd + 1)
+                .filter(Boolean)
+                .map(message => message.key)
+                .forEach(key => this.addSelectedMessageKey(key));
+        },
+        initAnchored() {
+            if (!this.anchoredMessageForShift) {
+                this.anchoredMessageForShift =
+                    this.lastFocusedMessage || this.currentMessageKey || (this.messages[0] && this.messages[0].key);
+            }
+        },
+        toggleAll() {
+            this.areAllMessagesSelected
+                ? this.deleteAllSelectedMessages()
+                : this.addAllToSelectedMessages(this.itemKeys);
+            this.navigateAfterSelection();
+        },
+        toggleSelect(messageKey) {
+            if (this.isMessageSelected(messageKey)) {
+                this.deleteSelectedMessageKey(messageKey);
+            } else {
+                this.addSelectedMessageKey(messageKey);
+                this.anchoredMessageForShift = messageKey;
+            }
+            this.focusByKey(messageKey);
+            this.navigateAfterSelection();
+        },
+        navigateAfterSelection() {
+            if (this.selectedMessageKeys.length === 1) {
+                this.$router.push(
+                    this.computeMessageRoute(this.currentFolderKey, this.selectedMessageKeys[0], this.messageFilter)
+                );
+            } else if (this.selectedMessageKeys.length > 1) {
+                this.navigateToParent();
+            }
+        },
+        unselectAllIfNeeded(messageKey) {
+            if (this.selectedMessageKeys.length !== 1 || this.selectedMessageKeys[0] !== messageKey) {
+                this.deleteAllSelectedMessages();
+            }
         }
     }
 };

@@ -8,21 +8,20 @@
         @drop="e => moveMessage(e.relatedData)"
     >
         <bm-list-group-item
-            :class="message.states"
             :to="to"
             class="message-list-item"
             active-class="active"
-            @mousedown.prevent
-            @mouseenter.native="quickActionButtonsVisible = true"
-            @mouseleave.native="quickActionButtonsVisible = false"
+            :class="[...message.states, isMessageSelected(message.key) ? 'active' : '']"
+            @mouseenter.native="mouseIn = true"
+            @mouseleave.native="mouseIn = false"
         >
             <bm-row class="align-items-center flex-nowrap no-gutters">
                 <bm-col cols="1" class="selector">
-                    <bm-avatar :alt="from" :class="[isMessageSelected(message.key) ? 'd-none' : '']" />
+                    <bm-avatar :alt="from" :class="[anyMessageSelected ? 'd-none' : '']" />
                     <bm-check
                         :checked="isMessageSelected(message.key)"
-                        :class="[isMessageSelected(message.key) ? 'd-block' : 'd-none']"
-                        @click.native.prevent="toggleSelect"
+                        :class="[anyMessageSelected ? 'd-block' : 'd-none']"
+                        @click.exact.native.prevent.stop="$emit('toggleSelect', message.key)"
                     />
                 </bm-col>
                 <bm-col cols="8" class="text-overflow">
@@ -99,10 +98,8 @@ const FLAG_COMPONENT = {
 
 import { BmAvatar, BmCheck, BmCol, BmIcon, BmListGroupItem, BmRow, BmTooltip, BmDraggable } from "@bluemind/styleguide";
 import { DateComparator } from "@bluemind/date";
-import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
-import { RouterMixin } from "@bluemind/router";
+import { mapActions, mapGetters, mapState } from "vuex";
 import ItemUri from "@bluemind/item-uri";
-import MailRouterMixin from "../MailRouterMixin";
 import MessageListItemQuickActionButtons from "./MessageListItemQuickActionButtons";
 
 export default {
@@ -118,7 +115,6 @@ export default {
         MessageListItemQuickActionButtons
     },
     directives: { BmTooltip },
-    mixins: [MailRouterMixin, RouterMixin],
     props: {
         to: {
             required: false,
@@ -136,13 +132,13 @@ export default {
                 cursor: "cursor",
                 text: this.$t("mail.actions.move")
             },
-            quickActionButtonsVisible: false
+            mouseIn: false
         };
     },
     computed: {
-        ...mapState("mail-webapp", ["currentMessageKey", "selectedMessageKeys", "currentFolderKey", "messageFilter"]),
-        ...mapGetters("mail-webapp", ["nextMessageKey", "isMessageSelected"]),
         ...mapGetters("mail-webapp/folders", ["getFolderByKey"]),
+        ...mapGetters("mail-webapp", ["isMessageSelected", "nextMessageKey"]),
+        ...mapState("mail-webapp", ["currentMessageKey", "selectedMessageKeys", "currentFolderKey", "messageFilter"]),
         displayedDate: function() {
             const today = new Date();
             const messageDate = this.message.date;
@@ -168,12 +164,16 @@ export default {
         },
         from() {
             return this.message.from.dn ? this.message.from.dn : this.message.from.address;
+        },
+        quickActionButtonsVisible() {
+            return this.mouseIn && this.selectedMessageKeys.length <= 1;
+        },
+        anyMessageSelected() {
+            return this.selectedMessageKeys.length > 0;
         }
     },
     methods: {
         ...mapActions("mail-webapp", ["move"]),
-        ...mapMutations("mail-webapp", ["addSelectedMessageKey", "deleteSelectedMessageKey"]),
-
         setTooltip(folder) {
             if (folder) {
                 const draggedMessageFolderUid = ItemUri.container(this.message.key);
@@ -210,23 +210,6 @@ export default {
                     this.$router.push("" + (this.nextMessageKey || ""));
                 }
                 this.move({ messageKey: this.message.key, folder: this.getFolderByKey(folder.key) });
-            }
-        },
-        toggleSelect() {
-            if (this.isMessageSelected(this.message.key)) {
-                this.deleteSelectedMessageKey(this.message.key);
-                if (this.selectedMessageKeys.length === 1) {
-                    this.$router.push(
-                        this.computeMessageRoute(this.currentFolderKey, this.selectedMessageKeys[0], this.messageFilter)
-                    );
-                }
-            } else {
-                this.addSelectedMessageKey(this.message.key);
-                if (this.selectedMessageKeys.length === 1) {
-                    this.$router.push(this.to);
-                } else {
-                    this.navigateToParent();
-                }
             }
         }
     }
@@ -286,6 +269,16 @@ a.list-group-item.message-list-item {
 }
 
 //FIXME: All those class should not be here or should be scoped...
+.bm-draggable {
+    margin: 1px;
+    &:focus {
+        outline: $outline !important;
+        &:hover {
+            background-color: $component-active-bg-darken;
+        }
+    }
+}
+
 .custom-control-label::after,
 .custom-control-label::before {
     top: 0.2rem !important;

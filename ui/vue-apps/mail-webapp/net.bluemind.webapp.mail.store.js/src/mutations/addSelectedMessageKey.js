@@ -1,3 +1,5 @@
 export function addSelectedMessageKey(state, key) {
-    state.selectedMessageKeys.push(key);
+    if (!state.selectedMessageKeys.includes(key)) {
+        state.selectedMessageKeys.push(key);
+    }
 }

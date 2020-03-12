@@ -5,8 +5,9 @@
                 <bm-check
                     :checked="areAllMessagesSelected"
                     :indeterminate="!areAllMessagesSelected && selectedMessageKeys.length > 0"
-                    @change="toggleAll"
+                    @change="$emit('toggleAll')"
                 />
+                <!-- FIXME: toggleAll -->
             </bm-col>
             <bm-col class="d-none d-lg-block" cols="7">
                 <bm-choice-group
@@ -31,7 +32,7 @@
 
 <script>
 import { BmCheck, BmCol, BmRow, BmChoiceGroup, BmTooltip } from "@bluemind/styleguide";
-import { mapState, mapGetters, mapMutations } from "vuex";
+import { mapState, mapGetters } from "vuex";
 
 const FILTER_INDEXES = { all: 0, unread: 1 };
 
@@ -46,7 +47,6 @@ export default {
     directives: { BmTooltip },
     computed: {
         ...mapState("mail-webapp", ["currentFolderKey", "messageFilter", "selectedMessageKeys"]),
-        ...mapState("mail-webapp/messages", ["itemKeys"]),
         ...mapGetters("mail-webapp", ["areAllMessagesSelected"]),
         filters() {
             return [
@@ -72,7 +72,6 @@ export default {
         }
     },
     methods: {
-        ...mapMutations("mail-webapp", ["addAllToSelectedMessages", "deleteAllSelectedMessages"]),
         /**
          * When changing the filter, unselect the current message (if any).
          * Remove the message-specific part of the route path.
@@ -90,9 +89,6 @@ export default {
                     return "/" + pathArray[1] + "/" + pathArray[2] + "/";
                 }
             }
-        },
-        toggleAll(checked) {
-            checked ? this.addAllToSelectedMessages(this.itemKeys) : this.deleteAllSelectedMessages();
         }
     }
 };
