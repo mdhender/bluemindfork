@@ -20,7 +20,7 @@ public interface IAuthProvider {
 	}
 
 	public enum AuthResult {
-		YES, NO, UNKNOWN
+		YES, EXPIRED, NO, UNKNOWN
 	}
 
 	int priority();

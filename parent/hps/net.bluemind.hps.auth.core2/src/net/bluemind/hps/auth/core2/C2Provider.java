@@ -79,7 +79,7 @@ public class C2Provider implements IAuthProvider {
 			return null;
 		}).thenAccept(lr -> {
 			logger.info("Authenticated {}, response: {}", loginAtDomain, lr.status);
-			if (lr.status == Status.Ok) {
+			if (lr.status == Status.Ok || lr.status == Status.Expired) {
 				handlerLoginSuccess(lr, remoteIps, handler);
 			} else {
 				handler.failure(new ServerFault("error during login " + lr.message, ErrorCode.INVALID_PASSWORD));
@@ -186,11 +186,9 @@ public class C2Provider implements IAuthProvider {
 	 * Do sudo using
 	 * {@link net.bluemind.proxy.http.ExternalCreds#getLoginAtDomain()} as login
 	 * 
-	 * @param checkLatdOnBadAuth
-	 *                               if true and sudo login response is bad, check
-	 *                               if
-	 *                               {@link net.bluemind.proxy.http.ExternalCreds#getLoginAtDomain()}
-	 *                               is the real loginAtDomain
+	 * @param checkLatdOnBadAuth if true and sudo login response is bad, check if
+	 *                           {@link net.bluemind.proxy.http.ExternalCreds#getLoginAtDomain()}
+	 *                           is the real loginAtDomain
 	 * @param remoteIps
 	 * @param handler
 	 * @param sp

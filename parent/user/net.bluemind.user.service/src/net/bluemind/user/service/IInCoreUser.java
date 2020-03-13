@@ -26,6 +26,7 @@ import net.bluemind.group.member.IInCoreGroupMember;
 import net.bluemind.user.api.IUser;
 
 public interface IInCoreUser extends IUser, IInCoreGroupMember {
+	public boolean passwordUpdateNeeded(String login);
 
 	public boolean checkPassword(String login, String password) throws ServerFault;
 

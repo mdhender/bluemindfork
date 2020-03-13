@@ -28,6 +28,7 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -80,6 +81,7 @@ import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
+import net.bluemind.core.jdbc.JdbcHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sessions.Sessions;
@@ -1224,6 +1226,77 @@ public class UserServiceTests {
 
 		userItemValue = getService(domainAdminSecurityContext).getComplete(uid);
 		assertFalse(userItemValue.value.passwordMustChange);
+	}
+
+	@Test
+	public void passwordUpdateNeeded() throws SQLException {
+		String userLogin = "test." + System.nanoTime();
+		User user = defaultUser(userLogin);
+		String uid = create(user);
+		assertNotNull(uid);
+
+		user.passwordMustChange = true;
+		getService(domainAdminSecurityContext).update(uid, user);
+
+		assertTrue(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInCoreUser.class, domainUid)
+				.passwordUpdateNeeded(user.login));
+		Set<String> roles = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IInCoreUser.class, domainUid).getResolvedRoles(uid);
+		assertEquals(1, roles.size());
+		assertEquals(BasicRoles.SELF_CHANGE_PASSWORD, roles.iterator().next());
+
+		user.passwordMustChange = false;
+		getService(domainAdminSecurityContext).update(uid, user);
+
+		// Password expiration disabled
+		assertFalse(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInCoreUser.class, domainUid)
+				.passwordUpdateNeeded(user.login));
+
+		// Enable password expiration
+		Map<String, String> domainSettings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, domainUid).get();
+		domainSettings.put(DomainSettingsKeys.password_lifetime.name(), "10");
+		ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomainSettings.class, domainUid)
+				.set(domainSettings);
+
+		assertFalse(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInCoreUser.class, domainUid)
+				.passwordUpdateNeeded(user.login));
+
+		// Password lastchange to null
+		Connection conn = null;
+		PreparedStatement st = null;
+		try {
+			conn = JdbcTestHelper.getInstance().getDataSource().getConnection();
+			st = conn.prepareStatement(
+					"UPDATE t_domain_user SET password_lastchange=null WHERE login='" + userLogin + "'");
+			st.executeUpdate();
+		} finally {
+			JdbcHelper.cleanup(conn, null, st);
+		}
+
+		assertTrue(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInCoreUser.class, domainUid)
+				.passwordUpdateNeeded(user.login));
+
+		// Password lastchange 10 years ago
+		try {
+			conn = JdbcTestHelper.getInstance().getDataSource().getConnection();
+			st = conn.prepareStatement(
+					"UPDATE t_domain_user SET password_lastchange=now() - interval '10 year' WHERE login='" + userLogin
+							+ "'");
+			st.executeUpdate();
+		} finally {
+			JdbcHelper.cleanup(conn, null, st);
+		}
+
+		assertTrue(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInCoreUser.class, domainUid)
+				.passwordUpdateNeeded(user.login));
+
+		// Password never expire
+		user.passwordNeverExpires = true;
+		getService(domainAdminSecurityContext).update(uid, user);
+
+		assertFalse(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInCoreUser.class, domainUid)
+				.passwordUpdateNeeded(user.login));
 	}
 
 	@Test

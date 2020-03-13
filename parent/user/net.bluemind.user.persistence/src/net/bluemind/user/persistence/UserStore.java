@@ -126,18 +126,23 @@ public class UserStore extends AbstractItemValueStore<User> {
 		return count == usersUids.length;
 	}
 
-	public void setPassword(final Item item, final String password) throws SQLException {
-		update("update t_domain_user set password = ?, password_lastchange = now(), password_mustchange = false where item_id = ?",
-				password, new StatementValues<String>() {
+	public void setPassword(final Item item, final String password, boolean updateLastChange) throws SQLException {
+		StringBuilder query = new StringBuilder("UPDATE t_domain_user SET password = ?, password_mustchange = false");
+		if (updateLastChange) {
+			query.append(", password_lastchange = now()");
+		}
+		query.append(" WHERE item_id = ?");
 
-					@Override
-					public int setValues(Connection con, PreparedStatement statement, int index, int currentRow,
-							String value) throws SQLException {
-						statement.setString(index++, value);
-						statement.setLong(index++, item.id);
-						return index;
-					}
-				});
+		update(query.toString(), password, new StatementValues<String>() {
+
+			@Override
+			public int setValues(Connection con, PreparedStatement statement, int index, int currentRow, String value)
+					throws SQLException {
+				statement.setString(index++, value);
+				statement.setLong(index++, item.id);
+				return index;
+			}
+		});
 	}
 
 	public List<String> allUids() throws SQLException {

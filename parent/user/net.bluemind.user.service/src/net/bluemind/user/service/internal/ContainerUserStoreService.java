@@ -186,9 +186,9 @@ public class ContainerUserStoreService extends DirValueStoreService<User> {
 		}
 	}
 
-	public void setPassword(String uid, String password) throws ServerFault {
+	public void setPassword(String uid, String password, boolean updateLastChange) throws ServerFault {
 		doOrFail(() -> {
-			userStore.setPassword(getItemStore().get(uid), password);
+			userStore.setPassword(getItemStore().get(uid), password, updateLastChange);
 			return null;
 		});
 	}

@@ -162,9 +162,8 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 
 		AuthContext authContext = buildAuthContext(login, password);
 
-		LoginResponse resp = new LoginResponse();
-
 		if (authContext == null) {
+			LoginResponse resp = new LoginResponse();
 			resp.status = Status.Bad;
 			logger.error("authContext not constructed for login: {} origin: {} remoteIps: {}", login, origin,
 					securityContext.getRemoteAddresses());
@@ -190,63 +189,75 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 		}
 
 		// user created JIT
-		if (result == AuthResult.YES && authContext.user == null) {
+		if ((result == AuthResult.YES || result == AuthResult.EXPIRED) && authContext.user == null) {
 			authContext = buildAuthContext(login, password);
 		}
 
 		if (authContext == null || authContext.user == null) {
+			LoginResponse resp = new LoginResponse();
 			resp.status = Status.Bad;
 			logger.error("authContext.user is null for login: {} origin: {} remoteIps: {}", login, origin,
 					securityContext.getRemoteAddresses());
 			return resp;
 		}
 
+		LoginResponse resp = null;
 		switch (result) {
 		case YES:
-			resp.status = Status.Ok;
-			resp.latd = authContext.user.value.login + "@" + authContext.domain.uid;
-			Map<String, String> settings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-					.instance(IUserSettings.class, authContext.domain.uid).get(authContext.user.uid);
-
-			if (context == null) {
-				logger.info("login: '{}', origin: '{}', from: '{}' successfully authentified", login, origin,
-						securityContext.getRemoteAddresses());
-				resp.authKey = UUID.randomUUID().toString();
-				context = buildSecurityContext(resp.authKey, authContext.user, authContext.domain.uid, settings, origin,
-						interactive);
-
-				for (ILoginSessionValidator v : sessionValidators) {
-					try {
-						context = v.validateAndModifySession(context);
-					} catch (ServerFault e) {
-						resp.status = Status.Bad;
-						resp.message = e.getMessage();
-						return resp;
-					}
-				}
-
-				if (logger.isDebugEnabled()) {
-					logger.debug("[{}] authentified with token : {}", login, context);
-				}
-				Sessions.get().put(resp.authKey, context);
-
-			} else {
-				logger.debug("login: '{}', origin: '{}', from: '{}' successfully authentified with session token",
-						login, origin, securityContext.getRemoteAddresses());
-				resp.authKey = context.getSessionId();
-			}
-
-			resp.authUser = AuthUser.create(context.getContainerUid(), context.getSubject(),
-					authContext.user.displayName, authContext.user.value, new HashSet<>(context.getRoles()),
-					context.getRolesByOrgUnits(), settings);
+			resp = getLoginResponse(context, origin, interactive, authContext, login, Status.Ok);
+			break;
+		case EXPIRED:
+			resp = getLoginResponse(context, origin, interactive, authContext, login, Status.Expired);
 			break;
 		default:
+			resp = new LoginResponse();
 			resp.status = Status.Bad;
 			logger.error("result auth is {} for for login: {} origin: {} remoteIps: {}", result, login, origin,
 					securityContext.getRemoteAddresses());
 		}
 
 		// update the security context ?
+		return resp;
+	}
+
+	private LoginResponse getLoginResponse(SecurityContext context, String origin, Boolean interactive,
+			AuthContext authContext, String login, Status status) {
+		LoginResponse resp = new LoginResponse();
+		resp.status = status;
+		resp.latd = authContext.user.value.login + "@" + authContext.domain.uid;
+		Map<String, String> settings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IUserSettings.class, authContext.domain.uid).get(authContext.user.uid);
+
+		if (context == null) {
+			logger.info("login: '{}', origin: '{}', from: '{}' successfully authentified (status: {})", login, origin,
+					securityContext.getRemoteAddresses(), status);
+			resp.authKey = UUID.randomUUID().toString();
+			context = buildSecurityContext(resp.authKey, authContext.user, authContext.domain.uid, settings, origin,
+					status == Status.Expired ? true : false, interactive);
+
+			for (ILoginSessionValidator v : sessionValidators) {
+				try {
+					context = v.validateAndModifySession(context);
+				} catch (ServerFault e) {
+					resp.status = Status.Bad;
+					resp.message = e.getMessage();
+					return resp;
+				}
+			}
+
+			if (logger.isDebugEnabled()) {
+				logger.debug("[{}] authentified with token : {}", login, context);
+			}
+
+			Sessions.get().put(resp.authKey, context);
+		} else {
+			logger.debug("login: '{}', origin: '{}', from: '{}' successfully authentified with session token", login,
+					origin, securityContext.getRemoteAddresses());
+			resp.authKey = context.getSessionId();
+		}
+
+		resp.authUser = AuthUser.create(context.getContainerUid(), context.getSubject(), authContext.user.displayName,
+				authContext.user.value, new HashSet<>(context.getRoles()), context.getRolesByOrgUnits(), settings);
 		return resp;
 	}
 
@@ -290,9 +301,6 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 		if (theDomain == null) {
 			logger.error("Domain {} not found.", domainPart);
 			return Optional.empty();
-		}
-		if (logger.isDebugEnabled()) {
-			logger.debug("Found domain {}", theDomain.uid);
 		}
 
 		ItemValue<User> internalUser = getUser(login, localPart, domainPart, isStandardDomain, sp, theDomain);
@@ -346,6 +354,7 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 					result);
 			return AuthResult.NO;
 		}
+
 		IAuthProvider matchingProvider = null;
 		for (IAuthProvider provider : authProviders) {
 			result = provider.check(authContext);
@@ -354,14 +363,13 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 						provider, result);
 			}
 
-			if (result == AuthResult.YES || result == AuthResult.NO) {
+			if (result != AuthResult.UNKNOWN) {
 				matchingProvider = provider;
 				break;
 			}
-
 		}
 
-		if (result == AuthResult.YES) {
+		if (result == AuthResult.YES || result == AuthResult.EXPIRED) {
 			for (ILoginValidationListener vl : loginListeners) {
 				vl.onValidLogin(matchingProvider, authContext.user != null, authContext.getRealUserLogin(),
 						authContext.domain.uid, authContext.userPassword);
@@ -434,7 +442,7 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 			Map<String, String> settings = sp.instance(IUserSettings.class, domainPart).get(user.uid);
 
 			SecurityContext context = buildSecurityContext(resp.authKey, user, domainPart, settings,
-					securityContext.getOrigin(), interactive);
+					securityContext.getOrigin(), false, interactive);
 
 			resp.authUser = AuthUser.create(context.getContainerUid(), context.getSubject(), user.displayName,
 					user.value, new HashSet<>(context.getRoles()), context.getRolesByOrgUnits(), settings);
@@ -476,12 +484,13 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 	}
 
 	private SecurityContext buildSecurityContext(String authKey, ItemValue<User> user, String domainUid,
-			Map<String, String> config, String origin, boolean interactive) throws ServerFault {
+			Map<String, String> config, String origin, boolean expiredPassword, boolean interactive)
+			throws ServerFault {
 		ServerSideServiceProvider sp = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		List<String> groups = sp.instance(IUser.class, domainUid).memberOfGroups(user.uid);
 
 		Map<String, Set<String>> rolesByOUs = Collections.emptyMap();
-		if (user.value.accountType == AccountType.FULL) {
+		if ((!expiredPassword || "global.virt".equals(domainUid)) && user.value.accountType == AccountType.FULL) {
 			IOrgUnits orgUnits = sp.instance(IOrgUnits.class, domainUid);
 			List<OrgUnitPath> ous = orgUnits.listByAdministrator(user.uid, groups);
 			rolesByOUs = ous.stream() //
@@ -510,7 +519,7 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 				.instance(IUser.class, domainUid).getComplete(userUid);
 		Map<String, String> settings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IUserSettings.class, domainUid).get(userUid);
-		return buildSecurityContext(sid, user, domainUid, settings, securityContext.getOrigin(), false);
+		return buildSecurityContext(sid, user, domainUid, settings, securityContext.getOrigin(), false, false);
 	}
 
 	@Override
@@ -529,13 +538,14 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 			return ValidationKind.TOKEN;
 		}
 
-		if (checkProviders(authContext, origin) == AuthResult.YES) {
+		AuthResult authResult = checkProviders(authContext, origin);
+		if (authResult == AuthResult.YES) {
 			return ValidationKind.PASSWORD;
-		} else {
-			logger.error("validate password or token failed for login: {} origin: {} remoteIps: {}", login, origin,
-					securityContext.getRemoteAddresses());
-			return ValidationKind.NONE;
 		}
+
+		logger.error("validate password or token failed for login: {} result: {} origin: {} remoteIps: {}", login,
+				authResult, origin, securityContext.getRemoteAddresses());
+		return ValidationKind.NONE;
 	}
 
 }
