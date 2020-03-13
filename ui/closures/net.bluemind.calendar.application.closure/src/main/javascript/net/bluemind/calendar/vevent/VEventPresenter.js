@@ -528,7 +528,9 @@ net.bluemind.calendar.vevent.VEventPresenter.prototype.remove_ = function(e) {
 
 net.bluemind.calendar.vevent.VEventPresenter.prototype.save_ = function(e) {
   var model = e.vevent;
-
+  if (!this.view_.checkForm_()) {
+      return goog.Promise.reject();
+  }
   var calendar = goog.array.find(this.view_.calendars, function(calendar) {
     return model.calendar == calendar.uid;
   }, this);
