@@ -38,7 +38,7 @@ export default {
     },
     methods: {
         back() {
-            this.$router.push("/mail/" + this.currentFolderKey + "/");
+            this.$router.navigate("v:mail:home");
         }
     }
 };

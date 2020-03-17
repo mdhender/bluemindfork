@@ -71,4 +71,14 @@ describe("ItemUri", () => {
         ]);
         expect(result[container2]).toEqual([ItemUri.encode("item3", container2), ItemUri.encode("item5", container2)]);
     });
+    test("test if a string is a ItemUri or not", () => {
+        let uri = ItemUri.encode("item", "container");
+        expect(ItemUri.isItemUri(uri)).toBeTruthy();
+        uri = ItemUri.encode("item", null);
+        expect(ItemUri.isItemUri(uri)).toBeTruthy();
+        uri = ItemUri.encode(null, "container");
+        expect(ItemUri.isItemUri(uri)).toBeTruthy();
+        uri = "dummy string";
+        expect(ItemUri.isItemUri(uri)).not.toBeTruthy();
+    });
 });

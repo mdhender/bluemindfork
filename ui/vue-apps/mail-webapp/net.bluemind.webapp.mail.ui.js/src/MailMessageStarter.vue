@@ -9,13 +9,17 @@
                 <div class="bg-white py-3 d-table ">
                     <div class="d-table-cell px-4">
                         <div class="pb-2">{{ $t("mail.message.starter.write") }}</div>
-                        <bm-button :to="{ path: 'new' }" variant="primary">
+                        <bm-button :to="{ name: 'mail:new' }" variant="primary">
                             <bm-label-icon icon="plus"> {{ $t("mail.main.new") }} </bm-label-icon>
                         </bm-button>
                     </div>
                     <div class="d-table-cell px-4">
                         <div class="pb-2">{{ $t("mail.message.starter.display") }}</div>
-                        <bm-button v-if="my.DRAFTS" :to="{ path: '/mail/' + my.DRAFTS.key }" variant="secondary">
+                        <bm-button
+                            v-if="my.DRAFTS"
+                            :to="{ name: 'v:mail:home', params: { folder: my.DRAFTS.value.fullName } }"
+                            variant="secondary"
+                        >
                             <bm-label-icon icon="pencil">
                                 {{ $t("mail.message.starter.display.drafts") }}
                             </bm-label-icon>

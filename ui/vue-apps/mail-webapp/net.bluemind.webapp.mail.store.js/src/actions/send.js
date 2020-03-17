@@ -96,7 +96,10 @@ export function send({ state, commit, getters, dispatch }) {
                     code: "MSG_SENT_OK",
                     props: {
                         subject: draft.subject,
-                        subjectLink: "/mail/" + sentbox.key + "/" + messageKey
+                        subjectLink: {
+                            name: "v:mail:message",
+                            params: { message: messageKey, folder: sentbox.value.fullName }
+                        }
                     }
                 },
                 { root: true }

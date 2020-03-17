@@ -34,7 +34,7 @@
             <message-list-item
                 :ref="'message-' + message.key"
                 :message="message"
-                :to="computeMessageRoute(currentFolderKey, message.key, messageFilter)"
+                :to="$router.relative({ name: 'v:mail:message', params: { message: message.key } }, $route)"
                 :is-muted="!!draggedMessage && isMessageSelected(draggedMessage) && isMessageSelected(message.key)"
                 @toggleSelect="toggleSelect"
                 @click.exact.native="unselectAllIfNeeded(message.key)"
@@ -52,7 +52,6 @@
 <script>
 import { BmListGroup, BmListGroupItem } from "@bluemind/styleguide";
 import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
-import { RouterMixin } from "@bluemind/router";
 import { SHOW_PURGE_MODAL, TOGGLE_SELECTION_ALL } from "../VueBusEventTypes";
 import MailRouterMixin from "../MailRouterMixin";
 import MessageListItem from "./MessageListItem";
@@ -69,7 +68,7 @@ export default {
         MessageListItem,
         MessageListSeparator
     },
-    mixins: [MailRouterMixin, RouterMixin],
+    mixins: [MailRouterMixin],
     data() {
         return {
             PAGE,
@@ -139,7 +138,7 @@ export default {
                 this.openPurgeModal();
                 return;
             }
-            this.$router.push(this.computeMessageRoute(this.currentFolderKey, this.nextMessageKey, this.messageFilter));
+            this.$router.navigate({ name: "v:mail:message", params: { message: this.nextMessageKey } });
             this.$store.dispatch("mail-webapp/remove", this.currentMessageKey);
         },
         openPurgeModal() {
@@ -153,7 +152,7 @@ export default {
             this.goToByKey(this.messages[index].key);
         },
         goToByKey(key) {
-            this.$router.push({ path: "" + key });
+            this.$router.navigate({ name: "v:mail:message", params: { message: key } });
             this.deleteAllSelectedMessages();
         },
         focusByKey(key) {

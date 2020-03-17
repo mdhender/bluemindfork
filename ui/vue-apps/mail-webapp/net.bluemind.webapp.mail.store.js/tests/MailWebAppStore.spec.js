@@ -99,7 +99,7 @@ describe("[MailWebAppStore] Vuex store", () => {
         itemsService.multipleById.mockImplementationOnce(ids =>
             Promise.resolve(aliceInbox.filter(message => ids.includes(message.internalId)))
         );
-        store.dispatch("mail-webapp/selectFolder", { folderKey }, { root: true }).then(() => {
+        store.dispatch("mail-webapp/loadMessageList", { folder: folderKey }, { root: true }).then(() => {
             expect(store.state["mail-webapp"].currentFolderKey).toEqual(folderKey);
             expect(store.state["mail-webapp"].messages.itemKeys.length).toEqual(aliceInbox.length);
             expect(store.state["mail-webapp"].messages.itemKeys).toEqual(
@@ -135,21 +135,23 @@ describe("[MailWebAppStore] Vuex store", () => {
             Promise.resolve(aliceInbox.filter(message => !message.value.flags.includes(Flag.SEEN)))
         );
 
-        store.dispatch("mail-webapp/selectFolder", { folderKey, filter: "unread" }, { root: true }).then(() => {
-            expect(store.state["mail-webapp"].currentFolderKey).toEqual(folderKey);
-            expect(store.state["mail-webapp"].messages.itemKeys.length).toEqual(5);
-            expect(store.state["mail-webapp"].messages.itemKeys).toEqual(
-                aliceInbox
-                    .filter(message => !message.flags.includes("Seen"))
-                    .map(m => ItemUri.encode(m.internalId, folderUid))
-            );
-            expect(
-                store.state["mail-webapp"].messages.items[store.state["mail-webapp"].messages.itemKeys[0]]
-            ).not.toBeUndefined();
-            expect(store.state["mail-webapp"].foldersData[folderUid].unread).toBe(5);
-            expect(store.getters["mail-webapp/currentMailbox"].mailboxUid).toEqual("user.alice");
-            done();
-        });
+        store
+            .dispatch("mail-webapp/loadMessageList", { folder: folderKey, filter: "unread" }, { root: true })
+            .then(() => {
+                expect(store.state["mail-webapp"].currentFolderKey).toEqual(folderKey);
+                expect(store.state["mail-webapp"].messages.itemKeys.length).toEqual(5);
+                expect(store.state["mail-webapp"].messages.itemKeys).toEqual(
+                    aliceInbox
+                        .filter(message => !message.flags.includes("Seen"))
+                        .map(m => ItemUri.encode(m.internalId, folderUid))
+                );
+                expect(
+                    store.state["mail-webapp"].messages.items[store.state["mail-webapp"].messages.itemKeys[0]]
+                ).not.toBeUndefined();
+                expect(store.state["mail-webapp"].foldersData[folderUid].unread).toBe(5);
+                expect(store.getters["mail-webapp/currentMailbox"].mailboxUid).toEqual("user.alice");
+                done();
+            });
     });
     test("select a message", done => {
         const folderUid = "f1c3f42f-551b-446d-9682-cfe0574b3205";

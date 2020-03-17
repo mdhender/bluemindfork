@@ -1,8 +1,12 @@
 import { MimeType } from "@bluemind/email";
+import ItemUri from "@bluemind/item-uri";
 
 const CAPABILITIES = [MimeType.TEXT_HTML, MimeType.TEXT_PLAIN];
 
-export function selectMessage({ dispatch, commit, state }, messageKey) {
+export function selectMessage({ dispatch, commit, state, getters }, messageKey) {
+    if (state.currentFolderKey && !ItemUri.isItemUri(messageKey)) {
+        messageKey = ItemUri.encode(parseInt(messageKey), getters.currentFolder.uid);
+    }
     if (state.currentMessage.key !== messageKey) {
         return dispatch("$_getIfNotPresent", [messageKey]).then(messages => {
             commit("currentMessage/update", { key: messageKey });

@@ -48,7 +48,7 @@ export default {
         },
         deletionConfirmed() {
             if (this.currentMessageKey === this.messageKey) {
-                this.$router.push("" + (this.nextMessageKey || ""));
+                this.$router.navigate({ name: "v:mail:message", params: { message: this.nextMessageKey } });
             }
             this.purge(this.messageKey);
             this.closeModal();

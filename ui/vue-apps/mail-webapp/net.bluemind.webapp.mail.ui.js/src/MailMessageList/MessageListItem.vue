@@ -205,10 +205,9 @@ export default {
             const draggedMessageFolderUid = ItemUri.container(this.message.key);
             const dropzoneFolderUid = ItemUri.item(folder.key);
             const dropzoneFolderIsReadOnly = !folder.writable;
-
             if (draggedMessageFolderUid !== dropzoneFolderUid && !dropzoneFolderIsReadOnly) {
                 if (this.message.key === this.currentMessageKey) {
-                    this.$router.push("" + (this.nextMessageKey || ""));
+                    this.$router.navigate({ name: "v:mail:message", params: { message: this.nextMessageKey } });
                 }
                 if (this.selectedMessageKeys.includes(this.message.key)) {
                     this.move({ messageKey: [...this.selectedMessageKeys], folder: this.getFolderByKey(folder.key) });

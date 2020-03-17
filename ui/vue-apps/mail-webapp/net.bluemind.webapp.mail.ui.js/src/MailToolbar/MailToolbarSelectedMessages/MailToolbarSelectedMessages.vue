@@ -104,7 +104,7 @@ export default {
                 this.openPurgeModal();
                 return;
             }
-            this.$router.push("" + (this.nextMessageKey || ""));
+            this.$router.navigate({ name: "v:mail:message", params: { message: this.nextMessageKey } });
             this.$store.dispatch("mail-webapp/remove", this.currentMessage.key);
         },
         doMarkAsRead() {

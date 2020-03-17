@@ -30,15 +30,11 @@ export default {
     methods: {
         ...mapMutations("mail-webapp/search", ["setStatus"]),
         updateRoute: debounce(function(value) {
-            if (value) {
-                this.$router.push("/mail/search/" + value + "/");
-            } else {
-                this.cancel();
-            }
+            this.$router.navigate({ name: "v:mail:home", params: { search: value } });
         }, UPDATE_ROUTE_TIMEOUT),
         cancel() {
             this.setStatus("idle");
-            this.$router.push("/mail/" + this.currentFolderKey + "/");
+            this.$router.navigate({ name: "v:mail:home", params: { search: null } });
         },
         showSpinner: debounce(function() {
             this.setStatus("loading");

@@ -5,7 +5,9 @@ const context = {
     dispatch: jest.fn(),
     getters: {
         my: { mailboxUid: "mailbox-uid" },
-        "folders/getFolderByKey": jest.fn().mockReturnValue({ key: "folder-key", value: { name: "folderName" } })
+        "folders/getFolderByKey": jest
+            .fn()
+            .mockReturnValue({ key: "folder-key", value: { name: "folderName", fullName: "Full/name" } })
     }
 };
 
@@ -32,7 +34,7 @@ describe("[Mail-WebappStore][actions] : move", () => {
     });
     test("display alerts", done => {
         const messageKey = "message-key",
-            folder = { key: "folder-key", value: { name: "folderName" } };
+            folder = { key: "folder-key", value: { name: "folderName", fullName: "Full/name" } };
         move(context, { messageKey, folder }).then(() => {
             expect(context.commit).toHaveBeenNthCalledWith(
                 1,
@@ -49,7 +51,11 @@ describe("[Mail-WebappStore][actions] : move", () => {
                 "alert/add",
                 {
                     code: "MSG_MOVE_OK",
-                    props: { subject: "dummy", folder: folder.value, folderNameLink: "/mail/" + folder.key + "/" }
+                    props: {
+                        subject: "dummy",
+                        folder: folder.value,
+                        folderNameLink: { name: "v:mail:home", params: { folder: folder.value.fullName } }
+                    }
                 },
                 { root: true }
             );

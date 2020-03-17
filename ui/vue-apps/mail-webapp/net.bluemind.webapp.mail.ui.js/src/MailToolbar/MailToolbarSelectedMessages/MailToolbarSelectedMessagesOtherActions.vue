@@ -39,7 +39,7 @@ export default {
     methods: {
         ...mapActions("mail-webapp", ["purge"]),
         deletionConfirmed() {
-            this.$router.push("" + (this.nextMessageKey || ""));
+            this.$router.navigate({ name: "v:mail:message", params: { message: this.nextMessageKey } });
             this.purge(this.currentMessageKey);
         }
     }

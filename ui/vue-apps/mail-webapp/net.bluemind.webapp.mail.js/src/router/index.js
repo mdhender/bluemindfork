@@ -1,98 +1,57 @@
 import MailApp, { MailThread, MailMessageNew, MailActionsPanel } from "@bluemind/webapp.mail.ui.vuejs";
-
-const actionsOnMailConsult = {
-    folder: (store, toParam, fromParam, to) =>
-        store.dispatch("mail-webapp/selectFolder", { folderKey: toParam, filter: to.query.filter }),
-    mail: (store, value) => store.dispatch("mail-webapp/selectMessage", value)
-};
-
-function actionOnSearch(store, toParam, fromParam, to) {
-    return store.dispatch("mail-webapp/search/search", { pattern: toParam, filter: to.query.filter });
-}
+import virtualRoutes from "./virtualRoutes";
+import MessageQueryParam from "./MessageQueryParam";
+import injector from "@bluemind/inject";
 
 export default [
     {
-        path: "/mail/",
+        name: "mail:root",
+        path: "/mail/:messagequery*",
         component: MailApp,
+        meta: {
+            onEnter(store) {
+                return store.dispatch("mail-webapp/bootstrap", injector.getProvider("UserSession").get().login);
+            },
+            watch: {
+                messagequery: (store, value) => {
+                    return store.dispatch("mail-webapp/loadMessageList", MessageQueryParam.parse(value));
+                }
+            }
+        },
         children: [
             {
+                name: "mail:new",
                 path: "new",
-                component: MailMessageNew,
-                name: "newMessage",
-                alias: ":folder/new"
+                component: MailMessageNew
             },
             {
-                path: "search/:pattern",
-                component: MailActionsPanel,
-                name: "search",
-                meta: {
-                    $actions: {
-                        pattern: { call: actionOnSearch, force: true }
-                    }
-                }
-            },
-            {
-                path: "search/:pattern/:mail",
-                name: "searchItemResult",
+                name: "mail:message",
+                path: ".t/:message",
                 component: MailThread,
                 meta: {
-                    $actions: {
-                        pattern: actionOnSearch,
-                        mail: (store, value) => store.dispatch("mail-webapp/selectMessage", value)
+                    watch: {
+                        message: (store, value) => store.dispatch("mail-webapp/selectMessage", value)
                     }
-                }
-            },
-            {
-                path: ":folder/",
-                name: "folder",
-                component: MailActionsPanel,
-                meta: {
-                    $actions: {
-                        folder: {
-                            call: (store, toParam, fromParam, to) =>
-                                store.dispatch("mail-webapp/selectFolder", {
-                                    folderKey: toParam,
-                                    filter: to.query.filter
-                                }),
-                            force: true
-                        }
-                    }
-                }
-            },
-            {
-                path: ":folder/:mail",
-                component: MailThread,
+                },
                 children: [
                     {
-                        path: "reply",
-                        meta: {
-                            $actions: actionsOnMailConsult
-                        }
+                        name: "mail:reply",
+                        path: "reply"
                     },
                     {
-                        path: "replyAll",
-                        meta: {
-                            $actions: actionsOnMailConsult
-                        }
+                        name: "mail:replyAll",
+                        path: "replyAll"
                     },
                     {
-                        path: "forward",
-                        meta: {
-                            $actions: actionsOnMailConsult
-                        }
-                    },
-                    {
-                        path: "",
-                        meta: {
-                            $actions: actionsOnMailConsult
-                        }
+                        name: "mail:forward",
+                        path: "forward"
                     }
                 ]
             },
-            {
-                path: "",
-                component: MailActionsPanel
-            }
+            { name: "mail:home", path: "", component: MailActionsPanel },
+
+            // Virtual routes
+            ...virtualRoutes.map(route => Object.assign(route, { path: "" }))
         ]
     }
 ];

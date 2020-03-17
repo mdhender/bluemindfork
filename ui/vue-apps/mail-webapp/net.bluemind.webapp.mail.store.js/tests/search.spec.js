@@ -54,39 +54,6 @@ describe("[Mail-WebappStore][search]", () => {
     });
 
     describe("actions", () => {
-        const UnrelatedExpectedMutations = [
-            {
-                type: "mail-webapp/messages/clearItems",
-                payload: {
-                    root: true
-                }
-            },
-            {
-                type: "mail-webapp/currentMessage/clear",
-                payload: {
-                    root: true
-                }
-            },
-            {
-                type: "mail-webapp/messages/clearParts",
-                payload: {
-                    root: true
-                }
-            },
-            {
-                type: "mail-webapp/deleteAllSelectedMessages",
-                payload: {
-                    root: true
-                }
-            },
-            {
-                type: "mail-webapp/setMessageFilter",
-                payload: {
-                    root: true
-                }
-            }
-        ];
-
         test("search", async () => {
             const mockedImplementation = () =>
                 Promise.resolve({
@@ -116,7 +83,6 @@ describe("[Mail-WebappStore][search]", () => {
             };
 
             const expectedMutations = [
-                ...UnrelatedExpectedMutations,
                 {
                     type: "setStatus",
                     payload: STATUS.LOADING
@@ -161,7 +127,6 @@ describe("[Mail-WebappStore][search]", () => {
                 dispatch: jest.fn()
             };
             const expectedMutations = [
-                ...UnrelatedExpectedMutations,
                 {
                     type: "setStatus",
                     payload: STATUS.LOADING

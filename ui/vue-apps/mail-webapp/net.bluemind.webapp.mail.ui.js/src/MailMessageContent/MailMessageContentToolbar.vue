@@ -5,7 +5,7 @@
             variant="outline-primary"
             :aria-label="$t('mail.content.reply.aria')"
             :title="$t('mail.content.reply.aria')"
-            :to="computeRoute('reply')"
+            :to="$router.relative('mail:reply', $route)"
         >
             <bm-icon icon="reply" size="2x" />
         </bm-button>
@@ -14,7 +14,7 @@
             variant="outline-primary"
             :aria-label="$t('mail.content.reply_all.aria')"
             :title="$t('mail.content.reply_all.aria')"
-            :to="computeRoute('replyAll')"
+            :to="$router.relative('mail:replyAll', $route)"
         >
             <bm-icon icon="reply-all" size="2x" />
         </bm-button>
@@ -23,7 +23,7 @@
             variant="outline-primary"
             :aria-label="$t('mail.content.forward.aria')"
             :title="$t('mail.content.forward.aria')"
-            :to="computeRoute('forward')"
+            :to="$router.relative('mail:forward', $route)"
         >
             <bm-icon icon="forward" size="2x" />
         </bm-button>

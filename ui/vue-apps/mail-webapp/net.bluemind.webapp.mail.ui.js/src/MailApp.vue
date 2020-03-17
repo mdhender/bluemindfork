@@ -101,7 +101,7 @@ import {
     MakeUniq
 } from "@bluemind/styleguide";
 import MailAlertRenderer from "./MailAlertRenderer";
-import { mapActions, mapState } from "vuex";
+import { mapState } from "vuex";
 import MailAppL10N from "@bluemind/webapp.mail.l10n";
 import MailFolderTree from "./MailFolderTree";
 import MailMessageList from "./MailMessageList/MailMessageList";
@@ -167,13 +167,9 @@ export default {
             return this.composerOrMessageIsDisplayed || this.selectedMessageKeys.length > 1;
         }
     },
-    created: function() {
-        this.bootstrap(this.userSession.login);
-    },
     methods: {
-        ...mapActions("mail-webapp", ["bootstrap"]),
         composeNewMessage() {
-            this.$router.push({ name: "newMessage" });
+            this.$router.navigate("mail:new");
         },
         toggleFolders() {
             this.showFolders = !this.showFolders;

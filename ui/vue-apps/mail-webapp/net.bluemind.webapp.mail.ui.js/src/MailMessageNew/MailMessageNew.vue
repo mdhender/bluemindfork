@@ -159,7 +159,6 @@ import {
     BmTooltip,
     BmFileDropZone
 } from "@bluemind/styleguide";
-import { RouterMixin } from "@bluemind/router";
 import debounce from "lodash/debounce";
 import MailMessageNewFooter from "./MailMessageNewFooter";
 import MailMessageNewModes from "./MailMessageNewModes";
@@ -184,7 +183,6 @@ export default {
         MailMessageContentAttachmentsBlock
     },
     directives: { BmTooltip },
-    mixins: [RouterMixin],
     props: {
         message: {
             type: Object,
@@ -278,7 +276,7 @@ export default {
         send() {
             this.debouncedSave.cancel();
             // send then close the composer
-            this.$store.dispatch("mail-webapp/send").then(() => this.navigateToParent());
+            this.$store.dispatch("mail-webapp/send").then(() => this.$router.navigate("v:mail:message"));
         },
         saveDraft() {
             this.updateDraft(this.message_);
@@ -290,7 +288,7 @@ export default {
         deleteDraft() {
             this.debouncedSave.cancel();
             // delete the draft then close the composer
-            this.$store.dispatch("mail-webapp/deleteDraft").then(() => this.navigateToParent());
+            this.$store.dispatch("mail-webapp/deleteDraft").then(() => this.$router.navigate("v:mail:message"));
         },
         onSearch(fieldFocused, searchedPattern) {
             this.fieldFocused = fieldFocused;

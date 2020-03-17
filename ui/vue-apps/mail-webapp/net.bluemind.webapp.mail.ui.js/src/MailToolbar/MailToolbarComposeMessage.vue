@@ -52,7 +52,6 @@
 import { BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
 import { DraftStatus } from "@bluemind/backend.mail.store";
 import { mapActions, mapState, mapGetters } from "vuex";
-import { RouterMixin } from "@bluemind/router";
 
 export default {
     name: "MailToolbarComposeMessage",
@@ -61,7 +60,6 @@ export default {
         BmIcon
     },
     directives: { BmTooltip },
-    mixins: [RouterMixin],
     computed: {
         ...mapState("mail-webapp", ["draft"]),
         ...mapGetters("mail-webapp/draft", ["hasRecipient"]),
@@ -81,10 +79,10 @@ export default {
     methods: {
         ...mapActions("mail-webapp", ["deleteDraft", "saveDraft", "send", "addAttachments"]),
         doDelete() {
-            this.deleteDraft().then(() => this.navigateToParent());
+            this.deleteDraft().then(() => this.$router.navigate("v:mail:message"));
         },
         doSend() {
-            this.send().then(() => this.navigateToParent());
+            this.send().then(() => this.$router.navigate("v:mail:message"));
         },
         openFilePicker() {
             this.$refs.attachInputRef.click();

@@ -7,14 +7,12 @@ export function bootstrap({ dispatch, state, getters, commit }, login) {
     return dispatch("folders/all", getters.my.mailboxUid)
         .then(() => {
             if (!state.currentFolderKey) {
-                return dispatch("selectFolder", { folderKey: getters.my.INBOX.key, filter: state.messageFilter });
+                return dispatch("loadMessageList", { folder: getters.my.INBOX.key, filter: state.messageFilter });
             }
         })
         .then(() => getters.my.folders.forEach(folder => dispatch("loadUnreadCount", folder.uid)))
         .then(() => dispatch("mailboxes/all", { verb: [Verb.Read, Verb.Write, Verb.All], type: "mailboxacl" }))
-        .then(() => {
-            getters.mailshares.forEach(mailshare => dispatch("folders/all", mailshare.mailboxUid));
-        })
+        .then(() => Promise.all(getters.mailshares.map(mailshare => dispatch("folders/all", mailshare.mailboxUid))))
         .then(() => {
             return injector
                 .getProvider("MailboxesPersistence")
@@ -23,5 +21,8 @@ export function bootstrap({ dispatch, state, getters, commit }, login) {
         })
         .then(mailboxConfig => {
             commit("setMaxMessageSize", mailboxConfig.messageMaxSize);
+        })
+        .catch(() => {
+            console.log("Failure occurred but bootstrap must not fail");
         });
 }

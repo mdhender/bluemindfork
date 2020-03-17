@@ -92,7 +92,7 @@ export default {
     methods: {
         ...mapActions("mail-webapp", ["move"]),
         selectFolder(item) {
-            this.$router.push("" + (this.nextMessageKey || ""));
+            this.$router.navigate({ name: "v:mail:message", params: { message: this.nextMessageKey } });
 
             this.move({ messageKey: this.currentMessageKey, folder: item });
             this.$refs["move-dropdown"].hide(true);

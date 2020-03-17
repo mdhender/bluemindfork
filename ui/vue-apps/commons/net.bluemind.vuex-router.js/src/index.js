@@ -1,51 +1,59 @@
 export function extend(router, store) {
-    router.beforeEach((to, from, next) => {
-        executeLeaveGuards(to, from, store)
-            .then(() => executeParamsLeaveGuards(to, from, store))
-            .then(() => executeEnterGuards(to, from, store))
-            .then(() => executeEachGuards(to, from, store))
-            .then(() => executeParamsEnterGuards(to, from, store))
-            .then(() => next());
-    });
+    router.beforeEach(executeActions.bind(null, store));
 }
 
-function executeLeaveGuards() {
-    return Promise.resolve();
+async function executeActions(store, to, from, next) {
+    await executeLeaveActions(to, from, store);
+    await executeEnterActions(to, from, store);
+    await executeEachActions(to, from, store);
+    await executeParamsActions(to, from, store);
+    next();
 }
 
-function executeEnterGuards() {
-    return Promise.resolve();
-}
-
-function executeEachGuards() {
-    return Promise.resolve();
-}
-
-function executeParamsLeaveGuards(to, from, store) {
-    return executeParamsGuards(from, to, store, false);
-}
-
-function executeParamsEnterGuards(to, from, store) {
-    return executeParamsGuards(to, from, store, true);
-}
-
-function executeParamsGuards(to, from, store, isBefore) {
-    let promise = Promise.resolve();
-    if (to.meta && to.meta.$actions) {
-        for (const parameter in to.meta.$actions) {
-            const action = normalize(to.meta.$actions[parameter]);
-            if (action.isBefore === isBefore && (from.params[parameter] !== to.params[parameter] || action.force))
-                promise = promise.then(() =>
-                    action.call(store, to.params[parameter], from.params[parameter], to, from)
-                );
+async function executeEnterActions(to, from, store) {
+    for (const route of to.matched) {
+        if (!!route.meta.onEnter && !includes(from, route.path)) {
+            await route.meta.onEnter(store, to, from);
         }
     }
 }
 
-function normalize(action) {
-    const defaults = { call: undefined, force: false, isBefore: true };
-    if (typeof action === "function") {
-        action = { call: action };
+async function executeEachActions(to, from, store) {
+    for (const route of to.matched) {
+        if (route.meta.onUpdate) {
+            await route.meta.onUpdate(store, to, from);
+        }
     }
-    return Object.assign(defaults, action);
+}
+
+async function executeLeaveActions(to, from, store) {
+    for (const route of from.matched) {
+        if (!!route.meta.onLeave && !includes(to, route.path)) {
+            await route.meta.onLeave(store, to, from);
+        }
+    }
+}
+
+async function executeParamsActions(to, from, store) {
+    for (const route of to.matched) {
+        await executeRouteParamsActions(route, to, from, store);
+    }
+}
+
+async function executeRouteParamsActions(route, to, from, store) {
+    if (route.meta.watch) {
+        for (const parameter in route.meta.watch) {
+            const action = route.meta.watch[parameter];
+            await executeParamAction(action, parameter, to, from, store);
+        }
+    }
+}
+
+async function executeParamAction(action, parameter, to, from, store) {
+    if (from.params[parameter] !== to.params[parameter])
+        await action(store, to.params[parameter], from.params[parameter], to, from);
+}
+
+function includes(route, path) {
+    return route.matched.findIndex(match => match.path === path) >= 0;
 }

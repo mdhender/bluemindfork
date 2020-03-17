@@ -62,12 +62,12 @@ describe("[Mail-WebappStore][actions] :  bootstrap", () => {
     test("set default folder to inbox if not present", done => {
         bootstrap(context)
             .then(() => {
-                expect(context.dispatch).not.toHaveBeenCalledWith("selectFolder", { folderKey: "inbox_key" });
+                expect(context.dispatch).not.toHaveBeenCalledWith("loadMessageList", { folder: "inbox_key" });
                 context.state.currentFolderKey = undefined;
                 return bootstrap(context, {});
             })
             .then(() => {
-                expect(context.dispatch).toHaveBeenCalledWith("selectFolder", { folderKey: "inbox_key" });
+                expect(context.dispatch).toHaveBeenCalledWith("loadMessageList", { folder: "inbox_key" });
                 done();
             });
     });

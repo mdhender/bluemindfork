@@ -62,7 +62,11 @@ function addOkAlert(commit, subject, folder) {
         "alert/add",
         {
             code: "MSG_MOVE_OK",
-            props: { subject, folder: folder.value, folderNameLink: "/mail/" + folder.key + "/" }
+            props: {
+                subject,
+                folder: folder.value,
+                folderNameLink: { name: "v:mail:home", params: { folder: folder.value.fullName } }
+            }
         },
         { root: true }
     );
@@ -73,7 +77,11 @@ function addOkAlertForMultipleMessages(commit, count, folder) {
         "alert/add",
         {
             code: "MSG_MOVE_OK_MULTIPLE",
-            props: { count, folder: folder.value, folderNameLink: "/mail/" + folder.key + "/" }
+            props: {
+                count,
+                folder: folder.value,
+                folderNameLink: { name: "v:mail:home", params: { folder: folder.value.fullName } }
+            }
         },
         { root: true }
     );

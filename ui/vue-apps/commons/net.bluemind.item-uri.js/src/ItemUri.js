@@ -32,5 +32,12 @@ export const ItemUri = {
             urisByContainer[container].push(uri);
         });
         return urisByContainer;
+    },
+    isItemUri(uri) {
+        try {
+            return !!this.decode(uri);
+        } catch {
+            return false;
+        }
     }
 };

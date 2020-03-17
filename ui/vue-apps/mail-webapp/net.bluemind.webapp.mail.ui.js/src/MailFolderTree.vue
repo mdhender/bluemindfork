@@ -89,6 +89,7 @@ import { BmButton, BmCollapse, BmCounterBadge, BmIcon, BmTree, BmDropzone } from
 import { mapGetters, mapActions, mapState } from "vuex";
 import injector from "@bluemind/inject";
 import MailFolderIcon from "./MailFolderIcon";
+import { ItemUri } from "@bluemind/item-uri";
 
 export default {
     name: "MailFolderTree",
@@ -109,14 +110,23 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mail-webapp", ["tree", "mailshares", "nextMessageKey"]),
+        ...mapGetters("mail-webapp", ["tree", "mailshares", "nextMessageKey", "my"]),
+        ...mapGetters("mail-webapp/folders", ["getFolderByKey"]),
         ...mapState("mail-webapp", ["currentFolderKey", "currentMessageKey"])
     },
     methods: {
         ...mapActions("mail-webapp", ["expandFolder", "collapseFolder"]),
         selectFolder(key) {
             this.$emit("toggle-folders");
-            this.$router.push({ path: "/mail/" + key + "/" });
+            const folder = this.getFolderByKey(key);
+            const mailboxUid = ItemUri.container(key);
+            if (mailboxUid === this.my.mailboxUid) {
+                this.$router.push({ name: "v:mail:home", params: { folder: folder.value.fullName } });
+            } else {
+                const root = this.mailshares.find(mailshare => mailshare.mailboxUid === mailboxUid).root;
+                const prefix = folder.value.parentUid !== null ? root + "/" : "";
+                this.$router.push({ name: "v:mail:home", params: { mailshare: prefix + folder.value.fullName } });
+            }
         }
     }
 };

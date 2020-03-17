@@ -59,12 +59,12 @@ export default {
                 {
                     text: this.$t("mail.list.filter.all"),
                     value: "all",
-                    to: { path: this.buildFilterRoutePath(), query: { filter: undefined } }
+                    to: this.$router.relative({ name: "v:mail:home", params: { filter: null } }, this.$route)
                 },
                 {
                     text: this.$t("mail.list.filter.unread"),
                     value: "unread",
-                    to: { path: this.buildFilterRoutePath(), query: { filter: "unread" } }
+                    to: this.$router.relative({ name: "v:mail:home", params: { filter: "unread" } }, this.$route)
                 }
             ];
         },
@@ -75,26 +75,6 @@ export default {
     watch: {
         messageFilter() {
             this.$refs.filterChoiceGroup.select(this.filters[this.filterIndex]);
-        }
-    },
-    methods: {
-        /**
-         * When changing the filter, unselect the current message (if any).
-         * Remove the message-specific part of the route path.
-         */
-        buildFilterRoutePath() {
-            const pathArray = this.$route.path.split("/");
-            switch (pathArray[2]) {
-                case "search":
-                    return "/" + pathArray[1] + "/" + pathArray[2] + "/" + pathArray[3] + "/";
-                default: {
-                    if (!pathArray[2]) {
-                        // add missing default folder
-                        pathArray[2] = this.currentFolderKey;
-                    }
-                    return "/" + pathArray[1] + "/" + pathArray[2] + "/";
-                }
-            }
         }
     }
 };
