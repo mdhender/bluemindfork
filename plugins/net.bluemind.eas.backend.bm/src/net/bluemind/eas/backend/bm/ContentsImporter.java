@@ -37,6 +37,7 @@ import net.bluemind.eas.backend.bm.task.TaskBackend;
 import net.bluemind.eas.data.calendarenum.AttendeeStatus;
 import net.bluemind.eas.dto.base.CollectionItem;
 import net.bluemind.eas.dto.moveitems.MoveItemsResponse;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.sync.CollectionSyncRequest.Options.ConflicResolution;
 import net.bluemind.eas.dto.sync.SyncState;
 import net.bluemind.eas.dto.type.ItemDataType;
@@ -64,7 +65,7 @@ public class ContentsImporter implements IContentsImporter {
 	}
 
 	@Override
-	public CollectionItem importMessageChange(BackendSession bs, int collectionId, ItemDataType type,
+	public CollectionItem importMessageChange(BackendSession bs, CollectionId collectionId, ItemDataType type,
 			Optional<String> serverId, IApplicationData data, ConflicResolution conflictPolicy, SyncState syncState)
 			throws ActiveSyncException {
 		CollectionItem ids = null;

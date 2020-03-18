@@ -33,6 +33,7 @@ import net.bluemind.eas.dto.OptionalParams;
 import net.bluemind.eas.dto.itemoperations.ItemOperationsRequest;
 import net.bluemind.eas.dto.itemoperations.ItemOperationsRequest.ItemOperation;
 import net.bluemind.eas.dto.itemoperations.ResponseStyle;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.serdes.IEasRequestParser;
 import net.bluemind.eas.serdes.base.BodyOptionsParser;
 import net.bluemind.eas.serdes.base.RangeParser;
@@ -155,7 +156,7 @@ public class ItemOperationsParser implements IEasRequestParser<ItemOperationsReq
 				op.serverId = elt.getTextContent();
 				break;
 			case "CollectionId":
-				op.collectionId = elt.getTextContent();
+				op.collectionId = CollectionId.of(elt.getTextContent());
 				break;
 			case "LinkId":
 				op.linkId = elt.getTextContent();

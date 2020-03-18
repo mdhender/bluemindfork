@@ -18,6 +18,8 @@
  */
 package net.bluemind.eas.dto.base;
 
+import net.bluemind.eas.dto.sync.CollectionId;
+
 /**
  * An immutable object use to represent stable server side identifiers like
  * <code>123:45</code>
@@ -25,7 +27,7 @@ package net.bluemind.eas.dto.base;
  */
 public final class CollectionItem {
 
-	public final int collectionId;
+	public final CollectionId collectionId;
 	public final String itemId;
 
 	/**
@@ -46,19 +48,19 @@ public final class CollectionItem {
 	}
 
 	public String toString() {
-		return String.format("%d:%s", collectionId, itemId);
+		return String.format("%s:%s", collectionId.getValue(), itemId);
 	}
 
-	private CollectionItem(int collectionId, String itemId) {
+	private CollectionItem(CollectionId collectionId, String itemId) {
 		this.collectionId = collectionId;
 		this.itemId = itemId;
 	}
 
 	public static CollectionItem of(String collectionId, String itemId) {
-		return of(Integer.parseInt(collectionId), itemId);
+		return of(CollectionId.of(collectionId), itemId);
 	}
 
-	public static CollectionItem of(int collectionId, String itemId) {
+	public static CollectionItem of(CollectionId collectionId, String itemId) {
 		return new CollectionItem(collectionId, itemId);
 	}
 
@@ -66,7 +68,7 @@ public final class CollectionItem {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + collectionId;
+		result = prime * result + ((collectionId == null) ? 0 : collectionId.hashCode());
 		result = prime * result + ((itemId == null) ? 0 : itemId.hashCode());
 		return result;
 	}
@@ -80,7 +82,10 @@ public final class CollectionItem {
 		if (getClass() != obj.getClass())
 			return false;
 		CollectionItem other = (CollectionItem) obj;
-		if (collectionId != other.collectionId)
+		if (collectionId == null) {
+			if (other.collectionId != null)
+				return false;
+		} else if (!collectionId.equals(other.collectionId))
 			return false;
 		if (itemId == null) {
 			if (other.itemId != null)

@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -193,7 +192,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 		if (sr.waitIntervalSeconds == null) {
 			JsonObject jso = new JsonObject();
 			for (CollectionSyncRequest sc : sr.collections) {
-				jso.put(sc.getCollectionId().toString(), bs.getDeviceId().getInternalId());
+				jso.put(sc.getCollectionId().getValue(), bs.getDeviceId().getInternalId());
 			}
 			EventBus eb = VertxPlatform.eventBus();
 			eb.request("eas.push.killer." + bs.getUser().getUid(), jso, (AsyncResult<Message<Void>> event) -> {
@@ -205,10 +204,6 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 					bs.getDevId(), bs.getLastMonitored().size());
 
 			bs.setLastWaitSeconds(sr.waitIntervalSeconds);
-			Set<Integer> cols = new HashSet<>(sr.collections.size());
-			for (CollectionSyncRequest sc : sr.collections) {
-				cols.add(sc.getCollectionId());
-			}
 			Requests.tagAsync(bs.getRequest());
 			Requests.tag(bs.getRequest(), "timeout", sr.waitIntervalSeconds + "s");
 
@@ -237,7 +232,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 
 		for (CollectionSyncRequest colId : collections) {
 			MessageConsumer<JsonObject> cons = VertxPlatform.eventBus()
-					.consumer("eas.collection." + colId.getCollectionId());
+					.consumer("eas.collection." + colId.getCollectionId().getFolderId());
 			consumers.add(cons);
 			Handler<Message<JsonObject>> colChangeHandler = (Message<JsonObject> msg) -> {
 				if (responseSent.getAndSet(true)) {
@@ -251,7 +246,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 				SyncResponse syncResponse = new SyncResponse();
 				for (CollectionSyncRequest sc : collections) {
 					CollectionSyncResponse csr = new CollectionSyncResponse();
-					csr.collectionId = Integer.toString(sc.getCollectionId());
+					csr.collectionId = sc.getCollectionId().getValue();
 					CollectionChanges serverChanges = serverChanges(bs, sc, new ArrayList<String>());
 					csr.commands = serverChanges.commands;
 					csr.status = serverChanges.status;
@@ -284,7 +279,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 		SyncResponse syncResponse = new SyncResponse();
 		for (CollectionSyncRequest sc : collections) {
 			CollectionSyncResponse csr = new CollectionSyncResponse();
-			csr.collectionId = Integer.toString(sc.getCollectionId());
+			csr.collectionId = sc.getCollectionId().getValue();
 			csr.status = SyncStatus.OK;
 			csr.syncKey = sc.getSyncKey();
 			syncResponse.collections.add(csr);
@@ -298,13 +293,12 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 
 		for (CollectionSyncRequest sc : sr.collections) {
 			CollectionSyncResponse csr = new CollectionSyncResponse();
-			int collectionId = sc.getCollectionId();
-			csr.collectionId = Integer.toString(collectionId);
+			csr.collectionId = sc.getCollectionId().getValue();
 
 			try {
 				// ensure the collectionExists
+				HierarchyNode f = Backends.internalStorage().getHierarchyNode(bs, sc.getCollectionId());
 
-				HierarchyNode f = Backends.internalStorage().getHierarchyNode(bs, collectionId);
 				ItemDataType dataClass = ItemDataType.getValue(f.containerType);
 
 				List<ServerResponse> clientChangeResults = executeClientCommands(bs, sc, dataClass);
@@ -374,7 +368,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 				csr.syncKey = serverChanges.syncKey;
 				csr.moreAvailable = serverChanges.moreAvailable;
 			} catch (CollectionNotFoundException cnf) {
-				logger.error("Collection {} not found, sync OK", collectionId);
+				logger.error("Collection {} not found, sync OK", sc.getCollectionId());
 
 				// Sync OK to prevent android synchronization loop
 				csr.status = SyncStatus.OK;
@@ -607,22 +601,16 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 		StateMachine sm = new StateMachine(Backends.internalStorage());
 		SyncState syncState = sm.getSyncState(bs, col.getCollectionId(), col.getSyncKey());
 
-		if (col.getChangedItems().size() > 0) {
-			for (Element e : col.getChangedItems()) {
-				ret.add(clientChange(bs, col, importer, dataType, e, syncState));
-			}
+		for (Element e : col.getChangedItems()) {
+			ret.add(clientChange(bs, col, importer, dataType, e, syncState));
 		}
 
-		if (col.getCreatedItems().size() > 0) {
-			for (Element e : col.getCreatedItems()) {
-				ret.add(clientCreate(bs, col, importer, dataType, e, syncState));
-			}
+		for (Element e : col.getCreatedItems()) {
+			ret.add(clientCreate(bs, col, importer, dataType, e, syncState));
 		}
-		if (col.getFetchIds().size() > 0) {
-			IContentsExporter cex = backend.getContentsExporter(bs);
-			for (CollectionItem item : col.getFetchIds()) {
-				ret.add(clientFetch(bs, col, cex, dataType, item));
-			}
+		IContentsExporter cex = backend.getContentsExporter(bs);
+		for (CollectionItem item : col.getFetchIds()) {
+			ret.add(clientFetch(bs, col, cex, dataType, item));
 		}
 
 		return ret;
@@ -640,14 +628,13 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 	 */
 	private CollectionSyncResponse.ServerResponse clientChange(BackendSession bs, CollectionSyncRequest collection,
 			IContentsImporter importer, ItemDataType type, Element modification, SyncState syncState) {
-		Integer collectionId = collection.getCollectionId();
 		IDataDecoder dd = decoders.get(type);
 		String serverId = DOMUtils.getElementText(modification, "ServerId");
 		Element syncData = DOMUtils.getUniqueElement(modification, "ApplicationData");
 		IApplicationData appData = dd.decode(bs, syncData);
 
 		try {
-			importer.importMessageChange(bs, collectionId, type, Optional.of(serverId), appData,
+			importer.importMessageChange(bs, collection.getCollectionId(), type, Optional.of(serverId), appData,
 					collection.options.conflictPolicy, syncState);
 			ServerResponse sr = new ServerResponse();
 			sr.operation = Operation.Change;
@@ -693,7 +680,6 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 	 */
 	private ServerResponse clientCreate(BackendSession bs, CollectionSyncRequest collection, IContentsImporter importer,
 			ItemDataType dataClass, Element modification, SyncState syncState) {
-		Integer collectionId = collection.getCollectionId();
 		String clientId = DOMUtils.getElementText(modification, "ClientId");
 
 		Element syncData = DOMUtils.getUniqueElement(modification, "ApplicationData");
@@ -703,8 +689,8 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 		HashMap<String, IApplicationData> d = new HashMap<String, IApplicationData>();
 		d.put(null, data);
 		try {
-			CollectionItem bmId = importer.importMessageChange(bs, collectionId, dataClass, Optional.<String>empty(),
-					data, collection.options.conflictPolicy, syncState);
+			CollectionItem bmId = importer.importMessageChange(bs, collection.getCollectionId(), dataClass,
+					Optional.<String>empty(), data, collection.options.conflictPolicy, syncState);
 			ServerResponse sr = new ServerResponse();
 			sr.clientId = clientId;
 			sr.ackStatus = SyncStatus.OK;
@@ -714,7 +700,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 		} catch (ActiveSyncException e) {
 			ServerResponse sr = new ServerResponse();
 			sr.clientId = clientId;
-			sr.item = CollectionItem.of(collectionId, UUID.randomUUID().toString());
+			sr.item = CollectionItem.of(collection.getCollectionId(), UUID.randomUUID().toString());
 			sr.ackStatus = SyncStatus.SERVER_ERROR;
 			return sr;
 		}
@@ -767,7 +753,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 					cc.syncKey = sm.generateSyncKey(st.type, st.version);
 
 				}
-				bs.addLastClientSyncState(c.getCollectionId(), st);
+				bs.addLastClientSyncState(c.getCollectionId().getValue(), st);
 			}
 		} catch (CollectionNotFoundException e) {
 			logger.error(e.getMessage(), e);

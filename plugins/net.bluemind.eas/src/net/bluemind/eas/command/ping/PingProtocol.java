@@ -44,6 +44,7 @@ import net.bluemind.eas.dto.ping.PingRequest;
 import net.bluemind.eas.dto.ping.PingRequest.Folders.Folder;
 import net.bluemind.eas.dto.ping.PingResponse;
 import net.bluemind.eas.dto.ping.PingResponse.Status;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.sync.CollectionSyncRequest;
 import net.bluemind.eas.impl.Backends;
 import net.bluemind.eas.impl.Responder;
@@ -110,14 +111,15 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 				try {
 					CollectionSyncRequest sc = new CollectionSyncRequest();
 					sc.setDataClass(folder.clazz.name());
-					sc.setCollectionId(Integer.parseInt(folder.id));
+					sc.setCollectionId(CollectionId.of(folder.id));
 					toMonitor.add(sc);
 				} catch (NumberFormatException nfe) {
 					// HTC ONE X sends "InvalidTaskID" as folder.id
 					logger.error("[{}][{}] Invalid collectionId {}", bs.getLoginAtDomain(), bs.getDevId(), folder.id);
 				}
+
 			}
-			if (query.folders.folders.size() > 0) {
+			if (!query.folders.folders.isEmpty()) {
 				bs.setLastMonitored(toMonitor);
 			}
 
@@ -161,11 +163,6 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 		}
 
 		if (intervalSeconds > 0 && bs.getLastMonitored() != null) {
-			Set<Integer> cols = new HashSet<>(bs.getLastMonitored().size());
-			for (CollectionSyncRequest sc : bs.getLastMonitored()) {
-				cols.add(sc.getCollectionId());
-			}
-
 			Requests.tagAsync(bs.getRequest());
 			Requests.tag(bs.getRequest(), "timeout", intervalSeconds + "s");
 
@@ -180,8 +177,9 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 				responseHandler.handle(noChangesResponse());
 			});
 
-			for (int colId : cols) {
-				MessageConsumer<JsonObject> cons = VertxPlatform.eventBus().consumer("eas.collection." + colId);
+			for (CollectionSyncRequest sc : bs.getLastMonitored()) {
+				MessageConsumer<JsonObject> cons = VertxPlatform.eventBus()
+						.consumer("eas.collection." + sc.getCollectionId().getFolderId());
 				consumers.add(cons);
 				Handler<Message<JsonObject>> colChangeHandler = (Message<JsonObject> msg) -> {
 					// syncRequired
@@ -193,7 +191,7 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 					PingResponse pr = new PingResponse();
 					pr.status = Status.ChangesOccurred;
 					pr.folders = new PingResponse.Folders();
-					pr.folders.folders.add(Integer.toString(colId));
+					pr.folders.folders.add(sc.getCollectionId().getValue());
 					responseHandler.handle(pr);
 				};
 				cons.handler(colChangeHandler);

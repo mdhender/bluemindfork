@@ -18,7 +18,6 @@
  */
 package net.bluemind.eas.backend;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -29,43 +28,33 @@ import net.bluemind.eas.dto.sync.CollectionSyncRequest;
 import net.bluemind.eas.dto.sync.SyncState;
 
 public class SessionPersistentState {
-	private Map<Integer, Date> updatedSyncDate;
-	private Map<Integer, Queue<ItemChangeReference>> unSynchronizedItemChangeByCollection;
-	private Map<Integer, SyncState> lastClientSyncState;
+	private Map<String, Queue<ItemChangeReference>> unSynchronizedItemChangeByCollection;
+	private Map<String, SyncState> lastClientSyncState;
 	private Integer lastWaitSeconds;
 	private String policyKey;
 	private Set<CollectionSyncRequest> lastMonitored;
 	private Long heartbeat;
 
 	public SessionPersistentState() {
-		unSynchronizedItemChangeByCollection = new HashMap<Integer, Queue<ItemChangeReference>>();
-		lastClientSyncState = new HashMap<Integer, SyncState>();
-		updatedSyncDate = new HashMap<Integer, Date>();
+		unSynchronizedItemChangeByCollection = new HashMap<>();
+		lastClientSyncState = new HashMap<>();
 		lastMonitored = new HashSet<CollectionSyncRequest>();
 	}
 
-	public Map<Integer, Date> getUpdatedSyncDate() {
-		return updatedSyncDate;
-	}
-
-	public void setUpdatedSyncDate(Map<Integer, Date> updatedSyncDate) {
-		this.updatedSyncDate = updatedSyncDate;
-	}
-
-	public Map<Integer, Queue<ItemChangeReference>> getUnSynchronizedItemChangeByCollection() {
+	public Map<String, Queue<ItemChangeReference>> getUnSynchronizedItemChangeByCollection() {
 		return unSynchronizedItemChangeByCollection;
 	}
 
 	public void setUnSynchronizedItemChangeByCollection(
-			Map<Integer, Queue<ItemChangeReference>> unSynchronizedItemChangeByCollection) {
+			Map<String, Queue<ItemChangeReference>> unSynchronizedItemChangeByCollection) {
 		this.unSynchronizedItemChangeByCollection = unSynchronizedItemChangeByCollection;
 	}
 
-	public Map<Integer, SyncState> getLastClientSyncState() {
+	public Map<String, SyncState> getLastClientSyncState() {
 		return lastClientSyncState;
 	}
 
-	public void setLastClientSyncState(Map<Integer, SyncState> lastClientSyncState) {
+	public void setLastClientSyncState(Map<String, SyncState> lastClientSyncState) {
 		this.lastClientSyncState = lastClientSyncState;
 	}
 

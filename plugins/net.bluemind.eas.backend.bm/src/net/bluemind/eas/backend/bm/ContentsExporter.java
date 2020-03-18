@@ -47,6 +47,7 @@ import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsResponse;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsResponse.Response.Recipient;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsResponse.Response.Recipient.Availability;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsResponse.Response.Recipient.Type;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.sync.FilterType;
 import net.bluemind.eas.dto.sync.SyncState;
 import net.bluemind.eas.dto.type.ItemDataType;
@@ -72,8 +73,9 @@ public class ContentsExporter extends CoreConnect implements IContentsExporter {
 		filterTypeCache = new ConcurrentHashMap<String, FilterType>();
 	}
 
-	private boolean processFilterType(BackendSession bs, SyncState state, FilterType filterType, Integer collectionId) {
-		String key = bs.getDeviceId().getIdentifier() + "-" + collectionId;
+	private boolean processFilterType(BackendSession bs, SyncState state, FilterType filterType,
+			CollectionId collectionId) {
+		String key = bs.getDeviceId().getIdentifier() + "-" + collectionId.getFolderId();
 
 		if (filterType == null) {
 			// iOS no filtertype == ALL_ITEMS
@@ -93,7 +95,7 @@ public class ContentsExporter extends CoreConnect implements IContentsExporter {
 	}
 
 	@Override
-	public Changes getChanged(BackendSession bs, SyncState state, FilterType filterType, Integer collectionId)
+	public Changes getChanged(BackendSession bs, SyncState state, FilterType filterType, CollectionId collectionId)
 			throws ActiveSyncException {
 		Changes changes = new Changes();
 		switch (state.type) {
@@ -139,7 +141,7 @@ public class ContentsExporter extends CoreConnect implements IContentsExporter {
 
 	@Override
 	public Map<String, AppData> loadStructures(BackendSession bs, BodyOptions bodyOptions, ItemDataType type,
-			int collectionId, List<String> uids) throws ActiveSyncException {
+			CollectionId collectionId, List<String> uids) throws ActiveSyncException {
 		switch (type) {
 		case CALENDAR:
 			return calBackend.fetchMultiple(bs, collectionId, uids);

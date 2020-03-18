@@ -39,7 +39,7 @@ public class GetItemEstimateResponseFormatter implements IEasResponseFormatter<G
 				builder.container("Response");
 				builder.text("Status", r.status.xmlValue());
 				builder.container("Collection");
-				builder.text("CollectionId", r.collectionId);
+				builder.text("CollectionId", r.collectionId.getValue());
 				if (r.status == Status.Success) {
 					builder.text("Estimate", "1");
 				} else {

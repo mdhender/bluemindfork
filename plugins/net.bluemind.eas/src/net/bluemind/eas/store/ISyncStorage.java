@@ -24,6 +24,7 @@ import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.backend.HierarchyNode;
 import net.bluemind.eas.backend.MailFolder;
 import net.bluemind.eas.dto.device.DeviceId;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.type.ItemDataType;
 import net.bluemind.eas.exception.CollectionNotFoundException;
 
@@ -57,7 +58,9 @@ public interface ISyncStorage {
 
 	HierarchyNode getHierarchyNode(String domainUid, String userUid, String nodeUid) throws CollectionNotFoundException;
 
-	HierarchyNode getHierarchyNode(BackendSession bs, int collectionId) throws CollectionNotFoundException;
+	HierarchyNode getHierarchyNode(BackendSession bs, int folderId) throws CollectionNotFoundException;
+
+	HierarchyNode getHierarchyNode(BackendSession bs, CollectionId collectionId) throws CollectionNotFoundException;
 
 	MailFolder getMailFolder(BackendSession bs, int collectionId) throws CollectionNotFoundException;
 
@@ -89,8 +92,8 @@ public interface ISyncStorage {
 	void insertClientId(String clientId);
 
 	/**
-	 * Returns true if the clientId is known and the email must not be sent by
-	 * the SendMail command
+	 * Returns true if the clientId is known and the email must not be sent by the
+	 * SendMail command
 	 * 
 	 * @param clientId
 	 * @return

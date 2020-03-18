@@ -78,14 +78,13 @@ public class GetItemEstimateProtocol implements IEasProtocol<GetItemEstimateRequ
 			r.collectionId = c.collectionId;
 
 			try {
-				Integer collectionId = Integer.parseInt(c.collectionId);
-				store.getHierarchyNode(bs, collectionId);
-				SyncState state = sm.getSyncState(bs, collectionId, c.syncKey);
+				store.getHierarchyNode(bs, c.collectionId);
+				SyncState state = sm.getSyncState(bs, c.collectionId, c.syncKey);
 				if (state == null) {
 					r.status = Status.InvalidSyncKey;
 				} else {
 					r.status = Status.Success;
-					bs.addLastClientSyncState(collectionId, state);
+					bs.addLastClientSyncState(c.collectionId.getValue(), state);
 				}
 			} catch (CollectionNotFoundException e) {
 				r.status = Status.InvalidCollection;

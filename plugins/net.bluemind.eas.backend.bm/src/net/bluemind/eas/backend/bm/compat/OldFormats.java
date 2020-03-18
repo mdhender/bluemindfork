@@ -42,6 +42,7 @@ import net.bluemind.eas.dto.calendar.CalendarResponse.Attendee.AttendeeType;
 import net.bluemind.eas.dto.calendar.CalendarResponse.MeetingStatus;
 import net.bluemind.eas.dto.calendar.CalendarResponse.ResponseType;
 import net.bluemind.eas.dto.contact.ContactResponse;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.tasks.TasksResponse;
 import net.bluemind.eas.dto.tasks.TasksResponse.Importance;
 import net.bluemind.eas.dto.user.MSUser;
@@ -175,7 +176,7 @@ public class OldFormats {
 
 	}
 
-	public static CalendarResponse update(BackendSession bs, MSEvent event, MSUser user, int collectionId) {
+	public static CalendarResponse update(BackendSession bs, MSEvent event, MSUser user, CollectionId collectionId) {
 		CalendarResponse cr = update(event, user);
 
 		// BM-6571

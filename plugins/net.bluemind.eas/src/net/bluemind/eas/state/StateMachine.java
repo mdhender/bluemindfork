@@ -30,6 +30,7 @@ import com.google.common.base.Splitter;
 
 import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.backend.HierarchyNode;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.sync.SyncState;
 import net.bluemind.eas.dto.type.ItemDataType;
 import net.bluemind.eas.exception.CollectionNotFoundException;
@@ -74,14 +75,15 @@ public class StateMachine {
 	 * @return
 	 * @throws CollectionNotFoundException
 	 */
-	public SyncState getSyncState(BackendSession bs, int folderId, String syncKey) throws CollectionNotFoundException {
+	public SyncState getSyncState(BackendSession bs, CollectionId collectionId, String syncKey)
+			throws CollectionNotFoundException {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("SyncKey is {}", syncKey);
 		}
 
 		if ("0".equals(syncKey)) {
-			HierarchyNode folder = store.getHierarchyNode(bs, folderId);
+			HierarchyNode folder = store.getHierarchyNode(bs, collectionId);
 			SyncState ret = new SyncState();
 			ret.type = ItemDataType.getValue(folder.containerType);
 			return ret;

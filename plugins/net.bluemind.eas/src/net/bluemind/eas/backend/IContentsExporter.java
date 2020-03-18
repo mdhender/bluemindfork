@@ -28,6 +28,7 @@ import net.bluemind.eas.dto.email.AttachmentResponse;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsRequest;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsResponse;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsResponse.Response.Recipient;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.sync.FilterType;
 import net.bluemind.eas.dto.sync.SyncState;
 import net.bluemind.eas.dto.type.ItemDataType;
@@ -42,14 +43,14 @@ import net.bluemind.eas.exception.ObjectNotFoundException;
  */
 public interface IContentsExporter {
 
-	Changes getChanged(BackendSession bs, SyncState state, FilterType filterType, Integer collectionId)
+	Changes getChanged(BackendSession bs, SyncState state, FilterType filterType, CollectionId collectionId)
 			throws ActiveSyncException;
 
 	AppData loadStructure(BackendSession bs, BodyOptions bodyOptions, ItemChangeReference ir)
 			throws ActiveSyncException;
 
-	Map<String, AppData> loadStructures(BackendSession bs, BodyOptions bodyOptions, ItemDataType type, int collectionId,
-			List<String> uids) throws ActiveSyncException;
+	Map<String, AppData> loadStructures(BackendSession bs, BodyOptions bodyOptions, ItemDataType type,
+			CollectionId collectionId, List<String> uids) throws ActiveSyncException;
 
 	AttachmentResponse getAttachmentMetadata(BackendSession bs, String attachmentName) throws ObjectNotFoundException;
 

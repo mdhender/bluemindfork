@@ -50,6 +50,7 @@ import net.bluemind.eas.backend.SyncFolder;
 import net.bluemind.eas.backend.bm.impl.CoreConnect;
 import net.bluemind.eas.dto.base.ChangeType;
 import net.bluemind.eas.dto.foldersync.FolderType;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.sync.SyncState;
 import net.bluemind.eas.dto.type.ItemDataType;
 import net.bluemind.eas.exception.ActiveSyncException;
@@ -208,7 +209,7 @@ public class FolderBackend extends CoreConnect {
 		}
 
 		changes.deleted.forEach(itemVersion -> {
-			FolderChangeReference f = getDeletedItemChange(itemVersion.id);
+			FolderChangeReference f = getDeletedItemChange(Long.toString(itemVersion.id));
 			ret.items.add(f);
 		});
 
@@ -223,13 +224,18 @@ public class FolderBackend extends CoreConnect {
 			if (container.value.offlineSync) {
 				String nodeUid = ContainerHierarchyNode.uidFor(container.value.containerUid,
 						container.value.containerType, bs.getUser().getDomain());
-				ItemValue<ContainerHierarchyNode> node = flatH.getComplete(nodeUid);
+
+				IContainersFlatHierarchy ownerHierarchy = getAdmin0Service(bs, IContainersFlatHierarchy.class,
+						bs.getUser().getDomain(), container.value.owner);
+
+				ItemValue<ContainerHierarchyNode> node = ownerHierarchy.getComplete(nodeUid);
 				if (node != null) {
 					FolderChangeReference f = getHierarchyItemSubscriptionChange(bs, container, node);
 					Optional.ofNullable(f).ifPresent(item -> ret.items.add(item));
 				} else {
-					logger.warn("[{}] new subscription: no node uid {} for container {} in hierarchy. type: {}",
-							bs.getUser().getDefaultEmail(), nodeUid, container, container.value.containerType);
+					logger.warn("[{}] new subscription: no node uid {} for container {} in {} hierarchy. type: {}",
+							bs.getUser().getDefaultEmail(), nodeUid, container, container.value.owner,
+							container.value.containerType);
 				}
 			}
 		});
@@ -238,13 +244,18 @@ public class FolderBackend extends CoreConnect {
 		brandNewUpdated.stream().filter(c -> !"mailboxacl".equals(c.value.containerType)).forEach(container -> {
 			String nodeUid = ContainerHierarchyNode.uidFor(container.value.containerUid, container.value.containerType,
 					bs.getUser().getDomain());
-			ItemValue<ContainerHierarchyNode> node = flatH.getComplete(nodeUid);
+
+			IContainersFlatHierarchy ownerHierarchy = getAdmin0Service(bs, IContainersFlatHierarchy.class,
+					bs.getUser().getDomain(), container.value.owner);
+
+			ItemValue<ContainerHierarchyNode> node = ownerHierarchy.getComplete(nodeUid);
 			if (node != null) {
 				FolderChangeReference f = null;
 				if (container.value.offlineSync) {
 					f = getHierarchyItemSubscriptionChange(bs, container, node);
 				} else {
-					f = getDeletedItemChange(node.internalId);
+					f = getDeletedItemChange(
+							CollectionId.of(container.internalId, Long.toString(node.internalId)).getValue());
 				}
 				Optional.ofNullable(f).ifPresent(item -> ret.items.add(item));
 			} else {
@@ -260,9 +271,14 @@ public class FolderBackend extends CoreConnect {
 				try {
 					ContainerDescriptor cd = containers.get(containerUid);
 					String nodeUid = ContainerHierarchyNode.uidFor(containerUid, cd.type, bs.getUser().getDomain());
-					ItemValue<ContainerHierarchyNode> h = flatH.getComplete(nodeUid);
+
+					IContainersFlatHierarchy ownerHierarchy = getAdmin0Service(bs, IContainersFlatHierarchy.class,
+							bs.getUser().getDomain(), cd.owner);
+
+					ItemValue<ContainerHierarchyNode> h = ownerHierarchy.getComplete(nodeUid);
 					if (h != null) {
-						FolderChangeReference f = getDeletedItemChange(h.internalId);
+						FolderChangeReference f = getDeletedItemChange(
+								CollectionId.of(cd.internalId, Long.toString(h.internalId)).getValue());
 						ret.items.add(f);
 					} else {
 						logger.warn("[{}] delete subscription: no node uid {} for container {} in hierarchy",
@@ -283,9 +299,9 @@ public class FolderBackend extends CoreConnect {
 		return ret;
 	}
 
-	private FolderChangeReference getDeletedItemChange(Long uid) {
+	private FolderChangeReference getDeletedItemChange(String folderId) {
 		FolderChangeReference deleted = new FolderChangeReference();
-		deleted.folderId = uid;
+		deleted.folderId = folderId;
 		deleted.changeType = ChangeType.DELETE;
 		return deleted;
 	}
@@ -349,8 +365,8 @@ public class FolderBackend extends CoreConnect {
 				parentId = flatH.getComplete(parentUid).internalId;
 			}
 		}
-		folderChangeRef.parentId = parentId;
-		folderChangeRef.folderId = h.internalId;
+		folderChangeRef.parentId = Long.toString(parentId);
+		folderChangeRef.folderId = Long.toString(h.internalId);
 
 		logger.debug("Add mail folder {} {}", changeType, folderChangeRef);
 
@@ -423,8 +439,8 @@ public class FolderBackend extends CoreConnect {
 		f.displayName = name;
 		f.itemType = type;
 		f.changeType = changeType;
-		f.parentId = 0;
-		f.folderId = folder.internalId;
+		f.parentId = "0";
+		f.folderId = Long.toString(folder.internalId);
 
 		logger.debug("Add folder {} {}", changeType, f);
 
@@ -437,6 +453,7 @@ public class FolderBackend extends CoreConnect {
 
 		String name = "";
 		FolderType type = null;
+		String folderId = Long.toString(h.internalId);
 		switch (container.value.containerType) {
 		case ICalendarUids.TYPE:
 			if (ICalendarUids.defaultUserCalendar(bs.getUser().getUid()).equals(container.value.containerUid)) {
@@ -448,6 +465,9 @@ public class FolderBackend extends CoreConnect {
 					return null;
 				}
 				type = FolderType.USER_CREATED_CALENDAR_FOLDER;
+				if (!bs.getUser().getUid().equals(container.value.owner)) {
+					folderId = CollectionId.of(container.internalId, folderId).getValue();
+				}
 			}
 			name = h.value.name;
 			break;
@@ -461,6 +481,9 @@ public class FolderBackend extends CoreConnect {
 					return null;
 				}
 				type = FolderType.USER_CREATED_CONTACTS_FOLDER;
+				if (!bs.getUser().getUid().equals(container.value.owner)) {
+					folderId = CollectionId.of(container.internalId, folderId).getValue();
+				}
 			}
 			name = I18nLabels.getInstance().translate(bs.getLang(), h.value.name);
 			break;
@@ -469,6 +492,9 @@ public class FolderBackend extends CoreConnect {
 				type = FolderType.DEFAULT_TASKS_FOLDER;
 			} else {
 				type = FolderType.USER_CREATED_TASKS_FOLDER;
+				if (!bs.getUser().getUid().equals(container.value.owner)) {
+					folderId = CollectionId.of(container.internalId, folderId).getValue();
+				}
 			}
 			name = I18nLabels.getInstance().translate(bs.getLang(), h.value.name);
 			break;
@@ -479,8 +505,8 @@ public class FolderBackend extends CoreConnect {
 		f.displayName = name;
 		f.itemType = type;
 		f.changeType = ChangeType.ADD;
-		f.parentId = 0;
-		f.folderId = h.internalId;
+		f.parentId = "0";
+		f.folderId = folderId;
 
 		logger.debug("Add subscription {} {}", f.changeType, f);
 
