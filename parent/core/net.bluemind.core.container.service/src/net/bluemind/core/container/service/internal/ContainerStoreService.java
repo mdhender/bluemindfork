@@ -486,10 +486,14 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			Iterator<Item> itItems = items.iterator();
 			Iterator<T> itValues = values.iterator();
 
-			for (; itItems.hasNext();) {
+			while (itItems.hasNext()) {
 				Item item = itItems.next();
 				T value = itValues.next();
-				ret.add(ItemValue.create(item, value));
+				if (value != null) {
+					ret.add(ItemValue.create(item, value));
+				} else {
+					logger.warn("Mismatch in value and item count on container {}", container.uid);
+				}
 			}
 
 			decorate(items, ret);
