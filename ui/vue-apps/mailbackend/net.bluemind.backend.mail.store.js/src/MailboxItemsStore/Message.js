@@ -106,7 +106,17 @@ export default class Message {
     }
 
     isEmpty() {
-        return !this.to.length && !this.cc.length && !this.bcc.length && !this.subject && isEmptyContent(this.content);
+        return (
+            (!this.to || !this.to.length) &&
+            (!this.cc || !this.cc.length) &&
+            (!this.bcc || !this.bcc.length) &&
+            !this.subject &&
+            isEmptyContent(this.content)
+        );
+    }
+
+    hasRecipient() {
+        return (this.to && this.to.length) || (this.cc && this.cc.length) || (this.bcc && this.bcc.length);
     }
 }
 

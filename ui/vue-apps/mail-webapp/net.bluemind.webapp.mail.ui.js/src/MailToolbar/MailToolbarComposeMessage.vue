@@ -5,7 +5,7 @@
             variant="link"
             :aria-label="$tc('mail.actions.send.aria')"
             :title="$tc('mail.actions.send.aria')"
-            :disabled="isSending || isDeleting"
+            :disabled="isSending || isDeleting || !hasRecipient"
             @click="doSend()"
         >
             <bm-icon icon="send" size="2x" />
@@ -51,7 +51,7 @@
 <script>
 import { BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
 import { DraftStatus } from "@bluemind/backend.mail.store";
-import { mapActions, mapState } from "vuex";
+import { mapActions, mapState, mapGetters } from "vuex";
 import { RouterMixin } from "@bluemind/router";
 
 export default {
@@ -64,6 +64,7 @@ export default {
     mixins: [RouterMixin],
     computed: {
         ...mapState("mail-webapp", ["draft"]),
+        ...mapGetters("mail-webapp/draft", ["hasRecipient"]),
         isSending() {
             return this.draft.status === DraftStatus.SENDING;
         },

@@ -1,19 +1,10 @@
 import * as getters from "./getters";
 import * as mutations from "./mutations";
+import initialState from "./state";
 
 export default {
     namespaced: true,
-    state() {
-        return {
-            id: undefined,
-            key: undefined,
-            parts: { attachments: [], inlines: [] },
-            saveDate: null,
-            status: null,
-            attachmentStatuses: {},
-            attachmentProgresses: {}
-        };
-    },
+    state: initialState,
     mutations,
     getters
 };

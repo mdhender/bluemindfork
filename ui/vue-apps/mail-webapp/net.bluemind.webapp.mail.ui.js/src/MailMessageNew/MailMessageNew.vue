@@ -18,6 +18,7 @@
                                 :contacts.sync="message_.to"
                                 :autocomplete-results="autocompleteResultsTo"
                                 @search="searchedPattern => onSearch('to', searchedPattern)"
+                                @update:contacts="saveDraft"
                             >
                                 {{ $t("common.to") }}
                             </bm-contact-input>
@@ -41,6 +42,7 @@
                                 :contacts.sync="message_.cc"
                                 :autocomplete-results="autocompleteResultsCc"
                                 @search="searchedPattern => onSearch('cc', searchedPattern)"
+                                @update:contacts="saveDraft"
                             >
                                 {{ $t("common.cc") }}
                             </bm-contact-input>
@@ -63,6 +65,7 @@
                         :contacts.sync="message_.bcc"
                         :autocomplete-results="autocompleteResultsBcc"
                         @search="searchedPattern => onSearch('bcc', searchedPattern)"
+                        @update:contacts="saveDraft"
                     >
                         {{ $t("common.bcc") }}
                     </bm-contact-input>
@@ -74,6 +77,7 @@
                         :aria-label="$t('mail.new.subject.aria')"
                         type="text"
                         @keydown.enter.native.prevent
+                        @input="saveDraft"
                     />
                 </div>
                 <bm-row class="d-block m-0"><hr class="bg-dark m-0"/></bm-row>
@@ -96,6 +100,7 @@
                         :aria-label="$t('mail.new.content.aria')"
                         class="mail-content"
                         no-resize
+                        @input="saveDraft"
                     />
                     <bm-rich-editor
                         v-else
@@ -103,6 +108,7 @@
                         v-model="message_.content"
                         :is-menu-bar-opened="userPrefIsMenuBarOpened"
                         class="h-100"
+                        @input="saveDraft"
                     >
                         <bm-button
                             v-if="previousMessage && !message_.isReplyExpanded"
@@ -160,7 +166,6 @@ import MailMessageNewFooter from "./MailMessageNewFooter";
 import MailMessageNewModes from "./MailMessageNewModes";
 import ServiceLocator from "@bluemind/inject";
 import MailMessageContentAttachmentsBlock from "../MailMessageContent/MailMessageContentAttachmentsBlock";
-import { Message } from "@bluemind/backend.mail.store";
 
 export default {
     name: "MailMessageNew",
@@ -206,7 +211,7 @@ export default {
             autocompleteResultsTo: [],
             autocompleteResultsCc: [],
             autocompleteResultsBcc: [],
-            debouncedSave: debounce(this.saveDraft, 1000),
+            debouncedSave: debounce(this.save, 1000),
             userPrefIsMenuBarOpened: false, // TODO: initialize this with user setting
             mode_: this.mode,
             message_: {
@@ -234,21 +239,12 @@ export default {
             this.autocompleteResultsTo = this.getAutocompleteResults("to");
             this.autocompleteResultsCc = this.getAutocompleteResults("cc");
             this.autocompleteResultsBcc = this.getAutocompleteResults("bcc");
-        },
-        message_: {
-            handler: function() {
-                this.debouncedSave.cancel();
-                if (!this.isMessageEmpty()) {
-                    this.updateDraft(this.message_);
-                    this.debouncedSave();
-                }
-            },
-            deep: true
         }
     },
     created: function() {
-        this.message_.type = this.userPrefTextOnly ? "text" : "html";
         this.clearDraft();
+        this.message_.type = this.userPrefTextOnly ? "text" : "html";
+        this.message_.previousMessage = this.previousMessage;
         this.updateDraft(this.message_);
     },
     mounted: function() {
@@ -262,8 +258,9 @@ export default {
         this.clearDraft();
     },
     methods: {
-        ...mapActions("mail-webapp", ["saveDraft", "addAttachments"]),
+        ...mapActions("mail-webapp", { save: "saveDraft", addAttachments: "addAttachments" }),
         ...mapMutations("mail-webapp/draft", { clearDraft: "clear", updateDraft: "update" }),
+        ...mapGetters("mail-webapp/draft", { isMessageEmpty: "isEmpty" }),
         displayPreviousMessages() {
             this.message_.content += this.previousMessage.content;
             this.$nextTick(() => {
@@ -281,6 +278,13 @@ export default {
             this.debouncedSave.cancel();
             // send then close the composer
             this.$store.dispatch("mail-webapp/send").then(() => this.navigateToParent());
+        },
+        saveDraft() {
+            this.updateDraft(this.message_);
+            this.debouncedSave.cancel();
+            if (!this.isMessageEmpty()) {
+                this.debouncedSave();
+            }
         },
         deleteDraft() {
             this.debouncedSave.cancel();
@@ -324,9 +328,6 @@ export default {
             } else {
                 return this.lastRecipients;
             }
-        },
-        isMessageEmpty() {
-            return new Message(null, this.message_).isEmpty();
         }
     }
 };

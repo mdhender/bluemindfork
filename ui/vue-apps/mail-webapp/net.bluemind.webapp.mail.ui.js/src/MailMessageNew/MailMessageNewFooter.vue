@@ -4,7 +4,7 @@
             <bm-button
                 type="submit"
                 variant="primary"
-                :disabled="isSending || isDeleting"
+                :disabled="isSending || isDeleting || !hasRecipient"
                 @click.prevent="$emit('send')"
             >
                 {{ $t("common.send") }}
@@ -62,7 +62,7 @@
 import { BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
 import { DateComparator } from "@bluemind/date";
 import { DraftStatus } from "@bluemind/backend.mail.store";
-import { mapState, mapActions } from "vuex";
+import { mapState, mapActions, mapGetters } from "vuex";
 
 export default {
     name: "MailMessageNewFooter",
@@ -83,6 +83,7 @@ export default {
     },
     computed: {
         ...mapState("mail-webapp", ["draft"]),
+        ...mapGetters("mail-webapp/draft", ["hasRecipient"]),
         isSending() {
             return this.draft.status === DraftStatus.SENDING;
         },
