@@ -195,6 +195,60 @@ describe("Message", () => {
         message.headers = [{ name: "Reply-To", values: others }];
         checkComputeRecipients(message, message.recipientFields.CC, message.actions.FORWARD, { replyTo: others });
     });
+    test("check emptiness (basic)", () => {
+        const message = new Message("key", mailboxItem);
+        message.to = [];
+        message.cc = [];
+        message.bcc = [];
+        message.subject = "";
+        message.content = "";
+        expect(message.isEmpty()).toBe(true);
+    });
+    test("check emptiness (with content considered as empty)", () => {
+        const message = new Message("key", mailboxItem);
+        message.to = [];
+        message.cc = [];
+        message.bcc = [];
+        message.subject = "";
+        message.content = "<div><br><br><br></div>";
+        expect(message.isEmpty()).toBe(true);
+    });
+    test("check emptiness ('to' not empty)", () => {
+        const message = new Message("key", mailboxItem);
+        message.to = ["aaa@aaa.aaa"];
+        message.cc = [];
+        message.bcc = [];
+        message.subject = "";
+        message.content = "";
+        expect(message.isEmpty()).toBe(false);
+    });
+    test("check emptiness ('cc' not empty)", () => {
+        const message = new Message("key", mailboxItem);
+        message.to = [];
+        message.cc = ["aaa@aaa.aaa"];
+        message.bcc = [];
+        message.subject = "";
+        message.content = "";
+        expect(message.isEmpty()).toBe(false);
+    });
+    test("check emptiness ('bcc' not empty)", () => {
+        const message = new Message("key", mailboxItem);
+        message.to = [];
+        message.cc = [];
+        message.bcc = ["aaa@aaa.aaa"];
+        message.subject = "";
+        message.content = "";
+        expect(message.isEmpty()).toBe(false);
+    });
+    test("check emptiness ('subject' not empty)", () => {
+        const message = new Message("key", mailboxItem);
+        message.to = [];
+        message.cc = [];
+        message.bcc = [];
+        message.subject = "my awesome subject";
+        message.content = "";
+        expect(message.isEmpty()).toBe(false);
+    });
 });
 
 function checkComputeRecipients(message, recipientField, action, headersInfo) {

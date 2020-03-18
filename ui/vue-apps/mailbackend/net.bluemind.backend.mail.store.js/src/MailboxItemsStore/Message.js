@@ -104,6 +104,15 @@ export default class Message {
                 return [];
         }
     }
+
+    isEmpty() {
+        return !this.to.length && !this.cc.length && !this.bcc.length && !this.subject && isEmptyContent(this.content);
+    }
+}
+
+function isEmptyContent(content) {
+    const consideredAsEmptyRegex = /^<div>(<br>)*<\/div>$/;
+    return !content || consideredAsEmptyRegex.test(content);
 }
 
 /** Initialize the given message using the MailboxItem 'item'.  */

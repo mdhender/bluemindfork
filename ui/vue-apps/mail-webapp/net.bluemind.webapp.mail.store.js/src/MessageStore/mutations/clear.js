@@ -5,4 +5,5 @@ export function clear(state) {
     state.parts.inlines.splice(0);
     state.attachmentStatuses = {};
     state.attachmentProgresses = {};
+    state.saveDate = null;
 }

@@ -33,7 +33,7 @@ exports[`MailToolbarConsultMessage should match snapshot 1`] = `
   </button>
    
   <div
-    class="dropdown btn-group b-dropdown h-100 move-message"
+    class="dropdown b-dropdown h-100 move-message btn-group"
   >
     <!---->
     <button
@@ -176,7 +176,7 @@ exports[`MailToolbarConsultMessage should match snapshot 1`] = `
     class="d-inline-block h-100"
   >
     <div
-      class="dropdown btn-group b-dropdown other_actions h-100"
+      class="dropdown b-dropdown other_actions h-100 btn-group"
     >
       <!---->
       <button

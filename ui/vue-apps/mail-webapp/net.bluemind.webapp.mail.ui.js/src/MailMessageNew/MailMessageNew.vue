@@ -160,6 +160,7 @@ import MailMessageNewFooter from "./MailMessageNewFooter";
 import MailMessageNewModes from "./MailMessageNewModes";
 import ServiceLocator from "@bluemind/inject";
 import MailMessageContentAttachmentsBlock from "../MailMessageContent/MailMessageContentAttachmentsBlock";
+import { Message } from "@bluemind/backend.mail.store";
 
 export default {
     name: "MailMessageNew",
@@ -236,8 +237,11 @@ export default {
         },
         message_: {
             handler: function() {
-                this.updateDraft(this.message_);
-                this.debouncedSave();
+                this.debouncedSave.cancel();
+                if (!this.isMessageEmpty()) {
+                    this.updateDraft(this.message_);
+                    this.debouncedSave();
+                }
             },
             deep: true
         }
@@ -320,6 +324,9 @@ export default {
             } else {
                 return this.lastRecipients;
             }
+        },
+        isMessageEmpty() {
+            return new Message(null, this.message_).isEmpty();
         }
     }
 };
