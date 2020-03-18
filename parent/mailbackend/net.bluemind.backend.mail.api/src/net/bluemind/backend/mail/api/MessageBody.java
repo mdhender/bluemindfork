@@ -17,6 +17,7 @@
   */
 package net.bluemind.backend.mail.api;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -125,7 +126,10 @@ public class MessageBody {
 		}
 
 		public List<Part> attachments() {
-			return attachments(this, null, new LinkedList<>());
+			List<Part> ret = new ArrayList<>();
+			ret.addAll(nonInlineAttachments());
+			ret.addAll(inlineAttachments());
+			return ret;
 		}
 
 		public List<Part> nonInlineAttachments() {
@@ -148,16 +152,6 @@ public class MessageBody {
 				}
 			}
 			return ret;
-		}
-
-		private static List<Part> attachments(Part structure, Part parent, List<Part> attach) {
-			if (parent != null) {
-				attach.add(structure);
-			}
-			for (Part p : structure.children) {
-				attachments(p, structure, attach);
-			}
-			return attach;
 		}
 
 		private static List<Part> nonInlineAttachments(Part structure, Part parent, List<Part> attach) {

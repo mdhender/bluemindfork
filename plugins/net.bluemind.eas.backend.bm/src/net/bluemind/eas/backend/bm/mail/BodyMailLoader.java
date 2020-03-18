@@ -147,7 +147,7 @@ public class BodyMailLoader extends CoreConnect {
 	}
 
 	private Set<Attachment> addAttachments(long id, List<Part> attachments) {
-		Set<Attachment> ret = new HashSet<Attachment>();
+		Set<Attachment> ret = new HashSet<>();
 
 		for (Part p : attachments) {
 			if (!"application/ics".equals(p.mime)) {
