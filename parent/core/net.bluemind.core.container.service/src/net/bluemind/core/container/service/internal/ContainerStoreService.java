@@ -481,6 +481,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
+		List<Item> nonNullValues = new ArrayList<>(items.size());
 
 		if (values.size() == items.size()) {
 			Iterator<Item> itItems = items.iterator();
@@ -491,12 +492,13 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				T value = itValues.next();
 				if (value != null) {
 					ret.add(ItemValue.create(item, value));
+					nonNullValues.add(item);
 				} else {
 					logger.warn("Mismatch in value and item count on container {}", container.uid);
 				}
 			}
 
-			decorate(items, ret);
+			decorate(nonNullValues, ret);
 			return ret;
 		} else {
 			logger.warn("Mismatch in value and item count on container {}", container.uid);
