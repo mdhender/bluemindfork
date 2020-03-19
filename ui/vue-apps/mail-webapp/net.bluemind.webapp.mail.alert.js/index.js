@@ -56,5 +56,29 @@ export default {
     MSG_DRAFT_DELETE_ERROR: {
         type: AlertTypes.ERROR,
         key: "alert.mail.message.draft.delete.error"
+    },
+    MSG_MULTIPLE_MARK_AS_READ_LOADING: {
+        type: AlertTypes.LOADING,
+        key: "alert.mail.multiple.markasread.loading"
+    },
+    MSG_MULTIPLE_MARK_AS_READ_ERROR: {
+        type: AlertTypes.ERROR,
+        key: "alert.mail.multiple.markasread.error"
+    },
+    MSG_MULTIPLE_MARK_AS_READ_SUCCESS: {
+        type: AlertTypes.SUCCESS,
+        key: "alert.mail.multiple.markasread.success"
+    },
+    MSG_MULTIPLE_MARK_AS_UNREAD_LOADING: {
+        type: AlertTypes.LOADING,
+        key: "alert.mail.multiple.markasunread.loading"
+    },
+    MSG_MULTIPLE_MARK_AS_UNREAD_ERROR: {
+        type: AlertTypes.ERROR,
+        key: "alert.mail.multiple.markasunread.error"
+    },
+    MSG_MULTIPLE_MARK_AS_UNREAD_SUCCESS: {
+        type: AlertTypes.SUCCESS,
+        key: "alert.mail.multiple.markasunread.success"
     }
 };

@@ -1,24 +1,50 @@
 import { Flag } from "@bluemind/email";
 import ItemUri from "@bluemind/item-uri";
+import UUIDGenerator from "@bluemind/uuid";
 
 export function markAsRead(context, messageKeys) {
     const updateAction = "messages/addFlag";
     const unreadMessageFilter = message => message.states.includes("not-seen");
-    return markAs(context, updateAction, unreadMessageFilter, messageKeys);
+    const alertCodes = {
+        LOADING: "MSG_MULTIPLE_MARK_AS_READ_LOADING",
+        SUCCESS: "MSG_MULTIPLE_MARK_AS_READ_SUCCESS",
+        ERROR: "MSG_MULTIPLE_MARK_AS_READ_ERROR"
+    };
+    return markAs(context, updateAction, unreadMessageFilter, alertCodes, messageKeys);
 }
 
 export function markAsUnread(context, messageKeys) {
     const updateAction = "messages/deleteFlag";
     const readMessageFilter = message => !message.states.includes("not-seen");
-    return markAs(context, updateAction, readMessageFilter, messageKeys);
+    const alertCodes = {
+        LOADING: "MSG_MULTIPLE_MARK_AS_UNREAD_LOADING",
+        SUCCESS: "MSG_MULTIPLE_MARK_AS_UNREAD_SUCCESS",
+        ERROR: "MSG_MULTIPLE_MARK_AS_UNREAD_ERROR"
+    };
+    return markAs(context, updateAction, readMessageFilter, alertCodes, messageKeys);
 }
 
-function markAs(context, updateAction, messageFilter, messageKeys) {
-    if (anyMessageMissingInState(context.state, messageKeys)) {
-        return markAsWhenMessagesMissingInState(messageKeys, updateAction, context.dispatch);
-    } else {
-        return markAsWhenAllMessagesAreInState(context, messageKeys, updateAction, messageFilter);
+function markAs(context, updateAction, messageFilter, alertCodes, messageKeys) {
+    const alertUid = UUIDGenerator.generate();
+    let promise;
+
+    if (messageKeys.length > 1) {
+        context.commit("alert/add", { code: alertCodes.LOADING, uid: alertUid }, { root: true });
     }
+
+    if (anyMessageMissingInState(context.state, messageKeys)) {
+        promise = markAsWhenMessagesMissingInState(messageKeys, updateAction, context.dispatch);
+    } else {
+        promise = markAsWhenAllMessagesAreInState(context, messageKeys, updateAction, messageFilter);
+    }
+
+    if (messageKeys.length > 1) {
+        promise = promise
+            .then(() => context.commit("alert/add", { code: alertCodes.SUCCESS }, { root: true }))
+            .catch(() => context.commit("alert/add", { code: alertCodes.ERROR }, { root: true }))
+            .finally(() => context.commit("alert/remove", alertUid, { root: true }));
+    }
+    return promise;
 }
 
 function markAsWhenMessagesMissingInState(messageKeys, updateAction, dispatch) {

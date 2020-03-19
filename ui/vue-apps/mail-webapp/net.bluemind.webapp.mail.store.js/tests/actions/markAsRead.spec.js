@@ -49,6 +49,7 @@ describe("[Mail-WebappStore][actions] : markAsRead", () => {
             mailboxItemFlag
         });
         expect(context.commit).toHaveBeenCalledWith("setUnreadCount", { folderUid, count: 9 });
+        checkAlertsHaveNotBeenCalled();
     });
 
     test("call update seen for a given message and mutate state (missing messages)", async () => {
@@ -58,6 +59,7 @@ describe("[Mail-WebappStore][actions] : markAsRead", () => {
             mailboxItemFlag
         });
         expect(context.dispatch).toHaveBeenCalledWith("loadUnreadCount", folderUid);
+        checkAlertsHaveNotBeenCalled();
     });
 
     test("call update seen only if message is unseen or not in state", async () => {
@@ -67,6 +69,7 @@ describe("[Mail-WebappStore][actions] : markAsRead", () => {
             messageKeys: [messageKey3],
             mailboxItemFlag
         });
+        checkAlertsHaveNotBeenCalled();
     });
 
     test("Multiple messages, same folder (missing messages)", async () => {
@@ -77,6 +80,7 @@ describe("[Mail-WebappStore][actions] : markAsRead", () => {
             mailboxItemFlag
         });
         expect(context.dispatch).toHaveBeenCalledWith("loadUnreadCount", folderUid);
+        checkAlertsHaveBeenCalled();
     });
 
     test("Multiple messages, different folders", async () => {
@@ -88,5 +92,16 @@ describe("[Mail-WebappStore][actions] : markAsRead", () => {
         });
         expect(context.dispatch).toHaveBeenCalledWith("loadUnreadCount", folderUid);
         expect(context.dispatch).toHaveBeenCalledWith("loadUnreadCount", folderUid2);
+        checkAlertsHaveBeenCalled();
     });
+
+    function checkAlertsHaveNotBeenCalled() {
+        expect(context.commit).not.toHaveBeenCalledWith("alert/add", expect.anything(), { root: true });
+        expect(context.commit).not.toHaveBeenCalledWith("alert/remove", expect.anything(), { root: true });
+    }
+
+    function checkAlertsHaveBeenCalled() {
+        expect(context.commit).toHaveBeenCalledWith("alert/add", expect.anything(), { root: true });
+        expect(context.commit).toHaveBeenCalledWith("alert/remove", expect.anything(), { root: true });
+    }
 });
