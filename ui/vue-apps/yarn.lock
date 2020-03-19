@@ -711,9 +711,9 @@
   integrity sha512-kqnH6Dkk+c4utfZZREIh2vRO3XrdkDExIeLH0KzCB8RpHz5fD9+1FmQrmlbjiAVIldYmhgxtRhoN3Usz9HOVoQ==
 
 "@bluemind/styleguide@^0.1.0":
-  version "0.1.924"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.924.tgz#a8063db5702c1d9bd067a1351ce3b3637af332c0"
-  integrity sha512-32v4bMs8dgTbo5sXs7ZaRhtUUA+vfZ6huSQNwFWP2Rw8/X4MdGbQXC5gq/cg8GQmtmkxtkqLY/gj5gnmmUecSw==
+  version "0.1.957"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.957.tgz#872afcec3dcaa514f9c90b8e9d410bf6e023b394"
+  integrity sha512-HlqkcrfhrihvEPBoJ3I9KmQc5qRC0OW2eKgQW504ggB83rh4P3HrCkqL4/5Oni7KdvL4J3m1Fdq8x/JuQ9uogA==
   dependencies:
     "@fortawesome/fontawesome-svg-core" "^1.2.12"
     "@fortawesome/vue-fontawesome" "^0.1.4"
@@ -724,6 +724,7 @@
     lodash.throttle "^4.1.1"
     tiptap "^1.26.1"
     tiptap-extensions "^1.28.3"
+    vue-global-events "^1.1.2"
     vue-i18n "^8.14.0"
 
 "@bluemind/user.api@^4.1.0":
