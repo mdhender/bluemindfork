@@ -674,7 +674,7 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 
 		for (IMailboxHook hook : hooks) {
 			try {
-				hook.preMailboxCreated(context, domainUid, itemValue.value.name);
+				hook.preMailboxCreated(context, domainUid, itemValue);
 			} catch (Exception e) {
 				logger.error("error during call to hook (preMailboxCreated) {} : {} ", hook.getClass(), e.getMessage(),
 						e);

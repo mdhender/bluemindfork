@@ -34,7 +34,7 @@ public interface IMailboxHook {
 	 * @param name
 	 * @throws ServerFault
 	 */
-	default void preMailboxCreated(BmContext context, String domainUid, String name) throws ServerFault {
+	default void preMailboxCreated(BmContext context, String domainUid, ItemValue<Mailbox> value) throws ServerFault {
 
 	}
 
