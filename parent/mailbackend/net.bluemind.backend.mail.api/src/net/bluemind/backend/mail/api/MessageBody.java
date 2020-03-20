@@ -205,7 +205,7 @@ public class MessageBody {
 		}
 
 		public String toString() {
-			return (dn != null ? dn + " <" : "<") + address + ">";
+			return (dn != null ? dn + " <" : "<") + address + "> (" + kind + ")";
 		}
 	}
 
