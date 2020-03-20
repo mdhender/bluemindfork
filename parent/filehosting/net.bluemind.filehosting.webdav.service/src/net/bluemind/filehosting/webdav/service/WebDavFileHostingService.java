@@ -18,6 +18,7 @@
  */
 package net.bluemind.filehosting.webdav.service;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -25,6 +26,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -41,6 +43,7 @@ import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.rest.base.GenericStream;
 import net.bluemind.core.rest.utils.InputReadStream;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.filehosting.api.Configuration;
@@ -59,6 +62,7 @@ public abstract class WebDavFileHostingService implements IFileHostingService {
 
 	protected static final Logger logger = LoggerFactory.getLogger(WebDavFileHostingService.class);
 	private static final long SEARCH_TIMEOUT_MILLIS = 10 * 1000;
+	private static final boolean preventChunkedEncoding = new File("/etc/bm/webdav.no_chunked").exists();
 
 	protected abstract ConnectionContext getConnectionContext(SecurityContext context);
 
@@ -192,14 +196,27 @@ public abstract class WebDavFileHostingService implements IFileHostingService {
 					webdavContext.sardine.createDirectory(checkUri);
 				}
 			}
-			SizeLimitedReadStream readInputStream = new SizeLimitedReadStream(VertxStream.read(document),
-					maxAttachmentSize);
 			String uri = createUri(davPath, webdavContext.connectionContext);
-			webdavContext.sardine.put(uri, readInputStream);
-			if (readInputStream.exception != null) {
-				throw new ServerFault(readInputStream.exception);
+			if (preventChunkedEncoding) {
+				File tmp = new File(System.getProperty("java.io.tmpdir"), System.currentTimeMillis() + ".webdav");
+				try {
+					GenericStream.streamToFile(document, tmp);
+					try (InputStream in = Files.newInputStream(tmp.toPath())) {
+						webdavContext.sardine.put(uri, in, null, true, tmp.length());
+					}
+				} finally {
+					tmp.delete();
+				}
+			} else {
+				SizeLimitedReadStream readInputStream = new SizeLimitedReadStream(VertxStream.read(document),
+						maxAttachmentSize);
+				webdavContext.sardine.put(uri, readInputStream);
+				if (readInputStream.exception != null) {
+					throw new ServerFault(readInputStream.exception);
+				}
 			}
 			return null;
+
 		});
 	}
 
