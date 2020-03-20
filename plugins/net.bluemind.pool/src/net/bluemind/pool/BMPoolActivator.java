@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
@@ -158,10 +159,21 @@ public class BMPoolActivator extends Plugin {
 				}
 				config.setMaximumPoolSize(poolSize);
 
-				HikariDataSource ds = new HikariDataSource(config);
-				logger.info("Got DS {}", ds);
+				long start = System.currentTimeMillis();
+				do {
+					try {
+						HikariDataSource ds = new HikariDataSource(config);
+						logger.info("Got DS {}", ds);
 
-				return new Pool(lastIdQuery, ds);
+						return new Pool(lastIdQuery, ds);
+					} catch (Exception e) {
+						logger.warn("Pool {} startup problem: {}, retrying in 2sec", jdbcUrl, e.getMessage());
+						Thread.sleep(2000);
+					}
+				} while (System.currentTimeMillis() - start < TimeUnit.MINUTES.toMillis(2));
+				logger.error("Pool startup for {} failed, exiting.", jdbcUrl);
+				System.exit(1);
+				return null; // we exited...
 			}
 		} catch (Exception t) {
 			logger.error("Unable to connect to pool {}/{}, schema: {}, dbtype: {}", dbHost, dbName, schema, dbType, t);
