@@ -48,34 +48,34 @@ public class UserUpdateCommand extends SingleOrDomainOperation {
 			return UserUpdateCommand.class;
 		}
 	}
-	
+
 	@Option(name = "--password", description = "update user password")
 	public String password = null;
-	
-	@Option(name = "--extId", description = "update user external id (used by AD/LDAP synchronisaion), must start with [ldap|ad]://")
+
+	@Option(name = "--external-id", description = "update user external id (used by AD/LDAP synchronisaion), empty to unset")
 	public String extId = null;
-	
+
 	@Option(name = "--quota", description = "update user mailbox quota")
 	public Integer quota = null;
 
 	public UserUpdateCommand() {
 	}
-	
+
 	@Override
-	public void synchronousDirOperation(String domainUid, ItemValue<DirEntry> de) {	
+	public void synchronousDirOperation(String domainUid, ItemValue<DirEntry> de) {
 		if (de.uid.equals("admin0@global.virt")) {
 			// only allow password update fir admin0
 			if (extId != null || quota != null) {
 				throw new CliException("extId and quota modification aren't allowed for admin0");
 			}
 		}
-		
+
 		updatePassword(domainUid, de);
-		
+
 		updateExtId(domainUid, de);
-		
+
 		updateQuota(domainUid, de);
-		
+
 	}
 
 	private void updatePassword(String domainUid, ItemValue<DirEntry> de) {
@@ -93,14 +93,7 @@ public class UserUpdateCommand extends SingleOrDomainOperation {
 		IUser userApi = ctx.adminApi().instance(IUser.class, domainUid);
 
 		if (extId != null) {
-			if (extId.equals("")) {
-				throw new CliException("Refusing empty extId");
-			}
-			if (extId.startsWith("ldap://") || extId.startsWith("ad://")) {
-				userApi.setExtId(de.uid, extId);
-			} else {
-				throw new CliException("Invalid format for extId, must start with [ad|ldap]://");
-			}
+			userApi.setExtId(de.uid, extId.trim().isEmpty() ? null : extId);
 		}
 	}
 
