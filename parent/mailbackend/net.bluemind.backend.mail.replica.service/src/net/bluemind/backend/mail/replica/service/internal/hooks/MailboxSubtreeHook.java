@@ -59,7 +59,8 @@ public class MailboxSubtreeHook implements IMailboxHook {
 
 	@Override
 	public void onMailboxCreated(BmContext context, String domainUid, ItemValue<Mailbox> boxItem) throws ServerFault {
-
+		// we used to initialize here but creating the subtree at preCreate time avoids
+		// a race with Cyrus replication
 	}
 
 	private void forgetDeletion(BmContext context, String domainUid, String name) {
