@@ -81,7 +81,7 @@ public class XmppSessionsVerticle extends AbstractVerticle {
 			final String sessionId = clientMessage.body().getString("sessionId");
 			final XmppSessionSockets sockets = activeSessions.get(sessionId);
 			if (sockets == null) {
-				clientMessage.reply("yeah");
+				clientMessage.reply(new JsonObject());
 				return;
 			}
 
@@ -107,7 +107,7 @@ public class XmppSessionsVerticle extends AbstractVerticle {
 
 				logger.debug("session {} is already active", sessionId);
 				sockets.register(socketId);
-				clientMessage.reply("yeah");
+				clientMessage.reply(new JsonObject());
 				return;
 			}
 
