@@ -12,6 +12,7 @@
         "linkifyjs": "^2.1.8",
         "lodash.defaults": "^4.2.0",
         "lodash.repeat": "^4.1.0",
-        "lodash.startswith": "^4.2.1"
+        "lodash.startswith": "^4.2.1",
+        "xss": "^1.0.6"
     }
 }
