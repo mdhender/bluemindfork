@@ -204,8 +204,12 @@ public class MessageBody {
 			return rcpt;
 		}
 
+		/**
+		 * The string produced here is used to fill elasticsearch, modify with care
+		 */
+		@Override
 		public String toString() {
-			return (dn != null ? dn + " <" : "<") + address + "> (" + kind + ")";
+			return (dn != null ? dn + " <" : "<") + address + ">";
 		}
 	}
 
