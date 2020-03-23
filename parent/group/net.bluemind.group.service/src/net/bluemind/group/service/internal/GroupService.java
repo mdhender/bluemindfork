@@ -306,8 +306,12 @@ public class GroupService implements IGroup, IInCoreGroup {
 		}).collect(Collectors.toList());
 
 		if (!alreadyPresent.isEmpty()) {
-			throw new ServerFault("members (" + alreadyPresent + ") are already in group " + uid,
-					ErrorCode.INVALID_PARAMETER);
+			logger.error("Group uid: {}: members ({}) are already in group", uid, alreadyPresent);
+			if (members.size() == alreadyPresent.size()) {
+				throw new ServerFault("Group uid: " + uid + " all users are already in the group.",
+						ErrorCode.INVALID_PARAMETER);
+			}
+			members.removeAll(alreadyPresent);
 		}
 
 		storeService.addMembers(uid, members);

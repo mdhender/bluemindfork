@@ -698,6 +698,45 @@ public class GroupServiceTests {
 	}
 
 	@Test
+	public void testAddMembersAllUsersInGroup() throws ServerFault, SQLException {
+		DomainBookVerticle.suspended = true;
+		ItemValue<Group> group = createGroup();
+		List<Member> membersToAdd = getMembers(3);
+		IGroup service = getGroupService(adminSecurityContext);
+		service.add(group.uid, membersToAdd);
+		List<Member> members = service.getMembers(group.uid);
+		assertEquals(ImmutableSet.copyOf(membersToAdd), ImmutableSet.copyOf(members));
+
+		List<Member> membersToReAdd = membersToAdd.subList(0, 1);
+		membersToReAdd.addAll(getMembers(1));
+		service.add(group.uid, membersToReAdd);
+
+		IDirectory dir = testContext.provider().instance(IDirectory.class, domainUid);
+
+		ItemValue<VCard> vcard = dir.getVCard(group.uid);
+		assertNotNull(vcard);
+		// We added one member
+		assertEquals(4, vcard.value.organizational.member.size());
+	}
+
+	@Test
+	public void testAddMembersAlreadyInGroup() throws ServerFault, SQLException {
+		DomainBookVerticle.suspended = true;
+		ItemValue<Group> group = createGroup();
+		List<Member> membersToAdd = getMembers(3);
+		getGroupService(adminSecurityContext).add(group.uid, membersToAdd);
+		List<Member> members = getGroupService(adminSecurityContext).getMembers(group.uid);
+		assertEquals(ImmutableSet.copyOf(membersToAdd), ImmutableSet.copyOf(members));
+
+		try {
+			getGroupService(adminSecurityContext).add(group.uid, membersToAdd);
+			fail("Should have failed: all users are already in group.");
+		} catch (ServerFault e) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, e.getCode());
+		}
+	}
+
+	@Test
 	public void testAddDeleteMembersShouldKeepVCardEmails() throws ServerFault, SQLException {
 
 		DomainBookVerticle.suspended = true;
