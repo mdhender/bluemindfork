@@ -22,6 +22,7 @@ Require-Bundle: org.eclipse.core.runtime,
  io.vertx.core,
  net.bluemind.system.api,
  net.bluemind.system.stateobserver,
- net.bluemind.backend.cyrus.partitions
+ net.bluemind.backend.cyrus.partitions,
+ net.bluemind.metrics.registry
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
