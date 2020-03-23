@@ -44,11 +44,8 @@ import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MailboxItem;
-import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
-import net.bluemind.backend.mail.api.flags.SystemFlag.AnsweredFlag;
-import net.bluemind.backend.mail.api.flags.SystemFlag.FlaggedFlag;
-import net.bluemind.backend.mail.api.flags.SystemFlag.SeenFlag;
+import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
@@ -271,17 +268,17 @@ public class MailBackend extends CoreConnect {
 			MSEmail email = (MSEmail) data;
 			if (email.isRead() != null) {
 				if (email.isRead()) {
-					item.value.flags.add(new SeenFlag());
+					item.value.flags.add(MailboxItemFlag.System.Seen.value());
 				} else {
-					item.value.flags.removeIf(f -> f == new SeenFlag());
+					item.value.flags.removeIf(f -> f.equals(MailboxItemFlag.System.Answered.value()));
 				}
 			}
 
 			if (email.isStarred() != null) {
 				if (email.isStarred()) {
-					item.value.flags.add(new FlaggedFlag());
+					item.value.flags.add(MailboxItemFlag.System.Flagged.value());
 				} else {
-					item.value.flags.removeIf(f -> f.equals(new FlaggedFlag()));
+					item.value.flags.removeIf(f -> f.equals(MailboxItemFlag.System.Flagged.value()));
 				}
 			}
 			try {
@@ -418,7 +415,7 @@ public class MailBackend extends CoreConnect {
 			}
 			IMailboxItems service = getMailboxItemsService(bs, folder.uid);
 			ItemValue<MailboxItem> item = service.getCompleteById(uid);
-			item.value.flags.add(new AnsweredFlag());
+			item.value.flags.add(MailboxItemFlag.System.Answered.value());
 			service.updateById(uid, item.value);
 
 			send(bs, mailContent, rewriter, saveInSent);

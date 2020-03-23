@@ -50,9 +50,8 @@ import net.bluemind.backend.mail.api.SearchQuery.Header;
 import net.bluemind.backend.mail.api.SearchQuery.HeaderQuery;
 import net.bluemind.backend.mail.api.SearchQuery.LogicalOperator;
 import net.bluemind.backend.mail.api.SearchQuery.SearchScope;
-import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.api.SearchResult;
-import net.bluemind.backend.mail.api.flags.SystemFlag.DeletedFlag;
+import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.indexing.MailSummary;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.index.MailIndexActivator;
@@ -104,7 +103,7 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 				.setQuery(QueryBuilders.queryStringQuery("id:\"" + entryId(imapUid) + "\"")).execute().get();
 		assertEquals(1L, resp.getHits().getTotalHits());
 
-		List<MailboxItemFlag> deleteFlag = Arrays.asList(new DeletedFlag());
+		List<MailboxItemFlag> deleteFlag = Arrays.asList(MailboxItemFlag.System.Seen.value());
 		storeMessage(mboxUid, userUid, bodyUid, imapUid, deleteFlag);
 		ESearchActivator.refreshIndex(INDEX_NAME);
 		MailIndexActivator.getService().expunge("testbm.lan@bm.loc", ItemValue.create(userUid, null),

@@ -173,7 +173,7 @@ public class BoxIndexing {
 				lowestUid = Math.min(lowestUid, imapUid);
 				highestUid = Math.max(highestUid, imapUid);
 				Collection<MailboxItemFlag> systemFlags = completeById.value.flags.stream()
-						.filter(item -> item.isSystem).collect(Collectors.toList());
+						.filter(item -> item.value != 0).collect(Collectors.toList());
 				flagMapping.put(new Record(imapUid, completeById.uid), systemFlags);
 				handledDbEntries.add((int) imapUid);
 			}

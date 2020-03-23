@@ -42,9 +42,6 @@ import net.bluemind.backend.cyrus.replication.testhelper.CyrusGUID;
 import net.bluemind.backend.cyrus.replication.testhelper.MailboxUniqueId;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
-import net.bluemind.backend.mail.api.flags.SystemFlag.AnsweredFlag;
-import net.bluemind.backend.mail.api.flags.SystemFlag.DeletedFlag;
-import net.bluemind.backend.mail.api.flags.SystemFlag.SeenFlag;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
@@ -96,7 +93,7 @@ public class MailboxRecordStoreTests {
 	@Test
 	public void testFlagsMatch() throws SQLException {
 		MailboxRecord mb = simpleRecord();
-		mb.flags = Arrays.asList(new SeenFlag(), new DeletedFlag());
+		mb.flags = Arrays.asList(MailboxItemFlag.System.Seen.value(), MailboxItemFlag.System.Deleted.value());
 
 		String uniqueId = "rec" + System.currentTimeMillis();
 		Item it = Item.create(uniqueId, null);
@@ -133,7 +130,8 @@ public class MailboxRecordStoreTests {
 
 		System.out.println("beforeFlags: " + reloaded.flags);
 		reloaded.internalFlags = EnumSet.of(InternalFlag.expunged);
-		reloaded.flags = Arrays.asList(new AnsweredFlag(), new MailboxItemFlag("$john"), new MailboxItemFlag("$bang"));
+		reloaded.flags = Arrays.asList(MailboxItemFlag.System.Answered.value(), new MailboxItemFlag("$john"),
+				new MailboxItemFlag("$bang"));
 		boxRecordStore.update(it, reloaded);
 		MailboxRecord reloaded2 = boxRecordStore.get(it);
 		assertEquals(reloaded.flags, reloaded2.flags);
@@ -274,7 +272,7 @@ public class MailboxRecordStoreTests {
 		record.messageBody = CyrusGUID.randomGuid();
 		record.internalDate = new Date();
 		record.lastUpdated = new Date();
-		record.flags = Arrays.asList(new SeenFlag());
+		record.flags = Arrays.asList(MailboxItemFlag.System.Seen.value());
 		return record;
 	}
 

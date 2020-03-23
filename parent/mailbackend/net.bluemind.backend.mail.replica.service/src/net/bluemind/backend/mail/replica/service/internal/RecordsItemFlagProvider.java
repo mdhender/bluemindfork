@@ -20,9 +20,7 @@ package net.bluemind.backend.mail.replica.service.internal;
 import java.util.Collection;
 import java.util.EnumSet;
 
-import net.bluemind.backend.mail.api.flags.SystemFlag.DeletedFlag;
-import net.bluemind.backend.mail.api.flags.SystemFlag.FlaggedFlag;
-import net.bluemind.backend.mail.api.flags.SystemFlag.SeenFlag;
+import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.core.container.model.ItemFlag;
@@ -33,13 +31,14 @@ public class RecordsItemFlagProvider implements IItemFlagsProvider<MailboxRecord
 	@Override
 	public Collection<ItemFlag> flags(MailboxRecord value) {
 		Collection<ItemFlag> flags = EnumSet.noneOf(ItemFlag.class);
-		if (value.flags.contains(new SeenFlag())) {
-			flags.add(ItemFlag.Seen);			
+		if (value.flags.contains(MailboxItemFlag.System.Seen.value())) {
+			flags.add(ItemFlag.Seen);
 		}
-		if (value.flags.contains(new DeletedFlag()) || value.internalFlags.contains(InternalFlag.expunged)) {
+		if (value.flags.contains(MailboxItemFlag.System.Deleted.value())
+				|| value.internalFlags.contains(InternalFlag.expunged)) {
 			flags.add(ItemFlag.Deleted);
 		}
-		if (value.flags.contains(new FlaggedFlag())) {
+		if (value.flags.contains(MailboxItemFlag.System.Flagged.value())) {
 			flags.add(ItemFlag.Important);
 		}
 		return flags;

@@ -25,11 +25,12 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
-import net.bluemind.backend.mail.api.flags.SystemFlag;
+import net.bluemind.backend.mail.api.flags.MailboxItemFlag.System;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.core.container.model.Item;
@@ -39,6 +40,9 @@ import net.bluemind.core.jdbc.JdbcAbstractStore.StatementValues;
 
 public class MailboxRecordColumns {
 
+	private MailboxRecordColumns() {
+	}
+
 	public static final Columns COLUMNS = Columns.create() //
 			.col("imap_uid")//
 			.col("mod_seq")//
@@ -47,6 +51,16 @@ public class MailboxRecordColumns {
 			.col("system_flags")//
 			.col("other_flags")//
 	;
+
+	public static List<MailboxItemFlag> extractSystemFlags(int encodedFlags) {
+		List<MailboxItemFlag> decoded = new LinkedList<>();
+		for (System sf : System.values()) {
+			if ((encodedFlags & sf.value().value) == sf.value().value) {
+				decoded.add(sf.value());
+			}
+		}
+		return decoded;
+	}
 
 	public static EntityPopulator<MailboxRecord> populator() {
 		return new EntityPopulator<MailboxRecord>() {
@@ -59,10 +73,10 @@ public class MailboxRecordColumns {
 				value.lastUpdated = rs.getTimestamp(index++);
 				value.internalDate = rs.getTimestamp(index++);
 				int encodedFlags = rs.getInt(index++);
-				value.flags = SystemFlag.of(encodedFlags);
+				value.flags = extractSystemFlags(encodedFlags);
 				value.internalFlags = InternalFlag.of(encodedFlags);
-				value.flags.addAll(toList(rs.getArray(index++)).stream()
-						.map(MailboxItemFlag::new).collect(Collectors.toList()));
+				value.flags.addAll(
+						toList(rs.getArray(index++)).stream().map(MailboxItemFlag::new).collect(Collectors.toList()));
 				return index;
 			}
 		};
@@ -88,14 +102,18 @@ public class MailboxRecordColumns {
 				statement.setLong(index++, value.modSeq);
 				statement.setTimestamp(index++, new Timestamp(value.lastUpdated.getTime()));
 				statement.setTimestamp(index++, new Timestamp(value.internalDate.getTime()));
-				List<SystemFlag> allSystemFlags = SystemFlag.all();
-				List<SystemFlag> systemFlags = value.flags.stream().filter(f -> f.isSystem).map(systemFlag -> {
-					return allSystemFlags.stream().filter(asf -> asf.flag.equals(systemFlag.flag)).findFirst().get();
-				}).collect(Collectors.toList());
-				int compoundFlags = SystemFlag.valueOf(systemFlags) | InternalFlag.valueOf(value.internalFlags);
+				int compoundFlags = 0;
+				List<String> otherFlags = new LinkedList<>();
+				for (MailboxItemFlag mif : value.flags) {
+					MailboxItemFlag flag = MailboxItemFlag.of(mif.flag, 0);
+					if (flag.value == 0) {
+						otherFlags.add(flag.flag);
+					} else {
+						compoundFlags |= flag.value;
+					}
+				}
+				compoundFlags |= InternalFlag.valueOf(value.internalFlags);
 				statement.setInt(index++, compoundFlags);
-				List<String> otherFlags = value.flags.stream().filter(f -> !f.isSystem)
-						.map(f -> f.flag).collect(Collectors.toList());
 				statement.setArray(index++, con.createArrayOf("text", otherFlags.toArray()));
 				statement.setLong(index++, item.id);
 				return 0;

@@ -20,15 +20,15 @@ package net.bluemind.eas.backend.bm.mail;
 
 import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
-import net.bluemind.backend.mail.api.flags.SystemFlag.AnsweredFlag;
-import net.bluemind.backend.mail.api.flags.SystemFlag.FlaggedFlag;
-import net.bluemind.backend.mail.api.flags.SystemFlag.SeenFlag;
 import net.bluemind.eas.dto.email.EmailResponse;
 import net.bluemind.eas.dto.email.EmailResponse.Flag;
 import net.bluemind.eas.dto.email.EmailResponse.Flag.Status;
 import net.bluemind.eas.dto.email.EmailResponse.LastVerbExecuted;
 
 public class FlagsChange {
+
+	private FlagsChange() {
+	}
 
 	public static EmailResponse asEmailResponse(MailboxItem mailboxItem) {
 		EmailResponse em = new EmailResponse();
@@ -37,17 +37,17 @@ public class FlagsChange {
 		// email details (summary,...)
 		em.messageClass = null;
 
-		em.read = mailboxItem.flags.contains(new SeenFlag());
+		em.read = mailboxItem.flags.contains(MailboxItemFlag.System.Seen.value());
 		em.flag = new Flag();
 
-		if (mailboxItem.flags.contains(new FlaggedFlag())) {
+		if (mailboxItem.flags.contains(MailboxItemFlag.System.Flagged.value())) {
 			em.flag.flagType = "Flag for follow-up";
 			em.flag.status = Status.Active;
 		} else {
 			em.flag.status = Status.Cleared;
 		}
 
-		if (mailboxItem.flags.contains(new AnsweredFlag())) {
+		if (mailboxItem.flags.contains(MailboxItemFlag.System.Answered.value())) {
 			em.lastVerbExecuted = LastVerbExecuted.ReplyToSender;
 		} else if (mailboxItem.flags.contains(new MailboxItemFlag("$Forwarded"))) {
 			em.lastVerbExecuted = LastVerbExecuted.Forward;

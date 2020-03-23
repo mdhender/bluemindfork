@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -39,7 +40,6 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
-import net.bluemind.backend.mail.api.flags.SystemFlag;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.indexing.IndexedMessageBody;
 import net.bluemind.core.api.fault.ServerFault;
@@ -97,12 +97,13 @@ public class AbstractSearchTests {
 		System.out.println("Bootstrap finished....");
 	}
 
-	protected void addEml(long imapUid, String path, SystemFlag... flags) throws IOException {
+	protected void addEml(long imapUid, String path, MailboxItemFlag.System... flags) throws IOException {
 		byte[] eml = Files.toByteArray(new File(path));
 		HashCode hash = Hashing.goodFastHash(128).hashBytes(eml);
 		String emlUid = hash.toString();
 		storeBody(emlUid, eml);
-		storeMessage(mboxUid, userUid, emlUid, imapUid, Arrays.asList(flags));
+		storeMessage(mboxUid, userUid, emlUid, imapUid,
+				Arrays.stream(flags).map(MailboxItemFlag.System::value).collect(Collectors.toList()));
 		ESearchActivator.refreshIndex(INDEX_NAME);
 	}
 

@@ -30,11 +30,6 @@ import com.google.common.base.Splitter;
 
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.cyrus.replication.server.state.MboxRecord.MessageRecordBuilder;
-import net.bluemind.backend.mail.api.flags.SystemFlag.AnsweredFlag;
-import net.bluemind.backend.mail.api.flags.SystemFlag.DeletedFlag;
-import net.bluemind.backend.mail.api.flags.SystemFlag.DraftFlag;
-import net.bluemind.backend.mail.api.flags.SystemFlag.FlaggedFlag;
-import net.bluemind.backend.mail.api.flags.SystemFlag.SeenFlag;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
@@ -177,19 +172,19 @@ public class DtoConverters {
 		for (String f : replRec.flags()) {
 			switch (f.toLowerCase()) {
 			case "\\answered":
-				mr.flags.add(new AnsweredFlag());
+				mr.flags.add(MailboxItemFlag.System.Answered.value());
 				break;
 			case "\\flagged":
-				mr.flags.add(new FlaggedFlag());
+				mr.flags.add(MailboxItemFlag.System.Flagged.value());
 				break;
 			case "\\deleted":
-				mr.flags.add(new DeletedFlag());
+				mr.flags.add(MailboxItemFlag.System.Deleted.value());
 				break;
 			case "\\draft":
-				mr.flags.add(new DraftFlag());
+				mr.flags.add(MailboxItemFlag.System.Draft.value());
 				break;
 			case "\\seen":
-				mr.flags.add(new SeenFlag());
+				mr.flags.add(MailboxItemFlag.System.Seen.value());
 				break;
 			case "\\needscleanup":
 				mr.internalFlags.add(InternalFlag.needsCleanup);

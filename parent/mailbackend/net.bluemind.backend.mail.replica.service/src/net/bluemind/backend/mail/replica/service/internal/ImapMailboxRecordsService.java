@@ -65,11 +65,6 @@ import net.bluemind.backend.mail.api.MessageBody.Header;
 import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.backend.mail.api.flags.FlagUpdate;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
-import net.bluemind.backend.mail.api.flags.SystemFlag.AnsweredFlag;
-import net.bluemind.backend.mail.api.flags.SystemFlag.DeletedFlag;
-import net.bluemind.backend.mail.api.flags.SystemFlag.DraftFlag;
-import net.bluemind.backend.mail.api.flags.SystemFlag.FlaggedFlag;
-import net.bluemind.backend.mail.api.flags.SystemFlag.SeenFlag;
 import net.bluemind.backend.mail.api.utils.PartsWalker;
 import net.bluemind.backend.mail.parsing.EmlBuilder;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
@@ -180,9 +175,9 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 				if (overlay != null) {
 					List<UidRange> ranges = UidRanges.from(overlay.seenUids);
 					if (UidRanges.contains(ranges, adapted.value.imapUid)) {
-						adapted.value.flags.add(new SeenFlag());
+						adapted.value.flags.add(MailboxItemFlag.System.Seen.value());
 					} else {
-						adapted.value.flags.remove(new SeenFlag());
+						adapted.value.flags.remove(MailboxItemFlag.System.Seen.value());
 					}
 				}
 			} catch (SQLException e) {
@@ -198,9 +193,9 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		ItemValue<MailboxItem> toDelete = getCompleteById(id);
 		if (toDelete != null) {
 			Collection<MailboxItemFlag> curFlags = toDelete.value.flags;
-			if (!curFlags.contains(new DeletedFlag())) {				
-				addFlagsImapCommand(null, Arrays.asList(Long.toString(toDelete.value.imapUid)), 
-						new DeletedFlag().flag, new SeenFlag().flag);
+			if (!curFlags.contains(MailboxItemFlag.System.Deleted.value())) {
+				addFlagsImapCommand(null, Arrays.asList(Long.toString(toDelete.value.imapUid)),
+						MailboxItemFlag.System.Deleted.value().flag, MailboxItemFlag.System.Seen.value().flag);
 			}
 		} else {
 			logger.warn("Nothing to delete for id {} in {}.", id, imapFolder);
@@ -237,7 +232,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 					IMailReplicaUids.uniqueId(container.uid));
 			List<MailboxRecord> batch = extraRecords.stream().map(iv -> {
 				MailboxRecord ret = iv.value;
-				ret.flags.add(new DeletedFlag());
+				ret.flags.add(MailboxItemFlag.System.Deleted.value());
 				return ret;
 			}).collect(Collectors.toList());
 			recsApi.updates(batch);
@@ -277,7 +272,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			return mailRewrite(current, mail);
 		} else if (flagsChanged) {
 			Ack version = Ack.create(0L);
-			return overwriteFlagsImapCommand(version, Arrays.asList(Long.toString(mail.imapUid)), 
+			return overwriteFlagsImapCommand(version, Arrays.asList(Long.toString(mail.imapUid)),
 					mail.flags.stream().map(f -> f.flag).toArray(String[]::new));
 		} else {
 			logger.warn("Subject/Headers/Flags dit not change, doing nothing on {} {}.", id, mail);
@@ -424,21 +419,21 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		int addedUid = imapContext.withImapClient((sc, fast) -> {
 			FlagsList fl = new FlagsList();
 			value.flags.forEach(f -> {
-				if (f.equals(new AnsweredFlag())) {
+				if (f.equals(MailboxItemFlag.System.Answered.value())) {
 					fl.add(Flag.ANSWERED);
-				} else if (f.equals(new DeletedFlag())) {
+				} else if (f.equals(MailboxItemFlag.System.Deleted.value())) {
 					fl.add(Flag.DELETED);
-				} else if (f.equals(new DraftFlag())) {
+				} else if (f.equals(MailboxItemFlag.System.Draft.value())) {
 					fl.add(Flag.DRAFT);
-				} else if (f.equals(new FlaggedFlag())) {
+				} else if (f.equals(MailboxItemFlag.System.Flagged.value())) {
 					fl.add(Flag.FLAGGED);
-				} else if (f.equals(new SeenFlag())) {
+				} else if (f.equals(MailboxItemFlag.System.Seen.value())) {
 					fl.add(Flag.SEEN);
 				} else if (f.flag.equals("$Forwarded")) {
-					fl.add(Flag.FORWARDED);					
+					fl.add(Flag.FORWARDED);
 				}
 			});
-			
+
 			SizedStream sizedStream = createEmlStructure(id, null, value.body);
 			logger.info("Append {}bytes EML into {}", sizedStream.size, imapFolder);
 			int added = sc.append(imapFolder, sizedStream.input, fl, value.body.date);
@@ -503,9 +498,9 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 			if (namespace == Namespace.shared && ranges != null) {
 				if (UidRanges.contains(ranges, adapted.value.imapUid)) {
-					adapted.value.flags.add(new SeenFlag());
+					adapted.value.flags.add(MailboxItemFlag.System.Seen.value());
 				} else {
-					adapted.value.flags.remove(new SeenFlag());
+					adapted.value.flags.remove(MailboxItemFlag.System.Seen.value());
 				}
 			}
 
@@ -530,9 +525,9 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			ItemValue<MailboxItem> adapted = adapt(v);
 			if (namespace == Namespace.shared && ranges != null) {
 				if (UidRanges.contains(ranges, adapted.value.imapUid)) {
-					adapted.value.flags.add(new SeenFlag());
+					adapted.value.flags.add(MailboxItemFlag.System.Seen.value());
 				} else {
-					adapted.value.flags.remove(new SeenFlag());
+					adapted.value.flags.remove(MailboxItemFlag.System.Seen.value());
 				}
 			}
 			return adapted;
@@ -570,7 +565,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		if (encoding.equals("base64")) {
 			ret = new Base64InputStream(ret);
 		} else if (encoding.equals("quoted-printable")) {
-			ret = new QuotedPrintableInputStream(ret);			
+			ret = new QuotedPrintableInputStream(ret);
 		}
 		return ret;
 	}
@@ -743,7 +738,8 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		}
 
 		logger.info("Delete {} records in {}", uids.size(), imapFolder);
-		CompletableFuture<ItemChange> repEvent = ReplicationEvents.onRecordUpdate(mailboxUniqueId, Long.parseLong(uids.get(0)));
+		CompletableFuture<ItemChange> repEvent = ReplicationEvents.onRecordUpdate(mailboxUniqueId,
+				Long.parseLong(uids.get(0)));
 
 		long time = System.currentTimeMillis();
 		addFlagsImapCommand(null, uids, Flag.DELETED.toString());
@@ -766,7 +762,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		List<String> imapUidsToMark = multipleByIdWithoutBody(flagUpdate.itemsId).stream()
 				.filter(item -> !item.value.flags.contains(flagUpdate.mailboxItemFlag))
 				.map(item -> Long.toString(item.value.imapUid)).collect(Collectors.toList());
-		
+
 		addFlagsImapCommand(version, imapUidsToMark, flagUpdate.mailboxItemFlag.flag);
 		return version;
 	}
@@ -777,11 +773,11 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		List<String> imapUidsToMark = multipleByIdWithoutBody(flagUpdate.itemsId).stream()
 				.filter(item -> item.value.flags.contains(flagUpdate.mailboxItemFlag))
 				.map(item -> Long.toString(item.value.imapUid)).collect(Collectors.toList());
-		
+
 		removeFlagsImapCommand(version, imapUidsToMark, flagUpdate.mailboxItemFlag.flag);
 		return version;
 	}
-	
+
 	private Ack updateFlagsImapCommand(String prefix, Ack version, List<String> imapUids, String... flags) {
 		if (!imapUids.isEmpty()) {
 			StringBuilder cmd = new StringBuilder("UID STORE ");
@@ -791,15 +787,15 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		}
 		return version;
 	}
-	
+
 	private Ack removeFlagsImapCommand(Ack version, List<String> imapUids, String... flags) {
 		return updateFlagsImapCommand("-", version, imapUids, flags);
 	}
-	
+
 	private Ack addFlagsImapCommand(Ack version, List<String> imapUids, String... flags) {
 		return updateFlagsImapCommand("+", version, imapUids, flags);
 	}
-	
+
 	private Ack overwriteFlagsImapCommand(Ack version, List<String> imapUids, String... flags) {
 		return updateFlagsImapCommand("", version, imapUids, flags);
 	}
