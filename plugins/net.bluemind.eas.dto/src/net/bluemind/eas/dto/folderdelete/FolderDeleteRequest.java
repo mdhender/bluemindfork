@@ -18,8 +18,10 @@
  */
 package net.bluemind.eas.dto.folderdelete;
 
+import net.bluemind.eas.dto.sync.CollectionId;
+
 public class FolderDeleteRequest {
 
 	public String syncKey;
-	public String serverId;
+	public CollectionId serverId;
 }

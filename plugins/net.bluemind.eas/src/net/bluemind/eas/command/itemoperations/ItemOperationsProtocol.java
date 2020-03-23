@@ -131,7 +131,7 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 
 		HierarchyNode sourceFolder = null;
 		try {
-			sourceFolder = store.getHierarchyNode(bs, Integer.parseInt(convId[0]));
+			sourceFolder = store.getHierarchyNode(bs, CollectionId.of(convId[0]));
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			respOp.status = ItemOperationsResponse.Status.ServerError;
@@ -140,7 +140,7 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 
 		HierarchyNode destinationFolder = null;
 		try {
-			destinationFolder = store.getHierarchyNode(bs, Integer.parseInt(op.dstFldId));
+			destinationFolder = store.getHierarchyNode(bs, CollectionId.of(op.dstFldId));
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			respOp.status = ItemOperationsResponse.Status.ServerError;
@@ -162,12 +162,11 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 	}
 
 	private ItemOperationsResponse.EmptyFolderContents emptyFolderContents(EmptyFolderContents op, BackendSession bs) {
-		int collectionId = Integer.parseInt(op.collectionId);
 		boolean deleteSubFolders = op.options != null ? op.options.deleteSubFolders : false;
 		ItemOperationsResponse.Status status = null;
 		try {
-			HierarchyNode node = store.getHierarchyNode(bs, collectionId);
-			backend.getContentsImporter(bs).emptyFolderContent(bs, node, deleteSubFolders);
+			HierarchyNode node = store.getHierarchyNode(bs, op.collectionId);
+			backend.getContentsImporter(bs).emptyFolderContent(bs, node, op.collectionId, deleteSubFolders);
 			status = ItemOperationsResponse.Status.Success;
 		} catch (CollectionNotFoundException e) {
 			// FIXME should we use ObjectNotFound ?
@@ -178,7 +177,7 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 
 		ItemOperationsResponse.EmptyFolderContents opResp = new ItemOperationsResponse.EmptyFolderContents();
 		opResp.status = status;
-		opResp.collectionId = Integer.toString(collectionId);
+		opResp.collectionId = op.collectionId.getValue();
 
 		return opResp;
 	}

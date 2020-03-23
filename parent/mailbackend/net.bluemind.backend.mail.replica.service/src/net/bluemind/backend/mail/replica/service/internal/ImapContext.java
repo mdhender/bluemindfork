@@ -199,4 +199,9 @@ public class ImapContext {
 
 	}
 
+	@Override
+	public String toString() {
+		return "ImapContext [latd=" + latd + ", server=" + server + ", partition=" + partition + ", user=" + user + "]";
+	}
+
 }

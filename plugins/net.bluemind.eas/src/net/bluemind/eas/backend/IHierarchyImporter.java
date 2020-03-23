@@ -18,11 +18,13 @@
  */
 package net.bluemind.eas.backend;
 
+import net.bluemind.eas.dto.sync.CollectionId;
+
 public interface IHierarchyImporter {
 
-	Long importFolderCreate(BackendSession bs, HierarchyNode parent, SyncFolder sf);
+	CollectionId importFolderCreate(BackendSession bs, HierarchyNode parent, SyncFolder sf);
 
-	boolean importFolderDelete(BackendSession bs, int serverId);
+	boolean importFolderDelete(BackendSession bs, CollectionId serverId);
 
 	boolean importFolderUpdate(BackendSession bs, SyncFolder sf);
 

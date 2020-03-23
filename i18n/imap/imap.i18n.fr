@@ -4,6 +4,7 @@
 	"Junk" : "Courrier indésirable",
 	"Drafts" : "Brouillons",
 	"Outbox" : "Boîte d'envoi",
+	"OTHER_MAILBOXES" : "Dossiers publics",
 	"Dossiers partagés" : "Dossiers partagés",
 	"Autres utilisateurs" : "Autres utilisateurs"
 }

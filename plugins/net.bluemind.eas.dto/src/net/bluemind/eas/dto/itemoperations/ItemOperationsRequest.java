@@ -37,7 +37,7 @@ public class ItemOperationsRequest {
 	}
 
 	public static class EmptyFolderContents implements ItemOperation {
-		public String collectionId;
+		public CollectionId collectionId;
 		public Options options;
 
 		public static class Options {

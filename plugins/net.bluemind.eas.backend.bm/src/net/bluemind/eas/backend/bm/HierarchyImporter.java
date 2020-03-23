@@ -25,6 +25,7 @@ import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.backend.HierarchyNode;
 import net.bluemind.eas.backend.IHierarchyImporter;
 import net.bluemind.eas.backend.SyncFolder;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.type.ItemDataType;
 import net.bluemind.eas.exception.ActiveSyncException;
 
@@ -39,29 +40,29 @@ public class HierarchyImporter implements IHierarchyImporter {
 	}
 
 	@Override
-	public Long importFolderCreate(BackendSession bs, HierarchyNode parent, SyncFolder sf) {
-		Long id = null;
+	public CollectionId importFolderCreate(BackendSession bs, HierarchyNode parent, SyncFolder sf) {
+		CollectionId collectionId = null;
 		switch (sf.getPimDataType()) {
 		case CALENDAR:
-			id = folderBackend.createFolder(bs, ItemDataType.CALENDAR, sf.getDisplayName());
+			collectionId = folderBackend.createFolder(bs, ItemDataType.CALENDAR, sf.getDisplayName());
 			break;
 		case CONTACTS:
 			logger.info("Create contacts folder is not implemented");
 			break;
 		case EMAIL:
-			id = folderBackend.createMailFolder(bs, parent, sf);
+			collectionId = folderBackend.createMailFolder(bs, parent, sf);
 			break;
 		case TASKS:
-			id = folderBackend.createFolder(bs, ItemDataType.TASKS, sf.getDisplayName());
+			collectionId = folderBackend.createFolder(bs, ItemDataType.TASKS, sf.getDisplayName());
 			break;
 		default:
 			break;
 		}
-		return id;
+		return collectionId;
 	}
 
 	@Override
-	public boolean importFolderDelete(BackendSession bs, int serverId) {
+	public boolean importFolderDelete(BackendSession bs, CollectionId serverId) {
 		HierarchyNode node = null;
 		boolean ret = false;
 		try {
@@ -78,7 +79,7 @@ public class HierarchyImporter implements IHierarchyImporter {
 				logger.info("Delete contacts folder is not implemented");
 				break;
 			case EMAIL:
-				ret = folderBackend.deleteMailFolder(bs, node);
+				ret = folderBackend.deleteMailFolder(bs, serverId, node.containerUid);
 				break;
 			case TASKS:
 				ret = folderBackend.deleteFolder(bs, ItemDataType.TASKS, node);
@@ -109,7 +110,7 @@ public class HierarchyImporter implements IHierarchyImporter {
 				logger.info("Update contacts folder is not implemented");
 				break;
 			case EMAIL:
-				ret = folderBackend.updateMailFolder(bs, node, sf.getDisplayName());
+				ret = folderBackend.updateMailFolder(bs, node, sf.getServerId(), sf.getDisplayName());
 				break;
 			case TASKS:
 				ret = folderBackend.updateFolder(bs, ItemDataType.TASKS, node, sf.getDisplayName());

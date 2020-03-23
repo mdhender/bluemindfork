@@ -33,6 +33,7 @@ import net.bluemind.eas.dto.base.Callback;
 import net.bluemind.eas.dto.folderupdate.FolderUpdateRequest;
 import net.bluemind.eas.dto.folderupdate.FolderUpdateResponse;
 import net.bluemind.eas.dto.folderupdate.FolderUpdateResponse.Status;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.type.ItemDataType;
 import net.bluemind.eas.exception.CollectionNotFoundException;
 import net.bluemind.eas.impl.Backends;
@@ -75,30 +76,10 @@ public class FolderUpdateProtocol implements IEasProtocol<FolderUpdateRequest, F
 		FolderUpdateResponse response = new FolderUpdateResponse();
 		ISyncStorage store = Backends.internalStorage();
 
-		Integer serverId = null;
-		try {
-			serverId = Integer.parseInt(query.serverId);
-		} catch (NumberFormatException e) {
-			logger.error("Invalid serverId {}", query.serverId);
-			response.status = Status.InvalidRequest;
-			responseHandler.handle(response);
-			return;
-		}
-
-		Integer parentId = null;
-		try {
-			parentId = Integer.parseInt(query.parentId);
-		} catch (NumberFormatException e) {
-			logger.error("Invalid parentId {}", query.parentId);
-			response.status = Status.InvalidRequest;
-			responseHandler.handle(response);
-			return;
-		}
-
 		String displayName = query.displayName;
 
 		try {
-			store.getHierarchyNode(bs, serverId);
+			store.getHierarchyNode(bs, query.serverId);
 		} catch (CollectionNotFoundException e1) {
 			logger.error("ServerId {} does not exist", query.serverId);
 			response.status = Status.DoesNotExist;
@@ -106,7 +87,8 @@ public class FolderUpdateProtocol implements IEasProtocol<FolderUpdateRequest, F
 			return;
 		}
 
-		if (parentId > 0) {
+		CollectionId parentId = query.parentId;
+		if (!"0".equals(parentId.getValue())) {
 			try {
 				store.getHierarchyNode(bs, parentId);
 			} catch (CollectionNotFoundException e1) {
@@ -120,7 +102,7 @@ public class FolderUpdateProtocol implements IEasProtocol<FolderUpdateRequest, F
 		IHierarchyImporter importer = backend.getHierarchyImporter(bs);
 
 		SyncFolder sf = new SyncFolder();
-		sf.setServerId(serverId);
+		sf.setServerId(query.serverId);
 		sf.setParentId(parentId);
 		sf.setDisplayName(displayName);
 

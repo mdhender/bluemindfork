@@ -28,6 +28,7 @@ import org.w3c.dom.NodeList;
 import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.OptionalParams;
 import net.bluemind.eas.dto.folderdelete.FolderDeleteRequest;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.serdes.IEasRequestParser;
 
 public class FolderDeleteRequestParser implements IEasRequestParser<FolderDeleteRequest> {
@@ -54,7 +55,7 @@ public class FolderDeleteRequestParser implements IEasRequestParser<FolderDelete
 				req.syncKey = child.getTextContent();
 				break;
 			case "ServerId":
-				req.serverId = child.getTextContent();
+				req.serverId = CollectionId.of(child.getTextContent());
 				break;
 			default:
 				logger.warn("Not managed FolderDelete child {}", child);

@@ -19,11 +19,15 @@
 package net.bluemind.eas.backend.bm;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import net.bluemind.addressbook.api.IAddressBookUids;
+import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
@@ -42,6 +46,11 @@ import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
+import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.IDirectory;
+import net.bluemind.eas.api.Account;
+import net.bluemind.eas.api.FolderSyncVersions;
 import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.backend.FolderChangeReference;
 import net.bluemind.eas.backend.FolderChanges;
@@ -63,6 +72,7 @@ import net.bluemind.todolist.api.ITodoUids;
 public class FolderBackend extends CoreConnect {
 
 	private final ISyncStorage storage;
+	private static final String OTHER_MAILBOXES = "OTHER_MAILBOXES";
 
 	protected FolderBackend(ISyncStorage storage) {
 		this.storage = storage;
@@ -72,32 +82,39 @@ public class FolderBackend extends CoreConnect {
 	 * @param bs
 	 * @param sf
 	 */
-	public Long createMailFolder(BackendSession bs, HierarchyNode parent, SyncFolder sf) {
-
-		IMailboxFolders mboxFolders = getIMailboxFoldersService(bs);
+	public CollectionId createMailFolder(BackendSession bs, HierarchyNode parent, SyncFolder sf) {
 
 		MailboxFolder folder = new MailboxFolder();
 		if (parent != null) {
 			folder.parentUid = IMailReplicaUids.uniqueId(parent.containerUid);
 		}
 		folder.name = sf.getDisplayName();
-		ItemIdentifier itemId = mboxFolders.createBasic(folder);
+		ItemIdentifier itemId = getIMailboxFoldersService(bs, sf.getParentId()).createBasic(folder);
 
-		// ContainerNode internalId as collectionId
-		IContainersFlatHierarchy flatH = getService(bs, IContainersFlatHierarchy.class, bs.getUser().getDomain(),
-				bs.getUser().getUid());
+		long parentId = 0;
+		String mailboxUid = bs.getUser().getUid();
+		if (sf.getParentId().getSubscriptionId().isPresent()) {
+			IOwnerSubscriptions subscriptionsService = getService(bs, IOwnerSubscriptions.class,
+					bs.getUser().getDomain(), bs.getUser().getUid());
+			ItemValue<ContainerSubscriptionModel> sub = subscriptionsService
+					.getCompleteById(sf.getParentId().getSubscriptionId().get());
+			mailboxUid = sub.value.owner;
+			parentId = sf.getParentId().getSubscriptionId().get();
+		}
+		IContainersFlatHierarchy flatH = getAdmin0Service(bs, IContainersFlatHierarchy.class, bs.getUser().getDomain(),
+				mailboxUid);
 		String nodeUid = ContainerHierarchyNode.uidFor(IMailReplicaUids.mboxRecords(itemId.uid),
 				IMailReplicaUids.MAILBOX_RECORDS, bs.getUser().getDomain());
 		ItemValue<ContainerHierarchyNode> node = flatH.getComplete(nodeUid);
 
-		return node.internalId;
+		return CollectionId.of(parentId, Long.toString(node.internalId));
 
 	}
 
-	public boolean deleteMailFolder(BackendSession bs, HierarchyNode node) {
-		IMailboxFolders mboxFolders = getIMailboxFoldersService(bs);
+	public boolean deleteMailFolder(BackendSession bs, CollectionId collectionId, String containerUid) {
+		IMailboxFolders mboxFolders = getIMailboxFoldersService(bs, collectionId);
 
-		String uniqueId = IMailReplicaUids.uniqueId(node.containerUid);
+		String uniqueId = IMailReplicaUids.uniqueId(containerUid);
 		ItemValue<MailboxFolder> folder = mboxFolders.getComplete(uniqueId);
 
 		mboxFolders.deleteById(folder.internalId);
@@ -110,9 +127,10 @@ public class FolderBackend extends CoreConnect {
 	 * @param sf
 	 * @return
 	 */
-	public boolean updateMailFolder(BackendSession bs, HierarchyNode node, String displayName) {
+	public boolean updateMailFolder(BackendSession bs, HierarchyNode node, CollectionId collectionId,
+			String displayName) {
 
-		IMailboxFolders mboxFolders = getIMailboxFoldersService(bs);
+		IMailboxFolders mboxFolders = getIMailboxFoldersService(bs, collectionId);
 
 		String uniqueId = IMailReplicaUids.uniqueId(node.containerUid);
 		ItemValue<MailboxFolder> folder = mboxFolders.getComplete(uniqueId);
@@ -130,7 +148,7 @@ public class FolderBackend extends CoreConnect {
 	 * @param sf
 	 * @return
 	 */
-	public Long createFolder(BackendSession bs, ItemDataType type, String displayName) {
+	public CollectionId createFolder(BackendSession bs, ItemDataType type, String displayName) {
 		return storage.createFolder(bs, type, displayName);
 	}
 
@@ -159,6 +177,9 @@ public class FolderBackend extends CoreConnect {
 	 * @return
 	 */
 	public FolderChanges getChanges(BackendSession bs, SyncState state) throws Exception {
+
+		Account account = Account.create(bs.getUser().getUid(), bs.getDevId());
+
 		IContainersFlatHierarchy flatH = getService(bs, IContainersFlatHierarchy.class, bs.getUser().getDomain(),
 				bs.getUser().getUid());
 
@@ -169,16 +190,20 @@ public class FolderBackend extends CoreConnect {
 		acceptedContainers.add(IAddressBookUids.TYPE);
 		acceptedContainers.add(ITodoUids.TYPE);
 
-		IMailboxFolders mboxFolders = getIMailboxFoldersService(bs);
+		CyrusPartition part = CyrusPartition.forServerAndDomain(bs.getUser().getDataLocation(),
+				bs.getUser().getDomain());
+		IMailboxFolders mboxFolders = getService(bs, IMailboxFolders.class, part.name,
+				"user." + bs.getUser().getUid().replace('.', '^'));
 
 		ContainerChangeset<ItemVersion> changes = flatH.filteredChangesetById(state.version,
 				ItemFlagFilter.create().mustNot(ItemFlag.Deleted));
 
-		IOwnerSubscriptions subs = getService(bs, IOwnerSubscriptions.class, bs.getUser().getDomain(),
+		IOwnerSubscriptions subscriptionsService = getService(bs, IOwnerSubscriptions.class, bs.getUser().getDomain(),
 				bs.getUser().getUid());
 
-		List<String> offlineContainers = subs.list().stream().filter(container -> container.value.offlineSync)
-				.map(c -> c.value.containerUid).collect(Collectors.toList());
+		List<String> offlineContainers = subscriptionsService.list().stream()
+				.filter(container -> container.value.offlineSync).map(c -> c.value.containerUid)
+				.collect(Collectors.toList());
 
 		if (!changes.created.isEmpty()) {
 			List<ItemValue<ContainerHierarchyNode>> created = flatH
@@ -215,12 +240,44 @@ public class FolderBackend extends CoreConnect {
 
 		ret.version = changes.version;
 
-		// owner subscription
-		ContainerChangeset<String> allSubs = subs.changeset(state.subscriptionVersion);
-		ret.subscriptionVersion = allSubs.version;
+		final Map<String, String> subscribedMailboxVersions = new HashMap<>();
 
-		List<ItemValue<ContainerSubscriptionModel>> brandNew = subs.getMultiple(allSubs.created);
-		brandNew.stream().filter(c -> !"mailboxacl".equals(c.value.containerType)).forEach(container -> {
+		// OTHER MAILBOXES
+		if (state.version == 0) {
+			FolderChangeReference otherMailboxes = new FolderChangeReference();
+			otherMailboxes.displayName = getTranslatedDisplayName(bs, OTHER_MAILBOXES);
+			otherMailboxes.changeType = ChangeType.ADD;
+			otherMailboxes.parentId = "0";
+			otherMailboxes.folderId = OTHER_MAILBOXES;
+			otherMailboxes.itemType = FolderType.USER_CREATED_EMAIL_FOLDER;
+			ret.items.add(otherMailboxes);
+		} else {
+			// fetch changes from subscribed mailbox
+			Map<String, String> mailboxVersion = storage.getFolderSyncVersions(account);
+			mailboxVersion.forEach((id, version) -> {
+				ItemValue<ContainerSubscriptionModel> container = subscriptionsService
+						.getCompleteById(Long.parseLong(id));
+				try {
+					mailboxSubscriptionChanges(bs, ret, subscribedMailboxVersions, container, Long.parseLong(version));
+				} catch (Exception e) {
+					logger.warn("Failed to fetch changes for shared mailbox {}", container);
+				}
+			});
+		}
+
+		// owner subscription
+		ContainerChangeset<String> userSubscriptions = subscriptionsService.changeset(state.subscriptionVersion);
+		ret.subscriptionVersion = userSubscriptions.version;
+
+		List<ItemValue<ContainerSubscriptionModel>> newUserSubscriptions = subscriptionsService
+				.getMultiple(userSubscriptions.created);
+
+		// new mailbox subscription
+		newUserSubscriptions.stream().filter(c -> "mailboxacl".equals(c.value.containerType)).forEach(container -> {
+			mailboxSubscriptionChanges(bs, ret, subscribedMailboxVersions, container, 0L);
+		});
+
+		newUserSubscriptions.stream().filter(c -> !"mailboxacl".equals(c.value.containerType)).forEach(container -> {
 			if (container.value.offlineSync) {
 				String nodeUid = ContainerHierarchyNode.uidFor(container.value.containerUid,
 						container.value.containerType, bs.getUser().getDomain());
@@ -240,49 +297,62 @@ public class FolderBackend extends CoreConnect {
 			}
 		});
 
-		List<ItemValue<ContainerSubscriptionModel>> brandNewUpdated = subs.getMultiple(allSubs.updated);
-		brandNewUpdated.stream().filter(c -> !"mailboxacl".equals(c.value.containerType)).forEach(container -> {
-			String nodeUid = ContainerHierarchyNode.uidFor(container.value.containerUid, container.value.containerType,
-					bs.getUser().getDomain());
+		List<ItemValue<ContainerSubscriptionModel>> updatedUserSubscriptions = subscriptionsService
+				.getMultiple(userSubscriptions.updated);
+		updatedUserSubscriptions.stream().filter(c -> !"mailboxacl".equals(c.value.containerType))
+				.forEach(container -> {
+					String nodeUid = ContainerHierarchyNode.uidFor(container.value.containerUid,
+							container.value.containerType, bs.getUser().getDomain());
 
-			IContainersFlatHierarchy ownerHierarchy = getAdmin0Service(bs, IContainersFlatHierarchy.class,
-					bs.getUser().getDomain(), container.value.owner);
+					IContainersFlatHierarchy ownerHierarchy = getAdmin0Service(bs, IContainersFlatHierarchy.class,
+							bs.getUser().getDomain(), container.value.owner);
 
-			ItemValue<ContainerHierarchyNode> node = ownerHierarchy.getComplete(nodeUid);
-			if (node != null) {
-				FolderChangeReference f = null;
-				if (container.value.offlineSync) {
-					f = getHierarchyItemSubscriptionChange(bs, container, node);
-				} else {
-					f = getDeletedItemChange(
-							CollectionId.of(container.internalId, Long.toString(node.internalId)).getValue());
-				}
-				Optional.ofNullable(f).ifPresent(item -> ret.items.add(item));
-			} else {
-				logger.warn("[{}] update subscription: no node uid {} for container {} in hierarchy. type: {}",
-						bs.getUser().getDefaultEmail(), nodeUid, container, container.value.containerType);
-			}
-		});
+					ItemValue<ContainerHierarchyNode> node = ownerHierarchy.getComplete(nodeUid);
+					if (node != null) {
+						FolderChangeReference f = null;
+						if (container.value.offlineSync) {
+							f = getHierarchyItemSubscriptionChange(bs, container, node);
+						} else {
+							f = getDeletedItemChange(
+									CollectionId.of(container.internalId, Long.toString(node.internalId)).getValue());
+						}
+						Optional.ofNullable(f).ifPresent(item -> ret.items.add(item));
+					} else {
+						logger.warn("[{}] update subscription: no node uid {} for container {} in hierarchy. type: {}",
+								bs.getUser().getDefaultEmail(), nodeUid, container, container.value.containerType);
+					}
+				});
 
-		if (!allSubs.deleted.isEmpty()) {
+		if (!userSubscriptions.deleted.isEmpty()) {
 			IContainers containers = getService(bs, IContainers.class);
-			allSubs.deleted.forEach(uid -> {
+			userSubscriptions.deleted.forEach(uid -> {
 				String containerUid = uid.replace(String.format("sub-of-%s-to-", bs.getUser().getUid()), "");
 				try {
 					ContainerDescriptor cd = containers.get(containerUid);
-					String nodeUid = ContainerHierarchyNode.uidFor(containerUid, cd.type, bs.getUser().getDomain());
-
-					IContainersFlatHierarchy ownerHierarchy = getAdmin0Service(bs, IContainersFlatHierarchy.class,
-							bs.getUser().getDomain(), cd.owner);
-
-					ItemValue<ContainerHierarchyNode> h = ownerHierarchy.getComplete(nodeUid);
-					if (h != null) {
-						FolderChangeReference f = getDeletedItemChange(
-								CollectionId.of(cd.internalId, Long.toString(h.internalId)).getValue());
-						ret.items.add(f);
+					if (cd.type.equals("mailboxacl")) {
+						// Remove mailbox subsciption
+						IContainersFlatHierarchy hierarchyService = getAdmin0Service(bs, IContainersFlatHierarchy.class,
+								bs.getUser().getDomain(), cd.owner);
+						ContainerChangeset<Long> all = hierarchyService.changesetById(0L);
+						all.created.forEach(folderId -> {
+							String collectionId = CollectionId.of(cd.internalId, Long.toString(folderId)).getValue();
+							ret.items.add(getDeletedItemChange(collectionId));
+						});
+						subscribedMailboxVersions.remove(Long.toString(cd.internalId));
 					} else {
-						logger.warn("[{}] delete subscription: no node uid {} for container {} in hierarchy",
-								bs.getUser().getDefaultEmail(), nodeUid, cd);
+						String nodeUid = ContainerHierarchyNode.uidFor(containerUid, cd.type, bs.getUser().getDomain());
+						IContainersFlatHierarchy ownerHierarchy = getAdmin0Service(bs, IContainersFlatHierarchy.class,
+								bs.getUser().getDomain(), cd.owner);
+
+						ItemValue<ContainerHierarchyNode> h = ownerHierarchy.getComplete(nodeUid);
+						if (h != null) {
+							FolderChangeReference f = getDeletedItemChange(
+									CollectionId.of(cd.internalId, Long.toString(h.internalId)).getValue());
+							ret.items.add(f);
+						} else {
+							logger.warn("[{}] delete subscription: no node uid {} for container {} in hierarchy",
+									bs.getUser().getDefaultEmail(), nodeUid, cd);
+						}
 					}
 				} catch (ServerFault sf) {
 					if (sf.getCode() == ErrorCode.NOT_FOUND) {
@@ -296,6 +366,95 @@ public class FolderBackend extends CoreConnect {
 			});
 		}
 
+		if (!subscribedMailboxVersions.isEmpty()) {
+			storage.setFolderSyncVersions(FolderSyncVersions.create(account, subscribedMailboxVersions));
+		}
+
+		return ret;
+	}
+
+	private void mailboxSubscriptionChanges(BackendSession bs, FolderChanges ret,
+			final Map<String, String> subscribedMailboxVersions, ItemValue<ContainerSubscriptionModel> container,
+			long version) {
+
+		String mailboxRoot;
+		IDirectory directoryService = getAdmin0Service(bs, IDirectory.class, bs.getUser().getDomain());
+		DirEntry dirEntry = directoryService.findByEntryUid(container.value.owner);
+		String rootFolderName;
+		if (dirEntry.kind == Kind.USER) {
+			mailboxRoot = "user." + dirEntry.entryUid.replace('.', '^');
+			rootFolderName = "INBOX";
+		} else {
+			mailboxRoot = dirEntry.entryUid.replace('.', '^');
+			rootFolderName = dirEntry.displayName;
+		}
+		CyrusPartition part = CyrusPartition.forServerAndDomain(dirEntry.dataLocation, bs.getUser().getDomain());
+		IMailboxFolders foldersService = getService(bs, IMailboxFolders.class, part.name, mailboxRoot);
+
+		IContainersFlatHierarchy hierarchyService = getAdmin0Service(bs, IContainersFlatHierarchy.class,
+				bs.getUser().getDomain(), container.value.owner);
+		ContainerChangeset<Long> changes = hierarchyService.changesetById(version);
+
+		// Fetch root folder
+		ItemValue<MailboxFolder> folder = foldersService.all().stream()
+				.filter(f -> f.value.parentUid == null && f.value.fullName.equals(rootFolderName)).findFirst().get();
+
+		String cont = IMailReplicaUids.mboxRecords(folder.uid);
+		String hNodeUid = ContainerHierarchyNode.uidFor(cont, IMailReplicaUids.MAILBOX_RECORDS,
+				bs.getUser().getDomain());
+
+		ItemValue<ContainerHierarchyNode> root = hierarchyService.getComplete(hNodeUid);
+
+		// FIXME toString
+		subscribedMailboxVersions.put(Long.toString(container.internalId), Long.toString(changes.version));
+
+		List<ItemValue<ContainerHierarchyNode>> created = hierarchyService.getMultipleById(changes.created);
+		ret.items.addAll(sharedMailboxHierarchyChange(bs, container, hierarchyService, foldersService, created,
+				ChangeType.ADD, dirEntry, version, root));
+
+		List<ItemValue<ContainerHierarchyNode>> updated = hierarchyService.getMultipleById(changes.updated);
+		ret.items.addAll(sharedMailboxHierarchyChange(bs, container, hierarchyService, foldersService, updated,
+				ChangeType.CHANGE, dirEntry, version, root));
+
+		changes.deleted.forEach(folderId -> {
+			String collectionId = CollectionId.of(container.internalId, Long.toString(folderId)).getValue();
+			ret.items.add(getDeletedItemChange(collectionId));
+		});
+	}
+
+	private LinkedHashSet<FolderChangeReference> sharedMailboxHierarchyChange(BackendSession bs,
+			ItemValue<ContainerSubscriptionModel> container, IContainersFlatHierarchy sharedMboxFlatHierarchy,
+			IMailboxFolders shadedMboxFolders, List<ItemValue<ContainerHierarchyNode>> items, ChangeType changeType,
+			DirEntry dirEntry, long version, ItemValue<ContainerHierarchyNode> rootFolder) {
+
+		LinkedHashSet<FolderChangeReference> ret = new LinkedHashSet<>();
+
+		String root = CollectionId.of(container.internalId, Long.toString(rootFolder.internalId)).getValue();
+
+		if (changeType == ChangeType.ADD && version == 0) {
+			FolderChangeReference folder = new FolderChangeReference();
+			folder.displayName = dirEntry.displayName;
+			folder.itemType = FolderType.USER_CREATED_EMAIL_FOLDER;
+			folder.folderId = root;
+			folder.parentId = OTHER_MAILBOXES;
+			folder.changeType = ChangeType.ADD;
+			ret.add(folder);
+			items.removeIf(item -> item.internalId == rootFolder.internalId);
+		}
+
+		items.stream().filter(item -> IMailReplicaUids.MAILBOX_RECORDS.equals(item.value.containerType))
+				.forEach(item -> {
+					FolderChangeReference folder = getMailHierarchyItemChange(bs, shadedMboxFolders,
+							sharedMboxFlatHierarchy, item, changeType);
+					if (folder.parentId.equals("0")) {
+						folder.parentId = root;
+					} else {
+						folder.parentId = CollectionId.of(container.internalId, folder.parentId).getValue();
+					}
+					folder.folderId = CollectionId.of(container.internalId, folder.folderId).getValue();
+					folder.itemType = FolderType.USER_CREATED_EMAIL_FOLDER;
+					ret.add(folder);
+				});
 		return ret;
 	}
 
@@ -312,69 +471,69 @@ public class FolderBackend extends CoreConnect {
 		FolderChangeReference folderChangeRef = new FolderChangeReference();
 		String dn = h.displayName;
 
-		switch (h.displayName) {
-		case "INBOX":
-			folderChangeRef.itemType = FolderType.DEFAULT_INBOX_FOLDER;
-			dn = getTranslatedDisplayName(bs, h);
-			break;
-		case "Sent":
-			folderChangeRef.itemType = FolderType.DEFAULT_SENT_EMAIL_FOLDER;
-			dn = getTranslatedDisplayName(bs, h);
-			break;
-		case "Drafts":
-			folderChangeRef.itemType = FolderType.DEFAULT_DRAFTS_FOLDERS;
-			dn = getTranslatedDisplayName(bs, h);
-			break;
-		case "Trash":
-			folderChangeRef.itemType = FolderType.DEFAULT_DELETED_ITEMS_FOLDERS;
-			dn = getTranslatedDisplayName(bs, h);
-			break;
-		case "Outbox":
-			folderChangeRef.itemType = FolderType.DEFAULT_OUTBOX_FOLDER;
-			dn = getTranslatedDisplayName(bs, h);
-			break;
-		default:
-			folderChangeRef.itemType = FolderType.USER_CREATED_EMAIL_FOLDER;
-			break;
+		long parentId = 0;
+
+		String uniqueId = IMailReplicaUids.uniqueId(h.value.containerUid);
+		ItemValue<MailboxFolder> folder = mboxFolders.getComplete(uniqueId);
+		if (folder == null || folder.value == null) {
+			logger.error("Fail to fetch folder {}", uniqueId);
+			return null;
+		}
+		if (folder.flags.contains(ItemFlag.Deleted)) {
+			logger.error("Mail folder '{}' is marked as deleted", h.value.name);
+			return null;
+		}
+		if (folder.value.parentUid != null) {
+			String parentUid = ContainerHierarchyNode.uidFor(IMailReplicaUids.mboxRecords(folder.value.parentUid),
+					IMailReplicaUids.MAILBOX_RECORDS, bs.getUser().getDomain());
+			parentId = flatH.getComplete(parentUid).internalId;
 		}
 
-		folderChangeRef.displayName = dn;
-		folderChangeRef.changeType = changeType;
-
-		long parentId = 0;
-		if (folderChangeRef.itemType == FolderType.USER_CREATED_EMAIL_FOLDER) {
-
+		if (parentId == 0) {
+			switch (h.displayName) {
+			case "INBOX":
+				folderChangeRef.itemType = FolderType.DEFAULT_INBOX_FOLDER;
+				dn = getTranslatedDisplayName(bs, h.displayName);
+				break;
+			case "Sent":
+				folderChangeRef.itemType = FolderType.DEFAULT_SENT_EMAIL_FOLDER;
+				dn = getTranslatedDisplayName(bs, h.displayName);
+				break;
+			case "Drafts":
+				folderChangeRef.itemType = FolderType.DEFAULT_DRAFTS_FOLDERS;
+				dn = getTranslatedDisplayName(bs, h.displayName);
+				break;
+			case "Trash":
+				folderChangeRef.itemType = FolderType.DEFAULT_DELETED_ITEMS_FOLDERS;
+				dn = getTranslatedDisplayName(bs, h.displayName);
+				break;
+			case "Outbox":
+				folderChangeRef.itemType = FolderType.DEFAULT_OUTBOX_FOLDER;
+				dn = getTranslatedDisplayName(bs, h.displayName);
+				break;
+			default:
+				folderChangeRef.itemType = FolderType.USER_CREATED_EMAIL_FOLDER;
+				break;
+			}
+		} else {
 			if (Translate.isTranslated(bs.getLang(), dn)) {
 				logger.error("Folder '{}' conflicts with system folder, skip it", dn);
 				return null;
 			}
-
-			String uniqueId = IMailReplicaUids.uniqueId(h.value.containerUid);
-			ItemValue<MailboxFolder> folder = mboxFolders.getComplete(uniqueId);
-			if (folder == null || folder.value == null) {
-				logger.error("Fail to fetch folder {}", uniqueId);
-				return null;
-			}
-			if (folder.flags.contains(ItemFlag.Deleted)) {
-				logger.error("Mail folder '{}' is marked as deleted", h.value.name);
-				return null;
-			}
-			if (folder.value.parentUid != null) {
-				String parentUid = ContainerHierarchyNode.uidFor(IMailReplicaUids.mboxRecords(folder.value.parentUid),
-						IMailReplicaUids.MAILBOX_RECORDS, bs.getUser().getDomain());
-				parentId = flatH.getComplete(parentUid).internalId;
-			}
+			folderChangeRef.itemType = FolderType.USER_CREATED_EMAIL_FOLDER;
 		}
+
+		folderChangeRef.displayName = dn;
+		folderChangeRef.changeType = changeType;
 		folderChangeRef.parentId = Long.toString(parentId);
 		folderChangeRef.folderId = Long.toString(h.internalId);
-
 		logger.debug("Add mail folder {} {}", changeType, folderChangeRef);
 
 		return folderChangeRef;
 	}
 
-	private String getTranslatedDisplayName(BackendSession bs, ItemValue<ContainerHierarchyNode> h) {
-		String dn = UTF7Converter.decode(Translate.toUser(bs.getLang(), h.displayName));
+	private String getTranslatedDisplayName(BackendSession bs, String displayName) {
+		String dn = UTF7Converter.decode(Translate.toUser(bs.getLang(), displayName));
 		if (dn.startsWith("\"")) {
 			return dn.substring(1, dn.length() - 1);
 		}
@@ -513,8 +672,7 @@ public class FolderBackend extends CoreConnect {
 		return f;
 	}
 
-	public HierarchyNode getHierarchyNode(BackendSession bs, Integer collectionId) throws ActiveSyncException {
+	public HierarchyNode getHierarchyNode(BackendSession bs, CollectionId collectionId) throws ActiveSyncException {
 		return storage.getHierarchyNode(bs, collectionId);
 	}
-
 }

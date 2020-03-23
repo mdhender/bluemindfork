@@ -47,6 +47,7 @@ import net.bluemind.eas.dto.email.EmailResponse;
 import net.bluemind.eas.dto.search.SearchRequest;
 import net.bluemind.eas.dto.search.SearchResult;
 import net.bluemind.eas.dto.search.StoreName;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.exception.CollectionNotFoundException;
 import net.bluemind.eas.impl.Backends;
 import net.bluemind.eas.search.ISearchSource;
@@ -78,9 +79,8 @@ public class BmSearchMailbox implements ISearchSource {
 				return new Results<SearchResult>();
 			}
 		} else {
-			Integer collectionId = Integer.parseInt(request.store.query.and.collectionId);
 			try {
-				folder = store.getMailFolder(bs, collectionId);
+				folder = store.getMailFolder(bs, CollectionId.of(request.store.query.and.collectionId));
 			} catch (CollectionNotFoundException e) {
 				logger.error(e.getMessage(), e);
 				return new Results<SearchResult>();
@@ -130,7 +130,7 @@ public class BmSearchMailbox implements ISearchSource {
 		final SearchResult res = new SearchResult();
 		res.collectionId = folder.collectionId;
 		res.clazz = "Email";
-		res.longId = (long) res.collectionId << 32 | mailUid & 0xFFFFFFFFL;
+		res.longId = (long) res.collectionId.getFolderId() << 32 | mailUid & 0xFFFFFFFFL;
 		res.searchProperties.email = appData.metadata.email;
 		final CountDownLatch cdl = new CountDownLatch(1);
 		appData.body.load(new Callback<AirSyncBaseResponse>() {

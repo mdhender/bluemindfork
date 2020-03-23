@@ -463,11 +463,11 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		if (ns == Namespace.users) {
 			return folder.fullName;
 		} else {
-			if (root.name.equals(folder.fullName)) {
+			String root = container.name.substring(7);
+			if (root.equals(folder.fullName)) {
 				// root
-				return "Dossiers partagés/" + root.name;
+				return "Dossiers partagés/" + root;
 			} else {
-				String root = container.name.substring(7);
 				return "Dossiers partagés/" + root + "/" + folder.fullName;
 			}
 		}

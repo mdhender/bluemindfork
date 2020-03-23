@@ -24,6 +24,7 @@ import net.bluemind.eas.dto.contact.ContactResponse;
 import net.bluemind.eas.dto.documentlibrary.DocumentLibraryResponse;
 import net.bluemind.eas.dto.email.EmailResponse;
 import net.bluemind.eas.dto.notes.NotesResponse;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.tasks.TasksResponse;
 
 public class SearchResult {
@@ -42,7 +43,7 @@ public class SearchResult {
 
 	public String clazz;
 	public Long longId;
-	public Integer collectionId;
+	public CollectionId collectionId;
 	public SearchProperties searchProperties = new SearchProperties();
 
 }

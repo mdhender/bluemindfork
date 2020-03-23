@@ -25,8 +25,11 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.elasticsearch.common.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import net.bluemind.eas.dto.sync.CollectionId;
 
 public class AttachmentHelper {
 
@@ -38,9 +41,10 @@ public class AttachmentHelper {
 	public final static String CONTENT_TYPE = "contentType";
 	public final static String CONTENT_TRANSFER_ENCODING = "contentTransferEncoding";
 
-	public static String getAttachmentId(int collectionId, long mailboxItemId, String mimePartAddress,
+	public static String getAttachmentId(CollectionId collectionId, long mailboxItemId, String mimePartAddress,
 			String contentType, String contentTransferEncoding) {
-		String ret = collectionId + "_" + mailboxItemId + "_" + mimePartAddress + "_" + toB64(contentType);
+
+		String ret = collectionId.getValue() + "_" + mailboxItemId + "_" + mimePartAddress + "_" + toB64(contentType);
 		if (contentTransferEncoding != null && !contentTransferEncoding.isEmpty()) {
 			String cte = toB64(contentTransferEncoding);
 			ret += "_" + cte;
@@ -60,13 +64,26 @@ public class AttachmentHelper {
 		} catch (UnsupportedEncodingException e) {
 			logger.error(e.getMessage(), e);
 		}
+
+		Map<String, String> data = new HashMap<String, String>();
+
+		String[] col = attachmentId.split("__");
+		String sub = null;
+		if (col.length == 2) {
+			sub = col[0];
+			attachmentId = col[1];
+		}
+
 		String[] tab = attachmentId.split("_");
 		if (tab.length < 4) {
 			logger.error("Invalid attachmentId {}", attachmentId);
 			return null;
 		}
-		Map<String, String> data = new HashMap<String, String>();
-		data.put(COLLECTION_ID, tab[0]);
+		if (Strings.isNullOrEmpty(sub)) {
+			data.put(COLLECTION_ID, tab[0]);
+		} else {
+			data.put(COLLECTION_ID, CollectionId.of(Long.parseLong(sub), tab[0]).getValue());
+		}
 		data.put(MESSAGE_ID, tab[1]);
 		data.put(MIME_PART_ADDRESS, tab[2]);
 		data.put(CONTENT_TYPE, fromB64(tab[3]));

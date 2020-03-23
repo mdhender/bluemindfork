@@ -17,20 +17,28 @@
   */
 package net.bluemind.eas.backend;
 
+import net.bluemind.eas.dto.sync.CollectionId;
+
 public class MailFolder {
 
-	public final int collectionId;
+	public final CollectionId collectionId;
 	public final String uid;
 	public final String name;
 	public final String fullName;
 	public final String parentUid;
 
-	public MailFolder(int collectionId, String uid, String name, String fullName, String parentUid) {
+	public MailFolder(CollectionId collectionId, String uid, String name, String fullName, String parentUid) {
 		this.collectionId = collectionId;
 		this.uid = uid;
 		this.name = name;
 		this.fullName = fullName;
 		this.parentUid = parentUid;
+	}
+
+	@Override
+	public String toString() {
+		return "MailFolder [collectionId=" + collectionId + ", uid=" + uid + ", name=" + name + ", fullName=" + fullName
+				+ ", parentUid=" + parentUid + "]";
 	}
 
 }

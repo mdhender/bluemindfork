@@ -392,7 +392,7 @@ public class CalendarBackend extends CoreConnect {
 
 			}
 
-			return getServerId(f.collectionId, vevent.uid);
+			return CollectionItem.of(f.collectionId, vevent.uid).toString();
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}

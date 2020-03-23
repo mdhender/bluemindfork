@@ -41,6 +41,7 @@ import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
 import com.google.common.io.ByteStreams;
 
+import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MailboxFolder;
@@ -55,6 +56,8 @@ import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
+import net.bluemind.core.container.api.ContainerSubscriptionModel;
+import net.bluemind.core.container.api.IOwnerSubscriptions;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
@@ -122,7 +125,7 @@ public class MailBackend extends CoreConnect {
 				? Optional.of(state.date)
 				: Optional.empty();
 
-		MailFolder folder = storage.getMailFolder(bs, collectionId.getFolderId());
+		MailFolder folder = storage.getMailFolder(bs, collectionId);
 
 		IMailboxItems service = getMailboxItemsService(bs, folder.uid);
 
@@ -209,7 +212,7 @@ public class MailBackend extends CoreConnect {
 			for (CollectionItem serverId : serverIds) {
 				String collectionId = serverId.collectionId.getValue();
 				if (!collections.containsKey(collectionId)) {
-					MailFolder folder = storage.getMailFolder(bs, serverId.collectionId.getFolderId());
+					MailFolder folder = storage.getMailFolder(bs, serverId.collectionId);
 					collections.put(collectionId, folder);
 					items.put(folder, new ArrayList<Integer>());
 				}
@@ -221,18 +224,33 @@ public class MailBackend extends CoreConnect {
 			for (Entry<MailFolder, List<Integer>> entry : items.entrySet()) {
 				MailFolder folder = entry.getKey();
 				if (moveToTrash) {
-					IMailboxFolders service = getIMailboxFoldersService(bs);
+
+					String mailboxUid = bs.getUser().getUid();
+					if (folder.collectionId.getSubscriptionId().isPresent()) {
+						IOwnerSubscriptions subscriptionsService = getService(bs, IOwnerSubscriptions.class,
+								bs.getUser().getDomain(), bs.getUser().getUid());
+						ItemValue<ContainerSubscriptionModel> sub = subscriptionsService
+								.getCompleteById(folder.collectionId.getSubscriptionId().get());
+						mailboxUid = sub.value.owner;
+					}
+					IMailboxFolders service = getIMailboxFoldersService(bs, folder.collectionId);
 					ItemValue<MailboxFolder> source = service.getComplete(folder.uid);
+					HierarchyNode sourceHierarchyNode = storage.getHierarchyNode(bs.getUser().getDomain(), mailboxUid,
+							ContainerHierarchyNode.uidFor(IMailReplicaUids.mboxRecords(source.uid), "mailbox_records",
+									bs.getUser().getDomain()));
 
-					ItemValue<MailboxFolder> trash = service.byName("Trash");
-
-					HierarchyNode dstCollection = storage.getHierarchyNode(bs.getUser().getDomain(),
+					CyrusPartition part = CyrusPartition.forServerAndDomain(bs.getUser().getDataLocation(),
+							bs.getUser().getDomain());
+					IMailboxFolders mboxFolders = getService(bs, IMailboxFolders.class, part.name,
+							"user." + bs.getUser().getUid().replace('.', '^'));
+					ItemValue<MailboxFolder> trash = mboxFolders.byName("Trash");
+					HierarchyNode trashHierarchyNode = storage.getHierarchyNode(bs.getUser().getDomain(),
 							bs.getUser().getUid(),
 							ContainerHierarchyNode.uidFor(IMailReplicaUids.mboxRecords(trash.uid), "mailbox_records",
 									bs.getUser().getDomain()));
 
-					emailManager.moveItems(bs, source.internalId, trash.internalId, entry.getValue(),
-							folder.collectionId, dstCollection.collectionId);
+					emailManager.moveItems(bs, sourceHierarchyNode, trashHierarchyNode,
+							items.get(folder).stream().map(i -> (long) i).collect(Collectors.toList()));
 				} else {
 					IMailboxItems service = getMailboxItemsService(bs, folder.uid);
 					entry.getValue().forEach(id -> {
@@ -257,7 +275,10 @@ public class MailBackend extends CoreConnect {
 		if (serverId.isPresent()) {
 			CollectionItem ci = CollectionItem.of(serverId.get());
 
-			MailFolder folder = storage.getMailFolder(bs, collectionId.getFolderId());
+			MailFolder folder = storage.getMailFolder(bs, collectionId);
+
+			logger.info("THIS IS FOLDER {}", folder);
+
 			IMailboxItems service = getMailboxItemsService(bs, folder.uid);
 
 			long id = Long.parseLong(ci.itemId);
@@ -287,6 +308,7 @@ public class MailBackend extends CoreConnect {
 			try {
 				service.updateById(id, item.value);
 			} catch (ServerFault sf) {
+				sf.printStackTrace();
 				if (sf.getCode() != ErrorCode.TIMEOUT) {
 					throw sf;
 				}
@@ -300,13 +322,8 @@ public class MailBackend extends CoreConnect {
 
 	public List<MoveItemsResponse.Response> move(BackendSession bs, HierarchyNode srcFolder, HierarchyNode dstFolder,
 			List<CollectionItem> items) {
-		IMailboxFolders service = getIMailboxFoldersService(bs);
-		ItemValue<MailboxFolder> source = service.getComplete(IMailReplicaUids.uniqueId(srcFolder.containerUid));
-		ItemValue<MailboxFolder> destination = service.getComplete(IMailReplicaUids.uniqueId(dstFolder.containerUid));
-
-		return emailManager.moveItems(bs, source.internalId, destination.internalId,
-				items.stream().map(v -> Integer.parseInt(v.itemId)).collect(Collectors.toList()),
-				srcFolder.collectionId, dstFolder.collectionId);
+		return emailManager.moveItems(bs, srcFolder, dstFolder,
+				items.stream().map(v -> Long.parseLong(v.itemId)).collect(Collectors.toList()));
 	}
 
 	/**
@@ -399,7 +416,7 @@ public class MailBackend extends CoreConnect {
 	public void replyToEmail(BackendSession bs, ByteSource mailContent, Boolean saveInSent, String collectionId,
 			String serverId, boolean includePrevious) throws ServerErrorException {
 		try {
-			MailFolder folder = storage.getMailFolder(bs, Integer.parseInt(collectionId));
+			MailFolder folder = storage.getMailFolder(bs, CollectionId.of(collectionId));
 			Integer uid = Integer.parseInt(CollectionItem.of(serverId).itemId);
 
 			IMailRewriter rewriter = Mime4JHelper.untouched(getUserEmail(bs));
@@ -430,7 +447,7 @@ public class MailBackend extends CoreConnect {
 	public void forwardEmail(BackendSession bs, ByteSource mailContent, Boolean saveInSent, String collectionId,
 			String serverId, boolean includePrevious) {
 		try {
-			MailFolder folder = storage.getMailFolder(bs, Integer.parseInt(collectionId));
+			MailFolder folder = storage.getMailFolder(bs, CollectionId.of(collectionId));
 			Integer uid = Integer.parseInt(CollectionItem.of(serverId).itemId);
 
 			IMailRewriter rewriter = Mime4JHelper.untouched(getUserEmail(bs));
@@ -493,7 +510,7 @@ public class MailBackend extends CoreConnect {
 						"attachmentId: [colId:{}] [emailUid:{}] [partAddress:{}] [contentType:{}] [transferEncoding:{}]",
 						collectionId, messageId, mimePartAddress, contentType, contentTransferEncoding);
 
-				MailFolder folder = storage.getMailFolder(bs, Integer.parseInt(collectionId));
+				MailFolder folder = storage.getMailFolder(bs, CollectionId.of(collectionId));
 
 				InputStream is = emailManager.fetchAttachment(bs, folder, Integer.parseInt(messageId), mimePartAddress,
 						contentTransferEncoding);
@@ -521,15 +538,16 @@ public class MailBackend extends CoreConnect {
 		throw new ObjectNotFoundException();
 	}
 
-	public void purgeFolder(BackendSession bs, HierarchyNode node, boolean deleteSubFolder) throws NotAllowedException {
+	public void purgeFolder(BackendSession bs, HierarchyNode node, CollectionId collectionId, boolean deleteSubFolder)
+			throws NotAllowedException {
 		try {
-			MailFolder folder = storage.getMailFolder(bs, (int) node.collectionId);
+			MailFolder folder = storage.getMailFolder(bs, collectionId);
 
 			if (!"Trash".equals(folder.fullName)) {
 				throw new NotAllowedException("Only the Trash folder can be purged.");
 			}
 
-			emailManager.purgeFolder(bs, folder, deleteSubFolder);
+			emailManager.purgeFolder(bs, folder, collectionId, deleteSubFolder);
 
 		} catch (Exception e) {
 			throw new NotAllowedException(e);
@@ -538,8 +556,9 @@ public class MailBackend extends CoreConnect {
 
 	public AppData fetch(BackendSession bs, BodyOptions bodyParams, ItemChangeReference ic) throws ActiveSyncException {
 		try {
-			MailFolder folder = storage.getMailFolder(bs, ic.getServerId().collectionId.getFolderId());
-			return toAppData(bs, bodyParams, folder, ic.getServerId().itemId);
+			MailFolder folder = storage.getMailFolder(bs, ic.getServerId().collectionId);
+			AppData data = toAppData(bs, bodyParams, folder, ic.getServerId().itemId);
+			return data;
 		} catch (ActiveSyncException ase) {
 			throw ase;
 		} catch (Exception e) {
@@ -550,7 +569,7 @@ public class MailBackend extends CoreConnect {
 	public Map<String, AppData> fetchMultiple(BackendSession bs, BodyOptions bodyParams, CollectionId collectionId,
 			List<String> ids) throws ActiveSyncException {
 
-		MailFolder folder = storage.getMailFolder(bs, collectionId.getFolderId());
+		MailFolder folder = storage.getMailFolder(bs, collectionId);
 
 		Map<String, AppData> res = new HashMap<>(ids.size());
 		ids.stream().forEach(id -> {

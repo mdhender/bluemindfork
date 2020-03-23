@@ -40,6 +40,7 @@ import net.bluemind.eas.dto.foldercreate.FolderCreateRequest;
 import net.bluemind.eas.dto.foldercreate.FolderCreateResponse;
 import net.bluemind.eas.dto.foldercreate.FolderCreateResponse.Status;
 import net.bluemind.eas.dto.foldersync.FolderType;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.type.ItemDataType;
 import net.bluemind.eas.exception.CollectionNotFoundException;
 import net.bluemind.eas.impl.Backends;
@@ -83,10 +84,10 @@ public class FolderCreateProtocol implements IEasProtocol<FolderCreateRequest, F
 		ISyncStorage store = Backends.internalStorage();
 
 		String displayName = query.displayName;
-		int parentId = Integer.parseInt(query.parentId);
+		CollectionId parentId = query.parentId;
 
 		HierarchyNode parent = null;
-		if (parentId > 0) {
+		if (!"0".equals(parentId.getValue())) {
 			try {
 				parent = store.getHierarchyNode(bs, parentId);
 			} catch (CollectionNotFoundException e1) {
@@ -114,13 +115,13 @@ public class FolderCreateProtocol implements IEasProtocol<FolderCreateRequest, F
 		sf.setParentId(parentId);
 		sf.setDisplayName(displayName);
 
-		Long serverId = importer.importFolderCreate(bs, parent, sf);
+		CollectionId collectionId = importer.importFolderCreate(bs, parent, sf);
 
-		if (serverId != null) {
+		if (collectionId != null) {
 			StateMachine sm = new StateMachine(store);
 
 			response.status = Status.Success;
-			response.serverId = Long.toString(serverId);
+			response.serverId = collectionId.getValue();
 			response.syncKey = sm.generateSyncKey(ItemDataType.FOLDER);
 
 			List<FolderChangeReference> sentToDevice = new LinkedList<FolderChangeReference>();
@@ -128,7 +129,7 @@ public class FolderCreateProtocol implements IEasProtocol<FolderCreateRequest, F
 			ic.changeType = ChangeType.ADD;
 			ic.itemType = FolderType.getValue(query.type);
 			ic.folderId = response.serverId;
-			ic.parentId = Integer.toString(parentId);
+			ic.parentId = parentId.getValue();
 			ic.displayName = displayName;
 			sentToDevice.add(ic);
 
