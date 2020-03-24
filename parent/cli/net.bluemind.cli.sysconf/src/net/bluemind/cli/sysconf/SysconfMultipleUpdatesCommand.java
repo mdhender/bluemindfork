@@ -22,6 +22,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -76,29 +77,30 @@ public class SysconfMultipleUpdatesCommand implements ICmdLet, Runnable {
 	@Override
 	public void run() {
 		ISystemConfiguration configurationApi = ctx.adminApi().instance(ISystemConfiguration.class);
-
-		if (new File(file).isFile()) {
+		Path filepath = Paths.get(file);
+		if (Files.isReadable(filepath)) {
 			Map<String, String> map = new HashMap<>();
-
 			if (format.equalsIgnoreCase("json")) {
-				map = jsonFileToMap(file);
-			}
-			if (format.equalsIgnoreCase("properties")) {
-				map = propertiesFileToMap(file);
+				map = jsonFileToMap(filepath);
+			} else if (format.equalsIgnoreCase("properties")) {
+				map = propertiesFileToMap(filepath);
+			} else {
+				ctx.error(String.format("format unrecognized: %s", format));
+				return;
 			}
 			configurationApi.updateMutableValues(map);
 
 		} else {
-			ctx.error(String.format("%s not found", file.toString()));
+			ctx.error(String.format("%s not found or is not readable", file));
 		}
 
 	}
 
-	private Map<String, String> jsonFileToMap(String file) {
+	private Map<String, String> jsonFileToMap(Path filepath) {
 		Map<String, String> map = new HashMap<>();
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			String content = new String(Files.readAllBytes(Paths.get(file)));
+			String content = new String(Files.readAllBytes(filepath));
 			map = mapper.readValue(content, new TypeReference<Map<String, String>>() {
 			});
 		} catch (Exception ex) {
@@ -107,10 +109,10 @@ public class SysconfMultipleUpdatesCommand implements ICmdLet, Runnable {
 		return map;
 	}
 
-	private Map<String, String> propertiesFileToMap(String file) {
+	private Map<String, String> propertiesFileToMap(Path filepath) {
 		Map<String, String> map = Collections.emptyMap();
 		Properties prop = new Properties();
-		try (InputStream input = new FileInputStream(file)) {
+		try (InputStream input = Files.newInputStream(filepath)) {
 			prop.load(input);
 			map = prop.entrySet().stream().collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.toString()));
 		} catch (Exception ex) {

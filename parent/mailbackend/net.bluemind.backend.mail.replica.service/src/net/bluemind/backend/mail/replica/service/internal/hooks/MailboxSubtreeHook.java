@@ -40,12 +40,9 @@ public class MailboxSubtreeHook implements IMailboxHook {
 	private static final Logger logger = LoggerFactory.getLogger(MailboxSubtreeHook.class);
 
 	@Override
-	public void preMailboxCreated(BmContext context, String domainUid, String name) throws ServerFault {
-		forgetDeletion(context, domainUid, name);
-	}
+	public void preMailboxCreated(BmContext context, String domainUid, ItemValue<Mailbox> boxItem) throws ServerFault {
+		forgetDeletion(context, domainUid, boxItem.value.name);
 
-	@Override
-	public void onMailboxCreated(BmContext context, String domainUid, ItemValue<Mailbox> boxItem) throws ServerFault {
 		if (boxItem.value.dataLocation == null) {
 			// users & admins group (default groups) seems to be in this case
 			logger.warn("***** WTF mbox without datalocation {}", boxItem.value);
@@ -58,7 +55,12 @@ public class MailboxSubtreeHook implements IMailboxHook {
 		MailboxReplicaRootDescriptor root = asRootDescriptor(boxItem);
 		logger.info("Creating subtree {} on {}", root, partition);
 		rootMgmtApi.create(root);
+	}
 
+	@Override
+	public void onMailboxCreated(BmContext context, String domainUid, ItemValue<Mailbox> boxItem) throws ServerFault {
+		// we used to initialize here but creating the subtree at preCreate time avoids
+		// a race with Cyrus replication
 	}
 
 	private void forgetDeletion(BmContext context, String domainUid, String name) {

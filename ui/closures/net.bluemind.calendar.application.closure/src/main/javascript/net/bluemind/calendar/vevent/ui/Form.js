@@ -1078,25 +1078,23 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onDStartChange_ = function(e) {
   var date = this.getChild('dstart').getDate();
 
   if (!date) {
-    /** @meaning calendar.form.error.date */
-    var MSG_DATE_FORMAT_ERROR = goog.getMsg('Invalid date format');
-    this.addError_('dates', this.getChild('dstart').getElement(), MSG_DATE_FORMAT_ERROR);
-    date = new net.bluemind.date.Date();
-  }
-  var old = model.dtstart.clone();
-  model.dtstart.setDatePart(date);
+    this.getChild('dstart').setDate(model.dtstart);
+  } else {
+    var old = model.dtstart.clone();
+    model.dtstart.setDatePart(date);
 
-  if (model.states.repeat) {
-    if (model.rrule.freq != 'DAILY') {
-      this.autoSetRepeatDays_(old);
+    if (model.states.repeat) {
+      if (model.rrule.freq != 'DAILY') {
+        this.autoSetRepeatDays_(old);
+      }
+      if (goog.dom.forms.getValue(goog.dom.getElement('bm-ui-form-repeat-end-on'))) {
+        this.autoSetEndRepeat_();
+      }
+      this.autoSetRepeatSentence_();
     }
-    if (goog.dom.forms.getValue(goog.dom.getElement('bm-ui-form-repeat-end-on'))) {
-      this.autoSetEndRepeat_();
-    }
-    this.autoSetRepeatSentence_();
-  }
 
-  this.onDTStartChange_(old, model.dtstart);
+    this.onDTStartChange_(old, model.dtstart);
+  }
 };
 
 /**
@@ -1126,15 +1124,20 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onDEndChange_ = function(e) {
   if (!date) {
     /** @meaning calendar.form.error.date */
     var MSG_DATE_FORMAT_ERROR = goog.getMsg('Invalid date format');
-    this.addError_('dates', this.getChild('dend').getElement(), MSG_DATE_FORMAT_ERROR);
-    date = new net.bluemind.date.Date();
+    this.addError_('dates', [], MSG_DATE_FORMAT_ERROR);
+    date = model.dtend.clone();
+    if (model.states.allday) {
+      date.add(new goog.date.Interval(goog.date.Interval.DAYS, -1));
+    }
+    this.getChild('dend').setDate(date)
+  } else {
+    if (model.states.allday) {
+      date.add(new goog.date.Interval(0, 0, 1));
+    }
+    var old = model.dtend.clone();
+    model.dtend.setDatePart(date);
+    this.onDTEndChange_(old, model.dtend);
   }
-  if (model.states.allday) {
-    date.add(new goog.date.Interval(0, 0, 1));
-  }
-  var old = model.dtend.clone();
-  model.dtend.setDatePart(date);
-  this.onDTEndChange_(old, model.dtend);
 };
 
 /**
@@ -2611,7 +2614,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onAttendeeChange_ = function() {
 
 net.bluemind.calendar.vevent.ui.Form.prototype.setFormActions_ = function() {
   var model = this.getModel();
-  this.setFormButtons_(this.adaptor.isPublic(model.old, model), model.states.draft);
+  this.setFormButtons_(this.adaptor.isPublic(model.old, model) && model.states.master, model.states.draft);
 }
 
 net.bluemind.calendar.vevent.ui.Form.prototype.setFormButtons_ = function(isMeeting, isDraft) {
@@ -2626,6 +2629,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.setFormButtons_ = function(isMeet
       this.getChild('toolbar').getChild("save").setVisible(false);
     }
   } else {
+    /** @meaning general.save */
     var MSG_SAVE = goog.getMsg('Save');
     this.getChild('toolbar').getChild("send").setCaption(MSG_SAVE);
   }

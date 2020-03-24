@@ -127,8 +127,8 @@ public class FolderCreateProtocol implements IEasProtocol<FolderCreateRequest, F
 			FolderChangeReference ic = new FolderChangeReference();
 			ic.changeType = ChangeType.ADD;
 			ic.itemType = FolderType.getValue(query.type);
-			ic.folderId = serverId;
-			ic.parentId = parentId;
+			ic.folderId = response.serverId;
+			ic.parentId = Integer.toString(parentId);
 			ic.displayName = displayName;
 			sentToDevice.add(ic);
 

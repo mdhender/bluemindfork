@@ -623,7 +623,7 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.attachmentsHasBeenModified 
     return true;
   } else if (remote['attachments'].length != modified.attachments.length) {
     return true;
-  } else if (modified.attachment.length == 0) {
+  } else if (modified.attachments.length == 0) {
     return false;
   } else {
     return !goog.array.equals(remote['attachments'], modified.attachments, function(remoteAttachment, modifiedAttachment) {

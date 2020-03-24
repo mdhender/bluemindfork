@@ -34,7 +34,7 @@ public class CollectionSyncRequest {
 	private final List<Element> changedItems;
 	private final List<Element> createdItems;
 	private String dataClass;
-	private int collectionId;
+	private CollectionId collectionId;
 	private String syncKey;
 	private Integer truncation;
 	private boolean deletesAsMoves;
@@ -57,14 +57,13 @@ public class CollectionSyncRequest {
 		public FilterType filterType;
 
 		/**
-		 * If the Conflict element is not present, the server object will
-		 * replace the client object when a conflict occurs.
+		 * If the Conflict element is not present, the server object will replace the
+		 * client object when a conflict occurs.
 		 * 
-		 * A value of 0 (zero) means to keep the client object; a value of 1
-		 * means to keep the server object. If the value is 1 and there is a
-		 * conflict, a Status element (section 2.2.3.166.16) value of 7 is
-		 * returned to inform the client that the object that the client sent to
-		 * the server was discarded.
+		 * A value of 0 (zero) means to keep the client object; a value of 1 means to
+		 * keep the server object. If the value is 1 and there is a conflict, a Status
+		 * element (section 2.2.3.166.16) value of 7 is returned to inform the client
+		 * that the object that the client sent to the server was discarded.
 		 */
 		public ConflicResolution conflictPolicy = ConflicResolution.SERVER_WINS;
 
@@ -81,7 +80,6 @@ public class CollectionSyncRequest {
 		deletedIds = new LinkedList<>();
 		changedItems = new LinkedList<>();
 		createdItems = new LinkedList<>();
-		collectionId = 0;
 		truncation = 9; // FIXME use enum SyncHandler.SYNC_TRUNCATION_ALL;
 		windowSize = 25;
 	}
@@ -94,11 +92,11 @@ public class CollectionSyncRequest {
 		this.dataClass = dataClass;
 	}
 
-	public Integer getCollectionId() {
+	public CollectionId getCollectionId() {
 		return collectionId;
 	}
 
-	public void setCollectionId(Integer collectionId) {
+	public void setCollectionId(CollectionId collectionId) {
 		this.collectionId = collectionId;
 	}
 
@@ -140,12 +138,12 @@ public class CollectionSyncRequest {
 
 	@Override
 	public boolean equals(Object obj) {
-		return collectionId == ((CollectionSyncRequest) obj).collectionId;
+		return collectionId.equals(collectionId);
 	}
 
 	@Override
 	public int hashCode() {
-		return new Integer(collectionId).hashCode();
+		return collectionId.hashCode();
 	}
 
 	public Collection<CollectionItem> getDeletedIds() {

@@ -148,11 +148,14 @@ public class SdsProxyWithS3IntegrationTests {
 		this.config = S3Configuration.withEndpointAndBucket("http://" + DockerEnv.getIp("bluemind/s3") + ":8000",
 				bucket);
 
-		ImmutableMap<String, String> freshConf = ImmutableMap.of(SysConfKeys.archive_kind.name(), "s3", //
-				SysConfKeys.sds_s3_access_key.name(), config.getAccessKey(), //
-				SysConfKeys.sds_s3_secret_key.name(), config.getSecretKey(), //
-				SysConfKeys.sds_s3_endpoint.name(), config.getEndpoint(), //
-				SysConfKeys.sds_s3_bucket.name(), config.getBucket());
+		ImmutableMap<String, String> freshConf = new ImmutableMap.Builder<String, String>() //
+			.put(SysConfKeys.archive_kind.name(), "s3") //
+			.put(SysConfKeys.sds_s3_access_key.name(), config.getAccessKey()) //
+			.put(SysConfKeys.sds_s3_secret_key.name(), config.getSecretKey()) //
+			.put(SysConfKeys.sds_s3_endpoint.name(), config.getEndpoint()) //
+			.put(SysConfKeys.sds_s3_region.name(), config.getRegion()) //
+			.put(SysConfKeys.sds_s3_bucket.name(), config.getBucket()) //
+			.build();
 		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		ISystemConfiguration sysConfApi = prov.instance(ISystemConfiguration.class);
 		sysConfApi.updateMutableValues(freshConf);

@@ -83,7 +83,7 @@ public class S3BackingStore implements ISdsBackingStore {
 			File file = new File(req.filename);
 			PutObjectResult result = client.putObject(bucket.getName(), req.guid, file);
 			registry.counter(idFactory.name("transfer").withTag("direction", "upload")).increment(file.length());
-			logger.info("Result {} {}", result.getETag(), result.getVersionId());
+			logger.debug("Result {} {}", result.getETag(), result.getVersionId());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			sr.error = new SdsError(e.getMessage());

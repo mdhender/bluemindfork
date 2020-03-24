@@ -26,7 +26,8 @@ import net.bluemind.server.api.IServer;
 public class SafeRestartOnHprofVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(SafeRestartOnHprofVerticle.class);
-	private static final Set<Product> handledProds = EnumSet.of(Product.EAS, Product.LMTPD, Product.MILTER);
+	private static final Set<Product> handledProds = EnumSet.of(Product.EAS, Product.LMTPD, Product.MILTER,
+			Product.MAPI);
 
 	public static class Factory implements IVerticleFactory, IUniqueVerticleFactory {
 

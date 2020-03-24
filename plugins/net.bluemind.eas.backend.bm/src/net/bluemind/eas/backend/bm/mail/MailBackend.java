@@ -79,6 +79,7 @@ import net.bluemind.eas.dto.base.LazyLoaded;
 import net.bluemind.eas.dto.email.AttachmentResponse;
 import net.bluemind.eas.dto.email.EmailResponse;
 import net.bluemind.eas.dto.moveitems.MoveItemsResponse;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.sync.SyncState;
 import net.bluemind.eas.dto.type.ItemDataType;
 import net.bluemind.eas.dto.user.MSUser;
@@ -108,7 +109,7 @@ public class MailBackend extends CoreConnect {
 		this.storage = storage;
 	}
 
-	public Changes getContentChanges(BackendSession bs, SyncState state, Integer collectionId,
+	public Changes getContentChanges(BackendSession bs, SyncState state, CollectionId collectionId,
 			boolean hasFilterTypeChanged) throws ActiveSyncException {
 
 		if (!bs.getUser().hasMailbox()) {
@@ -120,7 +121,7 @@ public class MailBackend extends CoreConnect {
 				? Optional.of(state.date)
 				: Optional.empty();
 
-		MailFolder folder = storage.getMailFolder(bs, collectionId);
+		MailFolder folder = storage.getMailFolder(bs, collectionId.getFolderId());
 
 		IMailboxItems service = getMailboxItemsService(bs, folder.uid);
 
@@ -202,12 +203,12 @@ public class MailBackend extends CoreConnect {
 	public void delete(BackendSession bs, Collection<CollectionItem> serverIds, Boolean moveToTrash)
 			throws CollectionNotFoundException {
 		if (serverIds != null && !serverIds.isEmpty()) {
-			HashMap<Integer, MailFolder> collections = new HashMap<Integer, MailFolder>();
-			HashMap<MailFolder, List<Integer>> items = new HashMap<MailFolder, List<Integer>>();
+			HashMap<String, MailFolder> collections = new HashMap<>();
+			HashMap<MailFolder, List<Integer>> items = new HashMap<>();
 			for (CollectionItem serverId : serverIds) {
-				Integer collectionId = serverId.collectionId;
+				String collectionId = serverId.collectionId.getValue();
 				if (!collections.containsKey(collectionId)) {
-					MailFolder folder = storage.getMailFolder(bs, collectionId);
+					MailFolder folder = storage.getMailFolder(bs, serverId.collectionId.getFolderId());
 					collections.put(collectionId, folder);
 					items.put(folder, new ArrayList<Integer>());
 				}
@@ -248,13 +249,13 @@ public class MailBackend extends CoreConnect {
 		}
 	}
 
-	public CollectionItem store(BackendSession bs, int collectionId, Optional<String> serverId, IApplicationData data)
-			throws ActiveSyncException {
+	public CollectionItem store(BackendSession bs, CollectionId collectionId, Optional<String> serverId,
+			IApplicationData data) throws ActiveSyncException {
 
 		if (serverId.isPresent()) {
 			CollectionItem ci = CollectionItem.of(serverId.get());
 
-			MailFolder folder = storage.getMailFolder(bs, collectionId);
+			MailFolder folder = storage.getMailFolder(bs, collectionId.getFolderId());
 			IMailboxItems service = getMailboxItemsService(bs, folder.uid);
 
 			long id = Long.parseLong(ci.itemId);
@@ -394,10 +395,10 @@ public class MailBackend extends CoreConnect {
 	 * @param serverId
 	 * @throws ServerErrorException
 	 */
-	public void replyToEmail(BackendSession bs, ByteSource mailContent, Boolean saveInSent, String cid, String serverId,
-			boolean includePrevious) throws ServerErrorException {
+	public void replyToEmail(BackendSession bs, ByteSource mailContent, Boolean saveInSent, String collectionId,
+			String serverId, boolean includePrevious) throws ServerErrorException {
 		try {
-			MailFolder folder = storage.getMailFolder(bs, Integer.parseInt(cid));
+			MailFolder folder = storage.getMailFolder(bs, Integer.parseInt(collectionId));
 			Integer uid = Integer.parseInt(CollectionItem.of(serverId).itemId);
 
 			IMailRewriter rewriter = Mime4JHelper.untouched(getUserEmail(bs));
@@ -539,7 +540,7 @@ public class MailBackend extends CoreConnect {
 
 	public AppData fetch(BackendSession bs, BodyOptions bodyParams, ItemChangeReference ic) throws ActiveSyncException {
 		try {
-			MailFolder folder = storage.getMailFolder(bs, ic.getServerId().collectionId);
+			MailFolder folder = storage.getMailFolder(bs, ic.getServerId().collectionId.getFolderId());
 			AppData data = toAppData(bs, bodyParams, folder, ic.getServerId().itemId);
 			return data;
 		} catch (ActiveSyncException ase) {
@@ -551,10 +552,10 @@ public class MailBackend extends CoreConnect {
 		}
 	}
 
-	public Map<String, AppData> fetchMultiple(BackendSession bs, BodyOptions bodyParams, int collectionId,
+	public Map<String, AppData> fetchMultiple(BackendSession bs, BodyOptions bodyParams, CollectionId collectionId,
 			List<String> ids) throws ActiveSyncException {
 
-		MailFolder folder = storage.getMailFolder(bs, collectionId);
+		MailFolder folder = storage.getMailFolder(bs, collectionId.getFolderId());
 
 		Map<String, AppData> res = new HashMap<String, AppData>(ids.size());
 		ids.stream().forEach(id -> {

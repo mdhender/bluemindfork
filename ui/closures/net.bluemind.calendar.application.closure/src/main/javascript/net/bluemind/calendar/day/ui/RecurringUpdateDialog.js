@@ -153,7 +153,12 @@ net.bluemind.calendar.day.ui.RecurringUpdateDialog.prototype.updateSerie_ = func
   this.setVisible(false);
   var model = this.getModel();
   var main = this.vseries_.main;
-  if (model.dtstart instanceof goog.date.DateTime) {
+  var adaptor = new net.bluemind.calendar.vevent.VEventAdaptor();
+  if (goog.date.isSameDay(main.dtstart, model.recurrenceId)) {
+    main.dtstart = model.dtstart;
+    main.dtend = model.dtend;
+    adaptor.adjustRepeatDays(main, model.recurrenceId);
+  } else if (model.dtstart instanceof goog.date.DateTime) {
     main.dtstart.setHours(model.dtstart.getHours());
     main.dtstart.setMinutes(model.dtstart.getMinutes());
     main.dtstart.setSeconds(model.dtstart.getSeconds());

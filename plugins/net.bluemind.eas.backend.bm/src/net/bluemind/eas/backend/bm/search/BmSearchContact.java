@@ -47,15 +47,12 @@ public class BmSearchContact implements ISearchSource {
 	protected Logger logger = LoggerFactory.getLogger(getClass());
 	protected String coreHost;
 
-	public BmSearchContact() {
-	}
-
 	public StoreName getStoreName() {
 		return StoreName.gal;
 	}
 
 	public Results<SearchResult> search(BackendSession bs, SearchRequest request) {
-		Results<SearchResult> ret = new Results<SearchResult>();
+		Results<SearchResult> ret = new Results<>();
 		try {
 			InternalState is = bs.getInternalState();
 

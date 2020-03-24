@@ -55,6 +55,8 @@ public interface SysConfMailConstants extends Messages {
 
 	String s3EndpointAddress();
 
+	String s3Region();
+
 	String s3AccessKey();
 
 	String s3SecretKey();

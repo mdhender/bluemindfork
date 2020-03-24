@@ -481,17 +481,46 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
+		List<Item> nonNullValues = new ArrayList<>(items.size());
 
-		Iterator<Item> itItems = items.iterator();
-		Iterator<T> itValues = values.iterator();
+		if (values.size() == items.size()) {
+			Iterator<Item> itItems = items.iterator();
+			Iterator<T> itValues = values.iterator();
 
-		for (; itItems.hasNext();) {
-			Item item = itItems.next();
-			T value = itValues.next();
-			ret.add(ItemValue.create(item, value));
+			while (itItems.hasNext()) {
+				Item item = itItems.next();
+				T value = itValues.next();
+				if (value != null) {
+					ret.add(ItemValue.create(item, value));
+					nonNullValues.add(item);
+				} else {
+					logger.warn("Mismatch in value and item count on container {}", container.uid);
+				}
+			}
+
+			decorate(nonNullValues, ret);
+			return ret;
+		} else {
+			logger.warn("Mismatch in value and item count on container {}", container.uid);
+			return getItemsValueByIndividualLookup(items);
 		}
+	}
 
-		decorate(items, ret);
+	private List<ItemValue<T>> getItemsValueByIndividualLookup(List<Item> items) {
+		List<ItemValue<T>> ret = new ArrayList<>(items.size());
+
+		for (Item item : items) {
+			try {
+				T value = itemValueStore.get(item);
+				if (value != null) {
+					ItemValue<T> itemValue = ItemValue.create(item, value);
+					ret.add(itemValue);
+					decorate(item, itemValue);
+				}
+			} catch (SQLException e) {
+				throw ServerFault.sqlFault(e);
+			}
+		}
 		return ret;
 	}
 

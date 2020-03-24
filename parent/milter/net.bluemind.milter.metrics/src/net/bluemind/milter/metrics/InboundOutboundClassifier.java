@@ -122,14 +122,18 @@ public class InboundOutboundClassifier implements IMilterListener {
 			if (from != null) {
 				long inbound = 0;
 				long outbound = 0;
+				long internal = 0;
 				if (from.traficClass == TrafficClass.INTERNAL) {
 					outbound = recipients.stream().filter(r -> r.traficClass == TrafficClass.EXTERNAL).count();
+					internal = recipients.stream().filter(r -> r.traficClass == TrafficClass.INTERNAL).count();
 				} else if (from.traficClass == TrafficClass.EXTERNAL) {
 					inbound = recipients.stream().filter(r -> r.traficClass == TrafficClass.INTERNAL).count();
 				}
 				Counter inboundCounter = registry.counter(idFactory.name("class", "type", "INBOUND"));
-				Counter outboundCounter = registry.counter(idFactory.name("class", "type", "OUTBOUND"));
 				Counter inboundSizeCounter = registry.counter(idFactory.name("size", "type", "INBOUND"));
+				Counter internalCounter = registry.counter(idFactory.name("class", "type", "INTERNAL"));
+				Counter internalSizeCounter = registry.counter(idFactory.name("size", "type", "INTERNAL"));
+				Counter outboundCounter = registry.counter(idFactory.name("class", "type", "OUTBOUND"));
 				Counter outboundSizeCounter = registry.counter(idFactory.name("size", "type", "OUTBOUND"));
 				if (inbound > 0) {
 					inboundCounter.increment(inbound);
@@ -138,6 +142,10 @@ public class InboundOutboundClassifier implements IMilterListener {
 				if (outbound > 0) {
 					outboundCounter.increment(outbound);
 					outboundSizeCounter.increment(outbound * size);
+				}
+				if (internal > 0) {
+					internalCounter.increment(internal);
+					internalSizeCounter.increment(internal * size);
 				}
 			}
 

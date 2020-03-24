@@ -721,7 +721,7 @@ public class EventConverter {
 			e.organizer.commonName = data.getOrganizerName();
 		}
 
-		e.sequence = oldEvent.sequence;
+		e.sequence = oldEvent != null ? oldEvent.sequence : 0;
 
 		logger.info("Event {} has {} attendees", e.summary, e.attendees.size());
 

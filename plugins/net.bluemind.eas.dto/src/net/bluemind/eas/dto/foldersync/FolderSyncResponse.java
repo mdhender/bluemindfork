@@ -43,15 +43,15 @@ public class FolderSyncResponse {
 	public static final class Changes {
 
 		public static final class Change {
-			public long serverId;
-			public long parentId;
+			public String serverId;
+			public String parentId;
 			public String displayName;
 			public FolderType type;
 		}
 
 		public int count;
 		public List<Change> update = new ArrayList<>();
-		public List<Long> delete = new ArrayList<>();
+		public List<String> delete = new ArrayList<>();
 		public List<Change> add = new ArrayList<>();
 	}
 

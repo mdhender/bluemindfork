@@ -20,6 +20,8 @@ package net.bluemind.eas.dto.getitemestimate;
 
 import java.util.List;
 
+import net.bluemind.eas.dto.sync.CollectionId;
+
 public class GetItemEstimateResponse {
 
 	public static final class Response {
@@ -39,7 +41,7 @@ public class GetItemEstimateResponse {
 		}
 
 		public Status status;
-		public String collectionId;
+		public CollectionId collectionId;
 	}
 
 	public List<Response> responses;

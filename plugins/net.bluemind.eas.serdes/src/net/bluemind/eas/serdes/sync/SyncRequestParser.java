@@ -29,6 +29,7 @@ import org.w3c.dom.NodeList;
 import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.OptionalParams;
 import net.bluemind.eas.dto.base.CollectionItem;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.sync.CollectionSyncRequest;
 import net.bluemind.eas.dto.sync.CollectionSyncRequest.Options.ConflicResolution;
 import net.bluemind.eas.dto.sync.FilterType;
@@ -94,12 +95,11 @@ public class SyncRequestParser implements IEasRequestParser<SyncRequest> {
 		Element fid = DOMUtils.getUniqueElement(col, "CollectionId");
 		if (fid != null) {
 			try {
-				collection.setCollectionId(Integer.parseInt(fid.getTextContent()));
+				collection.setCollectionId(CollectionId.of(fid.getTextContent()));
 			} catch (NumberFormatException e) {
 				logger.info("Invalid collectionId {}", fid.getTextContent());
 				return null;
 			}
-
 		}
 
 		Element getChanges = DOMUtils.getUniqueElement(col, "GetChanges");

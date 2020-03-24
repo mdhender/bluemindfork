@@ -28,6 +28,7 @@ import com.google.common.io.ByteSource;
 import net.bluemind.eas.data.calendarenum.AttendeeStatus;
 import net.bluemind.eas.dto.base.CollectionItem;
 import net.bluemind.eas.dto.moveitems.MoveItemsResponse;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.sync.CollectionSyncRequest.Options.ConflicResolution;
 import net.bluemind.eas.dto.sync.SyncState;
 import net.bluemind.eas.dto.type.ItemDataType;
@@ -42,7 +43,7 @@ import net.bluemind.eas.exception.NotAllowedException;
  */
 public interface IContentsImporter {
 
-	CollectionItem importMessageChange(BackendSession bs, int collectionId, ItemDataType type,
+	CollectionItem importMessageChange(BackendSession bs, CollectionId collectionId, ItemDataType type,
 			Optional<String> serverId, IApplicationData data, ConflicResolution conflictPolicy, SyncState syncState)
 			throws ActiveSyncException;
 

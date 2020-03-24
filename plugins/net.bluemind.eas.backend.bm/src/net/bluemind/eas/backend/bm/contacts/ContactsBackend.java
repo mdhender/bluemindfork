@@ -49,6 +49,7 @@ import net.bluemind.eas.dto.base.CollectionItem;
 import net.bluemind.eas.dto.base.DisposableByteSource;
 import net.bluemind.eas.dto.base.LazyLoaded;
 import net.bluemind.eas.dto.contact.ContactResponse;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.sync.CollectionSyncRequest.Options.ConflicResolution;
 import net.bluemind.eas.dto.sync.SyncState;
 import net.bluemind.eas.dto.type.ItemDataType;
@@ -68,7 +69,7 @@ public class ContactsBackend extends CoreConnect {
 		this.storage = storage;
 	}
 
-	public Changes getContentChanges(BackendSession bs, long version, Integer collectionId) {
+	public Changes getContentChanges(BackendSession bs, long version, CollectionId collectionId) {
 		Changes changes = new Changes();
 
 		try {
@@ -114,8 +115,8 @@ public class ContactsBackend extends CoreConnect {
 		return changes;
 	}
 
-	public CollectionItem store(BackendSession bs, int collectionId, Optional<String> sid, IApplicationData data,
-			ConflicResolution conflictPolicy, SyncState syncState) throws ActiveSyncException {
+	public CollectionItem store(BackendSession bs, CollectionId collectionId, Optional<String> sid,
+			IApplicationData data, ConflicResolution conflictPolicy, SyncState syncState) throws ActiveSyncException {
 		CollectionItem ret = null;
 		try {
 			HierarchyNode folder = storage.getHierarchyNode(bs, collectionId);
@@ -207,7 +208,7 @@ public class ContactsBackend extends CoreConnect {
 		}
 	}
 
-	public Map<String, AppData> fetchMultiple(BackendSession bs, int collectionId, List<String> uids)
+	public Map<String, AppData> fetchMultiple(BackendSession bs, CollectionId collectionId, List<String> uids)
 			throws ActiveSyncException {
 		HierarchyNode folder = storage.getHierarchyNode(bs, collectionId);
 		IAddressBook service = getAddressbookService(bs, folder.containerUid);

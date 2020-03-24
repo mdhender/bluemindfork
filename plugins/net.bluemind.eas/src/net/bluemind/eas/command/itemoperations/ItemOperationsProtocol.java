@@ -54,6 +54,7 @@ import net.bluemind.eas.dto.itemoperations.ItemOperationsResponse.Response;
 import net.bluemind.eas.dto.itemoperations.ItemOperationsResponse.Status;
 import net.bluemind.eas.dto.itemoperations.ResponseStyle;
 import net.bluemind.eas.dto.search.StoreName;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.type.ItemDataType;
 import net.bluemind.eas.exception.ActiveSyncException;
 import net.bluemind.eas.exception.CollectionNotFoundException;
@@ -247,7 +248,6 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 	private ItemOperationsResponse.Fetch processMailboxFetch(BackendSession bs, ItemOperationsRequest.Fetch fetchOp)
 			throws IOException, CollectionNotFoundException {
 		IContentsExporter exporter = backend.getContentsExporter(bs);
-		String collectionId = fetchOp.collectionId;
 		String serverId = fetchOp.serverId;
 
 		// FIXME maybe there is more than one. Maybe there is Zero ?
@@ -255,13 +255,12 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 
 		if (longId != null) {
 			long l = Long.parseLong(fetchOp.longId);
-			int cId = (int) (l >> 32);
+			String cId = Integer.toString((int) (l >> 32));
 			return processItemFetch(fetchOp, bs, exporter, cId);
 		} else if (fetchOp.fileReference != null) {
 			return processFileReferenceFetch(bs, exporter, fetchOp);
-		} else if (collectionId != null && serverId != null) {
-			return processCollectionFetch(bs, exporter, Integer.parseInt(collectionId), serverId,
-					fetchOp.options.bodyOptions);
+		} else if (fetchOp.collectionId != null && serverId != null) {
+			return processCollectionFetch(bs, exporter, fetchOp.collectionId, serverId, fetchOp.options.bodyOptions);
 		} else {
 			ItemOperationsResponse.Fetch fetchResp = new ItemOperationsResponse.Fetch();
 			fetchResp.status = Status.ActionNotSupported;
@@ -270,7 +269,7 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 	}
 
 	private ItemOperationsResponse.Fetch processItemFetch(Fetch fetchOp, BackendSession bs, IContentsExporter exporter,
-			Integer collectionId) {
+			String collectionId) {
 		ItemOperationsResponse.Fetch resp = new ItemOperationsResponse.Fetch();
 		try {
 
@@ -312,11 +311,11 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 	}
 
 	private ItemOperationsResponse.Fetch processCollectionFetch(BackendSession bs, IContentsExporter exporter,
-			Integer collectionId, String serverId, BodyOptions bodyOptions) {
+			CollectionId collectionId, String serverId, BodyOptions bodyOptions) {
 
 		ItemOperationsResponse.Fetch resp = new ItemOperationsResponse.Fetch();
 		resp.serverId = serverId;
-		resp.collectionId = Integer.toString(collectionId);
+		resp.collectionId = collectionId.getValue();
 
 		ItemOperationsResponse.Status status = ItemOperationsResponse.Status.Success;
 		try {

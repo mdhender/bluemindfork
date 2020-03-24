@@ -32,6 +32,7 @@ import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.OptionalParams;
 import net.bluemind.eas.dto.getitemestimate.GetItemEstimateRequest;
 import net.bluemind.eas.dto.getitemestimate.GetItemEstimateRequest.Collection;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.serdes.IEasRequestParser;
 
 public class GetItemEstimateRequestParser implements IEasRequestParser<GetItemEstimateRequest> {
@@ -108,7 +109,7 @@ public class GetItemEstimateRequestParser implements IEasRequestParser<GetItemEs
 				c.syncKey = child.getTextContent();
 				break;
 			case "CollectionId":
-				c.collectionId = child.getTextContent();
+				c.collectionId = CollectionId.of(child.getTextContent());
 				break;
 			default:
 				logger.warn("Not managed GetItemEstimate.Collections.Collection child {}", child);

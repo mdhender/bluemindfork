@@ -50,8 +50,11 @@ public class CyrusWorker extends DefaultWorker {
 		List<ItemValue<Domain>> domains = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDomains.class).all();
 
-		return domains.stream().map(domain -> getDomainPath(!skipTags.contains("mail/cyrus_archives"), domain))
+		Set<String> domainsPath = domains.stream()
+				.map(domain -> getDomainPath(!skipTags.contains("mail/cyrus_archives"), domain))
 				.flatMap(paths -> paths.stream()).collect(Collectors.toSet());
+		domainsPath.add("/var/lib/cyrus");
+		return domainsPath;
 	}
 
 	private Set<String> getDomainPath(boolean withArchive, ItemValue<Domain> domain) {

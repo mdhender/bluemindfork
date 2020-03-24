@@ -36,7 +36,7 @@ public class MapiRawMessageColumns {
 			@Override
 			public int setValues(Connection con, PreparedStatement statement, int index, int currentRow,
 					MapiRawMessage value) throws SQLException {
-				statement.setString(index++, value.contentJson);
+				statement.setString(index++, value.contentJson.replace("\\u0000", ""));
 				statement.setLong(index++, id);
 				return index;
 			}

@@ -20,7 +20,6 @@ package net.bluemind.eas.backend;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -37,6 +36,7 @@ import com.google.common.collect.ImmutableMap;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.device.DeviceId;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.sync.CollectionSyncRequest;
 import net.bluemind.eas.dto.sync.SyncState;
 import net.bluemind.eas.dto.user.MSUser;
@@ -126,25 +126,18 @@ public class BackendSession implements IPreviousRequestsKnowledge {
 		persistentState.setLastMonitored(lastMonitored);
 	}
 
-	public Queue<ItemChangeReference> getUnSynchronizedItemChange(Integer collectionId) {
-		return persistentState.getUnSynchronizedItemChangeByCollection().computeIfAbsent(collectionId,
+	public Queue<ItemChangeReference> getUnSynchronizedItemChange(CollectionId collectionId) {
+		return persistentState.getUnSynchronizedItemChangeByCollection().computeIfAbsent(collectionId.getValue(),
 				col -> new LinkedBlockingQueue<ItemChangeReference>());
 	}
 
-	public void addLastClientSyncState(Integer collectionId, SyncState synckey) {
+	public void addLastClientSyncState(String collectionId, SyncState synckey) {
 		persistentState.getLastClientSyncState().put(collectionId, synckey);
 	}
 
 	public void clearAll() {
-		persistentState.setUpdatedSyncDate(new HashMap<Integer, Date>());
-		persistentState.setUnSynchronizedItemChangeByCollection(new HashMap<Integer, Queue<ItemChangeReference>>());
-		persistentState.setLastClientSyncState(new HashMap<Integer, SyncState>());
-	}
-
-	public void clear(Integer collectionId) {
-		persistentState.getUpdatedSyncDate().remove(collectionId);
-		persistentState.getUnSynchronizedItemChangeByCollection().remove(collectionId);
-		persistentState.getLastClientSyncState().remove(collectionId);
+		persistentState.setUnSynchronizedItemChangeByCollection(new HashMap<>());
+		persistentState.setLastClientSyncState(new HashMap<>());
 	}
 
 	public void setLastWaitSeconds(Integer lastWait) {

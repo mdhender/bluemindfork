@@ -26,6 +26,7 @@ import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.calendar.api.ICalendar;
+import net.bluemind.config.Token;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
@@ -34,6 +35,7 @@ import net.bluemind.eas.backend.ItemChangeReference;
 import net.bluemind.eas.backend.bm.state.InternalState;
 import net.bluemind.eas.dto.base.ChangeType;
 import net.bluemind.eas.dto.base.CollectionItem;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.type.ItemDataType;
 import net.bluemind.eas.exception.ActiveSyncException;
 import net.bluemind.todolist.api.ITodoList;
@@ -112,6 +114,20 @@ public class CoreConnect {
 	}
 
 	/**
+	 * @param <T>
+	 * @param bs
+	 * @param klass
+	 * @param params
+	 * @return
+	 * @throws ServerFault
+	 */
+	public <T> T getAdmin0Service(BackendSession bs, Class<T> klass, String... params) throws ServerFault {
+		InternalState in = validateSid(bs);
+		return ClientSideServiceProvider.getProvider(in.coreUrl, Token.admin0()).setOrigin("bm-eas").instance(klass,
+				params);
+	}
+
+	/**
 	 * @param bs
 	 * @param containerUid
 	 * @return
@@ -121,7 +137,7 @@ public class CoreConnect {
 		return provider(bs).instance(ITodoList.class, containerUid);
 	}
 
-	protected ItemChangeReference getItemChange(Integer collectionId, String uid, ItemDataType type,
+	protected ItemChangeReference getItemChange(CollectionId collectionId, String uid, ItemDataType type,
 			ChangeType changeType) {
 		ItemChangeReference ret = new ItemChangeReference(type);
 		ret.setChangeType(changeType);
@@ -157,9 +173,8 @@ public class CoreConnect {
 		if (serverId == null || serverId.isEmpty()) {
 			return null;
 		}
-		int idx = serverId.indexOf(":");
-		String uid = serverId.substring(idx + 1);
-		return uid;
+		int idx = serverId.indexOf(':');
+		return serverId.substring(idx + 1);
 	}
 
 }

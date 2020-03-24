@@ -18,6 +18,11 @@
  */
 package net.bluemind.core.container.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import net.bluemind.core.api.fault.ErrorCode;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
@@ -26,6 +31,7 @@ import net.bluemind.core.rest.IEventBusAccessRule;
 public class AbstractContainerEventBusAccessRule implements IEventBusAccessRule {
 
 	private String baseAddress;
+	private static final Logger logger = LoggerFactory.getLogger(AbstractContainerEventBusAccessRule.class);
 
 	public AbstractContainerEventBusAccessRule(String baseAddress) {
 		this.baseAddress = baseAddress;
@@ -44,7 +50,16 @@ public class AbstractContainerEventBusAccessRule implements IEventBusAccessRule 
 	public boolean authorize(BmContext context, String path) {
 		String uid = path.substring(baseAddress.length() + 1);
 		uid = uid.substring(0, uid.length() - ".changed".length());
-		return new RBACManager(context).forContainer(uid).can(Verb.Read.name());
+		try {
+			return new RBACManager(context).forContainer(uid).can(Verb.Read.name());
+		} catch (ServerFault e) {
+			if (e.getCode() == ErrorCode.NOT_FOUND) {
+				logger.info("Authorization on non-existing container {} requested", uid);
+				return false;
+			} else {
+				throw e;
+			}
+		}
 	}
 
 }

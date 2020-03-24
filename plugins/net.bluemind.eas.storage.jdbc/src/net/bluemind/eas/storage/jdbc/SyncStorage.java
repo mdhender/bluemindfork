@@ -34,9 +34,11 @@ import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.config.Token;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.ContainerSubscription;
+import net.bluemind.core.container.api.ContainerSubscriptionModel;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.api.IContainersFlatHierarchy;
+import net.bluemind.core.container.api.IOwnerSubscriptions;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ContainerModifiableDescriptor;
 import net.bluemind.core.container.model.ItemValue;
@@ -56,6 +58,7 @@ import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.backend.HierarchyNode;
 import net.bluemind.eas.backend.MailFolder;
 import net.bluemind.eas.dto.device.DeviceId;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.type.ItemDataType;
 import net.bluemind.eas.exception.CollectionNotFoundException;
 import net.bluemind.eas.store.ISyncStorage;
@@ -171,11 +174,37 @@ public class SyncStorage implements ISyncStorage {
 	}
 
 	@Override
-	public HierarchyNode getHierarchyNode(BackendSession bs, int collectionId) throws CollectionNotFoundException {
+	public HierarchyNode getHierarchyNode(BackendSession bs, CollectionId collectionId)
+			throws CollectionNotFoundException {
+		if (collectionId.getSubscriptionId().isPresent()) {
+			IOwnerSubscriptions subs = provider(bs).instance(IOwnerSubscriptions.class, bs.getUser().getDomain(),
+					bs.getUser().getUid());
+			ItemValue<ContainerSubscriptionModel> subscription = subs
+					.getCompleteById(collectionId.getSubscriptionId().get());
+			return getHierarchyNode(bs, subscription.value.owner, collectionId.getFolderId());
+		}
+		return getHierarchyNode(bs, collectionId.getFolderId());
 
-		ItemValue<ContainerHierarchyNode> folder = getIContainersFlatHierarchyService(bs).getCompleteById(collectionId);
+	}
+
+	@Override
+	public HierarchyNode getHierarchyNode(BackendSession bs, int collectionId) throws CollectionNotFoundException {
+		return getHierarchyNode(bs, bs.getUser().getUid(), collectionId);
+	}
+
+	private HierarchyNode getHierarchyNode(BackendSession bs, String owner, int collectionId)
+			throws CollectionNotFoundException {
+
+		// FIXME
+		if (owner == null) {
+			owner = bs.getUser().getUid();
+		}
+
+		ItemValue<ContainerHierarchyNode> folder = getIContainersFlatHierarchyService(bs.getUser().getDomain(), owner)
+				.getCompleteById(collectionId);
+
 		if (folder == null) {
-			throw new CollectionNotFoundException("Collection " + collectionId + " not found");
+			throw new CollectionNotFoundException("Collection " + owner + ":" + collectionId + " not found");
 		}
 
 		return new HierarchyNode(folder.internalId, folder.value.containerUid, folder.value.containerType);
@@ -183,8 +212,7 @@ public class SyncStorage implements ISyncStorage {
 
 	@Override
 	public MailFolder getMailFolder(BackendSession bs, int collectionId) throws CollectionNotFoundException {
-
-		HierarchyNode folder = getHierarchyNode(bs, collectionId);
+		HierarchyNode folder = getHierarchyNode(bs, bs.getUser().getUid(), collectionId);
 		String uniqueId = IMailReplicaUids.uniqueId(folder.containerUid);
 		ItemValue<MailboxFolder> mailFolder = getIMailboxFoldersService(bs).getComplete(uniqueId);
 
@@ -205,7 +233,8 @@ public class SyncStorage implements ISyncStorage {
 		String cont = IMailReplicaUids.mboxRecords(mailFolder.uid);
 		String hNodeUid = ContainerHierarchyNode.uidFor(cont, IMailReplicaUids.MAILBOX_RECORDS,
 				bs.getUser().getDomain());
-		ItemValue<ContainerHierarchyNode> hNode = getIContainersFlatHierarchyService(bs).getComplete(hNodeUid);
+		ItemValue<ContainerHierarchyNode> hNode = getIContainersFlatHierarchyService(bs.getUser().getDomain(),
+				bs.getUser().getUid()).getComplete(hNodeUid);
 		if (hNode == null) {
 			throw new CollectionNotFoundException("mailbox '" + name + "' not found");
 		}
@@ -244,8 +273,8 @@ public class SyncStorage implements ISyncStorage {
 				userSubService.subscribe(bs.getUser().getUid(),
 						Arrays.asList(ContainerSubscription.create(uid, false)));
 
-				ItemValue<ContainerHierarchyNode> folder = getIContainersFlatHierarchyService(bs)
-						.getComplete(containerNodeUid);
+				ItemValue<ContainerHierarchyNode> folder = getIContainersFlatHierarchyService(bs.getUser().getDomain(),
+						bs.getUser().getUid()).getComplete(containerNodeUid);
 
 				folderUid = folder.internalId;
 			}
@@ -377,12 +406,8 @@ public class SyncStorage implements ISyncStorage {
 		return admin0Provider().instance(IEas.class);
 	}
 
-	private IContainersFlatHierarchy getIContainersFlatHierarchyService(BackendSession bs) {
-		return provider(bs).instance(IContainersFlatHierarchy.class, bs.getUser().getDomain(), bs.getUser().getUid());
-	}
-
-	private IContainersFlatHierarchy getIContainersFlatHierarchyService(String domainUid, String userUid) {
-		return admin0Provider().instance(IContainersFlatHierarchy.class, domainUid, userUid);
+	private IContainersFlatHierarchy getIContainersFlatHierarchyService(String domainUid, String owner) {
+		return admin0Provider().instance(IContainersFlatHierarchy.class, domainUid, owner);
 	}
 
 	private IMailboxFolders getIMailboxFoldersService(BackendSession bs) {

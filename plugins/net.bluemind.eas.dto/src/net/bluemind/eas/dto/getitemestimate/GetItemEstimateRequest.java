@@ -20,11 +20,13 @@ package net.bluemind.eas.dto.getitemestimate;
 
 import java.util.List;
 
+import net.bluemind.eas.dto.sync.CollectionId;
+
 public class GetItemEstimateRequest {
 
 	public static final class Collection {
 		public String syncKey;
-		public String collectionId;
+		public CollectionId collectionId;
 	}
 
 	public List<Collection> collections;

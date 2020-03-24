@@ -42,14 +42,27 @@ public class MailCountCommand implements ICmdLet, Runnable {
 	@Override
 	public void run() {
 		File spool = new File("/var/spool/cyrus/data");
-		Path startingDir = spool.toPath();
-		FileVisitor fileVisitor = new FileVisitor();
+		File hsm = new File("/var/spool/bm-hsm/cyrus-archives");
+		Set<Long> files = new HashSet<>();
+		count(spool, files);
+		long spoolCount = files.size();
+		count(hsm, files);
+		long hsmCount = files.size() - spoolCount;
+		long total = files.size();
+		ctx.info("Found " + total + " mails. Spool: " + spoolCount + ", HSM: " + hsmCount);
+	}
+
+	private void count(File file, Set<Long> files) {
+		if (!file.exists()) {
+			return;
+		}
+		Path startingDir = file.toPath();
+		FileVisitor fileVisitor = new FileVisitor(files);
 		try {
 			Files.walkFileTree(startingDir, fileVisitor);
 		} catch (IOException e) {
 			throw new CliException(e);
 		}
-		ctx.info("Found " + fileVisitor.getFileCount() + " mails in directory " + spool);
 	}
 
 	@Override
@@ -62,8 +75,8 @@ public class MailCountCommand implements ICmdLet, Runnable {
 
 		private Set<Long> files = new HashSet<>();
 
-		int getFileCount() {
-			return files.size();
+		public FileVisitor(Set<Long> files) {
+			this.files = files;
 		}
 
 		@Override

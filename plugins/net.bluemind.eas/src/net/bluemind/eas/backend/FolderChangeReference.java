@@ -23,8 +23,8 @@ import net.bluemind.eas.dto.foldersync.FolderType;
 
 public class FolderChangeReference {
 
-	public long folderId;
-	public long parentId;
+	public String folderId;
+	public String parentId;
 	public String displayName;
 	public FolderType itemType;
 	public ChangeType changeType;
@@ -38,9 +38,9 @@ public class FolderChangeReference {
 		int result = 1;
 		result = prime * result + ((changeType == null) ? 0 : changeType.hashCode());
 		result = prime * result + ((displayName == null) ? 0 : displayName.hashCode());
-		result = prime * result + (int) (folderId ^ (folderId >>> 32));
+		result = prime * result + ((folderId == null) ? 0 : (folderId.hashCode()));
 		result = prime * result + ((itemType == null) ? 0 : itemType.hashCode());
-		result = prime * result + (int) (parentId ^ (parentId >>> 32));
+		result = prime * result + ((parentId == null) ? 0 : (parentId.hashCode()));
 		return result;
 	}
 
@@ -60,11 +60,17 @@ public class FolderChangeReference {
 				return false;
 		} else if (!displayName.equals(other.displayName))
 			return false;
-		if (folderId != other.folderId)
+		if (folderId == null) {
+			if (other.folderId != null)
+				return false;
+		} else if (!folderId.equals(other.folderId))
 			return false;
 		if (itemType != other.itemType)
 			return false;
-		if (parentId != other.parentId)
+		if (parentId == null) {
+			if (other.parentId != null)
+				return false;
+		} else if (!parentId.equals(other.parentId))
 			return false;
 		return true;
 	}

@@ -74,6 +74,7 @@ import net.bluemind.eas.dto.calendar.CalendarResponse;
 import net.bluemind.eas.dto.moveitems.MoveItemsResponse;
 import net.bluemind.eas.dto.moveitems.MoveItemsResponse.Response.Status;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsResponse.Response.Recipient.Availability;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.sync.CollectionSyncRequest.Options.ConflicResolution;
 import net.bluemind.eas.dto.sync.SyncState;
 import net.bluemind.eas.dto.type.ItemDataType;
@@ -100,7 +101,8 @@ public class CalendarBackend extends CoreConnect {
 	 * @return
 	 * @throws ActiveSyncException
 	 */
-	public Changes getContentChanges(BackendSession bs, long version, Integer collectionId) throws ActiveSyncException {
+	public Changes getContentChanges(BackendSession bs, long version, CollectionId collectionId)
+			throws ActiveSyncException {
 
 		Changes changes = new Changes();
 
@@ -150,8 +152,8 @@ public class CalendarBackend extends CoreConnect {
 		return changes;
 	}
 
-	public CollectionItem store(BackendSession bs, Integer collectionId, Optional<String> sid, IApplicationData data,
-			ConflicResolution conflictPolicy, SyncState syncState) throws ActiveSyncException {
+	public CollectionItem store(BackendSession bs, CollectionId collectionId, Optional<String> sid,
+			IApplicationData data, ConflicResolution conflictPolicy, SyncState syncState) throws ActiveSyncException {
 		CollectionItem ret = null;
 		HierarchyNode folder = storage.getHierarchyNode(bs, collectionId);
 		ICalendar service = getService(bs, folder.containerUid);
@@ -411,7 +413,7 @@ public class CalendarBackend extends CoreConnect {
 		}
 	}
 
-	public Map<String, AppData> fetchMultiple(BackendSession bs, int collectionId, List<String> uids)
+	public Map<String, AppData> fetchMultiple(BackendSession bs, CollectionId collectionId, List<String> uids)
 			throws ActiveSyncException {
 		HierarchyNode folder = storage.getHierarchyNode(bs, collectionId);
 		ICalendar service = getService(bs, folder.containerUid);
@@ -430,7 +432,7 @@ public class CalendarBackend extends CoreConnect {
 		return res;
 	}
 
-	private AppData toAppData(BackendSession bs, int collectionId, ItemValue<VEventSeries> event) {
+	private AppData toAppData(BackendSession bs, CollectionId collectionId, ItemValue<VEventSeries> event) {
 		MSEvent msEvent = new EventConverter().convert(bs.getUser(), event);
 		CalendarResponse cr = OldFormats.update(bs, msEvent, bs.getUser(), collectionId);
 		AppData data = AppData.of(cr);

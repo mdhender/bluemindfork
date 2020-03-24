@@ -50,6 +50,11 @@ public enum SysConfKeys {
 	sds_s3_bucket,
 
 	/**
+	 * S3 region
+	 */
+	sds_s3_region,
+
+	/**
 	 * 
 	 */
 	subscription_contacts, cyrus_expunged_retention_time;

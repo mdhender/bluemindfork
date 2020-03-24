@@ -23,6 +23,7 @@ import java.util.List;
 import org.w3c.dom.Element;
 
 import net.bluemind.eas.dto.base.BodyOptions;
+import net.bluemind.eas.dto.sync.CollectionId;
 
 public class ItemOperationsRequest {
 
@@ -48,7 +49,7 @@ public class ItemOperationsRequest {
 	public static class Fetch implements ItemOperation {
 		public String store;
 		public String serverId;
-		public String collectionId;
+		public CollectionId collectionId;
 		public String linkId;
 		public String longId;
 		public String fileReference;

@@ -18,11 +18,15 @@
  */
 package net.bluemind.hps.auth.core2;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.netflix.spectator.api.Registry;
+import com.netflix.spectator.api.patterns.PolledMeter;
 
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -30,6 +34,8 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.hornetq.client.Topic;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.metrics.registry.IdFactory;
+import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.proxy.http.IAuthProvider;
 import net.bluemind.proxy.http.IAuthProviderFactory;
 import net.bluemind.proxy.http.ILogoutListener;
@@ -105,8 +111,15 @@ public class C2ProviderFactory implements IAuthProviderFactory {
 		Cache<String, SessionData> coreSessions = CacheBuilder.newBuilder()//
 				.recordStats()//
 				.build();
+
+		Registry reg = MetricsRegistry.get();
+		IdFactory idf = new IdFactory("activeSessions", reg, C2ProviderFactory.class);
+		AtomicLong active = new AtomicLong();
+		PolledMeter.using(reg).withId(idf.name("distinctUsers")).monitorValue(active);
+
 		VertxPlatform.getVertx().setPeriodic(60000, tid -> {
 			coreSessions.cleanUp();
+			active.set(coreSessions.size());
 			logger.info("SESSION STATS: size: {}, {}", coreSessions.size(), coreSessions.stats());
 		});
 		return coreSessions;

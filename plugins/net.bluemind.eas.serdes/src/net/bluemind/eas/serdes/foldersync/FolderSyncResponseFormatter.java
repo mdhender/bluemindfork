@@ -18,9 +18,6 @@
  */
 package net.bluemind.eas.serdes.foldersync;
 
-import java.util.Collections;
-import java.util.Comparator;
-
 import net.bluemind.eas.dto.NamespaceMapping;
 import net.bluemind.eas.dto.base.Callback;
 import net.bluemind.eas.dto.foldersync.FolderSyncResponse;
@@ -46,26 +43,23 @@ public class FolderSyncResponseFormatter implements IEasResponseFormatter<Folder
 			if (response.hasChanges()) {
 				builder.text("Count", Integer.toString(response.changes.count));
 
-				Collections.sort(response.changes.update, c());
 				for (Change c : response.changes.update) {
 					builder.container("Update");
-					builder.text("ServerId", Long.toString(c.serverId));
-					builder.text("ParentId", Long.toString(c.parentId));
+					builder.text("ServerId", c.serverId);
+					builder.text("ParentId", c.parentId);
 					builder.text("DisplayName", c.displayName);
 					builder.text("Type", Integer.toString(c.type.asInt()));
 					builder.endContainer();
 				}
-				Collections.sort(response.changes.delete, cs());
-				for (Long s : response.changes.delete) {
+				for (String s : response.changes.delete) {
 					builder.container("Delete");
-					builder.text("ServerId", Long.toString(s));
+					builder.text("ServerId", s);
 					builder.endContainer();
 				}
-				Collections.sort(response.changes.add, c());
 				for (Change c : response.changes.add) {
 					builder.container("Add");
-					builder.text("ServerId", Long.toString(c.serverId));
-					builder.text("ParentId", Long.toString(c.parentId));
+					builder.text("ServerId", c.serverId);
+					builder.text("ParentId", c.parentId);
 					builder.text("DisplayName", c.displayName);
 					builder.text("Type", Integer.toString(c.type.asInt()));
 					builder.endContainer();
@@ -77,28 +71,6 @@ public class FolderSyncResponseFormatter implements IEasResponseFormatter<Folder
 			builder.endContainer();
 		}
 		builder.end(completion);
-	}
-
-	private Comparator<? super Long> cs() {
-		return new Comparator<Long>() {
-
-			@Override
-			public int compare(Long o1, Long o2) {
-				return (o1 < o2) ? -1 : 1;
-			}
-		};
-	}
-
-	private Comparator<? super Change> c() {
-		return new Comparator<Change>() {
-
-			@Override
-			public int compare(Change o1, Change o2) {
-				long s1 = o1.serverId;
-				long s2 = o2.serverId;
-				return (s1 < s2) ? -1 : 1;
-			}
-		};
 	}
 
 }

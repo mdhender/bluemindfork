@@ -44,6 +44,7 @@ import net.bluemind.eas.dto.base.ChangeType;
 import net.bluemind.eas.dto.base.CollectionItem;
 import net.bluemind.eas.dto.base.DisposableByteSource;
 import net.bluemind.eas.dto.base.LazyLoaded;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.sync.CollectionSyncRequest.Options.ConflicResolution;
 import net.bluemind.eas.dto.sync.SyncState;
 import net.bluemind.eas.dto.tasks.TasksResponse;
@@ -63,7 +64,8 @@ public class TaskBackend extends CoreConnect {
 		this.storage = storage;
 	}
 
-	public Changes getContentChanges(BackendSession bs, long version, Integer collectionId) throws ActiveSyncException {
+	public Changes getContentChanges(BackendSession bs, long version, CollectionId collectionId)
+			throws ActiveSyncException {
 		Changes changes = new Changes();
 
 		try {
@@ -107,8 +109,8 @@ public class TaskBackend extends CoreConnect {
 		return changes;
 	}
 
-	public CollectionItem store(BackendSession bs, int collectionId, Optional<String> sid, IApplicationData data,
-			ConflicResolution conflictPolicy, SyncState syncState) throws ActiveSyncException {
+	public CollectionItem store(BackendSession bs, CollectionId collectionId, Optional<String> sid,
+			IApplicationData data, ConflicResolution conflictPolicy, SyncState syncState) throws ActiveSyncException {
 		CollectionItem ret = null;
 		HierarchyNode folder = storage.getHierarchyNode(bs, collectionId);
 		ITodoList service = getService(bs, folder.containerUid);
@@ -203,7 +205,7 @@ public class TaskBackend extends CoreConnect {
 		}
 	}
 
-	public Map<String, AppData> fetchMultiple(BackendSession bs, int collectionId, List<String> uids)
+	public Map<String, AppData> fetchMultiple(BackendSession bs, CollectionId collectionId, List<String> uids)
 			throws ActiveSyncException {
 		HierarchyNode folder = storage.getHierarchyNode(bs, collectionId);
 		ITodoList service = getService(bs, folder.containerUid);
