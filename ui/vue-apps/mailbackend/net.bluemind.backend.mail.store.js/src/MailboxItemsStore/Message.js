@@ -138,7 +138,7 @@ function fromMailboxItem(item, message) {
     if (mailboxItem.body.smartAttach) {
         message.states.push("has-attachment");
     }
-    if (message.flags.find(mailboxItemFlag => mailboxItemFlag.flag === Flag.SEEN.flag) === undefined) {
+    if (message.flags.find(mailboxItemFlag => mailboxItemFlag === Flag.SEEN) === undefined) {
         message.states.push("not-seen");
     }
 }

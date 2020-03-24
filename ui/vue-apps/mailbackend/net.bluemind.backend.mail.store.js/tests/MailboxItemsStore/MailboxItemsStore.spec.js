@@ -59,11 +59,11 @@ describe("[MailboxItemsStore] Vuex store", () => {
         const folderUid = "folder:uid";
         store.commit("storeItems", { items: exampleMessages, folderUid });
         const messageKey = ItemUri.encode(exampleMessages[0].internalId, folderUid);
-        expect(exampleMessages[0].value.flags.map(f => f.flag).includes(Flag.SEEN.flag)).toBeTruthy();
+        expect(exampleMessages[0].value.flags.includes(Flag.SEEN)).toBe(true);
         store.dispatch("addFlag", { messageKey, mailboxItemFlag: Flag.SEEN }).then(() => {
             const message = store.getters.getMessageByKey(messageKey);
-            expect(message.states.includes("not-seen")).not.toBeTruthy();
-            expect(message.flags.includes("seen")).not.toBeTruthy();
+            expect(message.states.includes("not-seen")).not.toBe(true);
+            expect(message.flags.includes("seen")).not.toBe(true);
             done();
         });
     });
@@ -72,11 +72,11 @@ describe("[MailboxItemsStore] Vuex store", () => {
         const folderUid = "folder:uid";
         store.commit("storeItems", { items: exampleMessages, folderUid });
         const messageKey = ItemUri.encode(exampleMessages[5].internalId, folderUid);
-        expect(exampleMessages[3].value.flags.includes(Flag.SEEN)).not.toBeTruthy();
+        expect(exampleMessages[0].value.flags.includes(Flag.SEEN)).toBe(true);
         store.dispatch("deleteFlag", { messageKey, mailboxItemFlag: Flag.SEEN }).then(() => {
             const message = store.getters.getMessageByKey(messageKey);
-            expect(message.states.includes("not-seen")).toBeTruthy();
-            expect(message.flags.includes("seen")).not.toBeTruthy();
+            expect(message.states.includes("not-seen")).toBe(true);
+            expect(message.flags.includes("seen")).not.toBe(true);
             done();
         });
     });

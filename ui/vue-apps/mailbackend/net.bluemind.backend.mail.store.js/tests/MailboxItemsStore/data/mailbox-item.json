@@ -46,7 +46,7 @@
             "bodyVersion": 1
         },
         "imapUid": 3,
-        "flags": [{ "flag": "\\Seen", "value": 16 }],
+        "flags": ["\\Seen"],
         "internalFlags": [],
         "messageBody": "8307f6dfbae188450a0595c9d04146097c10b733",
         "modSeq": 6,
@@ -62,7 +62,5 @@
     "updatedBy": "system",
     "created": 1557415293511,
     "updated": 1557415293511,
-    "flags": [
-        "Seen"
-    ]
+    "flags": ["Seen"]
 }
