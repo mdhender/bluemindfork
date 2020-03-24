@@ -7,7 +7,7 @@
                 lg="2"
                 order="0"
                 class="d-lg-block"
-                :class="composerOrMessageIsDisplayed ? 'd-none' : ''"
+                :class="hideListInResponsiveMode ? 'd-none' : ''"
             >
                 <bm-button variant="link" class="d-inline-block d-lg-none btn-transparent-bg" @click="toggleFolders">
                     <bm-icon icon="burger-menu" size="2x" />
@@ -26,7 +26,7 @@
                 xl="3"
                 order="1"
                 class="d-lg-block"
-                :class="composerOrMessageIsDisplayed ? 'd-none' : ''"
+                :class="hideListInResponsiveMode ? 'd-none' : ''"
             >
                 <mail-search-form />
             </bm-col>
@@ -68,7 +68,7 @@
                 cols="12"
                 lg="3"
                 class="pl-lg-2 px-0 d-lg-block"
-                :class="composerOrMessageIsDisplayed ? 'd-none' : ''"
+                :class="hideListInResponsiveMode ? 'd-none' : ''"
             >
                 <mail-message-list class="h-100" />
             </bm-col>
@@ -79,7 +79,7 @@
         <bm-button
             variant="primary"
             class="d-lg-none position-absolute bottom-1 right-1 z-index-110"
-            :class="composerOrMessageIsDisplayed ? 'd-none' : 'd-block'"
+            :class="hideListInResponsiveMode ? 'd-none' : 'd-block'"
             @click="composeNewMessage"
         >
             <bm-icon icon="pencil" />
@@ -154,6 +154,9 @@ export default {
                 routePath.endsWith("replyAll") ||
                 routePath.endsWith("forward")
             );
+        },
+        hideListInResponsiveMode() {
+            return this.isMessageComposerDisplayed || (this.currentMessageKey && this.selectedMessageKeys.length === 0);
         },
         composerOrMessageIsDisplayed() {
             return this.isMessageComposerDisplayed || this.currentMessageKey;

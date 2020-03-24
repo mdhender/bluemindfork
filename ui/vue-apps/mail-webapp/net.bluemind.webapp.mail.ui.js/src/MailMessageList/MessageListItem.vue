@@ -8,10 +8,12 @@
         @drop="e => moveMessage(e.relatedData)"
     >
         <bm-list-group-item
+            v-touch:touchhold="onTouch"
             :to="to"
             class="message-list-item"
             active-class="active"
             :class="[...message.states, isMessageSelected(message.key) ? 'active' : '']"
+            @contextmenu.prevent
             @mouseenter.native="mouseIn = true"
             @mouseleave.native="mouseIn = false"
         >
@@ -211,6 +213,9 @@ export default {
                 }
                 this.move({ messageKey: this.message.key, folder: this.getFolderByKey(folder.key) });
             }
+        },
+        onTouch() {
+            this.$emit("toggleSelect", this.message.key);
         }
     }
 };

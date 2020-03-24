@@ -65,21 +65,18 @@ export default [
                 children: [
                     {
                         path: "reply",
-                        name: "replyTo",
                         meta: {
                             $actions: actionsOnMailConsult
                         }
                     },
                     {
                         path: "replyAll",
-                        name: "replyToAll",
                         meta: {
                             $actions: actionsOnMailConsult
                         }
                     },
                     {
                         path: "forward",
-                        name: "forwardTo",
                         meta: {
                             $actions: actionsOnMailConsult
                         }

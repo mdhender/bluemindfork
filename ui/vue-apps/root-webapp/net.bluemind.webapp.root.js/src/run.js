@@ -7,6 +7,7 @@ import MainApp from "./MainApp.vue";
 import router from "@bluemind/router";
 import store from "@bluemind/store";
 import Vue from "vue";
+import Vue2TouchEvents from "vue2-touch-events";
 import VueBus from "@bluemind/vue-bus";
 import VueI18n from "vue-i18n";
 import VueSockjsPlugin from "@bluemind/vue-sockjs";
@@ -45,6 +46,7 @@ function setVuePlugins() {
     Vue.use(VueI18n);
     Vue.use(VueBus, { store });
     Vue.use(VueSockjsPlugin, { url: "/eventbus/", VueBus });
+    Vue.use(Vue2TouchEvents);
 }
 
 function registerDependencies(userSession) {

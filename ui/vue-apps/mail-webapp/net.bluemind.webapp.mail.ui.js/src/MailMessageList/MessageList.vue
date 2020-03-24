@@ -228,13 +228,7 @@ export default {
             this.navigateAfterSelection();
         },
         navigateAfterSelection() {
-            if (this.selectedMessageKeys.length === 1) {
-                this.$router.push(
-                    this.computeMessageRoute(this.currentFolderKey, this.selectedMessageKeys[0], this.messageFilter)
-                );
-            } else if (this.selectedMessageKeys.length > 1) {
-                this.navigateToParent();
-            }
+            this.navigateToParent();
         },
         unselectAllIfNeeded(messageKey) {
             if (this.selectedMessageKeys.length !== 1 || this.selectedMessageKeys[0] !== messageKey) {

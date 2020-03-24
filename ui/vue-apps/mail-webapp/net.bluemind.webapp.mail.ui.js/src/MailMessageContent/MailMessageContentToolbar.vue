@@ -5,7 +5,7 @@
             variant="outline-primary"
             :aria-label="$t('mail.content.reply.aria')"
             :title="$t('mail.content.reply.aria')"
-            :to="{ name: 'replyTo' }"
+            :to="computeRoute('reply')"
         >
             <bm-icon icon="reply" size="2x" />
         </bm-button>
@@ -14,7 +14,7 @@
             variant="outline-primary"
             :aria-label="$t('mail.content.reply_all.aria')"
             :title="$t('mail.content.reply_all.aria')"
-            :to="{ name: 'replyToAll' }"
+            :to="computeRoute('replyAll')"
         >
             <bm-icon icon="reply-all" size="2x" />
         </bm-button>
@@ -23,7 +23,7 @@
             variant="outline-primary"
             :aria-label="$t('mail.content.forward.aria')"
             :title="$t('mail.content.forward.aria')"
-            :to="{ name: 'forwardTo' }"
+            :to="computeRoute('forward')"
         >
             <bm-icon icon="forward" size="2x" />
         </bm-button>
@@ -31,7 +31,9 @@
 </template>
 
 <script>
+import MailRouterMixin from "../MailRouterMixin";
 import { BmButton, BmButtonToolbar, BmIcon, BmTooltip } from "@bluemind/styleguide";
+import { mapState } from "vuex";
 
 export default {
     name: "MailMessageContentToolbar",
@@ -40,7 +42,17 @@ export default {
         BmButtonToolbar,
         BmIcon
     },
-    directives: { BmTooltip }
+    directives: { BmTooltip },
+    mixins: [MailRouterMixin],
+    computed: {
+        ...mapState("mail-webapp", ["currentFolderKey"]),
+        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" })
+    },
+    methods: {
+        computeRoute(suffix) {
+            return this.computeMessageRoute(this.currentFolderKey, this.currentMessageKey) + "/" + suffix;
+        }
+    }
 };
 </script>
 
