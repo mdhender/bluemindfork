@@ -4,138 +4,135 @@ import { html2text } from "@bluemind/html-utils";
 import { Message, DraftStatus } from "@bluemind/backend.mail.store";
 import { MimeType } from "@bluemind/email";
 import injector from "@bluemind/inject";
-import ItemUri from "@bluemind/item-uri";
 
 /** Save the current draft: create it into Drafts box, delete the previous one. */
 export function saveDraft({ commit, state, getters }) {
-    let previousDraftId, service, draft, userSession;
+    const service = injector.getProvider("MailboxItemsPersistence").get(getters.my.DRAFTS.uid);
+    const userSession = injector.getProvider("UserSession").get();
+    let previousDraftId, draft;
 
     // only one saveDraft at a time
     return waitUntilDraftNotSaving(getters, 250, 5)
         .then(() => {
-            previousDraftId = state.draft.id;
             commit("draft/update", { status: DraftStatus.SAVING });
 
-            // deep clone
+            previousDraftId = state.draft.id;
             draft = JSON.parse(JSON.stringify(state.draft));
-
-            const previousMessage = draft.previousMessage;
-            const isAReplyOrForward = !!previousMessage;
 
             delete draft.id;
             delete draft.status;
             delete draft.saveDate;
 
-            if (isAReplyOrForward) {
-                if (previousMessage.content && !draft.isReplyExpanded) {
-                    draft.content += previousMessage.content;
-                }
-
-                if (previousMessage.messageId) {
-                    draft.headers.push({ name: "In-Reply-To", values: [previousMessage.messageId] });
-                    draft.references = [previousMessage.messageId].concat(previousMessage.references);
-                } else {
-                    draft.references = previousMessage.references;
-                }
-            }
-
+            handleReplyOrForward(draft);
             sanitize(draft);
 
-            const draftbox = getters.my.DRAFTS;
-
-            service = injector.getProvider("MailboxItemsPersistence").get(draftbox.uid);
-            userSession = injector.getProvider("UserSession").get();
+            return uploadInlineParts(draft, service);
         })
-        .then(() => {
-            let partsToUpload = {};
-
-            // FIXME cyrus wants \r\n, should do the replacement in the core, yes ?
-            let content = draft.content.replace(/\r?\n/g, "\r\n");
-
-            if (draft.type === "text") {
-                partsToUpload[MimeType.TEXT_PLAIN] = content;
-            } else if (draft.type === "html") {
-                partsToUpload[MimeType.TEXT_HTML] = content;
-                partsToUpload[MimeType.TEXT_PLAIN] = html2text(content).replace(/\r?\n/g, "\r\n");
-            }
-
-            // upload draft parts
-            let addrParts = {};
-            let promises = Object.entries(partsToUpload).map(uploadMe =>
-                service.uploadPart(uploadMe[1]).then(addrPart => {
-                    addrParts[uploadMe[0]] = addrPart;
-                    return Promise.resolve();
-                })
-            );
-            return Promise.all(promises).then(() => addrParts);
-        })
-        .then(addrParts => {
-            // create the new draft in the draftbox
-            let structure;
-            let textPart = {
-                mime: MimeType.TEXT_PLAIN,
-                address: addrParts[MimeType.TEXT_PLAIN],
-                encoding: "quoted-printable",
-                charset: "utf-8"
-            };
-
-            if (draft.type === "text") {
-                structure = textPart;
-            } else if (draft.type === "html") {
-                structure = {
-                    mime: MimeType.MULTIPART_ALTERNATIVE,
-                    children: [
-                        textPart,
-                        {
-                            mime: MimeType.TEXT_HTML,
-                            address: addrParts[MimeType.TEXT_HTML],
-                            encoding: "quoted-printable",
-                            charset: "utf-8"
-                        }
-                    ]
-                };
-            }
-
-            if (state.draft.parts.attachments.length > 0) {
-                let children = [structure];
-                children.push(
-                    ...state.draft.parts.attachments.filter(a => state.draft.attachmentStatuses[a.uid] !== "ERROR")
-                );
-                structure = {
-                    mime: MimeType.MULTIPART_MIXED,
-                    children
-                };
-            }
-
-            const key = ItemUri.encode(draft.id, getters.my.DRAFTS.uid);
-
-            return service.create(
-                new Message(key, draft).toMailboxItem(
-                    userSession.defaultEmail,
-                    userSession.formatedName,
-                    true,
-                    structure
-                )
-            );
-        })
-        .then(itemIdentifier => {
-            // update the draft properties
-            draft.id = itemIdentifier.id;
-            commit("draft/update", { status: DraftStatus.SAVED, saveDate: new Date(), id: itemIdentifier.id });
+        .then(addrParts => createDraftStructure(draft, addrParts, service, userSession, state))
+        .then(({ id }) => {
+            commit("draft/update", { status: DraftStatus.SAVED, saveDate: new Date(), id });
             if (previousDraftId) {
-                // delete the previous draft
-                return service.deleteById(previousDraftId);
+                return service.deleteById(previousDraftId).then(() => id);
             }
-
-            return Promise.resolve();
-        })
-        .then(() => {
-            // return the draft identifier
-            return draft.id;
+            return id;
         })
         .catch(() => {
             commit("draft/update", { status: DraftStatus.SAVE_ERROR, saveDate: null });
         });
+}
+
+function createDraftStructure(draft, addrParts, service, userSession, state) {
+    let structure;
+    const textPart = createTextPart(addrParts);
+    if (draft.type === "text") {
+        structure = textPart;
+    } else if (draft.type === "html") {
+        const htmlPart = createHtmlPart(addrParts);
+        structure = {
+            mime: MimeType.MULTIPART_ALTERNATIVE,
+            children: [textPart, htmlPart]
+        };
+    }
+
+    structure = handleAttachments(state, structure);
+
+    return service.create(
+        new Message(null, draft).toMailboxItem(userSession.defaultEmail, userSession.formatedName, true, structure)
+    );
+}
+
+function handleAttachments(state, structure) {
+    if (state.draft.parts.attachments.length > 0) {
+        let children = [structure];
+        const attachments = state.draft.parts.attachments.filter(
+            a => state.draft.attachmentStatuses[a.uid] !== "ERROR"
+        );
+        children.push(...attachments);
+        structure = {
+            mime: MimeType.MULTIPART_MIXED,
+            children
+        };
+    }
+    return structure;
+}
+
+function createHtmlPart(addrParts) {
+    return {
+        mime: MimeType.TEXT_HTML,
+        address: addrParts[MimeType.TEXT_HTML],
+        encoding: "quoted-printable",
+        charset: "utf-8"
+    };
+}
+
+function createTextPart(addrParts) {
+    return {
+        mime: MimeType.TEXT_PLAIN,
+        address: addrParts[MimeType.TEXT_PLAIN],
+        encoding: "quoted-printable",
+        charset: "utf-8"
+    };
+}
+
+function uploadInlineParts(draft, service) {
+    let partsToUpload = {};
+
+    // FIXME cyrus wants \r\n, should do the replacement in the core, yes ?
+    let content = draft.content.replace(/\r?\n/g, "\r\n");
+
+    if (draft.type === "text") {
+        partsToUpload[MimeType.TEXT_PLAIN] = content;
+    } else if (draft.type === "html") {
+        partsToUpload[MimeType.TEXT_HTML] = content;
+        partsToUpload[MimeType.TEXT_PLAIN] = html2text(content).replace(/\r?\n/g, "\r\n");
+    }
+
+    let addrParts = {};
+    let promises = Object.entries(partsToUpload).map(uploadMe =>
+        service.uploadPart(uploadMe[1]).then(addrPart => {
+            addrParts[uploadMe[0]] = addrPart;
+            return Promise.resolve();
+        })
+    );
+    return Promise.all(promises).then(() => addrParts);
+}
+
+function handleReplyOrForward(draft) {
+    const previousMessage = draft.previousMessage;
+    const isAReplyOrForward = !!previousMessage;
+
+    if (isAReplyOrForward) {
+        if (previousMessage.content && !draft.isReplyExpanded) {
+            draft.content += previousMessage.content;
+        }
+
+        if (previousMessage.messageId) {
+            draft.headers.push({ name: "In-Reply-To", values: [previousMessage.messageId] });
+            draft.references = [previousMessage.messageId].concat(previousMessage.references);
+        } else {
+            draft.references = previousMessage.references;
+        }
+    }
 }
 
 function sanitize(messageToSend) {
