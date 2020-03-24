@@ -15,7 +15,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.backend.mail.replica.api,
  com.github.freva.ascii-table;bundle-version="1.1.0",
  net.bluemind.elastic.client,
- net.bluemind.lib.elasticsearch
+ net.bluemind.lib.elasticsearch,
+ org.apache.commons.compress
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.cli.mail
 Bundle-ActivationPolicy: lazy
