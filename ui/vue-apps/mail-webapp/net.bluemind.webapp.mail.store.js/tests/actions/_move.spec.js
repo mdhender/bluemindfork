@@ -16,7 +16,8 @@ const context = {
             internalId: 1
         })
     },
-    commit: jest.fn()
+    commit: jest.fn(),
+    dispatch: jest.fn()
 };
 
 const service = new MailboxFoldersClient();
@@ -37,7 +38,7 @@ describe("[Mail-WebappStore][actions] : $_move", () => {
         const messageKey = ItemUri.encode("message_id", "source_uid"),
             destinationKey = ItemUri.encode("destination_uid", "my_mailbox_uid");
 
-        $_move(context, { messageKey, destinationKey });
+        $_move(context, { messageKeys: [messageKey], destinationKey });
 
         expect(context.getters["folders/getFolderByKey"]).toHaveBeenNthCalledWith(1, destinationKey);
         expect(context.getters["folders/getFolderByKey"]).toHaveBeenNthCalledWith(
@@ -55,8 +56,8 @@ describe("[Mail-WebappStore][actions] : $_move", () => {
     test("remove moved message from the state", done => {
         const messageKey = ItemUri.encode("message_id", "source_uid"),
             destinationKey = ItemUri.encode("destination_uid", "my_mailbox_uid");
-        $_move(context, { messageKey, destinationKey }).then(() => {
-            expect(context.commit).toHaveBeenCalledWith("messages/removeItems", [messageKey]);
+        $_move(context, { messageKeys: [messageKey], destinationKey }).then(() => {
+            expect(context.dispatch).toHaveBeenCalledWith("_removeMessages", [messageKey]);
             done();
         });
     });

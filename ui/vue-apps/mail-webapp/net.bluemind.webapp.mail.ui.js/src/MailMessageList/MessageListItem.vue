@@ -1,16 +1,19 @@
 <template>
     <bm-draggable
+        class="message-list-item"
+        :class="{ muted: isMuted }"
         :tooltip="tooltip"
         name="message"
         :data="message"
         @dragenter="e => setTooltip(e.relatedData)"
         @dragleave="resetTooltip"
         @drop="e => moveMessage(e.relatedData)"
+        @dragstart="$emit('dragstart', $event)"
+        @dragend="$emit('dragend', $event)"
     >
         <bm-list-group-item
             v-touch:touchhold="onTouch"
             :to="to"
-            class="message-list-item"
             active-class="active"
             :class="[...message.states, isMessageSelected(message.key) ? 'active' : '']"
             @mouseenter.native="mouseIn = true"
@@ -59,17 +62,7 @@
             </bm-row>
         </bm-list-group-item>
         <template v-slot:shadow>
-            <bm-row class="message-list-item-drag-shadow py-2 no-gutters align-items-center">
-                <bm-col cols="1" class="text-right">
-                    <bm-icon icon="6dots-v" class="bm-drag-handle" />
-                </bm-col>
-                <bm-col cols="2" class="pl-1">
-                    <bm-avatar :alt="from" />
-                </bm-col>
-                <bm-col cols="9" class="text-overflow font-weight-bold ">
-                    {{ message.subject }}
-                </bm-col>
-            </bm-row>
+            <mail-message-list-item-shadow :message="message" :count="selectedMessageKeys.length" />
         </template>
     </bm-draggable>
 </template>
@@ -102,6 +95,7 @@ import { DateComparator } from "@bluemind/date";
 import { mapActions, mapGetters, mapState } from "vuex";
 import ItemUri from "@bluemind/item-uri";
 import MessageListItemQuickActionButtons from "./MessageListItemQuickActionButtons";
+import MailMessageListItemShadow from "./MailMessageListItemShadow";
 
 export default {
     name: "MessageListItem",
@@ -113,7 +107,8 @@ export default {
         BmIcon,
         BmListGroupItem,
         BmRow,
-        MessageListItemQuickActionButtons
+        MessageListItemQuickActionButtons,
+        MailMessageListItemShadow
     },
     directives: { BmTooltip },
     props: {
@@ -125,6 +120,11 @@ export default {
         message: {
             type: Object,
             required: true
+        },
+        isMuted: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
     data() {
@@ -210,7 +210,11 @@ export default {
                 if (this.message.key === this.currentMessageKey) {
                     this.$router.push("" + (this.nextMessageKey || ""));
                 }
-                this.move({ messageKey: this.message.key, folder: this.getFolderByKey(folder.key) });
+                if (this.selectedMessageKeys.includes(this.message.key)) {
+                    this.move({ messageKey: [...this.selectedMessageKeys], folder: this.getFolderByKey(folder.key) });
+                } else {
+                    this.move({ messageKey: this.message.key, folder: this.getFolderByKey(folder.key) });
+                }
             }
         },
         onTouch() {
@@ -232,6 +236,10 @@ export default {
     height: 1.3rem !important;
 }
 
+.message-list-item.muted > div {
+    opacity: 0.55;
+}
+
 .message-list-item .selector .bm-check {
     display: none !important;
     margin-left: 0.825rem;
@@ -247,30 +255,24 @@ export default {
     display: block !important;
 }
 
-.list-group-item.message-list-item.not-seen {
+.message-list-item .not-seen {
     border-left: theme-color("primary") 4px solid !important;
 }
 
-a.list-group-item.message-list-item {
+.message-list-item a.list-group-item {
     border-left: transparent solid 4px !important;
 }
 
-.list-group-item.message-list-item:focus {
+.message-list-item .list-group-item:focus {
     outline: $outline;
     &:hover {
         background-color: $component-active-bg-darken;
     }
 }
 
-//FIXME: All those class should not be here or should be scoped...
-.mail-message-list-item-drag-shadow {
-    width: 240px;
-    background-color: $surface-bg;
-}
-
-.bm-draggable {
+.message-list-item {
     margin: 1px;
-    &:focus .mail-message-list-item {
+    &:focus {
         outline: $outline !important;
     }
     &:focus &:hover {
@@ -278,6 +280,7 @@ a.list-group-item.message-list-item {
     }
 }
 
+//FIXME: All those class should not be here or should be scoped...
 .custom-control-label::after,
 .custom-control-label::before {
     top: 0.2rem !important;

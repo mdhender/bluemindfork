@@ -38,7 +38,10 @@ describe("[Mail-WebappStore][actions] : remove", () => {
     test("call private move action", done => {
         const messageKey = ItemUri.encode("message-id", "source-uid");
         remove(context, messageKey).then(() => {
-            expect(context.dispatch).toHaveBeenCalledWith("$_move", { messageKey, destinationKey: "trash-key" });
+            expect(context.dispatch).toHaveBeenCalledWith("$_move", {
+                messageKeys: [messageKey],
+                destinationKey: "trash-key"
+            });
             done();
         });
         expect(context.dispatch).toHaveBeenCalledWith("$_getIfNotPresent", [messageKey]);

@@ -22,7 +22,10 @@ describe("[Mail-WebappStore][actions] : move", () => {
             folder = { key: "folder-key" };
         move(context, { messageKey, folder }).then(() => {
             expect(context.getters["folders/getFolderByKey"]).toHaveBeenCalledWith("folder-key");
-            expect(context.dispatch).toHaveBeenCalledWith("$_move", { messageKey, destinationKey: "folder-key" });
+            expect(context.dispatch).toHaveBeenCalledWith("$_move", {
+                messageKeys: [messageKey],
+                destinationKey: "folder-key"
+            });
             done();
         });
         expect(context.dispatch).toHaveBeenCalledWith("$_getIfNotPresent", [messageKey]);

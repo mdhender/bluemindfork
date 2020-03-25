@@ -71,8 +71,11 @@
     "mail.error.email.address.invalid": "Adresse de courriel invalide.",
     "mail.folder.new": "{0} (Nouveau dossier)",
     "alert.mail.move.loading": "Déplacement de \"{subject}\" en cours...",
-    "alert.mail.move.ok": "\"{subject}\" a bien été déplacé dans {icon} {folderNameWithLink} ! ",
+    "alert.mail.move.multiple.loading": "Déplacement de {count} messages en cours...",
+    "alert.mail.move.ok": "\"{subject}\" a bien été déplacé dans {icon} {folderNameWithLink} !",
+    "alert.mail.move.multiple.ok": "{count} messages ont bien été déplacés dans {icon} {folderNameWithLink} ! ",
     "alert.mail.move.error": "\"{subject}\" n'a pas pu être déplacé dans \"{folderName}\".{br}{reason}",
+    "alert.mail.move.multiple.error": "Les messages n'ont pas pu être déplacés dans \"{folderName}\".{br} Veuillez {reloadLink} l'application.",
     "alert.mail.create_folder.ok": "Le dossier \"{folderName}\" a bien été créé.",
     "mail.draft.save.inprogress": "Enregistrement en cours...",
     "mail.draft.save.date.time": "Brouillon enregistré à {time}",
@@ -101,5 +104,6 @@
     "mail.compose.forward.prev.message.info.to": "\u00C0",
     "mail.compose.forward.prev.message.info.date": "Date",
     "mail.compose.forward.prev.message.info.from": "De",
-    "mail.main.switch.webmail": "Essayer le nouveau webmail"
+    "mail.main.switch.webmail": "Essayer le nouveau webmail",
+    "mail.messages.multiple.drag_shadow": "La conversation séléctionnée | {count} conversations séléctionnées"
 }

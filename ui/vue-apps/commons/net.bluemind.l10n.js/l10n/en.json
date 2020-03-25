@@ -31,5 +31,6 @@
     "alert.common.purge.error": "\"{subject}\" could not be deleted definitely.{br}{reason}",
     "common.or": "or",
     "common.cancel": "Cancel",
-    "common.mailshares": "Shared folders"
+    "common.mailshares": "Shared folders",
+    "common.reload": "reload"
 }

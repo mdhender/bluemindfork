@@ -5,13 +5,25 @@ export default {
         type: AlertTypes.LOADING,
         key: "alert.mail.move.loading"
     },
+    MSG_MOVED_LOADING_MULTIPLE: {
+        type: AlertTypes.LOADING,
+        key: "alert.mail.move.multiple.loading"
+    },
     MSG_MOVE_OK: {
         type: AlertTypes.SUCCESS,
         key: "alert.mail.move.ok"
     },
+    MSG_MOVE_OK_MULTIPLE: {
+        type: AlertTypes.SUCCESS,
+        key: "alert.mail.move.multiple.ok"
+    },
     MSG_MOVE_ERROR: {
         type: AlertTypes.ERROR,
         key: "alert.mail.move.error"
+    },
+    MSG_MOVE_ERROR_MULTIPLE: {
+        type: AlertTypes.ERROR,
+        key: "alert.mail.move.multiple.error"
     },
     MSG_REMOVED_LOADING: {
         type: AlertTypes.LOADING,

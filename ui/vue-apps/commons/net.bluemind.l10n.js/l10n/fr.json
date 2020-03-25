@@ -31,5 +31,6 @@
     "alert.common.purge.error": "\"{subject}\" n'a pas pu être supprimé définitivement.{br}{reason}",
     "common.or": "ou",
     "common.cancel": "Annuler",
-    "common.mailshares": "Dossiers partagés"
+    "common.mailshares": "Dossiers partagés",
+    "common.reload": "recharger"
 }

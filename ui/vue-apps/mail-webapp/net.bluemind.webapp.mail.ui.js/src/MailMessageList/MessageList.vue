@@ -40,6 +40,9 @@
                 @click.ctrl.exact.native.prevent="toggleSelect(message.key)"
                 @click.shift.exact.native.prevent="selectRange(message.key, true)"
                 @click.shift.exact.ctrl.exact.native.prevent="selectRange(message.key)"
+                @dragstart="draggedMessage = message.key"
+                @dragend="draggedMessage = null"
+                :isMuted="!!draggedMessage && isMessageSelected(draggedMessage) && isMessageSelected(message.key)"
             />
         </div>
         <bm-list-group-item v-if="hasMore">Loading…</bm-list-group-item>
@@ -71,7 +74,8 @@ export default {
         return {
             PAGE,
             lastFocusedMessage: null,
-            anchoredMessageForShift: null
+            anchoredMessageForShift: null,
+            draggedMessage: null
         };
     },
     computed: {

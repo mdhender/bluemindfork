@@ -23,7 +23,7 @@ export function remove({ dispatch, getters, commit, state }, messageKey) {
                 },
                 { root: true }
             );
-            return dispatch("$_move", { messageKey, destinationKey: getters.my.TRASH.key });
+            return dispatch("$_move", { messageKeys: [messageKey], destinationKey: getters.my.TRASH.key });
         })
         .then(() => {
             if (message.states.includes("not-seen")) {
