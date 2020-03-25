@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Verticle;
+import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
@@ -41,7 +42,7 @@ public class SdsCyrusValidationHandlerVerticle extends AbstractVerticle {
 
 	@Override
 	public void start() {
-		cli = getProvider();
+		cli = getProvider(vertx);
 
 		vertx.eventBus().consumer(SdsAddresses.VALIDATION, (Message<Buffer> message) -> {
 			JsonObject json = JsonHelper.getJsonFromString(message.body().toString());
@@ -65,7 +66,7 @@ public class SdsCyrusValidationHandlerVerticle extends AbstractVerticle {
 		});
 	}
 
-	private ICyrusValidationPromise getProvider() {
+	private static ICyrusValidationPromise getProvider(Vertx vertx) {
 		ILocator cachingLocator = (String service, AsyncHandler<String[]> asyncHandler) -> {
 			Optional<IServiceTopology> topology = Topology.getIfAvailable();
 			if (topology.isPresent()) {

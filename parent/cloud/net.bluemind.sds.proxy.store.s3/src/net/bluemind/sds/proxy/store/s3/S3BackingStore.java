@@ -29,6 +29,7 @@ import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
 import com.netflix.spectator.api.Registry;
 
@@ -80,11 +81,13 @@ public class S3BackingStore implements ISdsBackingStore {
 	public SdsResponse upload(PutRequest req) throws IOException {
 		SdsResponse sr = new SdsResponse();
 		if (client.doesObjectExist(bucket.getName(), req.guid)) {
+			sr.withTags(ImmutableMap.of("guid", req.guid, "skip", "true"));
 			return sr;
 		}
 		try {
 			File file = new File(req.filename);
 			PutObjectResult result = client.putObject(bucket.getName(), req.guid, file);
+			sr.withTags(ImmutableMap.of("guid", req.guid));
 			registry.counter(idFactory.name("transfer").withTag("direction", "upload")).increment(file.length());
 			logger.debug("Result {} {}", result.getETag(), result.getVersionId());
 		} catch (Exception e) {

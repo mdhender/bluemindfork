@@ -16,6 +16,12 @@
       <verticle
             impl="net.bluemind.sds.proxy.events.SdsCyrusValidationHandlerVerticle$SdsCoreAPIFactory">
       </verticle>
+      <verticle
+            impl="net.bluemind.sds.proxy.mapping.MappingController$Build">
+      </verticle>
+      <verticle
+            impl="net.bluemind.sds.proxy.mapping.MappingCacheCleaner$Build">
+      </verticle>
    </extension>
 
 </plugin>

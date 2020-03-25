@@ -93,6 +93,7 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 		this.storeService = storeService;
 		this.replicaStore = store;
 		this.optRecordsLocation = SubtreeLocations.getById(store, mailboxUniqueId);
+
 		this.rbac = RBACManager.forContext(context).forContainer(IMailboxAclUids.uidForMailbox(container.owner));
 	}
 
@@ -263,11 +264,11 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 		String path = CyrusFileSystemPathHelper.getFileSystemPath(container.domainUid, md, partition, imapUid);
 		File pathFile = new File(path);
 		if (!pathFile.exists()) {
-			logger.warn("{} {} is not a {}", md, imapUid, path);
+			logger.warn("{} {} is not at {}", md, imapUid, path);
 			path = CyrusFileSystemPathHelper.getHSMFileSystemPath(container.domainUid, md, partition, imapUid);
 			pathFile = new File(path);
 			if (!pathFile.exists()) {
-				logger.warn("{} {} is not a {}", md, imapUid, path);
+				logger.warn("{} {} is not at {}", md, imapUid, path, new Throwable("loc"));
 				return null;
 			}
 		}

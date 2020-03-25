@@ -34,4 +34,10 @@ public class SdsAddresses {
 
 	public static final String VALIDATION = "core.api.mailbox.validation";
 
+	public static final String MAP = "mapping.ctrl.map";
+
+	public static final String UNMAP = "mapping.ctrl.unmap";
+
+	public static final String QUERY = "mapping.ctrl.query";
+
 }

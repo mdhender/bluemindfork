@@ -115,11 +115,11 @@ public class BaseReplicatedMailboxesService implements IBaseMailboxFolders {
 				} else {
 					replica.name = replica.fullName;
 					parentName = root.name.replace('^', '.');
-					logger.info("replicaName: {}, parentName: {}", replica.name, parentName);
+					logger.debug("replicaName: {}, parentName: {}", replica.name, parentName);
 					if (parentName.equals(replica.name)) {
 						parentName = null;
 					}
-					logger.info("********************* Sanitized mailshare folder with parent set to {}", parentName);
+					logger.debug("********************* Sanitized mailshare folder with parent set to {}", parentName);
 				}
 			}
 

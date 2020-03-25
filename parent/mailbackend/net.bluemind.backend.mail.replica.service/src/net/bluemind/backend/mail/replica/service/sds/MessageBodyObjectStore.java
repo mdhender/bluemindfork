@@ -79,7 +79,7 @@ public class MessageBodyObjectStore {
 		RunnableExtensionLoader<IObjectStoreReader.Factory> rel = new RunnableExtensionLoader<>();
 		List<Factory> factories = rel.loadExtensions("net.bluemind.backend.mail.replica.service", "objectstore",
 				"reader", "impl");
-		return factories.stream().collect(Collectors.toMap(f -> f.handledObjectStoreKind(), f -> f));
+		return factories.stream().collect(Collectors.toMap(IObjectStoreReader.Factory::handledObjectStoreKind, f -> f));
 	}
 
 	private IObjectStoreReader loadReader(SystemConf values) {

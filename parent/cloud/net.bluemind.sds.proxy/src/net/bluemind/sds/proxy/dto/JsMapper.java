@@ -17,10 +17,14 @@
   */
 package net.bluemind.sds.proxy.dto;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JsMapper {
 
+	private static final Logger logger = LoggerFactory.getLogger(JsMapper.class);
 	private static final ObjectMapper mapper = initMapper();
 
 	public static final ObjectMapper get() {
@@ -33,6 +37,7 @@ public class JsMapper {
 
 	private static ObjectMapper initMapper() {
 		ObjectMapper om = new ObjectMapper();
+		logger.debug("OM is {}", om);
 		return om;
 	}
 
