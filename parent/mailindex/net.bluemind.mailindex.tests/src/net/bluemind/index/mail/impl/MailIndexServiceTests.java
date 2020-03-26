@@ -103,7 +103,7 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 				.setQuery(QueryBuilders.queryStringQuery("id:\"" + entryId(imapUid) + "\"")).execute().get();
 		assertEquals(1L, resp.getHits().getTotalHits());
 
-		List<MailboxItemFlag> deleteFlag = Arrays.asList(MailboxItemFlag.System.Seen.value());
+		List<MailboxItemFlag> deleteFlag = Arrays.asList(MailboxItemFlag.System.Deleted.value());
 		storeMessage(mboxUid, userUid, bodyUid, imapUid, deleteFlag);
 		ESearchActivator.refreshIndex(INDEX_NAME);
 		MailIndexActivator.getService().expunge("testbm.lan@bm.loc", ItemValue.create(userUid, null),
