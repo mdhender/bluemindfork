@@ -51,6 +51,8 @@ import net.bluemind.proxy.http.ExternalCreds;
 import net.bluemind.proxy.http.IAuthProvider;
 import net.bluemind.proxy.http.IDecorableRequest;
 import net.bluemind.proxy.http.InvalidSession;
+import net.bluemind.user.api.ChangePassword;
+import net.bluemind.user.api.IUserPromise;
 
 public class C2Provider implements IAuthProvider {
 
@@ -92,6 +94,7 @@ public class C2Provider implements IAuthProvider {
 		final SessionData sd = new SessionData();
 
 		sd.authKey = lr.authKey;
+		sd.passwordStatus = lr.status;
 		sd.userUid = lr.authUser.uid;
 		sd.user = lr.authUser.value;
 		sd.loginAtDomain = lr.latd;
@@ -351,5 +354,28 @@ public class C2Provider implements IAuthProvider {
 					}
 					sessions.invalidate(sessionId);
 				});
+	}
+
+	@Override
+	public boolean isPasswordExpired(String sessionId) {
+		SessionData session = sessions.getIfPresent(sessionId);
+		if (session == null) {
+			return false;
+		}
+
+		return session.passwordStatus == Status.Expired;
+	}
+
+	@Override
+	public CompletableFuture<Void> updatePassword(String sessionId, String currentPassword, String newPassword,
+			List<String> forwadedFor) {
+		SessionData session = sessions.getIfPresent(sessionId);
+		if (session == null) {
+			return CompletableFuture.completedFuture(null);
+		}
+
+		return getProvider(session.loginAtDomain, sessionId, forwadedFor)
+				.instance(IUserPromise.class, session.domainUid)
+				.setPassword(session.userUid, ChangePassword.create(currentPassword, newPassword));
 	}
 }

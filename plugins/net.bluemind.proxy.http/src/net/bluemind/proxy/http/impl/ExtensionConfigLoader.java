@@ -49,8 +49,8 @@ public class ExtensionConfigLoader implements IConfigLoader {
 			ForwardedLocation fl;
 			for (IConfigurationElement e : ie.getConfigurationElements()) {
 				if ("forward".equals(e.getName())) {
-					fl = new ForwardedLocation(e.getAttribute("path"), e.getAttribute("target"),
-							e.getAttribute("role"));
+					fl = new ForwardedLocation(e.getAttribute("path"), e.getAttribute("target"), e.getAttribute("role"),
+							"false");
 					conf.getForwardedLocations().add(fl);
 					logger.info("adding forward from " + fl.getPathPrefix() + " to " + fl.getTargetUrl() + " [role:{}]",
 							fl.getRole());

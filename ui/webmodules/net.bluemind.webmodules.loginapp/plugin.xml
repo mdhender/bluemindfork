@@ -15,6 +15,10 @@
          <handler
                class="net.bluemind.webmodules.login.LoginHandler"
                path="native"></handler>
+         <handler
+               class="net.bluemind.webmodules.login.UpdatePasswordHandler"
+               path="updatepassword.html">
+         </handler>
          
       </web-module>
    </extension>
