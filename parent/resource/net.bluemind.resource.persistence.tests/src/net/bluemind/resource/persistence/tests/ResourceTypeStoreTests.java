@@ -24,6 +24,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.junit.After;
@@ -118,6 +120,24 @@ public class ResourceTypeStoreTests {
 	private void assertResourceTypeDescriptorEquals(ResourceTypeDescriptor get, ResourceTypeDescriptor testDescriptor) {
 		assertEquals(get.label, testDescriptor.label);
 		assertEquals(get.properties.size(), testDescriptor.properties.size());
+
+		Collections.sort(get.properties, new Comparator<Property>() {
+
+			@Override
+			public int compare(Property o1, Property o2) {
+				return o1.id.compareTo(o2.id);
+			}
+
+		});
+
+		Collections.sort(testDescriptor.properties, new Comparator<Property>() {
+
+			@Override
+			public int compare(Property o1, Property o2) {
+				return o1.id.compareTo(o2.id);
+			}
+
+		});
 		for (int i = 0; i < get.properties.size(); i++) {
 			assertPropertyEquals(get.properties.get(i), testDescriptor.properties.get(i));
 		}
