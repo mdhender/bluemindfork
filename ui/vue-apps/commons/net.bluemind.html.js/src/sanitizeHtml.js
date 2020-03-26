@@ -40,25 +40,36 @@ export default function(html) {
         css: false,
         stripIgnoreTag: true,
         whiteList: customWhiteList,
-        onIgnoreTagAttr: allowAttributes,
-        onTagAttr: forbidAttributes
+        onIgnoreTagAttr: customOnIgnoreTagAttr,
+        onTagAttr: customOnTagAttr,
+        safeAttrValue: customSafeAttrValue
     });
     html = xssFilter.process(html);
 
     return html;
 }
 
-function allowAttributes(tag, name, value) {
+function customOnIgnoreTagAttr(tag, name, value) {
     if (ADDITIONAL_ALLOWED_ATTRIBUTES_FOR_ANY_TAG.includes(name)) {
         return name + '="' + value + '"';
     }
+    return xss.onIgnoreTagAttr(tag, name, value);
 }
 
-function forbidAttributes(tag, name, value) {
+function customOnTagAttr(tag, name, value) {
     // disable links having a forbidden protocol
     if (/^a$/i.test(tag) && /^href$/i.test(name) && !hasAllowedProtocol(value)) {
         return "";
     }
+    return xss.onTagAttr(tag, name, value);
+}
+
+function customSafeAttrValue(tag, name, value) {
+    // allow blob images
+    if (/^img$/i.test(tag) && /^src$/i.test(name) && /^blob:https?:\/\//i.test(value)) {
+        return value;
+    }
+    return xss.safeAttrValue(tag, name, value);
 }
 
 function hasAllowedProtocol(url) {
