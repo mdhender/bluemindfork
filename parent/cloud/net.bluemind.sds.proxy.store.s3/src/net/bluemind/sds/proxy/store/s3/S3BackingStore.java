@@ -79,6 +79,9 @@ public class S3BackingStore implements ISdsBackingStore {
 	@Override
 	public SdsResponse upload(PutRequest req) throws IOException {
 		SdsResponse sr = new SdsResponse();
+		if (client.doesObjectExist(bucket.getName(), req.guid)) {
+			return sr;
+		}
 		try {
 			File file = new File(req.filename);
 			PutObjectResult result = client.putObject(bucket.getName(), req.guid, file);
