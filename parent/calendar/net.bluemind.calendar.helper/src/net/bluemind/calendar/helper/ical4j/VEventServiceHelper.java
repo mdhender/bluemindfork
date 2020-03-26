@@ -180,13 +180,13 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 	 * @return
 	 * @throws ServerFault
 	 */
-	public static List<ItemValue<VEventSeries>> convertToVEventList(String ics, Optional<CalendarOwner> owner)
-			throws ServerFault {
+	public static List<ItemValue<VEventSeries>> convertToVEventList(String ics, Optional<CalendarOwner> owner) {
 
 		List<String> icsCalendarList = splitIcs(ics);
 		List<ItemValue<VEventSeries>> ret = new ArrayList<>();
 		for (String cal : icsCalendarList) {
-			ret.addAll(parseCalendar(cal, owner));
+			InputStream is = new ByteArrayInputStream(cal.getBytes());
+			ret.addAll(parseCalendar(is, owner));
 
 		}
 		return ret;
@@ -211,14 +211,12 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 		return cals;
 	}
 
-	private static <T extends VEvent> List<ItemValue<VEventSeries>> parseCalendar(String ics,
-			Optional<CalendarOwner> owner) throws ServerFault {
+	public static <T extends VEvent> List<ItemValue<VEventSeries>> parseCalendar(InputStream ics,
+			Optional<CalendarOwner> owner) {
 		CalendarParser parser = CalendarParserFactory.getInstance().createParser();
 		PropertyFactoryRegistry propertyFactory = new PropertyFactoryRegistry();
 		ParameterFactoryRegistry parameterFactory = new ParameterFactoryRegistry();
-
-		InputStream is = new ByteArrayInputStream(ics.getBytes());
-		Reader reader = new InputStreamReader(is);
+		Reader reader = new InputStreamReader(ics);
 		UnfoldingReader unfoldingReader = new UnfoldingReader(reader, true);
 
 		CalendarBuilder builder = new CalendarBuilder(parser, propertyFactory, parameterFactory,
@@ -236,7 +234,6 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 			throw new ServerFault(e);
 		} finally {
 			try {
-				is.close();
 				reader.close();
 				unfoldingReader.close();
 			} catch (IOException e) {

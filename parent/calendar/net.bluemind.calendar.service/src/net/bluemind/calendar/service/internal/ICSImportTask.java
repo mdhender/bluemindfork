@@ -30,7 +30,6 @@ import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.VEventChanges;
 import net.bluemind.calendar.api.VEventChanges.ItemDelete;
 import net.bluemind.calendar.api.VEventSeries;
-import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
 import net.bluemind.core.api.ImportStats;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
@@ -40,28 +39,28 @@ import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.icalendar.parser.CalendarOwner;
 
-public class ICSImportTask implements IServerTask {
+public abstract class ICSImportTask implements IServerTask {
 
 	private static final Logger logger = LoggerFactory.getLogger(ICSImportTask.class);
 
-	private final String ics;
-	private final ICalendar service;
-	private final Optional<CalendarOwner> owner;
-	private final int STEP = 50;
-	private final Mode mode;
+	protected final ICalendar service;
+	protected final Optional<CalendarOwner> owner;
+	protected final int STEP = 50;
+	protected final Mode mode;
 
-	public ICSImportTask(ICalendar calendar, String ics, Optional<CalendarOwner> owner, Mode mode) {
+	public ICSImportTask(ICalendar calendar, Optional<CalendarOwner> owner, Mode mode) {
 		this.service = calendar;
-		this.ics = ics;
 		this.owner = owner;
 		this.mode = mode;
 	}
+
+	protected abstract List<ItemValue<VEventSeries>> convertToVEventList();
 
 	@Override
 	public void run(IServerTaskMonitor monitor) throws Exception {
 		monitor.begin(3, "Begin import");
 
-		List<ItemValue<VEventSeries>> events = VEventServiceHelper.convertToVEventList(ics, owner);
+		List<ItemValue<VEventSeries>> events = convertToVEventList();
 		monitor.progress(1, "ICS parsed ( " + events.size() + " events )");
 		ContainerUpdatesResult ret = importEvents(events, monitor.subWork("", 2));
 
