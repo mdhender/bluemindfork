@@ -1,4 +1,4 @@
-import PartsHelper from "../../src/MailboxItemsStore/PartsHelper.js";
+import PartsHelper from "../src/PartsHelper";
 
 describe("PartsHelper insertInlineImages", () => {
     const mockedBlobAsURLObject = "blob:mockedURLObject:";

@@ -87,7 +87,7 @@
                     </bm-col>
                 </bm-row>
                 <bm-file-drop-zone
-                    class="flex-grow-1 z-index-110"
+                    class="z-index-110"
                     :text="$t('mail.new.attachments.drop.zone')"
                     @dropFiles="addAttachments($event)"
                 >

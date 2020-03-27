@@ -1,12 +1,14 @@
 import { content } from "../../../src/MessageStore/getters/content";
-import { PartsHelper } from "@bluemind/backend.mail.store";
-jest.mock("@bluemind/backend.mail.store");
-PartsHelper.insertInlineImages.mockReturnValue([]);
+import { PartsHelper } from "@bluemind/email";
+
+PartsHelper.insertInlineImages = jest.fn().mockReturnValue([]);
+
 describe("[Mail-WebappStore/MessageStore][getters] : content ", () => {
     const state = {};
     let rootState = {};
     let rootGetters = {};
     let parts = {};
+
     beforeEach(() => {
         PartsHelper.insertInlineImages.mockClear();
         Object.assign(state, {
@@ -32,6 +34,7 @@ describe("[Mail-WebappStore/MessageStore][getters] : content ", () => {
         parts = { "not-key": {}, key: { "1.1": "HTML", "1.2": "TEXT" } };
         rootGetters["mail-webapp/messages/getPartContent"] = (key, addr) => parts[key][addr];
     });
+
     test("return current message inline parts ", () => {
         const result = content(state, undefined, rootState, rootGetters);
         expect(result.length).toEqual(2);
@@ -40,12 +43,14 @@ describe("[Mail-WebappStore/MessageStore][getters] : content ", () => {
         expect(result[1].address).toEqual("1.2");
         expect(result[1].content).toEqual("TEXT");
     });
+
     test("set content from the messages state not from the currentMessagesParts ", () => {
         state.parts.inlines[0].content = null;
         const result = content(state, undefined, rootState, rootGetters);
         expect(result[0].address).toEqual("1.1");
         expect(result[0].content).not.toBeNull();
     });
+
     test("do not return part without content ", () => {
         state.parts.inlines.push({ address: "1.3", mime: "text/html" });
         state.parts.inlines.push({ address: "1.4", mime: "text/plain" });
@@ -53,6 +58,7 @@ describe("[Mail-WebappStore/MessageStore][getters] : content ", () => {
         expect(result.length).toEqual(2);
         expect(result.find(part => ["1.3", "1.4"].includes(part.address))).not.toBeTruthy();
     });
+
     test("inline images are included in html ", () => {
         state.parts.inlines = [
             { address: "1.1", mime: "text/html" },

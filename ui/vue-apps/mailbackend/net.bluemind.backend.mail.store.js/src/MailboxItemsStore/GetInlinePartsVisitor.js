@@ -1,5 +1,5 @@
 import { MimeType } from "@bluemind/email";
-import PartsHelper from "./PartsHelper";
+import { PartsHelper } from "@bluemind/email";
 import findLast from "lodash.findlast";
 
 /**

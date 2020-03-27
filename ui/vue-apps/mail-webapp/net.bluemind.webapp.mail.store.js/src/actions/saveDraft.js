@@ -1,119 +1,113 @@
-//FIXME: Refactor this
-
 import { html2text } from "@bluemind/html-utils";
 import { Message, DraftStatus } from "@bluemind/backend.mail.store";
-import { MimeType } from "@bluemind/email";
+import { MimeType, PartsHelper } from "@bluemind/email";
 import injector from "@bluemind/inject";
 
 /** Save the current draft: create it into Drafts box, delete the previous one. */
 export function saveDraft({ commit, state, getters }) {
     const service = injector.getProvider("MailboxItemsPersistence").get(getters.my.DRAFTS.uid);
     const userSession = injector.getProvider("UserSession").get();
-    let previousDraftId, draft;
+    let draft;
 
     // only one saveDraft at a time
     return waitUntilDraftNotSaving(getters, 250, 5)
         .then(() => {
             commit("draft/update", { status: DraftStatus.SAVING });
-
-            previousDraftId = state.draft.id;
-            draft = JSON.parse(JSON.stringify(state.draft));
-
-            delete draft.id;
-            delete draft.status;
-            delete draft.saveDate;
-
-            handleReplyOrForward(draft);
-            sanitize(draft);
-
+            draft = prepareDraft(draft, state);
             return uploadInlineParts(draft, service);
         })
-        .then(addrParts => createDraftStructure(draft, addrParts, service, userSession, state))
+        .then(addrParts => {
+            draft.addrParts = addrParts;
+            return createDraftStructure(draft, service, userSession, state);
+        })
         .then(({ id }) => {
-            commit("draft/update", { status: DraftStatus.SAVED, saveDate: new Date(), id });
-            if (previousDraftId) {
-                return service.deleteById(previousDraftId).then(() => id);
+            draft.id = id;
+            return cleanParts(draft, service);
+        })
+        .then(() => {
+            commit("draft/update", { status: DraftStatus.SAVED, saveDate: new Date(), id: draft.id });
+            if (draft.previousId) {
+                return service.deleteById(draft.previousId).then(() => draft.id);
             }
-            return id;
+            return draft.id;
         })
         .catch(() => {
             commit("draft/update", { status: DraftStatus.SAVE_ERROR, saveDate: null });
         });
 }
 
-function createDraftStructure(draft, addrParts, service, userSession, state) {
+function createDraftStructure(draft, service, userSession, state) {
     let structure;
-    const textPart = createTextPart(addrParts);
+    const textPart = PartsHelper.createTextPart(draft.addrParts[MimeType.TEXT_PLAIN][0]);
+
     if (draft.type === "text") {
         structure = textPart;
     } else if (draft.type === "html") {
-        const htmlPart = createHtmlPart(addrParts);
-        structure = {
-            mime: MimeType.MULTIPART_ALTERNATIVE,
-            children: [textPart, htmlPart]
-        };
+        const htmlPart = PartsHelper.createHtmlPart(draft.addrParts[MimeType.TEXT_HTML][0]);
+        structure = PartsHelper.createAlternativePart(textPart, htmlPart);
+        structure = PartsHelper.createInlineImageParts(structure, draft.addrParts[MimeType.IMAGE], draft.inlineImages);
     }
-
-    structure = handleAttachments(state, structure);
-
+    structure = PartsHelper.createAttachmentParts(
+        state.draft.parts.attachments,
+        state.draft.attachmentStatuses,
+        structure
+    );
     return service.create(
         new Message(null, draft).toMailboxItem(userSession.defaultEmail, userSession.formatedName, true, structure)
     );
 }
 
-function handleAttachments(state, structure) {
-    if (state.draft.parts.attachments.length > 0) {
-        let children = [structure];
-        const attachments = state.draft.parts.attachments.filter(
-            a => state.draft.attachmentStatuses[a.uid] !== "ERROR"
-        );
-        children.push(...attachments);
-        structure = {
-            mime: MimeType.MULTIPART_MIXED,
-            children
-        };
+function cleanParts(draft, service) {
+    const promises = [];
+    Object.keys(draft.addrParts).forEach(mimeType => {
+        draft.addrParts[mimeType].forEach(address => {
+            promises.push(service.removePart(address));
+        });
+    });
+    return Promise.all(promises);
+}
+
+function prepareDraft(draft, state) {
+    draft = JSON.parse(JSON.stringify(state.draft));
+    draft = Object.assign(draft, { previousId: draft.id, id: undefined });
+
+    handleReplyOrForward(draft);
+    sanitize(draft);
+    // FIXME cyrus wants \r\n, should do the replacement in the core, yes ?
+    draft.content = draft.content.replace(/\r?\n/g, "\r\n");
+
+    draft.partsToUpload = {};
+    if (draft.type === "text") {
+        draft.inlineImages = [];
+        draft.partsToUpload[MimeType.TEXT_PLAIN] = [draft.content];
+    } else if (draft.type === "html") {
+        const cidResults = PartsHelper.insertCid(draft.content);
+        const html = cidResults.html;
+        draft.inlineImages = cidResults.images;
+        draft.partsToUpload[MimeType.TEXT_HTML] = [html];
+        draft.partsToUpload[MimeType.TEXT_PLAIN] = [html2text(html).replace(/\r?\n/g, "\r\n")];
+        draft.partsToUpload[MimeType.IMAGE] = draft.inlineImages.map(image => image.content);
     }
-    return structure;
-}
 
-function createHtmlPart(addrParts) {
-    return {
-        mime: MimeType.TEXT_HTML,
-        address: addrParts[MimeType.TEXT_HTML],
-        encoding: "quoted-printable",
-        charset: "utf-8"
-    };
-}
-
-function createTextPart(addrParts) {
-    return {
-        mime: MimeType.TEXT_PLAIN,
-        address: addrParts[MimeType.TEXT_PLAIN],
-        encoding: "quoted-printable",
-        charset: "utf-8"
-    };
+    return draft;
 }
 
 function uploadInlineParts(draft, service) {
-    let partsToUpload = {};
+    const addrParts = {};
+    let promises = [];
 
-    // FIXME cyrus wants \r\n, should do the replacement in the core, yes ?
-    let content = draft.content.replace(/\r?\n/g, "\r\n");
+    Object.entries(draft.partsToUpload).forEach(partsToUploadByMimeType => {
+        const mimeType = partsToUploadByMimeType[0];
+        const parts = partsToUploadByMimeType[1];
+        addrParts[mimeType] = [];
+        const uploadedPromises = parts.map(part =>
+            service.uploadPart(part).then(addrPart => {
+                addrParts[mimeType].push(addrPart);
+            })
+        );
+        promises.push(...uploadedPromises);
+    });
 
-    if (draft.type === "text") {
-        partsToUpload[MimeType.TEXT_PLAIN] = content;
-    } else if (draft.type === "html") {
-        partsToUpload[MimeType.TEXT_HTML] = content;
-        partsToUpload[MimeType.TEXT_PLAIN] = html2text(content).replace(/\r?\n/g, "\r\n");
-    }
-
-    let addrParts = {};
-    let promises = Object.entries(partsToUpload).map(uploadMe =>
-        service.uploadPart(uploadMe[1]).then(addrPart => {
-            addrParts[uploadMe[0]] = addrPart;
-            return Promise.resolve();
-        })
-    );
     return Promise.all(promises).then(() => addrParts);
 }
 

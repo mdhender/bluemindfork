@@ -69,6 +69,9 @@ function customSafeAttrValue(tag, name, value) {
     if (/^img$/i.test(tag) && /^src$/i.test(name) && /^blob:https?:\/\//i.test(value)) {
         return value;
     }
+    if (/^img$/i.test(tag) && /^src$/i.test(name) && /^data:image\//i.test(value)) {
+        return value;
+    }
     return xss.safeAttrValue(tag, name, value);
 }
 

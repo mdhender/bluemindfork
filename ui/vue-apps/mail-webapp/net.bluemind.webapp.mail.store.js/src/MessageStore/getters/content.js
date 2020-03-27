@@ -1,5 +1,4 @@
-import { MimeType } from "@bluemind/email";
-import { PartsHelper } from "@bluemind/backend.mail.store";
+import { MimeType, PartsHelper } from "@bluemind/email";
 
 export function content(state, getters, rootState, rootGetters) {
     const partsContent = rootState["mail-webapp"]["messages"].itemsParts[state.key];

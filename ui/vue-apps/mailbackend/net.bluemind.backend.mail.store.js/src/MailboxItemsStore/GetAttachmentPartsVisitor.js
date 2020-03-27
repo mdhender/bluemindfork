@@ -1,4 +1,4 @@
-import PartsHelper from "./PartsHelper";
+import { PartsHelper } from "@bluemind/email";
 
 export default class GetAttachmentPartsVisitor {
     constructor() {
