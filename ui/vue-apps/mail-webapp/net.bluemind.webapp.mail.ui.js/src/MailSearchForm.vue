@@ -7,7 +7,7 @@
         :aria-label="$t('common.search')"
         class="mail-search-form rounded-0"
         @input="onChange"
-        @keydown.enter="updateRoute"
+        @keydown.enter="onKeydownEnter"
         @reset="cancel"
     />
 </template>
@@ -45,6 +45,10 @@ export default {
         onChange(value) {
             this.showSpinner();
             this.updateRoute(value);
+        },
+        onKeydownEnter(event) {
+            this.showSpinner();
+            this.updateRoute(event.target.value);
         }
     }
 };
