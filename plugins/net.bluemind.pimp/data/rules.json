@@ -45,13 +45,19 @@
 		"product":"bm-lmtpd",
 		"defaultHeap":256,
 		"defaultDirect":256,
-		"sparePercent":3
+		"sparePercent":2
 	},
 	{
 		"product":"bm-milter",
 		"defaultHeap":256,
 		"defaultDirect":256,
 		"sparePercent":3
+	},
+	{
+		"product":"bm-sds-proxy",
+		"defaultHeap":128,
+		"defaultDirect":128,
+		"sparePercent":1
 	},
 	{
 		"product":"bm-mapi",
