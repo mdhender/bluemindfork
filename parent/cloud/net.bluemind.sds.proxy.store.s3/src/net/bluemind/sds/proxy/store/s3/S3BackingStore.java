@@ -20,6 +20,7 @@ package net.bluemind.sds.proxy.store.s3;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +74,12 @@ public class S3BackingStore implements ISdsBackingStore {
 
 	@Override
 	public ExistResponse exists(ExistRequest req) {
+		final long start = registry.clock().monotonicTime();
 		boolean known = client.doesObjectExist(bucket.getName(), req.guid);
+		registry.timer(idFactory.name("latency").withTag("method", "exist")).record(
+			registry.clock().monotonicTime() - start, TimeUnit.NANOSECONDS);
+		registry.counter(idFactory.name("request").withTag("method", "exist")
+			.withTag("status", known ? "success" : "error")).increment();
 		return ExistResponse.from(known);
 	}
 
@@ -86,13 +92,21 @@ public class S3BackingStore implements ISdsBackingStore {
 		}
 		try {
 			File file = new File(req.filename);
+			final long start = registry.clock().monotonicTime();
 			PutObjectResult result = client.putObject(bucket.getName(), req.guid, file);
+			registry.timer(idFactory.name("latency").withTag("method", "put")).record(
+				registry.clock().monotonicTime() - start, TimeUnit.NANOSECONDS);
 			sr.withTags(ImmutableMap.of("guid", req.guid));
 			registry.counter(idFactory.name("transfer").withTag("direction", "upload")).increment(file.length());
+			registry.counter(idFactory.name("request").withTag("method", "put")
+				.withTag("status", "success"))
+				.increment();
 			logger.debug("Result {} {}", result.getETag(), result.getVersionId());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			sr.error = new SdsError(e.getMessage());
+			registry.counter(idFactory.name("request").withTag("method", "put")
+				.withTag("status", "error")).increment();
 		}
 		return sr;
 	}
@@ -101,15 +115,22 @@ public class S3BackingStore implements ISdsBackingStore {
 	public SdsResponse download(GetRequest req) throws IOException {
 		SdsResponse sr = new SdsResponse();
 		File target = new File(req.filename);
+		final long start = registry.clock().monotonicTime();
 
 		try (S3Object s3object = client.getObject(bucket.getName(), req.guid);
 				S3ObjectInputStream stream = s3object.getObjectContent();
 				OutputStream out = java.nio.file.Files.newOutputStream(target.toPath())) {
 			ByteStreams.copy(stream, out);
+			registry.timer(idFactory.name("latency").withTag("method", "get")).record(
+				registry.clock().monotonicTime() - start, TimeUnit.NANOSECONDS);
 			registry.counter(idFactory.name("transfer").withTag("direction", "download")).increment(target.length());
+			registry.counter(idFactory.name("request").withTag("method", "get")
+				.withTag("status", "success")).increment();
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			sr.error = new SdsError(e.getMessage());
+			registry.counter(idFactory.name("request").withTag("method", "get")
+				.withTag("status", "error")).increment();
 		}
 		return sr;
 
@@ -119,10 +140,16 @@ public class S3BackingStore implements ISdsBackingStore {
 	public SdsResponse delete(DeleteRequest req) {
 		SdsResponse sr = new SdsResponse();
 		try {
-			client.deleteObject(bucket.getName(), req.guid);
+			registry.timer(idFactory.name("latency").withTag("method", "delete")).record(() -> {
+				client.deleteObject(bucket.getName(), req.guid);
+			});
+			registry.counter(idFactory.name("request").withTag("method", "delete")
+				.withTag("status", "success")).increment();
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			sr.error = new SdsError(e.getMessage());
+			registry.counter(idFactory.name("request_error").withTag("method", "delete")
+				.withTag("status", "error")).increment();
 		}
 		return sr;
 	}
