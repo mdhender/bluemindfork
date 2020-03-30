@@ -19,7 +19,9 @@ package net.bluemind.cli.inject.imap;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
@@ -31,8 +33,8 @@ import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.lib.vertx.VertxPlatform;
 
-@Command(name = "imap", description = "Injects a batch of emails through IMAP")
-public class ImapInjectCommand implements ICmdLet, Runnable {
+@Command(name = "smtp", description = "Injects a batch of emails through SMTP")
+public class SmtpInjectCommand implements ICmdLet, Runnable {
 
 	public static class Reg implements ICmdLetRegistration {
 
@@ -43,7 +45,7 @@ public class ImapInjectCommand implements ICmdLet, Runnable {
 
 		@Override
 		public Class<? extends ICmdLet> commandClass() {
-			return ImapInjectCommand.class;
+			return SmtpInjectCommand.class;
 		}
 	}
 
@@ -73,13 +75,13 @@ public class ImapInjectCommand implements ICmdLet, Runnable {
 		});
 		try {
 			cf.get(20, TimeUnit.SECONDS);
-			MailExchangeInjector inject = new ImapInjector(ctx.adminApi(), domUid);
+			MailExchangeInjector inject = new SmtpInjector(ctx.adminApi(), domUid);
 			long time = System.currentTimeMillis();
 			ctx.info("Starting injection of " + cycles + " message(s)");
 			inject.runCycle(cycles);
 			ctx.info("Injection of " + cycles + " message(s) finished in " + (System.currentTimeMillis() - time)
 					+ "ms.");
-		} catch (Exception e) {
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
 			e.printStackTrace();
 			ctx.error(e.getMessage());
 		}

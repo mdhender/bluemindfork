@@ -7,6 +7,8 @@
             impl="net.bluemind.cli.inject.imap.ImapInjectCommand$Reg"
             priority="100">
       </registration>
+      <registration impl="net.bluemind.cli.inject.imap.SmtpInjectCommand$Reg"
+            priority="101"></registration>
    </extension>
 
 </plugin>

@@ -17,7 +17,8 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava,
  net.bluemind.mailbox.api,
  com.github.javafaker;bundle-version="1.0.1",
- org.yaml.snakeyaml;bundle-version="1.23.0"
+ org.yaml.snakeyaml;bundle-version="1.23.0",
+ net.bluemind.lib.ristretto
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.cli.inject.smtp
 Bundle-ActivationPolicy: lazy

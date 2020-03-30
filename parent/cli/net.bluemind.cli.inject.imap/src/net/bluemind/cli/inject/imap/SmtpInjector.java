@@ -18,27 +18,39 @@
 package net.bluemind.cli.inject.imap;
 
 import java.io.ByteArrayInputStream;
+import java.net.InetAddress;
 import java.util.concurrent.Semaphore;
 
+import org.columba.ristretto.message.Address;
+import org.columba.ristretto.smtp.SMTPProtocol;
+import org.columba.ristretto.smtp.SMTPResponse;
+
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.IServiceProvider;
-import net.bluemind.imap.FlagsList;
-import net.bluemind.imap.StoreClient;
 import net.bluemind.network.topology.Topology;
 
-public class ImapInjector extends MailExchangeInjector {
+public class SmtpInjector extends MailExchangeInjector {
 
-	public static class ImapTargetMailbox extends TargetMailbox {
-		StoreClient sc;
+	public static class SmtpTargetMailbox extends TargetMailbox {
 		Semaphore lock;
+		private SMTPProtocol prot;
 
-		public ImapTargetMailbox(String email, String sid) {
+		public SmtpTargetMailbox(String email, String sid) {
 			super(email, sid);
-			this.sc = new StoreClient(Topology.get().any("mail/imap").value.address(), 1143, email, sid);
+			this.prot = new SMTPProtocol(Topology.get().any("mail/smtp").value.address(), 587);
 			this.lock = new Semaphore(1);
 		}
 
 		public boolean prepare() {
-			return sc.login();
+			try {
+				prot.openPort();
+				prot.startTLS();
+				prot.auth("PLAIN", email, sid.toCharArray());
+				prot.helo(InetAddress.getLocalHost());
+				return true;
+			} catch (Exception e) {
+				throw new ServerFault(e);
+			}
 		}
 
 		public void exchange(TargetMailbox from, byte[] emlContent) {
@@ -49,8 +61,11 @@ public class ImapInjector extends MailExchangeInjector {
 				return;
 			}
 			try {
-				int added = sc.append("INBOX", new ByteArrayInputStream(emlContent), new FlagsList());
-				logger.debug("Added {} to {}", added, email);
+				prot.mail(new Address(from.email));
+				prot.rcpt(new Address(email));
+				SMTPResponse sendResp = prot.data(new ByteArrayInputStream(emlContent));
+
+				logger.debug("Added {} to {}", sendResp.getMessage(), email);
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 				System.exit(1);
@@ -60,8 +75,8 @@ public class ImapInjector extends MailExchangeInjector {
 		}
 	}
 
-	public ImapInjector(IServiceProvider provider, String domainUid) {
-		super(provider, domainUid, ImapTargetMailbox::new);
+	public SmtpInjector(IServiceProvider provider, String domainUid) {
+		super(provider, domainUid, SmtpTargetMailbox::new);
 
 	}
 
