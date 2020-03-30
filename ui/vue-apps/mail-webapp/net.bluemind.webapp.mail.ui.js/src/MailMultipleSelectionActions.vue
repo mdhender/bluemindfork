@@ -11,15 +11,6 @@
         <div class="bg-white py-2 px-3 actions-button w-75 mt-4">
             <div class="arrow-up" />
             <bm-button
-                v-if="!areAllSelectedMessagesUnread"
-                variant="outline-secondary"
-                @click="markAsUnread(selectedMessageKeys)"
-            >
-                <bm-label-icon icon="unread">
-                    {{ $tc("mail.actions.mark_as_unread", selectedMessageKeys.length) }}
-                </bm-label-icon>
-            </bm-button>
-            <bm-button
                 v-if="!areAllSelectedMessagesRead"
                 variant="outline-secondary"
                 @click="markAsRead(selectedMessageKeys)"
@@ -27,6 +18,15 @@
                 <bm-label-icon icon="read">{{
                     $tc("mail.actions.mark_as_read", selectedMessageKeys.length)
                 }}</bm-label-icon>
+            </bm-button>
+            <bm-button
+                v-if="!areAllSelectedMessagesUnread"
+                variant="outline-secondary"
+                @click="markAsUnread(selectedMessageKeys)"
+            >
+                <bm-label-icon icon="unread">
+                    {{ $tc("mail.actions.mark_as_unread", selectedMessageKeys.length) }}
+                </bm-label-icon>
             </bm-button>
             <!-- TODO: uncomment when ready
              <bm-button variant="outline-secondary">
@@ -43,7 +43,7 @@
             </bm-button>-->
         </div>
 
-        <bm-button variant="link" class="my-4" @click="deleteAllSelectedMessages">
+        <bm-button variant="link" class="my-4" @click="removeSelection">
             <h2>{{ $t("common.cancel.selection") }}</h2>
         </bm-button>
 
@@ -97,7 +97,12 @@ export default {
     },
     methods: {
         ...mapActions("mail-webapp", ["markAsRead", "markAsUnread"]),
-        ...mapMutations("mail-webapp", ["addAllToSelectedMessages", "deleteAllSelectedMessages"])
+        ...mapMutations("mail-webapp", ["addAllToSelectedMessages", "deleteAllSelectedMessages"]),
+        ...mapMutations("mail-webapp/currentMessage", { clearCurrentMessage: "clear" }),
+        removeSelection() {
+            this.deleteAllSelectedMessages();
+            this.clearCurrentMessage();
+        }
     }
 };
 </script>

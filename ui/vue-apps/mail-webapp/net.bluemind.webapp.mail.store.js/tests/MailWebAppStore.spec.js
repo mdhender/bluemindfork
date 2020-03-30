@@ -125,16 +125,14 @@ describe("[MailWebAppStore] Vuex store", () => {
         itemsService.filteredChangesetById.mockReturnValue(
             Promise.resolve({
                 created: aliceInbox
-                    .filter(message => !message.value.flags.map(f => f.flag).includes(Flag.SEEN.flag))
+                    .filter(message => !message.value.flags.includes(Flag.SEEN))
                     .map(message => {
                         return { id: message.internalId };
                     })
             })
         );
         itemsService.multipleById.mockImplementation(() =>
-            Promise.resolve(
-                aliceInbox.filter(message => !message.value.flags.map(f => f.flag).includes(Flag.SEEN.flag))
-            )
+            Promise.resolve(aliceInbox.filter(message => !message.value.flags.includes(Flag.SEEN)))
         );
 
         store.dispatch("mail-webapp/selectFolder", { folderKey, filter: "unread" }, { root: true }).then(() => {

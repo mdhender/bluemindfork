@@ -18,13 +18,14 @@ export async function selectFolder({ dispatch, commit, state }, { folderKey, fil
     commit("search/setStatus", "idle");
     commit("search/setPattern", null);
     commit("currentMessage/clear");
-    if (shouldClearMessages || state.search.pattern !== null) {
-        commit("deleteAllSelectedMessages");
-    }
 
     if (state.messageFilter !== filter) {
         commit("setMessageFilter", filter);
         shouldClearMessages = true;
+    }
+
+    if (shouldClearMessages || state.search.pattern !== null) {
+        commit("deleteAllSelectedMessages");
     }
 
     if (shouldClearMessages) {

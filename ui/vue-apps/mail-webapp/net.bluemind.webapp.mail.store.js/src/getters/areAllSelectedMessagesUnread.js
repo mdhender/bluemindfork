@@ -7,6 +7,6 @@ export function areAllSelectedMessagesUnread(state) {
      */
     return state.selectedMessageKeys.every(selectedMessageKey => {
         const selectedItem = state.messages.items[selectedMessageKey];
-        return !selectedItem || !selectedItem.value.flags.map(element => element.flag).includes(Flag.SEEN.flag);
+        return !selectedItem || !selectedItem.value.flags.includes(Flag.SEEN);
     });
 }

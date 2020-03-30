@@ -74,6 +74,12 @@ describe("[Mail-WebappStore][search]", () => {
                 }
             },
             {
+                type: "mail-webapp/deleteAllSelectedMessages",
+                payload: {
+                    root: true
+                }
+            },
+            {
                 type: "mail-webapp/setMessageFilter",
                 payload: {
                     root: true
@@ -103,7 +109,10 @@ describe("[Mail-WebappStore][search]", () => {
                         mailboxUid: "abcdef"
                     }
                 },
-                dispatch: jest.fn()
+                dispatch: jest.fn(),
+                state: {
+                    pattern: ""
+                }
             };
 
             const expectedMutations = [
@@ -145,6 +154,9 @@ describe("[Mail-WebappStore][search]", () => {
                     "mail-webapp/currentMailbox": {
                         mailboxUid: "abcdef"
                     }
+                },
+                state: {
+                    pattern: ""
                 },
                 dispatch: jest.fn()
             };

@@ -5,12 +5,12 @@
         @scroll="onScroll"
         @keyup.shift.delete.exact.prevent="openPurgeModal"
         @keyup.delete.exact.prevent="remove"
-        @keyup.up="goToByDiff(-1)"
-        @keyup.down="goToByDiff(+1)"
-        @keyup.page-down="goToByDiff(+PAGE)"
-        @keyup.page-up="goToByDiff(-PAGE)"
-        @keyup.home="goToByIndex(0)"
-        @keyup.end="goToByIndex(count - 1)"
+        @keyup.up.exact="goToByDiff(-1)"
+        @keyup.down.exact="goToByDiff(+1)"
+        @keyup.page-down.exact="goToByDiff(+PAGE)"
+        @keyup.page-up.exact="goToByDiff(-PAGE)"
+        @keyup.home.exact="goToByIndex(0)"
+        @keyup.end.exact="goToByIndex(count - 1)"
         @keyup.space.exact="goToByKey(lastFocusedMessage)"
         @keyup.ctrl.exact.space="toggleSelect(lastFocusedMessage)"
         @keyup.ctrl.exact.65="toggleAll()"
@@ -21,13 +21,13 @@
         @keyup.shift.exact.space="selectRange(lastFocusedMessage, true)"
         @keyup.shift.exact.up="selectRangeByDiff(-1, true)"
         @keyup.shift.exact.down="selectRangeByDiff(+1, true)"
-        @keyup.shift.exact.home="selectRange(messages[0].key, true)"
-        @keyup.shift.exact.end="selectRange(messages[count - 1].key, true)"
+        @keyup.shift.exact.home="selectRange(itemKeys[0], true)"
+        @keyup.shift.exact.end="selectRange(itemKeys[count - 1], true)"
         @keyup.shift.ctrl.exact.space="selectRange(lastFocusedMessage)"
         @keyup.shift.ctrl.exact.up="selectRangeByDiff(-1)"
         @keyup.shift.ctrl.exact.down="selectRangeByDiff(+1)"
-        @keyup.shift.ctrl.exact.home="selectRange(messages[0].key)"
-        @keyup.shift.ctrl.exact.end="selectRange(messages[count - 1].key)"
+        @keyup.shift.ctrl.exact.home="selectRange(itemKeys[0])"
+        @keyup.shift.ctrl.exact.end="selectRange(itemKeys[count - 1])"
     >
         <div v-for="(message, index) in messages" :key="index">
             <message-list-separator v-if="message.hasSeparator" :text="$t(message.range.name)" />
@@ -35,7 +35,6 @@
                 :ref="'message-' + message.key"
                 :message="message"
                 :to="computeMessageRoute(currentFolderKey, message.key, messageFilter)"
-                class="message-list-item"
                 @toggleSelect="toggleSelect"
                 @click.exact.native="unselectAllIfNeeded(message.key)"
                 @click.ctrl.exact.native.prevent="toggleSelect(message.key)"
@@ -212,14 +211,22 @@ export default {
             }
         },
         toggleAll() {
-            this.areAllMessagesSelected
-                ? this.deleteAllSelectedMessages()
-                : this.addAllToSelectedMessages(this.itemKeys);
+            if (this.areAllMessagesSelected) {
+                this.deleteAllSelectedMessages();
+                this.clearCurrentMessage();
+            } else {
+                this.addAllToSelectedMessages(this.itemKeys);
+            }
             this.navigateAfterSelection();
         },
-        toggleSelect(messageKey) {
+        toggleSelect(messageKey, force = false) {
             if (this.isMessageSelected(messageKey)) {
                 this.deleteSelectedMessageKey(messageKey);
+                if (this.currentMessageKey === messageKey) {
+                    this.clearCurrentMessage();
+                }
+            } else if (this.currentMessageKey === messageKey && !force) {
+                this.clearCurrentMessage();
             } else {
                 this.addSelectedMessageKey(messageKey);
                 this.anchoredMessageForShift = messageKey;
@@ -243,9 +250,5 @@ export default {
 @import "~@bluemind/styleguide/css/variables";
 .message-list {
     overflow-y: auto;
-}
-
-.message-list-item {
-    cursor: pointer;
 }
 </style>

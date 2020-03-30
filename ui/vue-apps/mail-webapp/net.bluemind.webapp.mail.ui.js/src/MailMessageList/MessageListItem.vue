@@ -13,7 +13,6 @@
             class="message-list-item"
             active-class="active"
             :class="[...message.states, isMessageSelected(message.key) ? 'active' : '']"
-            @contextmenu.prevent
             @mouseenter.native="mouseIn = true"
             @mouseleave.native="mouseIn = false"
         >
@@ -23,7 +22,7 @@
                     <bm-check
                         :checked="isMessageSelected(message.key)"
                         :class="[anyMessageSelected ? 'd-block' : 'd-none']"
-                        @click.exact.native.prevent.stop="$emit('toggleSelect', message.key)"
+                        @click.exact.native.prevent.stop="$emit('toggleSelect', message.key, true)"
                     />
                 </bm-col>
                 <bm-col cols="8" class="text-overflow">
@@ -233,24 +232,19 @@ export default {
     height: 1.3rem !important;
 }
 
-.message-list-item .selector .custom-check {
+.message-list-item .selector .bm-check {
     display: none !important;
     margin-left: 0.825rem;
     padding-left: 0.825rem;
-    min-height: 1.4rem;
+    min-height: 1.3rem;
 }
 
 .message-list-item .selector:hover .bm-avatar {
     display: none !important;
 }
 
-.message-list-item .selector:hover .custom-check {
+.message-list-item:hover .bm-check {
     display: block !important;
-}
-
-.custom-control-label::after,
-.custom-control-label::before {
-    top: 0.2rem !important;
 }
 
 .list-group-item.message-list-item.not-seen {
@@ -268,19 +262,19 @@ a.list-group-item.message-list-item {
     }
 }
 
-.message-list-item-drag-shadow {
+//FIXME: All those class should not be here or should be scoped...
+.mail-message-list-item-drag-shadow {
     width: 240px;
     background-color: $surface-bg;
 }
 
-//FIXME: All those class should not be here or should be scoped...
 .bm-draggable {
     margin: 1px;
-    &:focus {
+    &:focus .mail-message-list-item {
         outline: $outline !important;
-        &:hover {
-            background-color: $component-active-bg-darken;
-        }
+    }
+    &:focus &:hover {
+        background-color: $component-active-bg-darken;
     }
 }
 

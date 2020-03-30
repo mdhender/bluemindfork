@@ -97,7 +97,7 @@ function clearSomeUnrelatedState({ commit, state }, pattern) {
     commit("mail-webapp/currentMessage/clear", { root: true });
     commit("mail-webapp/messages/clearParts", { root: true });
     if (state.pattern !== pattern) {
-        commit("mail-webapp/deleteAllSelectedMessages");
+        commit("mail-webapp/deleteAllSelectedMessages", { root: true });
     }
 }
 
