@@ -1,5 +1,5 @@
 <template>
-    <div class="mail-message-content-body min-h-100 py-2">
+    <div class="mail-message-content-body h-100 py-2">
         <iframe ref="iFrameMailContent" :title="$t('mail.content.body')" class="w-100 border-0" @load="resizeIFrame" />
     </div>
 </template>
@@ -27,7 +27,23 @@ export default {
     methods: {
         resizeIFrame() {
             let htmlRootNode = this.$refs.iFrameMailContent.contentDocument.documentElement;
-            this.$refs.iFrameMailContent.style.height = htmlRootNode.offsetHeight + "px";
+            this.$refs.iFrameMailContent.style.height = this.computeIFrameHeight(htmlRootNode) + "px";
+        },
+        // get max offset height between root, body and body children nodes
+        computeIFrameHeight(htmlRootNode) {
+            let maxHeight = htmlRootNode.offsetHeight;
+            const bodyNode = htmlRootNode.childNodes[1];
+            if (bodyNode) {
+                if (bodyNode.offsetHeight) {
+                    maxHeight = Math.max(maxHeight, bodyNode.offsetHeight);
+                }
+                bodyNode.childNodes.forEach(bodyChild => {
+                    if (bodyChild.offsetHeight) {
+                        maxHeight = Math.max(maxHeight, bodyChild.offsetHeight);
+                    }
+                });
+            }
+            return maxHeight + 11;
         },
         display() {
             if (this.parts) {
@@ -47,18 +63,17 @@ export default {
                     } else if (MimeType.isImage(part)) {
                         const imgSrc = URL.createObjectURL(part.content);
                         html += '<div align="center"><img src="' + imgSrc + '"></div>';
-                    } else {
-                        html += part.content;
                     }
                 });
                 const iframeDoc = this.$refs.iFrameMailContent.contentWindow.document;
                 iframeDoc.open();
                 // all links should be opened in an other tab by default
                 iframeDoc.write('<head><base target="_blank"></head>');
-                iframeDoc.write("<body>" + html + "</body>");
-                iframeDoc.close();
+                iframeDoc.write("<body><div>" + html + "</div></body>");
 
                 this.addStyle(iframeDoc);
+                iframeDoc.close();
+                this.resizeIFrame();
             }
         },
 
@@ -73,7 +88,7 @@ export default {
                             font-weight: 400;
                             color: #2f2f2f;
                             margin: 0;
-                        } 
+                        }
                         .reply {
                             margin-left: 1rem;
                             padding-left: 1rem;
