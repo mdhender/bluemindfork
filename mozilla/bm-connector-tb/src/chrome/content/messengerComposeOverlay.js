@@ -384,6 +384,7 @@ var gBMCompose = {
         let encoder = new TextEncoder();
         let byteArray = encoder.encode(aHtml);
         let prom = OS.File.writeAtomic(tempFile.path, byteArray);
+        let self = this;
         prom.then(function() {
             let extService = Components.classes['@mozilla.org/uriloader/external-helper-app-service;1']
                 .getService(Components.interfaces.nsPIExternalAppLauncher);
@@ -399,9 +400,12 @@ var gBMCompose = {
                   triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal()
                 };
                 browser.loadURI(uri.spec, params);
-              } else {
+            } else {
                 browser.loadURI(uri.spec);
-              }
+            }
+            if (bmUtils.session.sigPreviewClosed) {
+                self._showPreview(false);
+            }
         });
     },
     _hideSignature: function() {
@@ -410,14 +414,18 @@ var gBMCompose = {
     },
     togglePreview: function() {
         let bro = document.getElementById("bm-browser-signature");
-        let toggle =  document.getElementById("bm-toggle-signature");
         if (bro.getAttribute("collapsed") == "false") {
-            bro.setAttribute("collapsed", "true");
-            toggle.setAttribute("value", bmUtils.getLocalizedString("signature.show"));
+            this._showPreview(false);
         } else {
-            bro.setAttribute("collapsed", "false");
-            toggle.setAttribute("value", bmUtils.getLocalizedString("signature.hide"));
+            this._showPreview(true);
         }
+    },
+    _showPreview: function(visible) {
+        let bro = document.getElementById("bm-browser-signature");
+        let toggle =  document.getElementById("bm-toggle-signature");
+        bro.setAttribute("collapsed", visible ? "false" : "true");
+        toggle.setAttribute("value", bmUtils.getLocalizedString("signature.show"));
+        bmUtils.session.sigPreviewClosed = !visible;
     }
 };
 
