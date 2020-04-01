@@ -659,7 +659,8 @@ public class UserService implements IInCoreUser, IUser {
 	public void setPassword(String uid, ChangePassword password) throws ServerFault {
 		ParametersValidator.notNullAndNotEmpty(uid);
 		ParametersValidator.notNull(password);
-		passwordValidator.validate(password.newPassword);
+		ParametersValidator.notNull(password.newPassword);
+		passwordValidator.validate(password.currentPassword, password.newPassword);
 
 		ItemValue<User> userItem = storeService.get(uid);
 		if (userItem == null) {
@@ -686,6 +687,7 @@ public class UserService implements IInCoreUser, IUser {
 	private void changePassword(String uid, String currentPassword, String newPassword) throws ServerFault {
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_SELF_CHANGE_PASSWORD, BasicRoles.ROLE_MANAGE_USER_PASSWORD);
 
+		ParametersValidator.notNull(newPassword);
 		passwordValidator.validate(newPassword);
 
 		ItemValue<User> userItem = storeService.get(uid);

@@ -94,6 +94,8 @@ public class PasswordEdit extends CompositeGwtWidgetElement {
 					setNewPasswordError(constants.emptyNewPassword());
 				} else if (!password.getValue().equals(confirmation.getValue())) {
 					setNewPasswordError(constants.diffGivenPassword());
+				} else if (current.getValue().equals(password.getValue())) {
+					setNewPasswordError(constants.notSamePassword());
 				} else {
 					savePassword(current.getValue(), password.getValue());
 				}

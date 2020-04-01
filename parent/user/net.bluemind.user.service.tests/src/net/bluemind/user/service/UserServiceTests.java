@@ -1390,6 +1390,32 @@ public class UserServiceTests {
 	}
 
 	@Test
+	public void testSetPassword_newPasswordNotEqualToCurrentPassword() {
+		User user = defaultUser("test." + System.nanoTime());
+		String uid = create(user);
+
+		try {
+			getService(domainAdminSecurityContext).setPassword(uid, ChangePassword.create("checkpass", "checkpass"));
+			fail("should fail because new password is equals to current password");
+		} catch (ServerFault e) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, e.getCode());
+		}
+	}
+
+	@Test
+	public void testSetPassword_nullNewPassword() {
+		User user = defaultUser("test." + System.nanoTime());
+		String uid = create(user);
+
+		try {
+			getService(domainAdminSecurityContext).setPassword(uid, ChangePassword.create("checkpass", null));
+			fail("should fail because new password is null");
+		} catch (ServerFault e) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, e.getCode());
+		}
+	}
+
+	@Test
 	public void testDefaultAccountType() throws Exception {
 		String login = "test." + System.nanoTime();
 		User user = defaultUser(login);

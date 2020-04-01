@@ -19,6 +19,7 @@
 package net.bluemind.user.service.passwordvalidator;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,9 +51,13 @@ public class PasswordValidator {
 		this.context = context;
 	}
 
-	public void validate(String password) throws ServerFault {
+	public void validate(String newPassword) throws ServerFault {
+		validate(null, newPassword);
+	}
+
+	public void validate(String currentPassword, String newPassword) throws ServerFault {
 		for (IPasswordValidatorFactory passwordValidatorFactory : validators) {
-			passwordValidatorFactory.create(context).validate(password);
+			passwordValidatorFactory.create(context).validate(Optional.ofNullable(currentPassword), newPassword);
 		}
 	}
 }

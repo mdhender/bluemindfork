@@ -33,6 +33,7 @@ public class FailPasswordUpdater implements IPasswordUpdater {
 		if (user.externalId != null && !user.externalId.isEmpty()) {
 			throw new ServerFault("nein nein nein", ErrorCode.FORBIDDEN);
 		}
+
 		return false;
 	}
 

@@ -20,6 +20,7 @@ package net.bluemind.core.password.sizestrength;
 
 import java.text.MessageFormat;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
@@ -38,7 +39,7 @@ public class SizeStrengthPolicy implements IPasswordValidator {
 	}
 
 	@Override
-	public void validate(String password) throws ServerFault {
+	public void validate(Optional<String> currentPassword, String password) throws ServerFault {
 		if (context.getSecurityContext().isDomainGlobal()) {
 			return;
 		}

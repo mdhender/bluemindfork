@@ -17,6 +17,8 @@
   */
 package net.bluemind.user.service.internal;
 
+import java.util.Optional;
+
 import com.google.common.base.CharMatcher;
 
 import net.bluemind.core.api.fault.ErrorCode;
@@ -25,7 +27,8 @@ import net.bluemind.user.hook.passwordvalidator.IPasswordValidator;
 
 public class UserPasswordValidator implements IPasswordValidator {
 	@Override
-	public void validate(String password) throws ServerFault {
+	public void validate(Optional<String> currentPassword, String password) throws ServerFault {
+		// Create user without password
 		if (password == null) {
 			return;
 		}
@@ -36,6 +39,10 @@ public class UserPasswordValidator implements IPasswordValidator {
 
 		if (!CharMatcher.ASCII.matchesAllOf(password)) {
 			throw new ServerFault("Invalid character in password", ErrorCode.INVALID_PARAMETER);
+		}
+
+		if (currentPassword.isPresent() && password.equals(currentPassword.get())) {
+			throw new ServerFault("Current and new password must not be the same", ErrorCode.INVALID_PARAMETER);
 		}
 	}
 
