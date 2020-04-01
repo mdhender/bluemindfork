@@ -24,7 +24,7 @@ package net.bluemind.backend.mail.replica.service;
 
 import javax.sql.DataSource;
 
-import net.bluemind.backend.mail.api.IMailboxItems;
+import net.bluemind.backend.mail.replica.api.IInternalMailboxItems;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.backend.mail.replica.service.internal.ImapMailboxRecordsService;
@@ -32,15 +32,15 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.rest.BmContext;
 
-public class ImapMailboxRecordsServiceFactory extends AbstractMailboxRecordServiceFactory<IMailboxItems> {
+public class InternalMailboxItemsServiceFactory extends AbstractMailboxRecordServiceFactory<IInternalMailboxItems> {
 
 	@Override
-	public Class<IMailboxItems> factoryClass() {
-		return IMailboxItems.class;
+	public Class<IInternalMailboxItems> factoryClass() {
+		return IInternalMailboxItems.class;
 	}
 
 	@Override
-	protected IMailboxItems create(DataSource ds, Container cont, BmContext context, String mailboxUniqueId,
+	protected IInternalMailboxItems create(DataSource ds, Container cont, BmContext context, String mailboxUniqueId,
 			MailboxRecordStore recordStore, ContainerStoreService<MailboxRecord> storeService) {
 		return new ImapMailboxRecordsService(ds, cont, context, mailboxUniqueId, recordStore, storeService);
 	}

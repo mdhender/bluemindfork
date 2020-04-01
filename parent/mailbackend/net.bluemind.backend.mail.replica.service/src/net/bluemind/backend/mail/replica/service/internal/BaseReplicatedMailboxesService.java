@@ -20,12 +20,15 @@ package net.bluemind.backend.mail.replica.service.internal;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.CharMatcher;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 import net.bluemind.backend.mail.api.IBaseMailboxFolders;
 import net.bluemind.backend.mail.api.MailboxFolder;
@@ -169,16 +172,22 @@ public class BaseReplicatedMailboxesService implements IBaseMailboxFolders {
 		}
 	}
 
+	private static final Cache<String, String> nameToUid = CacheBuilder.newBuilder()
+			.expireAfterAccess(1, TimeUnit.MINUTES).build();
+
 	protected ItemValue<MailboxReplica> byReplicaName(String name) {
-		String uid = null;
-		try {
-			uid = replicaStore.byName(decodeIfUTF7(name));
-		} catch (SQLException e) {
-			throw ServerFault.sqlFault(e);
+		String uid = nameToUid.getIfPresent(name);
+		if (uid == null) {
+			try {
+				uid = replicaStore.byName(decodeIfUTF7(name));
+			} catch (SQLException e) {
+				throw ServerFault.sqlFault(e);
+			}
 		}
 		if (uid == null) {
 			return null;
 		} else {
+			nameToUid.put(name, uid);
 			return getCompleteReplica(uid);
 		}
 	}

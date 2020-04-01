@@ -56,6 +56,9 @@
        <endpoint
              api="net.bluemind.backend.mail.api.IUserInbox">
        </endpoint>
+       <endpoint
+             api="net.bluemind.backend.mail.api.IItemsTransfer">
+       </endpoint>
    </extension>
    <extension
          point="net.bluemind.core.rest.serviceFactory">
@@ -79,6 +82,9 @@
       </serviceFactory>
       <serviceFactory
             class="net.bluemind.backend.mail.replica.service.ImapMailboxRecordsServiceFactory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.backend.mail.replica.service.InternalMailboxItemsServiceFactory">
       </serviceFactory>
       <serviceFactory
             class="net.bluemind.backend.mail.replica.service.CyrusArtifactsServiceFactory">
@@ -106,6 +112,9 @@
       </serviceFactory>
       <serviceFactory
             class="net.bluemind.backend.mail.replica.service.UserInboxServiceFactory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.backend.mail.replica.service.internal.ItemsTransferService$Factory">
       </serviceFactory>
    </extension>
    <extension

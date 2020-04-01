@@ -39,6 +39,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
@@ -58,7 +59,6 @@ import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.Unpooled;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
-import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.MessageBody.Header;
@@ -68,6 +68,7 @@ import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.api.utils.PartsWalker;
 import net.bluemind.backend.mail.parsing.EmlBuilder;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
+import net.bluemind.backend.mail.replica.api.IInternalMailboxItems;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailApiHeaders;
@@ -106,6 +107,7 @@ import net.bluemind.imap.Flag;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.IMAPException;
 import net.bluemind.imap.SearchQuery;
+import net.bluemind.imap.StoreClient;
 import net.bluemind.imap.TaggedResult;
 import net.bluemind.imap.vertx.ImapResponseStatus;
 import net.bluemind.imap.vertx.ImapResponseStatus.Status;
@@ -114,10 +116,10 @@ import net.bluemind.imap.vertx.cmd.FetchResponse;
 import net.bluemind.mime4j.common.Mime4JHelper;
 import net.bluemind.mime4j.common.Mime4JHelper.SizedStream;
 
-public class ImapMailboxRecordsService extends BaseMailboxRecordsService implements IMailboxItems {
+public class ImapMailboxRecordsService extends BaseMailboxRecordsService implements IInternalMailboxItems {
 
 	private static final Logger logger = LoggerFactory.getLogger(ImapMailboxRecordsService.class);
-	private static final Integer DEFAULT_TIMEOUT = 18; // sec
+	public static final Integer DEFAULT_TIMEOUT = 18; // sec
 	private final String imapFolder;
 	private final ImapContext imapContext;
 	private final SeenOverlayStore seenOverlays;
@@ -137,6 +139,21 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		this.imapContext = ImapContext.of(context);
 		this.seenOverlays = new SeenOverlayStore(ds);
 		bodyStore = new MessageBodyStore(ds);
+	}
+
+	@Override
+	public String imapFolder() {
+		return imapFolder;
+	}
+
+	@Override
+	public ImapCommandRunner imapExecutor() {
+		return (Consumer<StoreClient> sc) -> {
+			imapContext.withImapClient((inSc, vx) -> {
+				sc.accept(inSc);
+				return null;
+			});
+		};
 	}
 
 	@Override
@@ -413,6 +430,17 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	}
 
 	private ItemIdentifier create(long id, MailboxItem value) {
+		logger.info("create {}", id);
+		try {
+			return createAsync(id, value).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+		} catch (TimeoutException to) {
+			throw new ServerFault("Create timed out", ErrorCode.TIMEOUT);
+		} catch (Exception e) {
+			throw new ServerFault(e);
+		}
+	}
+
+	private CompletableFuture<ItemIdentifier> createAsync(long id, MailboxItem value) {
 		logger.info("create 'draft' {}", id);
 		CompletableFuture<ItemChange> completion = ReplicationEvents.onRecordCreate(mailboxUniqueId, id);
 
@@ -441,18 +469,38 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			return added;
 		});
 		if (addedUid > 0) {
-			try {
-				ItemChange change = completion.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+			return completion.thenApply(change -> {
 				logger.warn("**** CreateById of item {}, latency: {}ms.", change.internalId, change.latencyMs);
 				return ItemIdentifier.of(null, id, change.version);
-			} catch (TimeoutException e) {
-				throw new ServerFault(e.getMessage(), ErrorCode.TIMEOUT);
-			} catch (InterruptedException | ExecutionException e) {
-				throw new ServerFault(e);
-			}
+			});
+		} else {
+			CompletableFuture<ItemIdentifier> ret = new CompletableFuture<>();
+			ret.completeExceptionally(new ServerFault("Failed to add message in " + imapFolder));
+			return ret;
 		}
+	}
 
-		throw new ServerFault("Failed to add message in " + imapFolder);
+	public List<ItemIdentifier> multiCreate(List<MailboxItem> items) {
+		IOfflineMgmt offlineApi = context.provider().instance(IOfflineMgmt.class, imapContext.user.domainUid,
+				imapContext.user.uid);
+		int total = items.size();
+		CompletableFuture<?>[] allOps = new CompletableFuture[total];
+		IdRange alloc = offlineApi.allocateOfflineIds(total);
+		ItemIdentifier[] ret = new ItemIdentifier[total];
+		int i = 0;
+		for (MailboxItem mi : items) {
+			final int slot = i++;
+			allOps[slot] = createAsync(alloc.globalCounter++, mi).thenAccept(ii -> ret[slot] = ii);
+		}
+		try {
+			CompletableFuture.allOf(allOps).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+		} catch (TimeoutException e) {
+			throw new ServerFault(e.getMessage(), ErrorCode.TIMEOUT);
+		} catch (Exception e) {
+			throw new ServerFault(e);
+		}
+		return Arrays.asList(ret);
+
 	}
 
 	@Override
