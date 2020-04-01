@@ -1,5 +1,5 @@
 <template>
-    <bm-form class="mail-message-new p-lg-3 flex-grow-1 d-flex">
+    <bm-form class="mail-message-new p-lg-3 flex-grow-1 d-flex h-100">
         <bm-panel>
             <template #header>
                 <span
@@ -10,7 +10,7 @@
                 >
             </template>
             <template #body>
-                <div class="px-3">
+                <div class="pl-3">
                     <bm-row class="align-items-center">
                         <bm-col cols="11">
                             <bm-contact-input
@@ -36,8 +36,8 @@
                     </bm-row>
                     <hr class="m-0" />
 
-                    <bm-row v-if="mode_ > modes.TO">
-                        <bm-col cols="11">
+                    <div v-if="mode_ > modes.TO" class="d-flex">
+                        <div class="d-flex flex-grow-1">
                             <bm-contact-input
                                 :contacts.sync="message_.cc"
                                 :autocomplete-results="autocompleteResultsCc"
@@ -46,18 +46,16 @@
                             >
                                 {{ $t("common.cc") }}
                             </bm-contact-input>
-                        </bm-col>
-                        <bm-col cols="1" class="text-center">
-                            <bm-button
-                                v-if="mode_ == (modes.TO | modes.CC)"
-                                variant="link"
-                                class="text-blue"
-                                @click="mode_ = modes.TO | modes.CC | modes.BCC"
-                            >
-                                {{ $t("common.bcc") }}
-                            </bm-button>
-                        </bm-col>
-                    </bm-row>
+                        </div>
+                        <bm-button
+                            v-if="mode_ == (modes.TO | modes.CC)"
+                            variant="link"
+                            class="text-blue my-2 mr-1"
+                            @click="mode_ = modes.TO | modes.CC | modes.BCC"
+                        >
+                            {{ $t("common.bcc") }}
+                        </bm-button>
+                    </div>
                     <hr v-if="mode_ > modes.TO" class="m-0" />
 
                     <bm-contact-input
@@ -73,6 +71,7 @@
 
                     <bm-form-input
                         v-model="message_.subject"
+                        class="mail-message-new-subject d-flex align-items-center"
                         :placeholder="$t('mail.new.subject.placeholder')"
                         :aria-label="$t('mail.new.subject.aria')"
                         type="text"
@@ -357,5 +356,14 @@ export default {
 .mail-message-new .ProseMirror,
 .mail-message-new .mail-content {
     padding: $sp-2 $sp-3;
+}
+
+.mail-message-new .mail-message-new-subject {
+    min-height: 2.5rem;
+}
+
+.mail-message-new .bm-contact-input .btn-link {
+    min-width: 3rem;
+    text-align: left;
 }
 </style>

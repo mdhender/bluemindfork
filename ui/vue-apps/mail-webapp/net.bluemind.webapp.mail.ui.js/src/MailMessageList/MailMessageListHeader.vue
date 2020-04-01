@@ -4,7 +4,7 @@
             <bm-col cols="1">
                 <bm-check />
             </bm-col>
-            <bm-col class="d-none d-sm-block d-md-none d-xl-block" cols="7">
+            <bm-col class="d-none d-lg-block" cols="7">
                 <bm-choice-group
                     ref="filterChoiceGroup"
                     v-bm-tooltip.ds500

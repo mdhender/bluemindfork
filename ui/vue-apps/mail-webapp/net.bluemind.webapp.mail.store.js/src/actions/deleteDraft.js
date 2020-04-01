@@ -25,7 +25,6 @@ export function deleteDraft({ commit, state, getters }) {
         })
         .then(() => {
             commit("draft/update", { status: DraftStatus.DELETED });
-            commit("messages/clearParts");
         })
         .catch(reason => {
             commit(

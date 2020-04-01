@@ -1,16 +1,16 @@
 <template>
-    <bm-container class="mail-message-content bg-surface px-lg-5 px-4 d-flex flex-column py-2 flex-grow-1">
-        <bm-row>
+    <div class="mail-message-content bg-surface d-flex flex-column py-2 flex-grow-1">
+        <bm-row class="px-lg-5 px-4">
             <bm-col cols="12">
                 <mail-message-content-toolbar />
             </bm-col>
         </bm-row>
-        <bm-row>
+        <bm-row class="px-lg-5 px-4">
             <bm-col cols="12">
                 <h1>{{ subject }}</h1>
             </bm-col>
         </bm-row>
-        <bm-row class="d-flex">
+        <bm-row class="d-flex px-lg-5 px-4">
             <bm-col cols="8" class="d-flex">
                 <mail-message-content-from :dn="message.from.dn" :address="message.from.address" />
             </bm-col>
@@ -20,42 +20,42 @@
                 {{ $d(message.date, "short_time") }}
             </bm-col>
         </bm-row>
-        <bm-row>
+        <bm-row class="px-lg-5">
             <bm-col cols="12">
                 <hr class="my-2" />
             </bm-col>
         </bm-row>
-        <bm-row>
+        <bm-row class="px-lg-5 px-4">
             <bm-col cols="12">
                 <mail-message-content-recipient v-if="to" :recipients="to">
                     {{ $t("mail.content.to") }}
                 </mail-message-content-recipient>
             </bm-col>
         </bm-row>
-        <bm-row class="pb-2">
+        <bm-row class="pb-2 px-lg-5 px-4">
             <bm-col cols="12">
                 <mail-message-content-recipient v-if="cc" :recipients="cc">
                     {{ $t("mail.content.copy") }}
                 </mail-message-content-recipient>
             </bm-col>
         </bm-row>
-        <bm-row>
+        <bm-row class="px-lg-5">
             <bm-col cols="12">
                 <hr class="bg-dark my-0" />
                 <mail-message-content-attachments-block :attachments="parts.attachments" />
             </bm-col>
         </bm-row>
-        <bm-row ref="scrollableContainerForMailMessageContentBody" class="pt-1 flex-fill">
+        <bm-row ref="scrollableContainerForMailMessageContentBody" class="pt-1 flex-fill px-lg-5 px-4">
             <bm-col col>
                 <mail-message-content-body />
             </bm-col>
         </bm-row>
-    </bm-container>
+    </div>
 </template>
 
 <script>
 import { mapState, mapActions, mapGetters } from "vuex";
-import { BmCol, BmContainer, BmRow } from "@bluemind/styleguide";
+import { BmCol, BmRow } from "@bluemind/styleguide";
 import MailMessageContentAttachmentsBlock from "./MailMessageContentAttachmentsBlock";
 import MailMessageContentBody from "./MailMessageContentBody";
 import MailMessageContentFrom from "./MailMessageContentFrom";
@@ -66,7 +66,6 @@ export default {
     name: "MailMessageContent",
     components: {
         BmCol,
-        BmContainer,
         BmRow,
         MailMessageContentAttachmentsBlock,
         MailMessageContentBody,

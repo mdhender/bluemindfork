@@ -1,42 +1,40 @@
 <template>
-    <bm-col cols="12" md="8" lg="7" xl="7" class=" d-none d-md-flex px-0 h-100 flex-column overflow-auto">
-        <div class="mail-message-starter h-100">
-            <div class="d-flex flex-column justify-content-center h-100 text-center w-100">
-                <div class="d-flex flex-grow-1 flex-shrink-0 flex-column justify-space-evenly">
-                    <h1 class="">
-                        {{ $t("mail.message.starter") }}
-                    </h1>
-                    <h1 class=" ">{{ $t("common.or") }}</h1>
-                </div>
-                <div class="flex-grow-1 flex-shrink-0 overflow-hidden d-flex flex-column align-items-center">
-                    <div class="bg-white py-3 d-table ">
-                        <div class="d-table-cell px-4">
-                            <div class="pb-2">{{ $t("mail.message.starter.write") }}</div>
-                            <bm-button :to="{ path: 'new' }" variant="primary">
-                                <bm-label-icon icon="plus"> {{ $t("mail.main.new") }} </bm-label-icon>
-                            </bm-button>
-                        </div>
-                        <div class="d-table-cell px-4">
-                            <div class="pb-2">{{ $t("mail.message.starter.display") }}</div>
-                            <bm-button v-if="my.DRAFTS" :to="{ path: '/mail/' + my.DRAFTS.key }" variant="secondary">
-                                <bm-label-icon icon="pencil">
-                                    {{ $t("mail.message.starter.display.drafts") }}
-                                </bm-label-icon>
-                            </bm-button>
-                        </div>
+    <div class="mail-message-starter h-100 d-none d-md-flex">
+        <div class="d-flex flex-column justify-content-center h-100 text-center w-100">
+            <div class="d-flex flex-grow-1 flex-shrink-0 flex-column justify-space-evenly">
+                <h1 class="">
+                    {{ $t("mail.message.starter") }}
+                </h1>
+                <h1 class=" ">{{ $t("common.or") }}</h1>
+            </div>
+            <div class="flex-grow-1 flex-shrink-0 overflow-hidden d-flex flex-column align-items-center">
+                <div class="bg-white py-3 d-table ">
+                    <div class="d-table-cell px-4">
+                        <div class="pb-2">{{ $t("mail.message.starter.write") }}</div>
+                        <bm-button :to="{ path: 'new' }" variant="primary">
+                            <bm-label-icon icon="plus"> {{ $t("mail.main.new") }} </bm-label-icon>
+                        </bm-button>
+                    </div>
+                    <div class="d-table-cell px-4">
+                        <div class="pb-2">{{ $t("mail.message.starter.display") }}</div>
+                        <bm-button v-if="my.DRAFTS" :to="{ path: '/mail/' + my.DRAFTS.key }" variant="secondary">
+                            <bm-label-icon icon="pencil">
+                                {{ $t("mail.message.starter.display.drafts") }}
+                            </bm-label-icon>
+                        </bm-button>
                     </div>
                 </div>
-                <div
-                    class="w-100 flex-shrink-1"
-                    :style="'flex-basis: 321px;background: url(' + emptyMessageIllustration + ') no-repeat center top'"
-                />
             </div>
+            <div
+                class="w-100 flex-shrink-1"
+                :style="'flex-basis: 321px;background: url(' + emptyMessageIllustration + ') no-repeat center top'"
+            />
         </div>
-    </bm-col>
+    </div>
 </template>
 
 <script>
-import { BmButton, BmLabelIcon, BmCol } from "@bluemind/styleguide";
+import { BmButton, BmLabelIcon } from "@bluemind/styleguide";
 import { mapGetters, mapState } from "vuex";
 import emptyMessageIllustration from "../assets/home-page.png";
 
@@ -44,8 +42,7 @@ export default {
     name: "MailMessageStarter",
     components: {
         BmButton,
-        BmLabelIcon,
-        BmCol
+        BmLabelIcon
     },
     data() {
         return {
