@@ -41,18 +41,18 @@
                 <bm-col cols="1" class="mail-attachment">
                     <component :is="state" v-if="!!state" class="ml-1" />
                 </bm-col>
-                <bm-col class="text-overflow ">
+                <bm-col class="text-overflow d-flex">
                     <div
                         v-bm-tooltip.ds500.bottom.viewport
                         :title="message.subject"
-                        class="text-overflow mw-100 h3 subject"
+                        class="text-overflow mw-100 subject flex-grow-1"
                     >
                         {{ message.subject }}
                     </div>
-                </bm-col>
-                <bm-col cols="3" class="text-right">
-                    <span class="text-nowrap d-none d-sm-block d-md-none d-xl-block">{{ displayedDate }}</span>
-                    <span class="text-nowrap d-sm-none d-md-block d-xl-none">{{ smallerDisplayedDate }}</span>
+                    <div class="pl-2">
+                        <span class="text-nowrap d-none d-sm-block d-md-none d-xl-block">{{ displayedDate }}</span>
+                        <span class="text-nowrap d-sm-none d-md-block d-xl-none">{{ smallerDisplayedDate }}</span>
+                    </div>
                 </bm-col>
             </bm-row>
         </bm-list-group-item>

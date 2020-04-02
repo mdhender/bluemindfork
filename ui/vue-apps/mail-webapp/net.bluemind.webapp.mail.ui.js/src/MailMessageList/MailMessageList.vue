@@ -31,13 +31,10 @@
             @scroll="loadMessages"
         >
             <template #item="f">
-                <bm-list-group-separator v-if="hasSeparator(f.item.key)" class="mail-list-separator">
-                    <bm-row class="no-gutters pl-2">
-                        <bm-col cols="1" />
-                        <bm-col>
-                            {{ $t(getSeparator(f.item.date)) }}
-                        </bm-col>
-                    </bm-row>
+                <bm-list-group-separator v-if="hasSeparator(f.item.key)" class="mail-list-separator px-2 py-0">
+                    <div class="text-right text-muted font-weight-bold">
+                        {{ $t(getSeparator(f.item.date)) }}
+                    </div>
                 </bm-list-group-separator>
                 <mail-message-list-item
                     :ref="'message-' + f.item.key"
@@ -75,15 +72,7 @@
 </template>
 
 <script>
-import {
-    BmCol,
-    BmListGroup,
-    BmListGroupItem,
-    BmListGroupSeparator,
-    BmInfiniteScroll,
-    BmRow,
-    BmSpinner
-} from "@bluemind/styleguide";
+import { BmListGroup, BmListGroupItem, BmListGroupSeparator, BmInfiniteScroll, BmSpinner } from "@bluemind/styleguide";
 import { mapGetters, mapState, mapActions } from "vuex";
 import { DateRange } from "@bluemind/date";
 import last from "lodash.last";
@@ -111,12 +100,10 @@ const RANGES = [TODAY, YESTERDAY, THIS_WEEK, OLDER];
 export default {
     name: "MailMessageList",
     components: {
-        BmCol,
         BmListGroup,
         BmListGroupItem,
         BmListGroupSeparator,
         BmInfiniteScroll,
-        BmRow,
         BmSpinner,
         MailMessageListEmptyFolder,
         MailMessageListEmptyFilter,
@@ -250,7 +237,6 @@ export default {
 }
 
 .mail-message-list .list-group-separator {
-    border-bottom: $border-width solid $light;
     padding: $sp-1;
 }
 </style>
