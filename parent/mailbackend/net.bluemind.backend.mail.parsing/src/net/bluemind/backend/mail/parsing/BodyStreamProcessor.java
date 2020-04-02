@@ -187,7 +187,8 @@ public class BodyStreamProcessor {
 				processMultipart(mb, mpBody, filenames, bodyTxt, fetchContent);
 			}
 
-			String extractedBody = extractBody(parsed);
+			BodyAndDom bodyWithDom = extractBody(parsed);
+			String extractedBody = bodyWithDom.text;
 			extractedBody = extractedBody.replace("\u0000", "");
 			bodyTxt.append(extractedBody);
 			mb.preview = CharMatcher.whitespace()
@@ -206,7 +207,7 @@ public class BodyStreamProcessor {
 				logger.info("Body ({} byte(s)) processed in {}ms.", mb.size, time);
 			}
 
-			cleanUnreferencedInlineAttachments(mb, parsed);
+			cleanUnreferencedInlineAttachments(bodyWithDom.jsoup, mb, parsed);
 
 			MessageBodyData bodyData = new MessageBodyData(mb, bodyTxt.toString(), filenames, with,
 					mapHeaders(mb.headers));
@@ -218,12 +219,14 @@ public class BodyStreamProcessor {
 
 	}
 
-	private static void cleanUnreferencedInlineAttachments(MessageBody mb, Message parsed) {
+	private static void cleanUnreferencedInlineAttachments(Optional<Document> jsoup, MessageBody mb, Message parsed) {
 		List<Part> withContentIds = partsWithContentIds(mb.structure, null, new LinkedList<>());
 		if (!withContentIds.isEmpty()) {
-			Optional<AddressableEntity> ae = htmlBody(parsed);
-			String body = ae.map(BodyStreamProcessor::getBodyContent).orElse("");
-			Set<String> refCids = findCIDs(Jsoup.parse(body));
+			Set<String> refCids = findCIDs(jsoup.orElseGet(() -> {
+				Optional<AddressableEntity> ae = htmlBody(parsed);
+				String body = ae.map(BodyStreamProcessor::getBodyContent).orElse("");
+				return Jsoup.parse(body);
+			}));
 			for (Part p : withContentIds) {
 				String cid = CharMatcher.anyOf("<>").trimFrom(p.contentId);
 				if (!refCids.contains(cid)) {
@@ -334,7 +337,26 @@ public class BodyStreamProcessor {
 		}
 	}
 
-	private static String extractBody(Message message) {
+	private static class BodyAndDom {
+		String text;
+		Optional<Document> jsoup;
+
+		public static BodyAndDom plainText(String txt) {
+			BodyAndDom bd = new BodyAndDom();
+			bd.text = txt;
+			bd.jsoup = Optional.empty();
+			return bd;
+		}
+
+		public static BodyAndDom html(String txt, Document parsed) {
+			BodyAndDom bd = new BodyAndDom();
+			bd.text = txt;
+			bd.jsoup = Optional.of(parsed);
+			return bd;
+		}
+	}
+
+	private static BodyAndDom extractBody(Message message) {
 		Body body = message.getBody();
 
 		if (body instanceof Multipart) {
@@ -354,7 +376,8 @@ public class BodyStreamProcessor {
 					.findFirst();
 
 			if (txtPart.isPresent()) {
-				return CharMatcher.whitespace().collapseFrom(getBodyContent(txtPart.get()), ' ').trim();
+				return BodyAndDom
+						.plainText(CharMatcher.whitespace().collapseFrom(getBodyContent(txtPart.get()), ' ').trim());
 			}
 
 		} else {
@@ -363,11 +386,12 @@ public class BodyStreamProcessor {
 			}
 		}
 
-		return "";
+		return BodyAndDom.plainText("");
 	}
 
-	private static String htmlToText(String html) {
-		return Jsoup.parse(html).body().text();
+	private static BodyAndDom htmlToText(String html) {
+		Document parsed = Jsoup.parse(html);
+		return BodyAndDom.html(parsed.body().text(), parsed);
 	}
 
 	private static String getBodyContent(Entity e) {
