@@ -61,7 +61,7 @@ public class ItemsTransferService implements IItemsTransfer {
 		}
 
 		@Override
-		public IItemsTransfer instance(BmContext context, String... params) throws ServerFault {
+		public IItemsTransfer instance(BmContext context, String... params) {
 			if (params.length != 2) {
 				throw new ServerFault("fromMailboxUid & toMailboxUid are required.");
 			}
@@ -87,7 +87,7 @@ public class ItemsTransferService implements IItemsTransfer {
 	private ICopyStrategy copyStrat;
 
 	@VisibleForTesting
-	public static boolean FORCE_CROSS = false;
+	public static boolean FORCE_CROSS = false; // NOSONAR
 
 	public ItemsTransferService(BmContext context, String fromUid, String toUid) {
 
@@ -166,9 +166,7 @@ public class ItemsTransferService implements IItemsTransfer {
 				}
 			});
 			try {
-				return replicated.thenCompose(v -> {
-					return freshImapUids;
-				}).thenApply(mapping -> {
+				return replicated.thenCompose(v -> freshImapUids).thenApply(mapping -> {
 					List<ItemIdentifier> ret = new ArrayList<>(srcItems.size());
 					long v = toRecords.getVersion();
 					long start = startId;
@@ -178,7 +176,7 @@ public class ItemsTransferService implements IItemsTransfer {
 					return ret;
 				}).get(ImapMailboxRecordsService.DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 			} catch (TimeoutException to) {
-				throw new ServerFault(to.getMessage(), ErrorCode.TIMEOUT);
+				throw new ServerFault("timeout: " + to.getMessage(), ErrorCode.TIMEOUT);
 			} catch (Exception e) {
 				throw new ServerFault(e);
 			}
@@ -194,9 +192,7 @@ public class ItemsTransferService implements IItemsTransfer {
 
 	@Override
 	public List<ItemIdentifier> move(List<Long> itemIds) {
-		return transferImpl(itemIds, toDelete -> {
-			fromImap.multipleDeleteById(itemIds);
-		});
+		return transferImpl(itemIds, toDelete -> fromImap.multipleDeleteById(itemIds));
 	}
 
 }

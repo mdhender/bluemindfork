@@ -20,11 +20,10 @@ package net.bluemind.cli.mail;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -78,8 +77,7 @@ public class IndexPrereplicatedMailsCommand implements ICmdLet, Runnable {
 		}
 	}
 
-	private void extractAndIndex(File file) throws Exception {
-		URI uri = URI.create("jar:" + file.toPath().toUri());
+	private void extractAndIndex(File file) throws IOException {
 		List<IndexedMessageBody> queue = new ArrayList<>();
 		AtomicLong counter = new AtomicLong();
 		Consumer<IndexedMessageBody> consumer = msg -> {
@@ -93,7 +91,7 @@ public class IndexPrereplicatedMailsCommand implements ICmdLet, Runnable {
 		};
 		Set<String> indexed = getIndexedUids();
 		ctx.info(indexed.size() + " mails have already been indexed.");
-		try (InputStream fi = Files.newInputStream(Paths.get(tar));
+		try (InputStream fi = Files.newInputStream(file.toPath());
 				InputStream bi = new BufferedInputStream(fi);
 				InputStream gzi = new GzipCompressorInputStream(bi);
 				ArchiveInputStream archiveStream = new TarArchiveInputStream(gzi)) {
@@ -105,7 +103,7 @@ public class IndexPrereplicatedMailsCommand implements ICmdLet, Runnable {
 	}
 
 	private void extract(ArchiveInputStream archiveStream, Consumer<IndexedMessageBody> consumer, Set<String> indexed)
-			throws Exception {
+			throws IOException {
 		ArchiveEntry entry = null;
 		while ((entry = archiveStream.getNextEntry()) != null) {
 			if (indexed.contains(uidFromFileName(entry.getName()))) {

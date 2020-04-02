@@ -81,19 +81,18 @@ public class ValidationPolicy {
 
 		String cachedLatd = tokenCache.getIfPresent(password);
 		if (cachedLatd != null && cachedLatd.equals(latd)) {
-			logger.info("Access to " + service + " granted from token cache for " + latd);
+			logger.info("Access to {} granted from token cache for {}", service, latd);
 			return true;
 		}
 
-		Kind vk = Kind.No;
 		boolean ret = false;
 		long time = System.currentTimeMillis();
 		for (ICredentialValidatorFactory cvf : validatorsFactories) {
 			ICredentialValidator validator = cvf.getValidator();
-			vk = validator.validate(login, password, realm, service);
+			Kind vk = validator.validate(login, password, realm, service);
 			if (vk != null && vk != Kind.No) {
-				logger.info("Access to service " + service + " granted to " + login + " with '" + cvf.getName()
-						+ "' validator in " + (System.currentTimeMillis() - time) + "ms.");
+				logger.info("Access to service {} granted to {} with '{}' validator in {}ms.", service, login,
+						cvf.getName(), (System.currentTimeMillis() - time));
 				ret = true;
 
 				if (vk == Kind.Token) {
@@ -105,8 +104,8 @@ public class ValidationPolicy {
 		}
 
 		if (!ret) {
-			logger.warn("all " + validatorsFactories.size() + " validator(s) rejected " + login + " in "
-					+ (System.currentTimeMillis() - time) + "ms.");
+			logger.warn("all {} validator(s) rejected {} in {}ms.", validatorsFactories.size(), login,
+					(System.currentTimeMillis() - time));
 		}
 
 		return ret;

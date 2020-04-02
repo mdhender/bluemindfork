@@ -73,7 +73,7 @@ public class SaslAuthdVerticle extends AbstractVerticle {
 						p.fail(e);
 					}
 				}, res -> {
-					if (res.succeeded() && res.result()) {
+					if (res.succeeded() && res.result().booleanValue()) {
 						registry.counter(idFactory.name("authCount", "status", "ok", "service", creds.service))
 								.increment();
 						netsock.write(Buffer.buffer(SASL_OK));

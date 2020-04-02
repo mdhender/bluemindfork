@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.core.api.ParametersValidator;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.service.internal.RBACManager;
+import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.system.api.ISystemConfiguration;
@@ -69,7 +70,7 @@ public class SystemConfiguration implements ISystemConfiguration {
 			logger.warn("/etc/bm/bm.ini not found");
 		}
 
-		Map<String, String> values = new HashMap<String, String>();
+		Map<String, String> values = new HashMap<>();
 
 		for (Entry<Object, Object> entry : props.entrySet()) {
 			values.put((String) entry.getKey(), (String) entry.getValue());
@@ -110,7 +111,7 @@ public class SystemConfiguration implements ISystemConfiguration {
 		SystemConfigurationHooks.getInstance().validate(previous, values);
 		Map<String, String> merged = SystemConf.merge(previous, values);
 
-		systemConfStore.doOrFail(() -> {
+		JdbcAbstractStore.doOrFail(() -> {
 			systemConfStore.update(merged);
 			return null;
 		});
