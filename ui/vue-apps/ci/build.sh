@@ -67,7 +67,7 @@ fi
 
 yarn install
 rm -f jest.json jest.xml
-yarn test || true
+yarn test-ci || true
 mv report.xml jest.xml
 
 if [ "$PUBLISH_NPM" == "true" ]; then

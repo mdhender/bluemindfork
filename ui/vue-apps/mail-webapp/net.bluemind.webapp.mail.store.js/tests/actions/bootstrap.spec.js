@@ -1,18 +1,5 @@
 import { bootstrap } from "../../src/actions/bootstrap";
 
-const mockedMessageMaxSize = 666;
-jest.mock("@bluemind/inject", () => {
-    return {
-        getProvider() {
-            return {
-                get: () => {
-                    return { getMailboxConfig: jest.fn().mockReturnValue({ messageMaxSize: mockedMessageMaxSize }) };
-                }
-            };
-        }
-    };
-});
-
 const context = {
     dispatch: jest.fn().mockReturnValue(Promise.resolve()),
     commit: jest.fn(),
@@ -74,10 +61,5 @@ describe("[Mail-WebappStore][actions] :  bootstrap", () => {
     test("set login", () => {
         bootstrap(context, "mylogin@bluemind.lan");
         expect(context.commit).toHaveBeenCalledWith("setUserLogin", "mylogin@bluemind.lan");
-    });
-
-    test("set max message size", async () => {
-        await bootstrap(context);
-        expect(context.commit).toHaveBeenCalledWith("setMaxMessageSize", mockedMessageMaxSize);
     });
 });

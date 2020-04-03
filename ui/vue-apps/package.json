@@ -57,10 +57,10 @@
         "vue": "^2.6.0"
     },
     "scripts": {
-        "test": "jest --ci --json --config node_modules/@bluemind/conf/jest.config.js --testResultsProcessor jest-jenkins-reporter --coverage --coverageReporters cobertura > jest.json",
+        "test": "jest --watch --config node_modules/@bluemind/conf/jest.config.js",
         "root": "(cd root-webapp/net.bluemind.webapp.root.js && yarn dev)",
         "mail": "(cd mail-webapp/net.bluemind.webapp.mail.js && yarn dev)",
-        "test-dev": "jest --watch --config node_modules/@bluemind/conf/jest.config.js"
+        "test-ci": "jest --ci --json --config node_modules/@bluemind/conf/jest.config.js --testResultsProcessor jest-jenkins-reporter --coverage --coverageReporters cobertura > jest.json"
     },
     "prettier": "@bluemind/prettier-config"
 }

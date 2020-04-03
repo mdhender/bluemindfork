@@ -10,3 +10,4 @@ export * from "./setMessageFilter";
 export * from "./setUnreadCount";
 export * from "./setUserLogin";
 export * from "./setStatus";
+export * from "./setUserSettings";

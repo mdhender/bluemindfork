@@ -1,5 +1,6 @@
 import { ContainersClient } from "@bluemind/core.container.api";
 import { MailboxesClient } from "@bluemind/mailbox.api";
+import { UserSettingsClient } from "@bluemind/user.api";
 import { createLocalVue } from "@vue/test-utils";
 import { MockItemsTransferClient, MockMailboxItemsClient, MockMailboxFoldersClient } from "@bluemind/test-mocks";
 import aliceFolders from "./data/alice/folders";
@@ -16,14 +17,17 @@ import { Flag } from "@bluemind/email";
 
 jest.mock("@bluemind/core.container.api");
 jest.mock("@bluemind/mailbox.api");
+jest.mock("@bluemind/user.api");
 
 let containerService,
     mailboxesService,
     foldersService = new MockMailboxFoldersClient(),
     itemsService = new MockMailboxItemsClient(),
-    itemsTransferClient = new MockItemsTransferClient();
+    itemsTransferClient = new MockItemsTransferClient(),
+    userSettingsService;
 ServiceLocator.register({ provide: "ContainersPersistence", factory: () => containerService });
 ServiceLocator.register({ provide: "MailboxesPersistence", factory: () => mailboxesService });
+ServiceLocator.register({ provide: "UserSettingsPersistence", factory: () => userSettingsService });
 ServiceLocator.register({ provide: "MailboxItemsPersistence", factory: () => itemsService });
 ServiceLocator.register({ provide: "MailboxFoldersPersistence", factory: () => foldersService });
 ServiceLocator.register({ provide: "ItemsTransferPersistence", factory: () => itemsTransferClient });
@@ -44,6 +48,7 @@ describe("[MailWebAppStore] Vuex store", () => {
         itemsTransferClient = new MockItemsTransferClient();
         containerService = new ContainersClient();
         mailboxesService = new MailboxesClient();
+        userSettingsService = new UserSettingsClient();
     });
     test("bootstrap load folders into store with unread count", done => {
         let letsEndThis;
@@ -63,10 +68,16 @@ describe("[MailWebAppStore] Vuex store", () => {
         itemsService.getPerUserUnread.mockReturnValueOnce(Promise.resolve({ count: 15 }));
         containerService.all.mockReturnValueOnce(Promise.resolve(containers));
         mailboxesService.getMailboxConfig.mockReturnValue(Promise.resolve({}));
+        const mockedMessageListStyle = "compact";
+        userSettingsService.getOne.mockReturnValue(Promise.resolve(mockedMessageListStyle));
+
         store
             .dispatch("mail-webapp/bootstrap", "alice@blue-mind.loc", { root: true })
             .then(() => {
                 expect(store.state["mail-webapp"].login).toBe("alice@blue-mind.loc");
+                expect(store.state["mail-webapp"].userSettings).toMatchObject({
+                    mail_message_list_style: mockedMessageListStyle
+                });
                 expect(store.getters["mail-webapp/my"].mailboxUid).toEqual("user.alice");
                 expect(store.getters["mail-webapp/my"].INBOX.uid).toEqual("f1c3f42f-551b-446d-9682-cfe0574b3205");
                 expect(store.getters["mail-webapp/my"].TRASH.uid).toEqual("98a9383e-5156-44eb-936a-e6b0825b0809");
