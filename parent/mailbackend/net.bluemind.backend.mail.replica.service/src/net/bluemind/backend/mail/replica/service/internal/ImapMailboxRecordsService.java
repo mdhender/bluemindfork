@@ -107,7 +107,6 @@ import net.bluemind.imap.Flag;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.IMAPException;
 import net.bluemind.imap.SearchQuery;
-import net.bluemind.imap.StoreClient;
 import net.bluemind.imap.TaggedResult;
 import net.bluemind.imap.vertx.ImapResponseStatus;
 import net.bluemind.imap.vertx.ImapResponseStatus.Status;
@@ -148,9 +147,26 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	@Override
 	public ImapCommandRunner imapExecutor() {
-		return (Consumer<StoreClient> sc) -> {
+
+		return (Consumer<ImapClient> sc) -> {
 			imapContext.withImapClient((inSc, vx) -> {
-				sc.accept(inSc);
+				ImapClient ic = new ImapClient() {
+
+					@Override
+					public Map<Integer, Integer> uidCopy(Collection<Integer> uids, String destMailbox) {
+						return inSc.uidCopy(uids, destMailbox);
+					}
+
+					@Override
+					public boolean select(String mbox) {
+						try {
+							return inSc.select(mbox);
+						} catch (IMAPException e) {
+							throw new ServerFault(e);
+						}
+					}
+				};
+				sc.accept(ic);
 				return null;
 			});
 		};

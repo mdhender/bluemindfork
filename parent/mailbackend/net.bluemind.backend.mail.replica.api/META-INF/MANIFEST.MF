@@ -10,8 +10,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava;bundle-version="19.0.0",
  net.bluemind.backend.mail.api;visibility:=reexport,
  net.bluemind.mailbox.api;visibility:=reexport,
- io.vertx.core;bundle-version="2.1.6",
- net.bluemind.imap
+ io.vertx.core;bundle-version="2.1.6"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.backend.mail.replica.api,

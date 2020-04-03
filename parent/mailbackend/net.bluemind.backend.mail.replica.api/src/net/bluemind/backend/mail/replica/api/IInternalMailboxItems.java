@@ -17,13 +17,14 @@
  */
 package net.bluemind.backend.mail.replica.api;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.core.container.model.ItemIdentifier;
-import net.bluemind.imap.StoreClient;
 
 public interface IInternalMailboxItems extends IMailboxItems {
 
@@ -31,8 +32,14 @@ public interface IInternalMailboxItems extends IMailboxItems {
 
 	String imapFolder();
 
+	public interface ImapClient {
+		boolean select(String mbox);
+
+		Map<Integer, Integer> uidCopy(Collection<Integer> uids, String destMailbox);
+	}
+
 	public interface ImapCommandRunner {
-		void withClient(Consumer<StoreClient> scCons);
+		void withClient(Consumer<ImapClient> scCons);
 	}
 
 	ImapCommandRunner imapExecutor();

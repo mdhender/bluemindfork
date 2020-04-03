@@ -49,7 +49,6 @@ import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.imap.IMAPException;
 
 public class ItemsTransferService implements IItemsTransfer {
 
@@ -155,14 +154,13 @@ public class ItemsTransferService implements IItemsTransfer {
 			CompletableFuture<?> replicated = ReplicationEvents.onRecordCreate(toUid, startId);
 			CompletableFuture<Map<Integer, Integer>> freshImapUids = new CompletableFuture<>();
 			toRecords.imapExecutor().withClient(sc -> {
-				try {
-					sc.select(srcImap);
+				if (sc.select(srcImap)) {
 					Map<Integer, Integer> mapping = sc.uidCopy(
 							srcItems.stream().map(ib -> (int) ib.imapUid).collect(Collectors.toList()), destImap);
 					logger.info("IMAP copy returned {} item(s)", mapping.size());
 					freshImapUids.complete(mapping);
-				} catch (IMAPException e) {
-					throw new ServerFault(e);
+				} else {
+					freshImapUids.completeExceptionally(new ServerFault("Failed to select " + srcImap));
 				}
 			});
 			try {
