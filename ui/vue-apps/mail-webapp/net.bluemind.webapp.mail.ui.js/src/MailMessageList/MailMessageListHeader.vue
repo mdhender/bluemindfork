@@ -15,17 +15,18 @@
                 />
             </bm-col>
             <bm-col class="d-none d-sm-block d-md-none d-xl-block text-right" cols="4">
-                <span class="text-nowrap">
+                <!-- hidden until the sort feature is really developed : https://forge.bluemind.net/jira/browse/FEATWEBML-573
+                <span class="text-nowrap"> 
                     {{ $t("common.sort_by") }}
                     <span class="fake-select">{{ $t("common.date") }} <bm-icon icon="caret-down"/></span>
-                </span>
+                </span> -->
             </bm-col>
         </bm-row>
     </bm-list-group-item>
 </template>
 
 <script>
-import { BmCheck, BmCol, BmListGroupItem, BmIcon, BmRow, BmChoiceGroup, BmTooltip } from "@bluemind/styleguide";
+import { BmCheck, BmCol, BmListGroupItem, BmRow, BmChoiceGroup, BmTooltip } from "@bluemind/styleguide";
 import { mapState } from "vuex";
 
 const FILTER_INDEXES = { all: 0, unread: 1 };
@@ -36,7 +37,6 @@ export default {
         BmCheck,
         BmCol,
         BmListGroupItem,
-        BmIcon,
         BmRow,
         BmChoiceGroup
     },
