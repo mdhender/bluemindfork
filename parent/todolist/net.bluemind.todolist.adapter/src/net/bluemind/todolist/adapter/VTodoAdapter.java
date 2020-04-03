@@ -1,14 +1,13 @@
 package net.bluemind.todolist.adapter;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
@@ -17,19 +16,12 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.parser.ICal4jHelper;
 import net.bluemind.lib.ical4j.data.CalendarBuilder;
-import net.bluemind.lib.ical4j.model.PropertyFactoryRegistry;
 import net.bluemind.todolist.api.VTodo;
-import net.fortuna.ical4j.data.CalendarParser;
-import net.fortuna.ical4j.data.CalendarParserFactory;
-import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.data.UnfoldingReader;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
-import net.fortuna.ical4j.model.ComponentList;
 import net.fortuna.ical4j.model.DateTime;
-import net.fortuna.ical4j.model.ParameterFactoryRegistry;
 import net.fortuna.ical4j.model.PropertyList;
-import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
 import net.fortuna.ical4j.model.component.VToDo;
 import net.fortuna.ical4j.model.property.CalScale;
 import net.fortuna.ical4j.model.property.Completed;
@@ -59,8 +51,7 @@ public class VTodoAdapter extends ICal4jHelper<VTodo> {
 	/**
 	 * Create an iCalendar {@link VToDo} component from a {@link VTodo} object.
 	 * 
-	 * @param BlueMind
-	 *                     Vtodo
+	 * @param BlueMind Vtodo
 	 * @return ICalendar VToDo
 	 */
 	public static VToDo adaptTodo(String uid, VTodo vtodo) {
@@ -122,107 +113,85 @@ public class VTodoAdapter extends ICal4jHelper<VTodo> {
 	 * @throws ServerFault
 	 */
 	public List<ItemValue<VTodo>> convertToVTodoList(String ics) throws ServerFault {
-		CalendarParser parser = CalendarParserFactory.getInstance().createParser();
-
-		PropertyFactoryRegistry propertyFactory = new PropertyFactoryRegistry();
-		ParameterFactoryRegistry parameterFactory = new ParameterFactoryRegistry();
-
+		List<ItemValue<VTodo>> ret = new ArrayList<>();
 		InputStream is = new ByteArrayInputStream(ics.getBytes());
-		Reader reader = new InputStreamReader(is);
-		UnfoldingReader unfoldingReader = new UnfoldingReader(reader, true);
-
-		CalendarBuilder builder = new CalendarBuilder(parser, propertyFactory, parameterFactory,
-				TimeZoneRegistryFactory.getInstance().createRegistry());
-
-		net.fortuna.ical4j.model.Calendar calendar = null;
-
-		try {
-			calendar = builder.build(unfoldingReader);
-		} catch (IOException e) {
-			logger.error("IOException during ICS import. {}", e.getMessage());
-			throw new ServerFault(e);
-		} catch (ParserException e) {
-			logger.error("ParserException during ICS parsing. {}", e.getMessage());
-			throw new ServerFault(e);
-		} finally {
-			try {
-				is.close();
-				reader.close();
-				unfoldingReader.close();
-			} catch (IOException e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
-
-		// X-WR-TIMEZONE
-		String globalTZ = calendar.getProperty("X-WR-TIMEZONE") != null
-				? calendar.getProperty("X-WR-TIMEZONE").getValue()
-				: null;
-
-		ComponentList componentList = calendar.getComponents(Component.VTODO);
-
-		List<ItemValue<VTodo>> ret = new ArrayList<ItemValue<VTodo>>(componentList.size());
-
-		for (@SuppressWarnings("unchecked")
-		Iterator<Component> componentListIterator = componentList.iterator(); componentListIterator.hasNext();) {
-			net.fortuna.ical4j.model.component.VToDo ical4j = (net.fortuna.ical4j.model.component.VToDo) componentListIterator
-					.next();
-
-			Item item = new Item();
-			if (ical4j.getCreated() != null) {
-				item.created = ical4j.getCreated().getDate();
-			}
-			if (ical4j.getLastModified() != null) {
-				item.updated = ical4j.getLastModified().getDate();
-			}
-			if (ical4j.getUid() != null) {
-				item.uid = ical4j.getUid().getValue();
-			}
-
-			VTodo vtodo = new VTodo();
-			vtodo = parseIcs(vtodo, ical4j, globalTZ, Optional.empty()).value;
-
-			// DUE
-			vtodo.due = parseIcsDate(ical4j.getDue(), globalTZ);
-
-			// PERCENT
-			if (ical4j.getPercentComplete() != null) {
-				vtodo.percent = new Integer(ical4j.getPercentComplete().getValue());
-			}
-
-			// COMPLETE
-			if (ical4j.getDateCompleted() != null) {
-				vtodo.completed = parseIcsDate(ical4j.getDateCompleted(), globalTZ);
-			}
-
-			// DESC
-			if (ical4j.getDescription() != null) {
-				vtodo.description = ical4j.getDescription().getValue();
-			}
-			// STATUS
-			if (ical4j.getStatus() != null) {
-				String s = ical4j.getStatus().getValue();
-				vtodo.status = ICalendarElement.Status.NeedsAction;
-				switch (s) {
-				case "NEEDS-ACTION":
-					vtodo.status = ICalendarElement.Status.NeedsAction;
-					break;
-				case "CANCELLED":
-					vtodo.status = ICalendarElement.Status.Cancelled;
-					break;
-				case "COMPLETED":
-					vtodo.status = ICalendarElement.Status.Completed;
-					break;
-				case "IN-PROCESS":
-					vtodo.status = ICalendarElement.Status.InProcess;
-					break;
-				default:
-					logger.warn("unkown status from VTODO {}", vtodo.status);
-					break;
+		try (Reader reader = new InputStreamReader(is);
+				UnfoldingReader unfoldingReader = new UnfoldingReader(reader, true)) {
+			CalendarBuilder builder = new CalendarBuilder();
+			BiConsumer<Calendar, Component> componentConsumer = (calendar, component) -> {
+				if (!Component.VTODO.equals(component.getName())) {
+					return;
 				}
-			}
-			ItemValue<VTodo> itemValue = ItemValue.create(item, vtodo);
-			ret.add(itemValue);
+
+				// X-WR-TIMEZONE
+				Optional<String> globalTZ = calendar.getProperty("X-WR-TIMEZONE") != null
+						? Optional.of(calendar.getProperty("X-WR-TIMEZONE").getValue())
+						: Optional.empty();
+				net.fortuna.ical4j.model.component.VToDo ical4j = (net.fortuna.ical4j.model.component.VToDo) component;
+
+				Item item = new Item();
+				if (ical4j.getCreated() != null) {
+					item.created = ical4j.getCreated().getDate();
+				}
+				if (ical4j.getLastModified() != null) {
+					item.updated = ical4j.getLastModified().getDate();
+				}
+				if (ical4j.getUid() != null) {
+					item.uid = ical4j.getUid().getValue();
+				}
+
+				VTodo vtodo = new VTodo();
+				vtodo = parseIcs(vtodo, ical4j, globalTZ, Optional.empty()).value;
+
+				// DUE
+				vtodo.due = parseIcsDate(ical4j.getDue(), globalTZ);
+
+				// PERCENT
+				if (ical4j.getPercentComplete() != null) {
+					vtodo.percent = new Integer(ical4j.getPercentComplete().getValue());
+				}
+
+				// COMPLETE
+				if (ical4j.getDateCompleted() != null) {
+					vtodo.completed = parseIcsDate(ical4j.getDateCompleted(), globalTZ);
+				}
+
+				// DESC
+				if (ical4j.getDescription() != null) {
+					vtodo.description = ical4j.getDescription().getValue();
+				}
+				// STATUS
+				if (ical4j.getStatus() != null) {
+					String s = ical4j.getStatus().getValue();
+					vtodo.status = ICalendarElement.Status.NeedsAction;
+					switch (s) {
+					case "NEEDS-ACTION":
+						vtodo.status = ICalendarElement.Status.NeedsAction;
+						break;
+					case "CANCELLED":
+						vtodo.status = ICalendarElement.Status.Cancelled;
+						break;
+					case "COMPLETED":
+						vtodo.status = ICalendarElement.Status.Completed;
+						break;
+					case "IN-PROCESS":
+						vtodo.status = ICalendarElement.Status.InProcess;
+						break;
+					default:
+						logger.warn("unkown status from VTODO {}", vtodo.status);
+						break;
+					}
+				}
+				ItemValue<VTodo> itemValue = ItemValue.create(item, vtodo);
+				ret.add(itemValue);
+
+			};
+
+			builder.build(unfoldingReader, componentConsumer);
+
+		} catch (Exception e) {
+			logger.error("Exception during ICS import. {}", e.getMessage());
+			throw new ServerFault(e);
 		}
 
 		return ret;

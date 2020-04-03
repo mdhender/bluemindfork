@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 
-import net.bluemind.calendar.api.ICalendar;
+import net.bluemind.calendar.api.internal.IInternalCalendar;
 import net.bluemind.calendar.service.internal.ICSImportTask;
 import net.bluemind.calendar.service.internal.SingleCalendarICSImport;
 import net.bluemind.core.api.fault.ServerFault;
@@ -158,7 +158,7 @@ public class CalendarContainerSync implements ISyncableContainer {
 
 		if (data.con != null) {
 			try (InputStream in = data.con.getInputStream()) {
-				ICalendar service = context.provider().instance(ICalendar.class, container.uid);
+				IInternalCalendar service = context.provider().instance(IInternalCalendar.class, container.uid);
 				TaskStatus status = TaskUtils.wait(context.provider(), syncIcs(service, in));
 
 				logger.info("Sync ICS result: {}", status.result);
@@ -168,6 +168,7 @@ public class CalendarContainerSync implements ISyncableContainer {
 				ret.added = result.added.size();
 				ret.updated = result.updated.size();
 				ret.removed = result.removed.size();
+				ret.unhandled = result.unhandled.size();
 				ret.status.lastSync = new Date();
 				ret.status.syncStatus = Status.SUCCESS;
 			} catch (Exception e) {
@@ -302,7 +303,7 @@ public class CalendarContainerSync implements ISyncableContainer {
 
 	}
 
-	public TaskRef syncIcs(ICalendar calendarService, InputStream stream) throws ServerFault {
+	public TaskRef syncIcs(IInternalCalendar calendarService, InputStream stream) throws ServerFault {
 		return context.provider().instance(ITasksManager.class).run(new SingleCalendarICSImport(calendarService, stream,
 				Optional.of(new CalendarOwner(container.domainUid, container.owner)), ICSImportTask.Mode.SYNC));
 	}

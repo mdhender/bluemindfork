@@ -28,9 +28,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 
 import io.vertx.core.buffer.Buffer;
-import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.IVEvent;
 import net.bluemind.calendar.api.VEventSeries;
+import net.bluemind.calendar.api.internal.IInternalCalendar;
 import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
@@ -49,7 +49,7 @@ public class VEventService implements IVEvent {
 
 	private static Logger logger = LoggerFactory.getLogger(VEventService.class);
 
-	private ICalendar calendarService;
+	private IInternalCalendar calendarService;
 
 	private BmContext context;
 
@@ -60,7 +60,7 @@ public class VEventService implements IVEvent {
 	public VEventService(BmContext context, Container container) throws ServerFault {
 		this.context = context;
 		this.container = container;
-		this.calendarService = context.provider().instance(ICalendar.class, container.uid);
+		this.calendarService = context.provider().instance(IInternalCalendar.class, container.uid);
 		rbacManager = RBACManager.forContext(context).forContainer(container);
 	}
 

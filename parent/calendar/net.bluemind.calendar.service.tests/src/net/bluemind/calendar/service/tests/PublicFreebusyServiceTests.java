@@ -19,12 +19,13 @@
 package net.bluemind.calendar.service.tests;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.function.BiConsumer;
 
 import org.junit.Test;
 
@@ -43,17 +44,14 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.lib.ical4j.data.CalendarBuilder;
-import net.bluemind.lib.ical4j.model.PropertyFactoryRegistry;
 import net.bluemind.tests.defaultdata.BmDateTimeHelper;
-import net.fortuna.ical4j.data.CalendarParser;
-import net.fortuna.ical4j.data.CalendarParserFactory;
 import net.fortuna.ical4j.data.ParserException;
+import net.fortuna.ical4j.data.UnfoldingReader;
+import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.Parameter;
-import net.fortuna.ical4j.model.ParameterFactoryRegistry;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.PropertyList;
-import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
-import net.fortuna.ical4j.model.component.VFreeBusy;
 
 public class PublicFreebusyServiceTests extends AbstractCalendarTests {
 
@@ -75,18 +73,16 @@ public class PublicFreebusyServiceTests extends AbstractCalendarTests {
 		String ics = getPublicFreebusyService(SecurityContext.ANONYMOUS).simple(testUser.value.defaultEmail().address,
 				userSecurityContext.getSubject(), userSecurityContext.getContainerUid());
 
-		CalendarParser parser = CalendarParserFactory.getInstance().createParser();
-		PropertyFactoryRegistry propertyFactory = new PropertyFactoryRegistry();
-		ParameterFactoryRegistry parameterFactory = new ParameterFactoryRegistry();
+		CalendarBuilder builder = new CalendarBuilder();
 
-		CalendarBuilder builder = new CalendarBuilder(parser, propertyFactory, parameterFactory,
-				TimeZoneRegistryFactory.getInstance().createRegistry());
-
-		net.fortuna.ical4j.model.Calendar calendar = builder.build(new ByteArrayInputStream(ics.getBytes()));
-
-		VFreeBusy vfreebusy = (VFreeBusy) calendar.getComponent("VFREEBUSY");
-		assertNotNull(vfreebusy);
-		PropertyList slots = vfreebusy.getProperties("FREEBUSY");
+		PropertyList slots = new PropertyList();
+		@SuppressWarnings("unchecked")
+		BiConsumer<Calendar, Component> consumer = (calendar, component) -> {
+			if (component.getName().equals(Component.VFREEBUSY)) {
+				slots.addAll(component.getProperties("FREEBUSY"));
+			}
+		};
+		builder.build(new UnfoldingReader(new InputStreamReader(new ByteArrayInputStream(ics.getBytes()))), consumer);
 
 		int count = 0;
 		for (int i = 0; i < slots.size(); i++) {
@@ -166,18 +162,18 @@ public class PublicFreebusyServiceTests extends AbstractCalendarTests {
 				testUser.value.defaultEmail().address, userSecurityContext.getSubject(),
 				userSecurityContext.getContainerUid(), query);
 
-		CalendarParser parser = CalendarParserFactory.getInstance().createParser();
-		PropertyFactoryRegistry propertyFactory = new PropertyFactoryRegistry();
-		ParameterFactoryRegistry parameterFactory = new ParameterFactoryRegistry();
+		CalendarBuilder builder = new CalendarBuilder();
 
-		CalendarBuilder builder = new CalendarBuilder(parser, propertyFactory, parameterFactory,
-				TimeZoneRegistryFactory.getInstance().createRegistry());
+		System.err.println("\n" + ics);
 
-		net.fortuna.ical4j.model.Calendar calendar = builder.build(new ByteArrayInputStream(ics.getBytes()));
-
-		VFreeBusy vfreebusy = (VFreeBusy) calendar.getComponent("VFREEBUSY");
-		assertNotNull(vfreebusy);
-		PropertyList slots = vfreebusy.getProperties("FREEBUSY");
+		PropertyList slots = new PropertyList();
+		@SuppressWarnings("unchecked")
+		BiConsumer<Calendar, Component> consumer = (calendar, component) -> {
+			if (component.getName().equals(Component.VFREEBUSY)) {
+				slots.addAll(component.getProperties("FREEBUSY"));
+			}
+		};
+		builder.build(new UnfoldingReader(new InputStreamReader(new ByteArrayInputStream(ics.getBytes()))), consumer);
 
 		int count = 0;
 		for (int i = 0; i < slots.size(); i++) {
@@ -187,7 +183,6 @@ public class PublicFreebusyServiceTests extends AbstractCalendarTests {
 				count++;
 			}
 		}
-
 		assertEquals(6, count);
 
 	}

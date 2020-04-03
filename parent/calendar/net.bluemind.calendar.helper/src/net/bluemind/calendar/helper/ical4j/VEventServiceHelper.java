@@ -19,21 +19,30 @@
 package net.bluemind.calendar.helper.ical4j;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -47,22 +56,17 @@ import net.bluemind.icalendar.parser.CalendarOwner;
 import net.bluemind.icalendar.parser.ICal4jEventHelper;
 import net.bluemind.icalendar.parser.ICal4jHelper;
 import net.bluemind.lib.ical4j.data.CalendarBuilder;
-import net.bluemind.lib.ical4j.model.PropertyFactoryRegistry;
-import net.fortuna.ical4j.data.CalendarParser;
-import net.fortuna.ical4j.data.CalendarParserFactory;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.data.UnfoldingReader;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
-import net.fortuna.ical4j.model.ComponentList;
 import net.fortuna.ical4j.model.DateTime;
-import net.fortuna.ical4j.model.ParameterFactoryRegistry;
 import net.fortuna.ical4j.model.ParameterList;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.PropertyFactoryImpl;
 import net.fortuna.ical4j.model.PropertyList;
 import net.fortuna.ical4j.model.TimeZone;
-import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
+import net.fortuna.ical4j.model.component.VTimeZone;
 import net.fortuna.ical4j.model.property.CalScale;
 import net.fortuna.ical4j.model.property.DateProperty;
 import net.fortuna.ical4j.model.property.DtEnd;
@@ -176,22 +180,29 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 	}
 
 	/**
-	 * @param ics
-	 * @param owner
-	 * @return
-	 * @throws ServerFault
+	 * Convert an ics to a list of event series
+	 * 
+	 * @param ics   ics string
+	 * @param owner calendar owner
+	 * @return list of parsed series
+	 * @deprecated use convertToVEventList using a consumer
 	 */
+	@Deprecated
 	public static List<ItemValue<VEventSeries>> convertToVEventList(String ics, Optional<CalendarOwner> owner) {
+		List<ItemValue<VEventSeries>> ret = new LinkedList<>();
+		VEventServiceHelper.convertToVEventList(ics, Optional.empty(), series -> ret.add(series));
+		return ret;
+	}
+
+	public static void convertToVEventList(String ics, Optional<CalendarOwner> owner,
+			Consumer<ItemValue<VEventSeries>> consumer) {
 
 		List<String> icsCalendarList = splitIcs(ics);
-		List<ItemValue<VEventSeries>> ret = new ArrayList<>();
 		for (String cal : icsCalendarList) {
 			InputStream is = new ByteArrayInputStream(cal.getBytes());
-			ret.addAll(parseCalendar(is, owner));
+			parseCalendar(is, owner, consumer);
 
 		}
-		return ret;
-
 	}
 
 	private static List<String> splitIcs(String ics) {
@@ -212,93 +223,148 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 		return cals;
 	}
 
-	public static <T extends VEvent> List<ItemValue<VEventSeries>> parseCalendar(InputStream ics,
-			Optional<CalendarOwner> owner) {
-		CalendarParser parser = CalendarParserFactory.getInstance().createParser();
-		PropertyFactoryRegistry propertyFactory = new PropertyFactoryRegistry();
-		ParameterFactoryRegistry parameterFactory = new ParameterFactoryRegistry();
-		Reader reader = new InputStreamReader(ics);
-		UnfoldingReader unfoldingReader = new UnfoldingReader(reader, true);
-
-		CalendarBuilder builder = new CalendarBuilder(parser, propertyFactory, parameterFactory,
-				TimeZoneRegistryFactory.getInstance().createRegistry());
-
-		net.fortuna.ical4j.model.Calendar calendar = null;
-
+	public static void parseCalendar(InputStream ics, Optional<CalendarOwner> owner,
+			Consumer<ItemValue<VEventSeries>> consumer) {
+		File rootFolder = null;
 		try {
-			calendar = builder.build(unfoldingReader);
-		} catch (IOException e) {
-			logger.error("IOException during ICS import. {}", e.getMessage());
-			throw new ServerFault(e);
-		} catch (ParserException e) {
-			logger.error("ParserException during ICS parsing. {}", e.getMessage());
+			rootFolder = Files.createTempDirectory(UUID.randomUUID().toString()).toFile();
+			File icsFile = new File(rootFolder, System.currentTimeMillis() + ".ics");
+			TimezoneInfo tzInfo = serializeToFile(ics, icsFile);
+			parseICS(rootFolder, icsFile, tzInfo);
+			parseEvents(owner, consumer, rootFolder, tzInfo);
+		} catch (Exception e) {
 			throw new ServerFault(e);
 		} finally {
-			try {
-				reader.close();
-				unfoldingReader.close();
+			deleteTmpFolder(rootFolder);
+		}
+	}
+
+	private static void deleteTmpFolder(File rootFolder) {
+		if (rootFolder != null && rootFolder.exists()) {
+			try (Stream<Path> walker = Files.walk(rootFolder.toPath())) {
+				walker.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
 			} catch (IOException e) {
-				logger.error(e.getMessage(), e);
 			}
 		}
+	}
 
-		// X-WR-TIMEZONE
-		String globalTZ = calendar.getProperty("X-WR-TIMEZONE") != null
-				? calendar.getProperty("X-WR-TIMEZONE").getValue()
-				: null;
-
-		ComponentList componentList = calendar.getComponents(Component.VEVENT);
-
-		List<ItemValue<VEventSeries>> ret = new ArrayList<>(componentList.size());
-
-		HashMap<String, List<ItemValue<T>>> events = new HashMap<>();
-
-		for (@SuppressWarnings("unchecked")
-		Iterator<Component> componentListIterator = componentList.iterator(); componentListIterator.hasNext();) {
-			net.fortuna.ical4j.model.component.VEvent ical4j = (net.fortuna.ical4j.model.component.VEvent) componentListIterator
-					.next();
-
-			@SuppressWarnings("unchecked")
-			ItemValue<T> vevent = (ItemValue<T>) new ICal4jEventHelper<>().parseIcs(new VEvent(), ical4j, globalTZ,
-					owner);
-			if (ical4j.getCreated() != null) {
-				vevent.created = ical4j.getCreated().getDate();
-			}
-			if (ical4j.getLastModified() != null) {
-				vevent.updated = ical4j.getLastModified().getDate();
-			}
-
-			if (ical4j.getUid() != null) {
-				vevent.externalId = ical4j.getUid().getValue();
-			}
-
-			// DTEND
-			vevent.value.dtend = ICal4jHelper.parseIcsDate(ical4j.getEndDate(), globalTZ);
-
-			// TRANSPARANCY
-			if (ical4j.getTransparency() != null) {
-				String transparency = ical4j.getTransparency().getValue().toLowerCase();
-				if ("opaque".equals(transparency)) {
-					vevent.value.transparency = Transparency.Opaque;
-				} else if ("transparent".equals(transparency)) {
-					vevent.value.transparency = Transparency.Transparent;
-				} else {
-					logger.error("Unsupported Transparency {}", transparency);
-
+	private static void parseEvents(Optional<CalendarOwner> owner, Consumer<ItemValue<VEventSeries>> consumer,
+			File rootFolder, TimezoneInfo tzInfo) {
+		File[] seriesFolders = rootFolder.listFiles(file -> file.isDirectory());
+		for (File seriesFolder : seriesFolders) {
+			List<ItemValue<VEvent>> events = Arrays.asList(seriesFolder.listFiles()).stream().map(asFile -> {
+				AtomicReference<Component> ref = new AtomicReference<>(null);
+				try (Reader reader = new InputStreamReader(Files.newInputStream(asFile.toPath()));
+						UnfoldingReader unfoldingReader = new UnfoldingReader(reader, true)) {
+					CalendarBuilder builder = new CalendarBuilder(tzInfo.timezones);
+					BiConsumer<Calendar, Component> componentConsumer = (calendar, component) -> {
+						if (!Component.VEVENT.equals(component.getName())) {
+							return;
+						}
+						ref.set(component);
+					};
+					builder.build(unfoldingReader, componentConsumer);
+				} catch (Exception e) {
+					logger.error(e.getMessage(), e);
 				}
+				return fromComponent(ref.get(), tzInfo.globalTZ, owner);
+			}).collect(Collectors.toList());
+
+			ItemValue<VEventSeries> series = normalizeEvent(seriesFolder.getName(), events);
+			consumer.accept(series);
+		}
+	}
+
+	private static Optional<String> parseICS(File rootFolder, File icsFile, TimezoneInfo tzInfo) {
+		AtomicReference<String> globalTz = new AtomicReference<>(null);
+		try (Reader reader = new InputStreamReader(Files.newInputStream(icsFile.toPath()));
+				UnfoldingReader unfoldingReader = new UnfoldingReader(reader, true)) {
+			CalendarBuilder builder = new CalendarBuilder(tzInfo.timezones);
+			BiConsumer<Calendar, Component> componentConsumer = (calendar, component) -> {
+				if (!Component.VEVENT.equals(component.getName())) {
+					return;
+				}
+
+				Property uidProp = component.getProperty(Property.UID);
+				String uid = uidProp != null ? uidProp.getValue() : UUID.randomUUID().toString();
+
+				File folder = new File(rootFolder, uid);
+				if (!folder.exists()) {
+					folder.mkdir();
+				}
+
+				File eventIcs = new File(folder, UUID.randomUUID().toString() + ".ics");
+				try {
+					String cal = String.format("%s\r\n%s%s", "BEGIN:VCALENDAR", component.toString(), "END:VCALENDAR");
+					Files.write(eventIcs.toPath(), cal.getBytes());
+				} catch (IOException e) {
+					logger.error(e.getMessage(), e);
+				}
+			};
+
+			builder.build(unfoldingReader, componentConsumer);
+
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		return Optional.ofNullable(globalTz.get());
+	}
+
+	private static TimezoneInfo serializeToFile(InputStream ics, File icsFile) throws IOException, ParserException {
+		List<VTimeZone> tz = new ArrayList<>();
+		AtomicReference<String> globalTz = new AtomicReference<>();
+		try (FileWriter writer = new FileWriter(icsFile);
+				Reader reader = new IcsReader(ics, writer);
+				UnfoldingReader unfoldingReader = new UnfoldingReader(reader, true)) {
+			CalendarBuilder builder = new CalendarBuilder();
+			BiConsumer<Calendar, Component> componentConsumer = (calendar, component) -> {
+				if (Component.VTIMEZONE.equals(component.getName())) {
+					tz.add((VTimeZone) component);
+				}
+				if (globalTz.get() == null && calendar.getProperty("X-WR-TIMEZONE") != null) {
+					globalTz.set(calendar.getProperty("X-WR-TIMEZONE").getValue());
+				}
+
+			};
+			builder.build(unfoldingReader, componentConsumer);
+		}
+		return new TimezoneInfo(tz, Optional.ofNullable(globalTz.get()));
+	}
+
+	private static ItemValue<VEvent> fromComponent(Component component, Optional<String> globalTZ,
+			Optional<CalendarOwner> owner) {
+		net.fortuna.ical4j.model.component.VEvent ical4j = (net.fortuna.ical4j.model.component.VEvent) component;
+
+		ItemValue<VEvent> vevent = (ItemValue<VEvent>) new ICal4jEventHelper<>().parseIcs(new VEvent(), ical4j,
+				globalTZ, owner);
+		if (ical4j.getCreated() != null) {
+			vevent.created = ical4j.getCreated().getDate();
+		}
+		if (ical4j.getLastModified() != null) {
+			vevent.updated = ical4j.getLastModified().getDate();
+		}
+
+		if (ical4j.getUid() != null) {
+			vevent.externalId = ical4j.getUid().getValue();
+		}
+
+		// DTEND
+		vevent.value.dtend = ICal4jHelper.parseIcsDate(ical4j.getEndDate(), globalTZ);
+
+		// TRANSPARENCY
+		if (ical4j.getTransparency() != null) {
+			String transparency = ical4j.getTransparency().getValue().toLowerCase();
+			if ("opaque".equals(transparency)) {
+				vevent.value.transparency = Transparency.Opaque;
+			} else if ("transparent".equals(transparency)) {
+				vevent.value.transparency = Transparency.Transparent;
+			} else {
+				logger.error("Unsupported Transparency " + transparency);
+
 			}
-			List<ItemValue<T>> storedEvents = events.containsKey(vevent.uid) ? events.get(vevent.uid)
-					: new ArrayList<>();
-			storedEvents.add(vevent);
-			events.put(vevent.uid, storedEvents);
-
 		}
 
-		for (Entry<String, List<ItemValue<T>>> e : events.entrySet()) {
-			ret.add(normalizeEvent(e.getKey(), e.getValue()));
-		}
-
-		return ret;
+		return vevent;
 
 	}
 
@@ -450,6 +516,16 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 		series.main = vevent;
 		series.icsUid = uid;
 		return convertToIcs(method, ItemValue.create(uid, series));
+	}
+
+	private static class TimezoneInfo {
+		final List<VTimeZone> timezones;
+		final Optional<String> globalTZ;
+
+		TimezoneInfo(List<VTimeZone> timezones, Optional<String> globalTZ) {
+			this.timezones = timezones;
+			this.globalTZ = globalTZ;
+		}
 	}
 
 }

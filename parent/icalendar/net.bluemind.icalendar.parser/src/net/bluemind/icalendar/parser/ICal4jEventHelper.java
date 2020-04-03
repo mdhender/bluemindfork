@@ -32,7 +32,7 @@ public class ICal4jEventHelper<T extends VEvent> extends ICal4jHelper<T> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public ItemValue<T> parseIcs(T iCalendarElement, CalendarComponent cc, String globalTZ,
+	public ItemValue<T> parseIcs(T iCalendarElement, CalendarComponent cc, Optional<String> globalTZ,
 			Optional<CalendarOwner> owner) {
 		ItemValue<T> parseIcs = super.parseIcs(iCalendarElement, cc, globalTZ, owner);
 

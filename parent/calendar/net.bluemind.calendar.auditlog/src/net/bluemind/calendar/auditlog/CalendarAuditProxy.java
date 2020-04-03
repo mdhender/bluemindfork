@@ -20,10 +20,10 @@ package net.bluemind.calendar.auditlog;
 
 import java.util.List;
 
-import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.VEventChanges;
 import net.bluemind.calendar.api.VEventQuery;
 import net.bluemind.calendar.api.VEventSeries;
+import net.bluemind.calendar.api.internal.IInternalCalendar;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Ack;
@@ -38,11 +38,11 @@ import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.container.model.SortDescriptor;
 import net.bluemind.core.task.api.TaskRef;
 
-public class CalendarAuditProxy implements ICalendar {
+public class CalendarAuditProxy implements IInternalCalendar {
 	private CalendarAuditor auditor;
-	private ICalendar calendar;
+	private IInternalCalendar calendar;
 
-	public CalendarAuditProxy(CalendarAuditor auditor, ICalendar cal) {
+	public CalendarAuditProxy(CalendarAuditor auditor, IInternalCalendar cal) {
 		this.auditor = auditor;
 		this.calendar = cal;
 	}
@@ -207,6 +207,16 @@ public class CalendarAuditProxy implements ICalendar {
 	@Override
 	public boolean isAutoSyncActivated() throws ServerFault {
 		return auditor.action("isAutoSyncActivated").readOnly().audit(() -> calendar.isAutoSyncActivated());
+	}
+
+	@Override
+	public ContainerUpdatesResult updates(VEventChanges changes, boolean notify) {
+		return calendar.updates(changes, notify);
+	}
+
+	@Override
+	public void emitNotification() {
+		calendar.emitNotification();
 	}
 
 }

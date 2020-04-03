@@ -18,32 +18,27 @@
  */
 package net.bluemind.calendar.service.internal;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.VEventSeries;
+import net.bluemind.calendar.api.internal.IInternalCalendar;
 import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.icalendar.parser.CalendarOwner;
 
 public class MultipleCalendarICSImport extends ICSImportTask {
 
-	private static final Logger logger = LoggerFactory.getLogger(MultipleCalendarICSImport.class);
-
 	private final String ics;
 
-	public MultipleCalendarICSImport(ICalendar calendar, String ics, Optional<CalendarOwner> owner, Mode mode) {
+	public MultipleCalendarICSImport(IInternalCalendar calendar, String ics, Optional<CalendarOwner> owner, Mode mode) {
 		super(calendar, owner, mode);
 		this.ics = ics;
 	}
 
 	@Override
-	protected List<ItemValue<VEventSeries>> convertToVEventList() {
-		return VEventServiceHelper.convertToVEventList(ics, owner);
+	protected void convertToVEventList(Consumer<ItemValue<VEventSeries>> consumer) {
+		VEventServiceHelper.convertToVEventList(ics, owner, consumer);
 	}
 
 }

@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2020
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -18,21 +18,21 @@
  */
 package net.bluemind.calendar.service;
 
-import net.bluemind.calendar.api.ICalendar;
+import net.bluemind.calendar.api.internal.IInternalCalendar;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 
-public class CalendarServiceFactory extends CalendarServiceBaseFactory
-		implements ServerSideServiceProvider.IServerSideServiceFactory<ICalendar> {
+public class InternalCalendarServiceFactory extends CalendarServiceBaseFactory
+		implements ServerSideServiceProvider.IServerSideServiceFactory<IInternalCalendar> {
 
 	@Override
-	public Class<ICalendar> factoryClass() {
-		return ICalendar.class;
+	public Class<IInternalCalendar> factoryClass() {
+		return IInternalCalendar.class;
 	}
 
 	@Override
-	public ICalendar instance(BmContext context, String... params) throws ServerFault {
+	public IInternalCalendar instance(BmContext context, String... params) throws ServerFault {
 		if (params == null || params.length < 1) {
 			throw new ServerFault("wrong number of instance parameters");
 		}

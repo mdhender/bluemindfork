@@ -231,8 +231,10 @@ public class CalendarSyncVerticleTests {
 	}
 
 	@After
-	public void stopIcsHttpServer() {
+	public void teardown() throws Exception {
 		icsHttpServer.close();
+		JdbcTestHelper.getInstance().afterTest();
+		ElasticsearchTestHelper.getInstance().afterTest();
 	}
 
 	/**
@@ -257,7 +259,7 @@ public class CalendarSyncVerticleTests {
 	 * Trigger several times the sync for a changing ics (one more event each time).
 	 */
 	@Test
-	public void testWithChanges() throws InterruptedException {
+	public void testWithChanges() throws Exception {
 		this.init();
 
 		// first sync replaces the initial empty ics

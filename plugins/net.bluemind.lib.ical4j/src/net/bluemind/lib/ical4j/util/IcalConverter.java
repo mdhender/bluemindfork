@@ -21,6 +21,7 @@ package net.bluemind.lib.ical4j.util;
 import java.time.DateTimeException;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +48,7 @@ public class IcalConverter {
 		return BmDateTimeWrapper.fromTimestamp(date.getTime(), timezone, precision);
 	}
 
-	public static BmDateTime convertToDateTime(DateProperty property, String globalTZ) {
+	public static BmDateTime convertToDateTime(DateProperty property, Optional<String> globalTZ) {
 		if (property == null) {
 			return null;
 		}
@@ -88,13 +89,14 @@ public class IcalConverter {
 			ZoneId.of(id);
 			return id;
 		} catch (DateTimeException e) {
-			logger.error("unknow timezone {}", property);
-			ZoneOffset zo = ZoneOffset.ofTotalSeconds(timeZone.getOffset(date.getTime()) / 1000);
+			int offset = timeZone.getOffset(date.getTime()) / 1000;
+			logger.error("unknow timezone {} with offset {}", property, offset);
+			ZoneOffset zo = ZoneOffset.ofTotalSeconds(offset);
 			return ZoneId.of(zo.getId()).getId();
 		}
 	}
 
-	private static String detectTimeZone(DateProperty property, String globalTZ) {
+	private static String detectTimeZone(DateProperty property, Optional<String> globalTZ) {
 		String timezone = null;
 		Parameter p = property.getParameter("TZID");
 		if (p != null) {
@@ -105,8 +107,8 @@ public class IcalConverter {
 			timezone = "UTC";
 		}
 
-		if (timezone == null) {
-			timezone = globalTZ;
+		if (timezone == null && globalTZ.isPresent()) {
+			timezone = globalTZ.get();
 		}
 
 		if (timezone != null) {

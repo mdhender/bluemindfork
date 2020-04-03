@@ -19,32 +19,28 @@
 package net.bluemind.calendar.service.internal;
 
 import java.io.InputStream;
-import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.VEventSeries;
+import net.bluemind.calendar.api.internal.IInternalCalendar;
 import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.icalendar.parser.CalendarOwner;
 
 public class SingleCalendarICSImport extends ICSImportTask {
 
-	private static final Logger logger = LoggerFactory.getLogger(SingleCalendarICSImport.class);
-
 	private final InputStream ics;
 
-	public SingleCalendarICSImport(ICalendar calendar, InputStream ics, Optional<CalendarOwner> owner, Mode mode) {
+	public SingleCalendarICSImport(IInternalCalendar calendar, InputStream ics, Optional<CalendarOwner> owner,
+			Mode mode) {
 		super(calendar, owner, mode);
 		this.ics = ics;
 	}
 
 	@Override
-	protected List<ItemValue<VEventSeries>> convertToVEventList() {
-		return VEventServiceHelper.parseCalendar(ics, owner);
+	protected void convertToVEventList(Consumer<ItemValue<VEventSeries>> consumer) {
+		VEventServiceHelper.parseCalendar(ics, owner, consumer);
 	}
 
 }

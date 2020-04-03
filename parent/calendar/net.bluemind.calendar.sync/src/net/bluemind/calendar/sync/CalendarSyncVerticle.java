@@ -221,7 +221,8 @@ public class CalendarSyncVerticle extends AbstractVerticle {
 	}
 
 	private static boolean hasTooManySyncOperations(final ContainerSyncResult containerSyncResult) {
-		final int operations = containerSyncResult.added + containerSyncResult.removed + containerSyncResult.updated;
+		final int operations = containerSyncResult.added + containerSyncResult.removed + containerSyncResult.updated
+				+ containerSyncResult.unhandled;
 		final int daysSinceLastSync = daysSinceLastSync(containerSyncResult.status);
 		if (daysSinceLastSync > 0) {
 			return operations / daysSinceLastSync(containerSyncResult.status) > MAX_SYNC_OPERATIONS;

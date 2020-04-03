@@ -67,6 +67,9 @@
             class="net.bluemind.calendar.service.CalendarServiceFactory">
       </serviceFactory>
       <serviceFactory
+            class="net.bluemind.calendar.service.InternalCalendarServiceFactory">
+      </serviceFactory>
+      <serviceFactory
             class="net.bluemind.calendar.service.VEventServiceFactory">
       </serviceFactory>
       <serviceFactory
