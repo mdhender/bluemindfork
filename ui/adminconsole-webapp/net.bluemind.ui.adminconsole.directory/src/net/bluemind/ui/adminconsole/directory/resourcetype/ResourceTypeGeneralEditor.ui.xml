@@ -94,7 +94,7 @@
 					<p align="justify" style="width:32.7rem;">
 						<i>
 							<ui:msg key="templateInfo">
-								The template may contain variables. Variables can be defined in the “Custom properties” section above, using the following format $&#123MyVariable&#125. Some variables such as $&#123ResourceName&#125 and $&#123Organizer&#125 are available by default. The organizer’s language will be used.
+								The template may contain variables. Variables can be defined in the “Custom properties” section above, using the following format $﹛MyVariable﹜. Some variables such as $﹛ResourceName﹜ and $﹛Organizer﹜ are available by default. The organizer’s language will be used.
 							</ui:msg>
 						</i>
 					</p>
@@ -103,12 +103,12 @@
 						<ul>
 							<li style="width:32.7rem;">
 								<ui:msg key="templateInfoVar1">
-									$&#123ResourceName&#125: the resource’s name as defined in the Directory (not to be confused with the resource type’s label).
+									$﹛ResourceName﹜: the resource’s name as defined in the Directory (not to be confused with the resource type’s label).
 								</ui:msg>
 							</li>
 							<li style="width:32.7rem;">
 								<ui:msg key="templateInfoVar2">
-									$&#123Organizer&#125: the name of the person who creates the event.
+									$﹛Organizer﹜: the name of the person who creates the event.
 								</ui:msg>
 							</li>
 						</ul>
