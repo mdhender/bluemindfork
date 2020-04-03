@@ -624,8 +624,10 @@ public class UserService implements IInCoreUser, IUser {
 	@Override
 	public Set<String> directResolvedRoles(String uid, List<String> groups) throws ServerFault {
 		User user = getFull(uid).value;
+		IInternalRoles roleService = bmContext.su().provider().instance(IInternalRoles.class);
+
 		if (user.accountType == AccountType.SIMPLE) {
-			return DefaultRoles.SIMPLE_USER_DEFAULT_ROLES;
+			return roleService.resolve(DefaultRoles.SIMPLE_USER_DEFAULT_ROLES);
 		}
 
 		Set<String> roles = storeService.getRoles(uid);
@@ -642,7 +644,6 @@ public class UserService implements IInCoreUser, IUser {
 		}
 
 		// deactivate non-active roles
-		IInternalRoles roleService = bmContext.su().provider().instance(IInternalRoles.class);
 
 		roles = roleService.filter(roles);
 		return roleService.resolve(roles);

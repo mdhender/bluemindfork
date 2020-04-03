@@ -59,6 +59,7 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.role.api.DefaultRoles;
+import net.bluemind.role.service.IInternalRoles;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -315,10 +316,12 @@ public class AuthenticationTests {
 		IAuthentication authentication = getService(null);
 		LoginResponse response = authentication.login("simple@bm.lan", "simple", "testSimpleUserLogin_Roles");
 
-		assertEquals(Status.Ok, response.status);
-		assertEquals(DefaultRoles.SIMPLE_USER_DEFAULT_ROLES, response.authUser.roles);
-		assertTrue(response.authUser.rolesByOU.isEmpty());
+		IInternalRoles roleService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IInternalRoles.class);
 
+		assertEquals(Status.Ok, response.status);
+		assertEquals(roleService.resolve(DefaultRoles.SIMPLE_USER_DEFAULT_ROLES), response.authUser.roles);
+		assertTrue(response.authUser.rolesByOU.isEmpty());
 	}
 
 	@Test

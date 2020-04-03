@@ -111,6 +111,7 @@ import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.role.api.DefaultRoles;
+import net.bluemind.role.service.IInternalRoles;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -1457,7 +1458,9 @@ public class UserServiceTests {
 		assertTrue(roles.isEmpty());
 
 		roles = getService(domainAdminSecurityContext).getResolvedRoles(uid);
-		assertEquals(roles, DefaultRoles.SIMPLE_USER_DEFAULT_ROLES);
+		IInternalRoles roleService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IInternalRoles.class);
+		assertEquals(roles, roleService.resolve(DefaultRoles.SIMPLE_USER_DEFAULT_ROLES));
 	}
 
 	@Test
