@@ -19,7 +19,6 @@
 package net.bluemind.icalendar.api;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -44,14 +43,14 @@ public class ICalendarElement {
 	public Integer priority;
 	public List<VAlarm> alarm;
 	public Status status;
-	public List<Attendee> attendees = Collections.emptyList();
+	public List<Attendee> attendees = new ArrayList<>();
 	public Organizer organizer;
-	public List<TagRef> categories = Collections.emptyList();
+	public List<TagRef> categories = new ArrayList<>();
 	public Set<BmDateTime> exdate;
 	public Set<BmDateTime> rdate;
 	public RRule rrule;
 	public String url;
-	public List<AttachedFile> attachments = Collections.emptyList();
+	public List<AttachedFile> attachments = new ArrayList<>();
 
 	/**
 	 * When a ICalendarElement is created, its sequence number is 0. It is
