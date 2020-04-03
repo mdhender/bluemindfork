@@ -7,6 +7,7 @@ package com.sendmail.jilter.internal;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 import org.apache.log4j.Category;
@@ -49,7 +50,7 @@ public class JilterServerPacketUtil {
 
 	public static void writeZeroTerminatedString(ByteBuffer dataBuffer, String string) throws IOException {
 		if (string != null) {
-			dataBuffer.put(string.getBytes("ASCII"));
+			dataBuffer.put(string.getBytes(StandardCharsets.US_ASCII));
 		}
 		dataBuffer.put((byte) 0);
 	}
@@ -129,7 +130,7 @@ public class JilterServerPacketUtil {
 	}
 
 	public static String getZeroTerminatedString(ByteBuffer dataBuffer) {
-		StringBuffer newString = new StringBuffer();
+		StringBuilder newString = new StringBuilder();
 
 		while (dataBuffer.remaining() > 0) {
 			byte thisByte = dataBuffer.get();
@@ -143,12 +144,12 @@ public class JilterServerPacketUtil {
 	}
 
 	public static String[] getZeroTerminatedStringArray(ByteBuffer dataBuffer) {
-		ArrayList<String> array = new ArrayList<String>();
+		ArrayList<String> array = new ArrayList<>();
 
 		while (dataBuffer.remaining() > 0) {
 			array.add(getZeroTerminatedString(dataBuffer));
 		}
 
-		return (String[]) array.toArray(new String[array.size()]);
+		return array.toArray(new String[array.size()]);
 	}
 }

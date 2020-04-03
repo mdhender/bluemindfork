@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -282,7 +283,7 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 				} else if ("transparent".equals(transparency)) {
 					vevent.value.transparency = Transparency.Transparent;
 				} else {
-					logger.error("Unsupported Transparency " + transparency);
+					logger.error("Unsupported Transparency {}", transparency);
 
 				}
 			}
@@ -293,8 +294,8 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 
 		}
 
-		for (String uid : events.keySet()) {
-			ret.add(normalizeEvent(uid, events.get(uid)));
+		for (Entry<String, List<ItemValue<T>>> e : events.entrySet()) {
+			ret.add(normalizeEvent(e.getKey(), e.getValue()));
 		}
 
 		return ret;

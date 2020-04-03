@@ -29,7 +29,7 @@ public class MailboxesDbEntry {
 
 	public static class Acl {
 		public final String name;
-		public String perms;
+		public final String perms;
 
 		public Acl(String name, String perms) {
 			this.name = name;
@@ -80,16 +80,16 @@ public class MailboxesDbEntry {
 	}
 
 	private static Optional<MailboxesDbEntry> cyrus24Line(String line) {
-		String name = line.substring(0, line.indexOf(TAB));
-		String partition = getCyrusField(line.substring(line.indexOf(TAB)), SPACE);
+		String name = line.substring(0, line.indexOf('\t'));
+		String partition = getCyrusField(line.substring(line.indexOf('\t')), SPACE);
 
-		List<Acl> acls = getCyrus24Acls(line.substring(line.indexOf(TAB)));
+		List<Acl> acls = getCyrus24Acls(line.substring(line.indexOf('\t')));
 
 		return Optional.of(new MailboxesDbEntry(name, partition, acls));
 	}
 
 	private static List<Acl> getCyrus24Acls(String line) {
-		int start = line.indexOf(SPACE, line.indexOf(SPACE) + 1);
+		int start = line.indexOf(' ', line.indexOf(' ') + 1);
 		if (start == -1) {
 			logger.info("No ACLs found in {}", line);
 			return Collections.emptyList();
@@ -147,9 +147,9 @@ public class MailboxesDbEntry {
 		}
 		start += startMark.length();
 
-		int end = balInfos.indexOf(SPACE, start);
+		int end = balInfos.indexOf(' ', start);
 		if (end == -1) {
-			end = balInfos.indexOf(")", start);
+			end = balInfos.indexOf(')', start);
 
 			if (end == -1) {
 				end = balInfos.length();
@@ -168,7 +168,7 @@ public class MailboxesDbEntry {
 		}
 		start += aclStart.length();
 
-		int end = balInfos.indexOf(")", start);
+		int end = balInfos.indexOf(')', start);
 		String aclsAsString = balInfos.substring(start, end);
 		String[] aclsSplitted = aclsAsString.split(SPACE);
 		if ((aclsSplitted.length % 2) != 0) {
@@ -211,7 +211,7 @@ public class MailboxesDbEntry {
 		StringBuilder mailboxInfos = new StringBuilder();
 
 		if (!acls.isEmpty()) {
-			List<String> aclsList = acls.stream().map(a -> a.toString()).filter(Objects::nonNull)
+			List<String> aclsList = acls.stream().map(Object::toString).filter(Objects::nonNull)
 					.collect(Collectors.toList());
 			if (!aclsList.isEmpty()) {
 				mailboxInfos.append("A %(").append(String.join(" ", aclsList)).append(") ");

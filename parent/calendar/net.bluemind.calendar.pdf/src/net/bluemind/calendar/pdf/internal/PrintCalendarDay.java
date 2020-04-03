@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -194,8 +195,8 @@ public class PrintCalendarDay extends PrintCalendar {
 
 		Calendar dtstart = Calendar.getInstance(timezone);
 		Calendar dtend;
-		for (Long key : ocs.keySet()) {
-			for (ItemContainerValue<VEvent> item : ocs.get(key)) {
+		for (Entry<Long, List<ItemContainerValue<VEvent>>> entry : ocs.entrySet()) {
+			for (ItemContainerValue<VEvent> item : entry.getValue()) {
 				VEvent e = item.value;
 				dtstart.setTimeInMillis(new BmDateTimeWrapper(e.dtstart).toTimestamp(timezone.getID()));
 				dtend = (Calendar) dtstart.clone();
@@ -237,10 +238,8 @@ public class PrintCalendarDay extends PrintCalendar {
 		}
 
 		int c = 0;
-		for (Integer k : alldaysCount.keySet())
-
-		{
-			c = Math.max(c, alldaysCount.get(k));
+		for (Integer k : alldaysCount.values()) {
+			c = Math.max(c, k);
 		}
 
 		setGrid(c);
@@ -282,11 +281,11 @@ public class PrintCalendarDay extends PrintCalendar {
 	private void addAllDayEvent(Map<Integer, List<ItemContainerValue<VEvent>>> adays) {
 		List<ItemContainerValue<VEvent>> alldays;
 		int posX;
-		Map<Integer, Map<Integer, String>> fixedPosY = new HashMap<Integer, Map<Integer, String>>();
+		Map<Integer, Map<Integer, String>> fixedPosY = new HashMap<>();
 		Calendar dtstart = Calendar.getInstance(timezone);
 		Calendar dtend = (Calendar) dtstart.clone();
-		for (Integer key : adays.keySet()) {
-			alldays = adays.get(key);
+		for (Entry<Integer, List<ItemContainerValue<VEvent>>> entry : adays.entrySet()) {
+			alldays = entry.getValue();
 
 			Collections.sort(alldays, new EventComparator(timezone.getID()));
 			for (ItemContainerValue<VEvent> evt : alldays) {
@@ -298,15 +297,15 @@ public class PrintCalendarDay extends PrintCalendar {
 					dtend.set(Calendar.HOUR_OF_DAY, dtstart.get(Calendar.HOUR_OF_DAY));
 				}
 
-				posX = MARGIN * 3 + key * dayWidth;
+				posX = MARGIN * 3 + entry.getKey() * dayWidth;
 				if (days == 1) {
 					posX = MARGIN * 3;
 				}
 
 				int idx = 0;
 
-				if (fixedPosY.containsKey(key)) {
-					Map<Integer, String> list = fixedPosY.get(key);
+				if (fixedPosY.containsKey(entry.getKey())) {
+					Map<Integer, String> list = fixedPosY.get(entry.getKey());
 					while (list.containsKey(idx)) {
 						idx++;
 					}
@@ -373,8 +372,8 @@ public class PrintCalendarDay extends PrintCalendar {
 	}
 
 	private void addIndayEvent(Map<Integer, List<ItemContainerValue<VEvent>>> indaysPerDay) {
-		for (Integer d : indaysPerDay.keySet()) {
-			addIndayEvent(indaysPerDay.get(d));
+		for (List<ItemContainerValue<VEvent>> d : indaysPerDay.values()) {
+			addIndayEvent(d);
 		}
 	}
 
@@ -416,10 +415,10 @@ public class PrintCalendarDay extends PrintCalendar {
 			}
 		}
 
-		HashMap<String, PrintedEvent> updated = new HashMap<String, PrintedEvent>();
+		HashMap<String, PrintedEvent> updated = new HashMap<>();
 		int unit = 0;
 
-		TreeSet<Float> keys = new TreeSet<Float>(new ArrayList<Float>(ec.getList().keySet()));
+		TreeSet<Float> keys = new TreeSet<>(new ArrayList<Float>(ec.getList().keySet()));
 
 		for (Float cell : keys) {
 			ArrayList<PrintedEvent> cellContent = ec.getList().get(cell);
@@ -427,7 +426,7 @@ public class PrintCalendarDay extends PrintCalendar {
 
 			Collections.sort(cellContent, new CellItemComparator(timezone.getID()));
 
-			HashMap<Integer, Boolean> usedPosition = new HashMap<Integer, Boolean>();
+			HashMap<Integer, Boolean> usedPosition = new HashMap<>();
 			int position = 0;
 
 			for (PrintedEvent pe : cellContent) {
@@ -476,9 +475,7 @@ public class PrintCalendarDay extends PrintCalendar {
 		}
 
 		// Print event
-		PrintedEvent pe;
-		for (String id : updated.keySet()) {
-			pe = updated.get(id);
+		for (PrintedEvent pe : updated.values()) {
 			pe.size = pe.end - pe.position;
 			printEvent(pe);
 		}

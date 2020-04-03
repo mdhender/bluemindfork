@@ -287,9 +287,8 @@ public class OrgUnitStore extends AbstractItemValueStore<OrgUnit> {
 	}
 
 	public boolean hasChilds(Item item) throws SQLException {
-		Integer count = unique("SELECT COUNT(*) FROM t_directory_ou WHERE parent_item_id = ? ", res -> {
-			return new Integer(res.getInt(1));
-		}, Collections.emptyList(), new Object[] { item.id });
+		Integer count = unique("SELECT COUNT(*) FROM t_directory_ou WHERE parent_item_id = ? ", res -> res.getInt(1),
+				Collections.emptyList(), new Object[] { item.id });
 		return count > 0;
 	}
 
@@ -300,16 +299,14 @@ public class OrgUnitStore extends AbstractItemValueStore<OrgUnit> {
 	}
 
 	public boolean hasAdministrator(Item item) throws SQLException {
-		Integer count = unique("SELECT COUNT(*) FROM t_directory_ou_administrator WHERE ou_id = ? ", res -> {
-			return new Integer(res.getInt(1));
-		}, Collections.emptyList(), new Object[] { item.id });
+		Integer count = unique("SELECT COUNT(*) FROM t_directory_ou_administrator WHERE ou_id = ? ",
+				res -> res.getInt(1), Collections.emptyList(), new Object[] { item.id });
 		return count > 0;
 	}
 
 	public boolean hasMembers(Item ouItem) throws SQLException {
-		Integer count = unique("SELECT COUNT(*) FROM t_directory_entry WHERE orgunit_item_id = ? ", res -> {
-			return new Integer(res.getInt(1));
-		}, Collections.emptyList(), new Object[] { ouItem.id });
+		Integer count = unique("SELECT COUNT(*) FROM t_directory_entry WHERE orgunit_item_id = ? ",
+				res -> res.getInt(1), Collections.emptyList(), new Object[] { ouItem.id });
 		return count > 0;
 	}
 

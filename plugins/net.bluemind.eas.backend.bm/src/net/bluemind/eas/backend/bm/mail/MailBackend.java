@@ -28,12 +28,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.james.mime4j.dom.Message;
+import org.apache.james.mime4j.dom.MessageServiceFactory;
 import org.apache.james.mime4j.dom.address.Mailbox;
-import org.apache.james.mime4j.message.MessageServiceFactoryImpl;
 import org.apache.james.mime4j.parser.MimeStreamParser;
 
 import com.google.common.collect.Lists;
@@ -113,7 +114,7 @@ public class MailBackend extends CoreConnect {
 			boolean hasFilterTypeChanged) throws ActiveSyncException {
 
 		if (!bs.getUser().hasMailbox()) {
-			logger.info("MailRouting == NONE for user " + bs.getLoginAtDomain() + ". Return no changes.");
+			logger.info("MailRouting == NONE for user {}. Return no changes.", bs.getLoginAtDomain());
 			return new Changes();
 		}
 
@@ -134,7 +135,7 @@ public class MailBackend extends CoreConnect {
 		if (!filteredDate.isPresent()) {
 			changeset.created.forEach(itemVersion -> {
 				ItemChangeReference ic = new ItemChangeReference(ItemDataType.EMAIL);
-				ic.setServerId(CollectionItem.of(collectionId, Long.valueOf(itemVersion.id).toString()));
+				ic.setServerId(CollectionItem.of(collectionId, Long.toString(itemVersion.id)));
 				ic.setChangeType(ChangeType.ADD);
 				changes.items.add(ic);
 			});
@@ -154,7 +155,7 @@ public class MailBackend extends CoreConnect {
 						if (deliveredAfter.isBefore(ZonedDateTime.ofInstant(
 								Instant.ofEpochMilli(item.value.body.date.getTime()), ZoneId.systemDefault()))) {
 							ItemChangeReference ic = new ItemChangeReference(ItemDataType.EMAIL);
-							ic.setServerId(CollectionItem.of(collectionId, Long.valueOf(item.internalId).toString()));
+							ic.setServerId(CollectionItem.of(collectionId, Long.toString(item.internalId)));
 							ic.setChangeType(ChangeType.ADD);
 							changes.items.add(ic);
 							addedToSync++;
@@ -181,7 +182,7 @@ public class MailBackend extends CoreConnect {
 			items.forEach(item -> {
 				if (item != null) {
 					ItemChangeReference ic = new ItemChangeReference(ItemDataType.EMAIL);
-					ic.setServerId(CollectionItem.of(collectionId, Long.valueOf(item.internalId).toString()));
+					ic.setServerId(CollectionItem.of(collectionId, Long.toString(item.internalId)));
 					ic.setChangeType(ChangeType.CHANGE);
 					ic.setData(AppData.of(FlagsChange.asEmailResponse(item.value), LazyLoaded.NOOP));
 					changes.items.add(ic);
@@ -191,7 +192,7 @@ public class MailBackend extends CoreConnect {
 
 		changeset.deleted.forEach(itemVersion -> {
 			ItemChangeReference ic = new ItemChangeReference(ItemDataType.EMAIL);
-			ic.setServerId(CollectionItem.of(collectionId, Long.valueOf(itemVersion.id).toString()));
+			ic.setServerId(CollectionItem.of(collectionId, Long.toString(itemVersion.id)));
 			ic.setChangeType(ChangeType.DELETE);
 			changes.items.add(ic);
 		});
@@ -217,7 +218,8 @@ public class MailBackend extends CoreConnect {
 				items.get(collections.get(collectionId)).add(uid);
 			}
 
-			for (MailFolder folder : items.keySet()) {
+			for (Entry<MailFolder, List<Integer>> entry : items.entrySet()) {
+				MailFolder folder = entry.getKey();
 				if (moveToTrash) {
 					IMailboxFolders service = getIMailboxFoldersService(bs);
 					ItemValue<MailboxFolder> source = service.getComplete(folder.uid);
@@ -229,11 +231,11 @@ public class MailBackend extends CoreConnect {
 							ContainerHierarchyNode.uidFor(IMailReplicaUids.mboxRecords(trash.uid), "mailbox_records",
 									bs.getUser().getDomain()));
 
-					emailManager.moveItems(bs, source.internalId, trash.internalId, items.get(folder),
+					emailManager.moveItems(bs, source.internalId, trash.internalId, entry.getValue(),
 							folder.collectionId, dstCollection.collectionId);
 				} else {
 					IMailboxItems service = getMailboxItemsService(bs, folder.uid);
-					items.get(folder).forEach(id -> {
+					entry.getValue().forEach(id -> {
 						logger.info("[{}] Delete mail {}", bs.getUser().getUid(), id);
 						try {
 							service.deleteById(id);
@@ -315,12 +317,12 @@ public class MailBackend extends CoreConnect {
 		BackendSession bs = mail.backendSession;
 
 		if (!bs.getUser().hasMailbox()) {
-			logger.info("MailRouting == NONE for user " + bs.getLoginAtDomain() + ". Do not try to send mail");
+			logger.info("MailRouting == NONE for user {}. Do not try to send mail", bs.getLoginAtDomain());
 			return;
 		}
 
 		try {
-			Message m = MessageServiceFactoryImpl.newInstance().newMessageBuilder()
+			Message m = MessageServiceFactory.newInstance().newMessageBuilder()
 					.parseMessage(mail.mailContent.openBufferedStream());
 			IMIPInfos infos = IMIPParserFactory.create().parse(m);
 
@@ -371,7 +373,6 @@ public class MailBackend extends CoreConnect {
 
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
 			throw new ServerErrorException(e);
 		}
 	}
@@ -421,7 +422,6 @@ public class MailBackend extends CoreConnect {
 
 			send(bs, mailContent, rewriter, saveInSent);
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
 			throw new ServerErrorException(e);
 		}
 
@@ -458,13 +458,12 @@ public class MailBackend extends CoreConnect {
 		}
 	}
 
-	private Mailbox getUserEmail(BackendSession bs) throws Exception {
+	private Mailbox getUserEmail(BackendSession bs) {
 		MSUser u = bs.getUser();
 		String from = u.getDefaultEmail();
 		String dn = u.getDisplayName();
 		String[] split = from.split("@");
-		Mailbox mbox = new Mailbox(dn, split[0], split[1]);
-		return mbox;
+		return new Mailbox(dn, split[0], split[1]);
 	}
 
 	private void send(BackendSession bs, ByteSource mailContent, IMailRewriter handler, Boolean saveInSent)
@@ -490,9 +489,9 @@ public class MailBackend extends CoreConnect {
 				String mimePartAddress = parsedAttId.get(AttachmentHelper.MIME_PART_ADDRESS);
 				String contentType = parsedAttId.get(AttachmentHelper.CONTENT_TYPE);
 				String contentTransferEncoding = parsedAttId.get(AttachmentHelper.CONTENT_TRANSFER_ENCODING);
-				logger.info("attachmentId= [collectionId:" + collectionId + "] [emailUid:" + messageId
-						+ "] [mimePartAddress:" + mimePartAddress + "] [contentType:" + contentType
-						+ "] [contentTransferEncoding:" + contentTransferEncoding + "]");
+				logger.info(
+						"attachmentId: [colId:{}] [emailUid:{}] [partAddress:{}] [contentType:{}] [transferEncoding:{}]",
+						collectionId, messageId, mimePartAddress, contentType, contentTransferEncoding);
 
 				MailFolder folder = storage.getMailFolder(bs, Integer.parseInt(collectionId));
 
@@ -533,7 +532,6 @@ public class MailBackend extends CoreConnect {
 			emailManager.purgeFolder(bs, folder, deleteSubFolder);
 
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
 			throw new NotAllowedException(e);
 		}
 	}
@@ -541,13 +539,10 @@ public class MailBackend extends CoreConnect {
 	public AppData fetch(BackendSession bs, BodyOptions bodyParams, ItemChangeReference ic) throws ActiveSyncException {
 		try {
 			MailFolder folder = storage.getMailFolder(bs, ic.getServerId().collectionId.getFolderId());
-			AppData data = toAppData(bs, bodyParams, folder, ic.getServerId().itemId);
-			return data;
+			return toAppData(bs, bodyParams, folder, ic.getServerId().itemId);
 		} catch (ActiveSyncException ase) {
-			logger.error(ase.getMessage(), ase);
 			throw ase;
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
 			throw new ActiveSyncException("Shit happens", e);
 		}
 	}
@@ -557,7 +552,7 @@ public class MailBackend extends CoreConnect {
 
 		MailFolder folder = storage.getMailFolder(bs, collectionId.getFolderId());
 
-		Map<String, AppData> res = new HashMap<String, AppData>(ids.size());
+		Map<String, AppData> res = new HashMap<>(ids.size());
 		ids.stream().forEach(id -> {
 			try {
 				AppData data = toAppData(bs, bodyParams, folder, id);
@@ -574,8 +569,7 @@ public class MailBackend extends CoreConnect {
 		EmailResponse er = EmailManager.getInstance().loadStructure(bs, folder, Integer.parseInt(id));
 		LazyLoaded<BodyOptions, AirSyncBaseResponse> bodyProvider = BodyLoaderFactory.from(bs, folder,
 				Integer.parseInt(id), bodyParams);
-		AppData ret = AppData.of(er, bodyProvider);
-		return ret;
+		return AppData.of(er, bodyProvider);
 	}
 
 }

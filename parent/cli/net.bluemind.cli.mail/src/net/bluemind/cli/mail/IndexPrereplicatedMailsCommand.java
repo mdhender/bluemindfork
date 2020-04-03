@@ -118,7 +118,7 @@ public class IndexPrereplicatedMailsCommand implements ICmdLet, Runnable {
 	}
 
 	private String uidFromFileName(String name) {
-		return name.substring(0, name.indexOf("."));
+		return name.substring(0, name.indexOf('.'));
 	}
 
 	private Set<String> getIndexedUids() {
@@ -147,7 +147,7 @@ public class IndexPrereplicatedMailsCommand implements ICmdLet, Runnable {
 
 	private void index(List<IndexedMessageBody> bodies) {
 		Client client = ESearchActivator.getClient();
-		EsBulk bulkOp = (EsBulk) startBulk();
+		EsBulk bulkOp = startBulk();
 		for (IndexedMessageBody body : bodies) {
 			IndexRequestBuilder request = client.prepareIndex(INDEX_PENDING, PENDING_TYPE).setId(body.uid)
 					.setSource(body.toMap());

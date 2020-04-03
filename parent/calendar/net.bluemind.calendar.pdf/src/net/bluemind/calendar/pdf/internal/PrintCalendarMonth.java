@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.w3c.dom.Element;
@@ -46,12 +47,11 @@ public class PrintCalendarMonth extends PrintCalendar {
 	private int dayHeight;
 	private Map<Integer, Integer> weekIdx;
 
-	public PrintCalendarMonth(PrintContext context, PrintOptions options, List<ItemContainerValue<VEvent>> vevents)
-			throws ServerFault {
+	public PrintCalendarMonth(PrintContext context, PrintOptions options, List<ItemContainerValue<VEvent>> vevents) {
 		super(context, options);
 		this.vevents = vevents;
 		addPage();
-		weekIdx = new HashMap<Integer, Integer>();
+		weekIdx = new HashMap<>();
 	}
 
 	private void setGrid() {
@@ -178,7 +178,7 @@ public class PrintCalendarMonth extends PrintCalendar {
 				if (cur == 0 || cur != idx) {
 					cur = idx;
 
-					ItemContainerValue<VEvent> copy = new ItemContainerValue<VEvent>();
+					ItemContainerValue<VEvent> copy = new ItemContainerValue<>();
 					copy.created = item.created;
 					copy.updated = item.updated;
 					copy.createdBy = item.createdBy;
@@ -202,16 +202,16 @@ public class PrintCalendarMonth extends PrintCalendar {
 		}
 
 		Map<Long, List<ItemContainerValue<VEvent>>> ocs;
-		for (Long idx : occurrencePerWeek.keySet()) {
-			if (occurrencePerWeek.get(idx).size() > 0) {
+		for (Entry<Long, List<ItemContainerValue<VEvent>>> entry : occurrencePerWeek.entrySet()) {
+			if (!entry.getValue().isEmpty()) {
 				Calendar periodStart = Calendar.getInstance(timezone);
 				periodStart.setFirstDayOfWeek(firstDayOfWeek);
 
-				periodStart.setTimeInMillis(idx);
+				periodStart.setTimeInMillis(entry.getKey());
 				Calendar periodEnd = (Calendar) periodStart.clone();
 				periodEnd.add(Calendar.DATE, 7);
 
-				Iterator<ItemContainerValue<VEvent>> it = occurrencePerWeek.get(idx).iterator();
+				Iterator<ItemContainerValue<VEvent>> it = entry.getValue().iterator();
 				while (it.hasNext()) {
 					ItemContainerValue<VEvent> item = it.next();
 					VEvent e = item.value;
@@ -240,8 +240,7 @@ public class PrintCalendarMonth extends PrintCalendar {
 					}
 				}
 
-				ocs = sortOccurrences(occurrencePerWeek.get(idx),
-						BmDateTimeWrapper.fromTimestamp(periodStart.getTimeInMillis()),
+				ocs = sortOccurrences(entry.getValue(), BmDateTimeWrapper.fromTimestamp(periodStart.getTimeInMillis()),
 						BmDateTimeWrapper.fromTimestamp(periodEnd.getTimeInMillis()));
 
 				addVEvents(ocs);
@@ -252,8 +251,8 @@ public class PrintCalendarMonth extends PrintCalendar {
 	private void addVEvents(Map<Long, List<ItemContainerValue<VEvent>>> ocs) {
 		Calendar dtstart = Calendar.getInstance(timezone);
 		Map<Integer, List<ItemContainerValue<VEvent>>> alldays = new TreeMap<>();
-		for (Long key : ocs.keySet()) {
-			for (ItemContainerValue<VEvent> e : ocs.get(key)) {
+		for (Entry<Long, List<ItemContainerValue<VEvent>>> entry : ocs.entrySet()) {
+			for (ItemContainerValue<VEvent> e : entry.getValue()) {
 				VEvent o = e.value;
 				dtstart.setTimeInMillis(new BmDateTimeWrapper(o.dtstart).toTimestamp(timezone.getID()));
 				registerAllDayEvent(dtstart, alldays, e);
@@ -265,12 +264,13 @@ public class PrintCalendarMonth extends PrintCalendar {
 	private void addAllDayEvent(Map<Integer, List<ItemContainerValue<VEvent>>> adays) {
 		List<ItemContainerValue<VEvent>> alldays;
 		int posX;
-		Map<Integer, Map<Integer, String>> fixedPosY = new HashMap<Integer, Map<Integer, String>>();
+		Map<Integer, Map<Integer, String>> fixedPosY = new HashMap<>();
 		Calendar dtstart = Calendar.getInstance(timezone);
 		Calendar dtend = (Calendar) dtstart.clone();
 
-		for (Integer key : adays.keySet()) {
-			alldays = adays.get(key);
+		for (Entry<Integer, List<ItemContainerValue<VEvent>>> entry : adays.entrySet()) {
+			alldays = entry.getValue();
+			Integer key = entry.getKey();
 
 			Collections.sort(alldays, new EventComparator(timezone.getID()));
 			boolean moreEventsLabelAdded = false;
@@ -309,7 +309,7 @@ public class PrintCalendarMonth extends PrintCalendar {
 							}
 							list.put(pos, o.summary);
 						} else {
-							Map<Integer, String> list = new HashMap<Integer, String>();
+							Map<Integer, String> list = new HashMap<>();
 							list.put(idx, o.summary);
 							fixedPosY.put(d, list);
 						}

@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.ResourceBundle;
 
 import javax.imageio.ImageIO;
@@ -62,6 +63,7 @@ import net.bluemind.calendar.api.VEvent;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemContainerValue;
+import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.Organizer;
 import net.bluemind.icalendar.api.ICalendarElement.Role;
@@ -257,17 +259,17 @@ public class PrintCalendarList extends PrintCalendar {
 
 	private void addEvents(Map<String, Object> model) {
 		List<CalDay> days = new ArrayList<>();
-		for (Long key : ocs.keySet()) {
+		for (Entry<Long, List<ItemContainerValue<VEvent>>> entry : ocs.entrySet()) {
 			Calendar c = Calendar.getInstance(timezone);
-			c.setTimeInMillis(key);
+			c.setTimeInMillis(entry.getKey());
 
-			List<ItemContainerValue<VEvent>> occurrences = ocs.get(key);
+			List<ItemContainerValue<VEvent>> occurrences = entry.getValue();
 			Collections.sort(occurrences, new EventComparator(timezone.getID()));
 
 			List<PrintEvent> dayEvents = new ArrayList<>();
 			for (ItemContainerValue<VEvent> o : occurrences) {
-					PrintEvent pe = addEvent(o);
-					dayEvents.add(pe);
+				PrintEvent pe = addEvent(o);
+				dayEvents.add(pe);
 			}
 
 			CalDay cd = new CalDay(dateFormat.format(c.getTime()), dayEvents);
@@ -284,7 +286,7 @@ public class PrintCalendarList extends PrintCalendar {
 		List<Attendee> attendees = new ArrayList<>(e.attendees);
 
 		boolean priv = true;
-		if (!(e.classification == VEvent.Classification.Private
+		if (!(e.classification == ICalendarElement.Classification.Private
 				&& (e.organizer != null && securityContext.getSubject().equals(e.organizer.uri)) && !isAttendee)) {
 			priv = false;
 		}
@@ -341,6 +343,7 @@ public class PrintCalendarList extends PrintCalendar {
 						break;
 					case Chair:
 						chair = calDisplay;
+						break;
 					default:
 						break;
 
@@ -382,7 +385,6 @@ public class PrintCalendarList extends PrintCalendar {
 		return attendee;
 	}
 
-
 	private Attendee calendarToChair(CalInfo calendar) {
 		Attendee attendee = new Attendee();
 		attendee.role = Role.Chair;
@@ -390,13 +392,13 @@ public class PrintCalendarList extends PrintCalendar {
 		attendee.uri = calendar.uid;
 		return attendee;
 	}
-	
+
 	private CalInfo getCalInfo(String uri) {
 		if (uri == null) {
 			return null;
 		}
 		if (uri.contains("/")) {
-			uri = uri.substring(uri.lastIndexOf("/") + 1);
+			uri = uri.substring(uri.lastIndexOf('/') + 1);
 		}
 		CalInfo calInfo = calInfos.get(uri);
 		if (null == calInfo) {
@@ -409,7 +411,7 @@ public class PrintCalendarList extends PrintCalendar {
 	}
 
 	@Override
-	public byte[] sendPNGString() throws ServerFault {
+	public byte[] sendPNGString() {
 
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 
@@ -420,7 +422,6 @@ public class PrintCalendarList extends PrintCalendar {
 			renderer.createPDF(os, true);
 			os.close();
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw new ServerFault(e);
 		}
 
@@ -450,12 +451,12 @@ public class PrintCalendarList extends PrintCalendar {
 			renderer.createPDF(os, true);
 			os.close();
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw new ServerFault(e);
 		}
 		return os.toByteArray();
 	}
 
+	@Override
 	public byte[] sendSVGString() throws ServerFault {
 		byte[] ret = null;
 		try {

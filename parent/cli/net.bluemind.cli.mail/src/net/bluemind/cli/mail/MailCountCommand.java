@@ -85,7 +85,7 @@ public class MailCountCommand implements ICmdLet, Runnable {
 			if (file.toFile().getName().endsWith(".")) {
 				try {
 					String filekey = attrs.fileKey().toString();
-					String ino = filekey.substring(filekey.lastIndexOf("=") + 1, filekey.length() - 1);
+					String ino = filekey.substring(filekey.lastIndexOf('=') + 1, filekey.length() - 1);
 					files.add(Long.parseLong(ino));
 				} catch (Exception e) {
 					ctx.error("Cannot retrieve ino attr of " + file.getFileName().endsWith(".eml"));

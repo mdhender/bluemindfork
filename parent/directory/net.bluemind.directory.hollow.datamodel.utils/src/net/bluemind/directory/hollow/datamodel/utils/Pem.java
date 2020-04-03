@@ -52,7 +52,7 @@ public class Pem {
 			Certificate x509 = cf.generateCertificate(new ByteArrayInputStream(pem.getBytes()));
 
 			X509CertificateHolder x509CertificateHolder = new X509CertificateHolder(x509.getEncoded());
-			Store<?> certStore = new JcaCertStore(Arrays.asList(new X509CertificateHolder[] { x509CertificateHolder }));
+			Store<?> certStore = new JcaCertStore(Arrays.asList(x509CertificateHolder));
 
 			CMSProcessableByteArray msg = new CMSProcessableByteArray("signed data".getBytes());
 			CMSSignedDataGenerator gen = new CMSSignedDataGenerator();
@@ -69,7 +69,7 @@ public class Pem {
 		if (pem == null) {
 			return Optional.empty();
 		}
-		String base64Content = new String(pem).replaceAll("\\s", "");
+		String base64Content = pem.replaceAll("\\s", "");
 		base64Content = base64Content.replace("-----BEGINCERTIFICATE-----", "");
 		base64Content = base64Content.replace("-----ENDCERTIFICATE-----", "");
 		return Optional.of(Base64.getDecoder().decode(base64Content.getBytes()));

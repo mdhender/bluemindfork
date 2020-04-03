@@ -34,7 +34,7 @@ import net.bluemind.core.api.date.BmDateTime.Precision;
 
 public class BmDateTimeWrapper {
 
-	private final static DateTimeFormatter complexParser = DateTimeFormatter.ofPattern(
+	private static final DateTimeFormatter complexParser = DateTimeFormatter.ofPattern(
 			"[yyyyMMdd][yyyy-MM-dd][yyyy-DDD]['T'[HHmmss][HHmm][HH:mm:ss][HH:mm:s][HH:mm][.SSSSSSSSS][.SSSSSS][.SSS][.SS][.S]][OOOO][O][z][XXXXX][XXXX]['['VV']']");
 
 	public final BmDateTime bmDateTime;
@@ -233,16 +233,16 @@ public class BmDateTimeWrapper {
 		if (iso8601.contains("Z") || iso8601.contains("z")) {
 			return ZoneId.of("UTC").getId();
 		} else if (iso8601.contains("+")) {
-			return iso8601.substring(iso8601.lastIndexOf("+"));
+			return iso8601.substring(iso8601.lastIndexOf('+'));
 		} else if (isoContainsMinusOffset(iso8601)) {
-			return iso8601.substring(iso8601.lastIndexOf("-"));
+			return iso8601.substring(iso8601.lastIndexOf('-'));
 		}
 		return null;
 	}
 
 	private static boolean isoContainsMinusOffset(String iso8601) {
-		if (iso8601.contains("T")) {
-			int start = iso8601.indexOf("T");
+		int start = iso8601.indexOf('T');
+		if (start >= 0) {
 			return iso8601.substring(start).contains("-");
 		}
 		return false;
@@ -334,9 +334,9 @@ public class BmDateTimeWrapper {
 
 	private static int isoCountNanoSecondsDigits(String iso8601) {
 		if (containsNanoSecond(iso8601)) {
-			int plusIndex = iso8601.indexOf("+");
-			int zIndex = iso8601.indexOf("Z");
-			int dotIndex = iso8601.indexOf(".");
+			int plusIndex = iso8601.indexOf('+');
+			int zIndex = iso8601.indexOf('Z');
+			int dotIndex = iso8601.indexOf('.');
 
 			if (zIndex == -1 && plusIndex == -1) {
 				return iso8601.substring(dotIndex).length();
@@ -354,8 +354,8 @@ public class BmDateTimeWrapper {
 	}
 
 	private static String removeTimezoneFromIso(String iso8601) {
-		int zIndex = iso8601.indexOf("Z");
-		int plusIndex = iso8601.indexOf("+");
+		int zIndex = iso8601.indexOf('Z');
+		int plusIndex = iso8601.indexOf('+');
 		if (zIndex != -1) {
 			return iso8601.substring(0, zIndex);
 		} else if (plusIndex != -1) {
@@ -378,7 +378,7 @@ public class BmDateTimeWrapper {
 
 	private static String removeTime(String iso8601) {
 		if (containsTime(iso8601)) {
-			return iso8601.substring(0, iso8601.indexOf("T"));
+			return iso8601.substring(0, iso8601.indexOf('T'));
 		}
 		return iso8601;
 	}
@@ -507,7 +507,7 @@ public class BmDateTimeWrapper {
 				ZoneId.of(timezone).getId();
 				return true;
 			} catch (DateTimeException e) {
-
+				// ook
 			}
 		}
 		return false;
