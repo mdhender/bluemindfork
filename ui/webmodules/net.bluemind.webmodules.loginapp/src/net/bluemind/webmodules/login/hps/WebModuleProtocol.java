@@ -389,6 +389,29 @@ public class WebModuleProtocol implements IAuthProtocol {
 								} catch (UnsupportedEncodingException e) {
 								}
 								break;
+							case INVALID_PARAMETER:
+								authErrorMsg = UpdatePasswordHandler.MsgErrorCode.invalidParameter.name();
+								if (fn.getMessage().equalsIgnoreCase("password must not be empty")) {
+									authErrorMsg = UpdatePasswordHandler.MsgErrorCode.emptyNewPassword.name();
+									break;
+								}
+
+								if (fn.getMessage().equalsIgnoreCase("invalid character in password")) {
+									authErrorMsg = UpdatePasswordHandler.MsgErrorCode.invalidCharacterNewPassword
+											.name();
+									break;
+								}
+
+								if (fn.getMessage().equalsIgnoreCase("current and new password must not be the same")) {
+									authErrorMsg = UpdatePasswordHandler.MsgErrorCode.mustNotTheSame.name();
+									break;
+								}
+
+								try {
+									authErrorMsg = URLEncoder.encode(fn.getMessage(), "utf-8");
+								} catch (UnsupportedEncodingException e) {
+								}
+								break;
 							default:
 								break;
 							}

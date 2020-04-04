@@ -20,7 +20,8 @@ public class UpdatePasswordHandler extends AbstractIndexHandler implements NeedV
 	static Configuration cfg;
 
 	public enum MsgErrorCode {
-		unknown, nullpassword, passwordnotmatch, usernotfound, invalidpassword, invalidnewpassword
+		unknown, invalidParameter, nullpassword, passwordnotmatch, usernotfound, invalidpassword, invalidnewpassword,
+		emptyNewPassword, invalidCharacterNewPassword, mustNotTheSame
 	}
 
 	static {
