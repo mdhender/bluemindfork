@@ -8,7 +8,7 @@ MINIO="2019.10.12-bluemind9"
 
 BMJDK="8u242-bluemind32"
 BMSNZIP="1.0.4-bluemind4"
-BMNGINX="1.16.1-bluemind84"
+BMNGINX="1.16.1-bluemind88"
 BMPHP="5.6.40-bluemind86"
 BMPHPMEMCACHE="3.0.8-bluemind86"
 

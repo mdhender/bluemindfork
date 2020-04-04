@@ -6,7 +6,7 @@ Group:              Applications/messaging
 URL:                http://www.bluemind.net/
 ExcludeArch:        s390 s390x
 Summary:            BlueMind webmail (Roundcube)
-Requires:           bm-postgresql = 11.7-bluemind108, bm-nginx = 1.16.1-bluemind84, bm-php = 5.6.40-bluemind86, tzdata, epel-release >= 6, memcached
+Requires:           bm-postgresql = 11.7-bluemind108, bm-nginx = 1.16.1-bluemind88, bm-php = 5.6.40-bluemind86, tzdata, epel-release >= 6, memcached
 Conflicts:          bm-apache
 Obsoletes:          bm-apache
 
