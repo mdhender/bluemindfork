@@ -52,6 +52,7 @@ import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.service.IDirEntryRepairSupport;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.mailbox.api.Mailbox.Type;
 
 /**
  * Update message bodies having a lower version than the one specified in
@@ -129,7 +130,6 @@ public class MessageBodyRepair implements IDirEntryRepairSupport {
 
 		private void checkOrRepair(final String domainUid, final DirEntry entry, final DiagnosticReport report,
 				final IServerTaskMonitor monitor, final boolean checkMode) {
-
 			final IMailboxes mboxApi = bmContext.provider().instance(IMailboxes.class, domainUid);
 			final ItemValue<Mailbox> mailbox = mboxApi.getComplete(entry.entryUid);
 			if (mailbox == null) {
@@ -169,22 +169,25 @@ public class MessageBodyRepair implements IDirEntryRepairSupport {
 							monitor.subWork(mailboxReportId, 1));
 				} else {
 					this.repair(cyrusPartition, mailboxFolder, mailboxReportId, mailboxRecordsNeedingUpdate, report,
-							monitor.subWork(mailboxReportId, 1));
+							monitor.subWork(mailboxReportId, 1), mailbox, domainUid);
 				}
 			});
-
 		}
 
 		private void repair(final CyrusPartition cyrusPartition, final ItemValue<MailboxFolder> mailboxFolder,
 				final String mailboxReportId, final List<ImapBinding> mailboxRecordsNeedingUpdate,
-				final DiagnosticReport report, final IServerTaskMonitor monitor) {
+				final DiagnosticReport report, final IServerTaskMonitor monitor, ItemValue<Mailbox> mailbox,
+				String domainUid) {
 			if (!mailboxRecordsNeedingUpdate.isEmpty()) {
-
 				monitor.begin(mailboxRecordsNeedingUpdate.size(), "Repairing bodies for mailbox " + mailboxReportId);
 
 				try {
 					// loop over mailbox records
-					final IDbMailboxRecords mailboxRecordService = ServerSideServiceProvider.getProvider(bmContext)
+					BmContext ctx = bmContext;
+					if (mailbox.value.type == Type.user) {
+						ctx = bmContext.su(mailbox.uid, domainUid);
+					}
+					final IDbMailboxRecords mailboxRecordService = ServerSideServiceProvider.getProvider(ctx)
 							.instance(IDbMailboxRecords.class, mailboxFolder.uid);
 					final IDbMessageBodies bodiesService = ServerSideServiceProvider.getProvider(bmContext)
 							.instance(IDbMessageBodies.class, cyrusPartition.name);

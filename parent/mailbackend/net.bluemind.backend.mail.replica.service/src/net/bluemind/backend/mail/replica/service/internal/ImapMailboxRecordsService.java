@@ -131,7 +131,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		SubtreeLocation recordsLocation = optRecordsLocation
 				.orElseThrow(() -> new ServerFault("Missing subtree location"));
 
-		this.imapFolder = recordsLocation.imapPath();
+		this.imapFolder = recordsLocation.imapPath(context);
 		this.namespace = recordsLocation.namespace();
 		logger.debug("imapFolder is {}", imapFolder);
 

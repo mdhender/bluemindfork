@@ -167,7 +167,7 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 		MailboxDescriptor md = new MailboxDescriptor();
 		md.type = "users".equals(mboxType) ? Type.user : Type.mailshare;
 		md.mailboxName = mbox.next();
-		md.utf7FolderPath = UTF7Converter.encode(recordsLocation.imapPath());
+		md.utf7FolderPath = UTF7Converter.encode(recordsLocation.imapPath(context));
 
 		if (md.type == Type.mailshare) {
 			md.utf7FolderPath = md.utf7FolderPath.substring("Dossiers partag&AOk-s/".length(),
@@ -211,7 +211,7 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 		MailboxDescriptor md = new MailboxDescriptor();
 		md.type = "users".equals(mboxType) ? Type.user : Type.mailshare;
 		md.mailboxName = mbox.next();
-		md.utf7FolderPath = UTF7Converter.encode(recordsLocation.imapPath());
+		md.utf7FolderPath = UTF7Converter.encode(recordsLocation.imapPath(context));
 
 		if (md.type == Type.mailshare) {
 			md.utf7FolderPath = md.utf7FolderPath.substring("Dossiers partag&AOk-s/".length(),

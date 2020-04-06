@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
+import net.bluemind.core.rest.BmContext;
 
 public class ReplicasStore extends JdbcAbstractStore {
 
@@ -53,9 +54,17 @@ public class ReplicasStore extends JdbcAbstractStore {
 			return subtreeContainer.contains("!user.") ? Namespace.users : Namespace.shared;
 		}
 
-		public String imapPath() {
+		public String imapPath(BmContext context) {
 			Namespace ns = namespace();
 			if (ns == Namespace.users) {
+
+				if (!subtreeContainer.contains("!user." + context.getSecurityContext().getSubject())) {
+					String root = contName.substring(6);
+					if (boxName.equals("INBOX")) {
+						return "Autres utilisateurs/" + root;
+					}
+					return "Autres utilisateurs/" + root + "/" + boxName;
+				}
 				return boxName;
 			} else {
 				if (("shared/" + boxName).equals(contName)) {
