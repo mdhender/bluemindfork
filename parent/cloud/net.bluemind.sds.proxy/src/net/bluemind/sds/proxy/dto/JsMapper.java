@@ -20,7 +20,10 @@ package net.bluemind.sds.proxy.dto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import net.bluemind.sds.proxy.store.SdsException;
 
 public class JsMapper {
 
@@ -39,6 +42,22 @@ public class JsMapper {
 		ObjectMapper om = new ObjectMapper();
 		logger.debug("OM is {}", om);
 		return om;
+	}
+
+	public static <T> T readValue(String s, Class<T> type) {
+		try {
+			return get().readValue(s, type);
+		} catch (JsonProcessingException e) {
+			throw new SdsException(e);
+		}
+	}
+
+	public static <T> String writeValueAsString(T obj) {
+		try {
+			return get().writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			throw new SdsException(e);
+		}
 	}
 
 }

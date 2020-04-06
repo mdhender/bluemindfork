@@ -39,6 +39,7 @@ import net.bluemind.dockerclient.DockerEnv;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.sds.proxy.dto.DeleteRequest;
 import net.bluemind.sds.proxy.dto.ExistRequest;
+import net.bluemind.sds.proxy.dto.ExistResponse;
 import net.bluemind.sds.proxy.dto.GetRequest;
 import net.bluemind.sds.proxy.dto.PutRequest;
 import net.bluemind.sds.proxy.dto.SdsResponse;
@@ -74,7 +75,8 @@ public class S3StoreTests {
 		ExistRequest er = new ExistRequest();
 		er.mailbox = "titi";
 		er.guid = UUID.randomUUID().toString();
-		assertFalse(store.exists(er).exists);
+		ExistResponse existsResp = store.exists(er).join();
+		assertFalse(existsResp.exists);
 	}
 
 	@Test
@@ -85,7 +87,8 @@ public class S3StoreTests {
 		ExistRequest er = new ExistRequest();
 		er.mailbox = "titi";
 		er.guid = UUID.randomUUID().toString();
-		assertFalse(store.exists(er).exists);
+		ExistResponse existsResp = store.exists(er).join();
+		assertFalse(existsResp.exists);
 
 		PutRequest pr = new PutRequest();
 		pr.mailbox = er.mailbox;
@@ -93,10 +96,10 @@ public class S3StoreTests {
 
 		Path path = tempContent();
 		pr.filename = path.toFile().getAbsolutePath();
-		SdsResponse resp = store.upload(pr);
+		SdsResponse resp = store.upload(pr).join();
 		assertNotNull(resp);
 
-		assertTrue(store.exists(er).exists);
+		assertTrue(store.exists(er).join().exists);
 	}
 
 	@Test
@@ -109,19 +112,27 @@ public class S3StoreTests {
 		pr.mailbox = "tata";
 		pr.guid = UUID.randomUUID().toString();
 		pr.filename = tempContent().toFile().getAbsolutePath();
-		SdsResponse resp = store.upload(pr);
+		SdsResponse resp = store.upload(pr).join();
 		assertNull(resp.error);
+		System.err.println("put ok");
+
+		ExistRequest er = new ExistRequest();
+		er.guid = pr.guid;
+		er.mailbox = pr.mailbox;
+		assertTrue(store.exists(er).join().exists);
+		System.err.println("exists !");
 
 		DeleteRequest dr = new DeleteRequest();
 		dr.guid = pr.guid;
 		dr.mailbox = pr.mailbox;
+		System.err.println("deleting...");
+		assertNull(store.delete(dr).join().error);
 
-		assertNull(store.delete(dr).error);
-
-		ExistRequest er = new ExistRequest();
-		er.guid = dr.guid;
-		er.mailbox = dr.mailbox;
-		assertFalse(store.exists(er).exists);
+		ExistRequest er2 = new ExistRequest();
+		er2.guid = dr.guid;
+		er2.mailbox = dr.mailbox;
+		assertFalse(store.exists(er2).join().exists);
+		System.err.println("does not exist, ok.");
 
 	}
 
@@ -136,13 +147,13 @@ public class S3StoreTests {
 		put.guid = UUID.randomUUID().toString();
 		Path path = tempContent();
 		put.filename = path.toFile().getAbsolutePath();
-		assertNull(store.upload(put).error);
+		assertNull(store.upload(put).join().error);
 
 		GetRequest get = new GetRequest();
 		get.mailbox = put.mailbox;
 		get.guid = put.guid;
 		get.filename = put.filename + ".download";
-		SdsResponse dlResp = store.download(get);
+		SdsResponse dlResp = store.download(get).join();
 		assertNotNull(dlResp);
 		assertNull(dlResp.error);
 		File downloaded = new File(get.filename);

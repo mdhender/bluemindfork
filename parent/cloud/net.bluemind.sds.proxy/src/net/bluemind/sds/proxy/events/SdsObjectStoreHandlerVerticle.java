@@ -19,15 +19,12 @@ package net.bluemind.sds.proxy.events;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.nio.file.attribute.GroupPrincipal;
-import java.nio.file.attribute.UserPrincipal;
-import java.nio.file.attribute.UserPrincipalLookupService;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -119,17 +116,6 @@ public class SdsObjectStoreHandlerVerticle extends AbstractVerticle {
 	@Override
 	public void start() {
 
-		UserPrincipalLookupService lookupService = FileSystems.getDefault().getUserPrincipalLookupService();
-		UserPrincipal cyrusUser = null;
-		GroupPrincipal mailGroup = null;
-		try {
-			cyrusUser = lookupService.lookupPrincipalByName("cyrus");
-			mailGroup = lookupService.lookupPrincipalByGroupName("mail");
-			logger.info("Found cyrus user {}, group {}", cyrusUser, mailGroup);
-		} catch (IOException e) {
-			logger.warn("Error looking up cyrus user: {}", e.getMessage());
-		}
-
 		registerForJsonSdsRequest(SdsAddresses.EXIST, ExistRequest.class, r -> sdsStore.get().exists(r));
 
 		registerForJsonSdsRequest(SdsAddresses.DELETE, DeleteRequest.class, r -> sdsStore.get().delete(r));
@@ -139,13 +125,12 @@ public class SdsObjectStoreHandlerVerticle extends AbstractVerticle {
 		registerForJsonSdsRequest(SdsAddresses.CONFIG, this::reConfigure);
 
 		registerForJsonSdsRequest(SdsAddresses.GET, GetRequest.class, get -> {
-			new File(get.filename).getParentFile().mkdirs();
 			return sdsStore.get().download(get);
 		});
 
 	}
 
-	private ConfigureResponse reConfigure(JsonObject req) {
+	private CompletableFuture<ConfigureResponse> reConfigure(JsonObject req) {
 		logger.info("Apply configuration {}", req);
 		storeConfig = req;
 		sdsStore.set(loadStore());
@@ -160,40 +145,42 @@ public class SdsObjectStoreHandlerVerticle extends AbstractVerticle {
 		// for unit tests
 		vertx.eventBus().publish("sds.events.configuration.updated", true);
 
-		return new ConfigureResponse();
+		return CompletableFuture.completedFuture(new ConfigureResponse());
 	}
 
 	private static interface UnsafeFunction<T, R> {
-		R apply(T param) throws Exception;
+		CompletableFuture<R> apply(T param);
 	}
 
 	private <T extends SdsRequest, R extends SdsResponse> void registerForJsonSdsRequest(String address,
 			Class<T> reqType, UnsafeFunction<T, R> process) {
 		vertx.eventBus().consumer(address, (Message<JsonObject> msg) -> {
 			String jsonString = msg.body().encode();
-			try {
-				T sdsReq = JsMapper.get().readValue(jsonString, reqType);
-				R sdsResp = process.apply(sdsReq);
-				JsonObject jsResp = new JsonObject(JsMapper.get().writeValueAsString(sdsResp));
-				msg.reply(jsResp);
-			} catch (Exception e) {
-				logger.error("{} Error processing payload {}", address, jsonString, e);
-				// let the event bus timeout trigger, an http 500 will be returned
-			}
+			T sdsReq = JsMapper.readValue(jsonString, reqType);
+			process.apply(sdsReq).whenComplete((sdsResp, ex) -> {
+				if (ex != null) {
+					logger.error("{} Error processing payload {}", address, jsonString, ex);
+					// let the event bus timeout trigger, an http 500 will be returned
+				} else {
+					JsonObject jsResp = new JsonObject(JsMapper.writeValueAsString(sdsResp));
+					msg.reply(jsResp);
+				}
+			});
 		});
 	}
 
 	private <R extends SdsResponse> void registerForJsonSdsRequest(String address,
 			UnsafeFunction<JsonObject, R> process) {
 		vertx.eventBus().consumer(address, (Message<JsonObject> msg) -> {
-			try {
-				R sdsResp = process.apply(msg.body());
-				JsonObject jsResp = new JsonObject(JsMapper.get().writeValueAsString(sdsResp));
-				msg.reply(jsResp);
-			} catch (Exception e) {
-				logger.error("{} Error processing payload {}", address, msg.body(), e);
-				// let the event bus timeout trigger, an http 500 will be returned
-			}
+			process.apply(msg.body()).whenComplete((sdsResp, ex) -> {
+				if (ex != null) {
+					logger.error("{} Error processing payload {}", address, msg.body(), ex);
+					// let the event bus timeout trigger, an http 500 will be returned
+				} else {
+					JsonObject jsResp = new JsonObject(JsMapper.writeValueAsString(sdsResp));
+					msg.reply(jsResp);
+				}
+			});
 		});
 	}
 

@@ -25,6 +25,12 @@ import com.google.common.base.MoreObjects;
 
 public class SdsResponse {
 
+	public static final SdsResponse UNTAGGED_OK = new SdsResponse() {
+		public void withTags(Map<String, String> t) {
+			// no tags
+		}
+	};
+
 	public SdsError error;
 	private Map<String, String> tags = Collections.emptyMap();
 

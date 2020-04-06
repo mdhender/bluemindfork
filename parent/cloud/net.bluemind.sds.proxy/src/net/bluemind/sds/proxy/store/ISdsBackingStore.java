@@ -17,7 +17,7 @@
  */
 package net.bluemind.sds.proxy.store;
 
-import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
 import net.bluemind.sds.proxy.dto.DeleteRequest;
 import net.bluemind.sds.proxy.dto.ExistRequest;
@@ -28,12 +28,12 @@ import net.bluemind.sds.proxy.dto.SdsResponse;
 
 public interface ISdsBackingStore {
 
-	ExistResponse exists(ExistRequest req);
+	CompletableFuture<ExistResponse> exists(ExistRequest req);
 
-	SdsResponse upload(PutRequest req) throws IOException;
+	CompletableFuture<SdsResponse> upload(PutRequest req);
 
-	SdsResponse download(GetRequest req) throws IOException;
+	CompletableFuture<SdsResponse> download(GetRequest req);
 
-	SdsResponse delete(DeleteRequest req);
+	CompletableFuture<SdsResponse> delete(DeleteRequest req);
 
 }
