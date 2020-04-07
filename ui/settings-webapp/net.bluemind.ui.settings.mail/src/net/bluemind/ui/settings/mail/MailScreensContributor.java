@@ -28,6 +28,7 @@ import net.bluemind.gwtconsoleapp.base.editor.ScreenElementContribution;
 import net.bluemind.gwtconsoleapp.base.editor.ScreenElementContributorUnwrapper;
 import net.bluemind.gwtconsoleapp.base.editor.Tab;
 import net.bluemind.gwtconsoleapp.base.editor.TabContainer;
+import net.bluemind.mailapp.role.MailAppRoleProvider;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.ui.common.client.forms.Ajax;
 import net.bluemind.ui.mailbox.filter.DomainFilters;
@@ -76,12 +77,17 @@ public class MailScreensContributor implements ScreenElementContributorUnwrapper
 		contribs.push(ScreenElementContribution.create("base", "modelHandlers",
 				ScreenElement.create(null, UserMailIdentitiesModelHandler.TYPE)
 						.withRole(BasicRoles.ROLE_SELF_CHANGE_MAIL_IDENTITIES)));
-
+		
 		if ("FULL".equals(Ajax.getAccountType())) {
 			tabs.push(
 					Tab.create(null, messages.tabSharings(), ScreenElement.create(null, MailboxesSharingsEditor.TYPE)));
 			contribs.push(ScreenElementContribution.create("base", "modelHandlers",
 					ScreenElement.create(null, MailboxesSharingsModelHandler.TYPE)));
+		}
+			
+		if (Ajax.TOKEN.getRoles().contains(MailAppRoleProvider.ROLE_MAIL_WEBAPP)) {
+			ScreenElement newWebmailSettings = ScreenElement.create(null, NewWebmailSettings.TYPE);
+			tabs.push(Tab.create(null, messages.mailApp(), newWebmailSettings));			
 		}
 
 		return contribs;

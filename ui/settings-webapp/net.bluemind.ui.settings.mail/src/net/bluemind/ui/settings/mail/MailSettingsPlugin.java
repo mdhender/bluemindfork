@@ -53,6 +53,8 @@ public class MailSettingsPlugin {
 		UserBooksSubscriptionModelHandler.registerType();
 		MailboxesSharingsModelHandler.registerType();
 		MailForwardEditor.registerType();
+		
+		NewWebmailSettings.registerType();
 
 	}
 }

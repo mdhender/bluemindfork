@@ -18,26 +18,19 @@
  */
 package net.bluemind.ui.settings.mail;
 
-import com.google.gwt.i18n.client.Messages;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.ImageResource;
 
-public interface MailMessages extends Messages {
-	public String webmail();
+public interface NewWebmailListStyleResources extends ClientBundle {
+	public static final NewWebmailListStyleResources INST = GWT.create(NewWebmailListStyleResources.class);
 
-	public String tabGeneral();
+	@Source("list-style-full.png")
+	ImageResource full();
 
-	public String tabSharings();
-
-	public String tabFilters();
-
-	public String tabIdentities();
-
-	public String vacation();
-
-	public String advanced();
-
-	public String advancedAnchor();
+	@Source("list-style-normal.png")
+	ImageResource normal();
 	
-	public String mailApp();
-	
-	public String listStyle();
+	@Source("list-style-compact.png")
+	ImageResource compact();
 }
