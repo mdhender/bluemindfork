@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`[MailItemsStore][state] initial state 1`] = `
+Object {
+  "itemKeys": Array [],
+  "items": Object {},
+  "itemsParts": Object {},
+  "partContents": Object {},
+}
+`;
