@@ -29,7 +29,7 @@ Section: oldlibs
 Description: transitional package
  This is a transitional package. It can safely be removed.
 
-Package: bm-plugin-hoster-report
+Package: bm-plugin-core-hoster-report
 Depends: bm-core, ${misc:Depends}
 Architecture: all
 Priority: extra
