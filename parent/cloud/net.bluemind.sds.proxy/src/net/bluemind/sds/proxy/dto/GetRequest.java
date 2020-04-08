@@ -19,4 +19,14 @@ package net.bluemind.sds.proxy.dto;
 
 public class GetRequest extends TransferRequest {
 
+	public String guid;
+
+	public static GetRequest of(String mailbox, String guid, String filename) {
+		GetRequest gr = new GetRequest();
+		gr.mailbox = mailbox;
+		gr.guid = guid;
+		gr.filename = filename;
+		return gr;
+	}
+
 }

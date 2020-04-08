@@ -26,8 +26,9 @@ import com.google.common.base.MoreObjects;
 public class SdsResponse {
 
 	public static final SdsResponse UNTAGGED_OK = new SdsResponse() {
-		public void withTags(Map<String, String> t) {
-			// no tags
+		@Override
+		public SdsResponse withTags(Map<String, String> t) {
+			return this;
 		}
 	};
 
@@ -43,8 +44,9 @@ public class SdsResponse {
 		return MoreObjects.toStringHelper(getClass()).add("success", succeeded()).add("error", error).toString();
 	}
 
-	public void withTags(Map<String, String> t) {
+	public SdsResponse withTags(Map<String, String> t) {
 		this.tags = t;
+		return this;
 	}
 
 	@JsonProperty("tags")

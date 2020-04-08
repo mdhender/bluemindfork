@@ -18,7 +18,6 @@
 package net.bluemind.sds.proxy.mapping;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Promise;
 import io.vertx.core.Verticle;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.hornetq.client.MQ;
@@ -42,21 +41,14 @@ public class MappingCacheCleaner extends AbstractVerticle {
 	}
 
 	@Override
-	public void start(Promise<Void> startPromise) throws Exception {
-		MQ.init().whenComplete((v, ex) -> {
-			if (ex != null) {
-				startPromise.fail(ex);
-			} else {
-				MQ.registerConsumer(Topic.MAPI_ITEM_NOTIFICATIONS, msg -> {
-					// containerUid & owner
-					String cont = msg.getStringProperty("containerUid");
-					if (cont != null && cont.startsWith("mbox_records_")) {
-						String folderId = IMailReplicaUids.uniqueId(cont);
-						vertx.eventBus().send("mapping.ctrl.discard", folderId);
-					}
-				});
-				startPromise.complete();
+	public void start() throws Exception {
+		MQ.init().whenComplete((v, ex) -> MQ.registerConsumer(Topic.MAPI_ITEM_NOTIFICATIONS, msg -> {
+			// containerUid & owner
+			String cont = msg.getStringProperty("containerUid");
+			if (cont != null && cont.startsWith("mbox_records_")) {
+				String folderId = IMailReplicaUids.uniqueId(cont);
+				vertx.eventBus().send("mapping.ctrl.discard", folderId);
 			}
-		});
+		}));
 	}
 }

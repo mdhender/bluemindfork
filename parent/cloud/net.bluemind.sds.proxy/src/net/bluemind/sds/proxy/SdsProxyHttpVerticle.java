@@ -83,6 +83,7 @@ public class SdsProxyHttpVerticle extends AbstractVerticle {
 		router.delete("/sds", this::delete);
 		router.put("/sds", this::put);
 		router.get("/sds", this::get);
+		router.post("/sds/mget", this::mget);
 		router.post("/configuration", this::configure);
 		router.post("/mailbox", this::validateMailbox);
 
@@ -161,6 +162,10 @@ public class SdsProxyHttpVerticle extends AbstractVerticle {
 
 	private void get(HttpServerRequest req) {
 		sendBody(req, SdsAddresses.GET, SdsResponse.class, (resp, http) -> http.setStatusCode(200).end());
+	}
+
+	private void mget(HttpServerRequest req) {
+		sendBody(req, SdsAddresses.MGET, SdsResponse.class, (resp, http) -> http.setStatusCode(200).end());
 	}
 
 	private void validateMailbox(HttpServerRequest request) {

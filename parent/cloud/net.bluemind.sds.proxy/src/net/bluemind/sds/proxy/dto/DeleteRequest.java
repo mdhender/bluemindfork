@@ -19,4 +19,6 @@ package net.bluemind.sds.proxy.dto;
 
 public class DeleteRequest extends SdsRequest {
 
+	public String guid;
+
 }

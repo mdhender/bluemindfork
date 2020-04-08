@@ -18,6 +18,7 @@
 package net.bluemind.aws.s3.utils;
 
 import java.net.URI;
+import java.time.Duration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +58,8 @@ public class S3ClientFactory {
 	public static S3AsyncClient create(S3Configuration s3Configuration) {
 		try {
 			S3AsyncClientBuilder builder = S3AsyncClient.builder();
-			builder.httpClientBuilder(NettyNioAsyncHttpClient.builder());
+			builder.httpClientBuilder(NettyNioAsyncHttpClient.builder().maxConcurrency(50)
+					.maxPendingConnectionAcquires(10000).connectionAcquisitionTimeout(Duration.ofSeconds(10)));
 			builder.credentialsProvider(StaticCredentialsProvider.create(
 					AwsBasicCredentials.create(s3Configuration.getAccessKey(), s3Configuration.getSecretKey())));
 			if (!Strings.isNullOrEmpty(s3Configuration.getRegion())) {

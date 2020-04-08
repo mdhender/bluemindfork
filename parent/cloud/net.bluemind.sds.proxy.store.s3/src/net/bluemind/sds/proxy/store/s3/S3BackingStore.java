@@ -20,8 +20,12 @@ package net.bluemind.sds.proxy.store.s3;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.LongAdder;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +43,8 @@ import net.bluemind.sds.proxy.dto.DeleteRequest;
 import net.bluemind.sds.proxy.dto.ExistRequest;
 import net.bluemind.sds.proxy.dto.ExistResponse;
 import net.bluemind.sds.proxy.dto.GetRequest;
+import net.bluemind.sds.proxy.dto.MgetRequest;
+import net.bluemind.sds.proxy.dto.MgetRequest.Transfer;
 import net.bluemind.sds.proxy.dto.PutRequest;
 import net.bluemind.sds.proxy.dto.SdsError;
 import net.bluemind.sds.proxy.dto.SdsResponse;
@@ -52,6 +58,7 @@ import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 
 public class S3BackingStore implements ISdsBackingStore {
 
@@ -66,6 +73,9 @@ public class S3BackingStore implements ISdsBackingStore {
 	private final Clock clock;
 	private final Counter getSizeCounter;
 	private final Counter getRequestCounter;
+	private final Counter mgetRequestCounter;
+	private final Timer mgetLatencyTimer;
+	private Counter getFailureRequestCounter;
 
 	public S3BackingStore(S3Configuration s3Configuration, Registry registry, IdFactory idfactory) {
 		this.registry = registry;
@@ -102,6 +112,11 @@ public class S3BackingStore implements ISdsBackingStore {
 		getSizeCounter = registry.counter(idFactory.name("transfer").withTag("direction", "download"));
 		getRequestCounter = registry
 				.counter(idFactory.name("request").withTag("method", "get").withTag("status", "success"));
+		getFailureRequestCounter = registry
+				.counter(idFactory.name("request").withTag("method", "get").withTag("status", "error"));
+		mgetLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "mget"));
+		mgetRequestCounter = registry
+				.counter(idFactory.name("request").withTag("method", "ùget").withTag("status", "success"));
 		existLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "exist"));
 	}
 
@@ -129,16 +144,18 @@ public class S3BackingStore implements ISdsBackingStore {
 						sr.withTags(ImmutableMap.of("guid", req.guid, "skip", "true"));
 						return CompletableFuture.completedFuture(sr);
 					} else {
-						final long start = registry.clock().monotonicTime();
+						final long start = clock.monotonicTime();
 
 						Path toUpload = Paths.get(req.filename);
 						return client
 								.putObject(PutObjectRequest.builder().bucket(bucket).key(req.guid).build(), toUpload)
-								.thenApply(put -> {
+								.exceptionally(ex -> null).thenApply(putResp -> {
+									Optional<PutObjectResponse> optPut = Optional.ofNullable(putResp);
 									SdsResponse sr = new SdsResponse();
 									registry.timer(idFactory.name("latency").withTag("method", "put"))
-											.record(registry.clock().monotonicTime() - start, TimeUnit.NANOSECONDS);
-									boolean success = put.sdkHttpResponse().statusCode() == 200;
+											.record(clock.monotonicTime() - start, TimeUnit.NANOSECONDS);
+									boolean success = optPut.map(p -> p.sdkHttpResponse().statusCode() == 200)
+											.orElse(false);
 									registry.counter(idFactory.name("transfer").withTag("direction", "upload"))
 											.increment(toUpload.toFile().length());
 									registry.counter(idFactory.name("request").withTag("method", "put")
@@ -146,7 +163,9 @@ public class S3BackingStore implements ISdsBackingStore {
 									if (success) {
 										sr.withTags(ImmutableMap.of("guid", req.guid));
 									} else {
-										sr.error = new SdsError(put.sdkHttpResponse().statusText().orElse("no status"));
+										sr.error = new SdsError(
+												optPut.map(p -> p.sdkHttpResponse().statusText().orElse("missing"))
+														.orElse("no status"));
 									}
 									return sr;
 								});
@@ -161,26 +180,68 @@ public class S3BackingStore implements ISdsBackingStore {
 		final long start = clock.monotonicTime();
 		target.delete(); // NOSONAR
 		return client.getObject(GetObjectRequest.builder().bucket(bucket).key(req.guid).build(), target.toPath())
-				.thenApply(gor -> {
+				.exceptionally(ex -> null).thenApply(gor -> {
 					getLatencyTimer.record(clock.monotonicTime() - start, TimeUnit.NANOSECONDS);
-					getSizeCounter.increment(target.length());
-					getRequestCounter.increment();
+					if (gor != null) {
+						getSizeCounter.increment(target.length());
+						getRequestCounter.increment();
+					} else {
+						getFailureRequestCounter.increment();
+					}
 					return SdsResponse.UNTAGGED_OK;
 				});
 
 	}
 
 	@Override
+	public CompletableFuture<SdsResponse> downloads(MgetRequest req) {
+		final long start = clock.monotonicTime();
+
+		Collection<Transfer> dedupByFilename = req.transfers.stream()
+				.collect(Collectors.toMap(t -> t.filename, t -> t, (t1, t2) -> t2)).values();
+
+		File[] files = dedupByFilename.stream().map(t -> {
+			File f = new File(t.filename);
+			f.delete();// NOSONAR
+			return f;
+		}).toArray(File[]::new);
+		CompletableFuture<?>[] fut = new CompletableFuture[files.length];
+		int i = 0;
+		final LongAdder totalSize = new LongAdder();
+		for (Transfer t : dedupByFilename) {
+			final int slot = i;
+			fut[slot] = client
+					.getObject(GetObjectRequest.builder().bucket(bucket).key(t.guid).build(), files[slot].toPath())
+					.exceptionally(x -> {
+						logger.warn(x.getMessage());
+						return null;
+					}).thenAccept(gor -> totalSize.add(files[slot].length()));
+			i++;
+		}
+		return CompletableFuture.allOf(fut).thenApply(v -> {
+			mgetLatencyTimer.record(clock.monotonicTime() - start, TimeUnit.NANOSECONDS);
+			getSizeCounter.increment(totalSize.longValue());
+			mgetRequestCounter.increment();
+			return new SdsResponse().withTags(ImmutableMap.of("batch", Integer.toString(files.length), "sizeKB",
+					Long.toString(totalSize.longValue() / 1024)));
+		}).exceptionally(ex -> {
+			logger.error(ex.getMessage() + " for " + req, ex);
+			SdsResponse error = new SdsResponse();
+			error.error = new SdsError(ex.getMessage());
+			return error;
+		});
+	}
+
+	@Override
 	public CompletableFuture<SdsResponse> delete(DeleteRequest req) {
-		SdsResponse sr = new SdsResponse();
-		final long start = registry.clock().monotonicTime();
+		final long start = clock.monotonicTime();
 		return client.deleteObject(DeleteObjectRequest.builder().bucket(bucket).key(req.guid).build())
 				.thenApply(dor -> {
 					registry.timer(idFactory.name("latency").withTag("method", "delete"))
-							.record(registry.clock().monotonicTime() - start, TimeUnit.NANOSECONDS);
+							.record(clock.monotonicTime() - start, TimeUnit.NANOSECONDS);
 					registry.counter(idFactory.name("request").withTag("method", "delete").withTag("status", "success"))
 							.increment();
-					return sr;
+					return SdsResponse.UNTAGGED_OK;
 				});
 
 	}

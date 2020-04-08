@@ -42,6 +42,7 @@ import net.bluemind.sds.proxy.dto.DeleteRequest;
 import net.bluemind.sds.proxy.dto.ExistRequest;
 import net.bluemind.sds.proxy.dto.GetRequest;
 import net.bluemind.sds.proxy.dto.JsMapper;
+import net.bluemind.sds.proxy.dto.MgetRequest;
 import net.bluemind.sds.proxy.dto.PutRequest;
 import net.bluemind.sds.proxy.dto.SdsRequest;
 import net.bluemind.sds.proxy.dto.SdsResponse;
@@ -110,7 +111,7 @@ public class SdsObjectStoreHandlerVerticle extends AbstractVerticle {
 		List<ISdsBackingStoreFactory> stores = rel.loadExtensions("net.bluemind.sds.proxy", "store", "store",
 				"factory");
 		logger.info("Found {} backing store(s)", stores.size());
-		return stores.stream().collect(Collectors.toMap(f -> f.name(), f -> f));
+		return stores.stream().collect(Collectors.toMap(ISdsBackingStoreFactory::name, f -> f));
 	}
 
 	@Override
@@ -127,6 +128,7 @@ public class SdsObjectStoreHandlerVerticle extends AbstractVerticle {
 		registerForJsonSdsRequest(SdsAddresses.GET, GetRequest.class, get -> {
 			return sdsStore.get().download(get);
 		});
+		registerForJsonSdsRequest(SdsAddresses.MGET, MgetRequest.class, mget -> sdsStore.get().downloads(mget));
 
 	}
 

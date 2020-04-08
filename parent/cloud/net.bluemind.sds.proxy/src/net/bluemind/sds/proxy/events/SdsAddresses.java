@@ -30,6 +30,8 @@ public class SdsAddresses {
 
 	public static final String GET = "sds.get";
 
+	public static final String MGET = "sds.mget";
+
 	public static final String DELETE = "sds.delete";
 
 	public static final String VALIDATION = "core.api.mailbox.validation";

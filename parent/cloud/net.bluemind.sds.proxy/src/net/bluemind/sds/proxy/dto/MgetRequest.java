@@ -17,16 +17,22 @@
   */
 package net.bluemind.sds.proxy.dto;
 
-public class ExistRequest extends SdsRequest {
+import java.util.List;
 
-	public String guid;
+public class MgetRequest extends SdsRequest {
 
-	public static ExistRequest of(String mailbox, String guid) {
-		ExistRequest er = new ExistRequest();
-		er.mailbox = mailbox;
-		er.guid = guid;
-		return er;
+	public static class Transfer {
+		public String guid;
+		public String filename;
 
+		public static Transfer of(String g, String f) {
+			Transfer t = new Transfer();
+			t.guid = g;
+			t.filename = f;
+			return t;
+		}
 	}
+
+	public List<Transfer> transfers;
 
 }

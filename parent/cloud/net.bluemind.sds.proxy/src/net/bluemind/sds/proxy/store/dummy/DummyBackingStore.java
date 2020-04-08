@@ -53,16 +53,21 @@ public class DummyBackingStore implements ISdsBackingStore {
 		}
 	};
 
+	private static final File root = new File(System.getProperty("user.home"), "dummy-sds");
+	static {
+		root.mkdirs();
+	}
+
 	@Override
 	public CompletableFuture<ExistResponse> exists(ExistRequest exist) {
 		ExistResponse resp = new ExistResponse();
-		resp.exists = new File("/dummy-sds/", exist.guid).exists();
+		resp.exists = new File(root, exist.guid).exists();
 		return CompletableFuture.completedFuture(resp);
 	}
 
 	@Override
 	public CompletableFuture<SdsResponse> upload(PutRequest put) {
-		File dst = new File("/dummy-sds", put.guid);
+		File dst = new File(root, put.guid);
 		if (!dst.exists()) {
 			File source = new File(put.filename);
 			try {
@@ -78,7 +83,7 @@ public class DummyBackingStore implements ISdsBackingStore {
 
 	@Override
 	public CompletableFuture<SdsResponse> download(GetRequest get) {
-		File source = new File("/dummy-sds", get.guid);
+		File source = new File(root, get.guid);
 		File dest = new File(get.filename);
 		if (dest.exists()) {
 			logger.warn("{} already exist", dest.getAbsolutePath());
@@ -96,7 +101,7 @@ public class DummyBackingStore implements ISdsBackingStore {
 
 	@Override
 	public CompletableFuture<SdsResponse> delete(DeleteRequest del) {
-		boolean deleted = new File("/dummy-sds/", del.guid).delete();
+		boolean deleted = new File(root, del.guid).delete();
 		logger.info("Deleted ? {}", deleted);
 		return CompletableFuture.completedFuture(new SdsResponse());
 	}

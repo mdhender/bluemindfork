@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -41,6 +42,8 @@ import net.bluemind.sds.proxy.dto.DeleteRequest;
 import net.bluemind.sds.proxy.dto.ExistRequest;
 import net.bluemind.sds.proxy.dto.ExistResponse;
 import net.bluemind.sds.proxy.dto.GetRequest;
+import net.bluemind.sds.proxy.dto.MgetRequest;
+import net.bluemind.sds.proxy.dto.MgetRequest.Transfer;
 import net.bluemind.sds.proxy.dto.PutRequest;
 import net.bluemind.sds.proxy.dto.SdsResponse;
 import net.bluemind.sds.proxy.store.ISdsBackingStore;
@@ -159,6 +162,41 @@ public class S3StoreTests {
 		File downloaded = new File(get.filename);
 		assertTrue(downloaded.exists());
 		assertEquals(LENGTH, downloaded.length());
+	}
+
+	@Test
+	public void getObjects() throws IOException {
+		S3Configuration config = S3Configuration.withEndpointAndBucket("http://" + s3Ip + ":8000",
+				"junit-" + System.currentTimeMillis());
+		ISdsBackingStore store = new S3BackingStoreFactory().create(VertxPlatform.getVertx(), config.asJson());
+
+		PutRequest put = new PutRequest();
+		put.mailbox = "titi";
+		put.guid = UUID.randomUUID().toString();
+		Path path = tempContent();
+		put.filename = path.toFile().getAbsolutePath();
+		assertNull(store.upload(put).join().error);
+
+		PutRequest put2 = new PutRequest();
+		put2.mailbox = "titi";
+		put2.guid = UUID.randomUUID().toString();
+		Path path2 = tempContent();
+		put2.filename = path2.toFile().getAbsolutePath();
+		assertNull(store.upload(put2).join().error);
+
+		MgetRequest get = new MgetRequest();
+		get.mailbox = put2.mailbox;
+		get.transfers = Arrays.asList(Transfer.of(put.guid, put.filename + ".dl"),
+				Transfer.of(put2.guid, put2.filename + ".dl"));
+		SdsResponse dlResp = store.downloads(get).join();
+		assertNotNull(dlResp);
+		assertNull(dlResp.error);
+		File downloaded = new File(put.filename + ".dl");
+		assertTrue(downloaded.exists());
+		assertEquals(LENGTH, downloaded.length());
+		File downloaded2 = new File(put2.filename + ".dl");
+		assertTrue(downloaded2.exists());
+		assertEquals(LENGTH, downloaded2.length());
 	}
 
 	private Path tempContent() throws IOException {
