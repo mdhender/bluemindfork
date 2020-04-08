@@ -105,11 +105,11 @@ exports[`MailToolbarConsultMessage should match snapshot 1`] = `
         class="bm-autocomplete d-flex flex-fill position-relative autocomplete-folders shadow-sm"
       >
         <div
-          class="bm-form-input position-relative flex-fill mb-2 align-items-center"
+          class="bm-form-input position-relative d-flex flex-fill mb-2 align-items-center"
         >
           <input
             autocomplete="off"
-            class="d-inline-block form-control pr-4"
+            class="form-control pr-4"
             icon="search"
             type="text"
           />
@@ -137,7 +137,7 @@ exports[`MailToolbarConsultMessage should match snapshot 1`] = `
         </div>
          
         <div
-          class="list-group shadow-sm mw-100 position-absolute"
+          class="list-group shadow-sm mw-100 position-absolute list-no-borders"
           style="display: none;"
           tabindex="-1"
         />

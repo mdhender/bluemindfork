@@ -7,6 +7,7 @@ Object {
   "login": undefined,
   "maxMessageSize": undefined,
   "messageFilter": undefined,
+  "selectedMessageKeys": Array [],
   "status": "idle",
 }
 `;

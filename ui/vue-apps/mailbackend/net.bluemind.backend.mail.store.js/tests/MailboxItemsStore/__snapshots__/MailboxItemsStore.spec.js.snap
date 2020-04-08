@@ -1,10 +1,215 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`[MailboxItemsStore] Vuex store can filter a folder ('unread') 1`] = `undefined`;
+exports[`[MailboxItemsStore] Vuex store can filter a folder ('unread') 1`] = `
+Message {
+  "actions": Object {
+    "FORWARD": "forward",
+    "REPLY": "reply",
+    "REPLYALL": "replyAll",
+  },
+  "bcc": Array [],
+  "cc": Array [],
+  "date": 2019-11-13T10:20:47.000Z,
+  "flags": Array [],
+  "from": Object {
+    "address": "john.q.public@example.com",
+    "dn": "Joe Q. Public",
+    "kind": "Originator",
+  },
+  "hasSeparator": true,
+  "headers": Array [],
+  "id": 476,
+  "imapUid": 11,
+  "key": "WzQ3NiwiZm9sZGVyOnVpZCJd",
+  "messageId": "<5678.21-Nov-1997@example.com>",
+  "preview": "Hi everyone.",
+  "range": DateRange {
+    "end": LocalDate {
+      "date": Date { NaN },
+    },
+    "name": "mail.list.range.older",
+    "start": LocalDate {
+      "date": 0000-01-01T00:00:00.000Z,
+    },
+  },
+  "recipientFields": Object {
+    "CC": "cc",
+    "TO": "to",
+  },
+  "recipientHeaders": Object {
+    "MAIL_FOLLOWUP_TO": "Mail-Followup-To",
+    "MAIL_REPLY_TO": "Mail-Reply-To",
+    "REPLY_TO": "Reply-To",
+  },
+  "references": null,
+  "states": Array [
+    "not-seen",
+  ],
+  "structure": Object {
+    "address": "1",
+    "charset": "us-ascii",
+    "encoding": "7bit",
+    "mime": "text/plain",
+    "size": 220,
+  },
+  "subject": null,
+  "to": Array [
+    Object {
+      "address": "mary@example.net",
+      "dn": "Mary Smith",
+      "kind": "Primary",
+    },
+    Object {
+      "address": "jdoe@test.example",
+      "kind": "Primary",
+    },
+  ],
+  "uid": "11.",
+  "userSession": null,
+}
+`;
 
-exports[`[MailboxItemsStore] Vuex store can filter a folder ('unread') 2`] = `undefined`;
+exports[`[MailboxItemsStore] Vuex store can filter a folder ('unread') 2`] = `
+Message {
+  "actions": Object {
+    "FORWARD": "forward",
+    "REPLY": "reply",
+    "REPLYALL": "replyAll",
+  },
+  "bcc": Array [],
+  "cc": Array [],
+  "date": 2019-11-13T10:20:46.000Z,
+  "flags": Array [],
+  "from": Object {
+    "address": "jdoe@machine.example",
+    "dn": "John Doe",
+    "kind": "Originator",
+  },
+  "hasSeparator": false,
+  "headers": Array [],
+  "id": 472,
+  "imapUid": 7,
+  "key": "WzQ3MiwiZm9sZGVyOnVpZCJd",
+  "messageId": "<abcd.1234@local.machine.tld>",
+  "preview": "This is a reply to your reply.",
+  "range": DateRange {
+    "end": LocalDate {
+      "date": Date { NaN },
+    },
+    "name": "mail.list.range.older",
+    "start": LocalDate {
+      "date": 0000-01-01T00:00:00.000Z,
+    },
+  },
+  "recipientFields": Object {
+    "CC": "cc",
+    "TO": "to",
+  },
+  "recipientHeaders": Object {
+    "MAIL_FOLLOWUP_TO": "Mail-Followup-To",
+    "MAIL_REPLY_TO": "Mail-Reply-To",
+    "REPLY_TO": "Reply-To",
+  },
+  "references": Array [
+    "<1234@local.machine.example>",
+    "<3456@example.net>",
+  ],
+  "states": Array [
+    "not-seen",
+  ],
+  "structure": Object {
+    "address": "1",
+    "charset": "us-ascii",
+    "encoding": "7bit",
+    "mime": "text/plain",
+    "size": 333,
+  },
+  "subject": "Re: Saying Hello",
+  "to": Array [
+    Object {
+      "address": "smith@home.example",
+      "dn": "Mary Smith: Personal Account",
+      "kind": "Primary",
+    },
+  ],
+  "uid": "7.",
+  "userSession": null,
+}
+`;
 
-exports[`[MailboxItemsStore] Vuex store can filter a folder ('unread') 3`] = `undefined`;
+exports[`[MailboxItemsStore] Vuex store can filter a folder ('unread') 3`] = `
+Message {
+  "actions": Object {
+    "FORWARD": "forward",
+    "REPLY": "reply",
+    "REPLYALL": "replyAll",
+  },
+  "bcc": Array [],
+  "cc": Array [],
+  "date": 2019-11-13T10:20:45.000Z,
+  "flags": Array [],
+  "from": Object {
+    "address": "pete@silly.example",
+    "dn": "Pete",
+    "kind": "Originator",
+  },
+  "hasSeparator": false,
+  "headers": Array [],
+  "id": 469,
+  "imapUid": 4,
+  "key": "WzQ2OSwiZm9sZGVyOnVpZCJd",
+  "messageId": "<testabcd.1234@silly.example>",
+  "preview": "Testing.",
+  "range": DateRange {
+    "end": LocalDate {
+      "date": Date { NaN },
+    },
+    "name": "mail.list.range.older",
+    "start": LocalDate {
+      "date": 0000-01-01T00:00:00.000Z,
+    },
+  },
+  "recipientFields": Object {
+    "CC": "cc",
+    "TO": "to",
+  },
+  "recipientHeaders": Object {
+    "MAIL_FOLLOWUP_TO": "Mail-Followup-To",
+    "MAIL_REPLY_TO": "Mail-Reply-To",
+    "REPLY_TO": "Reply-To",
+  },
+  "references": null,
+  "states": Array [
+    "not-seen",
+  ],
+  "structure": Object {
+    "address": "1",
+    "charset": "us-ascii",
+    "encoding": "7bit",
+    "mime": "text/plain",
+    "size": 230,
+  },
+  "subject": null,
+  "to": Array [
+    Object {
+      "address": "c@a.test",
+      "dn": "Chris Jones",
+      "kind": "Primary",
+    },
+    Object {
+      "address": "joe@where.test",
+      "kind": "Primary",
+    },
+    Object {
+      "address": "jdoe@one.test",
+      "dn": "John",
+      "kind": "Primary",
+    },
+  ],
+  "uid": "4.",
+  "userSession": null,
+}
+`;
 
 exports[`[MailboxItemsStore] Vuex store can load messages from a folder into store 1`] = `
 Message {

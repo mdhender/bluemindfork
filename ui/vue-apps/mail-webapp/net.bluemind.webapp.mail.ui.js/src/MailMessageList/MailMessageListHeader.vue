@@ -5,7 +5,7 @@
                 <bm-check
                     :checked="areAllMessagesSelected"
                     :indeterminate="!areAllMessagesSelected && selectedMessageKeys.length > 0"
-                    @change="$emit('toggleAll')"
+                    @change="$bus.$emit(TOGGLE_SELECTION_ALL)"
                 />
                 <!-- FIXME: toggleAll -->
             </bm-col>
@@ -33,6 +33,7 @@
 <script>
 import { BmCheck, BmCol, BmRow, BmChoiceGroup, BmTooltip } from "@bluemind/styleguide";
 import { mapState, mapGetters } from "vuex";
+import { TOGGLE_SELECTION_ALL } from "../VueBusEventTypes";
 
 const FILTER_INDEXES = { all: 0, unread: 1 };
 
@@ -45,6 +46,11 @@ export default {
         BmChoiceGroup
     },
     directives: { BmTooltip },
+    data() {
+        return {
+            TOGGLE_SELECTION_ALL
+        };
+    },
     computed: {
         ...mapState("mail-webapp", ["currentFolderKey", "messageFilter", "selectedMessageKeys"]),
         ...mapGetters("mail-webapp", ["areAllMessagesSelected"]),

@@ -31,8 +31,8 @@
                 <mail-search-form />
             </bm-col>
             <bm-col
-                v-if="shouldDisplayToolbar"
-                class="d-md-inline-block d-lg-block h-100"
+                :class="displayToolbarInResponsiveMode ? '' : 'd-none'"
+                class="d-lg-block h-100"
                 cols="12"
                 md="6"
                 lg="5"
@@ -64,12 +64,7 @@
                     </div>
                 </bm-col>
             </bm-row>
-            <bm-col
-                cols="12"
-                lg="3"
-                class="pl-lg-2 px-0 d-lg-block"
-                :class="hideListInResponsiveMode ? 'd-none' : ''"
-            >
+            <bm-col cols="12" lg="3" class="pl-lg-2 px-0 d-lg-block" :class="hideListInResponsiveMode ? 'd-none' : ''">
                 <mail-message-list class="h-100" />
             </bm-col>
             <bm-col lg="7" class="overflow-auto">
@@ -168,7 +163,7 @@ export default {
                 this.userSession.roles.includes("hasWebmail")
             );
         },
-        shouldDisplayToolbar() {
+        displayToolbarInResponsiveMode() {
             return this.composerOrMessageIsDisplayed || this.selectedMessageKeys.length > 1;
         }
     },

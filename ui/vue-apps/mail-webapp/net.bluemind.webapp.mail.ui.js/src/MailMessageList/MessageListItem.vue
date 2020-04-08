@@ -241,21 +241,20 @@ export default {
 }
 
 .message-list-item .selector .bm-check {
-    display: none !important;
     margin-left: 0.825rem;
     padding-left: 0.825rem;
     min-height: 1.3rem;
 }
 
-.message-list-item .selector:hover .bm-avatar {
+.message-list-item:hover .selector .bm-avatar {
     display: none !important;
 }
 
-.message-list-item:hover .bm-check {
+.message-list-item:hover .selector .bm-check {
     display: block !important;
 }
 
-.message-list-item .not-seen {
+.message-list-item a.list-group-item.not-seen {
     border-left: theme-color("primary") 4px solid !important;
 }
 

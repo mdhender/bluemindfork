@@ -3,6 +3,12 @@ import ItemUri from "@bluemind/item-uri";
 import { STATUS } from "../constants";
 
 export async function selectFolder({ dispatch, commit, state }, { folderKey, filter }) {
+    // TODO: remove this if when Mehdi's work on router is merged
+    if (state.currentFolderKey === folderKey && state.messageFilter === filter) {
+        console.log("selectFolder not triggerred.");
+        return;
+    }
+
     commit("setStatus", STATUS.LOADING);
     const folderUid = ItemUri.item(folderKey);
     let shouldClearMessages = false;

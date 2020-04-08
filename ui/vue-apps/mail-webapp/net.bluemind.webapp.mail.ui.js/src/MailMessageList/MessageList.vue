@@ -35,6 +35,7 @@
                 :ref="'message-' + message.key"
                 :message="message"
                 :to="computeMessageRoute(currentFolderKey, message.key, messageFilter)"
+                :is-muted="!!draggedMessage && isMessageSelected(draggedMessage) && isMessageSelected(message.key)"
                 @toggleSelect="toggleSelect"
                 @click.exact.native="unselectAllIfNeeded(message.key)"
                 @click.ctrl.exact.native.prevent="toggleSelect(message.key)"
@@ -42,7 +43,6 @@
                 @click.shift.exact.ctrl.exact.native.prevent="selectRange(message.key)"
                 @dragstart="draggedMessage = message.key"
                 @dragend="draggedMessage = null"
-                :isMuted="!!draggedMessage && isMessageSelected(draggedMessage) && isMessageSelected(message.key)"
             />
         </div>
         <bm-list-group-item v-if="hasMore">Loading…</bm-list-group-item>
@@ -53,7 +53,7 @@
 import { BmListGroup, BmListGroupItem } from "@bluemind/styleguide";
 import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
 import { RouterMixin } from "@bluemind/router";
-import { SHOW_PURGE_MODAL } from "../VueBusEventTypes";
+import { SHOW_PURGE_MODAL, TOGGLE_SELECTION_ALL } from "../VueBusEventTypes";
 import MailRouterMixin from "../MailRouterMixin";
 import MessageListItem from "./MessageListItem";
 import MessageListSeparator from "./MessageListSeparator";
@@ -99,15 +99,17 @@ export default {
             this.focusByKey(this.currentMessageKey);
         },
         currentFolderKey() {
-            if (this.$refs.bmInfiniteScroll) {
-                this.$refs.bmInfiniteScroll.goto(0);
-            }
             this.lastFocusedMessage = null;
             this.anchoredMessageForShift = null;
         }
     },
     created() {
         this.focusByKey(this.currentMessageKey);
+    },
+    bus: {
+        [TOGGLE_SELECTION_ALL]: function() {
+            this.toggleAll();
+        }
     },
     methods: {
         ...mapActions("mail-webapp", ["loadRange"]),
@@ -117,6 +119,7 @@ export default {
             "addAllToSelectedMessages",
             "deleteAllSelectedMessages"
         ]),
+        ...mapMutations("mail-webapp/currentMessage", { clearCurrentMessage: "clear" }),
         loadMore: function() {
             const range = {
                 start: this.messages.length,
@@ -162,13 +165,10 @@ export default {
         focusByIndex(index) {
             if (index !== -1 && this.messages[index]) {
                 const messageKeyToFocus = this.messages[index].key;
-                if (this.$refs.bmInfiniteScroll) {
-                    this.$refs.bmInfiniteScroll.goto(index);
-                }
                 this.$nextTick(() => {
                     const htmlElement = this.$refs["message-" + messageKeyToFocus];
-                    if (htmlElement) {
-                        htmlElement.$el.focus();
+                    if (htmlElement[0] && htmlElement[0].$el) {
+                        htmlElement[0].$el.focus();
                     } else {
                         console.log("not in DOM..");
                     }

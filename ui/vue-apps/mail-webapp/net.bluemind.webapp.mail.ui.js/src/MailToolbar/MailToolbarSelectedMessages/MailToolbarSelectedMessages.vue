@@ -59,7 +59,7 @@ import MailToolbarSelectedMessagesOtherActions from "./MailToolbarSelectedMessag
 import { SHOW_PURGE_MODAL } from "../../VueBusEventTypes";
 
 export default {
-    name: "MailToolbarConsultMessage",
+    name: "MailToolbarSelectedMessages",
     components: {
         BmButton,
         BmIcon,
