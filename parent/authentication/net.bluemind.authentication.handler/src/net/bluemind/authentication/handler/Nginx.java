@@ -61,13 +61,15 @@ public final class Nginx implements Handler<HttpServerRequest>, NeedVertxExecuto
 		public final String backendPort;
 		public final String protocol;
 		public final String password;
+		public final String user;
 		public final String latd;
 		public final long time;
 
-		private QueryParameters(String clientIp, String protocol, String latd, String password, String backendPort,
-				long time) {
+		private QueryParameters(String clientIp, String protocol, String user, String latd, String password,
+				String backendPort, long time) {
 			this.clientIp = clientIp;
 			this.protocol = protocol;
+			this.user = user;
 			this.latd = latd;
 			this.password = password;
 			this.backendPort = backendPort;
@@ -79,18 +81,19 @@ public final class Nginx implements Handler<HttpServerRequest>, NeedVertxExecuto
 			String backendPort = req.headers().get("X-Auth-Port");
 			String protocol = req.headers().get("Auth-Protocol");
 
-			String latd = req.headers().get("Auth-User");
-			if (latd == null || "".equals(latd)) {
+			String user = req.headers().get("Auth-User");
+			if (user == null || "".equals(user)) {
 				throw new InvalidParameterException("null or empty login");
 			}
 
-			latd = decode(latd).toLowerCase();
-			latd = (!"admin0".equals(latd) && defaultDomain != null && !latd.contains("@")) ? latd + "@" + defaultDomain
-					: latd;
+			user = decode(user).toLowerCase();
+			String latd = (!"admin0".equals(user) && defaultDomain != null && !user.contains("@"))
+					? user + "@" + defaultDomain
+					: user;
 
 			String password = decode(req.headers().get("Auth-Pass"));
 
-			return new QueryParameters(clientIp, protocol, latd, password, backendPort, time);
+			return new QueryParameters(clientIp, protocol, user, latd, password, backendPort, time);
 		}
 
 	}
@@ -210,7 +213,8 @@ public final class Nginx implements Handler<HttpServerRequest>, NeedVertxExecuto
 		respHeaders.add("Auth-Server", backendSrv);
 		respHeaders.add("Auth-Port", qp.backendPort);
 
-		if (!qp.latd.equals(backendLatd)) {
+		// Support for login without @domain.tld and alias
+		if (!qp.user.equals(backendLatd) || !qp.latd.equals(backendLatd)) {
 			respHeaders.add("Auth-User", backendLatd);
 		}
 	}
