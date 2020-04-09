@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
@@ -93,9 +94,9 @@ import net.bluemind.user.api.User;
 import net.fortuna.ical4j.model.property.Method;
 
 /**
- * Send an email to attendees {@link VEvent.Attendee} when a {@link VEvent} is
- * created, updated or deleted in the future. No email if {@link VEvent} occurs
- * in the past. An ICS is attached if created or updated.
+ * Send an email to attendees {@link ICalendarElement.Attendee} when a
+ * {@link VEvent} is created, updated or deleted in the future. No email if
+ * {@link VEvent} occurs in the past. An ICS is attached if created or updated.
  *
  */
 public class IcsHook implements ICalendarHook {
@@ -196,8 +197,8 @@ public class IcsHook implements ICalendarHook {
 					oldEvent.attendees = updatedEvent.main.attendees;
 				}
 			}
-			List<VEvent.Attendee> oldEventAttendees = oldEvent.attendees;
-			List<VEvent.Attendee> updatedEventAttendees = evt.attendees;
+			List<ICalendarElement.Attendee> oldEventAttendees = oldEvent.attendees;
+			List<ICalendarElement.Attendee> updatedEventAttendees = evt.attendees;
 
 			handleAddedAttendees(message, updatedEvent, userAttendingToSeries, evt, oldEventAttendees,
 					updatedEventAttendees);
@@ -218,9 +219,11 @@ public class IcsHook implements ICalendarHook {
 	}
 
 	private void handleUpdatedAttendees(VEventMessage message, Set<Attendee> userAttendingToSeries, VEvent evt,
-			VEvent oldEvent, List<VEvent.Attendee> oldEventAttendees, List<VEvent.Attendee> updatedEventAttendees) {
+			VEvent oldEvent, List<ICalendarElement.Attendee> oldEventAttendees,
+			List<ICalendarElement.Attendee> updatedEventAttendees) {
 		// Update invitation to other attendees
-		List<VEvent.Attendee> updatedAttendees = VEvent.same(updatedEventAttendees, oldEventAttendees);
+		List<ICalendarElement.Attendee> updatedAttendees = ICalendarElement.same(updatedEventAttendees,
+				oldEventAttendees);
 		if (!updatedAttendees.isEmpty() && VEventUtil.eventChanged(oldEvent, evt)) {
 			updatedAttendees = updatedAttendees.stream().filter(a -> !userAttendingToSeries.contains(a))
 					.collect(Collectors.toList());
@@ -234,14 +237,14 @@ public class IcsHook implements ICalendarHook {
 	}
 
 	private void handleDeletedAttendees(VEventMessage message, Set<Attendee> userDeletedFromSeries, VEvent evt,
-			List<VEvent.Attendee> oldEventAttendees, List<VEvent.Attendee> updatedEventAttendees) {
+			List<ICalendarElement.Attendee> oldEventAttendees, List<ICalendarElement.Attendee> updatedEventAttendees) {
 		// Cancel invitation to removed attendees
-		List<VEvent.Attendee> deletedAttendees = VEvent.diff(oldEventAttendees, updatedEventAttendees);
+		List<ICalendarElement.Attendee> deletedAttendees = ICalendarElement.diff(oldEventAttendees,
+				updatedEventAttendees);
 
 		if (!deletedAttendees.isEmpty()) {
-			deletedAttendees = deletedAttendees.stream().filter(a -> {
-				return !userDeletedFromSeries.contains(a);
-			}).collect(Collectors.toList());
+			deletedAttendees = deletedAttendees.stream().filter(a -> !userDeletedFromSeries.contains(a))
+					.collect(Collectors.toList());
 
 			if (!evt.exception()) {
 				userDeletedFromSeries.addAll(deletedAttendees);
@@ -251,10 +254,11 @@ public class IcsHook implements ICalendarHook {
 	}
 
 	private void handleAddedAttendees(VEventMessage message, VEventSeries updatedEvent,
-			Set<Attendee> userAttendingToSeries, VEvent evt, List<VEvent.Attendee> oldEventAttendees,
-			List<VEvent.Attendee> updatedEventAttendees) {
+			Set<Attendee> userAttendingToSeries, VEvent evt, List<ICalendarElement.Attendee> oldEventAttendees,
+			List<ICalendarElement.Attendee> updatedEventAttendees) {
 		// Send invitation to added attendees
-		Set<VEvent.Attendee> addedAttendees = new HashSet<>(VEvent.diff(updatedEventAttendees, oldEventAttendees));
+		Set<ICalendarElement.Attendee> addedAttendees = new HashSet<>(
+				ICalendarElement.diff(updatedEventAttendees, oldEventAttendees));
 		if (!addedAttendees.isEmpty()) {
 			if (!evt.exception()) {
 				VEventMessage copy = message.copy();
@@ -408,7 +412,7 @@ public class IcsHook implements ICalendarHook {
 
 		boolean inPast = occursInThePast(event);
 
-		for (VEvent.Attendee attendee : attendees) {
+		for (ICalendarElement.Attendee attendee : attendees) {
 			sendNotification(message, event, ics, md.subject, md.body, Method.REQUEST, md.organizer, md.from,
 					md.senderSettings, md.data, inPast, attendee);
 		}
@@ -417,7 +421,7 @@ public class IcsHook implements ICalendarHook {
 
 	private void sendNotification(VEventMessage message, VEvent event, String ics, String subject, String body,
 			Method method, Organizer organizer, Mailbox from, Map<String, String> senderSettings,
-			Map<String, Object> data, boolean inPast, VEvent.Attendee attendee) {
+			Map<String, Object> data, boolean inPast, ICalendarElement.Attendee attendee) {
 		if (attendeeIsOrganizer(attendee, organizer)) {
 			return;
 		}
@@ -445,7 +449,7 @@ public class IcsHook implements ICalendarHook {
 		}
 
 		MailData md = MailData.cancel(message, series.main);
-		for (VEvent.Attendee attendee : series.main.attendees) {
+		for (ICalendarElement.Attendee attendee : series.main.attendees) {
 			if (attendeeIsOrganizer(attendee, md.organizer) || !attendsToSeries(series, attendee)) {
 				continue;
 			}
@@ -488,7 +492,7 @@ public class IcsHook implements ICalendarHook {
 
 	private void sendCancelToAttendees(VEventMessage message, VEvent evt, List<Attendee> deletedAttendees) {
 		MailData md = MailData.cancel(message, evt);
-		for (VEvent.Attendee attendee : deletedAttendees) {
+		for (ICalendarElement.Attendee attendee : deletedAttendees) {
 			Mailbox recipient = SendmailHelper.formatAddress(attendee.commonName, attendee.mailto);
 
 			String ics = getIcsPart(message.vevent.icsUid, Method.CANCEL, evt);
@@ -506,14 +510,13 @@ public class IcsHook implements ICalendarHook {
 	 * @param addedAttendees
 	 * @throws ServerFault
 	 */
-	private void sendUpdateToAttendees(VEventMessage message, VEvent event, List<VEvent.Attendee> attendees)
-			throws ServerFault {
+	private void sendUpdateToAttendees(VEventMessage message, VEvent event, List<ICalendarElement.Attendee> attendees) {
 		MailData md = MailData.update(message, event);
 		boolean inPast = occursInThePast(event);
 		String ics = !event.exception() ? getIcsPart(message.vevent.icsUid, Method.REQUEST, message.vevent, null)
 				: getIcsPart(message.vevent.icsUid, Method.REQUEST, event);
 
-		for (VEvent.Attendee attendee : attendees) {
+		for (ICalendarElement.Attendee attendee : attendees) {
 			if (attendeeIsOrganizer(attendee, md.organizer)) {
 				continue;
 			}
@@ -540,7 +543,7 @@ public class IcsHook implements ICalendarHook {
 	 */
 	private void sendExceptionsToAttendees(VEventMessage message, Set<BmDateTime> exdates) throws ServerFault {
 		MailData md = MailData.exception(message, message.vevent.main);
-		for (VEvent.Attendee attendee : message.vevent.main.attendees) {
+		for (ICalendarElement.Attendee attendee : message.vevent.main.attendees) {
 			attendee.rsvp = false;
 		}
 
@@ -552,10 +555,10 @@ public class IcsHook implements ICalendarHook {
 
 			String ics = getIcsPart(message.vevent.icsUid, Method.CANCEL, occurrence);
 
-			HashMap<String, Object> data = new HashMap<String, Object>();
+			HashMap<String, Object> data = new HashMap<>();
 			data.putAll(new CalendarMailHelper().extractVEventData(occurrence));
 
-			for (VEvent.Attendee attendee : message.vevent.main.attendees) {
+			for (ICalendarElement.Attendee attendee : message.vevent.main.attendees) {
 				if (attendeeIsOrganizer(attendee, md.organizer)) {
 					continue;
 				}
@@ -594,7 +597,7 @@ public class IcsHook implements ICalendarHook {
 
 		Mailbox recipient = SendmailHelper.formatAddress(organizer.commonName, organizer.mailto);
 
-		Map<String, Object> data = new HashMap<String, Object>();
+		Map<String, Object> data = new HashMap<>();
 		data.put("attendee", event.attendee.commonName);
 		data.put("state", CalendarMailHelper.extractPartState(event.attendee.partStatus));
 		data.putAll(new CalendarMailHelper().extractVEventData(event.event));
@@ -665,9 +668,9 @@ public class IcsHook implements ICalendarHook {
 			String subjectTemplate, String template, MessagesResolverProvider messagesResolverProvider, Method method,
 			Mailbox from, Mailbox recipient, String ics, Map<String, Object> data) {
 
-		List<Mailbox> attendeeListTo = new ArrayList<Mailbox>(event.attendees.size());
-		List<Mailbox> attendeeListCc = new ArrayList<Mailbox>(event.attendees.size());
-		for (VEvent.Attendee attendee : event.attendees) {
+		List<Mailbox> attendeeListTo = new ArrayList<>(event.attendees.size());
+		List<Mailbox> attendeeListCc = new ArrayList<>(event.attendees.size());
+		for (ICalendarElement.Attendee attendee : event.attendees) {
 			if (attendeeIsOrganizer(attendee, event.organizer)) {
 				continue;
 			}
@@ -701,8 +704,8 @@ public class IcsHook implements ICalendarHook {
 					Map<String, Object> old = null != findCorrespondingEvent
 							? new CalendarMailHelper().extractVEventData(findCorrespondingEvent)
 							: new HashMap<>();
-					for (String k : old.keySet()) {
-						data.put("old_" + k, old.get(k));
+					for (Entry<String, Object> e : old.entrySet()) {
+						data.put("old_" + e.getKey(), e.getValue());
 					}
 
 					// Fix highlight new location
@@ -726,8 +729,8 @@ public class IcsHook implements ICalendarHook {
 				if (!event.attachments.isEmpty()) {
 					SystemConf systemConf = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 							.instance(ISystemConfiguration.class).getValues();
-					maxMsgBytes = systemConf.convertedValue(SysConfKeys.message_size_limit.name(),
-							val -> Long.parseLong(val), 10485760L);
+					maxMsgBytes = systemConf.convertedValue(SysConfKeys.message_size_limit.name(), Long::parseLong,
+							10485760L);
 
 				}
 				// attachment size ~= 60% message
@@ -759,8 +762,7 @@ public class IcsHook implements ICalendarHook {
 		}
 	}
 
-	private static Map<String, String> getSenderSettings(VEventMessage message, DirEntry fromDirEntry)
-			throws ServerFault {
+	private static Map<String, String> getSenderSettings(VEventMessage message, DirEntry fromDirEntry) {
 		ServerSideServiceProvider sp = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		IUserSettings userSettingsService = sp.instance(IUserSettings.class, message.container.domainUid);
 		return userSettingsService.get(fromDirEntry.entryUid);
@@ -809,9 +811,7 @@ public class IcsHook implements ICalendarHook {
 		IContainers ic = sp.instance(IContainers.class);
 		ContainerDescriptor container = ic.get(message.container.uid);
 
-		DirEntry dirEntry = sp.instance(IDirectory.class, message.container.domainUid).findByEntryUid(container.owner);
-
-		return dirEntry;
+		return sp.instance(IDirectory.class, message.container.domainUid).findByEntryUid(container.owner);
 	}
 
 	private Optional<EventAttendeeTuple> getMatchingAttendeeForEvent(VEvent vEvent, DirEntry user) {
@@ -835,13 +835,13 @@ public class IcsHook implements ICalendarHook {
 	private Set<BmDateTime> getNewExceptionList(VEvent oldEvent, VEvent updatedEvent) {
 		Set<BmDateTime> oldListException = Collections.emptySet();
 		if (oldEvent != null && oldEvent.exdate != null && !oldEvent.exdate.isEmpty()) {
-			oldListException = new HashSet<BmDateTime>(oldEvent.exdate);
+			oldListException = new HashSet<>(oldEvent.exdate);
 		}
 
 		Set<BmDateTime> newListException = Collections.emptySet();
 
 		if (updatedEvent.exdate != null && !updatedEvent.exdate.isEmpty()) {
-			newListException = new HashSet<BmDateTime>(updatedEvent.exdate);
+			newListException = new HashSet<>(updatedEvent.exdate);
 		}
 
 		return new HashSet<>(Sets.difference(newListException, oldListException));
@@ -944,7 +944,7 @@ public class IcsHook implements ICalendarHook {
 	 * @param organizer
 	 * @return
 	 */
-	private boolean attendeeIsOrganizer(VEvent.Attendee attendee, VEvent.Organizer organizer) {
+	private boolean attendeeIsOrganizer(ICalendarElement.Attendee attendee, ICalendarElement.Organizer organizer) {
 		if (organizer == null) {
 			return false;
 		}
@@ -993,8 +993,6 @@ public class IcsHook implements ICalendarHook {
 				.subject(subject) //
 				.ics(ics) //
 				.attachments(attachments);
-
-		logger.info("CalMail for attachments : {}", mailBuilder.build().attachments.get().size());
 
 		if (attendeeListCc != null) {
 			mailBuilder.cc(new MailboxList(attendeeListCc, true));
@@ -1047,7 +1045,7 @@ public class IcsHook implements ICalendarHook {
 		return false;
 	}
 
-	private String getIcsPart(String uid, Method method, VEvent vevent) throws ServerFault {
+	private String getIcsPart(String uid, Method method, VEvent vevent) {
 		return VEventServiceHelper.convertToIcs(uid, method, vevent);
 	}
 
@@ -1056,8 +1054,7 @@ public class IcsHook implements ICalendarHook {
 			throw new ServerFault("Fail to export ICS for event: " + summary);
 		}
 
-		BodyPart body = new CalendarMailHelper().createTextPart(ics);
-		return body;
+		return new CalendarMailHelper().createTextPart(ics);
 	}
 
 	private boolean isDefaultContainer(VEventMessage message) {
@@ -1071,7 +1068,7 @@ public class IcsHook implements ICalendarHook {
 	 * @return
 	 * @throws ServerFault
 	 */
-	private boolean isMasterVersion(VEventSeries message, Container container) throws ServerFault {
+	private boolean isMasterVersion(VEventSeries message, Container container) {
 		return message.master(IDirEntryPath.path(container.domainUid, container.owner, Kind.USER));
 	}
 
@@ -1160,7 +1157,7 @@ public class IcsHook implements ICalendarHook {
 					.getEntry(organizer.dir.substring("bm://".length()));
 			Map<String, String> senderSettings = getSenderSettings(message, fromDirEntry);
 
-			HashMap<String, Object> data = new HashMap<String, Object>();
+			HashMap<String, Object> data = new HashMap<>();
 			data.putAll(new CalendarMailHelper().extractVEventData(event));
 
 			return new MailData(organizer, subject, body, from, data, senderSettings);

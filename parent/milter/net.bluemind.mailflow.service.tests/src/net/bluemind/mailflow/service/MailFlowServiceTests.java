@@ -205,13 +205,13 @@ public class MailFlowServiceTests {
 
 		String sanitized = rulesService.getAssignment(uid).actionConfiguration.get("html");
 		System.err.println(sampleHtmlCleaned());
+		System.err.println(sanitized);
 		assertEquals(sampleHtmlCleaned(), sanitized);
 	}
 
 	private String sampleHtmlCleaned() {
-		return "<style> p { font-size: 2em; }</style>\n<a href=\"http://test.fr\"></a>\n" + "<a>link</a>\n"
-				+ "<img src=\"" + sampleBase64Img() + "\">\n<span>some content</span>\n"
-				+ "<img style=\"height: 40px;\">";
+		return "<style> p { font-size: 2em; }</style><a href=\"http://test.fr\"></a>" + "<a>link</a>\n" + "<img src=\""
+				+ sampleBase64Img() + "\"><span>some content</span>\n" + "<img style=\"height: 40px;\">";
 	}
 
 	private String sampleHtml() {
@@ -356,9 +356,7 @@ public class MailFlowServiceTests {
 	}
 
 	private IMailflowRules getService() {
-		IMailflowRules rulesService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IMailflowRules.class, domainUid);
-		return rulesService;
+		return ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IMailflowRules.class, domainUid);
 	}
 
 }

@@ -121,7 +121,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 	static ZoneId utcTz = ZoneId.of("UTC");
 
 	// ICS -> BM
-	public ItemValue<T> parseIcs(T iCalendarElement, CalendarComponent cc, String globalTZ,
+	public ItemValue<T> parseIcs(T iCalendarElement, CalendarComponent cc, Optional<String> globalTZ,
 			Optional<CalendarOwner> owner) {
 
 		// UID
@@ -528,7 +528,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 	 * @param exDatePropList
 	 * @return
 	 */
-	private static Set<BmDateTime> parseIcsExDate(PropertyList exDatePropList, String globalTZ) {
+	private static Set<BmDateTime> parseIcsExDate(PropertyList exDatePropList, Optional<String> globalTZ) {
 
 		if (exDatePropList != null && exDatePropList.size() > 0) {
 			Set<BmDateTime> ret = new HashSet<>();
@@ -538,7 +538,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 				DateList dateList = exDate.getDates();
 				for (Object o : dateList) {
 					String oTimeZone = null != exDate.getTimeZone() ? exDate.getTimeZone().getID() : null;
-					oTimeZone = null != oTimeZone ? oTimeZone : globalTZ;
+					oTimeZone = oTimeZone != null ? oTimeZone : globalTZ.orElse(null);
 					ret.add(IcalConverter.convertToDateTime((Date) o, oTimeZone));
 				}
 
@@ -553,7 +553,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 	 * @param rDatePropList
 	 * @return
 	 */
-	private static Set<BmDateTime> parseIcsRDate(PropertyList rDatePropList, String globalTZ) {
+	private static Set<BmDateTime> parseIcsRDate(PropertyList rDatePropList, Optional<String> globalTZ) {
 
 		if (rDatePropList != null && rDatePropList.size() > 0) {
 			Set<BmDateTime> ret = new HashSet<>();
@@ -563,7 +563,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 				DateList dateList = rDate.getDates();
 				for (Object o : dateList) {
 					String oTimeZone = null != rDate.getTimeZone() ? rDate.getTimeZone().getID() : null;
-					oTimeZone = null != oTimeZone ? oTimeZone : globalTZ;
+					oTimeZone = null != oTimeZone ? oTimeZone : globalTZ.isPresent() ? globalTZ.get() : null;
 					ret.add(IcalConverter.convertToDateTime((Date) o, oTimeZone));
 				}
 
@@ -797,7 +797,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 	 * @param startDate
 	 * @return
 	 */
-	protected static BmDateTime parseIcsDate(DateProperty date, String globalTZ) {
+	protected static BmDateTime parseIcsDate(DateProperty date, Optional<String> globalTZ) {
 		return IcalConverter.convertToDateTime(date, globalTZ);
 	}
 

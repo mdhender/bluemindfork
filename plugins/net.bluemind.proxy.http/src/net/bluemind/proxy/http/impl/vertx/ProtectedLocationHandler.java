@@ -18,8 +18,6 @@
  */
 package net.bluemind.proxy.http.impl.vertx;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 
@@ -85,25 +83,7 @@ public final class ProtectedLocationHandler implements Handler<HttpServerRequest
 
 		AuthRequirements reqs = authenticated(event);
 		if (!reqs.authNeeded && reqs.sessionId != null) {
-			if (event.path().equals("/login/index.html") || event.path().equals("/login/native")) {
-				String redirectTo = "/";
-				String askedUri = event.params().get("askedUri");
-				if (askedUri != null) {
-					try {
-						new URI(askedUri);
-					} catch (URISyntaxException e1) {
-						logger.warn("asked uri is not un uri : {} ", e1);
-						askedUri = "/";
-					}
-					redirectTo = askedUri;
-				}
-
-				HttpServerResponse resp = event.response();
-				resp.headers().add("Location", redirectTo);
-				resp.setStatusCode(302);
-				resp.end();
-
-			} else if (event.path().endsWith("bluemind_sso_logout")) {
+			if (event.path().endsWith("bluemind_sso_logout")) {
 				authProv.logout(reqs.sessionId).thenAccept(action -> {
 					ss.purgeSession(reqs.sessionId);
 					CookieHelper.purgeSessionCookie(event.response().headers());
@@ -117,9 +97,16 @@ public final class ProtectedLocationHandler implements Handler<HttpServerRequest
 						reqs.protocol.logout(event);
 					}
 				});
-			} else {
-				handleAuthenticated(event, reqs);
+				return;
 			}
+
+			if (fl.isAuthenticator() || authProv.isPasswordExpired(reqs.sessionId)) {
+				reqs.protocol.proceed(reqs, ss, authProv, event);
+				return;
+			}
+
+			// Handle authenticated requests
+			handleAuthenticated(event, reqs);
 		} else if (!reqs.authNeeded && reqs.sessionId == null) {
 			UserReq ur = new UserReq(reqs.sessionId, event, null, ss);
 			proxy.handle(ur);

@@ -95,4 +95,15 @@ public class NoneAuthProviderFactory implements IAuthProviderFactory, IAuthProvi
 	public CompletableFuture<Void> logout(String sessionId) {
 		return CompletableFuture.completedFuture(null);
 	}
+
+	@Override
+	public boolean isPasswordExpired(String sessionId) {
+		return false;
+	}
+
+	@Override
+	public CompletableFuture<Void> updatePassword(String sessionId, String currentPassword, String newPassword,
+			List<String> forwadedFor) {
+		return CompletableFuture.completedFuture(null);
+	}
 }

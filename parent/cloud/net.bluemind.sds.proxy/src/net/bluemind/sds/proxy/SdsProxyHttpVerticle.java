@@ -39,6 +39,7 @@ import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.lib.vertx.RouteMatcher;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.sds.proxy.dto.ConfigureResponse;
@@ -82,8 +83,13 @@ public class SdsProxyHttpVerticle extends AbstractVerticle {
 		router.delete("/sds", this::delete);
 		router.put("/sds", this::put);
 		router.get("/sds", this::get);
+		router.post("/sds/mget", this::mget);
 		router.post("/configuration", this::configure);
 		router.post("/mailbox", this::validateMailbox);
+
+		router.put("/sds/mapping", this::putMapping);
+		router.delete("/sds/mapping", this::delMapping);
+		router.post("/sds/mapping", this::queryMapping);
 
 		srv.requestHandler(router).listen(8091, result -> {
 			if (result.succeeded()) {
@@ -91,6 +97,49 @@ public class SdsProxyHttpVerticle extends AbstractVerticle {
 			} else {
 				startedResult.fail(result.cause());
 			}
+		});
+	}
+
+	private void putMapping(HttpServerRequest r) {
+		HttpServerRequest request = Requests.wrap(r);
+		Requests.tag(request, "method", SdsAddresses.MAP);
+
+		request.bodyHandler(buf -> {
+			logger.debug("MAP {}", buf);
+			VertxPlatform.eventBus().request(SdsAddresses.MAP, new JsonObject(buf), ar -> {
+				if (ar.succeeded()) {
+					request.response().end();
+				} else {
+					logger.error("mapping error", ar.cause());
+					request.response().setStatusCode(500).end();
+				}
+			});
+		});
+	}
+
+	private void delMapping(HttpServerRequest r) {
+		HttpServerRequest request = Requests.wrap(r);
+		request.bodyHandler(buf -> {
+			JsonObject reqJs = new JsonObject(buf);
+			logger.info("UNMAP {}", reqJs.encodePrettily());
+			request.response().end();
+		});
+	}
+
+	private void queryMapping(HttpServerRequest r) {
+		HttpServerRequest request = Requests.wrap(r);
+		Requests.tag(request, "method", SdsAddresses.QUERY);
+		request.bodyHandler(buf -> {
+			logger.debug("QUERY {}", buf);
+			VertxPlatform.eventBus().request(SdsAddresses.QUERY, new JsonObject(buf),
+					(AsyncResult<Message<JsonObject>> ar) -> {
+						if (ar.succeeded()) {
+							request.response().end(ar.result().body().encode());
+						} else {
+							logger.error("mapping query error", ar.cause());
+							request.response().setStatusCode(500).end();
+						}
+					});
 		});
 	}
 
@@ -113,6 +162,10 @@ public class SdsProxyHttpVerticle extends AbstractVerticle {
 
 	private void get(HttpServerRequest req) {
 		sendBody(req, SdsAddresses.GET, SdsResponse.class, (resp, http) -> http.setStatusCode(200).end());
+	}
+
+	private void mget(HttpServerRequest req) {
+		sendBody(req, SdsAddresses.MGET, SdsResponse.class, (resp, http) -> http.setStatusCode(200).end());
 	}
 
 	private void validateMailbox(HttpServerRequest request) {
@@ -142,10 +195,11 @@ public class SdsProxyHttpVerticle extends AbstractVerticle {
 			BiConsumer<T, HttpServerResponse> onSuccess) {
 		long start = registry.clock().monotonicTime();
 		HttpServerRequest req = Requests.wrap(httpReq);
+		Requests.tag(req, "method", address);
 
 		req.bodyHandler(payload -> {
 			JsonObject json = new JsonObject(payload.toString().trim().isEmpty() ? "{}" : payload.toString());
-			vertx.eventBus().request(address, json, new DeliveryOptions().setSendTimeout(3000),
+			vertx.eventBus().request(address, json, new DeliveryOptions().setSendTimeout(20000),
 					(AsyncResult<Message<JsonObject>> res) -> {
 						Id timerId = idFactory.name("requestTime")//
 								.withTag("method", address)//
@@ -156,8 +210,8 @@ public class SdsProxyHttpVerticle extends AbstractVerticle {
 							String jsonString = res.result().body().encode();
 							try {
 								T objectResp = JsMapper.get().readValue(jsonString, respClass);
+								objectResp.tags().forEach((k, v) -> Requests.tag(req, k, v));
 								if (objectResp.succeeded()) {
-									Requests.tag(req, "method", address);
 									onSuccess.accept(objectResp, req.response());
 								} else {
 									req.response().setStatusMessage(objectResp.error.message).setStatusCode(500).end();

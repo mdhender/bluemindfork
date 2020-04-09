@@ -19,6 +19,7 @@ package net.bluemind.sds.proxy.dto;
 
 public class TransferRequest extends SdsRequest {
 
+	public String guid;
 	public String filename;
 
 }

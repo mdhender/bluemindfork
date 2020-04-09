@@ -33,11 +33,11 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Strings;
 
 import io.vertx.core.eventbus.EventBus;
-import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventChanges;
 import net.bluemind.calendar.api.VEventQuery;
 import net.bluemind.calendar.api.VEventSeries;
+import net.bluemind.calendar.api.internal.IInternalCalendar;
 import net.bluemind.calendar.auditlog.CalendarAuditor;
 import net.bluemind.calendar.persistence.VEventIndexStore;
 import net.bluemind.calendar.persistence.VEventSeriesStore;
@@ -78,7 +78,7 @@ import net.bluemind.icalendar.api.ICalendarElement.Classification;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 import net.bluemind.lib.vertx.VertxPlatform;
 
-public class CalendarService implements ICalendar {
+public class CalendarService implements IInternalCalendar {
 
 	private static final Logger logger = LoggerFactory.getLogger(CalendarService.class);
 
@@ -171,9 +171,7 @@ public class CalendarService implements ICalendar {
 
 		long version = doCreate(uid, internalId, event, sendNotifications);
 
-		// FIXME we should not call refresh
-		indexStore.refresh();
-		calendarEventProducer.changed();
+		emitNotification();
 
 		return version;
 	}
@@ -238,9 +236,7 @@ public class CalendarService implements ICalendar {
 
 		ItemVersion upd = doUpdate(null, id, event, false);
 
-		// FIXME we should not call refresh
-		indexStore.refresh();
-		calendarEventProducer.changed();
+		emitNotification();
 		return Ack.create(upd.version);
 	}
 
@@ -257,10 +253,7 @@ public class CalendarService implements ICalendar {
 
 		doUpdate(uid, null, event, sendNotifications);
 
-		// FIXME we should not call refresh
-		indexStore.refresh();
-		calendarEventProducer.changed();
-
+		emitNotification();
 	}
 
 	private ItemVersion doUpdate(String optUid, Long itemId, VEventSeries event, Boolean sendNotifications)
@@ -370,10 +363,7 @@ public class CalendarService implements ICalendar {
 
 		doDelete(null, id, false);
 
-		// FIXME we should not call refresh
-		indexStore.refresh();
-
-		calendarEventProducer.changed();
+		emitNotification();
 	}
 
 	@Override
@@ -382,10 +372,7 @@ public class CalendarService implements ICalendar {
 
 		doDelete(uid, null, sendNotifications);
 
-		// FIXME we should not call refresh
-		indexStore.refresh();
-
-		calendarEventProducer.changed();
+		emitNotification();
 	}
 
 	private void doDelete(String optUid, Long itemId, Boolean sendNotifications) throws ServerFault {
@@ -423,7 +410,7 @@ public class CalendarService implements ICalendar {
 	}
 
 	@Override
-	public ContainerUpdatesResult updates(VEventChanges changes) throws ServerFault {
+	public ContainerUpdatesResult updates(VEventChanges changes, boolean notify) {
 		rbacManager.check(Verb.Write.name());
 
 		ContainerUpdatesResult ret = new ContainerUpdatesResult();
@@ -492,14 +479,18 @@ public class CalendarService implements ICalendar {
 			}
 
 		} finally {
-			if (changed) {
-				indexStore.refresh();
-				calendarEventProducer.changed();
+			if (changed && notify) {
+				emitNotification();
 			}
 		}
 		ret.version = storeService.getVersion();
 		return ret;
 
+	}
+
+	@Override
+	public ContainerUpdatesResult updates(VEventChanges changes) throws ServerFault {
+		return updates(changes, true);
 	}
 
 	@Override
@@ -690,10 +681,7 @@ public class CalendarService implements ICalendar {
 
 		ids.forEach(id -> doDelete(null, id, false));
 
-		// FIXME we should not call refresh
-		indexStore.refresh();
-
-		calendarEventProducer.changed();
+		emitNotification();
 	}
 
 	@Override
@@ -702,6 +690,12 @@ public class CalendarService implements ICalendar {
 				DataSourceRouter.get(context, container.uid), container);
 		final ContainerSyncStatus containerSyncStatus = containerSyncStore.getSyncStatus();
 		return containerSyncStatus != null ? containerSyncStatus.errors < SYNC_ERRORS_LIMIT : true;
+	}
+
+	@Override
+	public void emitNotification() {
+		indexStore.refresh();
+		calendarEventProducer.changed();
 	}
 
 }

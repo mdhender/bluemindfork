@@ -21,8 +21,6 @@ package net.bluemind.ui.settings.client.forms.apikeys;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.resources.client.ClientBundle;
@@ -44,11 +42,8 @@ import net.bluemind.authentication.api.IAPIKeysAsync;
 import net.bluemind.authentication.api.gwt.endpoint.APIKeysGwtEndpoint;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.gwtconsoleapp.base.editor.ScreenElement;
-import net.bluemind.gwtconsoleapp.base.editor.WidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.CompositeGwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
-import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
-import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.notification.Notification;
 import net.bluemind.ui.common.client.forms.Ajax;
 import net.bluemind.ui.common.client.icon.Trash;
@@ -109,12 +104,7 @@ public class AKPanel extends CompositeGwtWidgetElement {
 
 		table.setStyleName(s.container());
 
-		createBtn.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				genApiKey();
-			}
-		});
+		createBtn.addClickHandler(event -> genApiKey());
 
 		dn.getElement().setAttribute("placeholder", AKConstants.INST.dn());
 
@@ -214,14 +204,7 @@ public class AKPanel extends CompositeGwtWidgetElement {
 	}-*/;
 
 	public static void registerType() {
-		GwtWidgetElement.register("bm.settings.ApiKeysEditor",
-				new IGwtDelegateFactory<IGwtWidgetElement, WidgetElement>() {
-
-					@Override
-					public IGwtWidgetElement create(WidgetElement el) {
-						return new AKPanel();
-					}
-				});
+		GwtWidgetElement.register("bm.settings.ApiKeysEditor", widgetElement -> new AKPanel());
 	}
 
 }

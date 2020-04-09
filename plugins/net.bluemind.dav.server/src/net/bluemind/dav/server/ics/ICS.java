@@ -22,17 +22,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.lib.ical4j.data.CalendarBuilder;
-import net.bluemind.lib.ical4j.model.PropertyFactoryRegistry;
-import net.fortuna.ical4j.data.CalendarParser;
-import net.fortuna.ical4j.data.CalendarParserFactory;
 import net.fortuna.ical4j.data.UnfoldingReader;
 import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.ParameterFactoryRegistry;
+import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.TimeZone;
 import net.fortuna.ical4j.model.TimeZoneRegistry;
 import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
@@ -66,19 +64,18 @@ public class ICS {
 			logger.warn("No custom tz def in {}", file);
 			return getTimeZone(id).getVTimeZone();
 		} else {
-			CalendarParser parser = CalendarParserFactory.getInstance().createParser();
-			PropertyFactoryRegistry propertyFactory = new PropertyFactoryRegistry();
-			ParameterFactoryRegistry parameterFactory = new ParameterFactoryRegistry();
-			CalendarBuilder builder = new CalendarBuilder(parser, propertyFactory, parameterFactory, tzRegistry);
+			CalendarBuilder builder = new CalendarBuilder();
 
-			Reader icsReader = new InputStreamReader(in);
-			UnfoldingReader ur = new UnfoldingReader(icsReader, true);
-			try {
+			try (Reader icsReader = new InputStreamReader(in);
+					UnfoldingReader ur = new UnfoldingReader(icsReader, true)) {
 				logger.info("Parsing custom tz infos {}", file);
-				Calendar calendar = builder.build(ur);
-				VTimeZone vtz = (VTimeZone) calendar.getComponent("VTIMEZONE");
-				osxVtz.put(id, vtz);
-				return vtz;
+				BiConsumer<Calendar, Component> consumer = (calendar, component) -> {
+					VTimeZone vtz = (VTimeZone) calendar.getComponent("VTIMEZONE");
+					osxVtz.put(id, vtz);
+				};
+				builder.build(ur, consumer);
+
+				return osxVtz.get(id);
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 				return getTimeZone(id).getVTimeZone();

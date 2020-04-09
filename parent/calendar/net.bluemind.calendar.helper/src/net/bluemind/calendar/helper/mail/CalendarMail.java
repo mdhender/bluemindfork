@@ -65,7 +65,7 @@ public class CalendarMail {
 		this.method = method;
 	}
 
-	public Message getMessage() throws ServerFault {
+	public Message getMessage() {
 		MessageBuilder builder = createBuilder();
 
 		MessageImpl m = new MessageImpl();
@@ -74,10 +74,9 @@ public class CalendarMail {
 		m.setSender(sender);
 		m.setFrom(from);
 		m.setTo(to);
-		cc.ifPresent(c -> m.setCc(c));
+		cc.ifPresent(m::setCc);
 
 		Header h = builder.newHeader();
-		h = builder.newHeader();
 		h.setField(Fields.contentType("text/html; charset=UTF-8;"));
 		h.setField(Fields.contentTransferEncoding("quoted-printable"));
 		html.setHeader(h);

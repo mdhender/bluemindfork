@@ -112,6 +112,11 @@ public final class AuthenticatedHandler implements Handler<UserReq> {
 		}
 		final HttpServerResponse clientResp = clientReq.response();
 
+		if (logger.isDebugEnabled()) {
+			logger.debug("Proxify request URI {} to http://{}:{}{}", clientReq.absoluteURI(), fl.getHost(),
+					fl.getPort(), clientReq.uri());
+		}
+
 		RequestOptions reqOpts = new RequestOptions();
 		reqOpts.setHost(fl.getHost()).setPort(fl.getPort());
 		reqOpts.setURI(clientReq.uri());

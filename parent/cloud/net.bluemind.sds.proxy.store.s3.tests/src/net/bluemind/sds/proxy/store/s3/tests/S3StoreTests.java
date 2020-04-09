@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -39,7 +40,10 @@ import net.bluemind.dockerclient.DockerEnv;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.sds.proxy.dto.DeleteRequest;
 import net.bluemind.sds.proxy.dto.ExistRequest;
+import net.bluemind.sds.proxy.dto.ExistResponse;
 import net.bluemind.sds.proxy.dto.GetRequest;
+import net.bluemind.sds.proxy.dto.MgetRequest;
+import net.bluemind.sds.proxy.dto.MgetRequest.Transfer;
 import net.bluemind.sds.proxy.dto.PutRequest;
 import net.bluemind.sds.proxy.dto.SdsResponse;
 import net.bluemind.sds.proxy.store.ISdsBackingStore;
@@ -74,7 +78,8 @@ public class S3StoreTests {
 		ExistRequest er = new ExistRequest();
 		er.mailbox = "titi";
 		er.guid = UUID.randomUUID().toString();
-		assertFalse(store.exists(er).exists);
+		ExistResponse existsResp = store.exists(er).join();
+		assertFalse(existsResp.exists);
 	}
 
 	@Test
@@ -85,7 +90,8 @@ public class S3StoreTests {
 		ExistRequest er = new ExistRequest();
 		er.mailbox = "titi";
 		er.guid = UUID.randomUUID().toString();
-		assertFalse(store.exists(er).exists);
+		ExistResponse existsResp = store.exists(er).join();
+		assertFalse(existsResp.exists);
 
 		PutRequest pr = new PutRequest();
 		pr.mailbox = er.mailbox;
@@ -93,10 +99,10 @@ public class S3StoreTests {
 
 		Path path = tempContent();
 		pr.filename = path.toFile().getAbsolutePath();
-		SdsResponse resp = store.upload(pr);
+		SdsResponse resp = store.upload(pr).join();
 		assertNotNull(resp);
 
-		assertTrue(store.exists(er).exists);
+		assertTrue(store.exists(er).join().exists);
 	}
 
 	@Test
@@ -109,19 +115,27 @@ public class S3StoreTests {
 		pr.mailbox = "tata";
 		pr.guid = UUID.randomUUID().toString();
 		pr.filename = tempContent().toFile().getAbsolutePath();
-		SdsResponse resp = store.upload(pr);
+		SdsResponse resp = store.upload(pr).join();
 		assertNull(resp.error);
+		System.err.println("put ok");
+
+		ExistRequest er = new ExistRequest();
+		er.guid = pr.guid;
+		er.mailbox = pr.mailbox;
+		assertTrue(store.exists(er).join().exists);
+		System.err.println("exists !");
 
 		DeleteRequest dr = new DeleteRequest();
 		dr.guid = pr.guid;
 		dr.mailbox = pr.mailbox;
+		System.err.println("deleting...");
+		assertNull(store.delete(dr).join().error);
 
-		assertNull(store.delete(dr).error);
-
-		ExistRequest er = new ExistRequest();
-		er.guid = dr.guid;
-		er.mailbox = dr.mailbox;
-		assertFalse(store.exists(er).exists);
+		ExistRequest er2 = new ExistRequest();
+		er2.guid = dr.guid;
+		er2.mailbox = dr.mailbox;
+		assertFalse(store.exists(er2).join().exists);
+		System.err.println("does not exist, ok.");
 
 	}
 
@@ -136,18 +150,53 @@ public class S3StoreTests {
 		put.guid = UUID.randomUUID().toString();
 		Path path = tempContent();
 		put.filename = path.toFile().getAbsolutePath();
-		assertNull(store.upload(put).error);
+		assertNull(store.upload(put).join().error);
 
 		GetRequest get = new GetRequest();
 		get.mailbox = put.mailbox;
 		get.guid = put.guid;
 		get.filename = put.filename + ".download";
-		SdsResponse dlResp = store.download(get);
+		SdsResponse dlResp = store.download(get).join();
 		assertNotNull(dlResp);
 		assertNull(dlResp.error);
 		File downloaded = new File(get.filename);
 		assertTrue(downloaded.exists());
 		assertEquals(LENGTH, downloaded.length());
+	}
+
+	@Test
+	public void getObjects() throws IOException {
+		S3Configuration config = S3Configuration.withEndpointAndBucket("http://" + s3Ip + ":8000",
+				"junit-" + System.currentTimeMillis());
+		ISdsBackingStore store = new S3BackingStoreFactory().create(VertxPlatform.getVertx(), config.asJson());
+
+		PutRequest put = new PutRequest();
+		put.mailbox = "titi";
+		put.guid = UUID.randomUUID().toString();
+		Path path = tempContent();
+		put.filename = path.toFile().getAbsolutePath();
+		assertNull(store.upload(put).join().error);
+
+		PutRequest put2 = new PutRequest();
+		put2.mailbox = "titi";
+		put2.guid = UUID.randomUUID().toString();
+		Path path2 = tempContent();
+		put2.filename = path2.toFile().getAbsolutePath();
+		assertNull(store.upload(put2).join().error);
+
+		MgetRequest get = new MgetRequest();
+		get.mailbox = put2.mailbox;
+		get.transfers = Arrays.asList(Transfer.of(put.guid, put.filename + ".dl"),
+				Transfer.of(put2.guid, put2.filename + ".dl"));
+		SdsResponse dlResp = store.downloads(get).join();
+		assertNotNull(dlResp);
+		assertNull(dlResp.error);
+		File downloaded = new File(put.filename + ".dl");
+		assertTrue(downloaded.exists());
+		assertEquals(LENGTH, downloaded.length());
+		File downloaded2 = new File(put2.filename + ".dl");
+		assertTrue(downloaded2.exists());
+		assertEquals(LENGTH, downloaded2.length());
 	}
 
 	private Path tempContent() throws IOException {

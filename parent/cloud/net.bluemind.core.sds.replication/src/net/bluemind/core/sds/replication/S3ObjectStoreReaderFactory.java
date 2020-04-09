@@ -22,7 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazonaws.services.s3.AmazonS3;
 import com.netflix.spectator.api.Registry;
 
 import net.bluemind.aws.s3.utils.S3ClientFactory;
@@ -32,18 +31,19 @@ import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
+import software.amazon.awssdk.services.s3.S3AsyncClient;
 
 public class S3ObjectStoreReaderFactory implements IObjectStoreReader.Factory {
 
 	private static final Logger logger = LoggerFactory.getLogger(S3ObjectStoreReader.class);
-	private final ConcurrentHashMap<String, AmazonS3> s3ClientCache;
+	private final ConcurrentHashMap<String, S3AsyncClient> s3ClientCache;
 
 	private static final Registry registry = MetricsRegistry.get();
 	private static final IdFactory idFactory = new IdFactory("replication.sds.s3", MetricsRegistry.get(),
 			S3ObjectStoreReaderFactory.class);
 
 	public S3ObjectStoreReaderFactory() {
-		this.s3ClientCache = new ConcurrentHashMap<String, AmazonS3>();
+		this.s3ClientCache = new ConcurrentHashMap<>();
 	}
 
 	@Override
@@ -60,9 +60,10 @@ public class S3ObjectStoreReaderFactory implements IObjectStoreReader.Factory {
 		String bucket = conf.stringValue(SysConfKeys.sds_s3_bucket.name());
 		String cacheKey = String.join(";", endpoint, accessKey, secretKey, region);
 
-		AmazonS3 client = s3ClientCache.computeIfAbsent(cacheKey, key -> {
+		S3AsyncClient client = s3ClientCache.computeIfAbsent(cacheKey, key -> {
 			logger.info("Creating S3 client for {}", endpoint);
-			S3Configuration config = S3Configuration.withEndpointBucketKeys(endpoint, bucket, accessKey, secretKey, region);
+			S3Configuration config = S3Configuration.withEndpointBucketKeys(endpoint, bucket, accessKey, secretKey,
+					region);
 			return S3ClientFactory.create(config);
 		});
 

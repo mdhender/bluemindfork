@@ -140,8 +140,7 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 
 		};
 
-		Context context = Vertx.currentContext();
-		RestCallRunnable r = new RestCallRunnable(request, wrappedHandler, leaf, context);
+		RestCallRunnable r = new RestCallRunnable(request, wrappedHandler, leaf);
 		if (!directExec) {
 			executor.execute(r);
 		} else {
@@ -164,15 +163,11 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 		@Override
 		public void success(RestResponse value) {
 			if (vertx != null) {
-				vertx.runOnContext(new Handler<Void>() {
-
-					@Override
-					public void handle(Void event) {
-						if (value.responseStream != null && monitor != null) {
-							value.responseStream = new MonitoredReadStream(value.responseStream, monitor);
-						}
-						response.success(value);
+				vertx.runOnContext((Void event) -> {
+					if (value.responseStream != null && monitor != null) {
+						value.responseStream = new MonitoredReadStream(value.responseStream, monitor);
 					}
+					response.success(value);
 				});
 			} else {
 				response.success(value);
@@ -228,15 +223,12 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 	private final class RestCallRunnable implements BMTask {
 		private final RestRequest request;
 		private final TreePathLeaf leaf;
-		private final Context context;
 		private final UniqueResponseAsyncHandler response;
 		private final long creationTime;
 
-		public RestCallRunnable(RestRequest request, AsyncHandler<RestResponse> response, TreePathLeaf leaf,
-				Context context) {
+		public RestCallRunnable(RestRequest request, AsyncHandler<RestResponse> response, TreePathLeaf leaf) {
 			this.request = request;
 			this.leaf = leaf;
-			this.context = context;
 			this.response = new UniqueResponseAsyncHandler(new VertxAwareAsyncHandler(response));
 			this.creationTime = System.currentTimeMillis();
 		}
@@ -288,8 +280,8 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 			.build();
 
 	public static class TreePathNode {
-		public Map<String, TreePathNode> childrens = new TreeMap<>();
-		public Map<String, TreePathLeaf> leaves = new TreeMap<>();
+		public final Map<String, TreePathNode> childrens = new TreeMap<>();
+		public final Map<String, TreePathLeaf> leaves = new TreeMap<>();
 
 		public TreePathLeaf leaf(String path) {
 			if (path.length() > 0 && path.charAt(1) == '/') {
@@ -325,18 +317,13 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 			if (idx > 0) {
 				String currentPath = path.substring(0, idx);
 				currentPath = magicPath(currentPath);
-				TreePathNode child = childrens.get(currentPath);
-				if (child == null) {
-					child = new TreePathNode();
-					childrens.put(currentPath, child);
-				}
+				TreePathNode child = childrens.computeIfAbsent(currentPath, k -> new TreePathNode());
 
 				child.insert(path.substring(idx), leaf);
 
 			} else {
 				path = magicPath(path);
 				if (leaves.putIfAbsent(path, leaf) != null) {
-					// FIXME throw exception
 					logger.error("path {} already taken for {}", path, leaf.name());
 				}
 			}

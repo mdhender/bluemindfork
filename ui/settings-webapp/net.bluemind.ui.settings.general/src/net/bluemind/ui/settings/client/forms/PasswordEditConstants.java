@@ -47,4 +47,6 @@ public interface PasswordEditConstants extends Messages {
 
 	String passwordChanged();
 
+	String notSamePassword();
+
 }

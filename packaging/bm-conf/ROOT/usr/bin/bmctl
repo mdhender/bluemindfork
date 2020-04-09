@@ -44,6 +44,12 @@ stop_bm() {
   return $ret
 }
 
+restart_bm() {
+  echo "Restarting BlueMind Services"
+  systemctl restart bluemind.target
+  return $ret
+}
+
 function memory_report() {
   total_mem=0
   for i in `$jps -q`; do
@@ -115,12 +121,10 @@ case "$1" in
       status_bm
       ;;
   reload)
-      stop_bm
-      start_bm
+      restart_bm
       ;;
   restart)
-      stop_bm
-      start_bm
+      restart_bm
       ;;
   memory)
       memory_report

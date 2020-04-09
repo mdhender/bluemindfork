@@ -16,7 +16,7 @@
     </triggeringPolicy>
   </appender>
 
-  <logger name="org.apache.directory.shared.asn1.ber" level="ERROR" />
+  <logger name="io.netty.bootstrap" level="ERROR" />
   <root level="INFO">
     <appender-ref ref="R"/>
   </root>

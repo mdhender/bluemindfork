@@ -17,7 +17,10 @@
   */
 package net.bluemind.cli.user;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
@@ -25,13 +28,17 @@ import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.directory.common.SingleOrDomainOperation;
+import net.bluemind.cli.user.update.ExternalId;
+import net.bluemind.cli.user.update.Password;
+import net.bluemind.cli.user.update.PasswordMustChange;
+import net.bluemind.cli.user.update.PasswordNeverExpires;
+import net.bluemind.cli.user.update.Quota;
+import net.bluemind.cli.user.update.UpdateCommand;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
-import net.bluemind.mailbox.api.IMailboxes;
-import net.bluemind.mailbox.api.Mailbox;
-import net.bluemind.user.api.ChangePassword;
 import net.bluemind.user.api.IUser;
+import net.bluemind.user.api.User;
 
 @Command(name = "update", description = "update users")
 public class UserUpdateCommand extends SingleOrDomainOperation {
@@ -52,61 +59,53 @@ public class UserUpdateCommand extends SingleOrDomainOperation {
 	@Option(name = "--password", description = "update user password")
 	public String password = null;
 
+	@Option(name = "--set-password-must-change", description = "set user password must change")
+	public boolean setPasswordMustChange = false;
+
+	@Option(name = "--unset-password-must-change", description = "unset user password must change")
+	public boolean unsetPasswordMustChange = false;
+
+	@Option(name = "--set-password-never-expires", description = "set user password never expires")
+	public boolean setPasswordNeverExpires = false;
+
+	@Option(name = "--unset-password-never-expires", description = "unset user password never expires")
+	public boolean unsetPasswordNeverExpires = false;
+
 	@Option(name = "--external-id", description = "update user external id (used by AD/LDAP synchronisaion), empty to unset")
 	public String extId = null;
 
 	@Option(name = "--quota", description = "update user mailbox quota")
 	public Integer quota = null;
 
+	private List<UpdateCommand> commands = new ArrayList<>();
+
 	public UserUpdateCommand() {
+		commands.add(new ExternalId(ctx, this));
+		commands.add(new Password(ctx, this));
+		commands.add(new PasswordMustChange(ctx, this));
+		commands.add(new PasswordNeverExpires(ctx, this));
+		commands.add(new Quota(ctx, this));
 	}
 
 	@Override
 	public void synchronousDirOperation(String domainUid, ItemValue<DirEntry> de) {
-		if (de.uid.equals("admin0@global.virt")) {
-			// only allow password update fir admin0
-			if (extId != null || quota != null) {
-				throw new CliException("extId and quota modification aren't allowed for admin0");
-			}
+		List<UpdateCommand> commandsToRun = commands.stream().filter(UpdateCommand::mustBeExecuted)
+				.map(command -> command.setContext(ctx)).collect(Collectors.toList());
+
+		if (commandsToRun.size() == 0) {
+			return;
 		}
 
-		updatePassword(domainUid, de);
-
-		updateExtId(domainUid, de);
-
-		updateQuota(domainUid, de);
-
-	}
-
-	private void updatePassword(String domainUid, ItemValue<DirEntry> de) {
-		IUser userApi = ctx.adminApi().instance(IUser.class, domainUid);
-
-		if (password != null) {
-			if (password.trim().equals("")) {
-				throw new CliException("Refusing empty password");
-			}
-			userApi.setPassword(de.uid, ChangePassword.create(password));
+		if (de.uid.equals("admin0_global.virt")
+				&& (commandsToRun.size() != 1 || !(commandsToRun.get(0) instanceof Password))) {
+			throw new CliException("Only password update is allowed for user admin0@global.virt");
 		}
-	}
 
-	private void updateExtId(String domainUid, ItemValue<DirEntry> de) {
-		IUser userApi = ctx.adminApi().instance(IUser.class, domainUid);
+		commandsToRun.forEach(command -> command.check());
 
-		if (extId != null) {
-			userApi.setExtId(de.uid, extId.trim().isEmpty() ? null : extId);
-		}
-	}
+		ItemValue<User> user = ctx.adminApi().instance(IUser.class, domainUid).getComplete(de.uid);
 
-	private void updateQuota(String domainUid, ItemValue<DirEntry> de) {
-		if (quota != null) {
-			IMailboxes mailboxesApi = ctx.adminApi().instance(IMailboxes.class, domainUid);
-			ItemValue<Mailbox> mailboxItem = mailboxesApi.byEmail(de.value.email);
-			if (mailboxItem == null) {
-				throw new CliException("mailbox not found");
-			}
-			mailboxItem.value.quota = quota;
-			mailboxesApi.update(mailboxItem.uid, mailboxItem.value);
-		}
+		commandsToRun.forEach(command -> command.execute(domainUid, user));
 	}
 
 	@Override

@@ -24,6 +24,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
@@ -50,6 +53,7 @@ import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.jdbc.JdbcHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
@@ -59,6 +63,7 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.role.api.DefaultRoles;
+import net.bluemind.role.service.IInternalRoles;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -96,15 +101,31 @@ public class AuthenticationTests {
 		Map<String, String> domainSettings = settings.get();
 		domainSettings.put(DomainSettingsKeys.mail_routing_relay.name(), "external@test.fr");
 		domainSettings.put(DomainSettingsKeys.domain_max_basic_account.name(), "");
+		domainSettings.put(DomainSettingsKeys.password_lifetime.name(), "10");
 		settings.set(domainSettings);
 		PopulateHelper.addDomainAdmin("admin", "bm.lan", Routing.external);
 		PopulateHelper.addUser("toto", "bm.lan", Routing.external);
 		PopulateHelper.addUser("archived", "bm.lan", Routing.external);
 		PopulateHelper.addUser("nomail", "bm.lan", Routing.none);
 		PopulateHelper.addSimpleUser("simple", "bm.lan", Routing.external);
+		createUserWithEpiredPassword();
 
 		StateContext.setState("reset");
 		StateContext.setState("core.started");
+	}
+
+	private void createUserWithEpiredPassword() throws SQLException {
+		PopulateHelper.addUser("expiredpassword", "bm.lan", Routing.external);
+
+		Connection conn = JdbcTestHelper.getInstance().getDataSource().getConnection();
+		PreparedStatement st = null;
+		try {
+			st = conn.prepareStatement(
+					"UPDATE t_domain_user SET password_lastchange=now() - interval '10 year' WHERE login='expiredpassword'");
+			st.executeUpdate();
+		} finally {
+			JdbcHelper.cleanup(conn, null, st);
+		}
 	}
 
 	@After
@@ -131,6 +152,12 @@ public class AuthenticationTests {
 
 		response = authentication.login("nomail@bm.lan", "nomail", "junit");
 		assertEquals(Status.Ok, response.status);
+
+		response = authentication.login("expiredpassword@bm.lan", "expiredpassword", "junit");
+		assertEquals(Status.Expired, response.status);
+
+		response = authentication.login("expiredpassword@bm.lan", "badexpiredpassword", "junit");
+		assertEquals(Status.Bad, response.status);
 
 		response = authentication.login("admin0@global.virt", "not_valid", "invalid-junit");
 		assertEquals(Status.Bad, response.status);
@@ -315,10 +342,12 @@ public class AuthenticationTests {
 		IAuthentication authentication = getService(null);
 		LoginResponse response = authentication.login("simple@bm.lan", "simple", "testSimpleUserLogin_Roles");
 
-		assertEquals(Status.Ok, response.status);
-		assertEquals(DefaultRoles.SIMPLE_USER_DEFAULT_ROLES, response.authUser.roles);
-		assertTrue(response.authUser.rolesByOU.isEmpty());
+		IInternalRoles roleService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IInternalRoles.class);
 
+		assertEquals(Status.Ok, response.status);
+		assertEquals(roleService.resolve(DefaultRoles.SIMPLE_USER_DEFAULT_ROLES), response.authUser.roles);
+		assertTrue(response.authUser.rolesByOU.isEmpty());
 	}
 
 	@Test

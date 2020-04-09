@@ -34,9 +34,6 @@ import net.bluemind.core.rest.BmContext;
 
 public class ImapMailboxRecordsServiceFactory extends AbstractMailboxRecordServiceFactory<IMailboxItems> {
 
-	public ImapMailboxRecordsServiceFactory() {
-	}
-
 	@Override
 	public Class<IMailboxItems> factoryClass() {
 		return IMailboxItems.class;

@@ -84,6 +84,11 @@ public class MailScreensContributor implements ScreenElementContributorUnwrapper
 					ScreenElement.create(null, MailboxesSharingsModelHandler.TYPE)));
 		}
 
+		if (Ajax.TOKEN.getRoles().contains("hasMailWebapp")) {
+			ScreenElement newWebmailSettings = ScreenElement.create(null, NewWebmailSettings.TYPE);
+			tabs.push(Tab.create(null, messages.mailApp(), newWebmailSettings));
+		}
+
 		return contribs;
 
 	}

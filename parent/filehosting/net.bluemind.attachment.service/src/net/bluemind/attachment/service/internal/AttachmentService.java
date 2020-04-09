@@ -49,7 +49,7 @@ public class AttachmentService implements IAttachment {
 	private final SecurityContext securityContext;
 	private final String domainUid;
 	public static final String FOLDER = "Attachments/";
-	private IFileHosting service;
+	private final IFileHosting service;
 
 	private static final Logger logger = LoggerFactory.getLogger(AttachmentService.class);
 
@@ -60,7 +60,7 @@ public class AttachmentService implements IAttachment {
 	}
 
 	@Override
-	public AttachedFile share(String name, Stream document) throws ServerFault {
+	public AttachedFile share(String name, Stream document) {
 		String path = findName(service, name);
 		service.store(path, document);
 		Calendar expiration = getDefaultExpiration();
@@ -77,7 +77,7 @@ public class AttachmentService implements IAttachment {
 	}
 
 	@Override
-	public void unShare(String url) throws ServerFault {
+	public void unShare(String url) {
 		if (securityContext.isAnonymous()) {
 			throw new ServerFault("Login needed to use Attachment service", ErrorCode.PERMISSION_DENIED);
 		}
@@ -86,7 +86,7 @@ public class AttachmentService implements IAttachment {
 	}
 
 	@Override
-	public Configuration getConfiguration() throws ServerFault {
+	public Configuration getConfiguration() {
 		if (securityContext.isAnonymous()) {
 			throw new ServerFault("Login needed to use Attachment service", ErrorCode.PERMISSION_DENIED);
 		}
@@ -110,14 +110,14 @@ public class AttachmentService implements IAttachment {
 		}
 	}
 
-	private Calendar getDefaultExpiration() throws ServerFault {
+	private Calendar getDefaultExpiration() {
 		Calendar cal = new GregorianCalendar();
 		cal.setTime(new Date());
 		cal.add(Calendar.DAY_OF_YEAR, getConfiguration().retentionTime);
 		return cal;
 	}
 
-	private String findName(IFileHosting service, String name) throws ServerFault {
+	private String findName(IFileHosting service, String name) {
 		name = Paths.get(name).getFileName().toString();
 
 		List<FileHostingItem> list = service.list(FOLDER);
@@ -134,7 +134,7 @@ public class AttachmentService implements IAttachment {
 	}
 
 	private String extendFilename(String name, int i) {
-		int ext = name.lastIndexOf(".");
+		int ext = name.lastIndexOf('.');
 		if (ext == -1) {
 			return name + "_" + i;
 		} else {

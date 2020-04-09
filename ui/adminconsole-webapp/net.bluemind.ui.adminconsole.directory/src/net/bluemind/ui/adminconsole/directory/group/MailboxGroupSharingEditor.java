@@ -18,14 +18,9 @@
  */
 package net.bluemind.ui.adminconsole.directory.group;
 
-import java.util.Arrays;
-
 import com.google.gwt.core.client.JavaScriptObject;
 
 import net.bluemind.core.commons.gwt.JsMapStringJsObject;
-import net.bluemind.core.container.model.acl.AccessControlEntry;
-import net.bluemind.core.container.model.acl.Verb;
-import net.bluemind.group.api.gwt.js.JsGroup;
 import net.bluemind.gwtconsoleapp.base.editor.WidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
@@ -51,19 +46,6 @@ public class MailboxGroupSharingEditor extends BaseSharingEditor implements IMai
 		super.loadModel(model);
 		SharingModel sm = SharingModel.get(model, MailboxGroupSharingModelHandler.MODEL_ID);
 		dataLocation = sm.getDataLocation();
-	}
-
-	@Override
-	public void saveModel(JavaScriptObject model) {
-		JsMapStringJsObject map = model.cast();
-		JsGroup group = map.get("group").cast();
-		String groupId = map.getString("groupId");
-		if (group.getMailArchived()) {
-			SharingModel.populate(model, "groupmailbox-sharing",
-					Arrays.asList(AccessControlEntry.create(groupId, Verb.Read)));
-		} else {
-			super.saveModel(model);
-		}
 	}
 
 	@Override

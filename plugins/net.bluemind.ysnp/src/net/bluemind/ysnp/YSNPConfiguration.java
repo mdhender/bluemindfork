@@ -34,7 +34,7 @@ public class YSNPConfiguration {
 	private Properties conf;
 	private static final Logger logger = LoggerFactory.getLogger(YSNPConfiguration.class);
 
-	public static YSNPConfiguration INSTANCE = new YSNPConfiguration();
+	public static final YSNPConfiguration INSTANCE = new YSNPConfiguration();
 
 	private YSNPConfiguration() {
 		try {
@@ -46,7 +46,6 @@ public class YSNPConfiguration {
 		conf = new Properties();
 		conf.put("daemon.socket.path", System.getProperty("ysnp.sock", "/var/run/saslauthd/mux"));
 		conf.put("bmpt-daemon.socket.path", "/var/run/cyrus/socket/bm-ptsock");
-		conf.put("daemon.threads", 2 + Runtime.getRuntime().availableProcessors() + "");
 		try (InputStream in = Files.newInputStream(Paths.get(CFG))) {
 			conf.load(in);
 		} catch (Exception e) {
@@ -148,10 +147,6 @@ public class YSNPConfiguration {
 
 	public String getSocketPath() {
 		return getString("daemon.socket.path");
-	}
-
-	public int getExecutorsCount() {
-		return Integer.parseInt(getString("daemon.threads"));
 	}
 
 	public String getString(String confKey) {

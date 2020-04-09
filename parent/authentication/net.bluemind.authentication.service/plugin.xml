@@ -60,5 +60,11 @@
             impl="net.bluemind.authentication.service.tokens.TokenExpireVerticle$Factory">
       </verticle>
    </extension>
+   <extension
+         point="net.bluemind.scheduledjob.scheduler.job">
+      <scheduledjob_provider
+            implementation="net.bluemind.authentication.service.job.PasswordExpireNotificationJob">
+      </scheduledjob_provider>
+   </extension>
 
 </plugin>

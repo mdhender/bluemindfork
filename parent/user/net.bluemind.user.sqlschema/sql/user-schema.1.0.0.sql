@@ -9,6 +9,8 @@ create table t_domain_user (
 	login 		  	varchar(64) not null,
 	password 	  	varchar(255),
 	password_lastchange	timestamp,
+	password_mustchange	boolean default false,
+	password_neverexpires	boolean default false,
 
 	archived	  	boolean default false,
 	system		  	boolean default false,

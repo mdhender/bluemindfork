@@ -37,6 +37,10 @@ public class VersionInfo {
 	public String minor;
 	/**
 	 * the release, eg. 1.0.release
+	 *
+	 * there can be a SNAPSHOT timestamp
+	 * for non-release build (eg. 4.1.0.202004021209)
+	 * It is ignored
 	 */
 	public String release;
 
@@ -44,7 +48,7 @@ public class VersionInfo {
 
 	public static VersionInfo checkAndCreate(String version) throws ServerFault {
 		String[] v = version.split("\\.");
-		if (v.length != 3) {
+		if (v.length < 3 || v.length > 4){
 			throw new ServerFault("version " + version + " is not parseable");
 		}
 		VersionInfo vi = new VersionInfo();

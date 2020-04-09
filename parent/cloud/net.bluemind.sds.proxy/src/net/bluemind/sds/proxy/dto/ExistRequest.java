@@ -19,6 +19,8 @@ package net.bluemind.sds.proxy.dto;
 
 public class ExistRequest extends SdsRequest {
 
+	public String guid;
+
 	public static ExistRequest of(String mailbox, String guid) {
 		ExistRequest er = new ExistRequest();
 		er.mailbox = mailbox;

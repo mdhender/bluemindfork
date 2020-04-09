@@ -38,10 +38,13 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class SdsProxyTests {
+
+	private File root;
 
 	@Before
 	public void before() throws InterruptedException, ExecutionException, TimeoutException, IOException {
@@ -55,9 +58,10 @@ public class SdsProxyTests {
 		});
 		startResult.get(20, TimeUnit.SECONDS);
 
-		new File("/dummy-sds").mkdirs();
-		Files.createFile(new File("/dummy-sds/123").toPath());
-		Files.createFile(new File("/dummy-sds/orig.txt").toPath());
+		this.root = new File(System.getProperty("user.home"), "dummy-sds");
+		root.mkdirs();
+		Files.createFile(new File(root, "123").toPath());
+		Files.createFile(new File(root, "orig.txt").toPath());
 	}
 
 	private HttpClient client() {
@@ -67,8 +71,8 @@ public class SdsProxyTests {
 
 	@After
 	public void after() {
-		Arrays.stream(new File("/dummy-sds").listFiles(file -> file.isFile())).forEach(File::delete);
-		new File("/dummy-sds").delete();
+		Arrays.stream(root.listFiles(file -> file.isFile())).forEach(File::delete);
+		root.delete();
 
 		CompletableFuture<Integer> waitResp = new CompletableFuture<>();
 		HttpClient client = client();
@@ -147,7 +151,7 @@ public class SdsProxyTests {
 		CompletableFuture<Integer> waitResp = new CompletableFuture<>();
 		HttpClient client = client();
 		JsonObject payload = new JsonObject().put("mailbox", "yeah").put("guid", "put.dest").put("filename",
-				"/dummy-sds/orig.txt");
+				new File(root, "orig.txt").getAbsolutePath());
 		client.put("/sds", resp -> {
 			System.err.println("resp " + resp);
 			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
@@ -159,7 +163,7 @@ public class SdsProxyTests {
 		System.err.println("started");
 		int httpStatus = waitResp.get(5, TimeUnit.SECONDS);
 		assertEquals(200, httpStatus);
-		assertTrue(new File("/dummy-sds/put.dest").exists());
+		assertTrue(new File(root, "put.dest").exists());
 	}
 
 	@Test
@@ -167,9 +171,8 @@ public class SdsProxyTests {
 		CompletableFuture<Integer> waitResp = new CompletableFuture<>();
 		HttpClient client = client();
 		JsonObject payload = new JsonObject().put("mailbox", "yeah").put("guid", "123").put("filename",
-				"/dummy-sds/dest.txt");
+				new File(root, "dest.txt").getAbsolutePath());
 		client.get("/sds", resp -> {
-			System.err.println("resp " + resp);
 			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
 			resp.endHandler(v -> {
 				System.err.println(resp.statusCode());
@@ -179,7 +182,32 @@ public class SdsProxyTests {
 		System.err.println("started");
 		int httpStatus = waitResp.get(5, TimeUnit.SECONDS);
 		assertEquals(200, httpStatus);
-		assertTrue("dest was not created", new File("/dummy-sds/dest.txt").exists());
+		assertTrue("dest was not created", new File(root, "dest.txt").exists());
+	}
+
+	@Test
+	public void testMgetCall() throws InterruptedException, ExecutionException, TimeoutException {
+		CompletableFuture<Integer> waitResp = new CompletableFuture<>();
+		HttpClient client = client();
+		JsonObject payload = new JsonObject().put("mailbox", "yeah");
+		JsonArray transfers = new JsonArray();
+		transfers.add(
+				new JsonObject().put("guid", "123").put("filename", new File(root, "dest1.txt").getAbsolutePath()));
+		transfers.add(
+				new JsonObject().put("guid", "123").put("filename", new File(root, "dest2.txt").getAbsolutePath()));
+		payload.put("transfers", transfers);
+		client.post("/sds/mget", resp -> {
+			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));
+			resp.endHandler(v -> {
+				System.err.println(resp.statusCode());
+				waitResp.complete(resp.statusCode());
+			});
+		}).setChunked(true).write(Buffer.buffer(payload.encode())).end();
+		System.err.println("started");
+		int httpStatus = waitResp.get(5, TimeUnit.SECONDS);
+		assertEquals(200, httpStatus);
+		assertTrue("dest1 was not created", new File(root, "dest1.txt").exists());
+		assertTrue("dest2 was not created", new File(root, "dest2.txt").exists());
 	}
 
 	@Test

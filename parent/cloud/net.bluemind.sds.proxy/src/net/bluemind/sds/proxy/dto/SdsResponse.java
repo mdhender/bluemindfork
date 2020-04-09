@@ -17,11 +17,23 @@
   */
 package net.bluemind.sds.proxy.dto;
 
+import java.util.Collections;
+import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
 public class SdsResponse {
 
+	public static final SdsResponse UNTAGGED_OK = new SdsResponse() {
+		@Override
+		public SdsResponse withTags(Map<String, String> t) {
+			return this;
+		}
+	};
+
 	public SdsError error;
+	private Map<String, String> tags = Collections.emptyMap();
 
 	public boolean succeeded() {
 		return error == null;
@@ -30,6 +42,16 @@ public class SdsResponse {
 	@Override
 	public String toString() {
 		return MoreObjects.toStringHelper(getClass()).add("success", succeeded()).add("error", error).toString();
+	}
+
+	public SdsResponse withTags(Map<String, String> t) {
+		this.tags = t;
+		return this;
+	}
+
+	@JsonProperty("tags")
+	public Map<String, String> tags() {
+		return tags;
 	}
 
 }

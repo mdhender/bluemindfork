@@ -29,8 +29,9 @@ public final class ForwardedLocation {
 	private int port;
 	private String host;
 	private final String role;
+	private final boolean authenticator;
 
-	public ForwardedLocation(String pathPrefix, String targetUrl, String role) {
+	public ForwardedLocation(String pathPrefix, String targetUrl, String role, String authenticator) {
 		if (pathPrefix == null || targetUrl == null) {
 			throw new NullPointerException("path prefix & target url cannot be null");
 		}
@@ -43,6 +44,7 @@ public final class ForwardedLocation {
 		this.targetUrl = targetUrl;
 		this.requiredAuthKind = AuthKind.NONE.name();
 		this.whitelist = new ConcurrentHashMap<String, String>();
+		this.authenticator = Boolean.valueOf(authenticator);
 	}
 
 	public String getPathPrefix() {
@@ -96,5 +98,9 @@ public final class ForwardedLocation {
 
 	public String getRole() {
 		return role;
+	}
+
+	public boolean isAuthenticator() {
+		return authenticator;
 	}
 }

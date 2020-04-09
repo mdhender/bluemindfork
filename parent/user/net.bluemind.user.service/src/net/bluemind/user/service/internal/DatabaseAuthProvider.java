@@ -29,7 +29,15 @@ public class DatabaseAuthProvider implements IAuthProvider {
 
 		UserService userService = (UserService) ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IUser.class, domain.uid);
-		return userService.checkPassword(login, authContext.getUserPassword()) ? AuthResult.YES : AuthResult.NO;
+		if (!userService.checkPassword(login, authContext.getUserPassword())) {
+			return AuthResult.NO;
+		}
+
+		if (userService.passwordUpdateNeeded(login)) {
+			return AuthResult.EXPIRED;
+		}
+
+		return AuthResult.YES;
 	}
 
 	@Override

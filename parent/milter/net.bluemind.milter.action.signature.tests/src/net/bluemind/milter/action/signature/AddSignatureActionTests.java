@@ -32,12 +32,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.james.mime4j.codec.QuotedPrintableInputStream;
 import org.apache.james.mime4j.dom.Body;
 import org.apache.james.mime4j.dom.Entity;
-import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.Multipart;
 import org.apache.james.mime4j.stream.Field;
 import org.junit.Test;
+
+import com.google.common.io.ByteStreams;
 
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Communications.Email;
@@ -384,6 +386,10 @@ public class AddSignatureActionTests {
 		Body body = mm.getMessage().getBody();
 		Mime4JHelper.serializeBody(body, baos);
 		String eml = toEml(baos);
+		QuotedPrintableInputStream qip = new QuotedPrintableInputStream(new ByteArrayInputStream(eml.getBytes()));
+		String emlDec = new String(ByteStreams.toByteArray(qip));
+		eml = emlDec;
+
 		assertTrue("Placeholder still present in eml", eml.indexOf("X-BM-SIGNATURE") < 0);
 		assertTrue("Text Disclaimer is not present ", eml.indexOf("plain-signature") >= 0);
 		assertTrue("HTML Disclaimer is not present ", eml.indexOf("html-signature") >= 0);
@@ -393,22 +399,6 @@ public class AddSignatureActionTests {
 		assertTrue("HTML disclaimer was not placed at the end of mail",
 				eml.indexOf("HTMLAfter") < eml.indexOf("html-signature"));
 
-	}
-
-	private String toEml(Message msg) throws IOException {
-		try (Message m = msg) {
-			InputStream asStream = Mime4JHelper.asStream(msg);
-			StringBuilder sb = new StringBuilder();
-			int nRead;
-
-			while ((nRead = asStream.read()) != -1) {
-				sb.append((char) nRead);
-			}
-
-			return sb.toString();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 }

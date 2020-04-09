@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -33,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.MessageBody.Header;
@@ -166,27 +168,18 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 			long time = System.currentTimeMillis();
 			Set<String> inObjectStore = bodyObjectStore.exist(checkCopy);
 			Set<String> processedFromObjectStore = new HashSet<>();
-			for (String guid : inObjectStore) {
-				Path tmpFromSDS = null;
-				try {
-					tmpFromSDS = bodyObjectStore.open(guid);
-					Stream emlFromObjectStore = VertxStream.localPath(tmpFromSDS);
-					logger.debug("Process {} from object-store...", guid);
-					create(guid, emlFromObjectStore);
-					processedFromObjectStore.add(guid);
-					logger.debug("{} processed from object store !", guid);
-				} catch (Exception e) {
-					logger.error(e.getMessage(), e);
-				} finally {
-					if (tmpFromSDS != null) {
-						try {
-							Files.deleteIfExists(tmpFromSDS);
-						} catch (IOException e) {
-							// ok
-						}
+			for (List<String> slice : Lists.partition(new ArrayList<>(inObjectStore), 25)) {
+				String[] guids = slice.toArray(new String[slice.size()]);
+				Path[] fromSds = bodyObjectStore.mopen(guids);
+				for (int i = 0; i < guids.length; i++) {
+					String guid = guids[i];
+					Path tmpFromSDS = fromSds[i];
+					if (processSdsItem(guid, tmpFromSDS)) {
+						processedFromObjectStore.add(guid);
 					}
 				}
 			}
+
 			time = System.currentTimeMillis() - time;
 			if (!processedFromObjectStore.isEmpty()) {
 				checkCopy.removeAll(processedFromObjectStore);
@@ -198,6 +191,29 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
+	}
+
+	private boolean processSdsItem(String guid, Path tmpFromSDS) {
+		try {
+			if (tmpFromSDS != null) {
+				Stream emlFromObjectStore = VertxStream.localPath(tmpFromSDS);
+				logger.debug("Process {} from object-store...", guid);
+				create(guid, emlFromObjectStore);
+				logger.debug("{} processed from object store !", guid);
+				return true;
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		} finally {
+			if (tmpFromSDS != null) {
+				try {
+					Files.deleteIfExists(tmpFromSDS);
+				} catch (IOException e) {
+					// ok
+				}
+			}
+		}
+		return false;
 	}
 
 	@Override

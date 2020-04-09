@@ -19,9 +19,7 @@ package net.bluemind.cli.inject.imap;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
@@ -75,13 +73,13 @@ public class ImapInjectCommand implements ICmdLet, Runnable {
 		});
 		try {
 			cf.get(20, TimeUnit.SECONDS);
-			ImapInjector inject = new ImapInjector(ctx.adminApi(), domUid);
+			MailExchangeInjector inject = new ImapInjector(ctx.adminApi(), domUid);
 			long time = System.currentTimeMillis();
 			ctx.info("Starting injection of " + cycles + " message(s)");
 			inject.runCycle(cycles);
 			ctx.info("Injection of " + cycles + " message(s) finished in " + (System.currentTimeMillis() - time)
 					+ "ms.");
-		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			ctx.error(e.getMessage());
 		}

@@ -13,4 +13,5 @@ Require-Bundle: org.junit,
  net.bluemind.mailflow.rbe,
  net.bluemind.addressbook.api,
  net.bluemind.mime4j.common,
- net.bluemind.signature.commons
+ net.bluemind.signature.commons,
+ com.google.guava

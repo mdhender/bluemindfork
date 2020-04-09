@@ -38,5 +38,10 @@ public interface IAuthProvider {
 
 	boolean inRole(String sessionId, String role);
 
+	boolean isPasswordExpired(String sessionId);
+
 	CompletableFuture<Void> logout(String sessionId);
+
+	CompletableFuture<Void> updatePassword(String sessionId, String currentPassword, String newPassword,
+			List<String> forwadedFor);
 }

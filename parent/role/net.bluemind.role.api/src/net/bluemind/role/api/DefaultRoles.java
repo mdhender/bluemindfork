@@ -47,10 +47,12 @@ public class DefaultRoles {
 			BasicRoles.ROLE_TBIRD, //
 			BasicRoles.ROLE_OUTLOOK).addAll(SIMPLE_USER_DEFAULT_ROLES).build();
 
+	public static final Set<String> USER_PASSWORD_EXPIRED = ImmutableSet.<String>builder()
+			.add(BasicRoles.SELF_CHANGE_PASSWORD).build();
+
 	/**
 	 * Default administrator roles.
 	 */
 	public static final Set<String> ADMIN_DEFAULT_ROLES = ImmutableSet.<String>builder()
 			.add(BasicRoles.ROLE_ADMIN, BasicRoles.ROLE_ADMINCONSOLE).addAll(USER_DEFAULT_ROLES).build();
-
 }

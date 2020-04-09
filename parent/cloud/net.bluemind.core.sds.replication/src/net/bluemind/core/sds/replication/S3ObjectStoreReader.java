@@ -18,32 +18,33 @@
 package net.bluemind.core.sds.replication;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
-import com.google.common.io.ByteStreams;
+import com.netflix.spectator.api.DistributionSummary;
 import com.netflix.spectator.api.Registry;
 
 import net.bluemind.backend.mail.replica.service.sds.IObjectStoreReader;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.metrics.registry.IdFactory;
+import software.amazon.awssdk.services.s3.S3AsyncClient;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 
 public class S3ObjectStoreReader implements IObjectStoreReader {
 
 	private static final Logger logger = LoggerFactory.getLogger(S3ObjectStoreReader.class);
-	private final AmazonS3 client;
+	private final S3AsyncClient client;
 	private final String bucket;
 	private Registry registry;
 	private IdFactory idFactory;
 
-	public S3ObjectStoreReader(AmazonS3 client, String bucket, Registry registry, IdFactory idFactory) {
+	public S3ObjectStoreReader(S3AsyncClient client, String bucket, Registry registry, IdFactory idFactory) {
 		this.registry = registry;
 		this.idFactory = idFactory;
 
@@ -53,7 +54,13 @@ public class S3ObjectStoreReader implements IObjectStoreReader {
 
 	@Override
 	public boolean exist(String guid) {
-		return client.doesObjectExist(bucket, guid);
+		try {
+			return client.headObject(HeadObjectRequest.builder().bucket(bucket).key(guid).build())
+					.thenApply(hor -> hor.sdkHttpResponse().statusCode() == 200).get(10, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			throw new ServerFault(e);
+		}
+
 	}
 
 	@Override
@@ -62,19 +69,50 @@ public class S3ObjectStoreReader implements IObjectStoreReader {
 		Path target = null;
 		try {
 			target = Files.createTempFile(guid, ".s3");
+			Files.delete(target);
 		} catch (IOException e1) {
 			throw new ServerFault(e1);
 		}
-		try (S3Object s3object = client.getObject(bucket, guid);
-				S3ObjectInputStream stream = s3object.getObjectContent();
-				OutputStream out = java.nio.file.Files.newOutputStream(target)) {
-			ByteStreams.copy(stream, out);
-
-			registry.distributionSummary(idFactory.name("read")).record(target.toFile().length());
+		try {
+			final Path notNull = target;
+			return client.getObject(GetObjectRequest.builder().bucket(bucket).key(guid).build(), target)
+					.thenApply(v -> {
+						registry.distributionSummary(idFactory.name("read")).record(notNull.toFile().length());
+						return notNull;
+					}).get(10, TimeUnit.SECONDS);
 		} catch (Exception e) {
 			throw new ServerFault(e);
 		}
-		return target;
+	}
+
+	@Override
+	public Path[] mread(String... guids) {
+		Path[] ret = new Path[guids.length];
+		for (int i = 0; i < guids.length; i++) {
+			try {
+				ret[i] = Files.createTempFile(guids[i], ".s3");
+				Files.delete(ret[i]);
+			} catch (IOException e1) {
+				throw new ServerFault(e1);
+			}
+		}
+		CompletableFuture<?>[] dls = new CompletableFuture[ret.length];
+		DistributionSummary distSum = registry.distributionSummary(idFactory.name("read"));
+		for (int i = 0; i < guids.length; i++) {
+			final Path cur = ret[i];
+			dls[i] = client.getObject(GetObjectRequest.builder().bucket(bucket).key(guids[i]).build(), cur)
+					.thenAccept(v -> {
+						if (Files.exists(cur)) {
+							distSum.record(cur.toFile().length());
+						}
+					});
+		}
+		try {
+			CompletableFuture.allOf(dls).get(15, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			throw new ServerFault(e);
+		}
+		return ret;
 	}
 
 }

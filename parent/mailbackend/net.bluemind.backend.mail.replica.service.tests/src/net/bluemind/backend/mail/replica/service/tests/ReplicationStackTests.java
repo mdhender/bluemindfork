@@ -58,6 +58,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.DispositionType;
+import net.bluemind.backend.mail.api.IItemsTransfer;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.IUserInbox;
@@ -86,6 +87,7 @@ import net.bluemind.backend.mail.replica.api.MailboxSub;
 import net.bluemind.backend.mail.replica.api.QuotaRoot;
 import net.bluemind.backend.mail.replica.api.utils.Subtree;
 import net.bluemind.backend.mail.replica.service.ReplicationEvents;
+import net.bluemind.backend.mail.replica.service.internal.ItemsTransferService;
 import net.bluemind.backend.mail.replica.service.tests.ReplicationEventsRecorder.Hierarchy;
 import net.bluemind.backend.mail.replica.utils.SubtreeContainer;
 import net.bluemind.config.InstallationId;
@@ -932,6 +934,151 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 			}
 		}
 		assertTrue(found);
+	}
+
+	@Test
+	public void mailshareTransfers()
+			throws IMAPException, InterruptedException, ExecutionException, TimeoutException, IOException {
+		ItemsTransferService.FORCE_CROSS = false;
+
+		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+		IMailshare mailshareApi = prov.instance(IMailshare.class, domainUid);
+		Mailshare mailshare = new Mailshare();
+		mailshare.name = "shared" + System.currentTimeMillis();
+		mailshare.emails = Arrays.asList(Email.create(mailshare.name + "@" + domainUid, true));
+		mailshare.routing = Routing.internal;
+
+		// setup events expectations
+		CompletableFuture<MailboxReplicaRootDescriptor> onRoot = ReplicationEvents.onMailboxRootCreated();
+		MailboxReplicaRootDescriptor expected = MailboxReplicaRootDescriptor.create(Namespace.shared, mailshare.name);
+		Subtree sub = SubtreeContainer.mailSubtreeUid(domainUid, expected.ns, mailshare.name);
+		String subtreeUid = sub.subtreeUid();
+		System.err.println("On subtree update " + subtreeUid);
+		CompletableFuture<ItemIdentifier> onSubtree = ReplicationEvents.onSubtreeUpdate(subtreeUid);
+		CompletableFuture<Void> allEvents = CompletableFuture.allOf(onRoot, onSubtree);
+
+		System.err.println("Before create.....");
+		mailshareApi.create(mailshare.name, mailshare);
+
+		IContainerManagement c = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IContainerManagement.class, IMailboxAclUids.uidForMailbox(mailshare.name));
+		List<AccessControlEntry> accessControlList = new ArrayList<>(c.getAccessControlList());
+		accessControlList.add(AccessControlEntry.create(userUid, Verb.Write));
+		c.setAccessControlList(accessControlList);
+
+		allEvents.get(10, TimeUnit.SECONDS);
+		MailboxReplicaRootDescriptor created = onRoot.get();
+		assertNotNull(created);
+		System.err.println("**** ROOT is " + created.ns + ", " + created.name + ", version: " + onSubtree.get());
+		Thread.sleep(500);
+		IMailboxFolders folders = provider().instance(IMailboxFolders.class, partition, mailshare.name);
+		List<ItemValue<MailboxFolder>> allFolders = folders.all();
+		ItemValue<MailboxFolder> sent = null;
+		for (ItemValue<MailboxFolder> folder : allFolders) {
+			System.out.println("Got " + folder.uid + ", " + folder.value.name);
+			if ("Sent".equals(folder.value.name)) {
+				sent = folder;
+			}
+		}
+		assertNotNull(sent);
+		int txSize = 5;
+		List<Long> idsToTransfer = new ArrayList<>(txSize);
+		for (int i = 0; i < txSize; i++) {
+			ItemValue<MailboxItem> firstItem = addDraft(sent, mailshare.name);
+			idsToTransfer.add(firstItem.internalId);
+		}
+		IMailboxFolders foldersApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
+		ItemValue<MailboxFolder> trash = foldersApi.byName("Trash");
+		IItemsTransfer transferApi = provider().instance(IItemsTransfer.class, sent.uid, trash.uid);
+		long time = System.currentTimeMillis();
+		List<ItemIdentifier> copied = transferApi.copy(idsToTransfer);
+		time = System.currentTimeMillis() - time;
+		System.err.println("Copied " + txSize + " in " + time + "ms");
+		assertNotNull(copied);
+		assertEquals(txSize, copied.size());
+
+		time = System.currentTimeMillis();
+		List<ItemIdentifier> moved = transferApi.move(idsToTransfer);
+		time = System.currentTimeMillis() - time;
+		System.err.println("Moved " + txSize + " in " + time + "ms");
+		assertNotNull(moved);
+		assertEquals(txSize, moved.size());
+		IMailboxItems items = provider().instance(IMailboxItems.class, trash.uid);
+		for (ItemIdentifier id : moved) {
+			ItemValue<MailboxItem> found = items.getCompleteById(id.id);
+			System.err.println("found " + found);
+			assertNotNull(found);
+		}
+	}
+
+	@Test
+	public void mailshareCrossBackend()
+			throws IMAPException, InterruptedException, ExecutionException, TimeoutException, IOException {
+		ItemsTransferService.FORCE_CROSS = true;
+
+		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+		IMailshare mailshareApi = prov.instance(IMailshare.class, domainUid);
+		Mailshare mailshare = new Mailshare();
+		mailshare.name = "shared" + System.currentTimeMillis();
+		mailshare.emails = Arrays.asList(Email.create(mailshare.name + "@" + domainUid, true));
+		mailshare.routing = Routing.internal;
+
+		// setup events expectations
+		CompletableFuture<MailboxReplicaRootDescriptor> onRoot = ReplicationEvents.onMailboxRootCreated();
+		MailboxReplicaRootDescriptor expected = MailboxReplicaRootDescriptor.create(Namespace.shared, mailshare.name);
+		Subtree sub = SubtreeContainer.mailSubtreeUid(domainUid, expected.ns, mailshare.name);
+		String subtreeUid = sub.subtreeUid();
+		System.err.println("On subtree update " + subtreeUid);
+		CompletableFuture<ItemIdentifier> onSubtree = ReplicationEvents.onSubtreeUpdate(subtreeUid);
+		CompletableFuture<Void> allEvents = CompletableFuture.allOf(onRoot, onSubtree);
+
+		System.err.println("Before create.....");
+		mailshareApi.create(mailshare.name, mailshare);
+
+		IContainerManagement c = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IContainerManagement.class, IMailboxAclUids.uidForMailbox(mailshare.name));
+		List<AccessControlEntry> accessControlList = new ArrayList<>(c.getAccessControlList());
+		accessControlList.add(AccessControlEntry.create(userUid, Verb.Write));
+		c.setAccessControlList(accessControlList);
+
+		allEvents.get(10, TimeUnit.SECONDS);
+		MailboxReplicaRootDescriptor created = onRoot.get();
+		assertNotNull(created);
+		System.err.println("**** ROOT is " + created.ns + ", " + created.name + ", version: " + onSubtree.get());
+		Thread.sleep(500);
+		IMailboxFolders folders = provider().instance(IMailboxFolders.class, partition, mailshare.name);
+		List<ItemValue<MailboxFolder>> allFolders = folders.all();
+		ItemValue<MailboxFolder> sent = null;
+		for (ItemValue<MailboxFolder> folder : allFolders) {
+			System.out.println("Got " + folder.uid + ", " + folder.value.name);
+			if ("Sent".equals(folder.value.name)) {
+				sent = folder;
+			}
+		}
+		assertNotNull(sent);
+		int txSize = 50;
+		List<Long> idsToTransfer = new ArrayList<>(txSize);
+		for (int i = 0; i < txSize; i++) {
+			ItemValue<MailboxItem> firstItem = addDraft(sent, mailshare.name);
+			idsToTransfer.add(firstItem.internalId);
+		}
+		IMailboxFolders foldersApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
+		ItemValue<MailboxFolder> trash = foldersApi.byName("Trash");
+
+		IItemsTransfer transferApi = provider().instance(IItemsTransfer.class, sent.uid, trash.uid);
+		long time = System.currentTimeMillis();
+		List<ItemIdentifier> copied = transferApi.copy(idsToTransfer);
+		time = System.currentTimeMillis() - time;
+		System.err.println("Copied " + txSize + " in " + time + "ms");
+		assertNotNull(copied);
+		assertEquals(txSize, copied.size());
+
+		time = System.currentTimeMillis();
+		List<ItemIdentifier> moved = transferApi.move(idsToTransfer);
+		time = System.currentTimeMillis() - time;
+		System.err.println("Moved " + txSize + " in " + time + "ms");
+		assertNotNull(moved);
+		assertEquals(txSize, moved.size());
 	}
 
 	@Test

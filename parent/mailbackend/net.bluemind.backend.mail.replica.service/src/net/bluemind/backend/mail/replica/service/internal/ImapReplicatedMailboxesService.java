@@ -121,8 +121,8 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			}
 			SubtreeLocation recLoc = optRecordsLocation.get();
 			toWatch = recLoc.subtreeContainer;
-			oldName = recLoc.imapPath() + "/" + current.value.name;
-			newName = recLoc.imapPath() + "/" + value.name;
+			oldName = recLoc.imapPath(context) + "/" + current.value.name;
+			newName = recLoc.imapPath(context) + "/" + value.name;
 		}
 		final String fnOld = oldName;
 		final String fnNew = newName;
@@ -160,7 +160,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			}
 			SubtreeLocation recLoc = optRecordsLocation.get();
 			toWatch = recLoc.subtreeContainer;
-			newName = recLoc.imapPath() + "/" + value.name;
+			newName = recLoc.imapPath(context) + "/" + value.name;
 		}
 
 		ItemValue<MailboxFolder> folder = byName(newName);
@@ -215,7 +215,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			}
 			SubtreeLocation recLoc = optRecordsLocation.get();
 			toWatch = recLoc.subtreeContainer;
-			newName = recLoc.imapPath() + "/" + toDelete.value.name;
+			newName = recLoc.imapPath(context) + "/" + toDelete.value.name;
 		}
 		CompletableFuture<ItemIdentifier> future = ReplicationEvents.onSubtreeUpdate(toWatch);
 		final String fnName = newName;

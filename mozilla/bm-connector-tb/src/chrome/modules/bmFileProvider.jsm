@@ -184,11 +184,7 @@ bmFileProvider.prototype = {
             aCallback.onStopRequest(null, null, cloudFileProvInterface.authErr);
         }.bind(this);
     
-        if (!this._authKey)
-            return this._login(onSuccess, onFailure, true);
-        if (!this._userInfo)
-            return this._getUserInfo(onSuccess, onFailure);
-        onSuccess();
+        return this._login(onSuccess, onFailure, true);
     },
     
     urlForFile: function(aFile) {

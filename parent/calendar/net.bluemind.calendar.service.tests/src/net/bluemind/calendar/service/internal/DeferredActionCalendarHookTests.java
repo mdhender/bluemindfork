@@ -392,11 +392,11 @@ public class DeferredActionCalendarHookTests {
 				new Date(200, 0, 0).getTime());
 		assertEquals(1, byActionId.size());
 
-		// expected date is today 21pm UTC
-		LocalDateTime expected = LocalDateTime.now().withHour(21).withMinute(0).withSecond(1).withNano(0);
+		// expected date is today 22pm Europe/Paris
+		ZonedDateTime expected = LocalDateTime.now().withHour(22).withMinute(0).withSecond(1).withNano(0).atZone(tz);
 
-		LocalDateTime triggerValueAsDate = new java.sql.Timestamp(byActionId.get(0).value.executionDate.getTime())
-				.toLocalDateTime();
+		ZonedDateTime triggerValueAsDate = ZonedDateTime
+				.ofInstant(Instant.ofEpochMilli(byActionId.get(0).value.executionDate.getTime()), tz);
 		assertEquals(expected, triggerValueAsDate);
 	}
 

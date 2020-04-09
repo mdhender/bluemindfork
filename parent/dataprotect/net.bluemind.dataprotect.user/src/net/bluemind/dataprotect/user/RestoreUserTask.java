@@ -166,7 +166,7 @@ public class RestoreUserTask implements IServerTask {
 		userStore = new UserStore(JdbcActivator.getInstance().getDataSource(), domain);
 		Item i = Item.create(item.entryUid, null);
 		i.id = newUserId;
-		userStore.setPassword(i, pwd);
+		userStore.setPassword(i, pwd, true);
 	}
 
 	private void restoreUserFilters(Restorable item, IServiceProvider live, IServiceProvider back) {

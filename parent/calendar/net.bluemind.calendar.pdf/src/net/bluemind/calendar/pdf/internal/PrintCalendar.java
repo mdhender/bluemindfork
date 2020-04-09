@@ -20,7 +20,6 @@ package net.bluemind.calendar.pdf.internal;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -44,6 +43,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.batik.dom.svg.SVGDOMImplementation;
+import org.apache.batik.transcoder.SVGAbstractTranscoder;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.image.JPEGTranscoder;
@@ -66,6 +66,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemContainerValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.utils.DateTimeComparator;
+import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 
@@ -199,7 +200,7 @@ public abstract class PrintCalendar {
 	protected Map<Long, List<ItemContainerValue<VEvent>>> sortOccurrences(List<ItemContainerValue<VEvent>> vevents,
 			BmDateTime begin, BmDateTime end) {
 
-		boolean showDeclinedEvents = new Boolean(this.userSettings.get("show_declined_events"));
+		boolean showDeclinedEvents = Boolean.parseBoolean(this.userSettings.get("show_declined_events"));
 
 		// sort occurrences by date
 		Map<Long, List<ItemContainerValue<VEvent>>> ocs = new TreeMap<Long, List<ItemContainerValue<VEvent>>>();
@@ -207,7 +208,7 @@ public abstract class PrintCalendar {
 		Calendar ocEnd = (Calendar) ocStart.clone();
 		Long key;
 		// fix occurrence date begin/end (starts before and/or ends after
-		// date range);
+		// date range)
 
 		Calendar rangeStart = (Calendar) ocStart.clone();
 		rangeStart.setTimeInMillis(new BmDateTimeWrapper(begin).toTimestamp(timezone.getID()));
@@ -295,9 +296,9 @@ public abstract class PrintCalendar {
 	}
 
 	/**
-	 * @return <code>true</code> if the given event is a declined invitation
-	 *         i.e.: this event is declined by X and the event's calendar is the
-	 *         X's default calendar
+	 * @return <code>true</code> if the given event is a declined invitation i.e.:
+	 *         this event is declined by X and the event's calendar is the X's
+	 *         default calendar
 	 */
 	private boolean isADeclinedInvitation(ItemContainerValue<VEvent> event) {
 		if (event.value.attendees == null || event.value.attendees.isEmpty()) {
@@ -318,8 +319,8 @@ public abstract class PrintCalendar {
 	}
 
 	/**
-	 * The uid of the attendee is found at the very end after the last
-	 * <b>&#47;</b> and the last <b>:</b>.
+	 * The uid of the attendee is found at the very end after the last <b>&#47;</b>
+	 * and the last <b>:</b>.
 	 */
 	private String extractUidFromAttendeeDir(String attendeeDir) {
 		String[] split = Strings.nullToEmpty(attendeeDir).split("[/:]");
@@ -327,8 +328,7 @@ public abstract class PrintCalendar {
 	}
 
 	/**
-	 * The uid of the container is found at the very end after the last
-	 * <b>:</b>.
+	 * The uid of the container is found at the very end after the last <b>:</b>.
 	 */
 	private String extractUidFromItemContainerUid(String itemContainerUid) {
 		String[] split = itemContainerUid.split(":");
@@ -352,58 +352,37 @@ public abstract class PrintCalendar {
 		return ret;
 	}
 
-	public byte[] sendJPEGString() throws ServerFault {
-		ByteArrayOutputStream os = null;
-		try {
+	public byte[] sendJPEGString() {
+		try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
 			JPEGTranscoder t = new JPEGTranscoder();
-			t.addTranscodingHint(JPEGTranscoder.KEY_QUALITY, new Float(0.8));
-			t.addTranscodingHint(JPEGTranscoder.KEY_HEIGHT, new Float(250));
+			t.addTranscodingHint(JPEGTranscoder.KEY_QUALITY, Float.valueOf(0.8f));
+			t.addTranscodingHint(SVGAbstractTranscoder.KEY_HEIGHT, Float.valueOf(250f));
 			ByteArrayInputStream bais = svgToByteArrayInputStream(pages.get(0));
 			TranscoderInput input = new TranscoderInput(bais);
-			os = new ByteArrayOutputStream();
 			TranscoderOutput output = new TranscoderOutput(os);
 			t.transcode(input, output);
 			return os.toByteArray();
 		} catch (Exception t) {
 			throw new ServerFault(t.getMessage(), t);
-		} finally {
-			try {
-				if (os != null) {
-					os.flush();
-					os.close();
-				}
-			} catch (IOException e) {
-			}
 		}
 	}
 
-	public byte[] sendPNGString() throws ServerFault {
-		ByteArrayOutputStream os = null;
-		try {
+	public byte[] sendPNGString() {
+		try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
 			PNGTranscoder t = new PNGTranscoder();
-			t.addTranscodingHint(PNGTranscoder.KEY_HEIGHT, new Float(250));
+			t.addTranscodingHint(SVGAbstractTranscoder.KEY_HEIGHT, Float.valueOf(250f));
 			ByteArrayInputStream bais = svgToByteArrayInputStream(pages.get(0));
 			TranscoderInput input = new TranscoderInput(bais);
-			os = new ByteArrayOutputStream();
 			TranscoderOutput output = new TranscoderOutput(os);
 			t.transcode(input, output);
 			return os.toByteArray();
 		} catch (Exception t) {
 			throw new ServerFault(t.getMessage(), t);
-		} finally {
-			try {
-				if (os != null) {
-					os.flush();
-					os.close();
-				}
-			} catch (IOException e) {
-			}
 		}
 	}
 
-	public byte[] sendPDFString() throws ServerFault {
-		ByteArrayOutputStream os = new ByteArrayOutputStream();
-		try {
+	public byte[] sendPDFString() {
+		try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
 			PDFTranscoder t = new PDFTranscoder();
 			if (pages.size() > 1) {
 				PDFMergerUtility mergePdf = new PDFMergerUtility();
@@ -426,13 +405,6 @@ public abstract class PrintCalendar {
 			return os.toByteArray();
 		} catch (Exception t) {
 			throw new ServerFault(t.getMessage(), t);
-		} finally {
-			try {
-				os.flush();
-				os.close();
-			} catch (IOException e) {
-				logger.error(e.getMessage(), e);
-			}
 		}
 	}
 
@@ -443,7 +415,7 @@ public abstract class PrintCalendar {
 		Source in = new DOMSource(page.getDocumentElement());
 		Result r = new StreamResult(out);
 		tf.transform(in, r);
-
+		logger.debug("transformed {}", page);
 		return new ByteArrayInputStream(out.toByteArray());
 	}
 
@@ -452,16 +424,16 @@ public abstract class PrintCalendar {
 		DOMImplementation impl = SVGDOMImplementation.getDOMImplementation();
 		String svgNS = SVGDOMImplementation.SVG_NAMESPACE_URI;
 		Document document = impl.createDocument(svgNS, "svg", null);
-		Element root = document.getDocumentElement();
+		Element r = document.getDocumentElement();
 		if (options.layout == PrintOptions.PrintLayout.PORTRAIT) {
-			root.setAttributeNS(null, "width", Integer.toString(PORTRAIT_WIDTH));
-			root.setAttributeNS(null, "height", Integer.toString(PORTRAIT_HEIGHT));
+			r.setAttributeNS(null, "width", Integer.toString(PORTRAIT_WIDTH));
+			r.setAttributeNS(null, "height", Integer.toString(PORTRAIT_HEIGHT));
 			pageWidth = PORTRAIT_WIDTH;
 			pageHeight = PORTRAIT_HEIGHT;
 			pageLineWidth = PORTRAIT_LINE_WIDTH;
 		} else {
-			root.setAttributeNS(null, "width", Integer.toString(LANDSCAPE_WIDTH));
-			root.setAttributeNS(null, "height", Integer.toString(LANDSCAPE_HEIGHT));
+			r.setAttributeNS(null, "width", Integer.toString(LANDSCAPE_WIDTH));
+			r.setAttributeNS(null, "height", Integer.toString(LANDSCAPE_HEIGHT));
 			pageWidth = LANDSCAPE_WIDTH;
 			pageHeight = LANDSCAPE_HEIGHT;
 			pageLineWidth = LANDSCAPE_LINE_WIDTH;
@@ -469,7 +441,7 @@ public abstract class PrintCalendar {
 		return document;
 	}
 
-	public abstract void process() throws ServerFault;
+	public abstract void process();
 
 	protected void addPage() {
 		page = newPage();
@@ -578,7 +550,7 @@ public abstract class PrintCalendar {
 		boolean isAttendee = isAttendee(e);
 
 		String title = lang.getProperty("private");
-		if (!(e.classification == VEvent.Classification.Private
+		if (!(e.classification == ICalendarElement.Classification.Private
 				&& (e.organizer != null && securityContext.getSubject().equals(e.organizer.uri)) && !isAttendee)) { // FIXME
 			title = e.summary;
 		}
@@ -588,11 +560,11 @@ public abstract class PrintCalendar {
 
 	protected boolean isAttendee(VEvent e) {
 		boolean isAttendee = false;
-		List<VEvent.Attendee> attendees = e.attendees;
+		List<ICalendarElement.Attendee> attendees = e.attendees;
 		if (attendees == null) {
 			return false;
 		}
-		for (VEvent.Attendee a : attendees) {
+		for (ICalendarElement.Attendee a : attendees) {
 			if (("bm://" + securityContext.getContainerUid() + "/users/" + securityContext.getSubject())
 					.equals(a.dir)) {
 				isAttendee = true;
@@ -616,7 +588,7 @@ public abstract class PrintCalendar {
 	protected String getLocation(VEvent event) {
 		boolean isAttendee = isAttendee(event);
 
-		if (!(event.classification == VEvent.Classification.Private
+		if (!(event.classification == ICalendarElement.Classification.Private
 				&& (event.organizer != null && securityContext.getSubject().equals(event.organizer.uri))
 				&& !isAttendee)) { // FIXME
 			if (event.location != null && !event.location.isEmpty()) {

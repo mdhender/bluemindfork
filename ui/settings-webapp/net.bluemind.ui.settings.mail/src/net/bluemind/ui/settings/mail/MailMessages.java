@@ -21,7 +21,7 @@ package net.bluemind.ui.settings.mail;
 import com.google.gwt.i18n.client.Messages;
 
 public interface MailMessages extends Messages {
-	public String mailApp();
+	public String webmail();
 
 	public String tabGeneral();
 
@@ -36,4 +36,8 @@ public interface MailMessages extends Messages {
 	public String advanced();
 
 	public String advancedAnchor();
+	
+	public String mailApp();
+	
+	public String listStyle();
 }

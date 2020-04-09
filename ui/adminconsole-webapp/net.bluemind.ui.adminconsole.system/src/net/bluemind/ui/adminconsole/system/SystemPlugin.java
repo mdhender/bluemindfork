@@ -37,6 +37,7 @@ import net.bluemind.ui.adminconsole.system.domains.edit.filters.EditDomainFilter
 import net.bluemind.ui.adminconsole.system.domains.edit.filters.FiltersModelHandler;
 import net.bluemind.ui.adminconsole.system.domains.edit.general.DomainMaxBasicAccountEditor;
 import net.bluemind.ui.adminconsole.system.domains.edit.general.DomainMaxUserEditor;
+import net.bluemind.ui.adminconsole.system.domains.edit.general.DomainPasswordLifetimeEditor;
 import net.bluemind.ui.adminconsole.system.domains.edit.general.EditDomainGeneralEditor;
 import net.bluemind.ui.adminconsole.system.domains.edit.indexing.EditDomainIndexingEditor;
 import net.bluemind.ui.adminconsole.system.domains.edit.instantmessaging.EditDomainInstantMessagingEditor;
@@ -106,6 +107,7 @@ public class SystemPlugin {
 		EditDomainGeneralEditor.registerType();
 		DomainMaxUserEditor.registerType();
 		DomainMaxBasicAccountEditor.registerType();
+		DomainPasswordLifetimeEditor.registerType();
 		EditDomainIndexingEditor.registerType();
 		EditDomainInstantMessagingEditor.registerType();
 		EditDomainMailsystemEditor.registerType();

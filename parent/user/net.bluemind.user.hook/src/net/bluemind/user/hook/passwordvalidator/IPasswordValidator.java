@@ -18,11 +18,13 @@
  */
 package net.bluemind.user.hook.passwordvalidator;
 
+import java.util.Optional;
+
 import net.bluemind.core.api.fault.ServerFault;
 
 /**
  * {@link IPasswordValidator} provides a mechanism to validate user password
  */
 public interface IPasswordValidator {
-	public void validate(String password) throws ServerFault;
+	public void validate(Optional<String> currentPassword, String password) throws ServerFault;
 }

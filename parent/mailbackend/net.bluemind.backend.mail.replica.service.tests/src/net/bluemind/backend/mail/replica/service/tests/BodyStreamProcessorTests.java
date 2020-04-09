@@ -212,7 +212,7 @@ public class BodyStreamProcessorTests {
 
 		// preview should not contain html tags
 		this.testMessageBodyPreview("data/BM-15740.eml",
-				"RELAI D’INFORMATION DE LA MAIRIE AUX ETABLISSEMENTS PUBLICS ET PRIVES DE LABEGE Mesdames, Messieurs, Vous trouverez en Pièce Jointe une note de recommandati");
+				"RELAI D’INFORMATION DE LA MAIRIE AUX ETABLISSEMENTS PUBLICS ET PRIVES DE LABEGE Mesdames, Messieurs, Vous trouverez en Pièce Jointe une note de recommandations");
 
 	}
 
@@ -222,6 +222,8 @@ public class BodyStreamProcessorTests {
 		final MessageBodyData result = BodyStreamProcessor.processBody(stream).get(2, TimeUnit.SECONDS);
 		assertNotNull(result);
 		assertNotNull(result.body);
+		System.err.println(expectedPreview + " " + expectedPreview.length());
+		System.err.println(result.body.preview + " " + result.body.preview.length());
 		assertEquals(expectedPreview, result.body.preview);
 	}
 

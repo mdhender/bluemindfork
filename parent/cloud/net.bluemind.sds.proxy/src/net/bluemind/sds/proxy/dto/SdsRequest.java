@@ -20,6 +20,5 @@ package net.bluemind.sds.proxy.dto;
 public abstract class SdsRequest {
 
 	public String mailbox;
-	public String guid;
 
 }

@@ -86,9 +86,9 @@ public class ITIPPartParser {
 		}
 
 		// X-WR-TIMEZONE
-		String globalTZ = calendarComponents.get(0).getProperty("X-WR-TIMEZONE") != null
-				? calendarComponents.get(0).getProperty("X-WR-TIMEZONE").getValue()
-				: null;
+		Optional<String> globalTZ = calendarComponents.get(0).getProperty("X-WR-TIMEZONE") != null
+				? Optional.of(calendarComponents.get(0).getProperty("X-WR-TIMEZONE").getValue())
+				: Optional.empty();
 
 		Summary summary = null;
 		Uid uid = null;

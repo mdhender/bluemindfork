@@ -17,7 +17,7 @@
  */
 package net.bluemind.sds.proxy.tests;
 
-import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -53,11 +53,11 @@ public class SdsTestStore implements ISdsBackingStore {
 	private Vertx vertx;
 
 	@Override
-	public ExistResponse exists(ExistRequest req) {
+	public CompletableFuture<ExistResponse> exists(ExistRequest req) {
 		vertx.eventBus().publish("test.store.exists", req.guid);
 		ExistResponse er = new ExistResponse();
 		er.exists = true;
-		return er;
+		return CompletableFuture.completedFuture(er);
 	}
 
 	public void setVertx(Vertx vertx) {
@@ -65,18 +65,18 @@ public class SdsTestStore implements ISdsBackingStore {
 	}
 
 	@Override
-	public SdsResponse upload(PutRequest req) throws IOException {
-		return null;
+	public CompletableFuture<SdsResponse> upload(PutRequest req) {
+		return CompletableFuture.completedFuture(new SdsResponse());
 	}
 
 	@Override
-	public SdsResponse download(GetRequest req) throws IOException {
-		return null;
+	public CompletableFuture<SdsResponse> download(GetRequest req) {
+		return CompletableFuture.completedFuture(new SdsResponse());
 	}
 
 	@Override
-	public SdsResponse delete(DeleteRequest req) {
-		return null;
+	public CompletableFuture<SdsResponse> delete(DeleteRequest req) {
+		return CompletableFuture.completedFuture(new SdsResponse());
 	}
 
 }

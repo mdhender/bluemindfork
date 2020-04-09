@@ -200,7 +200,7 @@ public class VEventIndexStore {
 
 		return Queries.and(QueryBuilders.existsQuery(field), Queries.or(inRangeNoTz, inRangeWithTz));
 	}
-	
+
 	private QueryBuilder fieldGreaterOrEqualAt(String field, String fieldTz, BmDateTime dt) {
 		QueryBuilder inRangeNoTz = Queries.and(//
 				Queries.missing(fieldTz), //
@@ -211,7 +211,7 @@ public class VEventIndexStore {
 
 		return Queries.and(QueryBuilders.existsQuery(field), Queries.or(inRangeNoTz, inRangeWithTz));
 	}
-	
+
 	private QueryBuilder fieldLessThan(String field, String fieldTz, BmDateTime dt) {
 		QueryBuilder inRangeNoTz = Queries.and(//
 				Queries.missing(fieldTz), //

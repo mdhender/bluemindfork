@@ -9,8 +9,8 @@ ExcludeArch:        s390 s390x
 Requires(post):     systemd systemd-sysv
 Requires:           bm-jdk = 8u242-bluemind32, bm-conf = %{version}-%{release}, ghostscript-fonts, dejavu-sans-fonts, dejavu-sans-mono-fonts, dejavu-serif-fonts, openssl, ca-certificates, bm-tika = %{version}-%{release}, bm-plugin-core-subscription = %{version}-%{release}
 Requires(post):     /bin/bash, initscripts
-Conflicts:          bm-soap, bm-plugin-core-dataprotect-upgrade
-Obsoletes:          bm-soap, bm-plugin-core-dataprotect-upgrade
+Conflicts:          bm-soap, bm-plugin-core-dataprotect-upgrade, bm-plugin-core-hoster-report
+Obsoletes:          bm-soap, bm-plugin-core-dataprotect-upgrade, bm-plugin-core-hoster-report
 
 %description
 BlueMind core server

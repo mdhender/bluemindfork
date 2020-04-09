@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.aws.s3.tests
 Bundle-SymbolicName: net.bluemind.aws.s3.tests
 Bundle-Version: 4.1.0.qualifier
-Bundle-Activator: net.bluemind.aws.s3.tests.DumbActivator
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  org.junit,

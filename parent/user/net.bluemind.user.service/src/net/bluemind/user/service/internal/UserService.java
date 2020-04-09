@@ -19,14 +19,19 @@
 package net.bluemind.user.service.internal;
 
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.TimeZone;
 
 import javax.sql.DataSource;
 
@@ -63,6 +68,7 @@ import net.bluemind.directory.service.DirEntryAndValue;
 import net.bluemind.directory.service.DirEntryHandlers;
 import net.bluemind.directory.service.DirValueStoreService.MailboxAdapter;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.api.IGroup;
@@ -426,37 +432,100 @@ public class UserService implements IInCoreUser, IUser {
 
 	}
 
+	private Date addDaysToDate(Date date, int amount) {
+		Calendar c = Calendar.getInstance();
+		c.setTime(date);
+		c.add(Calendar.DATE, amount);
+
+		return c.getTime();
+	}
+
+	private Date getToday() {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+		try {
+			return sdf.parse(sdf.format(new Date()));
+		} catch (ParseException e) {
+			logger.error("Unable to get today date");
+			throw new ServerFault("Unable to get today date");
+		}
+	}
+
+	public boolean passwordUpdateNeeded(String login) {
+		ParametersValidator.notNullAndNotEmpty(login);
+
+		ItemValue<User> userItem = getUserFromLogin(login);
+
+		if (userItem.value.passwordMustChange) {
+			return true;
+		}
+
+		if (userItem.value.passwordNeverExpires) {
+			return false;
+		}
+
+		Optional<Integer> passwordLifetime = Optional.empty();
+		try {
+			Integer passwordLifetimeSetting = Integer
+					.valueOf(bmContext.su().provider().instance(IDomainSettings.class, domainName).get()
+							.get(DomainSettingsKeys.password_lifetime.name()));
+			if (passwordLifetimeSetting > 0) {
+				passwordLifetime = Optional.of(passwordLifetimeSetting);
+			}
+		} catch (NumberFormatException nfe) {
+		}
+
+		if (!passwordLifetime.isPresent()) {
+			// No or invalid password lifetime defined
+			return false;
+		}
+
+		if (userItem.value.passwordLastChange == null
+				|| addDaysToDate(userItem.value.passwordLastChange, passwordLifetime.get()).before(getToday())) {
+			return true;
+		}
+
+		return false;
+	}
+
 	public boolean checkPassword(String login, String password) {
 		ParametersValidator.notNullAndNotEmpty(login);
 		ParametersValidator.notNullAndNotEmpty(password);
 
 		try {
-			if (login.contains("@")) {
-				login = login.split("@")[0];
-			}
-
-			String uid = storeService.findByLogin(login);
-			if (uid == null) {
-				return false;
-			}
-			ItemValue<User> userItem = storeService.get(uid);
-			if (userItem == null) {
-				return false;
-			}
-			User user = userItem.value;
+			ItemValue<User> userItem = getUserFromLogin(login);
 
 			// BM-9728
-			if (user.password == null) {
+			if (userItem.value.password == null) {
 				return false;
 			}
 
-			boolean valid = HashFactory.getByPassword(user.password).validate(password, user.password);
-			updatePasswordAlgorithm(userItem, valid, user.password, password);
+			boolean valid = HashFactory.getByPassword(userItem.value.password).validate(password,
+					userItem.value.password);
+			updatePasswordAlgorithm(userItem, valid, userItem.value.password, password);
 			return valid;
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			return false;
 		}
+	}
+
+	private ItemValue<User> getUserFromLogin(String login) {
+		if (login.contains("@")) {
+			login = login.split("@")[0];
+		}
+
+		String uid = storeService.findByLogin(login);
+		if (uid == null) {
+			throw new ServerFault(String.format("Unable to get user UID from login %s", login));
+		}
+		ItemValue<User> userItem = storeService.get(uid);
+		if (userItem == null) {
+			throw new ServerFault(String.format("Unable to get user from uid %s", uid));
+		}
+
+		return userItem;
 	}
 
 	private void updatePasswordAlgorithm(ItemValue<User> userItem, boolean valid, String password, String passwordPlain)
@@ -467,7 +536,7 @@ public class UserService implements IInCoreUser, IUser {
 		if (valid && !HashFactory.usesDefaultAlgorithm(password)) {
 			logger.info("Updating password algorithm of user {} from {} to {}", user.login,
 					HashFactory.algorithm(password), HashFactory.getDefaultName());
-			storeService.setPassword(userItem.uid, HashFactory.getDefault().create(passwordPlain));
+			storeService.setPassword(userItem.uid, HashFactory.getDefault().create(passwordPlain), false);
 		}
 	}
 
@@ -624,8 +693,14 @@ public class UserService implements IInCoreUser, IUser {
 	@Override
 	public Set<String> directResolvedRoles(String uid, List<String> groups) throws ServerFault {
 		User user = getFull(uid).value;
+		if (passwordUpdateNeeded(user.login)) {
+			return DefaultRoles.USER_PASSWORD_EXPIRED;
+		}
+
+		IInternalRoles roleService = bmContext.su().provider().instance(IInternalRoles.class);
+
 		if (user.accountType == AccountType.SIMPLE) {
-			return DefaultRoles.SIMPLE_USER_DEFAULT_ROLES;
+			return roleService.resolve(DefaultRoles.SIMPLE_USER_DEFAULT_ROLES);
 		}
 
 		Set<String> roles = storeService.getRoles(uid);
@@ -642,7 +717,6 @@ public class UserService implements IInCoreUser, IUser {
 		}
 
 		// deactivate non-active roles
-		IInternalRoles roleService = bmContext.su().provider().instance(IInternalRoles.class);
 
 		roles = roleService.filter(roles);
 		return roleService.resolve(roles);
@@ -658,7 +732,8 @@ public class UserService implements IInCoreUser, IUser {
 	public void setPassword(String uid, ChangePassword password) throws ServerFault {
 		ParametersValidator.notNullAndNotEmpty(uid);
 		ParametersValidator.notNull(password);
-		passwordValidator.validate(password.newPassword);
+		ParametersValidator.notNull(password.newPassword);
+		passwordValidator.validate(password.currentPassword, password.newPassword);
 
 		ItemValue<User> userItem = storeService.get(uid);
 		if (userItem == null) {
@@ -685,6 +760,7 @@ public class UserService implements IInCoreUser, IUser {
 	private void changePassword(String uid, String currentPassword, String newPassword) throws ServerFault {
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_SELF_CHANGE_PASSWORD, BasicRoles.ROLE_MANAGE_USER_PASSWORD);
 
+		ParametersValidator.notNull(newPassword);
 		passwordValidator.validate(newPassword);
 
 		ItemValue<User> userItem = storeService.get(uid);
@@ -696,7 +772,7 @@ public class UserService implements IInCoreUser, IUser {
 			throw new ServerFault("password is not valid " + uid, ErrorCode.AUTHENTICATION_FAIL);
 		}
 
-		storeService.setPassword(uid, HashFactory.getDefault().create(newPassword));
+		storeService.setPassword(uid, HashFactory.getDefault().create(newPassword), true);
 	}
 
 	private void setPassword(String uid, String newPassword) throws ServerFault {
@@ -708,7 +784,7 @@ public class UserService implements IInCoreUser, IUser {
 		if (userItem == null) {
 			throw new ServerFault("user uid:" + uid + " doesn't exist !", ErrorCode.NOT_FOUND);
 		}
-		storeService.setPassword(uid, HashFactory.getDefault().create(newPassword));
+		storeService.setPassword(uid, HashFactory.getDefault().create(newPassword), true);
 	}
 
 	@Override

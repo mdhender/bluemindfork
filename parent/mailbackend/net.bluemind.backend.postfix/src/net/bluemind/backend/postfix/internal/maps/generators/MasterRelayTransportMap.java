@@ -21,6 +21,7 @@ package net.bluemind.backend.postfix.internal.maps.generators;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import net.bluemind.backend.postfix.internal.maps.DomainInfo;
 import net.bluemind.core.container.model.ItemValue;
@@ -55,11 +56,11 @@ public class MasterRelayTransportMap implements IMapGenerator {
 	public String generateMap() {
 		StringBuilder map = new StringBuilder();
 
-		for (ItemValue<Domain> domain : domainSettingsByDomains.keySet()) {
-			String relay = DomainSettingsHelper.getSlaveRelayHost(domainSettingsByDomains.get(domain));
-			map.append(domain.value.name).append(" smtp:").append(relay).append(":25\n");
+		for (Entry<ItemValue<Domain>, Map<String, String>> e : domainSettingsByDomains.entrySet()) {
+			String relay = DomainSettingsHelper.getSlaveRelayHost(e.getValue());
+			map.append(e.getKey().value.name).append(" smtp:").append(relay).append(":25\n");
 
-			domain.value.aliases.forEach(alias -> map.append(alias).append(" smtp:").append(relay).append(":25\n"));
+			e.getKey().value.aliases.forEach(alias -> map.append(alias).append(" smtp:").append(relay).append(":25\n"));
 		}
 
 		return map.toString();

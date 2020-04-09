@@ -26,4 +26,5 @@ public class ContainerSyncResult {
 	public int added;
 	public int updated;
 	public int removed;
+	public int unhandled;
 }

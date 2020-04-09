@@ -29,12 +29,14 @@ import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.Count;
 import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemChangelog;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
+import net.bluemind.core.container.model.SortDescriptor;
 
 public class NoopMailboxRecordService implements IDbMailboxRecords {
 
@@ -163,6 +165,16 @@ public class NoopMailboxRecordService implements IDbMailboxRecords {
 	@Override
 	public List<ImapBinding> havingBodyVersionLowerThan(int version) {
 		logger.info("NOOP operation IDbMailboxRecords#havingBodyVersionLowerThan");
+		return Collections.emptyList();
+	}
+
+	@Override
+	public Count count(ItemFlagFilter filter) throws ServerFault {
+		return Count.of(0);
+	}
+
+	@Override
+	public List<Long> sortedIds(SortDescriptor sorted) throws ServerFault {
 		return Collections.emptyList();
 	}
 

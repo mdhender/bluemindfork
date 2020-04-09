@@ -30,6 +30,7 @@ public class ContainerUpdatesResult {
 	public List<String> added = new ArrayList<>();
 	public List<String> updated = new ArrayList<>();
 	public List<String> removed = new ArrayList<>();
+	public List<String> unhandled = new ArrayList<>();
 
 	public List<InError> errors;
 
@@ -51,6 +52,10 @@ public class ContainerUpdatesResult {
 	}
 
 	public int total() {
+		return synced() + unhandled.size();
+	}
+
+	public int synced() {
 		return added.size() + updated.size() + removed.size();
 	}
 }

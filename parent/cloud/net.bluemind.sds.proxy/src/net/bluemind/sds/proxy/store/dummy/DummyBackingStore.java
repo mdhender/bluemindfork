@@ -20,6 +20,7 @@ package net.bluemind.sds.proxy.store.dummy;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,40 +53,57 @@ public class DummyBackingStore implements ISdsBackingStore {
 		}
 	};
 
-	@Override
-	public ExistResponse exists(ExistRequest exist) {
-		ExistResponse resp = new ExistResponse();
-		resp.exists = new File("/dummy-sds/", exist.guid).exists();
-		return resp;
+	private static final File root = new File(System.getProperty("user.home"), "dummy-sds");
+	static {
+		root.mkdirs();
 	}
 
 	@Override
-	public SdsResponse upload(PutRequest put) throws IOException {
-		File dst = new File("/dummy-sds", put.guid);
+	public CompletableFuture<ExistResponse> exists(ExistRequest exist) {
+		ExistResponse resp = new ExistResponse();
+		resp.exists = new File(root, exist.guid).exists();
+		return CompletableFuture.completedFuture(resp);
+	}
+
+	@Override
+	public CompletableFuture<SdsResponse> upload(PutRequest put) {
+		File dst = new File(root, put.guid);
 		if (!dst.exists()) {
 			File source = new File(put.filename);
-			Files.copy(source.toPath(), dst.toPath());
+			try {
+				Files.copy(source.toPath(), dst.toPath());
+			} catch (IOException e) {
+				CompletableFuture<SdsResponse> f = new CompletableFuture<>();
+				f.completeExceptionally(e);
+				return f;
+			}
 		}
-		return new SdsResponse();
+		return CompletableFuture.completedFuture(new SdsResponse());
 	}
 
 	@Override
-	public SdsResponse download(GetRequest get) throws IOException {
-		File source = new File("/dummy-sds", get.guid);
+	public CompletableFuture<SdsResponse> download(GetRequest get) {
+		File source = new File(root, get.guid);
 		File dest = new File(get.filename);
 		if (dest.exists()) {
 			logger.warn("{} already exist", dest.getAbsolutePath());
 		} else {
-			Files.copy(source.toPath(), dest.toPath());
+			try {
+				Files.copy(source.toPath(), dest.toPath());
+			} catch (IOException e) {
+				CompletableFuture<SdsResponse> f = new CompletableFuture<>();
+				f.completeExceptionally(e);
+				return f;
+			}
 		}
-		return new SdsResponse();
+		return CompletableFuture.completedFuture(new SdsResponse());
 	}
 
 	@Override
-	public SdsResponse delete(DeleteRequest del) {
-		boolean deleted = new File("/dummy-sds/", del.guid).delete();
+	public CompletableFuture<SdsResponse> delete(DeleteRequest del) {
+		boolean deleted = new File(root, del.guid).delete();
 		logger.info("Deleted ? {}", deleted);
-		return new SdsResponse();
+		return CompletableFuture.completedFuture(new SdsResponse());
 	}
 
 }

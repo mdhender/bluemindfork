@@ -24,6 +24,7 @@
 		<module>net.bluemind.cli.hz</module>
 		<module>net.bluemind.cli.integration.tests</module>
 		<module>net.bluemind.cli.user</module>
+		<module>net.bluemind.cli.group</module>
 		<module>net.bluemind.cli.todolist</module>
 		<module>net.bluemind.cli.sysconf</module>
 		<module>net.bluemind.cli.inject.imap</module>

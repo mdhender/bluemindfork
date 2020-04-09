@@ -83,14 +83,10 @@ public class GroupProtocolHandler implements Handler<Buffer> {
 			String[] resp = new String[] { core };
 			asyncHandler.success(resp);
 		};
-		this.exceptionHandler = new Handler<Throwable>() {
-
-			@Override
-			public void handle(Throwable e) {
-				logger.error("error: {}", e.getMessage(), e);
-				socket.write(ko(String.format("error: %s", e.getMessage())));
-				socket.close();
-			}
+		this.exceptionHandler = (Throwable e) -> {
+			logger.error("error: {}", e.getMessage(), e);
+			socket.write(ko(String.format("error: %s", e.getMessage())));
+			socket.close();
 		};
 		socket.exceptionHandler(this.exceptionHandler);
 	}
@@ -106,14 +102,15 @@ public class GroupProtocolHandler implements Handler<Buffer> {
 			return;
 		}
 
-		if (loginAtDomain.indexOf("@") == -1) {
+		if (loginAtDomain.indexOf('@') == -1) {
 			logger.error("Invalid login: {}", loginAtDomain);
 			socket.write(ko(String.format("Invalid login: %s", loginAtDomain)));
 			socket.close();
 			return;
 		}
-		String login = loginAtDomain.split("@")[0];
-		String domain = loginAtDomain.split("@")[1];
+		String[] splitted = loginAtDomain.split("@");
+		String login = splitted[0];
+		String domain = splitted[1];
 
 		VertxPromiseServiceProvider provider = new VertxPromiseServiceProvider(clientProvider, cachingLocator,
 				Token.admin0());

@@ -2,6 +2,139 @@
 		"id": 3,
 		"cells": [
 			{
+				"i": "727e7496-c93b-42ad-8934-6672c121f19f",
+				"x": 0,
+				"y": 12,
+				"w": 4,
+				"h": 4,
+				"name": "sds-proxy",
+				"queries": [
+					{
+						"query": "SELECT mean(\"value\") AS \"mean_value\" FROM \"telegraf\".\"autogen\".\"bm-sds-proxy.jvm.usedMemory\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"host\" FILL(null)",
+						"queryConfig": {
+							"database": "telegraf",
+							"measurement": "bm-sds-proxy.jvm.usedMemory",
+							"retentionPolicy": "autogen",
+							"fields": [
+								{
+									"value": "mean",
+									"type": "func",
+									"alias": "mean_value",
+									"args": [
+										{
+											"value": "value",
+											"type": "field",
+											"alias": ""
+										}
+									]
+								}
+							],
+							"tags": {},
+							"groupBy": {
+								"time": "auto",
+								"tags": [
+									"host"
+								]
+							},
+							"areTagsAccepted": false,
+							"fill": "null",
+							"rawText": null,
+							"range": null,
+							"shifts": null
+						},
+						"source": "/chronograf/v1/sources/0",
+						"type": "influxql"
+					}
+				],
+				"axes": {
+					"x": {
+						"bounds": [
+							"",
+							""
+						],
+						"label": "",
+						"prefix": "",
+						"suffix": "",
+						"base": "10",
+						"scale": "linear"
+					},
+					"y": {
+						"bounds": [
+							"",
+							""
+						],
+						"label": "used",
+						"prefix": "",
+						"suffix": "",
+						"base": "2",
+						"scale": "linear"
+					},
+					"y2": {
+						"bounds": [
+							"",
+							""
+						],
+						"label": "",
+						"prefix": "",
+						"suffix": "",
+						"base": "10",
+						"scale": "linear"
+					}
+				},
+				"type": "line",
+				"colors": [
+					{
+						"id": "e52fe894-f423-4f6e-93d7-220317484f52",
+						"type": "scale",
+						"hex": "#31C0F6",
+						"name": "Nineteen Eighty Four",
+						"value": "0"
+					},
+					{
+						"id": "d00850c8-dbbc-4f12-9503-71d2b4422892",
+						"type": "scale",
+						"hex": "#A500A5",
+						"name": "Nineteen Eighty Four",
+						"value": "0"
+					},
+					{
+						"id": "75704c38-6f5c-45ec-83c4-343ccff1912d",
+						"type": "scale",
+						"hex": "#FF7E27",
+						"name": "Nineteen Eighty Four",
+						"value": "0"
+					}
+				],
+				"legend": {},
+				"tableOptions": {
+					"verticalTimeAxis": true,
+					"sortBy": {
+						"internalName": "time",
+						"displayName": "",
+						"visible": true
+					},
+					"wrapping": "truncate",
+					"fixFirstColumn": true
+				},
+				"fieldOptions": [
+					{
+						"internalName": "time",
+						"displayName": "",
+						"visible": true
+					}
+				],
+				"timeFormat": "MM/DD/YYYY HH:mm:ss",
+				"decimalPlaces": {
+					"isEnforced": false,
+					"digits": 3
+				},
+				"note": "",
+				"noteVisibility": "default",
+				"links": {
+					"self": "/chronograf/v1/dashboards/3/cells/727e7496-c93b-42ad-8934-6672c121f19f"
+				}
+			},
+			{
 				"i": "42969c6a-2224-47c3-860c-452707d79fe8",
 				"x": 8,
 				"y": 8,
@@ -40,7 +173,8 @@
 							"range": null,
 							"shifts": null
 						},
-						"source": "/chronograf/v1/sources/0"
+						"source": "/chronograf/v1/sources/0",
+						"type": "influxql"
 					}
 				],
 				"axes": {
@@ -125,6 +259,8 @@
 					"isEnforced": false,
 					"digits": 3
 				},
+				"note": "",
+				"noteVisibility": "default",
 				"links": {
 					"self": "/chronograf/v1/dashboards/3/cells/42969c6a-2224-47c3-860c-452707d79fe8"
 				}
@@ -168,7 +304,8 @@
 							"range": null,
 							"shifts": null
 						},
-						"source": "/chronograf/v1/sources/0"
+						"source": "/chronograf/v1/sources/0",
+						"type": "influxql"
 					}
 				],
 				"axes": {
@@ -253,6 +390,8 @@
 					"isEnforced": false,
 					"digits": 3
 				},
+				"note": "",
+				"noteVisibility": "default",
 				"links": {
 					"self": "/chronograf/v1/dashboards/3/cells/1b17264b-4831-43ba-b0a9-c3e374159c97"
 				}
@@ -298,7 +437,8 @@
 							"range": null,
 							"shifts": null
 						},
-						"source": "/chronograf/v1/sources/0"
+						"source": "/chronograf/v1/sources/0",
+						"type": "influxql"
 					}
 				],
 				"axes": {
@@ -383,6 +523,8 @@
 					"isEnforced": false,
 					"digits": 3
 				},
+				"note": "",
+				"noteVisibility": "default",
 				"links": {
 					"self": "/chronograf/v1/dashboards/3/cells/725281d9-7c9b-4f5a-8777-7fe475e9368e"
 				}
@@ -426,7 +568,8 @@
 							"range": null,
 							"shifts": null
 						},
-						"source": "/chronograf/v1/sources/0"
+						"source": "/chronograf/v1/sources/0",
+						"type": "influxql"
 					}
 				],
 				"axes": {
@@ -511,6 +654,8 @@
 					"isEnforced": false,
 					"digits": 3
 				},
+				"note": "",
+				"noteVisibility": "default",
 				"links": {
 					"self": "/chronograf/v1/dashboards/3/cells/70cbcacd-c4a2-4b47-9be0-7f032e8d3097"
 				}
@@ -556,7 +701,8 @@
 							"range": null,
 							"shifts": null
 						},
-						"source": "/chronograf/v1/sources/0"
+						"source": "/chronograf/v1/sources/0",
+						"type": "influxql"
 					}
 				],
 				"axes": {
@@ -641,6 +787,8 @@
 					"isEnforced": false,
 					"digits": 3
 				},
+				"note": "",
+				"noteVisibility": "default",
 				"links": {
 					"self": "/chronograf/v1/dashboards/3/cells/8291dcb8-39ee-4d71-a78a-ba3f49afbe46"
 				}
@@ -684,7 +832,8 @@
 							"range": null,
 							"shifts": null
 						},
-						"source": "/chronograf/v1/sources/0"
+						"source": "/chronograf/v1/sources/0",
+						"type": "influxql"
 					}
 				],
 				"axes": {
@@ -769,6 +918,8 @@
 					"isEnforced": false,
 					"digits": 3
 				},
+				"note": "",
+				"noteVisibility": "default",
 				"links": {
 					"self": "/chronograf/v1/dashboards/3/cells/762023a4-9aba-47c7-b35f-30be944efc7c"
 				}
@@ -812,7 +963,8 @@
 							"range": null,
 							"shifts": null
 						},
-						"source": "/chronograf/v1/sources/0"
+						"source": "/chronograf/v1/sources/0",
+						"type": "influxql"
 					}
 				],
 				"axes": {
@@ -897,6 +1049,8 @@
 					"isEnforced": false,
 					"digits": 3
 				},
+				"note": "",
+				"noteVisibility": "default",
 				"links": {
 					"self": "/chronograf/v1/dashboards/3/cells/03840705-14c1-4e64-9365-3048b126acf1"
 				}
@@ -940,7 +1094,8 @@
 							"range": null,
 							"shifts": null
 						},
-						"source": "/chronograf/v1/sources/0"
+						"source": "/chronograf/v1/sources/0",
+						"type": "influxql"
 					}
 				],
 				"axes": {
@@ -1025,6 +1180,8 @@
 					"isEnforced": false,
 					"digits": 3
 				},
+				"note": "",
+				"noteVisibility": "default",
 				"links": {
 					"self": "/chronograf/v1/dashboards/3/cells/bc24e77e-5f28-40c0-8588-c89b79a3970d"
 				}
@@ -1068,7 +1225,8 @@
 							"range": null,
 							"shifts": null
 						},
-						"source": "/chronograf/v1/sources/0"
+						"source": "/chronograf/v1/sources/0",
+						"type": "influxql"
 					}
 				],
 				"axes": {
@@ -1153,6 +1311,8 @@
 					"isEnforced": false,
 					"digits": 3
 				},
+				"note": "",
+				"noteVisibility": "default",
 				"links": {
 					"self": "/chronograf/v1/dashboards/3/cells/0a53277b-83c6-4717-8b86-600eb16f7966"
 				}
@@ -1166,4 +1326,4 @@
 			"cells": "/chronograf/v1/dashboards/3/cells",
 			"templates": "/chronograf/v1/dashboards/3/templates"
 		}
-	}
+}

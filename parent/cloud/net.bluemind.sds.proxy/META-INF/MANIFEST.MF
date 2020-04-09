@@ -19,7 +19,10 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.rest.http,
  net.bluemind.network.topology,
  net.bluemind.backend.mail.replica.api,
- net.bluemind.config
+ net.bluemind.config,
+ com.fasterxml.jackson.core.jackson-annotations,
+ net.bluemind.backend.cyrus.partitions,
+ net.bluemind.hornetq.client
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.sds.proxy
 Bundle-ActivationPolicy: lazy

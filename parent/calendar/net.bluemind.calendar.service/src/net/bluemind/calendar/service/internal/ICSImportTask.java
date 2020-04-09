@@ -21,18 +21,18 @@ package net.bluemind.calendar.service.internal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.calendar.EventChangesMerge;
-import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.VEventChanges;
 import net.bluemind.calendar.api.VEventChanges.ItemDelete;
 import net.bluemind.calendar.api.VEventSeries;
-import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
+import net.bluemind.calendar.api.internal.IInternalCalendar;
 import net.bluemind.core.api.ImportStats;
-import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.task.service.IServerTask;
@@ -40,90 +40,91 @@ import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.icalendar.parser.CalendarOwner;
 
-public class ICSImportTask implements IServerTask {
+public abstract class ICSImportTask implements IServerTask {
 
 	private static final Logger logger = LoggerFactory.getLogger(ICSImportTask.class);
 
-	private final String ics;
-	private final ICalendar service;
-	private final Optional<CalendarOwner> owner;
-	private final int STEP = 50;
-	private final Mode mode;
+	protected final IInternalCalendar service;
+	protected final Optional<CalendarOwner> owner;
+	protected final int STEP = 50;
+	protected final Mode mode;
 
-	public ICSImportTask(ICalendar calendar, String ics, Optional<CalendarOwner> owner, Mode mode) {
+	public ICSImportTask(IInternalCalendar calendar, Optional<CalendarOwner> owner, Mode mode) {
 		this.service = calendar;
-		this.ics = ics;
 		this.owner = owner;
 		this.mode = mode;
 	}
 
+	protected abstract void convertToVEventList(Consumer<ItemValue<VEventSeries>> consumer);
+
 	@Override
 	public void run(IServerTaskMonitor monitor) throws Exception {
 		monitor.begin(3, "Begin import");
+		ContainerUpdatesResult ret = new ContainerUpdatesResult();
+		try {
+			Consumer<ItemValue<VEventSeries>> consumer = (series -> {
+				ContainerUpdatesResult importEventResult = importEvent(series);
+				ret.added.addAll(importEventResult.added);
+				ret.updated.addAll(importEventResult.updated);
+				ret.unhandled.addAll(importEventResult.unhandled);
+			});
+			convertToVEventList(consumer);
+			monitor.progress(1, "ICS parsed ( " + ret.total() + " events )");
 
-		List<ItemValue<VEventSeries>> events = VEventServiceHelper.convertToVEventList(ics, owner);
-		monitor.progress(1, "ICS parsed ( " + events.size() + " events )");
-		ContainerUpdatesResult ret = importEvents(events, monitor.subWork("", 2));
-
-		if (mode == Mode.IMPORT) {
-			ImportStats asStats = new ImportStats();
-			asStats.uids = new ArrayList<String>();
-			asStats.uids.addAll(ret.added);
-			asStats.uids.addAll(ret.updated);
-			asStats.total = events.size();
-			monitor.end(true, ret.total() + " events synchronized", JsonUtils.asString(asStats));
-		} else {
+			if (mode == Mode.IMPORT) {
+				ImportStats asStats = new ImportStats();
+				asStats.uids = new ArrayList<String>();
+				asStats.uids.addAll(ret.added);
+				asStats.uids.addAll(ret.updated);
+				asStats.total = ret.total();
+				monitor.end(true, ret.total() + " events synchronized", JsonUtils.asString(asStats));
+			} else if (mode == Mode.SYNC) {
+				List<String> uids = service.all();
+				uids.removeAll(ret.added);
+				uids.removeAll(ret.updated);
+				uids.removeAll(ret.unhandled);
+				VEventChanges changes = new VEventChanges();
+				changes.add = new ArrayList<>();
+				changes.modify = new ArrayList<>();
+				changes.delete = new ArrayList<>();
+				for (String uid : uids) {
+					changes.delete.add(ItemDelete.create(uid, false));
+					ret.removed.add(uid);
+				}
+				service.updates(changes, false);
+			}
 			monitor.end(true, ret.total() + " events synchronized", JsonUtils.asString(ret));
+
+		} finally {
+			if (ret.synced() > 0) {
+				service.emitNotification();
+			}
 		}
 	}
 
-	private ContainerUpdatesResult importEvents(List<ItemValue<VEventSeries>> events, IServerTaskMonitor monitor)
-			throws ServerFault {
-		monitor.begin(events.size(), "Import " + events.size() + " events");
+	private ContainerUpdatesResult importEvent(ItemValue<VEventSeries> itemValue) {
 		ContainerUpdatesResult ret = new ContainerUpdatesResult();
 
-		ArrayList<String> icsUids = new ArrayList<String>(events.size());
 		VEventChanges changes = new VEventChanges();
 		changes.add = new ArrayList<>();
 		changes.modify = new ArrayList<>();
 		changes.delete = new ArrayList<>();
 
-		int index = 0;
-		for (ItemValue<VEventSeries> itemValue : events) {
-			VEventSeries event = itemValue.value;
-			icsUids.add(itemValue.uid);
-			List<ItemValue<VEventSeries>> byIcsUid = service.getByIcsUid(itemValue.uid);
-			if (itemValue.updated == null || //
-					byIcsUid.isEmpty() || //
-					itemValue.updated.after(byIcsUid.get(0).updated)) {
-				VEventChanges eventChanges = EventChangesMerge.getStrategy(byIcsUid, event).merge(byIcsUid, event);
-				changes.addAll(eventChanges);
-			}
-			if (index++ % STEP == 0) {
-				ContainerUpdatesResult result = service.updates(changes);
-				monitor.progress(index, null);
-				ret.added.addAll(result.added);
-				ret.updated.addAll(result.updated);
-				changes.add = new ArrayList<>();
-				changes.modify = new ArrayList<>();
-				changes.delete = new ArrayList<>();
-			}
+		VEventSeries event = itemValue.value;
+		List<ItemValue<VEventSeries>> byIcsUid = service.getByIcsUid(itemValue.uid);
+		if (itemValue.updated == null || //
+				byIcsUid.isEmpty() || //
+				itemValue.updated.after(byIcsUid.get(0).updated)) {
+			VEventChanges eventChanges = EventChangesMerge.getStrategy(byIcsUid, event).merge(byIcsUid, event);
+			changes.addAll(eventChanges);
+		} else {
+			ret.unhandled.add(itemValue.uid);
 		}
-
-		if (mode == Mode.SYNC) {
-			List<String> uids = service.all();
-			uids.removeAll(icsUids);
-			for (String uid : uids) {
-				changes.delete.add(ItemDelete.create(uid, false));
-			}
-		}
-
-		ContainerUpdatesResult result = service.updates(changes);
-		monitor.progress(index, null);
-
+		ContainerUpdatesResult result = service.updates(changes, false);
 		ret.added.addAll(result.added);
 		ret.updated.addAll(result.updated);
-		ret.removed.addAll(result.removed);
+		ret.unhandled.addAll(result.errors.stream().map(e -> e.uid).collect(Collectors.toList()));
+
 		return ret;
 	}
 

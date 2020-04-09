@@ -103,18 +103,17 @@ public class GenerationWriter {
 
 	public static List<DataProtectGeneration> readGenerationFiles() {
 		Path backupPath = Paths.get(backupFolder);
-		if (!Files.exists(backupPath)) {
+		if (!backupPath.toFile().exists()) {
 			return Collections.emptyList();
 		}
 		try (Stream<Path> files = Files.list(backupPath)) {
-			List<DataProtectGeneration> collectedFiles = files //
+			return files //
 					.filter(GenerationWriter::isGeneration) //
 					.map(GenerationWriter::readFromPath) //
 					.collect(Collectors.toList());
-			return collectedFiles;
 		} catch (IOException e) {
 			logger.warn("Cannot read generation files", e);
-			return null;
+			return Collections.emptyList();
 		}
 	}
 

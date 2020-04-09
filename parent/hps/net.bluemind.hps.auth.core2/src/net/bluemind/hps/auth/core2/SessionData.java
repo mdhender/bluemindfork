@@ -22,12 +22,14 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
+import net.bluemind.authentication.api.LoginResponse.Status;
 import net.bluemind.user.api.User;
 
 @SuppressWarnings("serial")
 public class SessionData implements Serializable {
 
 	public String authKey;
+	public Status passwordStatus;
 	public User user;
 	public String allowedRpcs;
 	public String availableHandlers;

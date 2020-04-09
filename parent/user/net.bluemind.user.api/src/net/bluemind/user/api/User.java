@@ -61,6 +61,16 @@ public final class User extends DirBaseValue {
 	public Date passwordLastChange;
 
 	/**
+	 * Password must be changed
+	 */
+	public boolean passwordMustChange = false;
+
+	/**
+	 * Password never expire
+	 */
+	public boolean passwordNeverExpires = false;
+
+	/**
 	 * Contact informations for the user (firstname, lastname, phones, etc)
 	 */
 	public VCard contactInfos; // "user_" + uid
@@ -84,8 +94,8 @@ public final class User extends DirBaseValue {
 
 	@Override
 	public String toString() {
-		return "User [login=" + login + ", archived=" + archived + ", system=" + system + ", hidden=" + hidden
+		return "User [login=" + login + ", archived=" + archived + ", passwordLastChange=" + passwordLastChange
+				+ ", passwordMustChange=" + passwordMustChange + ", system=" + system + ", hidden=" + hidden
 				+ ", routing=" + routing + ", dataLocation=" + dataLocation + "]";
 	}
-
 }

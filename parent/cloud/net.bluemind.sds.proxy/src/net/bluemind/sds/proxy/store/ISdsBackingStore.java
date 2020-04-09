@@ -17,23 +17,41 @@
  */
 package net.bluemind.sds.proxy.store;
 
-import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
 import net.bluemind.sds.proxy.dto.DeleteRequest;
 import net.bluemind.sds.proxy.dto.ExistRequest;
 import net.bluemind.sds.proxy.dto.ExistResponse;
 import net.bluemind.sds.proxy.dto.GetRequest;
+import net.bluemind.sds.proxy.dto.MgetRequest;
 import net.bluemind.sds.proxy.dto.PutRequest;
+import net.bluemind.sds.proxy.dto.SdsError;
 import net.bluemind.sds.proxy.dto.SdsResponse;
 
 public interface ISdsBackingStore {
 
-	ExistResponse exists(ExistRequest req);
+	CompletableFuture<ExistResponse> exists(ExistRequest req);
 
-	SdsResponse upload(PutRequest req) throws IOException;
+	CompletableFuture<SdsResponse> upload(PutRequest req);
 
-	SdsResponse download(GetRequest req) throws IOException;
+	CompletableFuture<SdsResponse> download(GetRequest req);
 
-	SdsResponse delete(DeleteRequest req);
+	default CompletableFuture<SdsResponse> downloads(MgetRequest req) {
+		int len = req.transfers.size();
+		CompletableFuture<?>[] futures = new CompletableFuture[len];
+		GetRequest[] asGet = req.transfers.stream().map(tx -> GetRequest.of(req.mailbox, tx.guid, tx.filename))
+				.toArray(GetRequest[]::new);
+		for (int i = 0; i < len; i++) {
+			final int slot = i;
+			futures[slot] = download(asGet[slot]);
+		}
+		return CompletableFuture.allOf(futures).thenApply(v -> SdsResponse.UNTAGGED_OK).exceptionally(ex -> {
+			SdsResponse error = new SdsResponse();
+			error.error = new SdsError(ex.getMessage());
+			return error;
+		});
+	}
+
+	CompletableFuture<SdsResponse> delete(DeleteRequest req);
 
 }

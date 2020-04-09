@@ -32,10 +32,12 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.function.Consumer;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
@@ -66,7 +68,7 @@ public class VEventServiceHelperTest {
 				.getResourceAsStream("event_multiplevcalendar.ics");
 		String ics = FileUtils.streamString(in, true);
 		in.close();
-		List<ItemValue<VEventSeries>> events = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
+		List<ItemValue<VEventSeries>> events = toEvents(ics);
 		assertEquals(2, events.size());
 
 	}
@@ -76,7 +78,7 @@ public class VEventServiceHelperTest {
 		InputStream in = VEventServiceHelperTest.class.getClassLoader().getResourceAsStream("invite.ics");
 		String ics = IOUtils.toString(in);
 		in.close();
-		List<ItemValue<VEventSeries>> events = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
+		List<ItemValue<VEventSeries>> events = toEvents(ics);
 
 		assertEquals(1, events.size());
 
@@ -93,20 +95,27 @@ public class VEventServiceHelperTest {
 		InputStream in = VEventServiceHelperTest.class.getClassLoader().getResourceAsStream("unknowntz.ics");
 		String ics = IOUtils.toString(in);
 		in.close();
-		List<ItemValue<VEventSeries>> events = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
+		List<ItemValue<VEventSeries>> events = toEvents(ics);
 
 		assertEquals(2, events.size());
-
-		ItemValue<VEventSeries> event = events.get(0);
-		System.err.println(event.value.main.dtstart);
-		ZonedDateTime dtstart = ZonedDateTime.of(2016, 4, 1, 18, 0, 0, 0, ZoneId.of("Etc/GMT+4"));
-		assertEquals(dtstart.toInstant().toEpochMilli(),
-				new BmDateTimeWrapper(event.value.main.dtstart).toUTCTimestamp());
-		event = events.get(1);
-		System.err.println(event.value.main.dtstart);
-		dtstart = ZonedDateTime.of(2016, 12, 1, 18, 0, 0, 0, ZoneId.of("Etc/GMT+5"));
-		assertEquals(dtstart.toInstant().toEpochMilli(),
-				new BmDateTimeWrapper(event.value.main.dtstart).toUTCTimestamp());
+		int checked = 0;
+		for (ItemValue<VEventSeries> event : events) {
+			if (event.value.icsUid.equals("30smvdkoolkjlklkkljkljkljkljvrdrkl7vlesogoi4s@google.com")) {
+				// DTSTART:20161201T180000
+				ZonedDateTime dtstart = ZonedDateTime.of(2016, 12, 1, 18, 0, 0, 0, ZoneId.of("Etc/GMT+5"));
+				assertEquals(dtstart.toInstant().toEpochMilli(),
+						new BmDateTimeWrapper(event.value.main.dtstart).toUTCTimestamp());
+				checked++;
+			}
+			if (event.value.icsUid.equals("29smvdkoolkjlklkkljkljkljkljvrdrkl7vlesogoi4s@google.com")) {
+				// DTSTART:19500312T020000
+				ZonedDateTime dtstart = ZonedDateTime.of(2016, 4, 1, 18, 0, 0, 0, ZoneId.of("Etc/GMT+4"));
+				assertEquals(dtstart.toInstant().toEpochMilli(),
+						new BmDateTimeWrapper(event.value.main.dtstart).toUTCTimestamp());
+				checked++;
+			}
+		}
+		assertEquals(2, checked);
 	}
 
 	@Test
@@ -114,7 +123,7 @@ public class VEventServiceHelperTest {
 		InputStream in = VEventServiceHelperTest.class.getClassLoader().getResourceAsStream("event2.ics");
 		String ics = IOUtils.toString(in);
 		in.close();
-		List<ItemValue<VEventSeries>> events = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
+		List<ItemValue<VEventSeries>> events = toEvents(ics);
 
 		assertEquals(2, events.size());
 
@@ -141,7 +150,7 @@ public class VEventServiceHelperTest {
 		String ics = IOUtils.toString(in);
 		in.close();
 
-		List<ItemValue<VEventSeries>> events = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
+		List<ItemValue<VEventSeries>> events = toEvents(ics);
 
 		assertEquals(1, events.size());
 
@@ -349,7 +358,7 @@ public class VEventServiceHelperTest {
 		InputStream in = VEventServiceHelperTest.class.getClassLoader().getResourceAsStream("not_absolute_uri.ics");
 		String ics = IOUtils.toString(in);
 		in.close();
-		List<ItemValue<VEventSeries>> events = VEventServiceHelper.convertToVEventList(ics, Optional.empty());
+		List<ItemValue<VEventSeries>> events = toEvents(ics);
 
 		assertEquals(1, events.size());
 		ItemValue<VEventSeries> event = events.get(0);
@@ -386,7 +395,8 @@ public class VEventServiceHelperTest {
 		series.main.dtend = new BmDateTime("1983-02-13T22:00:00+01:00", null, Precision.DateTime);
 
 		ItemValue<VEventSeries> create = ItemValue.create("test", series);
-		create.updated = new java.util.Date(111, 06, 12);
+		create.updated = new java.util.Date(111, 06, 12, 12, 0);
+		System.err.println(create.updated);
 		String ics = VEventServiceHelper.convertToIcs(create);
 		System.err.println(ics);
 		assertTrue(ics.contains("LAST-MODIFIED:20110712T"));
@@ -435,7 +445,7 @@ public class VEventServiceHelperTest {
 		try (InputStream in = VEventServiceHelperTest.class.getClassLoader()
 				.getResourceAsStream("event_invalid_geo.ics")) {
 			String ics = IOUtils.toString(in);
-			VEventServiceHelper.convertToVEventList(ics, Optional.empty());
+			List<ItemValue<VEventSeries>> events = toEvents(ics);
 		} catch (Exception e) {
 			fail("should not fail " + e.getMessage());
 		}
@@ -454,8 +464,15 @@ public class VEventServiceHelperTest {
 		String ics = IOUtils.toString(in);
 		in.close();
 
-		VEventServiceHelper.convertToVEventList(ics, Optional.empty());
+		List<ItemValue<VEventSeries>> events = toEvents(ics);
 
 		assertEquals(rawOffset, ICal4jHelper.getTimeZoneRegistry().getTimeZone("Europe/Paris").getRawOffset());
+	}
+
+	private List<ItemValue<VEventSeries>> toEvents(String ics) {
+		List<ItemValue<VEventSeries>> ret = new LinkedList<>();
+		Consumer<ItemValue<VEventSeries>> consumer = series -> ret.add(series);
+		VEventServiceHelper.convertToVEventList(ics, Optional.empty(), consumer);
+		return ret;
 	}
 }

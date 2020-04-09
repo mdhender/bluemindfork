@@ -17,6 +17,8 @@
   */
 package net.bluemind.cli.cmd.api;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Optional;
 
 import org.fusesource.jansi.Ansi;
@@ -86,5 +88,18 @@ public class CliContext {
 	public void progress(int total, int current) {
 		System.out.println(ansi().fgGreen()
 				.a(String.format("Global progress %d/%d (%s%%)", current, total, current * 100 / total)).reset());
+	}
+
+	/**
+	 * Create a stacktrace in string format
+	 * 
+	 * @param e {@link java.lang.Exception}
+	 * @return String containing the stacktrace
+	 */
+	public String toStack(Exception e) {
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		e.printStackTrace(pw);
+		return sw.toString();
 	}
 }

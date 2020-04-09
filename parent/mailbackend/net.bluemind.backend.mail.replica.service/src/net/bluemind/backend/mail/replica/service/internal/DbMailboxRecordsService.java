@@ -406,6 +406,14 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 					toUpdate.size() - deletes, deletes, System.currentTimeMillis() - time);
 			return storeService.getVersion();
 		});
+
+		// ensure nothing is missing (sds object store check)
+		List<String> toCheck = records.stream().map(mr -> mr.messageBody).collect(Collectors.toList());
+		String partition = CyrusPartition.forServerAndDomain(DataSourceRouter.location(context, container.uid),
+				container.domainUid).name;
+		IDbMessageBodies bodiesApi = context.provider().instance(IDbMessageBodies.class, partition);
+		bodiesApi.missing(toCheck);
+
 		updateIndex(contVersion, pushToIndex);
 		if (!newMailNotification.isEmpty()) {
 			for (ItemValue<MailboxRecord> toNotify : newMailNotification) {

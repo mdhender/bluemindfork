@@ -25,7 +25,7 @@ public class LoginResponse {
 
 	@BMApi(version = "3")
 	public enum Status {
-		Ok, Bad
+		Ok, Bad, Expired
 	}
 
 	public Status status;

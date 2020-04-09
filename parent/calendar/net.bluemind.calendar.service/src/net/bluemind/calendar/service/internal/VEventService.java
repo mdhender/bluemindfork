@@ -28,11 +28,10 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 
 import io.vertx.core.buffer.Buffer;
-import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.IVEvent;
 import net.bluemind.calendar.api.VEventSeries;
+import net.bluemind.calendar.api.internal.IInternalCalendar;
 import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
-import net.bluemind.calendar.service.internal.ICSImportTask.Mode;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
@@ -50,7 +49,7 @@ public class VEventService implements IVEvent {
 
 	private static Logger logger = LoggerFactory.getLogger(VEventService.class);
 
-	private ICalendar calendarService;
+	private IInternalCalendar calendarService;
 
 	private BmContext context;
 
@@ -61,7 +60,7 @@ public class VEventService implements IVEvent {
 	public VEventService(BmContext context, Container container) throws ServerFault {
 		this.context = context;
 		this.container = container;
-		this.calendarService = context.provider().instance(ICalendar.class, container.uid);
+		this.calendarService = context.provider().instance(IInternalCalendar.class, container.uid);
 		rbacManager = RBACManager.forContext(context).forContainer(container);
 	}
 
@@ -81,19 +80,10 @@ public class VEventService implements IVEvent {
 
 	@Override
 	public TaskRef importIcs(Stream stream) throws ServerFault {
-		return icsImport(stream, ICSImportTask.Mode.IMPORT);
-	}
-
-	@Override
-	public TaskRef syncIcs(Stream stream) throws ServerFault {
-		return icsImport(stream, ICSImportTask.Mode.SYNC);
-	}
-
-	private TaskRef icsImport(Stream stream, Mode mode) {
 		rbacManager.check(Verb.Write.name());
 		String ics = GenericStream.streamToString(stream);
-		return context.provider().instance(ITasksManager.class).run(new ICSImportTask(calendarService, ics,
-				Optional.of(new CalendarOwner(container.domainUid, container.owner)), mode));
+		return context.provider().instance(ITasksManager.class).run(new MultipleCalendarICSImport(calendarService, ics,
+				Optional.of(new CalendarOwner(container.domainUid, container.owner)), ICSImportTask.Mode.IMPORT));
 	}
 
 	@Override
