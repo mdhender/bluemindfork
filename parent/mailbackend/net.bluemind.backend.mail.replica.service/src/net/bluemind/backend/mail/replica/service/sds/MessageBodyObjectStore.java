@@ -54,6 +54,11 @@ public class MessageBodyObjectStore {
 		}
 
 		@Override
+		public Path[] mread(String... guids) {
+			return new Path[0];
+		}
+
+		@Override
 		public String toString() {
 			return "NOOP_READER:" + super.toString();
 		}
@@ -97,12 +102,17 @@ public class MessageBodyObjectStore {
 	 */
 	public Set<String> exist(Set<String> bodyGuid) {
 		logger.debug("Checking with {}", objectStoreReader);
-		return bodyGuid.stream().filter(g -> objectStoreReader.exist(g)).collect(Collectors.toSet());
+		return bodyGuid.stream().filter(objectStoreReader::exist).collect(Collectors.toSet());
 	}
 
 	public Path open(String guid) {
 		logger.debug("Open {} with {}", guid, objectStoreReader);
 		return objectStoreReader.read(guid);
+	}
+
+	public Path[] mopen(String[] guid) {
+		logger.debug("Open {} with {}", guid, objectStoreReader);
+		return objectStoreReader.mread(guid);
 	}
 
 }

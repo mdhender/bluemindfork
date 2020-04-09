@@ -11,6 +11,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava,
  slf4j.api,
  net.bluemind.metrics.registry;bundle-version="4.1.0",
- net.bluemind.aws.s3.utils
+ net.bluemind.aws.s3.utils,
+ com.netflix.spectator.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.core.sds.replication

@@ -20,11 +20,13 @@ package net.bluemind.core.sds.replication;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.netflix.spectator.api.DistributionSummary;
 import com.netflix.spectator.api.Registry;
 
 import net.bluemind.backend.mail.replica.service.sds.IObjectStoreReader;
@@ -81,6 +83,36 @@ public class S3ObjectStoreReader implements IObjectStoreReader {
 		} catch (Exception e) {
 			throw new ServerFault(e);
 		}
+	}
+
+	@Override
+	public Path[] mread(String... guids) {
+		Path[] ret = new Path[guids.length];
+		for (int i = 0; i < guids.length; i++) {
+			try {
+				ret[i] = Files.createTempFile(guids[i], ".s3");
+				Files.delete(ret[i]);
+			} catch (IOException e1) {
+				throw new ServerFault(e1);
+			}
+		}
+		CompletableFuture<?>[] dls = new CompletableFuture[ret.length];
+		DistributionSummary distSum = registry.distributionSummary(idFactory.name("read"));
+		for (int i = 0; i < guids.length; i++) {
+			final Path cur = ret[i];
+			dls[i] = client.getObject(GetObjectRequest.builder().bucket(bucket).key(guids[i]).build(), cur)
+					.thenAccept(v -> {
+						if (Files.exists(cur)) {
+							distSum.record(cur.toFile().length());
+						}
+					});
+		}
+		try {
+			CompletableFuture.allOf(dls).get(15, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			throw new ServerFault(e);
+		}
+		return ret;
 	}
 
 }

@@ -33,4 +33,6 @@ public interface IObjectStoreReader {
 
 	Path read(String guid);
 
+	Path[] mread(String... guids);
+
 }
