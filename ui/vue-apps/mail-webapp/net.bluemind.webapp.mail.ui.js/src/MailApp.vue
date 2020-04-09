@@ -103,7 +103,7 @@ import {
 import MailAlertRenderer from "./MailAlertRenderer";
 import { mapState } from "vuex";
 import MailAppL10N from "@bluemind/webapp.mail.l10n";
-import MailFolderTree from "./MailFolderTree";
+import MailFolderTree from "./MailFolder/MailFolderTree";
 import MailMessageList from "./MailMessageList/MailMessageList";
 import MailPurgeModal from "./MailPurgeModal";
 import MailToolbar from "./MailToolbar/";

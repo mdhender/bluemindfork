@@ -22,26 +22,7 @@
                 @select="selectFolder"
             >
                 <template v-slot="f">
-                    <bm-dropzone
-                        :states="{ active: false }"
-                        :accept="['message']"
-                        :value="f.value"
-                        class="w-100 d-flex align-items-center"
-                        @dragenter="f.value.expanded || expandFolder(f.value.key)"
-                    >
-                        <mail-folder-icon
-                            :folder="f.value"
-                            breakpoint="xl"
-                            class="flex-fill"
-                            :class="f.value.unread > 0 ? 'font-weight-bold' : ''"
-                        />
-                        <bm-counter-badge
-                            v-if="f.value.unread > 0"
-                            :value="f.value.unread"
-                            :variant="f.value.key != currentFolderKey ? 'secondary' : 'primary'"
-                            class="mr-1 position-sticky"
-                        />
-                    </bm-dropzone>
+                    <mail-folder-item :folder="f.value" />
                 </template>
             </bm-tree>
         </bm-collapse>
@@ -68,27 +49,7 @@
                 @select="selectFolder"
             >
                 <template v-slot="f">
-                    <bm-dropzone
-                        :states="{ active: false }"
-                        :accept="['message']"
-                        :value="f.value"
-                        class="w-100 d-flex align-items-center"
-                        @dragenter="f.value.expanded || expandFolder(f.value.key)"
-                    >
-                        <mail-folder-icon
-                            shared
-                            :folder="f.value"
-                            breakpoint="xl"
-                            class="flex-fill"
-                            :class="f.value.unread > 0 ? 'font-weight-bold' : ''"
-                        />
-                        <bm-counter-badge
-                            v-if="f.value.unread > 0"
-                            :value="f.value.unread"
-                            :variant="f.value.key != currentFolderKey ? 'secondary' : 'primary'"
-                            class="mr-1 position-sticky"
-                        />
-                    </bm-dropzone>
+                    <mail-folder-item shared :folder="f.value" />
                 </template>
             </bm-tree>
         </bm-collapse>
@@ -96,22 +57,20 @@
 </template>
 
 <script>
-import { BmButton, BmCollapse, BmCounterBadge, BmIcon, BmTree, BmDropzone } from "@bluemind/styleguide";
+import { BmButton, BmCollapse, BmIcon, BmTree } from "@bluemind/styleguide";
+import { ItemUri } from "@bluemind/item-uri";
 import { mapGetters, mapActions, mapState } from "vuex";
 import injector from "@bluemind/inject";
-import MailFolderIcon from "./MailFolderIcon";
-import { ItemUri } from "@bluemind/item-uri";
+import MailFolderItem from "./MailFolderItem";
 
 export default {
     name: "MailFolderTree",
     components: {
         BmButton,
         BmCollapse,
-        BmCounterBadge,
-        BmDropzone,
         BmIcon,
         BmTree,
-        MailFolderIcon
+        MailFolderItem
     },
     data() {
         return {
@@ -145,8 +104,8 @@ export default {
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
 
-.bm-tree-node-active,
-.bm-tree-node-active .btn {
+.mail-folder-tree .bm-tree-node-active,
+.mail-folder-tree .bm-tree-node-active .btn {
     color: $info-dark;
 }
 
@@ -156,7 +115,7 @@ export default {
     border-bottom: 1px solid $light !important;
 }
 
-.bm-counter-badge {
+.mail-folder-tree .bm-counter-badge {
     // work around to avoid parent padding
     margin-top: -($sp-1);
     margin-bottom: -($sp-1);
