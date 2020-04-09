@@ -541,6 +541,8 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 		AuthResult authResult = checkProviders(authContext, origin);
 		if (authResult == AuthResult.YES) {
 			return ValidationKind.PASSWORD;
+		} else if (authResult == AuthResult.EXPIRED) {
+			return ValidationKind.PASSWORDEXPIRED;
 		}
 
 		logger.error("validate password or token failed for login: {} result: {} origin: {} remoteIps: {}", login,

@@ -25,19 +25,17 @@ import com.netflix.spectator.api.Registry;
 import io.netty.buffer.ByteBuf;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
-import io.vertx.core.Verticle;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.net.NetServer;
 import io.vertx.core.net.NetServerOptions;
+import io.vertx.core.net.NetSocket;
 import io.vertx.core.net.SocketAddress;
-import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.utils.IniFile;
 import net.bluemind.ysnp.YSNPConfiguration;
 
 public class SaslAuthdVerticle extends AbstractVerticle {
-
 	private static final Logger logger = LoggerFactory.getLogger(SaslAuthdVerticle.class);
 	private static final Registry registry = MetricsRegistry.get();
 	private static final IdFactory idFactory = new IdFactory(MetricsRegistry.get(), SaslAuthdVerticle.class);
@@ -46,9 +44,16 @@ public class SaslAuthdVerticle extends AbstractVerticle {
 
 	private String defaultDomain;
 
+	private final String socketPath;
+	private final boolean expireOk;
+
+	public SaslAuthdVerticle(String socketPath, boolean expireOk) {
+		this.expireOk = expireOk;
+		this.socketPath = socketPath;
+	}
+
 	@Override
 	public void start() {
-
 		IniFile ini = new IniFile("/etc/bm/bm.ini") {
 			@Override
 			public String getCategory() {
@@ -61,37 +66,37 @@ public class SaslAuthdVerticle extends AbstractVerticle {
 		NetServerOptions nso = new NetServerOptions().setTcpNoDelay(true);
 		NetServer ns = vertx.createNetServer(nso);
 
-		ns.connectHandler(netsock -> {
-			netsock.exceptionHandler(t -> logger.error(t.getMessage(), t));
-			netsock.handler(buf -> {
-				Creds creds = parse(buf.getByteBuf());
-				vertx.executeBlocking((Promise<Boolean> p) -> {
-					try {
-						boolean valid = vp.validate(creds.login, creds.password, creds.service, creds.realm);
-						p.complete(valid);
-					} catch (Exception e) {
-						p.fail(e);
-					}
-				}, res -> {
-					if (res.succeeded() && res.result().booleanValue()) {
-						registry.counter(idFactory.name("authCount", "status", "ok", "service", creds.service))
-								.increment();
-						netsock.write(Buffer.buffer(SASL_OK));
-					} else {
-						registry.counter(idFactory.name("authCount", "status", "failed", "service", creds.service))
-								.increment();
-						netsock.write(Buffer.buffer(SASL_FAILED));
-					}
-				});
-			});
-		});
-		SocketAddress sock = SocketAddress.domainSocketAddress(YSNPConfiguration.INSTANCE.getSocketPath());
+		ns.connectHandler(netsock -> handleNetSock(netsock, vp));
+		SocketAddress sock = SocketAddress.domainSocketAddress(socketPath);
 		ns.listen(sock, res -> {
 			if (res.failed()) {
 				logger.error(res.cause().getMessage(), res.cause());
 			}
 		});
+	}
 
+	protected void handleNetSock(NetSocket netsock, ValidationPolicy vp) {
+		netsock.exceptionHandler(t -> logger.error(t.getMessage(), t));
+		netsock.handler(buf -> {
+			Creds creds = parse(buf.getByteBuf());
+			vertx.executeBlocking((Promise<Boolean> p) -> {
+				try {
+					boolean valid = vp.validate(creds.login, creds.password, creds.service, creds.realm, expireOk);
+					p.complete(valid);
+				} catch (Exception e) {
+					p.fail(e);
+				}
+			}, res -> {
+				if (res.succeeded() && res.result().booleanValue()) {
+					registry.counter(idFactory.name("authCount", "status", "ok", "service", creds.service)).increment();
+					netsock.write(Buffer.buffer(SASL_OK));
+				} else {
+					registry.counter(idFactory.name("authCount", "status", "failed", "service", creds.service))
+							.increment();
+					netsock.write(Buffer.buffer(SASL_FAILED));
+				}
+			});
+		});
 	}
 
 	private static class Creds {
@@ -131,19 +136,4 @@ public class SaslAuthdVerticle extends AbstractVerticle {
 		}
 		return new Creds(login, password, service, realm);
 	}
-
-	public static class Factory implements IVerticleFactory {
-
-		@Override
-		public boolean isWorker() {
-			return false;
-		}
-
-		@Override
-		public Verticle newInstance() {
-			return new SaslAuthdVerticle();
-		}
-
-	}
-
 }

@@ -773,6 +773,7 @@ public class UserService implements IInCoreUser, IUser {
 		}
 
 		storeService.setPassword(uid, HashFactory.getDefault().create(newPassword), true);
+		eventProducer.passwordUpdated(uid);
 	}
 
 	private void setPassword(String uid, String newPassword) throws ServerFault {
@@ -785,6 +786,7 @@ public class UserService implements IInCoreUser, IUser {
 			throw new ServerFault("user uid:" + uid + " doesn't exist !", ErrorCode.NOT_FOUND);
 		}
 		storeService.setPassword(uid, HashFactory.getDefault().create(newPassword), true);
+		eventProducer.passwordUpdated(uid);
 	}
 
 	@Override

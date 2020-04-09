@@ -63,7 +63,7 @@ public class DebSlapdConfigTests {
 
 	@Test
 	public void testSlapdConfig_initHost() throws ServerFault, IOException {
-		new DebSlapdConfig(ldapRoleServer).init();
+		SlapdConfig.build(ldapRoleServer).init();
 
 		try (LdapConnection ldapCon = LdapHelper.connectDirectory(ldapRoleServer)) {
 			assertNotNull(ldapCon);
@@ -76,7 +76,7 @@ public class DebSlapdConfigTests {
 	public void testSlapdConfig_checkSaslAuth() throws ServerFault, IOException, LdapException {
 		updateUserPassword("test@domain.tld", "testpassword");
 
-		new DebSlapdConfig(ldapRoleServer).init();
+		SlapdConfig.build(ldapRoleServer).init();
 
 		try (LdapConnection ldapCon = LdapHelper.connectDirectory(ldapRoleServer)) {
 			ldapCon.add(new DefaultEntry("dc=local", "objectClass: organization", "objectClass: dcObject",

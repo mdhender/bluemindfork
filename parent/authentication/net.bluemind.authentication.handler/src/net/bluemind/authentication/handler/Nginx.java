@@ -152,7 +152,7 @@ public final class Nginx implements Handler<HttpServerRequest>, NeedVertxExecuto
 		IAuthentication authApi = ServerSideServiceProvider.getProvider(SecurityContext.ANONYMOUS)
 				.instance(IAuthentication.class);
 		ValidationKind kind = authApi.validate(qp.latd, qp.password, "nginx-imap-password-check");
-		if (kind != ValidationKind.NONE) {
+		if (kind != ValidationKind.NONE && kind != ValidationKind.PASSWORDEXPIRED) {
 			if (!qp.latd.contains("@")) {
 				throw new InvalidParameterException("Invalid login@domain " + qp.latd);
 			}

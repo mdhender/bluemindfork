@@ -47,4 +47,8 @@ public class UserEventProducer extends DirEventProducer {
 		super.deleted(uid, data);
 		eventBus.publish(UsersHookAddress.BASE_ADDRESS, new JsonObject().put("domain", domainUid));
 	}
+
+	public void passwordUpdated(String uid) {
+		eventBus.publish(UsersHookAddress.PASSWORD_UPDATED, new JsonObject().put("domain", domainUid).put("uid", uid));
+	}
 }

@@ -18,7 +18,6 @@
 package net.bluemind.system.ldap.export.hook;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.ldap.client.api.LdapConnection;
@@ -31,17 +30,13 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.domain.api.Domain;
-import net.bluemind.node.api.FileDescription;
-import net.bluemind.node.api.INodeClient;
-import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.Server;
 import net.bluemind.server.hook.DefaultServerHook;
-import net.bluemind.system.ldap.export.LdapExportService;
 import net.bluemind.system.ldap.export.LdapHelper;
-import net.bluemind.system.ldap.export.conf.DebSlapdConfig;
-import net.bluemind.system.ldap.export.conf.RhSlapdConfig;
+import net.bluemind.system.ldap.export.conf.SlapdConfig;
 import net.bluemind.system.ldap.export.objects.DirectoryRoot;
 import net.bluemind.system.ldap.export.objects.DomainDirectoryRoot;
+import net.bluemind.system.ldap.export.services.LdapExportService;
 
 public class LdapServerHook extends DefaultServerHook {
 	private static final Logger logger = LoggerFactory.getLogger(LdapServerHook.class);
@@ -53,14 +48,7 @@ public class LdapServerHook extends DefaultServerHook {
 			return;
 		}
 
-		INodeClient nodeClient = NodeActivator.get(server.value.address());
-		List<FileDescription> files = nodeClient.listFiles("/etc/redhat-release");
-		if (!files.isEmpty()) {
-			new RhSlapdConfig(server).init();
-		} else {
-			new DebSlapdConfig(server).init();
-		}
-
+		SlapdConfig.build(server).init();
 		createEntry(server, new DirectoryRoot().getLdapEntry());
 	}
 

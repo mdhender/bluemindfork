@@ -30,7 +30,10 @@
    <extension
          point="net.bluemind.lib.vertx.verticles">
       <verticle
-            impl="net.bluemind.ysnp.impl.SaslAuthdVerticle$Factory">
+            impl="net.bluemind.ysnp.impl.ExpireKoSaslAuthdVerticleFactory">
+      </verticle>
+      <verticle
+            impl="net.bluemind.ysnp.impl.ExpireOkSaslAuthdVerticleFactory">
       </verticle>
    </extension>
 

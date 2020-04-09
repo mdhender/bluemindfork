@@ -31,5 +31,8 @@
       <java
             code="net.bluemind.system.ldap.export.upgrader.AddBmHiddenAttribute">
       </java>
+      <java
+            code="net.bluemind.system.ldap.export.upgrader.UpdateSaslConf">
+      </java>
    </extension>
 </plugin>

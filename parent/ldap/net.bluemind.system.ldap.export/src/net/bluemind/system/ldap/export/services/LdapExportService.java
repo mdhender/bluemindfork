@@ -15,12 +15,13 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.system.ldap.export;
+package net.bluemind.system.ldap.export.services;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -55,6 +56,8 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.DomainSettingsKeys;
+import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.api.IGroup;
@@ -64,6 +67,7 @@ import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.ldap.export.LdapHelper;
 import net.bluemind.system.ldap.export.hook.LdapServerHook;
 import net.bluemind.system.ldap.export.objects.DomainDirectoryGroup;
 import net.bluemind.system.ldap.export.objects.DomainDirectoryGroup.MembersList;
@@ -83,11 +87,12 @@ public class LdapExportService {
 		IDirectory dirService = context.provider().instance(IDirectory.class, domain.uid);
 		IUser userService = context.provider().instance(IUser.class, domain.uid);
 		IGroup groupService = context.provider().instance(IGroup.class, domain.uid);
+		IDomainSettings domainSettingsService = context.provider().instance(IDomainSettings.class, domain.uid);
 
-		return new LdapExportService(domain, dirService, userService, groupService, server);
+		return new LdapExportService(domain, dirService, userService, groupService, domainSettingsService, server);
 	}
 
-	public static LdapExportService build(String domainUid) {
+	public static Optional<LdapExportService> build(String domainUid) {
 		if (domainUid == null || domainUid.isEmpty()) {
 			throw new ServerFault("Invalid domain UID", ErrorCode.INVALID_PARAMETER);
 		}
@@ -95,22 +100,24 @@ public class LdapExportService {
 		BmContext context = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
 		ItemValue<Domain> domain = context.provider().instance(IDomains.class, domainUid).get(domainUid);
 		if (domain == null) {
-			throw new ServerFault("Domain not found " + domainUid, ErrorCode.UNKNOWN);
+			throw new ServerFault(String.format("Domain %s not found", domainUid), ErrorCode.UNKNOWN);
 		}
 
 		List<ItemValue<Server>> ldapExportServers = ldapExportServer(context, domain.uid);
 		if (ldapExportServers.size() != 1) {
-			return null;
+			return Optional.empty();
 		}
 
 		IDirectory dirService = context.provider().instance(IDirectory.class, domain.uid);
 		IUser userService = context.provider().instance(IUser.class, domain.uid);
 		IGroup groupService = context.provider().instance(IGroup.class, domain.uid);
+		IDomainSettings domainSettingsService = context.provider().instance(IDomainSettings.class, domain.uid);
 
-		return new LdapExportService(domain, dirService, userService, groupService, ldapExportServers.get(0));
+		return Optional.of(new LdapExportService(domain, dirService, userService, groupService, domainSettingsService,
+				ldapExportServers.get(0)));
 	}
 
-	private static List<ItemValue<Server>> ldapExportServer(BmContext context, String domainUid) {
+	public static List<ItemValue<Server>> ldapExportServer(BmContext context, String domainUid) {
 		IServer server = context.provider().instance(IServer.class, InstallationId.getIdentifier());
 		List<String> ldapExportServersUids = server.byAssignment(domainUid, LdapServerHook.LDAPTAG);
 
@@ -126,14 +133,18 @@ public class LdapExportService {
 	private final IDirectory dirService;
 	private final IUser userService;
 	private final IGroup groupService;
+	private final IDomainSettings domainSettingsService;
 	private final ItemValue<Server> ldapExportServer;
 
+	private Optional<Integer> domainPasswordLifetime = Optional.empty();
+
 	private LdapExportService(ItemValue<Domain> domain, IDirectory dirService, IUser userService, IGroup groupService,
-			ItemValue<Server> ldapExportServer) {
+			IDomainSettings domainSettingsService, ItemValue<Server> ldapExportServer) {
 		this.domain = domain;
 		this.dirService = dirService;
 		this.userService = userService;
 		this.groupService = groupService;
+		this.domainSettingsService = domainSettingsService;
 		this.ldapExportServer = ldapExportServer;
 	}
 
@@ -148,6 +159,8 @@ public class LdapExportService {
 				throw new ServerFault("Unable to get changeset for domain: " + domain.uid, ErrorCode.INVALID_PARAMETER);
 			}
 
+			setDomainPasswordLifetime();
+
 			doSync(ldapCon, changeset);
 			setVersion(ldapCon, changeset.version);
 			registry.gauge(idFactory.name("dirVersion", "domainUid", domain.uid, "source", "ldap-export"))
@@ -156,6 +169,17 @@ public class LdapExportService {
 			logger.error("Fail to update LDAP with changes from {} to {}", lastVersion,
 					(changeset == null) ? "unknown" : changeset.version);
 			throw e;
+		}
+	}
+
+	private void setDomainPasswordLifetime() {
+		try {
+			Integer passwordLifetimeSetting = Integer
+					.valueOf(domainSettingsService.get().get(DomainSettingsKeys.password_lifetime.name()));
+			if (passwordLifetimeSetting > 0) {
+				domainPasswordLifetime = Optional.of(passwordLifetimeSetting);
+			}
+		} catch (NumberFormatException nfe) {
 		}
 	}
 
@@ -368,7 +392,7 @@ public class LdapExportService {
 					throw new ServerFault("Unable to find user uid: " + member.uid);
 				}
 
-				membersList.member.add(new DomainDirectoryUser(domain, user).getDn());
+				membersList.member.add(new DomainDirectoryUser(domain, domainPasswordLifetime, user).getDn());
 				membersList.memberUid.add(user.value.login);
 
 				usersAlreadyManaged.add(member.uid);
@@ -420,7 +444,8 @@ public class LdapExportService {
 		}
 
 		byte[] userPhoto = userService.getPhoto(uid);
-		DomainDirectoryUser domainDirectoryUser = new DomainDirectoryUser(domain, user, userPhoto);
+		DomainDirectoryUser domainDirectoryUser = new DomainDirectoryUser(domain, domainPasswordLifetime, user,
+				userPhoto);
 
 		Entry entry = ldapCon.lookup(domainDirectoryUser.getDn());
 		if (entry != null) {
@@ -457,7 +482,8 @@ public class LdapExportService {
 		if (user == null) {
 			throw new ServerFault("Unable to find user UID: " + uid);
 		}
-		DomainDirectoryUser ddu = new DomainDirectoryUser(domain, user, userService.getPhoto(uid));
+		DomainDirectoryUser ddu = new DomainDirectoryUser(domain, domainPasswordLifetime, user,
+				userService.getPhoto(uid));
 		updateLdapUserEntry(ldapCon, uid, ddu, userLdapEntry);
 	}
 

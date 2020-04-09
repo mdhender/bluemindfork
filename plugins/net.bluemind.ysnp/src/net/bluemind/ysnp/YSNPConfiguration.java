@@ -45,6 +45,7 @@ public class YSNPConfiguration {
 		}
 		conf = new Properties();
 		conf.put("daemon.socket.path", System.getProperty("ysnp.sock", "/var/run/saslauthd/mux"));
+		conf.put("expireok-daemon.socket.path", "/var/run/saslauthd/expireok");
 		conf.put("bmpt-daemon.socket.path", "/var/run/cyrus/socket/bm-ptsock");
 		try (InputStream in = Files.newInputStream(Paths.get(CFG))) {
 			conf.load(in);
@@ -147,6 +148,10 @@ public class YSNPConfiguration {
 
 	public String getSocketPath() {
 		return getString("daemon.socket.path");
+	}
+
+	public String getEpireOkSocketPath() {
+		return getString("expireok-daemon.socket.path");
 	}
 
 	public String getString(String confKey) {

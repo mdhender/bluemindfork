@@ -41,7 +41,7 @@ import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.Server;
 
-public abstract class SlapdConfig {
+public class SlapdConfig {
 	private Logger logger = LoggerFactory.getLogger(SlapdConfig.class);
 
 	private ItemValue<Server> server;
@@ -51,24 +51,81 @@ public abstract class SlapdConfig {
 	private static final String APPARMOR_SLAPD_CONF = "/etc/apparmor.d/usr.sbin.slapd";
 	private static final String APPARMOR_DISABLE_SLAPD = APPARMOR_DISABLE_PATH + "/usr.sbin.slapd";
 
-	protected String confPath = null;
-	protected String schemaPath = null;
-	protected String varRunPath = null;
-	protected String usrLibPath = null;
-	private String varLibPath = "/var/lib/ldap";
+	protected final String confPath;
+	protected final String schemaPath;
+	protected final String varRunPath;
+	protected final String usrLibPath;
+	private final String varLibPath = "/var/lib/ldap";
 
-	protected String sasl2Path = null;
-	private String sasl2ConfFile = "slapd.conf";
-	private String sasl2ConfTemplate = "slapd.sasl2.conf";
+	protected final String sasl2Path;
+	private final String sasl2ConfFile = "slapd.conf";
+	private final String sasl2ConfTemplate;
 
-	protected String slapdDefaultPath = null;
-	protected String slapdDefaultTemplate = null;
+	protected final String slapdDefaultPath;
+	protected final String slapdDefaultTemplate;
 
-	protected String owner = null;
-	protected String group = null;
+	protected final String owner;
+	protected final String group;
 
-	public SlapdConfig(ItemValue<Server> server) {
+	public static SlapdConfig build(ItemValue<Server> server) {
+		INodeClient nodeClient = NodeActivator.get(server.value.address());
+
+		// JUnit
+		String sasl2ConfTemplate = nodeClient.listFiles("/var/run/saslauthd/mux.accept").isEmpty() ? "slapd.sasl2.conf"
+				: "slapd.sasl2.conf.docker";
+
+		if (!nodeClient.listFiles("/etc/redhat-release").isEmpty()) {
+			// RedHat
+			String confPath = "/etc/openldap/slapd.d";
+			String schemaPath = "/etc/openldap/schema";
+			String varRunPath = "/var/run/openldap";
+			String usrLibPath = "/usr/lib64/openldap";
+
+			String sasl2Path = "/usr/lib64/sasl2";
+
+			String slapdDefaultPath = "/etc/sysconfig/slapd";
+			String slapdDefaultTemplate = "slapd.default.redhat";
+
+			String owner = "ldap";
+			String group = "ldap";
+			return new SlapdConfig(server, confPath, schemaPath, varRunPath, usrLibPath, sasl2Path, sasl2ConfTemplate,
+					slapdDefaultPath, slapdDefaultTemplate, owner, group);
+		}
+
+		String confPath = "/etc/ldap/slapd.d";
+		String schemaPath = "/etc/ldap/schema";
+		String varRunPath = "/var/run/slapd";
+		String usrLibPath = "/usr/lib/ldap";
+
+		String sasl2Path = "/etc/ldap/sasl2";
+
+		String slapdDefaultPath = "/etc/default/slapd";
+		String slapdDefaultTemplate = "slapd.default.debian";
+
+		String owner = "openldap";
+		String group = "openldap";
+		return new SlapdConfig(server, confPath, schemaPath, varRunPath, usrLibPath, sasl2Path, sasl2ConfTemplate,
+				slapdDefaultPath, slapdDefaultTemplate, owner, group);
+	}
+
+	private SlapdConfig(ItemValue<Server> server, String confPath, String schemaPath, String varRunPath,
+			String usrLibPath, String sasl2Path, String sasl2ConfTemplate, String slapdDefaultPath,
+			String slapdDefaultTemplate, String owner, String group) {
 		this.server = server;
+
+		this.confPath = confPath;
+		this.schemaPath = schemaPath;
+		this.varRunPath = varRunPath;
+		this.usrLibPath = usrLibPath;
+
+		this.sasl2Path = sasl2Path;
+		this.sasl2ConfTemplate = sasl2ConfTemplate;
+
+		this.slapdDefaultPath = slapdDefaultPath;
+		this.slapdDefaultTemplate = slapdDefaultTemplate;
+
+		this.owner = owner;
+		this.group = group;
 	}
 
 	public void init() {
@@ -79,6 +136,26 @@ public abstract class SlapdConfig {
 
 		configureSlapd(nodeClient);
 		startSlapd(nodeClient);
+	}
+
+	public void updateSasl() {
+		INodeClient nodeClient = NodeActivator.get(server.value.address());
+
+		initSasl(nodeClient);
+		stopSlapd(nodeClient);
+		startSlapd(nodeClient);
+	}
+
+	private void initSasl(INodeClient nodeClient) {
+		NCUtils.exec(nodeClient, "/bin/mkdir -p " + sasl2Path);
+		nodeClient.writeFile(sasl2Path + "/" + sasl2ConfFile,
+				getContentFromTemplate(sasl2ConfTemplate, Collections.emptyMap()));
+		NCUtils.exec(nodeClient, "/bin/chown -R " + owner + ":" + group + " " + sasl2Path);
+	}
+
+	private void stopSlapd(INodeClient nodeClient) {
+		logger.info("Stoping LDAP service");
+		NCUtils.exec(nodeClient, "service slapd stop");
 	}
 
 	private void startSlapd(INodeClient nodeClient) {
@@ -106,11 +183,7 @@ public abstract class SlapdConfig {
 
 		nodeClient.writeFile(slapdDefaultPath, getContentFromTemplate(slapdDefaultTemplate, Collections.emptyMap()));
 
-		NCUtils.exec(nodeClient, "/bin/mkdir -p " + sasl2Path);
-		nodeClient.writeFile(sasl2Path + "/" + sasl2ConfFile,
-				getContentFromTemplate(sasl2ConfTemplate, Collections.emptyMap()));
-		NCUtils.exec(nodeClient, "/bin/chown -R " + owner + ":" + group + " " + sasl2Path);
-
+		initSasl(nodeClient);
 	}
 
 	private ByteArrayInputStream getContentFromTemplate(String name, Map<String, Object> data) {
@@ -137,8 +210,7 @@ public abstract class SlapdConfig {
 	private void stopAndRemoveConf(INodeClient nodeClient) {
 		logger.info("Initializing slapd configuration");
 
-		logger.info("Stopping LDAP service");
-		NCUtils.exec(nodeClient, "service slapd stop");
+		stopSlapd(nodeClient);
 
 		logger.info("Reset LDAP configuration");
 		NCUtils.exec(nodeClient, "/bin/rm -rf " + confPath);

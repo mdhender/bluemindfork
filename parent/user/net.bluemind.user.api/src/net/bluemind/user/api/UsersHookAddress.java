@@ -21,4 +21,5 @@ package net.bluemind.user.api;
 public final class UsersHookAddress {
 
 	public static final String BASE_ADDRESS = "bm.users.changed";
+	public static final String PASSWORD_UPDATED = "bm.user.password.updated";
 }

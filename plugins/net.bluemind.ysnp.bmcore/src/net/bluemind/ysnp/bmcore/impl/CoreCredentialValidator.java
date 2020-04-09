@@ -41,7 +41,7 @@ public class CoreCredentialValidator implements ICredentialValidator {
 	private static final String DEFAULT_REALM = "global.virt";
 
 	@Override
-	public Kind validate(String username, String credential, String realm, String service) {
+	public Kind validate(String username, String credential, String realm, String service, boolean expireOk) {
 
 		String host = "127.0.0.1";
 		try {
@@ -79,6 +79,8 @@ public class CoreCredentialValidator implements ICredentialValidator {
 			if (lr == ValidationKind.TOKEN) {
 				vk = Kind.Token;
 			} else if (lr == ValidationKind.PASSWORD) {
+				vk = Kind.Password;
+			} else if (expireOk && lr == ValidationKind.PASSWORDEXPIRED) {
 				vk = Kind.Password;
 			} else {
 				logger.debug("could not validate {}/{}", latd, credential);

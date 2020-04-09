@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2020
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -8,7 +8,6 @@
  * it under the terms of either the GNU Affero General Public License as
  * published by the Free Software Foundation (version 3 of the License).
  *
- *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
@@ -16,24 +15,20 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.ysnp;
+package net.bluemind.ysnp.impl;
 
-public interface ICredentialValidator {
+import io.vertx.core.Verticle;
+import net.bluemind.lib.vertx.IVerticleFactory;
+import net.bluemind.ysnp.YSNPConfiguration;
 
-	public static enum Kind {
-		Password, Token, No;
+public class ExpireOkSaslAuthdVerticleFactory implements IVerticleFactory {
+	@Override
+	public boolean isWorker() {
+		return false;
 	}
 
-	/**
-	 * Returns true if the given credential is valid for the given username, realm &
-	 * service.
-	 * 
-	 * @param username
-	 * @param credential
-	 * @param realm
-	 * @param service
-	 * @param expireOk
-	 * @return
-	 */
-	Kind validate(String username, String credential, String realm, String service, boolean expireOk);
+	@Override
+	public Verticle newInstance() {
+		return new SaslAuthdVerticle(YSNPConfiguration.INSTANCE.getEpireOkSocketPath(), true);
+	}
 }
