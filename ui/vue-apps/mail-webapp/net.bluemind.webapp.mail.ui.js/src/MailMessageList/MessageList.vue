@@ -29,7 +29,7 @@
         @keyup.shift.ctrl.exact.home="selectRange(itemKeys[0])"
         @keyup.shift.ctrl.exact.end="selectRange(itemKeys[count - 1])"
     >
-        <div v-for="(message, index) in messages" :key="index">
+        <div v-for="(message, index) in _messages" :key="index">
             <message-list-separator v-if="message.hasSeparator" :text="$t(message.range.name)" />
             <message-list-item
                 :ref="'message-' + message.key"
@@ -56,7 +56,6 @@ import { SHOW_PURGE_MODAL, TOGGLE_SELECTION_ALL } from "../VueBusEventTypes";
 import MailRouterMixin from "../MailRouterMixin";
 import MessageListItem from "./MessageListItem";
 import MessageListSeparator from "./MessageListSeparator";
-import throttle from "lodash.throttle";
 
 const PAGE = 9;
 
@@ -72,6 +71,7 @@ export default {
     data() {
         return {
             PAGE,
+            length: 25,
             lastFocusedMessage: null,
             anchoredMessageForShift: null,
             draggedMessage: null
@@ -89,8 +89,11 @@ export default {
         ...mapGetters("mail-webapp/messages", ["messages", "count", "indexOf"]),
         ...mapState("mail-webapp", ["currentFolderKey", "messageFilter", "selectedMessageKeys"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
+        _messages() {
+            return this.messages.slice(0, this.length);
+        },
         hasMore: function() {
-            return this.messages.length < this.count;
+            return this.length < this.count;
         }
     },
     watch: {
@@ -119,20 +122,20 @@ export default {
             "deleteAllSelectedMessages"
         ]),
         ...mapMutations("mail-webapp/currentMessage", { clearCurrentMessage: "clear" }),
-        loadMore: function() {
-            const range = {
-                start: this.messages.length,
-                end: this.messages.length + 100
-            };
-            this.loadRange(range);
+        async loadMore() {
+            if (this.hasMore) {
+                const end = Math.min(this.length + 25, this.count);
+                await this.loadRange({ start: this.length, end });
+                this.length = end;
+            }
         },
-        onScroll: throttle(function(event) {
+        onScroll(event) {
             const total = event.target.scrollHeight;
-            const current = event.target.scrollTop;
-            if (current >= 0.75 * total) {
+            const current = event.target.scrollTop + event.target.offsetHeight;
+            if (current >= total) {
                 this.loadMore();
             }
-        }, 300),
+        },
         remove() {
             if (this.currentFolderKey === this.my.TRASH.key) {
                 this.openPurgeModal();
