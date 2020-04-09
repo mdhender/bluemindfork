@@ -76,9 +76,9 @@ public class StaticFileHandler implements Handler<HttpServerRequest> {
 		String acceptEncoding = req.headers().get(Headers.ACCEPT_ENCODING);
 		boolean acceptEncodingGzip = acceptEncoding == null ? false : acceptEncoding.contains("gzip");
 
-		logger.debug("trying to resolve {} ", req.path());
+		logger.debug("trying to resolve [{}], module root [{}]", req.path(), webRoot);
 		try {
-			String file = req.path().substring(webRoot.length());
+			String file = req.path().substring(webRoot.equals("/") ? 0 : webRoot.length());
 
 			if ("/".equals(file) || file.length() == 0) {
 				// redirect to index
