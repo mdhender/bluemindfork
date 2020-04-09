@@ -29,7 +29,12 @@
                         class="w-100 d-flex align-items-center"
                         @dragenter="f.value.expanded || expandFolder(f.value.key)"
                     >
-                        <mail-folder-icon :folder="f.value" breakpoint="xl" class="flex-fill" />
+                        <mail-folder-icon
+                            :folder="f.value"
+                            breakpoint="xl"
+                            class="flex-fill"
+                            :class="f.value.unread > 0 ? 'font-weight-bold' : ''"
+                        />
                         <bm-counter-badge
                             v-if="f.value.unread > 0"
                             :value="f.value.unread"
@@ -70,7 +75,13 @@
                         class="w-100 d-flex align-items-center"
                         @dragenter="f.value.expanded || expandFolder(f.value.key)"
                     >
-                        <mail-folder-icon shared :folder="f.value" breakpoint="xl" class="flex-fill" />
+                        <mail-folder-icon
+                            shared
+                            :folder="f.value"
+                            breakpoint="xl"
+                            class="flex-fill"
+                            :class="f.value.unread > 0 ? 'font-weight-bold' : ''"
+                        />
                         <bm-counter-badge
                             v-if="f.value.unread > 0"
                             :value="f.value.unread"
