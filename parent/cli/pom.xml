@@ -20,6 +20,7 @@
 		<module>net.bluemind.cli.directory.common</module>
                 <module>net.bluemind.cli.adm</module>
 		<module>net.bluemind.cli.index</module>
+		<module>net.bluemind.cli.job</module>
 		<module>net.bluemind.cli.node</module>
 		<module>net.bluemind.cli.hz</module>
 		<module>net.bluemind.cli.integration.tests</module>
