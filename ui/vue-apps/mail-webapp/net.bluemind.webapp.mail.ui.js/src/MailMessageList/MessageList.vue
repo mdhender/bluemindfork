@@ -238,7 +238,7 @@ export default {
             this.navigateAfterSelection();
         },
         navigateAfterSelection() {
-            this.navigateToParent();
+            this.$router.navigate("mail:home");
         },
         unselectAllIfNeeded(messageKey) {
             if (this.selectedMessageKeys.length !== 1 || this.selectedMessageKeys[0] !== messageKey) {
