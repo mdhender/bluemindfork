@@ -15,6 +15,10 @@
             impl="net.bluemind.cli.job.JobStatusCommand$Reg"
             priority="100">
       </registration>
+       <registration
+            impl="net.bluemind.cli.job.JobCancelCommand$Reg"
+            priority="100">
+      </registration>
    </extension>
 
 </plugin>
