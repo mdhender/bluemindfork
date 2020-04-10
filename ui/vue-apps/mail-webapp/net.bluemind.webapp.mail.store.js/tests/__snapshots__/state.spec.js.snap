@@ -9,5 +9,6 @@ Object {
   "messageFilter": undefined,
   "selectedMessageKeys": Array [],
   "status": "idle",
+  "userSettings": Object {},
 }
 `;

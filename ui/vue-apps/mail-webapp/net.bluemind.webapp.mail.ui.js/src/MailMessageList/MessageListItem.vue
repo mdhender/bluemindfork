@@ -15,12 +15,16 @@
             v-touch:touchhold="onTouch"
             :to="to"
             active-class="active"
-            :class="[...message.states, isMessageSelected(message.key) ? 'active' : '']"
+            :class="[
+                ...message.states,
+                isMessageSelected(message.key) ? 'active' : '',
+                `message-list-item-${userSettings.mail_message_list_style}`
+            ]"
             @mouseenter.native="mouseIn = true"
             @mouseleave.native="mouseIn = false"
         >
             <bm-row class="align-items-center flex-nowrap no-gutters">
-                <bm-col cols="1" class="selector">
+                <bm-col cols="1" class="selector pr-2 text-center">
                     <bm-avatar :alt="from" :class="[anyMessageSelected ? 'd-none' : '']" />
                     <bm-check
                         :checked="isMessageSelected(message.key)"
@@ -29,7 +33,11 @@
                     />
                 </bm-col>
                 <bm-col cols="8" class="text-overflow">
-                    <div v-bm-tooltip.ds500.viewport :title="from" class="text-overflow mw-100 sender h3 text-dark">
+                    <div
+                        v-bm-tooltip.ds500.viewport
+                        :title="from"
+                        class="text-overflow mw-100 mail-message-list-item-sender h3 text-dark"
+                    >
                         {{ from }}
                     </div>
                 </bm-col>
@@ -50,13 +58,25 @@
                     <div
                         v-bm-tooltip.ds500.bottom.viewport
                         :title="message.subject"
-                        class="text-overflow mw-100 subject flex-grow-1"
+                        class="text-overflow mw-100 mail-message-list-item-subject flex-grow-1 text-secondary "
                     >
                         {{ message.subject }}
                     </div>
-                    <div class="pl-2">
+                    <div class="pl-2 mail-message-list-item-date">
                         <span class="text-nowrap d-none d-sm-block d-md-none d-xl-block">{{ displayedDate }}</span>
                         <span class="text-nowrap d-sm-none d-md-block d-xl-none">{{ smallerDisplayedDate }}</span>
+                    </div>
+                </bm-col>
+            </bm-row>
+            <bm-row class="no-gutters mail-message-list-item-preview">
+                <bm-col cols="1"> </bm-col>
+                <bm-col class="text-overflow d-flex">
+                    <div
+                        v-bm-tooltip.ds500.bottom.viewport
+                        :title="message.preview"
+                        class="text-overflow mw-100 flex-grow-1 text-dark text-condensed"
+                    >
+                        {{ message.preview || "&nbsp;" }}
                     </div>
                 </bm-col>
             </bm-row>
@@ -140,7 +160,13 @@ export default {
     computed: {
         ...mapGetters("mail-webapp/folders", ["getFolderByKey"]),
         ...mapGetters("mail-webapp", ["isMessageSelected", "nextMessageKey"]),
-        ...mapState("mail-webapp", ["currentMessageKey", "selectedMessageKeys", "currentFolderKey", "messageFilter"]),
+        ...mapState("mail-webapp", [
+            "currentMessageKey",
+            "selectedMessageKeys",
+            "currentFolderKey",
+            "messageFilter",
+            "userSettings"
+        ]),
         displayedDate: function() {
             const today = new Date();
             const messageDate = this.message.date;
@@ -229,6 +255,9 @@ export default {
 
 .message-list-item {
     cursor: pointer;
+    .mail-message-list-item-preview {
+        display: none;
+    }
 }
 
 .message-list-item .bm-avatar {
@@ -240,18 +269,43 @@ export default {
     opacity: 0.55;
 }
 
-.message-list-item .selector .bm-check {
-    margin-left: 0.825rem;
-    padding-left: 0.825rem;
-    min-height: 1.3rem;
+.message-list-item .selector {
+    min-width: $sp-2 + 1.3rem;
 }
 
-.message-list-item:hover .selector .bm-avatar {
-    display: none !important;
+.message-list-item .selector .bm-check {
+    min-height: 1.3rem;
+    min-width: $sp-2 + 1.3rem;
+    margin-left: 0.3rem;
+}
+
+.message-list-item-full {
+    padding-top: $sp-1 !important;
+    padding-bottom: $sp-1 !important;
+    .mail-message-list-item-subject,
+    .mail-message-list-item-date {
+        line-height: $line-height-sm;
+    }
+    .mail-message-list-item-preview {
+        display: flex;
+    }
+}
+
+.message-list-item-compact {
+    padding-top: $sp-1 !important;
+    padding-bottom: $sp-1 !important;
+    .mail-message-list-item-subject,
+    .mail-message-list-item-date {
+        line-height: $line-height-sm;
+    }
 }
 
 .message-list-item:hover .selector .bm-check {
     display: block !important;
+}
+
+.message-list-item:hover .selector .bm-avatar {
+    display: none !important;
 }
 
 .message-list-item a.list-group-item.not-seen {
@@ -270,7 +324,6 @@ export default {
 }
 
 .message-list-item {
-    margin: 1px;
     &:focus {
         outline: $outline !important;
     }
@@ -285,8 +338,8 @@ export default {
     top: 0.2rem !important;
 }
 
-.not-seen .sender,
-.not-seen .subject {
+.not-seen .mail-message-list-item-sender,
+.not-seen .mail-message-list-item-subject {
     font-weight: $font-weight-bold;
 }
 
