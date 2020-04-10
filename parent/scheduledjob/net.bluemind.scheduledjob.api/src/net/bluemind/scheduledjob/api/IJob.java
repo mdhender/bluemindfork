@@ -48,10 +48,12 @@ public interface IJob {
 	public ListResult<Job> searchJob(JobQuery query) throws ServerFault;
 
 	/**
-	 * Fetch recorded job executions. Pagination is supported. global & non-global admins will get different results.
+	 * Fetch recorded job executions. Pagination is supported. global & non-global
+	 * admins will get different results.
 	 * 
 	 * @param query
-	 * @return list of job executions, sorted by start execution date in descending order
+	 * @return list of job executions, sorted by start execution date in descending
+	 *         order
 	 * @throws ServerFault
 	 */
 	@POST
@@ -111,6 +113,17 @@ public interface IJob {
 	@POST
 	@Path("_start/{jobId}")
 	public void start(@PathParam(value = "jobId") String jobId, @QueryParam(value = "domainName") String domainName)
+			throws ServerFault;
+
+	/**
+	 * Cancel running job by its ID
+	 * 
+	 * @param jobId
+	 * @throws ServerFault
+	 */
+	@DELETE
+	@Path("_cancel/{jobId}")
+	public void cancel(@PathParam(value = "jobId") String jobId, @QueryParam(value = "domainName") String domainName)
 			throws ServerFault;
 
 	/**

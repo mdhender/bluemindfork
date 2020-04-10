@@ -21,6 +21,8 @@ package net.bluemind.scheduledjob.scheduler;
 import java.util.Date;
 import java.util.Set;
 
+import org.slf4j.LoggerFactory;
+
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.scheduledjob.api.JobKind;
 
@@ -28,13 +30,12 @@ public interface IScheduledJob {
 
 	/**
 	 * This method is called by Blue Mind's scheduler. When plannedExecution is
-	 * true, the task must comply and run (if relevant for the given domain).
-	 * When planned execution is false, the task can decide what to do.
+	 * true, the task must comply and run (if relevant for the given domain). When
+	 * planned execution is false, the task can decide what to do.
 	 * 
 	 * @param sched
-	 * @param forced
-	 *            True when started by hand on from a scheduled plan. False when
-	 *            the job is in automatic mode.
+	 * @param forced    True when started by hand on from a scheduled plan. False
+	 *                  when the job is in automatic mode.
 	 * @param domain
 	 * @param startDate
 	 */
@@ -49,5 +50,10 @@ public interface IScheduledJob {
 	Set<String> getLockedResources();
 
 	boolean supportsScheduling();
+
+	default void cancel() {
+		LoggerFactory.getLogger(this.getClass())
+				.info("Job {} has been cancelled. The Job provides no cancellation procedure", getJobId());
+	}
 
 }

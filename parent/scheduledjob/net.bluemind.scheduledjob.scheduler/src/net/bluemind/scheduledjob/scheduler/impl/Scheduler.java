@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
@@ -54,6 +55,7 @@ public class Scheduler implements IScheduler, IRecordingListener {
 	private ThreadLocal<String> activeGroup;
 	private ConcurrentHashMap<String, ExecutionRecorder> activeRecorders;
 	private Executor exec;
+	private Map<String, JobThreadInfo> runningTasks = new ConcurrentHashMap<>();
 
 	private Scheduler() {
 		exec = Executors.newFixedThreadPool(4);
@@ -145,6 +147,7 @@ public class Scheduler implements IScheduler, IRecordingListener {
 			return;
 		}
 		if (status == JobExitStatus.FAILURE) {
+			activeSlots.remove(rid.domainName + "-" + rid.jid);
 			logger.error("finished with FAILURE status called from here", new Throwable("sched.finish(FAILURE)"));
 		}
 		long endStamp = System.currentTimeMillis();
@@ -184,7 +187,22 @@ public class Scheduler implements IScheduler, IRecordingListener {
 	}
 
 	public void tryRun(JobTicker runner) {
-		pool.execute(runner);
+		String key = runner.domainName + "-" + runner.bj.getJobId();
+		if (getActiveSlot(runner.domainName, runner.bj.getJobId()) == null) {
+			Future<?> future = pool.submit(runner);
+			runningTasks.put(key, new JobThreadInfo(future, runner));
+		}
+	}
+
+	public synchronized void cancel(String domainName, String jid) {
+		String key = domainName + "-" + jid;
+		logger.info("Cancelling job {}", key);
+		if (runningTasks.containsKey(key)) {
+			runningTasks.get(key).runnable.cancel();
+			runningTasks.get(key).future.cancel(true);
+		} else {
+			logger.info("No running task registered for job {}", key);
+		}
 	}
 
 	public void setActiveGroup(String execGroup) {
@@ -227,6 +245,21 @@ public class Scheduler implements IScheduler, IRecordingListener {
 			}
 		});
 		return locked.get();
+	}
+
+	public void unregister(String domainName, IScheduledJob bj) {
+		String key = domainName + "-" + bj.getJobId();
+		runningTasks.remove(key);
+	}
+
+	static class JobThreadInfo {
+		final Future<?> future;
+		final CancellableRunnable runnable;
+
+		JobThreadInfo(Future<?> future, CancellableRunnable runnable) {
+			this.future = future;
+			this.runnable = runnable;
+		}
 	}
 
 }
