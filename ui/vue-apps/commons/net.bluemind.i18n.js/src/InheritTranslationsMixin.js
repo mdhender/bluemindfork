@@ -8,11 +8,6 @@ export default {
                 locales.forEach(key => {
                     this.$i18n.mergeLocaleMessage(key, this.$options.componentI18N.messages[key] || {});
                 });
-            } else {
-                // if no componentI18N defined, component inherits from its parent if possible
-                locales.forEach(key => {
-                    this.$i18n.setLocaleMessage(key, this.$parent.$i18n.getLocaleMessage(key));
-                });
             }
         }
     }
