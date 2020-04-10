@@ -21,9 +21,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -62,6 +64,8 @@ import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.sds.proxy.dto.GetRequest;
+import net.bluemind.sds.proxy.dto.MgetRequest;
+import net.bluemind.sds.proxy.dto.MgetRequest.Transfer;
 import net.bluemind.sds.proxy.mgmt.SdsProxyManager;
 import net.bluemind.sds.proxy.store.ISdsBackingStore;
 import net.bluemind.sds.proxy.store.s3.S3BackingStoreFactory;
@@ -181,7 +185,10 @@ public class SdsProxyWithS3IntegrationTests {
 		}
 
 		// append mail
-		String eml = "From: john" + System.currentTimeMillis() + "@junit.test\r\n";
+		String eml = "From: john" + System.currentTimeMillis() + "@junit.test\r\n\r\n";
+		for (int i = 0; i < 50 * 1014; i++) {
+			eml += "aa";
+		}
 		byte[] emlData = eml.getBytes();
 		@SuppressWarnings("deprecation")
 		ByteBuf hash = Unpooled.wrappedBuffer(Hashing.sha1().hashBytes(emlData).asBytes());
@@ -204,6 +211,28 @@ public class SdsProxyWithS3IntegrationTests {
 		s3.download(gr).get(10, TimeUnit.SECONDS);
 		byte[] content = Files.readAllBytes(tmp);
 		assertTrue(Arrays.equals(content, emlData));
+
+		MgetRequest mget = new MgetRequest();
+		mget.mailbox = "titi";
+		mget.transfers = new ArrayList<>(200);
+		for (int i = 0; i < 200; i++) {
+			Path get = Files.createTempFile("mget", ".eml");
+			mget.transfers.add(Transfer.of(guid, get.toFile().getAbsolutePath()));
+			get.toFile().delete();
+		}
+		System.err.println("*** mget starts ***");
+		int CNT = 200;
+		for (int i = 0; i < CNT; i++) {
+			long time = System.currentTimeMillis();
+			s3.downloads(mget).get(10, TimeUnit.SECONDS);
+			time = System.currentTimeMillis() - time;
+			System.err.println("*** mget in " + time + "ms.");
+			for (Transfer t : mget.transfers) {
+				File f = new File(t.filename);
+				assertTrue(new File(t.filename).exists());
+				f.delete();
+			}
+		}
 
 	}
 

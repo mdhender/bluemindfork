@@ -191,10 +191,10 @@ public class SdsProxyTests {
 		HttpClient client = client();
 		JsonObject payload = new JsonObject().put("mailbox", "yeah");
 		JsonArray transfers = new JsonArray();
-		transfers.add(
-				new JsonObject().put("guid", "123").put("filename", new File(root, "dest1.txt").getAbsolutePath()));
-		transfers.add(
-				new JsonObject().put("guid", "123").put("filename", new File(root, "dest2.txt").getAbsolutePath()));
+		for (int i = 0; i < 500; i++) {
+			transfers.add(new JsonObject().put("guid", "123").put("filename",
+					new File(root, "dest" + i + ".txt").getAbsolutePath()));
+		}
 		payload.put("transfers", transfers);
 		client.post("/sds/mget", resp -> {
 			resp.exceptionHandler(t -> waitResp.completeExceptionally(t));

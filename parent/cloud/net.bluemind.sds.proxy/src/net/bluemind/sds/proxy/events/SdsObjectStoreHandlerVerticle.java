@@ -17,10 +17,10 @@
  */
 package net.bluemind.sds.proxy.events;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +54,7 @@ import net.bluemind.sds.proxy.store.dummy.DummyBackingStore;
 public class SdsObjectStoreHandlerVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(SdsObjectStoreHandlerVerticle.class);
-	private static final Path config = new File("/etc/bm-sds-proxy/config.json").toPath();
+	private static final Path config = Paths.get("/etc/bm-sds-proxy/config.json");
 
 	public static class SdsObjectStoreFactory implements IVerticleFactory {
 
@@ -156,16 +156,15 @@ public class SdsObjectStoreHandlerVerticle extends AbstractVerticle {
 
 	private <T extends SdsRequest, R extends SdsResponse> void registerForJsonSdsRequest(String address,
 			Class<T> reqType, UnsafeFunction<T, R> process) {
-		vertx.eventBus().consumer(address, (Message<JsonObject> msg) -> {
-			String jsonString = msg.body().encode();
+		vertx.eventBus().consumer(address, (Message<String> msg) -> {
+			String jsonString = msg.body();
 			T sdsReq = JsMapper.readValue(jsonString, reqType);
 			process.apply(sdsReq).whenComplete((sdsResp, ex) -> {
 				if (ex != null) {
 					logger.error("{} Error processing payload {}", address, jsonString, ex);
 					// let the event bus timeout trigger, an http 500 will be returned
 				} else {
-					JsonObject jsResp = new JsonObject(JsMapper.writeValueAsString(sdsResp));
-					msg.reply(jsResp);
+					msg.reply(JsMapper.writeValueAsString(sdsResp));
 				}
 			});
 		});
@@ -173,14 +172,13 @@ public class SdsObjectStoreHandlerVerticle extends AbstractVerticle {
 
 	private <R extends SdsResponse> void registerForJsonSdsRequest(String address,
 			UnsafeFunction<JsonObject, R> process) {
-		vertx.eventBus().consumer(address, (Message<JsonObject> msg) -> {
-			process.apply(msg.body()).whenComplete((sdsResp, ex) -> {
+		vertx.eventBus().consumer(address, (Message<String> msg) -> {
+			process.apply(new JsonObject(msg.body())).whenComplete((sdsResp, ex) -> {
 				if (ex != null) {
 					logger.error("{} Error processing payload {}", address, msg.body(), ex);
 					// let the event bus timeout trigger, an http 500 will be returned
 				} else {
-					JsonObject jsResp = new JsonObject(JsMapper.writeValueAsString(sdsResp));
-					msg.reply(jsResp);
+					msg.reply(JsMapper.writeValueAsString(sdsResp));
 				}
 			});
 		});

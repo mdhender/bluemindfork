@@ -17,16 +17,19 @@
  */
 package net.bluemind.sds.proxy.store.s3;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
+import java.util.Iterator;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
-import java.util.stream.Collectors;
 
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,8 +39,14 @@ import com.netflix.spectator.api.Counter;
 import com.netflix.spectator.api.Registry;
 import com.netflix.spectator.api.Timer;
 
+import io.netty.buffer.Unpooled;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.file.AsyncFile;
+import io.vertx.core.file.OpenOptions;
 import net.bluemind.aws.s3.utils.S3ClientFactory;
 import net.bluemind.aws.s3.utils.S3Configuration;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.sds.proxy.dto.DeleteRequest;
 import net.bluemind.sds.proxy.dto.ExistRequest;
@@ -50,12 +59,15 @@ import net.bluemind.sds.proxy.dto.SdsError;
 import net.bluemind.sds.proxy.dto.SdsResponse;
 import net.bluemind.sds.proxy.store.ISdsBackingStore;
 import net.bluemind.sds.proxy.store.SdsException;
+import software.amazon.awssdk.core.async.AsyncResponseTransformer;
+import software.amazon.awssdk.core.async.SdkPublisher;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.services.s3.model.BucketLocationConstraint;
 import software.amazon.awssdk.services.s3.model.CreateBucketConfiguration;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
@@ -176,14 +188,14 @@ public class S3BackingStore implements ISdsBackingStore {
 
 	@Override
 	public CompletableFuture<SdsResponse> download(GetRequest req) {
-		File target = new File(req.filename);
 		final long start = clock.monotonicTime();
-		target.delete(); // NOSONAR
-		return client.getObject(GetObjectRequest.builder().bucket(bucket).key(req.guid).build(), target.toPath())
+		PathResponseTransformer<GetObjectResponse> prt = new PathResponseTransformer<>(VertxPlatform.getVertx(),
+				req.filename);
+		return client.getObject(GetObjectRequest.builder().bucket(bucket).key(req.guid).build(), prt)
 				.exceptionally(ex -> null).thenApply(gor -> {
 					getLatencyTimer.record(clock.monotonicTime() - start, TimeUnit.NANOSECONDS);
 					if (gor != null) {
-						getSizeCounter.increment(target.length());
+						getSizeCounter.increment(prt.transferred);
 						getRequestCounter.increment();
 					} else {
 						getFailureRequestCounter.increment();
@@ -193,37 +205,124 @@ public class S3BackingStore implements ISdsBackingStore {
 
 	}
 
+	private static class PathResponseTransformer<T> implements AsyncResponseTransformer<T, T> {
+
+		private static final OpenOptions OPEN_OPTS = new OpenOptions().setCreate(true).setWrite(true)
+				.setTruncateExisting(true);
+
+		private final String path;
+		private CompletableFuture<T> cf;
+		private T response;
+		private long transferred;
+		private final Vertx vertx;
+
+		public PathResponseTransformer(Vertx vertx, String path) {
+			this.vertx = vertx;
+			this.path = path;
+		}
+
+		@Override
+		public CompletableFuture<T> prepare() {
+			cf = new CompletableFuture<>();
+			return cf.thenApply(v -> response);
+		}
+
+		@Override
+		public void onResponse(T response) {
+			this.response = response;
+		}
+
+		@Override
+		public void onStream(SdkPublisher<ByteBuffer> publisher) {
+			vertx.fileSystem().open(path, OPEN_OPTS, res -> {
+				if (res.succeeded()) {
+					AsyncFile asyncFile = res.result();
+					publisher.subscribe(new Subscriber<ByteBuffer>() {
+
+						private Subscription sub;
+						private CompletableFuture<Void> curWrite = CompletableFuture.completedFuture(null);
+
+						@Override
+						public void onSubscribe(Subscription s) {
+							sub = s;
+							sub.request(1);
+						}
+
+						@Override
+						public void onNext(ByteBuffer t) {
+							transferred += t.remaining();
+							Buffer vxBuf = Buffer.buffer(Unpooled.wrappedBuffer(t));
+							curWrite = new CompletableFuture<>();
+							asyncFile.write(vxBuf, done -> {
+								curWrite.complete(null);
+								sub.request(1);
+							});
+						}
+
+						@Override
+						public void onError(Throwable t) {
+							asyncFile.close();
+							exceptionOccurred(t);
+						}
+
+						@Override
+						public void onComplete() {
+							curWrite.whenComplete((v, ex) -> {
+								asyncFile.close();
+								cf.complete(null);
+							});
+						}
+					});
+
+				} else {
+					exceptionOccurred(res.cause());
+				}
+			});
+		}
+
+		@Override
+		public void exceptionOccurred(Throwable error) {
+			try {
+				Files.deleteIfExists(Paths.get(path));
+			} catch (IOException e) {
+				logger.error(e.getMessage(), e);
+			}
+			cf.completeExceptionally(error);
+		}
+
+	}
+
 	@Override
 	public CompletableFuture<SdsResponse> downloads(MgetRequest req) {
 		final long start = clock.monotonicTime();
 
-		Collection<Transfer> dedupByFilename = req.transfers.stream()
-				.collect(Collectors.toMap(t -> t.filename, t -> t, (t1, t2) -> t2)).values();
-
-		File[] files = dedupByFilename.stream().map(t -> {
-			File f = new File(t.filename);
-			f.delete();// NOSONAR
-			return f;
-		}).toArray(File[]::new);
-		CompletableFuture<?>[] fut = new CompletableFuture[files.length];
-		int i = 0;
+		int len = req.transfers.size();
 		final LongAdder totalSize = new LongAdder();
-		for (Transfer t : dedupByFilename) {
-			final int slot = i;
-			fut[slot] = client
-					.getObject(GetObjectRequest.builder().bucket(bucket).key(t.guid).build(), files[slot].toPath())
-					.exceptionally(x -> {
-						logger.warn(x.getMessage());
-						return null;
-					}).thenAccept(gor -> totalSize.add(files[slot].length()));
-			i++;
+		Vertx vx = VertxPlatform.getVertx();
+		int parallelStreams = 8;
+		CompletableFuture<?>[] roots = new CompletableFuture[parallelStreams];
+		for (int i = 0; i < parallelStreams; i++) {
+			roots[i] = CompletableFuture.completedFuture(null);
 		}
-		return CompletableFuture.allOf(fut).thenApply(v -> {
+		Iterator<Transfer> it = req.transfers.iterator();
+		for (int i = 0; i < len; i++) {
+			int slot = i % parallelStreams;
+			Transfer t = it.next();
+			PathResponseTransformer<GetObjectResponse> pr = new PathResponseTransformer<>(vx, t.filename);
+			roots[slot] = roots[slot].thenCompose(v -> client
+					.getObject(GetObjectRequest.builder().bucket(bucket).key(t.guid).build(), pr).exceptionally(x -> {
+						logger.warn(x.getMessage(), x);
+						return null;
+					}).thenAccept(respBytes -> totalSize.add(pr.transferred)));
+		}
+
+		return CompletableFuture.allOf(roots).thenApply(v -> {
 			mgetLatencyTimer.record(clock.monotonicTime() - start, TimeUnit.NANOSECONDS);
 			getSizeCounter.increment(totalSize.longValue());
 			mgetRequestCounter.increment();
-			return new SdsResponse().withTags(ImmutableMap.of("batch", Integer.toString(files.length), "sizeKB",
-					Long.toString(totalSize.longValue() / 1024)));
+			String sizeKb = Long.toString(totalSize.longValue() / 1024);
+			logger.info("{} byte(s) downloaded from S3.", sizeKb);
+			return new SdsResponse().withTags(ImmutableMap.of("batch", Integer.toString(len), "sizeKB", sizeKb));
 		}).exceptionally(ex -> {
 			logger.error(ex.getMessage() + " for " + req, ex);
 			SdsResponse error = new SdsResponse();

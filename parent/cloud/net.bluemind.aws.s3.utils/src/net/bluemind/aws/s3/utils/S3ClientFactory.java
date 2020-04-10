@@ -25,9 +25,15 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 
+import io.netty.channel.epoll.Epoll;
+import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.kqueue.KQueue;
+import io.netty.channel.kqueue.KQueueEventLoopGroup;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.http.nio.netty.NettyNioAsyncHttpClient;
+import software.amazon.awssdk.http.nio.netty.NettyNioAsyncHttpClient.Builder;
+import software.amazon.awssdk.http.nio.netty.SdkEventLoopGroup;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.services.s3.S3AsyncClientBuilder;
@@ -57,9 +63,15 @@ public class S3ClientFactory {
 
 	public static S3AsyncClient create(S3Configuration s3Configuration) {
 		try {
+			Builder nettySetup = NettyNioAsyncHttpClient.builder().maxConcurrency(50)
+					.maxPendingConnectionAcquires(10000).connectionAcquisitionTimeout(Duration.ofSeconds(10));
+			if (Epoll.isAvailable()) {
+				nettySetup.eventLoopGroup(SdkEventLoopGroup.create(new EpollEventLoopGroup()));
+			} else if (KQueue.isAvailable()) {
+				nettySetup.eventLoopGroup(SdkEventLoopGroup.create(new KQueueEventLoopGroup()));
+			}
 			S3AsyncClientBuilder builder = S3AsyncClient.builder();
-			builder.httpClientBuilder(NettyNioAsyncHttpClient.builder().maxConcurrency(50)
-					.maxPendingConnectionAcquires(10000).connectionAcquisitionTimeout(Duration.ofSeconds(10)));
+			builder.httpClientBuilder(nettySetup);
 			builder.credentialsProvider(StaticCredentialsProvider.create(
 					AwsBasicCredentials.create(s3Configuration.getAccessKey(), s3Configuration.getSecretKey())));
 			if (!Strings.isNullOrEmpty(s3Configuration.getRegion())) {
@@ -70,7 +82,7 @@ public class S3ClientFactory {
 			}
 			builder.endpointOverride(new URI(s3Configuration.getEndpoint()));
 			builder.serviceConfiguration(software.amazon.awssdk.services.s3.S3Configuration.builder()//
-					.pathStyleAccessEnabled(true).build());
+					.pathStyleAccessEnabled(true).checksumValidationEnabled(false).build());
 
 			return builder.build();
 		} catch (Exception e) {
