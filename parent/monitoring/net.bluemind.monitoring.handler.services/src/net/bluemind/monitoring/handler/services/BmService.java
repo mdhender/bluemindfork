@@ -27,64 +27,61 @@ package net.bluemind.monitoring.handler.services;
  */
 public enum BmService {
 
-	CORE("core", "/var/run/bm-core.pid"),
+	CORE("bm-core", "Core"),
 
-	CYRUS("cyrus", "/var/run/bm-cyrus.pid"),
+	CYRUS("bm-cyrus-imapd", "Cyrus"),
 
-	EAS("eas", "/var/run/bm-eas.pid"),
+	EAS("bm-eas", "Eas"),
 
-	ELASTICSEARCH("elasticsearch", "/var/run/bm-elasticsearch.pid"),
+	ELASTICSEARCH("bm-elasticsearch", "Elasticsearch"),
 
-	HPS("hps", "/var/run/bm-hps.pid"),
+	HPS("bm-hps", "Hps"),
 
-	IPS("ips", "/var/run/bm-ips.pid"),
+	LMTPD("bm-lmtpd", "Lmtpd"),
 
-	LMTPD("lmtpd", "/var/run/bm-lmtpd.pid"),
+	LOCATOR("bm-locator", "Locator"),
 
-	LOCATOR("locator", "/var/run/bm-locator.pid"),
+	NODE("bm-node", "Node"),
 
-	NODE("node", "/var/run/bm-node.pid"),
+	TIKA("bm-tika", "Tika"),
 
-	TIKA("tika", "/var/run/bm-tika.pid"),
+	WEBSERVER("bm-webserver", "Webserver"),
 
-	WEBSERVER("webserver", "/var/run/bm-webserver.pid"),
+	XMPP("bm-xmpp", "Xmpp"),
 
-	XMPP("xmpp", "/var/run/bm-xmpp.pid"),
+	DAV("bm-webserver", "Dav"),
 
-	DAV("dav", "/var/run/bm-webserver.pid"),
+	YSNP("bm-ysnp", "Ysnp"),
 
-	POSTFIX("postfix", "/var/spool/postfix/pid/master.pid"),
-
-	YSNP("ysnp", "/var/run/bm-ysnp.pid"),
-
-	PHP("php", "/var/run/bm-php-fpm.pid");
+	PHP("bm-php-fpm", "Php");
 
 	/**
-	 * Name of the service used for the information title
+	 * Name of the systemd service
 	 */
 	private String serviceName;
-	/**
-	 * Location of the file
-	 */
-	private String file;
+	public String className;
 
-	private BmService(String serviceName, String fileLocation) {
+	private BmService(String serviceName, String className) {
 		this.serviceName = serviceName;
-		this.file = fileLocation;
-
+		this.className = className;
 	}
 
 	public String getServiceName() {
 		return serviceName;
 	}
 
-	public String getFile() {
-		return file;
-	}
-
 	@Override
 	public String toString() {
 		return this.serviceName;
 	}
+
+    public static BmService fromString(String serviceName) {
+	    for (BmService s : BmService.values()) {
+            if (s.serviceName.equalsIgnoreCase(serviceName)) {
+                return s;
+            }
+        }
+        return null;
+    }
 
 }
