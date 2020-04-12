@@ -34,5 +34,8 @@
       <java
             code="net.bluemind.system.ldap.export.upgrader.UpdateSaslConf">
       </java>
+      <java
+            code="net.bluemind.system.ldap.export.upgrader.AddIndexConfiguration">
+      </java>
    </extension>
 </plugin>
