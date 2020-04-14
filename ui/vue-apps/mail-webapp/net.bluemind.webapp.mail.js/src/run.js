@@ -1,17 +1,18 @@
 import { AddressBooksClient } from "@bluemind/addressbook.api";
 import { AlertFactory } from "@bluemind/alert.store";
+import { ContainersClient } from "@bluemind/core.container.api";
+import { ItemsTransferClient } from "@bluemind/backend.mail.api";
 import { MailboxesClient } from "@bluemind/mailbox.api";
 import { MailboxFoldersClient, OutboxClient } from "@bluemind/backend.mail.api";
 import { MailboxItemsService } from "@bluemind/backend.mail.service";
 import { TaskClient } from "@bluemind/core.task.api";
 import { UserSettingsClient } from "@bluemind/user.api";
-import MailWebAppStore from "@bluemind/webapp.mail.store";
-import { ContainersClient } from "@bluemind/core.container.api";
 import AlertStore from "@bluemind/alert.store";
 import injector from "@bluemind/inject";
 import MailApp from "@bluemind/webapp.mail.ui.vuejs";
 import MailAppAlerts from "@bluemind/webapp.mail.alert";
 import mailRoutes from "./router";
+import MailWebAppStore from "@bluemind/webapp.mail.store";
 import router from "@bluemind/router";
 import store from "@bluemind/store";
 import Vue from "vue";
@@ -79,6 +80,14 @@ function registerAPIClients() {
         factory: () => {
             const userSession = injector.getProvider("UserSession").get();
             return new MailboxesClient(userSession.sid, userSession.domain);
+        }
+    });
+
+    injector.register({
+        provide: "ItemsTransferPersistence",
+        factory: (sourceUid, destinationUid) => {
+            const userSession = injector.getProvider("UserSession").get();
+            return new ItemsTransferClient(userSession.sid, sourceUid, destinationUid);
         }
     });
 }

@@ -1,7 +1,7 @@
 import { ContainersClient } from "@bluemind/core.container.api";
 import { MailboxesClient } from "@bluemind/mailbox.api";
 import { createLocalVue } from "@vue/test-utils";
-import { MockMailboxItemsClient, MockMailboxFoldersClient } from "@bluemind/test-mocks";
+import { MockItemsTransferClient, MockMailboxItemsClient, MockMailboxFoldersClient } from "@bluemind/test-mocks";
 import aliceFolders from "./data/alice/folders";
 import aliceInbox from "./data/alice/inbox";
 import cloneDeep from "lodash.clonedeep";
@@ -20,11 +20,13 @@ jest.mock("@bluemind/mailbox.api");
 let containerService,
     mailboxesService,
     foldersService = new MockMailboxFoldersClient(),
-    itemsService = new MockMailboxItemsClient();
+    itemsService = new MockMailboxItemsClient(),
+    itemsTransferClient = new MockItemsTransferClient();
 ServiceLocator.register({ provide: "ContainersPersistence", factory: () => containerService });
 ServiceLocator.register({ provide: "MailboxesPersistence", factory: () => mailboxesService });
 ServiceLocator.register({ provide: "MailboxItemsPersistence", factory: () => itemsService });
 ServiceLocator.register({ provide: "MailboxFoldersPersistence", factory: () => foldersService });
+ServiceLocator.register({ provide: "ItemsTransferPersistence", factory: () => itemsTransferClient });
 ServiceLocator.register({ provide: "UserSession", factory: () => "" });
 
 const localVue = createLocalVue();
@@ -39,6 +41,7 @@ describe("[MailWebAppStore] Vuex store", () => {
         MailboxesClient.mockClear();
         foldersService = new MockMailboxFoldersClient();
         itemsService = new MockMailboxItemsClient();
+        itemsTransferClient = new MockItemsTransferClient();
         containerService = new ContainersClient();
         mailboxesService = new MailboxesClient();
     });
@@ -236,12 +239,7 @@ describe("[MailWebAppStore] Vuex store", () => {
         expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.arrayContaining([messageKey]));
         store.dispatch("mail-webapp/remove", messageKey, { root: true }).then(() => {
             expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.not.arrayContaining([messageKey]));
-            expect(itemsService.fetchComplete).toHaveBeenCalledWith(15);
-            expect(itemsService.uploadPart).toHaveBeenCalledWith("eml");
-            expect(itemsService.create).toHaveBeenCalledWith({
-                body: { structure: { mime: "message/rfc822", address: "addr" } }
-            });
-            expect(itemsService.deleteById).toHaveBeenCalledWith(872);
+            expect(itemsTransferClient.move).toHaveBeenCalled();
             done();
         });
     });
@@ -329,13 +327,8 @@ describe("[MailWebAppStore] Vuex store", () => {
         const destination = store.getters["mail-webapp/folders/getFolderByKey"](archive2017Key);
         expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.arrayContaining([messageKey]));
         store.dispatch("mail-webapp/move", { messageKey, folder: destination }, { root: true }).then(() => {
+            expect(itemsTransferClient.move).toHaveBeenCalled();
             expect(store.state["mail-webapp"].messages.itemKeys).toEqual(expect.not.arrayContaining([messageKey]));
-            expect(itemsService.fetchComplete).toHaveBeenCalledWith(15);
-            expect(itemsService.uploadPart).toHaveBeenCalledWith("eml");
-            expect(itemsService.create).toHaveBeenCalledWith({
-                body: { structure: { mime: "message/rfc822", address: "addr" } }
-            });
-            expect(itemsService.deleteById).toHaveBeenCalledWith(872);
             done();
         });
     });

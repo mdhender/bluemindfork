@@ -41,28 +41,10 @@ function moveInsideSameMailbox(destinationMailbox, destinationInternalId, source
         .then(() => dispatch("_removeMessages", messageKeys));
 }
 
-function moveToDifferentMailbox(messageKeys, sourceUid, destinationUid, dispatch, commit) {
-    return dispatch("$_getIfNotPresent", messageKeys).then(messages =>
-        Promise.all(messages.map(m => fetchAndMove(sourceUid, m, destinationUid, dispatch, commit)))
-    );
-}
-
-function fetchAndMove(sourceUid, message, destinationUid, dispatch, commit) {
-    return ServiceLocator.getProvider("MailboxItemsPersistence")
-        .get(sourceUid)
-        .fetchComplete(message.imapUid)
-        .then(eml =>
-            ServiceLocator.getProvider("MailboxItemsPersistence")
-                .get(destinationUid)
-                .uploadPart(eml)
-        )
-        .then(part =>
-            ServiceLocator.getProvider("MailboxItemsPersistence")
-                .get(destinationUid)
-                .create({
-                    body: { structure: { mime: "message/rfc822", address: part } }
-                })
-        )
-        .then(() => dispatch("messages/remove", message.key))
-        .then(() => commit("deleteSelectedMessageKey", message.key));
+function moveToDifferentMailbox(messageKeys, sourceUid, destinationUid, dispatch) {
+    const messageIds = messageKeys.map(key => ItemUri.item(key));
+    return ServiceLocator.getProvider("ItemsTransferPersistence")
+        .get(sourceUid, destinationUid)
+        .move(messageIds)
+        .then(() => dispatch("_removeMessages", messageKeys));
 }
