@@ -64,23 +64,26 @@ public class CyrusServiceVerticle extends AbstractVerticle {
 		servers.forEach(s -> {
 			CyrusService cyrusService = new CyrusService(s.value.address());
 			cyrusService.reload();
-
-			List<Assignment> assignments = service.getServerAssignments(s.uid).stream()
-					.filter(as -> "mail/imap".equals(as.tag)).collect(Collectors.toList());
-			for (Assignment domainServerPair : assignments) {
-				try {
-					SharedMailboxProbe probe = new SharedMailboxProbe.Builder()//
-							.forBackend(domainServerPair)//
-							.server(s)//
-							.provider(prov)//
-							.build();
-					logger.info("Probe mailbox is {}", probe);
-					new ReplicationLatencyTimer(vertx, probe).start();
-				} catch (Exception e) {
-					logger.error(e.getMessage(), e);
-				}
-			}
+			vertx.setTimer(60000, timer -> buildSharedMailboxProbe(prov, service, s));
 		});
+	}
+
+	private void buildSharedMailboxProbe(IServiceProvider prov, IServer service, ItemValue<Server> s) {
+		List<Assignment> assignments = service.getServerAssignments(s.uid).stream()
+				.filter(as -> "mail/imap".equals(as.tag)).collect(Collectors.toList());
+		for (Assignment domainServerPair : assignments) {
+			try {
+				SharedMailboxProbe probe = new SharedMailboxProbe.Builder()//
+						.forBackend(domainServerPair)//
+						.server(s)//
+						.provider(prov)//
+						.build();
+				logger.info("Probe mailbox is {}", probe);
+				new ReplicationLatencyTimer(vertx, probe).start();
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
 	}
 
 }
