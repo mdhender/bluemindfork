@@ -221,7 +221,7 @@ public class SdsProxyWithS3IntegrationTests {
 			get.toFile().delete();
 		}
 		System.err.println("*** mget starts ***");
-		int CNT = 200;
+		int CNT = 20;
 		for (int i = 0; i < CNT; i++) {
 			long time = System.currentTimeMillis();
 			s3.downloads(mget).get(10, TimeUnit.SECONDS);

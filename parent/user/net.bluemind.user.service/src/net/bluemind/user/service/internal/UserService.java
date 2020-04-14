@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.authentication.persistence.APIKeyStore;
 import net.bluemind.core.api.ParametersValidator;
@@ -74,6 +75,8 @@ import net.bluemind.group.api.Group;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.Member;
 import net.bluemind.group.persistence.GroupStore;
+import net.bluemind.hornetq.client.MQ;
+import net.bluemind.hornetq.client.Topic;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.Mailbox.Routing;
@@ -774,6 +777,9 @@ public class UserService implements IInCoreUser, IUser {
 
 		storeService.setPassword(uid, HashFactory.getDefault().create(newPassword), true);
 		eventProducer.passwordUpdated(uid);
+		// ysnp cache invalidation
+		MQ.getProducer(Topic.CORE_SESSIONS).send(
+				new JsonObject().put("latd", userItem.value.login + "@" + domainName).put("operation", "pwchange"));
 	}
 
 	private void setPassword(String uid, String newPassword) throws ServerFault {
@@ -787,6 +793,9 @@ public class UserService implements IInCoreUser, IUser {
 		}
 		storeService.setPassword(uid, HashFactory.getDefault().create(newPassword), true);
 		eventProducer.passwordUpdated(uid);
+		// ysnp cache invalidation
+		MQ.getProducer(Topic.CORE_SESSIONS).send(
+				new JsonObject().put("latd", userItem.value.login + "@" + domainName).put("operation", "pwchange"));
 	}
 
 	@Override
