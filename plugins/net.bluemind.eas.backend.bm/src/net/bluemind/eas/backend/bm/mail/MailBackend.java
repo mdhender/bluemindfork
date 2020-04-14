@@ -558,7 +558,7 @@ public class MailBackend extends CoreConnect {
 				AppData data = toAppData(bs, bodyParams, folder, id);
 				res.put(id, data);
 			} catch (Exception e) {
-				logger.error("Fail to convert email {}, folder {}", id, folder, e);
+				logger.warn("Fail to convert email {}, folder {}. Skip it.", id, folder);
 			}
 		});
 
