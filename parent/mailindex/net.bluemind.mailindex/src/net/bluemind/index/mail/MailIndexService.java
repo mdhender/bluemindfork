@@ -41,6 +41,7 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.index.reindex.DeleteByQueryAction;
@@ -792,7 +793,7 @@ public class MailIndexService implements IMailIndexService {
 		}
 
 		bq.mustNot(QueryBuilders.termQuery("is", "deleted"));
-		bq = addSearchQuery(bq, "content", query.query);
+		bq = addSearchQuery(bq, query.query);
 		bq = addPreciseSearchQuery(bq, "messageId", query.messageId);
 		bq = addPreciseSearchQuery(bq, "references", query.references);
 
@@ -826,33 +827,43 @@ public class MailIndexService implements IMailIndexService {
 		if (logger.isDebugEnabled()) {
 			logger.debug("{}", searchBuilder.toString());
 		}
-		SearchResponse sr = searchBuilder.execute().actionGet();
-		SearchHits searchHits = sr.getHits();
+		try {
+			SearchResponse sr = searchBuilder.execute().actionGet();
+			SearchHits searchHits = sr.getHits();
 
-		List<MessageSearchResult> results = new ArrayList<>();
+			List<MessageSearchResult> results = new ArrayList<>();
 
-		for (SearchHit sh : searchHits.getHits()) {
-			try {
-				MessageSearchResult msr = createSearchResult(sh);
-				results.add(msr);
-			} catch (Exception e) {
-				logger.warn("Cannot create result object", e);
+			for (SearchHit sh : searchHits.getHits()) {
+				try {
+					MessageSearchResult msr = createSearchResult(sh);
+					results.add(msr);
+				} catch (Exception e) {
+					logger.warn("Cannot create result object", e);
+				}
 			}
-		}
 
-		SearchResult result = new SearchResult();
-		result.results = results;
-		result.totalResults = Long.valueOf(searchHits.getTotalHits()).intValue();
-		result.hasMoreResults = (searchHits.getTotalHits() > results.size());
-		logger.info("[{}] results: {} (tried {}) / {}, hasMore: {}", dirEntryUid, results.size(),
-				searchHits.getHits().length, result.totalResults, result.hasMoreResults);
-		return result;
+			SearchResult result = new SearchResult();
+			result.results = results;
+			result.totalResults = Long.valueOf(searchHits.getTotalHits()).intValue();
+			result.hasMoreResults = (searchHits.getTotalHits() > results.size());
+			logger.info("[{}] results: {} (tried {}) / {}, hasMore: {}", dirEntryUid, results.size(),
+					searchHits.getHits().length, result.totalResults, result.hasMoreResults);
+			return result;
+		} catch (Exception e) {
+			logger.warn("Failed to search {}", searchBuilder.toString());
+			return new SearchResult();
+		}
 	}
 
-	private BoolQueryBuilder addSearchQuery(BoolQueryBuilder bq, String searchField, String searchValue) {
-		if (searchValue != null) {
-			String pattern = searchField + ":\"" + searchValue + "\"";
-			return bq.must(JoinQueryBuilders.hasParentQuery("body", QueryBuilders.queryStringQuery(pattern), false));
+	private BoolQueryBuilder addSearchQuery(BoolQueryBuilder bq, String query) {
+		if (query != null) {
+
+			QueryStringQueryBuilder stringQuery = QueryBuilders.queryStringQuery(query);
+			BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
+			queryBuilder.should(stringQuery);
+			queryBuilder.should(JoinQueryBuilders.hasParentQuery("body", stringQuery, false));
+
+			return bq.must(queryBuilder);
 		} else {
 			return bq;
 		}
