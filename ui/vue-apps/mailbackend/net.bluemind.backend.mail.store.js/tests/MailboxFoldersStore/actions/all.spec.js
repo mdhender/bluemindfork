@@ -3,7 +3,26 @@ import ServiceLocator from "@bluemind/inject";
 
 jest.mock("@bluemind/inject");
 
-const result = [1, 2, 3];
+const result = [
+    {
+        uid: "1",
+        value: {
+            deleted: false
+        }
+    },
+    {
+        uid: "2",
+        value: {
+            deleted: false
+        }
+    },
+    {
+        uid: "3",
+        value: {
+            deleted: true
+        }
+    }
+];
 const all = jest.fn().mockReturnValue(Promise.resolve(result));
 const get = jest.fn().mockReturnValue({
     all
@@ -20,10 +39,11 @@ describe("[MailFoldersStore][actions] : all", () => {
     beforeEach(() => {
         context.commit.mockClear();
     });
-    test("call 'all' service for a given mailbox and mutate state with result", done => {
+    test("call 'all' service for a given mailbox and mutate state with undeleted folders only", done => {
         const mailboxUid = "containerUid";
         allAction(context, mailboxUid).then(() => {
-            expect(context.commit).toHaveBeenCalledWith("storeItems", { items: result, mailboxUid });
+            const expectedResults = result.filter(item => !item.value.deleted);
+            expect(context.commit).toHaveBeenCalledWith("storeItems", { items: expectedResults, mailboxUid });
             done();
         });
         expect(get).toHaveBeenCalledWith("containerUid");

@@ -4,5 +4,8 @@ export function all({ commit }, mailboxUid) {
     return ServiceLocator.getProvider("MailboxFoldersPersistence")
         .get(mailboxUid)
         .all()
-        .then(items => commit("storeItems", { items, mailboxUid }));
+        .then(items => {
+            items = items.filter(item => !item.value.deleted);
+            commit("storeItems", { items, mailboxUid });
+        });
 }
