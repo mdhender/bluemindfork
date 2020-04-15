@@ -1,5 +1,6 @@
 # On success, at the end INSTALLER_VERSION and OS_VERSION equal to one of those values
 REDHAT7="redhat-7"
+REDHAT8="redhat-8"
 UBUNTU_TRUSTY="ubuntu-trusty"
 UBUNTU_XENIAL="ubuntu-xenial"
 UBUNTU_BIONIC="ubuntu-bionic"
@@ -12,6 +13,18 @@ check_redhat7() {
         release=`cat /etc/system-release`
         
         if [[ "${release}" == *"release 7."* ]]; then
+            return 0
+        fi
+    fi
+    
+    return 1
+}
+
+check_redhat8() {
+    if [  -e /etc/system-release ]; then
+        release=`cat /etc/system-release`
+        
+        if [[ "${release}" == *"release 8."* ]]; then
             return 0
         fi
     fi
@@ -80,6 +93,14 @@ detect_os() {
     if [ -e "./rhel7" ]; then
         INSTALLER_VERSION=${REDHAT7}
         if check_redhat7; then
+            OS_VERSION=${INSTALLER_VERSION}
+            source "./include/os-redhat-base"
+        fi
+    fi
+    
+    if [ -e "./rhel8" ]; then
+        INSTALLER_VERSION=${REDHAT8}
+        if check_redhat8; then
             OS_VERSION=${INSTALLER_VERSION}
             source "./include/os-redhat-base"
         fi

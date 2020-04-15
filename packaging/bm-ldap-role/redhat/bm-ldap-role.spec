@@ -24,7 +24,3 @@ echo -n "Add user ldap to saslauth group... "
 usermod -a -G saslauth ldap
 echo "done"
 
-echo -n "RHEL7: Add slapd init wrapper... "
-cp /usr/share/doc/bm-ldap-role/slapd.systemd.wrapper /etc/init.d/slapd
-chmod +x /etc/init.d/slapd
-echo "done"
