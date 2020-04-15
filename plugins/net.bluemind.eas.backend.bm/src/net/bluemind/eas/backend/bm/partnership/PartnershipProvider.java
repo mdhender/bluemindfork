@@ -123,7 +123,9 @@ public class PartnershipProvider implements IDevicePartnershipProvider {
 
 				dr.internalId = device.uid;
 
-				cache.put(cacheKey, dr);
+				if (dr.success) {
+					cache.put(cacheKey, dr);
+				}
 
 				respHandler.handle(dr);
 
