@@ -36,7 +36,7 @@
                 <bm-col cols="3">
                     <transition name="fade" mode="out-in">
                         <div v-if="!quickActionButtonsVisible" class="float-right">
-                            <component :is="widget" v-for="widget in widgets" :key="widget.template" />
+                            <component :is="widget" v-for="widget in widgets" :key="widget.template" class="ml-2" />
                         </div>
                         <message-list-item-quick-action-buttons v-if="quickActionButtonsVisible" :message="message" />
                     </transition>
@@ -76,15 +76,15 @@ const STATE_COMPONENT = {
     }
 };
 const FLAG_COMPONENT = {
-    flagged: {
+    [Flag.FLAGGED]: {
         components: { BmIcon },
         template: '<bm-icon icon="flag-fill"/>'
     },
-    $forwarded: {
+    [Flag.FORWARDED]: {
         components: { BmIcon },
         template: '<bm-icon icon="forward"/>'
     },
-    answered: {
+    [Flag.ANSWERED]: {
         components: { BmIcon },
         template: '<bm-icon icon="reply"/>'
     }
@@ -92,6 +92,7 @@ const FLAG_COMPONENT = {
 
 import { BmAvatar, BmCheck, BmCol, BmIcon, BmListGroupItem, BmRow, BmTooltip, BmDraggable } from "@bluemind/styleguide";
 import { DateComparator } from "@bluemind/date";
+import { Flag } from "@bluemind/email";
 import { mapActions, mapGetters, mapState } from "vuex";
 import ItemUri from "@bluemind/item-uri";
 import MessageListItemQuickActionButtons from "./MessageListItemQuickActionButtons";
