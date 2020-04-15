@@ -240,7 +240,6 @@ public class S3BackingStore implements ISdsBackingStore {
 					publisher.subscribe(new Subscriber<ByteBuffer>() {
 
 						private Subscription sub;
-						private CompletableFuture<Void> curWrite = CompletableFuture.completedFuture(null);
 
 						@Override
 						public void onSubscribe(Subscription s) {
@@ -252,11 +251,7 @@ public class S3BackingStore implements ISdsBackingStore {
 						public void onNext(ByteBuffer t) {
 							transferred += t.remaining();
 							Buffer vxBuf = Buffer.buffer(Unpooled.wrappedBuffer(t));
-							curWrite = new CompletableFuture<>();
-							asyncFile.write(vxBuf, done -> {
-								curWrite.complete(null);
-								sub.request(1);
-							});
+							asyncFile.write(vxBuf, done -> sub.request(1));
 						}
 
 						@Override
@@ -267,13 +262,9 @@ public class S3BackingStore implements ISdsBackingStore {
 
 						@Override
 						public void onComplete() {
-							curWrite.whenComplete((v, ex) -> {
-								asyncFile.close();
-								cf.complete(null);
-							});
+							asyncFile.flush(flushed -> asyncFile.close(c -> cf.complete(null)));
 						}
 					});
-
 				} else {
 					exceptionOccurred(res.cause());
 				}
@@ -321,7 +312,7 @@ public class S3BackingStore implements ISdsBackingStore {
 			getSizeCounter.increment(totalSize.longValue());
 			mgetRequestCounter.increment();
 			String sizeKb = Long.toString(totalSize.longValue() / 1024);
-			logger.info("{} byte(s) downloaded from S3.", sizeKb);
+			logger.debug("{} byte(s) downloaded from S3.", sizeKb);
 			return new SdsResponse().withTags(ImmutableMap.of("batch", Integer.toString(len), "sizeKB", sizeKb));
 		}).exceptionally(ex -> {
 			logger.error(ex.getMessage() + " for " + req, ex);

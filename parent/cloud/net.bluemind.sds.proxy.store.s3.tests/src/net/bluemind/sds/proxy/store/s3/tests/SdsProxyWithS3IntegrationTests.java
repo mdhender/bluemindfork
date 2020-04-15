@@ -227,11 +227,12 @@ public class SdsProxyWithS3IntegrationTests {
 			s3.downloads(mget).get(10, TimeUnit.SECONDS);
 			time = System.currentTimeMillis() - time;
 			System.err.println("*** mget in " + time + "ms.");
-			for (Transfer t : mget.transfers) {
-				File f = new File(t.filename);
-				assertTrue(new File(t.filename).exists());
-				f.delete();
-			}
+		}
+		for (Transfer t : mget.transfers) {
+			File f = new File(t.filename);
+			content = Files.readAllBytes(f.toPath());
+			assertTrue(Arrays.equals(content, emlData));
+			f.delete();
 		}
 
 	}
