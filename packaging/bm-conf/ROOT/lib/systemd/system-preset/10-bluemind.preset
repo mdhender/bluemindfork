@@ -26,6 +26,7 @@ enable influxdb.service
 enable telegraf.service
 enable kapacitor.service
 enable chronograf.service
+enable postfix.service
 disable postgresql-9.6.service
 disable postgresql-11.service
 disable postgresql@.service

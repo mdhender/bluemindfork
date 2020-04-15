@@ -1,5 +1,5 @@
-BMCYRUS="3.0.13-bluemind261"
-BMSDS="1.0.0-261"
+BMCYRUS="3.0.13-bluemind269"
+BMSDS="1.0.0-269"
 
 BMES="6.8.6-bluemind84"
 
@@ -8,9 +8,9 @@ MINIO="2019.10.12-bluemind9"
 
 BMJDK="8u252-bluemind34"
 BMSNZIP="1.0.4-bluemind4"
-BMNGINX="1.16.1-bluemind88"
-BMPHP="5.6.40-bluemind86"
-BMPHPMEMCACHE="3.0.8-bluemind86"
+BMNGINX="1.16.1-bluemind92"
+BMPHP="5.6.40-bluemind89"
+BMPHPMEMCACHE="3.0.8-bluemind89"
 
 
 # tick
@@ -23,12 +23,14 @@ INFLUXDB="1.7.7.bm3~0f9bc7512"
 # PostgreSQL
 # Use EXTDEPS-getlastpg.sh if you need to modify (requires python3 + requests for RHEL)
 # Example: ./EXTDEPS-getlastpg.sh 11 # for PostgreSQL 11
-BMPOSTGRESQL="11.7-bluemind108"
+BMPOSTGRESQL="11.7-bluemind114"
 
 PG_XENIAL="11.7-2.pgdg16.04+1"
 PGCOMMON_XENIAL="213.pgdg16.04+1"
 PG_BIONIC="11.7-2.pgdg18.04+1"
 PGCOMMON_BIONIC="213.pgdg18.04+1"
+PG_FOCAL="11.7-3.pgdg20.04+1"
+PGCOMMON_FOCAL="213.pgdg20.04+1"
 PG_JESSIE="11.7-2.pgdg80+1"
 PGCOMMON_JESSIE="213.pgdg80+1"
 PG_STRETCH="11.7-2.pgdg90+1"
@@ -37,6 +39,7 @@ PG_BUSTER="11.7-2.pgdg100+1"
 PGCOMMON_BUSTER="213.pgdg100+1"
 PGKEYRING="2018.2"
 PG_RHEL7="11.7-1PGDG.rhel7"
+PG_RHEL8="11.7-1PGDG.rhel8"
 
 
 # Cyrus
@@ -148,6 +151,15 @@ PGDEB_BIONIC="postgresql-11=${PG_BIONIC} \
 		libpq-dev=${PG_BIONIC}"
 PGCOMMONDEB_BIONIC="postgresql-client-common=${PGCOMMON_BIONIC} \
 		postgresql-common=${PGCOMMON_BIONIC}"
+		
+PGDEB_FOCAL="postgresql-11=${PG_FOCAL} \
+		postgresql-client-11=${PG_FOCAL} \
+		postgresql-contrib-11=${PG_FOCAL} \
+		postgresql-server-dev-11=${PG_FOCAL} \
+		libpq5=${PG_FOCAL} \
+		libpq-dev=${PG_FOCAL}"
+PGCOMMONDEB_FOCAL="postgresql-client-common=${PGCOMMON_FOCAL} \
+		postgresql-common=${PGCOMMON_FOCAL}"
 
 PGRPM_RHEL7="postgresql11=${PG_RHEL7} \
 		postgresql11-contrib=${PG_RHEL7} \
@@ -155,8 +167,14 @@ PGRPM_RHEL7="postgresql11=${PG_RHEL7} \
 		postgresql11-libs=${PG_RHEL7} \
 		postgresql11-server=${PG_RHEL7}"
 
+PGRPM_RHEL8="postgresql11=${PG_RHEL8} \
+		postgresql11-contrib=${PG_RHEL8} \
+		postgresql11-devel=${PG_RHEL8} \
+		postgresql11-libs=${PG_RHEL8} \
+		postgresql11-server=${PG_RHEL8}"
+
 # Distribution
-DEB_DISTRIBUTION="JESSIE STRETCH BUSTER XENIAL BIONIC"
+DEB_DISTRIBUTION="JESSIE STRETCH BUSTER XENIAL BIONIC FOCAL"
 
 DEB="${BMCYRUSDEB} \
 		${BMESDEB} \
@@ -183,3 +201,12 @@ RHEL7="${BMCYRUSRPM} \
 		${BMNGINXRPM} \
 		${BMPHPRPM} ${BMPHPMEMCACHERPM} \
 		${BMPOSTGRESQLRPM} ${PGRPM_RHEL7}"
+
+RHEL8="${BMCYRUSRPM} \
+		${BMESRPM} \
+		${BMTICKRPM} \
+		${BMJDKRPM} \
+		${BMSNZIPRPM} \
+		${BMNGINXRPM} \
+		${BMPHPRPM} ${BMPHPMEMCACHERPM} \
+		${BMPOSTGRESQLRPM} ${PGRPM_RHEL8}"
