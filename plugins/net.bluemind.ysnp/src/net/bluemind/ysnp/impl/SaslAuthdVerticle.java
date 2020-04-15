@@ -47,6 +47,8 @@ public class SaslAuthdVerticle extends AbstractVerticle {
 	private final String socketPath;
 	private final boolean expireOk;
 
+	private static final ValidationPolicy POLICY = new ValidationPolicy(YSNPConfiguration.INSTANCE);
+
 	public SaslAuthdVerticle(String socketPath, boolean expireOk) {
 		this.expireOk = expireOk;
 		this.socketPath = socketPath;
@@ -61,12 +63,11 @@ public class SaslAuthdVerticle extends AbstractVerticle {
 			}
 		};
 		defaultDomain = ini.getProperty("default-domain");
-		ValidationPolicy vp = new ValidationPolicy(YSNPConfiguration.INSTANCE);
 
 		NetServerOptions nso = new NetServerOptions().setTcpNoDelay(true);
 		NetServer ns = vertx.createNetServer(nso);
 
-		ns.connectHandler(netsock -> handleNetSock(netsock, vp));
+		ns.connectHandler(netsock -> handleNetSock(netsock, POLICY));
 		SocketAddress sock = SocketAddress.domainSocketAddress(socketPath);
 		ns.listen(sock, res -> {
 			if (res.failed()) {
