@@ -6,6 +6,6 @@ Standards-Version: 3.9.1
 
 Package: bm-maintenance-tools
 Architecture: amd64
-Depends: bm-maintenance-snzip, vim, emacs25-nox | emacs24-nox | emacs23-nox, strace, lsof, telnet, openssh-client, htop, nfs-common, iftop, sysstat, mutt, curl, screen, dnsutils, jq
+Depends: bm-maintenance-snzip, vim, emacs-nox | emacs25-nox | emacs24-nox | emacs23-nox, strace, lsof, telnet, openssh-client, htop, nfs-common, iftop, sysstat, mutt, curl, screen, dnsutils, jq
 Description: BlueMind maintenance tools
  Install used BlueMind maintenance tools
