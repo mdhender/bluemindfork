@@ -155,6 +155,7 @@ public final class SdkHttpUtils {
 		if (value == null) {
 			return null;
 		}
+		// BM: use guava path escapers which are way faster than the JDK one
 		return ignoreSlashes ? UrlEscapers.urlFragmentEscaper().escape(value)
 				: UrlEscapers.urlPathSegmentEscaper().escape(value);
 	}
@@ -289,6 +290,7 @@ public final class SdkHttpUtils {
 	 *         not found.
 	 */
 	public static Optional<String> firstMatchingHeader(Map<String, List<String>> headers, String header) {
+		// BM: all the keys are lowercased in our version
 		return Optional.ofNullable(headers.get(header.toLowerCase())).map(l -> l.get(0));
 	}
 

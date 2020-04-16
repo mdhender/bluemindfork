@@ -55,6 +55,7 @@ public abstract class PathMarshaller {
 		@Override
 		public String marshall(String resourcePath, String paramName, String pathValue) {
 			Validate.notEmpty(pathValue, "%s cannot be empty.", paramName);
+			// BM: get rid of slow String#format
 			return resourcePath.replace("{" + paramName + "}", SdkHttpUtils.urlEncode(pathValue));
 		}
 	}
@@ -71,6 +72,7 @@ public abstract class PathMarshaller {
 		@Override
 		public String marshall(String resourcePath, String paramName, String pathValue) {
 			Validate.notEmpty(pathValue, "%s cannot be empty.", paramName);
+			// BM: get rid of slow String#format
 			return resourcePath.replace("{" + paramName + "+}",
 					SdkHttpUtils.urlEncodeIgnoreSlashes(trimLeadingSlash(pathValue)));
 		}
@@ -81,6 +83,7 @@ public abstract class PathMarshaller {
 		@Override
 		public String marshall(String resourcePath, String paramName, String pathValue) {
 			Validate.notEmpty(pathValue, "%s cannot be empty.", paramName);
+			// BM: get rid of slow String#format
 			return resourcePath.replace("{" + paramName + "+}", SdkHttpUtils.urlEncodeIgnoreSlashes(pathValue));
 		}
 	}

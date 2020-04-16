@@ -174,6 +174,7 @@ public class ResponseHandler extends SimpleChannelInboundHandler<HttpObject> {
 	}
 
 	private static Map<String, List<String>> fromNettyHeaders(HttpHeaders headers) {
+		// BM lowercase header keys for easier fetch
 		return headers.entries().stream().collect(
 				groupingBy(entry -> entry.getKey().toLowerCase(), mapping(Map.Entry::getValue, Collectors.toList())));
 	}
@@ -246,6 +247,7 @@ public class ResponseHandler extends SimpleChannelInboundHandler<HttpObject> {
 
 					// Needed to prevent use-after-free bug if the subscriber's onNext is
 					// asynchronous
+					// BM get rid of try/catch and npe check
 					ByteBuffer byteBuffer = copyToByteBuffer(httpContent.content());
 					httpContent.release();
 
@@ -280,6 +282,7 @@ public class ResponseHandler extends SimpleChannelInboundHandler<HttpObject> {
 						return;
 					}
 					try {
+						// BM: get rid of error message formating before running the code
 						runAndLogError("Subscriber threw an exception in onComplete.", subscriber::onComplete);
 					} finally {
 						finalizeResponse(requestContext, channelContext);

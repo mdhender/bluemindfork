@@ -143,7 +143,7 @@ public class RetryableStageHelper {
 		Integer availableRetryCapacity = TokenBucketRetryCondition
 				.getCapacityForExecution(context.executionAttributes())
 				.map(TokenBucketRetryCondition.Capacity::capacityRemaining).orElse(null);
-
+		// BM get rid of slow String#format
 		return request.toBuilder().putHeader(SDK_RETRY_INFO_HEADER, (attemptNumber - 1) + "/"
 				+ lastBackoffDelay.toMillis() + "/" + (availableRetryCapacity != null ? availableRetryCapacity : ""))
 				.build();
