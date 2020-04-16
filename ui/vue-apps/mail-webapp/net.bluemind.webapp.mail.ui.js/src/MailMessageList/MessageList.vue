@@ -1,6 +1,6 @@
 <template>
     <bm-list-group
-        class="message-list"
+        class="message-list bg-extra-light"
         tabindex="0"
         @scroll="onScroll"
         @keyup.shift.delete.exact.prevent="openPurgeModal"
@@ -34,13 +34,12 @@
             <message-list-item
                 :ref="'message-' + message.key"
                 :message="message"
-                :to="$router.relative({ name: 'v:mail:message', params: { message: message.key } }, $route)"
                 :is-muted="!!draggedMessage && isMessageSelected(draggedMessage) && isMessageSelected(message.key)"
                 @toggleSelect="toggleSelect"
                 @click.exact.native="unselectAllIfNeeded(message.key)"
-                @click.ctrl.exact.native.prevent="toggleSelect(message.key)"
-                @click.shift.exact.native.prevent="selectRange(message.key, true)"
-                @click.shift.exact.ctrl.exact.native.prevent="selectRange(message.key)"
+                @click.ctrl.exact.native.capture.prevent.stop="toggleSelect(message.key)"
+                @click.shift.exact.native.capture.prevent.stop="selectRange(message.key, true)"
+                @click.shift.exact.ctrl.exact.native.capture.prevent.stop="selectRange(message.key)"
                 @dragstart="draggedMessage = message.key"
                 @dragend="draggedMessage = null"
             />

@@ -8,7 +8,7 @@
                 class="p-1 mr-2 border-0 hovershadow"
                 variant="link"
                 @click.shift.exact.prevent="openPurgeModal"
-                @click.exact.prevent="remove(message.key)"
+                @click.exact.prevent.stop="remove(message.key)"
             >
                 <bm-icon icon="trash" size="sm" />
             </bm-button>
@@ -19,7 +19,7 @@
                 :aria-label="$tc('mail.actions.mark_read.aria')"
                 :title="$tc('mail.actions.mark_read.aria')"
                 variant="link"
-                @click.prevent="markAsRead([message.key])"
+                @click.prevent.stop="markAsRead([message.key])"
             >
                 <bm-icon icon="read" size="sm" />
             </bm-button>
@@ -30,7 +30,7 @@
                 :aria-label="$tc('mail.actions.mark_unread.aria')"
                 :title="$tc('mail.actions.mark_unread.aria')"
                 variant="link"
-                @click.prevent="markAsUnread([message.key])"
+                @click.prevent.stop="markAsUnread([message.key])"
             >
                 <bm-icon icon="unread" size="sm" />
             </bm-button>

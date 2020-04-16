@@ -5,6 +5,7 @@
         :tooltip="tooltip"
         name="message"
         :data="message"
+        disable-touch
         @dragenter="e => setTooltip(e.relatedData)"
         @dragleave="resetTooltip"
         @drop="e => moveMessage(e.relatedData)"
@@ -13,15 +14,17 @@
     >
         <bm-list-group-item
             v-touch:touchhold="onTouch"
-            :to="to"
             active-class="active"
             :class="[
                 ...message.states,
-                isMessageSelected(message.key) ? 'active' : '',
+                isMessageSelected(message.key) || currentMessageKey === message.key ? 'active' : '',
                 `message-list-item-${userSettings.mail_message_list_style}`
             ]"
-            @mouseenter.native="mouseIn = true"
-            @mouseleave.native="mouseIn = false"
+            role="link"
+            @click="navigateTo"
+            @keyup.enter.exact="navigateTo"
+            @mouseenter="mouseIn = true"
+            @mouseleave="mouseIn = false"
         >
             <bm-row class="align-items-center flex-nowrap no-gutters">
                 <bm-col cols="1" class="selector pr-2 text-center">
@@ -133,11 +136,6 @@ export default {
     },
     directives: { BmTooltip },
     props: {
-        to: {
-            required: false,
-            type: [String, Object],
-            default: null
-        },
         message: {
             type: Object,
             required: true
@@ -160,13 +158,8 @@ export default {
     computed: {
         ...mapGetters("mail-webapp/folders", ["getFolderByKey"]),
         ...mapGetters("mail-webapp", ["isMessageSelected", "nextMessageKey"]),
-        ...mapState("mail-webapp", [
-            "currentMessageKey",
-            "selectedMessageKeys",
-            "currentFolderKey",
-            "messageFilter",
-            "userSettings"
-        ]),
+        ...mapState("mail-webapp", ["selectedMessageKeys", "currentFolderKey", "messageFilter", "userSettings"]),
+        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         displayedDate: function() {
             const today = new Date();
             const messageDate = this.message.date;
@@ -245,6 +238,9 @@ export default {
         },
         onTouch() {
             this.$emit("toggleSelect", this.message.key);
+        },
+        navigateTo() {
+            this.$router.navigate({ name: "v:mail:message", params: { message: this.message.key } });
         }
     }
 };
@@ -308,11 +304,11 @@ export default {
     display: none !important;
 }
 
-.message-list-item a.list-group-item.not-seen {
+.message-list-item div.list-group-item.not-seen {
     border-left: theme-color("primary") 4px solid !important;
 }
 
-.message-list-item a.list-group-item {
+.message-list-item div.list-group-item {
     border-left: transparent solid 4px !important;
 }
 

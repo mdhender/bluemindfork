@@ -47,7 +47,7 @@ function setVuePlugins() {
     Vue.use(VueI18n);
     Vue.use(VueBus, { store });
     Vue.use(VueSockjsPlugin, { url: "/eventbus/", VueBus });
-    Vue.use(Vue2TouchEvents);
+    Vue.use(Vue2TouchEvents, { disableClick: true });
 }
 
 function registerDependencies(userSession) {
