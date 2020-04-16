@@ -18,6 +18,7 @@
  */
 package net.bluemind.core.sendmail;
 
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.util.LinkedList;
 import java.util.Optional;
@@ -133,9 +134,10 @@ public class Sendmail implements ISendmail {
 			for (Mailbox to : rcptTo) {
 				smtp.rcpt(new Address(to.getAddress()));
 			}
-
-			sendmailResponse = new SendmailResponse(smtp.data(Mime4JHelper.asStream(m)));
-			smtp.quit();
+			try (InputStream inStream = Mime4JHelper.asStream(m)) {
+				sendmailResponse = new SendmailResponse(smtp.data(inStream));
+				smtp.quit();
+			}
 
 			logger.info("Email sent {}", getLog(creds, fromEmail, rcptTo, sendmailResponse, Optional.empty()));
 			return sendmailResponse;
