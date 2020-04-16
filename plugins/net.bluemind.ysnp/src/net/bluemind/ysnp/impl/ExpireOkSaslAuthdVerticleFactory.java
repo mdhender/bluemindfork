@@ -29,6 +29,6 @@ public class ExpireOkSaslAuthdVerticleFactory implements IVerticleFactory {
 
 	@Override
 	public Verticle newInstance() {
-		return new SaslAuthdVerticle(YSNPConfiguration.INSTANCE.getEpireOkSocketPath(), true);
+		return new SaslAuthdVerticle(YSNPConfiguration.INSTANCE.getExpireOkSocketPath(), true);
 	}
 }

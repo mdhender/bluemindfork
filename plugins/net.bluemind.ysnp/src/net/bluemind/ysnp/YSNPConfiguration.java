@@ -150,7 +150,7 @@ public class YSNPConfiguration {
 		return getString("daemon.socket.path");
 	}
 
-	public String getEpireOkSocketPath() {
+	public String getExpireOkSocketPath() {
 		return getString("expireok-daemon.socket.path");
 	}
 

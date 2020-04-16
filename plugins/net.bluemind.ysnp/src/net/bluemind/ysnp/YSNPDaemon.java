@@ -44,7 +44,7 @@ public class YSNPDaemon implements IApplication {
 		YSNPConfiguration conf = YSNPConfiguration.INSTANCE;
 		logger.info("YSNP daemon starting {}", conf);
 		Files.deleteIfExists(Paths.get(conf.getSocketPath()));
-		Files.deleteIfExists(Paths.get(conf.getEpireOkSocketPath()));
+		Files.deleteIfExists(Paths.get(conf.getExpireOkSocketPath()));
 		logger.info("UNIX socket will be created on {}", conf.getSocketPath());
 
 		VertxPlatform.spawnBlocking(1, TimeUnit.MINUTES);
@@ -52,7 +52,7 @@ public class YSNPDaemon implements IApplication {
 		Process p = Runtime.getRuntime().exec("chmod 777 " + YSNPConfiguration.INSTANCE.getSocketPath());
 		p.waitFor();
 
-		p = Runtime.getRuntime().exec("chmod 777 " + YSNPConfiguration.INSTANCE.getEpireOkSocketPath());
+		p = Runtime.getRuntime().exec("chmod 777 " + YSNPConfiguration.INSTANCE.getExpireOkSocketPath());
 		p.waitFor();
 
 		p = Runtime.getRuntime().exec("chown cyrus:mail " + YSNPConfiguration.INSTANCE.getPtSocketPath());
