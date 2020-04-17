@@ -36,6 +36,7 @@ public abstract class AbstractService extends Service {
 
 	private static final String CONN_TEST_OK = "The connection test was successful";
 	private static final String CONN_TEST_KO = "The connection test failed";
+	private static final String RUN_TEST_KO = "The running test failed";
 
 	public AbstractService(String service, List<String> tags) {
 		super("services", service, tags);
@@ -49,17 +50,20 @@ public abstract class AbstractService extends Service {
 	}
 
 	public ServerInformation checkRunning(Server server) {
-		BmService s = BmService.valueOf(service.toUpperCase());
+		BmService s = BmService.fromString(service);
+		if (s == null) {
+			logger.error("[checkRunning]: unable to get service {}", service);
+			return createException("running", server, RUN_TEST_KO);
+		}
 		ServerInformation bmService = new ServerInformation(server, ServicesHandler.BASE, service, "running");
 		Command servicePID, processInfoFromPID;
 
 		try {
 			// récupérer le PID du service
-			servicePID = fetchBmServicePID(server, s.getFile());
+			servicePID = fetchBmServicePID(server, s.getServiceName());
 			bmService.commands.add(servicePID);
-
-			if (servicePID.hasDataList()) {
-				int pid = Integer.valueOf(bmService.commands.get(0).dataList.get(0).data);
+			if (servicePID.hasDataList() && !servicePID.dataList.get(0).data.equals("0")) {
+				int pid = Integer.valueOf(servicePID.dataList.get(0).data);
 				bmService.addData(new FetchedData("ProcessID", "" + pid));
 
 				// vérifier que le PID est dans les processus lancés
@@ -122,20 +126,15 @@ public abstract class AbstractService extends Service {
 	}
 
 	private Command checkRunningProcessHprof(Server server, int pid) throws ServerFault {
-
 		Command c = new Command(ServicesHandler.SCRIPTS_FOLDER + "running_proc_hprof.sh " + pid);
-
 		CommandExecutor.execCmdOnServer(server, c);
-
 		return c;
 
 	}
 
 	private Command fetchBmServicePID(Server server, String service) throws ServerFault {
-		Command c = new Command(ServicesHandler.SCRIPTS_FOLDER + "bmservices_pid.sh " + service);
-
+		Command c = new Command("systemctl show --property MainPID " + service + " --value");
 		CommandExecutor.execCmdOnServer(server, c);
-
 		return c;
 	}
 

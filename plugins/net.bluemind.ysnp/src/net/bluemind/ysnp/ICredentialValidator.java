@@ -25,15 +25,15 @@ public interface ICredentialValidator {
 	}
 
 	/**
-	 * Returns true if the given credential is valid for the given username,
-	 * realm & service.
+	 * Returns true if the given credential is valid for the given username, realm &
+	 * service.
 	 * 
 	 * @param username
 	 * @param credential
 	 * @param realm
 	 * @param service
+	 * @param expireOk
 	 * @return
 	 */
-	Kind validate(String username, String credential, String realm, String service);
-
+	Kind validate(String username, String credential, String realm, String service, boolean expireOk);
 }

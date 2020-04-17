@@ -31,7 +31,6 @@ import javax.ws.rs.QueryParam;
 
 import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.backend.mail.api.flags.FlagUpdate;
-import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.container.api.Ack;
@@ -174,7 +173,7 @@ public interface IMailboxItems
 	@PUT
 	@Path("_addFlag")
 	Ack addFlag(FlagUpdate flagUpdate);
-	
+
 	/**
 	 * Delete one flag to multiple {@link MailboxItem}.
 	 * 

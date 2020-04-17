@@ -19,7 +19,10 @@
 package net.bluemind.eas.store;
 
 import java.util.List;
+import java.util.Map;
 
+import net.bluemind.eas.api.Account;
+import net.bluemind.eas.api.FolderSyncVersions;
 import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.backend.HierarchyNode;
 import net.bluemind.eas.backend.MailFolder;
@@ -58,11 +61,9 @@ public interface ISyncStorage {
 
 	HierarchyNode getHierarchyNode(String domainUid, String userUid, String nodeUid) throws CollectionNotFoundException;
 
-	HierarchyNode getHierarchyNode(BackendSession bs, int folderId) throws CollectionNotFoundException;
-
 	HierarchyNode getHierarchyNode(BackendSession bs, CollectionId collectionId) throws CollectionNotFoundException;
 
-	MailFolder getMailFolder(BackendSession bs, int collectionId) throws CollectionNotFoundException;
+	MailFolder getMailFolder(BackendSession bs, CollectionId collectionId) throws CollectionNotFoundException;
 
 	MailFolder getMailFolderByName(BackendSession bs, String name) throws CollectionNotFoundException;
 
@@ -73,7 +74,7 @@ public interface ISyncStorage {
 	 * @param folderName
 	 * @return
 	 */
-	Long createFolder(BackendSession bs, ItemDataType type, String folderName);
+	CollectionId createFolder(BackendSession bs, ItemDataType type, String folderName);
 
 	boolean deleteFolder(BackendSession bs, ItemDataType type, HierarchyNode node);
 
@@ -99,5 +100,10 @@ public interface ISyncStorage {
 	 * @return
 	 */
 	boolean isKnownClientId(String clientId);
+
+	// Folder Sync
+	public void setFolderSyncVersions(FolderSyncVersions versions);
+
+	public Map<String, String> getFolderSyncVersions(Account account);
 
 }

@@ -43,6 +43,7 @@ import net.bluemind.eas.dto.base.CollectionItem;
 import net.bluemind.eas.dto.moveitems.MoveItemsRequest;
 import net.bluemind.eas.dto.moveitems.MoveItemsResponse;
 import net.bluemind.eas.dto.moveitems.MoveItemsResponse.Response.Status;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.type.ItemDataType;
 import net.bluemind.eas.exception.ActiveSyncException;
 import net.bluemind.eas.exception.CollectionNotFoundException;
@@ -147,10 +148,10 @@ public class MoveItemsProtocol implements IEasProtocol<MoveItemsRequest, MoveIte
 
 	}
 
-	private Optional<HierarchyNode> getAndCheckFolder(String id) {
+	private Optional<HierarchyNode> getAndCheckFolder(String collectionId) {
 		HierarchyNode f;
 		try {
-			f = store.getHierarchyNode(bs, Integer.parseInt(id));
+			f = store.getHierarchyNode(bs, CollectionId.of(collectionId));
 		} catch (CollectionNotFoundException e) {
 			return Optional.empty();
 		}

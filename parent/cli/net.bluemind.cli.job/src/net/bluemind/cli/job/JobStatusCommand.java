@@ -1,0 +1,95 @@
+/* BEGIN LICENSE
+  * Copyright © Blue Mind SAS, 2012-2018
+  *
+  * This file is part of BlueMind. BlueMind is a messaging and collaborative
+  * solution.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of either the GNU Affero General Public License as
+  * published by the Free Software Foundation (version 3 of the License).
+  *
+  * This program is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  *
+  * See LICENSE.txt
+  * END LICENSE
+  */
+package net.bluemind.cli.job;
+
+import java.util.List;
+import java.util.Optional;
+
+import io.airlift.airline.Arguments;
+import io.airlift.airline.Command;
+import io.airlift.airline.Option;
+import net.bluemind.cli.cmd.api.CliContext;
+import net.bluemind.cli.cmd.api.ICmdLet;
+import net.bluemind.cli.cmd.api.ICmdLetRegistration;
+import net.bluemind.cli.utils.CliUtils;
+import net.bluemind.core.api.ListResult;
+import net.bluemind.scheduledjob.api.Job;
+import net.bluemind.scheduledjob.api.JobDomainStatus;
+
+
+@Command(name = "status", description = "Get job status on global.virt or domain.tld")
+public class JobStatusCommand extends JobCommand implements ICmdLet, Runnable  {
+
+	public static class Reg implements ICmdLetRegistration {
+
+		@Override
+		public Optional<String> group() {
+			return Optional.of("job");
+		}
+
+		@Override
+		public Class<? extends ICmdLet> commandClass() {
+			return JobStatusCommand.class;
+		}
+	}
+
+	@Arguments(required = true, description = "global.virt or domain.tld")
+	public String target;
+	
+	@Option(required=true, name = "--job", description = "Job name.")
+	public String job;
+	
+	protected CliContext ctx;
+	protected CliUtils cliUtils;
+
+	@Override
+	public Runnable forContext(CliContext ctx) {
+		this.ctx = ctx;
+		this.cliUtils = new CliUtils(ctx);
+		return this;
+	}
+	
+	@Override
+	public void run() {
+		ListResult<Job> jobs = super.getjobs(ctx, target);
+		getJobStatus(jobs, target);
+		
+	}
+	
+	private void getJobStatus(ListResult<Job> jobs, String domain) {
+		Boolean found = false;
+		for (Job entry : jobs.values) {
+			if (entry.id.toLowerCase().contains(job.toLowerCase())) {
+				ctx.info(getdomainStatus(entry.domainStatus, domain));
+				found = true;
+			}
+		}
+		if (Boolean.FALSE.equals(found)) {
+			ctx.error("Job " + job + " unknown or not found on " + domain );
+		}
+	}
+	
+	private String getdomainStatus(List<JobDomainStatus> jobStatus, String domain) {
+		for(JobDomainStatus domainStatus : jobStatus) {
+			if(domainStatus.domain.equalsIgnoreCase(domain)) {	
+				return domainStatus.status.toString();
+			}
+		}
+		return null;
+	}
+}

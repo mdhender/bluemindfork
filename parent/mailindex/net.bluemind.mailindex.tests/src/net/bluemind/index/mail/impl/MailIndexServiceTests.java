@@ -277,6 +277,91 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 	}
 
 	@Test
+	public void testSearchBody() throws MimeIOException, IOException, InterruptedException, ExecutionException {
+		long imapUid = 1;
+		byte[] eml = Files.toByteArray(new File("data/test.eml"));
+		storeBody(bodyUid, eml);
+		storeMessage(mboxUid, userUid, bodyUid, imapUid, Collections.emptyList());
+		ESearchActivator.refreshIndex(INDEX_NAME);
+
+		SearchQuery query = new SearchQuery();
+		query.maxResults = 10;
+		query.offset = 0;
+		query.query = "drug";
+		query.scope = new SearchScope();
+		query.scope.isDeepTraversal = true;
+		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		q.query = query;
+		SearchResult results = MailIndexActivator.getService().searchItems(userUid, q);
+
+		assertEquals(1, results.totalResults);
+		MessageSearchResult messageSearchResult = results.results.get(0);
+		assertEquals("mbox_records_" + mboxUid, messageSearchResult.containerUid);
+		assertEquals(44l, messageSearchResult.itemId);
+		assertEquals("IPM.Note", messageSearchResult.messageClass);
+	}
+
+	@Test
+	public void testSearch_InvalidQuery()
+			throws MimeIOException, IOException, InterruptedException, ExecutionException {
+		long imapUid = 1;
+		byte[] eml = Files.toByteArray(new File("data/test.eml"));
+		storeBody(bodyUid, eml);
+		storeMessage(mboxUid, userUid, bodyUid, imapUid, Collections.emptyList());
+		ESearchActivator.refreshIndex(INDEX_NAME);
+
+		SearchQuery query = new SearchQuery();
+		query.maxResults = 10;
+		query.offset = 0;
+		query.query = "invalid\"";
+		query.scope = new SearchScope();
+		query.scope.isDeepTraversal = true;
+		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		q.query = query;
+		SearchResult results = MailIndexActivator.getService().searchItems(userUid, q);
+
+		assertEquals(0, results.totalResults);
+	}
+
+	@Test
+	public void testSearchByFlags() throws MimeIOException, IOException, InterruptedException, ExecutionException {
+		long imapUid = 1;
+		byte[] eml = Files.toByteArray(new File("data/test.eml"));
+		storeBody(bodyUid, eml);
+		storeMessage(mboxUid, userUid, bodyUid, imapUid, Collections.emptyList());
+		ESearchActivator.refreshIndex(INDEX_NAME);
+
+		List<MailSummary> mails = new ArrayList<>();
+		MailSummary summary1 = new MailSummary();
+		summary1.uid = 1;
+		summary1.parentId = bodyUid;
+		summary1.flags = new HashSet<>(Arrays.asList("unread", "yeah"));
+
+		mails.add(summary1);
+
+		MailIndexActivator.getService().syncFlags(ItemValue.create(userUid, null), ItemValue.create(folderUid, null),
+				mails);
+		ESearchActivator.refreshIndex(INDEX_NAME);
+
+		SearchQuery query = new SearchQuery();
+		query.maxResults = 10;
+		query.offset = 0;
+		query.query = "is:yeah";
+		query.scope = new SearchScope();
+		query.scope.isDeepTraversal = true;
+
+		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		q.query = query;
+		SearchResult results = MailIndexActivator.getService().searchItems(userUid, q);
+
+		assertEquals(1, results.totalResults);
+		MessageSearchResult messageSearchResult = results.results.get(0);
+		assertEquals("mbox_records_" + mboxUid, messageSearchResult.containerUid);
+		assertEquals(44l, messageSearchResult.itemId);
+		assertEquals("IPM.Note", messageSearchResult.messageClass);
+	}
+
+	@Test
 	public void testSearchByHeader() throws MimeIOException, IOException, InterruptedException, ExecutionException {
 		long imapUid = 1;
 		byte[] eml = Files.toByteArray(new File("data/test.eml"));

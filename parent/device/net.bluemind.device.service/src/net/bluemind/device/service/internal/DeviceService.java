@@ -18,7 +18,6 @@
  */
 package net.bluemind.device.service.internal;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -33,13 +32,10 @@ import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.device.api.Device;
 import net.bluemind.device.api.IDevice;
-import net.bluemind.eas.persistence.EasStore;
 import net.bluemind.role.api.BasicRoles;
 
 // FIXME zero check !! ( sanitizer, validator, check if device exists etc...)
 public class DeviceService implements IDevice {
-
-	private EasStore easStore;
 
 	private DeviceStoreService storeService;
 	private DeviceEventProducer eventProducer;
@@ -52,7 +48,6 @@ public class DeviceService implements IDevice {
 		this.userUid = userUid;
 		this.context = context;
 
-		easStore = new EasStore(context.getDataSource());
 		storeService = new DeviceStoreService(context.getDataSource(), context.getSecurityContext(), container);
 
 		rbacManager = new RBACManager(context).forContainer(container.uid).forEntry(userUid);
@@ -78,14 +73,6 @@ public class DeviceService implements IDevice {
 	}
 
 	private void doDelete(String uid) throws ServerFault {
-		ItemValue<Device> device = getOrFail(uid);
-
-		try {
-			easStore.resetSentItems(device.value.identifier);
-		} catch (SQLException e) {
-			throw ServerFault.sqlFault(e);
-		}
-
 		storeService.delete(uid);
 		eventProducer.deleted(uid);
 	}

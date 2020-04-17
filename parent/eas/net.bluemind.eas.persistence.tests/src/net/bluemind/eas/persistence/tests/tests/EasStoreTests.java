@@ -25,9 +25,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -38,7 +36,6 @@ import org.junit.Test;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.eas.api.Account;
 import net.bluemind.eas.api.Heartbeat;
-import net.bluemind.eas.api.SentItem;
 import net.bluemind.eas.persistence.EasStore;
 
 public class EasStoreTests {
@@ -107,40 +104,6 @@ public class EasStoreTests {
 		store.insertClientId(cid);
 		exists = store.isKnownClientId(cid);
 		assertTrue(exists);
-	}
-
-	@Test
-	public void testSentItem() throws Exception {
-		Account account = Account.create("david@bm.lan", "device");
-		List<SentItem> res = store.getSentItems(account, 1);
-		assertEquals(0, res.size());
-
-		List<SentItem> items = new ArrayList<SentItem>(3);
-		items.add(SentItem.create("device", 1, "item1"));
-		items.add(SentItem.create("device", 1, "item1"));
-		items.add(SentItem.create("device", 1, "item2"));
-		store.insertSentItems(items);
-
-		res = store.getSentItems(account, 1);
-		assertEquals(2, res.size());
-
-		boolean item1 = false;
-		boolean item2 = false;
-		for (SentItem i : res) {
-			if ("item1".equals(i.item)) {
-				item1 = true;
-			}
-			if ("item2".equals(i.item)) {
-				item2 = true;
-			}
-		}
-		assertTrue(item1);
-		assertTrue(item2);
-
-		store.resetSentItems(account, 1);
-		res = store.getSentItems(account, 1);
-		assertEquals(0, res.size());
-
 	}
 
 	// Folder Sync

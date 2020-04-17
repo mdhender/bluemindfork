@@ -28,6 +28,7 @@ import org.w3c.dom.NodeList;
 import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.OptionalParams;
 import net.bluemind.eas.dto.foldercreate.FolderCreateRequest;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.serdes.IEasRequestParser;
 
 public class FolderCreateRequestParser implements IEasRequestParser<FolderCreateRequest> {
@@ -53,7 +54,7 @@ public class FolderCreateRequestParser implements IEasRequestParser<FolderCreate
 				req.syncKey = child.getTextContent();
 				break;
 			case "ParentId":
-				req.parentId = child.getTextContent();
+				req.parentId = CollectionId.of(child.getTextContent());
 				break;
 			case "DisplayName":
 				req.displayName = child.getTextContent().trim();

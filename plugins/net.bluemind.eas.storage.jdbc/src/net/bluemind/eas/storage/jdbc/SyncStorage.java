@@ -21,6 +21,7 @@ package net.bluemind.eas.storage.jdbc;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -51,7 +52,11 @@ import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.device.api.Device;
 import net.bluemind.device.api.IDevice;
 import net.bluemind.device.api.IDevices;
+import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.IDirectory;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.eas.api.Account;
+import net.bluemind.eas.api.FolderSyncVersions;
 import net.bluemind.eas.api.Heartbeat;
 import net.bluemind.eas.api.IEas;
 import net.bluemind.eas.backend.BackendSession;
@@ -170,7 +175,8 @@ public class SyncStorage implements ISyncStorage {
 			throw new CollectionNotFoundException("Container " + nodeUid + " not found");
 		}
 
-		return new HierarchyNode(folder.internalId, folder.value.containerUid, folder.value.containerType);
+		return new HierarchyNode(CollectionId.of(Long.toString(folder.internalId)), folder.value.containerUid,
+				folder.value.containerType);
 	}
 
 	@Override
@@ -181,18 +187,13 @@ public class SyncStorage implements ISyncStorage {
 					bs.getUser().getUid());
 			ItemValue<ContainerSubscriptionModel> subscription = subs
 					.getCompleteById(collectionId.getSubscriptionId().get());
-			return getHierarchyNode(bs, subscription.value.owner, collectionId.getFolderId());
+			return getHierarchyNode(bs, subscription.value.owner, collectionId);
 		}
-		return getHierarchyNode(bs, collectionId.getFolderId());
-
-	}
-
-	@Override
-	public HierarchyNode getHierarchyNode(BackendSession bs, int collectionId) throws CollectionNotFoundException {
 		return getHierarchyNode(bs, bs.getUser().getUid(), collectionId);
+
 	}
 
-	private HierarchyNode getHierarchyNode(BackendSession bs, String owner, int collectionId)
+	private HierarchyNode getHierarchyNode(BackendSession bs, String owner, CollectionId collectionId)
 			throws CollectionNotFoundException {
 
 		// FIXME
@@ -201,20 +202,22 @@ public class SyncStorage implements ISyncStorage {
 		}
 
 		ItemValue<ContainerHierarchyNode> folder = getIContainersFlatHierarchyService(bs.getUser().getDomain(), owner)
-				.getCompleteById(collectionId);
+				.getCompleteById(collectionId.getFolderId());
 
 		if (folder == null) {
 			throw new CollectionNotFoundException("Collection " + owner + ":" + collectionId + " not found");
 		}
 
-		return new HierarchyNode(folder.internalId, folder.value.containerUid, folder.value.containerType);
+		long subscriptionId = collectionId.getSubscriptionId().isPresent() ? collectionId.getSubscriptionId().get() : 0;
+		return new HierarchyNode(CollectionId.of(subscriptionId, Long.toString(folder.internalId)),
+				folder.value.containerUid, folder.value.containerType);
 	}
 
 	@Override
-	public MailFolder getMailFolder(BackendSession bs, int collectionId) throws CollectionNotFoundException {
-		HierarchyNode folder = getHierarchyNode(bs, bs.getUser().getUid(), collectionId);
+	public MailFolder getMailFolder(BackendSession bs, CollectionId collectionId) throws CollectionNotFoundException {
+		HierarchyNode folder = getHierarchyNode(bs, collectionId);
 		String uniqueId = IMailReplicaUids.uniqueId(folder.containerUid);
-		ItemValue<MailboxFolder> mailFolder = getIMailboxFoldersService(bs).getComplete(uniqueId);
+		ItemValue<MailboxFolder> mailFolder = getIMailboxFoldersService(bs, collectionId).getComplete(uniqueId);
 
 		if (mailFolder == null) {
 			throw new CollectionNotFoundException("Collection " + collectionId + " not found");
@@ -238,12 +241,12 @@ public class SyncStorage implements ISyncStorage {
 		if (hNode == null) {
 			throw new CollectionNotFoundException("mailbox '" + name + "' not found");
 		}
-		return new MailFolder((int) hNode.internalId, mailFolder.uid, mailFolder.value.name, mailFolder.value.fullName,
-				mailFolder.value.parentUid);
+		return new MailFolder(CollectionId.of(Long.toString(hNode.internalId)), mailFolder.uid, mailFolder.value.name,
+				mailFolder.value.fullName, mailFolder.value.parentUid);
 	}
 
 	@Override
-	public Long createFolder(BackendSession bs, ItemDataType type, String folderName) {
+	public CollectionId createFolder(BackendSession bs, ItemDataType type, String folderName) {
 		Long folderUid = null;
 		try {
 			String uid = UUID.randomUUID().toString();
@@ -283,7 +286,7 @@ public class SyncStorage implements ISyncStorage {
 			logger.error(e.getMessage(), e);
 		}
 
-		return folderUid;
+		return CollectionId.of(Long.toString(folderUid));
 
 	}
 
@@ -398,6 +401,26 @@ public class SyncStorage implements ISyncStorage {
 		return ret;
 	}
 
+	@Override
+	public void setFolderSyncVersions(FolderSyncVersions versions) {
+		try {
+			getService().setFolderSyncVersions(versions);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+
+	}
+
+	@Override
+	public Map<String, String> getFolderSyncVersions(Account account) {
+		try {
+			return getService().getFolderSyncVersions(account);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		return null;
+	}
+
 	/**
 	 * @param authKey
 	 * @return
@@ -410,9 +433,37 @@ public class SyncStorage implements ISyncStorage {
 		return admin0Provider().instance(IContainersFlatHierarchy.class, domainUid, owner);
 	}
 
+	private IMailboxFolders getIMailboxFoldersService(BackendSession bs, CollectionId collectionId) {
+		CyrusPartition part = CyrusPartition.forServerAndDomain(bs.getUser().getDataLocation(),
+				bs.getUser().getDomain());
+		String mailboxRoot = "user." + bs.getUser().getUid().replace('.', '^');
+		if (collectionId.getSubscriptionId().isPresent()) {
+			IOwnerSubscriptions subscriptionsService = provider(bs).instance(IOwnerSubscriptions.class,
+					bs.getUser().getDomain(), bs.getUser().getUid());
+			ItemValue<ContainerSubscriptionModel> subscription = subscriptionsService
+					.getCompleteById(collectionId.getSubscriptionId().get());
+
+			IDirectory directoryService = admin0Provider().instance(IDirectory.class, bs.getUser().getDomain());
+			DirEntry dirEntry = directoryService.findByEntryUid(subscription.value.owner);
+			if (dirEntry.kind == Kind.USER) {
+				mailboxRoot = "user." + dirEntry.entryUid.replace('.', '^');
+			} else {
+				mailboxRoot = dirEntry.entryUid.replace('.', '^');
+			}
+			part = CyrusPartition.forServerAndDomain(dirEntry.dataLocation, bs.getUser().getDomain());
+		}
+
+		return provider(bs).instance(IMailboxFolders.class, part.name, mailboxRoot);
+	}
+
 	private IMailboxFolders getIMailboxFoldersService(BackendSession bs) {
 		CyrusPartition part = CyrusPartition.forServerAndDomain(bs.getUser().getDataLocation(),
 				bs.getUser().getDomain());
+		// FIXME
+		// FIXME
+		// FIXME
+		// FIXME
+		// FIXME
 		return provider(bs).instance(IMailboxFolders.class, part.name,
 				"user." + bs.getUser().getUid().replace('.', '^'));
 	}

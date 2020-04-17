@@ -17,14 +17,16 @@
   */
 package net.bluemind.eas.backend;
 
+import net.bluemind.eas.dto.sync.CollectionId;
+
 public class HierarchyNode {
 
-	public final long collectionId;
+	public final CollectionId collectionId;
 	public final String containerUid;
 	public final String containerType;
 
-	public HierarchyNode(long id, String containerUid, String containerType) {
-		this.collectionId = id;
+	public HierarchyNode(CollectionId collectionId, String containerUid, String containerType) {
+		this.collectionId = collectionId;
 		this.containerUid = containerUid;
 		this.containerType = containerType;
 	}

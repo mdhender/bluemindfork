@@ -68,7 +68,7 @@ public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 		if (module.root.length() >= path.length()) {
 			relativeUri = module.index;
 		} else {
-			relativeUri = path.substring(module.root.length() + 1);
+			relativeUri = path.substring(module.root.endsWith("/") ? module.root.length() : module.root.length() + 1);
 		}
 
 		logger.debug("handle {} request [{}] => module [{}], relative path [{}]", request.method(), path, module.root,
@@ -108,9 +108,9 @@ public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 		request.exceptionHandler(error);
 		vertx.getOrCreateContext().exceptionHandler(error);
 
-        CompletableFuture<HttpServerRequest> root = CompletableFuture.completedFuture(request);
-		
-        for (IWebFilter filter : filters) {
+		CompletableFuture<HttpServerRequest> root = CompletableFuture.completedFuture(request);
+
+		for (IWebFilter filter : filters) {
 			root = root.thenCompose(req -> {
 				if (req == null) {
 					return CompletableFuture.completedFuture(null);
@@ -121,14 +121,14 @@ public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 				return null;
 			});
 		}
-        
+
 		root.whenComplete((completedRequest, ex) -> {
 			if (completedRequest == null) {
 				return;
 			}
 			try {
 				modulesRouter.handle(completedRequest);
-			} catch (Exception t) {					
+			} catch (Exception t) {
 				onError(completedRequest, t);
 			}
 		});

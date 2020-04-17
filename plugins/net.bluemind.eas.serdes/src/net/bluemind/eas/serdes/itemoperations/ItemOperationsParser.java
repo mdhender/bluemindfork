@@ -96,7 +96,7 @@ public class ItemOperationsParser implements IEasRequestParser<ItemOperationsReq
 			Element elt = (Element) node;
 			switch (elt.getNodeName()) {
 			case "CollectionId":
-				op.collectionId = elt.getTextContent();
+				op.collectionId = CollectionId.of(elt.getTextContent());
 				break;
 			case "Options":
 				op.options = parseEmptyFolderContentsOptions(elt);

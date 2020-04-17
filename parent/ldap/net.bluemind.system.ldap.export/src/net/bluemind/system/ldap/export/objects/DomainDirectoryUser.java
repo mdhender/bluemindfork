@@ -17,11 +17,13 @@
   */
 package net.bluemind.system.ldap.export.objects;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -52,6 +54,7 @@ public class DomainDirectoryUser extends LdapObjects {
 	private final ItemValue<Domain> domain;
 	private final ItemValue<User> user;
 	private final byte[] userPhoto;
+	private final Optional<Integer> passwordLifetime;
 
 	public static final List<String> ldapAttrsStringsValues = ImmutableList.of( //
 			"objectclass",
@@ -65,22 +68,36 @@ public class DomainDirectoryUser extends LdapObjects {
 			// Address
 			"l", "postalCode", "postOfficeBox", "postalAddress", "street", "st", "registeredAddress",
 			// Password
-			"userPassword");
+			"userPassword", "shadowLastChange", "shadowMax");
 
-	public DomainDirectoryUser(ItemValue<Domain> domain, ItemValue<User> user, byte[] userPhoto) {
+	public DomainDirectoryUser(ItemValue<Domain> domain, Optional<Integer> passwordLifetime, ItemValue<User> user,
+			byte[] userPhoto) {
 		this.domain = domain;
 		this.user = user;
+		this.passwordLifetime = passwordLifetime;
 		this.userPhoto = userPhoto;
 	}
 
-	public DomainDirectoryUser(ItemValue<Domain> domain, ItemValue<User> user) {
+	public DomainDirectoryUser(ItemValue<Domain> domain, Optional<Integer> passwordLifetime, ItemValue<User> user) {
 		this.domain = domain;
+		this.passwordLifetime = passwordLifetime;
 		this.user = user;
 		this.userPhoto = null;
 	}
 
 	private void initPassword(Entry ldapEntry) throws LdapException {
 		ldapEntry.add("userPassword", "{SASL}" + user.value.login + "@" + domain.value.name);
+
+		if (user.value.passwordLastChange != null) {
+			ldapEntry.add("shadowLastChange", Long.toString(user.value.passwordLastChange.toInstant()
+					.atZone(ZoneId.systemDefault()).toLocalDate().toEpochDay()));
+		}
+
+		if (user.value.passwordMustChange) {
+			ldapEntry.add("shadowMax", "0");
+		} else if (!user.value.passwordNeverExpires && passwordLifetime.isPresent()) {
+			ldapEntry.add("shadowMax", Integer.toString(passwordLifetime.get()));
+		}
 	}
 
 	private void initAddress(Entry ldapEntry) throws LdapException {
@@ -220,7 +237,8 @@ public class DomainDirectoryUser extends LdapObjects {
 		Entry ldapEntry;
 
 		try {
-			ldapEntry = new DefaultEntry(getDn(), "objectclass: inetOrgPerson", "objectclass: bmUser");
+			ldapEntry = new DefaultEntry(getDn(), "objectclass: inetOrgPerson", "objectclass: ShadowAccount",
+					"objectclass: bmUser");
 
 			ldapEntry.add("bmHidden", Boolean.toString(user.value.hidden));
 

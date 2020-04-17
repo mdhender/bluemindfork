@@ -51,8 +51,8 @@ public class SanitizeJobExecutions {
 				je.status = JobExitStatus.INTERRUPTED;
 				store.updateExecution(je);
 			});
-		} catch (Exception e){
-			logger.warn("Cannot sanitize job executions", e);
+		} catch (Exception e) {
+			logger.warn("Cannot sanitize job executions: {}", e.getMessage());
 		}
 	}
 

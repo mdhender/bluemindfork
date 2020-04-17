@@ -17,7 +17,6 @@
   */
 package net.bluemind.sds.proxy;
 
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
@@ -170,25 +169,24 @@ public class SdsProxyHttpVerticle extends AbstractVerticle {
 
 	private void validateMailbox(HttpServerRequest request) {
 		HttpServerRequest req = Requests.wrap(request);
-		req.bodyHandler(payload -> {
+		req.bodyHandler(payload ->
 
-			vertx.eventBus().request(SdsAddresses.VALIDATION, payload, new DeliveryOptions().setSendTimeout(3000),
-					(AsyncResult<Message<Boolean>> result) -> {
-						if (result.failed()) {
-							logger.info("Unable to get a result ({}), accept by default", result.cause().getMessage());
+		vertx.eventBus().request(SdsAddresses.VALIDATION, payload, new DeliveryOptions().setSendTimeout(3000),
+				(AsyncResult<Message<Boolean>> result) -> {
+					if (result.failed()) {
+						logger.info("Unable to get a result ({}), accept by default", result.cause().getMessage());
+						req.response().setStatusCode(200).end();
+					} else {
+						boolean isAccepted = result.result().body();
+						if (isAccepted) {
 							req.response().setStatusCode(200).end();
 						} else {
-							boolean isAccepted = result.result().body();
-							if (isAccepted) {
-								req.response().setStatusCode(200).end();
-							} else {
-								logger.warn("Refusing for {}", payload);
-								req.response().setStatusCode(403).end();
-							}
+							logger.warn("Refusing for {}", payload);
+							req.response().setStatusCode(403).end();
 						}
+					}
 
-					});
-		});
+				}));
 	}
 
 	private <T extends SdsResponse> void sendBody(HttpServerRequest httpReq, String address, Class<T> respClass,
@@ -197,35 +195,27 @@ public class SdsProxyHttpVerticle extends AbstractVerticle {
 		HttpServerRequest req = Requests.wrap(httpReq);
 		Requests.tag(req, "method", address);
 
-		req.bodyHandler(payload -> {
-			JsonObject json = new JsonObject(payload.toString().trim().isEmpty() ? "{}" : payload.toString());
-			vertx.eventBus().request(address, json, new DeliveryOptions().setSendTimeout(20000),
-					(AsyncResult<Message<JsonObject>> res) -> {
-						Id timerId = idFactory.name("requestTime")//
-								.withTag("method", address)//
-								.withTag("status", res.succeeded() ? "OK" : "FAILED");
-						registry.timer(timerId).record(registry.clock().monotonicTime() - start, TimeUnit.NANOSECONDS);
+		req.bodyHandler(payload -> vertx.eventBus().request(address, payload.toString(),
+				new DeliveryOptions().setSendTimeout(20000), (AsyncResult<Message<String>> res) -> {
+					Id timerId = idFactory.name("requestTime")//
+							.withTag("method", address)//
+							.withTag("status", res.succeeded() ? "OK" : "FAILED");
+					registry.timer(timerId).record(registry.clock().monotonicTime() - start, TimeUnit.NANOSECONDS);
 
-						if (res.succeeded()) {
-							String jsonString = res.result().body().encode();
-							try {
-								T objectResp = JsMapper.get().readValue(jsonString, respClass);
-								objectResp.tags().forEach((k, v) -> Requests.tag(req, k, v));
-								if (objectResp.succeeded()) {
-									onSuccess.accept(objectResp, req.response());
-								} else {
-									req.response().setStatusMessage(objectResp.error.message).setStatusCode(500).end();
-								}
-							} catch (IOException e) {
-								logger.error("Error parsing {} response ({})", address, jsonString, e);
-								req.response().setStatusCode(500).end();
-							}
+					if (res.succeeded()) {
+						String jsonString = res.result().body();
+						T objectResp = JsMapper.readValue(jsonString, respClass);
+						objectResp.tags().forEach((k, v) -> Requests.tag(req, k, v));
+						if (objectResp.succeeded()) {
+							onSuccess.accept(objectResp, req.response());
 						} else {
-							logger.error("Call over {} failed", address, res.cause());
-							req.response().setStatusCode(500).end();
+							req.response().setStatusMessage(objectResp.error.message).setStatusCode(500).end();
 						}
-					});
-		});
+					} else {
+						logger.error("Call over {} failed", address, res.cause());
+						req.response().setStatusCode(500).end();
+					}
+				}));
 
 	}
 

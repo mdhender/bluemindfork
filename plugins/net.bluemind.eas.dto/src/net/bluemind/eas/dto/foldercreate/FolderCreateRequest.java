@@ -18,10 +18,12 @@
  */
 package net.bluemind.eas.dto.foldercreate;
 
+import net.bluemind.eas.dto.sync.CollectionId;
+
 public class FolderCreateRequest {
 
 	public String syncKey;
-	public String parentId;
+	public CollectionId parentId;
 	public String displayName;
 	public int type;
 

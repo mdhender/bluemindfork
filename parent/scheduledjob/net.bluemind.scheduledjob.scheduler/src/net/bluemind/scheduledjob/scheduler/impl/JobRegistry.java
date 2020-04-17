@@ -74,8 +74,20 @@ public class JobRegistry {
 			JobRunner runner = new JobRunner(bj, true, domainName);
 			runner.run();
 		} else {
-			logger.warn("User triggered run of non-existent jobId " + jobId);
+			logger.warn("User triggered run of non-existent jobId {}", jobId);
 			throw new ServerFault("Missing job");
+		}
+	}
+
+	public static void cancel(SecurityContext context, String jobId, String domainName) {
+		IScheduledJob bj = jobs.get(jobId);
+		if (bj != null) {
+			if (bj.getType() == JobKind.GLOBAL && !context.isDomainGlobal()) {
+				throw new ServerFault("Only runnable by global admin", ErrorCode.FORBIDDEN);
+			}
+			Scheduler.get().cancel(domainName, jobId);
+		} else {
+			logger.warn("Job {} does not exist", jobId);
 		}
 	}
 }

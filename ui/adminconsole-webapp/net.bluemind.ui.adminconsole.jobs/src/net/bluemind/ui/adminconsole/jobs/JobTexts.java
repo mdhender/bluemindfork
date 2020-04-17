@@ -55,6 +55,8 @@ public interface JobTexts extends Messages {
 
 	String startNow();
 
+	String cancelNow();
+
 	String filterPlaceholder();
 
 	String duration();

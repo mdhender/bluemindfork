@@ -31,7 +31,7 @@ public class TokenCacheSync {
 
 	private static final Logger logger = LoggerFactory.getLogger(TokenCacheSync.class);
 
-	public void start(final Cache<String, String> cache) {
+	public void start(final Cache<String, String> cache, final Cache<String, String> pwCache) {
 
 		MQ.init(() -> MQ.registerConsumer(Topic.CORE_SESSIONS, (OOPMessage cm) -> {
 			String operation = cm.getStringProperty("operation");
@@ -47,6 +47,9 @@ public class TokenCacheSync {
 				if (logger.isDebugEnabled()) {
 					logger.debug("invalidate token {}", sid);
 				}
+			} else if ("pwchange".equals(operation)) {
+				String latd = cm.getStringProperty("latd");
+				pwCache.invalidate(latd);
 			}
 		}));
 	}

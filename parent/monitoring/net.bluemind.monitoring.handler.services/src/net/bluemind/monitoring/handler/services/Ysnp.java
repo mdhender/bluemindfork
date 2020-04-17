@@ -26,7 +26,7 @@ import net.bluemind.server.api.Server;
 public class Ysnp extends AbstractJavaService {
 
 	public Ysnp() {
-		super("ysnp", Arrays.asList("mail/smtp", "mail/smtp-edge"));
+		super(BmService.YSNP.toString(), Arrays.asList("mail/smtp", "mail/smtp-edge"));
 	}
 
 	@Override

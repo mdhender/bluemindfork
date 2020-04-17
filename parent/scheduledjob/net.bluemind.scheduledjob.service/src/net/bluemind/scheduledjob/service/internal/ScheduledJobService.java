@@ -239,6 +239,22 @@ public class ScheduledJobService implements IInCoreJob {
 	}
 
 	@Override
+	public void cancel(String jobId, String domainName) throws ServerFault {
+		if (domainName == null || domainName.trim().isEmpty()) {
+			domainName = context.getContainerUid();
+		}
+
+		logger.info("Cancelling job {}, domain {}", jobId, domainName);
+
+		if (!context.isDomainAdmin(domainName)) {
+			throw new ServerFault("ScheduledJobService.cancel is only available to admin0 or domain admin",
+					ErrorCode.PERMISSION_DENIED);
+		}
+
+		JobRegistry.cancel(context, jobId, domainName);
+	}
+
+	@Override
 	public Set<LogEntry> getLogs(JobExecution jobExecution, int offset) throws ServerFault {
 		if (!context.isDomainAdmin(jobExecution.domainName)) {
 			throw new ServerFault("ScheduledJobService.getLogs is only available to admin0 or domain admin",

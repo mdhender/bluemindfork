@@ -28,8 +28,14 @@ import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.ContainerSubscriptionModel;
+import net.bluemind.core.container.api.IOwnerSubscriptions;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
+import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.IDirectory;
 import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.backend.ItemChangeReference;
 import net.bluemind.eas.backend.bm.state.InternalState;
@@ -37,7 +43,6 @@ import net.bluemind.eas.dto.base.ChangeType;
 import net.bluemind.eas.dto.base.CollectionItem;
 import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.type.ItemDataType;
-import net.bluemind.eas.exception.ActiveSyncException;
 import net.bluemind.todolist.api.ITodoList;
 import net.bluemind.vertx.common.http.BasicAuthHandler;
 
@@ -66,11 +71,28 @@ public class CoreConnect {
 		return in;
 	}
 
-	public IMailboxFolders getIMailboxFoldersService(BackendSession bs) {
+	public IMailboxFolders getIMailboxFoldersService(BackendSession bs, CollectionId collectionId) {
 		CyrusPartition part = CyrusPartition.forServerAndDomain(bs.getUser().getDataLocation(),
 				bs.getUser().getDomain());
-		return provider(bs).instance(IMailboxFolders.class, part.name,
-				"user." + bs.getUser().getUid().replace('.', '^'));
+
+		String mailboxRoot = "user." + bs.getUser().getUid().replace('.', '^');
+		if (collectionId.getSubscriptionId().isPresent()) {
+			IOwnerSubscriptions subscriptionsService = getService(bs, IOwnerSubscriptions.class,
+					bs.getUser().getDomain(), bs.getUser().getUid());
+			ItemValue<ContainerSubscriptionModel> sub = subscriptionsService
+					.getCompleteById(collectionId.getSubscriptionId().get());
+
+			IDirectory directoryService = getAdmin0Service(bs, IDirectory.class, bs.getUser().getDomain());
+			DirEntry dirEntry = directoryService.findByEntryUid(sub.value.owner);
+			if (dirEntry.kind == Kind.USER) {
+				mailboxRoot = "user." + dirEntry.entryUid.replace('.', '^');
+			} else {
+				mailboxRoot = dirEntry.entryUid.replace('.', '^');
+			}
+			part = CyrusPartition.forServerAndDomain(dirEntry.dataLocation, bs.getUser().getDomain());
+		}
+
+		return provider(bs).instance(IMailboxFolders.class, part.name, mailboxRoot);
 	}
 
 	public IMailboxItems getMailboxItemsService(BackendSession bs, String mailboxUid) {
@@ -143,24 +165,6 @@ public class CoreConnect {
 		ret.setChangeType(changeType);
 		ret.setServerId(CollectionItem.of(collectionId, uid));
 		return ret;
-	}
-
-	/**
-	 * returns collectionId:clientId
-	 * 
-	 * @param collectionId
-	 * @param clientId
-	 * @return
-	 * @throws ActiveSyncException
-	 */
-	public String getServerId(long collectionId, String clientId) throws ActiveSyncException {
-		StringBuilder sb = new StringBuilder(10);
-		sb.append(collectionId);
-		if (clientId != null) {
-			sb.append(':');
-			sb.append(clientId);
-		}
-		return sb.toString();
 	}
 
 	/**

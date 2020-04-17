@@ -24,7 +24,7 @@ import net.bluemind.server.api.Server;
 public class Dav extends AbstractService {
 
 	public Dav() {
-		super("dav", "bm/core");
+		super(BmService.DAV.toString(), "bm/core");
 	}
 
 	@Override

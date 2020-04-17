@@ -22,5 +22,5 @@ import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")
 public enum ValidationKind {
-	TOKEN, PASSWORD, NONE
+	TOKEN, PASSWORD, PASSWORDEXPIRED, NONE
 }

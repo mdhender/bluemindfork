@@ -36,15 +36,15 @@ import net.bluemind.scheduledjob.api.PlanKind;
 import net.bluemind.scheduledjob.scheduler.IScheduledJob;
 import net.bluemind.scheduledjob.scheduler.IScheduledJobRunId;
 
-public class JobTicker implements Runnable {
+public class JobTicker implements CancellableRunnable {
 
 	private static final Logger logger = LoggerFactory.getLogger(JobTicker.class);
-	private IScheduledJob bj;
-	private Scheduler sch;
-	private boolean forced;
-	private String domainName;
-	private Date date;
-	private String execGroup;
+	public final IScheduledJob bj;
+	public final Scheduler sch;
+	public final boolean forced;
+	public final String domainName;
+	public final Date date;
+	public final String execGroup;
 
 	public JobTicker(IScheduledJob bjp, boolean forced, String domainName, Date cur, String groupId) {
 		this.bj = bjp;
@@ -61,6 +61,7 @@ public class JobTicker implements Runnable {
 			Set<String> lockedResources = sch.checkLockedResources(domainName, bj);
 			if (!forced && !lockedResources.isEmpty()) {
 				logger.info("Job {} waits for {} blocked resources", bj.getJobId(), lockedResources.size());
+				sch.unregister(domainName, bj);
 				return;
 			}
 			sch.setActiveGroup(execGroup);
@@ -105,6 +106,7 @@ public class JobTicker implements Runnable {
 
 	private void finishIfNeeded(Throwable t) {
 		RunIdImpl slot = (RunIdImpl) sch.getActiveSlot(domainName, bj.getJobId());
+		sch.unregister(domainName, bj);
 		if (slot != null) {
 			if (t != null) {
 				sch.error(slot, "en", "Job halted by exception: " + t.getMessage());
@@ -116,6 +118,11 @@ public class JobTicker implements Runnable {
 				sch.finish(slot, JobExitStatus.COMPLETED_WITH_WARNINGS);
 			}
 		}
+	}
+
+	@Override
+	public void cancel() {
+		bj.cancel();
 	}
 
 }

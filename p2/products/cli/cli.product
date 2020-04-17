@@ -71,6 +71,7 @@
       <plugin id="net.bluemind.cli.hz"/>
       <plugin id="net.bluemind.cli.index"/>
       <plugin id="net.bluemind.cli.inject.imap"/>
+      <plugin id="net.bluemind.cli.job"/>
       <plugin id="net.bluemind.cli.launcher"/>
       <plugin id="net.bluemind.cli.mail"/>
       <plugin id="net.bluemind.cli.mapi"/>

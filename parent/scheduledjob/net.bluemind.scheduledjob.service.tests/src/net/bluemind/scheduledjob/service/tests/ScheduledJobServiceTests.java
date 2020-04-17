@@ -60,12 +60,15 @@ import net.bluemind.scheduledjob.api.LogEntry;
 import net.bluemind.scheduledjob.api.LogLevel;
 import net.bluemind.scheduledjob.api.PlanKind;
 import net.bluemind.scheduledjob.scheduler.impl.JobRegistry;
+import net.bluemind.scheduledjob.scheduler.impl.Scheduler;
+import net.bluemind.scheduledjob.service.jobs.WaitingJob;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class ScheduledJobServiceTests {
 
 	private final String DOMAIN_JOB = "DomainJob";
 	private final String GLOBAL_JOB = "GlobalJob";
+	private final String WAITING_JOB = "WaitingJob";
 
 	private IInCoreJob serviceAdmin0;
 	private IInCoreJob serviceAdmin;
@@ -235,6 +238,40 @@ public class ScheduledJobServiceTests {
 			}
 
 		}
+	}
+
+	@Test
+	public void testCancelJob() throws Exception {
+		JobExecutionQuery query = new JobExecutionQuery();
+		query.jobId = WAITING_JOB;
+
+		// we need to sleep some time, job starting is async
+
+		serviceAdmin0.start(WAITING_JOB, null);
+		Thread.sleep(500);
+		assertEquals(1, Scheduler.get().getActiveSlots().size());
+		// this job will get ignored, job is already running
+		serviceAdmin0.start(WAITING_JOB, null);
+		Thread.sleep(500);
+		assertEquals(1, Scheduler.get().getActiveSlots().size());
+		serviceAdmin0.cancel(WAITING_JOB, null);
+		Thread.sleep(500);
+		assertEquals(0, Scheduler.get().getActiveSlots().size());
+		serviceAdmin0.start(WAITING_JOB, null);
+		Thread.sleep(500);
+		assertEquals(1, Scheduler.get().getActiveSlots().size());
+		serviceAdmin0.cancel(WAITING_JOB, null);
+		Thread.sleep(500);
+		assertEquals(0, Scheduler.get().getActiveSlots().size());
+
+		ListResult<JobExecution> executions = serviceAdmin0.searchExecution(query);
+		assertEquals(2, executions.total);
+
+		executions.values.forEach(ret -> {
+			assertEquals(JobExitStatus.FAILURE, ret.status);
+		});
+
+		assertEquals(2, WaitingJob.cancelled);
 	}
 
 	@Test

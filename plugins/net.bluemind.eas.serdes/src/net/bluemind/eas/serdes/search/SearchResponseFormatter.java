@@ -99,7 +99,7 @@ public class SearchResponseFormatter implements IEasResponseFormatter<SearchResp
 			builder.text(NamespaceMapping.Search, "LongId", result.longId.toString());
 		}
 		if (result.collectionId != null) {
-			builder.text(NamespaceMapping.Sync, "CollectionId", result.collectionId.toString());
+			builder.text(NamespaceMapping.Sync, "CollectionId", result.collectionId.getValue());
 		}
 
 		builder.container(NamespaceMapping.Search, "Properties");

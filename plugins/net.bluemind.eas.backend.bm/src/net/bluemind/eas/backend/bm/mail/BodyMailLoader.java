@@ -60,10 +60,8 @@ public class BodyMailLoader extends CoreConnect {
 	private static final Logger logger = LoggerFactory.getLogger(BodyMailLoader.class);
 
 	/**
-	 * @param bf           the body factory used to process the body parts
 	 * @param bs
-	 * @param collectionId used to encode unique identifiers for attachments
-	 * @param store        must be in selected state
+	 * @param folder
 	 */
 	public BodyMailLoader(BackendSession bs, MailFolder folder) {
 		this.bs = bs;

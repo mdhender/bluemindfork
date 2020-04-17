@@ -24,6 +24,9 @@
 				<g:FlowPanel>
 					<g:Button ui:field="startJobs" text="{jt.startNow}" enabled="false"
 						styleName="button primary" />
+			
+					<g:Button ui:field="cancelJobs" text="{jt.cancelNow}" enabled="false"
+						styleName="button primary" />
 				</g:FlowPanel>
 			</g:FlowPanel>
 		</g:north>

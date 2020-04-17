@@ -65,19 +65,22 @@ public final class CF {
 		boolean ret = false;
 		try {
 			ItemValue<User> user = user(BareJID.bareJIDInstance(login));
-			if (user != null) {
-				IAuthentication authService = provider().instance(IAuthentication.class);
-				ValidationKind resp = authService.validate(login, password, "bm-xmpp");
-				if (resp != ValidationKind.NONE) {
-					// TODO RPC contains instantmessaging/canAccess.
-					ret = true;
-				}
-			} else {
-				logger.warn("user with email {} not found", login);
+			if (user == null) {
+				return false;
 			}
+
+			IAuthentication authService = provider().instance(IAuthentication.class);
+			ValidationKind resp = authService.validate(login, password, "bm-xmpp");
+			if (resp == ValidationKind.NONE || resp == ValidationKind.PASSWORDEXPIRED) {
+				return false;
+			}
+
+			// TODO RPC contains instantmessaging/canAccess.
+			ret = true;
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
+
 		return ret;
 	}
 

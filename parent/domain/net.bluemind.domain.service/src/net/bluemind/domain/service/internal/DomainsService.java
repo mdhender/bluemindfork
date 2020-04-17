@@ -270,8 +270,12 @@ public class DomainsService implements IDomains {
 	}
 
 	private void deepDelete(ItemValue<Domain> domain) throws ServerFault {
-		logger.info("Deleting domain mail filters of domain {}", domain.uid);
-		context.provider().instance(IMailboxes.class, domain.uid).setDomainFilter(new MailFilter());
+		try {
+			logger.info("Deleting domain mail filters of domain {}", domain.uid);
+			context.provider().instance(IMailboxes.class, domain.uid).setDomainFilter(new MailFilter());
+		} catch (ServerFault sf) {
+			logger.warn("Failed to delete sieve filters for domain {}", domain.uid);
+		}
 
 		IDirectory dir = context.provider().instance(IDirectory.class, domain.uid);
 

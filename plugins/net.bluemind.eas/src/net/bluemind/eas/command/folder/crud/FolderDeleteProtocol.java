@@ -76,18 +76,8 @@ public class FolderDeleteProtocol implements IEasProtocol<FolderDeleteRequest, F
 
 		FolderDeleteResponse response = new FolderDeleteResponse();
 
-		Integer serverId = null;
 		try {
-			serverId = Integer.parseInt(query.serverId);
-		} catch (NumberFormatException e) {
-			logger.error("Invalid serverId {}", query.serverId);
-			response.status = Status.InvalidRequest;
-			responseHandler.handle(response);
-			return;
-		}
-
-		try {
-			store.getHierarchyNode(bs, serverId);
+			store.getHierarchyNode(bs, query.serverId);
 		} catch (CollectionNotFoundException e1) {
 			logger.error("ServerId {} does not exist", query.serverId);
 			response.status = Status.DoesNotExist;
@@ -96,7 +86,7 @@ public class FolderDeleteProtocol implements IEasProtocol<FolderDeleteRequest, F
 		}
 
 		IHierarchyImporter importer = backend.getHierarchyImporter(bs);
-		boolean deleted = importer.importFolderDelete(bs, serverId);
+		boolean deleted = importer.importFolderDelete(bs, query.serverId);
 
 		if (deleted) {
 			StateMachine sm = new StateMachine(store);

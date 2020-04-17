@@ -63,7 +63,7 @@ public interface IContentsImporter {
 	void forwardEmail(BackendSession bs, ByteSource mailContent, Boolean saveInSent, String collectionId,
 			String serverId, boolean includePrevious) throws ActiveSyncException;
 
-	void emptyFolderContent(BackendSession bs, HierarchyNode node, boolean deleteSubFolder)
+	void emptyFolderContent(BackendSession bs, HierarchyNode node, CollectionId collectionId, boolean deleteSubFolder)
 			throws CollectionNotFoundException, NotAllowedException;
 
 }

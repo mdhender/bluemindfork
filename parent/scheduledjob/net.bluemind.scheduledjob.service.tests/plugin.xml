@@ -9,5 +9,8 @@
       <scheduledjob_provider
             implementation="net.bluemind.scheduledjob.service.jobs.GlobalJob">
       </scheduledjob_provider>
+      <scheduledjob_provider
+            implementation="net.bluemind.scheduledjob.service.jobs.WaitingJob">
+      </scheduledjob_provider>
    </extension>
 </plugin>

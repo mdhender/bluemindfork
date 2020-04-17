@@ -18,11 +18,13 @@
  */
 package net.bluemind.eas.dto.folderupdate;
 
+import net.bluemind.eas.dto.sync.CollectionId;
+
 public class FolderUpdateRequest {
 
 	public String syncKey;
-	public String serverId;
-	public String parentId;
+	public CollectionId serverId;
+	public CollectionId parentId;
 	public String displayName;
 	public int type;
 

@@ -18,7 +18,6 @@
  */
 package net.bluemind.eas.api;
 
-import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.DELETE;
@@ -58,20 +57,6 @@ public interface IEas {
 	@DELETE
 	@Path("_deletePendingReset")
 	public void deletePendingReset(Account account) throws ServerFault;
-
-	// SentItem
-	@GET
-	@Path("_getSentItems/{folderId}")
-	public List<SentItem> getSentItems(@PathParam(value = "folderId") String folderId, Account account)
-			throws ServerFault;
-
-	@PUT
-	@Path("_sentItems")
-	public void insertSentItems(List<SentItem> sentItems) throws ServerFault;
-
-	@DELETE
-	@Path("_resetSentItems/{folderId}")
-	public void resetSentItems(@PathParam(value = "folderId") String folderId, Account account) throws ServerFault;
 
 	// CLientID
 	@PUT

@@ -31,7 +31,6 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.eas.api.Account;
 import net.bluemind.eas.api.Heartbeat;
-import net.bluemind.eas.api.SentItem;
 
 public class EasStore extends JdbcAbstractStore {
 
@@ -113,48 +112,6 @@ public class EasStore extends JdbcAbstractStore {
 				new Object[] { account.userUid, account.device });
 	}
 
-	// SentItem
-	private static final Creator<SentItem> SENTITEM_CREATOR = new Creator<SentItem>() {
-		@Override
-		public SentItem create(ResultSet con) throws SQLException {
-			return new SentItem();
-		}
-	};
-
-	public void insertSentItems(List<SentItem> items) throws ServerFault {
-		doOrFail(() -> {
-			StringBuilder query = new StringBuilder();
-			query.append("INSERT INTO t_eas_sent_item (");
-			EasColumns.t_eas_sent_item.appendNames(null, query);
-			query.append(") VALUES (");
-			EasColumns.t_eas_sent_item.appendValues(query);
-			query.append(")");
-
-			// FIXME use batch
-			for (SentItem item : items) {
-				delete("DELETE FROM t_eas_sent_item WHERE device = ? AND folder = ? AND item = ?",
-						new Object[] { item.device, item.folder, item.item });
-				insert(query.toString(), new Object[] { item.device, item.folder, item.item });
-			}
-			return null;
-		});
-	}
-
-	public List<SentItem> getSentItems(Account account, int folderId) throws SQLException {
-		String query = "SELECT device, folder, item FROM t_eas_sent_item WHERE device = ? AND folder = ?";
-		return select(query, SENTITEM_CREATOR, EasColumns.sentItemPopulator(),
-				new Object[] { account.device, folderId });
-	}
-
-	public void resetSentItems(Account account, int folderId) throws SQLException {
-		delete("DELETE FROM t_eas_sent_item WHERE device = ? AND folder = ?",
-				new Object[] { account.device, folderId });
-	}
-
-	public void resetSentItems(String device) throws SQLException {
-		delete("DELETE FROM t_eas_sent_item WHERE device = ?", new Object[] { device });
-	}
-
 	// Client ID
 	public boolean isKnownClientId(String clientId) throws SQLException {
 		String query = "SELECT 1 FROM t_eas_client_id WHERE client_id=?";
@@ -176,17 +133,16 @@ public class EasStore extends JdbcAbstractStore {
 
 	public void setFolderSyncVersions(Account account, Map<String, String> versions) throws ServerFault {
 		doOrFail(() -> {
-			// delete old versions first
-			delete("DELETE FROM t_eas_folder_sync WHERE account = ? AND device = ?",
-					new Object[] { account.userUid, account.device });
-
 			StringBuilder query = new StringBuilder();
 			query.append("INSERT INTO t_eas_folder_sync (");
 			EasColumns.t_eas_folder_sync.appendNames(null, query);
 			query.append(") VALUES (");
 			EasColumns.t_eas_folder_sync.appendValues(query);
 			query.append(")");
-			insert(query.toString(), new Object[] { account.userUid, account.device, versions });
+			query.append(" ON CONFLICT (account, device) DO UPDATE SET (" + EasColumns.t_eas_folder_sync.names()
+					+ ") = (" + EasColumns.t_eas_folder_sync.values() + ")");
+			insert(query.toString(), new Object[] { account.userUid, account.device, versions, account.userUid,
+					account.device, versions });
 			return null;
 		});
 	}

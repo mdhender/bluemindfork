@@ -25,11 +25,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -50,7 +48,6 @@ import net.bluemind.eas.api.Account;
 import net.bluemind.eas.api.FolderSyncVersions;
 import net.bluemind.eas.api.Heartbeat;
 import net.bluemind.eas.api.IEas;
-import net.bluemind.eas.api.SentItem;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class EasServiceTests {
@@ -156,54 +153,6 @@ public class EasServiceTests {
 			fail();
 		} catch (Exception e) {
 		}
-	}
-
-	@Test
-	public void testSentItem() throws Exception {
-		IEas service = getService(adminSC);
-		Account account = Account.create("david@bm.lan", "device");
-
-		List<SentItem> res = service.getSentItems("1", account);
-		assertEquals(0, res.size());
-
-		List<SentItem> items = new ArrayList<SentItem>(3);
-		items.add(SentItem.create("device", 1, "item1"));
-		items.add(SentItem.create("device", 1, "item1"));
-		items.add(SentItem.create("device", 1, "item2"));
-		service.insertSentItems(items);
-
-		res = service.getSentItems("1", account);
-		assertEquals(2, res.size());
-
-		boolean item1 = false;
-		boolean item2 = false;
-		for (SentItem i : res) {
-			if ("item1".equals(i.item)) {
-				item1 = true;
-			}
-			if ("item2".equals(i.item)) {
-				item2 = true;
-			}
-		}
-		assertTrue(item1);
-		assertTrue(item2);
-
-		service.resetSentItems("1", account);
-		res = service.getSentItems("1", account);
-		assertEquals(0, res.size());
-
-		try {
-			getService(userSC).getSentItems("1", account);
-			fail();
-		} catch (Exception e) {
-		}
-
-		try {
-			getService(userSC).resetSentItems("1", account);
-			fail();
-		} catch (Exception e) {
-		}
-
 	}
 
 	// FolderSync

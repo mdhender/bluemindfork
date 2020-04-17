@@ -20,7 +20,6 @@ package net.bluemind.eas.service.internal;
 
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import net.bluemind.core.api.fault.ErrorCode;
@@ -30,7 +29,6 @@ import net.bluemind.eas.api.Account;
 import net.bluemind.eas.api.FolderSyncVersions;
 import net.bluemind.eas.api.Heartbeat;
 import net.bluemind.eas.api.IEas;
-import net.bluemind.eas.api.SentItem;
 import net.bluemind.eas.persistence.EasStore;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
@@ -87,32 +85,6 @@ public class EasService implements IEas {
 	public void insertPendingReset(Account account) throws ServerFault {
 		checkAccess();
 		store.insertPendingReset(account);
-	}
-
-	@Override
-	public List<SentItem> getSentItems(String folderId, Account account) throws ServerFault {
-		checkAccess();
-		try {
-			return store.getSentItems(account, Integer.parseInt(folderId));
-		} catch (SQLException e) {
-			throw ServerFault.sqlFault(e);
-		}
-	}
-
-	@Override
-	public void insertSentItems(List<SentItem> sentItems) throws ServerFault {
-		checkAccess();
-		store.insertSentItems(sentItems);
-	}
-
-	@Override
-	public void resetSentItems(String folderId, Account account) throws ServerFault {
-		checkAccess();
-		try {
-			store.resetSentItems(account, Integer.parseInt(folderId));
-		} catch (SQLException e) {
-			throw ServerFault.sqlFault(e);
-		}
 	}
 
 	@Override

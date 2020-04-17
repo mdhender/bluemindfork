@@ -18,14 +18,15 @@
  */
 package net.bluemind.eas.backend;
 
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.type.ItemDataType;
 
 public class SyncFolder {
 
 	private ItemDataType pimDataType;
 	private String displayName;
-	private int serverId;
-	private int parentId;
+	private CollectionId serverId;
+	private CollectionId parentId;
 
 	public SyncFolder() {
 
@@ -47,19 +48,19 @@ public class SyncFolder {
 		this.displayName = displayName;
 	}
 
-	public int getParentId() {
+	public CollectionId getParentId() {
 		return parentId;
 	}
 
-	public void setParentId(int parentId) {
+	public void setParentId(CollectionId parentId) {
 		this.parentId = parentId;
 	}
 
-	public int getServerId() {
+	public CollectionId getServerId() {
 		return serverId;
 	}
 
-	public void setServerId(int serverId) {
+	public void setServerId(CollectionId serverId) {
 		this.serverId = serverId;
 	}
 

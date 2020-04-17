@@ -18,6 +18,7 @@
  */
 package net.bluemind.ysnp.impl;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
@@ -29,6 +30,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
 
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.ysnp.ICredentialValidator;
@@ -38,18 +41,23 @@ import net.bluemind.ysnp.YSNPConfiguration;
 
 public class ValidationPolicy {
 
-	private List<ICredentialValidatorFactory> validatorsFactories;
-	private Logger logger = LoggerFactory.getLogger(getClass());
+	private static final Logger logger = LoggerFactory.getLogger(ValidationPolicy.class);
+	private static final HashFunction hash = Hashing.goodFastHash(32);
+	private final List<ICredentialValidatorFactory> validatorsFactories;
 
 	/**
 	 * key: token, value: login@domain
 	 */
 	private Cache<String, String> tokenCache;
+	/**
+	 * key: login@domain, value: last valid password
+	 */
+	private Cache<String, String> pwCache;
 
 	private TokenCacheSync tokenSync;
 
 	public ValidationPolicy(YSNPConfiguration conf) {
-		RunnableExtensionLoader<ICredentialValidatorFactory> rel = new RunnableExtensionLoader<ICredentialValidatorFactory>();
+		RunnableExtensionLoader<ICredentialValidatorFactory> rel = new RunnableExtensionLoader<>();
 		List<ICredentialValidatorFactory> factories = rel.loadExtensions("net.bluemind.ysnp",
 				"credentialvalidatorfactory", "credential_validator_factory", "implementation");
 
@@ -58,25 +66,31 @@ public class ValidationPolicy {
 		for (ICredentialValidatorFactory cvf : validatorsFactories) {
 			cvf.init(conf);
 		}
+
 		int cores = Runtime.getRuntime().availableProcessors();
 		int conc = Math.max(4, cores);
 		tokenCache = CacheBuilder.newBuilder().concurrencyLevel(conc).recordStats().initialCapacity(1024)
 				.expireAfterAccess(2, TimeUnit.MINUTES).build();
+		pwCache = CacheBuilder.newBuilder().concurrencyLevel(conc).recordStats().initialCapacity(1024)
+				.expireAfterAccess(2, TimeUnit.MINUTES).build();
 		this.tokenSync = new TokenCacheSync();
-		tokenSync.start(tokenCache);
+		tokenSync.start(tokenCache, pwCache);
 
 		TimerTask stats = new TimerTask() {
-
 			@Override
 			public void run() {
-				logger.info(tokenCache.stats().toString());
+				if (logger.isInfoEnabled()) {
+					logger.info("tokens {}", tokenCache.stats());
+					logger.info("passwords {}", pwCache.stats());
+				}
 			}
 		};
+
 		Timer t = new Timer();
 		t.schedule(stats, 30000, 30000);
 	}
 
-	public boolean validate(String login, String password, String service, String realm) {
+	public boolean validate(String login, String password, String service, String realm, boolean expireOk) {
 		String latd = login + "@" + realm;
 
 		String cachedLatd = tokenCache.getIfPresent(password);
@@ -84,21 +98,26 @@ public class ValidationPolicy {
 			logger.info("Access to {} granted from token cache for {}", service, latd);
 			return true;
 		}
+		String cachedPw = pwCache.getIfPresent(latd);
+		if (cachedPw != null && cachedPw.equals(hash.hashString(password, StandardCharsets.UTF_8).toString())) {
+			logger.info("Access to {} granted from pw cache for {}", service, latd);
+			return true;
+		}
 
 		boolean ret = false;
 		long time = System.currentTimeMillis();
 		for (ICredentialValidatorFactory cvf : validatorsFactories) {
 			ICredentialValidator validator = cvf.getValidator();
-			Kind vk = validator.validate(login, password, realm, service);
+			Kind vk = validator.validate(login, password, realm, service, expireOk);
 			if (vk != null && vk != Kind.No) {
 				logger.info("Access to service {} granted to {} with '{}' validator in {}ms.", service, login,
 						cvf.getName(), (System.currentTimeMillis() - time));
 				ret = true;
-
 				if (vk == Kind.Token) {
 					tokenCache.put(password, latd);
+				} else {
+					pwCache.put(latd, hash.hashString(password, StandardCharsets.UTF_8).toString());
 				}
-
 				break;
 			}
 		}

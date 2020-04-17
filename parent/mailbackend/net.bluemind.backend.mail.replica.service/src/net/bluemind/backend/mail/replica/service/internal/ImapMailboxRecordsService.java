@@ -133,9 +133,10 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 		this.imapFolder = recordsLocation.imapPath(context);
 		this.namespace = recordsLocation.namespace();
-		logger.debug("imapFolder is {}", imapFolder);
-
 		this.imapContext = ImapContext.of(context);
+
+		logger.debug("imapContext {}, namespace {}, subtree {}", imapContext, namespace, recordsLocation.toString());
+
 		this.seenOverlays = new SeenOverlayStore(ds);
 		bodyStore = new MessageBodyStore(ds);
 	}
@@ -700,9 +701,18 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	private Ack doImapCommand(String imapCommand) throws ServerFault {
 		CompletableFuture<Long> repEvent = ReplicationEvents.onMailboxChanged(mailboxUniqueId);
 		imapContext.withImapClient((sc, fast) -> {
-			sc.select(imapFolder);
-			TaggedResult ok = sc.tagged(imapCommand);
-			logger.info("{}, Unseen updates ok ? {}", imapCommand, ok.isOk());
+			boolean select = sc.select(imapFolder);
+			if (!select) {
+				logger.error("Failed to select '{}'", imapFolder);
+				return null;
+			}
+			TaggedResult result = sc.tagged(imapCommand);
+			logger.info("{}, Unseen updates ok ? {}", imapCommand, result.isOk());
+			if (!result.isOk()) {
+				for (int i = 0; i < result.getOutput().length; i++) {
+					logger.error(result.getOutput()[i]);
+				}
+			}
 			return null;
 		});
 		try {

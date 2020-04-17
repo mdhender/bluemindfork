@@ -45,6 +45,7 @@ import net.bluemind.eas.dto.meetingresponse.MeetingResponseRequest;
 import net.bluemind.eas.dto.meetingresponse.MeetingResponseRequest.Request;
 import net.bluemind.eas.dto.meetingresponse.MeetingResponseResponse;
 import net.bluemind.eas.dto.meetingresponse.MeetingResponseResponse.Result.Status;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.type.ItemDataType;
 import net.bluemind.eas.exception.ActiveSyncException;
 import net.bluemind.eas.impl.Backends;
@@ -87,8 +88,7 @@ public class MeetingResponseProtocol implements IEasProtocol<MeetingResponseRequ
 		for (final Request request : query.requests) {
 			try {
 				ItemDataType dataClass = ItemDataType.EMAIL;
-				Integer collectionId = Integer.parseInt(request.collectionId);
-				HierarchyNode node = store.getHierarchyNode(bs, collectionId);
+				HierarchyNode node = store.getHierarchyNode(bs, CollectionId.of(request.collectionId));
 				dataClass = ItemDataType.getValue(node.containerType);
 
 				ItemChangeReference ic = new ItemChangeReference(dataClass);

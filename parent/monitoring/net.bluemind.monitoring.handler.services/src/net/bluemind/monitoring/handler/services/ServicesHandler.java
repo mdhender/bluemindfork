@@ -18,6 +18,9 @@
  */
 package net.bluemind.monitoring.handler.services;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.bluemind.monitoring.api.MethodInformation;
 import net.bluemind.monitoring.api.PluginInformation;
 import net.bluemind.monitoring.api.ServerInformation;
@@ -26,7 +29,10 @@ import net.bluemind.monitoring.service.IServiceInfoProvider;
 import net.bluemind.monitoring.service.util.Service;
 import net.bluemind.server.api.Server;
 
+
+
 public class ServicesHandler implements IServiceInfoProvider {
+	private static final Logger logger = LoggerFactory.getLogger(ServicesHandler.class);
 
 	public static String SCRIPTS_FOLDER = "/usr/share/bm-node/monitoring/services/";
 	public static String BASE = "services";
@@ -61,29 +67,24 @@ public class ServicesHandler implements IServiceInfoProvider {
 
 	@Override
 	public Service getServiceInstance(String service) {
-
+		BmService bmservice = BmService.fromString(service.toUpperCase());
 		Service s = null;
 
 		try {
-			s = ServicesHandler.generateService(service);
+			s = ServicesHandler.generateService(bmservice.className);
 		} catch (InstantiationException e) {
-			e.printStackTrace();
+			logger.error("generateService failed InstantiationException", e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			logger.error("generateService failed IllegalAccessException", e);
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			logger.error("generateService failed ClassNotFoundException", e);
 		}
 
 		return s;
 	}
 
-	public static AbstractService generateService(String service)
+	public static AbstractService generateService(String className)
 			throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-		String className = "net.bluemind.monitoring.handler.services." + service.substring(0, 1).toUpperCase()
-				+ service.substring(1);
-
-		AbstractService s = (AbstractService) Class.forName(className).newInstance();
-
-		return s;
+		return (AbstractService)Class.forName("net.bluemind.monitoring.handler.services." + className).newInstance();
 	}
 }

@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.system.ldap.export;
+package net.bluemind.system.ldap.export.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -25,10 +25,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.apache.directory.api.ldap.model.cursor.CursorException;
@@ -40,85 +40,32 @@ import org.apache.directory.api.ldap.model.message.ModifyRequest;
 import org.apache.directory.api.ldap.model.message.ModifyRequestImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
-import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.util.concurrent.SettableFuture;
-
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import net.bluemind.addressbook.api.VCard;
-import net.bluemind.config.InstallationId;
-import net.bluemind.config.Token;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
-import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
-import net.bluemind.core.task.api.TaskStatus.State;
-import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.core.utils.UIDGenerator;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
-import net.bluemind.domain.api.Domain;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.Member;
-import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox;
-import net.bluemind.node.api.INodeClient;
-import net.bluemind.node.api.NCUtils;
-import net.bluemind.node.api.NodeActivator;
-import net.bluemind.pool.impl.BmConfIni;
-import net.bluemind.server.api.IServer;
-import net.bluemind.server.api.Server;
+import net.bluemind.system.ldap.export.LdapHelper;
 import net.bluemind.system.ldap.export.objects.DomainDirectoryGroup;
 import net.bluemind.system.ldap.export.objects.DomainDirectoryUser;
-import net.bluemind.system.ldap.export.verticle.LdapExportVerticle;
+import net.bluemind.system.ldap.export.services.LdapExportService;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 
-public class LdapExportServiceTests {
-	private static final String LDAPTAG = "directory/bm-master";
-
-	private ItemValue<Domain> domain;
-	private ItemValue<Server> ldapRoleServer;
-
-	@Before
-	public void before() throws Exception {
-		LdapExportVerticle.suspended = true;
-
-		JdbcTestHelper.getInstance().beforeTest();
-
-		PopulateHelper.initGlobalVirt();
-
-		String domainUid = "test" + System.currentTimeMillis() + ".lan";
-
-		SecurityContext domainAdmin = BmTestContext
-				.contextWithSession("testUser", "test", domainUid, SecurityContext.ROLE_ADMIN).getSecurityContext();
-
-		domain = PopulateHelper.createTestDomain(domainUid);
-		PopulateHelper.domainAdmin(domainUid, domainAdmin.getSubject());
-
-		final SettableFuture<Void> future = SettableFuture.<Void>create();
-		Handler<AsyncResult<Void>> done = new Handler<AsyncResult<Void>>() {
-
-			@Override
-			public void handle(AsyncResult<Void> event) {
-				future.set(null);
-			}
-		};
-		VertxPlatform.spawnVerticles(done);
-		future.get();
-
-		initAndAssignLdapExportServer();
-	}
-
+public class LdapExportServiceTests extends LdapExportTests {
 	@Test
 	public void testExportService_builder() throws Exception {
 		try {
@@ -142,11 +89,11 @@ public class LdapExportServiceTests {
 			assertEquals(ErrorCode.UNKNOWN, sf.getCode());
 		}
 
-		assertNotNull(LdapExportService.build(domain.uid));
+		assertTrue(LdapExportService.build(domain.uid).isPresent());
 
 		String noLdapExportDomainUid = "test" + System.currentTimeMillis() + ".lan";
 		PopulateHelper.createTestDomain(noLdapExportDomainUid);
-		assertNull(LdapExportService.build(noLdapExportDomainUid));
+		assertFalse(LdapExportService.build(noLdapExportDomainUid).isPresent());
 	}
 
 	@Test
@@ -157,8 +104,7 @@ public class LdapExportServiceTests {
 		String groupUid = addGroup();
 		String systemGroupUid = addGroup(true);
 
-		LdapExportService les = LdapExportService.build(domain.uid);
-		les.sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		Results results = checkSync();
 
@@ -182,8 +128,7 @@ public class LdapExportServiceTests {
 		user.hidden = true;
 		PopulateHelper.addUser(domain.value.name, user);
 
-		LdapExportService les = LdapExportService.build(domain.uid);
-		les.sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		checkBmVersion();
 
@@ -202,8 +147,7 @@ public class LdapExportServiceTests {
 		group.hidden = true;
 		addGroup(group);
 
-		LdapExportService les = LdapExportService.build(domain.uid);
-		les.sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		checkBmVersion();
 
@@ -218,7 +162,7 @@ public class LdapExportServiceTests {
 	public void testExportGroup_removeFromLdapIfDeleted() throws Exception {
 		String groupUid = addGroup();
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		IGroup groupService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IGroup.class,
 				domain.value.name);
@@ -231,7 +175,7 @@ public class LdapExportServiceTests {
 		TaskRef tr = groupService.delete(group.uid);
 		waitFor(tr);
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		ldapGroup = ldapCon.lookup("cn=" + group.value.name + ",ou=groups,dc=" + domain.value.name + ",dc=local");
 		assertNull(ldapGroup);
@@ -245,8 +189,7 @@ public class LdapExportServiceTests {
 		user.system = true;
 		PopulateHelper.addUser(domain.value.name, user);
 
-		LdapExportService les = LdapExportService.build(domain.uid);
-		les.sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		checkBmVersion();
 
@@ -260,8 +203,7 @@ public class LdapExportServiceTests {
 		LdapConnection ldapCon = LdapHelper.connectDirectory(ldapRoleServer);
 		LdapHelper.deleteTree(ldapCon, "dc=" + domain.value.name + ",dc=local");
 
-		LdapExportService les = LdapExportService.build(domain.uid);
-		les.sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		checkSync();
 	}
@@ -274,8 +216,7 @@ public class LdapExportServiceTests {
 				domain.value.name);
 		ItemValue<User> user = userService.getComplete(userUid);
 
-		LdapExportService les = LdapExportService.build(domain.uid);
-		les.sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		LdapConnection ldapCon = LdapHelper.connectDirectory(ldapRoleServer);
 		LdapHelper.deleteTree(ldapCon, "uid=" + user.value.login + ",ou=users,dc=" + domain.value.name + ",dc=local");
@@ -285,8 +226,7 @@ public class LdapExportServiceTests {
 
 		userService.update(user.uid, user.value);
 
-		les = LdapExportService.build(domain.uid);
-		les.sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		ldapUser = ldapCon.lookup("uid=" + user.value.login + ",ou=users,dc=" + domain.value.name + ",dc=local");
 		assertNotNull(ldapUser);
@@ -300,8 +240,7 @@ public class LdapExportServiceTests {
 				domain.value.name);
 		ItemValue<User> user = userService.getComplete(userUid);
 
-		LdapExportService les = LdapExportService.build(domain.uid);
-		les.sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		LdapConnection ldapCon = LdapHelper.connectDirectory(ldapRoleServer);
 
@@ -321,7 +260,7 @@ public class LdapExportServiceTests {
 		user.value.contactInfos.explanatory.note = "Updated description";
 		userService.update(user.uid, user.value);
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		ldapUser = ldapCon.lookup("uid=" + user.value.login + ",ou=users,dc=" + domain.value.name + ",dc=local");
 		assertNotNull(ldapUser);
@@ -337,7 +276,7 @@ public class LdapExportServiceTests {
 				domain.value.name);
 		ItemValue<Group> group = groupService.getComplete(groupUid);
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		LdapConnection ldapCon = LdapHelper.connectDirectory(ldapRoleServer);
 		LdapHelper.deleteTree(ldapCon, "cn=" + group.value.name + ",ou=groups,dc=" + domain.value.name + ",dc=local");
@@ -347,7 +286,7 @@ public class LdapExportServiceTests {
 
 		groupService.update(group.uid, group.value);
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		ldapGroup = ldapCon.lookup("cn=" + group.value.name + ",ou=groups,dc=" + domain.value.name + ",dc=local");
 		assertNotNull(ldapGroup);
@@ -361,7 +300,7 @@ public class LdapExportServiceTests {
 				domain.value.name);
 		ItemValue<User> user = userService.getComplete(userUid);
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		try (LdapConnection ldapCon = LdapHelper.connectDirectory(ldapRoleServer);) {
 			Entry ldapUser = ldapCon
@@ -375,7 +314,7 @@ public class LdapExportServiceTests {
 
 		userService.update(user.uid, user.value);
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		LdapConnection ldapCon = LdapHelper.connectDirectory(ldapRoleServer);
 
@@ -394,7 +333,7 @@ public class LdapExportServiceTests {
 				domain.value.name);
 		ItemValue<Group> group = groupService.getComplete(groupUid);
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		try (LdapConnection ldapCon = LdapHelper.connectDirectory(ldapRoleServer);) {
 			Entry ldapGroup = ldapCon
@@ -408,7 +347,7 @@ public class LdapExportServiceTests {
 
 		groupService.update(group.uid, group.value);
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		LdapConnection ldapCon = LdapHelper.connectDirectory(ldapRoleServer);
 
@@ -423,7 +362,7 @@ public class LdapExportServiceTests {
 	public void testExportUser_manageHiddenAttribute() throws Exception {
 		String userUid = PopulateHelper.addUser("test" + System.nanoTime(), domain.value.name, Mailbox.Routing.none);
 
-		LdapExportService les = LdapExportService.build(domain.uid);
+		LdapExportService les = LdapExportService.build(domain.uid).get();
 		les.sync();
 
 		IUser userService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class,
@@ -461,7 +400,7 @@ public class LdapExportServiceTests {
 	public void testExportGroup_manageHiddenAttribute() throws Exception {
 		String groupUid = addGroup();
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		IGroup groupService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IGroup.class,
 				domain.value.name);
@@ -476,7 +415,7 @@ public class LdapExportServiceTests {
 		group.value.hidden = true;
 		groupService.update(group.uid, group.value);
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		ldapGroup = ldapCon.lookup("cn=" + group.value.name + ",ou=groups,dc=" + domain.value.name + ",dc=local");
 		assertNotNull(ldapGroup);
@@ -486,7 +425,7 @@ public class LdapExportServiceTests {
 		group.value.hidden = false;
 		groupService.update(group.uid, group.value);
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		ldapGroup = ldapCon.lookup("cn=" + group.value.name + ",ou=groups,dc=" + domain.value.name + ",dc=local");
 		assertNotNull(ldapGroup);
@@ -498,7 +437,7 @@ public class LdapExportServiceTests {
 	public void testExportUser_removeFromLdapIfUpdatedToSystem() throws Exception {
 		String userUid = PopulateHelper.addUser("test" + System.nanoTime(), domain.value.name, Mailbox.Routing.none);
 
-		LdapExportService les = LdapExportService.build(domain.uid);
+		LdapExportService les = LdapExportService.build(domain.uid).get();
 		les.sync();
 
 		IUser userService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class,
@@ -522,7 +461,7 @@ public class LdapExportServiceTests {
 	public void testExportUser_removeFromLdapIfDeleted() throws Exception {
 		String userUid = PopulateHelper.addUser("test" + System.nanoTime(), domain.value.name, Mailbox.Routing.none);
 
-		LdapExportService les = LdapExportService.build(domain.uid);
+		LdapExportService les = LdapExportService.build(domain.uid).get();
 		les.sync();
 
 		IUser userService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class,
@@ -552,7 +491,7 @@ public class LdapExportServiceTests {
 		user.value.contactInfos.explanatory.note = "description";
 		userService.update(user.uid, user.value);
 
-		LdapExportService les = LdapExportService.build(domain.uid);
+		LdapExportService les = LdapExportService.build(domain.uid).get();
 		les.sync();
 
 		user.value.contactInfos.explanatory.note = "updated description";
@@ -577,12 +516,12 @@ public class LdapExportServiceTests {
 		group.value.description = "description";
 		groupService.update(group.uid, group.value);
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		group.value.description = "updated description";
 		groupService.update(group.uid, group.value);
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		LdapConnection ldapCon = LdapHelper.connectDirectory(ldapRoleServer);
 		Entry ldapGroup = ldapCon.lookup("cn=" + group.value.name + ",ou=groups,dc=" + domain.value.name + ",dc=local");
@@ -599,13 +538,13 @@ public class LdapExportServiceTests {
 				domain.value.name);
 		ItemValue<User> user = userService.getComplete(userUid);
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		String oldLogin = user.value.login;
 		user.value.login = "newlogin";
 		userService.update(user.uid, user.value);
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		LdapConnection ldapCon = LdapHelper.connectDirectory(ldapRoleServer);
 		Entry ldapUser = ldapCon.lookup("uid=newlogin,ou=users,dc=" + domain.value.name + ",dc=local");
@@ -624,13 +563,13 @@ public class LdapExportServiceTests {
 				domain.value.name);
 		ItemValue<Group> group = groupService.getComplete(groupUid);
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		String oldName = group.value.name;
 		group.value.name = "newlogin";
 		groupService.update(group.uid, group.value);
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		LdapConnection ldapCon = LdapHelper.connectDirectory(ldapRoleServer);
 		Entry ldapUser = ldapCon.lookup("cn=newlogin,ou=groups,dc=" + domain.value.name + ",dc=local");
@@ -651,7 +590,7 @@ public class LdapExportServiceTests {
 				domain.value.name);
 		groupService.add(groupUid, Arrays.asList(Member.user(userUid)));
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		checkUserIsMemberOfGroup(groupUid, userUid, userLogin);
 	}
@@ -662,7 +601,7 @@ public class LdapExportServiceTests {
 		String userUid = PopulateHelper.addUser(userLogin, domain.value.name, Mailbox.Routing.none);
 		String groupUid = addGroup();
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		try (LdapConnection ldapCon = LdapHelper.connectDirectory(ldapRoleServer)) {
 			List<Entry> ldapGroup = LdapHelper.getLdapEntryFromUid(ldapCon, domain, groupUid);
@@ -679,7 +618,7 @@ public class LdapExportServiceTests {
 				domain.value.name);
 		groupService.add(groupUid, Arrays.asList(Member.user(userUid)));
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		checkUserIsMemberOfGroup(groupUid, userUid, userLogin);
 	}
@@ -694,13 +633,13 @@ public class LdapExportServiceTests {
 				domain.value.name);
 		groupService.add(groupUid, Arrays.asList(Member.user(userUid)));
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		checkUserIsMemberOfGroup(groupUid, userUid, userLogin);
 
 		groupService.remove(groupUid, Arrays.asList(Member.user(userUid)));
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		LdapConnection ldapCon = LdapHelper.connectDirectory(ldapRoleServer);
 		List<Entry> ldapGroup = LdapHelper.getLdapEntryFromUid(ldapCon, domain, groupUid);
@@ -728,7 +667,7 @@ public class LdapExportServiceTests {
 		groupService.add(group2Uid, Arrays.asList(Member.user(user2Uid)));
 		groupService.add(group1Uid, Arrays.asList(Member.group(group2Uid)));
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		checkGroupHierarchyMembers(group1Uid, user1Uid, user1Login, group2Uid, user2Login, user2Uid);
 	}
@@ -752,16 +691,17 @@ public class LdapExportServiceTests {
 		groupService.add(group1Uid, Arrays.asList(Member.group(group2Uid)));
 		groupService.add(group3Uid, Arrays.asList(Member.user(user2Uid)));
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		groupService.remove(group2Uid, Arrays.asList(Member.user(user2Uid)));
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		checkUserIsMemberOfGroup(group3Uid, user2Uid, user2.login);
 
 		LdapConnection ldapCon = LdapHelper.connectDirectory(ldapRoleServer);
-		String user2Dn = new DomainDirectoryUser(domain, ItemValue.create(user2Uid, user2), null).getDn();
+		String user2Dn = new DomainDirectoryUser(domain, Optional.empty(), ItemValue.create(user2Uid, user2), null)
+				.getDn();
 
 		Entry entry = ldapCon.lookup(new DomainDirectoryGroup(domain, ItemValue.create(group1Uid, group1)).getDn());
 		Attribute attrs = entry.get("member");
@@ -790,11 +730,11 @@ public class LdapExportServiceTests {
 		groupService.add(group1Uid, Arrays.asList(Member.user(user1Uid)));
 		groupService.add(group1Uid, Arrays.asList(Member.group(group2Uid)));
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		groupService.add(group2Uid, Arrays.asList(Member.user(user2Uid)));
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		checkGroupHierarchyMembers(group1Uid, user1Uid, user1.login, group2Uid, user2.login, user2Uid);
 	}
@@ -816,7 +756,7 @@ public class LdapExportServiceTests {
 				domain.value.name);
 		groupService.add(groupUid, Arrays.asList(Member.user(user1Uid), Member.externalUser(externalUser1Uid)));
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		checkUidIsNotMemberOfGroup(groupUid, externalUser1Uid);
 		checkUserIsMemberOfGroup(groupUid, user1Uid, user1Login);
@@ -836,14 +776,14 @@ public class LdapExportServiceTests {
 		groupService.add(group1Uid, Arrays.asList(Member.user(user1Uid)));
 		groupService.add(group2Uid, Arrays.asList(Member.user(user2Uid)));
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		checkUserIsMemberOfGroup(group1Uid, user1Uid, user1Login);
 		checkUserIsMemberOfGroup(group2Uid, user2Uid, user2Login);
 
 		groupService.add(group1Uid, Arrays.asList(Member.group(group2Uid)));
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		checkGroupHierarchyMembers(group1Uid, user1Uid, user1Login, group2Uid, user2Login, user2Uid);
 	}
@@ -863,13 +803,13 @@ public class LdapExportServiceTests {
 		groupService.add(group2Uid, Arrays.asList(Member.user(user2Uid)));
 		groupService.add(group1Uid, Arrays.asList(Member.group(group2Uid)));
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		checkGroupHierarchyMembers(group1Uid, user1Uid, user1Login, group2Uid, user2Login, user2Uid);
 
 		groupService.remove(group1Uid, Arrays.asList(Member.group(group2Uid)));
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		checkUserIsMemberOfGroup(group1Uid, user1Uid, user1Login);
 		checkUserIsMemberOfGroup(group2Uid, user2Uid, user2Login);
@@ -891,14 +831,14 @@ public class LdapExportServiceTests {
 		groupService.add(group2Uid, Arrays.asList(Member.user(user2Uid)));
 		groupService.add(group1Uid, Arrays.asList(Member.group(group2Uid)));
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		checkGroupHierarchyMembers(group1Uid, user1Uid, user1Login, group2Uid, user2Login, user2Uid);
 
 		group2.name = group2.name + "-new";
 		groupService.update(group2Uid, group2);
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		checkGroupHierarchyMembers(group1Uid, user1Uid, user1Login, group2Uid, user2Login, user2Uid);
 	}
@@ -919,7 +859,7 @@ public class LdapExportServiceTests {
 		groupService.add(group2Uid, Arrays.asList(Member.user(user2Uid)));
 		groupService.add(group1Uid, Arrays.asList(Member.group(group2Uid)));
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		checkGroupHierarchyMembers(group1Uid, user1Uid, user1Login, group2Uid, user2.login, user2Uid);
 
@@ -927,7 +867,7 @@ public class LdapExportServiceTests {
 		ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class, domain.value.name)
 				.update(user2Uid, user2);
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		checkGroupHierarchyMembers(group1Uid, user1Uid, user1Login, group2Uid, user2.login, user2Uid);
 	}
@@ -949,7 +889,7 @@ public class LdapExportServiceTests {
 		groupService.add(group2Uid, Arrays.asList(Member.user(user2Uid)));
 		groupService.add(group1Uid, Arrays.asList(Member.group(group2Uid)));
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		checkGroupHierarchyMembers(group1Uid, user1Uid, user1Login, group2Uid, user2.login, user2Uid);
 
@@ -957,10 +897,11 @@ public class LdapExportServiceTests {
 				.instance(IUser.class, domain.value.name).delete(user2Uid);
 		waitFor(tr);
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		LdapConnection ldapCon = LdapHelper.connectDirectory(ldapRoleServer);
-		String user2Dn = new DomainDirectoryUser(domain, ItemValue.create(user2Uid, user2), null).getDn();
+		String user2Dn = new DomainDirectoryUser(domain, Optional.empty(), ItemValue.create(user2Uid, user2), null)
+				.getDn();
 
 		Entry entry = ldapCon.lookup(new DomainDirectoryGroup(domain, ItemValue.create(group1Uid, group1)).getDn());
 		Attribute attrs = entry.get("member");
@@ -990,17 +931,18 @@ public class LdapExportServiceTests {
 		groupService.add(group2Uid, Arrays.asList(Member.user(user2Uid)));
 		groupService.add(group1Uid, Arrays.asList(Member.group(group2Uid)));
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		checkGroupHierarchyMembers(group1Uid, user1Uid, user1Login, group2Uid, user2.login, user2Uid);
 
 		TaskRef tr = groupService.delete(group2Uid);
 		waitFor(tr);
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		LdapConnection ldapCon = LdapHelper.connectDirectory(ldapRoleServer);
-		String user2Dn = new DomainDirectoryUser(domain, ItemValue.create(user2Uid, user2), null).getDn();
+		String user2Dn = new DomainDirectoryUser(domain, Optional.empty(), ItemValue.create(user2Uid, user2), null)
+				.getDn();
 		String group2Dn = new DomainDirectoryGroup(domain, ItemValue.create(group2Uid, group2)).getDn();
 
 		Entry entry = ldapCon.lookup(group2Dn);
@@ -1022,7 +964,7 @@ public class LdapExportServiceTests {
 				domain.value.name);
 		ItemValue<Group> group = groupService.getComplete(groupUid);
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		LdapConnection ldapCon = LdapHelper.connectDirectory(ldapRoleServer);
 
@@ -1040,7 +982,7 @@ public class LdapExportServiceTests {
 		group.value.description = "Updated description";
 		groupService.update(group.uid, group.value);
 
-		LdapExportService.build(domain.uid).sync();
+		LdapExportService.build(domain.uid).get().sync();
 
 		ldapGroup = ldapCon.lookup("cn=" + group.value.name + ",ou=groups,dc=" + domain.value.name + ",dc=local");
 		assertNotNull(ldapGroup);
@@ -1155,44 +1097,6 @@ public class LdapExportServiceTests {
 				LdapHelper
 						.getLdapEntryFromUid(LdapHelper.connectDirectory(ldapRoleServer), domain, memberUid, "memberOf")
 						.size());
-	}
-
-	private void initAndAssignLdapExportServer() throws ServerFault, SQLException, InterruptedException {
-		IServer serverService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class,
-				InstallationId.getIdentifier());
-
-		String ldapRoleServerUid = UUID.randomUUID().toString();
-		Server ldapRoleServer = new Server();
-		ldapRoleServer.name = "LDAP export server";
-		ldapRoleServer.ip = new BmConfIni().get("bluemind/ldap");
-		waitFor(serverService.create(ldapRoleServerUid, ldapRoleServer));
-
-		this.ldapRoleServer = serverService.getComplete(ldapRoleServerUid);
-
-		INodeClient nodeClient = NodeActivator.get(ldapRoleServer.ip);
-		updateUserPassword(nodeClient, "admin0@global.virt", Token.admin0());
-
-		waitFor(serverService.setTags(ldapRoleServerUid, Arrays.asList(LDAPTAG)));
-
-		serverService.assign(ldapRoleServerUid, domain.uid, LDAPTAG);
-		// Wait for domain assign ending
-		Thread.sleep(1000);
-	}
-
-	private void waitFor(TaskRef taskRef) {
-		ITask task = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ITask.class, taskRef.id);
-		while (!task.status().state.ended) {
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-		assertEquals(State.Success, task.status().state);
-	}
-
-	private void updateUserPassword(INodeClient nodeClient, String login, String passwd) {
-		NCUtils.exec(nodeClient, "/usr/local/sbin/updateUserPassword.sh " + login + " " + passwd);
 	}
 
 	private class Results {

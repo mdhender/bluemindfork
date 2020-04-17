@@ -53,8 +53,9 @@ Require-Bundle: net.bluemind.user.api;bundle-version="1.0.0",
  net.bluemind.i18n.labels,
  net.bluemind.group.member;visibility:=reexport,
  net.bluemind.deferredaction.api,
-  org.mnode.ical4j.vcard;bundle-version="0.9.7",
- net.bluemind.core.container.repair;bundle-version="4.1.0"
+ org.mnode.ical4j.vcard;bundle-version="0.9.7",
+ net.bluemind.core.container.repair;bundle-version="4.1.0",
+ net.bluemind.hornetq.client
 Export-Package: net.bluemind.user.service,
  net.bluemind.user.service.internal,
  net.bluemind.user.service.passwordvalidator

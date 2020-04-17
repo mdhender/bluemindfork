@@ -20,10 +20,14 @@ package net.bluemind.system.ldap.export.object;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -47,30 +51,30 @@ import net.bluemind.user.api.User;
 
 public class DomainDirectoryUserTests {
 	@Test
-	public void testUser_getDn() {
+	public void testUser_getDn() throws ParseException {
 		ItemValue<Domain> domain = getTestDomain();
 		ItemValue<User> user = getTestUser();
 
-		String dn = new DomainDirectoryUser(domain, user, null).getDn();
+		String dn = new DomainDirectoryUser(domain, Optional.empty(), user, null).getDn();
 		assertEquals("uid=" + user.value.login + ",ou=users,dc=" + domain.value.name + ",dc=local", dn);
 	}
 
 	@Test
-	public void testUser_getRdn() {
+	public void testUser_getRdn() throws ParseException {
 		ItemValue<Domain> domain = getTestDomain();
 		ItemValue<User> user = getTestUser();
 
-		String rdn = new DomainDirectoryUser(domain, user, null).getRDn();
+		String rdn = new DomainDirectoryUser(domain, Optional.empty(), user, null).getRDn();
 		assertEquals("uid=" + user.value.login, rdn);
 	}
 
 	@Test
-	public void testUser_ldapEntry() {
+	public void testUser_ldapEntry() throws ParseException {
 		ItemValue<Domain> domain = getTestDomain();
 		ItemValue<User> user = getTestUser();
 		byte[] photo = "photo".getBytes();
 
-		Entry entry = new DomainDirectoryUser(domain, user, photo).getLdapEntry();
+		Entry entry = new DomainDirectoryUser(domain, Optional.empty(), user, photo).getLdapEntry();
 
 		List<String> attrs = getAttributeValues(entry, "objectclass");
 		assertTrue(attrs.contains("inetOrgPerson"));
@@ -79,6 +83,10 @@ public class DomainDirectoryUserTests {
 		attrs = getAttributeValues(entry, "bmUid");
 		assertEquals(1, attrs.size());
 		assertEquals(user.uid, attrs.get(0));
+
+		attrs = getAttributeValues(entry, "shadowLastChange");
+		assertEquals(1, attrs.size());
+		assertEquals("18359", attrs.get(0));
 
 		attrs = getAttributeValues(entry, "cn");
 		assertEquals(1, attrs.size());
@@ -180,7 +188,7 @@ public class DomainDirectoryUserTests {
 		assertEquals(0, attrs.size());
 
 		user.value.archived = true;
-		entry = new DomainDirectoryUser(domain, user, photo).getLdapEntry();
+		entry = new DomainDirectoryUser(domain, Optional.empty(), user, photo).getLdapEntry();
 
 		attrs = getAttributeValues(entry, "employeeType");
 		assertEquals(1, attrs.size());
@@ -188,20 +196,101 @@ public class DomainDirectoryUserTests {
 	}
 
 	@Test
-	public void testUser_modifyRequest() throws LdapInvalidDnException {
+	public void testUser_modifyRequest() throws LdapInvalidDnException, ParseException {
 		ItemValue<Domain> domain = getTestDomain();
 		ItemValue<User> user = getTestUser();
 		user.value.archived = true;
 		byte[] photo = "photo".getBytes();
 
-		DomainDirectoryUser ddu = new DomainDirectoryUser(domain, user, photo);
+		DomainDirectoryUser ddu = new DomainDirectoryUser(domain, Optional.empty(), user, photo);
 
 		Entry currentEntry = new DefaultEntry();
 		currentEntry.setDn("cn=dntoupdate");
 
 		ModifyRequest modificationRequest = ddu.getModifyRequest(currentEntry);
 		assertEquals("cn=dntoupdate", modificationRequest.getName().getName());
-		assertEquals(28, modificationRequest.getModifications().size());
+		assertEquals(29, modificationRequest.getModifications().size());
+	}
+
+	@Test
+	public void passwordLifetime_notSet() throws ParseException {
+		ItemValue<Domain> domain = getTestDomain();
+		ItemValue<User> user = getTestUser();
+
+		Entry entry = new DomainDirectoryUser(domain, Optional.empty(), user, null).getLdapEntry();
+		List<String> attrs = getAttributeValues(entry, "shadowLastChange");
+		assertEquals(1, attrs.size());
+		assertEquals("18359", attrs.get(0));
+
+		attrs = getAttributeValues(entry, "shadowMin");
+		assertEquals(0, attrs.size());
+	}
+
+	@Test
+	public void passwordLifetime() throws ParseException {
+		ItemValue<Domain> domain = getTestDomain();
+		ItemValue<User> user = getTestUser();
+
+		Entry entry = new DomainDirectoryUser(domain, Optional.of(5), user, null).getLdapEntry();
+		List<String> attrs = getAttributeValues(entry, "shadowLastChange");
+		assertEquals(1, attrs.size());
+		assertEquals("18359", attrs.get(0));
+
+		attrs = getAttributeValues(entry, "shadowMax");
+		assertEquals(1, attrs.size());
+		assertEquals("5", attrs.get(0));
+	}
+
+	@Test
+	public void passwordLifetime_neverExpire() throws ParseException {
+		ItemValue<Domain> domain = getTestDomain();
+		ItemValue<User> user = getTestUser();
+		user.value.passwordNeverExpires = true;
+
+		Entry entry = new DomainDirectoryUser(domain, Optional.of(5), user, null).getLdapEntry();
+		List<String> attrs = getAttributeValues(entry, "shadowLastChange");
+		assertEquals(1, attrs.size());
+		assertEquals("18359", attrs.get(0));
+
+		attrs = getAttributeValues(entry, "shadowMin");
+		assertEquals(0, attrs.size());
+	}
+
+	@Test
+	public void passwordLifetime_mustChange() throws ParseException {
+		ItemValue<Domain> domain = getTestDomain();
+		ItemValue<User> user = getTestUser();
+		user.value.passwordMustChange = true;
+
+		Entry entry = new DomainDirectoryUser(domain, Optional.of(5), user, null).getLdapEntry();
+		List<String> attrs = getAttributeValues(entry, "shadowLastChange");
+		assertEquals(1, attrs.size());
+		assertEquals("18359", attrs.get(0));
+
+		attrs = getAttributeValues(entry, "shadowMax");
+		assertEquals(1, attrs.size());
+		assertEquals("0", attrs.get(0));
+	}
+
+	@Test
+	public void passwordLifetime_mustChangeNeverExpire() throws ParseException {
+		ItemValue<Domain> domain = getTestDomain();
+		ItemValue<User> user = getTestUser();
+		user.value.passwordMustChange = true;
+		user.value.passwordNeverExpires = true;
+
+		Entry entry = new DomainDirectoryUser(domain, Optional.of(5), user, null).getLdapEntry();
+		List<String> attrs = getAttributeValues(entry, "shadowLastChange");
+		assertEquals(1, attrs.size());
+		assertEquals("18359", attrs.get(0));
+
+		attrs = getAttributeValues(entry, "shadowMax");
+		assertEquals(1, attrs.size());
+		assertEquals("0", attrs.get(0));
+	}
+
+	private Date getPasswordLastChange() throws ParseException {
+		return new SimpleDateFormat("yyyy-MM-dd").parse("2020-04-07");
 	}
 
 	private ItemValue<Domain> getTestDomain() {
@@ -211,9 +300,10 @@ public class DomainDirectoryUserTests {
 		return ItemValue.create(Item.create(UUID.randomUUID().toString(), null), domain);
 	}
 
-	private ItemValue<User> getTestUser() {
+	private ItemValue<User> getTestUser() throws ParseException {
 		User user = new User();
 		user.login = "login";
+		user.passwordLastChange = getPasswordLastChange();
 
 		VCard vcard = new VCard();
 		user.contactInfos = vcard;

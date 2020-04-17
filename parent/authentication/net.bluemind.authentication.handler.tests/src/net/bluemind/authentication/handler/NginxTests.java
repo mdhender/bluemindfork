@@ -203,7 +203,7 @@ public class NginxTests {
 		assertEquals("OK", response.getHeader("Auth-Status"));
 		assertEquals(cyrus.ip, response.getHeader("Auth-Server"));
 		assertEquals("1143", response.getHeader("Auth-Port"));
-		assertFalse(response.getHeaders().contains("Auth-User"));
+		assertEquals(String.format("%s@%s", user.login, domain.value.name), response.getHeaders().get("Auth-User"));
 	}
 
 	private ItemValue<Domain> initDomain(String domainUid, Server... servers) throws Exception {

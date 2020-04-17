@@ -21,12 +21,10 @@ package net.bluemind.eas.backend.bm.mail;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
 
 import org.apache.james.mime4j.dom.Message;
 import org.slf4j.Logger;
@@ -36,25 +34,31 @@ import com.google.common.io.ByteStreams;
 
 import io.vertx.core.buffer.Buffer;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
+import net.bluemind.backend.mail.api.IItemsTransfer;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxItems;
-import net.bluemind.backend.mail.api.ImportMailboxItemSet;
-import net.bluemind.backend.mail.api.ImportMailboxItemSet.MailboxItemId;
-import net.bluemind.backend.mail.api.ImportMailboxItemsStatus;
-import net.bluemind.backend.mail.api.ImportMailboxItemsStatus.ImportStatus;
 import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
+import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.ContainerSubscriptionModel;
+import net.bluemind.core.container.api.IOwnerSubscriptions;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
+import net.bluemind.core.container.model.ItemIdentifier;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.sendmail.Sendmail;
 import net.bluemind.core.sendmail.SendmailCredentials;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
+import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.IDirectory;
 import net.bluemind.eas.backend.BackendSession;
+import net.bluemind.eas.backend.HierarchyNode;
 import net.bluemind.eas.backend.MailFolder;
 import net.bluemind.eas.backend.bm.impl.CoreConnect;
 import net.bluemind.eas.dto.base.AirSyncBaseResponse;
@@ -62,6 +66,7 @@ import net.bluemind.eas.dto.base.BodyOptions;
 import net.bluemind.eas.dto.email.EmailResponse;
 import net.bluemind.eas.dto.moveitems.MoveItemsResponse;
 import net.bluemind.eas.dto.moveitems.MoveItemsResponse.Response.Status;
+import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.user.MSUser;
 import net.bluemind.eas.impl.Backends;
 import net.bluemind.mime4j.common.IRenderableMessage;
@@ -111,52 +116,38 @@ public class EmailManager extends CoreConnect {
 		return al.fetch(id, mimePartAddress, contentTransferEncoding);
 	}
 
-	public List<MoveItemsResponse.Response> moveItems(BackendSession bs, long sourceMailFolderId,
-			long destinationMailFolderId, List<Integer> items, long sourceCollectionId, long destinationCollectionId) {
+	public List<MoveItemsResponse.Response> moveItems(BackendSession bs, HierarchyNode srcFolder,
+			HierarchyNode dstFolder, List<Long> items) {
 
-		logger.info("[{}] move to collection {} mail {}", bs.getUser().getUid(), destinationCollectionId, items);
-		ImportMailboxItemSet importItems = ImportMailboxItemSet.moveIn(sourceMailFolderId,
-				items.stream().map(v -> MailboxItemId.of(v)).collect(Collectors.toList()), Collections.emptyList());
+		logger.info("[{}] move to collection {} mail {}", bs.getUser().getUid(), dstFolder.containerUid, items);
 
-		IMailboxFolders service = getIMailboxFoldersService(bs);
-		ImportMailboxItemsStatus importResult = service.importItems(destinationMailFolderId, importItems);
+		IItemsTransfer transferService = getService(bs, IItemsTransfer.class,
+				IMailReplicaUids.uniqueId(srcFolder.containerUid), IMailReplicaUids.uniqueId(dstFolder.containerUid));
 
-		List<MoveItemsResponse.Response> ret = new ArrayList<MoveItemsResponse.Response>(items.size());
+		List<MoveItemsResponse.Response> ret = new ArrayList<>(items.size());
 
-		if (importResult.status == ImportStatus.ERROR) {
+		try {
+			List<ItemIdentifier> result = transferService.move(items);
+			for (int i = 0; i < items.size(); i++) {
+				Long item = items.get(i);
+				MoveItemsResponse.Response r = new MoveItemsResponse.Response();
+				r.srcMsgId = srcFolder.collectionId.getValue() + ":" + item;
+				r.dstMsgId = dstFolder.collectionId.getValue() + ":" + result.get(i).id;
+				r.status = Status.Success;
+				ret.add(r);
+			}
+			return ret;
+		} catch (ServerFault sf) {
+			logger.error(sf.getMessage(), sf);
 			items.forEach(id -> {
 				MoveItemsResponse.Response r = new MoveItemsResponse.Response();
-				r.srcMsgId = sourceCollectionId + ":" + id;
+				r.srcMsgId = srcFolder.collectionId.getValue() + ":" + id;
 				r.dstMsgId = r.srcMsgId;
 				r.status = Status.SourceOrDestinationLocked;
 				ret.add(r);
 			});
 			return ret;
 		}
-
-		importResult.doneIds.forEach(done -> {
-			MoveItemsResponse.Response r = new MoveItemsResponse.Response();
-			r.srcMsgId = sourceCollectionId + ":" + done.source;
-			r.dstMsgId = destinationCollectionId + ":" + done.destination;
-			r.status = Status.Success;
-			ret.add(r);
-		});
-
-		if (importResult.status == ImportStatus.PARTIAL) {
-			List<Long> done = importResult.doneIds.stream().map(k -> k.source).collect(Collectors.toList());
-			items.removeIf(i -> done.contains(new Long(i)));
-			if (!items.isEmpty()) {
-				items.forEach(uid -> {
-					MoveItemsResponse.Response r = new MoveItemsResponse.Response();
-					r.srcMsgId = sourceCollectionId + ":" + uid;
-					r.dstMsgId = r.srcMsgId;
-					r.status = Status.SourceOrDestinationLocked;
-					ret.add(r);
-				});
-			}
-		}
-
-		return ret;
 	}
 
 	public void sendEmail(BackendSession bs, IRenderableMessage email, Boolean saveInSent) throws Exception {
@@ -202,13 +193,30 @@ public class EmailManager extends CoreConnect {
 
 	}
 
-	public void purgeFolder(BackendSession bs, MailFolder folder, boolean deleteSubFolder) {
+	public void purgeFolder(BackendSession bs, MailFolder folder, CollectionId collectionId, boolean deleteSubFolder) {
 		if (deleteSubFolder) {
+			String mailboxRoot = "user." + bs.getUser().getUid().replace('.', '^');
 			CyrusPartition part = CyrusPartition.forServerAndDomain(bs.getUser().getDataLocation(),
 					bs.getUser().getDomain());
-			IMailboxFolders service = getService(bs, IMailboxFolders.class, part.name,
-					"user." + bs.getUser().getUid().replace('.', '^'));
-			service.emptyFolder(folder.collectionId);
+
+			if (collectionId.getSubscriptionId().isPresent()) {
+				IOwnerSubscriptions subscriptionsService = getService(bs, IOwnerSubscriptions.class,
+						bs.getUser().getDomain(), bs.getUser().getUid());
+				ItemValue<ContainerSubscriptionModel> sub = subscriptionsService
+						.getCompleteById(collectionId.getSubscriptionId().get());
+
+				IDirectory directoryService = getAdmin0Service(bs, IDirectory.class, bs.getUser().getDomain());
+				DirEntry dirEntry = directoryService.findByEntryUid(sub.value.owner);
+				if (dirEntry.kind == Kind.USER) {
+					mailboxRoot = "user." + dirEntry.entryUid.replace('.', '^');
+				} else {
+					mailboxRoot = dirEntry.entryUid.replace('.', '^');
+				}
+				part = CyrusPartition.forServerAndDomain(dirEntry.dataLocation, bs.getUser().getDomain());
+			}
+
+			IMailboxFolders service = getService(bs, IMailboxFolders.class, part.name, mailboxRoot);
+			service.emptyFolder(folder.collectionId.getFolderId());
 		} else {
 			IMailboxItems service = getMailboxItemsService(bs, folder.uid);
 			ContainerChangeset<ItemVersion> changeset = service.filteredChangesetById(0L,

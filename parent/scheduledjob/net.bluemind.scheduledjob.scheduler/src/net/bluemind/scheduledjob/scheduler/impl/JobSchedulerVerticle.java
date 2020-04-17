@@ -19,14 +19,11 @@
 package net.bluemind.scheduledjob.scheduler.impl;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Handler;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.scheduledjob.scheduler.IScheduledJob;
@@ -36,15 +33,12 @@ import net.bluemind.system.api.InstallationVersion;
 public class JobSchedulerVerticle extends AbstractVerticle {
 	private static final Logger logger = LoggerFactory.getLogger(JobSchedulerVerticle.class);
 
-	private Map<String, IScheduledJob> jobs;
-
 	@Override
 	public void start() {
 		SanitizeJobExecutions.sanitizeJobs();
 
-		jobs = new HashMap<>();
 		for (IScheduledJob bjp : JobRegistry.getBluejobs()) {
-			jobs.put(bjp.getJobId(), bjp);
+			logger.debug("{} registered.", bjp);
 		}
 
 		scheduleNext();
@@ -53,13 +47,7 @@ public class JobSchedulerVerticle extends AbstractVerticle {
 
 	private void scheduleNext() {
 		// 1 minutes
-		getVertx().setPeriodic(1000 * 60, new Handler<Long>() {
-
-			@Override
-			public void handle(Long event) {
-				executeJobs();
-			}
-		});
+		getVertx().setPeriodic(1000 * 60L, (Long event) -> executeJobs());
 	}
 
 	protected void executeJobs() {
@@ -74,13 +62,7 @@ public class JobSchedulerVerticle extends AbstractVerticle {
 	}
 
 	protected boolean isDisabled() {
-		if (new File(System.getProperty("user.home") + "/no.core.jobs").exists()) {
-			return true;
-		}
-		if (versionMismatch()) {
-			return true;
-		}
-		return false;
+		return !(new File(System.getProperty("user.home") + "/no.core.jobs").exists() || versionMismatch());
 	}
 
 	private boolean versionMismatch() {
@@ -108,10 +90,6 @@ public class JobSchedulerVerticle extends AbstractVerticle {
 			logger.info("Versions mismatch. db has '{}' while core is '{}'", dbVersion, coreVersion);
 		}
 		return ret;
-	}
-
-	@Override
-	public void stop() {
 	}
 
 }

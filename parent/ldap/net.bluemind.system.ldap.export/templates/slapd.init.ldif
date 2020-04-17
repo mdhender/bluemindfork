@@ -131,9 +131,20 @@ olcDbNoSync: FALSE
 olcDbDirtyRead: FALSE
 olcDbIDLcacheSize: 0
 olcDbIndex: objectClass eq,pres
-olcDbIndex: ou,cn,mail,surname,givenname eq,pres,sub
-olcDbIndex: uidNumber,gidNumber,loginShell eq,pres
-olcDbIndex: uid,memberUid,bmUid eq,pres,sub
+olcDbIndex: uid eq,pres,sub
+olcDbIndex: bmUid eq,pres,sub
+olcDbIndex: member eq,pres
+olcDbIndex: memberOf eq,pres
+olcDbIndex: memberUid eq,pres
+olcDbIndex: displayName eq,pres,sub
+olcDbIndex: uidNumber eq,pres
+olcDbIndex: gidNumber eq,pres
+olcDbIndex: loginShell eq,pres
+olcDbIndex: ou eq,pres,sub
+olcDbIndex: cn eq,pres,sub
+olcDbIndex: mail eq,pres,sub
+olcDbIndex: surname eq,pres,sub
+olcDbIndex: givenname eq,pres,sub
 olcDbLinearIndex: FALSE
 olcDbMode: 0600
 olcDbSearchStack: 16

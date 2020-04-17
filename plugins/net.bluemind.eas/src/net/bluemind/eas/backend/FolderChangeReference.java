@@ -75,4 +75,10 @@ public class FolderChangeReference {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "FolderChangeReference [folderId=" + folderId + ", parentId=" + parentId + ", displayName=" + displayName
+				+ ", itemType=" + itemType + ", changeType=" + changeType + "]";
+	}
+
 }
