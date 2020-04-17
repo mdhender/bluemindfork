@@ -1,0 +1,766 @@
+Return-Path: <bounce2@newstend.fr>
+Received: from bm-core.laforet.com (localhost [127.0.0.1])
+	 by bm-cyrus with LMTPA;
+	 Thu, 16 Apr 2020 08:04:32 +0200
+X-Cyrus-Session-Id: cyrus-5060-1587017072-1-10404128295199814988
+X-Sieve: CMU Sieve 3.0
+Received: from /192.168.3.81 (LHLO bm-core.laforet.com) by unknown with
+ LMTP; 4/16/20 6:04 AM
+Received: from bm-edge.laforet.com (bm-edge.laforet.com [192.168.3.80])
+	by bm-core.laforet.com (Postfix) with ESMTPS id 6D1B65FD5C
+	for <g89@laforet.local>; Thu, 16 Apr 2020 08:04:32 +0200 (CEST)
+Received: from smtp-02.laforet.com (smtp-02.laforet.com [192.168.3.3])
+	by bm-edge.laforet.com (Postfix) with ESMTPS id 5DD1640068
+	for <larochelle-vieuxport@laforet.com>; Thu, 16 Apr 2020 08:04:32 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+	by smtp-02.laforet.com (Postfix) with ESMTP id 50D5F20077
+	for <larochelle-vieuxport@laforet.com>; Thu, 16 Apr 2020 08:04:32 +0200 (CEST)
+X-Virus-Scanned: Debian amavisd-new at smtp-02.laforet.com
+X-Spam-Flag: NO
+X-Spam-Score: 0.027
+X-Spam-Level:
+X-Spam-Status: No, score=0.027 tagged_above=-1000 required=5.6
+	tests=[BAYES_05=-0.5, DKIM_SIGNED=0.1, DKIM_VALID=-0.1,
+	DKIM_VALID_AU=-0.1, DKIM_VALID_EF=-0.1, HTML_FONT_LOW_CONTRAST=0.001,
+	HTML_IMAGE_RATIO_06=0.001, HTML_MESSAGE=0.001, MIME_HTML_ONLY=0.723,
+	URIBL_BLOCKED=0.001] autolearn=no autolearn_force=no
+Authentication-Results: smtp-02.laforet.com (amavisd-new);
+	dkim=pass (1024-bit key) header.d=newstend.fr
+Received: from smtp-02.laforet.com ([127.0.0.1])
+	by localhost (smtp-02.laforet.com [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id h9QOqIqSKfdH for <larochelle-vieuxport@laforet.com>;
+	Thu, 16 Apr 2020 08:04:31 +0200 (CEST)
+Received: from EUR05-VI1-obe.outbound.protection.outlook.com (mail-vi1eur05lp2173.outbound.protection.outlook.com [104.47.17.173])
+	by smtp-02.laforet.com (Postfix) with ESMTP id E8FAE200A6
+	for <larochelle-vieuxport@laforet.com>; Thu, 16 Apr 2020 08:04:30 +0200 (CEST)
+Received: from AM5PR0602CA0015.eurprd06.prod.outlook.com
+ (2603:10a6:203:a3::25) by DB6PR0902MB1928.eurprd09.prod.outlook.com
+ (2603:10a6:6:7::11) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2900.15; Thu, 16 Apr
+ 2020 06:04:30 +0000
+Received: from AM5EUR03FT063.eop-EUR03.prod.protection.outlook.com
+ (2603:10a6:203:a3:cafe::66) by AM5PR0602CA0015.outlook.office365.com
+ (2603:10a6:203:a3::25) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2921.25 via Frontend
+ Transport; Thu, 16 Apr 2020 06:04:29 +0000
+Authentication-Results: spf=pass (sender IP is 83.136.209.180)
+ smtp.mailfrom=newstend.fr; laforet.com; dkim=pass (signature was verified)
+ header.d=newstend.fr;laforet.com; dmarc=pass action=none
+ header.from=newstend.fr;compauth=pass reason=100
+Received-SPF: Pass (protection.outlook.com: domain of newstend.fr designates
+ 83.136.209.180 as permitted sender) receiver=protection.outlook.com;
+ client-ip=83.136.209.180; helo=m02.newstend.fr;
+Received: from m02.newstend.fr (83.136.209.180) by
+ AM5EUR03FT063.mail.protection.outlook.com (10.152.16.226) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2900.18 via Frontend Transport; Thu, 16 Apr 2020 06:04:29 +0000
+Received: from compute02 (unknown [192.168.20.214])
+	by m02.newstend.fr (Postfix) with SMTP id 05B0CE223E
+	for <larochelle-vieuxport@laforet.com>; Thu, 16 Apr 2020 06:07:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=newstend.fr; s=k1;
+	t=1587017227; i=@newstend.fr;
+	bh=cWPcCLLIGZxyERKcy5fdRlDxhX5DC5q8b4/rRmeUII8=;
+	h=From:To:Reply-To:Subject:MIME-Version:Sender:X-Feedback-ID:
+	 List-Unsubscribe:Content-Type:Content-Transfer-Encoding:Message-Id:
+	 Date:From;
+	b=WuOFvRkvjndkIUAnA/2plu/iHqymlzuICjAl8xNpSwH0+zoz9UTuPn5ByTo14DYeY
+	 vU/mCkHWWrf291Nr5H/xtTHBRsmK5bz5b5g+LQzQDWdFC2zCgghKWxxylZXa74V4fv
+	 n+3zTGmD5hKOP6JHRZjtkiYylsJmDYbcyEwBpoJk=
+From: "Ribambel par NewsTendance" <communication@newstend.fr>
+To: larochelle-vieuxport@laforet.com
+Reply-To: "Ribambel par NewsTendance" <communication@newstend.fr>
+Subject: =?UTF-8?B?RMOpY291dnJleiBub3MgcmVjZXR0ZXMgY3LDqWF0aXZlcyBldCBwcm9maXRleiA=?==?UTF-8?B?ZGUgMTHigqwgZGUgcsOpZHVjdGlvbgA=?=
+MIME-Version: 1.0
+X-Mailer: Edatis Mailing Software
+Sender: "Ribambel par NewsTendance" <communication@newstend.fr>
+X-Dialog-Version: 7.0
+X-EDATIS-ID: RnRqdJ3BMkG7dq1cc0urDG_gw0obd0LjVGIIVOrqdHn-Y0urUG_QUOYPJt_jcc
+X-Feedback-ID: 301165:623:EDATIS
+List-Unsubscribe: <mailto:unsubscribe@newstend.fr?subject=unsubscribe&body=XEDATISID:RnRqdJ3BMkG7dq1cc0urDG_gw0obd0LjVGIIVOrqdHn-Y0urUG_QUOYPJt_jcc>,<http://tracking.newstend.fr/tracking/unsubscribe/ceURqdJ3BMkG7dqNcccccca2dLc/GDHDL-KOoA8J_ZH96uwwY7g_N1ufbfDnE7fTHbFkP5I>
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <20200416060707.05B0CE223E@m02.newstend.fr>
+Date: Thu, 16 Apr 2020 06:07:07 +0000 (UTC)
+X-EOPAttributedMessage: 0
+X-EOPTenantAttributedMessage: ef7c99b6-580b-45cc-bd5a-07e57df338e3:0
+X-Forefront-Antispam-Report:
+	CIP:83.136.209.180;CTRY:FR;LANG:fr;SCL:6;SRV:;IPV:NLI;SFV:SPM;H:m02.newstend.fr;PTR:m02.newstend.fr;CAT:SPM;SFTY:;SFS:(10001);DIR:INB;SFP:;
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 4ac9bad6-866f-435b-0ba7-08d7e1cc0677
+X-MS-TrafficTypeDiagnostic: DB6PR0902MB1928:
+X-LD-Processed: ef7c99b6-580b-45cc-bd5a-07e57df338e3,ExtAddr
+X-MS-Oob-TLC-OOBClassifiers: OLM:1728;
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?VkJ4Z1dxVDBRU1l1NWV5YVl3S0Q2MnBkREtQaVBXSzBjSU1NVWhzZEthamNj?=
+ =?utf-8?B?MDFxQys3M2owWHZ1V2k1QjhOSE1oMVZibmpYQ1lic21hTHM1WUtZNVdIWWJz?=
+ =?utf-8?B?OFNNaTdKaGFSQWx4cmpXTDd0T1hMYmNYZW8zMmJUNWxOcGpOeEorV3ZFWFdy?=
+ =?utf-8?B?b3ZUNjJDS2Z5aExRSEQzaFc0NW5ocUQ0OGhEWGJjU0VLZUVaZnpYVFZCOVhT?=
+ =?utf-8?B?YzBGeU1FemM1LytCbCtjandiZXgxa0xXNllUYzY5WmJaeGFwV1FMQVI5bUhD?=
+ =?utf-8?B?VStSVm5ZZ1kxd1dxTnBhZ1VlNWJ6TGFVTVF0d2hpWC9mMk5ZR0JYeXRmV3BJ?=
+ =?utf-8?B?RmZHRGMvQlY0Wmd3bnNqdmlWZjF1ejd6QkRPemsvYUJuaE9odlZSY2E1THhi?=
+ =?utf-8?B?M3Q3WE9MNENlaVYyNWE5clZQaXZoM2M3dHRNcy9XWFRva21leFFuY2ExcmtL?=
+ =?utf-8?B?RnJQeWRuZXlLR21nYzhQdVpXTC9GTEJ3VUM3UTRSSUVGOHQ4cWxST3Z1dnJs?=
+ =?utf-8?B?Y1JsVmxrdlJuMFgwbGorY1E3RXJOUUFFd0dtN3pxTDltVytFSStFa2lrNjF0?=
+ =?utf-8?B?Y2NhZWt6dHhpMEt1MG9Wbmx5VnM1UGRIYlpySkRNNjhJUldiZVNoNkc0NHVh?=
+ =?utf-8?B?MVR4eWV3NHA5UTRldnpzdm1RSFhPaTgzQXJwWm1pamJrb2QwOVZ2N2g2VlI2?=
+ =?utf-8?B?OXN1TnhiZlNWaFFmUkZQbUpEZzg1TU1kcHdPNkVVM2E4eDZRb2owMWpNN25h?=
+ =?utf-8?B?YXdkYmFoS1NUejRJWk9raS9KYndLRTBXdUphNGVKSm1Cb2c3ZzVFd2prOUhU?=
+ =?utf-8?B?Y0pBWTF5Tkg5L21zWXIvdDUyU0JrWk5UVUdENEkzY2V0TVYzalZhR2hjWlZt?=
+ =?utf-8?B?eE1vY3ZpeDVIOWVxU051eS9BYU5lK0p0RUlhMUwwMytSdGxSbW5aaFhhNHNl?=
+ =?utf-8?B?akFrei82SGZnekRXanJqQ3hpbUtFN3BBZFIwWVJLWHRDRTdkTVI1TTYzOFVv?=
+ =?utf-8?B?dEpSY04wNHRwWGJjYkI1RFJEYWQ2dUQyclR3MFFXNlJIWE1Ma2d2aTUreXJ5?=
+ =?utf-8?B?a0lRTFZ3SkkyY0JHSHhMQzJuc2hjYnE4aE9XK204ZlZ4a0R4YVpqanA0dHdM?=
+ =?utf-8?B?WUVMYUNnOXlIaE1QdktWbHd2a3cyTU5hYk9kWkpRd3c2VGlzVVdqWEozaDJt?=
+ =?utf-8?B?T2d6cDZQL0tHRmFqZDVaK0NTa29SVGM5MDM0NFNxKzduYlg4TVgzUXA4TW1v?=
+ =?utf-8?B?QmRLM0NVUXJaeEVMU2phQXJIaDRTam41SmJaTFZxazRjUHQ3aCtiUmFaYUl1?=
+ =?utf-8?B?RThrWFpFa3VVSzc1YWNCTGozTWhEelR5ZlIxT3hJcFVRWDA1L1NCREszc0dQ?=
+ =?utf-8?B?TVhOVlZxdmt0dEp5NjdIdXc2ZG9wUC85NVpCYk1SdkgwVnFqZ2xJY0FaNHRB?=
+ =?utf-8?B?LzVuV0N3NXFkS2RHZ2lYZ0x0MDQ1eUVNWW83SEpHVmdUYnZCOStBNEpWd1hp?=
+ =?utf-8?B?b2RXdWpHWTBBU1Q0aWN4MmF1SWx3WVNCMEc4bEkreVlvejlFUmwvYWpQSWhK?=
+ =?utf-8?B?eUkvMm8zaVB2Wk9QNStBSVJwNncyaXdyd2tmU2hUOGlXMi82OTN4VGQ5M0lm?=
+ =?utf-8?B?RUdVYmhxNnVhRkp4ZkFnMGtBUkVkK2JxNlBxbnZKdlN4eGJxMCtiaEEzdm5J?=
+ =?utf-8?B?M2JWalJ0MStkT2NzcGlZUW02WE1BZzFHbFM3QU5HaWhPOURGMk9XWTBTMG9Y?=
+ =?utf-8?B?SENEK0pZSVlCcVZqQ3NsK0lJWTcwN05TOTZvSStTN1FQcHNtQzJVd0pSVU8w?=
+ =?utf-8?B?dU1oVXI3Tk5wLzdrcE9LQ2FOemhzTTZyQW5lTmgreDBGMmZaSnNlSnNhd0Qw?=
+ =?utf-8?B?RUZFZm1rYm5rVFNpL2dTakY0aHdYdTltVDVrK29Bem5jNlNxdXBnV1BaOWpL?=
+ =?utf-8?B?RDJpanVhTmZSY1l6Tm92cGdydTBRUVNYSXc2aENWQ1hTV2lYVFA3WG9GU29R?=
+ =?utf-8?B?Sno2KzZNbGJDZDFBM3ZpWTVlRUNFWU9xZzE2UC9wSVZpRjRWZWVvN1FrRUk3?=
+ =?utf-8?B?Y0plbEtRTExSR2tralJkZFczaStYVlJMcHVIeUlJZ1hNWDAwRC9Fblc1cnQv?=
+ =?utf-8?B?ZlBXay9pN1dEb25udXdYUm9hdHo4cVJTaW9PM1Q5WG1CQ0JjZVdiWTlWNUkr?=
+ =?utf-8?B?a2tFcWhZeUdPa2xHRG9YYlpiQU5CUjk4Yi9CQWVad3NWbGJ6SFgwYlp5VFZ4?=
+ =?utf-8?B?cW0yRHNYV205bUlIVG1BNWc4Z093eWZZSnhBLy9JajJIZVVyUGJnM0N3ckw3?=
+ =?utf-8?B?U2hYOUVXZlF2VzR4WVBRZTFJKyswNDFIZ3dpaWVvT0lJOXVsZU5RQT09?=
+X-OriginatorOrg: laforet.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Apr 2020 06:04:29.3396
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4ac9bad6-866f-435b-0ba7-08d7e1cc0677
+X-MS-Exchange-CrossTenant-Id: ef7c99b6-580b-45cc-bd5a-07e57df338e3
+X-MS-Exchange-CrossTenant-FromEntityHeader: Internet
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB6PR0902MB1928
+X-Bm-Milter-Handled: f309b319-f3da-434a-8d18-92894f51c525
+X-Bm-Transport-Timestamp: 1587017072402
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org=
+/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns=3D"http://www.w3.org/1999/xht=
+ml" xmlns:o=3D"urn:schemas-microsoft-com:office:office">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dutf-8">
+<title>Ribambel | Newsletter</title>
+<meta name=3D"viewport" content=3D"width=3Ddevice-width, initial-scale=3D1">
+<link rel=3D"shortcut icon" href=3D"https://www.ribambel.com/favicon.ico" t=
+ype=3D"image/x-icon">
+<style type=3D"text/css">
+body {
+     height: 100% !important;
+     margin: 0!important;
+     padding: 0!important;
+     width: 100% !important;
+}
+div, button {
+     margin: 0 !important;
+     padding: 0 !important;
+     display: block !important;
+}
+div[style*=3D"margin: 16px 0"] {
+     margin: 0 !important;
+} /* marge android 4.4*/
+html {
+     -webkit-text-size-adjust: 100%;
+     -ms-text-size-adjust: 100%;
+}
+table {
+     border-collapse: collapse !important;
+}
+#outlook a {
+     padding: 0;
+}
+.ReadMsgBody {
+     width: 100%;
+}
+.ExternalClass {
+     width: 100%;
+}
+.ExternalClass * {
+     line-height: 100% !important;
+}
+.gmailfix {
+     display: none;
+     display: none!important;
+}
+table, td {
+     mso-table-lspace: 0pt;
+     mso-table-rspace: 0pt;
+}
+img {
+     -ms-interpolation-mode: bicubic;
+     border: none!important;
+     display: block!important;
+}
+/* iOS BLUE LINKS */
+a[x-apple-data-detectors] {
+     color: inherit !important;
+     text-decoration: none !important;
+     font-size: inherit !important;
+     font-family: inherit !important;
+     font-weight: inherit !important;
+     line-height: inherit !important;
+}
+sup {
+     font-size: 0.7em;
+     line-height: 0.7em;
+}
+.mobile-only {
+     display: none !important;
+}
+@media all and (max-width: 650px) {
+.mobile-only {
+     display: block !important;
+     max-height: none !important;
+}
+img {
+     height: auto!important;
+     max-width: 100%!important;
+     width: auto!important;
+}
+table[class=3Dfluide] {
+     width: 100% !important;
+     min-width: 0 !important;
+     float: none!important;
+}
+td[class=3Dfluide] {
+     width: 100% !important;
+     min-width: 0 !important;
+     float: left;
+}
+.fluide {
+     width: 100% !important;
+     min-width: 0 !important;
+     float: left;
+}
+.ac {
+     text-align: center !important;
+}
+.mb {
+     width: 90% !important;
+     margin: auto;
+}
+.pm {
+     padding-left: 5%!important;
+     padding-right: 5%!important;
+}
+.hide {
+     display: none !important;
+}
+.ac {
+     text-align: center!important;
+}
+.mb20 {
+     margin-bottom: 20px!important;
+}
+.ha {
+     height: auto!important;
+}
+.hapt10 {
+     height: auto!important;
+     padding-top: 10px;
+}
+}
+</style>
+<!--[if mso]>
+<xml>
+  <o:OfficeDocumentSettings>
+  <o:AllowPNG/>
+  <o:PixelsPerInch>96</o:PixelsPerInch>
+  </o:OfficeDocumentSettings>
+</xml>
+<![endif]-->
+<style>
+@media only screen and (max-width:239px) {
+                                  img[class=3Dedttkg-pix]{
+                                          background: url("https://home-ssl=
+.emw01.net/tracking/5a8d4ff7cd9080b47c21ad57d45ea726/ceURqdJ3BMkG7dq7Eccccc=
+a2dLc/responsive");
+                                   }=20=20
+                                }@media only screen and (min-width:320px) a=
+nd (max-width:479px){
+                                           img[class=3Dedttkg-pix]{
+                                                  background: url("https://=
+home-ssl.emw01.net/tracking/5a8d4ff7cd9080b47c21ad57d45ea726/ceURqdJ3BMkG7d=
+q7xccccca2dLc/responsive");
+                                           }
+                                        }@media only screen and (min-width:=
+240px) and (max-width:319px){
+                                           img[class=3Dedttkg-pix]{
+                                                  background: url("https://=
+home-ssl.emw01.net/tracking/5a8d4ff7cd9080b47c21ad57d45ea726/ceURqdJ3BMkG7d=
+q7eccccca2dLc/responsive");
+                                           }
+                                        }@media only screen and (min-width:=
+480px) and (max-width:799px){
+                                           img[class=3Dedttkg-pix]{
+                                                  background: url("https://=
+home-ssl.emw01.net/tracking/5a8d4ff7cd9080b47c21ad57d45ea726/ceURqdJ3BMkG7d=
+q77ccccca2dLc/responsive");
+                                           }
+                                        }</style></head><body>
+<center><table>
+<tr>
+  <td align=3D"center" style=3D"font-family: Verdana,Arial; font-size: 10px=
+; color:#666666">
+     <center>
+       Si vous n'arrivez pas &agrave; visualiser ce message, veuillez <a hr=
+ef=3D"http://tracking.newstend.fr/tracking/5a8d4ff7cd9080b47c21ad57d45ea726=
+/cEnRqdJ3BMkG7dqDc/GDHDL-KOoA8J_ZH96uwwY7g_N1ufbfDnE7fTHbFkP5I" style=3D"co=
+lor:#a4a4a4;">cliquer-ici</a>
+       <br /><br />
+     </center>
+  </td>
+</tr>
+<tr>
+  <td align=3D"center" style=3D"font-family: Verdana,Arial; font-size: 10px=
+; color:#666666">
+     <center>
+          <a href=3D"http://tracking.newstend.fr/tracking/unsubscribe/ceURq=
+dJ3BMkG7dqNcccccca2dLc/GDHDL-KOoA8J_ZH96uwwY7g_N1ufbfDnE7fTHbFkP5I" style=
+=3D"font-family: Verdana,Arial; font-size: 10px; color:#a4a4a4;font-size:10=
+px;">Se d&eacute;sabonner</a>&nbsp;&nbsp;&nbsp;
+          <a href=3D"http://tracking.newstend.fr/tracking/unsubscribe/ceURq=
+dJ3BMkG7dqNcccccca2dLc/GDHDL-KOoA8J_ZH96uwwY7g_N1ufbfDnE7fTHbFkP5I" style=
+=3D"font-family: Verdana,Arial; font-size: 10px; color:#a4a4a4;font-size:10=
+px;">Courrier ind&eacute;sirable</a>
+     </center>
+  </td>
+</tr>
+</table></center>
+<table id=3D"conteneur" width=3D"100%" border=3D"0" cellspacing=3D"0" cellp=
+adding=3D"0" style=3D"table-layout:fixed;">
+  <tr>
+    <td align=3D"center"><table bgcolor=3D"#ffffff" width=3D"650" class=3D"=
+fluide" border=3D"0" cellspacing=3D"0" cellpadding=3D"0">
+        <tr>
+          <td width=3D"650" align=3D"center" class=3D"pm font11" style=3D"f=
+ont-family:  Arial, helvetica, 'sans-serif'; font-size: 15px; font-weight: =
+bold;padding:15px 0 5px 0;"><a href=3D"https://home-ssl.emw01.net/tracking/=
+5a8d4ff7cd9080b47c21ad57d45ea726/ceURqdJ3BMkG7dqKYOccccce4tCc" target=3D"_b=
+lank" style=3D"text-decoration: none;color:#006a33;">Jusqu'&agrave; 11&euro=
+; de r&eacute;duction et une s&eacute;lection de recettes cr&eacute;atives<=
+/a></td>
+        </tr>
+        <tr>
+          <td class=3D"pm" align=3D"center" style=3D"font-family:  Arial, h=
+elvetica, 'sans-serif'; font-size: 11px;color:#999999;"></td>
+        </tr>
+        <tr class=3D"hide">
+          <td height=3D"40">&nbsp;</td>
+        </tr>
+        <tr>
+          <td height=3D"20">&nbsp;</td>
+        </tr>
+        <tr>
+          <td class=3D"pm"><table width=3D"100%" border=3D"0" cellspacing=
+=3D"0" cellpadding=3D"0">
+              <tbody>
+                <tr>
+                  <td class=3D"hide" width=3D"37">&nbsp;</td>
+                  <td class=3D"fluide" width=3D"223" align=3D"center" style=
+=3D"font-family: Arial, helvetica, 'sans-serif';font-size: 12px;"><a href=
+=3D"https://home-ssl.emw01.net/tracking/5a8d4ff7cd9080b47c21ad57d45ea726/ce=
+URqdJ3BMkG7dqKYOYcccce4tCc" target=3D"_blank" style=3D"color:#000000;"><img=
+ src=3D"http://hst.tradedoubler.com/file/301962/2020/images/logo.jpg" width=
+=3D"201" height=3D"29" style=3D"display:block;" alt=3D"RIBAMBEL" /></a></td>
+                  <td class=3D"fluide">&nbsp;</td>
+                  <td class=3D"fluide" width=3D"288" align=3D"center" style=
+=3D"font-family: Arial, helvetica, 'sans-serif';font-size: 12px;"><a href=
+=3D"https://home-ssl.emw01.net/tracking/5a8d4ff7cd9080b47c21ad57d45ea726/ce=
+URqdJ3BMkG7dqKYO1cccce4tCc" target=3D"_blank" style=3D"color:#000000;"><img=
+ src=3D"http://hst.tradedoubler.com/file/301962/2020/images/marques.jpg" wi=
+dth=3D"288" height=3D"43" style=3D"display:block;" alt=3D"avent media" /></=
+a></td>
+                  <td class=3D"hide" width=3D"56">&nbsp;</td>
+                </tr>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20
+            </table></td>
+        </tr>
+        <tr>
+          <td height=3D"20">&nbsp;</td>
+        </tr>
+        <tr>
+          <td class=3D"ha" background=3D"http://hst.tradedoubler.com/file/3=
+01962/2020/images/bg.jpg" bgcolor=3D"#465c90" width=3D"650" height=3D"639" =
+valign=3D"top"><!--[if gte mso 9]>
+  <v:rect xmlns:v=3D"urn:schemas-microsoft-com:vml" fill=3D"true" stroke=3D=
+"false" style=3D"width:650px;height:639px;">
+    <v:fill type=3D"tile" src=3D"http://hst.tradedoubler.com/file/301962/20=
+20/images/bg.jpg" color=3D"#465c90" />
+    <v:textbox inset=3D"0,0,0,0">
+  <![endif]-->
+=20=20=20=20=20=20=20=20=20=20=20=20
+            <div>
+              <table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadd=
+ing=3D"0">
+                <tbody>
+                  <tr>
+                    <td height=3D"30">&nbsp;</td>
+                  </tr>
+                  <tr class=3D"hide">
+                    <td height=3D"26">&nbsp;</td>
+                  </tr>
+                  <tr>
+                    <td class=3D"pm" align=3D"center" style=3D"font-family:=
+ Arial, helvetica, 'sans-serif';font-size: 12px;"><a href=3D"https://home-s=
+sl.emw01.net/tracking/5a8d4ff7cd9080b47c21ad57d45ea726/ceURqdJ3BMkG7dqKYOqc=
+ccce4tCc" target=3D"_blank" style=3D"color:#ffffff;"><img src=3D"http://hst=
+.tradedoubler.com/file/301962/2020/images/ribambel_03_avril.png" width=3D"3=
+76" height=3D"178" style=3D"display:block;" alt=3D"11&euro; de r&eacute;duc=
+tion sur vos marques" /></a></td>
+                  </tr>
+                  <tr>
+                    <td height=3D"30">&nbsp;</td>
+                  </tr>
+                  <tr class=3D"hide">
+                    <td height=3D"22">&nbsp;</td>
+                  </tr>
+                  <tr>
+                    <td class=3D"pm" align=3D"center" style=3D"font-family:=
+ Arial, helvetica, 'sans-serif';font-size: 12px;"><a href=3D"https://home-s=
+sl.emw01.net/tracking/5a8d4ff7cd9080b47c21ad57d45ea726/ceURqdJ3BMkG7dqKYJcc=
+ccce4tCc" target=3D"_blank" style=3D"color:#ffffff;"><img src=3D"http://hst=
+.tradedoubler.com/file/301962/2020/images/ribambel_07.jpg" width=3D"448" he=
+ight=3D"252" style=3D"display:block;" alt=3D"Marques partenaires" /></a></t=
+d>
+                  </tr>
+                  <tr>
+                    <td height=3D"30">&nbsp;</td>
+                  </tr>
+                  <tr class=3D"hide">
+                    <td height=3D"27">&nbsp;</td>
+                  </tr>
+                  <tr>
+                    <td class=3D"pm" align=3D"center" style=3D"font-family:=
+ Arial, helvetica, 'sans-serif';font-size: 09px; letter-spacing:1.5px;color=
+:#ffffff;">POUR VOTRE SANT&Eacute;, PRATIQUEZ UNE ACTIVIT&Eacute; PHYSIQUE =
+R&Eacute;GULI&Egrave;RE, <a href=3D"http://tracking.newstend.fr/tracking/5a=
+8d4ff7cd9080b47c21ad57d45ea726/ceURqdJ3BMkG7dqKYJYcccce4tCc" target=3D"_bla=
+nk" style=3D"color:#ffffff; text-decoration: none;">WWW.MANGERBOUGER.FR</a>=
+</td>
+                  </tr>
+                  <tr>
+                    <td>&nbsp;</td>
+                  </tr>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20
+              </table>
+            </div>
+=20=20=20=20=20=20=20=20=20=20=20=20
+            <!--[if gte mso 9]>
+    </v:textbox>
+  </v:rect>
+  <![endif]--></td>
+        </tr>
+        <tr>
+          <td><table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadd=
+ing=3D"0">
+              <tbody>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20
+                <tr>
+                  <td height=3D"20">&nbsp;</td>
+                </tr>
+                <tr>
+                  <td align=3D"center"><table class=3D"fluide" width=3D"100=
+" border=3D"0" cellspacing=3D"0" cellpadding=3D"0">
+                      <tbody>
+                        <tr>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=
+=20
+                          <td align=3D"center" class=3D"fluide" width=3D"14=
+5"><table bgcolor=3D"#006a33" width=3D"145" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0">
+                              <tbody>
+                                <tr>
+                                  <td align=3D"center" height=3D"43" style=
+=3D"font-family: Arial, helvetica, 'sans-serif';font-size: 13px;font-weight=
+: bold; vertical-align: middle;"><a href=3D"https://home-ssl.emw01.net/trac=
+king/5a8d4ff7cd9080b47c21ad57d45ea726/ceURqdJ3BMkG7dqKYJ1cccce4tCc" target=
+=3D"_blank" style=3D"color:#ffffff; text-decoration: none;">J'en profite</a=
+></td>
+                                </tr>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=
+=20=20=20=20=20
+                            </table></td>
+                        </tr>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20
+                    </table></td>
+                </tr>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20
+            </table></td>
+        </tr>
+=20=20=20=20=20=20=20
+        <tr>
+          <td height=3D"30">&nbsp;</td>
+        </tr>
+        <tr>
+          <td class=3D"" align=3D"center" style=3D"font-family: Arial, helv=
+etica, 'sans-serif';font-size: 20px;font-weight: bold; vertical-align: midd=
+le;"><a href=3D"https://home-ssl.emw01.net/tracking/5a8d4ff7cd9080b47c21ad5=
+7d45ea726/ceURqdJ3BMkG7dqKYJqcccce4tCc" target=3D"_blank" style=3D"color:#0=
+06a33; text-decoration: none;">Comment profiter de&nbsp;l'offre&nbsp;?</a><=
+/td>
+        </tr>
+        <tr>
+          <td height=3D"25">&nbsp;</td>
+        </tr>
+        <tr>
+          <td><table bgcolor=3D"#f3faf6" width=3D"100%" border=3D"0" cellsp=
+acing=3D"0" cellpadding=3D"0">
+              <tbody>
+                <tr>
+                  <td height=3D"26">&nbsp;</td>
+                </tr>
+                <tr>
+                  <td><table width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0">
+                      <tbody>
+                        <tr>
+                          <td width=3D"225" valign=3D"top" class=3D"fluide"=
+><table class=3D"mb20" width=3D"100%" border=3D"0" cellspacing=3D"0" cellpa=
+dding=3D"0">
+                              <tbody>
+                                <tr>
+                                  <td><!--[if !mso]><!-->
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=
+=20=20=20=20=20=20=20=20=20=20=20
+                                    <div class=3D"mobile-only" style=3D"fon=
+t-size: 0; max-height: 0; overflow: hidden; display: none">
+                                      <table width=3D"100%" border=3D"0" ce=
+llspacing=3D"0" cellpadding=3D"0">
+                                        <tbody>
+                                          <tr>
+                                            <td align=3D"center" style=3D"f=
+ont-family: Arial, helvetica, 'sans-serif';font-size: 10px;color:#000000;">=
+<img src=3D"http://hst.tradedoubler.com/file/301962/2020/images/un.jpg" wid=
+th=3D"39" height=3D"43" style=3D"display:block;" alt=3D"1" /></td>
+                                          </tr>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20
+                                      </table>
+                                    </div>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=
+=20=20=20=20=20=20=20=20=20=20=20
+                                    <!--<![endif]--></td>
+                                </tr>
+                                <tr>
+                                  <td height=3D"57" align=3D"center" class=
+=3D"hapt10" style=3D"font-family: Arial, helvetica, 'sans-serif';font-size:=
+ 11px;font-weight: bold;  vertical-align: middle;"><a href=3D"https://home-=
+ssl.emw01.net/tracking/5a8d4ff7cd9080b47c21ad57d45ea726/ceURqdJ3BMkG7dqKYUc=
+cccce4tCc" target=3D"_blank" style=3D"color:#8b8b8b; text-decoration: none;=
+">Je m'inscris<br class=3D"hide" />
+                                    gratuitement</a></td>
+                                </tr>
+                                <tr class=3D"hide">
+                                  <td><table width=3D"100%" border=3D"0" ce=
+llspacing=3D"0" cellpadding=3D"0">
+                                      <tbody>
+                                        <tr>
+                                          <td width=3D"89"><img src=3D"http=
+://hst.tradedoubler.com/file/301962/2020/images/1.jpg" width=3D"89" height=
+=3D"43" style=3D"display:block;" alt=3D"" /></td>
+                                          <td width=3D"39" style=3D"font-fa=
+mily: Arial, helvetica, 'sans-serif';font-size: 10px;color:#000000;"><img s=
+rc=3D"http://hst.tradedoubler.com/file/301962/2020/images/un.jpg" width=3D"=
+39" height=3D"39" style=3D"display:block;" alt=3D"1" /></td>
+                                          <td width=3D"97"><img src=3D"http=
+://hst.tradedoubler.com/file/301962/2020/images/2.jpg" width=3D"97" height=
+=3D"43" style=3D"display:block;" alt=3D"" /></td>
+                                        </tr>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=
+=20=20=20=20=20=20=20=20=20=20=20=20=20
+                                    </table></td>
+                                </tr>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=
+=20=20=20=20=20
+                            </table></td>
+                          <td class=3D"fluide" width=3D"211"><table class=
+=3D"mb20" width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0">
+                              <tbody>
+                                <tr>
+                                  <td><table width=3D"100%" border=3D"0" ce=
+llspacing=3D"0" cellpadding=3D"0">
+                                      <tbody>
+                                        <tr>
+                                          <td class=3D"hide" width=3D"81"><=
+img src=3D"http://hst.tradedoubler.com/file/301962/2020/images/3.jpg" width=
+=3D"81" height=3D"60" style=3D"display:block;" alt=3D"" /></td>
+                                          <td width=3D"39" align=3D"center"=
+ style=3D"font-family: Arial, helvetica, 'sans-serif';font-size: 10px;color=
+:#000000;"><img src=3D"http://hst.tradedoubler.com/file/301962/2020/images/=
+deux.jpg" width=3D"39" height=3D"39" style=3D"display:block;" alt=3D"2" /><=
+/td>
+                                          <td class=3D"hide" width=3D"91"><=
+img src=3D"http://hst.tradedoubler.com/file/301962/2020/images/4.jpg" width=
+=3D"91" height=3D"60" style=3D"display:block;" alt=3D"" /></td>
+                                        </tr>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=
+=20=20=20=20=20=20=20=20=20=20=20=20=20
+                                    </table></td>
+                                </tr>
+                                <tr>
+                                  <td class=3D"hapt10" align=3D"center" sty=
+le=3D"font-family: Arial, helvetica, 'sans-serif';font-size: 11px;font-weig=
+ht: bold;"><a href=3D"https://home-ssl.emw01.net/tracking/5a8d4ff7cd9080b47=
+c21ad57d45ea726/ceURqdJ3BMkG7dqKYUYcccce4tCc" target=3D"_blank" style=3D"co=
+lor:#8b8b8b; text-decoration: none;">J'imprime mes bons <br />
+                                    de r&eacute;duction depuis <br />
+                                    mon ordinateur</a></td>
+                                </tr>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=
+=20=20=20=20=20
+                            </table></td>
+                          <td width=3D"225" valign=3D"top" class=3D"fluide"=
+><table class=3D"mb20" width=3D"100%" border=3D"0" cellspacing=3D"0" cellpa=
+dding=3D"0">
+                              <tbody>
+                                <tr>
+                                  <td><!--[if !mso]><!-->
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=
+=20=20=20=20=20=20=20=20=20=20=20
+                                    <div class=3D"mobile-only" style=3D"fon=
+t-size: 0; max-height: 0; overflow: hidden; display: none">
+                                      <table width=3D"100%" border=3D"0" ce=
+llspacing=3D"0" cellpadding=3D"0">
+                                        <tbody>
+                                          <tr>
+                                            <td align=3D"center" style=3D"f=
+ont-family: Arial, helvetica, 'sans-serif';font-size: 10px;color:#000000;">=
+<img src=3D"http://hst.tradedoubler.com/file/301962/2020/images/trois.jpg" =
+width=3D"39" height=3D"39" style=3D"display:block;" alt=3D"3" /></td>
+                                          </tr>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20
+                                      </table>
+                                    </div>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=
+=20=20=20=20=20=20=20=20=20=20=20
+                                    <!--<![endif]--></td>
+                                </tr>
+                                <tr>
+                                  <td height=3D"39" align=3D"center" class=
+=3D"hapt10" style=3D"font-family: Arial, helvetica, 'sans-serif';font-size:=
+ 11px;font-weight: bold;  vertical-align: bottom;"><a href=3D"https://home-=
+ssl.emw01.net/tracking/5a8d4ff7cd9080b47c21ad57d45ea726/ceURqdJ3BMkG7dqKYU1=
+cccce4tCc" target=3D"_blank" style=3D"color:#8b8b8b; text-decoration: none;=
+">J'en profite<br class=3D"hide" />
+                                    en magasin</a></td>
+                                </tr>
+                                <tr class=3D"hide">
+                                  <td><table width=3D"100%" border=3D"0" ce=
+llspacing=3D"0" cellpadding=3D"0">
+                                      <tbody>
+                                        <tr>
+                                          <td width=3D"87"><img src=3D"http=
+://hst.tradedoubler.com/file/301962/2020/images/6.jpg" width=3D"87" height=
+=3D"60" style=3D"display:block;" alt=3D"" /></td>
+                                          <td width=3D"39" style=3D"font-fa=
+mily: Arial, helvetica, 'sans-serif';font-size: 10px;color:#000000; vertica=
+l-align: bottom;"><img src=3D"http://hst.tradedoubler.com/file/301962/2020/=
+images/trois.jpg" width=3D"39" height=3D"39" style=3D"display:block;" alt=
+=3D"3" /></td>
+                                          <td width=3D"88"><img src=3D"http=
+://hst.tradedoubler.com/file/301962/2020/images/7.jpg" width=3D"88" height=
+=3D"60" style=3D"display:block;" alt=3D"" /></td>
+                                        </tr>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=
+=20=20=20=20=20=20=20=20=20=20=20=20=20
+                                    </table></td>
+                                </tr>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=
+=20=20=20=20=20
+                            </table></td>
+                        </tr>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20
+                    </table></td>
+                </tr>
+                <tr>
+                  <td height=3D"39">&nbsp;</td>
+                </tr>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20
+            </table></td>
+        </tr>
+        <tr>
+          <td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td class=3D"pm" align=3D"center" style=3D"font-family: Arial, he=
+lvetica, 'sans-serif';font-size: 10px;padding:0 20px 15px 20px;color:#3a3a3=
+a;">*Sur une s&eacute;lection de produits.<br />
+            <br />
+            Les informations vous concernant sont enregistr&eacute;es par A=
+vent Media pour le compte de Ribambel. Les informations recueillies font l'=
+objet d'un traitement informatique destin&eacute; &agrave; l'envoi de commu=
+nication mobile, email ou postale. Conform&eacute;ment &agrave; la loi fran=
+&ccedil;aise &laquo;&nbsp;Informatique et Libert&eacute;s&nbsp;&raquo; n&de=
+g;78-17 du 6 janvier 1978, et au r&egrave;glement g&eacute;n&eacute;ral sur=
+ la protection des donn&eacute;es, vous disposez d'un droit d'acc&egrave;s,=
+ de rectification, d'opposition, et de suppression des donn&eacute;es perso=
+nnelles qui vous concernent. Vous pourrez exercer ces droits en &eacute;cri=
+vant &agrave; l'adresse <a href=3D"mailto:gdpr+bel-DAF@avent-media.fr" targ=
+et=3D"_blank" style=3D"color:#3a3a3a; text-decoration: none;">gdpr+bel-DAF@=
+avent-media.fr</a>. Pour en savoir plus, consultez notre <a href=3D"https:/=
+/home-ssl.emw01.net/tracking/5a8d4ff7cd9080b47c21ad57d45ea726/ceURqdJ3BMkG7=
+dqKYUqcccce4tCc" target=3D"_blank" style=3D"color:#3a3a3a; text-decoration:=
+ none;">politique de confidentialit&eacute;</a></td>
+        </tr>
+        <tr>
+          <td class=3D"pm" align=3D"center" style=3D"font-family: Arial, he=
+lvetica, 'sans-serif';font-size: 11px;color:#989898;"></td>
+        </tr>
+        <tr>
+          <td height=3D"20">&nbsp;</td>
+        </tr>
+      </table></td>
+  </tr>
+  <tr>
+    <td align=3D"center">&nbsp;</td>
+  </tr>
+  <tr>
+    <td align=3D"center">&nbsp;</td>
+  </tr>
+</table>
+<div class=3D"gmailfix" style=3D"white-space:nowrap; font:15px courier; lin=
+e-height:0;"> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp=
+; &nbsp; &nbsp;=20
+  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nb=
+sp;=20
+  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </div>
+  <img src=3D"https://impgb.tradedoubler.com/imp?type(inv)g(24661406)a(2956=
+755)" />
+<center><table>
+<tr>
+  <td bgcolor=3D"#FFFFFF" style=3D"font-family:Verdana;color:#666666;paddin=
+g:7px;font-size:10px;text-align:center">
+    <center>
+      <div style=3D"font-family:Verdana;color:#666666;padding:7px;font-size=
+:10px;text-align:center">
+        Vous recevez ce message car vous avez accept&eacute; de recevoir le=
+s offres de <b>NewsTendance</b>,<br /> enregistr&eacute;e aupr&egrave;s de =
+la CNIL sous le num&eacute;ro 1767017.<br /><br />
+        Conform&eacute;ment &agrave; la Loi Informatique et Libert&eacute;s=
+ du 6 Janvier 1978, vous disposez d'un droit<br /> d'acc&egrave;s, de modif=
+ication et de suppression des donn&eacute;es personnelles vous concernant.<=
+br />    Si vous ne souhaitez plus recevoir de mail de la part de NewsTenda=
+nce <a href=3D"http://tracking.newstend.fr/tracking/unsubscribe/ceURqdJ3BMk=
+G7dqNcccccca2dLc/GDHDL-KOoA8J_ZH96uwwY7g_N1ufbfDnE7fTHbFkP5I" target=3D"_bl=
+ank" style=3D"color:#a4a4a4;">cliquez ici</a>
+      </div>
+      </center>
+  </td>
+</tr>
+</table></center>
+<table width=3D"10" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" align=
+=3D"center" ><tr><td width=3D"0" height=3D"0" style=3D"line-width:0px;line-=
+height:0px;"><img class=3D"edttkg-pix" id=3D"0" src=3D"https://home-ssl.emw=
+01.net/tracking/5a8d4ff7cd9080b47c21ad57d45ea726/ceURqdJ3BMkG7dq7cccccca2dL=
+c/responsive" width=3D"1" height=3D"1" border=3D"0" /></td></tr></table>
+</body></html>=
+
