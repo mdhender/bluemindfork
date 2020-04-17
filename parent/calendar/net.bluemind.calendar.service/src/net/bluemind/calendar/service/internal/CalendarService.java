@@ -542,6 +542,14 @@ public class CalendarService implements IInternalCalendar {
 				return new BmDateTimeWrapper(main.dtend).isAfter(query.dateMin);
 			}).collect(Collectors.toList());
 		}
+		res.values = res.values.stream().map(series -> {
+			if (series.value.occurrences != null && !series.value.occurrences.isEmpty()) {
+				series.value.occurrences = series.value.occurrences.stream().filter(occ -> {
+					return new BmDateTimeWrapper(occ.dtend).isAfter(query.dateMin);
+				}).collect(Collectors.toList());
+			}
+			return series;
+		}).collect(Collectors.toList());
 		return res;
 	}
 

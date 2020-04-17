@@ -51,6 +51,7 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.VEvent;
+import net.bluemind.calendar.api.VEventAttendeeQuery;
 import net.bluemind.calendar.api.VEventChanges;
 import net.bluemind.calendar.api.VEventChanges.ItemDelete;
 import net.bluemind.calendar.api.VEventOccurrence;
@@ -79,6 +80,7 @@ import net.bluemind.core.task.api.TaskStatus.State;
 import net.bluemind.core.tests.vertx.VertxEventChecker;
 import net.bluemind.core.utils.UIDGenerator;
 import net.bluemind.icalendar.api.ICalendarElement;
+import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 import net.bluemind.icalendar.api.ICalendarElement.RRule;
 import net.bluemind.icalendar.api.ICalendarElement.RRule.Frequency;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
@@ -747,6 +749,50 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		ListResult<ItemValue<VEventSeries>> res = getCalendarService(userSecurityContext, userCalendarContainer)
 				.search(query);
 		assertEquals(1, res.values.size());
+	}
+
+	@Test
+	public void testSearchPendingEventShouldFilterOccurencesInThePast() throws ServerFault {
+		VEventSeries event = defaultVEvent();
+		event.main.organizer = new VEvent.Organizer(attendee1.value.login + "@bm.lan");
+		String dir = "bm://" + domainUid + "/users/" + testUser.uid;
+		VEvent.Attendee me = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.RequiredParticipant,
+				VEvent.ParticipationStatus.NeedsAction, true, "", "", "", "osef", dir, null, null, null);
+		event.main.attendees = Arrays.asList(me);
+		event.main.rrule = new VEvent.RRule();
+		event.main.rrule.frequency = Frequency.DAILY;
+		event.main.rrule.until = BmDateTimeHelper.time(ZonedDateTime.of(2030, 2, 13, 0, 0, 0, 0, tz));
+		event.main.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2014, 2, 13, 0, 0, 0, 0, tz));
+		event.main.dtend = BmDateTimeHelper.time(ZonedDateTime.of(2014, 2, 13, 1, 0, 0, 0, tz));
+
+		String uid = "test_" + System.nanoTime();
+		VEventOccurrence eventExceptionPast = recurringVEvent();
+		eventExceptionPast.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2015, 2, 15, 1, 0, 0, 0, tz));
+		eventExceptionPast.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2015, 2, 15, 2, 0, 0, 0, tz));
+		eventExceptionPast.recurid = BmDateTimeHelper.time(ZonedDateTime.of(2022, 2, 15, 0, 0, 0, 0, tz));
+		eventExceptionPast.attendees = event.main.attendees;
+
+		VEventOccurrence eventExceptionFuture = recurringVEvent();
+		eventExceptionFuture.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2025, 2, 15, 1, 0, 0, 0, tz));
+		eventExceptionFuture.dtstart = BmDateTimeHelper.time(ZonedDateTime.of(2025, 2, 15, 2, 0, 0, 0, tz));
+		eventExceptionFuture.recurid = BmDateTimeHelper.time(ZonedDateTime.of(2025, 2, 15, 0, 0, 0, 0, tz));
+		eventExceptionFuture.attendees = event.main.attendees;
+
+		event.occurrences = Arrays.asList(eventExceptionPast, eventExceptionFuture);
+
+		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
+
+		ZonedDateTime dateMin = ZonedDateTime.of(2020, 2, 1, 0, 0, 0, 0, tz);
+		VEventQuery query = VEventQuery.create(BmDateTimeHelper.time(dateMin), null);
+		query.attendee = new VEventAttendeeQuery();
+		query.attendee.partStatus = ParticipationStatus.NeedsAction;
+		query.attendee.dir = null;
+		query.attendee.calendarOwnerAsDir = true;
+
+		ListResult<ItemValue<VEventSeries>> res = getCalendarService(userSecurityContext, userCalendarContainer)
+				.search(query);
+		assertEquals(1, res.values.size());
+		assertEquals(1, res.values.get(0).value.occurrences.size());
 	}
 
 	@Test
@@ -1632,7 +1678,7 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		assertTrue(found.contains(ZonedDateTime.of(2014, 2, 16, 8, 0, 0, 0, tz)));
 		assertTrue(found.contains(ZonedDateTime.of(2014, 2, 17, 8, 0, 0, 0, tz)));
 	}
-	
+
 	/**
 	 * 
 	 * @throws ServerFault
@@ -1641,7 +1687,7 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 	public void sequenceDefaultValueIsZero() throws ServerFault {
 		VEventSeries event = defaultVEvent();
 		String uid = UIDGenerator.uid();
-		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);	
+		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, event, sendNotifications);
 		ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer).getComplete(uid);
 		assertEquals(new Integer(0), item.value.main.sequence);
 		event.main.summary = "Breaking Changes!";
@@ -1651,7 +1697,7 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		item = getCalendarService(userSecurityContext, userCalendarContainer).getComplete(uid);
 		assertEquals(new Integer(0), item.value.main.sequence);
 	}
-	
+
 	@Test
 	public void sequenceCanBeHandledByClient() throws ServerFault {
 		VEventSeries event = defaultVEvent();
@@ -1669,6 +1715,7 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		item = getCalendarService(userSecurityContext, userCalendarContainer).getComplete(uid);
 		assertEquals(new Integer(3), item.value.main.sequence);
 	}
+
 	/**
 	 * 
 	 * @throws ServerFault
@@ -1686,5 +1733,4 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 
 	}
 
-	
 }
