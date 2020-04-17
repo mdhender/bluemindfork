@@ -27,8 +27,7 @@ import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.Stream;
 
 /**
- * @param taskId
- *            task identifier
+ * @param taskId task identifier
  */
 @BMApi(version = "3")
 @Path("/tasks/{taskId}")
@@ -54,4 +53,5 @@ public interface ITask {
 	@GET
 	@Path("_currentLogs")
 	public List<String> getCurrentLogs();
+
 }

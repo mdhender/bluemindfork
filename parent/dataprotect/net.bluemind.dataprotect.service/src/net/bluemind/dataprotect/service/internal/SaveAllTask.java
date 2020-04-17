@@ -73,6 +73,8 @@ public class SaveAllTask implements IServerTask {
 	private final BmContext ctx;
 	private final DPService dps;
 	private final PartGenerationIndex partGenerationIndex;
+	private IToolSession session;
+	private boolean cancelled;
 
 	private static final String backupRoot = "/var/backups/bluemind";
 	private static final String backupTemp = backupRoot + "/temp";
@@ -295,6 +297,9 @@ public class SaveAllTask implements IServerTask {
 		partAllocation.next = newPartGeneration;
 
 		newPartGeneration = backup(worker, dpCtx, partAllocation, serverToBackup);
+		if (newPartGeneration == null) {
+			return BackupStatus.INVALID_STATE;
+		}
 		if (backupStatus != BackupStatus.ERROR && newPartGeneration.withErrors) {
 			backupStatus = BackupStatus.ERROR;
 		}
@@ -603,11 +608,14 @@ public class SaveAllTask implements IServerTask {
 	 * @throws ServerFault
 	 */
 	private PartGeneration backup(IBackupWorker w, IDPContext dpCtx, PartAllocation pa, ItemValue<Server> srv) {
+		if (cancelled) {
+			return null;
+		}
 		ToolBootstrap tool = new ToolBootstrap(dpCtx);
 		w.prepareDataDirs(dpCtx, pa.next.tag, srv);
 		Set<String> dirs = w.getDataDirs();
 		IToolConfig config = tool.configure(srv, pa.next.tag, dirs);
-		IToolSession session = tool.newSession(config);
+		session = tool.newSession(config);
 		try {
 			PartGeneration ret = session.backup(pa.previous, pa.next);
 			ret.end = new Date();
@@ -616,4 +624,13 @@ public class SaveAllTask implements IServerTask {
 			w.dataDirsSaved(dpCtx, pa.next.tag, srv);
 		}
 	}
+
+	@Override
+	public void cancel() {
+		cancelled = true;
+		if (session != null) {
+			session.interrupt();
+		}
+	}
+
 }

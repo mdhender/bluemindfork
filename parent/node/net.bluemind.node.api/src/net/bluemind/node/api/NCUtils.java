@@ -32,6 +32,7 @@ import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.node.api.ProcessHandler.BlockingHandler;
 import net.bluemind.node.api.ProcessHandler.NoOutBlockingHandler;
+import net.bluemind.node.shared.ExecDescriptor;
 import net.bluemind.node.shared.ExecRequest;
 
 /**
@@ -174,6 +175,10 @@ public final class NCUtils {
 				long nap = Math.min(1000, 10 * count++);
 				Thread.sleep(nap);
 			} catch (InterruptedException e) {
+				logger.warn("Task has been interrupted, cancelling execution of {}", ref.id);
+				nc.interrupt(ExecDescriptor.forTask(ref.id));
+				Thread.currentThread().interrupt();
+				throw new ServerFault("Task has been interrupted.");
 			}
 			ts = nc.getExecutionStatus(copy);
 

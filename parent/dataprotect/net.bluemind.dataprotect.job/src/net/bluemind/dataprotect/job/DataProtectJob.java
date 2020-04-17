@@ -39,6 +39,7 @@ import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
+import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.dataprotect.api.DataProtectGeneration;
 import net.bluemind.dataprotect.api.GenerationStatus;
@@ -52,6 +53,7 @@ import net.bluemind.scheduledjob.scheduler.IScheduler;
 public class DataProtectJob implements IScheduledJob {
 
 	private static final Logger logger = LoggerFactory.getLogger(DataProtectJob.class);
+	private TaskRef ref;
 
 	public DataProtectJob() {
 	}
@@ -87,13 +89,19 @@ public class DataProtectJob implements IScheduledJob {
 			IDataProtect dpApi = sp.instance(IDataProtect.class);
 			AtomicReference<JobExitStatus> status = new AtomicReference<JobExitStatus>(JobExitStatus.SUCCESS);
 			try {
-				TaskRef ref = dpApi.saveAll();
+				ref = dpApi.saveAll();
 				ITask taskApi = sp.instance(ITask.class, String.format("%s", ref.id));
 				Stream logsStream = taskApi.log();
 
 				VertxStream.<Buffer>read(logsStream).handler(log -> displayLogs(sched, slot, log));
 
-				TaskStatus taskResult = TaskUtils.wait(sp, ref);
+				TaskStatus taskResult;
+				try {
+					taskResult = TaskUtils.waitForInterruptible(sp, ref);
+				} catch (InterruptedException e) {
+					status.set(JobExitStatus.INTERRUPTED);
+					return;
+				}
 				if (!taskResult.state.succeed) {
 					status.set(JobExitStatus.FAILURE);
 				} else {
@@ -135,6 +143,13 @@ public class DataProtectJob implements IScheduledJob {
 				log.getInteger("total").intValue() + 1, message);
 		sched.info(slot, "en", formatedMessage);
 		sched.info(slot, "fr", formatedMessage);
+	}
+
+	@Override
+	public void cancel() {
+		if (ref != null) {
+			ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ITasksManager.class).cancel(ref.id);
+		}
 	}
 
 	@Override

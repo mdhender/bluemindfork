@@ -21,7 +21,6 @@ package net.bluemind.core.task.service;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
-import net.bluemind.core.task.service.IServerTask;
 
 /**
  * In-Core tasks service
@@ -32,8 +31,7 @@ public interface ITasksManager {
 	/**
 	 * Launch {@link IServerTask}
 	 * 
-	 * @param serverTask
-	 *            task to run
+	 * @param serverTask task to run
 	 * @return ref to running task
 	 * @throws ServerFault
 	 */
@@ -43,8 +41,7 @@ public interface ITasksManager {
 	 * Launch {@link IServerTask}
 	 * 
 	 * @param uniqueId
-	 * @param serverTask
-	 *            task to run
+	 * @param serverTask task to run
 	 * @return ref to running task
 	 * @throws ServerFault
 	 */
@@ -53,9 +50,15 @@ public interface ITasksManager {
 	/**
 	 * Retrieve task service
 	 * 
-	 * @param taskId
-	 *            taskRef {@link TaskRef#id}
+	 * @param taskId taskRef {@link TaskRef#id}
 	 * @return
 	 */
 	public ITask getTask(String taskId);
+
+	/**
+	 * Cancel a task
+	 * 
+	 * @param taskId taskRef {@link TaskRef#id}
+	 */
+	public void cancel(String taskId);
 }

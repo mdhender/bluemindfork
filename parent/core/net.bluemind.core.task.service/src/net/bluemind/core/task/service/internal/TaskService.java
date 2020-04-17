@@ -47,4 +47,5 @@ public class TaskService implements ITask {
 	public List<String> getCurrentLogs() {
 		return manager.getCurrentLogs();
 	}
+
 }
