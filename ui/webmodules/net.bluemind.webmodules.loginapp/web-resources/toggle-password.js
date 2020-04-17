@@ -1,52 +1,39 @@
 (function() {
-    var toggleIdsList = ["toggle-password"]
-    
-    if (typeof overrideToggleIdsList !== 'undefined' && overrideToggleIdsList.length > 0) {
-        toggleIdsList = overrideToggleIdsList;
-    }
-    
-    var passwordTogglers = []
-    for (var i = 0; i < toggleIdsList.length; i++) {
-        toggle = document.getElementById(toggleIdsList[i]);
-        passwordTogglers[toggle.getAttribute("id")] = new PasswordToggle(toggle);
-
-        toggle.addEventListener("click", function(event) {
-            this.toggle = event.target || event.srcElement;
-            this.toggler = passwordTogglers[this.toggle.getAttribute("id")];
-            
-            this.toggler.timeout && clearTimeout(this.toggler.timeout);
-            if (this.toggler.isVisible()) {
-              this.toggler.hidePassword();
-            } else {
-              this.toggler.showPassword();
-              this.toggler.timeout = setTimeout(hidePassword, 2000, this.toggler);
-            }
-        });
-    }
-    
-    function hidePassword(toggler) {
-        toggler.hidePassword();
-    }
+  document
+    .querySelectorAll(".toggle-password")
+    .forEach(addPasswordVisibilityBehavior);
 })();
 
-function PasswordToggle(toggle) {
-    this.toggle = toggle;
-    this.passwordField = document.getElementById(this.toggle.getAttribute("toggle"));
-    this.timeout;
-    
-    this.isVisible = function() {
-        return this.passwordField.type === "text";
-    };
-
-    this.showPassword = function() {
-        this.passwordField.type = "text";
-        this.toggle.classList.add("fa-eye-slash");
-        this.toggle.classList.remove("fa-eye");
-    },
-
-    this.hidePassword = function() {
-        this.passwordField.type = "password";
-        this.toggle.classList.add("fa-eye");
-        this.toggle.classList.remove("fa-eye-slash");
-    };
+function addPasswordVisibilityBehavior(toggleBlock) {
+  var toggle = toggleBlock.querySelector("i");
+  var passwordField = toggleBlock.querySelector("input");
+  var timeout;
+  
+  toggle.addEventListener("click", function(event) {
+    timeout && clearTimeout(timeout);
+    if (isVisible(passwordField)) {
+      hidePassword(passwordField, toggle);
+    } else {
+      showPassword(passwordField, toggle);
+      timeout = setTimeout(function() {
+        hidePassword(passwordField, toggle);
+      }, 2000);
+    }
+  });
+  
+  function isVisible(input) {
+    return input.type === "text";
+  }
+  
+  function showPassword(input, toggle) {
+    input.type = "text";
+    toggle.classList.add("fa-eye-slash");
+    toggle.classList.remove("fa-eye");
+  }
+  
+  function hidePassword(input, toggle) {
+    input.type = "password";
+    toggle.classList.add("fa-eye");
+    toggle.classList.remove("fa-eye-slash");
+  }
 }
