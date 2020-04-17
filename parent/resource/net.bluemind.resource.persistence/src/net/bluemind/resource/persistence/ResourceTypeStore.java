@@ -123,4 +123,15 @@ public class ResourceTypeStore extends JdbcAbstractStore {
 					}
 				}, new Object[] { container.id });
 	}
+
+	public boolean exists(String name) {
+		return doOrFail(() -> {
+			String query = "SELECT  " + ResourceTypeColumns.cols.names()
+					+ " from t_resource_type WHERE resource_container_id = ?  AND label = ?";
+			ResourceTypeDescriptor descriptor = unique(query, ResourceTypeColumns.creator(),
+					ResourceTypeColumns.populator(), new Object[] { container.id, name });
+
+			return descriptor != null;
+		});
+	}
 }

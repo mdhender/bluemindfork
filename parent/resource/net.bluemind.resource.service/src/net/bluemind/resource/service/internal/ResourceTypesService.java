@@ -71,6 +71,10 @@ public class ResourceTypesService implements IResourceTypes {
 	public void create(String uid, ResourceTypeDescriptor descriptor) throws ServerFault {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_RESOURCE_TYPE);
 
+		if (store.exists(descriptor.label)) {
+			throw new ServerFault("resource type " + descriptor.label + " already exists", ErrorCode.ALREADY_EXISTS);
+		}
+
 		sanitizer.create(descriptor);
 
 		ParametersValidator.notNullAndNotEmpty(uid);
@@ -85,6 +89,10 @@ public class ResourceTypesService implements IResourceTypes {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_RESOURCE_TYPE);
 
 		ParametersValidator.notNullAndNotEmpty(uid);
+
+		if (store.exists(descriptor.label)) {
+			throw new ServerFault("resource type " + descriptor.label + " already exists", ErrorCode.ALREADY_EXISTS);
+		}
 
 		ResourceTypeDescriptor previous = null;
 		try {

@@ -26,6 +26,7 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
 import org.junit.After;
@@ -74,7 +75,7 @@ public class ResourcesTypeServiceTests {
 		PopulateHelper.initGlobalVirt();
 		PopulateHelper.createTestDomain(testDomainUid);
 
-		ContainerStore containerHome = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				SecurityContext.SYSTEM);
 
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
@@ -243,6 +244,19 @@ public class ResourcesTypeServiceTests {
 
 		// test set icon to inexistent resource type
 		assertNull(service(domainAdminSC).getIcon("fakeId"));
+	}
+
+	@Test
+	public void testAlreadyExists() throws Exception {
+		service(domainAdminSC).create(UUID.randomUUID().toString(), ResourceTypeDescriptor.create("test"));
+
+		try {
+			service(domainAdminSC).create(UUID.randomUUID().toString(), ResourceTypeDescriptor.create("test"));
+			fail();
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.ALREADY_EXISTS, sf.getCode());
+		}
+
 	}
 
 }
