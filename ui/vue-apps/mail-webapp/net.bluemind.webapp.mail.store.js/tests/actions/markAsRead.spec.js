@@ -96,12 +96,12 @@ describe("[Mail-WebappStore][actions] : markAsRead", () => {
     });
 
     function checkAlertsHaveNotBeenCalled() {
-        expect(context.commit).not.toHaveBeenCalledWith("alert/add", expect.anything(), { root: true });
-        expect(context.commit).not.toHaveBeenCalledWith("alert/remove", expect.anything(), { root: true });
+        expect(context.commit).not.toHaveBeenCalledWith("addApplicationAlert", expect.anything(), { root: true });
+        expect(context.commit).not.toHaveBeenCalledWith("removeApplicationAlert", expect.anything(), { root: true });
     }
 
     function checkAlertsHaveBeenCalled() {
-        expect(context.commit).toHaveBeenCalledWith("alert/add", expect.anything(), { root: true });
-        expect(context.commit).toHaveBeenCalledWith("alert/remove", expect.anything(), { root: true });
+        expect(context.commit).toHaveBeenCalledWith("addApplicationAlert", expect.anything(), { root: true });
+        expect(context.commit).toHaveBeenCalledWith("removeApplicationAlert", expect.anything(), { root: true });
     }
 });

@@ -29,7 +29,7 @@ function markAs(context, updateAction, messageFilter, alertCodes, messageKeys) {
     let promise;
 
     if (messageKeys.length > 1) {
-        context.commit("alert/add", { code: alertCodes.LOADING, uid: alertUid }, { root: true });
+        context.commit("addApplicationAlert", { code: alertCodes.LOADING, uid: alertUid }, { root: true });
     }
 
     if (anyMessageMissingInState(context.state, messageKeys)) {
@@ -40,9 +40,9 @@ function markAs(context, updateAction, messageFilter, alertCodes, messageKeys) {
 
     if (messageKeys.length > 1) {
         promise = promise
-            .then(() => context.commit("alert/add", { code: alertCodes.SUCCESS }, { root: true }))
-            .catch(() => context.commit("alert/add", { code: alertCodes.ERROR }, { root: true }))
-            .finally(() => context.commit("alert/remove", alertUid, { root: true }));
+            .then(() => context.commit("addApplicationAlert", { code: alertCodes.SUCCESS }, { root: true }))
+            .catch(() => context.commit("addApplicationAlert", { code: alertCodes.ERROR }, { root: true }))
+            .finally(() => context.commit("removeApplicationAlert", alertUid, { root: true }));
     }
     return promise;
 }

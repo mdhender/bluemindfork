@@ -11,7 +11,7 @@ export function purge({ dispatch, commit, state }, messageKey) {
             subject = message.subject;
 
             commit(
-                "alert/add",
+                "addApplicationAlert",
                 {
                     code: "MSG_PURGE_LOADING",
                     uid: loadingAlertUid,
@@ -27,11 +27,11 @@ export function purge({ dispatch, commit, state }, messageKey) {
                 const folderUid = ItemUri.container(messageKey);
                 commit("setUnreadCount", { folderUid, count: state.foldersData[folderUid].unread - 1 });
             }
-            commit("alert/remove", loadingAlertUid, { root: true });
-            commit("alert/add", { code: "MSG_PURGE_OK", props: { subject } }, { root: true });
+            commit("removeApplicationAlert", loadingAlertUid, { root: true });
+            commit("addApplicationAlert", { code: "MSG_PURGE_OK", props: { subject } }, { root: true });
         })
         .catch(reason => {
-            commit("alert/remove", loadingAlertUid, { root: true });
-            commit("alert/add", { code: "MSG_PURGE_ERROR", props: { subject, reason } }, { root: true });
+            commit("removeApplicationAlert", loadingAlertUid, { root: true });
+            commit("addApplicationAlert", { code: "MSG_PURGE_ERROR", props: { subject, reason } }, { root: true });
         });
 }

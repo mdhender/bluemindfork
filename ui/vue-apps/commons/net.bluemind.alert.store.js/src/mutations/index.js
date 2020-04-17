@@ -1,3 +1,3 @@
-export * from "./add";
-export * from "./remove";
-export * from "./removeAll";
+export * from "./addApplicationAlert";
+export * from "./removeApplicationAlert";
+export * from "./removeAllApplicationAlerts";

@@ -14,7 +14,7 @@ export function send({ state, commit, getters, dispatch }) {
     const loadingAlertUid = UUIDGenerator.generate();
 
     commit(
-        "alert/add",
+        "addApplicationAlert",
         {
             code: "MSG_SEND_LOADING",
             uid: loadingAlertUid,
@@ -89,9 +89,9 @@ export function send({ state, commit, getters, dispatch }) {
                 dispatch("messages/addFlag", { messageKeys: [draft.previousMessage.messageKey], mailboxItemFlag });
             }
             const messageKey = ItemUri.encode(mailItem.internalId, getters.my.SENT.uid);
-            commit("alert/remove", loadingAlertUid, { root: true });
+            commit("removeApplicationAlert", loadingAlertUid, { root: true });
             commit(
-                "alert/add",
+                "addApplicationAlert",
                 {
                     code: "MSG_SENT_OK",
                     props: {
@@ -107,9 +107,9 @@ export function send({ state, commit, getters, dispatch }) {
             commit("draft/update", { status: DraftStatus.SENT, id: null, saveDate: null });
         })
         .catch(reason => {
-            commit("alert/remove", loadingAlertUid, { root: true });
+            commit("removeApplicationAlert", loadingAlertUid, { root: true });
             commit(
-                "alert/add",
+                "addApplicationAlert",
                 {
                     code: "MSG_SENT_ERROR",
                     props: { subject: draft.subject, reason: reason.message }

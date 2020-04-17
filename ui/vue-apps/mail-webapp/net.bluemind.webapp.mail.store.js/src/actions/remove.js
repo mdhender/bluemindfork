@@ -15,7 +15,7 @@ export function remove({ dispatch, getters, commit, state }, messageKey) {
             message = messages[0];
             subject = message.subject;
             commit(
-                "alert/add",
+                "addApplicationAlert",
                 {
                     code: "MSG_REMOVED_LOADING",
                     props: { subject },
@@ -29,8 +29,10 @@ export function remove({ dispatch, getters, commit, state }, messageKey) {
             if (message.states.includes("not-seen")) {
                 commit("setUnreadCount", { folderUid, count: state.foldersData[folderUid].unread - 1 });
             }
-            commit("alert/add", { code: "MSG_REMOVED_OK", props: { subject } }, { root: true });
+            commit("addApplicationAlert", { code: "MSG_REMOVED_OK", props: { subject } }, { root: true });
         })
-        .catch(reason => commit("alert/add", { code: "MSG_REMOVED_ERROR", props: { subject, reason } }, { root: true }))
-        .finally(() => commit("alert/remove", loadingAlertUid, { root: true }));
+        .catch(reason =>
+            commit("addApplicationAlert", { code: "MSG_REMOVED_ERROR", props: { subject, reason } }, { root: true })
+        )
+        .finally(() => commit("removeApplicationAlert", loadingAlertUid, { root: true }));
 }

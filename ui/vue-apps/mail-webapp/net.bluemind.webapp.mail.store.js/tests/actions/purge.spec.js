@@ -45,16 +45,18 @@ describe("MailApp Store: Purge message action", () => {
 
             expect(context.commit).toHaveBeenNthCalledWith(
                 1,
-                "alert/add",
+                "addApplicationAlert",
                 expect.objectContaining(expectedLoadingAlert),
                 { root: true }
             );
 
-            expect(context.commit).toHaveBeenNthCalledWith(2, "alert/remove", loadingAlertUid, { root: true });
+            expect(context.commit).toHaveBeenNthCalledWith(2, "removeApplicationAlert", loadingAlertUid, {
+                root: true
+            });
 
             expect(context.commit).toHaveBeenNthCalledWith(
                 3,
-                "alert/add",
+                "addApplicationAlert",
                 expect.objectContaining({
                     code: "MSG_PURGE_OK",
                     props: { subject: undefined }
@@ -77,14 +79,16 @@ describe("MailApp Store: Purge message action", () => {
 
             expect(context.commit).toHaveBeenNthCalledWith(
                 1,
-                "alert/add",
+                "addApplicationAlert",
                 expect.objectContaining(expectedLoadingAlert),
                 { root: true }
             );
-            expect(context.commit).toHaveBeenNthCalledWith(2, "alert/remove", loadingAlertUid, { root: true });
+            expect(context.commit).toHaveBeenNthCalledWith(2, "removeApplicationAlert", loadingAlertUid, {
+                root: true
+            });
             expect(context.commit).toHaveBeenNthCalledWith(
                 3,
-                "alert/add",
+                "addApplicationAlert",
                 expect.objectContaining({
                     code: "MSG_PURGE_ERROR",
                     props: { subject: undefined, reason: undefined }

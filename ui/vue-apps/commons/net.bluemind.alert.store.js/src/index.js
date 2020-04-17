@@ -4,11 +4,10 @@ export { default as AlertFactory } from "./AlertFactory";
 export { default as AlertTypes } from "./AlertTypes";
 
 const state = {
-    alerts: []
+    applicationAlerts: []
 };
 
 export default {
-    namespaced: true,
     state,
     mutations
 };

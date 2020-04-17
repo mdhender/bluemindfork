@@ -51,7 +51,7 @@ describe("[Mail-WebappStore][actions] : remove", () => {
         remove(context, messageKey).then(() => {
             expect(context.commit).toHaveBeenNthCalledWith(
                 1,
-                "alert/add",
+                "addApplicationAlert",
                 {
                     code: "MSG_REMOVED_LOADING",
                     props: { subject: "dummy" },
@@ -62,14 +62,16 @@ describe("[Mail-WebappStore][actions] : remove", () => {
 
             expect(context.commit).toHaveBeenNthCalledWith(
                 2,
-                "alert/add",
+                "addApplicationAlert",
                 {
                     code: "MSG_REMOVED_OK",
                     props: { subject: "dummy" }
                 },
                 { root: true }
             );
-            expect(context.commit).toHaveBeenNthCalledWith(3, "alert/remove", expect.anything(), { root: true });
+            expect(context.commit).toHaveBeenNthCalledWith(3, "removeApplicationAlert", expect.anything(), {
+                root: true
+            });
             done();
         });
     });

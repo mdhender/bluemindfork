@@ -38,7 +38,7 @@ describe("[Mail-WebappStore][actions] : move", () => {
         move(context, { messageKey, folder }).then(() => {
             expect(context.commit).toHaveBeenNthCalledWith(
                 1,
-                "alert/add",
+                "addApplicationAlert",
                 {
                     code: "MSG_MOVED_LOADING",
                     props: { subject: "dummy" },
@@ -48,7 +48,7 @@ describe("[Mail-WebappStore][actions] : move", () => {
             );
             expect(context.commit).toHaveBeenNthCalledWith(
                 2,
-                "alert/add",
+                "addApplicationAlert",
                 {
                     code: "MSG_MOVE_OK",
                     props: {
@@ -59,7 +59,9 @@ describe("[Mail-WebappStore][actions] : move", () => {
                 },
                 { root: true }
             );
-            expect(context.commit).toHaveBeenNthCalledWith(3, "alert/remove", expect.anything(), { root: true });
+            expect(context.commit).toHaveBeenNthCalledWith(3, "removeApplicationAlert", expect.anything(), {
+                root: true
+            });
             done();
         });
     });

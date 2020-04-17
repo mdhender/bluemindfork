@@ -25,7 +25,7 @@ function moveSingleMessage({ dispatch, commit, getters }, { messageKey, folder }
         })
         .then(() => addOkAlert(commit, subject, destination))
         .catch(error => addErrorAlert(commit, subject, folder, error))
-        .finally(() => commit("alert/remove", alertUid, { root: true }));
+        .finally(() => commit("removeApplicationAlert", alertUid, { root: true }));
 }
 
 function moveMultipleMessages({ dispatch, commit, getters }, { messageKeys, folder }) {
@@ -39,12 +39,12 @@ function moveMultipleMessages({ dispatch, commit, getters }, { messageKeys, fold
         })
         .then(() => addOkAlertForMultipleMessages(commit, messageKeys.length, destination))
         .catch(() => addErrorAlertForMultipleMessages(commit, folder))
-        .finally(() => commit("alert/remove", alertUid, { root: true }));
+        .finally(() => commit("removeApplicationAlert", alertUid, { root: true }));
 }
 
 function addErrorAlert(commit, subject, folder, error) {
     commit(
-        "alert/add",
+        "addApplicationAlert",
         {
             code: "MSG_MOVE_ERROR",
             props: { subject, folderName: folder.value.name, reason: error.message }
@@ -54,12 +54,16 @@ function addErrorAlert(commit, subject, folder, error) {
 }
 
 function addErrorAlertForMultipleMessages(commit, folder) {
-    commit("alert/add", { code: "MSG_MOVE_ERROR_MULTIPLE", props: { folderName: folder.value.name } }, { root: true });
+    commit(
+        "addApplicationAlert",
+        { code: "MSG_MOVE_ERROR_MULTIPLE", props: { folderName: folder.value.name } },
+        { root: true }
+    );
 }
 
 function addOkAlert(commit, subject, folder) {
     commit(
-        "alert/add",
+        "addApplicationAlert",
         {
             code: "MSG_MOVE_OK",
             props: {
@@ -74,7 +78,7 @@ function addOkAlert(commit, subject, folder) {
 
 function addOkAlertForMultipleMessages(commit, count, folder) {
     commit(
-        "alert/add",
+        "addApplicationAlert",
         {
             code: "MSG_MOVE_OK_MULTIPLE",
             props: {
@@ -89,7 +93,7 @@ function addOkAlertForMultipleMessages(commit, count, folder) {
 
 function addLoadingAlert(commit, subject, alertUid) {
     commit(
-        "alert/add",
+        "addApplicationAlert",
         {
             code: "MSG_MOVED_LOADING",
             props: { subject },
@@ -101,7 +105,7 @@ function addLoadingAlert(commit, subject, alertUid) {
 
 function addLoadingAlertForMultipleMessages(commit, count, alertUid) {
     commit(
-        "alert/add",
+        "addApplicationAlert",
         {
             code: "MSG_MOVED_LOADING_MULTIPLE",
             props: { count },

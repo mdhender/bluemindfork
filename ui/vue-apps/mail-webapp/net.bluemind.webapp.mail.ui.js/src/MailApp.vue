@@ -80,7 +80,7 @@
             <bm-icon icon="pencil" />
         </bm-button>
         <mail-purge-modal />
-        <bm-application-alert :alerts="alerts" class="z-index-250">
+        <bm-application-alert :alerts="applicationAlerts" class="z-index-250">
             <template v-slot="slotProps">
                 <mail-alert-renderer :alert="slotProps.alert" />
             </template>
@@ -138,7 +138,7 @@ export default {
         };
     },
     computed: {
-        ...mapState("alert", ["alerts"]),
+        ...mapState({ applicationAlerts: state => state.alert.applicationAlerts }),
         ...mapState("mail-webapp", ["selectedMessageKeys"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         isMessageComposerDisplayed() {

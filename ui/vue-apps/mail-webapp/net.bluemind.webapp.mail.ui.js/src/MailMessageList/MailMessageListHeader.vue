@@ -7,7 +7,6 @@
                     :indeterminate="!areAllMessagesSelected && selectedMessageKeys.length > 0"
                     @change="$bus.$emit(TOGGLE_SELECTION_ALL)"
                 />
-                <!-- FIXME: toggleAll -->
             </bm-col>
             <bm-col class="d-none d-lg-block" cols="7">
                 <bm-choice-group

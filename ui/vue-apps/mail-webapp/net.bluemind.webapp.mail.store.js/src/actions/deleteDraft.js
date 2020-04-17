@@ -28,7 +28,7 @@ export function deleteDraft({ commit, state, getters }) {
         })
         .catch(reason => {
             commit(
-                "alert/add",
+                "addApplicationAlert",
                 {
                     code: "MSG_DRAFT_DELETE_ERROR",
                     props: { subject: draft.subject, reason }
