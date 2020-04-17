@@ -222,6 +222,7 @@
       <plugin id="net.bluemind.exchange.mapi.persistence"/>
       <plugin id="net.bluemind.exchange.mapi.service"/>
       <plugin id="net.bluemind.exchange.mapi.sqlschema"/>
+      <bundle id="net.bluemind.exchange.mapi.notifications"/>
       <plugin id="net.bluemind.exchange.publicfolders.common"/>
       <plugin id="net.bluemind.exchange.publicfolders.hierarchy"/>
       <plugin id="net.bluemind.externaluser.api"/>
