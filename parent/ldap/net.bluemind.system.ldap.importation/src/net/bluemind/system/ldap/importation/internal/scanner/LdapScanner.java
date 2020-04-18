@@ -39,7 +39,7 @@ import net.bluemind.system.importation.commons.managers.GroupManager;
 import net.bluemind.system.importation.commons.managers.UserManager;
 import net.bluemind.system.importation.commons.scanner.ImportLogger;
 import net.bluemind.system.importation.commons.scanner.Scanner;
-import net.bluemind.system.importation.search.LdapSearchCursor;
+import net.bluemind.system.importation.search.PagedSearchResult;
 import net.bluemind.system.ldap.importation.Activator;
 import net.bluemind.system.ldap.importation.internal.tools.GroupManagerImpl;
 import net.bluemind.system.ldap.importation.internal.tools.LdapHelper;
@@ -100,7 +100,7 @@ public abstract class LdapScanner extends Scanner {
 	}
 
 	@Override
-	protected LdapSearchCursor allUsersFromDirectory() throws LdapException {
+	protected PagedSearchResult allUsersFromDirectory() throws LdapException {
 		return getLdapSearch().findAllUsers(ldapCon);
 	}
 
@@ -114,17 +114,17 @@ public abstract class LdapScanner extends Scanner {
 	}
 
 	@Override
-	protected LdapSearchCursor allGroupsFromDirectory() throws LdapException {
+	protected PagedSearchResult allGroupsFromDirectory() throws LdapException {
 		return getLdapSearch().findAllGroups(ldapCon);
 	}
 
 	@Override
-	protected LdapSearchCursor usersDnByLastModification(Optional<String> lastUpdate) throws LdapException {
+	protected PagedSearchResult usersDnByLastModification(Optional<String> lastUpdate) throws LdapException {
 		return getLdapSearch().findUsersDnByLastModification(ldapCon, lastUpdate);
 	}
 
 	@Override
-	protected LdapSearchCursor groupsDnByLastModification(Optional<String> lastUpdate) throws LdapException {
+	protected PagedSearchResult groupsDnByLastModification(Optional<String> lastUpdate) throws LdapException {
 		return getLdapSearch().findGroupsDnByLastModification(ldapCon, lastUpdate);
 	}
 
@@ -139,12 +139,12 @@ public abstract class LdapScanner extends Scanner {
 	}
 
 	@Override
-	protected LdapSearchCursor getUserFromDn(Dn userDn) throws LdapException {
+	protected PagedSearchResult getUserFromDn(Dn userDn) throws LdapException {
 		return getLdapSearch().getUserUUID(ldapCon, userDn);
 	}
 
 	@Override
-	protected LdapSearchCursor getGroupFromDn(Dn groupDn) throws LdapException {
+	protected PagedSearchResult getGroupFromDn(Dn groupDn) throws LdapException {
 		return getLdapSearch().getGroupUUID(ldapCon, groupDn);
 	}
 

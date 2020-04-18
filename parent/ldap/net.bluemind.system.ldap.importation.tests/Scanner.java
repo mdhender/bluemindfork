@@ -58,8 +58,7 @@ import net.bluemind.system.importation.commons.enhancer.IScannerEnhancer;
 import net.bluemind.system.importation.commons.managers.GroupManager;
 import net.bluemind.system.importation.commons.managers.UserManager;
 import net.bluemind.system.importation.i18n.Messages;
-import net.bluemind.system.importation.search.PagedSearchResult;
-import net.bluemind.system.importation.search.PagedSearchResult.LdapSearchException;
+import net.bluemind.system.importation.search.LdapSearchCursor;
 import net.bluemind.user.api.User;
 
 public abstract class Scanner {
@@ -167,17 +166,17 @@ public abstract class Scanner {
 
 	protected abstract boolean doNotImportGroup(Entry entry);
 
-	protected abstract PagedSearchResult allUsersFromDirectory() throws LdapException;
+	protected abstract LdapSearchCursor allUsersFromDirectory() throws LdapException;
 
-	protected abstract PagedSearchResult allGroupsFromDirectory() throws LdapException;
+	protected abstract LdapSearchCursor allGroupsFromDirectory() throws LdapException;
 
-	protected abstract PagedSearchResult usersDnByLastModification(Optional<String> lastUpdate) throws LdapException;
+	protected abstract LdapSearchCursor usersDnByLastModification(Optional<String> lastUpdate) throws LdapException;
 
-	protected abstract PagedSearchResult groupsDnByLastModification(Optional<String> lastUpdate) throws LdapException;
+	protected abstract LdapSearchCursor groupsDnByLastModification(Optional<String> lastUpdate) throws LdapException;
 
-	protected abstract PagedSearchResult getUserFromDn(Dn dn) throws LdapException;
+	protected abstract LdapSearchCursor getUserFromDn(Dn dn) throws LdapException;
 
-	protected abstract PagedSearchResult getGroupFromDn(Dn dn) throws LdapException;
+	protected abstract LdapSearchCursor getGroupFromDn(Dn dn) throws LdapException;
 
 	protected abstract void manageUserGroups(UserManager userManager);
 
@@ -189,7 +188,7 @@ public abstract class Scanner {
 		Set<UuidMapper> bmUsersUuid = uuidMapperFromExtIds(coreService.getImportedUsersExtId());
 
 		Set<UuidMapper> adUsersUuid = new HashSet<>();
-		try (PagedSearchResult cursor = allUsersFromDirectory()) {
+		try (LdapSearchCursor cursor = allUsersFromDirectory()) {
 			while (cursor.next()) {
 				Response response = cursor.get();
 				if (response.getType() != MessageTypeEnum.SEARCH_RESULT_ENTRY) {
@@ -199,7 +198,7 @@ public abstract class Scanner {
 				Entry entry = ((SearchResultEntryDecorator) response).getEntry();
 				getUuidMapperFromEntry(entry).ifPresent(adUsersUuid::add);
 			}
-		} catch (LdapException | CursorException | LdapSearchException e) {
+		} catch (LdapException | CursorException e) {
 			throw new ServerFault(e);
 		}
 
@@ -225,7 +224,7 @@ public abstract class Scanner {
 		Set<UuidMapper> bmGroupsUuid = uuidMapperFromExtIds(coreService.getImportedGroupsExtId());
 
 		Set<UuidMapper> adGroupsUuid = new HashSet<>();
-		try (PagedSearchResult cursor = allGroupsFromDirectory()) {
+		try (LdapSearchCursor cursor = allGroupsFromDirectory()) {
 			while (cursor.next()) {
 				Response response = cursor.get();
 				if (response.getType() != MessageTypeEnum.SEARCH_RESULT_ENTRY) {
@@ -235,7 +234,7 @@ public abstract class Scanner {
 				Entry entry = ((SearchResultEntryDecorator) response).getEntry();
 				getUuidMapperFromEntry(entry).ifPresent(adGroupsUuid::add);
 			}
-		} catch (LdapException | CursorException | LdapSearchException e) {
+		} catch (LdapException | CursorException e) {
 			throw new ServerFault(e);
 		}
 
@@ -259,7 +258,7 @@ public abstract class Scanner {
 
 	private void scanGroups() {
 		List<Dn> entriesDn = new LinkedList<>();
-		try (PagedSearchResult cursor = groupsDnByLastModification(getParameter().lastUpdate)) {
+		try (LdapSearchCursor cursor = groupsDnByLastModification(getParameter().lastUpdate)) {
 			while (cursor.next()) {
 				Response response = cursor.get();
 				if (response.getType() != MessageTypeEnum.SEARCH_RESULT_ENTRY) {
@@ -268,7 +267,7 @@ public abstract class Scanner {
 
 				entriesDn.add(((SearchResultEntry) response).getObjectName());
 			}
-		} catch (CursorException | LdapException | LdapSearchException e) {
+		} catch (CursorException | LdapException e) {
 			throw new ServerFault(e);
 		}
 
@@ -376,7 +375,7 @@ public abstract class Scanner {
 	protected Optional<UuidMapper> getUserUuidMapper(Dn userDn) {
 		Entry entry = null;
 
-		try (PagedSearchResult cursor = getUserFromDn(userDn)) {
+		try (LdapSearchCursor cursor = getUserFromDn(userDn)) {
 			if (!cursor.next()) {
 				return Optional.empty();
 			}
@@ -414,7 +413,7 @@ public abstract class Scanner {
 
 	private Optional<Member> getGroupMember(GroupManager groupManager, Dn groupDn) {
 		Entry entry = null;
-		try (PagedSearchResult cursor = getGroupFromDn(groupDn)) {
+		try (LdapSearchCursor cursor = getGroupFromDn(groupDn)) {
 			if (!cursor.next()) {
 				return Optional.empty();
 			}
@@ -448,7 +447,7 @@ public abstract class Scanner {
 
 	private void scanUsers() {
 		List<Dn> entriesDn = new LinkedList<>();
-		try (PagedSearchResult cursor = usersDnByLastModification(getParameter().lastUpdate)) {
+		try (LdapSearchCursor cursor = usersDnByLastModification(getParameter().lastUpdate)) {
 			while (cursor.next()) {
 				Response response = cursor.get();
 				if (response.getType() != MessageTypeEnum.SEARCH_RESULT_ENTRY) {
@@ -457,7 +456,7 @@ public abstract class Scanner {
 
 				entriesDn.add(((SearchResultEntry) response).getObjectName());
 			}
-		} catch (CursorException | LdapException | LdapSearchException e) {
+		} catch (CursorException | LdapException e) {
 			throw new ServerFault(e);
 		}
 

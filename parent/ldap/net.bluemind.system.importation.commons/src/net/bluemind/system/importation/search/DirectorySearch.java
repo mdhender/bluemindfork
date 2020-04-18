@@ -37,19 +37,19 @@ public class DirectorySearch<T extends Parameters> {
 		this.userFilter = userFilter;
 	}
 
-	public LdapSearchCursor findByFilter(LdapConnection ldapCon, String filter) throws LdapException {
+	public PagedSearchResult findByFilter(LdapConnection ldapCon, String filter) throws LdapException {
 		return SearchCursorBuilder.withConnection(ldapCon, ldapParameters).withSearchFilter(filter).execute();
 
 	}
 
-	public LdapSearchCursor findByFilterAndAttributes(LdapConnection ldapCon, String filter, String... attributes)
+	public PagedSearchResult findByFilterAndAttributes(LdapConnection ldapCon, String filter, String... attributes)
 			throws LdapException {
 		return SearchCursorBuilder.withConnection(ldapCon, ldapParameters).withSearchFilter(filter)
 				.withAttributes(attributes).execute();
 
 	}
 
-	public LdapSearchCursor findByFilterAndBaseDnAndScopeAndAttributes(LdapConnection ldapCon, String filter, Dn baseDn,
+	public PagedSearchResult findByFilterAndBaseDnAndScopeAndAttributes(LdapConnection ldapCon, String filter, Dn baseDn,
 			SearchScope scope, String... attributes) throws LdapException {
 		return SearchCursorBuilder.withConnection(ldapCon, ldapParameters).withSearchFilter(filter)
 				.withAttributes(attributes).withScope(scope).withBaseDn(baseDn).execute();

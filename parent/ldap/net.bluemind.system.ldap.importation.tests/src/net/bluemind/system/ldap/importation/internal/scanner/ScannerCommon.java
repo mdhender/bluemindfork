@@ -65,7 +65,8 @@ import net.bluemind.system.importation.commons.UuidMapper;
 import net.bluemind.system.importation.commons.scanner.ImportLogger;
 import net.bluemind.system.importation.commons.scanner.RepportStatus;
 import net.bluemind.system.importation.search.DirectorySearch;
-import net.bluemind.system.importation.search.LdapSearchCursor;
+import net.bluemind.system.importation.search.PagedSearchResult;
+import net.bluemind.system.importation.search.PagedSearchResult.LdapSearchException;
 import net.bluemind.system.ldap.importation.api.LdapConstants;
 import net.bluemind.system.ldap.importation.api.LdapProperties;
 import net.bluemind.system.ldap.importation.internal.tools.LdapHelper;
@@ -131,8 +132,8 @@ public abstract class ScannerCommon {
 	}
 
 	@Test
-	public void createAndUpdateGroups()
-			throws ServerFault, LdapInvalidDnException, LdapException, CursorException, IOException {
+	public void createAndUpdateGroups() throws ServerFault, LdapInvalidDnException, LdapException, CursorException,
+			IOException, LdapSearchException {
 		CoreServicesTest coreService = new CoreServicesTest();
 		ItemValue<Group> existingGroup = getExistingGroup("cn=grptest01," + LdapDockerTestHelper.LDAP_ROOT_DN);
 		coreService.groups.put(existingGroup.uid, existingGroup);
@@ -159,8 +160,8 @@ public abstract class ScannerCommon {
 	 * @throws CursorException
 	 * @throws IOException
 	 */
-	protected ItemValue<Group> getExistingGroup(String dn)
-			throws ServerFault, LdapInvalidDnException, LdapException, CursorException, IOException {
+	protected ItemValue<Group> getExistingGroup(String dn) throws ServerFault, LdapInvalidDnException, LdapException,
+			CursorException, IOException, LdapSearchException {
 		Entry entry = getExistingGroupEntry(dn);
 
 		Group group = new Group();
@@ -169,13 +170,13 @@ public abstract class ScannerCommon {
 		return ItemValue.create(Item.create(UIDGenerator.uid(), LdapConstants.EXTID_PREFIX + extId), group);
 	}
 
-	private Entry getExistingGroupEntry(String dn)
-			throws LdapInvalidDnException, LdapException, IOException, ServerFault, CursorException {
+	private Entry getExistingGroupEntry(String dn) throws LdapInvalidDnException, LdapException, IOException,
+			ServerFault, CursorException, LdapSearchException {
 		Entry entry = null;
 
 		try (LdapConProxy ldapCon = LdapHelper
 				.connectLdap(LdapParameters.build(getDomain(), Collections.<String, String>emptyMap()))) {
-			LdapSearchCursor entries = new DirectorySearch<>(
+			PagedSearchResult entries = new DirectorySearch<>(
 					LdapParameters.build(getDomain(), Collections.<String, String>emptyMap()),
 					new LdapGroupSearchFilter(), new LdapUserSearchFilter()).findByFilterAndBaseDnAndScopeAndAttributes(
 							ldapCon, "(objectclass=*)", new Dn(dn), SearchScope.OBJECT, "*", "+",
@@ -196,8 +197,8 @@ public abstract class ScannerCommon {
 	}
 
 	@Test
-	public void createAndUpdateUsers()
-			throws ServerFault, LdapInvalidDnException, LdapException, CursorException, IOException {
+	public void createAndUpdateUsers() throws ServerFault, LdapInvalidDnException, LdapException, CursorException,
+			IOException, LdapSearchException {
 		CoreServicesTest coreService = new CoreServicesTest();
 		ItemValue<User> existingUser = getExistingUser("uid=user02," + LdapDockerTestHelper.LDAP_ROOT_DN);
 		coreService.users.put(existingUser.uid, existingUser);
@@ -256,8 +257,8 @@ public abstract class ScannerCommon {
 	 * @throws CursorException
 	 * @throws IOException
 	 */
-	private ItemValue<User> getExistingUser(String dn)
-			throws LdapInvalidDnException, LdapException, ServerFault, CursorException, IOException {
+	private ItemValue<User> getExistingUser(String dn) throws LdapInvalidDnException, LdapException, ServerFault,
+			CursorException, IOException, LdapSearchException {
 		Entry entry = getExistingUserEntry(dn);
 		return getExistingUser(entry);
 	}
@@ -271,13 +272,13 @@ public abstract class ScannerCommon {
 		return ItemValue.create(Item.create(UIDGenerator.uid(), LdapConstants.EXTID_PREFIX + extId), user);
 	}
 
-	private Entry getExistingUserEntry(String dn)
-			throws IOException, ServerFault, LdapInvalidDnException, LdapException, CursorException {
+	private Entry getExistingUserEntry(String dn) throws IOException, ServerFault, LdapInvalidDnException,
+			LdapException, CursorException, LdapSearchException {
 		Entry entry = null;
 
 		try (LdapConProxy ldapCon = LdapHelper
 				.connectLdap(LdapParameters.build(getDomain(), Collections.<String, String>emptyMap()))) {
-			LdapSearchCursor entries = new DirectorySearch<>(
+			PagedSearchResult entries = new DirectorySearch<>(
 					LdapParameters.build(getDomain(), Collections.<String, String>emptyMap()),
 					new LdapGroupSearchFilter(), new LdapUserSearchFilter()).findByFilterAndBaseDnAndScopeAndAttributes(
 							ldapCon, "(objectclass=*)", new Dn(dn), SearchScope.OBJECT, "*", "+",
@@ -298,8 +299,8 @@ public abstract class ScannerCommon {
 	}
 
 	@Test
-	public void groupMemberAdd()
-			throws LdapInvalidDnException, ServerFault, LdapException, CursorException, IOException {
+	public void groupMemberAdd() throws LdapInvalidDnException, ServerFault, LdapException, CursorException,
+			IOException, LdapSearchException {
 		CoreServicesTest coreService = new CoreServicesTest();
 		ItemValue<User> user00 = getExistingUser("uid=user00," + LdapDockerTestHelper.LDAP_ROOT_DN);
 		coreService.addExistingUser(user00);
@@ -344,8 +345,8 @@ public abstract class ScannerCommon {
 	}
 
 	@Test
-	public void groupMemberRemove()
-			throws LdapInvalidDnException, ServerFault, LdapException, CursorException, IOException {
+	public void groupMemberRemove() throws LdapInvalidDnException, ServerFault, LdapException, CursorException,
+			IOException, LdapSearchException {
 		CoreServicesTest coreService = new CoreServicesTest();
 		ItemValue<User> user00 = getExistingUser("uid=user00," + LdapDockerTestHelper.LDAP_ROOT_DN);
 		coreService.addExistingUser(user00);
@@ -421,7 +422,7 @@ public abstract class ScannerCommon {
 
 	@Test
 	public void incrementalCreate() throws LdapInvalidDnException, ServerFault, LdapException, CursorException,
-			IOException, InterruptedException {
+			LdapSearchException, IOException, InterruptedException {
 		CoreServicesTest coreService = new CoreServicesTest();
 		Entry user00Entry = getExistingUserEntry("uid=user00," + LdapDockerTestHelper.LDAP_ROOT_DN);
 		ItemValue<User> user00 = getExistingUser(user00Entry);

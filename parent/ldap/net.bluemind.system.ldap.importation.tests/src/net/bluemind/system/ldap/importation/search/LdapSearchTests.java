@@ -35,7 +35,7 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 
 import net.bluemind.lib.ldap.LdapConProxy;
-import net.bluemind.system.importation.search.LdapSearchCursor;
+import net.bluemind.system.importation.search.PagedSearchResult;
 import net.bluemind.system.ldap.importation.internal.tools.LdapParameters;
 import net.bluemind.system.ldap.tests.helpers.LdapDockerTestHelper;
 
@@ -60,7 +60,7 @@ public class LdapSearchTests {
 		int count = 0;
 
 		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters);
-				LdapSearchCursor findAllUsers = search.findAllUsers(connection)) {
+				PagedSearchResult findAllUsers = search.findAllUsers(connection)) {
 			while (findAllUsers.next()) {
 				count++;
 			}
@@ -76,7 +76,7 @@ public class LdapSearchTests {
 		int count = 0;
 
 		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters);
-				LdapSearchCursor findAllGroups = search.findAllGroups(connection)) {
+				PagedSearchResult findAllGroups = search.findAllGroups(connection)) {
 			while (findAllGroups.next()) {
 				count++;
 			}
@@ -100,7 +100,7 @@ public class LdapSearchTests {
 
 		List<String> cns = new ArrayList<>();
 		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters);
-				LdapSearchCursor findGroups = search.findGroupsDnByLastModification(connection,
+				PagedSearchResult findGroups = search.findGroupsDnByLastModification(connection,
 						Optional.of(beforeDate))) {
 			while (findGroups.next()) {
 				cns.add(findGroups.getEntry().get("cn").getString());
@@ -118,7 +118,7 @@ public class LdapSearchTests {
 		LdapSearch search = new LdapSearch(ldapParameters, new LdapGroupSearchFilter(), new LdapUserSearchFilter());
 
 		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters)) {
-			LdapSearchCursor findUser = search.getUserUUID(connection,
+			PagedSearchResult findUser = search.getUserUUID(connection,
 					new Dn("uid=user00," + LdapDockerTestHelper.LDAP_ROOT_DN));
 
 			Assert.assertTrue(findUser.next());
@@ -135,7 +135,7 @@ public class LdapSearchTests {
 
 		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters)) {
 			Dn groupDn = new Dn("cn=grptest00," + LdapDockerTestHelper.LDAP_ROOT_DN);
-			LdapSearchCursor findGroupName = search.getGroupUUID(connection, groupDn);
+			PagedSearchResult findGroupName = search.getGroupUUID(connection, groupDn);
 
 			Assert.assertTrue(findGroupName.next());
 			Entry entry = findGroupName.getEntry();

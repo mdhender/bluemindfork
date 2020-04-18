@@ -23,7 +23,7 @@ import java.util.Optional;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.ldap.client.api.LdapConnection;
 
-import net.bluemind.system.importation.search.LdapSearchCursor;
+import net.bluemind.system.importation.search.PagedSearchResult;
 import net.bluemind.system.ldap.importation.internal.tools.LdapParameters;
 
 public class MemberUidLdapSearch extends LdapSearch {
@@ -32,7 +32,7 @@ public class MemberUidLdapSearch extends LdapSearch {
 		super(ldapParameters, new LdapGroupSearchFilter(), new LdapUserSearchFilter());
 	}
 
-	public LdapSearchCursor getUserFromLogin(LdapConnection ldapCon, String userLogin) throws LdapException {
+	public PagedSearchResult getUserFromLogin(LdapConnection ldapCon, String userLogin) throws LdapException {
 		return super.findByFilterAndAttributes(ldapCon,
 				userFilter.getSearchFilter(ldapParameters, Optional.empty(), userLogin, null),
 				ldapParameters.ldapDirectory.extIdAttribute);

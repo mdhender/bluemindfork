@@ -26,7 +26,7 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.lib.ldap.LdapConProxy;
 import net.bluemind.system.importation.commons.scanner.ImportLogger;
 import net.bluemind.system.importation.commons.scanner.Scanner;
-import net.bluemind.system.importation.search.LdapSearchCursor;
+import net.bluemind.system.importation.search.PagedSearchResult;
 import net.bluemind.system.importation.search.SearchCursorBuilder;
 import net.bluemind.system.ldap.importation.internal.scanner.MemberLdapScanner;
 import net.bluemind.system.ldap.importation.internal.scanner.MemberOfLdapScanner;
@@ -54,7 +54,7 @@ public class LdapScannerFactory {
 
 	private static boolean isLdapContainMember(LdapParameters ldapParameters) throws ServerFault {
 		try (LdapConProxy ldapCon = LdapHelper.connectLdap(ldapParameters)) {
-			try (LdapSearchCursor cursor = SearchCursorBuilder.withConnection(ldapCon, ldapParameters)
+			try (PagedSearchResult cursor = SearchCursorBuilder.withConnection(ldapCon, ldapParameters)
 					.withSearchFilter("(&"
 							+ new LdapGroupSearchFilter().getSearchFilter(ldapParameters, Optional.empty(), null, null)
 							+ "(" + GroupManagerImpl.LDAP_MEMBER + "=*))")
@@ -68,7 +68,7 @@ public class LdapScannerFactory {
 
 	private static boolean isLdapContainMemberOf(LdapParameters ldapParameters) throws ServerFault {
 		try (LdapConProxy ldapCon = LdapHelper.connectLdap(ldapParameters)) {
-			try (LdapSearchCursor cursor = SearchCursorBuilder.withConnection(ldapCon, ldapParameters)
+			try (PagedSearchResult cursor = SearchCursorBuilder.withConnection(ldapCon, ldapParameters)
 					.withSearchFilter("(&"
 							+ new LdapUserSearchFilter().getSearchFilter(ldapParameters, Optional.empty(), null, null)
 							+ "(" + UserManagerImpl.LDAP_MEMBER_OF + "=*))")

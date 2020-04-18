@@ -36,7 +36,7 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 
 import net.bluemind.lib.ldap.LdapConProxy;
-import net.bluemind.system.importation.search.LdapSearchCursor;
+import net.bluemind.system.importation.search.PagedSearchResult;
 import net.bluemind.system.ldap.importation.internal.tools.GroupManagerImpl;
 import net.bluemind.system.ldap.importation.internal.tools.LdapParameters;
 import net.bluemind.system.ldap.tests.helpers.LdapDockerTestHelper;
@@ -69,7 +69,7 @@ public class MemberLdapSearchTests {
 
 		List<String> logins = new ArrayList<>();
 		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters)) {
-			LdapSearchCursor findUser = search.findUsersDnByLastModification(connection, Optional.of(beforeDate));
+			PagedSearchResult findUser = search.findUsersDnByLastModification(connection, Optional.of(beforeDate));
 
 			while (findUser.next()) {
 				logins.add(findUser.getEntry().get("uid").getString());
@@ -88,7 +88,7 @@ public class MemberLdapSearchTests {
 		int count = 0;
 
 		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters);
-				LdapSearchCursor findAllGroups = search.findAllGroups(connection)) {
+				PagedSearchResult findAllGroups = search.findAllGroups(connection)) {
 			while (findAllGroups.next()) {
 				count++;
 			}
@@ -105,7 +105,7 @@ public class MemberLdapSearchTests {
 		List<String> groupName = new ArrayList<>();
 		List<String> groupMembers = new ArrayList<>();
 		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters);
-				LdapSearchCursor findGroupsByGroupName = search.findByGroupName(connection,
+				PagedSearchResult findGroupsByGroupName = search.findByGroupName(connection,
 						GroupManagerImpl.LDAP_MEMBER)) {
 			while (findGroupsByGroupName.next()) {
 				groupName.add(findGroupsByGroupName.getEntry().get("cn").getString());

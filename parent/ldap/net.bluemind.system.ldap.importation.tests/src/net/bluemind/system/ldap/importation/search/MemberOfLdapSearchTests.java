@@ -39,7 +39,7 @@ import net.bluemind.scheduledjob.api.JobExitStatus;
 import net.bluemind.system.importation.commons.UuidMapper;
 import net.bluemind.system.importation.commons.scanner.ImportLogger;
 import net.bluemind.system.importation.commons.scanner.RepportStatus;
-import net.bluemind.system.importation.search.LdapSearchCursor;
+import net.bluemind.system.importation.search.PagedSearchResult;
 import net.bluemind.system.ldap.importation.internal.tools.LdapParameters;
 import net.bluemind.system.ldap.tests.helpers.LdapDockerTestHelper;
 
@@ -71,7 +71,7 @@ public class MemberOfLdapSearchTests {
 
 		List<String> logins = new ArrayList<>();
 		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters);
-				LdapSearchCursor findUsers = search.findUsersDnByLastModification(connection,
+				PagedSearchResult findUsers = search.findUsersDnByLastModification(connection,
 						Optional.of(beforeDate))) {
 			while (findUsers.next()) {
 				logins.add(findUsers.getEntry().get("uid").getString());
@@ -94,7 +94,7 @@ public class MemberOfLdapSearchTests {
 		MemberOfLdapSearch search = new MemberOfLdapSearch(importLogger, ldapParameters);
 
 		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters)) {
-			LdapSearchCursor cursor = search.findAllUsers(connection);
+			PagedSearchResult cursor = search.findAllUsers(connection);
 			Entry entry = null;
 			while (cursor.next()) {
 				if (entry != null) {
@@ -118,7 +118,7 @@ public class MemberOfLdapSearchTests {
 		MemberOfLdapSearch search = new MemberOfLdapSearch(importLogger, ldapParameters);
 
 		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters)) {
-			LdapSearchCursor cursor = search.findAllUsers(connection);
+			PagedSearchResult cursor = search.findAllUsers(connection);
 			Entry entry = null;
 			while (cursor.next()) {
 				if (entry != null) {

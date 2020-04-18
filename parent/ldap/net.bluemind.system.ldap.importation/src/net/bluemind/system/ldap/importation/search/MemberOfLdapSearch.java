@@ -18,21 +18,20 @@
  */
 package net.bluemind.system.ldap.importation.search;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
-import org.apache.directory.api.ldap.model.cursor.EntryCursor;
+import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
+import org.apache.directory.api.ldap.model.message.SearchRequest;
+import org.apache.directory.api.ldap.model.message.SearchRequestImpl;
 import org.apache.directory.api.ldap.model.message.SearchScope;
-import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +39,8 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.system.importation.commons.UuidMapper;
 import net.bluemind.system.importation.commons.scanner.ImportLogger;
 import net.bluemind.system.importation.i18n.Messages;
+import net.bluemind.system.importation.search.PagedSearchResult;
+import net.bluemind.system.importation.search.PagedSearchResult.LdapSearchException;
 import net.bluemind.system.ldap.importation.internal.tools.LdapParameters;
 import net.bluemind.system.ldap.importation.internal.tools.LdapUuidMapper;
 import net.bluemind.system.ldap.importation.internal.tools.UserManagerImpl;
@@ -66,57 +67,51 @@ public class MemberOfLdapSearch extends LdapSearch {
 	private List<UuidMapper> getGroupsByMemberOfUuid(LdapConnection ldapCon, LdapParameters ldapParameters,
 			Attribute memberOf) {
 
-		List<UuidMapper> userGroups = new ArrayList<>();
-		Iterator<Value<?>> iterator = memberOf.iterator();
-		while (iterator.hasNext()) {
-			String memberOfValue = iterator.next().getString();
-
-			EntryCursor results = null;
-			try {
-				results = getUserGroups(ldapCon, ldapParameters, memberOfValue);
-				if (results.next()) {
-					Entry groupEntry = results.get();
-
-					Attribute extIdAttribut = groupEntry.get(ldapParameters.ldapDirectory.extIdAttribute);
-					if (extIdAttribut == null) {
-						logger.warn("Unable to find external attribut for group: " + groupEntry.getDn().getName());
-						importLogger.warning(Messages.failGetGroupExternalId(groupEntry.getDn().getName()));
-						continue;
-					}
-					userGroups.add(LdapUuidMapper.fromEntry(ldapParameters.ldapDirectory.extIdAttribute, groupEntry));
-				}
-
-			} catch (Exception e) {
-				logger.warn("Cannot lookup memberOfGroupGuid {}", e.getMessage());
-			} finally {
-				if (null != results && !results.isClosed()) {
-					try {
-						results.close();
-					} catch (IOException e) {
-						logger.error(e.getMessage(), e);
-					}
-				}
-			}
-		}
-
-		return userGroups;
+		return StreamSupport.stream(memberOf.spliterator(), false)
+				.map(member -> getUserGroupUuidMapper(ldapCon, ldapParameters, member.getString()))
+				.filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
 	}
 
-	private EntryCursor getUserGroups(LdapConnection ldapCon, LdapParameters ldapParameters, String memberOfValue)
-			throws LdapException, LdapInvalidDnException {
+	private Optional<UuidMapper> getUserGroupUuidMapper(LdapConnection ldapCon, LdapParameters ldapParameters,
+			String memberOfValue) {
+		Entry entry = null;
 
 		try {
-			Dn memberOfValueDn = new Dn(memberOfValue);
-			return ldapCon.search(memberOfValueDn, ldapParameters.ldapDirectory.groupFilter, SearchScope.OBJECT,
-					ldapParameters.ldapDirectory.extIdAttribute);
+			entry = ldapCon.lookup(memberOfValue, ldapParameters.ldapDirectory.extIdAttribute);
 		} catch (LdapInvalidDnException lide) {
-			// If LDAP_MEMBER_OF value is not a valid DN, try to
-			// search
-			// group by name
-			return ldapCon.search(ldapParameters.ldapDirectory.baseDn,
-					groupFilter.getSearchFilter(ldapParameters, Optional.empty(), null, memberOfValue),
-					SearchScope.SUBTREE, ldapParameters.ldapDirectory.extIdAttribute);
+		} catch (LdapException e) {
+			logger.warn("Cannot lookup memberOfGroupGuid {}", e.getMessage());
+			return Optional.empty();
 		}
+
+		try {
+			// If LDAP_MEMBER_OF value is not a valid DN, try to search group by name
+			SearchRequest searchRequest = new SearchRequestImpl().setBase(ldapParameters.ldapDirectory.baseDn)
+					.setFilter(groupFilter.getSearchFilter(ldapParameters, Optional.empty(), null, memberOfValue))
+					.setScope(SearchScope.SUBTREE).addAttributes(ldapParameters.ldapDirectory.extIdAttribute)
+					.setSizeLimit(1);
+			try (PagedSearchResult result = new PagedSearchResult(ldapCon, searchRequest)) {
+				if (result.next()) {
+					entry = result.getEntry();
+				}
+			}
+		} catch (CursorException | LdapSearchException | LdapException e) {
+			logger.warn("Cannot lookup memberOfGroupGuid {}", e.getMessage());
+			return Optional.empty();
+		}
+
+		if (entry == null) {
+			return Optional.empty();
+		}
+
+		Attribute extIdAttribut = entry.get(ldapParameters.ldapDirectory.extIdAttribute);
+		if (extIdAttribut == null) {
+			logger.warn("Unable to find external attribute for group: " + entry.getDn().getName());
+			importLogger.warning(Messages.failGetGroupExternalId(entry.getDn().getName()));
+			return Optional.empty();
+		}
+
+		return Optional.of(LdapUuidMapper.fromEntry(ldapParameters.ldapDirectory.extIdAttribute, entry));
 	}
 
 }
