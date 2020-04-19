@@ -72,7 +72,7 @@ public class PasswordExpireNotificationJob implements IScheduledJob {
 	private final List<Integer> notificationIntervals = Arrays.asList(1, 2, 3, 4, 5, 10);
 
 	private String domainName;
-	private Report report = new Report();
+	private Report report;
 
 	private class Report {
 		private class IntervalReport {
@@ -132,6 +132,7 @@ public class PasswordExpireNotificationJob implements IScheduledJob {
 			return;
 		}
 
+		report = new Report();
 		notificationIntervals.stream()
 				.forEach(notificationInterval -> process(passwordLifetime.get(), notificationInterval));
 		report.reportByInterval.entrySet().stream().forEach(this::logReport);

@@ -485,7 +485,8 @@ public class UserService implements IInCoreUser, IUser {
 		}
 
 		if (userItem.value.passwordLastChange == null
-				|| addDaysToDate(userItem.value.passwordLastChange, passwordLifetime.get()).before(getToday())) {
+				|| addDaysToDate(userItem.value.passwordLastChange, passwordLifetime.get())
+						.compareTo(getToday()) <= 0) {
 			return true;
 		}
 
