@@ -7,7 +7,7 @@ Group:              Applications/messaging
 URL:                http://www.bluemind.net/
 ExcludeArch:        s390 s390x
 Requires(post):     systemd systemd-sysv
-Requires:           bm-jdk = 8u242-bluemind32, vim-enhanced, emacs-nox, strace, lsof, telnet, openssh-clients, tar, gzip, bzip2, rsync, bm-conf = %{version}-%{release}, nfs-utils, sysstat, bm-pimp = %{version}-%{release}, iptables, sudo, httpd-tools
+Requires:           bm-jdk = 8u252-bluemind34, vim-enhanced, emacs-nox, strace, lsof, telnet, openssh-clients, tar, gzip, bzip2, rsync, bm-conf = %{version}-%{release}, nfs-utils, sysstat, bm-pimp = %{version}-%{release}, iptables, sudo, httpd-tools
 Requires(post):     /bin/bash, initscripts
 
 %description
