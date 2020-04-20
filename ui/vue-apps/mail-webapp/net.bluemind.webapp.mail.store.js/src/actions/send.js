@@ -25,7 +25,7 @@ export function send({ state, commit, getters, dispatch }) {
             return flush(); // flush means send mail + move to sentbox
         })
         .then(taskResult => getSentMessageId(taskResult, draftId, getters.my.SENT.uid))
-        .then(mailItem => handleSuccess(mailItem.internalId, loadingAlertUid, getters.my.SENT, draft, commit, dispatch))
+        .then(mailItem => handleSuccess(mailItem.internalId, loadingAlertUid, getters.my, draft, commit, dispatch))
         .catch(reason => handleError(commit, draft.subject, loadingAlertUid, reason));
 }
 
@@ -65,9 +65,10 @@ function moveToOutbox(my, draftId) {
         });
 }
 
-function handleSuccess(sentMailId, loadingAlertUid, sentbox, draft, commit, dispatch) {
+function handleSuccess(sentMailId, loadingAlertUid, my, draft, commit, dispatch) {
+    clearAttachmentParts(my.DRAFTS.uid, draft);
     manageFlagOnPreviousMessage(draft, dispatch);
-    const messageKey = ItemUri.encode(sentMailId, sentbox.uid);
+    const messageKey = ItemUri.encode(sentMailId, my.SENT.uid);
     commit("removeApplicationAlert", loadingAlertUid, { root: true });
     commit(
         "addApplicationAlert",
@@ -77,13 +78,22 @@ function handleSuccess(sentMailId, loadingAlertUid, sentbox, draft, commit, disp
                 subject: draft.subject,
                 subjectLink: {
                     name: "v:mail:message",
-                    params: { message: messageKey, folder: sentbox.value.fullName }
+                    params: { message: messageKey, folder: my.SENT.value.fullName }
                 }
             }
         },
         { root: true }
     );
     commit("draft/update", { status: DraftStatus.SENT, id: null, saveDate: null });
+}
+
+function clearAttachmentParts(draftboxUid, draft) {
+    const service = injector.getProvider("MailboxItemsPersistence").get(draftboxUid);
+    return Promise.all(
+        draft.parts.attachments
+            .filter(a => draft.attachmentStatuses[a.uid] !== "ERROR")
+            .map(a => service.removePart(a.address))
+    );
 }
 
 function manageFlagOnPreviousMessage(draft, dispatch) {
