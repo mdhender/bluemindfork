@@ -18,6 +18,7 @@
  */
 package net.bluemind.system.ldap.importation.search;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -89,7 +90,11 @@ public class MemberOfLdapSearch extends LdapSearch {
 				logger.warn("Cannot lookup memberOfGroupGuid {}", e.getMessage());
 			} finally {
 				if (null != results && !results.isClosed()) {
-					results.close();
+					try {
+						results.close();
+					} catch (IOException e) {
+						logger.error(e.getMessage(), e);
+					}
 				}
 			}
 		}

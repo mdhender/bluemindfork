@@ -3,28 +3,28 @@
 
 <product name="bluemind.core" uid="core" id="net.bluemind.application.launcher.core" application="net.bluemind.application.launcher.coreLauncher" version="4.1.0.qualifier" useFeatures="false" includeLaunchers="true">
 
-    <configIni use="default">
-    </configIni>
+   <configIni use="default">
+   </configIni>
 
-    <launcherArgs>
-        <programArgs>-consoleLog -debug
-        </programArgs>
-        <vmArgs>-Dosgi.noShutdown=true -Duser.timezone=GMT -Djava.awt.headless=true -Xmx1024m -Dnet.bluemind.property.product=bm-core
-        </vmArgs>
-        <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
-        </vmArgsMac>
-    </launcherArgs>
+   <launcherArgs>
+      <programArgs>-consoleLog -debug
+      </programArgs>
+      <vmArgs>-Dosgi.noShutdown=true -Duser.timezone=GMT -Djava.awt.headless=true -Xmx1024m -Dnet.bluemind.property.product=bm-core
+      </vmArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
+   </launcherArgs>
 
-    <windowImages/>
+   <windowImages/>
 
-    <launcher name="core">
-        <win useIco="false">
-            <bmp/>
-        </win>
-    </launcher>
+   <launcher name="core">
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
 
-    <vm>
-    </vm>
+   <vm>
+   </vm>
 
    <plugins>
       <plugin id="backport-util-concurrent"/>
@@ -125,6 +125,7 @@
       <plugin id="net.bluemind.content.analysis"/>
       <plugin id="net.bluemind.core.annotationvalidator"/>
       <plugin id="net.bluemind.core.auditlog"/>
+      <plugin id="net.bluemind.core.bo.report.provider"/>
       <plugin id="net.bluemind.core.caches.registry"/>
       <plugin id="net.bluemind.core.commons"/>
       <plugin id="net.bluemind.core.container.api"/>
@@ -222,7 +223,6 @@
       <plugin id="net.bluemind.exchange.mapi.persistence"/>
       <plugin id="net.bluemind.exchange.mapi.service"/>
       <plugin id="net.bluemind.exchange.mapi.sqlschema"/>
-      <bundle id="net.bluemind.exchange.mapi.notifications"/>
       <plugin id="net.bluemind.exchange.publicfolders.common"/>
       <plugin id="net.bluemind.exchange.publicfolders.hierarchy"/>
       <plugin id="net.bluemind.externaluser.api"/>
@@ -259,6 +259,7 @@
       <plugin id="net.bluemind.imap.vertx"/>
       <plugin id="net.bluemind.jdbc.driver.pgsql" fragment="true"/>
       <plugin id="net.bluemind.jdbc.pgsql.provider"/>
+      <plugin id="net.bluemind.ldap.directory.client"/>
       <plugin id="net.bluemind.lib.elasticsearch"/>
       <plugin id="net.bluemind.lib.ical4j"/>
       <plugin id="net.bluemind.lib.jackson"/>
@@ -405,8 +406,6 @@
       <plugin id="org.apache.commons.collections"/>
       <plugin id="org.apache.commons.io"/>
       <plugin id="org.apache.commons.lang"/>
-      <plugin id="org.apache.commons.pool"/>
-      <plugin id="org.apache.directory.api.all"/>
       <plugin id="org.apache.httpcomponents.httpclient"/>
       <plugin id="org.apache.httpcomponents.httpcore"/>
       <plugin id="org.apache.james.apache-mime4j-core"/>
@@ -416,7 +415,6 @@
       <plugin id="org.apache.pdfbox"/>
       <plugin id="org.apache.pdfbox.fontbox"/>
       <plugin id="org.apache.pdfbox.jempbox"/>
-      <plugin id="org.apache.servicemix.bundles.antlr"/>
       <plugin id="org.apache.xerces"/>
       <plugin id="org.apache.xml.resolver"/>
       <plugin id="org.apache.xml.serializer"/>
@@ -458,17 +456,17 @@
       <plugin id="xpp3"/>
    </plugins>
 
-    <configurations>
-        <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
-        <property name="osgi.configuration.area" value="/var/lib/bm-core/" />
-        <property name="osgi.noShutdown" value="true" />
-    </configurations>
+   <configurations>
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
+      <property name="osgi.configuration.area" value="/var/lib/bm-core/" />
+      <property name="osgi.noShutdown" value="true" />
+   </configurations>
 
-    <preferencesInfo>
-        <targetfile overwrite="false"/>
-    </preferencesInfo>
+   <preferencesInfo>
+      <targetfile overwrite="false"/>
+   </preferencesInfo>
 
-    <cssInfo>
-    </cssInfo>
+   <cssInfo>
+   </cssInfo>
 
 </product>

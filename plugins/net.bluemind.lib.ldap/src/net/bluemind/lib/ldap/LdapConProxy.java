@@ -445,4 +445,15 @@ public class LdapConProxy implements LdapConnection, AutoCloseable {
 	public LdapConnectionConfig getConfig() {
 		return wrapped.getConfig();
 	}
+
+	@Override
+	public void loadSchemaRelaxed() throws LdapException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public boolean isRequestCompleted(int messageId) {
+		return wrapped.isRequestCompleted(messageId);
+	}
 }

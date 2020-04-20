@@ -18,6 +18,7 @@
  */
 package net.bluemind.system.importation.search;
 
+import java.io.IOException;
 import java.util.Iterator;
 
 import org.apache.directory.api.ldap.model.cursor.ClosureMonitor;
@@ -39,8 +40,12 @@ public class LdapSearchCursor implements AutoCloseable, SearchCursor {
 
 	@Override
 	public void close() {
-		if (null != cursor) {
-			cursor.close();
+		if (cursor != null) {
+			try {
+				cursor.close();
+			} catch (IOException e) {
+				// that's ok
+			}
 		}
 	}
 
@@ -70,7 +75,7 @@ public class LdapSearchCursor implements AutoCloseable, SearchCursor {
 	}
 
 	@Override
-	public void close(Exception arg0) {
+	public void close(Exception arg0) throws IOException {
 		cursor.close(arg0);
 	}
 
