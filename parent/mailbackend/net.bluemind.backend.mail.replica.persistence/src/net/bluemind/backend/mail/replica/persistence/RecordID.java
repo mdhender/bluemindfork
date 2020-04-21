@@ -26,8 +26,8 @@ public class RecordID {
 	public long modSeq;
 	public String itemUid;
 
-	public static Creator<RecordID> CREATOR = con -> new RecordID();
-	public static EntityPopulator<RecordID> POPULATOR = (rs, index, value) -> {
+	public static final Creator<RecordID> CREATOR = con -> new RecordID();
+	public static final EntityPopulator<RecordID> POPULATOR = (rs, index, value) -> {
 		value.imapUid = rs.getLong(index++);
 		value.modSeq = rs.getLong(index++);
 		value.itemUid = rs.getString(index++);
@@ -65,6 +65,11 @@ public class RecordID {
 		if (modSeq != other.modSeq)
 			return false;
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "RecordID{imap: " + imapUid + ", item: " + itemUid + "}";
 	}
 
 }

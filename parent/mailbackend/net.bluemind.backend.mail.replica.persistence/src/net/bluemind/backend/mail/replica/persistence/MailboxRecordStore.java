@@ -284,9 +284,10 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 				+ "FROM t_mailbox_record mbr " //
 				+ "JOIN t_container_item ci on ci.id = mbr.item_id " //
 				+ "JOIN t_container c on c.id = ci.container_id " //
-				+ "WHERE mbr.imap_uid = ? and c.owner = ? order by ci.created";
+				+ "WHERE c.id=? AND mbr.imap_uid = ? and c.owner = ? order by ci.created";
 
-		return new HashSet<>(select(query, StringCreator.FIRST, Collections.emptyList(), new Object[] { uid, owner }));
+		return new HashSet<>(
+				select(query, StringCreator.FIRST, Collections.emptyList(), new Object[] { container.id, uid, owner }));
 	}
 
 }

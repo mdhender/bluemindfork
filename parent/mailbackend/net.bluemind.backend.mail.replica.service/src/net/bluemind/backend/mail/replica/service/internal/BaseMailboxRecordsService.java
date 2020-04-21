@@ -21,10 +21,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +41,7 @@ import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore.SubtreeLocation;
+import net.bluemind.backend.mail.replica.service.sds.MessageBodyObjectStore;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -105,25 +108,25 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 	}
 
 	@Override
-	public ItemChangelog itemChangelog(String itemUid, Long since) throws ServerFault {
+	public ItemChangelog itemChangelog(String itemUid, Long since) {
 		rbac.check(Verb.Read.name());
 		return ChangeLogUtil.getItemChangeLog(itemUid, since, context, storeService, container.domainUid);
 	}
 
 	@Override
-	public ContainerChangelog containerChangelog(Long since) throws ServerFault {
+	public ContainerChangelog containerChangelog(Long since) {
 		rbac.check(Verb.Read.name());
 		return storeService.changelog(since, Long.MAX_VALUE);
 	}
 
 	@Override
-	public ContainerChangeset<String> changeset(Long since) throws ServerFault {
+	public ContainerChangeset<String> changeset(Long since) {
 		rbac.check(Verb.Read.name());
 		return storeService.changeset(since, Long.MAX_VALUE);
 	}
 
 	@Override
-	public ContainerChangeset<Long> changesetById(Long since) throws ServerFault {
+	public ContainerChangeset<Long> changesetById(Long since) {
 		rbac.check(Verb.Read.name());
 		return storeService.changesetById(since, Long.MAX_VALUE);
 	}
@@ -135,19 +138,19 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 	}
 
 	@Override
-	public long getVersion() throws ServerFault {
+	public long getVersion() {
 		rbac.check(Verb.Read.name());
 		return storeService.getVersion();
 	}
 
 	@Override
-	public Count count(ItemFlagFilter filter) throws ServerFault {
+	public Count count(ItemFlagFilter filter) {
 		rbac.check(Verb.Read.name());
 		return storeService.count(filter);
 	}
 
 	@Override
-	public List<Long> sortedIds(SortDescriptor sorted) throws ServerFault {
+	public List<Long> sortedIds(SortDescriptor sorted) {
 		rbac.check(Verb.Read.name());
 		try {
 			return recordStore.sortedIds(sorted);
@@ -186,7 +189,25 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 			oioStream = nodeRead(nc, md, partition, imapUid);
 		}
 		if (oioStream == null) {
-			throw new ServerFault("body for uid " + imapUid + " not found", ErrorCode.NOT_FOUND);
+			try {
+				Set<String> bodyGuids = recordStore.getImapUidReferences(imapUid, container.owner);
+				if (!bodyGuids.isEmpty()) {
+					logger.info("SDS attempt for {}", bodyGuids);
+					String guid = bodyGuids.iterator().next();
+					MessageBodyObjectStore sds = new MessageBodyObjectStore(context.su(), partition);
+					Path sdsDl = sds.open(guid);
+					if (sdsDl != null) {
+						logger.info("Read {} aka {} from SDS", imapUid, guid);
+						oioStream = Files.newInputStream(sdsDl); // NOSONAR
+						Files.delete(sdsDl);
+					}
+				}
+			} catch (Exception e) {
+				logger.warn("SDS attempt failed: {}", e.getMessage());
+			}
+			if (oioStream == null) {
+				throw new ServerFault("body for uid " + imapUid + " not found", ErrorCode.NOT_FOUND);
+			}
 		}
 		final InputStream constStream = oioStream;
 		InputReadStream streamAdapter = new InputReadStream(constStream);
@@ -194,6 +215,7 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 			try {
 				constStream.close();
 			} catch (IOException e) {
+				// that's ok
 			}
 		});
 		return VertxStream.stream(streamAdapter);
@@ -268,7 +290,7 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 			path = CyrusFileSystemPathHelper.getHSMFileSystemPath(container.domainUid, md, partition, imapUid);
 			pathFile = new File(path);
 			if (!pathFile.exists()) {
-				logger.warn("{} {} is not at {}", md, imapUid, path, new Throwable("loc"));
+				logger.warn("{} {} is not at {}", md, imapUid, path);
 				return null;
 			}
 		}
