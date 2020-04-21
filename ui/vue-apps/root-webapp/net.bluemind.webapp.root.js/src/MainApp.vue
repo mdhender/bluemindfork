@@ -33,7 +33,8 @@ export default {
                     external: !entry.href.match(/^\/webapp/),
                     name: entry.name,
                     description: entry.description,
-                    order: entry.order
+                    order: entry.order,
+                    role: entry.role
                 });
             }
             if (extension.widget) {
@@ -43,10 +44,14 @@ export default {
                 data.notifications.push(extension.notification);
             }
         });
-        data.applications.sort((a, b) => b.order - a.order);
-        data.widgets.sort((a, b) => b.order - a.order);
 
         const userSession = injector.getProvider("UserSession").get();
+
+        data.applications = data.applications
+            .filter(app => userSession.roles.includes(app.role))
+            .sort((a, b) => b.order - a.order);
+        data.widgets.sort((a, b) => b.order - a.order);
+
         const user = {
             displayname: userSession["formatedName"],
             email: userSession["defaultEmail"]
