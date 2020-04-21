@@ -1,18 +1,17 @@
 import Alert from "./Alert";
+import alertRegistry from "./AlertRegistry";
 import deepClone from "lodash.clonedeep";
 import injector from "@bluemind/inject";
 
 export default {
-    alerts: {},
-
     register(alerts) {
-        Object.assign(this.alerts, alerts);
+        Object.assign(alertRegistry, alerts);
     },
 
     create(code, props, uid) {
         const vueI18n = injector.getProvider("i18n").get();
 
-        const alert = deepClone(this.alerts[code]);
+        const alert = deepClone(alertRegistry[code]);
         alert.code = code;
         alert.props = props;
         alert.uid = uid;

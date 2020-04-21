@@ -6,6 +6,7 @@
     "license": "GPLv3",
     "main": "src/run.js",
     "dependencies": {
+        "@bluemind/alert.store": "^4.1.0",
         "@bluemind/banner.ui.vuejs": "^4.1.0",
         "@bluemind/inject": "^4.1.0",
         "@bluemind/router": "^4.1.0",

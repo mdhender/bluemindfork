@@ -2,6 +2,7 @@ import { extend } from "@bluemind/vuex-router";
 import { FirstDayOfWeek } from "@bluemind/i18n";
 import { InheritTranslationsMixin } from "@bluemind/i18n";
 import { sync } from "vuex-router-sync";
+import AlertStore from "@bluemind/alert.store";
 import injector from "@bluemind/inject";
 import MainApp from "./MainApp.vue";
 import router from "@bluemind/router";
@@ -24,9 +25,9 @@ registerDependencies(userSession);
 
 sync(store, router);
 extend(router, store);
+store.registerModule("alert", AlertStore);
 
 Vue.mixin(InheritTranslationsMixin);
-
 const i18n = new VueI18n({ locale: userSession.lang, fallbackLocale: "en", dateTimeFormats: getDateTimeFormats() });
 
 injector.register({

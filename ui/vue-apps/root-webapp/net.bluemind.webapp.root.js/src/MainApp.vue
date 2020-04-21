@@ -2,17 +2,25 @@
     <div class="main-app d-flex flex-column vh-100 bg-light">
         <bm-banner :applications="applications" :widgets="widgets" :user="user" :software="software" />
         <router-view />
+        <bm-application-alert :alerts="applicationAlerts" class="z-index-250">
+            <template v-slot="slotProps">
+                <component :is="slotProps.alert.renderer" :alert="slotProps.alert" />
+            </template>
+        </bm-application-alert>
     </div>
 </template>
 
 <script>
+import { BmApplicationAlert } from "@bluemind/styleguide";
+import { mapState } from "vuex";
+import "@bluemind/styleguide/css/bluemind.scss";
 import BmBanner from "@bluemind/banner.ui.vuejs/components/BmBanner";
 import CommonL10N from "@bluemind/l10n";
-import "@bluemind/styleguide/css/bluemind.scss";
 import injector from "@bluemind/inject";
 
 export default {
     components: {
+        BmApplicationAlert,
         BmBanner
     },
     componentI18N: { messages: CommonL10N },
@@ -63,6 +71,17 @@ export default {
         data.user = user;
         data.software = software;
         return data;
+    },
+    computed: {
+        ...mapState({ applicationAlerts: state => state.alert.applicationAlerts })
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
+.main-app .bm-application-alert {
+    bottom: $sp-1;
+}
+</style>

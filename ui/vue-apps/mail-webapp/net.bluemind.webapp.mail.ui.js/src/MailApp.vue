@@ -80,17 +80,11 @@
             <bm-icon icon="pencil" />
         </bm-button>
         <mail-purge-modal />
-        <bm-application-alert :alerts="applicationAlerts" class="z-index-250">
-            <template v-slot="slotProps">
-                <mail-alert-renderer :alert="slotProps.alert" />
-            </template>
-        </bm-application-alert>
     </bm-container>
 </template>
 
 <script>
 import {
-    BmApplicationAlert,
     BmFormCheckbox,
     BmLabelIcon,
     BmButton,
@@ -100,7 +94,6 @@ import {
     BmRow,
     MakeUniq
 } from "@bluemind/styleguide";
-import MailAlertRenderer from "./MailAlertRenderer";
 import { mapState } from "vuex";
 import MailAppL10N from "@bluemind/webapp.mail.l10n";
 import MailFolderTree from "./MailFolder/MailFolderTree";
@@ -113,7 +106,6 @@ import injector from "@bluemind/inject";
 export default {
     name: "MailApp",
     components: {
-        BmApplicationAlert,
         BmFormCheckbox,
         BmButton,
         BmCol,
@@ -121,7 +113,6 @@ export default {
         BmLabelIcon,
         BmIcon,
         BmRow,
-        MailAlertRenderer,
         MailFolderTree,
         MailMessageList,
         MailPurgeModal,
@@ -138,7 +129,6 @@ export default {
         };
     },
     computed: {
-        ...mapState({ applicationAlerts: state => state.alert.applicationAlerts }),
         ...mapState("mail-webapp", ["selectedMessageKeys"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         isMessageComposerDisplayed() {
@@ -201,9 +191,6 @@ export default {
                 color: $light;
             }
         }
-    }
-    .bm-application-alert {
-        bottom: $sp-1;
     }
     .switch-webmail label {
         max-width: $custom-switch-width * 3;

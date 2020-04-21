@@ -7,8 +7,8 @@ import { MailboxFoldersClient, OutboxClient } from "@bluemind/backend.mail.api";
 import { MailboxItemsService } from "@bluemind/backend.mail.service";
 import { TaskClient } from "@bluemind/core.task.api";
 import { UserSettingsClient } from "@bluemind/user.api";
-import AlertStore from "@bluemind/alert.store";
 import injector from "@bluemind/inject";
+import MailAlertRenderer from "@bluemind/webapp.mail.ui.vuejs";
 import MailApp from "@bluemind/webapp.mail.ui.vuejs";
 import MailAppAlerts from "@bluemind/webapp.mail.alert";
 import mailRoutes from "./router";
@@ -18,17 +18,13 @@ import store from "@bluemind/store";
 import Vue from "vue";
 
 registerAPIClients();
-registerStores();
+store.registerModule("mail-webapp", MailWebAppStore);
 
 AlertFactory.register(MailAppAlerts);
 router.addRoutes(mailRoutes);
 
 Vue.component("mail-webapp", MailApp);
-
-function registerStores() {
-    store.registerModule("mail-webapp", MailWebAppStore);
-    store.registerModule("alert", AlertStore);
-}
+Vue.component("MailAlertRenderer", MailAlertRenderer);
 
 function registerAPIClients() {
     injector.register({
