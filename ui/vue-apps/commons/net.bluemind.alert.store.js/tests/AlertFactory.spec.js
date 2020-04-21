@@ -1,5 +1,7 @@
 import AlertFactory from "../src/AlertFactory";
+import alertRegistry from "../src/AlertRegistry";
 import AlertTypes from "../src/AlertTypes";
+import global from "@bluemind/global";
 import ServiceLocator from "@bluemind/inject";
 
 jest.mock("@bluemind/inject");
@@ -22,12 +24,12 @@ describe("[AlertStore][mutations] : AlertFactory", () => {
     };
 
     beforeEach(() => {
-        AlertFactory.alerts = {};
+        global.$alerts = undefined;
     });
 
     test("register alerts", () => {
         AlertFactory.register(alerts);
-        expect(AlertFactory.alerts).toEqual(alerts);
+        expect(alertRegistry).toEqual(alerts);
     });
 
     test("create alert", () => {

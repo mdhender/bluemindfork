@@ -41,6 +41,7 @@
                             <bm-contact-input
                                 :contacts.sync="message_.cc"
                                 :autocomplete-results="autocompleteResultsCc"
+                                class="w-100"
                                 @search="searchedPattern => onSearch('cc', searchedPattern)"
                                 @update:contacts="saveDraft"
                             >
@@ -365,5 +366,9 @@ export default {
 .mail-message-new .bm-contact-input .btn-link {
     min-width: 3rem;
     text-align: left;
+}
+
+.mail-message-new .bm-contact-input .bm-autocomplete .suggestions {
+    z-index: 200;
 }
 </style>
