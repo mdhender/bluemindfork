@@ -67,5 +67,10 @@
             implementation="net.bluemind.domain.service.internal.DomainSettingsPasswordLifetimeValidator$Factory">
       </validatorfactory>
    </extension>
-   
+   <extension
+         point="net.bluemind.core.validatorfactory">
+      <validatorfactory
+            implementation="net.bluemind.domain.service.internal.DomainSettingsMailQuotaValidator$Factory">
+      </validatorfactory>
+   </extension>
 </plugin>
