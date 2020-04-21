@@ -76,9 +76,7 @@ import net.bluemind.core.sendmail.Sendmail;
 import net.bluemind.core.sendmail.SendmailCredentials;
 import net.bluemind.core.sendmail.SendmailHelper;
 import net.bluemind.core.sendmail.SendmailResponse;
-import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
-import net.bluemind.directory.api.IDirEntryPath;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
@@ -1069,7 +1067,7 @@ public class IcsHook implements ICalendarHook {
 	 * @throws ServerFault
 	 */
 	private boolean isMasterVersion(VEventSeries message, Container container) {
-		return message.master(IDirEntryPath.path(container.domainUid, container.owner, Kind.USER));
+		return message.master(container.domainUid, container.owner);
 	}
 
 	private IServiceProvider provider() {
