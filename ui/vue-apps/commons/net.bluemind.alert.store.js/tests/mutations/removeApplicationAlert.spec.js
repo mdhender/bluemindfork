@@ -1,11 +1,11 @@
-import { remove } from "../../src/mutations/remove";
+import { removeApplicationAlert } from "../../src/mutations/removeApplicationAlert";
 
-describe("[AlertStore][mutations] : remove", () => {
+describe("[AlertStore][mutations] : remove application alert", () => {
     test("remove alert from the state", () => {
         const alertUid = "fer45fe5-dze441";
 
         const state = {
-            alerts: [
+            applicationAlerts: [
                 {
                     code: "PREVIOUS_ALERT",
                     uid: "454484e-d484eed"
@@ -17,9 +17,9 @@ describe("[AlertStore][mutations] : remove", () => {
             ]
         };
 
-        remove(state, alertUid);
+        removeApplicationAlert(state, alertUid);
 
-        expect(state.alerts.length).toEqual(1);
-        expect(state.alerts.find(a => a.uid == alertUid)).toEqual(undefined);
+        expect(state.applicationAlerts.length).toEqual(1);
+        expect(state.applicationAlerts.find(a => a.uid === alertUid)).toEqual(undefined);
     });
 });

@@ -1,4 +1,4 @@
-import { add } from "../../src/mutations/add";
+import { addApplicationAlert } from "../../src/mutations/addApplicationAlert";
 import { AlertFactory } from "../../src";
 
 let alertCodeExample = "MSG_EXAMPLE";
@@ -8,21 +8,21 @@ AlertFactory.create.mockReturnValue({
     code: alertCodeExample
 });
 
-describe("[AlertStore][mutations] : add", () => {
-    test("add alert to the state", () => {
+describe("[AlertStore][mutations] : add application alert", () => {
+    test("add application alert to the state", () => {
         const state = {
-            alerts: [
+            applicationAlerts: [
                 {
                     code: "PREVIOUS_ALERT"
                 }
             ]
         };
         const newAlert = { code: alertCodeExample, props: {} };
-        add(state, newAlert);
+        addApplicationAlert(state, newAlert);
 
         expect(AlertFactory.create).toHaveBeenCalledTimes(1);
         expect(AlertFactory.create).toHaveBeenCalledWith(alertCodeExample, {}, undefined);
-        expect(state.alerts.length).toEqual(2);
-        expect(state.alerts.find(a => a.code == alertCodeExample)).not.toEqual(undefined);
+        expect(state.applicationAlerts.length).toEqual(2);
+        expect(state.applicationAlerts.find(a => a.code === alertCodeExample)).not.toEqual(undefined);
     });
 });
