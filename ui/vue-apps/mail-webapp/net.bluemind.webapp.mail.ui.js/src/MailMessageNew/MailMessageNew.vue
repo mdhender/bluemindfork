@@ -369,7 +369,7 @@ export default {
     text-align: left;
 }
 
-.mail-message-new .bm-contact-input .bm-autocomplete .suggestions {
+.mail-message-new .bm-contact-input .bm-form-autocomplete-input .suggestions {
     z-index: 200;
 }
 </style>
