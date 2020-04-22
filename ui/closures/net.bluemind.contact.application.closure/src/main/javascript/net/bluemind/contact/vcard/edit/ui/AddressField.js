@@ -91,6 +91,11 @@ net.bluemind.contact.vcard.edit.ui.AddressField.prototype.createInput = function
   return input;
 };
 
+/** @override */
+net.bluemind.contact.vcard.edit.ui.AddressField.prototype.isEnabled = function() {
+  return false;
+};
+
 /**
  * Reset value
  * 
@@ -111,14 +116,24 @@ net.bluemind.contact.vcard.edit.ui.AddressField.prototype.resetValue = function(
 net.bluemind.contact.vcard.edit.ui.AddressField.prototype.handleButtonClicked_ = function(e) {
   var dialog = this.getChild('dialog');
   var container = e.target.getParent();
-  var address = this.parseAddress(container.getChild('field').getValue());
-  dialog.getChild('street').setValue(address.street);
-  dialog.getChild('postalcode').setValue(address.postalcode);
-  dialog.getChild('locality').setValue(address.locality);
-  dialog.getChild('pobox').setValue(address.pobox);
-  dialog.getChild('region').setValue(address.region);
-  dialog.getChild('country').setValue(address.country);
-  dialog.setModel(container.getId());
+  var data = container.getChild('field').getModel();
+  if (data){
+    dialog.getChild('street').setValue(data.street);
+    dialog.getChild('postalcode').setValue(data.postalcode);
+    dialog.getChild('locality').setValue(data.locality);
+    dialog.getChild('pobox').setValue(data.pobox);
+    dialog.getChild('region').setValue(data.region);
+    dialog.getChild('country').setValue(data.country);
+    dialog.setModel(container.getId());
+  } else {
+    dialog.getChild('street').setValue('');
+    dialog.getChild('postalcode').setValue('');
+    dialog.getChild('locality').setValue('');
+    dialog.getChild('pobox').setValue('');
+    dialog.getChild('region').setValue('');
+    dialog.getChild('country').setValue('');
+    dialog.setModel(container.getId());
+  }
   dialog.setVisible(true);
 };
 
@@ -152,9 +167,6 @@ net.bluemind.contact.vcard.edit.ui.AddressField.prototype.handleDialogChanged_ =
  */
 net.bluemind.contact.vcard.edit.ui.AddressField.prototype.handleInputChanged = function(container) {
   goog.base(this, 'handleInputChanged', container);
-  var field = container.getChild('field');
-  var model = this.parseAddress(field.getValue());
-  field.setModel(model);
 };
 
 /** @override */
@@ -166,39 +178,6 @@ net.bluemind.contact.vcard.edit.ui.AddressField.prototype.setFieldValue = functi
 /** @override */
 net.bluemind.contact.vcard.edit.ui.AddressField.prototype.getFieldValue = function(component) {
   return component.getChild('field').getModel();
-};
-
-/**
- * 
- */
-net.bluemind.contact.vcard.edit.ui.AddressField.prototype.parseAddress = function(value) {
-  var address = value.split("\n");
-  var result = {};
-
-  if (address.length >= 3)
-    result.country = address.pop().split(' ');
-
-  if (result.country && result.country.length > 1)
-    result.region = result.country.shift();
-
-  if (result.country && result.country.length > 0)
-    result.country = result.country.join(' ');
-
-  if (address.length > 1)
-    result.locality = address.pop().split(" ");
-
-  if (result.locality && result.locality.length > 1)
-    result.postalcode = result.locality.shift();
-
-  if (result.locality && result.locality.length > 0)
-    result.locality = result.locality.join(' ');
-
-  if (address.length > 1)
-    result.pobox = address.pop();
-
-  result.street = address.join("\n");
-
-  return result;
 };
 
 /**
