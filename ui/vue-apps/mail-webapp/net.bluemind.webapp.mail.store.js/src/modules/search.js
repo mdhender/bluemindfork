@@ -91,11 +91,12 @@ function toItemKeys(searchResults, folderUid) {
 }
 
 function buildPayload(pattern, filter, folderUid) {
-    const excludedFlagsESPattern = filter === "unread" ? " " : ""; //FIXME: complete this once ES stuff had been fixed on core side
+    const flags = filter === "unread" ? "is:unread" : "";
     return {
         query: {
             searchSessionId: undefined,
-            query: pattern + excludedFlagsESPattern,
+            query: pattern,
+            recordQuery: flags,
             maxResults: MAX_SEARCH_RESULTS,
             offset: undefined,
             scope: {
