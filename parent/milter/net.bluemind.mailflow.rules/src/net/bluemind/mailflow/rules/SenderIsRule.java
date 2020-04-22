@@ -44,7 +44,7 @@ public class SenderIsRule extends DefaultRule implements MailRule {
 		IDirectory dir = mailflowContext.provider().instance(IDirectory.class, mailflowContext.getSenderDomain().uid);
 		DirEntry entry = dir.getByEmail(from);
 
-		if (entry.entryUid.equals(configuration.get("dirEntryUid"))) {
+		if (entry != null && entry.entryUid.equals(configuration.get("dirEntryUid"))) {
 			return MailRuleEvaluation.accepted();
 		} else {
 			return MailRuleEvaluation.rejected();
