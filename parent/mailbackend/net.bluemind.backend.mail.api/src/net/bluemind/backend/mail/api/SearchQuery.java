@@ -33,10 +33,21 @@ public class SearchQuery {
 	 * An optional id associated to this query
 	 */
 	public String searchSessionId;
+
 	/**
 	 * An Elasticsearch compliant query string
+	 * 
+	 * body document only
 	 */
 	public String query;
+
+	/**
+	 * An Elasticsearch compliant query string
+	 * 
+	 * record document only
+	 */
+	public String recordQuery;
+
 	/**
 	 * Enables the search by the MessageId header
 	 */
