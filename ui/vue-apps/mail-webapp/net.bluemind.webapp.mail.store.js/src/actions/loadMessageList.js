@@ -1,6 +1,8 @@
 import { STATUS } from "../constants";
 
 export async function loadMessageList({ dispatch, commit, state, getters }, { folder, mailshare, filter, search }) {
+    commit("setStatus", STATUS.LOADING);
+
     const { key, uid } = locateFolder(folder, mailshare, getters, state);
 
     commit("setMessageFilter", filter);
@@ -16,12 +18,12 @@ export async function loadMessageList({ dispatch, commit, state, getters }, { fo
     if (search) {
         await dispatch("search/search", { pattern: search, filter });
     } else {
-        commit("setStatus", STATUS.LOADING);
         await dispatch("messages/list", { sorted: state.sorted, folderUid: uid, filter });
         const sorted = state.messages.itemKeys;
         await dispatch("messages/multipleByKey", sorted.slice(0, 100));
-        commit("setStatus", STATUS.RESOLVED);
     }
+
+    commit("setStatus", STATUS.RESOLVED);
 }
 
 function locateFolder(local, mailshare, getters) {
