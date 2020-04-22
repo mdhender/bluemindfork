@@ -18,10 +18,8 @@
  */
 package net.bluemind.backend.cyrus;
 
-import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -35,7 +33,6 @@ import net.bluemind.imap.IMAPException;
 import net.bluemind.imap.ListInfo;
 import net.bluemind.imap.ListResult;
 import net.bluemind.imap.StoreClient;
-import net.bluemind.mailbox.service.common.DefaultFolder;
 
 public abstract class CyrusAclService {
 	protected final String backendAddress;
@@ -108,25 +105,7 @@ public abstract class CyrusAclService {
 					}
 				});
 
-				acl.entrySet().stream().filter(e -> e.getValue() != Acl.NOTHING).map(e -> {
-					if (!e.getKey().equals("admin0")) {
-						Set<String> defaultFolders = DefaultFolder.MAILSHARE_FOLDERS_NAME;
-						if (mailbox.startsWith("user/")) {
-							defaultFolders = DefaultFolder.USER_FOLDERS_NAME;
-						}
-
-						for (String defaultFolder : defaultFolders) {
-							if (mb.getName().equals(mailbox.replace("@", "/" + defaultFolder + "@"))
-									&& e.getValue().isX()) {
-								Acl newAcl = new Acl(e.getValue().toString());
-								newAcl.setX(false);
-								return new AbstractMap.SimpleEntry<>(e.getKey(), newAcl);
-							}
-						}
-					}
-
-					return e;
-				}).filter(entry -> {
+				acl.entrySet().stream().filter(e -> e.getValue() != Acl.NOTHING).filter(entry -> {
 					// filter out unmodified acl
 					Acl existing = current.get(entry.getKey());
 					return existing == null || existing != entry.getValue();
