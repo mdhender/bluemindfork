@@ -41,7 +41,6 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.index.reindex.DeleteByQueryAction;
@@ -752,7 +751,7 @@ public class MailIndexService implements IMailIndexService {
 				MailboxStats topMailbox = is.topMailbox.get(0);
 				String randomToken = Long.toHexString(Double.doubleToLongBits(Math.random()));
 				QueryBuilder q = QueryBuilders.boolQuery()//
-						.must(JoinQueryBuilders.hasParentQuery("body",
+						.must(JoinQueryBuilders.hasParentQuery(PARENT_TYPE,
 								QueryBuilders.queryStringQuery("content:\"" + randomToken + "\""), false));
 				SearchResponse results = client.prepareSearch(getIndexAliasName(topMailbox.mailboxUid))//
 						.setQuery(q).setFetchSource(true).setTypes(MAILSPOOL_TYPE).execute().actionGet();
@@ -785,7 +784,7 @@ public class MailIndexService implements IMailIndexService {
 	public SearchResult searchItems(String dirEntryUid, MailboxFolderSearchQuery searchQuery) {
 		SearchQuery query = searchQuery.query;
 		Client client = ESearchActivator.getClient();
-		SearchRequestBuilder searchBuilder = client.prepareSearch("mailspool_alias_" + dirEntryUid);
+		SearchRequestBuilder searchBuilder = client.prepareSearch(getIndexAliasName(dirEntryUid));
 		BoolQueryBuilder bq = QueryBuilders.boolQuery();
 
 		if (query.scope.folderScope != null && query.scope.folderScope.folderUid != null) {
@@ -794,6 +793,7 @@ public class MailIndexService implements IMailIndexService {
 
 		bq.mustNot(QueryBuilders.termQuery("is", "deleted"));
 		bq = addSearchQuery(bq, query.query);
+		bq = addSearchRecordQuery(bq, query.recordQuery);
 		bq = addPreciseSearchQuery(bq, "messageId", query.messageId);
 		bq = addPreciseSearchQuery(bq, "references", query.references);
 
@@ -817,6 +817,7 @@ public class MailIndexService implements IMailIndexService {
 		searchBuilder.setFetchSource(true);
 		searchBuilder.setFrom(Long.valueOf(query.offset).intValue());
 		searchBuilder.setSize(Long.valueOf(query.maxResults).intValue());
+
 		if (searchQuery.sort != null && searchQuery.sort.hasCriterias()) {
 			searchQuery.sort.criteria
 					.forEach(c -> searchBuilder.addSort(c.field, SortOrder.fromString(c.order.name())));
@@ -856,14 +857,16 @@ public class MailIndexService implements IMailIndexService {
 	}
 
 	private BoolQueryBuilder addSearchQuery(BoolQueryBuilder bq, String query) {
-		if (query != null) {
+		if (!Strings.isNullOrEmpty(query)) {
+			return bq.must(JoinQueryBuilders.hasParentQuery(PARENT_TYPE, QueryBuilders.queryStringQuery(query), false));
+		} else {
+			return bq;
+		}
+	}
 
-			QueryStringQueryBuilder stringQuery = QueryBuilders.queryStringQuery(query);
-			BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
-			queryBuilder.should(stringQuery);
-			queryBuilder.should(JoinQueryBuilders.hasParentQuery("body", stringQuery, false));
-
-			return bq.must(queryBuilder);
+	private BoolQueryBuilder addSearchRecordQuery(BoolQueryBuilder bq, String query) {
+		if (!Strings.isNullOrEmpty(query)) {
+			return bq.must(QueryBuilders.queryStringQuery(query));
 		} else {
 			return bq;
 		}
@@ -871,8 +874,8 @@ public class MailIndexService implements IMailIndexService {
 
 	private BoolQueryBuilder addPreciseSearchQuery(BoolQueryBuilder bq, String searchField, String searchValue) {
 		if (searchValue != null) {
-			return bq.must(
-					JoinQueryBuilders.hasParentQuery("body", QueryBuilders.termQuery(searchField, searchValue), false));
+			return bq.must(JoinQueryBuilders.hasParentQuery(PARENT_TYPE,
+					QueryBuilders.termQuery(searchField, searchValue), false));
 		} else {
 			return bq;
 		}

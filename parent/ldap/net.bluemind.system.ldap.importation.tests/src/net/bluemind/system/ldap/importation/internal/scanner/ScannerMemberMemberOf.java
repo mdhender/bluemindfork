@@ -16,13 +16,14 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.api.Member;
 import net.bluemind.system.importation.commons.scanner.ImportLogger;
+import net.bluemind.system.importation.search.PagedSearchResult.LdapSearchException;
 import net.bluemind.system.ldap.importation.internal.tools.LdapParameters;
 import net.bluemind.system.ldap.tests.helpers.LdapDockerTestHelper;
 
 public abstract class ScannerMemberMemberOf extends ScannerCommon {
 	@Test
-	public void addGroupMember()
-			throws LdapInvalidDnException, ServerFault, LdapException, CursorException, IOException {
+	public void addGroupMember() throws LdapInvalidDnException, ServerFault, LdapException, CursorException,
+			IOException, LdapSearchException {
 		CoreServicesTest coreService = new CoreServicesTest();
 
 		ItemValue<Group> group00 = getExistingGroup("cn=grptest00," + LdapDockerTestHelper.LDAP_ROOT_DN);
@@ -43,8 +44,8 @@ public abstract class ScannerMemberMemberOf extends ScannerCommon {
 	}
 
 	@Test
-	public void removeGroupMember()
-			throws LdapInvalidDnException, ServerFault, LdapException, CursorException, IOException {
+	public void removeGroupMember() throws LdapInvalidDnException, ServerFault, LdapException, CursorException,
+			IOException, LdapSearchException {
 		CoreServicesTest coreService = new CoreServicesTest();
 
 		ItemValue<Group> group00 = getExistingGroup("cn=grptest00," + LdapDockerTestHelper.LDAP_ROOT_DN);

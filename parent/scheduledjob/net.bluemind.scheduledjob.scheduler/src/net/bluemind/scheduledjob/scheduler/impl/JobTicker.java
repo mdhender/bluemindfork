@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.utils.CancellableRunnable;
 import net.bluemind.scheduledjob.api.IJob;
 import net.bluemind.scheduledjob.api.InProgressException;
 import net.bluemind.scheduledjob.api.Job;

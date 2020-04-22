@@ -62,7 +62,8 @@ import net.bluemind.system.importation.commons.managers.GroupManager;
 import net.bluemind.system.importation.commons.scanner.ImportLogger;
 import net.bluemind.system.importation.commons.scanner.RepportStatus;
 import net.bluemind.system.importation.search.DirectorySearch;
-import net.bluemind.system.importation.search.LdapSearchCursor;
+import net.bluemind.system.importation.search.PagedSearchResult;
+import net.bluemind.system.importation.search.PagedSearchResult.LdapSearchException;
 import net.bluemind.system.ldap.importation.api.LdapProperties;
 import net.bluemind.system.ldap.importation.search.LdapGroupSearchFilter;
 import net.bluemind.system.ldap.importation.search.LdapUserSearchFilter;
@@ -111,8 +112,8 @@ public class GroupManagerTests {
 	}
 
 	@Test
-	public void entryToGroupNoName()
-			throws ServerFault, LdapInvalidDnException, LdapException, CursorException, IOException {
+	public void entryToGroupNoName() throws ServerFault, LdapInvalidDnException, LdapException, CursorException,
+			IOException, LdapSearchException {
 		Entry testGroupEntry = getTestGroupEntry(
 				"cn=grptest00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
 		testGroupEntry.removeAttributes(GroupManagerImpl.LDAP_NAME);
@@ -147,8 +148,8 @@ public class GroupManagerTests {
 	}
 
 	@Test
-	public void entryToGroupNoExtId()
-			throws ServerFault, LdapInvalidDnException, LdapException, CursorException, IOException {
+	public void entryToGroupNoExtId() throws ServerFault, LdapInvalidDnException, LdapException, CursorException,
+			IOException, LdapSearchException {
 		Entry testGroupEntry = getTestGroupEntry(
 				"cn=grptest00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
 		testGroupEntry.removeAttributes(LdapProperties.import_ldap_ext_id_attribute.getDefaultValue());
@@ -185,7 +186,8 @@ public class GroupManagerTests {
 	}
 
 	@Test
-	public void entryToGroup() throws ServerFault, LdapInvalidDnException, LdapException, CursorException, IOException {
+	public void entryToGroup() throws ServerFault, LdapInvalidDnException, LdapException, CursorException, IOException,
+			LdapSearchException {
 		Entry testGroupEntry = getTestGroupEntry(
 				"cn=grptest00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
 
@@ -224,8 +226,8 @@ public class GroupManagerTests {
 	}
 
 	@Test
-	public void entryToGroupUpdateUpdate()
-			throws LdapInvalidDnException, ServerFault, LdapException, CursorException, IOException {
+	public void entryToGroupUpdateUpdate() throws LdapInvalidDnException, ServerFault, LdapException, CursorException,
+			IOException, LdapSearchException {
 		Entry testGroupEntry = getTestGroupEntry(
 				"cn=grptest00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
 
@@ -271,8 +273,8 @@ public class GroupManagerTests {
 	}
 
 	@Test
-	public void entryToGroupNoDescription()
-			throws ServerFault, LdapInvalidDnException, LdapException, CursorException, IOException {
+	public void entryToGroupNoDescription() throws ServerFault, LdapInvalidDnException, LdapException, CursorException,
+			IOException, LdapSearchException {
 		Entry testGroupEntry = getTestGroupEntry(
 				"cn=grptest00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
 
@@ -311,8 +313,8 @@ public class GroupManagerTests {
 	}
 
 	@Test
-	public void entryToGroupNoEmail()
-			throws ServerFault, LdapInvalidDnException, LdapException, CursorException, IOException {
+	public void entryToGroupNoEmail() throws ServerFault, LdapInvalidDnException, LdapException, CursorException,
+			IOException, LdapSearchException {
 		Entry testGroupEntry = getTestGroupEntry(
 				"cn=grptest00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
 
@@ -342,12 +344,12 @@ public class GroupManagerTests {
 		return new ImportLogger(Optional.empty(), Optional.empty(), Optional.of(new RepportStatus()));
 	}
 
-	private Entry getTestGroupEntry(String groupDn)
-			throws ServerFault, LdapException, LdapInvalidDnException, CursorException, IOException {
+	private Entry getTestGroupEntry(String groupDn) throws ServerFault, LdapException, LdapInvalidDnException,
+			CursorException, IOException, LdapSearchException {
 		Entry entry = null;
 		try (LdapConProxy ldapCon = LdapHelper
 				.connectLdap(LdapParameters.build(domain.value, Collections.<String, String>emptyMap()))) {
-			LdapSearchCursor entries = new DirectorySearch<>(
+			PagedSearchResult entries = new DirectorySearch<>(
 					LdapParameters.build(domain.value, Collections.<String, String>emptyMap()),
 					new LdapGroupSearchFilter(), new LdapUserSearchFilter()).findByFilterAndBaseDnAndScopeAndAttributes(
 							ldapCon,
@@ -372,8 +374,8 @@ public class GroupManagerTests {
 	}
 
 	@Test
-	public void entryToGroupEmailsDomainAlias()
-			throws ServerFault, LdapInvalidDnException, LdapException, CursorException, IOException {
+	public void entryToGroupEmailsDomainAlias() throws ServerFault, LdapInvalidDnException, LdapException,
+			CursorException, IOException, LdapSearchException {
 		domain.value.aliases = ImmutableSet.of("memberof-alias.virt");
 
 		Entry testGroupEntry = getTestGroupEntry(
@@ -421,8 +423,8 @@ public class GroupManagerTests {
 	}
 
 	@Test
-	public void entryToGroupHook()
-			throws LdapInvalidDnException, ServerFault, LdapException, CursorException, IOException {
+	public void entryToGroupHook() throws LdapInvalidDnException, ServerFault, LdapException, CursorException,
+			IOException, LdapSearchException {
 		Entry testGroupEntry = getTestGroupEntry(
 				"cn=grptest00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
 

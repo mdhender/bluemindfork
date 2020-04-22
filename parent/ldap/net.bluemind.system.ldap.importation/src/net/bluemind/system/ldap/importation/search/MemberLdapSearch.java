@@ -23,7 +23,7 @@ import java.util.Optional;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.ldap.client.api.LdapConnection;
 
-import net.bluemind.system.importation.search.LdapSearchCursor;
+import net.bluemind.system.importation.search.PagedSearchResult;
 import net.bluemind.system.ldap.importation.internal.tools.LdapParameters;
 
 public class MemberLdapSearch extends LdapSearch {
@@ -32,7 +32,7 @@ public class MemberLdapSearch extends LdapSearch {
 		super(ldapParameters, new LdapGroupSearchFilter(), new LdapUserSearchFilter());
 	}
 
-	public LdapSearchCursor findByGroupName(LdapConnection ldapCon, String ldapMemberAttribute) throws LdapException {
+	public PagedSearchResult findByGroupName(LdapConnection ldapCon, String ldapMemberAttribute) throws LdapException {
 		return super.findByFilterAndAttributes(ldapCon, groupFilter.getSearchFilter(ldapParameters, Optional.empty(),
 				null, ldapParameters.splitDomain.relayMailboxGroup), "*", ldapMemberAttribute, "modifyTimestamp");
 	}

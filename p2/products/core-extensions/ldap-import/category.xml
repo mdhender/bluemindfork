@@ -2,12 +2,8 @@
 <site>
    <bundle id="org.apache.commons.lang"/>
    <bundle id="net.bluemind.lib.ldap" version="4.1.0.qualifier"/>
-   <bundle id="org.apache.directory.api.all" version="1.0.0.M31-bm5"/>
-   <bundle id="org.apache.servicemix.bundles.antlr" version="2.7.7.5"/>
-   <bundle id="org.apache.commons.collections" version="3.2.2.v201511171945"/>
-   <bundle id="org.apache.commons.pool" version="1.6.0.v201204271246"/>
-   <bundle id="org.apache.commons.codec" version="1.6.0.v201305230611"/>
    <bundle id="net.bluemind.system.importation.commons" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.system.ldap.importation.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.system.ldap.importation" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.ldap.directory.client"/>
 </site>

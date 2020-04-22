@@ -32,7 +32,6 @@ import java.util.Set;
 import javax.sql.DataSource;
 
 import org.apache.directory.api.ldap.model.cursor.CursorException;
-import org.apache.directory.api.ldap.model.cursor.SearchCursor;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.api.ldap.model.message.MessageTypeEnum;
@@ -53,7 +52,8 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.lib.ldap.LdapConProxy;
-import net.bluemind.system.importation.search.LdapSearchCursor;
+import net.bluemind.system.importation.search.PagedSearchResult;
+import net.bluemind.system.importation.search.PagedSearchResult.LdapSearchException;
 import net.bluemind.system.ldap.importation.api.LdapConstants;
 import net.bluemind.system.ldap.importation.internal.tools.LdapHelper;
 import net.bluemind.system.ldap.importation.internal.tools.LdapParameters;
@@ -182,7 +182,7 @@ public class UpgradeExtId implements IVersionedUpdater {
 					ldapSearchFilter = new LdapGroupSearchFilter().getSearchFilter(ldapParameters, Optional.empty(),
 							uuid, null);
 				}
-				SearchCursor searchCursor = getEntryFromUuid(ldapCon, ldapParameters, ldapSearchFilter);
+				PagedSearchResult searchCursor = getEntryFromUuid(ldapCon, ldapParameters, ldapSearchFilter);
 
 				while (searchCursor.next()) {
 					Response response = searchCursor.get();
@@ -196,7 +196,7 @@ public class UpgradeExtId implements IVersionedUpdater {
 			}
 		} catch (ServerFault e) {
 			throw e;
-		} catch (IOException | LdapException | CursorException | SQLException e) {
+		} catch (IOException | LdapException | CursorException | LdapSearchException | SQLException e) {
 			throw new ServerFault(e);
 		}
 	}
@@ -212,8 +212,8 @@ public class UpgradeExtId implements IVersionedUpdater {
 		}
 	}
 
-	private SearchCursor getEntryFromUuid(LdapConProxy ldapCon, LdapParameters ldapParameters, String ldapSearchFilter)
-			throws LdapException {
+	private PagedSearchResult getEntryFromUuid(LdapConProxy ldapCon, LdapParameters ldapParameters,
+			String ldapSearchFilter) throws LdapException {
 		SearchRequest searchRequest = new SearchRequestImpl();
 		searchRequest.setBase(ldapParameters.ldapDirectory.baseDn);
 		searchRequest.setFilter(ldapSearchFilter);
@@ -221,7 +221,7 @@ public class UpgradeExtId implements IVersionedUpdater {
 		searchRequest.setDerefAliases(AliasDerefMode.NEVER_DEREF_ALIASES);
 		searchRequest.setSizeLimit(0);
 
-		return new LdapSearchCursor(ldapCon.search(searchRequest));
+		return new PagedSearchResult(ldapCon, searchRequest);
 	}
 
 	@Override

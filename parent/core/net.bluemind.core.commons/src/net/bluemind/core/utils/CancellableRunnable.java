@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2020
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -16,12 +16,9 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.core.task.service;
+package net.bluemind.core.utils;
 
-public interface IServerTask {
+public interface CancellableRunnable extends Runnable {
 
-	public void run(IServerTaskMonitor monitor) throws Exception;
-
-	default void cancel() {
-	}
+	public void cancel();
 }

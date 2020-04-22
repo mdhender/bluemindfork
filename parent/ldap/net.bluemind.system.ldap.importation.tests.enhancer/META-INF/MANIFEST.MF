@@ -9,7 +9,6 @@ Require-Bundle: net.bluemind.system.ldap.importation,
  net.bluemind.system.importation.commons,
  net.bluemind.group.api,
  net.bluemind.user.api,
- org.apache.directory.api.all,
  net.bluemind.lib.ldap,
  net.bluemind.domain.api,
  org.junit

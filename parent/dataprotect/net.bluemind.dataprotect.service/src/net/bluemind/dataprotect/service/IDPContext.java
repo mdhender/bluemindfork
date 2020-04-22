@@ -43,6 +43,8 @@ public interface IDPContext {
 
 		PartGeneration backup(PartGeneration previous, PartGeneration next);
 
+		void interrupt();
+
 		void restore(int partId, Set<String> what, String to);
 
 		void restore(int partId, Set<String> what) throws ServerFault;

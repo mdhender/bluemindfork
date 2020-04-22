@@ -1,0 +1,59 @@
+dn: uid=user01,dc=local
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+uid: user01
+sn: Nom01
+cn: Prenom01 Nom01
+givenName: Prenom01
+description: Description Prenom01 Nom01
+userPassword:: e1NIQX1rN1liU0NTUzdPSkhsaUpRWkF2RkNUNFlZNTA9
+
+dn: uid=user02,dc=local
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+uid: user02
+sn: Nom02
+cn: Prenom02 Nom02
+givenName: Prenom02
+description: Description Prenom02 Nom02
+userPassword:: e1NIQX1rN1liU0NTUzdPSkhsaUpRWkF2RkNUNFlZNTA9
+
+dn: uid=user03,dc=local
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+uid: user03
+sn: Nom03
+cn: Prenom03 Nom03
+givenName: Prenom03
+description: Description Prenom03 Nom03
+userPassword:: e1NIQX1rN1liU0NTUzdPSkhsaUpRWkF2RkNUNFlZNTA9
+
+dn: uid=user04,dc=local
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+uid: user04
+sn: Nom04
+cn: Prenom04 Nom04
+givenName: Prenom04
+description: Description Prenom04 Nom04
+userPassword:: e1NIQX1rN1liU0NTUzdPSkhsaUpRWkF2RkNUNFlZNTA9
+
+dn: uid=user05,dc=local
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+uid: user05
+sn: Nom05
+cn: Prenom05 Nom05
+givenName: Prenom05
+description: Description Prenom05 Nom05
+userPassword:: e1NIQX1rN1liU0NTUzdPSkhsaUpRWkF2RkNUNFlZNTA9

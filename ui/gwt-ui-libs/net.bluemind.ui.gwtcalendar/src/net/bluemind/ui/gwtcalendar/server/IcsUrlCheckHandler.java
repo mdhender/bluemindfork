@@ -93,13 +93,14 @@ public class IcsUrlCheckHandler implements Handler<HttpServerRequest>, NeedVertx
 			if (response.statusCode() == 301) {
 				String location = response.headers().get("Location");
 				logger.debug("ICS url {} has moved permanently to {}", url, location);
+				client.close();
 				connect(request, location);
 			} else {
 				if (response.statusCode() > 301) {
 					logger.debug("Cannot verify ICS url {}:{}:{}", fetchUrl, response.statusCode(),
 							response.statusMessage());
 					request.response().setStatusCode(500);
-					request.response().end();
+					endRequest(request, client);
 				} else {
 					FileWriter out = null;
 					try {
@@ -119,8 +120,9 @@ public class IcsUrlCheckHandler implements Handler<HttpServerRequest>, NeedVertx
 						calName.thenAccept(cal -> {
 							if (cal.isPresent()) {
 								request.response().end(cal.get());
+								client.close();
 							} else {
-								request.response().end();
+								endRequest(request, client);
 							}
 							tmpFile.delete();
 						});
@@ -135,6 +137,11 @@ public class IcsUrlCheckHandler implements Handler<HttpServerRequest>, NeedVertx
 				}
 			}
 		});
+	}
+
+	private void endRequest(final HttpServerRequest request, HttpClient client) {
+		request.response().end();
+		client.close();
 	}
 
 	private CompletableFuture<Optional<String>> parseCalName(File tmpFile) {

@@ -12,7 +12,6 @@ import net.bluemind.directory.api.BaseDirEntry.Kind;
 @Path("/directory/path")
 public interface IDirEntryPath {
 
-
 	@GET
 	@Path("{domain}/{uid}")
 	public default String getPath(@PathParam("domain") String domainUid, @PathParam("uid") String entryUid,
@@ -51,6 +50,14 @@ public interface IDirEntryPath {
 			break;
 		}
 		return path + entryUid;
+	}
+
+	public static String getDomain(String path) {
+		return path.substring(0, path.indexOf('/'));
+	}
+
+	public static String getEntryUid(String path) {
+		return path.substring(path.lastIndexOf('/') + 1);
 	}
 
 }

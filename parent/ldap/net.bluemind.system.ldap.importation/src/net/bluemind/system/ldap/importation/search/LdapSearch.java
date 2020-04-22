@@ -27,7 +27,7 @@ import org.apache.directory.ldap.client.api.LdapConnection;
 
 import net.bluemind.system.importation.search.DirectorySearch;
 import net.bluemind.system.importation.search.GroupSearchFilter;
-import net.bluemind.system.importation.search.LdapSearchCursor;
+import net.bluemind.system.importation.search.PagedSearchResult;
 import net.bluemind.system.importation.search.UserSearchFilter;
 import net.bluemind.system.ldap.importation.internal.tools.LdapParameters;
 
@@ -37,34 +37,34 @@ public class LdapSearch extends DirectorySearch<LdapParameters> {
 		super(ldapParameters, groupFilter, userFilter);
 	}
 
-	public LdapSearchCursor findAllUsers(LdapConnection ldapCon) throws LdapException {
+	public PagedSearchResult findAllUsers(LdapConnection ldapCon) throws LdapException {
 		return findByFilter(ldapCon, userFilter.getSearchFilter(ldapParameters, Optional.empty(), null, null));
 	}
 
-	public LdapSearchCursor findUsersDnByLastModification(LdapConnection ldapCon, Optional<String> lastUpdate)
+	public PagedSearchResult findUsersDnByLastModification(LdapConnection ldapCon, Optional<String> lastUpdate)
 			throws LdapException {
 		return super.findByFilterAndAttributes(ldapCon,
 				userFilter.getSearchFilter(ldapParameters, lastUpdate, null, null));
 	}
 
-	public LdapSearchCursor findGroupsDnByLastModification(LdapConnection ldapCon, Optional<String> lastUpdate)
+	public PagedSearchResult findGroupsDnByLastModification(LdapConnection ldapCon, Optional<String> lastUpdate)
 			throws LdapException {
 		return findByFilterAndAttributes(ldapCon, groupFilter.getSearchFilter(ldapParameters, lastUpdate, null, null));
 	}
 
-	public LdapSearchCursor findAllGroups(LdapConnection ldapCon) throws LdapException {
+	public PagedSearchResult findAllGroups(LdapConnection ldapCon) throws LdapException {
 		return findByFilterAndAttributes(ldapCon,
 				groupFilter.getSearchFilter(ldapParameters, Optional.empty(), null, null),
 				ldapParameters.ldapDirectory.extIdAttribute);
 	}
 
-	public LdapSearchCursor getUserUUID(LdapConnection ldapCon, Dn userDn) throws LdapException {
+	public PagedSearchResult getUserUUID(LdapConnection ldapCon, Dn userDn) throws LdapException {
 		return super.findByFilterAndBaseDnAndScopeAndAttributes(ldapCon,
 				userFilter.getSearchFilter(ldapParameters, Optional.empty(), null, null), userDn, SearchScope.OBJECT,
 				ldapParameters.ldapDirectory.extIdAttribute);
 	}
 
-	public LdapSearchCursor getGroupUUID(LdapConnection ldapCon, Dn groupDn) throws LdapException {
+	public PagedSearchResult getGroupUUID(LdapConnection ldapCon, Dn groupDn) throws LdapException {
 		return super.findByFilterAndBaseDnAndScopeAndAttributes(ldapCon,
 				groupFilter.getSearchFilter(ldapParameters, Optional.empty(), null, null), groupDn, SearchScope.OBJECT,
 				ldapParameters.ldapDirectory.extIdAttribute);

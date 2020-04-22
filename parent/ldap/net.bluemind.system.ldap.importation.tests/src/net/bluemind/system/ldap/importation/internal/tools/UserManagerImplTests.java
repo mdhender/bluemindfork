@@ -75,7 +75,8 @@ import net.bluemind.system.importation.commons.managers.UserManager;
 import net.bluemind.system.importation.commons.scanner.ImportLogger;
 import net.bluemind.system.importation.commons.scanner.RepportStatus;
 import net.bluemind.system.importation.search.DirectorySearch;
-import net.bluemind.system.importation.search.LdapSearchCursor;
+import net.bluemind.system.importation.search.PagedSearchResult;
+import net.bluemind.system.importation.search.PagedSearchResult.LdapSearchException;
 import net.bluemind.system.ldap.importation.api.LdapProperties;
 import net.bluemind.system.ldap.importation.search.LdapGroupSearchFilter;
 import net.bluemind.system.ldap.importation.search.LdapUserSearchFilter;
@@ -126,8 +127,8 @@ public class UserManagerImplTests {
 	}
 
 	@Test
-	public void userManagerBuild()
-			throws LdapInvalidDnException, ServerFault, LdapException, CursorException, IOException {
+	public void userManagerBuild() throws LdapInvalidDnException, ServerFault, LdapException, CursorException,
+			IOException, LdapSearchException {
 		UserManager userManager = UserManagerImpl
 				.build(LdapParameters.build(domain.value, Collections.<String, String>emptyMap()), domain, null).get();
 		assertNotNull(userManager);
@@ -169,8 +170,8 @@ public class UserManagerImplTests {
 	}
 
 	@Test
-	public void entryToUserNoOrEmptyLogin()
-			throws ServerFault, LdapInvalidDnException, LdapException, CursorException, IOException {
+	public void entryToUserNoOrEmptyLogin() throws ServerFault, LdapInvalidDnException, LdapException, CursorException,
+			IOException, LdapSearchException {
 		Entry testUserEntry = getTestUserEntry(
 				"uid=user00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
 		testUserEntry.removeAttributes(UserManagerImpl.LDAP_LOGIN);
@@ -205,8 +206,8 @@ public class UserManagerImplTests {
 	}
 
 	@Test
-	public void entryToUserNoOrEmptyExtId()
-			throws ServerFault, LdapInvalidDnException, LdapException, CursorException, IOException {
+	public void entryToUserNoOrEmptyExtId() throws ServerFault, LdapInvalidDnException, LdapException, CursorException,
+			IOException, LdapSearchException {
 		Entry testUserEntry = getTestUserEntry(
 				"uid=user00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
 		testUserEntry.removeAttributes(LdapProperties.import_ldap_ext_id_attribute.getDefaultValue());
@@ -243,7 +244,8 @@ public class UserManagerImplTests {
 	}
 
 	@Test
-	public void entryToUser() throws ServerFault, LdapInvalidDnException, LdapException, CursorException, IOException {
+	public void entryToUser() throws ServerFault, LdapInvalidDnException, LdapException, CursorException, IOException,
+			LdapSearchException {
 		Entry testUserEntry = getTestUserEntry(
 				"uid=user00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
 
@@ -268,8 +270,8 @@ public class UserManagerImplTests {
 	}
 
 	@Test
-	public void entryToUserUpdateUser()
-			throws ServerFault, LdapInvalidDnException, LdapException, CursorException, IOException {
+	public void entryToUserUpdateUser() throws ServerFault, LdapInvalidDnException, LdapException, CursorException,
+			IOException, LdapSearchException {
 		Entry testUserEntry = getTestUserEntry(
 				"uid=user00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
 		UserManager userManager = UserManagerImpl
@@ -395,8 +397,8 @@ public class UserManagerImplTests {
 	}
 
 	@Test
-	public void entryToUserNoFirstname()
-			throws LdapInvalidDnException, ServerFault, LdapException, CursorException, IOException {
+	public void entryToUserNoFirstname() throws LdapInvalidDnException, ServerFault, LdapException, CursorException,
+			IOException, LdapSearchException {
 		Entry testUserEntry = getTestUserEntry(
 				"uid=user00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
 		UserManager userManager = UserManagerImpl
@@ -411,8 +413,8 @@ public class UserManagerImplTests {
 	}
 
 	@Test
-	public void entryToUserNoLastname()
-			throws LdapInvalidDnException, ServerFault, LdapException, CursorException, IOException {
+	public void entryToUserNoLastname() throws LdapInvalidDnException, ServerFault, LdapException, CursorException,
+			IOException, LdapSearchException {
 		Entry testUserEntry = getTestUserEntry(
 				"uid=user00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
 		testUserEntry.removeAttributes("sn");
@@ -429,8 +431,8 @@ public class UserManagerImplTests {
 	}
 
 	@Test
-	public void entryToUserNoDescription()
-			throws LdapInvalidDnException, ServerFault, LdapException, CursorException, IOException {
+	public void entryToUserNoDescription() throws LdapInvalidDnException, ServerFault, LdapException, CursorException,
+			IOException, LdapSearchException {
 		Entry testUserEntry = getTestUserEntry(
 				"uid=user00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
 		UserManager userManager = UserManagerImpl
@@ -445,8 +447,8 @@ public class UserManagerImplTests {
 	}
 
 	@Test
-	public void entryToUserExternalRouting()
-			throws LdapInvalidDnException, ServerFault, LdapException, CursorException, IOException {
+	public void entryToUserExternalRouting() throws LdapInvalidDnException, ServerFault, LdapException, CursorException,
+			IOException, LdapSearchException {
 		Map<String, String> settings = new HashMap<>();
 		settings.put(DomainSettingsKeys.mail_routing_relay.name(), "split.relay.tld");
 
@@ -465,8 +467,8 @@ public class UserManagerImplTests {
 	}
 
 	@Test
-	public void entryToUserExternalRoutingMemberOf()
-			throws LdapInvalidDnException, ServerFault, LdapException, CursorException, IOException {
+	public void entryToUserExternalRoutingMemberOf() throws LdapInvalidDnException, ServerFault, LdapException,
+			CursorException, IOException, LdapSearchException {
 		Map<String, String> settings = new HashMap<>();
 		settings.put(DomainSettingsKeys.mail_routing_relay.name(), "split.relay.tld");
 
@@ -502,8 +504,8 @@ public class UserManagerImplTests {
 	}
 
 	@Test
-	public void entryToUserExternalRoutingMemberListPriority()
-			throws LdapInvalidDnException, ServerFault, LdapException, CursorException, IOException {
+	public void entryToUserExternalRoutingMemberListPriority() throws LdapInvalidDnException, ServerFault,
+			LdapException, CursorException, IOException, LdapSearchException {
 		Map<String, String> settings = new HashMap<>();
 		settings.put(DomainSettingsKeys.mail_routing_relay.name(), "split.relay.tld");
 
@@ -521,8 +523,8 @@ public class UserManagerImplTests {
 	}
 
 	@Test
-	public void entryToUserNoEmail()
-			throws ServerFault, LdapInvalidDnException, LdapException, CursorException, IOException {
+	public void entryToUserNoEmail() throws ServerFault, LdapInvalidDnException, LdapException, CursorException,
+			IOException, LdapSearchException {
 		Entry testUserEntry = getTestUserEntry(
 				"uid=user00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
 
@@ -543,13 +545,13 @@ public class UserManagerImplTests {
 		return new ImportLogger(Optional.empty(), Optional.empty(), Optional.of(new RepportStatus()));
 	}
 
-	private Entry getTestUserEntry(String userDn)
-			throws ServerFault, LdapException, LdapInvalidDnException, CursorException, IOException {
+	private Entry getTestUserEntry(String userDn) throws ServerFault, LdapException, LdapInvalidDnException,
+			CursorException, IOException, LdapSearchException {
 		Entry entry = null;
 		try (LdapConProxy ldapCon = LdapHelper
 				.connectLdap(LdapParameters.build(domain.value, Collections.<String, String>emptyMap()))) {
 
-			LdapSearchCursor entries = new DirectorySearch<>(
+			PagedSearchResult entries = new DirectorySearch<>(
 					LdapParameters.build(domain.value, Collections.<String, String>emptyMap()),
 					new LdapGroupSearchFilter(), new LdapUserSearchFilter()).findByFilterAndBaseDnAndScopeAndAttributes(
 							ldapCon,
@@ -574,8 +576,8 @@ public class UserManagerImplTests {
 	}
 
 	@Test
-	public void entryToUserEmailsDomainAlias()
-			throws ServerFault, LdapInvalidDnException, LdapException, CursorException, IOException {
+	public void entryToUserEmailsDomainAlias() throws ServerFault, LdapInvalidDnException, LdapException,
+			CursorException, IOException, LdapSearchException {
 		domain.value.aliases = ImmutableSet.of("memberof-alias.virt");
 
 		Entry testUserEntry = getTestUserEntry(
@@ -613,8 +615,8 @@ public class UserManagerImplTests {
 	}
 
 	@Test
-	public void entryToUserEmailsExternalFirst()
-			throws ServerFault, LdapInvalidDnException, LdapException, CursorException, IOException {
+	public void entryToUserEmailsExternalFirst() throws ServerFault, LdapInvalidDnException, LdapException,
+			CursorException, IOException, LdapSearchException {
 		Entry testUserEntry = getTestUserEntry(
 				"uid=user00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
 
@@ -642,8 +644,8 @@ public class UserManagerImplTests {
 	}
 
 	@Test
-	public void entryToUserEmailsExternalOnly()
-			throws ServerFault, LdapInvalidDnException, LdapException, CursorException, IOException {
+	public void entryToUserEmailsExternalOnly() throws ServerFault, LdapInvalidDnException, LdapException,
+			CursorException, IOException, LdapSearchException {
 		Entry testUserEntry = getTestUserEntry(
 				"uid=user00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
 
@@ -670,8 +672,8 @@ public class UserManagerImplTests {
 	}
 
 	@Test
-	public void entryToUserHook()
-			throws LdapInvalidDnException, ServerFault, LdapException, CursorException, IOException {
+	public void entryToUserHook() throws LdapInvalidDnException, ServerFault, LdapException, CursorException,
+			IOException, LdapSearchException {
 		Entry testUserEntry = getTestUserEntry(
 				"uid=user00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
 
@@ -688,8 +690,8 @@ public class UserManagerImplTests {
 	}
 
 	@Test
-	public void entryMailboxQuota()
-			throws LdapInvalidDnException, ServerFault, LdapException, CursorException, IOException {
+	public void entryMailboxQuota() throws LdapInvalidDnException, ServerFault, LdapException, CursorException,
+			IOException, LdapSearchException {
 		Entry testUserEntry = getTestUserEntry(
 				"uid=user00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
 
@@ -738,8 +740,8 @@ public class UserManagerImplTests {
 	}
 
 	@Test
-	public void entryToUserRemoveDescription()
-			throws LdapInvalidDnException, ServerFault, LdapException, CursorException, IOException {
+	public void entryToUserRemoveDescription() throws LdapInvalidDnException, ServerFault, LdapException,
+			CursorException, IOException, LdapSearchException {
 		Entry testUserEntry = getTestUserEntry(
 				"uid=user00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
 		UserManager userManager = UserManagerImpl
@@ -763,8 +765,8 @@ public class UserManagerImplTests {
 	}
 
 	@Test
-	public void entryToUserRemoveAddress()
-			throws LdapInvalidDnException, ServerFault, LdapException, CursorException, IOException {
+	public void entryToUserRemoveAddress() throws LdapInvalidDnException, ServerFault, LdapException, CursorException,
+			IOException, LdapSearchException {
 		Entry testUserEntry = getTestUserEntry(
 				"uid=user00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
 		UserManager userManager = UserManagerImpl

@@ -75,6 +75,16 @@ public class TaskUtils {
 		logger.info("task finished");
 	}
 
+	public static TaskStatus waitForInterruptible(IServiceProvider provider, TaskRef ref) throws InterruptedException {
+		ITask taskApi = provider.instance(ITask.class, ref.id + "");
+		TaskStatus ts = null;
+		do {
+			Thread.sleep(100);
+			ts = taskApi.status();
+		} while (!ts.state.ended);
+		return ts;
+	}
+
 	public static TaskStatus wait(IServiceProvider provider, TaskRef ref) {
 		ITask taskApi = provider.instance(ITask.class, ref.id + "");
 		TaskStatus ts = null;
@@ -82,7 +92,7 @@ public class TaskUtils {
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
-				logger.warn("error during sleep", e);
+				logger.warn("Task has been interrupted");
 				Thread.currentThread().interrupt();
 				if (ts != null) {
 					ts.state = State.InError;

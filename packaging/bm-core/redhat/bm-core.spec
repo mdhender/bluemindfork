@@ -7,10 +7,10 @@ Group:              Applications/messaging
 URL:                http://www.bluemind.net/
 ExcludeArch:        s390 s390x
 Requires(post):     systemd systemd-sysv
-Requires:           bm-jdk = 8u242-bluemind32, bm-conf = %{version}-%{release}, ghostscript-fonts, dejavu-sans-fonts, dejavu-sans-mono-fonts, dejavu-serif-fonts, openssl, ca-certificates, bm-tika = %{version}-%{release}, bm-plugin-core-subscription = %{version}-%{release}
+Requires:           bm-jdk = 8u252-bluemind34, bm-conf = %{version}-%{release}, ghostscript-fonts, dejavu-sans-fonts, dejavu-sans-mono-fonts, dejavu-serif-fonts, openssl, ca-certificates, bm-tika = %{version}-%{release}, bm-plugin-core-subscription = %{version}-%{release}
 Requires(post):     /bin/bash, initscripts
-Conflicts:          bm-soap, bm-plugin-core-dataprotect-upgrade, bm-plugin-core-hoster-report
-Obsoletes:          bm-soap, bm-plugin-core-dataprotect-upgrade, bm-plugin-core-hoster-report
+Conflicts:          bm-soap, bm-plugin-core-dataprotect-upgrade, bm-plugin-core-hoster-report, bm-plugin-core-mapi-support
+Obsoletes:          bm-soap, bm-plugin-core-dataprotect-upgrade, bm-plugin-core-hoster-report, bm-plugin-core-mapi-support
 
 %description
 BlueMind core server

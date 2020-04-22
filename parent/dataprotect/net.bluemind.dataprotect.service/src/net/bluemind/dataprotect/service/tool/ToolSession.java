@@ -108,6 +108,10 @@ public class ToolSession implements IToolSession {
 		return next;
 	}
 
+	public void interrupt() {
+		Thread.currentThread().interrupt();
+	}
+
 	private void runBackupCommand(INodeClient nc, PartGeneration next, String cmd) {
 		ctx.info("en", "RSYNC: " + cmd);
 		ExitList output = NCUtils.exec(nc, cmd);

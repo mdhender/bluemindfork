@@ -40,7 +40,8 @@ import net.bluemind.system.importation.commons.managers.GroupManager;
 import net.bluemind.system.importation.commons.managers.UserManager;
 import net.bluemind.system.importation.commons.scanner.ImportLogger;
 import net.bluemind.system.importation.i18n.Messages;
-import net.bluemind.system.importation.search.LdapSearchCursor;
+import net.bluemind.system.importation.search.PagedSearchResult;
+import net.bluemind.system.importation.search.PagedSearchResult.LdapSearchException;
 import net.bluemind.system.ldap.importation.internal.tools.LdapParameters;
 import net.bluemind.system.ldap.importation.search.LdapSearch;
 import net.bluemind.system.ldap.importation.search.MemberLdapSearch;
@@ -73,7 +74,7 @@ public class MemberLdapScanner extends LdapScanner {
 
 		Set<UuidMapper> splitGroupMembers = new HashSet<>();
 		Entry entry = null;
-		try (LdapSearchCursor cursor = ldapSearch.findByGroupName(ldapCon, getGroupMembersAttributeName())) {
+		try (PagedSearchResult cursor = ldapSearch.findByGroupName(ldapCon, getGroupMembersAttributeName())) {
 			while (cursor.next()) {
 				Response response = cursor.get();
 
@@ -83,7 +84,7 @@ public class MemberLdapScanner extends LdapScanner {
 
 				entry = ((SearchResultEntryDecorator) response).getEntry();
 			}
-		} catch (LdapException | CursorException e) {
+		} catch (LdapException | CursorException | LdapSearchException e) {
 			throw new ServerFault(e);
 		}
 

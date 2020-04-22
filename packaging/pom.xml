@@ -64,7 +64,6 @@
       <module>bm-plugin-core-forest</module>
       <module>bm-plugin-core-mailapp</module>
       <module>bm-plugin-core-monitoring</module>
-      <module>bm-plugin-core-mapi-support</module>
       <module>bm-plugin-node-monitoring</module>
       <module>bm-plugin-hps-kerberos</module>
       <module>bm-plugin-hps-cas</module>

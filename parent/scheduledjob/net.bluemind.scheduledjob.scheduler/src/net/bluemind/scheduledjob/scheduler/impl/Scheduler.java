@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.utils.FutureThreadInfo;
 import net.bluemind.scheduledjob.api.InProgressException;
 import net.bluemind.scheduledjob.api.JobExitStatus;
 import net.bluemind.scheduledjob.api.LogEntry;
@@ -55,7 +56,7 @@ public class Scheduler implements IScheduler, IRecordingListener {
 	private ThreadLocal<String> activeGroup;
 	private ConcurrentHashMap<String, ExecutionRecorder> activeRecorders;
 	private Executor exec;
-	private Map<String, JobThreadInfo> runningTasks = new ConcurrentHashMap<>();
+	private Map<String, FutureThreadInfo> runningTasks = new ConcurrentHashMap<>();
 
 	private Scheduler() {
 		exec = Executors.newFixedThreadPool(4);
@@ -190,7 +191,7 @@ public class Scheduler implements IScheduler, IRecordingListener {
 		String key = runner.domainName + "-" + runner.bj.getJobId();
 		if (getActiveSlot(runner.domainName, runner.bj.getJobId()) == null) {
 			Future<?> future = pool.submit(runner);
-			runningTasks.put(key, new JobThreadInfo(future, runner));
+			runningTasks.put(key, new FutureThreadInfo(future, runner));
 		}
 	}
 
@@ -250,16 +251,6 @@ public class Scheduler implements IScheduler, IRecordingListener {
 	public void unregister(String domainName, IScheduledJob bj) {
 		String key = domainName + "-" + bj.getJobId();
 		runningTasks.remove(key);
-	}
-
-	static class JobThreadInfo {
-		final Future<?> future;
-		final CancellableRunnable runnable;
-
-		JobThreadInfo(Future<?> future, CancellableRunnable runnable) {
-			this.future = future;
-			this.runnable = runnable;
-		}
 	}
 
 }

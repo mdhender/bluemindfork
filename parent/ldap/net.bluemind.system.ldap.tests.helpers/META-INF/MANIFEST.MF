@@ -7,8 +7,8 @@ Bundle-Vendor: bluemind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: net.bluemind.system.ldap.tests.helpers
 Require-Bundle: org.junit,
- org.apache.directory.api.all,
  net.bluemind.pool,
  net.bluemind.core.commons,
  net.bluemind.node.api,
- slf4j.api
+ slf4j.api,
+ net.bluemind.ldap.directory.client;bundle-version="1.0.3"

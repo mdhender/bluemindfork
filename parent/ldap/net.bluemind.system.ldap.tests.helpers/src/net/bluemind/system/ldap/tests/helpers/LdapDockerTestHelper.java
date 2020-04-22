@@ -60,9 +60,13 @@ public class LdapDockerTestHelper {
 
 	public static void initLdapTree(Class<? extends Object> classObject, TestName testName)
 			throws LdapException, DeleteTreeException, IOException {
-		String host = new BmConfIni().get(DockerContainer.LDAP.getName());
-		logger.info("LDAP connection to {}", host);
-		LdapNetworkConnection ldapCon = getLdapCon(host);
+		initLdapTree(classObject,
+				"/resources/" + classObject.getSimpleName() + "/" + testName.getMethodName() + ".ldif");
+	}
+
+	public static void initLdapTree(Class<? extends Object> classObject, String resourceName)
+			throws LdapInvalidDnException, LdapException, DeleteTreeException, IOException {
+		LdapNetworkConnection ldapCon = getLdapCon();
 
 		if (ldapCon.exists(new Dn(LDAP_ROOT_DN))) {
 			deleteTree(ldapCon, LDAP_ROOT_DN);
@@ -70,7 +74,6 @@ public class LdapDockerTestHelper {
 
 		createLdapEntry(ldapCon, new LdapDockerTestHelper().getClass().getResourceAsStream("/resources/local.ldif"));
 
-		String resourceName = "/resources/" + classObject.getSimpleName() + "/" + testName.getMethodName() + ".ldif";
 		InputStream ldifIS = classObject.getResourceAsStream(resourceName);
 		if (ldifIS == null) {
 			System.out.println(resourceName + " doesn't exist!");
@@ -92,9 +95,11 @@ public class LdapDockerTestHelper {
 		lr.close();
 	}
 
-	private static LdapNetworkConnection getLdapCon(String ldapHost) throws LdapException {
+	public static LdapNetworkConnection getLdapCon() throws LdapException {
+		String host = new BmConfIni().get(DockerContainer.LDAP.getName());
+		logger.info("LDAP connection to {}", host);
 		LdapConnectionConfig lcc = new LdapConnectionConfig();
-		lcc.setLdapHost(ldapHost);
+		lcc.setLdapHost(host);
 		lcc.setLdapPort(389);
 		lcc.setTimeout(10000);
 		lcc.setUseSsl(false);

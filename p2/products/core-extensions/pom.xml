@@ -16,7 +16,6 @@
 		<module>xivo</module>
 		<module>filehosting-filesystem</module>
 		<module>forest</module>
-		<module>mapi-support</module>
 		<module>password-bruteforce</module>
 		<module>password-sizestrength</module>
 		<module>mailapp</module>

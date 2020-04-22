@@ -224,7 +224,7 @@ public class GroupManagerTests {
 	@Test
 	public void getGroupMembers() {
 		List<Entry> entities = LdifHelper.loadLdif(this.getClass(),
-				"/resources/managers/GroupManagerTest/getGroupMembers.ldif");
+				"/resources/commons/managers/GroupManagerTest/getGroupMembers.ldif");
 		assertEquals(1, entities.size());
 
 		Set<String> members = new GroupManagerTestImpl(getDomain(), entities.get(0)).getGroupMembers("member");

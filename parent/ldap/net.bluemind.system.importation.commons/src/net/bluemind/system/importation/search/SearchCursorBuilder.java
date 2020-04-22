@@ -106,7 +106,7 @@ public class SearchCursorBuilder {
 		return this;
 	}
 
-	public LdapSearchCursor execute() throws LdapException {
+	public PagedSearchResult execute() throws LdapException {
 		SearchRequest searchRequest = new SearchRequestImpl();
 		searchRequest.setBase(this.baseDn);
 		if (null != filter) {
@@ -131,7 +131,7 @@ public class SearchCursorBuilder {
 							baseDn, filter, scope.name(), attributes.toString(), sizeLimit));
 		}
 
-		return new LdapSearchCursor(ldapCon.search(searchRequest));
+		return new PagedSearchResult(ldapCon, searchRequest);
 	}
 
 }

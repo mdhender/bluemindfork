@@ -31,8 +31,6 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.ISanitizer;
 import net.bluemind.core.sanitizer.ISanitizerFactory;
-import net.bluemind.directory.api.BaseDirEntry.Kind;
-import net.bluemind.directory.api.IDirEntryPath;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 
 /**
@@ -78,9 +76,8 @@ public class VEventSeriesSanitizer implements ISanitizer<VEventSeries> {
 
 	// mostly a copy from IcsHook
 	private boolean isMasterVersionAndHasAttendees(final VEventSeries message) throws ServerFault {
-		String path = IDirEntryPath.path(bmContext.getSecurityContext().getContainerUid(), bmContext.getSecurityContext().getSubject(),
-				Kind.USER);
-		return message.meeting() && message.master(path);
+		return message.meeting() && message.master(bmContext.getSecurityContext().getContainerUid(),
+				bmContext.getSecurityContext().getSubject());
 	}
 
 	// mostly a copy from IcsHook
@@ -105,9 +102,8 @@ public class VEventSeriesSanitizer implements ISanitizer<VEventSeries> {
 
 	private void sanitizeDraft(VEventSeries currentVEventSeries, VEventSeries oldEventSeries) {
 		sanitizeDraft(currentVEventSeries.main, oldEventSeries.main, null);
-		currentVEventSeries.occurrences
-				.forEach(current -> sanitizeDraft(current, oldEventSeries.occurrence(current.recurid),
-						currentVEventSeries.main.draft));
+		currentVEventSeries.occurrences.forEach(current -> sanitizeDraft(current,
+				oldEventSeries.occurrence(current.recurid), currentVEventSeries.main.draft));
 	}
 
 	private void sanitizeDraft(VEvent current, VEvent old, Boolean forceDraft) {

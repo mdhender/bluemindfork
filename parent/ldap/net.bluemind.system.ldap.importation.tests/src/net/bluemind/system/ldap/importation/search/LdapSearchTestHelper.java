@@ -46,7 +46,8 @@ import net.bluemind.lib.ldap.LdapConProxy;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.pool.impl.docker.DockerContainer;
 import net.bluemind.system.importation.search.DirectorySearch;
-import net.bluemind.system.importation.search.LdapSearchCursor;
+import net.bluemind.system.importation.search.PagedSearchResult;
+import net.bluemind.system.importation.search.PagedSearchResult.LdapSearchException;
 import net.bluemind.system.ldap.importation.api.LdapConstants;
 import net.bluemind.system.ldap.importation.api.LdapProperties;
 import net.bluemind.system.ldap.importation.internal.tools.LdapHelper;
@@ -102,12 +103,12 @@ public class LdapSearchTestHelper {
 		return sdf.format(new Date());
 	}
 
-	private static Entry getExistingGroupEntry(LdapParameters ldapParameters, String dn)
-			throws LdapInvalidDnException, LdapException, IOException, ServerFault, CursorException {
+	private static Entry getExistingGroupEntry(LdapParameters ldapParameters, String dn) throws LdapInvalidDnException,
+			LdapException, LdapSearchException, IOException, ServerFault, CursorException {
 		Entry entry = null;
 
 		try (LdapConProxy ldapCon = LdapHelper.connectLdap(ldapParameters)) {
-			LdapSearchCursor entries = new DirectorySearch<>(ldapParameters, new LdapGroupSearchFilter(),
+			PagedSearchResult entries = new DirectorySearch<>(ldapParameters, new LdapGroupSearchFilter(),
 					new LdapUserSearchFilter()).findByFilterAndBaseDnAndScopeAndAttributes(ldapCon, "(objectclass=*)",
 							new Dn(dn), SearchScope.OBJECT, "*", "+",
 							LdapProperties.import_ldap_ext_id_attribute.getDefaultValue());
@@ -127,7 +128,7 @@ public class LdapSearchTestHelper {
 	}
 
 	public static void updateEntry(LdapParameters ldapParameters, String dn)
-			throws IOException, ServerFault, LdapException, CursorException {
+			throws IOException, ServerFault, LdapException, CursorException, LdapSearchException {
 		Entry entry = getExistingGroupEntry(ldapParameters, dn);
 
 		ModifyRequestImpl modifyRequest = new ModifyRequestImpl();
