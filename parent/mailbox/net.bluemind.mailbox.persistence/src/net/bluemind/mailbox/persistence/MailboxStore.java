@@ -61,6 +61,13 @@ public class MailboxStore extends AbstractItemValueStore<Mailbox> {
 		}
 	};
 
+	private static final Creator<Boolean> BOOLEAN_CREATOR = new Creator<Boolean>() {
+		@Override
+		public Boolean create(ResultSet con) throws SQLException {
+			return con.getBoolean(1);
+		}
+	};
+
 	public MailboxStore(DataSource pool, Container container) {
 		super(pool);
 		this.container = container;
@@ -330,6 +337,16 @@ public class MailboxStore extends AbstractItemValueStore<Mailbox> {
 
 		return select(query.toString(), StringCreator.FIRST, Collections.<EntityPopulator<String>>emptyList(),
 				new Object[] { container.id });
+	}
+
+	public Boolean isQuotaGreater(int quotaMax) throws SQLException {
+		String query = "SELECT EXISTS(" //
+				+ " SELECT m.item_id FROM t_mailbox m " //
+				+ " INNER JOIN t_container_item item ON m.item_id = item.id " //
+				+ " WHERE m.quota > ? AND item.container_id = ?)";
+
+		return unique(query.toString(), BOOLEAN_CREATOR, new ArrayList<EntityPopulator<Boolean>>(0),
+				new Object[] { quotaMax, container.id });
 	}
 
 }

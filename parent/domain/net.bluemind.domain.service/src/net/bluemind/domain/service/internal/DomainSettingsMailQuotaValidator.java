@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2018
+ * Copyright © Blue Mind SAS, 2012-2020
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -18,9 +18,6 @@
  */
 package net.bluemind.domain.service.internal;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
@@ -31,11 +28,14 @@ import org.apache.commons.lang.StringUtils;
 
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.validator.IValidator;
 import net.bluemind.core.validator.IValidatorFactory;
 import net.bluemind.domain.api.DomainSettings;
 import net.bluemind.domain.api.DomainSettingsKeys;
+import net.bluemind.mailbox.persistence.MailboxStore;
 
 public class DomainSettingsMailQuotaValidator implements IValidator<DomainSettings> {
 
@@ -62,7 +62,7 @@ public class DomainSettingsMailQuotaValidator implements IValidator<DomainSettin
 
 	@Override
 	public void create(DomainSettings settings) throws ServerFault {
-		if (!quotaDomainKey.stream().filter(settings.settings::containsKey).findFirst().isPresent()) {
+		if (!quotaDomainKey.stream().anyMatch(settings.settings::containsKey)) {
 			return;
 		}
 
@@ -75,8 +75,7 @@ public class DomainSettingsMailQuotaValidator implements IValidator<DomainSettin
 	@Override
 	public void update(DomainSettings oldValue, DomainSettings newValue) throws ServerFault {
 		if (!quotaDomainKey.stream()
-				.filter(key -> !StringUtils.equals(newValue.settings.get(key), oldValue.settings.get(key))).findFirst()
-				.isPresent()) {
+				.anyMatch(key -> !StringUtils.equals(newValue.settings.get(key), oldValue.settings.get(key)))) {
 			return;
 		}
 
@@ -100,17 +99,10 @@ public class DomainSettingsMailQuotaValidator implements IValidator<DomainSettin
 	}
 
 	private void checkMailboxQuota(String domainUid, int quotaMax) {
-		String query = "SELECT EXISTS(" //
-				+ " SELECT * FROM t_mailbox tm " //
-				+ " INNER JOIN t_container_item tci ON tci.id=tm.item_id " //
-				+ " INNER JOIN t_container tc ON tc.id = tci.container_id " //
-				+ " WHERE tm.quota > " + quotaMax + " AND tc.domain_uid='" + domainUid + "') AS lesserthanmax";
-
-		try (Connection con = context.getDataSource().getConnection();
-				PreparedStatement st = con.prepareStatement(query);
-				ResultSet result = st.executeQuery()) {
-			result.next();
-			if (result.getBoolean("lesserthanmax")) {
+		try {
+			if (new MailboxStore(context.getDataSource(),
+					new ContainerStore(context, context.getDataSource(), SecurityContext.SYSTEM).get(domainUid))
+							.isQuotaGreater(quotaMax)) {
 				throw new ServerFault(String.format("At least one mailbox quota is greater than %d", quotaMax),
 						ErrorCode.INVALID_PARAMETER);
 			}
