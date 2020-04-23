@@ -1,87 +1,66 @@
 <template>
     <div class="mail-message-content-body h-100 py-2">
-        <iframe ref="iFrameMailContent" :title="$t('mail.content.body')" class="w-100 border-0" @load="resizeIFrame" />
+        <iframe
+            ref="iFrameMailContent"
+            :title="$t('mail.content.body')"
+            class="w-100 border-0"
+            :srcdoc="iFrameContent"
+            @load="resizeIFrame"
+        />
     </div>
 </template>
 
 <script>
 import { mailText2Html, MimeType } from "@bluemind/email";
-import { mapGetters } from "vuex";
-import { sanitizeHtml } from "@bluemind/html-utils";
+import { mapGetters, mapMutations, mapState } from "vuex";
+import { sanitizeHtml, hasRemoteImages, blockRemoteImages, unblockRemoteImages } from "@bluemind/html-utils";
+import brokenImageIcon from "../../assets/brokenImageIcon.png";
 
 export default {
     name: "MailMessageContentBody",
     computed: {
-        ...mapGetters("mail-webapp/currentMessage", { parts: "content" })
-    },
-    watch: {
-        parts: {
-            handler: function() {
-                this.$nextTick(function() {
-                    this.display();
-                });
-            },
-            immediate: true
+        ...mapGetters("mail-webapp/currentMessage", { parts: "content" }),
+        ...mapState("mail-webapp/currentMessage", { messageKey: "key" }),
+        ...mapGetters("mail-webapp", ["areRemoteImagesUnblocked"]),
+        iFrameContent() {
+            let bodyContent = this.bodyContentFromParts;
+
+            if (this.areRemoteImagesUnblocked(this.messageKey)) {
+                bodyContent = unblockRemoteImages(bodyContent);
+            } else if (hasRemoteImages(bodyContent)) {
+                bodyContent = blockRemoteImages(bodyContent);
+                this.setShowBlockedImagesAlert(true);
+            } else {
+                this.setShowBlockedImagesAlert(false);
+            }
+
+            return this.buildHtml(bodyContent);
+        },
+        bodyContentFromParts() {
+            return this.parts ? this.buildBodyContentFromParts() : "";
         }
     },
     methods: {
-        resizeIFrame() {
-            let htmlRootNode = this.$refs.iFrameMailContent.contentDocument.documentElement;
-            this.$refs.iFrameMailContent.style.height = this.computeIFrameHeight(htmlRootNode) + "px";
-        },
-        // get max offset height between root, body and body children nodes
-        computeIFrameHeight(htmlRootNode) {
-            let maxHeight = htmlRootNode.offsetHeight;
-            const bodyNode = htmlRootNode.childNodes[1];
-            if (bodyNode) {
-                if (bodyNode.offsetHeight) {
-                    maxHeight = Math.max(maxHeight, bodyNode.offsetHeight);
+        ...mapMutations("mail-webapp", ["setShowBlockedImagesAlert"]),
+        buildBodyContentFromParts() {
+            let content = "";
+            this.parts.forEach((part, index) => {
+                if (index !== 0) {
+                    content += this.buildSeparator();
                 }
-                bodyNode.childNodes.forEach(bodyChild => {
-                    if (bodyChild.offsetHeight) {
-                        maxHeight = Math.max(maxHeight, bodyChild.offsetHeight);
-                    }
-                });
-            }
-            return maxHeight + 11;
+                if (MimeType.isHtml(part)) {
+                    content += sanitizeHtml(part.content);
+                } else if (MimeType.isText(part)) {
+                    content += mailText2Html(part.content);
+                } else if (MimeType.isImage(part)) {
+                    const imgSrc = URL.createObjectURL(part.content);
+                    content += this.buildImage(imgSrc);
+                }
+            });
+            return content;
         },
-        display() {
-            if (this.parts) {
-                let html = "";
-                this.parts.forEach((part, index) => {
-                    if (index !== 0) {
-                        html += `<hr style='margin: 1rem 0;
-                                            border: 0;
-                                            border-top: 1px solid rgba(0, 0, 0, 0.3);
-                                            height: 0'
-                                >`;
-                    }
-                    if (MimeType.isHtml(part)) {
-                        html += sanitizeHtml(part.content);
-                    } else if (MimeType.isText(part)) {
-                        html += mailText2Html(part.content);
-                    } else if (MimeType.isImage(part)) {
-                        const imgSrc = URL.createObjectURL(part.content);
-                        html += '<div align="center"><img src="' + imgSrc + '"></div>';
-                    }
-                });
-                const iframeDoc = this.$refs.iFrameMailContent.contentWindow.document;
-                iframeDoc.open();
-                // all links should be opened in an other tab by default
-                iframeDoc.write('<head><base target="_blank"></head>');
-                iframeDoc.write("<body><div>" + html + "</div></body>");
-
-                this.addStyle(iframeDoc);
-                iframeDoc.close();
-                this.resizeIFrame();
-            }
-        },
-
-        /** Apply specific styles to the given iframe. */
-        addStyle(iframeDoc) {
-            // add style for 'reply' and 'forward' rendering
-            // add style to enable <pre> content to wrap in order to see all of it
-            const css = `
+        buildHtml(bodyContent) {
+            const style = `
                         body {
                             font-family: 'Montserrat', sans-serif;
                             font-size: 0.75rem;
@@ -101,24 +80,79 @@ export default {
                         }
                         pre {
                             white-space: pre-line;
-                        }`;
-            const head = iframeDoc.head || iframeDoc.getElementsByTagName("head")[0];
-            let style = iframeDoc.getElementsByTagName("style")[0];
-            if (!style) {
-                style = iframeDoc.createElement("style");
-                head.appendChild(style);
-                style.type = "text/css";
-            }
+                        }
 
-            if (style.styleSheet) {
-                // this is required for IE8 and below.
-                if (!style.styleSheet.cssText) {
-                    style.styleSheet.cssText = "";
+                        img.blocked-image {
+                            position: relative;
+                            min-height: 50px;
+                            min-width: 55px;
+                            display: inline-block;
+                            border: 1px solid black;
+                            border: solid 1px #727272 !important;
+                            vertical-align: top;
+                        }
+
+                        img.blocked-image:before { 
+                            content: attr(alt);
+                            color: #2F2F2F;
+                            display: block;
+                            position: absolute;  
+                            width: 100%;
+                            height: 100%;
+                            background: #fff;
+                            background-image: url(${brokenImageIcon});
+                            background-repeat: no-repeat;
+                            background-position: 7px 7px;
+                            padding: 9px 7px 7px 27px;
+                            box-sizing: border-box;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            text-align start;
+                            white-space: nowrap;
+                            font-family: Montserrat;
+                            font-style: normal;
+                            font-weight: normal;
+                            font-size: 12px;
+                        }
+
+                        a img.blocked-image:before {
+                            color: #00AAEB !important;
+                            text-decoration-line: underline;  
+                        }`;
+            return `<html>
+                <head><base target="_blank"><style>${style}</style></head>
+                <body><div>${bodyContent}</div></body>
+            </html>`;
+        },
+        buildSeparator() {
+            return `<hr style='margin: 1rem 0;
+                        border: 0;
+                        border-top: 1px solid rgba(0, 0, 0, 0.3);
+                        height: 0'
+            >`;
+        },
+        buildImage(imgSrc) {
+            return '<div align="center"><img src="' + imgSrc + '"></div>';
+        },
+        resizeIFrame() {
+            let htmlRootNode = this.$refs.iFrameMailContent.contentDocument.documentElement;
+            this.$refs.iFrameMailContent.style.height = this.computeIFrameHeight(htmlRootNode) + "px";
+        },
+        /** get max offset height between root, body and body children nodes */
+        computeIFrameHeight(htmlRootNode) {
+            let maxHeight = htmlRootNode.offsetHeight;
+            const bodyNode = htmlRootNode.childNodes[1];
+            if (bodyNode) {
+                if (bodyNode.offsetHeight) {
+                    maxHeight = Math.max(maxHeight, bodyNode.offsetHeight);
                 }
-                style.styleSheet.cssText += css;
-            } else {
-                style.appendChild(iframeDoc.createTextNode(css));
+                bodyNode.childNodes.forEach(bodyChild => {
+                    if (bodyChild.offsetHeight) {
+                        maxHeight = Math.max(maxHeight, bodyChild.offsetHeight);
+                    }
+                });
             }
+            return maxHeight + 11;
         }
     }
 };

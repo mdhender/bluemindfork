@@ -1,43 +1,41 @@
 <template>
     <bm-container v-if="hasAttachments" class="mail-message-content-attachments-block p-2 bg-extra-light">
-        <bm-row>
-            <bm-col cols="12" class="pl-2 d-flex">
-                <button
-                    v-bm-tooltip.ds500
-                    class="btn p-0 bg-transparent border-0 caret-btn align-text-bottom"
-                    :aria-label="$t('common.toggleAttachments')"
-                    :title="$t('common.toggleAttachments')"
-                    @click.prevent="toggleExpand"
-                >
-                    <bm-icon :icon="isExpanded ? 'caret-down' : 'caret-right'" />
-                </button>
-                <template v-if="editable">
-                    <bm-icon icon="paper-clip" class="mx-1" :class="paperClipColor" size="lg" />
-                    <span :class="isTooHeavy ? 'text-danger font-weight-bold' : ''">
-                        {{
-                            $tc("common.attachments", attachments.length, {
-                                count: attachments.length
-                            })
-                        }}
-                        ({{ displaySize(attachmentsWeight) }} / {{ displaySize(attachmentsMaxWeight) }})
-                        <bm-icon v-if="isTooHeavy" icon="exclamation-circle" />
-                    </span>
-                    <bm-progress
-                        :value="attachmentsWeight"
-                        :max="attachmentsMaxWeight"
-                        height="2px"
-                        class="flex-fill d-flex pl-1 align-self-center"
-                        :variant="attachmentsWeightColor"
-                    />
-                </template>
-                <template v-else>
-                    <bm-icon icon="paper-clip" class="mx-1" size="lg" />
-                    <span class="font-weight-bold pr-2">
-                        {{ $tc("common.attachments", attachments.length, { count: attachments.length }) }}
-                    </span>
-                </template>
-            </bm-col>
-        </bm-row>
+        <div class="d-flex">
+            <button
+                v-bm-tooltip.ds500
+                class="btn p-0 bg-transparent border-0 caret-btn align-text-bottom"
+                :aria-label="$t('common.toggleAttachments')"
+                :title="$t('common.toggleAttachments')"
+                @click.prevent="toggleExpand"
+            >
+                <bm-icon :icon="isExpanded ? 'caret-down' : 'caret-right'" />
+            </button>
+            <template v-if="editable">
+                <bm-icon icon="paper-clip" class="mr-1 ml-2" :class="paperClipColor" size="lg" />
+                <span :class="isTooHeavy ? 'text-danger font-weight-bold' : ''">
+                    {{
+                        $tc("common.attachments", attachments.length, {
+                            count: attachments.length
+                        })
+                    }}
+                    ({{ displaySize(attachmentsWeight) }} / {{ displaySize(attachmentsMaxWeight) }})
+                    <bm-icon v-if="isTooHeavy" icon="exclamation-circle" />
+                </span>
+                <bm-progress
+                    :value="attachmentsWeight"
+                    :max="attachmentsMaxWeight"
+                    height="2px"
+                    class="flex-fill d-flex pl-1 align-self-center"
+                    :variant="attachmentsWeightColor"
+                />
+            </template>
+            <template v-else>
+                <bm-icon icon="paper-clip" class="mr-1 ml-2" size="lg" />
+                <span class="font-weight-bold pr-2">
+                    {{ $tc("common.attachments", attachments.length, { count: attachments.length }) }}
+                </span>
+            </template>
+        </div>
         <bm-row v-if="seeMoreAttachments" class="ml-3 mr-1">
             <bm-col cols="4">
                 <mail-message-content-attachment-item

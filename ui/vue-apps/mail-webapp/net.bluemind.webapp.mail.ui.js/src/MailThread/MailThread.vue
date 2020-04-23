@@ -1,5 +1,13 @@
 <template>
-    <div class="mail-thread h-100">
+    <div class="mail-thread">
+        <mail-thread-alert
+            v-if="message && !areRemoteImagesUnblocked(message.key) && showBlockedImagesAlert"
+            @close="setShowBlockedImagesAlert(false)"
+        >
+            {{ $t("mail.content.alert.images.blocked") }}
+            &nbsp;
+            <a href="#" @click.prevent="showImages()">{{ $t("mail.content.alert.images.show") }}</a>
+        </mail-thread-alert>
         <mail-message-new
             v-if="showComposer"
             :message="preparedAnswer"
@@ -14,26 +22,31 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapMutations, mapState } from "vuex";
 import { MimeType } from "@bluemind/email";
-import { computeSubject, previousMessageContent } from "./MessageBuilder";
-import MailMessageContent from "./MailMessageContent/MailMessageContent";
-import MailMessageNew from "./MailMessageNew";
-import MailMessageNewModes from "./MailMessageNew/MailMessageNewModes";
+import { computeSubject, previousMessageContent } from "../MessageBuilder";
+import MailMessageContent from "../MailMessageContent";
+import MailMessageNew from "../MailMessageNew";
+import MailMessageNewModes from "../MailMessageNew/MailMessageNewModes";
+import MailThreadAlert from "./MailThreadAlert";
 
 export default {
     name: "MailThread",
     components: {
         MailMessageContent,
-        MailMessageNew
+        MailMessageNew,
+        MailThreadAlert
     },
     data() {
         return {
-            userPrefTextOnly: false // TODO: initialize this with user setting
+            userPrefTextOnly: false // TODO: initialize this with user setting,
         };
     },
     computed: {
         ...mapGetters("mail-webapp/currentMessage", { message: "message", inlineParts: "content" }),
+        ...mapState("mail-webapp", ["showBlockedImagesAlert"]),
+        ...mapGetters("mail-webapp", ["areRemoteImagesUnblocked"]),
+
         previousMessage() {
             return {
                 content: previousMessageContent(
@@ -76,12 +89,16 @@ export default {
         }
     },
     methods: {
+        ...mapMutations("mail-webapp", ["setShowBlockedImagesAlert", "unblockRemoteImages"]),
         pathSuffix() {
             let indexOfLastSlash = this.$store.state.route.path.lastIndexOf("/");
             return this.$store.state.route.path.substring(indexOfLastSlash + 1);
         },
         isReplyAll() {
             return this.pathSuffix() === this.message.actions.REPLYALL;
+        },
+        showImages() {
+            this.unblockRemoteImages(this.message.key);
         }
     }
 };

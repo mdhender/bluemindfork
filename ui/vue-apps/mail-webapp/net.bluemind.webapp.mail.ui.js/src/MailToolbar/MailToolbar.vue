@@ -1,6 +1,6 @@
 <template>
     <bm-button-toolbar key-nav class="mail-toolbar flex-nowrap h-100">
-        <bm-button variant="link" class="d-md-none btn-sm mr-auto" @click="back()">
+        <bm-button variant="link" class="d-lg-none btn-sm mr-auto" @click="back()">
             <bm-icon icon="arrow-back" size="2x" />
         </bm-button>
         <mail-toolbar-compose-message v-if="isMessageComposerDisplayed" />

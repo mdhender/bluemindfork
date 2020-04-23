@@ -20,5 +20,6 @@
 export default Object.freeze({
     SUCCESS: "success",
     LOADING: "loading",
-    ERROR: "error"
+    ERROR: "error",
+    WARNING: "warning"
 });

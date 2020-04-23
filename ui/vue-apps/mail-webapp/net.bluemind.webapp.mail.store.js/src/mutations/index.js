@@ -1,6 +1,7 @@
 export * from "./addAllToSelectedMessages";
 export * from "./addSelectedMessageKey";
 export * from "./collapseFolder";
+export * from "./setShowBlockedImagesAlert";
 export * from "./deleteAllSelectedMessages";
 export * from "./deleteSelectedMessageKey";
 export * from "./expandFolder";
@@ -9,5 +10,6 @@ export * from "./setMaxMessageSize";
 export * from "./setMessageFilter";
 export * from "./setUnreadCount";
 export * from "./setUserLogin";
+export * from "./unblockRemoteImages";
 export * from "./setStatus";
 export * from "./setUserSettings";

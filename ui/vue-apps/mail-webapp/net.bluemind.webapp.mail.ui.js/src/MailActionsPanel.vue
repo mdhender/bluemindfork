@@ -7,7 +7,7 @@
 <script>
 import MailMessageStarter from "./MailMessageStarter";
 import MailMultipleSelectionActions from "./MailMultipleSelectionActions";
-import MailThread from "./MailThread";
+import MailThread from "./MailThread/MailThread";
 import { mapActions, mapState } from "vuex";
 
 export default {

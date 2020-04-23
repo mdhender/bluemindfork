@@ -60,7 +60,7 @@
                 :variant="errorMessage ? 'danger' : 'primary'"
             />
         </bm-container>
-        <div v-if="errorMessage" class="row px-1"><bm-alert class="w-100" :text="errorMessage" /></div>
+        <div v-if="errorMessage" class="row px-1"><bm-notice class="w-100" :text="errorMessage" /></div>
     </div>
 </template>
 
@@ -74,7 +74,7 @@ import {
     BmTooltip,
     BmProgress,
     BmButtonClose,
-    BmAlert
+    BmNotice
 } from "@bluemind/styleguide";
 import { computeUnit } from "@bluemind/file-utils";
 import { MimeType } from "@bluemind/email";
@@ -90,7 +90,7 @@ export default {
         BmRow,
         BmProgress,
         BmButtonClose,
-        BmAlert
+        BmNotice
     },
     directives: { BmTooltip },
     props: {

@@ -5,7 +5,7 @@
         type="search"
         icon="search"
         :aria-label="$t('common.search')"
-        class="mail-search-form rounded-0"
+        class="mail-search-form"
         @input="onChange"
         @keydown.enter="onKeydownEnter"
         @reset="cancel"

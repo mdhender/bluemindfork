@@ -1,0 +1,59 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Block/Unblock remote images in HTML. Block then unblock HTML with remote images (snapshot test). 1`] = `
+"
+        <div>
+            Blabla bla <img toto=\\"\\" tata=\\"\\" src=\\"void:blockedImage\\" data-src=\\"http://bluemind.net/myfirstImage.png\\" alt=\\" \\" class=\\"blocked-image\\">
+        </div>
+        <div>
+            Blabla bla blaaaaaaaaaaaaaaaaaaaaaaaa <img toto=\\"\\" tata=\\"\\" src=\\"void:blockedImage\\" data-src=\\"http://bluemind.net/mySecondImage.png\\" alt=\\" \\" class=\\"blocked-image\\">
+        </div>
+        <div>
+            Blabla bla <img toto=\\"\\" tata=\\"\\" src=\\"blob:https://vm40.bluemind.net/7324a443-db03-4a5f-9dd9-c21251234361\\">
+        </div>
+        <div>
+            Blabla bla <img toto=\\"\\" tata=\\"\\" src=\\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIA\\">
+        </div>
+    
+"
+`;
+
+exports[`Block/Unblock remote images in HTML. Block then unblock HTML with remote images (snapshot test). 2`] = `
+"<div>
+            Blabla bla <img toto=\\"\\" tata=\\"\\" src=\\"http://bluemind.net/myfirstImage.png\\" data-src=\\"http://bluemind.net/myfirstImage.png\\">
+        </div>
+        <div>
+            Blabla bla blaaaaaaaaaaaaaaaaaaaaaaaa <img toto=\\"\\" tata=\\"\\" src=\\"http://bluemind.net/mySecondImage.png\\" data-src=\\"http://bluemind.net/mySecondImage.png\\">
+        </div>
+        <div>
+            Blabla bla <img toto=\\"\\" tata=\\"\\" src=\\"blob:https://vm40.bluemind.net/7324a443-db03-4a5f-9dd9-c21251234361\\">
+        </div>
+        <div>
+            Blabla bla <img toto=\\"\\" tata=\\"\\" src=\\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIA\\">
+        </div>
+    
+"
+`;
+
+exports[`Block/Unblock remote images in HTML. Block then unblock HTML without remote images (snapshot test). 1`] = `
+"
+        <div>
+            Blabla bla <img toto=\\"\\" tata=\\"\\" src=\\"blob:https://vm40.bluemind.net/7324a443-db03-4a5f-9dd9-c21251234361\\">
+        </div>
+        <div>
+        Blabla bla <img toto=\\"\\" tata=\\"\\" src=\\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIA\\">
+        </div>
+    
+"
+`;
+
+exports[`Block/Unblock remote images in HTML. Block then unblock HTML without remote images (snapshot test). 2`] = `
+"<div>
+            Blabla bla <img toto=\\"\\" tata=\\"\\" src=\\"blob:https://vm40.bluemind.net/7324a443-db03-4a5f-9dd9-c21251234361\\">
+        </div>
+        <div>
+        Blabla bla <img toto=\\"\\" tata=\\"\\" src=\\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIA\\">
+        </div>
+    
+"
+`;

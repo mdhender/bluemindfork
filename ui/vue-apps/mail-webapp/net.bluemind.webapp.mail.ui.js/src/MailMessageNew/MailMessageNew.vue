@@ -4,7 +4,7 @@
             <template #header>
                 <span
                     v-bm-tooltip.hover.ds500
-                    class="d-none d-lg-flex text-nowrap text-truncate card-header"
+                    class="d-none d-lg-flex text-nowrap text-truncate card-header px-2 py-1"
                     :title="panelTitle"
                     >{{ panelTitle }}</span
                 >

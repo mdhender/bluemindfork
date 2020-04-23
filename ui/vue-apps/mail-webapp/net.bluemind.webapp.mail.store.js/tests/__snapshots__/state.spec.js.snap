@@ -7,7 +7,9 @@ Object {
   "login": undefined,
   "maxMessageSize": undefined,
   "messageFilter": undefined,
+  "messagesWithUnblockedRemoteImages": Array [],
   "selectedMessageKeys": Array [],
+  "showBlockedImagesAlert": false,
   "status": "idle",
   "userSettings": Object {},
 }
