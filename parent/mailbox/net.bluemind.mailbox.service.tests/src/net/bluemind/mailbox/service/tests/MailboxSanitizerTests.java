@@ -41,6 +41,7 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.mailbox.api.Mailbox.Type;
 import net.bluemind.mailbox.service.internal.MailboxSanitizer;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
@@ -97,8 +98,20 @@ public class MailboxSanitizerTests {
 	}
 
 	@Test
-	public void testQuota_MailshareQuotaNotSet_DefaultQuotaNotSet() {
-		Mailbox mbox = mailbox();
+	public void mailshareQuotaNotSet_DefaultQuotaNotSet_MaxQuotaNotSet() {
+		Mailbox mbox = mailbox(Mailbox.Type.mailshare);
+
+		sanitizer.sanitize(mbox);
+
+		assertNull(mbox.quota);
+
+		IDomainSettings domSettingsService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, domainUid);
+		Map<String, String> settings = domSettingsService.get();
+		settings.put(DomainSettingsKeys.mailbox_default_publicfolder_quota.name(), "0");
+		settings.put(DomainSettingsKeys.mailbox_max_publicfolder_quota.name(), "0");
+
+		mbox = mailbox(Mailbox.Type.mailshare);
 
 		sanitizer.sanitize(mbox);
 
@@ -106,8 +119,22 @@ public class MailboxSanitizerTests {
 	}
 
 	@Test
-	public void testQuota_MailshareSet_DefaultQuotaNotSet() {
-		Mailbox mbox = mailbox();
+	public void mailshareQuotaSet_DefaultQuotaNotSet_MaxQuotaNotSet() {
+		Mailbox mbox = mailbox(Mailbox.Type.mailshare);
+		mbox.quota = 42;
+
+		sanitizer.sanitize(mbox);
+
+		assertEquals(42, mbox.quota.intValue());
+
+		IDomainSettings domSettingsService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, domainUid);
+		Map<String, String> settings = domSettingsService.get();
+		settings.put(DomainSettingsKeys.mailbox_default_publicfolder_quota.name(), "0");
+		settings.put(DomainSettingsKeys.mailbox_max_publicfolder_quota.name(), "0");
+		domSettingsService.set(settings);
+
+		mbox = mailbox(Mailbox.Type.mailshare);
 		mbox.quota = 42;
 
 		sanitizer.sanitize(mbox);
@@ -116,42 +143,133 @@ public class MailboxSanitizerTests {
 	}
 
 	@Test
-	public void testQuota_MailshareNotSet_DefaultQuotaSet() {
-		Mailbox mbox = mailbox();
-
+	public void mailshareQuotaNotSet_DefaultQuotaSet_MaxQuotaSet() {
 		IDomainSettings domSettingsService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDomainSettings.class, domainUid);
 		Map<String, String> settings = domSettingsService.get();
 		settings.put(DomainSettingsKeys.mailbox_default_publicfolder_quota.name(), "31");
+		settings.put(DomainSettingsKeys.mailbox_max_publicfolder_quota.name(), "62");
 		domSettingsService.set(settings);
 
-		sanitizer.sanitize(mbox);
+		Mailbox mbox = mailbox(Mailbox.Type.mailshare);
 
+		sanitizer.sanitize(mbox);
 		assertEquals(31, mbox.quota.intValue());
 	}
 
 	@Test
-	public void testQuota_MailshareSet_DefaultQuotaSet() {
-		Mailbox mbox = mailbox();
-		mbox.quota = 42;
-
+	public void mailshareQuotaSet_DefaultQuotaSet_MaxQuotaNotSet() {
 		IDomainSettings domSettingsService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDomainSettings.class, domainUid);
 		Map<String, String> settings = domSettingsService.get();
 		settings.put(DomainSettingsKeys.mailbox_default_publicfolder_quota.name(), "31");
 		domSettingsService.set(settings);
 
-		sanitizer.sanitize(mbox);
+		Mailbox mbox = mailbox(Mailbox.Type.mailshare);
 
+		mbox.quota = 42;
+		sanitizer.sanitize(mbox);
+		assertEquals(42, mbox.quota.intValue());
+
+		settings.put(DomainSettingsKeys.mailbox_max_publicfolder_quota.name(), "0");
+		domSettingsService.set(settings);
+
+		mbox = mailbox(Mailbox.Type.mailshare);
+
+		mbox.quota = 42;
+		sanitizer.sanitize(mbox);
 		assertEquals(42, mbox.quota.intValue());
 	}
 
-	private Mailbox mailbox() {
+	@Test
+	public void mailshareQuotaSet_DefaultQuotaSet_MaxQuotaSet() {
+		IDomainSettings domSettingsService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, domainUid);
+		Map<String, String> settings = domSettingsService.get();
+		settings.put(DomainSettingsKeys.mailbox_default_publicfolder_quota.name(), "31");
+		settings.put(DomainSettingsKeys.mailbox_max_publicfolder_quota.name(), "62");
+		domSettingsService.set(settings);
+
+		Mailbox mbox = mailbox(Mailbox.Type.mailshare);
+
+		mbox.quota = 100;
+		sanitizer.sanitize(mbox);
+		assertEquals(100, mbox.quota.intValue());
+	}
+
+	@Test
+	public void mailshareQuotaNotSet_DefaultQuotaNotSet_MaxQuotaSet() {
+		IDomainSettings domSettingsService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, domainUid);
+		Map<String, String> settings = domSettingsService.get();
+		settings.put(DomainSettingsKeys.mailbox_max_publicfolder_quota.name(), "62");
+		domSettingsService.set(settings);
+
+		Mailbox mbox = mailbox(Mailbox.Type.mailshare);
+
+		sanitizer.sanitize(mbox);
+		assertEquals(62, mbox.quota.intValue());
+
+		settings.put(DomainSettingsKeys.mailbox_default_publicfolder_quota.name(), "0");
+		domSettingsService.set(settings);
+
+		mbox = mailbox(Mailbox.Type.mailshare);
+
+		sanitizer.sanitize(mbox);
+		assertEquals(62, mbox.quota.intValue());
+	}
+
+	@Test
+	public void mailshareQuotaNotSet_DefaultQuotaSet_MaxQuotaNotSet() {
+		IDomainSettings domSettingsService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, domainUid);
+		Map<String, String> settings = domSettingsService.get();
+		settings.put(DomainSettingsKeys.mailbox_default_publicfolder_quota.name(), "31");
+		domSettingsService.set(settings);
+
+		Mailbox mbox = mailbox(Mailbox.Type.mailshare);
+
+		sanitizer.sanitize(mbox);
+		assertEquals(31, mbox.quota.intValue());
+
+		settings.put(DomainSettingsKeys.mailbox_max_publicfolder_quota.name(), "0");
+		domSettingsService.set(settings);
+
+		mbox = mailbox(Mailbox.Type.mailshare);
+
+		sanitizer.sanitize(mbox);
+		assertEquals(31, mbox.quota.intValue());
+	}
+
+	@Test
+	public void mailshareQuotaSet_DefaultQuotaNotSet_MaxQuotaSet() {
+		IDomainSettings domSettingsService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, domainUid);
+		Map<String, String> settings = domSettingsService.get();
+		settings.put(DomainSettingsKeys.mailbox_max_publicfolder_quota.name(), "62");
+		domSettingsService.set(settings);
+
+		Mailbox mbox = mailbox(Mailbox.Type.mailshare);
+
+		mbox.quota = 100;
+		sanitizer.sanitize(mbox);
+		assertEquals(100, mbox.quota.intValue());
+
+		settings.put(DomainSettingsKeys.mailbox_default_publicfolder_quota.name(), "0");
+		domSettingsService.set(settings);
+
+		mbox = mailbox(Mailbox.Type.mailshare);
+
+		mbox.quota = 100;
+		sanitizer.sanitize(mbox);
+		assertEquals(100, mbox.quota.intValue());
+	}
+
+	private Mailbox mailbox(Type type) {
 		Mailbox mbox = new Mailbox();
-		mbox.type = Mailbox.Type.mailshare;
+		mbox.type = type;
 		mbox.name = "mbox";
 		mbox.emails = new LinkedList<Email>();
 		return mbox;
 	}
-
 }
