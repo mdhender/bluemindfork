@@ -2622,16 +2622,12 @@ net.bluemind.calendar.vevent.ui.Form.prototype.setFormButtons_ = function(isMeet
     /** @meaning general.send */
     var MSG_SEND = goog.getMsg('Send');
     this.getChild('toolbar').getChild("send").setCaption(MSG_SEND);
-    /** @meaning general.save */
-    if (isDraft) {
-      this.getChild('toolbar').getChild("save").setVisible(true);
-    } else {
-      this.getChild('toolbar').getChild("save").setVisible(false);
-    }
+    this.getChild('toolbar').getChild("save").setVisible(isDraft);
   } else {
     /** @meaning general.save */
     var MSG_SAVE = goog.getMsg('Save');
     this.getChild('toolbar').getChild("send").setCaption(MSG_SAVE);
+    this.getChild('toolbar').getChild("save").setVisible(false);
   }
 }
 

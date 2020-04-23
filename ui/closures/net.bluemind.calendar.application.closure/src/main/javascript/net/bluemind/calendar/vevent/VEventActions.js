@@ -376,21 +376,17 @@ net.bluemind.calendar.vevent.VEventActions.prototype.update_ = function(e, vseri
     this.showPrivateChangesDialog_(e);
   } else {
     var old = this.adaptor_.getRawOccurrence(model.recurrenceId, vseries);
+    var adaptor = new net.bluemind.calendar.vevent.VEventAdaptor(this.ctx_);
+    if (model.states.master && adaptor.isSignificantlyModified(old, model)) {    
+      this.resetAttendeesStatus_(model.attendees);
+    }
     vseries = this.adaptor_.fromVEventModelView(model, vseries);
     var updated = this.adaptor_.getRawOccurrence(model.recurrenceId, vseries);
     model.old = updated;
     if (goog.isDefAndNotNull(model.sendNotification) && model.sendNotification) {
-      var adaptor = new net.bluemind.calendar.vevent.VEventAdaptor(this.ctx_);
-      if (model.states.master && adaptor.isSignificantlyModified(old, model)) {        
-        goog.array.forEach(updated['attendees'], function(a) {
-          a['partStatus'] = 'NeedsAction';
-          // BM-12048 rsvp on attendees reset
-          a['rsvp'] = true;
-        });
-      }
       if (model.attendee) {
         goog.array.forEach(updated['attendees'], function(a) {
-          if (model.attendee.rsvp && a['dir'] == model.attendee.id) {
+          if (model.attendee['rsvp'] && a['dir'] == model.attendee.id) {
             a['rsvp'] = model.partStatus == 'NeedsAction';
           }
         });
@@ -403,6 +399,15 @@ net.bluemind.calendar.vevent.VEventActions.prototype.update_ = function(e, vseri
   }
 
 };
+
+net.bluemind.calendar.vevent.VEventActions.prototype.resetAttendeesStatus_ = function(attendees) {
+  goog.array.forEach(attendees, function(attendee) {
+    attendee['partStatus'] = 'NeedsAction';
+    // BM-12048 rsvp on attendees reset
+    attendee['rsvp'] = true;
+  });
+  return attendees;
+}
 
 net.bluemind.calendar.vevent.VEventActions.prototype.sanitizeDraft_ = function(vseries, sendNotification, old, updated) {
   if (sendNotification) {
@@ -438,6 +443,7 @@ net.bluemind.calendar.vevent.VEventActions.prototype.createThisAndFutureExceptio
     this.sanitizeDraft_(vseries, model.sendNotification);
     return this.doUpdate_(vseries, model.sendNotification)
   }, null, this).then(function() {
+    this.resetAttendeesStatus_(model.attendees);
     var vseries = this.adaptor_.fromVEventModelView(model);
     this.sanitizeDraft_(vseries, model.sendNotification);
     return this.doCreate_(vseries, model.sendNotification);
@@ -548,7 +554,7 @@ net.bluemind.calendar.vevent.VEventActions.prototype.goToForm_ = function(model,
   if (model.states.updatable) {
     var vseries = this.adaptor_.fromVEventModelView(model, opt_vseries);
     var storage = bluemind.storage.StorageHelper.getExpiringStorage();
-    storage.set(model.uid, vseries, goog.now() + 600);
+    storage.set(model.uid, vseries, goog.now() + 60000);
     uri.getQueryData().set('draft', true);
   }
   this.ctx_.helper('url').goTo(uri);
