@@ -295,16 +295,4 @@ public class MailboxStoreTests {
 		assertTrue(allItemUids.contains(allMailboxUids.get(0)));
 
 	}
-
-	@Test
-	public void isQuotaGreater() throws Exception {
-		itemStore.create(Item.create(uid, null));
-		Item item = itemStore.get(uid);
-		Mailbox mailbox = getDefaultMailbox();
-		mailbox.quota = 100;
-		mailboxStore.create(item, mailbox);
-
-		assertFalse(mailboxStore.isQuotaGreater(1000));
-		assertTrue(mailboxStore.isQuotaGreater(10));
-	}
 }

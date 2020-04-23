@@ -36,7 +36,6 @@ import net.bluemind.core.api.Email;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.persistence.AbstractItemValueStore;
-import net.bluemind.core.container.persistence.BooleanCreator;
 import net.bluemind.core.container.persistence.StringCreator;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
@@ -331,16 +330,6 @@ public class MailboxStore extends AbstractItemValueStore<Mailbox> {
 
 		return select(query.toString(), StringCreator.FIRST, Collections.<EntityPopulator<String>>emptyList(),
 				new Object[] { container.id });
-	}
-
-	public Boolean isQuotaGreater(int quotaMax) throws SQLException {
-		String query = "SELECT EXISTS(" //
-				+ " SELECT m.item_id FROM t_mailbox m " //
-				+ " INNER JOIN t_container_item item ON m.item_id = item.id " //
-				+ " WHERE m.quota > ? AND item.container_id = ?)";
-
-		return unique(query.toString(), BooleanCreator.FIRST, new ArrayList<EntityPopulator<Boolean>>(0),
-				new Object[] { quotaMax, container.id });
 	}
 
 }

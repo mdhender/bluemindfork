@@ -40,7 +40,6 @@ Require-Bundle: net.bluemind.domain.api;bundle-version="1.0.0",
  org.apache.commons.lang;bundle-version="2.6.0",
  net.bluemind.server.hook,
  net.bluemind.deferredaction.api,
- net.bluemind.core.container.repair,
- net.bluemind.mailbox.persistence
+ net.bluemind.core.container.repair
 Export-Package: net.bluemind.domain.service,
  net.bluemind.domain.service.internal
