@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -165,6 +166,12 @@ public class MboxRestoreService {
 
 		logger.info("[{}] Restore hsm for {}", mbox, dpg);
 		restoreHsm(dpg, restTool, domain, mbox);
+
+		IDirEntryMaintenance repairSupport = sp.instance(IDirEntryMaintenance.class, domain.uid, mbox.uid);
+		Set<String> ops = repairSupport.getAvailableOperations().stream().map(mo -> mo.identifier)
+				.collect(Collectors.toSet());
+		TaskRef repairTask = repairSupport.repair(ops);
+		TaskUtils.wait(sp, repairTask);
 
 		monitor.end(true, "finished", "{ \"status\": \"not_implemented\" }");
 		logger.info("ending task with mon {}", monitor);
