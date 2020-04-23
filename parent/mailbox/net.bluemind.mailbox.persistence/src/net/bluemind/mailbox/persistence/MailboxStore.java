@@ -36,6 +36,7 @@ import net.bluemind.core.api.Email;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.persistence.AbstractItemValueStore;
+import net.bluemind.core.container.persistence.BooleanCreator;
 import net.bluemind.core.container.persistence.StringCreator;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
@@ -58,13 +59,6 @@ public class MailboxStore extends AbstractItemValueStore<Mailbox> {
 		@Override
 		public Integer create(ResultSet con) throws SQLException {
 			return con.getInt(1);
-		}
-	};
-
-	private static final Creator<Boolean> BOOLEAN_CREATOR = new Creator<Boolean>() {
-		@Override
-		public Boolean create(ResultSet con) throws SQLException {
-			return con.getBoolean(1);
 		}
 	};
 
@@ -345,7 +339,7 @@ public class MailboxStore extends AbstractItemValueStore<Mailbox> {
 				+ " INNER JOIN t_container_item item ON m.item_id = item.id " //
 				+ " WHERE m.quota > ? AND item.container_id = ?)";
 
-		return unique(query.toString(), BOOLEAN_CREATOR, new ArrayList<EntityPopulator<Boolean>>(0),
+		return unique(query.toString(), BooleanCreator.FIRST, new ArrayList<EntityPopulator<Boolean>>(0),
 				new Object[] { quotaMax, container.id });
 	}
 
