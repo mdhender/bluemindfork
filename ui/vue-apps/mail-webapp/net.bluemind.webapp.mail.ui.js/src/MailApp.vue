@@ -14,13 +14,7 @@
                     <bm-label-icon icon="plus">{{ $t("mail.main.new") }}</bm-label-icon>
                 </bm-button>
             </bm-col>
-            <bm-col
-                cols="9"
-                lg="3"
-                order="1"
-                class="d-lg-block px-2"
-                :class="hideListInResponsiveMode ? 'd-none' : ''"
-            >
+            <bm-col cols="9" lg="3" order="1" class="d-lg-block px-2" :class="hideListInResponsiveMode ? 'd-none' : ''">
                 <mail-search-form />
             </bm-col>
             <bm-col
@@ -76,15 +70,7 @@
 </template>
 
 <script>
-import {
-    BmFormCheckbox,
-    BmLabelIcon,
-    BmButton,
-    BmCol,
-    BmIcon,
-    BmRow,
-    MakeUniq
-} from "@bluemind/styleguide";
+import { BmFormCheckbox, BmLabelIcon, BmButton, BmCol, BmIcon, BmRow, MakeUniq } from "@bluemind/styleguide";
 import { mapState } from "vuex";
 import MailAppL10N from "@bluemind/webapp.mail.l10n";
 import MailFolderTree from "./MailFolder/MailFolderTree";

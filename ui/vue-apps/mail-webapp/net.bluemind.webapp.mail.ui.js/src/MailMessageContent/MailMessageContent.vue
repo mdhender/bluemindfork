@@ -1,5 +1,5 @@
 <template>
-    <div class="mail-message-content bg-surface d-flex flex-column py-2 flex-grow-1">
+    <div class="mail-message-content d-flex flex-column py-2 flex-grow-1">
         <bm-row class="px-lg-5 px-4">
             <bm-col cols="12">
                 <mail-message-content-toolbar />

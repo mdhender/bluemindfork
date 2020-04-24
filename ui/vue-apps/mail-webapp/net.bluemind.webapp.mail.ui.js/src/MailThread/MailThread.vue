@@ -1,5 +1,5 @@
 <template>
-    <div class="mail-thread">
+    <div class="mail-thread bg-surface">
         <mail-thread-alert
             v-if="message && !areRemoteImagesUnblocked(message.key) && showBlockedImagesAlert"
             @close="setShowBlockedImagesAlert(false)"
@@ -105,6 +105,10 @@ export default {
 </script>
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
+
+.mail-thread {
+    min-height: 100%;
+}
 
 .mail-thread .mail-message-new ~ .mail-message-content {
     @media (max-width: map-get($grid-breakpoints, "lg")) {
