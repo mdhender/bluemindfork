@@ -30,12 +30,12 @@ import org.junit.Before;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
-import net.bluemind.backend.cyrus.replication.testhelper.InputStreamWrapper;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
+import net.bluemind.core.rest.utils.InputReadStream;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public abstract class AbstractMessageBodiesServiceTests {
@@ -48,7 +48,7 @@ public abstract class AbstractMessageBodiesServiceTests {
 		InputStream inputStream = AbstractReplicatedMailboxesServiceTests.class.getClassLoader()
 				.getResourceAsStream(path);
 		Objects.requireNonNull(inputStream, "Failed to open resource @ " + path);
-		return new InputStreamWrapper(vertx, inputStream);
+		return new InputReadStream(inputStream);
 	}
 
 	@Before

@@ -4,8 +4,8 @@
 
 set -e
 
-APT_DISTNAMES="xenial bionic jessie stretch buster"  # Use space separator
-RPM_RHEL_VERSIONS="7"  # Use space separator
+APT_DISTNAMES="xenial bionic focal jessie stretch buster"  # Use space separator
+RPM_RHEL_VERSIONS="7 8"  # Use space separator
 
 
 PGVERSION=$1

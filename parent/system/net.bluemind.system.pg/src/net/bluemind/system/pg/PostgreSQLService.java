@@ -96,7 +96,7 @@ public class PostgreSQLService {
 	private void configurePg(INodeClient nc) {
 		// copy pg conf to the brand new server
 		logger.info(".. stop postgresql");
-		NCUtils.execOrFail(nc, "/etc/init.d/postgresql stop");
+		NCUtils.execOrFail(nc, "service postgresql stop");
 
 		logger.info(".. touch postgresql.conf.local");
 		NCUtils.execOrFail(nc, "touch " + PG_CONF_PATH + "/postgresql.conf.local");
@@ -116,7 +116,7 @@ public class PostgreSQLService {
 		}
 
 		logger.info(".. start postgresql");
-		NCUtils.execOrFail(nc, "/etc/init.d/postgresql start");
+		NCUtils.execOrFail(nc, "service postgresql start");
 	}
 
 	protected InputStream getCreateDbScript() throws IOException {

@@ -1,8 +1,9 @@
 # On success, at the end INSTALLER_VERSION and OS_VERSION equal to one of those values
 REDHAT7="redhat-7"
-UBUNTU_TRUSTY="ubuntu-trusty"
+REDHAT8="redhat-8"
 UBUNTU_XENIAL="ubuntu-xenial"
 UBUNTU_BIONIC="ubuntu-bionic"
+UBUNTU_FOCAL="ubuntu-focal"
 DEBIAN_JESSIE="debian-jessie"
 DEBIAN_STRETCH="debian-stretch"
 DEBIAN_BUSTER="debian-buster"
@@ -12,6 +13,18 @@ check_redhat7() {
         release=`cat /etc/system-release`
         
         if [[ "${release}" == *"release 7."* ]]; then
+            return 0
+        fi
+    fi
+    
+    return 1
+}
+
+check_redhat8() {
+    if [  -e /etc/system-release ]; then
+        release=`cat /etc/system-release`
+        
+        if [[ "${release}" == *"release 8."* ]]; then
             return 0
         fi
     fi
@@ -84,12 +97,12 @@ detect_os() {
             source "./include/os-redhat-base"
         fi
     fi
-
-    if [ -e "./trusty" ]; then
-        INSTALLER_VERSION=${UBUNTU_TRUSTY}
-        if check_ubuntu "14.04"; then
+    
+    if [ -e "./rhel8" ]; then
+        INSTALLER_VERSION=${REDHAT8}
+        if check_redhat8; then
             OS_VERSION=${INSTALLER_VERSION}
-            source "./include/os-debian-squeeze-base"
+            source "./include/os-redhat-base"
         fi
     fi
 
@@ -104,6 +117,14 @@ detect_os() {
     if [ -e "./bionic" ]; then
         INSTALLER_VERSION=${UBUNTU_BIONIC}
         if check_ubuntu "18.04"; then
+            OS_VERSION=${INSTALLER_VERSION}
+            source "./include/os-debian-squeeze-base"
+        fi
+    fi
+    
+    if [ -e "./focal" ]; then
+        INSTALLER_VERSION=${UBUNTU_FOCAL}
+        if check_ubuntu "20.04"; then
             OS_VERSION=${INSTALLER_VERSION}
             source "./include/os-debian-squeeze-base"
         fi

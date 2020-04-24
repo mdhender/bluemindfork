@@ -1,0 +1,166 @@
+Return-Path: <thomas.cataldo@bluemind.net>
+Received: from bm-prod.blue-mind.net (localhost.localdomain [127.0.0.1])
+	 by bm-prod with LMTPA;
+	 Wed, 22 Apr 2020 18:01:19 +0200
+X-Cyrus-Session-Id: cyrus-357-1587571279-2-10562924953919238068
+X-Sieve: CMU Sieve 3.0
+Received: from 192.168.231.2 (LHLO bm-prod.blue-mind.net) by unknown with
+ LMTP; 4/22/20 4:01 PM
+Received: from smtp.bluemind.net (unknown [192.168.231.1])
+	by bm-prod.blue-mind.net (Postfix) with ESMTPS id 200358023A
+	for <tom@blue-mind.net>; Wed, 22 Apr 2020 18:01:19 +0200 (CEST)
+From: Thomas Cataldo <thomas.cataldo@bluemind.net>
+Content-Type: multipart/mixed;
+	boundary="Apple-Mail=_0F931542-3658-429F-A91B-5B06A44008D7"
+Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.80.23.2.2\))
+Subject: Un eml dans un eml dans un eml
+Message-Id: <613B046D-B868-406F-91AC-6F6FEFB9F873@bluemind.net>
+Date: Wed, 22 Apr 2020 18:01:19 +0200
+To: Thomas Cataldo <thomas.cataldo@bluemind.net>
+X-Mailer: Apple Mail (2.3608.80.23.2.2)
+X-Bm-Milter-Handled: f422141f-ed4e-4b80-b1fc-f8db24fba44a
+X-Bm-Transport-Timestamp: 1587571279103
+
+
+--Apple-Mail=_0F931542-3658-429F-A91B-5B06A44008D7
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain;
+	charset=utf-8
+
+Re-transf=C3=A9r=C3=A9, histoire de rigoler
+
+
+--Apple-Mail=_0F931542-3658-429F-A91B-5B06A44008D7
+Content-Disposition: attachment;
+	filename="Fwd: Campagne 3.5.15.eml"
+Content-Type: message/rfc822;
+	x-unix-mode=0666;
+	name="Fwd: Campagne 3.5.15.eml"
+Content-Transfer-Encoding: binary
+
+From: Thomas Cataldo <thomas.cataldo@bluemind.net>
+Content-Type: multipart/mixed;
+	boundary="Apple-Mail=_8ADDF05C-E4E2-4982-ABB3-42D914937C4E"
+Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.80.23.2.2\))
+Subject: Fwd: Campagne 3.5.15
+X-Universally-Unique-Identifier: C031F78A-E4BE-41CD-B4B2-93D23C4F1610
+Message-Id: <57FFEF78-19F8-40FF-9E6A-51099C303B32@bluemind.net>
+Date: Mon, 20 Apr 2020 15:50:58 +0200
+To: Thomas Cataldo <thomas.cataldo@bluemind.net>
+
+
+--Apple-Mail=_8ADDF05C-E4E2-4982-ABB3-42D914937C4E
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset=us-ascii
+
+Avec un EML en pj
+
+
+
+
+--Apple-Mail=_8ADDF05C-E4E2-4982-ABB3-42D914937C4E
+Content-Disposition: attachment;
+	filename="Campagne 3.5.15.eml"
+Content-Type: message/rfc822;
+	name="Campagne 3.5.15.eml"
+Content-Transfer-Encoding: binary
+
+Return-Path: <dominique.eav@bluemind.net>
+Received: from bm-prod.blue-mind.net (localhost.localdomain [127.0.0.1])
+	 by bm-prod with LMTPA;
+	 Mon, 20 Apr 2020 15:27:19 +0200
+X-Cyrus-Session-Id: cyrus-9044-1587389239-1-7925644272014012235
+X-Sieve: CMU Sieve 3.0
+Received: from 192.168.231.2 (LHLO bm-prod.blue-mind.net) by unknown with
+ LMTP; 4/20/20 1:27 PM
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="=_3c6ba0a0fe7fc84b4ce3d8933d128c35"
+Date: Mon, 20 Apr 2020 15:27:18 +0200
+From: Dominique Eav <dominique.eav@bluemind.net>
+To: techs <techs@bluemind.net>
+Subject: Campagne 3.5.15
+Message-ID: <7c31ed3627f1ca687a69bc7c2eab7e6b@blue-mind.net>
+X-Sender: dominique.eav@bluemind.net
+User-Agent: Roundcube Webmail/0.8.5
+X-Bm-Milter-Handled: 67f0354c-8653-4ecc-bf13-880b1cfd6b64
+X-Bm-Transport-Timestamp: 1587389239058
+
+--=_3c6ba0a0fe7fc84b4ce3d8933d128c35
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
+
+Dear techs, 
+
+Je viens de créer la campagne de tests d'acceptance
+préalables à la release de notre future 3.5.15. C'est ici :
+
+
+https://forge.bluemind.net/jira/secure/Tests.jspa#/testPlayer/BM-C79
+
+
+Conformément à nos bonnes habitudes, vous devriez tous trouver un
+petit nombre de tests qui vous est attribué, ils sont à passer ASAP.
+
+
+J'ai mis à jour staging35, si vous préférez une VM (ou si vos tests
+vous l'imposent) le candidat est 3.1.42614 [1]. 
+
+Attention : il se peut
+que des tests aient été sélectionnés sans être applicables à la branche
+3.5.15 : vous pouvez les passer en N/A. Dans le doute, vous pouvez poser
+la question à Marie, Laurent ou moi-même. 
+
+Salutations distanciées,
+
+
+Dominique
+
+  
+
+Links:
+------
+[1]
+https://forge.bluemind.net/staging/deb/bluemind/3.1.42614/bionic/
+
+--=_3c6ba0a0fe7fc84b4ce3d8933d128c35
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/html; charset=UTF-8
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN">
+<html><body style=3D'font-family: Verdana,Geneva,sans-serif'>
+<p><span style=3D"font-family: Verdana, Geneva, sans-serif; font-size: 12px=
+;">Dear techs,</span></p>
+<p><span style=3D"font-family: Verdana, Geneva, sans-serif; font-size: 12px=
+;">Je viens de cr&eacute;er la campagne de tests d'acceptance pr&eacute;ala=
+bles &agrave; la release de notre future 3.5.15. C'est ici :</span></p>
+<p><span style=3D"font-family: Verdana, Geneva, sans-serif; font-size: 12px=
+;"><a href=3D"https://forge.bluemind.net/jira/secure/Tests.jspa#/testPlayer=
+/BM-C79">https://forge.bluemind.net/jira/secure/Tests.jspa#/testPlayer/BM-C=
+79</a></span></p>
+<p><span style=3D"font-family: Verdana, Geneva, sans-serif; font-size: 12px=
+;">Conform&eacute;ment &agrave; nos bonnes habitudes, vous devriez tous tro=
+uver un petit nombre de tests qui vous est attribu&eacute;, ils sont &agrav=
+e; passer ASAP.</span></p>
+<p><span style=3D"font-family: Verdana, Geneva, sans-serif; font-size: 12px=
+;">J'ai mis &agrave; jour staging35, si vous pr&eacute;f&eacute;rez une VM =
+(ou si vos tests vous l'imposent) le candidat est <a href=3D"https://forge=
+=2Ebluemind.net/staging/deb/bluemind/3.1.42614/bionic/">3.1.42614</a>.</spa=
+n></p>
+<p><span style=3D"font-family: Verdana, Geneva, sans-serif; font-size: 12px=
+;">Attention : il se peut que des tests aient &eacute;t&eacute; s&eacute;le=
+ctionn&eacute;s sans &ecirc;tre applicables &agrave; la branche 3.5.15 : vo=
+us pouvez les passer en N/A. Dans le doute, vous pouvez poser la question &=
+agrave; Marie, Laurent ou moi-m&ecirc;me.</span></p>
+<p>Salutations distanci&eacute;es,</p>
+<p>Dominique</p>
+<div>&nbsp;</div>
+</body></html>
+
+--=_3c6ba0a0fe7fc84b4ce3d8933d128c35--
+
+
+--Apple-Mail=_8ADDF05C-E4E2-4982-ABB3-42D914937C4E--
+
+--Apple-Mail=_0F931542-3658-429F-A91B-5B06A44008D7--

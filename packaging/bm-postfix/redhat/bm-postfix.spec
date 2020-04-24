@@ -15,15 +15,15 @@ Configuration of Postfix
 
 %install
 cp -a /sources/ROOT/* %buildroot
-mkdir -p %{buildroot}%{_initrddir}
-cp /sources/rhel7/postfix.systemd.wrapper %{buildroot}%{_initrddir}/postfix
-chmod +x %{buildroot}%{_initrddir}/postfix
 
 %files
 %dir %attr(755, root, root)
 /*
 
 %post
+systemctl daemon-reload
+systemctl enable postfix
+
 if [ $1 -eq 1 ]; then
     # Install
     echo -n "Add user postfix to saslauth group... "

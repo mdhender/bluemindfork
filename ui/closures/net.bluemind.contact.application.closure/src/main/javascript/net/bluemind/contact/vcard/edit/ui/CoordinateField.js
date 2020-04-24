@@ -96,6 +96,7 @@ net.bluemind.contact.vcard.edit.ui.CoordinateField.prototype.createFormField = f
   var field = this.createField();
   container.addChild(field);
   field.render(container.getElementByClass(goog.getCssName('field-base-field')));
+  field.setEnabled(this.isEnabled());
 
   var input = new goog.events.InputHandler(field.getElement());
   container.registerDisposable(input);
@@ -178,6 +179,10 @@ net.bluemind.contact.vcard.edit.ui.CoordinateField.prototype.createField = funct
   var field = this.createInput();
   field.setId('field');
   return field;
+};
+
+net.bluemind.contact.vcard.edit.ui.CoordinateField.prototype.isEnabled = function() {
+  return true;
 };
 
 /**

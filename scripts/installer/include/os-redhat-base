@@ -3,7 +3,7 @@ CENTOS=0
 if [ -e /etc/centos-release ]; then
   CENTOS=1
 
-  OS_VERSION_CN="centos-6"
+  OS_VERSION_CN="centos-8"
 
   if [ ${OS_VERSION} == ${REDHAT7} ]; then
     OS_VERSION_CN="centos-7"
@@ -12,6 +12,7 @@ fi
 
 YUM_SOURCE_FILE="/etc/yum.repos.d/bm.repo"
 
+RH_EPEL_RPM="https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm"
 if [ ${OS_VERSION} == ${REDHAT7} ]; then
     RH_EPEL_RPM="https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
 fi
@@ -24,6 +25,10 @@ disableFirewall() {
 }
 
 install_prepare_system() {
+  if [ ${OS_VERSION} == ${REDHAT8} ]; then
+    dnf -y module disable postgresql
+  fi
+  
   disableFirewall
 
   selinux_config="/etc/selinux/config"
