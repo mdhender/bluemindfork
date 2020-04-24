@@ -336,7 +336,8 @@ export default {
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
 
-.mail-message-new input,
+.mail-message-new .mail-message-new-subject input,
+.mail-message-new .bm-contact-input input,
 .mail-message-new textarea {
     border: none;
 }
