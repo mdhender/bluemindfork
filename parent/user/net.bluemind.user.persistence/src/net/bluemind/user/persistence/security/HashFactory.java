@@ -28,6 +28,12 @@ public class HashFactory {
 		switch (name) {
 		case "MD5":
 			return new MD5Hash();
+		case "SSHA512":
+			return new SSHA512Hash();
+		case "SSHA":
+			return new SSHAHash();
+		case "SHA1":
+			return new SHA1Hash();
 		case "PBKDF2":
 			return new PBKDF2Hash();
 		default:
@@ -42,6 +48,12 @@ public class HashFactory {
 	public static String algorithm(String password) {
 		if (new PBKDF2Hash().matchesAlgorithm(password)) {
 			return "PBKDF2";
+		} else if (new SSHA512Hash().matchesAlgorithm(password)) {
+			return "SSHA512";
+		} else if (new SSHAHash().matchesAlgorithm(password)) {
+			return "SSHA";
+		} else if (new SHA1Hash().matchesAlgorithm(password)) {
+			return "SHA1";
 		} else if (new MD5Hash().matchesAlgorithm(password)) {
 			return "MD5";
 		}
