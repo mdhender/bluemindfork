@@ -38,7 +38,7 @@
         </div>
         <bm-row v-if="seeMoreAttachments" class="ml-3 mr-1">
             <bm-col cols="4">
-                <mail-message-content-attachment-item
+                <mail-attachment-item
                     :attachment="attachments[0]"
                     :is-expanded="isExpanded"
                     :is-removable="editable"
@@ -48,7 +48,7 @@
                 />
             </bm-col>
             <bm-col cols="4">
-                <mail-message-content-attachment-item
+                <mail-attachment-item
                     :attachment="attachments[1]"
                     :is-expanded="isExpanded"
                     :is-removable="editable"
@@ -77,7 +77,7 @@
         </bm-row>
         <bm-row v-else class="ml-3 mr-1">
             <bm-col v-for="(attachment, index) in attachments" :key="attachment.address" cols="4">
-                <mail-message-content-attachment-item
+                <mail-attachment-item
                     :attachment="attachment"
                     :is-expanded="isExpanded"
                     :is-removable="editable"
@@ -110,10 +110,10 @@ import { BmButton, BmCol, BmContainer, BmIcon, BmRow, BmTooltip, BmProgress } fr
 import { displayWithUnit } from "@bluemind/file-utils";
 import { mapActions, mapState, mapGetters } from "vuex";
 import { MimeType } from "@bluemind/email";
-import MailMessageContentAttachmentItem from "./MailMessageContentAttachmentItem";
+import MailAttachmentItem from "./MailAttachmentItem";
 
 export default {
-    name: "MailMessageContentAttachmentsBlock",
+    name: "MailAttachmentsBlock",
     components: {
         BmButton,
         BmCol,
@@ -121,7 +121,7 @@ export default {
         BmIcon,
         BmProgress,
         BmRow,
-        MailMessageContentAttachmentItem
+        MailAttachmentItem
     },
     directives: { BmTooltip },
     props: {

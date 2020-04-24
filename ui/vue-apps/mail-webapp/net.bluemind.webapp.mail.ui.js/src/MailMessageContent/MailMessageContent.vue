@@ -42,7 +42,7 @@
         <bm-row class="px-lg-5">
             <bm-col cols="12">
                 <hr class="bg-dark my-0" />
-                <mail-message-content-attachments-block :attachments="parts.attachments" />
+                <mail-attachments-block :attachments="parts.attachments" />
             </bm-col>
         </bm-row>
         <bm-row ref="scrollableContainerForMailMessageContentBody" class="pt-1 flex-fill px-lg-5 px-4">
@@ -56,7 +56,7 @@
 <script>
 import { mapState, mapActions, mapGetters } from "vuex";
 import { BmCol, BmRow } from "@bluemind/styleguide";
-import MailMessageContentAttachmentsBlock from "./MailMessageContentAttachmentsBlock";
+import MailAttachmentsBlock from "../MailAttachment/MailAttachmentsBlock";
 import MailMessageContentBody from "./MailMessageContentBody";
 import MailMessageContentFrom from "./MailMessageContentFrom";
 import MailMessageContentRecipient from "./MailMessageContentRecipient";
@@ -67,7 +67,7 @@ export default {
     components: {
         BmCol,
         BmRow,
-        MailMessageContentAttachmentsBlock,
+        MailAttachmentsBlock,
         MailMessageContentBody,
         MailMessageContentFrom,
         MailMessageContentRecipient,

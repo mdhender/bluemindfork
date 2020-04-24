@@ -81,7 +81,7 @@ import { MimeType } from "@bluemind/email";
 import { mapGetters } from "vuex";
 
 export default {
-    name: "MailMessageContentAttachmentItem",
+    name: "MailAttachmentItem",
     components: {
         BmButton,
         BmCol,

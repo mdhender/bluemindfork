@@ -83,7 +83,7 @@
                 <bm-row class="d-block m-0"><hr class="bg-dark m-0"/></bm-row>
                 <bm-row>
                     <bm-col cols="12">
-                        <mail-message-content-attachments-block :attachments="parts.attachments" editable expanded />
+                        <mail-attachments-block :attachments="parts.attachments" editable expanded />
                     </bm-col>
                 </bm-row>
                 <bm-file-drop-zone
@@ -164,7 +164,7 @@ import debounce from "lodash/debounce";
 import MailMessageNewFooter from "./MailMessageNewFooter";
 import MailMessageNewModes from "./MailMessageNewModes";
 import ServiceLocator from "@bluemind/inject";
-import MailMessageContentAttachmentsBlock from "../MailMessageContent/MailMessageContentAttachmentsBlock";
+import MailAttachmentsBlock from "../MailAttachment/MailAttachmentsBlock";
 
 export default {
     name: "MailMessageNew",
@@ -181,7 +181,7 @@ export default {
         BmRichEditor,
         BmRow,
         MailMessageNewFooter,
-        MailMessageContentAttachmentsBlock
+        MailAttachmentsBlock
     },
     directives: { BmTooltip },
     props: {

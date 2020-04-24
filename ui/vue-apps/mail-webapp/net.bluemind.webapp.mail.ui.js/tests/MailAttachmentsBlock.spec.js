@@ -1,9 +1,9 @@
-import MailMessageContentAttachmentsBlock from "../src/MailMessageContent/MailMessageContentAttachmentsBlock";
+import MailAttachmentsBlock from "../src/MailAttachment/MailAttachmentsBlock";
 import { BmProgress } from "@bluemind/styleguide";
 jest.mock("@bluemind/styleguide/css/_variables.scss", () => ({ iconsColors: "" }));
 import { createWrapper } from "./testUtils";
 
-describe("MailMessageContentAttachmentsBlock", () => {
+describe("MailAttachmentsBlock", () => {
     test("is a Vue instance", () => {
         const wrapper = mountAttachmentBlock(1);
         expect(wrapper.isVueInstance()).toBeTruthy();
@@ -25,7 +25,7 @@ describe("MailMessageContentAttachmentsBlock", () => {
 
 function mountAttachmentBlock(attachmentSize) {
     return createWrapper(
-        MailMessageContentAttachmentsBlock,
+        MailAttachmentsBlock,
         {},
         {
             attachments: [{ mime: "image/jpeg", size: attachmentSize }],
