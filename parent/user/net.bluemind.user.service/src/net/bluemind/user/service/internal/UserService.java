@@ -164,6 +164,14 @@ public class UserService implements IInCoreUser, IUser {
 		}
 
 		if (!globalVirt && !user.system) {
+			if (null == user.quota) {
+				user.quota = MailboxQuotaHelper
+						.getDefaultQuota(bmContext.su().provider().instance(IDomainSettings.class, domainName).get(),
+								DomainSettingsKeys.mailbox_max_user_quota.name(),
+								DomainSettingsKeys.mailbox_default_user_quota.name())
+						.orElse(null);
+			}
+
 			mailboxes.validate(uid, mailboxAdapter.asMailbox(domainName, uid, user));
 		}
 
@@ -177,14 +185,6 @@ public class UserService implements IInCoreUser, IUser {
 
 		ItemValue<User> item = iv(uid, user);
 		if (!globalVirt && !user.system) {
-			if (null == user.quota) {
-				user.quota = MailboxQuotaHelper
-						.getDefaultQuota(bmContext.su().provider().instance(IDomainSettings.class, domainName).get(),
-								DomainSettingsKeys.mailbox_max_user_quota.name(),
-								DomainSettingsKeys.mailbox_default_user_quota.name())
-						.orElse(null);
-			}
-
 			mailboxes.created(uid, mailboxAdapter.asMailbox(domainName, uid, user));
 			if (user.routing == Routing.internal) {
 				mailboxes.setMailboxFilter(uid, new MailFilter());
