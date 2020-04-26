@@ -320,19 +320,19 @@ public class CyrusServiceTests {
 
 			CreateMailboxResult result = tryDelete(userAtDomain, f);
 			assertFalse(result.isOk());
-			assertEquals("A2 NO Permission denied", result.getMessage());
+			assertTrue(result.getMessage().contains("NO Permission denied"));
 
 			result = tryDelete("usertest@" + domainUid, String.format("Autres utilisateurs/%s/%s", userLogin, f));
 			assertFalse(result.isOk());
-			assertEquals("A2 NO Permission denied", result.getMessage());
+			assertTrue(result.getMessage().contains("NO Permission denied"));
 
 			result = tryDelete("rw@" + domainUid, String.format("Autres utilisateurs/%s/%s", userLogin, f));
 			assertFalse(result.isOk());
-			assertEquals("A2 NO Permission denied", result.getMessage());
+			assertTrue(result.getMessage().contains("NO Permission denied"));
 
 			result = tryDelete("ro@" + domainUid, String.format("Autres utilisateurs/%s/%s", userLogin, f));
 			assertFalse(result.isOk());
-			assertEquals("A2 NO Permission denied", result.getMessage());
+			assertTrue(result.getMessage().contains("NO Permission denied"));
 		}
 	}
 
@@ -378,15 +378,15 @@ public class CyrusServiceTests {
 			CreateMailboxResult result = tryDelete("usertest@" + domainUid,
 					String.format("Dossiers partagés/%s/%s", boxNamePrefix, f));
 			assertFalse(result.isOk());
-			assertEquals("A2 NO Permission denied", result.getMessage());
+			assertTrue(result.getMessage().contains("NO Permission denied"));
 
 			result = tryDelete("rw@" + domainUid, String.format("Dossiers partagés/%s/%s", boxNamePrefix, f));
 			assertFalse(result.isOk());
-			assertEquals("A2 NO Permission denied", result.getMessage());
+			assertTrue(result.getMessage().contains("NO Permission denied"));
 
 			result = tryDelete("ro@" + domainUid, String.format("Dossiers partagés/%s/%s", boxNamePrefix, f));
 			assertFalse(result.isOk());
-			assertEquals("A2 NO Permission denied", result.getMessage());
+			assertTrue(result.getMessage().contains("NO Permission denied"));
 		}
 	}
 
