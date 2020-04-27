@@ -10,5 +10,7 @@ Require-Bundle: org.junit,
  net.bluemind.system.schemaupgrader.runner,
  net.bluemind.core.commons,
  net.bluemind.core.task.spi,
- net.bluemind.eclipse.common
+ net.bluemind.eclipse.common,
+ net.bluemind.system.api,
+ net.bluemind.system.persistence
 Automatic-Module-Name: net.bluemind.system.schemaupgrader.tests

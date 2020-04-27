@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2020
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -16,35 +16,39 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.system.api;
+package net.bluemind.system.schemaupgrader;
 
-import java.util.ArrayList;
-import java.util.List;
+import net.bluemind.system.api.Database;
 
-import net.bluemind.core.api.BMApi;
+public interface UpgraderDatabase {
 
-@BMApi(version = "3")
-public class UpgradeReport {
+	public Database database();
 
-	public Status status;
+	public static class DIRECTORY implements UpgraderDatabase {
 
-	public List<UpgraderReport> upgraders = new ArrayList<>();
+		@Override
+		public Database database() {
+			return Database.DIRECTORY;
+		}
 
-	@BMApi(version = "3")
-	public static enum Status {
-		FAILED, OK
 	}
 
-	@BMApi(version = "3")
-	public static class UpgraderReport {
+	public static class SHARD implements UpgraderDatabase {
 
-		public Status status;
-
-		public static UpgraderReport create(Status status) {
-			UpgraderReport ret = new UpgraderReport();
-			ret.status = status;
-			return ret;
+		@Override
+		public Database database() {
+			return Database.SHARD;
 		}
+
+	}
+
+	public static class ALL implements UpgraderDatabase {
+
+		@Override
+		public Database database() {
+			return Database.ALL;
+		}
+
 	}
 
 }

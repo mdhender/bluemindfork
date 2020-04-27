@@ -26,6 +26,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.node.server,
  net.bluemind.dataprotect.postgresql;bundle-version="4.1.0",
  net.bluemind.system.api,
- net.bluemind.dataprotect.addressbook
+ net.bluemind.dataprotect.addressbook,
+ net.bluemind.system.schemaupgrader.tests;bundle-version="4.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy

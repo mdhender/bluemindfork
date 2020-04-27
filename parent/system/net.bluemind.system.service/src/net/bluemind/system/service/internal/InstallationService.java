@@ -85,7 +85,7 @@ import net.bluemind.system.api.UpgradeStatus;
 import net.bluemind.system.helper.ArchiveHelper;
 import net.bluemind.system.helper.distrib.OsVersionDetectionFactory;
 import net.bluemind.system.helper.distrib.list.Distribution;
-import net.bluemind.system.persistence.SchemaVersionStore;
+import net.bluemind.system.persistence.UpgraderStore;
 import net.bluemind.system.schemaupgrader.ComponentVersion;
 import net.bluemind.system.schemaupgrader.ComponentVersionExtensionPoint;
 import net.bluemind.system.schemaupgrader.ISchemaUpgradersProvider;
@@ -98,11 +98,11 @@ public class InstallationService implements IInstallation {
 
 	private static final Logger logger = LoggerFactory.getLogger(InstallationService.class);
 	private BmContext context;
-	private SchemaVersionStore schemaVersionStore;
+	private UpgraderStore schemaVersionStore;
 
 	public InstallationService(BmContext context) {
 		this.context = context;
-		this.schemaVersionStore = new SchemaVersionStore(context.getDataSource());
+		this.schemaVersionStore = new UpgraderStore(context.getDataSource());
 	}
 
 	@Override
@@ -177,7 +177,7 @@ public class InstallationService implements IInstallation {
 		DbSchemaService dbSchemaService = DbSchemaService.getService(JdbcActivator.getInstance().getDataSource(), true);
 		dbSchemaService.initialize();
 
-		SchemaVersionStore store = new SchemaVersionStore(JdbcActivator.getInstance().getDataSource());
+		UpgraderStore store = new UpgraderStore(JdbcActivator.getInstance().getDataSource());
 
 		store.doOrFail(() -> {
 			for (ComponentVersion cp : ComponentVersionExtensionPoint.getComponentsVersion()) {

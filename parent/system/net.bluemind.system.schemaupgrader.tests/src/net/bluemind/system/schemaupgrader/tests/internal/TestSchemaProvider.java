@@ -20,28 +20,25 @@ package net.bluemind.system.schemaupgrader.tests.internal;
 
 import java.util.List;
 
-import javax.sql.DataSource;
-
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.system.schemaupgrader.ISchemaUpgradersProvider;
-import net.bluemind.system.schemaupgrader.IVersionedUpdater;
 import net.bluemind.system.schemaupgrader.SqlScripts;
 import net.bluemind.system.schemaupgrader.Updater;
 
 public class TestSchemaProvider implements ISchemaUpgradersProvider {
 
 	@Override
-	public List<IVersionedUpdater> allJavaUpdaters(DataSource dataSource) {
-		RunnableExtensionLoader<IVersionedUpdater> epLoader = new RunnableExtensionLoader<>();
-		List<IVersionedUpdater> allJavaUpdaters = epLoader.loadExtensions("net.bluemind.system.schemaupgrader",
-				"javacode", "java", "code");
+	public List<Updater> allJavaUpdaters() {
+		RunnableExtensionLoader<Updater> epLoader = new RunnableExtensionLoader<>();
+		List<Updater> allJavaUpdaters = epLoader.loadExtensions("net.bluemind.system.schemaupgrader", "javacode",
+				"java", "code");
 
 		return allJavaUpdaters;
 	}
 
 	@Override
-	public List<Updater> allSqlUpdaters(DataSource dataSource) {
-		return new SqlScripts(dataSource).getSqlScripts();
+	public List<Updater> allSqlUpdaters() {
+		return new SqlScripts().getSqlScripts();
 	}
 
 	@Override

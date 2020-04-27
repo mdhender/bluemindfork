@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2020
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -18,33 +18,6 @@
  */
 package net.bluemind.system.api;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import net.bluemind.core.api.BMApi;
-
-@BMApi(version = "3")
-public class UpgradeReport {
-
-	public Status status;
-
-	public List<UpgraderReport> upgraders = new ArrayList<>();
-
-	@BMApi(version = "3")
-	public static enum Status {
-		FAILED, OK
-	}
-
-	@BMApi(version = "3")
-	public static class UpgraderReport {
-
-		public Status status;
-
-		public static UpgraderReport create(Status status) {
-			UpgraderReport ret = new UpgraderReport();
-			ret.status = status;
-			return ret;
-		}
-	}
-
+public enum Database {
+	DIRECTORY, SHARD, ALL
 }

@@ -25,36 +25,39 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import net.bluemind.core.jdbc.Columns;
-import net.bluemind.system.persistence.SchemaVersion.UpgradePhase;
+import net.bluemind.system.api.Database;
+import net.bluemind.system.persistence.Upgrader.UpgradePhase;
 
-public class SchemaVersionColumns {
+public class UpgraderColumns {
 
-	public static final Columns cols = Columns.create().col("schemaversion").col("phase", "enum_upgrader_phase")
-			.col("component").col("success");
+	public static final Columns cols = Columns.create().col("server").col("phase", "enum_upgrader_phase")
+			.col("database_name", "enum_database_name").col("upgrader_id").col("success");
 
-	public static SchemaVersionStore.StatementValues<SchemaVersion> statementValues() {
-		return new SchemaVersionStore.StatementValues<SchemaVersion>() {
+	public static UpgraderStore.StatementValues<Upgrader> statementValues() {
+		return new UpgraderStore.StatementValues<Upgrader>() {
 
 			@Override
-			public int setValues(Connection con, PreparedStatement statement, int index, int currentRow,
-					SchemaVersion value) throws SQLException {
-				statement.setLong(index++, value.toDbSchemaVersion());
+			public int setValues(Connection con, PreparedStatement statement, int index, int currentRow, Upgrader value)
+					throws SQLException {
+				statement.setString(index++, value.server);
 				statement.setString(index++, value.phase.name());
-				statement.setString(index++, value.component);
+				statement.setString(index++, value.database.name());
+				statement.setString(index++, value.upgraderId);
 				statement.setBoolean(index++, value.success);
 				return index;
 			}
 		};
 	}
 
-	public static SchemaVersionStore.EntityPopulator<SchemaVersion> populator() {
-		return new SchemaVersionStore.EntityPopulator<SchemaVersion>() {
+	public static UpgraderStore.EntityPopulator<Upgrader> populator() {
+		return new UpgraderStore.EntityPopulator<Upgrader>() {
 
 			@Override
-			public int populate(ResultSet rs, int index, SchemaVersion value) throws SQLException {
-				value.fromDbSchemaversion(rs.getLong(index++));
+			public int populate(ResultSet rs, int index, Upgrader value) throws SQLException {
+				value.server = rs.getString(index++);
 				value.phase = UpgradePhase.valueOf(rs.getString(index++));
-				value.component = rs.getString(index++);
+				value.database = Database.valueOf(rs.getString(index++));
+				value.upgraderId = rs.getString(index++);
 				value.success = rs.getBoolean(index++);
 				return index;
 			}

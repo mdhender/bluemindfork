@@ -17,6 +17,8 @@
   */
 package net.bluemind.server.node.hook.update;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -32,11 +34,11 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
-import net.bluemind.system.schemaupgrader.IVersionedUpdater;
 import net.bluemind.system.schemaupgrader.UpdateAction;
 import net.bluemind.system.schemaupgrader.UpdateResult;
+import net.bluemind.system.schemaupgrader.Updater;
 
-public class WhoAmIUpgrade implements IVersionedUpdater {
+public class WhoAmIUpgrade implements Updater {
 
 	private static final Logger logger = LoggerFactory.getLogger(WhoAmIUpgrade.class);
 
@@ -53,13 +55,13 @@ public class WhoAmIUpgrade implements IVersionedUpdater {
 	}
 
 	@Override
-	public int major() {
-		return 5;
+	public Date date() {
+		return java.sql.Date.valueOf(LocalDate.of(2020, 4, 28));
 	}
 
 	@Override
-	public int buildNumber() {
-		return 30894;
+	public int sequence() {
+		return 100;
 	}
 
 	@Override

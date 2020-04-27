@@ -18,16 +18,17 @@
  */
 package net.bluemind.system.schemaupgrader.tests.samples;
 
+import java.util.Date;
 import java.util.Set;
 
 import javax.sql.DataSource;
 
 import net.bluemind.core.task.service.IServerTaskMonitor;
-import net.bluemind.system.schemaupgrader.IVersionedUpdater;
 import net.bluemind.system.schemaupgrader.UpdateAction;
 import net.bluemind.system.schemaupgrader.UpdateResult;
+import net.bluemind.system.schemaupgrader.Updater;
 
-public class JavaCodeUpdater implements IVersionedUpdater {
+public class JavaCodeUpdater implements Updater {
 
 	@Override
 	public UpdateResult executeUpdate(IServerTaskMonitor monitor, DataSource pool, Set<UpdateAction> handledActions) {
@@ -35,13 +36,13 @@ public class JavaCodeUpdater implements IVersionedUpdater {
 	}
 
 	@Override
-	public int major() {
-		return 42;
+	public Date date() {
+		return new Date();
 	}
 
 	@Override
-	public int buildNumber() {
-		return 666;
+	public int sequence() {
+		return Integer.MAX_VALUE;
 	}
 
 	@Override

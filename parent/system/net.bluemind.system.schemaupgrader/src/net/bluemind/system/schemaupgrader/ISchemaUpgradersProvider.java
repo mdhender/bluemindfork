@@ -20,15 +20,13 @@ package net.bluemind.system.schemaupgrader;
 
 import java.util.List;
 
-import javax.sql.DataSource;
-
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 
 public interface ISchemaUpgradersProvider {
 
-	public List<IVersionedUpdater> allJavaUpdaters(DataSource dataSource);
+	public List<Updater> allJavaUpdaters();
 
-	public List<Updater> allSqlUpdaters(DataSource dataSource);
+	public List<Updater> allSqlUpdaters();
 
 	public boolean isActive();
 

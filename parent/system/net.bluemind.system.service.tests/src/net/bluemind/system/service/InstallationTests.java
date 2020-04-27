@@ -52,7 +52,7 @@ import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.system.api.CustomLogo;
 import net.bluemind.system.api.IInstallation;
 import net.bluemind.system.api.InstallationVersion;
-import net.bluemind.system.persistence.SchemaVersionStore;
+import net.bluemind.system.persistence.UpgraderStore;
 import net.bluemind.system.persistence.SystemConfStore;
 
 public class InstallationTests {
@@ -103,7 +103,7 @@ public class InstallationTests {
 	public void testMarkSchemaAsUpgraded() throws Exception {
 
 		service().markSchemaAsUpgraded();
-		SchemaVersionStore svs = new SchemaVersionStore(JdbcActivator.getInstance().getDataSource());
+		UpgraderStore svs = new UpgraderStore(JdbcActivator.getInstance().getDataSource());
 		assertEquals(1, svs.getComponentsVersion().size());
 		assertEquals(BMVersion.getVersion(), svs.getComponentsVersion().get(0).version);
 	}

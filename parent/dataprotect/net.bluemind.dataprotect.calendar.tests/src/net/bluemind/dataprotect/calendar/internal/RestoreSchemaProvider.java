@@ -16,22 +16,29 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.system.schemaupgrader;
+package net.bluemind.dataprotect.calendar.internal;
 
-import java.util.Set;
+import java.util.Collections;
+import java.util.List;
 
-import javax.sql.DataSource;
+import net.bluemind.system.schemaupgrader.ISchemaUpgradersProvider;
+import net.bluemind.system.schemaupgrader.Updater;
 
-import net.bluemind.core.task.service.IServerTaskMonitor;
+public class RestoreSchemaProvider implements ISchemaUpgradersProvider {
 
-public interface IVersionedUpdater {
+	@Override
+	public List<Updater> allJavaUpdaters() {
+		return Collections.emptyList();
+	}
 
-	UpdateResult executeUpdate(IServerTaskMonitor monitor, DataSource pool, Set<UpdateAction> handledActions);
+	@Override
+	public List<Updater> allSqlUpdaters() {
+		return Collections.emptyList();
+	}
 
-	int major();
-
-	int buildNumber();
-
-	public boolean afterSchemaUpgrade();
+	@Override
+	public boolean isActive() {
+		return true;
+	}
 
 }

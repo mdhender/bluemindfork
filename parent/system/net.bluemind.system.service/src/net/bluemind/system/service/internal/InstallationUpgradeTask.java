@@ -18,7 +18,11 @@
  */
 package net.bluemind.system.service.internal;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
@@ -31,22 +35,23 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
+import net.bluemind.system.api.Database;
 import net.bluemind.system.api.UpgradeReport;
+import net.bluemind.system.persistence.UpgraderStore;
 import net.bluemind.system.schemaupgrader.UpdateResult;
 import net.bluemind.system.schemaupgrader.runner.SchemaUpgrade;
+import net.bluemind.system.service.UpgraderMigration;
 import net.bluemind.system.state.StateContext;
 
 public class InstallationUpgradeTask implements IServerTask {
 
 	private static final Logger logger = LoggerFactory.getLogger(InstallationUpgradeTask.class);
-	private VersionInfo to;
-	private VersionInfo from;
-	private DataSource pool;
+	private final DataSource pool;
+	private final VersionInfo from;
 
 	public InstallationUpgradeTask(BmContext context, VersionInfo from, VersionInfo to) {
-		this.from = from;
-		this.to = to;
 		this.pool = context.getDataSource();
+		this.from = from;
 	}
 
 	@Override
@@ -54,20 +59,34 @@ public class InstallationUpgradeTask implements IServerTask {
 		monitor.begin(ServerSideServiceProvider.mailboxDataSource.size() + 1, "Begin upgrade");
 		notifyUpgradeStatus("core.upgrade.start");
 
-		for (DataSource mbDS : ServerSideServiceProvider.mailboxDataSource.values()) {
-			doUpgradeForDataSource(mbDS, true, monitor.subWork(1));
+		UpgraderStore store = new UpgraderStore(pool);
+		checkDatabaseStatus(store);
+
+		for (Entry<String, DataSource> mbDS : ServerSideServiceProvider.mailboxDataSource.entrySet()) {
+			doUpgradeForDataSource(Database.SHARD, mbDS.getKey(), mbDS.getValue(), true, monitor.subWork(1), store);
 		}
-		doUpgradeForDataSource(pool, false, monitor.subWork(1));
+		doUpgradeForDataSource(Database.DIRECTORY, "master", pool, false, monitor.subWork(1), store);
 		upgraders(monitor);
 		notifyUpgradeStatus("core.upgrade.end");
 	}
 
-	private void doUpgradeForDataSource(DataSource pool, boolean onlySchema, IServerTaskMonitor monitor) {
+	private void checkDatabaseStatus(UpgraderStore store) throws Exception {
+		boolean needsMigration = store.needsMigration();
+		if (needsMigration) {
+			List<String> servers = new ArrayList<>(ServerSideServiceProvider.mailboxDataSource.entrySet().stream()
+					.map(s -> s.getKey()).collect(Collectors.toList()));
+			servers.add("master");
+			UpgraderMigration.migrate(store, from, servers);
+		}
+	}
+
+	private void doUpgradeForDataSource(Database database, String server, DataSource pool, boolean onlySchema,
+			IServerTaskMonitor monitor, UpgraderStore store) {
 
 		UpgradeReport report = new UpgradeReport();
 		report.upgraders = new LinkedList<>();
-		SchemaUpgrade schemaUpgrader = new SchemaUpgrade(pool, onlySchema);
-		UpdateResult schemaUpgrade = schemaUpgrader.schemaUpgrade(monitor, report, from, to);
+		SchemaUpgrade schemaUpgrader = new SchemaUpgrade(database, server, pool, onlySchema, store);
+		UpdateResult schemaUpgrade = schemaUpgrader.schemaUpgrade(monitor, report);
 		if (schemaUpgrade.equals(UpdateResult.failed())) {
 			throw new ServerFault("Upgrade failed !");
 		}

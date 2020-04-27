@@ -26,9 +26,6 @@
             code="net.bluemind.system.ldap.export.upgrader.EnableMonitorDatabase">
       </java>
       <java
-            code="net.bluemind.system.ldap.export.upgrader.AddBmUuidIndex">
-      </java>
-      <java
             code="net.bluemind.system.ldap.export.upgrader.AddBmHiddenAttribute">
       </java>
       <java
