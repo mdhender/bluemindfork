@@ -24,37 +24,30 @@ import org.apache.directory.api.ldap.model.name.Dn;
 
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.lib.ldap.GroupMemberAttribute;
 import net.bluemind.system.importation.commons.ICoreServices;
 import net.bluemind.system.importation.commons.scanner.ImportLogger;
 import net.bluemind.system.importation.search.PagedSearchResult;
-import net.bluemind.system.ldap.importation.internal.tools.GroupManagerImpl;
 import net.bluemind.system.ldap.importation.internal.tools.LdapParameters;
-import net.bluemind.system.ldap.importation.search.MemberUidLdapSearch;
 
 public class MemberUidLdapScanner extends MemberLdapScanner {
-	private final MemberUidLdapSearch ldapSearch;
-
 	public MemberUidLdapScanner(ImportLogger importLogger, LdapParameters ldapParameters, ItemValue<Domain> domain) {
 		super(importLogger, ldapParameters, domain);
-
-		this.ldapSearch = new MemberUidLdapSearch(ldapParameters);
 	}
 
 	public MemberUidLdapScanner(ImportLogger importLogger, ICoreServices coreService, LdapParameters ldapParameters,
 			ItemValue<Domain> domain) {
 		super(importLogger, coreService, ldapParameters, domain);
-
-		this.ldapSearch = new MemberUidLdapSearch(ldapParameters);
 	}
 
 	@Override
-	protected String getGroupMembersAttributeName() {
-		return GroupManagerImpl.LDAP_MEMBER_UID;
+	protected GroupMemberAttribute getGroupMembersAttributeName() {
+		return GroupMemberAttribute.memberUid;
 	}
 
 	@Override
 	protected Optional<Dn> getMemberDnFromLogin(String userLogin) {
-		try (PagedSearchResult cursor = ldapSearch.getUserFromLogin(ldapCon, userLogin)) {
+		try (PagedSearchResult cursor = ldapSearch.findByUserLogin(ldapCon, userLogin)) {
 			if (cursor.next()) {
 				return Optional.of(cursor.getEntry().getDn());
 			}

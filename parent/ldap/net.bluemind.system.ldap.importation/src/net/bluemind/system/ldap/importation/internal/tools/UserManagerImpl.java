@@ -24,9 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.StreamSupport;
 
-import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.ldap.client.api.LdapConnection;
@@ -89,6 +87,7 @@ public class UserManagerImpl extends UserManager {
 	private static final String[] LDAP_PAGER = { "pager" };
 
 	private final LdapParameters ldapParameters;
+	private final Optional<Set<UuidMapper>> splitGroupMembers;
 
 	public static Optional<UserManager> build(LdapParameters ldapParameters, ItemValue<Domain> domain, Entry entry,
 			Optional<Set<UuidMapper>> splitGroupMembers) {
@@ -96,7 +95,6 @@ public class UserManagerImpl extends UserManager {
 	}
 
 	public static Optional<UserManager> build(LdapParameters ldapParameters, ItemValue<Domain> domain, Entry entry) {
-
 		return Optional.of(new UserManagerImpl(ldapParameters, domain, entry, Optional.empty()));
 	}
 
@@ -110,8 +108,9 @@ public class UserManagerImpl extends UserManager {
 	 */
 	private UserManagerImpl(LdapParameters ldapParameters, ItemValue<Domain> domain, Entry entry,
 			Optional<Set<UuidMapper>> splitGroupMembers) {
-		super(domain, entry, splitGroupMembers);
+		super(domain, entry);
 		this.ldapParameters = ldapParameters;
+		this.splitGroupMembers = splitGroupMembers;
 	}
 
 	@Override
@@ -159,15 +158,6 @@ public class UserManagerImpl extends UserManager {
 					setExternalMailRouting();
 				}
 			});
-		} else if (ldapParameters.splitDomain.relayMailboxGroup != null
-				&& !ldapParameters.splitDomain.relayMailboxGroup.trim().isEmpty()
-				&& entry.containsAttribute(LDAP_MEMBER_OF)) {
-			Attribute memberOfAttr = entry.get(LDAP_MEMBER_OF);
-			String splitGroupName = "=" + ldapParameters.splitDomain.relayMailboxGroup + ",";
-
-			StreamSupport.stream(memberOfAttr.spliterator(), false)
-					.filter(memberOf -> memberOf.getString().trim().contains(splitGroupName)).findFirst()
-					.ifPresent(memberOf -> setExternalMailRouting());
 		}
 	}
 

@@ -4,8 +4,8 @@ Bundle-Name: net.bluemind.lib.ldap.tests
 Bundle-SymbolicName: net.bluemind.lib.ldap.tests
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: blue-mind.net
-Require-Bundle: org.eclipse.core.runtime,
- org.junit;bundle-version="3.8.2",
+Require-Bundle: org.junit,
+ org.eclipse.core.runtime,
  net.bluemind.lib.ldap,
  net.bluemind.pool,
  org.apache.mina.core;bundle-version="2.0.7",

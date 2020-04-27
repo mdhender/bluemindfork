@@ -1,0 +1,73 @@
+dn: uid=user00,dc=local
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+uid: user00
+sn: Nom00
+cn: Prenom00 Nom00
+givenName: Prenom00
+description: Description Prenom00 Nom00
+userPassword:: e1NIQX1rN1liU0NTUzdPSkhsaUpRWkF2RkNUNFlZNTA9
+
+dn: uid=user01,dc=local
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+uid: user01
+sn: Nom01
+cn: Prenom01 Nom01
+givenName: Prenom01
+description: Description Prenom01 Nom01
+userPassword:: e1NIQX1rN1liU0NTUzdPSkhsaUpRWkF2RkNUNFlZNTA9
+
+dn: uid=user02,dc=local
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+uid: user02
+sn: Nom02
+cn: Prenom02 Nom02
+givenName: Prenom02
+description: Description Prenom02 Nom02
+userPassword:: e1NIQX1rN1liU0NTUzdPSkhsaUpRWkF2RkNUNFlZNTA9
+
+dn: cn=grptest00,dc=local
+objectClass: bmGroup
+objectClass: top
+objectClass: posixGroup
+cn: grptest00
+gidNumber: 10000
+description: Test group 00
+member: uid=user00,dc=local
+
+dn: cn=grptest01,dc=local
+objectClass: bmGroup
+objectClass: top
+objectClass: posixGroup
+cn: grptest01
+gidNumber: 10000
+description: Test group 00
+member: uid=user00,dc=local
+member: uid=user01,dc=local
+
+dn: cn=grptest02,dc=local
+objectClass: bmGroup
+objectClass: top
+objectClass: posixGroup
+cn: grptest02
+gidNumber: 10000
+description: Test group 02
+
+dn: cn=grptest03,dc=local
+objectClass: bmGroup
+objectClass: top
+objectClass: posixGroup
+cn: grptest03
+gidNumber: 10000
+description: Test group 03
+member: uid=user01,dc=local
+member: cn=grptest00,dc=local
+member: cn=grptest02,dc=local

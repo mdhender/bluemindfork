@@ -39,8 +39,6 @@ public class GroupManagerImpl extends GroupManager {
 	public static final String LDAP_NAME = "cn";
 	private static final String LDAP_DESCRIPTION = "description";
 	private static final String[] LDAP_MAIL = { "mail", "mailLocalAddress", "gosaMailAlternateAddress" };
-	public static final String LDAP_MEMBER_UID = "memberUid";
-	public static final String LDAP_MEMBER = "member";
 
 	private final LdapParameters ldapParameters;
 

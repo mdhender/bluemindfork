@@ -18,13 +18,9 @@
  */
 package net.bluemind.system.ldap.importation.internal.scanner;
 
-import java.util.Optional;
-import java.util.Set;
-
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.system.importation.commons.ICoreServices;
-import net.bluemind.system.importation.commons.UuidMapper;
 import net.bluemind.system.importation.commons.managers.UserManager;
 import net.bluemind.system.importation.commons.scanner.ImportLogger;
 import net.bluemind.system.ldap.importation.internal.tools.LdapParameters;
@@ -43,11 +39,6 @@ public class MemberOfLdapScanner extends LdapScanner {
 			ItemValue<Domain> domain) {
 		super(importLogger, coreService, ldapParameters, domain);
 		this.ldapSearch = new MemberOfLdapSearch(importLogger, ldapParameters);
-	}
-
-	@Override
-	protected Optional<Set<UuidMapper>> getSplitGroupMembers() {
-		return Optional.empty();
 	}
 
 	@Override

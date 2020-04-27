@@ -26,15 +26,13 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
 
 import net.bluemind.system.importation.search.DirectorySearch;
-import net.bluemind.system.importation.search.GroupSearchFilter;
 import net.bluemind.system.importation.search.PagedSearchResult;
-import net.bluemind.system.importation.search.UserSearchFilter;
 import net.bluemind.system.ldap.importation.internal.tools.LdapParameters;
 
 public class LdapSearch extends DirectorySearch<LdapParameters> {
 
-	public LdapSearch(LdapParameters ldapParameters, GroupSearchFilter groupFilter, UserSearchFilter userFilter) {
-		super(ldapParameters, groupFilter, userFilter);
+	public LdapSearch(LdapParameters ldapParameters) {
+		super(ldapParameters, new LdapGroupSearchFilter(), new LdapUserSearchFilter());
 	}
 
 	public PagedSearchResult findAllUsers(LdapConnection ldapCon) throws LdapException {
@@ -67,6 +65,17 @@ public class LdapSearch extends DirectorySearch<LdapParameters> {
 	public PagedSearchResult getGroupUUID(LdapConnection ldapCon, Dn groupDn) throws LdapException {
 		return super.findByFilterAndBaseDnAndScopeAndAttributes(ldapCon,
 				groupFilter.getSearchFilter(ldapParameters, Optional.empty(), null, null), groupDn, SearchScope.OBJECT,
+				ldapParameters.ldapDirectory.extIdAttribute);
+	}
+
+	public PagedSearchResult findByGroupByName(LdapConnection ldapCon) throws LdapException {
+		return super.findByFilterAndAttributes(ldapCon, groupFilter.getSearchFilter(ldapParameters, Optional.empty(),
+				null, ldapParameters.splitDomain.relayMailboxGroup), "*");
+	}
+
+	public PagedSearchResult findByUserLogin(LdapConnection ldapCon, String userLogin) throws LdapException {
+		return super.findByFilterAndAttributes(ldapCon,
+				userFilter.getSearchFilter(ldapParameters, Optional.empty(), userLogin, null),
 				ldapParameters.ldapDirectory.extIdAttribute);
 	}
 }

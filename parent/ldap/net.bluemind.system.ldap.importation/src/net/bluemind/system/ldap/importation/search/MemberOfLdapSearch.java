@@ -50,7 +50,7 @@ public class MemberOfLdapSearch extends LdapSearch {
 	private ImportLogger importLogger;
 
 	public MemberOfLdapSearch(ImportLogger importLogger, LdapParameters ldapParameters) {
-		super(ldapParameters, new LdapGroupSearchFilter(), new LdapUserSearchFilter());
+		super(ldapParameters);
 		this.importLogger = importLogger;
 	}
 

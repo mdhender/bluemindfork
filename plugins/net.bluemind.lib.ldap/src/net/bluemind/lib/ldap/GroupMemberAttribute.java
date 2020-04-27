@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2020
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -16,13 +16,8 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.system.importation.search;
+package net.bluemind.lib.ldap;
 
-import java.util.Optional;
-
-import net.bluemind.system.importation.commons.Parameters;
-
-public interface UserSearchFilter {
-	public <T extends Parameters> String getSearchFilter(T ldapParameters, Optional<String> lastUpdate, String login,
-			String uuid);
+public enum GroupMemberAttribute {
+	member, memberUid;
 }

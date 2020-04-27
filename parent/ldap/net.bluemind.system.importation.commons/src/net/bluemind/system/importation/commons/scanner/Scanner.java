@@ -48,6 +48,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.api.Member;
+import net.bluemind.lib.ldap.GroupMemberAttribute;
 import net.bluemind.lib.ldap.LdapConProxy;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.system.importation.commons.CoreServices;
@@ -69,8 +70,6 @@ public abstract class Scanner {
 	protected final ItemValue<Domain> domain;
 	protected final ICoreServices coreService;
 	protected LdapConProxy ldapCon;
-
-	protected Optional<Set<UuidMapper>> splitGroupMembers;
 
 	protected Scanner(ImportLogger importLogger, ItemValue<Domain> domain) {
 		this.importLogger = importLogger;
@@ -106,8 +105,7 @@ public abstract class Scanner {
 
 			ldapCon = getConnection();
 
-			splitGroupMembers = getSplitGroupMembers();
-			getRelayMailboxGroupDn();
+			setupSplitGroup();
 
 			logger.info("Suspend users from BM which are removed in {}", getKind());
 			deletedUsers();
@@ -135,15 +133,17 @@ public abstract class Scanner {
 				}
 			}
 
+			reset();
+
 			importLogger.info(coreService.getUserStats());
 			importLogger.info(coreService.getGroupStats());
 			importLogger.logStatus();
 		}
 	}
 
-	protected abstract void getRelayMailboxGroupDn();
+	protected abstract void setupSplitGroup();
 
-	protected abstract Optional<Set<UuidMapper>> getSplitGroupMembers();
+	protected abstract void reset();
 
 	protected abstract String getKind();
 
@@ -161,7 +161,7 @@ public abstract class Scanner {
 
 	protected abstract Optional<GroupManager> getGroupManager(Entry entry);
 
-	protected abstract String getGroupMembersAttributeName();
+	protected abstract GroupMemberAttribute getGroupMembersAttributeName();
 
 	protected abstract boolean doNotImportUser(Entry entry);
 

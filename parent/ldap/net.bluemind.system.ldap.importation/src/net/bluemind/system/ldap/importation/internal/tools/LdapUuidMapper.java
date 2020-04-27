@@ -31,7 +31,10 @@ import net.bluemind.system.importation.commons.UuidMapper;
 import net.bluemind.system.ldap.importation.api.LdapConstants;
 
 public class LdapUuidMapper extends UuidMapper {
-	private LdapUuidMapper(String uuid) {
+	/**
+	 * @param uuid ldap entryUUID attribute
+	 */
+	public LdapUuidMapper(String uuid) {
 		super(uuid);
 	}
 
@@ -56,6 +59,12 @@ public class LdapUuidMapper extends UuidMapper {
 		return new LdapUuidMapper(uuidVal);
 	}
 
+	/**
+	 * Get UuidMapper from BlueMind external ID
+	 * 
+	 * @param extId BlueMind external ID
+	 * @return
+	 */
 	public static Optional<UuidMapper> fromExtId(String extId) {
 		if (extId == null || !extId.startsWith(LdapConstants.EXTID_PREFIX)) {
 			return Optional.empty();
@@ -69,6 +78,12 @@ public class LdapUuidMapper extends UuidMapper {
 		return Optional.of(new LdapUuidMapper(guid));
 	}
 
+	/**
+	 * Get UuidMapper from a list of BlueMind external ID
+	 * 
+	 * @param extIds BlueMind external ID list
+	 * @return
+	 */
 	public static Set<UuidMapper> fromExtIdList(List<String> extIds) {
 		Set<UuidMapper> entryUuids = new HashSet<>();
 
