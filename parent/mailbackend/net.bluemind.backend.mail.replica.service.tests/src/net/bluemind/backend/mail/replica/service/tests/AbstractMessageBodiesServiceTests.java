@@ -27,15 +27,18 @@ import java.util.Objects;
 
 import org.junit.Before;
 
+import com.google.common.io.ByteStreams;
+
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.streams.ReadStream;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
+import net.bluemind.core.api.Stream;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
-import net.bluemind.core.rest.utils.InputReadStream;
+import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public abstract class AbstractMessageBodiesServiceTests {
@@ -44,11 +47,14 @@ public abstract class AbstractMessageBodiesServiceTests {
 	protected MailboxReplicaRootDescriptor mboxDescriptor;
 	protected Vertx vertx;
 
-	protected ReadStream<Buffer> openResource(String path) {
-		InputStream inputStream = AbstractReplicatedMailboxesServiceTests.class.getClassLoader()
-				.getResourceAsStream(path);
-		Objects.requireNonNull(inputStream, "Failed to open resource @ " + path);
-		return new InputReadStream(inputStream);
+	protected Stream openResource(String path) {
+		try (InputStream inputStream = AbstractReplicatedMailboxesServiceTests.class.getClassLoader()
+				.getResourceAsStream(path)) {
+			Objects.requireNonNull(inputStream, "Failed to open resource @ " + path);
+			return VertxStream.stream(Buffer.buffer(ByteStreams.toByteArray(inputStream)));
+		} catch (Exception e) {
+			throw new ServerFault(e);
+		}
 	}
 
 	@Before
