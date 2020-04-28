@@ -1,5 +1,5 @@
 <script>
-import MailFolderIcon from "@bluemind/webapp.mail.ui.vuejs/src/MailFolderIcon";
+import MailFolderIcon from "./MailFolderIcon";
 
 export default {
     name: "MailAlertRenderer",

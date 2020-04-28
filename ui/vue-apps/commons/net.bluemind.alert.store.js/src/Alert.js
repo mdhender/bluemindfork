@@ -20,12 +20,13 @@ import UUIDGenerator from "@bluemind/uuid";
 
 /** Generic structure for an alert.  */
 export default class Alert {
-    constructor({ type, uid, code, message, key, props }) {
+    constructor({ type, uid, code, message, key, props, renderer }) {
         this.type = type || AlertTypes.ERROR;
         this.uid = uid || UUIDGenerator.generate();
         this.code = code;
         this.message = message;
         this.key = key;
         this.props = props;
+        this.renderer = renderer;
     }
 }

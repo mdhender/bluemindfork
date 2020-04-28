@@ -8,7 +8,7 @@ import { MailboxItemsService } from "@bluemind/backend.mail.service";
 import { TaskClient } from "@bluemind/core.task.api";
 import { UserSettingsClient } from "@bluemind/user.api";
 import injector from "@bluemind/inject";
-import MailAlertRenderer from "@bluemind/webapp.mail.ui.vuejs";
+import { MailAlertRenderer } from "@bluemind/webapp.mail.ui.vuejs";
 import MailApp from "@bluemind/webapp.mail.ui.vuejs";
 import MailAppAlerts from "@bluemind/webapp.mail.alert";
 import mailRoutes from "./router";
