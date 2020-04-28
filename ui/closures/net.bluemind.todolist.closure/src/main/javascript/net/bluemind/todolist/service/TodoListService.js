@@ -92,7 +92,7 @@ net.bluemind.todolist.service.TodoListService.prototype.getItemsRemote = functio
   var client = new net.bluemind.todolist.api.TodoListClient(this.ctx.rpc, '', uid);
   return client.search({
     'from' : opt_offset,
-    'size' : 100,
+    'size' : 10000,
     'query' : null
   }).then(function(result) {
     return goog.array.map(result['values'], function(value) {
