@@ -1,10 +1,13 @@
 import { move } from "../../src/actions/move";
+import ItemUri from "@bluemind/item-uri";
 
+ItemUri.container = jest.fn().mockReturnValue("");
 const context = {
     commit: jest.fn(),
     dispatch: jest.fn(),
     getters: {
         my: { mailboxUid: "mailbox-uid" },
+        mailshares: [],
         "folders/getFolderByKey": jest
             .fn()
             .mockReturnValue({ key: "folder-key", value: { name: "folderName", fullName: "Full/name" } })

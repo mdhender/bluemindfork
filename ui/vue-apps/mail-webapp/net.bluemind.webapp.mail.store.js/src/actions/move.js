@@ -1,4 +1,5 @@
 import UUIDGenerator from "@bluemind/uuid";
+import ItemUri from "@bluemind/item-uri";
 
 export function move({ dispatch, commit, getters }, { messageKey, folder }) {
     const isArray = Array.isArray(messageKey);
@@ -11,7 +12,7 @@ export function move({ dispatch, commit, getters }, { messageKey, folder }) {
 }
 
 function moveSingleMessage({ dispatch, commit, getters }, { messageKey, folder }) {
-    let subject, destination;
+    let subject, destination, isDestinationMailshare;
     const alertUid = UUIDGenerator.generate();
     return dispatch("$_getIfNotPresent", [messageKey])
         .then(messages => {
@@ -21,23 +22,27 @@ function moveSingleMessage({ dispatch, commit, getters }, { messageKey, folder }
         })
         .then(key => {
             destination = getters["folders/getFolderByKey"](key);
+            const destinationContainer = ItemUri.container(destination.key);
+            isDestinationMailshare = getters.mailshares.findIndex(({ uid }) => uid === destinationContainer) >= 0;
             return dispatch("$_move", { messageKeys: [messageKey], destinationKey: key });
         })
-        .then(() => addOkAlert(commit, subject, destination))
+        .then(() => addOkAlert(commit, subject, destination, isDestinationMailshare))
         .catch(error => addErrorAlert(commit, subject, folder, error))
         .finally(() => commit("removeApplicationAlert", alertUid, { root: true }));
 }
 
 function moveMultipleMessages({ dispatch, commit, getters }, { messageKeys, folder }) {
-    let destination;
+    let destination, isDestinationMailshare;
     const alertUid = UUIDGenerator.generate();
     addLoadingAlertForMultipleMessages(commit, messageKeys.length, alertUid);
     return dispatch("$_createFolder", folder)
         .then(key => {
             destination = getters["folders/getFolderByKey"](key);
+            const destinationContainer = ItemUri.container(destination.key);
+            isDestinationMailshare = getters.mailshares.findIndex(({ uid }) => uid === destinationContainer) >= 0;
             return dispatch("$_move", { messageKeys, destinationKey: key });
         })
-        .then(() => addOkAlertForMultipleMessages(commit, messageKeys.length, destination))
+        .then(() => addOkAlertForMultipleMessages(commit, messageKeys.length, destination, isDestinationMailshare))
         .catch(() => addErrorAlertForMultipleMessages(commit, folder))
         .finally(() => commit("removeApplicationAlert", alertUid, { root: true }));
 }
@@ -61,7 +66,8 @@ function addErrorAlertForMultipleMessages(commit, folder) {
     );
 }
 
-function addOkAlert(commit, subject, folder) {
+function addOkAlert(commit, subject, folder, isMailshare) {
+    const params = isMailshare ? { mailshare: folder.value.fullName } : { folder: folder.value.fullName };
     commit(
         "addApplicationAlert",
         {
@@ -69,14 +75,15 @@ function addOkAlert(commit, subject, folder) {
             props: {
                 subject,
                 folder: folder.value,
-                folderNameLink: { name: "v:mail:home", params: { folder: folder.value.fullName } }
+                folderNameLink: { name: "v:mail:home", params }
             }
         },
         { root: true }
     );
 }
 
-function addOkAlertForMultipleMessages(commit, count, folder) {
+function addOkAlertForMultipleMessages(commit, count, folder, isMailshare) {
+    const params = isMailshare ? { mailshare: folder.value.fullName } : { folder: folder.value.fullName };
     commit(
         "addApplicationAlert",
         {
@@ -84,7 +91,7 @@ function addOkAlertForMultipleMessages(commit, count, folder) {
             props: {
                 count,
                 folder: folder.value,
-                folderNameLink: { name: "v:mail:home", params: { folder: folder.value.fullName } }
+                folderNameLink: { name: "v:mail:home", params }
             }
         },
         { root: true }
