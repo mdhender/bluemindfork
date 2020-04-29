@@ -23,9 +23,12 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.ContainerChangeset;
+import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
 
 @BMApi(version = "3")
@@ -51,4 +54,15 @@ public interface IOwnerSubscriptions extends IChangelogSupport, IDataShardSuppor
 	@POST
 	@Path("_mget")
 	List<ItemValue<ContainerSubscriptionModel>> getMultiple(List<String> uids);
+
+	/**
+	 * @param since
+	 * @return if successful, return a {@link ContainerChangeset} with
+	 *         {@link ItemIdentifier}
+	 * @throws ServerFault when an error occurs
+	 */
+	@GET
+	@Path("_fullChangesetById")
+	public ContainerChangeset<ItemIdentifier> fullChangesetById(@QueryParam("since") Long since);
+
 }

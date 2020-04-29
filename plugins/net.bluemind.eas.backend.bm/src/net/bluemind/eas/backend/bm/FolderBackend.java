@@ -41,6 +41,9 @@ import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.api.IContainersFlatHierarchy;
 import net.bluemind.core.container.api.IOwnerSubscriptions;
+import net.bluemind.core.container.model.ChangeLogEntry;
+import net.bluemind.core.container.model.ChangeLogEntry.Type;
+import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemFlag;
@@ -269,11 +272,13 @@ public class FolderBackend extends CoreConnect {
 		}
 
 		// owner subscription
-		ContainerChangeset<String> userSubscriptions = subscriptionsService.changeset(state.subscriptionVersion);
+		ContainerChangeset<ItemIdentifier> userSubscriptions = subscriptionsService
+				.fullChangesetById(state.subscriptionVersion);
 		ret.subscriptionVersion = userSubscriptions.version;
 
 		List<ItemValue<ContainerSubscriptionModel>> newUserSubscriptions = subscriptionsService
-				.getMultiple(userSubscriptions.created);
+				.getMultipleById(userSubscriptions.created.stream().map(itemIdentifier -> itemIdentifier.id)
+						.collect(Collectors.toList()));
 
 		// new mailbox subscription
 		newUserSubscriptions.stream().filter(c -> "mailboxacl".equals(c.value.containerType)).forEach(container -> {
@@ -301,7 +306,8 @@ public class FolderBackend extends CoreConnect {
 		});
 
 		List<ItemValue<ContainerSubscriptionModel>> updatedUserSubscriptions = subscriptionsService
-				.getMultiple(userSubscriptions.updated);
+				.getMultipleById(userSubscriptions.updated.stream().map(itemIdentifier -> itemIdentifier.id)
+						.collect(Collectors.toList()));
 		updatedUserSubscriptions.stream().filter(c -> !"mailboxacl".equals(c.value.containerType))
 				.forEach(container -> {
 					String nodeUid = ContainerHierarchyNode.uidFor(container.value.containerUid,
@@ -328,17 +334,20 @@ public class FolderBackend extends CoreConnect {
 
 		if (!userSubscriptions.deleted.isEmpty()) {
 			IContainers containers = getService(bs, IContainers.class);
-			userSubscriptions.deleted.forEach(uid -> {
-				String containerUid = uid.replace(String.format("sub-of-%s-to-", bs.getUser().getUid()), "");
+			userSubscriptions.deleted.forEach(itemIdentifier -> {
+				String containerUid = itemIdentifier.uid.replace(String.format("sub-of-%s-to-", bs.getUser().getUid()),
+						"");
 				try {
 					ContainerDescriptor cd = containers.get(containerUid);
 					if (cd.type.equals("mailboxacl")) {
-						// Remove mailbox subsciption
+						// get ContainerSubscriptionModel
+						// Remove mailbox subscription
 						IContainersFlatHierarchy hierarchyService = getAdmin0Service(bs, IContainersFlatHierarchy.class,
 								bs.getUser().getDomain(), cd.owner);
 						ContainerChangeset<Long> all = hierarchyService.changesetById(0L);
 						all.created.forEach(folderId -> {
-							String collectionId = CollectionId.of(cd.internalId, Long.toString(folderId)).getValue();
+							String collectionId = CollectionId.of(itemIdentifier.id, Long.toString(folderId))
+									.getValue();
 							ret.items.add(getDeletedItemChange(collectionId));
 						});
 						subscribedMailboxVersions.remove(Long.toString(cd.internalId));
