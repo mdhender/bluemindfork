@@ -34,6 +34,7 @@
       <plugin id="com.fasterxml.jackson.core.jackson-annotations"/>
       <plugin id="com.fasterxml.jackson.core.jackson-core"/>
       <plugin id="com.fasterxml.jackson.core.jackson-databind"/>
+      <plugin id="com.fasterxml.jackson.module.jackson-module-afterburner"/>
       <plugin id="com.google.guava"/>
       <plugin id="com.hazelcast"/>
       <plugin id="com.netflix.spectator.api"/>

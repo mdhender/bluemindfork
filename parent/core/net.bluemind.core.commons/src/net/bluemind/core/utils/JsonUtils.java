@@ -18,24 +18,22 @@
  */
 package net.bluemind.core.utils;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.DateSerializer;
 import com.fasterxml.jackson.databind.type.CollectionType;
-import com.google.common.base.Throwables;
+import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import net.bluemind.core.api.fault.ServerFault;
 
 public class JsonUtils {
 	private static final ObjectMapper objectMapper;
@@ -47,6 +45,10 @@ public class JsonUtils {
 		SimpleModule module = new SimpleModule();
 		module.addSerializer(java.sql.Date.class, new DateSerializer());
 		objectMapper.registerModule(module);
+		objectMapper.registerModule(new AfterburnerModule().setUseValueClassLoader(false));
+	}
+
+	private JsonUtils() {
 	}
 
 	public static Object read(String value, Type type) throws Exception {
@@ -58,12 +60,8 @@ public class JsonUtils {
 	public static <T> T read(String value, Class<T> type) {
 		try {
 			return objectMapper.readValue(value, type);
-		} catch (JsonParseException e) {
-			throw new RuntimeException(e);
-		} catch (JsonMappingException e) {
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+		} catch (Exception e) {
+			throw new ServerFault(e);
 		}
 	}
 
@@ -78,7 +76,7 @@ public class JsonUtils {
 			try {
 				return objectMapper.readValue(value, listType);
 			} catch (Exception e) {
-				throw Throwables.propagate(e);
+				throw new ServerFault(e);
 			}
 		}
 	}
@@ -91,12 +89,8 @@ public class JsonUtils {
 		try {
 			return objectMapper.readValue(value,
 					objectMapper.getTypeFactory().constructCollectionType(List.class, type));
-		} catch (JsonParseException e) {
-			throw new RuntimeException(e);
-		} catch (JsonMappingException e) {
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+		} catch (Exception e) {
+			throw new ServerFault(e);
 		}
 	}
 
@@ -104,7 +98,7 @@ public class JsonUtils {
 		try {
 			return objectMapper.writeValueAsString(o);
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
+			throw new ServerFault(e);
 		}
 	}
 
@@ -116,7 +110,7 @@ public class JsonUtils {
 		try {
 			return objectMapper.writeValueAsBytes(o);
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
+			throw new ServerFault(e);
 		}
 	}
 
