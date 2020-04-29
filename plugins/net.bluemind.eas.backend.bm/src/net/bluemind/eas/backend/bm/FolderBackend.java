@@ -19,6 +19,7 @@
 package net.bluemind.eas.backend.bm;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -36,6 +37,7 @@ import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.ContainerSubscriptionModel;
+import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.api.IContainersFlatHierarchy;
 import net.bluemind.core.container.api.IOwnerSubscriptions;
@@ -46,6 +48,7 @@ import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
+import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
@@ -387,6 +390,12 @@ public class FolderBackend extends CoreConnect {
 		} else {
 			mailboxRoot = dirEntry.entryUid.replace('.', '^');
 			rootFolderName = dirEntry.displayName;
+		}
+		IContainerManagement cmApi = getService(bs, IContainerManagement.class, container.value.containerUid);
+		if (!cmApi.canAccess(Arrays.asList(Verb.Read.name()))) {
+			logger.info("[{}] skip container {} without Read perms.", bs.getLoginAtDomain(),
+					container.value.containerUid);
+			return;
 		}
 		CyrusPartition part = CyrusPartition.forServerAndDomain(dirEntry.dataLocation, bs.getUser().getDomain());
 		IMailboxFolders foldersService = getService(bs, IMailboxFolders.class, part.name, mailboxRoot);

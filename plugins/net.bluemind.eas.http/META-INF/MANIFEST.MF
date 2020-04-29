@@ -17,7 +17,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.hornetq.client,
  net.bluemind.system.api,
  net.bluemind.core.rest.http,
- net.bluemind.locator.vertxclient,
  net.bluemind.config,
  net.bluemind.system.stateobserver,
  net.bluemind.role.api
@@ -27,3 +26,4 @@ Eclipse-RegisterBuddy: net.bluemind.lib.vertx
 Export-Package: net.bluemind.eas.http,
  net.bluemind.eas.http.internal,
  net.bluemind.eas.http.query
+Automatic-Module-Name: net.bluemind.eas.http

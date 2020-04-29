@@ -22,26 +22,29 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.join.query.JoinQueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.backend.mail.api.IMailboxFolders;
+import net.bluemind.backend.mail.api.IMailboxFoldersByContainer;
+import net.bluemind.backend.mail.api.MailboxFolderSearchQuery;
+import net.bluemind.backend.mail.api.MessageSearchResult;
+import net.bluemind.backend.mail.api.SearchQuery;
+import net.bluemind.backend.mail.api.SearchSort;
+import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
+import net.bluemind.config.Token;
+import net.bluemind.core.container.api.IContainers;
+import net.bluemind.core.container.model.ContainerDescriptor;
+import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.backend.MailFolder;
 import net.bluemind.eas.backend.bm.mail.BodyLoaderFactory;
 import net.bluemind.eas.backend.bm.mail.EmailManager;
+import net.bluemind.eas.backend.bm.state.InternalState;
 import net.bluemind.eas.dto.base.AirSyncBaseResponse;
 import net.bluemind.eas.dto.base.AppData;
 import net.bluemind.eas.dto.base.BodyOptions;
-import net.bluemind.eas.dto.base.Callback;
 import net.bluemind.eas.dto.base.LazyLoaded;
 import net.bluemind.eas.dto.email.EmailResponse;
 import net.bluemind.eas.dto.search.SearchRequest;
@@ -52,7 +55,8 @@ import net.bluemind.eas.exception.CollectionNotFoundException;
 import net.bluemind.eas.impl.Backends;
 import net.bluemind.eas.search.ISearchSource;
 import net.bluemind.eas.store.ISyncStorage;
-import net.bluemind.lib.elasticsearch.ESearchActivator;
+import net.bluemind.mailbox.api.IMailboxes;
+import net.bluemind.mailbox.api.Mailbox;
 
 public class BmSearchMailbox implements ISearchSource {
 	protected Logger logger = LoggerFactory.getLogger(getClass());
@@ -76,44 +80,48 @@ public class BmSearchMailbox implements ISearchSource {
 				folder = store.getMailFolderByName(bs, "INBOX");
 			} catch (CollectionNotFoundException e) {
 				logger.error(e.getMessage(), e);
-				return new Results<SearchResult>();
+				return new Results<>();
 			}
 		} else {
 			try {
 				folder = store.getMailFolder(bs, CollectionId.of(request.store.query.and.collectionId));
 			} catch (CollectionNotFoundException e) {
 				logger.error(e.getMessage(), e);
-				return new Results<SearchResult>();
+				return new Results<>();
 			}
 		}
+		InternalState is = bs.getInternalState();
+		ClientSideServiceProvider prov = ClientSideServiceProvider.getProvider(is.coreUrl, Token.admin0())
+				.setOrigin("bm-eas-BmSearchMailbox");
+		IContainers cont = prov.instance(IContainers.class);
+		ContainerDescriptor asContainer = cont.get(IMailReplicaUids.mboxRecords(folder.uid));
+		IMailboxes mboxApi = prov.instance(IMailboxes.class, asContainer.domainUid);
+		ItemValue<Mailbox> mbox = mboxApi.getComplete(asContainer.owner);
+		String subtree = IMailReplicaUids.subtreeUid(asContainer.domainUid, mbox);
+		prov = ClientSideServiceProvider.getProvider(is.coreUrl, is.sid).setOrigin("bm-eas-BmSearchMailbox");
+		IMailboxFolders folders = prov.instance(IMailboxFoldersByContainer.class, subtree);
+		logger.debug("Searching in {}", subtree);
 
-		Client client = ESearchActivator.getClient();
-		SearchRequestBuilder searchBuilder = client.prepareSearch("mailspool_alias_" + bs.getUser().getUid());
+		MailboxFolderSearchQuery mfq = new MailboxFolderSearchQuery();
+		mfq.query = new SearchQuery();
+		mfq.sort = SearchSort.byField("date", SearchSort.Order.Desc);
+		mfq.query.recordQuery = "-is:deleted";
+		mfq.query.query = "content:\"" + request.store.query.and.freeText + "\"";
+		mfq.query.scope = new net.bluemind.backend.mail.api.SearchQuery.SearchScope();
+		mfq.query.scope.folderScope = new net.bluemind.backend.mail.api.SearchQuery.FolderScope();
+		mfq.query.scope.folderScope.folderUid = folder.uid;
+		mfq.query.offset = request.store.options.range.min;
+		mfq.query.maxResults = request.store.options.range.max;
 
-		BoolQueryBuilder bq = QueryBuilders.boolQuery();
-		bq.must(QueryBuilders.termQuery("in", folder.uid));
-		bq.mustNot(QueryBuilders.termQuery("is", "deleted"));
+		net.bluemind.backend.mail.api.SearchResult results = folders.searchItems(mfq);
 
-		String pattern = "content:\"" + request.store.query.and.freeText + "\"";
-		searchBuilder.setQuery(
-				bq.must(JoinQueryBuilders.hasParentQuery("body", QueryBuilders.queryStringQuery(pattern), false)));
+		List<Integer> uids = new ArrayList<>(results.results.size());
+		for (MessageSearchResult r : results.results) {
+			uids.add(r.itemId);
 
-		searchBuilder.addStoredField("itemId");
-		searchBuilder.addSort("date", SortOrder.DESC);
-		searchBuilder.setFrom(request.store.options.range.min);
-		searchBuilder.setSize(request.store.options.range.max);
-
-		logger.debug("{}", searchBuilder);
-
-		SearchResponse sr = searchBuilder.execute().actionGet();
-		SearchHits searchHits = sr.getHits();
-
-		List<Integer> uids = new ArrayList<Integer>();
-		for (SearchHit sh : searchHits.getHits()) {
-			uids.add((Integer) sh.field("itemId").getValue());
 		}
 
-		Results<SearchResult> ret = new Results<SearchResult>();
+		Results<SearchResult> ret = new Results<>();
 		for (int uid : uids) {
 			EmailResponse er = EmailManager.getInstance().loadStructure(bs, folder, uid);
 			LazyLoaded<BodyOptions, AirSyncBaseResponse> lazy = BodyLoaderFactory.from(bs, folder, uid,
@@ -121,7 +129,7 @@ public class BmSearchMailbox implements ISearchSource {
 			AppData appData = AppData.of(er, lazy);
 			ret.add(asSearchResult(folder, appData, uid));
 		}
-		ret.setNumFound(searchHits.getTotalHits());
+		ret.setNumFound(results.totalResults);
 
 		return ret;
 	}
@@ -133,17 +141,14 @@ public class BmSearchMailbox implements ISearchSource {
 		res.longId = (long) res.collectionId.getFolderId() << 32 | mailUid & 0xFFFFFFFFL;
 		res.searchProperties.email = appData.metadata.email;
 		final CountDownLatch cdl = new CountDownLatch(1);
-		appData.body.load(new Callback<AirSyncBaseResponse>() {
-
-			@Override
-			public void onResult(AirSyncBaseResponse data) {
-				res.searchProperties.airSyncBase = data;
-				cdl.countDown();
-			}
+		appData.body.load((AirSyncBaseResponse data) -> {
+			res.searchProperties.airSyncBase = data;
+			cdl.countDown();
 		});
 		try {
 			cdl.await();
 		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 		}
 
 		return res;

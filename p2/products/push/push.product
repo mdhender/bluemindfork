@@ -99,7 +99,6 @@
       <plugin id="net.bluemind.eas.wbxml"/>
       <plugin id="net.bluemind.eas.wbxml.builder"/>
       <plugin id="net.bluemind.eclipse.common"/>
-      <plugin id="net.bluemind.elastic.client"/>
       <plugin id="net.bluemind.filehosting.api"/>
       <plugin id="net.bluemind.group.api"/>
       <plugin id="net.bluemind.hornetq.client"/>
@@ -108,7 +107,6 @@
       <plugin id="net.bluemind.icalendar.parser"/>
       <plugin id="net.bluemind.imap.translate"/>
       <plugin id="net.bluemind.imip.parser"/>
-      <plugin id="net.bluemind.lib.elasticsearch"/>
       <plugin id="net.bluemind.lib.globalid"/>
       <plugin id="net.bluemind.lib.ical4j"/>
       <plugin id="net.bluemind.lib.jackson"/>
@@ -116,8 +114,6 @@
       <plugin id="net.bluemind.lib.jutf7"/>
       <plugin id="net.bluemind.lib.ristretto"/>
       <plugin id="net.bluemind.lib.vertx"/>
-      <plugin id="net.bluemind.locator.client"/>
-      <plugin id="net.bluemind.locator.vertxclient"/>
       <plugin id="net.bluemind.mailbox.api"/>
       <plugin id="net.bluemind.mailbox.identity.api"/>
       <plugin id="net.bluemind.metrics.registry"/>

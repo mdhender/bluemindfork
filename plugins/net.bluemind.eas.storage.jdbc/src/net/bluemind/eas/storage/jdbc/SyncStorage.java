@@ -18,11 +18,12 @@
  */
 package net.bluemind.eas.storage.jdbc;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,12 +50,11 @@ import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.TaskUtils;
-import net.bluemind.device.api.Device;
 import net.bluemind.device.api.IDevice;
 import net.bluemind.device.api.IDevices;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
-import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.eas.api.Account;
 import net.bluemind.eas.api.FolderSyncVersions;
 import net.bluemind.eas.api.Heartbeat;
@@ -67,7 +67,7 @@ import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.type.ItemDataType;
 import net.bluemind.eas.exception.CollectionNotFoundException;
 import net.bluemind.eas.store.ISyncStorage;
-import net.bluemind.locator.client.LocatorClient;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.todolist.api.ITodoList;
 import net.bluemind.user.api.IUserSubscription;
@@ -77,18 +77,11 @@ import net.bluemind.user.api.IUserSubscription;
  * 
  */
 public class SyncStorage implements ISyncStorage {
-	private String core;
 	private static final Logger logger = LoggerFactory.getLogger(SyncStorage.class);
 
 	private String locateCore() {
-		if (core == null) {
-			LocatorClient lc = new LocatorClient();
-			String l = lc.locateHost("bm/core", "admin0@global.virt");
-			if (l != null) {
-				core = "http://" + l + ":8090";
-			}
-		}
-		return core;
+		return Topology.getIfAvailable().map(t -> "http://" + t.core().value.address() + ":8090")
+				.orElse("http://127.0.0.1:8090");
 	}
 
 	private IServiceProvider admin0Provider() {
@@ -114,18 +107,13 @@ public class SyncStorage implements ISyncStorage {
 	// Device/Auth stuff
 	@Override
 	public List<String> getWipedDevices() {
-		List<String> ret = new ArrayList<String>();
 		try {
 			IDevices service = admin0Provider().instance(IDevices.class);
-			for (Device d : service.listWiped()) {
-				ret.add(d.identifier);
-			}
-
+			return service.listWiped().stream().map(d -> d.identifier).collect(Collectors.toList());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
+			return Collections.emptyList();
 		}
-
-		return ret;
 	}
 
 	@Override
