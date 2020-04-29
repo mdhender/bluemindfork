@@ -24,6 +24,7 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
+import net.bluemind.user.persistence.security.HashAlgorithm;
 import net.bluemind.user.persistence.security.SHA1Hash;
 import net.bluemind.user.persistence.security.HashFactory;
 import net.bluemind.core.api.fault.ServerFault;
@@ -32,19 +33,19 @@ public class SHA1Test {
 	@Test
 	public void testNoMatch() {
 		String h = "{SHA256}invalid";
-		assertFalse(HashFactory.getByName("SHA1").matchesAlgorithm(h));
+		assertFalse(HashFactory.get(HashAlgorithm.SHA1).matchesAlgorithm(h));
 	}
 
 	@Test
 	public void testMatch() {
-		assertTrue(HashFactory.getByName("SHA1").matchesAlgorithm("{SHA}valid"));
-		assertTrue(HashFactory.getByName("SHA1").matchesAlgorithm("{SHA1}valid"));
+		assertTrue(HashFactory.get(HashAlgorithm.SHA1).matchesAlgorithm("{SHA}valid"));
+		assertTrue(HashFactory.get(HashAlgorithm.SHA1).matchesAlgorithm("{SHA1}valid"));
 	}
 
 	@Test
 	public void testCreateMustFail() {
 		try {
-			HashFactory.getByName("SHA1").create("XXX");
+			HashFactory.get(HashAlgorithm.SHA1).create("XXX");
 			fail();
 		} catch (ServerFault e) {
 		}

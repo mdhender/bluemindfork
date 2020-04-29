@@ -122,6 +122,7 @@ import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.IUserSubscription;
 import net.bluemind.user.api.User;
 import net.bluemind.user.persistence.UserStore;
+import net.bluemind.user.persistence.security.HashAlgorithm;
 import net.bluemind.user.persistence.security.HashFactory;
 import net.bluemind.user.service.internal.ContainerUserStoreService;
 import net.bluemind.user.service.internal.UserDefaultImage;
@@ -594,8 +595,8 @@ public class UserServiceTests {
 		String uid = create(user);
 		user = userStore.get(userItemStore.get(uid));
 
-		assertTrue(HashFactory.getByName("PBKDF2").validate(password, user.password));
-		assertFalse(HashFactory.getByName("MD5").validate(password, user.password));
+		assertTrue(HashFactory.get(HashAlgorithm.PBKDF2).validate(password, user.password));
+		assertFalse(HashFactory.get(HashAlgorithm.MD5).validate(password, user.password));
 	}
 
 	@Test
@@ -615,7 +616,7 @@ public class UserServiceTests {
 
 		user = userStoreService.get(uid).value;
 
-		assertEquals(HashFactory.getDefaultName(), HashFactory.algorithm(user.password));
+		assertEquals(HashFactory.DEFAULT, HashFactory.algorithm(user.password));
 	}
 
 	@Test
@@ -623,7 +624,7 @@ public class UserServiceTests {
 		String login = "test." + System.nanoTime();
 		User user = defaultUser(login);
 
-		String pwHashMd5 = HashFactory.getByName("MD5").create("pw");
+		String pwHashMd5 = HashFactory.get(HashAlgorithm.MD5).create("pw");
 
 		String uid = create(user);
 		try (Connection con = JdbcTestHelper.getInstance().getDataSource().getConnection()) {
@@ -638,7 +639,7 @@ public class UserServiceTests {
 
 		user = userStoreService.get(uid).value;
 
-		assertEquals(HashFactory.getDefaultName(), HashFactory.algorithm(user.password));
+		assertEquals(HashFactory.DEFAULT, HashFactory.algorithm(user.password));
 		assertTrue(HashFactory.getDefault().validate("pw", user.password));
 	}
 

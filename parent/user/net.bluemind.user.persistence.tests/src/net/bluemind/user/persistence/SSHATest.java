@@ -23,6 +23,7 @@ import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
+import net.bluemind.user.persistence.security.HashAlgorithm;
 import net.bluemind.user.persistence.security.SSHAHash;
 import net.bluemind.user.persistence.security.HashFactory;
 
@@ -30,13 +31,13 @@ public class SSHATest {
 	@Test
 	public void testNoMatch() {
 		String h = "{SHA}invalid";
-		assertFalse(HashFactory.getByName("SSHA").matchesAlgorithm(h));
+		assertFalse(HashFactory.get(HashAlgorithm.SSHA).matchesAlgorithm(h));
 	}
 
 	@Test
 	public void testMatch() {
 		String h = "{SSHA}invalid";
-		assertTrue(HashFactory.getByName("SSHA").matchesAlgorithm(h));
+		assertTrue(HashFactory.get(HashAlgorithm.SSHA).matchesAlgorithm(h));
 	}
 
 	@Test

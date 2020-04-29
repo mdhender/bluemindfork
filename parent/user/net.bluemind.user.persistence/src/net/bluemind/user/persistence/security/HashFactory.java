@@ -19,52 +19,49 @@
 package net.bluemind.user.persistence.security;
 
 public class HashFactory {
+	public static HashAlgorithm DEFAULT = HashAlgorithm.PBKDF2;
 
 	public static Hash getDefault() {
-		return new PBKDF2Hash();
+		return get(DEFAULT);
 	}
 
-	public static Hash getByName(String name) {
-		switch (name) {
-		case "MD5":
+	public static Hash get(HashAlgorithm h) {
+		switch (h) {
+		case MD5:
 			return new MD5Hash();
-		case "SSHA512":
+		case SSHA512:
 			return new SSHA512Hash();
-		case "SSHA":
+		case SSHA:
 			return new SSHAHash();
-		case "SHA1":
+		case SHA1:
 			return new SHA1Hash();
-		case "PBKDF2":
+		case PBKDF2:
 			return new PBKDF2Hash();
 		default:
 			throw new IllegalArgumentException(String.format("Algorithm is not supported"));
 		}
 	}
 
-	public static Hash getByPassword(String password) {
-		return getByName(algorithm(password));
-	}
-
-	public static String algorithm(String password) {
+	public static HashAlgorithm algorithm(String password) {
 		if (new PBKDF2Hash().matchesAlgorithm(password)) {
-			return "PBKDF2";
+			return HashAlgorithm.PBKDF2;
 		} else if (new SSHA512Hash().matchesAlgorithm(password)) {
-			return "SSHA512";
+			return HashAlgorithm.SSHA512;
 		} else if (new SSHAHash().matchesAlgorithm(password)) {
-			return "SSHA";
+			return HashAlgorithm.SSHA;
 		} else if (new SHA1Hash().matchesAlgorithm(password)) {
-			return "SHA1";
+			return HashAlgorithm.SHA1;
 		} else if (new MD5Hash().matchesAlgorithm(password)) {
-			return "MD5";
+			return HashAlgorithm.MD5;
 		}
-		return "unknown";
+		return HashAlgorithm.UNKNOWN;
 	}
 
-	public static String getDefaultName() {
-		return "PBKDF2";
+	public static Hash getByPassword(String password) {
+		return get(algorithm(password));
 	}
 
 	public static boolean usesDefaultAlgorithm(String password) {
-		return algorithm(password).equals(getDefaultName());
+		return algorithm(password) == DEFAULT;
 	}
 }

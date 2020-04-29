@@ -92,6 +92,7 @@ import net.bluemind.user.api.IPasswordUpdater;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 import net.bluemind.user.hook.IUserHook;
+import net.bluemind.user.persistence.security.HashAlgorithm;
 import net.bluemind.user.persistence.security.HashFactory;
 import net.bluemind.user.service.IInCoreUser;
 import net.bluemind.user.service.passwordvalidator.PasswordValidator;
@@ -535,7 +536,7 @@ public class UserService implements IInCoreUser, IUser {
 		// PBKDF2)
 		if (valid && !HashFactory.usesDefaultAlgorithm(password)) {
 			logger.info("Updating password algorithm of user {} from {} to {}", user.login,
-					HashFactory.algorithm(password), HashFactory.getDefaultName());
+					HashFactory.algorithm(password), HashFactory.DEFAULT.name());
 			storeService.setPassword(userItem.uid, HashFactory.getDefault().create(passwordPlain), false);
 		}
 	}
