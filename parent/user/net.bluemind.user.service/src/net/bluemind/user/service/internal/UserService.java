@@ -178,7 +178,11 @@ public class UserService implements IInCoreUser, IUser {
 
 		String prevPass = user.password;
 		if (StringUtils.isNotBlank(user.password)) {
-			user.password = HashFactory.getDefault().create(user.password);
+			// we support setting the user password as a hash, directly
+			// this is used for external user importers
+			if (HashFactory.algorithm(user.password) == HashAlgorithm.UNKNOWN) {
+				user.password = HashFactory.getDefault().create(user.password);
+			}
 			user.passwordLastChange = new Date();
 		}
 

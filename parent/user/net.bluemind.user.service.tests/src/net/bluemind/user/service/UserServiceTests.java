@@ -600,6 +600,17 @@ public class UserServiceTests {
 	}
 
 	@Test
+	public void testAddingANewUserWithKnownAlgorithmShouldKeepIt() throws Exception {
+		String password = "{SSHA512}FDLTaAqeJLdNmsIjvqQchAKfkUFAESvyTYZBj9AM9AqGnPxK4oa2Imo5rnWNUmGJ55o0Q5wuCezY0PmwIth46805xHvxIpXs";
+		String login = "test." + System.nanoTime();
+		User user = defaultUser(login);
+		user.password = password;
+		String uid = create(user);
+		user = userStore.get(userItemStore.get(uid));
+		assertEquals(HashFactory.algorithm(user.password), HashAlgorithm.SSHA512);
+	}
+
+	@Test
 	public void testUpdatingPasswordShouldUsePBKDF2Algorithm() throws Exception {
 		String login = "test." + System.nanoTime();
 		User user = defaultUser(login);

@@ -153,6 +153,16 @@ public class UserStoreTests {
 		assertEquals(HashFactory.DEFAULT, HashFactory.algorithm(created.password));
 	}
 
+	@Test
+	public void testCreatePasswordWithKnownAlgorithm() throws Exception {
+		userItemStore.create(Item.create(uid, null));
+		Item item = userItemStore.get(uid);
+		User u = getDefaultUser();
+		u.password = HashFactory.get(HashAlgorithm.SSHA512).create(u.password);
+		userStore.create(item, u);
+
+		User created = userStore.get(item);
+		assertEquals(HashAlgorithm.SSHA512, HashFactory.algorithm(created.password));
 	}
 
 	@Test
