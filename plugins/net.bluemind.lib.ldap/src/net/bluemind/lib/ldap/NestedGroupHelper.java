@@ -45,16 +45,14 @@ public class NestedGroupHelper {
 	private final Dn baseDn;
 	private final GroupMemberAttribute memberAttr;
 	private final String groupFilter;
-	private final String userLoginAttribute;
 	private final String userUuidAttribute;
 
 	public NestedGroupHelper(LdapConProxy ldapCon, Dn baseDn, GroupMemberAttribute memberAttr, String groupFilter,
-			String userLoginAttribute, String userUuidAttribute) {
+			String userUuidAttribute) {
 		this.ldapCon = ldapCon;
 		this.baseDn = baseDn;
 		this.memberAttr = memberAttr;
 		this.groupFilter = groupFilter;
-		this.userLoginAttribute = userLoginAttribute;
 		this.userUuidAttribute = userUuidAttribute;
 	}
 
@@ -120,8 +118,7 @@ public class NestedGroupHelper {
 		try {
 			SearchCursor cursor = ldapCon.search(new SearchRequestImpl().setBase(baseDn).setScope(SearchScope.SUBTREE)
 					.setDerefAliases(AliasDerefMode.NEVER_DEREF_ALIASES).setSizeLimit(1)
-					.setFilter(String.format("(%s=%s)", userLoginAttribute, uid))
-					.addAttributes(memberAttr.name(), userUuidAttribute));
+					.setFilter(String.format("(uid=%s)", uid)).addAttributes(memberAttr.name(), userUuidAttribute));
 
 			if (!cursor.next() || !cursor.isEntry()) {
 				logger.warn("Unable to get DN from uid {}, ignoring member...", uid);

@@ -66,10 +66,10 @@ public class NestedGroupHelperTests {
 			Assert.assertNotNull(group);
 
 			NestedGroupHelper ngh = new NestedGroupHelper(ldapCon, new Dn("dc=local"), GroupMemberAttribute.member,
-					groupFilter, "uid", "entryuuid");
+					groupFilter, "entryuuid");
 			Assert.assertTrue(ngh.getUserMembers(group).isEmpty());
 
-			ngh = new NestedGroupHelper(ldapCon, new Dn("dc=local"), GroupMemberAttribute.memberUid, groupFilter, "uid",
+			ngh = new NestedGroupHelper(ldapCon, new Dn("dc=local"), GroupMemberAttribute.memberUid, groupFilter,
 					"entryuuid");
 			Assert.assertTrue(ngh.getUserMembers(group).isEmpty());
 		}
@@ -87,14 +87,14 @@ public class NestedGroupHelperTests {
 			Assert.assertNotNull(group);
 
 			NestedGroupHelper ngh = new NestedGroupHelper(ldapCon, new Dn("dc=local"), GroupMemberAttribute.member,
-					groupFilter, "uid", "entryuuid");
+					groupFilter, "entryuuid");
 			Set<String> members = ngh.getUserMembers(group);
 			Assert.assertEquals(1, members.size());
 
 			Entry user = ldapCon.lookup("uid=user00,dc=local", "entryuuid");
 			Assert.assertTrue(members.contains(user.get("entryuuid").get().toString()));
 
-			ngh = new NestedGroupHelper(ldapCon, new Dn("dc=local"), GroupMemberAttribute.memberUid, groupFilter, "uid",
+			ngh = new NestedGroupHelper(ldapCon, new Dn("dc=local"), GroupMemberAttribute.memberUid, groupFilter,
 					"entryuuid");
 			Assert.assertTrue(ngh.getUserMembers(group).isEmpty());
 		}
@@ -105,7 +105,7 @@ public class NestedGroupHelperTests {
 			Assert.assertNotNull(group);
 
 			NestedGroupHelper ngh = new NestedGroupHelper(ldapCon, new Dn("dc=local"), GroupMemberAttribute.member,
-					groupFilter, "uid", "entryuuid");
+					groupFilter, "entryuuid");
 			Set<String> members = ngh.getUserMembers(group);
 			Assert.assertEquals(2, members.size());
 
@@ -114,7 +114,7 @@ public class NestedGroupHelperTests {
 			user = ldapCon.lookup("uid=user01,dc=local", "entryuuid");
 			Assert.assertTrue(members.contains(user.get("entryuuid").get().toString()));
 
-			ngh = new NestedGroupHelper(ldapCon, new Dn("dc=local"), GroupMemberAttribute.memberUid, groupFilter, "uid",
+			ngh = new NestedGroupHelper(ldapCon, new Dn("dc=local"), GroupMemberAttribute.memberUid, groupFilter,
 					"entryuuid");
 			Assert.assertTrue(ngh.getUserMembers(group).isEmpty());
 		}
@@ -125,7 +125,7 @@ public class NestedGroupHelperTests {
 			Assert.assertNotNull(group);
 
 			NestedGroupHelper ngh = new NestedGroupHelper(ldapCon, new Dn("dc=local"), GroupMemberAttribute.member,
-					groupFilter, "uid", "entryuuid");
+					groupFilter, "entryuuid");
 			Set<String> members = ngh.getUserMembers(group);
 			Assert.assertEquals(2, members.size());
 
@@ -134,7 +134,7 @@ public class NestedGroupHelperTests {
 			user = ldapCon.lookup("uid=user01,dc=local", "entryuuid");
 			Assert.assertTrue(members.contains(user.get("entryuuid").get().toString()));
 
-			ngh = new NestedGroupHelper(ldapCon, new Dn("dc=local"), GroupMemberAttribute.memberUid, groupFilter, "uid",
+			ngh = new NestedGroupHelper(ldapCon, new Dn("dc=local"), GroupMemberAttribute.memberUid, groupFilter,
 					"entryuuid");
 			Assert.assertTrue(ngh.getUserMembers(group).isEmpty());
 		}
@@ -152,7 +152,7 @@ public class NestedGroupHelperTests {
 			Assert.assertNotNull(group);
 
 			NestedGroupHelper ngh = new NestedGroupHelper(ldapCon, new Dn("dc=local"), GroupMemberAttribute.memberUid,
-					groupFilter, "uid", "entryuuid");
+					groupFilter, "entryuuid");
 			Set<String> members = ngh.getUserMembers(group);
 			Assert.assertEquals(2, members.size());
 
@@ -161,7 +161,7 @@ public class NestedGroupHelperTests {
 			user = ldapCon.lookup("uid=user01,dc=local", "entryuuid");
 			Assert.assertTrue(members.contains(user.get("entryuuid").get().toString()));
 
-			ngh = new NestedGroupHelper(ldapCon, new Dn("dc=local"), GroupMemberAttribute.member, groupFilter, "uid",
+			ngh = new NestedGroupHelper(ldapCon, new Dn("dc=local"), GroupMemberAttribute.member, groupFilter,
 					"entryuuid");
 			Assert.assertTrue(ngh.getUserMembers(group).isEmpty());
 		}
@@ -179,7 +179,7 @@ public class NestedGroupHelperTests {
 			Assert.assertNotNull(group);
 
 			NestedGroupHelper ngh = new NestedGroupHelper(ldapCon, new Dn("dc=local"), GroupMemberAttribute.member,
-					groupFilter, "uid", "entryuuid");
+					groupFilter, "entryuuid");
 			Set<String> members = ngh.getUserMembers(group);
 			Assert.assertEquals(2, members.size());
 
@@ -202,7 +202,7 @@ public class NestedGroupHelperTests {
 			Assert.assertNotNull(group);
 
 			NestedGroupHelper ngh = new NestedGroupHelper(ldapCon, new Dn("dc=local"), GroupMemberAttribute.memberUid,
-					groupFilter, "uid", "entryuuid");
+					groupFilter, "entryuuid");
 			Set<String> members = ngh.getUserMembers(group);
 			Assert.assertEquals(2, members.size());
 

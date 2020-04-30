@@ -113,11 +113,11 @@ public abstract class LdapScanner extends Scanner {
 			return;
 		}
 
-		splitGroupMembers = Optional.of(new NestedGroupHelper(ldapCon, ldapParameters.ldapDirectory.baseDn,
-				getGroupMembersAttributeName(), ldapParameters.ldapDirectory.groupFilter, UserManagerImpl.LDAP_LOGIN,
-				ldapParameters.ldapDirectory.extIdAttribute).getUserMembers(groupEntry).stream()
-						.map(LdapUuidMapper::new)
-						.collect(Collectors.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet)));
+		splitGroupMembers = Optional
+				.of(new NestedGroupHelper(ldapCon, ldapParameters.ldapDirectory.baseDn, getGroupMembersAttributeName(),
+						ldapParameters.ldapDirectory.groupFilter, ldapParameters.ldapDirectory.extIdAttribute)
+								.getUserMembers(groupEntry).stream().map(LdapUuidMapper::new).collect(Collectors
+										.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet)));
 	}
 
 	@Override
