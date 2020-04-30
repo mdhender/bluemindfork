@@ -109,7 +109,7 @@ public abstract class LdapScanner extends Scanner {
 		}
 
 		if (groupEntry == null) {
-			splitGroupMembers = Optional.of(Collections.emptySet());
+			splitGroupMembers = Optional.empty();
 			return;
 		}
 
