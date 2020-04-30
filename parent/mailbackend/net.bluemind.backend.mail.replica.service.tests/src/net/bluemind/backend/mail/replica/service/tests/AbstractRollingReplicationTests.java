@@ -217,7 +217,6 @@ public abstract class AbstractRollingReplicationTests {
 			long expectedId = id;
 			System.err.println("Before create by id....." + id);
 			recordsApi.createById(expectedId, item);
-			System.err.println("OK YEAH YEAH");
 			ItemValue<MailboxItem> reloaded = recordsApi.getCompleteById(expectedId);
 			assertNotNull(reloaded);
 			assertNotNull(reloaded.value.body.headers);

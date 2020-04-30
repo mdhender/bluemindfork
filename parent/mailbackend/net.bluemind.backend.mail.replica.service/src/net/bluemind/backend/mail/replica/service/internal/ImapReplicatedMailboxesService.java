@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -319,6 +320,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		rbac.check(Verb.Write.name());
 
 		List<MailboxItemId> expectedIds = mailboxItems.expectedIds;
+		String importOpID = UUID.randomUUID().toString();
 
 		int len = mailboxItems.ids.size();
 		if (expectedIds == null || expectedIds.isEmpty()) {
@@ -351,9 +353,12 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		ImportMailboxItemsStatus finalResult = new ImportMailboxItemsStatus();
 		finalResult.doneIds = new ArrayList<ImportedMailboxItem>(len);
 
-		logger.info("[{}] Preparing to import {} item(s) from {} into {}", imapContext.latd, mailboxItems.ids.size(),
-				sourceFolder.value.fullName, destinationFolder.value.fullName);
+		logger.info("[{}] Op {} to import {} item(s) from {} into {}", imapContext.latd, importOpID,
+				mailboxItems.ids.size(), sourceFolder.value.fullName, destinationFolder.value.fullName);
 		Iterator<MailboxItemId> expectedIdsIterator = expectedIds.iterator();
+
+		String srcFolder = imapPath(sourceFolder.value);
+		String dstFolder = imapPath(destinationFolder.value);
 
 		Lists.partition(mailboxItems.ids, 200).forEach(ids -> {
 
@@ -382,15 +387,12 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 
 				CompletableFuture<Long> rootPromise = ReplicationEvents.onMailboxChanged(destinationFolder.uid)
 						.thenApply(version -> {
-							logger.info("[{}] destination folder {} changed {}", imapContext.latd,
+							logger.info("[{}] Op {} destination folder {} changed {}", imapContext.latd, importOpID,
 									destinationFolder.value.fullName, version);
 							return version;
 						});
 
-				String srcFolder = imapPath(sourceFolder.value);
-				String dstFolder = imapPath(destinationFolder.value);
-
-				logger.info("Copying {} items from {} to {}", allImapUids.size(), srcFolder, dstFolder);
+				logger.info("{} Copying {} items from {} to {}", importOpID, allImapUids.size(), srcFolder, dstFolder);
 
 				if (sc.select(srcFolder)) {
 					Map<Integer, Integer> result = sc.uidCopy(allImapUids, dstFolder);
@@ -412,8 +414,8 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 						rootPromise = rootPromise.thenCompose(destVersion -> {
 							CompletableFuture<Long> future = ReplicationEvents.onMailboxChanged(sourceFolder.uid)
 									.thenApply(version -> {
-										logger.info("[{}] source folder {} changed {}", imapContext.latd,
-												sourceFolder.value.fullName, version);
+										logger.info("[{}] Op {} source folder {} changed {}", imapContext.latd,
+												importOpID, sourceFolder.value.fullName, version);
 										return version;
 									});
 							FlagsList fl = new FlagsList();
@@ -422,7 +424,6 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 							try {
 								sc.select(srcFolder);
 								sc.uidStore(allImapUids, fl, true);
-								sc.uidExpunge(allImapUids);
 							} catch (IMAPException e) {
 								logger.error(e.getMessage(), e);
 								future.completeExceptionally(e);

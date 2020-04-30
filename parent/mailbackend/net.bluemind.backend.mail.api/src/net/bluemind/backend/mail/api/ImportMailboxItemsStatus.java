@@ -17,6 +17,7 @@
   */
 package net.bluemind.backend.mail.api;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,6 +39,11 @@ public class ImportMailboxItemsStatus {
 			return ret;
 		}
 
+		@Override
+		public String toString() {
+			return "[" + source + " -> " + destination + "]";
+		}
+
 	}
 
 	@BMApi(version = "3")
@@ -50,5 +56,10 @@ public class ImportMailboxItemsStatus {
 	 */
 	public List<ImportedMailboxItem> doneIds = Collections.emptyList();
 	public ImportStatus status;
+
+	@Override
+	public String toString() {
+		return "ImportStatus{r: " + status + ", work: " + Arrays.toString(doneIds.toArray()) + "}";
+	}
 
 }
