@@ -132,6 +132,16 @@ public class EasStore extends JdbcAbstractStore {
 	};
 
 	public void setFolderSyncVersions(Account account, Map<String, String> versions) throws ServerFault {
+
+		if (versions.isEmpty()) {
+			doOrFail(() -> {
+				delete("DELETE FROM t_eas_folder_sync WHERE account = ? AND device = ?",
+						new Object[] { account.userUid, account.device });
+				return null;
+			});
+			return;
+		}
+
 		doOrFail(() -> {
 			StringBuilder query = new StringBuilder();
 			query.append("INSERT INTO t_eas_folder_sync (");

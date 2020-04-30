@@ -41,9 +41,6 @@ import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.api.IContainersFlatHierarchy;
 import net.bluemind.core.container.api.IOwnerSubscriptions;
-import net.bluemind.core.container.model.ChangeLogEntry;
-import net.bluemind.core.container.model.ChangeLogEntry.Type;
-import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemFlag;
@@ -248,18 +245,13 @@ public class FolderBackend extends CoreConnect {
 
 		final Map<String, String> subscribedMailboxVersions = new HashMap<>();
 
+		boolean hasMailboxSubscription = false;
+
 		// OTHER MAILBOXES
-		if (state.version == 0) {
-			FolderChangeReference otherMailboxes = new FolderChangeReference();
-			otherMailboxes.displayName = getTranslatedDisplayName(bs, OTHER_MAILBOXES);
-			otherMailboxes.changeType = ChangeType.ADD;
-			otherMailboxes.parentId = "0";
-			otherMailboxes.folderId = OTHER_MAILBOXES;
-			otherMailboxes.itemType = FolderType.USER_CREATED_EMAIL_FOLDER;
-			ret.items.add(otherMailboxes);
-		} else {
+		if (state.version > 0) {
 			// fetch changes from subscribed mailbox
 			Map<String, String> mailboxVersion = storage.getFolderSyncVersions(account);
+			hasMailboxSubscription = !mailboxVersion.isEmpty();
 			mailboxVersion.forEach((id, version) -> {
 				ItemValue<ContainerSubscriptionModel> container = subscriptionsService
 						.getCompleteById(Long.parseLong(id));
@@ -378,11 +370,29 @@ public class FolderBackend extends CoreConnect {
 			});
 		}
 
-		if (!subscribedMailboxVersions.isEmpty()) {
-			storage.setFolderSyncVersions(FolderSyncVersions.create(account, subscribedMailboxVersions));
+		storage.setFolderSyncVersions(FolderSyncVersions.create(account, subscribedMailboxVersions));
+
+		if (subscribedMailboxVersions.isEmpty()) {
+			if (hasMailboxSubscription) {
+				ret.items.add(otherMailboxesFolder(bs, ChangeType.DELETE));
+			}
+		} else {
+			if (!hasMailboxSubscription) {
+				ret.items.add(otherMailboxesFolder(bs, ChangeType.ADD));
+			}
 		}
 
 		return ret;
+	}
+
+	private FolderChangeReference otherMailboxesFolder(BackendSession bs, ChangeType changeType) {
+		FolderChangeReference otherMailboxes = new FolderChangeReference();
+		otherMailboxes.displayName = getTranslatedDisplayName(bs, OTHER_MAILBOXES);
+		otherMailboxes.changeType = changeType;
+		otherMailboxes.parentId = "0";
+		otherMailboxes.folderId = OTHER_MAILBOXES;
+		otherMailboxes.itemType = FolderType.USER_CREATED_EMAIL_FOLDER;
+		return otherMailboxes;
 	}
 
 	private void mailboxSubscriptionChanges(BackendSession bs, FolderChanges ret,
