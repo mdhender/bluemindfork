@@ -330,7 +330,6 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 
 				if (expId != null) {
 					upsert = UpsertResult.create(storeService.createWithId(uid, expId, null, uid, mr));
-					System.err.println("createWithId " + upsert.version);
 					GuidExpectedIdCache.invalidate(guidCacheKey);
 				} else {
 					ExpectedId knownInternalId = BodyInternalIdCache.expectedRecordId(container.owner, mr.messageBody);
