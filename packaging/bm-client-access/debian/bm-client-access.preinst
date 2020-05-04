@@ -1,0 +1,23 @@
+#!/bin/bash
+# https://wiki.debian.org/MaintainerScripts
+
+set -e
+
+case "$1" in
+    install)
+        # SB-991: don't manage NGinx on edge already configured
+        touch /etc/nginx/BM-DONOTCONF
+        ;;
+
+    upgrade|abort-upgrade)
+        ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 0
+        ;;
+esac
+
+#DEBHELPER#
+
+exit 0
