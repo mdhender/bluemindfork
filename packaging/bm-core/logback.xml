@@ -68,6 +68,9 @@
 	<logger name="net.bluemind.index.mail" level="INFO" additivity="false">
 		<appender-ref ref="MailIndex" />
 	</logger>
+	<logger name="net.bluemind.tika.client" level="INFO" additivity="false">
+		<appender-ref ref="MailIndex" />
+	</logger>
 	
 	<!-- Cyrus Replication -->
 	<appender name="Replication"
