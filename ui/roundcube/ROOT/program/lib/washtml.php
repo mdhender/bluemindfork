@@ -188,7 +188,7 @@ class washtml
             $value .= ' ' . $match[0];
 
             // #1488535: Fix size units, so width:800 would be changed to width:800px
-            if (preg_match('/(left|right|top|bottom|width|height)/i', $cssid) && preg_match('/^[0-9]+$/', $match[0])) {
+            if ($cssid != 'line-height' && preg_match('/(left|right|top|bottom|width|height)/i', $cssid) && preg_match('/^[0-9]+$/', $match[0])) {
               $value .= 'px';
             }
           }
