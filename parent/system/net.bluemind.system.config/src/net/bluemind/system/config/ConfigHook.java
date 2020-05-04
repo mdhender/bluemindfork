@@ -19,7 +19,9 @@
 package net.bluemind.system.config;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -92,21 +94,22 @@ public class ConfigHook implements ISystemConfigurationObserver {
 
 		logger.info("Found {} nginx config updaters", updaters.size());
 
-		List<ItemValue<Server>> webmails = getTaggedServers(context, TagDescriptor.bm_webmail.getTag());
+		List<ItemValue<Server>> webmailNginxServers = getTaggedServers(context, TagDescriptor.bm_webmail.getTag(),
+				TagDescriptor.bm_nginx.getTag(), TagDescriptor.bm_nginx_edge.getTag());
 
 		NginxConfig config = NginxConfigBuilder.init("messageSizeLimit", "" + messageSizeLimit.newValue) //
 				.add("dataSizeLimit", "" + dataSizeLimit.newValue).build();
 
-		logger.info("Distributing new settings to {} servers", webmails.size());
-		for (ItemValue<Server> webmail : webmails) {
-			logger.info("Distributing new settings to {}:{}", webmail.value.name, webmail.value.ip);
-			INodeClient nc = NodeActivator.get(webmail.value.address());
+		logger.info("Distributing new settings to {} servers", webmailNginxServers.size());
+		for (ItemValue<Server> webmailNginxServer : webmailNginxServers) {
+			logger.info("Distributing new settings to {}:{}", webmailNginxServer.value.name, webmailNginxServer.value.ip);
+			INodeClient nc = NodeActivator.get(webmailNginxServer.value.address());
 
 			for (INginxConfigUpdater updater : updaters) {
 				try {
 					updater.update(nc, config);
 				} catch (Exception e) {
-					logger.warn("Cannot update nginx config on server {}:{}", webmail.value.address(), e.getMessage());
+					logger.warn("Cannot update nginx config on server {}:{}", webmailNginxServer.value.address(), e.getMessage());
 					throw new ServerFault(e);
 				}
 			}
@@ -125,20 +128,12 @@ public class ConfigHook implements ISystemConfigurationObserver {
 		NCUtils.forget(nc, "service bm-nginx reload");
 	}
 
-	List<ItemValue<Server>> getTaggedServers(BmContext context, String... tag) throws ServerFault {
-
+	List<ItemValue<Server>> getTaggedServers(BmContext context, String... tags) throws ServerFault {
 		IServer serverService = context.provider().instance(IServer.class, "default");
 
-		List<ItemValue<Server>> all = serverService.allComplete();
-		List<ItemValue<Server>> ret = new ArrayList<>();
-		for (ItemValue<Server> server : all) {
-			for (int i = 0; i < tag.length; i++) {
-				if (server.value.tags.contains(tag[i])) {
-					ret.add(server);
-				}
-			}
-		}
-		return ret;
+		return serverService.allComplete().stream()
+				.filter(server -> Arrays.stream(tags).anyMatch(server.value.tags::contains))
+				.collect(Collectors.toList());
 	}
 
 }

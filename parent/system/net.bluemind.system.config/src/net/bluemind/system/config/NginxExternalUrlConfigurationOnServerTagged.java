@@ -45,11 +45,11 @@ public class NginxExternalUrlConfigurationOnServerTagged extends DefaultServerHo
 
 	@Override
 	public void onServerTagged(BmContext context, ItemValue<Server> itemValue, String tag) throws ServerFault {
-		if (!tag.equals(TagDescriptor.bm_nginx.getTag())) {
+		if (!tag.equals(TagDescriptor.bm_nginx.getTag()) && !tag.equals(TagDescriptor.bm_nginx_edge.getTag())) {
 			return;
 		}
 
-		logger.info("nginx server tagged, deploy external url");
+		logger.info("Server tagged as {}, deploy external url", tag);
 		String url = context.su().provider().instance(ISystemConfiguration.class).getValues()
 				.stringValue("external-url");
 		if (url != null) {

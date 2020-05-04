@@ -45,8 +45,8 @@
 		</kind>
 
 		<kind id="bm" domainScreen="true" globalDomainScreen="false" visibility="GLOBALDOMAINONLY" >
-			<desc lang="fr">Services BM</desc>
-			<desc lang="en">BM Services</desc>
+			<desc lang="fr">Services BlueMind</desc>
+			<desc lang="en">BlueMind Services</desc>
 
 			<helpText lang="fr">Ces serveurs permettent la communication
 				entre les différents composants de l'architecture BlueMind.
@@ -69,7 +69,7 @@
 			</tag>
 			<tag value="bm/ac" multival="false" mandatory="true" autoAssign="true">
 				<desc lang="fr">Console d'administration</desc>
-				<desc lang="en">Admin console</desc>
+				<desc lang="en">Administration console</desc>
 			</tag>
 			<tag value="bm/cal" multival="false" mandatory="true" autoAssign="true">
 				<desc lang="fr">Application calendrier</desc>
@@ -89,11 +89,15 @@
 			</tag>
 			<tag value="bm/redirector" multival="false" mandatory="true" autoAssign="true">
 				<desc lang="fr">Redirection vers l'application par défaut</desc>
-				<desc lang="en">Default app redirector</desc>
+				<desc lang="en">Default application redirector</desc>
 			</tag>
 			<tag value="bm/nginx" multival="false" mandatory="true" autoAssign="true">
 				<desc lang="fr">Mandataire HTTPS</desc>
 				<desc lang="en">Reverse proxy HTTPS</desc>
+			</tag>
+			<tag value="bm/nginx-edge" multival="false" mandatory="false" autoAssign="false">
+				<desc lang="fr">Relais mandataire HTTPS (DMZ)</desc>
+				<desc lang="en">Edge reverse proxy HTTPS (DMZ)</desc>
 			</tag>
 			<tag value="bm/pgsql" multival="false" mandatory="true" autoAssign="true">
 				<desc lang="fr">Base de données</desc>
@@ -103,8 +107,6 @@
 				<desc lang="fr">Données utilisateurs</desc>
 				<desc lang="en">Users data</desc>
 			</tag>
-
 		</kind>
-		
 	</hostTags>
 </domainTemplate>

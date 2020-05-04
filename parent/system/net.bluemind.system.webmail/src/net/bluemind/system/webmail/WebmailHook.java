@@ -33,6 +33,7 @@ import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.config.MessageSizeValue;
 import net.bluemind.system.config.NginxConfig.NginxConfigBuilder;
+import net.bluemind.tag.api.TagDescriptor;
 
 public class WebmailHook extends DefaultServerHook {
 
@@ -61,7 +62,7 @@ public class WebmailHook extends DefaultServerHook {
 	}
 
 	private boolean isWebmailTag(String tag) {
-		return tag.equals("bm/webmail");
+		return tag.equals(TagDescriptor.bm_webmail.getTag()) || tag.equals(TagDescriptor.bm_nginx_edge.getTag());
 	}
 
 	private void setPhpFpmMessageSizeLimit(BmContext context, INodeClient nc) throws ServerFault {

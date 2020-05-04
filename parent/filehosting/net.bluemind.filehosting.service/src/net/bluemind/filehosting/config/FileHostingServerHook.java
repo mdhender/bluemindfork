@@ -34,6 +34,7 @@ import net.bluemind.server.api.Server;
 import net.bluemind.server.hook.DefaultServerHook;
 import net.bluemind.system.api.GlobalSettingsKeys;
 import net.bluemind.system.api.IGlobalSettings;
+import net.bluemind.tag.api.TagDescriptor;
 
 public class FileHostingServerHook extends DefaultServerHook {
 
@@ -85,7 +86,7 @@ public class FileHostingServerHook extends DefaultServerHook {
 	}
 
 	private boolean isWebmailTag(String tag) {
-		return tag.equals("bm/webmail");
+		return tag.equals(TagDescriptor.bm_webmail.getTag()) || tag.equals(TagDescriptor.bm_nginx_edge.getTag());
 	}
 
 	private void reloadHttpd(INodeClient nc) throws ServerFault {
