@@ -46,6 +46,7 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtWidgetElement;
 import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.ui.adminconsole.base.DomainsHelper;
 import net.bluemind.ui.adminconsole.base.DomainsHolder;
 import net.bluemind.ui.adminconsole.system.systemconf.SysConfModel;
 import net.bluemind.ui.adminconsole.system.systemconf.auth.l10n.SysConfAuthConstants;
@@ -135,14 +136,14 @@ public class SysConfAuthenticationEditor extends CompositeGwtWidgetElement {
 		SysConfModel map = SysConfModel.from(model);
 
 		if (map.get("default-domain") != null) {
-			domainList.setSelectedIndex(detectDefaultDomainIndex(map.get("default-domain").toString()));
+			domainList.setSelectedIndex(detectDomainIndex(domainList, map.get("default-domain").toString()));
 		}
 
 		if (null != map.get(SysConfKeys.cas_url.name())) {
 			casUrl.setStringValue(map.get(SysConfKeys.cas_url.name()).toString());
 		}
 		if (null != map.get(SysConfKeys.cas_domain.name())) {
-			casDomain.setSelectedIndex(detectDomainIndex(map.get(SysConfKeys.cas_domain.name()).toString()));
+			casDomain.setSelectedIndex(detectDomainIndex(casDomain, map.get(SysConfKeys.cas_domain.name()).toString()));
 		}
 		if (null != map.get(SysConfKeys.krb_ad_domain.name())) {
 			krbAdDomain.setStringValue(map.get(SysConfKeys.krb_ad_domain.name()).toString());
@@ -151,7 +152,8 @@ public class SysConfAuthenticationEditor extends CompositeGwtWidgetElement {
 			krbAdIp.setStringValue(map.get(SysConfKeys.krb_ad_ip.name()).toString());
 		}
 		if (null != map.get(SysConfKeys.krb_domain.name())) {
-			krbDomain.setSelectedIndex(detectDomainIndex(map.get(SysConfKeys.krb_domain.name()).toString()));
+			krbDomain.setSelectedIndex(
+					detectDomainIndexFromValue(krbDomain, map.get(SysConfKeys.krb_domain.name()).toString()));
 		}
 		if (map.get(SysConfKeys.auth_type.name()) != null) {
 			authTypeSel.setSelectedIndex(detectAuthTypeIndex(map.get(SysConfKeys.auth_type.name()).toString()));
@@ -247,13 +249,20 @@ public class SysConfAuthenticationEditor extends CompositeGwtWidgetElement {
 	private void loadDomains() {
 		List<ItemValue<Domain>> domains = DomainsHolder.get().getDomains();
 		domainList.addItem("---", "");
+
 		for (ItemValue<Domain> domain : domains) {
 			if (!"global.virt".equals(domain.value.name)) {
-				casDomain.addItem(domain.value.name);
-				krbDomain.addItem(domain.value.name);
-				domainList.addItem(domain.value.name);
+				krbDomain.addItem(DomainsHelper.getDisplayName(domain.value), domain.value.name);
+
+				expandDomainAlias(domainList, domain);
+				expandDomainAlias(casDomain, domain);
 			}
 		}
+	}
+
+	private void expandDomainAlias(ListBox domainList, ItemValue<Domain> domain) {
+		domainList.addItem(domain.value.name);
+		domain.value.aliases.stream().forEach(domainList::addItem);
 	}
 
 	private void setupUploadForm() {
@@ -285,29 +294,31 @@ public class SysConfAuthenticationEditor extends CompositeGwtWidgetElement {
 		});
 	}
 
-	private int detectDefaultDomainIndex(String domain) {
+	private int detectDomainIndex(ListBox domainList, String domain) {
 		if (null == domain || domain.isEmpty()) {
 			return 0;
 		}
+
 		for (int i = 0; i < domainList.getItemCount(); i++) {
-			String item = domainList.getItemText(i);
-			if (item.equals(domain)) {
+			if (domainList.getItemText(i).equals(domain)) {
 				return i;
 			}
 		}
+
 		return 0;
 	}
 
-	private int detectDomainIndex(String domain) {
+	private int detectDomainIndexFromValue(ListBox domainList, String domain) {
 		if (null == domain || domain.isEmpty()) {
 			return 0;
 		}
-		for (int i = 0; i < casDomain.getItemCount(); i++) {
-			String item = casDomain.getItemText(i);
-			if (item.equals(domain)) {
+
+		for (int i = 0; i < domainList.getItemCount(); i++) {
+			if (domainList.getValue(i).equals(domain)) {
 				return i;
 			}
 		}
+
 		return 0;
 	}
 
@@ -320,7 +331,7 @@ public class SysConfAuthenticationEditor extends CompositeGwtWidgetElement {
 
 	public static native JSONObject getJsObject(String responseText)
 	/*-{
-    return JSON.parse(responseText);
+		return JSON.parse(responseText);
 	}-*/;
 
 	private static class ValidationResult {
