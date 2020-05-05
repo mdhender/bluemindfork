@@ -33,10 +33,11 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.server.hook.DefaultServerHook;
+import net.bluemind.tag.api.TagDescriptor;
 
 public class ShardSmtpConfServerHook extends DefaultServerHook {
 
-	private static final Set<String> TAGS = new HashSet<>(Arrays.asList("mail/imap"));
+	private static final Set<String> TAGS = new HashSet<>(Arrays.asList(TagDescriptor.mail_imap.getTag()));
 	private static final Logger logger = LoggerFactory.getLogger(ShardSmtpConfServerHook.class);
 
 	@Override
