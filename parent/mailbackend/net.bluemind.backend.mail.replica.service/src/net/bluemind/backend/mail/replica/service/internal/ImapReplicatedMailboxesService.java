@@ -263,31 +263,46 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			return rootPromise.get(15, TimeUnit.SECONDS);
 		});
 	}
-
+	
 	public void emptyFolder(long id) {
-		ItemValue<MailboxFolder> toDelete = getCompleteById(id);
-		logger.info("Start emptying {}...", toDelete);
-		imapContext.withImapClient((sc, fast) -> {
-			selectInbox(sc, fast);
-			CompletableFuture<?> rootPromise = deleteChildFolders(toDelete, sc);
-			rootPromise = rootPromise.thenCompose(v -> {
-				logger.info("On purge of '{}'", toDelete.value.fullName);
-				CompletableFuture<ItemIdentifier> future = ReplicationEvents.onSubtreeUpdate(container.uid);
-				try {
-					FlagsList fl = new FlagsList();
-					fl.add(Flag.DELETED);
-					if (sc.select(toDelete.value.fullName)) {
-						if (sc.uidStore("1:*", fl, true)) {
-							sc.expunge();
-						}
-					}
-				} catch (IMAPException e) {
-					future.completeExceptionally(e);
-				}
-				return future;
+		ItemValue<MailboxFolder> folder = getCompleteById(id);
+		logger.info("Start emptying {}...", folder);
+		imapContext.withImapClient((storeClient, vxStoreClient) -> {
+			selectInbox(storeClient, vxStoreClient);
+			CompletableFuture<?> promise = deleteChildFolders(folder, storeClient);
+			promise = promise.thenCompose(v -> {
+				logger.info("On purge of '{}'", folder.value.fullName);
+				return this.flag(storeClient, folder, Flag.DELETED, storeClient::expunge);
 			});
-			return rootPromise.get(15, TimeUnit.SECONDS);
+			return promise.get(15, TimeUnit.SECONDS);
 		});
+	}
+	
+	public void markFolderAsRead(long id) {
+		ItemValue<MailboxFolder> folder = getCompleteById(id);
+		logger.info("Start marking as read {}...", folder);
+		imapContext.withImapClient((storeClient, vxStoreClient) -> {
+			selectInbox(storeClient, vxStoreClient);
+			return this.flag(storeClient, folder, Flag.SEEN, null).get(15, TimeUnit.SECONDS);
+		});
+	}
+	
+	private CompletableFuture<ItemIdentifier> flag(StoreClient storeClient, ItemValue<MailboxFolder> folder, Flag flag, Runnable onSuccess) {
+		CompletableFuture<ItemIdentifier> future = ReplicationEvents.onSubtreeUpdate(container.uid);
+		logger.info("Add flag {} to '{}'", flag, folder.value.fullName);
+		try {
+			FlagsList flags = new FlagsList();
+			flags.add(flag);
+			if (storeClient.select(folder.value.fullName)) {
+				boolean flagApplied = storeClient.uidStore("1:*", flags, true);
+				if (flagApplied && onSuccess != null) {
+					onSuccess.run();
+				}
+			}
+		} catch (IMAPException e) {
+			future.completeExceptionally(e);
+		}
+		return future;
 	}
 
 	private CompletableFuture<?> deleteChildFolders(ItemValue<MailboxFolder> toClean, StoreClient sc) {

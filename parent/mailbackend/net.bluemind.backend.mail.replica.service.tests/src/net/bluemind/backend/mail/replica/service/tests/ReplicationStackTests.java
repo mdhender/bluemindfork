@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -2459,5 +2460,58 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		});
 
 	}
+	
+	@Test
+	public void markFolderAsRead() throws InterruptedException {
+		IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
+		String folderName = "f" + System.currentTimeMillis();
+		IOfflineMgmt idAllocator = provider().instance(IOfflineMgmt.class, domainUid, userUid);
+		IdRange ids = idAllocator.allocateOfflineIds(2);
+		long folderId = ids.globalCounter;
+		MailboxFolder folder = new MailboxFolder();
+		folder.fullName = folderName;
+		folder.name = folderName;
 
+		ItemIdentifier createAck = mboxesApi.createForHierarchy(folderId, folder);
+		assertNotNull(createAck);
+
+		ItemValue<MailboxFolder> folderItem = mboxesApi.byName(folderName);
+		assertNotNull(folderItem);
+
+		System.err.println("folder, id " + folderItem.internalId + ", " + folderItem);
+		IMailboxItems recordsApi = provider().instance(IMailboxItems.class, folderItem.uid);
+		Stream forUpload = VertxStream.stream(Buffer.buffer("Coucou\r\n".getBytes()));
+		String partId = recordsApi.uploadPart(forUpload);
+		assertNotNull(partId);
+
+		MailboxItem item = MailboxItem.of("toto", Part.create(null, "text/plain", partId));
+		long expectedId = folderId + 1;
+		recordsApi.createById(expectedId, item);
+		ItemValue<MailboxItem> message = recordsApi.getCompleteById(expectedId);
+		assertNotNull(message);
+		assertFalse(message.flags.contains(ItemFlag.Seen));
+
+		CountDownLatch hierUpdLock = expectMessages("mailreplica.hierarchy.updated", 1);
+
+		System.err.println("Before marks as read....");
+		mboxesApi.markFolderAsRead(folderItem.internalId);
+		System.err.println("Mark as read done.");
+
+		assertTrue("Expected 1 update to occur on the hierarchy", hierUpdLock.await(10, TimeUnit.SECONDS));
+
+		long maxWait = 10000;
+		long time = System.currentTimeMillis();
+		long maxTime = time + maxWait;
+		message = recordsApi.getCompleteById(expectedId);
+		while (!message.flags.contains(ItemFlag.Seen) && time < maxTime) {
+			message = recordsApi.getCompleteById(expectedId);
+			Thread.sleep(250);
+			time = System.currentTimeMillis();
+		}
+		System.err.println(String.format("Waited %dms %s", maxWait - (maxTime - time),
+				time < maxTime ? "" : " (max wait reached)"));
+
+		assertTrue("Expected the message to have a 'Seen' flag", message.flags.contains(ItemFlag.Seen));
+	}
+	
 }

@@ -108,6 +108,15 @@ public interface IMailboxFolders extends IBaseMailboxFolders {
 	@DELETE
 	@Path("empty/{id}")
 	void emptyFolder(@PathParam("id") long id);
+	
+	/**
+	 * Mark folder as read (does not include sub-folders).
+	 * 
+	 * @param id the folder identifier
+	 */
+	@PUT
+	@Path("markAsRead/{id}")
+	void markFolderAsRead(@PathParam("id") long id);
 
 	/**
 	 * Import MailboxItems from a source folder describe
