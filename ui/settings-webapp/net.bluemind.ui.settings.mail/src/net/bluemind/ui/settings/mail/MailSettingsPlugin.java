@@ -20,6 +20,8 @@ package net.bluemind.ui.settings.mail;
 
 import net.bluemind.gwtconsoleapp.base.editor.ScreenElementContributor;
 import net.bluemind.gwtconsoleapp.base.menus.MenuContributor;
+import net.bluemind.ui.gwtuser.client.MailboxSubscriptionsEditor;
+import net.bluemind.ui.gwtuser.client.MailboxSubscriptionsModelHandler;
 import net.bluemind.ui.gwtuser.client.UserBooksSubscriptionModelHandler;
 import net.bluemind.ui.mailbox.filter.MailForwardEditor;
 import net.bluemind.ui.mailbox.filter.MailSettingsModelHandler;
@@ -53,8 +55,11 @@ public class MailSettingsPlugin {
 		UserBooksSubscriptionModelHandler.registerType();
 		MailboxesSharingsModelHandler.registerType();
 		MailForwardEditor.registerType();
-		
+
 		NewWebmailSettings.registerType();
+
+		MailboxSubscriptionsEditor.registerType();
+		MailboxSubscriptionsModelHandler.registerType();
 
 	}
 }
