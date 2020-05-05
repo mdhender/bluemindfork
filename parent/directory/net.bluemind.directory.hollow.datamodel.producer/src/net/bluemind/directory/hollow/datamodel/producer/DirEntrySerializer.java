@@ -21,6 +21,7 @@ package net.bluemind.directory.hollow.datamodel.producer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -66,23 +67,37 @@ public abstract class DirEntrySerializer {
 		this.domainUid = domainUid;
 	}
 
-	public static DirEntrySerializer get(String domainUid, ItemValue<DirEntry> dirEntry) {
+	public static Optional<DirEntrySerializer> get(String domainUid, ItemValue<DirEntry> dirEntry) {
+		DirEntrySerializer ret = null;
 		switch (dirEntry.value.kind) {
 		case USER:
 			ItemValue<User> user = provider().instance(IUser.class, domainUid).getComplete(dirEntry.uid);
-			return new UserSerializer(user, dirEntry, domainUid);
+			if (user != null) {
+				ret = new UserSerializer(user, dirEntry, domainUid);
+			}
+			break;
 		case GROUP:
 			ItemValue<Group> group = provider().instance(IGroup.class, domainUid).getComplete(dirEntry.uid);
-			return new GroupSerializer(group, dirEntry, domainUid);
+			if (group != null) {
+				ret = new GroupSerializer(group, dirEntry, domainUid);
+			}
+			break;
 		case RESOURCE:
 			ResourceDescriptor resource = provider().instance(IResources.class, domainUid).get(dirEntry.uid);
-			return new ResourceSerializer(resource, dirEntry, domainUid);
+			if (resource != null) {
+				ret = new ResourceSerializer(resource, dirEntry, domainUid);
+			}
+			break;
 		case MAILSHARE:
 			ItemValue<Mailshare> mailshare = provider().instance(IMailshare.class, domainUid).getComplete(dirEntry.uid);
-			return new MailshareSerializer(mailshare, dirEntry, domainUid);
+			if (mailshare != null) {
+				ret = new MailshareSerializer(mailshare, dirEntry, domainUid);
+			}
+			break;
 		default:
 			throw new IllegalArgumentException("DirEntry kind " + dirEntry.value.kind + " not supported");
 		}
+		return Optional.ofNullable(ret);
 	}
 
 	private static IServiceProvider provider() {
