@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.api.ContainerSubscription;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.hooks.IAclHook;
 import net.bluemind.core.container.model.ContainerDescriptor;
@@ -78,14 +77,6 @@ public class MailboxAutoSubscribeAclHook implements IAclHook {
 		List<String> subs = cmgmt.subscribers();
 		IUserSubscription userSubService = context.su().provider().instance(IUserSubscription.class,
 				container.domainUid);
-
-		for (String userUid : users) {
-
-			if (!subs.contains(userUid)) {
-				logger.debug("auto subscribe {} to {}", userUid, container.uid);
-				userSubService.subscribe(userUid, Arrays.asList(ContainerSubscription.create(container.uid, false)));
-			}
-		}
 
 		for (String sub : subs) {
 			if (!users.contains(sub)) {
