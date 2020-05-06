@@ -18,6 +18,7 @@
  */
 package net.bluemind.backend.mail.api;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,8 +35,17 @@ public class SearchSort {
 	}
 
 	@BMApi(version = "3")
-	public static enum Order {
+	public enum Order {
 		Asc, Desc;
+	}
+
+	public static SearchSort byField(String field, Order o) {
+		SearchSort s = new SearchSort();
+		SortCriteria ss = new SortCriteria();
+		ss.field = field;
+		ss.order = o;
+		s.criteria = Arrays.asList(ss);
+		return s;
 	}
 
 	public boolean hasCriterias() {

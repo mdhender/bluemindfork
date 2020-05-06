@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import net.bluemind.user.persistence.security.HashAlgorithm;
 import net.bluemind.user.persistence.security.HashFactory;
 import net.bluemind.user.persistence.security.PBKDF2Hash;
 
@@ -36,7 +37,7 @@ public class PBKDF2Test {
 			total += done;
 			// System.err.println(PBKDF2Hash.PBKDF2_ITERATIONS + " iterations.
 			// Hash generated in " + done + " ms");
-			assertEquals("PBKDF2", HashFactory.algorithm(hash));
+			assertEquals(HashAlgorithm.valueOf("PBKDF2"), HashFactory.algorithm(hash));
 		}
 
 		System.err.println(

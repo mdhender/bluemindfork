@@ -72,8 +72,7 @@ public final class MailboxOps {
 	/**
 	 * @param domain
 	 * @param srv
-	 * @param mailboxUid
-	 *            mailbox container uid
+	 * @param mailboxUid mailbox container uid
 	 */
 	public static void annotate(Server srv, String mailboxUid) {
 		try (StoreClient sc = new StoreClient(srv.address(), 1143, "admin0", Token.admin0())) {
@@ -160,8 +159,6 @@ public final class MailboxOps {
 					if (sc.create(defaultFolder.name, defaultFolder.specialuse)) {
 						created.add(defaultFolder.name);
 						sc.subscribe(defaultFolder.name);
-
-						immutableFolder(sc, defaultFolder.name);
 					} else {
 						logger.error("Fail to create {} for login {} ", defaultFolder.name, login);
 					}
@@ -192,8 +189,6 @@ public final class MailboxOps {
 					String folder = mailshareName + "/" + f.name + "@" + domainUid;
 					if (sc.create(folder)) {
 						created.add(f.name);
-
-						immutableFolder(sc, folder);
 					} else {
 						created.add(f.name);
 						logger.error("Fail to create folder {} for mailshare {} ", f.name, mailshareName);
@@ -207,16 +202,5 @@ public final class MailboxOps {
 		}
 		logger.info("user imap folders of {}@{} initialized : {}", mailshareName, domainUid, created);
 		return created;
-	}
-
-	protected static void immutableFolder(StoreClient sc, String f) throws IMAPException {
-		sc.listAcl(f).entrySet().stream().filter(e -> e.getValue().isX() && !e.getKey().equals("admin0")).forEach(e -> {
-			e.getValue().setX(false);
-			try {
-				sc.setAcl(f, e.getKey(), e.getValue());
-			} catch (IMAPException imape) {
-				logger.error(String.format("Unable to set %s as immutable folder %s", f, imape.getMessage()), imape);
-			}
-		});
 	}
 }

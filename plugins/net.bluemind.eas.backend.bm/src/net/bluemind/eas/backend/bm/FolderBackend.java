@@ -19,6 +19,7 @@
 package net.bluemind.eas.backend.bm;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -36,6 +37,7 @@ import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.ContainerSubscriptionModel;
+import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.api.IContainersFlatHierarchy;
 import net.bluemind.core.container.api.IOwnerSubscriptions;
@@ -46,6 +48,7 @@ import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
+import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
@@ -242,18 +245,13 @@ public class FolderBackend extends CoreConnect {
 
 		final Map<String, String> subscribedMailboxVersions = new HashMap<>();
 
+		boolean hasMailboxSubscription = false;
+
 		// OTHER MAILBOXES
-		if (state.version == 0) {
-			FolderChangeReference otherMailboxes = new FolderChangeReference();
-			otherMailboxes.displayName = getTranslatedDisplayName(bs, OTHER_MAILBOXES);
-			otherMailboxes.changeType = ChangeType.ADD;
-			otherMailboxes.parentId = "0";
-			otherMailboxes.folderId = OTHER_MAILBOXES;
-			otherMailboxes.itemType = FolderType.USER_CREATED_EMAIL_FOLDER;
-			ret.items.add(otherMailboxes);
-		} else {
+		if (state.version > 0) {
 			// fetch changes from subscribed mailbox
 			Map<String, String> mailboxVersion = storage.getFolderSyncVersions(account);
+			hasMailboxSubscription = !mailboxVersion.isEmpty();
 			mailboxVersion.forEach((id, version) -> {
 				ItemValue<ContainerSubscriptionModel> container = subscriptionsService
 						.getCompleteById(Long.parseLong(id));
@@ -266,11 +264,13 @@ public class FolderBackend extends CoreConnect {
 		}
 
 		// owner subscription
-		ContainerChangeset<String> userSubscriptions = subscriptionsService.changeset(state.subscriptionVersion);
+		ContainerChangeset<ItemIdentifier> userSubscriptions = subscriptionsService
+				.fullChangesetById(state.subscriptionVersion);
 		ret.subscriptionVersion = userSubscriptions.version;
 
 		List<ItemValue<ContainerSubscriptionModel>> newUserSubscriptions = subscriptionsService
-				.getMultiple(userSubscriptions.created);
+				.getMultipleById(userSubscriptions.created.stream().map(itemIdentifier -> itemIdentifier.id)
+						.collect(Collectors.toList()));
 
 		// new mailbox subscription
 		newUserSubscriptions.stream().filter(c -> "mailboxacl".equals(c.value.containerType)).forEach(container -> {
@@ -298,7 +298,8 @@ public class FolderBackend extends CoreConnect {
 		});
 
 		List<ItemValue<ContainerSubscriptionModel>> updatedUserSubscriptions = subscriptionsService
-				.getMultiple(userSubscriptions.updated);
+				.getMultipleById(userSubscriptions.updated.stream().map(itemIdentifier -> itemIdentifier.id)
+						.collect(Collectors.toList()));
 		updatedUserSubscriptions.stream().filter(c -> !"mailboxacl".equals(c.value.containerType))
 				.forEach(container -> {
 					String nodeUid = ContainerHierarchyNode.uidFor(container.value.containerUid,
@@ -325,17 +326,20 @@ public class FolderBackend extends CoreConnect {
 
 		if (!userSubscriptions.deleted.isEmpty()) {
 			IContainers containers = getService(bs, IContainers.class);
-			userSubscriptions.deleted.forEach(uid -> {
-				String containerUid = uid.replace(String.format("sub-of-%s-to-", bs.getUser().getUid()), "");
+			userSubscriptions.deleted.forEach(itemIdentifier -> {
+				String containerUid = itemIdentifier.uid.replace(String.format("sub-of-%s-to-", bs.getUser().getUid()),
+						"");
 				try {
 					ContainerDescriptor cd = containers.get(containerUid);
 					if (cd.type.equals("mailboxacl")) {
-						// Remove mailbox subsciption
+						// get ContainerSubscriptionModel
+						// Remove mailbox subscription
 						IContainersFlatHierarchy hierarchyService = getAdmin0Service(bs, IContainersFlatHierarchy.class,
 								bs.getUser().getDomain(), cd.owner);
 						ContainerChangeset<Long> all = hierarchyService.changesetById(0L);
 						all.created.forEach(folderId -> {
-							String collectionId = CollectionId.of(cd.internalId, Long.toString(folderId)).getValue();
+							String collectionId = CollectionId.of(itemIdentifier.id, Long.toString(folderId))
+									.getValue();
 							ret.items.add(getDeletedItemChange(collectionId));
 						});
 						subscribedMailboxVersions.remove(Long.toString(cd.internalId));
@@ -366,11 +370,29 @@ public class FolderBackend extends CoreConnect {
 			});
 		}
 
-		if (!subscribedMailboxVersions.isEmpty()) {
-			storage.setFolderSyncVersions(FolderSyncVersions.create(account, subscribedMailboxVersions));
+		storage.setFolderSyncVersions(FolderSyncVersions.create(account, subscribedMailboxVersions));
+
+		if (subscribedMailboxVersions.isEmpty()) {
+			if (hasMailboxSubscription) {
+				ret.items.add(otherMailboxesFolder(bs, ChangeType.DELETE));
+			}
+		} else {
+			if (!hasMailboxSubscription) {
+				ret.items.add(otherMailboxesFolder(bs, ChangeType.ADD));
+			}
 		}
 
 		return ret;
+	}
+
+	private FolderChangeReference otherMailboxesFolder(BackendSession bs, ChangeType changeType) {
+		FolderChangeReference otherMailboxes = new FolderChangeReference();
+		otherMailboxes.displayName = getTranslatedDisplayName(bs, OTHER_MAILBOXES);
+		otherMailboxes.changeType = changeType;
+		otherMailboxes.parentId = "0";
+		otherMailboxes.folderId = OTHER_MAILBOXES;
+		otherMailboxes.itemType = FolderType.USER_CREATED_EMAIL_FOLDER;
+		return otherMailboxes;
 	}
 
 	private void mailboxSubscriptionChanges(BackendSession bs, FolderChanges ret,
@@ -387,6 +409,12 @@ public class FolderBackend extends CoreConnect {
 		} else {
 			mailboxRoot = dirEntry.entryUid.replace('.', '^');
 			rootFolderName = dirEntry.displayName;
+		}
+		IContainerManagement cmApi = getService(bs, IContainerManagement.class, container.value.containerUid);
+		if (!cmApi.canAccess(Arrays.asList(Verb.Read.name()))) {
+			logger.info("[{}] skip container {} without Read perms.", bs.getLoginAtDomain(),
+					container.value.containerUid);
+			return;
 		}
 		CyrusPartition part = CyrusPartition.forServerAndDomain(dirEntry.dataLocation, bs.getUser().getDomain());
 		IMailboxFolders foldersService = getService(bs, IMailboxFolders.class, part.name, mailboxRoot);

@@ -18,19 +18,28 @@
  */
 package net.bluemind.system.ldap.importation.internal.scanner;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.apache.directory.api.ldap.codec.decorators.SearchResultEntryDecorator;
+import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.message.MessageTypeEnum;
+import org.apache.directory.api.ldap.model.message.Response;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.lib.ldap.GroupMemberAttribute;
 import net.bluemind.lib.ldap.LdapConProxy;
+import net.bluemind.lib.ldap.NestedGroupHelper;
 import net.bluemind.system.importation.commons.ICoreServices;
 import net.bluemind.system.importation.commons.Parameters;
 import net.bluemind.system.importation.commons.UuidMapper;
@@ -40,6 +49,7 @@ import net.bluemind.system.importation.commons.managers.UserManager;
 import net.bluemind.system.importation.commons.scanner.ImportLogger;
 import net.bluemind.system.importation.commons.scanner.Scanner;
 import net.bluemind.system.importation.search.PagedSearchResult;
+import net.bluemind.system.importation.search.PagedSearchResult.LdapSearchException;
 import net.bluemind.system.ldap.importation.Activator;
 import net.bluemind.system.ldap.importation.internal.tools.GroupManagerImpl;
 import net.bluemind.system.ldap.importation.internal.tools.LdapHelper;
@@ -52,6 +62,7 @@ public abstract class LdapScanner extends Scanner {
 	private static final Logger logger = LoggerFactory.getLogger(LdapScanner.class);
 
 	protected LdapParameters ldapParameters;
+	protected Optional<Set<UuidMapper>> splitGroupMembers;
 
 	public LdapScanner(ImportLogger importLogger, LdapParameters ldapParameters, ItemValue<Domain> domain) {
 		super(importLogger, domain);
@@ -76,7 +87,42 @@ public abstract class LdapScanner extends Scanner {
 	protected abstract LdapSearch getLdapSearch();
 
 	@Override
-	protected void getRelayMailboxGroupDn() {
+	protected void setupSplitGroup() {
+		if (!ldapParameters.splitDomain.splitRelayEnabled || ldapParameters.splitDomain.relayMailboxGroup == null
+				|| ldapParameters.splitDomain.relayMailboxGroup.isEmpty()) {
+			splitGroupMembers = Optional.empty();
+		}
+
+		Entry groupEntry = null;
+		try (PagedSearchResult cursor = getLdapSearch().findByGroupByName(ldapCon)) {
+			while (groupEntry == null && cursor.next()) {
+				Response response = cursor.get();
+
+				if (response.getType() != MessageTypeEnum.SEARCH_RESULT_ENTRY) {
+					continue;
+				}
+
+				groupEntry = ((SearchResultEntryDecorator) response).getEntry();
+			}
+		} catch (LdapException | CursorException | LdapSearchException e) {
+			throw new ServerFault(e);
+		}
+
+		if (groupEntry == null) {
+			splitGroupMembers = Optional.empty();
+			return;
+		}
+
+		splitGroupMembers = Optional
+				.of(new NestedGroupHelper(ldapCon, ldapParameters.ldapDirectory.baseDn, getGroupMembersAttributeName(),
+						ldapParameters.ldapDirectory.groupFilter, ldapParameters.ldapDirectory.extIdAttribute)
+								.getUserMembers(groupEntry).stream().map(LdapUuidMapper::new).collect(Collectors
+										.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet)));
+	}
+
+	@Override
+	protected void reset() {
+		splitGroupMembers = null;
 	}
 
 	@Override
@@ -164,8 +210,8 @@ public abstract class LdapScanner extends Scanner {
 	}
 
 	@Override
-	protected String getGroupMembersAttributeName() {
-		return GroupManagerImpl.LDAP_MEMBER;
+	protected GroupMemberAttribute getGroupMembersAttributeName() {
+		return GroupMemberAttribute.member;
 	}
 
 	@Override

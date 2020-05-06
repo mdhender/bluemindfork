@@ -24,6 +24,7 @@ import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.User;
+import net.bluemind.user.persistence.security.HashAlgorithm;
 import net.bluemind.user.persistence.security.HashFactory;
 
 public class UserStoreTests {
@@ -149,8 +150,19 @@ public class UserStoreTests {
 		userStore.create(item, u);
 
 		User created = userStore.get(item);
-		assertEquals(HashFactory.getDefaultName(), HashFactory.algorithm(created.password));
+		assertEquals(HashFactory.DEFAULT, HashFactory.algorithm(created.password));
+	}
 
+	@Test
+	public void testCreatePasswordWithKnownAlgorithm() throws Exception {
+		userItemStore.create(Item.create(uid, null));
+		Item item = userItemStore.get(uid);
+		User u = getDefaultUser();
+		u.password = HashFactory.get(HashAlgorithm.SSHA512).create(u.password);
+		userStore.create(item, u);
+
+		User created = userStore.get(item);
+		assertEquals(HashAlgorithm.SSHA512, HashFactory.algorithm(created.password));
 	}
 
 	@Test
@@ -182,6 +194,5 @@ public class UserStoreTests {
 		uid = userStore2.byLogin("tEst1");
 		assertNotNull(uid);
 		assertEquals("t2", uid);
-
 	}
 }

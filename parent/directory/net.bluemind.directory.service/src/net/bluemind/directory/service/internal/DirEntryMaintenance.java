@@ -73,6 +73,10 @@ public class DirEntryMaintenance implements IDirEntryMaintenance, IInternalDirEn
 				throw new ServerFault("entry " + entryUid + "@" + domainUid + " not found", ErrorCode.NOT_FOUND);
 			}
 
+			if (entry.archived) {
+				throw new ServerFault("entry " + entryUid + "@" + domainUid + " is archived");
+			}
+
 			// make maintenance task executable for domain admins
 			if (context.getSecurityContext().isDomainAdmin(domainUid)) {
 				context = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();

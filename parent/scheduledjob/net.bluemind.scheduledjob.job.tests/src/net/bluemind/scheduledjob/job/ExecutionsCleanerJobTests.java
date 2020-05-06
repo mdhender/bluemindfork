@@ -107,7 +107,8 @@ public class ExecutionsCleanerJobTests {
 
 		query = new JobExecutionQuery();
 		query.jobId = jobId2;
-		Assert.assertEquals(5, serviceAdmin0.searchExecution(query).total);
+		ListResult<JobExecution> result = serviceAdmin0.searchExecution(query);
+		Assert.assertEquals(5, result.total);
 	}
 
 	@Test
@@ -157,8 +158,9 @@ public class ExecutionsCleanerJobTests {
 		query.jobId = jobId;
 		do {
 			try {
-				Thread.sleep(5);
+				Thread.sleep(10);
 			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
 			}
 		} while (!serviceAdmin0.searchExecution(query).values.isEmpty());
 	}

@@ -26,7 +26,6 @@ import org.apache.directory.ldap.client.api.LdapConnection;
 import net.bluemind.system.importation.commons.Parameters;
 
 public class DirectorySearch<T extends Parameters> {
-
 	protected final T ldapParameters;
 	protected final GroupSearchFilter groupFilter;
 	protected final UserSearchFilter userFilter;
@@ -49,8 +48,8 @@ public class DirectorySearch<T extends Parameters> {
 
 	}
 
-	public PagedSearchResult findByFilterAndBaseDnAndScopeAndAttributes(LdapConnection ldapCon, String filter, Dn baseDn,
-			SearchScope scope, String... attributes) throws LdapException {
+	public PagedSearchResult findByFilterAndBaseDnAndScopeAndAttributes(LdapConnection ldapCon, String filter,
+			Dn baseDn, SearchScope scope, String... attributes) throws LdapException {
 		return SearchCursorBuilder.withConnection(ldapCon, ldapParameters).withSearchFilter(filter)
 				.withAttributes(attributes).withScope(scope).withBaseDn(baseDn).execute();
 

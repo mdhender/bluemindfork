@@ -318,18 +318,21 @@ public class CyrusServiceTests {
 		for (String f : DefaultFolder.USER_FOLDERS_NAME) {
 			assertTrue(isAcl(boxNamePrefix + "/" + f + "@" + domainUid, "admin0", Acl.ALL.toString()));
 
-			Acl aclWithoutX = new Acl(Acl.ALL.toString());
-			aclWithoutX.setX(false);
-			assertTrue(isAcl(boxNamePrefix + "/" + f + "@" + domainUid, "anyone", aclWithoutX.toString()));
-			assertTrue(isAcl(boxNamePrefix + "/" + f + "@" + domainUid, userAtDomain, aclWithoutX.toString()));
+			CreateMailboxResult result = tryDelete(userAtDomain, f);
+			assertFalse(result.isOk());
+			assertTrue(result.getMessage().contains("NO Permission denied"));
 
-			aclWithoutX = new Acl(Acl.RW.toString());
-			aclWithoutX.setX(false);
-			assertTrue(isAcl(boxNamePrefix + "/" + f + "@" + domainUid, "rw@" + domainUid, aclWithoutX.toString()));
+			result = tryDelete("usertest@" + domainUid, String.format("Autres utilisateurs/%s/%s", userLogin, f));
+			assertFalse(result.isOk());
+			assertTrue(result.getMessage().contains("NO Permission denied"));
 
-			aclWithoutX = new Acl(Acl.RO.toString());
-			aclWithoutX.setX(false);
-			assertTrue(isAcl(boxNamePrefix + "/" + f + "@" + domainUid, "ro@" + domainUid, aclWithoutX.toString()));
+			result = tryDelete("rw@" + domainUid, String.format("Autres utilisateurs/%s/%s", userLogin, f));
+			assertFalse(result.isOk());
+			assertTrue(result.getMessage().contains("NO Permission denied"));
+
+			result = tryDelete("ro@" + domainUid, String.format("Autres utilisateurs/%s/%s", userLogin, f));
+			assertFalse(result.isOk());
+			assertTrue(result.getMessage().contains("NO Permission denied"));
 		}
 	}
 
@@ -372,19 +375,25 @@ public class CyrusServiceTests {
 		for (String f : DefaultFolder.MAILSHARE_FOLDERS_NAME) {
 			assertTrue(isAcl(boxNamePrefix + "/" + f + "@" + domainUid, "admin0", Acl.ALL.toString()));
 
-			Acl aclWithoutX = new Acl(Acl.ALL.toString());
-			aclWithoutX.setX(false);
-			assertTrue(isAcl(boxNamePrefix + "/" + f + "@" + domainUid, "anyone", aclWithoutX.toString()));
-			assertTrue(
-					isAcl(boxNamePrefix + "/" + f + "@" + domainUid, "usertest@" + domainUid, aclWithoutX.toString()));
+			CreateMailboxResult result = tryDelete("usertest@" + domainUid,
+					String.format("Dossiers partagés/%s/%s", boxNamePrefix, f));
+			assertFalse(result.isOk());
+			assertTrue(result.getMessage().contains("NO Permission denied"));
 
-			aclWithoutX = new Acl(Acl.RW.toString());
-			aclWithoutX.setX(false);
-			assertTrue(isAcl(boxNamePrefix + "/" + f + "@" + domainUid, "rw@" + domainUid, aclWithoutX.toString()));
+			result = tryDelete("rw@" + domainUid, String.format("Dossiers partagés/%s/%s", boxNamePrefix, f));
+			assertFalse(result.isOk());
+			assertTrue(result.getMessage().contains("NO Permission denied"));
 
-			aclWithoutX = new Acl(Acl.RO.toString());
-			aclWithoutX.setX(false);
-			assertTrue(isAcl(boxNamePrefix + "/" + f + "@" + domainUid, "ro@" + domainUid, aclWithoutX.toString()));
+			result = tryDelete("ro@" + domainUid, String.format("Dossiers partagés/%s/%s", boxNamePrefix, f));
+			assertFalse(result.isOk());
+			assertTrue(result.getMessage().contains("NO Permission denied"));
+		}
+	}
+
+	private CreateMailboxResult tryDelete(String userLogin, String mailbox) throws IMAPException {
+		try (StoreClient sc = new StoreClient(imapServerAddress, 1143, userLogin, "fakepassword")) {
+			sc.login();
+			return sc.deleteMailbox(mailbox);
 		}
 	}
 

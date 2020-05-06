@@ -60,7 +60,7 @@ public final class ChangelogUtils {
 		return toChangeset(wp, from, entries, toId, ItemFlagFilter.all());
 	}
 
-	public static <T extends Comparable<T>, E extends ChangeLogEntry> ContainerChangeset<T> toChangeset(
+	public static <T extends Comparable<?>, E extends ChangeLogEntry> ContainerChangeset<T> toChangeset(
 			IWeightProvider wp, long from, List<E> entries, final Function<E, T> toId, ItemFlagFilter filter) {
 
 		ArrayList<T> updated = new ArrayList<>(entries.size());

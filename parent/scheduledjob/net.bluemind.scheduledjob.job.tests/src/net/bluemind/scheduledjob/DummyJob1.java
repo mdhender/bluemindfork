@@ -33,6 +33,9 @@ public class DummyJob1 implements IScheduledJob {
 
 	@Override
 	public void tick(IScheduler sched, boolean plannedExecution, String domainName, Date startDate) throws ServerFault {
+		if (!plannedExecution) {
+			return;
+		}
 		IScheduledJobRunId rid = sched.requestSlot(domainName, this, startDate);
 
 		sched.finish(rid, JobExitStatus.SUCCESS);

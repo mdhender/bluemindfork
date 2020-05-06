@@ -23,6 +23,7 @@ import java.util.Optional;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.lib.ldap.GroupMemberAttribute;
 import net.bluemind.lib.ldap.LdapConProxy;
 import net.bluemind.system.importation.commons.scanner.ImportLogger;
 import net.bluemind.system.importation.commons.scanner.Scanner;
@@ -31,7 +32,6 @@ import net.bluemind.system.importation.search.SearchCursorBuilder;
 import net.bluemind.system.ldap.importation.internal.scanner.MemberLdapScanner;
 import net.bluemind.system.ldap.importation.internal.scanner.MemberOfLdapScanner;
 import net.bluemind.system.ldap.importation.internal.scanner.MemberUidLdapScanner;
-import net.bluemind.system.ldap.importation.internal.tools.GroupManagerImpl;
 import net.bluemind.system.ldap.importation.internal.tools.LdapHelper;
 import net.bluemind.system.ldap.importation.internal.tools.LdapParameters;
 import net.bluemind.system.ldap.importation.internal.tools.UserManagerImpl;
@@ -57,8 +57,8 @@ public class LdapScannerFactory {
 			try (PagedSearchResult cursor = SearchCursorBuilder.withConnection(ldapCon, ldapParameters)
 					.withSearchFilter("(&"
 							+ new LdapGroupSearchFilter().getSearchFilter(ldapParameters, Optional.empty(), null, null)
-							+ "(" + GroupManagerImpl.LDAP_MEMBER + "=*))")
-					.withAttributes(GroupManagerImpl.LDAP_MEMBER).withSizeLimit(5).execute()) {
+							+ "(" + GroupMemberAttribute.member.name() + "=*))")
+					.withAttributes(GroupMemberAttribute.member.name()).withSizeLimit(5).execute()) {
 				return cursor.next();
 			}
 		} catch (Exception e) {

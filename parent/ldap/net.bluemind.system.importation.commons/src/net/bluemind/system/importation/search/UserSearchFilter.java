@@ -23,8 +23,6 @@ import java.util.Optional;
 import net.bluemind.system.importation.commons.Parameters;
 
 public interface UserSearchFilter {
-
 	public <T extends Parameters> String getSearchFilter(T ldapParameters, Optional<String> lastUpdate, String login,
 			String uuid);
-
 }

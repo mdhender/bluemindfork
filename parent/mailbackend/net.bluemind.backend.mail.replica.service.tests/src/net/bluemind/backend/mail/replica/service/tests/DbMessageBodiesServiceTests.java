@@ -28,15 +28,12 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-import io.vertx.core.buffer.Buffer;
-import io.vertx.core.streams.ReadStream;
 import net.bluemind.backend.cyrus.replication.testhelper.CyrusGUID;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.core.rest.vertx.VertxStream;
 
 public class DbMessageBodiesServiceTests extends AbstractMessageBodiesServiceTests {
 
@@ -44,10 +41,9 @@ public class DbMessageBodiesServiceTests extends AbstractMessageBodiesServiceTes
 	public void crudFromStream() {
 		IDbMessageBodies mboxes = getService(SecurityContext.SYSTEM);
 		assertNotNull(mboxes);
-		ReadStream<Buffer> emlReadStream = openResource("data/with_inlines.eml");
-		Stream bmStream = VertxStream.stream(emlReadStream);
+		Stream emlReadStream = openResource("data/with_inlines.eml");
 		String uid = CyrusGUID.randomGuid();
-		mboxes.create(uid, bmStream);
+		mboxes.create(uid, emlReadStream);
 
 		MessageBody loaded = mboxes.getComplete(uid);
 		System.out.println("Found " + loaded.subject);
@@ -67,10 +63,9 @@ public class DbMessageBodiesServiceTests extends AbstractMessageBodiesServiceTes
 	public void storeFromStreamBM14964Subject() {
 		IDbMessageBodies mboxes = getService(SecurityContext.SYSTEM);
 		assertNotNull(mboxes);
-		ReadStream<Buffer> emlReadStream = openResource("data/mail.eml");
-		Stream bmStream = VertxStream.stream(emlReadStream);
+		Stream emlReadStream = openResource("data/mail.eml");
 		String uid = CyrusGUID.randomGuid();
-		mboxes.create(uid, bmStream);
+		mboxes.create(uid, emlReadStream);
 
 		MessageBody loaded = mboxes.getComplete(uid);
 		assertEquals("Engagements Budget DSI_ FONCTION détail", loaded.subject);
@@ -92,10 +87,9 @@ public class DbMessageBodiesServiceTests extends AbstractMessageBodiesServiceTes
 	public void storeFromStreamBM15193() {
 		IDbMessageBodies mboxes = getService(SecurityContext.SYSTEM);
 		assertNotNull(mboxes);
-		ReadStream<Buffer> emlReadStream = openResource("data/bm-15193.eml");
-		Stream bmStream = VertxStream.stream(emlReadStream);
+		Stream emlReadStream = openResource("data/bm-15193.eml");
 		String uid = "d2d5876ba2d00d2c1290e46323adefa48567f0a7";
-		mboxes.create(uid, bmStream);
+		mboxes.create(uid, emlReadStream);
 
 		MessageBody loaded = mboxes.getComplete(uid);
 		assertNotNull(loaded);
@@ -106,10 +100,9 @@ public class DbMessageBodiesServiceTests extends AbstractMessageBodiesServiceTes
 	public void storeFromStreamBM15245() {
 		IDbMessageBodies mboxes = getService(SecurityContext.SYSTEM);
 		assertNotNull(mboxes);
-		ReadStream<Buffer> emlReadStream = openResource("data/BM-15245.eml");
-		Stream bmStream = VertxStream.stream(emlReadStream);
+		Stream emlReadStream = openResource("data/BM-15245.eml");
 		String uid = CyrusGUID.randomGuid();
-		mboxes.create(uid, bmStream);
+		mboxes.create(uid, emlReadStream);
 
 		MessageBody loaded = mboxes.getComplete(uid);
 		assertNotNull(loaded);
@@ -120,10 +113,9 @@ public class DbMessageBodiesServiceTests extends AbstractMessageBodiesServiceTes
 	public void storeFromStreamTLIB766() {
 		IDbMessageBodies mboxes = getService(SecurityContext.SYSTEM);
 		assertNotNull(mboxes);
-		ReadStream<Buffer> emlReadStream = openResource("data/TLIB-766.eml");
-		Stream bmStream = VertxStream.stream(emlReadStream);
+		Stream emlReadStream = openResource("data/TLIB-766.eml");
 		String uid = CyrusGUID.randomGuid();
-		mboxes.create(uid, bmStream);
+		mboxes.create(uid, emlReadStream);
 
 		MessageBody loaded = mboxes.getComplete(uid);
 		assertNotNull(loaded);
@@ -134,10 +126,9 @@ public class DbMessageBodiesServiceTests extends AbstractMessageBodiesServiceTes
 	public void storeFromStreamFactorFx327() {
 		IDbMessageBodies mboxes = getService(SecurityContext.SYSTEM);
 		assertNotNull(mboxes);
-		ReadStream<Buffer> emlReadStream = openResource("data/nested.eml");
-		Stream bmStream = VertxStream.stream(emlReadStream);
+		Stream emlReadStream = openResource("data/nested.eml");
 		String uid = CyrusGUID.randomGuid();
-		mboxes.create(uid, bmStream);
+		mboxes.create(uid, emlReadStream);
 
 		MessageBody loaded = mboxes.getComplete(uid);
 		assertNotNull(loaded);

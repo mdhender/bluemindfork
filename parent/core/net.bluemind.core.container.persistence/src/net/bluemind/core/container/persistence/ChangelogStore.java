@@ -40,6 +40,7 @@ import net.bluemind.core.container.model.ItemChangeLogEntry;
 import net.bluemind.core.container.model.ItemChangelog;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
+import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 
@@ -253,6 +254,13 @@ public class ChangelogStore extends JdbcAbstractStore {
 		return ChangelogUtils.toChangeset(wp, from, entries, entry -> new ItemVersion(entry), filter);
 	}
 
+	public ContainerChangeset<ItemIdentifier> fullChangesetById(IWeightProvider wp, long from, long to)
+			throws SQLException {
+		List<FlaggedChangeLogEntry> entries = select(FLAGGED_CHANGESET_QUERY, con -> new FlaggedChangeLogEntry(),
+				new FlaggedChangelogEntryPopulator(), new Object[] { container.id, from });
+		return ChangelogUtils.toChangeset(wp, from, entries, entry -> new ItemIdentifier(entry), ItemFlagFilter.all());
+	}
+
 	public void deleteLog() throws SQLException {
 		delete("delete from t_container_changelog where container_id = ?", new Object[] { container.id });
 	}
@@ -287,4 +295,5 @@ public class ChangelogStore extends JdbcAbstractStore {
 		update("update t_container_sequence set seq = seq+? where container_id = ?",
 				new Object[] { insertCount, container.id });
 	}
+
 }

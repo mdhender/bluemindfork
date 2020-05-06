@@ -29,7 +29,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
 
@@ -57,10 +59,12 @@ import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.utils.UIDGenerator;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.api.Member;
 import net.bluemind.lib.ldap.LdapConProxy;
 import net.bluemind.mailbox.api.MailFilter;
+import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.system.importation.commons.UuidMapper;
 import net.bluemind.system.importation.commons.scanner.ImportLogger;
 import net.bluemind.system.importation.commons.scanner.RepportStatus;
@@ -539,5 +543,36 @@ public abstract class ScannerCommon {
 
 		assertTrue(ScannerEnhancerHook.before);
 		assertTrue(ScannerEnhancerHook.after);
+	}
+
+	@Test
+	public void splitDomainGroup() {
+		CoreServicesTest coreService = new CoreServicesTest();
+
+		Domain domain = getDomain();
+		domain.properties.put(LdapProperties.import_ldap_relay_mailbox_group.name(), "splitgroup");
+
+		Map<String, String> domainSettings = new HashMap<>();
+		domainSettings.put(DomainSettingsKeys.mail_routing_relay.name(), "test.split.tld");
+		domainSettings.put(LdapProperties.import_ldap_group_filter.name(), "(objectclass=bmGroup)");
+
+		ImportLogger importLogger = getImportLogger();
+		scanLdap(importLogger, coreService, LdapParameters.build(domain, domainSettings));
+
+		assertEquals(2, coreService.createdUsers.size());
+
+		for (ItemValue<User> user : coreService.createdUsers.values()) {
+			switch (user.value.login) {
+			case "user00":
+				assertEquals(Routing.external, user.value.routing);
+				break;
+			case "user01":
+				assertEquals(Routing.internal, user.value.routing);
+				break;
+			default:
+				fail("Unkonw user");
+				break;
+			}
+		}
 	}
 }

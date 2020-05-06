@@ -1,0 +1,43 @@
+dn: uid=user00,dc=local
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+uid: user00
+sn: Nom00
+cn: Prenom00 Nom00
+givenName: Prenom00
+description: Description Prenom00 Nom00
+mail: user00
+userPassword:: e1NIQX1rN1liU0NTUzdPSkhsaUpRWkF2RkNUNFlZNTA9
+
+dn: uid=user01,dc=local
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+uid: user01
+sn: Nom01
+cn: Prenom01 Nom01
+givenName: Prenom01
+description: Description Prenom01 Nom01
+mail: user01
+userPassword:: e1NIQX1rN1liU0NTUzdPSkhsaUpRWkF2RkNUNFlZNTA9
+
+dn: cn=grptest00,dc=local
+objectClass: bmGroup
+objectClass: top
+objectClass: posixGroup
+cn: grptest00
+gidNumber: 10000
+description: Test group 00
+member: uid=user00,dc=local
+
+dn: cn=splitgroup,dc=local
+objectClass: bmGroup
+objectClass: top
+objectClass: posixGroup
+cn: splitgroup
+gidNumber: 10000
+description: splitgroup
+member: cn=grptest00,dc=local

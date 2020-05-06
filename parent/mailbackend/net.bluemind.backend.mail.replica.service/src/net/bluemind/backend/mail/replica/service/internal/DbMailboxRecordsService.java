@@ -325,13 +325,12 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 
 				String uid = mr.imapUid + ".";
 				UpsertResult upsert = null;
-
-				Long expId = GuidExpectedIdCache
-						.expectedId(IMailReplicaUids.uniqueId(container.uid) + ":" + mr.messageBody);
+				String guidCacheKey = IMailReplicaUids.uniqueId(container.uid) + ":" + mr.messageBody;
+				Long expId = GuidExpectedIdCache.expectedId(guidCacheKey);
 
 				if (expId != null) {
 					upsert = UpsertResult.create(storeService.createWithId(uid, expId, null, uid, mr));
-					GuidExpectedIdCache.invalidate(IMailReplicaUids.uniqueId(container.uid) + ":" + mr.messageBody);
+					GuidExpectedIdCache.invalidate(guidCacheKey);
 				} else {
 					ExpectedId knownInternalId = BodyInternalIdCache.expectedRecordId(container.owner, mr.messageBody);
 					if (knownInternalId == null) {

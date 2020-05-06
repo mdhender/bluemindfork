@@ -37,6 +37,7 @@
       <plugin id="com.fasterxml.jackson.core.jackson-annotations"/>
       <plugin id="com.fasterxml.jackson.core.jackson-core"/>
       <plugin id="com.fasterxml.jackson.core.jackson-databind"/>
+      <plugin id="com.fasterxml.jackson.module.jackson-module-afterburner"/>
       <plugin id="com.github.lookfirst.sardine"/>
       <plugin id="com.google.guava"/>
       <plugin id="com.hazelcast"/>
@@ -220,6 +221,7 @@
       <plugin id="net.bluemind.elastic.client"/>
       <plugin id="net.bluemind.elasticsearch.initializer"/>
       <plugin id="net.bluemind.exchange.mapi.api"/>
+      <plugin id="net.bluemind.exchange.mapi.notifications"/>
       <plugin id="net.bluemind.exchange.mapi.persistence"/>
       <plugin id="net.bluemind.exchange.mapi.service"/>
       <plugin id="net.bluemind.exchange.mapi.sqlschema"/>

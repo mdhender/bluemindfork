@@ -81,6 +81,7 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.service.IInCoreMailboxes;
+import net.bluemind.mailbox.service.internal.MailboxQuotaHelper;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.role.api.DefaultRoles;
 import net.bluemind.role.api.IRoles;
@@ -91,6 +92,7 @@ import net.bluemind.user.api.IPasswordUpdater;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 import net.bluemind.user.hook.IUserHook;
+import net.bluemind.user.persistence.security.HashAlgorithm;
 import net.bluemind.user.persistence.security.HashFactory;
 import net.bluemind.user.service.IInCoreUser;
 import net.bluemind.user.service.passwordvalidator.PasswordValidator;
@@ -162,17 +164,25 @@ public class UserService implements IInCoreUser, IUser {
 			uh.beforeCreate(bmContext, domainName, uid, user);
 		}
 
-		if (null == user.quota) {
-			user.quota = applyDefaultUserQuota(domainName);
-		}
-
 		if (!globalVirt && !user.system) {
+			if (null == user.quota) {
+				user.quota = MailboxQuotaHelper
+						.getDefaultQuota(bmContext.su().provider().instance(IDomainSettings.class, domainName).get(),
+								DomainSettingsKeys.mailbox_max_user_quota.name(),
+								DomainSettingsKeys.mailbox_default_user_quota.name())
+						.orElse(null);
+			}
+
 			mailboxes.validate(uid, mailboxAdapter.asMailbox(domainName, uid, user));
 		}
 
 		String prevPass = user.password;
 		if (StringUtils.isNotBlank(user.password)) {
-			user.password = HashFactory.getDefault().create(user.password);
+			// we support setting the user password as a hash, directly
+			// this is used for external user importers
+			if (HashFactory.algorithm(user.password) == HashAlgorithm.UNKNOWN) {
+				user.password = HashFactory.getDefault().create(user.password);
+			}
 			user.passwordLastChange = new Date();
 		}
 
@@ -204,15 +214,6 @@ public class UserService implements IInCoreUser, IUser {
 		}
 
 		eventProducer.changed(uid, user);
-	}
-
-	private Integer applyDefaultUserQuota(String domainName) {
-		IDomainSettings settingsService = bmContext.su().provider().instance(IDomainSettings.class, domainName);
-		Map<String, String> settings = settingsService.get();
-		if (settings.containsKey("mailbox_default_user_quota")) {
-			return Integer.parseInt(settings.get("mailbox_default_user_quota"));
-		}
-		return null;
 	}
 
 	ItemValue<User> iv(String uid, User u) {
@@ -539,7 +540,7 @@ public class UserService implements IInCoreUser, IUser {
 		// PBKDF2)
 		if (valid && !HashFactory.usesDefaultAlgorithm(password)) {
 			logger.info("Updating password algorithm of user {} from {} to {}", user.login,
-					HashFactory.algorithm(password), HashFactory.getDefaultName());
+					HashFactory.algorithm(password), HashFactory.DEFAULT.name());
 			storeService.setPassword(userItem.uid, HashFactory.getDefault().create(passwordPlain), false);
 		}
 	}

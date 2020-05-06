@@ -31,6 +31,7 @@ import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemChangelog;
 import net.bluemind.core.container.model.ItemFlagFilter;
+import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.container.persistence.ContainerStore;
@@ -105,6 +106,11 @@ public class InternalOwnerSubscriptionsService implements IInternalOwnerSubscrip
 	@Override
 	public ContainerChangeset<Long> changesetById(Long since) throws ServerFault {
 		return storeService.changesetById(since, Long.MAX_VALUE);
+	}
+
+	@Override
+	public ContainerChangeset<ItemIdentifier> fullChangesetById(Long since) {
+		return storeService.fullChangesetById(since, Long.MAX_VALUE);
 	}
 
 	@Override

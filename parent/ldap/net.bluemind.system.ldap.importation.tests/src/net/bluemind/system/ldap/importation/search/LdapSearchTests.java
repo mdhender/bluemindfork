@@ -19,13 +19,20 @@
 package net.bluemind.system.ldap.importation.search;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.directory.api.ldap.model.cursor.CursorException;
+import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.Value;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.junit.Assert;
 import org.junit.Before;
@@ -34,8 +41,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
+import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.lib.ldap.GroupMemberAttribute;
 import net.bluemind.lib.ldap.LdapConProxy;
 import net.bluemind.system.importation.search.PagedSearchResult;
+import net.bluemind.system.importation.search.PagedSearchResult.LdapSearchException;
 import net.bluemind.system.ldap.importation.internal.tools.LdapParameters;
 import net.bluemind.system.ldap.tests.helpers.LdapDockerTestHelper;
 
@@ -56,7 +66,7 @@ public class LdapSearchTests {
 	@Test
 	public void testFindAllUsers() throws Exception {
 		LdapParameters ldapParameters = LdapSearchTestHelper.getLdapParameters();
-		LdapSearch search = new LdapSearch(ldapParameters, new LdapGroupSearchFilter(), new LdapUserSearchFilter());
+		LdapSearch search = new LdapSearch(ldapParameters);
 		int count = 0;
 
 		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters);
@@ -72,7 +82,7 @@ public class LdapSearchTests {
 	@Test
 	public void testFindAllGroups() throws Exception {
 		LdapParameters ldapParameters = LdapSearchTestHelper.getLdapParameters();
-		LdapSearch search = new LdapSearch(ldapParameters, new LdapGroupSearchFilter(), new LdapUserSearchFilter());
+		LdapSearch search = new LdapSearch(ldapParameters);
 		int count = 0;
 
 		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters);
@@ -96,7 +106,7 @@ public class LdapSearchTests {
 		LdapSearchTestHelper.updateEntry(ldapParameters, "cn=grptest01," + LdapDockerTestHelper.LDAP_ROOT_DN);
 		LdapSearchTestHelper.updateEntry(ldapParameters, "cn=grptest00," + LdapDockerTestHelper.LDAP_ROOT_DN);
 
-		LdapSearch search = new LdapSearch(ldapParameters, new LdapGroupSearchFilter(), new LdapUserSearchFilter());
+		LdapSearch search = new LdapSearch(ldapParameters);
 
 		List<String> cns = new ArrayList<>();
 		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters);
@@ -115,7 +125,7 @@ public class LdapSearchTests {
 	@Test
 	public void testFindUserUUIDFromDN() throws Exception {
 		LdapParameters ldapParameters = LdapSearchTestHelper.getLdapParameters();
-		LdapSearch search = new LdapSearch(ldapParameters, new LdapGroupSearchFilter(), new LdapUserSearchFilter());
+		LdapSearch search = new LdapSearch(ldapParameters);
 
 		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters)) {
 			PagedSearchResult findUser = search.getUserUUID(connection,
@@ -131,7 +141,7 @@ public class LdapSearchTests {
 	@Test
 	public void testFindGroupUUIDFromDN() throws Exception {
 		LdapParameters ldapParameters = LdapSearchTestHelper.getLdapParameters();
-		LdapSearch search = new LdapSearch(ldapParameters, new LdapGroupSearchFilter(), new LdapUserSearchFilter());
+		LdapSearch search = new LdapSearch(ldapParameters);
 
 		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters)) {
 			Dn groupDn = new Dn("cn=grptest00," + LdapDockerTestHelper.LDAP_ROOT_DN);
@@ -141,6 +151,78 @@ public class LdapSearchTests {
 			Entry entry = findGroupName.getEntry();
 			Assert.assertNotNull(entry.get(ldapParameters.ldapDirectory.extIdAttribute).getString());
 			Assert.assertFalse(entry.get(ldapParameters.ldapDirectory.extIdAttribute).getString().trim().isEmpty());
+		}
+	}
+
+	@Test
+	public void testUserByLastModification() throws Exception {
+		Thread.sleep(1500);
+		String beforeDate = LdapSearchTestHelper.getDate();
+		Thread.sleep(1500);
+
+		LdapParameters ldapParameters = LdapSearchTestHelper.getLdapParameters();
+
+		LdapSearchTestHelper.updateEntry(ldapParameters, "uid=user01," + LdapDockerTestHelper.LDAP_ROOT_DN);
+
+		LdapSearch search = new LdapSearch(ldapParameters);
+
+		List<String> logins = new ArrayList<>();
+		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters)) {
+			PagedSearchResult findUser = search.findUsersDnByLastModification(connection, Optional.of(beforeDate));
+
+			while (findUser.next()) {
+				logins.add(findUser.getEntry().get("uid").getString());
+			}
+		}
+
+		assertEquals(1, logins.size());
+		assertTrue(logins.contains("user01"));
+	}
+
+	@Test
+	public void testFindByGroupName() throws Exception {
+		LdapParameters ldapParameters = LdapSearchTestHelper.getLdapParametersWithSplitGroup("splitgroup");
+		LdapSearch search = new LdapSearch(ldapParameters);
+
+		List<String> groupName = new ArrayList<>();
+		List<String> groupMembers = new ArrayList<>();
+		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters);
+				PagedSearchResult findGroupsByGroupName = search.findByGroupByName(connection)) {
+			while (findGroupsByGroupName.next()) {
+				groupName.add(findGroupsByGroupName.getEntry().get("cn").getString());
+
+				Attribute members = findGroupsByGroupName.getEntry().get(GroupMemberAttribute.member.name());
+				Iterator<Value<?>> iterator = members.iterator();
+				while (iterator.hasNext()) {
+					String memberValue = iterator.next().getString();
+					if (memberValue != null && !memberValue.trim().isEmpty()) {
+						groupMembers.add(memberValue);
+					}
+				}
+			}
+		}
+
+		assertEquals(1, groupName.size());
+		assertTrue(groupName.contains("splitgroup"));
+
+		assertEquals(1, groupMembers.size());
+		assertTrue(groupMembers.contains("uid=user00,dc=local"));
+	}
+
+	@Test
+	public void testFindByUserLogin()
+			throws ServerFault, IOException, LdapException, CursorException, LdapSearchException {
+		LdapParameters ldapParameters = LdapSearchTestHelper.getLdapParametersWithSplitGroup("splitgroup");
+		LdapSearch search = new LdapSearch(ldapParameters);
+
+		try (LdapConProxy connection = LdapSearchTestHelper.getConnection(ldapParameters);
+				PagedSearchResult searchResult = search.findByUserLogin(connection, "user00")) {
+			assertTrue(searchResult.next());
+			Entry entry = searchResult.getEntry();
+			assertFalse(searchResult.next());
+
+			assertEquals("uid=user00,dc=local", entry.getDn().toString());
+			assertTrue(entry.containsAttribute(ldapParameters.ldapDirectory.extIdAttribute));
 		}
 	}
 }

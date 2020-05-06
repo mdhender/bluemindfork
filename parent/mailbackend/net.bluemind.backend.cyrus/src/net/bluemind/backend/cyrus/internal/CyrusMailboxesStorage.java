@@ -19,7 +19,6 @@
 package net.bluemind.backend.cyrus.internal;
 
 import java.io.ByteArrayInputStream;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -868,25 +867,7 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 					}
 				});
 
-				cyrusAcl.entrySet().stream().filter(e -> e.getValue() != Acl.NOTHING).map(e -> {
-					if (!e.getKey().equals("admin0")) {
-						Set<String> defaultFolders = DefaultFolder.MAILSHARE_FOLDERS_NAME;
-						if (mailbox.value.type == Type.user) {
-							defaultFolders = DefaultFolder.USER_FOLDERS_NAME;
-						}
-
-						for (String defaultFolder : defaultFolders) {
-							if (li.getName().equals(boxName.replace("@", "/" + defaultFolder + "@"))
-									&& e.getValue().isX()) {
-								Acl newAcl = new Acl(e.getValue().toString());
-								newAcl.setX(false);
-								return new AbstractMap.SimpleEntry<>(e.getKey(), newAcl);
-							}
-						}
-					}
-
-					return e;
-				}).filter(entry -> {
+				cyrusAcl.entrySet().stream().filter(e -> e.getValue() != Acl.NOTHING).filter(entry -> {
 					Acl a = currentAcl.get(entry.getKey());
 					return a == null || !a.equals(entry.getValue());
 				}).forEach(e -> {

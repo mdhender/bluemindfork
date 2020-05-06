@@ -134,11 +134,11 @@ public class VertxStream {
 			return CompletableFuture.completedFuture(null);
 		} else {
 			ReadStream<?> vxStream = (ReadStream<?>) stream;
-			CompletableFuture<Void> ret = new CompletableFuture<Void>();
+			CompletableFuture<Void> ret = new CompletableFuture<>();
 			vxStream.handler(b -> {
 			});
 			vxStream.endHandler(v -> ret.complete(null));
-			vxStream.exceptionHandler(ex -> ret.completeExceptionally(ex));
+			vxStream.exceptionHandler(ret::completeExceptionally);
 			vxStream.resume();
 			return ret;
 		}
@@ -150,19 +150,19 @@ public class VertxStream {
 
 			@Override
 			public ReadStream<T> handler(Handler<T> handler) {
-				vertx.runOnContext((v) -> rs.handler(handler));
+				vertx.runOnContext(v -> rs.handler(handler));
 				return this;
 			}
 
 			@Override
 			public ReadStream<T> pause() {
-				vertx.runOnContext((Void) -> rs.pause());
+				vertx.runOnContext(v -> rs.pause());
 				return this;
 			}
 
 			@Override
 			public ReadStream<T> resume() {
-				vertx.runOnContext((Void) -> rs.resume());
+				vertx.runOnContext(v -> rs.resume());
 				return this;
 			}
 

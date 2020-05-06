@@ -24,8 +24,11 @@ import com.google.common.cache.CacheBuilder;
 
 public class GuidExpectedIdCache {
 
-	private static final Cache<String, Long> cache = CacheBuilder.newBuilder().expireAfterWrite(10, TimeUnit.SECONDS)
+	private static final Cache<String, Long> cache = CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.MINUTES)
 			.build();
+
+	private GuidExpectedIdCache() {
+	}
 
 	public static Long expectedId(String guid) {
 		return cache.getIfPresent(guid);

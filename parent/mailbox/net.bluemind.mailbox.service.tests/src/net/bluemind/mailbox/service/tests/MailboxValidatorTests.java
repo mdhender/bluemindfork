@@ -489,5 +489,83 @@ public class MailboxValidatorTests extends AbstractMailboxServiceTests {
 		} catch (ServerFault sf) {
 			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
 		}
+
+		mbox.quota = null;
+		try {
+			validator.validate(mbox, UUID.randomUUID().toString());
+			fail("max quota is reached");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+
+		mbox.quota = 0;
+		try {
+			validator.validate(mbox, UUID.randomUUID().toString());
+			fail("max quota is reached");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+	}
+
+	@Test
+	public void validate_Quota_MailshareMaxQuota() {
+		IDomainSettings domSettingsService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, domainUid);
+		Map<String, String> settings = domSettingsService.get();
+		settings.put(DomainSettingsKeys.mailbox_max_publicfolder_quota.name(), "42");
+		domSettingsService.set(settings);
+
+		Mailbox mbox = new Mailbox();
+		mbox.type = Type.mailshare;
+		mbox.routing = Mailbox.Routing.none;
+		mbox.dataLocation = imapServer.address();
+		mbox.emails = new ArrayList<Email>();
+		mbox.name = "bang";
+		mbox.quota = 31;
+
+		try {
+			validator.validate(mbox, UUID.randomUUID().toString());
+		} catch (ServerFault sf) {
+			fail("quota is valid");
+		}
+	}
+
+	@Test
+	public void validate_Quota_MailshareMaxQuota_Reached() {
+		IDomainSettings domSettingsService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, domainUid);
+		Map<String, String> settings = domSettingsService.get();
+		settings.put(DomainSettingsKeys.mailbox_max_publicfolder_quota.name(), "31");
+		domSettingsService.set(settings);
+
+		Mailbox mbox = new Mailbox();
+		mbox.type = Type.mailshare;
+		mbox.routing = Mailbox.Routing.none;
+		mbox.dataLocation = imapServer.address();
+		mbox.emails = new ArrayList<Email>();
+		mbox.name = "bang";
+		mbox.quota = 42;
+		try {
+			validator.validate(mbox, UUID.randomUUID().toString());
+			fail("max quota is reached");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+
+		mbox.quota = null;
+		try {
+			validator.validate(mbox, UUID.randomUUID().toString());
+			fail("max quota is reached");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
+
+		mbox.quota = 0;
+		try {
+			validator.validate(mbox, UUID.randomUUID().toString());
+			fail("max quota is reached");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
 	}
 }

@@ -30,6 +30,7 @@ import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemChangelog;
 import net.bluemind.core.container.model.ItemFlagFilter;
+import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemVersion;
 
 @BMApi(version = "3")
@@ -78,8 +79,7 @@ public interface IChangelogSupport {
 
 	/**
 	 * @param since
-	 * @param filter
-	 *                   to exclude some items (eg. deleted items)
+	 * @param filter to exclude some items (eg. deleted items)
 	 * 
 	 * @return if successful, return a {@link ContainerChangeset} with internal
 	 *         numeric ids matching the given filter

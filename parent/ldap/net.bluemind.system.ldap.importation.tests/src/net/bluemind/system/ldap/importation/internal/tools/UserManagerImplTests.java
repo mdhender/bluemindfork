@@ -135,7 +135,6 @@ public class UserManagerImplTests {
 		assertNotNull(userManager.user);
 		assertNotNull(userManager.getUpdatedMailFilter());
 		assertTrue(userManager.getUpdatedMailFilter().isPresent());
-		assertFalse(userManager.splitGroupMembers.isPresent());
 
 		Entry testUserEntry = getTestUserEntry(
 				"uid=user00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
@@ -151,7 +150,6 @@ public class UserManagerImplTests {
 		assertEquals("user00", userManager.user.value.login);
 		assertNotNull(userManager.getUpdatedMailFilter());
 		assertTrue(userManager.getUpdatedMailFilter().isPresent());
-		assertFalse(userManager.splitGroupMembers.isPresent());
 
 		ItemValue<User> user = ItemValue.create(Item.create("uid", "extid"), new User());
 		user.value.contactInfos = new VCard();
@@ -166,7 +164,6 @@ public class UserManagerImplTests {
 		assertTrue(userManager.getUpdatedMailFilter().isPresent());
 		assertEquals(ImmutableSet.builder().add("testEmail").build(),
 				userManager.getUpdatedMailFilter().get().forwarding.emails);
-		assertFalse(userManager.splitGroupMembers.isPresent());
 	}
 
 	@Test
@@ -464,62 +461,6 @@ public class UserManagerImplTests {
 		userManager.update(importLogger, null, null);
 		assertNotNull(userManager.user);
 		assertEquals(Routing.external, userManager.user.value.routing);
-	}
-
-	@Test
-	public void entryToUserExternalRoutingMemberOf() throws LdapInvalidDnException, ServerFault, LdapException,
-			CursorException, IOException, LdapSearchException {
-		Map<String, String> settings = new HashMap<>();
-		settings.put(DomainSettingsKeys.mail_routing_relay.name(), "split.relay.tld");
-
-		domain.value.properties.put(LdapProperties.import_ldap_relay_mailbox_group.name(), "grptest00");
-
-		Entry testUserEntry = getTestUserEntry(
-				"uid=user00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
-		UserManager userManager = UserManagerImpl
-				.build(LdapParameters.build(domain.value, settings), domain, testUserEntry).get();
-
-		ImportLogger importLogger = getImportLogger();
-		userManager.update(importLogger, null, null);
-		assertNotNull(userManager.user);
-		assertEquals(Routing.external, userManager.user.value.routing);
-
-		testUserEntry = getTestUserEntry(
-				"uid=user01," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
-		userManager = UserManagerImpl.build(LdapParameters.build(domain.value, settings), domain, testUserEntry).get();
-
-		importLogger = getImportLogger();
-		userManager.update(importLogger, null, null);
-		assertNotNull(userManager.user);
-		assertEquals(Routing.internal, userManager.user.value.routing);
-
-		testUserEntry = getTestUserEntry(
-				"uid=user02," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
-		userManager = UserManagerImpl.build(LdapParameters.build(domain.value, settings), domain, testUserEntry).get();
-
-		importLogger = getImportLogger();
-		userManager.update(importLogger, null, null);
-		assertNotNull(userManager.user);
-		assertEquals(Routing.internal, userManager.user.value.routing);
-	}
-
-	@Test
-	public void entryToUserExternalRoutingMemberListPriority() throws LdapInvalidDnException, ServerFault,
-			LdapException, CursorException, IOException, LdapSearchException {
-		Map<String, String> settings = new HashMap<>();
-		settings.put(DomainSettingsKeys.mail_routing_relay.name(), "split.relay.tld");
-
-		domain.value.properties.put(LdapProperties.import_ldap_relay_mailbox_group.name(), "grptest00");
-
-		Entry testUserEntry = getTestUserEntry(
-				"uid=user00," + domain.value.properties.get(LdapProperties.import_ldap_base_dn.name()));
-		UserManager userManager = UserManagerImpl.build(LdapParameters.build(domain.value, settings), domain,
-				testUserEntry, Optional.of(Collections.emptySet())).get();
-
-		ImportLogger importLogger = getImportLogger();
-		userManager.update(importLogger, null, null);
-		assertNotNull(userManager.user);
-		assertEquals(Routing.internal, userManager.user.value.routing);
 	}
 
 	@Test

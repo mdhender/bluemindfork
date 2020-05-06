@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.eas.storage.jdbc
 Bundle-SymbolicName: net.bluemind.eas.storage.jdbc;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-Activator: net.bluemind.eas.storage.jdbc.Activator
 Require-Bundle: net.bluemind.eas;bundle-version="1.0.0",
  net.bluemind.eas.dto,
  slf4j.api,
@@ -17,7 +16,6 @@ Require-Bundle: net.bluemind.eas;bundle-version="1.0.0",
  net.bluemind.core.container.api,
  net.bluemind.todolist.api,
  net.bluemind.authentication.api,
- net.bluemind.locator.client,
  net.bluemind.config,
  net.bluemind.hornetq.client,
  com.google.guava;bundle-version="19.0.0",
@@ -26,7 +24,9 @@ Require-Bundle: net.bluemind.eas;bundle-version="1.0.0",
  net.bluemind.backend.mail.api,
  net.bluemind.backend.cyrus.partitions,
  net.bluemind.backend.mail.replica.api,
- net.bluemind.core.task.service;bundle-version="4.1.0"
+ net.bluemind.core.task.service;bundle-version="4.1.0",
+ net.bluemind.network.topology
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: blue-mind.net
+Automatic-Module-Name: net.bluemind.eas.storage.jdbc

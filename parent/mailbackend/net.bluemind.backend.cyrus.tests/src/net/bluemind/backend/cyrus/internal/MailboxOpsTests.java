@@ -1,7 +1,6 @@
 package net.bluemind.backend.cyrus.internal;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -110,13 +109,7 @@ public class MailboxOpsTests {
 					Map<String, Acl> acls = sc.listAcl(f.getName());
 					assertEquals(2, acls.size());
 
-					acls.entrySet().forEach(e -> {
-						if (e.getKey().equals("admin0")) {
-							assertEquals(Acl.ALL.toString(), e.getValue().toString());
-						} else {
-							assertFalse(e.getValue().isX());
-						}
-					});
+					acls.entrySet().forEach(e -> assertEquals(Acl.ALL.toString(), e.getValue().toString()));
 				} catch (IMAPException imape) {
 					fail("Test thrown an exception: " + imape.getMessage());
 				}
@@ -171,15 +164,13 @@ public class MailboxOpsTests {
 			ListResult folders = sc.listSubFoldersMailbox(mailshareName + "@" + domainUid);
 			assertEquals(DefaultFolder.MAILSHARE_FOLDERS_NAME.size(), folders.size());
 
-			Acl rwWithoutX = Acl.RW;
-			rwWithoutX.setX(false);
 			folders.forEach(f -> {
 				try {
 					Map<String, Acl> subAcls = sc.listAcl(f.getName());
 					assertEquals(3, subAcls.size());
 					assertEquals(Acl.POST.toString(), subAcls.get("anyone").toString());
 					assertEquals(Acl.ALL.toString(), subAcls.get("admin0").toString());
-					assertEquals(rwWithoutX.toString(), subAcls.get("toto@" + domainUid).toString());
+					assertEquals(Acl.RW.toString(), subAcls.get("toto@" + domainUid).toString());
 				} catch (IMAPException imape) {
 					fail("Test thrown an exception: " + imape.getMessage());
 				}

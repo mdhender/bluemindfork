@@ -41,6 +41,7 @@ import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemChangelog;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
+import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.container.persistence.AclStore;
@@ -162,6 +163,20 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		return doOrFail(() -> {
 			try {
 				return changelogStore.changesetById(weightProvider, since, to);
+			} catch (SQLException e) {
+				throw ServerFault.sqlFault(e);
+			}
+		});
+	}
+
+	public ContainerChangeset<ItemIdentifier> fullChangesetById(Long from, long to) throws ServerFault {
+		if (!hasChangeLog) {
+			throw new ServerFault("no changelog for this container");
+		}
+		final long since = null == from ? 0L : from;
+		return doOrFail(() -> {
+			try {
+				return changelogStore.fullChangesetById(weightProvider, since, to);
 			} catch (SQLException e) {
 				throw ServerFault.sqlFault(e);
 			}

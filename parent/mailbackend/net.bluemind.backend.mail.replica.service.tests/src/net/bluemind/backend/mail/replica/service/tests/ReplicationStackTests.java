@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -88,7 +89,6 @@ import net.bluemind.backend.mail.replica.api.QuotaRoot;
 import net.bluemind.backend.mail.replica.api.utils.Subtree;
 import net.bluemind.backend.mail.replica.service.ReplicationEvents;
 import net.bluemind.backend.mail.replica.service.internal.ItemsTransferService;
-import net.bluemind.backend.mail.replica.service.tests.ReplicationEventsRecorder.Hierarchy;
 import net.bluemind.backend.mail.replica.utils.SubtreeContainer;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Email;
@@ -165,23 +165,31 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 				domainUid);
 		Sessions.get().put(apiKey, secCtx);
 
-		long delay = System.currentTimeMillis();
-		Hierarchy hierarchy = null;
-		do {
-			Thread.sleep(50);
-			hierarchy = rec.hierarchy(domainUid, userUid);
-			System.out.println("Hierarchy version is " + hierarchy.exactVersion);
-			if (System.currentTimeMillis() - delay > 30000) {
-				throw new TimeoutException("Hierarchy init took more than 30sec");
-			}
-		} while (hierarchy.exactVersion < 7);
-		System.out.println("Hierarchy is now at version " + hierarchy.exactVersion);
+		// long delay = System.currentTimeMillis();
+//		Hierarchy hierarchy = null;
+//		do {
+//			Thread.sleep(50);
+//			hierarchy = rec.hierarchy(domainUid, userUid);
+//			System.out.println("Hierarchy version is " + hierarchy.exactVersion);
+//			if (System.currentTimeMillis() - delay > 30000) {
+//				throw new TimeoutException("Hierarchy init took more than 30sec");
+//			}
+//		} while (hierarchy.exactVersion < 7);
+//		System.out.println("Hierarchy is now at version " + hierarchy.exactVersion);
 
 		IServiceProvider prov = provider();
 
 		IMailboxFolders userMboxesApi = prov.instance(IMailboxFolders.class, partition, mboxRoot);
 		List<ItemValue<MailboxFolder>> found = userMboxesApi.all();
-		assertNotNull(found);
+		long delay = System.currentTimeMillis();
+		while (found.isEmpty()) {
+			Thread.sleep(50);
+			if (System.currentTimeMillis() - delay > 30000) {
+				throw new TimeoutException("Wait for inbox took more than 30sec");
+			}
+			found = userMboxesApi.all();
+		}
+
 		ItemValue<MailboxFolder> inbox = null;
 		for (ItemValue<MailboxFolder> iv : found) {
 			if (iv.value.name.equals("INBOX")) {
@@ -1901,11 +1909,11 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 
 	@Test
 	public void moveIn_SUCCESS_PERF() throws IOException, InterruptedException {
-		int COUNT = 50;
+		int count = 2000;
 		IMailboxFolders foldersApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
 
 		IOfflineMgmt idAllocator = provider().instance(IOfflineMgmt.class, domainUid, userUid);
-		IdRange ids = idAllocator.allocateOfflineIds(4 * COUNT + 50);
+		IdRange ids = idAllocator.allocateOfflineIds(4 * count + 50);
 		long offlineId = ids.globalCounter;
 		System.err.println("Allocated " + ids);
 
@@ -1926,7 +1934,6 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 
 		ItemValue<MailboxFolder> src = foldersApi.byName(root + "/src");
 		ItemValue<MailboxFolder> dst = foldersApi.byName(root + "/src/dst");
-		IMailboxItems itemApi = provider().instance(IMailboxItems.class, src.uid);
 
 		long id = offlineId++;
 		addDraft(src, id);
@@ -1937,8 +1944,8 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		ItemValue<MailboxFolder> currentSrc = src;
 		ItemValue<MailboxFolder> currentDest = dst;
 
-		for (int i = 0; i < COUNT; i++) {
-			System.err.println("Loop " + (i + 1) + " / " + COUNT + " with ranges " + ids);
+		for (int i = 0; i < count; i++) {
+			System.err.println("Loop " + (i + 1) + " / " + count + " with ranges " + ids);
 
 			// move into root/src/dst
 			long expectedId = offlineId++;
@@ -1948,13 +1955,15 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 					Arrays.asList(MailboxItemId.of(id), MailboxItemId.of(id2)),
 					Arrays.asList(MailboxItemId.of(expectedId), MailboxItemId.of(expectedId2)));
 
+			System.err.println("Import to ids " + expectedId + " and " + expectedId2 + " starts..");
 			ImportMailboxItemsStatus ret = foldersApi.importItems(currentDest.internalId, toMove);
 
+			System.err.println("move result: " + ret);
 			assertEquals(ImportStatus.SUCCESS, ret.status);
 			assertEquals(2, ret.doneIds.size());
 
 			// check
-			itemApi = provider().instance(IMailboxItems.class, currentDest.uid);
+			IMailboxItems itemApi = provider().instance(IMailboxItems.class, currentDest.uid);
 			ItemValue<MailboxItem> copy = itemApi.getCompleteById(expectedId);
 			assertNotNull(copy);
 
@@ -2451,5 +2460,58 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		});
 
 	}
+	
+	@Test
+	public void markFolderAsRead() throws InterruptedException {
+		IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
+		String folderName = "f" + System.currentTimeMillis();
+		IOfflineMgmt idAllocator = provider().instance(IOfflineMgmt.class, domainUid, userUid);
+		IdRange ids = idAllocator.allocateOfflineIds(2);
+		long folderId = ids.globalCounter;
+		MailboxFolder folder = new MailboxFolder();
+		folder.fullName = folderName;
+		folder.name = folderName;
 
+		ItemIdentifier createAck = mboxesApi.createForHierarchy(folderId, folder);
+		assertNotNull(createAck);
+
+		ItemValue<MailboxFolder> folderItem = mboxesApi.byName(folderName);
+		assertNotNull(folderItem);
+
+		System.err.println("folder, id " + folderItem.internalId + ", " + folderItem);
+		IMailboxItems recordsApi = provider().instance(IMailboxItems.class, folderItem.uid);
+		Stream forUpload = VertxStream.stream(Buffer.buffer("Coucou\r\n".getBytes()));
+		String partId = recordsApi.uploadPart(forUpload);
+		assertNotNull(partId);
+
+		MailboxItem item = MailboxItem.of("toto", Part.create(null, "text/plain", partId));
+		long expectedId = folderId + 1;
+		recordsApi.createById(expectedId, item);
+		ItemValue<MailboxItem> message = recordsApi.getCompleteById(expectedId);
+		assertNotNull(message);
+		assertFalse(message.flags.contains(ItemFlag.Seen));
+
+		CountDownLatch hierUpdLock = expectMessages("mailreplica.hierarchy.updated", 1);
+
+		System.err.println("Before marks as read....");
+		mboxesApi.markFolderAsRead(folderItem.internalId);
+		System.err.println("Mark as read done.");
+
+		assertTrue("Expected 1 update to occur on the hierarchy", hierUpdLock.await(10, TimeUnit.SECONDS));
+
+		long maxWait = 10000;
+		long time = System.currentTimeMillis();
+		long maxTime = time + maxWait;
+		message = recordsApi.getCompleteById(expectedId);
+		while (!message.flags.contains(ItemFlag.Seen) && time < maxTime) {
+			message = recordsApi.getCompleteById(expectedId);
+			Thread.sleep(250);
+			time = System.currentTimeMillis();
+		}
+		System.err.println(String.format("Waited %dms %s", maxWait - (maxTime - time),
+				time < maxTime ? "" : " (max wait reached)"));
+
+		assertTrue("Expected the message to have a 'Seen' flag", message.flags.contains(ItemFlag.Seen));
+	}
+	
 }

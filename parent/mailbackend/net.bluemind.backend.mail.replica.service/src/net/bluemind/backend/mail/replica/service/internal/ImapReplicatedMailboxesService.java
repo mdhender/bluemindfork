@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -262,31 +263,46 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			return rootPromise.get(15, TimeUnit.SECONDS);
 		});
 	}
-
+	
 	public void emptyFolder(long id) {
-		ItemValue<MailboxFolder> toDelete = getCompleteById(id);
-		logger.info("Start emptying {}...", toDelete);
-		imapContext.withImapClient((sc, fast) -> {
-			selectInbox(sc, fast);
-			CompletableFuture<?> rootPromise = deleteChildFolders(toDelete, sc);
-			rootPromise = rootPromise.thenCompose(v -> {
-				logger.info("On purge of '{}'", toDelete.value.fullName);
-				CompletableFuture<ItemIdentifier> future = ReplicationEvents.onSubtreeUpdate(container.uid);
-				try {
-					FlagsList fl = new FlagsList();
-					fl.add(Flag.DELETED);
-					if (sc.select(toDelete.value.fullName)) {
-						if (sc.uidStore("1:*", fl, true)) {
-							sc.expunge();
-						}
-					}
-				} catch (IMAPException e) {
-					future.completeExceptionally(e);
-				}
-				return future;
+		ItemValue<MailboxFolder> folder = getCompleteById(id);
+		logger.info("Start emptying {}...", folder);
+		imapContext.withImapClient((storeClient, vxStoreClient) -> {
+			selectInbox(storeClient, vxStoreClient);
+			CompletableFuture<?> promise = deleteChildFolders(folder, storeClient);
+			promise = promise.thenCompose(v -> {
+				logger.info("On purge of '{}'", folder.value.fullName);
+				return this.flag(storeClient, folder, Flag.DELETED, storeClient::expunge);
 			});
-			return rootPromise.get(15, TimeUnit.SECONDS);
+			return promise.get(15, TimeUnit.SECONDS);
 		});
+	}
+	
+	public void markFolderAsRead(long id) {
+		ItemValue<MailboxFolder> folder = getCompleteById(id);
+		logger.info("Start marking as read {}...", folder);
+		imapContext.withImapClient((storeClient, vxStoreClient) -> {
+			selectInbox(storeClient, vxStoreClient);
+			return this.flag(storeClient, folder, Flag.SEEN, null).get(15, TimeUnit.SECONDS);
+		});
+	}
+	
+	private CompletableFuture<ItemIdentifier> flag(StoreClient storeClient, ItemValue<MailboxFolder> folder, Flag flag, Runnable onSuccess) {
+		CompletableFuture<ItemIdentifier> future = ReplicationEvents.onSubtreeUpdate(container.uid);
+		logger.info("Add flag {} to '{}'", flag, folder.value.fullName);
+		try {
+			FlagsList flags = new FlagsList();
+			flags.add(flag);
+			if (storeClient.select(folder.value.fullName)) {
+				boolean flagApplied = storeClient.uidStore("1:*", flags, true);
+				if (flagApplied && onSuccess != null) {
+					onSuccess.run();
+				}
+			}
+		} catch (IMAPException e) {
+			future.completeExceptionally(e);
+		}
+		return future;
 	}
 
 	private CompletableFuture<?> deleteChildFolders(ItemValue<MailboxFolder> toClean, StoreClient sc) {
@@ -319,6 +335,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		rbac.check(Verb.Write.name());
 
 		List<MailboxItemId> expectedIds = mailboxItems.expectedIds;
+		String importOpID = UUID.randomUUID().toString();
 
 		int len = mailboxItems.ids.size();
 		if (expectedIds == null || expectedIds.isEmpty()) {
@@ -351,9 +368,12 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		ImportMailboxItemsStatus finalResult = new ImportMailboxItemsStatus();
 		finalResult.doneIds = new ArrayList<ImportedMailboxItem>(len);
 
-		logger.info("[{}] Preparing to import {} item(s) from {} into {}", imapContext.latd, mailboxItems.ids.size(),
-				sourceFolder.value.fullName, destinationFolder.value.fullName);
+		logger.info("[{}] Op {} to import {} item(s) from {} into {}", imapContext.latd, importOpID,
+				mailboxItems.ids.size(), sourceFolder.value.fullName, destinationFolder.value.fullName);
 		Iterator<MailboxItemId> expectedIdsIterator = expectedIds.iterator();
+
+		String srcFolder = imapPath(sourceFolder.value);
+		String dstFolder = imapPath(destinationFolder.value);
 
 		Lists.partition(mailboxItems.ids, 200).forEach(ids -> {
 
@@ -382,15 +402,12 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 
 				CompletableFuture<Long> rootPromise = ReplicationEvents.onMailboxChanged(destinationFolder.uid)
 						.thenApply(version -> {
-							logger.info("[{}] destination folder {} changed {}", imapContext.latd,
+							logger.info("[{}] Op {} destination folder {} changed {}", imapContext.latd, importOpID,
 									destinationFolder.value.fullName, version);
 							return version;
 						});
 
-				String srcFolder = imapPath(sourceFolder.value);
-				String dstFolder = imapPath(destinationFolder.value);
-
-				logger.info("Copying {} items from {} to {}", allImapUids.size(), srcFolder, dstFolder);
+				logger.info("{} Copying {} items from {} to {}", importOpID, allImapUids.size(), srcFolder, dstFolder);
 
 				if (sc.select(srcFolder)) {
 					Map<Integer, Integer> result = sc.uidCopy(allImapUids, dstFolder);
@@ -412,8 +429,8 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 						rootPromise = rootPromise.thenCompose(destVersion -> {
 							CompletableFuture<Long> future = ReplicationEvents.onMailboxChanged(sourceFolder.uid)
 									.thenApply(version -> {
-										logger.info("[{}] source folder {} changed {}", imapContext.latd,
-												sourceFolder.value.fullName, version);
+										logger.info("[{}] Op {} source folder {} changed {}", imapContext.latd,
+												importOpID, sourceFolder.value.fullName, version);
 										return version;
 									});
 							FlagsList fl = new FlagsList();
@@ -422,7 +439,6 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 							try {
 								sc.select(srcFolder);
 								sc.uidStore(allImapUids, fl, true);
-								sc.uidExpunge(allImapUids);
 							} catch (IMAPException e) {
 								logger.error(e.getMessage(), e);
 								future.completeExceptionally(e);

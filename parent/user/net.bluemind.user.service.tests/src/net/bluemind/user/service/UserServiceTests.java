@@ -122,6 +122,7 @@ import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.IUserSubscription;
 import net.bluemind.user.api.User;
 import net.bluemind.user.persistence.UserStore;
+import net.bluemind.user.persistence.security.HashAlgorithm;
 import net.bluemind.user.persistence.security.HashFactory;
 import net.bluemind.user.service.internal.ContainerUserStoreService;
 import net.bluemind.user.service.internal.UserDefaultImage;
@@ -594,8 +595,19 @@ public class UserServiceTests {
 		String uid = create(user);
 		user = userStore.get(userItemStore.get(uid));
 
-		assertTrue(HashFactory.getByName("PBKDF2").validate(password, user.password));
-		assertFalse(HashFactory.getByName("MD5").validate(password, user.password));
+		assertTrue(HashFactory.get(HashAlgorithm.PBKDF2).validate(password, user.password));
+		assertFalse(HashFactory.get(HashAlgorithm.MD5).validate(password, user.password));
+	}
+
+	@Test
+	public void testAddingANewUserWithKnownAlgorithmShouldKeepIt() throws Exception {
+		String password = "{SSHA512}FDLTaAqeJLdNmsIjvqQchAKfkUFAESvyTYZBj9AM9AqGnPxK4oa2Imo5rnWNUmGJ55o0Q5wuCezY0PmwIth46805xHvxIpXs";
+		String login = "test." + System.nanoTime();
+		User user = defaultUser(login);
+		user.password = password;
+		String uid = create(user);
+		user = userStore.get(userItemStore.get(uid));
+		assertEquals(HashFactory.algorithm(user.password), HashAlgorithm.SSHA512);
 	}
 
 	@Test
@@ -615,7 +627,7 @@ public class UserServiceTests {
 
 		user = userStoreService.get(uid).value;
 
-		assertEquals(HashFactory.getDefaultName(), HashFactory.algorithm(user.password));
+		assertEquals(HashFactory.DEFAULT, HashFactory.algorithm(user.password));
 	}
 
 	@Test
@@ -623,7 +635,7 @@ public class UserServiceTests {
 		String login = "test." + System.nanoTime();
 		User user = defaultUser(login);
 
-		String pwHashMd5 = HashFactory.getByName("MD5").create("pw");
+		String pwHashMd5 = HashFactory.get(HashAlgorithm.MD5).create("pw");
 
 		String uid = create(user);
 		try (Connection con = JdbcTestHelper.getInstance().getDataSource().getConnection()) {
@@ -638,7 +650,7 @@ public class UserServiceTests {
 
 		user = userStoreService.get(uid).value;
 
-		assertEquals(HashFactory.getDefaultName(), HashFactory.algorithm(user.password));
+		assertEquals(HashFactory.DEFAULT, HashFactory.algorithm(user.password));
 		assertTrue(HashFactory.getDefault().validate("pw", user.password));
 	}
 

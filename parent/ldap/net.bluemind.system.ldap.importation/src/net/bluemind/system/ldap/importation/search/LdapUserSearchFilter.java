@@ -29,7 +29,6 @@ import net.bluemind.system.ldap.importation.api.LdapConstants;
 import net.bluemind.system.ldap.importation.internal.tools.UserManagerImpl;
 
 public class LdapUserSearchFilter implements UserSearchFilter {
-
 	private static final Logger logger = LoggerFactory.getLogger(LdapUserSearchFilter.class);
 
 	@Override
@@ -60,5 +59,4 @@ public class LdapUserSearchFilter implements UserSearchFilter {
 
 		return filter;
 	}
-
 }

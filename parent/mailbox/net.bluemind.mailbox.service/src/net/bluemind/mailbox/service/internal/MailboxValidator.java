@@ -69,8 +69,7 @@ public class MailboxValidator {
 	/**
 	 * Performs mailbox validation
 	 * 
-	 * @param mailbox
-	 *                    the object to check
+	 * @param mailbox the object to check
 	 * @string uid the expected uid of the object to check
 	 * @throws ServerFault
 	 */
@@ -136,10 +135,6 @@ public class MailboxValidator {
 	}
 
 	private void validateMaxQuota(String uid, Mailbox mailbox) {
-		if (mailbox.quota == null) {
-			return;
-		}
-
 		Map<String, String> domSettings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDomainSettings.class, domainUid).get();
 		int max = 0;
@@ -155,12 +150,11 @@ public class MailboxValidator {
 			return;
 		}
 
-		if (mailbox.quota > max) {
+		if (mailbox.quota == null || mailbox.quota == 0 || mailbox.quota > max) {
 			throw new ServerFault(
 					String.format("Invalid quota for %s. Quota must be less than %d MiB", uid, (max / 1024)),
 					ErrorCode.INVALID_PARAMETER);
 		}
-
 	}
 
 	private void validateRouting(Mailbox mailbox) {

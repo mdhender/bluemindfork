@@ -109,7 +109,7 @@ public class C2ProviderTests {
 
 		});
 
-		String sessionId = queue.poll(1000, TimeUnit.MILLISECONDS);
+		String sessionId = queue.poll(5, TimeUnit.SECONDS);
 		System.err.println("sessionid " + sessionId);
 		Assert.assertNotNull(sessionId);
 

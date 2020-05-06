@@ -176,16 +176,18 @@ public class DirectorySerializer implements DataSerializer {
 
 			List<ItemValue<Mailbox>> mailboxes = mboxApi.multipleGet(uidWithEmails);
 			for (ItemValue<DirEntry> entry : entries) {
-				AddressBookRecord rec = dirEntryToAddressBookRecord(domain, entry,
+				dirEntryToAddressBookRecord(domain, entry,
 						mailboxes.stream().filter(m -> m.uid.equals(entry.value.entryUid)).findAny().orElse(null),
-						locationCache, installationId);
-				rec.addressBook = oabs.computeIfAbsent(domainUid, d -> createOabEntry(domain));
-				if (entry.value.archived) {
-					incremental
-							.delete(new RecordPrimaryKey("AddressBookRecord", new String[] { entry.value.entryUid }));
-				} else {
-					incremental.addOrModify(rec);
-				}
+						locationCache, installationId).ifPresent(rec -> {
+							rec.addressBook = oabs.computeIfAbsent(domainUid, d -> createOabEntry(domain));
+							if (entry.value.archived) {
+								incremental.delete(new RecordPrimaryKey("AddressBookRecord",
+										new String[] { entry.value.entryUid }));
+							} else {
+								incremental.addOrModify(rec);
+							}
+
+						});
 			}
 		}
 		for (String uidToRm : changeset.deleted) {
@@ -219,13 +221,23 @@ public class DirectorySerializer implements DataSerializer {
 				|| iv.value.kind == Kind.MAILSHARE || iv.value.kind == Kind.RESOURCE);
 	}
 
-	@SuppressWarnings("unchecked")
-	private AddressBookRecord dirEntryToAddressBookRecord(ItemValue<Domain> domain, ItemValue<DirEntry> entry,
+	private Optional<AddressBookRecord> dirEntryToAddressBookRecord(ItemValue<Domain> domain, ItemValue<DirEntry> entry,
 			ItemValue<Mailbox> box, Map<String, DataLocation> datalocationCache, String installationId) {
 		AddressBookRecord rec = new AddressBookRecord();
 
 		String tmpDom = domain.uid;
-		DirEntrySerializer serializer = DirEntrySerializer.get(tmpDom, entry);
+		Optional<AddressBookRecord> optRec = DirEntrySerializer.get(tmpDom, entry)
+				.map(serializer -> prepareRecord(domain, entry, box, datalocationCache, installationId, rec, tmpDom,
+						serializer));
+		if (!optRec.isPresent()) {
+			logger.warn("Integrity problem on entry {}", entry);
+		}
+		return optRec;
+	}
+
+	private AddressBookRecord prepareRecord(ItemValue<Domain> domain, ItemValue<DirEntry> entry, ItemValue<Mailbox> box,
+			Map<String, DataLocation> datalocationCache, String installationId, AddressBookRecord rec, String tmpDom,
+			DirEntrySerializer serializer) {
 		rec.uid = entry.uid;
 		rec.distinguishedName = entryDN(entry.value.kind, rec.uid, tmpDom, installationId);
 		rec.minimalid = entry.internalId;
@@ -235,6 +247,7 @@ public class DirectorySerializer implements DataSerializer {
 		String server = entry.value.dataLocation;
 		if (server != null) {
 			rec.dataLocation = datalocationCache.computeIfAbsent(server, s -> {
+				@SuppressWarnings("unchecked")
 				List<String> list = (List<String>) serializer.get(DirEntrySerializer.Property.DataLocation).toList();
 				DataLocation location = null;
 				if (!list.isEmpty()) {
@@ -283,7 +296,6 @@ public class DirectorySerializer implements DataSerializer {
 		rec.userX509Certificate = serializer.get(DirEntrySerializer.Property.UserX509Certificate).toByteArray();
 		rec.thumbnail = serializer.get(DirEntrySerializer.Property.ThumbnailPhoto).toByteArray();
 		rec.hidden = serializer.get(DirEntrySerializer.Property.Hidden).toBoolean();
-
 		return rec;
 	}
 

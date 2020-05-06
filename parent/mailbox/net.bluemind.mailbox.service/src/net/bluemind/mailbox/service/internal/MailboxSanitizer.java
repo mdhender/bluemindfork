@@ -34,7 +34,6 @@ import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Type;
 
 public class MailboxSanitizer {
-
 	private ItemValue<Domain> domain;
 
 	public MailboxSanitizer(ItemValue<Domain> domain) {
@@ -46,19 +45,24 @@ public class MailboxSanitizer {
 			mailbox.emails = EmailHelper.sanitize(mailbox.emails);
 		}
 
-		if (mailbox.type == Type.mailshare && mailbox.quota == null) {
-			Map<String, String> domSettings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-					.instance(IDomainSettings.class, domain.uid).get();
-			if (domSettings.containsKey(DomainSettingsKeys.mailbox_default_publicfolder_quota.name())) {
-				mailbox.quota = Integer
-						.parseInt(domSettings.get(DomainSettingsKeys.mailbox_default_publicfolder_quota.name()));
+		sanitizeQuota(mailbox);
+	}
 
-			}
+	private void sanitizeQuota(Mailbox mailbox) {
+		if (mailbox.type != Type.mailshare || mailbox.quota != null) {
+			return;
 		}
+
+		Map<String, String> domainSettings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, domain.uid).get();
+
+		mailbox.quota = MailboxQuotaHelper
+				.getDefaultQuota(domainSettings, DomainSettingsKeys.mailbox_max_publicfolder_quota.name(),
+						DomainSettingsKeys.mailbox_default_publicfolder_quota.name())
+				.orElse(null);
 	}
 
 	private boolean isNullOrEmpty(Collection<Email> c) {
 		return (c == null || c.isEmpty());
 	}
-
 }

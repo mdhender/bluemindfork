@@ -20,7 +20,6 @@ package net.bluemind.system.importation.commons.managers;
 
 import java.text.Normalizer;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -74,24 +73,11 @@ public abstract class UserManager extends EntityManager {
 	private boolean mailFilterUpdated = false;
 	private MailFilter mailFilter = new MailFilter();
 
-	public final Optional<Set<UuidMapper>> splitGroupMembers;
 	public Integer mailboxQuota = null;
 
 	public UserManager(ItemValue<Domain> domain, Entry entry) {
 		super(domain);
 		this.entry = entry;
-		this.splitGroupMembers = Optional.empty();
-	}
-
-	public UserManager(ItemValue<Domain> domain, Entry entry, Optional<Set<UuidMapper>> splitGroupMembers) {
-		super(domain);
-		this.entry = entry;
-
-		if (splitGroupMembers.isPresent()) {
-			this.splitGroupMembers = Optional.of(Collections.unmodifiableSet(splitGroupMembers.get()));
-		} else {
-			this.splitGroupMembers = splitGroupMembers;
-		}
 	}
 
 	public abstract String getExternalId(IImportLogger importLogger);

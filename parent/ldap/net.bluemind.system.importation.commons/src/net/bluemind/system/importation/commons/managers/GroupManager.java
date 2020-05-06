@@ -42,6 +42,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.utils.UIDGenerator;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.group.api.Group;
+import net.bluemind.lib.ldap.GroupMemberAttribute;
 import net.bluemind.system.importation.commons.Parameters;
 import net.bluemind.system.importation.commons.enhancer.GroupData;
 import net.bluemind.system.importation.commons.enhancer.IEntityEnhancer;
@@ -166,10 +167,10 @@ public abstract class GroupManager extends EntityManager {
 		group.value.emails = emails;
 	}
 
-	public Set<String> getGroupMembers(String groupMembersAttributeName) {
+	public Set<String> getGroupMembers(GroupMemberAttribute groupMembersAttribute) {
 		Set<String> groupMembers = new HashSet<>();
 
-		Attribute member = entry.get(groupMembersAttributeName);
+		Attribute member = entry.get(groupMembersAttribute.name());
 		if (member != null) {
 			Iterator<Value<?>> iterator = member.iterator();
 			while (iterator.hasNext()) {

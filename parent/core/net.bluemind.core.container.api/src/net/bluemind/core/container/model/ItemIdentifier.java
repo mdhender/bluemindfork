@@ -37,4 +37,8 @@ public class ItemIdentifier extends ItemVersion {
 		return new ItemIdentifier(uid, id, version);
 	}
 
+	public ItemIdentifier(ChangeLogEntry entry) {
+		this(entry.itemUid, entry.internalId, entry.version);
+	}
+
 }

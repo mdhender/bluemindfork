@@ -123,9 +123,7 @@ public class AddIndexConfiguration implements IVersionedUpdater {
 
 			ModifyRequestImpl modifyRequest = new ModifyRequestImpl();
 			modifyRequest.setName(entry.getDn());
-			modifyRequest.remove("olcDbIndex", "uid,memberUid,bmUid eq,pres,sub");
-			modifyRequest.remove("olcDbIndex", "uidNumber,gidNumber,loginShell eq,pres");
-			modifyRequest.remove("olcDbIndex", "ou,cn,mail,surname,givenname eq,pres,sub");
+			modifyRequest.remove("olcDbIndex");
 			modifyRequest.add("olcDbIndex", "uid eq,pres,sub");
 			modifyRequest.add("olcDbIndex", "bmUid eq,pres,sub");
 			modifyRequest.add("olcDbIndex", "member eq,pres");

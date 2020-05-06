@@ -25,9 +25,10 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.elasticsearch.common.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Strings;
 
 import net.bluemind.eas.dto.sync.CollectionId;
 

@@ -38,6 +38,7 @@ import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.group.api.Group;
+import net.bluemind.lib.ldap.GroupMemberAttribute;
 import net.bluemind.system.importation.commons.Parameters;
 import net.bluemind.system.importation.commons.enhancer.IEntityEnhancer;
 import net.bluemind.system.importation.commons.scanner.IImportLogger;
@@ -227,7 +228,8 @@ public class GroupManagerTests {
 				"/resources/commons/managers/GroupManagerTest/getGroupMembers.ldif");
 		assertEquals(1, entities.size());
 
-		Set<String> members = new GroupManagerTestImpl(getDomain(), entities.get(0)).getGroupMembers("member");
+		Set<String> members = new GroupManagerTestImpl(getDomain(), entities.get(0))
+				.getGroupMembers(GroupMemberAttribute.member);
 		assertEquals(2, members.size());
 	}
 }
