@@ -176,7 +176,6 @@ public class PublicFolderHierarchyHook implements IContainersHook, IAclHook {
 
 	@Override
 	public void onContainerOfflineSyncStatusChanged(BmContext ctx, ContainerDescriptor cd, String subject) {
-
 	}
 
 	@Override
