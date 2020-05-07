@@ -17,6 +17,12 @@
   */
 package net.bluemind.cli.launcher;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.stream.Stream;
+
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.fusesource.jansi.Ansi;
@@ -24,9 +30,9 @@ import org.fusesource.jansi.Ansi.Color;
 import org.fusesource.jansi.AnsiConsole;
 import org.osgi.framework.Version;
 
+import com.google.common.base.Splitter;
+
 public class CLIEntryPoint implements IApplication {
-	public CLIEntryPoint() {
-	}
 
 	@Override
 	public Object start(IApplicationContext context) throws Exception {
@@ -38,9 +44,16 @@ public class CLIEntryPoint implements IApplication {
 			if (args.length == 0) {
 				System.out.println(
 						Ansi.ansi().fgBrightBlue().a("Blue").fgBrightCyan().a("Mind").reset().a(" CLI " + version));
+			} else if (isCliScript(args)) {
+				Path script = Paths.get(args[0]);
+				CLIManager cm = new CLIManager(version);
+				try (Stream<String> linesStream = Files.lines(script)) {
+					linesStream.map(this::asArguments).forEach(cm::processArgs);
+				}
+			} else {
+				CLIManager cm = new CLIManager(version);
+				cm.processArgs(args);
 			}
-			CLIManager cm = new CLIManager(version);
-			cm.processArgs(args);
 		} catch (Exception e) {
 			System.err.println(Ansi.ansi().fg(Color.RED).a(e.getMessage()).reset());
 			e.printStackTrace();
@@ -48,6 +61,14 @@ public class CLIEntryPoint implements IApplication {
 			AnsiConsole.systemUninstall();
 		}
 		return IApplication.EXIT_OK;
+	}
+
+	private boolean isCliScript(String[] args) {
+		return args.length == 1 && new File(args[0]).exists();
+	}
+
+	private String[] asArguments(String line) {
+		return Splitter.on(' ').omitEmptyStrings().splitToList(line).toArray(new String[0]);
 	}
 
 	@Override
