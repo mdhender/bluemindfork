@@ -31,7 +31,6 @@
 </template>
 
 <script>
-import MailRouterMixin from "../MailRouterMixin";
 import { BmButton, BmButtonToolbar, BmIcon, BmTooltip } from "@bluemind/styleguide";
 import { mapState } from "vuex";
 
@@ -43,15 +42,9 @@ export default {
         BmIcon
     },
     directives: { BmTooltip },
-    mixins: [MailRouterMixin],
     computed: {
         ...mapState("mail-webapp", ["currentFolderKey"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" })
-    },
-    methods: {
-        computeRoute(suffix) {
-            return this.computeMessageRoute(this.currentFolderKey, this.currentMessageKey) + "/" + suffix;
-        }
     }
 };
 </script>

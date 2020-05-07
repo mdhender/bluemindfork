@@ -52,7 +52,6 @@
 import { BmListGroup, BmListGroupItem } from "@bluemind/styleguide";
 import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
 import { TOGGLE_SELECTION_ALL } from "../VueBusEventTypes";
-import MailRouterMixin from "../MailRouterMixin";
 import MessageListItem from "./MessageListItem";
 import MessageListSeparator from "./MessageListSeparator";
 
@@ -66,7 +65,6 @@ export default {
         MessageListItem,
         MessageListSeparator
     },
-    mixins: [MailRouterMixin],
     data() {
         return {
             PAGE,
