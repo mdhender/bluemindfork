@@ -2,7 +2,7 @@
     "name": "@bluemind/sockjs",
     "description": "Plugin to connect bluemind sockjs bus",
     "version": "4.1.0",
-    "license": "GPL-3.0",
+    "license": "Affero GPLv3",
     "author": "Blue Mind SAS",
     "main": "src/index.js",
     "module": "src/index.js",

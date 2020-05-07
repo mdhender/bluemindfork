@@ -3,7 +3,7 @@
     "version": "4.1.0",
     "description": "Bluemind root application",
     "author": "Blue Mind SAS",
-    "license": "GPLv3",
+    "license": "Affero GPLv3",
     "main": "src/run.js",
     "dependencies": {
         "@bluemind/alert.store": "^4.1.0",

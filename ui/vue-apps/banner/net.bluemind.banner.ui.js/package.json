@@ -4,7 +4,7 @@
     "description": "Blue Mind banner component",
     "main": "src/js/Banner.vue",
     "author": "Blue Mind SAS",
-    "license": "GPLv3",
+    "license": "Affero GPLv3",
     "dependencies": {
         "@bluemind/styleguide": "^0.1.0"
     },

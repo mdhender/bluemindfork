@@ -3,6 +3,6 @@
     "version": "4.1.0",
     "description": "Bluemind common translations",
     "author": "Blue Mind SAS",
-    "license": "GPLv3",
+    "license": "Affero GPLv3",
     "main": "index.js"
 }

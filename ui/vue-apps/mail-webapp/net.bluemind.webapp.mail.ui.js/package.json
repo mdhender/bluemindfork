@@ -3,7 +3,7 @@
     "version": "4.1.0",
     "description": "Bluemind MailApp components library",
     "author": "Blue Mind SAS",
-    "license": "GPLv3",
+    "license": "Affero GPLv3",
     "main": "src/index.js",
     "module": "src/index.js",
     "dependencies": {

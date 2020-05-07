@@ -3,10 +3,12 @@
     "version": "4.1.0",
     "description": "Bluemind i18n helper",
     "author": "Blue Mind SAS",
-    "license": "GPLv3",
+    "license": "Affero GPLv3",
     "main": "src/index.js",
     "module": "src/index.js",
-    "publishConfig": {"registry":"https://forge.bluemind.net/nexus/repository/bm-npm/"},
+    "publishConfig": {
+        "registry": "https://forge.bluemind.net/nexus/repository/bm-npm/"
+    },
     "devDependencies": {
         "@bluemind/conf": "^4.1.0",
         "@bluemind/date": "^4.1.0"
