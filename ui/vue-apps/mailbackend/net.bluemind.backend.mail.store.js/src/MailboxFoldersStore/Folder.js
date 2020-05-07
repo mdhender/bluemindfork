@@ -1,7 +1,21 @@
 const defaultFolders = ["INBOX", "Sent", "Drafts", "Trash", "Junk", "Outbox"];
 
 export function isDefaultFolder(folder) {
-    return !folder.parent && defaultFolders.includes(folder.fullName);
+    return defaultFolders.includes(folder.fullName);
+}
+
+const FORBIDDEN_FOLDER_CHARACTERS = "/@%*";
+
+/**
+ * return invalid character if name is invalid
+ */
+export function isFolderNameValid(name) {
+    for (let i = 0; i < name.length; i++) {
+        if (FORBIDDEN_FOLDER_CHARACTERS.includes(name.charAt(i))) {
+            return name.charAt(i);
+        }
+    }
+    return true;
 }
 
 export default class Folder {

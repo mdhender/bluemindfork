@@ -138,7 +138,7 @@ describe("VuexRouterPlugin", () => {
     test("execute onEnter hook before onUpdate et after onLeave", async () => {
         let order = 1;
         ENTERING.meta.onEnter.mockImplementation(async () => expect(order++).toBe(2));
-        UPDATING.meta.onUpdate.mockImplementation(async () => expect(order++).toBe(3));
+        ENTERING.meta.onUpdate.mockImplementation(async () => expect(order++).toBe(3));
         LEAVING.meta.onLeave.mockImplementation(async () => expect(order++).toBe(1));
         await VueRouterMock.navigate(from, to);
         expect.assertions(3);

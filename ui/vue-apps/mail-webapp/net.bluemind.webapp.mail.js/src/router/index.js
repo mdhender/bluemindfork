@@ -29,9 +29,7 @@ export default [
                 path: ".t/:message",
                 component: MailThread,
                 meta: {
-                    watch: {
-                        message: (store, value) => store.dispatch("mail-webapp/selectMessage", value)
-                    }
+                    onUpdate: (store, to) => store.dispatch("mail-webapp/selectMessage", to.params.message)
                 },
                 children: [
                     {

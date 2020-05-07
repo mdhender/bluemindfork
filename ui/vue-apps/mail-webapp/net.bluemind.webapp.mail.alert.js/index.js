@@ -130,5 +130,20 @@ export default {
         type: AlertTypes.SUCCESS,
         key: "alert.folder.remove.success",
         renderer: "MailAlertRenderer"
+    },
+    MSG_FOLDER_RENAME_LOADING: {
+        type: AlertTypes.LOADING,
+        key: "alert.folder.rename.loading",
+        renderer: "MailAlertRenderer"
+    },
+    MSG_FOLDER_RENAME_ERROR: {
+        type: AlertTypes.ERROR,
+        key: "alert.folder.rename.error",
+        renderer: "MailAlertRenderer"
+    },
+    MSG_FOLDER_RENAME_SUCCESS: {
+        type: AlertTypes.SUCCESS,
+        key: "alert.folder.rename.success",
+        renderer: "MailAlertRenderer"
     }
 };

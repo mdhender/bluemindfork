@@ -95,10 +95,9 @@ import {
     BmTooltip
 } from "@bluemind/styleguide";
 import { mapActions, mapGetters, mapState } from "vuex";
+import { isFolderNameValid } from "@bluemind/backend.mail.store";
 import GlobalEvents from "vue-global-events";
 import MailFolderIcon from "../../MailFolderIcon";
-
-const ALLOWED_FOLDER_CHARACTERS = "()*+,-.0123456789:=?ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_abcdefghijklmnopqrstuvwxyz~";
 
 export default {
     name: "MailToolbarConsultMessageMoveAction",
@@ -153,16 +152,15 @@ export default {
         isNewFolderNameValid() {
             if (this.newFolderName !== "") {
                 const currentFolderName = this.newFolderName.toLowerCase();
-                const foldersToCompare = this.my.folders.filter(folder => folder.value.parentUid === null);
-                if (foldersToCompare.some(folder => folder.displayName.toLowerCase() === currentFolderName)) {
+                const rootFolders = this.my.folders.filter(folder => folder.value.parentUid === null);
+                if (rootFolders.some(folder => folder.displayName.toLowerCase() === currentFolderName)) {
                     return this.$t("mail.actions.create.folder.invalid.already_exist");
                 }
-                for (let i = 0; i < currentFolderName.length; i++) {
-                    if (!ALLOWED_FOLDER_CHARACTERS.includes(currentFolderName.charAt(i))) {
-                        return this.$t("mail.actions.create.folder.invalid.character", {
-                            character: currentFolderName.charAt(i)
-                        });
-                    }
+                const checkValidity = isFolderNameValid(currentFolderName);
+                if (checkValidity !== true) {
+                    return this.$t("mail.actions.create.folder.invalid.character", {
+                        character: checkValidity
+                    });
                 }
             }
             return true;
@@ -215,7 +213,7 @@ export default {
             this.newFolderName = "";
         },
         moveToNewFolderInput() {
-            if (this.isNewFolderNameValid === true) {
+            if (this.isNewFolderNameValid === true && this.newFolderName !== "") {
                 this.selectFolder({ value: { fullName: this.newFolderName, path: this.newFolderName } });
                 this.forceCloseMoveAutocomplete();
             }
