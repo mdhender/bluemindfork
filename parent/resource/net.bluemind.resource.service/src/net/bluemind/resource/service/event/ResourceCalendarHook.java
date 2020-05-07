@@ -159,36 +159,13 @@ public class ResourceCalendarHook implements ICalendarHook {
 	}
 
 	private boolean isResourceAttendeeVersion(VEventSeries vevent, Container container) {
-		if (isMasterVersion(vevent, container)) {
+		if (vevent.master(container.domainUid, container.owner)) {
 			return false;
 		}
 
 		IDirectory directoryService = provider().instance(IDirectory.class, container.domainUid);
 		DirEntry dirEntry = directoryService.findByEntryUid(container.owner);
 		return dirEntry != null && dirEntry.kind == DirEntry.Kind.RESOURCE;
-	}
-
-	private boolean isMasterVersion(VEventSeries vevent, Container container) throws ServerFault {
-		if (vevent.main == null) {
-			return false;
-		}
-		if (vevent.main.attendees.isEmpty()) {
-			return true;
-		}
-
-		if (vevent.main.organizer == null || vevent.main.organizer.dir == null) {
-			return false;
-		}
-
-		IDirectory directoryService = provider().instance(IDirectory.class, container.domainUid);
-		DirEntry dirEntry = directoryService.getEntry(vevent.main.organizer.dir.substring("bm://".length()));
-
-		// FIXME organizer.dir ~= container.owner (no need to retrieve dirEntry
-		// for that..)
-		// return
-		// vevent.organizer.dir.substring(vevent.organizer.dir.lastIndexOf("/")
-		// + 1).equals(container.owner);
-		return dirEntry.entryUid.equals(container.owner);
 	}
 
 	private IServiceProvider provider() {
