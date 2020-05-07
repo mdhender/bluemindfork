@@ -9,23 +9,6 @@ function check_hprof {
     fi
 }
 
-function check_pid {
-    pid=$($jps -ml | grep $1 | cut -d ' ' -f1)
-    
-    if [ -z ${pid} ]; then
-        echo "[ERROR] process $1 not found"
-        exit 2
-    fi
-    
-    kill -0 ${pid} >/dev/null 2>&1
-    ret=$?
-
-    if [ ${ret} -ne 0 ]; then
-        echo "[ERROR] process $1 not responding"
-        exit 2
-    fi
-}
-
 function check_networkport {
     content=$1
     shift
