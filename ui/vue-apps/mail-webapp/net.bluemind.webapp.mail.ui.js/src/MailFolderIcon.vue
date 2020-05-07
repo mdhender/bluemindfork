@@ -1,5 +1,5 @@
 <template>
-    <bm-label-icon :icon="icon" :aria-label="shared && $t('common.mailshares')">
+    <bm-label-icon class="mail-folder-icon" :icon="icon" :aria-label="shared && $t('common.mailshares')">
         <slot>{{ folder.name }}</slot>
     </bm-label-icon>
 </template>

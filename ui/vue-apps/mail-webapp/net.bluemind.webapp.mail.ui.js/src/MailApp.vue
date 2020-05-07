@@ -45,7 +45,7 @@
                 h-100 col-12 col-lg-2 z-index-200 overlay top-0 bottom-0"
             >
                 <bm-col cols="10" lg="12" class="mail-folder-tree-wrapper bg-surface h-100">
-                    <div class="h-100 scroller scroller-visible-on-hover position-relative ">
+                    <div class="h-100 scroller scroller-visible-on-hover">
                         <mail-folder-tree class="d-inline-block " @toggle-folders="toggleFolders" />
                     </div>
                 </bm-col>
@@ -65,7 +65,6 @@
         >
             <bm-icon icon="pencil" />
         </bm-button>
-        <mail-purge-modal />
     </div>
 </template>
 
@@ -75,7 +74,6 @@ import { mapState } from "vuex";
 import MailAppL10N from "@bluemind/webapp.mail.l10n";
 import MailFolderTree from "./MailFolder/MailFolderTree";
 import MailMessageList from "./MailMessageList/MailMessageList";
-import MailPurgeModal from "./MailPurgeModal";
 import MailToolbar from "./MailToolbar/";
 import MailSearchForm from "./MailSearchForm";
 import injector from "@bluemind/inject";
@@ -91,7 +89,6 @@ export default {
         BmRow,
         MailFolderTree,
         MailMessageList,
-        MailPurgeModal,
         MailSearchForm,
         MailToolbar
     },

@@ -114,10 +114,4 @@ export default {
     text-decoration-line: none;
     border-bottom: 1px solid $light !important;
 }
-
-.mail-folder-tree .bm-counter-badge {
-    // work around to avoid parent padding
-    margin-top: -($sp-1);
-    margin-bottom: -($sp-1);
-}
 </style>

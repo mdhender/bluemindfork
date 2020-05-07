@@ -3,7 +3,7 @@
         class="message-list bg-extra-light"
         tabindex="0"
         @scroll="onScroll"
-        @keyup.shift.delete.exact.prevent="openPurgeModal"
+        @keyup.shift.delete.exact.prevent="purge"
         @keyup.delete.exact.prevent="remove"
         @keyup.up.exact="goToByDiff(-1)"
         @keyup.down.exact="goToByDiff(+1)"
@@ -51,7 +51,7 @@
 <script>
 import { BmListGroup, BmListGroupItem } from "@bluemind/styleguide";
 import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
-import { SHOW_PURGE_MODAL, TOGGLE_SELECTION_ALL } from "../VueBusEventTypes";
+import { TOGGLE_SELECTION_ALL } from "../VueBusEventTypes";
 import MailRouterMixin from "../MailRouterMixin";
 import MessageListItem from "./MessageListItem";
 import MessageListSeparator from "./MessageListSeparator";
@@ -86,6 +86,7 @@ export default {
         ]),
         ...mapState("mail-webapp/messages", ["itemKeys"]),
         ...mapGetters("mail-webapp/messages", ["messages", "count", "indexOf"]),
+        ...mapGetters("mail-webapp/currentMessage", { currentMessage: "message" }),
         ...mapState("mail-webapp", ["currentFolderKey", "messageFilter", "selectedMessageKeys"]),
         ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
         _messages() {
@@ -137,14 +138,28 @@ export default {
         },
         remove() {
             if (this.currentFolderKey === this.my.TRASH.key) {
-                this.openPurgeModal();
-                return;
+                this.purge();
+            } else {
+                this.$router.navigate({ name: "v:mail:message", params: { message: this.nextMessageKey } });
+                this.$store.dispatch("mail-webapp/remove", this.currentMessageKey);
             }
-            this.$router.navigate({ name: "v:mail:message", params: { message: this.nextMessageKey } });
-            this.$store.dispatch("mail-webapp/remove", this.currentMessageKey);
         },
-        openPurgeModal() {
-            this.$bus.$emit(SHOW_PURGE_MODAL);
+        async purge() {
+            const confirm = await this.$bvModal.msgBoxConfirm(
+                this.$t("mail.actions.purge.modal.content", { subject: this.currentMessage.subject }),
+                {
+                    title: this.$t("mail.actions.purge.modal.title"),
+                    okTitle: this.$t("common.delete"),
+                    cancelVariant: "outline-secondary",
+                    cancelTitle: this.$t("common.cancel"),
+                    centered: true,
+                    hideHeaderClose: false
+                }
+            );
+            if (confirm) {
+                this.$router.navigate({ name: "v:mail:message", params: { message: this.nextMessageKey } });
+                this.$store.dispatch("mail-webapp/purge", this.currentMessageKey);
+            }
         },
         goToByDiff(diff) {
             this.goToByIndex(this.indexOf(this.lastFocusedMessage) + diff);

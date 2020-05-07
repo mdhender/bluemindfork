@@ -7,8 +7,8 @@
                 :title="$tc('mail.actions.remove.aria')"
                 class="p-1 mr-2 border-0 hovershadow"
                 variant="link"
-                @click.shift.exact.prevent="openPurgeModal"
-                @click.exact.prevent.stop="remove(message.key)"
+                @click.shift.exact.prevent.stop="purge"
+                @click.exact.prevent.stop="remove"
             >
                 <bm-icon icon="trash" size="sm" />
             </bm-button>
@@ -41,7 +41,6 @@
 <script>
 import { BmButtonToolbar, BmButtonGroup, BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
 import { mapActions, mapGetters, mapState } from "vuex";
-import { SHOW_PURGE_MODAL } from "../VueBusEventTypes";
 
 export default {
     name: "MessageListItemQuickActionButtons",
@@ -67,7 +66,7 @@ export default {
         ...mapActions("mail-webapp", ["markAsRead", "markAsUnread"]),
         remove() {
             if (this.currentFolderKey === this.my.TRASH.key) {
-                this.openPurgeModal();
+                this.purge();
                 return;
             }
             if (this.currentMessageKey === this.message.key) {
@@ -75,8 +74,24 @@ export default {
             }
             this.$store.dispatch("mail-webapp/remove", this.message.key);
         },
-        openPurgeModal() {
-            this.$bus.$emit(SHOW_PURGE_MODAL, this.message.key);
+        async purge() {
+            const confirm = await this.$bvModal.msgBoxConfirm(
+                this.$t("mail.actions.purge.modal.content", { subject: this.message.subject }),
+                {
+                    title: this.$t("mail.actions.purge.modal.title"),
+                    okTitle: this.$t("common.delete"),
+                    cancelVariant: "outline-secondary",
+                    cancelTitle: this.$t("common.cancel"),
+                    centered: true,
+                    hideHeaderClose: false
+                }
+            );
+            if (confirm) {
+                if (this.currentMessageKey === this.message.key) {
+                    this.$router.navigate({ name: "v:mail:message", params: { message: this.nextMessageKey } });
+                }
+                this.$store.dispatch("mail-webapp/purge", this.message.key);
+            }
         }
     }
 };

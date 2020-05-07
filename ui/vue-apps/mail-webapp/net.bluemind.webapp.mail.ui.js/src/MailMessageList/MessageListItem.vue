@@ -46,10 +46,15 @@
                 </bm-col>
                 <bm-col cols="3">
                     <transition name="fade" mode="out-in">
-                        <div v-if="!quickActionButtonsVisible" class="float-right">
-                            <component :is="widget" v-for="widget in widgets" :key="widget.template" class="ml-2" />
+                        <div>
+                            <div v-show="!quickActionButtonsVisible" class="float-right">
+                                <component :is="widget" v-for="widget in widgets" :key="widget.template" class="ml-2" />
+                            </div>
+                            <message-list-item-quick-action-buttons
+                                v-show="quickActionButtonsVisible"
+                                :message="message"
+                            />
                         </div>
-                        <message-list-item-quick-action-buttons v-if="quickActionButtonsVisible" :message="message" />
                     </transition>
                 </bm-col>
             </bm-row>

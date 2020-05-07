@@ -2,7 +2,7 @@
     <div class="main-app d-flex flex-column vh-100 bg-light">
         <bm-banner :applications="applications" :widgets="widgets" :user="user" :software="software" />
         <router-view />
-        <bm-application-alert :alerts="applicationAlerts" class="z-index-250">
+        <bm-application-alert :alerts="applicationAlerts" class="z-index-250 position-absolute">
             <template v-slot="slotProps">
                 <component :is="slotProps.alert.renderer" :alert="slotProps.alert" />
             </template>

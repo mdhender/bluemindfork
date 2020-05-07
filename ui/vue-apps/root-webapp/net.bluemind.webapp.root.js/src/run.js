@@ -1,6 +1,5 @@
 import { extend } from "@bluemind/vuex-router";
-import { FirstDayOfWeek } from "@bluemind/i18n";
-import { InheritTranslationsMixin } from "@bluemind/i18n";
+import { FirstDayOfWeek, InheritTranslationsMixin } from "@bluemind/i18n";
 import { sync } from "vuex-router-sync";
 import AlertStore from "@bluemind/alert.store";
 import injector from "@bluemind/inject";
@@ -12,6 +11,7 @@ import Vue2TouchEvents from "vue2-touch-events";
 import VueBus from "@bluemind/vue-bus";
 import VueI18n from "vue-i18n";
 import VueSockjsPlugin from "@bluemind/vue-sockjs";
+import { BmModalPlugin } from "@bluemind/styleguide";
 
 setVuePlugins();
 
@@ -48,6 +48,7 @@ function setVuePlugins() {
     Vue.use(VueBus, { store });
     Vue.use(VueSockjsPlugin, { url: "/eventbus/", VueBus });
     Vue.use(Vue2TouchEvents, { disableClick: true });
+    Vue.use(BmModalPlugin);
 }
 
 function registerDependencies(userSession) {

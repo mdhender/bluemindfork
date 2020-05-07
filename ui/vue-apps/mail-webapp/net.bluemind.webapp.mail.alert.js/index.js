@@ -115,5 +115,20 @@ export default {
         type: AlertTypes.SUCCESS,
         key: "alert.mail.multiple.markasunread.success",
         renderer: "MailAlertRenderer"
+    },
+    MSG_FOLDER_REMOVE_LOADING: {
+        type: AlertTypes.LOADING,
+        key: "alert.folder.remove.loading",
+        renderer: "MailAlertRenderer"
+    },
+    MSG_FOLDER_REMOVE_ERROR: {
+        type: AlertTypes.ERROR,
+        key: "alert.folder.remove.error",
+        renderer: "MailAlertRenderer"
+    },
+    MSG_FOLDER_REMOVE_SUCCESS: {
+        type: AlertTypes.SUCCESS,
+        key: "alert.folder.remove.success",
+        renderer: "MailAlertRenderer"
     }
 };

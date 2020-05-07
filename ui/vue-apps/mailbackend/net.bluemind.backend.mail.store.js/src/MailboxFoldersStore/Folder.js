@@ -1,5 +1,9 @@
 const defaultFolders = ["INBOX", "Sent", "Drafts", "Trash", "Junk", "Outbox"];
 
+export function isDefaultFolder(folder) {
+    return !folder.parent && defaultFolders.includes(folder.fullName);
+}
+
 export default class Folder {
     constructor(key, item) {
         Object.assign(this, item);
