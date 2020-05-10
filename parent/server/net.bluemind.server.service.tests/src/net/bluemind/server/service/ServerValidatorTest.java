@@ -77,9 +77,8 @@ public class ServerValidatorTest {
 		server.ip = "";
 		try {
 			validator.validate(server);
+			fail();
 		} catch (ServerFault e) {
-			e.printStackTrace();
-			fail(e.getMessage());
 		}
 
 		server = defaultServer();
