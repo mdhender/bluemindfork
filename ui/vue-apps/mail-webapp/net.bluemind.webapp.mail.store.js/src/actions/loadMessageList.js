@@ -53,7 +53,7 @@ function getMailshareUid(getters, path) {
 }
 
 function expandParents(commit, getters, folder) {
-    if (folder.value.parentUid) {
+    if (folder.value && folder.value.parentUid) {
         commit("expandFolder", folder.value.parentUid);
         const mailboxId = ItemUri.container(folder.key);
         const parentFolderKey = ItemUri.encode(folder.value.parentUid, mailboxId);
