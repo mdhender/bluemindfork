@@ -28,14 +28,14 @@ export function previousMessageContent(action, parts, message, expected) {
             ? buildSeparatorForForward(message, vueI18n, lineBreakSeparator)
             : buildSeparatorForReply(vueI18n, message);
 
-    let previousMessage;
+    let previousMessage = "";
     parts.forEach(part => {
         if (MimeType.equals(part.mime, expected)) {
-            previousMessage = part.content;
+            previousMessage += part.content;
         } else if (MimeType.equals(part.mime, MimeType.TEXT_PLAIN)) {
-            previousMessage = mailText2Html(part.content);
+            previousMessage += mailText2Html(part.content);
         } else if (MimeType.equals(part.mime, MimeType.TEXT_HTML)) {
-            previousMessage = html2text(part.content);
+            previousMessage += html2text(part.content);
         }
     });
 
