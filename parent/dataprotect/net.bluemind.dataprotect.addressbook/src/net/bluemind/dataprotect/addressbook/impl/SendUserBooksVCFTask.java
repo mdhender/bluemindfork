@@ -60,10 +60,10 @@ import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 
 public class SendUserBooksVCFTask implements IServerTask {
-
 	private static final Logger logger = LoggerFactory.getLogger(SendUserBooksVCFTask.class);
-	private DataProtectGeneration backup;
-	private Restorable item;
+
+	private final DataProtectGeneration backup;
+	private final Restorable item;
 
 	public SendUserBooksVCFTask(DataProtectGeneration backup, Restorable item) {
 		this.backup = backup;
@@ -79,15 +79,14 @@ public class SendUserBooksVCFTask implements IServerTask {
 
 	@Override
 	public void run(IServerTaskMonitor monitor) throws Exception {
-		monitor.begin(10, "starting restore for uid " + item.entryUid);
+		monitor.begin(10, String.format("Starting restore for uid %s", item.entryUid));
 
-		SecurityContext userContext = as(item.entryUid, item.domainUid);
-		try (BackupDataProvider bdp = new BackupDataProvider(null, userContext, monitor)) {
+		SecurityContext backUserContext = as(item.entryUid, item.domainUid);
+		try (BackupDataProvider bdp = new BackupDataProvider(null, backUserContext, monitor)) {
 			IServiceProvider back = bdp.createContextWithData(backup, item).provider();
-			IServiceProvider live = ServerSideServiceProvider.getProvider(userContext);
 
-			IContainers containersService = live.instance(IContainers.class);
-			ContainerQuery cq = ContainerQuery.ownerAndType(userContext.getSubject(), IAddressBookUids.TYPE);
+			IContainers containersService = back.instance(IContainers.class);
+			ContainerQuery cq = ContainerQuery.ownerAndType(backUserContext.getSubject(), IAddressBookUids.TYPE);
 			List<ContainerDescriptor> books = containersService.all(cq);
 
 			Map<String, String> allVCards = new HashMap<String, String>(books.size());
@@ -96,22 +95,23 @@ public class SendUserBooksVCFTask implements IServerTask {
 				allVCards.put(b.name, service.exportAll());
 			}
 
-			IUser userService = live.instance(IUser.class, item.domainUid);
-			ItemValue<User> user = userService.getComplete(item.entryUid);
+			IUser userService = ServerSideServiceProvider.getProvider(as(item.liveEntryUid(), item.domainUid))
+					.instance(IUser.class, item.domainUid);
+			ItemValue<User> user = userService.getComplete(item.liveEntryUid());
 
-			try {
-				Mailbox sender = SendmailHelper.formatAddress("no-reply@" + item.domainUid,
-						"no-reply@" + item.domainUid);
-				Mailbox to = SendmailHelper.formatAddress(user.value.contactInfos.identification.formatedName.value,
-						user.value.defaultEmail().address);
-				try (Message m = getMessage(sender, to, allVCards)) {
-					Sendmail mailer = new Sendmail();
-					mailer.send(sender, m);
-				}
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+			Mailbox sender = SendmailHelper.formatAddress(String.format("no-reply@%s", item.domainUid),
+					String.format("no-reply@%s", item.domainUid));
+			Mailbox to = SendmailHelper.formatAddress(user.value.contactInfos.identification.formatedName.value,
+					user.value.defaultEmail().address);
+			try (Message m = getMessage(sender, to, allVCards)) {
+				Sendmail mailer = new Sendmail();
+				mailer.send(sender, m);
 			}
 
+		} catch (Exception e) {
+			logger.error("Error while sending user contacts", e);
+			monitor.end(false, "finished with errors : " + e.getMessage(), "[]");
+			return;
 		}
 
 		monitor.end(true, "finished.", "[]");

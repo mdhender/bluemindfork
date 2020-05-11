@@ -37,7 +37,6 @@ import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.dataprotect.api.DataProtectGeneration;
 import net.bluemind.dataprotect.api.IDataProtect;
 import net.bluemind.dataprotect.api.PartGeneration;
-import net.bluemind.dataprotect.api.Restorable;
 import net.bluemind.dataprotect.api.RestoreDefinition;
 import net.bluemind.dataprotect.api.RestoreOperation;
 import net.bluemind.dataprotect.api.RetentionPolicy;
@@ -134,8 +133,6 @@ public class DPService implements IDataProtect {
 		ParametersValidator.notNull(restoreDefinition.restoreOperationIdenfitier);
 
 		rbac.forDomain(restoreDefinition.item.domainUid).check(BasicRoles.ROLE_MANAGE_RESTORE);
-		Restorable it = restoreDefinition.item;
-		String op = restoreDefinition.restoreOperationIdenfitier;
 		List<DataProtectGeneration> generations = getAvailableGenerations();
 		DataProtectGeneration dataSource = null;
 		for (DataProtectGeneration dpg : generations) {
@@ -146,7 +143,7 @@ public class DPService implements IDataProtect {
 		}
 
 		if (dataSource == null) {
-			throw new ServerFault("data generation with id " + restoreDefinition.generation + " not found",
+			throw new ServerFault(String.format("data generation with id %s not found", restoreDefinition.generation),
 					ErrorCode.NOT_FOUND);
 		}
 
@@ -155,7 +152,7 @@ public class DPService implements IDataProtect {
 		for (IRestoreActionProvider prov : restoreProviders) {
 			List<RestoreOperation> ops = prov.operations();
 			for (RestoreOperation rop : ops) {
-				if (rop.identifier.equals(op)) {
+				if (rop.identifier.equals(restoreDefinition.restoreOperationIdenfitier)) {
 					matchingProvider = prov;
 					mathingOp = rop;
 					break;
@@ -164,10 +161,12 @@ public class DPService implements IDataProtect {
 		}
 
 		if (matchingProvider == null) {
-			throw new ServerFault("no restore provider found for " + op, ErrorCode.NOT_FOUND);
+			throw new ServerFault(
+					String.format("No restore provider found for %s", restoreDefinition.restoreOperationIdenfitier),
+					ErrorCode.NOT_FOUND);
 		}
 
-		return matchingProvider.run(mathingOp, dataSource, it);
+		return matchingProvider.run(mathingOp, dataSource, restoreDefinition.item);
 	}
 
 	@Override

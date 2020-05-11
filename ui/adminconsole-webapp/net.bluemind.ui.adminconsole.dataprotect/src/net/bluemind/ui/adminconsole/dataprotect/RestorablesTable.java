@@ -133,8 +133,8 @@ public class RestorablesTable extends DataGrid<ClientRestorable> {
 					restore.identifier = "complete.restore." + d.kind.name().toLowerCase();
 					restore.kind = d.kind;
 					restore.translations = new HashMap<>();
-					restore.translations.put("en", "Restore");
-					restore.translations.put("fr", "Restaurer");
+					restore.translations.put("en", "Restore or replace (if login already exists)");
+					restore.translations.put("fr", "Restaurer ou remplacer (si le login existe déjà)");
 					ActionHandler<ClientRestorable> ahr = new RestoreActionHandler("Restore", content, d, generationId,
 							restore);
 					trans.add(ahr);

@@ -22,7 +22,16 @@ import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")
 public class RestoreDefinition {
-	public int generation;
 	public String restoreOperationIdenfitier;
+	public int generation;
 	public Restorable item;
+
+	public RestoreDefinition() {
+	}
+
+	public RestoreDefinition(String restoreOperationIdenfitier, int generation, Restorable item) {
+		this.restoreOperationIdenfitier = restoreOperationIdenfitier;
+		this.generation = generation;
+		this.item = item;
+	}
 }

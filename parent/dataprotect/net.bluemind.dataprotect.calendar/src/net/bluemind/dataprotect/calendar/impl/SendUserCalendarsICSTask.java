@@ -61,10 +61,10 @@ import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 
 public class SendUserCalendarsICSTask implements IServerTask {
-
 	private static final Logger logger = LoggerFactory.getLogger(SendUserCalendarsICSTask.class);
-	private DataProtectGeneration backup;
-	private Restorable item;
+
+	private final DataProtectGeneration backup;
+	private final Restorable item;
 
 	public SendUserCalendarsICSTask(DataProtectGeneration backup, Restorable item) {
 		this.backup = backup;
@@ -81,15 +81,14 @@ public class SendUserCalendarsICSTask implements IServerTask {
 
 	@Override
 	public void run(IServerTaskMonitor monitor) throws Exception {
-		monitor.begin(10, "starting restore for uid " + item.entryUid);
+		monitor.begin(10, String.format("Starting restore for uid %s", item.entryUid));
 
-		SecurityContext userContext = as(item.entryUid, item.domainUid);
-		try (BackupDataProvider bdp = new BackupDataProvider(null, userContext, monitor)) {
+		SecurityContext backUserContext = as(item.entryUid, item.domainUid);
+		try (BackupDataProvider bdp = new BackupDataProvider(null, backUserContext, monitor)) {
 			IServiceProvider back = bdp.createContextWithData(backup, item).provider();
-			IServiceProvider live = ServerSideServiceProvider.getProvider(userContext);
 
 			IContainers containersService = back.instance(IContainers.class);
-			ContainerQuery cq = ContainerQuery.ownerAndType(userContext.getSubject(), ICalendarUids.TYPE);
+			ContainerQuery cq = ContainerQuery.ownerAndType(backUserContext.getSubject(), ICalendarUids.TYPE);
 			List<ContainerDescriptor> cals = containersService.all(cq);
 
 			Map<String, String> allIcs = new HashMap<String, String>(cals.size());
@@ -98,33 +97,21 @@ public class SendUserCalendarsICSTask implements IServerTask {
 				allIcs.put(cal.name, GenericStream.streamToString(service.exportAll()));
 			}
 
-			ItemValue<User> user;
-			try {
-				IUser userService = live.instance(IUser.class, item.domainUid);
-				user = userService.getComplete(item.entryUid);
-				if (user == null) {
-					throw new NullPointerException();
-				}
-			} catch (Exception e1) {
-				IUser userService = back.instance(IUser.class, item.domainUid);
-				user = userService.getComplete(item.entryUid);
-			}
+			IUser userService = ServerSideServiceProvider.getProvider(as(item.liveEntryUid(), item.domainUid))
+					.instance(IUser.class, item.domainUid);
+			ItemValue<User> user = userService.getComplete(item.liveEntryUid());
 
-			try {
-				Mailbox sender = SendmailHelper.formatAddress("no-reply@" + item.domainUid,
-						"no-reply@" + item.domainUid);
-				Mailbox to = SendmailHelper.formatAddress(user.value.contactInfos.identification.formatedName.value,
-						user.value.defaultEmail().address);
-				try (Message m = getMessage(sender, to, allIcs)) {
-					Sendmail mailer = new Sendmail();
-					mailer.send(sender, m);
-				}
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+			Mailbox sender = SendmailHelper.formatAddress(String.format("no-reply@%s", item.domainUid),
+					String.format("no-reply@%s", item.domainUid));
+			Mailbox to = SendmailHelper.formatAddress(user.value.contactInfos.identification.formatedName.value,
+					user.value.defaultEmail().address);
+			try (Message m = getMessage(sender, to, allIcs)) {
+				Sendmail mailer = new Sendmail();
+				mailer.send(sender, m);
 			}
-		} catch (Exception e2) {
-			logger.warn("Error while sending user calendars", e2);
-			monitor.end(false, "finished with errors : " + e2.getMessage(), "[]");
+		} catch (Exception e) {
+			logger.error("Error while sending user calendars", e);
+			monitor.end(false, "finished with errors : " + e.getMessage(), "[]");
 			return;
 		}
 

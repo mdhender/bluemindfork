@@ -41,8 +41,7 @@ public class RestoreUserCalendars implements IRestoreActionProvider {
 	}
 
 	@Override
-	public TaskRef run(RestoreOperation op, DataProtectGeneration backup, Restorable item)
-			throws ServerFault {
+	public TaskRef run(RestoreOperation op, DataProtectGeneration backup, Restorable item) throws ServerFault {
 		ITasksManager tsk = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ITasksManager.class);
 		return tsk.run(new RestoreCalendarsTask(backup, item));
 	}

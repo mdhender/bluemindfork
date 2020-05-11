@@ -45,10 +45,10 @@ import net.bluemind.dataprotect.api.Restorable;
 import net.bluemind.dataprotect.service.BackupDataProvider;
 
 public class RestoreBooksTask implements IServerTask {
-
-	private DataProtectGeneration backup;
-	private Restorable item;
 	private static final Logger logger = LoggerFactory.getLogger(RestoreBooksTask.class);
+
+	private final DataProtectGeneration backup;
+	private final Restorable item;
 
 	public RestoreBooksTask(DataProtectGeneration backup, Restorable item) {
 		this.backup = backup;
@@ -57,30 +57,29 @@ public class RestoreBooksTask implements IServerTask {
 
 	@Override
 	public void run(IServerTaskMonitor monitor) throws Exception {
-		monitor.begin(10, "starting restore for uid " + item.entryUid);
+		monitor.begin(10,
+				String.format("Starting restore for UID: %s from old UID: %s ", item.liveEntryUid(), item.entryUid));
 		try (BackupDataProvider bdp = new BackupDataProvider(null, SecurityContext.SYSTEM, monitor)) {
 			BmContext back = bdp.createContextWithData(backup, item);
 			BmContext live = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
 
-			ContainerQuery cq = ContainerQuery.ownerAndType(item.entryUid, IAddressBookUids.TYPE);
+			IContainers liveContApi = live.provider().instance(IContainers.class);
+			List<ContainerDescriptor> liveABs = liveContApi
+					.all(ContainerQuery.ownerAndType(item.liveEntryUid(), IAddressBookUids.TYPE));
 
-			IContainers lContApi = live.provider().instance(IContainers.class);
-			List<ContainerDescriptor> liveABs = lContApi.all(cq);
+			IContainers backContApi = back.provider().instance(IContainers.class);
+			List<ContainerDescriptor> backABs = backContApi
+					.all(ContainerQuery.ownerAndType(item.entryUid, IAddressBookUids.TYPE));
 
-			IContainers bContApi = back.provider().instance(IContainers.class);
-			List<ContainerDescriptor> dataProtectedBooks = bContApi.all(cq);
+			monitor.begin(backABs.size(), String.format(
+					"Starting restore for uid %s : Backup contains %d addressbook(s)", item.entryUid, backABs.size()));
 
-			monitor.begin(dataProtectedBooks.size(), "starting restore for uid " + item.entryUid + " : Backup contains "
-					+ dataProtectedBooks.size() + " addressbook(s)");
-
-			logger.info("Backup contains " + dataProtectedBooks.size() + " addressbook(s)");
-			for (ContainerDescriptor cd : dataProtectedBooks) {
-
-				restore(back, live, cd, liveABs, monitor.subWork(1));
-
+			logger.info("Backup contains " + backABs.size() + " addressbook(s)");
+			for (ContainerDescriptor backAB : backABs) {
+				restore(back, live, backAB, liveABs, monitor.subWork(1));
 			}
 		} catch (Exception e) {
-			logger.warn("Error while restoring addressbooks", e);
+			logger.error("Error while restoring addressbooks", e);
 			monitor.end(false, "finished with errors : " + e.getMessage(), "[]");
 			return;
 		}
@@ -89,24 +88,27 @@ public class RestoreBooksTask implements IServerTask {
 
 	}
 
-	private void restore(BmContext back, BmContext live, ContainerDescriptor cd, List<ContainerDescriptor> liveBooks,
+	private void restore(BmContext back, BmContext live, ContainerDescriptor backAB, List<ContainerDescriptor> liveABs,
 			IServerTaskMonitor monitor) {
-		IContainers lContApi = live.provider().instance(IContainers.class);
-		IAddressBook backupABApi = back.provider().instance(IAddressBook.class, cd.uid);
+		IContainers liveContApi = live.provider().instance(IContainers.class);
+		IAddressBook backupABApi = back.provider().instance(IAddressBook.class, backAB.uid);
 
 		List<String> allUids = backupABApi.allUids();
-		monitor.begin(allUids.size() + 1d, "Restoring " + cd.name + " [uid=" + cd.uid + "]");
+		monitor.begin(allUids.size() + 1d, "Restoring " + backAB.name + " [uid=" + backAB.uid + "]");
 
-		if (liveBooks.stream().filter(c -> c.uid.equals(cd.uid)).findFirst().isPresent()) {
-			IAddressBook liveABApi = live.provider().instance(IAddressBook.class, cd.uid);
+		String bookUid = mapBookUid(backAB.uid);
+
+		if (liveABs.stream().filter(c -> c.uid.equals(bookUid)).findFirst().isPresent()) {
+			IAddressBook liveABApi = live.provider().instance(IAddressBook.class, bookUid);
 			liveABApi.reset();
 			monitor.progress(1, "reset done");
 		} else {
-			lContApi.create(cd.uid, cd);
+			backAB.owner = item.liveEntryUid();
+			liveContApi.create(bookUid, backAB);
 			monitor.progress(1, "addressbook recreated");
 		}
 
-		IAddressBook liveABApi = live.provider().instance(IAddressBook.class, cd.uid);
+		IAddressBook liveABApi = live.provider().instance(IAddressBook.class, bookUid);
 
 		for (List<String> batch : Lists.partition(backupABApi.allUids(), 1000)) {
 			List<ItemValue<VCard>> cards = backupABApi.multipleGet(batch);
@@ -116,5 +118,13 @@ public class RestoreBooksTask implements IServerTask {
 			liveABApi.updates(changes);
 			monitor.progress(batch.size(), null);
 		}
+	}
+
+	private String mapBookUid(String uid) {
+		if (!item.entryUid.equals(item.liveEntryUid()) && uid.endsWith(String.format("_%s", item.entryUid))) {
+			return String.format("%s%s", uid.substring(0, uid.length() - item.entryUid.length()), item.liveEntryUid());
+		}
+
+		return uid;
 	}
 }

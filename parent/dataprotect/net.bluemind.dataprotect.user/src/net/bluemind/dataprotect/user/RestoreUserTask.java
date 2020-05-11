@@ -19,11 +19,12 @@
 package net.bluemind.dataprotect.user;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
@@ -56,7 +57,6 @@ import net.bluemind.group.api.Member;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.tag.api.ITagUids;
 import net.bluemind.tag.api.ITags;
-import net.bluemind.tag.api.Tag;
 import net.bluemind.tag.api.TagChanges;
 import net.bluemind.tag.api.TagChanges.ItemAdd;
 import net.bluemind.user.api.IUser;
@@ -77,7 +77,6 @@ public class RestoreUserTask implements IServerTask {
 
 	@Override
 	public void run(IServerTaskMonitor monitor) {
-
 		logger.info("Restoring user {}:{}", item.entryUid, item.displayName);
 
 		IServiceProvider live = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
@@ -87,28 +86,20 @@ public class RestoreUserTask implements IServerTask {
 			IServiceProvider back = backupContext.provider();
 
 			IUser userService = back.instance(IUser.class, item.domainUid);
-			ItemValue<User> user = userService.getComplete(item.entryUid);
+			ItemValue<User> backupUser = userService.getComplete(item.entryUid);
 			List<ItemValue<Group>> memberOf = userService.memberOf(item.entryUid);
-			user.value.password = UUID.randomUUID().toString();
+			backupUser.value.password = UUID.randomUUID().toString();
 
-			IUser userServiceLive = live.instance(IUser.class, item.domainUid);
-			IGroup groupService = live.instance(IGroup.class, item.domainUid);
-
-			ItemValue<User> liveUser = userServiceLive.getComplete(item.entryUid);
-			if (liveUser != null) {
-				userServiceLive.update(item.entryUid, user.value);
-			} else {
-				userServiceLive.create(item.entryUid, user.value);
-				liveUser = userServiceLive.getComplete(item.entryUid);
-			}
+			ItemValue<User> liveUser = createOrUpdateLiveUser(live, backupUser);
+			item.setLiveEntryUid(liveUser.uid);
 
 			// restore user pwd
-			restoreUserPassword(backupContext, user.internalId, liveUser.internalId);
+			restoreUserPassword(backupContext, backupUser.internalId, liveUser.internalId);
 
-			restoreUserSettings(item, live, back);
-			restoreUserTags(item, live, back);
-			restoreUserFilters(item, live, back);
-			restoreGroupMembership(user, memberOf, groupService);
+			restoreUserSettings(live, back);
+			restoreUserTags(live, back);
+			restoreUserFilters(live, back);
+			restoreGroupMembership(live, memberOf);
 		} catch (Exception e) {
 			logger.warn("Error while restoring user", e);
 			monitor.end(false, "finished with errors : " + e.getMessage(), "[]");
@@ -117,38 +108,42 @@ public class RestoreUserTask implements IServerTask {
 
 		logger.info("Restoring user mbox {}:{}", item.entryUid, item.displayName);
 
-		RestoreDefinition restoreBox = new RestoreDefinition();
-		restoreBox.generation = backup.id;
-		restoreBox.item = item;
-		restoreBox.restoreOperationIdenfitier = "replace.mailbox";
+		RestoreDefinition restoreBox = new RestoreDefinition("replace.mailbox", backup.id, item);
 		executeTask(dp, restoreBox);
 
 		logger.info("Restoring user addressbooks {}:{}", item.entryUid, item.displayName);
 
-		RestoreDefinition restoreBooks = new RestoreDefinition();
-		restoreBooks.generation = backup.id;
-		restoreBooks.item = item;
-		restoreBooks.restoreOperationIdenfitier = "replace.books";
+		RestoreDefinition restoreBooks = new RestoreDefinition("replace.books", backup.id, item);
 		executeTask(dp, restoreBooks);
 
 		logger.info("Restoring user calendars {}:{}", item.entryUid, item.displayName);
 
-		RestoreDefinition restoreCalendars = new RestoreDefinition();
-		restoreCalendars.generation = backup.id;
-		restoreCalendars.item = item;
-		restoreCalendars.restoreOperationIdenfitier = "replace.calendars";
+		RestoreDefinition restoreCalendars = new RestoreDefinition("replace.calendars", backup.id, item);
 		executeTask(dp, restoreCalendars);
 
 		logger.info("Restoring user todolists {}:{}", item.entryUid, item.displayName);
 
-		RestoreDefinition RestoreTodolists = new RestoreDefinition();
-		RestoreTodolists.generation = backup.id;
-		RestoreTodolists.item = item;
-		RestoreTodolists.restoreOperationIdenfitier = "replace.todolists";
+		RestoreDefinition RestoreTodolists = new RestoreDefinition("replace.todolists", backup.id, item);
 		executeTask(dp, RestoreTodolists);
 
 		monitor.end(true, "user " + item.entryUid + ":" + item.displayName + " restored", "");
 
+	}
+
+	private ItemValue<User> createOrUpdateLiveUser(IServiceProvider live, ItemValue<User> backupUser) {
+		IUser userServiceLive = live.instance(IUser.class, item.domainUid);
+
+		Optional<ItemValue<User>> liveUser = Optional
+				.ofNullable(Optional.ofNullable(userServiceLive.getComplete(item.entryUid))
+						.orElse(userServiceLive.byLogin(backupUser.value.login)));
+
+		if (liveUser.isPresent()) {
+			userServiceLive.update(liveUser.get().uid, backupUser.value);
+			return liveUser.get();
+		}
+
+		userServiceLive.create(item.entryUid, backupUser.value);
+		return userServiceLive.getComplete(item.entryUid);
 	}
 
 	private void restoreUserPassword(BmContext backupContext, long oldUserId, long newUserId) throws SQLException {
@@ -169,37 +164,39 @@ public class RestoreUserTask implements IServerTask {
 		userStore.setPassword(i, pwd, true);
 	}
 
-	private void restoreUserFilters(Restorable item, IServiceProvider live, IServiceProvider back) {
+	private void restoreUserFilters(IServiceProvider live, IServiceProvider back) {
 		IMailboxes mboxesBackup = back.instance(IMailboxes.class, item.domainUid);
 		IMailboxes mboxesLive = live.instance(IMailboxes.class, item.domainUid);
-		mboxesLive.setMailboxFilter(item.entryUid, mboxesBackup.getMailboxFilter(item.entryUid));
+		mboxesLive.setMailboxFilter(item.liveEntryUid(), mboxesBackup.getMailboxFilter(item.entryUid));
 	}
 
-	private void restoreUserTags(Restorable item, IServiceProvider live, IServiceProvider back) {
+	private void restoreUserTags(IServiceProvider live, IServiceProvider back) {
 		ITags tagsBackup = back.instance(ITags.class, ITagUids.TYPE + "_" + item.entryUid);
-		ITags tagsLive = live.instance(ITags.class, ITagUids.TYPE + "_" + item.entryUid);
-		List<TagChanges.ItemAdd> userTags = new ArrayList<>();
-		for (ItemValue<Tag> t : tagsBackup.all()) {
-			userTags.add(ItemAdd.create(t.uid, t.value));
-		}
+		ITags tagsLive = live.instance(ITags.class, ITagUids.TYPE + "_" + item.liveEntryUid());
+
+		List<TagChanges.ItemAdd> userTags = tagsBackup.all().stream().map(tag -> ItemAdd.create(tag.uid, tag.value))
+				.collect(Collectors.toList());
+
 		tagsLive.updates(TagChanges.create(userTags, Collections.emptyList(), Collections.emptyList()));
 	}
 
-	private void restoreGroupMembership(ItemValue<User> user, List<ItemValue<Group>> memberOf, IGroup groupService) {
+	private void restoreGroupMembership(IServiceProvider live, List<ItemValue<Group>> memberOf) {
+		IGroup groupService = live.instance(IGroup.class, item.domainUid);
+
 		for (ItemValue<Group> group : memberOf) {
 			// add to group, if group still exists
 			if (null != groupService.getComplete(group.uid)) {
-				if (!groupService.getMembers(group.uid).contains(Member.user(user.uid))) {
-					groupService.add(group.uid, Arrays.asList(Member.user(user.uid)));
+				if (!groupService.getMembers(group.uid).contains(Member.user(item.liveEntryUid()))) {
+					groupService.add(group.uid, Arrays.asList(Member.user(item.liveEntryUid())));
 				}
 			}
 		}
 	}
 
-	private void restoreUserSettings(Restorable item, IServiceProvider live, IServiceProvider back) {
+	private void restoreUserSettings(IServiceProvider live, IServiceProvider back) {
 		IUserSettings settings = back.instance(IUserSettings.class, item.domainUid);
 		IUserSettings userSettingsLive = live.instance(IUserSettings.class, item.domainUid);
-		userSettingsLive.set(item.entryUid, settings.get(item.entryUid));
+		userSettingsLive.set(item.liveEntryUid(), settings.get(item.entryUid));
 	}
 
 	private void executeTask(IDataProtect dp, RestoreDefinition definition) {
@@ -209,5 +206,4 @@ public class RestoreUserTask implements IServerTask {
 			throw new ServerFault("Error while restoring user " + taskResult.lastLogEntry);
 		}
 	}
-
 }
