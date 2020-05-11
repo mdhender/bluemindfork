@@ -20,6 +20,7 @@ package net.bluemind.user.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -29,12 +30,14 @@ import java.util.concurrent.CountDownLatch;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerSubscription;
 import net.bluemind.core.container.api.ContainerSubscriptionDescriptor;
@@ -55,6 +58,11 @@ import net.bluemind.user.api.IUserSubscription;
 public class UserSubscriptionServiceTests {
 
 	private SecurityContext testContext;
+
+	@BeforeClass
+	public static void oneShotBefore() {
+		System.setProperty("es.mailspool.count", "1");
+	}
 
 	@Before
 	public void before() throws Exception {
@@ -106,7 +114,8 @@ public class UserSubscriptionServiceTests {
 		List<ContainerSubscriptionDescriptor> subs = getService(testContext).listSubscriptions("test", "type");
 		assertTrue(subs.isEmpty());
 
-		ContainerStore cs = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM);
+		ContainerStore cs = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
+				SecurityContext.SYSTEM);
 		cs.create(Container.create("uid", "type", "osef", "test", "bm.lan"));
 
 		getService(testContext).subscribe("test", Arrays.asList(ContainerSubscription.create("uid", false)));
@@ -126,7 +135,8 @@ public class UserSubscriptionServiceTests {
 		List<ContainerSubscriptionDescriptor> subs = getService(testContext).listSubscriptions("test", "type");
 		assertTrue(subs.isEmpty());
 
-		ContainerStore cs = new ContainerStore(JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM);
+		ContainerStore cs = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
+				SecurityContext.SYSTEM);
 		cs.create(Container.create("uid", "type", "osef", "test", "bm.lan"));
 
 		getService(testContext).subscribe("test", Arrays.asList(ContainerSubscription.create("uid", false)));
@@ -180,6 +190,25 @@ public class UserSubscriptionServiceTests {
 		subs = getService(testContext).listSubscriptions("test", "type");
 		assertEquals(1, subs.size());
 		assertEquals(uid, subs.get(0).containerUid);
+	}
+
+	@Test
+	public void testSubscribeNullContainer() {
+		try {
+			getService(testContext).subscribe("test", Arrays.asList(ContainerSubscription.create("not-here", false)));
+			fail();
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.NOT_FOUND, sf.getCode());
+		}
+	}
+
+	@Test
+	public void testUnsubscribeNullContainer() {
+		try {
+			getService(testContext).unsubscribe("test", Arrays.asList("not-here"));
+		} catch (ServerFault sf) {
+			fail();
+		}
 	}
 
 }

@@ -119,6 +119,10 @@ public class UserSubscriptionService implements IUserSubscription {
 			} catch (SQLException e) {
 				throw ServerFault.sqlFault(e);
 			}
+
+			if (container == null) {
+				throw ServerFault.notFound("Failed to subscribe. Container not found : " + sub.containerUid);
+			}
 			new RBACManager(context).forDomain(container.domainUid).forEntry(subject)
 					.check(BasicRoles.ROLE_MANAGE_USER_SUBSCRIPTIONS, BasicRoles.ROLE_SELF);
 			try {
@@ -157,6 +161,16 @@ public class UserSubscriptionService implements IUserSubscription {
 				throw ServerFault.sqlFault(e);
 			}
 
+			if (container == null) {
+				// unsub anyway
+				try {
+					store.unsubscribe(subject, uid);
+				} catch (SQLException e) {
+					throw ServerFault.sqlFault(e);
+				}
+				continue;
+			}
+
 			if (container.defaultContainer && container.owner.equals(subject)) {
 				logger.info("do not unsub default container id {}, type {}, name {}", container.id, container.type,
 						container.name);
@@ -166,10 +180,7 @@ public class UserSubscriptionService implements IUserSubscription {
 			new RBACManager(context).forDomain(container.domainUid).forEntry(subject)
 					.check(BasicRoles.ROLE_MANAGE_USER_SUBSCRIPTIONS, BasicRoles.ROLE_SELF);
 			try {
-				if (!store.isSubscribed(subject, container)) {
-					continue;
-				}
-				store.unsubscribe(subject, container);
+				store.unsubscribe(subject, uid);
 			} catch (SQLException e) {
 				throw ServerFault.sqlFault(e);
 			}
