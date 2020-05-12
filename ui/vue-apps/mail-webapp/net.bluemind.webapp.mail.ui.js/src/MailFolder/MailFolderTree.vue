@@ -25,6 +25,28 @@
                     <mail-folder-item :folder="f.value" />
                 </template>
             </bm-tree>
+            <div
+                class="pl-4 border-bottom new-folder d-flex align-items-center"
+                :class="newFolderIsValid ? 'valid' : 'invalid'"
+            >
+                <bm-icon
+                    :icon="newFolderIsFocused ? 'folder' : 'plus'"
+                    :class="newFolderIsValid ? (newFolderIsFocused ? 'text-primary' : 'text-secondary') : 'text-danger'"
+                />
+                <bm-form-input
+                    ref="new"
+                    v-model="newFolderName"
+                    class="flex-fill"
+                    :placeholder="$t('mail.folder.new.from_scratch')"
+                    type="text"
+                    reset
+                    @focus="newFolderIsFocused = true"
+                    @blur="add"
+                    @keydown.enter="add"
+                    @keydown.esc="newFolderName = ''"
+                    @reset="newFolderName = ''"
+                />
+            </div>
         </bm-collapse>
         <bm-button
             v-if="mailshares.length > 0"
@@ -57,7 +79,7 @@
 </template>
 
 <script>
-import { BmButton, BmCollapse, BmIcon, BmTree } from "@bluemind/styleguide";
+import { BmButton, BmCollapse, BmIcon, BmTree, BmFormInput } from "@bluemind/styleguide";
 import { ItemUri } from "@bluemind/item-uri";
 import { mapGetters, mapActions, mapState } from "vuex";
 import injector from "@bluemind/inject";
@@ -68,6 +90,7 @@ export default {
     components: {
         BmButton,
         BmCollapse,
+        BmFormInput,
         BmIcon,
         BmTree,
         MailFolderItem
@@ -76,7 +99,10 @@ export default {
         return {
             isMailboxExpanded: true,
             areMailsharesExpanded: true,
-            mailboxEmail: injector.getProvider("UserSession").get().defaultEmail
+            mailboxEmail: injector.getProvider("UserSession").get().defaultEmail,
+            newFolderName: "",
+            newFolderIsFocused: false,
+            newFolderIsValid: true
         };
     },
     computed: {
@@ -97,6 +123,12 @@ export default {
                 const prefix = folder.value.parentUid !== null ? root + "/" : "";
                 this.$router.push({ name: "v:mail:home", params: { mailshare: prefix + folder.value.fullName } });
             }
+        },
+        add() {
+            if (this.newFolderIsValid) {
+                this.newFolderIsFocused = false;
+                //TODO : call createFolder action
+            }
         }
     }
 };
@@ -104,14 +136,16 @@ export default {
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
 
-.mail-folder-tree .bm-tree-node-active,
-.mail-folder-tree .bm-tree-node-active .btn {
-    color: $info-dark;
-}
-
 .mail-folder-tree button.collapse-mailbox-btn {
     color: $info-dark;
     text-decoration-line: none;
     border-bottom: 1px solid $light !important;
+}
+
+.mail-folder-tree .new-folder {
+    input {
+        border: none;
+        padding-left: $sp-1;
+    }
 }
 </style>

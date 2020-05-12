@@ -21,12 +21,14 @@
                 v-model="newFolderName"
                 type="text"
                 class="d-inline-block w-100"
+                reset
                 @focusout="onInputFocusOut"
                 @keydown.enter="edit"
                 @keydown.esc="cancelEdit"
                 @keydown.left.stop
                 @keydown.right.stop
                 @mousedown.stop
+                @reset="isEditInputOpen = false"
             />
             <bm-notice
                 v-if="isNewFolderNameValid !== true"
