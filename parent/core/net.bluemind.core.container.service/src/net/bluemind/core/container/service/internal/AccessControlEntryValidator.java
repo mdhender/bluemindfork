@@ -19,6 +19,8 @@ package net.bluemind.core.container.service.internal;
 
 import java.util.List;
 
+import com.google.common.base.Strings;
+
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
@@ -35,6 +37,13 @@ public class AccessControlEntryValidator {
 		if ("mailboxacl".equals(container.type)
 				&& accessControlEntries.stream().anyMatch(ace -> domainUid.equals(ace.subject))) {
 			throw new ServerFault("Public sharing for user mailbox is forbidden", ErrorCode.FORBIDDEN);
+		}
+		for (AccessControlEntry entry : accessControlEntries) {
+			if (entry.verb == null) {
+				throw new ServerFault("AccessControlEntry#Verb is required", ErrorCode.FAILURE);
+			} else if (Strings.isNullOrEmpty(entry.subject)) {
+				throw new ServerFault("AccessControlEntry#subject is required", ErrorCode.FAILURE);
+			}
 		}
 	}
 
