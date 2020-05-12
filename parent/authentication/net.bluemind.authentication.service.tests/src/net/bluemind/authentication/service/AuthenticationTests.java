@@ -29,6 +29,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.junit.After;
@@ -59,6 +60,7 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.IDomainSettings;
+import net.bluemind.domain.api.IDomains;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.pool.impl.BmConfIni;
@@ -246,6 +248,26 @@ public class AuthenticationTests {
 		authentication = getService(response.authKey);
 
 		response = authentication.su("admin0@global.virt");
+		assertEquals(LoginResponse.Status.Ok, response.status);
+		assertNotNull(response.authKey);
+	}
+
+	@Test
+	public void testSuDomainAlias() throws Exception {
+		initState();
+		ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class).setAliases("bm.lan",
+				new HashSet<>(Arrays.asList("bm-alias.lan")));
+
+		IAuthentication authentication = getService(null);
+		LoginResponse response = authentication.login("admin0@global.virt", "admin", "junit");
+
+		authentication = getService(response.authKey);
+
+		response = authentication.su("toto@bm.lan");
+		assertEquals(LoginResponse.Status.Ok, response.status);
+		assertNotNull(response.authKey);
+
+		response = authentication.su("toto@bm-alias.lan");
 		assertEquals(LoginResponse.Status.Ok, response.status);
 		assertNotNull(response.authKey);
 	}
