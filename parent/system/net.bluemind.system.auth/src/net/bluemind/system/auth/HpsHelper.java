@@ -19,7 +19,9 @@
 package net.bluemind.system.auth;
 
 import java.io.ByteArrayInputStream;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import net.bluemind.core.api.fault.ServerFault;
@@ -43,11 +45,17 @@ public class HpsHelper {
 		nodeClientFactory.create(server.address()).executeCommandNoOut(CMD_RESTART_HPS);
 	}
 
-	protected void reloadHps(String origin) {
+	protected void reloadHps(String event) {
+		reloadHps(event, Collections.emptyMap());
+	}
+
+	protected void reloadHps(String event, Map<String, String> properties) {
 		Producer prod = MQ.getProducer(Topic.SERVICE_HPS_RELOAD);
 		if (prod != null) {
 			OOPMessage cm = MQ.newMessage();
-			cm.putStringProperty("origin", origin);
+			cm.putStringProperty("event", event);
+			properties.entrySet().stream()
+					.forEach(entrySet -> cm.putStringProperty(entrySet.getKey(), entrySet.getValue()));
 			prod.send(cm);
 		}
 

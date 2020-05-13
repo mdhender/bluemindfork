@@ -57,7 +57,12 @@ public enum SysConfKeys {
 	/**
 	 * 
 	 */
-	subscription_contacts, cyrus_expunged_retention_time;
+	subscription_contacts, cyrus_expunged_retention_time,
+
+	/**
+	 * HPS max session per users
+	 */
+	hps_max_sessions_per_user;
 
 	public static boolean isSysConfigKey(String key) {
 		for (SysConfKeys k : SysConfKeys.values()) {

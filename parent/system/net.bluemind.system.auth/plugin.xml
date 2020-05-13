@@ -15,6 +15,12 @@
       <observer
             class="net.bluemind.system.auth.DefaultDomainConfigurationObserver">
       </observer>
+      <observer
+            class="net.bluemind.system.auth.HpsConfigChangeValidateHandler">
+      </observer>
+      <validator
+            class="net.bluemind.system.auth.HpsConfigChangeValidateHandler">
+      </validator>
    </extension>
    
 </plugin>

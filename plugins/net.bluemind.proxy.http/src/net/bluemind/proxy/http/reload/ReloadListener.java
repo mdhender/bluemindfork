@@ -21,10 +21,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.OOPMessage;
 import net.bluemind.hornetq.client.OutOfProcessMessageHandler;
 import net.bluemind.hornetq.client.Topic;
+import net.bluemind.system.api.SysConfKeys;
 
 public class ReloadListener {
 
@@ -43,11 +45,24 @@ public class ReloadListener {
 
 					@Override
 					public void handle(OOPMessage msg) {
-						String origin = msg.getStringProperty("origin");
-						logger.info("Reload bm-hps asked by {}", origin);
+						String event = msg.getStringProperty("event");
+						logger.info("Reload bm-hps asked, event {}", event);
 
-						eventBus.publish("bm.defaultdomain.changed", (Object) null);
+						switch (event) {
+						case "default-domain":
+							eventBus.publish("bm.defaultdomain.changed", (Object) null);
+							break;
 
+						case "maxSessionsPerUser":
+							String hpsMaxSessionsPerUser = msg
+									.getStringProperty(SysConfKeys.hps_max_sessions_per_user.name());
+							eventBus.publish("hps.sysconf.maxsessionsperuser", new JsonObject()
+									.put(SysConfKeys.hps_max_sessions_per_user.name(), hpsMaxSessionsPerUser));
+							break;
+
+						default:
+							logger.warn("Unknown event {}", event);
+						}
 					}
 				});
 			}
