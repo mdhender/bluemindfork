@@ -398,11 +398,13 @@ public class ServerServiceTests {
 		server.ip = "";
 		server.name = uid;
 
-		TaskRef tr = getService(serverManagerSecurityContext).create(uid, server);
-		waitForTaskRef(tr);
-
-		ItemValue<Server> srv = getService(serverManagerSecurityContext).getComplete(uid);
-		assertNull(srv.value.ip);
+		try {
+			TaskRef tr = getService(serverManagerSecurityContext).create(uid, server);
+			waitForTaskRef(tr);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
+		}
 	}
 
 	@Test
