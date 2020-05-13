@@ -302,6 +302,49 @@ net.bluemind.calendar.vevent.VEventActions.prototype.details = function(e) {
   }, null, this);
 };
 
+
+/**
+ * Show event details actions
+ * 
+ * @param {goog.events.Event} e
+ */
+net.bluemind.calendar.vevent.VEventActions.prototype.duplicate = function(e) {
+  var model = e.vevent;
+  this.ctx_.service('calendar').getItem(model.calendar, model.uid).then(function(vseries) {
+
+    if (!model.states.updatable) {
+      var calendar = goog.array.find(this.calendars_, function(calendar) {
+        return calendar.owner == this.ctx_.user['uid'] && calendar.states.defaultCalendar;
+      }, this);
+    } else {
+      var calendar = goog.array.find(this.calendars_, function(calendar) {
+        return calendar.uid == model.calendar;
+      });
+    }
+    if (vseries != null) {
+      vseries = this.adaptor_.toModelView(vseries, calendar);
+      if (model.states.main && vseries.main) {
+        model = vseries.main;
+      } else {
+        model.recurrenceId = null;
+        model.states.main = true;
+        model.rrule = null;
+      }
+    }
+    if (model.states.meeting && !model.states.master) {
+      goog.array.removeIf(model.attendees, function(attendee) {
+        return attendee['dir'] && attendee['dir'] == calendar.dir;
+      });
+      model.attendees.push(model.organizer);
+      model.organizer = {'commonName' : calendar.name, 'dir' : calendar.dir }
+    }
+    model.states.updatable = true;
+    model.uid = net.bluemind.mvp.UID.generate();
+    model.calendar = calendar.uid;
+    this.goToForm_(model);
+  }, null, this);
+};
+
 /**
  * @param {net.bluemind.calendar.vevent.VEventEvent} e
  * @private
@@ -557,7 +600,7 @@ net.bluemind.calendar.vevent.VEventActions.prototype.goToForm_ = function(model,
     storage.set(model.uid, vseries, goog.now() + 60000);
     uri.getQueryData().set('draft', true);
   }
-  this.ctx_.helper('url').goTo(uri);
+  this.ctx_.helper('url').goTo(uri, false, true);
 };
 
 /**

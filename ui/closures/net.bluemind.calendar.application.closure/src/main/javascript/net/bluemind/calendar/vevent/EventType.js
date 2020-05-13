@@ -34,6 +34,7 @@ net.bluemind.calendar.vevent.EventType = {
   CANCEL : goog.events.getUniqueId('cancel'),
   REMOVE : goog.events.getUniqueId('remove'),
   DETAILS : goog.events.getUniqueId('details'),
+  DUPLICATE : goog.events.getUniqueId('duplicate'),
   PART : goog.events.getUniqueId('participation')
 
 };

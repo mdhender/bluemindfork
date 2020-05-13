@@ -152,7 +152,6 @@
   width: 0;
   display: inline-block;
   font-size: 80%;
-  padding: 0.1em;
 }
 
 .goog-button-base-disabled .goog-menu-button-dropdown, .goog-button-base[disabled] .goog-menu-button-dropdown {

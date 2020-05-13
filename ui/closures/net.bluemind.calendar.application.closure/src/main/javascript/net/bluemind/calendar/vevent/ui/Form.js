@@ -160,12 +160,31 @@ net.bluemind.calendar.vevent.ui.Form = function(ctx, opt_domHelper) {
 
   this.getChild('toolbar').addChild(new goog.ui.ToolbarSeparator(), true);
 
+  var menu = new goog.ui.Menu();
+  
+  /** @meaning calendar.action.duplicate */
+  var MSG_DUPLICATE = goog.getMsg('Duplicate');
+  child = new goog.ui.MenuItem(MSG_DUPLICATE);
+  child.setId('duplicate');
+  menu.addChild(child, true);
+
+  /** @meaning calendar.action.duplicateOccurrence */
+  var MSG_DUPLICATE_OCC = goog.getMsg('Duplicate occurrence');
+  child = new goog.ui.MenuItem(MSG_DUPLICATE_OCC);
+  child.setId('duplicate-occurrence');
+  menu.addChild(child, true);
+
   /** @meaning general.history */
   var MSG_HISTORY = goog.getMsg('History');
-  var button = new goog.ui.ToolbarButton(MSG_HISTORY, goog.ui.style.app.ButtonRenderer.getInstance());
-  button.setId('history');
-  button.setVisible(false);
-  this.getChild('toolbar').addChild(button, true);
+  child = new goog.ui.MenuItem(MSG_HISTORY);
+  child.setId('history');
+  menu.addChild(child, true);
+
+  child = new goog.ui.ToolbarMenuButton(goog.dom.createDom('div', [ goog.getCssName('goog-button-icon'),
+  goog.getCssName('fa'), goog.getCssName('fa-ellipsis-v') ]), menu, goog.ui.style.app.MenuButtonRenderer.getInstance());
+  child.setId('others');
+  this.getChild('toolbar').addChild(child, true);
+  
 
   /** @meaning general.remove */
   var MSG_REMOVE = goog.getMsg('Remove');
@@ -510,10 +529,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.enterDocument = function() {
   });
 
 
-
-  handler.listen(this.getChild('toolbar').getChild('history'), goog.ui.Component.EventType.ACTION, function(e) {
-    this.dispatchEvent('history');
-  });
+  handler.listen(this.getChild('toolbar').getChild('others'), goog.ui.Component.EventType.ACTION, this.menuActions_);
 
   // DTSTART
   handler.listen(this.getChild('dstart'), goog.ui.DatePicker.Events.CHANGE, this.onDStartChange_).listen(
@@ -833,7 +849,8 @@ net.bluemind.calendar.vevent.ui.Form.prototype.setModelValues_ = function() {
   if (this.isInDocument() && this.getModel()) {
     var model = this.getModel();
     this.getChild('toolbar').getChild('delete').setVisible(model.states.removable);
-    this.getChild('toolbar').getChild('history').setVisible(model.states.updating);
+    this.getChild('toolbar').getChild('others').setVisible(model.states.updating);
+    this.getChild('toolbar').getChild('others').getMenu().getChild('duplicate-occurrence').setVisible(model.states.exception);
 
     this.setFormValue_('title', model.summary);
     this.getChild('dstart').setDate(model.dtstart);
@@ -2676,6 +2693,26 @@ net.bluemind.calendar.vevent.ui.Form.prototype.notice_ = function(msg) {
 net.bluemind.calendar.vevent.ui.Form.prototype.warn_ = function(msg) {
   this.getChild('notifications').addWarn(goog.dom.getElement('bm-ui-form-title'), msg);
 };
+
+/**
+ */
+net.bluemind.calendar.vevent.ui.Form.prototype.menuActions_ = function(e) {
+  var action = e.target.getId();
+  var model = this.getModel();
+  switch(action) {
+    case "duplicate": 
+      model.states.main = true;
+    case "duplicate-occurrence": 
+      var e = new net.bluemind.calendar.vevent.VEventEvent(net.bluemind.calendar.vevent.EventType.DUPLICATE, model);
+      this.dispatchEvent(e);
+      break;
+    case "history": 
+      this.dispatchEvent('history');
+      break;
+  }
+
+
+}
 
 /**
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper.

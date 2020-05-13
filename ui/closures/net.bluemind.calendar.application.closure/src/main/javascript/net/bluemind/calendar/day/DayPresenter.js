@@ -117,6 +117,8 @@ net.bluemind.calendar.day.DayPresenter.prototype.init = function() {
       this.actions_);
   this.handler.listenWithScope(this.view_, net.bluemind.calendar.vevent.EventType.REMOVE, this.actions_.remove, false,
       this.actions_);
+  this.handler.listenWithScope(this.view_, net.bluemind.calendar.vevent.EventType.DUPLICATE, this.actions_.duplicate, false,
+      this.actions_);  
   this.handler.listen(this.view_, net.bluemind.calendar.vevent.EventType.DETAILS, function(e) {
     var vevent = e.vevent;
     if (vevent.type == 'vtodo') {
