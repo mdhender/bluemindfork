@@ -34,18 +34,15 @@
                 class="position-absolute w-75"
             />
         </div>
-        <bm-contextual-menu
-            v-if="folder.writable && !isEditInputOpen"
-            class="d-none"
-            boundary="viewport"
-            @shown="shown = true"
-            @hidden="shown = false"
-        >
-            <bm-dropdown-item-button :disabled="isDefaultFolderOrMailshareRoot" @click.stop="deleteFolder">
+        <bm-contextual-menu v-if="!isEditInputOpen" class="d-none" boundary="viewport">
+            <bm-dropdown-item-button :disabled="isDefaultFolderOrMailshareRootOrReadOnly" @click.stop="deleteFolder">
                 <bm-icon class="mr-2" icon="trash" />{{ $t("common.delete") }}
             </bm-dropdown-item-button>
-            <bm-dropdown-item-button :disabled="isDefaultFolderOrMailshareRoot" @click.stop="openRenameInput">
+            <bm-dropdown-item-button :disabled="isDefaultFolderOrMailshareRootOrReadOnly" @click.stop="openRenameInput">
                 <bm-icon class="mr-2" icon="rename" />{{ $t("mail.folder.rename") }}
+            </bm-dropdown-item-button>
+            <bm-dropdown-item-button :disabled="folder.unread === 0" @click.stop="markFolderAsRead(folder.key)">
+                <bm-icon class="mr-2" icon="read" />{{ $t("mail.folder.mark_as_read") }}
             </bm-dropdown-item-button>
         </bm-contextual-menu>
         <bm-counter-badge
@@ -105,8 +102,8 @@ export default {
         ...mapState("mail-webapp", ["currentFolderKey"]),
         ...mapGetters("mail-webapp", ["mailshares", "my"]),
         ...mapGetters("mail-webapp/folders", ["getFolderByPath"]),
-        isDefaultFolderOrMailshareRoot() {
-            return isDefaultFolder(this.folder) || this.isMailshareRoot;
+        isDefaultFolderOrMailshareRootOrReadOnly() {
+            return isDefaultFolder(this.folder) || this.isMailshareRoot || this.folder.writable;
         },
         isMailshareRoot() {
             return (
@@ -158,7 +155,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail-webapp", ["expandFolder", "removeFolder", "renameFolder"]),
+        ...mapActions("mail-webapp", ["expandFolder", "removeFolder", "renameFolder", "markFolderAsRead"]),
         async deleteFolder() {
             const confirm = await this.$bvModal.msgBoxConfirm(
                 this.$t("mail.folder.delete.dialog.question", { name: this.folder.fullName }),

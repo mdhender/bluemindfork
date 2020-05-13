@@ -11,7 +11,7 @@ export async function removeFolder({ commit, dispatch, getters }, folderKey) {
         commit("removeApplicationAlert", uid, root);
         commit("addApplicationAlert", { code: "MSG_FOLDER_REMOVE_SUCCESS", props }, root);
     } catch (e) {
-        commit("removeApplicationAlert", uid, { root: true });
+        commit("removeApplicationAlert", uid, root);
         commit("addApplicationAlert", { code: "MSG_FOLDER_REMOVE_ERROR", props }, root);
     }
 }

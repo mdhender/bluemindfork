@@ -11,6 +11,7 @@ export * from "./loadRange";
 export * from "./loadUnreadCount";
 export * from "./markAs";
 export * from "./loadUserSettings";
+export * from "./markFolderAsRead";
 export * from "./move";
 export * from "./purge";
 export * from "./remove";

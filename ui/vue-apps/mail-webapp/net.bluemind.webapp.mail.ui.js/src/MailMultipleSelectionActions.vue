@@ -10,11 +10,7 @@
 
         <div class="bg-white py-2 px-3 actions-button w-75 mt-4">
             <div class="arrow-up" />
-            <bm-button
-                v-if="!areAllSelectedMessagesRead"
-                variant="outline-secondary"
-                @click="markAsRead(selectedMessageKeys)"
-            >
+            <bm-button v-if="!areAllSelectedMessagesRead" variant="outline-secondary" @click="markAsRead()">
                 <bm-label-icon icon="read">{{
                     $tc("mail.actions.mark_as_read", selectedMessageKeys.length)
                 }}</bm-label-icon>
@@ -47,10 +43,10 @@
             <h2>{{ $t("common.cancel.selection") }}</h2>
         </bm-button>
 
-        <hr v-if="areAllSelected" class="w-75 border-dark" />
+        <hr v-if="!areAllMessagesSelected" class="w-75 border-dark" />
 
-        <div v-if="areAllSelected" class="mt-3">
-            <h3 v-if="!isSearch" class="d-inline px-3 align-middle">
+        <div v-if="!areAllMessagesSelected" class="mt-3">
+            <h3 v-if="!isSearchMode" class="d-inline px-3 align-middle">
                 {{ $t("mail.message.select.all.folder") }}
                 <mail-folder-icon :shared="currentFolder.isShared" :folder="currentFolder.value">
                     <span class="font-weight-bold">{{ currentFolder.value.fullName }}</span>
@@ -85,23 +81,35 @@ export default {
         };
     },
     computed: {
-        ...mapState("mail-webapp", ["selectedMessageKeys", "search"]),
+        ...mapState("mail-webapp", ["selectedMessageKeys", "search", "currentFolderKey"]),
         ...mapState("mail-webapp/messages", ["itemKeys"]),
-        ...mapGetters("mail-webapp", ["currentFolder", "areAllSelectedMessagesRead", "areAllSelectedMessagesUnread"]),
-        isSearch() {
-            return this.$route.path.includes("/search");
-        },
-        areAllSelected() {
-            return this.selectedMessageKeys.length !== this.itemKeys.length;
-        }
+        ...mapGetters("mail-webapp", [
+            "currentFolder",
+            "areAllSelectedMessagesRead",
+            "areAllSelectedMessagesUnread",
+            "areAllMessagesSelected",
+            "areMessagesFiltered",
+            "isSearchMode"
+        ])
     },
     methods: {
-        ...mapActions("mail-webapp", ["markAsRead", "markAsUnread"]),
+        ...mapActions("mail-webapp", {
+            markMessagesAsRead: "markAsRead",
+            markAsUnread: "markAsUnread",
+            markFolderAsRead: "markFolderAsRead"
+        }),
         ...mapMutations("mail-webapp", ["addAllToSelectedMessages", "deleteAllSelectedMessages"]),
         ...mapMutations("mail-webapp/currentMessage", { clearCurrentMessage: "clear" }),
         removeSelection() {
             this.deleteAllSelectedMessages();
             this.clearCurrentMessage();
+        },
+        markAsRead() {
+            const areAllMessagesInFolderSelected =
+                this.areAllMessagesSelected && !this.areMessagesFiltered && !this.isSearchMode;
+            areAllMessagesInFolderSelected
+                ? this.markFolderAsRead(this.currentFolderKey)
+                : this.markMessagesAsRead(this.selectedMessageKeys);
         }
     }
 };

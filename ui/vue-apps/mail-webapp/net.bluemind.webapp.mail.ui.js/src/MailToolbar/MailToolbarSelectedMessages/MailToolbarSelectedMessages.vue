@@ -62,7 +62,10 @@ export default {
             "nextMessageKey",
             "my",
             "areAllSelectedMessagesRead",
-            "areAllSelectedMessagesUnread"
+            "areAllSelectedMessagesUnread",
+            "areAllMessagesSelected",
+            "areMessagesFiltered",
+            "isSearchMode"
         ]),
         ...mapGetters("mail-webapp/currentMessage", { currentMessage: "message" }),
         hasMultipleMessagesSelected() {
@@ -84,7 +87,11 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail-webapp", ["markAsRead", "markAsUnread"]),
+        ...mapActions("mail-webapp", {
+            markMessagesAsRead: "markAsRead",
+            markAsUnread: "markAsUnread",
+            markFolderAsRead: "markFolderAsRead"
+        }),
         async purge() {
             const confirm = await this.$bvModal.msgBoxConfirm(
                 this.$t("mail.actions.purge.modal.content", { subject: this.currentMessage.subject }),
@@ -111,11 +118,15 @@ export default {
             }
         },
         doMarkAsRead() {
-            if (this.hasMultipleMessagesSelected) {
-                this.markAsRead(this.selectedMessageKeys);
-            } else {
-                this.markAsRead([this.currentMessage.key]);
-            }
+            const selectedKeys = this.hasMultipleMessagesSelected
+                ? this.selectedMessageKeys
+                : [this.currentMessage.key];
+
+            const areAllMessagesInFolderSelected =
+                this.areAllMessagesSelected && !this.areMessagesFiltered && !this.isSearchMode;
+            areAllMessagesInFolderSelected
+                ? this.markFolderAsRead(this.currentFolderKey)
+                : this.markMessagesAsRead(selectedKeys);
         },
         doMarkAsUnread() {
             if (this.hasMultipleMessagesSelected) {
