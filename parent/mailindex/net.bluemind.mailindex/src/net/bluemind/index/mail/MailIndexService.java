@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -780,11 +781,62 @@ public class MailIndexService implements IMailIndexService {
 		return ret;
 	}
 
+	private static final long TIME_BUDGET = TimeUnit.SECONDS.toNanos(5);
+
 	@Override
 	public SearchResult searchItems(String dirEntryUid, MailboxFolderSearchQuery searchQuery) {
 		SearchQuery query = searchQuery.query;
-		Client client = ESearchActivator.getClient();
-		SearchRequestBuilder searchBuilder = client.prepareSearch(getIndexAliasName(dirEntryUid));
+		SearchRequestBuilder searchBuilder = ESearchActivator.getClient().prepareSearch(getIndexAliasName(dirEntryUid));
+		QueryBuilder bq = buildEsQuery(query);
+
+		searchBuilder.setQuery(bq);
+		searchBuilder.addStoredField("itemId");
+		searchBuilder.addStoredField("uid");
+		searchBuilder.addStoredField("preview");
+		searchBuilder.addStoredField("internalDate");
+		searchBuilder.setFetchSource(true);
+		searchBuilder.setFrom((int) query.offset);
+		searchBuilder.setSize((int) query.maxResults);
+
+		if (searchQuery.sort != null && searchQuery.sort.hasCriterias()) {
+			searchQuery.sort.criteria
+					.forEach(c -> searchBuilder.addSort(c.field, SortOrder.fromString(c.order.name())));
+		} else {
+			searchBuilder.addSort("date", SortOrder.DESC);
+		}
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("{}", searchBuilder);
+		}
+		long start = System.nanoTime();
+		try {
+			SearchResponse sr = searchBuilder.execute().actionGet();
+			SearchHits searchHits = sr.getHits();
+
+			List<MessageSearchResult> results = new LinkedList<>();
+
+			for (SearchHit sh : searchHits.getHits()) {
+				safeResult(sh).ifPresent(results::add);
+				if (System.nanoTime() - start > TIME_BUDGET) {
+					logger.warn("Stopped processing search results as timebudget ({} ns) is exhausted", TIME_BUDGET);
+					break;
+				}
+			}
+
+			SearchResult result = new SearchResult();
+			result.results = results;
+			result.totalResults = (int) searchHits.getTotalHits();
+			result.hasMoreResults = (searchHits.getTotalHits() > results.size());
+			logger.info("[{}] results: {} (tried {}) / {}, hasMore: {}", dirEntryUid, results.size(),
+					searchHits.getHits().length, result.totalResults, result.hasMoreResults);
+			return result;
+		} catch (Exception e) {
+			logger.warn("Failed to search {}", searchBuilder);
+			return new SearchResult();
+		}
+	}
+
+	private QueryBuilder buildEsQuery(SearchQuery query) {
 		BoolQueryBuilder bq = QueryBuilders.boolQuery();
 
 		if (query.scope.folderScope != null && query.scope.folderScope.folderUid != null) {
@@ -798,7 +850,7 @@ public class MailIndexService implements IMailIndexService {
 		bq = addPreciseSearchQuery(bq, "references", query.references);
 
 		if (query.headerQuery != null && !query.headerQuery.query.isEmpty()) {
-			List<QueryBuilder> builders = new ArrayList<>();
+			List<QueryBuilder> builders = new ArrayList<>(query.headerQuery.query.size());
 			for (SearchQuery.Header headerQuery : query.headerQuery.query) {
 				String queryString = "headers." + headerQuery.name.toLowerCase() + ":\"" + headerQuery.value + "\"";
 				builders.add(QueryBuilders.queryStringQuery(queryString));
@@ -809,50 +861,16 @@ public class MailIndexService implements IMailIndexService {
 				bq = bq.must(Queries.or(builders));
 			}
 		}
-		searchBuilder.setQuery(bq);
-		searchBuilder.addStoredField("itemId");
-		searchBuilder.addStoredField("uid");
-		searchBuilder.addStoredField("preview");
-		searchBuilder.addStoredField("internalDate");
-		searchBuilder.setFetchSource(true);
-		searchBuilder.setFrom(Long.valueOf(query.offset).intValue());
-		searchBuilder.setSize(Long.valueOf(query.maxResults).intValue());
+		return bq;
+	}
 
-		if (searchQuery.sort != null && searchQuery.sort.hasCriterias()) {
-			searchQuery.sort.criteria
-					.forEach(c -> searchBuilder.addSort(c.field, SortOrder.fromString(c.order.name())));
-		} else {
-			searchBuilder.addSort("date", SortOrder.DESC);
-		}
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("{}", searchBuilder.toString());
-		}
+	private Optional<MessageSearchResult> safeResult(SearchHit sh) {
 		try {
-			SearchResponse sr = searchBuilder.execute().actionGet();
-			SearchHits searchHits = sr.getHits();
-
-			List<MessageSearchResult> results = new ArrayList<>();
-
-			for (SearchHit sh : searchHits.getHits()) {
-				try {
-					MessageSearchResult msr = createSearchResult(sh);
-					results.add(msr);
-				} catch (Exception e) {
-					logger.warn("Cannot create result object", e);
-				}
-			}
-
-			SearchResult result = new SearchResult();
-			result.results = results;
-			result.totalResults = Long.valueOf(searchHits.getTotalHits()).intValue();
-			result.hasMoreResults = (searchHits.getTotalHits() > results.size());
-			logger.info("[{}] results: {} (tried {}) / {}, hasMore: {}", dirEntryUid, results.size(),
-					searchHits.getHits().length, result.totalResults, result.hasMoreResults);
-			return result;
+			MessageSearchResult msr = createSearchResult(sh);
+			return Optional.of(msr);
 		} catch (Exception e) {
-			logger.warn("Failed to search {}", searchBuilder.toString());
-			return new SearchResult();
+			logger.warn("Cannot create result object", e);
+			return Optional.empty();
 		}
 	}
 
