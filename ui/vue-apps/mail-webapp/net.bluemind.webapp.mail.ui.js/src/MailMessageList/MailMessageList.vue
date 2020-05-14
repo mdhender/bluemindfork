@@ -29,5 +29,6 @@ export default {
 @import "~@bluemind/styleguide/css/variables";
 .mail-message-list {
     outline: none;
+    border-right: 1px solid $alternate-light;
 }
 </style>

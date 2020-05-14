@@ -81,7 +81,7 @@ export default {
 <style lang="scss">
 @import "~@bluemind/styleguide/css/variables";
 .mail-message-list-header {
-    border-bottom: 1px solid $gray-300;
+    border-bottom: 1px solid $alternate-light;
     padding: 0.5rem;
 }
 
