@@ -13,5 +13,11 @@
             class="net.bluemind.system.nginx.SwPasswordValidator">
       </validator>
    </extension>
+   <extension
+         point="net.bluemind.server.hook.serverhook">
+      <hook
+            impl="net.bluemind.system.nginx.NginxServerHook">
+      </hook>
+   </extension>
 
 </plugin>

@@ -87,7 +87,8 @@
 					</td>
 
 					<td class='{style.dr}' style='width:200px'>
-						<g:HTML>
+						<g:HTML styleName="{style.labelMandatory}">
+							*
 							<ui:msg key="ip">IP</ui:msg>
 						</g:HTML>
 						<g:TextBox ui:field="ip" width="100%" />

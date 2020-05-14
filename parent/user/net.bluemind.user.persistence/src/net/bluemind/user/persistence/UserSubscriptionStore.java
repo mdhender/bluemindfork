@@ -69,7 +69,7 @@ public class UserSubscriptionStore extends JdbcAbstractStore {
 		return unique(query, BooleanCreator.FIRST, Collections.emptyList(), new Object[] { container.uid, item.id });
 	}
 
-	public void unsubscribe(String subject, Container container) throws SQLException {
+	public void unsubscribe(String subject, String containerUid) throws SQLException {
 
 		Item item = itemStore.get(subject);
 		if (item == null) {
@@ -77,7 +77,7 @@ public class UserSubscriptionStore extends JdbcAbstractStore {
 		}
 
 		delete("DELETE FROM t_container_sub where container_uid = ? and user_id = ?",
-				new Object[] { container.uid, item.id });
+				new Object[] { containerUid, item.id });
 	}
 
 	public void unsubscribeAll(String subject) throws SQLException {

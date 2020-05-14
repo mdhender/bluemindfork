@@ -1,6 +1,8 @@
 smtpd_banner = $myhostname ESMTP $mail_name (BlueMind)
 biff = no
 
+compatibility_level = 2
+
 append_dot_mydomain = no
 
 # Uncomment the next line to generate "delayed mail" warnings

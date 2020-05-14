@@ -416,7 +416,21 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 		String localPart = splitted.next();
 		String domainPart = splitted.next();
 
-		IUser userService = ServerSideServiceProvider.getProvider(securityContext).instance(IUser.class, domainPart);
+		IDomains domainApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class);
+		ItemValue<Domain> domain = domainApi.findByNameOrAliases(domainPart);
+		if (domain != null) {
+			domainPart = domain.uid;
+		}
+
+		IUser userService;
+		try {
+			userService = ServerSideServiceProvider.getProvider(securityContext).instance(IUser.class, domainPart);
+		} catch (ServerFault sf) {
+			logger.error("Cannot find domain alias {}", domainPart, sf);
+			LoginResponse resp = new LoginResponse();
+			resp.status = Status.Bad;
+			return resp;
+		}
 
 		ItemValue<User> user = userService.byLogin(localPart);
 

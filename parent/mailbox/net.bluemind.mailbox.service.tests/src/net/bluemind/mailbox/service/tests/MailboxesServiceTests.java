@@ -26,7 +26,6 @@ import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -41,7 +40,6 @@ import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
@@ -72,7 +70,6 @@ import net.bluemind.mailshare.api.Mailshare;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
-import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 
@@ -717,35 +714,6 @@ public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 		}
 
 		return status;
-	}
-
-	@Test
-	public void testAutoSubscribe() throws Exception {
-
-		String userUid = PopulateHelper.addUser("t" + System.nanoTime(), domainUid);
-		String uid = UUID.randomUUID().toString();
-		Mailbox mailshare = defaultMailshare("mailshare");
-
-		new BmTestContext(SecurityContext.SYSTEM).provider().instance(IMailshare.class, domainUid).create(uid,
-				Mailshare.fromMailbox(mailshare));
-
-		IContainerManagement cm = new BmTestContext(defaultSecurityContext).provider()
-				.instance(IContainerManagement.class, IMailboxAclUids.uidForMailbox(uid));
-
-		List<String> subs = cm.subscribers();
-		assertEquals(0, subs.size());
-
-		getService(defaultSecurityContext).setMailboxAccessControlList(uid,
-				Arrays.asList(AccessControlEntry.create(userUid, Verb.Read)));
-
-		subs = cm.subscribers();
-		assertEquals(1, subs.size());
-
-		getService(defaultSecurityContext).setMailboxAccessControlList(uid, Arrays.asList());
-
-		subs = cm.subscribers();
-		assertEquals(0, subs.size());
-
 	}
 
 	@Test

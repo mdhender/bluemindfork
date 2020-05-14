@@ -251,16 +251,19 @@ public class FolderBackend extends CoreConnect {
 		if (state.version > 0) {
 			// fetch changes from subscribed mailbox
 			Map<String, String> mailboxVersion = storage.getFolderSyncVersions(account);
-			hasMailboxSubscription = !mailboxVersion.isEmpty();
-			mailboxVersion.forEach((id, version) -> {
-				ItemValue<ContainerSubscriptionModel> container = subscriptionsService
-						.getCompleteById(Long.parseLong(id));
-				try {
-					mailboxSubscriptionChanges(bs, ret, subscribedMailboxVersions, container, Long.parseLong(version));
-				} catch (Exception e) {
-					logger.warn("Failed to fetch changes for shared mailbox {}", container);
-				}
-			});
+			if (mailboxVersion != null) {
+				hasMailboxSubscription = !mailboxVersion.isEmpty();
+				mailboxVersion.forEach((id, version) -> {
+					ItemValue<ContainerSubscriptionModel> container = subscriptionsService
+							.getCompleteById(Long.parseLong(id));
+					try {
+						mailboxSubscriptionChanges(bs, ret, subscribedMailboxVersions, container,
+								Long.parseLong(version));
+					} catch (Exception e) {
+						logger.warn("Failed to fetch changes for shared mailbox {}", container);
+					}
+				});
+			}
 		}
 
 		// owner subscription
@@ -273,9 +276,10 @@ public class FolderBackend extends CoreConnect {
 						.collect(Collectors.toList()));
 
 		// new mailbox subscription
-		newUserSubscriptions.stream().filter(c -> "mailboxacl".equals(c.value.containerType)).forEach(container -> {
-			mailboxSubscriptionChanges(bs, ret, subscribedMailboxVersions, container, 0L);
-		});
+		newUserSubscriptions.stream().filter(c -> "mailboxacl".equals(c.value.containerType) && c.value.offlineSync)
+				.forEach(container -> {
+					mailboxSubscriptionChanges(bs, ret, subscribedMailboxVersions, container, 0L);
+				});
 
 		newUserSubscriptions.stream().filter(c -> !"mailboxacl".equals(c.value.containerType)).forEach(container -> {
 			if (container.value.offlineSync) {
@@ -297,9 +301,26 @@ public class FolderBackend extends CoreConnect {
 			}
 		});
 
+		IContainers containers = getService(bs, IContainers.class);
+
 		List<ItemValue<ContainerSubscriptionModel>> updatedUserSubscriptions = subscriptionsService
 				.getMultipleById(userSubscriptions.updated.stream().map(itemIdentifier -> itemIdentifier.id)
 						.collect(Collectors.toList()));
+
+		updatedUserSubscriptions.stream().filter(c -> "mailboxacl".equals(c.value.containerType))
+				.forEach(containerSub -> {
+					if (!containerSub.value.offlineSync) {
+						String containerUid = containerSub.uid
+								.replace(String.format("sub-of-%s-to-", bs.getUser().getUid()), "");
+						ContainerDescriptor cd = containers.get(containerUid);
+						mailboxSubscriptionDeletions(bs, ret, subscribedMailboxVersions, containerSub.internalId,
+								cd.owner);
+					} else {
+						mailboxSubscriptionChanges(bs, ret, subscribedMailboxVersions, containerSub, 0L);
+					}
+
+				});
+
 		updatedUserSubscriptions.stream().filter(c -> !"mailboxacl".equals(c.value.containerType))
 				.forEach(container -> {
 					String nodeUid = ContainerHierarchyNode.uidFor(container.value.containerUid,
@@ -325,24 +346,13 @@ public class FolderBackend extends CoreConnect {
 				});
 
 		if (!userSubscriptions.deleted.isEmpty()) {
-			IContainers containers = getService(bs, IContainers.class);
 			userSubscriptions.deleted.forEach(itemIdentifier -> {
 				String containerUid = itemIdentifier.uid.replace(String.format("sub-of-%s-to-", bs.getUser().getUid()),
 						"");
 				try {
 					ContainerDescriptor cd = containers.get(containerUid);
 					if (cd.type.equals("mailboxacl")) {
-						// get ContainerSubscriptionModel
-						// Remove mailbox subscription
-						IContainersFlatHierarchy hierarchyService = getAdmin0Service(bs, IContainersFlatHierarchy.class,
-								bs.getUser().getDomain(), cd.owner);
-						ContainerChangeset<Long> all = hierarchyService.changesetById(0L);
-						all.created.forEach(folderId -> {
-							String collectionId = CollectionId.of(itemIdentifier.id, Long.toString(folderId))
-									.getValue();
-							ret.items.add(getDeletedItemChange(collectionId));
-						});
-						subscribedMailboxVersions.remove(Long.toString(cd.internalId));
+						mailboxSubscriptionDeletions(bs, ret, subscribedMailboxVersions, itemIdentifier.id, cd.owner);
 					} else {
 						String nodeUid = ContainerHierarchyNode.uidFor(containerUid, cd.type, bs.getUser().getDomain());
 						IContainersFlatHierarchy ownerHierarchy = getAdmin0Service(bs, IContainersFlatHierarchy.class,
@@ -383,6 +393,18 @@ public class FolderBackend extends CoreConnect {
 		}
 
 		return ret;
+	}
+
+	private void mailboxSubscriptionDeletions(BackendSession bs, FolderChanges ret,
+			final Map<String, String> subscribedMailboxVersions, long containerSubscriptionId, String owner) {
+		IContainersFlatHierarchy hierarchyService = getAdmin0Service(bs, IContainersFlatHierarchy.class,
+				bs.getUser().getDomain(), owner);
+		ContainerChangeset<Long> all = hierarchyService.changesetById(0L);
+		all.created.forEach(folderId -> {
+			String collectionId = CollectionId.of(containerSubscriptionId, Long.toString(folderId)).getValue();
+			ret.items.add(getDeletedItemChange(collectionId));
+		});
+		subscribedMailboxVersions.remove(Long.toString(containerSubscriptionId));
 	}
 
 	private FolderChangeReference otherMailboxesFolder(BackendSession bs, ChangeType changeType) {

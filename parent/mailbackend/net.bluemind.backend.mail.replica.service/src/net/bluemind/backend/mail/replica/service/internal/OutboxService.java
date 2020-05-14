@@ -39,6 +39,7 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.sendmail.ISendmail;
 import net.bluemind.core.sendmail.SendmailCredentials;
+import net.bluemind.core.sendmail.SendmailHelper;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
@@ -97,6 +98,13 @@ public class OutboxService implements IOutbox {
 					SyncStreamDownload.read(mailboxItemsService.fetchComplete(item.value.imapUid)).thenAccept(buf -> {
 						InputStream in = new ByteBufInputStream(buf);
 						try (Message msg = Mime4JHelper.parse(in)) {
+
+							if (msg.getFrom() == null) {
+								org.apache.james.mime4j.dom.address.Mailbox from = SendmailHelper
+										.formatAddress(user.displayName, user.value.defaultEmail().address);
+								msg.setFrom(from);
+							}
+
 							mailer.send(SendmailCredentials.as(String.format("%s@%s", user.value.login, domainUid),
 									context.getSecurityContext().getSessionId()), domainUid, msg);
 

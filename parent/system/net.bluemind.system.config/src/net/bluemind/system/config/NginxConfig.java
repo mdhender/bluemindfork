@@ -62,7 +62,5 @@ public class NginxConfig {
 		public NginxConfig build() {
 			return new NginxConfig(values);
 		}
-
 	}
-
 }

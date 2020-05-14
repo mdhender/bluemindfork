@@ -67,4 +67,28 @@ public class AccessControlEntryValidatorTest {
 		} catch (ServerFault sf) {
 		}
 	}
+
+	@Test
+	public void validate_MailboxAcl_MissingValues() throws SQLException {
+		Container c = Container.create("uid", "mailboxacl", "name", "owner");
+
+		ArrayList<AccessControlEntry> accessControlEntries = new ArrayList<AccessControlEntry>();
+		accessControlEntries.add(AccessControlEntry.create("bm.lan", Verb.Write));
+		accessControlEntries.add(AccessControlEntry.create(UUID.randomUUID().toString(), null));
+		try {
+			validator.validate(c, accessControlEntries);
+			fail();
+		} catch (ServerFault sf) {
+		}
+
+		accessControlEntries = new ArrayList<AccessControlEntry>();
+		accessControlEntries.add(AccessControlEntry.create(null, Verb.Write));
+		accessControlEntries.add(AccessControlEntry.create(UUID.randomUUID().toString(), Verb.Read));
+		try {
+			validator.validate(c, accessControlEntries);
+			fail();
+		} catch (ServerFault sf) {
+		}
+	}
+
 }

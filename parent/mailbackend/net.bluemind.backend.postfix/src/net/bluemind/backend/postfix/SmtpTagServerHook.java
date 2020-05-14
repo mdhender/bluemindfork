@@ -32,12 +32,13 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.server.api.Server;
 import net.bluemind.server.hook.DefaultServerHook;
+import net.bluemind.tag.api.TagDescriptor;
 
 public class SmtpTagServerHook extends DefaultServerHook {
-
 	private static final Logger logger = LoggerFactory.getLogger(SmtpTagServerHook.class);
 
-	private static final Set<String> TAGS = new HashSet<>(Arrays.asList("mail/smtp", "mail/smtp-edge"));
+	static final Set<String> TAGS = new HashSet<>(
+			Arrays.asList(TagDescriptor.mail_smtp.getTag(), TagDescriptor.mail_smtp_edge.getTag()));
 
 	@Override
 	public void onServerTagged(BmContext context, ItemValue<Server> server, String tag) throws ServerFault {

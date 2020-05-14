@@ -30,6 +30,9 @@
       <observer
             class="net.bluemind.backend.postfix.SettingsHook">
       </observer>
+      <hook
+            class="net.bluemind.backend.postfix.SettingsHook">
+      </hook>
    </extension>
    <extension
          point="net.bluemind.core.rest.serviceFactory">

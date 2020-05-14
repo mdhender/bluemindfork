@@ -28,9 +28,9 @@ import net.bluemind.server.api.gwt.js.JsServer;
 
 @JsType
 public final class QCreateDomainModel {
-
 	public String domainUid;
 	public String name;
+	public String domainAlias;
 	public boolean createAdmin = false;
 	public String adminLogin;
 	public String adminPassword;

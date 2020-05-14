@@ -37,6 +37,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.node.api.ExitList;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
@@ -58,7 +59,6 @@ public class PostfixService {
 	}
 
 	public void initializeServer(String serverUid, String tag) throws ServerFault {
-
 		IServer serverService = provider.instance(IServer.class, InstallationId.getIdentifier());
 		ItemValue<Server> serverItem = serverService.getComplete(serverUid);
 		if (serverItem == null) {
@@ -95,15 +95,10 @@ public class PostfixService {
 		serverMaps.writeFlatMaps();
 		serverMaps.enableMaps();
 
-		st = serverService.submitAndWait(serverUid, "service postfix restart");
-		if (!st.successful) {
-			logger.error("error during postfix restart {} ", st.output);
-			throw new ServerFault("error during postfix restart " + st.output, ErrorCode.FAILURE);
-		}
+		restartPostfix(serverItem);
 	}
 
 	public void initializeShard(ItemValue<Server> server, ItemValue<Server> smtp) {
-
 		IServer serverService = provider.instance(IServer.class, InstallationId.getIdentifier());
 
 		MasterCf masterCf = new MasterCf(serverService, server.uid);
@@ -126,17 +121,24 @@ public class PostfixService {
 			throw new ServerFault("error during newaliases execution", ErrorCode.FAILURE);
 		}
 
-		st = serverService.submitAndWait(server.uid, "service postfix restart");
-		if (!st.successful) {
-			logger.error("error during postfix restart {} ", st.output);
-			throw new ServerFault("error during postfix restart " + st.output, ErrorCode.FAILURE);
-		}
+		restartPostfix(server);
 
 		// disable milter
 		INodeClient nc = NodeActivator.get(server.value.address());
 		nc.executeCommandNoOut("systemctl stop bm-milter");
 		nc.executeCommandNoOut("touch /etc/bm/bm-milter.disabled");
+	}
 
+	public void restartPostfix(ItemValue<Server> server) {
+		logger.info("Restarting postfix on server {}", server.value.address());
+		INodeClient nc = NodeActivator.get(server.value.address());
+
+		ExitList result = NCUtils.waitFor(nc, nc.executeCommandNoOut("service postfix restart"));
+		if (result.getExitCode() != 0) {
+			logger.error("Error during postfix restart {} ", String.join(", ", result));
+			throw new ServerFault(String.format("error during postfix restart %s", String.join(", ", result)),
+					ErrorCode.FAILURE);
+		}
 	}
 
 	private String getHostname(Server serverItem) {
@@ -183,6 +185,18 @@ public class PostfixService {
 
 	public void reInitializeAllMaps() {
 		EventProducer.dirtyMaps();
+	}
+
+	public void reloadPostfix(ItemValue<Server> server) {
+		logger.info("Reloading postfix on server {}", server.value.address());
+		INodeClient nc = NodeActivator.get(server.value.address());
+
+		ExitList result = NCUtils.waitFor(nc, nc.executeCommandNoOut("service postfix reload"));
+		if (result.getExitCode() != 0) {
+			logger.error("Error during postfix reload {} ", String.join(", ", result));
+			throw new ServerFault(String.format("error during postfix reload %s", String.join(", ", result)),
+					ErrorCode.FAILURE);
+		}
 	}
 
 }

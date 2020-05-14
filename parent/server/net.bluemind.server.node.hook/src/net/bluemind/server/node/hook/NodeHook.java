@@ -64,9 +64,8 @@ public class NodeHook extends DefaultServerHook {
 			sleep();
 		}
 
-		// copy ini
+		// copy ini, core token, cert
 		try {
-
 			INodeClient remote = NodeActivator.get(adr);
 			File f = new File("/etc/bm/bm.ini." + adr);
 			if (!f.exists()) {
@@ -80,6 +79,8 @@ public class NodeHook extends DefaultServerHook {
 			remote.executeCommandNoOut("chmod 440 " + bmcoretok);
 			remote.executeCommandNoOut("chown root:bluemind " + bmcoretok);
 
+			copyBmCertFile(remote);
+
 			if (!NCUtils.connectedToMyself(remote)) {
 				if (!new File("/etc/bm/skip.restart").exists()) {
 					NCUtils.execNoOut(remote, "/usr/bin/bmctl restart");
@@ -88,7 +89,21 @@ public class NodeHook extends DefaultServerHook {
 		} catch (Exception sf) {
 			logger.info("sf: " + sf.getMessage());
 		}
+	}
 
+	private void copyBmCertFile(INodeClient remote) {
+		File bmcertFile = new File(bmCerts);
+		if (!bmcertFile.exists()) {
+			return;
+		}
+
+		try {
+			if (!NCUtils.connectedToMyself(remote)) {
+				remote.writeFile(bmCerts, new ByteArrayInputStream(Files.toByteArray(new File(bmCerts))));
+			}
+		} catch (Exception sf) {
+			throw new ServerFault(String.format("Cannot transfer %s", bmCerts), sf);
+		}
 	}
 
 	private void sleep() {
@@ -116,12 +131,13 @@ public class NodeHook extends DefaultServerHook {
 			pb.redirectErrorStream(true);
 			Process process = pb.start();
 			InputStream in = process.getInputStream();
-			BufferedReader br = new BufferedReader(new InputStreamReader(in));
-			String line = null;
-			do {
-				line = br.readLine();
-				logger.info(line != null ? line : "---");
-			} while (line != null);
+			try (BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
+				String line = null;
+				do {
+					line = br.readLine();
+					logger.info(line != null ? line : "---");
+				} while (line != null);
+			}
 
 			int exit = process.waitFor();
 			theScript.delete();
@@ -140,15 +156,9 @@ public class NodeHook extends DefaultServerHook {
 
 	@Override
 	public void onServerTagged(BmContext context, ItemValue<Server> server, String tag) throws ServerFault {
-
 		if ("bm/core".equals(tag)) {
 			newCore(server.value);
 		}
-
-		if ("mail/smtp-edge".equals(tag)) {
-			transferEdgeConfig(server, server.value.address());
-		}
-
 	}
 
 	private void newCore(Server s) {
@@ -159,26 +169,11 @@ public class NodeHook extends DefaultServerHook {
 		try {
 			INodeClient remote = NodeActivator.get(s.address());
 			remote.writeFile(clientCert, new ByteArrayInputStream(Files.toByteArray(new File(clientCert))));
-			remote.executeCommandNoOut("chmod 400 " + clientCert);
+			NCUtils.execNoOut(remote, "chmod 400 " + clientCert);
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 		} catch (ServerFault e) {
 			logger.error(e.getMessage(), e);
 		}
 	}
-
-	private void transferEdgeConfig(ItemValue<Server> server, String adr) {
-		// BM-10505
-		try {
-			INodeClient remote = NodeActivator.get(adr);
-			remote.writeFile(bmCerts, new ByteArrayInputStream(Files.toByteArray(new File(bmCerts))));
-			remote.writeFile(dhParam, new ByteArrayInputStream(Files.toByteArray(new File(dhParam))));
-			if (!NCUtils.connectedToMyself(remote)) {
-				NCUtils.execNoOut(remote, "service bm-nginx reload");
-			}
-		} catch (Exception sf) {
-			throw new ServerFault("Cannot transfer Edge config", sf);
-		}
-	}
-
 }

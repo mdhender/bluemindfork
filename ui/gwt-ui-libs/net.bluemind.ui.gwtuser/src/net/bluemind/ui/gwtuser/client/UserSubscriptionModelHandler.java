@@ -31,8 +31,6 @@ import net.bluemind.core.commons.gwt.JsMapStringJsObject;
 import net.bluemind.core.commons.gwt.JsMapStringString;
 import net.bluemind.core.container.api.ContainerSubscription;
 import net.bluemind.core.container.api.ContainerSubscriptionDescriptor;
-import net.bluemind.core.container.api.IContainersAsync;
-import net.bluemind.core.container.api.gwt.endpoint.ContainersGwtEndpoint;
 import net.bluemind.core.container.api.gwt.serder.ContainerSubscriptionGwtSerDer;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtModelHandler;
 import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
@@ -41,8 +39,6 @@ import net.bluemind.user.api.IUserSubscriptionAsync;
 import net.bluemind.user.api.gwt.endpoint.UserSubscriptionGwtEndpoint;
 
 public class UserSubscriptionModelHandler implements IGwtModelHandler {
-
-	private static final IContainersAsync containers = new ContainersGwtEndpoint(Ajax.TOKEN.getSessionId());
 
 	private Map<String, Boolean> localModel;
 

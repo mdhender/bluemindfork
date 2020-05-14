@@ -9,7 +9,7 @@ Group:              Applications/messaging
 URL:                http://www.blue-mind.net/
 ExcludeArch:        s390 s390x
 Summary:            BlueMind client access
-Requires:           bm-conf = %{version}-%{release}, bm-nginx = 1.18.0-bluemind95, epel-release >= 6, openssl
+Requires:           bm-conf = %{version}-%{release}, bm-nginx = 1.18.0-bluemind98, epel-release >= 7, openssl
 Requires:           /bin/bash
 
 %description
@@ -27,101 +27,22 @@ mkdir -p %{buildroot}/etc/nginx/sites-available
 mkdir -p %{buildroot}/etc/nginx/sites-enabled
 mkdir -p %{buildroot}/etc/nginx/global.d
 mkdir -p %{buildroot}/etc/nginx/bm-local.d
-cp %{_rootdir}/usr/share/doc/bm-client-access/global.d/*.conf %{buildroot}/etc/nginx/global.d
-cp %{_rootdir}/usr/share/doc/bm-client-access/bm-client-access %{buildroot}/etc/nginx/sites-available
-cp %{_rootdir}/usr/share/doc/bm-client-access/bm-client-access-without-password %{buildroot}/etc/nginx/sites-available
 
-mkdir -p %{buildroot}/usr/share/bm-client-access
-mkdir -p %{buildroot}/usr/share/bm-client-access/bin
-cp -r %{_rootdir}/usr/share/bm-client-access/errors-pages %{buildroot}/usr/share/bm-client-access
-cp %{_rootdir}/usr/share/bm-client-access/bin/createcert.sh %{buildroot}/usr/share/bm-client-access/bin
-
-mkdir -p %{buildroot}/etc/bm-webmail
-mkdir -p %{buildroot}/etc/bm-eas
-mkdir -p %{buildroot}/etc/bm-mapi
+cp -r %{_rootdir}/* %{buildroot}
 
 %files
 /*
 
+%pre -p /bin/bash
+
+# SB-991: don't manage NGinx on edge already configured
+[ $1 -eq 1 ] && touch /etc/nginx/BM-DONOTCONF
+
+exit 0
+
 %post -p /bin/bash
 
-generateDhParam() {
-    if [ -e /etc/nginx/bm_dhparam.pem ]; then
-        chmod 640 /etc/nginx/bm_dhparam.pem
-        return
-    fi
-    
-    char=("-" "\\" "|" "/")
-    charCount=0;
-    elapsedTime=0;
-    
-    openssl dhparam -out /etc/nginx/bm_dhparam.pem 2048 > /dev/null 2>&1 &
-    while $(kill -0 $! > /dev/null 2>&1); do
-        echo -en "\rGenerate 2048 dhparams. This may take some time: "${char[$charCount]}" ("$((elapsedTime/2))"s)"
-        
-        elapsedTime=$((elapsedTime+1))
-        charCount=$(((charCount+1)%4))
-        sleep 0.5
-    done
-    
-    chmod 640 /etc/nginx/bm_dhparam.pem
-    
-    echo -e "\n"
-}
-
-if [ -f "/etc/bm/bm.ini" ]; then
-  externalurl=`cat /etc/bm/bm.ini | grep external-url | sed -e 's/ //g' | cut -d'=' -f2`
-else
-  externalurl=$(hostname -f)
-fi
-
-if [ $1 -eq 1 ]; then
-    # Installation
-    /usr/share/bm-client-access/bin/createcert.sh configure.your.external.url ${externalurl} $(hostname -I)
-fi
-
-echo "server_name $externalurl;" > /etc/nginx/bm-servername.conf
-echo "set \$bmexternalurl $externalurl;" > /etc/nginx/bm-externalurl.conf
-
-pushd /etc/nginx/sites-enabled
-rm -f bm-client-access*
-if [ -f /etc/nginx/sw.htpasswd ]; then
-    cp -f ../sites-available/bm-client-access .
-else
-    cp -f ../sites-available/bm-client-access-without-password .
-fi
-popd
-
-
-grep -q "^include /etc/nginx/global.d" /etc/nginx/nginx.conf || {
-    echo -e "\ninclude /etc/nginx/global.d/*.conf;\n" >> /etc/nginx/nginx.conf
-    service bm-cyrus-imapd stop
-}
-
-generateDhParam
-
-echo "Install bm-webmail nginx configuration"
-if [ ! -e /etc/bm-webmail/nginx-webmail.conf ]; then
-  cp -f /usr/share/doc/bm-client-access/bm-webmail/nginx-webmail.conf /etc/bm-webmail
-fi
-if [ ! -e /etc/bm-webmail/bm-filehosting.conf ]; then
-  cp -f /usr/share/doc/bm-client-access/bm-webmail/bm-filehosting.conf /etc/bm-webmail
-fi
-
-if [ ! -e /etc/bm-eas/bm-eas-nginx.conf ]; then
-  echo "Install bm-eas nginx configuration"
-  cp -f /usr/share/doc/bm-client-access/bm-eas/bm-eas-nginx.conf /etc/bm-eas
-fi
-
-if [ ! -e /etc/bm-eas/bm-upstream-eas.conf ]; then
-  echo "Install bm-eas nginx upstream configuration"
-  cp -f /usr/share/doc/bm-client-access/bm-eas/bm-upstream-eas.conf /etc/bm-eas
-fi
-
-if [ ! -e /etc/bm-mapi/bm-upstream-mapi.conf ]; then
-  echo "Install bm-mapi nginx upstream configuration"
-  cp -f /usr/share/doc/bm-client-access/bm-mapi/bm-upstream-mapi.conf /etc/bm-mapi
-fi
+/usr/share/bm-client-access/bin/configure-nginx.sh
 
 chkconfig bm-nginx on
 service bm-nginx restart

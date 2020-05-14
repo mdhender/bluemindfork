@@ -20,7 +20,6 @@ package net.bluemind.ui.adminconsole.system.domains.create;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -130,7 +129,7 @@ public class QCreateDomainModelHandler implements IGwtModelHandler {
 		Domain domain = new Domain();
 		domain.name = dmodel.name;
 		domain.label = dmodel.name;
-		domain.aliases = Collections.emptySet();
+		domain.aliases = new HashSet<>(Arrays.asList(dmodel.domainAlias));
 
 		if (dmodel.createAdmin && !checkAdminUser(wrappedHandler, dmodel)) {
 			return;

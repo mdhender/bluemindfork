@@ -116,8 +116,9 @@ public class QCreateDomainWidget extends CompositeGwtWidgetElement {
 
 		QCreateDomainModel mmodel = GWT.create(QCreateDomainModel.class);
 
-		mmodel.name = name.getText();
-		mmodel.domainUid = name.getText();
+		mmodel.domainUid = Long.toHexString(System.currentTimeMillis()) + ".internal";
+		mmodel.name = mmodel.domainUid;
+		mmodel.domainAlias = name.getText();
 		mmodel.selectedServer = serverMapping.get(mailServices.getSelectedValue());
 
 		Boolean ca = createAdmin.getValue();

@@ -35,8 +35,8 @@ public class ServerValidator {
 		if (StringUtils.isBlank(server.name)) {
 			throw new ServerFault("Server.name must be set ", ErrorCode.INVALID_PARAMETER);
 		}
-		if (StringUtils.isBlank(server.ip) && StringUtils.isBlank(server.fqdn)) {
-			throw new ServerFault("Server.ip or Server.fqdn must be set", ErrorCode.INVALID_PARAMETER);
+		if (StringUtils.isBlank(server.ip)) {
+			throw new ServerFault("Server.ip must be set", ErrorCode.INVALID_PARAMETER);
 		}
 	}
 

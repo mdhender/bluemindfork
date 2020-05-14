@@ -24,9 +24,12 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NCUtils;
@@ -37,11 +40,15 @@ import net.bluemind.server.hook.DefaultServerHook;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 import net.bluemind.system.hook.ISystemConfigurationObserver;
+import net.bluemind.system.hook.ISystemHook;
 import net.bluemind.tag.api.TagDescriptor;
 
-public class SettingsHook extends DefaultServerHook implements ISystemConfigurationObserver {
-
+public class SettingsHook extends DefaultServerHook implements ISystemConfigurationObserver, ISystemHook {
 	Logger logger = LoggerFactory.getLogger(SettingsHook.class.getName());
+
+	private interface SmtpAction {
+		void run(ItemValue<Server> s) throws ServerFault;
+	}
 
 	@Override
 	public void onUpdated(BmContext context, SystemConf previous, SystemConf conf) throws ServerFault {
@@ -116,8 +123,7 @@ public class SettingsHook extends DefaultServerHook implements ISystemConfigurat
 							: conf.stringValue(SysConfKeys.relayhost.name()).trim()) + "'");
 			NCUtils.waitFor(nc, tr);
 
-			tr = nc.executeCommandNoOut("service postfix restart");
-			NCUtils.waitFor(nc, tr);
+			new PostfixService().reloadPostfix(postfix);
 
 			if (logger.isDebugEnabled()) {
 				logger.debug(new String(nc.read("/etc/postfix/main.cf")));
@@ -180,4 +186,23 @@ public class SettingsHook extends DefaultServerHook implements ISystemConfigurat
 		}
 	}
 
+	@Override
+	public void onCertificateUpdate() throws ServerFault {
+		forEachSmtp(new SmtpAction() {
+			@Override
+			public void run(ItemValue<Server> server) throws ServerFault {
+				new PostfixService().reloadPostfix(server);
+			}
+		});
+	}
+
+	private void forEachSmtp(SmtpAction action) throws ServerFault {
+		IServer srvApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class,
+				InstallationId.getIdentifier());
+		for (ItemValue<Server> h : srvApi.allComplete()) {
+			if (h.value.tags.stream().anyMatch(SmtpTagServerHook.TAGS::contains)) {
+				action.run(h);
+			}
+		}
+	}
 }

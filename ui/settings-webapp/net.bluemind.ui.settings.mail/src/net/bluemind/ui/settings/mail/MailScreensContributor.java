@@ -30,6 +30,8 @@ import net.bluemind.gwtconsoleapp.base.editor.Tab;
 import net.bluemind.gwtconsoleapp.base.editor.TabContainer;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.ui.common.client.forms.Ajax;
+import net.bluemind.ui.gwtuser.client.MailboxSubscriptionsEditor;
+import net.bluemind.ui.gwtuser.client.MailboxSubscriptionsModelHandler;
 import net.bluemind.ui.mailbox.filter.DomainFilters;
 import net.bluemind.ui.mailbox.filter.MailForwardEditor;
 import net.bluemind.ui.mailbox.filter.MailSettingsModelHandler;
@@ -78,6 +80,11 @@ public class MailScreensContributor implements ScreenElementContributorUnwrapper
 						.withRole(BasicRoles.ROLE_SELF_CHANGE_MAIL_IDENTITIES)));
 
 		if ("FULL".equals(Ajax.getAccountType())) {
+			tabs.push(Tab.create(null, messages.tabSubscriptions(),
+					ScreenElement.create(null, MailboxSubscriptionsEditor.TYPE)));
+			contribs.push(ScreenElementContribution.create("base", "modelHandlers",
+					ScreenElement.create(null, MailboxSubscriptionsModelHandler.TYPE)));
+
 			tabs.push(
 					Tab.create(null, messages.tabSharings(), ScreenElement.create(null, MailboxesSharingsEditor.TYPE)));
 			contribs.push(ScreenElementContribution.create("base", "modelHandlers",

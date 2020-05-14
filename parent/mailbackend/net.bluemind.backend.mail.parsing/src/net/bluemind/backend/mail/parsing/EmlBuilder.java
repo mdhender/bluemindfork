@@ -28,6 +28,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,7 @@ import org.apache.james.mime4j.message.MultipartImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Splitter;
 import com.google.common.base.Throwables;
 
 import net.bluemind.backend.mail.api.DispositionType;
@@ -107,10 +109,15 @@ public class EmlBuilder {
 		List<Address> to = new LinkedList<>();
 		List<Address> cc = new LinkedList<>();
 		List<Address> bcc = new LinkedList<>();
+
+		Splitter splitter = Splitter.on("@");
 		for (Recipient r : recipients) {
-			String[] split = r.address.split("@");
-			String local = split[0];
-			String dom = split[1];
+			Iterator<String> split = splitter.split(r.address).iterator();
+			String local = split.next();
+			String dom = null;
+			if (split.hasNext()) {
+				dom = split.next();
+			}
 			Mailbox cur = new Mailbox(local, dom);
 			switch (r.kind) {
 			case BlindCarbonCopy:

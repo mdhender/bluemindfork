@@ -23,14 +23,10 @@ import net.bluemind.system.config.INginxConfigUpdater;
 import net.bluemind.system.config.NginxConfig;
 
 public class EasConfigUpdater implements INginxConfigUpdater {
-
 	@Override
 	public void update(INodeClient nc, NginxConfig config) throws Exception {
-
 		NginxEasConf conf = new NginxEasConf(nc);
 		conf.setMessageSizeLimit(Long.parseLong(config.get("messageSizeLimit")));
 		conf.write();
-
 	}
-
 }

@@ -48,13 +48,13 @@ public class NginxExternalUrlConfigurationObserver implements ISystemConfigurati
 				|| (previous.stringValue("external-url") == null && conf.stringValue("external-url") != null)) {
 			String eu = conf.stringValue("external-url");
 			logger.info("System configuration has been updated, external-url changed to {}", eu);
-			updateExternalUr(context.su(), eu);
+			updateExternalUrl(context.su(), eu);
 		}
 	}
 
-	private void updateExternalUr(BmContext context, String eu) {
-
-		List<ItemValue<Server>> webservers = getTaggedServers(context, TagDescriptor.bm_nginx.getTag());
+	private void updateExternalUrl(BmContext context, String eu) {
+		List<ItemValue<Server>> webservers = getTaggedServers(context, TagDescriptor.bm_nginx.getTag(),
+				TagDescriptor.bm_nginx_edge.getTag());
 
 		byte[] serverName = NginxService.serverNameContent(eu);
 		byte[] conf = NginxService.externalUrlContent(eu);
@@ -76,7 +76,6 @@ public class NginxExternalUrlConfigurationObserver implements ISystemConfigurati
 	}
 
 	List<ItemValue<Server>> getTaggedServers(BmContext context, String... tag) throws ServerFault {
-
 		IServer serverService = context.provider().instance(IServer.class, "default");
 
 		List<ItemValue<Server>> all = serverService.allComplete();

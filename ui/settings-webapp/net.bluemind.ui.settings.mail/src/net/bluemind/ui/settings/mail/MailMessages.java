@@ -36,8 +36,10 @@ public interface MailMessages extends Messages {
 	public String advanced();
 
 	public String advancedAnchor();
-	
+
 	public String mailApp();
-	
+
 	public String listStyle();
+
+	public String tabSubscriptions();
 }

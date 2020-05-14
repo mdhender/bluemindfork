@@ -51,9 +51,17 @@
 								titleText="{c.krbAdDomain}" mandatory="true" readOnly="false" />
 							<common:StringEdit ui:field="krbAdIp"
 								titleText="{c.krbAdIp}" mandatory="true" readOnly="false" />
-							<g:Label text="{c.krbDomain}:"></g:Label>
-							<g:ListBox ui:field="krbDomain" title="{c.krbDomain}" />
 						</f:FieldSetPanel>
+						<table class="formContainer">
+							<tr>
+								<td class="label">
+									<g:Label text="{c.krbDomain}:"></g:Label>
+								</td>
+								<td>
+									<g:ListBox ui:field="krbDomain" title="{c.krbDomain}" />
+								</td>
+							</tr>
+						</table>		
 
 						<g:FormPanel ui:field="keyUploadForm">
 							<g:HTMLPanel>

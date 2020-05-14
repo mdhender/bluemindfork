@@ -415,7 +415,6 @@ public abstract class BaseSubscriptionsEditor extends CompositeGwtWidgetElement 
 
 	@Override
 	public void saveModel(JavaScriptObject model) {
-
 		List<ContainerSubscription> l = new ArrayList<ContainerSubscription>();
 		for (SwitchButton value : subscription.values()) {
 			ContainerSubscription cs = ContainerSubscription.create(value.getName(), value.getValue());

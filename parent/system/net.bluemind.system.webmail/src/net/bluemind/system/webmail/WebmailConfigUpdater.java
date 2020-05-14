@@ -29,9 +29,9 @@ public class WebmailConfigUpdater implements INginxConfigUpdater {
 	@Override
 	public void update(INodeClient nc, NginxConfig config) throws Exception {
 
-		WebmailPhpFpmConf webmailHttpdConf = new WebmailPhpFpmConf(nc);
-		webmailHttpdConf.setMessageSizeLimit(Long.parseLong(config.get("messageSizeLimit")));
-		webmailHttpdConf.write();
+		WebmailPhpFpmConf webmailFpmConf = new WebmailPhpFpmConf(nc);
+		webmailFpmConf.setMessageSizeLimit(Long.parseLong(config.get("messageSizeLimit")));
+		webmailFpmConf.write();
 
 		WebmailPhpNginxConf webmailNginxConf = new WebmailPhpNginxConf(nc);
 		webmailNginxConf.setMessageSizeLimit(Long.parseLong(config.get("messageSizeLimit")));

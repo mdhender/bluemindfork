@@ -110,8 +110,8 @@ public class UserSubscriptionStoreTests {
 		String uid = "test_" + System.nanoTime();
 		Container container = Container.create(uid, "test", "name", "me", true);
 
-		ContainerStore containerStore = new ContainerStore(JdbcTestHelper.getInstance().getMailboxDataDataSource(),
-				securityContext);
+		ContainerStore containerStore = new ContainerStore(null,
+				JdbcTestHelper.getInstance().getMailboxDataDataSource(), securityContext);
 
 		container = containerStore.create(container);
 		store.subscribe(testUser.uid, container);
@@ -130,8 +130,8 @@ public class UserSubscriptionStoreTests {
 		String uid = "test_" + System.nanoTime();
 		Container container = Container.create(uid, "testType", "name", "me", true);
 
-		ContainerStore containerStore = new ContainerStore(JdbcTestHelper.getInstance().getMailboxDataDataSource(),
-				securityContext);
+		ContainerStore containerStore = new ContainerStore(null,
+				JdbcTestHelper.getInstance().getMailboxDataDataSource(), securityContext);
 
 		container = containerStore.create(container);
 
@@ -152,7 +152,7 @@ public class UserSubscriptionStoreTests {
 		subs = store.listSubscriptions(testUser.uid, null);
 		assertEquals(1, subs.size());
 
-		store.unsubscribe(testUser.uid, container);
+		store.unsubscribe(testUser.uid, container.uid);
 		subs = store.listSubscriptions(testUser.uid, "testType");
 		assertEquals(0, subs.size());
 	}

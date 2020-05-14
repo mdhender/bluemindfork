@@ -6,7 +6,7 @@ Group:              Applications/messaging
 URL:                http://www.bluemind.net/
 ExcludeArch:        s390 s390x
 Summary:            BlueMind webmail (Roundcube)
-Requires:           bm-postgresql = 11.7-bluemind114, bm-nginx = 1.18.0-bluemind95, bm-php = 5.6.40-bluemind89, tzdata, epel-release >= 6, memcached
+Requires:           bm-postgresql = 11.7-bluemind114, bm-nginx = 1.18.0-bluemind98, bm-php = 5.6.40-bluemind89, tzdata, epel-release >= 6, memcached
 Conflicts:          bm-apache
 Obsoletes:          bm-apache
 
@@ -36,12 +36,12 @@ if [ -L /usr/share/bm-webmail/logs ]; then
 fi
 
 chkconfig memcached on
-service memcached stop || true
+systemctl stop memcached || true
 cp -f /usr/share/doc/bm-webmail/sysconfig-memcached /etc/sysconfig/memcached
-service memcached start
+systemctl start memcached
 
-chkconfig httpd off || true
-service httpd stop || true
+systemctl stop httpd || true
+systemctl disable httpd || true
 
 if [ ! -e /etc/bm-webmail/bm-php5-fpm.conf ]; then
   cp -f /usr/share/doc/bm-webmail/bm-php5-fpm.conf /etc/bm-webmail
@@ -53,10 +53,10 @@ rm -f bm-webmail
 ln -s ../sites-available/bm-webmail .
 popd
 
-chkconfig bm-php-fpm on
-service bm-php-fpm restart
+systemctl enable bm-php-fpm
+systemctl restart bm-php-fpm
 
-service bm-nginx restart
+systemctl restart bm-nginx
 
 %postun
 if [ $1 -eq 0 ]; then

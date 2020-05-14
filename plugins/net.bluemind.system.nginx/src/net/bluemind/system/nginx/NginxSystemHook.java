@@ -22,14 +22,11 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Sets;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -49,6 +46,7 @@ import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 import net.bluemind.system.hook.ISystemConfigurationObserver;
 import net.bluemind.system.hook.ISystemHook;
+import net.bluemind.tag.api.TagDescriptor;
 
 public class NginxSystemHook implements ISystemHook, ISystemConfigurationObserver {
 
@@ -64,7 +62,6 @@ public class NginxSystemHook implements ISystemHook, ISystemConfigurationObserve
 	@Override
 	public void onCertificateUpdate() throws ServerFault {
 		forEachNginx(new NginxAction() {
-
 			@Override
 			public void run(ItemValue<Server> s) throws ServerFault {
 				logger.info("reloading nginx : {}", s.value.address());
@@ -87,9 +84,9 @@ public class NginxSystemHook implements ISystemHook, ISystemConfigurationObserve
 				logger.warn("no server value for {}", h.uid);
 				continue;
 			}
-			Server s = h.value;
-			HashSet<String> allTags = Sets.newHashSet(s.tags);
-			if (allTags.contains("bm/nginx")) {
+
+			if (h.value.tags.stream().anyMatch(tag -> tag.equals(TagDescriptor.bm_nginx.getTag())
+					|| tag.equals(TagDescriptor.bm_nginx_edge.getTag()))) {
 				action.run(h);
 			}
 		}
@@ -97,21 +94,20 @@ public class NginxSystemHook implements ISystemHook, ISystemConfigurationObserve
 
 	@Override
 	public void onUpdated(BmContext context, SystemConf previous, SystemConf conf) throws ServerFault {
-
 		String pwd = conf.values.get(SysConfKeys.sw_password.name());
 		String workerConnections = conf.values.get(SysConfKeys.nginx_worker_connections.name());
 		String oldWorkerConnections = previous.values.get(SysConfKeys.nginx_worker_connections.name());
 
 		boolean changePwd = pwd != null && !pwd.trim().isEmpty();
-		boolean changeWorderConnections = workerConnections != null && !workerConnections.trim().isEmpty()
+		boolean changeWorkerConnections = workerConnections != null && !workerConnections.trim().isEmpty()
 				&& !workerConnections.equals(oldWorkerConnections);
 
-		if (!changePwd && !changeWorderConnections) {
+		if (!changePwd && !changeWorkerConnections) {
 			return;
 		}
 
 		StringWriter sw = new StringWriter();
-		if (changeWorderConnections) {
+		if (changeWorkerConnections) {
 			try {
 				Map<String, Object> data = new HashMap<>();
 				data.put("worker_connections", workerConnections);
@@ -130,14 +126,11 @@ public class NginxSystemHook implements ISystemHook, ISystemConfigurationObserve
 				NCUtils.exec(nc, "/usr/bin/htpasswd -bc /etc/nginx/sw.htpasswd admin '" + pwd + "'");
 			}
 
-			if (changeWorderConnections) {
+			if (changeWorkerConnections) {
 				logger.info("update worker_connections on {}", s.value.address());
 				nc.writeFile("/etc/nginx/global.d/events.conf", new ByteArrayInputStream(sw.toString().getBytes()));
 				NCUtils.exec(nc, "service bm-nginx reload");
 			}
-
 		});
-
 	}
-
 }
