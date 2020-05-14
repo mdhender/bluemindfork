@@ -160,5 +160,20 @@ export default {
         type: AlertTypes.SUCCESS,
         key: "alert.folder.mark_as_read.success",
         renderer: "MailAlertRenderer"
+    },
+    MSG_FOLDER_CREATE_LOADING: {
+        type: AlertTypes.LOADING,
+        key: "alert.folder.create.loading",
+        renderer: "MailAlertRenderer"
+    },
+    MSG_FOLDER_CREATE_ERROR: {
+        type: AlertTypes.ERROR,
+        key: "alert.folder.create.error",
+        renderer: "MailAlertRenderer"
+    },
+    MSG_FOLDER_CREATE_SUCCESS: {
+        type: AlertTypes.SUCCESS,
+        key: "alert.folder.create.success",
+        renderer: "MailAlertRenderer"
     }
 };

@@ -41,8 +41,8 @@
                     type="text"
                     reset
                     @focus="newFolderIsFocused = true"
-                    @blur="add"
-                    @keydown.enter="add"
+                    @blur="add()"
+                    @keydown.enter="add()"
                     @keydown.esc="newFolderName = ''"
                     @reset="newFolderName = ''"
                 />
@@ -111,7 +111,7 @@ export default {
         ...mapState("mail-webapp", ["currentFolderKey", "currentMessageKey"])
     },
     methods: {
-        ...mapActions("mail-webapp", ["expandFolder", "collapseFolder"]),
+        ...mapActions("mail-webapp", ["expandFolder", "collapseFolder", "createFolder"]),
         selectFolder(key) {
             this.$emit("toggle-folders");
             const folder = this.getFolderByKey(key);
@@ -124,10 +124,13 @@ export default {
                 this.$router.push({ name: "v:mail:home", params: { mailshare: prefix + folder.value.fullName } });
             }
         },
-        add() {
-            if (this.newFolderIsValid) {
+        add(parentFolderFullName) {
+            if (this.newFolderIsValid && !!this.newFolderName) {
                 this.newFolderIsFocused = false;
-                //TODO : call createFolder action
+                const newFolderFullName = parentFolderFullName
+                    ? parentFolderFullName + "/" + this.newFolderName
+                    : this.newFolderName;
+                this.createFolder(newFolderFullName).then(() => (this.newFolderName = ""));
             }
         }
     }
