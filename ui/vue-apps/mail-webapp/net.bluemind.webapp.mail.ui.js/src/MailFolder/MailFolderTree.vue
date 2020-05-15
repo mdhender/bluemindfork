@@ -26,13 +26,13 @@
                 </template>
             </bm-tree>
             <div
-                class="pl-4 border-bottom new-folder d-flex align-items-center"
-                :class="newFolderIsValid ? 'valid' : 'invalid'"
+                class="pl-4 border-bottom new-folder d-flex align-items-center position-relative"
+                :class="[
+                    isNewFolderNameValid === true ? 'valid' : 'invalid border-danger',
+                    newFolderIsFocused && isNewFolderNameValid === true ? 'border-primary' : ''
+                ]"
             >
-                <bm-icon
-                    :icon="newFolderIsFocused ? 'folder' : 'plus'"
-                    :class="newFolderIsValid ? (newFolderIsFocused ? 'text-primary' : 'text-secondary') : 'text-danger'"
-                />
+                <bm-icon :icon="newFolderIsFocused ? 'folder' : 'plus'" class="text-secondary" />
                 <bm-form-input
                     ref="new"
                     v-model="newFolderName"
@@ -41,10 +41,15 @@
                     type="text"
                     reset
                     @focus="newFolderIsFocused = true"
-                    @blur="add()"
+                    @focusout="add()"
                     @keydown.enter="add()"
                     @keydown.esc="newFolderName = ''"
                     @reset="newFolderName = ''"
+                />
+                <bm-notice
+                    v-if="isNewFolderNameValid !== true"
+                    :text="isNewFolderNameValid"
+                    class="position-absolute z-index-110 pr-2"
                 />
             </div>
         </bm-collapse>
@@ -79,7 +84,8 @@
 </template>
 
 <script>
-import { BmButton, BmCollapse, BmIcon, BmTree, BmFormInput } from "@bluemind/styleguide";
+import { BmButton, BmCollapse, BmIcon, BmNotice, BmTree, BmFormInput } from "@bluemind/styleguide";
+import { isFolderNameValid } from "@bluemind/backend.mail.store";
 import { ItemUri } from "@bluemind/item-uri";
 import { mapGetters, mapActions, mapState } from "vuex";
 import injector from "@bluemind/inject";
@@ -92,6 +98,7 @@ export default {
         BmCollapse,
         BmFormInput,
         BmIcon,
+        BmNotice,
         BmTree,
         MailFolderItem
     },
@@ -101,14 +108,30 @@ export default {
             areMailsharesExpanded: true,
             mailboxEmail: injector.getProvider("UserSession").get().defaultEmail,
             newFolderName: "",
-            newFolderIsFocused: false,
-            newFolderIsValid: true
+            newFolderIsFocused: false
         };
     },
     computed: {
         ...mapGetters("mail-webapp", ["tree", "mailshares", "nextMessageKey", "my"]),
-        ...mapGetters("mail-webapp/folders", ["getFolderByKey"]),
-        ...mapState("mail-webapp", ["currentFolderKey", "currentMessageKey"])
+        ...mapGetters("mail-webapp/folders", ["getFolderByKey", "getFolderByPath"]),
+        ...mapState("mail-webapp", ["currentFolderKey", "currentMessageKey"]),
+        isNewFolderNameValid() {
+            if (this.newFolderName !== "") {
+                const currentMailbox = this.my.mailboxUid;
+
+                const checkValidity = isFolderNameValid(this.newFolderName);
+                if (checkValidity !== true) {
+                    return this.$t("mail.actions.create.folder.invalid.character", {
+                        character: checkValidity
+                    });
+                }
+
+                if (this.getFolderByPath(this.newFolderName, currentMailbox)) {
+                    return this.$t("mail.actions.create.folder.invalid.already_exist");
+                }
+            }
+            return true;
+        }
     },
     methods: {
         ...mapActions("mail-webapp", ["expandFolder", "collapseFolder", "createFolder"]),
@@ -125,7 +148,8 @@ export default {
             }
         },
         add(parentFolderFullName) {
-            if (this.newFolderIsValid && !!this.newFolderName) {
+            console.log("focus out");
+            if (this.isNewFolderNameValid === true && !!this.newFolderName) {
                 this.newFolderIsFocused = false;
                 const newFolderFullName = parentFolderFullName
                     ? parentFolderFullName + "/" + this.newFolderName
@@ -139,16 +163,34 @@ export default {
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
 
-.mail-folder-tree button.collapse-mailbox-btn {
-    color: $info-dark;
-    text-decoration-line: none;
-    border-bottom: 1px solid $light !important;
-}
+.mail-folder-tree {
+    button.collapse-mailbox-btn {
+        color: $info-dark;
+        text-decoration-line: none;
+        border-bottom: 1px solid $light !important;
+    }
 
-.mail-folder-tree .new-folder {
-    input {
-        border: none;
-        padding-left: $sp-1;
+    .new-folder {
+        input {
+            border: none;
+            padding-left: $sp-1;
+        }
+        .bm-notice {
+            top: 33px;
+        }
+        &.valid {
+            .fa-folder {
+                color: $primary !important;
+            }
+        }
+        &.invalid {
+            .fa-folder {
+                color: $danger !important;
+            }
+            input {
+                color: $danger;
+            }
+        }
     }
 }
 </style>
