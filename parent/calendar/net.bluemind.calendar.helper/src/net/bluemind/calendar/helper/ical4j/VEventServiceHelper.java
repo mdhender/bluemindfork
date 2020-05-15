@@ -207,20 +207,32 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 
 	private static List<String> splitIcs(String ics) {
 		List<String> cals = new ArrayList<>();
-		String start = "BEGIN:VCALENDAR";
-		String end = "END:VCALENDAR";
+		ics = "\n" + ics;
+		String start = "\nBEGIN:VCALENDAR";
+		String end = "\nEND:VCALENDAR";
 
 		int firstCalendar = ics.indexOf(start);
 		int lastCalendar = ics.lastIndexOf(start);
 		if (firstCalendar == lastCalendar) {
-			cals.add(ics);
+			cals.add(stripEmptyLines(ics));
 		} else {
 			String[] substringsBetween = StringUtils.substringsBetween(ics, start, end);
 			for (int i = 0; i < substringsBetween.length; i++) {
 				cals.add(String.format("%s%s%s", start, substringsBetween[i], end));
 			}
 		}
-		return cals;
+		return cals.stream().map(VEventServiceHelper::stripEmptyLines).collect(Collectors.toList());
+	}
+
+	private static String stripEmptyLines(String ics) {
+		StringBuilder sb = new StringBuilder();
+		for (String line : ics.replaceAll("\r\n", "\n").split("\n")) {
+			if (!line.trim().isEmpty()) {
+				sb.append(line + "\r\n");
+			}
+		}
+
+		return sb.toString();
 	}
 
 	public static void parseCalendar(InputStream ics, Optional<CalendarOwner> owner,

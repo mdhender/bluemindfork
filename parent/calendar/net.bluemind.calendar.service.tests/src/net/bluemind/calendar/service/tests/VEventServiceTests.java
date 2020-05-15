@@ -472,7 +472,6 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertTrue(vevent.categories.isEmpty());
 		assertEquals(0, vevent.sequence.intValue());
 
-
 	}
 
 	@Test
@@ -1007,6 +1006,17 @@ public class VEventServiceTests extends AbstractCalendarTests {
 				.getComplete("BCD5213EA10-1043-13793940");
 		VEvent event = item.value.main;
 		assertEquals("junit bug 3449", event.summary);
+	}
+
+	@Test
+	public void testImportBugZimbra1() throws IOException, ServerFault {
+		Stream ics = getIcsFromFile("zimbra1.ics");
+
+		TaskRef taskRef = getVEventService(userSecurityContext, userCalendarContainer).importIcs(ics);
+		ImportStats stats = waitImportEnd(taskRef);
+
+		assertNotNull(stats);
+		assertEquals(5, stats.importedCount());
 	}
 
 	@Test
