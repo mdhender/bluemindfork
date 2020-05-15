@@ -47,10 +47,12 @@
             :title="$t('mail.actions.create.folder')"
         >
             <mail-folder-input
+                class="pl-3 pr-1"
                 :submit-on-focusout="false"
                 @submit="newFolderName => selectFolder({ value: { fullName: newFolderName, path: newFolderName } })"
                 @keydown.left.native.stop
                 @keydown.right.native.stop
+                @keydown.esc.native.stop
             />
         </bm-dropdown-form>
         <bm-dropdown-item-button
@@ -223,8 +225,12 @@ function toFolderItem(folder, isShared = false, path = undefined) {
 
     .b-dropdown-form {
         padding-top: $sp-1;
-        padding-bottom: $sp-1;
-        padding-right: $sp-1;
+    }
+
+    .new-folder .b-dropdown-form {
+        padding-right: 0;
+        padding-left: 0;
+        padding-bottom: 0;
     }
 }
 </style>

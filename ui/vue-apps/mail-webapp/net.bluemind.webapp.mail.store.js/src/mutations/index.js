@@ -10,6 +10,7 @@ export * from "./setMaxMessageSize";
 export * from "./setMessageFilter";
 export * from "./setUnreadCount";
 export * from "./setUserLogin";
-export * from "./unblockRemoteImages";
 export * from "./setStatus";
 export * from "./setUserSettings";
+export * from "./toggleEditFolder";
+export * from "./unblockRemoteImages";

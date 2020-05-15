@@ -8,16 +8,16 @@
             class="d-inline-block flex-fill"
             reset
             :placeholder="folder ? '' : $t('mail.folder.new.from_scratch')"
-            @focus="isFocused = true"
+            @focus="isActive = true"
             @focusout="onFocusOut"
             @keydown.enter="submit"
-            @keydown.esc.stop="closeInput"
+            @keydown.esc="closeInput"
             @reset="closeInput"
         />
         <bm-notice
             v-if="isNewFolderNameValid !== true"
             :text="isNewFolderNameValid"
-            class="position-absolute w-100 z-index-110 mx-2"
+            class="position-absolute z-index-110 mx-2"
         />
     </div>
 </template>
@@ -28,10 +28,6 @@ import { isFolderNameValid } from "@bluemind/backend.mail.store";
 import { mapGetters, mapState } from "vuex";
 import ItemUri from "@bluemind/item-uri";
 
-/**
- * FIXME : régression CSS sur la border-bottom (voir les cas du move et du rename d'un sous-dossier)
- *      Si possible je préfererais éviter de devoir remonter au parent le fait que l'input soit valide ou non.
- */
 export default {
     name: "MailFolderInput",
     components: {
@@ -59,7 +55,7 @@ export default {
     data() {
         return {
             newFolderName: (this.folder && this.folder.name) || "",
-            isFocused: false
+            isActive: false
         };
     },
     computed: {
@@ -98,10 +94,10 @@ export default {
             return true;
         },
         computeIconName() {
-            return this.isFocused ? (this.shared ? "folder-shared" : "folder") : "plus";
+            return this.isActive ? (this.shared ? "folder-shared" : "folder") : "plus";
         },
         computeClassNames() {
-            if (!this.isFocused) {
+            if (!this.isActive) {
                 return "border-bottom";
             }
             return this.isNewFolderNameValid === true
@@ -112,12 +108,17 @@ export default {
     watch: {
         folder() {
             this.newFolderName = this.folder.name;
+        },
+        newFolderName() {
+            if (this.newFolderName !== "" && !this.isActive) {
+                this.isActive = true;
+            }
         }
     },
     methods: {
         closeInput() {
             this.$emit("close");
-            this.isFocused = false;
+            this.isActive = false;
             this.newFolderName = (this.folder && this.folder.name) || "";
         },
         submit() {
@@ -131,7 +132,11 @@ export default {
             }
         },
         onFocusOut() {
-            if (!this.$el.contains(document.activeElement) && !this.$el.contains(event.relatedTarget)) {
+            if (
+                !this.$el.contains(document.activeElement) &&
+                !this.$el.contains(event.relatedTarget) &&
+                this.isActive
+            ) {
                 if (this.isNewFolderNameValid !== true || this.newFolderName === "" || !this.submitOnFocusout) {
                     this.closeInput();
                 } else {
@@ -170,6 +175,8 @@ export default {
 
     .bm-notice {
         top: 30px;
+        left: 0px;
+        width: calc(100% - 2 * #{$sp-2});
     }
 
     .fa-plus {

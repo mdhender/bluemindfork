@@ -102,7 +102,16 @@ export default {
             }
         },
         add(newFolderName) {
-            this.createFolder(newFolderName);
+            this.createFolder({
+                value: {
+                    name: newFolderName,
+                    fullName: newFolderName,
+                    path: newFolderName,
+                    parentUid: null
+                },
+                editing: false,
+                displayName: newFolderName
+            });
         }
     }
 };

@@ -10,26 +10,18 @@ export async function renameFolder({ commit, dispatch, getters }, { folderKey, n
     try {
         await dispatch("folders/rename", { folderKey, newFolderName });
         commit("removeApplicationAlert", uid, root);
-        addOkAlert(commit, root, folder, newFolderName);
+        addOkAlert(commit, root, folder, newFolderName, folderKey);
     } catch (e) {
         commit("removeApplicationAlert", uid, root);
         commit("addApplicationAlert", { code: "MSG_FOLDER_RENAME_ERROR", props }, root);
     }
 }
 
-function addOkAlert(commit, root, folder, newFolderName) {
-    const newFolderFullName = computeNewFolderFullName(folder, newFolderName);
+function addOkAlert(commit, root, folder, newFolderName, folderKey) {
     const props = {
         oldFolder: folder.value,
         folder: Object.assign({}, folder.value, { name: newFolderName }),
-        folderNameLink: { name: "v:mail:home", params: { folder: newFolderFullName } }
+        folderNameLink: { name: "v:mail:home", params: { folder: folderKey } }
     };
     commit("addApplicationAlert", { code: "MSG_FOLDER_RENAME_SUCCESS", props }, root);
-}
-
-function computeNewFolderFullName(folder, newFolderName) {
-    const oldPath = folder.value.fullName;
-    const lastSlashIndex = oldPath.lastIndexOf("/");
-    const pathPrefix = lastSlashIndex >= 0 ? oldPath.substring(0, lastSlashIndex + 1) : "";
-    return pathPrefix + newFolderName;
 }

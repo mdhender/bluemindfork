@@ -1,5 +1,6 @@
 <template>
     <bm-dropzone
+        v-if="!editingFolder"
         :states="{ active: false }"
         :accept="['message']"
         :value="folder"
@@ -7,40 +8,12 @@
         @dragenter="folder.expanded || expandFolder(folder.key)"
     >
         <mail-folder-icon
-            v-if="!isEditInputOpen"
             :shared="shared"
             :folder="folder"
             class="flex-fill"
             :class="folder.unread > 0 ? 'font-weight-bold' : ''"
         />
-        <mail-folder-input
-            v-else
-            ref="folder-input"
-            :folder="folder"
-            :shared="shared"
-            @close="isEditInputOpen = false"
-            @submit="rename"
-            @keydown.left.native.stop
-            @keydown.right.native.stop
-            @mousedown.native.stop
-        />
-        <bm-contextual-menu
-            v-if="folder.writable && !isEditInputOpen"
-            class="d-none"
-            boundary="viewport"
-            @shown="shown = true"
-            @hidden="shown = false"
-        >
-            <bm-dropdown-item-button :disabled="isDefaultFolderOrMailshareRootOrReadOnly" @click.stop="deleteFolder">
-                <bm-icon class="mr-2" icon="trash" />{{ $t("common.delete") }}
-            </bm-dropdown-item-button>
-            <bm-dropdown-item-button :disabled="isDefaultFolderOrMailshareRootOrReadOnly" @click.stop="openRenameInput">
-                <bm-icon class="mr-2" icon="rename" />{{ $t("mail.folder.rename") }}
-            </bm-dropdown-item-button>
-            <bm-dropdown-item-button :disabled="folder.unread === 0" @click.stop="markFolderAsRead(folder.key)">
-                <bm-icon class="mr-2" icon="read" />{{ $t("mail.folder.mark_as_read") }}
-            </bm-dropdown-item-button>
-        </bm-contextual-menu>
+        <mail-folder-item-menu v-if="folder.writable" :folder="folder" @edit="toggleEditFolder(folder.uid)" />
         <bm-counter-badge
             v-if="folder.unread > 0"
             :value="folder.unread"
@@ -48,25 +21,35 @@
             class="mr-1 d-block"
         />
     </bm-dropzone>
+    <mail-folder-input
+        v-else
+        ref="folder-input"
+        :folder="folder"
+        :shared="shared"
+        @close="closeInput"
+        @submit="submit"
+        @keydown.left.native.stop
+        @keydown.right.native.stop
+        @keydown.enter.native.stop
+        @mousedown.native.stop
+    />
 </template>
 
 <script>
-import { BmContextualMenu, BmCounterBadge, BmDropdownItemButton, BmDropzone, BmIcon } from "@bluemind/styleguide";
-import { mapActions, mapGetters, mapState } from "vuex";
-import { isDefaultFolder } from "@bluemind/backend.mail.store";
+import { BmCounterBadge, BmDropzone } from "@bluemind/styleguide";
+import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import MailFolderIcon from "../MailFolderIcon";
 import MailFolderInput from "../MailFolderInput";
+import MailFolderItemMenu from "./MailFolderItemMenu";
 
 export default {
     name: "MailFolderItem",
     components: {
-        BmContextualMenu,
         BmCounterBadge,
-        BmDropdownItemButton,
         BmDropzone,
-        BmIcon,
         MailFolderIcon,
-        MailFolderInput
+        MailFolderInput,
+        MailFolderItemMenu
     },
     props: {
         folder: {
@@ -79,46 +62,42 @@ export default {
             default: false
         }
     },
-    data() {
-        return {
-            isEditInputOpen: false
-        };
-    },
     computed: {
         ...mapState("mail-webapp", ["currentFolderKey"]),
-        ...mapGetters("mail-webapp", ["mailshares", "my"]),
-        ...mapGetters("mail-webapp/folders", ["getFolderByPath"]),
-        isDefaultFolderOrMailshareRootOrReadOnly() {
-            return isDefaultFolder(this.folder) || this.isMailshareRoot || this.folder.writable;
-        },
-        isMailshareRoot() {
-            return (
-                !this.folder.parent &&
-                this.mailshares.some(mailshare =>
-                    mailshare.folders.some(({ uid }) => uid.toUpperCase() === this.folder.uid.toUpperCase())
-                )
-            );
+        ...mapGetters("mail-webapp", ["my"]),
+        editingFolder() {
+            return this.folder.editing;
+        }
+    },
+    watch: {
+        editingFolder: {
+            handler: function(value) {
+                if (value) {
+                    this.$nextTick(() => {
+                        this.$refs["folder-input"].select();
+                    });
+                }
+            },
+            immediate: true
         }
     },
     methods: {
-        ...mapActions("mail-webapp", ["expandFolder", "removeFolder", "markFolderAsRead", "renameFolder"]),
-        async deleteFolder() {
-            const confirm = await this.$bvModal.msgBoxConfirm(
-                this.$t("mail.folder.delete.dialog.question", { name: this.folder.fullName }),
-                {
-                    title: this.$t("mail.folder.delete.dialog.title"),
-                    okTitle: this.$t("common.delete"),
-                    cancelVariant: "outline-secondary",
-                    cancelTitle: this.$t("common.cancel"),
-                    centered: true,
-                    hideHeaderClose: false
-                }
-            );
-            if (confirm) {
-                this.removeFolder(this.folder.key).then(() => {
-                    if (this.currentFolderKey === this.folder.key) {
-                        this.$router.push({ name: "mail:home" });
-                    }
+        ...mapActions("mail-webapp", ["expandFolder", "renameFolder", "createFolder"]),
+        ...mapMutations("mail-webapp/folders", { deleteFolder: "removeItems" }),
+        ...mapMutations("mail-webapp", ["toggleEditFolder"]),
+        submit(newFolderName) {
+            if (this.folder.name !== "") {
+                this.rename(newFolderName);
+            } else {
+                this.createFolder({
+                    value: {
+                        name: newFolderName,
+                        fullName: this.folder.fullName + newFolderName,
+                        path: this.folder.fullName + newFolderName,
+                        parentUid: this.folder.parent
+                    },
+                    editing: false,
+                    displayName: newFolderName
                 });
             }
         },
@@ -129,18 +108,22 @@ export default {
                 }
             });
         },
-        openRenameInput() {
-            this.isEditInputOpen = true;
-            this.$nextTick(() => this.$refs["folder-input"].select());
+        closeInput() {
+            if (this.folder.name !== "") {
+                this.toggleEditFolder(this.folder.uid);
+            } else {
+                this.deleteFolder([this.folder.key]);
+            }
         }
     }
 };
 </script>
+
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
 
 .mail-folder-item {
-    .bm-contextual-menu,
+    .mail-folder-item-menu,
     .bm-counter-badge {
         right: 0;
     }
@@ -152,14 +135,14 @@ export default {
         }
     }
 
-    .bm-contextual-menu.d-flex + .bm-counter-badge {
+    .mail-folder-item-menu.d-flex + .bm-counter-badge {
         display: none !important;
     }
 }
 
 @include media-breakpoint-up(lg) {
     .mail-folder-item:hover {
-        .bm-contextual-menu {
+        .mail-folder-item-menu {
             display: flex !important;
         }
         .bm-counter-badge {
