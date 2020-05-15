@@ -21,13 +21,14 @@ package net.bluemind.backend.mail.replica.indexing;
 import java.io.File;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Suppliers;
 
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
@@ -38,7 +39,7 @@ import net.bluemind.server.hook.DefaultServerHook;
 public class RecordIndexActivator implements BundleActivator {
 
 	private static final Logger logger = LoggerFactory.getLogger(RecordIndexActivator.class);
-	private static Optional<IMailIndexService> indexer = Optional.empty();
+	private static Supplier<Optional<IMailIndexService>> indexer = Suppliers.memoize(RecordIndexActivator::loadIndexer);
 
 	public static class ReloadHook extends DefaultServerHook {
 
@@ -54,45 +55,36 @@ public class RecordIndexActivator implements BundleActivator {
 
 	@Override
 	public void start(BundleContext context) throws Exception {
-		loadIndexer();
+		// ok
 	}
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
-
+		// ok
 	}
 
 	public static Optional<IMailIndexService> getIndexer() {
-		return indexer;
+		return indexer.get();
 	}
 
-	/**
-	 * tests can use this because server hooks are not called by populate helper
-	 */
-	@VisibleForTesting
 	public static void reload() {
-		loadIndexer();
+		indexer = Suppliers.memoize(RecordIndexActivator::loadIndexer);
 	}
 
-	private static void loadIndexer() {
+	private static Optional<IMailIndexService> loadIndexer() {
 		if (new File("/etc/bm/no.mail.indexing").exists()) {
-			return;
+			return Optional.empty();
 		}
 		RunnableExtensionLoader<MailRecordIndexingFactory> epLoader = new RunnableExtensionLoader<>();
 		List<MailRecordIndexingFactory> extensions = epLoader
 				.loadExtensions("net.bluemind.backend.mail.replica.indexing", "indexer", "indexer", "factory");
 		if (!extensions.isEmpty()) {
-			indexer = Optional.ofNullable(extensions.get(0).get());
-		}
-		if (!indexer.isPresent()) {
+			return Optional.ofNullable(extensions.get(0).get());
+		} else {
 			logger.warn("Mail replica indexing is not available.");
+			return Optional.empty();
 		}
 
-	}
-
-	public static void reloadImplementation() {
-		indexer = Optional.empty();
-		loadIndexer();
 	}
 
 }

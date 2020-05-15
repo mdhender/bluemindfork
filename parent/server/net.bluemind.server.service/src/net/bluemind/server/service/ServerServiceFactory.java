@@ -21,9 +21,12 @@ package net.bluemind.server.service;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Suppliers;
 
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.fault.ErrorCode;
@@ -41,16 +44,11 @@ public class ServerServiceFactory implements ServerSideServiceProvider.IServerSi
 
 	private static final Logger logger = LoggerFactory.getLogger(ServerServiceFactory.class);
 
-	private static final List<IServerHook> serverHooks = getHooks();
-
-	public ServerServiceFactory() {
-	}
+	private static final Supplier<List<IServerHook>> serverHooks = Suppliers.memoize(ServerServiceFactory::getHooks);
 
 	private static List<IServerHook> getHooks() {
-		RunnableExtensionLoader<IServerHook> loader = new RunnableExtensionLoader<IServerHook>();
-		List<IServerHook> hooks = loader.loadExtensionsWithPriority("net.bluemind.server.hook", "serverhook", "hook",
-				"impl");
-		return hooks;
+		RunnableExtensionLoader<IServerHook> loader = new RunnableExtensionLoader<>();
+		return loader.loadExtensionsWithPriority("net.bluemind.server.hook", "serverhook", "hook", "impl");
 	}
 
 	public IServer getService(BmContext context, String containerId) throws ServerFault {
@@ -74,9 +72,7 @@ public class ServerServiceFactory implements ServerSideServiceProvider.IServerSi
 			throw new ServerFault("container " + containerId + " not found", ErrorCode.NOT_FOUND);
 		}
 
-		ServerService service = new ServerService(context, container, serverHooks);
-
-		return service;
+		return new ServerService(context, container, serverHooks.get());
 	}
 
 	@Override

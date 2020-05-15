@@ -27,9 +27,9 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.core.container.persistence,
  net.bluemind.server.api,
  net.bluemind.node.client,
- net.bluemind.locator.client,
  net.bluemind.core.validator,
- net.bluemind.tag.api
+ net.bluemind.tag.api,
+ net.bluemind.network.topology
 Export-Package: net.bluemind.filehosting.service.export,
  net.bluemind.filehosting.service.internal
 

@@ -5,15 +5,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.google.common.base.Strings;
-
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.filehosting.api.FileHostingInfo;
 import net.bluemind.filehosting.api.IFileHosting;
-import net.bluemind.locator.client.LocatorClient;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.role.provider.IRolesVerifier;
 
 public class FileHostingRolesVerifier implements IRolesVerifier {
@@ -43,8 +41,8 @@ public class FileHostingRolesVerifier implements IRolesVerifier {
 
 	private void verifyServerPresence() throws ServerFault {
 		if (null == FileHostingRolesVerifier.serverPresent) {
-			String ip = new LocatorClient().locateHost("filehosting/data", "admin0@global.virt");
-			FileHostingRolesVerifier.serverPresent = new Boolean(!Strings.isNullOrEmpty(ip));
+			FileHostingRolesVerifier.serverPresent = Topology.getIfAvailable()
+					.map(t -> t.anyIfPresent("filehosting/data").isPresent()).orElse(null);
 		}
 	}
 

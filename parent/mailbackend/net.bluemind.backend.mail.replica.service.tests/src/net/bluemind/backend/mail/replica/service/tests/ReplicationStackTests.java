@@ -40,7 +40,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -164,18 +163,6 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		SecurityContext secCtx = new SecurityContext("sid", userUid, Collections.emptyList(), Collections.emptyList(),
 				domainUid);
 		Sessions.get().put(apiKey, secCtx);
-
-		// long delay = System.currentTimeMillis();
-//		Hierarchy hierarchy = null;
-//		do {
-//			Thread.sleep(50);
-//			hierarchy = rec.hierarchy(domainUid, userUid);
-//			System.out.println("Hierarchy version is " + hierarchy.exactVersion);
-//			if (System.currentTimeMillis() - delay > 30000) {
-//				throw new TimeoutException("Hierarchy init took more than 30sec");
-//			}
-//		} while (hierarchy.exactVersion < 7);
-//		System.out.println("Hierarchy is now at version " + hierarchy.exactVersion);
 
 		IServiceProvider prov = provider();
 
@@ -1909,7 +1896,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 
 	@Test
 	public void moveIn_SUCCESS_PERF() throws IOException, InterruptedException {
-		int count = 2000;
+		int count = 20;
 		IMailboxFolders foldersApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
 
 		IOfflineMgmt idAllocator = provider().instance(IOfflineMgmt.class, domainUid, userUid);

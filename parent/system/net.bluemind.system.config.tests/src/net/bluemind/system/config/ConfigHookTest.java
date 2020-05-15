@@ -26,6 +26,7 @@ import static org.mockito.Mockito.verify;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -38,8 +39,8 @@ public class ConfigHookTest {
 
 	private ConfigHook getConfigHook() throws ServerFault {
 		ConfigHook hook = spy(new ConfigHook());
-		doReturn(Collections.emptyList()).when(hook).getTaggedServers(Matchers.<BmContext> any(),
-				Matchers.<String[]> any());
+		doReturn(Collections.emptyList()).when(hook).getTaggedServers(Matchers.<BmContext>any(),
+				Matchers.<Set<String>>any());
 		doReturn(Collections.emptyList()).when(hook).searchUpdaters();
 		return hook;
 	}
@@ -58,7 +59,7 @@ public class ConfigHookTest {
 
 		hook.onUpdated(null, confOld, confNew);
 
-		verify(hook, times(1)).getTaggedServers(Matchers.<BmContext> any(), Matchers.<String[]> any());
+		verify(hook, times(1)).getTaggedServers(Matchers.<BmContext>any(), Matchers.<Set<String>>any());
 	}
 
 	@Test
@@ -68,7 +69,7 @@ public class ConfigHookTest {
 
 		hook.onUpdated(null, conf, conf);
 
-		verify(hook, times(0)).getTaggedServers(Matchers.<BmContext> any(), Matchers.<String[]> any());
+		verify(hook, times(0)).getTaggedServers(Matchers.<BmContext>any(), Matchers.<Set<String>>any());
 	}
 
 	@Test
@@ -81,7 +82,7 @@ public class ConfigHookTest {
 
 		hook.onUpdated(null, conf, conf);
 
-		verify(hook, times(0)).getTaggedServers(Matchers.<BmContext> any(), Matchers.<String[]> any());
+		verify(hook, times(0)).getTaggedServers(Matchers.<BmContext>any(), Matchers.<Set<String>>any());
 	}
 
 }

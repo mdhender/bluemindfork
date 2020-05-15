@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -151,9 +150,12 @@ public class PopulateHelper {
 	}
 
 	private static void dispatchTopology(Server... servers) {
-		List<ItemValue<Server>> fakeTopology = new LinkedList<>();
-		Arrays.stream(servers).map(v -> ItemValue.create(v.ip, v)).forEach(fakeTopology::add);
-		Topology.update(fakeTopology);
+		IServer yeahApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class,
+				"default");
+		List<ItemValue<Server>> allSrvs = yeahApi.allComplete();
+
+		Topology.update(allSrvs);
+
 	}
 
 	public static ItemValue<Domain> createTestDomain(String domainUid, Server... servers) throws Exception {
@@ -242,7 +244,7 @@ public class PopulateHelper {
 					container, "server", serverStore);
 
 			for (Server server : servers) {
-				Assert.assertNotNull("server ip cannot be null", server.ip);
+				Assert.assertNotNull("server ip cannot be null " + server, server.ip);
 				if (StringUtils.isBlank(server.name)) {
 					server.name = server.ip;
 				}
@@ -392,7 +394,8 @@ public class PopulateHelper {
 		ExternalUser externalUser = new ExternalUser();
 		externalUser.dataLocation = PopulateHelper.FAKE_CYRUS_IP;
 		externalUser.contactInfos = new VCard();
-		externalUser.contactInfos.identification.name = VCard.Identification.Name.create(name, null, null, null, null, null);
+		externalUser.contactInfos.identification.name = VCard.Identification.Name.create(name, null, null, null, null,
+				null);
 		externalUser.contactInfos.communications.emails = new ArrayList<>();
 		externalUser.contactInfos.communications.emails.add(VCard.Communications.Email.create(email));
 		externalUser.emails = new ArrayList<>();

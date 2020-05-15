@@ -28,9 +28,10 @@ public class BMModule extends AbstractVerticle {
 		logger.info("BM module created.");
 	}
 
+	@Override
 	public void start(final Promise<Void> future) {
-		logger.info("Starting...");
-		RunnableExtensionLoader<IVerticleFactory> vfLoader = new RunnableExtensionLoader<IVerticleFactory>();
+		logger.info("Starting {}...", this);
+		RunnableExtensionLoader<IVerticleFactory> vfLoader = new RunnableExtensionLoader<>();
 		List<IVerticleFactory> factos = vfLoader.loadExtensions("net.bluemind.lib.vertx", "verticles", "verticle",
 				"impl");
 
@@ -56,7 +57,7 @@ public class BMModule extends AbstractVerticle {
 			logger.debug("{}:{}", order, factory.getClass().getSimpleName());
 			order++;
 		}
-		final ArrayDeque<IVerticleFactory> queue = new ArrayDeque<IVerticleFactory>(factos);
+		final ArrayDeque<IVerticleFactory> queue = new ArrayDeque<>(factos);
 		Handler<AsyncResult<String>> oneByOne = new Handler<AsyncResult<String>>() {
 
 			@Override
@@ -102,9 +103,10 @@ public class BMModule extends AbstractVerticle {
 	}
 
 	private Supplier<Verticle> fromFactory(IVerticleFactory vf) {
-		return () -> vf.newInstance();
+		return vf::newInstance;
 	}
 
+	@Override
 	public void stop() {
 		logger.info("Stopping...");
 	}

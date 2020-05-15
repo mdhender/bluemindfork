@@ -19,8 +19,9 @@
 package net.bluemind.system.config;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.CoreException;
@@ -30,6 +31,8 @@ import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Sets;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -94,22 +97,25 @@ public class ConfigHook implements ISystemConfigurationObserver {
 
 		logger.info("Found {} nginx config updaters", updaters.size());
 
-		List<ItemValue<Server>> webmailNginxServers = getTaggedServers(context, TagDescriptor.bm_webmail.getTag(),
-				TagDescriptor.bm_nginx.getTag(), TagDescriptor.bm_nginx_edge.getTag());
+		List<ItemValue<Server>> webmailNginxServers = getTaggedServers(context,
+				Sets.newHashSet(TagDescriptor.bm_webmail.getTag(), TagDescriptor.bm_nginx.getTag(),
+						TagDescriptor.bm_nginx_edge.getTag()));
 
 		NginxConfig config = NginxConfigBuilder.init("messageSizeLimit", "" + messageSizeLimit.newValue) //
 				.add("dataSizeLimit", "" + dataSizeLimit.newValue).build();
 
 		logger.info("Distributing new settings to {} servers", webmailNginxServers.size());
 		for (ItemValue<Server> webmailNginxServer : webmailNginxServers) {
-			logger.info("Distributing new settings to {}:{}", webmailNginxServer.value.name, webmailNginxServer.value.ip);
+			logger.info("Distributing new settings to {}:{}", webmailNginxServer.value.name,
+					webmailNginxServer.value.ip);
 			INodeClient nc = NodeActivator.get(webmailNginxServer.value.address());
 
 			for (INginxConfigUpdater updater : updaters) {
 				try {
 					updater.update(nc, config);
 				} catch (Exception e) {
-					logger.warn("Cannot update nginx config on server {}:{}", webmailNginxServer.value.address(), e.getMessage());
+					logger.warn("Cannot update nginx config on server {}:{}", webmailNginxServer.value.address(),
+							e.getMessage());
 					throw new ServerFault(e);
 				}
 			}
@@ -128,12 +134,14 @@ public class ConfigHook implements ISystemConfigurationObserver {
 		NCUtils.forget(nc, "service bm-nginx reload");
 	}
 
-	List<ItemValue<Server>> getTaggedServers(BmContext context, String... tags) throws ServerFault {
+	List<ItemValue<Server>> getTaggedServers(BmContext context, Set<String> tags) throws ServerFault {
+		if (context == null) {
+			return Collections.emptyList();
+		}
 		IServer serverService = context.provider().instance(IServer.class, "default");
 
 		return serverService.allComplete().stream()
-				.filter(server -> Arrays.stream(tags).anyMatch(server.value.tags::contains))
-				.collect(Collectors.toList());
+				.filter(server -> tags.stream().anyMatch(server.value.tags::contains)).collect(Collectors.toList());
 	}
 
 }

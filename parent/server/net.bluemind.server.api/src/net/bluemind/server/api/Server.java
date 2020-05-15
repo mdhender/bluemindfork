@@ -20,6 +20,7 @@
 package net.bluemind.server.api;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -44,6 +45,18 @@ public class Server {
 		ret.name = name;
 		ret.tags = new ArrayList<>(tags);
 		return ret;
+	}
+
+	public static Server tagged(String ip, String... tags) {
+		Server srv = new Server();
+		srv.ip = ip;
+		srv.tags = Arrays.asList(tags);
+		return srv;
+	}
+
+	@Override
+	public String toString() {
+		return "Server{addr: " + address() + ", tags: " + Arrays.toString(tags.toArray()) + "}";
 	}
 
 }
