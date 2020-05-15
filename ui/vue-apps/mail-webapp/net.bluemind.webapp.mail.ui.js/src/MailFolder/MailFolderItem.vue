@@ -20,6 +20,9 @@
             :shared="shared"
             @close="isEditInputOpen = false"
             @submit="rename"
+            @keydown.left.native.stop
+            @keydown.right.native.stop
+            @mousedown.native.stop
         />
         <bm-contextual-menu
             v-if="folder.writable && !isEditInputOpen"

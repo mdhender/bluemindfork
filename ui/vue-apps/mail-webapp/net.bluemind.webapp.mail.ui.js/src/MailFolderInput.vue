@@ -7,14 +7,11 @@
             type="text"
             class="d-inline-block flex-fill"
             reset
-            :placeholder="$t('mail.folder.new.from_scratch')"
-            @focus="gotFocused = true"
-            @focusout="onInputFocusOut"
+            :placeholder="folder ? '' : $t('mail.folder.new.from_scratch')"
+            @focus="isFocused = true"
+            @focusout="onFocusOut"
             @keydown.enter="submit"
-            @keydown.esc="closeInput"
-            @keydown.left.stop
-            @keydown.right.stop
-            @mousedown.stop
+            @keydown.esc.stop="closeInput"
             @reset="closeInput"
         />
         <bm-notice
@@ -31,6 +28,10 @@ import { isFolderNameValid } from "@bluemind/backend.mail.store";
 import { mapGetters, mapState } from "vuex";
 import ItemUri from "@bluemind/item-uri";
 
+/**
+ * FIXME : régression CSS sur la border-bottom (voir les cas du move et du rename d'un sous-dossier)
+ *      Si possible je préfererais éviter de devoir remonter au parent le fait que l'input soit valide ou non.
+ */
 export default {
     name: "MailFolderInput",
     components: {
@@ -48,12 +49,17 @@ export default {
             type: Boolean,
             required: false,
             default: false
+        },
+        submitOnFocusout: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
     data() {
         return {
             newFolderName: (this.folder && this.folder.name) || "",
-            gotFocused: false
+            isFocused: false
         };
     },
     computed: {
@@ -79,10 +85,8 @@ export default {
                     path =
                         this.folder.fullName.substring(0, this.folder.fullName.lastIndexOf("/") + 1) +
                         this.newFolderName;
-                    const isMailshare = this.my.mailboxUid !== currentMailbox;
-                    if (isMailshare) {
-                        const mailshareName = this.mailshares.find(mailshare => mailshare.uid === currentMailbox).name;
-                        path = mailshareName + "/" + path;
+                    if (this.my.mailboxUid !== currentMailbox) {
+                        path = this.mailshares.find(mailshare => mailshare.uid === currentMailbox).name + "/" + path;
                     }
                 } else {
                     path = this.newFolderName;
@@ -94,10 +98,10 @@ export default {
             return true;
         },
         computeIconName() {
-            return this.gotFocused ? (this.shared ? "folder-shared" : "folder") : "plus";
+            return this.isFocused ? (this.shared ? "folder-shared" : "folder") : "plus";
         },
         computeClassNames() {
-            if (!this.gotFocused) {
+            if (!this.isFocused) {
                 return "border-bottom";
             }
             return this.isNewFolderNameValid === true
@@ -113,7 +117,7 @@ export default {
     methods: {
         closeInput() {
             this.$emit("close");
-            this.gotFocused = false;
+            this.isFocused = false;
             this.newFolderName = (this.folder && this.folder.name) || "";
         },
         submit() {
@@ -126,9 +130,9 @@ export default {
                 this.$emit("submit", newName);
             }
         },
-        onInputFocusOut() {
+        onFocusOut() {
             if (!this.$el.contains(document.activeElement) && !this.$el.contains(event.relatedTarget)) {
-                if (this.isNewFolderNameValid !== true || this.newFolderName === "") {
+                if (this.isNewFolderNameValid !== true || this.newFolderName === "" || !this.submitOnFocusout) {
                     this.closeInput();
                 } else {
                     this.submit();
