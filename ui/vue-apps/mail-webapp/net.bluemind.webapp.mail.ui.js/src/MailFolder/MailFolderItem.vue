@@ -13,7 +13,14 @@
             class="flex-fill"
             :class="folder.unread > 0 ? 'font-weight-bold' : ''"
         />
-        <mail-folder-input v-else :folder="folder" :shared="shared" @close="isEditInputOpen = false" />
+        <mail-folder-input
+            v-else
+            ref="folder-input"
+            :folder="folder"
+            :shared="shared"
+            @close="isEditInputOpen = false"
+            @submit="rename"
+        />
         <bm-contextual-menu
             v-if="folder.writable && !isEditInputOpen"
             class="d-none"
@@ -91,7 +98,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail-webapp", ["expandFolder", "removeFolder", "markFolderAsRead"]),
+        ...mapActions("mail-webapp", ["expandFolder", "removeFolder", "markFolderAsRead", "renameFolder"]),
         async deleteFolder() {
             const confirm = await this.$bvModal.msgBoxConfirm(
                 this.$t("mail.folder.delete.dialog.question", { name: this.folder.fullName }),
@@ -112,8 +119,16 @@ export default {
                 });
             }
         },
+        rename(newFolderName) {
+            this.renameFolder({ folderKey: this.folder.key, newFolderName }).then(() => {
+                if (this.currentFolderKey === this.folder.key) {
+                    this.$router.navigate({ name: "v:mail:message", params: { folder: this.folder.key } });
+                }
+            });
+        },
         openRenameInput() {
             this.isEditInputOpen = true;
+            this.$nextTick(() => this.$refs["folder-input"].select());
         }
     }
 };

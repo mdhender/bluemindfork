@@ -1,24 +1,21 @@
 <template>
-    <div
-        :class="
-            isNewFolderNameValid === true ? 'valid border-bottom border-primary' : 'invalid border-bottom border-danger'
-        "
-        class="mail-folder-input flex-fill d-flex align-items-center position-relative"
-    >
-        <bm-icon :icon="shared ? 'folder-shared' : 'folder'" />
+    <div :class="computeClassNames" class="mail-folder-input flex-fill d-flex align-items-center position-relative">
+        <bm-icon :icon="computeIconName" />
         <bm-form-input
             ref="input"
             v-model="newFolderName"
             type="text"
             class="d-inline-block flex-fill"
             reset
+            :placeholder="$t('mail.folder.new.from_scratch')"
+            @focus="gotFocused = true"
             @focusout="onInputFocusOut"
-            @keydown.enter="edit"
-            @keydown.esc="cancelEdit"
+            @keydown.enter="submit"
+            @keydown.esc="closeInput"
             @keydown.left.stop
             @keydown.right.stop
             @mousedown.stop
-            @reset="cancelEdit"
+            @reset="closeInput"
         />
         <bm-notice
             v-if="isNewFolderNameValid !== true"
@@ -31,7 +28,7 @@
 <script>
 import { BmFormInput, BmIcon, BmNotice } from "@bluemind/styleguide";
 import { isFolderNameValid } from "@bluemind/backend.mail.store";
-import { mapActions, mapGetters, mapState } from "vuex";
+import { mapGetters, mapState } from "vuex";
 import ItemUri from "@bluemind/item-uri";
 
 export default {
@@ -55,7 +52,8 @@ export default {
     },
     data() {
         return {
-            newFolderName: (this.folder && this.folder.name) || ""
+            newFolderName: (this.folder && this.folder.name) || "",
+            gotFocused: false
         };
     },
     computed: {
@@ -63,29 +61,48 @@ export default {
         ...mapGetters("mail-webapp", ["mailshares", "my"]),
         ...mapState("mail-webapp", ["currentFolderKey"]),
         isNewFolderNameValid() {
-            if (this.newFolderName !== "" && this.newFolderName !== this.folder.name) {
-                const currentMailbox = ItemUri.container(this.folder.key);
+            if (this.folder && this.folder.name === this.newFolderName) {
+                return true;
+            }
+            if (this.newFolderName !== "") {
+                const currentMailbox = (this.folder && ItemUri.container(this.folder.key)) || this.my.mailboxUid;
 
-                const currentFolderName = this.newFolderName.toLowerCase();
-                const checkValidity = isFolderNameValid(currentFolderName);
+                const checkValidity = isFolderNameValid(this.newFolderName.toLowerCase());
                 if (checkValidity !== true) {
                     return this.$t("mail.actions.create.folder.invalid.character", {
                         character: checkValidity
                     });
                 }
 
-                let path =
-                    this.folder.fullName.substring(0, this.folder.fullName.lastIndexOf("/") + 1) + this.newFolderName;
-                const isMailshare = this.my.mailboxUid !== currentMailbox;
-                if (isMailshare) {
-                    const mailshareName = this.mailshares.find(mailshare => mailshare.uid === currentMailbox).name;
-                    path = mailshareName + "/" + path;
+                let path;
+                if (this.folder) {
+                    path =
+                        this.folder.fullName.substring(0, this.folder.fullName.lastIndexOf("/") + 1) +
+                        this.newFolderName;
+                    const isMailshare = this.my.mailboxUid !== currentMailbox;
+                    if (isMailshare) {
+                        const mailshareName = this.mailshares.find(mailshare => mailshare.uid === currentMailbox).name;
+                        path = mailshareName + "/" + path;
+                    }
+                } else {
+                    path = this.newFolderName;
                 }
                 if (this.getFolderByPath(path, currentMailbox)) {
                     return this.$t("mail.actions.create.folder.invalid.already_exist");
                 }
             }
             return true;
+        },
+        computeIconName() {
+            return this.gotFocused ? (this.shared ? "folder-shared" : "folder") : "plus";
+        },
+        computeClassNames() {
+            if (!this.gotFocused) {
+                return "border-bottom";
+            }
+            return this.isNewFolderNameValid === true
+                ? "valid border-bottom border-primary"
+                : "invalid border-bottom border-danger";
         }
     },
     watch: {
@@ -93,35 +110,33 @@ export default {
             this.newFolderName = this.folder.name;
         }
     },
-    mounted() {
-        this.$nextTick(() => this.$refs["input"].select());
-    },
     methods: {
-        ...mapActions("mail-webapp", ["renameFolder"]),
-        cancelEdit() {
+        closeInput() {
             this.$emit("close");
-            this.newFolderName = this.folder.name;
+            this.gotFocused = false;
+            this.newFolderName = (this.folder && this.folder.name) || "";
         },
-        edit() {
+        submit() {
             if (this.isNewFolderNameValid === true && this.newFolderName !== "") {
-                if (this.newFolderName !== this.folder.name) {
-                    this.renameFolder({ folderKey: this.folder.key, newFolderName: this.newFolderName }).then(() => {
-                        if (this.currentFolderKey === this.folder.key) {
-                            this.$router.navigate({ name: "v:mail:message", params: { folder: this.folder.key } });
-                        }
-                    });
+                const newName = this.newFolderName;
+                this.closeInput();
+                if (this.folder && this.folder.name === newName) {
+                    return;
                 }
-                this.$emit("close");
+                this.$emit("submit", newName);
             }
         },
         onInputFocusOut() {
             if (!this.$el.contains(document.activeElement) && !this.$el.contains(event.relatedTarget)) {
                 if (this.isNewFolderNameValid !== true || this.newFolderName === "") {
-                    this.cancelEdit();
+                    this.closeInput();
                 } else {
-                    this.edit();
+                    this.submit();
                 }
             }
+        },
+        select() {
+            this.$refs["input"].select();
         }
     }
 };
@@ -151,6 +166,10 @@ export default {
 
     .bm-notice {
         top: 30px;
+    }
+
+    .fa-plus {
+        color: $secondary;
     }
 }
 </style>
