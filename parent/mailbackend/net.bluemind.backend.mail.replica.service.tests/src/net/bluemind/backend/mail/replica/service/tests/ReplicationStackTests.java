@@ -2460,7 +2460,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		});
 
 	}
-	
+
 	@Test
 	public void markFolderAsRead() throws InterruptedException {
 		IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
@@ -2489,7 +2489,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		recordsApi.createById(expectedId, item);
 		ItemValue<MailboxItem> message = recordsApi.getCompleteById(expectedId);
 		assertNotNull(message);
-		assertFalse(message.flags.contains(ItemFlag.Seen));
+		assertFalse(messageIsSeen(message));
 
 		CountDownLatch hierUpdLock = expectMessages("mailreplica.hierarchy.updated", 1);
 
@@ -2499,19 +2499,91 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 
 		assertTrue("Expected 1 update to occur on the hierarchy", hierUpdLock.await(10, TimeUnit.SECONDS));
 
+		checkMessageIsSeen(message, folderItem.uid);
+	}
+
+	@Test
+	public void markSharedFolderAsRead()
+			throws InterruptedException, ExecutionException, TimeoutException, IOException {
+		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+		IMailshare mailshareApi = prov.instance(IMailshare.class, domainUid);
+		Mailshare mailshare = new Mailshare();
+		mailshare.name = "shared" + System.currentTimeMillis();
+		mailshare.emails = Arrays.asList(Email.create(mailshare.name + "@" + domainUid, true));
+		mailshare.routing = Routing.internal;
+
+		// setup events expectations
+		CompletableFuture<MailboxReplicaRootDescriptor> onRoot = ReplicationEvents.onMailboxRootCreated();
+		MailboxReplicaRootDescriptor expected = MailboxReplicaRootDescriptor.create(Namespace.shared, mailshare.name);
+		Subtree sub = SubtreeContainer.mailSubtreeUid(domainUid, expected.ns, mailshare.name);
+		String subtreeUid = sub.subtreeUid();
+		System.err.println("On subtree update " + subtreeUid);
+		CompletableFuture<ItemIdentifier> onSubtree = ReplicationEvents.onSubtreeUpdate(subtreeUid);
+		CompletableFuture<Void> allEvents = CompletableFuture.allOf(onRoot, onSubtree);
+
+		System.err.println("Before create.....");
+		mailshareApi.create(mailshare.name, mailshare);
+
+		IContainerManagement c = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IContainerManagement.class, IMailboxAclUids.uidForMailbox(mailshare.name));
+		List<AccessControlEntry> accessControlList = new ArrayList<>(c.getAccessControlList());
+		accessControlList.add(AccessControlEntry.create(userUid, Verb.Write));
+		c.setAccessControlList(accessControlList);
+
+		allEvents.get(10, TimeUnit.SECONDS);
+		MailboxReplicaRootDescriptor mailshareRoot = onRoot.get();
+		assertNotNull(mailshareRoot);
+
+		System.err.println(
+				"**** ROOT is " + mailshareRoot.ns + ", " + mailshareRoot.name + ", version: " + onSubtree.get());
+		Thread.sleep(500);
+		IMailboxFolders folders = provider().instance(IMailboxFolders.class, partition, mailshare.name);
+		ItemValue<MailboxFolder> sharedSent = folders.byName("Sent");
+		assertNotNull(sharedSent);
+
+		int max = 3;
+		List<ItemValue<MailboxItem>> messages = new ArrayList<>(max);
+		for (int i = 0; i < max; i++) {
+			ItemValue<MailboxItem> item = addDraft(sharedSent, mailshare.name);
+			assertFalse(messageIsSeen(item));
+			messages.add(item);
+		}
+
+		CountDownLatch hierUpdLock = expectMessages("mailreplica.hierarchy.updated", 1);
+
+		System.err.println("Before marks as read....");
+		folders.markFolderAsRead(sharedSent.internalId);
+		System.err.println("Mark as read done.");
+
+		assertTrue("Expected 1 update to occur on the hierarchy", hierUpdLock.await(10, TimeUnit.SECONDS));
+
+		IMailboxItems mailboxItemsService = provider().instance(IMailboxItems.class, sharedSent.uid);
+		List<Long> messageIds = messages.stream().map(m -> m.internalId).collect(Collectors.toList());
+		mailboxItemsService.multipleById(messageIds).forEach(message -> checkMessageIsSeen(message, sharedSent.uid));
+	}
+	
+	private boolean messageIsSeen(ItemValue<MailboxItem> message) {
+		return message.value.flags.contains(MailboxItemFlag.System.Seen.value());
+	}
+
+	private void checkMessageIsSeen(ItemValue<MailboxItem> message, String folderUid) {
+		IMailboxItems recordsApi = provider().instance(IMailboxItems.class, folderUid);
 		long maxWait = 10000;
 		long time = System.currentTimeMillis();
 		long maxTime = time + maxWait;
-		message = recordsApi.getCompleteById(expectedId);
-		while (!message.flags.contains(ItemFlag.Seen) && time < maxTime) {
-			message = recordsApi.getCompleteById(expectedId);
-			Thread.sleep(250);
+		message = recordsApi.getCompleteById(message.internalId);
+		while (!messageIsSeen(message) && time < maxTime) {
+			try {
+				Thread.sleep(250);
+			} catch (InterruptedException e) {
+			}
+			message = recordsApi.getCompleteById(message.internalId);
 			time = System.currentTimeMillis();
 		}
 		System.err.println(String.format("Waited %dms %s", maxWait - (maxTime - time),
 				time < maxTime ? "" : " (max wait reached)"));
 
-		assertTrue("Expected the message to have a 'Seen' flag", message.flags.contains(ItemFlag.Seen));
+		assertTrue("Expected the message to have a 'Seen' flag", messageIsSeen(message));
 	}
-	
+
 }
