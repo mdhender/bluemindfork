@@ -639,6 +639,7 @@ public class UserServiceTests {
 		user = userStore.get(userItemStore.get(uid));
 		assertEquals(HashFactory.algorithm(user.password), HashFactory.DEFAULT);
 		getService(domainAdminSecurityContext).setPassword(uid, ChangePassword.create(password));
+		user = userStoreService.get(uid).value;
 		assertEquals(HashFactory.algorithm(user.password), HashAlgorithm.SSHA512);
 	}
 
