@@ -114,9 +114,9 @@ public class DEDataProvider extends AsyncDataProvider<DirEntry> {
 
 		dq.size = PAGE_SIZE;
 		dq.from = page * PAGE_SIZE;
-		
+
 		dq.hiddenFilter = false;
-		
+
 		dq.kindsFilter = new ArrayList<>(entriesKind);
 
 		String filterField = filter.getValue();
@@ -141,5 +141,4 @@ public class DEDataProvider extends AsyncDataProvider<DirEntry> {
 			}
 		});
 	}
-
 }
