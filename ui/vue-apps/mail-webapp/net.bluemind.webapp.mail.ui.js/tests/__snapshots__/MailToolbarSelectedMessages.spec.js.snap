@@ -175,19 +175,19 @@ exports[`MailToolbarConsultMessage should match snapshot 1`] = `
       </li>
        
       <li
+        class="new-folder position-relative"
         role="presentation"
       >
-        <button
-          class="dropdown-item"
-          role="menuitem"
-          type="button"
+        <form
+          class="b-dropdown-form"
+          tabindex="-1"
         >
-          <span
-            class="bm-label-icon"
+          <div
+            class="mail-folder-input flex-fill d-flex align-items-center position-relative border-bottom"
           >
             <svg
               aria-hidden="true"
-              class="pr-1 svg-inline--fa fa-plus fa-w-16 fa-fw"
+              class="svg-inline--fa fa-plus fa-w-16"
               data-icon="plus"
               data-prefix="fas"
               focusable="false"
@@ -201,12 +201,22 @@ exports[`MailToolbarConsultMessage should match snapshot 1`] = `
                 fill="currentColor"
               />
             </svg>
-            <span
-              class="d-inline"
-              style="padding: 2px;"
-            />
-          </span>
-        </button>
+             
+            <div
+              class="bm-form-input position-relative d-inline-block flex-fill"
+            >
+              <input
+                class="form-control pr-4"
+                reset="true"
+                type="text"
+              />
+               
+              <!---->
+            </div>
+             
+            <!---->
+          </div>
+        </form>
       </li>
     </ul>
   </div>

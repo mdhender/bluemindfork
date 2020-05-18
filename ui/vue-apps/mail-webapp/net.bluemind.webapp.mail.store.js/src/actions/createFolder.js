@@ -9,9 +9,18 @@ export async function createFolder({ commit, dispatch }, fullName) {
     try {
         await dispatch("$_createFolder", folder);
         commit("removeApplicationAlert", uid, root);
-        commit("addApplicationAlert", { code: "MSG_FOLDER_CREATE_SUCCESS", props }, root);
+        addOkAlert(commit, root, folder, fullName);
     } catch (e) {
         commit("removeApplicationAlert", uid, { root: true });
         commit("addApplicationAlert", { code: "MSG_FOLDER_CREATE_ERROR", props }, root);
     }
+}
+
+function addOkAlert(commit, root, folder, newFolderFullName) {
+    const props = {
+        oldFolder: folder.value,
+        folder: Object.assign({}, folder.value, { name: newFolderFullName }),
+        folderNameLink: { name: "v:mail:home", params: { folder: newFolderFullName } }
+    };
+    commit("addApplicationAlert", { code: "MSG_FOLDER_CREATE_SUCCESS", props }, root);
 }

@@ -45,6 +45,16 @@ export default {
                 )
             );
 
+            children.push(
+                createElement("mail-folder-icon", {
+                    attrs: {
+                        place: "oldFolderName",
+                        folder: alert.props.oldFolder,
+                        style: "font-style: normal !important; font-weight: bold;"
+                    }
+                })
+            );
+
             children.push(createElement("br", { attrs: { place: "br" } }));
 
             children.push(
