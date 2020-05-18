@@ -77,7 +77,14 @@ public class VXStoreClient {
 	public static VXStoreClient create(String host, int port, String login, String password) {
 		CompletableFuture<VXStoreClient> cli = new CompletableFuture<>();
 		Vertx vx = VertxPlatform.getVertx();
-		vx.setTimer(1, tid -> cli.complete(new VXStoreClient(vx, host, port, login, password)));
+		vx.setTimer(1, tid -> {
+			try {
+				VXStoreClient store = new VXStoreClient(vx, host, port, login, password);
+				cli.complete(store);
+			} catch (Exception e) {
+				cli.completeExceptionally(e);
+			}
+		});
 		return cli.join();
 	}
 

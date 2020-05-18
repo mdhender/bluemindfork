@@ -40,10 +40,10 @@ import net.bluemind.mailbox.api.Mailbox;
 public class RestoreBoxTask implements IServerTask {
 
 	private static final Logger logger = LoggerFactory.getLogger(RestoreBoxTask.class);
-	private DataProtectGeneration dpg;
-	private Restorable box;
-	private Mode mode;
-	private IServiceProvider sp;
+	private final DataProtectGeneration dpg;
+	private final Restorable box;
+	private final Mode mode;
+	private final IServiceProvider sp;
 
 	public RestoreBoxTask(DataProtectGeneration dpg, Restorable box, Mode m) {
 		if (dpg == null) {
@@ -68,13 +68,13 @@ public class RestoreBoxTask implements IServerTask {
 	 * @throws ServerFault
 	 */
 	private ItemValue<Mailbox> mbox() throws ServerFault {
-		logger.info("Shoud find box " + box.domainUid + " " + box.entryUid);
+		logger.info("Should find box {}@{}", box.liveEntryUid(), box.domainUid);
 		IMailboxes mboxApi = sp.instance(IMailboxes.class, box.domainUid);
-		return mboxApi.getComplete(box.entryUid);
+		return mboxApi.getComplete(box.liveEntryUid());
 	}
 
 	private ItemValue<Domain> domain() throws ServerFault {
-		logger.info("Shoud find domain " + box.domainUid);
+		logger.info("Shoud find domain {}", box.domainUid);
 		IDomains domApi = sp.instance(IDomains.class);
 		return domApi.get(box.domainUid);
 	}

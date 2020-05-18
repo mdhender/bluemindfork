@@ -277,7 +277,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			return promise.get(15, TimeUnit.SECONDS);
 		});
 	}
-	
+
 	public void markFolderAsRead(long id) {
 		ItemValue<MailboxFolder> folder = getCompleteById(id);
 		logger.info("Start marking as read {}...", folder);
@@ -286,23 +286,40 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			return this.flag(storeClient, folder, Flag.SEEN, null).get(15, TimeUnit.SECONDS);
 		});
 	}
-	
-	private CompletableFuture<ItemIdentifier> flag(StoreClient storeClient, ItemValue<MailboxFolder> folder, Flag flag, Runnable onSuccess) {
+
+	private CompletableFuture<ItemIdentifier> flag(StoreClient storeClient, ItemValue<MailboxFolder> folder, Flag flag,
+			Runnable onSuccess) {
 		CompletableFuture<ItemIdentifier> future = ReplicationEvents.onSubtreeUpdate(container.uid);
-		logger.info("Add flag {} to '{}'", flag, folder.value.fullName);
 		try {
 			FlagsList flags = new FlagsList();
 			flags.add(flag);
-			if (storeClient.select(folder.value.fullName)) {
+
+			String folderName = root.ns == Namespace.shared ? computeSharedFolderFullName(folder)
+					: folder.value.fullName;
+			logger.info("Add flag {} to '{}'", flag, folderName);
+			if (storeClient.select(folderName)) {
 				boolean flagApplied = storeClient.uidStore("1:*", flags, true);
-				if (flagApplied && onSuccess != null) {
+				if (!flagApplied) {
+					logger.warn("Could not apply flag {} to folder '{}'", flag, folderName);
+				} else if (onSuccess != null) {
 					onSuccess.run();
 				}
+			} else {
+				logger.warn("Could not select folder '{}', flag {} not applied", folderName, flag);
 			}
 		} catch (IMAPException e) {
 			future.completeExceptionally(e);
 		}
 		return future;
+	}
+
+	private String computeSharedFolderFullName(ItemValue<MailboxFolder> folder) {
+		String parentUid = folder.value.parentUid != null ? folder.value.parentUid : folder.uid;
+		String parentRecs = IMailReplicaUids.mboxRecords(parentUid);
+		ReplicasStore repStore = new ReplicasStore(DataSourceRouter.get(context, parentRecs));
+		return SubtreeLocations.getById(repStore, parentUid)
+				.map(sl -> sl.imapPath(context) + (folder.value.parentUid != null ? "/" + folder.value.name : ""))
+				.orElseThrow(() -> new ServerFault("subtree loc not found for parent " + parentUid));
 	}
 
 	private CompletableFuture<?> deleteChildFolders(ItemValue<MailboxFolder> toClean, StoreClient sc) {

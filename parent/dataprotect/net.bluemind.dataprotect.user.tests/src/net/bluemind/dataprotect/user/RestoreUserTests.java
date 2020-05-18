@@ -237,6 +237,30 @@ public class RestoreUserTests {
 	}
 
 	@Test(timeout = 120000)
+	public void testRestoreRecreatedUser() throws Exception {
+		doBackup();
+		ItemValue<User> user = testContext.provider().instance(IUser.class, domain).getComplete(changUid);
+		TaskRef tr = testContext.provider().instance(IUser.class, domain).delete(changUid);
+		track(tr);
+
+		user.value.password = "newpassword";
+		testContext.provider().instance(IUser.class, domain).create("newuid", user.value);
+
+		RestoreUserTask ru = new RestoreUserTask(latestGen, restorable);
+		TestMonitor monitor = new TestMonitor();
+		ru.run(monitor);
+
+		ItemValue<User> restoredUser = testContext.provider().instance(IUser.class, domain).getComplete(changUid);
+		assertNull(restoredUser);
+
+		assertTrue("restore failed", monitor.success);
+
+		// testUser password = testUser login
+		IInCoreUser userServerService = testContext.provider().instance(IInCoreUser.class, domain);
+		assertTrue(userServerService.checkPassword(user.value.login, user.value.login));
+	}
+
+	@Test(timeout = 120000)
 	public void testRestoreExistantUser() throws Exception {
 		doBackup();
 		ItemValue<User> restoredUser = testContext.provider().instance(IUser.class, domain).getComplete(changUid);

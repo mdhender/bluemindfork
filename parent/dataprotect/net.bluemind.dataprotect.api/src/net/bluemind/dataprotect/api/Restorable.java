@@ -30,6 +30,7 @@ public class Restorable {
 
 	public RestorableKind kind;
 	public String entryUid;
+	private String liveEntryUid;
 	public String domainUid;
 	public String displayName;
 
@@ -56,9 +57,18 @@ public class Restorable {
 		default:
 			throw new RuntimeException("unsupported entry backup " + d.path + " kind " + d.kind);
 		}
+
 		ret.domainUid = domainUid;
 		ret.entryUid = d.entryUid;
+
 		return ret;
 	}
 
+	public void setLiveEntryUid(String liveEntryUid) {
+		this.liveEntryUid = liveEntryUid;
+	}
+
+	public String liveEntryUid() {
+		return liveEntryUid == null ? entryUid : liveEntryUid;
+	}
 }

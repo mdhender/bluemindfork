@@ -793,7 +793,14 @@ public class UserService implements IInCoreUser, IUser {
 		if (userItem == null) {
 			throw new ServerFault("user uid:" + uid + " doesn't exist !", ErrorCode.NOT_FOUND);
 		}
-		storeService.setPassword(uid, HashFactory.getDefault().create(newPassword), true);
+		// we support setting the user password as a hash, directly
+		// this is used for external user importers
+		if (HashFactory.algorithm(newPassword) != HashAlgorithm.UNKNOWN) {
+			storeService.setPassword(uid, newPassword, true);
+		} else {
+			storeService.setPassword(uid, HashFactory.getDefault().create(newPassword), true);
+		}
+
 		eventProducer.passwordUpdated(uid);
 		// ysnp cache invalidation
 		MQ.getProducer(Topic.CORE_SESSIONS).send(

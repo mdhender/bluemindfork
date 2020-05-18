@@ -176,9 +176,13 @@ public class QuotaGatheringJob implements IScheduledJob {
 			}
 		} catch (Exception e) {
 			warn = true;
-			sched.warn(rid, "en", "problem fetching quota for " + mailbox.value.name);
-			sched.warn(rid, "fr", "probleme lors de l'analyse du quota pour " + mailbox.value.name);
+			logger.warn("problem fetching quota for {}", mailbox.value.name, e);
+			sched.warn(rid, "en",
+					String.format("Problem fetching quota for %s: %s", mailbox.value.name, e.getMessage()));
+			sched.warn(rid, "fr", String.format("Probleme lors de l'analyse du quota pour %s: %s", mailbox.value.name,
+					e.getMessage()));
 		}
+
 		return warn;
 	}
 

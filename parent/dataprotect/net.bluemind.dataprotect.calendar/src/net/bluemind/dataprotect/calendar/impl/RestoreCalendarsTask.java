@@ -48,10 +48,10 @@ import net.bluemind.dataprotect.api.Restorable;
 import net.bluemind.dataprotect.service.BackupDataProvider;
 
 public class RestoreCalendarsTask implements IServerTask {
-
-	private DataProtectGeneration backup;
-	private Restorable item;
 	private static final Logger logger = LoggerFactory.getLogger(RestoreCalendarsTask.class);
+
+	private final DataProtectGeneration backup;
+	private final Restorable item;
 
 	public RestoreCalendarsTask(DataProtectGeneration backup, Restorable item) {
 		this.backup = backup;
@@ -60,68 +60,76 @@ public class RestoreCalendarsTask implements IServerTask {
 
 	@Override
 	public void run(IServerTaskMonitor monitor) throws Exception {
-		monitor.log("starting restore for uid " + item.entryUid);
+		monitor.log(String.format("Starting restore for uid %s", item.entryUid));
 
 		try (BackupDataProvider bdp = new BackupDataProvider(null, SecurityContext.SYSTEM, monitor)) {
 			BmContext back = bdp.createContextWithData(backup, item);
 			BmContext live = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
 
-			ContainerQuery cq = ContainerQuery.ownerAndType(item.entryUid, ICalendarUids.TYPE);
+			IContainers liveContApi = live.provider().instance(IContainers.class);
+			List<ContainerDescriptor> liveCalendars = liveContApi
+					.all(ContainerQuery.ownerAndType(item.liveEntryUid(), ICalendarUids.TYPE));
 
-			IContainers lContApi = live.provider().instance(IContainers.class);
-			List<ContainerDescriptor> liveCalendars = lContApi.all(cq);
+			IContainers backContApi = back.provider().instance(IContainers.class);
+			List<ContainerDescriptor> backCalendars = backContApi
+					.all(ContainerQuery.ownerAndType(item.entryUid, ICalendarUids.TYPE));
 
-			IContainers bContApi = back.provider().instance(IContainers.class);
-			List<ContainerDescriptor> dataProtectedCalendars = bContApi.all(cq);
+			monitor.begin(backCalendars.size(), String.format("Starting restore for uid %s: Backup contains %s",
+					item.entryUid, backCalendars.size()));
 
-			monitor.begin(dataProtectedCalendars.size(), "starting restore for uid " + item.entryUid
-					+ " : Backup contains " + dataProtectedCalendars.size() + " calendar(s)");
-
-			logger.info("Backup contains " + dataProtectedCalendars.size() + " calendar(s)");
-			for (ContainerDescriptor cd : dataProtectedCalendars) {
-
-				restore(back, live, cd, liveCalendars, monitor.subWork(1));
-
+			logger.info("Backup contains " + backCalendars.size() + " calendar(s)");
+			for (ContainerDescriptor backCalendar : backCalendars) {
+				restore(back, live, backCalendar, liveCalendars, monitor.subWork(1));
 			}
 		} catch (Exception e) {
-			logger.warn("Error while restoring calendars", e);
+			logger.error("Error while restoring calendars", e);
 			monitor.end(false, "finished with errors : " + e.getMessage(), "[]");
 			return;
 		}
 
 		monitor.end(true, "finished.", "[]");
-
 	}
 
-	private void restore(BmContext back, BmContext live, ContainerDescriptor cd,
+	private void restore(BmContext back, BmContext live, ContainerDescriptor backCalendar,
 			List<ContainerDescriptor> liveCalendars, IServerTaskMonitor monitor) {
-		IContainers lContApi = live.provider().instance(IContainers.class);
-		ICalendar bCalApi = back.provider().instance(ICalendar.class, cd.uid);
+		IContainers liveContApi = live.provider().instance(IContainers.class);
+		ICalendar backCalApi = back.provider().instance(ICalendar.class, backCalendar.uid);
 
-		List<String> allUids = bCalApi.all();
-		monitor.begin(allUids.size() + 1d, "Restoring " + cd.name + " [uid=" + cd.uid + "]");
+		List<String> allUids = backCalApi.all();
+		monitor.begin(allUids.size() + 1d, "Restoring " + backCalendar.name + " [uid=" + backCalendar.uid + "]");
 
-		if (liveCalendars.stream().filter(c -> c.uid.equals(cd.uid)).findFirst().isPresent()) {
-			ICalendar lCalApi = live.provider().instance(ICalendar.class, cd.uid);
+		String calendarUid = mapCalendarUid(backCalendar.uid);
+
+		if (liveCalendars.stream().filter(c -> c.uid.equals(calendarUid)).findFirst().isPresent()) {
+			ICalendar lCalApi = live.provider().instance(ICalendar.class, calendarUid);
 			TaskRef tr = lCalApi.reset();
 			TaskUtils.wait(live.provider(), tr);
 
 			monitor.progress(1, "reset done");
 		} else {
-			lContApi.create(cd.uid, cd);
+			backCalendar.owner = item.liveEntryUid();
+			liveContApi.create(calendarUid, backCalendar);
 			monitor.progress(1, "calendar recreated");
 		}
 
-		ICalendar lCalApi = live.provider().instance(ICalendar.class, cd.uid);
+		ICalendar lCalApi = live.provider().instance(ICalendar.class, calendarUid);
 
-		for (List<String> batch : Lists.partition(bCalApi.all(), 1000)) {
-			List<ItemValue<VEventSeries>> events = bCalApi.multipleGet(batch);
+		for (List<String> batch : Lists.partition(backCalApi.all(), 1000)) {
+			List<ItemValue<VEventSeries>> events = backCalApi.multipleGet(batch);
 			VEventChanges changes = VEventChanges.create(
 					events.stream().map(e -> ItemAdd.create(e.uid, e.value, false)).collect(Collectors.toList()),
 					Collections.emptyList(), Collections.emptyList());
 			lCalApi.updates(changes);
 			monitor.progress(batch.size(), null);
 		}
+	}
+
+	private String mapCalendarUid(String uid) {
+		if (!item.entryUid.equals(item.liveEntryUid()) && uid.endsWith(String.format(":%s", item.entryUid))) {
+			return String.format("%s%s", uid.substring(0, uid.length() - item.entryUid.length()), item.liveEntryUid());
+		}
+
+		return uid;
 	}
 
 }

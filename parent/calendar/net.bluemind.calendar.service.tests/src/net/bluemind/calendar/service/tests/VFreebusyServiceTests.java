@@ -29,6 +29,7 @@ import java.sql.SQLException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -62,6 +63,7 @@ import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.tests.defaultdata.BmDateTimeHelper;
+import net.bluemind.user.api.IUserSettings;
 
 public class VFreebusyServiceTests extends AbstractCalendarTests {
 
@@ -150,6 +152,31 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 
 		assertTrue(vfreebusy.contains("END:VFREEBUSY"));
 		assertTrue(vfreebusy.contains("END:VCALENDAR"));
+	}
+
+	@Test
+	public void testOutOfOffice_UserWorkingAllDay() throws ServerFault, IOException {
+		ZonedDateTime dtstart = ZonedDateTime.of(2016, 6, 6, 1, 0, 0, 0, tz);
+		ZonedDateTime dtend = ZonedDateTime.of(2016, 6, 7, 2, 0, 0, 0, tz);
+
+		IUserSettings isettings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IUserSettings.class, domainUid);
+		Map<String, String> settings = isettings.get(testUser.uid);
+		settings.put("working_days", "mon,tue,wed,thu,fri,sat");
+		settings.put("work_hours_start", "0");
+		settings.put("work_hours_end", "0");
+		settings.put("timezone", "Europe/Paris");
+
+		isettings.set(testUser.uid, settings);
+
+		String vfreebusy = getVFreebusyService(userSecurityContext, userFreebusyContainer).getAsString(
+				VFreebusyQuery.create(BmDateTimeHelper.time(dtstart, false), BmDateTimeHelper.time(dtend, false)));
+
+		assertTrue(vfreebusy.contains("BEGIN:VCALENDAR"));
+		assertTrue(vfreebusy.contains("BEGIN:VFREEBUSY"));
+		assertTrue(vfreebusy.contains("END:VFREEBUSY"));
+		assertTrue(vfreebusy.contains("END:VCALENDAR"));
+		assertFalse(vfreebusy.contains("FREEBUSY;FBTYPE"));
 	}
 
 	@Test

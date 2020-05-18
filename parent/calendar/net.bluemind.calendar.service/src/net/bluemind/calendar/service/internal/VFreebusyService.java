@@ -297,52 +297,54 @@ public class VFreebusyService implements IVFreebusy {
 				dayOff.transparency = Transparency.Opaque;
 				ret.add(ItemValue.create(new Item(), dayOff));
 			} else {
-				if (startHour < endHour) {
-					VEvent e = new VEvent();
-					Calendar start = (Calendar) from.clone();
-					start.set(Calendar.HOUR_OF_DAY, 0);
-					e.dtstart = BmDateTimeWrapper.fromTimestamp(start.getTimeInMillis(), tz);
+				if (!(startHour == 0 && endHour == 0)) {
+					if (startHour < endHour) {
+						VEvent e = new VEvent();
+						Calendar start = (Calendar) from.clone();
+						start.set(Calendar.HOUR_OF_DAY, 0);
+						e.dtstart = BmDateTimeWrapper.fromTimestamp(start.getTimeInMillis(), tz);
 
-					Calendar dayStart = (Calendar) start.clone();
-					dayStart.add(Calendar.HOUR, startHour);
-					if (startMin > 0) {
-						dayStart.add(Calendar.MINUTE, startMin);
-					}
+						Calendar dayStart = (Calendar) start.clone();
+						dayStart.add(Calendar.HOUR, startHour);
+						if (startMin > 0) {
+							dayStart.add(Calendar.MINUTE, startMin);
+						}
 
-					e.dtend = BmDateTimeWrapper.fromTimestamp(dayStart.getTimeInMillis(), tz);
-					e.transparency = Transparency.Opaque;
-					ret.add(ItemValue.create(new Item(), e));
+						e.dtend = BmDateTimeWrapper.fromTimestamp(dayStart.getTimeInMillis(), tz);
+						e.transparency = Transparency.Opaque;
+						ret.add(ItemValue.create(new Item(), e));
 
-					VEvent e2 = new VEvent();
-					Calendar dayEnd = (Calendar) start.clone();
-					dayEnd.set(Calendar.HOUR, endHour);
-					if (endMin > 0) {
-						dayEnd.add(Calendar.MINUTE, endMin);
-					}
-					e2.dtstart = BmDateTimeWrapper.fromTimestamp(dayEnd.getTimeInMillis(), tz);
-					Calendar end = (Calendar) start.clone();
-					end.add(Calendar.DATE, 1);
-					e2.dtend = BmDateTimeWrapper.fromTimestamp(end.getTimeInMillis(), tz);
-					e2.transparency = Transparency.Opaque;
-					ret.add(ItemValue.create(new Item(), e2));
-				} else {
-					// for people who work at night and sleep at day
-					VEvent e = new VEvent();
-					Calendar start = (Calendar) from.clone();
-					start.add(Calendar.HOUR, endHour);
-					if (endMin > 0) {
-						start.add(Calendar.MINUTE, endMin);
-					}
-					e.dtstart = BmDateTimeWrapper.fromTimestamp(start.getTimeInMillis(), tz);
+						VEvent e2 = new VEvent();
+						Calendar dayEnd = (Calendar) start.clone();
+						dayEnd.set(Calendar.HOUR, endHour);
+						if (endMin > 0) {
+							dayEnd.add(Calendar.MINUTE, endMin);
+						}
+						e2.dtstart = BmDateTimeWrapper.fromTimestamp(dayEnd.getTimeInMillis(), tz);
+						Calendar end = (Calendar) start.clone();
+						end.add(Calendar.DATE, 1);
+						e2.dtend = BmDateTimeWrapper.fromTimestamp(end.getTimeInMillis(), tz);
+						e2.transparency = Transparency.Opaque;
+						ret.add(ItemValue.create(new Item(), e2));
+					} else {
+						// for people who work at night and sleep at day
+						VEvent e = new VEvent();
+						Calendar start = (Calendar) from.clone();
+						start.add(Calendar.HOUR, endHour);
+						if (endMin > 0) {
+							start.add(Calendar.MINUTE, endMin);
+						}
+						e.dtstart = BmDateTimeWrapper.fromTimestamp(start.getTimeInMillis(), tz);
 
-					Calendar end = (Calendar) from.clone();
-					end.add(Calendar.HOUR, startHour);
-					if (startMin > 0) {
-						end.add(Calendar.MINUTE, startMin);
+						Calendar end = (Calendar) from.clone();
+						end.add(Calendar.HOUR, startHour);
+						if (startMin > 0) {
+							end.add(Calendar.MINUTE, startMin);
+						}
+						e.dtend = BmDateTimeWrapper.fromTimestamp(end.getTimeInMillis(), tz);
+						e.transparency = Transparency.Opaque;
+						ret.add(ItemValue.create(new Item(), e));
 					}
-					e.dtend = BmDateTimeWrapper.fromTimestamp(end.getTimeInMillis(), tz);
-					e.transparency = Transparency.Opaque;
-					ret.add(ItemValue.create(new Item(), e));
 				}
 			}
 

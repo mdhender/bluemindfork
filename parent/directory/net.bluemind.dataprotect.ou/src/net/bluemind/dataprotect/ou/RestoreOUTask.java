@@ -47,8 +47,8 @@ public class RestoreOUTask implements IServerTask {
 
 	@Override
 	public void run(IServerTaskMonitor monitor) throws Exception {
-		monitor.begin(1, "starting restore for uid " + item.entryUid);
-		logger.info("starting restore for uid " + item.entryUid);
+		monitor.begin(1, String.format("Starting restore for uid %s", item.liveEntryUid()));
+		logger.info("Starting restore for uid {}", item.liveEntryUid());
 		try (BackupDataProvider bdp = new BackupDataProvider(null, SecurityContext.SYSTEM, monitor)) {
 			BmContext back = bdp.createContextWithData(backup, item);
 			BmContext live = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
@@ -56,11 +56,11 @@ public class RestoreOUTask implements IServerTask {
 			IOrgUnits ouBackup = back.provider().instance(IOrgUnits.class, item.domainUid);
 			IOrgUnits ouLive = live.provider().instance(IOrgUnits.class, item.domainUid);
 
-			ItemValue<OrgUnit> currentOu = ouLive.getComplete(item.entryUid);
+			ItemValue<OrgUnit> currentOu = ouLive.getComplete(item.liveEntryUid());
 			ItemValue<OrgUnit> backupOu = ouBackup.getComplete(item.entryUid);
 			if (currentOu != null) {
 				currentOu.value.name = backupOu.value.name;
-				ouLive.update(item.entryUid, currentOu.value);
+				ouLive.update(item.liveEntryUid(), currentOu.value);
 			} else {
 				createHierarchy(ouBackup, ouLive, backupOu);
 			}

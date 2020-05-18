@@ -70,42 +70,51 @@ public class ToolSession implements IToolSession {
 		return cmd;
 	}
 
-	private INodeClient nc() throws ServerFault {
+	private INodeClient nc() {
 		return NodeActivator.get(cfg.getSource().value.address());
 	}
 
 	public PartGeneration backup(PartGeneration previous, PartGeneration next) throws ServerFault {
 		StringBuilder bd = new StringBuilder();
 		appendDir(bd).append(next.id).append('/');
+		String backupDir = bd.toString();
 		INodeClient nc = nc();
-		NCUtils.execNoOut(nc, "mkdir -p " + bd.toString());
+		NCUtils.execNoOut(nc, "mkdir -p " + backupDir);
 		NCUtils.execNoOut(nc, "chmod +x /usr/share/bm-node/rsync-backup.sh");
 
 		cfg.getDirs().stream().map(dir -> makeBackupCommand(nc, previous, next, dir)).filter(Optional::isPresent)
 				.forEach(cmd -> runBackupCommand(nc, next, cmd.get()));
 
-		logger.info("Detecting backup size of {}", bd.toString());
-		ExitList output = NCUtils.exec(nc, "du -sBM " + bd.toString());
+		long size = 0;
+		for (String dir : cfg.getDirs()) {
+			size += computeSize(dir, nc);
+		}
+		next.size = size;
+
+		return next;
+	}
+
+	private long computeSize(String backupDir, INodeClient nc) {
+		logger.info("Detecting backup size of {}", backupDir);
+		long size = 0L;
+		ExitList output = NCUtils.exec(nc, "du -sBM " + backupDir);
 		StringBuilder duOut = new StringBuilder();
 		for (String out : output) {
 			duOut.append(out);
 		}
 		String duOutput = duOut.toString();
 
-		logger.info("Output of {}:{}", bd.toString(), duOutput);
-		if (StringUtils.isNotBlank(duOutput)) {
+		logger.info("Output of {}:{}", backupDir, duOutput);
+		if (!duOutput.trim().isEmpty()) {
 			int mCommeMa = duOutput.indexOf('M');
 			if (mCommeMa != -1) {
 				duOutput = duOutput.substring(0, mCommeMa);
-				next.size = Long.parseLong(duOutput);
-			} else {
-				next.size = 0l;
+				size = Long.parseLong(duOutput);
 			}
 		} else {
-			logger.info("du -sBM returned no output for {}", bd.toString());
+			logger.info("du -sBM returned no output for {}", backupDir);
 		}
-
-		return next;
+		return size;
 	}
 
 	public void interrupt() {

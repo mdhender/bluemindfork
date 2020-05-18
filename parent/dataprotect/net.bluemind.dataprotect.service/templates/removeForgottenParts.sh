@@ -3,6 +3,8 @@
 <#setting number_format="computer">
 validId="${validPartsIds?join(" ")}"
 
+syncsrc=`mktemp -d`
+
 pushd ${backupRoot}
 
 for i in `find . -maxdepth 4 -regextype sed -regex '.*/[0-9]\+$' -type d`; do
@@ -17,6 +19,8 @@ for i in `find . -maxdepth 4 -regextype sed -regex '.*/[0-9]\+$' -type d`; do
 
   if [ ${r"${found}"} -eq 0 ]; then
     echo "Remove ${r"$i"}"
-    rm -rf ${r"$i"}
+    /usr/bin/rsync -a --delete ${r"$syncsrc"} ${r"$i"}
   fi
 done
+
+rmdir ${r"$syncsrc"}

@@ -631,6 +631,19 @@ public class UserServiceTests {
 	}
 
 	@Test
+	public void testUpdatingPasswordWithKnownHashShouldKeepIt() throws Exception {
+		String password = "{SSHA512}FDLTaAqeJLdNmsIjvqQchAKfkUFAESvyTYZBj9AM9AqGnPxK4oa2Imo5rnWNUmGJ55o0Q5wuCezY0PmwIth46805xHvxIpXs";
+		User user = defaultUser("test.knownhash." + System.nanoTime());
+		user.password = "scully";
+		String uid = create(user);
+		user = userStore.get(userItemStore.get(uid));
+		assertEquals(HashFactory.algorithm(user.password), HashFactory.DEFAULT);
+		getService(domainAdminSecurityContext).setPassword(uid, ChangePassword.create(password));
+		user = userStoreService.get(uid).value;
+		assertEquals(HashFactory.algorithm(user.password), HashAlgorithm.SSHA512);
+	}
+
+	@Test
 	public void testASuccessfulCheckforThePasswordShouldUpdateHashIfNecessary() throws Exception {
 		String login = "test." + System.nanoTime();
 		User user = defaultUser(login);

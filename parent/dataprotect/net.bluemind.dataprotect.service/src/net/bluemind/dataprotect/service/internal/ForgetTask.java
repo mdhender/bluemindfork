@@ -21,6 +21,7 @@ package net.bluemind.dataprotect.service.internal;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +80,10 @@ public class ForgetTask implements IServerTask {
 			INodeClient nc = NodeActivator.get(srv.value.address());
 			String path = BackupPath.get(srv, pg.tag) + "/" + pg.id;
 			monitor.log("Removing " + path);
-			NCUtils.exec(nc, "rm -fr " + path);
+			String empty = "/tmp/empty" + UUID.randomUUID().toString();
+			NCUtils.execNoOut(nc, "mkdir -p " + empty);
+			NCUtils.execNoOut(nc, "/usr/bin/rsync -a --delete " + empty + " " + path);
+			NCUtils.execNoOut(nc, "rmdir " + empty);
 		}
 
 		List<DataProtectGeneration> updated = new LinkedList<>(allGens);

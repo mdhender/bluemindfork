@@ -46,8 +46,8 @@ import net.bluemind.todolist.api.VTodoChanges;
 public class RestoreTodolistsTask implements IServerTask {
 	private static final Logger logger = LoggerFactory.getLogger(RestoreTodolistsTask.class);
 
-	private DataProtectGeneration backup;
-	private Restorable item;
+	private final DataProtectGeneration backup;
+	private final Restorable item;
 
 	public RestoreTodolistsTask(DataProtectGeneration backup, Restorable item) {
 		this.backup = backup;
@@ -56,54 +56,55 @@ public class RestoreTodolistsTask implements IServerTask {
 
 	@Override
 	public void run(IServerTaskMonitor monitor) throws Exception {
-		monitor.begin(10, "starting restore for uid " + item.entryUid);
+		monitor.begin(10, String.format("Starting restore for uid %s", item.entryUid));
 		try (BackupDataProvider bdp = new BackupDataProvider(null, SecurityContext.SYSTEM, monitor)) {
 			BmContext back = bdp.createContextWithData(backup, item);
 			BmContext live = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
 
-			ContainerQuery cq = ContainerQuery.ownerAndType(item.entryUid, ITodoUids.TYPE);
+			IContainers liveContApi = live.provider().instance(IContainers.class);
+			List<ContainerDescriptor> liveLists = liveContApi
+					.all(ContainerQuery.ownerAndType(item.liveEntryUid(), ITodoUids.TYPE));
 
-			IContainers lContApi = live.provider().instance(IContainers.class);
-			List<ContainerDescriptor> liveLists = lContApi.all(cq);
+			IContainers backContApi = back.provider().instance(IContainers.class);
+			List<ContainerDescriptor> backLists = backContApi
+					.all(ContainerQuery.ownerAndType(item.entryUid, ITodoUids.TYPE));
 
-			IContainers bContApi = back.provider().instance(IContainers.class);
-			List<ContainerDescriptor> dataProtectedLists = bContApi.all(cq);
+			monitor.begin(backLists.size(),
+					String.format("Starting restore for uid %s: Backup contains %d", item.entryUid, backLists.size()));
 
-			monitor.begin(dataProtectedLists.size(), "starting restore for uid " + item.entryUid + " : Backup contains "
-					+ dataProtectedLists.size() + " todolist(s)");
-
-			logger.info("Backup contains " + dataProtectedLists.size() + " todolist(s)");
-			for (ContainerDescriptor cd : dataProtectedLists) {
-
-				restore(back, live, cd, liveLists, monitor.subWork(1));
-
+			logger.info("Backup contains " + backLists.size() + " todolist(s)");
+			for (ContainerDescriptor backList : backLists) {
+				restore(back, live, backList, liveLists, monitor.subWork(1));
 			}
 		} catch (Exception e) {
-			logger.warn("Error while restoring todolists", e);
+			logger.error("Error while restoring todolists", e);
 			monitor.end(false, "finished with errors : " + e.getMessage(), "[]");
 			return;
 		}
 		monitor.end(true, "finished.", "[]");
 	}
 
-	private void restore(BmContext back, BmContext live, ContainerDescriptor cd, List<ContainerDescriptor> liveLists,
-			IServerTaskMonitor monitor) {
-		IContainers lContApi = live.provider().instance(IContainers.class);
-		ITodoList backupListApi = back.provider().instance(ITodoList.class, cd.uid);
+	private void restore(BmContext back, BmContext live, ContainerDescriptor backList,
+			List<ContainerDescriptor> liveLists, IServerTaskMonitor monitor) {
+		IContainers liveContApi = live.provider().instance(IContainers.class);
+		ITodoList backupListApi = back.provider().instance(ITodoList.class, backList.uid);
 
 		List<String> allUids = backupListApi.allUids();
-		monitor.begin(allUids.size() + 1, "Restoring " + cd.name + " [uid=" + cd.uid + "]");
+		monitor.begin(allUids.size() + 1, "Restoring " + backList.name + " [uid=" + backList.uid + "]");
 
-		if (liveLists.stream().filter(c -> c.uid.equals(cd.uid)).findFirst().isPresent()) {
-			ITodoList liveABApi = live.provider().instance(ITodoList.class, cd.uid);
+		String listUid = mapListUid(backList.uid);
+
+		if (liveLists.stream().filter(c -> c.uid.equals(listUid)).findFirst().isPresent()) {
+			ITodoList liveABApi = live.provider().instance(ITodoList.class, listUid);
 			liveABApi.reset();
 			monitor.progress(1, "reset done");
 		} else {
-			lContApi.create(cd.uid, cd);
+			backList.owner = item.liveEntryUid();
+			liveContApi.create(listUid, backList);
 			monitor.progress(1, "todolist recreated");
 		}
 
-		ITodoList liveListApi = live.provider().instance(ITodoList.class, cd.uid);
+		ITodoList liveListApi = live.provider().instance(ITodoList.class, listUid);
 
 		for (List<String> batch : Lists.partition(backupListApi.allUids(), 1000)) {
 			List<ItemValue<VTodo>> todos = backupListApi.multipleGet(batch);
@@ -113,5 +114,13 @@ public class RestoreTodolistsTask implements IServerTask {
 			liveListApi.updates(changes);
 			monitor.progress(batch.size(), null);
 		}
+	}
+
+	private String mapListUid(String uid) {
+		if (!item.entryUid.equals(item.liveEntryUid()) && uid.endsWith(String.format("_%s", item.entryUid))) {
+			return String.format("%s%s", uid.substring(0, uid.length() - item.entryUid.length()), item.liveEntryUid());
+		}
+
+		return uid;
 	}
 }
