@@ -19,58 +19,43 @@
 package net.bluemind.system.auth;
 
 import java.io.ByteArrayInputStream;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.hornetq.client.MQ;
-import net.bluemind.hornetq.client.OOPMessage;
-import net.bluemind.hornetq.client.Producer;
-import net.bluemind.hornetq.client.Topic;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.node.client.AHCNodeClientFactory;
-import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 
 public class HpsHelper {
-
-	protected AHCNodeClientFactory nodeClientFactory = new AHCNodeClientFactory();
+	private Logger logger = LoggerFactory.getLogger(HpsHelper.class);
 
 	public static final String CMD_RESTART_HPS = "service bm-hps restart";
 
-	protected void restartHps(Server server) throws ServerFault {
-		nodeClientFactory.create(server.address()).executeCommandNoOut(CMD_RESTART_HPS);
+	public static HpsHelper get() {
+		return new HpsHelper();
 	}
 
-	protected void reloadHps(String event) {
-		reloadHps(event, Collections.emptyMap());
+	public void restartHps(Server server) throws ServerFault {
+		new AHCNodeClientFactory().create(server.address()).executeCommandNoOut(CMD_RESTART_HPS);
 	}
 
-	protected void reloadHps(String event, Map<String, String> properties) {
-		Producer prod = MQ.getProducer(Topic.SERVICE_HPS_RELOAD);
-		if (prod != null) {
-			OOPMessage cm = MQ.newMessage();
-			cm.putStringProperty("event", event);
-			properties.entrySet().stream()
-					.forEach(entrySet -> cm.putStringProperty(entrySet.getKey(), entrySet.getValue()));
-			prod.send(cm);
-		}
-
+	public void nodeWrite(Server server, String path, String content) throws ServerFault {
+		new AHCNodeClientFactory().create(server.address()).writeFile(path,
+				new ByteArrayInputStream(content.getBytes()));
 	}
 
-	protected void nodeWrite(Server server, String path, String content) throws ServerFault {
-		nodeClientFactory.create(server.address()).writeFile(path, new ByteArrayInputStream(content.getBytes()));
+	public void nodeWrite(Server server, String path, byte[] content) throws ServerFault {
+		new AHCNodeClientFactory().create(server.address()).writeFile(path, new ByteArrayInputStream(content));
 	}
 
-	protected void nodeWrite(Server server, String path, byte[] content) throws ServerFault {
-		nodeClientFactory.create(server.address()).writeFile(path, new ByteArrayInputStream(content));
-	}
-
-	protected String nodeRead(Server server, String path) throws ServerFault {
-		byte[] content = nodeClientFactory.create(server.address()).read(path);
+	public String nodeRead(Server server, String path) throws ServerFault {
+		byte[] content = new AHCNodeClientFactory().create(server.address()).read(path);
 		if (content == null) {
 			return null;
 		} else {
@@ -78,9 +63,11 @@ public class HpsHelper {
 		}
 	}
 
-	protected List<ItemValue<Server>> hpsNodes(BmContext context) throws ServerFault {
-		return context.provider().instance(IServer.class, "default").allComplete().stream().filter(s -> {
-			return s.value.tags.contains("bm/hps");
-		}).collect(Collectors.toList());
+	public List<ItemValue<Server>> hpsNodes(BmContext context) throws ServerFault {
+		List<ItemValue<Server>> nodes = new ArrayList<>();
+
+		Topology.getIfAvailable().map(t -> nodes.addAll(t.nodes()));
+
+		return nodes;
 	}
 }

@@ -20,6 +20,7 @@ package net.bluemind.authentication.handler;
 
 import java.security.InvalidParameterException;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
 import org.slf4j.Logger;
@@ -45,16 +46,17 @@ import net.bluemind.lib.vertx.BlockingCode;
 import net.bluemind.network.topology.IServiceTopology;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.network.topology.TopologyException;
-import net.bluemind.pool.impl.BmConfIni;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 
 public final class Nginx implements Handler<HttpServerRequest>, NeedVertxExecutor {
-
 	private static final Logger logger = LoggerFactory.getLogger(Nginx.class);
+
 	private Vertx vertx;
 	private BlockingCode blocking;
-	private static String defaultDomain;
+	private static Optional<String> defaultDomain;
 
 	private static class QueryParameters {
 		public final String clientIp;
@@ -87,8 +89,8 @@ public final class Nginx implements Handler<HttpServerRequest>, NeedVertxExecuto
 			}
 
 			user = decode(user).toLowerCase();
-			String latd = (!"admin0".equals(user) && defaultDomain != null && !user.contains("@"))
-					? user + "@" + defaultDomain
+			String latd = (!"admin0".equals(user) && defaultDomain.isPresent() && !user.contains("@"))
+					? user + "@" + defaultDomain.get()
 					: user;
 
 			String password = decode(req.headers().get("Auth-Pass"));
@@ -117,8 +119,15 @@ public final class Nginx implements Handler<HttpServerRequest>, NeedVertxExecuto
 	}
 
 	private void loadDefaultDomain() {
-		BmConfIni conf = new BmConfIni();
-		defaultDomain = conf.get("default-domain");
+		Optional<String> defaultDomain = Optional.ofNullable(
+				ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ISystemConfiguration.class)
+						.getValues().values.get(SysConfKeys.default_domain.name()));
+		if (defaultDomain.isPresent() && defaultDomain.get().trim().isEmpty()) {
+			Nginx.defaultDomain = Optional.empty();
+			return;
+		}
+
+		Nginx.defaultDomain = defaultDomain;
 	}
 
 	@Override
@@ -234,7 +243,6 @@ public final class Nginx implements Handler<HttpServerRequest>, NeedVertxExecuto
 		logger.info("Init with {}", vertx);
 
 		vertx.eventBus().consumer("bm.defaultdomain.changed", new Handler<Message<Object>>() {
-
 			@Override
 			public void handle(Message<Object> event) {
 				loadDefaultDomain();

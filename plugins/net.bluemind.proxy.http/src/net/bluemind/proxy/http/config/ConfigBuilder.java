@@ -29,7 +29,6 @@ import net.bluemind.proxy.http.impl.ExtensionConfigLoader;
 import net.bluemind.proxy.http.impl.FSConfigLoader;
 import net.bluemind.proxy.http.impl.IConfigLoader;
 import net.bluemind.proxy.http.impl.InBundleConfigLoader;
-import net.bluemind.utils.IniFile;
 
 public final class ConfigBuilder {
 
@@ -49,19 +48,6 @@ public final class ConfigBuilder {
 
 		IConfigLoader ecl = new ExtensionConfigLoader();
 		ecl.load(conf);
-
-		IniFile ini = new IniFile("/etc/bm/bm.ini") {
-
-			@Override
-			public String getCategory() {
-				return "bm";
-			}
-		};
-		String defaultDomain = ini.getProperty("default-domain");
-		if (defaultDomain != null && defaultDomain.trim().length() > 0) {
-			conf.getTemplatesConfiguration().setDefaultDomain(defaultDomain.trim());
-			logger.debug("Default domain set to " + defaultDomain);
-		}
 
 		Collection<ForwardedLocation> locations = conf.getForwardedLocations();
 		LocatorClient lc = new LocatorClient();

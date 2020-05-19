@@ -16,6 +16,7 @@ Require-Bundle: net.bluemind.lib.vertx;bundle-version="1.0.0",
  net.bluemind.core.rest.http.vertx;bundle-version="1.0.0",
  net.bluemind.domain.api,
  net.bluemind.user.api,
- net.bluemind.network.topology
+ net.bluemind.network.topology,
+ net.bluemind.system.api
 Export-Package: net.bluemind.authentication.handler
 Automatic-Module-Name: net.bluemind.authentication.handler

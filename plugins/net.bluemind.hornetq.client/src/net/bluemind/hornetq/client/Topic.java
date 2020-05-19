@@ -47,8 +47,6 @@ public final class Topic {
 
 	public static final String UI_RESOURCES_NOTIFICATIONS = "bm.ui.resources.notifications";
 
-	public static final String SERVICE_HPS_RELOAD = "bm.service.hps.reload";
-
 	public static final String GLOBAL_SETTINGS_NOTIFICATIONS = "bm.global.settings.notifications";
 	public static final String LOGBACK_CONFIG = "logback.configuration";
 

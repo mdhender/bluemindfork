@@ -16,5 +16,6 @@ Require-Bundle: org.junit,
  net.bluemind.network.topology.producer;bundle-version="4.1.0",
  net.bluemind.network.topology,
  org.asynchttpclient.async-http-client;bundle-version="2.10.4",
- org.reactivestreams.reactive-streams;bundle-version="1.0.3"
+ org.reactivestreams.reactive-streams;bundle-version="1.0.3",
+ net.bluemind.system.api
 Automatic-Module-Name: net.bluemind.authentication.handler.tests

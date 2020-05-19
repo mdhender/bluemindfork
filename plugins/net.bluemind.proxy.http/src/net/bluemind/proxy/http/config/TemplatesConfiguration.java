@@ -18,15 +18,35 @@
  */
 package net.bluemind.proxy.http.config;
 
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
+
+import net.bluemind.hornetq.client.MQ;
+import net.bluemind.hornetq.client.MQ.SharedMap;
+import net.bluemind.system.api.SysConfKeys;
+
 public class TemplatesConfiguration {
 
 	private String path;
 	private String url;
-	private String defaultDomain;
+	private Supplier<String> defaultDomain;
 
 	public TemplatesConfiguration(String path, String url) {
 		this.path = path;
 		this.url = url;
+
+		AtomicReference<SharedMap<String, String>> sysconf = new AtomicReference<>();
+		MQ.init().thenAccept(v -> {
+			sysconf.set(MQ.sharedMap("system.configuration"));
+		});
+
+		defaultDomain = () -> Optional.ofNullable(sysconf.get())
+				.map(sm -> sm.get(SysConfKeys.default_domain.name()) != null
+						&& !sm.get(SysConfKeys.default_domain.name()).isEmpty()
+								? sm.get(SysConfKeys.default_domain.name())
+								: null)
+				.orElse(null);
 	}
 
 	/**
@@ -61,12 +81,7 @@ public class TemplatesConfiguration {
 		return path;
 	}
 
-	public String getDefaultDomain() {
-		return defaultDomain;
+	public Optional<String> getDefaultDomain() {
+		return Optional.ofNullable(defaultDomain.get());
 	}
-
-	public void setDefaultDomain(String defaultDomain) {
-		this.defaultDomain = defaultDomain;
-	}
-
 }

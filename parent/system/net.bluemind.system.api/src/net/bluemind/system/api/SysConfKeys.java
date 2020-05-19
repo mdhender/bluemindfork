@@ -19,6 +19,11 @@
 package net.bluemind.system.api;
 
 public enum SysConfKeys {
+	/**
+	 * default domain key
+	 */
+	default_domain,
+
 	eas_max_heartbeat, eas_min_heartbeat, eas_sync_unknown, message_size_limit, mynetworks, sw_password, relayhost, //
 	auth_type, krb_ad_domain, krb_ad_ip, krb_domain, cas_url, cas_domain, krb_keytab, fwAdditionalIPs, dpBackupSkipTags, //
 	imap_max_child, nginx_worker_connections,

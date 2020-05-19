@@ -60,6 +60,15 @@
       <validator
             class="net.bluemind.system.service.internal.SubscriptionContactsValidator">
       </validator>
+      <observer
+            class="net.bluemind.system.service.internal.SharedSystemConfigurationVerticle$Updater">
+      </observer>
+   </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.system.service.internal.SharedSystemConfigurationVerticle$Init">
+      </verticle>
    </extension>
    <extension
          point="net.bluemind.lib.vertx.verticles">

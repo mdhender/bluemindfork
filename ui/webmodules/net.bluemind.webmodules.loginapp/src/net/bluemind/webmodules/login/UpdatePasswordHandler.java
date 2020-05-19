@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import freemarker.template.Configuration;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
-import net.bluemind.utils.IniFile;
 import net.bluemind.webmodule.server.NeedVertx;
 import net.bluemind.webmodule.server.WebModule;
 import net.bluemind.webmodule.server.handlers.AbstractIndexHandler;
@@ -29,8 +28,6 @@ public class UpdatePasswordHandler extends AbstractIndexHandler implements NeedV
 		cfg.setClassForTemplateLoading(LoginHandler.class, "/templates");
 		cfg.setTagSyntax(Configuration.AUTO_DETECT_TAG_SYNTAX);
 	}
-
-	private String defaultDomain;
 
 	@Override
 	protected String getTemplateName() {
@@ -55,7 +52,6 @@ public class UpdatePasswordHandler extends AbstractIndexHandler implements NeedV
 
 		manageErrorMsg(request, model, resourceBundle);
 
-		model.put("defaultDomain", defaultDomain);
 		model.put("msg", new MessageResolverMethod(resourceBundle, new Locale(getLang(request))));
 		logger.debug("display login page with model {}", model);
 
@@ -90,21 +86,9 @@ public class UpdatePasswordHandler extends AbstractIndexHandler implements NeedV
 	@Override
 	public void setModule(WebModule module) {
 		super.setModule(module);
-		loadDomain();
 	}
 
 	@Override
 	public void setVertx(Vertx vertx) {
-	}
-
-	private void loadDomain() {
-		IniFile ini = new IniFile("/etc/bm/bm.ini") {
-
-			@Override
-			public String getCategory() {
-				return "bm";
-			}
-		};
-		defaultDomain = ini.getProperty("default-domain");
 	}
 }

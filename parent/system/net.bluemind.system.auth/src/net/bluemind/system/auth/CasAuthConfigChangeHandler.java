@@ -34,7 +34,7 @@ import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 import net.bluemind.system.hook.ISystemConfigurationObserver;
 
-public class CasAuthConfigChangeHandler extends HpsHelper implements ISystemConfigurationObserver {
+public class CasAuthConfigChangeHandler implements ISystemConfigurationObserver {
 
 	private enum Status {
 		Install, Remove, None
@@ -43,6 +43,7 @@ public class CasAuthConfigChangeHandler extends HpsHelper implements ISystemConf
 	private static final Logger logger = LoggerFactory.getLogger(CasAuthConfigChangeHandler.class);
 
 	private BmContext context = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
+	private final HpsHelper hpsHelper = HpsHelper.get();
 
 	@Override
 	public void onUpdated(BmContext context, SystemConf previous, SystemConf conf) throws ServerFault {
@@ -61,7 +62,7 @@ public class CasAuthConfigChangeHandler extends HpsHelper implements ISystemConf
 	}
 
 	private void removeCas() throws ServerFault {
-		List<ItemValue<Server>> servers = hpsNodes(context);
+		List<ItemValue<Server>> servers = hpsHelper.hpsNodes(context);
 		for (ItemValue<Server> server : servers) {
 			removeCasParameters(server.value);
 		}
@@ -69,7 +70,7 @@ public class CasAuthConfigChangeHandler extends HpsHelper implements ISystemConf
 
 	private void installCas(SystemConf conf) throws ServerFault {
 
-		List<ItemValue<Server>> servers = hpsNodes(context);
+		List<ItemValue<Server>> servers = hpsHelper.hpsNodes(context);
 		for (ItemValue<Server> server : servers) {
 			String casUrl = conf.values.get(SysConfKeys.cas_url.name());
 			String casDomain = conf.values.get(SysConfKeys.cas_domain.name());
@@ -112,9 +113,8 @@ public class CasAuthConfigChangeHandler extends HpsHelper implements ISystemConf
 	}
 
 	private void updateCasParameters(Server server, String url, String domain) throws ServerFault {
-
 		// Read bm.ini file
-		String bmIni = nodeRead(server, "/etc/bm/bm.ini");
+		String bmIni = hpsHelper.nodeRead(server, "/etc/bm/bm.ini");
 
 		// Update CAS parameters inside it
 		String out = "";
@@ -139,15 +139,14 @@ public class CasAuthConfigChangeHandler extends HpsHelper implements ISystemConf
 		}
 
 		// Write back bm.ini file
-		nodeWrite(server, "/etc/bm/bm.ini", out);
+		hpsHelper.nodeWrite(server, "/etc/bm/bm.ini", out);
 		// restart hps
-		restartHps(server);
+		hpsHelper.restartHps(server);
 	}
 
 	private void removeCasParameters(Server server) throws ServerFault {
-
 		// Read bm.ini
-		String bmIni = nodeRead(server, "/etc/bm/bm.ini");
+		String bmIni = hpsHelper.nodeRead(server, "/etc/bm/bm.ini");
 
 		// Remove CAS configuration
 		String out = "";
@@ -158,8 +157,8 @@ public class CasAuthConfigChangeHandler extends HpsHelper implements ISystemConf
 		}
 
 		// Write back bm.ini
-		nodeWrite(server, "/etc/bm/bm.ini", out);
-		restartHps(server);
+		hpsHelper.nodeWrite(server, "/etc/bm/bm.ini", out);
+		hpsHelper.restartHps(server);
 	}
 
 }

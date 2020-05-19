@@ -36,9 +36,7 @@ import net.bluemind.system.api.SystemConf;
 import net.bluemind.system.hook.ISystemConfigurationObserver;
 
 public class SharedSystemConfigurationVerticle extends AbstractVerticle {
-
 	public static class Init implements IVerticleFactory {
-
 		@Override
 		public boolean isWorker() {
 			return true;
@@ -48,11 +46,9 @@ public class SharedSystemConfigurationVerticle extends AbstractVerticle {
 		public Verticle newInstance() {
 			return new SharedSystemConfigurationVerticle();
 		}
-
 	}
 
 	public static class Updater implements ISystemConfigurationObserver {
-
 		@Override
 		public void onUpdated(BmContext context, SystemConf previous, SystemConf conf) throws ServerFault {
 			MQ.init().thenAccept(v -> {
@@ -64,9 +60,7 @@ public class SharedSystemConfigurationVerticle extends AbstractVerticle {
 					}
 				}
 			});
-
 		}
-
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(SharedSystemConfigurationVerticle.class);
@@ -79,8 +73,7 @@ public class SharedSystemConfigurationVerticle extends AbstractVerticle {
 			SystemConf values = sysconfApi.getValues();
 			SharedMap<String, String> clusterConf = MQ.sharedMap("system.configuration");
 			clusterConf.putAll(values.values);
-			logger.info("sysconf pre-loaded with {} values", values.values.size());
+			logger.info("Sysconf pre-loaded with {} values", values.values.size());
 		});
 	}
-
 }

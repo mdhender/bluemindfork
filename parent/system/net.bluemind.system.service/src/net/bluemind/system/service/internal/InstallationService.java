@@ -454,7 +454,7 @@ public class InstallationService implements IInstallation {
 	public PublicInfos getInfos() {
 		Map<String, String> confValues = systemConfService().getValues().values;
 		PublicInfos ret = new PublicInfos();
-		ret.defaultDomain = confValues.get("default-domain");
+		ret.defaultDomain = confValues.get(SysConfKeys.default_domain.name());
 		ret.softwareVersion = BMVersion.getVersion();
 		ret.releaseName = BMVersion.getVersionName();
 		return ret;

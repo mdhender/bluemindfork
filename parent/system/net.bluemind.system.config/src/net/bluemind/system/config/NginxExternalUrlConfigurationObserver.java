@@ -25,14 +25,18 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
+
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 import net.bluemind.system.hook.ISystemConfigurationObserver;
 import net.bluemind.tag.api.TagDescriptor;
@@ -49,6 +53,14 @@ public class NginxExternalUrlConfigurationObserver implements ISystemConfigurati
 			String eu = conf.stringValue("external-url");
 			logger.info("System configuration has been updated, external-url changed to {}", eu);
 			updateExternalUrl(context.su(), eu);
+		}
+
+		String defaultDomain = conf.values.get(SysConfKeys.default_domain.name());
+		if ((defaultDomain != null && !defaultDomain.equals(previous.values.get(SysConfKeys.default_domain.name())))
+				|| (defaultDomain == null
+						&& !Strings.isNullOrEmpty(previous.values.get(SysConfKeys.default_domain.name())))) {
+			logger.info("Reload NGinx authentication handler");
+			VertxPlatform.eventBus().publish("bm.defaultdomain.changed", (Object) null);
 		}
 	}
 

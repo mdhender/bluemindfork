@@ -19,38 +19,14 @@
 package net.bluemind.system.auth;
 
 import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.rest.BmContext;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
-import net.bluemind.system.hook.ISystemConfigurationObserver;
 import net.bluemind.system.hook.ISystemConfigurationValidator;
 
-public class HpsConfigChangeValidateHandler extends HpsHelper
-		implements ISystemConfigurationObserver, ISystemConfigurationValidator {
-	private Logger logger = LoggerFactory.getLogger(HpsConfigChangeValidateHandler.class);
-
-	@Override
-	public void onUpdated(BmContext context, SystemConf previous, SystemConf conf) throws ServerFault {
-		String currentHpsMaxSessionsPerUser = conf.values.get(SysConfKeys.hps_max_sessions_per_user.name());
-		if (currentHpsMaxSessionsPerUser == null || currentHpsMaxSessionsPerUser
-				.equals(previous.values.get(SysConfKeys.hps_max_sessions_per_user.name()))) {
-			return;
-		}
-
-		logger.info("Reconfigure HPS max session per user");
-		reloadHps("maxSessionsPerUser",
-				conf.values.entrySet().stream()
-						.filter(entrySet -> entrySet.getKey().equals(SysConfKeys.hps_max_sessions_per_user.name()))
-						.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
-	}
-
+public class HpsConfigChangeValidateHandler implements ISystemConfigurationValidator {
 	@Override
 	public void validate(SystemConf previous, Map<String, String> modifications) throws ServerFault {
 		if (!modifications.containsKey(SysConfKeys.hps_max_sessions_per_user.name())) {

@@ -37,7 +37,8 @@ import io.vertx.core.net.SocketAddress;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.metrics.registry.IdFactory;
-import net.bluemind.metrics.registry.MetricsRegistry;
+import net.bluemind.metrics.registry.MetricsRegistry;<<<<<<<HEAD=======
+import net.bluemind.system.api.SysConfKeys;>>>>>>>4 bad4d35ba2...BM-15953 Fix:remove default-domain from bm.ini and hot update
 import net.bluemind.ysnp.YSNPConfiguration;
 
 public class SaslAuthdVerticle extends AbstractVerticle {
@@ -47,7 +48,7 @@ public class SaslAuthdVerticle extends AbstractVerticle {
 	private static final byte[] SASL_OK = new byte[] { 0, 2, (byte) 'O', (byte) 'K' };
 	private static final byte[] SASL_FAILED = new byte[] { 0, 2, (byte) 'N', (byte) 'O' };
 
-	private Supplier<String> defaultDomain;
+	private Supplier<Optional<String>> defaultDomain;
 
 	private final String socketPath;
 	private final boolean expireOk;
@@ -61,13 +62,17 @@ public class SaslAuthdVerticle extends AbstractVerticle {
 
 	@Override
 	public void start() {
-
 		AtomicReference<SharedMap<String, String>> sysconf = new AtomicReference<>();
 		MQ.init().thenAccept(v -> {
 			sysconf.set(MQ.sharedMap("system.configuration"));
 		});
 
-		defaultDomain = () -> Optional.ofNullable(sysconf.get()).map(sm -> sm.get("default-domain")).orElse(null);
+		defaultDomain = () -> Optional.ofNullable(sysconf.get())
+				.map(sm -> Optional.ofNullable(sm.get(SysConfKeys.default_domain.name()) != null
+						&& !sm.get(SysConfKeys.default_domain.name()).isEmpty()
+								? sm.get(SysConfKeys.default_domain.name())
+								: null))
+				.orElse(Optional.empty());
 
 		NetServerOptions nso = new NetServerOptions().setTcpNoDelay(true);
 		NetServer ns = vertx.createNetServer(nso);
@@ -137,8 +142,8 @@ public class SaslAuthdVerticle extends AbstractVerticle {
 		buf.readBytes(v);
 		String realm = new String(v);
 
-		if (!"admin0".equals(login) && realm.isEmpty() && defaultDomain.get() != null) {
-			realm = defaultDomain.get();
+		if (!"admin0".equals(login) && realm.isEmpty() && defaultDomain.get().isPresent()) {
+			realm = defaultDomain.get().get();
 		}
 		return new Creds(login, password, service, realm);
 	}

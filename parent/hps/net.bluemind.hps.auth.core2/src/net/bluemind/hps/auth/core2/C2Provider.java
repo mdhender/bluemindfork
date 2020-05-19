@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -33,8 +35,6 @@ import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 
 import io.vertx.core.Vertx;
-import io.vertx.core.eventbus.Message;
-import io.vertx.core.json.JsonObject;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.authentication.api.IAuthenticationPromise;
 import net.bluemind.authentication.api.LoginResponse;
@@ -47,6 +47,8 @@ import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.http.HttpClientProvider;
 import net.bluemind.core.rest.http.VertxPromiseServiceProvider;
+import net.bluemind.hornetq.client.MQ;
+import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.locator.vertxclient.VertxLocatorClient;
 import net.bluemind.mailbox.api.IMailboxesPromise;
 import net.bluemind.mailbox.api.Mailbox.Type;
@@ -54,7 +56,6 @@ import net.bluemind.proxy.http.ExternalCreds;
 import net.bluemind.proxy.http.IAuthProvider;
 import net.bluemind.proxy.http.IDecorableRequest;
 import net.bluemind.proxy.http.InvalidSession;
-import net.bluemind.system.api.ISystemConfigurationPromise;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.tag.api.TagDescriptor;
 import net.bluemind.user.api.ChangePassword;
@@ -66,57 +67,28 @@ public class C2Provider implements IAuthProvider {
 	private static final Logger logger = LoggerFactory.getLogger(C2Provider.class);
 	private final Cache<String, SessionData> sessions;
 	private HttpClientProvider clientProvider;
-	private Optional<Integer> maxSessionsPerUser = Optional.empty();
+	private Supplier<Integer> maxSessionsPerUser;
 
 	public C2Provider(Vertx vertx, Cache<String, SessionData> sessions) {
 		this.sessions = sessions;
 		clientProvider = new HttpClientProvider(vertx);
 
-		vertx.eventBus().consumer("hps.sysconf.maxsessionsperuser", this::sysconfChange);
-		loadMaxSessionsPerUserFromCore();
+		initMaxSessionsSupplier();
 	}
 
-	private void sysconfChange(Message<JsonObject> event) {
-		String mspu = null;
-		try {
-			mspu = event.body().getString(SysConfKeys.hps_max_sessions_per_user.name());
-			maxSessionsPerUser = Optional.of(Integer.parseInt(mspu));
-		} catch (NumberFormatException nfe) {
-			logger.error("Invalid {} set to {}, use default value {}", SysConfKeys.hps_max_sessions_per_user, mspu,
-					DEFAULT_MAX_SESSIONS_PER_USER);
-			maxSessionsPerUser = Optional.of(DEFAULT_MAX_SESSIONS_PER_USER);
-		}
-	}
-
-	private Integer getMaxSessionsPerUser() {
-		return maxSessionsPerUser.orElseGet(() -> {
-			loadMaxSessionsPerUserFromCore();
-			return maxSessionsPerUser.orElse(DEFAULT_MAX_SESSIONS_PER_USER);
+	private void initMaxSessionsSupplier() {
+		AtomicReference<SharedMap<String, String>> sysconf = new AtomicReference<>();
+		MQ.init().thenAccept(v -> {
+			sysconf.set(MQ.sharedMap("system.configuration"));
 		});
-	}
 
-	private void loadMaxSessionsPerUserFromCore() {
-		getProvider("admin0@global.virt", Token.admin0(), Collections.emptyList())
-				.instance(TagDescriptor.bm_core.getTag(), ISystemConfigurationPromise.class).getValues()
-				.exceptionally(e -> {
-					return null;
-				}).thenAccept(systemConf -> {
-					if (systemConf == null) {
-						logger.warn("Unable to retrieve {} from core, use default {}",
-								SysConfKeys.hps_max_sessions_per_user, DEFAULT_MAX_SESSIONS_PER_USER);
-						return;
-					}
-
-					String mspu = null;
-					try {
-						mspu = systemConf.values.get(SysConfKeys.hps_max_sessions_per_user.name());
-						maxSessionsPerUser = Optional.of(Integer.parseInt(mspu));
-					} catch (NumberFormatException nfe) {
-						logger.error("Invalid {} set to {}, set to default value {}",
-								SysConfKeys.hps_max_sessions_per_user, mspu, DEFAULT_MAX_SESSIONS_PER_USER);
-						maxSessionsPerUser = Optional.of(DEFAULT_MAX_SESSIONS_PER_USER);
-					}
-				});
+		maxSessionsPerUser = () -> Optional.ofNullable(sysconf.get()).map(sm -> {
+			try {
+				return Integer.parseInt(sm.get(SysConfKeys.hps_max_sessions_per_user.name()));
+			} catch (NumberFormatException nfe) {
+				return DEFAULT_MAX_SESSIONS_PER_USER;
+			}
+		}).orElse(DEFAULT_MAX_SESSIONS_PER_USER);
 	}
 
 	@Override
@@ -161,11 +133,11 @@ public class C2Provider implements IAuthProvider {
 				.filter(existingSession -> existingSession.userUid.equals(sd.userUid))
 				.sorted((s1, s2) -> Long.compare(s1.createStamp, s2.createStamp)).toArray(SessionData[]::new);
 
-		if (existingSessionForSameUser.length >= getMaxSessionsPerUser()) {
+		int maxSessionsPerUser = this.maxSessionsPerUser.get();
+		if (existingSessionForSameUser.length >= maxSessionsPerUser) {
 			logger.warn("Max session (active: {}/{}) exhausted for {}", existingSessionForSameUser.length,
-					getMaxSessionsPerUser(), sd.loginAtDomain);
-			for (int i = 0; i <= existingSessionForSameUser.length
-					- maxSessionsPerUser.orElse(DEFAULT_MAX_SESSIONS_PER_USER); i++) {
+					maxSessionsPerUser, sd.loginAtDomain);
+			for (int i = 0; i <= existingSessionForSameUser.length - maxSessionsPerUser; i++) {
 				logout(existingSessionForSameUser[i].authKey);
 			}
 		}

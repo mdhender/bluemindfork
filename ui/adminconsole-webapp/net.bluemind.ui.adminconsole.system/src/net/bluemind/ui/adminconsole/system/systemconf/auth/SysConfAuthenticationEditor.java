@@ -139,8 +139,9 @@ public class SysConfAuthenticationEditor extends CompositeGwtWidgetElement {
 	public void loadModel(JavaScriptObject model) {
 		SysConfModel map = SysConfModel.from(model);
 
-		if (map.get("default-domain") != null) {
-			domainList.setSelectedIndex(detectDomainIndex(domainList, map.get("default-domain").toString()));
+		if (map.get(SysConfKeys.default_domain.name()) != null) {
+			domainList.setSelectedIndex(
+					detectDomainIndex(domainList, map.get(SysConfKeys.default_domain.name()).toString()));
 		}
 
 		if (null != map.get(SysConfKeys.cas_url.name())) {
@@ -176,7 +177,7 @@ public class SysConfAuthenticationEditor extends CompositeGwtWidgetElement {
 	public void saveModel(JavaScriptObject model) {
 		SysConfModel map = SysConfModel.from(model);
 
-		map.putString("default-domain", domainList.getSelectedValue());
+		map.putString(SysConfKeys.default_domain.name(), domainList.getSelectedValue());
 		map.putString(SysConfKeys.hps_max_sessions_per_user.name(), maxSessionPerUser.getValue());
 
 		AuthType at = AuthType.getByIndex(authTypeSel.getSelectedIndex());

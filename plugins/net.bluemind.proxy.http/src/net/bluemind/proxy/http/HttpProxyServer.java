@@ -28,7 +28,6 @@ import io.vertx.core.Handler;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.proxy.http.config.ConfigBuilder;
 import net.bluemind.proxy.http.config.HPSConfiguration;
-import net.bluemind.proxy.http.reload.ReloadListener;
 
 public class HttpProxyServer {
 
@@ -55,9 +54,6 @@ public class HttpProxyServer {
 		} catch (InterruptedException e) {
 			logger.error(e.getMessage(), e);
 		}
-
-		ReloadListener rl = new ReloadListener();
-		rl.start(VertxPlatform.eventBus());
 	}
 
 	public int getPort() {
