@@ -37,9 +37,7 @@ public class TemplatesConfiguration {
 		this.url = url;
 
 		AtomicReference<SharedMap<String, String>> sysconf = new AtomicReference<>();
-		MQ.init().thenAccept(v -> {
-			sysconf.set(MQ.sharedMap("system.configuration"));
-		});
+		MQ.init().thenAccept(v -> sysconf.set(MQ.sharedMap("system.configuration")));
 
 		defaultDomain = () -> Optional.ofNullable(sysconf.get())
 				.map(sm -> sm.get(SysConfKeys.default_domain.name()) != null

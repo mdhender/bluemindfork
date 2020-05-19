@@ -78,9 +78,7 @@ public class C2Provider implements IAuthProvider {
 
 	private void initMaxSessionsSupplier() {
 		AtomicReference<SharedMap<String, String>> sysconf = new AtomicReference<>();
-		MQ.init().thenAccept(v -> {
-			sysconf.set(MQ.sharedMap("system.configuration"));
-		});
+		MQ.init().thenAccept(v -> sysconf.set(MQ.sharedMap("system.configuration")));
 
 		maxSessionsPerUser = () -> Optional.ofNullable(sysconf.get()).map(sm -> {
 			try {

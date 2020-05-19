@@ -42,22 +42,22 @@ public class CasAuthConfigurationValidator implements ISystemConfigurationValida
 
 		// validate url
 		if (Strings.isNullOrEmpty(url)) {
-			throw new ServerFault("CAS url must be setted", ErrorCode.INVALID_PARAMETER);
+			throw new ServerFault("CAS URL must be setted", ErrorCode.INVALID_PARAMETER);
 		}
 
 		URL purl = null;
 		try {
 			purl = new URL(url);
 		} catch (Exception e) {
-			throw new ServerFault("CAS url is not valid", ErrorCode.INVALID_PARAMETER);
+			throw new ServerFault("CAS URL is not valid", ErrorCode.INVALID_PARAMETER);
 		}
 
 		if (!"https".equals(purl.getProtocol())) {
-			throw new ServerFault("CAS url must use HTTPS protocol", ErrorCode.INVALID_PARAMETER);
+			throw new ServerFault("CAS URL must use HTTPS protocol", ErrorCode.INVALID_PARAMETER);
 		}
 
 		if (!purl.getPath().endsWith("/")) {
-			throw new ServerFault("CAS url must finish with '/'", ErrorCode.INVALID_PARAMETER);
+			throw new ServerFault("CAS URL must finish with '/'", ErrorCode.INVALID_PARAMETER);
 		}
 	}
 }

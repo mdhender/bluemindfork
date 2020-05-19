@@ -18,55 +18,74 @@
  */
 package net.bluemind.hps.auth.cas;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
-import org.ini4j.Ini;
-import org.ini4j.Profile.Section;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Strings;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpServerRequest;
+import net.bluemind.hornetq.client.MQ;
+import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.proxy.http.NeedVertx;
 import net.bluemind.proxy.http.auth.api.AuthRequirements;
 import net.bluemind.proxy.http.auth.api.IAuthEnforcer;
+import net.bluemind.system.api.SysConfKeys;
 
 public class CasAuthEnforcer implements IAuthEnforcer, NeedVertx {
 
 	private static final Logger logger = LoggerFactory.getLogger(CasAuthEnforcer.class);
-	private String casURL;
-	private String casDomain;
-	private String callbackURL;
-	private boolean casEnabled;
+	private Supplier<String> casURL;
+	private Supplier<String> casDomain;
+	private Supplier<String> callbackURL;
+	private Supplier<Boolean> casEnabled;
 	private HttpClient httpClient;
-	private String baseUri;
 
 	public CasAuthEnforcer() {
-		File bm = new File("/etc/bm/bm.ini");
-		Ini bmINI = null;
-		try {
-			bmINI = new Ini(bm);
-			Section section = bmINI.get("global");
-			casURL = section.get("casUrl");
-			casDomain = section.get("casDomain");
-			callbackURL = section.get("external-protocol") + "://" + section.get("external-url");
-			if (callbackURL.endsWith("/")) {
-				callbackURL = callbackURL.substring(0, callbackURL.length() - 1);
-			}
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-		}
-		casEnabled = (casURL != null) && (casDomain != null);
-		logger.info("[CAS] casEnabled=" + casEnabled + " -> casURL=" + casURL);
+		AtomicReference<SharedMap<String, String>> sysconf = new AtomicReference<>();
+		MQ.init().thenAccept(v -> sysconf.set(MQ.sharedMap("system.configuration")));
+
+		casURL = () -> Optional.ofNullable(sysconf.get())
+				.map(sm -> sm.get(SysConfKeys.cas_url.name()) != null && !sm.get(SysConfKeys.cas_url.name()).isEmpty()
+						? sm.get(SysConfKeys.cas_url.name())
+						: null)
+				.orElse(null);
+
+		casDomain = () -> Optional.ofNullable(sysconf.get())
+				.map(sm -> !Strings.isNullOrEmpty(sm.get(SysConfKeys.cas_domain.name()))
+						? sm.get(SysConfKeys.cas_domain.name())
+						: null)
+				.orElse(null);
+
+		callbackURL = () -> Optional.ofNullable(sysconf.get())
+				.map(sm -> !Strings.isNullOrEmpty(sm.get("external-url")) ? String.format("%s://%s",
+						!Strings.isNullOrEmpty(sm.get("external-protocol")) ? sm.get("external-protocol") : "https",
+						sm.get("external-url")) : null)
+				.orElse(null);
+
+		Supplier<Boolean> casAuthType = () -> Optional.ofNullable(sysconf.get())
+				.map(sm -> sm.get(SysConfKeys.auth_type.name()) != null
+						&& !sm.get(SysConfKeys.auth_type.name()).equalsIgnoreCase("cas") ? true : false)
+				.orElse(false);
+
+		casEnabled = () -> (casAuthType.get() && casURL.get() != null && casDomain.get() != null
+				&& callbackURL.get() != null);
+
+		logger.info("[CAS] casEnabled={}, casURL={}, casDomain={}, callBackURL={}", casEnabled.get(), casURL.get(),
+				casDomain.get(), callbackURL.get());
 	}
 
 	@Override
 	public AuthRequirements enforce(ISessionStore checker, HttpServerRequest req) {
-		if (!casEnabled) {
+		if (!casEnabled.get()) {
 			return AuthRequirements.notHandle();
 		}
 
@@ -76,7 +95,7 @@ public class CasAuthEnforcer implements IAuthEnforcer, NeedVertx {
 		}
 		if (io.vertx.core.http.HttpMethod.GET == req.method()) {
 			// only redirect GET to not pass
-			CasProtocol protocol = new CasProtocol(httpClient, casURL, baseUri, casDomain, callbackURL);
+			CasProtocol protocol = new CasProtocol(httpClient, casURL.get(), casDomain.get(), callbackURL.get());
 			return AuthRequirements.needSession(protocol);
 		} else {
 			return AuthRequirements.notHandle();
@@ -85,28 +104,28 @@ public class CasAuthEnforcer implements IAuthEnforcer, NeedVertx {
 
 	@Override
 	public void setVertx(Vertx vertx) {
-		if (casEnabled) {
+		if (casEnabled.get()) {
 			URL url = null;
 			try {
-				url = new URL(casURL);
+				url = new URL(casURL.get());
 			} catch (MalformedURLException e) {
+				logger.error("Invalid CAS URL {} ?!", casURL.get());
 				throw new RuntimeException(e);
 			}
-			baseUri = url.getPath();
 
 			HttpClientOptions opts = new HttpClientOptions();
 			opts.setDefaultHost(url.getHost());
-			opts.setSsl(url.getProtocol().equals("https"));
-			opts.setDefaultPort(url.getPort() != -1 ? url.getPort() : (url.getProtocol().equals("https") ? 443 : 80));
+			opts.setSsl(url.getProtocol().equalsIgnoreCase("https"));
+			opts.setDefaultPort(
+					url.getPort() != -1 ? url.getPort() : (url.getProtocol().equalsIgnoreCase("https") ? 443 : 80));
 			if (opts.isSsl()) {
 				opts.setTrustAll(true);
 				opts.setVerifyHost(false);
 			}
-			logger.info("cas client {} {}", opts.getDefaultHost(), opts.getDefaultPort());
+
+			logger.info("CAS client {} {}", opts.getDefaultHost(), opts.getDefaultPort());
 
 			httpClient = vertx.createHttpClient(opts);
-
 		}
 	}
-
 }

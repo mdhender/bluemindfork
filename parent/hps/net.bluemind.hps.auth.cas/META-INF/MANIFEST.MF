@@ -20,6 +20,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.locator.vertxclient,
  net.bluemind.config,
  org.ini4j,
- net.bluemind.utils
+ net.bluemind.utils,
+ net.bluemind.system.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
