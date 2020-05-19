@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
 import com.hazelcast.core.LifecycleEvent;
 import com.hazelcast.core.LifecycleEvent.LifecycleState;
@@ -52,6 +53,7 @@ import net.bluemind.config.BmIni;
 import net.bluemind.hornetq.client.Consumer;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.MQ.IMQConnectHandler;
+import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.hornetq.client.OOPMessage;
 import net.bluemind.hornetq.client.OutOfProcessMessageHandler;
 import net.bluemind.hornetq.client.Producer;
@@ -239,9 +241,30 @@ public abstract class ClusterNode {
 	}
 
 	public long clusterTime() {
-		CompletableFuture<Long> time = new CompletableFuture<>();
-		hzStart.thenAccept(hz -> time.complete(hz.getCluster().getClusterTime()));
-		return time.join();
+		return hzStart.thenApply(hz -> hz.getCluster().getClusterTime()).join();
+	}
+
+	public <K, V> SharedMap<K, V> sharedMap(String name) {
+		return hzStart.thenApply(hz -> {
+			IMap<K, V> imap = hz.getMap(name);
+			return new SharedMap<K, V>() {
+
+				@Override
+				public void put(K k, V v) {
+					imap.set(k, v);
+
+				}
+
+				@Override
+				public V get(K k) {
+					return imap.get(k);
+				}
+
+				public void remove(K k) {
+					imap.delete(k);
+				}
+			};
+		}).join();
 	}
 
 	/**

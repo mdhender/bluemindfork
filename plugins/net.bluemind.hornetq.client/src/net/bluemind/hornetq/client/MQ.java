@@ -21,6 +21,7 @@ package net.bluemind.hornetq.client;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
@@ -101,6 +102,22 @@ public final class MQ {
 	 */
 	public static long clusterTime() {
 		return nodeImpl.clusterTime();
+	}
+
+	public static interface SharedMap<K, V> {
+		void put(K k, V v);
+
+		V get(K k);
+
+		default void putAll(Map<K, V> map) {
+			map.forEach(this::put);
+		}
+
+		void remove(K k);
+	}
+
+	public static <K, V> SharedMap<K, V> sharedMap(String name) {
+		return nodeImpl.sharedMap(name);
 	}
 
 	/**
