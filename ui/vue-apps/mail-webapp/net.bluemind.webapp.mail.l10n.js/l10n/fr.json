@@ -116,6 +116,7 @@
     "mail.folder": "Le dossier",
     "mail.folder.rename": "Renommer le dossier",
     "mail.folder.create.subfolder": "Créer un sous-dossier",
+    "mail.folder.access.limited": "Droits restreints",
     "mail.empty": "est vide",
     "mail.shortcuts.purge": "Maj + Suppr",
     "mail.attachment.untitled": "Sans titre - ({mimeType})",

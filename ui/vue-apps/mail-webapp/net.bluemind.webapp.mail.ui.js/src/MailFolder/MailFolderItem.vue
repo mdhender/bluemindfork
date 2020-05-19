@@ -14,6 +14,14 @@
             :class="folder.unread > 0 ? 'font-weight-bold' : ''"
         />
         <mail-folder-item-menu :folder="folder" @edit="toggleEditFolder(folder.uid)" />
+        <div
+            v-if="!folder.writable"
+            v-bm-tooltip.top.viewport.ds500
+            class="mr-1"
+            :title="$t('mail.folder.access.limited')"
+        >
+            <bm-icon icon="info-circle" />
+        </div>
         <bm-counter-badge
             v-if="folder.unread > 0"
             :value="folder.unread"
@@ -36,7 +44,7 @@
 </template>
 
 <script>
-import { BmCounterBadge, BmDropzone } from "@bluemind/styleguide";
+import { BmCounterBadge, BmDropzone, BmIcon } from "@bluemind/styleguide";
 import { ItemUri } from "@bluemind/item-uri";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import MailFolderIcon from "../MailFolderIcon";
@@ -48,6 +56,7 @@ export default {
     components: {
         BmCounterBadge,
         BmDropzone,
+        BmIcon,
         MailFolderIcon,
         MailFolderInput,
         MailFolderItemMenu

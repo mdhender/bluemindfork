@@ -116,6 +116,7 @@
     "mail.folder.delete.dialog.question": "Delete folder \"{name}\" ?",
     "mail.folder.rename": "Rename folder",
     "mail.folder.create.subfolder": "Create a subfolder",
+    "mail.folder.access.limited": "Limited access",
     "mail.empty": "is empty",
     "mail.shortcuts.purge": "Shift + Delete",
     "mail.attachment.untitled": "Untitled - ({mimeType})",
