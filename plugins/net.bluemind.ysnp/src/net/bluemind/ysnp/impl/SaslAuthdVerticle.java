@@ -37,8 +37,8 @@ import io.vertx.core.net.SocketAddress;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.metrics.registry.IdFactory;
-import net.bluemind.metrics.registry.MetricsRegistry;<<<<<<<HEAD=======
-import net.bluemind.system.api.SysConfKeys;>>>>>>>4 bad4d35ba2...BM-15953 Fix:remove default-domain from bm.ini and hot update
+import net.bluemind.metrics.registry.MetricsRegistry;
+import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.ysnp.YSNPConfiguration;
 
 public class SaslAuthdVerticle extends AbstractVerticle {
