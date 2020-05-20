@@ -33,7 +33,6 @@ import com.netflix.spectator.api.patterns.PolledMeter;
 
 import io.vertx.core.Handler;
 import net.bluemind.config.Token;
-import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
@@ -44,11 +43,10 @@ import net.bluemind.domain.api.IDomains;
 import net.bluemind.eas.dto.device.DeviceValidationRequest;
 import net.bluemind.eas.dto.device.DeviceValidationResponse;
 import net.bluemind.eas.partnership.IDevicePartnershipProvider;
+import net.bluemind.hornetq.client.MQ;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.network.topology.Topology;
-import net.bluemind.system.api.ISystemConfiguration;
-import net.bluemind.system.api.SystemConf;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 import net.bluemind.utils.IniFile;
@@ -180,10 +178,9 @@ public class PartnershipProvider implements IDevicePartnershipProvider {
 				.setOrigin("bm-eas-PartnershipProvider");
 	}
 
-	private boolean syncUnknown() throws ServerFault {
-		ISystemConfiguration service = provider().instance(ISystemConfiguration.class);
-		SystemConf sc = service.getValues();
-		return sc.values.containsKey("eas_sync_unknown") && sc.booleanValue("eas_sync_unknown");
+	private boolean syncUnknown() {
+		String confValue = MQ.<String, String>sharedMap("system.configuration").get("eas_sync_unknown");
+		return "true".equals(confValue);
 	}
 
 	private boolean allowUnknown() {
@@ -194,10 +191,7 @@ public class PartnershipProvider implements IDevicePartnershipProvider {
 			}
 		};
 		String freeForAll = ini.getProperty("allow.unknown.pda");
-		if ("true".equals(freeForAll)) {
-			return true;
-		}
-		return false;
+		return ("true".equals(freeForAll));
 	}
 
 }
