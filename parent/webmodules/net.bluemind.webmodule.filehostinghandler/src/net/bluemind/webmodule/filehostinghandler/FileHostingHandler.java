@@ -35,13 +35,14 @@ import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.rest.http.HttpClientProvider;
+import net.bluemind.core.rest.http.ILocator;
 import net.bluemind.core.rest.http.ITaggedServiceProvider;
 import net.bluemind.core.rest.http.VertxServiceProvider;
 import net.bluemind.filehosting.api.FileHostingItem;
 import net.bluemind.filehosting.api.ID;
 import net.bluemind.filehosting.api.IFileHostingAsync;
 import net.bluemind.filehosting.api.Metadata;
-import net.bluemind.locator.vertxclient.VertxLocatorClient;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.webmodule.server.IWebFilter;
 import net.bluemind.webmodule.server.NeedVertx;
 
@@ -149,9 +150,14 @@ public class FileHostingHandler implements IWebFilter, NeedVertx {
 		return sp.instance("bm/core", IFileHostingAsync.class, "default");
 	}
 
+	private static final ILocator locator = (String service, AsyncHandler<String[]> asyncHandler) -> {
+		String core = Topology.get().core().value.address();
+		String[] resp = new String[] { core };
+		asyncHandler.success(resp);
+	};
+
 	private ITaggedServiceProvider getProvider(String login, String apiKey, HttpServerRequest request) {
-		return new VertxServiceProvider(clientProvider, new VertxLocatorClient(clientProvider, login), apiKey)
-				.from(request);
+		return new VertxServiceProvider(clientProvider, locator, apiKey).from(request);
 	}
 
 	@Override

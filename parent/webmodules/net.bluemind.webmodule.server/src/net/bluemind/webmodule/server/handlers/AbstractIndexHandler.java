@@ -234,6 +234,7 @@ public abstract class AbstractIndexHandler implements IWebModuleConsumer, Handle
 
 	protected abstract String getTemplateName();
 
+	@SuppressWarnings("unused")
 	protected void loadPageModel(HttpServerRequest request, Map<String, Object> model) {
 		// nothing to do. Override it if you want to enrich the page model
 	}

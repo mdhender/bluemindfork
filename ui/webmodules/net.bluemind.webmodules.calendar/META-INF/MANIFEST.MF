@@ -20,12 +20,13 @@ Require-Bundle: net.bluemind.webmodule;bundle-version="1.0.0",
  net.bluemind.commons.closure;bundle-version="1.0.0",
  net.bluemind.webmodule.server;bundle-version="1.0.0",
  net.bluemind.core.container.api;bundle-version="1.0.0",
- net.bluemind.locator.vertxclient,
  net.bluemind.core.task.api;bundle-version="1.0.0",
  net.bluemind.utils,
  org.eclipse.osgi,
  net.bluemind.ui.banner;bundle-version="1.0.0",
- net.bluemind.webmodules.webapp
+ net.bluemind.webmodules.webapp,
+ net.bluemind.network.topology
 Bundle-Activator: net.bluemind.webmodules.calendar.CalendarAppActivator
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: OSGI-INF/l10n/bundle
+Automatic-Module-Name: net.bluemind.webmodules.calendar

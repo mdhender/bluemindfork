@@ -37,13 +37,12 @@ public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 
 	private final RouteMatcher modulesRouter;
 
-	private List<WebModule> modules;
-	private List<IWebFilter> filters;
+	private final List<WebModule> modules;
+	private final List<IWebFilter> filters;
 
-	@SuppressWarnings("unused")
-	private Vertx vertx;
+	private final Vertx vertx;
 
-	public WebModuleRootHandler(Vertx vertx, List<WebModule> roots, List<IWebFilter> filters) {
+	private WebModuleRootHandler(Vertx vertx, List<WebModule> roots, List<IWebFilter> filters) {
 		this.vertx = vertx;
 		this.modulesRouter = new RouteMatcher(vertx);
 		logger.debug("modules {}, filters {}", roots.size(), filters.size());
@@ -102,9 +101,7 @@ public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 
 	@Override
 	public void handle(final HttpServerRequest request) {
-		Handler<Throwable> error = (Throwable t) -> {
-			onError(request, t);
-		};
+		Handler<Throwable> error = (Throwable t) -> onError(request, t);
 		request.exceptionHandler(error);
 		vertx.getOrCreateContext().exceptionHandler(error);
 
@@ -136,7 +133,7 @@ public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 
 	private void onError(HttpServerRequest request, Throwable t) {
 		String path = request.path();
-		logger.error("error during handling request: {} {}", path, t);
+		logger.error("error during handling request: {}", path, t);
 		request.response().setStatusCode(500);
 		request.response().setStatusMessage("server error: " + t.getMessage());
 		request.response().end();

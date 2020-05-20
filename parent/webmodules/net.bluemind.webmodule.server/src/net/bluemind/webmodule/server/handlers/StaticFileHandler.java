@@ -22,13 +22,13 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.mods.web.Headers;
 
 import com.netflix.spectator.api.Registry;
 
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.file.FileSystem;
+import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.metrics.registry.IdFactory;
@@ -71,12 +71,16 @@ public class StaticFileHandler implements Handler<HttpServerRequest> {
 		this.caching = caching;
 	}
 
+	@Override
 	public void handle(HttpServerRequest req) {
 		// browser gzip capability check
-		String acceptEncoding = req.headers().get(Headers.ACCEPT_ENCODING);
-		boolean acceptEncodingGzip = acceptEncoding == null ? false : acceptEncoding.contains("gzip");
 
-		logger.debug("trying to resolve [{}], module root [{}]", req.path(), webRoot);
+		String acceptEncoding = req.headers().get(HttpHeaders.ACCEPT_ENCODING);
+		boolean acceptEncodingGzip = acceptEncoding != null && acceptEncoding.contains("gzip");
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("trying to resolve [{}], module root [{}]", req.path(), webRoot);
+		}
 		try {
 			String file = req.path().substring(webRoot.equals("/") ? 0 : webRoot.length());
 
@@ -133,8 +137,8 @@ public class StaticFileHandler implements Handler<HttpServerRequest> {
 				String etag = String.format("W/%d-%s", source.getBundleName().hashCode(),
 						source.getBundle().getVersion());
 
-				if (req.headers().contains(Headers.IF_MATCH)) {
-					String checkEtags = req.headers().get(Headers.IF_MATCH);
+				if (req.headers().contains(HttpHeaders.IF_MATCH)) {
+					String checkEtags = req.headers().get(HttpHeaders.IF_MATCH);
 					if (checkEtags.indexOf(',') > -1) {
 						// there may be multiple etags
 						boolean matched = false;
@@ -156,8 +160,8 @@ public class StaticFileHandler implements Handler<HttpServerRequest> {
 				}
 
 				// either if-none-match or if-modified-since header, then...
-				else if (req.headers().contains(Headers.IF_NONE_MATCH)) {
-					String checkEtags = req.headers().get(Headers.IF_NONE_MATCH);
+				else if (req.headers().contains(HttpHeaders.IF_NONE_MATCH)) {
+					String checkEtags = req.headers().get(HttpHeaders.IF_NONE_MATCH);
 
 					// only HEAD or GET are allowed
 					if (HttpMethod.HEAD == req.method() || HttpMethod.GET == req.method()) {
@@ -183,7 +187,7 @@ public class StaticFileHandler implements Handler<HttpServerRequest> {
 					}
 				}
 
-				setResponseHeader(req, Headers.ETAG, etag);
+				setResponseHeader(req, HttpHeaders.ETAG, etag);
 			} else {
 				req.response().headers().add("Cache-Control", Arrays.<String>asList("no-cache", "must-revalidate"));
 				req.response().headers().add("Pragma", "no-cache");
@@ -191,7 +195,7 @@ public class StaticFileHandler implements Handler<HttpServerRequest> {
 
 			addMimetype(req, file);
 			if (zipped)
-				setResponseHeader(req, Headers.CONTENT_ENCODING, "gzip");
+				setResponseHeader(req, HttpHeaders.CONTENT_ENCODING, "gzip");
 			if (error != 200) {
 				sendError(req, error);
 			} else {
@@ -208,17 +212,12 @@ public class StaticFileHandler implements Handler<HttpServerRequest> {
 			}
 
 		} catch (Exception e) {
-			logger.error("error during serving static files", e);
-			throw new IllegalStateException("Failed to check file: " + e.getMessage());
+			throw new IllegalStateException("Failed to check file: " + e.getMessage(), e);
 		}
 	}
 
 	private boolean isCached(String fileName) {
-		if (fileName.contains("nocache")) {
-			return false;
-		} else {
-			return true;
-		}
+		return !fileName.contains("nocache");
 	}
 
 	private void addMimetype(HttpServerRequest req, String file) {
@@ -228,7 +227,7 @@ public class StaticFileHandler implements Handler<HttpServerRequest> {
 		}
 	}
 
-	private void setResponseHeader(HttpServerRequest req, String header, String value) {
+	private void setResponseHeader(HttpServerRequest req, CharSequence header, String value) {
 		req.response().putHeader(header, value);
 	}
 

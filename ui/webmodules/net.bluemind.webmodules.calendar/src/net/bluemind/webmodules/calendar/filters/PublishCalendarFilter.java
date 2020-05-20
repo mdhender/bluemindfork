@@ -36,11 +36,11 @@ import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.http.HttpClientProvider;
+import net.bluemind.core.rest.http.ILocator;
 import net.bluemind.core.rest.http.VertxServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
-import net.bluemind.locator.vertxclient.VertxLocatorClient;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.webmodule.server.IWebFilter;
 import net.bluemind.webmodule.server.NeedVertx;
 
@@ -53,6 +53,12 @@ public class PublishCalendarFilter implements IWebFilter, NeedVertx {
 	public void setVertx(Vertx vertx) {
 		this.clientProvider = new HttpClientProvider(vertx);
 	}
+
+	private static final ILocator locator = (String service, AsyncHandler<String[]> asyncHandler) -> {
+		String core = Topology.get().core().value.address();
+		String[] resp = new String[] { core };
+		asyncHandler.success(resp);
+	};
 
 	@Override
 	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
@@ -71,8 +77,7 @@ public class PublishCalendarFilter implements IWebFilter, NeedVertx {
 		String[] params = req.split("/");
 		String container = params[4];
 
-		VertxServiceProvider provider = new VertxServiceProvider(clientProvider,
-				new VertxLocatorClient(clientProvider, SecurityContext.ANONYMOUS.getSubject()), null).from(request);
+		VertxServiceProvider provider = new VertxServiceProvider(clientProvider, locator, null).from(request);
 
 		provider.instance("bm/core", IPublishCalendarAsync.class, container).publish(params[5], handler(request));
 

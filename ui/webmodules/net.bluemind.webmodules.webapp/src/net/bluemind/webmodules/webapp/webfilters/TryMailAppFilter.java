@@ -27,8 +27,9 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.rest.http.HttpClientProvider;
+import net.bluemind.core.rest.http.ILocator;
 import net.bluemind.core.rest.http.VertxServiceProvider;
-import net.bluemind.locator.vertxclient.VertxLocatorClient;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.user.api.IUserSettingsAsync;
 import net.bluemind.webmodule.server.IWebFilter;
 import net.bluemind.webmodule.server.NeedVertx;
@@ -37,8 +38,14 @@ import net.bluemind.webmodule.server.handlers.TemporaryRedirectHandler;
 public class TryMailAppFilter implements IWebFilter, NeedVertx {
 
 	private static final Logger logger = LoggerFactory.getLogger(TryMailAppFilter.class);
-	
+
 	private HttpClientProvider clientProvider;
+
+	private static final ILocator locator = (String service, AsyncHandler<String[]> asyncHandler) -> {
+		String core = Topology.get().core().value.address();
+		String[] resp = new String[] { core };
+		asyncHandler.success(resp);
+	};
 
 	@Override
 	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
@@ -51,32 +58,32 @@ public class TryMailAppFilter implements IWebFilter, NeedVertx {
 		if (roles != null) {
 			hasBothWebmailRoles = roles.contains("hasWebmail") && roles.contains("hasMailWebapp");
 		}
-		
-		if (request.path().equals("/webapp/index.html") && hasBothWebmailRoles) {
-			VertxServiceProvider provider = new VertxServiceProvider(clientProvider,
-					new VertxLocatorClient(clientProvider, null), apiKey).from(request);
 
-			provider.instance("bm/core", IUserSettingsAsync.class, domainUid).getOne(userUid, "mail-application", new AsyncHandler<String>() {
-					
-				@Override
-				public void success(String value) {
-					boolean tryNewWebmail = value.equals("mail-webapp");
-					
-					if (!tryNewWebmail) {
-						logger.info("Redirecting /webapp/index.html to /webmail/ for user {} on domain {}", 
-								userUid, domainUid);
-						new TemporaryRedirectHandler("/webmail/").handle(request);
-						completableFuture.complete(null);
-					} else {
-						completableFuture.complete(request);
-					}
-				}
-					
-				@Override
-				public void failure(Throwable e) {
-					completableFuture.complete(request);
-				}
-			});
+		if (request.path().equals("/webapp/index.html") && hasBothWebmailRoles) {
+			VertxServiceProvider provider = new VertxServiceProvider(clientProvider, locator, apiKey).from(request);
+
+			provider.instance("bm/core", IUserSettingsAsync.class, domainUid).getOne(userUid, "mail-application",
+					new AsyncHandler<String>() {
+
+						@Override
+						public void success(String value) {
+							boolean tryNewWebmail = value.equals("mail-webapp");
+
+							if (!tryNewWebmail) {
+								logger.info("Redirecting /webapp/index.html to /webmail/ for user {} on domain {}",
+										userUid, domainUid);
+								new TemporaryRedirectHandler("/webmail/").handle(request);
+								completableFuture.complete(null);
+							} else {
+								completableFuture.complete(request);
+							}
+						}
+
+						@Override
+						public void failure(Throwable e) {
+							completableFuture.complete(request);
+						}
+					});
 		} else {
 			completableFuture.complete(request);
 		}

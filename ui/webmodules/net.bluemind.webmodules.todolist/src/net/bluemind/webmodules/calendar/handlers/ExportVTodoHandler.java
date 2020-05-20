@@ -33,9 +33,10 @@ import net.bluemind.core.api.Stream;
 import net.bluemind.core.container.api.IContainerManagementAsync;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.rest.http.HttpClientProvider;
+import net.bluemind.core.rest.http.ILocator;
 import net.bluemind.core.rest.http.VertxServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
-import net.bluemind.locator.vertxclient.VertxLocatorClient;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.todolist.api.IVTodoAsync;
 import net.bluemind.webmodule.server.NeedVertx;
 
@@ -131,12 +132,16 @@ public class ExportVTodoHandler implements Handler<HttpServerRequest>, NeedVertx
 		httpClientProvider = new HttpClientProvider(vertx);
 	}
 
+	private static final ILocator locator = (String service, AsyncHandler<String[]> asyncHandler) -> {
+		String core = Topology.get().core().value.address();
+		String[] resp = new String[] { core };
+		asyncHandler.success(resp);
+	};
+
 	private VertxServiceProvider getProvider(HttpServerRequest request) {
 
-		String login = request.headers().get("BMUserLogin");
 		String apiKey = request.headers().get("BMSessionId");
-		return new VertxServiceProvider(httpClientProvider, new VertxLocatorClient(httpClientProvider, login), apiKey)
-				.from(request);
+		return new VertxServiceProvider(httpClientProvider, locator, apiKey).from(request);
 
 	}
 
