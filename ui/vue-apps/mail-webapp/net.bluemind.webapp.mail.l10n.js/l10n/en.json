@@ -93,6 +93,7 @@
     "alert.mail.send.loading": "Sending \"{subject}\" in progress...",
     "mail.content.alert.images.blocked": "Remote images have been blocked to protect your privacy.",
     "mail.content.alert.images.show": "Show images.",
+    "mail.content.alert.readonly": "Read-only message. Some actions (like Move or Remove) may not be available.",
     "alert.mail.multiple.markasread.loading": "Marking selected messages as read...",
     "alert.mail.multiple.markasread.error": "Failed to mark selected messages as read, please reload the application.",
     "alert.mail.multiple.markasread.success": "Successfully marked selected messages as read.",

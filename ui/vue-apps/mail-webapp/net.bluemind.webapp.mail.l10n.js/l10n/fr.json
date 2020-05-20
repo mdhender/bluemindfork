@@ -95,6 +95,7 @@
     "alert.mail.send.loading": "Envoi de \"{subject}\" en cours...",
     "mail.content.alert.images.blocked": "Les images distantes sont bloquées pour protéger votre vie privée.",
     "mail.content.alert.images.show": "Afficher les images.",
+    "mail.content.alert.readonly": "Email en lecture seule. Certaines actions (comme Supprimer ou Déplacer) peuvent être indisponibles.",
     "alert.mail.multiple.markasread.loading": "Les messages sélectionnés sont en train d'être marqués comme lus...",
     "alert.mail.multiple.markasread.error": "Les messages sélectionnés n'ont pas pu être marqués comme lus, merci de recharger l'application.",
     "alert.mail.multiple.markasread.success": "Les messages sélectionnés ont bien été marqués comme lus.",
