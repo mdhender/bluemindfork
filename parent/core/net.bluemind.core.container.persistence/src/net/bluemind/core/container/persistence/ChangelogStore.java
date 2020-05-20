@@ -171,15 +171,15 @@ public class ChangelogStore extends JdbcAbstractStore {
 	private static final Creator<ChangeLogEntry> CREATOR = con -> new ChangeLogEntry();
 
 	public void itemCreated(LogEntry entry) throws SQLException {
-		insert(INSERT_QUERY.replaceAll("#lock#", "" + entry.internalId), entry, new ChangelogStatementValues((byte) 0));
+		insert(INSERT_QUERY.replace("#lock#", "" + entry.internalId), entry, new ChangelogStatementValues((byte) 0));
 	}
 
 	public void itemUpdated(LogEntry entry) throws SQLException {
-		insert(INSERT_QUERY.replaceAll("#lock#", "" + entry.internalId), entry, new ChangelogStatementValues((byte) 1));
+		insert(INSERT_QUERY.replace("#lock#", "" + entry.internalId), entry, new ChangelogStatementValues((byte) 1));
 	}
 
 	public void itemDeleted(LogEntry entry) throws SQLException {
-		insert(INSERT_QUERY.replaceAll("#lock#", "" + entry.internalId), entry, new ChangelogStatementValues((byte) 2));
+		insert(INSERT_QUERY.replace("#lock#", "" + entry.internalId), entry, new ChangelogStatementValues((byte) 2));
 	}
 
 	private static final String CHANGELOG_QUERY = //
