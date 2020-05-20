@@ -32,6 +32,7 @@
       <plugin id="com.fasterxml.jackson.core.jackson-annotations"/>
       <plugin id="com.fasterxml.jackson.core.jackson-core"/>
       <plugin id="com.fasterxml.jackson.core.jackson-databind"/>
+      <plugin id="com.fasterxml.jackson.module.jackson-module-afterburner"/>
       <plugin id="com.google.guava"/>
       <plugin id="com.hazelcast"/>
       <plugin id="com.hazelcast.client" fragment="true"/>
@@ -85,8 +86,6 @@
       <plugin id="net.bluemind.lib.vertx"/>
       <plugin id="net.bluemind.lmtp"/>
       <plugin id="net.bluemind.lmtp.filter.imip"/>
-      <plugin id="net.bluemind.locator.client"/>
-      <plugin id="net.bluemind.locator.vertxclient"/>
       <plugin id="net.bluemind.mailbox.api"/>
       <plugin id="net.bluemind.mailbox.identity.api"/>
       <plugin id="net.bluemind.mailshare.api"/>
@@ -147,8 +146,8 @@
 
    <configurations>
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
-      <property name="osgi.noShutdown" value="true" />
       <property name="osgi.configuration.area" value="/var/lib/bm-lmtpd/" />
+      <property name="osgi.noShutdown" value="true" />
    </configurations>
 
 </product>

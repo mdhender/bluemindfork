@@ -19,16 +19,16 @@
 package net.bluemind.lmtp.impl;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufProcessor;
 import io.netty.buffer.CompositeByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.util.ByteProcessor;
 
 public class SMTPByteBufUtils {
 
 	private static final ByteBuf RETURN_DOUBLE_DOT = Unpooled.wrappedBuffer(new byte[] { '\n', '.', '.' });
 	private static final ByteBuf RETURN_DOT = Unpooled.wrappedBuffer(new byte[] { '\n', '.' });
 
-	private static class NewDotLineProcessor implements ByteBufProcessor {
+	private static class NewDotLineProcessor implements ByteProcessor {
 
 		private enum State {
 			LOOK_FOR_NEWLINE, //
@@ -54,7 +54,7 @@ public class SMTPByteBufUtils {
 
 	}
 
-	private static class NewDotDotLineProcessor implements ByteBufProcessor {
+	private static class NewDotDotLineProcessor implements ByteProcessor {
 
 		private enum State {
 			LOOK_FOR_NEWLINE, //

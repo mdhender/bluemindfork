@@ -22,11 +22,11 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.core.task.service,
  net.bluemind.config,
  net.bluemind.node.api,
- net.bluemind.locator.client,
  io.vertx.core,
  net.bluemind.core.validator,
  net.bluemind.system.domaintemplate;bundle-version="4.1.0",
- net.bluemind.system.api
+ net.bluemind.system.api,
+ net.bluemind.network.topology
 Export-Package: net.bluemind.filehosting.filesystem.service.internal,
  net.bluemind.filehosting.filesystem.service.internal.persistence
 Bundle-ActivationPolicy: lazy

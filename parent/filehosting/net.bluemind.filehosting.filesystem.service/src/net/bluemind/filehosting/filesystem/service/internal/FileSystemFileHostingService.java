@@ -59,7 +59,7 @@ import net.bluemind.filehosting.service.export.FileSizeExceededException;
 import net.bluemind.filehosting.service.export.IFileHostingService;
 import net.bluemind.filehosting.service.export.SizeLimitedReadStream;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.locator.client.LocatorClient;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.node.api.FileDescription;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
@@ -333,9 +333,7 @@ public class FileSystemFileHostingService implements IFileHostingService {
 
 	private INodeClient getNodeClient() throws ServerFault {
 		if (null == this.nodeClient) {
-			LocatorClient lc = new LocatorClient();
-			String ip = lc.locateHost("filehosting/data", "admin0@global.virt");
-			this.nodeClient = NodeActivator.get(ip);
+			this.nodeClient = NodeActivator.get(Topology.get().any("filehosting/data").value.address());
 		}
 
 		return this.nodeClient;
