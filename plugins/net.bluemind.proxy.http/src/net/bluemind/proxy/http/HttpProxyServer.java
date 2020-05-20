@@ -26,25 +26,28 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.proxy.http.config.ConfigBuilder;
-import net.bluemind.proxy.http.config.HPSConfiguration;
 
 public class HttpProxyServer {
 
-	private HPSConfiguration conf;
 	private static final Logger logger = LoggerFactory.getLogger(HttpProxyServer.class);
+	private int port;
 
 	public HttpProxyServer() {
-		this.conf = ConfigBuilder.build();
+		this.port = 8079;
 	}
 
 	public void run() {
+
 		final CountDownLatch cdl = new CountDownLatch(1);
 		Handler<AsyncResult<Void>> doneHandler = new Handler<AsyncResult<Void>>() {
 
 			@Override
 			public void handle(AsyncResult<Void> event) {
-				logger.info("Deployement done.");
+				if (event.succeeded()) {
+					logger.info("Deployement done. {}", this);
+				} else {
+					logger.error("Deployement failed.", event.cause());
+				}
 				cdl.countDown();
 			}
 		};
@@ -57,11 +60,11 @@ public class HttpProxyServer {
 	}
 
 	public int getPort() {
-		return conf.getPort();
+		return port;
 	}
 
 	public void setPort(int port) {
-		conf.setPort(port);
+		this.port = port;
 	}
 
 	public void stop() {

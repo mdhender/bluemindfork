@@ -46,12 +46,13 @@ import net.bluemind.core.api.BMVersion;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.http.HttpClientProvider;
+import net.bluemind.core.rest.http.ILocator;
 import net.bluemind.core.rest.http.VertxPromiseServiceProvider;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.MQ.SharedMap;
-import net.bluemind.locator.vertxclient.VertxLocatorClient;
 import net.bluemind.mailbox.api.IMailboxesPromise;
 import net.bluemind.mailbox.api.Mailbox.Type;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.proxy.http.ExternalCreds;
 import net.bluemind.proxy.http.IAuthProvider;
 import net.bluemind.proxy.http.IDecorableRequest;
@@ -92,7 +93,7 @@ public class C2Provider implements IAuthProvider {
 	@Override
 	public void sessionId(final String loginAtDomain, final String password, boolean privateComputer,
 			List<String> remoteIps, final AsyncHandler<String> handler) {
-		VertxPromiseServiceProvider sp = getProvider("admin0@global.virt", null, remoteIps);
+		VertxPromiseServiceProvider sp = getProvider(null, remoteIps);
 
 		logger.info("authenticating {}", loginAtDomain);
 		IAuthenticationPromise auth = sp.instance(TagDescriptor.bm_core.getTag(), IAuthenticationPromise.class);
@@ -131,11 +132,11 @@ public class C2Provider implements IAuthProvider {
 				.filter(existingSession -> existingSession.userUid.equals(sd.userUid))
 				.sorted((s1, s2) -> Long.compare(s1.createStamp, s2.createStamp)).toArray(SessionData[]::new);
 
-		int maxSessionsPerUser = this.maxSessionsPerUser.get();
-		if (existingSessionForSameUser.length >= maxSessionsPerUser) {
-			logger.warn("Max session (active: {}/{}) exhausted for {}", existingSessionForSameUser.length,
-					maxSessionsPerUser, sd.loginAtDomain);
-			for (int i = 0; i <= existingSessionForSameUser.length - maxSessionsPerUser; i++) {
+		int curMax = this.maxSessionsPerUser.get();
+		if (existingSessionForSameUser.length >= curMax) {
+			logger.warn("Max session (active: {}/{}) exhausted for {}, ips: {}", existingSessionForSameUser.length,
+					curMax, sd.loginAtDomain, remoteIps);
+			for (int i = 0; i <= existingSessionForSameUser.length - curMax; i++) {
 				logout(existingSessionForSameUser[i].authKey);
 			}
 		}
@@ -155,8 +156,8 @@ public class C2Provider implements IAuthProvider {
 
 		String domainName = externalCreds.getLoginAtDomain().split("@")[1];
 
-		IMailboxesPromise mailboxClient = getProvider(externalCreds.getLoginAtDomain(), Token.admin0(), remoteIps)
-				.instance(IMailboxesPromise.class, domainName);
+		IMailboxesPromise mailboxClient = getProvider(Token.admin0(), remoteIps).instance(IMailboxesPromise.class,
+				domainName);
 
 		mailboxClient
 				.byName(externalCreds.getLoginAtDomain().substring(0, externalCreds.getLoginAtDomain().indexOf('@')))
@@ -221,7 +222,7 @@ public class C2Provider implements IAuthProvider {
 	private void doSudo(List<String> remoteIps, AsyncHandler<String> handler, ExternalCreds externalCreds) {
 		logger.info("[{}] sessionId (EXT)", externalCreds.getLoginAtDomain());
 
-		getProvider(externalCreds.getLoginAtDomain(), Token.admin0(), remoteIps).instance(IAuthenticationPromise.class)
+		getProvider(Token.admin0(), remoteIps).instance(IAuthenticationPromise.class)
 				.suWithParams(externalCreds.getLoginAtDomain(), true).exceptionally(t -> null).thenAccept(lr -> {
 					if (lr == null) {
 						handler.failure(new ServerFault(
@@ -323,11 +324,11 @@ public class C2Provider implements IAuthProvider {
 		final SessionData sess = sessions.getIfPresent(sessionId);
 		if (sess == null) {
 			handler.success(Boolean.FALSE);
+			return;
 		}
-		String login = sess.loginAtDomain;
 		String apiKey = sess.authKey;
 
-		VertxPromiseServiceProvider sp = getProvider(login, apiKey, Collections.emptyList());
+		VertxPromiseServiceProvider sp = getProvider(apiKey, Collections.emptyList());
 		sp.instance(IAuthenticationPromise.class).ping().exceptionally(e -> {
 			logger.error("error during ping", e);
 			handler.success(Boolean.FALSE);
@@ -345,9 +346,10 @@ public class C2Provider implements IAuthProvider {
 
 	}
 
-	private VertxPromiseServiceProvider getProvider(String login, String apiKey, List<String> remoteIps) {
-		VertxLocatorClient vertxLocatorClient = new VertxLocatorClient(clientProvider, login);
-		return new VertxPromiseServiceProvider(clientProvider, vertxLocatorClient, apiKey, remoteIps);
+	private VertxPromiseServiceProvider getProvider(String apiKey, List<String> remoteIps) {
+		ILocator lc = (String service, AsyncHandler<String[]> asyncHandler) -> asyncHandler.success(
+				new String[] { Topology.get().anyIfPresent(service).map(s -> s.value.address()).orElse("127.0.0.1") });
+		return new VertxPromiseServiceProvider(clientProvider, lc, apiKey, remoteIps);
 
 	}
 
@@ -368,8 +370,8 @@ public class C2Provider implements IAuthProvider {
 			return CompletableFuture.completedFuture(null);
 		}
 
-		return getProvider(session.loginAtDomain, sessionId, Collections.emptyList())
-				.instance(IAuthenticationPromise.class).logout().whenComplete((v, fn) -> {
+		return getProvider(sessionId, Collections.emptyList()).instance(IAuthenticationPromise.class).logout()
+				.whenComplete((v, fn) -> {
 					if (fn != null) {
 						logger.error(fn.getMessage(), fn);
 					}
@@ -395,8 +397,7 @@ public class C2Provider implements IAuthProvider {
 			return CompletableFuture.completedFuture(null);
 		}
 
-		return getProvider(session.loginAtDomain, sessionId, forwadedFor)
-				.instance(IUserPromise.class, session.domainUid)
+		return getProvider(sessionId, forwadedFor).instance(IUserPromise.class, session.domainUid)
 				.setPassword(session.userUid, ChangePassword.create(currentPassword, newPassword));
 	}
 }

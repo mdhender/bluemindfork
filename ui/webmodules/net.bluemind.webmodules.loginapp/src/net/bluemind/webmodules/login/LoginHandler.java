@@ -40,11 +40,12 @@ import net.bluemind.config.Token;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.BMVersion;
 import net.bluemind.core.rest.http.HttpClientProvider;
+import net.bluemind.core.rest.http.ILocator;
 import net.bluemind.core.rest.http.ITaggedServiceProvider;
 import net.bluemind.core.rest.http.VertxServiceProvider;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.MQ.SharedMap;
-import net.bluemind.locator.vertxclient.VertxLocatorClient;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.system.api.IInstallationAsync;
 import net.bluemind.system.api.InstallationVersion;
 import net.bluemind.system.api.SysConfKeys;
@@ -175,8 +176,10 @@ public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 	}
 
 	private ITaggedServiceProvider getProvider() {
-		return new VertxServiceProvider(clientProvider, new VertxLocatorClient(clientProvider, "admin0@global.virt"),
-				Token.admin0());
+		ILocator lc = (String service, AsyncHandler<String[]> asyncHandler) -> asyncHandler.success(
+				new String[] { Topology.get().anyIfPresent(service).map(s -> s.value.address()).orElse("127.0.0.1") });
+
+		return new VertxServiceProvider(clientProvider, lc, Token.admin0());
 	}
 
 	@Override

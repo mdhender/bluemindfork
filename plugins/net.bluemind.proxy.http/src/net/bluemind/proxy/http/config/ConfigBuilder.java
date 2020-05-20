@@ -24,7 +24,8 @@ import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bluemind.locator.client.LocatorClient;
+import net.bluemind.network.topology.IServiceTopology;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.proxy.http.impl.ExtensionConfigLoader;
 import net.bluemind.proxy.http.impl.FSConfigLoader;
 import net.bluemind.proxy.http.impl.IConfigLoader;
@@ -50,17 +51,13 @@ public final class ConfigBuilder {
 		ecl.load(conf);
 
 		Collection<ForwardedLocation> locations = conf.getForwardedLocations();
-		LocatorClient lc = new LocatorClient();
+		IServiceTopology topo = Topology.get();
 		for (ForwardedLocation loc : locations) {
 			String tgtUrl = loc.getTargetUrl();
 			if (tgtUrl.startsWith("locator://")) {
 				int portIndex = tgtUrl.lastIndexOf(':');
 				String tag = tgtUrl.substring("locator://".length(), portIndex);
-				String host = lc.locateHost(tag, "admin0@global.virt");
-				if (host == null) {
-					logger.warn("failed to locate " + tag + ", fallback to 127.0.0.1");
-					host = "127.0.0.1";
-				}
+				String host = topo.anyIfPresent(tag).map(s -> s.value.address()).orElse("127.0.0.1");
 				int port = Integer.parseInt(tgtUrl.substring(portIndex + 1, tgtUrl.indexOf('/', portIndex)));
 				logger.debug("located {} for {} => h: {}, p: {}", tag, tgtUrl, host, port);
 				tgtUrl = "http://" + host + tgtUrl.substring(portIndex);

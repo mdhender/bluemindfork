@@ -29,9 +29,6 @@ import net.bluemind.proxy.http.config.HPSConfiguration;
 
 public class ExtensionConfigLoader implements IConfigLoader {
 
-	public ExtensionConfigLoader() {
-	}
-
 	private static final Logger logger = LoggerFactory.getLogger(ExtensionConfigLoader.class);
 
 	public void load(HPSConfiguration conf) {
@@ -41,18 +38,19 @@ public class ExtensionConfigLoader implements IConfigLoader {
 
 		IExtensionPoint point = Platform.getExtensionRegistry().getExtensionPoint(pluginId, pointName);
 		if (point == null) {
-			logger.error("point " + pluginId + "." + pointName + " not found.");
+			logger.error("point {}.{} not found.", pluginId, pointName);
 			return;
 		}
 		IExtension[] extensions = point.getExtensions();
 		for (IExtension ie : extensions) {
 			ForwardedLocation fl;
 			for (IConfigurationElement e : ie.getConfigurationElements()) {
+				System.err.println("On " + e);
 				if ("forward".equals(e.getName())) {
 					fl = new ForwardedLocation(e.getAttribute("path"), e.getAttribute("target"), e.getAttribute("role"),
 							"false");
 					conf.getForwardedLocations().add(fl);
-					logger.info("adding forward from " + fl.getPathPrefix() + " to " + fl.getTargetUrl() + " [role:{}]",
+					logger.info("adding forward from {} to {} [role:{}]", fl.getPathPrefix(), fl.getTargetUrl(),
 							fl.getRole());
 					if (e.getAttribute("auth_kind") != null)
 						fl.setRequiredAuthKind(e.getAttribute("auth_kind"));
@@ -62,7 +60,7 @@ public class ExtensionConfigLoader implements IConfigLoader {
 				}
 			}
 		}
-		logger.debug("Loaded " + extensions.length + " implementors of " + pluginId + "." + pointName);
+		logger.info("Loaded {} implementors of {}.{}", extensions.length, pluginId, pointName);
 	}
 
 }

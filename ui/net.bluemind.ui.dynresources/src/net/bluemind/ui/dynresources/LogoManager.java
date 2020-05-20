@@ -34,7 +34,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.hornetq.client.Topic;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.locator.client.LocatorClient;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.system.api.CustomLogo;
 import net.bluemind.system.api.IInstallation;
 import net.bluemind.webmodule.server.LogoVersion;
@@ -42,7 +42,10 @@ import net.bluemind.webmodule.server.LogoVersion;
 public class LogoManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(LogoManager.class);
-	private static Map<String, CustomLogo> logos = new HashMap<String, CustomLogo>();
+	private static Map<String, CustomLogo> logos = new HashMap<>();
+
+	private LogoManager() {
+	}
 
 	public static void init() {
 
@@ -115,11 +118,11 @@ public class LogoManager {
 	}
 
 	private static void loadInstallationLogo() {
-		LocatorClient lc = new LocatorClient();
-		String core = lc.locateHost("bm/core", "admin0@global.virt");
-		if (core == null) {
-			core = "127.0.0.1";
+		if (!Topology.getIfAvailable().isPresent()) {
+			logger.warn("Topology {} is missing, not loading", Topology.getIfAvailable());
+			return;
 		}
+		String core = Topology.get().core().value.address();
 		String coreUrl = "http://" + core + ":8090";
 		try {
 			CustomLogo cl = ClientSideServiceProvider.getProvider(coreUrl, Token.admin0()).instance(IInstallation.class)

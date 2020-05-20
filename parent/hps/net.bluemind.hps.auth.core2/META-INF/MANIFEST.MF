@@ -10,19 +10,19 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava;bundle-version="19.0.0",
  net.bluemind.user.api,
  net.bluemind.authentication.api,
- net.bluemind.locator.client,
  net.bluemind.core.container.api;bundle-version="1.0.0",
  net.bluemind.core.rest.http;bundle-version="1.0.0",
  net.bluemind.addressbook.api;bundle-version="1.0.0",
  net.bluemind.hornetq.client,
  net.bluemind.lib.vertx,
  net.bluemind.core.rest;bundle-version="1.0.0",
- net.bluemind.locator.vertxclient,
  net.bluemind.config,
  io.vertx.core,
  net.bluemind.system.api,
  net.bluemind.system.stateobserver,
  net.bluemind.backend.cyrus.partitions,
- net.bluemind.metrics.registry
+ net.bluemind.metrics.registry,
+ net.bluemind.network.topology
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: net.bluemind.hps.auth.core2
