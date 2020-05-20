@@ -13,7 +13,6 @@ Require-Bundle: net.bluemind.milter,
  net.bluemind.domain.api,
  net.bluemind.core.commons;bundle-version="4.1.0",
  net.bluemind.core.rest.http,
- net.bluemind.locator.client,
  net.bluemind.config,
  com.google.guava,
  net.bluemind.core.container.api,
@@ -26,3 +25,4 @@ Require-Bundle: net.bluemind.milter,
  net.bluemind.signature.commons;bundle-version="4.1.0",
  net.bluemind.network.topology
 Export-Package: net.bluemind.milter.action.signature
+Automatic-Module-Name: net.bluemind.milter.action.signature
