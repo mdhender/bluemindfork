@@ -20,7 +20,9 @@ package net.bluemind.resource.persistence;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import javax.sql.DataSource;
 
@@ -124,14 +126,18 @@ public class ResourceTypeStore extends JdbcAbstractStore {
 				}, new Object[] { container.id });
 	}
 
-	public boolean exists(String name) {
+	public boolean otherExists(String name, Optional<String> uid) {
 		return doOrFail(() -> {
-			String query = "SELECT  " + ResourceTypeColumns.cols.names()
-					+ " from t_resource_type WHERE resource_container_id = ?  AND label = ?";
-			ResourceTypeDescriptor descriptor = unique(query, ResourceTypeColumns.creator(),
-					ResourceTypeColumns.populator(), new Object[] { container.id, name });
-
-			return descriptor != null;
+			Object[] params = null;
+			String query = "SELECT 1 from t_resource_type WHERE resource_container_id = ?  AND label = ?";
+			if (uid.isPresent()) {
+				query += " AND NOT id = ?";
+				params = new Object[] { container.id, name, uid.get() };
+			} else {
+				params = new Object[] { container.id, name };
+			}
+			Boolean found = unique(query, rs -> Boolean.TRUE, Collections.emptyList(), params);
+			return found != null;
 		});
 	}
 }
