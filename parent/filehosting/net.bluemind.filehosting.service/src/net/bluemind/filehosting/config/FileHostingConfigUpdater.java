@@ -19,8 +19,8 @@
 package net.bluemind.filehosting.config;
 
 import net.bluemind.node.api.INodeClient;
-import net.bluemind.system.config.INginxConfigUpdater;
-import net.bluemind.system.config.NginxConfig;
+import net.bluemind.system.nginx.INginxConfigUpdater;
+import net.bluemind.system.nginx.NginxConfig;
 
 public class FileHostingConfigUpdater implements INginxConfigUpdater {
 

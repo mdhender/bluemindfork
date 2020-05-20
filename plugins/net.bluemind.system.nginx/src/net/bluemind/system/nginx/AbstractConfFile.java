@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.system.config;
+package net.bluemind.system.nginx;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

@@ -5,7 +5,6 @@ Bundle-SymbolicName: net.bluemind.system.config;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: blue-mind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Bundle-Activator: net.bluemind.system.config.Activator
 Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  org.freemarker.freemarker;bundle-version="2.3.20",
@@ -19,5 +18,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.tag.api,
  net.bluemind.eclipse.common,
  net.bluemind.server.hook,
- net.bluemind.network.topology
+ net.bluemind.network.topology,
+ net.bluemind.system.nginx,
+ net.bluemind.domain.api
 Export-Package: net.bluemind.system.config

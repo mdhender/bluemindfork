@@ -19,8 +19,8 @@
 package net.bluemind.system.webmail;
 
 import net.bluemind.node.api.INodeClient;
-import net.bluemind.system.config.INginxConfigUpdater;
-import net.bluemind.system.config.NginxConfig;
+import net.bluemind.system.nginx.INginxConfigUpdater;
+import net.bluemind.system.nginx.NginxConfig;
 import net.bluemind.system.webmail.cf.WebmailPhpFpmConf;
 import net.bluemind.system.webmail.cf.WebmailPhpNginxConf;
 

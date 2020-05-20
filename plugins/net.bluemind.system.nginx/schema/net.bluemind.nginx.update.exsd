@@ -3,7 +3,7 @@
 <schema targetNamespace="net.bluemind.system.config" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="net.bluemind.system.config" id="net.bluemind.nginx.update" name="nginx-update"/>
+         <meta.schema plugin="net.bluemind.system.nginx" id="net.bluemind.nginx.update" name="nginx-update"/>
       </appinfo>
       <documentation>
          [Enter description of this extension point.]
@@ -55,7 +55,7 @@
                   
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn=":net.bluemind.system.config.INginxConfigUpdater"/>
+                  <meta.attribute kind="java" basedOn=":net.bluemind.system.nginx.INginxConfigUpdater"/>
                </appinfo>
             </annotation>
          </attribute>

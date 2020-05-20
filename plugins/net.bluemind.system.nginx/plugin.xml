@@ -1,17 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension-point id="net.bluemind.nginx.update" name="nginx-update" schema="schema/net.bluemind.nginx.update.exsd"/>
    <extension
          point="net.bluemind.system.hook">
       <hook
             class="net.bluemind.system.nginx.NginxSystemHook">
       </hook>
-      <observer
-            class="net.bluemind.system.nginx.NginxSystemHook">
-      </observer>
-      <validator
-            class="net.bluemind.system.nginx.SwPasswordValidator">
-      </validator>
    </extension>
    <extension
          point="net.bluemind.server.hook.serverhook">

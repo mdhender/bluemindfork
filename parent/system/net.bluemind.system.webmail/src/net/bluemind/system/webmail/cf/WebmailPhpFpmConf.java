@@ -24,7 +24,7 @@ import java.util.Map;
 import freemarker.template.Template;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.node.api.INodeClient;
-import net.bluemind.system.config.AbstractConfFile;
+import net.bluemind.system.nginx.AbstractConfFile;
 import net.bluemind.system.webmail.Path;
 
 public class WebmailPhpFpmConf extends AbstractConfFile {

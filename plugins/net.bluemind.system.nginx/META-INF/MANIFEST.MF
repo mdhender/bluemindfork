@@ -19,6 +19,8 @@ Require-Bundle: org.eclipse.core.runtime,
  slf4j.api;bundle-version="1.7.5",
  org.freemarker.freemarker,
  net.bluemind.server.hook,
- net.bluemind.tag.api
+ net.bluemind.tag.api,
+ net.bluemind.network.topology
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.system.nginx

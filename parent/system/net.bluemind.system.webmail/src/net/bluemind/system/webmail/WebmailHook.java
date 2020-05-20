@@ -32,7 +32,7 @@ import net.bluemind.server.hook.DefaultServerHook;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.config.MessageSizeValue;
-import net.bluemind.system.config.NginxConfig.NginxConfigBuilder;
+import net.bluemind.system.nginx.NginxConfig.NginxConfigBuilder;
 import net.bluemind.tag.api.TagDescriptor;
 
 public class WebmailHook extends DefaultServerHook {

@@ -20,7 +20,6 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  com.google.guava;bundle-version="19.0.0",
  net.bluemind.role.api,
  net.bluemind.domain.api,
- net.bluemind.system.config,
  net.bluemind.node.api,
  org.freemarker.freemarker,
  net.bluemind.server.hook,
@@ -29,7 +28,8 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.node.client,
  net.bluemind.core.validator,
  net.bluemind.tag.api,
- net.bluemind.network.topology
+ net.bluemind.network.topology,
+ net.bluemind.system.nginx
 Export-Package: net.bluemind.filehosting.service.export,
  net.bluemind.filehosting.service.internal
 
