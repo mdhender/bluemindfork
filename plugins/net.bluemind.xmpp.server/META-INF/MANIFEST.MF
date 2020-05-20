@@ -7,7 +7,6 @@ Bundle-Activator: net.bluemind.xmpp.server.Activator
 Bundle-Vendor: blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
- net.bluemind.locator.client;bundle-version="1.0.0",
  com.google.guava;bundle-version="19.0.0",
  net.bluemind.hornetq.client;bundle-version="1.0.0",
  net.bluemind.lib.elasticsearch;bundle-version="1.0.0",
@@ -27,9 +26,11 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.system.stateobserver;bundle-version="4.1.0",
  net.bluemind.system.api,
  net.bluemind.metrics.registry,
- net.bluemind.systemd.notify
+ net.bluemind.systemd.notify,
+ net.bluemind.network.topology
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Export-Package: net.bluemind.xmpp.server
 Eclipse-BuddyPolicy: dependent
+Automatic-Module-Name: net.bluemind.xmpp.server
