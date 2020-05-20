@@ -18,6 +18,7 @@
  */
 package net.bluemind.eas;
 
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
@@ -32,7 +33,10 @@ import com.google.common.util.concurrent.MoreExecutors;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import net.bluemind.eas.command.provision.WipedDevices;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.network.topology.IServiceTopology;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.systemd.notify.Startup;
 
 public class EasApplication implements IApplication {
@@ -68,6 +72,16 @@ public class EasApplication implements IApplication {
 		};
 		VertxPlatform.spawnVerticles(doneHandler);
 		cdl.await();
+		initWiped();
+	}
+
+	private void initWiped() {
+		Optional<IServiceTopology> topo = Topology.getIfAvailable();
+		if (topo.isPresent()) {
+			WipedDevices.init();
+		} else {
+			VertxPlatform.getVertx().setTimer(750, tid -> initWiped());
+		}
 	}
 
 	@Override
