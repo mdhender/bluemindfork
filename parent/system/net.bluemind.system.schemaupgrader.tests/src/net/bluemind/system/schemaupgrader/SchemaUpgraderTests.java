@@ -18,7 +18,6 @@
  */
 package net.bluemind.system.schemaupgrader;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.text.SimpleDateFormat;
@@ -30,12 +29,12 @@ import javax.sql.DataSource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.system.api.Database;
-import net.bluemind.system.persistence.UpgraderStore;
 import net.bluemind.system.schemaupgrader.runner.SchemaUpgrade;
 
 public class SchemaUpgraderTests {
@@ -54,28 +53,14 @@ public class SchemaUpgraderTests {
 
 	@Test
 	public void testComputeUpgradePath() throws ServerFault {
-		UpgraderStore store = new UpgraderStore(pool);
-		SchemaUpgrade su = new SchemaUpgrade(Database.DIRECTORY, "bm-master", pool, false, store);
-		List<Updater> path = su.getUpgradePath();
+		List<Updater> path = SchemaUpgrade.getUpgradePath();
 		List<String[]> expected = new ArrayList<>();
 		expected.add(new String[] { "20200428", "75", "ALL" });
 		expected.add(new String[] { "20200429", "76", "ALL" });
 		expected.add(new String[] { "20200429", "77", "DIRECTORY" });
 		expected.add(new String[] { "20200415", "4", "ALL" });
-		assertTrue(upgradersFound(expected, path));
-		List<String[]> unExpected = new ArrayList<>();
-		unExpected.add(new String[] { "20200429", "78", "SHARD" });
-		assertFalse(upgradersFound(unExpected, path));
-
-		su = new SchemaUpgrade(Database.SHARD, "bm-master", pool, false, store);
-		path = su.getUpgradePath();
-		expected.add(new String[] { "20200428", "75", "ALL" });
-		expected.add(new String[] { "20200429", "76", "ALL" });
 		expected.add(new String[] { "20200429", "78", "SHARD" });
-		expected.add(new String[] { "20200415", "4", "ALL" });
-		unExpected = new ArrayList<>();
-		unExpected.add(new String[] { "20200429", "77", "DIRECTORY" });
-		assertFalse(upgradersFound(unExpected, path));
+		assertTrue(upgradersFound(expected, path));
 	}
 
 	private boolean upgradersFound(List<String[]> expected, List<Updater> path) {
@@ -92,6 +77,8 @@ public class SchemaUpgraderTests {
 				}
 			}
 			if (!found) {
+				LoggerFactory.getLogger(this.getClass()).info("Cannot find upgrader {}-{}", expectedUpgrader[0],
+						expectedUpgrader[1]);
 				return false;
 			}
 		}

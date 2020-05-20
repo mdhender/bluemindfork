@@ -22,10 +22,14 @@ package net.bluemind.dataprotect.service;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
@@ -60,6 +64,9 @@ import net.bluemind.system.api.IInstallation;
 import net.bluemind.system.api.UpgradeReport;
 import net.bluemind.system.api.UpgradeReport.Status;
 import net.bluemind.system.persistence.UpgraderStore;
+import net.bluemind.system.schemaupgrader.UpdateAction;
+import net.bluemind.system.schemaupgrader.UpdateResult;
+import net.bluemind.system.schemaupgrader.Updater;
 import net.bluemind.system.schemaupgrader.runner.SchemaUpgrade;
 
 /**
@@ -101,7 +108,6 @@ public class BackupDataProvider implements AutoCloseable {
 			}
 		}
 		if (pgWorker == null) {
-			monitor.end(false, "PG worker is missing", null);
 			throw new ServerFault("PG worker is missing");
 		}
 		DPContext dpc = new DPContext(monitor);
@@ -160,14 +166,32 @@ public class BackupDataProvider implements AutoCloseable {
 		VersionInfo to = VersionInfo.create(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IInstallation.class).getVersion().softwareVersion);
 
-		SchemaUpgrade schemaUpgrader = new SchemaUpgrade(database, datalocation, ds, onlySchema, store);
 		UpgradeReport report = new UpgradeReport();
-		schemaUpgrader.schemaUpgrade(monitor.subWork(50), report);
+		List<Updater> upgraders = SchemaUpgrade.getUpgradePath();
+		Set<UpdateAction> handledActions = EnumSet.noneOf(UpdateAction.class);
+
+		SchemaUpgrade.splitAndExecuteUpgraders(store, handledActions, upgraders,
+				list -> partialUpgrade(list, handledActions, store, onlySchema, database, datalocation, ds, report));
 
 		if (report.status == Status.FAILED) {
 			logger.warn("Could not upgrade backup database from version {} to {}", dpVersion.toString(), to.toString());
 			throw new ServerFault(String.format("Could not upgrade backup database from version %s to %s",
 					dpVersion.toString(), to.toString()));
+		}
+	}
+
+	private void partialUpgrade(List<Updater> upgraders, Set<UpdateAction> handledActions, UpgraderStore store,
+			boolean onlySchema, Database database, String datalocation, DataSource ds, UpgradeReport report) {
+
+		List<Updater> phase1 = upgraders.stream().filter(u -> !u.afterSchemaUpgrade()).collect(Collectors.toList());
+		List<Updater> phase2 = onlySchema ? Collections.emptyList()
+				: upgraders.stream().filter(u -> u.afterSchemaUpgrade()).collect(Collectors.toList());
+
+		SchemaUpgrade schemaUpgrader = new SchemaUpgrade(database, datalocation, ds, onlySchema, store);
+		UpdateResult schemaUpgrade = schemaUpgrader.schemaUpgrade(monitor.subWork(1), report, phase1, phase2,
+				handledActions);
+		if (schemaUpgrade.equals(UpdateResult.failed())) {
+			throw new ServerFault("Upgrade failed !");
 		}
 	}
 

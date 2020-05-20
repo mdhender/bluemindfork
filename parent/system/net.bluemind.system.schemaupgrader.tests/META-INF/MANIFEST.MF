@@ -12,5 +12,6 @@ Require-Bundle: org.junit,
  net.bluemind.core.task.spi,
  net.bluemind.eclipse.common,
  net.bluemind.system.api,
- net.bluemind.system.persistence
+ net.bluemind.system.persistence,
+ slf4j.api
 Automatic-Module-Name: net.bluemind.system.schemaupgrader.tests

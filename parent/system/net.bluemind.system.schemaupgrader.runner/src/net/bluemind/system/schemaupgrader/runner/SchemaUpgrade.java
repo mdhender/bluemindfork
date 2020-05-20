@@ -19,14 +19,16 @@
 package net.bluemind.system.schemaupgrader.runner;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumSet;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
@@ -71,9 +73,10 @@ public class SchemaUpgrade {
 
 	private static final Logger logger = LoggerFactory.getLogger(SchemaUpgrade.class);
 
-	public UpdateResult schemaUpgrade(IServerTaskMonitor monitor, UpgradeReport report) {
+	public UpdateResult schemaUpgrade(IServerTaskMonitor monitor, UpgradeReport report, List<Updater> phase1,
+			List<Updater> phase2, Set<UpdateAction> handledActions) {
 
-		UpdateResult schemaUpgrade = upgrade(monitor.subWork(1), report);
+		UpdateResult schemaUpgrade = upgrade(monitor.subWork(1), report, phase1, phase2, handledActions);
 
 		if (schemaUpgrade.equals(UpdateResult.failed())) {
 			monitor.end(false, "Upgrade failed !", "");
@@ -86,20 +89,14 @@ public class SchemaUpgrade {
 
 	}
 
-	public UpdateResult upgrade(IServerTaskMonitor subWork, UpgradeReport report) throws ServerFault {
-		List<Updater> upgraders = getUpgradePath();
+	public UpdateResult upgrade(IServerTaskMonitor subWork, UpgradeReport report, List<Updater> phase1,
+			List<Updater> phase2, Set<UpdateAction> handledActions) throws ServerFault {
 
-		logger.info("Schema update path contains {} updater(s)", upgraders.size());
-		subWork.begin(upgraders.size(), "Starting schema upgrades....");
-		Set<UpdateAction> handledActions = EnumSet.noneOf(UpdateAction.class);
-
-		List<Updater> phase1 = upgraders.stream().filter(u -> !u.afterSchemaUpgrade()).collect(Collectors.toList());
-
-		List<Updater> phase2 = upgraders.stream().filter(u -> u.afterSchemaUpgrade() && !onlySchema)
-				.collect(Collectors.toList());
+		List<Updater> phase1Filtered = phase1.stream().filter(this::updaterPending).collect(Collectors.toList());
+		List<Updater> phase2Filtered = phase2.stream().filter(this::updaterPending).collect(Collectors.toList());
 
 		UpdateResult phase1Result = executeUpdates(subWork, report, handledActions, UpgradePhase.SCHEMA_UPGRADE,
-				phase1);
+				phase1Filtered);
 		if (phase1Result.equals(UpdateResult.failed())) {
 			return UpdateResult.failed();
 		}
@@ -127,7 +124,7 @@ public class SchemaUpgrade {
 		}
 
 		subWork.log("Starting upgrader phase 2");
-		return executeUpdates(subWork, report, handledActions, UpgradePhase.POST_SCHEMA_UPGRADE, phase2);
+		return executeUpdates(subWork, report, handledActions, UpgradePhase.POST_SCHEMA_UPGRADE, phase2Filtered);
 	}
 
 	private UpdateResult executeUpdates(IServerTaskMonitor subWork, UpgradeReport report,
@@ -172,7 +169,7 @@ public class SchemaUpgrade {
 		upgraderStore.add(upgraderStatus);
 	}
 
-	public List<Updater> getUpgradePath() {
+	public static List<Updater> getUpgradePath() {
 
 		ISchemaUpgradersProvider upgradersProvider = ISchemaUpgradersProvider.getSchemaUpgradersProvider();
 		if (upgradersProvider == null) {
@@ -193,10 +190,8 @@ public class SchemaUpgrade {
 		}
 
 		LinkedList<Updater> upgradePath = new LinkedList<>();
-		upgradePath.addAll(
-				upgradersProvider.allJavaUpdaters().stream().filter(this::updaterPending).collect(Collectors.toList()));
-		upgradePath.addAll(
-				upgradersProvider.allSqlUpdaters().stream().filter(this::updaterPending).collect(Collectors.toList()));
+		upgradePath.addAll(upgradersProvider.allJavaUpdaters());
+		upgradePath.addAll(upgradersProvider.allSqlUpdaters());
 
 		Collections.sort(upgradePath, (updater1, updater2) -> Upgrader.toId(updater1.date(), updater1.sequence())
 				.compareTo(Upgrader.toId(updater2.date(), updater2.sequence())));
@@ -210,6 +205,25 @@ public class SchemaUpgrade {
 					.upgraderCompleted(Upgrader.toId(updater.date(), updater.sequence()), server, database);
 		} catch (SQLException e) {
 			throw ServerFault.create(ErrorCode.SQL_ERROR, e);
+		}
+	}
+
+	public static void splitAndExecuteUpgraders(UpgraderStore store, Set<UpdateAction> handledActions,
+			List<Updater> upgraders, Consumer<List<Updater>> op) {
+		Date currentDate = null;
+		List<Updater> currentList = new ArrayList<>();
+		for (Updater updater : upgraders) {
+			if (currentDate == null || updater.date().equals(currentDate)) {
+				currentList.add(updater);
+			} else {
+				op.accept(currentList);
+				currentList = new ArrayList<>();
+				currentList.add(updater);
+			}
+			currentDate = updater.date();
+		}
+		if (!currentList.isEmpty()) {
+			op.accept(currentList);
 		}
 	}
 

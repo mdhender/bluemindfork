@@ -120,9 +120,7 @@ public class InstallationService implements IInstallation {
 		InstallationVersion version = getVersion();
 
 		VersionInfo from = VersionInfo.checkAndCreate(version.databaseVersion);
-		VersionInfo to = VersionInfo.checkAndCreate(version.softwareVersion);
-
-		return context.provider().instance(ITasksManager.class).run(new InstallationUpgradeTask(context, from, to));
+		return context.provider().instance(ITasksManager.class).run(new InstallationUpgradeTask(context, from));
 	}
 
 	@Override
@@ -133,9 +131,7 @@ public class InstallationService implements IInstallation {
 		}
 
 		VersionInfo from = VersionInfo.checkAndCreate(fromVersion);
-		VersionInfo to = VersionInfo.checkAndCreate(toVersion);
-
-		return context.provider().instance(ITasksManager.class).run(new InstallationUpgradeTask(context, from, to));
+		return context.provider().instance(ITasksManager.class).run(new InstallationUpgradeTask(context, from));
 	}
 
 	@Override
