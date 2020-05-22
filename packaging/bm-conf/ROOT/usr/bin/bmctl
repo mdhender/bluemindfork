@@ -48,7 +48,6 @@ restart_bm() {
 }
 
 restart_exceptnode_bm() {
-  restart_bm() {
   echo "Restarting BlueMind Services except Node"
   systemctl restart $(systemctl list-dependencies --plain bluemind.target | grep -vE 'bluemind.target|bm-node' | sort | uniq)
 }
