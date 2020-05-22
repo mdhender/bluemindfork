@@ -5,7 +5,10 @@ import ItemUri from "@bluemind/item-uri";
 export async function markFolderAsRead(context, folderKey) {
     const folder = context.getters["folders/getFolderByKey"](folderKey);
     const uid = UUIDGenerator.generate();
-    const props = { name: folder.value.fullName };
+    const props = {
+        folder: { name: folder.value.fullName },
+        folderNameLink: { name: "v:mail:home", params: { folder: folderKey } }
+    };
     const root = { root: true };
     context.commit("addApplicationAlert", { uid, code: "MSG_FOLDER_MARKASREAD_LOADING", props }, root);
     try {
