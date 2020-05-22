@@ -18,7 +18,7 @@ function moveSingleMessage({ dispatch, commit, getters }, { messageKey, folder }
         .then(messages => {
             subject = messages[0].subject;
             addLoadingAlert(commit, subject, alertUid);
-            return dispatch("$_createFolder", folder);
+            return dispatch("$_createFolder", { folder, mailboxUid: getters.my.mailboxUid });
         })
         .then(key => {
             destination = getters["folders/getFolderByKey"](key);
@@ -35,7 +35,7 @@ function moveMultipleMessages({ dispatch, commit, getters }, { messageKeys, fold
     let destination, isDestinationMailshare;
     const alertUid = UUIDGenerator.generate();
     addLoadingAlertForMultipleMessages(commit, messageKeys.length, alertUid);
-    return dispatch("$_createFolder", folder)
+    return dispatch("$_createFolder", { folder, mailboxUid: getters.my.mailboxUid })
         .then(key => {
             destination = getters["folders/getFolderByKey"](key);
             const destinationContainer = ItemUri.container(destination.key);

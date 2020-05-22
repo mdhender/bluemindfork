@@ -102,16 +102,16 @@ export default {
             }
         },
         add(newFolderName) {
-            this.createFolder({
+            const folder = {
                 value: {
                     name: newFolderName,
                     fullName: newFolderName,
                     path: newFolderName,
                     parentUid: null
                 },
-                editing: false,
                 displayName: newFolderName
-            });
+            };
+            this.createFolder({ folder, mailboxUid: this.my.mailboxUid });
         }
     }
 };

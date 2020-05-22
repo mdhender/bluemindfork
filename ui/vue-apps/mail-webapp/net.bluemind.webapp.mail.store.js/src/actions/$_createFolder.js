@@ -1,12 +1,10 @@
 import ItemUri from "@bluemind/item-uri";
 
-export function $_createFolder({ dispatch, getters }, folder) {
+export function $_createFolder({ dispatch, getters }, { folder, mailboxUid }) {
     let parent = getNearestFolder(folder, getters);
     let hierarchy = folder.value.fullName;
-    let mailbox = getters.my.mailboxUid;
     if (parent !== null) {
         hierarchy = hierarchy.replace(parent.value.fullName, "");
-        mailbox = ItemUri.container(parent.key);
     }
     return hierarchy
         .split("/")
@@ -17,7 +15,7 @@ export function $_createFolder({ dispatch, getters }, folder) {
                     dispatch("folders/create", {
                         name: folder,
                         parentUid: key ? ItemUri.item(key) : null,
-                        mailboxUid: mailbox
+                        mailboxUid
                     })
                 ),
             Promise.resolve(parent && parent.key)

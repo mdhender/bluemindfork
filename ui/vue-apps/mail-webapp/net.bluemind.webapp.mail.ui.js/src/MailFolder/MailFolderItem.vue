@@ -13,7 +13,7 @@
             class="flex-fill"
             :class="folder.unread > 0 ? 'font-weight-bold' : ''"
         />
-        <mail-folder-item-menu v-if="folder.writable" :folder="folder" @edit="toggleEditFolder(folder.uid)" />
+        <mail-folder-item-menu :folder="folder" @edit="toggleEditFolder(folder.uid)" />
         <bm-counter-badge
             v-if="folder.unread > 0"
             :value="folder.unread"
@@ -37,6 +37,7 @@
 
 <script>
 import { BmCounterBadge, BmDropzone } from "@bluemind/styleguide";
+import { ItemUri } from "@bluemind/item-uri";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import MailFolderIcon from "../MailFolderIcon";
 import MailFolderInput from "../MailFolderInput";
@@ -64,7 +65,7 @@ export default {
     },
     computed: {
         ...mapState("mail-webapp", ["currentFolderKey"]),
-        ...mapGetters("mail-webapp", ["my"]),
+        ...mapGetters("mail-webapp", ["my", "mailshares"]),
         editingFolder() {
             return this.folder.editing;
         }
@@ -87,26 +88,36 @@ export default {
         ...mapMutations("mail-webapp", ["toggleEditFolder"]),
         submit(newFolderName) {
             if (this.folder.name !== "") {
-                this.rename(newFolderName);
+                this.renameFolder({ folderKey: this.folder.key, newFolderName }).then(() => {
+                    if (this.currentFolderKey === this.folder.key) {
+                        this.$router.navigate({ name: "v:mail:message", params: { folder: this.folder.key } });
+                    }
+                });
             } else {
-                this.createFolder({
+                const folder = {
                     value: {
                         name: newFolderName,
                         fullName: this.folder.fullName + newFolderName,
                         path: this.folder.fullName + newFolderName,
                         parentUid: this.folder.parent
                     },
-                    editing: false,
                     displayName: newFolderName
-                });
-            }
-        },
-        rename(newFolderName) {
-            this.renameFolder({ folderKey: this.folder.key, newFolderName }).then(() => {
-                if (this.currentFolderKey === this.folder.key) {
-                    this.$router.navigate({ name: "v:mail:message", params: { folder: this.folder.key } });
+                };
+                let mailboxUid;
+                let parentFolder = this.my.folders.find(f => f.uid === this.folder.parent);
+                if (parentFolder) {
+                    mailboxUid = ItemUri.container(parentFolder.key);
+                } else {
+                    for (let mailshare of this.mailshares) {
+                        parentFolder = mailshare.folders.find(folder => folder.uid === this.folder.parent);
+                        if (parentFolder) {
+                            mailboxUid = ItemUri.container(parentFolder.key);
+                            break;
+                        }
+                    }
                 }
-            });
+                this.createFolder({ folder, mailboxUid });
+            }
         },
         closeInput() {
             if (this.folder.name !== "") {
