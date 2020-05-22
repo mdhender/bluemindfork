@@ -17,7 +17,7 @@
         <div
             v-if="!folder.writable"
             v-bm-tooltip.top.viewport.ds500
-            class="mr-1"
+            class="mr-2"
             :title="$t('mail.folder.access.limited')"
         >
             <bm-icon icon="info-circle" />
@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import { BmCounterBadge, BmDropzone, BmIcon } from "@bluemind/styleguide";
+import { BmCounterBadge, BmDropzone, BmIcon, BmTooltip } from "@bluemind/styleguide";
 import { ItemUri } from "@bluemind/item-uri";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import MailFolderIcon from "../MailFolderIcon";
@@ -61,6 +61,7 @@ export default {
         MailFolderInput,
         MailFolderItemMenu
     },
+    directives: { BmTooltip },
     props: {
         folder: {
             type: Object,

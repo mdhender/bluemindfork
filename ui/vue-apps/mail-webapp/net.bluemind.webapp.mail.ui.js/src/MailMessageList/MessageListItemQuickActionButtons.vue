@@ -2,6 +2,7 @@
     <bm-button-toolbar class="message-list-item-quick-action-buttons justify-content-end">
         <bm-button-group>
             <bm-button
+                v-if="!isReadOnlyFolder(folderUidOfMessage)"
                 v-bm-tooltip.ds500.top.viewport
                 :aria-label="$tc('mail.actions.remove.aria')"
                 :title="$tc('mail.actions.remove.aria')"
@@ -40,6 +41,7 @@
 
 <script>
 import { BmButtonToolbar, BmButtonGroup, BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
+import { ItemUri } from "@bluemind/item-uri";
 import { mapActions, mapGetters, mapState } from "vuex";
 
 export default {
@@ -58,9 +60,12 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("mail-webapp", ["nextMessageKey", "my"]),
+        ...mapGetters("mail-webapp", ["nextMessageKey", "my", "isReadOnlyFolder"]),
         ...mapState("mail-webapp", ["currentFolderKey"]),
-        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" })
+        ...mapState("mail-webapp/currentMessage", { currentMessageKey: "key" }),
+        folderUidOfMessage() {
+            return ItemUri.container(this.message.key);
+        }
     },
     methods: {
         ...mapActions("mail-webapp", ["markAsRead", "markAsUnread"]),

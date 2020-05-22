@@ -24,9 +24,11 @@
             <bm-icon icon="unread" size="2x" />
             <span class="d-none d-lg-block">{{ $tc("mail.actions.mark_unread", selectedMessageKeys.length) }}</span>
         </bm-button>
-        <mail-toolbar-selected-messages-move-action v-show="!hasMultipleMessagesSelected" />
+        <mail-toolbar-selected-messages-move-action
+            v-show="!hasMultipleMessagesSelected && !isReadOnlyFolder(folderUidOfCurrentMessage)"
+        />
         <bm-button
-            v-show="!hasMultipleMessagesSelected"
+            v-show="!hasMultipleMessagesSelected && !isReadOnlyFolder(folderUidOfCurrentMessage)"
             v-bm-tooltip.bottom.ds500
             variant="link"
             :title="$tc('mail.actions.remove.aria')"
@@ -37,12 +39,15 @@
             <bm-icon icon="trash" size="2x" />
             <span class="d-none d-lg-block">{{ $tc("mail.actions.remove") }}</span>
         </bm-button>
-        <mail-toolbar-selected-messages-other-actions v-if="!hasMultipleMessagesSelected" />
+        <mail-toolbar-selected-messages-other-actions
+            v-if="!hasMultipleMessagesSelected && !isReadOnlyFolder(folderUidOfCurrentMessage)"
+        />
     </div>
 </template>
 
 <script>
 import { BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
+import { ItemUri } from "@bluemind/item-uri";
 import { mapActions, mapGetters, mapState } from "vuex";
 import MailToolbarSelectedMessagesMoveAction from "./MailToolbarSelectedMessagesMoveAction";
 import MailToolbarSelectedMessagesOtherActions from "./MailToolbarSelectedMessagesOtherActions";
@@ -65,7 +70,8 @@ export default {
             "areAllSelectedMessagesUnread",
             "areAllMessagesSelected",
             "areMessagesFiltered",
-            "isSearchMode"
+            "isSearchMode",
+            "isReadOnlyFolder"
         ]),
         ...mapGetters("mail-webapp/currentMessage", { currentMessage: "message" }),
         hasMultipleMessagesSelected() {
@@ -84,6 +90,9 @@ export default {
             } else {
                 return !this.currentMessage.states.includes("not-seen");
             }
+        },
+        folderUidOfCurrentMessage() {
+            return ItemUri.container(this.currentMessage.key);
         }
     },
     methods: {
