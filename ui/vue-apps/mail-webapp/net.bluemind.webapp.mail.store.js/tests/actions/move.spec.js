@@ -72,7 +72,10 @@ describe("[Mail-WebappStore][actions] : move", () => {
         const messageKey = "message-key",
             folder = { value: { name: "folder-name" } };
         move(context, { messageKey, folder }).then(() => {
-            expect(context.dispatch).toHaveBeenCalledWith("$_createFolder", folder);
+            expect(context.dispatch).toHaveBeenCalledWith("$_createFolder", {
+                folder,
+                mailboxUid: context.getters.my.mailboxUid
+            });
             done();
         });
     });

@@ -183,7 +183,7 @@ exports[`MailToolbarConsultMessage should match snapshot 1`] = `
           tabindex="-1"
         >
           <div
-            class="mail-folder-input flex-fill d-flex align-items-center position-relative border-bottom"
+            class="mail-folder-input flex-fill d-flex align-items-center position-relative pl-3 pr-1 border-bottom"
           >
             <svg
               aria-hidden="true"

@@ -25,7 +25,8 @@ describe("[Mail-WebappStore][utils] : TreeBuilder ", () => {
             unread: 3,
             expanded: true,
             loaded: true,
-            children: []
+            children: [],
+            editing: false
         });
     });
 
