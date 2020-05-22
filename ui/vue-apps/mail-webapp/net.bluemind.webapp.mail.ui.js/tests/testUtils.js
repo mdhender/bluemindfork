@@ -19,14 +19,19 @@ export function createStore(overrides) {
                 getters: {
                     my: jest.fn(() => ({})),
                     currentMessageAttachments: jest.fn(() => [{ mime: "" }]),
-                    draft: jest.fn(() => {})
+                    draft: jest.fn(() => {}),
+                    isReadOnlyFolder: jest.fn(() => () => false)
                 },
                 modules: {
                     currentMessage: {
                         namespaced: true,
                         getters: {
                             message: jest.fn(() => {
-                                return { key: "", states: [] };
+                                return {
+                                    key:
+                                        "WyIxNWUwZjNjYS01M2E2LTRiYmItYWQ0NS02MTgwNjcyYmE4ZWMiLCIzNUU1MTJCOC0xRDVBLTRENkQtQUMzOC01QzY4OENDQzlBMDUiXQ==",
+                                    states: []
+                                };
                             })
                         }
                     },

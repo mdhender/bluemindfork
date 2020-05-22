@@ -130,5 +130,6 @@
     "mail.compose.forward.prev.message.info.date": "Date",
     "mail.compose.forward.prev.message.info.from": "From",
     "mail.main.switch.webmail": "Try the new webmail",
-    "mail.messages.multiple.drag_shadow": "The selected thread | {count} selected threads"
+    "mail.messages.multiple.drag_shadow": "The selected thread | {count} selected threads",
+    "mail.selection.alert.readonly": "Some selected messages are read-only. Some actions (like Move or Remove) may not be available."
 }

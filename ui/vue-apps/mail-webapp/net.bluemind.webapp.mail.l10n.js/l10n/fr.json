@@ -95,7 +95,7 @@
     "alert.mail.send.loading": "Envoi de \"{subject}\" en cours...",
     "mail.content.alert.images.blocked": "Les images distantes sont bloquées pour protéger votre vie privée.",
     "mail.content.alert.images.show": "Afficher les images.",
-    "mail.content.alert.readonly": "Email en lecture seule. Certaines actions (comme Supprimer ou Déplacer) peuvent être indisponibles.",
+    "mail.content.alert.readonly": "Message en lecture seule. Certaines actions (comme Supprimer ou Déplacer) peuvent être indisponibles.",
     "alert.mail.multiple.markasread.loading": "Les messages sélectionnés sont en train d'être marqués comme lus...",
     "alert.mail.multiple.markasread.error": "Les messages sélectionnés n'ont pas pu être marqués comme lus, merci de recharger l'application.",
     "alert.mail.multiple.markasread.success": "Les messages sélectionnés ont bien été marqués comme lus.",
@@ -130,5 +130,6 @@
     "mail.compose.forward.prev.message.info.date": "Date",
     "mail.compose.forward.prev.message.info.from": "De",
     "mail.main.switch.webmail": "Essayer le nouveau webmail",
-    "mail.messages.multiple.drag_shadow": "La conversation séléctionnée | {count} conversations séléctionnées"
+    "mail.messages.multiple.drag_shadow": "La conversation séléctionnée | {count} conversations séléctionnées",
+    "mail.selection.alert.readonly": "Certains message sélectionnés sont en lecture seule. Certaines actions (comme Supprimer ou Déplacer) peuvent être indisponibles"
 }

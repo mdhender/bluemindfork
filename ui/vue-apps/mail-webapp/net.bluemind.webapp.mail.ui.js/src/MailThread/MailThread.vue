@@ -1,6 +1,6 @@
 <template>
     <div class="mail-thread bg-surface">
-        <mail-thread-alert
+        <mail-component-alert
             v-if="message && !areRemoteImagesUnblocked(message.key) && showBlockedImagesAlert"
             icon="exclamation-circle"
             @close="setShowBlockedImagesAlert(false)"
@@ -8,14 +8,14 @@
             {{ $t("mail.content.alert.images.blocked") }}
             &nbsp;
             <a href="#" @click.prevent="showImages()">{{ $t("mail.content.alert.images.show") }}</a>
-        </mail-thread-alert>
-        <mail-thread-alert
+        </mail-component-alert>
+        <mail-component-alert
             v-if="isReadOnlyFolder(folderUidOfCurrentMessage) && !isReadOnlyAlertDismissed"
             icon="info-circle-plain"
             @close="isReadOnlyAlertDismissed = true"
         >
             {{ $t("mail.content.alert.readonly") }}
-        </mail-thread-alert>
+        </mail-component-alert>
         <mail-message-new
             v-if="showComposer"
             :message="preparedAnswer"
@@ -34,17 +34,17 @@ import { mapGetters, mapMutations, mapState } from "vuex";
 import { computeSubject, previousMessageContent } from "../MessageBuilder";
 import { MimeType } from "@bluemind/email";
 import { ItemUri } from "@bluemind/item-uri";
+import MailComponentAlert from "../MailComponentAlert";
 import MailMessageContent from "../MailMessageContent";
 import MailMessageNew from "../MailMessageNew";
 import MailMessageNewModes from "../MailMessageNew/MailMessageNewModes";
-import MailThreadAlert from "./MailThreadAlert";
 
 export default {
     name: "MailThread",
     components: {
+        MailComponentAlert,
         MailMessageContent,
-        MailMessageNew,
-        MailThreadAlert
+        MailMessageNew
     },
     data() {
         return {
@@ -125,17 +125,21 @@ export default {
 
 .mail-thread {
     min-height: 100%;
-}
 
-.mail-thread .mail-message-new ~ .mail-message-content {
-    @media (max-width: map-get($grid-breakpoints, "lg")) {
-        display: none !important;
+    .mail-component-alert {
+        margin-bottom: $sp-1;
     }
-}
 
-.mail-thread .mail-message-new {
-    @media (min-width: map-get($grid-breakpoints, "lg")) {
-        height: auto !important;
+    .mail-message-new ~ .mail-message-content {
+        @media (max-width: map-get($grid-breakpoints, "lg")) {
+            display: none !important;
+        }
+    }
+
+    .mail-message-new {
+        @media (min-width: map-get($grid-breakpoints, "lg")) {
+            height: auto !important;
+        }
     }
 }
 </style>

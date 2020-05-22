@@ -13,7 +13,6 @@
             class="flex-fill"
             :class="folder.unread > 0 ? 'font-weight-bold' : ''"
         />
-        <mail-folder-item-menu :folder="folder" @edit="toggleEditFolder(folder.uid)" />
         <div
             v-if="!folder.writable"
             v-bm-tooltip.top.viewport.ds500
@@ -22,6 +21,7 @@
         >
             <bm-icon icon="info-circle" />
         </div>
+        <mail-folder-item-menu :folder="folder" @edit="toggleEditFolder(folder.uid)" />
         <bm-counter-badge
             v-if="folder.unread > 0"
             :value="folder.unread"
