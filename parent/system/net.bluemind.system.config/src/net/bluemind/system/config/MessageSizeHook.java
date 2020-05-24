@@ -42,16 +42,13 @@ public class MessageSizeHook implements ISystemConfigurationObserver, ISystemCon
 		MessageSizeValue messageSizeLimit = MessageSizeValue.getMessageSizeLimit(SysConfKeys.message_size_limit.name(),
 				previous, conf);
 
-		MessageSizeValue dataSizeLimit = MessageSizeValue
-				.getMessageSizeLimit(GlobalSettingsKeys.filehosting_max_filesize.name(), previous, conf);
-
-		if (valueNotChanged(messageSizeLimit) && valueNotChanged(dataSizeLimit)) {
+		if (valueNotChanged(messageSizeLimit)) {
 			logger.debug("Message size limit has not changed or is not set");
 			return;
 		}
 		logger.info("Message size limit has changed to {}", messageSizeLimit.newValue);
 
-		new NginxService().updateMessageSize(messageSizeLimit.newValue, dataSizeLimit.newValue);
+		new NginxService().updateMessageSize(messageSizeLimit.newValue);
 	}
 
 	private boolean valueNotChanged(MessageSizeValue messageSizeLimit) {

@@ -18,10 +18,11 @@
  */
 package net.bluemind.system.nginx;
 
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.node.api.INodeClient;
 
 public interface INginxConfigUpdater {
+	public void updateMessageSize(INodeClient nc, long size) throws ServerFault;
 
-	public void update(INodeClient nc, NginxConfig config) throws Exception;
-
+	public void updateFilehostingSize(INodeClient nc, long size) throws ServerFault;
 }

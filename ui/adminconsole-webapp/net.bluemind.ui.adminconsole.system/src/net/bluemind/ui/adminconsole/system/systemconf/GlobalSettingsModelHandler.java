@@ -30,6 +30,7 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtModelHandler;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtModelHandler;
 import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
+import net.bluemind.gwtconsoleapp.base.notification.Notification;
 import net.bluemind.system.api.gwt.endpoint.GlobalSettingsGwtEndpoint;
 import net.bluemind.ui.adminconsole.system.SettingsModel;
 import net.bluemind.ui.common.client.forms.Ajax;
@@ -75,13 +76,12 @@ public class GlobalSettingsModelHandler implements IGwtModelHandler {
 			settings.put(k, globalSettingsModel.getValue(k));
 		}
 
-		GlobalSettingsGwtEndpoint settingsService = new GlobalSettingsGwtEndpoint(Ajax.TOKEN.getSessionId());
-		settingsService.set(settings, new DefaultAsyncHandler<Void>() {
-
-			@Override
-			public void success(Void value) {
-				handler.success(null);
-			}
+		new GlobalSettingsGwtEndpoint(Ajax.TOKEN.getSessionId()).promiseApi().set(settings).thenAccept(v -> {
+			Notification.get().reportInfo("Global settings configuration saved");
+			handler.success(null);
+		}).exceptionally(e -> {
+			handler.failure(e);
+			return null;
 		});
 
 	}

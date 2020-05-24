@@ -32,7 +32,6 @@ import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.node.api.ExitList;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NCUtils;
-import net.bluemind.system.nginx.AbstractConfFile;
 
 public class RemoveForgottenParts extends AbstractConfFile {
 	private static final Logger logger = LoggerFactory.getLogger(RemoveForgottenParts.class);

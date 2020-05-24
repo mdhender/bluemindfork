@@ -47,7 +47,6 @@ import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.Server;
-import net.bluemind.system.nginx.NginxConfig.NginxConfigBuilder;
 import net.bluemind.tag.api.TagDescriptor;
 
 public class NginxService {
@@ -105,31 +104,41 @@ public class NginxService {
 		NCUtils.forget(nc, "service bm-nginx reload");
 	}
 
-	public void updateMessageSize(long messageSizeLimit, long dataSizeLimit) {
-		List<INginxConfigUpdater> updaters = searchUpdaters();
+	public void updateFileHostingMaxSize(long fileHostingMaxSize) {
+		doUpdate(fileHostingMaxSize,
+				Sets.newHashSet(TagDescriptor.bm_nginx.getTag(), TagDescriptor.bm_nginx_edge.getTag()),
+				(updater, nc, size) -> updater.updateFilehostingSize(nc, size));
+	}
 
+	public void updateMessageSize(long messageSizeLimit) {
+		doUpdate(messageSizeLimit,
+				Sets.newHashSet(TagDescriptor.bm_nginx.getTag(), TagDescriptor.bm_nginx_edge.getTag()),
+				(updater, nc, size) -> updater.updateMessageSize(nc, size));
+	}
+
+	private interface NginxConfigUpdater {
+		void run(INginxConfigUpdater updater, INodeClient nc, long size) throws ServerFault;
+	}
+
+	private void doUpdate(long fileHostingMaxSize, Set<String> tags, NginxConfigUpdater nginxUpdater) {
+		List<ItemValue<Server>> taggedServers = getTaggedServers(tags);
+
+		List<INginxConfigUpdater> updaters = searchUpdaters();
 		logger.info("Found {} nginx config updaters", updaters.size());
 
-		List<ItemValue<Server>> webmailNginxServers = getTaggedServers(
-				Sets.newHashSet(TagDescriptor.bm_webmail.getTag(), TagDescriptor.bm_nginx.getTag(),
-						TagDescriptor.bm_nginx_edge.getTag()));
-
-		NginxConfig config = NginxConfigBuilder.init("messageSizeLimit", Long.toString(messageSizeLimit)) //
-				.add("dataSizeLimit", Long.toString(dataSizeLimit)).build();
-
-		logger.info("Distributing new settings to {} servers", webmailNginxServers.size());
-		for (ItemValue<Server> webmailNginxServer : webmailNginxServers) {
-			logger.info("Distributing new settings to {}:{}", webmailNginxServer.value.name,
-					webmailNginxServer.value.ip);
-			INodeClient nc = NodeActivator.get(webmailNginxServer.value.address());
+		logger.info("Distributing new settings to {} servers", taggedServers.size());
+		for (ItemValue<Server> taggedServer : taggedServers) {
+			logger.info("Distributing new settings to {}:{}", taggedServer.value.name,
+					taggedServer.value.ip);
+			INodeClient nc = NodeActivator.get(taggedServer.value.address());
 
 			for (INginxConfigUpdater updater : updaters) {
 				try {
-					updater.update(nc, config);
-				} catch (Exception e) {
-					logger.warn("Cannot update nginx config on server {}:{}", webmailNginxServer.value.address(),
-							e.getMessage());
-					throw new ServerFault(e);
+					nginxUpdater.run(updater, nc, fileHostingMaxSize);
+				} catch (ServerFault sf) {
+					logger.warn("Cannot update nginx config on server {}:{}", taggedServer.value.address(),
+							sf.getMessage());
+					throw sf;
 				}
 			}
 

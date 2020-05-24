@@ -7,18 +7,13 @@ Bundle-Vendor: blue-mind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
- org.freemarker.freemarker;bundle-version="2.3.20",
- net.bluemind.node.api,
- net.bluemind.core.commons,
  net.bluemind.system.api,
  net.bluemind.system.hook,
  net.bluemind.core.rest,
- net.bluemind.core.container.persistence,
- net.bluemind.server.api,
  net.bluemind.tag.api,
  net.bluemind.eclipse.common,
- net.bluemind.server.hook,
  net.bluemind.network.topology,
  net.bluemind.system.nginx,
- net.bluemind.domain.api
+ net.bluemind.domain.api,
+ com.google.guava
 Export-Package: net.bluemind.system.config

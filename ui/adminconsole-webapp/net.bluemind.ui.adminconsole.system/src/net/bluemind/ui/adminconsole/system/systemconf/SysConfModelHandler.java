@@ -71,8 +71,6 @@ public class SysConfModelHandler implements IGwtModelHandler {
 
 	@Override
 	public void save(JavaScriptObject model, final AsyncHandler<Void> handler) {
-		SystemConfigurationGwtEndpoint config = new SystemConfigurationGwtEndpoint(Ajax.TOKEN.getSessionId());
-
 		SysConfModel sysConfModel = SysConfModel.from(model);
 
 		HashMap<String, String> values = new HashMap<>();
@@ -85,14 +83,14 @@ public class SysConfModelHandler implements IGwtModelHandler {
 			Notification.get().reportError("SW password cannot be empty");
 			handler.success(null);
 		} else {
-			config.updateMutableValues(values, new DefaultAsyncHandler<Void>(handler) {
-
-				@Override
-				public void success(Void value) {
-					Notification.get().reportInfo("Saved system configuration");
-					handler.success(null);
-				}
-			});
+			new SystemConfigurationGwtEndpoint(Ajax.TOKEN.getSessionId()).promiseApi().updateMutableValues(values)
+					.thenAccept(v -> {
+						Notification.get().reportInfo("System configuration saved");
+						handler.success(null);
+					}).exceptionally(e -> {
+						handler.failure(e);
+						return null;
+					});
 		}
 	}
 

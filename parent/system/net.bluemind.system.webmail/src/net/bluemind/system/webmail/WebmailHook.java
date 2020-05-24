@@ -32,7 +32,6 @@ import net.bluemind.server.hook.DefaultServerHook;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.config.MessageSizeValue;
-import net.bluemind.system.nginx.NginxConfig.NginxConfigBuilder;
 import net.bluemind.tag.api.TagDescriptor;
 
 public class WebmailHook extends DefaultServerHook {
@@ -77,8 +76,7 @@ public class WebmailHook extends DefaultServerHook {
 		}
 
 		try {
-			new WebmailConfigUpdater().update(nc,
-					NginxConfigBuilder.init("messageSizeLimit", "" + messageSizeLimit.newValue).build());
+			new WebmailConfigUpdater().updateMessageSize(nc, messageSizeLimit.newValue);
 		} catch (Exception e) {
 			throw new ServerFault(e);
 		}

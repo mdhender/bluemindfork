@@ -67,5 +67,17 @@
             implementation="net.bluemind.filehosting.config.FileHostingSettingsValidator$FileHostingSettingsValidatorFactory">
       </validatorfactory>
    </extension>
+   <extension
+         point="net.bluemind.core.validatorfactory">
+      <validatorfactory
+            implementation="net.bluemind.filehosting.config.FileHostingGlobalSettingsHook$FileHostingGlobalSettingsValidatorFactory">
+      </validatorfactory>
+   </extension>
+   <extension
+         point="net.bluemind.globalsettings.hook">
+      <observer
+            class="net.bluemind.filehosting.config.FileHostingGlobalSettingsHook">
+      </observer>
+   </extension>
 
 </plugin>

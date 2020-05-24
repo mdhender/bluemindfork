@@ -19,41 +19,56 @@
 package net.bluemind.system.service.internal;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.validator.Validator;
 import net.bluemind.domain.service.internal.DomainSettingsCache;
+import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.globalsettings.persistence.GlobalSettingsStore;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Topic;
+import net.bluemind.system.api.GlobalSettings;
 import net.bluemind.system.api.IGlobalSettings;
+import net.bluemind.system.service.IGlobalSettingsObserver;
 
 public class GlobalSettingsService implements IGlobalSettings {
-
+	private final BmContext context;
 	private final GlobalSettingsStore store;
 	private final DomainSettingsCache domCache;
-	private final GlobalSettingsValidator validator = new GlobalSettingsValidator();
+	private final Validator validator;
+	private List<IGlobalSettingsObserver> observers;
 
 	public GlobalSettingsService(BmContext context) {
+		this.context = context;
 		store = new GlobalSettingsStore(context.getDataSource());
 		domCache = DomainSettingsCache.get(context);
+
+		validator = new Validator(context);
+
+		RunnableExtensionLoader<IGlobalSettingsObserver> observerLoader = new RunnableExtensionLoader<IGlobalSettingsObserver>();
+		observers = observerLoader.loadExtensions("net.bluemind.globalsettings", "hook", "observer", "class");
 	}
 
 	@Override
 	public void set(Map<String, String> settings) throws ServerFault {
+		GlobalSettings updates = GlobalSettings.build(settings);
+		GlobalSettings current = GlobalSettings.build(get());
+
+		validator.update(current, updates);
+
 		try {
-			validator.check(settings);
-			Map<String, String> merged = get();
-			merged.putAll(settings);
-			store.set(merged);
-			domCache.invalidateAll();
-
-			MQ.getProducer(Topic.GLOBAL_SETTINGS_NOTIFICATIONS).send(MQ.newMessage());
-
+			store.set(current.update(updates.settings).settings);
 		} catch (SQLException e) {
 			throw new ServerFault(e);
 		}
+		domCache.invalidateAll();
+
+		MQ.getProducer(Topic.GLOBAL_SETTINGS_NOTIFICATIONS).send(MQ.newMessage());
+
+		observers.forEach(observer -> observer.onUpdated(context, current, updates));
 	}
 
 	@Override
@@ -67,14 +82,16 @@ public class GlobalSettingsService implements IGlobalSettings {
 
 	@Override
 	public void delete(String key) throws ServerFault {
-		Map<String, String> values = get();
-		values.remove(key);
+		GlobalSettings current = GlobalSettings.build(get());
+
 		try {
-			store.set(values);
-			MQ.getProducer(Topic.GLOBAL_SETTINGS_NOTIFICATIONS).send(MQ.newMessage());
+			store.set(current.remove(key).settings);
 		} catch (SQLException e) {
 			throw new ServerFault(e);
 		}
-	}
 
+		MQ.getProducer(Topic.GLOBAL_SETTINGS_NOTIFICATIONS).send(MQ.newMessage());
+
+		observers.forEach(observer -> observer.onDeleted(context, current, key));
+	}
 }

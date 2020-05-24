@@ -16,22 +16,14 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.filehosting.config;
+package net.bluemind.system.service;
 
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.node.api.INodeClient;
-import net.bluemind.system.nginx.INginxConfigUpdater;
+import net.bluemind.core.rest.BmContext;
+import net.bluemind.system.api.GlobalSettings;
 
-public class FileHostingConfigUpdater implements INginxConfigUpdater {
-	@Override
-	public void updateFilehostingSize(INodeClient nc, long size) throws ServerFault {
-		NginxFileHostingConf conf = new NginxFileHostingConf(nc);
-		conf.setMessageSizeLimit(size);
-		conf.write();
-	}
+public interface IGlobalSettingsObserver {
+	public void onUpdated(BmContext context, GlobalSettings previous, GlobalSettings updated) throws ServerFault;
 
-	@Override
-	public void updateMessageSize(INodeClient nc, long size) throws ServerFault {
-		// Nothing to do
-	}
+	public void onDeleted(BmContext context, GlobalSettings previous, String key) throws ServerFault;
 }
