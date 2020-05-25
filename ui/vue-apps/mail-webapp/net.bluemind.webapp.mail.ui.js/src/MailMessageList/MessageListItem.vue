@@ -261,23 +261,22 @@ export default {
     }
 }
 
-.message-list-item .bm-avatar {
-    width: 1.3rem !important;
-    height: 1.3rem !important;
-}
-
 .message-list-item.muted > div {
     opacity: 0.55;
 }
 
 .message-list-item .selector {
     min-width: $sp-2 + 1.3rem;
-}
+    min-height: 21px;
 
-.message-list-item .selector .bm-check {
-    min-height: 1.3rem;
-    min-width: $sp-2 + 1.3rem;
-    margin-left: 0.3rem;
+    .bm-check {
+        margin-left: 0.3rem;
+    }
+
+    .bm-avatar {
+        width: 1.3rem !important;
+        height: 1.3rem !important;
+    }
 }
 
 .message-list-item-full {
