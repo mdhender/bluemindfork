@@ -29,7 +29,8 @@ export default [
                 path: ".t/:message",
                 component: MailThread,
                 meta: {
-                    onUpdate: (store, to) => store.dispatch("mail-webapp/selectMessage", to.params.message)
+                    onUpdate: (store, to) => store.dispatch("mail-webapp/selectMessage", to.params.message),
+                    onLeave: store => store.commit("mail-webapp/currentMessage/clear")
                 },
                 children: [
                     {
