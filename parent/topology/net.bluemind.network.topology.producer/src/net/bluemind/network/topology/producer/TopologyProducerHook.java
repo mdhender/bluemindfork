@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.config.InstallationId;
-import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
@@ -76,9 +75,7 @@ public class TopologyProducerHook extends DefaultServerHook {
 
 	private synchronized void queueUpdate(IServiceProvider sp) {
 		timerId.ifPresent(vertx::cancelTimer);
-		timerId = Optional.of(vertx.setTimer(500, tid -> {
-			doUpdate(sp);
-		}));
+		timerId = Optional.of(vertx.setTimer(50, tid -> doUpdate(sp)));
 	}
 
 	private void doUpdate(IServiceProvider sp) {
@@ -96,17 +93,17 @@ public class TopologyProducerHook extends DefaultServerHook {
 	}
 
 	@Override
-	public void onServerCreated(BmContext context, ItemValue<Server> item) throws ServerFault {
+	public void onServerCreated(BmContext context, ItemValue<Server> item) {
 		queueUpdate(context.provider());
 	}
 
 	@Override
-	public void onServerUpdated(BmContext context, ItemValue<Server> previousValue, Server value) throws ServerFault {
+	public void onServerUpdated(BmContext context, ItemValue<Server> previousValue, Server value) {
 		queueUpdate(context.provider());
 	}
 
 	@Override
-	public void onServerDeleted(BmContext context, ItemValue<Server> itemValue) throws ServerFault {
+	public void onServerDeleted(BmContext context, ItemValue<Server> itemValue) {
 		queueUpdate(context.provider());
 	}
 

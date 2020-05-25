@@ -32,35 +32,43 @@ import org.osgi.framework.Version;
 
 import com.google.common.base.Splitter;
 
+import net.bluemind.hornetq.client.MQ;
+import net.bluemind.network.topology.Topology;
+import net.bluemind.network.topology.consumer.ConsumerStart;
+
 public class CLIEntryPoint implements IApplication {
 
 	@Override
 	public Object start(IApplicationContext context) throws Exception {
-		try {
-			AnsiConsole.systemInstall();
-			Version version = context.getBrandingBundle().getVersion();
+		return MQ.init().thenApply(v -> {
+			new ConsumerStart().start();
+			Topology.get();
+			try {
+				AnsiConsole.systemInstall();
+				Version version = context.getBrandingBundle().getVersion();
 
-			String[] args = (String[]) context.getArguments().get(IApplicationContext.APPLICATION_ARGS);
-			if (args.length == 0) {
-				System.out.println(
-						Ansi.ansi().fgBrightBlue().a("Blue").fgBrightCyan().a("Mind").reset().a(" CLI " + version));
-			} else if (isCliScript(args)) {
-				Path script = Paths.get(args[0]);
-				CLIManager cm = new CLIManager(version);
-				try (Stream<String> linesStream = Files.lines(script)) {
-					linesStream.map(this::asArguments).forEach(cm::processArgs);
+				String[] args = (String[]) context.getArguments().get(IApplicationContext.APPLICATION_ARGS);
+				if (args.length == 0) {
+					System.out.println(
+							Ansi.ansi().fgBrightBlue().a("Blue").fgBrightCyan().a("Mind").reset().a(" CLI " + version));
+				} else if (isCliScript(args)) {
+					Path script = Paths.get(args[0]);
+					CLIManager cm = new CLIManager(version);
+					try (Stream<String> linesStream = Files.lines(script)) {
+						linesStream.map(this::asArguments).forEach(cm::processArgs);
+					}
+				} else {
+					CLIManager cm = new CLIManager(version);
+					cm.processArgs(args);
 				}
-			} else {
-				CLIManager cm = new CLIManager(version);
-				cm.processArgs(args);
+			} catch (Exception e) {
+				System.err.println(Ansi.ansi().fg(Color.RED).a(e.getMessage()).reset());
+				e.printStackTrace();
+			} finally {
+				AnsiConsole.systemUninstall();
 			}
-		} catch (Exception e) {
-			System.err.println(Ansi.ansi().fg(Color.RED).a(e.getMessage()).reset());
-			e.printStackTrace();
-		} finally {
-			AnsiConsole.systemUninstall();
-		}
-		return IApplication.EXIT_OK;
+			return IApplication.EXIT_OK;
+		}).join();
 	}
 
 	private boolean isCliScript(String[] args) {
