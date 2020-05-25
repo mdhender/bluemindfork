@@ -4,7 +4,7 @@ export function isDefaultFolder(folder) {
     return defaultFolders.includes(folder.fullName);
 }
 
-const FORBIDDEN_FOLDER_CHARACTERS = "/@%*";
+const FORBIDDEN_FOLDER_CHARACTERS = '/@%*"`;^<>{}|';
 
 /**
  * return invalid character if name is invalid
@@ -16,6 +16,18 @@ export function isFolderNameValid(name) {
         }
     }
     return true;
+}
+
+const FOLDER_PATH_MAX_LENGTH = 250;
+
+export function isFolderPathTooLong(oldFolder, newName) {
+    let pathToCheck;
+    if (oldFolder && oldFolder.fullName.includes("/")) {
+        pathToCheck = oldFolder.fullName.substring(0, oldFolder.fullName.lastIndexOf("/") + 1) + newName;
+    } else {
+        pathToCheck = newName;
+    }
+    return pathToCheck.length > FOLDER_PATH_MAX_LENGTH ? true : false;
 }
 
 export default class Folder {

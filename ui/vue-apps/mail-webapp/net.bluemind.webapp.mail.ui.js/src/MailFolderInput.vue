@@ -24,7 +24,7 @@
 
 <script>
 import { BmFormInput, BmIcon, BmNotice } from "@bluemind/styleguide";
-import { isFolderNameValid } from "@bluemind/backend.mail.store";
+import { isFolderNameValid, isFolderPathTooLong } from "@bluemind/backend.mail.store";
 import { mapGetters, mapState } from "vuex";
 import ItemUri from "@bluemind/item-uri";
 
@@ -69,9 +69,13 @@ export default {
             if (this.newFolderName !== "") {
                 const currentMailbox = (this.folder && ItemUri.container(this.folder.key)) || this.my.mailboxUid;
 
+                if (isFolderPathTooLong(this.folder, this.newFolderName)) {
+                    return this.$t("mail.actions.folder.invalid.too_long");
+                }
+
                 const checkValidity = isFolderNameValid(this.newFolderName.toLowerCase());
                 if (checkValidity !== true) {
-                    return this.$t("mail.actions.create.folder.invalid.character", {
+                    return this.$t("mail.actions.folder.invalid.character", {
                         character: checkValidity
                     });
                 }
@@ -88,7 +92,7 @@ export default {
                     path = this.newFolderName;
                 }
                 if (this.getFolderByPath(path, currentMailbox)) {
-                    return this.$t("mail.actions.create.folder.invalid.already_exist");
+                    return this.$t("mail.actions.folder.invalid.already_exist");
                 }
             }
             return true;
