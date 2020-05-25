@@ -26,7 +26,8 @@ Require-Bundle: net.bluemind.hsm.storage,
  net.bluemind.pool,
  net.bluemind.backend.mail.replica.indexing,
  net.bluemind.backend.cyrus.partitions,
- net.bluemind.backend.mail.api
+ net.bluemind.backend.mail.api,
+ net.bluemind.system.api
 Export-Package: net.bluemind.hsm.processor,
  net.bluemind.hsm.processor.commands
 Automatic-Module-Name: net.bluemind.hsm.processor

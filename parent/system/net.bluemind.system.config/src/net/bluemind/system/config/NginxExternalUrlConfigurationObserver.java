@@ -19,8 +19,9 @@
 package net.bluemind.system.config;
 
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,10 +32,10 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
-import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
@@ -47,11 +48,10 @@ public class NginxExternalUrlConfigurationObserver implements ISystemConfigurati
 
 	@Override
 	public void onUpdated(BmContext context, SystemConf previous, SystemConf conf) throws ServerFault {
-		if ((previous.stringValue("external-url") != null
-				&& !previous.stringValue("external-url").equals(conf.stringValue("external-url")))
-				|| (previous.stringValue("external-url") == null && conf.stringValue("external-url") != null)) {
-			String eu = conf.stringValue("external-url");
-			logger.info("System configuration has been updated, external-url changed to {}", eu);
+		String eu = conf.stringValue(SysConfKeys.external_url.name());
+		if ((eu != null && !eu.equals(previous.values.get(SysConfKeys.default_domain.name())))
+				|| (eu == null && !Strings.isNullOrEmpty(previous.values.get(SysConfKeys.default_domain.name())))) {
+			logger.info("System configuration has been updated, {} changed to {}", SysConfKeys.external_url.name(), eu);
 			updateExternalUrl(context.su(), eu);
 		}
 
@@ -59,14 +59,14 @@ public class NginxExternalUrlConfigurationObserver implements ISystemConfigurati
 		if ((defaultDomain != null && !defaultDomain.equals(previous.values.get(SysConfKeys.default_domain.name())))
 				|| (defaultDomain == null
 						&& !Strings.isNullOrEmpty(previous.values.get(SysConfKeys.default_domain.name())))) {
-			logger.info("Reload NGinx authentication handler");
+			logger.info("System configuration has been updated, default_domain changed to {}", defaultDomain);
 			VertxPlatform.eventBus().publish("bm.defaultdomain.changed", (Object) null);
 		}
 	}
 
 	private void updateExternalUrl(BmContext context, String eu) {
-		List<ItemValue<Server>> webservers = getTaggedServers(context, TagDescriptor.bm_nginx.getTag(),
-				TagDescriptor.bm_nginx_edge.getTag());
+		List<ItemValue<Server>> webservers = getTaggedServers(context,
+				Arrays.asList(TagDescriptor.bm_nginx.getTag(), TagDescriptor.bm_nginx_edge.getTag()));
 
 		byte[] serverName = NginxService.serverNameContent(eu);
 		byte[] conf = NginxService.externalUrlContent(eu);
@@ -87,19 +87,9 @@ public class NginxExternalUrlConfigurationObserver implements ISystemConfigurati
 		NCUtils.forget(nc, "service bm-nginx reload");
 	}
 
-	List<ItemValue<Server>> getTaggedServers(BmContext context, String... tag) throws ServerFault {
-		IServer serverService = context.provider().instance(IServer.class, "default");
-
-		List<ItemValue<Server>> all = serverService.allComplete();
-		List<ItemValue<Server>> ret = new ArrayList<>();
-		for (ItemValue<Server> server : all) {
-			for (int i = 0; i < tag.length; i++) {
-				if (server.value.tags.contains(tag[i])) {
-					ret.add(server);
-				}
-			}
-		}
-		return ret;
+	List<ItemValue<Server>> getTaggedServers(BmContext context, List<String> tags) throws ServerFault {
+		return Topology.get().nodes().stream().filter(node -> node.value.tags.stream().anyMatch(t -> tags.contains(t)))
+				.collect(Collectors.toList());
 	}
 
 }

@@ -20,6 +20,16 @@ package net.bluemind.system.api;
 
 public enum SysConfKeys {
 	/**
+	 * external URL
+	 */
+	external_url,
+
+	/**
+	 * external protocol
+	 */
+	external_protocol,
+
+	/**
 	 * default domain key
 	 */
 	default_domain,

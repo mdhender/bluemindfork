@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -40,23 +41,24 @@ import com.google.common.io.ByteStreams;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerRequest;
-import net.bluemind.utils.IniFile;
+import net.bluemind.hornetq.client.MQ;
+import net.bluemind.system.api.SysConfKeys;
 
 public class TBirdDownloadHandler implements Handler<HttpServerRequest> {
-	static final Logger logger = LoggerFactory.getLogger(TBirdDownloadHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(TBirdDownloadHandler.class);
+
+	public static String getExternalUrl() {
+		String externalUrl = Optional
+				.ofNullable(MQ.<String, String>sharedMap("system.configuration").get(SysConfKeys.external_url.name()))
+				.orElse("configure.your.external.url");
+
+		return externalUrl.trim();
+	}
 
 	@Override
 	public void handle(HttpServerRequest request) {
-		IniFile ini = new IniFile("/etc/bm/bm.ini") {
+		String externalUrl = getExternalUrl();
 
-			@Override
-			public String getCategory() {
-				return "bm";
-			}
-
-		};
-
-		String externalUrl = ini.getProperty("external-url");
 		StringBuilder sb = new StringBuilder(40);
 		sb.append("https://");
 		sb.append(externalUrl);
@@ -76,7 +78,6 @@ public class TBirdDownloadHandler implements Handler<HttpServerRequest> {
 			request.response().setStatusCode(500);
 			request.response().end("error during generating file " + e.getMessage());
 		}
-
 	}
 
 	private Buffer repack(String serverUrl) throws IOException {
@@ -136,7 +137,6 @@ public class TBirdDownloadHandler implements Handler<HttpServerRequest> {
 			} else {
 				prefJs += line + "\r\n";
 			}
-
 		}
 
 		ByteStreams.copy(new ByteArrayInputStream(prefJs.getBytes()), zout);
@@ -183,5 +183,4 @@ public class TBirdDownloadHandler implements Handler<HttpServerRequest> {
 
 		ByteStreams.copy(new ByteArrayInputStream(manifestContent.getBytes()), zout);
 	}
-
 }

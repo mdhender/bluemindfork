@@ -32,6 +32,7 @@ import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.Server;
 import net.bluemind.server.hook.DefaultServerHook;
 import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.tag.api.TagDescriptor;
 
 public class NginxExternalUrlConfigurationOnServerTagged extends DefaultServerHook {
@@ -51,7 +52,7 @@ public class NginxExternalUrlConfigurationOnServerTagged extends DefaultServerHo
 
 		logger.info("Server tagged as {}, deploy external url", tag);
 		String url = context.su().provider().instance(ISystemConfiguration.class).getValues()
-				.stringValue("external-url");
+				.stringValue(SysConfKeys.external_url.name());
 		if (url != null) {
 			INodeClient nc = NodeActivator.get(itemValue.value.address());
 

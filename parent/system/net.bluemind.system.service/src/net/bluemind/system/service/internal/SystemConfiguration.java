@@ -21,10 +21,9 @@ package net.bluemind.system.service.internal;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,11 +69,8 @@ public class SystemConfiguration implements ISystemConfiguration {
 			logger.warn("/etc/bm/bm.ini not found");
 		}
 
-		Map<String, String> values = new HashMap<>();
-
-		for (Entry<Object, Object> entry : props.entrySet()) {
-			values.put((String) entry.getKey(), (String) entry.getValue());
-		}
+		Map<String, String> values = props.entrySet().stream()
+				.collect(Collectors.toMap(entry -> (String) entry.getKey(), entry -> (String) entry.getValue()));
 
 		try {
 			values.putAll(systemConfStore.get());

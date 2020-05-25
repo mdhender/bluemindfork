@@ -32,6 +32,7 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.node.client.AHCNodeClientFactory;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 import net.bluemind.system.hook.ISystemConfigurationObserver;
@@ -154,13 +155,17 @@ public class KrbAuthConfigChangeHandler implements ISystemConfigurationObserver 
 		return sb.toString();
 	}
 
-	private String buildJaasFile(String bmExternalUrl, String adDomain) {
+	private String buildJaasFile(String adDomain) {
+		String externalUrl = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ISystemConfiguration.class).getValues().values.getOrDefault(SysConfKeys.external_url.name(),
+						"configure.your.external.url");
+
 		StringBuilder sb = new StringBuilder();
 
 		sb.append("ServicePrincipalLoginContext {\n");
 		sb.append("    com.sun.security.auth.module.Krb5LoginModule required\n");
 		sb.append("    doNotPrompt=true\n");
-		sb.append("    principal=\"HTTP/" + bmExternalUrl.toLowerCase() + "@" + adDomain.toUpperCase() + "\"\n");
+		sb.append("    principal=\"HTTP/" + externalUrl.toLowerCase() + "@" + adDomain.toUpperCase() + "\"\n");
 		sb.append("    useKeyTab=true\n");
 		sb.append("    keyTab=\"/etc/bm-hps/hps.keytab\"\n");
 		sb.append("    storeKey=true\n");
@@ -183,18 +188,9 @@ public class KrbAuthConfigChangeHandler implements ISystemConfigurationObserver 
 
 	private void updateKerberosParameters(Server server, String adDomain, String adIp, String bmDomain, byte[] keytab)
 			throws ServerFault {
-		// Read external-url for "jaas.conf" file
-		String bmIni = hpsHelper.nodeRead(server, "/etc/bm/bm.ini");
-		String bmExternalUrl = "";
-		for (String line : bmIni.split("\n")) {
-			if (line.startsWith("external-url")) {
-				bmExternalUrl = line.replaceAll("^.*?=", "").trim();
-			}
-		}
-
 		hpsHelper.nodeWrite(server, "/etc/bm-hps/hps.keytab", keytab);
 		// Write "jaas.conf" file
-		hpsHelper.nodeWrite(server, "/etc/bm-hps/jaas.conf", buildJaasFile(bmExternalUrl, adDomain));
+		hpsHelper.nodeWrite(server, "/etc/bm-hps/jaas.conf", buildJaasFile(adDomain));
 
 		// Read local/bm-hps.ini
 		String localHps = hpsHelper.nodeRead(server, "/etc/bm/local/bm-hps.ini");

@@ -66,9 +66,11 @@ public class CasAuthEnforcer implements IAuthEnforcer, NeedVertx {
 				.orElse(null);
 
 		callbackURL = () -> Optional.ofNullable(sysconf.get())
-				.map(sm -> !Strings.isNullOrEmpty(sm.get("external-url")) ? String.format("%s://%s",
-						!Strings.isNullOrEmpty(sm.get("external-protocol")) ? sm.get("external-protocol") : "https",
-						sm.get("external-url")) : null)
+				.map(sm -> !Strings.isNullOrEmpty(sm.get(SysConfKeys.external_url.name())) ? String.format("%s://%s",
+						!Strings.isNullOrEmpty(sm.get(SysConfKeys.external_protocol.name()))
+								? sm.get(SysConfKeys.external_protocol.name())
+								: "https",
+						sm.get(SysConfKeys.external_url.name())) : null)
 				.orElse(null);
 
 		Supplier<Boolean> casAuthType = () -> Optional.ofNullable(sysconf.get())

@@ -63,7 +63,9 @@ import net.bluemind.locator.client.LocatorClient;
 import net.bluemind.node.api.FileDescription;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
-import net.bluemind.pool.impl.BmConfIni;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.system.api.SystemConf;
 
 public class FileSystemFileHostingService implements IFileHostingService {
 	private static final Logger logger = LoggerFactory.getLogger(FileSystemFileHostingService.class);
@@ -205,8 +207,10 @@ public class FileSystemFileHostingService implements IFileHostingService {
 	}
 
 	private String getServerAddress() {
-		BmConfIni ini = new BmConfIni();
-		return "https://" + ini.get("external-url");
+		SystemConf sysconf = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ISystemConfiguration.class).getValues();
+		return String.format("%s://%s", sysconf.values.getOrDefault(SysConfKeys.external_protocol.name(), "https"),
+				sysconf.values.getOrDefault(SysConfKeys.external_url.name(), "configure.your.external.url"));
 	}
 
 	@Override

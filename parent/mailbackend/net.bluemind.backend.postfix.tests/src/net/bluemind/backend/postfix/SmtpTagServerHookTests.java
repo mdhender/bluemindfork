@@ -82,7 +82,7 @@ public class SmtpTagServerHookTests extends HooksTests {
 
 	@Test
 	public void testOnServerTagged() throws ServerFault, SQLException, IOException {
-		initBasicConfiguration("external-url", "smtp.bm.lan");
+		initBasicConfiguration(SysConfKeys.external_url.name(), "smtp.bm.lan");
 		initBasicConfiguration("mynetworks", "127.0.0.1/8, 10.0.0.0/16");
 		initBasicConfiguration("message_size_limit", "10000");
 
@@ -164,26 +164,26 @@ public class SmtpTagServerHookTests extends HooksTests {
 			fail("Test must thrown an exception");
 		} catch (ServerFault sf) {
 			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
-			assertTrue(sf.getMessage().contains("external-url"));
+			assertTrue(sf.getMessage().contains(SysConfKeys.external_url.name()));
 		}
 	}
 
 	@Test
 	public void testOnServerTaggedEmptyExternalUrl() throws ServerFault, SQLException {
-		initBasicConfiguration("external-url", "");
+		initBasicConfiguration(SysConfKeys.external_url.name(), "");
 
 		try {
 			new SmtpTagServerHook().onServerTagged(testContext, getServer(), getTestTag());
 			fail("Test must thrown an exception");
 		} catch (ServerFault sf) {
 			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
-			assertTrue(sf.getMessage().contains("external-url"));
+			assertTrue(sf.getMessage().contains(SysConfKeys.external_url.name()));
 		}
 	}
 
 	@Test
 	public void testOnServerTaggedInvalidMyNetworks() throws ServerFault, SQLException {
-		initBasicConfiguration("external-url", "test.bm.lam");
+		initBasicConfiguration(SysConfKeys.external_url.name(), "test.bm.lam");
 
 		try {
 			new SmtpTagServerHook().onServerTagged(testContext, getServer(), getTestTag());
@@ -196,7 +196,7 @@ public class SmtpTagServerHookTests extends HooksTests {
 
 	@Test
 	public void testOnServerTaggedEmptyMyNetworks() throws ServerFault, SQLException {
-		initBasicConfiguration("external-url", "test.bm.lam");
+		initBasicConfiguration(SysConfKeys.external_url.name(), "test.bm.lam");
 		initBasicConfiguration("mynetworks", "");
 
 		try {
@@ -210,7 +210,7 @@ public class SmtpTagServerHookTests extends HooksTests {
 
 	@Test
 	public void testOnServerTaggedNullStringMyNetworks() throws ServerFault, SQLException {
-		initBasicConfiguration("external-url", "test.bm.lam");
+		initBasicConfiguration(SysConfKeys.external_url.name(), "test.bm.lam");
 		initBasicConfiguration("mynetworks", "null");
 
 		try {
@@ -224,7 +224,7 @@ public class SmtpTagServerHookTests extends HooksTests {
 
 	@Test
 	public void testOnServerTaggedInvalidMessageSizeLimitShouldUseDefaultValue() throws Exception {
-		initBasicConfiguration("external-url", "test.bm.lam");
+		initBasicConfiguration(SysConfKeys.external_url.name(), "test.bm.lam");
 		initBasicConfiguration("mynetworks", "127.0.0.1/8");
 
 		new SmtpTagServerHook().onServerTagged(testContext, getServer(), getTestTag());
@@ -236,7 +236,7 @@ public class SmtpTagServerHookTests extends HooksTests {
 
 	@Test
 	public void testOnServerTaggedEmptyMessageSizeLimitShouldUseDefaultValue() throws Exception {
-		initBasicConfiguration("external-url", "test.bm.lam");
+		initBasicConfiguration(SysConfKeys.external_url.name(), "test.bm.lam");
 		initBasicConfiguration("mynetworks", "127.0.0.1/8");
 		initBasicConfiguration("message_size_limit", "");
 
@@ -249,7 +249,7 @@ public class SmtpTagServerHookTests extends HooksTests {
 
 	@Test
 	public void testOnServerTaggedNullStringMessageSizeLimitShouldUseDefaultValue() throws Exception {
-		initBasicConfiguration("external-url", "test.bm.lam");
+		initBasicConfiguration(SysConfKeys.external_url.name(), "test.bm.lam");
 		initBasicConfiguration("mynetworks", "127.0.0.1/8");
 		initBasicConfiguration("message_size_limit", "null");
 
