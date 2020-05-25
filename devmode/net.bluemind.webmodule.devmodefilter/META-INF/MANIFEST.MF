@@ -11,7 +11,6 @@ Require-Bundle: net.bluemind.lib.vertx,
  net.bluemind.core.rest.http,
  net.bluemind.core.rest,
  net.bluemind.authentication.api,
- net.bluemind.locator.vertxclient,
  com.google.guava,
  net.bluemind.eclipse.common
 Bundle-ClassPath: .

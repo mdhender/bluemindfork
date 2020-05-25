@@ -20,6 +20,7 @@ package net.bluemind.xivo.core;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,8 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.cti.api.Status;
 import net.bluemind.cti.api.Status.PhoneState;
 import net.bluemind.cti.backend.ICTIBackend;
-import net.bluemind.locator.client.LocatorClient;
+import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.Server;
 import net.bluemind.user.api.User;
 import net.bluemind.xivo.client.XivoClient;
 import net.bluemind.xivo.client.XivoFault;
@@ -95,9 +97,9 @@ public class XivoCTIBackend implements ICTIBackend {
 
 		try {
 			// OPTIMIZE
-			LocatorClient lc = new LocatorClient();
-			String host = lc.locateHost("cti/frontend", caller.value.login + "@" + domain);
-			if (host != null) {
+			Optional<ItemValue<Server>> optHost = Topology.get().anyIfPresent("cti/frontend");
+			if (optHost.isPresent()) {
+				String host = optHost.get().value.address();
 				String url = "http://" + host + ":9091/xivo/1.0/status/" + domain + "/" + caller.value.login + "/";
 				try (InputStream in = new URL(url).openStream()) {
 					JsonObject status = new JsonObject(new String(ByteStreams.toByteArray(in), "utf-8"));

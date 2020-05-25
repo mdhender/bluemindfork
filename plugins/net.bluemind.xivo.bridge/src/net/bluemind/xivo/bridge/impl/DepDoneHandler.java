@@ -36,7 +36,7 @@ import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.locator.client.LocatorClient;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.xivo.client.XivoClient;
 import net.bluemind.xivo.common.Hosts;
 
@@ -46,25 +46,18 @@ public class DepDoneHandler implements Handler<AsyncResult<String>> {
 
 	private AtomicInteger handshakeCountdown = new AtomicInteger(2);
 
-	public DepDoneHandler() {
-	}
-
 	@Override
 	public void handle(AsyncResult<String> ar) {
 		if (ar.failed()) {
 			Throwable cause = ar.cause();
 			logger.error(cause.getMessage(), cause);
 		}
-		logger.info("Deployement done with id: " + ar.result());
+		if (logger.isInfoEnabled()) {
+			logger.info("Deployement done with id: {}", ar.result());
+		}
 		int newValue = handshakeCountdown.decrementAndGet();
 		if (newValue == 0) {
-			VertxPlatform.getVertx().setTimer(10000, new Handler<Long>() {
-
-				@Override
-				public void handle(Long event) {
-					handshakeDomains();
-				}
-			});
+			VertxPlatform.getVertx().setTimer(10000, tid -> handshakeDomains());
 		}
 	}
 
@@ -78,10 +71,8 @@ public class DepDoneHandler implements Handler<AsyncResult<String>> {
 
 			@Override
 			public void run() {
-				LocatorClient locator = new LocatorClient();
-				String host = locator.locateHost("bm/core", "admin0@global.virt");
-				if (host != null) {
-					String url = "http://" + host + ":8090";
+				Topology.getIfAvailable().ifPresent(topo -> {
+					String url = "http://" + topo.core().value.address() + ":8090";
 					IServiceProvider sp = ClientSideServiceProvider.getProvider(url, Token.admin0());
 					try {
 						IDomains domainApi = sp.instance(IDomains.class, InstallationId.getIdentifier());
@@ -98,8 +89,7 @@ public class DepDoneHandler implements Handler<AsyncResult<String>> {
 						logger.error(e.getMessage(), e);
 						logger.error("Fail to fetch domains list. retry in 5s", e);
 					}
-				}
-
+				});
 			}
 
 		};

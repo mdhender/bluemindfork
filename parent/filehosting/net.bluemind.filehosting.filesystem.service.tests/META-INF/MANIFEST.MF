@@ -30,5 +30,5 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.authentication.service;bundle-version="4.1.0",
  net.bluemind.filehosting.api,
  net.bluemind.node.api,
- net.bluemind.locator.client
+ net.bluemind.network.topology
 Bundle-ClassPath: .

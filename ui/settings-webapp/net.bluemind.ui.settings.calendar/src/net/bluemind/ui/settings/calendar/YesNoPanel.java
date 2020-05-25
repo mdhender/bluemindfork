@@ -21,7 +21,6 @@ package net.bluemind.ui.settings.calendar;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HasEnabled;
-import com.google.gwt.user.client.ui.HasEnabled;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
