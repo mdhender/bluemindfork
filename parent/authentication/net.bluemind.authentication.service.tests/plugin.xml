@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.authentication.service.rolevalidation">
+      <validator
+            implementation="net.bluemind.authentication.service.tests.TestRoleValidatorFalse">
+      </validator>
+   </extension>
+   <extension
+         point="net.bluemind.authentication.service.rolevalidation">
+      <validator
+            implementation="net.bluemind.authentication.service.tests.TestRoleValidatorRole2">
+      </validator>
+   </extension>
+   <extension
+         point="net.bluemind.authentication.service.rolevalidation">
+      <validator
+            implementation="net.bluemind.authentication.service.tests.TestRoleValidatorRole3">
+      </validator>
+   </extension>
+   <extension
+         point="net.bluemind.authentication.service.rolevalidation">
+      <validator
+            implementation="net.bluemind.authentication.service.tests.TestRoleValidatorRole4">
+      </validator>
+   </extension>
+   <extension
+         point="net.bluemind.authentication.service.rolevalidation">
+      <validator
+            implementation="net.bluemind.authentication.service.tests.TestRoleValidatorRole5">
+      </validator>
+   </extension>
+   <extension
+         point="net.bluemind.authentication.service.rolevalidation">
+      <validator
+            implementation="net.bluemind.authentication.service.tests.TestRoleValidatorRole5False">
+      </validator>
+   </extension>
+
+</plugin>

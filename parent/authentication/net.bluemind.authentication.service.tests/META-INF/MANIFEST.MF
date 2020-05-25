@@ -20,5 +20,6 @@ Require-Bundle: org.junit,
  net.bluemind.system.service;bundle-version="4.1.0",
  net.bluemind.system.state,
  net.bluemind.role.api,
- net.bluemind.role.service
+ net.bluemind.role.service,
+ net.bluemind.core.sessions
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

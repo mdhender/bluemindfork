@@ -73,6 +73,13 @@
             implementation="net.bluemind.filehosting.config.FileHostingGlobalSettingsHook$FileHostingGlobalSettingsValidatorFactory">
       </validatorfactory>
    </extension>
+ <extension
+         point="net.bluemind.authentication.service.rolevalidation">
+      <validator
+            implementation="net.bluemind.filehosting.service.internal.FileHostingRoleValidator">
+      </validator>
+   </extension>
+
    <extension
          point="net.bluemind.globalsettings.hook">
       <observer
