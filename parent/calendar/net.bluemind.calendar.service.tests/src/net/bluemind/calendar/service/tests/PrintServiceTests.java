@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.time.ZonedDateTime;
 
 import org.junit.Test;
+import org.junit.BeforeClass;
 
 import net.bluemind.calendar.api.IPrint;
 import net.bluemind.calendar.api.PrintOptions;
@@ -40,6 +41,11 @@ import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.tests.defaultdata.BmDateTimeHelper;
 
 public class PrintServiceTests extends AbstractCalendarTests {
+
+	@BeforeClass
+	public static void oneShotBefore() {
+		System.setProperty("es.mailspool.count", "1");
+	}
 
 	@Test
 	public void tesGeneratePdf() throws ServerFault, IOException {

@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -76,6 +77,10 @@ import net.bluemind.tests.defaultdata.BmDateTimeHelper;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class DeferredActionCalendarHookTests {
+	@BeforeClass
+	public static void oneShotBefore() {
+		System.setProperty("es.mailspool.count", "1");
+	}
 
 	@Before
 	public void setup() throws Exception {

@@ -30,6 +30,7 @@ import java.util.Collections;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.util.concurrent.SettableFuture;
@@ -59,6 +60,11 @@ public class CalendarSettingsTests {
 	private SecurityContext userSecurityContext;
 	private SecurityContext admSecurityContext;
 	private String calendarUid;
+
+	@BeforeClass
+	public static void oneShotBefore() {
+		System.setProperty("es.mailspool.count", "1");
+	}
 
 	@Before
 	public void beforeBefore() throws Exception {

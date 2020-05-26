@@ -28,6 +28,7 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableSet;
@@ -74,6 +75,11 @@ public class VEventSanitizerTests {
 	private String domainUid;
 	private ZoneId defaultTz = ZoneId.systemDefault();
 	private final ZonedDateTime date1 = ZonedDateTime.of(2015, 05, 01, 0, 0, 0, 0, defaultTz);
+
+	@BeforeClass
+	public static void oneShotBefore() {
+		System.setProperty("es.mailspool.count", "1");
+	}
 
 	@Before
 	public void beforeBefore() throws Exception {
