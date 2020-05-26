@@ -276,8 +276,8 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 				AccessControlEntry.create(attendee1SecurityContext.getSubject(), Verb.All),
 				AccessControlEntry.create(attendee2SecurityContext.getSubject(), Verb.Write));
 		try {
-			aclStore.store(userCalendarContainer, ace);
-			aclStore.store(userTagContainer, ace);
+			aclStoreData.store(userCalendarContainer, ace);
+			aclStoreData.store(userTagContainer, ace);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

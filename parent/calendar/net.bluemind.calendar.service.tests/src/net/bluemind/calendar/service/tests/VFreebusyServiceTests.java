@@ -348,7 +348,7 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 
 	@Test
 	public void testDeclinedEvent() throws Exception {
-		Container attendee1FreebusyContainer = createTestContainer(attendee1SecurityContext, IFreebusyUids.TYPE,
+		Container attendee1FreebusyContainer = createTestContainer(attendee1SecurityContext, systemDataSource, IFreebusyUids.TYPE,
 				"Attendee 1", IFreebusyUids.getFreebusyContainerUid(attendee1.uid), attendee1.uid);
 
 		VEventSeries vevent = defaultVEvent();
@@ -387,7 +387,7 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 
 	@Test
 	public void testTentativeEvent() throws Exception {
-		Container attendee1FreebusyContainer = createTestContainer(attendee1SecurityContext, IFreebusyUids.TYPE,
+		Container attendee1FreebusyContainer = createTestContainer(attendee1SecurityContext, systemDataSource, IFreebusyUids.TYPE,
 				"Attendee 1", IFreebusyUids.getFreebusyContainerUid(attendee1.uid), attendee1.uid);
 
 		VEventSeries vevent = defaultVEvent();
@@ -427,7 +427,7 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 
 	@Test
 	public void testNeedsActionEvent() throws Exception {
-		Container attendee1FreebusyContainer = createTestContainer(attendee1SecurityContext, IFreebusyUids.TYPE,
+		Container attendee1FreebusyContainer = createTestContainer(attendee1SecurityContext, systemDataSource, IFreebusyUids.TYPE,
 				"Attendee 1", IFreebusyUids.getFreebusyContainerUid(attendee1.uid), attendee1.uid);
 
 		VEventSeries vevent = defaultVEvent();
