@@ -16,9 +16,12 @@ import MailWebAppStore from "@bluemind/webapp.mail.store";
 import router from "@bluemind/router";
 import store from "@bluemind/store";
 import Vue from "vue";
+import Scheduler from "./scheduler";
 
 registerAPIClients();
 store.registerModule("mail-webapp", MailWebAppStore);
+
+Scheduler.startUnreadCountersUpdater();
 
 AlertFactory.register(MailAppAlerts);
 router.addRoutes(mailRoutes);
