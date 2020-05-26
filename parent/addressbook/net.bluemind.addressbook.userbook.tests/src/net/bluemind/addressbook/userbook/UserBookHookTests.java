@@ -62,6 +62,7 @@ import net.bluemind.user.api.User;
 public class UserBookHookTests {
 
 	private ContainerStore containerStore;
+	private ContainerStore systemContainerStore;
 	private UserBookHook hook;
 	private BmContext bmContext;
 	private String domainUid = "bm.lan";
@@ -96,7 +97,8 @@ public class UserBookHookTests {
 		ItemValue<User> user = testUser();
 		containerStore = new ContainerStore(bmContext,
 				JdbcActivator.getInstance().getMailboxDataSource(user.value.dataLocation), SecurityContext.SYSTEM);
-
+		systemContainerStore = new ContainerStore(
+				JdbcActivator.getInstance().getDataSource(), SecurityContext.SYSTEM);
 	}
 
 	@Test
@@ -114,7 +116,7 @@ public class UserBookHookTests {
 		Container collected = containerStore.get(containerId);
 		assertNotNull(collected);
 
-		Container directory = containerStore.get("addressbook_" + domainUid);
+		Container directory = systemContainerStore.get("addressbook_" + domainUid);
 		assertNotNull(directory);
 
 		IUserSubscription userSubService = bmContext.getServiceProvider().instance(IUserSubscription.class, domainUid);
