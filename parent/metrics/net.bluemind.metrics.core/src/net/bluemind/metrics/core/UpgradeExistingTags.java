@@ -19,6 +19,7 @@ package net.bluemind.metrics.core;
 
 import java.util.Date;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.sql.DataSource;
 
@@ -59,7 +60,7 @@ public class UpgradeExistingTags implements Updater {
 
 	@Override
 	public int sequence() {
-		return Integer.MAX_VALUE;
+		return ThreadLocalRandom.current().nextInt(Integer.MAX_VALUE);
 	}
 
 }
