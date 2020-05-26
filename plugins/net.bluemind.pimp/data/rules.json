@@ -87,8 +87,8 @@
 		"optional": true
 	},{
 		"product":"bm-webserver",
-		"defaultHeap":256,
+		"defaultHeap":128,
 		"defaultDirect":128,
-		"sparePercent":5
+		"sparePercent":4
 	}
 ]
