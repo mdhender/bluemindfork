@@ -70,6 +70,7 @@
 		<module>topology</module>
 		<module>cloud</module>
 		<module>deferredaction</module>
+		<module>custom</module>
 	</modules>
 
 	<build>

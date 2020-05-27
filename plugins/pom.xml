@@ -17,7 +17,6 @@
 	  <module>net.bluemind.hornetq.client</module>
 		<module>net.bluemind.cti.core</module>
 		<module>net.bluemind.custom.password.bruteforce</module>
-		<module>net.bluemind.custom.password.sizestrength</module>
 		<module>net.bluemind.dav.server.tests</module>
 		<module>net.bluemind.dav.server</module>
 		<module>net.bluemind.eclipse.common</module>
