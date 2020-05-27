@@ -5,7 +5,7 @@ server {
   include /etc/nginx/bm-externalurl.conf;
 
   location / {
-    return 301 https://$bmexternalurl$uri$is_args$args;
+    return 301 https://$bmexternalurl$request_uri;
   }
 
   location /nginx_status {
@@ -105,7 +105,7 @@ server {
   }
 
   location /templates/ {
-    proxy_pass $bm_upstream_hps$uri$is_args$args;
+    proxy_pass $bm_upstream_hps;
     proxy_intercept_errors on;
   }
 
@@ -115,7 +115,7 @@ server {
     gzip_proxied     any;
     gzip_types       text/plain application/xml text/css text/javascript application/javascript text/json application/json;
     gzip_comp_level 9;
-    proxy_pass $bm_upstream_webserver$uri$is_args$args;
+    proxy_pass $bm_upstream_webserver;
     proxy_intercept_errors on;
   }
 
@@ -128,7 +128,7 @@ server {
 
     set $bm_request_uri /webmail/$1;
     if ($bm_nginx_role = "edge") {
-      set $bm_request_uri $uri$is_args$args;
+      set $bm_request_uri $request_uri;
     }
 
     proxy_pass $bm_upstream_webserver$bm_request_uri;
@@ -137,7 +137,7 @@ server {
 
   location /webmail/ {
     include /etc/bm-webmail/nginx-webmail.conf;
-    proxy_pass $bm_upstream_hps$uri$is_args$args;
+    proxy_pass $bm_upstream_hps;
     proxy_intercept_errors on;
   }
 
@@ -148,7 +148,7 @@ server {
     gzip_types       text/plain application/xml text/css text/javascript application/javascript text/json application/json;
     gzip_comp_level 9;
 
-    proxy_pass $bm_upstream_hps$uri$is_args$args;
+    proxy_pass $bm_upstream_hps;
     client_max_body_size 10m;	
     proxy_intercept_errors on;
   }
@@ -162,21 +162,21 @@ server {
     auth_basic $bm_auth_basic;
     auth_basic_user_file  /etc/nginx/sw.htpasswd;
 
-    proxy_pass $bm_upstream_webserver$uri$is_args$args;
+    proxy_pass $bm_upstream_webserver;
     proxy_intercept_errors on;
     error_page 401 /errors-pages/401.html;
   }
 
   location /bm-push/ {
-    proxy_pass $bm_upstream_webserver$uri$is_args$args;
+    proxy_pass $bm_upstream_webserver;
   }
   
   location /input/ {
-    proxy_pass $bm_upstream_core$uri$is_args$args;
+    proxy_pass $bm_upstream_core;
   }
 
   location /eventbus/ {
-    proxy_pass $bm_upstream_core$uri$is_args$args;
+    proxy_pass $bm_upstream_core;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";    
@@ -189,12 +189,12 @@ server {
   }
 
   location /autodiscover {
-    proxy_pass $bm_upstream_mapi$uri$is_args$args;
+    proxy_pass $bm_upstream_mapi;
     proxy_http_version 1.1;
   }
 
   location /ews {
-    proxy_pass $bm_upstream_mapi$uri$is_args$args;
+    proxy_pass $bm_upstream_mapi;
     proxy_http_version 1.1;
   }
 
@@ -205,38 +205,38 @@ server {
   }
 
   location /OAB {
-     proxy_pass $bm_upstream_mapi$uri$is_args$args;
+     proxy_pass $bm_upstream_mapi;
      proxy_http_version 1.1;
   }
 
   location /app_marketplace {
-     proxy_pass $bm_upstream_mapi$uri$is_args$args;
+     proxy_pass $bm_upstream_mapi;
      proxy_http_version 1.1;
   }
 
   location /mapi {
-     proxy_pass $bm_upstream_mapi$uri$is_args$args;
+     proxy_pass $bm_upstream_mapi;
      proxy_http_version 1.1;
   }
 
   location /Microsoft-Server-ActiveSync {
     include /etc/bm-eas/bm-eas-nginx.conf;
-    proxy_pass $bm_upstream_eas$uri$is_args$args;
+    proxy_pass $bm_upstream_eas;
     proxy_read_timeout 1200s;
     proxy_pass_header Server;
     proxy_http_version 1.1;
   }
 
   location /.well-known/caldav {
-    proxy_pass $bm_upstream_webserver$uri$is_args$args;
+    proxy_pass $bm_upstream_webserver;
   }
 
   location /.well-known/carddav {
-    proxy_pass $bm_upstream_webserver$uri$is_args$args;
+    proxy_pass $bm_upstream_webserver;
   }
 
   location /dav {
-    proxy_pass $bm_upstream_webserver$uri$is_args$args;
+    proxy_pass $bm_upstream_webserver;
     proxy_http_version 1.1;
     client_max_body_size 10m;
   }
@@ -252,7 +252,7 @@ server {
        return 400;
     }
 
-    proxy_pass $bm_upstream_hps$uri$is_args$args;
+    proxy_pass $bm_upstream_hps;
     client_max_body_size 20m;
     proxy_intercept_errors on;
   }
@@ -264,7 +264,7 @@ server {
     gzip_types       text/plain application/xml text/css text/javascript application/javascript text/json application/json;
     gzip_comp_level 9;
 
-    proxy_pass $bm_upstream_hps$uri$is_args$args;
+    proxy_pass $bm_upstream_hps;
     client_max_body_size 10m;	
     proxy_intercept_errors on;
   }
@@ -276,7 +276,7 @@ server {
     gzip_types       text/plain application/xml text/css text/javascript application/javascript text/json application/json;
     gzip_comp_level 9;
     
-    proxy_pass $bm_upstream_hps$uri$is_args$args;
+    proxy_pass $bm_upstream_hps;
     client_max_body_size 10m;
     proxy_intercept_errors on;
   }
@@ -288,7 +288,7 @@ server {
     gzip_types       text/plain application/xml text/css text/javascript application/javascript text/json application/json;
     gzip_comp_level 9;
 
-    proxy_pass $bm_upstream_hps$uri$is_args$args;
+    proxy_pass $bm_upstream_hps;
     proxy_intercept_errors on;
   }
   
@@ -299,7 +299,7 @@ server {
     gzip_types       text/plain application/xml text/css text/javascript application/javascript text/json application/json;
     gzip_comp_level 9;
 
-    proxy_pass $bm_upstream_hps$uri$is_args$args;
+    proxy_pass $bm_upstream_hps;
     proxy_intercept_errors on;
   }
 
@@ -311,7 +311,7 @@ server {
     gzip_types       text/plain application/xml text/css text/javascript application/javascript text/json application/json;
     gzip_comp_level 9;
 
-    proxy_pass $bm_upstream_hps$uri$is_args$args;
+    proxy_pass $bm_upstream_hps;
     proxy_intercept_errors on;
   }
 
@@ -323,7 +323,7 @@ server {
     gzip_types       text/plain application/xml text/css text/javascript application/javascript text/json application/json;
     gzip_comp_level 9;
 
-    proxy_pass $bm_upstream_core$uri$is_args$args;
+    proxy_pass $bm_upstream_core;
     proxy_http_version 1.1;
     client_max_body_size 10m;
     proxy_buffering off;
@@ -331,20 +331,20 @@ server {
   
   location /api/filehosting/ {
     include /etc/bm-webmail/bm-filehosting.conf;
-    proxy_pass $bm_upstream_core$uri$is_args$args;
+    proxy_pass $bm_upstream_core;
     proxy_http_version 1.1;
     proxy_buffering off;
   }
   
   location /api/attachment/ {
     include /etc/bm-webmail/bm-filehosting.conf;
-    proxy_pass $bm_upstream_core$uri$is_args$args;
+    proxy_pass $bm_upstream_core;
     proxy_http_version 1.1;
     proxy_buffering off;
   }
 
   location /fh/ {
-    proxy_pass $bm_upstream_webserver$uri$is_args$args;
+    proxy_pass $bm_upstream_webserver;
     proxy_http_version 1.1;
     proxy_buffering off;
   }
@@ -356,13 +356,13 @@ server {
     gzip_types       text/plain application/xml text/css text/javascript application/javascript text/json application/json;
     gzip_comp_level 9;
 
-    proxy_pass $bm_upstream_hps$uri$is_args$args;
+    proxy_pass $bm_upstream_hps;
     client_max_body_size 10m;	
     proxy_intercept_errors on;
   }
 
   location  /calendar/publish/ {
-    set $bm_request_uri /cal$uri$is_args$args;
+    set $bm_request_uri /cal$request_uri;
     proxy_pass $bm_upstream_webserver$bm_request_uri;
     proxy_http_version 1.1;
   }
@@ -388,7 +388,7 @@ server {
     gzip_comp_level 9;
     rewrite ^.*$ /webapp/index.html break;
 
-    proxy_pass $bm_upstream_hps$uri$is_args$args;
+    proxy_pass $bm_upstream_hps;
   }
 
   location /native {
