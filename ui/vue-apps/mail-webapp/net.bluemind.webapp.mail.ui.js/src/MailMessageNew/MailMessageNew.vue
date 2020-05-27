@@ -26,7 +26,7 @@
                         <bm-col cols="1" class="text-center">
                             <bm-button
                                 v-if="mode_ == modes.TO"
-                                variant="link"
+                                variant="simple-dark"
                                 class="text-blue"
                                 @click="mode_ = modes.TO | modes.CC | modes.BCC"
                             >
@@ -50,7 +50,7 @@
                         </div>
                         <bm-button
                             v-if="mode_ == (modes.TO | modes.CC)"
-                            variant="link"
+                            variant="simple-dark"
                             class="text-blue my-2 mr-1"
                             @click="mode_ = modes.TO | modes.CC | modes.BCC"
                         >
@@ -364,7 +364,7 @@ export default {
     min-height: 2.5rem;
 }
 
-.mail-message-new .bm-contact-input .btn-link {
+.mail-message-new .bm-contact-input .btn {
     min-width: 3rem;
     text-align: left;
 }

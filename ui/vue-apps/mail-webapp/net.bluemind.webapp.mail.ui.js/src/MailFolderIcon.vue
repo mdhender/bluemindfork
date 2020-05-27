@@ -1,16 +1,24 @@
 <template>
-    <bm-label-icon class="mail-folder-icon" :icon="icon" :aria-label="shared && $t('common.mailshares')">
+    <bm-icon
+        v-if="noText"
+        class="mail-folder-icon"
+        fixed-width
+        :icon="icon"
+        :aria-label="shared && $t('common.mailshares')"
+    />
+    <bm-label-icon v-else class="mail-folder-icon" :icon="icon" :aria-label="shared && $t('common.mailshares')">
         <slot>{{ folder.name }}</slot>
     </bm-label-icon>
 </template>
 
 <script>
-import { BmLabelIcon } from "@bluemind/styleguide";
+import { BmLabelIcon, BmIcon } from "@bluemind/styleguide";
 
 export default {
     name: "MailFolderIcon",
     components: {
-        BmLabelIcon
+        BmLabelIcon,
+        BmIcon
     },
     props: {
         folder: {
@@ -18,6 +26,11 @@ export default {
             required: true
         },
         shared: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+        noText: {
             type: Boolean,
             required: false,
             default: false

@@ -3,7 +3,7 @@
         <bm-button
             v-show="displayMarkAsRead"
             v-bm-tooltip.bottom.ds500
-            variant="link"
+            variant="simple-dark"
             class="unread"
             :title="$tc('mail.actions.mark_read.aria', selectedMessageKeys.length)"
             :aria-label="$tc('mail.actions.mark_read.aria', selectedMessageKeys.length)"
@@ -15,7 +15,7 @@
         <bm-button
             v-show="displayMarkAsUnread"
             v-bm-tooltip.bottom.ds500
-            variant="link"
+            variant="simple-dark"
             class="read"
             :title="$tc('mail.actions.mark_unread.aria', selectedMessageKeys.length)"
             :aria-label="$tc('mail.actions.mark_unread.aria', selectedMessageKeys.length)"
@@ -30,7 +30,7 @@
         <bm-button
             v-show="!hasMultipleMessagesSelected && !isReadOnlyFolder(folderUidOfCurrentMessage)"
             v-bm-tooltip.bottom.ds500
-            variant="link"
+            variant="simple-dark"
             :title="$tc('mail.actions.remove.aria')"
             :aria-label="$tc('mail.actions.remove.aria')"
             @click.exact="remove"

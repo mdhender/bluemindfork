@@ -47,8 +47,8 @@
             </bm-button>-->
             </div>
 
-            <bm-button variant="link" class="my-4" @click="removeSelection">
-                <h2>{{ $t("common.cancel.selection") }}</h2>
+            <bm-button variant="inline-secondary" class="my-4" @click="removeSelection">
+                {{ $t("common.cancel.selection") }}
             </bm-button>
 
             <hr v-if="!areAllMessagesSelected" class="w-75 border-dark" />
@@ -149,13 +149,8 @@ $arrow-height: $arrow-width / 2;
         height: 1px;
     }
     .actions-button {
-        button {
-            padding-right: $sp-2;
-            padding-left: $sp-2;
-            margin-right: $sp-1;
-            margin-left: $sp-1;
-            margin-bottom: $sp-2;
-            margin-top: $sp-2;
+        .btn {
+            margin: $sp-2 $sp-1;
         }
         .arrow-up {
             position: relative;

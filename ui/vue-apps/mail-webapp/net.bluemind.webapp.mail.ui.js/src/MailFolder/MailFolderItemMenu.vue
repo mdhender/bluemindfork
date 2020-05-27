@@ -5,29 +5,35 @@
         @shown="shown = true"
         @hidden="shown = false"
     >
-        <bm-dropdown-item-button :disabled="isDefaultFolder || isReadOnly" @click.stop.prevent="createSubFolder">
-            <bm-icon class="mr-2" icon="plus" />{{ $t("mail.folder.create.subfolder") }}
+        <bm-dropdown-item-button
+            :disabled="isDefaultFolder || isReadOnly"
+            icon="plus"
+            @click.stop.prevent="createSubFolder"
+        >
+            {{ $t("mail.folder.create.subfolder") }}
         </bm-dropdown-item-button>
         <bm-dropdown-item-button
             :disabled="isDefaultFolder || isMailshareRoot || isReadOnly"
+            icon="rename"
             @click.stop="$emit('edit')"
         >
-            <bm-icon class="mr-2" icon="rename" />{{ $t("mail.folder.rename") }}
+            {{ $t("mail.folder.rename") }}
         </bm-dropdown-item-button>
         <bm-dropdown-item-button
             :disabled="isDefaultFolder || isMailshareRoot || isReadOnly"
+            icon="trash"
             @click.stop="deleteFolder"
         >
-            <bm-icon class="mr-2" icon="trash" />{{ $t("common.delete") }}
+            {{ $t("common.delete") }}
         </bm-dropdown-item-button>
-        <bm-dropdown-item-button :disabled="folder.unread === 0" @click.stop="markFolderAsRead(folder.key)">
-            <bm-icon class="mr-2" icon="read" />{{ $t("mail.folder.mark_as_read") }}
+        <bm-dropdown-item-button :disabled="folder.unread === 0" icon="read" @click.stop="markFolderAsRead(folder.key)">
+            {{ $t("mail.folder.mark_as_read") }}
         </bm-dropdown-item-button>
     </bm-contextual-menu>
 </template>
 
 <script>
-import { BmContextualMenu, BmDropdownItemButton, BmIcon } from "@bluemind/styleguide";
+import { BmContextualMenu, BmDropdownItemButton } from "@bluemind/styleguide";
 import { isDefaultFolder } from "@bluemind/backend.mail.store";
 import { ItemUri } from "@bluemind/item-uri";
 import { mapActions, mapGetters, mapMutations } from "vuex";
@@ -37,8 +43,7 @@ export default {
     name: "MailFolderItemMenu",
     components: {
         BmContextualMenu,
-        BmDropdownItemButton,
-        BmIcon
+        BmDropdownItemButton
     },
     props: {
         folder: {

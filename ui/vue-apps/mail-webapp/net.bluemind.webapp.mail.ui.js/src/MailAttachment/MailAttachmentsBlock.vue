@@ -1,15 +1,15 @@
 <template>
     <bm-container v-if="hasAttachments" class="mail-message-content-attachments-block p-2 bg-extra-light">
-        <div class="d-flex">
-            <button
+        <div class="d-flex align-items-center">
+            <bm-button
                 v-bm-tooltip.ds500
-                class="btn p-0 bg-transparent border-0 caret-btn align-text-bottom"
+                variant="inline-dark"
                 :aria-label="$t('common.toggleAttachments')"
                 :title="$t('common.toggleAttachments')"
                 @click.prevent="toggleExpand"
             >
                 <bm-icon :icon="isExpanded ? 'caret-down' : 'caret-right'" />
-            </button>
+            </bm-button>
             <template v-if="editable">
                 <bm-icon icon="paper-clip" class="mr-1 ml-2" :class="paperClipColor" size="lg" />
                 <span :class="isTooHeavy ? 'text-danger font-weight-bold' : ''">
@@ -266,10 +266,6 @@ export default {
 .mail-message-content-attachments-block .col-4 {
     padding-right: $sp-1 !important;
     padding-left: $sp-1 !important;
-}
-
-.mail-message-content-attachments-block .caret-btn:focus {
-    box-shadow: unset;
 }
 
 .border-transparent {

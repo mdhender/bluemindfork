@@ -4,7 +4,7 @@
         v-bm-tooltip.bottom.ds500
         no-caret
         class="h-100 move-message"
-        variant="link"
+        variant="simple-dark"
         :title="$t('mail.toolbar.move.tooltip')"
         :aria-label="$t('mail.actions.move.aria')"
         @shown="openMoveAutocomplete"
@@ -15,29 +15,28 @@
             <bm-icon icon="folder" size="2x" />
             <span class="d-none d-lg-block"> {{ $t("mail.actions.move") }}</span>
         </template>
-        <bm-dropdown-autocomplete-item
+        <bm-dropdown-autocomplete
             ref="moveAutocomplete"
+            v-slot="{ item }"
             v-model.trim="pattern"
             :items="matchingFolders"
             search-icon
             :max-results="maxFolders"
             has-divider-under-input
-            @selected="selectFolder"
             @keydown.esc.native="resetPattern"
         >
-            <template v-slot="{ item }">
-                <mail-folder-icon
-                    v-bm-tooltip.left.ds500
-                    :shared="item.isShared"
-                    :folder="item.value"
-                    class="text-nowrap text-truncate w-100"
-                    :aria-label="$tc('mail.actions.move.item', 1, { path: item.value.path })"
-                    :title="$tc('mail.actions.move.item', 1, { path: item.value.path })"
-                >
-                    {{ item.value.path }}
-                </mail-folder-icon>
-            </template>
-        </bm-dropdown-autocomplete-item>
+            <bm-dropdown-item-button
+                v-bm-tooltip.left.ds500
+                class="text-nowrap text-truncate w-100"
+                :title="$tc('mail.actions.move.item', 1, { path: item.value.path })"
+                @click="selectFolder(item)"
+            >
+                <template #icon>
+                    <mail-folder-icon no-text :shared="item.isShared" :folder="item.value" />
+                </template>
+                {{ item.value.path }}
+            </bm-dropdown-item-button>
+        </bm-dropdown-autocomplete>
         <bm-dropdown-divider />
         <bm-dropdown-form
             v-if="pattern === ''"
@@ -47,7 +46,7 @@
             :title="$t('mail.actions.create.folder')"
         >
             <mail-folder-input
-                class="pl-3 pr-1"
+                class="pl-2 pr-1"
                 :submit-on-focusout="false"
                 @submit="newFolderName => selectFolder({ value: { fullName: newFolderName, path: newFolderName } })"
                 @keydown.left.native.stop
@@ -60,9 +59,10 @@
             v-bm-tooltip.left.ds500
             :aria-label="$tc('mail.actions.move.item', 1, { path: pattern })"
             :title="$tc('mail.actions.move.item', 1, { path: pattern })"
+            icon="plus"
             @click="selectFolder({ value: { fullName: pattern, path: pattern } })"
         >
-            <bm-label-icon icon="plus">{{ $t("mail.folder.new.from_pattern", [pattern]) }} </bm-label-icon>
+            {{ $t("mail.folder.new.from_pattern", [pattern]) }}
         </bm-dropdown-item-button>
     </bm-dropdown>
 </template>
@@ -70,12 +70,11 @@
 <script>
 import {
     BmDropdown,
-    BmDropdownAutocompleteItem,
+    BmDropdownAutocomplete,
     BmDropdownDivider,
     BmDropdownForm,
     BmDropdownItemButton,
     BmIcon,
-    BmLabelIcon,
     BmTooltip
 } from "@bluemind/styleguide";
 import { mapActions, mapGetters, mapState } from "vuex";
@@ -87,12 +86,11 @@ export default {
     name: "MailToolbarConsultMessageMoveAction",
     components: {
         BmDropdown,
-        BmDropdownAutocompleteItem,
+        BmDropdownAutocomplete,
         BmDropdownDivider,
         BmDropdownForm,
         BmDropdownItemButton,
         BmIcon,
-        BmLabelIcon,
         GlobalEvents,
         MailFolderIcon,
         MailFolderInput
@@ -195,7 +193,7 @@ function toFolderItem(folder, isShared = false, path = undefined) {
         min-width: 20vw;
     }
 
-    .bm-dropdown-autocomplete-item form {
+    .bm-dropdown-autocomplete form {
         input {
             padding-left: $sp-3;
         }
@@ -208,11 +206,6 @@ function toFolderItem(folder, isShared = false, path = undefined) {
 
     .dropdown-item,
     .b-dropdown-form {
-        padding-left: $sp-3;
-        color: $dark !important;
-        outline: none;
-        background-color: $surface-bg;
-
         &:hover {
             background-color: $extra-light !important;
         }

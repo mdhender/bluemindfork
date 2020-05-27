@@ -7,7 +7,7 @@
                 :aria-label="$tc('mail.actions.remove.aria')"
                 :title="$tc('mail.actions.remove.aria')"
                 class="p-1 mr-2 border-0 hovershadow"
-                variant="link"
+                variant="inline-secondary"
                 @click.shift.exact.prevent.stop="purge"
                 @click.exact.prevent.stop="remove"
             >
@@ -19,7 +19,7 @@
                 class="p-1 border-0 hovershadow"
                 :aria-label="$tc('mail.actions.mark_read.aria')"
                 :title="$tc('mail.actions.mark_read.aria')"
-                variant="link"
+                variant="inline-secondary"
                 @click.prevent.stop="markAsRead([message.key])"
             >
                 <bm-icon icon="read" size="sm" />
@@ -30,7 +30,7 @@
                 class="p-1 border-0 hovershadow"
                 :aria-label="$tc('mail.actions.mark_unread.aria')"
                 :title="$tc('mail.actions.mark_unread.aria')"
-                variant="link"
+                variant="inline-secondary"
                 @click.prevent.stop="markAsUnread([message.key])"
             >
                 <bm-icon icon="unread" size="sm" />

@@ -1,7 +1,7 @@
 <template>
     <div class="mail-folder-tree">
         <bm-button
-            variant="link"
+            variant="inline-info-dark"
             class="collapse-mailbox-btn d-flex align-items-center pb-2 pt-3 border-0 pl-1 w-100"
             aria-controls="collapse-mailbox"
             :aria-expanded="isMailboxExpanded"
@@ -29,7 +29,7 @@
         </bm-collapse>
         <bm-button
             v-if="mailshares.length > 0"
-            variant="link"
+            variant="inline-info-dark"
             class="collapse-mailbox-btn d-flex align-items-center pb-2 pt-3 border-0 pl-1 w-100"
             aria-controls="collapse-mailbox"
             :aria-expanded="areMailsharesExpanded"
@@ -121,8 +121,6 @@ export default {
 
 .mail-folder-tree {
     button.collapse-mailbox-btn {
-        color: $info-dark;
-        text-decoration-line: none;
         border-bottom: 1px solid $light !important;
     }
 }

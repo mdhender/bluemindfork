@@ -10,7 +10,7 @@
                 {{ $t("common.send") }}
             </bm-button>
             <bm-button
-                variant="link"
+                variant="simple-dark"
                 class="ml-2"
                 :disabled="isSaving || isSending || isDeleting"
                 @click.prevent="$emit('delete')"
@@ -33,7 +33,7 @@
             <bm-button
                 v-if="!userPrefTextOnly"
                 v-bm-tooltip.left.ds500
-                variant="link"
+                variant="simple-dark"
                 class="p-2"
                 :aria-label="textFormatterLabel"
                 :title="textFormatterLabel"
@@ -45,7 +45,7 @@
             <input ref="attachInputRef" type="file" multiple hidden @change="addAttachments($event.target.files)" />
             <bm-button
                 v-bm-tooltip.bottom.ds500
-                variant="link"
+                variant="simple-dark"
                 class="p-2"
                 :aria-label="$tc('mail.actions.attach.aria')"
                 :title="$tc('mail.actions.attach.aria')"

@@ -7,7 +7,7 @@
                 class="d-lg-flex justify-content-start pl-4"
                 :class="hideListInResponsiveMode ? 'd-none' : ''"
             >
-                <bm-button variant="link" class="d-inline-block d-lg-none btn-transparent-bg" @click="toggleFolders">
+                <bm-button variant="inline-light" class="d-inline-block d-lg-none" @click="toggleFolders">
                     <bm-icon icon="burger-menu" size="2x" />
                 </bm-button>
                 <bm-button variant="primary" class="text-nowrap d-lg-inline-block d-none" @click="composeNewMessage">
@@ -159,7 +159,7 @@ export default {
         @media (max-width: map-get($grid-breakpoints, "lg")) {
             background-color: $info-dark;
 
-            .btn-link {
+            .btn-simple-dark {
                 background-color: none;
                 color: $light;
             }

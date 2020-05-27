@@ -2,7 +2,7 @@
     <div>
         <bm-button
             v-bm-tooltip.bottom.ds500
-            variant="link"
+            variant="simple-dark"
             :aria-label="$tc('mail.actions.send.aria')"
             :title="$tc('mail.actions.send.aria')"
             :disabled="isSending || isDeleting || !hasRecipient"
@@ -13,7 +13,7 @@
         </bm-button>
         <bm-button
             v-bm-tooltip.bottom.ds500
-            variant="link"
+            variant="simple-dark"
             :aria-label="$tc('mail.actions.attach.aria')"
             :title="$tc('mail.actions.attach.aria')"
             :disabled="isSending || isDeleting"
@@ -25,7 +25,7 @@
         <input ref="attachInputRef" type="file" multiple hidden @change="addAttachments($event.target.files)" />
         <bm-button
             v-bm-tooltip.bottom.ds500
-            variant="link"
+            variant="simple-dark"
             :aria-label="$tc('mail.actions.save.aria')"
             :title="$tc('mail.actions.save.aria')"
             :disabled="isSaving || isSending || isDeleting"
@@ -36,7 +36,7 @@
         </bm-button>
         <bm-button
             v-bm-tooltip.bottom.ds500
-            variant="link"
+            variant="simple-dark"
             :aria-label="$tc('mail.actions.remove.compose.aria')"
             :title="$tc('mail.actions.remove.compose.aria')"
             :disabled="isSaving || isSending || isDeleting"

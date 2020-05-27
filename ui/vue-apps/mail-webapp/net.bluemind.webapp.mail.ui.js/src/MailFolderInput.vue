@@ -1,6 +1,6 @@
 <template>
     <div :class="computeClassNames" class="mail-folder-input flex-fill d-flex align-items-center position-relative">
-        <bm-icon :icon="computeIconName" />
+        <bm-icon :icon="computeIconName" fixed-width />
         <bm-form-input
             ref="input"
             v-model="newFolderName"
@@ -175,6 +175,7 @@ export default {
     input {
         border: none !important;
         background-color: transparent !important;
+        padding-left: $sp-1 !important;
     }
 
     .bm-notice {

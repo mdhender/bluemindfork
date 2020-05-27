@@ -2,7 +2,7 @@
     <bm-button-toolbar key-nav class="mail-message-content-toolbar float-right">
         <bm-button
             v-bm-tooltip.ds500
-            variant="outline-primary"
+            variant="simple-primary"
             :aria-label="$t('mail.content.reply.aria')"
             :title="$t('mail.content.reply.aria')"
             :to="$router.relative('mail:reply', $route)"
@@ -11,7 +11,7 @@
         </bm-button>
         <bm-button
             v-bm-tooltip.ds500
-            variant="outline-primary"
+            variant="simple-primary"
             :aria-label="$t('mail.content.reply_all.aria')"
             :title="$t('mail.content.reply_all.aria')"
             :to="$router.relative('mail:replyAll', $route)"
@@ -20,7 +20,7 @@
         </bm-button>
         <bm-button
             v-bm-tooltip.ds500
-            variant="outline-primary"
+            variant="simple-primary"
             :aria-label="$t('mail.content.forward.aria')"
             :title="$t('mail.content.forward.aria')"
             :to="$router.relative('mail:forward', $route)"
@@ -48,9 +48,3 @@ export default {
     }
 };
 </script>
-
-<style scoped>
-.mail-message-content-toolbar .btn.btn-outline-primary {
-    border: none;
-}
-</style>
