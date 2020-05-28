@@ -113,6 +113,8 @@ public final class MQ {
 			map.forEach(this::put);
 		}
 
+		Set<K> keys();
+
 		void remove(K k);
 	}
 

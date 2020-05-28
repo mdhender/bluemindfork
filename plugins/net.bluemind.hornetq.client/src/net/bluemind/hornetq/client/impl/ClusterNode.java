@@ -27,6 +27,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
@@ -251,8 +252,11 @@ public abstract class ClusterNode {
 
 				@Override
 				public void put(K k, V v) {
-					imap.set(k, v);
-
+					if (v == null) {
+						imap.delete(k);
+					} else {
+						imap.set(k, v);
+					}
 				}
 
 				@Override
@@ -262,6 +266,11 @@ public abstract class ClusterNode {
 
 				public void remove(K k) {
 					imap.delete(k);
+				}
+
+				@Override
+				public Set<K> keys() {
+					return imap.keySet();
 				}
 			};
 		}).join();

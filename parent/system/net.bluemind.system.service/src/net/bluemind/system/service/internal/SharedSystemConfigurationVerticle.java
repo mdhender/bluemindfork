@@ -59,6 +59,9 @@ public class SharedSystemConfigurationVerticle extends AbstractVerticle {
 						clusterConf.remove(k);
 					}
 				}
+			}).exceptionally(t -> {
+				logger.error(t.getMessage(), t);
+				return null;
 			});
 		}
 	}
@@ -74,6 +77,9 @@ public class SharedSystemConfigurationVerticle extends AbstractVerticle {
 			SharedMap<String, String> clusterConf = MQ.sharedMap("system.configuration");
 			clusterConf.putAll(values.values);
 			logger.info("Sysconf pre-loaded with {} values", values.values.size());
+		}).exceptionally(t -> {
+			logger.error(t.getMessage(), t);
+			return null;
 		});
 	}
 }
