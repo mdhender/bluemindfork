@@ -115,6 +115,7 @@
     "mail.folder": "Folder",
     "mail.folder.delete.dialog.title": "Delete a folder",
     "mail.folder.delete.dialog.question": "Delete folder \"{name}\" ?",
+    "mail.folder.delete.dialog.question.with_subfolders": "Delete folder \"{name}\" and its subfolders ?",
     "mail.folder.rename": "Rename folder",
     "mail.folder.create.subfolder": "Create a subfolder",
     "mail.folder.access.limited": "Limited access",

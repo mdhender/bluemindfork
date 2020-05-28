@@ -36,7 +36,7 @@
 import { BmContextualMenu, BmDropdownItemButton } from "@bluemind/styleguide";
 import { isDefaultFolder } from "@bluemind/backend.mail.store";
 import { ItemUri } from "@bluemind/item-uri";
-import { mapActions, mapGetters, mapMutations } from "vuex";
+import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import UUIDGenerator from "@bluemind/uuid";
 
 export default {
@@ -53,6 +53,7 @@ export default {
     },
     computed: {
         ...mapGetters("mail-webapp", ["mailshares"]),
+        ...mapState("mail-webapp", ["currentFolderKey"]),
         isDefaultFolder() {
             return isDefaultFolder(this.folder);
         },
@@ -73,20 +74,22 @@ export default {
         ...mapMutations("mail-webapp/folders", { addFolder: "storeItems" }),
         ...mapMutations("mail-webapp", ["expandFolder", "toggleEditFolder"]),
         async deleteFolder() {
-            const confirm = await this.$bvModal.msgBoxConfirm(
-                this.$t("mail.folder.delete.dialog.question", { name: this.folder.fullName }),
-                {
-                    title: this.$t("mail.folder.delete.dialog.title"),
-                    okTitle: this.$t("common.delete"),
-                    cancelVariant: "outline-secondary",
-                    cancelTitle: this.$t("common.cancel"),
-                    centered: true,
-                    hideHeaderClose: false
-                }
-            );
+            const modalTitleKey =
+                this.folder.children.length > 0
+                    ? "mail.folder.delete.dialog.question.with_subfolders"
+                    : "mail.folder.delete.dialog.question";
+            const confirm = await this.$bvModal.msgBoxConfirm(this.$t(modalTitleKey, { name: this.folder.fullName }), {
+                title: this.$t("mail.folder.delete.dialog.title"),
+                okTitle: this.$t("common.delete"),
+                cancelVariant: "outline-secondary",
+                cancelTitle: this.$t("common.cancel"),
+                centered: true,
+                hideHeaderClose: false
+            });
             if (confirm) {
+                const keyBeingRemoved = this.folder.key;
                 this.removeFolder(this.folder.key).then(() => {
-                    if (this.currentFolderKey === this.folder.key) {
+                    if (this.currentFolderKey === keyBeingRemoved) {
                         this.$router.push({ name: "mail:home" });
                     }
                 });

@@ -7,7 +7,7 @@ export async function remove({ getters, commit }, folderKey) {
     commit("removeItems", [folderKey]);
     try {
         const service = injector.getProvider("MailboxFoldersPersistence").get(mailboxUid);
-        await service.deleteById(folder.internalId);
+        await service.deepDelete(folder.internalId);
     } catch (e) {
         commit("storeItems", { items: [folder], mailboxUid });
         throw e;

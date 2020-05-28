@@ -76,6 +76,7 @@
     "mail.folder.new.from_scratch": "Nouveau dossier",
     "mail.folder.delete.dialog.title": "Supprimer un dossier",
     "mail.folder.delete.dialog.question": "Supprimer le dossier \"{name}\" ?",
+    "mail.folder.delete.dialog.question.with_subfolders": "Supprimer le dossier \"{name}\" et l'ensemble de ses sous-dossiers ?",
     "mail.folder.mark_as_read": "Marquer tout comme lu",
     "alert.mail.move.loading": "Déplacement de \"{subject}\" en cours...",
     "alert.mail.move.multiple.loading": "Déplacement de {count} messages en cours...",
