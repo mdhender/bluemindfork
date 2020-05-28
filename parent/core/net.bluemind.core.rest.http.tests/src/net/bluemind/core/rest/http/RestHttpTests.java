@@ -18,12 +18,15 @@
  */
 package net.bluemind.core.rest.http;
 
+import static org.junit.Assert.fail;
+
 import java.util.concurrent.TimeUnit;
 
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClient;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
 
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.tests.services.IRestPathTestService;
@@ -50,10 +53,26 @@ public class RestHttpTests extends RestTestServiceTests {
 		httpClient.close();
 	}
 
+	@Test(timeout = 10000)
+	public void callBlackHole() {
+		IRestTestService testService = getRestTestService(SecurityContext.ANONYMOUS, 5);
+		try {
+			testService.blackHole();
+			fail("got reply");
+		} catch (Exception e) {
+			System.err.println("Got a timeout as expected: " + e.getMessage());
+		}
+	}
+
 	@Override
 	public IRestTestService getRestTestService(SecurityContext context) {
 		return HttpClientFactory.create(IRestTestService.class, IRestTestServiceAsync.class, "http://localhost:8090")
 				.syncClient(context.getSessionId());
+	}
+
+	public IRestTestService getRestTestService(SecurityContext context, int timeoutSec) {
+		return ClientSideServiceProvider.getProvider("http://localhost:8090", context.getSessionId(), timeoutSec)
+				.instance(IRestTestService.class);
 	}
 
 	@Override
