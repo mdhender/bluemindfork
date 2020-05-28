@@ -17,7 +17,8 @@ Require-Bundle: io.netty;bundle-version="4.0.33";visibility:=reexport,
  net.bluemind.common.io;bundle-version="4.1.0",
  com.fasterxml.jackson.core.jackson-core;bundle-version="2.10.1",
  com.fasterxml.jackson.core.jackson-databind;bundle-version="2.10.1",
- com.fasterxml.jackson.module.jackson-module-afterburner;bundle-version="2.10.3"
+ com.fasterxml.jackson.module.jackson-module-afterburner;bundle-version="2.10.3",
+ net.bluemind.lib.vertx
 Bundle-ClassPath: .
 X-BM-Version: 4.3.0
 Bundle-Activator: net.bluemind.core.api.CommonsActivator
