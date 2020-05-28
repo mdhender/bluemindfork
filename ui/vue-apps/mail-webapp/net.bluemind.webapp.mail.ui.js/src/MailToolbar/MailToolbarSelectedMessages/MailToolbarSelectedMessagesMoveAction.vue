@@ -182,7 +182,8 @@ function toFolderItem(folder, isShared = false, path = undefined) {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/styleguide/css/variables";
+@import "~@bluemind/styleguide/css/mixins";
 
 .move-message {
     input {
@@ -191,6 +192,7 @@ function toFolderItem(folder, isShared = false, path = undefined) {
 
     .dropdown-menu {
         min-width: 20vw;
+        max-width: 40vw;
     }
 
     .bm-dropdown-autocomplete form {
@@ -202,6 +204,10 @@ function toFolderItem(folder, isShared = false, path = undefined) {
 
     .dropdown-divider {
         margin: 0 !important;
+    }
+
+    .dropdown-item-content {
+        @include text-overflow;
     }
 
     .dropdown-item,

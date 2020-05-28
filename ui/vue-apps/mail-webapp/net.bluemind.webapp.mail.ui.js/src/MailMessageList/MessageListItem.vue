@@ -343,12 +343,6 @@ export default {
     font-weight: $font-weight-bold;
 }
 
-.text-overflow {
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-}
-
 .fade-enter-active {
     transition: opacity 0.2s;
 }
