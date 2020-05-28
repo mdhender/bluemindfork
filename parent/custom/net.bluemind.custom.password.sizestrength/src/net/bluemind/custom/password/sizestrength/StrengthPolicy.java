@@ -15,20 +15,19 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.core.password.sizestrength;
+package net.bluemind.custom.password.sizestrength;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Properties;
+import java.util.Map;
+import java.util.Optional;
+
+import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.custom.password.sizestrength.api.PasswordSizeStrenghtSettingsKeys;
+import net.bluemind.custom.password.sizestrength.api.PasswordSizeStrengthDefaultValues;
+import net.bluemind.system.api.IGlobalSettings;
 
 public class StrengthPolicy {
-	private static final String CONF_FILE = "/etc/bm/password.ini";
-	private static final int DEFAULT_MINIMUM_LENGTH = 6;
-	private static final int DEFAULT_MINIMUM_DIGIT = 1;
-	private static final int DEFAULT_MINIMUM_CAPITAL = 1;
-	private static final int DEFAULT_MINIMUM_LOWER = 1;
-	private static final int DEFAULT_MINIMUM_PUNCT = 1;
-
+	public final boolean enabled;
 	public final int minimumLength;
 	public final int minimumDigit;
 	public final int minimumCapital;
@@ -36,70 +35,62 @@ public class StrengthPolicy {
 	public final int minimumPunct;
 
 	public static StrengthPolicy build() {
-		Properties p = new Properties();
-		try {
-			FileInputStream fis = new FileInputStream(CONF_FILE);
-			p.load(fis);
-		} catch (IOException e) {
-			return new StrengthPolicy();
+		Map<String, String> globalSettings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IGlobalSettings.class).get();
+
+		if (!Boolean
+				.valueOf(globalSettings.get(PasswordSizeStrenghtSettingsKeys.password_sizestrength_enabled.name()))) {
+			return new StrengthPolicy(false);
 		}
 
-		Integer minimumDigit = null;
-		try {
-			minimumDigit = Integer.parseInt(p.getProperty("digit"));
-		} catch (NumberFormatException nfe) {
-			minimumDigit = DEFAULT_MINIMUM_DIGIT;
-		}
-
-		Integer minimumCapital = null;
-		try {
-			minimumCapital = Integer.parseInt(p.getProperty("capital"));
-		} catch (NumberFormatException nfe) {
-			minimumCapital = DEFAULT_MINIMUM_CAPITAL;
-		}
-
-		Integer minimumLower = null;
-		try {
-			minimumLower = Integer.parseInt(p.getProperty("lower"));
-		} catch (NumberFormatException nfe) {
-			minimumLower = DEFAULT_MINIMUM_LOWER;
-		}
-
-		Integer minimumPunct = null;
-		try {
-			minimumPunct = Integer.parseInt(p.getProperty("special"));
-		} catch (NumberFormatException nfe) {
-			minimumPunct = DEFAULT_MINIMUM_PUNCT;
-		}
-
-		Integer minimumLength = null;
-		try {
-			minimumLength = Integer.parseInt(p.getProperty("length"));
-		} catch (NumberFormatException nfe) {
-			minimumLength = DEFAULT_MINIMUM_LENGTH;
-		}
-
-		if (minimumLength < minimumDigit + minimumCapital + minimumLower + minimumPunct) {
-			minimumLength = minimumDigit + minimumCapital + minimumLower + minimumPunct;
-		}
-
-		return new StrengthPolicy(minimumLength, minimumPunct, minimumLower, minimumCapital, minimumDigit);
+		return new StrengthPolicy(true,
+				getGlobalSettingsValue(globalSettings,
+						PasswordSizeStrenghtSettingsKeys.password_sizestrength_minimumlength.name()),
+				getGlobalSettingsValue(globalSettings,
+						PasswordSizeStrenghtSettingsKeys.password_sizestrength_punct.name()),
+				getGlobalSettingsValue(globalSettings,
+						PasswordSizeStrenghtSettingsKeys.password_sizestrength_lower.name()),
+				getGlobalSettingsValue(globalSettings,
+						PasswordSizeStrenghtSettingsKeys.password_sizestrength_capital.name()),
+				getGlobalSettingsValue(globalSettings,
+						PasswordSizeStrenghtSettingsKeys.password_sizestrength_digit.name()));
 	}
 
-	private StrengthPolicy(Integer minimumLength, Integer minimumPunct, Integer minimumLower, Integer minimumCapital,
-			Integer minimumDigit) {
-		this.minimumLength = minimumLength;
-		this.minimumPunct = minimumPunct;
-		this.minimumLower = minimumLower;
-		this.minimumCapital = minimumCapital;
-		this.minimumDigit = minimumDigit;
+	private static Optional<Integer> getGlobalSettingsValue(Map<String, String> globalSettings, String key) {
+		try {
+			return Optional.ofNullable(new Integer(globalSettings.get(key)));
+		} catch (NumberFormatException nfe) {
+			return Optional.empty();
+		}
 	}
 
-	private StrengthPolicy() {
-		this.minimumLength = DEFAULT_MINIMUM_LENGTH;
-		this.minimumPunct = DEFAULT_MINIMUM_PUNCT;
-		this.minimumLower = DEFAULT_MINIMUM_LOWER;
-		this.minimumCapital = DEFAULT_MINIMUM_CAPITAL;
-		this.minimumDigit = DEFAULT_MINIMUM_DIGIT;
+	private StrengthPolicy(boolean enabled, Optional<Integer> minimumLength, Optional<Integer> minimumPunct,
+			Optional<Integer> minimumLower, Optional<Integer> minimumCapital, Optional<Integer> minimumDigit) {
+		this.enabled = enabled;
+
+		this.minimumPunct = minimumPunct.orElse(PasswordSizeStrengthDefaultValues.DEFAULT_MINIMUM_PUNCT);
+		this.minimumLower = minimumLower.orElse(PasswordSizeStrengthDefaultValues.DEFAULT_MINIMUM_LOWER);
+		this.minimumCapital = minimumCapital.orElse(PasswordSizeStrengthDefaultValues.DEFAULT_MINIMUM_CAPITAL);
+		this.minimumDigit = minimumDigit.orElse(PasswordSizeStrengthDefaultValues.DEFAULT_MINIMUM_DIGIT);
+
+		this.minimumLength = checkMinimumLength(
+				minimumLength.orElse(PasswordSizeStrengthDefaultValues.DEFAULT_MINIMUM_LENGTH));
+	}
+
+	private int checkMinimumLength(Integer minimumLength) {
+		return minimumLength < this.minimumDigit + this.minimumCapital + this.minimumLower + this.minimumPunct
+				? this.minimumDigit + this.minimumCapital + this.minimumLower + this.minimumPunct
+				: minimumLength;
+	}
+
+	private StrengthPolicy(boolean enabled) {
+		this.enabled = enabled;
+
+		this.minimumPunct = PasswordSizeStrengthDefaultValues.DEFAULT_MINIMUM_PUNCT;
+		this.minimumLower = PasswordSizeStrengthDefaultValues.DEFAULT_MINIMUM_LOWER;
+		this.minimumCapital = PasswordSizeStrengthDefaultValues.DEFAULT_MINIMUM_CAPITAL;
+		this.minimumDigit = PasswordSizeStrengthDefaultValues.DEFAULT_MINIMUM_DIGIT;
+
+		this.minimumLength = checkMinimumLength(PasswordSizeStrengthDefaultValues.DEFAULT_MINIMUM_LENGTH);
 	}
 }

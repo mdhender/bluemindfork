@@ -45,7 +45,9 @@ Require-Bundle: net.bluemind.core.commons,
  net.bluemind.system.schemaupgrader.runner,
  net.bluemind.core.bo.report.provider,
  net.bluemind.core.validator,
- net.bluemind.server.hook
+ net.bluemind.server.hook,
+ net.bluemind.core.sanitizer,
+ net.bluemind.core.sanitizer
 Bundle-ClassPath: .
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.system.service,

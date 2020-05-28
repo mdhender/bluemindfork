@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.core.password.sizestrength;
+package net.bluemind.custom.password.sizestrength;
 
 import java.text.MessageFormat;
 import java.util.Locale;
@@ -40,7 +40,7 @@ public class SizeStrengthPolicy implements IPasswordValidator {
 
 	@Override
 	public void validate(Optional<String> currentPassword, String password) throws ServerFault {
-		if (context.getSecurityContext().isDomainGlobal()) {
+		if (!strengthPolicy.enabled || context.getSecurityContext().isDomainGlobal()) {
 			return;
 		}
 

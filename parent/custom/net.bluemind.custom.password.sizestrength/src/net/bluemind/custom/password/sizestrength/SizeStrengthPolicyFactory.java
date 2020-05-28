@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.core.password.sizestrength;
+package net.bluemind.custom.password.sizestrength;
 
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.user.hook.passwordvalidator.IPasswordValidator;

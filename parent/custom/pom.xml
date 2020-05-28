@@ -10,5 +10,6 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>net.bluemind.custom.password.sizestrength</module>
+		<module>net.bluemind.custom.password.sizestrength.api</module>
 	</modules>
 </project>

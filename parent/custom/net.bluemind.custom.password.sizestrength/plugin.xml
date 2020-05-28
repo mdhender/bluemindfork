@@ -4,8 +4,26 @@
    <extension
          point="net.bluemind.user.hook.passwordvalidatorfactory">
       <passwordvalidatorfactory
-            implementation="net.bluemind.core.password.sizestrength.SizeStrengthPolicyFactory">
+            implementation="net.bluemind.custom.password.sizestrength.SizeStrengthPolicyFactory">
       </passwordvalidatorfactory>
+   </extension>
+   <extension
+         point="net.bluemind.system.schemaupgrader.javacode">
+      <java
+            code="net.bluemind.custom.password.sizestrength.upgrader.MoveConfToGlobalSettings">
+      </java>
+   </extension>
+   <extension
+         point="net.bluemind.core.sanitizerfactory">
+      <sanitizerfactory
+            implementation="net.bluemind.custom.password.sizestrength.SizeStrengthGlobalSettingsSanitizer$factory">
+      </sanitizerfactory>
+   </extension>
+   <extension
+         point="net.bluemind.core.validatorfactory">
+      <validatorfactory
+            implementation="net.bluemind.custom.password.sizestrength.SizeStrengthGlobalSettingsValidator$factory">
+      </validatorfactory>
    </extension>
 
 </plugin>
