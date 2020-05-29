@@ -66,9 +66,8 @@ public final class HpsReqHandler implements Handler<HttpServerRequest> {
 	public void handle(HttpServerRequest event) {
 		event.exceptionHandler(e -> {
 			registry.counter(idFactory.name("requestsCount", "status", "500"));
-			logger.error("unhandled exception for request " + event.uri(), e);
-			event.response().setStatusCode(500);
-			event.response().end();
+			logger.error("unhandled exception for request {}", event.uri(), e);
+			event.response().setStatusCode(500).end();
 		});
 		String uri = event.uri();
 		if (uri.endsWith("/favicon.ico")) {

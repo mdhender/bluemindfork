@@ -67,4 +67,9 @@ public interface SysConfAuthConstants extends Messages {
 
 	String domainList();
 
+	String globalParams();
+
+	String maxSessionPerUser();
+
+	String maxSessionPerUserTitle();
 }

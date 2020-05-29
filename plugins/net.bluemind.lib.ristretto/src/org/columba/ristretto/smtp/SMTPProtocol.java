@@ -113,10 +113,8 @@ public class SMTPProtocol implements AuthenticationServer, AutoCloseable {
 	/**
 	 * Constructs the SMTPProtocol.
 	 * 
-	 * @param host
-	 *                 the sever name to connect to
-	 * @param port
-	 *                 the port to connect to
+	 * @param host the sever name to connect to
+	 * @param port the port to connect to
 	 */
 	public SMTPProtocol(String host, int port) {
 		this.host = host;
@@ -127,8 +125,7 @@ public class SMTPProtocol implements AuthenticationServer, AutoCloseable {
 	 * Constructs the SMTPProtocol. Uses the default port 25 to connect to the
 	 * server.
 	 * 
-	 * @param host
-	 *                 the sever name to connect to
+	 * @param host the sever name to connect to
 	 */
 	public SMTPProtocol(String host) {
 		this(host, DEFAULTPORT);
@@ -238,8 +235,7 @@ public class SMTPProtocol implements AuthenticationServer, AutoCloseable {
 	 * 
 	 * @see #helo(InetAddress)
 	 * 
-	 * @param domain
-	 *                   the domain name of the client
+	 * @param domain the domain name of the client
 	 * @return the capabilities of the server
 	 * @throws IOException
 	 * @throws SMTPException
@@ -319,13 +315,10 @@ public class SMTPProtocol implements AuthenticationServer, AutoCloseable {
 	 * @param algorithm
 	 * 
 	 * @link{org.columba.ristretto.auth.AuthenticationFactory .
-	 * @param algorithm
-	 *                      the algorithm used to authenticate the user (e.g. PLAIN,
-	 *                      DIGEST-MD5)
-	 * @param user
-	 *                      the user name
-	 * @param password
-	 *                      the password
+	 * @param algorithm the algorithm used to authenticate the user (e.g. PLAIN,
+	 *                  DIGEST-MD5)
+	 * @param user      the user name
+	 * @param password  the password
 	 * @throws IOException
 	 * @throws SMTPException
 	 * @throws AuthenticationException
@@ -364,8 +357,7 @@ public class SMTPProtocol implements AuthenticationServer, AutoCloseable {
 	 * @see #rcpt(Address)
 	 * @see #data(InputStream)
 	 * 
-	 * @param from
-	 *                 the email address of the sender
+	 * @param from the email address of the sender
 	 * @throws IOException
 	 * @throws SMTPException
 	 */
@@ -394,8 +386,7 @@ public class SMTPProtocol implements AuthenticationServer, AutoCloseable {
 	 * @see #mail(Address)
 	 * @see #data(InputStream)
 	 * 
-	 * @param address
-	 *                    the email address of a recipient.
+	 * @param address the email address of a recipient.
 	 * @throws IOException
 	 * @throws SMTPException
 	 */
@@ -423,8 +414,7 @@ public class SMTPProtocol implements AuthenticationServer, AutoCloseable {
 	 * @see #mail(Address)
 	 * @see #data(InputStream)
 	 * 
-	 * @param address
-	 *                    the email address of a recipient.
+	 * @param address the email address of a recipient.
 	 * @throws IOException
 	 * @throws SMTPException
 	 */
@@ -456,8 +446,7 @@ public class SMTPProtocol implements AuthenticationServer, AutoCloseable {
 	 * @see #TO
 	 * @see #CC
 	 * 
-	 * @param address
-	 *                    the email address of a recipient.
+	 * @param address the email address of a recipient.
 	 * @throws IOException
 	 * @throws SMTPException
 	 */
@@ -494,8 +483,7 @@ public class SMTPProtocol implements AuthenticationServer, AutoCloseable {
 	 * @see #mail(Address)
 	 * @see #rcpt(Address)
 	 * 
-	 * @param data
-	 *                 the mail
+	 * @param data the mail
 	 * 
 	 * @return SMTP response on success
 	 * @throws IOException
@@ -511,7 +499,7 @@ public class SMTPProtocol implements AuthenticationServer, AutoCloseable {
 			response = readSingleLineResponse();
 			if (response.getCode() == 354) {
 				try {
-					copyStream(new StopWordSafeInputStream(data), out);
+					copyStream(data, new SMTPOutputStream(out));
 					out.write(STOPWORD);
 					out.flush();
 				} catch (IOException e) {
@@ -578,8 +566,7 @@ public class SMTPProtocol implements AuthenticationServer, AutoCloseable {
 	/**
 	 * Sends a VRFY command which verifies the given email address.
 	 * 
-	 * @param address
-	 *                    email address to verify
+	 * @param address email address to verify
 	 * @throws IOException
 	 * @throws SMTPException
 	 */
@@ -602,8 +589,7 @@ public class SMTPProtocol implements AuthenticationServer, AutoCloseable {
 	/**
 	 * Expands a given mailinglist address to all members of that list.
 	 * 
-	 * @param mailinglist
-	 *                        the mailinglist address
+	 * @param mailinglist the mailinglist address
 	 * @return the members of the mailinglist
 	 * @throws IOException
 	 * @throws SMTPException

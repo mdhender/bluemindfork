@@ -19,11 +19,12 @@
 package net.bluemind.system.schemaupgrader;
 
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.sql.DataSource;
-
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
@@ -32,14 +33,15 @@ import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.core.api.fault.ServerFault;
+
 public class SqlScripts {
 
 	private List<Updater> sqlScripts;
-	private DataSource pool;
 	private static final Logger logger = LoggerFactory.getLogger(SqlScripts.class);
+	private SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
 
-	public SqlScripts(DataSource pool) {
-		this.pool = pool;
+	public SqlScripts() {
 		this.sqlScripts = new LinkedList<>();
 		loadScripts();
 	}
@@ -67,17 +69,27 @@ public class SqlScripts {
 						logger.error("bundle [{}] resource {} not found", bundle.getSymbolicName(), resource);
 						continue;
 					}
-					int major = Integer.parseInt(e.getAttribute("major"));
-					int build = Integer.parseInt(e.getAttribute("build_number"));
+					int sequence = Integer.parseInt(e.getAttribute("sequence"));
+					Date date;
+					try {
+						date = df.parse(e.getAttribute("date_yyyyMMdd"));
+					} catch (Exception ex) {
+						throw new ServerFault("Cannot parse upgrader date", ex);
+					}
+					UpgraderDatabase db = null;
+					try {
+						db = (UpgraderDatabase) e.createExecutableExtension("database");
+					} catch (CoreException e1) {
+						logger.warn("Cannot read database attribute of sql upgrader PEXT", e);
+						db = new UpgraderDatabase.ALL();
+					}
 					boolean afterSchemaUpgrade = false;
 					if (e.getAttribute("after_schema_upgrade") != null) {
 						afterSchemaUpgrade = Boolean.parseBoolean(e.getAttribute("after_schema_upgrade"));
 					}
-					String component = e.getAttribute("component") != null ? e.getAttribute("component") : "bm/core";
 					boolean ignoreErrors = Boolean.parseBoolean(e.getAttribute("ignore_errors"));
-
-					Updater descriptor = new SqlUpdater(pool, url, major, build, ignoreErrors, component,
-							afterSchemaUpgrade);
+					Updater descriptor = new SqlUpdater(url, ignoreErrors, afterSchemaUpgrade, db.database(), date,
+							sequence);
 					sqlScripts.add(descriptor);
 				}
 			}

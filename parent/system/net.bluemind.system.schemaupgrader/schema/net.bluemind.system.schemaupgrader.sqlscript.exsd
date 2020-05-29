@@ -59,28 +59,7 @@
                </appinfo>
             </annotation>
          </attribute>
-         <attribute name="major" type="string" use="required">
-            <annotation>
-               <documentation>
-                  Major version to apply the script
-               </documentation>
-            </annotation>
-         </attribute>
-         <attribute name="build_number" type="string" use="required">
-            <annotation>
-               <documentation>
-                  Build number to run the sql script
-               </documentation>
-            </annotation>
-         </attribute>
          <attribute name="ignore_errors" type="boolean" use="default" value="false">
-            <annotation>
-               <documentation>
-                  
-               </documentation>
-            </annotation>
-         </attribute>
-         <attribute name="component" type="string" use="default" value="bm/core">
             <annotation>
                <documentation>
                   
@@ -92,6 +71,30 @@
                <documentation>
                   
                </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="date_yyyyMMdd" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="sequence" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="database" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn=":net.bluemind.system.schemaupgrader.UpgraderDatabase"/>
+               </appinfo>
             </annotation>
          </attribute>
       </complexType>

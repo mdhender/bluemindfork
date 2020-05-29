@@ -131,8 +131,8 @@ public class ImapInjectorTests {
 				domainUid);
 		ApplyCounter.reset();
 		assertNotNull(inject);
-		int MSG = 5000;
-		int MAX_STALLS = 500;
+		int MSG = 500;
+		int MAX_STALLS = 250;
 		Runnable r = () -> inject.runCycle(MSG);
 		Thread injection = new Thread(r, "injector-thread");
 		injection.start();

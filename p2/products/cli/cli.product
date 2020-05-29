@@ -7,7 +7,7 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-consoleLog help forest join
+      <programArgs>-consoleLog maintenance ops devenv.blue
       </programArgs>
       <vmArgs>-Duser.timezone=GMT -Djava.awt.headless=true -Dnet.bluemind.property.product=bm-cli
       </vmArgs>
@@ -32,6 +32,7 @@
       <plugin id="com.fasterxml.jackson.core.jackson-annotations"/>
       <plugin id="com.fasterxml.jackson.core.jackson-core"/>
       <plugin id="com.fasterxml.jackson.core.jackson-databind"/>
+      <plugin id="com.fasterxml.jackson.module.jackson-module-afterburner"/>
       <plugin id="com.github.freva.ascii-table"/>
       <plugin id="com.github.javafaker"/>
       <plugin id="com.google.guava"/>
@@ -103,6 +104,7 @@
       <plugin id="net.bluemind.elastic.client"/>
       <plugin id="net.bluemind.exchange.mapi.api"/>
       <plugin id="net.bluemind.exchange.publicfolders.common"/>
+      <plugin id="net.bluemind.externaluser.api"/>
       <plugin id="net.bluemind.filehosting.api"/>
       <plugin id="net.bluemind.forest.cloud.api"/>
       <plugin id="net.bluemind.forest.instance.api"/>
@@ -117,8 +119,8 @@
       <plugin id="net.bluemind.lib.jackson"/>
       <plugin id="net.bluemind.lib.jta"/>
       <plugin id="net.bluemind.lib.jutf7"/>
+      <plugin id="net.bluemind.lib.ristretto"/>
       <plugin id="net.bluemind.lib.vertx"/>
-      <plugin id="net.bluemind.locator.client"/>
       <plugin id="net.bluemind.mailbox.api"/>
       <plugin id="net.bluemind.mailbox.identity.api"/>
       <plugin id="net.bluemind.metrics.alerts.api"/>
@@ -129,6 +131,7 @@
       <plugin id="net.bluemind.network.utils"/>
       <plugin id="net.bluemind.resource.api"/>
       <plugin id="net.bluemind.role.api"/>
+      <plugin id="net.bluemind.scheduledjob.api"/>
       <plugin id="net.bluemind.serialization.client"/>
       <plugin id="net.bluemind.server.api"/>
       <plugin id="net.bluemind.slf4j"/>

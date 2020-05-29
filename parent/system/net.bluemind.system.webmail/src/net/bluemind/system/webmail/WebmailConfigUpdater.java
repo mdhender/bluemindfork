@@ -18,25 +18,26 @@
  */
 package net.bluemind.system.webmail;
 
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.node.api.INodeClient;
-import net.bluemind.system.config.INginxConfigUpdater;
-import net.bluemind.system.config.NginxConfig;
+import net.bluemind.system.nginx.INginxConfigUpdater;
 import net.bluemind.system.webmail.cf.WebmailPhpFpmConf;
 import net.bluemind.system.webmail.cf.WebmailPhpNginxConf;
 
 public class WebmailConfigUpdater implements INginxConfigUpdater {
-
 	@Override
-	public void update(INodeClient nc, NginxConfig config) throws Exception {
-
+	public void updateMessageSize(INodeClient nc, long size) throws ServerFault {
 		WebmailPhpFpmConf webmailFpmConf = new WebmailPhpFpmConf(nc);
-		webmailFpmConf.setMessageSizeLimit(Long.parseLong(config.get("messageSizeLimit")));
+		webmailFpmConf.setMessageSizeLimit(size);
 		webmailFpmConf.write();
 
 		WebmailPhpNginxConf webmailNginxConf = new WebmailPhpNginxConf(nc);
-		webmailNginxConf.setMessageSizeLimit(Long.parseLong(config.get("messageSizeLimit")));
+		webmailNginxConf.setMessageSizeLimit(size);
 		webmailNginxConf.write();
-
 	}
 
+	@Override
+	public void updateFilehostingSize(INodeClient nc, long size) throws ServerFault {
+		// Nothing to do
+	}
 }

@@ -26,5 +26,6 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.domain.hook,
  net.bluemind.role.api,
  net.bluemind.core.task.service,
- net.bluemind.core.sanitizer
+ net.bluemind.core.sanitizer,
+ net.bluemind.network.topology
 

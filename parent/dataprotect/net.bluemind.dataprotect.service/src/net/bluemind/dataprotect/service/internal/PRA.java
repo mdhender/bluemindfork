@@ -75,14 +75,14 @@ public class PRA implements IServerTask {
 		GenerationContent gc = new GenerationContent();
 		gc.generationId = pgPart.generationId;
 
-		try (BackupDataProvider backupProvider = new BackupDataProvider(target, monitor)) {
+		try (BackupDataProvider backupProvider = new BackupDataProvider(target, pgPart.server, monitor)) {
 			IDataProtect backupApi = ctx.provider().instance(IDataProtect.class);
 
 			String log = "Starting restore from part " + pgPart.tag + " " + pgPart.server;
 			monitor.begin(2, log);
 			logger.info(log);
 
-			IServiceProvider sp = backupProvider.create(pgPart, dpGeneration.blueMind).provider();
+			IServiceProvider sp = backupProvider.DIRECTORY(pgPart, dpGeneration.blueMind).provider();
 			IDomains domainApi = sp.instance(IDomains.class, InstallationId.getIdentifier());
 			gc.domains = domainApi.all().stream()
 					.filter(d -> rbac.forDomain(d.uid).can(BasicRoles.ROLE_MANAGE_RESTORE, BasicRoles.ROLE_DATAPROTECT))

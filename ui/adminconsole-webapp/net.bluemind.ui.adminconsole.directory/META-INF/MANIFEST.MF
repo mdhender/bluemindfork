@@ -52,7 +52,6 @@ Require-Bundle: net.bluemind.commons.ui.closure;bundle-version="4.1.0",
  net.bluemind.core.task.api,
  net.bluemind.webmodule.uploadhandler,
  net.bluemind.core.rest.http,
- net.bluemind.locator.vertxclient,
  slf4j.api,
  net.bluemind.ui.imageupload;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.eas.api.gwt;visibility:=reexport,
@@ -65,7 +64,8 @@ Require-Bundle: net.bluemind.commons.ui.closure;bundle-version="4.1.0",
  net.bluemind.addressbook.ldap.api.gwt;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.externaluser.api.gwt,
  net.bluemind.externaluser.api,
- net.bluemind.ui.gwtcommon.editor;visibility:=reexport
+ net.bluemind.ui.gwtcommon.editor;visibility:=reexport,
+ net.bluemind.network.topology
 Export-Package: net.bluemind.ui.adminconsole.directory,
  net.bluemind.ui.adminconsole.directory.ou
 Automatic-Module-Name: net.bluemind.ui.adminconsole.directory

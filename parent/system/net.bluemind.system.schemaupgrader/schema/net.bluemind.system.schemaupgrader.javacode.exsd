@@ -55,7 +55,7 @@
                   
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn=":net.bluemind.system.schemaupgrader.IVersionedUpdater"/>
+                  <meta.attribute kind="java" basedOn=":net.bluemind.system.schemaupgrader.Updater"/>
                </appinfo>
             </annotation>
          </attribute>

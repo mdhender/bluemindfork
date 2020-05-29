@@ -26,30 +26,14 @@ import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.core.api.AsyncHandler;
-import net.bluemind.core.rest.http.HttpClientProvider;
-import net.bluemind.core.rest.http.VertxServiceProvider;
-import net.bluemind.locator.vertxclient.VertxLocatorClient;
 import net.bluemind.user.api.IUserAsync;
-import net.bluemind.webmodule.server.NeedVertx;
-import net.bluemind.webmodule.uploadhandler.TemporaryUploadRepository;
 
-public class UserPhotoUploadHandler implements Handler<HttpServerRequest>, NeedVertx {
+public class UserPhotoUploadHandler extends BaseUploadHandler {
 
 	private static Logger logger = LoggerFactory.getLogger(UserPhotoUploadHandler.class);
-	private Vertx vertx;
-	private TemporaryUploadRepository repository;
-	private HttpClientProvider clientProvider;
-
-	@Override
-	public void setVertx(Vertx vertx) {
-		this.vertx = vertx;
-		this.clientProvider = new HttpClientProvider(vertx);
-		this.repository = new TemporaryUploadRepository(vertx);
-	}
 
 	@Override
 	public void handle(final HttpServerRequest request) {
@@ -98,7 +82,6 @@ public class UserPhotoUploadHandler implements Handler<HttpServerRequest>, NeedV
 			public void success(Void value) {
 				request.response().setStatusCode(200);
 				request.response().end();
-				return;
 			}
 
 			@Override
@@ -107,17 +90,8 @@ public class UserPhotoUploadHandler implements Handler<HttpServerRequest>, NeedV
 				request.response().setStatusCode(500);
 				request.response().setStatusMessage("bad paramters");
 				request.response().end();
-				return;
 			}
 		});
-	}
-
-	private VertxServiceProvider getProvider(HttpServerRequest request) {
-
-		String login = request.headers().get("BMUserLogin");
-		String apiKey = request.headers().get("BMSessionId");
-		return new VertxServiceProvider(clientProvider, new VertxLocatorClient(clientProvider, login), apiKey)
-				.from(request);
 	}
 
 }

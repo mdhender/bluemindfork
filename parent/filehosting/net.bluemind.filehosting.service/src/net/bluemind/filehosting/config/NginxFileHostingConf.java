@@ -24,8 +24,7 @@ import java.util.Map;
 import freemarker.template.Template;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.node.api.INodeClient;
-import net.bluemind.system.config.AbstractConfFile;
-
+import net.bluemind.system.nginx.AbstractConfFile;
 public class NginxFileHostingConf extends AbstractConfFile {
 
 	private static final int MEMORY_SIZE = 64;

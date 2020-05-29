@@ -16,7 +16,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.rest,
  net.bluemind.user.api,
  net.bluemind.core.container.api;bundle-version="1.0.0",
- net.bluemind.locator.client,
  net.bluemind.config;bundle-version="1.0.0",
  net.bluemind.todolist.api,
  net.bluemind.lmtp;bundle-version="1.0.0",
@@ -32,8 +31,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.directory.api,
  net.bluemind.calendar.occurrence,
  net.bluemind.icalendar.parser,
- net.bluemind.locator.vertxclient,
- net.bluemind.hornetq.client
+ net.bluemind.hornetq.client,
+ net.bluemind.network.topology
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: blue-mind.net

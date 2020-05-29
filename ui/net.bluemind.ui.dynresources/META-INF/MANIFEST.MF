@@ -14,9 +14,9 @@ Require-Bundle: net.bluemind.webmodule;bundle-version="4.1.0",
  net.bluemind.core.rest.http,
  net.bluemind.system.api,
  net.bluemind.hornetq.client,
- net.bluemind.locator.client,
  net.bluemind.config,
- net.bluemind.system.stateobserver;bundle-version="4.1.0"
+ net.bluemind.system.stateobserver;bundle-version="4.1.0",
+ net.bluemind.network.topology
 Bundle-ClassPath: .
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: net.bluemind.ui.dynresources.Activator

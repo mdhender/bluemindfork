@@ -18,7 +18,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.config,
  net.bluemind.node.api,
  net.bluemind.tag.api,
- net.bluemind.system.config
+ net.bluemind.system.config,
+ net.bluemind.system.nginx
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.system.webmail

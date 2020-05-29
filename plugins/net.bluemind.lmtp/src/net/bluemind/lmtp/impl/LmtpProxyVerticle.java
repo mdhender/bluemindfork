@@ -29,8 +29,8 @@ import com.google.common.io.Files;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.net.NetClient;
 import io.vertx.core.net.NetClientOptions;
 import io.vertx.core.net.NetServer;
@@ -82,7 +82,7 @@ public class LmtpProxyVerticle extends AbstractVerticle {
 	private LmtpConfig config;
 
 	@Override
-	public void start(Future<Void> startFuture) {
+	public void start(Promise<Void> startFuture) {
 		try {
 			config = new LmtpConfig();
 
@@ -95,7 +95,6 @@ public class LmtpProxyVerticle extends AbstractVerticle {
 			srv.connectHandler(onConnect());
 
 			int port = 2400;
-			// logger.info("Will bind to port " + port);
 			srv.listen(port, listenHandler(startFuture));
 		} catch (Exception t) {
 			logger.error(t.getMessage(), t);
@@ -147,8 +146,6 @@ public class LmtpProxyVerticle extends AbstractVerticle {
 
 					proxy.start();
 				} else {
-
-					// FIXME maybe we could send a message..
 					logger.error("error during connecting to lmtp backend. LMTP_HOST: {}", LMTP_HOST, event.cause());
 					socket.close();
 				}
@@ -157,12 +154,12 @@ public class LmtpProxyVerticle extends AbstractVerticle {
 
 	}
 
-	private Handler<AsyncResult<NetServer>> listenHandler(Future<Void> start) {
+	private Handler<AsyncResult<NetServer>> listenHandler(Promise<Void> start) {
 		return new Handler<AsyncResult<NetServer>>() {
 
 			@Override
 			public void handle(AsyncResult<NetServer> event) {
-				logger.info("listen, success: " + event.succeeded());
+				logger.info("listen, success: {}", event.succeeded());
 				if (event.succeeded()) {
 					start.complete(null);
 

@@ -45,6 +45,7 @@ import net.bluemind.server.api.CommandStatus;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 
 public class PostfixService {
@@ -162,9 +163,10 @@ public class PostfixService {
 			ISystemConfiguration sysConf = provider.instance(ISystemConfiguration.class);
 
 			SystemConf conf = sysConf.getValues();
-			String externalUrl = conf.stringValue("external-url");
+			String externalUrl = conf.stringValue(SysConfKeys.external_url.name());
 			if (externalUrl == null || externalUrl.trim().isEmpty()) {
-				throw new ServerFault("invalid external-url value", ErrorCode.INVALID_PARAMETER);
+				throw new ServerFault(String.format("Invalid %s value", SysConfKeys.external_url.name()),
+						ErrorCode.INVALID_PARAMETER);
 			}
 
 			String mn = conf.stringValue("mynetworks");

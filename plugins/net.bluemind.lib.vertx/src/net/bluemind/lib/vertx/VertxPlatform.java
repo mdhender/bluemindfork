@@ -76,7 +76,7 @@ public final class VertxPlatform implements BundleActivator {
 		VertxPlatform.context = bundleContext;
 	}
 
-	public synchronized static void spawnVerticles(final Handler<AsyncResult<Void>> complete) {
+	public static synchronized void spawnVerticles(final Handler<AsyncResult<Void>> complete) {
 		if (future != null) {
 			logger.info("============ VERTICLES ALREADY SPAWNED ({}) =========", deploymentId);
 			if (future.isDone()) {
@@ -88,23 +88,19 @@ public final class VertxPlatform implements BundleActivator {
 		}
 
 		future = new CompletableFuture<>();
-		Supplier<Verticle> bmModule = () -> new BMModule();
+		Supplier<Verticle> bmModule = BMModule::new;
 
-		vertx.deployVerticle(bmModule, new DeploymentOptions().setInstances(1), new Handler<AsyncResult<String>>() {
-
-			@Override
-			public void handle(AsyncResult<String> event) {
-				logger.info("BMModule deployed, success: {}", event.succeeded());
-				if (event.succeeded()) {
-					logger.info("Deployement id is {}", event.result());
-					deploymentId = event.result();
-					complete.handle(new Result<Void>());
-					future.complete(null);
-				} else {
-					logger.error(event.cause().getMessage(), event.cause());
-					complete.handle(new Result<Void>(event.cause()));
-					future.completeExceptionally(event.cause());
-				}
+		vertx.deployVerticle(bmModule, new DeploymentOptions().setInstances(1), (AsyncResult<String> event) -> {
+			logger.info("BMModule deployed, success: {}", event.succeeded());
+			if (event.succeeded()) {
+				logger.info("Deployement id is {}", event.result());
+				deploymentId = event.result();
+				complete.handle(new Result<Void>());
+				future.complete(null);
+			} else {
+				logger.error(event.cause().getMessage(), event.cause());
+				complete.handle(new Result<Void>(event.cause()));
+				future.completeExceptionally(event.cause());
 			}
 		});
 	}

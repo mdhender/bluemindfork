@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension-point id="net.bluemind.authentication.service.rolevalidation" name="rolevalidation" schema="schema/net.bluemind.authentication.service.rolevalidation.exsd"/>
    <extension
          point="net.bluemind.core.rest.apiEndpoint">
       <endpoint

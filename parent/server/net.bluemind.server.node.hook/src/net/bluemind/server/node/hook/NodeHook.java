@@ -83,7 +83,7 @@ public class NodeHook extends DefaultServerHook {
 
 			if (!NCUtils.connectedToMyself(remote)) {
 				if (!new File("/etc/bm/skip.restart").exists()) {
-					NCUtils.execNoOut(remote, "/usr/bin/bmctl restart");
+					NCUtils.execNoOut(remote, "/usr/bin/bmctl restart-exceptnode");
 				}
 			}
 		} catch (Exception sf) {

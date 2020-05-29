@@ -37,7 +37,7 @@ import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.im.api.IInstantMessaging;
-import net.bluemind.locator.client.LocatorClient;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.IUserSettings;
 import net.bluemind.user.api.User;
@@ -227,11 +227,7 @@ public final class CF {
 	}
 
 	protected static String locate() {
-		if (coreIp == null) {
-			LocatorClient lc = new LocatorClient();
-			coreIp = lc.locateHost("bm/core", "admin0@global.virt");
-		}
-		return coreIp;
+		return Topology.getIfAvailable().map(t -> t.core().value.address()).orElse("127.0.0.1");
 	}
 
 }

@@ -17,7 +17,9 @@
   */
 package net.bluemind.metrics.core;
 
+import java.util.Date;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.sql.DataSource;
 
@@ -25,11 +27,11 @@ import net.bluemind.core.api.BMVersion;
 import net.bluemind.core.api.VersionInfo;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.system.schemaupgrader.IVersionedUpdater;
 import net.bluemind.system.schemaupgrader.UpdateAction;
 import net.bluemind.system.schemaupgrader.UpdateResult;
+import net.bluemind.system.schemaupgrader.Updater;
 
-public class UpgradeExistingTags implements IVersionedUpdater {
+public class UpgradeExistingTags implements Updater {
 
 	private VersionInfo versionInfo;
 
@@ -47,20 +49,18 @@ public class UpgradeExistingTags implements IVersionedUpdater {
 	}
 
 	@Override
-	public int major() {
-		// run at every upgrade
-		return Integer.parseInt(versionInfo.major) + 1;
-	}
-
-	@Override
-	public int buildNumber() {
-		// run at every upgrade
-		return Integer.parseInt(versionInfo.release);
-	}
-
-	@Override
 	public boolean afterSchemaUpgrade() {
 		return true;
+	}
+
+	@Override
+	public Date date() {
+		return new Date();
+	}
+
+	@Override
+	public int sequence() {
+		return ThreadLocalRandom.current().nextInt(Integer.MAX_VALUE);
 	}
 
 }

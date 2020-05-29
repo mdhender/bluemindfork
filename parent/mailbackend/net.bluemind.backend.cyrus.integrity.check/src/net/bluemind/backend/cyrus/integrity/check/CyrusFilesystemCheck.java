@@ -94,7 +94,6 @@ public class CyrusFilesystemCheck {
 		INodeClient node = NodeActivator.get(backend.value.address());
 		try {
 			deploySpoolTreeScript(node);
-			System.err.println("Deployed in container.");
 		} catch (IOException e) {
 			CompletableFuture<List<String>> ret = new CompletableFuture<>();
 			ret.completeExceptionally(e);
@@ -108,7 +107,6 @@ public class CyrusFilesystemCheck {
 
 			@Override
 			public void log(String spoolDirectory) {
-				System.err.println("" + spoolDirectory);
 				boolean verified = spv.verify(spoolDirectory);
 				if (!verified) {
 					notVerified.add(spoolDirectory);
@@ -117,7 +115,6 @@ public class CyrusFilesystemCheck {
 
 			@Override
 			public void completed(int exitCode) {
-				System.err.println("exit " + exitCode);
 				exit.complete(exitCode);
 			}
 

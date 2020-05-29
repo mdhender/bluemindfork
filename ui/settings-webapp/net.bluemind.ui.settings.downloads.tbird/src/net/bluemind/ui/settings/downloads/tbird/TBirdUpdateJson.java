@@ -32,38 +32,27 @@ import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
-import net.bluemind.utils.IniFile;
 
 public class TBirdUpdateJson implements Handler<HttpServerRequest> {
-	static final Logger logger = LoggerFactory.getLogger(TBirdUpdateJson.class);
+	private static final Logger logger = LoggerFactory.getLogger(TBirdUpdateJson.class);
 
 	private Template template;
 
 	public TBirdUpdateJson() throws IOException {
-
 		Configuration freemarkerCfg = new Configuration();
 		freemarkerCfg.setClassForTemplateLoading(this.getClass(), "/templates");
 		freemarkerCfg.setTagSyntax(Configuration.AUTO_DETECT_TAG_SYNTAX);
 		template = freemarkerCfg.getTemplate("updateJson.tpl");
-
 	}
 
 	@Override
 	public void handle(HttpServerRequest request) {
-		IniFile ini = new IniFile("/etc/bm/bm.ini") {
-
-			@Override
-			public String getCategory() {
-				return "bm";
-			}
-
-		};
-
 		StringWriter sw = new StringWriter();
 
 		Map<String, Object> model = new HashMap<>();
 		model.put("version", Activator.bundle.getVersion().toString());
-		model.put("url", "https://" + ini.getProperty("external-url") + "/settings/settings/download/tbird.xpi");
+		model.put("url", String.format("https://%s/settings/settings/download/tbird.xpi",
+				TBirdDownloadHandler.getExternalUrl()));
 
 		try {
 			template.process(model, sw);
@@ -76,7 +65,5 @@ public class TBirdUpdateJson implements Handler<HttpServerRequest> {
 		byte[] data = body.getBytes();
 		resp.setStatusCode(200);
 		resp.end(Buffer.buffer(data));
-
 	}
-
 }

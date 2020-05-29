@@ -11,26 +11,32 @@
 	<g:HTMLPanel>
 		<g:ScrollPanel height="100%">
 			<g:HTMLPanel>
-
 				<table class="formContainer">
-					<f:FieldSetPanel name="{c.defaultDomain}">
-						<common:TrPanel styleName="setting" ui:field="defautlDomain" />
+					<f:FieldSetPanel name="{c.globalParams}">
+						<common:TrPanel styleName="setting" ui:field="globalParams" />
 						<g:HTMLPanel>
-
-							<table class="formContainer">
+							<table class="formContainer" style='width:50%'>
 								<tr>
-									<td class="label">
-										<g:Label text="{c.domainList}"></g:Label>
+									<td class="label" style='width:60%'>
+										<g:Label text="{c.defaultDomain}"></g:Label>
 									</td>
 									<td>
 										<g:ListBox ui:field="domainList" title="{c.domainList}" />
 									</td>
 								</tr>
+								<tr>
+									<td class="label" style='width:60%'>
+										<g:Label text="{c.maxSessionPerUser}"></g:Label>
+									</td>
+									<td>
+										<g:TextBox ui:field="maxSessionPerUser"
+											title="{c.maxSessionPerUserTitle}"
+											readOnly="false" />
+									</td>
+								</tr>
 							</table>
 						</g:HTMLPanel>
 					</f:FieldSetPanel>
-
-
 
 					<f:FieldSetPanel name="{c.authTypeChoice}">
 						<common:TrPanel styleName="setting" ui:field="choicePanel" />

@@ -1,23 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension-point id="net.bluemind.nginx.update" name="nginx-update" schema="schema/net.bluemind.nginx.update.exsd"/>
   <extension
          point="net.bluemind.system.hook">
+      <validator
+            class="net.bluemind.system.config.MessageSizeHook">
+      </validator>
       <observer
-            class="net.bluemind.system.config.ConfigHook">
+            class="net.bluemind.system.config.MessageSizeHook">
+      </observer>
+      <sanitizor
+            class="net.bluemind.system.config.ExternalUrlHook">
+      </sanitizor>
+      <validator
+            class="net.bluemind.system.config.ExternalUrlHook">
+      </validator>
+      <observer
+            class="net.bluemind.system.config.ExternalUrlHook">
+      </observer>
+      <sanitizor
+            class="net.bluemind.system.config.DefaultDomainHook">
+      </sanitizor>
+      <validator
+            class="net.bluemind.system.config.DefaultDomainHook">
+      </validator>
+      <observer
+            class="net.bluemind.system.config.DefaultDomainHook">
+      </observer>
+      <sanitizor
+            class="net.bluemind.system.config.SwPasswordHook">
+      </sanitizor>
+      <validator
+            class="net.bluemind.system.config.SwPasswordHook">
+      </validator>
+      <observer
+            class="net.bluemind.system.config.SwPasswordHook">
+      </observer>
+      <validator
+            class="net.bluemind.system.config.WorkerConnectionHook">
+      </validator>
+      <observer
+            class="net.bluemind.system.config.WorkerConnectionHook">
       </observer>
    </extension>
-  <extension
-         point="net.bluemind.system.hook">
-      <observer
-            class="net.bluemind.system.config.NginxExternalUrlConfigurationObserver">
-      </observer>
-   </extension>
-  <extension
-        point="net.bluemind.server.hook.serverhook">
-     <hook
-           impl="net.bluemind.system.config.NginxExternalUrlConfigurationOnServerTagged">
-     </hook>
-  </extension>
 </plugin>

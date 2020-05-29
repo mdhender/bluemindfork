@@ -9,12 +9,12 @@ Require-Bundle: net.bluemind.core.commons,
  slf4j.api;bundle-version="1.7.5",
  net.bluemind.xivo.common,
  net.bluemind.cti.backend;bundle-version="1.0.0",
- net.bluemind.locator.client,
  io.vertx.core,
  com.google.guava;bundle-version="19.0.0",
  net.bluemind.user.api,
  net.bluemind.core.container.api,
- net.bluemind.cti.api
+ net.bluemind.cti.api,
+ net.bluemind.network.topology
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 

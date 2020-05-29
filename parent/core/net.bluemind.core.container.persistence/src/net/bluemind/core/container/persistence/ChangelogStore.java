@@ -157,8 +157,8 @@ public class ChangelogStore extends JdbcAbstractStore {
 		}
 	}
 
-	private static final String INSERT_QUERY = "INSERT INTO t_container_changelog (version, container_id, item_uid, item_external_id, type, author, date, origin, item_id, weight_seed) values "
-			+ " ( ?, ?, ?, ?, ?, ?, now(), ?, ?, ?)";
+	private static final String INSERT_QUERY = "with lock as (select pg_advisory_xact_lock(#lock#), ? as version, ? as container_id, ? as item_uid, ? as item_external_id, ? as type, ? as author, now() as date, ? as origin, ? as item_id, ? as weight_seed) "
+			+ "INSERT INTO t_container_changelog (version, container_id, item_uid, item_external_id, type, author, date, origin, item_id, weight_seed) select version, container_id, item_uid, item_external_id, type, author, date, origin, item_id, weight_seed from lock";
 
 	private static final String CHANGESET_QUERY = "SELECT version, type, item_uid, item_id, weight_seed "
 			+ " FROM t_container_changeset WHERE container_id = ? AND version > ? order by item_id, version";
@@ -171,18 +171,15 @@ public class ChangelogStore extends JdbcAbstractStore {
 	private static final Creator<ChangeLogEntry> CREATOR = con -> new ChangeLogEntry();
 
 	public void itemCreated(LogEntry entry) throws SQLException {
-		insert(INSERT_QUERY, entry, new ChangelogStatementValues((byte) 0));
+		insert(INSERT_QUERY.replace("#lock#", "" + entry.internalId), entry, new ChangelogStatementValues((byte) 0));
 	}
 
 	public void itemUpdated(LogEntry entry) throws SQLException {
-
-		insert(INSERT_QUERY, entry, new ChangelogStatementValues((byte) 1));
+		insert(INSERT_QUERY.replace("#lock#", "" + entry.internalId), entry, new ChangelogStatementValues((byte) 1));
 	}
 
 	public void itemDeleted(LogEntry entry) throws SQLException {
-
-		insert(INSERT_QUERY, entry, new ChangelogStatementValues((byte) 2));
-
+		insert(INSERT_QUERY.replace("#lock#", "" + entry.internalId), entry, new ChangelogStatementValues((byte) 2));
 	}
 
 	private static final String CHANGELOG_QUERY = //

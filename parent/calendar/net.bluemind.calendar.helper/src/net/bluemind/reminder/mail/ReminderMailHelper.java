@@ -156,7 +156,7 @@ public abstract class ReminderMailHelper<T extends ICalendarElement> {
 
 		if (entity.rrule != null) {
 			data.put("recurrenceKind", entity.rrule.frequency);
-			data.put("recurrenceFreq", entity.rrule.interval);
+			data.put("recurrenceFreq", entity.rrule.interval != null ? entity.rrule.interval : 1);
 			data.put("recurrenceDays", entity.rrule.byDay);
 			data.put("recurrenceEnd", entity.rrule.until);
 		}

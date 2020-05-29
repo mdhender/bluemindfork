@@ -43,8 +43,12 @@ import com.google.common.collect.ImmutableMap;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.mime4j.common.Mime4JHelper;
-import net.bluemind.pool.impl.BmConfIni;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.system.api.SystemConf;
 
 public class Composer {
 
@@ -95,13 +99,10 @@ public class Composer {
 	}
 
 	private String getHSMLink(String hsmId) {
-		StringBuilder sb = new StringBuilder();
-
-		BmConfIni ini = new BmConfIni();
-		sb.append("https://" + ini.get("external-url"));
-		sb.append("/webmail/?_task=mail&_action=show&_uid=");
-		sb.append(hsmId);
-
-		return sb.toString();
+		SystemConf sysconf = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ISystemConfiguration.class).getValues();
+		return String.format("%s://%s/webmail/?_task=mail&_action=show&_uid=%s",
+				sysconf.values.getOrDefault(SysConfKeys.external_protocol.name(), "https"),
+				sysconf.values.getOrDefault(SysConfKeys.external_url.name(), "configure.your.external.url"), hsmId);
 	}
 }

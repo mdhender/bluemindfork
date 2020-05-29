@@ -74,7 +74,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 
-import net.bluemind.locator.client.LocatorClient;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.network.utils.NetworkHelper;
 
@@ -286,7 +285,7 @@ public final class ESearchActivator implements BundleActivator {
 	}
 
 	private static Client initClient(String tag) {
-		Collection<String> hosts = new LocatorClient().locateHosts(tag, "fake@global.virt");
+		Collection<String> hosts = hosts(tag);
 		if (hosts == null || hosts.isEmpty()) {
 			return null;
 		}
@@ -372,8 +371,7 @@ public final class ESearchActivator implements BundleActivator {
 	}
 
 	public static void resetIndex(String index) {
-		Collection<String> hosts = new LocatorClient().locateHosts("bm/es", "fake@global.virt");
-		;
+		Collection<String> hosts = hosts("bm/es");
 		if (hosts != null) {
 			for (String host : hosts) {
 				new NetworkHelper(host).waitForListeningPort(9300, 30, TimeUnit.SECONDS);

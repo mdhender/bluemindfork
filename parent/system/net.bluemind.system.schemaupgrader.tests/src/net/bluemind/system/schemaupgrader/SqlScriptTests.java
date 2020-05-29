@@ -21,6 +21,7 @@ package net.bluemind.system.schemaupgrader;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,7 @@ import net.bluemind.core.jdbc.JdbcTestHelper;
 public class SqlScriptTests {
 
 	private DataSource pool;
+	private SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
 
 	@Before
 	public void before() throws Exception {
@@ -52,29 +54,29 @@ public class SqlScriptTests {
 
 	@Test
 	public void testScriptsAreFound() {
-		Map<Integer, Integer> expectedUpdaters = new HashMap<Integer, Integer>(); // key=major / value=build_number
-		expectedUpdaters.put(31, 75);
-		expectedUpdaters.put(31, 76);
-		expectedUpdaters.put(0, 4);
-		
-		SqlScripts scriptsLoader = new SqlScripts(pool);
+		Map<String, Integer> expectedUpdaters = new HashMap<>(); // key=major / value=build_number
+		expectedUpdaters.put("20200428", 75);
+		expectedUpdaters.put("20200429", 76);
+		expectedUpdaters.put("20200415", 4);
+
+		SqlScripts scriptsLoader = new SqlScripts();
 		List<Updater> updaters = scriptsLoader.getSqlScripts();
 		assertTrue(updaters.size() >= 3);
-		
+
 		for (Updater u : updaters) {
-			if (u.major() == 31 && u.build() == 76) {
+			if (u.sequence() == 76) {
 				assertTrue(u.afterSchemaUpgrade());
-			} else {
+			} else if (u.sequence() == 75 || u.sequence() == 4) {
 				assertFalse(u.afterSchemaUpgrade());
 			}
 		}
 
-		List<Integer> majors = updaters.stream().map(u -> u.major()).collect(Collectors.toList());
-		List<Integer> buildNumbers = updaters.stream().map(u -> u.build()).collect(Collectors.toList());
-		
-		for (Map.Entry<Integer, Integer> entry : expectedUpdaters.entrySet()) {
-			assertTrue(majors.contains(entry.getKey()));
-			assertTrue(buildNumbers.contains(entry.getValue()));
+		List<String> dates = updaters.stream().map(u -> df.format(u.date())).collect(Collectors.toList());
+		List<Integer> sequences = updaters.stream().map(u -> u.sequence()).collect(Collectors.toList());
+
+		for (Map.Entry<String, Integer> entry : expectedUpdaters.entrySet()) {
+			assertTrue(dates.contains(entry.getKey()));
+			assertTrue(sequences.contains(entry.getValue()));
 		}
 	}
 

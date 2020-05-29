@@ -20,8 +20,6 @@ package net.bluemind.core.rest.http;
 
 import java.util.List;
 
-import javax.net.ssl.SSLException;
-
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
@@ -30,9 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.kqueue.KQueue;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
-import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.IServiceProvider;
 
 public class ClientSideServiceProvider implements IServiceProvider {
@@ -46,22 +41,17 @@ public class ClientSideServiceProvider implements IServiceProvider {
 	private final AsyncHttpClient client;
 
 	static {
-		defaultClient = createClient(true, 120);
+		defaultClient = createClient(40);
 	}
 
-	private static AsyncHttpClient createClient(boolean pooled, int timeoutInSeconds) {
-
+	private static AsyncHttpClient createClient(int timeoutInSeconds) {
 		DefaultAsyncHttpClientConfig.Builder builder = new DefaultAsyncHttpClientConfig.Builder();
-		try {
-			builder.setSslContext(
-					SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build());
-		} catch (SSLException e) {
-			throw new ServerFault(e);
-		}
 		builder.setUseNativeTransport(Epoll.isAvailable() || KQueue.isAvailable());
 		int to = timeoutInSeconds * 1000;
 		builder.setConnectTimeout(to).setReadTimeout(to).setRequestTimeout(to).setFollowRedirect(false);
-		builder.setTcpNoDelay(true).setThreadPoolName("client-side-provider-ahc");
+		builder.setTcpNoDelay(true).setThreadPoolName("client-side-provider-ahc").setUseInsecureTrustManager(true);
+		builder.setSoReuseAddress(true);
+		builder.setMaxRequestRetry(0);
 		return new DefaultAsyncHttpClient(builder.build());
 
 	}
@@ -70,8 +60,8 @@ public class ClientSideServiceProvider implements IServiceProvider {
 		return new ClientSideServiceProvider(base, apiKey, ClientSideServiceProvider.defaultClient);
 	}
 
-	public static ClientSideServiceProvider getProvider(String base, String apiKey, int timeoutInSeconds) {
-		return new ClientSideServiceProvider(base, apiKey, createClient(false, timeoutInSeconds));
+	public static ClientSideServiceProvider getProvider(String base, String apiKey, int timeoutSeconds) {
+		return new ClientSideServiceProvider(base, apiKey, createClient(timeoutSeconds));
 	}
 
 	private ClientSideServiceProvider(String base, String apiKey, AsyncHttpClient client) {
@@ -83,7 +73,7 @@ public class ClientSideServiceProvider implements IServiceProvider {
 	@Override
 	public <T> T instance(Class<T> interfaceClass, String... params) {
 		logger.debug("Creating with base: {}", base);
-		HttpClientFactory<T, Object> factory = new HttpClientFactory<T, Object>(interfaceClass, null, base, client);
+		HttpClientFactory<T, Object> factory = new HttpClientFactory<>(interfaceClass, null, base, client);
 		if (remoteIps != null) {
 			factory.setRemoteIps(remoteIps);
 		}
@@ -94,7 +84,7 @@ public class ClientSideServiceProvider implements IServiceProvider {
 	}
 
 	public <T, A> A instance(Class<T> interfaceClass, Class<A> asyncInterface, String... params) {
-		HttpClientFactory<T, A> factory = new HttpClientFactory<T, A>(interfaceClass, asyncInterface, base, client);
+		HttpClientFactory<T, A> factory = new HttpClientFactory<>(interfaceClass, asyncInterface, base, client);
 		if (remoteIps != null) {
 			factory.setRemoteIps(remoteIps);
 		}

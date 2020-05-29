@@ -57,8 +57,8 @@ import net.bluemind.lmtp.backend.LmtpAddress;
 import net.bluemind.lmtp.backend.LmtpEnvelope;
 import net.bluemind.lmtp.backend.LmtpReply;
 import net.bluemind.lmtp.filter.imip.cache.MailboxCache;
-import net.bluemind.locator.client.LocatorClient;
 import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.network.topology.Topology;
 
 public class ResourceFilter implements IMessageFilter {
 	private static final Logger logger = LoggerFactory.getLogger(ResourceFilter.class);
@@ -108,12 +108,7 @@ public class ResourceFilter implements IMessageFilter {
 
 	private String getCoreUrl() {
 		if (coreUrl == null) {
-			try {
-				LocatorClient lc = new LocatorClient();
-				coreUrl = "http://" + lc.locateHost("bm/core", "admin0@global.virt") + ":8090";
-			} catch (Exception e) {
-
-			}
+				coreUrl = "http://" + Topology.get().core().value.address() + ":8090";
 		}
 		return coreUrl;
 	}

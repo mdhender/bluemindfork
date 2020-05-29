@@ -20,16 +20,18 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  com.google.guava;bundle-version="19.0.0",
  net.bluemind.role.api,
  net.bluemind.domain.api,
- net.bluemind.system.config,
  net.bluemind.node.api,
  org.freemarker.freemarker,
  net.bluemind.server.hook,
  net.bluemind.core.container.persistence,
  net.bluemind.server.api,
  net.bluemind.node.client,
- net.bluemind.locator.client,
  net.bluemind.core.validator,
- net.bluemind.tag.api
+ net.bluemind.tag.api,
+ net.bluemind.network.topology,
+ net.bluemind.authentication.service,
+ net.bluemind.config,
+ net.bluemind.system.nginx
 Export-Package: net.bluemind.filehosting.service.export,
  net.bluemind.filehosting.service.internal
 

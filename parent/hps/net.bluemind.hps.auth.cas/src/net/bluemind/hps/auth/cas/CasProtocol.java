@@ -22,6 +22,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,14 +65,12 @@ public class CasProtocol implements IAuthProtocol {
 	private String casDomain;
 	private String callbackURL;
 	private HttpClient httpClient;
-	private String baseUri;
 
-	public CasProtocol(HttpClient client, String casURL, String baseUri, String casDomain, String callbackURL) {
+	public CasProtocol(HttpClient client, String casURL, String casDomain, String callbackURL) {
 		this.httpClient = client;
 		this.casURL = casURL;
 		this.casDomain = casDomain;
 		this.callbackURL = callbackURL;
-		this.baseUri = baseUri;
 	}
 
 	@Override
@@ -97,7 +97,7 @@ public class CasProtocol implements IAuthProtocol {
 		forwadedFor.add(req.remoteAddress().host());
 
 		String ticket = req.params().get("ticket");
-		String validationURI = baseUri + "serviceValidate?service=" + callbackTo(req) + "&ticket=" + ticket;
+		String validationURI = getBaseUri() + "serviceValidate?service=" + callbackTo(req) + "&ticket=" + ticket;
 
 		logger.info("validate CAS ticket {} : {}", ticket, validationURI);
 		HttpClientRequest casReq = httpClient.get(validationURI, res -> {
@@ -124,6 +124,18 @@ public class CasProtocol implements IAuthProtocol {
 
 		casReq.end();
 
+	}
+
+	private String getBaseUri() {
+		URL url = null;
+		try {
+			url = new URL(casURL);
+		} catch (MalformedURLException e) {
+			logger.error("Invalid CAS URL {} ?!", casURL);
+			throw new RuntimeException(e);
+		}
+
+		return url.getPath();
 	}
 
 	private void validationUriResponseBody(HttpServerRequest req, IAuthProtocol protocol, IAuthProvider prov,

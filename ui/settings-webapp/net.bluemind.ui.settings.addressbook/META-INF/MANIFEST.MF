@@ -17,13 +17,13 @@ Require-Bundle: com.google.gwt.user;resolution:=optional,
  net.bluemind.ui.gwtsharing;bundle-version="4.1.0";visibility:=reexport,
  io.vertx.core;bundle-version="2.1.6",
  net.bluemind.core.rest.http;bundle-version="4.1.0",
- net.bluemind.locator.vertxclient;bundle-version="4.1.0",
  net.bluemind.webmodule;bundle-version="4.1.0",
  net.bluemind.webmodule.server;bundle-version="4.1.0",
  net.bluemind.core.task.api;bundle-version="4.1.0",
  net.bluemind.core.task.api.gwt;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.role.api,
- net.bluemind.ui.gwtaddressbook
+ net.bluemind.ui.gwtaddressbook,
+ net.bluemind.network.topology
 Export-Package: net.bluemind.ui.settings.addressbook
 Automatic-Module-Name: net.bluemind.ui.settings.addressbook
 

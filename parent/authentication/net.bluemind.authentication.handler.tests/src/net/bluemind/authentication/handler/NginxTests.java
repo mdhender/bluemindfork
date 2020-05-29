@@ -48,14 +48,17 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.pool.impl.BmConfIni;
-import net.bluemind.pool.impl.BmConfIniExtraSettings;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.system.api.SystemConf;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
@@ -70,11 +73,16 @@ public class NginxTests {
 	@Before
 	public void before() throws Exception {
 		String domainUid = "bm.lan";
-		BmConfIniExtraSettings.settings.put("default-domain", domainUid);
 
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
+
+		SystemConf currentValues = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ISystemConfiguration.class).getValues();
+		currentValues.values.put(SysConfKeys.default_domain.name(), domainUid);
+		ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ISystemConfiguration.class)
+				.updateMutableValues(currentValues.values);
 
 		cyrus = new Server();
 		cyrus.ip = new BmConfIni().get("imap-role");

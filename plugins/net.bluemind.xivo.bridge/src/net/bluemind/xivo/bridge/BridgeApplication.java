@@ -28,6 +28,7 @@ import io.vertx.core.Vertx;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Topic;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.network.topology.consumer.ConsumerStart;
 import net.bluemind.xivo.bridge.http.v1.HornetQBridge;
 import net.bluemind.xivo.bridge.http.v1.HttpEndpointV1Router;
 import net.bluemind.xivo.bridge.impl.DepDoneHandler;
@@ -55,6 +56,7 @@ public class BridgeApplication implements IApplication {
 				pm.deployVerticle(HttpEndpointV1Router::new, new DeploymentOptions().setInstances(instances), depDone);
 				pm.deployVerticle(HornetQBridge::new, new DeploymentOptions().setInstances(instances).setWorker(true),
 						depDone);
+				pm.deployVerticle(ConsumerStart::new, new DeploymentOptions().setInstances(1).setWorker(true), depDone);
 
 			}
 		});

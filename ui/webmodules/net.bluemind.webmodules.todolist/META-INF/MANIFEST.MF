@@ -15,10 +15,11 @@ Require-Bundle: net.bluemind.webmodule.server;bundle-version="1.0.0",
  net.bluemind.todolist.api;bundle-version="1.0.0",
  net.bluemind.core.container.api,
  net.bluemind.core.commons,
- net.bluemind.locator.vertxclient,
  net.bluemind.core.task.api,
  net.bluemind.ui.banner;bundle-version="1.0.0",
- net.bluemind.webmodules.webapp
+ net.bluemind.webmodules.webapp,
+ net.bluemind.network.topology
 Bundle-Localization: OSGI-INF/l10n/bundle
 Bundle-Activator: net.bluemind.webmodules.todolist.TodolistAppActivator
 Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: net.bluemind.webmodules.todolist

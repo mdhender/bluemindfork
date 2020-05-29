@@ -19,10 +19,17 @@
 package net.bluemind.pool.impl;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.dockerclient.DockerEnv;
+import net.bluemind.network.topology.IServiceTopology;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.pool.impl.docker.DockerContainer;
+import net.bluemind.server.api.Server;
 import net.bluemind.utils.IniFile;
 
 public class BmConfIni extends IniFile {
@@ -35,16 +42,20 @@ public class BmConfIni extends IniFile {
 		return ret;
 	}
 
-	private static Map<String, String> overrideMap = new HashMap<String, String>();
+	private static Map<String, String> overrideMap = new HashMap<>();
 
 	public BmConfIni() {
 		super(getIniPath());
 		System.out.println("Docker based conf.");
 
+		List<ItemValue<Server>> topo = new LinkedList<>();
+		topo.add(tagged("127.0.0.1", "bm/core"));
+
 		overrideMap.putAll(DockerEnv.getImagesMap());
 		String esHost = DockerEnv.getIp(DockerContainer.ELASTICSEARCH.getName());
 		if (esHost != null) {
 			overrideMap.put(DockerContainer.ELASTICSEARCH.getHostProperty(), esHost);
+			topo.add(tagged(esHost, "bm/es"));
 		}
 
 		String host = DockerEnv.getIp(DockerContainer.POSTGRES.getName());
@@ -57,26 +68,32 @@ public class BmConfIni extends IniFile {
 			overrideMap.put("user", "test");
 			overrideMap.put("password", "test");// NOSONAR
 			overrideMap.put("dbtype", "PGSQL");
+			topo.add(tagged(host, "bm/pgsql"));
+			topo.add(tagged(host, "bm/pgsql-data"));
 		}
 
 		String nodeHost = DockerEnv.getIp(DockerContainer.NODE.getName());
 		if (nodeHost != null) {
 			overrideMap.put(DockerContainer.NODE.getHostProperty(), nodeHost);
+			topo.add(tagged(nodeHost, "filehosting/data"));
 		}
 
 		String smtpHost = DockerEnv.getIp(DockerContainer.SMTP_ROLE.getName());
 		if (smtpHost != null) {
 			overrideMap.put(DockerContainer.SMTP_ROLE.getHostProperty(), smtpHost);
+			topo.add(tagged(smtpHost, "mail/smtp"));
 		}
 
 		String smtpEdgeHost = DockerEnv.getIp(DockerContainer.SMTP_EDGE.getName());
 		if (smtpEdgeHost != null) {
 			overrideMap.put(DockerContainer.SMTP_EDGE.getHostProperty(), smtpEdgeHost);
+			topo.add(tagged(smtpEdgeHost, "mail/smtp-edge"));
 		}
 
 		String imapHost = DockerEnv.getIp(DockerContainer.IMAP.getName());
 		if (imapHost != null) {
 			overrideMap.put(DockerContainer.IMAP.getHostProperty(), imapHost);
+			topo.add(tagged(imapHost, "mail/imap"));
 		}
 
 		String ldapHost = DockerEnv.getIp(DockerContainer.LDAP.getName());
@@ -92,11 +109,22 @@ public class BmConfIni extends IniFile {
 		String mailboxRoleHost = DockerEnv.getIp(DockerContainer.MAILBOX_ROLE.getName());
 		if (mailboxRoleHost != null) {
 			overrideMap.put(DockerContainer.MAILBOX_ROLE.getHostProperty(), mailboxRoleHost);
+			topo.add(tagged(mailboxRoleHost, "mail/imap"));
+			topo.add(tagged(mailboxRoleHost, "bm/pgsql-data"));
+
 		}
 
 		if (BmConfIniExtraSettings.settings != null && !BmConfIniExtraSettings.settings.isEmpty()) {
 			overrideMap.putAll(BmConfIniExtraSettings.settings);
 		}
+		Optional<IServiceTopology> topology = Topology.getIfAvailable();
+		if (!topology.isPresent()) {
+			Topology.update(topo);
+		}
+	}
+
+	private ItemValue<Server> tagged(String ip, String... tags) {
+		return ItemValue.create(ip, Server.tagged(ip, tags));
 	}
 
 	@Override

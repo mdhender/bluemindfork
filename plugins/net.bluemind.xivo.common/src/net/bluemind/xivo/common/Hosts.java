@@ -22,6 +22,9 @@ import net.bluemind.xivo.common.impl.XivoIni;
 
 public final class Hosts {
 
+	private Hosts() {
+	}
+
 	public static final String xivo() {
 		return XivoIni.val("xuc.host");
 	}

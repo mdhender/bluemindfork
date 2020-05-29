@@ -18,15 +18,20 @@
  */
 package net.bluemind.eas.config;
 
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.node.api.INodeClient;
-import net.bluemind.system.config.INginxConfigUpdater;
-import net.bluemind.system.config.NginxConfig;
+import net.bluemind.system.nginx.INginxConfigUpdater;
 
 public class EasConfigUpdater implements INginxConfigUpdater {
 	@Override
-	public void update(INodeClient nc, NginxConfig config) throws Exception {
+	public void updateMessageSize(INodeClient nc, long size) throws ServerFault {
 		NginxEasConf conf = new NginxEasConf(nc);
-		conf.setMessageSizeLimit(Long.parseLong(config.get("messageSizeLimit")));
+		conf.setMessageSizeLimit(size);
 		conf.write();
+	}
+
+	@Override
+	public void updateFilehostingSize(INodeClient nc, long size) throws ServerFault {
+		// Nothing to do
 	}
 }

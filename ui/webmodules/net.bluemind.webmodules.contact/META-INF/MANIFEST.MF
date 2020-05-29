@@ -22,10 +22,11 @@ Require-Bundle: net.bluemind.webmodule;bundle-version="1.0.0",
  net.bluemind.addressbook.closure;bundle-version="1.0.0",
  org.eclipse.osgi,
  net.bluemind.core.task.api,
- net.bluemind.locator.vertxclient,
  net.bluemind.ui.banner;bundle-version="1.0.0",
- net.bluemind.webmodules.webapp
+ net.bluemind.webmodules.webapp,
+ net.bluemind.network.topology
 Bundle-Activator: net.bluemind.webmodules.contact.ContactAppActivator
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: OSGI-INF/l10n/bundle
+Automatic-Module-Name: net.bluemind.webmodules.contact
 

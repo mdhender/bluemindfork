@@ -5,8 +5,7 @@ Bundle-SymbolicName: net.bluemind.mailflow.rules;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.bluemind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: net.bluemind.locator.client,
- net.bluemind.config,
+Require-Bundle: net.bluemind.config,
  net.bluemind.user.api,
  net.bluemind.core.rest.http,
  net.bluemind.hornetq.client;bundle-version="4.1.0",
@@ -19,4 +18,5 @@ Require-Bundle: net.bluemind.locator.client,
  net.bluemind.directory.api,
  net.bluemind.group.api
 Export-Package: net.bluemind.mailflow.rules
+Automatic-Module-Name: net.bluemind.mailflow.rules
 

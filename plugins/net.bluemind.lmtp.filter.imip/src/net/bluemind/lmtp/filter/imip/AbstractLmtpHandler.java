@@ -39,9 +39,9 @@ import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.lmtp.backend.LmtpAddress;
-import net.bluemind.locator.client.LocatorClient;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.resource.api.IResources;
 import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.todolist.api.ITodoList;
@@ -129,8 +129,7 @@ public abstract class AbstractLmtpHandler {
 	 * @return
 	 */
 	private String getCoreUrl() {
-		LocatorClient lc = new LocatorClient();
-		return "http://" + lc.locateHost("bm/core", "admin0@global.virt") + ":8090";
+		return "http://" + Topology.get().core().value.address() + ":8090";
 	}
 
 	@FunctionalInterface

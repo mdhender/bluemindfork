@@ -18,7 +18,14 @@
  */
 package net.bluemind.system.service.internal;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
@@ -31,22 +38,25 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
+import net.bluemind.system.api.Database;
 import net.bluemind.system.api.UpgradeReport;
+import net.bluemind.system.persistence.UpgraderStore;
+import net.bluemind.system.schemaupgrader.UpdateAction;
 import net.bluemind.system.schemaupgrader.UpdateResult;
+import net.bluemind.system.schemaupgrader.Updater;
 import net.bluemind.system.schemaupgrader.runner.SchemaUpgrade;
+import net.bluemind.system.service.UpgraderMigration;
 import net.bluemind.system.state.StateContext;
 
 public class InstallationUpgradeTask implements IServerTask {
 
 	private static final Logger logger = LoggerFactory.getLogger(InstallationUpgradeTask.class);
-	private VersionInfo to;
-	private VersionInfo from;
-	private DataSource pool;
+	private final DataSource pool;
+	private final VersionInfo from;
 
-	public InstallationUpgradeTask(BmContext context, VersionInfo from, VersionInfo to) {
-		this.from = from;
-		this.to = to;
+	public InstallationUpgradeTask(BmContext context, VersionInfo from) {
 		this.pool = context.getDataSource();
+		this.from = from;
 	}
 
 	@Override
@@ -54,20 +64,55 @@ public class InstallationUpgradeTask implements IServerTask {
 		monitor.begin(ServerSideServiceProvider.mailboxDataSource.size() + 1, "Begin upgrade");
 		notifyUpgradeStatus("core.upgrade.start");
 
-		for (DataSource mbDS : ServerSideServiceProvider.mailboxDataSource.values()) {
-			doUpgradeForDataSource(mbDS, true, monitor.subWork(1));
-		}
-		doUpgradeForDataSource(pool, false, monitor.subWork(1));
-		upgraders(monitor);
+		UpgraderStore store = new UpgraderStore(pool);
+		checkDatabaseStatus(store);
+
+		Set<UpdateAction> handledActions = EnumSet.noneOf(UpdateAction.class);
+		List<Updater> upgraders = SchemaUpgrade.getUpgradePath();
+
+		SchemaUpgrade.splitAndExecuteUpgraders(store, handledActions, upgraders,
+				list -> partialUpgrade(list, handledActions, store, monitor));
+
+		monitor.end(true, "Core upgrade complete.", "");
+		logger.info("Core upgrade ended");
 		notifyUpgradeStatus("core.upgrade.end");
 	}
 
-	private void doUpgradeForDataSource(DataSource pool, boolean onlySchema, IServerTaskMonitor monitor) {
+	private void partialUpgrade(List<Updater> upgraders, Set<UpdateAction> handledActions, UpgraderStore store,
+			IServerTaskMonitor monitor) {
+		logger.info("Schema update path contains {} updater(s)", upgraders.size());
+		monitor.log("Starting schema upgrades....");
+
+		List<Updater> phase1 = upgraders.stream().filter(u -> !u.afterSchemaUpgrade()).collect(Collectors.toList());
+		List<Updater> phase2 = upgraders.stream().filter(u -> u.afterSchemaUpgrade()).collect(Collectors.toList());
+
+		for (Entry<String, DataSource> mbDS : ServerSideServiceProvider.mailboxDataSource.entrySet()) {
+			doUpgradeForDataSource(Database.SHARD, mbDS.getKey(), mbDS.getValue(), true, monitor.subWork(1), store,
+					phase1, Collections.emptyList(), handledActions);
+		}
+		doUpgradeForDataSource(Database.DIRECTORY, "master", pool, false, monitor.subWork(1), store, phase1, phase2,
+				handledActions);
+
+	}
+
+	private void checkDatabaseStatus(UpgraderStore store) throws Exception {
+		boolean needsMigration = store.needsMigration();
+		if (needsMigration) {
+			List<String> servers = new ArrayList<>(ServerSideServiceProvider.mailboxDataSource.entrySet().stream()
+					.map(s -> s.getKey()).collect(Collectors.toList()));
+			servers.add("master");
+			UpgraderMigration.migrate(store, from, servers);
+		}
+	}
+
+	private void doUpgradeForDataSource(Database database, String server, DataSource pool, boolean onlySchema,
+			IServerTaskMonitor monitor, UpgraderStore store, List<Updater> phase1, List<Updater> phase2,
+			Set<UpdateAction> handledActions) {
 
 		UpgradeReport report = new UpgradeReport();
 		report.upgraders = new LinkedList<>();
-		SchemaUpgrade schemaUpgrader = new SchemaUpgrade(pool, onlySchema);
-		UpdateResult schemaUpgrade = schemaUpgrader.schemaUpgrade(monitor, report, from, to);
+		SchemaUpgrade schemaUpgrader = new SchemaUpgrade(database, server, pool, onlySchema, store);
+		UpdateResult schemaUpgrade = schemaUpgrader.schemaUpgrade(monitor, report, phase1, phase2, handledActions);
 		if (schemaUpgrade.equals(UpdateResult.failed())) {
 			throw new ServerFault("Upgrade failed !");
 		}
@@ -75,18 +120,6 @@ public class InstallationUpgradeTask implements IServerTask {
 
 	private void notifyUpgradeStatus(String operation) {
 		StateContext.setState(operation);
-	}
-
-	private void upgraders(IServerTaskMonitor monitor) throws Exception {
-
-		logger.info("Updating using hooks");
-		// FIXME hook upgrade ?
-		// for (ISystemHook sh : hooks) {
-		// logger.info("Upgrading " + sh);
-		// sh.onUpgrade(at, previous, target);
-		// }
-		monitor.end(true, "Core upgrade complete.", "");
-		logger.info("Core upgrade ending");
 	}
 
 }

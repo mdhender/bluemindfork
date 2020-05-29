@@ -11,7 +11,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.hornetq.client;bundle-version="1.0.0",
  com.google.guava;bundle-version="19.0.0",
  net.bluemind.xivo.common;bundle-version="1.0.0",
- net.bluemind.locator.client;bundle-version="1.0.0",
  net.bluemind.xivo.client;bundle-version="1.0.0",
  net.bluemind.core.context;bundle-version="1.0.0",
  net.bluemind.user.api;bundle-version="1.0.0",
@@ -21,7 +20,9 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.rest;bundle-version="1.0.0",
  net.bluemind.config;bundle-version="1.0.0",
  net.bluemind.domain.api,
- net.bluemind.cti.api
+ net.bluemind.cti.api,
+ net.bluemind.network.topology,
+ net.bluemind.network.topology.consumer
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx

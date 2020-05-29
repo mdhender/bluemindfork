@@ -22,7 +22,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,14 +40,16 @@ import net.bluemind.config.Token;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.BMVersion;
 import net.bluemind.core.rest.http.HttpClientProvider;
+import net.bluemind.core.rest.http.ILocator;
 import net.bluemind.core.rest.http.ITaggedServiceProvider;
 import net.bluemind.core.rest.http.VertxServiceProvider;
-import net.bluemind.locator.vertxclient.VertxLocatorClient;
+import net.bluemind.hornetq.client.MQ;
+import net.bluemind.hornetq.client.MQ.SharedMap;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.system.api.IInstallationAsync;
 import net.bluemind.system.api.InstallationVersion;
-import net.bluemind.utils.IniFile;
+import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.webmodule.server.NeedVertx;
-import net.bluemind.webmodule.server.WebModule;
 import net.bluemind.webmodule.server.handlers.AbstractIndexHandler;
 
 public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
@@ -59,11 +64,24 @@ public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 
 	}
 
-	private String defaultDomain;
 	private Vertx vertx;
 	private HttpClientProvider clientProvider;
 
 	private InstallationVersion version;
+
+	private Supplier<Optional<String>> defaultDomain;
+
+	public LoginHandler() {
+		AtomicReference<SharedMap<String, String>> sysconf = new AtomicReference<>();
+		MQ.init().thenAccept(v -> sysconf.set(MQ.sharedMap("system.configuration")));
+
+		defaultDomain = () -> Optional.ofNullable(sysconf.get())
+				.map(sm -> Optional.ofNullable(sm.get(SysConfKeys.default_domain.name()) != null
+						&& !sm.get(SysConfKeys.default_domain.name()).isEmpty()
+								? sm.get(SysConfKeys.default_domain.name())
+								: null))
+				.orElse(Optional.empty());
+	}
 
 	@Override
 	protected String getTemplateName() {
@@ -140,10 +158,11 @@ public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 			model.put("bmVersion", BMVersion.getVersionName());
 			model.put("buildVersion", BMVersion.getVersion());
 		}
-		model.put("defaultDomain", defaultDomain);
+
+		defaultDomain.get().ifPresent(dd -> model.put("defaultDomain", dd));
+
 		model.put("msg", new MessageResolverMethod(resourceBundle, new Locale(getLang(request))));
 		logger.debug("display login page with model {}", model);
-
 	}
 
 	@Override
@@ -156,16 +175,11 @@ public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 		}
 	}
 
-	@Override
-	public void setModule(WebModule module) {
-		super.setModule(module);
-		loadDomain();
-
-	}
-
 	private ITaggedServiceProvider getProvider() {
-		return new VertxServiceProvider(clientProvider, new VertxLocatorClient(clientProvider, "admin0@global.virt"),
-				Token.admin0());
+		ILocator lc = (String service, AsyncHandler<String[]> asyncHandler) -> asyncHandler.success(
+				new String[] { Topology.get().anyIfPresent(service).map(s -> s.value.address()).orElse("127.0.0.1") });
+
+		return new VertxServiceProvider(clientProvider, lc, Token.admin0());
 	}
 
 	@Override
@@ -173,19 +187,6 @@ public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 		this.vertx = vertx;
 		clientProvider = new HttpClientProvider(vertx);
 		loadVersion();
-
-		vertx.eventBus().consumer("bm.defaultdomain.changed", ev -> loadDomain());
-	}
-
-	private void loadDomain() {
-		IniFile ini = new IniFile("/etc/bm/bm.ini") {
-
-			@Override
-			public String getCategory() {
-				return "bm";
-			}
-		};
-		defaultDomain = ini.getProperty("default-domain");
 	}
 
 	private void loadVersion() {
@@ -206,8 +207,6 @@ public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 							loadVersion();
 						}
 					});
-
 		});
 	}
-
 }

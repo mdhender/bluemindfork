@@ -248,7 +248,8 @@ public class ResourcesTypeServiceTests {
 
 	@Test
 	public void testAlreadyExists() throws Exception {
-		service(domainAdminSC).create(UUID.randomUUID().toString(), ResourceTypeDescriptor.create("test"));
+		String myUid = UUID.randomUUID().toString();
+		service(domainAdminSC).create(myUid, ResourceTypeDescriptor.create("test"));
 
 		try {
 			service(domainAdminSC).create(UUID.randomUUID().toString(), ResourceTypeDescriptor.create("test"));
@@ -257,6 +258,8 @@ public class ResourcesTypeServiceTests {
 			assertEquals(ErrorCode.ALREADY_EXISTS, sf.getCode());
 		}
 
+		// updating type using the same name should work
+		service(domainAdminSC).update(myUid, ResourceTypeDescriptor.create("test"));
 	}
 
 }

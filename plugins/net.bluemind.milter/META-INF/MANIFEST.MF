@@ -15,7 +15,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.config;bundle-version="4.1.0",
  net.bluemind.mailflow.api,
  net.bluemind.core.commons,
- net.bluemind.locator.client,
  net.bluemind.hornetq.client,
  net.bluemind.mailflow.rbe,
  net.bluemind.mailflow.common.api;bundle-version="4.1.0",
@@ -24,7 +23,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.system.stateobserver,
  net.bluemind.system.api,
  net.bluemind.metrics.registry,
- net.bluemind.locator.vertxclient,
  net.bluemind.common.io;bundle-version="4.1.0",
  net.bluemind.systemd.notify,
  net.bluemind.network.topology,
@@ -33,3 +31,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.milter,
  net.bluemind.milter.action
+Automatic-Module-Name: net.bluemind.milter

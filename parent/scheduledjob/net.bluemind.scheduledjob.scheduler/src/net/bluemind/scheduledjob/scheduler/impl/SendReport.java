@@ -46,6 +46,7 @@ import net.bluemind.scheduledjob.api.Job;
 import net.bluemind.scheduledjob.api.LogEntry;
 import net.bluemind.scheduledjob.api.LogLevel;
 import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 
 public class SendReport implements Runnable {
@@ -91,7 +92,7 @@ public class SendReport implements Runnable {
 			ISystemConfiguration sysConf = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 					.instance(ISystemConfiguration.class);
 			SystemConf conf = sysConf.getValues();
-			String externalUrl = conf.stringValue("external-url");
+			String externalUrl = conf.stringValue(SysConfKeys.external_url.name());
 			if (StringUtils.isNotBlank(externalUrl)) {
 				return externalUrl;
 			} else {

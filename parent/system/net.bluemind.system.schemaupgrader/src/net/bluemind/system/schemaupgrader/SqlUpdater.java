@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.Statement;
+import java.util.Date;
 import java.util.Set;
 
 import javax.sql.DataSource;
@@ -32,37 +33,34 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteStreams;
 
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.task.service.IServerTaskMonitor;
+import net.bluemind.system.api.Database;
 
 public class SqlUpdater implements Updater {
 	private static final Logger logger = LoggerFactory.getLogger(SqlUpdater.class);
 
 	public final URL file;
-	private final DataSource pool;
-	private final int major;
-	private final int build;
 	private final boolean ignoreErrors;
-	private final String component;
 	private final boolean afterSchemaUpgrade;
+	private final Database database;
+	private final Date date;
+	private final int sequence;
 
-	public SqlUpdater(DataSource pool, URL url, int major, int build, boolean ignoreErrors, String component,
-			boolean afterSchemaUpgrade) {
-		this.pool = pool;
+	public SqlUpdater(URL url, boolean ignoreErrors, boolean afterSchemaUpgrade, Database database, Date date,
+			int sequence) {
 		this.file = url;
-		this.major = major;
-		this.build = build;
 		this.ignoreErrors = ignoreErrors;
-		this.component = component;
 		this.afterSchemaUpgrade = afterSchemaUpgrade;
-	}
-
-	public SqlUpdater(DataSource pool, URL url, int major, int build, boolean ignoreErrors, String component) {
-		this(pool, url, major, build, ignoreErrors, component, false);
+		this.database = database;
+		this.date = date;
+		this.sequence = sequence;
 	}
 
 	@Override
-	public UpdateResult update(IServerTaskMonitor monitor, Set<UpdateAction> handledActions) throws Exception {
+	public UpdateResult executeUpdate(IServerTaskMonitor monitor, DataSource pool, Set<UpdateAction> handledActions) {
 		monitor.log("On SQL script " + file.toString());
+
 		String schemaValue = null;
 		try (InputStream in = file.openStream()) {
 			byte[] b = ByteStreams.toByteArray(in);
@@ -79,25 +77,16 @@ public class SqlUpdater implements Updater {
 			monitor.log(e.getMessage());
 			logger.error("error during execution of script " + file, e);
 			if (!ignoreErrors) {
-				throw e;
+				throw new ServerFault(e);
 			}
 		}
 
 		return UpdateResult.noop();
 	}
 
-	@Override
-	public int major() {
-		return major;
-	}
-
-	@Override
-	public int build() {
-		return build;
-	}
-
 	public String toString() {
-		return "SQL script (ignoreErrors: " + ignoreErrors + ") v" + major + "." + build + " @ " + file.toString();
+		return "SQL script (ignoreErrors: " + ignoreErrors + ") v" + database + "." + date.toString() + "." + sequence
+				+ " @ " + file.toString();
 	}
 
 	@Override
@@ -106,7 +95,18 @@ public class SqlUpdater implements Updater {
 	}
 
 	@Override
-	public String getComponent() {
-		return component;
+	public Date date() {
+		return date;
 	}
+
+	@Override
+	public int sequence() {
+		return sequence;
+	}
+
+	@Override
+	public Database database() {
+		return database;
+	}
+
 }

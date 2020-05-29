@@ -8,12 +8,12 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.eclipse.common,
  io.airlift.airline;bundle-version="0.8.0";visibility:=reexport,
- net.bluemind.locator.client,
  net.bluemind.config;bundle-version="4.1.0",
  net.bluemind.core.rest;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.core.rest.http;bundle-version="4.1.0",
  org.fusesource.jansi;visibility:=reexport,
- slf4j.api
+ net.bluemind.network.topology,
+ com.google.guava
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: net.bluemind.cli.cmd.api
 Bundle-ActivationPolicy: lazy

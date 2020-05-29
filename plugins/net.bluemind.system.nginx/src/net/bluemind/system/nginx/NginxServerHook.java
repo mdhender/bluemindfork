@@ -21,6 +21,9 @@ package net.bluemind.system.nginx;
 import java.io.ByteArrayInputStream;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -33,13 +36,31 @@ import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.server.hook.DefaultServerHook;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.tag.api.TagDescriptor;
 
 public class NginxServerHook extends DefaultServerHook {
+	private static Logger logger = LoggerFactory.getLogger(NginxServerHook.class);
+
 	@Override
 	public void onServerTagged(BmContext context, ItemValue<Server> server, String tag) throws ServerFault {
 		if (TagDescriptor.bm_nginx_edge.getTag().equals(tag)) {
 			newEdge(server);
+		}
+
+		if (tag.equals(TagDescriptor.bm_nginx.getTag()) || tag.equals(TagDescriptor.bm_nginx_edge.getTag())) {
+			updateExternalUrl(context, server, tag);
+		}
+	}
+
+	private void updateExternalUrl(BmContext context, ItemValue<Server> server, String tag) {
+		logger.info("Server tagged as {}, deploy external url", tag);
+		
+		String externalUrl = context.su().provider().instance(ISystemConfiguration.class).getValues()
+				.stringValue(SysConfKeys.external_url.name());
+		if (externalUrl != null) {
+			new NginxService().updateExternalUrl(server, externalUrl);
 		}
 	}
 

@@ -9,7 +9,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.lib.vertx;bundle-version="1.0.0",
  slf4j.api,
  io.netty;bundle-version="4.0.33",
- net.bluemind.locator.client;bundle-version="1.0.0",
  com.google.guava;bundle-version="19.0.0",
  net.bluemind.lib.ical4j;bundle-version="1.0.0",
  net.bluemind.vertx.common;bundle-version="1.0.0",
@@ -28,7 +27,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.system.api,
  net.bluemind.system.stateobserver,
  net.bluemind.role.api,
- net.bluemind.network.topology
+ net.bluemind.network.topology,
+ net.bluemind.hornetq.client
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx

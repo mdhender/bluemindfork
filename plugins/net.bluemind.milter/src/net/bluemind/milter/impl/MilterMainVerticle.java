@@ -51,12 +51,12 @@ public class MilterMainVerticle extends AbstractVerticle {
 				.setTcpKeepAlive(true).setTcpFastOpen(true).setTcpQuickAck(true));
 
 		srv.connectHandler(socket -> {
-			MilterSession session = new MilterSession(vertx, socket);
+			MilterSession session = new MilterSession(socket);
 			session.start();
 		});
 		srv.listen(2500, ar -> {
 			if (ar.succeeded()) {
-				logger.info("Milter verticle listening.");
+				logger.info("Milter verticle listening on {}.", 2500);
 				start.complete();
 			} else {
 				start.fail(ar.cause());

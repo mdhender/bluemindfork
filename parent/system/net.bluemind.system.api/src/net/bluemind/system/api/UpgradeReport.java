@@ -38,16 +38,10 @@ public class UpgradeReport {
 	@BMApi(version = "3")
 	public static class UpgraderReport {
 
-		public int major;
-
-		public int build;
-
 		public Status status;
 
-		public static UpgraderReport create(int major, int build, Status status) {
+		public static UpgraderReport create(Status status) {
 			UpgraderReport ret = new UpgraderReport();
-			ret.major = major;
-			ret.build = build;
 			ret.status = status;
 			return ret;
 		}

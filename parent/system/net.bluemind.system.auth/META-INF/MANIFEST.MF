@@ -18,7 +18,8 @@ Require-Bundle: net.bluemind.system.hook,
  net.bluemind.core.task.api;bundle-version="1.0.0",
  net.bluemind.config,
  org.apache.commons.lang,
- net.bluemind.hornetq.client
+ net.bluemind.hornetq.client,
+ net.bluemind.network.topology
 Export-Package: net.bluemind.system.auth
 
 

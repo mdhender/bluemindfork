@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import net.bluemind.eas.command.provision.Policies;
-import net.bluemind.eas.command.provision.WipedDevices;
 import net.bluemind.eas.impl.Backends;
 import net.bluemind.eas.protocol.impl.Protocols;
 import net.bluemind.eas.utils.DOMDumper;
@@ -40,7 +39,6 @@ public class EasActivator implements BundleActivator {
 		DOMDumper.dumpXml(logger, "Startup:\n", doc);
 
 		Backends.classLoad();
-		WipedDevices.init();
 		Policies.init();
 		Protocols.registerProtocols();
 		this.mqListener = new MQListener();

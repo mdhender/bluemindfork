@@ -18,18 +18,20 @@
  */
 package net.bluemind.filehosting.config;
 
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.node.api.INodeClient;
-import net.bluemind.system.config.INginxConfigUpdater;
-import net.bluemind.system.config.NginxConfig;
+import net.bluemind.system.nginx.INginxConfigUpdater;
 
 public class FileHostingConfigUpdater implements INginxConfigUpdater {
-
 	@Override
-	public void update(INodeClient nc, NginxConfig config) throws Exception {
-
+	public void updateFilehostingSize(INodeClient nc, long size) throws ServerFault {
 		NginxFileHostingConf conf = new NginxFileHostingConf(nc);
-		conf.setMessageSizeLimit(Long.parseLong(config.get("dataSizeLimit")));
+		conf.setMessageSizeLimit(size);
 		conf.write();
 	}
 
+	@Override
+	public void updateMessageSize(INodeClient nc, long size) throws ServerFault {
+		// Nothing to do
+	}
 }

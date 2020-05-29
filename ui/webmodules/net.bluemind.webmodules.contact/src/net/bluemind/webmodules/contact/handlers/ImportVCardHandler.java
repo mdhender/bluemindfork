@@ -27,9 +27,10 @@ import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.addressbook.api.IVCardServiceAsync;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.rest.http.HttpClientProvider;
+import net.bluemind.core.rest.http.ILocator;
 import net.bluemind.core.rest.http.VertxServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
-import net.bluemind.locator.vertxclient.VertxLocatorClient;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.webmodule.server.NeedVertx;
 
 public class ImportVCardHandler implements Handler<HttpServerRequest>, NeedVertx {
@@ -112,12 +113,16 @@ public class ImportVCardHandler implements Handler<HttpServerRequest>, NeedVertx
 		this.clientProvider = new HttpClientProvider(vertx);
 	}
 
+	private static final ILocator locator = (String service, AsyncHandler<String[]> asyncHandler) -> {
+		String core = Topology.get().core().value.address();
+		String[] resp = new String[] { core };
+		asyncHandler.success(resp);
+	};
+
 	private VertxServiceProvider getProvider(HttpServerRequest request) {
 
-		String login = request.headers().get("BMUserLogin");
 		String apiKey = request.headers().get("BMSessionId");
-		return new VertxServiceProvider(clientProvider, new VertxLocatorClient(clientProvider, login), apiKey)
-				.from(request);
+		return new VertxServiceProvider(clientProvider, locator, apiKey).from(request);
 
 	}
 }

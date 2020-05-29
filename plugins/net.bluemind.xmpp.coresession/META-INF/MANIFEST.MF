@@ -7,7 +7,6 @@ Bundle-Activator: net.bluemind.xmpp.coresession.Activator
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.lib.vertx,
  slf4j.api,
- net.bluemind.locator.client,
  net.bluemind.hornetq.client,
  com.google.guava;bundle-version="19.0.0",
  net.bluemind.addressbook.api;bundle-version="1.0.0",
@@ -22,8 +21,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.igniterealtime.smack.extensions;bundle-version="4.0.6",
  org.igniterealtime.smack.tcp;bundle-version="4.0.6",
  xpp3;bundle-version="1.1.0",
- net.bluemind.jdbc.pgsql.provider;bundle-version="1.0.0",
- net.bluemind.domain.api
+ net.bluemind.domain.api,
+ net.bluemind.network.topology
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx
 Service-Component: org.jivesoftware.smackx/smack-extensions-components.xml

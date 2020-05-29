@@ -30,12 +30,14 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.node.client.AHCNodeClientFactory;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 import net.bluemind.system.hook.ISystemConfigurationObserver;
 
-public class KrbAuthConfigChangeHandler extends HpsHelper implements ISystemConfigurationObserver {
+public class KrbAuthConfigChangeHandler implements ISystemConfigurationObserver {
 
 	private enum Status {
 		Install, Remove, None
@@ -44,6 +46,7 @@ public class KrbAuthConfigChangeHandler extends HpsHelper implements ISystemConf
 	private static final Logger logger = LoggerFactory.getLogger(KrbAuthConfigChangeHandler.class);
 
 	private BmContext context = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
+	private final HpsHelper hpsHelper = HpsHelper.get();
 
 	@Override
 	public void onUpdated(BmContext context, SystemConf previous, SystemConf conf) throws ServerFault {
@@ -62,7 +65,7 @@ public class KrbAuthConfigChangeHandler extends HpsHelper implements ISystemConf
 	}
 
 	private void removeKrb() throws ServerFault {
-		List<ItemValue<Server>> servers = hpsNodes(context);
+		List<ItemValue<Server>> servers = hpsHelper.hpsNodes(context);
 		for (ItemValue<Server> server : servers) {
 			removeKerberosParameters(server.value);
 		}
@@ -70,7 +73,7 @@ public class KrbAuthConfigChangeHandler extends HpsHelper implements ISystemConf
 
 	private void installKrb(SystemConf conf) throws ServerFault {
 
-		List<ItemValue<Server>> servers = hpsNodes(context);
+		List<ItemValue<Server>> servers = hpsHelper.hpsNodes(context);
 		String keytabBase64 = conf.values.get(SysConfKeys.krb_keytab.name());
 		byte[] keytab = Base64.getDecoder().decode(keytabBase64);
 		for (ItemValue<Server> server : servers) {
@@ -152,13 +155,17 @@ public class KrbAuthConfigChangeHandler extends HpsHelper implements ISystemConf
 		return sb.toString();
 	}
 
-	private String buildJaasFile(String bmExternalUrl, String adDomain) {
+	private String buildJaasFile(String adDomain) {
+		String externalUrl = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ISystemConfiguration.class).getValues().values.getOrDefault(SysConfKeys.external_url.name(),
+						"configure.your.external.url");
+
 		StringBuilder sb = new StringBuilder();
 
 		sb.append("ServicePrincipalLoginContext {\n");
 		sb.append("    com.sun.security.auth.module.Krb5LoginModule required\n");
 		sb.append("    doNotPrompt=true\n");
-		sb.append("    principal=\"HTTP/" + bmExternalUrl.toLowerCase() + "@" + adDomain.toUpperCase() + "\"\n");
+		sb.append("    principal=\"HTTP/" + externalUrl.toLowerCase() + "@" + adDomain.toUpperCase() + "\"\n");
 		sb.append("    useKeyTab=true\n");
 		sb.append("    keyTab=\"/etc/bm-hps/hps.keytab\"\n");
 		sb.append("    storeKey=true\n");
@@ -181,56 +188,47 @@ public class KrbAuthConfigChangeHandler extends HpsHelper implements ISystemConf
 
 	private void updateKerberosParameters(Server server, String adDomain, String adIp, String bmDomain, byte[] keytab)
 			throws ServerFault {
-		// Read external-url for "jaas.conf" file
-		String bmIni = nodeRead(server, "/etc/bm/bm.ini");
-		String bmExternalUrl = "";
-		for (String line : bmIni.split("\n")) {
-			if (line.startsWith("external-url")) {
-				bmExternalUrl = line.replaceAll("^.*?=", "").trim();
-			}
-		}
-
-		nodeWrite(server, "/etc/bm-hps/hps.keytab", keytab);
+		hpsHelper.nodeWrite(server, "/etc/bm-hps/hps.keytab", keytab);
 		// Write "jaas.conf" file
-		nodeWrite(server, "/etc/bm-hps/jaas.conf", buildJaasFile(bmExternalUrl, adDomain));
+		hpsHelper.nodeWrite(server, "/etc/bm-hps/jaas.conf", buildJaasFile(adDomain));
 
 		// Read local/bm-hps.ini
-		String localHps = nodeRead(server, "/etc/bm/local/bm-hps.ini");
+		String localHps = hpsHelper.nodeRead(server, "/etc/bm/local/bm-hps.ini");
 		if (localHps == null) {
 			// File doesn't exist
 			// Copy template file and add "mem_conf.ini" to the end
-			String defaultHps = nodeRead(server, "/etc/bm/default/bm-hps.ini");
+			String defaultHps = hpsHelper.nodeRead(server, "/etc/bm/default/bm-hps.ini");
 			if (defaultHps != null) {
-				nodeWrite(server, "/etc/bm/local/bm-hps.ini", defaultHps + "\n" + buildMemConf());
+				hpsHelper.nodeWrite(server, "/etc/bm/local/bm-hps.ini", defaultHps + "\n" + buildMemConf());
 			}
 		} else {
 			// File exists : add "mem_conf.ini" to the end
-			nodeWrite(server, "/etc/bm/local/bm-hps.ini", localHps + "\n" + buildMemConf());
+			hpsHelper.nodeWrite(server, "/etc/bm/local/bm-hps.ini", localHps + "\n" + buildMemConf());
 		}
 
 		// Build and write krb5.ini file
-		nodeWrite(server, "/etc/bm-hps/krb5.ini", buildKrb5File(adDomain, adIp));
+		hpsHelper.nodeWrite(server, "/etc/bm-hps/krb5.ini", buildKrb5File(adDomain, adIp));
 
 		// Add mapping.ini file if bmDomain != adDomain (case insensitive)
 		if (!bmDomain.toLowerCase().equals(adDomain.toLowerCase())) {
-			nodeWrite(server, "/etc/bm-hps/mappings.ini", buildMappingsFile(adDomain, bmDomain));
+			hpsHelper.nodeWrite(server, "/etc/bm-hps/mappings.ini", buildMappingsFile(adDomain, bmDomain));
 		}
 		// restart hps
-		restartHps(server);
+		hpsHelper.restartHps(server);
 	}
 
 	private void removeKerberosParameters(Server server) throws ServerFault {
-
 		// Remove Kerberos configuration files
-		nodeClientFactory.create(server.address()).executeCommandNoOut(
+		new AHCNodeClientFactory().create(server.address()).executeCommandNoOut(
 				"rm /etc/bm-hps/hps.keytab /etc/bm-hps/jaas.conf " + " /etc/bm-hps/krb5.ini /etc/bm-hps/mappings.ini");
 
 		// Remove "mem_conf.ini" from local/bm-hps.ini file
-		String localHps = nodeRead(server, "/etc/bm/local/bm-hps.ini");
+		String localHps = hpsHelper.nodeRead(server, "/etc/bm/local/bm-hps.ini");
 		if (localHps != null && !localHps.isEmpty()) {
-			nodeWrite(server, "/etc/bm/local/bm-hps.ini", localHps.replace(buildMemConf(), ""));
+			hpsHelper.nodeWrite(server, "/etc/bm/local/bm-hps.ini", localHps.replace(buildMemConf(), ""));
 		}
-		restartHps(server);
+
+		hpsHelper.restartHps(server);
 	}
 
 }

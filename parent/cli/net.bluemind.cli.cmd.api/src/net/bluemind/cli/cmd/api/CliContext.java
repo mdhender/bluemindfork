@@ -19,31 +19,29 @@ package net.bluemind.cli.cmd.api;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Optional;
+import java.util.function.Supplier;
 
 import org.fusesource.jansi.Ansi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Suppliers;
 
 import net.bluemind.config.Token;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
-import net.bluemind.locator.client.LocatorClient;
+import net.bluemind.network.topology.Topology;
 
 public class CliContext {
 
 	private static final CliContext INSTANCE = new CliContext();
-	private ClientSideServiceProvider adminServices;
-	private static final Logger logger = LoggerFactory.getLogger(CliContext.class);
+	private Supplier<ClientSideServiceProvider> adminServices = Suppliers.memoize(this::loadAdminServices);
 
 	private CliContext() {
-		try {
-			LocatorClient lc = new LocatorClient();
-			String host = Optional.ofNullable(lc.locateHost("bm/core", "admin0@global.virt")).orElse("127.0.0.1");
-			this.adminServices = ClientSideServiceProvider.getProvider("http://" + host + ":8090", Token.admin0());
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-		}
+		loadAdminServices();
+	}
+
+	private ClientSideServiceProvider loadAdminServices() {
+		String core = Topology.getIfAvailable().map(t -> t.core().value.address()).orElse("127.0.0.1");
+		return ClientSideServiceProvider.getProvider("http://" + core + ":8090", Token.admin0());
 	}
 
 	public Ansi ansi() {
@@ -55,7 +53,7 @@ public class CliContext {
 	}
 
 	public IServiceProvider adminApi() {
-		return adminServices;
+		return adminServices.get();
 	}
 
 	/**

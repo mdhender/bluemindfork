@@ -80,8 +80,8 @@ import net.bluemind.filehosting.filesystem.service.internal.persistence.FileHost
 import net.bluemind.filehosting.filesystem.service.internal.persistence.FileHostingStore;
 import net.bluemind.filehosting.service.export.IFileHostingService;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.locator.client.LocatorClient;
 import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.node.api.FileDescription;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
@@ -137,9 +137,8 @@ public class FileSystemFileHostingServiceTests {
 		}
 	}
 
-	private INodeClient getNodeClient() throws ServerFault {
-		LocatorClient lc = new LocatorClient();
-		String ip = lc.locateHost("filehosting/data", "admin0@global.virt");
+	private INodeClient getNodeClient() {
+		String ip = Topology.get().any("filehosting/data").value.address();
 		return NodeActivator.get(ip);
 	}
 

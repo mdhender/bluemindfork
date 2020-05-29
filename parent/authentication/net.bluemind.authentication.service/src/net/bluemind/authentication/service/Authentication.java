@@ -523,7 +523,8 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 			return sp.instance(IInternalRoles.class).resolve(ImmutableSet.<String>builder()
 					.add(SecurityContext.ROLE_SYSTEM).add(BasicRoles.ROLE_SELF_CHANGE_PASSWORD).build());
 		} else {
-			return sp.instance(IInCoreUser.class, domainUid).directResolvedRoles(userUid, groups);
+			return sp.instance(IInCoreUser.class, domainUid).directResolvedRoles(userUid, groups).stream()
+					.filter(role -> RoleValidation.validate(domainUid, role)).collect(Collectors.toSet());
 		}
 	}
 

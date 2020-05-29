@@ -37,14 +37,16 @@ import net.bluemind.addressbook.api.IAddressBookPromise;
 import net.bluemind.addressbook.api.IAddressBooksPromise;
 import net.bluemind.addressbook.api.VCardInfo;
 import net.bluemind.addressbook.api.VCardQuery;
+import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.container.api.IContainerManagementPromise;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemContainerValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.http.HttpClientProvider;
+import net.bluemind.core.rest.http.ILocator;
 import net.bluemind.core.rest.http.VertxPromiseServiceProvider;
-import net.bluemind.locator.vertxclient.VertxLocatorClient;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.webmodule.server.NeedVertx;
 
 public class ExportVCardHandler implements Handler<HttpServerRequest>, NeedVertx {
@@ -52,17 +54,20 @@ public class ExportVCardHandler implements Handler<HttpServerRequest>, NeedVertx
 	private static final Logger logger = LoggerFactory.getLogger(ExportVCardHandler.class);
 	private HttpClientProvider prov;
 
+	private static final ILocator locator = (String service, AsyncHandler<String[]> asyncHandler) -> {
+		String core = Topology.get().core().value.address();
+		String[] resp = new String[] { core };
+		asyncHandler.success(resp);
+	};
+
 	@Override
 	public void handle(final HttpServerRequest request) {
 		String containerUid = request.params().get("containerUid");
 		final String tagUid = request.params().get("tagUid");
 
 		MultiMap headers = request.headers();
-		String latd = headers.get("BMUserLATD");
 		String sessionId = headers.get("BMSessionId");
-		VertxLocatorClient vertxLocatorClient = new VertxLocatorClient(prov, latd);
-		final VertxPromiseServiceProvider clientProvider = new VertxPromiseServiceProvider(prov, vertxLocatorClient,
-				sessionId);
+		final VertxPromiseServiceProvider clientProvider = new VertxPromiseServiceProvider(prov, locator, sessionId);
 
 		if (null != containerUid) {
 			exportByContainer(request, containerUid, clientProvider);

@@ -18,18 +18,16 @@ package net.bluemind.serialization.client;
  * END LICENSE
  */
 
-
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bluemind.locator.client.LocatorClient;
+import net.bluemind.network.topology.Topology;
 
 public class BmHollowClient implements AutoCloseable {
 
@@ -70,9 +68,7 @@ public class BmHollowClient implements AutoCloseable {
 
 	private String getBaseUrl() {
 		if (null == host) {
-			LocatorClient lc = new LocatorClient();
-			BmHollowClient.host = Optional.ofNullable(lc.locateHost("bm/core", "admin0@global.virt"))
-					.orElse("127.0.0.1");
+			BmHollowClient.host = Topology.getIfAvailable().map(t -> t.core().value.address()).orElse("127.0.0.1");
 		}
 		return BmHollowClient.host;
 	}

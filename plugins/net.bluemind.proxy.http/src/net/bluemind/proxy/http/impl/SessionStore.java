@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.proxy.http.auth.api.IAuthEnforcer.IAuthProtocol;
 import net.bluemind.proxy.http.auth.api.IAuthEnforcer.ISessionStore;
-import net.bluemind.proxy.http.config.HPSConfiguration;
 
 /**
  * Stores mapping between our cookie and the custom auth session id.
@@ -42,11 +41,7 @@ public class SessionStore implements ISessionStore {
 
 	private static final Logger logger = LoggerFactory.getLogger(SessionStore.class);
 
-	@SuppressWarnings("unused")
-	private HPSConfiguration conf;
-
-	public SessionStore(HPSConfiguration conf) {
-		this.conf = conf;
+	public SessionStore() {
 
 		cookieSids = new ConcurrentHashMap<>();
 		sidCookies = new ConcurrentHashMap<>();

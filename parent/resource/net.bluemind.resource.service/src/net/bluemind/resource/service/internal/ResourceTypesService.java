@@ -20,6 +20,7 @@ package net.bluemind.resource.service.internal;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 import javax.ws.rs.PathParam;
 
@@ -71,7 +72,7 @@ public class ResourceTypesService implements IResourceTypes {
 	public void create(String uid, ResourceTypeDescriptor descriptor) throws ServerFault {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_RESOURCE_TYPE);
 
-		if (store.exists(descriptor.label)) {
+		if (store.otherExists(descriptor.label, Optional.empty())) {
 			throw new ServerFault("resource type " + descriptor.label + " already exists", ErrorCode.ALREADY_EXISTS);
 		}
 
@@ -90,7 +91,7 @@ public class ResourceTypesService implements IResourceTypes {
 
 		ParametersValidator.notNullAndNotEmpty(uid);
 
-		if (store.exists(descriptor.label)) {
+		if (store.otherExists(descriptor.label, Optional.of(uid))) {
 			throw new ServerFault("resource type " + descriptor.label + " already exists", ErrorCode.ALREADY_EXISTS);
 		}
 

@@ -48,14 +48,16 @@ import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesRootMgmtPromise
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.ResolvedMailbox;
 import net.bluemind.config.Token;
+import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.PromiseServiceProvider;
 import net.bluemind.core.rest.http.HttpClientProvider;
+import net.bluemind.core.rest.http.ILocator;
 import net.bluemind.core.rest.http.VertxPromiseServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
-import net.bluemind.locator.vertxclient.VertxLocatorClient;
+import net.bluemind.network.topology.Topology;
 
 public class CoreStorageBackend implements StorageApiLink {
 	private static final Logger logger = LoggerFactory.getLogger(CoreStorageBackend.class);
@@ -88,7 +90,10 @@ public class CoreStorageBackend implements StorageApiLink {
 
 		@Override
 		public CompletableFuture<StorageApiLink> newLink(Vertx vertx, HttpClientProvider http, String remoteIp) {
-			VertxLocatorClient vlc = new VertxLocatorClient(http, "admin0@global.virt");
+			ILocator vlc = (String service, AsyncHandler<String[]> asyncHandler) -> {
+				asyncHandler.success(new String[] {
+						Topology.getIfAvailable().map(t -> t.core().value.address()).orElse("127.0.0.1") });
+			};
 			VertxPromiseServiceProvider prom = new VertxPromiseServiceProvider(http, vlc, Token.admin0());
 			logger.info("HTTP MODE, using http client");
 

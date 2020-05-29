@@ -17,6 +17,10 @@
  */
 package net.bluemind.ysnp.impl;
 
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,9 +34,11 @@ import io.vertx.core.net.NetServer;
 import io.vertx.core.net.NetServerOptions;
 import io.vertx.core.net.NetSocket;
 import io.vertx.core.net.SocketAddress;
+import net.bluemind.hornetq.client.MQ;
+import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
-import net.bluemind.utils.IniFile;
+import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.ysnp.YSNPConfiguration;
 
 public class SaslAuthdVerticle extends AbstractVerticle {
@@ -42,7 +48,7 @@ public class SaslAuthdVerticle extends AbstractVerticle {
 	private static final byte[] SASL_OK = new byte[] { 0, 2, (byte) 'O', (byte) 'K' };
 	private static final byte[] SASL_FAILED = new byte[] { 0, 2, (byte) 'N', (byte) 'O' };
 
-	private String defaultDomain;
+	private Supplier<Optional<String>> defaultDomain;
 
 	private final String socketPath;
 	private final boolean expireOk;
@@ -56,13 +62,15 @@ public class SaslAuthdVerticle extends AbstractVerticle {
 
 	@Override
 	public void start() {
-		IniFile ini = new IniFile("/etc/bm/bm.ini") {
-			@Override
-			public String getCategory() {
-				return null;
-			}
-		};
-		defaultDomain = ini.getProperty("default-domain");
+		AtomicReference<SharedMap<String, String>> sysconf = new AtomicReference<>();
+		MQ.init().thenAccept(v -> sysconf.set(MQ.sharedMap("system.configuration")));
+
+		defaultDomain = () -> Optional.ofNullable(sysconf.get())
+				.map(sm -> Optional.ofNullable(sm.get(SysConfKeys.default_domain.name()) != null
+						&& !sm.get(SysConfKeys.default_domain.name()).isEmpty()
+								? sm.get(SysConfKeys.default_domain.name())
+								: null))
+				.orElse(Optional.empty());
 
 		NetServerOptions nso = new NetServerOptions().setTcpNoDelay(true);
 		NetServer ns = vertx.createNetServer(nso);
@@ -132,8 +140,8 @@ public class SaslAuthdVerticle extends AbstractVerticle {
 		buf.readBytes(v);
 		String realm = new String(v);
 
-		if (!"admin0".equals(login) && realm.isEmpty() && defaultDomain != null) {
-			realm = defaultDomain;
+		if (!"admin0".equals(login) && realm.isEmpty() && defaultDomain.get().isPresent()) {
+			realm = defaultDomain.get().get();
 		}
 		return new Creds(login, password, service, realm);
 	}

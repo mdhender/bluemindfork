@@ -51,7 +51,8 @@ import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.Classification;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
-import net.bluemind.pool.impl.BmConfIni;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
 import net.fortuna.ical4j.model.property.Method;
 import net.fortuna.ical4j.model.property.XProperty;
 
@@ -84,7 +85,6 @@ public class PublishCalendarService implements IPublishCalendar {
 	public String generateUrl(PublishMode mode) throws ServerFault {
 		RBACManager.forSecurityContext(context.getSecurityContext()).forContainer(container).check(Verb.Manage.name());
 
-		BmConfIni ini = new BmConfIni();
 		String token = null;
 		if (mode == PublishMode.PUBLIC) {
 			token = String.format("%s%s", PUBLIC_URL_PREFIX, generateToken());
@@ -98,7 +98,7 @@ public class PublishCalendarService implements IPublishCalendar {
 		accessControlList.add(entry);
 		service.setAccessControlList(accessControlList);
 
-		return createUrl(ini, token);
+		return createUrl(token);
 	}
 
 	@Override
@@ -107,8 +107,6 @@ public class PublishCalendarService implements IPublishCalendar {
 
 		IContainerManagement service = context.su().provider().instance(IContainerManagement.class, container.uid);
 		List<AccessControlEntry> accessControlList = service.getAccessControlList();
-
-		BmConfIni ini = new BmConfIni();
 
 		return accessControlList.stream().filter(accessControlEntry -> {
 			if (accessControlEntry.verb == Verb.Read && accessControlEntry.subject.startsWith(TOKEN_PREFIX)) {
@@ -119,7 +117,7 @@ public class PublishCalendarService implements IPublishCalendar {
 				}
 			}
 			return false;
-		}).map(acl -> createUrl(ini, acl.subject)).collect(Collectors.toList());
+		}).map(acl -> createUrl(acl.subject)).collect(Collectors.toList());
 	}
 
 	@Override
@@ -153,8 +151,11 @@ public class PublishCalendarService implements IPublishCalendar {
 		return getIcs(token.startsWith(PRIVATE_URL_PREFIX) ? PublishMode.PRIVATE : PublishMode.PUBLIC);
 	}
 
-	private String createUrl(BmConfIni ini, String token) {
-		return String.format("https://%s/api/calendars/publish/%s/%s", ini.get("external-url"), container.uid, token);
+	private String createUrl(String token) {
+		return String.format("https://%s/api/calendars/publish/%s/%s",
+				context.su().provider().instance(ISystemConfiguration.class).getValues().values
+						.get(SysConfKeys.external_url.name()),
+				container.uid, token);
 	}
 
 	private String generateToken() {

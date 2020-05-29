@@ -37,7 +37,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.dataprotect.mailbox;bundle-version="4.1.0",
  net.bluemind.backend.cyrus;bundle-version="4.1.0",
  net.bluemind.user.service,
- net.bluemind.dataprotect.ou
+ net.bluemind.dataprotect.ou,
+ net.bluemind.system.schemaupgrader.tests;bundle-version="4.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: net.bluemind.dataprotect.ou.Activator

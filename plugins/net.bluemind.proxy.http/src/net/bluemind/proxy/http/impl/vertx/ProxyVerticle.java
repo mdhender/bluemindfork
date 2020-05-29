@@ -18,12 +18,18 @@
  */
 package net.bluemind.proxy.http.impl.vertx;
 
+import java.util.function.Supplier;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Suppliers;
+
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Promise;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.proxy.http.Activator;
 import net.bluemind.proxy.http.ILogoutListener;
 import net.bluemind.proxy.http.config.ConfigBuilder;
@@ -37,7 +43,7 @@ public class ProxyVerticle extends AbstractVerticle {
 
 	private CoreState coreState;
 
-	private static HPSConfiguration conf;
+	private static Supplier<HPSConfiguration> conf;
 	private static SessionStore ss;
 
 	static {
@@ -45,8 +51,8 @@ public class ProxyVerticle extends AbstractVerticle {
 	}
 
 	private static void sharedStuff() {
-		conf = ConfigBuilder.build();
-		ss = new SessionStore(conf);
+		conf = Suppliers.memoize(ConfigBuilder::build);
+		ss = new SessionStore();
 		Activator.registerSessionListener(new ILogoutListener() {
 
 			@Override
@@ -62,10 +68,12 @@ public class ProxyVerticle extends AbstractVerticle {
 		});
 	}
 
-	public ProxyVerticle() {
-	}
+	@Override
+	public void start(Promise<Void> p) {
+		if (!Topology.getIfAvailable().isPresent()) {
+			logger.warn("Topology missing for {}", this);
+		}
 
-	public void start() {
 		coreState = new CoreState(vertx);
 		coreState.start();
 		HttpServerOptions opts = new HttpServerOptions();
@@ -74,9 +82,10 @@ public class ProxyVerticle extends AbstractVerticle {
 		opts.setTcpKeepAlive(true);
 		HttpServer proxy = vertx.createHttpServer(opts);
 
-		HpsReqHandler rh = new HpsReqHandler(vertx, conf, ss, coreState);
+		HpsReqHandler rh = new HpsReqHandler(vertx, conf.get(), ss, coreState);
 		proxy.requestHandler(rh);
 		proxy.listen(8079);
+		p.complete();
 	}
 
 }

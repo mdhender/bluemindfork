@@ -44,13 +44,11 @@ public class MilterSession {
 	private final long start;
 	private final NetSocket socket;
 	private final JilterProcessor jp;
-	private final Vertx vertx;
 	private Buffer buffer;
 
-	public MilterSession(Vertx vertx, NetSocket socket) {
+	public MilterSession(NetSocket socket) {
 		this.start = registry.clock().monotonicTime();
 		this.socket = socket;
-		this.vertx = vertx;
 		MilterHandler handler = new MilterHandler(MLRegistry.getFactories());
 		this.jp = new JilterProcessor(handler);
 		buffer = Buffer.buffer();

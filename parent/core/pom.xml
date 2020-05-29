@@ -65,7 +65,6 @@
 		<module>net.bluemind.core.annotationvalidator.tests</module>
 
 		<module>net.bluemind.application.launcher</module>
-		<module>net.bluemind.locator.vertxclient</module>
 		<module>net.bluemind.core.auditlog</module>
 
 		<module>net.bluemind.core.sendmail</module>

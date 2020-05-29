@@ -7,7 +7,6 @@ Bundle-Activator: net.bluemind.cti.core.Activator
 Bundle-Vendor: blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.xivo.client;bundle-version="1.0.0",
- net.bluemind.locator.client;bundle-version="1.0.0",
  slf4j.api,
  net.bluemind.xivo.common;bundle-version="1.0.0",
  com.google.guava;bundle-version="19.0.0",

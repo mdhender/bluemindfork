@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Date;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -44,6 +45,7 @@ import net.bluemind.imap.vertx.cmd.FetchResponse;
 import net.bluemind.imap.vertx.cmd.SelectListener;
 import net.bluemind.imap.vertx.cmd.SelectResponse;
 import net.bluemind.imap.vertx.impl.ImapRecordParser;
+import net.bluemind.imap.vertx.impl.StoreClientException;
 import net.bluemind.imap.vertx.impl.TagListener;
 import net.bluemind.imap.vertx.impl.TagOrGoAheadListener;
 import net.bluemind.lib.jutf7.UTF7Converter;
@@ -85,7 +87,11 @@ public class VXStoreClient {
 				cli.completeExceptionally(e);
 			}
 		});
-		return cli.join();
+		try {
+			return cli.get(20, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			throw new StoreClientException(e);
+		}
 	}
 
 	public VXStoreClient(Vertx vertx, String host, int port, String login, String password) {

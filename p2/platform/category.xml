@@ -260,8 +260,6 @@
    <bundle id="net.bluemind.lmtp" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.lmtp.filter.imip" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.locator" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.locator.client" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.locator.vertxclient" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mailbox.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mailbox.api.closure" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mailbox.api.gwt" version="4.1.0.qualifier"/>

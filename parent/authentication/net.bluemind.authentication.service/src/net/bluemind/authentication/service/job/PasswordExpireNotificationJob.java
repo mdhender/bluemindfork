@@ -53,12 +53,13 @@ import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.IDomainSettings;
-import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.scheduledjob.api.JobExitStatus;
 import net.bluemind.scheduledjob.api.JobKind;
 import net.bluemind.scheduledjob.scheduler.IScheduledJob;
 import net.bluemind.scheduledjob.scheduler.IScheduledJobRunId;
 import net.bluemind.scheduledjob.scheduler.IScheduler;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.user.api.IUserSettings;
 
 public class PasswordExpireNotificationJob implements IScheduledJob {
@@ -166,10 +167,14 @@ public class PasswordExpireNotificationJob implements IScheduledJob {
 
 		report.reportByInterval.get(notificationInterval).usersToNotify = userUids.size();
 
-		userUids.stream().forEach(userUid -> processUser(provider, notificationInterval, userUid));
+		Optional<String> externalUrl = Optional.ofNullable(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ISystemConfiguration.class, domainName).getValues().values
+						.get(SysConfKeys.external_url.name()));
+		userUids.stream().forEach(userUid -> processUser(provider, externalUrl, notificationInterval, userUid));
 	}
 
-	private void processUser(ServerSideServiceProvider provider, Integer notificationInterval, String userUid) {
+	private void processUser(ServerSideServiceProvider provider, Optional<String> externalUrl,
+			Integer notificationInterval, String userUid) {
 		DirEntry dirEntry;
 		try {
 			dirEntry = provider.instance(IDirectory.class, domainName).findByEntryUid(userUid);
@@ -202,7 +207,7 @@ public class PasswordExpireNotificationJob implements IScheduledJob {
 		Locale locale = Strings.isNullOrEmpty(lang) ? Locale.ENGLISH : new Locale(lang);
 
 		try {
-			sendNotification(notificationInterval, dirEntry, locale);
+			sendNotification(externalUrl, notificationInterval, dirEntry, locale);
 			report.reportByInterval.get(notificationInterval).usersNotifiedByMail++;
 		} catch (ServerFault | IOException | TemplateException | MimeException e) {
 			report.reportByInterval.get(notificationInterval).usersNotificationError++;
@@ -218,8 +223,8 @@ public class PasswordExpireNotificationJob implements IScheduledJob {
 		}
 	}
 
-	private void sendNotification(Integer notificationInterval, DirEntry dirEntry, Locale locale)
-			throws IOException, TemplateException, MimeException {
+	private void sendNotification(Optional<String> externalUrl, Integer notificationInterval, DirEntry dirEntry,
+			Locale locale) throws IOException, TemplateException, MimeException {
 		Mailbox from = SendmailHelper.formatAddress("BlueMind", String.format("no-reply@%s", domainName));
 		Mailbox recipient = SendmailHelper.formatAddress(dirEntry.displayName, dirEntry.email);
 
@@ -228,7 +233,7 @@ public class PasswordExpireNotificationJob implements IScheduledJob {
 		Map<String, Object> data = new HashMap<>();
 		data.put("msg", new FreeMarkerMsg(resolver));
 		data.put("notificationInterval", notificationInterval);
-		data.put("externalUrl", new BmConfIni().get("external-url"));
+		externalUrl.ifPresent(eu -> data.put("externalUrl", eu));
 
 		Configuration cfg = new Configuration();
 		cfg.setClassForTemplateLoading(this.getClass(), "/");

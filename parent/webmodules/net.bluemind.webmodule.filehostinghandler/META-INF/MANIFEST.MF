@@ -11,8 +11,9 @@ Require-Bundle: net.bluemind.lib.vertx,
  net.bluemind.core.commons,
  net.bluemind.filehosting.api,
  net.bluemind.core.rest.http,
- net.bluemind.locator.vertxclient,
- net.bluemind.webmodule.server
+ net.bluemind.webmodule.server,
+ net.bluemind.network.topology
 Bundle-ClassPath: .
 Export-Package: net.bluemind.webmodule.filehostinghandler
+Automatic-Module-Name: net.bluemind.webmodule.filehostinghandler
 

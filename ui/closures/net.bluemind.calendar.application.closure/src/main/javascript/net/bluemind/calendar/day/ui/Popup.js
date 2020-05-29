@@ -89,6 +89,14 @@ net.bluemind.calendar.day.ui.Popup.prototype.setModel = function(obj) {
   goog.base(this, 'setModel', obj);
 };
 
+net.bluemind.calendar.day.ui.Popup.prototype.addAutoHidePartner = function(element) {
+  this.popup_.addAutoHidePartner(element);
+}
+
+net.bluemind.calendar.day.ui.Popup.prototype.removeAutoHidePartner = function(element) {
+  this.popup_.removeAutoHidePartner(element);
+}
+
 /**
  * Unset all listener
  * 

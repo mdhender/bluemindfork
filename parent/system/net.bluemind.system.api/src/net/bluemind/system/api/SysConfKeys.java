@@ -19,6 +19,21 @@
 package net.bluemind.system.api;
 
 public enum SysConfKeys {
+	/**
+	 * external URL
+	 */
+	external_url,
+
+	/**
+	 * external protocol
+	 */
+	external_protocol,
+
+	/**
+	 * default domain key
+	 */
+	default_domain,
+
 	eas_max_heartbeat, eas_min_heartbeat, eas_sync_unknown, message_size_limit, mynetworks, sw_password, relayhost, //
 	auth_type, krb_ad_domain, krb_ad_ip, krb_domain, cas_url, cas_domain, krb_keytab, fwAdditionalIPs, dpBackupSkipTags, //
 	imap_max_child, nginx_worker_connections,
@@ -57,7 +72,12 @@ public enum SysConfKeys {
 	/**
 	 * 
 	 */
-	subscription_contacts, cyrus_expunged_retention_time;
+	subscription_contacts, cyrus_expunged_retention_time,
+
+	/**
+	 * HPS max session per users
+	 */
+	hps_max_sessions_per_user;
 
 	public static boolean isSysConfigKey(String key) {
 		for (SysConfKeys k : SysConfKeys.values()) {

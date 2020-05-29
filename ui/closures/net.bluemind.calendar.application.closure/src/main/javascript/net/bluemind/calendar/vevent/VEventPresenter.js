@@ -89,6 +89,7 @@ net.bluemind.calendar.vevent.VEventPresenter.prototype.setup = function() {
   return this.ctx.service('calendarsMgmt').list('calendar').then(function(calendars) {
     return this.loadContainers_(data, calendars, containerUid);
   }, null, this).then(function() {
+    this.actions_.setCalendars(data.calendars);
     return this.loadItem_(data.container)
   }, null, this).then(function(vseries) {
     return this.loadModelView_(vseries, data.container);
@@ -122,6 +123,8 @@ net.bluemind.calendar.vevent.VEventPresenter.prototype.loadView_ = function(data
     this.handler.listen(this.view_, e, this.back_);
     e = net.bluemind.calendar.vevent.EventType.REMOVE;
     this.handler.listenWithScope(this.view_, e, this.remove_);
+    e = net.bluemind.calendar.vevent.EventType.DUPLICATE;
+    this.handler.listenWithScope(this.view_, e, this.duplicate_);  
     var calendars = goog.array.filter(data.calendars, function(calendar) {
       if (calendar.settings && calendar.settings.type == 'externalIcs' && data.container != calendar) {
         return false;
@@ -304,12 +307,13 @@ net.bluemind.calendar.vevent.VEventPresenter.prototype.adaptModelView_ = functio
     code : change['errorCode'],
     message : change['errorMessage']
   };
-  
+  var modifier = 0;
   goog.array.forEach(model.flat, function(vevent, index) {
     if (vevent.states.main) {
       var old = model.old && model.old['main'];
+      modifier = -1;
     } else {
-      var old = model.old && model.old['occurrences'][index];
+      var old = model.old && model.old['occurrences'][index + modifier];
     }
     this.adaptVEvent_(vevent, model, old);
   }, this)
@@ -540,6 +544,11 @@ net.bluemind.calendar.vevent.VEventPresenter.prototype.save_ = function(e) {
   return this.actions_.save(e);
 
 };
+
+net.bluemind.calendar.vevent.VEventPresenter.prototype.duplicate_ = function(e) {
+  this.back_()
+  this.actions_.duplicate(e);
+}
 
 net.bluemind.calendar.vevent.VEventPresenter.prototype.resourceDescRequest = function(resourceUid, organizer) {
 	

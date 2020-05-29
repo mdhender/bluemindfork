@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.util.Objects;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 
 import com.google.common.io.ByteStreams;
 
@@ -36,6 +37,7 @@ import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.vertx.VertxStream;
@@ -46,6 +48,11 @@ public abstract class AbstractMessageBodiesServiceTests {
 	protected String partition;
 	protected MailboxReplicaRootDescriptor mboxDescriptor;
 	protected Vertx vertx;
+
+	@BeforeClass
+	public static void oneShotBefore() {
+		System.setProperty("es.mailspool.count", "1");
+	}
 
 	protected Stream openResource(String path) {
 		try (InputStream inputStream = AbstractReplicatedMailboxesServiceTests.class.getClassLoader()
@@ -65,9 +72,11 @@ public abstract class AbstractMessageBodiesServiceTests {
 
 		partition = "datalocation__vagrant" + System.currentTimeMillis() + "_vmw";
 		JdbcActivator.getInstance().addMailboxDataSource("datalocation", JdbcActivator.getInstance().getDataSource());
+		ElasticsearchTestHelper.getInstance().beforeTest();
 	}
 
 	public void after() throws Exception {
+		ElasticsearchTestHelper.getInstance().afterTest();
 		JdbcTestHelper.getInstance().afterTest();
 	}
 

@@ -18,40 +18,14 @@
  */
 package net.bluemind.dav.server.store;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.util.Properties;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.bluemind.dav.server.Proxy;
+import net.bluemind.hornetq.client.MQ;
+import net.bluemind.system.api.SysConfKeys;
 
 public final class Path {
-
-	private static final Logger logger = LoggerFactory.getLogger(Path.class);
-	private static String extUrl;
-
-	static {
-		init();
-	}
-
-	private static void init() {
-		// FIXME initial install..
-		try (InputStream in = Files.newInputStream(new File("/etc/bm/bm.ini").toPath())) {
-			Properties p = new Properties();
-			p.load(in);
-			in.close();
-			extUrl = p.getProperty("external-url").trim();
-		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
-			extUrl = "bm.blue-mind.net";
-		}
-	}
-
 	private static final Pattern principal = Pattern.compile(Proxy.path + "/principals/__uids__/[^/]+/");
 	private static final Pattern principalCalProxyRW = Pattern
 			.compile(Proxy.path + "/principals/__uids__/[^/]+/calendar-proxy-(read|write)/");
@@ -112,6 +86,10 @@ public final class Path {
 	}
 
 	public static String getExtUrl() {
-		return extUrl;
+		String externalUrl = Optional
+				.ofNullable(MQ.<String, String>sharedMap("system.configuration").get(SysConfKeys.external_url.name()))
+				.orElse("configure.your.external.url");
+
+		return externalUrl.trim();
 	}
 }

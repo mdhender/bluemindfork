@@ -23,8 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
-import io.vertx.core.Promise;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import net.bluemind.lib.vertx.RouteMatcher;
@@ -34,7 +32,7 @@ public class LocatorVerticle extends AbstractVerticle {
 	private static final Logger logger = LoggerFactory.getLogger(LocatorVerticle.class);
 
 	@Override
-	public void start(Promise<Void> startedResult) {
+	public void start() {
 		logger.info("Spawing a locator server instance...");
 		HttpServer httpServer = vertx.createHttpServer(new HttpServerOptions().setUsePooledBuffers(true)
 				.setTcpNoDelay(true).setAcceptBacklog(1024).setReuseAddress(true));
@@ -44,17 +42,19 @@ public class LocatorVerticle extends AbstractVerticle {
 		rm.get("/location/host/:kind/:tag/:latd", hls);
 		rm.noMatch(req -> req.response().setStatusCode(404).end());
 
-		httpServer.requestHandler(rm).listen(LocatorService.LOCATOR_PORT, new Handler<AsyncResult<HttpServer>>() {
+		httpServer.requestHandler(rm);
 
-			@Override
-			public void handle(AsyncResult<HttpServer> event) {
-				if (event.succeeded()) {
-					logger.info("Bound to {}", LocatorService.LOCATOR_PORT);
-					startedResult.complete(null);
-				} else {
-					logger.error(event.cause().getMessage(), event.cause());
-					startedResult.fail(event.cause());
-				}
+		tryListen(httpServer);
+
+	}
+
+	private void tryListen(HttpServer httpServer) {
+		httpServer.listen(LocatorService.LOCATOR_PORT, (AsyncResult<HttpServer> event) -> {
+			if (event.succeeded()) {
+				logger.info("Bound to {}", LocatorService.LOCATOR_PORT);
+			} else {
+				logger.error("Retrying in 5sec (cause: {})", event.cause().getMessage());
+				vertx.setTimer(5000, tid -> tryListen(httpServer));
 			}
 		});
 	}

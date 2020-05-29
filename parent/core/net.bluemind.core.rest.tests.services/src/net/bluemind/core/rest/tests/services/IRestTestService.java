@@ -57,7 +57,14 @@ public interface IRestTestService extends IVirtualApi<ComplexRequest> {
 
 	@POST
 	@Path("voidResponse")
-	public void noResponse(ComplexRequest request) throws ServerFault;
+	public void noResponse(ComplexRequest request);
+
+	/**
+	 * This method blocks
+	 */
+	@POST
+	@Path("gloryHole")
+	public void blackHole();
 
 	@POST
 	@Path("nullResponse")

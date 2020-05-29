@@ -23,6 +23,9 @@ import org.eclipse.equinox.app.IApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.hornetq.client.MQ;
+import net.bluemind.network.topology.Topology;
+import net.bluemind.network.topology.consumer.ConsumerStart;
 import net.bluemind.proxy.http.HttpProxyServer;
 import net.bluemind.systemd.notify.Startup;
 
@@ -34,10 +37,14 @@ public class HPSLauncher implements IApplication {
 
 	@Override
 	public Object start(IApplicationContext context) throws Exception {
-		this.hps = new HttpProxyServer();
-		hps.run();
-		logger.info("HPS started on port {}.", hps.getPort());
-		Startup.notifyReady();
+		MQ.init().thenAccept(v -> {
+			new ConsumerStart().start();
+			Topology.get();
+			this.hps = new HttpProxyServer();
+			hps.run();
+			logger.info("HPS started on port {}.", hps.getPort());
+			Startup.notifyReady();
+		});
 		return IApplication.EXIT_OK;
 	}
 

@@ -2,12 +2,20 @@
 #set -e
 #set -x
 
+## WARNING: variables are "templates", replaced by BlueMind
+
 echo "** Cleanup old dataprotect databases"
 export PGPASSWORD=bj
 
 dp_dbs=`psql -U bj -h localhost -d bj -c "COPY (SELECT datname FROM pg_database WHERE datistemplate=false and datname like 'dp%') TO STDOUT"`
 
 for i in $dp_dbs; do
+    echo "Disconnect all users from database $i"
+    sql_disconnect="SELECT pg_terminate_backend(pg_stat_activity.pid)
+        FROM pg_stat_activity
+        WHERE pg_stat_activity.datname = '$i'
+        AND pid <> pg_backend_pid();"
+    su postgres -c "psql -U bj -h localhost -d bj -c \"$sql_disconnect\""
     echo "Dropping database $i"
     su postgres -c "dropdb $i"
 done

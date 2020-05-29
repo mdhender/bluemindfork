@@ -213,7 +213,7 @@ public class NodeClientTests extends TestCase {
 		assertTrue(data.length > 0);
 
 		String content = new String(data);
-		assertTrue(content.contains("external-url"));
+		assertTrue(content.contains("dbtype"));
 	}
 
 	public void testReadNotExistingFile() throws ServerFault {

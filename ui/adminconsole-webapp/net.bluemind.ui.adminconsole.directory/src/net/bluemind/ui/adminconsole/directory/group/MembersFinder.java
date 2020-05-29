@@ -54,31 +54,25 @@ public class MembersFinder implements SimpleBaseDirEntryFinder {
 			return;
 		}
 
-		boolean outOfLimit = members.size() > 500;
-		if (!outOfLimit) {
-			tQuery.entryUidFilter = members.stream() //
-					.map(m -> m.getUid()) //
-					.collect(Collectors.toList());
-		}
+		int to = Math.min(tQuery.from + tQuery.size, members.size());
+		// Don't use query pagination as we filter expected members
+		tQuery.from = 0;
+		tQuery.size = 0;
+		tQuery.entryUidFilter = members.subList(tQuery.from, to).stream() //
+				.map(m -> m.getUid()) //
+				.collect(Collectors.toList());
 
 		directory.search(tQuery, new AsyncHandler<ListResult<ItemValue<DirEntry>>>() {
 
 			@Override
 			public void success(ListResult<ItemValue<DirEntry>> value) {
 				ListResult<DirEntry> ret = new ListResult<>();
-				ret.total = value.total;
+				ret.total = members.size();
 				if (filterOut != null && !filterOut.isEmpty()) {
 					ret.values = value.values.stream().filter(v -> !filterOut.contains(v.value.entryUid))
 							.map(d -> d.value).collect(Collectors.toList());
 				} else {
 					ret.values = value.values.stream().map(d -> d.value).collect(Collectors.toList());
-				}
-
-				if (outOfLimit) {
-					List<String> membersToUid = members.stream().map(m -> m.getUid()).collect(Collectors.toList());
-					ret.values = ret.values.stream().filter(v -> membersToUid.contains(v.entryUid))
-							.collect(Collectors.toList());
-					ret.total = members.size();
 				}
 
 				cb.success(ret);

@@ -21,10 +21,11 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Verticle;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.lib.vertx.IVerticleFactory;
+import net.bluemind.lib.vertx.IVerticlePriority;
 
 public class TopologyStarter extends AbstractVerticle {
 
-	public static class Factory implements IVerticleFactory {
+	public static class Factory implements IVerticleFactory, IVerticlePriority {
 
 		@Override
 		public boolean isWorker() {
@@ -34,6 +35,11 @@ public class TopologyStarter extends AbstractVerticle {
 		@Override
 		public Verticle newInstance() {
 			return new TopologyStarter();
+		}
+
+		@Override
+		public int getPriority() {
+			return 998;
 		}
 
 	}

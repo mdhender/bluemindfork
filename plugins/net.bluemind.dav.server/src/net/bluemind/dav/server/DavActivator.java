@@ -23,8 +23,6 @@ import java.io.File;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
-import net.bluemind.locator.client.LocatorClient;
-
 public final class DavActivator implements BundleActivator {
 
 	private static BundleContext context;
@@ -33,16 +31,13 @@ public final class DavActivator implements BundleActivator {
 		return context;
 	}
 
-	private static final LocatorClient locator = new LocatorClient();
-
 	public static final boolean devMode = new File(System.getProperty("user.home") + "/dav.debug").exists();
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext
-	 * )
+	 * org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext )
 	 */
 	public void start(BundleContext bundleContext) throws Exception {
 		DavActivator.context = bundleContext;
@@ -56,10 +51,6 @@ public final class DavActivator implements BundleActivator {
 	 */
 	public void stop(BundleContext bundleContext) throws Exception {
 		DavActivator.context = null;
-	}
-
-	public static LocatorClient locator() {
-		return locator;
 	}
 
 }

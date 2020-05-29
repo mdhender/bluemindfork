@@ -14,10 +14,8 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava;bundle-version="19.0.0",
  net.bluemind.core.rest.http,
  net.bluemind.config,
- net.bluemind.locator.client,
  net.bluemind.system.api,
  net.bluemind.core.rest.http,
- net.bluemind.locator.vertxclient,
  net.bluemind.system.stateobserver,
  net.bluemind.metrics.registry,
  net.bluemind.systemd.notify
@@ -27,3 +25,4 @@ Eclipse-RegisterBuddy: net.bluemind.lib.vertx
 Export-Package: net.bluemind.lmtp.backend,
  net.bluemind.lmtp.impl,
  net.bluemind.lmtp.parser
+Automatic-Module-Name: net.bluemind.lmtp

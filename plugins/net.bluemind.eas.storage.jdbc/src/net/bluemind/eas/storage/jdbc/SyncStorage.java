@@ -67,8 +67,8 @@ import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.type.ItemDataType;
 import net.bluemind.eas.exception.CollectionNotFoundException;
 import net.bluemind.eas.store.ISyncStorage;
+import net.bluemind.hornetq.client.MQ;
 import net.bluemind.network.topology.Topology;
-import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.todolist.api.ITodoList;
 import net.bluemind.user.api.IUserSubscription;
 
@@ -95,13 +95,7 @@ public class SyncStorage implements ISyncStorage {
 	// SystemConf
 	@Override
 	public String getSystemConf(String key) {
-		try {
-			ISystemConfiguration srv = admin0Provider().instance(ISystemConfiguration.class);
-			return srv.getValues().stringValue(key);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-		}
-		return null;
+		return MQ.<String, String>sharedMap("system.configuration").get(key);
 	}
 
 	// Device/Auth stuff

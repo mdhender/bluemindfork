@@ -13,7 +13,9 @@ Require-Bundle: net.bluemind.ui.settings.downloads;bundle-version="1.0.0",
  net.bluemind.webmodule.server,
  net.bluemind.utils,
  org.eclipse.core.runtime,
- org.freemarker.freemarker
+ org.freemarker.freemarker,
+ net.bluemind.hornetq.client,
+ net.bluemind.system.api
 Bundle-Localization: OSGI-INF/l10n/bundle
 Web-Resources: web-resources
 Bundle-Activator: net.bluemind.ui.settings.downloads.tbird.Activator

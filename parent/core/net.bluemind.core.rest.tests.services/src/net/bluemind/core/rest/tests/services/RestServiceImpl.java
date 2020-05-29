@@ -18,6 +18,9 @@
  */
 package net.bluemind.core.rest.tests.services;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 
@@ -156,6 +159,16 @@ public class RestServiceImpl implements IRestTestService {
 	@Override
 	public ComplexResponse nullResponse(ComplexRequest request) throws ServerFault {
 		return null;
+	}
+
+	@Override
+	public void blackHole() {
+		System.err.println("In black hole... will block forever...");
+		try {
+			new CompletableFuture<Void>().get(1, TimeUnit.MINUTES);
+		} catch (Exception e) {
+			// ok
+		}
 	}
 
 }

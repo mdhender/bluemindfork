@@ -21,9 +21,7 @@ package net.bluemind.backend.postfix;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -60,11 +58,6 @@ public class SettingsHookTests extends HooksTests {
 
 	@Before
 	public void setup() throws Exception {
-		File bmini = new File(System.getProperty("java.io.tmpdir"), "bm-ini");
-		try (BufferedWriter out = new BufferedWriter(new FileWriter(bmini))) {
-			out.write("external-url=bcad5a346f31");
-		}
-		System.setProperty("net.bluemind.ini.path", bmini.getAbsolutePath());
 		super.before();
 
 		IServer serverService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class,

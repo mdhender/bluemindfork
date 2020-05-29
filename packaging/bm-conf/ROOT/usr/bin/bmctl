@@ -35,19 +35,21 @@ function product() {
 start_bm() {
   echo "Start BlueMind Services"
   systemctl start bluemind.target
-  return $ret
 }
 
 stop_bm() {
   echo "Stop BlueMind Services"
   systemctl stop bluemind.target
-  return $ret
 }
 
 restart_bm() {
   echo "Restarting BlueMind Services"
   systemctl restart bluemind.target
-  return $ret
+}
+
+restart_exceptnode_bm() {
+  echo "Restarting BlueMind Services except Node"
+  systemctl restart $(systemctl list-dependencies --plain bluemind.target | grep -vE 'bluemind.target|bm-node' | sort | uniq)
 }
 
 function memory_report() {
@@ -74,7 +76,7 @@ function status_bm() {
 
 function status_bm_stopped() {
   ret=0
-  for service in $(systemctl list-dependencies --plain bluemind.target|grep -v bluemind.target | sort | uniq); do
+  for service in $(systemctl list-dependencies --plain bluemind.target | grep -v bluemind.target | sort | uniq); do
     if systemctl status ${service} > /dev/null 2>&1; then
       ret=1
       echo ${service}" started while BlueMind is stopped - please restart bluemind: systemctl restart bluemind.target"
@@ -88,7 +90,7 @@ function status_bm_stopped() {
 
 function status_bm_started() {
   ret=0
-  for service in $(systemctl list-dependencies --plain bluemind.target|grep -v bluemind.target | sort | uniq); do
+  for service in $(systemctl list-dependencies --plain bluemind.target | grep -v bluemind.target | sort | uniq); do
     if ! [ -e "/etc/bm/"$(echo ${service} | sed -e 's/\.service$/.disabled/') ] \
         && ! systemctl status ${service} > /dev/null 2>&1; then
       ret=1
@@ -107,6 +109,7 @@ help() {
   echo -e "\tstop: stop Blue Mind services"
   echo -e "\tstatus: display Blue Mind core service status"
   echo -e "\treload|restart: restart Blue Mind services"
+  echo -e "\trestart-exceptnode: restart Blue Mind services except bm-node service"
   echo -e "\tmemory: display Blue Mind memory usage"
 }
 
@@ -125,6 +128,9 @@ case "$1" in
       ;;
   restart)
       restart_bm
+      ;;
+  restart-exceptnode)
+      restart_exceptnode_bm
       ;;
   memory)
       memory_report
