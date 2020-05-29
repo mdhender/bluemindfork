@@ -1144,6 +1144,25 @@ public class ImipFilterVEventTests {
 	}
 
 	@Test
+	public void testTeamsRequestProducesCleanHtml() throws Exception {
+		LmtpAddress recipient = new LmtpAddress("<user1@domain.lan>", null, null);
+
+		List<ItemValue<VEventSeries>> events = getVEventsFromIcs("teams.request.ics");
+		ItemValue<VEventSeries> event = events.get(0);
+		IIMIPHandler handler = new FakeEventRequestHandlerFactory().create();
+		IMIPInfos imip = imip(ITIPMethod.REQUEST, defaultExternalSenderVCard(), event.uid);
+		imip.iCalendarElements = Arrays.asList(event.value.main);
+		handler.handle(imip, recipient, domain, user1Mailbox);
+
+		ItemValue<VEventSeries> evt = user1Calendar.getComplete(event.uid);
+		assertNotNull(evt);
+		String desc = event.value.mainOccurrence().description;
+		assertNotNull(desc);
+		System.err.println(desc);
+
+	}
+
+	@Test
 	public void testCancelException() throws Exception {
 		LmtpAddress recipient = new LmtpAddress("<user1@domain.lan>", null, null);
 

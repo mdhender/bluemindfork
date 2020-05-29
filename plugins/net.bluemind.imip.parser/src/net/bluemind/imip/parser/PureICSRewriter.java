@@ -57,7 +57,7 @@ public class PureICSRewriter {
 
 	private static final Logger logger = LoggerFactory.getLogger(PureICSRewriter.class);
 
-	private Set<String> dontCopy = new HashSet<String>();
+	private Set<String> dontCopy = new HashSet<>();
 
 	public PureICSRewriter() {
 		dontCopy.add(FieldName.CONTENT_TYPE);
@@ -71,7 +71,7 @@ public class PureICSRewriter {
 		try {
 			return rewriteImpl(m);
 		} catch (Exception e) {
-			logger.error("Failed at rewritting pure ics: " + e.getMessage(), e);
+			logger.error("Failed at rewritting pure ics: {}", e.getMessage(), e);
 			return m;
 		}
 	}

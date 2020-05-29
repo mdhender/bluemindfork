@@ -269,6 +269,7 @@
       <plugin id="net.bluemind.lib.ldap"/>
       <plugin id="net.bluemind.lib.ristretto"/>
       <plugin id="net.bluemind.lib.vertx"/>
+      <plugin id="net.bluemind.linkify"/>
       <plugin id="net.bluemind.locator"/>
       <plugin id="net.bluemind.mailbox.api"/>
       <plugin id="net.bluemind.mailbox.hook"/>
@@ -459,8 +460,8 @@
 
    <configurations>
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
-      <property name="osgi.noShutdown" value="true" />
       <property name="osgi.configuration.area" value="/var/lib/bm-core/" />
+      <property name="osgi.noShutdown" value="true" />
    </configurations>
 
    <preferencesInfo>

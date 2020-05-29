@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.linkify
+Bundle-SymbolicName: net.bluemind.linkify
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ slf4j.api,
+ com.google.guava
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: net.bluemind.linkify
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: lib/libphonenumber-8.12.4.jar,
+ .
+Export-Package: net.bluemind.linkify

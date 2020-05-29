@@ -19,5 +19,6 @@ Require-Bundle: net.bluemind.calendar.api,
  net.bluemind.core.rest,
  net.bluemind.user.api,
  net.bluemind.core.sessions,
- com.google.guava
+ com.google.guava,
+ net.bluemind.linkify
 Export-Package: net.bluemind.icalendar.parser
