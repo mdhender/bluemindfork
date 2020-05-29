@@ -82,5 +82,9 @@
    <bundle id="net.bluemind.ui.banner" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.announcement.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.announcement.api.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.ui.adminconsole.monitoring" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.monitoring.api" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.monitoring.api.gwt" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.ui.metrics.application" version="4.1.0.qualifier"/>
    <bundle id="com.google.jsinterop.annotations" version="1.0.2"/>
 </site>

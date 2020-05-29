@@ -22,7 +22,6 @@
 		<module>adminconsole-ldap</module>
 		<module>adminconsole-ldap-export</module>
 		<module>adminconsole-filehosting</module>
-		<module>adminconsole-monitoring</module>
 		<module>adminconsole</module>
 		<module>im</module>
 		<module>cti</module>

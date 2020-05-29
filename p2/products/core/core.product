@@ -297,6 +297,12 @@
       <plugin id="net.bluemind.mailshare.api"/>
       <plugin id="net.bluemind.mailshare.hook"/>
       <plugin id="net.bluemind.mailshare.service"/>
+      <plugin id="net.bluemind.monitoring.api"/>
+      <plugin id="net.bluemind.monitoring.service"/>
+      <plugin id="net.bluemind.monitoring.handler.services"/>
+      <plugin id="net.bluemind.monitoring.handler.system"/>
+      <plugin id="net.bluemind.metrics.core"/>
+      <plugin id="net.bluemind.metrics.alerts.api"/>
       <plugin id="net.bluemind.metrics.annotations"/>
       <plugin id="net.bluemind.metrics.registry"/>
       <plugin id="net.bluemind.mime4j.bodies"/>

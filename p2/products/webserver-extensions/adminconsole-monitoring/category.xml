@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<site>
-   <bundle id="net.bluemind.ui.adminconsole.monitoring" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.monitoring.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.monitoring.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.ui.metrics.application" version="4.1.0.qualifier"/>
-</site>
