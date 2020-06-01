@@ -75,7 +75,6 @@ public final class ProtectedLocationHandler implements Handler<HttpServerRequest
 	@Override
 	public void handle(HttpServerRequest event) {
 		registry.counter(idFactory.name("requestsCount", "kind", "protected")).increment();
-		logger.debug("Protected location {}:{}{}", fl.getHost(), fl.getPort(), fl.getPathPrefix());
 
 		if (SecurityConfig.cspHeader) {
 			addCspHeader(event);

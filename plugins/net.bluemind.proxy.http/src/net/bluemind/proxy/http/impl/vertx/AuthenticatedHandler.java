@@ -46,6 +46,7 @@ import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.proxy.http.IDecorableRequest;
 import net.bluemind.proxy.http.InvalidSession;
 import net.bluemind.proxy.http.config.ForwardedLocation;
+import net.bluemind.proxy.http.config.ForwardedLocation.ResolvedLoc;
 import net.bluemind.proxy.http.impl.CachedTemplate;
 import net.bluemind.proxy.http.impl.Templates;
 
@@ -72,7 +73,6 @@ public final class AuthenticatedHandler implements Handler<UserReq> {
 		opts.setUsePooledBuffers(true);
 		opts.setKeepAlive(true);
 		opts.setMaxPoolSize(200);
-		opts.setDefaultHost(fl.getHost()).setDefaultPort(fl.getPort());
 		return vertx.createHttpClient(opts);
 	}
 
@@ -112,13 +112,14 @@ public final class AuthenticatedHandler implements Handler<UserReq> {
 		}
 		final HttpServerResponse clientResp = clientReq.response();
 
+		ResolvedLoc resolved = fl.resolve();
 		if (logger.isDebugEnabled()) {
-			logger.debug("Proxify request URI {} to http://{}:{}{}", clientReq.absoluteURI(), fl.getHost(),
-					fl.getPort(), clientReq.uri());
+			logger.debug("Proxify request URI {} to http://{}:{}{}", clientReq.absoluteURI(), resolved.host,
+					resolved.port, clientReq.uri());
 		}
 
 		RequestOptions reqOpts = new RequestOptions();
-		reqOpts.setHost(fl.getHost()).setPort(fl.getPort());
+		reqOpts.setHost(resolved.host).setPort(resolved.port);
 		reqOpts.setURI(clientReq.uri());
 		final HttpClientRequest upstreamReq = client.request(clientReq.method(), reqOpts);
 		upstreamReq.handler(new Handler<HttpClientResponse>() {
