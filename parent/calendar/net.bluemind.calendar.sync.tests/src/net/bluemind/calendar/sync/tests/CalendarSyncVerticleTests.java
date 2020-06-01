@@ -326,6 +326,23 @@ public class CalendarSyncVerticleTests {
 		this.checkNoSync();
 	}
 
+	@Test
+	public void testTooMuchChangesShouldNotUseUnhandledEvents() throws InterruptedException {
+		this.init();
+
+		// first sync replaces the initial empty ics
+		this.nextResponse = new PreparedResponse(ICS_FILE_52_EVENTS);
+		this.checkSyncOkWithChanges(20000);
+
+		for (int i = 0; i < CalendarSyncVerticle.syncErrorLimit(); i++) {
+			this.nextResponse = new PreparedResponse(ICS_FILE_52_EVENTS);
+			this.checkSyncOkNoUpdates(20000);
+		}
+
+		this.nextResponse = new PreparedResponse(ICS_FILE_52_EVENTS);
+		this.checkSyncOkNoUpdates(20000);
+	}
+
 	/**
 	 * Test updating a calendar with bad ICS content. Change ICS content to avoid
 	 * "MD5 mechanism".
