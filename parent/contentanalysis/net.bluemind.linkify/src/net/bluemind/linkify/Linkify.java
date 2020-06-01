@@ -147,6 +147,9 @@ public class Linkify {
 	 * @return
 	 */
 	public static String toHtml(String s) {
+		if (s.contains("</div>") || s.contains("</table>")) {
+			return s;
+		}
 
 		CharMatcher lfMatcher = CharMatcher.is('\n');
 		String trans = CharMatcher.is('\r').removeFrom(s);

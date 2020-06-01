@@ -35,6 +35,13 @@ public class LinkifyTest {
 	String phoneAndMails = "J'ai pas tinder.com mais tu peux m'envoyer un mail sur roberto@bluemind.net ou un sexto au 06 42 25 92 39";
 
 	@Test
+	public void testDetectHtml() {
+		String out = Linkify.toHtml("<div>Grades 1-5</div>");
+		System.err.println("out: " + out);
+		assertTrue(out.contains("</div>"));
+	}
+
+	@Test
 	public void testTeamsBody() {
 		String html = Linkify.toHtml(teamsMeetingBody);
 		System.err.println("HTML:\n" + html);
