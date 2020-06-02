@@ -49,9 +49,9 @@ public class LocatorVerticle extends AbstractVerticle {
 	}
 
 	private void tryListen(HttpServer httpServer) {
-		httpServer.listen(LocatorService.LOCATOR_PORT, (AsyncResult<HttpServer> event) -> {
+		httpServer.listen(8084, (AsyncResult<HttpServer> event) -> {
 			if (event.succeeded()) {
-				logger.info("Bound to {}", LocatorService.LOCATOR_PORT);
+				logger.info("Bound to {}", 8084);
 			} else {
 				logger.error("Retrying in 5sec (cause: {})", event.cause().getMessage());
 				vertx.setTimer(5000, tid -> tryListen(httpServer));

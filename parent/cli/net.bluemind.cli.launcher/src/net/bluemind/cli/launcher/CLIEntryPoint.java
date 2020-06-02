@@ -33,7 +33,6 @@ import org.osgi.framework.Version;
 import com.google.common.base.Splitter;
 
 import net.bluemind.hornetq.client.MQ;
-import net.bluemind.network.topology.Topology;
 import net.bluemind.network.topology.consumer.ConsumerStart;
 
 public class CLIEntryPoint implements IApplication {
@@ -42,7 +41,6 @@ public class CLIEntryPoint implements IApplication {
 	public Object start(IApplicationContext context) throws Exception {
 		return MQ.init().thenApply(v -> {
 			new ConsumerStart().start();
-			Topology.get();
 			try {
 				AnsiConsole.systemInstall();
 				Version version = context.getBrandingBundle().getVersion();

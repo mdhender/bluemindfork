@@ -21,10 +21,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.CoreException;
@@ -34,8 +34,6 @@ import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Sets;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -77,13 +75,14 @@ public class NginxService {
 		return updaters;
 	}
 
-	private List<ItemValue<Server>> getTaggedServers(Set<String> tags) throws ServerFault {
-		return Topology
-				.get().nodes().stream().filter(
-						server -> server.value.tags.stream()
+	private List<String> getTaggedServers() throws ServerFault {
+		return Topology.getIfAvailable()
+				.map(t -> t.nodes().stream()
+						.filter(server -> server.value.tags.stream()
 								.anyMatch(tag -> tag.equals(TagDescriptor.bm_nginx.getTag())
 										|| tag.equals(TagDescriptor.bm_nginx_edge.getTag())))
-				.collect(Collectors.toList());
+						.map(s -> s.value.address()).collect(Collectors.toList()))
+				.orElse(Arrays.asList("127.0.0.1"));
 	}
 
 	public byte[] serverNameContent(String address) {
@@ -95,8 +94,7 @@ public class NginxService {
 	}
 
 	public void reloadHttpd() throws ServerFault {
-		getTaggedServers(Sets.newHashSet(TagDescriptor.bm_nginx.getTag(), TagDescriptor.bm_nginx_edge.getTag()))
-				.forEach(server -> reloadHttpd(NodeActivator.get(server.value.address())));
+		getTaggedServers().forEach(server -> reloadHttpd(NodeActivator.get(server)));
 	}
 
 	private void reloadHttpd(INodeClient nc) throws ServerFault {
@@ -105,39 +103,33 @@ public class NginxService {
 	}
 
 	public void updateFileHostingMaxSize(long fileHostingMaxSize) {
-		doUpdate(fileHostingMaxSize,
-				Sets.newHashSet(TagDescriptor.bm_nginx.getTag(), TagDescriptor.bm_nginx_edge.getTag()),
-				(updater, nc, size) -> updater.updateFilehostingSize(nc, size));
+		doUpdate(fileHostingMaxSize, (updater, nc, size) -> updater.updateFilehostingSize(nc, size));
 	}
 
 	public void updateMessageSize(long messageSizeLimit) {
-		doUpdate(messageSizeLimit,
-				Sets.newHashSet(TagDescriptor.bm_nginx.getTag(), TagDescriptor.bm_nginx_edge.getTag()),
-				(updater, nc, size) -> updater.updateMessageSize(nc, size));
+		doUpdate(messageSizeLimit, (updater, nc, size) -> updater.updateMessageSize(nc, size));
 	}
 
 	private interface NginxConfigUpdater {
 		void run(INginxConfigUpdater updater, INodeClient nc, long size) throws ServerFault;
 	}
 
-	private void doUpdate(long fileHostingMaxSize, Set<String> tags, NginxConfigUpdater nginxUpdater) {
-		List<ItemValue<Server>> taggedServers = getTaggedServers(tags);
+	private void doUpdate(long fileHostingMaxSize, NginxConfigUpdater nginxUpdater) {
+		List<String> taggedServers = getTaggedServers();
 
 		List<INginxConfigUpdater> updaters = searchUpdaters();
 		logger.info("Found {} nginx config updaters", updaters.size());
 
 		logger.info("Distributing new settings to {} servers", taggedServers.size());
-		for (ItemValue<Server> taggedServer : taggedServers) {
-			logger.info("Distributing new settings to {}:{}", taggedServer.value.name,
-					taggedServer.value.ip);
-			INodeClient nc = NodeActivator.get(taggedServer.value.address());
+		for (String taggedServer : taggedServers) {
+			logger.info("Distributing new settings to {}", taggedServer);
+			INodeClient nc = NodeActivator.get(taggedServer);
 
 			for (INginxConfigUpdater updater : updaters) {
 				try {
 					nginxUpdater.run(updater, nc, fileHostingMaxSize);
 				} catch (ServerFault sf) {
-					logger.warn("Cannot update nginx config on server {}:{}", taggedServer.value.address(),
-							sf.getMessage());
+					logger.warn("Cannot update nginx config on server {}:{}", taggedServer, sf.getMessage());
 					throw sf;
 				}
 			}
@@ -147,13 +139,12 @@ public class NginxService {
 	}
 
 	public void updateSwPassword(String swPassword) {
-		getTaggedServers(Sets.newHashSet(TagDescriptor.bm_nginx.getTag(), TagDescriptor.bm_nginx_edge.getTag()))
-				.forEach(server -> {
-					logger.info("update htpasswd on {}", server.value.address());
-					INodeClient nc = NodeActivator.get(server.value.address());
-					NCUtils.exec(nc, "/usr/bin/htpasswd -bc /etc/nginx/sw.htpasswd admin '" + swPassword + "'");
-					reloadHttpd(nc);
-				});
+		getTaggedServers().forEach(server -> {
+			logger.info("update htpasswd on {}", server);
+			INodeClient nc = NodeActivator.get(server);
+			NCUtils.exec(nc, "/usr/bin/htpasswd -bc /etc/nginx/sw.htpasswd admin '" + swPassword + "'");
+			reloadHttpd(nc);
+		});
 	}
 
 	public void updateWorkerConnection(String workerConnections) {
@@ -169,23 +160,25 @@ public class NginxService {
 			throw new ServerFault(e);
 		}
 
-		getTaggedServers(Sets.newHashSet(TagDescriptor.bm_nginx.getTag(), TagDescriptor.bm_nginx_edge.getTag()))
-				.forEach(server -> {
-					logger.info("update worker_connections on {}", server.value.address());
-					INodeClient nc = NodeActivator.get(server.value.address());
-					nc.writeFile("/etc/nginx/global.d/events.conf", new ByteArrayInputStream(sw.toString().getBytes()));
-					reloadHttpd(nc);
-				});
+		getTaggedServers().forEach(server -> {
+			logger.info("update worker_connections on {}", server);
+			INodeClient nc = NodeActivator.get(server);
+			nc.writeFile("/etc/nginx/global.d/events.conf", new ByteArrayInputStream(sw.toString().getBytes()));
+			reloadHttpd(nc);
+		});
 	}
 
 	public void updateExternalUrl(String externalUrl) {
-		getTaggedServers(Sets.newHashSet(TagDescriptor.bm_nginx.getTag(), TagDescriptor.bm_nginx_edge.getTag()))
-				.forEach(server -> updateExternalUrl(server, externalUrl));
+		getTaggedServers().forEach(server -> updateExternalUrl(server, externalUrl));
 	}
 
 	public void updateExternalUrl(ItemValue<Server> server, String externalUrl) {
-		logger.info("update worker_connections on {}", server.value.address());
-		INodeClient nc = NodeActivator.get(server.value.address());
+		updateExternalUrl(server.value.address(), externalUrl);
+	}
+
+	private void updateExternalUrl(String addr, String externalUrl) {
+		logger.info("update worker_connections on {}", addr);
+		INodeClient nc = NodeActivator.get(addr);
 		nc.writeFile("/etc/nginx/bm-servername.conf", new ByteArrayInputStream(serverNameContent(externalUrl)));
 		nc.writeFile("/etc/nginx/bm-externalurl.conf", new ByteArrayInputStream(externalUrlContent(externalUrl)));
 		reloadHttpd(nc);

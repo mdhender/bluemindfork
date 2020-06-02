@@ -15,7 +15,6 @@
 	  <module>bm-eas</module>
 	  <module>bm-hps</module>
 	  <module>bm-lmtpd</module>
-	  <module>bm-locator</module>
 	  <module>bm-milter</module>
 	  <module>bm-node</module>
 	  <module>bm-pimp</module>
