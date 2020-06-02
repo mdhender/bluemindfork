@@ -135,21 +135,21 @@ public class UserExportCommand extends SingleOrDomainOperation {
 			case "calendar":
 				ExportCalendarCommand calendarExportCommand = new ExportCalendarCommand();
 				calendarExportCommand.target = de.value.email;
-				calendarExportCommand.outputDirectory = outputDataDir.getAbsolutePath();
+				calendarExportCommand.rootDir = outputDataDir.getAbsolutePath();
 				calendarExportCommand.forContext(ctx);
 				calendarExportCommand.run();
 				break;
 			case "contact":
 				ExportAddressBookCommand abExportCommand = new ExportAddressBookCommand();
 				abExportCommand.target = de.value.email;
-				abExportCommand.outputDirectory = outputDataDir.getAbsolutePath();
+				abExportCommand.rootDir = outputDataDir.getAbsolutePath();
 				abExportCommand.forContext(ctx);
 				abExportCommand.run();
 				break;
 			case "task":
 				ExportTodolistCommand todoExportCommand = new ExportTodolistCommand();
 				todoExportCommand.target = de.value.email;
-				todoExportCommand.outputDirectory = outputDataDir.getAbsolutePath();
+				todoExportCommand.rootDir = outputDataDir.getAbsolutePath();
 				todoExportCommand.forContext(ctx);
 				todoExportCommand.run();
 				break;
