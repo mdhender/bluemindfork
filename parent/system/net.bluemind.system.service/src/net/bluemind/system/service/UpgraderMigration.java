@@ -16,22 +16,31 @@
  * See LICENSE.txt
  * END LICENSE
  */
+
 package net.bluemind.system.service;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import net.bluemind.core.api.VersionInfo;
+import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.system.api.Database;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.persistence.Upgrader;
 import net.bluemind.system.persistence.Upgrader.UpgradePhase;
 import net.bluemind.system.persistence.UpgraderStore;
+import net.bluemind.system.schemaupgrader.runner.SchemaUpgrade;
 
 public class UpgraderMigration {
 
+	// 4.1.48913 4.2.4
 	// 4.1.48893 4.2.1 --> < 440
 	// 4.1.48891 4.2.0 --> < 440
 	// 4.1.47249 4.1.5 --> < 410
@@ -57,17 +66,24 @@ public class UpgraderMigration {
 	// 4.1.42252 4.0.1 --> < 190
 	// 4.1.42217 4.0 --> < 190
 
-	public static void migrate(UpgraderStore store, VersionInfo from, List<String> servers) {
+	public static void migrate(UpgraderStore store, VersionInfo from, List<String> servers) throws Exception {
+
 		if (from.major.equals("3")) {
 			return;
 		}
 
 		Set<Integer> sequences = new HashSet<>();
-		if (Integer.parseInt(from.release) > 48893) {
+		if (Integer.parseInt(from.release) > 48913) {
+			// installation >= 4.3, we register all upgraders 4.0 -> 4.3 + all upgraders <
+			// installation date
+
 			sequences.addAll(Arrays.asList(430, 420, 410, 400, 390, 380, 370, 360, 350, 340, 330, 320, 310, 300, 290,
 					280, 270, 260, 250, 240, 230, 220, 210, 200, 190, 180, 170, 160, 150, 140, 130, 120, 110, 100, 90,
 					80, 70, 60, 50, 40, 50, 60, 50, 40, 30, 20, 10, 0));
+
+			registerUpgradersByInstallationDate(store, servers);
 		} else {
+
 			int fromRelease = Integer.parseInt(from.release);
 
 			sequences.addAll(Arrays.asList(180, 170, 160, 150, 140, 130, 120, 110, 100, 90, 80, 70, 60, 50, 40, 50, 60,
@@ -103,18 +119,38 @@ public class UpgraderMigration {
 		}
 
 		for (int seq : sequences) {
-			for (String server : servers) {
-				for (Database db : Database.values()) {
-					Upgrader upgrader = new Upgrader();
-					upgrader.database = db;
-					upgrader.phase = UpgradePhase.SCHEMA_UPGRADE;
-					upgrader.server = server;
-					upgrader.success = true;
-					upgrader.upgraderId = Upgrader.toId(java.sql.Date.valueOf(LocalDate.of(2020, 4, 28)), seq);
-					store.add(upgrader);
-				}
+			registerUpgrader(store, servers, Upgrader.toId(java.sql.Date.valueOf(LocalDate.of(2020, 4, 28)), seq));
+		}
+
+	}
+
+	private static void registerUpgrader(UpgraderStore store, List<String> servers, String id) {
+		for (String server : servers) {
+			for (Database db : Database.values()) {
+				Upgrader upgrader = new Upgrader();
+				upgrader.database = db;
+				upgrader.phase = UpgradePhase.SCHEMA_UPGRADE;
+				upgrader.server = server;
+				upgrader.success = true;
+				upgrader.upgraderId = id;
+				store.add(upgrader);
 			}
 		}
+	}
+
+	private static void registerUpgradersByInstallationDate(UpgraderStore store, List<String> servers)
+			throws Exception {
+		String installationDateAsString = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ISystemConfiguration.class).getValues()
+				.stringValue(SysConfKeys.installation_release_date.name());
+		Date installationDate = new SimpleDateFormat("yyyy-MM-dd").parse(installationDateAsString);
+
+		SchemaUpgrade.getUpgradePath().forEach(upgrader -> {
+			Date upgraderDate = upgrader.date();
+			if (upgraderDate.before(installationDate)) {
+				registerUpgrader(store, servers, Upgrader.toId(upgrader.date(), upgrader.sequence()));
+			}
+		});
 
 	}
 

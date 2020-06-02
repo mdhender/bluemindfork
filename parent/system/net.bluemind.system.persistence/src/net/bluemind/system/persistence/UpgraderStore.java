@@ -70,7 +70,8 @@ public final class UpgraderStore extends JdbcAbstractStore {
 		}
 	}
 
-	private static final String SELECT = "SELECT 1 FROM t_bm_upgraders WHERE upgrader_id = ? AND server = ? AND database_name = ?::enum_database_name AND success = true";
+	private static final String SELECT_REGISTERED = "SELECT 1 FROM t_bm_upgraders WHERE upgrader_id = ? AND server = ? AND database_name = ?::enum_database_name";
+	private static final String SELECT = SELECT_REGISTERED + " AND success = true";
 
 	public boolean upgraderCompleted(String upgraderId, String server, Database database) throws SQLException {
 		Boolean found = unique(SELECT, rs -> Boolean.TRUE, Collections.emptyList(),
@@ -90,6 +91,12 @@ public final class UpgraderStore extends JdbcAbstractStore {
 	public void updateComponentVersion(String component, String version) throws SQLException {
 		insert("INSERT INTO t_component_version (component,version) VALUES (?,?) ON CONFLICT (component) DO UPDATE SET version = ? WHERE t_component_version.component = excluded.component ",
 				new Object[] { component, version, version });
+	}
+
+	public boolean upgraderRegistered(String upgraderId, String server, Database database) throws SQLException {
+		Boolean found = unique(SELECT_REGISTERED, rs -> Boolean.TRUE, Collections.emptyList(),
+				new Object[] { upgraderId, server, database.name() });
+		return found != null;
 	}
 
 	public boolean needsMigration() throws SQLException {

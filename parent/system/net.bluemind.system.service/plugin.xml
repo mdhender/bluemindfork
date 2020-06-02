@@ -63,6 +63,13 @@
       </verticle>
    </extension>
    <extension
+         point="net.bluemind.server.hook.serverhook">
+      <hook
+            impl="net.bluemind.system.service.hooks.UpgraderServerHook"
+			priority="1">
+	  </hook>
+   	</extension>
+	<extension
          point="net.bluemind.system.hook">
       <validator
             class="net.bluemind.system.service.internal.SubscriptionContactsValidator">

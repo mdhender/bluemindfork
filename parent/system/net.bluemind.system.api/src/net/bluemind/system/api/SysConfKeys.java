@@ -82,7 +82,12 @@ public enum SysConfKeys {
 	/**
 	 * HPS max session per users
 	 */
-	hps_max_sessions_per_user;
+	hps_max_sessions_per_user,
+
+	/**
+	 * Illustrates the release date of the initial installation version
+	 */
+	installation_release_date;
 
 	public static boolean isSysConfigKey(String key) {
 		for (SysConfKeys k : SysConfKeys.values()) {
