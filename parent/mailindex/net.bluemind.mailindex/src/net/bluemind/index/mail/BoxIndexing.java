@@ -50,6 +50,7 @@ import net.bluemind.backend.mail.replica.indexing.IMailIndexService.BulkOperatio
 import net.bluemind.backend.mail.replica.indexing.MailSummary;
 import net.bluemind.backend.mail.replica.indexing.MessageFlagsHelper;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.ISortingSupport;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.SortDescriptor;
 import net.bluemind.core.container.model.SortDescriptor.Direction;
@@ -149,7 +150,7 @@ public class BoxIndexing {
 		field.column = "imap_uid";
 		field.dir = Direction.Asc;
 		sortDescriptor.fields = Arrays.asList(field);
-		List<Long> created = mbItems.sortedIds(sortDescriptor);
+		List<Long> created = ((ISortingSupport) mbItems).sortedIds(sortDescriptor);
 
 		logger.info("Folder {}:{} containers {} created elements", f.uid, f.value.name, created.size());
 		if (created.isEmpty()) {
