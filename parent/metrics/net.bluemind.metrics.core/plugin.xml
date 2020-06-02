@@ -180,7 +180,9 @@
      <tick_dashboard_provider
            impl="net.bluemind.metrics.core.tick.dashboards.MAPIDashboard">
      </tick_dashboard_provider>
-     
+     <tick_dashboard_provider
+           impl="net.bluemind.metrics.core.tick.dashboards.SDSDashboard">
+     </tick_dashboard_provider>
    </extension>
    <extension
          point="net.bluemind.metrics.core.tickInputConfigurator">
