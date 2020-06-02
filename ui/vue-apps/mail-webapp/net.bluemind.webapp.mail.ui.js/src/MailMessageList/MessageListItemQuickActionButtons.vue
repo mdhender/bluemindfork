@@ -1,39 +1,61 @@
 <template>
-    <bm-button-toolbar class="message-list-item-quick-action-buttons justify-content-end">
+    <bm-button-toolbar class="message-list-item-quick-action-buttons">
         <bm-button-group>
             <bm-button
                 v-if="!isReadOnlyFolder(folderUidOfMessage)"
                 v-bm-tooltip.ds500.top.viewport
                 :aria-label="$tc('mail.actions.remove.aria')"
                 :title="$tc('mail.actions.remove.aria')"
-                class="p-1 mr-2 border-0 hovershadow"
+                class="p-1 mr-2"
                 variant="inline-secondary"
                 @click.shift.exact.prevent.stop="purge"
                 @click.exact.prevent.stop="remove"
             >
-                <bm-icon icon="trash" size="sm" />
+                <bm-icon icon="trash" size="lg" />
             </bm-button>
             <bm-button
                 v-if="message.states.includes('not-seen')"
                 v-bm-tooltip.ds500.top.viewport
-                class="p-1 border-0 hovershadow"
+                class="p-1 mr-2"
                 :aria-label="$tc('mail.actions.mark_read.aria')"
                 :title="$tc('mail.actions.mark_read.aria')"
                 variant="inline-secondary"
                 @click.prevent.stop="markAsRead([message.key])"
             >
-                <bm-icon icon="read" size="sm" />
+                <bm-icon icon="read" size="lg" />
             </bm-button>
             <bm-button
                 v-else
                 v-bm-tooltip.ds500.top.viewport
-                class="p-1 border-0 hovershadow"
+                class="p-1 mr-2"
                 :aria-label="$tc('mail.actions.mark_unread.aria')"
                 :title="$tc('mail.actions.mark_unread.aria')"
                 variant="inline-secondary"
                 @click.prevent.stop="markAsUnread([message.key])"
             >
-                <bm-icon icon="unread" size="sm" />
+                <bm-icon icon="unread" size="lg" />
+            </bm-button>
+            <bm-button
+                v-if="!message.flags.includes(Flags.FLAGGED)"
+                v-bm-tooltip.ds500.top.viewport
+                class="p-1"
+                :aria-label="$tc('mail.actions.mark_flagged.aria')"
+                :title="$tc('mail.actions.mark_flagged.aria')"
+                variant="inline-secondary"
+                @click.prevent.stop="markAsFlagged([message.key])"
+            >
+                <bm-icon icon="flag-outline" size="lg" />
+            </bm-button>
+            <bm-button
+                v-else
+                v-bm-tooltip.ds500.top.viewport
+                class="p-1"
+                :aria-label="$tc('mail.actions.mark_unflagged.aria')"
+                :title="$tc('mail.actions.mark_unflagged.aria')"
+                variant="inline-secondary"
+                @click.prevent.stop="markAsUnflagged([message.key])"
+            >
+                <bm-icon class="text-warning" icon="flag-fill" size="lg" />
             </bm-button>
         </bm-button-group>
     </bm-button-toolbar>
@@ -43,6 +65,7 @@
 import { BmButtonToolbar, BmButtonGroup, BmButton, BmIcon, BmTooltip } from "@bluemind/styleguide";
 import { ItemUri } from "@bluemind/item-uri";
 import { mapActions, mapGetters, mapState } from "vuex";
+import { Flag } from "@bluemind/email";
 
 export default {
     name: "MessageListItemQuickActionButtons",
@@ -59,6 +82,11 @@ export default {
             required: true
         }
     },
+    data() {
+        return {
+            Flags: Flag
+        };
+    },
     computed: {
         ...mapGetters("mail-webapp", ["nextMessageKey", "my", "isReadOnlyFolder"]),
         ...mapState("mail-webapp", ["currentFolderKey"]),
@@ -68,7 +96,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail-webapp", ["markAsRead", "markAsUnread"]),
+        ...mapActions("mail-webapp", ["markAsRead", "markAsUnread", "markAsFlagged", "markAsUnflagged"]),
         remove() {
             if (this.currentFolderKey === this.my.TRASH.key) {
                 this.purge();

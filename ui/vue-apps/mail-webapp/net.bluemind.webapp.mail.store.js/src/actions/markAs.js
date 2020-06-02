@@ -10,7 +10,8 @@ export function markAsRead(context, messageKeys) {
         SUCCESS: "MSG_MULTIPLE_MARK_AS_READ_SUCCESS",
         ERROR: "MSG_MULTIPLE_MARK_AS_READ_ERROR"
     };
-    return markAs(context, updateAction, unreadMessageFilter, alertCodes, messageKeys);
+    const onSuccess = onSuccessForMarkAsReadOrUnread(messageKeys, context, updateAction);
+    return markAs(context, updateAction, Flag.SEEN, unreadMessageFilter, alertCodes, messageKeys, onSuccess);
 }
 
 export function markAsUnread(context, messageKeys) {
@@ -21,10 +22,49 @@ export function markAsUnread(context, messageKeys) {
         SUCCESS: "MSG_MULTIPLE_MARK_AS_UNREAD_SUCCESS",
         ERROR: "MSG_MULTIPLE_MARK_AS_UNREAD_ERROR"
     };
-    return markAs(context, updateAction, readMessageFilter, alertCodes, messageKeys);
+    const onSuccess = onSuccessForMarkAsReadOrUnread(messageKeys, context, updateAction);
+    return markAs(context, updateAction, Flag.SEEN, readMessageFilter, alertCodes, messageKeys, onSuccess);
 }
 
-function markAs(context, updateAction, messageFilter, alertCodes, messageKeys) {
+export function markAsFlagged(context, messageKeys) {
+    const updateAction = "messages/addFlag";
+    const unflaggedMessageFilter = message => !message.flags.includes(Flag.FLAGGED);
+    const alertCodes = {
+        LOADING: "MSG_MULTIPLE_MARK_AS_FLAGGED_LOADING",
+        SUCCESS: "MSG_MULTIPLE_MARK_AS_FLAGGED_SUCCESS",
+        ERROR: "MSG_MULTIPLE_MARK_AS_FLAGGED_ERROR"
+    };
+    return markAs(context, updateAction, Flag.FLAGGED, unflaggedMessageFilter, alertCodes, messageKeys);
+}
+
+export function markAsUnflagged(context, messageKeys) {
+    const updateAction = "messages/deleteFlag";
+    const flaggedMessageFilter = message => message.flags.includes(Flag.FLAGGED);
+    const alertCodes = {
+        LOADING: "MSG_MULTIPLE_MARK_AS_UNFLAGGED_LOADING",
+        SUCCESS: "MSG_MULTIPLE_MARK_AS_UNFLAGGED_SUCCESS",
+        ERROR: "MSG_MULTIPLE_MARK_AS_UNFLAGGED_ERROR"
+    };
+    return markAs(context, updateAction, Flag.FLAGGED, flaggedMessageFilter, alertCodes, messageKeys);
+}
+
+function onSuccessForMarkAsReadOrUnread(messageKeys, context, updateAction) {
+    const messages = context.getters["messages/getMessagesByKey"](messageKeys);
+    const filteredMessageKeys = filterMessages(messages, message => {
+        const unread = message.states.includes("not-seen");
+        return updateAction === "messages/deleteFlag" ? !unread : unread;
+    });
+    return () => {
+        if (anyMessageMissingInState(context.state, messageKeys)) {
+            const messageKeysByFolder = ItemUri.urisByContainer(messageKeys);
+            loadUnreadCount(messageKeysByFolder, context.dispatch);
+        } else {
+            setUnreadCount(context, filteredMessageKeys, updateAction);
+        }
+    };
+}
+
+function markAs(context, updateAction, flagType, messageFilter, alertCodes, messageKeys, onSuccess) {
     const alertUid = UUIDGenerator.generate();
     let promise;
 
@@ -33,10 +73,12 @@ function markAs(context, updateAction, messageFilter, alertCodes, messageKeys) {
     }
 
     if (anyMessageMissingInState(context.state, messageKeys)) {
-        promise = markAsWhenMessagesMissingInState(messageKeys, updateAction, context.dispatch);
+        promise = markAsWhenMessagesMissingInState(messageKeys, updateAction, flagType, context.dispatch);
     } else {
-        promise = markAsWhenAllMessagesAreInState(context, messageKeys, updateAction, messageFilter);
+        promise = markAsWhenAllMessagesAreInState(context, messageKeys, updateAction, flagType, messageFilter);
     }
+
+    promise = promise.then(onSuccess);
 
     if (messageKeys.length > 1) {
         promise = promise
@@ -47,17 +89,14 @@ function markAs(context, updateAction, messageFilter, alertCodes, messageKeys) {
     return promise;
 }
 
-function markAsWhenMessagesMissingInState(messageKeys, updateAction, dispatch) {
-    const messageKeysByFolder = ItemUri.urisByContainer(messageKeys);
-    return updateFlag(updateAction, dispatch, messageKeys).then(() => loadUnreadCount(messageKeysByFolder, dispatch));
+function markAsWhenMessagesMissingInState(messageKeys, updateAction, flagType, dispatch) {
+    return updateFlag(updateAction, flagType, dispatch, messageKeys);
 }
 
-function markAsWhenAllMessagesAreInState(context, messageKeys, updateAction, messageFilter) {
+function markAsWhenAllMessagesAreInState(context, messageKeys, updateAction, flagType, messageFilter) {
     const messages = context.getters["messages/getMessagesByKey"](messageKeys);
     const filteredMessageKeys = filterMessages(messages, messageFilter);
-    const messageKeysByFolder = ItemUri.urisByContainer(filteredMessageKeys);
-    setUnreadCount(messageKeysByFolder, context.commit, context.state, updateAction);
-    return updateFlag(updateAction, context.dispatch, filteredMessageKeys);
+    return updateFlag(updateAction, flagType, context.dispatch, filteredMessageKeys);
 }
 
 function filterMessages(messages, messageFilter) {
@@ -68,13 +107,14 @@ function loadUnreadCount(messageKeysByFolder, dispatch) {
     return Promise.all(Object.keys(messageKeysByFolder).map(folderUid => dispatch("loadUnreadCount", folderUid)));
 }
 
-function setUnreadCount(messageKeysByFolder, commit, state, updateAction) {
+function setUnreadCount(context, messageKeys, updateAction) {
+    const messageKeysByFolder = ItemUri.urisByContainer(messageKeys);
     Object.keys(messageKeysByFolder).forEach(folder => {
         const length = messageKeysByFolder[folder].length;
         const value = updateAction === "messages/deleteFlag" ? length : -length;
-        commit("setUnreadCount", {
+        context.commit("setUnreadCount", {
             folderUid: folder,
-            count: state.foldersData[folder].unread + value
+            count: context.state.foldersData[folder].unread + value
         });
     });
 }
@@ -83,6 +123,6 @@ function anyMessageMissingInState(state, messageKeys) {
     return messageKeys.filter(messageKey => !state.messages.items[messageKey]).length > 0;
 }
 
-function updateFlag(action, dispatch, messageKeys) {
-    return dispatch(action, { messageKeys, mailboxItemFlag: Flag.SEEN });
+function updateFlag(action, flagType, dispatch, messageKeys) {
+    return dispatch(action, { messageKeys, mailboxItemFlag: flagType });
 }

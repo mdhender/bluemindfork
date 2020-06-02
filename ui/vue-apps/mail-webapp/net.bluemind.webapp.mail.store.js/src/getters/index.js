@@ -1,5 +1,7 @@
 export * from "./areAllMessagesSelected";
+export * from "./areAllSelectedMessagesFlagged";
 export * from "./areAllSelectedMessagesRead";
+export * from "./areAllSelectedMessagesUnflagged";
 export * from "./areAllSelectedMessagesUnread";
 export * from "./areMessagesFiltered";
 export * from "./areRemoteImagesUnblocked";

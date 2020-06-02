@@ -39,6 +39,30 @@
             <bm-icon icon="trash" size="2x" />
             <span class="d-none d-lg-block">{{ $tc("mail.actions.remove") }}</span>
         </bm-button>
+        <bm-button
+            v-show="displayMarkAsFlagged"
+            v-bm-tooltip.bottom.ds500
+            variant="simple-dark"
+            class="flagged"
+            :title="$tc('mail.actions.mark_flagged.aria', selectedMessageKeys.length)"
+            :aria-label="$tc('mail.actions.mark_flagged.aria', selectedMessageKeys.length)"
+            @click="doMarkAsFlagged"
+        >
+            <bm-icon icon="flag-outline" size="2x" />
+            <span class="d-none d-lg-block"> {{ $tc("mail.actions.mark_flagged") }}</span>
+        </bm-button>
+        <bm-button
+            v-show="displayMarkAsUnflagged"
+            v-bm-tooltip.bottom.ds500
+            variant="simple-dark"
+            class="unflagged"
+            :title="$tc('mail.actions.mark_unflagged.aria', selectedMessageKeys.length)"
+            :aria-label="$tc('mail.actions.mark_unflagged.aria', selectedMessageKeys.length)"
+            @click="doMarkAsUnflagged"
+        >
+            <bm-icon icon="flag-fill" size="2x" class="text-warning" />
+            <span class="d-none d-lg-block"> {{ $tc("mail.actions.mark_as_unflagged") }}</span>
+        </bm-button>
         <mail-toolbar-selected-messages-other-actions
             v-if="!hasMultipleMessagesSelected && !isReadOnlyFolder(folderUidOfCurrentMessage)"
         />
@@ -51,6 +75,7 @@ import { ItemUri } from "@bluemind/item-uri";
 import { mapActions, mapGetters, mapState } from "vuex";
 import MailToolbarSelectedMessagesMoveAction from "./MailToolbarSelectedMessagesMoveAction";
 import MailToolbarSelectedMessagesOtherActions from "./MailToolbarSelectedMessagesOtherActions";
+import { Flag } from "@bluemind/email";
 
 export default {
     name: "MailToolbarSelectedMessages",
@@ -64,14 +89,16 @@ export default {
     computed: {
         ...mapState("mail-webapp", ["currentFolderKey", "selectedMessageKeys"]),
         ...mapGetters("mail-webapp", [
-            "nextMessageKey",
-            "my",
-            "areAllSelectedMessagesRead",
-            "areAllSelectedMessagesUnread",
             "areAllMessagesSelected",
+            "areAllSelectedMessagesFlagged",
+            "areAllSelectedMessagesRead",
+            "areAllSelectedMessagesUnflagged",
+            "areAllSelectedMessagesUnread",
             "areMessagesFiltered",
+            "isReadOnlyFolder",
             "isSearchMode",
-            "isReadOnlyFolder"
+            "my",
+            "nextMessageKey"
         ]),
         ...mapGetters("mail-webapp/currentMessage", { currentMessage: "message" }),
         hasMultipleMessagesSelected() {
@@ -91,15 +118,31 @@ export default {
                 return !this.currentMessage.states.includes("not-seen");
             }
         },
+        displayMarkAsFlagged() {
+            if (this.hasMultipleMessagesSelected) {
+                return !this.areAllSelectedMessagesFlagged;
+            } else {
+                return !this.currentMessage.flags.includes(Flag.FLAGGED);
+            }
+        },
+        displayMarkAsUnflagged() {
+            if (this.hasMultipleMessagesSelected) {
+                return !this.areAllSelectedMessagesUnflagged;
+            } else {
+                return this.currentMessage.flags.includes(Flag.FLAGGED);
+            }
+        },
         folderUidOfCurrentMessage() {
             return ItemUri.container(this.currentMessage.key);
         }
     },
     methods: {
         ...mapActions("mail-webapp", {
-            markMessagesAsRead: "markAsRead",
             markAsUnread: "markAsUnread",
-            markFolderAsRead: "markFolderAsRead"
+            markFolderAsRead: "markFolderAsRead",
+            markMessagesAsFlagged: "markAsFlagged",
+            markMessagesAsRead: "markAsRead",
+            markMessagesAsUnflagged: "markAsUnflagged"
         }),
         async purge() {
             const confirm = await this.$bvModal.msgBoxConfirm(
@@ -126,16 +169,15 @@ export default {
                 this.$store.dispatch("mail-webapp/remove", this.currentMessage.key);
             }
         },
+        selectedKeys() {
+            return this.hasMultipleMessagesSelected ? this.selectedMessageKeys : [this.currentMessage.key];
+        },
         doMarkAsRead() {
-            const selectedKeys = this.hasMultipleMessagesSelected
-                ? this.selectedMessageKeys
-                : [this.currentMessage.key];
-
             const areAllMessagesInFolderSelected =
                 this.areAllMessagesSelected && !this.areMessagesFiltered && !this.isSearchMode;
             areAllMessagesInFolderSelected
                 ? this.markFolderAsRead(this.currentFolderKey)
-                : this.markMessagesAsRead(selectedKeys);
+                : this.markMessagesAsRead(this.selectedKeys());
         },
         doMarkAsUnread() {
             if (this.hasMultipleMessagesSelected) {
@@ -143,6 +185,12 @@ export default {
             } else {
                 this.markAsUnread([this.currentMessage.key]);
             }
+        },
+        doMarkAsFlagged() {
+            this.markMessagesAsFlagged(this.selectedKeys());
+        },
+        doMarkAsUnflagged() {
+            this.markMessagesAsUnflagged(this.selectedKeys());
         }
     }
 };
@@ -152,7 +200,9 @@ export default {
 @import "~@bluemind/styleguide/css/_variables";
 
 .mail-toolbar-consult-message .unread,
-.mail-toolbar-consult-message .read {
+.mail-toolbar-consult-message .read,
+.mail-toolbar-consult-message .flagged,
+.mail-toolbar-consult-message .unflagged {
     @media (min-width: map-get($grid-breakpoints, "lg")) {
         width: 8rem;
     }

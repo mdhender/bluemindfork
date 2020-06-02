@@ -30,7 +30,8 @@ export function createStore(overrides) {
                                 return {
                                     key:
                                         "WyIxNWUwZjNjYS01M2E2LTRiYmItYWQ0NS02MTgwNjcyYmE4ZWMiLCIzNUU1MTJCOC0xRDVBLTRENkQtQUMzOC01QzY4OENDQzlBMDUiXQ==",
-                                    states: []
+                                    states: [],
+                                    flags: []
                                 };
                             })
                         }

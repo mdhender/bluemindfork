@@ -249,6 +249,63 @@ exports[`MailToolbarConsultMessage should match snapshot 1`] = `
     </span>
   </button>
    
+  <button
+    class="btn flagged btn-simple-dark"
+    type="button"
+  >
+    <svg
+      aria-hidden="true"
+      class="svg-inline--fa fa-flag-outline fa-w-16 fa-2x"
+      data-icon="flag-outline"
+      data-prefix="fas"
+      focusable="false"
+      role="img"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        class=""
+        d="M 12,1 10.125,4 12,7 3,7 3,11.5 C 3,11.7761 2.77614,12 2.5,12 2.22386,12 2,11.7761 2,11.5 L 2,1 Z M 3,6 10.1958,6 8.94575,4 10.1958,2 3,2 Z"
+        fill="currentColor"
+      />
+    </svg>
+     
+    <span
+      class="d-none d-lg-block"
+    >
+       
+    </span>
+  </button>
+   
+  <button
+    class="btn unflagged btn-simple-dark"
+    style="display: none;"
+    type="button"
+  >
+    <svg
+      aria-hidden="true"
+      class="svg-inline--fa fa-flag-fill fa-w-16 fa-2x"
+      data-icon="flag-fill"
+      data-prefix="fas"
+      focusable="false"
+      role="img"
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        class=""
+        d="M12 1L10.125 4L12 7H3V11.5C3 11.7761 2.77614 12 2.5 12C2.22386 12 2 11.7761 2 11.5V7V1H3H12ZM3 2H10.1958L8.94575 4L10.1958 6H3V2Z"
+        fill="currentColor"
+      />
+    </svg>
+     
+    <span
+      class="d-none d-lg-block"
+    >
+       
+    </span>
+  </button>
+   
   <div
     class="d-inline-block h-100"
   >

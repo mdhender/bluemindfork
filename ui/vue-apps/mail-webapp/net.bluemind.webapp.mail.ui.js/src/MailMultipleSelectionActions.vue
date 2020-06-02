@@ -32,6 +32,24 @@
                         {{ $tc("mail.actions.mark_as_unread", selectedMessageKeys.length) }}
                     </bm-label-icon>
                 </bm-button>
+                <bm-button
+                    v-if="!areAllSelectedMessagesFlagged"
+                    variant="outline-secondary"
+                    @click="markAsFlagged(selectedMessageKeys)"
+                >
+                    <bm-label-icon icon="flag-outline">{{
+                        $tc("mail.actions.mark_flagged", selectedMessageKeys.length)
+                    }}</bm-label-icon>
+                </bm-button>
+                <bm-button
+                    v-if="!areAllSelectedMessagesUnflagged"
+                    variant="outline-secondary"
+                    @click="markAsUnflagged(selectedMessageKeys)"
+                >
+                    <bm-label-icon icon="flag-fill">
+                        {{ $tc("mail.actions.mark_unflagged", selectedMessageKeys.length) }}
+                    </bm-label-icon>
+                </bm-button>
                 <!-- TODO: uncomment when ready
              <bm-button variant="outline-secondary">
                 <bm-label-icon icon="forbidden"> {{ $t("mail.actions.spam") }} </bm-label-icon>
@@ -41,10 +59,7 @@
             </bm-button>
             <bm-button variant="outline-secondary">
                 <bm-label-icon icon="forward"> {{ $t("common.forward") }} </bm-label-icon>
-            </bm-button>
-            <bm-button variant="outline-secondary">
-                <bm-label-icon icon="flag-outline"> {{ $t("mail.actions.followup") }} </bm-label-icon>
-            </bm-button>-->
+            </bm-button> -->
             </div>
 
             <bm-button variant="inline-secondary" class="my-4" @click="removeSelection">
@@ -97,13 +112,15 @@ export default {
         ...mapState("mail-webapp", ["selectedMessageKeys", "search", "currentFolderKey"]),
         ...mapState("mail-webapp/messages", ["itemKeys"]),
         ...mapGetters("mail-webapp", [
-            "currentFolder",
-            "areAllSelectedMessagesRead",
-            "areAllSelectedMessagesUnread",
             "areAllMessagesSelected",
+            "areAllSelectedMessagesFlagged",
+            "areAllSelectedMessagesRead",
+            "areAllSelectedMessagesUnflagged",
+            "areAllSelectedMessagesUnread",
             "areMessagesFiltered",
-            "isSearchMode",
-            "isReadOnlyFolder"
+            "currentFolder",
+            "isReadOnlyFolder",
+            "isSearchMode"
         ]),
         anyMessageReadOnly() {
             return this.selectedMessageKeys
@@ -113,9 +130,11 @@ export default {
     },
     methods: {
         ...mapActions("mail-webapp", {
-            markMessagesAsRead: "markAsRead",
+            markAsFlagged: "markAsFlagged",
+            markAsUnflagged: "markAsUnflagged",
             markAsUnread: "markAsUnread",
-            markFolderAsRead: "markFolderAsRead"
+            markFolderAsRead: "markFolderAsRead",
+            markMessagesAsRead: "markAsRead"
         }),
         ...mapMutations("mail-webapp", ["addAllToSelectedMessages", "deleteAllSelectedMessages"]),
         ...mapMutations("mail-webapp/currentMessage", { clearCurrentMessage: "clear" }),

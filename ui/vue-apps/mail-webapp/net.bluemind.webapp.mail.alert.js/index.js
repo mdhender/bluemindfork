@@ -175,5 +175,35 @@ export default {
         type: AlertTypes.SUCCESS,
         key: "alert.folder.create.success",
         renderer: "MailAlertRenderer"
+    },
+    MSG_MULTIPLE_MARK_AS_FLAGGED_LOADING: {
+        type: AlertTypes.LOADING,
+        key: "alert.mail.multiple.markasflagged.loading",
+        renderer: "MailAlertRenderer"
+    },
+    MSG_MULTIPLE_MARK_AS_FLAGGED_ERROR: {
+        type: AlertTypes.ERROR,
+        key: "alert.mail.multiple.markasflagged.error",
+        renderer: "MailAlertRenderer"
+    },
+    MSG_MULTIPLE_MARK_AS_FLAGGED_SUCCESS: {
+        type: AlertTypes.SUCCESS,
+        key: "alert.mail.multiple.markasflagged.success",
+        renderer: "MailAlertRenderer"
+    },
+    MSG_MULTIPLE_MARK_AS_UNFLAGGED_LOADING: {
+        type: AlertTypes.LOADING,
+        key: "alert.mail.multiple.markasunflagged.loading",
+        renderer: "MailAlertRenderer"
+    },
+    MSG_MULTIPLE_MARK_AS_UNFLAGGED_ERROR: {
+        type: AlertTypes.ERROR,
+        key: "alert.mail.multiple.markasunflagged.error",
+        renderer: "MailAlertRenderer"
+    },
+    MSG_MULTIPLE_MARK_AS_UNFLAGGED_SUCCESS: {
+        type: AlertTypes.SUCCESS,
+        key: "alert.mail.multiple.markasunflagged.success",
+        renderer: "MailAlertRenderer"
     }
 };
