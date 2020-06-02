@@ -18,6 +18,7 @@
 package net.bluemind.lmtp.testhelper.client;
 
 import java.util.LinkedList;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
 
@@ -59,9 +60,7 @@ public class LmtpClientSession {
 		responseListener = new LinkedList<>();
 		setState(ParseState.ExpectBanner);
 		this.writeSupport = new WriteSupport(sock);
-		this.recordParser = RecordParser.newDelimited("\r\n", buf -> {
-			doDelimited(buf);
-		});
+		this.recordParser = RecordParser.newDelimited("\r\n", buf -> doDelimited(buf));
 		logger.debug("Created with vertx {}", this.vertx);
 	}
 
@@ -133,10 +132,10 @@ public class LmtpClientSession {
 
 	private void processRespPart(Buffer buf) {
 		String respPart = buf.toString();
-		boolean isLast = isLast(respPart);
+		Optional<String> isLast = isLast(respPart);
 		logger.info("<= '{}' (last: {}, state: {})", respPart, isLast, getState());
-		if (isLast) {
-			Response built = responseBuilder.build(respPart);
+		if (isLast.isPresent()) {
+			Response built = responseBuilder.build(isLast.get());
 			this.responseBuilder = Response.builder();
 			CompletableFuture<Response> listener = responseListener.poll();
 			setState(responseListener.isEmpty() ? ParseState.WriteCmd : ParseState.ExpectResp);
@@ -146,10 +145,10 @@ public class LmtpClientSession {
 		}
 	}
 
-	private boolean isLast(String buf) {
+	private Optional<String> isLast(String buf) {
 		if (buf.length() < 3) {
 			logger.warn("response is too short: {}", buf);
-			return false;
+			return Optional.of(String.format("451 4.5.0 Too short response from Cyrus LMTP: %s...", buf));
 		}
 
 		String code = buf.substring(0, 3).toString();
@@ -162,12 +161,13 @@ public class LmtpClientSession {
 		char spc = buf.charAt(3);
 		if (spc == '-') {
 			// multiline response
-			return false;
+			return Optional.empty();
 		} else if (spc == ' ') {
-			return true;
+			return Optional.of(buf);
 		} else {
 			logger.warn("wrongly formated response");
-			return false;
+			return Optional.of(String.format("451 4.5.0 Invalid response from Cyrus LMTP: %s...",
+					buf.substring(0, buf.length() < 10 ? buf.length() : 10).toString()));
 		}
 	}
 

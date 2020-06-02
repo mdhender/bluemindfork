@@ -35,7 +35,6 @@ import io.vertx.core.net.NetSocket;
 import io.vertx.core.parsetools.RecordParser;
 import net.bluemind.lmtp.testhelper.common.WriteSupport;
 import net.bluemind.lmtp.testhelper.model.FakeMailbox;
-import net.bluemind.lmtp.testhelper.model.FakeMailbox.State;
 import net.bluemind.lmtp.testhelper.model.MailboxesModel;
 import net.bluemind.lmtp.testhelper.model.MockServerStats;
 
@@ -94,9 +93,16 @@ public class LmtpServerSession {
 		while ((fm = validRecipients.poll()) != null) {
 			final FakeMailbox defMb = fm;
 			chain = chain.thenCompose(v -> {
-				if (defMb.state == State.AfterDataError) {
+				switch (defMb.state) {
+				case AfterDataError:
 					return writeSupport.writeWithCRLF("451 4.3.0 System I/O error");
-				} else {
+				case TooShortDataResponse:
+					return writeSupport.writeWithCRLF("a");
+				case NewLineDataResponse:
+					return writeSupport.writeWithCRLF(
+							"sendmail: warning: inet_protocols: disabling IPv6 name/address support: Address family not supported by protocol\n250 2.1.5 Ok for "
+									+ defMb.email);
+				default:
 					return writeSupport.writeWithCRLF("250 2.1.5 Ok for " + defMb.email);
 				}
 			});
