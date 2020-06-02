@@ -34,7 +34,7 @@ import net.bluemind.directory.api.BaseDirEntry.Kind;
 public abstract class ExportCommand extends SingleOrDomainOperation {
 
 	@Option(name = "--output-directory", description = "The output directory path, files will be save in an email named subdirectory, default is /tmp")
-	public String outputDirectory = "/tmp";
+	public String rootDir = "/tmp";
 
 	@Option(name = "--dry", description = "Dry-run (do nothing)")
 	public boolean dry = false;
@@ -46,11 +46,13 @@ public abstract class ExportCommand extends SingleOrDomainOperation {
 
 	public abstract String getFileExtension();
 
-	public abstract void writeFile(File outputFile, String containerUid);
+    public abstract void writeFile(File outputFile, String containerUid);
+    
+    public String outputDirectory = "/tmp";
 
 	@Override
 	public void synchronousDirOperation(String domainUid, ItemValue<DirEntry> de) throws IOException {
-		outputDirectory += "/" + de.value.email;
+		outputDirectory = rootDir + "/" + de.value.email;
 
 		File directory = new File(outputDirectory);
 		if (!directory.exists()) {
@@ -76,7 +78,8 @@ public abstract class ExportCommand extends SingleOrDomainOperation {
 				}
 				ctx.info("container " + container.uid + " of " + de.value.email + " was exported to " + filename);
 			}
-		}
+        }
+        outputDirectory = null;
 	}
 	
 	@Override
