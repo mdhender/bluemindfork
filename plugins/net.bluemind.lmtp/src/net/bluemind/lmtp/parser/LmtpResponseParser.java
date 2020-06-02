@@ -67,7 +67,9 @@ public class LmtpResponseParser implements Handler<Buffer> {
 	private void handleDelimited(Buffer buf) {
 		logger.debug("response \n{}\nend response", buf);
 		if (buf.length() < 3) {
-			logger.warn("response is too short");
+			logger.warn("Response is too short: {}", buf.toString());
+			doResponse(
+					Buffer.buffer(String.format("451 4.5.0 Too short response from Cyrus LMTP: %s", buf.toString())));
 			return;
 		}
 
@@ -85,7 +87,9 @@ public class LmtpResponseParser implements Handler<Buffer> {
 		} else if (spc == ' ') {
 			doResponse(buf);
 		} else {
-			logger.warn("wrongly formated response");
+			logger.warn("Wrongly formated response: {}" + buf.toString());
+			doResponse(Buffer.buffer(String.format("451 4.5.0 Invalid response from Cyrus LMTP: %s...",
+					buf.getBuffer(0, buf.length() < 10 ? buf.length() : 10).toString())));
 		}
 	}
 
