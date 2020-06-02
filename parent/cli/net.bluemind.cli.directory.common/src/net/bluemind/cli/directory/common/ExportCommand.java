@@ -47,12 +47,10 @@ public abstract class ExportCommand extends SingleOrDomainOperation {
 	public abstract String getFileExtension();
 
     public abstract void writeFile(File outputFile, String containerUid);
-    
-    public String outputDirectory = "/tmp";
 
 	@Override
 	public void synchronousDirOperation(String domainUid, ItemValue<DirEntry> de) throws IOException {
-		outputDirectory = rootDir + "/" + de.value.email;
+		String outputDirectory = rootDir + "/" + de.value.email;
 
 		File directory = new File(outputDirectory);
 		if (!directory.exists()) {
@@ -79,7 +77,6 @@ public abstract class ExportCommand extends SingleOrDomainOperation {
 				ctx.info("container " + container.uid + " of " + de.value.email + " was exported to " + filename);
 			}
         }
-        outputDirectory = null;
 	}
 	
 	@Override
