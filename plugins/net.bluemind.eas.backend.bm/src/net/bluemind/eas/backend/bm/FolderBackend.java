@@ -399,12 +399,16 @@ public class FolderBackend extends CoreConnect {
 			final Map<String, String> subscribedMailboxVersions, long containerSubscriptionId, String owner) {
 		IContainersFlatHierarchy hierarchyService = getAdmin0Service(bs, IContainersFlatHierarchy.class,
 				bs.getUser().getDomain(), owner);
-		ContainerChangeset<Long> all = hierarchyService.changesetById(0L);
-		all.created.forEach(folderId -> {
-			String collectionId = CollectionId.of(containerSubscriptionId, Long.toString(folderId)).getValue();
-			ret.items.add(getDeletedItemChange(collectionId));
-		});
-		subscribedMailboxVersions.remove(Long.toString(containerSubscriptionId));
+		try {
+			ContainerChangeset<Long> all = hierarchyService.changesetById(0L);
+			all.created.forEach(folderId -> {
+				String collectionId = CollectionId.of(containerSubscriptionId, Long.toString(folderId)).getValue();
+				ret.items.add(getDeletedItemChange(collectionId));
+			});
+			subscribedMailboxVersions.remove(Long.toString(containerSubscriptionId));
+		} catch (ServerFault sf) {
+			logger.warn("Failed to fetch hierarchy for {}. Need repair?", owner);
+		}
 	}
 
 	private FolderChangeReference otherMailboxesFolder(BackendSession bs, ChangeType changeType) {
