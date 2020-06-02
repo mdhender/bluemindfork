@@ -23,17 +23,18 @@ import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.dav.server.DavRouter;
 import net.bluemind.webmodule.server.IWebFilter;
+import net.bluemind.webmodule.server.NeedVertx;
 
-public class DavFilter implements IWebFilter {
+public class DavFilter implements IWebFilter, NeedVertx {
 
 	private static final Logger logger = LoggerFactory.getLogger(DavFilter.class);
-	private final DavRouter davRouter;
+	private DavRouter davRouter;
 
 	public DavFilter() {
-		this.davRouter = new DavRouter();
 		logger.info("DAV handler created.");
 	}
 
@@ -47,6 +48,11 @@ public class DavFilter implements IWebFilter {
 		} else {
 			return CompletableFuture.completedFuture(request);
 		}
+	}
+
+	@Override
+	public void setVertx(Vertx vertx) {
+		this.davRouter = new DavRouter(vertx);
 	}
 
 }

@@ -31,6 +31,7 @@ import net.bluemind.eas.http.query.EASQueryBuilder;
 import net.bluemind.eas.testhelper.mock.RequestObject;
 import net.bluemind.eas.testhelper.mock.RequestObject.HttpMethod;
 import net.bluemind.eas.testhelper.mock.RequestsFactory;
+import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.vertx.common.http.BasicAuthHandler.AuthenticatedRequest;
 
 public class QueryBuilderTests extends TestCase {
@@ -59,7 +60,7 @@ public class QueryBuilderTests extends TestCase {
 	public void testEmptyQuery() {
 		HttpServerRequest req = new RequestObject(HttpMethod.OPTIONS, new HashMap<String, String>(), rf.baseUrl,
 				EasUrls.ROOT, new HashMap<String, String>());
-		AuthenticatedRequest ar = new AuthenticatedRequest(req, "admin@vagrant.vmw", "admin");
+		AuthenticatedRequest ar = new AuthenticatedRequest(req, "admin@vagrant.vmw", "admin", Routing.internal);
 		AuthenticatedEASQuery decoded = EASQueryBuilder.from(ar);
 		assertNotNull(decoded);
 		assertEquals(0.0, decoded.protocolVersion());

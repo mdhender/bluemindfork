@@ -47,7 +47,6 @@ import net.bluemind.eas.testhelper.vertx.Deploy.VerticleConstructor;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
-import net.bluemind.vertx.common.bus.CoreAuth;
 
 public class EASVerticleTests extends TestCase {
 
@@ -61,7 +60,7 @@ public class EASVerticleTests extends TestCase {
 
 	private VerticleConstructor[] verticlesClasses = VerticleConstructor.of(EASHttpVerticle::new);
 
-	private VerticleConstructor[] workerClasses = VerticleConstructor.of(CoreAuth::new, DeviceValidationVerticle::new);
+	private VerticleConstructor[] workerClasses = VerticleConstructor.of(DeviceValidationVerticle::new);
 
 	public void setUp() {
 		GlobalConfig.DISABLE_POLICIES = true;
