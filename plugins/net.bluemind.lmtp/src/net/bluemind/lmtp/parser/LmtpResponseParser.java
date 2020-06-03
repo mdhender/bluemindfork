@@ -87,7 +87,7 @@ public class LmtpResponseParser implements Handler<Buffer> {
 		} else if (spc == ' ') {
 			doResponse(buf);
 		} else {
-			logger.warn("Wrongly formated response: {}" + buf.toString());
+			logger.warn("Wrongly formated response: {}", buf.toString());
 			doResponse(Buffer.buffer(String.format("451 4.5.0 Invalid response from Cyrus LMTP: %s...",
 					buf.getBuffer(0, buf.length() < 10 ? buf.length() : 10).toString())));
 		}
