@@ -1,0 +1,3885 @@
+{
+	"id": 8,
+	"cells": [
+		{
+			"i": "a56bc406-c201-409f-bb84-4e8a4e10a775",
+			"x": 9,
+			"y": 21,
+			"w": 3,
+			"h": 3,
+			"name": "YSNP - Hits",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-ysnp.cache.hitcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-ysnp.cache.hitcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "hits / s",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/a56bc406-c201-409f-bb84-4e8a4e10a775"
+			}
+		},
+		{
+			"i": "091b7603-f8a4-4217-b75d-59eb6133e5cf",
+			"x": 9,
+			"y": 18,
+			"w": 3,
+			"h": 3,
+			"name": "Webserver - Hits",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-webserver.cache.hitcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-webserver.cache.hitcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "hits / s",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/091b7603-f8a4-4217-b75d-59eb6133e5cf"
+			}
+		},
+		{
+			"i": "929e43a3-ff6c-4fbe-aff5-851cf6048584",
+			"x": 6,
+			"y": 21,
+			"w": 3,
+			"h": 3,
+			"name": "YSNP - Misses",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-ysnp.cache.misscount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-ysnp.cache.misscount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "misses / s",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/929e43a3-ff6c-4fbe-aff5-851cf6048584"
+			}
+		},
+		{
+			"i": "f45c6e23-f883-4b8c-bf3e-8dd233b8cff2",
+			"x": 6,
+			"y": 18,
+			"w": 3,
+			"h": 3,
+			"name": "Webserver - Misses",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-webserver.cache.misscount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-webserver.cache.misscount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "misses / s",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/f45c6e23-f883-4b8c-bf3e-8dd233b8cff2"
+			}
+		},
+		{
+			"i": "c63c0253-3477-47a2-be9c-5d39ac0f21f2",
+			"x": 3,
+			"y": 21,
+			"w": 3,
+			"h": 3,
+			"name": "YSNP - Cache size",
+			"queries": [
+				{
+					"query": "SELECT mean(\"value\") AS \"mean_value\" FROM \"telegraf\".\"autogen\".\"bm-ysnp.cache.size\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "telegraf",
+						"measurement": "bm-ysnp.cache.size",
+						"retentionPolicy": "autogen",
+						"fields": [
+							{
+								"value": "mean",
+								"type": "func",
+								"alias": "mean_value",
+								"args": [
+									{
+										"value": "value",
+										"type": "field",
+										"alias": ""
+									}
+								]
+							}
+						],
+						"tags": {},
+						"groupBy": {
+							"time": "auto",
+							"tags": [
+								"name"
+							]
+						},
+						"areTagsAccepted": false,
+						"fill": "null",
+						"rawText": null,
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "Entries",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/c63c0253-3477-47a2-be9c-5d39ac0f21f2"
+			}
+		},
+		{
+			"i": "77a22ab8-d76b-47b6-8548-06284310a9a1",
+			"x": 3,
+			"y": 18,
+			"w": 3,
+			"h": 3,
+			"name": "Webserver - Cache size",
+			"queries": [
+				{
+					"query": "SELECT mean(\"value\") AS \"mean_value\" FROM \"telegraf\".\"autogen\".\"bm-webserver.cache.size\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "telegraf",
+						"measurement": "bm-webserver.cache.size",
+						"retentionPolicy": "autogen",
+						"fields": [
+							{
+								"value": "mean",
+								"type": "func",
+								"alias": "mean_value",
+								"args": [
+									{
+										"value": "value",
+										"type": "field",
+										"alias": ""
+									}
+								]
+							}
+						],
+						"tags": {},
+						"groupBy": {
+							"time": "auto",
+							"tags": [
+								"name"
+							]
+						},
+						"areTagsAccepted": false,
+						"fill": "null",
+						"rawText": null,
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "Entries",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/77a22ab8-d76b-47b6-8548-06284310a9a1"
+			}
+		},
+		{
+			"i": "c9c36028-4eb8-4803-8882-c9f39016b467",
+			"x": 0,
+			"y": 18,
+			"w": 3,
+			"h": 3,
+			"name": "Webserver - Cache activity",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"rqs/s\" FROM \"telegraf\".\"autogen\".\"bm-webserver.cache.requestcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"rqs/s\" FROM \"telegraf\".\"autogen\".\"bm-webserver.cache.requestcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "Requests / s",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/c9c36028-4eb8-4803-8882-c9f39016b467"
+			}
+		},
+		{
+			"i": "9b8d92b6-4565-4573-9825-ecf1d15c28ac",
+			"x": 0,
+			"y": 21,
+			"w": 3,
+			"h": 3,
+			"name": "YSNP - Cache activity",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"rqs/s\" FROM \"telegraf\".\"autogen\".\"bm-milter.cache.requestcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"rqs/s\" FROM \"telegraf\".\"autogen\".\"bm-milter.cache.requestcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "Requests / s",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/9b8d92b6-4565-4573-9825-ecf1d15c28ac"
+			}
+		},
+		{
+			"i": "5d32fe59-e320-4fe1-83b9-8dcac05d84be",
+			"x": 9,
+			"y": 15,
+			"w": 3,
+			"h": 3,
+			"name": "SDS-Proxy - Hits",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-sds-proxy.cache.hitcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-sds-proxy.cache.hitcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "hits / s",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/5d32fe59-e320-4fe1-83b9-8dcac05d84be"
+			}
+		},
+		{
+			"i": "bfc31f35-38d5-485c-9f5a-e90b14984b77",
+			"x": 6,
+			"y": 15,
+			"w": 3,
+			"h": 3,
+			"name": "SDS-Proxy - Misses",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-sds-proxy.cache.misscount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-sds-proxy.cache.misscount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "misses / s",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/bfc31f35-38d5-485c-9f5a-e90b14984b77"
+			}
+		},
+		{
+			"i": "9bb8f179-9a5a-4bbd-b28f-e6049eb01fbd",
+			"x": 3,
+			"y": 15,
+			"w": 3,
+			"h": 3,
+			"name": "SDS-Proxy - Cache size",
+			"queries": [
+				{
+					"query": "SELECT mean(\"value\") AS \"mean_value\" FROM \"telegraf\".\"autogen\".\"bm-sds-proxy.cache.size\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "telegraf",
+						"measurement": "bm-sds-proxy.cache.size",
+						"retentionPolicy": "autogen",
+						"fields": [
+							{
+								"value": "mean",
+								"type": "func",
+								"alias": "mean_value",
+								"args": [
+									{
+										"value": "value",
+										"type": "field",
+										"alias": ""
+									}
+								]
+							}
+						],
+						"tags": {},
+						"groupBy": {
+							"time": "auto",
+							"tags": [
+								"name"
+							]
+						},
+						"areTagsAccepted": false,
+						"fill": "null",
+						"rawText": null,
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "Entries",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/9bb8f179-9a5a-4bbd-b28f-e6049eb01fbd"
+			}
+		},
+		{
+			"i": "5393a74e-204b-4298-9ba8-5824869eb382",
+			"x": 0,
+			"y": 15,
+			"w": 3,
+			"h": 3,
+			"name": "SDS-Proxy - Cache activity",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"rqs/s\" FROM \"telegraf\".\"autogen\".\"bm-sds-proxy.cache.requestcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"rqs/s\" FROM \"telegraf\".\"autogen\".\"bm-sds-proxy.cache.requestcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "Requests / s",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/5393a74e-204b-4298-9ba8-5824869eb382"
+			}
+		},
+		{
+			"i": "2215e537-388b-4452-97c0-574798fe3f32",
+			"x": 9,
+			"y": 12,
+			"w": 3,
+			"h": 3,
+			"name": "MILTER - Hits",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-milter.cache.hitcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-milter.cache.hitcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "hits / s",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/2215e537-388b-4452-97c0-574798fe3f32"
+			}
+		},
+		{
+			"i": "284b7141-7e94-4d8c-9bab-9305f55be094",
+			"x": 6,
+			"y": 12,
+			"w": 3,
+			"h": 3,
+			"name": "MILTER - Misses",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-milter.cache.misscount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-milter.cache.misscount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "misses / s",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/284b7141-7e94-4d8c-9bab-9305f55be094"
+			}
+		},
+		{
+			"i": "2ff9ee66-400a-4c29-96ce-7e34ae3a9aff",
+			"x": 3,
+			"y": 12,
+			"w": 3,
+			"h": 3,
+			"name": "MILTER - Cache size",
+			"queries": [
+				{
+					"query": "SELECT mean(\"value\") AS \"mean_value\" FROM \"telegraf\".\"autogen\".\"bm-milter.cache.size\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "telegraf",
+						"measurement": "bm-milter.cache.size",
+						"retentionPolicy": "autogen",
+						"fields": [
+							{
+								"value": "mean",
+								"type": "func",
+								"alias": "mean_value",
+								"args": [
+									{
+										"value": "value",
+										"type": "field",
+										"alias": ""
+									}
+								]
+							}
+						],
+						"tags": {},
+						"groupBy": {
+							"time": "auto",
+							"tags": [
+								"name"
+							]
+						},
+						"areTagsAccepted": false,
+						"fill": "null",
+						"rawText": null,
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "Entries",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/2ff9ee66-400a-4c29-96ce-7e34ae3a9aff"
+			}
+		},
+		{
+			"i": "120bc327-6db9-4dfc-b2d4-8129449b5a04",
+			"x": 0,
+			"y": 12,
+			"w": 3,
+			"h": 3,
+			"name": "MILTER - Cache activity",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"rqs/s\" FROM \"telegraf\".\"autogen\".\"bm-milter.cache.requestcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"rqs/s\" FROM \"telegraf\".\"autogen\".\"bm-milter.cache.requestcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "Requests / s",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/120bc327-6db9-4dfc-b2d4-8129449b5a04"
+			}
+		},
+		{
+			"i": "8691365b-b6fe-49be-926a-c3a8c36b72d8",
+			"x": 9,
+			"y": 9,
+			"w": 3,
+			"h": 3,
+			"name": "LMTPD - Hits",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-lmtpd.cache.hitcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-lmtpd.cache.hitcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "hits / s",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/8691365b-b6fe-49be-926a-c3a8c36b72d8"
+			}
+		},
+		{
+			"i": "d51226e5-5e79-4c82-b58f-b87469399722",
+			"x": 6,
+			"y": 9,
+			"w": 3,
+			"h": 3,
+			"name": "LMTPD - Misses",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-lmtpd.cache.misscount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-lmtpd.cache.misscount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "misses / s",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/d51226e5-5e79-4c82-b58f-b87469399722"
+			}
+		},
+		{
+			"i": "749782f4-0843-4847-80fa-c769c27e74ea",
+			"x": 3,
+			"y": 9,
+			"w": 3,
+			"h": 3,
+			"name": "LMTPD - Cache size",
+			"queries": [
+				{
+					"query": "SELECT mean(\"value\") AS \"mean_value\" FROM \"telegraf\".\"autogen\".\"bm-lmtpd.cache.size\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "telegraf",
+						"measurement": "bm-lmtpd.cache.size",
+						"retentionPolicy": "autogen",
+						"fields": [
+							{
+								"value": "mean",
+								"type": "func",
+								"alias": "mean_value",
+								"args": [
+									{
+										"value": "value",
+										"type": "field",
+										"alias": ""
+									}
+								]
+							}
+						],
+						"tags": {},
+						"groupBy": {
+							"time": "auto",
+							"tags": [
+								"name"
+							]
+						},
+						"areTagsAccepted": false,
+						"fill": "null",
+						"rawText": null,
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "Entries",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/749782f4-0843-4847-80fa-c769c27e74ea"
+			}
+		},
+		{
+			"i": "4cde08fe-d0ce-4602-910a-a9fb6211277d",
+			"x": 0,
+			"y": 9,
+			"w": 3,
+			"h": 3,
+			"name": "LMTPD - Cache activity",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"rqs/s\" FROM \"telegraf\".\"autogen\".\"bm-lmtpd.cache.requestcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"rqs/s\" FROM \"telegraf\".\"autogen\".\"bm-lmtpd.cache.requestcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "Requests / s",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/4cde08fe-d0ce-4602-910a-a9fb6211277d"
+			}
+		},
+		{
+			"i": "54a0cc2f-462b-4b09-a78a-d3a3804b7a23",
+			"x": 9,
+			"y": 6,
+			"w": 3,
+			"h": 3,
+			"name": "HPS - Hits",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-eas.cache.hitcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-eas.cache.hitcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "hits / s",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/54a0cc2f-462b-4b09-a78a-d3a3804b7a23"
+			}
+		},
+		{
+			"i": "08b879e5-9adf-4831-b4b1-c6a911985676",
+			"x": 6,
+			"y": 6,
+			"w": 3,
+			"h": 3,
+			"name": "HPS - Misses",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-hps.cache.misscount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-hps.cache.misscount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "misses / s",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/08b879e5-9adf-4831-b4b1-c6a911985676"
+			}
+		},
+		{
+			"i": "a6864a95-b04a-4fa7-8d42-93c4e193dc7f",
+			"x": 3,
+			"y": 6,
+			"w": 3,
+			"h": 3,
+			"name": "HPS - Cache size",
+			"queries": [
+				{
+					"query": "SELECT mean(\"value\") AS \"mean_value\" FROM \"telegraf\".\"autogen\".\"bm-hps.cache.size\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "telegraf",
+						"measurement": "bm-hps.cache.size",
+						"retentionPolicy": "autogen",
+						"fields": [
+							{
+								"value": "mean",
+								"type": "func",
+								"alias": "mean_value",
+								"args": [
+									{
+										"value": "value",
+										"type": "field",
+										"alias": ""
+									}
+								]
+							}
+						],
+						"tags": {},
+						"groupBy": {
+							"time": "auto",
+							"tags": [
+								"name"
+							]
+						},
+						"areTagsAccepted": false,
+						"fill": "null",
+						"rawText": null,
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "Entries",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/a6864a95-b04a-4fa7-8d42-93c4e193dc7f"
+			}
+		},
+		{
+			"i": "31ef455a-91eb-4de3-916f-05e655a02db1",
+			"x": 0,
+			"y": 6,
+			"w": 3,
+			"h": 3,
+			"name": "HPS - Cache activity",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"rqs/s\" FROM \"telegraf\".\"autogen\".\"bm-hps.cache.requestcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"rqs/s\" FROM \"telegraf\".\"autogen\".\"bm-hps.cache.requestcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "Requests / s",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/31ef455a-91eb-4de3-916f-05e655a02db1"
+			}
+		},
+		{
+			"i": "7286e96e-16cf-494a-bfd2-0941deee34a6",
+			"x": 9,
+			"y": 3,
+			"w": 3,
+			"h": 3,
+			"name": "EAS - Hits",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-eas.cache.hitcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-eas.cache.hitcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "hits / s",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/7286e96e-16cf-494a-bfd2-0941deee34a6"
+			}
+		},
+		{
+			"i": "ae7defcc-24f0-4a36-8279-f34f8f5b5cc3",
+			"x": 6,
+			"y": 3,
+			"w": 3,
+			"h": 3,
+			"name": "EAS - Misses",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-eas.cache.misscount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-eas.cache.misscount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "misses / s",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/ae7defcc-24f0-4a36-8279-f34f8f5b5cc3"
+			}
+		},
+		{
+			"i": "6f4b2a1e-43ca-47e4-a4b1-21eb4ed8eef9",
+			"x": 3,
+			"y": 3,
+			"w": 3,
+			"h": 3,
+			"name": "EAS - Cache size",
+			"queries": [
+				{
+					"query": "SELECT mean(\"value\") AS \"mean_value\" FROM \"telegraf\".\"autogen\".\"bm-eas.cache.size\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "telegraf",
+						"measurement": "bm-eas.cache.size",
+						"retentionPolicy": "autogen",
+						"fields": [
+							{
+								"value": "mean",
+								"type": "func",
+								"alias": "mean_value",
+								"args": [
+									{
+										"value": "value",
+										"type": "field",
+										"alias": ""
+									}
+								]
+							}
+						],
+						"tags": {},
+						"groupBy": {
+							"time": "auto",
+							"tags": [
+								"name"
+							]
+						},
+						"areTagsAccepted": false,
+						"fill": "null",
+						"rawText": null,
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "Entries",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/6f4b2a1e-43ca-47e4-a4b1-21eb4ed8eef9"
+			}
+		},
+		{
+			"i": "2cdcb2d6-fca8-46bb-9e26-f7c412f496dd",
+			"x": 0,
+			"y": 3,
+			"w": 3,
+			"h": 3,
+			"name": "EAS - Cache activity (requests per second)",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"rqs/s\" FROM \"telegraf\".\"autogen\".\"bm-eas.cache.requestcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"rqs/s\" FROM \"telegraf\".\"autogen\".\"bm-eas.cache.requestcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "Requests / s",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/2cdcb2d6-fca8-46bb-9e26-f7c412f496dd"
+			}
+		},
+		{
+			"i": "0b7fc04b-de93-41ae-92d0-d7f77fef8823",
+			"x": 9,
+			"y": 0,
+			"w": 3,
+			"h": 3,
+			"name": "CORE - Hits",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-core.cache.hitcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-core.cache.hitcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "hits / s",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/0b7fc04b-de93-41ae-92d0-d7f77fef8823"
+			}
+		},
+		{
+			"i": "f74235e9-c2b2-4c5c-bb32-0406810b6ddf",
+			"x": 6,
+			"y": 0,
+			"w": 3,
+			"h": 3,
+			"name": "CORE - Misses",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-core.cache.misscount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"miss/s\" FROM \"telegraf\".\"autogen\".\"bm-core.cache.misscount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "misses / s",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/f74235e9-c2b2-4c5c-bb32-0406810b6ddf"
+			}
+		},
+		{
+			"i": "d600bf35-8252-40c6-8404-d1eaacafeb5e",
+			"x": 3,
+			"y": 0,
+			"w": 3,
+			"h": 3,
+			"name": "CORE - Cache size",
+			"queries": [
+				{
+					"query": "SELECT mean(\"value\") AS \"mean_value\" FROM \"telegraf\".\"autogen\".\"bm-core.cache.size\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "telegraf",
+						"measurement": "bm-core.cache.size",
+						"retentionPolicy": "autogen",
+						"fields": [
+							{
+								"value": "mean",
+								"type": "func",
+								"alias": "mean_value",
+								"args": [
+									{
+										"value": "value",
+										"type": "field",
+										"alias": ""
+									}
+								]
+							}
+						],
+						"tags": {},
+						"groupBy": {
+							"time": "auto",
+							"tags": [
+								"name"
+							]
+						},
+						"areTagsAccepted": false,
+						"fill": "null",
+						"rawText": null,
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "Entries",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/d600bf35-8252-40c6-8404-d1eaacafeb5e"
+			}
+		},
+		{
+			"i": "2c425fca-f5b3-4de2-ab76-9b14495b9717",
+			"x": 0,
+			"y": 0,
+			"w": 3,
+			"h": 3,
+			"name": "CORE - Cache activity (requests per second)",
+			"queries": [
+				{
+					"query": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"rqs/s\" FROM \"telegraf\".\"autogen\".\"bm-core.cache.requestcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+					"queryConfig": {
+						"database": "",
+						"measurement": "",
+						"retentionPolicy": "",
+						"fields": [],
+						"tags": {},
+						"groupBy": {
+							"time": "",
+							"tags": []
+						},
+						"areTagsAccepted": false,
+						"rawText": "SELECT non_negative_derivative(last(\"value\"), 1s) AS \"rqs/s\" FROM \"telegraf\".\"autogen\".\"bm-core.cache.requestcount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"name\" FILL(null)",
+						"range": null,
+						"shifts": null
+					},
+					"source": "",
+					"type": "influxql"
+				}
+			],
+			"axes": {
+				"x": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "Requests / s",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				},
+				"y2": {
+					"bounds": [
+						"",
+						""
+					],
+					"label": "",
+					"prefix": "",
+					"suffix": "",
+					"base": "10",
+					"scale": "linear"
+				}
+			},
+			"type": "line",
+			"colors": [
+				{
+					"id": "d22faaf9-0e91-4a15-bbc4-64a9cd15725f",
+					"type": "scale",
+					"hex": "#FDC44F",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "48a6269f-4caa-4eb4-88cf-90a055b00491",
+					"type": "scale",
+					"hex": "#007C76",
+					"name": "Cthulhu",
+					"value": "0"
+				},
+				{
+					"id": "33c6e2ca-32dd-4f1f-9adb-7883bed97fae",
+					"type": "scale",
+					"hex": "#8983FF",
+					"name": "Cthulhu",
+					"value": "0"
+				}
+			],
+			"legend": {},
+			"tableOptions": {
+				"verticalTimeAxis": true,
+				"sortBy": {
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				},
+				"wrapping": "truncate",
+				"fixFirstColumn": true
+			},
+			"fieldOptions": [
+				{
+					"internalName": "time",
+					"displayName": "",
+					"visible": true
+				}
+			],
+			"timeFormat": "MM/DD/YYYY HH:mm:ss",
+			"decimalPlaces": {
+				"isEnforced": true,
+				"digits": 2
+			},
+			"note": "",
+			"noteVisibility": "default",
+			"links": {
+				"self": "/chronograf/v1/dashboards/8/cells/2c425fca-f5b3-4de2-ab76-9b14495b9717"
+			}
+		}
+	],
+	"templates": [],
+	"name": "BlueMind Internal Caches",
+	"organization": "default",
+	"links": {
+		"self": "/chronograf/v1/dashboards/8",
+		"cells": "/chronograf/v1/dashboards/8/cells",
+		"templates": "/chronograf/v1/dashboards/8/templates"
+	}
+}
