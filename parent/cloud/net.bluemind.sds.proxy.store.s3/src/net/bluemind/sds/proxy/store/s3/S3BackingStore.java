@@ -136,7 +136,7 @@ public class S3BackingStore implements ISdsBackingStore {
 	public CompletableFuture<ExistResponse> exists(ExistRequest req) {
 		final long start = clock.monotonicTime();
 		return client.headObject(HeadObjectRequest.builder().bucket(bucket).key(req.guid).build())
-				.exceptionally(r -> null).thenApply(head -> {
+				.thenApply(head -> {
 					boolean known = head != null && head.sdkHttpResponse().statusCode() == 200;
 					existLatencyTimer.record(clock.monotonicTime() - start, TimeUnit.NANOSECONDS);
 					registry.counter(idFactory.name("request").withTag("method", "exist").withTag("status",

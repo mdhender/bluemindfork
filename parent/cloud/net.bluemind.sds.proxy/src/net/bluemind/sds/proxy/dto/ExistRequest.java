@@ -17,6 +17,10 @@
   */
 package net.bluemind.sds.proxy.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+/* during reconstruct, cyrus can send additional properties (like uid) */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ExistRequest extends SdsRequest {
 
 	public String guid;
@@ -26,7 +30,6 @@ public class ExistRequest extends SdsRequest {
 		er.mailbox = mailbox;
 		er.guid = guid;
 		return er;
-
 	}
 
 }
