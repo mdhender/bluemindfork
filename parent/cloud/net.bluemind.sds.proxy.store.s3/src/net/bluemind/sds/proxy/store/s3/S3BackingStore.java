@@ -128,7 +128,7 @@ public class S3BackingStore implements ISdsBackingStore {
 				.counter(idFactory.name("request").withTag("method", "get").withTag("status", "error"));
 		mgetLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "mget"));
 		mgetRequestCounter = registry
-				.counter(idFactory.name("request").withTag("method", "ùget").withTag("status", "success"));
+				.counter(idFactory.name("request").withTag("method", "mget").withTag("status", "success"));
 		existLatencyTimer = registry.timer(idFactory.name("latency").withTag("method", "exist"));
 	}
 
