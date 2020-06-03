@@ -39,6 +39,11 @@ public enum SysConfKeys {
 	imap_max_child, nginx_worker_connections,
 
 	/**
+	 * exchange autodiscover for split domain with exchange
+	 */
+	exchange_autodiscover_url,
+
+	/**
 	 * Archive kind could be: none, cyrus, or s3
 	 */
 	archive_kind, archive_days, archive_size_threshold,
