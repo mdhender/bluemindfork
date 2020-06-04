@@ -66,7 +66,6 @@ net.bluemind.sync.SyncService.prototype.getName = goog.abstractMethod;
  * @return {goog.async.Deferred} Sync process.
  */
 net.bluemind.sync.SyncService.prototype.sync = function() {
-  goog.log.info(this.logger, '[' + this.getName() + '] : start of sync process');
   var sync = new goog.async.Deferred();
   sync.addErrback(this.error, this);
   try {
@@ -139,7 +138,6 @@ net.bluemind.sync.SyncService.prototype.error = function(error) {
 net.bluemind.sync.SyncService.prototype.complete = function(observer, result) {
   var duration = goog.now() - observer.ts;
   observer.dispose();
-  goog.log.info(this.logger, '[' + this.getName() + '] : end of sync process (' + duration + 'ms)');
 };
 
 /** @override */
