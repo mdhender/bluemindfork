@@ -317,7 +317,7 @@ public class FileSystemFileHostingServiceTests {
 	@Test
 	public void testTimeOut() throws Exception {
 		String path = "/test.txt";
-		service.store(path, bytesToTimeoutStream(40));
+		service.store(path, bytesToTimeoutStream(20));
 	}
 
 	@Test
