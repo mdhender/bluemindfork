@@ -7,7 +7,6 @@ enable bm-forest-node.service
 enable bm-elasticsearch.service
 enable bm-hps.service
 enable bm-lmtpd.service
-enable bm-locator.service
 enable bm-milter.service
 enable bm-nginx.service
 enable bm-node.service
