@@ -445,7 +445,6 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 				domainUid);
 		Mailshare mailshare = new Mailshare();
 		mailshare.name = msName;
-		mailshare.dataLocation = super.cyrusIp;
 		mailshare.emails = Arrays.asList(Email.create(msName + "@" + domainUid, true, true));
 		mailshare.routing = Routing.internal;
 		ms.create(msUid, mailshare);
@@ -460,23 +459,32 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		cmgmt.setAccessControlList(accessControlList);
 
 		IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, msName);
-		List<ItemValue<MailboxFolder>> found = mboxesApi.all();
+		ItemValue<MailboxFolder> root = null;
+		List<ItemValue<MailboxFolder>> all = mboxesApi.all();
 		long delay = System.currentTimeMillis();
-		while (found.isEmpty()) {
+		while (all == null || all.isEmpty()) {
 			Thread.sleep(50);
 			if (System.currentTimeMillis() - delay > 30000) {
 				throw new TimeoutException("Wait for inbox took more than 30sec");
 			}
-			found = mboxesApi.all();
+			all = mboxesApi.all();
 		}
+		for (ItemValue<MailboxFolder> mf : all) {
+			if (mf.value.name.equals(mailshare.name)) {
+				root = mf;
+				break;
+			}
+		}
+		assertNotNull(root);
 
 		String folderName = "msf" + System.currentTimeMillis();
 		IOfflineMgmt idAllocator = provider().instance(IOfflineMgmt.class, domainUid, userUid);
 		IdRange ids = idAllocator.allocateOfflineIds(2);
 		long folderId = ids.globalCounter;
 		MailboxFolder folder = new MailboxFolder();
-		folder.fullName = folderName;
+		System.err.println("Creating " + folderName);
 		folder.name = folderName;
+		folder.parentUid = root.uid; // NOSONAR
 		ItemIdentifier createAck = mboxesApi.createForHierarchy(folderId, folder);
 		assertNotNull(createAck);
 		ItemValue<MailboxFolder> folderItem = mboxesApi.byName(folderName);
@@ -490,7 +498,9 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		assertNotNull(createAck);
 		ItemValue<MailboxFolder> subFolderItem = mboxesApi.getCompleteById(createAck.id);
 
+		System.err.println("deepDelete starts...");
 		mboxesApi.deepDelete(folderItem.internalId);
+		System.err.println("deepDelete ends.");
 
 		String folderUid = folderItem.uid;
 		folderItem = mboxesApi.byName(folderName);
