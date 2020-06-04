@@ -55,9 +55,9 @@ describe("[MailItemsStore][actions] : multipleByKey", () => {
         expect(service.multipleById).toHaveBeenCalledWith(messages.container2);
         expect(service.multipleById).toHaveBeenCalledWith(messages.container3);
     });
-    test("fail if multipleById call fail", () => {
+    test("fail if multipleById call fail", async () => {
         const messageKey = ItemUri.encode("itemId", "folderUid");
         service.multipleById.mockReturnValueOnce(Promise.reject("Error!"));
-        expect(multipleByKey(context, [messageKey])).rejects.toBe("Error!");
+        await expect(multipleByKey(context, [messageKey])).rejects.toBe("Error!");
     });
 });

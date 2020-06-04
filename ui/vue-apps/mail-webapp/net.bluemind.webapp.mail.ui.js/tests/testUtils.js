@@ -2,7 +2,7 @@ import merge from "lodash.merge";
 import Vuex from "vuex";
 import { mount, createLocalVue } from "@vue/test-utils";
 import cloneDeep from "lodash.clonedeep";
-import MessageStore from "@bluemind/webapp.mail.store/src/MessageStore";
+import MessageStore from "@bluemind/webapp.mail.store.deprecated/src/MessageStore";
 import MailboxItemsStore from "@bluemind/backend.mail.store/src/MailboxItemsStore";
 
 export function createStore(overrides) {

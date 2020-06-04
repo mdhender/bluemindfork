@@ -13,13 +13,15 @@ import { MailAlertRenderer } from "@bluemind/webapp.mail.ui.vuejs";
 import MailApp from "@bluemind/webapp.mail.ui.vuejs";
 import MailAppAlerts from "@bluemind/webapp.mail.alert";
 import mailRoutes from "./router";
-import MailWebAppStore from "@bluemind/webapp.mail.store";
+import MailWebAppStore from "@bluemind/webapp.mail.store.deprecated";
+import MailStore from "@bluemind/webapp.mail.store";
 import router from "@bluemind/router";
 import store from "@bluemind/store";
 import Vue from "vue";
 import Scheduler from "./scheduler";
 
 registerAPIClients();
+store.registerModule("mail", MailStore);
 store.registerModule("mail-webapp", MailWebAppStore);
 
 Scheduler.startUnreadCountersUpdater();

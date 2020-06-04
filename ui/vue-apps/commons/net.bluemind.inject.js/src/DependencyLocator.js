@@ -8,7 +8,7 @@ import global from "@bluemind/global";
 const $injector = global.$injector || (global.$injector = { dependencies: new Map() });
 const dependencies = $injector.dependencies;
 
-export default {
+const DependencyLocaltor = {
     register(provider) {
         if (Array.isArray(provider)) {
             provider.forEach(p => this.register(p));
@@ -34,6 +34,12 @@ export default {
         return apply(fn, thisArg);
     }
 };
+
+export default DependencyLocaltor;
+
+export function inject(provider, ...params) {
+    return DependencyLocaltor.getProvider(provider).get(...params);
+}
 
 function annotateProvider(provider) {
     if (isUndefined(provider.provide)) {

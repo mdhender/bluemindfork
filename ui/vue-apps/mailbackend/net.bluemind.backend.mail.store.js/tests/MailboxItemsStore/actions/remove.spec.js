@@ -34,8 +34,8 @@ describe("[MailItemsStore][actions] : remove", () => {
         expect(multipleDeleteById).toHaveBeenCalledWith([messageId]);
     });
 
-    test("fail if deleteById call fail", () => {
+    test("fail if deleteById call fail", async () => {
         multipleDeleteById.mockReturnValueOnce(Promise.reject("Error!"));
-        expect(remove(context, messageKey)).rejects.toBe("Error!");
+        await expect(remove(context, messageKey)).rejects.toBe("Error!");
     });
 });

@@ -1,23 +1,21 @@
 <template>
-    <div class="d-inline-block h-100">
-        <bm-dropdown
-            v-bm-tooltip.bottom.ds500
-            :no-caret="true"
-            variant="simple-dark"
-            :aria-label="$tc('mail.toolbar.more.aria')"
-            :title="$tc('mail.toolbar.more.aria')"
-            class="other_actions h-100"
-            right
-        >
-            <template slot="button-content">
-                <bm-icon icon="3dots" size="2x" />
-                <span class="d-none d-lg-block">{{ $tc("mail.toolbar.more") }}</span>
-            </template>
-            <bm-dropdown-item class="shadow-sm" :shortcut="$t('mail.shortcuts.purge')" @click="deletionConfirmed">
-                {{ $t("mail.actions.purge") }}
-            </bm-dropdown-item>
-        </bm-dropdown>
-    </div>
+    <bm-dropdown
+        v-bm-tooltip.bottom.ds500
+        :no-caret="true"
+        variant="simple-dark"
+        :aria-label="$tc('mail.toolbar.more.aria')"
+        :title="$tc('mail.toolbar.more.aria')"
+        class="other_actions h-100"
+        right
+    >
+        <template slot="button-content">
+            <bm-icon icon="3dots" size="2x" />
+            <span class="d-none d-lg-block">{{ $tc("mail.toolbar.more") }}</span>
+        </template>
+        <bm-dropdown-item class="shadow-sm" :shortcut="$t('mail.shortcuts.purge')" @click="deletionConfirmed">
+            {{ $t("mail.actions.purge") }}
+        </bm-dropdown-item>
+    </bm-dropdown>
 </template>
 
 <script>

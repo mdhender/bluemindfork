@@ -1,15 +1,9 @@
-import injector from "@bluemind/inject";
 import ItemUri from "@bluemind/item-uri";
+import { REMOVE_FOLDER } from "@bluemind/webapp.mail.store";
 
-export async function remove({ getters, commit }, folderKey) {
-    const mailboxUid = ItemUri.container(folderKey);
-    const folder = getters.getFolderByKey(folderKey);
-    commit("removeItems", [folderKey]);
-    try {
-        const service = injector.getProvider("MailboxFoldersPersistence").get(mailboxUid);
-        await service.deepDelete(folder.internalId);
-    } catch (e) {
-        commit("storeItems", { items: [folder], mailboxUid });
-        throw e;
-    }
+export async function remove({ dispatch, rootState }, folderKey) {
+    const folderUid = ItemUri.item(folderKey);
+    const folder = rootState.mail.folders[folderUid];
+    const mailbox = rootState.mail.mailboxes[folder.mailbox];
+    return dispatch(REMOVE_FOLDER, { key: folder.key, mailbox }, { root: true });
 }

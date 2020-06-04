@@ -1,0 +1,91 @@
+import Vue from "vue";
+import Vuex from "vuex";
+import cloneDeep from "lodash.clonedeep";
+import inject from "@bluemind/inject";
+import { MockContainersClient } from "@bluemind/test-mocks";
+import { Verb } from "@bluemind/core.container.api";
+import { state, mutations, actions, ADD_MAILBOXES, FETCH_MAILBOXES } from "../src/mailboxes";
+import aliceContainers from "./data/users/alice/containers";
+import { MailboxType } from "../src/helpers/MailboxAdaptor";
+
+const containersService = new MockContainersClient();
+inject.register({ provide: "ContainersPersistence", factory: () => containersService });
+Vue.use(Vuex);
+
+describe("mailboxes store", () => {
+    describe("mutations", () => {
+        describe("ADD_MAILBOXES", () => {
+            test("Add a mailbox", () => {
+                const { [ADD_MAILBOXES]: addMailboxes } = mutations;
+                const mailbox = { key: "1" };
+                const stateForTest = {
+                    mailboxes: {}
+                };
+                addMailboxes(stateForTest, [mailbox]);
+                expect(stateForTest).toStrictEqual({ mailboxes: { "1": mailbox } });
+            });
+            test("Add multiple mailboxes ", () => {
+                const { [ADD_MAILBOXES]: addMailboxes } = mutations;
+                const mailboxes = [{ key: "1" }, { key: "123" }];
+                const stateForTest = {
+                    mailboxes: {}
+                };
+                addMailboxes(stateForTest, mailboxes);
+                expect(stateForTest).toStrictEqual({ mailboxes: { "1": mailboxes[0], "123": mailboxes[1] } });
+            });
+        });
+    });
+    describe("action", () => {
+        let store;
+        beforeEach(() => {
+            store = new Vuex.Store(
+                cloneDeep({
+                    state,
+                    mutations,
+                    actions
+                })
+            );
+            containersService.all.mockClear();
+        });
+        describe("FETCH_MAILBOXES", () => {
+            test("Fetch a mailboxe", async () => {
+                const mailbox = aliceContainers.find(container => {
+                    return container.type === "mailboxacl";
+                });
+                containersService.all.mockResolvedValueOnce([mailbox]);
+                await store.dispatch(FETCH_MAILBOXES);
+                expect(Object.keys(store.state.mailboxes).length).toEqual(1);
+                expect(Object.values(store.state.mailboxes)[0]).toMatchObject({
+                    name: mailbox.name,
+                    writable: mailbox.verbs.includes(Verb.Write)
+                });
+            });
+            test("Fetch users mailboxes", async () => {
+                const mailboxes = aliceContainers.filter(container => {
+                    return container.type === "mailboxacl" && ["alice", "bob"].includes(container.name);
+                });
+                containersService.all.mockResolvedValueOnce(mailboxes);
+                await store.dispatch("FETCH_MAILBOXES");
+                expect(Object.keys(store.state.mailboxes).length).toEqual(2);
+                Object.values(store.state.mailboxes).forEach(mailbox => {
+                    expect(mailbox.type).toEqual(MailboxType.USER);
+                    expect(mailbox.uid).toEqual("user." + mailbox.name);
+                    expect(mailbox.root).toEqual("");
+                });
+            });
+            test("Fetch mailshare mailboxes", async () => {
+                const mailboxes = aliceContainers.filter(container => {
+                    return container.type === "mailboxacl" && ["read.only", "read.write"].includes(container.name);
+                });
+                containersService.all.mockResolvedValueOnce(mailboxes);
+                await store.dispatch("FETCH_MAILBOXES");
+                expect(Object.keys(store.state.mailboxes).length).toEqual(2);
+                Object.values(store.state.mailboxes).forEach(mailbox => {
+                    expect(mailbox.type).toEqual(MailboxType.MAILSHARE);
+                    expect(mailbox.uid).toEqual(mailbox.owner);
+                    expect(mailbox.root).toEqual(mailbox.name);
+                });
+            });
+        });
+    });
+});

@@ -20,6 +20,8 @@
         "@bluemind/router": "^4.1.0",
         "@bluemind/store": "^4.1.0",
         "@bluemind/user.api": "^4.1.0",
+        "@bluemind/webapp.mail.store.deprecated": "^4.1.0",
+        "@bluemind/webapp.mail.store": "^4.1.0",
         "@bluemind/webapp.mail.ui.vuejs": "^4.1.0",
         "bottleneck": "^2.19.5"
     },

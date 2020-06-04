@@ -6,23 +6,14 @@
     "license": "Affero GPLv3",
     "main": "src/index.js",
     "module": "src/index.js",
-    "dependencies": {
-        "@bluemind/alert.store": "^4.1.0",
-        "@bluemind/backend.mail.store": "^4.1.0",
-        "@bluemind/containerobserver": "^4.1.0",
-        "@bluemind/core.container.api": "^4.1.0",
-        "@bluemind/core.container.store": "^4.1.0",
-        "@bluemind/email": "^4.1.0",
-        "@bluemind/inject": "^4.1.0",
-        "@bluemind/item-uri": "^4.1.0",
-        "@bluemind/uuid": "^4.1.0",
-        "lodash.debounce": "^4.0.8",
-        "lodash.flatmap": "^4.5.0"
-    },
+    "dependencies": {},
     "devDependencies": {
         "@bluemind/conf": "^4.1.0",
-        "@vue/test-utils": "^1.0.0-beta.25",
-        "lodash.clonedeep": "^4.5.0"
+        "@bluemind/core.container.api": "^4.1.0",
+        "@bluemind/inject": "^4.1.0",
+        "@bluemind/test-mocks": "^4.1.0",
+        "@bluemind/uuid": "^4.1.0",
+        "@vue/test-utils": "^1.0.0-beta.25"
     },
     "scripts": {
         "lint": "eslint src/**/*.{js,vue}",

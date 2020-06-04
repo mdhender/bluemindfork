@@ -33,10 +33,11 @@
 </template>
 
 <script>
+import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { BmContextualMenu, BmDropdownItemButton } from "@bluemind/styleguide";
 import { isDefaultFolder } from "@bluemind/backend.mail.store";
+import { CREATE_FOLDER } from "@bluemind/webapp.mail.store";
 import { ItemUri } from "@bluemind/item-uri";
-import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import UUIDGenerator from "@bluemind/uuid";
 
 export default {
@@ -53,6 +54,7 @@ export default {
     },
     computed: {
         ...mapGetters("mail-webapp", ["mailshares"]),
+        ...mapState("mail", ["mailboxes", "folders"]),
         ...mapState("mail-webapp", ["currentFolderKey"]),
         isDefaultFolder() {
             return isDefaultFolder(this.folder);
@@ -71,7 +73,7 @@ export default {
     },
     methods: {
         ...mapActions("mail-webapp", ["removeFolder", "markFolderAsRead"]),
-        ...mapMutations("mail-webapp/folders", { addFolder: "storeItems" }),
+        ...mapMutations([CREATE_FOLDER]),
         ...mapMutations("mail-webapp", ["expandFolder", "toggleEditFolder"]),
         async deleteFolder() {
             const modalTitleKey =
@@ -96,21 +98,12 @@ export default {
             }
         },
         async createSubFolder() {
-            const subFolderUid = UUIDGenerator.generate();
-            const subFolder = {
-                value: {
-                    name: "",
-                    fullName: this.folder.fullName + "/",
-                    path: this.folder.fullName + "/",
-                    parentUid: this.folder.uid
-                },
-                uid: subFolderUid,
-                displayName: ""
-            };
-
-            this.addFolder({ items: [subFolder], mailboxUid: ItemUri.container(this.folder.key) });
+            const mailbox = this.mailboxes[ItemUri.container(this.folder.key)];
+            const key = UUIDGenerator.generate();
+            this[CREATE_FOLDER]({ key, name: "", parent: this.folder.uid, mailbox });
             await this.$nextTick();
-            this.toggleEditFolder(subFolderUid);
+            // TODO: Remove when new store is complete. mUsing key as uid here is a hack.
+            this.toggleEditFolder(key);
             this.expandFolder(this.folder.uid);
         }
     }

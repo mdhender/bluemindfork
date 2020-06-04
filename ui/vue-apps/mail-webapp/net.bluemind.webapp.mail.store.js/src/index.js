@@ -1,26 +1,21 @@
-import * as actions from "./actions";
-import events from "./events/events";
-import * as getters from "./getters";
-import * as mutations from "./mutations";
-import * as mutactions from "./mutactions";
-import * as state from "./state";
-import { MailboxItemsStore as messages, MailboxFoldersStore as folders } from "@bluemind/backend.mail.store";
-import { ContainersStore as mailboxes } from "@bluemind/core.container.store";
-import MessageStore from "./MessageStore/";
-import search from "./modules/search";
+export { FolderAdaptor } from "./helpers/FolderAdaptor";
+export { MailboxAdaptor } from "./helpers/MailboxAdaptor";
+import * as folders from "./folders";
+import * as mailboxes from "./mailboxes";
 
 export default {
     namespaced: true,
-    state: Object.assign({}, state, events.state),
-    actions: Object.assign({}, actions, mutactions, events.actions),
-    mutations: Object.assign({}, mutations, events.mutations),
-    getters,
-    modules: {
-        search,
-        messages,
-        folders,
-        mailboxes,
-        currentMessage: MessageStore,
-        draft: MessageStore
-    }
+    state: { ...folders.state, ...mailboxes.state },
+    actions: { ...folders.actions, ...mailboxes.actions },
+    mutations: { ...folders.mutations, ...mailboxes.mutations }
 };
+
+export const ADD_FOLDER = "mail/" + folders.ADD_FOLDER;
+export const ADD_FOLDERS = "mail/" + folders.ADD_FOLDERS;
+export const FETCH_FOLDERS = "mail/" + folders.FETCH_FOLDERS;
+export const CREATE_FOLDER = "mail/" + folders.CREATE_FOLDER;
+export const RENAME_FOLDER = "mail/" + folders.RENAME_FOLDER;
+export const REMOVE_FOLDER = "mail/" + folders.REMOVE_FOLDER;
+
+export const ADD_MAILBOXES = "mail/" + mailboxes.ADD_FOLDER;
+export const FETCH_MAILBOXES = "mail/" + mailboxes.FETCH_MAILBOXES;
