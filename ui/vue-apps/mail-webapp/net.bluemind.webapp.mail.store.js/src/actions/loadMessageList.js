@@ -22,7 +22,7 @@ export async function loadMessageList({ dispatch, commit, state, getters }, { fo
     } else {
         await dispatch("messages/list", { sorted: state.sorted, folderUid: locatedFolder.uid, filter });
         const sorted = state.messages.itemKeys;
-        await dispatch("messages/multipleByKey", sorted.slice(0, 100));
+        await dispatch("messages/multipleByKey", sorted.slice(0, 40));
     }
 
     commit("setStatus", STATUS.RESOLVED);
