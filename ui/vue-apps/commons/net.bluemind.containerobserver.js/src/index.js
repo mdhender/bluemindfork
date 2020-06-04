@@ -1,18 +1,18 @@
-import WebSocketClient from "@bluemind/sockjs";
 import injector from "@bluemind/inject";
+import WebsocketClient from "@bluemind/sockjs";
 
-const socket = new WebSocketClient();
+const socket = new WebsocketClient();
 
 export default {
     observe(type, uid) {
         if (type && uid) {
-            socket.register("bm." + type + ".hook." + uid + ".changed", this.notify);
+            tryToSend(() => socket.register("bm." + type + ".hook." + uid + ".changed", this.notify));
         }
     },
 
     forget(type, uid) {
         if (type && uid) {
-            socket.unregister("bm." + type + ".hook." + uid + ".changed");
+            tryToSend(() => socket.unregister("bm." + type + ".hook." + uid + ".changed"));
         }
     },
 
@@ -22,3 +22,13 @@ export default {
         bus.$emit(type + "_changed", { container: uid });
     }
 };
+
+function tryToSend(func) {
+    if (socket.isOnline()) {
+        func();
+    } else {
+        socket.onOnline(function() {
+            func();
+        });
+    }
+}

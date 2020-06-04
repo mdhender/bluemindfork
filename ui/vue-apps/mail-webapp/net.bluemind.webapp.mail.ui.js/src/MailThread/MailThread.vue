@@ -1,5 +1,5 @@
 <template>
-    <div class="mail-thread bg-surface">
+    <div v-if="message" class="mail-thread bg-surface">
         <mail-component-alert
             v-if="message && !areRemoteImagesUnblocked(message.key) && showBlockedImagesAlert"
             icon="exclamation-circle"

@@ -1,6 +1,5 @@
 import { selectFolder } from "../../src/actions/selectFolder";
 import { ItemUri } from "@bluemind/item-uri";
-import ContainerObserver from "@bluemind/containerobserver";
 
 jest.mock("@bluemind/containerobserver");
 
@@ -27,8 +26,6 @@ describe("[Mail-WebappStore][actions] :  selectFolder", () => {
         context.commit.mockClear();
         context.dispatch.mockClear();
         context.state.currentFolderKey = folderKey;
-        ContainerObserver.observe.mockClear();
-        ContainerObserver.forget.mockClear();
     });
 
     test("to set current folder only if folder has changed", async () => {
@@ -40,12 +37,8 @@ describe("[Mail-WebappStore][actions] :  selectFolder", () => {
     });
     test("to watch the selected folder changes  only if folder has changed", async () => {
         await selectFolder(context, folderKey);
-        expect(ContainerObserver.observe).not.toHaveBeenCalled();
-        expect(ContainerObserver.forget).not.toHaveBeenCalled();
         const another = ItemUri.encode("folderUid", "mailboxUid");
         await selectFolder(context, another);
-        expect(ContainerObserver.observe).toHaveBeenCalledWith("mailbox_records", "folderUid");
-        expect(ContainerObserver.forget).toHaveBeenCalledWith("mailbox_records", folderUid);
     });
 
     test("load unread message count", async () => {

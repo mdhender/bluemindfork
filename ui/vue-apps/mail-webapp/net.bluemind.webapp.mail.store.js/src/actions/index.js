@@ -1,6 +1,7 @@
 export * from "./$_createFolder";
 export * from "./$_getIfNotPresent";
 export * from "./$_move";
+export * from "./$_Vuebus_mailboxRecordsChanged";
 export * from "./addAttachments";
 export * from "./bootstrap";
 export * from "./collapseFolder";

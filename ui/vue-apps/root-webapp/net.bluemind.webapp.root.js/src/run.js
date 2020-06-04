@@ -13,42 +13,44 @@ import VueI18n from "vue-i18n";
 import VueSockjsPlugin from "@bluemind/vue-sockjs";
 import { BmModalPlugin } from "@bluemind/styleguide";
 
-setVuePlugins();
+initWebApp();
 
-injector.register({
-    provide: "UserSession",
-    use: window.bmcSessionInfos
-});
-const userSession = injector.getProvider("UserSession").get();
+function initWebApp() {
+    registerUserSession();
+    const userSession = injector.getProvider("UserSession").get();
+    registerDependencies(userSession);
+    initStore();
+    setVuePlugins();
+    const i18n = initI18N(userSession);
 
-registerDependencies(userSession);
-
-sync(store, router);
-extend(router, store);
-store.registerModule("alert", AlertStore);
-
-Vue.mixin(InheritTranslationsMixin);
-const i18n = new VueI18n({ locale: userSession.lang, fallbackLocale: "en", dateTimeFormats: getDateTimeFormats() });
-
-injector.register({
-    provide: "i18n",
-    use: i18n
-});
-
-new Vue({
-    el: "#app",
-    i18n,
-    render: h => h(MainApp),
-    router,
-    store
-});
+    new Vue({
+        el: "#app",
+        i18n,
+        render: h => h(MainApp),
+        router,
+        store
+    });
+}
 
 function setVuePlugins() {
     Vue.use(VueI18n);
-    Vue.use(VueBus, { store });
-    Vue.use(VueSockjsPlugin, { url: "/eventbus/", VueBus });
+    Vue.use(VueBus, store);
+    Vue.use(VueSockjsPlugin, VueBus);
     Vue.use(Vue2TouchEvents, { disableClick: true });
     Vue.use(BmModalPlugin);
+}
+
+function registerUserSession() {
+    injector.register({
+        provide: "UserSession",
+        use: window.bmcSessionInfos
+    });
+}
+
+function initStore() {
+    sync(store, router);
+    extend(router, store);
+    store.registerModule("alert", AlertStore);
 }
 
 function registerDependencies(userSession) {
@@ -62,8 +64,20 @@ function registerDependencies(userSession) {
 
     injector.register({
         provide: "GlobalEventBus",
-        use: VueBus
+        use: VueBus.Client
     });
+}
+
+function initI18N(userSession) {
+    Vue.mixin(InheritTranslationsMixin);
+    const i18n = new VueI18n({ locale: userSession.lang, fallbackLocale: "en", dateTimeFormats: getDateTimeFormats() });
+
+    injector.register({
+        provide: "i18n",
+        use: i18n
+    });
+
+    return i18n;
 }
 
 function getDateTimeFormats() {
@@ -103,5 +117,3 @@ function getDateTimeFormats() {
         en: formats
     };
 }
-//Ajouter des data via des plugins
-//Ajouter des plugin vue via des plugins

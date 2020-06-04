@@ -92,12 +92,12 @@ describe("[Mail-WebappStore][actions] :  loadMessageList", () => {
         expect(context.dispatch).toHaveBeenNthCalledWith(3, "messages/multipleByKey", context.state.messages.itemKeys);
     });
 
-    test("fetch only the 100 first mails of the selected folder", async () => {
+    test("fetch only the 40 first mails of the selected folder", async () => {
         context.state.messages.itemKeys = new Array(200).fill(0).map((zero, i) => i);
         await loadMessageList(context, { folder: folderKey });
         expect(context.dispatch).toHaveBeenCalledWith(
             "messages/multipleByKey",
-            context.state.messages.itemKeys.slice(0, 100)
+            context.state.messages.itemKeys.slice(0, 40)
         );
     });
 

@@ -1,6 +1,7 @@
-import { state, getters, mutations, actions, STATUS } from "../src/modules/search";
-import ServiceLocator from "@bluemind/inject";
 import { MockMailboxFoldersClient } from "@bluemind/test-mocks";
+import { state, getters, mutations, actions, STATUS } from "../src/modules/search";
+import ItemUri from "@bluemind/item-uri";
+import ServiceLocator from "@bluemind/inject";
 
 describe("[Mail-WebappStore][search]", () => {
     describe("state", () => {
@@ -68,7 +69,7 @@ describe("[Mail-WebappStore][search]", () => {
             const context = {
                 rootState: {
                     ["mail-webapp"]: {
-                        currentFolderKey: ""
+                        currentFolderKey: "WyJmMjFhMzU5OS1kODJhLTQ5NTktODEyMi04OWY0ZmFmNjBjMWUiLCJ1c2VyLnRlc3QiXQ=="
                     }
                 },
                 rootGetters: {
@@ -82,6 +83,11 @@ describe("[Mail-WebappStore][search]", () => {
                 }
             };
 
+            const key = ItemUri.encode(
+                "foobar",
+                ItemUri.item("WyJmMjFhMzU5OS1kODJhLTQ5NTktODEyMi04OWY0ZmFmNjBjMWUiLCJ1c2VyLnRlc3QiXQ==")
+            );
+
             const expectedMutations = [
                 {
                     type: "setStatus",
@@ -93,7 +99,7 @@ describe("[Mail-WebappStore][search]", () => {
                 },
                 {
                     type: "mail-webapp/messages/setItemKeys",
-                    payload: ["WyJmb29iYXIiLCIiXQ=="]
+                    payload: [key]
                 },
                 {
                     type: "setStatus",
@@ -102,7 +108,7 @@ describe("[Mail-WebappStore][search]", () => {
             ];
 
             await testAction(actions.search, { pattern: "foo" }, context, expectedMutations);
-            expect(context.dispatch).toBeCalledWith("mail-webapp/messages/multipleByKey", ["WyJmb29iYXIiLCIiXQ=="], {
+            expect(context.dispatch).toBeCalledWith("mail-webapp/messages/multipleByKey", [key], {
                 root: true
             });
         });
@@ -113,7 +119,7 @@ describe("[Mail-WebappStore][search]", () => {
             const context = {
                 rootState: {
                     ["mail-webapp"]: {
-                        currentFolderKey: ""
+                        currentFolderKey: "WyJmMjFhMzU5OS1kODJhLTQ5NTktODEyMi04OWY0ZmFmNjBjMWUiLCJ1c2VyLnRlc3QiXQ=="
                     }
                 },
                 rootGetters: {

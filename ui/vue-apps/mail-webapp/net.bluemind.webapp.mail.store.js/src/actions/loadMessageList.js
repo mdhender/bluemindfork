@@ -1,4 +1,5 @@
 import { STATUS } from "../constants";
+import ContainerObserver from "@bluemind/containerobserver";
 import ItemUri from "@bluemind/item-uri";
 
 export async function loadMessageList({ dispatch, commit, state, getters }, { folder, mailshare, filter, search }) {
@@ -14,12 +15,19 @@ export async function loadMessageList({ dispatch, commit, state, getters }, { fo
     commit("search/setPattern", search);
     commit("deleteAllSelectedMessages");
 
+    const prefix = "mbox_records_";
+    const previousFolderKey = state.currentFolderKey;
+    if (previousFolderKey) {
+        ContainerObserver.forget("mailbox_records", prefix + ItemUri.item(previousFolderKey));
+    }
+
     await dispatch("selectFolder", locatedFolder.key);
     expandParents(commit, getters, locatedFolder);
 
     if (search) {
         await dispatch("search/search", { pattern: search, filter });
     } else {
+        ContainerObserver.observe("mailbox_records", prefix + ItemUri.item(state.currentFolderKey));
         await dispatch("messages/list", { sorted: state.sorted, folderUid: locatedFolder.uid, filter });
         const sorted = state.messages.itemKeys;
         await dispatch("messages/multipleByKey", sorted.slice(0, 40));

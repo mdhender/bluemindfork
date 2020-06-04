@@ -38,14 +38,6 @@ describe("[Mail-WebappStore][actions] :  bootstrap", () => {
             done();
         });
     });
-    test("load unread count on all", done => {
-        bootstrap(context).then(() => {
-            context.getters.my.folders.forEach((folder, index) => {
-                expect(context.dispatch).toHaveBeenNthCalledWith(index + 2, "loadUnreadCount", folder.uid);
-            });
-            done();
-        });
-    });
     test("set default folder to inbox if not present", done => {
         bootstrap(context)
             .then(() => {

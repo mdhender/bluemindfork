@@ -1,8 +1,8 @@
-import WebSocketClient from "@bluemind/sockjs";
+import WebsocketClient from "@bluemind/sockjs";
 
 export default {
-    install(Vue, { url, VueBus }) {
-        const socket = new WebSocketClient(url || "/event/bus");
+    install(Vue, VueBus) {
+        const socket = new WebsocketClient();
         Vue.prototype.$socket = socket;
 
         if (VueBus) {
