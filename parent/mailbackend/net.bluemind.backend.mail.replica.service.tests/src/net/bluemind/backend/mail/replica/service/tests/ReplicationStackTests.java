@@ -487,7 +487,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		folder.parentUid = root.uid; // NOSONAR
 		ItemIdentifier createAck = mboxesApi.createForHierarchy(folderId, folder);
 		assertNotNull(createAck);
-		ItemValue<MailboxFolder> folderItem = mboxesApi.byName(folderName);
+		ItemValue<MailboxFolder> folderItem = mboxesApi.getCompleteById(createAck.id);
 
 		String subFolderName = "mss" + System.currentTimeMillis();
 		MailboxFolder subFolder = new MailboxFolder();

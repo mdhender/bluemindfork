@@ -226,7 +226,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			selectInbox(sc, fast);
 			sc.deleteMailbox(fnName);
 			try {
-				return future.get(10, TimeUnit.SECONDS);
+				return future.get(20, TimeUnit.SECONDS);
 			} catch (InterruptedException | ExecutionException | TimeoutException e) {
 				logger.warn("Failed to delete folder {} {}", fnName, fnToWath);
 				throw new ServerFault(e);
