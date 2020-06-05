@@ -17,6 +17,8 @@
   */
 package net.bluemind.directory.hollow.datamodel.producer;
 
+import java.util.concurrent.TimeUnit;
+
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
@@ -24,8 +26,10 @@ import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
 
 public class Serializers {
-
-	private static final Cache<String, DirectorySerializer> active = CacheBuilder.newBuilder().build();
+	private static final Cache<String, DirectorySerializer> active = CacheBuilder.newBuilder()
+			.recordStats()
+			.expireAfterWrite(5, TimeUnit.MINUTES)
+			.build();
 
 	/**
 	 * We use a cache reg to ensure proper clean up at unit tests start

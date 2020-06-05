@@ -26,5 +26,10 @@
          </property>
       </product>
    </extension>
-
+   <extension
+         point="net.bluemind.core.caches.registry.registration">
+      <reg
+            impl="net.bluemind.tika.server.impl.HashCache$CacheRegistration">
+      </reg>
+   </extension>
 </plugin>

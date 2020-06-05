@@ -161,7 +161,7 @@ public class MucSessions {
 			String from = inviter;
 			String pic = "";
 			String jabberId = XmppSessionMessage.parseJabberId(inviter);
-			RosterItem item = RosterItemCache.getInstance().get(jabberId);
+			RosterItem item = RosterItemCache.get(jabberId);
 			if (item != null) {
 				from = item.user.value.contactInfos.identification.formatedName.value;
 				pic = item.photo;

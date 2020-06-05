@@ -36,6 +36,8 @@ import net.bluemind.config.Token;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.http.HttpClientProvider;
 import net.bluemind.core.rest.http.ILocator;
@@ -53,9 +55,21 @@ public class GroupProtocolHandler implements Handler<Buffer> {
 	private final Handler<Throwable> exceptionHandler;
 	private final ILocator cachingLocator;
 	private static Cache<String, ItemValue<User>> usersCache = CacheBuilder.newBuilder()
-			.expireAfterAccess(10, TimeUnit.MINUTES).build();
+			.recordStats()
+			.expireAfterAccess(10, TimeUnit.MINUTES)
+			.build();
 	private static Cache<String, List<String>> memberOfCache = CacheBuilder.newBuilder()
-			.expireAfterWrite(10, TimeUnit.MINUTES).build();
+			.recordStats()
+			.expireAfterWrite(10, TimeUnit.MINUTES)
+			.build();
+
+	public static class CacheRegistration implements ICacheRegistration {
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.register("group-protocol-users", usersCache);
+			cr.register("group-protocol-memberof", memberOfCache);
+		}
+	}
 
 	public static Cache<String, ItemValue<User>> getUsersCache() {
 		return usersCache;

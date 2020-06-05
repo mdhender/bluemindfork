@@ -7,5 +7,10 @@
             implementation="net.bluemind.system.importation.commons.LdapImportCustomProperties">
       </customproperties>
    </extension>
-
+   <extension
+         point="net.bluemind.core.caches.registry.registration">
+      <reg
+            impl="net.bluemind.system.importation.commons.hooks.ImportAuthenticationService$CacheRegistration">
+      </reg>
+   </extension>
 </plugin>

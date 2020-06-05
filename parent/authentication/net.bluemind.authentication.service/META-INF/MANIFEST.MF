@@ -20,6 +20,7 @@ Require-Bundle: net.bluemind.authentication.api;bundle-version="1.0.0";visibilit
  net.bluemind.authentication.provider;bundle-version="1.0.0",
  net.bluemind.core.sessions,
  net.bluemind.authentication.persistence;bundle-version="1.0.0",
+ net.bluemind.core.caches.registry,
  net.bluemind.config,
  net.bluemind.domain.api,
  net.bluemind.group.api,

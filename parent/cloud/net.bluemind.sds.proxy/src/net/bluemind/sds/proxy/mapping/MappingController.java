@@ -47,6 +47,8 @@ import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.AsyncHandler;
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.http.HttpClientProvider;
 import net.bluemind.core.rest.http.ILocator;
@@ -61,7 +63,6 @@ import net.bluemind.sds.proxy.dto.RawMapping;
 import net.bluemind.sds.proxy.events.SdsAddresses;
 
 public class MappingController extends AbstractVerticle {
-
 	private static final Logger logger = LoggerFactory.getLogger(MappingController.class);
 
 	public static class Build implements IVerticleFactory {
@@ -87,7 +88,16 @@ public class MappingController extends AbstractVerticle {
 	}
 
 	private static final Cache<String, BoxAndFolder> cyrusToFolder = CacheBuilder.newBuilder()
-			.expireAfterAccess(10, TimeUnit.MINUTES).build();
+			.recordStats()
+			.expireAfterAccess(10, TimeUnit.MINUTES)
+			.build();
+
+	public static class CacheRegistration implements ICacheRegistration {
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.register(MappingController.class, cyrusToFolder);
+		}
+	}
 
 	private static final Map<String, FolderMapping> perFolderMapping = new ConcurrentHashMap<>();
 

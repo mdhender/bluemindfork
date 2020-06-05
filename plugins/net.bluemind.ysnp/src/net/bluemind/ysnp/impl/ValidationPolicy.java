@@ -33,6 +33,8 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.ysnp.ICredentialValidator;
 import net.bluemind.ysnp.ICredentialValidator.Kind;
@@ -40,7 +42,6 @@ import net.bluemind.ysnp.ICredentialValidatorFactory;
 import net.bluemind.ysnp.YSNPConfiguration;
 
 public class ValidationPolicy {
-
 	private static final Logger logger = LoggerFactory.getLogger(ValidationPolicy.class);
 	private static final HashFunction hash = Hashing.goodFastHash(32);
 	private final List<ICredentialValidatorFactory> validatorsFactories;
@@ -48,13 +49,29 @@ public class ValidationPolicy {
 	/**
 	 * key: token, value: login@domain
 	 */
-	private Cache<String, String> tokenCache;
+	private static final Cache<String, String> tokenCache = CacheBuilder.newBuilder()
+			.recordStats()
+			.initialCapacity(1024)
+			.expireAfterAccess(2, TimeUnit.MINUTES)
+			.build();
 	/**
 	 * key: login@domain, value: last valid password
 	 */
-	private Cache<String, String> pwCache;
+	private static final Cache<String, String> pwCache = CacheBuilder.newBuilder()
+			.recordStats()
+			.initialCapacity(1024)
+			.expireAfterAccess(2, TimeUnit.MINUTES)
+			.build();
 
 	private TokenCacheSync tokenSync;
+
+	public static class CacheRegistration implements ICacheRegistration {
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.register("ysnp-validationpolicy-token", tokenCache);
+			cr.register("ysnp-validationpolicy-password", pwCache);
+		}
+	}
 
 	public ValidationPolicy(YSNPConfiguration conf) {
 		RunnableExtensionLoader<ICredentialValidatorFactory> rel = new RunnableExtensionLoader<>();
@@ -67,12 +84,6 @@ public class ValidationPolicy {
 			cvf.init(conf);
 		}
 
-		int cores = Runtime.getRuntime().availableProcessors();
-		int conc = Math.max(4, cores);
-		tokenCache = CacheBuilder.newBuilder().concurrencyLevel(conc).recordStats().initialCapacity(1024)
-				.expireAfterAccess(2, TimeUnit.MINUTES).build();
-		pwCache = CacheBuilder.newBuilder().concurrencyLevel(conc).recordStats().initialCapacity(1024)
-				.expireAfterAccess(2, TimeUnit.MINUTES).build();
 		this.tokenSync = new TokenCacheSync();
 		tokenSync.start(tokenCache, pwCache);
 

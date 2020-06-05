@@ -36,6 +36,8 @@ import net.bluemind.authentication.api.AuthUser;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
@@ -47,6 +49,7 @@ import net.bluemind.server.api.Server;
 
 public class ImapContext {
 	private static final Logger logger = LoggerFactory.getLogger(ImapContext.class);
+
 	public final String latd;
 	public final String server;
 	private final String sid;
@@ -57,9 +60,16 @@ public class ImapContext {
 
 	public final AuthUser user;
 
+	public static class CacheRegistration implements ICacheRegistration {
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.register(ImapContext.class, sidToCtxCache);
+		}
+	}
+
 	private static final Cache<String, ImapContext> createCache() {
-		Cache<String, ImapContext> ret = CacheBuilder.newBuilder() //
-				.expireAfterAccess(5, TimeUnit.MINUTES) //
+		Cache<String, ImapContext> ret = CacheBuilder.newBuilder()
+				.expireAfterAccess(5, TimeUnit.MINUTES)
 				.removalListener(new RemovalListener<String, ImapContext>() {
 
 					@Override

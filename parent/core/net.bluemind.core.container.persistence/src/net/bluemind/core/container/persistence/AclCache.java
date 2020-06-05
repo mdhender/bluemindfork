@@ -18,6 +18,7 @@
 package net.bluemind.core.container.persistence;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -28,12 +29,16 @@ import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.rest.BmContext;
 
 public class AclCache {
-
 	public static class Registration implements ICacheRegistration {
 
 		@Override
 		public void registerCaches(CacheRegistry cr) {
-			cr.register(AclCache.class, CacheBuilder.newBuilder().build());
+			cr.register(
+				AclCache.class,
+				CacheBuilder.newBuilder()
+					.recordStats()
+					.expireAfterWrite(10, TimeUnit.MINUTES)
+					.build());
 		}
 	}
 

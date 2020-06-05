@@ -13,5 +13,10 @@
             class="net.bluemind.backend.cyrus.bmgroups.internal.UserChangedMessageForwarder">
       </vertx-forwarder>
    </extension>
-
+   <extension
+         point="net.bluemind.core.caches.registry.registration">
+      <reg
+            impl="net.bluemind.backend.cyrus.bmgroups.GroupProtocolHandler$CacheRegistration">
+      </reg>
+   </extension>
 </plugin>

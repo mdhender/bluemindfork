@@ -64,6 +64,7 @@
       <plugin id="net.bluemind.common.io"/>
       <plugin id="net.bluemind.common.reflect"/>
       <plugin id="net.bluemind.config"/>
+      <plugin id="net.bluemind.core.caches.registry"/>
       <plugin id="net.bluemind.core.commons"/>
       <plugin id="net.bluemind.core.container.api"/>
       <plugin id="net.bluemind.core.container.hooks"/>

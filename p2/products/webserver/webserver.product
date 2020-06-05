@@ -64,6 +64,7 @@
       <plugin id="net.bluemind.commons.closure"/>
       <plugin id="net.bluemind.config"/>
       <plugin id="net.bluemind.container.closure"/>
+      <plugin id="net.bluemind.core.caches.registry"/>
       <plugin id="net.bluemind.core.commons"/>
       <plugin id="net.bluemind.core.commons.gwt"/>
       <plugin id="net.bluemind.core.container.api"/>

@@ -25,5 +25,13 @@
             impl="net.bluemind.eas.backend.bm.partnership.PartnershipProvider">
       </provider>
    </extension>
-
+   <extension
+         point="net.bluemind.core.caches.registry.registration">
+      <reg
+            impl="net.bluemind.eas.backend.bm.partnership.PartnershipProvider$CacheRegistration">
+      </reg>
+      <reg
+            impl="net.bluemind.eas.backend.bm.user.UserBackend$CacheRegistration">
+      </reg>
+   </extension>
 </plugin>

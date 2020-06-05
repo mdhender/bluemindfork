@@ -4,7 +4,7 @@
    <extension
          point="net.bluemind.core.caches.registry.registration">
       <reg
-            impl="net.bluemind.vertx.common.http.BasicAuthHandler$CacheRegistration">
+            impl="net.bluemind.hsm.processor.HSMContext$CacheRegistration">
       </reg>
    </extension>
 </plugin>

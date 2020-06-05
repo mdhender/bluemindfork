@@ -31,6 +31,8 @@ import com.google.common.cache.CacheBuilder;
 
 import net.bluemind.config.Token;
 import net.bluemind.core.api.Email;
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.document.storage.IDocumentStore;
 import net.bluemind.domain.api.Domain;
@@ -46,9 +48,17 @@ import net.bluemind.user.api.IUserSettings;
 import net.bluemind.user.api.User;
 
 public class UserBackend extends CoreConnect {
-
-	private static final Cache<String, MSUser> cache = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES)
+	private static final Cache<String, MSUser> cache = CacheBuilder.newBuilder()
+			.recordStats()
+			.expireAfterAccess(1, TimeUnit.MINUTES)
 			.build();
+
+	public static class CacheRegistration implements ICacheRegistration {
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.register(UserBackend.class, cache);
+		}
+	}
 
 	public static void purgeSession() {
 		cache.invalidateAll();

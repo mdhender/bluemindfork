@@ -27,17 +27,25 @@ import org.slf4j.LoggerFactory;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.user.api.User;
 import net.bluemind.xmpp.server.CF;
 import tigase.xmpp.BareJID;
 
 public class VCardProvider implements IDataProvider {
-	private Cache<String, String> cache;
+	private static final Cache<String, String> cache = CacheBuilder.newBuilder()
+			.recordStats()
+			.expireAfterAccess(1, TimeUnit.HOURS)
+			.build();
 	private static final Logger logger = LoggerFactory.getLogger(VCardProvider.class);
 
-	public VCardProvider() {
-		cache = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.HOURS).build();
+	public static class CacheRegistration implements ICacheRegistration {
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.register(VCardProvider.class, cache);
+		}
 	}
 
 	@Override

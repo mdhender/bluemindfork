@@ -30,6 +30,8 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 import net.bluemind.authentication.provider.IAuthProvider;
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -45,9 +47,23 @@ public abstract class ImportAuthenticationService implements IAuthProvider {
 	private static final Logger logger = LoggerFactory.getLogger(ImportAuthenticationService.class);
 
 	private static final Cache<UuidMapper, String> uidToDN = CacheBuilder.newBuilder()
-			.expireAfterWrite(20, TimeUnit.MINUTES).initialCapacity(1024).build();
+			.recordStats()
+			.initialCapacity(1024)
+			.expireAfterWrite(20, TimeUnit.MINUTES)
+			.build();
 	private static final Cache<String, String> dnToPass = CacheBuilder.newBuilder()
-			.expireAfterWrite(20, TimeUnit.MINUTES).initialCapacity(1024).build();
+			.recordStats()
+			.initialCapacity(1024)
+			.expireAfterWrite(20, TimeUnit.MINUTES)
+			.build();
+
+	public static class CacheRegistration implements ICacheRegistration {
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.register("import-authentification-uidtodn", uidToDN);
+			cr.register("import-authentification-dntopassword", dnToPass);
+		}
+	}
 
 	@Override
 	public int priority() {

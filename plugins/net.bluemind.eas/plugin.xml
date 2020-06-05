@@ -160,5 +160,13 @@
             impl="net.bluemind.eas.command.sync.SyncProtocol">
       </protocol>
    </extension>
-
+   <extension
+         point="net.bluemind.core.caches.registry.registration">
+      <reg
+            impl="net.bluemind.eas.command.ping.PingProtocol$CacheRegistration">
+      </reg>
+      <reg
+            impl="net.bluemind.eas.impl.SessionStates$CacheRegistration">
+      </reg>
+   </extension>
 </plugin>

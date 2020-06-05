@@ -25,6 +25,8 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.hsm.storage.HSMStorage;
@@ -36,14 +38,23 @@ import net.bluemind.node.api.NodeActivator;
 import net.bluemind.user.api.IUserSettings;
 
 public class HSMContext {
-
 	private SecurityContext context;
 	private HSMLoginContext loginContext;
 	private IHSMStorage storage;
 	private String lang;
 
-	private final static Cache<String, HSMContext> hsmCtxCache = CacheBuilder.newBuilder().initialCapacity(64)
-			.expireAfterAccess(2, TimeUnit.MINUTES).build();
+	private final static Cache<String, HSMContext> hsmCtxCache = CacheBuilder.newBuilder()
+			.recordStats()
+			.initialCapacity(64)
+			.expireAfterAccess(2, TimeUnit.MINUTES)
+			.build();
+
+	public static class CacheRegistration implements ICacheRegistration {
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.register(HSMContext.class, hsmCtxCache);
+		}
+	}
 
 	public static HSMContext get(SecurityContext context, HSMLoginContext login) throws ServerFault {
 

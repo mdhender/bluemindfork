@@ -23,5 +23,10 @@
             impl="net.bluemind.sds.proxy.mapping.MappingCacheCleaner$Build">
       </verticle>
    </extension>
-
+   <extension
+         point="net.bluemind.core.caches.registry.registration">
+      <reg
+            impl="net.bluemind.sds.proxy.mapping.MappingController$CacheRegistration">
+      </reg>
+   </extension>
 </plugin>

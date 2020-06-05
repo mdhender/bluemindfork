@@ -269,7 +269,7 @@ public class ContainerStore extends JdbcAbstractStore {
 			statement.setString(index++, uid);
 			return index;
 		});
-		cache.invalidate(uid);
+		invalidateCache(uid);
 	}
 
 	public Container get(String uid) throws SQLException {
@@ -303,7 +303,7 @@ public class ContainerStore extends JdbcAbstractStore {
 		// delete changelog
 		String query = "DELETE FROM t_container where uid= ? ";
 		delete(query, new Object[] { uid });
-		cache.invalidate(uid);
+		invalidateCache(uid);
 	}
 
 	public void invalidateCache(String uid) {

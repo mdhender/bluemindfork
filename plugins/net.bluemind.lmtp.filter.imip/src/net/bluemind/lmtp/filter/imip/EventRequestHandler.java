@@ -56,6 +56,8 @@ import net.bluemind.calendar.helper.mail.Messages;
 import net.bluemind.common.freemarker.MessagesResolver;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.sendmail.ISendmail;
 import net.bluemind.core.sendmail.Sendmail;
@@ -76,14 +78,25 @@ import net.bluemind.user.api.User;
 import net.fortuna.ical4j.model.property.Method;
 
 public class EventRequestHandler extends RequestHandler implements IIMIPHandler {
-
 	private static final Logger logger = LoggerFactory.getLogger(EventRequestHandler.class);
 	private static final Cache<String, ItemValue<User>> senderCache = CacheBuilder.newBuilder()
-			.expireAfterAccess(2, TimeUnit.MINUTES).build();
+			.recordStats()
+			.expireAfterAccess(2, TimeUnit.MINUTES)
+			.build();
 	private static final Cache<String, Map<String, String>> senderSettingsCache = CacheBuilder.newBuilder()
-			.expireAfterAccess(2, TimeUnit.MINUTES).build();
+			.recordStats()
+			.expireAfterAccess(2, TimeUnit.MINUTES)
+			.build();
 
 	private ISendmail mailer;
+
+	public static class CacheRegistration implements ICacheRegistration {
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.register("lmtp-filter-eventrequest-sender", senderCache);
+			cr.register("lmtp-filter-eventrequest-settings", senderSettingsCache);
+		}
+	}
 
 	public EventRequestHandler() {
 		this(new Sendmail());

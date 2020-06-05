@@ -32,6 +32,8 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.hornetq.client.Topic;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.metrics.registry.IdFactory;
@@ -47,6 +49,13 @@ public class C2ProviderFactory implements IAuthProviderFactory {
 	private static final Logger logger = LoggerFactory.getLogger(C2ProviderFactory.class);
 
 	private static final Cache<String, SessionData> sessions = sessions();
+
+	public static class CacheRegistration implements ICacheRegistration {
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.registerReadOnly(C2ProviderFactory.class, sessions);
+		}
+	}
 
 	private ILogoutListener logoutListener;
 

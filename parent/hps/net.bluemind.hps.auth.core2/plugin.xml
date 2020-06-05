@@ -13,5 +13,10 @@
             class="net.bluemind.hps.auth.core2.ForwardSessionMessages">
       </vertx-forwarder>
    </extension>
-
+   <extension
+         point="net.bluemind.core.caches.registry.registration">
+      <reg
+            impl="net.bluemind.hps.auth.core2.C2ProviderFactory$CacheRegistration">
+      </reg>
+   </extension>
 </plugin>

@@ -80,10 +80,11 @@
    <bundle id="net.bluemind.config" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.contact.application.closure" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.container.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.core.annotationvalidator" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.api.py" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.bo.report.provider" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.core.caches.registry" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.commons" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.annotationvalidator" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.commons.gwt" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.commons.php" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.commons.tests" version="4.1.0.qualifier"/>

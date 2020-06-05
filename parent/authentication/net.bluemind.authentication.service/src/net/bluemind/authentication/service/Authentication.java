@@ -272,7 +272,7 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 		}
 
 		try {
-			IAuthContext nakedAuthContext = AuthContextCache.getInstance().getCache().get(login, () -> {
+			IAuthContext nakedAuthContext = AuthContextCache.getCache().get(login, () -> {
 				return loadFromDb(login);
 			}).orElse(null);
 
@@ -310,7 +310,7 @@ public class Authentication implements IAuthentication, IInCoreAuthentication {
 
 		AuthContext authContext = new AuthContext(null, theDomain, internalUser, localPart, null);
 		Optional<IAuthContext> ret = Optional.of(authContext);
-		AuthContextCache.getInstance().getCache().put(login, ret);
+		AuthContextCache.getCache().put(login, ret);
 		return ret;
 	}
 

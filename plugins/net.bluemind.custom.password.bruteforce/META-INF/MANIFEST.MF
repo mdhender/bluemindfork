@@ -9,6 +9,7 @@ Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  com.google.guava;bundle-version="19.0.0",
  net.bluemind.authentication.provider;bundle-version="1.0.0",
+ net.bluemind.core.caches.registry,
  net.bluemind.core.container.api;bundle-version="1.0.0",
  net.bluemind.core.commons;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

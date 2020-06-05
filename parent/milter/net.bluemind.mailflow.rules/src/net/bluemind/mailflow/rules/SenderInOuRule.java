@@ -29,6 +29,8 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.directory.api.IOrgUnits;
@@ -40,7 +42,6 @@ import net.bluemind.mailflow.rbe.MailRule;
 import net.bluemind.mailflow.rbe.MailRuleEvaluation;
 
 public class SenderInOuRule extends DefaultRule implements MailRule {
-
 	@Override
 	public String identifier() {
 		return "SenderInOuRule";
@@ -52,7 +53,22 @@ public class SenderInOuRule extends DefaultRule implements MailRule {
 	}
 
 	private static IClientContext mailflowContext;
-	private static LoadingCache<String, Map<String, List<String>>> ouMaouPath;
+
+	private static LoadingCache<String, Map<String, List<String>>> ouMaouPath = CacheBuilder.newBuilder()
+			.recordStats()
+			.expireAfterWrite(10, TimeUnit.MINUTES)
+			.build(new CacheLoader<String, Map<String, List<String>>>() {
+				public Map<String, List<String>> load(String domain) throws Exception {
+					return createOuStructure(domain);
+				}
+			});
+
+	public static class CacheRegistration implements ICacheRegistration {
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.register(SenderInOuRule.class, ouMaouPath);
+		}
+	}
 
 	@Override
 	public MailRuleEvaluation evaluate(Message message, IClientContext mailflowContext) {
@@ -97,15 +113,6 @@ public class SenderInOuRule extends DefaultRule implements MailRule {
 		return data;
 	}
 
-	static {
-		ouMaouPath = CacheBuilder.newBuilder().maximumSize(1000).expireAfterWrite(10, TimeUnit.MINUTES)
-				.build(new CacheLoader<String, Map<String, List<String>>>() {
-					public Map<String, List<String>> load(String domain) throws Exception {
-						return createOuStructure(domain);
-					}
-				});
-	}
-
 	private static Map<String, List<String>> createOuStructure(String domain) {
 		IOrgUnits orgUnitService = mailflowContext.provider().instance(IOrgUnits.class, domain);
 		OrgUnitQuery query = new OrgUnitQuery();
@@ -117,5 +124,4 @@ public class SenderInOuRule extends DefaultRule implements MailRule {
 		});
 		return hierarchy;
 	}
-
 }

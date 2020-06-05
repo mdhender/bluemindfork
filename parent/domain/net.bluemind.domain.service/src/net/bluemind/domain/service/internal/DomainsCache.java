@@ -17,6 +17,8 @@
   */
 package net.bluemind.domain.service.internal;
 
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,11 +32,15 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.domain.api.Domain;
 
 public class DomainsCache {
-
 	public static class Registration implements ICacheRegistration {
 		@Override
 		public void registerCaches(CacheRegistry cr) {
-			cr.register(DomainsCache.class, CacheBuilder.newBuilder().build());
+			cr.register(
+				DomainsCache.class,
+				CacheBuilder.newBuilder()
+					.recordStats()
+					.expireAfterWrite(10, TimeUnit.MINUTES)
+					.build());
 		}
 	}
 

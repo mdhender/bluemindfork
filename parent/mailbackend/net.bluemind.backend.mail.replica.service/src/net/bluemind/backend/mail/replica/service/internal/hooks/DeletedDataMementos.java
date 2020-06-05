@@ -39,11 +39,13 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.mailbox.api.Mailbox;
 
 public class DeletedDataMementos extends CacheHolder<String, Optional<Subtree>> {
-
 	public static final Logger logger = LoggerFactory.getLogger(DeletedDataMementos.class);
 
 	private static Cache<String, Optional<Subtree>> buildCache() {
-		return CacheBuilder.newBuilder().expireAfterWrite(2, TimeUnit.MINUTES).build();
+		return CacheBuilder.newBuilder()
+			.recordStats()
+			.expireAfterWrite(2, TimeUnit.MINUTES)
+			.build();
 	}
 
 	public static class Registration implements ICacheRegistration {

@@ -22,11 +22,15 @@
  */
 package net.bluemind.backend.mail.replica.service.internal;
 
+import java.util.concurrent.TimeUnit;
+
 import com.google.common.base.MoreObjects;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 import net.bluemind.backend.mail.replica.api.MailApiHeaders;
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.core.container.model.ItemVersion;
 
 /**
@@ -37,11 +41,23 @@ import net.bluemind.core.container.model.ItemVersion;
  *
  */
 public class BodyInternalIdCache {
-
 	private static final Cache<String, ExpectedId> bodyUidToExpectedRecordId = CacheBuilder.newBuilder()
-			.maximumSize(512).build();
+			.recordStats()
+			.maximumSize(512)
+			.build();
 
-	private static final Cache<String, VanishedBody> vanish = CacheBuilder.newBuilder().maximumSize(512).build();
+	private static final Cache<String, VanishedBody> vanish = CacheBuilder.newBuilder()
+			.recordStats()
+			.maximumSize(512)
+			.build();
+
+	public static class CacheRegistration implements ICacheRegistration {
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.registerReadOnly("mail-replica-bodyid-uid-to-recordid", bodyUidToExpectedRecordId);
+			cr.registerReadOnly("mail-replica-bodyid-vanish", vanish);
+		}
+	}
 
 	public static class ExpectedId {
 		public final long id;

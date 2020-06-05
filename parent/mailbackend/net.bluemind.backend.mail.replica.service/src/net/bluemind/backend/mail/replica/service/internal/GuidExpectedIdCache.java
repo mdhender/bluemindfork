@@ -22,10 +22,22 @@ import java.util.concurrent.TimeUnit;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
-public class GuidExpectedIdCache {
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
 
-	private static final Cache<String, Long> cache = CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.MINUTES)
+public class GuidExpectedIdCache {
+	private static final Cache<String, Long> cache = CacheBuilder.newBuilder()
+			.recordStats()
+			.maximumSize(512)
+			.expireAfterWrite(1, TimeUnit.MINUTES)
 			.build();
+
+	public static class CacheRegistration implements ICacheRegistration {
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.registerReadOnly(GuidExpectedIdCache.class, cache);
+		}
+	}
 
 	private GuidExpectedIdCache() {
 	}

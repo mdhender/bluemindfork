@@ -23,14 +23,13 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.system.api.SystemState;
 
 public class Sessions implements BundleActivator {
-
 	private static final Cache<String, SecurityContext> STORE = buildCache();
 
 	private static final String IDENTITY = UUID.randomUUID().toString();
 
 	private static Cache<String, SecurityContext> buildCache() {
-		return CacheBuilder.newBuilder() //
-				.recordStats() //
+		return CacheBuilder.newBuilder()
+				.recordStats()
 				.expireAfterAccess(20, TimeUnit.MINUTES)
 				.removalListener((RemovalNotification<String, SecurityContext> notification) -> {
 					if (notification.getCause() != RemovalCause.REPLACED && notification.getValue().isInteractive()) {

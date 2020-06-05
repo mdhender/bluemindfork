@@ -33,6 +33,8 @@ import com.netflix.spectator.api.patterns.PolledMeter;
 
 import io.vertx.core.Handler;
 import net.bluemind.config.Token;
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
@@ -52,18 +54,29 @@ import net.bluemind.user.api.User;
 import net.bluemind.utils.IniFile;
 
 public class PartnershipProvider implements IDevicePartnershipProvider {
-
 	private static final Logger logger = LoggerFactory.getLogger(PartnershipProvider.class);
 	private static final Registry registry = MetricsRegistry.get();
 	private static final IdFactory idFactory = new IdFactory(MetricsRegistry.get(), PartnershipProvider.class);
 
 	private static final Cache<String, DeviceValidationResponse> cache = PolledMeter.using(MetricsRegistry.get())
 			.withId(new IdFactory(MetricsRegistry.get(), PartnershipProvider.class).name("partnerships"))
-			.monitorValue(CacheBuilder.newBuilder().expireAfterWrite(10, TimeUnit.MINUTES).recordStats().build(), c -> {
-				return c.stats().hitRate() * 100;
-			});
+			.monitorValue(
+				CacheBuilder.newBuilder()
+					.expireAfterWrite(10, TimeUnit.MINUTES)
+					.recordStats()
+					.build(), c -> {
+							return c.stats().hitRate() * 100;
+					}
+			);
 
 	private String coreUrl;
+
+	public static class CacheRegistration implements ICacheRegistration {
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.register(PartnershipProvider.class, cache);
+		}
+	}
 
 	@Override
 	public void setupAndCheck(final DeviceValidationRequest req, final Handler<DeviceValidationResponse> respHandler) {

@@ -207,7 +207,7 @@ public class RosterManager {
 		}
 
 		private JsonObject rosterEntry(RosterEntry entry) {
-			RosterItem item = RosterItemCache.getInstance().get(entry.getUser());
+			RosterItem item = RosterItemCache.get(entry.getUser());
 
 			if (item != null) {
 				JsonObject ret = new JsonObject();

@@ -17,6 +17,7 @@
   */
 package net.bluemind.core.caches.registry;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,30 +67,62 @@ public class CacheRegistry {
 		return cr;
 	}
 
-	private final Map<Object, Cache<?, ?>> caches;
+	private final Map<String, Cache<?, ?>> caches;
+	private final List<Cache<?, ?>> readonly_caches;
 
 	private CacheRegistry() {
-		this.caches = new HashMap<>();
+		caches = new HashMap<String, Cache<?, ?>>();
+		readonly_caches = new ArrayList<Cache<?, ?>>();
 	}
 
-	public void register(Object id, Cache<?, ?> cache) {
-		this.caches.put(id, cache);
+	public void register(Class<?> idKlass, Cache<?, ?> cache) {
+		register(idKlass.getName(), cache);
+	}
+
+	public void register(String id, Cache<?, ?> cache) {
+		if (caches.containsKey(id)) {
+			logger.error("registring duplicated cache identifier: {}", id);
+		} else {
+			caches.put(id, cache);
+		}
+	}
+
+	// Read only caches will not be touched by invalidate
+	public void registerReadOnly(Class<?> idKlass, Cache<?, ?> cache) {
+		readonly_caches.add(cache);
+		register(idKlass, cache);
+	}
+
+	public void registerReadOnly(String id, Cache<?, ?> cache) {
+		readonly_caches.add(cache);
+		register(id, cache);
 	}
 
 	@SuppressWarnings("unchecked")
-	public <K, V> Cache<K, V> get(Object id) {
+	public <K, V> Cache<K, V> get(String id) {
 		return (Cache<K, V>) caches.get(id);
+	}
+
+	@SuppressWarnings("unchecked")
+	public <K, V> Cache<K, V> get(Class idKlass) {
+		return (Cache<K, V>) caches.get(idKlass);
 	}
 
 	public void invalidateAll() {
 		for (Cache<?, ?> c : caches.values()) {
-			c.invalidateAll();
+			if (! readonly_caches.contains(c)) {
+				c.invalidateAll();
+			}
 		}
-		logger.info("Cleared {} cache(s)", caches.size());
+		logger.info("Cleared {} cache(s)", caches.size() - readonly_caches.size());
 	}
 
 	public void forEach(Consumer<Cache<?, ?>> action) {
 		caches.values().forEach(action);
+	}
+
+	public Map<String, Cache<?, ?>> getAll() {
+		return caches;
 	}
 
 }

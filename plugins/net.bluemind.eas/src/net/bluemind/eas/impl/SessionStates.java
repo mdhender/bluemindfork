@@ -25,17 +25,20 @@ import com.google.common.cache.CacheBuilder;
 import com.netflix.spectator.api.Registry;
 import com.netflix.spectator.api.patterns.PolledMeter;
 
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.eas.backend.SessionPersistentState;
 import net.bluemind.eas.dto.device.DeviceId;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 
 public class SessionStates {
-
 	private static final Cache<DeviceId, SessionPersistentState> states = buildCache();
 
 	private static Cache<DeviceId, SessionPersistentState> buildCache() {
-		Cache<DeviceId, SessionPersistentState> s = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.HOURS)
+		Cache<DeviceId, SessionPersistentState> s = CacheBuilder.newBuilder()
+				.recordStats()
+				.expireAfterAccess(1, TimeUnit.HOURS)
 				.build();
 
 		Registry reg = MetricsRegistry.get();
@@ -43,6 +46,13 @@ public class SessionStates {
 		PolledMeter.using(reg).withId(idf.name("devices")).monitorSize(s.asMap());
 
 		return s;
+	}
+
+	public static class CacheRegistration implements ICacheRegistration {
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.register(SessionStates.class, states);
+		}
 	}
 
 	private SessionStates() {

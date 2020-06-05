@@ -38,7 +38,6 @@ import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 
 public class SubtreeContainer {
-
 	private static final Logger logger = LoggerFactory.getLogger(SubtreeContainer.class);
 
 	public static Subtree mailSubtreeUid(BmContext ctx, String domainUid, MailboxReplicaRootDescriptor mr) {
@@ -61,7 +60,10 @@ public class SubtreeContainer {
 		@Override
 		public void registerCaches(CacheRegistry cr) {
 			cr.register("subtreeContainerMboxes",
-					CacheBuilder.newBuilder().expireAfterWrite(2, TimeUnit.MINUTES).build());
+				CacheBuilder.newBuilder()
+					.recordStats()
+					.expireAfterWrite(2, TimeUnit.MINUTES)
+					.build());
 		}
 	}
 
