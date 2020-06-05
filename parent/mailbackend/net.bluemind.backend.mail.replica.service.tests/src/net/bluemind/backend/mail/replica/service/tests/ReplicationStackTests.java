@@ -482,7 +482,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		IdRange ids = idAllocator.allocateOfflineIds(2);
 		long folderId = ids.globalCounter;
 		MailboxFolder folder = new MailboxFolder();
-		System.err.println("Creating " + folderName);
+		System.err.println("Creating " + folderName + ", child of " + root);
 		folder.name = folderName;
 		folder.parentUid = root.uid; // NOSONAR
 		ItemIdentifier createAck = mboxesApi.createForHierarchy(folderId, folder);
@@ -498,7 +498,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		assertNotNull(createAck);
 		ItemValue<MailboxFolder> subFolderItem = mboxesApi.getCompleteById(createAck.id);
 
-		System.err.println("deepDelete starts...");
+		System.err.println("deepDelete starts for " + folderItem);
 		mboxesApi.deepDelete(folderItem.internalId);
 		System.err.println("deepDelete ends.");
 

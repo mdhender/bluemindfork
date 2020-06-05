@@ -67,6 +67,7 @@ import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.imap.CreateMailboxResult;
 import net.bluemind.imap.Flag;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.IMAPException;
@@ -224,12 +225,17 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		imapContext.withImapClient((sc, fast) -> {
 			logger.info("Deleting {}", fnName);
 			selectInbox(sc, fast);
-			sc.deleteMailbox(fnName);
-			try {
-				return future.get(20, TimeUnit.SECONDS);
-			} catch (InterruptedException | ExecutionException | TimeoutException e) {
-				logger.warn("Failed to delete folder {} {}", fnName, fnToWath);
-				throw new ServerFault(e);
+			CreateMailboxResult delRes = sc.deleteMailbox(fnName);
+			if (delRes.isOk()) {
+				try {
+					return future.get(20, TimeUnit.SECONDS);
+				} catch (Exception e) {
+					logger.warn("Failed to delete folder {} {}", fnName, fnToWath);
+					throw new ServerFault(e);
+				}
+			} else {
+				logger.warn("Delete of {} failed: {}", fnName, delRes.getMessage());
+				return null;
 			}
 		});
 	}
