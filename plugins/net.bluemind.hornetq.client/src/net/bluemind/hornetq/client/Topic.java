@@ -24,9 +24,7 @@ package net.bluemind.hornetq.client;
  */
 public final class Topic {
 
-	private Topic() {
-	}
-
+	public static final String CACHE_FLUSH = "bm.cache.flush";
 	public static final String CONTACT_NOTIFICATIONS = "bm.contact.notifications";
 	public static final String CALENDAR_NOTIFICATIONS = "bm.calendar.notifications";
 	public static final String DIRECTORY_NOTIFICATIONS = "bm.directory.notifications";
