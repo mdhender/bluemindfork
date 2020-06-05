@@ -211,6 +211,9 @@
    <bundle id="net.bluemind.filehosting.filesystem.sqlschema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.filehosting.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.filehosting.ui.closure" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.custom.password.sizestrength" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.custom.password.sizestrength.api" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.custom.password.sizestrength.api.gwt" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.globalsettings.persistence" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.globalsettings.sqlschema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.group.api" version="4.1.0.qualifier"/>
@@ -381,6 +384,7 @@
    <bundle id="net.bluemind.ui.adminconsole.dataprotect" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.ui.adminconsole.directory" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.ui.adminconsole.filehosting.settings" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.ui.adminconsole.password.sizestrength" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.ui.adminconsole.jobs" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.ui.adminconsole.ldap.export" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.ui.adminconsole.ldap.importation" version="4.1.0.qualifier"/>

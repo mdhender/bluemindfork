@@ -53,6 +53,7 @@
 	  <module>bm-plugin-admin-console-ldap-export</module>
 	  <module>bm-plugin-admin-console-ldap-import</module>
 	  <module>bm-plugin-admin-console-filehosting-settings</module>
+	  <module>bm-plugin-admin-console-password-sizestrength</module>
 	  <module>bm-plugin-webserver-filehosting</module>
 	  <module>bm-plugin-webserver-dav</module>
 	  <module>bm-plugin-webserver-cti</module>
