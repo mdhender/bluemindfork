@@ -1,3 +1,2 @@
-web-resources
+web-resources/*/compile
 js.jar
-

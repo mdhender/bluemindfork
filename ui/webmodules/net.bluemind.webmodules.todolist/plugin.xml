@@ -1,78 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension
-         point="net.bluemind.webmodule">
-      <web-module
-            index="index.html"
-            root="/task">
+      <extension point="net.bluemind.webmodule">
+            <web-module index="index.html" root="/task">
+                  <handler class="net.bluemind.webmodules.calendar.handlers.TodolistHandler" path="index.html">
+                  </handler>
+                  <handler class="net.bluemind.webmodules.calendar.handlers.TodolistOfflineHandler" path="index-offline.html">
+                  </handler>
+                  <handler class="net.bluemind.webmodules.calendar.handlers.ImportVTodoHandler" path="import-vtodo">
+                  </handler>
+                  <handler class="net.bluemind.webmodules.calendar.handlers.ExportVTodoHandler" path="export-vtodo">
+                  </handler>
+                  <handler class="net.bluemind.webmodule.server.handlers.LogHandler" path="log">
+                  </handler>
+                  <web-resource bundle="net.bluemind.task.application.closure">
+                  </web-resource>
+            </web-module>
+      </extension>
 
-		<handler class="net.bluemind.webmodules.calendar.handlers.TodolistAppCacheHandler"
-			path="task.appcache">
-			</handler>
-         <handler
-               class="net.bluemind.webmodules.calendar.handlers.TodolistHandler"
-               path="index.html">
-         </handler>
-         
-         <handler
-               class="net.bluemind.webmodules.calendar.handlers.TodolistOfflineHandler"
-               path="index-offline.html">
-         </handler>
-
-
-         <handler
-               class="net.bluemind.webmodules.calendar.handlers.ImportVTodoHandler"
-               path="import-vtodo">
-         </handler>
-         <handler
-               class="net.bluemind.webmodules.calendar.handlers.ExportVTodoHandler"
-               path="export-vtodo">
-         </handler>
-         <handler
-               class="net.bluemind.webmodule.server.handlers.LogHandler"
-               path="log">
-         </handler>
-
-         <web-resource
-               bundle="net.bluemind.task.application.closure">
-         </web-resource>
-         
-      </web-module>
-   </extension>
-
-   <extension
-         point="net.bluemind.ui.commons.banner">
-      <banner-entry
-            cssIcon="fa fa-lg fa-calendar-check-o"
-            description="%banner-entry.description"
-            name="%banner-entry.name"
-            offline="true"
-            priority="97"
-            role="hasCalendar"
-            root="/task/">
-      </banner-entry>
-   </extension>
-   <extension
-         point="net.bluemind.banner">
-      <application
-            description="%banner-entry.description"
-            href="/task/"
-            name="%banner-entry.name"
-            order="97"
-            role="hasCalendar">
-         <icon-svg>
-            <![CDATA[
+      <extension point="net.bluemind.ui.commons.banner">
+            <banner-entry cssIcon="fa fa-lg fa-calendar-check-o" description="%banner-entry.description" name="%banner-entry.name" offline="true" priority="97" role="hasCalendar" root="/task/">
+            </banner-entry>
+      </extension>
+      <extension point="net.bluemind.banner">
+            <application description="%banner-entry.description" href="/task/" name="%banner-entry.name" order="97" role="hasCalendar">
+                  <icon-svg>
+                        <![CDATA[
             <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M17 20H8L17 4C17.5 4 18 4.5 18 5V19C18 19.5 17.5 20 17 20Z" fill="#1793DD" />
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M7 4H5C4.44772 4 4 4.44772 4 5V19C4 19.5523 4.44772 20 5 20H17C17.5523 20 18 19.5523 18 19V5C18 4.44772 17.5523 4 17 4H15V6H7V4Z" fill="#00AAEB" />
-                <rect x="8" y="3" width="6" height="2" fill="#00CBFF" />
-                <circle cx="11" cy="3" r="1" fill="#00CBFF" />
-                <path d="M7.5 12.5L10.97 15.35L14.5 9.5" stroke="#0A2A86" stroke-miterlimit="10" stroke-linecap="round" />
-            </svg>
+<path d="M17 20H8L17 4C17.5 4 18 4.5 18 5V19C18 19.5 17.5 20 17 20Z" fill="#1793DD" />
+<path fill-rule="evenodd" clip-rule="evenodd" d="M7 4H5C4.44772 4 4 4.44772 4 5V19C4 19.5523 4.44772 20 5 20H17C17.5523 20 18 19.5523 18 19V5C18 4.44772 17.5523 4 17 4H15V6H7V4Z" fill="#00AAEB" />
+<rect x="8" y="3" width="6" height="2" fill="#00CBFF" />
+<circle cx="11" cy="3" r="1" fill="#00CBFF" />
+<path d="M7.5 12.5L10.97 15.35L14.5 9.5" stroke="#0A2A86" stroke-miterlimit="10" stroke-linecap="round" />
+</svg>
             ]]>
-         </icon-svg>
-      </application>
-   </extension>
+                  </icon-svg>
+            </application>
+      </extension>
 
 </plugin>

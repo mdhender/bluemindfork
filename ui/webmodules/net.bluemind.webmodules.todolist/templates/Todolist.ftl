@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html manifest="task.appcache">
+<html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8"><!-- needed --></meta>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"><!-- needed --></meta>

@@ -1,24 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension-point id="net.bluemind.webmodule.server" name="webModuleServerExtensionPoint" schema="schema/net.bluemind.webmodule.server.exsd"/>
-   <extension
-         point="net.bluemind.webmodule.server">
-      <web-filter
-            class="net.bluemind.webmodule.server.filters.WebModuleResourcesFilter">
-      </web-filter>
-      <web-filter
-            class="net.bluemind.webmodule.server.filters.WebModuleSessionInfosFilter">
-      </web-filter>
-   </extension>
-   <extension
-         point="net.bluemind.webmodule">
-      <web-module-provider
-            module="*">
-         <web-resource
-               bundle="net.bluemind.webmodule.server">
-         </web-resource>
-      </web-module-provider>
-   </extension>
+      <extension-point id="net.bluemind.webmodule.server" name="webModuleServerExtensionPoint" schema="schema/net.bluemind.webmodule.server.exsd"/>
+      <extension point="net.bluemind.webmodule.server">
+            <web-filter class="net.bluemind.webmodule.server.filters.WebModuleResourcesFilter">
+            </web-filter>
+            <web-filter class="net.bluemind.webmodule.server.filters.WebModuleSessionInfosFilter">
+            </web-filter>
+      </extension>
+      <extension point="net.bluemind.webmodule">
+            <web-module-provider module="*">
+                  <handler class="net.bluemind.webmodule.server.handlers.ServiceWorkerHandler" path="sw.js">
+                  </handler>
+                  <web-resource bundle="net.bluemind.webmodule.server">
+                  </web-resource>
+                  <js async-loading="false" path="sw-register.js" translation="false">
+                  </js>
+            </web-module-provider>
+      </extension>
 
 </plugin>
