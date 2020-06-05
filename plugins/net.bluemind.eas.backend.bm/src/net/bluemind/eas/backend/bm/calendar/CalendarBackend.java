@@ -552,7 +552,7 @@ public class CalendarBackend extends CoreConnect {
 
 				resp.status = Status.Success;
 				resp.srcMsgId = item.toString();
-				resp.dstMsgId = dstFolder.collectionId + ":" + uid;
+				resp.dstMsgId = dstFolder.collectionId.getValue() + ":" + uid;
 				ret.add(resp);
 
 			} catch (ServerFault sf) {

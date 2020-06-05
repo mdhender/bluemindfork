@@ -70,7 +70,7 @@ async function doTheSearch({ commit, dispatch }, { pattern, filter, folderUid, m
         const searchResults = await searchItems(mailboxUid, searchPayload);
         const itemKeys = toItemKeys(searchResults, folderUid);
         commit("mail-webapp/messages/setItemKeys", itemKeys, { root: true });
-        const result = await dispatch("mail-webapp/messages/multipleByKey", itemKeys.slice(0, 200), { root: true });
+        const result = await dispatch("mail-webapp/messages/multipleByKey", itemKeys.slice(0, 40), { root: true });
         commit("setStatus", STATUS.RESOLVED);
         return result;
     } catch (err) {

@@ -20,7 +20,7 @@ package net.bluemind.lmtp.testhelper.model;
 public class FakeMailbox {
 
 	public static enum State {
-		Ok, OverQuota, OverQuotaOnNextMail, Fucked, AfterDataError;
+		Ok, OverQuota, OverQuotaOnNextMail, Fucked, AfterDataError, NewLineDataResponse, TooShortDataResponse;
 	}
 
 	public final String email;

@@ -15,7 +15,6 @@
 	  <module>bm-eas</module>
 	  <module>bm-hps</module>
 	  <module>bm-lmtpd</module>
-	  <module>bm-locator</module>
 	  <module>bm-milter</module>
 	  <module>bm-node</module>
 	  <module>bm-pimp</module>
@@ -54,7 +53,6 @@
 	  <module>bm-plugin-admin-console-ldap-export</module>
 	  <module>bm-plugin-admin-console-ldap-import</module>
 	  <module>bm-plugin-admin-console-filehosting-settings</module>
-	  <module>bm-plugin-admin-console-monitoring</module>
 	  <module>bm-plugin-webserver-filehosting</module>
 	  <module>bm-plugin-webserver-dav</module>
 	  <module>bm-plugin-webserver-cti</module>
@@ -63,8 +61,6 @@
       <module>bm-plugin-core-filehosting-filesystem</module>
       <module>bm-plugin-core-forest</module>
       <module>bm-plugin-core-mailapp</module>
-      <module>bm-plugin-core-monitoring</module>
-      <module>bm-plugin-node-monitoring</module>
       <module>bm-plugin-hps-kerberos</module>
       <module>bm-plugin-hps-cas</module>
       <module>python-bm-client</module>

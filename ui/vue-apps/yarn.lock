@@ -711,9 +711,9 @@
   integrity sha512-kqnH6Dkk+c4utfZZREIh2vRO3XrdkDExIeLH0KzCB8RpHz5fD9+1FmQrmlbjiAVIldYmhgxtRhoN3Usz9HOVoQ==
 
 "@bluemind/styleguide@^0.1.0":
-  version "0.1.1151"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.1151.tgz#4e1697132902553fc384fff529078386d994a4ed"
-  integrity sha512-6eveA/+mXCN5koD0KGxpkqkukIWOzbJ2m5FRac0uzb7JsIsFQIn+fIKVcJP2Rs/VuOEnAa8iqrAOvThvLkfcRA==
+  version "0.1.1159"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.1159.tgz#0037379ff4a4e240cb06abac383b201dd513d3ba"
+  integrity sha512-7Vs0eYiQ3iI8uJTSoAubrTVryjkQ2V/jY7LTBkeEM3BrFbn+5mvtSbohguJD0iGINFPuubSki3pwfdrTE/S1Tg==
   dependencies:
     "@fortawesome/fontawesome-svg-core" "^1.2.12"
     "@fortawesome/vue-fontawesome" "^0.1.4"

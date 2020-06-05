@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.dav.server.proto.delete.DeleteProtocol;
 import net.bluemind.dav.server.proto.get.GetIcsProtocol;
@@ -57,7 +58,7 @@ public final class DavRouter implements Handler<HttpServerRequest> {
 
 	private static Pattern preV35Url = Pattern.compile(Proxy.path + "/principals/__uids__/([0-9]+)/");
 
-	public DavRouter() {
+	public DavRouter(Vertx vertx) {
 		MethodRouter mr = new MethodRouter();
 		ResType[] types = ResType.values();
 		for (ResType rt : types) {
@@ -99,7 +100,7 @@ public final class DavRouter implements Handler<HttpServerRequest> {
 
 		mr.moveHandler(ResType.VSTUFF, new MoveProtocol());
 
-		this.auth = new BasicAuthHandler("dav", mr);
+		this.auth = new BasicAuthHandler(vertx, "dav", mr);
 	}
 
 	@Override

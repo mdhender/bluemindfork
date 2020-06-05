@@ -67,6 +67,7 @@ import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.imap.CreateMailboxResult;
 import net.bluemind.imap.Flag;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.IMAPException;
@@ -224,12 +225,17 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		imapContext.withImapClient((sc, fast) -> {
 			logger.info("Deleting {}", fnName);
 			selectInbox(sc, fast);
-			sc.deleteMailbox(fnName);
-			try {
-				return future.get(10, TimeUnit.SECONDS);
-			} catch (InterruptedException | ExecutionException | TimeoutException e) {
-				logger.warn("Failed to delete folder {} {}", fnName, fnToWath);
-				throw new ServerFault(e);
+			CreateMailboxResult delRes = sc.deleteMailbox(fnName);
+			if (delRes.isOk()) {
+				try {
+					return future.get(20, TimeUnit.SECONDS);
+				} catch (Exception e) {
+					logger.warn("Failed to delete folder {} {}", fnName, fnToWath);
+					throw new ServerFault(e);
+				}
+			} else {
+				logger.warn("Delete of {} failed: {}", fnName, delRes.getMessage());
+				return null;
 			}
 		});
 	}
@@ -246,24 +252,21 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 
 		ItemValue<MailboxFolder> toDelete = getCompleteById(id);
 		logger.info("Start deepDelete of {}...", toDelete);
-		imapContext.withImapClient((sc, fast) -> {
+		CompletableFuture<?> rootPromise = imapContext.withImapClient((sc, fast) -> {
 			selectInbox(sc, fast);
-			CompletableFuture<?> rootPromise = deleteChildFolders(toDelete, sc);
-
-			rootPromise = rootPromise.thenCompose(v -> {
-				logger.info("On deletion of '{}'", toDelete.value.fullName);
-				CompletableFuture<ItemIdentifier> future = ReplicationEvents.onSubtreeUpdate(container.uid);
-				try {
-					sc.deleteMailbox(toDelete.value.fullName);
-				} catch (IMAPException e) {
-					future.completeExceptionally(e);
-				}
-				return future;
-			});
-			return rootPromise.get(15, TimeUnit.SECONDS);
+			return deleteChildFolders(toDelete, sc);
+		}).thenApply(v -> {
+			deleteById(id);
+			return null;
 		});
+		try {
+			rootPromise.get(15, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			logger.warn("Failed to deep delete folder {} of container {}", id, container);
+			throw new ServerFault(e);
+		}
 	}
-	
+
 	public void emptyFolder(long id) {
 		ItemValue<MailboxFolder> folder = getCompleteById(id);
 		logger.info("Start emptying {}...", folder);
@@ -326,14 +329,19 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		String childPrefix = toClean.value.fullName + "/";
 		ListResult allFolders = sc.listAll();
 		List<String> toRemove = allFolders.stream()//
-				.filter(li -> li.isSelectable() && li.getName().startsWith(childPrefix)).map(li -> li.getName())
-				.sorted(Comparator.reverseOrder())//
+				.filter(li -> {
+					String check = li.getName();
+					if (root.ns == Namespace.shared) {
+						check = check.replace("Dossiers partagés/" + imapRoot() + "/", "");
+					}
+					return li.isSelectable() && check.startsWith(childPrefix);
+				}).map(li -> li.getName()).sorted(Comparator.reverseOrder())//
 				.collect(Collectors.toList());
 
 		CompletableFuture<?> rootPromise = CompletableFuture.completedFuture(null);
 		for (String childFolder : toRemove) {
 			rootPromise = rootPromise.thenCompose(v -> {
-				logger.info("On deletion of '{}'", childFolder);
+				logger.info("On deletion of child folder '{}'", childFolder);
 				CompletableFuture<ItemIdentifier> future = ReplicationEvents.onSubtreeUpdate(container.uid);
 				try {
 					sc.deleteMailbox(childFolder);
@@ -342,7 +350,6 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 				}
 				return future;
 			});
-
 		}
 		return rootPromise;
 	}
@@ -496,7 +503,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		if (ns == Namespace.users) {
 			return folder.fullName;
 		} else {
-			String root = container.name.substring(7);
+			String root = imapRoot();
 			if (root.equals(folder.fullName)) {
 				// root
 				return "Dossiers partagés/" + root;
@@ -504,6 +511,10 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 				return "Dossiers partagés/" + root + "/" + folder.fullName;
 			}
 		}
+	}
+
+	private String imapRoot() {
+		return container.name.substring(7);
 	}
 
 }

@@ -72,7 +72,7 @@ import net.bluemind.vertx.testhelper.Deploy;
 
 public abstract class AbstractRollingReplicationTests {
 
-	private String cyrusIp;
+	protected String cyrusIp;
 	protected String domainUid;
 
 	/**

@@ -9,7 +9,6 @@ export function bootstrap({ dispatch, state, getters, commit }, login) {
                 return dispatch("loadMessageList", { folder: getters.my.INBOX.key, filter: state.messageFilter });
             }
         })
-        .then(() => getters.my.folders.forEach(folder => dispatch("loadUnreadCount", folder.uid)))
         .then(() => dispatch("mailboxes/all", { verb: [Verb.Read, Verb.Write, Verb.All], type: "mailboxacl" }))
         .then(() => Promise.all(getters.mailshares.map(mailshare => dispatch("folders/all", mailshare.mailboxUid))))
         .then(() => dispatch("loadUserSettings"))

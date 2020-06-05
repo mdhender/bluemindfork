@@ -75,7 +75,8 @@ public class FlatHierarchyRepair implements IDirEntryRepairSupport {
 
 		@Override
 		public void check(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
-			if (entry.system) {
+			if (entry.kind != Kind.DOMAIN && entry.system) {
+				logger.info("SKIP Checking flat hier for {} as {}", entry, context);
 				return;
 			}
 			logger.info("Checking flat hier for {} as {}", entry, context);
@@ -89,7 +90,8 @@ public class FlatHierarchyRepair implements IDirEntryRepairSupport {
 
 		@Override
 		public void repair(String domainUid, DirEntry entry, DiagnosticReport report, IServerTaskMonitor monitor) {
-			if (entry.system) {
+			if (entry.kind != Kind.DOMAIN && entry.system) {
+				logger.info("SKIP Repairing flat hier for {} as {}", entry, context);
 				return;
 			}
 			logger.info("Repairing flat hier for {} as {}", entry, context);
@@ -153,7 +155,8 @@ public class FlatHierarchyRepair implements IDirEntryRepairSupport {
 
 	@Override
 	public Set<MaintenanceOperation> availableOperations(Kind kind) {
-		if (kind == Kind.USER || kind == Kind.RESOURCE || kind == Kind.MAILSHARE || kind == Kind.GROUP) {
+		if (kind == Kind.USER || kind == Kind.RESOURCE || kind == Kind.MAILSHARE || kind == Kind.GROUP
+				|| kind == Kind.DOMAIN) {
 			return ImmutableSet.of(flatHierOp);
 		} else {
 			return Collections.emptySet();
@@ -162,7 +165,8 @@ public class FlatHierarchyRepair implements IDirEntryRepairSupport {
 
 	@Override
 	public Set<InternalMaintenanceOperation> ops(Kind kind) {
-		if (kind == Kind.USER || kind == Kind.RESOURCE || kind == Kind.MAILSHARE || kind == Kind.GROUP) {
+		if (kind == Kind.USER || kind == Kind.RESOURCE || kind == Kind.MAILSHARE || kind == Kind.GROUP
+				|| kind == Kind.DOMAIN) {
 			return ImmutableSet.of(new FlagHierMaintenance(context));
 		} else {
 			return Collections.emptySet();

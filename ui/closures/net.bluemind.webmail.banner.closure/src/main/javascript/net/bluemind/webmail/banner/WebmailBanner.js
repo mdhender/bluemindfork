@@ -78,6 +78,3 @@ goog.global['webmailPendingActions'] = function(reciever) {
     obs.observerContainers('mailbox', [goog.global['bmcSessionInfos']['userId'] ]);
   }
 }
-
-goog.global['bundleResolve']('net.bluemind.restlclient.closure',function() {
-});

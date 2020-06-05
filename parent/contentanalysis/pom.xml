@@ -11,6 +11,8 @@
 	<modules>
 		<module>net.bluemind.content.analysis</module>
 		<module>net.bluemind.tika.client</module>
+		<module>net.bluemind.linkify</module>
+		<module>net.bluemind.linkify.tests</module>
 	</modules>
 
 </project>

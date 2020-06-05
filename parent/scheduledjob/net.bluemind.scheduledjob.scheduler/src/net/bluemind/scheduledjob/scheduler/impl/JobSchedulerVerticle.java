@@ -62,7 +62,7 @@ public class JobSchedulerVerticle extends AbstractVerticle {
 	}
 
 	protected boolean isDisabled() {
-		return !(new File(System.getProperty("user.home") + "/no.core.jobs").exists() || versionMismatch());
+		return new File(System.getProperty("user.home") + "/no.core.jobs").exists() || versionMismatch();
 	}
 
 	private boolean versionMismatch() {

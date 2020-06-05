@@ -133,7 +133,7 @@ public class MoveItemsProtocol implements IEasProtocol<MoveItemsRequest, MoveIte
 				logger.error(e.getMessage(), e);
 				for (CollectionItem ci : items) {
 					MoveItemsResponse.Response r = new MoveItemsResponse.Response();
-					r.srcMsgId = folders.getSource().collectionId + ":" + ci.itemId;
+					r.srcMsgId = folders.getSource().collectionId.getValue() + ":" + ci.itemId;
 					r.dstMsgId = r.srcMsgId;
 					r.status = Status.SourceOrDestinationLocked;
 					res.add(r);

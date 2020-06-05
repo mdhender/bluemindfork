@@ -77,7 +77,6 @@ public class SdsObjectStoreHandlerVerticle extends AbstractVerticle {
 	public SdsObjectStoreHandlerVerticle() {
 		this.factories = loadStoreFactories();
 		this.storeConfig = loadConfig();
-		sdsStore.set(loadStore());
 	}
 
 	private JsonObject loadConfig() {
@@ -116,20 +115,25 @@ public class SdsObjectStoreHandlerVerticle extends AbstractVerticle {
 
 	@Override
 	public void start() {
+		startBackingStore();
+	}
 
-		registerForJsonSdsRequest(SdsAddresses.EXIST, ExistRequest.class, r -> sdsStore.get().exists(r));
-
-		registerForJsonSdsRequest(SdsAddresses.DELETE, DeleteRequest.class, r -> sdsStore.get().delete(r));
-
-		registerForJsonSdsRequest(SdsAddresses.PUT, PutRequest.class, r -> sdsStore.get().upload(r));
-
-		registerForJsonSdsRequest(SdsAddresses.CONFIG, this::reConfigure);
-
-		registerForJsonSdsRequest(SdsAddresses.GET, GetRequest.class, get -> {
-			return sdsStore.get().download(get);
-		});
-		registerForJsonSdsRequest(SdsAddresses.MGET, MgetRequest.class, mget -> sdsStore.get().downloads(mget));
-
+	private void startBackingStore() {
+		try {
+			ISdsBackingStore store = loadStore();
+			sdsStore.set(store);
+			registerForJsonSdsRequest(SdsAddresses.EXIST, ExistRequest.class, r -> sdsStore.get().exists(r));
+			registerForJsonSdsRequest(SdsAddresses.DELETE, DeleteRequest.class, r -> sdsStore.get().delete(r));
+			registerForJsonSdsRequest(SdsAddresses.PUT, PutRequest.class, r -> sdsStore.get().upload(r));
+			registerForJsonSdsRequest(SdsAddresses.CONFIG, this::reConfigure);
+			registerForJsonSdsRequest(SdsAddresses.GET, GetRequest.class, get -> {
+				return sdsStore.get().download(get);
+			});
+			registerForJsonSdsRequest(SdsAddresses.MGET, MgetRequest.class, mget -> sdsStore.get().downloads(mget));
+		} catch (Exception e) {
+			logger.warn("error loading sds backing store: {}", e.getMessage(), e);
+			vertx.setTimer(1000, tid -> startBackingStore());
+		}
 	}
 
 	private CompletableFuture<ConfigureResponse> reConfigure(JsonObject req) {

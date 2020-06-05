@@ -31,6 +31,7 @@ import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.eas.http.EasUrls;
 import net.bluemind.eas.http.query.EASQueryBuilder;
 import net.bluemind.eas.testhelper.mock.RequestObject.HttpMethod;
+import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.vertx.common.http.BasicAuthHandler.AuthenticatedRequest;
 
 public class RequestsFactory {
@@ -71,8 +72,7 @@ public class RequestsFactory {
 
 		HttpServerRequest req = new RequestObject(HttpMethod.POST, mutableHeaders, baseUrl, EasUrls.ROOT,
 				mutableParams);
-		AuthenticatedRequest ar = new AuthenticatedRequest(req, latd, pass);
-		return ar;
+		return new AuthenticatedRequest(req, latd, pass, Routing.internal);
 	}
 
 	private String b64(byte[] bytes) {
@@ -91,7 +91,6 @@ public class RequestsFactory {
 		mutableHeaders.put("Authorization", "Basic " + b64((latd + ":" + pass).getBytes()));
 
 		HttpServerRequest req = new RequestObject(HttpMethod.POST, mutableHeaders, baseUrl, EasUrls.ROOT, query);
-		AuthenticatedRequest ar = new AuthenticatedRequest(req, latd, pass);
-		return ar;
+		return new AuthenticatedRequest(req, latd, pass, Routing.internal);
 	}
 }

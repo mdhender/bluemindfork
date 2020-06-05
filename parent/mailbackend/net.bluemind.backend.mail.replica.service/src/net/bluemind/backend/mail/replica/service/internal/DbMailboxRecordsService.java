@@ -41,6 +41,7 @@ import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.MessageBody.RecipientKind;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
+import net.bluemind.backend.mail.api.flags.WellKnownFlags;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
@@ -279,8 +280,23 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 		}
 	}
 
+	private List<MailboxRecord> fixFlags(List<MailboxRecord> toFix) {
+		int len = toFix.size();
+		ArrayList<MailboxRecord> ret = new ArrayList<>(len);
+		for (MailboxRecord mr : toFix) {
+			ArrayList<MailboxItemFlag> mif = new ArrayList<>(mr.flags.size());
+			for (MailboxItemFlag f : mr.flags) {
+				mif.add(f.value == 0 ? WellKnownFlags.resolve(f.toString()) : f);
+			}
+			mr.flags = mif;
+			ret.add(mr);
+		}
+		return ret;
+	}
+
 	@Override
-	public void updates(List<MailboxRecord> records) {
+	public void updates(List<MailboxRecord> recs) {
+		List<MailboxRecord> records = fixFlags(recs);
 		logger.info("[{}] Update with {} record(s)", mailboxUniqueId, records.size());
 		long time = System.currentTimeMillis();
 		List<CreateNotif> crNotifs = new LinkedList<>();

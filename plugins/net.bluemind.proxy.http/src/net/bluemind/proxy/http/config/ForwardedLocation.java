@@ -20,16 +20,26 @@ package net.bluemind.proxy.http.config;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import net.bluemind.network.topology.Topology;
+
 public final class ForwardedLocation {
 
 	private final String pathPrefix;
 	private String targetUrl;
 	private String requiredAuthKind;
 	private final ConcurrentHashMap<String, String> whitelist;
-	private int port;
-	private String host;
 	private final String role;
 	private final boolean authenticator;
+
+	public static class ResolvedLoc {
+		public ResolvedLoc(String host, int port) {
+			this.host = host;
+			this.port = port;
+		}
+
+		public String host;
+		public int port;
+	}
 
 	public ForwardedLocation(String pathPrefix, String targetUrl, String role, String authenticator) {
 		if (pathPrefix == null || targetUrl == null) {
@@ -43,8 +53,24 @@ public final class ForwardedLocation {
 		this.pathPrefix = pathPrefix;
 		this.targetUrl = targetUrl;
 		this.requiredAuthKind = AuthKind.NONE.name();
-		this.whitelist = new ConcurrentHashMap<String, String>();
+		this.whitelist = new ConcurrentHashMap<>();
 		this.authenticator = Boolean.valueOf(authenticator);
+	}
+
+	public ResolvedLoc resolve() {
+		String tgtUrl = getTargetUrl();
+		if (tgtUrl.startsWith("locator://")) {
+			int portIndex = tgtUrl.lastIndexOf(':');
+			String tag = tgtUrl.substring("locator://".length(), portIndex);
+			String host = Topology.get().anyIfPresent(tag).map(s -> s.value.address()).orElse("127.0.0.1");
+			int port = Integer.parseInt(tgtUrl.substring(portIndex + 1, tgtUrl.indexOf('/', portIndex)));
+			return new ResolvedLoc(host, port);
+		} else {
+			int portIndex = tgtUrl.lastIndexOf(':');
+			String host = tgtUrl.substring("http://".length(), portIndex);
+			int port = Integer.parseInt(tgtUrl.substring(portIndex + 1, tgtUrl.indexOf('/', portIndex)));
+			return new ResolvedLoc(host, port);
+		}
 	}
 
 	public String getPathPrefix() {
@@ -78,22 +104,6 @@ public final class ForwardedLocation {
 			}
 		}
 		return false;
-	}
-
-	public int getPort() {
-		return port;
-	}
-
-	public void setPort(int port) {
-		this.port = port;
-	}
-
-	public String getHost() {
-		return host;
-	}
-
-	public void setHost(String host) {
-		this.host = host;
 	}
 
 	public String getRole() {

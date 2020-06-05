@@ -27,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -43,6 +44,7 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.join.query.JoinQueryBuilders;
+import org.elasticsearch.search.SearchHit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -379,6 +381,10 @@ public class ReplicationIndexingTests extends AbstractRollingReplicationTests {
 		} while (found.getHits().getTotalHits() == 0 && ++attempt < 200);
 		assertTrue("We tried " + attempt + " times & didn't find the doc with uid " + addedUid,
 				found.getHits().getTotalHits() > 0);
+
+		SearchHit hit = found.getHits().getAt(0);
+		List<String> isValue = (List<String>) hit.getSourceAsMap().get("is");
+		assertTrue(new HashSet<>(isValue).contains("seen"));
 
 		JsonObject source = new JsonObject(found.getHits().getAt(0).getSourceAsString());
 		String parentId = source.getString("parentId");

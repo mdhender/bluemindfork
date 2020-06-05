@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<site>
-   <bundle id="net.bluemind.monitoring.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.monitoring.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.monitoring.handler.services" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.monitoring.handler.system" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.metrics.core" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.metrics.alerts.api" version="4.1.0.qualifier"/>
-</site>

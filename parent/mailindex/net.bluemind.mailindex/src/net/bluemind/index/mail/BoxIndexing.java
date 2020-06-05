@@ -178,7 +178,7 @@ public class BoxIndexing {
 				handledDbEntries.add((int) imapUid);
 			}
 			logger.info("Folder {}:{}, resyncing from {} to {}", f.uid, f.value.name, lowestUid, highestUid);
-			handledEsEntries = resyncUidRange(mailbox, f, (int) lowestUid, (int) highestUid, flagMapping);
+			handledEsEntries.addAll(resyncUidRange(mailbox, f, (int) lowestUid, (int) highestUid, flagMapping));
 			monitor.progress(partialList.size(), null);
 		}
 
@@ -234,6 +234,7 @@ public class BoxIndexing {
 				ItemValue<MailboxRecord> mail = service.getComplete(r.uid);
 				MailIndexActivator.getService().storeMessage(f.uid, mail, mailbox.uid, bulkOp);
 			}
+
 			bulkOp.ifPresent(bul -> bul.commit(false));
 
 			// update flags

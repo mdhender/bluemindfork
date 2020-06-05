@@ -84,6 +84,7 @@
       <plugin id="net.bluemind.lib.jutf7"/>
       <plugin id="net.bluemind.lib.ristretto"/>
       <plugin id="net.bluemind.lib.vertx"/>
+      <plugin id="net.bluemind.linkify"/>
       <plugin id="net.bluemind.lmtp"/>
       <plugin id="net.bluemind.lmtp.filter.imip"/>
       <plugin id="net.bluemind.mailbox.api"/>

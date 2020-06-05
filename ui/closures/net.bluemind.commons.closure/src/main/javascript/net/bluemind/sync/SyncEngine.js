@@ -197,7 +197,6 @@ net.bluemind.sync.SyncEngine.prototype.doSync_ = function(services) {
 
     this.notifyStart_();
     try {
-      goog.log.info(this.logger, '[Global] : start synchronization');
       var list = [];
       for (var i = 0; i < services.length; i++) {
         var service = services[i];
@@ -259,19 +258,16 @@ net.bluemind.sync.SyncEngine.prototype.complete_ = function(result) {
       }
     }
     ;
-    goog.log.info(this.logger, '[Global] : end of synchronization process');
     if (success) {
       this.attempt_ = 1;
     }
   } finally {
     this.syncing = false;
     if (this.needSync) {
-      goog.log.info(this.logger, '[Global] : next synchronization now !');
       this.sync_();
     } else {
       var delay = net.bluemind.sync.SyncEngine.INTERVAL;
       this.delay_.start(delay);
-      goog.log.info(this.logger, '[Global] : next synchronization scheduled in ' + (delay / 1000) + 's');
     }
   }
 };

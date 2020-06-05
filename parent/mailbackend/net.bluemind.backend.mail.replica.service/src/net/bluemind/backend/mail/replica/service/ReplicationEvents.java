@@ -32,6 +32,7 @@ import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
 import net.bluemind.core.container.model.ItemIdentifier;
+import net.bluemind.core.utils.ThreadContextHelper;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 @VisibleForTesting
@@ -74,7 +75,7 @@ public class ReplicationEvents {
 			}
 		};
 		cons.handler(handler);
-		return done;
+		return ThreadContextHelper.inWorkerThread(done);
 	}
 
 	public static CompletableFuture<ItemChange> onRecordCreate(String mboxUniqueId, long expectedId) {
@@ -100,7 +101,7 @@ public class ReplicationEvents {
 			}
 		};
 		cons.handler(handler);
-		return done;
+		return ThreadContextHelper.inWorkerThread(done);
 	}
 
 	public static CompletableFuture<ItemIdentifier> onSubtreeUpdate(String subtreeContainerUid) {
@@ -118,7 +119,7 @@ public class ReplicationEvents {
 			}
 		};
 		eb.consumer(addr, handler);
-		return ret;
+		return ThreadContextHelper.inWorkerThread(ret);
 	}
 
 	public static CompletableFuture<Long> onMailboxChanged(String mboxUniqueId) {
@@ -133,7 +134,7 @@ public class ReplicationEvents {
 			}
 		};
 		cons.handler(handler);
-		return ret;
+		return ThreadContextHelper.inWorkerThread(ret);
 	}
 
 	public static CompletableFuture<Void> onRecordDeleted(String mailboxUniqueId) {
@@ -148,7 +149,7 @@ public class ReplicationEvents {
 			}
 		};
 		cons.handler(handler);
-		return ret;
+		return ThreadContextHelper.inWorkerThread(ret);
 	}
 
 	public static CompletableFuture<MailboxReplicaRootDescriptor> onMailboxRootCreated() {
@@ -166,7 +167,7 @@ public class ReplicationEvents {
 			}
 		};
 		cons.handler(handler);
-		return ret;
+		return ThreadContextHelper.inWorkerThread(ret);
 	}
 
 }

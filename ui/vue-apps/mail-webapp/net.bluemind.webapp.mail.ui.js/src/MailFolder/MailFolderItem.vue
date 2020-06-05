@@ -5,7 +5,6 @@
         :accept="['message']"
         :value="folder"
         class="mail-folder-item w-100 d-flex align-items-center"
-        @dragenter="folder.expanded || expandFolder(folder.key)"
     >
         <mail-folder-icon
             :shared="shared"

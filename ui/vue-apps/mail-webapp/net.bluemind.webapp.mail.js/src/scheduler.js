@@ -42,9 +42,10 @@ function fetchPerUserUnread(folder) {
 
 function getFlatFolders() {
     return store.getters["mail-webapp/my"].folders
+        .filter(folder => folder.value.parentUid === null)
         .map(addOptions({ priority: 4 }))
         .concat(
-            store.getters["mail-webapp/mailshares"].flatMap(mailbox => mailbox.folders.map(addOptions({ priority: 5 })))
+            store.getters["mail-webapp/mailshares"].map(mailbox => addOptions({ priority: 5 })(mailbox.folders[0]))
         );
 }
 

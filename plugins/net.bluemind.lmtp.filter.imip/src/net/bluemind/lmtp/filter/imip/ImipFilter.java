@@ -88,14 +88,14 @@ public class ImipFilter extends AbstractLmtpHandler implements IMessageFilter {
 			// see #3766, clever mail system override lmtp mail from with a
 			// custom bounce address. So we prioritize From: and Sender: over
 			// lmtp sender
-			if (fromHeader != null && fromHeader.size() > 0) {
+			if (fromHeader != null && !fromHeader.isEmpty()) {
 				String fromMail = fromHeader.iterator().next().getAddress();
 				sender = new LmtpAddress("<" + fromMail.toLowerCase() + ">", null, null);
 			} else if (senderHeader != null) {
 				sender = new LmtpAddress("<" + senderHeader.getAddress().toLowerCase() + ">", null, null);
 			} else if (env.hasSender()) {
 				sender = env.getSender();
-				logger.info("sender is: " + sender);
+				logger.info("sender is: {}", sender);
 			} else if (infos.organizerEmail != null) {
 				String em = "<" + infos.organizerEmail.toLowerCase() + ">";
 				logger.warn("Missing sender in envelope, using organizer email");

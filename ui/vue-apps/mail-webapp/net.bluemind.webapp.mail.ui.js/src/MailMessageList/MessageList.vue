@@ -68,7 +68,7 @@ export default {
     data() {
         return {
             PAGE,
-            length: 25,
+            length: 20,
             lastFocusedMessage: null,
             anchoredMessageForShift: null,
             draggedMessage: null
@@ -122,7 +122,7 @@ export default {
         ...mapMutations("mail-webapp/currentMessage", { clearCurrentMessage: "clear" }),
         async loadMore() {
             if (this.hasMore) {
-                const end = Math.min(this.length + 25, this.count);
+                const end = Math.min(this.length + 20, this.count);
                 await this.loadRange({ start: this.length, end });
                 this.length = end;
             }

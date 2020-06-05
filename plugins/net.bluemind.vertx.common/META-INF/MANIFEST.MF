@@ -14,12 +14,14 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.authentication.api;bundle-version="1.0.0",
  net.bluemind.core.rest,
  net.bluemind.metrics.registry,
- net.bluemind.network.topology
+ net.bluemind.network.topology,
+ net.bluemind.config,
+ net.bluemind.mailbox.api;visibility:=reexport,
+ net.bluemind.user.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx
 Export-Package: net.bluemind.vertx.common,
- net.bluemind.vertx.common.bus,
  net.bluemind.vertx.common.http,
  net.bluemind.vertx.common.request
 Automatic-Module-Name: net.bluemind.vertx.common

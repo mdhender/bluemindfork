@@ -51,6 +51,7 @@ import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.CUType;
 import net.bluemind.icalendar.api.ICalendarElement.Classification;
 import net.bluemind.lib.ical4j.util.IcalConverter;
+import net.bluemind.linkify.Linkify;
 import net.bluemind.neko.common.NekoHelper;
 import net.bluemind.tag.api.TagRef;
 import net.fortuna.ical4j.model.Calendar;
@@ -149,13 +150,19 @@ public class ICal4jHelper<T extends ICalendarElement> {
 			iCalendarElement.description = cc.getProperty(Property.DESCRIPTION).getValue();
 		}
 
+		boolean htmlProvided = false;
 		// look for X-ALT-DESC too
 		if (cc.getProperty("X-ALT-DESC") != null) {
 			Property prop = cc.getProperty("X-ALT-DESC");
 			Parameter fmtType = prop.getParameter(Parameter.FMTTYPE);
 			if (fmtType != null && fmtType.getValue().equals("text/html")) {
 				iCalendarElement.description = prop.getValue();
+				htmlProvided = true;
 			}
+		}
+
+		if (!htmlProvided && iCalendarElement.description != null) {
+			iCalendarElement.description = Linkify.toHtml(iCalendarElement.description);
 		}
 
 		// URL

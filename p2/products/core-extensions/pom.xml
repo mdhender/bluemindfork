@@ -19,7 +19,6 @@
 		<module>password-bruteforce</module>
 		<module>password-sizestrength</module>
 		<module>mailapp</module>
-        <module>monitoring</module>
 		<module>ldap-export</module>
 	</modules>
 </project>

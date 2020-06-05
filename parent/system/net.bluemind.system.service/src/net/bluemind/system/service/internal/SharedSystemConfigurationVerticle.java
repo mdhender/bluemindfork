@@ -30,6 +30,7 @@ import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.MQ.SharedMap;
+import net.bluemind.hornetq.client.Shared;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SystemConf;
@@ -52,7 +53,7 @@ public class SharedSystemConfigurationVerticle extends AbstractVerticle {
 		@Override
 		public void onUpdated(BmContext context, SystemConf previous, SystemConf conf) throws ServerFault {
 			MQ.init().thenAccept(v -> {
-				SharedMap<String, String> clusterConf = MQ.sharedMap("system.configuration");
+				SharedMap<String, String> clusterConf = MQ.sharedMap(Shared.MAP_SYSCONF);
 				conf.values.forEach(clusterConf::put);
 				for (String k : previous.values.keySet()) {
 					if (!conf.values.containsKey(k)) {
@@ -74,7 +75,7 @@ public class SharedSystemConfigurationVerticle extends AbstractVerticle {
 			IServiceProvider sysprov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 			ISystemConfiguration sysconfApi = sysprov.instance(ISystemConfiguration.class);
 			SystemConf values = sysconfApi.getValues();
-			SharedMap<String, String> clusterConf = MQ.sharedMap("system.configuration");
+			SharedMap<String, String> clusterConf = MQ.sharedMap(Shared.MAP_SYSCONF);
 			clusterConf.putAll(values.values);
 			logger.info("Sysconf pre-loaded with {} values", values.values.size());
 		}).exceptionally(t -> {

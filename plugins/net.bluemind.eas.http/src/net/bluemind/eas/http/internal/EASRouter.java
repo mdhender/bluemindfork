@@ -73,8 +73,8 @@ public final class EASRouter implements Handler<HttpServerRequest> {
 		rm = new RouteMatcher(vertx);
 		rm.noMatch(new NoMatch());
 		rm.get(EasUrls.ROOT, new BrokenGet());
-		Handler<HttpServerRequest> optionsChain = nonValidatingQueryHandler(new OptionsHandler());
-		Handler<HttpServerRequest> postChain = validatingQueryHandler(postHandler());
+		Handler<HttpServerRequest> optionsChain = nonValidatingQueryHandler(vertx, new OptionsHandler());
+		Handler<HttpServerRequest> postChain = validatingQueryHandler(vertx, postHandler());
 		rm.options(EasUrls.ROOT, optionsChain);
 		rm.post(EasUrls.ROOT, postChain);
 		rm.options(EasUrls.ROOT + "/", optionsChain);
@@ -139,20 +139,21 @@ public final class EASRouter implements Handler<HttpServerRequest> {
 	}
 
 	private void handlerException(final HttpServerRequest event, Throwable t) {
-		logger.error("******** " + t.getMessage(), t);
+		logger.error("******** {}", t.getMessage(), t);
 		HttpServerResponse resp = event.response();
 		resp.setStatusCode(500).setStatusMessage(t.getMessage() != null ? t.getMessage() : "null").end();
 	}
 
-	private Handler<HttpServerRequest> validatingQueryHandler(Handler<AuthorizedDeviceQuery> next) {
-		BasicAuthHandler basicAuthHandler = new BasicAuthHandler("bm-eas", BasicRoles.ROLE_EAS,
+	private Handler<HttpServerRequest> validatingQueryHandler(Vertx vertx, Handler<AuthorizedDeviceQuery> next) {
+		BasicAuthHandler basicAuthHandler = new BasicAuthHandler(vertx, "bm-eas", BasicRoles.ROLE_EAS,
 				new EASQueryDecoder(new ApplyFiltersHandler(
 						new DeviceValidationHandler(vertx, new AuthorizedDevicesFiltersHandler(next)))));
 		return basicAuthHandler;
 	}
 
-	private Handler<HttpServerRequest> nonValidatingQueryHandler(final Handler<AuthorizedDeviceQuery> next) {
-		return new BasicAuthHandler("bm-eas", BasicRoles.ROLE_EAS,
+	private Handler<HttpServerRequest> nonValidatingQueryHandler(Vertx vertx,
+			final Handler<AuthorizedDeviceQuery> next) {
+		return new BasicAuthHandler(vertx, "bm-eas", BasicRoles.ROLE_EAS,
 				new EASQueryDecoder(new ApplyFiltersHandler(new Handler<AuthenticatedEASQuery>() {
 					@Override
 					public void handle(AuthenticatedEASQuery event) {
