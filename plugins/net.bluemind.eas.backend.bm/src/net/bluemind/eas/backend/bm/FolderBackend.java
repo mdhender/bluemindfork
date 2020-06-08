@@ -500,14 +500,16 @@ public class FolderBackend extends CoreConnect {
 				.forEach(item -> {
 					FolderChangeReference folder = getMailHierarchyItemChange(bs, shadedMboxFolders,
 							sharedMboxFlatHierarchy, item, changeType);
-					if (folder.parentId.equals("0")) {
-						folder.parentId = root;
-					} else {
-						folder.parentId = CollectionId.of(container.internalId, folder.parentId).getValue();
+					if (folder != null) {
+						if (folder.parentId.equals("0")) {
+							folder.parentId = root;
+						} else {
+							folder.parentId = CollectionId.of(container.internalId, folder.parentId).getValue();
+						}
+						folder.folderId = CollectionId.of(container.internalId, folder.folderId).getValue();
+						folder.itemType = FolderType.USER_CREATED_EMAIL_FOLDER;
+						ret.add(folder);
 					}
-					folder.folderId = CollectionId.of(container.internalId, folder.folderId).getValue();
-					folder.itemType = FolderType.USER_CREATED_EMAIL_FOLDER;
-					ret.add(folder);
 				});
 		return ret;
 	}
