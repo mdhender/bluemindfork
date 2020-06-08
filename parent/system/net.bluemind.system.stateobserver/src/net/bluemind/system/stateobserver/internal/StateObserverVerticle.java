@@ -59,11 +59,11 @@ public class StateObserverVerticle extends AbstractVerticle {
 	private long lastUpdate;
 
 	private Registry reg;
-	private IdFactory metricsId;
 	private Gauge ageGauge;
 	private Counter failuresCounter;
+	private long activeRefresh;
 
-	private static enum StateUpdateOrigin {
+	private enum StateUpdateOrigin {
 
 		/**
 		 * We asked to core with an http request and got an answer
@@ -92,13 +92,10 @@ public class StateObserverVerticle extends AbstractVerticle {
 
 	}
 
-	public StateObserverVerticle() {
-	}
-
 	@Override
 	public void start() {
 		this.reg = MetricsRegistry.get();
-		this.metricsId = new IdFactory("heartbeat.receiver", reg, CoreForward.class);
+		IdFactory metricsId = new IdFactory("heartbeat.receiver", reg, CoreForward.class);
 		this.ageGauge = reg.gauge(metricsId.name("age"));
 		this.failuresCounter = reg.counter(metricsId.name("failures"));
 
@@ -116,9 +113,7 @@ public class StateObserverVerticle extends AbstractVerticle {
 		coreProvider = new VertxPromiseServiceProvider(clientProvider, topoLocator, null, Collections.emptyList());
 
 		lastUpdate = System.nanoTime();
-		vertx.setPeriodic(1000, (h) -> {
-			hearbeatCheck();
-		});
+		vertx.setPeriodic(1000, h -> hearbeatCheck());
 
 		vertx.eventBus().consumer(Topic.CORE_NOTIFICATIONS, (Message<JsonObject> event) -> {
 			JsonObject msg = event.body();
@@ -166,7 +161,8 @@ public class StateObserverVerticle extends AbstractVerticle {
 			}
 
 			updateState(SystemState.CORE_STATE_UNKNOWN, StateUpdateOrigin.DIRECT_FETCH_FAILURE);
-			vertx.setTimer(1000, l -> refreshState());
+			vertx.cancelTimer(activeRefresh);
+			activeRefresh = vertx.setTimer(1000, l -> refreshState());
 			return null;
 		});
 	}
@@ -179,7 +175,7 @@ public class StateObserverVerticle extends AbstractVerticle {
 		lastUpdate = System.nanoTime();
 		if (newState != state) {
 			logger.info("New core state is {}, cause: {}", newState, origin);
-			RunnableExtensionLoader<IStateListener> loader = new RunnableExtensionLoader<IStateListener>();
+			RunnableExtensionLoader<IStateListener> loader = new RunnableExtensionLoader<>();
 			List<IStateListener> listeners = loader.loadExtensions("net.bluemind.system", "state", "state-listener",
 					"class");
 
