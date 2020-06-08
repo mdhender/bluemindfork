@@ -9,13 +9,10 @@ export default [
         path: "/mail/:messagequery*",
         component: MailApp,
         meta: {
-            onEnter(store) {
-                return store.dispatch("mail-webapp/bootstrap", injector.getProvider("UserSession").get().login);
-            },
+            onEnter: store => store.dispatch("mail-webapp/bootstrap", injector.getProvider("UserSession").get().login),
             watch: {
-                messagequery: (store, value) => {
-                    return store.dispatch("mail-webapp/loadMessageList", MessageQueryParam.parse(value));
-                }
+                messagequery: (store, value) =>
+                    store.dispatch("mail-webapp/loadMessageList", MessageQueryParam.parse(value))
             }
         },
         children: [

@@ -24,13 +24,13 @@ const websocket = {
         }
     },
     open() {
-        if (this.readyState != 1) {
+        if (this.readyState !== 1) {
             this.readyState = 1;
             this.onopen();
         }
     },
     close() {
-        if (this.readyState != 0) {
+        if (this.readyState !== 0) {
             this.readyState = 0;
             this.onclose();
         }

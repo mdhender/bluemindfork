@@ -13,8 +13,10 @@ import readOnlyFolders from "./data/read.only/folders";
 import ServiceLocator from "@bluemind/inject";
 import sharedFolders from "./data/shared/folders";
 import Vuex from "vuex";
+import WebsocketClient from "@bluemind/sockjs";
 import { Flag } from "@bluemind/email";
 
+jest.mock("@bluemind/sockjs");
 jest.mock("@bluemind/core.container.api");
 jest.mock("@bluemind/mailbox.api");
 jest.mock("@bluemind/user.api");
@@ -32,6 +34,8 @@ ServiceLocator.register({ provide: "MailboxItemsPersistence", factory: () => ite
 ServiceLocator.register({ provide: "MailboxFoldersPersistence", factory: () => foldersService });
 ServiceLocator.register({ provide: "ItemsTransferPersistence", factory: () => itemsTransferClient });
 ServiceLocator.register({ provide: "UserSession", factory: () => "" });
+
+WebsocketClient.register = jest.fn();
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -172,7 +176,6 @@ describe("[MailWebAppStore] Vuex store", () => {
         const messageKey = ItemUri.encode(872, folderUid);
         const text = "Text content...";
         itemsService.mockFetch(text);
-
         store.commit("mail-webapp/messages/storeItems", { items: aliceInbox, folderUid }, { root: true });
         store.dispatch("mail-webapp/selectMessage", messageKey, { root: true }).then(() => {
             expect(store.getters["mail-webapp/currentMessage/message"]).toStrictEqual(

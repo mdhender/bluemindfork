@@ -9,12 +9,23 @@ import RestEvent from "./RestEvent";
 
 const WEBSOCKET_DEFAULT_URL = "/eventbus/";
 
-const websocket = global.$websocket || createWebsocket();
+const websocket = (global.$websocket = global.$websocket || createWebsocket());
 
+/**
+ *
+ * @param url specify an URL for the websocket you want to use. Default matchs Bluemind websocket.
+ *
+ */
 export default class WebSocketClient {
     constructor(url = WEBSOCKET_DEFAULT_URL) {
+        this.persistentRegistrations = [];
+        this.onOnline(() => {
+            this.persistentRegistrations.forEach(({ path, listener }) => this.register(path, listener));
+        });
+
         if (!isInit(url)) {
-            init(url);
+            websocket.url = url;
+            websocket.client = createSockJsClient();
         }
     }
 
@@ -22,11 +33,20 @@ export default class WebSocketClient {
         return send(request, listener);
     }
 
-    register(path, listener) {
+    register(path, listener, persistent = true) {
+        if (
+            persistent &&
+            !this.persistentRegistrations.some(pending => pending.path === path && pending.listener === listener)
+        ) {
+            this.persistentRegistrations.push({ path, listener });
+        }
         return this.send({ method: Method.REGISTER, path }, listener);
     }
 
     unregister(path, listener) {
+        this.persistentRegistrations = this.persistentRegistrations.filter(
+            pending => pending.path !== path || pending.listener !== listener
+        );
         return this.send({ method: Method.UNREGISTER, path }, listener);
     }
 
@@ -72,11 +92,6 @@ function createWebsocket() {
             connect: null
         }
     };
-}
-
-function init(url) {
-    websocket.url = url;
-    websocket.client = createSockJsClient();
 }
 
 function isInit(url) {

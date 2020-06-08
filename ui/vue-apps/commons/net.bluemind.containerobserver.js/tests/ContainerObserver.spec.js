@@ -11,7 +11,7 @@ injector.getProvider.mockReturnValue({
     get: () => VueBus
 });
 
-describe.skip("ContainerObserver", () => {
+describe("ContainerObserver", () => {
     beforeEach(() => {
         VueBus.$emit.mockClear();
     });
