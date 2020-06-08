@@ -462,13 +462,14 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		ItemValue<MailboxFolder> root = null;
 		List<ItemValue<MailboxFolder>> all = mboxesApi.all();
 		long delay = System.currentTimeMillis();
-		while (all == null || all.isEmpty()) {
+		while (all == null || all.size() < 2) { // INBOX + Sent
 			Thread.sleep(50);
 			if (System.currentTimeMillis() - delay > 30000) {
-				throw new TimeoutException("Wait for inbox took more than 30sec");
+				throw new TimeoutException("Wait for inbox & sent took more than 30sec");
 			}
 			all = mboxesApi.all();
 		}
+
 		for (ItemValue<MailboxFolder> mf : all) {
 			if (mf.value.name.equals(mailshare.name)) {
 				root = mf;
@@ -488,9 +489,11 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		ItemIdentifier createAck = mboxesApi.createForHierarchy(folderId, folder);
 		assertNotNull(createAck);
 		ItemValue<MailboxFolder> folderItem = mboxesApi.getCompleteById(createAck.id);
+		assertEquals(folderName, folderItem.displayName);
 
 		String subFolderName = "mss" + System.currentTimeMillis();
 		MailboxFolder subFolder = new MailboxFolder();
+		System.err.println("Creating " + subFolderName + ", child of " + folderItem);
 		subFolder.fullName = null;
 		subFolder.name = subFolderName;
 		subFolder.parentUid = folderItem.uid;
