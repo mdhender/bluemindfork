@@ -25,6 +25,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.HashMap;
@@ -260,9 +261,9 @@ public class InstallationService implements IInstallation {
 		FileTime cTime = attr.creationTime();
 		LocalDate ld = null;
 		if (cTime.toMillis() < mTime.toMillis()) {
-			ld = LocalDate.from(cTime.toInstant());
+			ld = LocalDate.from(cTime.toInstant().atZone(ZoneId.systemDefault()));
 		} else {
-			ld = LocalDate.from(mTime.toInstant());
+			ld = LocalDate.from(mTime.toInstant().atZone(ZoneId.systemDefault()));
 		}
 		String installationReleaseDate = DateTimeFormatter.ISO_LOCAL_DATE.format(ld);
 		ISystemConfiguration sysConfService = provider.instance(ISystemConfiguration.class);
