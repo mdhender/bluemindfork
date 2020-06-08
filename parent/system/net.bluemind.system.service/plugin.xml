@@ -62,5 +62,11 @@
             impl="net.bluemind.system.service.internal.SharedSystemConfigurationVerticle$Init">
       </verticle>
    </extension>
+   <extension
+         point="net.bluemind.system.hook">
+      <validator
+            class="net.bluemind.system.service.internal.SubscriptionContactsValidator">
+      </validator>
+   </extension>
 
 </plugin>
