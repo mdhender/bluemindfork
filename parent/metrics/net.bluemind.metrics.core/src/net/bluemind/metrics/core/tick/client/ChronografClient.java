@@ -42,7 +42,8 @@ public class ChronografClient implements AutoCloseable {
 		if (dashBoards != null) {
 			for (int i = 0; i < dashBoards.size(); i++) {
 				JsonObject dashBoard = dashBoards.getJsonObject(i);
-				existingDashboards.add(new DashInfos(dashBoard.getString("name"), dashBoard.getInteger("id")));
+				existingDashboards.add(
+					new DashInfos(dashBoard.getString("name"), Integer.parseInt(dashBoard.getString("id"))));
 			}
 		}
 		return existingDashboards;
