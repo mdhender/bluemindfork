@@ -242,8 +242,8 @@ def restoreBmPgsql(bmPgsqlPath):
 	['rsync',\
 	 '-avH',\
 	 '--delete',\
-	 bmPgsqlPath + '/var/backups/bluemind/work/pgsql/configuration/11/',
-	 '/etc/postgresql/11/'],\
+	 bmPgsqlPath + '/var/backups/bluemind/work/pgsql/configuration/12/',
+	 '/etc/postgresql/12/'],\
 	None,\
 	"Restoring PostgreSQL configuration")
 	
@@ -251,7 +251,7 @@ def restoreBmPgsql(bmPgsqlPath):
 	['chown',\
 	 '-R',\
 	 'postgres:postgres',\
-	 '/etc/postgresql/11/'],\
+	 '/etc/postgresql/12/'],\
 	None,\
 	"Fixing PostgreSQL configuration rights")
 	

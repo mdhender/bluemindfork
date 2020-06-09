@@ -9,7 +9,7 @@ RPM_RHEL_VERSIONS="7 8"  # Use space separator
 
 
 PGVERSION=$1
-[ ! -z "${PGVERSION}" ] && shift || PGVERSION=11
+[ ! -z "${PGVERSION}" ] && shift || PGVERSION=12
 TEMPDIR=$(mktemp -d --suffix .pgdepcheck)
 
 trap "{ rm -fr \"$TEMPDIR\"; }" EXIT
@@ -28,8 +28,8 @@ pg_keyring_version=$(grep "Package: pgdg-keyring" -A5 "${outfile}" | grep 'Versi
 echo PGKEYRING=\"${pg_keyring_version}\"
 
 # Redhat
-# https://yum.postgresql.org/srpms/11/redhat/rhel-7-x86_64/
-# https://download.postgresql.org/pub/repos/yum/srpms/11/redhat/rhel-7-x86_64/repodata/repomd.xml
+# https://yum.postgresql.org/srpms/12/redhat/rhel-7-x86_64/
+# https://download.postgresql.org/pub/repos/yum/srpms/12/redhat/rhel-7-x86_64/repodata/repomd.xml
 
 for rhel_version in ${RPM_RHEL_VERSIONS}; do
 	python3 "$(dirname $0)/EXTDEPS-getlatestpg-rpm.py" "$PGVERSION" --rhel-version "${rhel_version}" --arch x86_64
