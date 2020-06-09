@@ -38,6 +38,9 @@ import net.bluemind.lib.vertx.VertxPlatform;
 @VisibleForTesting
 public class ReplicationEvents {
 
+	private ReplicationEvents() {
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(ReplicationEvents.class);
 	private static final EventBus eb = VertxPlatform.eventBus();
 	public static final String HIER_UPD_ADDR = "mailreplica.hierarchy.updated";
@@ -76,6 +79,22 @@ public class ReplicationEvents {
 		};
 		cons.handler(handler);
 		return ThreadContextHelper.inWorkerThread(done);
+	}
+
+	public static CompletableFuture<ItemChange> onRecordChanged(String mboxUniqueId, long imapUid) {
+		long time = System.currentTimeMillis();
+		CompletableFuture<ItemChange> done = new CompletableFuture<>();
+		String addr = "mailreplica.record.changed." + mboxUniqueId + "." + imapUid;
+		MessageConsumer<JsonObject> cons = eb.consumer(addr);
+		Handler<Message<JsonObject>> handler = (Message<JsonObject> msg) -> {
+			long latency = System.currentTimeMillis() - time;
+			JsonObject change = msg.body();
+			done.complete(ItemChange.create(change.getLong("version"), change.getLong("itemId"), latency));
+			cons.unregister();
+		};
+		cons.handler(handler);
+		return ThreadContextHelper.inWorkerThread(done);
+
 	}
 
 	public static CompletableFuture<ItemChange> onRecordCreate(String mboxUniqueId, long expectedId) {

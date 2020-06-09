@@ -360,7 +360,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			}
 		}, expectedStruct);
 		SizedStream updatedEml = createEmlStructure(current.internalId, current.value.body.guid, newValue.body);
-		CompletableFuture<ItemChange> completion = ReplicationEvents.onRecordUpdate(mailboxUniqueId,
+		CompletableFuture<ItemChange> completion = ReplicationEvents.onRecordChanged(mailboxUniqueId,
 				current.value.imapUid);
 
 		ImapResponseStatus<AppendResponse> appended = imapContext.withImapClient((sc, fast) -> {
