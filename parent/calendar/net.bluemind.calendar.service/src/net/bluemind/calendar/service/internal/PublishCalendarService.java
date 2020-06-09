@@ -73,8 +73,7 @@ public class PublishCalendarService implements IPublishCalendar {
 
 		sanitizer = new VEventSanitizer(admin, container.domainUid);
 		veventStore = new VEventSeriesStore(ds, container);
-		storeService = new VEventContainerStoreService(context, ds, admin.getSecurityContext(), container, "calendar",
-				veventStore);
+		storeService = new VEventContainerStoreService(context, ds, admin.getSecurityContext(), container, veventStore);
 		this.container = container;
 
 		this.context = context;

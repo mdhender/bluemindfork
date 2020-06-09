@@ -67,7 +67,7 @@ public class DomainSettingsService implements IDomainSettings {
 		this.domainUid = domainUid;
 		domainSettingsStore = new DomainSettingsStore(context.getDataSource(), domainSettingsContainer);
 		domainSettingsStoreService = new ContainerStoreService<>(context.getDataSource(), SecurityContext.SYSTEM,
-				domainSettingsContainer, "domainsettings", domainSettingsStore);
+				domainSettingsContainer, domainSettingsStore);
 
 		settingsStore = new GlobalSettingsStore(context.getDataSource());
 		rbac = new RBACManager(context).forDomain(domainUid);

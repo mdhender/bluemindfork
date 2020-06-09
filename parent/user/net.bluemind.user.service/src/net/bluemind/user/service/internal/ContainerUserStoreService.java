@@ -49,11 +49,11 @@ public class ContainerUserStoreService extends DirValueStoreService<User> {
 
 		@Override
 		public DirEntry asDirEntry(String domainUid, String uid, User user) {
-			return DirEntry.create(user.orgUnitUid, domainUid + "/users/" + uid, Kind.USER, uid,
-					getSummary(user), user.defaultEmail() != null ? user.defaultEmail().address : null, user.hidden,
-					user.system, user.archived, user.dataLocation, user.accountType);
+			return DirEntry.create(user.orgUnitUid, domainUid + "/users/" + uid, Kind.USER, uid, getSummary(user),
+					user.defaultEmail() != null ? user.defaultEmail().address : null, user.hidden, user.system,
+					user.archived, user.dataLocation, user.accountType);
 		}
-		
+
 		private static String getSummary(User user) {
 			if (user.contactInfos != null && user.contactInfos.identification.formatedName.value != null) {
 				return user.contactInfos.identification.formatedName.value;
@@ -77,9 +77,9 @@ public class ContainerUserStoreService extends DirValueStoreService<User> {
 
 	public ContainerUserStoreService(BmContext context, Container container, ItemValue<Domain> domain,
 			boolean globalVirt) {
-		super(context, context.getDataSource(), context.getSecurityContext(), domain, container, "user",
-				Kind.USER, new UserStore(context.getDataSource(), container), new UserDirEntryAdapter(),
-				new UserVCardAdapter(), UserMailboxAdapter.create(globalVirt));
+		super(context, context.getDataSource(), context.getSecurityContext(), domain, container, Kind.USER,
+				new UserStore(context.getDataSource(), container), new UserDirEntryAdapter(), new UserVCardAdapter(),
+				UserMailboxAdapter.create(globalVirt));
 		identityStore = new UserMailIdentityStore(context.getDataSource(), container);
 
 		userStore = new UserStore(context.getDataSource(), container);

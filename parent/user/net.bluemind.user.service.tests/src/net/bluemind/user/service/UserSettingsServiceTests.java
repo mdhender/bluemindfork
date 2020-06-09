@@ -265,7 +265,7 @@ public class UserSettingsServiceTests {
 
 		ContainerStoreService<Map<String, String>> userSettingsStoreService = new ContainerStoreService<>(
 				JdbcActivator.getInstance().getDataSource(), SecurityContext.SYSTEM, userSettingsContainer,
-				"usersettings", userSettingsStore);
+				userSettingsStore);
 
 		Map<String, String> us = userSettingsStoreService.get(user1, null).value;
 
@@ -273,16 +273,16 @@ public class UserSettingsServiceTests {
 		assertEquals("en", us.get("lang"));
 		assertEquals(2, us.size());
 	}
-	
+
 	@Test
 	public void setAndGetUserSettingOneByOne() {
 		System.err.println(getSettingsService(adminSecurityContext).get(user1));
-		
+
 		String name = "myName";
 		String value = "myValue";
 		getSettingsService(adminSecurityContext).setOne(user1, name, value);
 		assertEquals(value, getSettingsService(adminSecurityContext).getOne(user1, name));
-		
+
 		String secondName = "secondName";
 		String secondValue = "secondValue";
 		getSettingsService(adminSecurityContext).setOne(user1, secondName, secondValue);

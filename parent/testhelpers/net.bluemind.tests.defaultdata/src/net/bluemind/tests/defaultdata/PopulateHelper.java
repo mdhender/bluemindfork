@@ -241,7 +241,7 @@ public class PopulateHelper {
 
 			ServerStore serverStore = new ServerStore(dataSource, container);
 			ContainerStoreService<Server> storeService = new ContainerStoreService<>(dataSource, SecurityContext.SYSTEM,
-					container, "server", serverStore);
+					container, serverStore);
 
 			for (Server server : servers) {
 				Assert.assertNotNull("server ip cannot be null " + server, server.ip);

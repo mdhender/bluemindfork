@@ -114,7 +114,7 @@ public class CalendarService implements IInternalCalendar {
 
 		veventStore = new VEventSeriesStore(pool, container);
 		storeService = new VEventContainerStoreService(context, pool, context.getSecurityContext(), container,
-				"calendar", veventStore);
+				veventStore);
 
 		indexStore = new VEventIndexStore(esearchClient, container);
 

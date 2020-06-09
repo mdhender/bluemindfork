@@ -125,8 +125,8 @@ public class InternalContainersHierarchyServiceTests {
 
 		ContainersHierarchyNodeStore itemValueStore = new ContainersHierarchyNodeStore(ds, userHierContainer);
 		ContainerStoreService<ContainerHierarchyNode> storeService = new ContainerStoreService<>(ds,
-				admin0SecurityContext, userHierContainer, "hierarchy_node", itemValueStore,
-				new ContainerHierarchyFlagProvider(), (v) -> 0L, seed -> seed);
+				admin0SecurityContext, userHierContainer, itemValueStore, new ContainerHierarchyFlagProvider(),
+				(v) -> 0L, seed -> seed);
 
 		IInternalContainersFlatHierarchy internalHierarchy = new InternalContainersHierarchyService(ctx,
 				ctx.getDataSource(), userHierContainer, new ContainersHierarchyEventProducer(user.getContainerUid(),
@@ -150,8 +150,8 @@ public class InternalContainersHierarchyServiceTests {
 
 		ContainersHierarchyNodeStore itemValueStore = new ContainersHierarchyNodeStore(ds, userHierContainer);
 		ContainerStoreService<ContainerHierarchyNode> storeService = new ContainerStoreService<>(ds,
-				admin0SecurityContext, userHierContainer, "hierarchy_node", itemValueStore,
-				new ContainerHierarchyFlagProvider(), (v) -> 0L, seed -> seed);
+				admin0SecurityContext, userHierContainer, itemValueStore, new ContainerHierarchyFlagProvider(),
+				(v) -> 0L, seed -> seed);
 
 		IInternalContainersFlatHierarchy internalHierarchy = new InternalContainersHierarchyService(ctx,
 				ctx.getDataSource(), userHierContainer, new ContainersHierarchyEventProducer(user.getContainerUid(),

@@ -77,8 +77,8 @@ public abstract class AbstractReplicatedMailboxesServiceFactory<T>
 			MailboxReplicaStore mboxReplicaStore = new MailboxReplicaStore(ds, foldersContainer, partition.domainUid);
 			mailboxRoot.dataLocation = datalocation;
 			ContainerStoreService<MailboxReplica> storeService = new ContainerStoreService<>(ds,
-					context.getSecurityContext(), foldersContainer, "mbox_replica", mboxReplicaStore, flagProvider,
-					v -> 0L, seed -> seed);
+					context.getSecurityContext(), foldersContainer, mboxReplicaStore, flagProvider, v -> 0L,
+					seed -> seed);
 			return create(mailboxRoot, foldersContainer, context, mboxReplicaStore, storeService, containerStore);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);

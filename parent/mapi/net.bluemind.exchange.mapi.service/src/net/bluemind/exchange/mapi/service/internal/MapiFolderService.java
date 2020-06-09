@@ -43,7 +43,6 @@ import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.exchange.mapi.api.IMapiFolder;
-import net.bluemind.exchange.mapi.api.MapiFolderContainer;
 import net.bluemind.exchange.mapi.api.MapiRawMessage;
 import net.bluemind.exchange.mapi.persistence.MapiRawMessageStore;
 
@@ -61,8 +60,7 @@ public class MapiFolderService implements IMapiFolder {
 		context = ctx;
 		container = c;
 		this.mapiRawMessageStore = new MapiRawMessageStore(ds, c);
-		this.storeService = new ContainerStoreService<>(ds, ctx.getSecurityContext(), c, MapiFolderContainer.TYPE,
-				mapiRawMessageStore);
+		this.storeService = new ContainerStoreService<>(ds, ctx.getSecurityContext(), c, mapiRawMessageStore);
 		rbacManager = RBACManager.forContext(ctx).forContainer(c);
 	}
 

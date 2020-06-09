@@ -89,7 +89,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 	private static final Collection<ItemFlag> UNFLAGGED = EnumSet.noneOf(ItemFlag.class);
 
-	public ContainerStoreService(DataSource pool, SecurityContext securityContext, Container container, String itemType,
+	public ContainerStoreService(DataSource pool, SecurityContext securityContext, Container container,
 			IItemValueStore<T> itemValueStore, IItemFlagsProvider<T> fProv, IWeightSeedProvider<T> wsProv,
 			IWeightProvider wProv) {
 		this.container = container;
@@ -106,9 +106,9 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				container);
 	}
 
-	public ContainerStoreService(DataSource pool, SecurityContext securityContext, Container container, String itemType,
+	public ContainerStoreService(DataSource pool, SecurityContext securityContext, Container container,
 			IItemValueStore<T> itemValueStore) {
-		this(pool, securityContext, container, itemType, itemValueStore, (v) -> UNFLAGGED, (v) -> 0L, seed -> seed);
+		this(pool, securityContext, container, itemValueStore, (v) -> UNFLAGGED, (v) -> 0L, seed -> seed);
 	}
 
 	@Override
@@ -508,8 +508,6 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				if (value != null) {
 					ret.add(ItemValue.create(item, value));
 					nonNullValues.add(item);
-				} else {
-					logger.warn("Mismatch in value and item count on container {}", container.uid);
 				}
 			}
 

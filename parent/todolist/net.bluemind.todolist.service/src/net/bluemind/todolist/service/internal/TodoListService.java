@@ -53,7 +53,6 @@ import net.bluemind.core.sanitizer.Sanitizer;
 import net.bluemind.core.validator.Validator;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.todolist.api.ITodoList;
-import net.bluemind.todolist.api.ITodoUids;
 import net.bluemind.todolist.api.VTodo;
 import net.bluemind.todolist.api.VTodoChanges;
 import net.bluemind.todolist.api.VTodoQuery;
@@ -86,7 +85,7 @@ public class TodoListService implements ITodoList {
 		this.vtodoStore = new VTodoStore(pool, container);
 
 		storeService = new VTodoContainerStoreService(bmContext, pool, bmContext.getSecurityContext(), container,
-				ITodoUids.TYPE, vtodoStore);
+				vtodoStore);
 
 		indexStore = new VTodoIndexStore(esearchClient, container);
 

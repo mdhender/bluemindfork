@@ -78,8 +78,7 @@ public abstract class CommonContainersHierarchyServiceFactory<T> {
 
 		ContainersHierarchyNodeStore itemValueStore = new ContainersHierarchyNodeStore(ds, container);
 		ContainerStoreService<ContainerHierarchyNode> storeService = new ContainerStoreService<>(ds,
-				context.getSecurityContext(), container, "hierarchy_node", itemValueStore, flagsProvider, (v) -> 0L,
-				seed -> seed);
+				context.getSecurityContext(), container, itemValueStore, flagsProvider, (v) -> 0L, seed -> seed);
 
 		ContainersHierarchyEventProducer events = new ContainersHierarchyEventProducer(domainUid, ownerUid,
 				VertxPlatform.eventBus());

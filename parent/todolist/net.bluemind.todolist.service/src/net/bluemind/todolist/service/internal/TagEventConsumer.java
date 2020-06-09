@@ -89,8 +89,7 @@ public class TagEventConsumer implements ITagEventConsumer {
 			}
 
 			VTodoContainerStoreService vtodoContainerStore = new VTodoContainerStoreService(context, dsTodos,
-					SecurityContext.SYSTEM, currentContainer, ITodoUids.TYPE,
-					new VTodoStore(dsTodos, currentContainer));
+					SecurityContext.SYSTEM, currentContainer, new VTodoStore(dsTodos, currentContainer));
 
 			try {
 				vtodoContainerStore.touch(itemUri.itemUid);

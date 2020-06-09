@@ -111,8 +111,7 @@ public class ContainersHierarchyServiceTests {
 
 		ContainersHierarchyNodeStore itemValueStore = new ContainersHierarchyNodeStore(ds, userHierContainer);
 		ContainerStoreService<ContainerHierarchyNode> storeService = new ContainerStoreService<>(ds, securityContext,
-				userHierContainer, "hierarchy_node", itemValueStore, new ContainerHierarchyFlagProvider(), (v) -> 0L,
-				seed -> seed);
+				userHierContainer, itemValueStore, new ContainerHierarchyFlagProvider(), (v) -> 0L, seed -> seed);
 
 		return new InternalContainersHierarchyService(ctx, ctx.getDataSource(), userHierContainer,
 				new ContainersHierarchyEventProducer(domainUid, user.getSubject(), VertxPlatform.eventBus()),

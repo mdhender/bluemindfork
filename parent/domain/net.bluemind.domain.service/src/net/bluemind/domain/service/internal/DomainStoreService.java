@@ -43,7 +43,7 @@ public class DomainStoreService extends ContainerStoreService<Domain> {
 	private RoleStore roleStore;
 
 	public DomainStoreService(DataSource pool, SecurityContext securityContext, Container container) {
-		super(pool, securityContext, container, "domain", new DomainStore(pool));
+		super(pool, securityContext, container, new DomainStore(pool));
 		domainStore = new DomainStore(pool);
 		domainSettingsStore = new DomainSettingsStore(pool, container);
 		roleStore = new RoleStore(pool, container);

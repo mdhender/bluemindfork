@@ -215,7 +215,7 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 		for (Container cont : recordsContainers) {
 			MailboxRecordStore store = new MailboxRecordStore(ds, cont);
 			ContainerStoreService<MailboxRecord> storeService = new ContainerStoreService<>(ds,
-					context.getSecurityContext(), cont, "mail", store);
+					context.getSecurityContext(), cont, store);
 			logger.info("Clearing {}", cont.uid);
 			storeService.deleteAll();
 			containersApi.delete(cont.uid);
@@ -227,7 +227,7 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 		for (Container cont : mboxReplicaContainers) {
 			MailboxReplicaStore store = new MailboxReplicaStore(ds, cont, partition.domainUid);
 			ContainerStoreService<MailboxReplica> storeService = new ContainerStoreService<>(ds,
-					context.getSecurityContext(), cont, "mbox_replica", store);
+					context.getSecurityContext(), cont, store);
 			logger.info("Clearing {}", cont.uid);
 			storeService.deleteAll();
 			containersApi.delete(cont.uid);

@@ -35,7 +35,6 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.tag.service.TagsSanitizer;
-import net.bluemind.todolist.api.ITodoUids;
 import net.bluemind.todolist.api.VTodo;
 import net.bluemind.todolist.persistence.VTodoIndexStore;
 import net.bluemind.todolist.persistence.VTodoStore;
@@ -115,7 +114,7 @@ public class TodoListRepairSupport {
 			Container container = cStore.doOrFail(() -> cStore.get(containerUid));
 			VTodoStore vtodoStore = new VTodoStore(ds, container);
 			VTodoContainerStoreService vStore = new VTodoContainerStoreService(context, ds,
-					context.getSecurityContext(), container, ITodoUids.TYPE, vtodoStore);
+					context.getSecurityContext(), container, vtodoStore);
 
 			RepairContext ctx = new RepairContext(vStore, container);
 

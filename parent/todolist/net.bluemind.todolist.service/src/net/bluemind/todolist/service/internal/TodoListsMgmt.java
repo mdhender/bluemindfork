@@ -131,7 +131,7 @@ public class TodoListsMgmt implements ITodoListsMgmt, IInCoreTodoListsMgmt {
 	private void reindex(Container container, IServerTaskMonitor monitor) throws ServerFault {
 		DataSource ds = DataSourceRouter.get(context, container.uid);
 		VTodoContainerStoreService storeService = new VTodoContainerStoreService(context, ds,
-				context.getSecurityContext(), container, ITodoUids.TYPE, new VTodoStore(ds, container));
+				context.getSecurityContext(), container, new VTodoStore(ds, container));
 		VTodoIndexStore indexStore = new VTodoIndexStore(ESearchActivator.getClient(), container);
 		logger.info("reindexing todolist {}", container.uid);
 		// reinit container index

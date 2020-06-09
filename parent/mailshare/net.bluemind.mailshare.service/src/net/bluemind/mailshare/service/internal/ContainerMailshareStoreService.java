@@ -37,7 +37,7 @@ public class ContainerMailshareStoreService extends DirValueStoreService<Mailsha
 	private MailboxIdentityStore identityStore;
 
 	public ContainerMailshareStoreService(BmContext context, Container container, ItemValue<Domain> domain) {
-		super(context, context.getDataSource(), context.getSecurityContext(), domain, container, "dir",
+		super(context, context.getDataSource(), context.getSecurityContext(), domain, container,
 				DirEntry.Kind.MAILSHARE, null, new MailshareDirEntryAdapter(), new MailshareVCardAdapter(),
 				new MailshareMailboxAdapter());
 

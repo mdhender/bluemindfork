@@ -221,7 +221,7 @@ public abstract class AbstractCalendarTests {
 				SecurityContext.SYSTEM);
 
 		ContainerStoreService<VCard> vcardStore = new ContainerStoreService<VCard>(
-				JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM, usersBook, IAddressBookUids.TYPE,
+				JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM, usersBook,
 				new VCardStore(JdbcTestHelper.getInstance().getDataSource(), usersBook));
 
 		// test user
@@ -294,7 +294,7 @@ public abstract class AbstractCalendarTests {
 
 		// Dlist
 		vcardStore = new ContainerStoreService<VCard>(JdbcTestHelper.getInstance().getDataSource(),
-				SecurityContext.SYSTEM, contactsContainer, IAddressBookUids.TYPE,
+				SecurityContext.SYSTEM, contactsContainer,
 				new VCardStore(JdbcTestHelper.getInstance().getDataSource(), contactsContainer));
 		VCardIndexStore vcardIndex = new VCardIndexStore(ElasticsearchTestHelper.getInstance().getClient(),
 				contactsContainer);
@@ -380,7 +380,7 @@ public abstract class AbstractCalendarTests {
 
 		// Tags
 		ContainerStoreService<Tag> storeService = new ContainerStoreService<>(dataDataSource, userSecurityContext,
-				userTagContainer, ITagUids.TYPE, new TagStore(dataDataSource, userTagContainer));
+				userTagContainer, new TagStore(dataDataSource, userTagContainer));
 
 		tag1 = new Tag();
 		tag1.label = "tag1";

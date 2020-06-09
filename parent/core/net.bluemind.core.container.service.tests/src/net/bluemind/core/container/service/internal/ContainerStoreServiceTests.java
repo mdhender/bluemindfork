@@ -132,7 +132,7 @@ public class ContainerStoreServiceTests {
 		IItemValueStore<Dummy> dstore = new DummyStore(targetContainer, targetDs);
 
 		ContainerStoreService<Dummy> targetContainerStoreService = new ContainerStoreService<Dummy>(targetDs,
-				SecurityContext.ANONYMOUS, targetContainer, "dummy", dstore);
+				SecurityContext.ANONYMOUS, targetContainer, dstore);
 
 		assertTrue(targetContainerStoreService.getItemStore().all().isEmpty());
 
@@ -236,8 +236,8 @@ public class ContainerStoreServiceTests {
 	}
 
 	private ContainerStoreService<Dummy> create(IItemFlagsProvider<Dummy> fp) {
-		return new ContainerStoreService<>(pool, SecurityContext.ANONYMOUS, container, "dummy",
-				new DummyStore(container, pool), fp, v -> 0L, s -> s);
+		return new ContainerStoreService<>(pool, SecurityContext.ANONYMOUS, container, new DummyStore(container, pool),
+				fp, v -> 0L, s -> s);
 	}
 
 	public void testBrokenStore() {
@@ -273,8 +273,7 @@ public class ContainerStoreServiceTests {
 	}
 
 	private ContainerStoreService<Dummy> createThrowing() {
-		return new ContainerStoreService<>(pool, SecurityContext.ANONYMOUS, container, "dummy",
-				new ThrowingStore(pool));
+		return new ContainerStoreService<>(pool, SecurityContext.ANONYMOUS, container, new ThrowingStore(pool));
 	}
 
 	private void crudOps(IItemFlagsProvider<Dummy> fp) {

@@ -75,11 +75,9 @@ public abstract class DirValueStoreService<T> extends BaseDirStoreService<DirEnt
 	private DirEntriesCache cache;
 
 	public DirValueStoreService(BmContext context, DataSource pool, SecurityContext securityContext,
-			ItemValue<Domain> domain, Container container, String itemType, DirEntry.Kind kind,
-			IItemValueStore<T> itemValueStore, DirEntryAdapter<T> adapter, VCardAdapter<T> vcardAdapter,
-			MailboxAdapter<T> mailboxAdapter) {
-		super(context, pool, securityContext, container, itemType,
-				new DirEntryAndValueStore<>(pool, container, itemValueStore));
+			ItemValue<Domain> domain, Container container, DirEntry.Kind kind, IItemValueStore<T> itemValueStore,
+			DirEntryAdapter<T> adapter, VCardAdapter<T> vcardAdapter, MailboxAdapter<T> mailboxAdapter) {
+		super(context, pool, securityContext, container, new DirEntryAndValueStore<>(pool, container, itemValueStore));
 		this.domain = domain;
 		this.roleStore = new RoleStore(pool, container);
 		this.itemStore = new DirItemStore(pool, container, securityContext, kind);

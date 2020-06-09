@@ -72,8 +72,8 @@ public abstract class AbstractMailboxRecordServiceFactory<T>
 			}
 			MailboxRecordStore recordStore = new MailboxRecordStore(ds, recordsContainer);
 			ContainerStoreService<MailboxRecord> storeService = new ContainerStoreService<>(ds,
-					context.getSecurityContext(), recordsContainer, "mail", recordStore, flagsProvider,
-					recordSeedProvider, toWeight);
+					context.getSecurityContext(), recordsContainer, recordStore, flagsProvider, recordSeedProvider,
+					toWeight);
 			return create(ds, recordsContainer, context, mailboxUniqueId, recordStore, storeService);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);

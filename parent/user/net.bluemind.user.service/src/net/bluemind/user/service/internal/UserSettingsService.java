@@ -53,8 +53,8 @@ public class UserSettingsService implements IUserSettings {
 		this.sanitizer = new UserSettingsSanitizer();
 		this.domainSettingsService = domainSettingsService;
 		this.userSettingsStore = new UserSettingsStore(context.getDataSource(), userSettings);
-		this.userSettingsStoreService = new ContainerStoreService<>(context.getDataSource(), context.getSecurityContext(),
-				userSettings, "usersettings", userSettingsStore);
+		this.userSettingsStoreService = new ContainerStoreService<>(context.getDataSource(),
+				context.getSecurityContext(), userSettings, userSettingsStore);
 		this.rbacManager = new RBACManager(context).forDomain(domainUid);
 	}
 
@@ -63,7 +63,7 @@ public class UserSettingsService implements IUserSettings {
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_USER_SETTINGS);
 
 		logger.debug("Update user settings: {}", uid);
-		sanitizer.sanitize(settings,domainSettingsService);
+		sanitizer.sanitize(settings, domainSettingsService);
 		userSettingsStoreService.update(uid, null, settings);
 
 		VertxPlatform.eventBus().publish("usersettings.updated", getVertXEvent(uid));
@@ -90,7 +90,7 @@ public class UserSettingsService implements IUserSettings {
 
 		return userSettings;
 	}
-	
+
 	@Override
 	public void setOne(String uid, String name, String value) throws ServerFault {
 		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_USER_SETTINGS);
@@ -98,7 +98,7 @@ public class UserSettingsService implements IUserSettings {
 		logger.debug("Set setting {} with value {} for user {}", name, value, uid);
 		Map<String, String> settings = this.get(uid);
 		settings.put(name, value);
-		
+
 		this.set(uid, settings);
 		VertxPlatform.eventBus().publish("usersettings.updated", getVertXEvent(uid));
 	}
@@ -109,7 +109,7 @@ public class UserSettingsService implements IUserSettings {
 		logger.debug("Get setting {} for user {}", name, uid);
 		return this.get(uid).get(name);
 	}
-	
+
 	private JsonObject getVertXEvent(String uid) {
 		return new JsonObject().put("containerUid", userSettings.uid).put("itemUid", uid);
 	}

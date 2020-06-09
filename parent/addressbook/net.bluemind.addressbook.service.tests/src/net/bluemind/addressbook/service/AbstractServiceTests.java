@@ -155,7 +155,7 @@ public abstract class AbstractServiceTests {
 		VertxPlatform.spawnVerticles(done);
 		future.get();
 		cardStoreService = new VCardContainerStoreService(context, dataDataSource, SecurityContext.SYSTEM, container,
-				"addressbook", new VCardStore(dataDataSource, container),
+				new VCardStore(dataDataSource, container),
 				new VCardIndexStore(ElasticsearchTestHelper.getInstance().getClient(), container));
 	}
 
@@ -191,7 +191,7 @@ public abstract class AbstractServiceTests {
 
 		// create some tags
 		ContainerStoreService<Tag> storeService = new ContainerStoreService<>(dataDataSource, defaultSecurityContext,
-				tagContainer, ITagUids.TYPE, new TagStore(dataDataSource, container));
+				tagContainer, new TagStore(dataDataSource, container));
 
 		tag1 = new Tag();
 		tag1.label = "tag1";

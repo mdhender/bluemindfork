@@ -38,7 +38,7 @@ public class DeviceStoreService extends ContainerStoreService<Device> {
 	private static final Logger logger = LoggerFactory.getLogger(DeviceStoreService.class);
 
 	public DeviceStoreService(DataSource pool, SecurityContext securityContext, Container container) {
-		super(pool, securityContext, container, "device", new DeviceStore(pool, container));
+		super(pool, securityContext, container, new DeviceStore(pool, container));
 		this.hasChangeLog = false;
 	}
 

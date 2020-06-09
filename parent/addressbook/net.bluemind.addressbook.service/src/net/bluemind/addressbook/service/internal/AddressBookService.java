@@ -40,7 +40,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import net.bluemind.addressbook.api.IAddressBook;
-import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCardChanges;
 import net.bluemind.addressbook.api.VCardChanges.ItemAdd;
@@ -111,8 +110,8 @@ public class AddressBookService implements IInCoreAddressBook {
 		this.vcardStore = new VCardStore(dataSource, container);
 		this.eventProducer = new AddressBookEventProducer(container, securityContext, VertxPlatform.eventBus());
 		indexStore = new VCardIndexStore(esearchClient, container);
-		this.storeService = new VCardContainerStoreService(context, dataSource, securityContext, container,
-				IAddressBookUids.TYPE, vcardStore, indexStore);
+		this.storeService = new VCardContainerStoreService(context, dataSource, securityContext, container, vcardStore,
+				indexStore);
 
 		extSanitizer = new Sanitizer(context);
 		extValidator = new Validator(context);

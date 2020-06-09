@@ -90,8 +90,7 @@ public class TagEventConsumer implements ITagEventConsumer {
 			}
 
 			VEventContainerStoreService vcardContainerStore = new VEventContainerStoreService(context, dsEvents,
-					SecurityContext.SYSTEM, currentContainer, ICalendarUids.TYPE,
-					new VEventSeriesStore(dsEvents, currentContainer));
+					SecurityContext.SYSTEM, currentContainer, new VEventSeriesStore(dsEvents, currentContainer));
 
 			try {
 				vcardContainerStore.touch(itemUri.itemUid);

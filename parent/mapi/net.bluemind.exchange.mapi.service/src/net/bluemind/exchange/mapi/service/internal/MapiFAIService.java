@@ -39,7 +39,6 @@ import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.exchange.mapi.api.IMapiFolderAssociatedInformation;
 import net.bluemind.exchange.mapi.api.MapiFAI;
-import net.bluemind.exchange.mapi.api.MapiFAIContainer;
 import net.bluemind.exchange.mapi.persistence.MapiFAIStore;
 
 public class MapiFAIService implements IMapiFolderAssociatedInformation {
@@ -58,8 +57,7 @@ public class MapiFAIService implements IMapiFolderAssociatedInformation {
 		this.localReplicaGuid = localReplicaGuid;
 		DataSource ds = DataSourceRouter.get(context, faiContainer.uid);
 		this.mapiFaiStore = new MapiFAIStore(ds, faiContainer);
-		this.storeService = new ContainerStoreService<>(ds, context.getSecurityContext(), faiContainer,
-				MapiFAIContainer.TYPE, mapiFaiStore);
+		this.storeService = new ContainerStoreService<>(ds, context.getSecurityContext(), faiContainer, mapiFaiStore);
 
 	}
 
