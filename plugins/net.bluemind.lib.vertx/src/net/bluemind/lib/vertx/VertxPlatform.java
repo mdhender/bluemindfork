@@ -142,6 +142,17 @@ public final class VertxPlatform implements BundleActivator {
 		return vertx;
 	}
 
+	public static long executeBlockingPeriodic(long delay, Handler<Long> handler) {
+		return getVertx().setPeriodic(delay, id -> vertx.<Void>executeBlocking(prom -> {
+			try {
+				handler.handle(id);
+			} finally {
+				prom.complete(null);
+			}
+		}, false, res -> {
+		}));
+	}
+
 	public static EventBus eventBus() {
 		return vertx.eventBus();
 	}

@@ -40,6 +40,7 @@ import net.bluemind.core.rest.http.VertxPromiseServiceProvider;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Topic;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.network.topology.IServiceTopology;
@@ -113,7 +114,7 @@ public class StateObserverVerticle extends AbstractVerticle {
 		coreProvider = new VertxPromiseServiceProvider(clientProvider, topoLocator, null, Collections.emptyList());
 
 		lastUpdate = System.nanoTime();
-		vertx.setPeriodic(1000, h -> hearbeatCheck());
+		VertxPlatform.executeBlockingPeriodic(1000, h -> hearbeatCheck());
 
 		vertx.eventBus().consumer(Topic.CORE_NOTIFICATIONS, (Message<JsonObject> event) -> {
 			JsonObject msg = event.body();

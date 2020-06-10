@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Verticle;
 import net.bluemind.lib.vertx.IVerticleFactory;
+import net.bluemind.lib.vertx.VertxPlatform;
 
 public class TokenExpireVerticle extends AbstractVerticle {
 
@@ -42,7 +43,7 @@ public class TokenExpireVerticle extends AbstractVerticle {
 
 	@Override
 	public void start() {
-		vertx.setPeriodic(TimeUnit.HOURS.toMillis(1), tid -> {
+		VertxPlatform.executeBlockingPeriodic(TimeUnit.HOURS.toMillis(1), tid -> {
 			TokensStore.get().expireOldTokens();
 		});
 		TokensStore.get().expireOldTokens();

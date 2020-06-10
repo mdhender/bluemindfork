@@ -121,7 +121,7 @@ public class MailIndexService implements IMailIndexService {
 		metricRegistry = MetricsRegistry.get();
 		idFactory = new IdFactory("mailindex-service", metricRegistry, MailIndexService.class);
 
-		VertxPlatform.getVertx().setPeriodic(1000L * 60 * 60, i -> getStats());
+		VertxPlatform.executeBlockingPeriodic(TimeUnit.HOURS.toMillis(1), i -> getStats());
 	}
 
 	@Override

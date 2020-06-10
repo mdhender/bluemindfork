@@ -32,6 +32,7 @@ import net.bluemind.backend.mail.replica.api.IReplicatedDataExpiration;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.TaskUtils;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
@@ -45,7 +46,7 @@ public class ReplicatedDataExpirationTimer extends AbstractVerticle {
 
 	@Override
 	public void start() {
-		vertx.setPeriodic(TimeUnit.HOURS.toMillis(2), this::execute);
+		VertxPlatform.executeBlockingPeriodic(TimeUnit.HOURS.toMillis(2), this::execute);
 	}
 
 	private void execute(Long timerId) {

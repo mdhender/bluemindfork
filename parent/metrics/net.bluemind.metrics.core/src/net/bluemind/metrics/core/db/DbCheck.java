@@ -34,6 +34,7 @@ import io.vertx.core.Verticle;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.network.topology.Topology;
@@ -51,7 +52,7 @@ public class DbCheck extends AbstractVerticle implements BundleActivator {
 		metricRegistry = MetricsRegistry.get();
 		idFactory = new IdFactory("jdbc", metricRegistry, DbCheck.class);
 
-		super.vertx.setPeriodic(1000 * 10, (id) -> {
+		VertxPlatform.executeBlockingPeriodic(1000 * 10, (id) -> {
 			Topology.getIfAvailable().ifPresent(topo -> {
 				String coreuid = topo.core().uid;
 				check(JdbcActivator.getInstance().getDataSource(), coreuid, "directory");
