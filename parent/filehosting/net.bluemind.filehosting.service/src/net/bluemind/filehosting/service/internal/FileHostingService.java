@@ -111,6 +111,12 @@ public class FileHostingService implements IFileHosting {
 	}
 
 	@Override
+	public boolean exists(String path) throws ServerFault {
+		validate(path);
+		return delegate(context).exists(context, path);
+	}
+
+	@Override
 	public FileHostingInfo info() throws ServerFault {
 		FileHostingInfo info = new FileHostingInfo();
 		if (delegates.isEmpty()) {

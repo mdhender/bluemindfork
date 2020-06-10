@@ -18,6 +18,9 @@ package net.bluemind.filehosting.webdav.service.internal;
  * END LICENSE
  */
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -111,6 +114,17 @@ public class WebdavFileHostingServiceTests {
 		String fetched = streamToString(service.get(path));
 
 		Assert.assertEquals(testString, fetched);
+	}
+
+	@Test
+	public void testCheckingExistence() throws Exception {
+		String path = "test123.txt";
+		String testString = "test";
+		Stream bytesToStream = bytesToStream(testString.getBytes());
+		service.store(path, bytesToStream);
+
+		assertTrue(service.exists(path));
+		assertFalse(service.exists(path + System.currentTimeMillis()));
 	}
 
 	@Test

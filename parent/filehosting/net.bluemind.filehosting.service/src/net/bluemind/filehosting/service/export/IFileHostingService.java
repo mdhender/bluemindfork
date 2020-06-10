@@ -49,8 +49,7 @@ public interface IFileHostingService {
 	/**
 	 * Lists files and folders. The listing contains only non-recursive items
 	 * 
-	 * @param path
-	 *            the folder path
+	 * @param path the folder path
 	 * @return the files and folders found under this path
 	 * @throws ServerFault
 	 */
@@ -59,8 +58,7 @@ public interface IFileHostingService {
 	/**
 	 * Finds items in the file hosting repository
 	 * 
-	 * @param query
-	 *            the query. The format of the query is repository dependent
+	 * @param query the query. The format of the query is repository dependent
 	 * @return all items matching the query
 	 * @throws ServerFault
 	 */
@@ -69,22 +67,28 @@ public interface IFileHostingService {
 	/**
 	 * Retrieves a document from the file hosting repository
 	 * 
-	 * @param path
-	 *            the relative path to the document
+	 * @param path the relative path to the document
 	 * @return the document data
 	 * @throws ServerFault
 	 */
 	public Stream get(SecurityContext context, String path) throws ServerFault;
 
 	/**
+	 * Checks if a file exists
+	 * 
+	 * @param path the relative path to the document
+	 * @return true if the file exists, false otherwise
+	 * @throws ServerFault common error object
+	 */
+	public boolean exists(SecurityContext context, String path) throws ServerFault;
+
+	/**
 	 * Retrieves a public URL to the document in the file hosting repository
 	 * 
-	 * @param path
-	 *            the relative path to the document
-	 * @param downloadLimit
-	 *            the number of times the file can be downloaded, <= 0 if unlimited
-	 * @param expirationDate
-	 *            a ISO-8601 compliant date, null otherwise
+	 * @param path           the relative path to the document
+	 * @param downloadLimit  the number of times the file can be downloaded, <= 0 if
+	 *                       unlimited
+	 * @param expirationDate a ISO-8601 compliant date, null otherwise
 	 * 
 	 * @return the URL pointing to this document
 	 * @throws ServerFault
@@ -95,10 +99,8 @@ public interface IFileHostingService {
 	/**
 	 * Remove a public link
 	 * 
-	 * @param context
-	 *            the securityContext
-	 * @param url
-	 *            the share url
+	 * @param context the securityContext
+	 * @param url     the share url
 	 * @throws ServerFault
 	 */
 	public void unShare(SecurityContext context, String url) throws ServerFault;
@@ -106,10 +108,8 @@ public interface IFileHostingService {
 	/**
 	 * Update/insert a document
 	 * 
-	 * @param path
-	 *            the relative path in the file hosting repository
-	 * @param document
-	 *            the document data
+	 * @param path     the relative path in the file hosting repository
+	 * @param document the document data
 	 * @throws ServerFault
 	 */
 	public void store(SecurityContext context, String path, Stream document) throws ServerFault;
@@ -117,8 +117,7 @@ public interface IFileHostingService {
 	/**
 	 * Deletes a document
 	 * 
-	 * @param path
-	 *            the relative path in the file hosting repository
+	 * @param path the relative path in the file hosting repository
 	 * @throws ServerFault
 	 */
 	public void delete(SecurityContext context, String path) throws ServerFault;
@@ -126,8 +125,7 @@ public interface IFileHostingService {
 	/**
 	 * Retrieves an entity from the file hosting repository
 	 * 
-	 * @param uid
-	 *            the entity uid
+	 * @param uid the entity uid
 	 * @return the document data
 	 * @throws ServerFault
 	 */
@@ -137,8 +135,7 @@ public interface IFileHostingService {
 	/**
 	 * Retrieves a document from the file hosting repository by its public uid
 	 * 
-	 * @param uid
-	 *            the document uid
+	 * @param uid the document uid
 	 * @return the document data
 	 * @throws ServerFault
 	 */

@@ -22,9 +22,7 @@ import java.nio.file.Paths;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +37,6 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.domain.api.IDomainSettings;
-import net.bluemind.filehosting.api.FileHostingItem;
 import net.bluemind.filehosting.api.FileHostingPublicLink;
 import net.bluemind.filehosting.api.IFileHosting;
 import net.bluemind.system.api.GlobalSettingsKeys;
@@ -120,25 +117,21 @@ public class AttachmentService implements IAttachment {
 	private String findName(IFileHosting service, String name) {
 		name = Paths.get(name).getFileName().toString();
 
-		List<FileHostingItem> list = service.list(FOLDER);
-
-		String filename = name;
-		for (int i = 1; i < 999; i++) {
-			final String f = filename;
-			if (list.stream().filter(item -> item.name.equals(f)).count() == 0) {
-				return FOLDER + f;
-			}
-			filename = extendFilename(name, i);
+		boolean exists = service.exists(FOLDER + name);
+		if (!exists) {
+			return FOLDER + name;
+		} else {
+			return FOLDER + extendFilename(name, "" + System.currentTimeMillis());
 		}
-		return UUID.randomUUID().toString();
+
 	}
 
-	private String extendFilename(String name, int i) {
+	private String extendFilename(String name, String suffix) {
 		int ext = name.lastIndexOf('.');
 		if (ext == -1) {
-			return name + "_" + i;
+			return name + "_" + suffix;
 		} else {
-			return name.substring(0, ext) + "_" + i + name.substring(ext);
+			return name.substring(0, ext) + "_" + suffix + name.substring(ext);
 		}
 	}
 

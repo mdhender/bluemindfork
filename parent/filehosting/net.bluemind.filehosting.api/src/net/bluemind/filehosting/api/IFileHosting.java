@@ -40,8 +40,7 @@ public interface IFileHosting {
 	 * Retrieves the configuration
 	 * 
 	 * @return the Filehosting service configuration
-	 * @throws ServerFault
-	 *                         common error object
+	 * @throws ServerFault common error object
 	 */
 	@GET
 	@Path("_config")
@@ -51,11 +50,9 @@ public interface IFileHosting {
 	/**
 	 * Lists files and folders. The listing contains only non-recursive items
 	 * 
-	 * @param path
-	 *                 the folder path
+	 * @param path the folder path
 	 * @return the files and folders found under this path
-	 * @throws ServerFault
-	 *                         common error object
+	 * @throws ServerFault common error object
 	 */
 	@GET
 	@Path("_list")
@@ -65,11 +62,9 @@ public interface IFileHosting {
 	/**
 	 * Finds items in the file hosting repository
 	 * 
-	 * @param query
-	 *                  the query. The format of the query is repository dependent
+	 * @param query the query. The format of the query is repository dependent
 	 * @return all items matching the query
-	 * @throws ServerFault
-	 *                         common error object
+	 * @throws ServerFault common error object
 	 */
 	@GET
 	@Path("_find")
@@ -77,13 +72,23 @@ public interface IFileHosting {
 	public List<FileHostingItem> find(@QueryParam(value = "query") String query) throws ServerFault;
 
 	/**
+	 * Checks if a file exists
+	 * 
+	 * @param path the relative path to the document
+	 * @return true if the file exists, false otherwise
+	 * @throws ServerFault common error object
+	 */
+	@GET
+	@Path("{path}/_exists")
+	@RequiredRoles(value = { "canUseFilehosting", "canRemoteAttach" })
+	public boolean exists(@PathParam(value = "path") String path) throws ServerFault;
+
+	/**
 	 * Retrieves a document from the file hosting repository
 	 * 
-	 * @param path
-	 *                 the relative path to the document
+	 * @param path the relative path to the document
 	 * @return the document data
-	 * @throws ServerFault
-	 *                         common error object
+	 * @throws ServerFault common error object
 	 */
 	@GET
 	@Path("{path}/_content")
@@ -93,16 +98,12 @@ public interface IFileHosting {
 	/**
 	 * Retrieves a public URL to the document in the file hosting repository
 	 * 
-	 * @param path
-	 *                           the relative path to the document
-	 * @param downloadLimit
-	 *                           the number of times the file can be downloaded, <=
-	 *                           0 if unlimited
-	 * @param expirationDate
-	 *                           a ISO-8601 compliant date, null otherwise
+	 * @param path           the relative path to the document
+	 * @param downloadLimit  the number of times the file can be downloaded, <= 0 if
+	 *                       unlimited
+	 * @param expirationDate a ISO-8601 compliant date, null otherwise
 	 * @return the URL pointing to this document
-	 * @throws ServerFault
-	 *                         common error object
+	 * @throws ServerFault common error object
 	 */
 	@GET
 	@Path("_share")
@@ -114,10 +115,8 @@ public interface IFileHosting {
 	/**
 	 * Remove a public link
 	 * 
-	 * @param url
-	 *                the share url
-	 * @throws ServerFault
-	 *                         common error object
+	 * @param url the share url
+	 * @throws ServerFault common error object
 	 */
 	@DELETE
 	@Path("{url}/unshare")
@@ -126,12 +125,9 @@ public interface IFileHosting {
 	/**
 	 * Update/insert a document
 	 * 
-	 * @param path
-	 *                     the relative path in the file hosting repository
-	 * @param document
-	 *                     the document data
-	 * @throws ServerFault
-	 *                         common error object
+	 * @param path     the relative path in the file hosting repository
+	 * @param document the document data
+	 * @throws ServerFault common error object
 	 */
 	@PUT
 	@Path("{path}")
@@ -141,10 +137,8 @@ public interface IFileHosting {
 	/**
 	 * Deletes a document
 	 * 
-	 * @param path
-	 *                 the relative path in the file hosting repository
-	 * @throws ServerFault
-	 *                         common error object
+	 * @param path the relative path in the file hosting repository
+	 * @throws ServerFault common error object
 	 */
 	@DELETE
 	@Path("{path}")
@@ -154,8 +148,7 @@ public interface IFileHosting {
 	/**
 	 * Retrieves informations about the filehosting implementation
 	 * 
-	 * @throws ServerFault
-	 *                         common error object
+	 * @throws ServerFault common error object
 	 */
 	@GET
 	@Path("_info")
@@ -164,11 +157,9 @@ public interface IFileHosting {
 	/**
 	 * Retrieves an entity from the file hosting repository
 	 * 
-	 * @param uid
-	 *                the entity uid
+	 * @param uid the entity uid
 	 * @return the document data
-	 * @throws ServerFault
-	 *                         common error object
+	 * @throws ServerFault common error object
 	 */
 	@GET
 	@Path("{uid}/_complete")
@@ -177,11 +168,9 @@ public interface IFileHosting {
 	/**
 	 * Retrieves a document from the file hosting repository by its public uid
 	 * 
-	 * @param uid
-	 *                the document uid
+	 * @param uid the document uid
 	 * @return the document data
-	 * @throws ServerFault
-	 *                         common error object
+	 * @throws ServerFault common error object
 	 */
 	@GET
 	@Path("{uid}/_public")
