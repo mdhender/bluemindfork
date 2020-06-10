@@ -25,6 +25,17 @@ ln -s /usr/share/bm-cli/bm-cli /usr/bin/bm-cli
 # the custom equinox launcher does not clear this
 rm -fr /var/lib/bm-cli/*
 
+# the custom launcher does not touch the plugins dir to allow concurrent execution
+rm -rf /usr/share/bm-cli/plugins
+mkdir -p /usr/share/bm-cli/plugins
+
+if [ -e /usr/share/bm-cli/extensions ]; then
+    find /usr/share/bm-cli/extensions -name '*.jar' -exec ln -f {} /usr/share/bm-cli/plugins \;
+fi
+find /usr/share/bm-cli/main -name '*.jar' -exec ln -f {} /usr/share/bm-cli/plugins \;
+
+/usr/lib/jvm/bm-jdk/bin/java -Xshare:dump
+
 #DEBHELPER#
 
 exit 0

@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.hsm.processor
-Bundle-SymbolicName: net.bluemind.hsm.processor
+Bundle-SymbolicName: net.bluemind.hsm.processor;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.blue-mind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
