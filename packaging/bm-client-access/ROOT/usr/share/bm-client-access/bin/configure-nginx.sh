@@ -36,8 +36,11 @@ setExternalUrl() {
         /usr/share/bm-client-access/bin/createcert.sh configure.your.external.url ${externalurl} $(hostname -I)
     fi
 
-    echo "server_name $externalurl;" > /etc/nginx/bm-servername.conf
-    echo "set \$bmexternalurl $externalurl;" > /etc/nginx/bm-externalurl.conf
+    [ ! -e /etc/nginx/bm-servername.conf ] && \
+        echo "server_name $externalurl;" > /etc/nginx/bm-servername.conf
+    
+    [ ! -e /etc/nginx/bm-externalurl.conf ] && \
+        echo "set \$bmexternalurl $externalurl;" > /etc/nginx/bm-externalurl.conf
 }
 
 enableVhost() {
