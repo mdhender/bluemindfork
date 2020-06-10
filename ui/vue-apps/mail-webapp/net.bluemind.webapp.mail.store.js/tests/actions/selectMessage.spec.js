@@ -1,6 +1,16 @@
 import { selectMessage } from "../../src/actions/selectMessage";
 import { ItemUri } from "@bluemind/item-uri";
 import { MimeType } from "@bluemind/email";
+import ServiceLocator from "@bluemind/inject";
+
+ServiceLocator.register({
+    provide: "UserSession",
+    factory: () => {
+        return {
+            roles: [["hasCalendar"]]
+        };
+    }
+});
 
 const context = {
     dispatch: jest.fn().mockReturnValue(

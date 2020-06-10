@@ -1,9 +1,13 @@
 import { MimeType } from "@bluemind/email";
+import injector from "@bluemind/inject";
 import ItemUri from "@bluemind/item-uri";
 
-const CAPABILITIES = [MimeType.TEXT_HTML, MimeType.TEXT_PLAIN];
-
 export function selectMessage({ dispatch, commit, state, getters }, messageKey) {
+    const userSession = injector.getProvider("UserSession").get();
+    const CAPABILITIES = userSession.roles.includes("hasCalendar")
+        ? [MimeType.TEXT_HTML, MimeType.TEXT_PLAIN, MimeType.TEXT_CALENDAR]
+        : [MimeType.TEXT_HTML, MimeType.TEXT_PLAIN];
+
     if (state.currentFolderKey && !ItemUri.isItemUri(messageKey)) {
         messageKey = ItemUri.encode(parseInt(messageKey), getters.currentFolder.uid);
     }

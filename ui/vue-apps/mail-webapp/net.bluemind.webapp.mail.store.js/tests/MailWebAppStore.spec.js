@@ -33,7 +33,14 @@ ServiceLocator.register({ provide: "UserSettingsPersistence", factory: () => use
 ServiceLocator.register({ provide: "MailboxItemsPersistence", factory: () => itemsService });
 ServiceLocator.register({ provide: "MailboxFoldersPersistence", factory: () => foldersService });
 ServiceLocator.register({ provide: "ItemsTransferPersistence", factory: () => itemsTransferClient });
-ServiceLocator.register({ provide: "UserSession", factory: () => "" });
+ServiceLocator.register({
+    provide: "UserSession",
+    factory: () => {
+        return {
+            roles: ["hasCalendar"]
+        };
+    }
+});
 
 WebsocketClient.register = jest.fn();
 

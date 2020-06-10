@@ -45,9 +45,9 @@
                 <mail-attachments-block :attachments="parts.attachments" />
             </bm-col>
         </bm-row>
-        <bm-row ref="scrollableContainerForMailMessageContentBody" class="pt-1 flex-fill px-lg-5 px-4">
+        <bm-row ref="scrollableContainer" class="pt-1 flex-fill px-lg-5 px-4">
             <bm-col col>
-                <mail-message-content-body />
+                <parts-viewer />
             </bm-col>
         </bm-row>
     </div>
@@ -57,10 +57,10 @@
 import { mapState, mapActions, mapGetters } from "vuex";
 import { BmCol, BmRow } from "@bluemind/styleguide";
 import MailAttachmentsBlock from "../MailAttachment/MailAttachmentsBlock";
-import MailMessageContentBody from "./MailMessageContentBody";
 import MailMessageContentFrom from "./MailMessageContentFrom";
 import MailMessageContentRecipient from "./MailMessageContentRecipient";
 import MailMessageContentToolbar from "./MailMessageContentToolbar";
+import PartsViewer from "./PartsViewer/PartsViewer";
 
 export default {
     name: "MailMessageContent",
@@ -68,10 +68,10 @@ export default {
         BmCol,
         BmRow,
         MailAttachmentsBlock,
-        MailMessageContentBody,
         MailMessageContentFrom,
         MailMessageContentRecipient,
-        MailMessageContentToolbar
+        MailMessageContentToolbar,
+        PartsViewer
     },
     computed: {
         ...mapGetters("mail-webapp/currentMessage", ["message"]),
@@ -105,8 +105,8 @@ export default {
         ...mapActions("mail-webapp", ["markAsRead"]),
         resetScroll() {
             this.$nextTick(() => {
-                this.$refs.scrollableContainerForMailMessageContentBody.scrollTop = 0;
-                this.$refs.scrollableContainerForMailMessageContentBody.scrollLeft = 0;
+                this.$refs.scrollableContainer.scrollTop = 0;
+                this.$refs.scrollableContainer.scrollLeft = 0;
             });
         },
         saveAttachments() {

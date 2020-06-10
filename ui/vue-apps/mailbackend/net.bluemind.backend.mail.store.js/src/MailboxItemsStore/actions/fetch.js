@@ -10,7 +10,7 @@ export function fetch({ state, commit }, { messageKey, part, isAttachment }) {
         .get(container)
         .fetch(item.value.imapUid, part.address, part.encoding, part.mime, part.charset)
         .then(stream => {
-            if (!isAttachment && (MimeType.isText(part) || MimeType.isHtml(part))) {
+            if (!isAttachment && (MimeType.isText(part) || MimeType.isHtml(part) || MimeType.isCalendar(part))) {
                 return new Promise(resolve => {
                     const reader = new FileReader();
                     reader.readAsText(stream, part.encoding);
