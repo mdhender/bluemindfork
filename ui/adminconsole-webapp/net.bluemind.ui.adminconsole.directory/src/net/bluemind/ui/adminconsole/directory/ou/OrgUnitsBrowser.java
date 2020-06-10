@@ -113,7 +113,7 @@ public class OrgUnitsBrowser extends Composite implements IGwtScreenRoot {
 	}
 
 	private static OrgUnitsCenterUiBinder uiBinder = GWT.create(OrgUnitsCenterUiBinder.class);
-	public static final int PAGE_SIZE = 25;
+	public static final int PAGE_SIZE = 250;
 
 	public static final String TYPE = "bm.ac.OrgUnitsBrowser";
 

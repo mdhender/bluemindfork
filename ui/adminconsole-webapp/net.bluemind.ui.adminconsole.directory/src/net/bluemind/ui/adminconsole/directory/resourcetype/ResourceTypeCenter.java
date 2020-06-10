@@ -127,7 +127,7 @@ public class ResourceTypeCenter extends Composite implements IGwtScreenRoot {
 
 	private static ResourceTypeUiBinder uiBinder = GWT.create(ResourceTypeUiBinder.class);
 	private static final ResourceTypeConstants constants = GWT.create(ResourceTypeConstants.class);
-	public static final int PAGE_SIZE = 25;
+	public static final int PAGE_SIZE = 250;
 
 	public static final String TYPE = "bm.ac.ResourceTypesBrowser";
 
