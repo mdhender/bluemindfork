@@ -89,6 +89,14 @@ public class EmitReplicationEvents {
 
 	}
 
+	public static void mailboxCreated(String subtreeContainerUid, String folderName, ItemIdentifier item) {
+		logger.debug("****** mailboxCreated {}, folderName: {}", subtreeContainerUid, folderName);
+		JsonObject js = new JsonObject().put("uid", subtreeContainerUid)//
+				.put("itemUid", item.uid).put("itemId", item.id).put("version", item.version);
+
+		eb.publish(ReplicationEvents.MBOX_CREATE_ADDR + "." + subtreeContainerUid + "." + folderName, js);
+	}
+
 	public static void subtreeUpdated(String subtreeContainerUid, ItemIdentifier item) {
 		subtreeUpdated(subtreeContainerUid, item, false);
 	}

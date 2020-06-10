@@ -44,6 +44,7 @@ public class ReplicationEvents {
 	private static final Logger logger = LoggerFactory.getLogger(ReplicationEvents.class);
 	private static final EventBus eb = VertxPlatform.eventBus();
 	public static final String HIER_UPD_ADDR = "mailreplica.hierarchy.updated";
+	public static final String MBOX_CREATE_ADDR = "mailreplica.mailbox.created";
 	public static final String MBOX_UPD_ADDR = "mailreplica.mailbox.updated";
 	public static final String REC_DEL_ADDR = "mailreplica.record.deleted.";
 	public static final String ROOTS_CREATE_ADDR = "mailreplica.roots.create";
@@ -186,6 +187,24 @@ public class ReplicationEvents {
 			}
 		};
 		cons.handler(handler);
+		return ThreadContextHelper.inWorkerThread(ret);
+	}
+
+	public static CompletableFuture<ItemIdentifier> onMailboxCreated(String subtreeContainerUid, String folderName) {
+		CompletableFuture<ItemIdentifier> ret = new CompletableFuture<>();
+		String addr = MBOX_CREATE_ADDR + "." + subtreeContainerUid + "." + folderName;
+		MessageConsumer<JsonObject> cons = eb.consumer(addr);
+		Handler<Message<JsonObject>> handler = new Handler<Message<JsonObject>>() {
+			@Override
+			public void handle(Message<JsonObject> event) {
+				JsonObject idJs = event.body();
+				ItemIdentifier iid = ItemIdentifier.of(idJs.getString("itemUid"), idJs.getLong("itemId"),
+						idJs.getLong("version"));
+				ret.complete(iid);
+				cons.unregister();
+			}
+		};
+		eb.consumer(addr, handler);
 		return ThreadContextHelper.inWorkerThread(ret);
 	}
 

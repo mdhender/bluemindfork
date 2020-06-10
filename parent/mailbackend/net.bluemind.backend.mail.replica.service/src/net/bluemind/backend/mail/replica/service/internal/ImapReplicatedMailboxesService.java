@@ -172,7 +172,8 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 
 		FolderInternalIdCache.storeExpectedRecordId(container, value.fullName, hierId);
 		final String computedName = newName;
-		CompletableFuture<ItemIdentifier> future = ReplicationEvents.onSubtreeUpdate(toWatch);
+
+		CompletableFuture<ItemIdentifier> future = ReplicationEvents.onMailboxCreated(toWatch, newName);
 		logger.info("{} Should create '{}'", root, computedName);
 		return imapContext.withImapClient((sc, fast) -> {
 			boolean ok = sc.create(computedName);

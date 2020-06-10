@@ -23,7 +23,6 @@
 package net.bluemind.backend.mail.replica.service.internal;
 
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,10 +31,10 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 import net.bluemind.backend.mail.api.IMailboxFolders;
-import net.bluemind.core.container.model.Container;
-
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
+import net.bluemind.core.container.model.Container;
+
 /**
  * When creating a folder with mail api
  * {@link IMailboxFolders#createById(long, net.bluemind.backend.mail.api.MailboxFolder)}
@@ -56,10 +55,8 @@ public class FolderInternalIdCache {
 		return k;
 	}
 
-	private static final Cache<String, Long> folderKeyToExpectedInternalId = CacheBuilder.newBuilder()
-			.recordStats()
-			.maximumSize(512)
-			.build();
+	private static final Cache<String, Long> folderKeyToExpectedInternalId = CacheBuilder.newBuilder().recordStats()
+			.maximumSize(512).build();
 
 	public static class CacheRegistration implements ICacheRegistration {
 		@Override

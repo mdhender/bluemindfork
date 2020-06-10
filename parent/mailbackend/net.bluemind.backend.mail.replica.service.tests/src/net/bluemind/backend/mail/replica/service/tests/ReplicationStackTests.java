@@ -437,6 +437,58 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 	}
 
 	@Test
+	public void createMailshareSubFolderSpeed() throws Exception {
+		for (int i = 0; i < 100; i++) {
+
+			String msName = "ms" + System.currentTimeMillis();
+			String msUid = UUID.randomUUID().toString();
+
+			IMailshare ms = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IMailshare.class,
+					domainUid);
+			Mailshare mailshare = new Mailshare();
+			mailshare.name = msName;
+			mailshare.emails = Arrays.asList(Email.create(msName + "@" + domainUid, true, true));
+			mailshare.routing = Routing.internal;
+			ms.create(msUid, mailshare);
+
+			IContainerManagement cmgmt = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+					.instance(IContainerManagement.class, IMailboxAclUids.uidForMailbox(msUid));
+			List<AccessControlEntry> accessControlList = new ArrayList<>(cmgmt.getAccessControlList());
+			AccessControlEntry entry = new AccessControlEntry();
+			entry.subject = userUid;
+			entry.verb = Verb.All;
+			accessControlList.add(entry);
+			cmgmt.setAccessControlList(accessControlList);
+
+			IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, msName);
+			ItemValue<MailboxFolder> root = mboxesApi.byName(msName);
+
+			String folderName = "msf" + System.currentTimeMillis();
+			IOfflineMgmt idAllocator = provider().instance(IOfflineMgmt.class, domainUid, userUid);
+			IdRange ids = idAllocator.allocateOfflineIds(2);
+			long folderId = ids.globalCounter;
+			MailboxFolder folder = new MailboxFolder();
+			System.err.println("Creating " + folderName + ", child of " + root);
+			folder.name = folderName;
+			folder.parentUid = root.uid; // NOSONAR
+			ItemIdentifier createAck = mboxesApi.createForHierarchy(folderId, folder);
+			ItemValue<MailboxFolder> folderItem = mboxesApi.getCompleteById(createAck.id);
+			assertEquals("round " + i, folderName, folderItem.displayName);
+
+			String subFolderName = "mss" + System.currentTimeMillis();
+			MailboxFolder subFolder = new MailboxFolder();
+			System.err.println("Creating " + subFolderName + ", child of " + folderItem);
+			subFolder.fullName = null;
+			subFolder.name = subFolderName;
+			subFolder.parentUid = folderItem.uid;
+			createAck = mboxesApi.createForHierarchy(folderId + 1, subFolder);
+			ItemValue<MailboxFolder> subFolderItem = mboxesApi.getCompleteById(createAck.id);
+			assertEquals("round " + i, subFolderName, subFolderItem.displayName);
+
+		}
+	}
+
+	@Test
 	public void deleteFolderShouldDeleteSubFoldersMailshare() throws Exception {
 		String msName = "ms" + System.currentTimeMillis();
 		String msUid = UUID.randomUUID().toString();
@@ -447,21 +499,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		mailshare.name = msName;
 		mailshare.emails = Arrays.asList(Email.create(msName + "@" + domainUid, true, true));
 		mailshare.routing = Routing.internal;
-
-		// setup events expectations
-		CompletableFuture<MailboxReplicaRootDescriptor> onRoot = ReplicationEvents.onMailboxRootCreated();
-		MailboxReplicaRootDescriptor expected = MailboxReplicaRootDescriptor.create(Namespace.shared, msUid);
-		Subtree sub = SubtreeContainer.mailSubtreeUid(domainUid, expected.ns, msUid);
-		String subtreeUid = sub.subtreeUid();
-		System.err.println("On subtree update " + subtreeUid);
-		CompletableFuture<ItemIdentifier> onSubtree = ReplicationEvents.onSubtreeUpdate(subtreeUid);
-		CompletableFuture<Void> allEvents = CompletableFuture.allOf(onRoot, onSubtree);
-
-		System.err.println("Before create.....");
 		ms.create(msUid, mailshare);
-		allEvents.get(10, TimeUnit.SECONDS);
-		MailboxReplicaRootDescriptor created = onRoot.get();
-		assertNotNull(created);
 
 		IContainerManagement cmgmt = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IContainerManagement.class, IMailboxAclUids.uidForMailbox(msUid));
@@ -475,9 +513,6 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		IMailboxFolders mboxesApi = provider().instance(IMailboxFolders.class, partition, msName);
 		ItemValue<MailboxFolder> root = mboxesApi.byName(msName);
 		assertNotNull(root);
-
-		ItemValue<MailboxFolder> sent = mboxesApi.byName("Sent");
-		assertNotNull(sent);
 
 		String folderName = "msf" + System.currentTimeMillis();
 		IOfflineMgmt idAllocator = provider().instance(IOfflineMgmt.class, domainUid, userUid);
@@ -1227,7 +1262,7 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		System.err.println("Setting ACLs....");
 		aclApi.setAccessControlList(Arrays.asList(AccessControlEntry.create(userUid, Verb.Write)));
 		System.err.println("**** ROOT is " + created.ns + ", " + created.name + ", version: " + onSubtree.get());
-		Thread.sleep(500);
+
 		IMailboxFolders folders = provider().instance(IMailboxFolders.class, partition, mailshare.name);
 		List<ItemValue<MailboxFolder>> allFolders = folders.all();
 		ItemValue<MailboxFolder> root = null;
@@ -1757,8 +1792,6 @@ public class ReplicationStackTests extends AbstractRollingReplicationTests {
 		toCreate.name = base + "/a" + time;
 		created = mboxesApi.createForHierarchy(ids.globalCounter + 1, toCreate);
 		ItemValue<MailboxFolder> toRename = mboxesApi.getCompleteById(created.id);
-
-		Thread.sleep(1000);
 
 		System.out.println("Got a create of version " + created.version);
 		ItemValue<MailboxFolder> foundItem = mboxesApi.byName(base);
