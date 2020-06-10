@@ -72,7 +72,7 @@ async function search({ commit, dispatch, rootGetters, rootState }, { pattern, f
 }
 
 function buildPayload(pattern, filter, folderUid) {
-    const flags = filter === "unread" ? "is:unread" : "";
+    const flags = filter === "unread" ? "is:unread" : filter === "flagged" ? "is:flagged" : "";
     return {
         query: {
             searchSessionId: undefined,
